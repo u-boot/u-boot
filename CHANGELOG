@@ -2,10 +2,65 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
-* Merge the new NAND code (testing-NAND brach)
+* Minor code cleanup
 
+* Merge the new NAND code (testing-NAND brach); see doc/README.nand
   Rewrite of NAND code based on what is in 2.6.12 Linux kernel
   Patch by Ladislav Michl, 29 Jun 2005
+
+* Add lowboot target to mcc200 board
+  Patch by Stefan Roese, 4 Mar 2006
+
+* Fix problem with flash_get_size() from CFI driver update
+  Patch by Stefan Roese, 1 Mar 2006
+
+* Make CFG_NO_FLASH work on ARM systems
+  Patch by Markus Klotzbuecher, 27 Feb 2006
+
+* Update mcc200 config: Disable PCI and DoC, use 133 MHz IPB clock,
+  use hush shell.
+
+* Convert mcc200 to use common CFI flash driver
+  Patch by Stefan Roese, 28 Feb 2006
+
+* Add env-variable "unlock" to handle initial state of sectors
+  (locked/unlocked).
+
+  Only the U-Boot image and it's environment is protected,
+  all other sectors are unprotected (unlocked) if flash
+  hardware protection is used (CFG_FLASH_PROTECTION) and
+  the environment variable "unlock" is set to "yes".
+
+  Patch by Stefan Roese, 28 Feb 2006
+
+* Update drivers/cfi_flash.c:
+  - find_sector() called in both versions of flash_write_cfiword()
+  Patch by Peter Pearse, 27th Feb 2006
+
+* CFI support for a x8/x16 AMD/Spansion flash configured in x8 mode
+  Patch by Jose Maria Lopez, 16 Jan 2006
+
+* Add support for AMD/Spansion Flashes in flash_write_cfibuffer
+  Patch by Alex Bastos and Thomas Schaefer, 2005-08-29
+
+* Changes/fixes for drivers/cfi_flash.c:
+  We *should* check if there are any error bits if the previous call
+  returned ERR_OK (Otherwise we will have output an error message in
+  flash_status_check() already.)  The original code would only check for
+  error bits if flash_status_check() returns ERR_TIMEOUT.
+  Patch by Marcus Hall, 23 Aug 2005
+
+* Changes/fixes for drivers/cfi_flash.c:
+  - Add CFG_FLASH_PROTECT_CLEAR on drivers/cfi_flash.c
+  - Prohibit buffer write when buffer_size is 1 on drivers/cfi_flash.c
+  Patch by Sangmoon Kim, 19 Aug 2005
+
+* Fixes for drivers/cfi_flash.c:
+  - Fix wrong timeout value usage in flash_status_check()
+  - Round write_tout up when converting to msec in flash_get_size()
+  - Remove clearing flash status at the end of flash_write_cfibuffer()
+    which sets Intel 28F640J3 flash back to command mode on CSB472
+  Patch by Tolunay Orkun, 02 July 2005
 
 * Add basic support for the SMMACO4 Board from PanDaCom.
   Patch by Heiko Schocher, 20 Feb 2006

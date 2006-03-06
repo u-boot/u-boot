@@ -172,7 +172,7 @@
 #define SECTORSIZE 		512
 #define NAND_DELAY_US		25	/* mk@tbd: could be 0, I guess */
 
-/* nand timeout values */	
+/* nand timeout values */
 #define CFG_NAND_PROG_ERASE_TO	3000
 #define CFG_NAND_OTHER_TO	100
 #define CFG_NAND_SENDCMD_RETRY	3

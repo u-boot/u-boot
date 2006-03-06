@@ -71,7 +71,10 @@
 #endif
 
 #include <common.h>
-#ifdef CONFIG_NEW_NAND_CODE
+
+#ifdef CFG_NAND_LEGACY
+#error CFG_NAND_LEGACY defined in a file not using the legacy NAND support!
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
@@ -864,10 +867,10 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 				break;
 		}
 	}
-
-	/* XXX nand device 1 on dave (PPChameleonEVB) needs more time */
+#ifdef PPCHAMELON_NAND_TIMER_HACK
 	reset_timer();
 	while (get_timer(0) < 10);
+#endif /*  PPCHAMELON_NAND_TIMER_HACK */
 
 	return this->read_byte(mtd);
 }
@@ -2663,5 +2666,3 @@ void nand_release (struct mtd_info *mtd)
 }
 
 #endif
-#endif /* CONFIG_NEW_NAND_CODE */
-

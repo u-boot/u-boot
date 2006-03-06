@@ -274,6 +274,12 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ID_28F64K3    0x88018801	/*  64M =  32K x 255 + 32k x 4 */
 #define INTEL_ID_28F128K3   0x88028802	/* 128M =  64K x 255 + 32k x 4 */
 #define INTEL_ID_28F256K3   0x88038803	/* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F64P30T  0x88178817	/*  64M =  32K x 255 + 32k x 4 */
+#define INTEL_ID_28F64P30B  0x881A881A	/*  64M =  32K x 255 + 32k x 4 */
+#define INTEL_ID_28F128P30T 0x88188818	/* 128M =  64K x 255 + 32k x 4 */
+#define INTEL_ID_28F128P30B 0x881B881B	/* 128M =  64K x 255 + 32k x 4 */
+#define INTEL_ID_28F256P30T 0x88198819	/* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F256P30B 0x881C881C	/* 256M = 128K x 255 + 32k x 4 */
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/

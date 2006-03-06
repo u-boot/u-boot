@@ -130,8 +130,8 @@
  * NAND flash
  */
 #define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE	0x04000000 + (2 << 23)
-#define CONFIG_NEW_NAND_CODE
 
 /*
  * JFFS2 partitions (mtdparts command line support)

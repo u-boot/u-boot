@@ -378,7 +378,6 @@ int misc_init_r ()
 			       CFG_MONITOR_BASE,
 			       CFG_MONITOR_BASE + monitor_flash_len  - 1,
 			       &flash_info[3]);
-	
 	}
 	return 0;
 }

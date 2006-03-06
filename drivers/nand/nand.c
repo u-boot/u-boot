@@ -23,7 +23,10 @@
 
 #include <common.h>
 
-#ifdef CONFIG_NEW_NAND_CODE
+#ifdef CFG_NAND_LEGACY
+#error CFG_NAND_LEGACY defined in a file not using the legacy NAND support!
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
 #include <nand.h>
@@ -72,5 +75,3 @@ void nand_init(void)
 }
 
 #endif
-#endif /* CONFIG_NEW_NAND_CODE */
-

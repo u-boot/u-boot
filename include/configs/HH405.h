@@ -130,6 +130,8 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+#define CFG_NAND_LEGACY
+
 #undef  CONFIG_BZIP2	 /* include support for bzip2 compressed images */
 #undef  CONFIG_WATCHDOG			/* watchdog disabled		*/
 

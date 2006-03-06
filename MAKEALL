@@ -26,8 +26,8 @@ LIST_5xx="	\
 
 LIST_5xxx="	\
 	cpci5200	icecube_5100	icecube_5200	EVAL5200	\
-	pf5200		PM520		Total5100	Total5200	\
-	Total5200_Rev2	TQM5200_auto	o2dnt				\
+	mcc200		o2dnt		pf5200		PM520		\
+	Total5100	Total5200	Total5200_Rev2	TQM5200_auto	\
 "
 
 #########################################################################
@@ -177,10 +177,10 @@ LIST_ARM9="	\
 	ap920t		ap922_XA10	ap926ejs	ap946es		\
 	ap966		cp920t		cp922_XA10	cp926ejs	\
 	cp946es		cp966		lpd7a400	mp2usb		\
-	mx1ads		mx1fs2		omap1510inn	omap1610h2	\
-	omap1610inn	omap730p2	scb9328		smdk2400	\
-	smdk2410	trab		VCMA9		versatile	\
-	versatileab	versatilepb	voiceblue
+	mx1ads		mx1fs2		netstar		omap1510inn	\
+	omap1610h2	omap1610inn	omap730p2	scb9328		\
+	smdk2400	smdk2410	trab		VCMA9		\
+	versatile	versatileab	versatilepb	voiceblue
 "
 
 #########################################################################

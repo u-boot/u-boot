@@ -95,7 +95,7 @@ static void dfc_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 	unsigned long rest = len & 0x3;
 	unsigned long *long_buf;
 	int i;
-	
+
 	DFC_DEBUG2("dfc_write_buf: writing %d bytes starting with 0x%x.\n", len, *((unsigned long*) buf));
 	if(bytes_multi) {
 		for(i=0; i<bytes_multi; i+=4) {
@@ -110,7 +110,7 @@ static void dfc_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 }
 
 
-/* 
+/*
  * These functions are quite problematic for the DFC. Luckily they are
  * not used in the current nand code, except for nand_command, which
  * we've defined our own anyway. The problem is, that we always need
@@ -152,7 +152,7 @@ static void dfc_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 			*long_buf = NDDB;
 		}
 	}
-	
+
 	/* ...then the rest */
 	if(rest) {
 		unsigned long rest_data = NDDB;
@@ -176,7 +176,7 @@ static u16 dfc_read_word(struct mtd_info *mtd)
 static unsigned long read_buf = 0;
 static int bytes_read = -1;
 
-/* 
+/*
  * read a byte from NDDB Because we can only read 4 bytes from NDDB at
  * a time, we buffer the remaining bytes. The buffer is reset when a
  * new command is sent to the chip.
@@ -196,7 +196,7 @@ static u_char dfc_read_byte(struct mtd_info *mtd)
 
 	if(bytes_read < 0) {
 		read_buf = NDDB;
-		dummy = NDDB;		
+		dummy = NDDB;
 		bytes_read = 0;
 	}
 	byte = (unsigned char) (read_buf>>(8 * bytes_read++));
@@ -211,7 +211,7 @@ static u_char dfc_read_byte(struct mtd_info *mtd)
 static unsigned long get_delta(unsigned long start)
 {
 	unsigned long cur = OSCR;
-	
+
 	if(cur < start) /* OSCR overflowed */
 		return (cur + (start^0xffffffff));
 	else
@@ -239,14 +239,14 @@ static void dfc_clear_nddb()
 static unsigned long dfc_wait_event(unsigned long event)
 {
 	unsigned long ndsr, timeout, start = OSCR;
-	
+
 	if(!event)
 		return 0xff000000;
 	else if(event & (NDSR_CS0_CMDD | NDSR_CS0_BBD))
 		timeout = CFG_NAND_PROG_ERASE_TO * OSCR_CLK_FREQ;
 	else
 		timeout = CFG_NAND_OTHER_TO * OSCR_CLK_FREQ;
-	
+
 	while(1) {
 		ndsr = NDSR;
 		if(ndsr & event) {
@@ -257,7 +257,7 @@ static unsigned long dfc_wait_event(unsigned long event)
 			DFC_DEBUG1("dfc_wait_event: TIMEOUT waiting for event: 0x%x.\n", event);
 			return 0xff000000;
 		}
-		
+
 	}
 	return ndsr;
 }
@@ -271,13 +271,13 @@ static void dfc_new_cmd()
 	while(retry++ <= CFG_NAND_SENDCMD_RETRY) {
 		/* Clear NDSR */
 		NDSR = 0xFFF;
-		
+
 		/* set NDCR[NDRUN] */
 		if(!(NDCR & NDCR_ND_RUN))
 			NDCR |= NDCR_ND_RUN;
-		
+
 		status = dfc_wait_event(NDSR_WRCMDREQ);
-		
+
 		if(status & NDSR_WRCMDREQ)
 			return;
 
@@ -303,7 +303,7 @@ static int dfc_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	} else if(state == FL_ERASING) {
 		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
 	}
-	
+
 	ndsr = dfc_wait_event(event);
 
 	if((ndsr & NDSR_CS0_BBD) || (ndsr & 0xff000000))
@@ -312,7 +312,7 @@ static int dfc_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 }
 
 /* cmdfunc send commands to the DFC */
-static void dfc_cmdfunc(struct mtd_info *mtd, unsigned command, 
+static void dfc_cmdfunc(struct mtd_info *mtd, unsigned command,
 			int column, int page_addr)
 {
 	/* register struct nand_chip *this = mtd->priv; */
@@ -404,7 +404,7 @@ static void dfc_gpio_init()
 
 	/* no idea what is done here, see zylonite.c */
 	GPIO4 = 0x1;
-	
+
 	DF_ALE_WE1 = 0x00000001;
 	DF_ALE_WE2 = 0x00000001;
 	DF_nCS0 = 0x00000001;
@@ -464,10 +464,10 @@ void board_nand_init(struct nand_chip *nand)
 	CKENA |= (CKENA_4_NAND | CKENA_9_SMC);
 
 #undef CFG_TIMING_TIGHT
-#ifndef CFG_TIMING_TIGHT 
-	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US) + 1), 
+#ifndef CFG_TIMING_TIGHT
+	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US) + 1),
 		  DFC_MAX_tCH);
-	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US) + 1), 
+	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US) + 1),
 		  DFC_MAX_tCS);
 	tWH = MIN(((unsigned long) (NAND_TIMING_tWH * DFC_CLK_PER_US) + 1),
 		  DFC_MAX_tWH);
@@ -485,9 +485,9 @@ void board_nand_init(struct nand_chip *nand)
 		  DFC_MAX_tAR);
 #else /* this is the tight timing */
 
-	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US)), 
+	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US)),
 		  DFC_MAX_tCH);
-	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US)), 
+	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US)),
 		  DFC_MAX_tCS);
 	tWH = MIN(((unsigned long) (NAND_TIMING_tWH * DFC_CLK_PER_US)),
 		  DFC_MAX_tWH);
@@ -523,12 +523,10 @@ void board_nand_init(struct nand_chip *nand)
 		(tRP_high << 6) |
 		(tRH << 3) |
 		(tRP << 0);
-	
+
 	NDTR1CS0 = (tR << 16) |
 		(tWHR << 4) |
 		(tAR << 0);
-
-	
 
 	/* If it doesn't work (unlikely) think about:
 	 *  - ecc enable
@@ -544,7 +542,7 @@ void board_nand_init(struct nand_chip *nand)
 	 *  - ND_RDY : clears command buffer
 	 */
 	/* NDCR_NCSX |		/\* Chip select busy don't care *\/ */
-	
+
 	NDCR = (NDCR_SPARE_EN |		/* use the spare area */
 		NDCR_DWIDTH_C |		/* 16bit DFC data bus width  */
 		NDCR_DWIDTH_M |		/* 16 bit Flash device data bus width */
@@ -557,17 +555,17 @@ void board_nand_init(struct nand_chip *nand)
 		NDCR_CS1_CMDDM |
 		NDCR_CS0_BBDM |		/* ND_CSx bad block detect ir masked */
 		NDCR_CS1_BBDM |
-		NDCR_DBERRM |		/* double bit error ir masked */ 
+		NDCR_DBERRM |		/* double bit error ir masked */
 		NDCR_SBERRM |		/* single bit error ir masked */
 		NDCR_WRDREQM |		/* write data request ir masked */
 		NDCR_RDDREQM |		/* read data request ir masked */
 		NDCR_WRCMDREQM);	/* write command request ir masked */
-	
+
 
 	/* wait 10 us due to cmd buffer clear reset */
 	/* 	wait(10); */
-	
-	
+
+
 	nand->hwcontrol = dfc_hwcontrol;
 /* 	nand->dev_ready = dfc_device_ready; */
 	nand->eccmode = NAND_ECC_SOFT;

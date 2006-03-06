@@ -79,6 +79,7 @@
  */
 #include <cmd_confdefs.h>
 
+#define CFG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options

@@ -54,7 +54,10 @@
 
 #include <common.h>
 
-#ifdef CONFIG_NEW_NAND_CODE
+#ifdef CFG_NAND_LEGACY
+#error CFG_NAND_LEGACY defined in a file not using the legacy NAND support!
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
 #include <malloc.h>
@@ -1051,5 +1054,3 @@ int nand_isbad_bbt (struct mtd_info *mtd, loff_t offs, int allowbbt)
 }
 
 #endif
-#endif /* CONFIG_NEW_NAND_CODE */
-

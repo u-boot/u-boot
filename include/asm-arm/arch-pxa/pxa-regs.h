@@ -1009,7 +1009,7 @@ typedef void		(*ExcpHndlr) (void) ;
  *    - GPIO
  *    - Data Flash DF_* pins defined.
  */
-#define GPIO0		__REG(0x40e10124) 
+#define GPIO0		__REG(0x40e10124)
 #define GPIO1		__REG(0x40e10128)
 #define GPIO2		__REG(0x40e1012c)
 #define GPIO3		__REG(0x40e10130)
@@ -2057,8 +2057,6 @@ typedef void		(*ExcpHndlr) (void) ;
 #define MDCNFG_DBW_16	0x4		/* SDRAM Data Bus width 16bit */
 #define MDCNFG_DCSE1	0x2		/* SDRAM CS 1 Enable */
 #define MDCNFG_DCSE0	0x1		/* SDRAM CS 0 Enable */
-
-	
 
 
 /* Data Flash Controller Registers */

@@ -36,7 +36,7 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
-#include <linux/mtd/nand.h>
+#include <nand.h>
 
 #if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND))
 #define CMD_SAVEENV
@@ -55,16 +55,12 @@
 #error CONFIG_INFERNO not supported yet
 #endif
 
-/* references to names in cmd_nand.c */
-#define NANDRW_READ		0x01
-#define NANDRW_WRITE	0x00
-#define NANDRW_JFFS2	0x02
-extern struct nand_chip nand_dev_desc[];
-int nand_rw (struct nand_chip* nand, int cmd,
+int nand_legacy_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf);
-int nand_erase(struct nand_chip* nand, size_t ofs,
-				size_t len, int clean);
+
+/* info for NAND chips, defined in drivers/nand/nand.c */
+extern nand_info_t nand_info[];
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
@@ -110,34 +106,43 @@ int env_init(void)
 }
 
 #ifdef CMD_SAVEENV
+/*
+ * The legacy NAND code saved the environment in the first NAND device i.e.,
+ * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
+ */
 int saveenv(void)
 {
 	int	total, ret = 0;
- 	puts ("Erasing Nand...");
- 	if (nand_erase(nand_dev_desc + 0, CFG_ENV_OFFSET, CFG_ENV_SIZE, 0))
- 		return 1;
 
-	puts ("Writing to Nand... ");
-	ret = nand_rw(nand_dev_desc + 0,
-				  NANDRW_WRITE | NANDRW_JFFS2, CFG_ENV_OFFSET, CFG_ENV_SIZE,
-			      &total, (u_char*)env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	puts ("Erasing Nand...");
+	if (nand_erase(&nand_info[0], CFG_NEW_OFFSET, CFG_ENV_SIZE))
 		return 1;
 
- 	puts ("done\n");
-  	return ret;
+	puts ("Writing to Nand... ");
+	total = CFG_ENV_SIZE;
+	ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total,
+			(u_char*) env_ptr);
+	if (ret || total != CFG_ENV_SIZE)
+		return 1;
+
+	puts ("done\n");
+	return ret;
 }
 #endif /* CMD_SAVEENV */
 
 
+/*
+ * The legacy NAND code saved the environment in the first NAND device i.e.,
+ * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
+ */
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret, total;
 
-	ret = nand_rw(nand_dev_desc + 0,
-				  NANDRW_READ | NANDRW_JFFS2, CFG_ENV_OFFSET, CFG_ENV_SIZE,
-			      &total, (u_char*)env_ptr);
+	total = CFG_ENV_SIZE;
+	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total,
+			(u_char*) env_ptr);
   	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 

@@ -296,7 +296,7 @@ int misc_init_r (void)
 
 		/* Monitor protection ON by default */
 		flash_protect (FLAG_PROTECT_SET,
-			       CFG_MONITOR_BASE, 0xffffffff,
+			       CFG_MONITOR_BASE, CFG_MONITOR_BASE + monitor_flash_len - 1,
 			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 
 		/* Environment protection ON by default */

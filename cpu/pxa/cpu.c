@@ -162,4 +162,3 @@ void set_GPIO_mode(int gpio_mode)
 	GAFR(gpio) = gafr |  (fn  << (((gpio) & 0xf)*2));
 }
 #endif /* CONFIG_CPU_MONAHANS */
-

@@ -6,4 +6,3 @@ TEXT_BASE = 0xa3008000
 
 # Compile the new NAND code (needed iff #ifdef CONFIG_NEW_NAND_CODE)
 BOARDLIBS = drivers/nand/libnand.a
-

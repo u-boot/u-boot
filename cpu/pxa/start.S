@@ -6,8 +6,8 @@
  *  Copyright (C) 2000	Wolfgang Denk <wd@denx.de>
  *  Copyright (C) 2001	Alex Zuepke <azu@sysgo.de>
  *  Copyright (C) 2002	Kyle Harris <kharris@nexus-tech.net>
- *  Copyright (C) 2003  Robert Schwebel <r.schwebel@pengutronix.de>
- *  Copyright (C) 2003  Kai-Uwe Bloem <kai-uwe.bloem@auerswald.de>
+ *  Copyright (C) 2003	Robert Schwebel <r.schwebel@pengutronix.de>
+ *  Copyright (C) 2003	Kai-Uwe Bloem <kai-uwe.bloem@auerswald.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -117,13 +117,13 @@ reset:
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp     r0, r1                  /* don't reloc during debug         */
-	beq     stack_setup
+	cmp	r0, r1			/* don't reloc during debug	    */
+	beq	stack_setup
 
 	ldr	r2, _armboot_start
 	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
+	sub	r2, r3, r2		/* r2 <- size of armboot	    */
+	add	r2, r0, r2		/* r2 <- source end address	    */
 
 copy_loop:
 	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
@@ -135,19 +135,19 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 clear_bss:
-	ldr	r0, _bss_start		/* find start of bss segment        */
-	ldr	r1, _bss_end		/* stop here                        */
-	mov 	r2, #0x00000000		/* clear                            */
+	ldr	r0, _bss_start		/* find start of bss segment	    */
+	ldr	r1, _bss_end		/* stop here			    */
+	mov	r2, #0x00000000		/* clear			    */
 
-clbss_l:str	r2, [r0]		/* clear loop...                    */
+clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	ble	clbss_l
@@ -173,8 +173,8 @@ _start_armboot: .word start_armboot
 #undef OWER
 #undef OIER
 #endif
-	
-/* Interrupt-Controller base address				            */
+
+/* Interrupt-Controller base address					    */
 IC_BASE:	   .word	   0x40d00000
 #define ICMR	0x04
 
@@ -189,7 +189,7 @@ OSTIMER_BASE:	.word	0x40a00000
 #define OWER	0x18
 #define OIER	0x1C
 
-/* Clock Manager Registers					            */
+/* Clock Manager Registers						    */
 #ifdef CFG_CPUSPEED
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
@@ -197,7 +197,6 @@ cpuspeed:	.word	CFG_CPUSPEED
 #else
 #error "You have to define CFG_CPUSPEED!!"
 #endif
-	
 
 	/* takes care the CP15 update has taken place */
 	.macro CPWAIT reg
@@ -206,40 +205,36 @@ cpuspeed:	.word	CFG_CPUSPEED
 	sub  pc,pc,#4
 	.endm
 
-
 cpu_init_crit:
 
 	/* mask all IRQs						    */
 #ifndef CONFIG_CPU_MONAHANS
-	
 	ldr	r0, IC_BASE
 	mov	r1, #0x00
 	str	r1, [r0, #ICMR]
 #else
 	/* Step 1 - Enable CP6 permission */
-        mrc     p15, 0, r1, c15, c1, 0  @ read CPAR
-        orr     r1, r1, #0x40
-	        mcr     p15, 0, r1, c15, c1, 0
-        CPWAIT  r1
+	mrc	p15, 0, r1, c15, c1, 0	@ read CPAR
+	orr	r1, r1, #0x40
+		mcr	p15, 0, r1, c15, c1, 0
+	CPWAIT	r1
 
-        /* Step 2 - Mask ICMR & ICMR2 */
-        mov     r1, #0
-        mcr     p6, 0, r1, c1, c0, 0    @ ICMR
-	mcr     p6, 0, r1, c7, c0, 0    @ ICMR2
+	/* Step 2 - Mask ICMR & ICMR2 */
+	mov	r1, #0
+	mcr	p6, 0, r1, c1, c0, 0	@ ICMR
+	mcr	p6, 0, r1, c7, c0, 0	@ ICMR2
 
 	/* turn off all clocks but the ones we will definitly require */
-	ldr     r1, =CKENA
-	ldr     r2, =(CKENA_22_FFUART | CKENA_10_SRAM | CKENA_9_SMC | CKENA_8_DMC)
-	str     r2, [r1]
-	ldr     r1, =CKENB
-	ldr     r2, =(CKENB_6_IRQ)
-	str     r2, [r1]
-	
+	ldr	r1, =CKENA
+	ldr	r2, =(CKENA_22_FFUART | CKENA_10_SRAM | CKENA_9_SMC | CKENA_8_DMC)
+	str	r2, [r1]
+	ldr	r1, =CKENB
+	ldr	r2, =(CKENB_6_IRQ)
+	str	r2, [r1]
 #endif
 
 #ifndef CONFIG_CPU_MONAHANS
 #ifdef CFG_CPUSPEED
-	
 	/* set clock speed tbd@mk: required for monahans? */
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
@@ -248,10 +243,9 @@ cpu_init_crit:
 	mcr	p14, 0, r0, c6, c0, 0
 
 setspeed_done:
-	
+
 #endif /* CFG_CPUSPEED */
 #endif /* CONFIG_CPU_MONAHANS */
-	
 
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -263,7 +257,7 @@ setspeed_done:
 	mov	lr,	ip
 
 	/* Memory interfaces are working. Disable MMU and enable I-cache.   */
-	/* mk: hmm, this is not in the monahans docs, leave it now but 
+	/* mk: hmm, this is not in the monahans docs, leave it now but
 	 *     check here if it doesn't work :-) */
 
 	ldr	r0, =0x2001		/* enable access to all coproc.	    */
@@ -330,7 +324,7 @@ setspeed_done:
 
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
+	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -457,17 +451,17 @@ fiq:
 #endif
 
 /****************************************************************************/
-/*                                                                          */
+/*									    */
 /* Reset function: the PXA250 doesn't have a reset function, so we have to  */
-/* perform a watchdog timeout for a soft reset.                             */
-/*                                                                          */
+/* perform a watchdog timeout for a soft reset.				    */
+/*									    */
 /****************************************************************************/
 
 	.align	5
 .globl reset_cpu
 
-	/* FIXME: this code is PXA250 specific. How is this handled on      */
-	/*        other XScale processors?                                  */
+	/* FIXME: this code is PXA250 specific. How is this handled on	    */
+	/*	  other XScale processors?				    */
 
 reset_cpu:
 
@@ -475,13 +469,13 @@ reset_cpu:
 
 	ldr	r0, OSTIMER_BASE
 	ldr	r1, [r0, #OWER]
-	orr	r1, r1, #0x0001			/* bit0: WME                */
+	orr	r1, r1, #0x0001			/* bit0: WME		    */
 	str	r1, [r0, #OWER]
 
 	/* OS timer does only wrap every 1165 seconds, so we have to set    */
-	/* the match register as well.                                      */
+	/* the match register as well.					    */
 
-	ldr	r1, [r0, #OSCR]			/* read OS timer            */
+	ldr	r1, [r0, #OSCR]			/* read OS timer	    */
 	add	r1, r1, #0x800			/* let OSMR3 match after    */
 	add	r1, r1, #0x800			/* 4096*(1/3.6864MHz)=1ms   */
 	str	r1, [r0, #OSMR3]

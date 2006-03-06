@@ -37,7 +37,10 @@
 
 #include <common.h>
 
-#ifdef CONFIG_NEW_NAND_CODE
+#ifdef CFG_NAND_LEGACY
+#error CFG_NAND_LEGACY defined in a file not using the legacy NAND support!
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
 #include<linux/mtd/mtd.h>
@@ -243,5 +246,3 @@ int nand_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_ecc, u_cha
 }
 
 #endif	/* CONFIG_COMMANDS & CFG_CMD_NAND */
-#endif /* CONFIG_NEW_NAND_CODE */
-

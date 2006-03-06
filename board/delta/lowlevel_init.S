@@ -16,7 +16,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,33 +32,33 @@
 DRAM_SIZE:  .long   CFG_DRAM_SIZE
 
 /* wait for coprocessor write complete */
-   .macro CPWAIT reg
-   mrc  p15,0,\reg,c2,c0,0
-   mov  \reg,\reg
-   sub  pc,pc,#4
-   .endm
+.macro CPWAIT reg
+	mrc	p15,0,\reg,c2,c0,0
+	mov	\reg,\reg
+	sub	pc,pc,#4
+.endm
 
 
 .macro wait time
-	ldr             r2, =OSCR
-	mov             r3, #0
-	str             r3, [r2]
+	ldr		r2, =OSCR
+	mov		r3, #0
+	str		r3, [r2]
 0:
-	ldr             r3, [r2]
-	cmp             r3, \time
-	bls             0b
+	ldr		r3, [r2]
+	cmp		r3, \time
+	bls		0b
 .endm
 
 /*
- * 	Memory setup
+ *	Memory setup
  */
 
 .globl lowlevel_init
 lowlevel_init:
 	/* Set up GPIO pins first ----------------------------------------- */
-	mov      r10, lr
-	
-        /*  Configure GPIO  Pins 97, 98 UART1 / altern. Fkt. 1 */
+	mov	 r10, lr
+
+	/*  Configure GPIO  Pins 97, 98 UART1 / altern. Fkt. 1 */
 	ldr		r0, =GPIO97
 	ldr		r1, =0x801
 	str		r1, [r0]
@@ -66,24 +66,24 @@ lowlevel_init:
 	ldr		r0, =GPIO98
 	ldr		r1, =0x801
 	str		r1, [r0]
-		
-        /* tebrandt - ASCR, clear the RDH bit */
-	ldr             r0, =ASCR	
-	ldr             r1, [r0]
-	bic             r1, r1, #0x80000000
-	str             r1, [r0]
-	
+
+	/* tebrandt - ASCR, clear the RDH bit */
+	ldr		r0, =ASCR
+	ldr		r1, [r0]
+	bic		r1, r1, #0x80000000
+	str		r1, [r0]
+
 	/* ---------------------------------------------------------------- */
-	/* Enable memory interface                                          */
+	/* Enable memory interface					    */
 	/* ---------------------------------------------------------------- */
 
 	/* ---------------------------------------------------------------- */
-	/* Step 1: Wait for at least 200 microsedonds to allow internal     */
-	/*         clocks to settle. Only necessary after hard reset...     */
-	/*         FIXME: can be optimized later                            */
+	/* Step 1: Wait for at least 200 microsedonds to allow internal	    */
+	/*	   clocks to settle. Only necessary after hard reset...	    */
+	/*	   FIXME: can be optimized later			    */
 	/* ---------------------------------------------------------------- */
-; 	wait #300
-	
+;	wait #300
+
 mem_init:
 
 #define NEW_SDRAM_INIT 1
@@ -99,11 +99,11 @@ mem_init:
 	/* 2. Programm MDCNFG, leaving DMCEN de-asserted */
 	ldr		r0, =MDCNFG
 	ldr		r1, =(MDCNFG_DMAP | MDCNFG_DTYPE | MDCNFG_DTC_2 | MDCNFG_DCSE0 | MDCNFG_DRAC_13)
-	/* 	ldr		r1, =0x80000403 */
+	/*	ldr		r1, =0x80000403 */
 	str		r1, [r0]
 	ldr		r1, [r0]	/* delay until written */
 
-	/* 3. wait nop power up waiting period (200ms) 
+	/* 3. wait nop power up waiting period (200ms)
 	 * optimization: Steps 4+6 can be done during this
 	 */
 	wait #300
@@ -127,7 +127,7 @@ mem_init:
 	ldr		r1, =0x60000033
 	str		r1, [r0]
 	wait	#300
-	
+
 	/* Configure MDREFR */
 	ldr		r0, =MDREFR
 	ldr		r1, =0x00000006
@@ -142,48 +142,48 @@ mem_init:
 
 
 #else /* NEW_SDRAM_INIT */
-	
+
 	/* configure the MEMCLKCFG register */
-        ldr             r1, =MEMCLKCFG
-        ldr             r2, =0x00010001
-        str             r2, [r1]             @ WRITE
-        ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
-        
+	ldr		r1, =MEMCLKCFG
+	ldr		r2, =0x00010001
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
+
 	/* set CSADRCFG[0] to data flash SRAM mode */
-	ldr             r1, =CSADRCFG0
-	ldr             r2, =0x00320809
-	str             r2, [r1]             @ WRITE
-	ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
-        
+	ldr		r1, =CSADRCFG0
+	ldr		r2, =0x00320809
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
+
 	/* set CSADRCFG[1] to data flash SRAM mode */
-	ldr             r1, =CSADRCFG1
-	ldr             r2, =0x00320809
-	str             r2, [r1]             @ WRITE
-	ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
-        
+	ldr		r1, =CSADRCFG1
+	ldr		r2, =0x00320809
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
+
 	/* set MSC 0 register for SRAM memory */
-        ldr             r1, =MSC0
-        ldr             r2, =0x11191119
-        str             r2, [r1]             @ WRITE
-        ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
-         
+	ldr		r1, =MSC0
+	ldr		r2, =0x11191119
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
+
 	/* set CSADRCFG[2] to data flash SRAM mode */
-	ldr             r1, =CSADRCFG2
-	ldr             r2, =0x00320809
-	str             r2, [r1]             @ WRITE
-	ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
-        
+	ldr		r1, =CSADRCFG2
+	ldr		r2, =0x00320809
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
+
 	/* set CSADRCFG[3] to VLIO mode */
-        ldr             r1, =CSADRCFG3
-        ldr             r2, =0x0032080B
-        str             r2, [r1]             @ WRITE
-        ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
+	ldr		r1, =CSADRCFG3
+	ldr		r2, =0x0032080B
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
 
 	/* set MSC 1 register for VLIO memory */
-        ldr             r1, =MSC1
-        ldr             r2, =0x123C1119
-        str             r2, [r1]             @ WRITE
-        ldr             r2, [r1]             @ DELAY UNTIL WRITTEN
+	ldr		r1, =MSC1
+	ldr		r2, =0x123C1119
+	str		r2, [r1]	     @ WRITE
+	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
 
 #if 0
 	/* This does not work in Zylonite. -SC */
@@ -240,11 +240,11 @@ mem_init:
 	ldr		r2, [r1]
 
 	/* Hardware DDR Read-Strobe Delay Calibration */
-	ldr             r0, =DDR_HCAL           @ DDR_HCAL
-	ldr             r1, =0x803ffc07     @ the offset is correct? -SC
-	str             r1, [r0]
+	ldr		r0, =DDR_HCAL		@ DDR_HCAL
+	ldr		r1, =0x803ffc07	    @ the offset is correct? -SC
+	str		r1, [r0]
 	wait		#5
-	ldr             r1, [r0]
+	ldr		r1, [r0]
 
 	/* Here we assume the hardware calibration alwasy be successful. -SC */
 	/* Set DMCEN bit in MDCNFG Register */
@@ -254,20 +254,20 @@ mem_init:
 	str		r1, [r0]
 
 #endif /* NEW_SDRAM_INIT */
-	
+
 #ifndef CFG_SKIP_DRAM_SCRUB
 	/* scrub/init SDRAM if enabled/present */
 	ldr	r8, =CFG_DRAM_BASE	/* base address of SDRAM (CFG_DRAM_BASE) */
 	ldr	r9, =CFG_DRAM_SIZE	/* size of memory to scrub (CFG_DRAM_SIZE) */
 	mov	r0, #0			/* scrub with 0x0000:0000 */
 	mov	r1, #0
-	mov	r2, #0				
+	mov	r2, #0
 	mov	r3, #0
-	mov	r4, #0					
+	mov	r4, #0
 	mov	r5, #0
-	mov	r6, #0					
+	mov	r6, #0
 	mov	r7, #0
-10:     /* fastScrubLoop */
+10:	/* fastScrubLoop */
 	subs	r9, r9, #32	/* 8 words/line */
 	stmia	r8!, {r0-r7}
 	beq	15f
@@ -281,25 +281,25 @@ mem_init:
 
 	/* Disable software and data breakpoints */
 	mov	r0, #0
-	mcr	p15,0,r0,c14,c8,0  // ibcr0
-	mcr	p15,0,r0,c14,c9,0  // ibcr1
-	mcr	p15,0,r0,c14,c4,0  // dbcon
+	mcr	p15,0,r0,c14,c8,0  /* ibcr0 */
+	mcr	p15,0,r0,c14,c9,0  /* ibcr1 */
+	mcr	p15,0,r0,c14,c4,0  /* dbcon */
 
 	/* Enable all debug functionality */
 	mov	r0,#0x80000000
-	mcr	p14,0,r0,c10,c0,0  // dcsr
+	mcr	p14,0,r0,c10,c0,0  /* dcsr */
 
 endlowlevel_init:
 
-	mov     pc, lr
+	mov	pc, lr
 
 
 /*
 @********************************************************************************
 @ DDR calibration
-@  
+@
 @  This function is used to calibrate DQS delay lines.
-@ Monahans supports three ways to do it. One is software 
+@ Monahans supports three ways to do it. One is software
 @ calibration. Two is hardware calibration. Three is hybrid
 @ calibration.
 @
@@ -308,15 +308,15 @@ endlowlevel_init:
 ddr_calibration:
 
 	@ Case 1:	Write the correct delay value once
-        @ Configure DDR_SCAL Register
-	ldr             r0, =DDR_SCAL           @ DDR_SCAL
-q	ldr             r1, =0xaf2f2f2f
-	str             r1, [r0]
-	ldr             r1, [r0]
+	@ Configure DDR_SCAL Register
+	ldr		r0, =DDR_SCAL		@ DDR_SCAL
+q	ldr		r1, =0xaf2f2f2f
+	str		r1, [r0]
+	ldr		r1, [r0]
 */
 /*	@ Case 2:	Software Calibration
 	@ Write test pattern to memory
-	ldr		r5, =0x0faf0faf         @ Data Pattern
+	ldr		r5, =0x0faf0faf		@ Data Pattern
 	ldr		r4, =0xa0000000		@ DDR ram
 	str		r5, [r4]
 
@@ -328,11 +328,11 @@ ddr_loop1:
 	cmp		r1, =0xf
 	ble		end_loop
 	mov		r3, r1
-	mov             r0, r1, lsl #30
+	mov		r0, r1, lsl #30
 	orr		r3, r3, r0
-	mov             r0, r1, lsl #22
+	mov		r0, r1, lsl #22
 	orr		r3, r3, r0
-	mov             r0, r1, lsl #14
+	mov		r0, r1, lsl #14
 	orr		r3, r3, r0
 	orr		r3, r3, =0x80000000
 	ldr		r2, =DDR_SCAL
@@ -346,16 +346,16 @@ ddr_loop2:
 	add		r1, r1, =0x1
 	cmp		r1, =0xf
 	ble		end_loop
-        mov             r3, r1
-        mov             r0, r1, lsl #30
-        orr             r3, r3, r0
-        mov             r0, r1, lsl #22
-        orr             r3, r3, r0
-        mov             r0, r1, lsl #14
-        orr             r3, r3, r0
-        orr             r3, r3, =0x80000000
-        ldr             r2, =DDR_SCAL
-        str             r3, [r2]
+	mov		r3, r1
+	mov		r0, r1, lsl #30
+	orr		r3, r3, r0
+	mov		r0, r1, lsl #22
+	orr		r3, r3, r0
+	mov		r0, r1, lsl #14
+	orr		r3, r3, r0
+	orr		r3, r3, =0x80000000
+	ldr		r2, =DDR_SCAL
+	str		r3, [r2]
 
 	ldr		r2, [r4]
 	cmp		r2, r5
@@ -364,22 +364,22 @@ ddr_loop2:
 
 	add		r3, r6, r7
 	lsr		r3, r3, =0x1
-        mov             r0, r1, lsl #30
-        orr             r3, r3, r0
-        mov             r0, r1, lsl #22
-        orr             r3, r3, r0
-        mov             r0, r1, lsl #14
-        orr             r3, r3, r0
-        orr             r3, r3, =0x80000000
-        ldr             r2, =DDR_SCAL
-	
+	mov		r0, r1, lsl #30
+	orr		r3, r3, r0
+	mov		r0, r1, lsl #22
+	orr		r3, r3, r0
+	mov		r0, r1, lsl #14
+	orr		r3, r3, r0
+	orr		r3, r3, =0x80000000
+	ldr		r2, =DDR_SCAL
+
 end_loop:
 
 	@ Case 3:	Hardware Calibratoin
-	ldr             r0, =DDR_HCAL           @ DDR_HCAL
-	ldr             r1, =0x803ffc07     @ the offset is correct? -SC
-	str             r1, [r0]
+	ldr		r0, =DDR_HCAL		@ DDR_HCAL
+	ldr		r1, =0x803ffc07	    @ the offset is correct? -SC
+	str		r1, [r0]
 	wait		#5
-	ldr             r1, [r0]
-	mov		pc, lr	
+	ldr		r1, [r0]
+	mov		pc, lr
 */
