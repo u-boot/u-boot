@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -46,8 +46,8 @@ static const unsigned char pci_irq_swizzle[2][PCI_MAX_DEVICES] = {
 
 #ifdef CONFIG_USE_CPCIDVI
 typedef struct {
-        unsigned int base;
-        unsigned int init;
+	unsigned int base;
+	unsigned int init;
 } GT_CPCIDVI_ROM_T;
 
 static GT_CPCIDVI_ROM_T gt_cpcidvi_rom = {0, 0};
@@ -133,20 +133,20 @@ static const unsigned int pci_p2p_configuration[] = {
 
 /********************************************************************
 * pciWriteConfigReg - Write to a PCI configuration register
-*                    - Make sure the GT is configured as a master before writing
-*                      to another device on the PCI.
-*                    - The function takes care of Big/Little endian conversion.
+*		    - Make sure the GT is configured as a master before writing
+*		      to another device on the PCI.
+*		    - The function takes care of Big/Little endian conversion.
 *
 *
 * Inputs:   unsigned int regOffset: The register offset as it apears in the GT spec
-*                   (or any other PCI device spec)
-*           pciDevNum: The device number needs to be addressed.
+*		   (or any other PCI device spec)
+*	    pciDevNum: The device number needs to be addressed.
 *
 *  Configuration Address 0xCF8:
 *
-*       31 30    24 23  16 15  11 10     8 7      2  0     <=bit Number
+*	31 30	 24 23	16 15  11 10	 8 7	  2  0	   <=bit Number
 *  |congif|Reserved|  Bus |Device|Function|Register|00|
-*  |Enable|        |Number|Number| Number | Number |  |    <=field Name
+*  |Enable|	   |Number|Number| Number | Number |  |	   <=field Name
 *
 *********************************************************************/
 void pciWriteConfigReg (PCI_HOST host, unsigned int regOffset,
@@ -180,20 +180,20 @@ void pciWriteConfigReg (PCI_HOST host, unsigned int regOffset,
 
 /********************************************************************
 * pciReadConfigReg  - Read from a PCI0 configuration register
-*                    - Make sure the GT is configured as a master before reading
-*                     from another device on the PCI.
-*                   - The function takes care of Big/Little endian conversion.
+*		    - Make sure the GT is configured as a master before reading
+*		      from another device on the PCI.
+*		    - The function takes care of Big/Little endian conversion.
 * INPUTS:   regOffset: The register offset as it apears in the GT spec (or PCI
-*                        spec)
-*           pciDevNum: The device number needs to be addressed.
+*			spec)
+*	    pciDevNum: The device number needs to be addressed.
 * RETURNS: data , if the data == 0xffffffff check the master abort bit in the
-*                 cause register to make sure the data is valid
+*		  cause register to make sure the data is valid
 *
 *  Configuration Address 0xCF8:
 *
-*       31 30    24 23  16 15  11 10     8 7      2  0     <=bit Number
+*	31 30	 24 23	16 15  11 10	 8 7	  2  0	   <=bit Number
 *  |congif|Reserved|  Bus |Device|Function|Register|00|
-*  |Enable|        |Number|Number| Number | Number |  |    <=field Name
+*  |Enable|	   |Number|Number| Number | Number |  |	   <=field Name
 *
 *********************************************************************/
 unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,
@@ -228,21 +228,21 @@ unsigned int pciReadConfigReg (PCI_HOST host, unsigned int regOffset,
 
 /********************************************************************
 * pciOverBridgeWriteConfigReg - Write to a PCI configuration register where
-*                               the agent is placed on another Bus. For more
-*                               information read P2P in the PCI spec.
+*				the agent is placed on another Bus. For more
+*				information read P2P in the PCI spec.
 *
 * Inputs:   unsigned int regOffset - The register offset as it apears in the
-*           GT spec (or any other PCI device spec).
-*           unsigned int pciDevNum - The device number needs to be addressed.
-*           unsigned int busNum - On which bus does the Target agent connect
-*                                 to.
-*           unsigned int data - data to be written.
+*	    GT spec (or any other PCI device spec).
+*	    unsigned int pciDevNum - The device number needs to be addressed.
+*	    unsigned int busNum - On which bus does the Target agent connect
+*				  to.
+*	    unsigned int data - data to be written.
 *
 *  Configuration Address 0xCF8:
 *
-*       31 30    24 23  16 15  11 10     8 7      2  0     <=bit Number
+*	31 30	 24 23	16 15  11 10	 8 7	  2  0	   <=bit Number
 *  |congif|Reserved|  Bus |Device|Function|Register|01|
-*  |Enable|        |Number|Number| Number | Number |  |    <=field Name
+*  |Enable|	   |Number|Number| Number | Number |  |	   <=field Name
 *
 *  The configuration Address is configure as type-I (bits[1:0] = '01') due to
 *   PCI spec referring to P2P.
@@ -273,23 +273,23 @@ void pciOverBridgeWriteConfigReg (PCI_HOST host,
 
 /********************************************************************
 * pciOverBridgeReadConfigReg  - Read from a PCIn configuration register where
-*                               the agent target locate on another PCI bus.
-*                             - Make sure the GT is configured as a master
-*                               before reading from another device on the PCI.
-*                             - The function takes care of Big/Little endian
-*                               conversion.
+*				the agent target locate on another PCI bus.
+*			      - Make sure the GT is configured as a master
+*				before reading from another device on the PCI.
+*			      - The function takes care of Big/Little endian
+*				conversion.
 * INPUTS:   regOffset: The register offset as it apears in the GT spec (or PCI
-*                        spec). (configuration register offset.)
-*           pciDevNum: The device number needs to be addressed.
-*           busNum: the Bus number where the agent is place.
+*			 spec). (configuration register offset.)
+*	    pciDevNum: The device number needs to be addressed.
+*	    busNum: the Bus number where the agent is place.
 * RETURNS: data , if the data == 0xffffffff check the master abort bit in the
-*                 cause register to make sure the data is valid
+*		  cause register to make sure the data is valid
 *
 *  Configuration Address 0xCF8:
 *
-*       31 30    24 23  16 15  11 10     8 7      2  0     <=bit Number
+*	31 30	 24 23	16 15  11 10	 8 7	  2  0	   <=bit Number
 *  |congif|Reserved|  Bus |Device|Function|Register|01|
-*  |Enable|        |Number|Number| Number | Number |  |    <=field Name
+*  |Enable|	   |Number|Number| Number | Number |  |	   <=field Name
 *
 *********************************************************************/
 unsigned int pciOverBridgeReadConfigReg (PCI_HOST host,
@@ -393,7 +393,7 @@ static unsigned int pciGetRemapOffset (PCI_HOST host, PCI_REGION region)
 
 /********************************************************************
 * pciGetBaseAddress - Gets the base address of a PCI.
-*           - If the PCI size is 0 then this base address has no meaning!!!
+*	    - If the PCI size is 0 then this base address has no meaning!!!
 *
 *
 * INPUT:   Bus, Region - The bus and region we ask for its base address.
@@ -501,13 +501,13 @@ void pciMapMemoryBank (PCI_HOST host, MEMORY_BANK bank,
 
 /********************************************************************
 * pciSetRegionFeatures - This function modifys one of the 8 regions with
-*                         feature bits given as an input.
-*                       - Be advised to check the spec before modifying them.
+*			  feature bits given as an input.
+*			- Be advised to check the spec before modifying them.
 * Inputs: PCI_PROTECT_REGION region - one of the eight regions.
-*         unsigned int features - See file: pci.h there are defintion for those
-*                                 region features.
-*         unsigned int baseAddress - The region base Address.
-*         unsigned int topAddress - The region top Address.
+*	  unsigned int features - See file: pci.h there are defintion for those
+*				  region features.
+*	  unsigned int baseAddress - The region base Address.
+*	  unsigned int topAddress - The region top Address.
 * Returns: false if one of the parameters is erroneous true otherwise.
 *********************************************************************/
 bool pciSetRegionFeatures (PCI_HOST host, PCI_ACCESS_REGIONS region,
@@ -541,7 +541,7 @@ bool pciSetRegionFeatures (PCI_HOST host, PCI_ACCESS_REGIONS region,
 
 /********************************************************************
 * pciDisableAccessRegion - Disable The given Region by writing MAX size
-*                           to its low Address and MIN size to its high Address.
+*			    to its low Address and MIN size to its high Address.
 *
 * Inputs:   PCI_ACCESS_REGIONS region - The region we to be Disabled.
 * Returns:  N/A.
@@ -588,12 +588,12 @@ bool pciArbiterDisable (PCI_HOST host)
 * pciSetArbiterAgentsPriority - Priority setup for the PCI agents (Hi or Low)
 *
 * Inputs:   PCI_AGENT_PRIO internalAgent - priotity for internal agent.
-*           PCI_AGENT_PRIO externalAgent0 - priotity for external#0 agent.
-*           PCI_AGENT_PRIO externalAgent1 - priotity for external#1 agent.
-*           PCI_AGENT_PRIO externalAgent2 - priotity for external#2 agent.
-*           PCI_AGENT_PRIO externalAgent3 - priotity for external#3 agent.
-*           PCI_AGENT_PRIO externalAgent4 - priotity for external#4 agent.
-*           PCI_AGENT_PRIO externalAgent5 - priotity for external#5 agent.
+*	    PCI_AGENT_PRIO externalAgent0 - priotity for external#0 agent.
+*	    PCI_AGENT_PRIO externalAgent1 - priotity for external#1 agent.
+*	    PCI_AGENT_PRIO externalAgent2 - priotity for external#2 agent.
+*	    PCI_AGENT_PRIO externalAgent3 - priotity for external#3 agent.
+*	    PCI_AGENT_PRIO externalAgent4 - priotity for external#4 agent.
+*	    PCI_AGENT_PRIO externalAgent5 - priotity for external#5 agent.
 * Returns:  true
 *********************************************************************/
 bool pciSetArbiterAgentsPriority (PCI_HOST host, PCI_AGENT_PRIO internalAgent,
@@ -619,17 +619,17 @@ bool pciSetArbiterAgentsPriority (PCI_HOST host, PCI_AGENT_PRIO internalAgent,
 
 /********************************************************************
 * pciParkingDisable - Park on last option disable, with this function you can
-*                      disable the park on last mechanism for each agent.
-*                      disabling this option for all agents results parking
-*                      on the internal master.
+*		       disable the park on last mechanism for each agent.
+*		       disabling this option for all agents results parking
+*		       on the internal master.
 *
 * Inputs: PCI_AGENT_PARK internalAgent -  parking Disable for internal agent.
-*         PCI_AGENT_PARK externalAgent0 - parking Disable for external#0 agent.
-*         PCI_AGENT_PARK externalAgent1 - parking Disable for external#1 agent.
-*         PCI_AGENT_PARK externalAgent2 - parking Disable for external#2 agent.
-*         PCI_AGENT_PARK externalAgent3 - parking Disable for external#3 agent.
-*         PCI_AGENT_PARK externalAgent4 - parking Disable for external#4 agent.
-*         PCI_AGENT_PARK externalAgent5 - parking Disable for external#5 agent.
+*	  PCI_AGENT_PARK externalAgent0 - parking Disable for external#0 agent.
+*	  PCI_AGENT_PARK externalAgent1 - parking Disable for external#1 agent.
+*	  PCI_AGENT_PARK externalAgent2 - parking Disable for external#2 agent.
+*	  PCI_AGENT_PARK externalAgent3 - parking Disable for external#3 agent.
+*	  PCI_AGENT_PARK externalAgent4 - parking Disable for external#4 agent.
+*	  PCI_AGENT_PARK externalAgent5 - parking Disable for external#5 agent.
 * Returns:  true
 *********************************************************************/
 bool pciParkingDisable (PCI_HOST host, PCI_AGENT_PARK internalAgent,
@@ -655,11 +655,11 @@ bool pciParkingDisable (PCI_HOST host, PCI_AGENT_PARK internalAgent,
 
 /********************************************************************
 * pciEnableBrokenAgentDetection - A master is said to be broken if it fails to
-*                       respond to grant assertion within a window specified in
-*                       the input value: 'brokenValue'.
+*			respond to grant assertion within a window specified in
+*			the input value: 'brokenValue'.
 *
 * Inputs: unsigned char brokenValue -  A value which limits the Master to hold the
-*                       grant without asserting frame.
+*			grant without asserting frame.
 * Returns:  Error for illegal broken value otherwise true.
 *********************************************************************/
 bool pciEnableBrokenAgentDetection (PCI_HOST host, unsigned char brokenValue)
@@ -678,9 +678,9 @@ bool pciEnableBrokenAgentDetection (PCI_HOST host, unsigned char brokenValue)
 
 /********************************************************************
 * pciDisableBrokenAgentDetection - This function disable the Broken agent
-*                           Detection mechanism.
-*                           NOTE: This operation may cause a dead lock on the
-*                           pci0 arbitration.
+*			    Detection mechanism.
+*			    NOTE: This operation may cause a dead lock on the
+*			    pci0 arbitration.
 *
 * Inputs:   N/A
 * Returns:  true.
@@ -697,15 +697,15 @@ bool pciDisableBrokenAgentDetection (PCI_HOST host)
 
 /********************************************************************
 * pciP2PConfig - This function set the PCI_n P2P configurate.
-*                 For more information on the P2P read PCI spec.
+*		  For more information on the P2P read PCI spec.
 *
 * Inputs:  unsigned int SecondBusLow - Secondery PCI interface Bus Range Lower
-*                                      Boundry.
-*          unsigned int SecondBusHigh - Secondry PCI interface Bus Range upper
-*                                      Boundry.
-*          unsigned int busNum - The CPI bus number to which the PCI interface
-*                                      is connected.
-*          unsigned int devNum - The PCI interface's device number.
+*				       Boundry.
+*	   unsigned int SecondBusHigh - Secondry PCI interface Bus Range upper
+*				       Boundry.
+*	   unsigned int busNum - The CPI bus number to which the PCI interface
+*				       is connected.
+*	   unsigned int devNum - The PCI interface's device number.
 *
 * Returns:  true.
 *********************************************************************/
@@ -723,15 +723,15 @@ bool pciP2PConfig (PCI_HOST host, unsigned int SecondBusLow,
 
 /********************************************************************
 * pciSetRegionSnoopMode - This function modifys one of the 4 regions which
-*                          supports Cache Coherency in the PCI_n interface.
+*			   supports Cache Coherency in the PCI_n interface.
 * Inputs: region - One of the four regions.
-*         snoopType - There is four optional Types:
-*                        1. No Snoop.
-*                        2. Snoop to WT region.
-*                        3. Snoop to WB region.
-*                        4. Snoop & Invalidate to WB region.
-*         baseAddress - Base Address of this region.
-*         regionLength - Region length.
+*	  snoopType - There is four optional Types:
+*			 1. No Snoop.
+*			 2. Snoop to WT region.
+*			 3. Snoop to WB region.
+*			 4. Snoop & Invalidate to WB region.
+*	  baseAddress - Base Address of this region.
+*	  regionLength - Region length.
 * Returns: false if one of the parameters is wrong otherwise return true.
 *********************************************************************/
 bool pciSetRegionSnoopMode (PCI_HOST host, PCI_SNOOP_REGION region,
@@ -754,7 +754,7 @@ bool pciSetRegionSnoopMode (PCI_HOST host, PCI_SNOOP_REGION region,
 		GT_REG_WRITE (snoopXtopAddress, 0);
 		return true;
 	}
-	baseAddress = baseAddress & 0xfff00000;	/* Granularity of 1MByte */
+	baseAddress = baseAddress & 0xfff00000; /* Granularity of 1MByte */
 	data = (baseAddress >> 20) | snoopType << 12;
 	GT_REG_WRITE (snoopXbaseAddress, data);
 	snoopHigh = (snoopHigh & 0xfff00000) >> 20;
@@ -827,7 +827,7 @@ static void gt_setup_ide (struct pci_controller *hose,
 static void gt_setup_cpcidvi (struct pci_controller *hose,
 			      pci_dev_t dev, struct pci_config_table *entry)
 {
-	u32               bar_value, pci_response;
+	u32		  bar_value, pci_response;
 
 	pci_hose_read_config_dword (hose, dev, PCI_COMMAND, &pci_response);
 	pci_hose_write_config_dword (hose, dev, PCI_BASE_ADDRESS_0, 0xffffffff);
@@ -843,30 +843,30 @@ static void gt_setup_cpcidvi (struct pci_controller *hose,
 
 unsigned char gt_cpcidvi_in8(unsigned int offset)
 {
-        unsigned char     data;
+	unsigned char	  data;
 
 	if (gt_cpcidvi_rom.init == 0) {
-	        return(0);
-	        }
-        data = in8((offset & 0x04) + 0x3f000 + gt_cpcidvi_rom.base);
-        return(data);
+		return(0);
+		}
+	data = in8((offset & 0x04) + 0x3f000 + gt_cpcidvi_rom.base);
+	return(data);
 }
 
 void gt_cpcidvi_out8(unsigned int offset, unsigned char data)
 {
-        unsigned int      off;
-		
+	unsigned int	  off;
+
 	if (gt_cpcidvi_rom.init == 0) {
-	        return;
-	        }
+		return;
+	}
 	off = data;
 	off = ((off << 3) & 0x7f8) + (offset & 0x4) + 0x3e000 + gt_cpcidvi_rom.base;
-        in8(off);
-        return;
+	in8(off);
+	return;
 }
 #endif
 
-/* TODO BJW: Change this for DB64360. This was pulled from the EV64260  */
+/* TODO BJW: Change this for DB64360. This was pulled from the EV64260	*/
 /* and is curently not called *. */
 #if 0
 static void gt_fixup_irq (struct pci_controller *hose, pci_dev_t dev)

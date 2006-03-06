@@ -42,9 +42,6 @@
 #error "must define CFG_CMD_FAT"
 #endif
 
-
-
-
 extern au_image_t au_image[];
 extern int N_AU_IMAGES;
 

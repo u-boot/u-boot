@@ -442,8 +442,6 @@ void archflashwp(void *archdata, int wp);
 #define NANDRW_JFFS2	0x02
 #define NANDRW_JFFS2_SKIP	0x04
 
-
-
 /*
  * Imports from nand_legacy.c
  */

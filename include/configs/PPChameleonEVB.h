@@ -300,8 +300,6 @@
 #define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
 
-
-
 #ifdef NAND_NO_RB
 /* constant delay (see also tR in the datasheet) */
 #define NAND_WAIT_READY(nand) do { \

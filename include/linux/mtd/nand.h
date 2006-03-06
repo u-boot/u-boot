@@ -65,7 +65,6 @@ extern void nand_release (struct mtd_info *mtd);
 extern int nand_read_raw (struct mtd_info *mtd, uint8_t *buf, loff_t from, size_t len, size_t ooblen);
 
 
-
 /* This constant declares the max. oobsize / page, which
  * is supported now. If you add a chip with bigger oobsize/page
  * adjust this accordingly.

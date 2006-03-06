@@ -81,7 +81,7 @@ static int ppchameleonevb_device_ready(struct mtd_info *mtdinfo)
 		break;
 	}
 
-        if (in32(GPIO0_IR) & rb_gpio_pin)
+	if (in32(GPIO0_IR) & rb_gpio_pin)
 		return 1;
 	return 0;
 }

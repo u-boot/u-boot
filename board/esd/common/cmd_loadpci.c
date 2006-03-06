@@ -120,4 +120,3 @@ U_BOOT_CMD(
 	);
 
 #endif
-

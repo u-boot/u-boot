@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -33,7 +33,7 @@
 extern u8  gt_cpcidvi_in8(u32 offset);
 extern void gt_cpcidvi_out8(u32 offset, u8 data);
 
-#define in8(a)     gt_cpcidvi_in8(a)
+#define in8(a)	   gt_cpcidvi_in8(a)
 #define out8(a, b) gt_cpcidvi_out8(a,b)
 #endif
 
@@ -49,10 +49,10 @@ static int cursor_state = 0;
 
 /* locals */
 
-static int  kbd_input    = -1;          /* no input yet */
-static int  kbd_mapping  = KBD_US;      /* default US keyboard */
-static int  kbd_flags    = NORMAL;      /* after reset */
-static int  kbd_state    = 0;           /* unshift code */
+static int  kbd_input	 = -1;		/* no input yet */
+static int  kbd_mapping	 = KBD_US;	/* default US keyboard */
+static int  kbd_flags	 = NORMAL;	/* after reset */
+static int  kbd_state	 = 0;		/* unshift code */
 
 static void kbd_conv_char (unsigned char scan_code);
 static void kbd_led_set (void);
@@ -68,230 +68,230 @@ static int  kbd_reset (void);
 
 static unsigned char kbd_fct_map [144] =
     { /* kbd_fct_map table for scan code */
-    0,   AS,   AS,   AS,   AS,   AS,   AS,   AS, /* scan  0- 7 */
-   AS,   AS,   AS,   AS,   AS,   AS,   AS,   AS, /* scan  8- F */
-   AS,   AS,   AS,   AS,   AS,   AS,   AS,   AS, /* scan 10-17 */
-   AS,   AS,   AS,   AS,   AS,   CN,   AS,   AS, /* scan 18-1F */
-   AS,   AS,   AS,   AS,   AS,   AS,   AS,   AS, /* scan 20-27 */
-   AS,   AS,   SH,   AS,   AS,   AS,   AS,   AS, /* scan 28-2F */
-   AS,   AS,   AS,   AS,   AS,   AS,   SH,   AS, /* scan 30-37 */
-   AS,   AS,   CP,   0,    0,    0,    0,     0, /* scan 38-3F */
-    0,   0,    0,    0,    0,    NM,   ST,   ES, /* scan 40-47 */
-   ES,   ES,   ES,   ES,   ES,   ES,   ES,   ES, /* scan 48-4F */
-   ES,   ES,   ES,   ES,   0,    0,    AS,    0, /* scan 50-57 */
-    0,   0,    0,    0,    0,    0,    0,     0, /* scan 58-5F */
-    0,   0,    0,    0,    0,    0,    0,     0, /* scan 60-67 */
-    0,   0,    0,    0,    0,    0,    0,     0, /* scan 68-6F */
-   AS,   0,    0,    AS,   0,    0,    AS,    0, /* scan 70-77 */
-    0,   AS,   0,    0,    0,    AS,   0,     0, /* scan 78-7F */
-   AS,   CN,   AS,   AS,   AK,   ST,   EX,   EX, /* enhanced   */
-   AS,   EX,   EX,   AS,   EX,   AS,   EX,   EX  /* enhanced   */
+    0,	 AS,   AS,   AS,   AS,	 AS,   AS,   AS, /* scan  0- 7 */
+   AS,	 AS,   AS,   AS,   AS,	 AS,   AS,   AS, /* scan  8- F */
+   AS,	 AS,   AS,   AS,   AS,	 AS,   AS,   AS, /* scan 10-17 */
+   AS,	 AS,   AS,   AS,   AS,	 CN,   AS,   AS, /* scan 18-1F */
+   AS,	 AS,   AS,   AS,   AS,	 AS,   AS,   AS, /* scan 20-27 */
+   AS,	 AS,   SH,   AS,   AS,	 AS,   AS,   AS, /* scan 28-2F */
+   AS,	 AS,   AS,   AS,   AS,	 AS,   SH,   AS, /* scan 30-37 */
+   AS,	 AS,   CP,   0,	   0,	 0,    0,     0, /* scan 38-3F */
+    0,	 0,    0,    0,	   0,	 NM,   ST,   ES, /* scan 40-47 */
+   ES,	 ES,   ES,   ES,   ES,	 ES,   ES,   ES, /* scan 48-4F */
+   ES,	 ES,   ES,   ES,   0,	 0,    AS,    0, /* scan 50-57 */
+    0,	 0,    0,    0,	   0,	 0,    0,     0, /* scan 58-5F */
+    0,	 0,    0,    0,	   0,	 0,    0,     0, /* scan 60-67 */
+    0,	 0,    0,    0,	   0,	 0,    0,     0, /* scan 68-6F */
+   AS,	 0,    0,    AS,   0,	 0,    AS,    0, /* scan 70-77 */
+    0,	 AS,   0,    0,	   0,	 AS,   0,     0, /* scan 78-7F */
+   AS,	 CN,   AS,   AS,   AK,	 ST,   EX,   EX, /* enhanced   */
+   AS,	 EX,   EX,   AS,   EX,	 AS,   EX,   EX	 /* enhanced   */
     };
 
 static unsigned char kbd_key_map [2][5][144] =
     {
     { /* US keyboard */
     { /* unshift code */
-    0,  0x1b,   '1',   '2',   '3',   '4',   '5',   '6',    /* scan  0- 7 */
-  '7',   '8',   '9',   '0',   '-',   '=',  0x08,  '\t',    /* scan  8- F */
-  'q',   'w',   'e',   'r',   't',   'y',   'u',   'i',    /* scan 10-17 */
-  'o',   'p',   '[',   ']',  '\r',   CN,    'a',   's',    /* scan 18-1F */
-  'd',   'f',   'g',   'h',   'j',   'k',   'l',   ';',    /* scan 20-27 */
- '\'',   '`',   SH,   '\\',   'z',   'x',   'c',   'v',    /* scan 28-2F */
-  'b',   'n',   'm',   ',',   '.',   '/',   SH,    '*',    /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0,    /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    '7',    /* scan 40-47 */
-  '8',   '9',   '-',   '4',   '5',   '6',   '+',   '1',    /* scan 48-4F */
-  '2',   '3',   '0',   '.',     0,     0,     0,     0,    /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A',    /* extended */
-    0,   'D',   'C',     0,   'B',     0,    '@',  'P'     /* extended */
+    0,	0x1b,	'1',   '2',   '3',   '4',   '5',   '6',	   /* scan  0- 7 */
+  '7',	 '8',	'9',   '0',   '-',   '=',  0x08,  '\t',	   /* scan  8- F */
+  'q',	 'w',	'e',   'r',   't',   'y',   'u',   'i',	   /* scan 10-17 */
+  'o',	 'p',	'[',   ']',  '\r',   CN,    'a',   's',	   /* scan 18-1F */
+  'd',	 'f',	'g',   'h',   'j',   'k',   'l',   ';',	   /* scan 20-27 */
+ '\'',	 '`',	SH,   '\\',   'z',   'x',   'c',   'v',	   /* scan 28-2F */
+  'b',	 'n',	'm',   ',',   '.',   '/',   SH,	   '*',	   /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0,	   /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   '7',	   /* scan 40-47 */
+  '8',	 '9',	'-',   '4',   '5',   '6',   '+',   '1',	   /* scan 48-4F */
+  '2',	 '3',	'0',   '.',	0,     0,     0,     0,	   /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A',	   /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,    '@',  'P'	   /* extended */
     },
     { /* shift code */
-    0,  0x1b,   '!',   '@',   '#',   '$',   '%',   '^',    /* scan  0- 7 */
-  '&',   '*',   '(',   ')',   '_',   '+',  0x08,  '\t',    /* scan  8- F */
-  'Q',   'W',   'E',   'R',   'T',   'Y',   'U',   'I',    /* scan 10-17 */
-  'O',   'P',   '{',   '}',  '\r',   CN,    'A',   'S',    /* scan 18-1F */
-  'D',   'F',   'G',   'H',   'J',   'K',   'L',   ':',    /* scan 20-27 */
-  '"',   '~',   SH,    '|',   'Z',   'X',   'C',   'V',    /* scan 28-2F */
-  'B',   'N',   'M',   '<',   '>',   '?',   SH,    '*',    /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0,    /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    '7',    /* scan 40-47 */
-  '8',   '9',   '-',   '4',   '5',   '6',   '+',   '1',    /* scan 48-4F */
-  '2',   '3',   '0',   '.',     0,     0,     0,     0,    /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A',    /* extended */
-    0,   'D',   'C',     0,   'B',     0,   '@',   'P'     /* extended */
+    0,	0x1b,	'!',   '@',   '#',   '$',   '%',   '^',	   /* scan  0- 7 */
+  '&',	 '*',	'(',   ')',   '_',   '+',  0x08,  '\t',	   /* scan  8- F */
+  'Q',	 'W',	'E',   'R',   'T',   'Y',   'U',   'I',	   /* scan 10-17 */
+  'O',	 'P',	'{',   '}',  '\r',   CN,    'A',   'S',	   /* scan 18-1F */
+  'D',	 'F',	'G',   'H',   'J',   'K',   'L',   ':',	   /* scan 20-27 */
+  '"',	 '~',	SH,    '|',   'Z',   'X',   'C',   'V',	   /* scan 28-2F */
+  'B',	 'N',	'M',   '<',   '>',   '?',   SH,	   '*',	   /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0,	   /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   '7',	   /* scan 40-47 */
+  '8',	 '9',	'-',   '4',   '5',   '6',   '+',   '1',	   /* scan 48-4F */
+  '2',	 '3',	'0',   '.',	0,     0,     0,     0,	   /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A',	   /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,   '@',   'P'	   /* extended */
     },
     { /* control code */
- 0xff,  0x1b,  0xff,  0x00,  0xff,  0xff,  0xff,  0xff,    /* scan  0- 7 */
- 0x1e,  0xff,  0xff,  0xff,  0x1f,  0xff,  0xff,  '\t',    /* scan  8- F */
- 0x11,  0x17,  0x05,  0x12,  0x14,  0x19,  0x15,  0x09,    /* scan 10-17 */
- 0x0f,  0x10,  0x1b,  0x1d,  '\r',   CN,   0x01,  0x13,    /* scan 18-1F */
- 0x04,  0x06,  0x07,  0x08,  0x0a,  0x0b,  0x0c,  0xff,    /* scan 20-27 */
- 0xff,  0x1c,   SH,   0xff,  0x1a,  0x18,  0x03,  0x16,    /* scan 28-2F */
- 0x02,  0x0e,  0x0d,  0xff,  0xff,  0xff,   SH,   0xff,    /* scan 30-37 */
- 0xff,  0xff,   CP,   0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 38-3F */
- 0xff,  0xff,  0xff,  0xff,  0xff,   NM,    ST,   0xff,    /* scan 40-47 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 48-4F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 50-57 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 58-5F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 60-67 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 68-6F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 70-77 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,    /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,  0xff,  0xff,    /* extended */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff     /* extended */
+ 0xff,	0x1b,  0xff,  0x00,  0xff,  0xff,  0xff,  0xff,	   /* scan  0- 7 */
+ 0x1e,	0xff,  0xff,  0xff,  0x1f,  0xff,  0xff,  '\t',	   /* scan  8- F */
+ 0x11,	0x17,  0x05,  0x12,  0x14,  0x19,  0x15,  0x09,	   /* scan 10-17 */
+ 0x0f,	0x10,  0x1b,  0x1d,  '\r',   CN,   0x01,  0x13,	   /* scan 18-1F */
+ 0x04,	0x06,  0x07,  0x08,  0x0a,  0x0b,  0x0c,  0xff,	   /* scan 20-27 */
+ 0xff,	0x1c,	SH,   0xff,  0x1a,  0x18,  0x03,  0x16,	   /* scan 28-2F */
+ 0x02,	0x0e,  0x0d,  0xff,  0xff,  0xff,   SH,	  0xff,	   /* scan 30-37 */
+ 0xff,	0xff,	CP,   0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 38-3F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,   NM,    ST,	  0xff,	   /* scan 40-47 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 48-4F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 50-57 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 58-5F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 60-67 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 68-6F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 70-77 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,	   /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,  0xff,  0xff,	   /* extended */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff	   /* extended */
     },
     { /* non numeric code */
-    0,  0x1b,   '1',   '2',   '3',   '4',   '5',   '6',    /* scan  0- 7 */
-  '7',   '8',   '9',   '0',   '-',   '=',  0x08,  '\t',    /* scan  8- F */
-  'q',   'w',   'e',   'r',   't',   'y',   'u',   'i',    /* scan 10-17 */
-  'o',   'p',   '[',   ']',  '\r',   CN,    'a',   's',    /* scan 18-1F */
-  'd',   'f',   'g',   'h',   'j',   'k',   'l',   ';',    /* scan 20-27 */
- '\'',   '`',   SH,   '\\',   'z',   'x',   'c',   'v',    /* scan 28-2F */
-  'b',   'n',   'm',   ',',   '.',   '/',   SH,    '*',    /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0,    /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    'w',    /* scan 40-47 */
-  'x',   'y',   'l',   't',   'u',   'v',   'm',   'q',    /* scan 48-4F */
-  'r',   's',   'p',   'n',     0,     0,     0,     0,    /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0,    /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A',    /* extended */
-    0,   'D',   'C',     0,   'B',     0,    '@',  'P'     /* extended */
+    0,	0x1b,	'1',   '2',   '3',   '4',   '5',   '6',	   /* scan  0- 7 */
+  '7',	 '8',	'9',   '0',   '-',   '=',  0x08,  '\t',	   /* scan  8- F */
+  'q',	 'w',	'e',   'r',   't',   'y',   'u',   'i',	   /* scan 10-17 */
+  'o',	 'p',	'[',   ']',  '\r',   CN,    'a',   's',	   /* scan 18-1F */
+  'd',	 'f',	'g',   'h',   'j',   'k',   'l',   ';',	   /* scan 20-27 */
+ '\'',	 '`',	SH,   '\\',   'z',   'x',   'c',   'v',	   /* scan 28-2F */
+  'b',	 'n',	'm',   ',',   '.',   '/',   SH,	   '*',	   /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0,	   /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   'w',	   /* scan 40-47 */
+  'x',	 'y',	'l',   't',   'u',   'v',   'm',   'q',	   /* scan 48-4F */
+  'r',	 's',	'p',   'n',	0,     0,     0,     0,	   /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0,	   /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A',	   /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,    '@',  'P'	   /* extended */
     },
     { /* right alt mode - not used in US keyboard */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan  0 - 7 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan  8 - F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 10 -17 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 18 -1F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 20 -27 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 28 -2F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 30 -37 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38 -3F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 40 -47 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48 -4F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 50 -57 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58 -5F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60 -67 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68 -6F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70 -77 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78 -7F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* extended    */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff  /* extended    */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan	 0 - 7 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan	 8 - F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 10 -17 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 18 -1F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 20 -27 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 28 -2F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 30 -37 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38 -3F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 40 -47 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48 -4F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 50 -57 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58 -5F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60 -67 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68 -6F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70 -77 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78 -7F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* extended    */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff	/* extended    */
     }
     },
     { /* german keyboard */
     { /* unshift code */
-    0,  0x1b,   '1',   '2',   '3',   '4',   '5',   '6', /* scan  0- 7 */
-  '7',   '8',   '9',   '0',  0xe1,  '\'',  0x08,  '\t', /* scan  8- F */
-  'q',   'w',   'e',   'r',   't',   'z',   'u',   'i', /* scan 10-17 */
-  'o',   'p',  0x81,   '+',  '\r',   CN,    'a',   's', /* scan 18-1F */
-  'd',   'f',   'g',   'h',   'j',   'k',   'l',  0x94, /* scan 20-27 */
- 0x84,   '^',   SH,    '#',   'y',   'x',   'c',   'v', /* scan 28-2F */
-  'b',   'n',   'm',   ',',   '.',   '-',   SH,    '*', /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0, /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    '7', /* scan 40-47 */
-  '8',   '9',   '-',   '4',   '5',   '6',   '+',   '1', /* scan 48-4F */
-  '2',   '3',   '0',   ',',     0,     0,   '<',     0, /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A', /* extended */
-    0,   'D',   'C',     0,   'B',     0,    '@',  'P'  /* extended */
+    0,	0x1b,	'1',   '2',   '3',   '4',   '5',   '6', /* scan	 0- 7 */
+  '7',	 '8',	'9',   '0',  0xe1,  '\'',  0x08,  '\t', /* scan	 8- F */
+  'q',	 'w',	'e',   'r',   't',   'z',   'u',   'i', /* scan 10-17 */
+  'o',	 'p',  0x81,   '+',  '\r',   CN,    'a',   's', /* scan 18-1F */
+  'd',	 'f',	'g',   'h',   'j',   'k',   'l',  0x94, /* scan 20-27 */
+ 0x84,	 '^',	SH,    '#',   'y',   'x',   'c',   'v', /* scan 28-2F */
+  'b',	 'n',	'm',   ',',   '.',   '-',   SH,	   '*', /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0, /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   '7', /* scan 40-47 */
+  '8',	 '9',	'-',   '4',   '5',   '6',   '+',   '1', /* scan 48-4F */
+  '2',	 '3',	'0',   ',',	0,     0,   '<',     0, /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A', /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,    '@',  'P'	/* extended */
     },
     { /* shift code */
-    0,  0x1b,   '!',   '"',  0x15,   '$',   '%',   '&', /* scan  0- 7 */
-  '/',   '(',   ')',   '=',   '?',   '`',  0x08,  '\t', /* scan  8- F */
-  'Q',   'W',   'E',   'R',   'T',   'Z',   'U',   'I', /* scan 10-17 */
-  'O',   'P',  0x9a,   '*',  '\r',   CN,    'A',   'S', /* scan 18-1F */
-  'D',   'F',   'G',   'H',   'J',   'K',   'L',  0x99, /* scan 20-27 */
- 0x8e,  0xf8,   SH,   '\'',   'Y',   'X',   'C',   'V', /* scan 28-2F */
-  'B',   'N',   'M',   ';',   ':',   '_',   SH,    '*', /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0, /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    '7', /* scan 40-47 */
-  '8',   '9',   '-',   '4',   '5',   '6',   '+',   '1', /* scan 48-4F */
-  '2',   '3',   '0',   ',',     0,     0,   '>',     0, /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A', /* extended */
-    0,   'D',   'C',     0,   'B',     0,   '@',   'P'  /* extended */
+    0,	0x1b,	'!',   '"',  0x15,   '$',   '%',   '&', /* scan	 0- 7 */
+  '/',	 '(',	')',   '=',   '?',   '`',  0x08,  '\t', /* scan	 8- F */
+  'Q',	 'W',	'E',   'R',   'T',   'Z',   'U',   'I', /* scan 10-17 */
+  'O',	 'P',  0x9a,   '*',  '\r',   CN,    'A',   'S', /* scan 18-1F */
+  'D',	 'F',	'G',   'H',   'J',   'K',   'L',  0x99, /* scan 20-27 */
+ 0x8e,	0xf8,	SH,   '\'',   'Y',   'X',   'C',   'V', /* scan 28-2F */
+  'B',	 'N',	'M',   ';',   ':',   '_',   SH,	   '*', /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0, /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   '7', /* scan 40-47 */
+  '8',	 '9',	'-',   '4',   '5',   '6',   '+',   '1', /* scan 48-4F */
+  '2',	 '3',	'0',   ',',	0,     0,   '>',     0, /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A', /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,   '@',   'P'	/* extended */
     },
     { /* control code */
- 0xff,  0x1b,  0xff,  0x00,  0xff,  0xff,  0xff,  0xff, /* scan  0- 7 */
- 0x1e,  0xff,  0xff,  0xff,  0x1f,  0xff,  0xff,  '\t', /* scan  8- F */
- 0x11,  0x17,  0x05,  0x12,  0x14,  0x19,  0x15,  0x09, /* scan 10-17 */
- 0x0f,  0x10,  0x1b,  0x1d,  '\r',   CN,   0x01,  0x13, /* scan 18-1F */
- 0x04,  0x06,  0x07,  0x08,  0x0a,  0x0b,  0x0c,  0xff, /* scan 20-27 */
- 0xff,  0x1c,   SH,   0xff,  0x1a,  0x18,  0x03,  0x16, /* scan 28-2F */
- 0x02,  0x0e,  0x0d,  0xff,  0xff,  0xff,   SH,   0xff, /* scan 30-37 */
- 0xff,  0xff,   CP,   0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38-3F */
- 0xff,  0xff,  0xff,  0xff,  0xff,   NM,    ST,   0xff, /* scan 40-47 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48-4F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 50-57 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58-5F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60-67 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68-6F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70-77 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,  0xff,  0xff, /* extended */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff  /* extended */
+ 0xff,	0x1b,  0xff,  0x00,  0xff,  0xff,  0xff,  0xff, /* scan	 0- 7 */
+ 0x1e,	0xff,  0xff,  0xff,  0x1f,  0xff,  0xff,  '\t', /* scan	 8- F */
+ 0x11,	0x17,  0x05,  0x12,  0x14,  0x19,  0x15,  0x09, /* scan 10-17 */
+ 0x0f,	0x10,  0x1b,  0x1d,  '\r',   CN,   0x01,  0x13, /* scan 18-1F */
+ 0x04,	0x06,  0x07,  0x08,  0x0a,  0x0b,  0x0c,  0xff, /* scan 20-27 */
+ 0xff,	0x1c,	SH,   0xff,  0x1a,  0x18,  0x03,  0x16, /* scan 28-2F */
+ 0x02,	0x0e,  0x0d,  0xff,  0xff,  0xff,   SH,	  0xff, /* scan 30-37 */
+ 0xff,	0xff,	CP,   0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38-3F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,   NM,    ST,	  0xff, /* scan 40-47 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48-4F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 50-57 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58-5F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60-67 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68-6F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70-77 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,  0xff,  0xff, /* extended */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff	/* extended */
     },
     { /* non numeric code */
-    0,  0x1b,   '1',   '2',   '3',   '4',   '5',   '6', /* scan  0- 7 */
-  '7',   '8',   '9',   '0',  0xe1,  '\'',  0x08,  '\t', /* scan  8- F */
-  'q',   'w',   'e',   'r',   't',   'z',   'u',   'i', /* scan 10-17 */
-  'o',   'p',  0x81,   '+',  '\r',   CN,    'a',   's', /* scan 18-1F */
-  'd',   'f',   'g',   'h',   'j',   'k',   'l',  0x94, /* scan 20-27 */
- 0x84,   '^',   SH,      0,   'y',   'x',   'c',   'v', /* scan 28-2F */
-  'b',   'n',   'm',   ',',   '.',   '-',   SH,    '*', /* scan 30-37 */
-  ' ',   ' ',   CP,      0,     0,     0,     0,     0, /* scan 38-3F */
-    0,     0,     0,     0,     0,   NM,    ST,    'w', /* scan 40-47 */
-  'x',   'y',   'l',   't',   'u',   'v',   'm',   'q', /* scan 48-4F */
-  'r',   's',   'p',   'n',     0,     0,   '<',     0, /* scan 50-57 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 58-5F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 60-67 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 68-6F */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 70-77 */
-    0,     0,     0,     0,     0,     0,     0,     0, /* scan 78-7F */
-  '\r',   CN,   '/',   '*',   ' ',    ST,   'F',   'A', /* extended */
-    0,   'D',   'C',     0,   'B',     0,    '@',  'P'  /* extended */
+    0,	0x1b,	'1',   '2',   '3',   '4',   '5',   '6', /* scan	 0- 7 */
+  '7',	 '8',	'9',   '0',  0xe1,  '\'',  0x08,  '\t', /* scan	 8- F */
+  'q',	 'w',	'e',   'r',   't',   'z',   'u',   'i', /* scan 10-17 */
+  'o',	 'p',  0x81,   '+',  '\r',   CN,    'a',   's', /* scan 18-1F */
+  'd',	 'f',	'g',   'h',   'j',   'k',   'l',  0x94, /* scan 20-27 */
+ 0x84,	 '^',	SH,	 0,   'y',   'x',   'c',   'v', /* scan 28-2F */
+  'b',	 'n',	'm',   ',',   '.',   '-',   SH,	   '*', /* scan 30-37 */
+  ' ',	 ' ',	CP,	 0,	0,     0,     0,     0, /* scan 38-3F */
+    0,	   0,	  0,	 0,	0,   NM,    ST,	   'w', /* scan 40-47 */
+  'x',	 'y',	'l',   't',   'u',   'v',   'm',   'q', /* scan 48-4F */
+  'r',	 's',	'p',   'n',	0,     0,   '<',     0, /* scan 50-57 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 58-5F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 60-67 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 68-6F */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 70-77 */
+    0,	   0,	  0,	 0,	0,     0,     0,     0, /* scan 78-7F */
+  '\r',	  CN,	'/',   '*',   ' ',    ST,   'F',   'A', /* extended */
+    0,	 'D',	'C',	 0,   'B',     0,    '@',  'P'	/* extended */
     },
     { /* Right alt mode - is used in German keyboard */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan  0 - 7 */
-  '{',   '[',   ']',   '}',  '\\',  0xff,  0xff,  0xff, /* scan  8 - F */
-  '@',  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 10 -17 */
- 0xff,  0xff,  0xff,   '~',  0xff,  0xff,  0xff,  0xff, /* scan 18 -1F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 20 -27 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 28 -2F */
- 0xff,  0xff,  0xe6,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 30 -37 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38 -3F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 40 -47 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48 -4F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,   '|',  0xff, /* scan 50 -57 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58 -5F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60 -67 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68 -6F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70 -77 */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78 -7F */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* extended    */
- 0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff  /* extended    */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan	 0 - 7 */
+  '{',	 '[',	']',   '}',  '\\',  0xff,  0xff,  0xff, /* scan	 8 - F */
+  '@',	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 10 -17 */
+ 0xff,	0xff,  0xff,   '~',  0xff,  0xff,  0xff,  0xff, /* scan 18 -1F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 20 -27 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 28 -2F */
+ 0xff,	0xff,  0xe6,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 30 -37 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 38 -3F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 40 -47 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 48 -4F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,   '|',  0xff, /* scan 50 -57 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 58 -5F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 60 -67 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 68 -6F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 70 -77 */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* scan 78 -7F */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff, /* extended    */
+ 0xff,	0xff,  0xff,  0xff,  0xff,  0xff,  0xff,  0xff	/* extended    */
     }
     }
     };
@@ -328,8 +328,8 @@ int i8042_kbd_init (void)
 
 #ifdef CONFIG_USE_CPCIDVI
     if ((penv = getenv ("console")) != NULL) {
-            if (strncmp (penv, "serial", 7) == 0) {
-	            return -1;
+	    if (strncmp (penv, "serial", 7) == 0) {
+		    return -1;
 	    }
     }
 #endif
@@ -345,9 +345,9 @@ int i8042_kbd_init (void)
     {
 	if (kbd_reset() == 0)
 	{
-	    kbd_mapping   = keymap;
-	    kbd_flags     = NORMAL;
-	    kbd_state     = 0;
+	    kbd_mapping	  = keymap;
+	    kbd_flags	  = NORMAL;
+	    kbd_state	  = 0;
 	    kbd_led_set();
 	    return 0;
 	    }
@@ -359,7 +359,7 @@ int i8042_kbd_init (void)
 /*******************************************************************************
  *
  * i8042_tstc - test if keyboard input is available
- *              option: cursor blinking if called in a loop
+ *		option: cursor blinking if called in a loop
  */
 int i8042_tstc (void)
 {
@@ -395,7 +395,7 @@ int i8042_tstc (void)
 /*******************************************************************************
  *
  * i8042_getc - wait till keyboard input is available
- *              option: turn on/off cursor while waiting
+ *		option: turn on/off cursor while waiting
  */
 int i8042_getc (void)
 {
@@ -448,8 +448,8 @@ static void kbd_conv_char (unsigned char scan_code)
     {
 	if (scan_code == 0xe1)
 	{
-	    kbd_flags ^= BRK;     /* reset the break flag */
-	    kbd_flags ^= E1;      /* bitwise EXOR with E1 flag */
+	    kbd_flags ^= BRK;	  /* reset the break flag */
+	    kbd_flags ^= E1;	  /* bitwise EXOR with E1 flag */
 	}
 	return;
     }
@@ -560,7 +560,7 @@ static void kbd_caps (unsigned char scan_code)
     if ((kbd_flags & BRK) == NORMAL)
     {
        kbd_flags ^= CAPS;
-       kbd_led_set ();            /* update keyboard LED */
+       kbd_led_set ();		  /* update keyboard LED */
     }
 }
 
@@ -573,7 +573,7 @@ static void kbd_num (unsigned char scan_code)
     {
        kbd_flags ^= NUM;
        kbd_state = (kbd_flags & NUM) ? AS : NM;
-       kbd_led_set ();            /* update keyboard LED */
+       kbd_led_set ();		  /* update keyboard LED */
     }
 }
 
@@ -585,7 +585,7 @@ static void kbd_scroll (unsigned char scan_code)
     if ((kbd_flags & BRK) == NORMAL)
     {
 	kbd_flags ^= STP;
-	kbd_led_set ();            /* update keyboard LED */
+	kbd_led_set ();		   /* update keyboard LED */
 	if (kbd_flags & STP)
 	    kbd_input = 0x13;
 	else
@@ -615,9 +615,9 @@ static void kbd_alt (unsigned char scan_code)
 static void kbd_led_set (void)
 {
     kbd_input_empty();
-    out8 (I8042_DATA_REG, 0xed);        /* SET LED command */
+    out8 (I8042_DATA_REG, 0xed);	/* SET LED command */
     kbd_input_empty();
-    out8 (I8042_DATA_REG, (kbd_flags & 0x7));    /* LED bits only */
+    out8 (I8042_DATA_REG, (kbd_flags & 0x7));	 /* LED bits only */
 }
 
 

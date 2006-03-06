@@ -35,4 +35,3 @@ endif
 
 # legacy nand support
 BOARDLIBS = drivers/nand_legacy/libnand_legacy.a
-

@@ -179,7 +179,6 @@ More Definitions:
    #define NAND_MAX_CHIPS 1
 
 
-
 NOTE:
 =====
 
@@ -204,7 +203,7 @@ use JFFS, which has been adopted to use the new NAND, and at the same
 time use NAND in legacy mode. The breakage will disappear when the
 board-specific code is changed to the new NAND.
 
-As mentioned above, the legacy code is still used by the DoC subsystem. 
-The consequence of this is that the legacy NAND can't be removed  from 
-the tree until the DoC is ported to use the new NAND support (or boards 
+As mentioned above, the legacy code is still used by the DoC subsystem.
+The consequence of this is that the legacy NAND can't be removed  from
+the tree until the DoC is ported to use the new NAND support (or boards
 with DoC will break).

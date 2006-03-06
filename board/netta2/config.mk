@@ -29,4 +29,3 @@ TEXT_BASE = 0x40000000
 
 # Compile the legacy NAND code (CFG_NAND_LEGACY must be defined)
 BOARDLIBS = drivers/nand_legacy/libnand_legacy.a
-

@@ -229,9 +229,8 @@
 /*
  * GPIO configuration
  */
-//###CHD: MSB = 1 -> 64MB: funktioniert nicht: ERRATA - BUG?
-//###CHD: 0x10000004 = 32MB SDRAM
-//###CHD: 0x90000004 = 64MB SDRAM
+/* 0x10000004 = 32MB SDRAM */
+/* 0x90000004 = 64MB SDRAM */
 #define CFG_GPS_PORT_CONFIG	0x10000004
 
 /*
