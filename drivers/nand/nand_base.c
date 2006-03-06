@@ -489,7 +489,6 @@ static int nand_default_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	return nand_write_oob (mtd, ofs , 2, &retlen, buf);
 }
 
-#if READ_STATUS_BUG
 /**
  * nand_check_wp - [GENERIC] check if the chip is write protected
  * @mtd:	MTD device structure
@@ -504,12 +503,7 @@ static int nand_check_wp (struct mtd_info *mtd)
 	this->cmdfunc (mtd, NAND_CMD_STATUS, -1, -1);
 	return (this->read_byte(mtd) & 0x80) ? 0 : 1;
 }
-#else
-static int nand_check_wp (struct mtd_info *mtd)
-{
-	return 0;
-}
-#endif
+
 /**
  * nand_block_checkbad - [GENERIC] Check if a block is marked bad
  * @mtd:	MTD device structure

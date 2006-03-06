@@ -170,14 +170,32 @@
 #define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define SECTORSIZE 		512
-/* #define NAND_NO_RB */
 #define NAND_DELAY_US		25	/* mk@tbd: could be 0, I guess */
 
 /* nand timeout values */	
 #define CFG_NAND_PROG_ERASE_TO	3000
 #define CFG_NAND_OTHER_TO	100
 #define CFG_NAND_SENDCMD_RETRY	3
-#define NAND_ALLOW_ERASE_ALL	1
+#undef NAND_ALLOW_ERASE_ALL	/* Allow erasing bad blocks - don't use */
+
+/* NAND Timing Parameters (in ns) */
+#define NAND_TIMING_tCH 	10
+#define NAND_TIMING_tCS 	0
+#define NAND_TIMING_tWH		20
+#define NAND_TIMING_tWP 	40
+
+#define NAND_TIMING_tRH 	20
+#define NAND_TIMING_tRP 	40
+
+#define NAND_TIMING_tR  	11123
+/* #define NAND_TIMING_tWHR	110 */
+#define NAND_TIMING_tWHR	100
+#define NAND_TIMING_tAR		10
+
+/* NAND debugging */
+#define CFG_DFC_DEBUG1 /* usefull */
+#undef CFG_DFC_DEBUG2  /* noisy */
+#undef CFG_DFC_DEBUG3  /* extremly noisy  */
 
 #define CONFIG_MTD_DEBUG
 #define CONFIG_MTD_DEBUG_VERBOSE 1

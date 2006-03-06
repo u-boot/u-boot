@@ -880,6 +880,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define OMCR9		__REG(0x40A000D4)  /* OS Match Control Register 9 */
 #define OMCR10		__REG(0x40A000D8)  /* OS Match Control Register 10 */
 #define OMCR11		__REG(0x40A000DC)  /* OS Match Control Register 11 */
+
+#define OSCR_CLK_FREQ	 3.250		   /* MHz */
 #endif /* CONFIG_CPU_MONAHANS */
 
 #define OSSR_M4		(1 << 4)	/* Match status channel 4 */
@@ -2131,6 +2133,21 @@ typedef void		(*ExcpHndlr) (void) ;
 #define MCATT(s) MCATT0
 #define MCIO(s) MCIO0
 #define MECR_CIT	(1 << 1)/* Card Is There: 0 -> no card, 1 -> card inserted */
+
+/* Maximum values for NAND Interface Timing Registers in DFC clock
+ * periods */
+#define DFC_MAX_tCH	7
+#define DFC_MAX_tCS	7
+#define DFC_MAX_tWH	7
+#define DFC_MAX_tWP	7
+#define DFC_MAX_tRH	7
+#define DFC_MAX_tRP	15
+#define DFC_MAX_tR	65535
+#define DFC_MAX_tWHR	15
+#define DFC_MAX_tAR	15
+
+#define DFC_CLOCK	104		/* DFC Clock is 104 MHz */
+#define DFC_CLK_PER_US	DFC_CLOCK/1000	/* clock period in ns */
 
 #else /* CONFIG_CPU_MONAHANS */
 

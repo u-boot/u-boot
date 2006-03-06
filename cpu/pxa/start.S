@@ -165,7 +165,15 @@ _start_armboot: .word start_armboot
 /* - setup memory timing						    */
 /*									    */
 /****************************************************************************/
-
+/* mk@tbd: Fix this! */
+#ifdef CONFIG_CPU_MONAHANS
+#undef ICMR
+#undef OSMR3
+#undef OSCR
+#undef OWER
+#undef OIER
+#endif
+	
 /* Interrupt-Controller base address				            */
 IC_BASE:	   .word	   0x40d00000
 #define ICMR	0x04
