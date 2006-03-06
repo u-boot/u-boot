@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Merge the new NAND code (testing-NAND brach); see doc/README.nand
+  Rewrite of NAND code based on what is in 2.6.12 Linux kernel
+  Patch by Ladislav Michl, 29 Jun 2005
+
 * Add lowboot target to mcc200 board
   Patch by Stefan Roese, 4 Mar 2006
 

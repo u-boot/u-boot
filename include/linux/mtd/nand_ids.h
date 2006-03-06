@@ -28,6 +28,10 @@
 #ifndef __LINUX_MTD_NAND_IDS_H
 #define __LINUX_MTD_NAND_IDS_H
 
+#ifndef CFG_NAND_LEGACY
+#error This module is for the legacy NAND support
+#endif
+
 static struct nand_flash_dev nand_flash_ids[] = {
 	{"Toshiba TC5816BDC",     NAND_MFR_TOSHIBA, 0x64, 21, 1, 2, 0x1000, 0},
 	{"Toshiba TC5832DC",      NAND_MFR_TOSHIBA, 0x6b, 22, 0, 2, 0x2000, 0},
@@ -49,6 +53,7 @@ static struct nand_flash_dev nand_flash_ids[] = {
 	{"Samsung KM29W16000",    NAND_MFR_SAMSUNG, 0xea, 21, 1, 2, 0x1000, 0},
 	{"Samsung K9F5616Q0C",    NAND_MFR_SAMSUNG, 0x45, 25, 0, 2, 0x4000, 1},
 	{"Samsung K9K1216Q0C",    NAND_MFR_SAMSUNG, 0x46, 26, 0, 3, 0x4000, 1},
+	{"Samsung K9F1G08U0M",    NAND_MFR_SAMSUNG, 0xf1, 27, 0, 2, 0, 0},
 	{NULL,}
 };
 
