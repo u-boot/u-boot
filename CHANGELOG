@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for TQM8260-AI boards.
+
 * Minor code cleanup
 
 * Merge the new NAND code (testing-NAND brach); see doc/README.nand
