@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for Intel Monahans CPU on Zylonite and Delta boards
+  (This is Work in Progress!)
+
 * Add support for TQM8260-AI boards.
 
 * Minor code cleanup
