@@ -208,9 +208,6 @@ etags:
 				net disk rtc dtt drivers drivers/sk98lin common \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 
-ctags:
-		ctags -Re
-
 System.map:	u-boot
 		@$(NM) $< | \
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
@@ -1644,11 +1641,11 @@ cerf250_config :	unconfig
 cradle_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa cradle
 
-delta_config :
-	@./mkconfig $(@:_config=) arm pxa delta
-
 csb226_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa csb226
+
+delta_config :
+	@./mkconfig $(@:_config=) arm pxa delta
 
 innokom_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa innokom

@@ -61,11 +61,6 @@ typedef	struct	global_data {
 #define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
 #define	GD_FLG_SILENT	0x00004		/* Silent mode				*/
 
-#undef GCC_4_SCREW_GDP
-#ifdef GCC_4_SCREW_GDP
-# define DECLARE_GLOBAL_DATA_PTR     register gd_t* volatile gd asm ("r8");
-#else
-# define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r8")
-#endif
+#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r8")
 
 #endif /* __ASM_GBL_DATA_H */
