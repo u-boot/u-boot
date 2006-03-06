@@ -157,7 +157,7 @@
 #define CFG_DRAM_BASE		0xa0000000 /* at CS0 */
 #define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
-#define CFG_SKIP_DRAM_SCRUB	1
+#undef CFG_SKIP_DRAM_SCRUB
 
 /*
  * NAND Flash
