@@ -43,7 +43,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	    (CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	    (CFG_ENV_SIZE + 256*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -164,7 +164,7 @@
  */
 /* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
 #define CONFIG_NEW_NAND_CODE
-#define CFG_NAND0_BASE		0x43100040 /* 0x10000000 */
+#define CFG_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */
 #undef CFG_NAND1_BASE
 
 #define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
@@ -174,9 +174,13 @@
 #define NAND_DELAY_US		25	/* mk@tbd: could be 0, I guess */
 
 /* nand timeout values */	
-#define CFG_NAND_PROG_ERASE_TO	300
+#define CFG_NAND_PROG_ERASE_TO	3000
 #define CFG_NAND_OTHER_TO	100
 #define CFG_NAND_SENDCMD_RETRY	3
+#define NAND_ALLOW_ERASE_ALL	1
+
+#define CONFIG_MTD_DEBUG
+#define CONFIG_MTD_DEBUG_VERBOSE 1
 
 #define ADDR_COLUMN 1
 #define ADDR_PAGE 2

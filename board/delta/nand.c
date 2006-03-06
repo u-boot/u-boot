@@ -31,8 +31,13 @@
 /* mk@tbd move this to pxa-regs */
 #define OSCR_CLK_FREQ 3.250 /* MHz */
 
+/* usefull */
 #define CFG_DFC_DEBUG1
-#define CFG_DFC_DEBUG2
+/* noisy */
+#undef CFG_DFC_DEBUG2
+/* wild west */
+#undef CFG_DFC_DEBUG3
+
 
 #ifdef CFG_DFC_DEBUG1
 # define DFC_DEBUG1(fmt, args...) printf(fmt, ##args)
@@ -46,6 +51,12 @@
 # define DFC_DEBUG2(fmt, args...)
 #endif
 
+#ifdef CFG_DFC_DEBUG3
+# define DFC_DEBUG3(fmt, args...) printf(fmt, ##args)
+#else
+# define DFC_DEBUG3(fmt, args...)
+#endif
+
 static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
 
 static struct nand_bbt_descr delta_bbt_descr = {
@@ -56,7 +67,7 @@ static struct nand_bbt_descr delta_bbt_descr = {
 };
 
 static struct nand_oobinfo delta_oob = {
-	.useecc = MTD_NANDECC_AUTOPLACE,
+	.useecc = MTD_NANDECC_AUTOPL_USR, /* MTD_NANDECC_PLACEONLY, */
 	.eccbytes = 6,
 	.eccpos = {2, 3, 4, 5, 6, 7},
 	.oobfree = { {8, 2}, {12, 4} }
@@ -90,7 +101,8 @@ static void delta_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 	unsigned long rest = len & 0x3;
 	unsigned long *long_buf;
 	int i;
-
+	
+	DFC_DEBUG2("delta_write_buf: writing %d bytes starting with 0x%x.\n", len, *((unsigned long*) buf));
 	if(bytes_multi) {
 		for(i=0; i<bytes_multi; i+=4) {
 			long_buf = (unsigned long*) &buf[i];
@@ -138,6 +150,7 @@ static void delta_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 	unsigned long rest = len & 0x3;
 	unsigned long *long_buf;
 
+	DFC_DEBUG3("delta_read_buf: reading %d bytes.\n", len);
 	/* if there are any, first copy multiple of 4 bytes */
 	if(bytes_multi) {
 		for(i=0; i<bytes_multi; i+=4) {
@@ -167,6 +180,7 @@ static u16 delta_read_word(struct mtd_info *mtd)
 /* global var, too bad: mk@tbd: move to ->priv pointer */
 static unsigned long read_buf = 0;
 static int bytes_read = -1;
+static unsigned long last_cmd = 0;
 
 /* read a byte from NDDB Because we can only read 4 bytes from NDDB at
  * a time, we buffer the remaining bytes. The buffer is reset when a
@@ -176,16 +190,18 @@ static u_char delta_read_byte(struct mtd_info *mtd)
 {
 /* 	struct nand_chip *this = mtd->priv; */
 	unsigned char byte;
+	unsigned long dummy;
 
 	if(bytes_read < 0) {
 		read_buf = NDDB;
+		dummy = NDDB;		
 		bytes_read = 0;
 	}
 	byte = (unsigned char) (read_buf>>(8 * bytes_read++));
 	if(bytes_read >= 4)
 		bytes_read = -1;
 
-	DFC_DEBUG2("delta_read_byte: byte %u: 0x%x of (0x%x).\n", bytes_read, byte, read_buf);
+	DFC_DEBUG2("delta_read_byte: byte %u: 0x%x of (0x%x).\n", bytes_read - 1, byte, read_buf);
 	return byte;
 }
 
@@ -330,13 +346,15 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	/* clear the ugly byte read buffer */
 	bytes_read = -1;
 	read_buf = 0;
-	
+	last_cmd = 0;
+
 	/* if command is a double byte cmd, we set bit double cmd bit 19  */
 	/* 	command2 = (command>>8) & 0xFF;  */
 	/* 	ndcb0 = command | ((command2 ? 1 : 0) << 19); *\/ */
 
 	switch (command) {
 	case NAND_CMD_READ0:
+		DFC_DEBUG3("delta_cmdfunc: NAND_CMD_READ0, page_addr: 0x%x, column: 0x%x.\n", page_addr, (column>>1));
 		delta_new_cmd();
 		ndcb0 = (NAND_CMD_READ0 | (4<<16));
 		column >>= 1; /* adjust for 16 bit bus */
@@ -346,7 +364,14 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 			 ((page_addr<<8) & 0xff000000)); /* make this 0x01000000 ? */
 		event = NDSR_RDDREQ;
 		goto write_cmd;
+	case NAND_CMD_READ1:
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_READ1 unimplemented!\n");
+		goto end;
+	case NAND_CMD_READOOB:
+		DFC_DEBUG1("delta_cmdfunc: NAND_CMD_READOOB unimplemented!\n");
+		goto end;
 	case NAND_CMD_READID:
+		last_cmd = NAND_CMD_READID;
 		delta_new_cmd();
 		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_READID.\n");
 		ndcb0 = (NAND_CMD_READID | (3 << 21) | (1 << 16)); /* addr cycles*/
@@ -357,7 +382,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_PAGEPROG empty due to multicmd.\n");
 		goto end;
 	case NAND_CMD_ERASE1:
-		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_ERASE1.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_ERASE1,  page_addr: 0x%x, column: 0x%x.\n", page_addr, (column>>1));
 		delta_new_cmd();
 		ndcb0 = (0xd060 | (1<<25) | (2<<21) | (1<<19) | (3<<16));
 		ndcb1 = (page_addr & 0x00ffffff);
@@ -368,7 +393,7 @@ static void delta_cmdfunc(struct mtd_info *mtd, unsigned command,
 	case NAND_CMD_SEQIN:
 		/* send PAGE_PROG command(0x1080) */
 		delta_new_cmd();
-		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG.\n");
+		DFC_DEBUG2("delta_cmdfunc: NAND_CMD_SEQIN/PAGE_PROG,  page_addr: 0x%x, column: 0x%x.\n", page_addr, (column>>1));
 		ndcb0 = (0x1080 | (1<<25) | (1<<21) | (1<<19) | (4<<16));
 		column >>= 1; /* adjust for 16 bit bus */
 		ndcb1 = (((column>>1) & 0xff) |
@@ -562,6 +587,7 @@ void board_nand_init(struct nand_chip *nand)
 #define MIN(x, y)		((x < y) ? x : y)
 
 
+#undef CFG_TIMING_TIGHT
 #ifndef CFG_TIMING_TIGHT 
 	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US) + 1), 
 		  DFC_MAX_tCH);
@@ -646,7 +672,7 @@ void board_nand_init(struct nand_chip *nand)
 	NDCR = (NDCR_SPARE_EN |		/* use the spare area */
 		NDCR_DWIDTH_C |		/* 16bit DFC data bus width  */
 		NDCR_DWIDTH_M |		/* 16 bit Flash device data bus width */
-		(7 << 16) |		/* read id count = 7 ???? mk@tbd */
+		(2 << 16) |		/* read id count = 7 ???? mk@tbd */
 		NDCR_ND_ARB_EN |	/* enable bus arbiter */
 		NDCR_RDYM |		/* flash device ready ir masked */
 		NDCR_CS0_PAGEDM |	/* ND_nCSx page done ir masked */
