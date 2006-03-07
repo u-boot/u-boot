@@ -73,9 +73,8 @@
 #ifdef TURN_ON_ETHERNET
 # define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
 #else
-# define CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_NAND) \
-				& ~(CFG_CMD_NET | CFG_CMD_FLASH | \
-				    CFG_CMD_ENV | CFG_CMD_IMLS))
+# define CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_ENV | CFG_CMD_NAND) \
+				& ~(CFG_CMD_NET | CFG_CMD_FLASH | CFG_CMD_IMLS))
 #endif
 
 
@@ -280,8 +279,8 @@
 #define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
 #endif /* #ifndef CFG_NO_FLASH */
 
-#define CFG_ENV_IS_NOWHERE
-/* #define CFG_ENV_IS_IN_NAND      1 */
+/* #define CFG_ENV_IS_NOWHERE */
+#define CFG_ENV_IS_IN_NAND	1
 #define CFG_ENV_OFFSET		0x40000
 #define CFG_ENV_SIZE		0x4000
 
