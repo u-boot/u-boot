@@ -115,7 +115,7 @@ int saveenv(void)
 	int	total, ret = 0;
 
 	puts ("Erasing Nand...");
-	if (nand_erase(&nand_info[0], CFG_NEW_OFFSET, CFG_ENV_SIZE))
+	if (nand_erase(&nand_info[0], CFG_ENV_OFFSET, CFG_ENV_SIZE))
 		return 1;
 
 	puts ("Writing to Nand... ");
