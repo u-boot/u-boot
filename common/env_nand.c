@@ -112,7 +112,8 @@ int env_init(void)
  */
 int saveenv(void)
 {
-	int	total, ret = 0;
+	ulong total;
+	int ret = 0;
 
 	puts ("Erasing Nand...");
 	if (nand_erase(&nand_info[0], CFG_ENV_OFFSET, CFG_ENV_SIZE))
@@ -120,8 +121,7 @@ int saveenv(void)
 
 	puts ("Writing to Nand... ");
 	total = CFG_ENV_SIZE;
-	ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total,
-			(u_char*) env_ptr);
+	ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
 	if (ret || total != CFG_ENV_SIZE)
 		return 1;
 
@@ -138,11 +138,11 @@ int saveenv(void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	int ret, total;
+	ulong total;
+	int ret;
 
 	total = CFG_ENV_SIZE;
-	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total,
-			(u_char*) env_ptr);
+	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
   	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 

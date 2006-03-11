@@ -121,7 +121,7 @@ void *sbrk (ptrdiff_t increment)
 
 static int init_baudrate (void)
 {
-	uchar tmp[64];	/* long enough for environment variables */
+	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
@@ -235,9 +235,11 @@ init_fnc_t *init_sequence[] = {
 
 void start_armboot (void)
 {
-	ulong size;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
+#ifndef CFG_NO_FLASH
+	ulong size;
+#endif
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
 	unsigned long addr;
 #endif
@@ -320,7 +322,7 @@ void start_armboot (void)
 		int i;
 		ulong reg;
 		char *s, *e;
-		uchar tmp[64];
+		char tmp[64];
 
 		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
 		s = (i > 0) ? tmp : NULL;

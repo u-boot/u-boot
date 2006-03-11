@@ -111,7 +111,7 @@ at91_xfer(unsigned char chip, unsigned int addr, int alen,
 int
 i2c_probe(unsigned char chip)
 {
-	char buffer[1];
+	unsigned char buffer[1];
 
 	return at91_xfer(chip, 0, 0, buffer, 1, 1);
 }
@@ -191,7 +191,7 @@ i2c_init(int speed, int slaveaddr)
 
 uchar i2c_reg_read(uchar i2c_addr, uchar reg)
 {
-	char buf;
+	unsigned char buf;
 
 	i2c_read(i2c_addr, reg, 1, &buf, 1);
 

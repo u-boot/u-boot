@@ -73,7 +73,7 @@ static unsigned bcd2bin (uchar c);
 static int setup_done = 0;
 
 static int
-rs5c372_readram(char *buf, int len)
+rs5c372_readram(unsigned char *buf, int len)
 {
 	int ret;
 
@@ -128,7 +128,7 @@ rs5c372_enable(void)
 }
 
 static void
-rs5c372_convert_to_time(struct rtc_time *dt, char *buf)
+rs5c372_convert_to_time(struct rtc_time *dt, unsigned char *buf)
 {
 	/* buf[0] is register 15 */
 	dt->tm_sec = bcd2bin(buf[1]);

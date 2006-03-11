@@ -174,8 +174,7 @@ void dataflash_print_info (void)
 /* Function Name       : AT91F_DataflashSelect 					*/
 /* Object              : Select the correct device				*/
 /*------------------------------------------------------------------------------*/
-AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash,
-										unsigned int *addr)
+AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash, unsigned long *addr)
 {
 	char addr_valid = 0;
 	int i;
@@ -291,7 +290,7 @@ int i,j, area1, area2, addr_valid = 0;
 /*------------------------------------------------------------------------------*/
 int read_dataflash (unsigned long addr, unsigned long size, char *result)
 {
-	int AddrToRead = addr;
+	unsigned long AddrToRead = addr;
 	AT91PS_DataFlash pFlash = &DataFlashInst;
 
 	pFlash = AT91F_DataflashSelect (pFlash, &AddrToRead);
@@ -313,7 +312,7 @@ int read_dataflash (unsigned long addr, unsigned long size, char *result)
 int write_dataflash (unsigned long addr_dest, unsigned long addr_src,
 		     unsigned long size)
 {
-	int AddrToWrite = addr_dest;
+	unsigned long AddrToWrite = addr_dest;
 	AT91PS_DataFlash pFlash = &DataFlashInst;
 
 	pFlash = AT91F_DataflashSelect (pFlash, &AddrToWrite);
@@ -330,7 +329,7 @@ int write_dataflash (unsigned long addr_dest, unsigned long addr_src,
 	if (AddrToWrite == -1)
 		return -1;
 
-	return AT91F_DataFlashWrite (pFlash, (char *) addr_src, AddrToWrite, size);
+	return AT91F_DataFlashWrite (pFlash, (uchar *)addr_src, AddrToWrite, size);
 }
 
 

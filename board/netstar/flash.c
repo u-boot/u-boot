@@ -230,7 +230,7 @@ out:
  * Copy memory to flash
  */
 
-volatile static int write_hword(flash_info_t *info, ulong dest, ushort data)
+static int write_hword(flash_info_t *info, ulong dest, ushort data)
 {
 	vu_short *addr = (vu_short *) dest;
 	ushort result;

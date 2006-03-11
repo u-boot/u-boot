@@ -229,7 +229,7 @@ static void wait_us(unsigned long us)
 	}
 }
 
-static void dfc_clear_nddb()
+static void dfc_clear_nddb(void)
 {
 	NDCR &= ~NDCR_ND_RUN;
 	wait_us(CFG_NAND_OTHER_TO);
@@ -263,7 +263,7 @@ static unsigned long dfc_wait_event(unsigned long event)
 }
 
 /* we don't always wan't to do this */
-static void dfc_new_cmd()
+static void dfc_new_cmd(void)
 {
 	int retry = 0;
 	unsigned long status;
@@ -398,7 +398,7 @@ static void dfc_cmdfunc(struct mtd_info *mtd, unsigned command,
 	return;
 }
 
-static void dfc_gpio_init()
+static void dfc_gpio_init(void)
 {
 	DFC_DEBUG2("Setting up DFC GPIO's.\n");
 
