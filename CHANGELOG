@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix cleanup for netstart board.
+  Remove build results from repository
+
 * Some code cleanup for GCC 4.x
 
 * Fixes to support environment in NAND flash;
