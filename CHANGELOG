@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixes to support environment in NAND flash;
+  enable NAND flash based environment for delta board.
+
 * Add support for Intel Monahans CPU on Zylonite and Delta boards
   (This is Work in Progress!)
 
