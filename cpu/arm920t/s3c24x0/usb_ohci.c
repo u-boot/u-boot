@@ -1647,7 +1647,8 @@ int usb_lowlevel_init(void)
 	}
 
 	/* FIXME this is a second HC reset; why?? */
-	writel (gohci.hc_control = OHCI_USB_RESET, &gohci.regs->control);
+	gohci.hc_control = OHCI_USB_RESET;
+	writel (gohci.hc_control, &gohci.regs->control);
 	wait_ms (10);
 
 	if (hc_start (&gohci) < 0) {

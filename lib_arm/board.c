@@ -408,6 +408,8 @@ void hang (void)
 }
 
 #ifdef CONFIG_MODEM_SUPPORT
+static inline void mdm_readline(char *buf, int bufsiz);
+
 /* called from main loop (common/main.c) */
 extern void  dbg(const char *fmt, ...);
 int mdm_init (void)
@@ -416,7 +418,6 @@ int mdm_init (void)
 	char *init_str;
 	int i;
 	extern char console_buffer[];
-	static inline void mdm_readline(char *buf, int bufsiz);
 	extern void enable_putc(void);
 	extern int hwflow_onoff(int);
 
