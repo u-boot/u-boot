@@ -836,13 +836,13 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	hdr = (image_header_t *)addr;
-	if (hdr->ih_magic  != IH_MAGIC) {
+	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
 		printf ("Bad Magic Number\n");
 		return 1;
 	}
 	print_image_hdr(hdr);
 
-	imsize= hdr->ih_size+sizeof(image_header_t);
+	imsize= ntohl(hdr->ih_size)+sizeof(image_header_t);
 	nrofblk=imsize/512;
 	if((imsize%512)>0)
 		nrofblk++;

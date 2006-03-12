@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add loads of ntohl() in image header handling
+  Patch by Steven Scholz, 10 Jun 2005
+
 * Switch MPC86xADS and MPC885ADS boards to use cpuclk environment
   variable to set clock
   Patch by Yuli Barcohen, 05 Jun 2005

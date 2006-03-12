@@ -23,11 +23,11 @@
 #if defined(CONFIG_MPC8260) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 void lynxkdi_boot ( image_header_t *hdr )
 {
-	void (*lynxkdi)(void) = (void(*)(void))hdr->ih_ep;
+	void (*lynxkdi)(void) = (void(*)(void)) ntohl(hdr->ih_ep);
 	lynxos_bootparms_t *parms = (lynxos_bootparms_t *)0x0020;
 	bd_t *kbd;
 	DECLARE_GLOBAL_DATA_PTR;
-	u32 *psz = (u32 *)(hdr->ih_load + 0x0204);
+	u32 *psz = (u32 *)(ntohl(hdr->ih_load) + 0x0204);
 
 	memset( parms, 0, sizeof(*parms));
 	kbd = gd->bd;
@@ -39,9 +39,9 @@ void lynxkdi_boot ( image_header_t *hdr )
 	/* Do a simple check for Bluecat so we can pass the
 	 * kernel command line parameters.
 	 */
-	if( le32_to_cpu(*psz) == hdr->ih_size ){
+	if( le32_to_cpu(*psz) == ntohl(hdr->ih_size) ){	/* FIXME: NOT SURE HERE ! */
 	    char *args;
-	    char *cmdline = (char *)(hdr->ih_load + 0x020c);
+	    char *cmdline = (char *)(ntohl(hdr->ih_load) + 0x020c);
 	    int len;
 
 	    printf("Booting Bluecat KDI ...\n");

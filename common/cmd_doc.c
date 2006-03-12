@@ -250,7 +250,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		print_image_hdr (hdr);
 
-		cnt = (hdr->ih_size + sizeof(image_header_t));
+		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
 		cnt -= SECTORSIZE;
 	} else {
 		puts ("\n** Bad Magic Number **\n");

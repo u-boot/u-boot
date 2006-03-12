@@ -606,7 +606,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #endif /* CONFIG_MPC5xxx */
 	}
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))hdr->ih_ep;
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong)) ntohl(hdr->ih_ep);
 
 	/*
 	 * Check if there is an initrd image
@@ -621,7 +621,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		/* Copy header so we can blank CRC field for re-calculation */
 		memmove (&header, (char *)addr, sizeof(image_header_t));
 
-		if (hdr->ih_magic  != IH_MAGIC) {
+		if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
 			puts ("Bad Magic Number\n");
 			SHOW_BOOT_PROGRESS (-10);
 			do_reset (cmdtp, flag, argc, argv);
@@ -630,7 +630,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		data = (ulong)&header;
 		len  = sizeof(image_header_t);
 
-		checksum = hdr->ih_hcrc;
+		checksum = ntohl(hdr->ih_hcrc);
 		hdr->ih_hcrc = 0;
 
 		if (crc32 (0, (uchar *)data, len) != checksum) {
@@ -644,7 +644,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		print_image_hdr (hdr);
 
 		data = addr + sizeof(image_header_t);
-		len  = hdr->ih_size;
+		len  = ntohl(hdr->ih_size);
 
 		if (verify) {
 			ulong csum = 0;
@@ -670,7 +670,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			csum = crc32 (0, (uchar *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 
-			if (csum != hdr->ih_dcrc) {
+			if (csum != ntohl(hdr->ih_dcrc)) {
 				puts ("Bad Data CRC\n");
 				SHOW_BOOT_PROGRESS (-12);
 				do_reset (cmdtp, flag, argc, argv);
@@ -902,7 +902,7 @@ do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 		cmdline = "";
 	}
 
-	loader = (void (*)(bd_t *, image_header_t *, char *, char *)) hdr->ih_ep;
+	loader = (void (*)(bd_t *, image_header_t *, char *, char *)) ntohl(hdr->ih_ep);
 
 	printf ("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 		(ulong)loader);
@@ -1364,7 +1364,7 @@ do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	image_header_t *hdr = &header;
 	void	(*entry_point)(bd_t *);
 
-	entry_point = (void (*)(bd_t *)) hdr->ih_ep;
+	entry_point = (void (*)(bd_t *)) ntohl(hdr->ih_ep);
 
 	printf ("## Transferring control to RTEMS (at address %08lx) ...\n",
 		(ulong)entry_point);
@@ -1387,7 +1387,7 @@ do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	image_header_t *hdr = &header;
 	char str[80];
 
-	sprintf(str, "%x", hdr->ih_ep); /* write entry-point into string */
+	sprintf(str, "%x", ntohl(hdr->ih_ep)); /* write entry-point into string */
 	setenv("loadaddr", str);
 	do_bootvx(cmdtp, 0, 0, NULL);
 }
@@ -1400,7 +1400,7 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char *local_args[2];
 	char str[16];
 
-	sprintf(str, "%x", hdr->ih_ep); /* write entry-point into string */
+	sprintf(str, "%x", ntohl(hdr->ih_ep)); /* write entry-point into string */
 	local_args[0] = argv[0];
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);
