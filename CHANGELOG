@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup compiler warnings.
+  Patch by Greg Ungerer, 21 May 2005
+
 * Word alignment fixes for word aligned NS16550 UART
   Patch by Jean-Paul Saman, 01 Mar 2005
 
