@@ -441,6 +441,9 @@ cogent_mpc8xx_config:	unconfig
 ELPT860_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx elpt860 LEOX
 
+EP88x_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx ep88x
+
 ESTEEM192E_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx esteem192e
 
