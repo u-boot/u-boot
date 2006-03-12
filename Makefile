@@ -53,9 +53,6 @@ ifeq (include/config.mk,$(wildcard include/config.mk))
 # load ARCH, BOARD, and CPU configuration
 include include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
-# load other configuration
-include $(TOPDIR)/config.mk
-
 ifndef CROSS_COMPILE
 ifeq ($(HOSTARCH),ppc)
 CROSS_COMPILE =
@@ -92,6 +89,10 @@ endif
 endif
 
 export	CROSS_COMPILE
+
+# load other configuration
+include $(TOPDIR)/config.mk
+
 
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
