@@ -21,12 +21,13 @@
 /****************************************************************************/
 
 #include <common.h>
+
+#ifdef	CONFIG_DRIVER_KS8695ETH
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
 #include <asm/arch/platform.h>
 
-#ifdef	CONFIG_DRIVER_KS8695ETH
 /****************************************************************************/
 
 /*
