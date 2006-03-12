@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* RPXlite configuration fixes
+  - Use correct flash sector size
+  - Use correct memory test end address
+  - Add support for bzip2 compression
+  - Various small fixes
+  Patch by Yuli Barcohen, 05 Jun 2005
+
 * Memory configuration changes for ZPC.1900 board
   - Fix SDRAM timing on both local bus and 60x bus
   - Add support for second flash bank (SIMM)
