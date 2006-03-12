@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Adjust "echo" as a default command
+  Patch by Sam Song, 19 Jun 2005
+
 * Fix PCIDF calculation in cpu/mpc8260/speed.c for MPC8280EC
   Patch by KokHow Teh, 16 Jun 2005
 

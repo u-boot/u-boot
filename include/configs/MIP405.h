@@ -58,7 +58,6 @@
 			CFG_CMD_CACHE	| \
 			CFG_CMD_DATE	| \
 			CFG_CMD_DHCP	| \
-			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_FAT	| \

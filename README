@@ -606,7 +606,7 @@ The following options need to be configured:
 		CFG_CMD_DIAG	* Diagnostics
 		CFG_CMD_DOC	* Disk-On-Chip Support
 		CFG_CMD_DTT	* Digital Therm and Thermostat
-		CFG_CMD_ECHO	* echo arguments
+		CFG_CMD_ECHO	  echo arguments
 		CFG_CMD_EEPROM	* EEPROM read/write support
 		CFG_CMD_ELF	* bootelf, bootvx
 		CFG_CMD_ENV	  saveenv
