@@ -26,16 +26,15 @@
  */
 
 /* for now: just dummy functions to satisfy the linker */
-extern void blackfin_icache_range(unsigned long *,unsigned long *);
-extern void blackfin_dcache_range(unsigned long *,unsigned long *);
-void flush_cache(unsigned long dummy1, unsigned long dummy2)
+extern void blackfin_icache_range (unsigned long *, unsigned long *);
+extern void blackfin_dcache_range (unsigned long *, unsigned long *);
+void flush_cache (unsigned long dummy1, unsigned long dummy2)
 {
-	if(icache_status()){
-		blackfin_icache_flush_range(dummy1,dummy1+dummy2);
-		}
-	if(dcache_status()){
-		blackfin_dcache_flush_range(dummy1,dummy1+dummy2);
-		}
+	if (icache_status ()) {
+		blackfin_icache_flush_range (dummy1, dummy1 + dummy2);
+	}
+	if (dcache_status ()) {
+		blackfin_dcache_flush_range (dummy1, dummy1 + dummy2);
+	}
 	return;
 }
-

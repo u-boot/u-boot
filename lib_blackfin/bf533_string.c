@@ -127,7 +127,7 @@ int strncmp(const char *cs, const char *ct, size_t count)
 void * memcpy(void * dest,const void *src,size_t count)
 {
 	char *tmp = (char *) dest, *s = (char *) src;
-	
+
 /* Turn off the cache, if destination in the L1 memory */
 	if ( (tmp >= (char *)L1_ISRAM) && (tmp < (char *)L1_ISRAM_END)
 		|| (tmp >= (char *)DATA_BANKA_SRAM) && (tmp < DATA_BANKA_SRAM_END)
@@ -150,7 +150,7 @@ void * memcpy(void * dest,const void *src,size_t count)
 
 void *dma_memcpy(void * dest,const void *src,size_t count)
 {
-	
+
 		*pMDMA_D0_IRQ_STATUS = DMA_DONE | DMA_ERR;
 
 		/* Copy sram functions from sdram to sram */
@@ -173,7 +173,7 @@ void *dma_memcpy(void * dest,const void *src,size_t count)
 		asm("ssync;");
 
 		*pMDMA_D0_CONFIG = ( WNR | DMAEN);
-		
+
 		while(*pMDMA_D0_IRQ_STATUS & DMA_RUN){
 			*pMDMA_D0_IRQ_STATUS |= (DMA_DONE | DMA_ERR);
 		}

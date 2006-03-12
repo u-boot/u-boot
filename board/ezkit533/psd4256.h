@@ -65,4 +65,3 @@
 #define	PSDA_LED6	0x04		/* LED 6, 1 = LED ON			*/
 #define	PSDA_LED5	0x02		/* LED 5, 1 = LED ON			*/
 #define	PSDA_LED4	0x01		/* LED 4, 1 = LED ON			*/
-

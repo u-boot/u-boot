@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2005 blackfin.uclinux.org
  *
- * This file is based on 
+ * This file is based on
  * Based on: include/asm-m68knommu/uaccess.h
  * Changes made by Lineo Inc.    May 2001
  *

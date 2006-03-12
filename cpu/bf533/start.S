@@ -32,7 +32,7 @@
 
 /*
  * Note: A change in this file subsequently requires a change in
- *       board/$(board_name)/config.mk for a valid u-boot.bin 
+ *       board/$(board_name)/config.mk for a valid u-boot.bin
  */
 
 #define ASSEMBLY
@@ -82,7 +82,7 @@ _stext:
 	SSYNC;
 
 	/* As per HW reference manual DAG registers,
-	 * DATA and Address resgister shall be zero'd 
+	 * DATA and Address resgister shall be zero'd
 	 * in initialization, after a reset state
 	 */
 	r1 = 0;	/* Data registers zero'd */
@@ -99,7 +99,7 @@ _stext:
 	p3 = 0;
 	p4 = 0;
 	p5 = 0;
-	
+
 	i0 = 0; /* DAG Registers zero'd */
 	i1 = 0;
 	i2 = 0;
@@ -242,9 +242,9 @@ loop1:
 	r1 = [p1];
 	[p2] = r1;
 	p3=0x4;
-	p1=p1+p3;	
+	p1=p1+p3;
 	p2=p2+p3;
-	r2=0x4;	
+	r2=0x4;
 	r0=r0-r2;
 	cc=r0==0x0;
 	if !cc jump loop1;

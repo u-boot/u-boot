@@ -1899,7 +1899,7 @@ clean:
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
 	rm -f board/netstar/eeprom board/netstar/crcek
-	rm -f board/netstar/*.srec board/netstar/*.bin 
+	rm -f board/netstar/*.srec board/netstar/*.bin
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
 

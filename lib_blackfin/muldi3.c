@@ -80,13 +80,13 @@ DItype __muldi3 (DItype u, DItype v)
 {
 	DIunion w;
 	DIunion uu, vv;
- 
+
 	uu.ll = u,
 	vv.ll = v;
 	/*  panic("kernel panic for __muldi3"); */
 	w.ll = __umulsidi3 (uu.s.low, vv.s.low);
 	w.s.high += ((USItype) uu.s.low * (USItype) vv.s.high
 	+ (USItype) uu.s.high * (USItype) vv.s.low);
- 
+
 	return w.ll;
 }

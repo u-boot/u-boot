@@ -147,7 +147,7 @@ void board_init_f(ulong bootflag)
 	addr = (CFG_GBL_DATA_ADDR + sizeof(gd_t));
 
 	/* Align to 4 byte boundary */
-        addr &= ~(4 - 1);
+	addr &= ~(4 - 1);
 	bd = (bd_t*)addr;
 	gd->bd = bd;
 	memset((void *) bd, 0, sizeof(bd_t));

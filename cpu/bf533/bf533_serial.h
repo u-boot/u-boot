@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2005 blackfin.uclinux.org
  *
- * This file is based on 
+ * This file is based on
  * bf533_serial.h: Definitions for the BlackFin BF533 DSP serial driver.
  * Copyright (C) 2003	Bas Vermeulen <bas@buyways.nl>
  * 			BuyWays B.V. (www.buyways.nl)

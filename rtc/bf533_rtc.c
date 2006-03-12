@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- * Real Time Clock interface of ADI21535 (Blackfin) for uCLinux 
+ * Real Time Clock interface of ADI21535 (Blackfin) for uCLinux
  *
  * Copyright (C) 2003 Motorola Corporation.  All rights reserved.
  * 				Richard Xiao (A2590C@email.mot.com)
@@ -42,7 +42,7 @@
  *	1.10b	Andrew Morton: SMP lock fix
  *	1.10c	Cesar Barros: SMP locking fixes and cleanup
  *	1.10d	Paul Gortmaker: delete paranoia check in rtc_exit
- *	1.10e   LG Soft India: Register access is different in BF533. 	
+ *	1.10e   LG Soft India: Register access is different in BF533.
  */
 
 #include <common.h>
@@ -54,62 +54,64 @@
 #include <asm/blackfin.h>
 #include <asm/cpu/bf533_rtc.h>
 
-void rtc_reset(void)
+void rtc_reset (void)
 {
 	return;			/* nothing to do */
 }
 
 /* Wait for pending writes to complete */
-void wait_for_complete(void)
+void wait_for_complete (void)
 {
 	while (!(*(volatile unsigned short *) RTC_ISTAT & 0x8000)) {
-		printf("");
+		printf ("");
 	}
 	*(volatile unsigned short *) RTC_ISTAT = 0x8000;
 }
 
 /* Enable the RTC prescaler enable register */
-void rtc_init()
+void rtc_init ()
 {
 	*(volatile unsigned short *) RTC_PREN = 0x1;
-	wait_for_complete();
+	wait_for_complete ();
 }
 
-/* Set the time. Get the time_in_secs which is the number of seconds since Jan 1970 and set the RTC registers 
+/* Set the time. Get the time_in_secs which is the number of seconds since Jan 1970 and set the RTC registers
  * based on this value.
  */
 void rtc_set (struct rtc_time *tmp)
 {
 	unsigned long n_days_1970 = 0;
-	unsigned long n_secs_rem  = 0;
-	unsigned long n_hrs	  = 0;
-	unsigned long n_mins	  = 0;
-	unsigned long n_secs	  = 0;
+	unsigned long n_secs_rem = 0;
+	unsigned long n_hrs = 0;
+	unsigned long n_mins = 0;
+	unsigned long n_secs = 0;
 	unsigned long time_in_secs;
 
-	if(tmp == NULL) {
-		printf("Error setting the date/time \n");
+	if (tmp == NULL) {
+		printf ("Error setting the date/time \n");
 		return;
 	}
 
-	time_in_secs = mktime(tmp->tm_year, tmp->tm_mon, tmp->tm_mday,tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	time_in_secs =
+		mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_hour,
+			tmp->tm_min, tmp->tm_sec);
 
 	/* Compute no. of days since 1970 */
 	n_days_1970 = (unsigned long) (time_in_secs / (NUM_SECS_IN_DAY));
 
 	/* From the remining secs, compute the hrs(0-23), mins(0-59) and secs(0-59) */
-	n_secs_rem = (unsigned long)(time_in_secs % (NUM_SECS_IN_DAY));
-	n_hrs 	= n_secs_rem / (NUM_SECS_IN_HOUR);
+	n_secs_rem = (unsigned long) (time_in_secs % (NUM_SECS_IN_DAY));
+	n_hrs = n_secs_rem / (NUM_SECS_IN_HOUR);
 	n_secs_rem = n_secs_rem % (NUM_SECS_IN_HOUR);
 	n_mins = n_secs_rem / (NUM_SECS_IN_MIN);
 	n_secs = n_secs_rem % (NUM_SECS_IN_MIN);
-	
+
 	/* Store the new time in the RTC_STAT register */
 	*(volatile unsigned long *) RTC_STAT =
 		((n_days_1970 << DAY_BITS_OFF) | (n_hrs << HOUR_BITS_OFF) |
-		(n_mins << MIN_BITS_OFF) | (n_secs << SEC_BITS_OFF));
+		 (n_mins << MIN_BITS_OFF) | (n_secs << SEC_BITS_OFF));
 
-	wait_for_complete();
+	wait_for_complete ();
 }
 
 /* Read the time from the RTC_STAT. time_in_seconds is seconds since Jan 1970 */
@@ -117,16 +119,16 @@ void rtc_get (struct rtc_time *tmp)
 {
 	unsigned long cur_rtc_stat = 0;
 	unsigned long time_in_sec;
-	unsigned long tm_sec = 0, tm_min = 0, tm_hour = 0, tm_day = 0; 
+	unsigned long tm_sec = 0, tm_min = 0, tm_hour = 0, tm_day = 0;
 
-	if(tmp == NULL) {
-		printf("Error getting the date/time \n");
+	if (tmp == NULL) {
+		printf ("Error getting the date/time \n");
 		return;
 	}
 
 	/* Read the RTC_STAT register */
 	cur_rtc_stat = *(volatile unsigned long *) RTC_STAT;
-	
+
 	/* Get the secs (0-59), mins (0-59), hrs (0-23) and the days since Jan 1970 */
 	tm_sec = (cur_rtc_stat >> SEC_BITS_OFF) & 0x3f;
 	tm_min = (cur_rtc_stat >> MIN_BITS_OFF) & 0x3f;
@@ -134,10 +136,10 @@ void rtc_get (struct rtc_time *tmp)
 	tm_day = (cur_rtc_stat >> DAY_BITS_OFF) & 0x7fff;
 
 	/* Calculate the total number of seconds since Jan 1970 */
-	time_in_sec 	= 	(tm_sec) + 
-					MIN_TO_SECS(tm_min) + 
-						HRS_TO_SECS(tm_hour) + 
-							DAYS_TO_SECS(tm_day);
-	to_tm(time_in_sec,tmp);	
+	time_in_sec = (tm_sec) +
+		MIN_TO_SECS (tm_min) +
+		HRS_TO_SECS (tm_hour) +
+		DAYS_TO_SECS (tm_day);
+	to_tm (time_in_sec, tmp);
 }
-#endif	/* CONFIG_RTC_BF533 && CFG_CMD_DATE */
+#endif /* CONFIG_RTC_BF533 && CFG_CMD_DATE */

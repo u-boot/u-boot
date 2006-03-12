@@ -3,9 +3,9 @@
  *
  * Blackfin BF533/2.6 support : LG Soft India
  * Updated : Ashutosh Singh / Jahid Khan : Rrap Software Pvt Ltd
- * Updated : 1. SDRAM_KERNEL, SDRAM_DKENEL are added as initial cplb's 
+ * Updated : 1. SDRAM_KERNEL, SDRAM_DKENEL are added as initial cplb's
  *	        shouldn't be victimized. cplbmgr.S search logic is corrected
- *	        to findout the appropriate victim.	
+ *	        to findout the appropriate victim.
  *	     2. SDRAM_IGENERIC in dpdt_table is replaced with SDRAM_DGENERIC
  *	     : LG Soft India
  */
@@ -15,12 +15,12 @@
 #define __ARCH_BFINNOMMU_CPLBTAB_H
 
 /*************************************************************************
- *  			ICPLB TABLE					  	
+ *  			ICPLB TABLE
  *************************************************************************/
 
 .data
 
-/* This table is configurable */ 	
+/* This table is configurable */
 
 .align 4;
 
@@ -33,7 +33,7 @@
 
 /*Use the menuconfig cache policy here - CONFIG_BLKFIN_WT/CONFIG_BLKFIN_WB*/
 
-#define ANOMALY_05000158		0x200	
+#define ANOMALY_05000158		0x200
 #ifdef CONFIG_BLKFIN_WB 	/*Write Back Policy */
 	#define SDRAM_DGENERIC  	(PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_DIRTY | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_USER_RD | CPLB_VALID | ANOMALY_05000158)
 	#define SDRAM_DNON_CHBL         (PAGE_SIZE_4MB | CPLB_DIRTY | CPLB_SUPV_WR | CPLB_USER_RD | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
@@ -45,14 +45,14 @@
 	#define SDRAM_DGENERIC 		(PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_RD | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
 	#define SDRAM_DNON_CHBL         (PAGE_SIZE_4MB | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_USER_RD | CPLB_VALID | ANOMALY_05000158)
 	#define SDRAM_DKERNEL 		(PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_USER_RD | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | CPLB_LOCK | ANOMALY_05000158)
-	#define L1_DMEMORY		(PAGE_SIZE_4KB | CPLB_L1_CHBL | CPLB_L1_AOW | CPLB_WT | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)	
+	#define L1_DMEMORY		(PAGE_SIZE_4KB | CPLB_L1_CHBL | CPLB_L1_AOW | CPLB_WT | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
 	#define SDRAM_EBIU		(PAGE_SIZE_1MB | CPLB_WT | CPLB_L1_AOW | CPLB_USER_RD | CPLB_USER_WR | CPLB_SUPV_WR | CPLB_VALID | ANOMALY_05000158)
-#endif 
+#endif
 
 .global icplb_table
 icplb_table:
 .byte4 0xFFA00000;
-.byte4 (L1_IMEMORY);	
+.byte4 (L1_IMEMORY);
 .byte4 0x00000000;
 .byte4 (SDRAM_IKERNEL);			/*SDRAM_Page1*/
 .byte4 0x00400000;
@@ -174,20 +174,20 @@ ipdt_table:
 .byte4 0xffffffff;                    /* end of section - termination*/
 
 /*********************************************************************
- *			DCPLB TABLE		
+ *			DCPLB TABLE
  ********************************************************************/
 
 .global dcplb_table
 dcplb_table:
 .byte4	0x00000000;
 .byte4	(SDRAM_DKERNEL);	/*SDRAM_Page1*/
-.byte4	0x00400000; 
+.byte4	0x00400000;
 .byte4	(SDRAM_DKERNEL);	/*SDRAM_Page1*/
 .byte4	0x07C00000;
 .byte4	(SDRAM_DKERNEL);	/*SDRAM_Page15*/
-.byte4	0x00800000; 
+.byte4	0x00800000;
 .byte4 	(SDRAM_DGENERIC);	/*SDRAM_Page2*/
-.byte4 	0x00C00000; 
+.byte4 	0x00C00000;
 .byte4	(SDRAM_DGENERIC);	/*SDRAM_Page3*/
 .byte4	0x01000000;
 .byte4	(SDRAM_DGENERIC);	/*SDRAM_Page4*/
@@ -197,7 +197,7 @@ dcplb_table:
 .byte4	(SDRAM_DGENERIC);	/*SDRAM_Page6*/
 .byte4	0x01C00000;
 .byte4	(SDRAM_DGENERIC);	/*SDRAM_Page7*/
-#ifndef CONFIG_EZKIT	
+#ifndef CONFIG_EZKIT
 .byte4	0x02000000;
 .byte4	(SDRAM_DGENERIC);	/*SDRAM_Page8*/
 .byte4	0x02400000;
@@ -217,7 +217,7 @@ dcplb_table:
 
 /**********************************************************************
  *		PAGE DESCRIPTOR TABLE
- * 
+ *
  **********************************************************************/
 
 /* Till here we are discussing about the static memory management model.
@@ -225,15 +225,15 @@ dcplb_table:
  * descriptors to cover the entire addressable memory than will fit into
  * the available on-chip 16 CPLB MMRs. When this happens, the below table
  * will be used which will hold all the potentially required CPLB descriptors
- * 
+ *
  * This is how Page descriptor Table is implemented in uClinux/Blackfin.
- */   
+ */
 .global dpdt_table
 dpdt_table:
 #ifdef CONFIG_CPLB_INFO
 .byte4        0x00000000;
 .byte4        (SDRAM_DKERNEL);        /*SDRAM_Page0*/
-.byte4        0x00400000; 
+.byte4        0x00400000;
 .byte4        (SDRAM_DKERNEL);        /*SDRAM_Page1*/
 #endif
 .byte4        0x00800000;
@@ -271,12 +271,12 @@ dpdt_table:
 .byte4	(SDRAM_EBIU);	/* Async Memory Bank 2 (Secnd)*/
 .byte4	0x20100000;
 .byte4	(SDRAM_EBIU);	/* Async Memory Bank 1 (Prim B)*/
-.byte4	0x20000000;	
+.byte4	0x20000000;
 .byte4	(SDRAM_EBIU);	/* Async Memory Bank 0 (Prim A)*/
 .byte4	0x20300000;		/*Fix for Network*/
 .byte4  (SDRAM_EBIU);	/*Async Memory bank 3*/
 
-#ifdef CONFIG_STAMP	
+#ifdef CONFIG_STAMP
 .byte4	0x04000000;
 .byte4  (SDRAM_DGENERIC);
 .byte4	0x04400000;

@@ -21,7 +21,7 @@
 #ifndef _DEF_LPBLACKFIN_H
 #define _DEF_LPBLACKFIN_H
 
-/* 
+/*
  * #if !defined(__ADSPLPBLACKFIN__)
  * #warning def_LPBlackfin.h should only be included for 532 compatible chips.
  * #endif
@@ -344,9 +344,9 @@
 /* ** Masks */
 #define ENDM			0x00000001	/* (doesn't really exist) Enable Data Memory L1 */
 #define ENDCPLB			0x00000002	/* Enable DCPLB */
-#define ASRAM_BSRAM		0x00000000	
+#define ASRAM_BSRAM		0x00000000
 #define ACACHE_BSRAM		0x00000008
-#define ACACHE_BCACHE		0x0000000C  
+#define ACACHE_BCACHE		0x0000000C
 #define DCBS			0x00000010	/*  L1 Data Cache Bank Select */
 #define PORT_PREF0		0x00001000	/* DAG0 Port Preference */
 #define PORT_PREF1		0x00002000	/* DAG1 Port Preference */

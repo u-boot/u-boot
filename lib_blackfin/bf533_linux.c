@@ -46,7 +46,7 @@
 #define CMD_LINE_ADDR 0xFF900000  /* L1 scratchpad */
 
 #ifdef SHARED_RESOURCES
-        extern void swap_to(int device_id);
+	extern void swap_to(int device_id);
 #endif
 
 static char *make_command_line(void);

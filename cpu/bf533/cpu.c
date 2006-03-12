@@ -41,7 +41,7 @@
 #define L1_IMEMORY            	(PAGE_SIZE_1MB | CPLB_L1_CHBL | CPLB_USER_RD | CPLB_VALID | CPLB_LOCK)
 #define SDRAM_INON_CHBL		(PAGE_SIZE_4MB | CPLB_USER_RD | CPLB_VALID)
 
-#define ANOMALY_05000158		0x200	
+#define ANOMALY_05000158		0x200
 #define SDRAM_DGENERIC          (PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_RD | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
 #define SDRAM_DNON_CHBL         (PAGE_SIZE_4MB | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_USER_RD | CPLB_VALID | ANOMALY_05000158)
 #define SDRAM_DKERNEL           (PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_USER_RD | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | CPLB_LOCK | ANOMALY_05000158)
@@ -68,7 +68,7 @@ static unsigned int icplb_table[16][2]={
 };
 
 static unsigned int dcplb_table[16][2]={
-			{0xFFA00000,L1_DMEMORY},	
+			{0xFFA00000,L1_DMEMORY},
 			{0x00000000,SDRAM_DKERNEL},	/*SDRAM_Page1*/
 			{0x00400000,SDRAM_DKERNEL},	/*SDRAM_Page1*/
 			{0x07C00000,SDRAM_DKERNEL},	/*SDRAM_Page15*/
@@ -83,12 +83,8 @@ static unsigned int dcplb_table[16][2]={
 			{0x02800000,SDRAM_DGENERIC},	/*SDRAM_Page10*/
 			{0x02C00000,SDRAM_DGENERIC},	/*SDRAM_Page11*/
 			{0x03000000,SDRAM_DGENERIC},	/*SDRAM_Page12*/
-			{0x20000000,SDRAM_EBIU},	/*For Network */	
+			{0x20000000,SDRAM_EBIU},	/*For Network */
 };
-
-
-			
-			
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -121,7 +117,7 @@ void icache_enable(void)
 
 	I0 = (unsigned int *)ICPLB_ADDR0;
 	I1 = (unsigned int *)ICPLB_DATA0;
-	
+
 	for(i=0;i<16;i++){
 		*I0++ = icplb_table[i][0];
 		*I1++ = icplb_table[i][1];
@@ -166,13 +162,12 @@ void dcache_enable(void)
 		*I1++ = dcplb_table[i][1];
 		}
 	cli();
-	temp = *(unsigned int *)DMEM_CONTROL; 
+	temp = *(unsigned int *)DMEM_CONTROL;
 	SSYNC();
 	*(unsigned int *)DMEM_CONTROL = ACACHE_BCACHE |ENDCPLB |PORT_PREF0|temp;
 	SSYNC();
 	sti();
 }
-		
 
 void dcache_disable(void)
 {

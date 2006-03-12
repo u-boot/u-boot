@@ -38,7 +38,7 @@ extern ulong uboot_end;
 ulong monitor_flash_len;
 
 
-#define VERSION_STRING_SIZE  150 /* including 40 bytes buffer to change any string */ 
+#define VERSION_STRING_SIZE  150 /* including 40 bytes buffer to change any string */
 #define VERSION_STRING_FORMAT "%s (%s - %s)\n"
 #define VERSION_STRING		U_BOOT_VERSION, __DATE__, __TIME__
 

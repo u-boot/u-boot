@@ -81,7 +81,7 @@
 
 /* The ABSTRACT IRQ definitions */
 
-/* The first seven of the following are fixed, 
+/* The first seven of the following are fixed,
  * the rest you change if you need to
  */
 

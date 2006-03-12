@@ -30,7 +30,7 @@
 /* include all Core registers and bit definitions */
 #include <asm/cpu/def_LPBlackfin.h>
 
-/* Helper macros 
+/* Helper macros
  * usage:
  *  P0.H = HI(UART_THR);
  *  P0.L = LO(UART_THR);
@@ -789,7 +789,7 @@
 #define ERR_TYP_P0		0x0E
 #define ERR_TYP_P1		0x0F
 
-/* 
+/*
  * PROGRAMMABLE FLAG MASKS
  */
 

@@ -142,15 +142,15 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	int prot,sect;
 
 	prot = 0;
-        for (sect = s_first; sect <= s_last; ++sect) {
-                if (info->protect[sect])
-                        prot++;
-        }
+	for (sect = s_first; sect <= s_last; ++sect) {
+		if (info->protect[sect])
+			prot++;
+	}
 
 	if (prot)
-                printf ("- Warning: %d protected sectors will not be erased!\n", prot);
-        else
-                printf ("\n");	
+		printf ("- Warning: %d protected sectors will not be erased!\n", prot);
+	else
+		printf ("\n");
 
 	cnt = s_last - s_first + 1;
 

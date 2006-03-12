@@ -13,12 +13,12 @@
  * Copyright(c) 2003	Metrowerks	<mwaddel@metrowerks.com>
  * Copyright(c)	2001	Tony Z. Kou	<tonyko@arcturusnetworks.com>
  * Copyright(c)	2001-2002 Arcturus Networks Inc. <www.arcturusnetworks.com>
- * 
+ *
  * Based on code from 68328 version serial driver imlpementation which was:
  * Copyright (C) 1995       David S. Miller    <davem@caip.rutgers.edu>
  * Copyright (C) 1998       Kenneth Albanowski <kjahds@kjahds.com>
  * Copyright (C) 1998, 1999 D. Jeff Dionne     <jeff@uclinux.org>
- * Copyright (C) 1999       Vladimir Gurevich  <vgurevic@cisco.com> 
+ * Copyright (C) 1999       Vladimir Gurevich  <vgurevic@cisco.com>
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -178,9 +178,9 @@ static void local_put_char(char ch)
 
 	save_and_cli(flags);
 
-        /* Poll for TX Interruput */
-        while (!((isr_val = *pSIC_ISR) & IRQ_UART_TX_BIT));
-        asm("csync;");
+	/* Poll for TX Interruput */
+	while (!((isr_val = *pSIC_ISR) & IRQ_UART_TX_BIT));
+	asm("csync;");
 
 	*pUART_THR = ch;			/* putc() */
 
