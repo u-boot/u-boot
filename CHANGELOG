@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add CPM2 I/O pin functions for MPC85xx processors
+  Patch by Murray Jensen, 08 Jul 2005
+
 * Fix compile problem
 
 * Added PCI support for MPC8349ADS board
