@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix conditional for including ks8695eth driver
+  Patch by Greg Ungerer, 04 Jun 2005
+
 * Fix Makefile: include config.mk only after CROSS_COMPILE is defined
   Patch by Friedrich Lobenstock, 02 Jun 2005
 
