@@ -614,8 +614,7 @@ static int env_init (void)
 		if (!crc1_ok) {
 			fprintf (stderr,
 				"Warning: Bad CRC, using default environment\n");
-			environment.data = default_environment;
-			free (addr1);
+			memcpy(environment.data, default_environment, sizeof default_environment);
 		}
 	} else {
 		flag1 = environment.flags;
@@ -652,9 +651,8 @@ static int env_init (void)
 		} else if (!crc1_ok && !crc2_ok) {
 			fprintf (stderr,
 				"Warning: Bad CRC, using default environment\n");
-			environment.data = default_environment;
+			memcpy(environment.data, default_environment, sizeof default_environment);
 			curdev = 0;
-			free (addr2);
 			free (addr1);
 		} else if (flag1 == active_flag && flag2 == obsolete_flag) {
 			environment.data = addr1;
