@@ -2,7 +2,7 @@
  * (C) Copyright 2001-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2003 Arabella Software Ltd.
+ * (C) Copyright 2003-2005 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,9 +27,6 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
-#include <asm/m8260_pci.h>
-#include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
 
 /*
@@ -167,8 +164,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD18 */ {   0,   0,   0,   0,   0,   0   }, /* PD18 */
 	/* PD17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXPRTY */
 	/* PD16 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXPRTY */
-	/* PD15 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SDA */
-	/* PD14 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SCL */
+	/* PD15 */ {   0,   1,   1,   0,   1,   0   }, /* I2C SDA */
+	/* PD14 */ {   0,   1,   1,   0,   1,   0   }, /* I2C SCL */
 	/* PD13 */ {   0,   0,   0,   0,   0,   0   }, /* PD13 */
 	/* PD12 */ {   0,   0,   0,   0,   0,   0   }, /* PD12 */
 	/* PD11 */ {   0,   0,   0,   0,   0,   0   }, /* PD11 */
@@ -231,11 +228,10 @@ long int initdram(int board_type)
 	vu_char *ramaddr;
 	uchar c = 0xFF;
 	long int msize = CFG_SDRAM_SIZE;
-	uint psdmr = CFG_PSDMR;
 	int i;
 
 	if (bcsr[4] & BCSR_PCI_MODE) { /* PCI mode selected by JP9 */
-		immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
+		immap->im_clkrst.car_sccr |= SCCR_PCI_MODE;
 		immap->im_siu_conf.sc_siumcr =
 			(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
 			| SIUMCR_LBPC01;
@@ -255,10 +251,10 @@ long int initdram(int board_type)
 	*/
 	if ((immap->im_siu_conf.sc_siumcr & SIUMCR_LBPC11) == SIUMCR_LBPC00) {
 		memctl->memc_lsrt  = CFG_LSRT;
-		memctl->memc_or4   = 0xFFC01480;
-		memctl->memc_br4   = CFG_LSDRAM_BASE | 0x00001861;
-		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_PREA;
+		memctl->memc_or4   = CFG_LSDRAM_OR;
+		memctl->memc_br4   = CFG_LSDRAM_BR;
 		ramaddr = (vu_char *)CFG_LSDRAM_BASE;
+		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_PREA;
 		*ramaddr = c;
 		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_CBRR;
 		for (i = 0; i < 8; i++)
@@ -271,8 +267,8 @@ long int initdram(int board_type)
 
 	/* Initialise 60x bus SDRAM */
 	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_or2  = 0xFC0028C0;
-	memctl->memc_br2  = CFG_SDRAM_BASE | 0x00000041;
+	memctl->memc_or2  = CFG_PSDRAM_OR;
+	memctl->memc_br2  = CFG_PSDRAM_BR;
 	/*
 	 * The mode data for Mode Register Write command must appear on
 	 * the address lines during a mode-set cycle. It is driven by
@@ -283,15 +279,15 @@ long int initdram(int board_type)
 	 * length must be 4.
 	 */
 	ramaddr = (vu_char *)(CFG_SDRAM_BASE |
-			      ((psdmr & PSDMR_CL_MSK) << 7) | 0x10);
-	memctl->memc_psdmr = psdmr | PSDMR_OP_PREA; /* Precharge all banks */
+			      ((CFG_PSDMR & PSDMR_CL_MSK) << 7) | 0x10);
+	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_PREA; /* Precharge all banks */
 	*ramaddr = c;
-	memctl->memc_psdmr = psdmr | PSDMR_OP_CBRR; /* CBR refresh */
+	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_CBRR; /* CBR refresh */
 	for (i = 0; i < 8; i++)
 		*ramaddr = c;
-	memctl->memc_psdmr = psdmr | PSDMR_OP_MRW;  /* Mode Register write */
+	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_MRW;  /* Mode Register write */
 	*ramaddr = c;
-	memctl->memc_psdmr = psdmr | PSDMR_RFEN;    /* Refresh enable */
+	memctl->memc_psdmr = CFG_PSDMR | PSDMR_RFEN;    /* Refresh enable */
 	*ramaddr = c;
 #endif /* CFG_RAMBOOT */
 

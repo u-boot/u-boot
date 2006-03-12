@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 Arabella Software Ltd.
+ * Copyright (C) 2003-2005 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * U-Boot configuration for Zephyr Engineering ZPC.1900 board.
@@ -32,11 +32,7 @@
 #define CPU_ID_STR		"MPC8265"
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
-#undef DEBUG
-
-#undef CONFIG_BOARD_EARLY_INIT_F	/* Don't call board_early_init_f */
-
-/* Allow serial number (serial) and MAC address (ethaddr) to be overwritten */
+/* Allow serial number (serial#) and MAC address (ethaddr) to be overwritten */
 #define CONFIG_ENV_OVERWRITE
 
 /*
@@ -113,7 +109,6 @@
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL   \
 				| CFG_CMD_ASKENV  \
 				| CFG_CMD_DHCP    \
-				| CFG_CMD_ECHO    \
 				| CFG_CMD_IMMAP   \
 				| CFG_CMD_MII     \
 				| CFG_CMD_PING    \
@@ -154,31 +149,30 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size  */
 
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
+#define CFG_MEMTEST_END		0x03800000	/* 1 ... 56 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
+#define CFG_LOAD_ADDR		0x400000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CFG_FLASH_BASE		0xFFE00000
-#define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks	*/
-#define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
-
-#define CFG_DEFAULT_IMMR	0x0F010000
-
-#define CFG_IMMR		0xF0000000
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_SDRAM_SIZE		64
-#define CFG_FLSIMM_BASE		0xFC000000
-#define CFG_LSDRAM_BASE		0xFE000000
+
+#define CFG_IMMR		0xF0000000
+#define CFG_LSDRAM_BASE		0xFC000000
+#define CFG_FLASH_BASE		0xFE000000
 #define CFG_BCSR		0xFEA00000
 #define CFG_EEPROM		0xFEB00000
+#define CFG_FLSIMM_BASE		0xFF000000
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH_CFI
+#define CFG_FLASH_CFI_DRIVER
+#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks	*/
+#define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
+
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLSIMM_BASE }
 
 #define BCSR_PCI_MODE		0x01
 
@@ -190,10 +184,10 @@
 
 /* Hard reset configuration word */
 #define CFG_HRCW_MASTER		(HRCW_EBM | HRCW_BPS01| HRCW_CIP          |\
-				 HRCW_L2CPC10 | HRCW_DPPC00 | HRCW_ISB010 |\
-				 HRCW_BMS | HRCW_LBPC01 | HRCW_APPC10     |\
-				 HRCW_MODCK_H0101                          \
-				) /* 0x16828605 */
+				 HRCW_L2CPC10 | HRCW_DPPC00 | HRCW_ISB100 |\
+				 HRCW_BMS | HRCW_LBPC00 | HRCW_APPC10     |\
+				 HRCW_MODCK_H0111                          \
+				) /* 0x16848207 */
 /* No slaves */
 #define CFG_HRCW_SLAVE1 	0
 #define CFG_HRCW_SLAVE2 	0
@@ -211,7 +205,7 @@
 #define CFG_RAMBOOT
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
@@ -233,14 +227,14 @@
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
-#define CFG_HID0_INIT		0
-#define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
+#define CFG_HID0_INIT		(HID0_ICFI)
+#define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE)
 
 #define CFG_HID2		0
 
 #define CFG_SIUMCR		0x42200000
 #define CFG_SYPCR		0xFFFFFFC3
-#define CFG_BCR			0x90400000
+#define CFG_BCR			0x90000000
 #define CFG_SCCR		SCCR_DFBRG01
 
 #define CFG_RMR			RMR_CSRE
@@ -248,18 +242,23 @@
 #define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
 #define CFG_RCCR		0
 
-#define CFG_PSDMR		0x014EB45A
-#define CFG_PSRT		0x0C
-#define CFG_LSDMR		0x008AB552
-#define CFG_LSRT		0x0E
+#define CFG_PSDMR		/* 0x834DA43B */0x014DA43A
+#define CFG_PSRT		0x0F/* 0x0C */
+#define CFG_LSDMR		0x0085A562
+#define CFG_LSRT		0x0F
 #define CFG_MPTPR		0x4000
+
+#define CFG_PSDRAM_BR		CFG_SDRAM_BASE | 0x00000041
+#define CFG_PSDRAM_OR		0xFC0028C0
+#define CFG_LSDRAM_BR		CFG_LSDRAM_BASE | 0x00001861
+#define CFG_LSDRAM_OR		0xFF803480
 
 #define CFG_BR0_PRELIM		CFG_FLASH_BASE | 0x00000801
 #define CFG_OR0_PRELIM		0xFFE00856
 #define CFG_BR5_PRELIM		CFG_EEPROM | 0x00000801
 #define CFG_OR5_PRELIM		0xFFFF03F6
-#define CFG_BR6_PRELIM		CFG_FLSIMM_BASE | 0x00000801
-#define CFG_OR6_PRELIM		0xFE000856
+#define CFG_BR6_PRELIM		CFG_FLSIMM_BASE | 0x00001801
+#define CFG_OR6_PRELIM		0xFF000856
 #define CFG_BR7_PRELIM		CFG_BCSR | 0x00000801
 #define CFG_OR7_PRELIM		0xFFFF83F6
 

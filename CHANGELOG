@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Memory configuration changes for ZPC.1900 board
+  - Fix SDRAM timing on both local bus and 60x bus
+  - Add support for second flash bank (SIMM)
+  - Change boot flash base
+  Patch by Yuli Barcohen, 05 Jun 2005
+
 * Add support for Adder boards with 16MB SDRAM;
   add support for second FEC on Adder87x board.
   Patch by Yuli Barcohen, 05 Jun 2005
