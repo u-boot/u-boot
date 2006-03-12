@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Avoid dereferencing NULL in find_cmd() if no valid commands were found
+  Patch by Andrew Dyer, 13 Jun 2005
+
 * Add ADI Blackfin support
   - add support for Analog Devices Blackfin BF533 CPU
   - add support for the ADI BF533 Stamp uClinux board
