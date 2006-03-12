@@ -2,6 +2,18 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Word alignment fixes for word aligned NS16550 UART
+  Patch by Jean-Paul Saman, 01 Mar 2005
+
+  Fixes bug with UART that only supports word aligned access: removed
+  "__attribute__ ((packed));" for "(CFG_NS16550_REG_SIZE == 4)" some
+  (broken!) versions of GCC generate byte accesses when encountering
+  the packed attribute regardless if the struct is already correctly
+  aligned for a platform. Peripherals that can only handle word
+  aligned access won't work properly when accessed with byte access.
+  The struct NS16550 is already word aligned for REG_SIZE = 4, so
+  there is no need to packed the struct in that case.
+
 * Fix behaviour if gatewayip is not set
   Patch by Robin Gilks, 23 Dec 2004
 
