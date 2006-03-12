@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix comment in common/soft_i2c.c
+  Patches by Peter Korsgaard/Tolunay Orkun, 26 May 2005
+
 * Cleanup compiler warnings.
   Patch by Greg Ungerer, 21 May 2005
 

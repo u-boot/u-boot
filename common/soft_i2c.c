@@ -288,7 +288,10 @@ int i2c_probe(uchar addr)
 {
 	int rc;
 
-	/* perform 1 byte read transaction */
+	/*
+	 * perform 1 byte write transaction with just address byte 
+	 * (fake write)
+	 */
 	send_start();
 	rc = write_byte ((addr << 1) | 0);
 	send_stop();
