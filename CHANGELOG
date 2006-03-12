@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Remove board specific configuration includes from the common xilinx
+  ethernet and iic adapter code.
+  Patch by Michael Libeskind, 12 Jul 2005
+
 * Add Nat Semi DP83865 PHY support to MPC85xx TSEC driver
   Patch by Murray Jensen, 08 Jul 2005
 

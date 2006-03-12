@@ -40,7 +40,6 @@
 #include <common.h>
 #include <environment.h>
 #include <net.h>
-#include <configs/ml300.h>
 #include "xparameters.h"
 
 #ifdef CFG_ENV_IS_IN_EEPROM

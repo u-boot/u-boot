@@ -39,7 +39,6 @@
 
 #include <common.h>
 #include <net.h>
-#include <configs/ml300.h>
 #include "xparameters.h"
 #include "xemac.h"
 
