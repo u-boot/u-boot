@@ -85,6 +85,9 @@ endif
 ifeq ($(ARCH),microblaze)
 CROSS_COMPILE = mb-
 endif
+ifeq ($(ARCH),blackfin)
+CROSS_COMPILE = bfin-elf-
+endif
 endif
 endif
 
@@ -110,6 +113,10 @@ OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
+endif
+ifeq ($(CPU),bf533)
+OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
+OBJS += cpu/$(CPU)/cplbhdlr.o	cpu/$(CPU)/cplbmgr.o	cpu/$(CPU)/flush.o
 endif
 
 LIBS  = lib_generic/libgeneric.a
@@ -1860,6 +1867,19 @@ suzaku_config:	unconfig
 	@./mkconfig -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
 
 #########################################################################
+## Blackfin
+#########################################################################
+ezkit533_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 ezkit533
+
+stamp_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 stamp
+
+dspstamp_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 dsp_stamp
+
+#########################################################################
+#########################################################################
 #########################################################################
 
 clean:
@@ -1870,6 +1890,7 @@ clean:
 	rm -f examples/hello_world examples/timer \
 	      examples/eepro100_eeprom examples/sched \
 	      examples/mem_to_mem_idma2intr examples/82559_eeprom \
+	      examples/smc91111_eeprom \
 	      examples/test_burst
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/mpc86x_clk tools/ncb

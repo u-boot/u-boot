@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add ADI Blackfin support
+  - add support for Analog Devices Blackfin BF533 CPU
+  - add support for the ADI BF533 Stamp uClinux board
+  - add support for the ADI BF533 EZKit board
+  Patches by Richard Klingler, 11 Jun 2005
+
 * Add loads of ntohl() in image header handling
   Patch by Steven Scholz, 10 Jun 2005
 

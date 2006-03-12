@@ -252,6 +252,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
 #elif defined(__nios2__)
 	if (hdr->ih_arch != IH_CPU_NIOS2)
+#elif defined(__blackfin__)
+	if (hdr->ih_arch != IH_CPU_BLACKFIN)
 #else
 # error Unknown CPU type
 #endif

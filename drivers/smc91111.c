@@ -160,6 +160,9 @@ extern void eth_halt(void);
 extern int eth_rx(void);
 extern int eth_send(volatile void *packet, int length);
 
+#ifdef SHARED_RESOURCES
+	extern void swap_to(int device_id);
+#endif
 
 /*
  . This is called by  register_netdev().  It is responsible for
@@ -533,6 +536,9 @@ static void smc_shutdown()
 	SMC_SELECT_BANK( 0 );
 	SMC_outb( RCR_CLEAR, RCR_REG );
 	SMC_outb( TCR_CLEAR, TCR_REG );
+#ifdef SHARED_RESOURCES
+	swap_to(FLASH);
+#endif
 }
 
 
@@ -1511,6 +1517,9 @@ static void print_packet( byte * buf, int length )
 #endif
 
 int eth_init(bd_t *bd) {
+#ifdef SHARED_RESOURCES
+	swap_to(ETHERNET);
+#endif
 	return (smc_open(bd));
 }
 

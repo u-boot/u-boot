@@ -214,13 +214,11 @@ int smc91111_eeprom (int argc, char *argv[])
 
 			switch (what) {
 			case 1:
-				printf ("Writing EEPROM register %02x with %04x\n",
-					reg, value);
+				printf ("Writing EEPROM register %02x with %04x\n", reg, value);
 				write_eeprom_reg (value, reg);
 				break;
 			case 2:
-				printf ("Writing MAC register bank %i,
-					reg %02x with %04x\n", reg >> 4, reg & 0xE, value);
+				printf ("Writing MAC register bank %i, reg %02x with %04x\n", reg >> 4, reg & 0xE, value);
 				SMC_SELECT_BANK (reg >> 4);
 				SMC_outw (value, reg & 0xE);
 				break;
