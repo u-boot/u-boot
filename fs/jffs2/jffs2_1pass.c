@@ -1171,7 +1171,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 		if (node->magic == JFFS2_MAGIC_BITMASK && hdr_crc(node)) {
 			/* if its a fragment add it */
 			if (node->nodetype == JFFS2_NODETYPE_INODE &&
-				    inode_crc((struct jffs2_raw_inode *) node)) {
+				    inode_crc((struct jffs2_raw_inode *) node) &&
+				    data_crc((struct jffs2_raw_inode *) node)) {
 				if (insert_node(&pL->frag, (u32) part->offset +
 						offset) == NULL) {
 					put_fl_mem(node);
