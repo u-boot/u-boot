@@ -459,6 +459,7 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 					      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 			if (cfg) {
 				cfg->config_device(hose, dev, cfg);
+				sub_bus = max(sub_bus, hose->current_busno);
 #ifdef CONFIG_PCI_PNP
 			} else {
 				int n = pciauto_config_device(hose, dev);
