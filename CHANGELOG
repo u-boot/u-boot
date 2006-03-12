@@ -2,13 +2,35 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Enable address translation on MPC83xx
+  Patch by Kumar Gala, 10 Feb 2006
+
+* Decopuled setting of OR/BR and LBLAWBAR/LBLAWAR on MPC83xx
+  Patch by Kumar Gala, 25 Jan 2006
+
+* Fixed defines for MPC83xx SICRL register to match current specs
+  Patch by Kumar Gala, 23 Jan 2006
+
+* Only disable the MPC83xx watchdog if its enabled out of reset.
+  If its disabled out of reset SW can later enable it if so desired
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Allow config of GPIO direction & data registers at boot on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Enable time handling on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Make System IO Config Registers board configurable on MPC83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
 * Fixed PCI indirect config ops to handle multiple PCI controllers
   We need to adjust the bus number we are trying to access based
   on which PCI controller its on
-  Patch by Kumar Gala 12 Jan 2006
+  Patch by Kumar Gala, 12 Jan 2006
 
 * Report back PCI bus when doing table based device config
-  Patch by Kumar Gala 11 Jan 2006
+  Patch by Kumar Gala, 11 Jan 2006
 
 * Added support for PCI prefetchable region and BARs
   If a host controller sets up a region as prefetchable and
@@ -18,7 +40,7 @@ Changes since U-Boot 1.1.4:
   If a BAR is prefetchable and no prefetchable region has
   been setup by the controller we fall back to allocating
   the BAR into the normally memory region.
-  Patch by Kumar Gala 11 Jan 2006
+  Patch by Kumar Gala, 11 Jan 2006
 
 * Add helper function for generic flat device tree fixups for mpc83xx
   Patch by Kumar Gala, 11 Jan 2006
