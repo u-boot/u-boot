@@ -168,6 +168,16 @@
 #define MIIM_LXT971_SR2_100HDX     0x4000  /* 100 Mbit half duplex selected */
 #define MIIM_LXT971_SR2_100FDX     0x4200  /* 100 Mbit full duplex selected */
 
+/* DP83865 Control register values */
+#define MIIM_DP83865_CR_INIT	0x9200
+
+/* DP83865 Link and Auto-Neg Status Register */
+#define MIIM_DP83865_LANR	0x11
+#define MIIM_DP83865_SPD_MASK	0x0018
+#define MIIM_DP83865_SPD_1000	0x0010
+#define MIIM_DP83865_SPD_100	0x0008
+#define MIIM_DP83865_DPX_FULL	0x0002
+
 #define MIIM_READ_COMMAND       0x00000001
 
 #define MRBLR_INIT_SETTINGS	PKTSIZE_ALIGN
