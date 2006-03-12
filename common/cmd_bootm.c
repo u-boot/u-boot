@@ -821,7 +821,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
 #else
-	ft_setup(of_flat_tree, OF_FLAT_TREE_MAX_SIZE, kbd);
+	ft_setup(of_flat_tree, OF_FLAT_TREE_MAX_SIZE, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
@@ -830,12 +830,16 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/*
 	 * Linux Kernel Parameters:
 	 *   r3: ptr to OF flat tree, followed by the board info data
-	 *   r4: initrd_start or 0 if no initrd
-	 *   r5: initrd_end - unused if r4 is 0
-	 *   r6: Start of command line string
-	 *   r7: End   of command line string
+	 *   r4: physical pointer to the kernel itself
+	 *   r5: NULL
+	 *   r6: NULL
+	 *   r7: NULL
 	 */
-	(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end, cmd_start, cmd_end);
+	if (getenv("disable_of") != NULL)
+		(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end,
+			cmd_start, cmd_end);
+	else
+		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
 
 #endif
 }

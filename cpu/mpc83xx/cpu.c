@@ -35,6 +35,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
+#include <ft_build.h>
 #include <asm/processor.h>
 
 
@@ -151,3 +152,40 @@ void watchdog_reset (void)
 	hang();		/* FIXME: implement watchdog_reset()? */
 }
 #endif /* CONFIG_WATCHDOG */
+
+#if defined(CONFIG_OF_FLAT_TREE)
+void
+ft_cpu_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+	ulong clock;
+
+	clock = bd->bi_busfreq;
+	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+#ifdef CONFIG_MPC83XX_TSEC1
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/address", &len);
+		memcpy(p, bd->bi_enetaddr, 6);
+#endif
+
+#ifdef CONFIG_MPC83XX_TSEC2
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/address", &len);
+		memcpy(p, bd->bi_enet1addr, 6);
+#endif
+}
+#endif
