@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Change the sequence of events in soft_i2c.c:send_ack() to keep from
+  incorrectly generating start/stop conditions on the bus.
+  Patch by Andrew Dyer, 26 Jul 2005
+
 * Fix bug in [id]cache_status commands for MPC85xx processors;
   should look at LSB of L1CSRn registers to determine if L1 cache is
   enabled, not the MSB.

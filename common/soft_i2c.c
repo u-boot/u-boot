@@ -164,13 +164,10 @@ static void send_ack(int ack)
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 #endif
 
-	I2C_ACTIVE;
 	I2C_SCL(0);
 	I2C_DELAY;
-
-	I2C_SDA(ack);
-
 	I2C_ACTIVE;
+	I2C_SDA(ack);
 	I2C_DELAY;
 	I2C_SCL(1);
 	I2C_DELAY;
