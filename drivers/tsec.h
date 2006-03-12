@@ -124,7 +124,7 @@
 /* Cicada 8204 Extended PHY Control Register 1 */
 #define MIIM_CIS8204_EPHY_CON		0x17
 #define MIIM_CIS8204_EPHYCON_INIT	0x0006
-#define MIIM_CIS8204_EPHYCON_RGMII	0x1000
+#define MIIM_CIS8204_EPHYCON_RGMII	0x1100
 
 /* Cicada 8204 Serial LED Control Register */
 #define MIIM_CIS8204_SLED_CON		0x1b

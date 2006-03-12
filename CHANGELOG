@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix a HW timing issue on 8548 CDS for eTSEC 3 in RGMII mode
+  Patch by Andy Fleming, 14 Jun 2005
+
 * Fix bad register definitions for LTX971 PHY on MPC85xx boards.
   Patch by Gerhard Jaeger, 21 Jun 2005
 
