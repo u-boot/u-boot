@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for the DHCP vendor optional bootfile (#67).
+  Ignores the vendor TFTP server name option (#66).
+  Patch by Murray Jensen, 30 Jun 2005
+
 * Fix a HW timing issue on 8548 CDS for eTSEC 3 in RGMII mode
   Patch by Andy Fleming, 14 Jun 2005
 
