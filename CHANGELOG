@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix PCIDF calculation in cpu/mpc8260/speed.c for MPC8280EC
+  Patch by KokHow Teh, 16 Jun 2005
+
 * Add crc of data to jffs2 (in jffs2_1pass_build_lists()).
   Patch by Rick Bronson, 15 Jun 2005
 
