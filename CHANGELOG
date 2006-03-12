@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Switch MPC86xADS and MPC885ADS boards to use cpuclk environment
+  variable to set clock
+  Patch by Yuli Barcohen, 05 Jun 2005
+
 * RPXlite configuration fixes
   - Use correct flash sector size
   - Use correct memory test end address
