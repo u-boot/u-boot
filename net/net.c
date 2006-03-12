@@ -222,8 +222,10 @@ void ArpRequest (void)
 	    (NetOurIP & NetOurSubnetMask)) {
 		if (NetOurGatewayIP == 0) {
 			puts ("## Warning: gatewayip needed but not set\n");
+			NetArpWaitReplyIP = NetArpWaitPacketIP;
+		} else {
+			NetArpWaitReplyIP = NetOurGatewayIP;
 		}
-		NetArpWaitReplyIP = NetOurGatewayIP;
 	} else {
 		NetArpWaitReplyIP = NetArpWaitPacketIP;
 	}

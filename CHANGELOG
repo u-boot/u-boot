@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix behaviour if gatewayip is not set
+  Patch by Robin Gilks, 23 Dec 2004
+
 * Fix cleanup for netstart board.
   Remove build results from repository
 
