@@ -421,7 +421,7 @@ The following options need to be configured:
 		Space should be pre-allocated in the dts for the bd_t.
 
 		CONFIG_OF_HAS_UBOOT_ENV
-		
+
 		The resulting flat device tree will have a copy of u-boot's
 		environment variables
 
@@ -1733,6 +1733,12 @@ Configuration Settings:
 
 - CFG_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
+
+- CFG_BOOTM_LEN:
+		Normally compressed uImages are limited to an
+		uncompressed size of 8 MBytes. If this is not enough,
+		you can define CFG_BOOTM_LEN in your board config file
+		to adjust this setting to your needs.
 
 - CFG_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of

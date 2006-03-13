@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Change max size of uncompressed uImage's to 8MByte and add
+  CFG_BOOTM_LEN to adjust this setting.
+
+  As mentioned by Robin Getz on 2005-05-24 the size of uncompressed
+  uImages was restricted to 4MBytes. This default size is now
+  increased to 8Mbytes and can be overrided by setting CFG_BOOTM_LEN
+  in the board config file.
+
+  Patch by Stefan Roese, 13 Mar 2006
+
 * Fix problem with updated PCI code in cpu/ppc4xx/405gp_pci.c
   Patch by Stefan Roese, 13 Mar 2006
 

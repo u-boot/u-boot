@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -140,6 +140,10 @@ static boot_os_Fcn do_bootm_lynxkdi;
 extern void lynxkdi_boot( image_header_t * );
 #endif
 
+#ifndef CFG_BOOTM_LEN
+#define CFG_BOOTM_LEN	0x800000	/* use 8MByte as default max gunzip size */
+#endif
+
 image_header_t header;
 
 ulong load_addr = CFG_LOAD_ADDR;		/* Default Load Address */
@@ -150,7 +154,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	addr;
 	ulong	data, len, checksum;
 	ulong  *len_ptr;
-	uint	unc_len = 0x400000;
+	uint	unc_len = CFG_BOOTM_LEN;
 	int	i, verify;
 	char	*name, *s;
 	int	(*appl)(int, char *[]);
