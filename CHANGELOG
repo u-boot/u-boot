@@ -16,7 +16,7 @@ Changes since U-Boot 1.1.4:
   Patch by Stefan Roese, 13 Mar 2006
 
 * cpu/ppc4xx/start.S : exceptions are enabled after relocation
-  Patch by Cedric Vincent, 6 June 2005
+  Patch by Cedric Vincent, 06 Jul 2005
 
 * au1x00_eth.c: check malloc return value and abort if it failed
   Patch by Andrew Dyer, 26 Jul 2005
