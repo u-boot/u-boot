@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
+  timer and cpu_reset code from cpu/$(CPU) into the new
+  cpu/$(CPU)/$(SOC) directories
+  Patch by Andreas Engel, 13 Mar 2006
+
 * Change max size of uncompressed uImage's to 8MByte and add
   CFG_BOOTM_LEN to adjust this setting.
 
