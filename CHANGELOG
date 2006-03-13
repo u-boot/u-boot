@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix problem with updated PCI code in cpu/ppc4xx/405gp_pci.c
+  Patch by Stefan Roese, 13 Mar 2006
+
 * cpu/ppc4xx/start.S : exceptions are enabled after relocation
   Patch by Cedric Vincent, 6 June 2005
 
