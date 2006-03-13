@@ -224,10 +224,14 @@ static void au1x00_halt(struct eth_device* dev){
 int au1x00_enet_initialize(bd_t *bis){
 	struct eth_device* dev;
 
-	dev = (struct eth_device*) malloc(sizeof *dev);
+	if ((dev = (struct eth_device*)malloc(sizeof *dev)) == NULL) {
+		puts ("malloc failed\n");
+		return 0;
+	}
+
 	memset(dev, 0, sizeof *dev);
 
-	sprintf(dev->name, "Au1X00 ETHERNET");
+	sprintf(dev->name, "Au1X00 ethernet");
 	dev->iobase = 0;
 	dev->priv   = 0;
 	dev->init   = au1x00_init;
