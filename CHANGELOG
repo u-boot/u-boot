@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add sync in do_reset() routine for MPC83xx after RPR register
+  was written to. It is need on some targets when BAT translation
+  is enabled.
+
 * Add bit definitions for MPC83xx DDR controller registers.
 
 * Add Dcbz(), Dcbi() and Dcbf() routines for MPC83xx.

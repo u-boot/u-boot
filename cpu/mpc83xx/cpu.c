@@ -93,6 +93,8 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* enable Reset Control Reg */
 	immap->reset.rpr = 0x52535445;
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
 
 	/* confirm Reset Control Reg is enabled */
 	while(!((immap->reset.rcer) & RCER_CRE));
