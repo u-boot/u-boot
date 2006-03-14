@@ -63,10 +63,14 @@ picos_to_clk(int picos)
 	return clks;
 }
 
-unsigned int
-banksize(unsigned char row_dens)
+unsigned int banksize(unsigned char row_dens)
 {
 	return ((row_dens >> 2) | ((row_dens & 3) << 6)) << 24;
+}
+
+int read_spd(uint addr)
+{
+	return ((int) addr);
 }
 
 long int spd_sdram(int(read_spd)(uint addr))
@@ -84,7 +88,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 #warning Current spd_sdram does not fit its usage... adjust implementation or API...
 
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
-
+	
 	if (spd.nrows > 2) {
 		puts("DDR:Only two chip selects are supported on ADS.\n");
 		return 0;
@@ -282,8 +286,13 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 */
 #if defined(CONFIG_DDR_ECC)
 	if (spd.config == 0x02) {
-		ddr->err_disable = 0x0000000d;
-		ddr->err_sbe = 0x00ff0000;
+		/* disable error detection */
+		ddr->err_disable = ~ECC_ERROR_ENABLE;
+
+		/* set single bit error threshold to maximum value,
+		 * reset counter to zero */
+		ddr->err_sbe = (255 << ECC_ERROR_MAN_SBET_SHIFT) |
+			(0 << ECC_ERROR_MAN_SBEC_SHIFT);
 	}
 	debug("DDR:err_disable=0x%08x\n", ddr->err_disable);
 	debug("DDR:err_sbe=0x%08x\n", ddr->err_sbe);
@@ -297,7 +306,8 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * CLK_ADJST = 2-MCK/MCK_B, is lauched 1/2 of one SDRAM
 	 * clock cycle after address/command
 	 */
-	ddr->sdram_clk_cntl = 0x82000000;
+	/*ddr->sdram_clk_cntl = 0x82000000;*/
+	ddr->sdram_clk_cntl = (DDR_SDRAM_CLK_CNTL_SS_EN|DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05);
 
 	/*
 	 * Figure out the settings for the sdram_cfg register.  Build up
@@ -324,7 +334,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * If the user wanted ECC (enabled via sdram_cfg[2])
 	 */
 	if (spd.config == 0x02) {
-		tmp |= 0x20000000;
+		tmp |= SDRAM_CFG_ECC_EN;
 	}
 #endif
 
@@ -348,27 +358,85 @@ long int spd_sdram(int(read_spd)(uint addr))
 
 #if defined(CONFIG_DDR_ECC)
 /*
+ * Use timebase counter, get_timer() is not availabe
+ * at this point of initialization yet.
+ */
+static __inline__ unsigned long get_tbms (void)
+{
+	unsigned long tbl;
+	unsigned long tbu1, tbu2;
+	unsigned long ms;
+	unsigned long long tmp;
+
+	ulong tbclk = get_tbclk();
+
+	/* get the timebase ticks */
+	do {
+		asm volatile ("mftbu %0":"=r" (tbu1):);
+		asm volatile ("mftb %0":"=r" (tbl):);
+		asm volatile ("mftbu %0":"=r" (tbu2):);
+	} while (tbu1 != tbu2);
+
+	/* convert ticks to ms */
+	tmp = (unsigned long long)(tbu1);
+	tmp = (tmp << 32);
+	tmp += (unsigned long long)(tbl);
+	ms = tmp/(tbclk/1000);
+
+	return ms;
+}
+
+/*
  * Initialize all of memory for ECC, then enable errors.
  */
-
-void
-ddr_enable_ecc(unsigned int dram_size)
+//#define CONFIG_DDR_ECC_INIT_VIA_DMA
+void ddr_enable_ecc(unsigned int dram_size)
 {
-#ifndef FIXME
-	uint *p = 0;
-	uint i = 0;
+	uint *p;
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+	volatile ddr8349_t *ddr = &immap->ddr;
+	unsigned long t_start, t_end;
+#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+	uint i;
+#endif
 
+	debug("Initialize a Cachline in DRAM\n");
+	icache_enable();
+
+#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+	/* Initialise DMA for direct Transfers */
 	dma_init();
+#endif
 
-	for (*p = 0; p < (uint *)(8 * 1024); p++) {
+	t_start = get_tbms();
+
+#if !defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+	debug("DDR init: Cache flush method\n");
+	for (p = 0; p < (uint *)(dram_size); p++) {
 		if (((unsigned int)p & 0x1f) == 0) {
 			ppcDcbz((unsigned long) p);
 		}
+
+		/* write pattern to cache and flush */
 		*p = (unsigned int)0xdeadbeef;
+
 		if (((unsigned int)p & 0x1c) == 0x1c) {
 			ppcDcbf((unsigned long) p);
+		}
+	}
+#else
+	printf("DDR init: DMA method\n");
+	for (p = 0; p < (uint *)(8 * 1024); p++) {
+		/* zero one data cache line */
+		if (((unsigned int)p & 0x1f) == 0) {
+			ppcDcbz((unsigned long)p);
+		}
+
+		/* write pattern to it and flush */
+		*p = (unsigned int)0xdeadbeef;
+
+		if (((unsigned int)p & 0x1c) == 0x1c) {
+			ppcDcbf((unsigned long)p);
 		}
 	}
 
@@ -396,13 +464,31 @@ ddr_enable_ecc(unsigned int dram_size)
 	for (i = 1; i < dram_size / 0x800000; i++) {
 		dma_xfer((uint *)(0x800000*i), 0x800000, (uint *)0);
 	}
-
-	/*
-	 * Enable errors for ECC.
-	 */
-	ddr->err_disable = 0x00000000;
-	asm("sync;isync");
 #endif
-}
 
+	t_end = get_tbms();
+	icache_disable();
+
+	debug("\nREADY!!\n");
+	debug("ddr init duration: %ld ms\n", t_end - t_start);
+
+	/* Clear All ECC Errors */
+	if ((ddr->err_detect & ECC_ERROR_DETECT_MME) == ECC_ERROR_DETECT_MME)
+		ddr->err_detect |= ECC_ERROR_DETECT_MME;
+	if ((ddr->err_detect & ECC_ERROR_DETECT_MBE) == ECC_ERROR_DETECT_MBE)
+		ddr->err_detect |= ECC_ERROR_DETECT_MBE;
+	if ((ddr->err_detect & ECC_ERROR_DETECT_SBE) == ECC_ERROR_DETECT_SBE)
+		ddr->err_detect |= ECC_ERROR_DETECT_SBE;
+	if ((ddr->err_detect & ECC_ERROR_DETECT_MSE) == ECC_ERROR_DETECT_MSE)
+		ddr->err_detect |= ECC_ERROR_DETECT_MSE;
+
+	/* Disable ECC-Interrupts */
+	ddr->err_int_en &= ECC_ERR_INT_DISABLE;
+
+	/* Enable errors for ECC */
+	ddr->err_disable &= ECC_ERROR_ENABLE;
+
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+}
 #endif	/* CONFIG_DDR_ECC */
