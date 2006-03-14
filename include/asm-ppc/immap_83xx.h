@@ -675,24 +675,76 @@ typedef struct ddr8349{
 	u8   res9[8];
 	u32  sdram_clk_cntl;
 #define DDR_SDRAM_CLK_CNTL_SS_EN		0x80000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_025	0x01000000
 #define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05	0x02000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_075	0x03000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_1		0x04000000
 
 	u8 res4[0xCCC];
 	u32 data_err_inject_hi; /**< Memory Data Path Error Injection Mask High */
 	u32 data_err_inject_lo; /**< Memory Data Path Error Injection Mask Low */
 	u32 ecc_err_inject;     /**< Memory Data Path Error Injection Mask ECC */
+#define ECC_ERR_INJECT_EMB			(0x80000000>>22)	/* ECC Mirror Byte */
+#define ECC_ERR_INJECT_EIEN			(0x80000000>>23)	/* Error Injection Enable */
+#define ECC_ERR_INJECT_EEIM			(0xF0000000>>24)	/* ECC Erroe Injection Enable */
+#define ECC_ERR_INJECT_EEIM_SHIFT		0
 	u8 res5[0x14];
 	u32 capture_data_hi;    /**< Memory Data Path Read Capture High */
 	u32 capture_data_lo;    /**< Memory Data Path Read Capture Low */
 	u32 capture_ecc;        /**< Memory Data Path Read Capture ECC */
+#define CAPTURE_ECC_ECE				(0xF0000000>>24)
+#define CAPTURE_ECC_ECE_SHIFT			0
 	u8 res6[0x14];
 	u32 err_detect;         /**< Memory Error Detect */
+#define ECC_ERROR_DETECT_MME			(0x80000000>>0)		/* Multiple Memory Errors */
+#define ECC_ERROR_DETECT_MBE			(0x80000000>>28)	/* Multiple-Bit Error */
+#define ECC_ERROR_DETECT_SBE			(0x80000000>>29)	/* Single-Bit ECC Error Pickup */
+#define ECC_ERROR_DETECT_MSE			(0x80000000>>31)	/* Memory Select Error */
 	u32 err_disable;        /**< Memory Error Disable */
+#define ECC_ERROR_DISABLE_MBED			(0x80000000>>28)	/* Multiple-Bit ECC Error Disable */
+#define ECC_ERROR_DISABLE_SBED			(0x80000000>>29)	/* Sinle-Bit ECC Error disable */
+#define ECC_ERROR_DISABLE_MSED			(0x80000000>>31)	/* Memory Select Error Disable */
+#define ECC_ERROR_ENABLE			~(ECC_ERROR_DISABLE_MSED|ECC_ERROR_DISABLE_SBED|ECC_ERROR_DISABLE_MBED)
 	u32 err_int_en;         /**< Memory Error Interrupt Enable */
+#define ECC_ERR_INT_EN_MBEE			(0x80000000>>28)	/* Multiple-Bit ECC Error Interrupt Enable */
+#define ECC_ERR_INT_EN_SBEE			(0x80000000>>29)	/* Single-Bit ECC Error Interrupt Enable */
+#define ECC_ERR_INT_EN_MSEE			(0x80000000>>31)	/* Memory Select Error Interrupt Enable */
+#define ECC_ERR_INT_DISABLE			~(ECC_ERR_INT_EN_MBEE|ECC_ERR_INT_EN_SBEE|ECC_ERR_INT_EN_MSEE)
 	u32 capture_attributes; /**< Memory Error Attributes Capture */
+#define ECC_CAPT_ATTR_BNUM			(0xe0000000>>1)		/* Data Beat Num */
+#define ECC_CAPT_ATTR_BNUM_SHIFT		28
+#define ECC_CAPT_ATTR_TSIZ			(0xc0000000>>6)		/* Transaction Size */
+#define ECC_CAPT_ATTR_TSIZ_FOUR_DW		0
+#define ECC_CAPT_ATTR_TSIZ_ONE_DW		1
+#define ECC_CAPT_ATTR_TSIZ_TWO_DW		2
+#define ECC_CAPT_ATTR_TSIZ_THREE_DW		3
+#define ECC_CAPT_ATTR_TSIZ_SHIFT		24
+#define ECC_CAPT_ATTR_TSRC			(0xf8000000>>11)	/* Transaction Source */
+#define ECC_CAPT_ATTR_TSRC_E300_CORE_DT		0x0
+#define ECC_CAPT_ATTR_TSRC_E300_CORE_IF		0x2
+#define ECC_CAPT_ATTR_TSRC_TSEC1		0x4
+#define ECC_CAPT_ATTR_TSRC_TSEC2		0x5
+#define ECC_CAPT_ATTR_TSRC_USB			(0x06|0x07)
+#define ECC_CAPT_ATTR_TSRC_ENCRYPT		0x8
+#define ECC_CAPT_ATTR_TSRC_I2C			0x9
+#define ECC_CAPT_ATTR_TSRC_JTAG			0xA
+#define ECC_CAPT_ATTR_TSRC_PCI1			0xD
+#define ECC_CAPT_ATTR_TSRC_PCI2			0xE
+#define ECC_CAPT_ATTR_TSRC_DMA			0xF
+#define ECC_CAPT_ATTR_TSRC_SHIFT		16
+#define ECC_CAPT_ATTR_TTYP			(0xe0000000>>18)	/* Transaction Type */
+#define ECC_CAPT_ATTR_TTYP_WRITE		0x1
+#define ECC_CAPT_ATTR_TTYP_READ			0x2
+#define ECC_CAPT_ATTR_TTYP_R_M_W		0x3
+#define ECC_CAPT_ATTR_TTYP_SHIFT		12
+#define ECC_CAPT_ATTR_VLD			(0x80000000>>31)	/* Valid */
 	u32 capture_address;    /**< Memory Error Address Capture */
 	u32 capture_ext_address;/**< Memory Error Extended Address Capture */
 	u32 err_sbe;            /**< Memory Single-Bit ECC Error Management */
+#define ECC_ERROR_MAN_SBET			(0xff000000>>8)		/* Single-Bit Error Threshold 0..255*/
+#define ECC_ERROR_MAN_SBET_SHIFT		16
+#define ECC_ERROR_MAN_SBEC			(0xff000000>>24)	/* Single Bit Error Counter 0..255*/
+#define ECC_ERROR_MAN_SBEC_SHIFT		0
 	u8 res7[0xA4];
 	u32 debug_reg;
 	u8 res8[0xFC];
