@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add DMA support for MPC83xx.
+
 * Add sync in do_reset() routine for MPC83xx after RPR register
   was written to. It is need on some targets when BAT translation
   is enabled.
