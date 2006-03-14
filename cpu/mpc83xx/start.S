@@ -796,7 +796,7 @@ icache_disable:
 	.globl	icache_status
 icache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_ICE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
 
 	.globl	dcache_enable
@@ -828,7 +828,7 @@ dcache_disable:
 	.globl	dcache_status
 dcache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_DCE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_DCE_SHIFT + 1), 31, 31
 	blr
 
 	.globl get_pvr
