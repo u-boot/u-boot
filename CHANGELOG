@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for DS1374 RTC chip.
+
 * Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
   timer and cpu_reset code from cpu/$(CPU) into the new
   cpu/$(CPU)/$(SOC) directories
