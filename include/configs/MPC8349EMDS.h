@@ -70,6 +70,7 @@
  * DDR Setup
  */
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
+#define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
 #define CFG_DDR_BASE		0x00000000	/* DDR is system memory*/

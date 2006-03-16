@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add command for handling DDR ECC registers on MPC8349EE MDS board.
+
 * Fix DDR ECC bit definitions for MPC83xx.
 
 * Add initial support for MPC8349E MDS board.
