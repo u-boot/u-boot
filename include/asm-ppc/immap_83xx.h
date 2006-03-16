@@ -686,13 +686,13 @@ typedef struct ddr8349{
 	u32 ecc_err_inject;     /**< Memory Data Path Error Injection Mask ECC */
 #define ECC_ERR_INJECT_EMB			(0x80000000>>22)	/* ECC Mirror Byte */
 #define ECC_ERR_INJECT_EIEN			(0x80000000>>23)	/* Error Injection Enable */
-#define ECC_ERR_INJECT_EEIM			(0xF0000000>>24)	/* ECC Erroe Injection Enable */
+#define ECC_ERR_INJECT_EEIM			(0xff000000>>24)	/* ECC Erroe Injection Enable */
 #define ECC_ERR_INJECT_EEIM_SHIFT		0
 	u8 res5[0x14];
 	u32 capture_data_hi;    /**< Memory Data Path Read Capture High */
 	u32 capture_data_lo;    /**< Memory Data Path Read Capture Low */
 	u32 capture_ecc;        /**< Memory Data Path Read Capture ECC */
-#define CAPTURE_ECC_ECE				(0xF0000000>>24)
+#define CAPTURE_ECC_ECE				(0xff000000>>24)
 #define CAPTURE_ECC_ECE_SHIFT			0
 	u8 res6[0x14];
 	u32 err_detect;         /**< Memory Error Detect */

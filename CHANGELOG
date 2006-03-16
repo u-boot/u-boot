@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix DDR ECC bit definitions for MPC83xx.
+
 * Add initial support for MPC8349E MDS board.
 
 * Add support for ECC DDR initialization on MPC83xx.
