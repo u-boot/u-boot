@@ -73,27 +73,46 @@
 #define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
+/*
+ * 32-bit data path mode.
+ * 
+ * Please note that using this mode for devices with the real density of 64-bit
+ * effectively reduces the amount of available memory due to the effect of
+ * wrapping around while translating address to row/columns, for example in the
+ * 256MB module the upper 128MB get aliased with contents of the lower
+ * 128MB); normally this define should be used for devices with real 32-bit
+ * data path. 
+ */
+#undef CONFIG_DDR_32BIT
+
 #define CFG_DDR_BASE		0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 #define CFG_DDR_SDRAM_BASE	CFG_DDR_BASE
 #undef  CONFIG_DDR_2T_TIMING
 
 #if defined(CONFIG_SPD_EEPROM)
-	/*
-	 * Determine DDR configuration from I2C interface.
-	 */
-	#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+/*
+ * Determine DDR configuration from I2C interface.
+ */
+#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
 #else
-	/*
-	 * Manually set up DDR parameters
-	 */
-	#define CFG_DDR_SIZE		128		/* Mb */
-	#define CFG_DDR_CONFIG		(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9)
-	#define CFG_DDR_TIMING_1	0x37344321
-	#define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
-	#define CFG_DDR_CONTROL		0xc2000000	/* unbuffered,no DYN_PWR */
-	#define CFG_DDR_MODE		0x00000062	/* DLL,normal,seq,4/2.5 */
-	#define CFG_DDR_INTERVAL	0x05200100	/* autocharge,no open page */
+/*
+ * Manually set up DDR parameters
+ */
+#define CFG_DDR_SIZE		256		/* MB */
+#define CFG_DDR_CONFIG		(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
+#define CFG_DDR_TIMING_1	0x36332321
+#define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
+#define CFG_DDR_CONTROL		0xc2000000	/* unbuffered,no DYN_PWR */
+#define CFG_DDR_INTERVAL	0x04060100	/* autocharge,no open page */
+
+#if defined(CONFIG_DDR_32BIT)
+/* set burst length to 8 for 32-bit data path */
+#define CFG_DDR_MODE		0x00000023	/* DLL,normal,seq,4/2.5, 8 burst len */
+#else
+/* the default burst length is 4 - for 64-bit data path */
+#define CFG_DDR_MODE		0x00000022	/* DLL,normal,seq,4/2.5, 4 burst len */
+#endif
 #endif
 
 /*

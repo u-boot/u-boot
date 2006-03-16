@@ -63,11 +63,12 @@ long int initdram (int board_type)
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
+	puts("Initializing\n");
+
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
-
-	msize = spd_sdram(0);
+	msize = spd_sdram();
 #else
 	msize = fixed_sdram();
 #endif
@@ -106,45 +107,40 @@ int fixed_sdram(void)
 			return -1;
 		}
 	}
+	im->sysconf.ddrlaw[0].bar = ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff);
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
+
 #if (CFG_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
-
-	im->ddr.csbnds[0].csbnds = 0x00100017;
-	im->ddr.csbnds[1].csbnds = 0x0018001f;
-	im->ddr.csbnds[2].csbnds = 0x00000007;
-	im->ddr.csbnds[3].csbnds = 0x0008000f;
-	im->ddr.cs_config[0] = CFG_DDR_CONFIG;
-	im->ddr.cs_config[1] = CFG_DDR_CONFIG;
+	im->ddr.csbnds[2].csbnds = 0x0000000f;
 	im->ddr.cs_config[2] = CFG_DDR_CONFIG;
-	im->ddr.cs_config[3] = CFG_DDR_CONFIG;
-	im->ddr.timing_cfg_1 =
-		3 << TIMING_CFG1_PRETOACT_SHIFT |
-		7 << TIMING_CFG1_ACTTOPRE_SHIFT |
-		3 << TIMING_CFG1_ACTTORW_SHIFT  |
-		4 << TIMING_CFG1_CASLAT_SHIFT   |
-		3 << TIMING_CFG1_REFREC_SHIFT   |
-		3 << TIMING_CFG1_WRREC_SHIFT    |
-		2 << TIMING_CFG1_ACTTOACT_SHIFT |
-		1 << TIMING_CFG1_WRTORD_SHIFT;
-	im->ddr.timing_cfg_2 = 2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT;
+
+	/* currently we use only one CS, so disable the other banks */ 
+	im->ddr.cs_config[0] = 0;
+	im->ddr.cs_config[1] = 0;
+	im->ddr.cs_config[3] = 0;
+
+	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
+	
 	im->ddr.sdram_cfg =
 		SDRAM_CFG_SREN
 #if defined(CONFIG_DDR_2T_TIMING)
 		| SDRAM_CFG_2T_EN
 #endif
 		| 2 << SDRAM_CFG_SDRAM_TYPE_SHIFT;
-	im->ddr.sdram_mode =
-		0x2000 << SDRAM_MODE_ESD_SHIFT |
-		0x0162 << SDRAM_MODE_SD_SHIFT;
+#if defined (CONFIG_DDR_32BIT)
+	/* for 32-bit mode burst length is 8 */
+	im->ddr.sdram_cfg |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);
+#endif
+	im->ddr.sdram_mode = CFG_DDR_MODE;
 
-	im->ddr.sdram_interval = 0x045B << SDRAM_INTERVAL_REFINT_SHIFT |
-		0x0100 << SDRAM_INTERVAL_BSTOPRE_SHIFT;
+	im->ddr.sdram_interval = CFG_DDR_INTERVAL; 
 	udelay(200);
 
+	/* enable DDR controller */
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
-
 	return msize;
 }
 #endif/*!CFG_SPD_EEPROM*/

@@ -1,3 +1,24 @@
+Overview
+========
+
+The overall usage pattern for ECC diagnostic commands is the following:
+
+  * (injecting errors is initially disabled)
+
+  * define inject mask (which tells the DDR controller what type of errors
+    we'll be injecting: single/multiple bit etc.)
+
+  * enable injecting errors - from now on the controller injects errors as
+    indicated in the inject mask
+
+IMPORTANT NOTICE: enabling injecting multiple-bit errors is potentially
+dangerous as such errors are NOT corrected by the controller. Therefore caution
+should be taken when enabling the injection of multiple-bit errors: it is only
+safe when used on a carefully selected memory area and used under control of
+the 'ecc test' command (see example 'Injecting Multiple-Bit Errors' below). In
+particular, when you simply set the multiple-bit errors in inject mask and
+enable injection, U-Boot is very likely to hang quickly as the errors will be
+injected when it accesses its code, data etc.
 
 
 Use cases for DDR 'ecc' command:

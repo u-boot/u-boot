@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2006
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * 
  * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
@@ -73,7 +76,32 @@ int read_spd(uint addr)
 	return ((int) addr);
 }
 
-long int spd_sdram(int(read_spd)(uint addr))
+#undef SPD_DEBUG
+#ifdef SPD_DEBUG
+static void spd_debug(spd_eeprom_t *spd)
+{
+	printf ("\nDIMM type:       %-18.18s\n", spd->mpart);
+	printf ("SPD size:        %d\n", spd->info_size);
+	printf ("EEPROM size:     %d\n", 1 << spd->chip_size);
+	printf ("Memory type:     %d\n", spd->mem_type);
+	printf ("Row addr:        %d\n", spd->nrow_addr);
+	printf ("Column addr:     %d\n", spd->ncol_addr);
+	printf ("# of rows:       %d\n", spd->nrows);
+	printf ("Row density:     %d\n", spd->row_dens);
+	printf ("# of banks:      %d\n", spd->nbanks);
+	printf ("Data width:      %d\n",
+			256 * spd->dataw_msb + spd->dataw_lsb);
+	printf ("Chip width:      %d\n", spd->primw);
+	printf ("Refresh rate:    %02X\n", spd->refresh);
+	printf ("CAS latencies:   %02X\n", spd->cas_lat);
+	printf ("Write latencies: %02X\n", spd->write_lat);
+	printf ("tRP:             %d\n", spd->trp);
+	printf ("tRCD:            %d\n", spd->trcd);
+	printf ("\n");
+}
+#endif /* SPD_DEBUG */
+
+long int spd_sdram()
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
 	volatile ddr8349_t *ddr = &immap->ddr;
@@ -85,10 +113,10 @@ long int spd_sdram(int(read_spd)(uint addr))
 	unsigned char caslat;
 	unsigned int trfc, trfc_clk, trfc_low;
 
-#warning Current spd_sdram does not fit its usage... adjust implementation or API...
-
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
-	
+#ifdef SPD_DEBUG
+	spd_debug(&spd);
+#endif
 	if (spd.nrows > 2) {
 		puts("DDR:Only two chip selects are supported on ADS.\n");
 		return 0;
@@ -223,25 +251,31 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * Only DDR I is supported
 	 * DDR I and II have different mode-register-set definition
 	 */
-
-	/* burst length is always 4 */
 	switch(caslat) {
 	case 2:
-		ddr->sdram_mode = 0x52; /* 1.5 */
+		tmp = 0x50; /* 1.5 */
 		break;
 	case 3:
-		ddr->sdram_mode = 0x22; /* 2.0 */
+		tmp = 0x20; /* 2.0 */
 		break;
 	case 4:
-		ddr->sdram_mode = 0x62; /* 2.5 */
+		tmp = 0x60; /* 2.5 */
 		break;
 	case 5:
-		ddr->sdram_mode = 0x32; /* 3.0 */
+		tmp = 0x30; /* 3.0 */
 		break;
 	default:
 		puts("DDR:only CAS Latency 1.5, 2.0, 2.5, 3.0 is supported.\n");
 		return 0;
 	}
+#if defined (CONFIG_DDR_32BIT)
+	/* set burst length to 8 for 32-bit data path */
+	tmp |= 0x03;
+#else
+	/* set burst length to 4 - default for 64-bit data path */
+	tmp |= 0x02;
+#endif
+	ddr->sdram_mode = tmp;
 	debug("DDR:sdram_mode=0x%08x\n", ddr->sdram_mode);
 
 	switch(spd.refresh) {
@@ -321,6 +355,10 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 */
 	tmp = 0xc2000000;
 
+#if defined (CONFIG_DDR_32BIT)
+	/* in 32-Bit mode burst len is 8 beats */
+	tmp |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);
+#endif
 	/*
 	 * sdram_cfg[3] = RD_EN - registered DIMM enable
 	 *   A value of 0x26 indicates micron registered DIMMS (micron.com)
@@ -350,8 +388,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	udelay(500);
 
 	debug("DDR:sdram_cfg=0x%08x\n", ddr->sdram_cfg);
-
-	return memsize;/*in MBytes*/
+	return memsize; /*in MBytes*/
 }
 #endif /* CONFIG_SPD_EEPROM */
 
