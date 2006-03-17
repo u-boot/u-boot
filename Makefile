@@ -303,6 +303,20 @@ icecube_5100_config:			unconfig
 inka4x0_config:	unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
+lite5200b_config	\
+lite5200b_LOWBOOT_config:	unconfig
+	@ >include/config.h
+	@ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h
+	@ echo "... DDR memory revision"
+	@ echo "#define CONFIG_MPC5200"		>>include/config.h
+	@ echo "#define CONFIG_LITE5200B"	>>include/config.h
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000" >board/icecube/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@ echo "... with MPC5200B processor"
+	@./mkconfig -a IceCube  ppc mpc5xxx icecube
+
 mcc200_config	\
 mcc200_lowboot_config:	unconfig
 	@ >include/config.h

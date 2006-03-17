@@ -28,12 +28,15 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
-#if defined(CONFIG_MPC5200_DDR)
-#include "mt46v16m16-75.h"
+#if defined(CONFIG_LITE5200B)
+#include "mt46v32m16.h"
 #else
+# if defined(CONFIG_MPC5200_DDR)
+#  include "mt46v16m16-75.h"
+# else
 #include "mt48lc16m16a2-75.h"
+# endif
 #endif
-
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
 {
@@ -236,7 +239,9 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
-#if defined(CONFIG_MPC5200)
+#if defined (CONFIG_LITE5200B)
+	puts ("Board: Freescale Lite5200B\n");
+#elif defined(CONFIG_MPC5200)
 	puts ("Board: Motorola MPC5200 (IceCube)\n");
 #elif defined(CONFIG_MGT5100)
 	puts ("Board: Motorola MGT5100 (IceCube)\n");

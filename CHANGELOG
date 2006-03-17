@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for Lite5200B board.
+  Patch by  Patch by Jose Maria (Txema) Lopez, 16 Jan 2006
+
 * Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
   timer and cpu_reset code from cpu/$(CPU) into the new
   cpu/$(CPU)/$(SOC) directories
