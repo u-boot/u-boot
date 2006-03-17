@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,26 +23,24 @@
 
 include $(TOPDIR)/config.mk
 
-#CFLAGS += -DDEBUG
+LIB	= lib$(BOARD).a
 
-LIB	= librtc.a
+OBJS	:= $(BOARD).o
 
-OBJS	= date.o   \
-	  bf533_rtc.o ds12887.o ds1302.o ds1306.o ds1307.o \
-	  ds1337.o ds1374.o ds1556.o ds164x.o ds174x.o \
-	  m41t11.o max6900.o m48t35ax.o mc146818.o mk48t59.o \
-	  mpc5xxx.o mpc8xx.o pcf8563.o s3c24x0_rtc.o rs5c372.o
-
-all:	$(LIB)
-
-$(LIB):	$(START) $(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude .depend
+-include .depend
 
 #########################################################################

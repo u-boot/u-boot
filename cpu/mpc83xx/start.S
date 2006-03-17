@@ -796,7 +796,7 @@ icache_disable:
 	.globl	icache_status
 icache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_ICE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
 
 	.globl	dcache_enable
@@ -828,12 +828,46 @@ dcache_disable:
 	.globl	dcache_status
 dcache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_DCE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_DCE_SHIFT + 1), 31, 31
 	blr
 
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 ppcDcbf */
+/* Description:	 Data Cache block flush */
+/* Input:	 r3 = effective address */
+/* Output:	 none. */
+/*------------------------------------------------------------------------------- */
+	.globl	ppcDcbf
+ppcDcbf:
+	dcbf	r0,r3
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 ppcDcbi */
+/* Description:	 Data Cache block Invalidate */
+/* Input:	 r3 = effective address */
+/* Output:	 none. */
+/*------------------------------------------------------------------------------- */
+	.globl	ppcDcbi
+ppcDcbi:
+	dcbi	r0,r3
+	blr
+
+/*--------------------------------------------------------------------------
+ * Function:	 ppcDcbz
+ * Description:	 Data Cache block zero.
+ * Input:	 r3 = effective address
+ * Output:	 none.
+ *-------------------------------------------------------------------------- */
+
+	.globl	ppcDcbz
+ppcDcbz:
+	dcbz	r0,r3
 	blr
 
 /*-------------------------------------------------------------------*/

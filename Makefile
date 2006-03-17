@@ -1307,6 +1307,9 @@ MPC8349ADS_config:	unconfig
 TQM834x_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc83xx tqm834x
 
+MPC8349EMDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349emds
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################

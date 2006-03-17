@@ -2,6 +2,28 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add command for handling DDR ECC registers on MPC8349EE MDS board.
+
+* Fix DDR ECC bit definitions for MPC83xx.
+
+* Add initial support for MPC8349E MDS board.
+
+* Add support for ECC DDR initialization on MPC83xx.
+
+* Add DMA support for MPC83xx.
+
+* Add sync in do_reset() routine for MPC83xx after RPR register
+  was written to. It is need on some targets when BAT translation
+  is enabled.
+
+* Add bit definitions for MPC83xx DDR controller registers.
+
+* Add Dcbz(), Dcbi() and Dcbf() routines for MPC83xx.
+
+* Correct shift offsets in icache_status and dcache_status for MPC83xx.
+
+* Add support for DS1374 RTC chip.
+
 * Add support for Lite5200B board.
   Patch by  Patch by Jose Maria (Txema) Lopez, 16 Jan 2006
 
