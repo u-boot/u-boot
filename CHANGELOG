@@ -33,6 +33,24 @@ Changes since U-Boot 1.1.4:
 * Add support for Lite5200B board.
   Patch by  Patch by Jose Maria (Txema) Lopez, 16 Jan 2006
 
+* Updates to common PPC4xx onboard (DDR)SDRAM init code (405 and 440)
+
+  405 SDRAM: - The SDRAM parameters can now be defined in the board
+               config file and the 405 SDRAM controller values will
+               be calculated upon bootup (see PPChameleonEVB).
+               When those settings are not defined in the board
+               config file, the register setup will be as it is now,
+               so this implementation should not break any current
+               design using this code.
+
+               Thanks to Andrea Marson from DAVE for this patch.
+
+  440 DDR:   - Added function sdram_tr1_set to auto calculate the
+               TR1 value for the DDR.
+             - Added ECC support (see p3p440).
+
+  Patch by Stefan Roese, 17 Mar 2006
+
 * Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
   timer and cpu_reset code from cpu/$(CPU) into the new
   cpu/$(CPU)/$(SOC) directories
