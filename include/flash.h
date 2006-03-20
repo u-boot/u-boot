@@ -242,6 +242,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define STM_ID_29W320DT 0x22CA22CA	/* M29W320DT ID (32 M, top boot sector) */
 #define STM_ID_29W320DB 0x22CB22CB	/* M29W320DB ID (32 M, bottom boot sect)	*/
 #define STM_ID_29W040B	0x00E300E3	/* M29W040B ID (4M = 512K x 8)	*/
+#define FLASH_PSD4256GV 0x00E9		/* PSD4256 Flash and CPLD combination	*/
 
 #define INTEL_ID_28F016S    0x66a066a0	/* 28F016S[VS] ID (16M = 512k x 16)	*/
 #define INTEL_ID_28F800B3T  0x88928892	/*  8M = 512K x 16 top boot sector	*/
@@ -274,6 +275,12 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define INTEL_ID_28F64K3    0x88018801	/*  64M =  32K x 255 + 32k x 4 */
 #define INTEL_ID_28F128K3   0x88028802	/* 128M =  64K x 255 + 32k x 4 */
 #define INTEL_ID_28F256K3   0x88038803	/* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F64P30T  0x88178817	/*  64M =  32K x 255 + 32k x 4 */
+#define INTEL_ID_28F64P30B  0x881A881A	/*  64M =  32K x 255 + 32k x 4 */
+#define INTEL_ID_28F128P30T 0x88188818	/* 128M =  64K x 255 + 32k x 4 */
+#define INTEL_ID_28F128P30B 0x881B881B	/* 128M =  64K x 255 + 32k x 4 */
+#define INTEL_ID_28F256P30T 0x88198819	/* 256M = 128K x 255 + 32k x 4 */
+#define INTEL_ID_28F256P30B 0x881C881C	/* 256M = 128K x 255 + 32k x 4 */
 
 #define INTEL_ID_28F160S3   0x00D000D0	/*  16M = 512K x  32 (64kB x 32)	*/
 #define INTEL_ID_28F320S3   0x00D400D4	/*  32M = 512K x  64 (64kB x 64)	*/

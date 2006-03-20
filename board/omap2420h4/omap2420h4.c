@@ -32,7 +32,7 @@
 #include <i2c.h>
 #include <asm/mach-types.h>
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#include <linux/mtd/nand.h>
+#include <linux/mtd/nand_legacy.h>
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
 

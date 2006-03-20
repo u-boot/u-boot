@@ -188,34 +188,34 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
+/*
+ * nand device 1 on dave (PPChameleonEVB) needs more time,
+ * so we just introduce additional wait in nand_wait(),
+ * effectively for both devices.
+ */
+#define PPCHAMELON_NAND_TIMER_HACK
+
 #define CFG_NAND0_BASE 0xFF400000
 #define CFG_NAND1_BASE 0xFF000000
+#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE, CFG_NAND1_BASE }
+#define NAND_BIG_DELAY_US	25
+#define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices */
 
-#define CFG_MAX_NAND_DEVICE	2	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
-#define NAND_NO_RB
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
 #define NAND_MAX_CHIPS 1
 
 #define CFG_NAND0_CE  (0x80000000 >> 1)	 /* our CE is GPIO1 */
+#define CFG_NAND0_RDY (0x80000000 >> 4)	 /* our RDY is GPIO4 */
 #define CFG_NAND0_CLE (0x80000000 >> 2)	 /* our CLE is GPIO2 */
 #define CFG_NAND0_ALE (0x80000000 >> 3)	 /* our ALE is GPIO3 */
-#define CFG_NAND0_RDY (0x80000000 >> 4)	 /* our RDY is GPIO4 */
 
 #define CFG_NAND1_CE  (0x80000000 >> 14)  /* our CE is GPIO14 */
+#define CFG_NAND1_RDY (0x80000000 >> 31)  /* our RDY is GPIO31 */
 #define CFG_NAND1_CLE (0x80000000 >> 15)  /* our CLE is GPIO15 */
 #define CFG_NAND1_ALE (0x80000000 >> 16)  /* our ALE is GPIO16 */
-#define CFG_NAND1_RDY (0x80000000 >> 31)  /* our RDY is GPIO31 */
 
-#define NAND_DISABLE_CE(nand) do \
+#define MACRO_NAND_DISABLE_CE(nandptr) do \
 { \
-	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
+	switch((unsigned long)nandptr) \
 	{ \
 	    case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CE); \
@@ -226,9 +226,9 @@
 	} \
 } while(0)
 
-#define NAND_ENABLE_CE(nand) do \
+#define MACRO_NAND_ENABLE_CE(nandptr) do \
 { \
-	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
+	switch((unsigned long)nandptr) \
 	{ \
 	    case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CE); \
@@ -239,7 +239,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_CLRALE(nandptr) do \
+#define MACRO_NAND_CTL_CLRALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -252,7 +252,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_SETALE(nandptr) do \
+#define MACRO_NAND_CTL_SETALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -265,7 +265,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_CLRCLE(nandptr) do \
+#define MACRO_NAND_CTL_CLRCLE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -278,7 +278,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_SETCLE(nandptr) do { \
+#define MACRO_NAND_CTL_SETCLE(nandptr) do { \
 	switch((unsigned long)nandptr) { \
 	case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CLE); \
@@ -288,6 +288,17 @@
 		break; \
 	} \
 } while(0)
+
+#if 0
+#define SECTORSIZE 512
+#define NAND_NO_RB
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
+#define NAND_ChipID_UNKNOWN	0x00
+#define NAND_MAX_FLOORS 1
 
 #ifdef NAND_NO_RB
 /* constant delay (see also tR in the datasheet) */
@@ -303,7 +314,7 @@
 #define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
 #define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
 #define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
-
+#endif
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
@@ -338,16 +349,16 @@
 #define CFG_SDRAM_BASE		0x00000000
 
 /* Reserve 256 kB for Monitor	*/
+/*
 #define CFG_FLASH_BASE		0xFFFC0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(256 * 1024)
+*/
 
 /* Reserve 320 kB for Monitor	*/
-/*
 #define CFG_FLASH_BASE		0xFFFB0000
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(320 * 1024)
-*/
 
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 

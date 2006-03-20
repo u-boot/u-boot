@@ -55,18 +55,26 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#undef	CONFIG_BOOTARGS
-#define CONFIG_BOOTCOMMAND							\
+#define CONFIG_ENV_OVERWRITE
+
+#define CONFIG_NFSBOOTCOMMAND							\
     "dhcp;"									\
-    "setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "		\
-    "ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"	\
+    "setenv bootargs root=/dev/nfs rw nfsroot=$rootpath "			\
+    "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:eth0:off;"		\
     "bootm"
+
+#define CONFIG_BOOTCOMMAND							\
+    "setenv bootargs root=/dev/mtdblock2 rw mtdparts=phys:1280K(ROM)ro,-(root) "\
+    "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:eth0:off;"		\
+    "bootm fe080000"
+
+#undef CONFIG_BOOTARGS
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #define CONFIG_BZIP2	 /* include support for bzip2 compressed images */
 
 /*
- * New MPC86xADS and Duet provide two Ethernet connectivity options:
+ * New MPC86xADS and MPC885ADS provide two Ethernet connectivity options:
  * 10Mbit/s on SCC and 100Mbit/s on FEC. FADS provides SCC Ethernet on
  * motherboard and FEC Ethernet on daughterboard. All new PQ1 chips have
  * got FEC so FEC is the default.
@@ -89,7 +97,9 @@
 
 #ifndef CONFIG_COMMANDS
 #define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
+			 | CFG_CMD_ASKENV \
 			 | CFG_CMD_DHCP   \
+			 | CFG_CMD_ECHO   \
 			 | CFG_CMD_IMMAP  \
 			 | CFG_CMD_JFFS2  \
 			 | CFG_CMD_MII    \
@@ -104,16 +114,18 @@
 /*
  * Miscellaneous configurable options
  */
-#undef	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT		"=>"	/* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"=>"		/* Monitor Command Prompt	*/
+#define CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2	"> "
+#define	CFG_LONGHELP				/* #undef to save memory	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CFG_PBSIZE (CFG_CBSIZE + sizeof(CFG_PROMPT) + 16) /* Print Buffer Size	*/
+#define	CFG_MAXARGS		16		/* max number of command args	*/
+#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_LOAD_ADDR	 	0x00100000
 
@@ -126,6 +138,7 @@
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
+
 /*-----------------------------------------------------------------------
  * Internal Memory Mapped Register
  */
@@ -148,6 +161,14 @@
 #define	CFG_SDRAM_BASE		0x00000000
 #if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC885ADS) /* New ADS or Duet */
 #define	CFG_SDRAM_SIZE		0x00800000      	/* 8 Mbyte */
+/*
+ * 2048	SDRAM rows
+ * 1000	factor s -> ms
+ * 64	PTP (pre-divider from MPTPR) from SDRAM example configuration
+ * 4	Number of refresh cycles per period
+ * 64	Refresh cycle in ms per number of rows
+ */
+#define CFG_PTA_PER_CLK		((2048 * 64 * 1000) / (4 * 64))
 #elif defined(CONFIG_FADS)				/* Old/new FADS */
 #define	CFG_SDRAM_SIZE		0x00400000		/* 4 Mbyte */
 #else							/* Old ADS */
@@ -223,9 +244,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
-#endif
 
 /*-----------------------------------------------------------------------
  * I2C configuration
@@ -277,31 +296,21 @@
  * power management and some other internal clocks
  */
 #define SCCR_MASK	SCCR_EBDF11
-#define CFG_SCCR	(SCCR_TBS|SCCR_COM00|SCCR_DFSYNC00|SCCR_DFBRG00|SCCR_DFNL000|SCCR_DFNH000|SCCR_DFLCD000|SCCR_DFALCD00)
+#define CFG_SCCR	SCCR_TBS
 
 /*-----------------------------------------------------------------------
- * PLPRCR - PLL, Low-Power, and Reset Control Register		14-22
+ * DER - Debug Enable Register
  *-----------------------------------------------------------------------
- * set the PLL, the low-power modes and the reset control
- */
-#ifndef CFG_PLPRCR
-#define CFG_PLPRCR	PLPRCR_TEXPS
-#endif
-
-/*-----------------------------------------------------------------------
- *
- *-----------------------------------------------------------------------
- *
+ * Set to zero to prevent the processor from entering debug mode
  */
 #define CFG_DER		 0
 
-/* Because of the way the 860 starts up and assigns CS0 the
-* entire address space, we have to set the memory controller
-* differently.  Normally, you write the option register
-* first, and then enable the chip select by writing the
-* base register.  For CS0, you must write the base register
-* first, followed by the option register.
-*/
+/* Because of the way the 860 starts up and assigns CS0 the entire
+ * address space, we have to set the memory controller differently.
+ * Normally, you write the option register first, and then enable the
+ * chip select by writing the base register.  For CS0, you must write
+ * the base register first, followed by the option register.
+ */
 
 /*
  * Init Memory Controller:
@@ -334,9 +343,6 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 /* values according to the manual */
-
-#define PCMCIA_MEM_ADDR		((uint)0xFF020000)
-#define PCMCIA_MEM_SIZE		((uint)(64 * 1024))
 
 #define	BCSR0			((uint) (BCSR_ADDR + 0x00))
 #define	BCSR1			((uint) (BCSR_ADDR + 0x04))
@@ -396,59 +402,28 @@
 #define BCSR4_TFPLDL             ((uint)0x40000000)
 #define BCSR4_TPSQEL             ((uint)0x20000000)
 #define BCSR4_SIGNAL_LAMP        ((uint)0x10000000)
-#define BCSR4_FETH_EN            ((uint)0x08000000)
-#define BCSR4_FETHCFG0           ((uint)0x04000000)
-#define BCSR4_FETHFDE            ((uint)0x02000000)
-#define BCSR4_FETHCFG1           ((uint)0x00400000)
-#define BCSR4_FETHRST            ((uint)0x00200000)
-
-#ifdef CONFIG_MPC823
+#if defined(CONFIG_MPC823)
 #define BCSR4_USB_EN             ((uint)0x08000000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC860SAR
-#define BCSR4_UTOPIA_EN          ((uint)0x08000000)
-#endif /* CONFIG_MPC860SAR */
-#ifdef CONFIG_MPC860T
-#define BCSR4_FETH_EN            ((uint)0x08000000)
-#endif /* CONFIG_MPC860T */
-#ifdef CONFIG_MPC823
 #define BCSR4_USB_SPEED          ((uint)0x04000000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC860T
-#define BCSR4_FETHCFG0           ((uint)0x04000000)
-#endif /* CONFIG_MPC860T */
-#ifdef CONFIG_MPC823
 #define BCSR4_VCCO               ((uint)0x02000000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC860T
-#define BCSR4_FETHFDE            ((uint)0x02000000)
-#endif /* CONFIG_MPC860T */
-#ifdef CONFIG_MPC823
 #define BCSR4_VIDEO_ON           ((uint)0x00800000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC823
 #define BCSR4_VDO_EKT_CLK_EN     ((uint)0x00400000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC860T
-#define BCSR4_FETHCFG1           ((uint)0x00400000)
-#endif /* CONFIG_MPC860T */
-#ifdef CONFIG_MPC823
 #define BCSR4_VIDEO_RST          ((uint)0x00200000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC860T
-#define BCSR4_FETHRST            ((uint)0x00200000)
-#endif /* CONFIG_MPC860T */
-#ifdef CONFIG_MPC823
 #define BCSR4_MODEM_EN           ((uint)0x00100000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC823
 #define BCSR4_DATA_VOICE         ((uint)0x00080000)
-#endif /* CONFIG_MPC823 */
-#ifdef CONFIG_MPC850
+#elif defined(CONFIG_MPC850)
 #define BCSR4_DATA_VOICE         ((uint)0x00080000)
-#endif /* CONFIG_MPC850 */
+#elif defined(CONFIG_MPC860SAR)
+#define BCSR4_UTOPIA_EN          ((uint)0x08000000)
+#else /* MPC860T and other chips with FEC */
+#define BCSR4_FETH_EN            ((uint)0x08000000)
+#define BCSR4_FETHCFG0           ((uint)0x04000000)
+#define BCSR4_FETHFDE            ((uint)0x02000000)
+#define BCSR4_FETHCFG1           ((uint)0x00400000)
+#define BCSR4_FETHRST            ((uint)0x00200000)
+#endif
 
-/* BSCR5 exists on MPC86xADS and Duet ADS only */
+/* BSCR5 exists on MPC86xADS and MPC885ADS only */
 
 #define CFG_PHYDEV_ADDR		(BCSR_ADDR + 0x20000)
 
@@ -511,4 +486,4 @@
 #define CFG_ATA_ALT_OFFSET	0x0000
 
 #define CONFIG_DISK_SPINUP_TIME 1000000
-#undef CONFIG_DISK_SPINUP_TIME	/* usin´ Compact Flash */
+/* #undef CONFIG_DISK_SPINUP_TIME */	/* usin  Compact Flash */

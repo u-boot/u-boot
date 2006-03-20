@@ -715,7 +715,7 @@ icache_disable:
 	.globl	icache_status
 icache_status:
 	mfspr	r3,L1CSR1
-	srwi	r3, r3, 31	/* >>31 => select bit 0 */
+	andi.	r3,r3,1
 	blr
 
 	.globl	dcache_enable
@@ -748,7 +748,7 @@ dcache_disable:
 	.globl	dcache_status
 dcache_status:
 	mfspr	r3,L1CSR0
-	srwi	r3, r3, 31	/* >>31 => select bit 0 */
+	andi.	r3,r3,1
 	blr
 
 	.globl get_pir

@@ -133,6 +133,8 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
+#define CFG_NAND_LEGACY
+
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 

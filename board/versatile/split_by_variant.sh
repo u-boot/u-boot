@@ -36,5 +36,5 @@ fi
 # ---------------------------------------------------------
 # Complete the configuration
 # ---------------------------------------------------------
-./mkconfig -a versatile arm arm926ejs versatile
+./mkconfig -a versatile arm arm926ejs versatile NULL versatile
 echo "Variant:: $variant"

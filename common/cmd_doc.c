@@ -22,8 +22,9 @@
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 
 #include <linux/mtd/nftl.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/nand_legacy.h>
 #include <linux/mtd/nand_ids.h>
+
 #include <linux/mtd/doc2000.h>
 #include <linux/mtd/nftl.h>
 
@@ -249,7 +250,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		print_image_hdr (hdr);
 
-		cnt = (hdr->ih_size + sizeof(image_header_t));
+		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
 		cnt -= SECTORSIZE;
 	} else {
 		puts ("\n** Bad Magic Number **\n");

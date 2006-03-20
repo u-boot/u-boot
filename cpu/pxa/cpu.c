@@ -143,6 +143,7 @@ int dcache_status (void)
 	return 0;					/* always off */
 }
 
+#ifndef CONFIG_CPU_MONAHANS
 void set_GPIO_mode(int gpio_mode)
 {
 	int gpio = gpio_mode & GPIO_MD_MASK_NR;
@@ -160,3 +161,4 @@ void set_GPIO_mode(int gpio_mode)
 	gafr = GAFR(gpio) & ~(0x3 << (((gpio) & 0xf)*2));
 	GAFR(gpio) = gafr |  (fn  << (((gpio) & 0xf)*2));
 }
+#endif /* CONFIG_CPU_MONAHANS */

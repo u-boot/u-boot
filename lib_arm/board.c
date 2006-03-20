@@ -52,6 +52,8 @@
 #include "../drivers/lan91c96.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init (void);
 #endif
@@ -119,9 +121,7 @@ void *sbrk (ptrdiff_t increment)
 
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
-	uchar tmp[64];	/* long enough for environment variables */
+	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
@@ -155,7 +155,6 @@ static int display_banner (void)
  */
 static int display_dram_config (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
 #ifdef DEBUG
@@ -178,11 +177,13 @@ static int display_dram_config (void)
 	return (0);
 }
 
+#ifndef CFG_NO_FLASH
 static void display_flash_config (ulong size)
 {
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
+#endif /* CFG_NO_FLASH */
 
 
 /*
@@ -234,11 +235,11 @@ init_fnc_t *init_sequence[] = {
 
 void start_armboot (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
-	ulong size;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
+#ifndef CFG_NO_FLASH
+	ulong size;
+#endif
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
 	unsigned long addr;
 #endif
@@ -260,9 +261,11 @@ void start_armboot (void)
 		}
 	}
 
+#ifndef CFG_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init ();
 	display_flash_config (size);
+#endif /* CFG_NO_FLASH */
 
 #ifdef CONFIG_VFD
 #	ifndef PAGE_SIZE
@@ -319,7 +322,7 @@ void start_armboot (void)
 		int i;
 		ulong reg;
 		char *s, *e;
-		uchar tmp[64];
+		char tmp[64];
 
 		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
 		s = (i > 0) ? tmp : NULL;
@@ -405,6 +408,8 @@ void hang (void)
 }
 
 #ifdef CONFIG_MODEM_SUPPORT
+static inline void mdm_readline(char *buf, int bufsiz);
+
 /* called from main loop (common/main.c) */
 extern void  dbg(const char *fmt, ...);
 int mdm_init (void)
@@ -413,7 +418,6 @@ int mdm_init (void)
 	char *init_str;
 	int i;
 	extern char console_buffer[];
-	static inline void mdm_readline(char *buf, int bufsiz);
 	extern void enable_putc(void);
 	extern int hwflow_onoff(int);
 

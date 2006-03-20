@@ -92,6 +92,10 @@ typedef struct { volatile u32 offset[4096]; } __regbase;
 #  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
 # else
 #  define __REG(x) (x)
+#  ifdef CONFIG_CPU_MONAHANS /* Hack to make this work with mona's pxa-regs.h */
+#   define __REG_2(x) (x)
+#   define __REG_3(x) (x)
+#  endif
 # endif
 #endif /* UBOOT_REG_FIX */
 

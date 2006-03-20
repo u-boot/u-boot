@@ -101,6 +101,8 @@
 #define ADD_DOC_CMD             0
 #else
 #define ADD_DOC_CMD             CFG_CMD_DOC
+/* DoC requires legacy NAND for now */
+#define CFG_NAND_LEGACY
 #endif
 
 /*

@@ -351,8 +351,7 @@ outahere:
  * Copy memory to flash
  */
 
-volatile static int write_word (flash_info_t * info, ulong dest,
-								ulong data)
+static int write_word (flash_info_t * info, ulong dest, ulong data)
 {
 	vu_long *addr = (vu_long *) dest;
 	ulong result;

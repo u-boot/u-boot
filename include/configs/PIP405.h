@@ -50,7 +50,6 @@
 			CFG_CMD_PCI	| \
 			CFG_CMD_CACHE	| \
 			CFG_CMD_IRQ	| \
-			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_I2C	| \
 			CFG_CMD_REGINFO | \
@@ -68,6 +67,8 @@
 			CFG_CMD_BSP	)
 /* this must be included AFTER the definition of CONFIG_COMMANDS  (if any) */
 #include <cmd_confdefs.h>
+
+#define CFG_NAND_LEGACY
 
 #define	 CFG_HUSH_PARSER
 #define	 CFG_PROMPT_HUSH_PS2 "> "

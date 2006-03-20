@@ -393,8 +393,7 @@ outahere:
  * Copy memory to flash
  */
 
-volatile static int write_word (flash_info_t * info, ulong dest,
-								ulong data)
+static int write_word (flash_info_t * info, ulong dest, ulong data)
 {
 	volatile u16 *addr = (volatile u16 *) dest;
 	ulong result;
@@ -408,7 +407,6 @@ volatile static int write_word (flash_info_t * info, ulong dest,
 	result = *addr;
 	if ((result & data) != data)
 		return ERR_NOT_ERASED;
-
 
 	/*
 	 * Disable interrupts which might cause a timeout

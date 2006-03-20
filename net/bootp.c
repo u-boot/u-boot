@@ -715,7 +715,7 @@ BootpRequest (void)
 }
 
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
-static void DhcpOptionsProcess (uchar * popt)
+static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 {
 	uchar *end = popt + BOOTP_HDR_SIZE;
 	int oplen, size;
@@ -771,6 +771,34 @@ static void DhcpOptionsProcess (uchar * popt)
 		case 58:	/* Ignore Renewal Time Option */
 			break;
 		case 59:	/* Ignore Rebinding Time Option */
+			break;
+		case 66:	/* Ignore TFTP server name */
+			break;
+		case 67:	/* vendor opt bootfile */
+			/*
+			 * I can't use dhcp_vendorex_proc here because I need
+			 * to write into the bootp packet - even then I had to
+			 * pass the bootp packet pointer into here as the
+			 * second arg
+			 */
+			size = truncate_sz ("Opt Boot File",
+					    sizeof(bp->bp_file),
+					    oplen);
+			if (bp->bp_file[0] == '\0' && size > 0) {
+				/*
+				 * only use vendor boot file if we didn't
+				 * receive a boot file in the main non-vendor
+				 * part of the packet - god only knows why
+				 * some vendors chose not to use this perfectly
+				 * good spot to store the boot file (join on
+				 * Tru64 Unix) it seems mind bogglingly crazy
+				 * to me
+				 */
+				printf("*** WARNING: using vendor "
+					"optional boot file\n");
+				memcpy(bp->bp_file, popt + 2, size);
+				bp->bp_file[size] = '\0';
+			}
 			break;
 		default:
 #if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_VENDOREX)
@@ -882,7 +910,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			dhcp_state = REQUESTING;
 
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
-				DhcpOptionsProcess((u8 *)&bp->bp_vend[4]);
+				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
 			BootpCopyNetParams(bp); /* Store net params from reply */
 
@@ -901,7 +929,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			char *s;
 
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
-				DhcpOptionsProcess((u8 *)&bp->bp_vend[4]);
+				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 			BootpCopyNetParams(bp); /* Store net params from reply */
 			dhcp_state = BOUND;
 			puts ("DHCP client bound to address ");

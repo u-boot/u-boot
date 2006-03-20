@@ -32,3 +32,6 @@ endif
 ifeq ($(dbcr),1)
 PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
 endif
+
+# legacy nand support
+BOARDLIBS = drivers/nand_legacy/libnand_legacy.a

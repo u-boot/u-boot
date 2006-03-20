@@ -125,6 +125,19 @@ gd_t *global_data;
 "	lwi	r5, r5, %1\n"			\
 "	bra	r5\n"				\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r5");
+#elif defined(CONFIG_BLACKFIN)
+/*
+ * P5 holds the pointer to the global_data, P0 is a call-clobbered
+ * register
+ */
+#define EXPORT_FUNC(x)			\
+	asm volatile (			\
+"       .globl " #x "\n"		\
+#x ":\n"				\
+"	P0 = [P5 + %0]\n"		\
+"	P0 = [P0 + %1]\n"		\
+"	JUMP (P0)\n"			\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "P0");
 #else
 #error stubs definition missing for this architecture
 #endif

@@ -43,6 +43,7 @@
  * 2nd ethernet port you have to "undef" the following define.
  */
 #define CONFIG_BAMBOO_NAND      1       /* enable nand flash support    */
+#define CFG_NAND_LEGACY
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the

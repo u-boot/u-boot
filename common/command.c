@@ -42,6 +42,8 @@ U_BOOT_CMD(
 	NULL
 );
 
+#if (CONFIG_COMMANDS & CFG_CMD_ECHO)
+
 int
 do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -73,6 +75,8 @@ U_BOOT_CMD(
  	"[args..]\n"
 	"    - echo args to console; \\c suppresses newline\n"
 );
+
+#endif	/*  CFG_CMD_ECHO */
 
 #ifdef CFG_HUSH_PARSER
 

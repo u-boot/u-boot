@@ -593,7 +593,7 @@ int AT91F_DataFlashRead(
 		if (AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, AT91C_TIMEOUT_WRDY) != DATAFLASH_OK)
 			return -1;
 
-		if (AT91F_DataFlashContinuousRead (pDataFlash, addr, buffer, SizeToRead) != DATAFLASH_OK)
+		if (AT91F_DataFlashContinuousRead (pDataFlash, addr, (uchar *)buffer, SizeToRead) != DATAFLASH_OK)
 			return -1;
 
 		size -= SizeToRead;

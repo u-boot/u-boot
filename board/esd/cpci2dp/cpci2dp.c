@@ -36,9 +36,9 @@ int board_early_init_f (void)
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | ((CFG_EEPROM_WP | CFG_PB_LED | CFG_SELF_RST | CFG_INTA_FAKE) << 5));
 
-        /* set output pins to high */
+	/* set output pins to high */
 	out32(GPIO0_OR,  CFG_EEPROM_WP);
-        /* setup for output (LED=off) */
+	/* setup for output (LED=off) */
 	out32(GPIO0_TCR, CFG_EEPROM_WP | CFG_PB_LED);
 
 	/*

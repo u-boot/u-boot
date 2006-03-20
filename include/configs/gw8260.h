@@ -305,7 +305,6 @@
 			       CFG_CMD_BEDBUG  | \
 			       CFG_CMD_ELF | \
 			       CFG_CMD_ASKENV  | \
-			       CFG_CMD_ECHO    | \
 			       CFG_CMD_REGINFO | \
 			       CFG_CMD_IMMAP   | \
 			       CFG_CMD_MII)

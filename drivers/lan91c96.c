@@ -185,21 +185,21 @@ static int smc_rcv (void);
  . If an EEPROM is present it really should be consulted.
 */
 int smc_get_ethaddr(bd_t *bd);
-int get_rom_mac(char *v_rom_mac);
+int get_rom_mac(unsigned char *v_rom_mac);
 
 /* ------------------------------------------------------------
  * Internal routines
  * ------------------------------------------------------------
  */
 
-static char smc_mac_addr[] = { 0xc0, 0x00, 0x00, 0x1b, 0x62, 0x9c };
+static unsigned char smc_mac_addr[] = { 0xc0, 0x00, 0x00, 0x1b, 0x62, 0x9c };
 
 /*
  * This function must be called before smc_open() if you want to override
  * the default mac address.
  */
 
-void smc_set_mac_addr (const char *addr)
+void smc_set_mac_addr (const unsigned char *addr)
 {
 	int i;
 
@@ -883,7 +883,7 @@ int smc_get_ethaddr (bd_t * bd)
 	char *s = NULL;
 	char *e = NULL;
 	char *v_mac, es[] = "11:22:33:44:55:66";
-	uchar s_env_mac[64];
+	char s_env_mac[64];
 	uchar v_env_mac[6];
 	uchar v_rom_mac[6];
 
@@ -905,7 +905,7 @@ int smc_get_ethaddr (bd_t * bd)
 
 	if (!env_present) {	/* if NO env */
 		if (rom_valid) {	/* but ROM is valid */
-			v_mac = v_rom_mac;
+			v_mac = (char *)v_rom_mac;
 			sprintf (s_env_mac, "%02X:%02X:%02X:%02X:%02X:%02X",
 				 v_mac[0], v_mac[1], v_mac[2], v_mac[3],
 				 v_mac[4], v_mac[5]);
@@ -915,7 +915,7 @@ int smc_get_ethaddr (bd_t * bd)
 			return (-1);
 		}
 	} else {		/* good env, don't care ROM */
-		v_mac = v_env_mac;	/* always use a good env over a ROM */
+		v_mac = (char *)v_env_mac;	/* always use a good env over a ROM */
 	}
 
 	if (env_present && rom_valid) { /* if both env and ROM are good */
@@ -935,7 +935,7 @@ int smc_get_ethaddr (bd_t * bd)
 		}
 	}
 	memcpy (bd->bi_enetaddr, v_mac, 6);	/* update global address to match env (allows env changing) */
-	smc_set_mac_addr (v_mac);	/* use old function to update smc default */
+	smc_set_mac_addr ((unsigned char *)v_mac); /* use old function to update smc default */
 	PRINTK("Using MAC Address %02X:%02X:%02X:%02X:%02X:%02X\n", v_mac[0], v_mac[1],
 		v_mac[2], v_mac[3], v_mac[4], v_mac[5]);
 	return (0);
@@ -946,7 +946,7 @@ int smc_get_ethaddr (bd_t * bd)
  * Note, this has omly been tested for the OMAP730 P2.
  */
 
-int get_rom_mac (char *v_rom_mac)
+int get_rom_mac (unsigned char *v_rom_mac)
 {
 #ifdef HARDCODE_MAC	/* used for testing or to supress run time warnings */
 	char hw_mac_addr[] = { 0x02, 0x80, 0xad, 0x20, 0x31, 0xb8 };

@@ -178,6 +178,8 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+#define CFG_NAND_LEGACY
+
 /*
  * Miscellaneous configurable options
  */

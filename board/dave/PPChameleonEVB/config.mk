@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000, 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,7 +22,13 @@
 #
 
 # Reserve 256 kB for Monitor
-TEXT_BASE = 0xFFFC0000
+#TEXT_BASE = 0xFFFC0000
 
 # Reserve 320 kB for Monitor
-#TEXT_BASE = 0xFFFB0000
+TEXT_BASE = 0xFFFB0000
+
+# Compile the new NAND code (CFG_NAND_LEGACY mustn't be defined)
+BOARDLIBS = drivers/nand/libnand.a
+
+# Compile the legacy NAND code (CFG_NAND_LEGACY must be defined)
+#BOARDLIBS = drivers/nand_legacy/libnand_legacy.a

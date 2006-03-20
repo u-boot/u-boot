@@ -154,7 +154,6 @@
 #define CONFIG_COMMANDS         ( CONFIG_CMD_DFL | \
 				  CFG_CMD_IMMAP  | \
 				  CFG_CMD_ASKENV | \
-				  CFG_CMD_ECHO   | \
 				  CFG_CMD_I2C    | \
 				  CFG_CMD_REGINFO & \
 				 ~CFG_CMD_KGDB )

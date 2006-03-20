@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 Arabella Software Ltd.
+ * Copyright (C) 2004-2005 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * Support for Analogue&Micro Adder boards family.
@@ -28,7 +28,8 @@
 #include <mpc8xx.h>
 
 /*
- * SDRAM is single Samsung K4S643232F-T70 chip.
+ * SDRAM is single Samsung K4S643232F-T70   chip (8MB)
+ *       or single Micron  MT48LC4M32B2TG-7 chip (16MB).
  * Minimal CPU frequency is 40MHz.
  */
 static uint sdram_table[] = {
@@ -53,7 +54,7 @@ static uint sdram_table[] = {
 	0xfffffc04, 0xfffffc04, 0xfffffc04, 0xfffffc04,
 
 	/* Refresh	(offset 0x30 in UPM RAM) */
-	0x1ff5fca4, 0xfffffc04, 0xfffffc04, 0xfffffc04,
+	0x1ff5fc84, 0xfffffc04, 0xfffffc04, 0xfffffc04,
 	0xfffffc84, 0xfffffc07, 0xfffffc04, 0xfffffc04,
 	0xfffffc04, 0xfffffc04, 0xfffffc04, 0xfffffc04,
 
@@ -63,7 +64,7 @@ static uint sdram_table[] = {
 
 long int initdram (int board_type)
 {
-	long int msize = CFG_SDRAM_SIZE;
+	long int msize;
 	volatile immap_t     *immap  = (volatile immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
@@ -72,11 +73,11 @@ long int initdram (int board_type)
 	/* Configure SDRAM refresh */
 	memctl->memc_mptpr = MPTPR_PTP_DIV32; /* BRGCLK/32 */
 
-	memctl->memc_mamr = (94 << 24) | CFG_MAMR;
-	memctl->memc_mar  = 0x0;
+	memctl->memc_mamr = (94 << 24) | CFG_MAMR; /* No refresh */
 	udelay(200);
 
 	/* Run precharge from location 0x15 */
+	memctl->memc_mar = 0x0;
 	memctl->memc_mcr = 0x80002115;
 	udelay(200);
 
@@ -84,12 +85,17 @@ long int initdram (int board_type)
 	memctl->memc_mcr = 0x80002830;
 	udelay(200);
 
-	memctl->memc_mar = 0x88;
-	udelay(200);
-
 	/* Run MRS pattern from location 0x16 */
+	memctl->memc_mar = 0x88;
 	memctl->memc_mcr = 0x80002116;
 	udelay(200);
+
+	memctl->memc_mamr |=  MAMR_PTAE; /* Enable refresh */
+	memctl->memc_or1   = ~(CFG_SDRAM_MAX_SIZE - 1) | OR_CSNT_SAM;
+	memctl->memc_br1   =  CFG_SDRAM_BASE | BR_PS_32 | BR_MS_UPMA | BR_V;
+
+	msize = get_ram_size(CFG_SDRAM_BASE, CFG_SDRAM_MAX_SIZE);
+	memctl->memc_or1  |= ~(msize - 1);
 
 	return msize;
 }

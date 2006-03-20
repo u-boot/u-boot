@@ -47,7 +47,7 @@ trab_fkt.srec:	trab_fkt.o rs485.o tsc2000.o $(LIB)
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
 trab_fkt.bin:	trab_fkt.srec
-	$(OBJCOPY) -O binary $< $@ 2>/dev/null
+	$(OBJCOPY) -I srec -O binary $< $@
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

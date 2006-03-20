@@ -18,11 +18,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef	CONFIG_DRIVER_KS8695ETH
-
 /****************************************************************************/
 
 #include <common.h>
+
+#ifdef	CONFIG_DRIVER_KS8695ETH
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
@@ -216,10 +216,10 @@ int eth_send(volatile void *packet, int len)
 		packet, len);
 
 	dp = &ks8695_tx[next];
-	memcpy((void *) dp->addr, packet, len);
+	memcpy((void *) dp->addr, (void *) packet, len);
 
 	if (len < 64) {
-		memset(dp->addr+len, 0, 64-len);
+		memset((void *) (dp->addr + len), 0, 64-len);
 		len = 64;
 	}
 

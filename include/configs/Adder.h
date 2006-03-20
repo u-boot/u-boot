@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 Arabella Software Ltd.
+ * Copyright (C) 2004-2005 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * Support for Analogue&Micro Adder boards family.
@@ -35,11 +35,13 @@
 #define	CONFIG_8xx_CONS_SMC1	1		/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		38400
 
-#define	CONFIG_FEC_ENET				/* Ethernet is on FEC		*/
-#ifdef  CONFIG_FEC_ENET
+#define CONFIG_ETHER_ON_FEC1
+#define CONFIG_ETHER_ON_FEC2
+
+#if defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2)
 #define CFG_DISCOVER_PHY
 #define FEC_ENET
-#endif /* CONFIG_FEC_ENET */
+#endif /* CONFIG_ETHER_ON_FEC || CONFIG_ETHER_ON_FEC2 */
 
 #define CONFIG_8xx_OSCLK		10000000 /* 10 MHz oscillator on EXTCLK */
 #define CONFIG_8xx_CPUCLK_DEFAULT	50000000
@@ -47,7 +49,7 @@
 #ifdef CONFIG_MPC852T
 #define CFG_8xx_CPUCLK_MAX		50000000
 #else
-#define CFG_8xx_CPUCLK_MAX		120000000
+#define CFG_8xx_CPUCLK_MAX		133000000
 #endif /* CONFIG_MPC852T */
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL  \
@@ -62,7 +64,7 @@
 
 #define CONFIG_BOOTDELAY	5		/* Autoboot after 5 seconds	*/
 #define CONFIG_BOOTCOMMAND	"bootm fe040000"	/* Autoboot command	*/
-#define CONFIG_BOOTARGS		"root=/dev/mtdblock2 rw"
+#define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw mtdparts=1M(ROM)ro,-(root)"
 
 #define CONFIG_BZIP2		/* Include support for bzip2 compressed images  */
 #undef	CONFIG_WATCHDOG		/* Disable platform specific watchdog		*/
@@ -79,7 +81,7 @@
 #define CFG_MAXARGS		16		/* Max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_LOAD_ADDR		0x100000	/* Default load address		*/
+#define CFG_LOAD_ADDR		0x400000	/* Default load address		*/
 
 #define CFG_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
 
@@ -89,24 +91,21 @@
  * RAM configuration (note that CFG_SDRAM_BASE must be zero)
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		0x00800000	/* 8 Mbyte			*/
+#define CFG_SDRAM_MAX_SIZE	0x01000000	/* Up to 16 Mbyte		*/
 
-#define CFG_OR1_PRELIM  	(0xFF800000 | OR_CSNT_SAM | OR_ACS_DIV2)
-#define CFG_BR1_PRELIM  	(CFG_SDRAM_BASE | BR_PS_32 | BR_MS_UPMA | BR_V)
-
-#define CFG_MAMR		0x00802114
+#define CFG_MAMR		0x00002114
 
 /*
- * 2048	SDRAM rows
+ * 4096	Up to 4096 SDRAM rows
  * 1000	factor s -> ms
- * 64	PTP (pre-divider from MPTPR) from SDRAM example configuration
+ * 32	PTP (pre-divider from MPTPR)
  * 4	Number of refresh cycles per period
  * 64	Refresh cycle in ms per number of rows
  */
-#define CFG_PTA_PER_CLK		((2048 * 64 * 1000) / (4 * 64))
+#define CFG_PTA_PER_CLK		((4096 * 32 * 1000) / (4 * 64))
 
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on		*/
-#define CFG_MEMTEST_END		0x00700000	/* 1 ... 7 MB in SDRAM		*/
+#define CFG_MEMTEST_END		0x00500000	/* 1 ... 5 MB in SDRAM		*/
 
 #define CFG_RESET_ADDRESS	0x09900000
 
@@ -138,6 +137,8 @@
 #define CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000 	/* We use one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+
+#define CONFIG_ENV_OVERWRITE
 
 #define CFG_OR0_PRELIM		0xFF000774
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_MS_GPCM | BR_V)

@@ -53,6 +53,10 @@ PLATFORM_CPPFLAGS+= -D__ARM__
 endif
 endif
 
+ifeq ($(ARCH),blackfin)
+PLATFORM_CPPFLAGS+= -D__BLACKFIN__ -mno-underscore
+endif
+
 ifdef	ARCH
 sinclude $(TOPDIR)/$(ARCH)_config.mk	# include architecture dependend rules
 endif

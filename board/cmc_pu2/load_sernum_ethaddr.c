@@ -69,8 +69,8 @@ int i2c_read (unsigned char chip, unsigned int addr, int alen,
 void load_sernum_ethaddr (void)
 {
 	struct manufacturer_data data;
-	unsigned char  serial [9];
-	unsigned char  ethaddr[18];
+	char  ethaddr[18];
+	char  serial [9];
 	unsigned short chksum;
 	unsigned char *p;
 	unsigned short i, is, id;

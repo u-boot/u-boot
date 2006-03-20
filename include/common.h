@@ -365,7 +365,8 @@ void	trap_init     (ulong);
     defined (CONFIG_75x)	|| \
     defined (CONFIG_74xx)	|| \
     defined (CONFIG_MPC8220)	|| \
-    defined(CONFIG_MPC85xx)
+    defined (CONFIG_MPC85xx)	|| \
+    defined (CONFIG_MPC83XX)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
 unsigned short	in16(unsigned int);

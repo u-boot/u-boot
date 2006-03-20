@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -57,7 +57,7 @@
 
 #define CONFIG_CPCI750		1	/* this is an CPCI750 board	*/
 
-#define CONFIG_BAUDRATE		9600 	/* console baudrate = 9600	*/
+#define CONFIG_BAUDRATE		9600	/* console baudrate = 9600	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */
 
@@ -84,19 +84,19 @@
  * for your console driver.
  *
  * what to do:
- * to use the DUART, undef CONFIG_MPSC.  If you have hacked a serial
+ * to use the DUART, undef CONFIG_MPSC.	 If you have hacked a serial
  * cable onto the second DUART channel, change the CFG_DUART port from 1
  * to 0 below.
  *
  * to use the MPSC, #define CONFIG_MPSC.  If you have wired up another
  * mpsc channel, change CONFIG_MPSC_PORT to the desired value.
  */
-#define	CONFIG_MPSC
+#define CONFIG_MPSC
 #define CONFIG_MPSC_PORT	0
 
 /* to change the default ethernet port, use this define (options: 0, 1, 2) */
 #define CONFIG_NET_MULTI
-#define MV_ETH_DEVS             1
+#define MV_ETH_DEVS		1
 #define CONFIG_ETHER_PORT	0
 
 #undef CONFIG_ETHER_PORT_MII	/* use RMII */
@@ -118,38 +118,38 @@
 
 #define CONFIG_SERIAL		"AA000001"
 #define CONFIG_SERVERIP		"10.0.0.79"
-#define CONFIG_ROOTPATH	        "/export/nfs_cpci750/%s"
+#define CONFIG_ROOTPATH		"/export/nfs_cpci750/%s"
 
 #define CONFIG_TESTDRAMDATA	y
-#define CONFIG_TESTDRAMADDRESS  n
+#define CONFIG_TESTDRAMADDRESS	n
 #define CONFIG_TESETDRAMWALK	n
 
 /* ----------------------------------------------------------------------------- */
 
 
-#define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/
-#define	CFG_LOADS_BAUD_CHANGE		/* allow baudrate changes	*/
+#define CONFIG_LOADS_ECHO	0	/* echo off for serial download */
+#define CFG_LOADS_BAUD_CHANGE		/* allow baudrate changes	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-#undef	CONFIG_ALTIVEC                  /* undef to disable             */
+#undef	CONFIG_ALTIVEC			/* undef to disable		*/
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
 				 CONFIG_BOOTP_BOOTFILESIZE)
 
 
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL    \
+#define CONFIG_COMMANDS (CONFIG_CMD_DFL	   \
 			 | CFG_CMD_ASKENV  \
-			 | CFG_CMD_I2C     \
+			 | CFG_CMD_I2C	   \
 			 | CFG_CMD_CACHE   \
 			 | CFG_CMD_EEPROM  \
-			 | CFG_CMD_PCI     \
+			 | CFG_CMD_PCI	   \
 			 | CFG_CMD_ELF	   \
 			 | CFG_CMD_DATE	   \
-			 | CFG_CMD_NET     \
-			 | CFG_CMD_PING    \
-			 | CFG_CMD_IDE     \
-			 | CFG_CMD_FAT     \
-			 | CFG_CMD_EXT2    \
+			 | CFG_CMD_NET	   \
+			 | CFG_CMD_PING	   \
+			 | CFG_CMD_IDE	   \
+			 | CFG_CMD_FAT	   \
+			 | CFG_CMD_EXT2	   \
 					)
 
 #define CONFIG_DOS_PARTITION
@@ -159,7 +159,7 @@
 
 #define CONFIG_USE_CPCIDVI
 
-#ifdef  CONFIG_USE_CPCIDVI
+#ifdef	CONFIG_USE_CPCIDVI
 #define CONFIG_VIDEO
 #define CONFIG_VIDEO_CT69000
 #define CONFIG_CFB_CONSOLE
@@ -174,23 +174,23 @@
  */
 #define CFG_I2C_EEPROM_ADDR_LEN 2
 #define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_SPEED   80000		/* I2C speed default */
+#define CFG_I2C_SPEED	80000		/* I2C speed default */
 
 #define CFG_GT_DUAL_CPU			/* also for JTAG even with one cpu */
-#define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CFG_LONGHELP			/* undef to save memory		*/
+#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 /*#define CFG_MEMTEST_START	0x00400000*/	/* memtest works on	*/
 /*#define CFG_MEMTEST_END		0x00C00000*/	/* 4 ... 12 MB in DRAM	*/
-/*#define CFG_MEMTEST_END		0x07c00000*/	/* 4 ... 124 MB in DRAM	*/
+/*#define CFG_MEMTEST_END		0x07c00000*/	/* 4 ... 124 MB in DRAM */
 
 /*
 #define CFG_DRAM_TEST
@@ -198,21 +198,21 @@
  *   CFG_DRAM_TEST - enables the following tests.
  *
  *   CFG_DRAM_TEST_DATA - Enables test for shorted or open data lines
- *                        Environment variable 'test_dram_data' must be
- *                        set to 'y'.
+ *			  Environment variable 'test_dram_data' must be
+ *			  set to 'y'.
  *   CFG_DRAM_TEST_DATA - Enables test to verify that each word is uniquely
- *                        addressable. Environment variable
- *                        'test_dram_address' must be set to 'y'.
+ *			  addressable. Environment variable
+ *			  'test_dram_address' must be set to 'y'.
  *   CFG_DRAM_TEST_WALK - Enables test a 64-bit walking ones pattern test.
- *                        This test takes about 6 minutes to test 64 MB.
- *                        Environment variable 'test_dram_walk' must be
- *                        set to 'y'.
+ *			  This test takes about 6 minutes to test 64 MB.
+ *			  Environment variable 'test_dram_walk' must be
+ *			  set to 'y'.
  */
 #define CFG_DRAM_TEST
 #if defined(CFG_DRAM_TEST)
 #define CFG_MEMTEST_START		0x00400000	/* memtest works on	*/
 /*#define CFG_MEMTEST_END		0x00C00000*/	/* 4 ... 12 MB in DRAM	*/
-#define CFG_MEMTEST_END		0x07c00000	/* 4 ... 124 MB in DRAM	*/
+#define CFG_MEMTEST_END		0x07c00000	/* 4 ... 124 MB in DRAM */
 #define CFG_DRAM_TEST_DATA
 #define CFG_DRAM_TEST_ADDRESS
 #define CFG_DRAM_TEST_WALK
@@ -221,10 +221,10 @@
 #define CONFIG_DISPLAY_MEMMAP		/* at the end of the bootprocess show the memory map */
 #undef CFG_DISPLAY_DIMM_SPD_CONTENT	/* show SPD content during boot */
 
-#define	CFG_LOAD_ADDR		0x00300000	/* default load address	*/
+#define CFG_LOAD_ADDR		0x00300000	/* default load address */
 
-#define	CFG_HZ			1000		/* decr freq: 1ms ticks	*/
-#define CFG_BUS_HZ		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)	 	*/
+#define CFG_HZ			1000		/* decr freq: 1ms ticks */
+#define CFG_BUS_HZ		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)		*/
 #define CFG_BUS_CLK		CFG_BUS_HZ
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
@@ -251,7 +251,7 @@
  * To an unused memory region. The stack will remain in cache until RAM
  * is initialized
 */
-#undef    CFG_INIT_RAM_LOCK
+#undef	  CFG_INIT_RAM_LOCK
 /* #define CFG_INIT_RAM_ADDR	0x40000000*/ /* unused memory region */
 /* #define CFG_INIT_RAM_ADDR	0xfba00000*/ /* unused memory region */
 #define CFG_INIT_RAM_ADDR	0xf1080000 /* unused memory region */
@@ -261,7 +261,7 @@
 
 #define RELOCATE_INTERNAL_RAM_ADDR
 #ifdef RELOCATE_INTERNAL_RAM_ADDR
-/*#define CFG_INTERNAL_RAM_ADDR	0xfba00000*/
+/*#define CFG_INTERNAL_RAM_ADDR 0xfba00000*/
 #define CFG_INTERNAL_RAM_ADDR	0xf1080000
 #endif
 
@@ -270,16 +270,16 @@
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000
+#define CFG_SDRAM_BASE		0x00000000
 /* Dummies for BAT 4-7 */
-#define	CFG_SDRAM1_BASE		0x10000000	/* each 256 MByte */
-#define	CFG_SDRAM2_BASE		0x20000000
-#define	CFG_SDRAM3_BASE		0x30000000
-#define	CFG_SDRAM4_BASE		0x40000000
+#define CFG_SDRAM1_BASE		0x10000000	/* each 256 MByte */
+#define CFG_SDRAM2_BASE		0x20000000
+#define CFG_SDRAM3_BASE		0x30000000
+#define CFG_SDRAM4_BASE		0x40000000
 #define CFG_RESET_ADDRESS	0xfff00100
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CFG_MONITOR_BASE	0xfff00000
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 256 kB for malloc */
+#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 256 kB for malloc */
 
 /*-----------------------------------------------------------------------
  * FLASH related
@@ -289,15 +289,15 @@
 #define CFG_FLASH_CFI		1	   /* Flash is CFI conformant		*/
 #define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
 #define CFG_FLASH_USE_BUFFER_WRITE 1	   /* use buffered writes (20x faster)	*/
-#define CFG_FLASH_BASE		0xfc000000 /* start of flash banks              */
+#define CFG_FLASH_BASE		0xfc000000 /* start of flash banks		*/
 #define CFG_MAX_FLASH_BANKS	4	   /* max number of memory banks	*/
-#define CFG_FLASH_INCREMENT     0x01000000 /* size of  flash bank               */
-#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip	*/
-#define CFG_FLASH_BANKS_LIST  { CFG_FLASH_BASE,                            \
-                                CFG_FLASH_BASE + 1*CFG_FLASH_INCREMENT,    \
-                                CFG_FLASH_BASE + 2*CFG_FLASH_INCREMENT,    \
-                                CFG_FLASH_BASE + 3*CFG_FLASH_INCREMENT }
-#define CFG_FLASH_EMPTY_INFO    1          /* show if bank is empty             */
+#define CFG_FLASH_INCREMENT	0x01000000 /* size of  flash bank		*/
+#define CFG_MAX_FLASH_SECT	128	   /* max number of sectors on one chip */
+#define CFG_FLASH_BANKS_LIST  { CFG_FLASH_BASE,				   \
+				CFG_FLASH_BASE + 1*CFG_FLASH_INCREMENT,	   \
+				CFG_FLASH_BASE + 2*CFG_FLASH_INCREMENT,	   \
+				CFG_FLASH_BASE + 3*CFG_FLASH_INCREMENT }
+#define CFG_FLASH_EMPTY_INFO	1	   /* show if bank is empty		*/
 
 /* areas to map different things with the GT in physical space */
 #define CFG_DRAM_BANKS		4
@@ -308,20 +308,20 @@
 /* Peripheral Device section */
 
 /*******************************************************/
-/* We have on the cpci750 Board :                      */
-/* GT-Chipset Register Area                            */
-/* GT-Chipset internal SRAM 256k                       */
-/* SRAM on external device module                      */
-/* Real time clock on external device module           */
-/* dobble UART on external device module               */
-/* Data flash on external device module                */
-/* Boot flash on external device module                */
+/* We have on the cpci750 Board :		       */
+/* GT-Chipset Register Area			       */
+/* GT-Chipset internal SRAM 256k		       */
+/* SRAM on external device module		       */
+/* Real time clock on external device module	       */
+/* dobble UART on external device module	       */
+/* Data flash on external device module		       */
+/* Boot flash on external device module		       */
 /*******************************************************/
 #define CFG_DFL_GT_REGS		0x14000000				/* boot time GT_REGS */
-#define  CFG_CPCI750_RESET_ADDR	0x14000000				/* After power on Reset the CPCI750 is here */
+#define	 CFG_CPCI750_RESET_ADDR 0x14000000				/* After power on Reset the CPCI750 is here */
 
-#undef 	MARVEL_STANDARD_CFG
-#ifndef 	MARVEL_STANDARD_CFG
+#undef	MARVEL_STANDARD_CFG
+#ifndef		MARVEL_STANDARD_CFG
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #define CFG_GT_REGS		0xf1000000				/* GT Registers will be mapped here */
 /*#define CFG_DEV_BASE		0xfc000000*/				/* GT Devices CS start here */
@@ -333,11 +333,11 @@
 #define CFG_DEV2_SPACE		0xfe000000				/* DEV_CS2 flash 3     */
 #define CFG_DEV3_SPACE		0xf0000000				/* DEV_CS3 nvram/can   */
 
-#define CFG_BOOT_SIZE		_16M 					/* cpci750 flash 0     */
-#define CFG_DEV0_SIZE		_16M 					/* cpci750 flash 1     */
-#define CFG_DEV1_SIZE		_16M 					/* cpci750 flash 2     */
-#define CFG_DEV2_SIZE		_16M 					/* cpci750 flash 3     */
-#define CFG_DEV3_SIZE		_16M 					/* cpci750 nvram/can   */
+#define CFG_BOOT_SIZE		_16M					/* cpci750 flash 0     */
+#define CFG_DEV0_SIZE		_16M					/* cpci750 flash 1     */
+#define CFG_DEV1_SIZE		_16M					/* cpci750 flash 2     */
+#define CFG_DEV2_SIZE		_16M					/* cpci750 flash 3     */
+#define CFG_DEV3_SIZE		_16M					/* cpci750 nvram/can   */
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #endif
@@ -346,22 +346,22 @@
 #define CFG_DEV0_PAR		0x8FDFFFFF				/* 16 bit flash */
 #define CFG_DEV1_PAR		0x8FDFFFFF				/* 16 bit flash */
 #define CFG_DEV2_PAR		0x8FDFFFFF				/* 16 bit flash */
-#define CFG_DEV3_PAR		0x8FCFFFFF				/* nvram/can    */
+#define CFG_DEV3_PAR		0x8FCFFFFF				/* nvram/can	*/
 #define CFG_BOOT_PAR		0x8FDFFFFF				/* 16 bit flash */
 
-	/*   c    4    a      8     2     4    1      c		*/
-	/* 33 22|2222|22 22|111 1|11 11|1 1  |    |		*/
+	/*   c	  4    a      8	    2	  4    1      c		*/
+	/* 33 22|2222|22 22|111 1|11 11|1 1  |	  |		*/
 	/* 10 98|7654|32 10|987 6|54 32|1 098|7 654|3 210	*/
 	/* 11|00|0100|10 10|100|0 00|10 0|100 0|001 1|100	*/
 	/*  3| 0|.... ..| 2| 4 |  0 |  4 |  8  |  3  | 4	*/
 
 
 /* MPP Control MV64360 Appendix P P. 632*/
-#define CFG_MPP_CONTROL_0	0x00002222	/*                                   */
-#define CFG_MPP_CONTROL_1	0x11110000	/*                                   */
-#define CFG_MPP_CONTROL_2	0x11111111	/*                                   */
-#define CFG_MPP_CONTROL_3	0x00001111     	/*                                   */
-/* #define CFG_SERIAL_PORT_MUX	0x00000102*/	/*                                   */
+#define CFG_MPP_CONTROL_0	0x00002222	/*				     */
+#define CFG_MPP_CONTROL_1	0x11110000	/*				     */
+#define CFG_MPP_CONTROL_2	0x11111111	/*				     */
+#define CFG_MPP_CONTROL_3	0x00001111	/*				     */
+/* #define CFG_SERIAL_PORT_MUX	0x00000102*/	/*				     */
 
 
 #define CFG_GPP_LEVEL_CONTROL	0xffffffff	/* 1111 1111 1111 1111 1111 1111 1111 1111*/
@@ -378,12 +378,12 @@
 				   ECC disable
 				   non registered DRAM */
 				/* 31:26   25:22  21:20 19 18 17 16 */
-				/* 100001 0000   010   0   0   0  0 */
+				/* 100001 0000	 010   0   0   0  0 */
 				/* refresh_count=0x400
 				   phisical interleaving disable
 				   virtual interleaving enable */
 				/* 15 14 13:0 */
-				/* 0  1  0x400 */
+				/* 0  1	 0x400 */
 # define CFG_SDRAM_CONFIG	0x58200400	/* 0x1400  copied from Dink32 bzw. VxWorks*/
 
 
@@ -392,14 +392,14 @@
  *-----------------------------------------------------------------------
  */
 
-#define PCI_HOST_ADAPTER 0              /* configure ar pci adapter     */
-#define PCI_HOST_FORCE  1               /* configure as pci host        */
-#define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
+#define PCI_HOST_ADAPTER 0		/* configure ar pci adapter	*/
+#define PCI_HOST_FORCE	1		/* configure as pci host	*/
+#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
 
-#define CONFIG_PCI                      /* include pci support          */
-#define CONFIG_PCI_HOST PCI_HOST_FORCE  /* select pci host function     */
-#define CONFIG_PCI_PNP                  /* do pci plug-and-play         */
-#define CONFIG_PCI_SCAN_SHOW            /* show devices on bus          */
+#define CONFIG_PCI			/* include pci support		*/
+#define CONFIG_PCI_HOST PCI_HOST_FORCE	/* select pci host function	*/
+#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
+#define CONFIG_PCI_SCAN_SHOW		/* show devices on bus		*/
 
 /* PCI MEMORY MAP section */
 #define CFG_PCI0_MEM_BASE	0x80000000
@@ -433,21 +433,21 @@
  * IDE/ATA stuff
  *-----------------------------------------------------------------------
  */
-#undef  CONFIG_IDE_8xx_DIRECT           /* no pcmcia interface required */
-#undef  CONFIG_IDE_LED                  /* no led for ide supported     */
-#define CONFIG_IDE_RESET                /* no reset for ide supported   */
-#define CONFIG_IDE_PREINIT              /* check for units              */
+#undef	CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
+#undef	CONFIG_IDE_LED			/* no led for ide supported	*/
+#define CONFIG_IDE_RESET		/* no reset for ide supported	*/
+#define CONFIG_IDE_PREINIT		/* check for units		*/
 
-#define CFG_IDE_MAXBUS          2               /* max. 1 IDE busses    */
-#define CFG_IDE_MAXDEVICE       (CFG_IDE_MAXBUS*2) /* max. 1 drives per IDE bus */
+#define CFG_IDE_MAXBUS		2		/* max. 1 IDE busses	*/
+#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 1 drives per IDE bus */
 
-#define CFG_ATA_BASE_ADDR       0
-#define CFG_ATA_IDE0_OFFSET     0
-#define CFG_ATA_IDE1_OFFSET     0
+#define CFG_ATA_BASE_ADDR	0
+#define CFG_ATA_IDE0_OFFSET	0
+#define CFG_ATA_IDE1_OFFSET	0
 
-#define CFG_ATA_DATA_OFFSET     0x0000  /* Offset for data I/O                  */
-#define CFG_ATA_REG_OFFSET      0x0000  /* Offset for normal register accesses  */
-#define CFG_ATA_ALT_OFFSET      0x0000  /* Offset for alternate registers       */
+#define CFG_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O			*/
+#define CFG_ATA_REG_OFFSET	0x0000	/* Offset for normal register accesses	*/
+#define CFG_ATA_ALT_OFFSET	0x0000	/* Offset for alternate registers	*/
 
 
 /*----------------------------------------------------------------------
@@ -551,7 +551,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_BOOTMAPSZ		(8<<20)	/* Initial Memory map for Linux */
+#define CFG_BOOTMAPSZ		(8<<20) /* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
@@ -563,23 +563,23 @@
 #define CFG_FLASH_LOCK_TOUT	500	/* Timeout for Flash Lock (in ms) */
 
 #if 0
-#define	CFG_ENV_IS_IN_FLASH	0
-#define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
+#define CFG_ENV_IS_IN_FLASH	0
+#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x10000
 #define CFG_ENV_ADDR		0xFFF78000 /* Marvell 8-Bit Bootflash last sector */
-/* #define CFG_ENV_ADDR    (CFG_FLASH_BASE+CFG_MONITOR_LEN-CFG_ENV_SECT_SIZE) */
+/* #define CFG_ENV_ADDR	   (CFG_FLASH_BASE+CFG_MONITOR_LEN-CFG_ENV_SECT_SIZE) */
 #endif
 
 #define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_EEPROM_PAGE_WRITE_BITS 5
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 20
-#define CFG_I2C_EEPROM_ADDR     0x050
+#define CFG_I2C_EEPROM_ADDR	0x050
 #define CFG_ENV_OFFSET		0x200	/* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE		0x600	/* 2048 bytes may be used for env vars*/
 
 #define CFG_NVRAM_BASE_ADDR	0xf0000000		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
-#define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-0x40)
+#define CFG_VXWORKS_MAC_PTR	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-0x40)
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -601,7 +601,7 @@
 #if defined (CONFIG_750CX) || defined (CONFIG_750FX)
 #define L2_INIT 0
 #else
-#define L2_INIT  	(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
+#define L2_INIT		(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
 			L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 #endif
 
@@ -612,9 +612,9 @@
  *
  * Boot Flags
  */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
+#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
-#define CFG_BOARD_ASM_INIT      1
+#define CFG_BOARD_ASM_INIT	1
 
 #endif	/* __CONFIG_H */

@@ -49,7 +49,7 @@
  * in order to override the default mac address.
  */
 
-void smc_set_mac_addr(const char *addr);
+void smc_set_mac_addr (const unsigned char *addr);
 
 
 /* I want some simple types */
@@ -185,6 +185,8 @@ typedef unsigned long int 		dword;
 
 #ifdef CONFIG_ADNPESC1
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))))
+#elif CONFIG_BLACKFIN
+#define	SMC_inw(r) 	({ word __v = (*((volatile word *)(SMC_BASE_ADDRESS+(r)))); asm("ssync;"); __v;})
 #else
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #endif
@@ -192,6 +194,8 @@ typedef unsigned long int 		dword;
 
 #ifdef CONFIG_ADNPESC1
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))) = d)
+#elif CONFIG_BLACKFIN
+#define	SMC_outw(d,r)	{(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d);asm("ssync;");}
 #else
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d)
 #endif

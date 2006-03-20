@@ -25,9 +25,10 @@ LIST_5xx="	\
 #########################################################################
 
 LIST_5xxx="	\
-	cpci5200	icecube_5100	icecube_5200	EVAL5200	\
-	pf5200		PM520		Total5100	Total5200	\
-	Total5200_Rev2	TQM5200_auto	o2dnt				\
+	cpci5200	EVAL5200	icecube_5100	icecube_5200	\
+	lite5200b	mcc200		o2dnt		pf5200		\
+	PM520		Total5100	Total5200	Total5200_Rev2	\
+	TQM5200_auto							\
 "
 
 #########################################################################
@@ -43,16 +44,16 @@ LIST_8xx="	\
 	CCM		IP860		NETPHONE	RPXlite_DW	\
 	cogent_mpc8xx	IVML24		NETTA		RRvision	\
 	ELPT860		IVML24_128	NETTA2		SM850		\
-	ESTEEM192E	IVML24_256	NETTA_ISDN	SPD823TS	\
-	ETX094		IVMS8		NETVIA		svm_sc8xx	\
-	FADS823		IVMS8_128	NETVIA_V2	SXNI855T	\
-	FADS850SAR	IVMS8_256	NX823		TOP860		\
-	FADS860T	KUP4K		pcu_e		TQM823L		\
-	FLAGADM		KUP4X		QS823		TQM823L_LCD	\
-	FPS850L		LANTEC		QS850		TQM850L		\
-	GEN860T		lwmon		QS860T		TQM855L		\
-	GEN860T_SC	MBX		quantum		TQM860L		\
-							uc100		\
+	EP88x		IVML24_256	NETTA_ISDN	SPD823TS	\
+	ESTEEM192E	IVMS8		NETVIA		svm_sc8xx	\
+	ETX094		IVMS8_128	NETVIA_V2	SXNI855T	\
+	FADS823		IVMS8_256	NX823		TOP860		\
+	FADS850SAR	KUP4K		pcu_e		TQM823L		\
+	FADS860T	KUP4X		QS823		TQM823L_LCD	\
+	FLAGADM		LANTEC		QS850		TQM850L		\
+	FPS850L		lwmon		QS860T		TQM855L		\
+	GEN860T		MBX		quantum		TQM860L		\
+	GEN860T_SC					uc100		\
 							v37		\
 "
 
@@ -116,7 +117,7 @@ LIST_8260="	\
 #########################################################################
 
 LIST_83xx="	\
-	MPC8349ADS	TQM834x\
+	MPC8349ADS	TQM834x		MPC8349EMDS			\
 "
 
 
@@ -177,10 +178,10 @@ LIST_ARM9="	\
 	ap920t		ap922_XA10	ap926ejs	ap946es		\
 	ap966		cp920t		cp922_XA10	cp926ejs	\
 	cp946es		cp966		lpd7a400	mp2usb		\
-	mx1ads		mx1fs2		omap1510inn	omap1610h2	\
-	omap1610inn	omap730p2	scb9328		smdk2400	\
-	smdk2410	trab		VCMA9		versatile	\
-	versatileab	versatilepb	voiceblue
+	mx1ads		mx1fs2		netstar		omap1510inn	\
+	omap1610h2	omap1610inn	omap730p2	scb9328		\
+	smdk2400	smdk2410	trab		VCMA9		\
+	versatile	versatileab	versatilepb	voiceblue
 "
 
 #########################################################################
@@ -203,8 +204,9 @@ LIST_ARM11="	\
 
 LIST_pxa="	\
 	adsvix		cerf250		cradle		csb226		\
-	innokom		lubbock		pxa255_idp	wepep250	\
-	xaeniax		xm250		xsengine			\
+	delta		innokom		lubbock		pxa255_idp	\
+	wepep250	xaeniax		xm250		xsengine	\
+	zylonite							\
 "
 
 LIST_ixp="ixdp425"

@@ -352,8 +352,8 @@ struct pci_config_table {
 	unsigned long priv[3];
 };
 
-extern void pci_cfgfunc_nothing(struct pci_controller* hose, pci_dev_t dev,
-				struct pci_config_table *);
+extern void pci_cfgfunc_do_nothing(struct pci_controller* hose, pci_dev_t dev,
+				   struct pci_config_table *);
 extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev,
 				      struct pci_config_table *);
 
