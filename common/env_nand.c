@@ -36,20 +36,18 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
+#include <malloc.h>
 #include <nand.h>
 
 #if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND))
 #define CMD_SAVEENV
+#elif defined(CFG_ENV_OFFSET_REDUND)
+#error Cannot use CFG_ENV_OFFSET_REDUND without CFG_CMD_ENV & CFG_CMD_NAND
 #endif
 
-#if defined(CFG_ENV_SIZE_REDUND)
-#error CFG_ENV_SIZE_REDUND  not supported yet
+#if defined(CFG_ENV_SIZE_REDUND) && (CFG_ENV_SIZE_REDUND != CFG_ENV_SIZE)
+#error CFG_ENV_SIZE_REDUND should be the same as CFG_ENV_SIZE
 #endif
-
-#if defined(CFG_ENV_ADDR_REDUND)
-#error CFG_ENV_ADDR_REDUND and CFG_ENV_IS_IN_NAND not supported yet
-#endif
-
 
 #ifdef CONFIG_INFERNO
 #error CONFIG_INFERNO not supported yet
@@ -99,7 +97,7 @@ int env_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-  	gd->env_addr  = (ulong)&default_environment[0];
+	gd->env_addr  = (ulong)&default_environment[0];
 	gd->env_valid = 1;
 
 	return (0);
@@ -110,9 +108,45 @@ int env_init(void)
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
  */
+#ifdef CFG_ENV_OFFSET_REDUND
 int saveenv(void)
 {
-	int	total, ret = 0;
+	int total, ret = 0;
+
+	DECLARE_GLOBAL_DATA_PTR;
+
+	env_ptr->flags++;
+	total = CFG_ENV_SIZE;
+
+	if(gd->env_valid == 1) {
+		puts ("Erasing redundant Nand...");
+		if (nand_erase(&nand_info[0],
+			       CFG_ENV_OFFSET_REDUND, CFG_ENV_SIZE))
+			return 1;
+		puts ("Writing to redundant Nand... ");
+		ret = nand_write(&nand_info[0], CFG_ENV_OFFSET_REDUND, &total,
+				 (u_char*) env_ptr);
+	} else {
+		puts ("Erasing Nand...");
+		if (nand_erase(&nand_info[0],
+			       CFG_ENV_OFFSET, CFG_ENV_SIZE))
+			return 1;
+
+		puts ("Writing to Nand... ");
+		ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total,
+				 (u_char*) env_ptr);
+	}
+	if (ret || total != CFG_ENV_SIZE)
+		return 1;
+
+	puts ("done\n");
+	gd->env_valid = (gd->env_valid == 2 ? 1 : 2);
+	return ret;
+}
+#else /* ! CFG_ENV_OFFSET_REDUND */
+int saveenv(void)
+{
+	int total, ret = 0;
 
 	puts ("Erasing Nand...");
 	if (nand_erase(&nand_info[0], CFG_ENV_OFFSET, CFG_ENV_SIZE))
@@ -128,9 +162,64 @@ int saveenv(void)
 	puts ("done\n");
 	return ret;
 }
+#endif /* CFG_ENV_OFFSET_REDUND */
 #endif /* CMD_SAVEENV */
 
+#ifdef CFG_ENV_OFFSET_REDUND
+void env_relocate_spec (void)
+{
+#if !defined(ENV_IS_EMBEDDED)
+	int crc1_ok = 0, crc2_ok = 0, total;
+	env_t *tmp_env1, *tmp_env2;
 
+	DECLARE_GLOBAL_DATA_PTR;
+
+	total = CFG_ENV_SIZE;
+
+	tmp_env1 = (env_t *) malloc(CFG_ENV_SIZE);
+	tmp_env2 = (env_t *) malloc(CFG_ENV_SIZE);
+
+	nand_read(&nand_info[0], CFG_ENV_OFFSET, &total,
+		  (u_char*) tmp_env1);
+	nand_read(&nand_info[0], CFG_ENV_OFFSET_REDUND, &total,
+		  (u_char*) tmp_env2);
+
+	crc1_ok = (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
+	crc2_ok = (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
+
+	if(!crc1_ok && !crc2_ok)
+		return use_default();
+	else if(crc1_ok && !crc2_ok)
+		gd->env_valid = 1;
+	else if(!crc1_ok && crc2_ok)
+		gd->env_valid = 2;
+	else {
+		/* both ok - check serial */
+		if(tmp_env1->flags == 255 && tmp_env2->flags == 0)
+			gd->env_valid = 2;
+		else if(tmp_env2->flags == 255 && tmp_env1->flags == 0)
+			gd->env_valid = 1;
+		else if(tmp_env1->flags > tmp_env2->flags)
+			gd->env_valid = 1;
+		else if(tmp_env2->flags > tmp_env1->flags)
+			gd->env_valid = 2;
+		else /* flags are equal - almost impossible */
+			gd->env_valid = 1;
+
+	}
+
+	free(env_ptr);
+	if(gd->env_valid == 1) {
+		env_ptr = tmp_env1;
+		free(tmp_env2);
+	} else {
+		env_ptr = tmp_env2;
+		free(tmp_env1);
+	}
+
+#endif /* ! ENV_IS_EMBEDDED */
+}
+#else /* ! CFG_ENV_OFFSET_REDUND */
 /*
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
@@ -143,14 +232,14 @@ void env_relocate_spec (void)
 	total = CFG_ENV_SIZE;
 	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total,
 			(u_char*) env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)
 		return use_default();
 #endif /* ! ENV_IS_EMBEDDED */
-
 }
+#endif /* CFG_ENV_OFFSET_REDUND */
 
 static void use_default()
 {
@@ -158,7 +247,7 @@ static void use_default()
 
 	puts ("*** Warning - bad CRC or NAND, using default environment\n\n");
 
-  	if (default_environment_size > CFG_ENV_SIZE){
+	if (default_environment_size > CFG_ENV_SIZE){
 		puts ("*** Error - default environment is too large\n\n");
 		return;
 	}
@@ -168,7 +257,7 @@ static void use_default()
 			default_environment,
 			default_environment_size);
 	env_ptr->crc = crc32(0, env_ptr->data, ENV_SIZE);
- 	gd->env_valid = 1;
+	gd->env_valid = 1;
 
 }
 

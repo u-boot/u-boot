@@ -1946,6 +1946,17 @@ to save the current settings.
 	  These two #defines specify the offset and size of the environment
 	  area within the first NAND device.
 
+	- CFG_ENV_OFFSET_REDUND
+
+	  This setting describes a second storage area of CFG_ENV_SIZE
+	  size used to hold a redundant copy of the environment data,
+	  so that there is a valid backup copy in case there is a
+	  power failure during a "saveenv" operation.
+
+	Note: CFG_ENV_OFFSET and CFG_ENV_OFFSET_REDUND must be aligned
+	to a block boundary, and CFG_ENV_SIZE must be a multiple of
+	the NAND devices block size.
+
 - CFG_SPI_INIT_OFFSET
 
 	Defines offset to the initial SPI buffer area in DPRAM. The

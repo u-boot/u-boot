@@ -282,6 +282,7 @@
 /* #define CFG_ENV_IS_NOWHERE */
 #define CFG_ENV_IS_IN_NAND	1
 #define CFG_ENV_OFFSET		0x40000
+#define CFG_ENV_OFFSET_REDUND	0x44000
 #define CFG_ENV_SIZE		0x4000
 
 #endif	/* __CONFIG_H */
