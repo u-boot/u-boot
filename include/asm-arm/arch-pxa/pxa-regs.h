@@ -821,21 +821,21 @@ typedef void		(*ExcpHndlr) (void) ;
 #define RTAR		__REG(0x40900004)  /* RTC Alarm Register */
 #define RTSR		__REG(0x40900008)  /* RTC Status Register */
 #define RTTR		__REG(0x4090000C)  /* RTC Timer Trim Register */
-#define RDAR1	   __REG(0x40900018)  /* Wristwatch Day Alarm Reg 1 */
-#define RDAR2	   __REG(0x40900020)  /* Wristwatch Day Alarm Reg 2 */
-#define RYAR1	   __REG(0x4090001C)  /* Wristwatch Year Alarm Reg 1 */
-#define RYAR2	   __REG(0x40900024)  /* Wristwatch Year Alarm Reg 2 */
-#define SWAR1	   __REG(0x4090002C)  /* Stopwatch Alarm Register 1 */
-#define SWAR2	   __REG(0x40900030)  /* Stopwatch Alarm Register 2 */
-#define PIAR	   __REG(0x40900038)  /* Periodic Interrupt Alarm Register */
-#define RDCR	   __REG(0x40900010)  /* RTC Day Count Register. */
-#define RYCR	   __REG(0x40900014)  /* RTC Year Count Register. */
-#define SWCR	   __REG(0x40900028)  /* Stopwatch Count Register */
-#define RTCPICR	   __REG(0x40900034)  /* Periodic Interrupt Counter Register */
+#define RDAR1		__REG(0x40900018)  /* Wristwatch Day Alarm Reg 1 */
+#define RDAR2		__REG(0x40900020)  /* Wristwatch Day Alarm Reg 2 */
+#define RYAR1		__REG(0x4090001C)  /* Wristwatch Year Alarm Reg 1 */
+#define RYAR2		__REG(0x40900024)  /* Wristwatch Year Alarm Reg 2 */
+#define SWAR1		__REG(0x4090002C)  /* Stopwatch Alarm Register 1 */
+#define SWAR2		__REG(0x40900030)  /* Stopwatch Alarm Register 2 */
+#define PIAR		__REG(0x40900038)  /* Periodic Interrupt Alarm Register */
+#define RDCR		__REG(0x40900010)  /* RTC Day Count Register. */
+#define RYCR		__REG(0x40900014)  /* RTC Year Count Register. */
+#define SWCR		__REG(0x40900028)  /* Stopwatch Count Register */
+#define RTCPICR		__REG(0x40900034)  /* Periodic Interrupt Counter Register */
 
-#define RTSR_PICE  (1 << 15)   /* Peridoc interrupt count enable */
-#define RTSR_PIALE (1 << 14)   /* Peridoc interrupt Alarm enable */
-#define RTSR_PIAL  (1 << 13)   /* Peridoc  interrupt Alarm status */
+#define RTSR_PICE	(1 << 15)	/* Peridoc interrupt count enable */
+#define RTSR_PIALE	(1 << 14)	/* Peridoc interrupt Alarm enable */
+#define RTSR_PIAL	(1 << 13)	/* Peridoc  interrupt Alarm status */
 #define RTSR_HZE	(1 << 3)	/* HZ interrupt enable */
 #define RTSR_ALE	(1 << 2)	/* RTC alarm interrupt enable */
 #define RTSR_HZ		(1 << 1)	/* HZ rising-edge detected */
@@ -921,9 +921,10 @@ typedef void		(*ExcpHndlr) (void) ;
 
 #ifdef CONFIG_CPU_MONAHANS
 #define ICHP		__REG(0x40D00018)  /* Interrupt Controller Highest Priority Register */
-/* Missing: 32 Interrupt priority registers */
-/* mk@tbd: These are the same as beneath for PXA27x: maybe can be
- * merged if GPIO Stuff is same too. */
+/* Missing: 32 Interrupt priority registers
+ * These are the same as beneath for PXA27x: maybe can be merged if
+ * GPIO Stuff is same too. 
+ */
 #define ICIP2		__REG(0x40D0009C)  /* Interrupt Controller IRQ Pending Register 2 */
 #define ICMR2		__REG(0x40D000A0)  /* Interrupt Controller Mask Register 2 */
 #define ICLR2		__REG(0x40D000A4)  /* Interrupt Controller Level Register 2 */
@@ -983,24 +984,24 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GCDR3		__REG(0x40E0042C) /* Bit-wise Clear of GPDR[127:96] */
 
 #define GSRER0		__REG(0x40E00440) /* Set Rising Edge Det. Enable [31:0] */
-#define GSRER1  	__REG(0x40E00444) /* Set Rising Edge Det. Enable [63:32] */
+#define GSRER1		__REG(0x40E00444) /* Set Rising Edge Det. Enable [63:32] */
 #define GSRER2		__REG(0x40E00448) /* Set Rising Edge Det. Enable [95:64] */
-#define GSRER3  	__REG(0x40E0044C) /* Set Rising Edge Det. Enable [127:96] */
+#define GSRER3		__REG(0x40E0044C) /* Set Rising Edge Det. Enable [127:96] */
 
 #define GCRER0		__REG(0x40E00460) /* Clear Rising Edge Det. Enable [31:0] */
-#define GCRER1  	__REG(0x40E00464) /* Clear Rising Edge Det. Enable [63:32] */
+#define GCRER1		__REG(0x40E00464) /* Clear Rising Edge Det. Enable [63:32] */
 #define GCRER2		__REG(0x40E00468) /* Clear Rising Edge Det. Enable [95:64] */
-#define GCRER3  	__REG(0x40E0046C) /* Clear Rising Edge Det. Enable[127:96] */
+#define GCRER3		__REG(0x40E0046C) /* Clear Rising Edge Det. Enable[127:96] */
 
 #define GSFER0		__REG(0x40E00480) /* Set Falling Edge Det. Enable [31:0] */
-#define GSFER1  	__REG(0x40E00484) /* Set Falling Edge Det. Enable [63:32] */
+#define GSFER1		__REG(0x40E00484) /* Set Falling Edge Det. Enable [63:32] */
 #define GSFER2		__REG(0x40E00488) /* Set Falling Edge Det. Enable [95:64] */
-#define GSFER3  	__REG(0x40E0048C) /* Set Falling Edge Det. Enable[127:96] */
+#define GSFER3		__REG(0x40E0048C) /* Set Falling Edge Det. Enable[127:96] */
 
 #define GCFER0		__REG(0x40E004A0) /* Clr Falling Edge Det. Enable [31:0] */
-#define GCFER1  	__REG(0x40E004A4) /* Clr Falling Edge Det. Enable [63:32] */
+#define GCFER1		__REG(0x40E004A4) /* Clr Falling Edge Det. Enable [63:32] */
 #define GCFER2		__REG(0x40E004A8) /* Clr Falling Edge Det. Enable [95:64] */
-#define GCFER3  	__REG(0x40E004AC) /* Clr Falling Edge Det. Enable[127:96] */
+#define GCFER3		__REG(0x40E004AC) /* Clr Falling Edge Det. Enable[127:96] */
 
 #define GSDR(x)		__REG2(0x40E00400, ((x) & 0x60) >> 3)
 #define GCDR(x)		__REG2(0x40300420, ((x) & 0x60) >> 3)
@@ -1488,8 +1489,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GPIO79_nCS_3_MD		(79 | GPIO_ALT_FN_2_OUT)
 #define GPIO80_nCS_4_MD		(80 | GPIO_ALT_FN_2_OUT)
 
-#define GPIO117_SCL	     (117 | GPIO_ALT_FN_1_OUT)
-#define GPIO118_SDA	     (118 | GPIO_ALT_FN_1_OUT)
+#define GPIO117_SCL		(117 | GPIO_ALT_FN_1_OUT)
+#define GPIO118_SDA		(118 | GPIO_ALT_FN_1_OUT)
 
 /*
  * Power Manager
@@ -1709,10 +1710,10 @@ typedef void		(*ExcpHndlr) (void) ;
 #define ACCR_13MEND2	(1 << 21)
 #define ACCR_PCCE	(1 << 11)
 
-#define CKENA_30_MSL0	(1 << 30) 	/* MSL0 Interface Unit Clock Enable */
-#define CKENA_29_SSP4	(1 << 29) 	/* SSP3 Unit Clock Enable */
-#define CKENA_28_SSP3	(1 << 28) 	/* SSP2 Unit Clock Enable */
-#define CKENA_27_SSP2	(1 << 27)  	/* SSP1 Unit Clock Enable */
+#define CKENA_30_MSL0	(1 << 30)	/* MSL0 Interface Unit Clock Enable */
+#define CKENA_29_SSP4	(1 << 29)	/* SSP3 Unit Clock Enable */
+#define CKENA_28_SSP3	(1 << 28)	/* SSP2 Unit Clock Enable */
+#define CKENA_27_SSP2	(1 << 27)	/* SSP1 Unit Clock Enable */
 #define CKENA_26_SSP1	(1 << 26)	/* SSP0 Unit Clock Enable */
 #define CKENA_25_TSI	(1 << 25)	/* TSI Clock Enable */
 #define CKENA_24_AC97	(1 << 24)	/* AC97 Unit Clock Enable */
@@ -1720,27 +1721,27 @@ typedef void		(*ExcpHndlr) (void) ;
 #define CKENA_22_FFUART	(1 << 22)	/* FFUART Unit Clock Enable */
 #define CKENA_21_BTUART	(1 << 21)	/* BTUART Unit Clock Enable */
 #define CKENA_20_UDC	(1 << 20)	/* UDC Clock Enable */
-#define CKENA_19_TPM	(1 << 19) 	/* TPM Unit Clock Enable */
-#define CKENA_18_USIM1	(1 << 18) 	/* USIM1 Unit Clock Enable */
-#define CKENA_17_USIM0	(1 << 17) 	/* USIM0 Unit Clock Enable */
-#define CKENA_15_CIR	(1 << 15) 	/* Consumer IR Clock Enable */
-#define CKENA_14_KEY	(1 << 14) 	/* Keypad Controller Clock Enable */
-#define CKENA_13_MMC1	(1 << 13) 	/* MMC1 Clock Enable */
-#define CKENA_12_MMC0	(1 << 12) 	/* MMC0 Clock Enable */
-#define CKENA_11_FLASH	(1 << 11) 	/* Boot ROM Clock Enable */
-#define CKENA_10_SRAM	(1 << 10) 	/* SRAM Controller Clock Enable */
-#define CKENA_9_SMC	(1 << 9) 	/* Static Memory Controller */
-#define CKENA_8_DMC	(1 << 8) 	/* Dynamic Memory Controller */
-#define CKENA_7_GRAPHICS (1 << 7) 	/* 2D Graphics Clock Enable */
+#define CKENA_19_TPM	(1 << 19)	/* TPM Unit Clock Enable */
+#define CKENA_18_USIM1	(1 << 18)	/* USIM1 Unit Clock Enable */
+#define CKENA_17_USIM0	(1 << 17)	/* USIM0 Unit Clock Enable */
+#define CKENA_15_CIR	(1 << 15)	/* Consumer IR Clock Enable */
+#define CKENA_14_KEY	(1 << 14)	/* Keypad Controller Clock Enable */
+#define CKENA_13_MMC1	(1 << 13)	/* MMC1 Clock Enable */
+#define CKENA_12_MMC0	(1 << 12)	/* MMC0 Clock Enable */
+#define CKENA_11_FLASH	(1 << 11)	/* Boot ROM Clock Enable */
+#define CKENA_10_SRAM	(1 << 10)	/* SRAM Controller Clock Enable */
+#define CKENA_9_SMC	(1 << 9)	/* Static Memory Controller */
+#define CKENA_8_DMC	(1 << 8)	/* Dynamic Memory Controller */
+#define CKENA_7_GRAPHICS (1 << 7)	/* 2D Graphics Clock Enable */
 #define CKENA_6_USBCLI	(1 << 6)	/* USB Client Unit Clock Enable */
-#define CKENA_4_NAND	(1 << 4) 	/* NAND Flash Controller Clock Enable */
-#define CKENA_3_CAMERA	(1 << 3) 	/* Camera Interface Clock Enable */
+#define CKENA_4_NAND	(1 << 4)	/* NAND Flash Controller Clock Enable */
+#define CKENA_3_CAMERA	(1 << 3)	/* Camera Interface Clock Enable */
 #define CKENA_2_USBHOST	(1 << 2)	/* USB Host Unit Clock Enable */
 #define CKENA_1_LCD	(1 << 1)	/* LCD Unit Clock Enable */
 
 #define CKENB_8_1WIRE	((1 << 8) + 32) /* One Wire Interface Unit Clock Enable */
-#define CKENB_7_GPIO	((1 << 7) + 32) 	/* GPIO Clock Enable */
-#define CKENB_6_IRQ	((1 << 6) + 32) 	/* Interrupt Controller Clock Enable */
+#define CKENB_7_GPIO	((1 << 7) + 32)	/* GPIO Clock Enable */
+#define CKENB_6_IRQ	((1 << 6) + 32)	/* Interrupt Controller Clock Enable */
 #define CKENB_4_I2C	((1 << 4) + 32)	/* I2C Unit Clock Enable */
 #define CKENB_1_PWM1	((1 << 1) + 32)	/* PWM2 & PWM3 Clock Enable */
 #define CKENB_0_PWM0	((1 << 0) + 32)	/* PWM0 & PWM1 Clock Enable */
@@ -2382,16 +2383,16 @@ typedef void		(*ExcpHndlr) (void) ;
 #define KPAS_SO		(0x1 << 31)
 #define KPASMKPx_SO	(0x1 << 31)
 
-#define GPIO113_BIT	   (1 << 17)/* GPIO113 in GPSR, GPCR, bit 17 */
-#define PSLR	   __REG(0x40F00034)
-#define PSTR	   __REG(0x40F00038)  /* Power Manager Standby Configuration Reg */
-#define PSNR	   __REG(0x40F0003C)  /* Power Manager Sense Configuration Reg */
-#define PVCR	   __REG(0x40F00040)  /* Power Manager Voltage Change Control Reg */
-#define PKWR	   __REG(0x40F00050)  /* Power Manager KB Wake-Up Enable Reg */
-#define PKSR	   __REG(0x40F00054)  /* Power Manager KB Level-Detect Status Reg */
-#define OSMR4	    __REG(0x40A00080)  /* */
-#define OSCR4	    __REG(0x40A00040)  /* OS Timer Counter Register */
-#define OMCR4	    __REG(0x40A000C0)  /* */
+#define GPIO113_BIT	(1 << 17)/* GPIO113 in GPSR, GPCR, bit 17 */
+#define PSLR		__REG(0x40F00034)
+#define PSTR		__REG(0x40F00038)  /* Power Manager Standby Configuration Reg */
+#define PSNR		__REG(0x40F0003C)  /* Power Manager Sense Configuration Reg */
+#define PVCR		__REG(0x40F00040)  /* Power Manager Voltage Change Control Reg */
+#define PKWR		__REG(0x40F00050)  /* Power Manager KB Wake-Up Enable Reg */
+#define PKSR		__REG(0x40F00054)  /* Power Manager KB Level-Detect Status Reg */
+#define OSMR4		__REG(0x40A00080)  /* */
+#define OSCR4		__REG(0x40A00040)  /* OS Timer Counter Register */
+#define OMCR4		__REG(0x40A000C0)  /* */
 
 #endif	/* CONFIG_PXA27X */
 

@@ -293,11 +293,6 @@ static int dfc_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 {
 	unsigned long ndsr=0, event=0;
 
-	/* mk@tbd set appropriate timeouts */
-	/* 	if (state == FL_ERASING) */
-	/* 		timeo = CFG_HZ * 400; */
-	/* 	else */
-	/* 		timeo = CFG_HZ * 20; */
 	if(state == FL_WRITING) {
 		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
 	} else if(state == FL_ERASING) {
@@ -563,13 +558,12 @@ void board_nand_init(struct nand_chip *nand)
 
 
 	/* wait 10 us due to cmd buffer clear reset */
-	/* 	wait(10); */
+	/*	wait(10); */
 
 
 	nand->hwcontrol = dfc_hwcontrol;
-/* 	nand->dev_ready = dfc_device_ready; */
+/*	nand->dev_ready = dfc_device_ready; */
 	nand->eccmode = NAND_ECC_SOFT;
-	nand->chip_delay = NAND_DELAY_US;
 	nand->options = NAND_BUSWIDTH_16;
 	nand->waitfunc = dfc_wait;
 	nand->read_byte = dfc_read_byte;

@@ -62,7 +62,7 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_FFUART	       1
+#define CONFIG_FFUART		1
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -168,8 +168,6 @@
 
 #define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
-#define SECTORSIZE 		512
-#define NAND_DELAY_US		25	/* mk@tbd: could be 0, I guess */
 
 /* nand timeout values */
 #define CFG_NAND_PROG_ERASE_TO	3000
@@ -178,16 +176,15 @@
 #undef NAND_ALLOW_ERASE_ALL	/* Allow erasing bad blocks - don't use */
 
 /* NAND Timing Parameters (in ns) */
-#define NAND_TIMING_tCH 	10
-#define NAND_TIMING_tCS 	0
+#define NAND_TIMING_tCH		10
+#define NAND_TIMING_tCS		0
 #define NAND_TIMING_tWH		20
-#define NAND_TIMING_tWP 	40
+#define NAND_TIMING_tWP		40
 
-#define NAND_TIMING_tRH 	20
-#define NAND_TIMING_tRP 	40
+#define NAND_TIMING_tRH		20
+#define NAND_TIMING_tRP		40
 
-#define NAND_TIMING_tR  	11123
-/* #define NAND_TIMING_tWHR	110 */
+#define NAND_TIMING_tR		11123
 #define NAND_TIMING_tWHR	100
 #define NAND_TIMING_tAR		10
 
@@ -199,87 +196,16 @@
 #define CONFIG_MTD_DEBUG
 #define CONFIG_MTD_DEBUG_VERBOSE 1
 
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
+#define ADDR_COLUMN		1
+#define ADDR_PAGE		2
+#define ADDR_COLUMN_PAGE	3
 
 #define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
+#define NAND_MAX_FLOORS		1
+#define NAND_MAX_CHIPS		1
 
-#define CFG_NO_FLASH	1
-#ifndef CGF_NO_FLASH
-/* these are required by the environment code */
-#define PHYS_FLASH_1            CFG_NAND0_BASE /* Flash Bank #1 */
-#define PHYS_FLASH_SIZE         0x04000000 /* 64 MB */
-#define PHYS_FLASH_BANK_SIZE    0x04000000 /* 64 MB Banks */
-#define PHYS_FLASH_SECT_SIZE    (SECTORSIZE*1024) /*  KB sectors (x2) */
-#endif
+#define CFG_NO_FLASH		1
 
-/*
- * GPIO settings
- */
-#define CFG_GPSR0_VAL		0x00008000
-#define CFG_GPSR1_VAL		0x00FC0382
-#define CFG_GPSR2_VAL		0x0001FFFF
-#define CFG_GPCR0_VAL		0x00000000
-#define CFG_GPCR1_VAL		0x00000000
-#define CFG_GPCR2_VAL		0x00000000
-#define CFG_GPDR0_VAL		0x0060A800
-#define CFG_GPDR1_VAL		0x00FF0382
-#define CFG_GPDR2_VAL		0x0001C000
-#define CFG_GAFR0_L_VAL		0x98400000
-#define CFG_GAFR0_U_VAL		0x00002950
-#define CFG_GAFR1_L_VAL		0x000A9558
-#define CFG_GAFR1_U_VAL		0x0005AAAA
-#define CFG_GAFR2_L_VAL		0xA0000000
-#define CFG_GAFR2_U_VAL		0x00000002
-
-#define CFG_PSSR_VAL		0x20
-
-/*
- * Memory settings
- */
-#define CFG_MSC0_VAL		0x23F223F2
-#define CFG_MSC1_VAL		0x3FF1A441
-#define CFG_MSC2_VAL		0x7FF97FF1
-#define CFG_MDCNFG_VAL		0x00001AC9
-#define CFG_MDREFR_VAL		0x00018018
-#define CFG_MDMRS_VAL		0x00000000
-
-/*
- * PCMCIA and CF Interfaces
- */
-#define CFG_MECR_VAL		0x00000000
-#define CFG_MCMEM0_VAL		0x00010504
-#define CFG_MCMEM1_VAL		0x00010504
-#define CFG_MCATT0_VAL		0x00010504
-#define CFG_MCATT1_VAL		0x00010504
-#define CFG_MCIO0_VAL		0x00004715
-#define CFG_MCIO1_VAL		0x00004715
-
-#define _LED			0x08000010
-#define LED_BLANK		0x08000040
-
-/*
- * FLASH and environment organization
- */
-#ifndef CFG_NO_FLASH
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
-
-/* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
-
-
-/* NOTE: many default partitioning schemes assume the kernel starts at the
- * second sector, not an environment.  You have been warned!
- */
-#define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
-#endif /* #ifndef CFG_NO_FLASH */
-
-/* #define CFG_ENV_IS_NOWHERE */
 #define CFG_ENV_IS_IN_NAND	1
 #define CFG_ENV_OFFSET		0x40000
 #define CFG_ENV_OFFSET_REDUND	0x44000
