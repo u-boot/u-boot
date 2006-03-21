@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Cleanup MCC200 board configuration; omit non-existent stuff.
+
 * Add support for MPC859/866 Rev. A.0
 
 * Add command for handling DDR ECC registers on MPC8349EE MDS board.
