@@ -717,7 +717,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
 		cnt -= SECTORSIZE;
 	} else {
-		printf ("\n** Bad Magic Number 0x%x **\n", hdr->ih_magic);
+		printf ("\n** Bad Magic Number 0x%x **\n", ntohl(hdr->ih_magic));
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	}

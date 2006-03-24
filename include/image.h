@@ -75,6 +75,7 @@
 #define IH_CPU_NIOS		13	/* Nios-32	*/
 #define IH_CPU_MICROBLAZE	14	/* MicroBlaze   */
 #define IH_CPU_NIOS2		15	/* Nios-II	*/
+#define IH_CPU_BLACKFIN		16	/* Blackfin	*/
 
 /*
  * Image Types

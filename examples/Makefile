@@ -53,6 +53,10 @@ ifeq ($(ARCH),microblaze)
 LOAD_ADDR = 0x80F00000
 endif
 
+ifeq ($(ARCH),blackfin)
+LOAD_ADDR = 0x1000
+endif
+
 include $(TOPDIR)/config.mk
 
 SREC	= hello_world.srec
@@ -71,6 +75,11 @@ endif
 ifeq ($(ARCH),ppc)
 SREC   += sched.srec
 BIN    += sched.bin sched
+endif
+
+ifeq ($(ARCH),blackfin)
+SREC	+= smc91111_eeprom.srec
+BIN 	+= smc91111_eeprom.bin smc91111_eeprom
 endif
 
 # The following example is pretty 8xx specific...

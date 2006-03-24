@@ -897,7 +897,7 @@ static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int pa
 	int 	i, status;
 	u_char	ecc_code[32];
 	int	eccmode = oobsel->useecc ? this->eccmode : NAND_ECC_NONE;
-	int  	*oob_config = oobsel->eccpos;
+	uint  	*oob_config = oobsel->eccpos;
 	int	datidx = 0, eccidx = 0, eccsteps = this->eccsteps;
 	int	eccbytes = 0;
 
@@ -1119,7 +1119,8 @@ static int nand_read_ecc (struct mtd_info *mtd, loff_t from, size_t len,
 	u_char ecc_calc[32];
 	u_char ecc_code[32];
 	int eccmode, eccsteps;
-	int	*oob_config, datidx;
+	unsigned *oob_config;
+	int	datidx;
 	int	blockcheck = (1 << (this->phys_erase_shift - this->page_shift)) - 1;
 	int	eccbytes;
 	int	compareecc = 1;

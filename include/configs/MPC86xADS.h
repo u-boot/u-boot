@@ -21,7 +21,7 @@
 #define CONFIG_MPC86xADS        1       /* new ADS */
 #define CONFIG_FADS		1       /* We are FADS compatible (more or less) */
 
-/* New MPC86xADS - pick one of these */
+/* CPU type - pick one of these */
 #define CONFIG_MPC866T 		1
 #undef CONFIG_MPC866P
 #undef CONFIG_MPC859T
@@ -33,7 +33,10 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		38400
 
-#define CONFIG_8xx_OSCLK	10000000 /* 10MHz oscillator on EXTCLK  */
+#define CONFIG_8xx_OSCLK		10000000 /* 10MHz oscillator on EXTCLK  */
+#define CONFIG_8xx_CPUCLK_DEFAULT	50000000
+#define CFG_8xx_CPUCLK_MIN		40000000
+#define CFG_8xx_CPUCLK_MAX		80000000
 
 #define CONFIG_DRAM_50MHZ       1
 #define CONFIG_SDRAM_50MHZ      1

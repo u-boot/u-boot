@@ -309,6 +309,7 @@ struct pci_region {
 #define PCI_REGION_MEM		0x00000000	/* PCI memory space */
 #define PCI_REGION_IO		0x00000001	/* PCI IO space */
 #define PCI_REGION_TYPE		0x00000001
+#define PCI_REGION_PREFETCH	0x00000008	/* prefetchable PCI memory */
 
 #define PCI_REGION_MEMORY	0x00000100	/* System memory */
 #define PCI_REGION_RO		0x00000200	/* Read-only memory */
@@ -351,8 +352,8 @@ struct pci_config_table {
 	unsigned long priv[3];
 };
 
-extern void pci_cfgfunc_nothing(struct pci_controller* hose, pci_dev_t dev,
-				struct pci_config_table *);
+extern void pci_cfgfunc_do_nothing(struct pci_controller* hose, pci_dev_t dev,
+				   struct pci_config_table *);
 extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev,
 				      struct pci_config_table *);
 
@@ -386,7 +387,7 @@ struct pci_controller {
 	int (*write_dword)(struct pci_controller*, pci_dev_t, int where, u32);
 
 	/* Used by auto config */
-	struct pci_region *pci_mem, *pci_io;
+	struct pci_region *pci_mem, *pci_io, *pci_prefetch;
 
 	/* Used by ppc405 autoconfig*/
 	struct pci_region *pci_fb;
@@ -472,6 +473,7 @@ extern int pciauto_region_allocate(struct pci_region* res, unsigned int size, un
 extern void pciauto_setup_device(struct pci_controller *hose,
 				 pci_dev_t dev, int bars_num,
 				 struct pci_region *mem,
+				 struct pci_region *prefetch,
 				 struct pci_region *io);
 int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 

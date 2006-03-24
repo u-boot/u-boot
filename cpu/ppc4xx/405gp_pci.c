@@ -373,7 +373,7 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 {
 	unsigned int cmdstat = 0;
 
-	pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_io);
+	pciauto_setup_device(hose, dev, 6, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
 
 	/* always enable io space on vga boards */
 	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);

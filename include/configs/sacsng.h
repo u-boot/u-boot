@@ -507,7 +507,6 @@
 # define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
 				CFG_CMD_ELF	| \
 				CFG_CMD_ASKENV	| \
-				CFG_CMD_ECHO	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_SPI	| \
 				CFG_CMD_SDRAM   | \
@@ -520,7 +519,6 @@
 # define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
 				CFG_CMD_ELF	| \
 				CFG_CMD_ASKENV	| \
-				CFG_CMD_ECHO	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_SPI	| \
 				CFG_CMD_SDRAM   | \

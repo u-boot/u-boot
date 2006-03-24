@@ -267,8 +267,6 @@ struct _irq_handler {
 	void (*m_func)( void *data);
 };
 
-extern struct _irq_handler IRQ_HANDLER[];
-
 #endif
 
 #endif /* __S3C4510_h */

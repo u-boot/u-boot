@@ -50,7 +50,6 @@
 			CFG_CMD_PCI	| \
 			CFG_CMD_CACHE	| \
 			CFG_CMD_IRQ	| \
-			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_I2C	| \
 			CFG_CMD_REGINFO | \

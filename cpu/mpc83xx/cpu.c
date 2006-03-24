@@ -35,6 +35,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
+#include <ft_build.h>
 #include <asm/processor.h>
 
 
@@ -92,6 +93,8 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* enable Reset Control Reg */
 	immap->reset.rpr = 0x52535445;
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
 
 	/* confirm Reset Control Reg is enabled */
 	while(!((immap->reset.rcer) & RCER_CRE));
@@ -151,3 +154,125 @@ void watchdog_reset (void)
 	hang();		/* FIXME: implement watchdog_reset()? */
 }
 #endif /* CONFIG_WATCHDOG */
+
+#if defined(CONFIG_OF_FLAT_TREE)
+void
+ft_cpu_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+	ulong clock;
+
+	clock = bd->bi_busfreq;
+	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+#ifdef CONFIG_MPC83XX_TSEC1
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/address", &len);
+		memcpy(p, bd->bi_enetaddr, 6);
+#endif
+
+#ifdef CONFIG_MPC83XX_TSEC2
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/address", &len);
+		memcpy(p, bd->bi_enet1addr, 6);
+#endif
+}
+#endif
+
+#if defined(CONFIG_DDR_ECC)
+void dma_init(void)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile dma8349_t *dma = &immap->dma;
+	volatile u32 status = swab32(dma->dmasr0);
+	volatile u32 dmamr0 = swab32(dma->dmamr0);
+
+	debug("DMA-init\n");
+
+	/* initialize DMASARn, DMADAR and DMAABCRn */
+	dma->dmadar0 = (u32)0;
+	dma->dmasar0 = (u32)0;
+	dma->dmabcr0 = 0;
+
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+
+	/* clear CS bit */
+	dmamr0 &= ~DMA_CHANNEL_START;
+	dma->dmamr0 = swab32(dmamr0);
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+
+	/* while the channel is busy, spin */
+	while(status & DMA_CHANNEL_BUSY) {
+		status = swab32(dma->dmasr0);
+	}
+
+	debug("DMA-init end\n");
+}
+
+uint dma_check(void)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile dma8349_t *dma = &immap->dma;
+	volatile u32 status = swab32(dma->dmasr0);
+	volatile u32 byte_count = swab32(dma->dmabcr0);
+
+	/* while the channel is busy, spin */
+	while (status & DMA_CHANNEL_BUSY) {
+		status = swab32(dma->dmasr0);
+	}
+
+	if (status & DMA_CHANNEL_TRANSFER_ERROR) {
+		printf ("DMA Error: status = %x @ %d\n", status, byte_count);
+	}
+
+	return status;
+}
+
+int dma_xfer(void *dest, u32 count, void *src)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile dma8349_t *dma = &immap->dma;
+	volatile u32 dmamr0;
+
+	/* initialize DMASARn, DMADAR and DMAABCRn */
+	dma->dmadar0 = swab32((u32)dest);
+	dma->dmasar0 = swab32((u32)src);
+	dma->dmabcr0 = swab32(count);
+
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+
+	/* init direct transfer, clear CS bit */
+	dmamr0 = (DMA_CHANNEL_TRANSFER_MODE_DIRECT |
+			DMA_CHANNEL_SOURCE_ADDRESS_HOLD_8B |
+			DMA_CHANNEL_SOURCE_ADRESSS_HOLD_EN);
+	
+	dma->dmamr0 = swab32(dmamr0);
+
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+
+	/* set CS to start DMA transfer */
+	dmamr0 |= DMA_CHANNEL_START;
+	dma->dmamr0 = swab32(dmamr0);
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("isync");
+
+	return ((int)dma_check());
+}
+#endif /*CONFIG_DDR_ECC*/

@@ -91,7 +91,6 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 								| CFG_CMD_ENV | CFG_CMD_CONSOLE \
 								| CFG_CMD_LOADS | CFG_CMD_LOADB \
 								| CFG_CMD_IMI | CFG_CMD_CACHE \
-								| CFG_CMD_RUN | CFG_CMD_ECHO \
 								| CFG_CMD_REGINFO | CFG_CMD_NET\
 								| CFG_CMD_DHCP | CFG_CMD_I2C \
 								| CFG_CMD_DATE)

@@ -111,7 +111,8 @@ int env_init(void)
 #ifdef CFG_ENV_OFFSET_REDUND
 int saveenv(void)
 {
-	int total, ret = 0;
+	ulong total;
+	int ret = 0;
 
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -146,7 +147,8 @@ int saveenv(void)
 #else /* ! CFG_ENV_OFFSET_REDUND */
 int saveenv(void)
 {
-	int total, ret = 0;
+	ulong total;
+	int ret = 0;
 
 	puts ("Erasing Nand...");
 	if (nand_erase(&nand_info[0], CFG_ENV_OFFSET, CFG_ENV_SIZE))
@@ -154,8 +156,7 @@ int saveenv(void)
 
 	puts ("Writing to Nand... ");
 	total = CFG_ENV_SIZE;
-	ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total,
-			(u_char*) env_ptr);
+	ret = nand_write(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
 	if (ret || total != CFG_ENV_SIZE)
 		return 1;
 
@@ -169,7 +170,8 @@ int saveenv(void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	int crc1_ok = 0, crc2_ok = 0, total;
+	ulong total;
+	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
 	DECLARE_GLOBAL_DATA_PTR;
@@ -227,12 +229,12 @@ void env_relocate_spec (void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	int ret, total;
+	ulong total;
+	int ret;
 
 	total = CFG_ENV_SIZE;
-	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total,
-			(u_char*) env_ptr);
-	if (ret || total != CFG_ENV_SIZE)
+	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
+  	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)

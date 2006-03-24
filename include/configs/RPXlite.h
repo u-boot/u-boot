@@ -21,10 +21,6 @@
  * MA 02111-1307 USA
  */
 
-/*
- * board/config.h - configuration options, board specific
- */
-
 /* Yoo. Jonghoon, IPone, yooth@ipone.co.kr
  * U-Boot port on RPXlite board
  */
@@ -53,8 +49,6 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
-
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
 	"bootp; " 								\
@@ -65,6 +59,7 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
+#define CONFIG_BZIP2		/* Include support for bzip2 compressed images  */
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
@@ -86,12 +81,14 @@
 #define	CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0040000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x00C0000	/* 4 ... 12 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x00400000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x00C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define CFG_RESET_ADDRESS	0x09900000
 
-#define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
+#define	CFG_LOAD_ADDR		0x400000	/* default load address	*/
+
+#define	CFG_HZ			1000		/* decrementer freq: 1 ms ticks	*/
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
@@ -120,16 +117,14 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define	CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE	0xFFC00000
-/*%%% #define CFG_FLASH_BASE		0xFFF00000 */
-#if defined(DEBUG) || (CONFIG_COMMANDS & CFG_CMD_IDE)
+#define CFG_FLASH_BASE		0xFFC00000
+#define CFG_MONITOR_BASE	TEXT_BASE
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#ifdef CONFIG_BZIP2
+#define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve ~4 MB for malloc()   */
 #else
-#define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
-#endif
-#define CFG_MONITOR_BASE	0xFFF00000
-/*%%% #define CFG_MONITOR_BASE	CFG_FLASH_BASE */
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 KB for malloc()  */
+#endif /* CONFIG_BZIP2 */
 
 /*
  * For booting Linux, the board info and command line data
@@ -147,9 +142,13 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
+#define	CFG_DIRECT_FLASH_TFTP
+
 #define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000 	/* We use one complete sector	*/
+#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+
+#define CONFIG_ENV_OVERWRITE
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -352,12 +351,12 @@
 
 #define BCSR0_ENMONXCVR	0x01	/* Monitor XVCR Control */
 #define BCSR0_ENNVRAM	0x02 	/* CS4# Control */
-#define BCSR0_LED5		0x04	/* LED5 control 0='on' 1='off' */
-#define BCSR0_LED4		0x08	/* LED4 control 0='on' 1='off' */
+#define BCSR0_LED5	0x04	/* LED5 control 0='on' 1='off' */
+#define BCSR0_LED4	0x08	/* LED4 control 0='on' 1='off' */
 #define BCSR0_FULLDPLX	0x10	/* Ethernet XCVR Control */
 #define BCSR0_COLTEST	0x20
 #define BCSR0_ETHLPBK	0x40
-#define BCSR0_ETHEN		0x80
+#define BCSR0_ETHEN	0x80
 
 #define BCSR1_PCVCTL7	0x01	/* PC Slot B Control */
 #define BCSR1_PCVCTL6	0x02
@@ -371,22 +370,13 @@
 #define BCSR2_USBSPD	0x40
 #define BCSR2_USBSUSP	0x80
 
-#define BCSR3_BWRTC		0x01	/* Real Time Clock Battery */
-#define BCSR3_BWNVR		0x02	/* NVRAM Battery */
+#define BCSR3_BWRTC	0x01	/* Real Time Clock Battery */
+#define BCSR3_BWNVR	0x02	/* NVRAM Battery */
 #define BCSR3_RDY_BSY	0x04	/* Flash Operation */
-#define BCSR3_RPXL		0x08	/* Reserved (reads back '1') */
-#define BCSR3_D27		0x10	/* Dip Switch settings */
-#define BCSR3_D26		0x20
-#define BCSR3_D25		0x40
-#define BCSR3_D24		0x80
-
-
-/*
- * Environment setting
- */
-
-#define CONFIG_ETHADDR	00:10:EC:00:1D:0B
-#define CONFIG_IPADDR	192.168.1.65
-#define CONFIG_SERVERIP	192.168.1.27
+#define BCSR3_RPXL	0x08	/* Reserved (reads back '1') */
+#define BCSR3_D27	0x10	/* Dip Switch settings */
+#define BCSR3_D26	0x20
+#define BCSR3_D25	0x40
+#define BCSR3_D24	0x80
 
 #endif	/* __CONFIG_H */

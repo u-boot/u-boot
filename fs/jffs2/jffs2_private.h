@@ -85,4 +85,16 @@ inode_crc(struct jffs2_raw_inode *node)
 	}
 }
 
+static inline int
+data_crc(struct jffs2_raw_inode *node)
+{
+	if (node->data_crc != crc32_no_comp(0, (unsigned char *)
+					    ((int) &node->node_crc + sizeof (node->node_crc)),
+					     node->csize)) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
 #endif /* jffs2_private.h */

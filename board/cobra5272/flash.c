@@ -256,8 +256,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	return rc;
 }
 
-
-volatile static int write_word (flash_info_t * info, ulong dest, ulong data)
+static int write_word (flash_info_t * info, ulong dest, ulong data)
 {
 	volatile u16 *addr = (volatile u16 *) dest;
 	ulong result;

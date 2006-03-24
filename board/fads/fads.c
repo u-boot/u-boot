@@ -726,24 +726,23 @@ static void checkdboard(void)
 
 int checkboard (void)
 {
-	/* get revision from BCSR 3 */
+#if   defined(CONFIG_MPC86xADS)
+	puts ("Board: MPC86xADS\n");
+#elif defined(CONFIG_MPC885ADS)
+	puts ("Board: MPC885ADS\n");
+#else /* Only old ADS/FADS have got revision ID in BCSR3 */
 	uint r =  (((*((uint *) BCSR3) >> 23) & 1) << 3)
 		| (((*((uint *) BCSR3) >> 19) & 1) << 2)
 		| (((*((uint *) BCSR3) >> 16) & 3));
 
 	puts ("Board: ");
-
-#if defined(CONFIG_MPC86xADS)
-	puts ("MPC86xADS");
-#elif defined(CONFIG_MPC885ADS)
-	puts ("MPC885ADS");
-	r = 0; /* I've got NR (No Revision) board */
-#elif defined(CONFIG_FADS)
+#if defined(CONFIG_FADS)
 	puts ("FADS");
 	checkdboard ();
 #else
 	puts ("ADS");
 #endif
+
 	puts (" rev ");
 
 	switch (r) {
@@ -758,13 +757,9 @@ int checkboard (void)
 		puts ("A - warning, read errata \n");
 		break;
 	case 0x03:
-		puts ("B \n");
+		puts ("B\n");
 		break;
-#elif defined(CONFIG_MPC885ADS)
-	case 0x00:
-		puts ("NR\n");
-		break;
-#else  /* FADS and newer */
+#else  /* FADS */
 	case 0x00:
 		puts ("ENG\n");
 		break;
@@ -776,6 +771,7 @@ int checkboard (void)
 		printf ("unknown (0x%x)\n", r);
 		return -1;
 	}
+#endif /* CONFIG_MPC86xADS */
 
 	return 0;
 }
@@ -848,7 +844,7 @@ int pcmcia_init(void)
 	switch ((pcmp->pcmc_pipr >> 14) & 3)
 #endif
 	{
-	case 0x00 :
+	case 0x03 :
 		printf("5V");
 		v = 5;
 		break;
@@ -860,7 +856,7 @@ int pcmcia_init(void)
 		v = 5;
 #endif
 		break;
-	case 0x03 :
+	case 0x00 :
 		printf("5V, 3V and x.xV");
 #ifdef CONFIG_FADS
 		v = 3; /* User lower voltage if supported! */

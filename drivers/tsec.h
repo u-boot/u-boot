@@ -124,7 +124,7 @@
 /* Cicada 8204 Extended PHY Control Register 1 */
 #define MIIM_CIS8204_EPHY_CON		0x17
 #define MIIM_CIS8204_EPHYCON_INIT	0x0006
-#define MIIM_CIS8204_EPHYCON_RGMII	0x1000
+#define MIIM_CIS8204_EPHYCON_RGMII	0x1100
 
 /* Cicada 8204 Serial LED Control Register */
 #define MIIM_CIS8204_SLED_CON		0x1b
@@ -161,12 +161,22 @@
 #define MIIM_DM9161_10BTCSR_INIT	0x7800
 
 /* LXT971 Status 2 registers */
-#define MIIM_LXT971_SR2       	17  /* Status Register 2  */
-#define MIIM_LXT971_SR2_SPEED_MASK	0xf000
-#define MIIM_LXT971_SR2_10HDX	0x1000  /* 10 Mbit half duplex selected */
-#define MIIM_LXT971_SR2_10FDX	0x2000  /* 10 Mbit full duplex selected */
-#define MIIM_LXT971_SR2_100HDX	0x4000  /* 100 Mbit half duplex selected */
-#define MIIM_LXT971_SR2_100FDX	0x8000  /* 100 Mbit full duplex selected */
+#define MIIM_LXT971_SR2              0x11  /* Status Register 2  */
+#define MIIM_LXT971_SR2_SPEED_MASK 0x4200
+#define MIIM_LXT971_SR2_10HDX      0x0000  /*  10 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_10FDX      0x0200  /*  10 Mbit full duplex selected */
+#define MIIM_LXT971_SR2_100HDX     0x4000  /* 100 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_100FDX     0x4200  /* 100 Mbit full duplex selected */
+
+/* DP83865 Control register values */
+#define MIIM_DP83865_CR_INIT	0x9200
+
+/* DP83865 Link and Auto-Neg Status Register */
+#define MIIM_DP83865_LANR	0x11
+#define MIIM_DP83865_SPD_MASK	0x0018
+#define MIIM_DP83865_SPD_1000	0x0010
+#define MIIM_DP83865_SPD_100	0x0008
+#define MIIM_DP83865_DPX_FULL	0x0002
 
 #define MIIM_READ_COMMAND       0x00000001
 

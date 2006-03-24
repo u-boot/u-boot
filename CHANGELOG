@@ -2,6 +2,256 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Enable Quad UART om MCC200 board.
+
+* Cleanup MCC200 board configuration; omit non-existent stuff.
+
+* Add support for MPC859/866 Rev. A.0
+
+* Add command for handling DDR ECC registers on MPC8349EE MDS board.
+
+* Fix DDR ECC bit definitions for MPC83xx.
+
+* Add initial support for MPC8349E MDS board.
+
+* Add support for ECC DDR initialization on MPC83xx.
+
+* Add DMA support for MPC83xx.
+
+* Add sync in do_reset() routine for MPC83xx after RPR register
+  was written to. It is need on some targets when BAT translation
+  is enabled.
+
+* Add bit definitions for MPC83xx DDR controller registers.
+
+* Add Dcbz(), Dcbi() and Dcbf() routines for MPC83xx.
+
+* Correct shift offsets in icache_status and dcache_status for MPC83xx.
+
+* Add support for DS1374 RTC chip.
+
+* Add support for Lite5200B board.
+  Patch by  Patch by Jose Maria (Txema) Lopez, 16 Jan 2006
+
+* Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
+  timer and cpu_reset code from cpu/$(CPU) into the new
+  cpu/$(CPU)/$(SOC) directories
+  Patch by Andreas Engel, 13 Mar 2006
+
+* Change max size of uncompressed uImage's to 8MByte and add
+  CFG_BOOTM_LEN to adjust this setting.
+
+  As mentioned by Robin Getz on 2005-05-24 the size of uncompressed
+  uImages was restricted to 4MBytes. This default size is now
+  increased to 8Mbytes and can be overrided by setting CFG_BOOTM_LEN
+  in the board config file.
+
+  Patch by Stefan Roese, 13 Mar 2006
+
+* Fix problem with updated PCI code in cpu/ppc4xx/405gp_pci.c
+  Patch by Stefan Roese, 13 Mar 2006
+
+* cpu/ppc4xx/start.S : exceptions are enabled after relocation
+  Patch by Cedric Vincent, 06 Jul 2005
+
+* au1x00_eth.c: check malloc return value and abort if it failed
+  Patch by Andrew Dyer, 26 Jul 2005
+
+* Change the sequence of events in soft_i2c.c:send_ack() to keep from
+  incorrectly generating start/stop conditions on the bus.
+  Patch by Andrew Dyer, 26 Jul 2005
+
+* Fix bug in [id]cache_status commands for MPC85xx processors;
+  should look at LSB of L1CSRn registers to determine if L1 cache is
+  enabled, not the MSB.
+  Patch by Murray Jensen, 19 Jul 2005
+
+* Fix array overflow with fw_setenv on uninitialised environment
+  Patch by Murray Jensen, 15 Jul 2005
+
+* Add support for EmbeddedPlanet EP88x boards
+  Patch by Yuli Barcohen, 13 Jul 2005
+
+* Remove board specific configuration includes from the common xilinx
+  ethernet and iic adapter code.
+  Patch by Michael Libeskind, 12 Jul 2005
+
+* Add Nat Semi DP83865 PHY support to MPC85xx TSEC driver
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Add (some) definitions for the MPC85xx local bus controller
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Add CPM2 I/O pin functions for MPC85xx processors
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Fix compile problem
+
+* Added PCI support for MPC8349ADS board
+  Patch by Kumar Gala 11 Jan 2006
+
+* Enable address translation on MPC83xx
+  Patch by Kumar Gala, 10 Feb 2006
+
+* Decopuled setting of OR/BR and LBLAWBAR/LBLAWAR on MPC83xx
+  Patch by Kumar Gala, 25 Jan 2006
+
+* Fixed defines for MPC83xx SICRL register to match current specs
+  Patch by Kumar Gala, 23 Jan 2006
+
+* Only disable the MPC83xx watchdog if its enabled out of reset.
+  If its disabled out of reset SW can later enable it if so desired
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Allow config of GPIO direction & data registers at boot on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Enable time handling on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Make System IO Config Registers board configurable on MPC83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Fixed PCI indirect config ops to handle multiple PCI controllers
+  We need to adjust the bus number we are trying to access based
+  on which PCI controller its on
+  Patch by Kumar Gala, 12 Jan 2006
+
+* Report back PCI bus when doing table based device config
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added support for PCI prefetchable region and BARs
+  If a host controller sets up a region as prefetchable and
+  a device's BAR denotes it as prefetchable, allocate the
+  BAR into the prefetch region.
+
+  If a BAR is prefetchable and no prefetchable region has
+  been setup by the controller we fall back to allocating
+  the BAR into the normally memory region.
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add helper function for generic flat device tree fixups for mpc83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add support for passing initrd information via flat device tree
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added OF_STDOUT_PATH and OF_SOC
+
+  OF_STDOUT_PATH specifies the path to the device the kernel can use
+  for console output
+
+  OF_SOC specifies the proper name of the SOC node if one exists.
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Allow board code to fixup the flat device tree before booting a kernel
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added CONFIG_ options for bd_t and env in flat dev tree
+
+	CONFIG_OF_HAS_BD_T will put a copy of the bd_t
+	into the resulting flat device tree.
+
+	CONFIG_OF_HAS_UBOOT_ENV will copy the environment
+	variables from u-boot into the flat device tree
+
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add support for the DHCP vendor optional bootfile (#67).
+  Ignores the vendor TFTP server name option (#66).
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Fix a HW timing issue on 8548 CDS for eTSEC 3 in RGMII mode
+  Patch by Andy Fleming, 14 Jun 2005
+
+* Fix bad register definitions for LTX971 PHY on MPC85xx boards.
+  Patch by Gerhard Jaeger, 21 Jun 2005
+
+* Add netconsole and some more commands to RPXlite_DW board
+  Patch by Sam Song, 19 Jun 2005
+
+* Fix bad declaration on pci_cfgfunc_nothing
+  Patch by Sam Song, 19 Jun 2005
+
+* Adjust "echo" as a default command
+  Patch by Sam Song, 19 Jun 2005
+
+* Fix PCIDF calculation in cpu/mpc8260/speed.c for MPC8280EC
+  Patch by KokHow Teh, 16 Jun 2005
+
+* Add crc of data to jffs2 (in jffs2_1pass_build_lists()).
+  Patch by Rick Bronson, 15 Jun 2005
+
+* Coding Style cleanup
+
+* Avoid dereferencing NULL in find_cmd() if no valid commands were found
+  Patch by Andrew Dyer, 13 Jun 2005
+
+* Add ADI Blackfin support
+  - add support for Analog Devices Blackfin BF533 CPU
+  - add support for the ADI BF533 Stamp uClinux board
+  - add support for the ADI BF533 EZKit board
+  Patches by Richard Klingler, 11 Jun 2005
+
+* Add loads of ntohl() in image header handling
+  Patch by Steven Scholz, 10 Jun 2005
+
+* Switch MPC86xADS and MPC885ADS boards to use cpuclk environment
+  variable to set clock
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* RPXlite configuration fixes
+  - Use correct flash sector size
+  - Use correct memory test end address
+  - Add support for bzip2 compression
+  - Various small fixes
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Memory configuration changes for ZPC.1900 board
+  - Fix SDRAM timing on both local bus and 60x bus
+  - Add support for second flash bank (SIMM)
+  - Change boot flash base
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Add support for Adder boards with 16MB SDRAM;
+  add support for second FEC on Adder87x board.
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Fix conditional for including ks8695eth driver
+  Patch by Greg Ungerer, 04 Jun 2005
+
+* Fix Makefile: include config.mk only after CROSS_COMPILE is defined
+  Patch by Friedrich Lobenstock, 02 Jun 2005
+
+* Fix comment in common/soft_i2c.c
+  Patches by Peter Korsgaard/Tolunay Orkun, 26 May 2005
+
+* Cleanup compiler warnings.
+  Patch by Greg Ungerer, 21 May 2005
+
+* Word alignment fixes for word aligned NS16550 UART
+  Patch by Jean-Paul Saman, 01 Mar 2005
+
+  Fixes bug with UART that only supports word aligned access: removed
+  "__attribute__ ((packed));" for "(CFG_NS16550_REG_SIZE == 4)" some
+  (broken!) versions of GCC generate byte accesses when encountering
+  the packed attribute regardless if the struct is already correctly
+  aligned for a platform. Peripherals that can only handle word
+  aligned access won't work properly when accessed with byte access.
+  The struct NS16550 is already word aligned for REG_SIZE = 4, so
+  there is no need to packed the struct in that case.
+
+* Fix behaviour if gatewayip is not set
+  Patch by Robin Gilks, 23 Dec 2004
+
+* Fix cleanup for netstart board.
+  Remove build results from repository
+
+* Some code cleanup for GCC 4.x
+
+* Fixes to support environment in NAND flash;
+  enable NAND flash based environment for delta board.
+
 * Add support for Intel Monahans CPU on Zylonite and Delta boards
   (This is Work in Progress!)
 

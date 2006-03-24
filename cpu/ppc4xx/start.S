@@ -340,23 +340,6 @@ _start:
 	mtspr	tcr,r0			/* disable all */
 	mtspr	esr,r0			/* clear exception syndrome register */
 	mtxer	r0			/* clear integer exception register */
-#if !defined(CONFIG_440GX)
-	lis	r1,0x0002		/* set CE bit (Critical Exceptions) */
-	ori	r1,r1,0x1000		/* set ME bit (Machine Exceptions) */
-	mtmsr	r1			/* change MSR */
-#elif !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
-	bl	__440gx_msr_set
-	b	__440gx_msr_continue
-
-__440gx_msr_set:
-	lis	r1, 0x0002		/* set CE bit (Critical Exceptions) */
-	ori	r1,r1,0x1000	/* set ME bit (Machine Exceptions) */
-	mtspr	srr1,r1
-	mflr	r1
-	mtspr	srr0,r1
-	rfi
-__440gx_msr_continue:
-#endif
 
 	/*----------------------------------------------------------------*/
 	/* Debug setup -- some (not very good) ice's need an event*/
@@ -458,9 +441,6 @@ __440gx_msr_continue:
 	mtspr	esr,r0			/* clear Exception Syndrome Reg */
 	mttcr	r0			/* timer control register */
 	mtexier r0			/* disable all interrupts */
-	addi	r4,r0,0x1000		/* set ME bit (Machine Exceptions) */
-	oris	r4,r4,0x2		/* set CE bit (Critical Exceptions) */
-	mtmsr	r4			/* change MSR */
 	addis	r4,r0,0xFFFF		/* set r4 to 0xFFFFFFFF (status in the */
 	ori	r4,r4,0xFFFF		/* dbsr is cleared by setting bits to 1) */
 	mtdbsr	r4			/* clear/reset the dbsr */
@@ -571,9 +551,6 @@ __440gx_msr_continue:
 	mttcr	r4			/* clear Timer Control Reg */
 	mtxer	r4			/* clear Fixed-Point Exception Reg */
 	mtevpr	r4			/* clear Exception Vector Prefix Reg */
-	addi	r4,r0,0x1000		/* set ME bit (Machine Exceptions) */
-	oris	r4,r4,0x0002		/* set CE bit (Critical Exceptions) */
-	mtmsr	r4			/* change MSR */
 	addi	r4,r0,(0xFFFF-0x10000)		/* set r4 to 0xFFFFFFFF (status in the */
 					/* dbsr is cleared by setting bits to 1) */
 	mtdbsr	r4			/* clear/reset the dbsr */
@@ -1427,6 +1404,24 @@ trap_init:
 	addi	r7, r7, 0x100		/* next exception vector	*/
 	cmplw	0, r7, r8
 	blt	4b
+
+#if !defined(CONFIG_440_GX)
+	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
+	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
+	mtmsr	r7			/* change MSR */
+#else
+	bl	__440gx_msr_set
+	b	__440gx_msr_continue
+
+__440gx_msr_set:
+	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
+	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
+	mtspr	srr1,r7
+	mflr	r7
+	mtspr	srr0,r7
+	rfi
+__440gx_msr_continue:
+#endif
 
 	mtlr	r4			/* restore link register	*/
 	blr

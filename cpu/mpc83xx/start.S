@@ -179,10 +179,47 @@ in_flash:
 #endif
 #endif	/* CFG_RAMBOOT */
 
-	bl setup_stack_in_data_cache_on_r1
+	/* setup the bats */
+	bl	setup_bats
+	sync
+
+	/*
+	 * Cache must be enabled here for stack-in-cache trick.
+	 * This means we need to enable the BATS.
+	 * This means:
+	 *   1) for the EVB, original gt regs need to be mapped
+	 *   2) need to have an IBAT for the 0xf region,
+	 *      we are running there!
+	 * Cache should be turned on after BATs, since by default
+	 * everything is write-through.
+	 * The init-mem BAT can be reused after reloc. The old
+	 * gt-regs BAT can be reused after board_init_f calls
+	 * board_early_init_f (EVB only).
+	 */
+	/* enable address translation */
+	bl	enable_addr_trans
+	sync
+
+	/* enable and invalidate the data cache */
+	bl	dcache_enable
+	sync
+#ifdef CFG_INIT_RAM_LOCK
+	bl	lock_ram_in_cache
+	sync
+#endif
+
+	/* set up the stack pointer in our newly created
+	 * cache-ram (r1) */
+	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
+	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
+
+	li	r0, 0		/* Make room for stack frame header and	*/
+	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
+	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
+
 
 	/* let the C-code set up the rest	                    */
-	/*							                            */
+	/*				                            */
 	/* Be careful to keep code relocatable & stack humble   */
 	/*------------------------------------------------------*/
 
@@ -426,8 +463,14 @@ init_e300_core: /* time t 10 */
 #else
 	/* Disable Wathcdog  */
 	/*-------------------*/
+	lwz r4, SWCRR(r3)
+	/* Check to see if its enabled for disabling
+	   once disabled by SW you can't re-enable */
+	andi. r4, r4, 0x4
+	beq 1f
 	xor r4, r4, r4
 	stw r4, SWCRR(r3)
+1:
 #endif /* CONFIG_WATCHDOG */
 
 	/* Initialize the Hardware Implementation-dependent Registers */
@@ -503,6 +546,221 @@ init_e300_core: /* time t 10 */
 	/*------------------------------*/
 	blr
 
+	.globl	invalidate_bats
+invalidate_bats:
+	/* invalidate BATs */
+	mtspr	IBAT0U, r0
+	mtspr	IBAT1U, r0
+	mtspr	IBAT2U, r0
+	mtspr	IBAT3U, r0
+#if (CFG_HID2 & HID2_HBE)
+	mtspr   IBAT4U, r0
+	mtspr   IBAT5U, r0
+	mtspr   IBAT6U, r0
+	mtspr   IBAT7U, r0
+#endif
+	isync
+	mtspr	DBAT0U, r0
+	mtspr	DBAT1U, r0
+	mtspr	DBAT2U, r0
+	mtspr	DBAT3U, r0
+#if (CFG_HID2 & HID2_HBE)
+	mtspr   DBAT4U, r0
+	mtspr   DBAT5U, r0
+	mtspr   DBAT6U, r0
+	mtspr   DBAT7U, r0
+#endif
+	isync
+	sync
+	blr
+
+	/* setup_bats - set them up to some initial state */
+	.globl	setup_bats
+setup_bats:
+	addis	r0, r0, 0x0000
+
+	/* IBAT 0 */
+	addis	r4, r0, CFG_IBAT0L@h
+	ori	r4, r4, CFG_IBAT0L@l
+	addis	r3, r0, CFG_IBAT0U@h
+	ori	r3, r3, CFG_IBAT0U@l
+	mtspr	IBAT0L, r4
+	mtspr	IBAT0U, r3
+	isync
+
+	/* DBAT 0 */
+	addis	r4, r0, CFG_DBAT0L@h
+	ori	r4, r4, CFG_DBAT0L@l
+	addis	r3, r0, CFG_DBAT0U@h
+	ori	r3, r3, CFG_DBAT0U@l
+	mtspr	DBAT0L, r4
+	mtspr	DBAT0U, r3
+	isync
+
+	/* IBAT 1 */
+	addis	r4, r0, CFG_IBAT1L@h
+	ori	r4, r4, CFG_IBAT1L@l
+	addis	r3, r0, CFG_IBAT1U@h
+	ori	r3, r3, CFG_IBAT1U@l
+	mtspr	IBAT1L, r4
+	mtspr	IBAT1U, r3
+	isync
+
+	/* DBAT 1 */
+	addis	r4, r0, CFG_DBAT1L@h
+	ori	r4, r4, CFG_DBAT1L@l
+	addis	r3, r0, CFG_DBAT1U@h
+	ori	r3, r3, CFG_DBAT1U@l
+	mtspr	DBAT1L, r4
+	mtspr	DBAT1U, r3
+	isync
+
+	/* IBAT 2 */
+	addis	r4, r0, CFG_IBAT2L@h
+	ori	r4, r4, CFG_IBAT2L@l
+	addis	r3, r0, CFG_IBAT2U@h
+	ori	r3, r3, CFG_IBAT2U@l
+	mtspr	IBAT2L, r4
+	mtspr	IBAT2U, r3
+	isync
+
+	/* DBAT 2 */
+	addis	r4, r0, CFG_DBAT2L@h
+	ori	r4, r4, CFG_DBAT2L@l
+	addis	r3, r0, CFG_DBAT2U@h
+	ori	r3, r3, CFG_DBAT2U@l
+	mtspr	DBAT2L, r4
+	mtspr	DBAT2U, r3
+	isync
+
+	/* IBAT 3 */
+	addis	r4, r0, CFG_IBAT3L@h
+	ori	r4, r4, CFG_IBAT3L@l
+	addis	r3, r0, CFG_IBAT3U@h
+	ori	r3, r3, CFG_IBAT3U@l
+	mtspr	IBAT3L, r4
+	mtspr	IBAT3U, r3
+	isync
+
+	/* DBAT 3 */
+	addis	r4, r0, CFG_DBAT3L@h
+	ori	r4, r4, CFG_DBAT3L@l
+	addis	r3, r0, CFG_DBAT3U@h
+	ori	r3, r3, CFG_DBAT3U@l
+	mtspr	DBAT3L, r4
+	mtspr	DBAT3U, r3
+	isync
+
+#if (CFG_HID2 & HID2_HBE)
+	/* IBAT 4 */
+	addis   r4, r0, CFG_IBAT4L@h
+	ori     r4, r4, CFG_IBAT4L@l
+	addis   r3, r0, CFG_IBAT4U@h
+	ori     r3, r3, CFG_IBAT4U@l
+	mtspr   IBAT4L, r4
+	mtspr   IBAT4U, r3
+	isync
+
+	/* DBAT 4 */
+	addis   r4, r0, CFG_DBAT4L@h
+	ori     r4, r4, CFG_DBAT4L@l
+	addis   r3, r0, CFG_DBAT4U@h
+	ori     r3, r3, CFG_DBAT4U@l
+	mtspr   DBAT4L, r4
+	mtspr   DBAT4U, r3
+	isync
+
+	/* IBAT 5 */
+	addis   r4, r0, CFG_IBAT5L@h
+	ori     r4, r4, CFG_IBAT5L@l
+	addis   r3, r0, CFG_IBAT5U@h
+	ori     r3, r3, CFG_IBAT5U@l
+	mtspr   IBAT5L, r4
+	mtspr   IBAT5U, r3
+	isync
+
+	/* DBAT 5 */
+	addis   r4, r0, CFG_DBAT5L@h
+	ori     r4, r4, CFG_DBAT5L@l
+	addis   r3, r0, CFG_DBAT5U@h
+	ori     r3, r3, CFG_DBAT5U@l
+	mtspr   DBAT5L, r4
+	mtspr   DBAT5U, r3
+	isync
+
+	/* IBAT 6 */
+	addis   r4, r0, CFG_IBAT6L@h
+	ori     r4, r4, CFG_IBAT6L@l
+	addis   r3, r0, CFG_IBAT6U@h
+	ori     r3, r3, CFG_IBAT6U@l
+	mtspr   IBAT6L, r4
+	mtspr   IBAT6U, r3
+	isync
+
+	/* DBAT 6 */
+	addis   r4, r0, CFG_DBAT6L@h
+	ori     r4, r4, CFG_DBAT6L@l
+	addis   r3, r0, CFG_DBAT6U@h
+	ori     r3, r3, CFG_DBAT6U@l
+	mtspr   DBAT6L, r4
+	mtspr   DBAT6U, r3
+	isync
+
+	/* IBAT 7 */
+	addis   r4, r0, CFG_IBAT7L@h
+	ori     r4, r4, CFG_IBAT7L@l
+	addis   r3, r0, CFG_IBAT7U@h
+	ori     r3, r3, CFG_IBAT7U@l
+	mtspr   IBAT7L, r4
+	mtspr   IBAT7U, r3
+	isync
+
+	/* DBAT 7 */
+	addis   r4, r0, CFG_DBAT7L@h
+	ori     r4, r4, CFG_DBAT7L@l
+	addis   r3, r0, CFG_DBAT7U@h
+	ori     r3, r3, CFG_DBAT7U@l
+	mtspr   DBAT7L, r4
+	mtspr   DBAT7U, r3
+	isync
+#endif
+
+	/* Invalidate TLBs.
+	 * -> for (val = 0; val < 0x20000; val+=0x1000)
+	 * ->   tlbie(val);
+	 */
+	lis	r3, 0
+	lis	r5, 2
+
+1:
+	tlbie	r3
+	addi	r3, r3, 0x1000
+	cmp	0, 0, r3, r5
+	blt	1b
+
+	blr
+
+	.globl enable_addr_trans
+enable_addr_trans:
+	/* enable address translation */
+	mfmsr	r5
+	ori	r5, r5, (MSR_IR | MSR_DR)
+	mtmsr	r5
+	isync
+	blr
+
+	.globl disable_addr_trans
+disable_addr_trans:
+	/* disable address translation */
+	mflr	r4
+	mfmsr	r3
+	andi.	r0, r3, (MSR_IR | MSR_DR)
+	beqlr
+	andc	r3, r3, r0
+	mtspr	SRR0, r4
+	mtspr	SRR1, r3
+	rfi
+
 /* Cache functions.
  *
  * Note: requires that all cache bits in
@@ -538,32 +796,31 @@ icache_disable:
 	.globl	icache_status
 icache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_ICE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
 
 	.globl	dcache_enable
 dcache_enable:
 	mfspr	r3, HID0
-	ori	r3, r3, HID0_ENABLE_DATA_CACHE
-	lis	r4, 0
-	ori	r4, r4, HID0_LOCK_DATA_CACHE
-	andc	r3, r3, r4
-	ori	r4, r3, HID0_LOCK_INSTRUCTION_CACHE
+	li	r5, HID0_DCFI|HID0_DLOCK
+	andc	r3, r3, r5
+	mtspr	HID0, r3		/* no invalidate, unlock */
+	ori	r3, r3, HID0_DCE
+	ori	r5, r3, HID0_DCFI
+	mtspr	HID0, r5		/* enable + invalidate */
+	mtspr	HID0, r3		/* enable */
 	sync
-	mtspr	HID0, r4    /* sets enable and invalidate, clears lock */
-	sync
-	mtspr	HID0, r3	/* clears invalidate */
 	blr
 
 	.globl	dcache_disable
 dcache_disable:
 	mfspr	r3, HID0
 	lis	r4, 0
-	ori	r4, r4, HID0_ENABLE_DATA_CACHE|HID0_LOCK_DATA_CACHE
+	ori	r4, r4, HID0_DCE|HID0_DLOCK
 	andc	r3, r3, r4
-	ori	r4, r3, HID0_INVALIDATE_DATA_CACHE
+	ori	r4, r3, HID0_DCI
 	sync
-	mtspr	HID0, r4    /* sets invalidate, clears enable and lock */
+	mtspr	HID0, r4	/* sets invalidate, clears enable and lock */
 	sync
 	mtspr	HID0, r3	/* clears invalidate */
 	blr
@@ -571,12 +828,46 @@ dcache_disable:
 	.globl	dcache_status
 dcache_status:
 	mfspr	r3, HID0
-	rlwinm	r3, r3, HID0_DCE_SHIFT, 31, 31
+	rlwinm	r3, r3, (31 - HID0_DCE_SHIFT + 1), 31, 31
 	blr
 
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 ppcDcbf */
+/* Description:	 Data Cache block flush */
+/* Input:	 r3 = effective address */
+/* Output:	 none. */
+/*------------------------------------------------------------------------------- */
+	.globl	ppcDcbf
+ppcDcbf:
+	dcbf	r0,r3
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 ppcDcbi */
+/* Description:	 Data Cache block Invalidate */
+/* Input:	 r3 = effective address */
+/* Output:	 none. */
+/*------------------------------------------------------------------------------- */
+	.globl	ppcDcbi
+ppcDcbi:
+	dcbi	r0,r3
+	blr
+
+/*--------------------------------------------------------------------------
+ * Function:	 ppcDcbz
+ * Description:	 Data Cache block zero.
+ * Input:	 r3 = effective address
+ * Output:	 none.
+ *-------------------------------------------------------------------------- */
+
+	.globl	ppcDcbz
+ppcDcbz:
+	dcbz	r0,r3
 	blr
 
 /*-------------------------------------------------------------------*/
@@ -668,46 +959,29 @@ relocate_code:
  * Now flush the cache: note that we must start from a cache aligned
  * address. Otherwise we might miss one cache line.
  */
-4:
-	bl un_setup_stack_in_data_cache
-	mr r7, r3
-	mr r8, r4
-	bl dcache_disable
-	mr r3, r7
-	mr r4, r8
-
-	cmpwi	r6,0
+4:	cmpwi	r6,0
 	add	r5,r3,r5
-	beq	7f	/* Always flush prefetch queue in any case */
+	beq	7f		/* Always flush prefetch queue in any case */
 	subi	r0,r6,1
 	andc	r3,r3,r0
-	mfspr	r7,HID0		/* don't do dcbst if dcache is disabled*/
-	rlwinm	r7,r7,HID0_DCE_SHIFT,31,31
-	cmpwi	r7,0
-	beq	9f
 	mr	r4,r3
 5:	dcbst	0,r4
 	add	r4,r4,r6
 	cmplw	r4,r5
 	blt	5b
-	sync		/* Wait for all dcbst to complete on bus */
-9:	mfspr	r7,HID0		/* don't do icbi if icache is disabled */
-	rlwinm	r7,r7,HID0_DCE_SHIFT,31,31
-	cmpwi	r7,0
-	beq	7f
+	sync			/* Wait for all dcbst to complete on bus */
 	mr	r4,r3
 6:	icbi	0,r4
 	add	r4,r4,r6
 	cmplw	r4,r5
 	blt	6b
-7:	sync		/* Wait for all icbi to complete on bus	*/
+7:	sync			/* Wait for all icbi to complete on bus	*/
 	isync
 
 /*
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
-
 	addi	r0, r10, in_ram - _start + EXC_OFF_SYS_RESET
 	mtlr	r0
 	blr
@@ -865,6 +1139,27 @@ trap_reloc:
 	blr
 
 #ifdef CFG_INIT_RAM_LOCK
+lock_ram_in_cache:
+	/* Allocate Initial RAM in data cache.
+	 */
+	lis	r3, (CFG_INIT_RAM_ADDR & ~31)@h
+	ori	r3, r3, (CFG_INIT_RAM_ADDR & ~31)@l
+	li	r2, ((CFG_INIT_RAM_END & ~31) + \
+		     (CFG_INIT_RAM_ADDR & 31) + 31) / 32
+	mtctr	r2
+1:
+	dcbz	r0, r3
+	addi	r3, r3, 32
+	bdnz	1b
+
+	/* Lock the data cache */
+	mfspr	r0, HID0
+	ori	r0, r0, 0x1000
+	sync
+	mtspr	HID0, r0
+	sync
+	blr
+
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
@@ -878,6 +1173,15 @@ unlock_ram_in_cache:
 	bdnz	1b
 	sync			/* Wait for all icbi to complete on bus	*/
 	isync
+
+	/* Unlock the data cache and invalidate it */
+	mfspr   r3, HID0
+	li	r5, HID0_DLOCK|HID0_DCFI
+	andc	r3, r3, r5		/* no invalidate, unlock */
+	ori	r5, r3, HID0_DCFI	/* invalidate, unlock */
+	mtspr	HID0, r5		/* invalidate, unlock */
+	mtspr	HID0, r3		/* no invalidate, unlock */
+	sync
 	blr
 #endif
 
@@ -946,148 +1250,3 @@ remap_flash_by_law0:
 	stw r4, LBLAWBAR1(r3)
 	stw r4, LBLAWAR1(r3) /* Off LBIU LAW1 */
 	blr
-
-setup_stack_in_data_cache_on_r1:
-	lis r3, (CFG_IMMRBAR)@h
-
-	/* setup D-BAT for the D-Cache (with out real memory backup) */
-
-	lis r4, (CFG_INIT_RAM_ADDR & 0xFFFE0000)@h
-	mtspr	DBAT0U, r4
-	ori r4, r4, 0x0002
-	mtspr	DBAT0L, r4
-	isync
-
-#if 0
-	/* Enable MMU */
-	mfmsr r4
-	ori r4, r4, (MSR_DR | MSR_IR)@l
-	mtmsr r4
-#endif
-
-	/* Enable and invalidate data cache. */
-	mfspr	r4, HID0
-	mr	r5, r4
-	ori	r4, r4, HID0_DCE | HID0_DCI
-	ori	r5, r5, HID0_DCE
-	sync
-	mtspr	HID0, r4
-	mtspr	HID0, r5
-	sync
-
-	/* Allocate Initial RAM in data cache.*/
-	li  r0, 0
-	lis	r4, (CFG_INIT_RAM_ADDR)@h
-	ori	r4, r4, (CFG_INIT_RAM_ADDR)@l
-	li	r5, 128*8 /* 128*8*32=32Kb */
-	mtctr	r5
-1:
-	dcbz	r0, r4
-	addi	r4, r4, 32
-	bdnz	1b
-	isync
-
-	/* Lock all the D-cache, basically leaving the reset of the program without dcache */
-	mfspr	r4, HID0
-	ori	r4, r4, (HID0_DLOCK)@l
-	sync
-	mtspr	HID0 , r4
-
-	/* setup the stack pointer in r1 */
-	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
-	li	r0, 0		        /* Make room for stack frame header and	*/
-
-	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
-	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
-
-	blr
-
-un_setup_stack_in_data_cache:
-	blr
-	mr r14, r4
-	mr r15, r5
-
-
-	lis r4, (CFG_INIT_RAM_ADDR & 0xFFFE0000)@h
-	mtspr	DBAT0U, r4
-	ori r4, r4, 0x0002
-	mtspr	DBAT0L, r4
-	isync
-
-	/* un lock all the D-cache */
-	mfspr	r4, HID0
-	lis r5, (~(HID0_DLOCK))@h
-	ori	r5, r5, (~(HID0_DLOCK))@l
-	and r4, r4, r5
-	sync
-	mtspr	HID0 , r4
-
-	/* Re - Allocate Initial RAM in data cache.*/
-	li  r0, 0
-	lis	r4, (CFG_INIT_RAM_ADDR)@h
-	ori	r4, r4, (CFG_INIT_RAM_ADDR)@l
-	li	r5, 128*8 /* 128*8*32=32Kb */
-	mtctr	r5
-1:
-	dcbz	r0, r4
-	addi	r4, r4, 32
-	bdnz	1b
-	isync
-
-	mflr r16
-	bl dcache_disable
-	mtlr r16
-
-	blr
-
-#if 0
-#define GREEN_LIGHT 0x2B0D4046
-#define RED_LIGHT   0x250D4046
-#define LIB_CNT     0x4FFF
-
-/*
- * Lib Light
- */
-
-	.globl liblight
-liblight:
-	lis	r3, CFG_IMMRBAR@h
-	ori	r3, r3, CFG_IMMRBAR@l
-	li r4, 0x3002
-	mtmsr r4
-	xor r4, r4, r4
-	mtspr	HID0, r4
-	mtspr	HID2, r4
-	lis r4, 0xF8000000@h
-	ori r4, r4, 0xF8000000@l
-	stw r4, LBLAWBAR1(r3)
-	lis r4, 0x8000000E@h
-	ori r4, r4, 0x8000000E@l
-	stw r4, LBLAWAR1(r3)
-	lis r4, 0xF8000801@h
-	ori r4, r4, 0xF8000801@l
-	stw r4, BR1(r3)
-	lis r4, 0xFFFFE8f0@h
-	ori r4, r4, 0xFFFFE8f0@l
-	stw r4, OR1(r3)
-
-	lis r4, 0xF8000000@h
-	ori r4, r4, 0xF8000000@l
-	lis r5, GREEN_LIGHT@h
-	ori r5, r5, GREEN_LIGHT@l
-	lis r6, RED_LIGHT@h
-	ori r6, r6, RED_LIGHT@l
-	lis r7, LIB_CNT@h
-	ori r7, r7, LIB_CNT@l
-
-1:
-	stw r5, 0(r4)
-	mtctr r7
-2:	bdnz 2b
-	stw r6, 0(r4)
-	mtctr r7
-3:	bdnz 3b
-	b 1b
-
-#endif

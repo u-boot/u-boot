@@ -160,6 +160,9 @@ extern void eth_halt(void);
 extern int eth_rx(void);
 extern int eth_send(volatile void *packet, int length);
 
+#ifdef SHARED_RESOURCES
+	extern void swap_to(int device_id);
+#endif
 
 /*
  . This is called by  register_netdev().  It is responsible for
@@ -210,7 +213,7 @@ static int smc_rcv(void);
  . If an EEPROM is present it really should be consulted.
 */
 int smc_get_ethaddr(bd_t *bd);
-int get_rom_mac(char *v_rom_mac);
+int get_rom_mac(uchar *v_rom_mac);
 
 /*
  ------------------------------------------------------------
@@ -276,17 +279,23 @@ static inline void SMC_outb(byte value, dword offset)
 
 static inline void SMC_insw(dword offset, volatile uchar* buf, dword len)
 {
+	volatile word *p = (volatile word *)buf;
+
 	while (len-- > 0) {
-		*((word*)buf)++ = SMC_inw(offset);
-		barrier(); *((volatile u32*)(0xc0000000));
+		*p++ = SMC_inw(offset);
+		barrier();
+		*((volatile u32*)(0xc0000000));
 	}
 }
 
 static inline void SMC_outsw(dword offset, uchar* buf, dword len)
 {
+	volatile word *p = (volatile word *)buf;
+
 	while (len-- > 0) {
-		SMC_outw(*((word*)buf)++, offset);
-		barrier(); *(volatile u32*)(0xc0000000);
+		SMC_outw(*p++, offset);
+		barrier();
+		*(volatile u32*)(0xc0000000);
 	}
 }
 #endif  /* CONFIG_SMC_USE_IOFUNCS */
@@ -298,7 +307,7 @@ static char unsigned smc_mac_addr[6] = {0x02, 0x80, 0xad, 0x20, 0x31, 0xb8};
  * the default mac address.
  */
 
-void smc_set_mac_addr(const char *addr) {
+void smc_set_mac_addr(const unsigned char *addr) {
 	int i;
 
 	for (i=0; i < sizeof(smc_mac_addr); i++){
@@ -527,6 +536,9 @@ static void smc_shutdown()
 	SMC_SELECT_BANK( 0 );
 	SMC_outb( RCR_CLEAR, RCR_REG );
 	SMC_outb( TCR_CLEAR, TCR_REG );
+#ifdef SHARED_RESOURCES
+	swap_to(FLASH);
+#endif
 }
 
 
@@ -1505,6 +1517,9 @@ static void print_packet( byte * buf, int length )
 #endif
 
 int eth_init(bd_t *bd) {
+#ifdef SHARED_RESOURCES
+	swap_to(ETHERNET);
+#endif
 	return (smc_open(bd));
 }
 
@@ -1524,7 +1539,8 @@ int smc_get_ethaddr (bd_t * bd)
 {
 	int env_size, rom_valid, env_present = 0, reg;
 	char *s = NULL, *e, *v_mac, es[] = "11:22:33:44:55:66";
-	uchar s_env_mac[64], v_env_mac[6], v_rom_mac[6];
+	char s_env_mac[64];
+	uchar v_env_mac[6], v_rom_mac[6];
 
 	env_size = getenv_r ("ethaddr", s_env_mac, sizeof (s_env_mac));
 	if ((env_size > 0) && (env_size < sizeof (es))) {	/* exit if env is bad */
@@ -1547,7 +1563,7 @@ int smc_get_ethaddr (bd_t * bd)
 
 	if (!env_present) {	/* if NO env */
 		if (rom_valid) {	/* but ROM is valid */
-			v_mac = v_rom_mac;
+			v_mac = (char *)v_rom_mac;
 			sprintf (s_env_mac, "%02X:%02X:%02X:%02X:%02X:%02X",
 				 v_mac[0], v_mac[1], v_mac[2], v_mac[3],
 				 v_mac[4], v_mac[5]);
@@ -1557,7 +1573,7 @@ int smc_get_ethaddr (bd_t * bd)
 			return (-1);
 		}
 	} else {		/* good env, don't care ROM */
-		v_mac = v_env_mac;	/* always use a good env over a ROM */
+		v_mac = (char *)v_env_mac;	/* always use a good env over a ROM */
 	}
 
 	if (env_present && rom_valid) { /* if both env and ROM are good */
@@ -1577,13 +1593,13 @@ int smc_get_ethaddr (bd_t * bd)
 		}
 	}
 	memcpy (bd->bi_enetaddr, v_mac, 6);	/* update global address to match env (allows env changing) */
-	smc_set_mac_addr (v_mac);	/* use old function to update smc default */
+	smc_set_mac_addr ((uchar *)v_mac);	/* use old function to update smc default */
 	PRINTK("Using MAC Address %02X:%02X:%02X:%02X:%02X:%02X\n", v_mac[0], v_mac[1],
 		v_mac[2], v_mac[3], v_mac[4], v_mac[5]);
 	return (0);
 }
 
-int get_rom_mac (char *v_rom_mac)
+int get_rom_mac (uchar *v_rom_mac)
 {
 #ifdef HARDCODE_MAC	/* used for testing or to supress run time warnings */
 	char hw_mac_addr[] = { 0x02, 0x80, 0xad, 0x20, 0x31, 0xb8 };

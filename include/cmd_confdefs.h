@@ -112,7 +112,6 @@
 			CFG_CMD_DISPLAY	| \
 			CFG_CMD_DOC	| \
 			CFG_CMD_DTT	| \
-			CFG_CMD_ECHO	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_ELF	| \
 			CFG_CMD_EXT2	| \

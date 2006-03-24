@@ -147,47 +147,6 @@ int checkboard (void)
 	return 0;
 }
 
-#if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found
- */
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc83xxads_config_table[] = {
-	{PCI_ANY_ID,PCI_ANY_ID,PCI_ANY_ID,PCI_ANY_ID,
-	pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				    PCI_ENET0_MEMADDR,
-				    PCI_COMMON_MEMORY | PCI_COMMAND_MASTER
-	} },
-	{}
-}
-#endif
-
-
-volatile static struct pci_controller hose[] = {
-	{
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc83xxads_config_table,
-#endif
-	},
-	{
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc83xxads_config_table,
-#endif
-	}
-};
-#endif /* CONFIG_PCI */
-
-
-void
-pci_init_board(void)
-{
-#ifdef CONFIG_PCI
-	extern void pci_mpc83xx_init(volatile struct pci_controller *hose);
-
-	pci_mpc83xx_init(hose);
-#endif /* CONFIG_PCI */
-}
-
 /*
  * if MPC8349ADS is soldered with SDRAM
  */

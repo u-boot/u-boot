@@ -127,7 +127,6 @@
 
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL   \
 				| CFG_CMD_DHCP    \
-				| CFG_CMD_ECHO    \
 				| CFG_CMD_IMMAP   \
 				| CFG_CMD_JFFS2   \
 				| CFG_CMD_MII     \

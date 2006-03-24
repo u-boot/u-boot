@@ -48,10 +48,12 @@ static void netstar_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 /*
  *	chip R/B detection
  */
+/***
 static int netstar_nand_ready(struct mtd_info *mtd)
 {
 	return (*(volatile ushort *)GPIO_DATA_INPUT_REG) & 0x02;
 }
+***/
 
 void board_nand_init(struct nand_chip *nand)
 {

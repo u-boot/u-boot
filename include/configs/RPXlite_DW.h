@@ -45,7 +45,7 @@
  */
 
 /* #define DEBUG	1 */
-/* #ifdef DEPLOYMENT	1 */
+/* #define DEPLOYMENT	1 */
 
 #undef	CONFIG_MPC860
 #define CONFIG_MPC823		1	/* This is a MPC823e CPU. */
@@ -61,23 +61,23 @@
 #define CONFIG_BAUDRATE		9600	/* console default baudrate = 9600bps	*/
 
 #ifdef DEBUG
-#define CONFIG_BOOTDELAY        -1      /* autoboot disabled            */
+#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
-#define CONFIG_BOOTDELAY        6       /* autoboot after 6 seconds     */
+#define CONFIG_BOOTDELAY	6	/* autoboot after 6 seconds	*/
 
 #ifdef DEPLOYMENT
-#define CONFIG_BOOT_RETRY_TIME          -1
+#define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT          "autoboot in %d seconds (stop with 'st')...\n"
-#define CONFIG_AUTOBOOT_STOP_STR        "st"
+#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds (stop with 'st')...\n"
+#define CONFIG_AUTOBOOT_STOP_STR	"st"
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_RESET_TO_RETRY           1
-#define CONFIG_BOOT_RETRY_MIN           1
+#define CONFIG_RESET_TO_RETRY		1
+#define CONFIG_BOOT_RETRY_MIN		1
 #endif	/* DEPLOYMENT */
 #endif	/* DEBUG */
 
 /* pre-boot commands */
-#define CONFIG_PREBOOT          "setenv stdout serial;setenv stdin serial"
+#define CONFIG_PREBOOT		"setenv stdout serial;setenv stdin serial"
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -116,6 +116,36 @@
 #undef	CONFIG_STATUS_LED		/* disturbs display. Status LED disabled. */
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+
+#if 1	       /* Enable this stuff could make image enlarge about 25KB. Mask it if you
+		  don't want the advanced function */
+
+#ifdef	CONFIG_SPLASH_SCREEN
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_BMP	| \
+				CFG_CMD_JFFS2	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_REGINFO | \
+				CFG_CMD_DHCP	)
+#else
+#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
+				CFG_CMD_JFFS2	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_REGINFO | \
+				CFG_CMD_DHCP	)
+#endif	/* CONFIG_SPLASH_SCREEN */
+
+/* test-only */
+#define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
+#define CFG_JFFS2_NUM_BANKS	1	    /* ! second bank contains U-Boot */
+
+#define CONFIG_NETCONSOLE
+
+#endif	/* 1 */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -280,7 +310,7 @@
 #if defined(RPXlite_64MHz)
 #define CFG_SCCR	( SCCR_TBS | SCCR_EBDF01 )  /* %%%SCCR:0x02020000 */
 #else
-#define CFG_SCCR        ( SCCR_TBS | SCCR_EBDF00 )  /* %%%SCCR:0x02000000 */
+#define CFG_SCCR	( SCCR_TBS | SCCR_EBDF00 )  /* %%%SCCR:0x02000000 */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -446,5 +476,6 @@
 #define CONFIG_SERVERIP 172.16.115.6
 #define CONFIG_ROOTPATH /workspace/myfilesystem/target/
 #define CONFIG_BOOTFILE uImage.rpxusb
+#define CONFIG_HOSTNAME LITE_H1_DW
 
 #endif	/* __CONFIG_H */

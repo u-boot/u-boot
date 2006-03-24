@@ -122,8 +122,12 @@
 #   define CFG_LOWBOOT16	1
 #endif
 #if (TEXT_BASE == 0xFF800000)		/* Boot low with  8 MB Flash */
+#if defined(CONFIG_LITE5200B)
+#   error CFG_LOWBOOT08 is incompatible with the Lite5200B
+#else
 #   define CFG_LOWBOOT	        1
 #   define CFG_LOWBOOT08	1
+#endif
 #endif
 
 /*
@@ -160,8 +164,12 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#if defined(CONFIG_LITE5200B)
+#define CFG_IPBSPEED_133 	/* define for 133MHz speed */
+#else
+#undef CFG_IPBSPEED_133   	/* define for 133MHz speed */
 #endif
+#endif /* CONFIG_MPC5200 */
 /*
  * I2C configuration
  */
@@ -182,6 +190,20 @@
 /*
  * Flash configuration
  */
+#if defined(CONFIG_LITE5200B)
+#define CFG_FLASH_BASE		0xFE000000
+#define CFG_FLASH_SIZE		0x01000000
+#if !defined(CFG_LOWBOOT)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x01760000 + 0x00800000)
+#else	/* CFG_LOWBOOT */
+#if defined(CFG_LOWBOOT08)
+# error CFG_LOWBOOT08 is incompatible with the Lite5200B
+#endif
+#if defined(CFG_LOWBOOT16)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x01060000)
+#endif
+#endif /* CFG_LOWBOOT */
+#else /* !CONFIG_LITE5200B (IceCube)*/
 #define CFG_FLASH_BASE		0xFF000000
 #define CFG_FLASH_SIZE		0x01000000
 #if !defined(CFG_LOWBOOT)
@@ -194,6 +216,7 @@
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
 #endif
 #endif	/* CFG_LOWBOOT */
+#endif /* CONFIG_LITE5200B */
 #define CFG_MAX_FLASH_BANKS	2	/* max num of memory banks      */
 
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
@@ -203,13 +226,23 @@
 
 #undef CONFIG_FLASH_16BIT	/* Flash is 8-bit */
 
+#if defined(CONFIG_LITE5200B)
+#define CFG_FLASH_CFI_DRIVER
+#define CFG_FLASH_CFI
+#define CFG_FLASH_BANKS_LIST	{CFG_CS1_START,CFG_CS0_START}
+#endif
+
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
+#if defined(CONFIG_LITE5200B)
+#define CFG_ENV_SECT_SIZE	0x20000
+#else
 #define CFG_ENV_SECT_SIZE	0x10000
+#endif
 #define CONFIG_ENV_OVERWRITE	1
 
 /*
@@ -246,6 +279,9 @@
  */
 /* #define CONFIG_FEC_10MBIT 1 */
 #define CONFIG_PHY_ADDR		0x00
+#if defined(CONFIG_LITE5200B)
+#define CONFIG_FEC_MII100	1
+#endif
 
 /*
  * GPIO configuration
@@ -288,6 +324,16 @@
 #define CFG_HID0_FINAL		0
 #endif
 
+#if defined(CONFIG_LITE5200B)
+#define CFG_CS1_START		CFG_FLASH_BASE
+#define CFG_CS1_SIZE		CFG_FLASH_SIZE
+#define CFG_CS1_CFG		0x00047800
+#define CFG_CS0_START		(CFG_FLASH_BASE + CFG_FLASH_SIZE)
+#define CFG_CS0_SIZE		CFG_FLASH_SIZE
+#define CFG_BOOTCS_START	CFG_CS0_START
+#define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
+#define CFG_BOOTCS_CFG		0x00047800
+#else /* IceCube aka Lite5200 */
 #ifdef CONFIG_MPC5200_DDR
 
 #define CFG_BOOTCS_START	(CFG_CS1_START + CFG_CS1_SIZE)
@@ -306,6 +352,7 @@
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
 #endif /* CONFIG_MPC5200_DDR */
+#endif /*CONFIG_LITE5200B */
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333

@@ -53,9 +53,6 @@ ifeq (include/config.mk,$(wildcard include/config.mk))
 # load ARCH, BOARD, and CPU configuration
 include include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
-# load other configuration
-include $(TOPDIR)/config.mk
-
 ifndef CROSS_COMPILE
 ifeq ($(HOSTARCH),ppc)
 CROSS_COMPILE =
@@ -88,10 +85,17 @@ endif
 ifeq ($(ARCH),microblaze)
 CROSS_COMPILE = mb-
 endif
+ifeq ($(ARCH),blackfin)
+CROSS_COMPILE = bfin-elf-
+endif
 endif
 endif
 
 export	CROSS_COMPILE
+
+# load other configuration
+include $(TOPDIR)/config.mk
+
 
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
@@ -109,6 +113,10 @@ OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
+endif
+ifeq ($(CPU),bf533)
+OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
+OBJS += cpu/$(CPU)/cplbhdlr.o	cpu/$(CPU)/cplbmgr.o	cpu/$(CPU)/flush.o
 endif
 
 LIBS  = lib_generic/libgeneric.a
@@ -295,6 +303,20 @@ icecube_5100_config:			unconfig
 inka4x0_config:	unconfig
 	@./mkconfig inka4x0 ppc mpc5xxx inka4x0
 
+lite5200b_config	\
+lite5200b_LOWBOOT_config:	unconfig
+	@ >include/config.h
+	@ echo "#define CONFIG_MPC5200_DDR"	>>include/config.h
+	@ echo "... DDR memory revision"
+	@ echo "#define CONFIG_MPC5200"		>>include/config.h
+	@ echo "#define CONFIG_LITE5200B"	>>include/config.h
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000" >board/icecube/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@ echo "... with MPC5200B processor"
+	@./mkconfig -a IceCube  ppc mpc5xxx icecube
+
 mcc200_config	\
 mcc200_lowboot_config:	unconfig
 	@ >include/config.h
@@ -432,6 +454,9 @@ cogent_mpc8xx_config:	unconfig
 
 ELPT860_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx elpt860 LEOX
+
+EP88x_config:		unconfig
+	@./mkconfig $(@:_config=) ppc mpc8xx ep88x
 
 ESTEEM192E_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx esteem192e
@@ -1282,6 +1307,9 @@ MPC8349ADS_config:	unconfig
 TQM834x_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc83xx tqm834x
 
+MPC8349EMDS_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349emds
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################
@@ -1503,7 +1531,7 @@ omap1510inn_config :	unconfig
 	@./mkconfig $(@:_config=) arm arm925t omap1510inn
 
 omap5912osk_config :	unconfig
-	@./mkconfig $(@:_config=) arm arm926ejs omap5912osk
+	@./mkconfig $(@:_config=) arm arm926ejs omap5912osk NULL omap
 
 omap1610inn_config \
 omap1610inn_cs0boot_config \
@@ -1523,7 +1551,7 @@ omap1610h2_cs_autoboot_config:	unconfig
 		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
 		echo "... configured for CS3 boot"; \
 	fi;
-	@./mkconfig -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn
+	@./mkconfig -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn NULL omap
 
 omap730p2_config \
 omap730p2_cs0boot_config \
@@ -1535,7 +1563,7 @@ omap730p2_cs3boot_config :	unconfig
 		echo "#define CONFIG_CS3_BOOT" >> ./include/config.h ; \
 		echo "... configured for CS3 boot"; \
 	fi;
-	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2
+	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 NULL omap
 
 scb9328_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t scb9328 NULL imx
@@ -1859,6 +1887,19 @@ suzaku_config:	unconfig
 	@./mkconfig -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
 
 #########################################################################
+## Blackfin
+#########################################################################
+ezkit533_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 ezkit533
+
+stamp_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 stamp
+
+dspstamp_config	:	unconfig
+	@./mkconfig $(@:_config=) blackfin bf533 dsp_stamp
+
+#########################################################################
+#########################################################################
 #########################################################################
 
 clean:
@@ -1869,6 +1910,7 @@ clean:
 	rm -f examples/hello_world examples/timer \
 	      examples/eepro100_eeprom examples/sched \
 	      examples/mem_to_mem_idma2intr examples/82559_eeprom \
+	      examples/smc91111_eeprom \
 	      examples/test_burst
 	rm -f tools/img2srec tools/mkimage tools/envcrc tools/gen_eth_addr
 	rm -f tools/mpc86x_clk tools/ncb
@@ -1876,6 +1918,8 @@ clean:
 	rm -f tools/gdb/astest tools/gdb/gdbcont tools/gdb/gdbsend
 	rm -f tools/env/fw_printenv tools/env/fw_setenv
 	rm -f board/cray/L1/bootscript.c board/cray/L1/bootscript.image
+	rm -f board/netstar/eeprom board/netstar/crcek
+	rm -f board/netstar/*.srec board/netstar/*.bin
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
 

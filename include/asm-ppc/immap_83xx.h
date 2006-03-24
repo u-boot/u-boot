@@ -71,8 +71,8 @@ typedef struct sysconf8349 {
 			| SPCR_TSEC2DP | SPCR_TSEC2BDP | SPCR_TSEC2EP)
 	u32 sicrl; /* System General Purpose Register Low */
 #define SICRL_LDP_A   0x80000000
-#define SICRL_USB0    0x40000000
-#define SICRL_USB1    0x20000000
+#define SICRL_USB1    0x40000000
+#define SICRL_USB0    0x20000000
 #define SICRL_UART    0x0C000000
 #define SICRL_GPIO1_A 0x02000000
 #define SICRL_GPIO1_B 0x01000000
@@ -675,24 +675,76 @@ typedef struct ddr8349{
 	u8   res9[8];
 	u32  sdram_clk_cntl;
 #define DDR_SDRAM_CLK_CNTL_SS_EN		0x80000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_025	0x01000000
 #define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05	0x02000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_075	0x03000000
+#define DDR_SDRAM_CLK_CNTL_CLK_ADJUST_1		0x04000000
 
 	u8 res4[0xCCC];
 	u32 data_err_inject_hi; /**< Memory Data Path Error Injection Mask High */
 	u32 data_err_inject_lo; /**< Memory Data Path Error Injection Mask Low */
 	u32 ecc_err_inject;     /**< Memory Data Path Error Injection Mask ECC */
+#define ECC_ERR_INJECT_EMB			(0x80000000>>22)	/* ECC Mirror Byte */
+#define ECC_ERR_INJECT_EIEN			(0x80000000>>23)	/* Error Injection Enable */
+#define ECC_ERR_INJECT_EEIM			(0xff000000>>24)	/* ECC Erroe Injection Enable */
+#define ECC_ERR_INJECT_EEIM_SHIFT		0
 	u8 res5[0x14];
 	u32 capture_data_hi;    /**< Memory Data Path Read Capture High */
 	u32 capture_data_lo;    /**< Memory Data Path Read Capture Low */
 	u32 capture_ecc;        /**< Memory Data Path Read Capture ECC */
+#define CAPTURE_ECC_ECE				(0xff000000>>24)
+#define CAPTURE_ECC_ECE_SHIFT			0
 	u8 res6[0x14];
 	u32 err_detect;         /**< Memory Error Detect */
+#define ECC_ERROR_DETECT_MME			(0x80000000>>0)		/* Multiple Memory Errors */
+#define ECC_ERROR_DETECT_MBE			(0x80000000>>28)	/* Multiple-Bit Error */
+#define ECC_ERROR_DETECT_SBE			(0x80000000>>29)	/* Single-Bit ECC Error Pickup */
+#define ECC_ERROR_DETECT_MSE			(0x80000000>>31)	/* Memory Select Error */
 	u32 err_disable;        /**< Memory Error Disable */
+#define ECC_ERROR_DISABLE_MBED			(0x80000000>>28)	/* Multiple-Bit ECC Error Disable */
+#define ECC_ERROR_DISABLE_SBED			(0x80000000>>29)	/* Sinle-Bit ECC Error disable */
+#define ECC_ERROR_DISABLE_MSED			(0x80000000>>31)	/* Memory Select Error Disable */
+#define ECC_ERROR_ENABLE			~(ECC_ERROR_DISABLE_MSED|ECC_ERROR_DISABLE_SBED|ECC_ERROR_DISABLE_MBED)
 	u32 err_int_en;         /**< Memory Error Interrupt Enable */
+#define ECC_ERR_INT_EN_MBEE			(0x80000000>>28)	/* Multiple-Bit ECC Error Interrupt Enable */
+#define ECC_ERR_INT_EN_SBEE			(0x80000000>>29)	/* Single-Bit ECC Error Interrupt Enable */
+#define ECC_ERR_INT_EN_MSEE			(0x80000000>>31)	/* Memory Select Error Interrupt Enable */
+#define ECC_ERR_INT_DISABLE			~(ECC_ERR_INT_EN_MBEE|ECC_ERR_INT_EN_SBEE|ECC_ERR_INT_EN_MSEE)
 	u32 capture_attributes; /**< Memory Error Attributes Capture */
+#define ECC_CAPT_ATTR_BNUM			(0xe0000000>>1)		/* Data Beat Num */
+#define ECC_CAPT_ATTR_BNUM_SHIFT		28
+#define ECC_CAPT_ATTR_TSIZ			(0xc0000000>>6)		/* Transaction Size */
+#define ECC_CAPT_ATTR_TSIZ_FOUR_DW		0
+#define ECC_CAPT_ATTR_TSIZ_ONE_DW		1
+#define ECC_CAPT_ATTR_TSIZ_TWO_DW		2
+#define ECC_CAPT_ATTR_TSIZ_THREE_DW		3
+#define ECC_CAPT_ATTR_TSIZ_SHIFT		24
+#define ECC_CAPT_ATTR_TSRC			(0xf8000000>>11)	/* Transaction Source */
+#define ECC_CAPT_ATTR_TSRC_E300_CORE_DT		0x0
+#define ECC_CAPT_ATTR_TSRC_E300_CORE_IF		0x2
+#define ECC_CAPT_ATTR_TSRC_TSEC1		0x4
+#define ECC_CAPT_ATTR_TSRC_TSEC2		0x5
+#define ECC_CAPT_ATTR_TSRC_USB			(0x06|0x07)
+#define ECC_CAPT_ATTR_TSRC_ENCRYPT		0x8
+#define ECC_CAPT_ATTR_TSRC_I2C			0x9
+#define ECC_CAPT_ATTR_TSRC_JTAG			0xA
+#define ECC_CAPT_ATTR_TSRC_PCI1			0xD
+#define ECC_CAPT_ATTR_TSRC_PCI2			0xE
+#define ECC_CAPT_ATTR_TSRC_DMA			0xF
+#define ECC_CAPT_ATTR_TSRC_SHIFT		16
+#define ECC_CAPT_ATTR_TTYP			(0xe0000000>>18)	/* Transaction Type */
+#define ECC_CAPT_ATTR_TTYP_WRITE		0x1
+#define ECC_CAPT_ATTR_TTYP_READ			0x2
+#define ECC_CAPT_ATTR_TTYP_R_M_W		0x3
+#define ECC_CAPT_ATTR_TTYP_SHIFT		12
+#define ECC_CAPT_ATTR_VLD			(0x80000000>>31)	/* Valid */
 	u32 capture_address;    /**< Memory Error Address Capture */
 	u32 capture_ext_address;/**< Memory Error Extended Address Capture */
 	u32 err_sbe;            /**< Memory Single-Bit ECC Error Management */
+#define ECC_ERROR_MAN_SBET			(0xff000000>>8)		/* Single-Bit Error Threshold 0..255*/
+#define ECC_ERROR_MAN_SBET_SHIFT		16
+#define ECC_ERROR_MAN_SBEC			(0xff000000>>24)	/* Single Bit Error Counter 0..255*/
+#define ECC_ERROR_MAN_SBEC_SHIFT		0
 	u8 res7[0xA4];
 	u32 debug_reg;
 	u8 res8[0xFC];
@@ -795,9 +847,94 @@ typedef struct spi8349
 	u8 res1[0xD8];
 } spi8349_t;
 
+
+/*
+ * DMA/Messaging Unit
+ */
 typedef struct dma8349 {
-	u8 fixme[0x300];
+	u32 res0[0xC];	/* 0x0-0x29 reseverd */
+	u32 omisr;	/* 0x30 Outbound message interrupt status register */
+	u32 omimr;	/* 0x34 Outbound message interrupt mask register */
+	u32 res1[0x6];	/* 0x38-0x49 reserved */
+
+	u32 imr0;	/* 0x50 Inbound message register 0 */
+	u32 imr1;	/* 0x54 Inbound message register 1 */
+	u32 omr0;	/* 0x58 Outbound message register 0 */
+	u32 omr1;	/* 0x5C Outbound message register 1 */
+
+	u32 odr;	/* 0x60 Outbound doorbell register */
+	u32 res2;	/* 0x64-0x67 reserved */
+	u32 idr;	/* 0x68 Inbound doorbell register */
+	u32 res3[0x5];	/* 0x6C-0x79 reserved */
+
+	u32 imisr;	/* 0x80 Inbound message interrupt status register */
+	u32 imimr;	/* 0x84 Inbound message interrupt mask register */
+	u32 res4[0x1E];	/* 0x88-0x99 reserved */
+
+	u32 dmamr0;	/* 0x100 DMA 0 mode register */
+	u32 dmasr0;	/* 0x104 DMA 0 status register */
+	u32 dmacdar0;	/* 0x108 DMA 0 current descriptor address register */
+	u32 res5;	/* 0x10C reserved */
+	u32 dmasar0;	/* 0x110 DMA 0 source address register */
+	u32 res6;	/* 0x114 reserved */
+	u32 dmadar0;	/* 0x118 DMA 0 destination address register */
+	u32 res7;	/* 0x11C reserved */
+	u32 dmabcr0;	/* 0x120 DMA 0 byte count register */
+	u32 dmandar0;	/* 0x124 DMA 0 next descriptor address register */
+	u32 res8[0x16];	/* 0x128-0x179 reserved */
+
+	u32 dmamr1;	/* 0x180 DMA 1 mode register */
+	u32 dmasr1;	/* 0x184 DMA 1 status register */
+	u32 dmacdar1;	/* 0x188 DMA 1 current descriptor address register */
+	u32 res9;	/* 0x18C reserved */
+	u32 dmasar1;	/* 0x190 DMA 1 source address register */
+	u32 res10;	/* 0x194 reserved */
+	u32 dmadar1;	/* 0x198 DMA 1 destination address register */
+	u32 res11;	/* 0x19C reserved */
+	u32 dmabcr1;	/* 0x1A0 DMA 1 byte count register */
+	u32 dmandar1;	/* 0x1A4 DMA 1 next descriptor address register */
+	u32 res12[0x16];/* 0x1A8-0x199 reserved */
+
+	u32 dmamr2;	/* 0x200 DMA 2 mode register */
+	u32 dmasr2;	/* 0x204 DMA 2 status register */
+	u32 dmacdar2;	/* 0x208 DMA 2 current descriptor address register */
+	u32 res13;	/* 0x20C reserved */
+	u32 dmasar2;	/* 0x210 DMA 2 source address register */
+	u32 res14;	/* 0x214 reserved */
+	u32 dmadar2;	/* 0x218 DMA 2 destination address register */
+	u32 res15;	/* 0x21C reserved */
+	u32 dmabcr2;	/* 0x220 DMA 2 byte count register */
+	u32 dmandar2;	/* 0x224 DMA 2 next descriptor address register */
+	u32 res16[0x16];/* 0x228-0x279 reserved */
+
+	u32 dmamr3;	/* 0x280 DMA 3 mode register */
+	u32 dmasr3;	/* 0x284 DMA 3 status register */
+	u32 dmacdar3;	/* 0x288 DMA 3 current descriptor address register */
+	u32 res17;	/* 0x28C reserved */
+	u32 dmasar3;	/* 0x290 DMA 3 source address register */
+	u32 res18;	/* 0x294 reserved */
+	u32 dmadar3;	/* 0x298 DMA 3 destination address register */
+	u32 res19;	/* 0x29C reserved */
+	u32 dmabcr3;	/* 0x2A0 DMA 3 byte count register */
+	u32 dmandar3;	/* 0x2A4 DMA 3 next descriptor address register */
+
+	u32 dmagsr;	/* 0x2A8 DMA general status register */
+	u32 res20[0x15];/* 0x2AC-0x2FF reserved */
 } dma8349_t;
+
+/* DMAMRn bits */
+#define DMA_CHANNEL_START			(0x00000001)		/* Bit - DMAMRn CS */
+#define DMA_CHANNEL_TRANSFER_MODE_DIRECT	(0x00000004)		/* Bit - DMAMRn CTM */
+#define DMA_CHANNEL_SOURCE_ADRESSS_HOLD_EN	(0x00001000)		/* Bit - DMAMRn SAHE */
+#define DMA_CHANNEL_SOURCE_ADDRESS_HOLD_1B	(0x00000000)		/* 2Bit- DMAMRn SAHTS 1byte */
+#define DMA_CHANNEL_SOURCE_ADDRESS_HOLD_2B	(0x00004000)		/* 2Bit- DMAMRn SAHTS 2bytes */
+#define DMA_CHANNEL_SOURCE_ADDRESS_HOLD_4B	(0x00008000)		/* 2Bit- DMAMRn SAHTS 4bytes */
+#define DMA_CHANNEL_SOURCE_ADDRESS_HOLD_8B	(0x0000c000)		/* 2Bit- DMAMRn SAHTS 8bytes */
+#define DMA_CHANNEL_SNOOP			(0x00010000)		/* Bit - DMAMRn DMSEN */
+
+/* DMASRn bits */
+#define DMA_CHANNEL_BUSY 			(0x00000004)		/* Bit - DMASRn CB */
+#define DMA_CHANNEL_TRANSFER_ERROR		(0x00000080)		/* Bit - DMASRn TE */
 
 /*
  * PCI Software Configuration Registers

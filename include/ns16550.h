@@ -45,15 +45,15 @@ struct NS16550 {
 } __attribute__ ((packed));
 #elif (CFG_NS16550_REG_SIZE == 4)
 struct NS16550 {
-	unsigned long rbr;		/* 0 */
-	unsigned long ier;		/* 1 */
-	unsigned long fcr;		/* 2 */
-	unsigned long lcr;		/* 3 */
-	unsigned long mcr;		/* 4 */
-	unsigned long lsr;		/* 5 */
-	unsigned long msr;		/* 6 */
-	unsigned long scr;		/* 7 */
-} __attribute__ ((packed));
+	unsigned long rbr;		/* 0 r  */
+	unsigned long ier;		/* 1 rw */
+	unsigned long fcr;		/* 2 w  */
+	unsigned long lcr;		/* 3 rw */
+	unsigned long mcr;		/* 4 rw */
+	unsigned long lsr;		/* 5 r  */
+	unsigned long msr;		/* 6 r  */
+	unsigned long scr;		/* 7 rw */
+}; /* No need to pack an already aligned struct */
 #elif (CFG_NS16550_REG_SIZE == -4)
 struct NS16550 {
 	unsigned char rbr;		/* 0 */
@@ -102,7 +102,7 @@ typedef volatile struct NS16550 *NS16550_t;
 #define MCR_DMA_EN      0x04
 #define MCR_TX_DFR      0x08
 
-#define LCR_WLS_MSK	0x03		/* character length slect mask */
+#define LCR_WLS_MSK	0x03		/* character length select mask */
 #define LCR_WLS_5	0x00		/* 5 bit character length */
 #define LCR_WLS_6	0x01		/* 6 bit character length */
 #define LCR_WLS_7	0x02		/* 7 bit character length */
