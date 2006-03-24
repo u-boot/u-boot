@@ -475,11 +475,11 @@ typedef void		(*ExcpHndlr) (void) ;
 #define ICR_ACKNAK	0x4		/* send ACK(0) or NAK(1) */
 #define ICR_TB		0x8		/* transfer byte bit */
 #define ICR_MA		0x10		/* master abort */
-#define ICR_SCLE	0x20		/* master clock enable */
+#define ICR_SCLE	0x20		/* master clock enable, mona SCLEA */
 #define ICR_IUE		0x40		/* unit enable */
 #define ICR_GCD		0x80		/* general call disable */
 #define ICR_ITEIE	0x100		/* enable tx interrupts */
-#define ICR_IRFIE	0x200		/* enable rx interrupts */
+#define ICR_IRFIE	0x200		/* enable rx interrupts, mona: DRFIE */
 #define ICR_BEIE	0x400		/* enable bus error ints */
 #define ICR_SSDIE	0x800		/* slave STOP detected int enable */
 #define ICR_ALDIE	0x1000		/* enable arbitration interrupt */
@@ -923,7 +923,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define ICHP		__REG(0x40D00018)  /* Interrupt Controller Highest Priority Register */
 /* Missing: 32 Interrupt priority registers
  * These are the same as beneath for PXA27x: maybe can be merged if
- * GPIO Stuff is same too. 
+ * GPIO Stuff is same too.
  */
 #define ICIP2		__REG(0x40D0009C)  /* Interrupt Controller IRQ Pending Register 2 */
 #define ICMR2		__REG(0x40D000A0)  /* Interrupt Controller Mask Register 2 */

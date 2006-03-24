@@ -26,9 +26,13 @@
  */
 
 #include <common.h>
+#include <i2c.h>
+#include <da9030.h>
+#include <asm/arch/pxa-regs.h>
 
 /* ------------------------------------------------------------------------- */
 
+static void init_DA9030(void);
 
 /*
  * Miscelaneous platform dependent initialisations
@@ -54,6 +58,7 @@ int board_late_init(void)
 {
 	setenv("stdout", "serial");
 	setenv("stderr", "serial");
+	init_DA9030();
 	return 0;
 }
 
@@ -73,3 +78,65 @@ int dram_init (void)
 
 	return 0;
 }
+
+/* initialize the DA9030 Power Controller */
+static void init_DA9030()
+{
+	uchar addr = (uchar) DA9030_I2C_ADDR, val = 0;
+
+	/* setup I2C GPIO's */
+	GPIO32 = 0x801;		/* SCL = Alt. Fkt. 1 */
+	GPIO33 = 0x801;		/* SDA = Alt. Fkt. 1 */
+
+	/* rising Edge on EXTON */
+	GPIO17 = 0x8800;
+	udelay(5);
+	GPIO17 = 0xc800;
+	udelay(100000);		/* wait for DA9030 */
+
+	/* reset the watchdog and go active (0xec) */
+	val = (SYS_CONTROL_A_HWRES_ENABLE |
+	       (0x6<<4) |
+	       SYS_CONTROL_A_WDOG_ACTION |
+	       SYS_CONTROL_A_WATCHDOG);
+
+	i2c_reg_write(addr, SYS_CONTROL_A, val);
+
+	i2c_reg_write(addr, REG_CONTROL_1_97, 0xfd); /* disable LDO1, enable LDO6 */
+	i2c_reg_write(addr, LDO2_3, 0xd1);	/* LDO2 =1,9V, LDO3=3,1V */
+	i2c_reg_write(addr, LDO4_5, 0xcc);	/* LDO2 =1,9V, LDO3=3,1V */
+	i2c_reg_write(addr, LDO6_SIMCP, 0x3e); 	/* LDO6=3,2V, SIMCP = 5V support */
+	i2c_reg_write(addr, LDO7_8, 0xc9);	/* LDO7=2,7V, LDO8=3,0V */
+	i2c_reg_write(addr, LDO9_12, 0xec);	/* LDO9=3,0V, LDO12=3,2V */
+	i2c_reg_write(addr, BUCK, 0x0c); 	/* Buck=1.2V */
+	i2c_reg_write(addr, REG_CONTROL_2_98, 0x7f); /* All LDO'S on 8,9,10,11,12,14 */
+	i2c_reg_write(addr, LDO_10_11, 0xcc); 	/* LDO10=3.0V  LDO11=3.0V */
+	i2c_reg_write(addr, LDO_15, 0xae);	/* LDO15=1.8V, dislock first 3bit */
+	i2c_reg_write(addr, LDO_14_16, 0x05); 	/* LDO14=2.8V, LDO16=NB */
+	i2c_reg_write(addr, LDO_18_19, 0x9c);	/* LDO18=3.0V, LDO19=2.7V */
+	i2c_reg_write(addr, LDO_17_SIMCP0, 0x2c); /* LDO17=3.0V, SIMCP=3V support */
+	i2c_reg_write(addr, BUCK2_DVC1, 0x9a);	/* Buck2=1.5V plus Update support of 520 MHz */
+	i2c_reg_write(addr, REG_CONTROL_2_18, 0x43); /* Ball on */
+	i2c_reg_write(addr, MISC_CONTROLB, 0x08); /* session valid enable */
+	i2c_reg_write(addr, USBPUMP, 0xc1);	/* start pump, ignore HW signals */
+
+	val = i2c_reg_read(addr, STATUS);
+	if(val & STATUS_CHDET)
+		printf("Charger detected, turning on LED.\n");
+	else {
+		printf("No charger detetected.\n");
+		/* undervoltage? print error and power down */
+	}
+}
+
+
+#if 0
+/* reset the DA9030 watchdog */
+void hw_watchdog_reset(void)
+{
+	uchar addr = (uchar) DA9030_I2C_ADDR, val = 0;
+	val = i2c_reg_read(addr, SYS_CONTROL_A);
+	val |= SYS_CONTROL_A_WATCHDOG;
+	i2c_reg_write(addr, SYS_CONTROL_A, val);
+}
+#endif

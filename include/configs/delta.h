@@ -49,7 +49,6 @@
 /*
  * Hardware drivers
  */
-
 #undef TURN_ON_ETHERNET
 #ifdef TURN_ON_ETHERNET
 # define CONFIG_DRIVER_SMC91111 1
@@ -58,6 +57,12 @@
 # define CONFIG_SMC_USE_32_BIT
 # undef CONFIG_SMC_USE_IOFUNCS          /* just for use with the kernel */
 #endif
+
+#define CONFIG_HARD_I2C		1	/* required for DA9030 access */
+#define CFG_I2C_SPEED		400000	/* I2C speed */
+#define CFG_I2C_SLAVE		1	/* I2C controllers address */
+#define DA9030_I2C_ADDR		0x49	/* I2C address of DA9030 */
+/* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
 /*
  * select serial console configuration
@@ -73,8 +78,13 @@
 #ifdef TURN_ON_ETHERNET
 # define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
 #else
-# define CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_ENV | CFG_CMD_NAND) \
-				& ~(CFG_CMD_NET | CFG_CMD_FLASH | CFG_CMD_IMLS))
+# define CONFIG_COMMANDS	((CONFIG_CMD_DFL \
+				  | CFG_CMD_ENV \
+				  | CFG_CMD_NAND \
+				  | CFG_CMD_I2C) \
+				 & ~(CFG_CMD_NET \
+				     | CFG_CMD_FLASH \
+				     | CFG_CMD_IMLS))
 #endif
 
 
@@ -121,7 +131,7 @@
 
 #define CFG_LOAD_ADDR	(CFG_DRAM_BASE + 0x8000) /* default load address */
 
-#define CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
+#define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
 #define CFG_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
 
 						/* valid baudrates */
