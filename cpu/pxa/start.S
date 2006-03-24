@@ -190,6 +190,14 @@ OSTIMER_BASE:	.word	0x40a00000
 #define OIER	0x1C
 
 /* Clock Manager Registers						    */
+#ifdef CONFIG_CPU_MONAHANS
+# ifndef CFG_MONAHANS_RUN_MODE_OSC_RATIO
+#  error "You have to define CFG_MONAHANS_RUN_MODE_OSC_RATIO!!"
+# endif
+# ifndef CFG_MONAHANS_TURBO_RUN_MODE_RATIO
+#  define CFG_MONAHANS_TURBO_RUN_MODE_RATIO 0x1
+# endif
+#else /* ! CONFIG_CPU_MONAHANS */
 #ifdef CFG_CPUSPEED
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
@@ -197,6 +205,7 @@ cpuspeed:	.word	CFG_CPUSPEED
 #else
 #error "You have to define CFG_CPUSPEED!!"
 #endif
+#endif /* CONFIG_CPU_MONAHANS */
 
 	/* takes care the CP15 update has taken place */
 	.macro CPWAIT reg
@@ -233,9 +242,13 @@ cpu_init_crit:
 	str	r2, [r1]
 #endif
 
-#ifndef CONFIG_CPU_MONAHANS
+	/* set clock speed */
+#ifdef CONFIG_CPU_MONAHANS
+	ldr	r0, =ACCR
+	ldr	r1, =(((CFG_MONAHANS_TURBO_RUN_MODE_RATIO<<8) & ACCR_XN_MASK) | (CFG_MONAHANS_RUN_MODE_OSC_RATIO & ACCR_XL_MASK))
+	str	r1, [r0]
+#else /* ! CONFIG_CPU_MONAHANS */
 #ifdef CFG_CPUSPEED
-	/* set clock speed tbd@mk: required for monahans? */
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
 	str	r1, [r0, #CCCR]

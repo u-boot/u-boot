@@ -132,7 +132,13 @@
 #define CFG_LOAD_ADDR	(CFG_DRAM_BASE + 0x8000) /* default load address */
 
 #define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
-#define CFG_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
+
+/* Monahans Core Frequency = 
+ * 
+ */
+#define CFG_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
+#define CFG_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
+
 
 						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
