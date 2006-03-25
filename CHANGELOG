@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update for Delta board:
+  - redundant NAND environment
+  - misc Monahans cleanups (remove dead code etc.)
+  - DA9030 Initialization; some minimal changes to PXA I2C driver to
+    make it work with the Monahans.
+  - Make Monahans clock frequency configurable using
+    CFG_MONAHANS_RUN_MODE_OSC_RATIO and
+    CFG_MONAHANS_TURBO_RUN_MODE_RATIO.
+  Merge from Markus Klotzbücher's repo, 25 Mar 2006
+
 * Enable Quad UART om MCC200 board.
 
 * Cleanup MCC200 board configuration; omit non-existent stuff.
