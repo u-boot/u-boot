@@ -89,10 +89,17 @@ static void init_DA9030()
 	GPIO33 = 0x801;		/* SDA = Alt. Fkt. 1 */
 
 	/* rising Edge on EXTON */
-	GPIO17 = 0x8800;
+	GPIO17 = 0xc800;	/* enable pullup */
+	GPDR0 |= (1<<17);	/* GPIO17 is output */
+	GSDR0 = (1<<17);
+	GPCR0 = (1<<17);	/* drive GPIO17 low */
 	udelay(5);
-	GPIO17 = 0xc800;
-	udelay(100000);		/* wait for DA9030 */
+	GPSR0 = (1<<17);	/* drive GPIO17 high */
+#if CFG_DA9030_EXTON_DELAY
+	udelay((unsigned long) CFG_DA9030_EXTON_DELAY);	/* wait for DA9030 */
+#endif
+	GPCR0 = (1<<17);	/* drive GPIO17 low */
+	GPIO17 = 0x8800;	/* disable pullup */
 
 	/* reset the watchdog and go active (0xec) */
 	val = (SYS_CONTROL_A_HWRES_ENABLE |

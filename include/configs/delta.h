@@ -62,6 +62,7 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed */
 #define CFG_I2C_SLAVE		1	/* I2C controllers address */
 #define DA9030_I2C_ADDR		0x49	/* I2C address of DA9030 */
+#define CFG_DA9030_EXTON_DELAY	0	/* wait x us after DA9030 reset via EXTON */
 /* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
 /*
@@ -133,9 +134,7 @@
 
 #define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
 
-/* Monahans Core Frequency = 
- * 
- */
+/* Monahans Core Frequency */
 #define CFG_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
 #define CFG_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
 
