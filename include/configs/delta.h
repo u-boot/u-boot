@@ -125,8 +125,8 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_DEVICE_NULLDEV	1
 
-#define CFG_MEMTEST_START	0xa0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x80400000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x80800000	/* 4 ... 8 MB in DRAM	*/
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
@@ -159,16 +159,16 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	4	   /* we have 2 banks of DRAM */
-#define PHYS_SDRAM_1		0xa0000000 /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1		0x80000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_2		0xa1000000 /* SDRAM Bank #2 */
+#define PHYS_SDRAM_2		0x81000000 /* SDRAM Bank #2 */
 #define PHYS_SDRAM_2_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_3		0xa2000000 /* SDRAM Bank #3 */
+#define PHYS_SDRAM_3		0x82000000 /* SDRAM Bank #3 */
 #define PHYS_SDRAM_3_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_4		0xa3000000 /* SDRAM Bank #4 */
+#define PHYS_SDRAM_4		0x83000000 /* SDRAM Bank #4 */
 #define PHYS_SDRAM_4_SIZE	0x1000000  /* 64 MB */
 
-#define CFG_DRAM_BASE		0xa0000000 /* at CS0 */
+#define CFG_DRAM_BASE		0x80000000 /* at CS0 */
 #define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
 #undef CFG_SKIP_DRAM_SCRUB
