@@ -106,8 +106,10 @@ static void init_DA9030()
 	       (0x6<<4) |
 	       SYS_CONTROL_A_WDOG_ACTION |
 	       SYS_CONTROL_A_WATCHDOG);
-
-	i2c_reg_write(addr, SYS_CONTROL_A, val);
+	if(i2c_write(addr, SYS_CONTROL_A, 1, &val, 1)) {
+		printf("Error accessing DA9030 via i2c.\n");
+		return;
+	}
 
 	i2c_reg_write(addr, REG_CONTROL_1_97, 0xfd); /* disable LDO1, enable LDO6 */
 	i2c_reg_write(addr, LDO2_3, 0xd1);	/* LDO2 =1,9V, LDO3=3,1V */
