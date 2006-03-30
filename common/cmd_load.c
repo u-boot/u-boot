@@ -29,10 +29,11 @@
 #include <s_record.h>
 #include <net.h>
 #include <exports.h>
-
+#include <xyzModem.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_LOADS)
 static ulong load_serial (ulong offset);
+static ulong load_serial_ymodem (ulong offset);
 static int read_record (char *buf, ulong len);
 # if (CONFIG_COMMANDS & CFG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
@@ -475,21 +476,31 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-	printf ("## Ready for binary (kermit) download "
-		"to 0x%08lX at %d bps...\n",
-		offset,
-		load_baudrate);
-	addr = load_serial_bin (offset);
+	if (strcmp(argv[0],"loady")==0) {
+		printf ("## Ready for binary (ymodem) download "
+			"to 0x%08lX at %d bps...\n",
+			offset,
+			load_baudrate);
 
-	if (addr == ~0) {
-		load_addr = 0;
-		printf ("## Binary (kermit) download aborted\n");
-		rcode = 1;
+		addr = load_serial_ymodem (offset);
+
 	} else {
-		printf ("## Start Addr      = 0x%08lX\n", addr);
-		load_addr = addr;
-	}
 
+		printf ("## Ready for binary (kermit) download "
+			"to 0x%08lX at %d bps...\n",
+			offset,
+			load_baudrate);
+		addr = load_serial_bin (offset);
+
+		if (addr == ~0) {
+			load_addr = 0;
+			printf ("## Binary (kermit) download aborted\n");
+			rcode = 1;
+		} else {
+			printf ("## Start Addr      = 0x%08lX\n", addr);
+			load_addr = addr;
+		}
+	}
 	if (load_baudrate != current_baudrate) {
 		printf ("## Switch baudrate to %d bps and press ESC ...\n",
 			current_baudrate);
@@ -963,6 +974,66 @@ START:
 	}
 	return ((ulong) os_data_addr - (ulong) bin_start_address);
 }
+
+static int getcxmodem(void) {
+	if (tstc()) 
+		return (getc());
+	return -1;
+}
+static ulong load_serial_ymodem (ulong offset)
+{
+	int size;
+	char buf[32];
+	int err;
+	int res;
+	connection_info_t info;
+	char 	ymodemBuf[1024];
+	ulong	store_addr = ~0;
+	ulong	addr = 0;
+
+	size=0;	
+	info.mode=xyzModem_ymodem;
+	res=xyzModem_stream_open(&info, &err);
+	if (!res) {
+	   
+	   while ((res=xyzModem_stream_read(ymodemBuf, 1024, &err)) > 0 ){
+		    store_addr = addr + offset;
+		    size+=res;
+		    addr+=res; 
+#ifndef CFG_NO_FLASH
+		    if (addr2info(store_addr)) {
+			int rc;
+
+			rc = flash_write((char *)ymodemBuf,store_addr,res);
+			if (rc != 0) {
+				flash_perror (rc);
+				return (~0);
+			}
+		    } else
+#endif
+		    {
+			memcpy ((char *)(store_addr), ymodemBuf, res);
+		    }
+	
+	   }
+	} 
+	else {
+		printf ("%s\n",xyzModem_error(err));
+	}
+	
+	xyzModem_stream_close(&err);
+  	xyzModem_stream_terminate(false,&getcxmodem);	
+
+
+	flush_cache (offset, size);
+
+	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
+	sprintf(buf, "%X", size);
+	setenv("filesize", buf);
+
+	return offset;
+}
+
 #endif	/* CFG_CMD_LOADB */
 
 /* -------------------------------------------------------------------- */
@@ -1017,6 +1088,14 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
 	"loadb   - load binary file over serial line (kermit mode)\n",
+	"[ off ] [ baud ]\n"
+	"    - load binary file over serial line"
+	" with offset 'off' and baudrate 'baud'\n"
+);
+
+U_BOOT_CMD(
+	loady, 3, 0,	do_load_serial_bin,
+	"loady   - load binary file over serial line (ymodem mode)\n",
 	"[ off ] [ baud ]\n"
 	"    - load binary file over serial line"
 	" with offset 'off' and baudrate 'baud'\n"
