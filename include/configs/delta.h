@@ -63,6 +63,7 @@
 #define CFG_I2C_SLAVE		1	/* I2C controllers address */
 #define DA9030_I2C_ADDR		0x49	/* I2C address of DA9030 */
 #define CFG_DA9030_EXTON_DELAY	100000	/* wait x us after DA9030 reset via EXTON */
+#define CFG_I2C_INIT_BOARD	1
 /* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
 /*

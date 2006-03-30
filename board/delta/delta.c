@@ -79,27 +79,34 @@ int dram_init (void)
 	return 0;
 }
 
+void i2c_init_board()
+{
+	CKENB |= (CKENB_4_I2C);
+
+	/* setup I2C GPIO's */
+	GPIO32 = 0x801;		/* SCL = Alt. Fkt. 1 */
+	GPIO33 = 0x801;		/* SDA = Alt. Fkt. 1 */
+}
+
 /* initialize the DA9030 Power Controller */
 static void init_DA9030()
 {
 	uchar addr = (uchar) DA9030_I2C_ADDR, val = 0;
 
-	/* setup I2C GPIO's */
-	GPIO32 = 0x801;		/* SCL = Alt. Fkt. 1 */
-	GPIO33 = 0x801;		/* SDA = Alt. Fkt. 1 */
+	CKENB |= CKENB_7_GPIO;
+	udelay(100);
 
-	/* rising Edge on EXTON */
-	GPIO17 = 0xc800;	/* enable pullup */
+	/* Rising Edge on EXTON to reset DA9030 */
+	GPIO17 = 0x8800;	/* configure GPIO17, no pullup, -down */
 	GPDR0 |= (1<<17);	/* GPIO17 is output */
 	GSDR0 = (1<<17);
 	GPCR0 = (1<<17);	/* drive GPIO17 low */
-	udelay(5);
 	GPSR0 = (1<<17);	/* drive GPIO17 high */
+
 #if CFG_DA9030_EXTON_DELAY
 	udelay((unsigned long) CFG_DA9030_EXTON_DELAY);	/* wait for DA9030 */
 #endif
 	GPCR0 = (1<<17);	/* drive GPIO17 low */
-	GPIO17 = 0x8800;	/* disable pullup */
 
 	/* reset the watchdog and go active (0xec) */
 	val = (SYS_CONTROL_A_HWRES_ENABLE |
@@ -114,14 +121,14 @@ static void init_DA9030()
 	i2c_reg_write(addr, REG_CONTROL_1_97, 0xfd); /* disable LDO1, enable LDO6 */
 	i2c_reg_write(addr, LDO2_3, 0xd1);	/* LDO2 =1,9V, LDO3=3,1V */
 	i2c_reg_write(addr, LDO4_5, 0xcc);	/* LDO2 =1,9V, LDO3=3,1V */
-	i2c_reg_write(addr, LDO6_SIMCP, 0x3e); 	/* LDO6=3,2V, SIMCP = 5V support */
+	i2c_reg_write(addr, LDO6_SIMCP, 0x3e);	/* LDO6=3,2V, SIMCP = 5V support */
 	i2c_reg_write(addr, LDO7_8, 0xc9);	/* LDO7=2,7V, LDO8=3,0V */
 	i2c_reg_write(addr, LDO9_12, 0xec);	/* LDO9=3,0V, LDO12=3,2V */
-	i2c_reg_write(addr, BUCK, 0x0c); 	/* Buck=1.2V */
+	i2c_reg_write(addr, BUCK, 0x0c);	/* Buck=1.2V */
 	i2c_reg_write(addr, REG_CONTROL_2_98, 0x7f); /* All LDO'S on 8,9,10,11,12,14 */
-	i2c_reg_write(addr, LDO_10_11, 0xcc); 	/* LDO10=3.0V  LDO11=3.0V */
+	i2c_reg_write(addr, LDO_10_11, 0xcc);	/* LDO10=3.0V  LDO11=3.0V */
 	i2c_reg_write(addr, LDO_15, 0xae);	/* LDO15=1.8V, dislock first 3bit */
-	i2c_reg_write(addr, LDO_14_16, 0x05); 	/* LDO14=2.8V, LDO16=NB */
+	i2c_reg_write(addr, LDO_14_16, 0x05);	/* LDO14=2.8V, LDO16=NB */
 	i2c_reg_write(addr, LDO_18_19, 0x9c);	/* LDO18=3.0V, LDO19=2.7V */
 	i2c_reg_write(addr, LDO_17_SIMCP0, 0x2c); /* LDO17=3.0V, SIMCP=3V support */
 	i2c_reg_write(addr, BUCK2_DVC1, 0x9a);	/* Buck2=1.5V plus Update support of 520 MHz */
