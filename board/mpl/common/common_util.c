@@ -42,6 +42,9 @@
 #include "../mip405/mip405.h"
 #include <405gp_pci.h>
 #endif
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_PATI)
 #define FIRM_START 0xFFF00000
 #endif
@@ -584,7 +587,6 @@ extern int get_boot_mode(void);
 void video_get_info_str (int line_number, char *info)
 {
 	/* init video info strings for graphic console */
-	DECLARE_GLOBAL_DATA_PTR;
 	PPC405_SYS_INFO sys_info;
 	char rev;
 	int i,boot;

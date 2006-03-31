@@ -32,7 +32,7 @@
 #ifdef CONFIG_405GP
 #ifdef CONFIG_PCI
 
-#undef DEBUG
+DECLARE_GLOBAL_DATA_PTR;
 
 #include "piix4_pci.h"
 #include "pci_parts.h"
@@ -94,7 +94,6 @@ static struct pci_controller hose = {
 
 static void reloc_pci_cfg_table(struct pci_config_table *table)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long addr;
 
 	for (; table && table->vendor; table++) {

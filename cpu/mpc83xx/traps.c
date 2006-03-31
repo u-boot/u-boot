@@ -40,6 +40,8 @@
 #include <asm/processor.h>
 #include <asm/mpc8349_pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
 
@@ -52,7 +54,6 @@ extern unsigned long search_exception_table(unsigned long);
 void
 print_backtrace(unsigned long *sp)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int cnt = 0;
 	unsigned long i;
 

@@ -37,6 +37,10 @@
 #include <asm/cache.h>
 #include <ppc4xx.h>
 
+#if !defined(CONFIG_405)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
@@ -116,7 +120,6 @@ static int do_chip_reset(unsigned long sys0, unsigned long sys1);
 int checkcpu (void)
 {
 #if !defined(CONFIG_405)	/* not used on Xilinx 405 FPGA implementations */
-	DECLARE_GLOBAL_DATA_PTR;
 	uint pvr = get_pvr();
 	ulong clock = gd->cpu_clk;
 	char buf[32];

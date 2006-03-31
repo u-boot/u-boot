@@ -33,6 +33,8 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if !defined(CONFIG_DBGU) && !defined(CONFIG_USART0) && !defined(CONFIG_USART1)
 #error must define one of CONFIG_DBGU or CONFIG_USART0 or CONFIG_USART1
 #endif
@@ -50,7 +52,6 @@ AT91PS_USART us = (AT91PS_USART) AT91C_BASE_US1;
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int baudrate;
 
 	if ((baudrate = gd->baudrate) <= 0)

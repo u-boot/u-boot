@@ -39,6 +39,8 @@
 #include <mpc8xx.h>
 #include <asm/cache.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static char *cpu_warning = "\n         " \
 	"*** Warning: CPU Core has Silicon Bugs -- Check the Errata ***";
 
@@ -349,8 +351,6 @@ static int check_CPU (long clock, uint pvr, uint immr)
 
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong clock = gd->cpu_clk;
 	uint immr = get_immr (0);	/* Return full IMMR contents */
 	uint pvr = get_pvr ();
@@ -539,8 +539,6 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint immr = get_immr (0);	/* Return full IMMR contents */
 	volatile immap_t *immap = (volatile immap_t *)(immr & 0xFFFF0000);
 	ulong oscclk, factor, pll;

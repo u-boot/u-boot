@@ -30,6 +30,8 @@
 
 #include "clkinit.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int Daq64xSampling = 0;
 
 
@@ -257,7 +259,6 @@ void Daq_BRG_Set_ExtClk(uint brg, uint extc)
 
 uint Daq_BRG_Rate(uint brg)
 {
-     DECLARE_GLOBAL_DATA_PTR;
      volatile immap_t *immr = (immap_t *)CFG_IMMR;
      uint *brg_ptr;
      uint brg_cnt;
@@ -295,7 +296,6 @@ uint Daq_Get_SampleRate(void)
 
 void Daq_Init_Clocks(int sample_rate, int sample_64x)
 {
-    DECLARE_GLOBAL_DATA_PTR;
     volatile ioport_t *iopa = ioport_addr((immap_t *)CFG_IMMR, 0 /* port A */);
     uint mclk_divisor; /* MCLK divisor */
     int  flag;         /* Interrupt state */

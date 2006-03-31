@@ -30,6 +30,8 @@
 #include <i2c.h>
 #include <asm/iopin_8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /* imports from eeprom.c */
@@ -424,8 +426,6 @@ initdram (int board_type)
 int
 last_stage_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	int rc;
 

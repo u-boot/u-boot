@@ -30,6 +30,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -38,8 +40,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
@@ -62,8 +62,6 @@ int board_late_init(void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;

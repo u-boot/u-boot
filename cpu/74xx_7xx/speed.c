@@ -29,6 +29,8 @@
 #include "../board/MAI/AmigaOneG3SE/via686.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static const int hid1_multipliers_x_10[] = {
 	25,	/* 0000 - 2.5x */
 	75,	/* 0001 - 7.5x */
@@ -85,7 +87,6 @@ static const int hid1_fx_multipliers_x_10[] = {
 
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong clock = 0;
 
 	/* calculate the clock frequency based upon the CPU type */

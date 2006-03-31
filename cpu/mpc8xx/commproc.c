@@ -24,12 +24,12 @@
 #include <common.h>
 #include <commproc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CFG_ALLOC_DPRAM
 
 int dpram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Reclaim the DP memory for our use. */
 	gd->dp_alloc_base = CPM_DATAONLY_BASE;
 	gd->dp_alloc_top  = CPM_DATAONLY_BASE + CPM_DATAONLY_SIZE;
@@ -43,7 +43,6 @@ int dpram_init (void)
  */
 uint dpram_alloc (uint size)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	uint addr = gd->dp_alloc_base;
 
 	if ((gd->dp_alloc_base + size) >= gd->dp_alloc_top)
@@ -56,8 +55,6 @@ uint dpram_alloc (uint size)
 
 uint dpram_base (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return gd->dp_alloc_base;
 }
 
@@ -67,8 +64,6 @@ uint dpram_base (void)
  */
 uint dpram_alloc_align (uint size, uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint addr, mask = align - 1;
 
 	addr = (gd->dp_alloc_base + mask) & ~mask;
@@ -83,8 +78,6 @@ uint dpram_alloc_align (uint size, uint align)
 
 uint dpram_base_align (uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint mask = align - 1;
 
 	return (gd->dp_alloc_base + mask) & ~mask;

@@ -24,6 +24,8 @@
 #include <common.h>
 #include <mpc5xxx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Breath some life into the CPU...
  *
@@ -32,8 +34,6 @@
  */
 void cpu_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long addecr = (1 << 25); /* Boot_CS */
 #if defined(CFG_RAMBOOT) && defined(CONFIG_MGT5100)
 	addecr |= (1 << 22); /* SDRAM enable */

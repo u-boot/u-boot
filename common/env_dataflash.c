@@ -26,6 +26,8 @@
 #include <linux/stddef.h>
 #include <dataflash.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 env_t *env_ptr = NULL;
 
 char * env_name_spec = "dataflash";
@@ -68,8 +70,6 @@ int i;
  */
 int env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong crc, len, new;
 	unsigned off;
 	uchar buf[64];

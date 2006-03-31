@@ -16,6 +16,8 @@
 
 #ifdef CONFIG_HARD_I2C
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define IIC_OK		0
 #define IIC_NOK		1
 #define IIC_NOK_LA	2		/* Lost arbitration */
@@ -350,7 +352,6 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 {
 	uchar xaddr[4];
 	int ret;
-	DECLARE_GLOBAL_DATA_PTR;
 
 	if ( alen > 4 ) {
 		printf ("I2C read: addr len %d not supported\n", alen);

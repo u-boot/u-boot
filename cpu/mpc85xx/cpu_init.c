@@ -30,6 +30,8 @@
 #include <ioports.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_CPM2
 static void config_8560_ioports (volatile immap_t * immr)
 {
@@ -103,7 +105,6 @@ static void config_8560_ioports (volatile immap_t * immr)
 
 void cpu_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 	extern void m8560_cpm_reset (void);

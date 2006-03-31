@@ -99,7 +99,7 @@ void sdram_init(void)
  */
 long int initdram(int board_type)
 {
-	return spd_sdram(0);
+	return spd_sdram();
 }
 
 int testdram(void)

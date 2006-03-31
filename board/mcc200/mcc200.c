@@ -30,6 +30,8 @@
 
 #include "mt48lc8m32b2-6-7.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
 ulong flash_get_size (ulong base, int banknum);
@@ -190,8 +192,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */

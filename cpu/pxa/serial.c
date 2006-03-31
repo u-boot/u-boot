@@ -32,10 +32,10 @@
 #include <watchdog.h>
 #include <asm/arch/pxa-regs.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int quot = 0;
 
 	if (gd->baudrate == 1200)

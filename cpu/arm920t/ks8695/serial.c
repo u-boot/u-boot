@@ -25,6 +25,8 @@
 #error "Bad: you didn't configure serial ..."
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  *	Define the UART hardware register access structure.
  */
@@ -54,7 +56,6 @@ int serial_console = 1;
 
 void serial_setbrg(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
 
 	/* Set to global baud rate and 8 data bits, no parity, 1 stop bit*/

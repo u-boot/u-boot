@@ -26,6 +26,8 @@
 #include <pci.h>
 #include <i2c.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard (void)
 {
 	puts (	"Board: OXC8240\n" );
@@ -184,8 +186,6 @@ int misc_init_r (void)
 
 #ifdef CFG_OXC_GENERATE_IP
 	{
-		DECLARE_GLOBAL_DATA_PTR;
-
 		char str[32];
 		unsigned long ip = CFG_OXC_IPMASK;
 		bd_t *bd = gd->bd;

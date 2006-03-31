@@ -49,6 +49,8 @@
 #include "../board/MAI/AmigaOneG3SE/memio.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 cpu_t
 get_cpu_type(void)
 {
@@ -111,8 +113,6 @@ get_cpu_type(void)
 #if !defined(CONFIG_BAB7xx)
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint type   = get_cpu_type();
 	uint pvr    = get_pvr();
 	ulong clock = gd->cpu_clk;
@@ -258,8 +258,6 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_AMIGAONEG3SE
 unsigned long get_tbclk(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return (gd->bus_clk / 4);
 }
 #else	/* ! CONFIG_AMIGAONEG3SE */

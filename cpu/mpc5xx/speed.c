@@ -31,12 +31,13 @@
 #include <mpc5xx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Get cpu and bus clock
  */
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 #ifndef	CONFIG_5xx_GCLK_FREQ

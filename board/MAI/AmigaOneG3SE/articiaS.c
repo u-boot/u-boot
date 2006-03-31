@@ -29,6 +29,8 @@
 #include "smbus.h"
 #include "via686.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef DEBUG
 
 struct dimm_bank {
@@ -82,7 +84,6 @@ static inline unsigned short NSto10PS (unsigned char spd_byte)
 
 long detect_sdram (uint8 * rom, int dimmNum, struct dimm_bank *banks)
 {
-    DECLARE_GLOBAL_DATA_PTR;
 	int dimm_address = (dimmNum == 0) ? SM_DIMM0_ADDR : SM_DIMM1_ADDR;
 	uint32 busclock = gd->bus_clk;
 	uint32 memclock = busclock;
@@ -394,8 +395,6 @@ uint32 burst_to_len (uint32 support)
 
 long articiaS_ram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	register uint32 i;
 	register uint32 value1;
 	register uint32 value2;

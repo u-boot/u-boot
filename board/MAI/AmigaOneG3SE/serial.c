@@ -4,6 +4,8 @@
 #include "memio.h"
 #include "articiaS.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CFG_NS16550
 static uint32 ComPort1;
 
@@ -150,8 +152,6 @@ const NS16550_t Com1 = (NS16550_t) CFG_NS16550_COM2;
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint32 clock_divisor = 115200 / gd->baudrate;
 
 	NS16550_init (Com0, clock_divisor);
@@ -239,8 +239,6 @@ void serial_puts (const char *string)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint32 clock_divisor = 115200 / gd->baudrate;
 
 	NS16550_init (Com0, clock_divisor);

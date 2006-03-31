@@ -32,6 +32,8 @@ characteristics to initialize the dram on MPC8220
 #include "i2cCore.h"
 #include "dramSetup.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define SPD_SIZE	CFG_SDRAM_SPD_SIZE
 #define DRAM_SPD	(CFG_SDRAM_SPD_I2C_ADDR)<<1	/* on Board SPD eeprom */
 #define TOTAL_BANK	CFG_SDRAM_TOTAL_BANKS
@@ -91,8 +93,6 @@ int spd_readbyte (volatile i2c8220_t * pi2c, u8 * readb, int *index)
 
 int readSpdData (u8 * spdData)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile i2c8220_t *pi2cReg;
 	volatile pcfg8220_t *pcfg;
 	u8 slvAdr = DRAM_SPD;
@@ -403,8 +403,6 @@ u8 checkMuxSetting (u8 rows, u8 columns)
 
 u32 dramSetup (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	draminfo_t DramInfo[TOTAL_BANK];
 	draminfo_t *pDramInfo;
 	u32 size, temp, cfg_value, mode_value, refresh;

@@ -30,6 +30,8 @@
 #include "fpga.h"
 #include "ioport.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
@@ -126,8 +128,6 @@ const uint selectmap_upm_table[] = {
  */
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char *s;
 	char buf[64];
 	int i;
@@ -305,5 +305,3 @@ int post_hotkeys_pressed (void)
 	return 0;		/* No hotkeys supported */
 }
 #endif
-
-/* vim: set ts=4 sw=4 tw=78 : */

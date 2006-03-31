@@ -30,6 +30,8 @@
 #include <asm/ic/ali512x.h>
 #include <spi.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef SC520_CDP_DEBUG
 
 #ifdef	SC520_CDP_DEBUG
@@ -481,8 +483,6 @@ int pci_enable_legacy_video_ports(struct pci_controller *hose)
 
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	init_sc520();
 	bus_init();
 	irq_init();

@@ -26,7 +26,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 #define ONE_BILLION        1000000000
 
@@ -522,8 +522,6 @@ ulong get_PCI_freq (void)
 int get_clocks (void)
 {
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) || defined(CONFIG_405) || defined(CONFIG_405EP)
-	DECLARE_GLOBAL_DATA_PTR;
-
 	sys_info_t sys_info;
 
 	get_sys_info (&sys_info);
@@ -533,8 +531,6 @@ int get_clocks (void)
 #endif	/* defined(CONFIG_405GP) || defined(CONFIG_405CR) */
 
 #ifdef CONFIG_IOP480
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->cpu_clk = 66000000;
 	gd->bus_clk = 66000000;
 #endif

@@ -34,6 +34,7 @@
 #include <command.h>
 #include <mpc5xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Local function prototypes
@@ -128,7 +129,6 @@ int serial_tstc()
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	short scxbr;
 

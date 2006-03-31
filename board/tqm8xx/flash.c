@@ -31,6 +31,8 @@
 
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
 # ifndef CFG_OR_TIMING_FLASH_AT_50MHZ
 #  define CFG_OR_TIMING_FLASH_AT_50MHZ	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
@@ -62,8 +64,6 @@ unsigned long flash_init (void)
 
 #ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
 	int scy, trlx, flash_or_timing, clk_diff;
-
-	DECLARE_GLOBAL_DATA_PTR;
 
 	scy = (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
 	if (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {

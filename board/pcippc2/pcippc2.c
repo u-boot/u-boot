@@ -34,6 +34,8 @@
 #include "sconsole.h"
 #include "fpga_serial.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_WATCHDOG)
 
 static int pcippc2_wdt_init_done = 0;
@@ -108,8 +110,6 @@ int board_early_init_f (void)
 
 void after_reloc (ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Jump to the main U-Boot board init code
 	 */
 	board_init_r ((gd_t *)gd, dest_addr);

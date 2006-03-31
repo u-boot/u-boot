@@ -27,6 +27,8 @@
 
 #include "scm.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void config_scoh_cs(void);
 extern int  fpga_init(void);
 
@@ -300,8 +302,6 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
  */
 int power_on_reset (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Test Reset Status Register */
 	return gd->reset_status & RSR_CSRS ? 0 : 1;
 }

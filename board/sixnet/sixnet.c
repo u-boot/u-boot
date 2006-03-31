@@ -38,6 +38,8 @@
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define ORMASK(size) ((-size) & OR_AM_MSK)
 
 static long ram_size(ulong *, long);
@@ -256,8 +258,6 @@ int board_postclk_init (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	char* s;

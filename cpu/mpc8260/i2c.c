@@ -34,6 +34,8 @@
 /* define to enable debug messages */
 #undef  DEBUG_I2C
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* uSec to wait between polls of the i2c */
 #define DELAY_US	100
 /* uSec to wait for the CPM to start processing the buffer */
@@ -213,8 +215,6 @@ static int i2c_setrate(int hz, int speed)
 
 void i2c_init(int speed, int slaveadd)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
 	volatile cpm8260_t *cp = (cpm8260_t *)&immap->im_cpm;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;

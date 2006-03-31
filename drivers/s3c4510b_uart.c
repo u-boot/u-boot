@@ -50,6 +50,8 @@
 #include <asm/hardware.h>
 #include "s3c4510b_uart.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static UART    *uart;
 
 /* flush serial input queue. returns 0 on success or negative error
@@ -82,8 +84,6 @@ static int serial_flush_output(void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	UART_LINE_CTRL ulctrl;
 	UART_CTRL      uctrl;
 	UART_BAUD_DIV  ubd;

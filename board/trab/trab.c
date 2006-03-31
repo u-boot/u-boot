@@ -28,7 +28,7 @@
 #include <s3c2400.h>
 #include <command.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CFG_BRIGHTNESS
 static void spi_init(void);
@@ -52,8 +52,6 @@ extern int do_mdm_init; /* defined in common/main.c */
 #define KBD_MDELAY	5000
 static void udelay_no_timer (int usec)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int i;
 	int delay = usec * 3;
 
@@ -70,7 +68,6 @@ int board_init ()
 #if defined(CONFIG_VFD)
 	extern int vfd_init_clocks(void);
 #endif
-	DECLARE_GLOBAL_DATA_PTR;
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
@@ -141,8 +138,6 @@ int board_init ()
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	return 0;

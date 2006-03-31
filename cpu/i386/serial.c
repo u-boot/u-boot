@@ -55,6 +55,8 @@
 #include <malloc.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define UART_RBR    0x00
 #define UART_THR    0x00
 #define UART_IER    0x01
@@ -126,12 +128,8 @@ static int serial_div(int baudrate)
 
 int serial_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile char val;
-
 	int bdiv = serial_div(gd->baudrate);
-
 
 	outb(0x80, UART0_BASE + UART_LCR);	/* set DLAB bit */
 	outb(bdiv, UART0_BASE + UART_DLL);	/* set baudrate divisor */
@@ -150,8 +148,6 @@ int serial_init(void)
 
 void serial_setbrg(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned short bdiv;
 
 	bdiv = serial_div(gd->baudrate);
@@ -410,8 +406,6 @@ int serial_buffered_tstc(void)
 #if (CONFIG_KGDB_SER_INDEX & 2)
 void kgdb_serial_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile char val;
 	bdiv = serial_div (CONFIG_KGDB_BAUDRATE);
 

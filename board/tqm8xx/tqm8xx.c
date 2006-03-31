@@ -31,11 +31,9 @@
 #include <ps2mult.h>
 #endif
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 static long int dram_size (long int, long int *, long int);
-
-/* ------------------------------------------------------------------------- */
 
 #define	_NOT_USED_	0xFFFFFFFF
 
@@ -104,8 +102,6 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char *s = getenv ("serial#");
 
 	puts ("Board: ");

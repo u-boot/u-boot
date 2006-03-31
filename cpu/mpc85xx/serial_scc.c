@@ -35,6 +35,8 @@
 #include <common.h>
 #include <asm/cpm_85xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CPM2)
 #if defined(CONFIG_CONS_ON_SCC)
 
@@ -186,8 +188,6 @@ int serial_init (void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_CONS_USE_EXTC)
 	m8560_cpm_extcbrg(SCC_INDEX, gd->baudrate,
 		CONFIG_CONS_EXTC_RATE, CONFIG_CONS_EXTC_PINSEL);

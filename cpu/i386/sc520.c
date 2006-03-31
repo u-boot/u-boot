@@ -36,6 +36,8 @@
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * utility functions for boards based on the AMD sc520
  *
@@ -93,8 +95,6 @@ u32 read_mmcr_long(u16 mmcr)
 
 void init_sc520(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Set the UARTxCTL register at it's slower,
 	 * baud clock giving us a 1.8432 MHz reference
 	 */
@@ -139,7 +139,6 @@ void init_sc520(void)
 
 unsigned long init_sc520_dram(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd = gd->bd;
 
 	u32 dram_present=0;

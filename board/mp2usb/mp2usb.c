@@ -31,15 +31,14 @@
 #include <dm9161.h>
 #include <asm/mach-types.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Miscelaneous platform dependent initialisations
  */
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Enable Ctrlc */
 	console_init_f ();
 
@@ -56,8 +55,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
 	return 0;

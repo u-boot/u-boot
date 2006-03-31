@@ -37,6 +37,9 @@
 #include "mpsc.h"
 #include "i2c.h"
 #include "64260.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_ZUMA_V2
 extern void zuma_mbox_init(void);
 #endif
@@ -323,8 +326,6 @@ int misc_init_r (void)
 void
 after_reloc(ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* check to see if we booted from the sram.  If so, move things
 	 * back to the way they should be. (we're running from main
 	 * memory at this point now */

@@ -60,6 +60,8 @@
 #include <i2c.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static char *failed = "*** failed ***\n";
 
 #ifdef	CONFIG_PCU_E
@@ -111,8 +113,6 @@ static	ulong	mem_malloc_brk	 = 0;
  */
 static void mem_malloc_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
 
 	mem_malloc_end = dest_addr;
@@ -177,8 +177,6 @@ typedef int (init_fnc_t) (void);
 
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
@@ -192,8 +190,6 @@ static int init_baudrate (void)
 
 static int init_func_ram (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int board_type = 0;	/* use dummy arg */
 	puts ("DRAM:  ");
 
@@ -263,8 +259,6 @@ init_fnc_t *init_sequence[] = {
 void
 board_init_f (ulong bootflag)
 {
-    DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd;
 	ulong len, addr, addr_sp;
 	gd_t *id;
@@ -414,7 +408,6 @@ board_init_f (ulong bootflag)
  */
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	cmd_tbl_t *cmdtp;
 	char *s, *e;
 	bd_t *bd;

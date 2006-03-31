@@ -78,11 +78,10 @@ env_t *env_ptr = 0;
 /* local functions */
 static void use_default(void);
 
+DECLARE_GLOBAL_DATA_PTR;
 
 uchar env_get_char_spec (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return ( *((uchar *)(gd->env_addr + index)) );
 }
 
@@ -95,8 +94,6 @@ uchar env_get_char_spec (int index)
  */
 int env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->env_addr  = (ulong)&default_environment[0];
 	gd->env_valid = 1;
 
@@ -113,8 +110,6 @@ int saveenv(void)
 {
 	ulong total;
 	int ret = 0;
-
-	DECLARE_GLOBAL_DATA_PTR;
 
 	env_ptr->flags++;
 	total = CFG_ENV_SIZE;
@@ -173,8 +168,6 @@ void env_relocate_spec (void)
 	ulong total;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
-
-	DECLARE_GLOBAL_DATA_PTR;
 
 	total = CFG_ENV_SIZE;
 
@@ -245,8 +238,6 @@ void env_relocate_spec (void)
 
 static void use_default()
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	puts ("*** Warning - bad CRC or NAND, using default environment\n\n");
 
 	if (default_environment_size > CFG_ENV_SIZE){

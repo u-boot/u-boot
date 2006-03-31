@@ -39,6 +39,10 @@
 
 /* #define	DEBUG_I2C	*/
 
+#ifdef DEBUG_I2C
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 
 /*-----------------------------------------------------------------------
  * Definitions
@@ -53,7 +57,6 @@
 
 #ifdef DEBUG_I2C
 #define PRINTD(fmt,args...)	do {	\
-	DECLARE_GLOBAL_DATA_PTR;	\
 	if (gd->have_console)		\
 		printf (fmt ,##args);	\
 	} while (0)

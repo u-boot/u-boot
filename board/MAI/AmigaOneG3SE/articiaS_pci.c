@@ -26,6 +26,8 @@
 #include "memio.h"
 #include "articiaS.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef ARTICIA_PCI_DEBUG
 
 #ifdef  ARTICIA_PCI_DEBUG
@@ -493,8 +495,6 @@ pci_dev_t video_dev;
 
 int articiaS_init_vga (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
     extern void shutdown_bios(void);
     pci_dev_t dev = ~0;
     int busnr = 0;

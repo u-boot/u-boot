@@ -24,13 +24,13 @@
 #include <common.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * get_clocks() fills in gd->cpu_clock and gd->bus_clk
  */
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->cpu_clk = CFG_CLK;
 #ifdef CONFIG_M5249
 	gd->bus_clk = gd->cpu_clk / 2;

@@ -28,6 +28,8 @@
 #include <net.h>
 #include <asm/iopin_8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*-----------------------------------------------------------------------
  * Board Special Commands: FPGA load/store, EEPROM erase
  */
@@ -75,8 +77,6 @@
 int
 fpga_load (int mezz, uchar *addr, ulong size)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	xlx_info_t *fp;
 	xlx_iopins_t *fpgaio;

@@ -170,14 +170,14 @@ static long int dram_size (long int mamr_value, long int *base,
 	memctl->memc_mamr = mamr_value;
 
 	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
-		addr = base + cnt;	/* pointer arith! */
+		addr = (volatile ulong *)(base + cnt);	/* pointer arith! */
 
 		save[i++] = *addr;
 		*addr = ~cnt;
 	}
 
 	/* write 0 to base address */
-	addr = base;
+	addr = (volatile ulong *)base;
 	save[i] = *addr;
 	*addr = 0;
 
@@ -194,7 +194,7 @@ static long int dram_size (long int mamr_value, long int *base,
 	}
 
 	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;	/* pointer arith! */
+		addr = (volatile ulong *)(base + cnt);	/* pointer arith! */
 
 		val = *addr;
 		*addr = save[--i];

@@ -34,6 +34,8 @@
 #include <pci.h>
 #include <sm501.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_VIDEO_SM501
 
 #define SWAP32(x)	 ((((x) & 0x000000ff) << 24) | (((x) & 0x0000ff00) << 8)|\
@@ -358,8 +360,6 @@ int board_early_init_f (void)
 
 int cf_enable(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int i;
 
 	volatile unsigned short *fpga_ctrl =
@@ -391,8 +391,6 @@ int cf_enable(void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile unsigned short *fpga_ctrl =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
 	volatile unsigned short *lcd_contrast =
@@ -628,8 +626,6 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 
@@ -673,8 +669,6 @@ long int initdram (int board_type)
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile unsigned short *fpga_mode =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
 	volatile unsigned short *fpga_status =
@@ -788,8 +782,6 @@ U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
  */
 void video_get_info_str (int line_number, char *info)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char str[64];
 	char str2[64];
 	int i = getenv_r("serial#", str2, sizeof(str));

@@ -27,6 +27,8 @@
 #ifdef CFG_CMD_IDE
 #include <mpc5xxx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define CALC_TIMING(t) (t + period - 1) / period
 
 #ifdef CONFIG_IDE_RESET
@@ -35,7 +37,6 @@ extern void init_ide_reset (void);
 
 int ide_preinit (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	long period, t0, t1, t2_8, t2_16, t4, ta;
 	vu_long reg;
 	struct mpc5xxx_sdma *psdma = (struct mpc5xxx_sdma *) MPC5XXX_SDMA;

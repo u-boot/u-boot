@@ -41,6 +41,10 @@
 #include <asm/iopin_8260.h>
 #endif
 
+#if defined(CONFIG_8xx) || defined(CONFIG_8260)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 static void
 unimplemented ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -450,10 +454,8 @@ static void prbrg (int n, uint val)
 	uint div16 = (val & CPM_BRG_DIV16) != 0;
 
 #if defined(CONFIG_8xx)
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong clock = gd->cpu_clk;
 #elif defined(CONFIG_8260)
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong clock = gd->brg_clk;
 #endif
 

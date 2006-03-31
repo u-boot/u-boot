@@ -29,6 +29,8 @@
 #include <mpc83xx.h>
 #include <ioports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Breathe some life into the CPU...
  *
@@ -38,8 +40,6 @@
  */
 void cpu_init_f (volatile immap_t * im)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
 

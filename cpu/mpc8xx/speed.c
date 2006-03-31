@@ -25,6 +25,8 @@
 #include <mpc8xx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if !defined(CONFIG_8xx_CPUCLK_DEFAULT) || defined(CFG_MEASURE_CPUCLK) || defined(DEBUG)
 
 #define PITC_SHIFT 16
@@ -181,8 +183,6 @@ unsigned long measure_gclk(void)
  */
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint immr = get_immr (0);	/* Return full IMMR contents */
 	volatile immap_t *immap = (immap_t *) (immr & 0xFFFF0000);
 	uint sccr = immap->im_clkrst.car_sccr;
@@ -238,8 +238,6 @@ static long init_pll_866 (long clk);
  */
 int get_clocks_866 (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	char		  tmp[64];
 	long		  cpuclk = 0;
@@ -277,8 +275,6 @@ int get_clocks_866 (void)
  */
 int sdram_adjust_866 (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	long		  mamr;
 
@@ -371,8 +367,6 @@ static long init_pll_866 (long clk)
  */
 int adjust_sdram_tbs_8xx (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	long		  mamr;
 	long              sccr;

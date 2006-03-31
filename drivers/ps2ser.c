@@ -21,6 +21,8 @@
 #include <asm/atomic.h>
 #include <ps2mult.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* #define	DEBUG */
 
 #define PS2SER_BAUD	57600
@@ -61,8 +63,6 @@ static int	ps2buf_out_idx;
 #ifdef CONFIG_MPC5xxx
 int ps2ser_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
 	unsigned long baseclk;
 	int div;

@@ -26,6 +26,8 @@
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_PCI
 
 /* System RAM mapped to PCI space */
@@ -127,7 +129,6 @@ pib_init(void)
 void
 pci_init_board(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *	immr;
 	volatile clk8349_t *	clk;
 	volatile law8349_t *	pci_law;

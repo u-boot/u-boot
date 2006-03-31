@@ -23,6 +23,8 @@
 #include "tsec.h"
 #include "miiphy.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define TX_BUF_CNT		2
 
 static uint rxIdx;	/* index of the current RX buffer */
@@ -1082,7 +1084,6 @@ static void relocate_cmds(void)
 	struct phy_cmd **cmdlistptr;
 	struct phy_cmd *cmd;
 	int i,j,k;
-	DECLARE_GLOBAL_DATA_PTR;
 
 	for(i=0; phy_info[i]; i++) {
 		/* First thing's first: relocate the pointers to the

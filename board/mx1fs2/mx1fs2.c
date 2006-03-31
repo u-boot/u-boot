@@ -19,8 +19,9 @@
  */
 
 #include <common.h>
-
 #include <asm/arch/imx-regs.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define SHOW_BOOT_PROGRESS(arg)        show_boot_progress(arg)
 
@@ -79,8 +80,6 @@ static void logo_init(void)
 int
 board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_arch_number = MACH_TYPE_MX1FS2;
 	gd->bd->bi_boot_params = 0x08000100;
 serial_init();
@@ -91,8 +90,6 @@ serial_init();
 int
 dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #if ( CONFIG_NR_DRAM_BANKS > 0 )
 	gd->bd->bi_dram[0].start = MX1FS2_SDRAM_1;
 	gd->bd->bi_dram[0].size = MX1FS2_SDRAM_1_SIZE;

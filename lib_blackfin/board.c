@@ -35,6 +35,8 @@
 #include "blackfin_board.h"
 #include "../drivers/smc91111.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern flash_info_t flash_info[];
 
 
@@ -76,8 +78,6 @@ static void display_flash_config(ulong size)
 
 static int init_baudrate(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar tmp[64];
 	int i = getenv_r("baudrate", tmp, sizeof(tmp));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
@@ -89,7 +89,6 @@ static int init_baudrate(void)
 #ifdef DEBUG
 static void display_global_data(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd;
 	bd = gd->bd;
 	printf("--flags:%x\n", gd->flags);
@@ -136,7 +135,6 @@ static void display_global_data(void)
 
 void board_init_f(ulong bootflag)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong addr;
 	bd_t *bd;
 
@@ -173,7 +171,6 @@ void board_init_f(ulong bootflag)
 
 void board_init_r(gd_t * id, ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong size;
 	extern void malloc_bin_reloc(void);
 	char *s, *e;

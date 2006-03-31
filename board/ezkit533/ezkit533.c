@@ -30,6 +30,8 @@
 #include "psd4256.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard(void)
 {
 	printf("CPU:   ADSP BF533 Rev.: 0.%d\n", *pCHIPID >> 28);
@@ -41,7 +43,6 @@ int checkboard(void)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	int brate;
 	char *tmp = getenv("baudrate");

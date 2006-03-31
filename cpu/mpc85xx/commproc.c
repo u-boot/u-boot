@@ -24,6 +24,8 @@
 #include <common.h>
 #include <asm/cpm_85xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CPM2)
 /*
  * because we have stack and init data in dual port ram
@@ -35,8 +37,6 @@
 void
 m8560_cpm_reset(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile ulong count;
 
@@ -64,8 +64,6 @@ m8560_cpm_reset(void)
 uint
 m8560_cpm_dpalloc(uint size, uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	uint	retloc;
 	uint	align_mask, off;
@@ -122,8 +120,6 @@ m8560_cpm_hostalloc(uint size, uint align)
 void
 m8560_cpm_setbrg(uint brg, uint rate)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile uint	*bp;
 
@@ -146,8 +142,6 @@ m8560_cpm_setbrg(uint brg, uint rate)
 void
 m8560_cpm_fastbrg(uint brg, uint rate, int div16)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile uint	*bp;
 

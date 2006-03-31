@@ -30,6 +30,7 @@
 #include <net.h>
 #include <exports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 #if (CONFIG_COMMANDS & CFG_CMD_LOADS)
 static ulong load_serial (ulong offset);
@@ -53,7 +54,6 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *env_echo;
 	int rcode = 0;
 #ifdef	CFG_LOADS_BAUD_CHANGE
-	DECLARE_GLOBAL_DATA_PTR;
 	int load_baudrate, current_baudrate;
 
 	load_baudrate = current_baudrate = gd->baudrate;
@@ -213,7 +213,6 @@ load_serial (ulong offset)
 static int
 read_record (char *buf, ulong len)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	char *p;
 	char c;
 
@@ -256,7 +255,6 @@ int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong offset = 0;
 	ulong size   = 0;
 #ifdef	CFG_LOADS_BAUD_CHANGE
-	DECLARE_GLOBAL_DATA_PTR;
 	int save_baudrate, current_baudrate;
 
 	save_baudrate = current_baudrate = gd->baudrate;
@@ -433,8 +431,6 @@ char his_quote;      /* quote chars he'll use */
 
 int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong offset = 0;
 	ulong addr;
 	int load_baudrate, current_baudrate;

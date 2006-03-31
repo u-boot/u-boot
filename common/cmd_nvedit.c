@@ -50,6 +50,8 @@
 #include <net.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if !defined(CFG_ENV_IS_IN_NVRAM)	&& \
     !defined(CFG_ENV_IS_IN_EEPROM)	&& \
     !defined(CFG_ENV_IS_IN_FLASH)	&& \
@@ -152,8 +154,6 @@ int do_printenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int _do_setenv (int flag, int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int   i, len, oldval;
 	int   console = -1;
 	uchar *env, *nxt = NULL;

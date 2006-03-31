@@ -949,6 +949,8 @@ void malloc_stats();
 #endif	/* 0 */			/* Moved to malloc.h */
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
   Emulation of sbrk for WIN32
   All code within the ifdef WIN32 is untested by me.
@@ -1493,8 +1495,6 @@ static mbinptr av_[NAV * 2 + 2] = {
 
 void malloc_bin_reloc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long *p = (unsigned long *)(&av_[2]);
 	int i;
 	for (i=2; i<(sizeof(av_)/sizeof(mbinptr)); ++i) {

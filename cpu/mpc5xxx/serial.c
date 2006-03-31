@@ -33,6 +33,8 @@
 #include <common.h>
 #include <mpc5xxx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_PSC_CONSOLE)
 
 #if CONFIG_PSC_CONSOLE == 1
@@ -55,8 +57,6 @@
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
 	unsigned long baseclk;
 	int div;
@@ -146,8 +146,6 @@ serial_tstc(void)
 void
 serial_setbrg(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
 	unsigned long baseclk, div;
 

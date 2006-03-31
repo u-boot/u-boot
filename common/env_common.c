@@ -37,6 +37,8 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_AMIGAONEG3SE
 	extern void enable_nvram(void);
 	extern void disable_nvram(void);
@@ -150,7 +152,6 @@ void env_crc_update (void)
 
 static uchar env_get_char_init (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	uchar c;
 
 	/* if crc was bad, use the default environment */
@@ -167,7 +168,6 @@ static uchar env_get_char_init (int index)
 #ifdef CONFIG_AMIGAONEG3SE
 uchar env_get_char_memory (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	uchar retval;
 	enable_nvram();
 	if (gd->env_valid) {
@@ -181,8 +181,6 @@ uchar env_get_char_memory (int index)
 #else
 uchar env_get_char_memory (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->env_valid) {
 		return ( *((uchar *)(gd->env_addr + index)) );
 	} else {
@@ -193,8 +191,6 @@ uchar env_get_char_memory (int index)
 
 uchar *env_get_addr (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->env_valid) {
 		return ( ((uchar *)(gd->env_addr + index)) );
 	} else {
@@ -204,8 +200,6 @@ uchar *env_get_addr (int index)
 
 void env_relocate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	DEBUGF ("%s[%d] offset = 0x%lx\n", __FUNCTION__,__LINE__,
 		gd->reloc_off);
 

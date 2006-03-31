@@ -1,6 +1,8 @@
 #include <common.h>
 #include <exports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void dummy(void)
 {
 }
@@ -12,7 +14,6 @@ unsigned long get_version(void)
 
 void jumptable_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
 	gd->jt = (void **) malloc (XF_MAX * sizeof (void *));

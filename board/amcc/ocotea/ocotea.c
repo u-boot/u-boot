@@ -30,6 +30,8 @@
 #include <spd_sdram.h>
 #include <ppc4xx_enet.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define BOOT_SMALL_FLASH	32	/* 00100000 */
 #define FLASH_ONBD_N		2	/* 00000010 */
 #define FLASH_SRAM_SEL		1	/* 00000001 */
@@ -204,7 +206,7 @@ long int initdram (int board_type)
 	long dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram (0);
+	dram_size = spd_sdram ();
 #else
 	dram_size = fixed_sdram ();
 #endif
@@ -334,8 +336,6 @@ int pci_pre_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/

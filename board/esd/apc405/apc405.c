@@ -26,7 +26,7 @@
 #include <command.h>
 #include <malloc.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 #if 0
 #define FPGA_DEBUG
@@ -166,8 +166,6 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile unsigned short *fpga_mode =
 		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
 	volatile unsigned short *fpga_ctrl2 =
@@ -301,8 +299,6 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 

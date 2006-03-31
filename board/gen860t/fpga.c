@@ -32,6 +32,8 @@
 #include <command.h>
 #include "fpga.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_FPGA)
 
 #if 0
@@ -189,8 +191,6 @@ void fpga_selectmap_init (void)
  */
 int gen860t_init_fpga (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int i;
 
 	PRINTF ("%s:%d: Initialize FPGA interface (relocation offset = 0x%.8lx)\n", __FUNCTION__, __LINE__, gd->reloc_off);

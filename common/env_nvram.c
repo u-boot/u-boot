@@ -42,6 +42,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CFG_ENV_IS_IN_NVRAM /* Environment is in NVRAM */
 
 #include <command.h>
@@ -74,7 +76,6 @@ uchar env_get_char_spec (int index)
 
 	return c;
 #else
-	DECLARE_GLOBAL_DATA_PTR;
 	uchar retval;
 	enable_nvram();
 	retval = *((uchar *)(gd->env_addr + index));
@@ -92,8 +93,6 @@ uchar env_get_char_spec (int index)
 
 	return c;
 #else
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return *((uchar *)(gd->env_addr + index));
 #endif
 }
@@ -135,7 +134,6 @@ int saveenv (void)
  */
 int env_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
 #endif

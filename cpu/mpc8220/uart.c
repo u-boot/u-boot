@@ -30,12 +30,13 @@
 #include <common.h>
 #include <mpc8220.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define PSC_BASE   MMAP_PSC1
 
 #if defined(CONFIG_PSC_CONSOLE)
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 	u32 counter;
 
@@ -106,8 +107,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 	u32 counter;
 

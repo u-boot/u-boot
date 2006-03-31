@@ -3,6 +3,7 @@
 #include "../disk/part_amiga.h"
 #include <asm/cache.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 #undef BOOTA_DEBUG
 
@@ -108,8 +109,6 @@ int do_boota (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	s = getenv ("autostart");
 	if (s && strcmp (s, "yes") == 0) {
-		DECLARE_GLOBAL_DATA_PTR;
-
 		void (*boot) (bd_t *, char *, block_dev_desc_t *);
 		char *args;
 

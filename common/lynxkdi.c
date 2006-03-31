@@ -20,13 +20,14 @@
 #if defined(CONFIG_LYNXKDI)
 #include <lynxkdi.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_MPC8260) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 void lynxkdi_boot ( image_header_t *hdr )
 {
 	void (*lynxkdi)(void) = (void(*)(void)) ntohl(hdr->ih_ep);
 	lynxos_bootparms_t *parms = (lynxos_bootparms_t *)0x0020;
 	bd_t *kbd;
-	DECLARE_GLOBAL_DATA_PTR;
 	u32 *psz = (u32 *)(ntohl(hdr->ih_load) + 0x0204);
 
 	memset( parms, 0, sizeof(*parms));

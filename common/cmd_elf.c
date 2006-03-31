@@ -19,6 +19,9 @@
 #include <net.h>
 #include <elf.h>
 
+#if defined(CONFIG_WALNUT) || defined(CFG_VXWORKS_MAC_PTR)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
 
@@ -78,11 +81,6 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * ====================================================================== */
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_WALNUT)	|| \
-    defined(CFG_VXWORKS_MAC_PTR)
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 	unsigned long addr;		/* Address of image            */
 	unsigned long bootaddr;		/* Address to put the bootline */
 	char *bootline;			/* Text of the bootline        */

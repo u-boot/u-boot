@@ -32,6 +32,8 @@
 #include <environment.h>
 #include <linux/stddef.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 env_t *env_ptr = NULL;
 
 char * env_name_spec = "EEPROM";
@@ -75,8 +77,6 @@ int saveenv(void)
  */
 int env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong crc, len, new;
 	unsigned off;
 	uchar buf[64];

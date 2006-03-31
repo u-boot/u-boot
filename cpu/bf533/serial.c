@@ -51,6 +51,8 @@
 #include <asm/uaccess.h>
 #include "bf533_serial.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 unsigned long pll_div_fact;
 
 void calc_baud(void)
@@ -72,7 +74,6 @@ void calc_baud(void)
 void serial_setbrg(void)
 {
 	int i;
-	DECLARE_GLOBAL_DATA_PTR;
 
 	calc_baud();
 

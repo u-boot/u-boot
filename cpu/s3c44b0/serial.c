@@ -37,6 +37,8 @@
 #include <common.h>
 #include <asm/hardware.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* flush serial input queue. returns 0 on success or negative error
  * number otherwise
  */
@@ -68,8 +70,6 @@ static int serial_flush_output(void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	u32 divisor = 0;
 
 	/* get correct divisor */

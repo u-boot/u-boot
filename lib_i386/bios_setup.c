@@ -36,6 +36,8 @@
 #include <asm/realmode.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define NUMVECTS	256
 
 #define BIOS_DATA        ((char*)0x400)
@@ -136,7 +138,6 @@ static void setvector(int vector, u16 segment, void *handler)
 
 int bios_setup(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	static int done=0;
 	int vector;
 	struct pci_controller *pri_hose;

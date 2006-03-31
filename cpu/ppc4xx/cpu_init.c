@@ -27,6 +27,10 @@
 #include <asm/processor.h>
 #include <ppc4xx.h>
 
+#if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 
 #define mtebc(reg, data)  mtdcr(ebccfga,reg);mtdcr(ebccfgd,data)
 
@@ -209,8 +213,6 @@ cpu_init_f (void)
 int cpu_init_r (void)
 {
 #if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd = gd->bd;
 	unsigned long reg;
 #if defined(CONFIG_405GP)

@@ -38,10 +38,11 @@
 #include <ft_build.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 
 int checkcpu(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr();
 	char buf[32];
@@ -138,8 +139,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 unsigned long get_tbclk(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong tbclk;
 
 	tbclk = (gd->bus_clk + 3L) / 4L;

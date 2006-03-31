@@ -31,10 +31,10 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int quot = 0;
 	int uart = CFG_IXP425_CONSOLE;
 

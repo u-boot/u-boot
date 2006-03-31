@@ -27,13 +27,14 @@
 #include <common.h>
 #include <asm/hardware.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Miscelaneous platform dependent initialization
  */
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	u32 temp;
 
 	/* Configuration Port Control Register*/
@@ -119,8 +120,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

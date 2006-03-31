@@ -34,6 +34,8 @@
 #include "mt48lc16m16a2-75.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CFG_RAMBOOT
 static void sdram_start (int hi_addr)
 {
@@ -281,7 +283,6 @@ extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	/* adjust flash start */
 	gd->bd->bi_flashstart = flash_info[0].start[0];
 	return (0);

@@ -64,7 +64,7 @@ long int initdram (int board_type)
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
-	msize = spd_sdram(NULL);
+	msize = spd_sdram();
 #else
 	msize = fixed_sdram();
 #endif

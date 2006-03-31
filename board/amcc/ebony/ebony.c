@@ -28,6 +28,8 @@
 #define FLASH_ONBD_N		2	/* 00000010 */
 #define FLASH_SRAM_SEL		1	/* 00000001 */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 long int fixed_sdram(void);
 
 int board_early_init_f(void)
@@ -107,7 +109,7 @@ long int initdram(int board_type)
 	long dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram(0);
+	dram_size = spd_sdram();
 #else
 	dram_size = fixed_sdram();
 #endif
@@ -235,8 +237,6 @@ int pci_pre_init(struct pci_controller *hose)
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/

@@ -28,6 +28,8 @@
 #include <common.h>
 #include <clps7111.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -37,8 +39,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Activate LED flasher */
 	IO_LEDFLSH = 0x40;
 
@@ -53,8 +53,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

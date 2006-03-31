@@ -26,10 +26,10 @@
 #include <common.h>
 #include <command.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int pvr = get_pvr ();
 	unsigned int version = pvr >> 16;
 	unsigned char revision;

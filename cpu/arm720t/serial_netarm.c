@@ -34,6 +34,8 @@
 
 #include <asm/hardware.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define PORTA	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTA))
 #if !defined(CONFIG_NETARM_NS7520)
 #define PORTB	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_PORTB))
@@ -67,9 +69,6 @@ extern void _netarm_led_FAIL1(void);
  */
 void serial_setbrg (void)
 {
-	/* get the gd pointer */
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* set 0 ... make sure pins are configured for serial */
 #if !defined(CONFIG_NETARM_NS7520)
 	PORTA = PORTB =

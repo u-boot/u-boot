@@ -39,6 +39,8 @@
 #include <devices.h>
 #include <s3c2400.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_VFD
 
 /************************************************************************/
@@ -86,7 +88,6 @@ unsigned char bit_vfd_table[112][18][2][4][2];
  */
 void init_grid_ctrl(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong adr, grid_cycle;
 	unsigned int bit, display;
 	unsigned char temp, bit_nr;
@@ -172,7 +173,6 @@ void init_grid_ctrl(void)
  */
 void create_vfd_table(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long vfd_table[112][18][2][4][2];
 	unsigned int x, y, color, display, entry, pixel;
 	unsigned int x_abcdef = 0;
@@ -280,7 +280,6 @@ void set_vfd_pixel(unsigned char x, unsigned char y,
 		   unsigned char color, unsigned char display,
 		   unsigned char value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong adr;
 	unsigned char bit_nr, temp;
 
@@ -434,8 +433,6 @@ int drv_vfd_init(void)
 	ulong palette;
 	static int vfd_init_done = 0;
 	int vfd_inv_data = 0;
-
-	DECLARE_GLOBAL_DATA_PTR;
 
 	if (vfd_init_done != 0)
 		return (0);

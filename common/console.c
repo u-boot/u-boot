@@ -27,6 +27,8 @@
 #include <console.h>
 #include <exports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_AMIGAONEG3SE
 int console_changed = 0;
 #endif
@@ -48,7 +50,6 @@ extern int overwrite_console (void);
 
 static int console_setfile (int file, device_t * dev)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int error = 0;
 
 	if (dev == NULL)
@@ -161,8 +162,6 @@ void fprintf (int file, const char *fmt, ...)
 
 int getc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Get from the standard input */
 		return fgetc (stdin);
@@ -174,8 +173,6 @@ int getc (void)
 
 int tstc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Test the standard input */
 		return ftstc (stdin);
@@ -187,8 +184,6 @@ int tstc (void)
 
 void putc (const char c)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
@@ -205,8 +200,6 @@ void putc (const char c)
 
 void puts (const char *s)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
@@ -258,8 +251,6 @@ static int ctrlc_disabled = 0;	/* see disable_ctrl() */
 static int ctrlc_was_pressed = 0;
 int ctrlc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (!ctrlc_disabled && gd->have_console) {
 		if (tstc ()) {
 			switch (getc ()) {
@@ -370,8 +361,6 @@ int console_assign (int file, char *devname)
 /* Called before relocation - use serial functions */
 int console_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->have_console = 1;
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -407,7 +396,6 @@ device_t *search_device (int flags, char *name)
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	char *stdinname, *stdoutname, *stderrname;
 	device_t *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
 #ifdef CFG_CONSOLE_ENV_OVERWRITE
@@ -499,8 +487,6 @@ int console_init_r (void)
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	device_t *inputdev = NULL, *outputdev = NULL;
 	int i, items = ListNumItems (devlist);
 

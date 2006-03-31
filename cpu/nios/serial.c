@@ -26,6 +26,8 @@
 #include <watchdog.h>
 #include <nios-io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*------------------------------------------------------------------
  * JTAG acts as the serial port
  *-----------------------------------------------------------------*/
@@ -83,7 +85,6 @@ int serial_init (void) { return (0);}
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned div;
 
 	div = (CONFIG_SYS_CLK_FREQ/gd->baudrate)-1;

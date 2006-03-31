@@ -39,6 +39,8 @@
 
 #ifdef CONFIG_VIDEO
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /************************************************************************/
 /* ** DEBUG SETTINGS							*/
 /************************************************************************/
@@ -1164,7 +1166,6 @@ static void *video_logo (void)
 	u16 *screen = video_fb_address, width = VIDEO_COLS;
 #ifdef VIDEO_INFO
 # ifndef CONFIG_FADS
-	DECLARE_GLOBAL_DATA_PTR;
 	char temp[32];
 # endif
 	char info[80];
@@ -1282,8 +1283,6 @@ static int video_init (void *videobase)
 
 int drv_video_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int error, devices = 1;
 
 	device_t videodev;

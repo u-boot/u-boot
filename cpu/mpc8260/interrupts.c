@@ -29,6 +29,8 @@
 #include <mpc8260_irq.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /****************************************************************************/
 
 struct irq_action {
@@ -140,8 +142,6 @@ static int m8260_get_irq (struct pt_regs *regs)
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;

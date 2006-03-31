@@ -29,6 +29,8 @@
 
 #include "p3p440.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void set_led(int color)
 {
 	switch (color) {
@@ -141,8 +143,6 @@ int checkboard(void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -206,8 +206,6 @@ int pci_pre_init(struct pci_controller *hose)
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/

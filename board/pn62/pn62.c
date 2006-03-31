@@ -26,6 +26,7 @@
 
 #include "pn62.h"
 
+DECLARE_GLOBAL_DATA_PTR;
 
 static int get_serial_number (char *string, int size);
 static int get_mac_address (int id, u8 * mac, char *string, int size);
@@ -122,8 +123,6 @@ void pci_init_board (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char str[20];
 	u8 mac[6];
 

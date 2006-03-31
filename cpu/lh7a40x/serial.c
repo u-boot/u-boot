@@ -21,6 +21,8 @@
 #include <common.h>
 #include <lh7a40x.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CONSOLE_UART1)
 # define UART_CONSOLE 1
 #elif defined(CONFIG_CONSOLE_UART2)
@@ -33,7 +35,6 @@
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 	int i;
 	unsigned int reg = 0;

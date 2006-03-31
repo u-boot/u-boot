@@ -27,6 +27,8 @@
 #include <serial.h>
 #include <watchdog.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if !defined(CONFIG_8xx_CONS_NONE)	/* No Console at all */
 
 #if defined(CONFIG_8xx_CONS_SMC1)	/* Console on SMC1 */
@@ -65,7 +67,6 @@
 
 static void serial_setdivisor(volatile cpm8xx_t *cp)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
 
 	if(divisor/16>0x1000) {
@@ -268,8 +269,6 @@ smc_putc(const char c)
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 #ifdef CONFIG_MODEM_SUPPORT
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->be_quiet)
 		return;
 #endif
@@ -553,8 +552,6 @@ scc_putc(const char c)
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 #ifdef CONFIG_MODEM_SUPPORT
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->be_quiet)
 		return;
 #endif
@@ -649,13 +646,11 @@ struct serial_device serial_scc_device =
 #ifdef CONFIG_MODEM_SUPPORT
 void disable_putc(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->be_quiet = 1;
 }
 
 void enable_putc(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->be_quiet = 0;
 }
 #endif

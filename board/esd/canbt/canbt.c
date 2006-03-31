@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <command.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 /*cmd_boot.c*/
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -50,8 +51,6 @@ const unsigned char fpgadata[] = {
 
 int board_early_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long cntrl0Reg;
 	int index, len, i;
 	int status;

@@ -32,6 +32,8 @@
 #include <malloc.h>
 #include "mpsc.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int (*mpsc_putchar)(char ch) = mpsc_putchar_early;
 
 static volatile unsigned int *rx_desc_base=NULL;
@@ -115,7 +117,6 @@ struct _tag_mirror_hack {
 int
 mpsc_putchar_early(char ch)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int mpsc=CHANNEL;
 	int temp=GTREGREAD_MIRROR(GALMPSC_CHANNELREG_2,mpsc,GALMPSC_REG_GAP);
 	galmpsc_set_tcschar(mpsc,ch);
@@ -177,79 +178,82 @@ mpsc_putchar_sdma(char ch)
 	return 0;
 }
 
-char
-mpsc_getchar(void)
+char mpsc_getchar (void)
 {
-    DECLARE_GLOBAL_DATA_PTR;
-    static unsigned int done = 0;
-    volatile char ch;
-    unsigned int len=0, idx=0, temp;
+	static unsigned int done = 0;
+	volatile char ch;
+	unsigned int len = 0, idx = 0, temp;
 
-    volatile unsigned int *p;
+	volatile unsigned int *p;
 
 
-    do {
-	p=&rx_desc_base[rx_desc_index*8];
+	do {
+		p = &rx_desc_base[rx_desc_index * 8];
 
-	INVALIDATE_DCACHE(&p[0], &p[1]);
-	/* Wait for character */
-	while (p[1] & DESC_OWNER){
-	    udelay(100);
-	    INVALIDATE_DCACHE(&p[0], &p[1]);
-	}
+		INVALIDATE_DCACHE (&p[0], &p[1]);
+		/* Wait for character */
+		while (p[1] & DESC_OWNER) {
+			udelay (100);
+			INVALIDATE_DCACHE (&p[0], &p[1]);
+		}
 
-	/* Handle error case */
-	if (p[1] & (1<<15)) {
-		printf("oops, error: %08x\n", p[1]);
+		/* Handle error case */
+		if (p[1] & (1 << 15)) {
+			printf ("oops, error: %08x\n", p[1]);
 
-		temp = GTREGREAD_MIRROR(GALMPSC_CHANNELREG_2,CHANNEL,GALMPSC_REG_GAP);
-		temp |= (1 << 23);
-		GT_REG_WRITE_MIRROR(GALMPSC_CHANNELREG_2, CHANNEL,GALMPSC_REG_GAP, temp);
+			temp = GTREGREAD_MIRROR (GALMPSC_CHANNELREG_2,
+						 CHANNEL, GALMPSC_REG_GAP);
+			temp |= (1 << 23);
+			GT_REG_WRITE_MIRROR (GALMPSC_CHANNELREG_2, CHANNEL,
+					     GALMPSC_REG_GAP, temp);
 
-		/* Can't poll on abort bit, so we just wait. */
-		udelay(100);
+			/* Can't poll on abort bit, so we just wait. */
+			udelay (100);
 
-		galsdma_enable_rx();
-	}
+			galsdma_enable_rx ();
+		}
 
-	/* Number of bytes left in this descriptor */
-	len = p[0] & 0xffff;
+		/* Number of bytes left in this descriptor */
+		len = p[0] & 0xffff;
 
-	if (len) {
-	    /* Where to look */
-	    idx = 5;
-	    if (done > 3) idx = 4;
-	    if (done > 7) idx = 7;
-	    if (done > 11) idx = 6;
+		if (len) {
+			/* Where to look */
+			idx = 5;
+			if (done > 3)
+				idx = 4;
+			if (done > 7)
+				idx = 7;
+			if (done > 11)
+				idx = 6;
 
-	    INVALIDATE_DCACHE(&p[idx], &p[idx+1]);
-	    ch = p[idx] & 0xff;
-	    done++;
-	}
+			INVALIDATE_DCACHE (&p[idx], &p[idx + 1]);
+			ch = p[idx] & 0xff;
+			done++;
+		}
 
-	if (done < len) {
-		/* this descriptor has more bytes still
-		 * shift down the char we just read, and leave the
-		 * buffer in place for the next time around
-		 */
-		p[idx] =  p[idx] >> 8;
-		FLUSH_DCACHE(&p[idx], &p[idx+1]);
-	}
+		if (done < len) {
+			/* this descriptor has more bytes still
+			 * shift down the char we just read, and leave the
+			 * buffer in place for the next time around
+			 */
+			p[idx] = p[idx] >> 8;
+			FLUSH_DCACHE (&p[idx], &p[idx + 1]);
+		}
 
-	if (done == len) {
-		/* nothing left in this descriptor.
-		 * go to next one
-		 */
-		p[1] = DESC_OWNER | DESC_FIRST | DESC_LAST;
-		p[0] = 0x00100000;
-		FLUSH_DCACHE(&p[0], &p[1]);
-		/* Next descriptor */
-		rx_desc_index = (rx_desc_index + 1) % RX_DESC;
-		done = 0;
-	}
-    } while (len==0);	/* galileo bug.. len might be zero */
+		if (done == len) {
+			/* nothing left in this descriptor.
+			 * go to next one
+			 */
+			p[1] = DESC_OWNER | DESC_FIRST | DESC_LAST;
+			p[0] = 0x00100000;
+			FLUSH_DCACHE (&p[0], &p[1]);
+			/* Next descriptor */
+			rx_desc_index = (rx_desc_index + 1) % RX_DESC;
+			done = 0;
+		}
+	} while (len == 0);	/* galileo bug.. len might be zero */
 
-    return ch;
+	return ch;
 }
 
 int
@@ -266,8 +270,6 @@ mpsc_test_char(void)
 int
 mpsc_init(int baud)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	memset(MIRROR_HACK, 0, sizeof(struct _tag_mirror_hack));
 	MIRROR_HACK->GALMPSC_ROUTING_REGISTER_M=0x3fffffff;
 
@@ -382,7 +384,6 @@ mpsc_init2(void)
 int
 galbrg_set_baudrate(int channel, int rate)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int clock;
 
 	galbrg_disable(channel);
@@ -410,7 +411,6 @@ galbrg_set_baudrate(int channel, int rate)
 static int
 galbrg_set_CDV(int channel, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALBRG_0_CONFREG, channel, GALBRG_REG_GAP);
@@ -424,7 +424,6 @@ galbrg_set_CDV(int channel, int value)
 static int
 galbrg_enable(int channel)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALBRG_0_CONFREG, channel, GALBRG_REG_GAP);
@@ -437,7 +436,6 @@ galbrg_enable(int channel)
 static int
 galbrg_disable(int channel)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALBRG_0_CONFREG, channel, GALBRG_REG_GAP);
@@ -450,7 +448,6 @@ galbrg_disable(int channel)
 static int
 galbrg_set_clksrc(int channel, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALBRG_0_CONFREG,channel, GALBRG_REG_GAP);
@@ -583,7 +580,6 @@ galsdma_set_burstsize(int channel, unsigned int value)
 static int
 galmpsc_connect(int channel, int connect)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR_G(GALMPSC_ROUTING_REGISTER);
@@ -629,7 +625,6 @@ galmpsc_route_serial(int channel, int connect)
 static int
 galmpsc_route_rx_clock(int channel, int brg)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR_G(GALMPSC_RxC_ROUTE);
@@ -647,7 +642,6 @@ galmpsc_route_rx_clock(int channel, int brg)
 static int
 galmpsc_route_tx_clock(int channel, int brg)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR_G(GALMPSC_TxC_ROUTE);
@@ -688,7 +682,6 @@ galmpsc_write_config_regs(int mpsc, int mode)
 static int
 galmpsc_config_channel_regs(int mpsc)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	GT_REG_WRITE_MIRROR(GALMPSC_CHANNELREG_1,mpsc,GALMPSC_REG_GAP, 0);
 	GT_REG_WRITE_MIRROR(GALMPSC_CHANNELREG_2,mpsc,GALMPSC_REG_GAP, 0);
 	GT_REG_WRITE(GALMPSC_CHANNELREG_3+(mpsc*GALMPSC_REG_GAP), 1);
@@ -709,7 +702,6 @@ galmpsc_config_channel_regs(int mpsc)
 static int
 galmpsc_set_brkcnt(int mpsc, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_CHANNELREG_1,mpsc,GALMPSC_REG_GAP);
@@ -723,7 +715,6 @@ galmpsc_set_brkcnt(int mpsc, int value)
 static int
 galmpsc_set_tcschar(int mpsc, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_CHANNELREG_1,mpsc,GALMPSC_REG_GAP);
@@ -737,7 +728,6 @@ galmpsc_set_tcschar(int mpsc, int value)
 static int
 galmpsc_set_char_length(int mpsc, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_PROTOCONF_REG,mpsc,GALMPSC_REG_GAP);
@@ -751,7 +741,6 @@ galmpsc_set_char_length(int mpsc, int value)
 static int
 galmpsc_set_stop_bit_length(int mpsc, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_PROTOCONF_REG,mpsc,GALMPSC_REG_GAP);
@@ -764,7 +753,6 @@ galmpsc_set_stop_bit_length(int mpsc, int value)
 static int
 galmpsc_set_parity(int mpsc, int value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_CHANNELREG_2,mpsc,GALMPSC_REG_GAP);
@@ -784,7 +772,6 @@ galmpsc_set_parity(int mpsc, int value)
 static int
 galmpsc_enter_hunt(int mpsc)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int temp;
 
 	temp = GTREGREAD_MIRROR(GALMPSC_CHANNELREG_2,mpsc,GALMPSC_REG_GAP);
@@ -802,7 +789,6 @@ galmpsc_enter_hunt(int mpsc)
 static int
 galmpsc_shutdown(int mpsc)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #if 0
 	unsigned int temp;
 

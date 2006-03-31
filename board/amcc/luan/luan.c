@@ -28,6 +28,7 @@
 #include <spd_sdram.h>
 #include "epld.h"
 
+DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
@@ -291,8 +292,6 @@ int pci_pre_init( struct pci_controller *hose )
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/

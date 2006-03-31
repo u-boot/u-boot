@@ -24,6 +24,8 @@
 #include <common.h>
 #include <mpc8xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 static long int dram_size (long int, long int *, long int);
@@ -90,8 +92,6 @@ const uint sdram_table[] = {
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char *s = getenv ("serial#");
 	char *e;
 

@@ -30,6 +30,8 @@
 #include <common.h>
 #include <exports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define STANDALONE
 
 #ifndef STANDALONE			/* Linked into/Part of  PPCBoot */
@@ -346,8 +348,6 @@ static uint dpbase = 0;
 
 uint dpalloc (uint size, uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	uint retloc;
 	uint align_mask, off;

@@ -31,10 +31,10 @@
 #include <mpc5xxx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong clock = gd->cpu_clk;
 	char buf[32];
 #ifndef CONFIG_MGT5100
@@ -94,8 +94,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong tbclk;
 
 	tbclk = (gd->bus_clk + 3L) / 4L;

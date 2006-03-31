@@ -39,6 +39,8 @@
 
 #include "mpsc.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (defined CFG_INIT_CHAN1) || (defined CFG_INIT_CHAN2)
 const NS16550_t COM_PORTS[] = { (NS16550_t) CFG_NS16550_COM1,
 				(NS16550_t) CFG_NS16550_COM2 };
@@ -48,8 +50,6 @@ const NS16550_t COM_PORTS[] = { (NS16550_t) CFG_NS16550_COM1,
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #if (defined CFG_INIT_CHAN1) || (defined CFG_INIT_CHAN2)
 	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
 #endif
@@ -90,8 +90,6 @@ serial_tstc(void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	galbrg_set_baudrate(CONFIG_MPSC_PORT, gd->baudrate);
 }
 
@@ -99,8 +97,6 @@ serial_setbrg (void)
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
 
 #ifdef CFG_INIT_CHAN1
@@ -137,8 +133,6 @@ serial_tstc(void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
 
 #ifdef CFG_INIT_CHAN1

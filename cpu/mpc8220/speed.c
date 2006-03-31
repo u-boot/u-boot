@@ -25,6 +25,8 @@
 #include <mpc8220.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 typedef struct pllmultiplier {
 	u8 hid1;
 	int multi;
@@ -39,8 +41,6 @@ typedef struct pllmultiplier {
 
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	pllcfg_t bus2core[] = {
 		{0x02, 2, 8},	/* 1 */
 		{0x01, 2, 4},
@@ -109,8 +109,6 @@ int get_clocks (void)
 
 int prt_mpc8220_clks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	printf ("       Bus %ld MHz, CPU %ld MHz, PCI %ld MHz, VCO %ld MHz\n",
 		gd->bus_clk / 1000000, gd->cpu_clk / 1000000,
 		gd->pci_clk / 1000000, gd->vco_clk / 1000000);

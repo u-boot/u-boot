@@ -29,6 +29,8 @@
 #include <devices.h>
 #include <net.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static char input_buffer[512];
 static int input_size = 0;		/* char count in input buffer */
 static int input_offset = 0;		/* offset to valid chars in input buffer */
@@ -105,8 +107,6 @@ int nc_input_packet (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 static void nc_send_packet (const char *buf, int len)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	struct eth_device *eth;
 	int inited = 0;
 	uchar *pkt;
