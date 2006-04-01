@@ -117,6 +117,7 @@
 #define FLASH_OFFSET_CFI		0x55
 #define FLASH_OFFSET_CFI_RESP		0x10
 #define FLASH_OFFSET_PRIMARY_VENDOR	0x13
+#define FLASH_OFFSET_EXT_QUERY_T_P_ADDR	0x15	/* extended query table primary addr */
 #define FLASH_OFFSET_WTOUT		0x1F
 #define FLASH_OFFSET_WBTOUT		0x20
 #define FLASH_OFFSET_ETOUT		0x21
@@ -346,6 +347,10 @@ unsigned long flash_init (void)
 	unsigned long size = 0;
 	int i;
 
+#ifdef CFG_FLASH_PROTECTION
+	char *s = getenv("unlock");
+#endif
+
 	/* Init: no FLASHes known */
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
@@ -357,15 +362,39 @@ unsigned long flash_init (void)
 #endif /* CFG_FLASH_QUIET_TEST */
 		}
 #ifdef CFG_FLASH_PROTECTION
-		else {
-			char *s = getenv("unlock");
+		else if ((s != NULL) && (strcmp(s, "yes") == 0)) {
+			/*
+			 * Only the U-Boot image and it's environment is protected,
+			 * all other sectors are unprotected (unlocked) if flash
+			 * hardware protection is used (CFG_FLASH_PROTECTION) and
+			 * the environment variable "unlock" is set to "yes".
+			 */
+			if (flash_info[i].legacy_unlock) {
+				int k;
 
-			if (((s = getenv("unlock")) != NULL) && (strcmp(s, "yes") == 0)) {
 				/*
-				 * Only the U-Boot image and it's environment is protected,
-				 * all other sectors are unprotected (unlocked) if flash
-				 * hardware protection is used (CFG_FLASH_PROTECTION) and
-				 * the environment variable "unlock" is set to "yes".
+				 * Disable legacy_unlock temporarily, since
+				 * flash_real_protect would relock all other sectors
+				 * again otherwise.
+				 */
+				flash_info[i].legacy_unlock = 0;
+
+				/*
+				 * Legacy unlocking (e.g. Intel J3) -> unlock only one
+				 * sector. This will unlock all sectors.
+				 */
+				flash_real_protect (&flash_info[i], 0, 0);
+
+				flash_info[i].legacy_unlock = 1;
+
+				/*
+				 * Manually mark other sectors as unlocked (unprotected)
+				 */
+				for (k = 1; k < flash_info[i].sector_count; k++)
+					flash_info[i].protect[k] = 0;
+			} else {
+				/*
+				 * No legancy unlocking -> unlock all sectors
 				 */
 				flash_protect (FLAG_PROTECT_CLEAR,
 					       flash_info[i].start[0],
@@ -668,8 +697,12 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 				      prot ? "protect" : "unprotect")) == 0) {
 
 		info->protect[sector] = prot;
-		/* Intel's unprotect unprotects all locking */
-		if (prot == 0) {
+
+		/*
+		 * On some of Intel's flash chips (marked via legacy_unlock)
+		 * unprotect unprotects all locking.
+		 */
+		if ((prot == 0) && (info->legacy_unlock)) {
 			flash_sect_t i;
 
 			for (i = 0; i < info->sector_count; i++) {
@@ -745,6 +778,10 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 			       ulong tout, char *prompt)
 {
 	ulong start;
+
+#if CFG_HZ != 1000
+	tout *= CFG_HZ/1000;
+#endif
 
 	/* Wait for command completion */
 	start = get_timer (0);
@@ -1082,6 +1119,10 @@ ulong flash_get_size (ulong base, int banknum)
 	uchar num_erase_regions;
 	int erase_region_size;
 	int erase_region_count;
+#ifdef CFG_FLASH_PROTECTION
+	int ext_addr;
+	info->legacy_unlock = 0;
+#endif
 
 	info->start[0] = base;
 
@@ -1095,6 +1136,13 @@ ulong flash_get_size (ulong base, int banknum)
 		case CFI_CMDSET_INTEL_EXTENDED:
 		default:
 			info->cmd_reset = FLASH_CMD_RESET;
+#ifdef CFG_FLASH_PROTECTION
+			/* read legacy lock/unlock bit from intel flash */
+			ext_addr = flash_read_ushort (info, 0,
+						      FLASH_OFFSET_EXT_QUERY_T_P_ADDR);
+			info->legacy_unlock =
+				flash_read_uchar (info, ext_addr + 5) & 0x08;
+#endif
 			break;
 		case CFI_CMDSET_AMD_STANDARD:
 		case CFI_CMDSET_AMD_EXTENDED:
@@ -1160,8 +1208,9 @@ ulong flash_get_size (ulong base, int banknum)
 		info->buffer_size = (1 << flash_read_ushort (info, 0, FLASH_OFFSET_BUFFER_SIZE));
 		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_ETOUT);
 		info->erase_blk_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_EMAX_TOUT)));
-		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_WBTOUT);
-		info->buffer_write_tout = (tmp * (1 << flash_read_uchar (info, FLASH_OFFSET_WBMAX_TOUT)));
+		tmp = (1 << flash_read_uchar (info, FLASH_OFFSET_WBTOUT)) *
+			(1 << flash_read_uchar (info, FLASH_OFFSET_WBMAX_TOUT));
+		info->buffer_write_tout = tmp / 1000 + (tmp % 1000 ? 1 : 0); /* round up when converting to ms */
 		tmp = (1 << flash_read_uchar (info, FLASH_OFFSET_WTOUT)) *
 		      (1 << flash_read_uchar (info, FLASH_OFFSET_WMAX_TOUT));
 		info->write_tout = tmp / 1000 + (tmp % 1000 ? 1 : 0); /* round up when converting to ms */

@@ -2,6 +2,33 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Changes/fixes for drivers/cfi_flash.c:
+
+  - Add Intel legacy lock/unlock support to common CFI driver
+
+    On some Intel flash's (e.g. Intel J3) legacy unlocking is
+    supported, meaning that unlocking of one sector will unlock
+    all sectors of this bank. Using this feature, unlocking
+    of all sectors upon startup (via env var "unlock=yes") will
+    get much faster.
+
+  - Fixed problem with multiple reads of envronment variable
+    "unlock" as pointed out by Reinhard Arlt & Anders Larsen.
+
+  - Removed unwanted linefeeds from "protect" command when
+    CFG_FLASH_PROTECTION is enabled.
+
+  - Changed p3p400 board to use CFG_FLASH_PROTECTION
+
+  Patch by Stefan Roese, 01 Apr 2006
+
+* Changes/fixes for drivers/cfi_flash.c:
+  - Correctly handle the cases where CFG_HZ != 1000 (several
+    XScale-based boards)
+  - Fix the timeout calculation of buffered writes (off by a
+    factor of 1000)
+  Patch by Anders Larsen, 31 Mar 2006
+
 * Enable Quad UART om MCC200 board.
 
 * Cleanup MCC200 board configuration; omit non-existent stuff.

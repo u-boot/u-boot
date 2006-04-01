@@ -146,6 +146,7 @@
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
+	"unlock=yes\0"							\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -274,6 +275,9 @@
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+
+#define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
+#define CFG_FLASH_USE_BUFFER_WRITE 1	   /* use buffered writes (20x faster)	*/
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/

@@ -45,6 +45,7 @@ typedef struct {
 	ushort	vendor;			/* the primary vendor id		*/
 	ushort	cmd_reset;		/* Vendor specific reset command	*/
 	ushort	interface;		/* used for x8/x16 adjustments		*/
+	ushort	legacy_unlock;		/* support Intel legacy (un)locking	*/
 #endif
 } flash_info_t;
 

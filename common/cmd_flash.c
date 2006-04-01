@@ -455,6 +455,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_HAS_DATAFLASH
 	int status;
 #endif
+
 	if (argc < 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -655,10 +656,10 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 #endif	/* CFG_FLASH_PROTECTION */
 				}
 			}
-#if defined(CFG_FLASH_PROTECTION)
-			if (!rcode) putc ('\n');
-#endif	/* CFG_FLASH_PROTECTION */
 		}
+#if defined(CFG_FLASH_PROTECTION)
+		puts (" done\n");
+#endif	/* CFG_FLASH_PROTECTION */
 
 		printf ("%sProtected %d sectors\n",
 			p ? "" : "Un-", protected);
