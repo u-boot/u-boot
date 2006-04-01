@@ -62,6 +62,8 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed */
 #define CFG_I2C_SLAVE		1	/* I2C controllers address */
 #define DA9030_I2C_ADDR		0x49	/* I2C address of DA9030 */
+#define CFG_DA9030_EXTON_DELAY	100000	/* wait x us after DA9030 reset via EXTON */
+#define CFG_I2C_INIT_BOARD	1
 /* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
 /*
@@ -124,8 +126,8 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_DEVICE_NULLDEV	1
 
-#define CFG_MEMTEST_START	0xa0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x80400000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x80800000	/* 4 ... 8 MB in DRAM	*/
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
@@ -133,9 +135,7 @@
 
 #define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
 
-/* Monahans Core Frequency = 
- * 
- */
+/* Monahans Core Frequency */
 #define CFG_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
 #define CFG_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
 
@@ -160,16 +160,16 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	4	   /* we have 2 banks of DRAM */
-#define PHYS_SDRAM_1		0xa0000000 /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1		0x80000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_2		0xa1000000 /* SDRAM Bank #2 */
+#define PHYS_SDRAM_2		0x81000000 /* SDRAM Bank #2 */
 #define PHYS_SDRAM_2_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_3		0xa2000000 /* SDRAM Bank #3 */
+#define PHYS_SDRAM_3		0x82000000 /* SDRAM Bank #3 */
 #define PHYS_SDRAM_3_SIZE	0x1000000  /* 64 MB */
-#define PHYS_SDRAM_4		0xa3000000 /* SDRAM Bank #4 */
+#define PHYS_SDRAM_4		0x83000000 /* SDRAM Bank #4 */
 #define PHYS_SDRAM_4_SIZE	0x1000000  /* 64 MB */
 
-#define CFG_DRAM_BASE		0xa0000000 /* at CS0 */
+#define CFG_DRAM_BASE		0x80000000 /* at CS0 */
 #define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
 #undef CFG_SKIP_DRAM_SCRUB

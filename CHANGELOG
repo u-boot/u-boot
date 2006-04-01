@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for ymodem protocol download
+  Patch by Stefano Babic, 29 Mar 2006
+
+* Memory Map Update for Delta board: U-Boot is at 0x80000000-0x84000000
+  Merge from Markus Klotzbücher's repo, 01 Apr 2006
+
 * GCC-4.x fixes: clean up global data pointer initialization for all
   boards
 
