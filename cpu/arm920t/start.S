@@ -237,6 +237,7 @@ _start_armboot:	.word start_armboot
  */
 
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -264,7 +265,7 @@ cpu_init_crit:
 	bl	lowlevel_init
 	mov	lr, ip
 	mov	pc, lr
-
+#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*
  *************************************************************************

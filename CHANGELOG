@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix CONFIG_SKIP_LOWLEVEL_INIT dependency in cpu/arm920t/start.S
+  Patch by Peter Menzebach, 13 Oct 2005 [DNX#2006040142000473]
+
 * Add support for ymodem protocol download
   Patch by Stefano Babic, 29 Mar 2006
 
