@@ -139,7 +139,17 @@
 #define CFG_I2C_RTC_ADDR	0x68
 #define CFG_M41T11_BASE_YEAR	1900
 
+/*
+ * SDRAM configuration (please see cpu/ppc/sdram.[ch])
+ */
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
+
+/* SDRAM timings used in datasheet */
+#define CFG_SDRAM_CL            2
+#define CFG_SDRAM_tRP           20
+#define CFG_SDRAM_tRC           65
+#define CFG_SDRAM_tRCD          20
+#undef  CFG_SDRAM_tRFC
 
 /*
  * Miscellaneous configurable options
