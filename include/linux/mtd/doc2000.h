@@ -91,6 +91,13 @@ struct DiskOnChip;
 #define ADDR_PAGE 2
 #define ADDR_COLUMN_PAGE 3
 
+struct Nand {
+	char floor, chip;
+	unsigned long curadr;
+	unsigned char curmode;
+	/* Also some erase/write/pipeline info when we get that far */
+};
+
 struct DiskOnChip {
 	unsigned long physadr;
 	unsigned long virtadr;
@@ -147,5 +154,63 @@ int doc_erase (struct DiskOnChip* this, loff_t ofs, size_t len);
 void doc_probe(unsigned long physadr);
 
 void doc_print(struct DiskOnChip*);
+
+/*
+ * Standard NAND flash commands
+ */
+#define NAND_CMD_READ0		0
+#define NAND_CMD_READ1		1
+#define NAND_CMD_PAGEPROG	0x10
+#define NAND_CMD_READOOB	0x50
+#define NAND_CMD_ERASE1		0x60
+#define NAND_CMD_STATUS		0x70
+#define NAND_CMD_SEQIN		0x80
+#define NAND_CMD_READID		0x90
+#define NAND_CMD_ERASE2		0xd0
+#define NAND_CMD_RESET		0xff
+
+/*
+ * NAND Flash Manufacturer ID Codes
+ */
+#define NAND_MFR_TOSHIBA	0x98
+#define NAND_MFR_SAMSUNG	0xec
+
+/*
+ * NAND Flash Device ID Structure
+ *
+ * Structure overview:
+ *
+ *  name - Complete name of device
+ *
+ *  manufacture_id - manufacturer ID code of device.
+ *
+ *  model_id - model ID code of device.
+ *
+ *  chipshift - total number of address bits for the device which
+ *              is used to calculate address offsets and the total
+ *              number of bytes the device is capable of.
+ *
+ *  page256 - denotes if flash device has 256 byte pages or not.
+ *
+ *  pageadrlen - number of bytes minus one needed to hold the
+ *               complete address into the flash array. Keep in
+ *               mind that when a read or write is done to a
+ *               specific address, the address is input serially
+ *               8 bits at a time. This structure member is used
+ *               by the read/write routines as a loop index for
+ *               shifting the address out 8 bits at a time.
+ *
+ *  erasesize - size of an erase block in the flash device.
+ */
+struct nand_flash_dev {
+	char * name;
+	int manufacture_id;
+	int model_id;
+	int chipshift;
+	char page256;
+	char pageadrlen;
+	unsigned long erasesize;
+	int bus16;
+};
 
 #endif /* __MTD_DOC2000_H__ */
