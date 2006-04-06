@@ -238,6 +238,16 @@ int misc_init_r (void)
 			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 	}
 
+	if (gd->bd->bi_flashsize > (32 << 20)) {
+		/* Unprotect the upper bank of the Flash */
+		*(volatile int*)MPC5XXX_CS0_CFG |= (1 << 6);
+		flash_protect (FLAG_PROTECT_CLEAR,
+			       flash_info[0].start[0],
+			       (flash_info[0].start[0] + flash_info[0].size) / 2 - 1,
+			       &flash_info[0]);
+		*(volatile int*)MPC5XXX_CS0_CFG &= ~(1 << 6);
+	}
+
 	return (0);
 }
 
