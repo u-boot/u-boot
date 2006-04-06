@@ -131,6 +131,7 @@
 #if defined(CONFIG_MGT5100)
 #define MPC5XXX_SDRAM_XLBSEL	(MPC5XXX_SDRAM + 0x0010)
 #endif
+#define MPC5XXX_SDRAM_SDELAY	(MPC5XXX_SDRAM + 0x0090)
 
 /* Clock Distribution Module */
 #define MPC5XXX_CDM_JTAGID	(MPC5XXX_CDM + 0x0000)
