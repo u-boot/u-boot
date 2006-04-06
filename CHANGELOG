@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix Lite5200B support: initialize SDelay register
+  See Freescale's AN3221 "MPC5200B SDRAM Initialization and
+  Configuration", 3.3.1 SDelay--MBAR + 0x0190
+
 * Changes/fixes for drivers/cfi_flash.c:
 
   - Add Intel legacy lock/unlock support to common CFI driver
