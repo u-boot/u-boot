@@ -193,6 +193,8 @@
  */
 #define CFG_NAND0_BASE 0xFF400000
 #define CFG_NAND1_BASE 0xFF000000
+#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
+#define NAND_BIG_DELAY_US	25
 
 /* For CATcenter there is only NAND on the module */
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
@@ -218,9 +220,9 @@
 #define CFG_NAND1_RDY (0x80000000 >> 31)  /* our RDY is GPIO31 */
 
 
-#define NAND_DISABLE_CE(nand) do \
+#define MACRO_NAND_DISABLE_CE(nandptr) do \
 { \
-	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
+	switch((unsigned long)nandptr) \
 	{ \
 	    case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CE); \
@@ -231,9 +233,9 @@
 	} \
 } while(0)
 
-#define NAND_ENABLE_CE(nand) do \
+#define MACRO_NAND_ENABLE_CE(nandptr) do \
 { \
-	switch((unsigned long)(((struct nand_chip *)nand)->IO_ADDR)) \
+	switch((unsigned long)nandptr) \
 	{ \
 	    case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND0_CE); \
@@ -244,8 +246,7 @@
 	} \
 } while(0)
 
-
-#define NAND_CTL_CLRALE(nandptr) do \
+#define MACRO_NAND_CTL_CLRALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -258,7 +259,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_SETALE(nandptr) do \
+#define MACRO_NAND_CTL_SETALE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -271,7 +272,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_CLRCLE(nandptr) do \
+#define MACRO_NAND_CTL_CLRCLE(nandptr) do \
 { \
 	switch((unsigned long)nandptr) \
 	{ \
@@ -284,7 +285,7 @@
 	} \
 } while(0)
 
-#define NAND_CTL_SETCLE(nandptr) do { \
+#define MACRO_NAND_CTL_SETCLE(nandptr) do { \
 	switch((unsigned long)nandptr) { \
 	case CFG_NAND0_BASE: \
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND0_CLE); \

@@ -555,9 +555,9 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 
-#include <linux/mtd/nand.h>
+#include <linux/mtd/nand_legacy.h>
 
 extern ulong nand_probe(ulong physadr);
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];

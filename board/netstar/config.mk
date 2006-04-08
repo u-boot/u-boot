@@ -9,6 +9,3 @@
 
 # XXX TEXT_BASE = 0x20012000
 TEXT_BASE = 0x13FC0000
-
-# Compile the new NAND code
-BOARDLIBS = drivers/nand/libnand.a
