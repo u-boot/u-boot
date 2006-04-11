@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixes common/cmd_flash.c:
+
+   - fix some compiler/parser error, if using m68k tool chain
+   - optical fix for protect on/off all messages, if using more
+     then one bank
+  Patch by Jens Scharsig, 28 July 2005
+
 * Fix Lite5200B support: initialize SDelay register
   See Freescale's AN3221 "MPC5200B SDRAM Initialization and
   Configuration", 3.3.1 SDelay--MBAR + 0x0190
