@@ -1,6 +1,12 @@
 ======================================================================
 Changes since U-Boot 1.1.4:
 ======================================================================
+* Fix dbau1x00 Board
+  - Fix dbau1x00 boards broken by dbau1550 patch
+    PLL:s were not set for boards other than 1550.
+    Flash CFI caused card to hang due to undefined CFG_FLASH_BANKS_LIST.
+    Default boot is now bootp for cards other than 1550.
+  Patch by Thomas Lange Aug 10 2005
 
 * Fixes common/cmd_flash.c:
 
