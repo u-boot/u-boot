@@ -217,6 +217,8 @@
 /*
  * NAND flash support
  */
+#define CFG_NAND_LEGACY
+
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_ChipID_UNKNOWN	0x00
 #define SECTORSIZE		512

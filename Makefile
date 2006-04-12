@@ -133,6 +133,8 @@ LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
 LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
+LIBS += drivers/nand/libnand.a
+LIBS += drivers/nand_legacy/libnand_legacy.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
@@ -1187,7 +1189,7 @@ PM828_config	\
 PM828_PCI_config	\
 PM828_ROMBOOT_config	\
 PM828_ROMBOOT_PCI_config:	unconfig
-	@if [ -z "$(findstring _PCI_,$@)" ] ; then \
+	@if [ "$(findstring _PCI_,$@)" ] ; then \
 		echo "#define CONFIG_PCI"  >>include/config.h ; \
 		echo "... with PCI enabled" ; \
 	else \

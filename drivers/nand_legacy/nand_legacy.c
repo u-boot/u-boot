@@ -10,11 +10,6 @@
  */
 
 #include <common.h>
-
-#ifndef CFG_NAND_LEGACY
-#error CFG_NAND_LEGACY not defined in a file using the legacy NAND support!
-#endif
-
 #include <command.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -27,7 +22,7 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 
 #include <linux/mtd/nand_legacy.h>
 #include <linux/mtd/nand_ids.h>
@@ -1612,4 +1607,13 @@ static int nand_correct_data (u_char *dat, u_char *read_ecc, u_char *calc_ecc)
 
 #endif
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#ifdef CONFIG_JFFS2_NAND
+int read_jffs2_nand(size_t start, size_t len,
+		size_t * retlen, u_char * buf, int nanddev)
+{
+	return nand_legacy_rw(nand_dev_desc + nanddev, NANDRW_READ | NANDRW_JFFS2,
+			start, len, retlen, buf);
+}
+#endif /* CONFIG_JFFS2_NAND */
+
+#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY) */

@@ -23,7 +23,7 @@
 #include <common.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#ifdef CONFIG_NEW_NAND_CODE
+#if !defined(CFG_NAND_LEGACY)
 
 #include <nand.h>
 #include <asm/arch/pxa-regs.h>
