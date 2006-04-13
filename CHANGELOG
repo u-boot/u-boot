@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix Quad UART mapping on MCC200 board due to new HW revision
+
 * Fix JFFS2 support for legacy NAND driver.
 
 * Remove dependencies between DoC code and old legacy NAND driver.
