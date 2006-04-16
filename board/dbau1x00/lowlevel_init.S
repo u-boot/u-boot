@@ -185,6 +185,8 @@ tlbloop:
 	bne	t0, t2, tlbloop
 	nop
 
+#endif /* CONFIG_DBAU1550 */
+
 	/* First setup pll:s to make serial work ok */
 	/* We have a 12 MHz crystal */
 	li	t0, SYS_CPUPLL
@@ -205,6 +207,7 @@ tlbloop:
 	sw	t1, 0(t0) /* aux pll */
 	sync
 
+#ifdef CONFIG_DBAU1550
 	/*  Static memory controller */
 	/* RCE0 - can not change while fetching, do so from icache */
 	move		t2, ra /* Store return address */
@@ -237,7 +240,7 @@ noCacheJump:
 	sw	t1, 0(t0)
 #else /* CONFIG_DBAU1550 */
 	li	t0, MEM_STTIME0
-	li	t1, 0x00014C0F
+	li	t1, 0x040181D7
 	sw	t1, 0(t0)
 
 	/* RCE0 AMD 29LV640M MirrorBit Flash */
