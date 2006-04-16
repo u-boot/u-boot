@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- * 
+ *
  * Copyright 2004 Freescale Semiconductor.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
@@ -426,7 +426,7 @@ static __inline__ unsigned long get_tbms (void)
 /*
  * Initialize all of memory for ECC, then enable errors.
  */
-//#define CONFIG_DDR_ECC_INIT_VIA_DMA
+/* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
 	uint *p;

@@ -58,7 +58,7 @@ int checkcpu (void)
 		break;
 	}
 
-	printf (" v%d.%d, Core v%d.%d", SVR_MJREV (svr), SVR_MNREV (svr), 
+	printf (" v%d.%d, Core v%d.%d", SVR_MJREV (svr), SVR_MNREV (svr),
 		PVR_MAJ(pvr), PVR_MIN(pvr));
 #endif
 	printf (" at %s MHz\n", strmhz (buf, clock));

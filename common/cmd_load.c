@@ -973,7 +973,7 @@ START:
 }
 
 static int getcxmodem(void) {
-	if (tstc()) 
+	if (tstc())
 		return (getc());
 	return -1;
 }
@@ -984,49 +984,51 @@ static ulong load_serial_ymodem (ulong offset)
 	int err;
 	int res;
 	connection_info_t info;
-	char 	ymodemBuf[1024];
-	ulong	store_addr = ~0;
-	ulong	addr = 0;
+	char ymodemBuf[1024];
+	ulong store_addr = ~0;
+	ulong addr = 0;
 
-	size=0;	
-	info.mode=xyzModem_ymodem;
-	res=xyzModem_stream_open(&info, &err);
+	size = 0;
+	info.mode = xyzModem_ymodem;
+	res = xyzModem_stream_open (&info, &err);
 	if (!res) {
-	   
-	   while ((res=xyzModem_stream_read(ymodemBuf, 1024, &err)) > 0 ){
-		    store_addr = addr + offset;
-		    size+=res;
-		    addr+=res; 
-#ifndef CFG_NO_FLASH
-		    if (addr2info(store_addr)) {
-			int rc;
 
-			rc = flash_write((char *)ymodemBuf,store_addr,res);
-			if (rc != 0) {
-				flash_perror (rc);
-				return (~0);
-			}
-		    } else
+		while ((res =
+			xyzModem_stream_read (ymodemBuf, 1024, &err)) > 0) {
+			store_addr = addr + offset;
+			size += res;
+			addr += res;
+#ifndef CFG_NO_FLASH
+			if (addr2info (store_addr)) {
+				int rc;
+
+				rc = flash_write ((char *) ymodemBuf,
+						  store_addr, res);
+				if (rc != 0) {
+					flash_perror (rc);
+					return (~0);
+				}
+			} else
 #endif
-		    {
-			memcpy ((char *)(store_addr), ymodemBuf, res);
-		    }
-	
-	   }
-	} 
-	else {
-		printf ("%s\n",xyzModem_error(err));
+			{
+				memcpy ((char *) (store_addr), ymodemBuf,
+					res);
+			}
+
+		}
+	} else {
+		printf ("%s\n", xyzModem_error (err));
 	}
-	
-	xyzModem_stream_close(&err);
-  	xyzModem_stream_terminate(false,&getcxmodem);	
+
+	xyzModem_stream_close (&err);
+	xyzModem_stream_terminate (false, &getcxmodem);
 
 
 	flush_cache (offset, size);
 
-	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	sprintf(buf, "%X", size);
-	setenv("filesize", buf);
+	printf ("## Total Size      = 0x%08x = %d Bytes\n", size, size);
+	sprintf (buf, "%X", size);
+	setenv ("filesize", buf);
 
 	return offset;
 }

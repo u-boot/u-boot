@@ -116,7 +116,7 @@ void rtc_get (struct rtc_time *tm){
 
 	/*
 	 * Since the reads are being performed one byte at a time,
-	 * there is a chance that a carry will occur during the read. 
+	 * there is a chance that a carry will occur during the read.
 	 * To detect this, 2 reads are performed and compared.
 	 */
 	limit = 10;

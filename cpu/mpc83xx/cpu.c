@@ -260,7 +260,7 @@ int dma_xfer(void *dest, u32 count, void *src)
 	dmamr0 = (DMA_CHANNEL_TRANSFER_MODE_DIRECT |
 			DMA_CHANNEL_SOURCE_ADDRESS_HOLD_8B |
 			DMA_CHANNEL_SOURCE_ADRESSS_HOLD_EN);
-	
+
 	dma->dmamr0 = swab32(dmamr0);
 
 	__asm__ __volatile__ ("sync");
