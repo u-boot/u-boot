@@ -135,10 +135,6 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 	*(vu_long *)MPC5XXX_PCI_BAR1 = CONFIG_PCI_MEMORY_BUS | (1 << 3);
 	*(vu_long *)MPC5XXX_PCI_TBATR1 = CONFIG_PCI_MEMORY_PHYS | 1;
 
-	/* Enable snooping for RAM */
-	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 15);
-	*(vu_long *)(MPC5XXX_XLBARB + 0x70) = CONFIG_PCI_MEMORY_PHYS | 0x1d;
-
 	/* Park XLB on PCI */
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) &= ~((7 << 8) | (3 << 5));
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (3 << 8) | (3 << 5);

@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* MPC5200: enable snooping of DMA transactions on XLB even if no PCI
+  is configured; othrwise DMA accesses aren't cache coherent which
+  causes for example USB to fail.
+
 * Some code cleanup
 
 * Fix dbau1x00 boards broken by dbau1550 patch
