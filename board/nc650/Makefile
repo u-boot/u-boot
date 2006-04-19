@@ -1,4 +1,5 @@
 #
+# (C) Copyright 2006 Detlev Zundel, dzu@denx.de
 # (C) Copyright 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
@@ -25,7 +26,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o
+OBJS	= $(BOARD).o nand.o flash.o
 
 $(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)

@@ -633,8 +633,21 @@ NETTA2_config:		unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETTA2,$@) ppc mpc8xx netta2
 
-NC650_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx nc650
+NC650_Rev1_config \
+NC650_Rev2_config \
+CP850_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring CP850,$@)" ] || \
+		 { echo "#define CONFIG_CP850 1" >>include/config.h ; \
+		   echo "#define CONFIG_IDS852_REV2 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring Rev1,$@)" ] || \
+		 { echo "#define CONFIG_IDS852_REV1 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring Rev2,$@)" ] || \
+		 { echo "#define CONFIG_IDS852_REV2 1" >>include/config.h ; \
+		 }
+	@./mkconfig -a NC650 ppc mpc8xx nc650
 
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823
