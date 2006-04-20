@@ -2,8 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add EPCS Controller bootrom work-around for Nios-II
+   Patch from Scott McNutt 11, Aug 2005
+   -When booting from an epcs controller, the epcs bootrom may leave the
+    slave select in an asserted state causing soft reset hang. This
+    patch ensures slave select is negated at reset.
+
 * Fix I/O Macros and mini-app stubs for Nios-II
-  Patch by Scott McNutt 11, Aug 2005
+  Patch from Scott McNutt 11, Aug 2005
   -Fix asm/io.h macros
   -Eliminate use of CACHE_BYPASS in cpu code
   -Eliminate assembler warnings
