@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
 
 #ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc83xxads_config_table[] = {
+static struct pci_config_table pci_mpc8349emds_config_table[] = {
 	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
  	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
@@ -50,12 +50,12 @@ static struct pci_config_table pci_mpc83xxads_config_table[] = {
 static struct pci_controller pci_hose[] = {
        {
 #ifndef CONFIG_PCI_PNP
-       config_table:pci_mpc83xxads_config_table,
+       config_table:pci_mpc8349emds_config_table,
 #endif
        },
        {
 #ifndef CONFIG_PCI_PNP
-       config_table:pci_mpc83xxads_config_table,
+       config_table:pci_mpc8349emds_config_table,
 #endif
        }
 };
@@ -188,7 +188,7 @@ pci_init_board(void)
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_1G;
 
 	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
-	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_32M;
+	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
 
 	/*
 	 * Configure PCI Outbound Translation Windows
@@ -378,4 +378,5 @@ pci_init_board(void)
 #endif
 
 }
+
 #endif /* CONFIG_PCI */
