@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix I/O Macros and mini-app stubs for Nios-II
+  Patch by Scott McNutt 11, Aug 2005
+  -Fix asm/io.h macros
+  -Eliminate use of CACHE_BYPASS in cpu code
+  -Eliminate assembler warnings
+  -Fix mini-app stubs and force no small data
+
 * Add MCF5282 support (without preloader)
   relocate ichache_State to ram
   u-boot can run from internal flash
