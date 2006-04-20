@@ -54,8 +54,12 @@
  *	These vectors are to catch any un-intended traps.
  */
 _vectors:
-
-.long	0x00000000, _START
+ .long	0x00000000
+#ifndef CONFIG_M5282
+.long	_START
+#else
+.long	_start - TEXT_BASE
+#endif
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
@@ -96,19 +100,22 @@ _vectors:
 
 	.text
 
+
+#if defined(CFG_INT_FLASH_BASE) && \
+    (defined(CONFIG_M5282) || defined(CONFIG_M5281))
+	#if (TEXT_BASE == CFG_INT_FLASH_BASE)
+		.long	0x55AA55AA,0xAA55AA55 /* CFM Backdoorkey */
+		.long	0xFFFFFFFF /* all sectors protected */
+		.long	0x00000000 /* supervisor/User restriction */
+		.long	0x00000000 /* programm/data space restriction */
+		.long	0x00000000 /* Flash security */
+	#endif
+#endif
 	.globl	_start
 _start:
 	nop
 	nop
 	move.w #0x2700,%sr
-
-	/* if we come from a pre-loader we have no exception table and
-	 * therefore no VBR to set
-	 */
-#if !defined(CONFIG_MONITOR_IS_IN_RAM)
-	move.l	#CFG_FLASH_BASE, %d0
-	movec	%d0, %VBR
-#endif
 
 #if defined(CONFIG_M5272) || defined(CONFIG_M5249)
 	move.l	#(CFG_MBAR + 1), %d0		/* set MBAR address + valid flag */
@@ -129,13 +136,43 @@ _start:
 	move.l	#(CFG_MBAR + 1), %d0		/* set IPSBAR address + valid flag */
 	move.l	%d0, 0x40000000
 
-	/* Initialize FLASHBAR: locate internal Flash and validate it */
-	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
-	movec	%d0, %RAMBAR0
-
 	/* Initialize RAMBAR1: locate SRAM and validate it */
 	move.l	#(CFG_INIT_RAM_ADDR + 0x21), %d0
 	movec	%d0, %RAMBAR1
+
+#if (TEXT_BASE == CFG_INT_FLASH_BASE)
+	/* Setup code in SRAM to initialize FLASHBAR, if start from internal Flash */
+
+	move.l #(_flashbar_setup-CFG_INT_FLASH_BASE), %a0
+	move.l #(_flashbar_setup_end-CFG_INT_FLASH_BASE), %a1
+	move.l #(CFG_INIT_RAM_ADDR), %a2
+_copy_flash:
+	move.l (%a0)+, (%a2)+
+	cmp.l %a0, %a1
+	bgt.s _copy_flash
+	jmp CFG_INIT_RAM_ADDR
+
+_flashbar_setup:
+	/* Initialize FLASHBAR: locate internal Flash and validate it */
+	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
+	movec	%d0, %RAMBAR0
+	jmp _after_flashbar_copy.L	/* Force jump to absolute address */
+_flashbar_setup_end:
+	nop
+_after_flashbar_copy:
+#else
+	/* Setup code to initialize FLASHBAR, if start from external Memory */
+	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
+	movec	%d0, %RAMBAR0
+#endif /* (TEXT_BASE == CFG_INT_FLASH_BASE) */
+
+#endif
+	/* if we come from a pre-loader we have no exception table and
+	 * therefore no VBR to set
+	 */
+#if !defined(CONFIG_MONITOR_IS_IN_RAM)
+	move.l	#CFG_FLASH_BASE, %d0
+	movec	%d0, %VBR
 #endif
 
 	/* invalidate and disable cache */
@@ -157,7 +194,6 @@ _start:
 	/* board_init_f() does not return
 
 /*------------------------------------------------------------------------------*/
-
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -180,7 +216,6 @@ relocate_code:
 	move.l #CFG_MONITOR_BASE, %a1
 	move.l #__init_end, %a2
 	move.l %a0, %a3
-
 	/* copy the code to RAM */
 1:
 	move.l (%a1)+, (%a3)+
@@ -191,14 +226,14 @@ relocate_code:
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
-	move.l	%a0, %a1
+ 	move.l	%a0, %a1
 	add.l	#(in_ram - CFG_MONITOR_BASE), %a1
 	jmp	(%a1)
 
 in_ram:
 
 clear_bss:
-	/*
+ 	/*
 	 * Now clear BSS segment
 	 */
 	move.l	%a0, %a1
@@ -228,6 +263,23 @@ clear_bss:
 	cmp.l	%a2, %a1
 	bne	7b
 
+#if defined(CONFIG_M5281) || defined(CONFIG_M5282)
+	/* patch the 3 accesspoints to 3 ichache_state */
+	/* quick and dirty */
+
+	move.l	%a0,%d1
+	add.l	#(icache_state - CFG_MONITOR_BASE),%d1
+	move.l	%a0,%a1
+	add.l	#(icache_state_access_1+2 - CFG_MONITOR_BASE),%a1
+	move.l  %d1,(%a1)
+	move.l	%a0,%a1
+	add.l	#(icache_state_access_2+2 - CFG_MONITOR_BASE),%a1
+	move.l  %d1,(%a1)
+	move.l	%a0,%a1
+	add.l	#(icache_state_access_3+2 - CFG_MONITOR_BASE),%a1
+	move.l  %d1,(%a1)
+#endif
+
 	/* calculate relative jump to board_init_r in ram */
 	move.l %a0, %a1
 	add.l #(board_init_r - CFG_MONITOR_BASE), %a1
@@ -235,6 +287,10 @@ clear_bss:
 	/* set parameters for board_init_r */
 	move.l %a0,-(%sp)		/* dest_addr */
 	move.l %d0,-(%sp)		/* gd */
+	#if defined(DEBUG) && (TEXT_BASE != CFG_INT_FLASH_BASE) && \
+	    defined(CFG_HALT_BEFOR_RAM_JUMP)
+ 		halt
+	#endif
 	jsr	(%a1)
 
 /*------------------------------------------------------------------------------*/
@@ -289,6 +345,7 @@ icache_enable:
 	move.l	#0x80400100, %d0		/* Setup cache mask, data cache disabel*/
 	movec	%d0, %CACR			/* Enable cache */
 	moveq	#1, %d0
+icache_state_access_1:
 	move.l	%d0, icache_state
 	rts
 #endif
@@ -323,18 +380,19 @@ icache_disable:
 	movec	%d0, %ACR0			/* Enable cache */
 	movec	%d0, %ACR1			/* Enable cache */
 	moveq	#0, %d0
+icache_state_access_2:
 	move.l	%d0, icache_state
 	rts
 
 	.globl	icache_status
 icache_status:
+icache_state_access_3:
 	move.l	icache_state, %d0
 	rts
 
 	.data
 icache_state:
-	.long	1
-
+	.long	0	/* cache is diabled on inirialization */
 
 /*------------------------------------------------------------------------------*/
 

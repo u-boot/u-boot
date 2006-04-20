@@ -1313,6 +1313,20 @@ MPC8349EMDS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc83xx mpc8349emds
 
 #########################################################################
+# BuS
+#########################################################################
+
+EB+MCF-EV123_config :		unconfig
+	@ >include/config.h
+	@echo "TEXT_BASE = 0xFFE00000"|tee board/BuS/EB+MCF-EV123/textbase.mk
+	@./mkconfig EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+EB+MCF-EV123_internal_config :	unconfig
+	@ >include/config.h
+	@echo "TEXT_BASE = 0xF0000000"|tee board/BuS/EB+MCF-EV123/textbase.mk
+	@./mkconfig EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+#########################################################################
 ## MPC85xx Systems
 #########################################################################
 

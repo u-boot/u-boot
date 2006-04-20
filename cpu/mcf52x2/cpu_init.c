@@ -2,6 +2,10 @@
  * (C) Copyright 2003
  * Josef Baumgartner <josef.baumgartner@telex.de>
  *
+ * MCF5282 additionals
+ * (C) Copyright 2005
+ * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -135,7 +139,180 @@ int cpu_init_r  (void)
  */
 void cpu_init_f (void)
 {
+#ifndef CONFIG_WATCHDOG
+	/* disable watchdog if we aren't using it */
+	MCFWTM_WCR = 0;
+#endif
 
+#ifndef CONFIG_MONITOR_IS_IN_RAM
+	/* Set speed /PLL */
+	MCFCLOCK_SYNCR =  MCFCLOCK_SYNCR_MFD(CFG_MFD) | MCFCLOCK_SYNCR_RFD(CFG_RFD);
+
+	/* Set up the GPIO ports */
+#ifdef CFG_PEPAR
+	MCFGPIO_PEPAR = CFG_PEPAR;
+#endif
+#ifdef	CFG_PFPAR
+	MCFGPIO_PFPAR = CFG_PFPAR;
+#endif
+#ifdef CFG_PJPAR
+	MCFGPIO_PJPAR = CFG_PJPAR;
+#endif
+#ifdef CFG_PSDPAR
+	MCFGPIO_PSDPAR = CFG_PSDPAR;
+#endif
+#ifdef CFG_PASPAR
+	MCFGPIO_PASPAR = CFG_PASPAR;
+#endif
+#ifdef CFG_PEHLPAR
+	MCFGPIO_PEHLPAR = CFG_PEHLPAR;
+#endif
+#ifdef CFG_PQSPAR
+	MCFGPIO_PQSPAR = CFG_PQSPAR;
+#endif
+#ifdef CFG_PTCPAR
+	MCFGPIO_PTCPAR = CFG_PTCPAR;
+#endif
+#ifdef CFG_PTDPAR
+	MCFGPIO_PTDPAR = CFG_PTDPAR;
+#endif
+#ifdef CFG_PUAPAR
+	MCFGPIO_PUAPAR = CFG_PUAPAR;
+#endif
+
+#ifdef CFG_DDRUA
+	MCFGPIO_DDRUA = CFG_DDRUA;
+#endif
+
+	/* This is probably a bad place to setup chip selects, but everyone
+	   else is doing it! */
+
+#if defined(CFG_CS0_BASE) & defined(CFG_CS0_SIZE) & \
+    defined(CFG_CS0_WIDTH) & defined(CFG_CS0_RO) & \
+	defined(CFG_CS0_WS)
+
+	MCFCSM_CSAR0 =	(CFG_CS0_BASE >> 16) & 0xFFFF;
+
+	#if (CFG_CS0_WIDTH == 8)
+		#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_8
+	#elif (CFG_CS0_WIDTH == 16)
+		#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_16
+	#elif (CFG_CS0_WIDTH == 32)
+		#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_32
+	#else
+		#error	"CFG_CS0_WIDTH: Fault - wrong bus with for CS0"
+	#endif
+	MCFCSM_CSCR0 =	MCFCSM_CSCR_WS(CFG_CS0_WS)
+			|CFG_CS0_PS
+			|MCFCSM_CSCR_AA;
+
+	#if (CFG_CS0_RO != 0)
+		MCFCSM_CSMR0 =	MCFCSM_CSMR_BAM(CFG_CS0_SIZE-1)
+				|MCFCSM_CSMR_WP|MCFCSM_CSMR_V;
+ 	#else
+		MCFCSM_CSMR0 =	MCFCSM_CSMR_BAM(CFG_CS0_SIZE-1)|MCFCSM_CSMR_V;
+	#endif
+#else
+	#waring "Chip Select 0 are not initialized/used"
+#endif
+
+#if defined(CFG_CS1_BASE) & defined(CFG_CS1_SIZE) & \
+    defined(CFG_CS1_WIDTH) & defined(CFG_CS1_RO) & \
+	defined(CFG_CS1_WS)
+
+	MCFCSM_CSAR1 = (CFG_CS1_BASE >> 16) & 0xFFFF;
+
+	#if (CFG_CS1_WIDTH == 8)
+		#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_8
+	#elif (CFG_CS1_WIDTH == 16)
+		#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_16
+	#elif (CFG_CS1_WIDTH == 32)
+		#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_32
+	#else
+		#error	"CFG_CS1_WIDTH: Fault - wrong bus with for CS1"
+	#endif
+	MCFCSM_CSCR1 =	MCFCSM_CSCR_WS(CFG_CS1_WS)
+			|CFG_CS1_PS
+			|MCFCSM_CSCR_AA;
+
+	#if (CFG_CS1_RO != 0)
+		MCFCSM_CSMR1 =	MCFCSM_CSMR_BAM(CFG_CS1_SIZE-1)
+				|MCFCSM_CSMR_WP
+				|MCFCSM_CSMR_V;
+ 	#else
+		MCFCSM_CSMR1 =	MCFCSM_CSMR_BAM(CFG_CS1_SIZE-1)
+				|MCFCSM_CSMR_V;
+	#endif
+#else
+	#warning "Chip Select 1 are not initialized/used"
+#endif
+
+#if defined(CFG_CS2_BASE) & defined(CFG_CS2_SIZE) & \
+    defined(CFG_CS2_WIDTH) & defined(CFG_CS2_RO) & \
+	defined(CFG_CS2_WS)
+
+	MCFCSM_CSAR2 = (CFG_CS2_BASE >> 16) & 0xFFFF;
+
+	#if (CFG_CS2_WIDTH == 8)
+		#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_8
+	#elif (CFG_CS2_WIDTH == 16)
+		#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_16
+	#elif (CFG_CS2_WIDTH == 32)
+		#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_32
+	#else
+		#error	"CFG_CS2_WIDTH: Fault - wrong bus with for CS2"
+	#endif
+	MCFCSM_CSCR2 =	MCFCSM_CSCR_WS(CFG_CS2_WS)
+			|CFG_CS2_PS
+			|MCFCSM_CSCR_AA;
+
+	#if (CFG_CS2_RO != 0)
+		MCFCSM_CSMR2 =	MCFCSM_CSMR_BAM(CFG_CS2_SIZE-1)
+				|MCFCSM_CSMR_WP
+				|MCFCSM_CSMR_V;
+ 	#else
+		MCFCSM_CSMR2 =	MCFCSM_CSMR_BAM(CFG_CS2_SIZE-1)
+				|MCFCSM_CSMR_V;
+	#endif
+#else
+	#warning "Chip Select 2 are not initialized/used"
+#endif
+
+#if defined(CFG_CS3_BASE) & defined(CFG_CS3_SIZE) & \
+    defined(CFG_CS3_WIDTH) & defined(CFG_CS3_RO) & \
+	defined(CFG_CS3_WS)
+
+	MCFCSM_CSAR3 = (CFG_CS3_BASE >> 16) & 0xFFFF;
+
+	#if (CFG_CS3_WIDTH == 8)
+		#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_8
+	#elif (CFG_CS3_WIDTH == 16)
+		#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_16
+	#elif (CFG_CS3_WIDTH == 32)
+		#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_32
+	#else
+		#error	"CFG_CS3_WIDTH: Fault - wrong bus with for CS1"
+	#endif
+	MCFCSM_CSCR3 =	MCFCSM_CSCR_WS(CFG_CS3_WS)
+			|CFG_CS3_PS
+			|MCFCSM_CSCR_AA;
+
+	#if (CFG_CS3_RO != 0)
+		MCFCSM_CSMR3 =	MCFCSM_CSMR_BAM(CFG_CS3_SIZE-1)
+				|MCFCSM_CSMR_WP
+				|MCFCSM_CSMR_V;
+ 	#else
+		MCFCSM_CSMR3 =	MCFCSM_CSMR_BAM(CFG_CS3_SIZE-1)
+				|MCFCSM_CSMR_V;
+	#endif
+#else
+	#warning "Chip Select 3 are not initialized/used"
+#endif
+
+#endif /* CONFIG_MONITOR_IS_IN_RAM */
+
+	/* defer enabling cache until boot (see do_go) */
+	/* icache_enable(); */
 }
 
 /*

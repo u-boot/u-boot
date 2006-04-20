@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add MCF5282 support (without preloader)
+  relocate ichache_State to ram
+  u-boot can run from internal flash
+  Add EB+MCF-EV123 board support.
+  Add m68k Boards to MAKEALL
+  Patch from Jens Scharsig, 08 Aug 2005
+
 * MPC5200: enable snooping of DMA transactions on XLB even if no PCI
   is configured; othrwise DMA accesses aren't cache coherent which
   causes for example USB to fail.

@@ -2,6 +2,10 @@
  * (C) Copyright 2003
  * Josef Baumgartner <josef.baumgartner@telex.de>
  *
+ * MCF5282 additionals
+ * (C) Copyright 2005
+ * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -31,7 +35,8 @@
 #endif
 
 #ifdef	CONFIG_M5282
-
+#include <asm/m5282.h>
+#include <asm/immap_5282.h>
 #endif
 
 #ifdef	CONFIG_M5249
@@ -75,7 +80,6 @@ int checkcpu(void) {
 	return 0;
 };
 
-
 #if defined(CONFIG_WATCHDOG)
 /* Called by macro WATCHDOG_RESET */
 void watchdog_reset (void)
@@ -117,11 +121,26 @@ int watchdog_init (void)
 #ifdef	CONFIG_M5282
 int checkcpu (void)
 {
-	puts ("CPU:   MOTOROLA Coldfire MCF5282\n");
+	unsigned char resetsource;
+
+	printf ("CPU:   MOTOROLA Coldfire MCF5282 (PIN: %2.2x REV: %2.2x)\n",
+		MCFCCM_CIR>>8,MCFCCM_CIR & MCFCCM_CIR_PRN_MASK);
+	puts ("Reset: ");
+	resetsource = MCFRESET_RSR;
+	if (resetsource & MCFRESET_RSR_LOL) puts("Lose-of-lock ");
+	if (resetsource & MCFRESET_RSR_LOC) puts("Lose-of-clock ");
+	if (resetsource & MCFRESET_RSR_EXT) puts("external ");
+	if (resetsource & MCFRESET_RSR_POR) puts("Power-on ");
+	if (resetsource & MCFRESET_RSR_WDR) puts("Watchdog ");
+	if (resetsource & MCFRESET_RSR_SOFT) puts("Software ");
+	if (resetsource & MCFRESET_RSR_LVD) puts("Low-voltage ");
+	puts("\n");
 	return 0;
 }
 
-int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[]) {
+int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+{
+	MCFRESET_RCR = MCFRESET_RCR_SOFTRST;
 	return 0;
 };
 #endif
