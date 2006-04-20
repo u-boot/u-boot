@@ -138,6 +138,8 @@ extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);      /
 #endif
 
 #ifdef __U_BOOT__
+DECLARE_GLOBAL_DATA_PTR;
+
 #define EXIT_SUCCESS 0
 #define EOF -1
 #define syntax() syntax_err()
@@ -3272,7 +3274,6 @@ int parse_file_outer(void)
 #ifdef __U_BOOT__
 static void u_boot_hush_reloc(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long addr;
 	struct reserved_combo *r;
 

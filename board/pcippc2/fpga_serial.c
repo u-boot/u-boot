@@ -29,6 +29,8 @@
 #include "hardware.h"
 #include "pcippc2.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
   /* 8 data, 1 stop, no parity
    */
 #define LCRVAL		0x03
@@ -92,8 +94,6 @@ int fpga_serial_tstc (void)
 
 void fpga_serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = 115200 / gd->baudrate;
 
 	fpga_serial_wait ();

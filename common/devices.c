@@ -34,6 +34,8 @@
 #include <i2c.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 list_t devlist = 0;
 device_t *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
@@ -160,8 +162,6 @@ int device_deregister(char *devname)
 int devices_init (void)
 {
 #ifndef CONFIG_ARM     /* already relocated for current ARM implementation */
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong relocation_offset = gd->reloc_off;
 	int i;
 

@@ -27,9 +27,7 @@
 
 #include <ns16550.h>
 
-#if 0
-#include "serial.h"
-#endif
+DECLARE_GLOBAL_DATA_PTR;
 
 const NS16550_t COM_PORTS[] =
 	{ (NS16550_t) CFG_NS16550_COM1, (NS16550_t) CFG_NS16550_COM2 };
@@ -40,8 +38,6 @@ static int gComPort = 0;
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
 
 	(void) NS16550_init (COM_PORTS[0], clock_divisor);
@@ -71,8 +67,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = CFG_NS16550_CLK / 16 / gd->baudrate;
 
 #ifdef CFG_INIT_CHAN1

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -47,10 +47,10 @@
 #include <asm/processor.h>
 #include <asm/cpm_8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	ulong clock = gd->cpu_clk;
 	uint pvr = get_pvr ();
@@ -264,8 +264,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong tbclk;
 
 	tbclk = (gd->bus_clk + 3L) / 4L;

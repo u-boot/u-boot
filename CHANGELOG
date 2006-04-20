@@ -2,6 +2,114 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update for NC650 board:
+  - Support rev1 and rev2 hardware
+  - adapt to new NAND layer
+  - add CP850 configuration based on NC650
+
+* MPC5200: enable snooping of DMA transactions on XLB even if no PCI
+  is configured; othrwise DMA accesses aren't cache coherent which
+  causes for example USB to fail.
+
+* Some code cleanup
+
+* Fix dbau1x00 boards broken by dbau1550 patch
+  PLL:s were not set for boards other than 1550.
+  Flash CFI caused card to hang due to undefined CFG_FLASH_BANKS_LIST.
+  Default boot is now bootp for cards other than 1550.
+  Patch by Thomas Lange, 10 Aug 2005
+
+* Fixes common/cmd_flash.c:
+  - fix some compiler/parser error, if using m68k tool chain
+  - optical fix for protect on/off all messages, if using more
+    then one bank
+  Patch by Jens Scharsig, 28 Jul 2005
+
+* Fix Quad UART mapping on MCC200 board due to new HW revision
+
+* Fix JFFS2 support for legacy NAND driver.
+
+* Remove dependencies between DoC code and old legacy NAND driver.
+
+* Fix PM828_PCI target, for which PCI was *not* configured in.
+
+* Fix Lite5200B support: initialize SDelay register
+  See Freescale's AN3221 "MPC5200B SDRAM Initialization and
+  Configuration", 3.3.1 SDelay--MBAR + 0x0190
+
+* Changes/fixes for drivers/cfi_flash.c:
+
+  - Add Intel legacy lock/unlock support to common CFI driver
+
+    On some Intel flash's (e.g. Intel J3) legacy unlocking is
+    supported, meaning that unlocking of one sector will unlock
+    all sectors of this bank. Using this feature, unlocking
+    of all sectors upon startup (via env var "unlock=yes") will
+    get much faster.
+
+  - Fixed problem with multiple reads of envronment variable
+    "unlock" as pointed out by Reinhard Arlt & Anders Larsen.
+
+  - Removed unwanted linefeeds from "protect" command when
+    CFG_FLASH_PROTECTION is enabled.
+
+  - Changed p3p400 board to use CFG_FLASH_PROTECTION
+
+  Patch by Stefan Roese, 01 Apr 2006
+
+* Changes/fixes for drivers/cfi_flash.c:
+  - Correctly handle the cases where CFG_HZ != 1000 (several
+    XScale-based boards)
+  - Fix the timeout calculation of buffered writes (off by a
+    factor of 1000)
+  Patch by Anders Larsen, 31 Mar 2006
+
+* Updates to common PPC4xx onboard (DDR)SDRAM init code (405 and 440)
+
+  405 SDRAM: - The SDRAM parameters can now be defined in the board
+	       config file and the 405 SDRAM controller values will
+	       be calculated upon bootup (see PPChameleonEVB).
+	       When those settings are not defined in the board
+	       config file, the register setup will be as it is now,
+	       so this implementation should not break any current
+	       design using this code.
+
+	       Thanks to Andrea Marson from DAVE for this patch.
+
+  440 DDR:   - Added function sdram_tr1_set to auto calculate the
+	       TR1 value for the DDR.
+	     - Added ECC support (see p3p440).
+
+  Patch by Stefan Roese, 17 Mar 2006
+
+* Fix CONFIG_SKIP_LOWLEVEL_INIT dependency in cpu/arm920t/start.S
+  Patch by Peter Menzebach, 13 Oct 2005 [DNX#2006040142000473]
+
+* Add support for ymodem protocol download
+  Patch by Stefano Babic, 29 Mar 2006
+
+* Memory Map Update for Delta board: U-Boot is at 0x80000000-0x84000000
+  Merge from Markus Klotzbücher's repo, 01 Apr 2006
+
+* GCC-4.x fixes: clean up global data pointer initialization for all
+  boards
+
+* Update for Delta board:
+  - redundant NAND environment
+  - misc Monahans cleanups (remove dead code etc.)
+  - DA9030 Initialization; some minimal changes to PXA I2C driver to
+    make it work with the Monahans.
+  - Make Monahans clock frequency configurable using
+    CFG_MONAHANS_RUN_MODE_OSC_RATIO and
+    CFG_MONAHANS_TURBO_RUN_MODE_RATIO.
+  Merge from Markus Klotzbücher's repo, 25 Mar 2006
+
+* Enable Quad UART om MCC200 board.
+
+* Cleanup MCC200 board configuration; omit non-existent stuff.
+
+* Add support for MPC859/866 Rev. A.0
+
 * Add command for handling DDR ECC registers on MPC8349EE MDS board.
 
 * Fix DDR ECC bit definitions for MPC83xx.
@@ -344,7 +452,7 @@ Changes since U-Boot 1.1.4:
   are removed from the default U-Boot build.
   Enable DEBUG for lib_arm/board.c to enable debug messages.
   New CONFIG_DISPLAY_CPUINFO and CONFIG_DISPLAY_BOARDINFO options.
-  Patch  by Stefan Roese, 24 Jan 2006
+  Patch	 by Stefan Roese, 24 Jan 2006
 
 * Fix various compiler warnings on ppc4xx builds (ELDK 4.0)
   Patch by Stefan Roese, 18 Jan 2006
@@ -490,11 +598,11 @@ Changes for U-Boot 1.1.4:
 
 * Add support for multiple PHYs.
   Tested on the following boards:
-	cmcpu2      (at91rm9200/ether.c)
+	cmcpu2	    (at91rm9200/ether.c)
 	PPChameleon (ppc4xx/4xx_enet.c)
-	yukon       (mpc8220/fec.c)
-	uc100       (mpc8xx/fec.c)
-	tqm834x     (mpc834x/tsec.c) with EEPRO100
+	yukon	    (mpc8220/fec.c)
+	uc100	    (mpc8xx/fec.c)
+	tqm834x	    (mpc834x/tsec.c) with EEPRO100
 	lite5200    (mpc5xxx/fec.c) with EEPRO100 card (drivers/eepro100.c)
   Main changes include:
   common/miiphyutil.c
@@ -1034,18 +1142,18 @@ Changes for U-Boot 1.1.3:
   The first one is to define a single, static partition:
 
   #undef CONFIG_JFFS2_CMDLINE
-  #define CONFIG_JFFS2_DEV               "nor0"
-  #define CONFIG_JFFS2_PART_SIZE         0xFFFFFFFF	/* use whole device */
-  #define CONFIG_JFFS2_PART_SIZE         0x00100000	/* use 1MB */
-  #define CONFIG_JFFS2_PART_OFFSET       0x00000000
+  #define CONFIG_JFFS2_DEV		 "nor0"
+  #define CONFIG_JFFS2_PART_SIZE	 0xFFFFFFFF	/* use whole device */
+  #define CONFIG_JFFS2_PART_SIZE	 0x00100000	/* use 1MB */
+  #define CONFIG_JFFS2_PART_OFFSET	 0x00000000
 
   The second method uses the mtdparts command line option and dynamic
   partitioning:
 
   /* mtdparts command line support */
   #define CONFIG_JFFS2_CMDLINE
-  #define MTDIDS_DEFAULT         "nor1=zuma-1,nor2=zuma-2"
-  #define MTDPARTS_DEFAULT       "mtdparts=zuma-1:-(jffs2),zuma-2:-(user)"
+  #define MTDIDS_DEFAULT	 "nor1=zuma-1,nor2=zuma-2"
+  #define MTDPARTS_DEFAULT	 "mtdparts=zuma-1:-(jffs2),zuma-2:-(user)"
 
   Command line of course produces bigger images, and may be inappropriate
   for some targets, so by default it's off.
@@ -3358,7 +3466,7 @@ Changes for U-Boot 1.0.1:
   Bring ARM memory layout in sync with the documentation:
   stack and malloc-heap are now located _below_ the U-Boot code
 
-* Accelerate booting on TRAB board: read and check  autoupdate  image
+* Accelerate booting on TRAB board: read and check  autoupdate	image
   headers first instead of always reading the whole images.
 
 * Fix type in MPC5XXX code (pointed out by Victor Wren)
@@ -3478,7 +3586,7 @@ Changes for U-Boot 1.0.0:
 * Make 5200 reset command _really_ reset the board, without running
   any other code after it
 
-* Fix errors with flash erase when range spans  across banks
+* Fix errors with flash erase when range spans	across banks
   that are mapped in reverse order
 
 * Fix flash mapping and display on P3G4 board
@@ -3722,7 +3830,7 @@ Changes for U-Boot 0.4.8:
   or 1 x AM29LV652 (two LV065 in one chip = 16 MB);
   Run IPB at 133 Mhz; adjust the MII clock frequency accordingly
 
-* Set BRG_CLK on PM825/826 to 64MHz (VCO_OUT / 4, instead of 16  MHz)
+* Set BRG_CLK on PM825/826 to 64MHz (VCO_OUT / 4, instead of 16	 MHz)
   to allow for more accurate baudrate settings
   (error now 0.7% at 115 kbps, instead of 3.5% before)
 
@@ -4209,7 +4317,7 @@ Changes for U-Boot 0.4.0:
   Update for MPC8266ADS board
 
 * Get (mostly) rid of CFG_MONITOR_LEN definition; compute real length
-  instead CFG_MONITOR_LEN is now only used to determine  _at_compile_
+  instead CFG_MONITOR_LEN is now only used to determine	 _at_compile_
   _time_  (!) if the environment is embedded within the U-Boot image,
   or in a separate flash sector.
 
@@ -4259,7 +4367,7 @@ Changes for U-Boot 0.4.0:
 * Patch by Thomas Schäfer, 28 Apr 2003:
   Fix SPD handling for 256 ECC DIMM on Walnut
 
-* Add support for arbitrary bitmaps for TRAB's  VFD command;
+* Add support for arbitrary bitmaps for TRAB's	VFD command;
   allow to pass boot bitmap addresses in environment variables;
   allow for zero boot delay
 
@@ -4602,7 +4710,7 @@ Changes for U-Boot 0.3.0:
 
 * Add VFD type detection to trab board
 
-* extend drivers/cs8900.c driver to synchronize  ethaddr  environment
+* extend drivers/cs8900.c driver to synchronize	 ethaddr  environment
   variable with value in the EEPROM
 
 * Patch by Stefan Roese, 10 Feb 2003:
@@ -4762,7 +4870,7 @@ Changes for U-Boot 0.2.0:
 * Patch by Pierre Aubert, 05 Nov 2002
   Add support for slave serial Spartan 2 FPGAs
 
-* Fix uninitialized memory (MAC  address)  in  8xx  SCC/FEC  ethernet
+* Fix uninitialized memory (MAC	 address)  in  8xx  SCC/FEC  ethernet
   drivers
 
 * Add support for log buffer which can be passed to Linux kernel's

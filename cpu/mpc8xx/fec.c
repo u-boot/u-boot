@@ -27,6 +27,8 @@
 #include <net.h>
 #include <command.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef	ET_DEBUG
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && \
@@ -371,7 +373,6 @@ static inline void fec_half_duplex(struct eth_device *dev)
 
 static void fec_pin_init(int fecidx)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t           *bd = gd->bd;
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile fec_t *fecp;

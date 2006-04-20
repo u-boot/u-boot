@@ -31,6 +31,8 @@
 #include <common.h>
 #include <asm/arch/platform.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 #define	ks8695_read(a)	  *((volatile unsigned int *) (KS8695_IO_BASE+(a)))
@@ -75,8 +77,6 @@ int board_late_init (void)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* arch number of CM4008 */
 	gd->bd->bi_arch_number = 624;
 
@@ -92,8 +92,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
 

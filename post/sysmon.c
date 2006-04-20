@@ -52,6 +52,8 @@
 
 #if CONFIG_POST & CFG_POST_SYSMON
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static int sysmon_temp_invalid = 0;
 
 /* #define DEBUG */
@@ -159,8 +161,6 @@ int sysmon_init_f (void)
 
 void sysmon_reloc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	sysmon_t ** l;
 	sysmon_table_t * t;
 
@@ -281,8 +281,6 @@ static void sysmon_ccfl_enable (sysmon_table_t * this)
 
 int sysmon_post_test (int flags)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int res = 0;
 	sysmon_table_t * t;
 	uint val;

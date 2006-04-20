@@ -157,6 +157,8 @@
 
 #if CONFIG_POST & CFG_POST_MEMORY
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Define INJECT_*_ERRORS for testing error detection in the presence of
  * _good_ hardware.
@@ -455,7 +457,6 @@ static int memory_post_tests (unsigned long start, unsigned long size)
 int memory_post_test (int flags)
 {
 	int ret = 0;
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd = gd->bd;
 	unsigned long memsize = (bd->bi_memsize >= 256 << 20 ?
 				 256 << 20 : bd->bi_memsize) - (1 << 20);

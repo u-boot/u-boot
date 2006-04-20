@@ -34,10 +34,10 @@
 
 #include <clps7111.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int reg = 0;
 
 	switch (gd->baudrate) {

@@ -28,7 +28,7 @@
 #include <common.h>
 #include <s3c2410.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 #define FCLK_SPEED 1
 
@@ -67,7 +67,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
@@ -117,8 +116,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

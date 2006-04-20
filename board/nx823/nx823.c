@@ -28,11 +28,9 @@
 #include <malloc.h>
 #include <mpc8xx.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 static long int dram_size (long int, long int *, long int);
-
-/* ------------------------------------------------------------------------- */
 
 #define	_NOT_USED_	0xFFFFFFFF
 
@@ -366,8 +364,6 @@ u_long *my_sernum;
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char tmp[50];
 	u_char *e = gd->bd->bi_enetaddr;
 
@@ -387,8 +383,6 @@ int misc_init_r (void)
 
 void load_sernum_ethaddr (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int i;
 	bd_t *bd = gd->bd;
 

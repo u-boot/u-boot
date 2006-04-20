@@ -33,6 +33,8 @@
 #include <devices.h>
 #include <lcd.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define	SMC_INDEX	0
 #define PROFF_SMC	PROFF_SMC1
 #define CPM_CR_CH_SMC	CPM_CR_CH_SMC1
@@ -46,8 +48,6 @@
 
 void smc1_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 

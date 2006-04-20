@@ -35,6 +35,8 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_FLASH)) == (CFG_CMD_ENV|CFG_CMD_FLASH))
 #define CMD_SAVEENV
 #elif defined(CFG_ENV_ADDR_REDUND)
@@ -89,8 +91,6 @@ extern int default_environment_size;
 
 uchar env_get_char_spec (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return ( *((uchar *)(gd->env_addr + index)) );
 }
 
@@ -98,7 +98,6 @@ uchar env_get_char_spec (int index)
 
 int  env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int crc1_ok = 0, crc2_ok = 0;
 
 	uchar flag1 = flash_addr->flags;
@@ -260,7 +259,6 @@ Done:
 
 int  env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_OMAP2420H4
 	int flash_probe(void);
 
@@ -358,8 +356,6 @@ void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED) || defined(CFG_ENV_ADDR_REDUND)
 #ifdef CFG_ENV_ADDR_REDUND
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->env_addr != (ulong)&(flash_addr->data)) {
 		env_t * etmp = flash_addr;
 		ulong ltmp = end_addr;

@@ -32,6 +32,8 @@
 #include <common.h>
 #include <mpc8xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CFG_OR_TIMING_FLASH_AT_50MHZ
 #define CFG_OR_TIMING_FLASH_AT_50MHZ (OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
 				      OR_SCY_2_CLK | OR_EHTR | OR_BI)
@@ -94,8 +96,6 @@ unsigned long flash_init (void)
 	int i;
 #ifdef CFG_OR_TIMING_FLASH_AT_50MHZ
 	int scy, trlx, flash_or_timing, clk_diff;
-
-	DECLARE_GLOBAL_DATA_PTR;
 
 	scy = (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
 	if (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {

@@ -45,6 +45,7 @@
 #include "64360.h"
 #include "mv_regs.h"
 
+DECLARE_GLOBAL_DATA_PTR;
 
 #undef	DEBUG
 /* #define DEBUG */
@@ -250,8 +251,6 @@ NSto10PS(unsigned char spd_byte)
 /* static int check_dimm(uchar slot, AUX_MEM_DIMM_INFO *info) */
 static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long spd_checksum;
 
 	uchar addr = slot == 0 ? DIMM0_I2C_ADDR : DIMM1_I2C_ADDR;

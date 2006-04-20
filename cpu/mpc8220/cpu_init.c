@@ -24,6 +24,8 @@
 #include <common.h>
 #include <mpc8220.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Breath some life into the CPU...
  *
@@ -32,8 +34,6 @@
  */
 void cpu_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile flexbus8220_t *flexbus = (volatile flexbus8220_t *) MMAP_FB;
 	volatile pcfg8220_t *portcfg = (volatile pcfg8220_t *) MMAP_PCFG;
 	volatile xlbarb8220_t *xlbarb = (volatile xlbarb8220_t *) MMAP_XLBARB;

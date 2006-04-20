@@ -14,6 +14,8 @@
 #include <pci.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 u32 get_BoardType (void);
 
 #define PCI_CONFIG(b,d,f,r)    cpu_to_le32(0x80000000 | ((b&0xff)<<16) \
@@ -50,7 +52,6 @@ void hw_watchdog_reset (void)
 }
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong busfreq = get_bus_freq (0);
 	char buf[32];
 	u32 BoardType = get_BoardType ();

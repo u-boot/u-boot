@@ -28,6 +28,8 @@
 #include <asm/arch/pxa-regs.h>
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /* local prototypes */
@@ -61,7 +63,6 @@ int
 board_init (void)
 /**********************************************************/
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	/* arch number of MicroSys XM250 */
 	gd->bd->bi_arch_number = MACH_TYPE_XM250;
 
@@ -76,8 +77,6 @@ int
 dram_init (void)
 /**********************************************************/
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;

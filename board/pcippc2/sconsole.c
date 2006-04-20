@@ -26,6 +26,8 @@
 
 #include "sconsole.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void	(*sconsole_putc) (char) = 0;
 void	(*sconsole_puts) (const char *) = 0;
 int	(*sconsole_getc) (void) = 0;
@@ -34,8 +36,6 @@ void	(*sconsole_setbrg) (void) = 0;
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	sconsole_buffer_t *sb = SCONSOLE_BUFFER;
 
 	sb->pos  = 0;
@@ -104,8 +104,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (sconsole_setbrg) {
 		(*sconsole_setbrg) ();
 	} else {

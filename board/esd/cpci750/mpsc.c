@@ -42,6 +42,8 @@
 
 #include "../../Marvell/include/memory.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Define this if you wish to use the MPSC as a register based UART.
  * This will force the serial port to not use the SDMA engine at all.
  */
@@ -157,7 +159,6 @@ char mpsc_getchar_debug (void)
  * global variables [josh] */
 int mpsc_putchar_early (char ch)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int mpsc = CHANNEL;
 	int temp =
 		GTREGREAD (GALMPSC_CHANNELREG_2 + (mpsc * GALMPSC_REG_GAP));
@@ -510,7 +511,6 @@ void mpsc_init2 (void)
 
 int galbrg_set_baudrate (int channel, int rate)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int clock;
 
 	galbrg_disable (channel);	/*ok */

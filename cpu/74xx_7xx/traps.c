@@ -36,6 +36,10 @@
 #include <command.h>
 #include <asm/processor.h>
 
+#ifdef CONFIG_AMIGAONEG3SE
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
@@ -58,9 +62,6 @@ extern unsigned long search_exception_table(unsigned long);
 void
 print_backtrace(unsigned long *sp)
 {
-#ifdef CONFIG_AMIGAONEG3SE
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
 	int cnt = 0;
 	unsigned long i;
 

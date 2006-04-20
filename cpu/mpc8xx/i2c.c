@@ -37,6 +37,8 @@
 #include <watchdog.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* define to enable debug messages */
 #undef	DEBUG_I2C
 
@@ -205,8 +207,6 @@ i2c_setrate (int hz, int speed)
 void
 i2c_init(int speed, int slaveaddr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
 	volatile cpm8xx_t *cp = (cpm8xx_t *)&immap->im_cpm;
 	volatile i2c8xx_t *i2c	= (i2c8xx_t *)&immap->im_i2c;
@@ -615,8 +615,6 @@ int i2c_probe(uchar chip)
 
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	i2c_state_t state;
 	uchar xaddr[4];
 	int rc;
@@ -671,8 +669,6 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	i2c_state_t state;
 	uchar xaddr[4];
 	int rc;

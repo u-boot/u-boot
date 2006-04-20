@@ -38,6 +38,8 @@
 #include <asm/m5249.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_M5249
 #define DoubleClock(a) ((double)(CFG_CLK/2) / 32.0 / (double)(a))
 #else
@@ -134,12 +136,10 @@ int rs_get_char(void)
 }
 
 void serial_setbrg(void) {
-	DECLARE_GLOBAL_DATA_PTR;
 	rs_serial_setbaudrate(0,gd->bd->bi_baudrate);
 }
 
 int serial_init(void) {
-	DECLARE_GLOBAL_DATA_PTR;
 	rs_serial_init(0,gd->baudrate);
 	return 0;
 }

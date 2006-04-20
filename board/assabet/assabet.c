@@ -27,6 +27,8 @@
 #include <common.h>
 #include <SA-1100.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -99,8 +101,6 @@ neponset_init(void)
 int
 board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_arch_number = MACH_TYPE_ASSABET;
 	gd->bd->bi_boot_params = 0xc0000100;
 
@@ -112,8 +112,6 @@ board_init(void)
 int
 dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

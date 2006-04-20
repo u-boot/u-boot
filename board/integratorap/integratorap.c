@@ -39,6 +39,8 @@
 #include <pci.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void flash__init (void);
 void ether__init (void);
 void peripheral_power_enable (void);
@@ -65,8 +67,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* arch number of Integrator Board */
 	gd->bd->bi_arch_number = MACH_TYPE_INTEGRATOR;
 
@@ -480,8 +480,6 @@ void ether__init (void)
 ******************************/
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size	 = PHYS_SDRAM_1_SIZE;
 

@@ -26,6 +26,8 @@
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # define SHOW_BOOT_PROGRESS(arg)        show_boot_progress(arg)
 #else
@@ -65,8 +67,6 @@ int misc_init_r(void)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
@@ -88,8 +88,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

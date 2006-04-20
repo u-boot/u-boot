@@ -24,6 +24,8 @@
 #include <common.h>
 #include "ns16550.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if CONFIG_CONS_INDEX == 1
 static struct NS16550 *console =
 		(struct NS16550 *) (CFG_EUMB_ADDR + 0x4500);
@@ -38,8 +40,6 @@ extern ulong get_bus_freq (ulong);
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = gd->bus_clk / 16 / gd->baudrate;
 
 	NS16550_init (CONFIG_CONS_INDEX - 1, clock_divisor);
@@ -75,8 +75,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = get_bus_freq (0) / 16 / gd->baudrate;
 
 	NS16550_reinit (console, clock_divisor);

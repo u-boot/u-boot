@@ -45,13 +45,13 @@
 
 #include "ns16550.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_MPSC
 
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #if (defined CFG_INIT_CHAN1) || (defined CFG_INIT_CHAN2)
 	int clock_divisor = 230400 / gd->baudrate;
 #endif
@@ -88,8 +88,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 
@@ -97,8 +95,6 @@ void serial_setbrg (void)
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = 230400 / gd->baudrate;
 
 #ifdef CFG_INIT_CHAN1
@@ -130,8 +126,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int clock_divisor = 230400 / gd->baudrate;
 
 #ifdef CFG_INIT_CHAN1

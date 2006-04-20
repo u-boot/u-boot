@@ -25,6 +25,8 @@
 #include <ioports.h>
 #include <mpc8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * I/O Port configuration table
  *
@@ -295,8 +297,6 @@ long int initdram (int board_type)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_flashstart = 0xff800000;
 }
 

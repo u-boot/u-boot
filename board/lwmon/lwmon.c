@@ -45,6 +45,8 @@ V* Verification:  dzu@denx.de
 #include <linux/types.h>
 #include <linux/string.h>	/* for strdup */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*------------------------ Local prototypes ---------------------------*/
 static long int dram_size (long int, long int *, long int);
 static void kbd_init (void);
@@ -455,8 +457,6 @@ Z*               for the lwmon board.
  ***********************************************************************/
 int board_postclk_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	kbd_init();
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -471,15 +471,11 @@ int board_postclk_init (void)
 
 struct serial_device * default_serial_console (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return gd->do_mdm_init ? &serial_scc_device : &serial_smc_device;
 }
 
 static void kbd_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar kbd_data[KEYBD_DATALEN];
 	uchar tmp_data[KEYBD_DATALEN];
 	uchar val, errcd;
@@ -571,8 +567,6 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uchar kbd_data[KEYBD_DATALEN];
 	char keybd_env[2 * KEYBD_DATALEN + 1];
 	uchar kbd_init_status = gd->kbd_status >> 8;

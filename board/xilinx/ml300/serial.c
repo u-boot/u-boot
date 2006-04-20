@@ -43,6 +43,8 @@
 #include <configs/ml300.h>
 #include "xparameters.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define USE_CHAN1 \
 	((defined XPAR_UARTNS550_0_BASEADDR) && (defined CFG_INIT_CHAN1))
 #define USE_CHAN2 \
@@ -64,7 +66,6 @@ int
 serial_init(void)
 {
 #if USE_CHAN1
-	DECLARE_GLOBAL_DATA_PTR;
 	int clock_divisor;
 
 	clock_divisor = XPAR_UARTNS550_0_CLOCK_FREQ_HZ / 16 / gd->baudrate;
@@ -103,7 +104,6 @@ void
 serial_setbrg(void)
 {
 #if USE_CHAN1
-	DECLARE_GLOBAL_DATA_PTR;
 	int clock_divisor;
 
 	clock_divisor = XPAR_UARTNS550_0_CLOCK_FREQ_HZ / 16 / gd->baudrate;

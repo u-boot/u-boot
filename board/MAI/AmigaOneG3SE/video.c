@@ -26,6 +26,8 @@
 #include "memio.h"
 #include <part.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 unsigned char *cursor_position;
 unsigned int cursor_row;
 unsigned int cursor_col;
@@ -480,7 +482,6 @@ extern char version_string[];
 void video_banner(void)
 {
     block_dev_desc_t *ide;
-    DECLARE_GLOBAL_DATA_PTR;
     int i;
     char *s;
     int maxdev;

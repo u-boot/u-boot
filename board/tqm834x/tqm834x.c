@@ -32,6 +32,8 @@
 #include <asm-ppc/mmu.h>
 #include <pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define IOSYNC			asm("eieio")
 #define ISYNC			asm("isync")
 #define SYNC			asm("sync")
@@ -142,7 +144,6 @@ int checkboard (void)
 	puts("Board: TQM834x\n");
 
 #ifdef CONFIG_PCI
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t * immr;
 	u32 w, f;
 

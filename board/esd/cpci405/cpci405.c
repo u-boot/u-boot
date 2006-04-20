@@ -27,7 +27,8 @@
 #include <malloc.h>
 #include <net.h>
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
+
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);       /*cmd_boot.c*/
 #if 0
 #define FPGA_DEBUG
@@ -100,8 +101,6 @@ int board_early_init_f (void)
 #endif
 
 #ifdef FPGA_DEBUG
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* set up serial port with default baudrate */
 	(void) get_clocks ();
 	gd->baudrate = CONFIG_BAUDRATE;
@@ -126,8 +125,6 @@ int board_early_init_f (void)
 		if (status != 0) {
 			/* booting FPGA failed */
 #ifndef FPGA_DEBUG
-			DECLARE_GLOBAL_DATA_PTR;
-
 			/* set up serial port with default baudrate */
 			(void) get_clocks ();
 			gd->baudrate = CONFIG_BAUDRATE;
@@ -268,7 +265,6 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long cntrl0Reg;
 
 	/* adjust flash start and offset */
@@ -707,8 +703,6 @@ U_BOOT_CMD(
  */
 int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd = gd->bd;
 	char *buf;
 	ulong crc;

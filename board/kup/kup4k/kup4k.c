@@ -29,6 +29,8 @@
    #include "s1d13706.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef DEBUG
 #ifdef  DEBUG
 # define debugk(fmt,args...)    printf(fmt ,##args)
@@ -43,10 +45,6 @@ typedef struct {
 
 
 /* ------------------------------------------------------------------------- */
-
-#if 0
-static long int dram_size (long int, long int *, long int);
-#endif
 
 #ifdef CONFIG_KUP4K_LOGO
 void lcd_logo(bd_t *bd);
@@ -235,62 +233,8 @@ long int initdram (int board_type)
 
 /* ------------------------------------------------------------------------- */
 
-/*
- * Check memory range for valid RAM. A simple memory test determines
- * the actually available RAM size between addresses `base' and
- * `base + maxsize'. Some (not all) hardware errors are detected:
- * - short between address lines
- * - short between data lines
- */
-#if 0
-static long int dram_size (long int mamr_value, long int *base,
-						   long int maxsize)
-{
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	volatile long int *addr;
-	ulong cnt, val;
-	ulong save[32];				/* to make test non-destructive */
-	unsigned char i = 0;
-
-	memctl->memc_mamr = mamr_value;
-
-	for (cnt = maxsize / sizeof (long); cnt > 0; cnt >>= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		save[i++] = *addr;
-		*addr = ~cnt;
-	}
-
-	/* write 0 to base address */
-	addr = base;
-	save[i] = *addr;
-	*addr = 0;
-
-	/* check at base address */
-	if ((val = *addr) != 0) {
-		*addr = save[i];
-		return (0);
-	}
-
-	for (cnt = 1; cnt <= maxsize / sizeof (long); cnt <<= 1) {
-		addr = base + cnt;		/* pointer arith! */
-
-		val = *addr;
-		*addr = save[--i];
-
-		if (val != (~cnt)) {
-			return (cnt * sizeof (long));
-		}
-	}
-	return (maxsize);
-}
-#endif
-
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_STATUS_LED
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 #endif

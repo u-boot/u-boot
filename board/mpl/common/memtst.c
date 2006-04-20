@@ -50,13 +50,15 @@ int testdram (void)
 #include <asm/processor.h>
 #include <405gp_i2c.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define FALSE           0
 #define TRUE            1
 
-#define TEST_QUIET 			8
+#define TEST_QUIET 	8
 #define TEST_SHOW_PROG 	4
 #define TEST_SHOW_ERR 	2
-#define TEST_SHOW_ALL		1
+#define TEST_SHOW_ALL	1
 
 #define TESTPAT1 0xAA55AA55
 #define TESTPAT2 0x55AA55AA
@@ -468,7 +470,6 @@ static RAM_MEMTEST_FUNC test_stage[TEST_STAGES] = {
 
 void mem_test_reloc(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long addr;
 	int i;
 	for (i=0; i< TEST_STAGES; i++) {

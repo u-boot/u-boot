@@ -28,6 +28,8 @@
 
 #ifdef CONFIG_MAX3100_SERIAL
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /**************************************************************/
 
 /* convienient macros */
@@ -217,7 +219,6 @@ int serial_init(void)
 {
 	unsigned int wconf, rconf;
 	int i;
-	DECLARE_GLOBAL_DATA_PTR;
 
 	wconf = 0;
 

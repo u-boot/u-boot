@@ -26,6 +26,8 @@
 #include <asm/cpm_8260.h>
 #include <ioports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void config_8260_ioports (volatile immap_t * immr)
 {
 	int portnum;
@@ -97,7 +99,6 @@ static void config_8260_ioports (volatile immap_t * immr)
  */
 void cpu_init_f (volatile immap_t * immr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #if !defined(CONFIG_COGENT)		/* done in start.S for the cogent */
 	uint sccr;
 #endif
@@ -222,8 +223,6 @@ void cpu_init_f (volatile immap_t * immr)
  */
 int cpu_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *) gd->bd->bi_immr_base;
 
 	immr->im_cpm.cp_rccr = CFG_RCCR;
@@ -236,8 +235,6 @@ int cpu_init_r (void)
  */
 int prt_8260_rsr (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	static struct {
 		ulong mask;
 		char *desc;

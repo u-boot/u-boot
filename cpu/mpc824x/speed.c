@@ -29,6 +29,8 @@
 #include <mpc824x.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 /* NOTE: This describes the proper use of this file.
  *
@@ -107,8 +109,6 @@ short pllratio_to_factor[] = {
 /* compute the CPU and memory bus clock frequencies */
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint hid1 = mfspr(HID1);
 	hid1 = (hid1 >> (32-5)) & 0x1f;
 	gd->cpu_clk = (pllratio_to_factor[hid1] * get_bus_freq(0) + 5)

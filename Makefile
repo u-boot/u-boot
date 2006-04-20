@@ -133,6 +133,8 @@ LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
 LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
+LIBS += drivers/nand/libnand.a
+LIBS += drivers/nand_legacy/libnand_legacy.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
@@ -631,8 +633,21 @@ NETTA2_config:		unconfig
 		 }
 	@./mkconfig -a $(call xtract_NETTA2,$@) ppc mpc8xx netta2
 
-NC650_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8xx nc650
+NC650_Rev1_config \
+NC650_Rev2_config \
+CP850_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring CP850,$@)" ] || \
+		 { echo "#define CONFIG_CP850 1" >>include/config.h ; \
+		   echo "#define CONFIG_IDS852_REV2 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring Rev1,$@)" ] || \
+		 { echo "#define CONFIG_IDS852_REV1 1" >>include/config.h ; \
+		 }
+	@[ -z "$(findstring Rev2,$@)" ] || \
+		 { echo "#define CONFIG_IDS852_REV2 1" >>include/config.h ; \
+		 }
+	@./mkconfig -a NC650 ppc mpc8xx nc650
 
 NX823_config:		unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx nx823
@@ -1187,7 +1202,7 @@ PM828_config	\
 PM828_PCI_config	\
 PM828_ROMBOOT_config	\
 PM828_ROMBOOT_PCI_config:	unconfig
-	@if [ -z "$(findstring _PCI_,$@)" ] ; then \
+	@if [ "$(findstring _PCI_,$@)" ] ; then \
 		echo "#define CONFIG_PCI"  >>include/config.h ; \
 		echo "... with PCI enabled" ; \
 	else \

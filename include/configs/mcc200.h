@@ -67,13 +67,8 @@
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				ADD_USB_CMD	| \
 				CFG_CMD_BEDBUG	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_EEPROM	| \
 				CFG_CMD_FAT	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP	)
+				CFG_CMD_I2C)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -131,24 +126,10 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
+#define CFG_I2C_MODULE		1	/* Select I2C module #1 or #2 */
 
 #define CFG_I2C_SPEED		100000 /* 100 kHz */
 #define CFG_I2C_SLAVE		0x7F
-
-/*
- * EEPROM configuration
- */
-#define CFG_I2C_EEPROM_ADDR		0x58
-#define CFG_I2C_EEPROM_ADDR_LEN		1
-#define CFG_EEPROM_PAGE_WRITE_BITS	4
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
-
-/*
- * RTC configuration
- */
-#define CONFIG_RTC_PCF8563
-#define CFG_I2C_RTC_ADDR		0x51
 
 /*
  * Flash configuration (8,16 or 32 MB)
@@ -231,7 +212,7 @@
  */
 /* 0x10000004 = 32MB SDRAM */
 /* 0x90000004 = 64MB SDRAM */
-#define CFG_GPS_PORT_CONFIG	0x10000004
+#define CFG_GPS_PORT_CONFIG	0x00000004
 
 /*
  * Miscellaneous configurable options
@@ -265,6 +246,11 @@
 #define CFG_BOOTCS_CFG		0x0004fb00
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
+
+/* Quad UART @0x80000000 (MBAR is relocated to 0xF0000000) */
+#define CFG_CS2_START		0x80000000
+#define CFG_CS2_SIZE		0x00001000
+#define CFG_CS2_CFG		0x1d300
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333

@@ -28,6 +28,8 @@
 #include <version.h>
 #include <watchdog.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
 
@@ -72,8 +74,6 @@ init_fnc_t *init_sequence[] = {
 
 void board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 

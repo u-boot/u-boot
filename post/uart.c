@@ -50,6 +50,8 @@
 #include <command.h>
 #include <serial.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define CTLR_SMC 0
 #define CTLR_SCC 1
 
@@ -82,8 +84,6 @@ static int proff_scc[] =
 
 static void smc_init (int smc_index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	static int cpm_cr_ch[] = { CPM_CR_CH_SMC1, CPM_CR_CH_SMC2 };
 
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
@@ -288,8 +288,6 @@ static int smc_getc (int smc_index)
 
 static void scc_init (int scc_index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	static int cpm_cr_ch[] = {
 		CPM_CR_CH_SCC1,
 		CPM_CR_CH_SCC2,

@@ -2,7 +2,7 @@
  * (C) Copyright 2001
  * Rob Taylor, Flying Pig Systems. robt@flyingpig.com.
  *
- * (C) Copyright 2001, 2002
+ * (C) Copyright 2001-2006
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
 
  * See file CREDITS for list of people who contributed to this
@@ -29,12 +29,12 @@
 #include <asm/processor.h>
 #include <pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define BOARD_REV_REG 0xFE80002B
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char  revision = *(volatile char *)(BOARD_REV_REG);
 	char  buf[32];
 

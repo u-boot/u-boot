@@ -31,6 +31,8 @@
 #include "../common/isa.h"
 #include "../common/common_util.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef SDRAM_DEBUG
 
 #define FALSE           0
@@ -134,8 +136,6 @@ unsigned short NSto10PS (unsigned char spd_byte)
 void SDRAM_err (const char *s)
 {
 #ifndef SDRAM_DEBUG
-	DECLARE_GLOBAL_DATA_PTR;
-
 	(void) get_clocks ();
 	gd->baudrate = 9600;
 	serial_init ();
@@ -191,9 +191,6 @@ int board_early_init_f (void)
 			trc_clocks, tctp_clocks;
 	unsigned char cal_index, cal_val, spd_version, spd_chksum;
 	unsigned char buf[8];
-#ifdef SDRAM_DEBUG
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
 	/* set up the config port */
 	mtdcr (ebccfga, pb7ap);
 	mtdcr (ebccfgd, CONFIG_PORT_AP);
@@ -613,8 +610,6 @@ static int test_dram (unsigned long ramsize);
 
 long int initdram (int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long bank_reg[4], tmp, bank_size;
 	int i, ds;
 	unsigned long TotalSize;
@@ -666,7 +661,6 @@ extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	/* adjust flash start and size as well as the offset */
 	gd->bd->bi_flashstart=0-flash_info[0].size;
 	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;

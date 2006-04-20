@@ -27,6 +27,10 @@
 #include <mpc8xx.h>
 #include <commproc.h>
 
+#if defined(CFG_RTCSC) || defined(CFG_RMDS)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 #if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH)
 void cpm_load_patch (volatile immap_t * immr);
 #endif
@@ -259,8 +263,6 @@ void cpu_init_f (volatile immap_t * immr)
 int cpu_init_r (void)
 {
 #if defined(CFG_RTCSC) || defined(CFG_RMDS)
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd = gd->bd;
 	volatile immap_t *immr = (volatile immap_t *) (bd->bi_immr_base);
 #endif

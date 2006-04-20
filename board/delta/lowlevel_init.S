@@ -1,10 +1,5 @@
 /*
- * Most of this taken from Redboot hal_platform_setup.h with cleanup
- *
- * NOTE: I haven't clean this up considerably, just enough to get it
- * running. See hal_platform_setup.h for the source. See
- * board/cradle/lowlevel_init.S for another PXA250 setup that is
- * much cleaner.
+ * (C) Copyright 2006 DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -31,14 +26,6 @@
 
 DRAM_SIZE:  .long   CFG_DRAM_SIZE
 
-/* wait for coprocessor write complete */
-.macro CPWAIT reg
-	mrc	p15,0,\reg,c2,c0,0
-	mov	\reg,\reg
-	sub	pc,pc,#4
-.endm
-
-
 .macro wait time
 	ldr		r2, =OSCR
 	mov		r3, #0
@@ -49,13 +36,9 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 	bls		0b
 .endm
 
-/*
- *	Memory setup
- */
-
 .globl lowlevel_init
 lowlevel_init:
-	/* Set up GPIO pins first ----------------------------------------- */
+	/* Set up GPIO pins first */
 	mov	 r10, lr
 
 	/*  Configure GPIO  Pins 97, 98 UART1 / altern. Fkt. 1 */
@@ -73,22 +56,7 @@ lowlevel_init:
 	bic		r1, r1, #0x80000000
 	str		r1, [r0]
 
-	/* ---------------------------------------------------------------- */
-	/* Enable memory interface					    */
-	/* ---------------------------------------------------------------- */
-
-	/* ---------------------------------------------------------------- */
-	/* Step 1: Wait for at least 200 microsedonds to allow internal	    */
-	/*	   clocks to settle. Only necessary after hard reset...	    */
-	/*	   FIXME: can be optimized later			    */
-	/* ---------------------------------------------------------------- */
-;	wait #300
-
 mem_init:
-
-#define NEW_SDRAM_INIT 1
-#ifdef NEW_SDRAM_INIT
-
 	/* Configure ACCR Register - enable DMEMC Clock at 260 / 2 MHz */
 	ldr		r0, =ACCR
 	ldr		r1, [r0]
@@ -99,7 +67,7 @@ mem_init:
 	/* 2. Programm MDCNFG, leaving DMCEN de-asserted */
 	ldr		r0, =MDCNFG
 	ldr		r1, =(MDCNFG_DMAP | MDCNFG_DTYPE | MDCNFG_DTC_2 | MDCNFG_DCSE0 | MDCNFG_DRAC_13)
-	/*	ldr		r1, =0x80000403 */
+	/* ldr		r1, =0x80000403 */
 	str		r1, [r0]
 	ldr		r1, [r0]	/* delay until written */
 
@@ -140,121 +108,6 @@ mem_init:
 	orr		r1, r1, #MDCNFG_DMCEN
 	str		r1, [r0]
 
-
-#else /* NEW_SDRAM_INIT */
-
-	/* configure the MEMCLKCFG register */
-	ldr		r1, =MEMCLKCFG
-	ldr		r2, =0x00010001
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set CSADRCFG[0] to data flash SRAM mode */
-	ldr		r1, =CSADRCFG0
-	ldr		r2, =0x00320809
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set CSADRCFG[1] to data flash SRAM mode */
-	ldr		r1, =CSADRCFG1
-	ldr		r2, =0x00320809
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set MSC 0 register for SRAM memory */
-	ldr		r1, =MSC0
-	ldr		r2, =0x11191119
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set CSADRCFG[2] to data flash SRAM mode */
-	ldr		r1, =CSADRCFG2
-	ldr		r2, =0x00320809
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set CSADRCFG[3] to VLIO mode */
-	ldr		r1, =CSADRCFG3
-	ldr		r2, =0x0032080B
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-	/* set MSC 1 register for VLIO memory */
-	ldr		r1, =MSC1
-	ldr		r2, =0x123C1119
-	str		r2, [r1]	     @ WRITE
-	ldr		r2, [r1]	     @ DELAY UNTIL WRITTEN
-
-#if 0
-	/* This does not work in Zylonite. -SC */
-	ldr		r0, =0x15fffff0
-	ldr		r1, =0xb10b
-	str		r1, [r0]
-	str		r1, [r0, #4]
-#endif
-
-	/* Configure ACCR Register */
-	ldr		r0, =ACCR		@ ACCR
-	ldr		r1, =0x0180b108
-	str		r1, [r0]
-	ldr		r1, [r0]
-
-	/* Configure MDCNFG Register */
-	ldr		r0, =MDCNFG		@ MDCNFG
-	ldr		r1, =0x403
-	str		r1, [r0]
-	ldr		r1, [r0]
-
-	/* Perform Resistive Compensation by configuring RCOMP register */
-	ldr		r1, =RCOMP		@ RCOMP
-	ldr		r2, =0x000000ff
-	str		r2, [r1]
-	ldr		r2, [r1]
-
-	/* Configure MDMRS Register for SDCS0 */
-	ldr		r1, =MDMRS		@ MDMRS
-	ldr		r2, =0x60000023
-	ldr		r3, [r1]
-	orr		r2, r2, r3
-	str		r2, [r1]
-	ldr		r2, [r1]
-
-	/* Configure MDMRS Register for SDCS1 */
-	ldr		r1, =MDMRS		@ MDMRS
-	ldr		r2, =0xa0000023
-	ldr		r3, [r1]
-	orr		r2, r2, r3
-	str		r2, [r1]
-	ldr		r2, [r1]
-
-	/* Configure MDREFR */
-	ldr		r1, =MDREFR		@ MDREFR
-	ldr		r2, =0x00000006
-	str		r2, [r1]
-	ldr		r2, [r1]
-
-	/* Configure EMPI */
-	ldr		r1, =EMPI		@ EMPI
-	ldr		r2, =0x80000000
-	str		r2, [r1]
-	ldr		r2, [r1]
-
-	/* Hardware DDR Read-Strobe Delay Calibration */
-	ldr		r0, =DDR_HCAL		@ DDR_HCAL
-	ldr		r1, =0x803ffc07	    @ the offset is correct? -SC
-	str		r1, [r0]
-	wait		#5
-	ldr		r1, [r0]
-
-	/* Here we assume the hardware calibration alwasy be successful. -SC */
-	/* Set DMCEN bit in MDCNFG Register */
-	ldr		r0, =MDCNFG		@ MDCNFG
-	ldr		r1, [r0]
-	orr		r1, r1, #0x40000000	@ enable SDRAM for Normal Access
-	str		r1, [r0]
-
-#endif /* NEW_SDRAM_INIT */
-
 #ifndef CFG_SKIP_DRAM_SCRUB
 	/* scrub/init SDRAM if enabled/present */
 	ldr	r8, =CFG_DRAM_BASE	/* base address of SDRAM (CFG_DRAM_BASE) */
@@ -290,96 +143,4 @@ mem_init:
 	mcr	p14,0,r0,c10,c0,0  /* dcsr */
 
 endlowlevel_init:
-
 	mov	pc, lr
-
-
-/*
-@********************************************************************************
-@ DDR calibration
-@
-@  This function is used to calibrate DQS delay lines.
-@ Monahans supports three ways to do it. One is software
-@ calibration. Two is hardware calibration. Three is hybrid
-@ calibration.
-@
-@ TBD
-@ -SC
-ddr_calibration:
-
-	@ Case 1:	Write the correct delay value once
-	@ Configure DDR_SCAL Register
-	ldr		r0, =DDR_SCAL		@ DDR_SCAL
-q	ldr		r1, =0xaf2f2f2f
-	str		r1, [r0]
-	ldr		r1, [r0]
-*/
-/*	@ Case 2:	Software Calibration
-	@ Write test pattern to memory
-	ldr		r5, =0x0faf0faf		@ Data Pattern
-	ldr		r4, =0xa0000000		@ DDR ram
-	str		r5, [r4]
-
-	mov		r1, =0x0		@ delay count
-	mov		r6, =0x0
-	mov		r7, =0x0
-ddr_loop1:
-	add		r1, r1, =0x1
-	cmp		r1, =0xf
-	ble		end_loop
-	mov		r3, r1
-	mov		r0, r1, lsl #30
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #22
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #14
-	orr		r3, r3, r0
-	orr		r3, r3, =0x80000000
-	ldr		r2, =DDR_SCAL
-	str		r3, [r2]
-
-	ldr		r2, [r4]
-	cmp		r2, r5
-	bne		ddr_loop1
-	mov		r6, r1
-ddr_loop2:
-	add		r1, r1, =0x1
-	cmp		r1, =0xf
-	ble		end_loop
-	mov		r3, r1
-	mov		r0, r1, lsl #30
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #22
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #14
-	orr		r3, r3, r0
-	orr		r3, r3, =0x80000000
-	ldr		r2, =DDR_SCAL
-	str		r3, [r2]
-
-	ldr		r2, [r4]
-	cmp		r2, r5
-	be		ddr_loop2
-	mov		r7, r2
-
-	add		r3, r6, r7
-	lsr		r3, r3, =0x1
-	mov		r0, r1, lsl #30
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #22
-	orr		r3, r3, r0
-	mov		r0, r1, lsl #14
-	orr		r3, r3, r0
-	orr		r3, r3, =0x80000000
-	ldr		r2, =DDR_SCAL
-
-end_loop:
-
-	@ Case 3:	Hardware Calibratoin
-	ldr		r0, =DDR_HCAL		@ DDR_HCAL
-	ldr		r1, =0x803ffc07	    @ the offset is correct? -SC
-	str		r1, [r0]
-	wait		#5
-	ldr		r1, [r0]
-	mov		pc, lr
-*/

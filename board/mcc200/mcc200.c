@@ -30,6 +30,8 @@
 
 #include "mt48lc8m32b2-6-7.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
 ulong flash_get_size (ulong base, int banknum);
@@ -190,8 +192,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -236,6 +236,16 @@ int misc_init_r (void)
 			       CFG_ENV_ADDR_REDUND,
 			       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
 			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	}
+
+	if (gd->bd->bi_flashsize > (32 << 20)) {
+		/* Unprotect the upper bank of the Flash */
+		*(volatile int*)MPC5XXX_CS0_CFG |= (1 << 6);
+		flash_protect (FLAG_PROTECT_CLEAR,
+			       flash_info[0].start[0],
+			       (flash_info[0].start[0] + flash_info[0].size) / 2 - 1,
+			       &flash_info[0]);
+		*(volatile int*)MPC5XXX_CS0_CFG &= ~(1 << 6);
 	}
 
 	return (0);

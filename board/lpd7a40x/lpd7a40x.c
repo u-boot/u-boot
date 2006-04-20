@@ -37,14 +37,14 @@
 
 #include <lpd7a400_cpld.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Miscellaneous platform dependent initialisations
  */
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* set up the I/O ports */
 
 	/* enable flash programming */
@@ -74,8 +74,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

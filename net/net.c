@@ -92,6 +92,8 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define ARP_TIMEOUT		5		/* Seconds before trying ARP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define ARP_TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
@@ -266,8 +268,6 @@ void ArpTimeoutCheck(void)
 int
 NetLoop(proto_t protocol)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd = gd->bd;
 
 #ifdef CONFIG_NET_MULTI
@@ -572,9 +572,6 @@ startAgainHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 void NetStartAgain (void)
 {
-#ifdef	CONFIG_NET_MULTI
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
 	char *nretry;
 	int noretry = 0, once = 0;
 

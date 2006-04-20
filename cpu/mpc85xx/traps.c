@@ -39,6 +39,8 @@
 #include <command.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
@@ -83,7 +85,6 @@ extern void do_bedbug_breakpoint(struct pt_regs *);
 void
 print_backtrace(unsigned long *sp)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int cnt = 0;
 	unsigned long i;
 

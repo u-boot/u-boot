@@ -38,6 +38,8 @@
 #include <ide.h>
 #include <asm/u-boot-i386.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern long _i386boot_start;
 extern long _i386boot_end;
 extern long _i386boot_romdata_start;
@@ -80,8 +82,6 @@ static ulong mem_malloc_brk = 0;
 
 static int mem_malloc_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* start malloc area right after the stack */
 	mem_malloc_start = i386boot_bss_start +
 		i386boot_bss_size + CFG_STACK_SIZE;
@@ -130,8 +130,6 @@ char *strmhz (char *buf, long hz)
  */
 static int init_baudrate (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r("baudrate", tmp, 64);
 
@@ -167,7 +165,6 @@ static int display_banner (void)
  */
 static int display_dram_config (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int i;
 
 	puts ("DRAM Configuration:\n");
@@ -233,7 +230,6 @@ gd_t *global_data;
 
 void start_i386boot (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	char *s;
 	int i;
 	ulong size;

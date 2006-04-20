@@ -246,6 +246,7 @@ The following options need to be configured:
 		CONFIG_SA1110
 		CONFIG_ARM7
 		CONFIG_PXA250
+		CONFIG_CPU_MONAHANS
 
 		MicroBlaze based CPUs:
 		----------------------
@@ -304,13 +305,13 @@ The following options need to be configured:
 		-----------------
 
 		CONFIG_ARMADILLO,	CONFIG_AT91RM9200DK,	CONFIG_CERF250,
-		CONFIG_CSB637,		CONFIG_DNP1110, 	CONFIG_EP7312,
-		CONFIG_H2_OMAP1610,	CONFIG_HHP_CRADLE,	CONFIG_IMPA7,
-		CONFIG_INNOVATOROMAP1510, CONFIG_INNOVATOROMAP1610, CONFIG_KB9202,
-		CONFIG_LART,		CONFIG_LPD7A400,	CONFIG_LUBBOCK,
-		CONFIG_OSK_OMAP5912,	CONFIG_OMAP2420H4,	CONFIG_SHANNON,
-		CONFIG_P2_OMAP730,	CONFIG_SMDK2400,	CONFIG_SMDK2410,
-		CONFIG_TRAB,		CONFIG_VCMA9
+		CONFIG_CSB637,		CONFIG_DELTA,		CONFIG_DNP1110,
+	 	CONFIG_EP7312,		CONFIG_H2_OMAP1610,	CONFIG_HHP_CRADLE,
+		CONFIG_IMPA7,	    CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610,
+		CONFIG_KB9202,		CONFIG_LART,		CONFIG_LPD7A400,
+		CONFIG_LUBBOCK,		CONFIG_OSK_OMAP5912,	CONFIG_OMAP2420H4,
+		CONFIG_SHANNON,		CONFIG_P2_OMAP730,	CONFIG_SMDK2400,
+		CONFIG_SMDK2410,	CONFIG_TRAB,		CONFIG_VCMA9
 
 		MicroBlaze based boards:
 		------------------------
@@ -378,6 +379,20 @@ The following options need to be configured:
 		the PLL is locked at the intended frequency. Note
 		that this requires a (stable) reference clock (32 kHz
 		RTC clock or CFG_8XX_XIN)
+
+- Intel Monahans options:
+		CFG_MONAHANS_RUN_MODE_OSC_RATIO
+
+		Defines the Monahans run mode to oscillator
+		ratio. Valid values are 8, 16, 24, 31. The core
+		frequency is this value multiplied by 13 MHz.
+
+		CFG_MONAHANS_TURBO_RUN_MODE_RATIO
+
+		Defines the Monahans turbo mode to oscillator
+		ratio. Valid values are 1 (default if undefined) and
+		2. The core frequency as calculated above is multiplied
+		by this value.
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
@@ -1969,6 +1984,17 @@ to save the current settings.
 	  These two #defines specify the offset and size of the environment
 	  area within the first NAND device.
 
+	- CFG_ENV_OFFSET_REDUND
+
+	  This setting describes a second storage area of CFG_ENV_SIZE
+	  size used to hold a redundant copy of the environment data,
+	  so that there is a valid backup copy in case there is a
+	  power failure during a "saveenv" operation.
+
+	Note: CFG_ENV_OFFSET and CFG_ENV_OFFSET_REDUND must be aligned
+	to a block boundary, and CFG_ENV_SIZE must be a multiple of
+	the NAND devices block size.
+
 - CFG_SPI_INIT_OFFSET
 
 	Defines offset to the initial SPI buffer area in DPRAM. The
@@ -3283,6 +3309,8 @@ On ARM, the following registers are used:
 
     ==> U-Boot will use R8 to hold a pointer to the global data
 
+NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
+or current versions of GCC may "optimize" the code too much.
 
 Memory Management:
 ------------------

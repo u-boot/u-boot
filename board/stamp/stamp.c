@@ -29,6 +29,8 @@
 #include <asm/mem_init.h>
 #include "stamp.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define STATUS_LED_OFF 0
 #define STATUS_LED_ON  1
 
@@ -49,7 +51,6 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	printf ("SDRAM attributes:\n");
 	printf ("  tRCD:%d Cycles; tRP:%d Cycles; tRAS:%d Cycles; tWR:%d Cycles; "

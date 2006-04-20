@@ -30,6 +30,7 @@
 
 #include "pci405.h"
 
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
 int gunzip(void *, int, unsigned char *, unsigned long *);
@@ -111,8 +112,6 @@ int board_revision(void)
 
 unsigned long fpga_done_state(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->board_type < 2) {
 		return FPGA_DONE_STATE_V11;
 	} else {
@@ -123,8 +122,6 @@ unsigned long fpga_done_state(void)
 
 unsigned long fpga_init_state(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (gd->board_type < 2) {
 		return FPGA_INIT_STATE_V11;
 	} else {
@@ -320,8 +317,6 @@ int misc_init_r (void)
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 

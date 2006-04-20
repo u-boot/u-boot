@@ -77,6 +77,8 @@
 #include <asm/processor.h>
 #include <pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
 #ifdef CONFIG_PCI
@@ -92,8 +94,6 @@ ushort pmc405_pci_subsys_deviceid(void);
  *-----------------------------------------------------------------------------*/
 void pci_405gp_init(struct pci_controller *hose)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int i, reg_num = 0;
 	bd_t *bd = gd->bd;
 

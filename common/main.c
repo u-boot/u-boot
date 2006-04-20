@@ -36,6 +36,10 @@
 
 #include <post.h>
 
+#ifdef CONFIG_SILENT_CONSOLE
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 #if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* for do_reset() prototype */
 #endif
@@ -105,14 +109,10 @@ static __inline__ int abortboot(int bootdelay)
 	u_int i;
 
 #ifdef CONFIG_SILENT_CONSOLE
-	{
-		DECLARE_GLOBAL_DATA_PTR;
-
-		if (gd->flags & GD_FLG_SILENT) {
-			/* Restore serial console */
-			console_assign (stdout, "serial");
-			console_assign (stderr, "serial");
-		}
+	if (gd->flags & GD_FLG_SILENT) {
+		/* Restore serial console */
+		console_assign (stdout, "serial");
+		console_assign (stderr, "serial");
 	}
 #endif
 
@@ -195,17 +195,13 @@ static __inline__ int abortboot(int bootdelay)
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
-	{
-		DECLARE_GLOBAL_DATA_PTR;
-
-		if (abort) {
-			/* permanently enable normal console output */
-			gd->flags &= ~(GD_FLG_SILENT);
-		} else if (gd->flags & GD_FLG_SILENT) {
-			/* Restore silent console */
-			console_assign (stdout, "nulldev");
-			console_assign (stderr, "nulldev");
-		}
+	if (abort) {
+		/* permanently enable normal console output */
+		gd->flags &= ~(GD_FLG_SILENT);
+	} else if (gd->flags & GD_FLG_SILENT) {
+		/* Restore silent console */
+		console_assign (stdout, "nulldev");
+		console_assign (stderr, "nulldev");
 	}
 #endif
 
@@ -223,14 +219,10 @@ static __inline__ int abortboot(int bootdelay)
 	int abort = 0;
 
 #ifdef CONFIG_SILENT_CONSOLE
-	{
-		DECLARE_GLOBAL_DATA_PTR;
-
-		if (gd->flags & GD_FLG_SILENT) {
-			/* Restore serial console */
-			console_assign (stdout, "serial");
-			console_assign (stderr, "serial");
-		}
+	if (gd->flags & GD_FLG_SILENT) {
+		/* Restore serial console */
+		console_assign (stdout, "serial");
+		console_assign (stderr, "serial");
 	}
 #endif
 
@@ -279,17 +271,13 @@ static __inline__ int abortboot(int bootdelay)
 	putc ('\n');
 
 #ifdef CONFIG_SILENT_CONSOLE
-	{
-		DECLARE_GLOBAL_DATA_PTR;
-
-		if (abort) {
-			/* permanently enable normal console output */
-			gd->flags &= ~(GD_FLG_SILENT);
-		} else if (gd->flags & GD_FLG_SILENT) {
-			/* Restore silent console */
-			console_assign (stdout, "nulldev");
-			console_assign (stderr, "nulldev");
-		}
+	if (abort) {
+		/* permanently enable normal console output */
+		gd->flags &= ~(GD_FLG_SILENT);
+	} else if (gd->flags & GD_FLG_SILENT) {
+		/* Restore silent console */
+		console_assign (stdout, "nulldev");
+		console_assign (stderr, "nulldev");
 	}
 #endif
 

@@ -26,9 +26,3 @@
 
 # Reserve 320 kB for Monitor
 TEXT_BASE = 0xFFFB0000
-
-# Compile the new NAND code (CFG_NAND_LEGACY mustn't be defined)
-BOARDLIBS = drivers/nand/libnand.a
-
-# Compile the legacy NAND code (CFG_NAND_LEGACY must be defined)
-#BOARDLIBS = drivers/nand_legacy/libnand_legacy.a

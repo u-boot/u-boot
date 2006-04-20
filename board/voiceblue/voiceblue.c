@@ -21,10 +21,10 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	*((volatile unsigned char *) VOICEBLUE_LED_REG) = 0xaa;
 
 	/* arch number of VoiceBlue board */
@@ -39,8 +39,6 @@ int board_init(void)
 
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	*((volatile unsigned short *) VOICEBLUE_LED_REG) = 0xff;
 
  	/* Take the Ethernet controller out of reset and wait

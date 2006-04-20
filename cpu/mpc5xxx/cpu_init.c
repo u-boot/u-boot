@@ -24,6 +24,8 @@
 #include <common.h>
 #include <mpc5xxx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Breath some life into the CPU...
  *
@@ -32,8 +34,6 @@
  */
 void cpu_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long addecr = (1 << 25); /* Boot_CS */
 #if defined(CFG_RAMBOOT) && defined(CONFIG_MGT5100)
 	addecr |= (1 << 22); /* SDRAM enable */
@@ -151,6 +151,10 @@ void cpu_init_f (void)
 #if defined(CONFIG_MPC5200)
 	/* enable timebase */
 	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 13);
+
+	/* Enable snooping for RAM */
+	*(vu_long *)(MPC5XXX_XLBARB + 0x40) |= (1 << 15);
+	*(vu_long *)(MPC5XXX_XLBARB + 0x70) = CFG_SDRAM_BASE | 0x1d;
 
 # if defined(CFG_IPBSPEED_133)
 	/* Motorola reports IPB should better run at 133 MHz. */

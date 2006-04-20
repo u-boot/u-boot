@@ -27,6 +27,8 @@
 #include <s3c2410.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_SERIAL1
 #define UART_NR	S3C24X0_UART0
 
@@ -48,7 +50,6 @@
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
 	int i;
 	unsigned int reg = 0;

@@ -70,6 +70,9 @@
 #include "../common/common_util.h"
 #include <i2c.h>
 #include <rtc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
 extern block_dev_desc_t * scsi_get_dev(int dev);
 extern block_dev_desc_t * ide_get_dev(int dev);
 
@@ -189,8 +192,6 @@ const sdram_t sdram_table[] = {
 void SDRAM_err (const char *s)
 {
 #ifndef SDRAM_DEBUG
-	DECLARE_GLOBAL_DATA_PTR;
-
 	(void) get_clocks ();
 	gd->baudrate = 9600;
 	serial_init ();
@@ -241,8 +242,6 @@ void write_4hex (unsigned long val)
 
 int init_sdram (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long	tmp, baseaddr;
 	unsigned short	i;
 	unsigned char	trp_clocks,
@@ -681,7 +680,6 @@ extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	/* adjust flash start and size as well as the offset */
 	gd->bd->bi_flashstart=0-flash_info[0].size;
 	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;

@@ -25,6 +25,8 @@
 #include <mpc8260.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /* Bus-to-Core Multiplier */
@@ -101,8 +103,6 @@ corecnf_t corecnf_tab[] = {
 
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	ulong clkin;
 	ulong sccr, dfbrg;
@@ -159,8 +159,6 @@ int get_clocks (void)
 
 int prt_8260_clks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	ulong sccr, dfbrg;
 	ulong scmr, corecnf, busdf, cpmdf, plldf, pllmf, pcidf;

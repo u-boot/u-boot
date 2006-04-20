@@ -47,7 +47,13 @@
 
 /*#define	DEBUG_I2C 	1	/###* activate local debugging output  */
 #define I2C_PXA_SLAVE_ADDR	0x1	/* slave pxa unit address           */
-#define I2C_ICR_INIT		(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
+
+#if (CFG_I2C_SPEED == 400000)
+#define I2C_ICR_INIT	(ICR_FM | ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
+#else
+#define I2C_ICR_INIT	(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
+#endif
+
 #define I2C_ISR_INIT		0x7FF
 
 #ifdef DEBUG_I2C
@@ -91,7 +97,11 @@ static void i2c_reset( void )
 	ICR |= ICR_UR;			/* reset the unit */
 	udelay(100);
 	ICR &= ~ICR_IUE;		/* disable unit */
+#ifdef CONFIG_CPU_MONAHANS
+	CKENB |= (CKENB_4_I2C); /*  | CKENB_1_PWM1 | CKENB_0_PWM0); */
+#else /* CONFIG_CPU_MONAHANS */
 	CKEN |= CKEN14_I2C;		/* set the global I2C clock on */
+#endif
 	ISAR = I2C_PXA_SLAVE_ADDR;	/* set our slave address */
 	ICR = I2C_ICR_INIT;		/* set control register values */
 	ISR = I2C_ISR_INIT;		/* set clear interrupt bits */
@@ -104,9 +114,8 @@ static void i2c_reset( void )
  * i2c_isr_set_cleared: - wait until certain bits of the I2C status register
  *	                  are set and cleared
  *
- * @return: 0 in case of success, 1 means timeout (no match within 10 ms).
+ * @return: 1 in case of success, 0 means timeout (no match within 10 ms).
  */
-
 static int i2c_isr_set_cleared( unsigned long set_mask, unsigned long cleared_mask )
 {
 	int timeout = 10000;
@@ -360,9 +369,9 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		msg.data      = 0x00;
 		if ((ret=i2c_transfer(&msg))) return -1;
 
-		*(buffer++) = msg.data;
-
+		*buffer = msg.data;
 		PRINTD(("i2c_read: reading byte (0x%08x)=0x%02x\n",(unsigned int)buffer,*buffer));
+		buffer++;
 
 	}
 

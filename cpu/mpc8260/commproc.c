@@ -20,11 +20,11 @@
 #include <common.h>
 #include <asm/cpm_8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void
 m8260_cpm_reset(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile ulong count;
 
@@ -54,8 +54,6 @@ m8260_cpm_reset(void)
 uint
 m8260_cpm_dpalloc(uint size, uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	uint	retloc;
 	uint	align_mask, off;
@@ -112,8 +110,6 @@ m8260_cpm_hostalloc(uint size, uint align)
 void
 m8260_cpm_setbrg(uint brg, uint rate)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile uint	*bp;
 	uint cd = BRG_UART_CLK / rate;
@@ -137,8 +133,6 @@ m8260_cpm_setbrg(uint brg, uint rate)
 void
 m8260_cpm_fastbrg(uint brg, uint rate, int div16)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile uint	*bp;
 

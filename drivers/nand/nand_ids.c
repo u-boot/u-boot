@@ -13,11 +13,7 @@
 
 #include <common.h>
 
-#ifdef CFG_NAND_LEGACY
-#error CFG_NAND_LEGACY defined in a file not using the legacy NAND support!
-#endif
-
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
 
 #include <linux/mtd/nand.h>
 

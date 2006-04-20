@@ -28,6 +28,8 @@
 #include "via686.h"
 #include "i8259.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef VIA_DEBUG
 
 #ifdef  VIA_DEBUG
@@ -226,33 +228,31 @@ __asm         ("    .globl via_calibrate_time_base \n"
 
 extern unsigned long via_calibrate_time_base(void);
 
-void via_calibrate_bus_freq(void)
+void via_calibrate_bus_freq (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
+	unsigned long tb;
 
-    unsigned long tb;
+	/* This is 20 microseconds */
+#define CALIBRATE_TIME 28636
 
-    /* This is 20 microseconds */
-    #define CALIBRATE_TIME 28636
+	/* Enable the timer (and disable speaker) */
+	unsigned char c;
 
+	c = in_byte (0x61);
+	out_byte (0x61, ((c & ~0x02) | 0x01));
 
-    /* Enable the timer (and disable speaker) */
-    unsigned char c;
-    c = in_byte(0x61);
-    out_byte(0x61, ((c & ~0x02) | 0x01));
+	/* Set timer 2 to low/high writing */
+	out_byte (0x43, 0xb0);
+	out_byte (0x42, CALIBRATE_TIME & 0xff);
+	out_byte (0x42, CALIBRATE_TIME >> 8);
 
-    /* Set timer 2 to low/high writing */
-    out_byte(0x43, 0xb0);
-    out_byte(0x42, CALIBRATE_TIME & 0xff);
-    out_byte(0x42, CALIBRATE_TIME >>8);
+	/* Read the time base */
+	tb = via_calibrate_time_base ();
 
-    /* Read the time base */
-    tb = via_calibrate_time_base();
-
-    if (tb >= 700000)
-	gd->bus_clk = 133333333;
-    else
-	gd->bus_clk = 100000000;
+	if (tb >= 700000)
+		gd->bus_clk = 133333333;
+	else
+		gd->bus_clk = 100000000;
 
 }
 

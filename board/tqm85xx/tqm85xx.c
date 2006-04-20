@@ -36,6 +36,8 @@
 #include <spd.h>
 #include <flash.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
 void local_bus_init (void);
@@ -257,7 +259,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 

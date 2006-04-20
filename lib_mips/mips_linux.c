@@ -28,6 +28,8 @@
 #include <asm/byteorder.h>
 #include <asm/addrspace.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
@@ -56,8 +58,6 @@ static void linux_env_set (char * env_name, char * env_val);
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		     ulong addr, ulong * len_ptr, int verify)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong len = 0, checksum;
 	ulong initrd_start, initrd_end;
 	ulong data;

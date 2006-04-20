@@ -34,6 +34,7 @@
 #include <command.h>
 #include <mpc5xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 #if (defined(CONFIG_MPC555))
 #  define	ID_STR	"MPC555/556"
@@ -62,8 +63,6 @@ static int check_cpu_version (long clock, uint pvr, uint immr)
  */
 int checkcpu (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong clock = gd->cpu_clk;
 	uint immr = get_immr (0);	/* Return full IMMR contents */
 	uint pvr = get_pvr ();		/* Retrieve PVR register */
@@ -104,7 +103,6 @@ void reset_5xx_watchdog (volatile immap_t * immr)
  */
 unsigned long get_tbclk (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *immr = (volatile immap_t *) CFG_IMMR;
 	ulong oscclk, factor;
 

@@ -1,4 +1,5 @@
 /*
+ * (C) Copyright 2006 Detlev Zundel, dzu@denx.de
  * (C) Copyright 2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -65,6 +66,11 @@
 #define CFG_8XX_XIN			CONFIG_8xx_OSCLK
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT		"\nEnter password - autoboot in %d seconds...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"ids"
+#define CONFIG_BOOT_RETRY_TIME		900
+#define CONFIG_BOOT_RETRY_MIN		30
 
 #define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
 
@@ -75,7 +81,7 @@
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;" 	\
 	"bootm"
 
-#undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+#define CONFIG_WATCHDOG			/* watchdog enabled 		*/
 
 #undef	CONFIG_STATUS_LED		/* Status LED disabled		*/
 
@@ -96,12 +102,26 @@
 /*
  * Software (bit-bang) I2C driver configuration
  */
+#if defined(CONFIG_IDS852_REV1)
+
 #define SCL		0x1000		/* PA 3 */
 #define SDA		0x2000		/* PA 2 */
 
 #define __I2C_DIR	immr->im_ioport.iop_padir
 #define __I2C_DAT	immr->im_ioport.iop_padat
 #define __I2C_PAR	immr->im_ioport.iop_papar
+
+#elif defined(CONFIG_IDS852_REV2)
+
+#define SCL		0x0002		/* PB 30 */
+#define SDA		0x0001		/* PB 31 */
+
+#define __I2C_PAR	immr->im_cpm.cp_pbpar
+#define __I2C_DIR	immr->im_cpm.cp_pbdir
+#define __I2C_DAT	immr->im_cpm.cp_pbdat
+
+#endif
+
 #define	I2C_INIT	{ __I2C_PAR &= ~(SDA|SCL);	\
 			  __I2C_DIR |= (SDA|SCL);	}
 #define	I2C_READ	((__I2C_DAT & SDA) ? 1 : 0)
@@ -217,6 +237,8 @@
 /*
  * NAND flash support
  */
+#define CFG_NAND_LEGACY
+
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_ChipID_UNKNOWN	0x00
 #define SECTORSIZE		512
@@ -227,17 +249,6 @@
 #define ADDR_COLUMN		1
 #define NAND_NO_RB
 
-#define NAND_WAIT_READY(nand)		udelay(12)
-#define WRITE_NAND_COMMAND(d, adr)	WRITE_NAND(d, adr + 2)
-#define WRITE_NAND_ADDRESS(d, adr)	WRITE_NAND(d, adr + 1)
-#define WRITE_NAND(d, adr)		(*(volatile uint8_t *)(adr) = (uint8_t)(d))
-#define READ_NAND(adr)			(*(volatile uint8_t *)(adr))
-#define NAND_DISABLE_CE(nand)		/* nop */
-#define NAND_ENABLE_CE(nand)		/* nop */
-#define NAND_CTL_CLRALE(nandptr)	/* nop */
-#define NAND_CTL_SETALE(nandptr)	/* nop */
-#define NAND_CTL_CLRCLE(nandptr)	/* nop */
-#define NAND_CTL_SETCLE(nandptr)	/* nop */
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control					11-9
@@ -310,7 +321,8 @@
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V)
 
 /*
- * BR2 and OR2 (NAND Flash) - now addressed through UPMB
+ * BR2 and OR2 (NAND Flash) - addressed through UPMB on rev 1
+ * rev2 only uses the chipselect
  */
 #define CFG_NAND_BASE		0x50000000
 #define CFG_NAND_SIZE		0x04000000
@@ -336,6 +348,18 @@
 #define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 
 /*
+ * BR4 and OR4 (CPLD)
+ */
+#define CFG_CPLD_BASE           0x80000000      /* CPLD                 */
+#define CFG_CPLD_SIZE           0x10000         /* only 16 used         */
+
+#define CFG_OR_TIMING_CPLD	(OR_CSNT_SAM | OR_ACS_DIV1 | OR_BI | \
+				 OR_SCY_1_CLK)
+
+#define CFG_BR4_PRELIM  ((CFG_CPLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
+#define CFG_OR4_PRELIM  (((-CFG_CPLD_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_CPLD)
+
+/*
  * BR5 and OR5 (SRAM)
  */
 #define CFG_SRAM_BASE		0x60000000
@@ -347,6 +371,16 @@
 #define CFG_BR5_PRELIM  ((CFG_SRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V )
 #define CFG_OR5_PRELIM  (((-CFG_SRAM_SIZE) & OR_AM_MSK) | CFG_OR_TIMING_SRAM)
 
+#if defined(CONFIG_CP850)
+/*
+ *  BR6 and OR6 (DPRAM) - only on CP850
+ */
+#define CFG_OR6_PRELIM          0xffff8170
+#define CFG_BR6_PRELIM          0xa0000401
+#define DPRAM_BASE_ADDR         0xa0000000
+
+#define CONFIG_MISC_INIT_R      1
+#endif
 
 /*
  * 4096 Rows from SDRAM example configuration
@@ -411,14 +445,12 @@
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
 
 /* mtdparts command line support */
-/*
 #define CONFIG_JFFS2_CMDLINE
 #define MTDIDS_DEFAULT		"nor0=nc650-0,nand0=nc650-nand"
 
 #define MTDPARTS_DEFAULT	"mtdparts=nc650-0:1m(kernel1),1m(kernel2)," \
-					"2560k(cramfs1),2560k(cramfs2)," \
-					"256k(u-boot),256k(env);" \
-				"nc650-nand:4m(nand1),28m(nand2)"
-*/
+					"4m(cramfs1),1m(cramfs2)," \
+					"256k(u-boot),128k(env);" \
+				"nc650-nand:4m(jffs1),28m(jffs2)"
 
 #endif	/* __CONFIG_H */

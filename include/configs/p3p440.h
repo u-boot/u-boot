@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2006
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
@@ -71,9 +71,10 @@
  * DDR SDRAM
  *----------------------------------------------------------------------*/
 #define CONFIG_SDRAM_BANK0	1	/* init onboard DDR SDRAM bank 0*/
-#define CFG_SDRAM_TABLE	{	\
-		{(256 << 20), 0x000C4001}, /* 256MB mode 3, 13x10(4) */	\
-		{(64 << 20),  0x00082001}} /* 64MB mode 2, 12x9(4)   */
+#define CONFIG_SDRAM_ECC		/* enable ECC support		*/
+#define CFG_SDRAM_TABLE	{ \
+		{(256 << 20), 13, 0x000C4001}, /* 256MB mode 3, 13x10(4)*/ \
+		{(64 << 20),  12, 0x00082001}} /* 64MB mode 2, 12x9(4)	*/
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -146,6 +147,7 @@
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
+	"unlock=yes\0"							\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -274,6 +276,9 @@
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+#define CFG_FLASH_PROTECTION	1	/* use hardware flash protection	*/
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/

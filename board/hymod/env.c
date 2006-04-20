@@ -23,6 +23,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* imports from fetch.c */
 extern int fetch_and_parse (char *, ulong, int (*)(uchar *, uchar *));
 
@@ -32,8 +34,6 @@ static char *def_global_env_path = "/hymod/global_env";
 static int
 env_callback (uchar *name, uchar *value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	char ov[CFG_CBSIZE], nv[CFG_CBSIZE], *p, *q, *nn, c, *curver, *newver;
 	int override = 1, append = 0, remove = 0, nnl, ovl, nvl;

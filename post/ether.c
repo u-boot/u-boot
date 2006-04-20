@@ -51,6 +51,8 @@
 #include <net.h>
 #include <serial.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define MIN_PACKET_LENGTH	64
 #define MAX_PACKET_LENGTH	256
 #define TEST_NUM		1
@@ -109,7 +111,6 @@ static RTXBD *rtx;
 
 static void scc_init (int scc_index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd = gd->bd;
 
 	static int proff[] =

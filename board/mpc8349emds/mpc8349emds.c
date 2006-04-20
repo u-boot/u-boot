@@ -116,14 +116,14 @@ int fixed_sdram(void)
 	im->ddr.csbnds[2].csbnds = 0x0000000f;
 	im->ddr.cs_config[2] = CFG_DDR_CONFIG;
 
-	/* currently we use only one CS, so disable the other banks */ 
+	/* currently we use only one CS, so disable the other banks */
 	im->ddr.cs_config[0] = 0;
 	im->ddr.cs_config[1] = 0;
 	im->ddr.cs_config[3] = 0;
 
 	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
 	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	
+
 	im->ddr.sdram_cfg =
 		SDRAM_CFG_SREN
 #if defined(CONFIG_DDR_2T_TIMING)
@@ -136,7 +136,7 @@ int fixed_sdram(void)
 #endif
 	im->ddr.sdram_mode = CFG_DDR_MODE;
 
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL; 
+	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
 	udelay(200);
 
 	/* enable DDR controller */
@@ -361,12 +361,12 @@ int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	volatile u32 val;
 	u64 *addr, count, val64;
 	register u64 *i;
-	
+
 	if (argc > 4) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
-	
+
 	if (argc == 2) {
 		if (strcmp(argv[1], "status") == 0) {
 			ecc_print_status();
@@ -379,8 +379,8 @@ int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			ddr->capture_attributes = 0;
 			return 0;
 		}
-	} 
-	
+	}
+
 	if (argc == 3) {
 		if (strcmp(argv[1], "sbecnt") == 0) {
 			val = simple_strtoul(argv[2], NULL, 10);
@@ -416,8 +416,8 @@ int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			} else if (strcmp(argv[2], "+mse") == 0) {
 				val |= ECC_ERROR_DISABLE_MSED;
 			} else if (strcmp(argv[2], "+all") == 0) {
-				val |= (ECC_ERROR_DISABLE_SBED | 
-					ECC_ERROR_DISABLE_MBED | 
+				val |= (ECC_ERROR_DISABLE_SBED |
+					ECC_ERROR_DISABLE_MBED |
 					ECC_ERROR_DISABLE_MSED);
 			} else if (strcmp(argv[2], "-sbe") == 0) {
 				val &= ~ECC_ERROR_DISABLE_SBED;
@@ -426,8 +426,8 @@ int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			} else if (strcmp(argv[2], "-mse") == 0) {
 				val &= ~ECC_ERROR_DISABLE_MSED;
 			} else if (strcmp(argv[2], "-all") == 0) {
-				val &= ~(ECC_ERROR_DISABLE_SBED | 
-					ECC_ERROR_DISABLE_MBED | 
+				val &= ~(ECC_ERROR_DISABLE_SBED |
+					ECC_ERROR_DISABLE_MBED |
 					ECC_ERROR_DISABLE_MSED);
 			} else {
 				printf("Incorrect err_disable field\n");

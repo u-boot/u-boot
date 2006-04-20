@@ -23,6 +23,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_HARD_I2C
 
 #include <mpc5xxx.h>
@@ -228,7 +230,6 @@ void i2c_init(int speed, int saddr)
 
 static int mpc_get_fdr(int speed)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	static int fdr = -1;
 
 	if (fdr == -1) {

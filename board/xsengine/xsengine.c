@@ -27,14 +27,14 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Miscelaneous platform dependent initialisations
  */
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
@@ -56,8 +56,6 @@ int board_post_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

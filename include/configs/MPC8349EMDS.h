@@ -75,13 +75,13 @@
 
 /*
  * 32-bit data path mode.
- * 
+ *
  * Please note that using this mode for devices with the real density of 64-bit
  * effectively reduces the amount of available memory due to the effect of
  * wrapping around while translating address to row/columns, for example in the
  * 256MB module the upper 128MB get aliased with contents of the lower
  * 128MB); normally this define should be used for devices with real 32-bit
- * data path. 
+ * data path.
  */
 #undef CONFIG_DDR_32BIT
 

@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2002
  * Hyperion Entertainment, ThomasF@hyperion-entertainment.com
+ * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -88,8 +89,6 @@ long initdram (int board_type)
 
 void after_reloc (ulong dest_addr, gd_t *gd)
 {
-/* HJF:	DECLARE_GLOBAL_DATA_PTR; */
-
 	board_init_r (gd, dest_addr);
 }
 

@@ -51,6 +51,8 @@
 #include <miiphy.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_COMMANDS & CFG_CMD_NET) && \
 	defined(CONFIG_NET_MULTI)
 
@@ -644,8 +646,6 @@ swap16 (unsigned short x)
 void
 eth_loopback_test (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile cpm8260_t *cp = &(immr->im_cpm);
 	int c, nclosed;

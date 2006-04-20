@@ -36,7 +36,9 @@
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
 
- void wait_for_command_complete(unsigned int wd_base);
+DECLARE_GLOBAL_DATA_PTR;
+
+void wait_for_command_complete(unsigned int wd_base);
 
 /*******************************************************
  * Routine: delay
@@ -54,8 +56,6 @@ static inline void delay (unsigned long loops)
  *****************************************/
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRM, finish GPMC */
 
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_H4;		/* board id for linux */
@@ -195,7 +195,6 @@ void ether_init (void)
  **********************************************/
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0=0,size1=0;
 	u32 mtype, btype, rev, cpu;
 	u8 chg_on = 0x5; /* enable charge of back up battery */

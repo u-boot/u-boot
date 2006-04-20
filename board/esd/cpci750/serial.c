@@ -38,13 +38,12 @@
 #include "../../Marvell/include/memory.h"
 #include "serial.h"
 
-
 #include "mpsc.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	mpsc_init (gd->baudrate);
 
 	return (0);
@@ -70,8 +69,6 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 

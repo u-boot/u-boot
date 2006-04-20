@@ -35,6 +35,8 @@
 #include "i2c.h"
 #include "64260.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* #define	DEBUG */
 #define	MAP_PCI
 
@@ -199,7 +201,6 @@ static int check_dimm (uchar slot, sdram_info_t * info)
  * the array which is passed in with the relevant information */
 static int check_dimm (uchar slot, sdram_info_t * info)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	uchar addr = slot == 0 ? DIMM0_I2C_ADDR : DIMM1_I2C_ADDR;
 	int ret;
 	uchar rows, cols, sdram_banks, supp_cal, width, cal_val;

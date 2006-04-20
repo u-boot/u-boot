@@ -32,6 +32,8 @@
 #include <mpc83xx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ----------------------------------------------------------------- */
 
 typedef enum {
@@ -92,7 +94,6 @@ corecnf_t corecnf_tab[] = {
  */
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
 	u32 pci_sync_in;
 	u8  spmf;
@@ -342,14 +343,11 @@ int get_clocks (void)
  *********************************************/
 ulong get_bus_freq (ulong dummy)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	return gd->csb_clk;
 }
 
 int print_clock_conf (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	printf("Clock configuration:\n");
 	printf("  Coherent System Bus: %4d MHz\n",gd->csb_clk/1000000);
 	printf("  Core:                %4d MHz\n",gd->core_clk/1000000);

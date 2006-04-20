@@ -152,5 +152,3 @@ Observe that Single-Bit Error is 'on' which means that Single-Bit Error Counter
 reached Single-Bit Error Threshold. Multiple Memory Errors bit is also 'on', that
 is Counter reached Threshold more than one time (it wraps back after reaching
 Threshold).
-
-

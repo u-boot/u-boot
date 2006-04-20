@@ -25,6 +25,8 @@
 #include <mpc5xxx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 /* Bus-to-Core Multipliers */
@@ -43,8 +45,6 @@ static int bus2core[] = {
 
 int get_clocks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong val, vco;
 
 #if !defined(CFG_MPC5XXX_CLKIN)
@@ -81,8 +81,6 @@ int get_clocks (void)
 
 int prt_mpc5xxx_clks (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	printf("       Bus %ld MHz, IPB %ld MHz, PCI %ld MHz\n",
 			gd->bus_clk / 1000000, gd->ipb_clk / 1000000,
 			gd->pci_clk / 1000000);

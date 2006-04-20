@@ -28,14 +28,12 @@
 #include <command.h>
 #include <net.h>
 
-
-/* -------------------------------------------------------------------- */
+#if defined(CONFIG_I386)
+DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_I386)
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
 	ulong	addr, rc;
 	int     rcode = 0;
 

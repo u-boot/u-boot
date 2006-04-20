@@ -33,6 +33,8 @@
 #include "ns9750_bbus.h"	/* for GPIOs */
 #include "ns9750_ser.h"		/* for serial configuration */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define CONSOLE CONFIG_CONS_INDEX
 
 static unsigned int calcBitrateRegister( void );
@@ -183,8 +185,6 @@ void serial_setbrg( void )
 
 static unsigned int calcBitrateRegister( void )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return ( NS9750_SER_BITRATE_EBIT |
 		 NS9750_SER_BITRATE_CLKMUX_BCLK |
 		 NS9750_SER_BITRATE_TMODE |
@@ -204,8 +204,6 @@ static unsigned int calcBitrateRegister( void )
 
 static unsigned int calcRxCharGapRegister( void )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return NS9750_SER_RX_CHAR_TIMER_TRUN;
 }
 

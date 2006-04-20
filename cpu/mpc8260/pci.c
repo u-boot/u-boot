@@ -33,6 +33,11 @@
 #include <mpc8260.h>
 #include <asm/m8260_pci.h>
 #include <asm/io.h>
+
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 /*
  *   Local->PCI map (from CPU)				   controlled by
  *   MPC826x master window
@@ -234,9 +239,6 @@ static inline void pci_outl (u32 addr, u32 data)
 
 void pci_mpc8250_init (struct pci_controller *hose)
 {
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
-	DECLARE_GLOBAL_DATA_PTR;
-#endif
 	u16 tempShort;
 
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;

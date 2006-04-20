@@ -42,6 +42,8 @@
 #include "64360.h"
 #include "mv_regs.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef	DEBUG
 #define MAP_PCI
 
@@ -246,8 +248,6 @@ static inline unsigned short NSto10PS (unsigned char spd_byte)
 /* static int check_dimm(uchar slot, AUX_MEM_DIMM_INFO *info) */
 static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long spd_checksum;
 
 #ifdef ZUMA_NTL

@@ -731,6 +731,7 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
 	pkt_info.cmd_sts = ETH_TX_FIRST_DESC | ETH_TX_LAST_DESC;	/* DMA owned, first last */
 	pkt_info.byte_cnt = dataSize;
 	pkt_info.buf_ptr = (unsigned int) dataPtr;
+	pkt_info.return_info = 0;
 
 	status = eth_port_send (ethernet_private, ETH_Q0, &pkt_info);
 	if ((status == ETH_ERROR) || (status == ETH_QUEUE_FULL)) {

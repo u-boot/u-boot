@@ -26,6 +26,8 @@
 #include <pci.h>
 #include <i2c.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard (void)
 {
 	/*TODO: Check processor type */
@@ -170,8 +172,6 @@ void nvram_write(long dest, const void *src, size_t count)
 
 int misc_init_r(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Write ethernet addr in NVRAM for VxWorks */
 	nvram_write(CFG_ENV_ADDR + CFG_NVRAM_VXWORKS_OFFS,
 			(char*)&gd->bd->bi_enetaddr[0], 6);

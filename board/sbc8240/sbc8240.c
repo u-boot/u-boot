@@ -29,12 +29,12 @@
 #include <asm/processor.h>
 #include <pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define BOARD_REV_REG 0xFE80002B
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char  revision = *(volatile char *)(BOARD_REV_REG);
 	char  buf[32];
 

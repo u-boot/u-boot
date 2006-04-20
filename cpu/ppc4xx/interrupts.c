@@ -36,6 +36,8 @@
 #include <commproc.h>
 #include "vecnum.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /****************************************************************************/
 
 /*
@@ -96,8 +98,6 @@ static __inline__ void set_evpr(unsigned long val)
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int vec;
 	unsigned long val;
 

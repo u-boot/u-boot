@@ -81,8 +81,7 @@
 				   CFG_CMD_MII | CFG_CMD_RUN | CFG_CMD_BDI | CFG_CMD_BEDBUG | \
 				   CFG_CMD_NFS | CFG_CMD_ELF | CFG_CMD_PCMCIA | CFG_CMD_I2C))
 #else /* CONFIG_DBAU1550 */
-/* Boot from Compact flash partition 2 as default */
-#define CONFIG_BOOTCOMMAND	"ide reset;disk 0x81000000 0:2;bootm"
+#define CONFIG_BOOTCOMMAND	"bootp;bootm"
 
 #define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP | CFG_CMD_ELF) & \
 				 ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
@@ -133,8 +132,6 @@
 #define PHYS_FLASH_1		0xb8000000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0xbc000000 /* Flash Bank #2 */
 
-#define CFG_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
-
 #else /* CONFIG_DBAU1550 */
 
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
@@ -144,6 +141,8 @@
 #define PHYS_FLASH_2		0xbfc00000 /* Flash Bank #2 */
 
 #endif /* CONFIG_DBAU1550 */
+
+#define CFG_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
 
 #define CFG_FLASH_CFI           1
 #define CFG_FLASH_CFI_DRIVER    1

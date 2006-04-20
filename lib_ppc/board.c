@@ -90,6 +90,7 @@ extern flash_info_t flash_info[];
 #endif
 
 #include <environment.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CFG_ENV_IS_EMBEDDED)

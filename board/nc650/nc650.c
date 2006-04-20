@@ -1,4 +1,5 @@
 /*
+ * (C) Copyright 2006 Detlev Zundel, dzu@denx.de
  * (C) Copyright 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -108,7 +109,16 @@ const uint nand_flash_table[] = {
 
 int checkboard (void)
 {
-	puts ("Board: NC650\n");
+#if !defined(CONFIG_CP850)
+	puts ("Board: NC650");
+#else
+	puts ("Board: CP850");
+#endif
+#if defined(CONFIG_IDS852_REV1)
+	puts (" with IDS852 rev 1 module\n");
+#elif defined(CONFIG_IDS852_REV2)
+	puts (" with IDS852 rev 2 module\n");
+#endif
 	return 0;
 }
 
@@ -241,13 +251,61 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 	return (get_ram_size(base, maxsize));
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-void nand_init(void)
+
+#if defined(CONFIG_CP850)
+
+#define DPRAM_VARNAME           "KP850DIP"
+#define PARAM_ADDR              0x7C0
+#define NAME_ADDR               0x7F8
+#define BOARD_NAME              "KP01"
+#define DEFAULT_LB              "241111"
+
+int misc_init_r(void)
 {
-	extern unsigned long nand_probe(unsigned long physadr);
+	int             iCompatMode = 0;
+	char            *pParam = NULL;
+	char            *envlb;
+	
+	/* 
+	   First byte in CPLD read address space signals compatibility mode
+	   0 - cp850
+	   1 - kp852
+	*/
+	pParam = (char*)(CFG_CPLD_BASE);
+	if( *pParam != 0)
+		iCompatMode = 1;
+	
+	if ( iCompatMode != 0) {
+		/* 
+		   In KP852 compatibility mode we have to write to
+		   DPRAM as early as possible the binary coded
+		   line config and board name.
+		   The line config is derived from the environment
+		   variable DPRAM_VARNAME by converting from ASCII
+		   to binary per character.
+		*/
+		if ( (envlb = getenv ( DPRAM_VARNAME )) == 0) {
+			setenv( DPRAM_VARNAME, DEFAULT_LB);
+			envlb = DEFAULT_LB;
+		}
+		
+		/* Status string */
+		printf("Mode:  KP852(LB=%s)\n", envlb);
 
-	unsigned long totlen = nand_probe(CFG_NAND_BASE);
+		/* copy appl init */
+		pParam = (char*)(DPRAM_BASE_ADDR + PARAM_ADDR);
+		while (*envlb) {
+			*(pParam++) = *(envlb++) - '0';
+		}
+		*pParam = '\0';
 
-	printf ("%4lu MB\n", totlen >> 20);
+		/* copy board id */
+		pParam = (char*)(DPRAM_BASE_ADDR + NAME_ADDR);
+		strcpy( pParam, BOARD_NAME);
+	} else {
+		puts("Mode:  CP850\n");
+	}
+	
+	return 0;
 }
 #endif

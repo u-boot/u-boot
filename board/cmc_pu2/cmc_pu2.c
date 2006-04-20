@@ -33,6 +33,8 @@
 #include <at91rm9200_net.h>
 #include <dm9161.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 /*
  * Miscelaneous platform dependent initialisations
@@ -45,7 +47,6 @@ int hw_detect (void);
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	AT91PS_PIO piob = AT91C_BASE_PIOB;
 	AT91PS_PIO pioc = AT91C_BASE_PIOC;
 
@@ -109,8 +110,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
 	return 0;

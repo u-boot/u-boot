@@ -32,6 +32,8 @@
 #include <mpc8260.h>
 #include <asm/cpm_8260.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CONS_ON_SCC)
 
 #if CONFIG_CONS_INDEX == 1	/* Console on SCC1 */
@@ -181,8 +183,6 @@ int serial_init (void)
 void
 serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_CONS_USE_EXTC)
 	m8260_cpm_extcbrg(SCC_INDEX, gd->baudrate,
 		CONFIG_CONS_EXTC_RATE, CONFIG_CONS_EXTC_PINSEL);

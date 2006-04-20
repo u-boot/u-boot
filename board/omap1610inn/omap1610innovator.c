@@ -36,6 +36,8 @@
 #include <./configs/omap1510.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_CS_AUTOBOOT
 unsigned long omap_flash_base;
 #endif
@@ -60,8 +62,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (machine_is_omap_h2())
 		gd->bd->bi_arch_number = MACH_TYPE_OMAP_H2;
 	else if (machine_is_omap_innovator())
@@ -153,8 +153,6 @@ void ether__init (void)
 ******************************/
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

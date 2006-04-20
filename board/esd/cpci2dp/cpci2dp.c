@@ -26,6 +26,8 @@
 #include <command.h>
 #include <malloc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_early_init_f (void)
 {
 	unsigned long cntrl0Reg;
@@ -74,7 +76,6 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long cntrl0Reg;
 
 	/* adjust flash start and offset */

@@ -29,9 +29,7 @@
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
 
-
-/* ------------------------------------------------------------------------- */
-
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Theory:
@@ -483,8 +481,6 @@ int pci_enable_legacy_video_ports(struct pci_controller *hose)
 
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	init_sc520();
 	bus_init();
 	irq_init();

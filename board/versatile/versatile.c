@@ -35,6 +35,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void flash__init (void);
 void ether__init (void);
 void peripheral_power_enable (void);
@@ -61,9 +63,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
-
 	/*
 	 * set clock frequency:
 	 *	VERSATILE_REFCLK is 32KHz

@@ -60,6 +60,10 @@ unsigned long mips_io_port_base = 0;
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
+#ifdef CONFIG_IDE_8xx_DIRECT
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 #ifdef __PPC__
 # define EIEIO		__asm__ volatile ("eieio")
 # define SYNC		__asm__ volatile ("sync")
@@ -498,7 +502,6 @@ void ide_init (void)
 {
 
 #ifdef CONFIG_IDE_8xx_DIRECT
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
 #endif

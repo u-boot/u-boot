@@ -125,13 +125,16 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 static int
 addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 {
-	char len_used = 0; /* indicates if the "start +length" form used */
 	char *ep;
+	char len_used; /* indicates if the "start +length" form used */
+	char found;
+	ulong bank;
 
 	*addr_first = simple_strtoul(arg1, &ep, 16);
 	if (ep == arg1 || *ep != '\0')
 		return -1;
 
+	len_used = 0;
 	if (arg2 && *arg2 == '+'){
 		len_used = 1;
 		++arg2;
@@ -142,9 +145,6 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		return -1;
 
 	if (len_used){
-		char found = 0;
-		ulong bank;
-
 		/*
 		 * *addr_last has the length, compute correct *addr_last
 		 * XXX watch out for the integer overflow! Right now it is
@@ -159,6 +159,7 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		 */
 
 		/* find the end addr of the sector where the *addr_last is */
+		found = 0;
 		for (bank = 0; bank < CFG_MAX_FLASH_BANKS && !found; ++bank){
 			int i;
 			flash_info_t *info = &flash_info[bank];
@@ -455,6 +456,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_HAS_DATAFLASH
 	int status;
 #endif
+
 	if (argc < 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -505,12 +507,10 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				info->protect[i] = p;
 #endif	/* CFG_FLASH_PROTECTION */
 			}
-		}
-
 #if defined(CFG_FLASH_PROTECTION)
-		if (!rcode) puts (" done\n");
+			if (!rcode) puts (" done\n");
 #endif	/* CFG_FLASH_PROTECTION */
-
+		}
 		return rcode;
 	}
 
@@ -655,10 +655,10 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 #endif	/* CFG_FLASH_PROTECTION */
 				}
 			}
-#if defined(CFG_FLASH_PROTECTION)
-			if (!rcode) putc ('\n');
-#endif	/* CFG_FLASH_PROTECTION */
 		}
+#if defined(CFG_FLASH_PROTECTION)
+		puts (" done\n");
+#endif	/* CFG_FLASH_PROTECTION */
 
 		printf ("%sProtected %d sectors\n",
 			p ? "" : "Un-", protected);

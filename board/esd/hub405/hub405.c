@@ -26,9 +26,9 @@
 #include <command.h>
 #include <malloc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 extern void lxt971_no_sleep(void);
-
 
 int board_revision(void)
 {
@@ -110,8 +110,6 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
 	volatile unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	volatile unsigned char *duart2_mcr = (unsigned char *)((ulong)DUART2_BA + 4);
@@ -208,8 +206,6 @@ int misc_init_r (void)
  */
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char str[64];
 	int i = getenv_r ("serial#", str, sizeof(str));
 

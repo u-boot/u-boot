@@ -46,6 +46,8 @@
 #include <post.h>
 #include <logbuff.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_LOGBUFFER)
 
 /* Local prototypes */
@@ -73,7 +75,6 @@ static unsigned long *ext_logged_chars;
    in linux/kernel/printk */
 void logbuff_init_ptrs (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long *ext_tag;
 	unsigned long post_word;
 	char *s;
@@ -139,8 +140,6 @@ static void logbuff_puts (const char *s)
 
 void logbuff_log(char *msg)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if ((gd->post_log_word & LOGBUFF_INITIALIZED)) {
 		logbuff_printk (msg);
 	} else {

@@ -24,6 +24,8 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 int board_early_init_f(void)
@@ -136,7 +138,6 @@ int board_early_init_f(void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	uint pbcr;
 	int size_val = 0;
 

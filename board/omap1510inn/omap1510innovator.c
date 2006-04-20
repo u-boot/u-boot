@@ -31,6 +31,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void flash__init (void);
 static void ether__init (void);
 
@@ -47,8 +49,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* arch number of OMAP 1510-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_INNOVATOR;
 
@@ -122,8 +122,6 @@ static void ether__init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

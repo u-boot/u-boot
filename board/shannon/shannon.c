@@ -24,8 +24,7 @@
 
 #include <common.h>
 
-/* ------------------------------------------------------------------------- */
-
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Miscelaneous platform dependent initialisations
@@ -33,8 +32,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* memory and cpu-speed are setup before relocation */
 	/* but if we use InfernoLoader, we must do some inits here */
 
@@ -75,7 +72,6 @@ int dram_init (void)
 {
 #if defined(PHYS_SDRAM_1) || defined(PHYS_SDRAM_2) || \
     defined(PHYS_SDRAM_3) || defined(PHYS_SDRAM_4)
-	DECLARE_GLOBAL_DATA_PTR;
 	bd_t *bd = gd->bd;
 #endif
 

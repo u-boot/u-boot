@@ -24,8 +24,7 @@
 
 #include <common.h>
 
-/* ------------------------------------------------------------------------- */
-
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Miscelaneous platform dependent initialisations
@@ -33,7 +32,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	/* address for the kernel command line */
 	gd->bd->bi_boot_params = 0x800;
 	return 0;
@@ -41,7 +39,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	if (CONFIG_NR_DRAM_BANKS == 2) {

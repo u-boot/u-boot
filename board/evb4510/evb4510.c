@@ -25,6 +25,8 @@
 #include <asm/hardware.h>
 #include <command.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_EVB4510
 
 /* ------------------------------------------------------------------------- */
@@ -35,8 +37,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	icache_enable();
 
 	/* address for the kernel command line */
@@ -52,7 +52,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
 #if CONFIG_NR_DRAM_BANKS == 2

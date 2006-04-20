@@ -26,6 +26,8 @@
 #include <mpc106.h>
 #include <video_fb.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* ------------------------------------------------------------------------- */
 
 int checkboard (void)
@@ -137,8 +139,6 @@ void watchdog_reset (void)
 
 void after_reloc (ulong dest_addr)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*
 	 * Jump to the main U-Boot board init code
 	 */

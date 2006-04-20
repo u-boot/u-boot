@@ -26,6 +26,8 @@
 #include <mpc8xx_irq.h>
 #include <exports.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef	DEBUG
 
 #define	TIMER_PERIOD	1000000		/* 1 second clock */
@@ -115,8 +117,6 @@ static char *usage = "\n[q, b, e, ?] ";
 
 int timer (int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	cpmtimer8xx_t *cpmtimerp;	/* Pointer to the CPM Timer structure   */
 	tid_8xx_cpmtimer_t hw;
 	tid_8xx_cpmtimer_t *hwp = &hw;

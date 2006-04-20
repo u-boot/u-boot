@@ -59,6 +59,8 @@
 #include <malloc.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*****************************************************************************/
 #ifdef CONFIG_IOP480
 
@@ -161,8 +163,6 @@
 
 int serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile char val;
 	unsigned short br_reg;
 
@@ -185,8 +185,6 @@ int serial_init (void)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned short br_reg;
 
 	br_reg = ((((CONFIG_CPUCLOCK * 1000000) / 16) / gd->baudrate) - 1);
@@ -431,8 +429,6 @@ int serial_init_dev (unsigned long dev_base)
 int serial_init(void)
 #endif
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long reg;
 	unsigned long udiv;
 	unsigned short bdiv;
@@ -520,8 +516,6 @@ int serial_init_dev (unsigned long dev_base)
 int serial_init (void)
 #endif
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long reg;
 	unsigned long tmp;
 	unsigned long clk;
@@ -597,8 +591,6 @@ void serial_setbrg_dev (unsigned long dev_base)
 void serial_setbrg (void)
 #endif
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned long tmp;
 	unsigned long clk;
 	unsigned long udiv;
@@ -880,8 +872,6 @@ int serial_buffered_tstc (void)
 #if (CONFIG_KGDB_SER_INDEX & 2)
 void kgdb_serial_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile char val;
 	unsigned short br_reg;
 
