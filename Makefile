@@ -259,6 +259,9 @@ PATI_config:		unconfig
 aev_config: unconfig
 	@./mkconfig -a aev ppc mpc5xxx tqm5200
 
+BC3450_config:	unconfig
+	@./mkconfig -a BC3450 ppc mpc5xxx bc3450
+
 cpci5200_config:  unconfig
 	@./mkconfig -a cpci5200  ppc mpc5xxx cpci5200 esd
 

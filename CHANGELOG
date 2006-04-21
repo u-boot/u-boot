@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Added support for BC3450 board
+  Patch by Stefan Strobl, 21. Oct 2005
+
 * Update for NC650 board:
   - Support rev1 and rev2 hardware
   - adapt to new NAND layer
