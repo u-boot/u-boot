@@ -28,6 +28,8 @@
 #include <common.h>
 #include <i2c.h>
 #include <da9030.h>
+#include <malloc.h>
+#include <command.h>
 #include <asm/arch/pxa-regs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -35,6 +37,9 @@ DECLARE_GLOBAL_DATA_PTR;
 /* ------------------------------------------------------------------------- */
 
 static void init_DA9030(void);
+static void keys_init(void);
+static void get_pressed_keys(uchar *s);
+static uchar *key_match(uchar *kbd_data);
 
 /*
  * Miscelaneous platform dependent initialisations
@@ -56,11 +61,214 @@ int board_init (void)
 
 int board_late_init(void)
 {
+#ifdef DELTA_CHECK_KEYBD
+	uchar kbd_data[KEYBD_DATALEN];
+	char keybd_env[2 * KEYBD_DATALEN + 1];
+	char *str;
+	int i;
+#endif /* DELTA_CHECK_KEYBD */
+
 	setenv("stdout", "serial");
 	setenv("stderr", "serial");
+
+#ifdef DELTA_CHECK_KEYBD
+	keys_init();
+
+	memset(kbd_data, '\0', KEYBD_DATALEN);
+
+	/* check for pressed keys and setup keybd_env */
+	get_pressed_keys(kbd_data);
+
+	for (i = 0; i < KEYBD_DATALEN; ++i) {
+		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
+	}
+	setenv ("keybd", keybd_env);
+
+	str = strdup ((char *)key_match (kbd_data));	/* decode keys */
+
+# ifdef CONFIG_PREBOOT	/* automatically configure "preboot" command on key match */
+	setenv ("preboot", str);	/* set or delete definition */
+# endif /* CONFIG_PREBOOT */
+	if (str != NULL) {
+		free (str);
+	}
+#endif /* DELTA_CHECK_KEYBD */
+
 	init_DA9030();
 	return 0;
 }
+
+
+/*
+ * Magic Key Handling, mainly copied from board/lwmon/lwmon.c
+ */
+#ifdef DELTA_CHECK_KEYBD
+
+static uchar kbd_magic_prefix[] = "key_magic";
+static uchar kbd_command_prefix[] = "key_cmd";
+
+/*
+ * Get pressed keys
+ * s is a buffer of size KEYBD_DATALEN-1
+ */
+static void get_pressed_keys(uchar *s)
+{
+	unsigned long val;
+	val = GPLR3;
+
+	if(val & (1<<31))
+		*s++ = KEYBD_KP_DKIN0;
+	if(val & (1<<18))
+		*s++ = KEYBD_KP_DKIN1;
+	if(val & (1<<29))
+		*s++ = KEYBD_KP_DKIN2;
+	if(val & (1<<22))
+		*s++ = KEYBD_KP_DKIN5;
+}
+
+static void keys_init()
+{
+	CKENB |= CKENB_7_GPIO;
+	udelay(100);
+
+	/* Configure GPIOs */
+	GPIO127 = 0xa840;	/* KP_DKIN0 */
+	GPIO114 = 0xa840;	/* KP_DKIN1 */
+	GPIO125 = 0xa840;	/* KP_DKIN2 */
+	GPIO118 = 0xa840;	/* KP_DKIN5 */
+
+	/* Configure GPIOs as inputs */
+	GPDR3 &= ~(1<<31 | 1<<18 | 1<<29 | 1<<22);
+	GCDR3 = (1<<31 | 1<<18 | 1<<29 | 1<<22);
+
+	udelay(100);
+}
+
+static int compare_magic (uchar *kbd_data, uchar *str)
+{
+	/* uchar compare[KEYBD_DATALEN-1]; */
+	uchar compare[KEYBD_DATALEN];
+	char *nxt;
+	int i;
+
+	/* Don't include modifier byte */
+	/* memcpy (compare, kbd_data+1, KEYBD_DATALEN-1); */
+	memcpy (compare, kbd_data, KEYBD_DATALEN);
+
+	for (; str != NULL; str = (*nxt) ? (uchar *)(nxt+1) : (uchar *)nxt) {
+		uchar c;
+		int k;
+
+		c = (uchar) simple_strtoul ((char *)str, (char **) (&nxt), 16);
+
+		if (str == (uchar *)nxt) {	/* invalid character */
+			break;
+		}
+
+		/*
+		 * Check if this key matches the input.
+		 * Set matches to zero, so they match only once
+		 * and we can find duplicates or extra keys
+		 */
+		for (k = 0; k < sizeof(compare); ++k) {
+			if (compare[k] == '\0')	/* only non-zero entries */
+				continue;
+			if (c == compare[k]) {	/* found matching key */
+				compare[k] = '\0';
+				break;
+			}
+		}
+		if (k == sizeof(compare)) {
+			return -1;		/* unmatched key */
+		}
+	}
+
+	/*
+	 * A full match leaves no keys in the `compare' array,
+	 */
+	for (i = 0; i < sizeof(compare); ++i) {
+		if (compare[i])
+		{
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+
+static uchar *key_match (uchar *kbd_data)
+{
+	char magic[sizeof (kbd_magic_prefix) + 1];
+	uchar *suffix;
+	char *kbd_magic_keys;
+
+	/*
+	 * The following string defines the characters that can pe appended
+	 * to "key_magic" to form the names of environment variables that
+	 * hold "magic" key codes, i. e. such key codes that can cause
+	 * pre-boot actions. If the string is empty (""), then only
+	 * "key_magic" is checked (old behaviour); the string "125" causes
+	 * checks for "key_magic1", "key_magic2" and "key_magic5", etc.
+	 */
+	if ((kbd_magic_keys = getenv ("magic_keys")) == NULL)
+		kbd_magic_keys = "";
+
+	/* loop over all magic keys;
+	 * use '\0' suffix in case of empty string
+	 */
+	for (suffix=(uchar *)kbd_magic_keys; *suffix || suffix==(uchar *)kbd_magic_keys; ++suffix) {
+		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
+#if 0
+		printf ("### Check magic \"%s\"\n", magic);
+#endif
+		if (compare_magic(kbd_data, (uchar *)getenv(magic)) == 0) {
+			char cmd_name[sizeof (kbd_command_prefix) + 1];
+			char *cmd;
+
+			sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
+
+			cmd = getenv (cmd_name);
+#if 0
+			printf ("### Set PREBOOT to $(%s): \"%s\"\n",
+				cmd_name, cmd ? cmd : "<<NULL>>");
+#endif
+			*kbd_data = *suffix;
+			return ((uchar *)cmd);
+		}
+	}
+#if 0
+	printf ("### Delete PREBOOT\n");
+#endif
+	*kbd_data = '\0';
+	return (NULL);
+}
+
+int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	uchar kbd_data[KEYBD_DATALEN];
+	char keybd_env[2 * KEYBD_DATALEN + 1];
+	int i;
+
+	/* Read keys */
+	get_pressed_keys(kbd_data);
+	puts ("Keys:");
+	for (i = 0; i < KEYBD_DATALEN; ++i) {
+		sprintf (keybd_env + i + i, "%02X", kbd_data[i]);
+		printf (" %02x", kbd_data[i]);
+	}
+	putc ('\n');
+	setenv ("keybd", keybd_env);
+	return 0;
+}
+
+U_BOOT_CMD(
+	   kbd,	1,	1,	do_kbd,
+	   "kbd     - read keyboard status\n",
+	   NULL
+);
+
+#endif /* DELTA_CHECK_KEYBD */
 
 
 int dram_init (void)
