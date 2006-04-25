@@ -1,4 +1,3 @@
-
 #
 # (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,12 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
 include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= zylonite.o flash.o
+OBJS	:= zylonite.o nand.o
 SOBJS	:= lowlevel_init.o
 
 $(LIB):	$(OBJS) $(SOBJS)

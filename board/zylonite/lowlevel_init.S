@@ -235,6 +235,7 @@ mem_init:
 	orr		r1, r1, #0x40000000	@ enable SDRAM for Normal Access
 	str		r1, [r0]
 
+#ifndef CFG_SKIP_DRAM_SCRUB
 	/* scrub/init SDRAM if enabled/present */
 /*	ldr	r11, =0xa0000000 /\* base address of SDRAM (CFG_DRAM_BASE) *\/ */
 /*	ldr	r12, =0x04000000 /\* size of memory to scrub (CFG_DRAM_SIZE) *\/ */
@@ -254,6 +255,7 @@ mem_init:
 	stmia	r8!, {r0-r7}
 	beq	15f
 	b	10b
+#endif /* CFG_SKIP_DRAM_SCRUB */
 
 15:
 	/* Mask all interrupts */
