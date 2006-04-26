@@ -270,6 +270,12 @@
 #define  PCI_AGP_COMMAND_RATE1	0x0001	/* Use 4x rate */
 #define PCI_AGP_SIZEOF		12
 
+/* PCI-X registers */
+#define  PCI_X_CMD_DPERR_E      0x0001  /* Data Parity Error Recovery Enable */+#define  PCI_X_CMD_ERO          0x0002  /* Enable Relaxed Ordering */
+#define  PCI_X_CMD_MAX_READ     0x0000  /* Max Memory Read Byte Count */
+#define  PCI_X_CMD_MAX_SPLIT    0x0030  /* Max Outstanding Split Transactions */
+#define  PCI_X_CMD_VERSION(x)   (((x) >> 12) & 3) /* Version */
+
 /* Slot Identification */
 
 #define PCI_SID_ESR		2	/* Expansion Slot Register */

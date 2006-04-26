@@ -27,7 +27,7 @@
 #define TSEC_SIZE	0x01000
 
 /* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
-#if defined(CONFIG_MPC85xx)
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
     #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
 #elif defined(CONFIG_MPC83XX)
     #define TSEC_BASE_ADDR	(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
@@ -132,6 +132,24 @@
 
 #define MIIM_GBIT_CON		0x09
 #define MIIM_GBIT_CON_ADVERT	0x0e00
+
+/* Entry for Vitesse VSC8244 regs starts here */
+/* Vitesse VSC8244 Auxiliary Control/Status Register */
+#define MIIM_VSC8244_AUX_CONSTAT        0x1c
+#define MIIM_VSC8244_AUXCONSTAT_INIT    0x0000
+#define MIIM_VSC8244_AUXCONSTAT_DUPLEX  0x0020
+#define MIIM_VSC8244_AUXCONSTAT_SPEED   0x0018
+#define MIIM_VSC8244_AUXCONSTAT_GBIT    0x0010
+#define MIIM_VSC8244_AUXCONSTAT_100     0x0008
+#define MIIM_CONTROL_INIT_LOOPBACK      0x4000
+
+/* Vitesse VSC8244 Extended PHY Control Register 1 */
+#define MIIM_VSC8244_EPHY_CON           0x17
+#define MIIM_VSC8244_EPHYCON_INIT       0x0006
+
+/* Vitesse VSC8244 Serial LED Control Register */
+#define MIIM_VSC8244_LED_CON            0x1b
+#define MIIM_VSC8244_LEDCON_INIT        0xF011
 
 /* 88E1011 PHY Status Register */
 #define MIIM_88E1011_PHY_STATUS         0x11

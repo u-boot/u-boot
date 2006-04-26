@@ -186,7 +186,7 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	} else {
 		/* We don't support prefetchable memory for now, so disable */
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE, 0x1000);
-		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x1000);
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x1);
 	}
 
 	if (pci_io) {
