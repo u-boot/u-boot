@@ -1,5 +1,6 @@
-/*              
- * Copyright 2004 Freescale Semiconductor.
+/*
+ * Copyright 2006 Freescale Semiconductor.
+ *
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,8 +23,7 @@
  */
 
 /*
- * mpc8641hpc3 board configuration file
- *
+ * MPC8641HPCN board configuration file
  *
  * Make sure you change the MAC address and other network params first,
  * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
@@ -38,47 +38,37 @@
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_NUM_CPUS         2       /* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
-#undef DEBUG                   
+#undef DEBUG
 
-//#define RUN_DIAG             1   
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR        0xff800000
 #endif
+
 #define CFG_RESET_ADDRESS    0xfff00100
 
-//#define CONFIG_PCI
+#undef CONFIG_PCI
+
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
-/*#define CONFIG_DDR_ECC	*/		/* only for ECC DDR module */
-/*#define CONFIG_DDR_DLL	*/		/* possible DLL fix needed */
+
+#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-
-
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
+#define CONFIG_ALTIVEC          1
 
-#define CONFIG_ALTIVEC          1  
-/*-----------------------------------------------------------------------
+/*
  * L2CR setup -- make sure this is right for your board!
  */
-
-#define CFG_L2          
+#define CFG_L2
 #define L2_INIT		0
 #define L2_ENABLE	(L2CR_L2E)
 
 #ifndef CONFIG_SYS_CLK_FREQ
-//#define CONFIG_SYS_CLK_FREQ	33000000
 #define CONFIG_SYS_CLK_FREQ     get_board_sys_clk(0)
 #endif
-
-/*
- * These can be toggled for performance analysis, otherwise use default.
- */
-/* JB - XXX - Are these available on 86xx? */
-#define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 
@@ -130,10 +120,10 @@
     #define CFG_DDR_INTERVAL	0x06090100
     #define CFG_DDR_DATA_INIT   0xdeadbeef
     #define CFG_DDR_CLK_CTRL    0x03800000
-    #define CFG_DDR_OCD_CTRL    0x00000000  
-    #define CFG_DDR_OCD_STATUS  0x00000000  
+    #define CFG_DDR_OCD_CTRL    0x00000000
+    #define CFG_DDR_OCD_STATUS  0x00000000
     #define CFG_DDR_CONTROL	0xe3008000	/* Type = DDR2 */
-    #define CFG_DDR_CONTROL2	0x04400000	
+    #define CFG_DDR_CONTROL2	0x04400000
 
     //Not used in fixed_sdram function
 
@@ -143,20 +133,12 @@
     #define CFG_DDR_CS3_BNDS	0x00000FFF  //Not done
     #define CFG_DDR_CS4_BNDS	0x00000FFF  //Not done
     #define CFG_DDR_CS5_BNDS	0x00000FFF  //Not done
-
-
-
 #endif
 #endif
 
 
 /*
- * SDRAM on the Local Bus
- */
-//#define CFG_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
-//#define CFG_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
-
-/* In MPC8641HPCN, we allocate 16MB flash spaces at fe000000 and ff000000
+ * In MPC8641HPCN, we allocate 16MB flash spaces at fe000000 and ff000000
  * We only have an 8MB flash. In effect, the addresses from fe000000 to fe7fffff
  * map to fe800000 to ffffffff, and ff000000 to ff7fffff map to ffffffff.
  * However, when u-boot comes up, the flash_init needs hard start addresses
@@ -165,14 +147,11 @@
  * knows where the flash is and the user can download u-boot code from promjet to
  * fef00000 <- more intuitive than fe700000. Note that, on switching the boot
  * location, fef00000 becomes fff00000.
-*/
+ */
 #define CFG_FLASH_BASE          0xfe800000     /* start of FLASH 32M */
-#define CFG_FLASH_BASE2		0xff800000	
+#define CFG_FLASH_BASE2		0xff800000
 
 #define CFG_FLASH_BANKS_LIST {CFG_FLASH_BASE, CFG_FLASH_BASE2}
-
-
-/*Sri: This looks like a good place to init all the Local Bus chip selects*/
 
 #define CFG_BR0_PRELIM		0xff001001	/* port size 16bit */
 #define CFG_OR0_PRELIM		0xff006ff7	/* 16MB Boot Flash area*/
@@ -186,25 +165,24 @@
 #define CFG_BR3_PRELIM		0xf8100801	/* port size 8bit */
 #define CFG_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
 
-#define PIXIS_BASE              0xf8100000      /* PIXIS registers*/
-#define PIXIS_ID                0x0               /* MPC8641HPCN Board ID at offset 0*/
-#define PIXIS_VER               0x1               /* MPC8641HPCN board version version at offset 1*/
-#define PIXIS_PVER              0x2               /* PIXIS FPGA version at offset 2*/
-#define PIXIS_RST               0x4               /* PIXIS Reset Control register*/
-#define PIXIS_AUX               0x6               /* PIXIS Auxiliary register; Scratch register */
-#define PIXIS_SPD               0x7               /* Register for SYSCLK speed */
-#define PIXIS_VCTL              0x10              /* VELA Control Register */
-#define PIXIS_VCFGEN0           0x12              /* VELA Config Enable 0 */
-#define PIXIS_VCFGEN1           0x13              /* VELA Config Enable 1 */
-#define PIXIS_VBOOT             0x16              /* VELA VBOOT Register */
-#define PIXIS_VSPEED0           0x17              /* VELA VSpeed 0 */
-#define PIXIS_VSPEED1           0x18              /* VELA VSpeed 1 */
-#define PIXIS_VCLKH             0x19              /* VELA VCLKH register */
-#define PIXIS_VCLKL             0x1A              /* VELA VCLKL register */
 
+#define PIXIS_BASE	0xf8100000      /* PIXIS registers */
+#define PIXIS_ID		0x0	/* Board ID at offset 0 */
+#define PIXIS_VER		0x1	/* Board version at offset 1 */
+#define PIXIS_PVER		0x2	/* PIXIS FPGA version at offset 2 */
+#define PIXIS_RST		0x4	/* PIXIS Reset Control register */
+#define PIXIS_AUX		0x6	/* PIXIS Auxiliary register; Scratch register */
+#define PIXIS_SPD		0x7	/* Register for SYSCLK speed */
+#define PIXIS_VCTL		0x10	/* VELA Control Register */
+#define PIXIS_VCFGEN0		0x12	/* VELA Config Enable 0 */
+#define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
+#define PIXIS_VBOOT		0x16	/* VELA VBOOT Register */
+#define PIXIS_VSPEED0		0x17	/* VELA VSpeed 0 */
+#define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
+#define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
+#define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks */
-//#define CFG_MAX_FLASH_SECT	64		/* sectors per device */
 #define CFG_MAX_FLASH_SECT	128		/* sectors per device */
 
 #undef	CFG_FLASH_CHECKSUM
@@ -212,10 +190,8 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 #define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
 
-/*#define CFG_HPCN_FLASH_CFI_DRIVER */
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
-
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
@@ -230,7 +206,7 @@
 #undef CONFIG_CLOCKS_IN_MHZ
 
 #define CONFIG_L1_INIT_RAM
-#undef CFG_INIT_RAM_LOCK 	
+#undef CFG_INIT_RAM_LOCK
 #ifndef CFG_INIT_RAM_LOCK
 #define CFG_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */
 #else
@@ -265,20 +241,22 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
-/* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE 1
-#define CONFIG_OF_BOARD_SETUP 1
+/*
+ * Pass open firmware flat tree to kernel
+ */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 /* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE 8192
+#define OF_FLAT_TREE_MAX_SIZE	8192
 
-#define OF_CPU   "PowerPC,8641@0"
-#define OF_SOC   "soc8641@f8000000"
-#define OF_TBCLK  (bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH  "/soc8641@f8000000/serial@4500"
+#define OF_CPU		"PowerPC,8641@0"
+#define OF_SOC		"soc8641@f8000000"
+#define OF_TBCLK	(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH	"/soc8641@f8000000/serial@4500"
 
-#define CFG_64BIT_VSPRINTF 1
-#define CFG_64BIT_STRTOUL 1
+#define CFG_64BIT_VSPRINTF	1
+#define CFG_64BIT_STRTOUL	1
 
 /* I2C */
 #define  CONFIG_HARD_I2C		/* I2C with hardware support*/
@@ -297,13 +275,10 @@
  * Addresses are mapped 1-1.
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
-//#define CFG_PCI1_MEM_BASE	0xd0000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0xe2000000
-//#define CFG_PCI1_IO_BASE	0xe0000000
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-//#define CFG_PCI1_IO_BUS         0x00000000
 #define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
 
 /* For RTL8139 */
@@ -316,28 +291,17 @@
 #define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
 #define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
 
-// #define CFG_PCI1_MEM_BASE	0x80000000
-// #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-// #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-// #define CFG_PCI1_IO_BASE	0xe2000000
-// #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-// #define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
-
-
 
 #if defined(CONFIG_PCI)
 
-
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-//#define CFG_SCSI_SCAN_BUS_REVERSE
-
+#undef CFG_SCSI_SCAN_BUS_REVERSE
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
 
 #define CONFIG_RTL8139
-
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -349,7 +313,6 @@
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-//#define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
 
@@ -371,7 +334,6 @@
 #define CONFIG_MPC86XX_TSEC4    1
 #define CONFIG_MPC86XX_TSEC4_NAME       "eTSEC4"
 
-
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC3_PHY_ADDR		2
@@ -389,12 +351,10 @@
 /* BAT0         2G     Cacheable, non-guarded
  * 0x0000_0000  2G     DDR
  */
-//#define CFG_DBAT0L      (0x0 | BATL_PP_RW | BATL_MEMCOHERENCE)
-#define CFG_DBAT0L      (0x0 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE | BATL_MEMCOHERENCE)
-#define CFG_DBAT0U      (0x0 | BATU_BL_512M | BATU_VS | BATU_VP)
-//#define CFG_IBAT0L      CFG_DBAT0L
-//#define CFG_IBAT0L      (0x0 | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT0L      (0x0| BATL_PP_RW | BATL_CACHEINHIBIT | BATL_MEMCOHERENCE)
+#define CFG_DBAT0L      ( BATL_PP_RW | BATL_CACHEINHIBIT \
+			| BATL_GUARDEDSTORAGE | BATL_MEMCOHERENCE )
+#define CFG_DBAT0U      ( BATU_BL_512M | BATU_VS | BATU_VP )
+#define CFG_IBAT0L      ( BATL_PP_RW | BATL_CACHEINHIBIT | BATL_MEMCOHERENCE)
 #define CFG_IBAT0U      CFG_DBAT0U
 
 /* BAT1         1G     Cache-inhibited, guarded
@@ -402,7 +362,8 @@
  * 0xa000_0000  512M   PCI-Express 2 Memory
  ** SS - Changed it for operating from 0xd0000000
  */
-#define CFG_DBAT1L      (CFG_PCI1_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT1L      ( CFG_PCI1_MEM_BASE | BATL_PP_RW \
+			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_DBAT1U      (CFG_PCI1_MEM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
 #define CFG_IBAT1L      (CFG_PCI1_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT1U      CFG_DBAT1U
@@ -410,7 +371,8 @@
 /* BAT2         512M   Cache-inhibited, guarded
  * 0xc000_0000  512M   RapidIO Memory
  */
-#define CFG_DBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW \
+			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_DBAT2U      (CFG_RIO_MEM_BASE | BATU_BL_512M | BATU_VS | BATU_VP)
 #define CFG_IBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT2U      CFG_DBAT2U
@@ -418,7 +380,8 @@
 /* BAT3         4M     Cache-inhibited, guarded
  * 0xf800_0000  4M     CCSR
  */
-#define CFG_DBAT3L      (CFG_CCSRBAR | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT3L      ( CFG_CCSRBAR | BATL_PP_RW \
+			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_DBAT3U      (CFG_CCSRBAR | BATU_BL_4M | BATU_VS | BATU_VP)
 #define CFG_IBAT3L      (CFG_CCSRBAR | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT3U      CFG_DBAT3U
@@ -428,7 +391,8 @@
  * 0xe300_0000  16M    PCI-Express 2 I/0
  ** SS - Note that this is at 0xe0000000
  */
-#define CFG_DBAT4L      (CFG_PCI1_IO_BASE | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT4L      ( CFG_PCI1_IO_BASE | BATL_PP_RW \
+			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_DBAT4U      (CFG_PCI1_IO_BASE | BATU_BL_32M | BATU_VS | BATU_VP)
 #define CFG_IBAT4L      (CFG_PCI1_IO_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT4U      CFG_DBAT4U
@@ -444,11 +408,11 @@
 /* BAT6         32M    Cache-inhibited, guarded
  * 0xfe00_0000  32M    FLASH
  */
-#define CFG_DBAT6L      (CFG_FLASH_BASE | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_DBAT6L      ( CFG_FLASH_BASE | BATL_PP_RW \
+			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_DBAT6U      (CFG_FLASH_BASE | BATU_BL_32M | BATU_VS | BATU_VP)
 #define CFG_IBAT6L      (CFG_FLASH_BASE | BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CFG_IBAT6U      CFG_DBAT6U
-
 
 #define CFG_DBAT7L 0x00000000
 #define CFG_DBAT7U 0x00000000
@@ -461,17 +425,17 @@
 /*
  * Environment
  */
- #ifndef CFG_RAMBOOT
-   #define CFG_ENV_IS_IN_FLASH	1
-   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-   #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-   #define CFG_ENV_SIZE		0x2000
- #else
-   #define CFG_NO_FLASH		1	/* Flash is not usable now */
-   #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-   #define CFG_ENV_SIZE		0x2000
- #endif
+#ifndef CFG_RAMBOOT
+    #define CFG_ENV_IS_IN_FLASH	1
+    #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
+    #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+    #define CFG_ENV_SIZE		0x2000
+#else
+    #define CFG_NO_FLASH		1	/* Flash is not usable now */
+    #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+    #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+    #define CFG_ENV_SIZE		0x2000
+#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -572,24 +536,25 @@
 #define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
-#define   CONFIG_HAS_ETH1      1
-#define   CONFIG_HAS_ETH2      1
-#define   CONFIG_HAS_ETH3      1
+#define CONFIG_HAS_ETH1		1
+#define CONFIG_HAS_ETH2		1
+#define CONFIG_HAS_ETH3		1
 
-#define CONFIG_IPADDR    10.82.193.138
+#define CONFIG_IPADDR	10.82.193.138
 
 #define CONFIG_HOSTNAME		unknown
 #define CONFIG_ROOTPATH		/opt/nfsroot
 #define CONFIG_BOOTFILE		uImage
 
-#define CONFIG_SERVERIP  10.82.193.104
-#define CONFIG_GATEWAYIP 10.82.193.254
-#define CONFIG_NETMASK   255.255.252.0
+#define CONFIG_SERVERIP		192.168.1.1
+#define CONFIG_GATEWAYIP	10.82.193.104
+#define CONFIG_NETMASK		255.255.255.0
 
-#define CONFIG_LOADADDR  1000000	/* default location for tftp and bootm */
+/* default location for tftp and bootm */
+#define CONFIG_LOADADDR		1000000
 
 #define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
-//#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
+//#undef  CONFIG_BOOTARGS	/* the boot command will set bootargs */
 #define CONFIG_BOOTARGS       "root=/dev/ram rw console=ttyS0,115200"
 
 #define CONFIG_BAUDRATE	115200
@@ -599,7 +564,7 @@
    "consoledev=ttyS0\0"                                                 \
    "ramdiskaddr=400000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"                                  \
-   "pex0=echo ---------------------------; echo --------- PCI EXPRESS -----\0" \
+   "pex0=echo ---------------------------; echo --------- PCI EXPRESS -----\0"\
    "pexstat=mw f8008000 84000004; echo -expect:- 16000000; md f8008004 1\0" \
    "pex1=pci write 1.0.0 4 146; pci write 1.0.0 10 80000000\0" \
    "pexd=echo -expect:- xxx01002 00100146; pci display 1.0.0 0 2\0" \

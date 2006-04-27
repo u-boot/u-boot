@@ -57,9 +57,6 @@ int checkboard (void)
 
 #ifdef CONFIG_PCI
 
-        /* Sri: Note that at this point we will only test on PCI1
-         */
-        
         volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
         volatile ccsr_gur_t *gur = &immap->im_gur;
         volatile ccsr_pex_t *pex1 = &immap->im_pex1;
@@ -70,13 +67,16 @@ int checkboard (void)
         uint pex1_agent =  (host1_agent == 0) || (host1_agent == 1);
 
         
-        if ((io_sel==2 || io_sel==3 || io_sel==5 || io_sel==6 || io_sel==7 || io_sel==0xF ) && !(devdisr & MPC86xx_DEVDISR_PCIEX1)){
-                debug ("PCI-EXPRESS 1: %s \n",
-                        pex1_agent ? "Agent" : "Host");
+        if ((io_sel==2 || io_sel==3 || io_sel==5 \
+	     || io_sel==6 || io_sel==7 || io_sel==0xF)
+	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)){
+		debug ("PCI-EXPRESS 1: %s \n",
+		       pex1_agent ? "Agent" : "Host");
                 debug("0x%08x=0x%08x ", &pex1->pme_msg_det,pex1->pme_msg_det);
                 if (pex1->pme_msg_det) {
                         pex1->pme_msg_det = 0xffffffff;
-                        debug (" with errors.  Clearing.  Now 0x%08x",pex1->pme_msg_det);
+                        debug (" with errors.  Clearing.  Now 0x%08x",
+			       pex1->pme_msg_det);
                 }
                 debug ("\n");
         } else {
@@ -120,15 +120,6 @@ initdram(int board_type)
 	ddr_enable_ecc(dram_size);
 #endif
 
-	/*
-	 * Initialize SDRAM.  Currently HPCN doesn't have
-	 * SDRAM but we'll leave this here for now
-	 * in case someone changes their mind
-	 */
-#if !defined(CONFIG_MPC8641HPCN)
-        //	sdram_init();
-#endif
-
 	puts("    DDR: ");
 	return dram_size;
 }
@@ -163,7 +154,7 @@ local_bus_init(void)
 }
 
 #if defined(CFG_DRAM_TEST)
-int testdram (void)
+int testdram(void)
 {
 	uint *pstart = (uint *) CFG_MEMTEST_START;
 	uint *pend = (uint *) CFG_MEMTEST_END;
@@ -198,10 +189,10 @@ int testdram (void)
 
 
 #if !defined(CONFIG_SPD_EEPROM)
-/*************************************************************************
- *  fixed sdram init -- doesn't use serial presence detect.
- ************************************************************************/
-long int fixed_sdram (void)
+/*
+ * Fixed sdram init -- doesn't use serial presence detect.
+ */
+long int fixed_sdram(void)
 {
 #if !defined(CFG_RAMBOOT)
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;

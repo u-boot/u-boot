@@ -74,29 +74,27 @@ i2c_init(int speed, int slaveadd)
 }
 
 static __inline__ int
-i2c_wait4bus (void)
+i2c_wait4bus(void)
 {
 	ulong timeval = get_timer (0);
 
-        //        debug("I2C: Wait for bus\n");
 	while (readb(I2CCSR) & MPC86xx_I2CSR_MBB) {
-		if (get_timer (timeval) > TIMEOUT) {
+		if (get_timer(timeval) > TIMEOUT) {
 			return -1;
 		}
 	}
 
-  return 0;
+	return 0;
 }
 
 static __inline__ int
-i2c_wait (int write)
+i2c_wait(int write)
 {
 	u32 csr;
 	ulong timeval = get_timer (0);
 
 	do {
 		csr = readb(I2CCSR);
-
 		if (!(csr & MPC86xx_I2CSR_MIF))
 			continue;
 
@@ -118,7 +116,7 @@ i2c_wait (int write)
 		}
 
 		return 0;
-	} while (get_timer (timeval) < TIMEOUT);
+	} while (get_timer(timeval) < TIMEOUT);
 
 	debug("i2c_wait: timed out\n");
 	return -1;
@@ -127,14 +125,13 @@ i2c_wait (int write)
 static __inline__ int
 i2c_write_addr (u8 dev, u8 dir, int rsta)
 {
-   //        debug("I2C: Write Addr\n");
-	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA | MPC86xx_I2CCR_MTX |
-	       (rsta?MPC86xx_I2CCR_RSTA:0),
+	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA | MPC86xx_I2CCR_MTX
+	       | (rsta ? MPC86xx_I2CCR_RSTA : 0),
 	       I2CCCR);
 
 	writeb((dev << 1) | dir, I2CCDR);
 
-	if (i2c_wait (I2C_WRITE) < 0)
+	if (i2c_wait(I2C_WRITE) < 0)
 		return 0;
 
 	return 1;
@@ -144,14 +141,14 @@ static __inline__ int
 __i2c_write (u8 *data, int length)
 {
 	int i;
-        //        debug("I2C: __i2c_write\n");
+
 	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA | MPC86xx_I2CCR_MTX,
 	       I2CCCR);
 
-	for (i=0; i < length; i++) {
+	for (i = 0; i < length; i++) {
 		writeb(data[i], I2CCDR);
 
-		if (i2c_wait (I2C_WRITE) < 0)
+		if (i2c_wait(I2C_WRITE) < 0)
 			break;
 	}
 
@@ -163,33 +160,30 @@ __i2c_read (u8 *data, int length)
 {
 	int i;
 
-	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA |
-	       ((length == 1) ? MPC86xx_I2CCR_TXAK : 0),
+	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA
+	       | ((length == 1) ? MPC86xx_I2CCR_TXAK : 0),
 	       I2CCCR);
 
 	/* dummy read */
 	readb(I2CCDR);
-        //        debug("length = %d\n", length);
 
-	for (i=0; i < length; i++) {
-		if (i2c_wait (I2C_READ) < 0)
+	for (i = 0; i < length; i++) {
+		if (i2c_wait(I2C_READ) < 0)
 			break;
 
 		/* Generate ack on last next to last byte */
 		if (i == length - 2)
-			writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA |
-			       MPC86xx_I2CCR_TXAK,
+			writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA
+			       | MPC86xx_I2CCR_TXAK,
 			       I2CCCR);
 
 		/* Generate stop on last byte */
 		if (i == length - 1)
 			writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_TXAK, I2CCCR);
 
-                //      debug("I2CCR = 0x%08x\n", readb(I2CCCR));
 		data[i] = readb(I2CCDR);
-                //                debug("data[i] = 0x%08x\n", data[i]);
 	}
-        //        debug("Returning i = %d\n", i);
+
 	return i;
 }
 
@@ -199,19 +193,19 @@ i2c_read (u8 dev, uint addr, int alen, u8 *data, int length)
 	int i = 0;
 	u8 *a = (u8*)&addr;
 
-	if (i2c_wait4bus () < 0)
+	if (i2c_wait4bus() < 0)
 		goto exit;
 
-	if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
+	if (i2c_write_addr(dev, I2C_WRITE, 0) == 0)
 		goto exit;
 
-	if (__i2c_write (&a[4 - alen], alen) != alen)
+	if (__i2c_write(&a[4 - alen], alen) != alen)
 		goto exit;
 
-	if (i2c_write_addr (dev, I2C_READ, 1) == 0)
+	if (i2c_write_addr(dev, I2C_READ, 1) == 0)
 		goto exit;
 
-	i = __i2c_read (data, length);
+	i = __i2c_read(data, length);
 
  exit:
 	writeb(MPC86xx_I2CCR_MEN, I2CCCR);
@@ -225,16 +219,16 @@ i2c_write (u8 dev, uint addr, int alen, u8 *data, int length)
 	int i = 0;
 	u8 *a = (u8*)&addr;
 
-	if (i2c_wait4bus () < 0)
+	if (i2c_wait4bus() < 0)
 		goto exit;
 
-	if (i2c_write_addr (dev, I2C_WRITE, 0) == 0)
+	if (i2c_write_addr(dev, I2C_WRITE, 0) == 0)
 		goto exit;
 
-	if (__i2c_write (&a[4 - alen], alen) != alen)
+	if (__i2c_write(&a[4 - alen], alen) != alen)
 		goto exit;
 
-	i = __i2c_write (data, length);
+	i = __i2c_write(data, length);
 
  exit:
 	writeb(MPC86xx_I2CCR_MEN, I2CCCR);
@@ -253,21 +247,21 @@ int i2c_probe (uchar chip)
 	 */
 	udelay(10000);
 
-	return i2c_read (chip, 0, 1, (char *)&tmp, 1);
+	return i2c_read(chip, 0, 1, (char *)&tmp, 1);
 }
 
 uchar i2c_reg_read (uchar i2c_addr, uchar reg)
 {
 	char buf[1];
 
-	i2c_read (i2c_addr, reg, 1, buf, 1);
+	i2c_read(i2c_addr, reg, 1, buf, 1);
 
-	return (buf[0]);
+	return buf[0];
 }
 
 void i2c_reg_write (uchar i2c_addr, uchar reg, uchar val)
 {
-	i2c_write (i2c_addr, reg, 1, &val, 1);
+	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
 
 #endif /* CONFIG_HARD_I2C */

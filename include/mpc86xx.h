@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2006 Freescale Semiconductor.
  * Jeffrey Brown (jeffrey@freescale.com)
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  */
@@ -9,7 +9,7 @@
 
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset	offset */
 
-/*----------------------------------------------------------------
+/*
  * l2cr values.  Look in config_<BOARD>.h for the actual setup
  */
 #define l2cr		 1017
@@ -23,7 +23,7 @@
 #define L2CR_HWF         0x00000800 /* bit 20 - hardware flush */
 #define L2CR_L2IP        0x00000001 /* global invalidate in progress */
 
-/*----------------------------------------------------------------
+/*
  * BAT settings.  Look in config_<BOARD>.h for the actual setup
  */
 

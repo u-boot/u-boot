@@ -36,13 +36,12 @@
  * initialize a bunch of registers
  */
 
-void cpu_init_f (void)
+void cpu_init_f(void)
 {
         DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
-        //u8 val;
-        
+
         /* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
 
@@ -72,23 +71,21 @@ void cpu_init_f (void)
 	memctl->br1 = CFG_BR1_PRELIM;
 #endif
 
-        //#if !defined(CONFIG_MPC86xx)
 #if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
 	memctl->or2 = CFG_OR2_PRELIM;
 	memctl->br2 = CFG_BR2_PRELIM;
 #endif
-        //#endif
-	
+
 #if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)
 	memctl->or3 = CFG_OR3_PRELIM;
 	memctl->br3 = CFG_BR3_PRELIM;
 #endif
-	
+
 #if defined(CFG_BR4_PRELIM) && defined(CFG_OR4_PRELIM)
 	memctl->or4 = CFG_OR4_PRELIM;
 	memctl->br4 = CFG_BR4_PRELIM;
 #endif
-	
+
 #if defined(CFG_BR5_PRELIM) && defined(CFG_OR5_PRELIM)
 	memctl->or5 = CFG_OR5_PRELIM;
 	memctl->br5 = CFG_BR5_PRELIM;
@@ -123,9 +120,9 @@ void cpu_init_f (void)
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r (void)
+int cpu_init_r(void)
 {
-	return (0);
+	return 0;
 }
 
 

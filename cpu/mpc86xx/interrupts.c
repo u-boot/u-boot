@@ -75,7 +75,7 @@ static __inline__ void set_dec (unsigned long val)
 /* interrupt is not supported yet */
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-   return (0);
+   return 0;
 }
 
 
@@ -91,14 +91,14 @@ int interrupt_init (void)
 
         decrementer_count = get_tbclk()/CFG_HZ;
         debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n", (get_tbclk()/1000000), decrementer_count);
-        
+
         set_dec (decrementer_count);
 
 	set_msr (get_msr () | MSR_EE);
 
         debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n", get_msr(), get_dec());
-        
-	return (0);
+
+	return 0;
 }
 
 
@@ -113,7 +113,7 @@ int disable_interrupts (void)
 	ulong msr = get_msr ();
 
 	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
+	return (msr & MSR_EE) != 0;
 }
 
 
@@ -131,7 +131,6 @@ void
 timer_interrupt_cpu (struct pt_regs *regs)
 {
 	/* nothing to do here */
-	return;
 }
 
 
@@ -139,14 +138,14 @@ void timer_interrupt (struct pt_regs *regs)
 {
    /* call cpu specific function from $(CPU)/interrupts.c */
    timer_interrupt_cpu (regs);
-        
+
    timestamp++;
 
    ppcDcbf(&timestamp);
-   
+
    /* Restore Decrementer Count */
    set_dec (decrementer_count);
-        
+
 #if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
 	if ((timestamp % (CFG_WATCHDOG_FREQ)) == 0)
 		WATCHDOG_RESET ();
@@ -169,8 +168,8 @@ void reset_timer (void)
 }
 
 ulong get_timer (ulong base)
-{  
- 	return (timestamp - base);
+{
+ 	return timestamp - base;
 }
 
 void set_timer (ulong t)
@@ -185,13 +184,11 @@ void set_timer (ulong t)
 void
 irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 {
-	return;
 }
 
 void
 irq_free_handler(int vec)
 {
-	return;
 }
 
 

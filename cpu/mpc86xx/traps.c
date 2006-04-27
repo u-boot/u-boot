@@ -1,6 +1,4 @@
 /*
- * linux/arch/ppc/kernel/traps.c
- *
  * Copyright (C) 1995-1996  Gary Thomas (gdt@linuxppc.org)
  *
  * Modified by Cort Dougan (cort@cs.nmt.edu)

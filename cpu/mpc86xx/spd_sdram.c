@@ -179,7 +179,7 @@ spd_sdram(void)
 
         unsigned int law_size;
         volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
-        
+
 	/*
 	 * Read SPD information.
 	 */
@@ -614,7 +614,7 @@ spd_sdram(void)
 
 	ddr1->timing_cfg_2 = (0
 		| ((add_lat & 0x7) << 28)		/* ADD_LAT */
-		| ((cpo & 0x1f) << 23)			/* CPO */ 
+		| ((cpo & 0x1f) << 23)			/* CPO */
 		| ((wr_lat & 0x7) << 19)		/* WR_LAT */
 		| ((trtp_clk & 0x7) << 13)		/* RD_TO_PRE */
 		| ((wr_data_delay & 0x7) << 10)		/* WR_DATA_DELAY */
@@ -806,7 +806,7 @@ spd_sdram(void)
 	/*
 	 * Memory will be initialized via DMA, or not at all.
 	 */
-	d_init = 0;	
+	d_init = 0;
 #endif
 
 	ddr1->sdram_cfg_2 = (0
@@ -946,8 +946,7 @@ spd_sdram(void)
 		       | (LAWAR_SIZE & law_size));
 	debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
 	debug("DDR: LARAR1=0x%08x\n", mcm->lawar1);
-        
-        
+
 	return memsize * 1024 * 1024;
 }
 
