@@ -55,7 +55,11 @@
  */
 _vectors:
 
+#ifndef	CONFIG_M5271
 .long	0x00000000, _START
+#else
+.long	0x00000000, 0x400	/* Flash offset is 0 until we setup CS0 */
+#endif
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
@@ -124,26 +128,42 @@ _start:
 	movec	%d0, %RAMBAR0
 #endif /* #if defined(CONFIG_M5272) || defined(CONFIG_M5249) */
 
-#ifdef CONFIG_M5282
+#if	defined(CONFIG_M5282) || defined(CONFIG_M5271)
 	/* Initialize IPSBAR */
 	move.l	#(CFG_MBAR + 1), %d0		/* set IPSBAR address + valid flag */
 	move.l	%d0, 0x40000000
 
+#ifdef	CONFIG_M5282
 	/* Initialize FLASHBAR: locate internal Flash and validate it */
 	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
 	movec	%d0, %RAMBAR0
+#endif
 
 	/* Initialize RAMBAR1: locate SRAM and validate it */
 	move.l	#(CFG_INIT_RAM_ADDR + 0x21), %d0
 	movec	%d0, %RAMBAR1
+#ifdef	CONFIG_M5271
+	move.l	#(_flash_setup-CFG_FLASH_BASE), %a0
+	move.l	#(_flash_setup_end-CFG_FLASH_BASE), %a1
+	move.l	#(CFG_INIT_RAM_ADDR), %a2
+_copy_flash:
+	move.l	(%a0)+, (%a2)+
+	cmp.l	%a0, %a1
+	bgt.s	_copy_flash
 #endif
 
+	jmp	CFG_INIT_RAM_ADDR
+_after_flash_copy:
+#endif
+
+#if 0
 	/* invalidate and disable cache */
 	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
 	movec	%d0, %CACR			/* Invalidate cache */
 	move.l	#0, %d0
 	movec	%d0, %ACR0
 	movec	%d0, %ACR1
+#endif
 
 	/* set stackpointer to end of internal ram to get some stackspace for the first c-code */
 	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET), %sp
@@ -157,6 +177,18 @@ _start:
 	/* board_init_f() does not return
 
 /*------------------------------------------------------------------------------*/
+
+#ifdef	CONFIG_M5271
+_flash_setup:
+	move.l	#0x1000, %d0
+	move.w	%d0, 0x40000080
+	move.l	#0x2180, %d0
+	move.w	%d0, 0x4000008A
+	move.l	#0x3f0001, %d0
+	move.l	%d0, 0x40000084
+	jmp	_after_flash_copy.L
+_flash_setup_end:
+#endif
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)

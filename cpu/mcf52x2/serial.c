@@ -26,6 +26,10 @@
 
 #include <asm/mcfuart.h>
 
+#ifdef CONFIG_M5271
+#include <asm/m5271.h>
+#endif
+
 #ifdef CONFIG_M5272
 #include <asm/m5272.h>
 #endif
@@ -48,7 +52,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void rs_serial_setbaudrate(int port,int baudrate)
 {
-#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249) || defined(CONFIG_M5271)
 	volatile unsigned char	*uartp;
 	double clock, fraction;
 
@@ -63,7 +67,9 @@ void rs_serial_setbaudrate(int port,int baudrate)
 
 	uartp[MCFUART_UBG1] = (((int)clock >> 8) & 0xff);  /* set msb baud */
 	uartp[MCFUART_UBG2] = ((int)clock & 0xff);  /* set lsb baud */
+#ifndef CONFIG_M5271
 	uartp[MCFUART_UFPD] = ((int)fraction & 0xf);  /* set baud fraction adjust */
+#endif
 #endif
 };
 

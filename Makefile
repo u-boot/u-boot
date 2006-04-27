@@ -1315,6 +1315,9 @@ M5282EVB_config :		unconfig
 TASREG_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 tasreg esd
 
+r5200_config :		unconfig
+	@./mkconfig $(@:_config=) m68k mcf52x2 r5200
+
 #########################################################################
 ## MPC83xx Systems
 #########################################################################

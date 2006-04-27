@@ -43,7 +43,7 @@ struct pt_regs {
 	ulong     a4;
 	ulong     a5;
 	ulong     a6;
-#if defined(CONFIG_M5272) || defined(CONFIG_M5282) || defined(CONFIG_M5249)
+#if defined(CONFIG_M5272) || defined(CONFIG_M5282) || defined(CONFIG_M5249) || defined(CONFIG_M5271)
 	unsigned format :  4; /* frame format specifier */
 	unsigned vector : 12; /* vector offset */
 	unsigned short sr;
