@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixed handling of bad checksums with "mkimage -l"
+
 * Added support for BC3450 board
   Patch by Stefan Strobl, 21. Oct 2005
 
