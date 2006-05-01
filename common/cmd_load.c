@@ -33,9 +33,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if (CONFIG_COMMANDS & CFG_CMD_LOADB)
+static ulong load_serial_ymodem (ulong offset);
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_LOADS)
 static ulong load_serial (ulong offset);
-static ulong load_serial_ymodem (ulong offset);
 static int read_record (char *buf, ulong len);
 # if (CONFIG_COMMANDS & CFG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);

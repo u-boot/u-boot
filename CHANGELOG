@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Declare load_serial_ymodem() when using CFG_CMD_LOADB.
+  Patch by Jon Loeliger, 01. May 2006
+
 * Fixed handling of bad checksums with "mkimage -l"
 
 * Added support for BC3450 board
