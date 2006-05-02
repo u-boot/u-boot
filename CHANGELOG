@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Scheduled for removal: strnicmp() which is unused
+
+* Update for Intel Monahans boards:
+  - support for magic key detection and handling on delta board
+  - NAND support for zylonite board + some minor cleanup
+
 * Declare load_serial_ymodem() when using CFG_CMD_LOADB.
   Patch by Jon Loeliger, 01. May 2006
 

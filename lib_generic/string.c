@@ -21,7 +21,7 @@
 #include <malloc.h>
 
 
-#ifndef __HAVE_ARCH_STRNICMP
+#if 0 /* not used - was: #ifndef __HAVE_ARCH_STRNICMP */
 /**
  * strnicmp - Case insensitive, length-limited string comparison
  * @s1: One string
