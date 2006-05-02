@@ -27,7 +27,7 @@
 #include <common.h>
 #include <command.h>
 
-/* 
+/*
  * BC3450 specific commands
  */
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
@@ -39,7 +39,7 @@
 # define dprintf(fmt,args...)
 #endif
 
-/* 
+/*
  * Definitions for DS1620 chip
  */
 #define THERM_START_CONVERT	0xee
@@ -57,8 +57,8 @@
 #define CFG_STANDALONE		0
 
 struct therm {
-    int hi;
-    int lo;
+	int hi;
+	int lo;
 };
 
 /*
@@ -124,36 +124,46 @@ struct therm {
  * Yet, the initialisation sequence is executed only the first
  * time the function is called.
  */
-int sm501_gpio_init(void)
+int sm501_gpio_init (void)
 {
-    static int init_done = 0;
+	static int init_done = 0;
 
-    if(init_done) {
+	if (init_done) {
 /*	dprintf("sm501_gpio_init: nothing to be done.\n"); */
-	return 1;
-    }
+		return 1;
+	}
 
-    /* enable SM501 GPIO control (in both power modes) */
-    *(vu_long *) (SM501_MMIO_BASE + SM501_POWER_MODE0_GATE) |= POWER_MODE_GATE_GPIO_PWM_I2C;
-    *(vu_long *) (SM501_MMIO_BASE + SM501_POWER_MODE1_GATE) |= POWER_MODE_GATE_GPIO_PWM_I2C;
+	/* enable SM501 GPIO control (in both power modes) */
+	*(vu_long *) (SM501_MMIO_BASE + SM501_POWER_MODE0_GATE) |=
+		POWER_MODE_GATE_GPIO_PWM_I2C;
+	*(vu_long *) (SM501_MMIO_BASE + SM501_POWER_MODE1_GATE) |=
+		POWER_MODE_GATE_GPIO_PWM_I2C;
 
-    /* set up default O/Ps */
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &= ~(DS1620_RES | DS1620_CLK);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_DQ;
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &= ~(FP_DATA_TRI);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) |= (BUZZER | PWR_OFF);
+	/* set up default O/Ps */
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &=
+		~(DS1620_RES | DS1620_CLK);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_DQ;
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &=
+		~(FP_DATA_TRI);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) |=
+		(BUZZER | PWR_OFF);
 
-    /* configure directions for SM501 GPIO pins */
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_CTRL_LOW) &= ~(0xFF << 24);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_CTRL_HIGH) &= ~(0x3F << 14);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) &= ~(DIP | DS1620_DQ);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) |= (DS1620_RES | DS1620_CLK);
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_HIGH) &= ~DS1620_TLOW;
-    *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_HIGH) |= (PWR_OFF | BUZZER | FP_DATA_TRI);
+	/* configure directions for SM501 GPIO pins */
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_CTRL_LOW) &= ~(0xFF << 24);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_CTRL_HIGH) &=
+		~(0x3F << 14);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) &=
+		~(DIP | DS1620_DQ);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) |=
+		(DS1620_RES | DS1620_CLK);
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_HIGH) &=
+		~DS1620_TLOW;
+	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_HIGH) |=
+		(PWR_OFF | BUZZER | FP_DATA_TRI);
 
-    init_done = 1;
+	init_done = 1;
 /*  dprintf("sm501_gpio_init: done.\n"); */
-    return 0;
+	return 0;
 }
 
 
@@ -163,347 +173,358 @@ int sm501_gpio_init(void)
  * read and prints the dip switch
  * and/or external config inputs (4bits) 0...0x0F
  */
-int cmd_dip (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int cmd_dip (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-    vu_long rc = 0;
+	vu_long rc = 0;
 
-    sm501_gpio_init();
+	sm501_gpio_init ();
 
-    /* read dip switch */
-    rc = *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW);
-    rc = ~rc;
-    rc &= DIP;
-    rc = (int)(rc >> 24);
+	/* read dip switch */
+	rc = *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW);
+	rc = ~rc;
+	rc &= DIP;
+	rc = (int) (rc >> 24);
 
-    /* plausibility check */
-    if (rc > 0x0F)
-	return -1;
+	/* plausibility check */
+	if (rc > 0x0F)
+		return -1;
 
-    printf ("0x%x\n", rc);
-    return 0;
+	printf ("0x%x\n", rc);
+	return 0;
 }
 
-U_BOOT_CMD(
-	dip ,	1,	1,	cmd_dip,
-	"dip     - read dip switch and config inputs\n",
-	"\n"
-	"     - prints the state of the dip switch and/or\n"
-	"       external configuration inputs as hex value.\n"
-	"     - \"Config 1\" is the LSB\n"
-    );
+U_BOOT_CMD (dip, 1, 1, cmd_dip,
+	    "dip     - read dip switch and config inputs\n",
+	    "\n"
+	    "     - prints the state of the dip switch and/or\n"
+	    "       external configuration inputs as hex value.\n"
+	    "     - \"Config 1\" is the LSB\n");
 
 
 /*
  * buz - turns Buzzer on/off
  */
 #ifdef CONFIG_BC3450_BUZZER
-static int cmd_buz (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int cmd_buz (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-    if (argc != 2) {
+	if (argc != 2) {
+		printf ("Usage:\nspecify one argument: \"on\" or \"off\"\n");
+		return 1;
+	}
+
+	sm501_gpio_init ();
+
+	if (strncmp (argv[1], "on", 2) == 0) {
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &=
+			~(BUZZER);
+		return 0;
+	} else if (strncmp (argv[1], "off", 3) == 0) {
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) |=
+			BUZZER;
+		return 0;
+	}
 	printf ("Usage:\nspecify one argument: \"on\" or \"off\"\n");
 	return 1;
-    }
-
-    sm501_gpio_init();
-
-    if (strncmp (argv[1], "on", 2) == 0) {
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &= ~(BUZZER);
-	return 0;
-    }
-    else if (strncmp (argv[1], "off", 3) == 0) {
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) |= BUZZER;
-	return 0;
-    }
-    printf ("Usage:\nspecify one argument: \"on\" or \"off\"\n");
-    return 1;
 }
 
-U_BOOT_CMD(
-	buz ,	2,	1,	cmd_buz,
-	"buz     - turns buzzer on/off\n",
-	"\n"
-	"buz <on/off>\n"
-	"     - turns the buzzer on or off\n"
-    );
+U_BOOT_CMD (buz, 2, 1, cmd_buz,
+	    "buz     - turns buzzer on/off\n",
+	    "\n" "buz <on/off>\n" "     - turns the buzzer on or off\n");
 #endif /* CONFIG_BC3450_BUZZER */
 
 
 /*
  * fp - front panel commands
  */
-static int cmd_fp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int cmd_fp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-    sm501_gpio_init();
+	sm501_gpio_init ();
 
-    if (strncmp (argv[1], "on", 2) == 0) {
-	/* turn on VDD first */
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_VDDEN;
-	udelay(1000);
-	/* then put data on */
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_DATA;
-	/* wait some time and enable backlight */
-	udelay(1000);
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_BIAS;
-	udelay(1000);
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_FPEN;
-	return 0;
-    }
-    else if (strncmp (argv[1], "off", 3) == 0) {
-	/* turn off the backlight first */
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_FPEN;
-	udelay(1000);
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_BIAS;
-	udelay(200000);
-	/* wait some time, then remove data */
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_DATA;
-	udelay(1000);
-	/* and remove VDD last */
-	*(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_VDDEN;
-	return 0;
-    }
-    else if (strncmp (argv[1], "bl", 2) == 0) {
-	/* turn on/off backlight only */
-	if (strncmp (argv[2], "on", 2) == 0) {
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_BIAS;
-	    udelay(1000);
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_FPEN;
-	    return 0;
+	if (strncmp (argv[1], "on", 2) == 0) {
+		/* turn on VDD first */
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_VDDEN;
+		udelay (1000);
+		/* then put data on */
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_DATA;
+		/* wait some time and enable backlight */
+		udelay (1000);
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_BIAS;
+		udelay (1000);
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) |= SM501_PDC_FPEN;
+		return 0;
+	} else if (strncmp (argv[1], "off", 3) == 0) {
+		/* turn off the backlight first */
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_FPEN;
+		udelay (1000);
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_BIAS;
+		udelay (200000);
+		/* wait some time, then remove data */
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_DATA;
+		udelay (1000);
+		/* and remove VDD last */
+		*(vu_long *) (SM501_MMIO_BASE +
+			      SM501_PANEL_DISPLAY_CONTROL) &=
+			~SM501_PDC_VDDEN;
+		return 0;
+	} else if (strncmp (argv[1], "bl", 2) == 0) {
+		/* turn on/off backlight only */
+		if (strncmp (argv[2], "on", 2) == 0) {
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_PANEL_DISPLAY_CONTROL) |=
+				SM501_PDC_BIAS;
+			udelay (1000);
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_PANEL_DISPLAY_CONTROL) |=
+				SM501_PDC_FPEN;
+			return 0;
+		} else if (strncmp (argv[2], "off", 3) == 0) {
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_PANEL_DISPLAY_CONTROL) &=
+				~SM501_PDC_FPEN;
+			udelay (1000);
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_PANEL_DISPLAY_CONTROL) &=
+				~SM501_PDC_BIAS;
+			return 0;
+		}
 	}
-	else if (strncmp (argv[2], "off", 3) == 0) {
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_FPEN;
-	    udelay(1000);
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_PANEL_DISPLAY_CONTROL) &= ~SM501_PDC_BIAS;
-	    return 0;
-	}
-    }
 #ifdef CONFIG_BC3450_CRT
-    else if (strncmp (argv[1], "crt", 3) == 0) {
-	/* enables/disables the crt output (debug only) */
-	if(strncmp (argv[2], "on", 2) == 0) {
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_CRT_DISPLAY_CONTROL) |= 
-		(SM501_CDC_TE | SM501_CDC_E);
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_CRT_DISPLAY_CONTROL) &= 
-		~SM501_CDC_SEL;
-	    return 0;
+	else if (strncmp (argv[1], "crt", 3) == 0) {
+		/* enables/disables the crt output (debug only) */
+		if (strncmp (argv[2], "on", 2) == 0) {
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_CRT_DISPLAY_CONTROL) |=
+				(SM501_CDC_TE | SM501_CDC_E);
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_CRT_DISPLAY_CONTROL) &=
+				~SM501_CDC_SEL;
+			return 0;
+		} else if (strncmp (argv[2], "off", 3) == 0) {
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_CRT_DISPLAY_CONTROL) &=
+				~(SM501_CDC_TE | SM501_CDC_E);
+			*(vu_long *) (SM501_MMIO_BASE +
+				      SM501_CRT_DISPLAY_CONTROL) |=
+				SM501_CDC_SEL;
+			return 0;
+		}
 	}
-	else if (strncmp (argv[2], "off", 3) == 0) {
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_CRT_DISPLAY_CONTROL) &= 
-		~(SM501_CDC_TE | SM501_CDC_E);
-	    *(vu_long *)(SM501_MMIO_BASE + SM501_CRT_DISPLAY_CONTROL) |= 
-		SM501_CDC_SEL;
-	    return 0;
-	}
-    }
 #endif /* CONFIG_BC3450_CRT */
-    printf("Usage:%s\n", cmdtp->help);
-    return 1;
+	printf ("Usage:%s\n", cmdtp->help);
+	return 1;
 }
 
-U_BOOT_CMD(
-	fp ,	3,	1,	cmd_fp,
-	"fp      - front panes access functions\n",
-	"\n"
-	"fp bl <on/off>\n"
-	"     - turns the CCFL backlight of the display on/off\n"
-	"fp <on/off>\n"
-	"     - turns the whole display on/off\n"
+U_BOOT_CMD (fp, 3, 1, cmd_fp,
+	    "fp      - front panes access functions\n",
+	    "\n"
+	    "fp bl <on/off>\n"
+	    "     - turns the CCFL backlight of the display on/off\n"
+	    "fp <on/off>\n" "     - turns the whole display on/off\n"
 #ifdef CONFIG_BC3450_CRT
-	"fp crt <on/off>\n"
-	"     - enables/disables the crt output (debug only)\n"
+	    "fp crt <on/off>\n"
+	    "     - enables/disables the crt output (debug only)\n"
 #endif /* CONFIG_BC3450_CRT */
-    );
+	);
 
 
 /*
  * temp - DS1620 thermometer
  */
 /* GERSYS BC3450 specific functions */
-static inline void bc_ds1620_set_clk(int clk)
+static inline void bc_ds1620_set_clk (int clk)
 {
-    if(clk)
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_CLK;
-    else
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &= ~DS1620_CLK;
+	if (clk)
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |=
+			DS1620_CLK;
+	else
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &=
+			~DS1620_CLK;
 }
 
-static inline void bc_ds1620_set_data(int dat)
+static inline void bc_ds1620_set_data (int dat)
 {
-    if(dat)
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_DQ;
-    else
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &= ~DS1620_DQ;
+	if (dat)
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |=
+			DS1620_DQ;
+	else
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &=
+			~DS1620_DQ;
 }
 
-static inline int bc_ds1620_get_data(void)
+static inline int bc_ds1620_get_data (void)
 {
-    vu_long rc;
-    rc = *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW);
-    rc &= DS1620_DQ;
-    if(rc != 0)
-	rc = 1;
-    return (int)rc;
+	vu_long rc;
+
+	rc = *(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW);
+	rc &= DS1620_DQ;
+	if (rc != 0)
+		rc = 1;
+	return (int) rc;
 }
 
-static inline void bc_ds1620_set_data_dir(int dir)
+static inline void bc_ds1620_set_data_dir (int dir)
 {
-    if(dir) /* in */
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) &= ~DS1620_DQ;
-    else /* out */
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) |= DS1620_DQ;
+	if (dir)		/* in */
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) &= ~DS1620_DQ;
+	else			/* out */
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_DIR_LOW) |= DS1620_DQ;
 }
 
-static inline void bc_ds1620_set_reset(int res)
+static inline void bc_ds1620_set_reset (int res)
 {
-    if(res)
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_RES;
-    else
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &= ~DS1620_RES;
+	if (res)
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) |= DS1620_RES;
+	else
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_LOW) &= ~DS1620_RES;
 }
 
 /* hardware independent functions */
-static void ds1620_send_bits(int nr, int value)
+static void ds1620_send_bits (int nr, int value)
 {
-    int i;
-    
-    for (i = 0; i < nr; i++) {
-	bc_ds1620_set_data(value & 1);
-	bc_ds1620_set_clk(0);
-	udelay(1);
-	bc_ds1620_set_clk(1);
-	udelay(1);
-	
-	value >>= 1;
-    }
+	int i;
+
+	for (i = 0; i < nr; i++) {
+		bc_ds1620_set_data (value & 1);
+		bc_ds1620_set_clk (0);
+		udelay (1);
+		bc_ds1620_set_clk (1);
+		udelay (1);
+
+		value >>= 1;
+	}
 }
 
-static unsigned int ds1620_recv_bits(int nr)
+static unsigned int ds1620_recv_bits (int nr)
 {
-    unsigned int value = 0, mask = 1;
-    int i;
+	unsigned int value = 0, mask = 1;
+	int i;
 
-    bc_ds1620_set_data(0);
+	bc_ds1620_set_data (0);
 
-    for (i = 0; i < nr; i++) {
-	bc_ds1620_set_clk(0);
-	udelay(1);
+	for (i = 0; i < nr; i++) {
+		bc_ds1620_set_clk (0);
+		udelay (1);
 
-	if (bc_ds1620_get_data())
-	    value |= mask;
+		if (bc_ds1620_get_data ())
+			value |= mask;
 
-	mask <<= 1;
+		mask <<= 1;
 
-	bc_ds1620_set_clk(1);
-	udelay(1);
-    }
+		bc_ds1620_set_clk (1);
+		udelay (1);
+	}
 
-    return value;
+	return value;
 }
 
-static void ds1620_out(int cmd, int bits, int value)
+static void ds1620_out (int cmd, int bits, int value)
 {
-    bc_ds1620_set_clk(1);
-    bc_ds1620_set_data_dir(0);
+	bc_ds1620_set_clk (1);
+	bc_ds1620_set_data_dir (0);
 
-    bc_ds1620_set_reset(0);
-    udelay(1);
-    bc_ds1620_set_reset(1);
+	bc_ds1620_set_reset (0);
+	udelay (1);
+	bc_ds1620_set_reset (1);
 
-    udelay(1);
+	udelay (1);
 
-    ds1620_send_bits(8, cmd);
-    if (bits)
-	ds1620_send_bits(bits, value);
+	ds1620_send_bits (8, cmd);
+	if (bits)
+		ds1620_send_bits (bits, value);
 
-    udelay(1);
+	udelay (1);
 
-    /* go stand alone */
-    bc_ds1620_set_data_dir(1);
-    bc_ds1620_set_reset(0);
-    bc_ds1620_set_clk(0);
+	/* go stand alone */
+	bc_ds1620_set_data_dir (1);
+	bc_ds1620_set_reset (0);
+	bc_ds1620_set_clk (0);
 
-    udelay(10000);
+	udelay (10000);
 }
 
-static unsigned int ds1620_in(int cmd, int bits)
+static unsigned int ds1620_in (int cmd, int bits)
 {
-    unsigned int value;
+	unsigned int value;
 
-    bc_ds1620_set_clk(1);
-    bc_ds1620_set_data_dir(0);
+	bc_ds1620_set_clk (1);
+	bc_ds1620_set_data_dir (0);
 
-    bc_ds1620_set_reset(0);
-    udelay(1);
-    bc_ds1620_set_reset(1);
+	bc_ds1620_set_reset (0);
+	udelay (1);
+	bc_ds1620_set_reset (1);
 
-    udelay(1);
+	udelay (1);
 
-    ds1620_send_bits(8, cmd);
+	ds1620_send_bits (8, cmd);
 
-    bc_ds1620_set_data_dir(1);
-    value = ds1620_recv_bits(bits);
+	bc_ds1620_set_data_dir (1);
+	value = ds1620_recv_bits (bits);
 
-    /* go stand alone */
-    bc_ds1620_set_data_dir(1);
-    bc_ds1620_set_reset(0);
-    bc_ds1620_set_clk(0);
+	/* go stand alone */
+	bc_ds1620_set_data_dir (1);
+	bc_ds1620_set_reset (0);
+	bc_ds1620_set_clk (0);
 
-    return value;
+	return value;
 }
 
-static int cvt_9_to_int(unsigned int val)
+static int cvt_9_to_int (unsigned int val)
 {
-    if (val & 0x100)
-	val |= 0xfffffe00;
+	if (val & 0x100)
+		val |= 0xfffffe00;
 
-    return val;
+	return val;
 }
 
 /* set thermostate thresholds */
-static void ds1620_write_state(struct therm *therm)
+static void ds1620_write_state (struct therm *therm)
 {
-    ds1620_out(THERM_WRITE_TL, 9, therm->lo);
-    ds1620_out(THERM_WRITE_TH, 9, therm->hi);
-    ds1620_out(THERM_START_CONVERT, 0, 0);
+	ds1620_out (THERM_WRITE_TL, 9, therm->lo);
+	ds1620_out (THERM_WRITE_TH, 9, therm->hi);
+	ds1620_out (THERM_START_CONVERT, 0, 0);
 }
 
-static int cmd_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int cmd_temp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-    int i;
-    struct therm therm;
+	int i;
+	struct therm therm;
 
-    sm501_gpio_init();
+	sm501_gpio_init ();
 
-    /* print temperature */
-    if (argc == 1) {
-	i = cvt_9_to_int(ds1620_in(THERM_READ_TEMP, 9));
-	printf("%d.%d C\n", i >> 1, i & 1 ? 5 : 0);
-	return 0;
-    }
-
-    /* set to default operation */
-    if (strncmp (argv[1], "set", 3) == 0) {
-	if(strncmp (argv[2], "default", 3) == 0) {
-	    therm.hi = +88;
-	    therm.lo = -20;
-	    therm.hi <<= 1;
-	    therm.lo <<= 1;
-	    ds1620_write_state(&therm);
-	    ds1620_out(THERM_WRITE_CONFIG, 8, CFG_STANDALONE);
-	    return 0;
+	/* print temperature */
+	if (argc == 1) {
+		i = cvt_9_to_int (ds1620_in (THERM_READ_TEMP, 9));
+		printf ("%d.%d C\n", i >> 1, i & 1 ? 5 : 0);
+		return 0;
 	}
-    }
 
-    printf ("Usage:%s\n", cmdtp->help);
-    return 1;
+	/* set to default operation */
+	if (strncmp (argv[1], "set", 3) == 0) {
+		if (strncmp (argv[2], "default", 3) == 0) {
+			therm.hi = +88;
+			therm.lo = -20;
+			therm.hi <<= 1;
+			therm.lo <<= 1;
+			ds1620_write_state (&therm);
+			ds1620_out (THERM_WRITE_CONFIG, 8, CFG_STANDALONE);
+			return 0;
+		}
+	}
+
+	printf ("Usage:%s\n", cmdtp->help);
+	return 1;
 }
 
-U_BOOT_CMD(
-	temp ,	3,	1,	cmd_temp,
-	"temp    - print current temperature\n",
-	"\n"
-	"temp\n"
-	"     - print current temperature\n"
-);
+U_BOOT_CMD (temp, 3, 1, cmd_temp,
+	    "temp    - print current temperature\n",
+	    "\n" "temp\n" "     - print current temperature\n");
 
 #ifdef CONFIG_BC3450_CAN
 /*
@@ -512,40 +533,40 @@ U_BOOT_CMD(
  * return 1 on CAN initialization failure
  * return 0 if no failure
  */
-int can_init(void)
+int can_init (void)
 {
 	static int init_done = 0;
 	int i;
 	struct mpc5xxx_mscan *can1 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0900);
+		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0900);
 	struct mpc5xxx_mscan *can2 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0980);
+		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0980);
 
 	/* GPIO configuration of the CAN pins is done in BC3450.h */
 
 	if (!init_done) {
 		/* init CAN 1 */
 		can1->canctl1 |= 0x80;	/* CAN enable */
-		udelay(100);
+		udelay (100);
 
 		i = 0;
 		can1->canctl0 |= 0x02;	/* sleep mode */
 		/* wait until sleep mode reached */
 		while (!(can1->canctl1 & 0x02)) {
-			udelay(10);
-		i++;
-		if (i == 10) {
-			printf ("%s: CAN1 initialize error, "
-				"can not enter sleep mode!\n",
-				__FUNCTION__);
-			return 1;
-		}
+			udelay (10);
+			i++;
+			if (i == 10) {
+				printf ("%s: CAN1 initialize error, "
+					"can not enter sleep mode!\n",
+					__FUNCTION__);
+				return 1;
+			}
 		}
 		i = 0;
 		can1->canctl0 = 0x01;	/* enter init mode */
 		/* wait until init mode reached */
 		while (!(can1->canctl1 & 0x01)) {
-			udelay(10);
+			udelay (10);
 			i++;
 			if (i == 10) {
 				printf ("%s: CAN1 initialize error, "
@@ -577,7 +598,7 @@ int can_init(void)
 		can1->canctl0 &= ~(0x02);
 		/* wait until init and sleep mode left */
 		while ((can1->canctl1 & 0x01) || (can1->canctl1 & 0x02)) {
-			udelay(10);
+			udelay (10);
 			i++;
 			if (i == 10) {
 				printf ("%s: CAN1 initialize error, "
@@ -589,13 +610,13 @@ int can_init(void)
 
 		/* init CAN 2 */
 		can2->canctl1 |= 0x80;	/* CAN enable */
-		udelay(100);
+		udelay (100);
 
 		i = 0;
 		can2->canctl0 |= 0x02;	/* sleep mode */
 		/* wait until sleep mode reached */
-		while (!(can2->canctl1 & 0x02))	{
-			udelay(10);
+		while (!(can2->canctl1 & 0x02)) {
+			udelay (10);
 			i++;
 			if (i == 10) {
 				printf ("%s: CAN2 initialize error, "
@@ -607,8 +628,8 @@ int can_init(void)
 		i = 0;
 		can2->canctl0 = 0x01;	/* enter init mode */
 		/* wait until init mode reached */
-		while (!(can2->canctl1 & 0x01))	{
-			udelay(10);
+		while (!(can2->canctl1 & 0x01)) {
+			udelay (10);
 			i++;
 			if (i == 10) {
 				printf ("%s: CAN2 initialize error, "
@@ -640,7 +661,7 @@ int can_init(void)
 		i = 0;
 		/* wait until init mode left */
 		while ((can2->canctl1 & 0x01) || (can2->canctl1 & 0x02)) {
-			udelay(10);
+			udelay (10);
 			i++;
 			if (i == 10) {
 				printf ("%s: CAN2 initialize error, "
@@ -661,13 +682,13 @@ int can_init(void)
  * return 1 on CAN failure
  * return 0 if no failure
  */
-int do_can(char *argv[])
+int do_can (char *argv[])
 {
 	int i;
-	struct mpc5xxx_mscan *can1 = 
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0900);
-	struct mpc5xxx_mscan *can2 = 
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0980);
+	struct mpc5xxx_mscan *can1 =
+		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0900);
+	struct mpc5xxx_mscan *can2 =
+		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0980);
 
 	/* send a message on CAN1 */
 	can1->cantbsel = 0x01;
@@ -685,30 +706,27 @@ int do_can(char *argv[])
 		i++;
 		if (i == 10) {
 			printf ("%s: CAN1 send timeout, "
-				"can not send message!\n",
-				__FUNCTION__);
+				"can not send message!\n", __FUNCTION__);
 			return 1;
 		}
-		udelay(1000);
+		udelay (1000);
 	}
-	udelay(1000);
+	udelay (1000);
 
 	i = 0;
-	while (!(can2->canrflg & 0x01))	{
+	while (!(can2->canrflg & 0x01)) {
 		i++;
 		if (i == 10) {
 			printf ("%s: CAN2 receive timeout, "
-				"no message received!\n",
-				__FUNCTION__);
+				"no message received!\n", __FUNCTION__);
 			return 1;
 		}
-		udelay(1000);
+		udelay (1000);
 	}
-	
+
 	if (can2->canrxfg.dsr[0] != 0xCC) {
 		printf ("%s: CAN2 receive error, "
-			 "data mismatch!\n",
-			__FUNCTION__);
+			"data mismatch!\n", __FUNCTION__);
 		return 1;
 	}
 
@@ -728,24 +746,22 @@ int do_can(char *argv[])
 		i++;
 		if (i == 10) {
 			printf ("%s: CAN2 send error, "
-				"can not send message!\n",
-				__FUNCTION__);
+				"can not send message!\n", __FUNCTION__);
 			return 1;
 		}
-		udelay(1000);
+		udelay (1000);
 	}
-	udelay(1000);
+	udelay (1000);
 
 	i = 0;
-	while (!(can1->canrflg & 0x01))	{
+	while (!(can1->canrflg & 0x01)) {
 		i++;
 		if (i == 10) {
 			printf ("%s: CAN1 receive timeout, "
-				"no message received!\n",
-				__FUNCTION__);
+				"no message received!\n", __FUNCTION__);
 			return 1;
 		}
-		udelay(1000);
+		udelay (1000);
 	}
 
 	if (can1->canrxfg.dsr[0] != 0xCC) {
@@ -761,53 +777,51 @@ int do_can(char *argv[])
 /*
  * test - BC3450 HW test routines
  */
-int cmd_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int cmd_test (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 #ifdef CONFIG_BC3450_CAN
-    int rcode;
-    can_init();
+	int rcode;
+
+	can_init ();
 #endif /* CONFIG_BC3450_CAN */
 
-    sm501_gpio_init();
+	sm501_gpio_init ();
 
-    if (argc != 2) {
+	if (argc != 2) {
+		printf ("Usage:%s\n", cmdtp->help);
+		return 1;
+	}
+
+	if (strncmp (argv[1], "unit-off", 8) == 0) {
+		printf ("waiting 2 seconds...\n");
+		udelay (2000000);
+		*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &=
+			~PWR_OFF;
+		return 0;
+	}
+#ifdef CONFIG_BC3450_CAN
+	else if (strncmp (argv[1], "can", 2) == 0) {
+		rcode = do_can (argv);
+		if (simple_strtoul (argv[2], NULL, 10) == 2) {
+			if (rcode == 0)
+				printf ("OK\n");
+			else
+				printf ("Error\n");
+		}
+		return rcode;
+	}
+#endif /* CONFIG_BC3450_CAN */
+
 	printf ("Usage:%s\n", cmdtp->help);
 	return 1;
-    }
-
-    if (strncmp (argv[1], "unit-off", 8) == 0) {
-	printf ("waiting 2 seconds...\n");
-	udelay(2000000);
-	*(vu_long *) (SM501_MMIO_BASE + SM501_GPIO_DATA_HIGH) &= ~PWR_OFF;
-	return 0;
-    }
-#ifdef CONFIG_BC3450_CAN
-    else if (strncmp (argv[1], "can", 2) == 0) {
-	rcode = do_can (argv);
-	if (simple_strtoul(argv[2], NULL, 10) == 2) {
-	    if (rcode == 0)
-		printf ("OK\n");
-	    else
-		printf ("Error\n");
-	}
-	return rcode;
-    }
-#endif /* CONFIG_BC3450_CAN */
-
-    printf ("Usage:%s\n", cmdtp->help);
-    return 1;
 }
 
-U_BOOT_CMD(
-	test ,	2,	1,	cmd_test,
-	"test    - unit test routines\n",
-	"\n"
+U_BOOT_CMD (test, 2, 1, cmd_test, "test    - unit test routines\n", "\n"
 #ifdef CONFIG_BC3450_CAN
-	"test can\n"
-	"     - connect CAN1 (X8) with CAN2 (X9) for this test\n"
+	    "test can\n"
+	    "     - connect CAN1 (X8) with CAN2 (X9) for this test\n"
 #endif /* CONFIG_BC3450_CAN */
-	"test unit-off\n"
-	"     - turns off the BC3450 unit\n"
-	"       WARNING: Unsaved environment variables will be lost!\n"
-    );
+	    "test unit-off\n"
+	    "     - turns off the BC3450 unit\n"
+	    "       WARNING: Unsaved environment variables will be lost!\n");
 #endif /* CFG_CMD_BSP */

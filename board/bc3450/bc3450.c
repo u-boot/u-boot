@@ -1,6 +1,4 @@
 /*
- * -- Version 1.1 --
- *
  * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -12,9 +10,6 @@
  *
  * (C) Copyright 2006
  * Stefan Strobl, GERSYS GmbH, stefan.strobl@gersys.de
- *
- * History:
- *	1.1 - improved SM501 init to meet spec timing
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -51,7 +46,7 @@
 
 #ifdef CONFIG_RTC_MPC5200
 #include <rtc.h>
-#endif 
+#endif
 
 #ifdef CONFIG_PS2MULT
 void ps2mult_early_init(void);
@@ -375,7 +370,7 @@ ulong post_word_load (void)
 int board_early_init_r (void)
 {
 #ifdef CONFIG_RTC_MPC5200
-        struct rtc_time t;
+	struct rtc_time t;
 
 	/* set to Wed Dec 31 19:00:00 1969 */
 	t.tm_sec = t.tm_min = 0;
@@ -384,7 +379,7 @@ int board_early_init_r (void)
 	t.tm_mon = 12;
 	t.tm_year = 1969;
 	t.tm_wday = 3;
-	
+
 	rtc_set(&t);
 #endif /* CONFIG_RTC_MPC5200 */
 
@@ -482,7 +477,7 @@ int last_stage_init (void)
 	} else {
 		puts ("VGA:   SMI501 (Voyager) with 8 MB\n");
 	}
-	/* restore origianl FB content  */
+	/* restore origianl FB content	*/
 	if (restore) {
 		*(volatile u16 *)CFG_CS1_START = save;
 		__asm__ volatile ("sync");
@@ -493,8 +488,8 @@ int last_stage_init (void)
 
 #ifdef CONFIG_VIDEO_SM501
 
-#define DISPLAY_WIDTH   640
-#define DISPLAY_HEIGHT  480
+#define DISPLAY_WIDTH	640
+#define DISPLAY_HEIGHT	480
 
 #ifdef CONFIG_VIDEO_SM501_8BPP
 #error CONFIG_VIDEO_SM501_8BPP not supported.
@@ -633,7 +628,7 @@ unsigned int board_video_init (void)
 	} else {
 	    ret = SM501_MMIO_BASE;
 	}
-	
+
 	if (restore) {
 		*(volatile u16 *)CFG_CS1_START = save;
 		__asm__ volatile ("sync");

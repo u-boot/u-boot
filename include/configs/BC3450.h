@@ -42,21 +42,21 @@
 #define CONFIG_MPC5200		1	/* (more precisely a MPC5200 CPU)   */
 #define CONFIG_TQM5200		1	/* ... on a TQM5200 module	    */
 
-#define CONFIG_BC3450           1       /* ... on a BC3450 mainboard	    */
-#define CONFIG_BC3450_PS2	1       /*  + a PS/2 converter onboard	    */
-#define CONFIG_BC3450_IDE	1       /*  + IDE drives (Compact Flash)    */
+#define CONFIG_BC3450		1	/* ... on a BC3450 mainboard	    */
+#define CONFIG_BC3450_PS2	1	/*  + a PS/2 converter onboard	    */
+#define CONFIG_BC3450_IDE	1	/*  + IDE drives (Compact Flash)    */
 #define CONFIG_BC3450_USB	1	/*  + USB support		    */
 # define CONFIG_FAT		1	/*    + FAT support		    */
 # define CONFIG_EXT2		1	/*    + EXT2 support		    */
 #undef CONFIG_BC3450_BUZZER		/*  + Buzzer onboard		    */
 #undef CONFIG_BC3450_CAN		/*  + CAN transceiver		    */
 #undef CONFIG_BC3450_DS1340		/*  + a RTC DS1340 onboard	    */
-#undef CONFIG_BC3450_DS3231		/*  + a RTC DS3231 onboard      tbd */
-#undef CONFIG_BC3450_AC97		/*  + AC97 on PSC2,             tbd */
+#undef CONFIG_BC3450_DS3231		/*  + a RTC DS3231 onboard	tbd */
+#undef CONFIG_BC3450_AC97		/*  + AC97 on PSC2,		tbd */
 #define CONFIG_BC3450_FP	1	/*  + enable FP O/P		    */
 #undef CONFIG_BC3450_CRT		/*  + enable CRT O/P (Debug only!)  */
 
-#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz     */
+#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz	    */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot		    */
@@ -91,7 +91,7 @@
  */
 # define CONFIG_PCI		1
 # define CONFIG_PCI_PNP		1
-/* #define CONFIG_PCI_SCAN_SHOW	1 */
+/* #define CONFIG_PCI_SCAN_SHOW 1 */
 
 #define CONFIG_PCI_MEM_BUS	0x40000000
 #define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
@@ -103,7 +103,7 @@
 
 #define CONFIG_NET_MULTI	1
 /*#define CONFIG_EEPRO100	XXX - FIXME: conflicts when CONFIG_MII is enabled */
-#define CFG_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100  */
+#define CFG_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
 #define CONFIG_NS8382X		1
 
 #ifdef CONFIG_PCI
@@ -132,15 +132,15 @@
 # define ADD_BMP_CMD		0
 #endif
 
-/* 
- * Partitions 
+/*
+ * Partitions
  */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-/* 
- * USB 
+/*
+ * USB
  */
 #ifdef CONFIG_BC3450_USB
 # define CONFIG_USB_OHCI
@@ -150,8 +150,8 @@
 # define ADD_USB_CMD		0
 #endif /* CONFIG_BC3450_USB */
 
-/* 
- * POST support 
+/*
+ * POST support
  */
 #define CONFIG_POST		(CFG_POST_MEMORY   | \
 				 CFG_POST_CPU	   | \
@@ -165,8 +165,8 @@
 # define CFG_CMD_POST_DIAG 0
 #endif /* CONFIG_POST */
 
-/* 
- * IDE 
+/*
+ * IDE
  */
 #ifdef CONFIG_BC3450_IDE
 # define ADD_IDE_CMD		CFG_CMD_IDE
@@ -219,7 +219,7 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define	CONFIG_TIMESTAMP		/* display image timestamps */
+#define CONFIG_TIMESTAMP		/* display image timestamps */
 
 #if (TEXT_BASE == 0xFC000000)		/* Boot low */
 #   define CFG_LOWBOOT		1
@@ -242,14 +242,14 @@
 	"ipaddr=192.168.1.10\0"						\
 	"serverip=192.168.1.3\0"					\
 	"netmask=255.255.255.0\0"					\
-        "hostname=bc3450\0"                                             \
+	"hostname=bc3450\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
-        "kernel_addr=fc0a0000\0"					\
-        "ramdisk_addr=fc1c0000\0"					\
+	"kernel_addr=fc0a0000\0"					\
+	"ramdisk_addr=fc1c0000\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
-        "ideargs=setenv bootargs root=/dev/hda2 ro\0"			\
+	"ideargs=setenv bootargs root=/dev/hda2 ro\0"			\
 	"addip=setenv bootargs $(bootargs) "				\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
 		":$(hostname):$(netdev):off panic=1\0"			\
@@ -260,10 +260,10 @@
 	"flash_nfs=run nfsargs addip addcons; bootm $(kernel_addr)\0"	\
 	"net_nfs=tftp 200000 $(bootfile); "				\
 		"run nfsargs addip addcons; bootm\0"			\
-        "ide_nfs=run nfsargs addip addcons; "				\
-                "disk 200000 0:1; bootm\0"				\
-        "ide_ide=run ideargs addip addcons; "				\
-                "disk 200000 0:1; bootm\0" 				\
+	"ide_nfs=run nfsargs addip addcons; "				\
+		"disk 200000 0:1; bootm\0"				\
+	"ide_ide=run ideargs addip addcons; "				\
+		"disk 200000 0:1; bootm\0"				\
 	"usb_self=run usbload; run ramargs addip addcons; "		\
 		"bootm 200000 400000\0"					\
 	"usbload=usb reset; usb scan; usbboot 200000 0:1; "		\
@@ -288,7 +288,7 @@
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet 
+ * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet
  * hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
 #if defined(CFG_IPBSPEED_133)
@@ -314,9 +314,9 @@
 #define CFG_I2C_SLAVE		0x7F
 
 /*
- * EEPROM configuration for I²C EEPROM M24C32 
+ * EEPROM configuration for I²C EEPROM M24C32
  * M24C64 should work also. For other EEPROMs config should be verified.
- * 
+ *
  * The TQM5200 module may hold an EEPROM at address 0x50.
  */
 #define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x (TQM) */
@@ -376,7 +376,7 @@
 #define CFG_ENV_SIZE		0x10000
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*
  * Memory map
@@ -419,25 +419,25 @@
 /*
  * GPIO configuration on BC3450
  *
- *  PSC1:   UART1 (Service-UART)         [0x xxxxxxx4]
- *  PSC2:   UART2                        [0x xxxxxx4x]
- *    or:   AC/97 if CONFIG_BC3450_AC97  [0x xxxxxx2x]
- *  PSC3:   USB2                         [0x xxxxx1xx]
- *  USB:    UART4(ext.)/UART5(int.)      [0x xxxx2xxx]
- *            (this has to match 
- *            CONFIG_USB_CONFIG which is
- *            used by usb_ohci.c to set 
- *            the USB ports)
- *  Eth:    10/100Mbit Ethernet          [0x xxx0xxxx]
- *            (this is reset to '5' 
- *            in FEC driver: fec.c)
- *  PSC6:   UART6 (int. to PS/2 contr.)  [0x xx5xxxxx]
- *  ATA/CS: ???                          [0x x1xxxxxx]
- *          FIXME! UM Fig 2-10 suggests  [0x x0xxxxxx]
+ *  PSC1:   UART1 (Service-UART)	 [0x xxxxxxx4]
+ *  PSC2:   UART2			 [0x xxxxxx4x]
+ *    or:   AC/97 if CONFIG_BC3450_AC97	 [0x xxxxxx2x]
+ *  PSC3:   USB2			 [0x xxxxx1xx]
+ *  USB:    UART4(ext.)/UART5(int.)	 [0x xxxx2xxx]
+ *	      (this has to match
+ *	      CONFIG_USB_CONFIG which is
+ *	      used by usb_ohci.c to set
+ *	      the USB ports)
+ *  Eth:    10/100Mbit Ethernet		 [0x xxx0xxxx]
+ *	      (this is reset to '5'
+ *	      in FEC driver: fec.c)
+ *  PSC6:   UART6 (int. to PS/2 contr.)	 [0x xx5xxxxx]
+ *  ATA/CS: ???				 [0x x1xxxxxx]
+ *	    FIXME! UM Fig 2-10 suggests	 [0x x0xxxxxx]
  *  CS1:    Use Pin gpio_wkup_6 as second
- *          SDRAM chip select (mem_cs1)
+ *	    SDRAM chip select (mem_cs1)
  *  Timer:  CAN2 / SPI
- *  I2C:    CAN1 / I²C2                  [0x bxxxxxxx]
+ *  I2C:    CAN1 / I²C2		  [0x bxxxxxxx]
  */
 #ifdef CONFIG_BC3450_AC97
 # define CFG_GPS_PORT_CONFIG	0xb1502124
@@ -465,7 +465,7 @@
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on	    */
 #define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	    */
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address     */
+#define CFG_LOAD_ADDR		0x100000	/* default load address	    */
 
 #define CFG_HZ			1000		/* dec freq: 1ms ticks	    */
 
@@ -489,7 +489,7 @@
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
 #ifdef CFG_PCISPEED_66
-# define CFG_BOOTCS_CFG		0x0008DF30	/* for pci_clk  = 66 MHz */
+# define CFG_BOOTCS_CFG		0x0008DF30	/* for pci_clk	= 66 MHz */
 #else
 # define CFG_BOOTCS_CFG		0x0004DF30	/* for pci_clk = 33 MHz	 */
 #endif
@@ -533,17 +533,17 @@
  * USB stuff
  */
 #define CONFIG_USB_CLOCK	0x0001BBBB
-#define CONFIG_USB_CONFIG	0x00002000      /* we're using Port 2	*/
+#define CONFIG_USB_CONFIG	0x00002000	/* we're using Port 2	*/
 
 /*
  * IDE/ATA stuff Supports IDE harddisk
  */
 #undef	CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card Adapter */
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE     not supported	*/
-#undef	CONFIG_IDE_LED			/* LED for ide    not supported	*/
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	  not supported */
+#undef	CONFIG_IDE_LED			/* LED for ide	  not supported */
 
-#define CONFIG_IDE_RESET		/* reset for ide      supported	*/
+#define CONFIG_IDE_RESET		/* reset for ide      supported */
 #define CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/

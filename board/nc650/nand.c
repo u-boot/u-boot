@@ -37,22 +37,22 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd)
 	struct nand_chip *this = mtd->priv;
 
 	switch(cmd) {
-		case NAND_CTL_SETCLE:
-			this->IO_ADDR_W += 2;
-			break;
-		case NAND_CTL_CLRCLE:
-			this->IO_ADDR_W -= 2;
-			break;
-		case NAND_CTL_SETALE:
-			this->IO_ADDR_W += 1;
-			break;
-		case NAND_CTL_CLRALE:
-			this->IO_ADDR_W -= 1;
-			break;
-		case NAND_CTL_SETNCE:
-		case NAND_CTL_CLRNCE:
-			/* nop */
-			break;
+	case NAND_CTL_SETCLE:
+		this->IO_ADDR_W += 2;
+		break;
+	case NAND_CTL_CLRCLE:
+		this->IO_ADDR_W -= 2;
+		break;
+	case NAND_CTL_SETALE:
+		this->IO_ADDR_W += 1;
+		break;
+	case NAND_CTL_CLRALE:
+		this->IO_ADDR_W -= 1;
+		break;
+	case NAND_CTL_SETNCE:
+	case NAND_CTL_CLRNCE:
+		/* nop */
+		break;
 	}
 }
 #elif defined(CONFIG_IDS852_REV2)
@@ -64,24 +64,24 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd)
 	struct nand_chip *this = mtd->priv;
 
 	switch(cmd) {
-		case NAND_CTL_SETCLE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0xa) = 0; 
-			break;
-		case NAND_CTL_CLRCLE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0; 
-			break;
-		case NAND_CTL_SETALE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0x9) = 0; 
-			break;
-		case NAND_CTL_CLRALE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0; 
-			break;
-		case NAND_CTL_SETNCE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0; 
-			break;
-		case NAND_CTL_CLRNCE:
- 			*(((volatile __u8 *) this->IO_ADDR_W) + 0xc) = 0; 
-			break;
+	case NAND_CTL_SETCLE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0xa) = 0;
+		break;
+	case NAND_CTL_CLRCLE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0;
+		break;
+	case NAND_CTL_SETALE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0x9) = 0;
+		break;
+	case NAND_CTL_CLRALE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0;
+		break;
+	case NAND_CTL_SETNCE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0x8) = 0;
+		break;
+	case NAND_CTL_CLRNCE:
+		*(((volatile __u8 *) this->IO_ADDR_W) + 0xc) = 0;
+		break;
 	}
 }
 #else

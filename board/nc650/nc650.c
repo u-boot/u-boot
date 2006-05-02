@@ -265,8 +265,8 @@ int misc_init_r(void)
 	int             iCompatMode = 0;
 	char            *pParam = NULL;
 	char            *envlb;
-	
-	/* 
+
+	/*
 	   First byte in CPLD read address space signals compatibility mode
 	   0 - cp850
 	   1 - kp852
@@ -274,9 +274,9 @@ int misc_init_r(void)
 	pParam = (char*)(CFG_CPLD_BASE);
 	if( *pParam != 0)
 		iCompatMode = 1;
-	
+
 	if ( iCompatMode != 0) {
-		/* 
+		/*
 		   In KP852 compatibility mode we have to write to
 		   DPRAM as early as possible the binary coded
 		   line config and board name.
@@ -288,7 +288,7 @@ int misc_init_r(void)
 			setenv( DPRAM_VARNAME, DEFAULT_LB);
 			envlb = DEFAULT_LB;
 		}
-		
+
 		/* Status string */
 		printf("Mode:  KP852(LB=%s)\n", envlb);
 
@@ -305,7 +305,7 @@ int misc_init_r(void)
 	} else {
 		puts("Mode:  CP850\n");
 	}
-	
+
 	return 0;
 }
 #endif

@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Coding Style cleanup
+
 * Write RTC seconds first to maintain settings integrity per
   Maxim/Dallas DS1306 data sheet.
   Patch by Alan J. Luse, 02 May 2006
