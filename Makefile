@@ -1704,6 +1704,9 @@ ixdp425_config	:	unconfig
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa lubbock
 
+pleb2_config	:	unconfig
+	@./mkconfig $(@:_config=) arm pxa pleb2
+
 logodl_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa logodl
 
