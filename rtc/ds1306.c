@@ -360,13 +360,13 @@ void rtc_set (struct rtc_time *tmp)
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
-	rtc_write (RTC_YEAR, bin2bcd (tmp->tm_year - 2000));
-	rtc_write (RTC_MONTH, bin2bcd (tmp->tm_mon));
-	rtc_write (RTC_DATE_OF_MONTH, bin2bcd (tmp->tm_mday));
-	rtc_write (RTC_DAY_OF_WEEK, bin2bcd (tmp->tm_wday + 1));
-	rtc_write (RTC_HOURS, bin2bcd (tmp->tm_hour));
-	rtc_write (RTC_MINUTES, bin2bcd (tmp->tm_min));
 	rtc_write (RTC_SECONDS, bin2bcd (tmp->tm_sec));
+	rtc_write (RTC_MINUTES, bin2bcd (tmp->tm_min));
+	rtc_write (RTC_HOURS, bin2bcd (tmp->tm_hour));
+	rtc_write (RTC_DAY_OF_WEEK, bin2bcd (tmp->tm_wday + 1));
+	rtc_write (RTC_DATE_OF_MONTH, bin2bcd (tmp->tm_mday));
+	rtc_write (RTC_MONTH, bin2bcd (tmp->tm_mon));
+	rtc_write (RTC_YEAR, bin2bcd (tmp->tm_year - 2000));
 }
 
 /* ------------------------------------------------------------------------- */

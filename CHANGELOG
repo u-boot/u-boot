@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Write RTC seconds first to maintain settings integrity per
+  Maxim/Dallas DS1306 data sheet.
+  Patch by Alan J. Luse, 02 May 2006
+
 * Scheduled for removal: strnicmp() which is unused
 
 * Update for Intel Monahans boards:
@@ -9,12 +13,12 @@ Changes since U-Boot 1.1.4:
   - NAND support for zylonite board + some minor cleanup
 
 * Declare load_serial_ymodem() when using CFG_CMD_LOADB.
-  Patch by Jon Loeliger, 01. May 2006
+  Patch by Jon Loeliger, 01 May 2006
 
 * Fixed handling of bad checksums with "mkimage -l"
 
 * Added support for BC3450 board
-  Patch by Stefan Strobl, 21. Oct 2005
+  Patch by Stefan Strobl, 21 Oct 2005
 
 * Update for NC650 board:
   - Support rev1 and rev2 hardware
