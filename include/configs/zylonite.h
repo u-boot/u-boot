@@ -76,13 +76,16 @@
 
 #define CONFIG_BAUDRATE		115200
 
-/* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_MMC | CFG_CMD_FAT) */
 #ifdef TURN_ON_ETHERNET
 # define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
 #else
-# define CONFIG_COMMANDS	(CONFIG_CMD_DFL & ~CFG_CMD_NET)
+# define CONFIG_COMMANDS	((CONFIG_CMD_DFL \
+				  | CFG_CMD_ENV \
+				  | CFG_CMD_NAND) \
+				 & ~(CFG_CMD_NET \
+				     | CFG_CMD_FLASH \
+				     | CFG_CMD_IMLS))
 #endif
-
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -127,8 +130,11 @@
 
 #define CFG_LOAD_ADDR	(CFG_DRAM_BASE + 0x8000) /* default load address */
 
-#define CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
+#define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
+
+/* Monahans Core Frequency */
+#define CFG_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
+#define CFG_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
 
 						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -159,98 +165,64 @@
 #define PHYS_SDRAM_4		0xac000000 /* SDRAM Bank #4 */
 #define PHYS_SDRAM_4_SIZE	0x00000000 /* 0 MB */
 
-#define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
-#define PHYS_FLASH_2		0x04000000 /* Flash Bank #2 */
-#define PHYS_FLASH_SIZE		0x02000000 /* 32 MB */
-#define PHYS_FLASH_BANK_SIZE	0x02000000 /* 32 MB Banks */
-#define PHYS_FLASH_SECT_SIZE	0x00040000 /* 256 KB sectors (x2) */
+#define CFG_DRAM_BASE		0x80000000 /* at CS0 */
+#define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
-#define CFG_DRAM_BASE		0xa0000000
-#define CFG_DRAM_SIZE		0x04000000
-
-#define CFG_FLASH_BASE		PHYS_FLASH_1
-
-#define FPGA_REGS_BASE_PHYSICAL 0x08000000
-
-/*
- * GPIO settings
- */
-#define CFG_GPSR0_VAL		0x00008000
-#define CFG_GPSR1_VAL		0x00FC0382
-#define CFG_GPSR2_VAL		0x0001FFFF
-#define CFG_GPCR0_VAL		0x00000000
-#define CFG_GPCR1_VAL		0x00000000
-#define CFG_GPCR2_VAL		0x00000000
-#define CFG_GPDR0_VAL		0x0060A800
-#define CFG_GPDR1_VAL		0x00FF0382
-#define CFG_GPDR2_VAL		0x0001C000
-#define CFG_GAFR0_L_VAL		0x98400000
-#define CFG_GAFR0_U_VAL		0x00002950
-#define CFG_GAFR1_L_VAL		0x000A9558
-#define CFG_GAFR1_U_VAL		0x0005AAAA
-#define CFG_GAFR2_L_VAL		0xA0000000
-#define CFG_GAFR2_U_VAL		0x00000002
-
-#define CFG_PSSR_VAL		0x20
-
-/*
- * Memory settings
- */
-#define CFG_MSC0_VAL		0x23F223F2
-#define CFG_MSC1_VAL		0x3FF1A441
-#define CFG_MSC2_VAL		0x7FF97FF1
-#define CFG_MDCNFG_VAL		0x00001AC9
-#define CFG_MDREFR_VAL		0x00018018
-#define CFG_MDMRS_VAL		0x00000000
-
-/*
- * PCMCIA and CF Interfaces
- */
-#define CFG_MECR_VAL		0x00000000
-#define CFG_MCMEM0_VAL		0x00010504
-#define CFG_MCMEM1_VAL		0x00010504
-#define CFG_MCATT0_VAL		0x00010504
-#define CFG_MCATT1_VAL		0x00010504
-#define CFG_MCIO0_VAL		0x00004715
-#define CFG_MCIO1_VAL		0x00004715
-
-#define _LED			0x08000010
-#define LED_BLANK		0x08000040
-
-/*
- * FLASH and environment organization
- */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
-
-/* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
-
-/* NOTE: many default partitioning schemes assume the kernel starts at the
- * second sector, not an environment.  You have been warned!
- */
-#define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
-
-#define CFG_ENV_IS_IN_FLASH     1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
-#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)
+#undef CFG_SKIP_DRAM_SCRUB
 
 
 /*
- * FPGA Offsets
+ * NAND Flash
  */
-#define WHOAMI_OFFSET		0x00
-#define HEXLED_OFFSET		0x10
-#define BLANKLED_OFFSET		0x40
-#define DISCRETELED_OFFSET	0x40
-#define CNFG_SWITCHES_OFFSET	0x50
-#define USER_SWITCHES_OFFSET	0x60
-#define MISC_WR_OFFSET		0x80
-#define MISC_RD_OFFSET		0x90
-#define INT_MASK_OFFSET		0xC0
-#define INT_CLEAR_OFFSET	0xD0
-#define GP_OFFSET		0x100
+/* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
+#define CONFIG_NEW_NAND_CODE
+#define CFG_NAND0_BASE		0x0
+#undef CFG_NAND1_BASE
+
+#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
+#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
+
+/* nand timeout values */
+#define CFG_NAND_PROG_ERASE_TO	3000
+#define CFG_NAND_OTHER_TO	100
+#define CFG_NAND_SENDCMD_RETRY	3
+#undef NAND_ALLOW_ERASE_ALL	/* Allow erasing bad blocks - don't use */
+
+/* NAND Timing Parameters (in ns) */
+#define NAND_TIMING_tCH		10
+#define NAND_TIMING_tCS		0
+#define NAND_TIMING_tWH		20
+#define NAND_TIMING_tWP		40
+
+#define NAND_TIMING_tRH		20
+#define NAND_TIMING_tRP		40
+
+#define NAND_TIMING_tR		11123
+#define NAND_TIMING_tWHR	100
+#define NAND_TIMING_tAR		10
+
+/* NAND debugging */
+#define CFG_DFC_DEBUG1 /* usefull */
+#undef CFG_DFC_DEBUG2  /* noisy */
+#undef CFG_DFC_DEBUG3  /* extremly noisy  */
+
+#define CONFIG_MTD_DEBUG
+#define CONFIG_MTD_DEBUG_VERBOSE 1
+
+#define ADDR_COLUMN		1
+#define ADDR_PAGE		2
+#define ADDR_COLUMN_PAGE	3
+
+#define NAND_ChipID_UNKNOWN	0x00
+#define NAND_MAX_FLOORS		1
+#define NAND_MAX_CHIPS		1
+
+#define CFG_NO_FLASH		1
+
+#define CFG_ENV_IS_IN_NAND	1
+#define CFG_ENV_OFFSET		0x40000
+#define CFG_ENV_OFFSET_REDUND	0x44000
+#define CFG_ENV_SIZE		0x4000
+
 
 #endif	/* __CONFIG_H */

@@ -66,6 +66,17 @@
 #define CFG_I2C_INIT_BOARD	1
 /* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
+#define DELTA_CHECK_KEYBD	1	/* check for keys pressed during boot */
+#define CONFIG_PREBOOT		"\0"
+
+#ifdef DELTA_CHECK_KEYBD
+# define KEYBD_DATALEN		4	/* we have four keys */
+# define KEYBD_KP_DKIN0		0x1	/* vol+ */
+# define KEYBD_KP_DKIN1		0x2	/* vol- */
+# define KEYBD_KP_DKIN2		0x3	/* multi */
+# define KEYBD_KP_DKIN5		0x4	/* SWKEY_GN */
+#endif /* DELTA_CHECK_KEYBD */
+
 /*
  * select serial console configuration
  */

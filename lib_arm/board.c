@@ -297,7 +297,7 @@ void start_armboot (void)
 	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-	puts ("NAND:");
+	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
 #endif
 
