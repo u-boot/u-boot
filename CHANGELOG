@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* VoiceBlue update: use new MTD flash partitioning methods, use more
+  reasonable TEXT_BASE, update default environment and enable keyed
+  autoboot.
+  Patch from Ladislav Michl, 16. Aug 2005 
+
 * Add forgotten changes for the PLEB 2 Board.
   Patch from David Snowdon, 13. Aug 2005
 
