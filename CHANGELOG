@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Merged MPC8349ADS and MPC8349EMDS ports into MPC8349EMDS port:
+  - Removed MPC8349ADS port
+  - Added PCI support to MPC8349ADS
+  - reworked memory map to allow mapping of all regions with BATs
+  Patch by Kumar Gala 20 Apr 2006
+
 * Coding Style cleanup
 
 * Write RTC seconds first to maintain settings integrity per

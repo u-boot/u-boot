@@ -87,7 +87,7 @@ typedef struct i2c
 #error CFG_I2C_OFFSET is not defined in /include/configs/${BOARD}.h
 #endif
 
-#if defined(CONFIG_MPC8349ADS) || defined(CONFIG_TQM834X)
+#if defined(CONFIG_MPC8349EMDS) || defined(CONFIG_TQM834X)
 /*
  * MPC8349 have two i2c bus
  */
