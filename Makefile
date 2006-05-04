@@ -326,7 +326,7 @@ mcc200_config	\
 mcc200_lowboot_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring lowboot_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFE000000" >board/mcc200/config.tmp ; \
+		{ echo "TEXT_BASE = 0xFC000000" >board/mcc200/config.tmp ; \
 		  echo "... with lowboot configuration" ; \
 		}
 	@./mkconfig mcc200 ppc mpc5xxx mcc200

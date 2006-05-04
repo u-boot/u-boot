@@ -172,6 +172,10 @@
 
 #define CONFIG_ENV_OVERWRITE	1	/* allow modification of vendor params */
 
+#if TEXT_BASE == CFG_FLASH_BASE
+#define CFG_LOWBOOT	1
+#endif
+
 /*
  * Memory map
  */

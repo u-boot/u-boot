@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix lowboot support on MCC200 board
+
 * Coding Style cleanup
 
 * Write RTC seconds first to maintain settings integrity per
