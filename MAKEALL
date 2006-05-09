@@ -277,7 +277,7 @@ LIST_microblaze="suzaku"
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="cobra5272 M5272C3 M5282EVB TASREG r5200"
+LIST_coldfire="cobra5272 M5272C3 M5282EVB TASREG r5200 M5271EVB"
 
 #-----------------------------------------------------------------------
 

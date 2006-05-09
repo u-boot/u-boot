@@ -1318,6 +1318,9 @@ TASREG_config :		unconfig
 r5200_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 r5200
 
+M5271EVB_config :		unconfig
+	@./mkconfig $(@:_config=) m68k mcf52x2 m5271evb
+
 #########################################################################
 ## MPC83xx Systems
 #########################################################################
