@@ -41,7 +41,7 @@
 #include <i2c.h>
 #include <asm/i2c.h>
 
-#if defined(CONFIG_MPC8349ADS) || defined(CONFIG_TQM834X)
+#if defined(CONFIG_MPC8349EMDS) || defined(CONFIG_TQM834X)
 i2c_t * mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET);
 #endif
 
