@@ -51,6 +51,7 @@
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
@@ -102,11 +103,9 @@
 
 #else
     /*
-     * Manually set up DDR parameters
+     * Manually set up DDR1 parameters
      */
 
-/* DDR I */
-#if 1
     #define CFG_SDRAM_SIZE	256		/* DDR is 256MB */
 
     #define CFG_DDR_CS0_BNDS	0x0000000F
@@ -125,15 +124,14 @@
     #define CFG_DDR_CONTROL	0xe3008000	/* Type = DDR2 */
     #define CFG_DDR_CONTROL2	0x04400000
 
-    //Not used in fixed_sdram function
+    /* Not used in fixed_sdram function */
 
     #define CFG_DDR_MODE	0x00000022
     #define CFG_DDR_CS1_BNDS	0x00000000
-    #define CFG_DDR_CS2_BNDS	0x00000FFF  //Not done
-    #define CFG_DDR_CS3_BNDS	0x00000FFF  //Not done
-    #define CFG_DDR_CS4_BNDS	0x00000FFF  //Not done
-    #define CFG_DDR_CS5_BNDS	0x00000FFF  //Not done
-#endif
+    #define CFG_DDR_CS2_BNDS	0x00000FFF	/* Not done */
+    #define CFG_DDR_CS3_BNDS	0x00000FFF	/* Not done */
+    #define CFG_DDR_CS4_BNDS	0x00000FFF	/* Not done */
+    #define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 #endif
 
 
@@ -190,6 +188,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 #define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
 
+#define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 
@@ -199,14 +198,14 @@
 #undef  CFG_RAMBOOT
 #endif
 
-#if !defined(CFG_RAMBOOT)
-#define CONFIG_SPD_EEPROM        	/* Use SPD EEPROM for DDR setup*/
+#if !defined(CONFIG_SPD_EEPROM) && !defined(CFG_RAMBOOT)
+#undef CONFIG_SPD_EEPROM        	/* Use SPD EEPROM for DDR setup*/
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
 #define CONFIG_L1_INIT_RAM
-#undef CFG_INIT_RAM_LOCK
+#define CFG_INIT_RAM_LOCK	1
 #ifndef CFG_INIT_RAM_LOCK
 #define CFG_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */
 #else
@@ -540,22 +539,21 @@
 #define CONFIG_HAS_ETH2		1
 #define CONFIG_HAS_ETH3		1
 
-#define CONFIG_IPADDR	10.82.193.138
+#define CONFIG_IPADDR		192.168.1.100
 
 #define CONFIG_HOSTNAME		unknown
 #define CONFIG_ROOTPATH		/opt/nfsroot
 #define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	10.82.193.104
+#define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.255.0
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
 #define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
-//#undef  CONFIG_BOOTARGS	/* the boot command will set bootargs */
-#define CONFIG_BOOTARGS       "root=/dev/ram rw console=ttyS0,115200"
+#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	115200
 

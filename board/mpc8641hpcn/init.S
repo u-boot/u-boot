@@ -80,23 +80,6 @@
  #define LAWAR7	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
 
 
-/*
- * Rapid IO at 0xc000_0000 for 512 M
- */
-/*
-#ifdef CFG_INIT_RAM_LOCK
-#define LAWBAR7 ((CFG_RIO_MEM_BASE>>12) & 0xffffff)
-#define LAWAR7	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
-#endif
-*/
-/*
- * Stack at 0xfc00_0000 for 32M on LBC
- */
-#if !defined(CFG_INIT_RAM_LOCK)
-#define LAWBAR7 ((CFG_INIT_RAM_ADDR>>12) & 0xffffff)
-#define LAWAR7 (LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
-#endif
-
       	.section .bootpg, "ax"
 	.globl	law_entry
 law_entry:

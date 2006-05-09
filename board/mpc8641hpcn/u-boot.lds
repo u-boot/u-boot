@@ -28,7 +28,7 @@ SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/
    __DYNAMIC = 0;    */
 SECTIONS
 {
-/*  .resetvec 0xFFF00100 :
+  .resetvec 0xFFF00100 :
   {
     *(.resetvec)
   } = 0xffff
@@ -38,7 +38,7 @@ SECTIONS
     cpu/mpc86xx/start.o	(.bootpg)
     board/mpc8641hpcn/init.o (.bootpg)
   } = 0xffff
-*/
+
   /* Read-only sections, merged into text segment: */
   . = + 1024;
   .interp : { *(.interp) }
