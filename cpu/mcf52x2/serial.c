@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <watchdog.h>
 
 #include <asm/mcfuart.h>
 
@@ -174,7 +175,9 @@ void serial_puts (const char *s) {
 }
 
 int serial_getc(void) {
-	while(!rs_is_char());
+	while(!rs_is_char())
+		WATCHDOG_RESET();
+
 	return rs_get_char();
 }
 

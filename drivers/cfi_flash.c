@@ -45,6 +45,7 @@
 /* #define DEBUG	*/
 
 #include <common.h>
+#include <watchdog.h>
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <environment.h>
@@ -1306,6 +1307,10 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	/* re-enable interrupts if necessary */
 	if (flag)
 		enable_interrupts ();
+
+#if defined(CONFIG_MCF52x2)
+	WATCHDOG_RESET();
+#endif
 
 	return flash_full_status_check (info, find_sector (info, dest),
 					info->write_tout, "write");
