@@ -37,6 +37,7 @@
  */
 #define CONFIG_MCF52x2			/* define processor family */
 #define CONFIG_M5271			/* define processor type */
+#define CONFIG_R5200			/* define board type */
 
 #define FEC_ENET
 #define CONFIG_NET_RETRY_COUNT 5
