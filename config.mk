@@ -143,7 +143,14 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
+# turn jbsr into jsr for m68k
+ifeq ($(ARCH),m68k)
+ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
+AFLAGS_DEBUG := -Wa,-gstabs,-S
+endif
+else
 AFLAGS_DEBUG := -Wa,-gstabs
+endif
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 
 LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixes for gcc 3.4 based m68k toolchain,
+  based on patch by Jate Sujjavanich.
+
 * Added support for BC3450 board
   Patch by Stefan Strobl, 21. Oct 2005
 
