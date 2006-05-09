@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update CPU target identification strings for Coldfire family.
+
 * Update register definitions for MCF5271.
 
 * Fix serial console support for MCF5271.
