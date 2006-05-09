@@ -26,6 +26,10 @@
 
 #include <asm/mcfuart.h>
 
+#ifdef CONFIG_M5271
+#include <asm/m5271.h>
+#endif
+
 #ifdef CONFIG_M5272
 #include <asm/m5272.h>
 #endif
@@ -40,7 +44,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_M5249
+#if defined(CONFIG_M5249) || defined(CONFIG_M5271)
 #define DoubleClock(a) ((double)(CFG_CLK/2) / 32.0 / (double)(a))
 #else
 #define DoubleClock(a) ((double)(CFG_CLK) / 32.0 / (double)(a))
@@ -48,9 +52,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void rs_serial_setbaudrate(int port,int baudrate)
 {
-#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249) || defined(CONFIG_M5271)
 	volatile unsigned char	*uartp;
-	double clock, fraction;
+#ifndef CONFIG_M5271
+	double fraction;
+#endif
+	double clock;
 
 	if (port == 0)
 	  uartp = (volatile unsigned char *) (CFG_MBAR + MCFUART_BASE1);
@@ -59,11 +66,13 @@ void rs_serial_setbaudrate(int port,int baudrate)
 
 	clock = DoubleClock(baudrate);      /* Set baud above */
 
-	fraction = ((clock - (int)clock) * 16.0) + 0.5;
-
 	uartp[MCFUART_UBG1] = (((int)clock >> 8) & 0xff);  /* set msb baud */
 	uartp[MCFUART_UBG2] = ((int)clock & 0xff);  /* set lsb baud */
+
+#ifndef CONFIG_M5271
+	fraction = ((clock - (int)clock) * 16.0) + 0.5;
 	uartp[MCFUART_UFPD] = ((int)fraction & 0xf);  /* set baud fraction adjust */
+#endif
 #endif
 };
 
@@ -79,8 +88,9 @@ void rs_serial_init(int port,int baudrate)
 	else
 		uartp = (volatile unsigned char *) (CFG_MBAR + MCFUART_BASE2);
 
-	uartp[MCFUART_UCR] = MCFUART_UCR_CMDRESETRX;  /* reset RX */
 	uartp[MCFUART_UCR] = MCFUART_UCR_CMDRESETTX;  /* reset TX */
+	uartp[MCFUART_UCR] = MCFUART_UCR_CMDRESETRX;  /* reset RX */
+
 	uartp[MCFUART_UCR] = MCFUART_UCR_CMDRESETMRPTR;  /* reset MR pointer */
 	uartp[MCFUART_UCR] = MCFUART_UCR_CMDRESETERR;  /* reset Error pointer */
 
@@ -90,9 +100,15 @@ void rs_serial_init(int port,int baudrate)
 	uartp[MCFUART_UMR] = MCFUART_MR1_PARITYNONE | MCFUART_MR1_CS8;
 	uartp[MCFUART_UMR] = MCFUART_MR2_STOP1;
 
+	/* Mask UART interrupts */
+	uartp[MCFUART_UIMR] = 0;
+
+	/* Set clock Select Register: Tx/Rx clock is timer */
+	uartp[MCFUART_UCSR] = MCFUART_UCSR_RXCLKTIMER | MCFUART_UCSR_TXCLKTIMER;
+	
 	rs_serial_setbaudrate(port,baudrate);
 
-	uartp[MCFUART_UCSR] = MCFUART_UCSR_RXCLKTIMER | MCFUART_UCSR_TXCLKTIMER;
+	/* Enable Tx/Rx */
 	uartp[MCFUART_UCR] = MCFUART_UCR_RXENABLE | MCFUART_UCR_TXENABLE;
 
 	return;

@@ -45,7 +45,7 @@
 #elif defined(CONFIG_M5249) || defined(CONFIG_M5307) || defined(CONFIG_M5407)
 #define MCFTIMER_BASE1		0x140           /* Base address of TIMER1 */
 #define MCFTIMER_BASE2		0x180           /* Base address of TIMER2 */
-#elif defined(CONFIG_M5282)
+#elif defined(CONFIG_M5282) | defined(CONFIG_M5271)
 #define MCFTIMER_BASE1		0x150000        /* Base address of TIMER1 */
 #define MCFTIMER_BASE2		0x160000        /* Base address of TIMER2 */
 #define MCFTIMER_BASE3		0x170000        /* Base address of TIMER4 */

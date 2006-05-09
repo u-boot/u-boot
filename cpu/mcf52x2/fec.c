@@ -25,6 +25,11 @@
 #include <malloc.h>
 #include <asm/fec.h>
 
+#ifdef  CONFIG_M5271
+#include <asm/m5271.h>
+#include <asm/immap_5271.h>
+#endif
+
 #ifdef	CONFIG_M5272
 #include <asm/m5272.h>
 #include <asm/immap_5272.h>
@@ -41,7 +46,7 @@
 #ifdef	CONFIG_M5272
 #define FEC_ADDR		(CFG_MBAR + 0x840)
 #endif
-#ifdef CONFIG_M5282
+#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 #define FEC_ADDR 		(CFG_MBAR + 0x1000)
 #endif
 
@@ -240,10 +245,22 @@ int eth_init (bd_t * bd)
 #endif
 #undef ea
 
+#ifdef CONFIG_M5271
+	/* Clear multicast address hash table
+	 */
+	fecp->fec_ghash_table_high = 0;
+	fecp->fec_ghash_table_low = 0;
+
+	/* Clear individual address hash table
+	 */
+	fecp->fec_ihash_table_high = 0;
+	fecp->fec_ihash_table_low = 0;
+#else
 	/* Clear multicast address hash table
 	 */
 	fecp->fec_hash_table_high = 0;
 	fecp->fec_hash_table_low = 0;
+#endif
 
 	/* Set maximum receive buffer size.
 	 */
@@ -295,6 +312,9 @@ int eth_init (bd_t * bd)
 	fecp->fec_x_cntrl = FEC_TCNTRL_FDEN;
 #else  /* Half duplex mode */
 	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
+#ifdef	CONFIG_M5271
+	fecp->fec_r_cntrl |= (PKT_MAXBUF_SIZE << 16); /* set max frame length */
+#endif
 	fecp->fec_x_cntrl = 0;
 #endif
 	/* Set MII speed */

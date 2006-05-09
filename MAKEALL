@@ -273,6 +273,12 @@ LIST_nios2="PCI5441 PK1C20"
 
 LIST_microblaze="suzaku"
 
+#########################################################################
+## ColdFire Systems
+#########################################################################
+
+LIST_coldfire="cobra5272 M5272C3 M5282EVB TASREG r5200 M5271EVB"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -300,7 +306,8 @@ do
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \
-	x86|I486)
+	x86|I486| \
+	coldfire)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

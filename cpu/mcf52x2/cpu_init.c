@@ -24,6 +24,11 @@
 #include <common.h>
 #include <watchdog.h>
 
+#ifdef	CONFIG_M5271
+#include <asm/m5271.h>
+#include <asm/immap_5271.h>
+#endif
+
 #ifdef	CONFIG_M5272
 #include <asm/m5272.h>
 #include <asm/immap_5272.h>
@@ -36,6 +41,38 @@
 
 #ifdef	CONFIG_M5249
 #include <asm/m5249.h>
+#endif
+
+#if defined(CONFIG_M5271)
+void cpu_init_f (void)
+{
+#ifndef CONFIG_WATCHDOG
+	/* Disable the watchdog if we aren't using it */
+	mbar_writeShort(MCF_WTM_WCR, 0);
+#endif
+
+	/* Set clockspeed to 100MHz */
+	mbar_writeShort(MCF_FMPLL_SYNCR,
+			MCF_FMPLL_SYNCR_MFD(0) | MCF_FMPLL_SYNCR_RFD(0));
+	while (!mbar_readByte(MCF_FMPLL_SYNSR) & MCF_FMPLL_SYNSR_LOCK);
+
+	/* Enable UART pins */
+	mbar_writeShort(MCF_GPIO_PAR_UART, MCF_GPIO_PAR_UART_U0TXD |
+                        MCF_GPIO_PAR_UART_U0RXD |
+                        MCF_GPIO_PAR_UART_U1RXD_UART1 |
+                        MCF_GPIO_PAR_UART_U1TXD_UART1);
+
+	/* Enable Ethernet pins */
+	mbar_writeByte(MCF_GPIO_PAR_FECI2C, CFG_FECI2C);
+}
+
+/*
+ * initialize higher level parts of CPU like timers
+ */
+int cpu_init_r  (void)
+{
+	return (0);
+}
 #endif
 
 #if defined(CONFIG_M5272)

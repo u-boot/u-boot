@@ -27,6 +27,11 @@
 
 #include <asm/mcftimer.h>
 
+#ifdef	CONFIG_M5271
+#include <asm/m5271.h>
+#include <asm/immap_5271.h>
+#endif
+
 #ifdef	CONFIG_M5272
 #include <asm/m5272.h>
 #include <asm/immap_5272.h>
@@ -43,7 +48,7 @@
 
 
 static ulong timestamp;
-#ifdef	CONFIG_M5282
+#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 static unsigned short lastinc;
 #endif
 
@@ -127,7 +132,7 @@ void set_timer (ulong t)
 }
 #endif
 
-#if defined(CONFIG_M5282)
+#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 
 void udelay(unsigned long usec)
 {
