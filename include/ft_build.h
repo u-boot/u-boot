@@ -58,7 +58,9 @@ void ft_begin(struct ft_cxt *cxt, void *blob, int max_size);
 void ft_add_rsvmap(struct ft_cxt *cxt, u64 physaddr, u64 size);
 
 void ft_setup(void *blob, int size, bd_t * bd, ulong initrd_start, ulong initrd_end);
-
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd);
+#endif
 void ft_dump_blob(const void *bphp);
 void ft_merge_blob(struct ft_cxt *cxt, void *blob);
 void *ft_get_prop(void *bphp, const char *propname, int *szp);

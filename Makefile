@@ -114,6 +114,9 @@ endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
+ifeq ($(CPU),mpc86xx)
+OBJS += cpu/$(CPU)/resetvec.o
+endif
 ifeq ($(CPU),bf533)
 OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
 OBJS += cpu/$(CPU)/cplbhdlr.o	cpu/$(CPU)/cplbmgr.o	cpu/$(CPU)/flush.o
@@ -1419,6 +1422,14 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>include/config.h; \
 	echo "#define CFG_BOOTFILE \"bootfile=/tftpboot/tqm$${CTYPE}/uImage\0\"">>include/config.h
 	@./mkconfig -a TQM85xx ppc mpc85xx tqm85xx
+
+#########################################################################
+## MPC86xx Systems
+#########################################################################
+
+MPC8641HPCN_config:    unconfig
+	@./mkconfig $(@:_config=) ppc mpc86xx mpc8641hpcn
+
 
 #########################################################################
 ## 74xx/7xx Systems

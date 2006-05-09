@@ -14,6 +14,7 @@
 
 #include <config.h>
 #include <mpc85xx.h>
+#include <mpc86xx.h>
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
@@ -74,27 +75,33 @@ struct tsec_info_struct {
 static struct tsec_info_struct tsec_info[] = {
 #if defined(CONFIG_MPC85XX_TSEC1) || defined(CONFIG_MPC83XX_TSEC1)
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
+#elif defined(CONFIG_MPC86XX_TSEC1)
+	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
 #if defined(CONFIG_MPC85XX_TSEC2) || defined(CONFIG_MPC83XX_TSEC2)
 	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
+#elif defined(CONFIG_MPC86XX_TSEC2)
+        {TSEC2_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC2_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
 #else
-#    if defined(CONFIG_MPC85XX_TSEC3) || defined(CONFIG_MPC83XX_TSEC3)
+#if defined(CONFIG_MPC85XX_TSEC3) || defined(CONFIG_MPC83XX_TSEC3) || defined(CONFIG_MPC86XX_TSEC3)
 	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
-#    else
+#else
 	{ 0, 0, 0},
-#    endif
-#    if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4)
+#endif
+#if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4)
 	{TSEC4_PHY_ADDR, TSEC_REDUCED, TSEC4_PHYIDX},
-#    else
+#elif defined(CONFIG_MPC86XX_TSEC4)
+       {TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
+#else
 	{ 0, 0, 0},
-#    endif
+#endif
 #endif
 };
 
@@ -466,6 +473,32 @@ uint mii_parse_cis8201(uint mii_reg, struct tsec_private *priv)
 	}
 
 	return 0;
+}
+/* Parse the vsc8244's status register for speed and duplex
+ * information */
+uint mii_parse_vsc8244(uint mii_reg, struct tsec_private *priv)
+{
+        uint speed;
+                                                                                
+        if(mii_reg & MIIM_VSC8244_AUXCONSTAT_DUPLEX)
+                priv->duplexity = 1;
+        else
+                priv->duplexity = 0;
+                                                                                
+        speed = mii_reg & MIIM_VSC8244_AUXCONSTAT_SPEED;
+        switch(speed) {
+                case MIIM_VSC8244_AUXCONSTAT_GBIT:
+                        priv->speed = 1000;
+                        break;
+                case MIIM_VSC8244_AUXCONSTAT_100:
+                        priv->speed = 100;
+                        break;
+                default:
+                        priv->speed = 10;
+                        break;
+        }
+                                                                                
+        return 0;
 }
 
 
@@ -859,6 +892,29 @@ struct phy_info phy_info_cis8201 = {
 		{miim_end,}
 	},
 };
+struct phy_info phy_info_VSC8244 = {
+        0x3f1b,
+        "Vitesse VSC8244",
+        6,
+        (struct phy_cmd[]) { /* config */
+        /* Override PHY config settings */
+                /* Configure some basic stuff */
+        	{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+                {miim_end,}
+        },
+        (struct phy_cmd[]) { /* startup */
+                /* Read the Status (2x to make sure link is right) */
+                {MIIM_STATUS, miim_read, NULL},
+                /* Auto-negotiate */
+                {MIIM_STATUS, miim_read, &mii_parse_sr},
+                /* Read the status */
+                {MIIM_VSC8244_AUX_CONSTAT, miim_read, &mii_parse_vsc8244},
+                {miim_end,}
+        },
+        (struct phy_cmd[]) { /* shutdown */
+                {miim_end,}
+        },
+};
 
 
 struct phy_info phy_info_dm9161 = {
@@ -1001,6 +1057,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1111S,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
+	&phy_info_VSC8244,
 	&phy_info_dp83865,
 	NULL
 };

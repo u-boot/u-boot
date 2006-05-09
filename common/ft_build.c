@@ -299,16 +299,16 @@ static void print_data(const void *data, int len)
 
 	switch (len) {
 	case 1:		/* byte */
-		printf(" = <0x%02x>", (*(u8 *) data) & 0xff);
+		printf(" = <%02x>", (*(u8 *) data) & 0xff);
 		break;
 	case 2:		/* half-word */
-		printf(" = <0x%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
+		printf(" = <%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
 		break;
 	case 4:		/* word */
-		printf(" = <0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf(" = <%x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 		break;
 	case 8:		/* double-word */
-		printf(" = <0x%16llx>", be64_to_cpu(*(uint64_t *) data));
+		printf(" = <%qx>", be64_to_cpu(*(uint64_t *) data));
 		break;
 	default:		/* anything else... hexdump */
 		printf(" = [");
@@ -350,7 +350,7 @@ void ft_dump_blob(const void *bphp)
 		if (addr == 0 && size == 0)
 			break;
 
-		printf("/memreserve/ 0x%llx 0x%llx;\n", addr, size);
+		printf("/memreserve/ %qx %qx;\n", addr, size);
 	}
 
 	p = p_struct;
