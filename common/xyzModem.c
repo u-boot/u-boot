@@ -379,13 +379,13 @@ xyzModem_get_hdr(void)
     }
 
     /* Header found, now read the data */
-    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, &xyz.blk);
+    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, (char *)&xyz.blk);
     ZM_DEBUG(zm_save(xyz.blk));
     if (!res) {
         ZM_DEBUG(zm_dump(__LINE__));
         return xyzModem_timeout;
     }
-    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, &xyz.cblk);
+    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, (char *)&xyz.cblk);
     ZM_DEBUG(zm_save(xyz.cblk));
     if (!res) {
         ZM_DEBUG(zm_dump(__LINE__));
@@ -403,14 +403,14 @@ xyzModem_get_hdr(void)
             return xyzModem_timeout;
         }
     }
-    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, &xyz.crc1);
+    res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, (char *)&xyz.crc1);
     ZM_DEBUG(zm_save(xyz.crc1));
     if (!res) {
         ZM_DEBUG(zm_dump(__LINE__));
         return xyzModem_timeout;
     }
     if (xyz.crc_mode) {
-        res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, &xyz.crc2);
+        res = CYGACC_COMM_IF_GETC_TIMEOUT(*xyz.__chan, (char *)&xyz.crc2);
         ZM_DEBUG(zm_save(xyz.crc2));
         if (!res) {
             ZM_DEBUG(zm_dump(__LINE__));
@@ -450,7 +450,10 @@ xyzModem_get_hdr(void)
 int
 xyzModem_stream_open(connection_info_t *info, int *err)
 {
-    int console_chan, stat=0;
+#ifdef REDBOOT
+    int console_chan;
+#endif
+    int stat = 0;
     int retries = xyzModem_MAX_RETRIES;
     int crc_retries = xyzModem_MAX_RETRIES_WITH_CRC;
 
@@ -510,7 +513,7 @@ xyzModem_stream_open(connection_info_t *info, int *err)
                 /* skip filename */
                 while (*xyz.bufp++);
                 /* get the length */
-                parse_num(xyz.bufp, &xyz.file_length, NULL, " ");
+                parse_num((char *)xyz.bufp, &xyz.file_length, NULL, " ");
 #endif
                 /* The rest of the file name data block quietly discarded */
                 xyz.tx_ack = true;
