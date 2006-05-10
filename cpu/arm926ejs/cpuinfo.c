@@ -242,4 +242,3 @@ int print_cpuinfo (void)
 }
 
 #endif /* #if defined(CONFIG_DISPLAY_CPUINFO) && defined(CONFIG_OMAP) */
-

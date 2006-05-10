@@ -72,7 +72,7 @@
 #include <cmd_confdefs.h>
 
 /* Note: We only copy one sectors worth of application code from location
- * 10200000 for speed purposes.  Increase the size if necessary */ 
+ * 10200000 for speed purposes.  Increase the size if necessary */
 #define CONFIG_BOOTCOMMAND	"cp.b 10200000 0 20000; go 400"
 #define	CONFIG_BOOTDELAY	1
 

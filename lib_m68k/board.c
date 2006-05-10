@@ -363,7 +363,7 @@ board_init_f (ulong bootflag)
 	*paddr-- = 0;
 	*paddr-- = 0;
 	addr_sp = (ulong)paddr;
-	
+
 	debug ("Stack Pointer at: %08lx\n", addr_sp);
 
 	/*
