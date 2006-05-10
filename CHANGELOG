@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix REG_MPU_LOAD_TIMER definition in multiple OMAP ports
+  Patch by Hiroki Kaminaga, 11 Mar 2006
+
 * Update omap5912osk board support
   - Fix OMAP support that omap5912osk compiles in current source tree
   - Update with code from "http://omap.spectrumdigital.com/osk5912"
