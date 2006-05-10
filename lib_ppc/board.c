@@ -676,7 +676,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
-#if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
+#if defined(CFG_INIT_RAM_LOCK) && (defined(CONFIG_E500) || defined(CONFIG_MPC86xx))
 	unlock_ram_in_cache();	/* it's time to unlock D-cache in e500 */
 #endif
 

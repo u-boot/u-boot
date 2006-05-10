@@ -291,16 +291,5 @@ ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-void
-after_reloc(ulong dest_addr)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-
-	/* now, jump to the main U-Boot board init code */
-	board_init_r ((gd_t *)gd, dest_addr);
-
-	/* NOTREACHED */
-}
-
 
 
