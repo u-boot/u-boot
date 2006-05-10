@@ -955,8 +955,9 @@ in_ram:
 	cmplw	0, r3, r4
 	bne	5b
 6:
-	mr	r3, r10		/* Destination Address		*/
-	bl	after_reloc
+	mr	r3, r9		/* Init Date pointer		*/
+	mr	r4, r10		/* Destination Address		*/
+	bl	board_init_r
 
 	/* not reached - end relocate_code */
 /*-----------------------------------------------------------------------*/
