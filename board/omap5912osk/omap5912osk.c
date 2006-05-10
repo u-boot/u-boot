@@ -288,3 +288,21 @@ void peripheral_power_enable (void)
 
 	*SW_CLOCK_REQUEST |= UART1_48MHZ_ENABLE;
 }
+
+/*
+ * Check Board Identity
+ */
+int checkboard(void)
+{
+	char *s = getenv("serial#");
+
+	puts("Board: OSK5912");
+
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+	putc('\n');
+
+	return (0);
+}

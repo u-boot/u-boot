@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update omap5912osk board support
+  - Fix OMAP support that omap5912osk compiles in current source tree
+  - Update with code from "http://omap.spectrumdigital.com/osk5912"
+    to fix problems with DDR initialization
+  - Fix timer setup
+  - Use CFI flash driver and support complete 32MB of onboard flash
+  - Add "print_cpuinfo()" and "checkboard()" functions to display
+    CPU (with frequency) and Board infos
+  Patch by Stefan Roese, 10 May 2006
+
 * Fix watchdog issues for ColdFire boards.
 
 * Add M5271EVB board support.
