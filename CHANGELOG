@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AMCC 440EP Rev C and 440GR Rev B
+  Patch by John Otken, 08 May 2006
+
 * OMAP 5912/OSK: update EMIFS CS1 timings:
   Problems have been seen in the linux kernel's smc91x network driver
   due to improper bus timings.  The latest 2.6 OMAP kernels currently
