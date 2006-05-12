@@ -1129,8 +1129,10 @@ static int hardware_disable(int slot)
 
 static int voltage_set(int slot, int vcc, int vpp)
 {
+#ifdef DEBUG
 	volatile pcmconf8xx_t	*pcmp =
 		(pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+#endif
 	volatile unsigned char	*powerctl =
 		(volatile unsigned char *)PCMCIA_CTRL;
 	unsigned long		reg;
