@@ -2,7 +2,7 @@
  * MPC8xx Communication Processor Module.
  * Copyright (c) 1997 Dan Malek (dmalek@jlc.net)
  *
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * This file contains structures and information for the communication
@@ -1412,6 +1412,7 @@ typedef struct scc_enet {
     defined(CONFIG_TQM823L) || defined(CONFIG_TQM823M) || \
     defined(CONFIG_TQM850L) || defined(CONFIG_TQM850M) || \
     defined(CONFIG_ETX094)  || defined(CONFIG_RRVISION)|| \
+    defined(CONFIG_VIRTLAB2)||				  \
    (defined(CONFIG_LANTEC) && CONFIG_LANTEC < 2)
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.

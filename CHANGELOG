@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for VirtLab2 board
+  (needed because of differences in the PCMCIA hardware).
+
 * Minor cleanup.
 
 * Update yosemite configuration to enable flash write buffer support

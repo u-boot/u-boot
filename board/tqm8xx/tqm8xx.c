@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -124,6 +124,9 @@ int checkboard (void)
 			break;
 		putc (*s);
 	}
+#ifdef CONFIG_VIRTLAB2
+	puts (" (Virtlab2)");
+#endif
 	putc ('\n');
 
 	return (0);

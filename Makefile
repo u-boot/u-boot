@@ -756,7 +756,8 @@ TQM850M_config		\
 TQM855M_config		\
 TQM860M_config		\
 TQM862M_config		\
-TQM866M_config:		unconfig
+TQM866M_config		\
+virtlab2_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _LCD,$@)" ] || \
 		{ echo "#define CONFIG_LCD"		>>include/config.h ; \
