@@ -58,7 +58,7 @@
 			device_type = "i2c";
 			compatible = "fsl-i2c";
 			reg = <3000 100>;
-			interrupts = <1b 0>;
+			interrupts = <2b 0>;
 			interrupt-parent = <40000>;
 			dfsrr;
 		};
@@ -73,28 +73,28 @@
 			ethernet-phy@0 {
 				linux,phandle = <2452000>;
 				interrupt-parent = <40000>;
-				interrupts = <35 0>;
+				interrupts = <a 0>;
 				reg = <0>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@1 {
 				linux,phandle = <2452001>;
 				interrupt-parent = <40000>;
-				interrupts = <35 0>;
+				interrupts = <a 0>;
 				reg = <1>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@2 {
 				linux,phandle = <2452002>;
 				interrupt-parent = <40000>;
-				interrupts = <35 0>;
+				interrupts = <a 0>;
 				reg = <2>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@3 {
 				linux,phandle = <2452003>;
 				interrupt-parent = <40000>;
-				interrupts = <35 0>;
+				interrupts = <a 0>;
 				reg = <3>;
 				device_type = "ethernet-phy";
 			};
@@ -108,7 +108,7 @@
 			compatible = "gianfar";
 			reg = <24000 1000>;
 			address = [ 00 E0 0C 00 73 00 ];
-			interrupts = <d 3 e 3 12 3>;
+			interrupts = <1d 3 1e 3 22 3>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452000>;
 		};
@@ -121,7 +121,7 @@
 			compatible = "gianfar";
 			reg = <25000 1000>;
 			address = [ 00 E0 0C 00 73 01 ];
-			interrupts = <13 3 14 3 18 3>;
+			interrupts = <23 3 24 3 28 3>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452001>;
 		};
@@ -134,7 +134,7 @@
 			compatible = "gianfar";
 			reg = <26000 1000>;
 			address = [ 00 E0 0C 00 02 FD ];
-			interrupts = <F 3 10 3 11 3>;
+			interrupts = <1F 3 20 3 21 3>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452002>;
 		};
@@ -147,7 +147,7 @@
 			compatible = "gianfar";
 			reg = <27000 1000>;
 			address = [ 00 E0 0C 00 03 FD ];
-			interrupts = <15 3 16 3 17 3>;
+			interrupts = <25 3 26 3 27 3>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452003>;
 		};
@@ -156,7 +156,7 @@
 			compatible = "ns16550"; 
 			reg = <4500 100>; 	// reg base, size
 			clock-frequency = <0>; 	// should we fill in in uboot?
-			interrupts = <1a 3>;
+			interrupts = <2a 3>;
 			interrupt-parent = <40000>;
 		};
 
@@ -165,7 +165,7 @@
 			compatible = "ns16550";
 			reg = <4600 100>;	// reg base, size
 			clock-frequency = <0>; 	// should we fill in in uboot?
-			interrupts = <1a 3>;
+			interrupts = <2a 3>;
 			interrupt-parent = <40000>;
 		};
 
