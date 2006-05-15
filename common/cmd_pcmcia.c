@@ -1035,11 +1035,18 @@ static int hardware_enable(int slot)
 		(pcmconf8xx_t *)&(((immap_t *)CFG_IMMR)->im_pcmcia);
 	volatile unsigned char	*powerctl =
 		(volatile unsigned char *)PCMCIA_CTRL;
+	volatile sysconf8xx_t	*sysp =
+		(sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
 	unsigned int		reg, mask;
 
 	debug ("hardware_enable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
 
 	udelay(10000);
+
+	/*
+	 * Configure SIUMCR to enable PCMCIA port B
+	 */
+	sysp->sc_siumcr &= ~SIUMCR_DBGC11;	/* set DBGC to 00 */
 
 	/* clear interrupt state, and disable interrupts */
 	pcmp->pcmc_pscr =  PCMCIA_MASK(slot);
