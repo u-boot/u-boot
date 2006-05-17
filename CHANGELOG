@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix gcc 3.4.x AFLAGS setting for m68k platform.
+
 * Enable autoboot for M5271EVB board.
 
 * Changed default ramdisk addr in yosemite/yellowstone ports
