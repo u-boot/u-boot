@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Enable autoboot for M5271EVB board.
+
 * Changed default ramdisk addr in yosemite/yellowstone ports
   Patch by Stefan Roese, 15 May 2006
 
