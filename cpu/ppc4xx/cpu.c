@@ -234,7 +234,7 @@ int checkcpu (void)
 		puts("GR Rev. A");
 		break;
 
-	case PVR_440EP_RB: /* 440EP rev C and 440GR rev B have same PVR */
+	case PVR_440GR_RB: /* 440EP rev C and 440GR rev B have same PVR */
 		puts("GR Rev. B");
 		break;
 #endif /* CONFIG_440GR */
