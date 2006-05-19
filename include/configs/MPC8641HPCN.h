@@ -57,6 +57,13 @@
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
+#define CONFIG_NUM_DDR_CONTROLLERS     2
+/* #define CONFIG_DDR_INTERLEAVE               1 */
+#define CACHE_LINE_INTERLEAVING		0x20000000
+#define PAGE_INTERLEAVING		0x21000000
+#define BANK_INTERLEAVING		0x22000000
+#define SUPER_BANK_INTERLEAVING		0x23000000
+
 
 #define CONFIG_ALTIVEC          1
 
@@ -99,7 +106,10 @@
     /*
      * Determine DDR configuration from I2C interface.
      */
-    #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS1		0x51		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS2		0x52		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS3		0x53		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS4		0x54		/* DDR DIMM */
 
 #else
     /*
