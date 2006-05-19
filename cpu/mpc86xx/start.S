@@ -207,11 +207,7 @@ boot_warm:
 	/* init the L2 cache */
 	addis	r3, r0, L2_INIT@h
 	ori	r3, r3, L2_INIT@l
-	sync
 	mtspr	l2cr, r3	
-#ifdef CONFIG_ALTIVEC
-	dssall
-#endif
 	/* invalidate the L2 cache */
 	bl	l2cache_invalidate
 	sync
@@ -245,6 +241,13 @@ in_flash:
 	bl	setup_ccsrbar
 #endif
 	
+	/* Fix for SMP linux - Changing arbitration to round-robin */
+	lis	r3, CFG_CCSRBAR@h
+	ori	r3, r3, 0x1000
+	xor	r4, r4, r4
+	li	r4, 0x1000
+	stw	r4, 0(r3)
+
 	/* setup the law entries */
 	bl 	law_entry
 	sync
@@ -280,9 +283,9 @@ in_flash:
 	/* make sure timer enabled in guts register too */
 	lis	r3, CFG_CCSRBAR@h
 	oris	r3,r3, 0xE
-	ori	r3,r3,0x0070  /*Jason from 3*/
+	ori	r3,r3,0x0070
 	lwz	r4, 0(r3)
-	lis	r5,0xFFFC     /*Jason from 0xffff*/
+	lis	r5,0xFFFC
 	ori	r5,r5,0x5FFF
 	and	r4,r4,r5
 	stw	r4,0(r3)
