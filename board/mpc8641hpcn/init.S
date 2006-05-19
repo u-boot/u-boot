@@ -36,11 +36,10 @@
  * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
  * 0xa000_0000     0xbfff_ffff     PCI2 MEM                512M
  * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
- * 0xe000_0000     0xe000_ffff     CCSR                    1M
  * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
  * 0xe300_0000     0xe3ff_ffff     PCI2 IO                 16M
- * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
- * 0xf800_0000     0xf80f_ffff     BCSR                    1M
+ * 0xf800_0000     0xf80f_ffff     CCSRBAR                 1M
+ * 0xf810_0000     0xf81f_ffff     PIXIS                   1M
  * 0xfe00_0000     0xffff_ffff     FLASH (boot bank)       32M
  *
  * Notes:
@@ -76,9 +75,16 @@
 /*#define LAWAR6	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_16M)) */
 #define LAWAR6	(~LAWAR_EN &( LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_16M)))
 
- #define LAWBAR7 ((0xfe000000 >>12) & 0xffffff)
- #define LAWAR7	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
+#define LAWBAR7 ((0xfe000000 >>12) & 0xffffff)
+#define LAWAR7	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
 
+#if !defined(CONFIG_SPD_EEPROM)
+#define LAWBAR8 ((CFG_DDR_SDRAM_BASE>>12) & 0xffffff)
+#define LAWAR8 (LAWAR_EN | LAWAR_TRGT_IF_DDR2 | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#else
+#define LAWBAR8 0
+#define LAWAR8  ((LAWAR_TRGT_IF_DDR2 | (LAWAR_SIZE & LAWAR_SIZE_512M)) & ~LAWAR_EN)
+#endif
 
       	.section .bootpg, "ax"
 	.globl	law_entry
@@ -150,6 +156,15 @@ law_entry:
 	lis     r6,LAWAR7@h
 	ori     r6,r6,LAWAR7@l
 	stwu    r6, 0x20(r5)
+
+       /* LAWBAR8, LAWAR8 */
+       lis     r6,LAWBAR8@h
+       ori     r6,r6,LAWBAR8@l
+       stwu    r6, 0x20(r4)
+
+       lis     r6,LAWAR8@h
+       ori     r6,r6,LAWAR8@l
+       stwu    r6, 0x20(r5)
 
 	blr
 
