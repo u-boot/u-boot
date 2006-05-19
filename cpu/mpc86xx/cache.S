@@ -28,7 +28,7 @@
  * Most of this code is taken from 74xx_7xx/cache.S
  * and then cleaned up a bit
  */
-	
+
 /*
  * Invalidate L1 instruction cache.
  */
@@ -316,24 +316,30 @@ _GLOBAL(dcache_status)
 	blr
 
 /*
- * Invalidate L2 cache using L2I and polling L2IP
+ * Invalidate L2 cache using L2I, assume L2 is enabled
  */
 _GLOBAL(l2cache_invalidate)
-	sync
-	oris	r3, r3, L2CR_L2I@h
+	mfspr	r3, l2cr
+	rlwinm.	r3, r3, 0, 0, 0
+	beq	1f
+
+	mfspr	r3, l2cr
+	rlwinm	r3, r3, 0, 1, 31
+
+#ifdef	CONFIG_ALTIVEC
+	dssall
+#endif
 	sync
 	mtspr	l2cr, r3
 	sync
+1:	mfspr	r3, l2cr
+	oris	r3, r3, L2CR_L2I@h
+	mtspr	l2cr, r3
+
 invl2:
 	mfspr	r3, l2cr
-	andi.	r3, r3, L2CR_L2IP
+	andi.	r3, r3, L2CR_L2I@h
 	bne	invl2
-	/* turn off the global invalidate bit */
-	mfspr	r3, l2cr
-	rlwinm	r3, r3, 0, 11, 9
-	sync
-	mtspr	l2cr, r3
-	sync
 	blr
 
 /*

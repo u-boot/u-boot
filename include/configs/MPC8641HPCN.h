@@ -57,6 +57,13 @@
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
+#define CONFIG_NUM_DDR_CONTROLLERS     2
+/* #define CONFIG_DDR_INTERLEAVE               1 */
+#define CACHE_LINE_INTERLEAVING		0x20000000
+#define PAGE_INTERLEAVING		0x21000000
+#define BANK_INTERLEAVING		0x22000000
+#define SUPER_BANK_INTERLEAVING		0x23000000
+
 
 #define CONFIG_ALTIVEC          1
 
@@ -99,7 +106,10 @@
     /*
      * Determine DDR configuration from I2C interface.
      */
-    #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS1		0x51		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS2		0x52		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS3		0x53		/* DDR DIMM */
+    #define SPD_EEPROM_ADDRESS4		0x54		/* DDR DIMM */
 
 #else
     /*
@@ -136,15 +146,16 @@
 
 
 /*
- * In MPC8641HPCN, we allocate 16MB flash spaces at fe000000 and ff000000
- * We only have an 8MB flash. In effect, the addresses from fe000000 to fe7fffff
+ * In MPC8641HPCN, allocate 16MB flash spaces at fe000000 and ff000000.
+ * There is an 8MB flash.  In effect, the addresses from fe000000 to fe7fffff
  * map to fe800000 to ffffffff, and ff000000 to ff7fffff map to ffffffff.
  * However, when u-boot comes up, the flash_init needs hard start addresses
- * to build its info table. For user convenience, we have the flash addresses
- * as fe800000 and ff800000. That way, when we do flash operations, u-boot
- * knows where the flash is and the user can download u-boot code from promjet to
- * fef00000 <- more intuitive than fe700000. Note that, on switching the boot
- * location, fef00000 becomes fff00000.
+ * to build its info table.  For user convenience, the flash addresses is
+ * fe800000 and ff800000.  That way, u-boot knows where the flash is
+ * and the user can download u-boot code from promjet to fef00000, a
+ * more intuitive location than fe700000.
+ *
+ * Note that, on switching the boot location, fef00000 becomes fff00000.
  */
 #define CFG_FLASH_BASE          0xfe800000     /* start of FLASH 32M */
 #define CFG_FLASH_BASE2		0xff800000
@@ -257,14 +268,18 @@
 #define CFG_64BIT_VSPRINTF	1
 #define CFG_64BIT_STRTOUL	1
 
-/* I2C */
+/*
+ * I2C
+ */
 #define  CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
 
-/* RapidIO MMU */
+/*
+ * RapidIO MMU
+ */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address */
 #define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
 #define CFG_RIO_MEM_SIZE	0x20000000	/* 128M */
@@ -347,19 +362,21 @@
 #endif	/* CONFIG_TSEC_ENET */
 
 
-/* BAT0         2G     Cacheable, non-guarded
+/*
+ * BAT0         2G     Cacheable, non-guarded
  * 0x0000_0000  2G     DDR
  */
 #define CFG_DBAT0L      ( BATL_PP_RW | BATL_CACHEINHIBIT \
 			| BATL_GUARDEDSTORAGE | BATL_MEMCOHERENCE )
-#define CFG_DBAT0U      ( BATU_BL_512M | BATU_VS | BATU_VP )
+#define CFG_DBAT0U      ( BATU_BL_2G | BATU_VS | BATU_VP )
 #define CFG_IBAT0L      ( BATL_PP_RW | BATL_CACHEINHIBIT | BATL_MEMCOHERENCE)
 #define CFG_IBAT0U      CFG_DBAT0U
 
-/* BAT1         1G     Cache-inhibited, guarded
+/*
+ * BAT1         1G     Cache-inhibited, guarded
  * 0x8000_0000  512M   PCI-Express 1 Memory
  * 0xa000_0000  512M   PCI-Express 2 Memory
- ** SS - Changed it for operating from 0xd0000000
+ *	Changed it for operating from 0xd0000000
  */
 #define CFG_DBAT1L      ( CFG_PCI1_MEM_BASE | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
@@ -367,7 +384,8 @@
 #define CFG_IBAT1L      (CFG_PCI1_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT1U      CFG_DBAT1U
 
-/* BAT2         512M   Cache-inhibited, guarded
+/*
+ * BAT2         512M   Cache-inhibited, guarded
  * 0xc000_0000  512M   RapidIO Memory
  */
 #define CFG_DBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW \
@@ -376,7 +394,8 @@
 #define CFG_IBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT2U      CFG_DBAT2U
 
-/* BAT3         4M     Cache-inhibited, guarded
+/*
+ * BAT3         4M     Cache-inhibited, guarded
  * 0xf800_0000  4M     CCSR
  */
 #define CFG_DBAT3L      ( CFG_CCSRBAR | BATL_PP_RW \
@@ -385,10 +404,11 @@
 #define CFG_IBAT3L      (CFG_CCSRBAR | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT3U      CFG_DBAT3U
 
-/* BAT4         32M    Cache-inhibited, guarded
+/*
+ * BAT4         32M    Cache-inhibited, guarded
  * 0xe200_0000  16M    PCI-Express 1 I/O
  * 0xe300_0000  16M    PCI-Express 2 I/0
- ** SS - Note that this is at 0xe0000000
+ *    Note that this is at 0xe0000000
  */
 #define CFG_DBAT4L      ( CFG_PCI1_IO_BASE | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
@@ -396,7 +416,8 @@
 #define CFG_IBAT4L      (CFG_PCI1_IO_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT4U      CFG_DBAT4U
 
-/* BAT5         128K   Cacheable, non-guarded
+/*
+ * BAT5         128K   Cacheable, non-guarded
  * 0xe401_0000  128K   Init RAM for stack in the CPU DCache (no backing memory)
  */
 #define CFG_DBAT5L      (CFG_INIT_RAM_ADDR | BATL_PP_RW | BATL_MEMCOHERENCE)
@@ -404,7 +425,8 @@
 #define CFG_IBAT5L      CFG_DBAT5L
 #define CFG_IBAT5U      CFG_DBAT5U
 
-/* BAT6         32M    Cache-inhibited, guarded
+/*
+ * BAT6         32M    Cache-inhibited, guarded
  * 0xfe00_0000  32M    FLASH
  */
 #define CFG_DBAT6L      ( CFG_FLASH_BASE | BATL_PP_RW \
@@ -427,7 +449,7 @@
 #ifndef CFG_RAMBOOT
     #define CFG_ENV_IS_IN_FLASH	1
     #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-    #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+    #define CFG_ENV_SECT_SIZE		0x40000	/* 256K(one sector) for env */
     #define CFG_ENV_SIZE		0x2000
 #else
     #define CFG_NO_FLASH		1	/* Flash is not usable now */

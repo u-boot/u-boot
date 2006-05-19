@@ -18,7 +18,7 @@
 	linux,phandle = <100>;
 
 	cpus {
-		#cpus = <1>;
+		#cpus = <2>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		linux,phandle = <200>;
@@ -31,18 +31,31 @@
 			d-cache-size = <8000>;		// L1, 32K
 			i-cache-size = <8000>;		// L1, 32K
 			timebase-frequency = <0>;	//  33 MHz, from uboot
-			bus-frequency = <0>;	// 166 MHz
-			clock-frequency = <0>;	// 825 MHz, from uboot
+			bus-frequency = <0>;		// From uboot
+			clock-frequency = <0>;		// From uboot
 			32-bit;
 			linux,phandle = <201>;
 			linux,boot-cpu;
+		};
+		PowerPC,8641@1 {
+			device_type = "cpu";
+			reg = <1>;
+			d-cache-line-size = <20>;	// 32 bytes
+			i-cache-line-size = <20>;	// 32 bytes
+			d-cache-size = <8000>;		// L1, 32K
+			i-cache-size = <8000>;		// L1, 32K
+			timebase-frequency = <0>;	//  33 MHz, from uboot
+			bus-frequency = <0>;		// From uboot
+			clock-frequency = <0>;		// From uboot
+			32-bit;
+			linux,phandle = <202>;
 		};
 	};
 
 	memory {
 		device_type = "memory";
 		linux,phandle = <300>;
-		reg = <00000000 10000000>;	// 256M at 0x0
+		reg = <00000000 40000000>;	// 1G at 0x0, replaced by uboot
 	};
 
 	soc8641@f8000000 {
@@ -58,6 +71,15 @@
 			device_type = "i2c";
 			compatible = "fsl-i2c";
 			reg = <3000 100>;
+			interrupts = <2b 0>;
+			interrupt-parent = <40000>;
+			dfsrr;
+		};
+
+		i2c@3100 {
+			device_type = "i2c";
+			compatible = "fsl-i2c";
+			reg = <3100 100>;
 			interrupts = <2b 0>;
 			interrupt-parent = <40000>;
 			dfsrr;
