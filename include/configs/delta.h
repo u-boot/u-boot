@@ -94,11 +94,20 @@
 # define CONFIG_COMMANDS	((CONFIG_CMD_DFL \
 				  | CFG_CMD_ENV \
 				  | CFG_CMD_NAND \
-				  | CFG_CMD_I2C) \
+				  | CFG_CMD_I2C \
+				  | CFG_CMD_USB \
+				  | CFG_CMD_FAT) \
 				 & ~(CFG_CMD_NET \
 				     | CFG_CMD_FLASH \
 				     | CFG_CMD_IMLS))
 #endif
+
+
+#define CONFIG_USB_OHCI         1
+#define CONFIG_USB_STORAGE      1
+#define CONFIG_DOS_PARTITION    1
+
+#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

@@ -99,6 +99,52 @@ int board_late_init(void)
 }
 
 
+/* board dependant usb stuff */
+int usb_board_init()
+{
+	/*
+	 * Enable USB host clock.
+	 */
+	CKENA |= (CKENA_2_USBHOST |  CKENA_20_UDC);
+	udelay(100);
+
+	/* Configure Port 2 for Host (USB Client Registers) */
+	UP2OCR = 0x3000c;
+
+#if 0
+	GPIO2_2 = 0x801; /* USBHPEN - Alt. Fkt. 1 */
+	GPIO3_2 = 0x801; /* USBHPWR - Alt. Fkt. 1 */
+#endif
+
+	UHCHR |= UHCHR_FHR;
+	wait_ms(11);	/* udelay(11); */
+	UHCHR &= ~UHCHR_FHR;
+
+	UHCHR |= UHCHR_FSBIR;
+	while (UHCHR & UHCHR_FSBIR)
+		udelay(1);
+
+#if 0
+	UHCHR |= UHCHR_PCPL; /* USBHPEN is active low */
+	UHCHR |= UHCHR_PSPL; /* USBHPWR is active low */
+#endif
+
+	UHCHR &= ~UHCHR_SSEP0;
+	UHCHR &= ~UHCHR_SSEP1;
+	UHCHR &= ~UHCHR_SSE;
+
+	return 0;
+}
+
+int usb_board_stop()
+{
+	/* may not want to do this */
+	/* CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC); */
+
+	return 0;
+}
+
+
 /*
  * Magic Key Handling, mainly copied from board/lwmon/lwmon.c
  */
@@ -320,6 +366,12 @@ static void init_DA9030()
 	       SYS_CONTROL_A_WDOG_ACTION |
 	       SYS_CONTROL_A_WATCHDOG);
 	if(i2c_write(addr, SYS_CONTROL_A, 1, &val, 1)) {
+		printf("Error accessing DA9030 via i2c.\n");
+		return;
+	}
+
+	val = 0x80;
+	if(i2c_write(addr, IRQ_MASK_B, 1, &val, 1)) {
 		printf("Error accessing DA9030 via i2c.\n");
 		return;
 	}
