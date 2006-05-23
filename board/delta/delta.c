@@ -1,10 +1,6 @@
 /*
- * (C) Copyright 2002
- * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * (C) Copyright 2006
+ * DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -97,53 +93,6 @@ int board_late_init(void)
 	init_DA9030();
 	return 0;
 }
-
-
-/* board dependant usb stuff */
-int usb_board_init()
-{
-	/*
-	 * Enable USB host clock.
-	 */
-	CKENA |= (CKENA_2_USBHOST |  CKENA_20_UDC);
-	udelay(100);
-
-	/* Configure Port 2 for Host (USB Client Registers) */
-	UP2OCR = 0x3000c;
-
-#if 0
-	GPIO2_2 = 0x801; /* USBHPEN - Alt. Fkt. 1 */
-	GPIO3_2 = 0x801; /* USBHPWR - Alt. Fkt. 1 */
-#endif
-
-	UHCHR |= UHCHR_FHR;
-	wait_ms(11);	/* udelay(11); */
-	UHCHR &= ~UHCHR_FHR;
-
-	UHCHR |= UHCHR_FSBIR;
-	while (UHCHR & UHCHR_FSBIR)
-		udelay(1);
-
-#if 0
-	UHCHR |= UHCHR_PCPL; /* USBHPEN is active low */
-	UHCHR |= UHCHR_PSPL; /* USBHPWR is active low */
-#endif
-
-	UHCHR &= ~UHCHR_SSEP0;
-	UHCHR &= ~UHCHR_SSEP1;
-	UHCHR &= ~UHCHR_SSE;
-
-	return 0;
-}
-
-int usb_board_stop()
-{
-	/* may not want to do this */
-	/* CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC); */
-
-	return 0;
-}
-
 
 /*
  * Magic Key Handling, mainly copied from board/lwmon/lwmon.c

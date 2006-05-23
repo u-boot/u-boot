@@ -51,7 +51,10 @@
 #include <usb.h>
 #include "usb_ohci.h"
 
-/* #define OHCI_USE_NPS		/\* force NoPowerSwitching mode *\/ */
+#ifdef CONFIG_ARM920T
+# define OHCI_USE_NPS		/* force NoPowerSwitching mode */
+#endif
+
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
 
 /* For initializing controller (mask in an HCFS mode too) */
@@ -310,9 +313,6 @@ static void ohci_dump_roothub (ohci_t *controller, int verbose)
 	ndp = (temp & RH_A_NDP);
 #ifdef CONFIG_AT91C_PQFP_UHPBUG
 	ndp = (ndp == 2) ? 1:0;
-#endif
-#if 0 /* def CONFIG_CPU_MONAHANS */
-		data_buf [2] = (data_buf [2] == 2) ? 3:0;
 #endif
 	if (verbose) {
 		dbg ("roothub.a: %08x POTPGT=%d%s%s%s%s%s NDP=%d", temp,
@@ -1150,19 +1150,13 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 #ifdef CONFIG_AT91C_PQFP_UHPBUG
 		data_buf [2] = (data_buf [2] == 2) ? 1:0;
 #endif
-#if 0 /* def CONFIG_CPU_MONAHANS */
-		data_buf [2] = (data_buf [2] == 2) ? 3:0;
-#endif
-
 		data_buf [3] = 0;
 		if (temp & RH_A_PSM)	/* per-port power switching? */
 			data_buf [3] |= 0x1;
 		if (temp & RH_A_NOCP)	/* no overcurrent reporting? */
 			data_buf [3] |= 0x10;
-#if 1
 		else if (temp & RH_A_OCPM)	/* per-port overcurrent reporting? */
 			data_buf [3] |= 0x8;
-#endif
 
 		/* corresponds to data_buf[4-7] */
 		datab [1] = 0;
@@ -1557,10 +1551,18 @@ static char ohci_inited = 0;
 
 int usb_lowlevel_init(void)
 {
-	/* do board dependant init */
+
+#if CFG_USB_CPU_INIT
+	/* cpu dependant init */
+	if(usb_cpu_init())
+		return -1;
+#endif
+
+#if CFG_USB_BOARD_INIT
+	/*  board dependant init */
 	if(usb_board_init())
 		return -1;
-
+#endif
 	memset (&gohci, 0, sizeof (ohci_t));
 	memset (&urb_priv, 0, sizeof (urb_priv_t));
 
@@ -1588,28 +1590,43 @@ int usb_lowlevel_init(void)
 	gohci.disabled = 1;
 	gohci.sleeping = 0;
 	gohci.irq = -1;
-	gohci.regs = (struct ohci_regs *)OHCI_REGS_BASE;
+	gohci.regs = (struct ohci_regs *)CFG_USB_OHCI_REGS_BASE;
 
 	gohci.flags = 0;
-	gohci.slot_name = "delta/zylonite";
+	gohci.slot_name = CFG_USB_SLOT_NAME;
 
 	if (hc_reset (&gohci) < 0) {
 		hc_release_ohci (&gohci);
 		err ("can't reset usb-%s", gohci.slot_name);
 		/* Initialization failed disable clocks */
-		CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC);
+#if CFG_USB_BOARD_INIT
+		/* board dependant cleanup */
+		usb_board_stop();
+#endif
+
+#if CFG_USB_CPU_INIT
+		/* cpu dependant cleanup */
+		usb_cpu_stop();
+#endif
 		return -1;
 	}
 
 	/* FIXME this is a second HC reset; why?? */
 	/* writel(gohci.hc_control = OHCI_USB_RESET, &gohci.regs->control);
 	   wait_ms(10); */
-
 	if (hc_start (&gohci) < 0) {
 		err ("can't start usb-%s", gohci.slot_name);
 		hc_release_ohci (&gohci);
 		/* Initialization failed */
-		CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC);
+#if CFG_USB_BOARD_INIT
+		/* board dependant cleanup */
+		usb_board_stop();
+#endif
+
+#if CFG_USB_CPU_INIT
+		/* cpu dependant cleanup */
+		usb_cpu_stop();
+#endif
 		return -1;
 	}
 
@@ -1632,9 +1649,17 @@ int usb_lowlevel_stop(void)
 	/* call hc_release_ohci() here ? */
 	hc_reset (&gohci);
 
+#if CFG_USB_BOARD_INIT
 	/* board dependant cleanup */
 	if(usb_board_stop())
 		return -1;
+#endif
+
+#if CFG_USB_CPU_INIT
+	/* cpu dependant cleanup */
+	if(usb_cpu_stop())
+		return -1;
+#endif
 
 	return 0;
 }

@@ -8,8 +8,16 @@
  */
 
 /* functions for doing board specific setup/cleanup */
+#ifdef CFG_USB_BOARD_INIT
 extern int usb_board_init(void);
 extern int usb_board_stop(void);
+#endif
+
+#ifdef CFG_USB_CPU_INIT
+extern int usb_cpu_init(void);
+extern int usb_cpu_stop(void);
+#endif
+
 
 static int cc_to_error[16] = {
 
