@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2006
- * Markus Klotzbuecher, DENX Software Engineering <mk@denx.de>
+ * DENX Software Engineering <mk@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,50 +24,24 @@
 #include <common.h>
 
 #if defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT)
-# ifdef CONFIG_CPU_MONAHANS
+# ifdef CONFIG_AT91RM9200
 
-#include <asm/arch/pxa-regs.h>
+#include <asm/arch/hardware.h>
 
 int usb_cpu_init()
 {
 	/* Enable USB host clock. */
-	CKENA |= (CKENA_2_USBHOST |  CKENA_20_UDC);
-	udelay(100);
-
-	/* Configure Port 2 for Host (USB Client Registers) */
-	UP2OCR = 0x3000c;
-
-#if 0
-	GPIO2_2 = 0x801; /* USBHPEN - Alt. Fkt. 1 */
-	GPIO3_2 = 0x801; /* USBHPWR - Alt. Fkt. 1 */
-#endif
-
-	UHCHR |= UHCHR_FHR;
-	wait_ms(11);
-	UHCHR &= ~UHCHR_FHR;
-
-	UHCHR |= UHCHR_FSBIR;
-	while (UHCHR & UHCHR_FSBIR)
-		udelay(1);
-
-#if 0
-	UHCHR |= UHCHR_PCPL; /* USBHPEN is active low */
-	UHCHR |= UHCHR_PSPL; /* USBHPWR is active low */
-#endif
-
-	UHCHR &= ~UHCHR_SSEP0;
-	UHCHR &= ~UHCHR_SSEP1;
-	UHCHR &= ~UHCHR_SSE;
-
+	*AT91C_PMC_SCER = AT91C_PMC_UHP;	/* 48MHz clock enabled for UHP */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_UHP;	/* Peripheral Clock Enable Register */
 	return 0;
 }
 
 int usb_cpu_stop()
 {
-	/* may not want to do this */
-	/* CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC); */
-
+	/* Initialization failed */
+	*AT91C_PMC_PCDR = 1 << AT91C_ID_UHP;	/* Peripheral Clock Disable Register */
+	*AT91C_PMC_SCDR = AT91C_PMC_UHP;	/* 48MHz clock disabled for UHP */
 	return 0;
 }
-# endif /* CONFIG_CPU_MONAHANS */
+# endif /* CONFIG_AT91RM9200 */
 #endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
