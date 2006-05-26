@@ -83,7 +83,7 @@ U_BOOT_CMD(
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 U_BOOT_CMD(
-	reset, 1, 0,	do_reset,
+	reset, CFG_MAXARGS, 1,	do_reset,
 	"reset   - Perform RESET of the CPU\n",
 	NULL
 );
