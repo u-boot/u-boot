@@ -7,4 +7,4 @@
                                     while(1); \
                                 }
 
-#endif // IxOsalOsAssert_H
+#endif /* IxOsalOsAssert_H */

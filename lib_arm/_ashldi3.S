@@ -44,4 +44,3 @@ __ashldi3:
 	orrmi	ah, ah, al, lsr ip
 	mov	al, al, lsl r2
 	mov	pc, lr
-

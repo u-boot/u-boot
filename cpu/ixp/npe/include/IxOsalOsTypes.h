@@ -17,7 +17,7 @@ typedef u16 USHORT;
 typedef u8 UCHAR;
 typedef u32 BOOL;
 
-#if 0 // FIXME
+#if 0 /* FIXME */
 
 /* Default stack limit is 10 KB */
 #define IX_OSAL_OS_THREAD_DEFAULT_STACK_SIZE  (10240)
@@ -31,7 +31,7 @@ typedef u32 BOOL;
 /* Thread maximum priority (0 - 255). 0 - highest priority */
 #define IX_OSAL_OS_MAX_THREAD_PRIORITY	      (255)
 
-#endif // FIXME
+#endif /* FIXME */
 
 #define IX_OSAL_OS_WAIT_FOREVER (-1L)
 #define IX_OSAL_OS_WAIT_NONE	0
@@ -57,4 +57,4 @@ typedef struct
 } IxOsalOsMessageQueue;
 
 
-#endif // IxOsalOsTypes_H
+#endif /* IxOsalOsTypes_H */

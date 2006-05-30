@@ -55,7 +55,7 @@
 
 #include "IxOsalBufferMgtDefault.h"
 
-#if 0  // FIXME
+#if 0  /* FIXME */
 /* Define os-specific buffer macros for subfields */
 #define IX_OSAL_OSBUF_MDATA(osBufPtr) IX_OSAL_MBUF_MDATA(osBufPtr)
              ( ((M_BLK *) osBufPtr)->m_data )
@@ -91,6 +91,6 @@
             } \
         }
 
-#endif // FIXME
+#endif /* FIXME */
 
 #endif /* #define IX_OSAL_OS_BUFFER_MGT_H */

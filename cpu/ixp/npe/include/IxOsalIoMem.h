@@ -63,13 +63,12 @@
  * @{ 
  */
 
-
 /* Low-level conversion macros - DO NOT USE UNLESS ABSOLUTELY NEEDED */
 #ifndef __wince
 
 
 /* 
- * Private function to swap word*//*
+ * Private function to swap word
  */
 #ifdef __XSCALE__
 static __inline__ UINT32
@@ -91,7 +90,6 @@ ixOsalCoreWordSwap (UINT32 wordIn)
 
     return wordOut;
 }
-
 
 #define IX_OSAL_SWAP_LONG(wData)          (ixOsalCoreWordSwap(wData))
 #else
@@ -172,10 +170,9 @@ typedef struct _IxOsalMemoryMap
 
     UINT32 size;               /**< size of the map */
 
-
-    UINT32 virtualAddress;     /**< virtual address of the zone; must be predefined 
-                                    in the global memory map for static maps and has 
-                                    to be NULL for dynamic maps (populated on allocation) 
+    UINT32 virtualAddress;     /**< virtual address of the zone; must be predefined
+                                    in the global memory map for static maps and has
+                                    to be NULL for dynamic maps (populated on allocation)
 								*/
     /*
      * pointer to a map function called to map a dynamic map; 
@@ -245,12 +242,12 @@ ixOsalIoMemPhysToVirt (UINT32 physicalAddress, UINT32 coherency);
  *
  * @def IX_OSAL_MEM_MAP(physAddr, size)
  *
- * @brief Map an I/O mapped physical memory zone to virtual zone and return virtual 
+ * @brief Map an I/O mapped physical memory zone to virtual zone and return virtual
  *        pointer.
  * @param  physAddr - the physical address
  * @param  size     - the size
  * @return start address of the virtual memory zone.
- * 
+ *
  * @note  This function maps an I/O mapped physical memory zone of the given size
  * into a virtual memory zone accessible by the caller and returns a cookie - 
  * the start address of the virtual memory zone. 
@@ -271,12 +268,12 @@ ixOsalIoMemPhysToVirt (UINT32 physicalAddress, UINT32 coherency);
  *
  * @def IX_OSAL_MEM_UNMAP(virtAddr)
  *
- * @brief Unmap a previously mapped I/O memory zone using virtual pointer obtained 
+ * @brief Unmap a previously mapped I/O memory zone using virtual pointer obtained
  *        during the mapping operation.
  *        pointer.
  * @param  virtAddr - the virtual pointer to the zone to be unmapped.
  * @return none
- * 
+ *
  * @note  This function unmaps a previously mapped I/O memory zone using
  * the cookie obtained in the mapping operation. The memory zone in question
  * becomes unavailable to the caller once unmapped and the cookie should be
@@ -297,7 +294,7 @@ ixOsalIoMemPhysToVirt (UINT32 physicalAddress, UINT32 coherency);
  * address, including the dynamically mapped memory.
  *
  * @param  virtAddr - virtual address to convert
- * Return value: corresponding physical address, or NULL 
+ * Return value: corresponding physical address, or NULL
  */
 #define IX_OSAL_MMAP_VIRT_TO_PHYS(virtAddr) \
     ixOsalIoMemVirtToPhys(virtAddr, IX_OSAL_COMPONENT_MAPPING)
@@ -312,12 +309,11 @@ ixOsalIoMemPhysToVirt (UINT32 physicalAddress, UINT32 coherency);
  * address, including the dynamically mapped memory.
  *
  * @param  physAddr - physical address to convert
- * Return value: corresponding virtual address, or NULL 
+ * Return value: corresponding virtual address, or NULL
  *
  */
 #define IX_OSAL_MMAP_PHYS_TO_VIRT(physAddr) \
     ixOsalIoMemPhysToVirt(physAddr, IX_OSAL_COMPONENT_MAPPING)
-
 
 /**
  * @} IxOsalIoMem
