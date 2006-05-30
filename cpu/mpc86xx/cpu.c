@@ -32,7 +32,7 @@
 #include <ft_build.h>
 #endif
 
-extern unsigned long get_board_sys_clk(ulong dummy);
+#include "../board/mpc8641hpcn/pixis.h"
 
 
 static __inline__ unsigned long get_dbat3u (void)
@@ -131,10 +131,10 @@ int checkcpu (void)
 		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
-        printf("    L2: ");
-        if (get_l2cr() & 0x80000000)
+	printf("    L2: ");
+	if (get_l2cr() & 0x80000000)
 		printf("Enabled\n");
-        else
+	else
 		printf("Disabled\n");
 
 	return 0;
@@ -158,298 +158,21 @@ soft_restart(unsigned long addr)
 	__asm__ __volatile__ ("rfi");
 
 #else /* CONFIG_MPC8641HPCN */
-        out8(PIXIS_BASE+PIXIS_RST,0);
+	out8(PIXIS_BASE+PIXIS_RST,0);
 #endif /* !CONFIG_MPC8641HPCN */
 	while(1);	/* not reached */
 }
 
 
-
-#ifdef CONFIG_MPC8641HPCN
-
-int set_px_sysclk(ulong sysclk)
-{
-         u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux;
-
-         /* Per table 27, page 58 of MPC8641HPCN spec*/
-         switch(sysclk)
-         {
-            case 33:
-               sysclk_s = 0x04;
-               sysclk_r = 0x04;
-               sysclk_v = 0x07;
-               sysclk_aux = 0x00;
-               break;
-            case 40:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x20;
-               sysclk_aux = 0x01;
-               break;
-            case 50:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x2A;
-               sysclk_aux = 0x02;
-               break;
-            case 66:
-               sysclk_s = 0x01;
-               sysclk_r = 0x04;
-               sysclk_v = 0x04;
-               sysclk_aux = 0x03;
-               break;
-            case 83:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x4B;
-               sysclk_aux = 0x04;
-               break;
-            case 100:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x5C;
-               sysclk_aux = 0x05;
-               break;
-            case 134:
-               sysclk_s = 0x06;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x3B;
-              sysclk_aux = 0x06;
-               break;
-            case 166:
-               sysclk_s = 0x06;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x4B;
-               sysclk_aux = 0x07;
-               break;
-            default:
-               printf("Unsupported SYSCLK frequency.\n");
-               return 0;
-         }
-
-         vclkh = (sysclk_s << 5) | sysclk_r ;
-         vclkl = sysclk_v;
-         out8(PIXIS_BASE+PIXIS_VCLKH,vclkh);
-         out8(PIXIS_BASE+PIXIS_VCLKL,vclkl);
-
-         out8(PIXIS_BASE+PIXIS_AUX,sysclk_aux);
-
-         return 1;
-}
-
-int set_px_mpxpll(ulong mpxpll)
-{
-         u8 tmp;
-         u8 val;
-         switch(mpxpll)
-         {
-            case 2:
-            case 4:
-            case 6:
-            case 8:
-            case 10:
-            case 12:
-            case 14:
-            case 16:
-               val = (u8)mpxpll;
-               break;
-            default:
-               printf("Unsupported MPXPLL ratio.\n");
-               return 0;
-         }
-
-         tmp = in8(PIXIS_BASE+PIXIS_VSPEED1);
-         tmp = (tmp & 0xF0) | (val & 0x0F);
-         out8(PIXIS_BASE+PIXIS_VSPEED1,tmp);
-
-         return 1;
-}
-
-int set_px_corepll(ulong corepll)
-{
-         u8 tmp;
-         u8 val;
-
-         switch ((int)corepll) {
-            case 20:
-               val = 0x08;
-               break;
-            case 25:
-               val = 0x0C;
-               break;
-            case 30:
-               val = 0x10;
-               break;
-            case 35:
-               val = 0x1C;
-               break;
-            case 40:
-               val = 0x14;
-               break;
-            case 45:
-               val = 0x0E;
-               break;
-            default:
-               printf("Unsupported COREPLL ratio.\n");
-               return 0;
-         }
-
-         tmp = in8(PIXIS_BASE+PIXIS_VSPEED0);
-         tmp = (tmp & 0xE0) | (val & 0x1F);
-         out8(PIXIS_BASE+PIXIS_VSPEED0,tmp);
-
-         return 1;
-}
-
-void read_from_px_regs(int set)
-{
-         u8 tmp, mask = 0x1C;
-         tmp = in8(PIXIS_BASE+PIXIS_VCFGEN0);
-         if (set)
-            tmp = tmp | mask;
-         else
-            tmp = tmp & ~mask;
-         out8(PIXIS_BASE+PIXIS_VCFGEN0,tmp);
-}
-
-void read_from_px_regs_altbank(int set)
-{
-         u8 tmp, mask = 0x04;
-         tmp = in8(PIXIS_BASE+PIXIS_VCFGEN1);
-         if (set)
-            tmp = tmp | mask;
-         else
-            tmp = tmp & ~mask;
-         out8(PIXIS_BASE+PIXIS_VCFGEN1,tmp);
-}
-
-void set_altbank(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VBOOT);
-         tmp ^= 0x40;
-         out8(PIXIS_BASE+PIXIS_VBOOT,tmp);
- }
-
-
-void set_px_go(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp & 0x1E;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp | 0x01;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-}
-
-void set_px_go_with_watchdog(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp & 0x1E;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp | 0x09;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-}
-
-int disable_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	u8 tmp;
-	tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-	tmp = tmp & 0x1E;
-	out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
-	tmp &= ~ 0x08; /* setting VCTL[WDEN] to 0 to disable watch dog */
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
-	return 0;
-}
-
-U_BOOT_CMD(
-	diswd, 1, 0, disable_watchdog,
-	"diswd	- Disable watchdog timer \n",
-	NULL
-);
-
-/* This function takes the non-integral cpu:mpx pll ratio
- * and converts it to an integer that can be used to assign
- * FPGA register values.
- * input: strptr i.e. argv[2]
-*/
-
-ulong strfractoint(uchar *strptr)
-{
-   int i,j,retval,intarr_len=0, decarr_len=0, mulconst, no_dec=0;
-   ulong intval =0, decval=0;
-   uchar intarr[3], decarr[3];
-
-   /* Assign the integer part to intarr[]
-    * If there is no decimal point i.e.
-    * if the ratio is an integral value
-    * simply create the intarr.
-   */
-   i=0;
-   while(strptr[i] != 46)
-   {
-      if(strptr[i] == 0)
-      {
-         no_dec = 1;
-         break;    /* Break from loop once the end of string is reached */
-      }
-
-      intarr[i] = strptr[i];
-      i++;
-   }
-
-   intarr_len = i; /* Assign length of integer part to intarr_len*/
-   intarr[i] = '\0'; /* */
-
-   if(no_dec)
-   {
-      mulconst=10; /* Currently needed only for single digit corepll ratios */
-      decval = 0;
-   }
-   else
-   {
-      j=0;
-      i++; /* Skipping the decimal point */
-      while ((strptr[i] > 47) && (strptr[i] < 58))
-      {
-         decarr[j] = strptr[i];
-         i++;
-         j++;
-      }
-
-      decarr_len = j;
-      decarr[j] = '\0';
-
-      mulconst=1;
-      for(i=0; i<decarr_len;i++)
-         mulconst = mulconst*10;
-      decval = simple_strtoul(decarr,NULL,10);
-   }
-
-   intval = simple_strtoul(intarr,NULL,10);
-   intval = intval*mulconst;
-
-   retval = intval+decval;
-
-   return retval;
-
-}
-
-
-#endif	/* CONFIG_MPC8641HPCN */
-
-
-/* no generic way to do board reset. simply call soft_reset. */
+/*
+ * No generic way to do board reset. Simply call soft_reset.
+ */
 void
-do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-        char cmd;
-        ulong addr, val;
-        ulong corepll;
+	char cmd;
+	ulong addr, val;
+	ulong corepll;
 
 #ifdef CFG_RESET_ADDRESS
 	addr = CFG_RESET_ADDRESS;
@@ -478,11 +201,11 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	__asm__ __volatile__ ("isync");
 	__asm__ __volatile__ ("sync");
 
-        soft_restart(addr);
+	soft_restart(addr);
 
 #else /* CONFIG_MPC8641HPCN */
 
-        if (argc > 1) {
+	if (argc > 1) {
 		cmd = argv[1][1];
 		switch(cmd) {
 		case 'f':    /* reset with frequency changed */
@@ -560,7 +283,7 @@ my_usage:
 		printf("For example:   reset cf 40 2.5 10\n");
 		printf("See MPC8641HPCN Design Workbook for valid values of command line parameters.\n");
 		return;
-        } else
+	} else
 		out8(PIXIS_BASE+PIXIS_RST,0);
 
 #endif /* !CONFIG_MPC8641HPCN */
@@ -598,7 +321,6 @@ void dma_init(void)
 	dma->satr0 = 0x00040000;
 	dma->datr0 = 0x00040000;
 	asm("sync; isync");
-	return;
 }
 
 uint dma_check(void)
