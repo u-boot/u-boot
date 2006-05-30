@@ -24,30 +24,49 @@
 #include <common.h>
 
 #if defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT)
-# ifdef CONFIG_AT91RM9200
+# if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
 
-#include <asm/arch/hardware.h>
+#if defined(CONFIG_S3C2400)
+# include <s3c2400.h>
+#elif defined(CONFIG_S3C2410)
+# include <s3c2410.h>
+#endif
 
 int usb_cpu_init()
 {
-	/* Enable USB host clock. */
-	*AT91C_PMC_SCER = AT91C_PMC_UHP;	/* 48MHz clock enabled for UHP */
-	*AT91C_PMC_PCER = 1 << AT91C_ID_UHP;	/* Peripheral Clock Enable Register */
+
+	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+
+	/*
+	 * Set the 48 MHz UPLL clocking. Values are taken from
+	 * "PLL value selection guide", 6-23, s3c2400_UM.pdf.
+	 */
+	clk_power->UPLLCON = ((40 << 12) + (1 << 4) + 2);
+	gpio->MISCCR |= 0x8; /* 1 = use pads related USB for USB host */
+
+	/*
+	 * Enable USB host clock.
+	 */
+	clk_power->CLKCON |= (1 << 4);
+
 	return 0;
 }
 
 int usb_cpu_stop()
 {
-	/* Initialization failed */
-	*AT91C_PMC_PCDR = 1 << AT91C_ID_UHP;	/* Peripheral Clock Disable Register */
-	*AT91C_PMC_SCDR = AT91C_PMC_UHP;	/* 48MHz clock disabled for UHP */
+	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	/* may not want to do this */
+	clk_power->CLKCON &= ~(1 << 4);
 	return 0;
 }
 
 int usb_cpu_init_fail()
 {
-	usb_cpu_stop();
+	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	clk_power->CLKCON &= ~(1 << 4);
+	return 0;
 }
 
-# endif /* CONFIG_AT91RM9200 */
+# endif /* defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410) */
 #endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */

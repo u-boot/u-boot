@@ -66,8 +66,13 @@ int usb_cpu_stop()
 {
 	/* may not want to do this */
 	/* CKENA &= ~(CKENA_2_USBHOST |  CKENA_20_UDC); */
-
 	return 0;
 }
+
+int usb_cpu_init_fail()
+{
+	return 0;
+}
+
 # endif /* CONFIG_CPU_MONAHANS */
 #endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
