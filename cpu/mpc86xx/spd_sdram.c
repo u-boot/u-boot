@@ -1088,24 +1088,24 @@ unsigned int enable_ddr(unsigned int ddr_num)
 		 * If the user wanted ECC (enabled via sdram_cfg[2])
 		 */
 		if (config == 0x02) {
+			ddr->err_disable = 0x00000000;
+			asm("sync;isync;");
+			ddr->err_sbe = 0x00ff0000;
+			ddr->err_int_en = 0x0000000d;
 			sdram_cfg_1 |= 0x20000000;		/* ECC_EN */
 		}
 #endif
 
 		/*
-		 * REV1 uses 1T timing.
-		 * REV2 may use 1T or 2T as configured by the user.
+		 * Set 1T or 2T timing based on 1 or 2 modules
 		 */
 		{
-			uint pvr = get_pvr();
-
-			if (pvr != PVR_85xx_REV1) {
-#if defined(CONFIG_DDR_2T_TIMING)
+			if (!(no_dimm1 || no_dimm2)) {
 				/*
+				 * 2T timing,because both DIMMS are present.
 				 * Enable 2T timing by setting sdram_cfg[16].
 				 */
 				sdram_cfg_1 |= 0x8000;		/* 2T_EN */
-#endif
 			}
 		}
 
