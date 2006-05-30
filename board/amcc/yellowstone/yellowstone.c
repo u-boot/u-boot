@@ -79,8 +79,8 @@ int board_early_init_f(void)
 	out32(GPIO1_ISR2L, in32(GPIO1_ISR2L) | 0x00010000);
 
 	/* external interrupts IRQ0...3 */
-	out32(GPIO1_TCR, in32(GPIO1_TCR) & ~0x0f000000);
-	out32(GPIO1_TSRL, in32(GPIO1_TSRL) & ~0x00005500);
+	out32(GPIO1_TCR, in32(GPIO1_TCR) & ~0x00f00000);
+	out32(GPIO1_TSRL, in32(GPIO1_TSRL) & ~0x0000ff00);
 	out32(GPIO1_ISR1L, in32(GPIO1_ISR1L) | 0x00005500);
 
 #if 0 /* test-only */
