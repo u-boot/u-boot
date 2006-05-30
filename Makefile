@@ -1708,11 +1708,17 @@ innokom_config	:	unconfig
 ixdp425_config	:	unconfig
 	@./mkconfig $(@:_config=) arm ixp ixdp425
 
+ixdpg425_config	:	unconfig
+	@./mkconfig $(@:_config=) arm ixp ixdp425
+
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa lubbock
 
 logodl_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa logodl
+
+pdnb3_config	:	unconfig
+	@./mkconfig $(@:_config=) arm ixp pdnb3 prodrive
 
 pxa255_idp_config:	unconfig
 	@./mkconfig $(@:_config=) arm pxa pxa255_idp

@@ -1,5 +1,7 @@
-/* vi: set ts=8 sw=8 noet: */
 /*
+ * (C) Copyright 2006
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -31,22 +33,85 @@
 #include <asm/arch/ixp425.h>
 
 #ifdef CONFIG_USE_IRQ
-/* enable IRQ/FIQ interrupts */
-void enable_interrupts (void)
-{
-#error: interrupts not implemented yet
-}
+/*
+ * When interrupts are enabled, use timer 2 for time/delay generation...
+ */
 
+#define FREQ		66666666
+#define CLOCK_TICK_RATE	(((FREQ / CFG_HZ & ~IXP425_OST_RELOAD_MASK) + 1) * CFG_HZ)
+#define LATCH		((CLOCK_TICK_RATE + CFG_HZ/2) / CFG_HZ)	/* For divider */
+
+struct _irq_handler {
+	void                *m_data;
+	void (*m_func)( void *data);
+};
+
+static struct _irq_handler IRQ_HANDLER[N_IRQS];
+
+static volatile ulong timestamp;
+
+/* enable IRQ/FIQ interrupts */
+void enable_interrupts(void)
+{
+	unsigned long temp;
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     "bic %0, %0, #0x80\n"
+			     "msr cpsr_c, %0"
+			     : "=r" (temp)
+			     :
+			     : "memory");
+}
 
 /*
  * disable IRQ/FIQ interrupts
  * returns true if interrupts had been enabled before we disabled them
  */
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
-#error: interrupts not implemented yet
+	unsigned long old,temp;
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     "orr %1, %0, #0x80\n"
+			     "msr cpsr_c, %1"
+			     : "=r" (old), "=r" (temp)
+			     :
+			     : "memory");
+	return (old & 0x80) == 0;
 }
-#else
+
+static void default_isr(void *data)
+{
+	printf("default_isr():  called for IRQ %d, Interrupt Status=%x PR=%x\n",
+	       (int)data, *IXP425_ICIP, *IXP425_ICIH);
+}
+
+static int next_irq(void)
+{
+	return (((*IXP425_ICIH & 0x000000fc) >> 2) - 1);
+}
+
+static void timer_isr(void *data)
+{
+	unsigned int *pTime = (unsigned int *)data;
+
+	(*pTime)++;
+
+	/*
+	 * Reset IRQ source
+	 */
+	*IXP425_OSST = IXP425_OSST_TIMER_2_PEND;
+}
+
+ulong get_timer (ulong base)
+{
+	return timestamp - base;
+}
+
+void reset_timer (void)
+{
+	timestamp = 0;
+}
+
+#else /* #ifdef CONFIG_USE_IRQ */
 void enable_interrupts (void)
 {
 	return;
@@ -55,8 +120,7 @@ int disable_interrupts (void)
 {
 	return 0;
 }
-#endif
-
+#endif /* #ifdef CONFIG_USE_IRQ */
 
 void bad_mode (void)
 {
@@ -140,19 +204,46 @@ void do_fiq (struct pt_regs *pt_regs)
 {
 	printf ("fast interrupt request\n");
 	show_regs (pt_regs);
-	bad_mode ();
+	printf("IRQ=%08lx FIQ=%08lx\n", *IXP425_ICIH, *IXP425_ICFH);
 }
 
 void do_irq (struct pt_regs *pt_regs)
 {
+#ifdef CONFIG_USE_IRQ
+	int irq = next_irq();
+
+	IRQ_HANDLER[irq].m_func(IRQ_HANDLER[irq].m_data);
+#else
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
+#endif
 }
-
 
 int interrupt_init (void)
 {
-	/* nothing happens here - we don't setup any IRQs */
+#ifdef CONFIG_USE_IRQ
+	int i;
+
+	/* install default interrupt handlers */
+	for (i = 0; i < N_IRQS; i++) {
+		IRQ_HANDLER[i].m_data = (void *)i;
+		IRQ_HANDLER[i].m_func = default_isr;
+	}
+
+	/* install interrupt handler for timer */
+	IRQ_HANDLER[IXP425_TIMER_2_IRQ].m_data = (void *)&timestamp;
+	IRQ_HANDLER[IXP425_TIMER_2_IRQ].m_func = timer_isr;
+
+	/* setup the Timer counter value */
+	*IXP425_OSRT2 = (LATCH & ~IXP425_OST_RELOAD_MASK) | IXP425_OST_ENABLE;
+
+	/* configure interrupts for IRQ mode */
+	*IXP425_ICLR = 0x00000000;
+
+	/* enable timer irq */
+	*IXP425_ICMR = (1 << IXP425_TIMER_2_IRQ);
+#endif
+
 	return (0);
 }

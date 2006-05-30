@@ -33,6 +33,9 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #endif
+#ifdef	CONFIG_IXP425			/* only valid for IXP425 */
+#include <asm/arch/ixp425.h>
+#endif
 #include <i2c.h>
 
 #if defined(CONFIG_SOFT_I2C)

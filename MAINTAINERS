@@ -434,6 +434,11 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2		ARM926EJS
 
+Stefan Roese <sr@denx.de>
+
+	ixdpg425		xscale
+	pdnb3			xscale
+
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226			xscale

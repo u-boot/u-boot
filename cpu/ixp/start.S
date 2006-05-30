@@ -211,7 +211,7 @@ reset:
 	/* copy */
 	mov     r0, #0
 	mov     r4, r0
-	add     r2, r0, #0x40000
+	add     r2, r0, #CFG_MONITOR_LEN
 	mov     r1, #0x10000000
 	mov     r5, r1
 
@@ -497,3 +497,29 @@ reset_cpu:
 reset_endless:
 
 	b	reset_endless
+
+#ifdef CONFIG_USE_IRQ
+
+.LC0:		.word	loops_per_jiffy
+
+/*
+ * 0 <= r0 <= 2000
+ */
+.globl udelay
+udelay:
+	mov	r2,     #0x6800
+	orr	r2, r2, #0x00db
+	mul	r0, r2, r0
+	ldr	r2, .LC0
+	ldr	r2, [r2]		@ max = 0x0fffffff
+	mov	r0, r0, lsr #11		@ max = 0x00003fff
+	mov	r2, r2, lsr #11		@ max = 0x0003ffff
+	mul	r0, r2, r0		@ max = 2^32-1
+	movs	r0, r0, lsr #6
+
+delay_loop:
+	subs	r0, r0, #1
+	bne	delay_loop
+	mov	pc, lr
+
+#endif /* CONFIG_USE_IRQ */

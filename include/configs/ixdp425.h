@@ -33,6 +33,9 @@
 #define CONFIG_IXP425           1       /* This is an IXP425 CPU    */
 #define CONFIG_IXDP425          1       /* on an IXDP425 Board      */
 
+#define CONFIG_DISPLAY_CPUINFO	1	/* display cpu info (and speed)	*/
+#define CONFIG_DISPLAY_BOARDINFO 1	/* display board info		*/
+
 /***************************************************************
  * U-boot generic defines start here.
  ***************************************************************/
@@ -135,6 +138,8 @@
 #define CFG_DRAM_SIZE           0x01000000
 
 #define CFG_FLASH_BASE          PHYS_FLASH_1
+#define CFG_MONITOR_BASE	CFG_FLASH_BASE
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 
 /*
  * Expansion bus settings
@@ -155,16 +160,27 @@
 /*
  * FLASH and environment organization
  */
+/*
+ * FLASH and environment organization
+ */
 #define CFG_MAX_FLASH_BANKS     1       /* max number of memory banks           */
-#define CFG_MAX_FLASH_SECT      128  	/* max number of sectors on one chip    */
+#define CFG_MAX_FLASH_SECT      128 	/* max number of sectors on one chip    */
 
-/* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT    (25*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT    (25*CFG_HZ) /* Timeout for Flash Write */
+#define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
+#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
+#define	CFG_ENV_IS_IN_FLASH	1
 
-/* FIXME */
-#define	CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_ADDR            (PHYS_FLASH_1 + 0x20000)        /* Addr of Environment Sector   */
-#define CFG_ENV_SIZE            0x20000  /* Total Size of Environment Sector     */
+#define CFG_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }
+
+#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
+
+#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+
+#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+
+#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x20000)
+#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 #endif  /* __CONFIG_H */

@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update Intel IXP4xx support
+  - Add IXP4xx NPE ethernet MAC support
+  - Add support for Intel IXDPG425 board
+  - Add support for Prodrive PDNB3 board
+  - Add IRQ support
+  Patch by Stefan Roese, 23 May 2006
+
 * Fix problem in PVR detection for 440GR
   Patch by Stefan Roese, 18 May 2006
 

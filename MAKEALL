@@ -209,7 +209,7 @@ LIST_pxa="	\
 	zylonite							\
 "
 
-LIST_ixp="ixdp425"
+LIST_ixp="ixdp425	ixdpg425	pdnb3"
 
 
 LIST_arm="	\
