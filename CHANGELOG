@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix PCI to memory window size problems on PM82x boards
+  We use the "automatic" mode that was used for  the  MPC8266ADS  and
+  MPC8272 boards. Eventually this should be used on all boards?]
+  Patch by Wolfgang Grandegger, 17 Jan 2006
+
 * Correct GPIO setup (UART1/IRQ's) on yosemite & yellowstone
   Patch by Stefan Roese, 29 May 2006
 

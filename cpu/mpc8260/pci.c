@@ -34,7 +34,7 @@
 #include <asm/m8260_pci.h>
 #include <asm/io.h>
 
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 || defined CONFIG_PM826
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -401,7 +401,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
+#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 || defined CONFIG_PM826
 	pci_set_region (hose->regions + 0,
 			PCI_SLV_MEM_BUS,
 			PCI_SLV_MEM_LOCAL,
