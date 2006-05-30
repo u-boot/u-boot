@@ -169,7 +169,7 @@ soft_restart(unsigned long addr)
 
 int set_px_sysclk(ulong sysclk)
 {
-         u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux,tmp;
+         u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux;
 
          /* Per table 27, page 58 of MPC8641HPCN spec*/
          switch(sysclk)
@@ -354,6 +354,24 @@ void set_px_go_with_watchdog(void)
          out8(PIXIS_BASE+PIXIS_VCTL,tmp);
 }
 
+int disable_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	u8 tmp;
+	tmp = in8(PIXIS_BASE+PIXIS_VCTL);
+	tmp = tmp & 0x1E;
+	out8(PIXIS_BASE+PIXIS_VCTL,tmp);
+	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp &= ~ 0x08; /* setting VCTL[WDEN] to 0 to disable watch dog */
+	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	return 0;
+}
+
+U_BOOT_CMD(
+	diswd, 1, 0, disable_watchdog,
+	"diswd	- Disable watchdog timer \n",
+	NULL
+);
+
 /* This function takes the non-integral cpu:mpx pll ratio
  * and converts it to an integer that can be used to assign
  * FPGA register values.
@@ -509,18 +527,27 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 					goto my_usage;
 
 				while(1); /* Not reached */
-			} else {
-				/* Reset from next bank without changing frequencies */
+			} else if(argv[2][1] == 'd'){
+				/* Reset from next bank without changing frequencies but with watchdog timer enabled */
 				read_from_px_regs(0);
 				read_from_px_regs_altbank(0);
-				if(argc > 2)
-					goto my_usage;
 				printf("Setting registers VCFGEN1, VBOOT, and VCTL\n");
 				set_altbank();
 				read_from_px_regs_altbank(1);
 				printf("Enabling watchdog timer on the FPGA and resetting board to boot from the other bank....\n");
 				set_px_go_with_watchdog();
 				while(1); /* Not reached */
+			} else {
+				/* Reset from next bank without changing frequency and without watchdog timer enabled */
+				read_from_px_regs(0);
+				read_from_px_regs_altbank(0);
+				if(argc > 2)
+					goto my_usage;
+				printf("Setting registers VCFGNE1, VBOOT, and VCTL\n");
+				set_altbank();
+				read_from_px_regs_altbank(1);
+				printf("Resetting board to boot from the other bank....\n");
+				set_px_go();
 			}
 
 		default:
