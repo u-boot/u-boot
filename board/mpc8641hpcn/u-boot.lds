@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2004, Freescale, Inc.
  * (C) Copyright 2002,2003, Motorola,Inc.
- * Jeff Brown (jeffrey@freescale.com)
+ * Jeff Brown
  *
  * See file CREDITS for list of people who contributed to this
  * project.
