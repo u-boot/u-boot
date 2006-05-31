@@ -21,7 +21,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -45,13 +45,28 @@
 
 #ifdef CONFIG_USB_OHCI
 
-#include <asm/arch/hardware.h>
+#if defined(CONFIG_S3C2400)
+# include <s3c2400.h>
+#elif defined(CONFIG_S3C2410)
+# include <s3c2410.h>
+#elif defined(CONFIG_ARM920T)
+# include <asm/arch/hardware.h>
+#elif defined(CONFIG_CPU_MONAHANS)
+# include <asm/arch/pxa-regs.h>
+#endif
 
 #include <malloc.h>
 #include <usb.h>
 #include "usb_ohci.h"
 
-#define OHCI_USE_NPS		/* force NoPowerSwitching mode */
+#undef S3C24X0_merge
+
+#if defined(CONFIG_ARM920T) || \
+    defined(CONFIG_S3C2400) || \
+    defined(CONFIG_S3C2410)
+# define OHCI_USE_NPS		/* force NoPowerSwitching mode */
+#endif
+
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
 
 /* For initializing controller (mask in an HCFS mode too) */
@@ -94,6 +109,12 @@ urb_priv_t urb_priv;
 int got_rhsc;
 /* device which was disconnected */
 struct usb_device *devgone;
+
+#ifdef S3C24X0_merge
+/* flag guarding URB transation */
+int urb_finished = 0;
+#endif
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -399,6 +420,17 @@ int sohci_submit_job(struct usb_device *dev, unsigned long pipe, void *buffer,
 		err("sohci_submit_job: EPIPE");
 		return -1;
 	}
+#ifdef S3C24X0_merge
+	/* if we have an unfinished URB from previous transaction let's
+	 * fail and scream as quickly as possible so as not to corrupt
+	 * further communication */
+	if (!urb_finished) {
+		err("sohci_submit_job: URB NOT FINISHED");
+		return -1;
+	}
+	/* we're about to begin a new transaction here so mark the URB unfinished */
+	urb_finished = 0;
+#endif
 
 	/* every endpoint has a ed, locate and fill it */
 	if (!(ed = ep_add_ed (dev, pipe))) {
@@ -571,12 +603,14 @@ static int ep_unlink (ohci_t *ohci, ed_t *ed)
 
 /*-------------------------------------------------------------------------*/
 
-/* add/reinit an endpoint; this should be done once at the usb_set_configuration command,
- * but the USB stack is a little bit stateless	so we do it at every transaction
- * if the state of the ed is ED_NEW then a dummy td is added and the state is changed to ED_UNLINK
- * in all other cases the state is left unchanged
- * the ed info fields are setted anyway even though most of them should not change */
-
+/* add/reinit an endpoint; this should be done once at the
+ * usb_set_configuration command, but the USB stack is a little bit
+ * stateless so we do it at every transaction if the state of the ed
+ * is ED_NEW then a dummy td is added and the state is changed to
+ * ED_UNLINK in all other cases the state is left unchanged the ed
+ * info fields are setted anyway even though most of them should not
+ * change
+ */
 static ed_t * ep_add_ed (struct usb_device *usb_dev, unsigned long pipe)
 {
 	td_t *td;
@@ -660,7 +694,9 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 	else
 		td->hwBE = 0;
 	td->hwNextTD = m32_swap (td_pt);
+#ifndef S3C24X0_merge
 	td->hwPSW [0] = m16_swap (((__u32)data & 0x0FFF) | 0xE000);
+#endif
 
 	/* append to queue */
 	td->ed->hwTailP = td->hwNextTD;
@@ -827,7 +863,18 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 			dbg("ConditionCode %#x", cc);
 			stat = cc_to_error[cc];
 		}
-
+#ifdef S3C24X0_merge
+		/* see if this done list makes for all TD's of current URB,
+		 * and mark the URB finished if so */
+		if (++(lurb_priv->td_cnt) == lurb_priv->length) {
+			if ((ed->state & (ED_OPER | ED_UNLINK)))
+				urb_finished = 1;
+			else
+				dbg("dl_done_list: strange.., ED state %x, ed->state\n");
+		} else
+			dbg("dl_done_list: processing TD %x, len %x\n", lurb_priv->td_cnt,
+				lurb_priv->length);
+#endif
 		if (ed->state != ED_NEW) {
 			edHeadP = m32_swap (ed->hwHeadP) & 0xfffffff0;
 			edTailP = m32_swap (ed->hwTailP);
@@ -974,7 +1021,6 @@ int rh_check_port_status(ohci_t *controller)
 #ifdef CONFIG_AT91C_PQFP_UHPBUG
 	ndp = (ndp == 2) ? 1:0;
 #endif
-
 	for (i = 0; i < ndp; i++) {
 		temp = roothub_portstatus (controller, i);
 		/* check for a device disconnect */
@@ -1170,7 +1216,7 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 		}
 
 		len = min_t(unsigned int, leni,
-		min_t(unsigned int, data_buf [0], wLength));
+			    min_t(unsigned int, data_buf [0], wLength));
 		OK (len);
 	}
 
@@ -1258,18 +1304,38 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			stat = USB_ST_CRC_ERR;
 			break;
 		}
+
+#ifdef S3C24X0_merge
+		/* NOTE: since we are not interrupt driven in U-Boot and always
+		 * handle only one URB at a time, we cannot assume the
+		 * transaction finished on the first successful return from
+		 * hc_interrupt().. unless the flag for current URB is set,
+		 * meaning that all TD's to/from device got actually
+		 * transferred and processed. If the current URB is not
+		 * finished we need to re-iterate this loop so as
+		 * hc_interrupt() gets called again as there needs to be some
+		 * more TD's to process still */
+		if ((stat >= 0) && (stat != 0xff) && (urb_finished)) {
+#else
 		if (stat >= 0 && stat != 0xff) {
+#endif
 			/* 0xff is returned for an SF-interrupt */
 			break;
 		}
+
 		if (--timeout) {
 			wait_ms(1);
 		} else {
 			err("CTL:TIMEOUT ");
+#ifdef S3C24X0_merge
+			dbg("submit_common_msg: TO status %x\n", stat);
+			urb_finished = 1;
+#endif
 			stat = USB_ST_CRC_ERR;
 			break;
 		}
 	}
+#ifndef S3C24X0_merge
 	/* we got an Root Hub Status Change interrupt */
 	if (got_rhsc) {
 #ifdef DEBUG
@@ -1291,6 +1357,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			devgone = dev;
 		}
 	}
+#endif /* S3C24X0_merge */
 
 	dev->status = stat;
 	dev->act_len = transfer_len;
@@ -1460,24 +1527,40 @@ static int hc_start (ohci_t * ohci)
 
 /* an interrupt happens */
 
-static int
-hc_interrupt (void)
+static int hc_interrupt (void)
 {
 	ohci_t *ohci = &gohci;
 	struct ohci_regs *regs = ohci->regs;
 	int ints;
 	int stat = -1;
 
+#ifdef S3C24X0_merge
+
+	if ((ohci->hcca->done_head != 0) &&
+	    !(m32_swap (ohci->hcca->done_head) & 0x01)) {
+		ints =  OHCI_INTR_WDH;
+	} else if ((ints = readl (&regs->intrstatus)) == ~(u32)0) {
+		ohci->disabled++;
+		err ("%s device removed!", ohci->slot_name);
+		return -1;
+	} else if ((ints &= readl (&regs->intrenable)) == 0) {
+		dbg("hc_interrupt: returning..\n");
+		return 0xff;
+	}
+#else
 	if ((ohci->hcca->done_head != 0) && !(m32_swap (ohci->hcca->done_head) & 0x01)) {
 		ints =	OHCI_INTR_WDH;
 	} else {
 		ints = readl (&regs->intrstatus);
 	}
-
+#endif
 	/* dbg("Interrupt: %x frame: %x", ints, le16_to_cpu (ohci->hcca->frame_no)); */
 
 	if (ints & OHCI_INTR_RHSC) {
 		got_rhsc = 1;
+#ifdef S3C24X0_merge
+		stat = 0xff;
+#endif
 	}
 
 	if (ints & OHCI_INTR_UE) {
@@ -1549,12 +1632,18 @@ static char ohci_inited = 0;
 
 int usb_lowlevel_init(void)
 {
-	/*
-	 * Enable USB host clock.
-	 */
-	*AT91C_PMC_SCER = AT91C_PMC_UHP;	/* 48MHz clock enabled for UHP */
-	*AT91C_PMC_PCER = 1 << AT91C_ID_UHP;	/* Peripheral Clock Enable Register */
 
+#ifdef CFG_USB_OHCI_CPU_INIT
+	/* cpu dependant init */
+	if(usb_cpu_init())
+		return -1;
+#endif
+
+#ifdef CFG_USB_OHCI_BOARD_INIT
+	/*  board dependant init */
+	if(usb_board_init())
+		return -1;
+#endif
 	memset (&gohci, 0, sizeof (ohci_t));
 	memset (&urb_priv, 0, sizeof (urb_priv_t));
 
@@ -1582,29 +1671,42 @@ int usb_lowlevel_init(void)
 	gohci.disabled = 1;
 	gohci.sleeping = 0;
 	gohci.irq = -1;
-	gohci.regs = (struct ohci_regs *)AT91_USB_HOST_BASE;
+	gohci.regs = (struct ohci_regs *)CFG_USB_OHCI_REGS_BASE;
 
 	gohci.flags = 0;
-	gohci.slot_name = "at91rm9200";
+	gohci.slot_name = CFG_USB_OHCI_SLOT_NAME;
 
 	if (hc_reset (&gohci) < 0) {
 		hc_release_ohci (&gohci);
-		/* Initialization failed */
-		*AT91C_PMC_PCER = AT91C_ID_UHP;
-		*AT91C_PMC_SCDR = 1 << AT91C_PMC_UHP;	/* 48MHz clock disabled for UHP */
+		err ("can't reset usb-%s", gohci.slot_name);
+#ifdef CFG_USB_OHCI_BOARD_INIT
+		/* board dependant cleanup */
+		usb_board_init_fail();
+#endif
+
+#ifdef CFG_USB_OHCI_CPU_INIT
+		/* cpu dependant cleanup */
+		usb_cpu_init_fail();
+#endif
 		return -1;
 	}
 
 	/* FIXME this is a second HC reset; why?? */
-/*	writel (gohci.hc_control = OHCI_USB_RESET, &gohci.regs->control);
-	wait_ms (10);*/
-
+	/* writel(gohci.hc_control = OHCI_USB_RESET, &gohci.regs->control);
+	   wait_ms(10); */
 	if (hc_start (&gohci) < 0) {
 		err ("can't start usb-%s", gohci.slot_name);
 		hc_release_ohci (&gohci);
 		/* Initialization failed */
-		*AT91C_PMC_PCER = AT91C_ID_UHP;
-		*AT91C_PMC_SCDR = 1 << AT91C_PMC_UHP;	/* 48MHz clock disabled for UHP */
+#ifdef CFG_USB_OHCI_BOARD_INIT
+		/* board dependant cleanup */
+		usb_board_stop();
+#endif
+
+#ifdef CFG_USB_OHCI_CPU_INIT
+		/* cpu dependant cleanup */
+		usb_cpu_stop();
+#endif
 		return -1;
 	}
 
@@ -1612,6 +1714,9 @@ int usb_lowlevel_init(void)
 	ohci_dump (&gohci, 1);
 #else
 	wait_ms(1);
+# ifdef S3C24X0_merge
+	urb_finished = 1;
+# endif
 #endif
 	ohci_inited = 1;
 	return 0;
@@ -1626,9 +1731,19 @@ int usb_lowlevel_stop(void)
 	/* TODO release any interrupts, etc. */
 	/* call hc_release_ohci() here ? */
 	hc_reset (&gohci);
-	/* may not want to do this */
-	*AT91C_PMC_PCER = 1 << AT91C_ID_UHP;
-	*AT91C_PMC_SCDR = 1 << AT91C_PMC_UHP;	/* 48MHz clock disabled for UHP */
+
+#ifdef CFG_USB_OHCI_BOARD_INIT
+	/* board dependant cleanup */
+	if(usb_board_stop())
+		return -1;
+#endif
+
+#ifdef CFG_USB_OHCI_CPU_INIT
+	/* cpu dependant cleanup */
+	if(usb_cpu_stop())
+		return -1;
+#endif
+
 	return 0;
 }
 

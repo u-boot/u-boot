@@ -7,6 +7,19 @@
  * usb-ohci.h
  */
 
+/* functions for doing board specific setup/cleanup */
+#ifdef CFG_USB_BOARD_INIT
+extern int usb_board_init(void);
+extern int usb_board_stop(void);
+extern int usb_cpu_init_fail(void);
+#endif
+
+#ifdef CFG_USB_CPU_INIT
+extern int usb_cpu_init(void);
+extern int usb_cpu_stop(void);
+extern int usb_cpu_init_fail(void);
+#endif
+
 
 static int cc_to_error[16] = {
 
@@ -138,7 +151,7 @@ struct ohci_hcca {
 /*
  * Maximum number of root hub ports.
  */
-#define MAX_ROOT_PORTS	15	/* maximum OHCI root hub ports */
+#define MAX_ROOT_PORTS	3	/* maximum OHCI root hub ports */
 
 /*
  * This is the structure of the OHCI controller's memory mapped I/O
