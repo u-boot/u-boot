@@ -25,6 +25,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
@@ -34,6 +35,9 @@
 #include <ft_build.h>
 extern void ft_cpu_setup(void *blob, bd_t *bd);
 #endif
+
+#include "pixis.h"
+
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -292,4 +296,93 @@ ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 
+void
+mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	char cmd;
+	ulong val;
+	ulong corepll;
 
+	if (argc > 1) {
+		cmd = argv[1][1];
+		switch (cmd) {
+		case 'f':    /* reset with frequency changed */
+			if (argc < 5)
+				goto my_usage;
+			read_from_px_regs(0);
+
+			val = set_px_sysclk(simple_strtoul(argv[2], NULL, 10));
+
+			corepll = strfractoint(argv[3]);
+			val = val + set_px_corepll(corepll);
+			val = val + set_px_mpxpll(simple_strtoul(argv[4], NULL, 10));
+			if (val == 3) {
+				printf("Setting registers VCFGEN0 and VCTL\n");
+				read_from_px_regs(1);
+				printf("Resetting board with values from VSPEED0, VSPEED1, VCLKH, and VCLKL ....\n");
+				set_px_go();
+			} else
+				goto my_usage;
+
+			while (1); /* Not reached */
+
+		case 'l':
+			if (argv[2][1] == 'f') {
+				read_from_px_regs(0);
+				read_from_px_regs_altbank(0);
+				/* reset with frequency changed */
+				val = set_px_sysclk(simple_strtoul(argv[3], NULL, 10));
+
+				corepll = strfractoint(argv[4]);
+				val = val + set_px_corepll(corepll);
+				val = val + set_px_mpxpll(simple_strtoul(argv[5], NULL, 10));
+				if (val == 3) {
+					printf("Setting registers VCFGEN0, VCFGEN1, VBOOT, and VCTL\n");
+					set_altbank();
+					read_from_px_regs(1);
+					read_from_px_regs_altbank(1);
+					printf("Enabling watchdog timer on the FPGA and resetting board with values from VSPEED0, VSPEED1, VCLKH, and VCLKL to boot from the other bank ....\n");
+					set_px_go_with_watchdog();
+				} else
+					goto my_usage;
+
+				while(1); /* Not reached */
+
+			} else if(argv[2][1] == 'd'){
+				/* Reset from next bank without changing frequencies but with watchdog timer enabled */
+				read_from_px_regs(0);
+				read_from_px_regs_altbank(0);
+				printf("Setting registers VCFGEN1, VBOOT, and VCTL\n");
+				set_altbank();
+				read_from_px_regs_altbank(1);
+				printf("Enabling watchdog timer on the FPGA and resetting board to boot from the other bank....\n");
+				set_px_go_with_watchdog();
+				while(1); /* Not reached */
+
+			} else {
+				/* Reset from next bank without changing frequency and without watchdog timer enabled */
+				read_from_px_regs(0);
+				read_from_px_regs_altbank(0);
+				if(argc > 2)
+					goto my_usage;
+				printf("Setting registers VCFGNE1, VBOOT, and VCTL\n");
+				set_altbank();
+				read_from_px_regs_altbank(1);
+				printf("Resetting board to boot from the other bank....\n");
+				set_px_go();
+			}
+
+		default:
+			goto my_usage;
+		}
+
+	my_usage:
+		printf("\nUsage: reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n");
+		printf("       reset altbank [cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>]\n");
+		printf("For example:   reset cf 40 2.5 10\n");
+		printf("See MPC8641HPCN Design Workbook for valid values of command line parameters.\n");
+		return;
+
+	} else
+		out8(PIXIS_BASE+PIXIS_RST,0);
+}
