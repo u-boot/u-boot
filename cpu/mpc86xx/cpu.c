@@ -1,6 +1,6 @@
 /*
- * Copyright 2004 Freescale Semiconductor
- * Jeff Brown (jeffrey@freescale.com)
+ * Copyright 2006 Freescale Semiconductor
+ * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -55,8 +55,7 @@ int checkcpu (void)
 	minor = PVR_MIN(pvr);
 
 	puts("CPU:\n");
-
-	printf("    Core: ");
+	puts("    Core: ");
 
 	switch (ver) {
 	case PVR_VER(PVR_86xx):
@@ -112,11 +111,11 @@ int checkcpu (void)
 		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
-	printf("    L2: ");
+	puts("    L2: ");
 	if (get_l2cr() & 0x80000000)
-		printf("Enabled\n");
+		puts("Enabled\n");
 	else
-		printf("Disabled\n");
+		puts("Disabled\n");
 
 	return 0;
 }
@@ -125,7 +124,6 @@ int checkcpu (void)
 static inline void
 soft_restart(unsigned long addr)
 {
-
 #ifndef CONFIG_MPC8641HPCN
 
 	/* SRR0 has system reset vector, SRR1 has default MSR value */
@@ -137,8 +135,11 @@ soft_restart(unsigned long addr)
 	__asm__ __volatile__ ("rfi");
 
 #else /* CONFIG_MPC8641HPCN */
-	out8(PIXIS_BASE+PIXIS_RST,0);
+
+	out8(PIXIS_BASE + PIXIS_RST, 0);
+
 #endif /* !CONFIG_MPC8641HPCN */
+
 	while(1);	/* not reached */
 }
 
@@ -149,10 +150,10 @@ soft_restart(unsigned long addr)
 void
 do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong addr;
+#ifndef CONFIG_MPC8641HPCN
 
 #ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+	ulong addr = CFG_RESET_ADDRESS;
 #else
 	/*
 	 * note: when CFG_MONITOR_BASE points to a RAM address,
@@ -160,10 +161,8 @@ do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * address. Better pick an address known to be invalid on your
 	 * system and assign it to CFG_RESET_ADDRESS.
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	ulong addr = CFG_MONITOR_BASE - sizeof(ulong);
 #endif
-
-#ifndef CONFIG_MPC8641HPCN
 
 	/* flush and disable I/D cache */
 	__asm__ __volatile__ ("mfspr	3, 1008"	::: "r3");
