@@ -35,28 +35,6 @@
 #include "../board/mpc8641hpcn/pixis.h"
 
 
-static __inline__ unsigned long get_dbat3u (void)
-{
-	unsigned long dbat3u;
-	asm volatile("mfspr %0, 542" : "=r" (dbat3u) :);
-	return dbat3u;
-}
-
-static __inline__ unsigned long get_dbat3l (void)
-{
-	unsigned long dbat3l;
-	asm volatile("mfspr %0, 543" : "=r" (dbat3l) :);
-	return dbat3l;
-}
-
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-	asm volatile("mfmsr %0" : "=r" (msr) :);
-	return msr;
-}
-
-
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
@@ -140,8 +118,6 @@ int checkcpu (void)
 	return 0;
 }
 
-
-/* -------------------------------------------------------------------- */
 
 static inline void
 soft_restart(unsigned long addr)
