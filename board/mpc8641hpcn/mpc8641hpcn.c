@@ -45,7 +45,6 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 extern long int spd_sdram(void);
 
-void local_bus_init(void);
 void sdram_init(void);
 long int fixed_sdram(void);
 
@@ -91,11 +90,6 @@ int checkboard (void)
 	printf("PCI-EXPRESS1: Disabled\n");
 #endif
 
-	/*
-	 * Initialize local bus.
-	 */
-	local_bus_init();
-
 	return 0;
 }
 
@@ -128,34 +122,6 @@ initdram(int board_type)
 	return dram_size;
 }
 
-
-/*
- * Initialize Local Bus
- */
-
-void
-local_bus_init(void)
-{
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
-
-	uint clkdiv;
-	uint lbc_hz;
-	sys_info_t sysinfo;
-
-	/*
-	 * Errata LBC11.
-	 * Fix Local Bus clock glitch when DLL is enabled.
-	 *
-	 * If localbus freq is < 66Mhz, DLL bypass mode must be used.
-	 * If localbus freq is > 133Mhz, DLL can be safely enabled.
-	 * Between 66 and 133, the DLL is enabled with an override workaround.
-	 */
-
-	get_sys_info(&sysinfo);
-	clkdiv = lbc->lcrr & 0x0f;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
-}
 
 #if defined(CFG_DRAM_TEST)
 int testdram(void)
