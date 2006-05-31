@@ -9,7 +9,7 @@
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
  * (C) Copyright 2004 Freescale Semiconductor. (MPC86xx Port)
- * Jeff Brown (Jeffrey@freescale.com)
+ * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,10 +37,9 @@
 #include <asm/processor.h>
 #include <ppc_asm.tmpl>
 
-unsigned long decrementer_count;		/* count value for 1e6/HZ microseconds */
-
-
+unsigned long decrementer_count;    /* count value for 1e6/HZ microseconds */
 unsigned long timestamp;
+
 
 static __inline__ unsigned long get_msr (void)
 {
@@ -75,7 +74,7 @@ static __inline__ void set_dec (unsigned long val)
 /* interrupt is not supported yet */
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-   return 0;
+	return 0;
 }
 
 
@@ -89,14 +88,14 @@ int interrupt_init (void)
 	if (ret)
 		return ret;
 
-        decrementer_count = get_tbclk()/CFG_HZ;
-        debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n", (get_tbclk()/1000000), decrementer_count);
+	decrementer_count = get_tbclk()/CFG_HZ;
+	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n", (get_tbclk()/1000000), decrementer_count);
 
-        set_dec (decrementer_count);
+	set_dec (decrementer_count);
 
 	set_msr (get_msr () | MSR_EE);
 
-        debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n", get_msr(), get_dec());
+	debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n", get_msr(), get_dec());
 
 	return 0;
 }
@@ -119,7 +118,7 @@ int disable_interrupts (void)
 
 void increment_timestamp(void)
 {
-   timestamp++;
+	timestamp++;
 }
 
 /*
@@ -136,15 +135,15 @@ timer_interrupt_cpu (struct pt_regs *regs)
 
 void timer_interrupt (struct pt_regs *regs)
 {
-   /* call cpu specific function from $(CPU)/interrupts.c */
-   timer_interrupt_cpu (regs);
+	/* call cpu specific function from $(CPU)/interrupts.c */
+	timer_interrupt_cpu (regs);
 
-   timestamp++;
+	timestamp++;
 
-   ppcDcbf(&timestamp);
+	ppcDcbf(&timestamp);
 
-   /* Restore Decrementer Count */
-   set_dec (decrementer_count);
+	/* Restore Decrementer Count */
+	set_dec (decrementer_count);
 
 #if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
 	if ((timestamp % (CFG_WATCHDOG_FREQ)) == 0)
@@ -164,17 +163,17 @@ void timer_interrupt (struct pt_regs *regs)
 
 void reset_timer (void)
 {
-   	timestamp = 0;
+	timestamp = 0;
 }
 
 ulong get_timer (ulong base)
 {
- 	return timestamp - base;
+	return timestamp - base;
 }
 
 void set_timer (ulong t)
 {
-   timestamp = t;
+	timestamp = t;
 }
 
 /*
@@ -192,11 +191,8 @@ irq_free_handler(int vec)
 }
 
 
-
-/*******************************************************************************
- *
+/*
  * irqinfo - print information about PCI devices,not implemented.
- *
  */
 int
 do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

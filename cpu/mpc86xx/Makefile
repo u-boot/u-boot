@@ -3,7 +3,7 @@
 # Xianghua Xiao,X.Xiao@motorola.com
 #
 # (C) Copyright 2004 Freescale Semiconductor. (MC86xx Port)
-# Jeff Brown (Jeffrey@freescale.com)
+# Jeff Brown
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -30,7 +30,7 @@ LIB	= lib$(CPU).a
 START	= start.o #resetvec.o
 ASOBJS  = cache.o 
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  pci.o i2c.o spd_sdram.o 
+	  pci.o i2c.o spd_sdram.o
 OBJS	= $(COBJS)
 
 all:	.depend $(START) $(ASOBJS) $(LIB)

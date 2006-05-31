@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2004 Freescale Semiconductor.
-# Jeff Brown <jeffrey@freescale.com>
+# Jeff Brown
 #
 # See file CREDITS for list of people who contributed to this
 # project.

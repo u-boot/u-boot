@@ -1,6 +1,6 @@
 /*
  * Copyright 2004 Freescale Semiconductor.
- * Jeff Brown (jeffrey@freescale.com)
+ * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
@@ -352,7 +352,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		goto my_usage;
 	}
 
- my_usage:
+my_usage:
 	puts("\nUsage: reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n");
 	puts("       reset altbank [cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>]\n");
 	puts("       reset altbank [wd]\n");
