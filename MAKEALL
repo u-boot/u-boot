@@ -71,11 +71,11 @@ LIST_4xx="	\
 	HH405		HUB405		JSE		KAREF		\
 	luan		METROBOX	MIP405		MIP405T		\
 	ML2		ml300		ocotea		OCRTC		\
-	ORSG		p3p440		PCI405		PIP405		\
-	PLU405		PMC405	        PPChameleonEVB	sbc405		\
-	VOH405		VOM405          W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite							\
+	ORSG		p3p440		PCI405		pcs440ep	\
+	PIP405		PLU405		PMC405	        PPChameleonEVB	\
+	sbc405		VOH405		VOM405          W7OLMC		\
+	W7OLMG		walnut		WUH405		XPEDITE1K	\
+	yellowstone	yosemite					\
 "
 
 #########################################################################

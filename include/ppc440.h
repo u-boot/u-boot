@@ -1357,55 +1357,105 @@
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
-#if defined(CONFIG_440GP)
-#define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000700)
+#define GPIO0			0
+#define GPIO1			1
 
-#define GPIO0_OR               (GPIO_BASE0+0x0)
-#define GPIO0_TCR              (GPIO_BASE0+0x4)
-#define GPIO0_ODR              (GPIO_BASE0+0x18)
-#define GPIO0_IR               (GPIO_BASE0+0x1C)
+#if defined(CONFIG_440GP)
+#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
+
+#define GPIO0_OR               (GPIO0_BASE+0x0)
+#define GPIO0_TCR              (GPIO0_BASE+0x4)
+#define GPIO0_ODR              (GPIO0_BASE+0x18)
+#define GPIO0_IR               (GPIO0_BASE+0x1C)
 #endif /* CONFIG_440GP */
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-#define GPIO_BASE0             (CFG_PERIPHERAL_BASE+0x00000B00)
-#define GPIO_BASE1             (CFG_PERIPHERAL_BASE+0x00000C00)
+#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
+#define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
 
-#define GPIO0_OR               (GPIO_BASE0+0x0)
-#define GPIO0_TCR              (GPIO_BASE0+0x4)
-#define GPIO0_OSRL             (GPIO_BASE0+0x8)
-#define GPIO0_OSRH             (GPIO_BASE0+0xC)
-#define GPIO0_TSRL             (GPIO_BASE0+0x10)
-#define GPIO0_TSRH             (GPIO_BASE0+0x14)
-#define GPIO0_ODR              (GPIO_BASE0+0x18)
-#define GPIO0_IR               (GPIO_BASE0+0x1C)
-#define GPIO0_RR1              (GPIO_BASE0+0x20)
-#define GPIO0_RR2              (GPIO_BASE0+0x24)
-#define GPIO0_RR3	       (GPIO_BASE0+0x28)
-#define GPIO0_ISR1L            (GPIO_BASE0+0x30)
-#define GPIO0_ISR1H            (GPIO_BASE0+0x34)
-#define GPIO0_ISR2L            (GPIO_BASE0+0x38)
-#define GPIO0_ISR2H            (GPIO_BASE0+0x3C)
-#define GPIO0_ISR3L            (GPIO_BASE0+0x40)
-#define GPIO0_ISR3H            (GPIO_BASE0+0x44)
+/* Offsets */
+#define GPIOx_OR    0x00	/* GPIO Output Register */
+#define GPIOx_TCR   0x04	/* GPIO Three-State Control Register */
+#define GPIOx_OSL   0x08	/* GPIO Output Select Register (Bits 0-31) */
+#define GPIOx_OSH   0x0C	/* GPIO Ouput Select Register (Bits 32-63) */
+#define GPIOx_TSL   0x10	/* GPIO Three-State Select Register (Bits 0-31) */
+#define GPIOx_TSH   0x14	/* GPIO Three-State Select Register  (Bits 32-63) */
+#define GPIOx_ODR   0x18	/* GPIO Open drain Register */
+#define GPIOx_IR    0x1C	/* GPIO Input Register */
+#define GPIOx_RR1   0x20	/* GPIO Receive Register 1 */
+#define GPIOx_RR2   0x24	/* GPIO Receive Register 2 */
+#define GPIOx_RR3   0x28	/* GPIO Receive Register 3 */
+#define GPIOx_IS1L  0x30	/* GPIO Input Select Register 1 (Bits 0-31) */
+#define GPIOx_IS1H  0x34	/* GPIO Input Select Register 1 (Bits 32-63) */
+#define GPIOx_IS2L  0x38	/* GPIO Input Select Register 2 (Bits 0-31) */
+#define GPIOx_IS2H  0x3C	/* GPIO Input Select Register 2 (Bits 32-63) */
+#define GPIOx_IS3L  0x40	/* GPIO Input Select Register 3 (Bits 0-31) */
+#define GPIOx_IS3H  0x44	/* GPIO Input Select Register 3 (Bits 32-63) */
 
-#define GPIO1_OR               (GPIO_BASE1+0x0)
-#define GPIO1_TCR              (GPIO_BASE1+0x4)
-#define GPIO1_OSRL             (GPIO_BASE1+0x8)
-#define GPIO1_OSRH             (GPIO_BASE1+0xC)
-#define GPIO1_TSRL             (GPIO_BASE1+0x10)
-#define GPIO1_TSRH             (GPIO_BASE1+0x14)
-#define GPIO1_ODR              (GPIO_BASE1+0x18)
-#define GPIO1_IR               (GPIO_BASE1+0x1C)
-#define GPIO1_RR1              (GPIO_BASE1+0x20)
-#define GPIO1_RR2              (GPIO_BASE1+0x24)
-#define GPIO1_RR3              (GPIO_BASE1+0x28)
-#define GPIO1_ISR1L            (GPIO_BASE1+0x30)
-#define GPIO1_ISR1H            (GPIO_BASE1+0x34)
-#define GPIO1_ISR2L            (GPIO_BASE1+0x38)
-#define GPIO1_ISR2H            (GPIO_BASE1+0x3C)
-#define GPIO1_ISR3L            (GPIO_BASE1+0x40)
-#define GPIO1_ISR3H            (GPIO_BASE1+0x44)
+#define GPIO_OS(x)	(x+GPIOx_OSL)	/* GPIO Output Register High or Low */
+#define GPIO_TS(x)	(x+GPIOx_TSL)	/* GPIO Three-state Control Reg High or Low */
+#define GPIO_IS1(x)	(x+GPIOx_IS1L)	/* GPIO Input register1 High or Low */
+#define GPIO_IS2(x)	(x+GPIOx_IS2L)	/* GPIO Input register2 High or Low */
+#define GPIO_IS3(x)	(x+GPIOx_IS3L)	/* GPIO Input register3 High or Low */
+
+#define GPIO0_OR               (GPIO0_BASE+0x0)
+#define GPIO0_TCR              (GPIO0_BASE+0x4)
+#define GPIO0_OSRL             (GPIO0_BASE+0x8)
+#define GPIO0_OSRH             (GPIO0_BASE+0xC)
+#define GPIO0_TSRL             (GPIO0_BASE+0x10)
+#define GPIO0_TSRH             (GPIO0_BASE+0x14)
+#define GPIO0_ODR              (GPIO0_BASE+0x18)
+#define GPIO0_IR               (GPIO0_BASE+0x1C)
+#define GPIO0_RR1              (GPIO0_BASE+0x20)
+#define GPIO0_RR2              (GPIO0_BASE+0x24)
+#define GPIO0_RR3	       (GPIO0_BASE+0x28)
+#define GPIO0_ISR1L            (GPIO0_BASE+0x30)
+#define GPIO0_ISR1H            (GPIO0_BASE+0x34)
+#define GPIO0_ISR2L            (GPIO0_BASE+0x38)
+#define GPIO0_ISR2H            (GPIO0_BASE+0x3C)
+#define GPIO0_ISR3L            (GPIO0_BASE+0x40)
+#define GPIO0_ISR3H            (GPIO0_BASE+0x44)
+
+#define GPIO1_OR               (GPIO1_BASE+0x0)
+#define GPIO1_TCR              (GPIO1_BASE+0x4)
+#define GPIO1_OSRL             (GPIO1_BASE+0x8)
+#define GPIO1_OSRH             (GPIO1_BASE+0xC)
+#define GPIO1_TSRL             (GPIO1_BASE+0x10)
+#define GPIO1_TSRH             (GPIO1_BASE+0x14)
+#define GPIO1_ODR              (GPIO1_BASE+0x18)
+#define GPIO1_IR               (GPIO1_BASE+0x1C)
+#define GPIO1_RR1              (GPIO1_BASE+0x20)
+#define GPIO1_RR2              (GPIO1_BASE+0x24)
+#define GPIO1_RR3              (GPIO1_BASE+0x28)
+#define GPIO1_ISR1L            (GPIO1_BASE+0x30)
+#define GPIO1_ISR1H            (GPIO1_BASE+0x34)
+#define GPIO1_ISR2L            (GPIO1_BASE+0x38)
+#define GPIO1_ISR2H            (GPIO1_BASE+0x3C)
+#define GPIO1_ISR3L            (GPIO1_BASE+0x40)
+#define GPIO1_ISR3H            (GPIO1_BASE+0x44)
 #endif
+
+#define GPIO_GROUP_MAX	    2
+#define GPIO_MAX	    32
+#define GPIO_ALT1_SEL	    0x40000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 0 */
+#define GPIO_ALT2_SEL	    0x80000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 1 */
+#define GPIO_ALT3_SEL	    0xC0000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 2 */
+#define GPIO_MASK	    0xC0000000	    /* GPIO_MASK */
+#define GPIO_IN_SEL	    0x40000000	    /* GPIO_IN value put in GPIO_ISx for the GPIO nb 0 */
+					    /* For the other GPIO number, you must shift */
+
+#ifndef __ASSEMBLY__
+
+typedef enum gpio_select { GPIO_SEL, GPIO_ALT1, GPIO_ALT2, GPIO_ALT3 } gpio_select_t;
+typedef enum gpio_driver { GPIO_DIS, GPIO_IN, GPIO_OUT, GPIO_BI } gpio_driver_t;
+
+typedef struct { unsigned long	add;	/* gpio core base address */
+	gpio_driver_t  in_out; /* Driver Setting */
+	gpio_select_t  alt_nb; /* Selected Alternate */
+} gpio_param_s;
+
+
+#endif /* __ASSEMBLY__ */
 
 /*
  * Macros for accessing the indirect EBC registers

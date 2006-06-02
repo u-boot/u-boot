@@ -13,6 +13,9 @@ Changes since U-Boot 1.1.4:
   MPC8272 boards. Eventually this should be used on all boards?]
   Patch by Wolfgang Grandegger, 17 Jan 2006
 
+* Add support for PCS440EP board
+  Patch by Stefan Roese, 02 Jun 2006
+
 * Correct GPIO setup (UART1/IRQ's) on yosemite & yellowstone
   Patch by Stefan Roese, 29 May 2006
 
