@@ -136,7 +136,7 @@ void flash_print_info(flash_info_t *info)
 			size = info->start[0] + info->size - info->start[i];
 		erased = 1;
 		flash = (volatile unsigned long *)info->start[i];
-		size = size >> 2;        /* divide by 4 for longword access */
+		size = size >> 2;	/* divide by 4 for longword access */
 		for (k=0; k<size; k++) {
 			if (*flash++ != 0xffffffff) {
 				erased = 0;
@@ -202,92 +202,98 @@ static ulong flash_get_size(vu_long *addr, flash_info_t *info)
 		return (0);			/* no or unknown flash	*/
 	}
 
-	value = addr2[CFG_FLASH_READ1];		/* device ID		*/
+	value = addr2[CFG_FLASH_READ1];		/* device ID	*/
 
 	switch (value) {
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV400T:
 		info->flash_id += FLASH_AM400T;
 		info->sector_count = 11;
 		info->size = 0x00080000;
-		break;				/* => 0.5 MB		*/
+		break;				/* => 0.5 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV400B:
 		info->flash_id += FLASH_AM400B;
 		info->sector_count = 11;
 		info->size = 0x00080000;
-		break;				/* => 0.5 MB		*/
+		break;				/* => 0.5 MB	*/
 
-        case (CFG_FLASH_WORD_SIZE)AMD_ID_LV040B:
-                info->flash_id += FLASH_AM040;
-                info->sector_count = 8;
-                info->size = 0x0080000; /* => 512 ko */
-                break;
+	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV040B:
+		info->flash_id += FLASH_AM040;
+		info->sector_count = 8;
+		info->size = 0x0080000;		/* => 0.5 MB	*/
+		break;
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV800T:
 		info->flash_id += FLASH_AM800T;
 		info->sector_count = 19;
 		info->size = 0x00100000;
-		break;				/* => 1 MB		*/
+		break;				/* => 1 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV800B:
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
 		info->size = 0x00100000;
-		break;				/* => 1 MB		*/
+		break;				/* => 1 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV160T:
 		info->flash_id += FLASH_AM160T;
 		info->sector_count = 35;
 		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		break;				/* => 2 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV160B:
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
 		info->size = 0x00200000;
-		break;				/* => 2 MB		*/
+		break;				/* => 2 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320B:
 		info->flash_id += FLASH_AM320B;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_DL322T:
 		info->flash_id += FLASH_AMDL322T;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_DL322B:
 		info->flash_id += FLASH_AMDL322B;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_DL323T:
 		info->flash_id += FLASH_AMDL323T;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_DL323B:
 		info->flash_id += FLASH_AMDL323B;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;
+		break;				/* => 4 MB	*/
 
 	case (CFG_FLASH_WORD_SIZE)SST_ID_xF020:
 		info->flash_id += FLASH_SST020;
 		info->sector_count = 64;
 		info->size = 0x00040000;
-		break;				/* => 256 kB		*/
+		break;				/* => 256 kB	*/
 
 	case (CFG_FLASH_WORD_SIZE)SST_ID_xF040:
 		info->flash_id += FLASH_SST040;
 		info->sector_count = 128;
 		info->size = 0x00080000;
-		break;				/* => 512 kB		*/
+		break;				/* => 512 kB	*/
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
