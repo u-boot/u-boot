@@ -919,6 +919,9 @@ p3p440_config:	unconfig
 PCI405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pci405 esd
 
+pcs440ep_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx pcs440ep
+
 PIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pip405 mpl
 
