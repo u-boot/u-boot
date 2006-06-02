@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix examples/Makefile; some build targets were lost
+  
 * Fix watchdog handling in CFI flash driver
   Just use udelay() when waiting for status changes which will
   implicitely trigger the watchdog.
