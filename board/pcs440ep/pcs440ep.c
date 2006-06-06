@@ -137,7 +137,7 @@ int misc_init_r (void)
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    CFG_ENV_ADDR_REDUND,
 			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
-			    &flash_info[0]);
+			    &flash_info[1]);
 
 	return 0;
 }

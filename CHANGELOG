@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update PCS440EP port to fit into one flash device (incl. environment)
+  Patch by Stefan Roese, 06 Jun 2006
+
 * Add support for PCS440EP board
   Patch by Stefan Roese, 02 Jun 2006
 
