@@ -1,0 +1,81 @@
+/*
+ * @file        IxOsalAssert.h 
+ * @author 	Intel Corporation
+ * @date        25-08-2004
+ *
+ * @brief       description goes here
+ *
+ * @par
+ * IXP400 SW Release version 2.0
+ * 
+ * -- Copyright Notice --
+ * 
+ * @par
+ * Copyright 2001-2005, Intel Corporation.
+ * All rights reserved.
+ * 
+ * @par
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Intel Corporation nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ * 
+ * @par
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ * @par
+ * -- End of Copyright Notice --
+ */
+
+#ifndef IX_OSAL_ASSERT_H
+#define IX_OSAL_ASSERT_H
+
+/*
+ * Put the system defined include files required
+ * @par
+ * <TAGGED>
+ */
+
+#include "IxOsalOsAssert.h"
+
+/**
+ * @brief Assert macro, assert the condition is true. This
+ *        will not be compiled out.
+ *        N.B. will result in a system crash if it is false.
+ */
+#define IX_OSAL_ASSERT(c) IX_OSAL_OS_ASSERT(c)
+
+
+/**
+ * @brief Ensure macro, ensure the condition is true.
+ *        This will be conditionally compiled out and
+ *        may be used for test purposes.
+ */
+#ifdef IX_OSAL_ENSURE_ON
+#define IX_OSAL_ENSURE(c, str) do { \
+if (!(c)) ixOsalLog (IX_OSAL_LOG_LVL_MESSAGE, IX_OSAL_LOG_DEV_STDOUT, str, \
+0, 0, 0, 0, 0, 0); } while (0)
+
+#else
+#define IX_OSAL_ENSURE(c, str)
+#endif
+
+
+#endif /* IX_OSAL_ASSERT_H */

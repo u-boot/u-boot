@@ -35,6 +35,9 @@
 #define CONFIG_OMAP1610	1		/* 5912 is same as 1610  */
 #define CONFIG_OSK_OMAP5912	1	/*  a OSK Board  */
 
+#define CONFIG_DISPLAY_CPUINFO	1	/* display cpu info (and speed)	*/
+#define CONFIG_DISPLAY_BOARDINFO 1	/* display board info		*/
+
 /* input clock of PLL */
 /* the OMAP5912 OSK has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ	12000000
@@ -45,11 +48,13 @@
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
+#define CONFIG_INITRD_TAG      1       /* Required for ramdisk support */
 
 /*
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -142,27 +147,44 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1	/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1	0x10000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1		0x10000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
 
-#define PHYS_FLASH_1	0x00000000	/* Flash Bank #1 */
+#define PHYS_FLASH_1		0x00000000	/* Flash Bank #1 */
+#define PHYS_FLASH_2		0x01000000	/* Flash Bank #2 */
 
-#define CFG_FLASH_BASE	PHYS_FLASH_1
+#define CFG_FLASH_BASE		PHYS_FLASH_1
+
+#define CFG_MONITOR_BASE       CFG_FLASH_BASE  /* Monitor at beginning of flash */
 
 /*-----------------------------------------------------------------------
- * FLASH and environment organization
+ * FLASH driver setup
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CFG_FLASH_CFI          1       /* Flash memory is CFI compliant */
+#define CFG_FLASH_CFI_DRIVER   1       /* Use drivers/cfi_flash.c */
+
+#define CFG_FLASH_BANKS_LIST { PHYS_FLASH_1, PHYS_FLASH_2 }
+
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
 #define PHYS_FLASH_SIZE	0x02000000	/* 32MB */
 #define CFG_MAX_FLASH_SECT	(259)	/* max number of sectors on one chip */
-/* addr of environment */
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + 0x020000)
+
+#define CFG_FLASH_USE_BUFFER_WRITE     1       /* Use buffered writes (~10x faster) */
+#define CFG_FLASH_PROTECTION   1       /* Use hardware sector protection */
+
+#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
 
+/*-----------------------------------------------------------------------
+ * FLASH and environment organization
+ */
 #define CFG_ENV_IS_IN_FLASH	1
+/* addr of environment */
+#define CFG_ENV_ADDR	(CFG_FLASH_BASE + 0x020000)
+
 #define CFG_ENV_SIZE	0x20000	/* Total Size of Environment Sector */
 #define CFG_ENV_OFFSET	0x20000	/* environment starts here  */
 

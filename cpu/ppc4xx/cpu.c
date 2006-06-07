@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -223,11 +223,19 @@ int checkcpu (void)
 	case PVR_440EP_RB: /* 440EP rev B and 440GR rev A have same PVR */
 		puts("EP Rev. B");
 		break;
+
+	case PVR_440EP_RC: /* 440EP rev C and 440GR rev B have same PVR */
+		puts("EP Rev. C");
+		break;
 #endif /*  CONFIG_440EP */
 
 #ifdef CONFIG_440GR
 	case PVR_440GR_RA: /* 440EP rev B and 440GR rev A have same PVR */
 		puts("GR Rev. A");
+		break;
+
+	case PVR_440GR_RB: /* 440EP rev C and 440GR rev B have same PVR */
+		puts("GR Rev. B");
 		break;
 #endif /* CONFIG_440GR */
 #endif /* CONFIG_440 */

@@ -283,6 +283,7 @@ Stefan Roese <sr@denx.de>
 	ebony			PPC440GP
 	ocotea			PPC440GX
 	p3p440			PPC440GP
+	pcs440ep		PPC440EP
 	sycamore		PPC405GPr
 	walnut			PPC405GP
 	yellowstone		PPC440GR
@@ -433,6 +434,11 @@ Rolf Offermanns <rof@sysgo.de>
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2		ARM926EJS
+
+Stefan Roese <sr@denx.de>
+
+	ixdpg425		xscale
+	pdnb3			xscale
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

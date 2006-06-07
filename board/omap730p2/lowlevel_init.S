@@ -317,7 +317,7 @@ REG_WATCHDOG:
 	.word 0xfffec808
 
 REG_MPU_LOAD_TIMER:
-	.word 0xfffec600
+	.word 0xfffec504
 REG_MPU_CNTL_TIMER:
 	.word 0xfffec500
 

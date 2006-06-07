@@ -2,6 +2,80 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Minor cleanup for PCS440EP board
+
+* Update PCS440EP port to fit into one flash device (incl. environment)
+  Patch by Stefan Roese, 06 Jun 2006
+
+* Add support for PCS440EP board
+  Patch by Stefan Roese, 02 Jun 2006
+
+* Fix examples/Makefile; some build targets were lost
+
+* Fix watchdog handling in CFI flash driver
+  Just use udelay() when waiting for status changes which will
+  implicitely trigger the watchdog.
+
+* Fix PCI to memory window size problems on PM82x boards
+  We use the "automatic" mode that was used for  the  MPC8266ADS  and
+  MPC8272 boards. Eventually this should be used on all boards?]
+  Patch by Wolfgang Grandegger, 17 Jan 2006
+
+* Correct GPIO setup (UART1/IRQ's) on yosemite & yellowstone
+  Patch by Stefan Roese, 29 May 2006
+
+* Update Intel IXP4xx support
+  - Add IXP4xx NPE ethernet MAC support
+  - Add support for Intel IXDPG425 board
+  - Add support for Prodrive PDNB3 board
+  - Add IRQ support
+  Patch by Stefan Roese, 23 May 2006
+
+* Fix problem in PVR detection for 440GR
+  Patch by Stefan Roese, 18 May 2006
+
+* Fix gcc 3.4.x AFLAGS setting for m68k platform.
+
+* Enable autoboot for M5271EVB board.
+
+* Changed default ramdisk addr in yosemite/yellowstone ports
+  Patch by Stefan Roese, 15 May 2006
+
+* Fix PCMCIA support on virtlab2
+
+* Add support for VirtLab2 board
+  (needed because of differences in the PCMCIA hardware).
+
+* Minor cleanup.
+
+* Update yosemite configuration to enable flash write buffer support
+  Patch by Stefan Roese, 10 May 2006
+
+* Fix compile warnings in common/xyzModem.c
+  Patch by Stefan Roese, 10 May 2006
+
+* Add support for AMCC 440EP Rev C and 440GR Rev B
+  Patch by John Otken, 08 May 2006
+
+* OMAP 5912/OSK: update EMIFS CS1 timings:
+  Problems have been seen in the linux kernel's smc91x network driver
+  due to improper bus timings.  The latest 2.6 OMAP kernels currently
+  have a workaround, but this fix belongs in u-boot.
+  Patch by Kevin Hilman, 13 Oct 2005
+
+* Fix REG_MPU_LOAD_TIMER definition in multiple OMAP ports
+  Patch by Hiroki Kaminaga, 11 Mar 2006
+
+* Update omap5912osk board support
+  - Fix OMAP support that omap5912osk compiles in current source tree
+  - Update with code from "http://omap.spectrumdigital.com/osk5912"
+    to fix problems with DDR initialization
+  - Fix timer setup
+  - Use CFI flash driver and support complete 32MB of onboard flash
+  - Add "print_cpuinfo()" and "checkboard()" functions to display
+    CPU (with frequency) and Board infos
+  Patch by Stefan Roese, 10 May 2006
+
 * Fix watchdog issues for ColdFire boards.
 
 * Add M5271EVB board support.

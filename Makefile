@@ -759,7 +759,8 @@ TQM850M_config		\
 TQM855M_config		\
 TQM860M_config		\
 TQM862M_config		\
-TQM866M_config:		unconfig
+TQM866M_config		\
+virtlab2_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _LCD,$@)" ] || \
 		{ echo "#define CONFIG_LCD"		>>include/config.h ; \
@@ -920,6 +921,9 @@ p3p440_config:	unconfig
 
 PCI405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pci405 esd
+
+pcs440ep_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx pcs440ep
 
 PIP405_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx pip405 mpl
@@ -1718,11 +1722,17 @@ innokom_config	:	unconfig
 ixdp425_config	:	unconfig
 	@./mkconfig $(@:_config=) arm ixp ixdp425
 
+ixdpg425_config	:	unconfig
+	@./mkconfig $(@:_config=) arm ixp ixdp425
+
 lubbock_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa lubbock
 
 logodl_config	:	unconfig
 	@./mkconfig $(@:_config=) arm pxa logodl
+
+pdnb3_config	:	unconfig
+	@./mkconfig $(@:_config=) arm ixp pdnb3 prodrive
 
 pxa255_idp_config:	unconfig
 	@./mkconfig $(@:_config=) arm pxa pxa255_idp

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -101,6 +101,117 @@ DECLARE_GLOBAL_DATA_PTR;
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
+#if defined(CFG_440_GPIO_TABLE)
+gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_440_GPIO_TABLE;
+
+void set_chip_gpio_configuration(gpio_param_s (*gpio_tab)[GPIO_GROUP_MAX][GPIO_MAX])
+{
+	unsigned char i=0, j=0, reg_offset = 0, gpio_core;
+	unsigned long gpio_reg, gpio_core_add;
+
+	for (gpio_core=0; gpio_core<GPIO_GROUP_MAX; gpio_core++) {
+		j = 0;
+		reg_offset = 0;
+		/* GPIO config of the GPIOs 0 to 31 */
+		for (i=0; i<GPIO_MAX; i++, j++) {
+			if (i == GPIO_MAX/2) {
+				reg_offset = 4;
+				j = i-16;
+			}
+
+			gpio_core_add = (*gpio_tab)[gpio_core][i].add;
+
+			if (((*gpio_tab)[gpio_core][i].in_out == GPIO_IN) ||
+			     ((*gpio_tab)[gpio_core][i].in_out == GPIO_BI)) {
+
+				switch ((*gpio_tab)[gpio_core][i].alt_nb) {
+				case GPIO_SEL:
+					break;
+
+				case GPIO_ALT1:
+					gpio_reg = in32(GPIO_IS1(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_IN_SEL >> (j*2));
+					out32(GPIO_IS1(gpio_core_add+reg_offset), gpio_reg);
+					break;
+
+				case GPIO_ALT2:
+					gpio_reg = in32(GPIO_IS2(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_IN_SEL >> (j*2));
+					out32(GPIO_IS2(gpio_core_add+reg_offset), gpio_reg);
+					break;
+
+				case GPIO_ALT3:
+					gpio_reg = in32(GPIO_IS3(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_IN_SEL >> (j*2));
+					out32(GPIO_IS3(gpio_core_add+reg_offset), gpio_reg);
+					break;
+				}
+			}
+
+			if (((*gpio_tab)[gpio_core][i].in_out == GPIO_OUT) ||
+			     ((*gpio_tab)[gpio_core][i].in_out == GPIO_BI)) {
+
+				switch ((*gpio_tab)[gpio_core][i].alt_nb) {
+				case GPIO_SEL:
+					if (gpio_core == GPIO0) {
+						gpio_reg = in32(GPIO0_TCR) | (0x80000000 >> (j));
+						out32(GPIO0_TCR, gpio_reg);
+					}
+
+					if (gpio_core == GPIO1) {
+						gpio_reg = in32(GPIO1_TCR) | (0x80000000 >> (j));
+						out32(GPIO1_TCR, gpio_reg);
+					}
+
+					gpio_reg = in32(GPIO_OS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					out32(GPIO_OS(gpio_core_add+reg_offset), gpio_reg);
+					gpio_reg = in32(GPIO_TS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					out32(GPIO_TS(gpio_core_add+reg_offset), gpio_reg);
+					break;
+
+				case GPIO_ALT1:
+					gpio_reg = in32(GPIO_OS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT1_SEL >> (j*2));
+					out32(GPIO_OS(gpio_core_add+reg_offset), gpio_reg);
+					gpio_reg = in32(GPIO_TS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT1_SEL >> (j*2));
+					out32(GPIO_TS(gpio_core_add+reg_offset), gpio_reg);
+					break;
+
+				case GPIO_ALT2:
+					gpio_reg = in32(GPIO_OS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT2_SEL >> (j*2));
+					out32(GPIO_OS(gpio_core_add+reg_offset), gpio_reg);
+					gpio_reg = in32(GPIO_TS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT2_SEL >> (j*2));
+					out32(GPIO_TS(gpio_core_add+reg_offset), gpio_reg);
+					break;
+
+				case GPIO_ALT3:
+					gpio_reg = in32(GPIO_OS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT3_SEL >> (j*2));
+					out32(GPIO_OS(gpio_core_add+reg_offset), gpio_reg);
+					gpio_reg = in32(GPIO_TS(gpio_core_add+reg_offset))
+						& ~(GPIO_MASK >> (j*2));
+					gpio_reg = gpio_reg | (GPIO_ALT3_SEL >> (j*2));
+					out32(GPIO_TS(gpio_core_add+reg_offset), gpio_reg);
+					break;
+				}
+			}
+		}
+	}
+}
+#endif /* CFG_440_GPIO_TABLE */
 
 /*
  * Breath some life into the CPU...
@@ -129,10 +240,16 @@ cpu_init_f (void)
 	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
 #endif /* CONFIG_405EP */
 
+#if defined(CFG_440_GPIO_TABLE)
+	set_chip_gpio_configuration(&gpio_tab);
+#endif /* CFG_440_GPIO_TABLE */
+
 	/*
 	 * External Bus Controller (EBC) Setup
 	 */
 #if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
+#if (defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+     defined(CONFIG_405EP) || defined(CONFIG_405))
 	/*
 	 * Move the next instructions into icache, since these modify the flash
 	 * we are running from!
@@ -148,6 +265,7 @@ cpu_init_f (void)
 	asm volatile("	ori	3, 3, 0xA000"	::: "r3");
 	asm volatile("	mtctr	3"		::: "ctr");
 	asm volatile("2:	bdnz	2b"		::: "ctr", "cr0");
+#endif
 
 	mtebc(pb0ap, CFG_EBC_PB0AP);
 	mtebc(pb0cr, CFG_EBC_PB0CR);

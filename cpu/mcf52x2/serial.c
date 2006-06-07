@@ -106,7 +106,7 @@ void rs_serial_init(int port,int baudrate)
 
 	/* Set clock Select Register: Tx/Rx clock is timer */
 	uartp[MCFUART_UCSR] = MCFUART_UCSR_RXCLKTIMER | MCFUART_UCSR_TXCLKTIMER;
-	
+
 	rs_serial_setbaudrate(port,baudrate);
 
 	/* Enable Tx/Rx */

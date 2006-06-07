@@ -47,8 +47,7 @@ long int initdram (int board_type) {
 	 * Check to see if the SDRAM has already been initialized
 	 * by a run control tool
 	 */
-	if (!(mbar_readLong(MCF_SDRAMC_DACR0) & MCF_SDRAMC_DACRn_RE))
-	{
+	if (!(mbar_readLong(MCF_SDRAMC_DACR0) & MCF_SDRAMC_DACRn_RE)) {
 		/*
 		 * Initialize DRAM Control Register: DCR
 		 */
@@ -67,7 +66,7 @@ long int initdram (int board_type) {
 		/*
 		 * Initialize DMR0
 		 */
-		mbar_writeLong(MCF_SDRAMC_DMR0, 
+		mbar_writeLong(MCF_SDRAMC_DMR0,
 				MCF_SDRAMC_DMRn_BAM_8M
 				| MCF_SDRAMC_DMRn_V);
 

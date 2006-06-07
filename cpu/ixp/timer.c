@@ -1,5 +1,7 @@
-/* vi: set ts=8 sw=8 noet: */
 /*
+ * (C) Copyright 2006
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -30,6 +32,7 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
+#ifndef CONFIG_USE_IRQ
 ulong get_timer (ulong base)
 {
        return get_timer_masked () - base;
@@ -77,3 +80,4 @@ ulong get_timer_masked (void)
 	}
 	return (reload_constant - current);
 }
+#endif /* #ifndef CONFIG_USE_IRQ */

@@ -736,6 +736,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_LN2410SBC            725
 #define MACH_TYPE_CB3RUFC              726
 #define MACH_TYPE_MP2USB               727
+#define MACH_TYPE_PDNB3               1002
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2006
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -174,7 +174,7 @@
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/yellowstone/uImage\0"			\
 	"kernel_addr=fc000000\0"					\
-	"ramdisk_addr=fc100000\0"					\
+	"ramdisk_addr=fc180000\0"					\
 	"load=tftp 100000 /tftpboot/yellowstone/u-boot.bin\0"		\
 	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
 		"cp.b 100000 fff80000 80000;"			        \

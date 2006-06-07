@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -58,9 +58,9 @@ void cpu_init_f (void)
 
 	/* Enable UART pins */
 	mbar_writeShort(MCF_GPIO_PAR_UART, MCF_GPIO_PAR_UART_U0TXD |
-                        MCF_GPIO_PAR_UART_U0RXD |
-                        MCF_GPIO_PAR_UART_U1RXD_UART1 |
-                        MCF_GPIO_PAR_UART_U1TXD_UART1);
+			MCF_GPIO_PAR_UART_U0RXD |
+			MCF_GPIO_PAR_UART_U1RXD_UART1 |
+			MCF_GPIO_PAR_UART_U1TXD_UART1);
 
 	/* Enable Ethernet pins */
 	mbar_writeByte(MCF_GPIO_PAR_FECI2C, CFG_FECI2C);
@@ -69,7 +69,7 @@ void cpu_init_f (void)
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r  (void)
+int cpu_init_r	(void)
 {
 	return (0);
 }
@@ -97,7 +97,7 @@ void cpu_init_f (void)
 	regp->sysctrl_reg.sc_scr = CFG_SCR;
 	regp->sysctrl_reg.sc_spr = CFG_SPR;
 
-	/* Setup Ports:	*/
+	/* Setup Ports: */
 	regp->gpio_reg.gpio_pacnt = CFG_PACNT;
 	regp->gpio_reg.gpio_paddr = CFG_PADDR;
 	regp->gpio_reg.gpio_padat = CFG_PADAT;
@@ -147,15 +147,15 @@ void cpu_init_f (void)
 
 #endif /* #ifndef CONFIG_MONITOR_IS_IN_RAM */
 
-    /* enable instruction cache now */
-    icache_enable();
+	/* enable instruction cache now */
+	icache_enable();
 
 }
 
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r  (void)
+int cpu_init_r	(void)
 {
 	return (0);
 }
@@ -178,7 +178,7 @@ void cpu_init_f (void)
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r  (void)
+int cpu_init_r	(void)
 {
 	return (0);
 }
@@ -202,23 +202,23 @@ void cpu_init_f (void)
 	volatile unsigned long cpll = mbar2_readLong(MCFSIM_PLLCR);
 	unsigned long pllcr;
 #ifdef CFG_FAST_CLK
-  	pllcr = 0x925a3100;                       /* ~140MHz clock (PLL bypass = 0) */
+	pllcr = 0x925a3100;			  /* ~140MHz clock (PLL bypass = 0) */
 #else
-	pllcr = 0x135a4140;                       /* ~72MHz clock (PLL bypass = 0) */
+	pllcr = 0x135a4140;			  /* ~72MHz clock (PLL bypass = 0) */
 #endif
-	cpll = cpll & 0xfffffffe; 		  /* Set PLL bypass mode = 0 (PSTCLK = crystal) */
-	mbar2_writeLong(MCFSIM_PLLCR, cpll); 	  /* Set the PLL to bypass mode (PSTCLK = crystal) */
-	mbar2_writeLong(MCFSIM_PLLCR, pllcr);  	  /* set the clock speed */
-	pllcr ^= 0x00000001; 		      	  /* Set pll bypass to 1 */
-	mbar2_writeLong(MCFSIM_PLLCR, pllcr);  	  /* Start locking (pll bypass = 1) */
-	udelay(0x20);                             /* Wait for a lock ... */
+	cpll = cpll & 0xfffffffe;		  /* Set PLL bypass mode = 0 (PSTCLK = crystal) */
+	mbar2_writeLong(MCFSIM_PLLCR, cpll);	  /* Set the PLL to bypass mode (PSTCLK = crystal) */
+	mbar2_writeLong(MCFSIM_PLLCR, pllcr);	  /* set the clock speed */
+	pllcr ^= 0x00000001;			  /* Set pll bypass to 1 */
+	mbar2_writeLong(MCFSIM_PLLCR, pllcr);	  /* Start locking (pll bypass = 1) */
+	udelay(0x20);				  /* Wait for a lock ... */
 #endif /* #ifndef CFG_PLL_BYPASS */
 
 	/*
 	 *  NOTE: by setting the GPIO_FUNCTION registers, we ensure that the UART pins
-	 *        (UART0: gpio 30,27, UART1: gpio 31, 28) will be used as UART pins
-	 *        which is their primary function.
-	 *        ~Jeremy
+	 *	  (UART0: gpio 30,27, UART1: gpio 31, 28) will be used as UART pins
+	 *	  which is their primary function.
+	 *	  ~Jeremy
 	 */
 	mbar2_writeLong(MCFSIM_GPIO_FUNC, CFG_GPIO_FUNC);
 	mbar2_writeLong(MCFSIM_GPIO1_FUNC, CFG_GPIO1_FUNC);
@@ -233,7 +233,7 @@ void cpu_init_f (void)
 	 *    (Internal Register Display) command
 	 *    ~Jeremy
 	 *
- 	 */
+	 */
 	mbar_writeByte(MCFSIM_MPARK, 0x30);    /* 5249 Internal Core takes priority over DMA */
 	mbar_writeByte(MCFSIM_SYPCR, 0x00);
 	mbar_writeByte(MCFSIM_SWIVR, 0x0f);
@@ -252,9 +252,9 @@ void cpu_init_f (void)
 	mbar_writeByte(MCFSIM_QSPIICR, 0x00);
 
 	mbar2_writeLong(MCFSIM_GPIO_INT_EN, 0x00000080);
-	mbar2_writeByte(MCFSIM_INTBASE, 0x40);  /* Base interrupts at 64 */
+	mbar2_writeByte(MCFSIM_INTBASE, 0x40);	/* Base interrupts at 64 */
 	mbar2_writeByte(MCFSIM_SPURVEC, 0x00);
-	mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020);  /* Enable a 1 cycle pre-drive cycle on CS1 */
+	mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020);	 /* Enable a 1 cycle pre-drive cycle on CS1 */
 
 	/* Setup interrupt priorities for gpio7 */
 	/* mbar2_writeLong(MCFSIM_INTLEV5, 0x70000000); */
@@ -282,7 +282,7 @@ void cpu_init_f (void)
 /*
  * initialize higher level parts of CPU like timers
  */
-int cpu_init_r  (void)
+int cpu_init_r	(void)
 {
 	return (0);
 }

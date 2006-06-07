@@ -39,7 +39,7 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
 
-#undef CONFIG_PCI		
+#undef CONFIG_PCI
 #undef CONFIG_MPC83XX_PCI2 		/* support for 2nd PCI controller */
 
 #define PCI_66M

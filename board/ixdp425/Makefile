@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= ixdp425.o flash.o
+OBJS	:= ixdp425.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $^

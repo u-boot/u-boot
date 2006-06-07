@@ -53,6 +53,7 @@ extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
+extern int npe_initialize(bd_t *);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -216,6 +217,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_AU1X00)
 	au1x00_enet_initialize(bis);
+#endif
+#if defined(CONFIG_IXP4XX_NPE)
+	npe_initialize(bis);
 #endif
 #ifdef CONFIG_E1000
 	e1000_initialize(bis);

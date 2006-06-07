@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2006
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -109,6 +109,8 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #ifdef CFG_ENV_IS_IN_FLASH
@@ -174,7 +176,7 @@
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/yosemite/uImage\0"				\
 	"kernel_addr=fc000000\0"					\
-	"ramdisk_addr=fc100000\0"					\
+	"ramdisk_addr=fc180000\0"					\
 	"load=tftp 100000 /tftpboot/yosemite/u-boot.bin\0"		\
 	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
 		"cp.b 100000 fff80000 80000;"			        \

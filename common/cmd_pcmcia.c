@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -718,7 +718,8 @@ static int hardware_disable(int slot)
 /* SC8xx   Boards by SinoVee Microsystems				*/
 /* -------------------------------------------------------------------- */
 
-#if defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
+#if (defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)) \
+	&& !defined(CONFIG_VIRTLAB2)
 
 #if defined(CONFIG_TQM8xxL)
 #define PCMCIA_BOARD_MSG "TQM8xxL"
@@ -1021,6 +1022,183 @@ done:
 
 #endif	/* TQM8xxL */
 
+/* -------------------------------------------------------------------- */
+/* Virtlab2 Board by TQ Components					*/
+/* -------------------------------------------------------------------- */
+
+#if defined(CONFIG_VIRTLAB2)
+#define PCMCIA_BOARD_MSG "Virtlab2"
+
+static int hardware_enable(int slot)
+{
+	volatile pcmconf8xx_t	*pcmp =
+		(pcmconf8xx_t *)&(((immap_t *)CFG_IMMR)->im_pcmcia);
+	volatile unsigned char	*powerctl =
+		(volatile unsigned char *)PCMCIA_CTRL;
+	volatile sysconf8xx_t	*sysp =
+		(sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
+	unsigned int		reg, mask;
+
+	debug ("hardware_enable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
+
+	udelay(10000);
+
+	/*
+	 * Configure SIUMCR to enable PCMCIA port B
+	 */
+	sysp->sc_siumcr &= ~SIUMCR_DBGC11;	/* set DBGC to 00 */
+
+	/* clear interrupt state, and disable interrupts */
+	pcmp->pcmc_pscr =  PCMCIA_MASK(slot);
+	pcmp->pcmc_per &= ~PCMCIA_MASK(slot);
+
+	/*
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
+	 */
+	debug ("Disable PCMCIA buffers and assert RESET\n");
+	reg = __MY_PCMCIA_GCRX_CXRESET;		/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+
+	PCMCIA_PGCRX(slot) = reg;
+	udelay(500);
+
+	/* remove all power */
+	*powerctl = 0;
+
+	/*
+	 * Make sure there is a card in the slot, then configure the interface.
+	 */
+	udelay(10000);
+	debug ("[%d] %s: PIPR(%p)=0x%x\n", __LINE__,__FUNCTION__,
+		&(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
+
+	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
+		printf ("   No Card found\n");
+		return (1);
+	}
+
+	/*
+	 * Power On.
+	 */
+	mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
+	reg  = pcmp->pcmc_pipr;
+	debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n", reg,
+		(reg&PCMCIA_VS1(slot))?"n":"ff",
+		(reg&PCMCIA_VS2(slot))?"n":"ff");
+
+	if ((reg & mask) == mask) {
+		*powerctl = 2;	/* Enable 5V Vccout */
+		puts (" 5.0V card found: ");
+	} else {
+		*powerctl = 1;	/* Enable 3.3 V Vccout */
+		puts (" 3.3V card found: ");
+	}
+
+	udelay(1000);
+	debug ("Enable PCMCIA buffers and stop RESET\n");
+	reg  =  PCMCIA_PGCRX(slot);
+	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
+
+	PCMCIA_PGCRX(slot) = reg;
+
+	udelay(250000);	/* some cards need >150 ms to come up :-( */
+
+	debug ("# hardware_enable done\n");
+
+	return (0);
+}
+
+#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+static int hardware_disable(int slot)
+{
+	volatile unsigned char	*powerctl =
+		(volatile unsigned char *)PCMCIA_CTRL;
+	unsigned long		 reg;
+
+	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
+
+	/* remove all power */
+	*powerctl = 0;
+
+	debug ("Disable PCMCIA buffers and assert RESET\n");
+	reg = __MY_PCMCIA_GCRX_CXRESET;		/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+
+	PCMCIA_PGCRX(slot) = reg;
+
+	udelay(10000);
+
+	return (0);
+}
+#endif
+
+static int voltage_set(int slot, int vcc, int vpp)
+{
+#ifdef DEBUG
+	volatile pcmconf8xx_t	*pcmp =
+		(pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+#endif
+	volatile unsigned char	*powerctl =
+		(volatile unsigned char *)PCMCIA_CTRL;
+	unsigned long		reg;
+
+	debug ("voltage_set: " PCMCIA_BOARD_MSG
+		" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
+		'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
+
+	/*
+	 * Disable PCMCIA buffers (isolate the interface)
+	 * and assert RESET signal
+	 */
+	debug ("Disable PCMCIA buffers and assert RESET\n");
+	reg  = PCMCIA_PGCRX(slot);
+	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
+
+	PCMCIA_PGCRX(slot) = reg;
+	udelay(500);
+
+	/*
+	 * Configure pins for 5 Volts Enable and 3 Volts enable,
+	 * Turn off all power.
+	 */
+	debug ("PCMCIA power OFF\n");
+	reg = 0;
+	switch(vcc) {
+	case  0: 		break;
+	case 33: reg = 0x0001;	break;
+	case 50: reg = 0x0002;	break;
+	default: 		goto done;
+	}
+
+	/* Checking supported voltages */
+
+	debug ("PIPR: 0x%x --> %s\n", pcmp->pcmc_pipr,
+		(pcmp->pcmc_pipr & 0x00008000) ? "only 5 V" : "can do 3.3V");
+
+	*powerctl = reg;
+
+	if (reg) {
+		debug ("PCMCIA powered at %sV\n", (reg&0x0004) ? "5.0" : "3.3");
+	} else {
+		debug ("PCMCIA powered down\n");
+	}
+
+done:
+	debug ("Enable PCMCIA buffers and stop RESET\n");
+	reg  =  PCMCIA_PGCRX(slot);
+	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
+	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
+
+	PCMCIA_PGCRX(slot) = reg;
+	udelay(500);
+
+	debug ("voltage_set: " PCMCIA_BOARD_MSG " Slot %c, DONE\n", slot+'A');
+	return (0);
+}
+#endif	/* CONFIG_VIRTLAB2 */
 
 /* -------------------------------------------------------------------- */
 /* LWMON Board								*/
