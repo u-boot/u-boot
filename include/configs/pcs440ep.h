@@ -42,7 +42,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		0x60000		/* Reserve 384 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 #define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
 #define CFG_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
@@ -157,12 +157,11 @@
 	        "bootm\0"						\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/pcs440ep/uImage\0"				\
-	"kernel_addr=fff00000\0"					\
-	"ramdisk_addr=fff00000\0"					\
+	"kernel_addr=FFF00000\0"					\
+	"ramdisk_addr=FFF00000\0"					\
 	"load=tftp 100000 /tftpboot/pcs440ep/u-boot.bin\0"		\
-	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
-		"cp.b 100000 fffa0000 60000;"			        \
-		"setenv filesize;saveenv\0"				\
+	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
+		"cp.b 100000 FFFA0000 60000\0"			        \
 	"upd=run load;run update\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
