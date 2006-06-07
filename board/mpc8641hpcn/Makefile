@@ -31,8 +31,12 @@ SOBJS	:= init.o
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
 
+ifndef DTC
+DTC	:= dtc
+endif
+
 %.dtb: %.dts
-	dtc -f -V 0x10 -I dts -O dtb $< >$@
+	$(DTC) -f -V 0x10 -I dts -O dtb $< >$@
 
 %.c: %.dtb
 	xxd -i $< \
