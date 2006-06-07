@@ -52,7 +52,7 @@ typedef struct ccsr_local_mcm {
 	uint	lawbar7;	/* 0xce8 - Local Access Window 7 Base Address Register */
 	char	res19[4];
 	uint	lawar7;		/* 0xcf0 - Local Access Window 7 Attributes Register */
-	char	res20[16];
+	char	res20[20];
 	uint	lawbar8;	/* 0xd08 - Local Access Window 8 Base Address Register */
 	char	res21[4];
 	uint	lawar8;		/* 0xd10 - Local Access Window 8 Attributes Register */
@@ -60,7 +60,7 @@ typedef struct ccsr_local_mcm {
 	uint	lawbar9;	/* 0xd28 - Local Access Window 9 Base Address Register */
 	char	res23[4];
 	uint	lawar9;		/* 0xd30 - Local Access Window 9 Attributes Register */  
-	char	res24[720];
+	char	res24[716];
 	uint	abcr;		/* 0x1000 - MCM CCB Address Configuration Register */
 	char	res25[4];
         uint    dbcr;           /* 0x1008 - MCM MPX data bus Configuration Register */   

@@ -1,6 +1,6 @@
 /*
- * Copyright 2004 Freescale Semiconductor
- * Jeff Brown (jeffrey@freescale.com)
+ * Copyright 2006 Freescale Semiconductor
+ * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -32,29 +32,10 @@
 #include <ft_build.h>
 #endif
 
-extern unsigned long get_board_sys_clk(ulong dummy);
-
-
-static __inline__ unsigned long get_dbat3u (void)
-{
-	unsigned long dbat3u;
-	asm volatile("mfspr %0, 542" : "=r" (dbat3u) :);
-	return dbat3u;
-}
-
-static __inline__ unsigned long get_dbat3l (void)
-{
-	unsigned long dbat3l;
-	asm volatile("mfspr %0, 543" : "=r" (dbat3l) :);
-	return dbat3l;
-}
-
-static __inline__ unsigned long get_msr (void)
-{
-	unsigned long msr;
-	asm volatile("mfmsr %0" : "=r" (msr) :);
-	return msr;
-}
+#ifdef CONFIG_MPC8641HPCN
+extern void mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag,
+				int argc, char *argv[]);
+#endif
 
 
 int checkcpu (void)
@@ -74,8 +55,7 @@ int checkcpu (void)
 	minor = PVR_MIN(pvr);
 
 	puts("CPU:\n");
-
-	printf("    Core: ");
+	puts("    Core: ");
 
 	switch (ver) {
 	case PVR_VER(PVR_86xx):
@@ -131,22 +111,19 @@ int checkcpu (void)
 		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
-        printf("    L2: ");
-        if (get_l2cr() & 0x80000000)
-		printf("Enabled\n");
-        else
-		printf("Disabled\n");
+	puts("    L2: ");
+	if (get_l2cr() & 0x80000000)
+		puts("Enabled\n");
+	else
+		puts("Disabled\n");
 
 	return 0;
 }
 
 
-/* -------------------------------------------------------------------- */
-
 static inline void
 soft_restart(unsigned long addr)
 {
-
 #ifndef CONFIG_MPC8641HPCN
 
 	/* SRR0 has system reset vector, SRR1 has default MSR value */
@@ -158,283 +135,25 @@ soft_restart(unsigned long addr)
 	__asm__ __volatile__ ("rfi");
 
 #else /* CONFIG_MPC8641HPCN */
-        out8(PIXIS_BASE+PIXIS_RST,0);
+
+	out8(PIXIS_BASE + PIXIS_RST, 0);
+
 #endif /* !CONFIG_MPC8641HPCN */
+
 	while(1);	/* not reached */
 }
 
 
-
-#ifdef CONFIG_MPC8641HPCN
-
-int set_px_sysclk(ulong sysclk)
-{
-         u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux,tmp;
-
-         /* Per table 27, page 58 of MPC8641HPCN spec*/
-         switch(sysclk)
-         {
-            case 33:
-               sysclk_s = 0x04;
-               sysclk_r = 0x04;
-               sysclk_v = 0x07;
-               sysclk_aux = 0x00;
-               break;
-            case 40:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x20;
-               sysclk_aux = 0x01;
-               break;
-            case 50:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x2A;
-               sysclk_aux = 0x02;
-               break;
-            case 66:
-               sysclk_s = 0x01;
-               sysclk_r = 0x04;
-               sysclk_v = 0x04;
-               sysclk_aux = 0x03;
-               break;
-            case 83:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x4B;
-               sysclk_aux = 0x04;
-               break;
-            case 100:
-               sysclk_s = 0x01;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x5C;
-               sysclk_aux = 0x05;
-               break;
-            case 134:
-               sysclk_s = 0x06;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x3B;
-              sysclk_aux = 0x06;
-               break;
-            case 166:
-               sysclk_s = 0x06;
-               sysclk_r = 0x1F;
-               sysclk_v = 0x4B;
-               sysclk_aux = 0x07;
-               break;
-            default:
-               printf("Unsupported SYSCLK frequency.\n");
-               return 0;
-         }
-
-         vclkh = (sysclk_s << 5) | sysclk_r ;
-         vclkl = sysclk_v;
-         out8(PIXIS_BASE+PIXIS_VCLKH,vclkh);
-         out8(PIXIS_BASE+PIXIS_VCLKL,vclkl);
-
-         out8(PIXIS_BASE+PIXIS_AUX,sysclk_aux);
-
-         return 1;
-}
-
-int set_px_mpxpll(ulong mpxpll)
-{
-         u8 tmp;
-         u8 val;
-         switch(mpxpll)
-         {
-            case 2:
-            case 4:
-            case 6:
-            case 8:
-            case 10:
-            case 12:
-            case 14:
-            case 16:
-               val = (u8)mpxpll;
-               break;
-            default:
-               printf("Unsupported MPXPLL ratio.\n");
-               return 0;
-         }
-
-         tmp = in8(PIXIS_BASE+PIXIS_VSPEED1);
-         tmp = (tmp & 0xF0) | (val & 0x0F);
-         out8(PIXIS_BASE+PIXIS_VSPEED1,tmp);
-
-         return 1;
-}
-
-int set_px_corepll(ulong corepll)
-{
-         u8 tmp;
-         u8 val;
-
-         switch ((int)corepll) {
-            case 20:
-               val = 0x08;
-               break;
-            case 25:
-               val = 0x0C;
-               break;
-            case 30:
-               val = 0x10;
-               break;
-            case 35:
-               val = 0x1C;
-               break;
-            case 40:
-               val = 0x14;
-               break;
-            case 45:
-               val = 0x0E;
-               break;
-            default:
-               printf("Unsupported COREPLL ratio.\n");
-               return 0;
-         }
-
-         tmp = in8(PIXIS_BASE+PIXIS_VSPEED0);
-         tmp = (tmp & 0xE0) | (val & 0x1F);
-         out8(PIXIS_BASE+PIXIS_VSPEED0,tmp);
-
-         return 1;
-}
-
-void read_from_px_regs(int set)
-{
-         u8 tmp, mask = 0x1C;
-         tmp = in8(PIXIS_BASE+PIXIS_VCFGEN0);
-         if (set)
-            tmp = tmp | mask;
-         else
-            tmp = tmp & ~mask;
-         out8(PIXIS_BASE+PIXIS_VCFGEN0,tmp);
-}
-
-void read_from_px_regs_altbank(int set)
-{
-         u8 tmp, mask = 0x04;
-         tmp = in8(PIXIS_BASE+PIXIS_VCFGEN1);
-         if (set)
-            tmp = tmp | mask;
-         else
-            tmp = tmp & ~mask;
-         out8(PIXIS_BASE+PIXIS_VCFGEN1,tmp);
-}
-
-void set_altbank(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VBOOT);
-         tmp ^= 0x40;
-         out8(PIXIS_BASE+PIXIS_VBOOT,tmp);
- }
-
-
-void set_px_go(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp & 0x1E;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp | 0x01;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-}
-
-void set_px_go_with_watchdog(void)
-{
-         u8 tmp;
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp & 0x1E;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-         tmp = in8(PIXIS_BASE+PIXIS_VCTL);
-         tmp = tmp | 0x09;
-         out8(PIXIS_BASE+PIXIS_VCTL,tmp);
-}
-
-/* This function takes the non-integral cpu:mpx pll ratio
- * and converts it to an integer that can be used to assign
- * FPGA register values.
- * input: strptr i.e. argv[2]
-*/
-
-ulong strfractoint(uchar *strptr)
-{
-   int i,j,retval,intarr_len=0, decarr_len=0, mulconst, no_dec=0;
-   ulong intval =0, decval=0;
-   uchar intarr[3], decarr[3];
-
-   /* Assign the integer part to intarr[]
-    * If there is no decimal point i.e.
-    * if the ratio is an integral value
-    * simply create the intarr.
-   */
-   i=0;
-   while(strptr[i] != 46)
-   {
-      if(strptr[i] == 0)
-      {
-         no_dec = 1;
-         break;    /* Break from loop once the end of string is reached */
-      }
-
-      intarr[i] = strptr[i];
-      i++;
-   }
-
-   intarr_len = i; /* Assign length of integer part to intarr_len*/
-   intarr[i] = '\0'; /* */
-
-   if(no_dec)
-   {
-      mulconst=10; /* Currently needed only for single digit corepll ratios */
-      decval = 0;
-   }
-   else
-   {
-      j=0;
-      i++; /* Skipping the decimal point */
-      while ((strptr[i] > 47) && (strptr[i] < 58))
-      {
-         decarr[j] = strptr[i];
-         i++;
-         j++;
-      }
-
-      decarr_len = j;
-      decarr[j] = '\0';
-
-      mulconst=1;
-      for(i=0; i<decarr_len;i++)
-         mulconst = mulconst*10;
-      decval = simple_strtoul(decarr,NULL,10);
-   }
-
-   intval = simple_strtoul(intarr,NULL,10);
-   intval = intval*mulconst;
-
-   retval = intval+decval;
-
-   return retval;
-
-}
-
-
-#endif	/* CONFIG_MPC8641HPCN */
-
-
-/* no generic way to do board reset. simply call soft_reset. */
+/*
+ * No generic way to do board reset. Simply call soft_reset.
+ */
 void
-do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-        char cmd;
-        ulong addr, val;
-        ulong corepll;
+#ifndef CONFIG_MPC8641HPCN
 
 #ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+	ulong addr = CFG_RESET_ADDRESS;
 #else
 	/*
 	 * note: when CFG_MONITOR_BASE points to a RAM address,
@@ -442,10 +161,8 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * address. Better pick an address known to be invalid on your
 	 * system and assign it to CFG_RESET_ADDRESS.
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	ulong addr = CFG_MONITOR_BASE - sizeof(ulong);
 #endif
-
-#ifndef CONFIG_MPC8641HPCN
 
 	/* flush and disable I/D cache */
 	__asm__ __volatile__ ("mfspr	3, 1008"	::: "r3");
@@ -460,81 +177,11 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	__asm__ __volatile__ ("isync");
 	__asm__ __volatile__ ("sync");
 
-        soft_restart(addr);
+	soft_restart(addr);
 
 #else /* CONFIG_MPC8641HPCN */
 
-        if (argc > 1) {
-		cmd = argv[1][1];
-		switch(cmd) {
-		case 'f':    /* reset with frequency changed */
-			if (argc < 5)
-				goto my_usage;
-			read_from_px_regs(0);
-
-			val = set_px_sysclk(simple_strtoul(argv[2],NULL,10));
-
-			corepll = strfractoint(argv[3]);
-			val = val + set_px_corepll(corepll);
-			val = val + set_px_mpxpll(simple_strtoul(argv[4],
-								 NULL, 10));
-			if (val == 3) {
-				printf("Setting registers VCFGEN0 and VCTL\n");
-				read_from_px_regs(1);
-				printf("Resetting board with values from VSPEED0, VSPEED1, VCLKH, and VCLKL ....\n");
-				set_px_go();
-			} else
-				goto my_usage;
-
-			while (1); /* Not reached */
-
-		case 'l':
-			if (argv[2][1] == 'f') {
-				read_from_px_regs(0);
-				read_from_px_regs_altbank(0);
-				/* reset with frequency changed */
-				val = set_px_sysclk(simple_strtoul(argv[3],NULL,10));
-
-				corepll = strfractoint(argv[4]);
-				val = val + set_px_corepll(corepll);
-				val = val + set_px_mpxpll(simple_strtoul(argv[5],NULL,10));
-				if (val == 3) {
-					printf("Setting registers VCFGEN0, VCFGEN1, VBOOT, and VCTL\n");
-					set_altbank();
-					read_from_px_regs(1);
-					read_from_px_regs_altbank(1);
-					printf("Enabling watchdog timer on the FPGA and resetting board with values from VSPEED0, VSPEED1, VCLKH, and VCLKL to boot from the other bank ....\n");
-					set_px_go_with_watchdog();
-				} else
-					goto my_usage;
-
-				while(1); /* Not reached */
-			} else {
-				/* Reset from next bank without changing frequencies */
-				read_from_px_regs(0);
-				read_from_px_regs_altbank(0);
-				if(argc > 2)
-					goto my_usage;
-				printf("Setting registers VCFGEN1, VBOOT, and VCTL\n");
-				set_altbank();
-				read_from_px_regs_altbank(1);
-				printf("Enabling watchdog timer on the FPGA and resetting board to boot from the other bank....\n");
-				set_px_go_with_watchdog();
-				while(1); /* Not reached */
-			}
-
-		default:
-			goto my_usage;
-		}
-
-my_usage:
-		printf("\nUsage: reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n");
-		printf("       reset altbank [cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>]\n");
-		printf("For example:   reset cf 40 2.5 10\n");
-		printf("See MPC8641HPCN Design Workbook for valid values of command line parameters.\n");
-		return;
-        } else
-		out8(PIXIS_BASE+PIXIS_RST,0);
+	mpc8641_reset_board(cmdtp, flag, argc, argv);
 
 #endif /* !CONFIG_MPC8641HPCN */
 
@@ -571,7 +218,6 @@ void dma_init(void)
 	dma->satr0 = 0x00040000;
 	dma->datr0 = 0x00040000;
 	asm("sync; isync");
-	return;
 }
 
 uint dma_check(void)

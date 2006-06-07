@@ -1,5 +1,5 @@
 # Copyright 2004 Freescale Semiconductor.
-# Modified by Jeff Brown (jeffrey@freescale.com)
+# Modified by Jeff Brown
 #
 # See file CREDITS for list of people who contributed to this
 # project.

@@ -1,6 +1,6 @@
 /*
  * Copyright 2004 Freescale Semiconductor.
- * Jeff Brown (jeffrey@freescale.com)
+ * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -106,15 +106,6 @@ void cpu_init_f(void)
 
         /* enable SYNCBE | ABE bits in  HID1 */
         set_hid1(get_hid1() | 0x00000C00);
-
-        /* Since the bats have been set up at this point and
-         * the local bus registers have been initialized, we
-         * turn on the WDEN bit in PIXIS_VCTL
-         */
-/*         val = in8(PIXIS_BASE+PIXIS_VCTL); */
-        /* Set the WDEN */
-/*         val |= 0x08; */
-/*         out8(PIXIS_BASE+PIXIS_VCTL,val);  */
 }
 
 /*

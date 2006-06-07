@@ -42,6 +42,15 @@ extern int dma_xfer(void *dest, uint count, void *src);
 #endif
 
 /*
+ * Only one of the following three should be 1; others should be 0
+ * By default the cache line interleaving is selected if
+ * the CONFIG_DDR_INTERLEAVE flag is defined in MPC8641HPCN.h
+ */
+#define CFG_PAGE_INTERLEAVING		0
+#define CFG_BANK_INTERLEAVING		0
+#define CFG_SUPER_BANK_INTERLEAVING	0
+
+/*
  * Convert picoseconds into clock cycles (rounding up if needed).
  */
 
@@ -144,10 +153,11 @@ convert_bcd_tenths_to_cycle_time_ps(unsigned int spd_val)
 
 
 long int
-spd_sdram(void)
+spd_init(unsigned char i2c_address, unsigned int ddr_num,
+	 unsigned int dimm_num, unsigned int start_addr)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
+	volatile ccsr_ddr_t *ddr;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
@@ -175,27 +185,40 @@ spd_sdram(void)
 	unsigned int mode_caslat;
 	unsigned char sdram_type;
 	unsigned char d_init;
+	unsigned int law_size;
+	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
-
-        unsigned int law_size;
-        volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+	if (ddr_num == 1)
+		ddr = &immap->im_ddr1;
+	else
+		ddr = &immap->im_ddr2;
 
 	/*
 	 * Read SPD information.
 	 */
 
-	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) &spd, sizeof(spd));
+	debug("Performing SPD read at I2C address 0x%02lx\n",i2c_address);
+	memset((void *)&spd, 0, sizeof(spd));
+	CFG_READ_SPD(i2c_address, 0, 1, (uchar *) &spd, sizeof(spd));
 
 	/*
 	 * Check for supported memory module types.
 	 */
 	if (spd.mem_type != SPD_MEMTYPE_DDR &&
 	    spd.mem_type != SPD_MEMTYPE_DDR2) {
-		printf("Unable to locate DDR I or DDR II module.\n"
-		       "    Fundamental memory type is 0x%0x\n",
-		       spd.mem_type);
+		debug("Warning: Unable to locate DDR I or DDR II module for DIMM %d of DDR controller %d.\n"
+		      "         Fundamental memory type is 0x%0x\n",
+		      dimm_num,
+		      ddr_num,
+		      spd.mem_type);
 		return 0;
 	}
+
+	debug("\nFound memory of type 0x%02lx  ", spd.mem_type);
+	if (spd.mem_type == SPD_MEMTYPE_DDR)
+		debug("DDR I\n");
+	else
+		debug("DDR II\n");
 
 	/*
 	 * These test gloss over DDR I and II differences in interpretation
@@ -253,11 +276,7 @@ spd_sdram(void)
 	 */
 	rank_density = compute_banksize(spd.mem_type, spd.row_dens);
 
-
-	/*
-	 * Eg: Bounds: 0x0000_0000 to 0x0f000_0000	first 256 Meg
-	 */
-	ddr1->cs0_bnds = (rank_density >> 24) - 1;
+	debug("Start address for this controller is 0x%08lx\n", start_addr);
 
 	/*
 	 * ODT configuration recommendation from DDR Controller Chapter.
@@ -268,30 +287,133 @@ spd_sdram(void)
 		odt_wr_cfg = 1;		/* Assert ODT on writes to CS0 */
 	}
 
-	ddr1->cs0_config = ( 1 << 31
-			    | (odt_rd_cfg << 20)
-			    | (odt_wr_cfg << 16)
-			    | (spd.nrow_addr - 12) << 8
-			    | (spd.ncol_addr - 8) );
-	debug("\n");
-	debug("DDR: cs0_bnds   = 0x%08x\n", ddr1->cs0_bnds);
-	debug("DDR: cs0_config = 0x%08x\n", ddr1->cs0_config);
-
-	if (n_ranks == 2) {
+#ifdef CONFIG_DDR_INTERLEAVE
+#ifdef CONFIG_MPC8641HPCN
+	if (dimm_num != 1) {
+		printf("For interleaving memory on HPCN, need to use DIMM 1 for DDR Controller %d !\n", ddr_num);
+		return 0;
+	} else {
 		/*
-		 * Eg: Bounds: 0x0f00_0000 to 0x1e0000_0000, second 256 Meg
+		 * Since interleaved memory only uses CS0, the
+		 * memory sticks have to be identical in size and quantity
+		 * of ranks.  That essentially gives double the size on
+		 * one rank, i.e on CS0 for both controllers put together.
+		 * Confirm this???
 		 */
-		ddr1->cs1_bnds = ( (rank_density >> 8)
-				  | ((rank_density >> (24 - 1)) - 1) );
-		ddr1->cs1_config = ( 1<<31
+		rank_density *= 2;
+
+		/*
+		 * Eg: Bounds: 0x0000_0000 to 0x0f000_0000	first 256 Meg
+		 */
+		start_addr = 0;
+		ddr->cs0_bnds = (start_addr >> 8)
+			| (((start_addr + rank_density - 1) >> 24));
+		/*
+		 * Default interleaving mode to cache-line interleaving.
+		 */
+		ddr->cs0_config = ( 1 << 31
+#if	(CFG_PAGE_INTERLEAVING == 1)
+				    | (PAGE_INTERLEAVING)
+#elif	(CFG_BANK_INTERLEAVING == 1)
+				    | (BANK_INTERLEAVING)
+#elif	(CFG_SUPER_BANK_INTERLEAVING == 1)
+				    | (SUPER_BANK_INTERLEAVING)
+#else
+				    | (CACHE_LINE_INTERLEAVING)
+#endif
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
 				    | (spd.nrow_addr - 12) << 8
 				    | (spd.ncol_addr - 8) );
-		debug("DDR: cs1_bnds   = 0x%08x\n", ddr1->cs1_bnds);
-		debug("DDR: cs1_config = 0x%08x\n", ddr1->cs1_config);
-	}
 
+		debug("DDR: cs0_bnds   = 0x%08x\n", ddr->cs0_bnds);
+		debug("DDR: cs0_config = 0x%08x\n", ddr->cs0_config);
+
+		/*
+		 * Adjustment for dual rank memory to get correct memory
+		 * size (return value of this function).
+		 */
+		if (n_ranks == 2) {
+			n_ranks = 1;
+			rank_density /= 2;
+		} else {
+			rank_density /= 2;
+		}
+	}
+#endif	/* CONFIG_MPC8641HPCN */
+
+#else	/* CONFIG_DDR_INTERLEAVE */
+
+	if (dimm_num == 1) {
+		/*
+		 * Eg: Bounds: 0x0000_0000 to 0x0f000_0000	first 256 Meg
+		 */
+		ddr->cs0_bnds = (start_addr >> 8)
+			| (((start_addr + rank_density - 1) >> 24));
+
+		ddr->cs0_config = ( 1 << 31
+				    | (odt_rd_cfg << 20)
+				    | (odt_wr_cfg << 16)
+				    | (spd.nrow_addr - 12) << 8
+				    | (spd.ncol_addr - 8) );
+
+		debug("DDR: cs0_bnds   = 0x%08x\n", ddr->cs0_bnds);
+		debug("DDR: cs0_config = 0x%08x\n", ddr->cs0_config);
+
+		if (n_ranks == 2) {
+			/*
+			 * Eg: Bounds: 0x1000_0000 to 0x1f00_0000,
+			 * second 256 Meg
+			 */
+			ddr->cs1_bnds = (((start_addr + rank_density) >> 8)
+					| (( start_addr + 2*rank_density - 1)
+					   >> 24));
+			ddr->cs1_config = ( 1<<31
+					    | (odt_rd_cfg << 20)
+					    | (odt_wr_cfg << 16)
+					    | (spd.nrow_addr - 12) << 8
+					    | (spd.ncol_addr - 8) );
+			debug("DDR: cs1_bnds   = 0x%08x\n", ddr->cs1_bnds);
+			debug("DDR: cs1_config = 0x%08x\n", ddr->cs1_config);
+		}
+
+	} else {
+		/*
+		 * This is the 2nd DIMM slot for this controller
+		 */
+		/*
+		 * Eg: Bounds: 0x0000_0000 to 0x0f000_0000	first 256 Meg
+		 */
+		ddr->cs2_bnds = (start_addr >> 8)
+			| (((start_addr + rank_density - 1) >> 24));
+
+		ddr->cs2_config = ( 1 << 31
+				    | (odt_rd_cfg << 20)
+				    | (odt_wr_cfg << 16)
+				    | (spd.nrow_addr - 12) << 8
+				    | (spd.ncol_addr - 8) );
+
+		debug("DDR: cs2_bnds   = 0x%08x\n", ddr->cs2_bnds);
+		debug("DDR: cs2_config = 0x%08x\n", ddr->cs2_config);
+
+		if (n_ranks == 2) {
+			/*
+			 * Eg: Bounds: 0x1000_0000 to 0x1f00_0000,
+			 * second 256 Meg
+			 */
+			ddr->cs3_bnds = (((start_addr + rank_density) >> 8)
+					| (( start_addr + 2*rank_density - 1)
+					   >> 24));
+			ddr->cs3_config = ( 1<<31
+					    | (odt_rd_cfg << 20)
+					    | (odt_wr_cfg << 16)
+					    | (spd.nrow_addr - 12) << 8
+					    | (spd.ncol_addr - 8) );
+			debug("DDR: cs3_bnds   = 0x%08x\n", ddr->cs3_bnds);
+			debug("DDR: cs3_config = 0x%08x\n", ddr->cs3_config);
+		}
+	}
+#endif /* CONFIG_DDR_INTERLEAVE */
 
 	/*
 	 * Find the largest CAS by locating the highest 1 bit
@@ -447,15 +569,14 @@ spd_sdram(void)
 		unsigned char act_pd_exit = 2;		/* Empirical? */
 		unsigned char pre_pd_exit = 6;		/* Empirical? */
 
-		ddr1->timing_cfg_0 = (0
+		ddr->timing_cfg_0 = (0
 			| ((act_pd_exit & 0x7) << 20)	/* ACT_PD_EXIT */
 			| ((pre_pd_exit & 0x7) << 16)	/* PRE_PD_EXIT */
 			| ((taxpd_clk & 0xf) << 8)	/* ODT_PD_EXIT */
 			| ((tmrd_clk & 0xf) << 0)	/* MRS_CYC */
 			);
-		debug("DDR: timing_cfg_0 = 0x%08x\n", ddr1->timing_cfg_0);
+		debug("DDR: timing_cfg_0 = 0x%08x\n", ddr->timing_cfg_0);
 
-	} else {
 	}
 
 
@@ -520,10 +641,10 @@ spd_sdram(void)
 	/*
 	 * Sneak in some Extended Refresh Recovery.
 	 */
-	ddr1->ext_refrec = (trfc_high << 16);
-	debug("DDR: ext_refrec = 0x%08x\n", ddr1->ext_refrec);
+	ddr->ext_refrec = (trfc_high << 16);
+	debug("DDR: ext_refrec = 0x%08x\n", ddr->ext_refrec);
 
-	ddr1->timing_cfg_1 =
+	ddr->timing_cfg_1 =
 	    (0
 	     | ((picos_to_clk(spd.trp * 250) & 0x07) << 28)	/* PRETOACT */
 	     | ((picos_to_clk(spd.tras * 1000) & 0x0f ) << 24)	/* ACTTOPRE */
@@ -535,7 +656,7 @@ spd_sdram(void)
 	     | ((twtr_clk & 0x07) << 0)				/* WRTORD */
 	     );
 
-	debug("DDR: timing_cfg_1  = 0x%08x\n", ddr1->timing_cfg_1);
+	debug("DDR: timing_cfg_1  = 0x%08x\n", ddr->timing_cfg_1);
 
 
 	/*
@@ -612,7 +733,7 @@ spd_sdram(void)
 		}
 	}
 
-	ddr1->timing_cfg_2 = (0
+	ddr->timing_cfg_2 = (0
 		| ((add_lat & 0x7) << 28)		/* ADD_LAT */
 		| ((cpo & 0x1f) << 23)			/* CPO */
 		| ((wr_lat & 0x7) << 19)		/* WR_LAT */
@@ -622,7 +743,7 @@ spd_sdram(void)
 		| ((four_act & 0x1f) << 0)		/* FOUR_ACT */
 		);
 
-	debug("DDR: timing_cfg_2 = 0x%08x\n", ddr1->timing_cfg_2);
+	debug("DDR: timing_cfg_2 = 0x%08x\n", ddr->timing_cfg_2);
 
 
 	/*
@@ -673,7 +794,7 @@ spd_sdram(void)
 	}
 
 	/*
-	 * Encoded Burst Lenght of 4.
+	 * Encoded Burst Length of 4.
 	 */
 	burst_len = 2;			/* Fiat. */
 
@@ -706,7 +827,7 @@ spd_sdram(void)
 		mode_odt_enable = 0x40;		/* 150 Ohm */
 	}
 
-	ddr1->sdram_mode_1 =
+	ddr->sdram_mode_1 =
 		(0
 		 | (add_lat << (16 + 3))	/* Additive Latency in EMRS1 */
 		 | (mode_odt_enable << 16)	/* ODT Enable in EMRS1 */
@@ -715,14 +836,14 @@ spd_sdram(void)
 		 | (burst_len << 0)		/* Burst length */
 		 );
 
-	debug("DDR: sdram_mode   = 0x%08x\n", ddr1->sdram_mode_1);
+	debug("DDR: sdram_mode   = 0x%08x\n", ddr->sdram_mode_1);
 
 
 	/*
 	 * Clear EMRS2 and EMRS3.
 	 */
-	ddr1->sdram_mode_2 = 0;
-	debug("DDR: sdram_mode_2 = 0x%08x\n", ddr1->sdram_mode_2);
+	ddr->sdram_mode_2 = 0;
+	debug("DDR: sdram_mode_2 = 0x%08x\n", ddr->sdram_mode_2);
 
 
 	/*
@@ -749,12 +870,12 @@ spd_sdram(void)
 		 * Set BSTOPRE to 0x100 for page mode
 		 * If auto-charge is used, set BSTOPRE = 0
 		 */
-		ddr1->sdram_interval =
+		ddr->sdram_interval =
 			(0
 			 | (refresh_clk & 0x3fff) << 16
 			 | 0x100
 			 );
-		debug("DDR: sdram_interval = 0x%08x\n", ddr1->sdram_interval);
+		debug("DDR: sdram_interval = 0x%08x\n", ddr->sdram_interval);
 	}
 
 	/*
@@ -763,11 +884,11 @@ spd_sdram(void)
 	 */
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	if (spd.config == 0x02) {
-		ddr1->err_disable = 0x0000000d;
-		ddr1->err_sbe = 0x00ff0000;
+		ddr->err_disable = 0x0000000d;
+		ddr->err_sbe = 0x00ff0000;
 	}
-	debug("DDR: err_disable = 0x%08x\n", ddr1->err_disable);
-	debug("DDR: err_sbe = 0x%08x\n", ddr1->err_sbe);
+	debug("DDR: err_disable = 0x%08x\n", ddr->err_disable);
+	debug("DDR: err_sbe = 0x%08x\n", ddr->err_sbe);
 #endif
 
 	asm("sync;isync");
@@ -800,8 +921,8 @@ spd_sdram(void)
 	 * Use the DDR controller to auto initialize memory.
 	 */
 	d_init = 1;
-	ddr1->sdram_data_init = CONFIG_MEM_INIT_VALUE;
-	debug("DDR: ddr_data_init = 0x%08x\n", ddr1->sdram_data_init);
+	ddr->sdram_data_init = CONFIG_MEM_INIT_VALUE;
+	debug("DDR: ddr_data_init = 0x%08x\n", ddr->sdram_data_init);
 #else
 	/*
 	 * Memory will be initialized via DMA, or not at all.
@@ -809,13 +930,13 @@ spd_sdram(void)
 	d_init = 0;
 #endif
 
-	ddr1->sdram_cfg_2 = (0
+	ddr->sdram_cfg_2 = (0
 			    | (dqs_cfg << 26)	/* Differential DQS */
 			    | (odt_cfg << 21)	/* ODT */
 			    | (d_init << 4)	/* D_INIT auto init DDR */
 			    );
 
-	debug("DDR: sdram_cfg_2  = 0x%08x\n", ddr1->sdram_cfg_2);
+	debug("DDR: sdram_cfg_2  = 0x%08x\n", ddr->sdram_cfg_2);
 
 
 #ifdef MPC86xx_DDR_SDRAM_CLK_CNTL
@@ -835,120 +956,372 @@ spd_sdram(void)
 			clk_adjust = 0x7;
 		}
 
-		ddr1->sdram_clk_cntl = (0
+		ddr->sdram_clk_cntl = (0
 			       | 0x80000000
 			       | (clk_adjust << 23)
 			       );
-		debug("DDR: sdram_clk_cntl = 0x%08x\n", ddr1->sdram_clk_cntl);
+		debug("DDR: sdram_clk_cntl = 0x%08x\n", ddr->sdram_clk_cntl);
 	}
-#endif
-
-	/*
-	 * Figure out the settings for the sdram_cfg register.
-	 * Build up the entire register in 'sdram_cfg' before writing
-	 * since the write into the register will actually enable the
-	 * memory controller; all settings must be done before enabling.
-	 *
-	 * sdram_cfg[0]   = 1 (ddr sdram logic enable)
-	 * sdram_cfg[1]   = 1 (self-refresh-enable)
-	 * sdram_cfg[5:7] = (SDRAM type = DDR SDRAM)
-	 *			010 DDR 1 SDRAM
-	 *			011 DDR 2 SDRAM
-	 */
-	sdram_type = (spd.mem_type == SPD_MEMTYPE_DDR) ? 2 : 3;
-	sdram_cfg_1 = (0
-		     | (1 << 31)			/* Enable */
-		     | (1 << 30)			/* Self refresh */
-		     | (sdram_type << 24)		/* SDRAM type */
-		     );
-
-	/*
-	 * sdram_cfg[3] = RD_EN - registered DIMM enable
-	 *   A value of 0x26 indicates micron registered DIMMS (micron.com)
-	 */
-	if (spd.mem_type == SPD_MEMTYPE_DDR && spd.mod_attr == 0x26) {
-		sdram_cfg_1 |= 0x10000000;		/* RD_EN */
-	}
-
-#if defined(CONFIG_DDR_ECC)
-	/*
-	 * If the user wanted ECC (enabled via sdram_cfg[2])
-	 */
-	if (spd.config == 0x02) {
-		sdram_cfg_1 |= 0x20000000;		/* ECC_EN */
-	}
-#endif
-
-	/*
-	 * REV1 uses 1T timing.
-	 * REV2 may use 1T or 2T as configured by the user.
-	 */
-	{
-		uint pvr = get_pvr();
-
-		if (pvr != PVR_85xx_REV1) {
-#if defined(CONFIG_DDR_2T_TIMING)
-			/*
-			 * Enable 2T timing by setting sdram_cfg[16].
-			 */
-			sdram_cfg_1 |= 0x8000;		/* 2T_EN */
-#endif
-		}
-	}
-
-	/*
-	 * 200 painful micro-seconds must elapse between
-	 * the DDR clock setup and the DDR config enable.
-	 */
-	udelay(200);
-
-	/*
-	 * Go!
-	 */
-	ddr1->sdram_cfg_1 = sdram_cfg_1;
-
-	asm("sync;isync");
-	udelay(500);
-
-	debug("DDR: sdram_cfg   = 0x%08x\n", ddr1->sdram_cfg_1);
-
-
-#if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-        debug("DDR: memory initializing\n");
-        /*
-	 * Poll until memory is initialized.
-	 * 512 Meg at 400 might hit this 200 times or so.
-	 */
-	while ((ddr1->sdram_cfg_2 & (d_init << 4)) != 0) {
-		udelay(1000);
-	}
-        debug("DDR: memory initialized\n");
 #endif
 
 
 	/*
 	 * Figure out memory size in Megabytes.
 	 */
+	debug("# ranks = %d, rank_density = 0x%08lx\n", n_ranks, rank_density);
 	memsize = n_ranks * rank_density / 0x100000;
+	return memsize;
+}
 
 
-        /*
-	 * First supported LAW size is 16M, at LAWAR_SIZE_16M == 23.  Fnord.
-	 */
-	law_size = 19 + __ilog2(memsize);
+unsigned int enable_ddr(unsigned int ddr_num)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	spd_eeprom_t spd1,spd2;
+	volatile ccsr_ddr_t *ddr;
+	unsigned sdram_cfg_1;
+	unsigned char sdram_type, mem_type, config, mod_attr;
+	unsigned char d_init;
+	unsigned int no_dimm1=0, no_dimm2=0;
+
+	/* Set up pointer to enable the current ddr controller */
+	if (ddr_num == 1)
+		ddr = &immap->im_ddr1;
+	else
+		ddr = &immap->im_ddr2;
 
 	/*
-	 * Set up LAWBAR for all of DDR.
+	 * Read both dimm slots and decide whether
+	 * or not to enable this controller.
 	 */
-	mcm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
-	mcm->lawar1 = (LAWAR_EN
-		       | LAWAR_TRGT_IF_DDR
-		       | (LAWAR_SIZE & law_size));
-	debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
-	debug("DDR: LARAR1=0x%08x\n", mcm->lawar1);
+	memset((void *)&spd1,0,sizeof(spd1));
+	memset((void *)&spd2,0,sizeof(spd2));
 
-	return memsize * 1024 * 1024;
+	if (ddr_num == 1) {
+		CFG_READ_SPD(SPD_EEPROM_ADDRESS1,
+			     0, 1, (uchar *) &spd1, sizeof(spd1));
+		CFG_READ_SPD(SPD_EEPROM_ADDRESS2,
+			     0, 1, (uchar *) &spd2, sizeof(spd2));
+	} else {
+		CFG_READ_SPD(SPD_EEPROM_ADDRESS3,
+			     0, 1, (uchar *) &spd1, sizeof(spd1));
+		CFG_READ_SPD(SPD_EEPROM_ADDRESS4,
+			     0, 1, (uchar *) &spd2, sizeof(spd2));
+	}
+
+	/*
+	 * Check for supported memory module types.
+	 */
+	if (spd1.mem_type != SPD_MEMTYPE_DDR
+	    && spd1.mem_type != SPD_MEMTYPE_DDR2) {
+		no_dimm1 = 1;
+	} else {
+		debug("\nFound memory of type 0x%02lx  ",spd1.mem_type );
+		if (spd1.mem_type == SPD_MEMTYPE_DDR)
+			debug("DDR I\n");
+		else
+			debug("DDR II\n");
+	}
+
+	if (spd2.mem_type != SPD_MEMTYPE_DDR &&
+	    spd2.mem_type != SPD_MEMTYPE_DDR2) {
+		no_dimm2 = 1;
+	} else {
+		debug("\nFound memory of type 0x%02lx  ",spd2.mem_type );
+		if (spd2.mem_type == SPD_MEMTYPE_DDR)
+			debug("DDR I\n");
+		else
+			debug("DDR II\n");
+	}
+
+#ifdef CONFIG_DDR_INTERLEAVE
+	if (no_dimm1) {
+		printf("For interleaved operation memory modules need to be present in CS0 DIMM slots of both DDR controllers!\n");
+		return 0;
+	}
+#endif
+
+	/*
+	 * Memory is not present in DIMM1 and DIMM2 - so do not enable DDRn
+	 */
+	if (no_dimm1  && no_dimm2) {
+		printf("No memory modules found for DDR controller %d!!\n", ddr_num);
+		return 0;
+	} else {
+		mem_type = no_dimm2 ? spd1.mem_type : spd2.mem_type;
+
+		/*
+		 * Figure out the settings for the sdram_cfg register.
+		 * Build up the entire register in 'sdram_cfg' before
+		 * writing since the write into the register will
+		 * actually enable the memory controller; all settings
+		 * must be done before enabling.
+		 *
+		 * sdram_cfg[0]   = 1 (ddr sdram logic enable)
+		 * sdram_cfg[1]   = 1 (self-refresh-enable)
+		 * sdram_cfg[5:7] = (SDRAM type = DDR SDRAM)
+		 *			010 DDR 1 SDRAM
+		 *			011 DDR 2 SDRAM
+		 */
+		sdram_type = (mem_type == SPD_MEMTYPE_DDR) ? 2 : 3;
+		sdram_cfg_1 = (0
+			       | (1 << 31)		/* Enable */
+			       | (1 << 30)		/* Self refresh */
+			       | (sdram_type << 24)	/* SDRAM type */
+			       );
+
+		/*
+		 * sdram_cfg[3] = RD_EN - registered DIMM enable
+		 *   A value of 0x26 indicates micron registered
+		 *   DIMMS (micron.com)
+		 */
+		mod_attr = no_dimm2 ? spd1.mod_attr : spd2.mod_attr;
+		if (mem_type == SPD_MEMTYPE_DDR && mod_attr == 0x26) {
+			sdram_cfg_1 |= 0x10000000;		/* RD_EN */
+		}
+
+#if defined(CONFIG_DDR_ECC)
+
+		config = no_dimm2 ? spd1.config : spd2.config;
+
+		/*
+		 * If the user wanted ECC (enabled via sdram_cfg[2])
+		 */
+		if (config == 0x02) {
+			ddr->err_disable = 0x00000000;
+			asm("sync;isync;");
+			ddr->err_sbe = 0x00ff0000;
+			ddr->err_int_en = 0x0000000d;
+			sdram_cfg_1 |= 0x20000000;		/* ECC_EN */
+		}
+#endif
+
+		/*
+		 * Set 1T or 2T timing based on 1 or 2 modules
+		 */
+		{
+			if (!(no_dimm1 || no_dimm2)) {
+				/*
+				 * 2T timing,because both DIMMS are present.
+				 * Enable 2T timing by setting sdram_cfg[16].
+				 */
+				sdram_cfg_1 |= 0x8000;		/* 2T_EN */
+			}
+		}
+
+		/*
+		 * 200 painful micro-seconds must elapse between
+		 * the DDR clock setup and the DDR config enable.
+		 */
+		udelay(200);
+
+		/*
+		 * Go!
+		 */
+		ddr->sdram_cfg_1 = sdram_cfg_1;
+
+		asm volatile("sync;isync");
+		udelay(500);
+
+		debug("DDR: sdram_cfg   = 0x%08x\n", ddr->sdram_cfg_1);
+
+
+#if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+		d_init = 1;
+		debug("DDR: memory initializing\n");
+
+		/*
+		 * Poll until memory is initialized.
+		 * 512 Meg at 400 might hit this 200 times or so.
+		 */
+		while ((ddr->sdram_cfg_2 & (d_init << 4)) != 0) {
+			udelay(1000);
+		}
+		debug("DDR: memory initialized\n\n");
+#endif
+
+		debug("Enabled DDR Controller %d\n", ddr_num);
+		return 1;
+	}
 }
+
+
+long int
+spd_sdram(void)
+{
+	int memsize_ddr1_dimm1 = 0;
+	int memsize_ddr1_dimm2 = 0;
+	int memsize_ddr2_dimm1 = 0;
+	int memsize_ddr2_dimm2 = 0;
+	int memsize_total = 0;
+	int memsize_ddr1 = 0;
+	int memsize_ddr2 = 0;
+	unsigned int ddr1_enabled = 0;
+	unsigned int ddr2_enabled = 0;
+	unsigned int law_size_ddr1;
+	unsigned int law_size_ddr2;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
+	volatile ccsr_ddr_t *ddr2 = &immap->im_ddr2;
+	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+
+#ifdef CONFIG_DDR_INTERLEAVE
+	unsigned int law_size_interleaved;
+
+	memsize_ddr1_dimm1 = spd_init(SPD_EEPROM_ADDRESS1,
+				      1, 1,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr1_dimm1;
+
+	memsize_ddr2_dimm1 = spd_init(SPD_EEPROM_ADDRESS3,
+				      2, 1,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr2_dimm1;
+
+	if (memsize_ddr1_dimm1 != memsize_ddr2_dimm1) {
+		if (memsize_ddr1_dimm1 <  memsize_ddr2_dimm1)
+			memsize_total -= memsize_ddr1_dimm1;
+		else
+			memsize_total -= memsize_ddr2_dimm1;
+		debug("Total memory available for interleaving 0x%08lx\n",
+		      memsize_total * 1024 * 1024);
+		debug("Adjusting CS0_BNDS to account for unequal DIMM sizes in interleaved memory\n");
+		ddr1->cs0_bnds = ((memsize_total * 1024 * 1024) - 1) >> 24;
+		ddr2->cs0_bnds = ((memsize_total * 1024 * 1024) - 1) >> 24;
+		debug("DDR1: cs0_bnds   = 0x%08x\n", ddr1->cs0_bnds);
+		debug("DDR2: cs0_bnds   = 0x%08x\n", ddr2->cs0_bnds);
+	}
+
+	ddr1_enabled = enable_ddr(1);
+	ddr2_enabled = enable_ddr(2);
+
+	/*
+	 * Both controllers need to be enabled for interleaving.
+	 */
+	if (ddr1_enabled && ddr2_enabled) {
+		law_size_interleaved = 19 + __ilog2(memsize_total);
+
+		/*
+		 * Set up LAWBAR for DDR 1 space.
+		 */
+		mcm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
+		mcm->lawar1 = (LAWAR_EN
+			       | LAWAR_TRGT_IF_DDR_INTERLEAVED
+			       | (LAWAR_SIZE & law_size_interleaved));
+		debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
+		debug("DDR: LAWAR1=0x%08x\n", mcm->lawar1);
+		debug("Interleaved memory size is 0x%08lx\n", memsize_total);
+
+#ifdef	CONFIG_DDR_INTERLEAVE
+#if (CFG_PAGE_INTERLEAVING == 1)
+		printf("Page ");
+#elif (CFG_BANK_INTERLEAVING == 1)
+		printf("Bank ");
+#elif (CFG_SUPER_BANK_INTERLEAVING == 1)
+		printf("Super-bank ");
+#else
+		printf("Cache-line ");
+#endif
+#endif
+		printf("Interleaved");
+		return memsize_total * 1024 * 1024;
+	}  else {
+		printf("Interleaved memory not enabled - check CS0 DIMM slots for both controllers.\n");
+		return 0;
+	}
+
+#else
+	/*
+	 * Call spd_sdram() routine to init ddr1 - pass I2c address,
+	 * controller number, dimm number, and starting address.
+	 */
+	memsize_ddr1_dimm1 = spd_init(SPD_EEPROM_ADDRESS1,
+				      1, 1,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr1_dimm1;
+
+	memsize_ddr1_dimm2 = spd_init(SPD_EEPROM_ADDRESS2,
+				      1, 2,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr1_dimm2;
+
+	/*
+	 * Enable the DDR controller - pass ddr controller number.
+	 */
+	ddr1_enabled = enable_ddr(1);
+
+	/* Keep track of memory to be addressed by DDR1 */
+	memsize_ddr1 = memsize_ddr1_dimm1 + memsize_ddr1_dimm2;
+
+	/*
+	 * First supported LAW size is 16M, at LAWAR_SIZE_16M == 23.  Fnord.
+	 */
+	if (ddr1_enabled) {
+		law_size_ddr1 = 19 + __ilog2(memsize_ddr1);
+
+		/*
+		 * Set up LAWBAR for DDR 1 space.
+		 */
+		mcm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
+		mcm->lawar1 = (LAWAR_EN
+			       | LAWAR_TRGT_IF_DDR1
+			       | (LAWAR_SIZE & law_size_ddr1));
+		debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
+		debug("DDR: LAWAR1=0x%08x\n", mcm->lawar1);
+	}
+
+#if  (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	memsize_ddr2_dimm1 = spd_init(SPD_EEPROM_ADDRESS3,
+				      2, 1,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr2_dimm1;
+
+	memsize_ddr2_dimm2 = spd_init(SPD_EEPROM_ADDRESS4,
+				      2, 2,
+				      (unsigned int)memsize_total * 1024*1024);
+	memsize_total += memsize_ddr2_dimm2;
+
+	ddr2_enabled = enable_ddr(2);
+
+	/* Keep track of memory to be addressed by DDR2 */
+	memsize_ddr2 = memsize_ddr2_dimm1 + memsize_ddr2_dimm2;
+
+	if (ddr2_enabled) {
+		law_size_ddr2 = 19 + __ilog2(memsize_ddr2);
+
+		/*
+		 * Set up LAWBAR for DDR 2 space.
+		 */
+		if (ddr1_enabled)
+			mcm->lawbar8 = (((memsize_ddr1 * 1024 * 1024) >> 12)
+					& 0xfffff);
+		else
+			mcm->lawbar8 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
+
+		mcm->lawar8 = (LAWAR_EN
+			       | LAWAR_TRGT_IF_DDR2
+			       | (LAWAR_SIZE & law_size_ddr2));
+		debug("\nDDR: LAWBAR8=0x%08x\n", mcm->lawbar8);
+		debug("DDR: LAWAR8=0x%08x\n", mcm->lawar8);
+	}
+#endif /* CONFIG_NUM_DDR_CONTROLLERS > 1 */
+
+	debug("\nMemory sizes are DDR1 = 0x%08lx, DDR2 = 0x%08lx\n",
+	      memsize_ddr1, memsize_ddr2);
+
+	/*
+	 * If neither DDR controller is enabled return 0.
+	 */
+	if (!ddr1_enabled && !ddr2_enabled)
+		return 0;
+	else {
+		printf("Non-interleaved");
+		return memsize_total * 1024 * 1024;
+	}
+
+#endif /* CONFIG_DDR_INTERLEAVE */
+}
+
 
 #endif /* CONFIG_SPD_EEPROM */
 

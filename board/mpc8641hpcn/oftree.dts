@@ -18,7 +18,7 @@
 	linux,phandle = <100>;
 
 	cpus {
-		#cpus = <1>;
+		#cpus = <2>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		linux,phandle = <200>;
@@ -30,19 +30,32 @@
 			i-cache-line-size = <20>;	// 32 bytes
 			d-cache-size = <8000>;		// L1, 32K
 			i-cache-size = <8000>;		// L1, 32K
-			timebase-frequency = <0>;	//  33 MHz, from uboot
-			bus-frequency = <0>;	// 166 MHz
-			clock-frequency = <0>;	// 825 MHz, from uboot
+			timebase-frequency = <0>;	// 33 MHz, from uboot
+			bus-frequency = <0>;		// From uboot
+			clock-frequency = <0>;		// From uboot
 			32-bit;
 			linux,phandle = <201>;
 			linux,boot-cpu;
+		};
+		PowerPC,8641@1 {
+			device_type = "cpu";
+			reg = <1>;
+			d-cache-line-size = <20>;	// 32 bytes
+			i-cache-line-size = <20>;	// 32 bytes
+			d-cache-size = <8000>;		// L1, 32K
+			i-cache-size = <8000>;		// L1, 32K
+			timebase-frequency = <0>;	// 33 MHz, from uboot
+			bus-frequency = <0>;		// From uboot
+			clock-frequency = <0>;		// From uboot
+			32-bit;
+			linux,phandle = <202>;
 		};
 	};
 
 	memory {
 		device_type = "memory";
 		linux,phandle = <300>;
-		reg = <00000000 10000000>;	// 256M at 0x0
+		reg = <00000000 40000000>;	// 1G at 0x0
 	};
 
 	soc8641@f8000000 {
@@ -63,6 +76,15 @@
 			dfsrr;
 		};
 
+		i2c@3100 {
+			device_type = "i2c";
+			compatible = "fsl-i2c";
+			reg = <3100 100>;
+			interrupts = <2b 0>;
+			interrupt-parent = <40000>;
+			dfsrr;
+		};
+
 		mdio@24520 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -73,28 +95,28 @@
 			ethernet-phy@0 {
 				linux,phandle = <2452000>;
 				interrupt-parent = <40000>;
-				interrupts = <a 0>;
+				interrupts = <3a 0>;
 				reg = <0>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@1 {
 				linux,phandle = <2452001>;
 				interrupt-parent = <40000>;
-				interrupts = <a 0>;
+				interrupts = <3a 0>;
 				reg = <1>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@2 {
 				linux,phandle = <2452002>;
 				interrupt-parent = <40000>;
-				interrupts = <a 0>;
+				interrupts = <3a 0>;
 				reg = <2>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@3 {
 				linux,phandle = <2452003>;
 				interrupt-parent = <40000>;
-				interrupts = <a 0>;
+				interrupts = <3a 0>;
 				reg = <3>;
 				device_type = "ethernet-phy";
 			};
@@ -154,8 +176,8 @@
 		serial@4500 {
 			device_type = "serial";
 			compatible = "ns16550"; 
-			reg = <4500 100>; 	// reg base, size
-			clock-frequency = <0>; 	// should we fill in in uboot?
+			reg = <4500 100>;
+			clock-frequency = <0>;
 			interrupts = <2a 3>;
 			interrupt-parent = <40000>;
 		};
@@ -163,12 +185,120 @@
 		serial@4600 {
 			device_type = "serial";
 			compatible = "ns16550";
-			reg = <4600 100>;	// reg base, size
-			clock-frequency = <0>; 	// should we fill in in uboot?
-			interrupts = <2a 3>;
+			reg = <4600 100>;
+			clock-frequency = <0>;
+			interrupts = <1c 3>;
 			interrupt-parent = <40000>;
 		};
 
+		pci@8000 {
+			compatible = "86xx";
+			device_type = "pci";
+			linux,phandle = <8000>;
+			#interrupt-cells = <1>;
+			#size-cells = <2>;
+			#address-cells = <3>;
+			reg = <8000 1000>;
+			bus-range = <0 fe>;
+			ranges = <02000000 0 80000000 80000000 0 20000000
+				  01000000 0 00000000 e2000000 0 00100000>;
+			clock-frequency = <1fca055>;
+			interrupt-parent = <40000>;
+			interrupts = <8 0>;
+			interrupt-map-mask = <f800 0 0 7>;
+			interrupt-map = <
+				/* IDSEL 0x11 */
+				8800 0 0 1 40000 3 0
+				8800 0 0 2 40000 4 0
+				8800 0 0 3 40000 5 0
+				8800 0 0 4 40000 6 0
+
+				/* IDSEL 0x12 */
+				9000 0 0 1 40000 4 0
+				9000 0 0 2 40000 5 0
+				9000 0 0 3 40000 6 0
+				9000 0 0 4 40000 3 0
+
+				/* IDSEL 0x13 */
+				9800 0 0 1 40000 5 0
+				9800 0 0 2 40000 6 0
+				9800 0 0 3 40000 3 0
+				9800 0 0 4 40000 4 0
+
+				/* IDSEL 0x14 */
+				a000 0 0 1 40000 6 0
+				a000 0 0 2 40000 3 0
+				a000 0 0 3 40000 4 0
+				a000 0 0 4 40000 5 0
+
+				/* IDSEL 0x15 */
+				a800 0 0 1 40000 0 0
+				a800 0 0 2 40000 0 0
+				a800 0 0 3 40000 0 0
+				a800 0 0 4 40000 0 0
+
+				/* IDSEL 0x16 */
+				b000 0 0 1 40000 0 0
+				b000 0 0 2 40000 0 0
+				b000 0 0 3 40000 0 0
+				b000 0 0 4 40000 0 0
+
+				/* IDSEL 0x17 */
+				b800 0 0 1 40000 0 0
+				b800 0 0 2 40000 0 0
+				b800 0 0 3 40000 0 0
+				b800 0 0 4 40000 0 0
+
+				/* IDSEL 0x18 */
+				c000 0 0 1 40000 0 0
+				c000 0 0 2 40000 0 0
+				c000 0 0 3 40000 0 0
+				c000 0 0 4 40000 0 0
+
+				/* IDSEL 0x19 */
+				c800 0 0 1 40000 0 0
+				c800 0 0 2 40000 0 0
+				c800 0 0 3 40000 0 0
+				c800 0 0 4 40000 0 0
+
+				/* IDSEL 0x1a */
+				d000 0 0 1 40000 0 0
+				d000 0 0 2 40000 0 0
+				d000 0 0 3 40000 0 0
+				d000 0 0 4 40000 0 0
+
+
+				/* IDSEL 0x1b */
+				d800 0 0 1 40000 0 0
+				d800 0 0 2 40000 0 0
+				d800 0 0 3 40000 0 0
+				d800 0 0 4 40000 0 0
+
+				/* IDSEL 0x1c */
+				e000 0 0 1 40000 0 0
+				e000 0 0 2 40000 0 0
+				e000 0 0 3 40000 0 0
+				e000 0 0 4 40000 0 0
+
+				/* IDSEL 0x1d */
+				e800 0 0 1 40000 0 0
+				e800 0 0 2 40000 0 0
+				e800 0 0 3 40000 0 0
+				e800 0 0 4 40000 0 0
+
+				/* IDSEL 0x1e */
+				f000 0 0 1 40000 0 0
+				f000 0 0 2 40000 0 0
+				f000 0 0 3 40000 0 0
+				f000 0 0 4 40000 0 0
+
+				/* IDSEL 0x1f */
+				f800 0 0 1 40000 6 0
+				f800 0 0 2 40000 6 0
+				f800 0 0 3 40000 6 0
+				f800 0 0 4 40000 6 0
+				>;
+		};
 		pic@40000 {
 			linux,phandle = <40000>;
 			clock-frequency = <0>;

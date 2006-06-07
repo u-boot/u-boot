@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= $(BOARD).o oftree.o
+OBJS	:= $(BOARD).o pixis.o oftree.o
 SOBJS	:= init.o
 
 $(LIB):	$(OBJS) $(SOBJS)

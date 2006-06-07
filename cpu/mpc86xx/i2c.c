@@ -7,7 +7,7 @@
  * Gleb Natapov <gnatapov@mrv.com>
  * Some bits are taken from linux driver writen by adrian@humboldt.co.uk
  *
- * Modified for MPC86xx by Jeff Brown (jeffrey@freescale.com)
+ * Modified for MPC86xx by Jeff Brown
  *
  * Hardware I2C driver for MPC107 PCI bridge.
  *
@@ -207,7 +207,7 @@ i2c_read (u8 dev, uint addr, int alen, u8 *data, int length)
 
 	i = __i2c_read(data, length);
 
- exit:
+exit:
 	writeb(MPC86xx_I2CCR_MEN, I2CCCR);
 
 	return !(i == length);
@@ -230,7 +230,7 @@ i2c_write (u8 dev, uint addr, int alen, u8 *data, int length)
 
 	i = __i2c_write(data, length);
 
- exit:
+exit:
 	writeb(MPC86xx_I2CCR_MEN, I2CCCR);
 
 	return !(i == length);
