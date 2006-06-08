@@ -1903,6 +1903,15 @@ ADNPESC1_config: unconfig
 ## Nios-II
 #########################################################################
 
+EP1C20_config : unconfig
+	@./mkconfig  EP1C20 nios2 nios2 ep1c20 altera
+
+EP1S10_config : unconfig
+	@./mkconfig  EP1S10 nios2 nios2 ep1s10 altera
+
+EP1S40_config : unconfig
+	@./mkconfig  EP1S40 nios2 nios2 ep1s40 altera
+
 PK1C20_config : unconfig
 	@./mkconfig  PK1C20 nios2 nios2 pk1c20 psyent
 
