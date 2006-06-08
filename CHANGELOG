@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update PK1C20 board
+  -Update base addresses for standard configuration
+  -Eliminate use of CACHE_BYPASS in board code
+  Patch by Scott McNutt, 08 Jun 2006
+
 * Nios II - Fix I/O Macros and mini-app stubs
   -Fix asm/io.h macros
   -Eliminate use of CACHE_BYPASS in cpu code

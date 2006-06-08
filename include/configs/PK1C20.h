@@ -32,7 +32,7 @@
 
 #define CFG_RESET_ADDR		0x00000000	/* Hard-reset address	*/
 #define CFG_EXCEPTION_ADDR	0x01000020	/* Exception entry point*/
-#define CFG_NIOS_SYSID_BASE	0x00920828	/* System id address	*/
+#define CFG_NIOS_SYSID_BASE	0x021208b8	/* System id address	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* enable early board-spec. init*/
 
 /*------------------------------------------------------------------------
@@ -51,7 +51,7 @@
 #define CFG_FLASH_SIZE		0x00800000	/* 8 MByte		*/
 #define CFG_SDRAM_BASE		0x01000000	/* SDRAM base addr	*/
 #define CFG_SDRAM_SIZE		0x01000000	/* 16 MByte		*/
-#define CFG_SRAM_BASE		0x00800000	/* SRAM base addr	*/
+#define CFG_SRAM_BASE		0x02000000	/* SRAM base addr	*/
 #define CFG_SRAM_SIZE		0x00100000	/* 1 MB (only 1M mapped)*/
 
 /*------------------------------------------------------------------------
@@ -61,7 +61,7 @@
  *	-Global data is placed below the heap.
  *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(128 * 1024)	/* Reserve 128k		*/
+#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 128k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/
 #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
 
@@ -95,9 +95,9 @@
  * CONSOLE
  *----------------------------------------------------------------------*/
 #if defined(CONFIG_CONSOLE_JTAG)
-#define CFG_NIOS_CONSOLE	0x00920820	/* JTAG UART base addr	*/
+#define CFG_NIOS_CONSOLE	0x021208b0	/* JTAG UART base addr	*/
 #else
-#define CFG_NIOS_CONSOLE	0x009208a0	/* UART base addr	*/
+#define CFG_NIOS_CONSOLE	0x02120840	/* UART base addr	*/
 #endif
 
 #define CFG_NIOS_FIXEDBAUD	1		/* Baudrate is fixed	*/
@@ -110,9 +110,9 @@
  * EPCS Device -- wne CFG_NIOS_EPCSBASE is defined code/commands for
  * epcs device access is enabled. The base address is the epcs
  * _register_ base address, NOT THE ADDRESS OF THE MEMORY BLOCK.
- * The register base is currently at offset 0x400 from the memory base.
+ * The register base is currently at offset 0x600 from the memory base.
  *----------------------------------------------------------------------*/
-#define CFG_NIOS_EPCSBASE	0x00900400	/* EPCS register base	*/
+#define CFG_NIOS_EPCSBASE	0x02100200	/* EPCS register base	*/
 
 /*------------------------------------------------------------------------
  * DEBUG
@@ -126,7 +126,7 @@
  * registers, we can slow it down to 10 msec using TMRCNT. If the default
  * period is acceptable, TMRCNT can be left undefined.
  *----------------------------------------------------------------------*/
-#define CFG_NIOS_TMRBASE	0x00920860	/* Tick timer base addr */
+#define CFG_NIOS_TMRBASE	0x02120820	/* Tick timer base addr */
 #define CFG_NIOS_TMRIRQ		3		/* Timer IRQ num	*/
 #define CFG_NIOS_TMRMS		10		/* 10 msec per tick	*/
 #define CFG_NIOS_TMRCNT (CFG_NIOS_TMRMS * (CONFIG_SYS_CLK_FREQ/1000))
@@ -137,7 +137,7 @@
  * must implement its own led routines -- leds are, after all,
  * board-specific, no?
  *----------------------------------------------------------------------*/
-#define CFG_LEDPIO_ADDR		0x00920840	/* LED PIO base addr	*/
+#define CFG_LEDPIO_ADDR		0x02120870	/* LED PIO base addr	*/
 #define CONFIG_STATUS_LED			/* Enable status driver */
 
 #define STATUS_LED_BIT		1		/* Bit-0 on PIO		*/
@@ -150,7 +150,7 @@
  * way out to avoid changes there -- define the base address to ensure
  * cache bypass so there's no need to monkey with inx/outx macros.
  *----------------------------------------------------------------------*/
-#define CONFIG_SMC91111_BASE	0x80910300	/* Base addr (bypass)	*/
+#define CONFIG_SMC91111_BASE	0x82110300	/* Base addr (bypass)	*/
 #define CONFIG_DRIVER_SMC91111			/* Using SMC91c111	*/
 #undef	CONFIG_SMC91111_EXT_PHY			/* Internal PHY		*/
 #define CONFIG_SMC_USE_32_BIT			/* 32-bit interface	*/

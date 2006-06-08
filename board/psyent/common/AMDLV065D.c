@@ -26,7 +26,7 @@
 #if defined(CONFIG_NIOS)
 #include <nios.h>
 #else
-#include <nios2.h>
+#include <asm/io.h>
 #endif
 
 #define SECTSZ		(64 * 1024)
@@ -56,9 +56,8 @@ unsigned long flash_init (void)
 void flash_print_info (flash_info_t * info)
 {
 	int i, k;
-	unsigned long size;
 	int erased;
-	volatile unsigned char *flash;
+	unsigned long *addr;
 
 	printf ("  Size: %ld KB in %d Sectors\n",
 		info->size >> 10, info->sector_count);
@@ -66,14 +65,10 @@ void flash_print_info (flash_info_t * info)
 	for (i = 0; i < info->sector_count; ++i) {
 
 		/* Check if whole sector is erased */
-		if (i != (info->sector_count - 1))
-			size = info->start[i + 1] - info->start[i];
-		else
-			size = info->start[0] + info->size - info->start[i];
 		erased = 1;
-		flash = (volatile unsigned char *) CACHE_BYPASS(info->start[i]);
-		for (k = 0; k < size; k++) {
-			if (*flash++ != 0xff) {
+		addr = (unsigned long *) info->start[i];
+		for (k = 0; k < SECTSZ/sizeof(unsigned long); k++) {
+			if ( readl(addr++) != (unsigned long)-1) {
 				erased = 0;
 				break;
 			}
@@ -83,7 +78,7 @@ void flash_print_info (flash_info_t * info)
 		if ((i % 5) == 0)
 			printf ("\n   ");
 		printf (" %08lX%s%s",
-			CACHE_NO_BYPASS(info->start[i]),
+			info->start[i],
 			erased ? " E" : "  ",
 			info->protect[i] ? "RO " : "   ");
 	}
@@ -95,9 +90,8 @@ void flash_print_info (flash_info_t * info)
 
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
-	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *)
-		CACHE_BYPASS(info->start[0]);
-	volatile CFG_FLASH_WORD_SIZE *addr2;
+	unsigned char *addr = (unsigned char *) info->start[0];
+	unsigned char *addr2;
 	int prot, sect;
 	ulong start;
 
@@ -127,19 +121,18 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr2 = (CFG_FLASH_WORD_SIZE *)
-				CACHE_BYPASS((info->start[sect]));
-			*addr = 0xaa;
-			*addr = 0x55;
-			*addr = 0x80;
-			*addr = 0xaa;
-			*addr = 0x55;
-			*addr2 = 0x30;
+			addr2 = (unsigned char *) info->start[sect];
+			writeb (addr, 0xaa);
+			writeb (addr,  0x55);
+			writeb (addr,  0x80);
+			writeb (addr,  0xaa);
+			writeb (addr,  0x55);
+			writeb (addr2, 0x30);
 			/* Now just wait for 0xff & provide some user
 			 * feedback while we wait.
 			 */
 			start = get_timer (0);
-			while (*addr2 != 0xff) {
+			while ( readb (addr2) != 0xff) {
 				udelay (1000 * 1000);
 				putc ('.');
 				if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
@@ -163,27 +156,27 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 
-	vu_char *cmd = (vu_char *) CACHE_BYPASS(info->start[0]);
-	vu_char *dst = (vu_char *) CACHE_BYPASS(addr);
+	vu_char *cmd = (vu_char *) info->start[0];
+	vu_char *dst = (vu_char *) addr;
 	unsigned char b;
 	ulong start;
 
 	while (cnt) {
 		/* Check for sufficient erase */
 		b = *src;
-		if ((*dst & b) != b) {
-			printf ("%02x : %02x\n", *dst, b);
+		if ((readb (dst) & b) != b) {
+			printf ("%02x : %02x\n", readb (dst), b);
 			return (2);
 		}
 
-		*cmd = 0xaa;
-		*cmd = 0x55;
-		*cmd = 0xa0;
-		*dst = b;
+		writeb (cmd,  0xaa);
+		writeb (cmd,  0x55);
+		writeb (cmd,  0xa0);
+		writeb (dst, b);
 
 		/* Verify write */
 		start = get_timer (0);
-		while (*dst != b) {
+		while (readb (dst) != b) {
 			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
 				return 1;
 			}
