@@ -26,20 +26,21 @@
 #if defined (CFG_NIOS_SYSID_BASE)
 
 #include <command.h>
-#include <nios2.h>
+#include <asm/io.h>
 #include <nios2-io.h>
 #include <linux/time.h>
 
 void display_sysid (void)
 {
-	struct nios_sysid_t *sysid =
-		(struct nios_sysid_t *)CACHE_BYPASS(CFG_NIOS_SYSID_BASE);
+	struct nios_sysid_t *sysid = (struct nios_sysid_t *)CFG_NIOS_SYSID_BASE;
 	struct tm t;
 	char asc[32];
+	time_t stamp;
 
-	localtime_r ((time_t *)&sysid->timestamp, &t);
+	stamp = readl (&sysid->timestamp);
+	localtime_r (&stamp, &t);
 	asctime_r (&t, asc);
-	printf ("SYSID : %08x, %s", sysid->id, asc);
+	printf ("SYSID : %08x, %s", readl (&sysid->id), asc);
 
 }
 
