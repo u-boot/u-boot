@@ -210,6 +210,21 @@ static struct epcs_devinfo_t devinfo[] = {
 	{ 0, 0, 0, 0, 0, 0 }
 };
 
+int epcs_reset (void)
+{
+	/* When booting from an epcs controller, the epcs bootrom
+	 * code may leave the slave select in an asserted state.
+	 * This causes two problems: (1) The initial epcs access
+	 * will fail -- not a big deal, and (2) a software reset
+	 * will cause the bootrom code to hang since it does not
+	 * ensure the select is negated prior to first access -- a
+	 * big deal. Here we just negate chip select and everything
+	 * gets better :-)
+	 */
+	epcs_cs (0); /* Negate chip select */
+	return (0);
+}
+
 epcs_devinfo_t *epcs_dev_find (void)
 {
 	unsigned char buf[4];
