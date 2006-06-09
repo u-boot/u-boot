@@ -25,7 +25,7 @@
 
 #if defined(CFG_NIOS_EPCSBASE)
 #include <command.h>
-#include <nios2.h>
+#include <asm/io.h>
 #include <nios2-io.h>
 #include <nios2-epcs.h>
 
@@ -72,8 +72,7 @@
  */
 #define EPCS_TIMEOUT		100	/* 100 msec timeout */
 
-static nios_spi_t *epcs =
-	(nios_spi_t *)CACHE_BYPASS(CFG_NIOS_EPCSBASE);
+static nios_spi_t *epcs = (nios_spi_t *)CFG_NIOS_EPCSBASE;
 
 /***********************************************************************
  * Device access
@@ -81,16 +80,20 @@ static nios_spi_t *epcs =
 static int epcs_cs (int assert)
 {
 	ulong start;
+	unsigned tmp;
+
 
 	if (assert) {
-		epcs->control |= NIOS_SPI_SSO;
+		tmp = readl (&epcs->control);
+		writel (&epcs->control, tmp | NIOS_SPI_SSO);
 	} else {
 		/* Let all bits shift out */
 		start = get_timer (0);
-		while ((epcs->status & NIOS_SPI_TMT) == 0)
+		while ((readl (&epcs->status) & NIOS_SPI_TMT) == 0)
 			if (get_timer (start) > EPCS_TIMEOUT)
 				return (-1);
-		epcs->control &= ~NIOS_SPI_SSO;
+		tmp = readl (&epcs->control);
+		writel (&epcs->control, tmp & ~NIOS_SPI_SSO);
 	}
 	return (0);
 }
@@ -100,10 +103,10 @@ static int epcs_tx (unsigned char c)
 	ulong start;
 
 	start = get_timer (0);
-	while ((epcs->status & NIOS_SPI_TRDY) == 0)
+	while ((readl (&epcs->status) & NIOS_SPI_TRDY) == 0)
 		if (get_timer (start) > EPCS_TIMEOUT)
 			return (-1);
-	epcs->txdata = c;
+	writel (&epcs->txdata, c);
 	return (0);
 }
 
@@ -112,10 +115,10 @@ static int epcs_rx (void)
 	ulong start;
 
 	start = get_timer (0);
-	while ((epcs->status & NIOS_SPI_RRDY) == 0)
+	while ((readl (&epcs->status) & NIOS_SPI_RRDY) == 0)
 		if (get_timer (start) > EPCS_TIMEOUT)
 			return (-1);
-	return (epcs->rxdata);
+	return (readl (&epcs->rxdata));
 }
 
 static unsigned char bitrev[] = {
@@ -206,6 +209,21 @@ static struct epcs_devinfo_t devinfo[] = {
 	{ "EPCS4 ", 0x12, 19, 8, 16, 8, 0x1c },
 	{ 0, 0, 0, 0, 0, 0 }
 };
+
+int epcs_reset (void)
+{
+	/* When booting from an epcs controller, the epcs bootrom
+	 * code may leave the slave select in an asserted state.
+	 * This causes two problems: (1) The initial epcs access
+	 * will fail -- not a big deal, and (2) a software reset
+	 * will cause the bootrom code to hang since it does not
+	 * ensure the select is negated prior to first access -- a
+	 * big deal. Here we just negate chip select and everything
+	 * gets better :-)
+	 */
+	epcs_cs (0); /* Negate chip select */
+	return (0);
+}
 
 epcs_devinfo_t *epcs_dev_find (void)
 {

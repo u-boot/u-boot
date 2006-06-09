@@ -30,6 +30,9 @@
 
 	.global _exception
 
+	.set noat
+	.set nobreak
+
 _exception:
 	/* SAVE ALL REGS -- this allows trap and unimplemented
 	 * instruction handlers to be coded conveniently in C

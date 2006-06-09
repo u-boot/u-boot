@@ -1,6 +1,5 @@
 #
-# (C) Copyright 2004
-# Psyent Corporation <www.psyent.com>
+# (C) Copyright 2005, Psyent Corporation <www.psyent.com>
 # Scott McNutt <smcnutt@psyent.com>
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,5 +21,11 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_NIOS2 -D__NIOS2__
-PLATFORM_CPPFLAGS += -ffixed-r15 -G0
+TEXT_BASE = 0x01fc0000
+
+PLATFORM_CPPFLAGS += -mno-hw-div -mno-hw-mul
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(VENDOR)/include
+
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif

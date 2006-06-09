@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
+ * (C) Copyright 2005, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,36 +23,18 @@
 
 #include <common.h>
 
-#if defined (CFG_NIOS_SYSID_BASE)
-
-#include <command.h>
-#include <asm/io.h>
-#include <nios2-io.h>
-#include <linux/time.h>
-
-void display_sysid (void)
+int board_early_init_f (void)
 {
-	struct nios_sysid_t *sysid = (struct nios_sysid_t *)CFG_NIOS_SYSID_BASE;
-	struct tm t;
-	char asc[32];
-	time_t stamp;
-
-	stamp = readl (&sysid->timestamp);
-	localtime_r (&stamp, &t);
-	asctime_r (&t, asc);
-	printf ("SYSID : %08x, %s", readl (&sysid->id), asc);
-
+	return 0;
 }
 
-int do_sysid (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int checkboard (void)
 {
-	display_sysid ();
+	puts ("BOARD : Altera EP-1C20\n");
+	return 0;
+}
+
+long int initdram (int board_type)
+{
 	return (0);
 }
-
-U_BOOT_CMD(
-	sysid,	1,	1,	do_sysid,
-	"sysid   - display Nios-II system id\n\n",
-	"\n    - display Nios-II system id\n"
-);
-#endif /* CFG_NIOS_SYSID_BASE */

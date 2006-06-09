@@ -2,7 +2,28 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
-* Fix U-Boot enviroenment sector protection on MCC200 board
+* Nios II - Add Altera EP1C20, EP1S10 and EP1S40 boards
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Nios II - Add EPCS Controller bootrom work-around
+  -When booting from an epcs controller, the epcs bootrom may leave the
+  slave select in an asserted state causing soft reset hang. This
+  patch ensures slave select is negated at reset.
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Update PK1C20 board
+  -Update base addresses for standard configuration
+  -Eliminate use of CACHE_BYPASS in board code
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Nios II - Fix I/O Macros and mini-app stubs
+  -Fix asm/io.h macros
+  -Eliminate use of CACHE_BYPASS in cpu code
+  -Eliminate assembler warnings
+  -Fix mini-app stubs and force no small data
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Fix U-Boot environment sector protection on MCC200 board
 
 * Minor cleanup for PCS440EP board
 

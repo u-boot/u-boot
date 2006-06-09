@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
+ * (C) Copyright 2005, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,13 +27,12 @@
 /*------------------------------------------------------------------------
  * BOARD/CPU
  *----------------------------------------------------------------------*/
-#define CONFIG_PK1C20		1		/* PK1C20 board		*/
+#define CONFIG_EP1S10		1		/* EP1S10 board		*/
 #define CONFIG_SYS_CLK_FREQ	50000000	/* 50 MHz core clk	*/
 
 #define CFG_RESET_ADDR		0x00000000	/* Hard-reset address	*/
 #define CFG_EXCEPTION_ADDR	0x01000020	/* Exception entry point*/
 #define CFG_NIOS_SYSID_BASE	0x021208b8	/* System id address	*/
-#define CONFIG_BOARD_EARLY_INIT_F 1	/* enable early board-spec. init*/
 
 /*------------------------------------------------------------------------
  * CACHE -- the following will support II/s and II/f. The II/s does not
@@ -52,7 +51,7 @@
 #define CFG_SDRAM_BASE		0x01000000	/* SDRAM base addr	*/
 #define CFG_SDRAM_SIZE		0x01000000	/* 16 MByte		*/
 #define CFG_SRAM_BASE		0x02000000	/* SRAM base addr	*/
-#define CFG_SRAM_SIZE		0x00100000	/* 1 MB (only 1M mapped)*/
+#define CFG_SRAM_SIZE		0x00100000	/* 1 MB			*/
 
 /*------------------------------------------------------------------------
  * MEMORY ORGANIZATION
@@ -61,9 +60,9 @@
  *	-Global data is placed below the heap.
  *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 128k		*/
+#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 256*1024) /* 256k heap */
 
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
@@ -77,19 +76,18 @@
 #define CFG_MAX_FLASH_BANKS	1		/* Max # of flash banks */
 #define CFG_FLASH_ERASE_TOUT	8000		/* Erase timeout (msec) */
 #define CFG_FLASH_WRITE_TOUT	100		/* Write timeout (msec) */
-#define CFG_FLASH_WORD_SIZE	unsigned char	/* flash word size	*/
 
 /*------------------------------------------------------------------------
  * ENVIRONMENT -- Put environment in sector CFG_MONITOR_LEN above
- * CFG_RESET_ADDR, since we assume the monitor is stored at the
- * reset address, no? This will keep the environment in user region
+ * CFG_FLASH_BASE, since we assume that u-boot is stored at the bottom
+ * of flash memory. This will keep the environment in user region
  * of flash. NOTE: the monitor length must be multiple of sector size
  * (which is common practice).
  *----------------------------------------------------------------------*/
 #define CFG_ENV_IS_IN_FLASH	1		/* Environment in flash */
 #define CFG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
 #define CONFIG_ENV_OVERWRITE			/* Serial change Ok	*/
-#define CFG_ENV_ADDR	(CFG_RESET_ADDR + CFG_MONITOR_LEN)
+#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_MONITOR_LEN)
 
 /*------------------------------------------------------------------------
  * CONSOLE
@@ -107,12 +105,9 @@
 #define CFG_CONSOLE_INFO_QUIET	1		/* Suppress console info*/
 
 /*------------------------------------------------------------------------
- * EPCS Device -- wne CFG_NIOS_EPCSBASE is defined code/commands for
- * epcs device access is enabled. The base address is the epcs
- * _register_ base address, NOT THE ADDRESS OF THE MEMORY BLOCK.
- * The register base is currently at offset 0x600 from the memory base.
+ * EPCS Device -- None for stratix.
  *----------------------------------------------------------------------*/
-#define CFG_NIOS_EPCSBASE	0x02100200	/* EPCS register base	*/
+#undef CFG_NIOS_EPCSBASE
 
 /*------------------------------------------------------------------------
  * DEBUG
@@ -134,8 +129,7 @@
 
 /*------------------------------------------------------------------------
  * STATUS LED -- Provides a simple blinking led. For Nios2 each board
- * must implement its own led routines -- leds are, after all,
- * board-specific, no?
+ * must implement its own led routines -- since leds are board-specific.
  *----------------------------------------------------------------------*/
 #define CFG_LEDPIO_ADDR		0x02120870	/* LED PIO base addr	*/
 #define CONFIG_STATUS_LED			/* Enable status driver */
@@ -179,36 +173,6 @@
 				 CFG_CMD_RUN	| \
 				 CFG_CMD_SAVES	)
 #include <cmd_confdefs.h>
-
-/*------------------------------------------------------------------------
- * COMPACT FLASH
- *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
-#define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
-#define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
-
-#define CFG_ATA_BASE_ADDR	0x00900800	/* ATA base addr	*/
-#define CFG_ATA_IDE0_OFFSET	0x0000		/* IDE0 offset		*/
-#define CFG_ATA_DATA_OFFSET	0x0040		/* Data IO offset	*/
-#define CFG_ATA_REG_OFFSET	0x0040		/* Register offset	*/
-#define CFG_ATA_ALT_OFFSET	0x0100		/* Alternate reg offset	*/
-#define CFG_ATA_STRIDE          4		/* Width betwix addrs	*/
-#define CONFIG_DOS_PARTITION
-
-/* Board-specific cf regs */
-#define CFG_CF_PRESENT		0x00900880	/* CF Present PIO base	*/
-#define CFG_CF_POWER		0x00900890	/* CF Power FET PIO base*/
-#define CFG_CF_ATASEL		0x009008a0	/* CF ATASEL PIO base	*/
-
-#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */
-
-/*------------------------------------------------------------------------
- * JFFS2
- *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
-#define CFG_JFFS_CUSTOM_PART			/* board defined part	*/
-#endif
 
 /*------------------------------------------------------------------------
  * MISC

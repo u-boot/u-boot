@@ -42,7 +42,7 @@ LOAD_ADDR = 0x00800000 -L $(gcclibdir)/m32 -T nios.lds
 endif
 
 ifeq ($(ARCH),nios2)
-LOAD_ADDR = 0x00800000 -L $(gcclibdir) -T nios2.lds
+LOAD_ADDR = 0x02000000 -L $(gcclibdir) -T nios2.lds
 endif
 
 ifeq ($(ARCH),m68k)

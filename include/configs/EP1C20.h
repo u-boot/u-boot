@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
+ * (C) Copyright 2005, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,7 +27,7 @@
 /*------------------------------------------------------------------------
  * BOARD/CPU
  *----------------------------------------------------------------------*/
-#define CONFIG_PK1C20		1		/* PK1C20 board		*/
+#define CONFIG_EP1C20		1		/* EP1C20 board		*/
 #define CONFIG_SYS_CLK_FREQ	50000000	/* 50 MHz core clk	*/
 
 #define CFG_RESET_ADDR		0x00000000	/* Hard-reset address	*/
@@ -179,36 +179,6 @@
 				 CFG_CMD_RUN	| \
 				 CFG_CMD_SAVES	)
 #include <cmd_confdefs.h>
-
-/*------------------------------------------------------------------------
- * COMPACT FLASH
- *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
-#define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
-#define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
-
-#define CFG_ATA_BASE_ADDR	0x00900800	/* ATA base addr	*/
-#define CFG_ATA_IDE0_OFFSET	0x0000		/* IDE0 offset		*/
-#define CFG_ATA_DATA_OFFSET	0x0040		/* Data IO offset	*/
-#define CFG_ATA_REG_OFFSET	0x0040		/* Register offset	*/
-#define CFG_ATA_ALT_OFFSET	0x0100		/* Alternate reg offset	*/
-#define CFG_ATA_STRIDE          4		/* Width betwix addrs	*/
-#define CONFIG_DOS_PARTITION
-
-/* Board-specific cf regs */
-#define CFG_CF_PRESENT		0x00900880	/* CF Present PIO base	*/
-#define CFG_CF_POWER		0x00900890	/* CF Power FET PIO base*/
-#define CFG_CF_ATASEL		0x009008a0	/* CF ATASEL PIO base	*/
-
-#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */
-
-/*------------------------------------------------------------------------
- * JFFS2
- *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
-#define CFG_JFFS_CUSTOM_PART			/* board defined part	*/
-#endif
 
 /*------------------------------------------------------------------------
  * MISC

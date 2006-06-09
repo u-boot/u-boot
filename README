@@ -322,6 +322,7 @@ The following options need to be configured:
 		------------------------
 
 		CONFIG_PCI5441 CONFIG_PK1C20
+		CONFIG_EP1C20 CONFIG_EP1S10 CONFIG_EP1S40
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)

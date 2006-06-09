@@ -1,7 +1,6 @@
 #
-# (C) Copyright 2004
-# Psyent Corporation <www.psyent.com>
-# Scott McNutt <smcnutt@psyent.com>
+# (C) Copyright 2001-2004
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -13,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -22,5 +21,30 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_NIOS2 -D__NIOS2__
-PLATFORM_CPPFLAGS += -ffixed-r15 -G0
+include $(TOPDIR)/config.mk
+
+LIB	= lib$(BOARD).a
+
+COMOBJS := ../common/AMDLV065D.o ../common/epled.o
+
+OBJS	:= $(BOARD).o $(COMOBJS)
+
+SOBJS	=
+
+$(LIB): $(OBJS) $(SOBJS)
+	$(AR) crv $@ $^
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+
+-include .depend
+
+#########################################################################
