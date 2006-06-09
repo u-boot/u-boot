@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix U-Boot enviroenment sector protection on MCC200 board
+
 * Minor cleanup for PCS440EP board
 
 * Update PCS440EP port to fit into one flash device (incl. environment)
