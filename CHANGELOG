@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add MCF5282 support (without preloader)
+  relocate ichache_State to ram
+  u-boot can run from internal flash
+  Add EB+MCF-EV123 board support.
+  Add m68k Boards to MAKEALL
+  Patch from Jens Scharsig, 08 Aug 2005
+
 * Nios II - Add Altera EP1C20, EP1S10 and EP1S40 boards
   Patch by Scott McNutt, 08 Jun 2006
 

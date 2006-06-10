@@ -1300,15 +1300,25 @@ VoVPN-GW_100MHz_config:		unconfig
 ZPC1900_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc8260 zpc1900
 
-#========================================================================
-# M68K
-#========================================================================
 #########################################################################
 ## Coldfire
 #########################################################################
 
 cobra5272_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 cobra5272
+
+EB+MCF-EV123_config :		unconfig
+	@ >include/config.h
+	@echo "TEXT_BASE = 0xFFE00000"|tee board/BuS/EB+MCF-EV123/textbase.mk
+	@./mkconfig EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+EB+MCF-EV123_internal_config :	unconfig
+	@ >include/config.h
+	@echo "TEXT_BASE = 0xF0000000"|tee board/BuS/EB+MCF-EV123/textbase.mk
+	@./mkconfig EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+M5271EVB_config :		unconfig
+	@./mkconfig $(@:_config=) m68k mcf52x2 m5271evb
 
 M5272C3_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 m5272c3
@@ -1321,9 +1331,6 @@ TASREG_config :		unconfig
 
 r5200_config :		unconfig
 	@./mkconfig $(@:_config=) m68k mcf52x2 r5200
-
-M5271EVB_config :		unconfig
-	@./mkconfig $(@:_config=) m68k mcf52x2 m5271evb
 
 #########################################################################
 ## MPC83xx Systems

@@ -205,7 +205,9 @@ int eth_rx (void)
 
 int eth_init (bd_t * bd)
 {
-
+#ifndef CFG_ENET_BD_BASE
+	DECLARE_GLOBAL_DATA_PTR;
+#endif
 	int i;
 	volatile fec_t *fecp = (fec_t *) (FEC_ADDR);
 
@@ -258,6 +260,10 @@ int eth_init (bd_t * bd)
 #else
 	/* Clear multicast address hash table
 	 */
+#ifdef	CONFIG_M5282
+	fecp->fec_ihash_table_high = 0;
+	fecp->fec_ihash_table_low = 0;
+#else
 	fecp->fec_hash_table_high = 0;
 	fecp->fec_hash_table_low = 0;
 #endif
@@ -273,7 +279,16 @@ int eth_init (bd_t * bd)
 	txIdx = 0;
 
 	if (!rtx) {
+#ifdef CFG_ENET_BD_BASE
 		rtx = (RTXBD *) CFG_ENET_BD_BASE;
+#else
+		rtx = (RTXBD *) (CFG_MONITOR_BASE+gd->reloc_off -
+		                 (((PKTBUFSRX+TX_BUF_CNT)*+sizeof(cbd_t)
+				  +0xFF)
+				  & ~0xFF)
+				);
+		debug("set ENET_DB_BASE to %lX\n",(long) rtx);
+#endif
 	}
 
 	/*
@@ -307,18 +322,18 @@ int eth_init (bd_t * bd)
 
 	/* Enable MII mode
 	 */
-#if 0				/* Full duplex mode */
+
+#if 0	/* Full duplex mode */
 	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE;
 	fecp->fec_x_cntrl = FEC_TCNTRL_FDEN;
-#else  /* Half duplex mode */
-	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
-#ifdef	CONFIG_M5271
-	fecp->fec_r_cntrl |= (PKT_MAXBUF_SIZE << 16); /* set max frame length */
-#endif
+#else	/* Half duplex mode */
+        fecp->fec_r_cntrl = (PKT_MAXBUF_SIZE << 16); /* set max frame length */
+	fecp->fec_r_cntrl |= FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
 	fecp->fec_x_cntrl = 0;
 #endif
 	/* Set MII speed */
-	fecp->fec_mii_speed = 0x0e;
+        fecp->fec_mii_speed = (((CFG_CLK / 2) / (2500000 / 10)) + 5) / 10;
+        fecp->fec_mii_speed *= 2;
 
 	/* Configure port B for MII.
 	 */
@@ -422,7 +437,7 @@ static void mii_discover_phy (void)
 			 */
 			udelay (10000);	/* wait 10ms */
 		}
-		for (phyno = 0; phyno < 32 && phyaddr < 0; ++phyno) {
+		for (phyno = 1; phyno < 32 && phyaddr < 0; ++phyno) {
 			phytype = mii_send (mk_mii_read (phyno, PHY_PHYIDR1));
 #ifdef ET_DEBUG
 			printf ("PHY type 0x%x pass %d type ", phytype, pass);
