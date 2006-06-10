@@ -283,7 +283,7 @@ int eth_init (bd_t * bd)
 		rtx = (RTXBD *) CFG_ENET_BD_BASE;
 #else
 		rtx = (RTXBD *) (CFG_MONITOR_BASE+gd->reloc_off -
-		                 (((PKTBUFSRX+TX_BUF_CNT)*+sizeof(cbd_t)
+				 (((PKTBUFSRX+TX_BUF_CNT)*+sizeof(cbd_t)
 				  +0xFF)
 				  & ~0xFF)
 				);
@@ -327,13 +327,13 @@ int eth_init (bd_t * bd)
 	fecp->fec_r_cntrl = FEC_RCNTRL_MII_MODE;
 	fecp->fec_x_cntrl = FEC_TCNTRL_FDEN;
 #else	/* Half duplex mode */
-        fecp->fec_r_cntrl = (PKT_MAXBUF_SIZE << 16); /* set max frame length */
+	fecp->fec_r_cntrl = (PKT_MAXBUF_SIZE << 16); /* set max frame length */
 	fecp->fec_r_cntrl |= FEC_RCNTRL_MII_MODE | FEC_RCNTRL_DRT;
 	fecp->fec_x_cntrl = 0;
 #endif
 	/* Set MII speed */
-        fecp->fec_mii_speed = (((CFG_CLK / 2) / (2500000 / 10)) + 5) / 10;
-        fecp->fec_mii_speed *= 2;
+	fecp->fec_mii_speed = (((CFG_CLK / 2) / (2500000 / 10)) + 5) / 10;
+	fecp->fec_mii_speed *= 2;
 
 	/* Configure port B for MII.
 	 */

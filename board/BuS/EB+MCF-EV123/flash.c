@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2005 
+ * (C) Copyright 2005
  * BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
- * 
+ *
  * Based On
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005 
+ * (C) Copyright 2005
  * BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
  *
  * See file CREDITS for list of people who contributed to this

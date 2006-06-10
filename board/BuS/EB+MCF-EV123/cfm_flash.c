@@ -22,7 +22,7 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h> 
+#include <common.h>
 #include <asm/m5282.h>
 #include  "cfm_flash.h"
 

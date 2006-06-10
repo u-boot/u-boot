@@ -30,7 +30,7 @@
 #undef DEBUG
 #undef CFG_HALT_BEFOR_RAM_JUMP
 #undef ET_DEBUG
-  
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -68,7 +68,7 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-//#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADS | CFG_CMD_LOADB) )
+/*#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADS | CFG_CMD_LOADB) ) */
 #define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADB))
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -95,12 +95,12 @@
 #undef CFG_DRAM_TEST
 
 /* Clock and PLL Configuration */
-#define CFG_HZ			10000000 
+#define CFG_HZ			10000000
 #define	CFG_CLK			58982400       /* 9,8304MHz * 6 */
 
 /* PLL Configuration: Ext Clock * 6 (see table 9-4 of MCF user manual) */
 
-#define CFG_MFD			0x01	/* PLL Multiplication Factor Devider */	
+#define CFG_MFD			0x01	/* PLL Multiplication Factor Devider */
 #define CFG_RFD			0x00	/* PLL Reduce Frecuency Devider */
 
 /*
@@ -143,7 +143,7 @@
 /* If M5282 port is fully implemented the monitor base will be behind
  * the vector table. */
 #if (TEXT_BASE !=  CFG_INT_FLASH_BASE)
-#define CFG_MONITOR_BASE	(TEXT_BASE + 0x400) 
+#define CFG_MONITOR_BASE	(TEXT_BASE + 0x400)
 #else
 #define CFG_MONITOR_BASE	(TEXT_BASE + 0x418) /* 24 Byte for CFM-Config */
 #endif
