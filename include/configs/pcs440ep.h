@@ -116,18 +116,17 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for setup             */
 #undef CONFIG_DDR_ECC			/* don't use ECC			*/
-#define SPD_EEPROM_ADDRESS      {0x50, 0x51}
+#define SPD_EEPROM_ADDRESS      {0x50}
 
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1	    /* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			    /* I2C bit-banged		*/
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CFG_I2C_EEPROM_ADDR	(0xa4>>1)
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
@@ -211,6 +210,7 @@
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \

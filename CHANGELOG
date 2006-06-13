@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Minor cleanup for PCS440EP board
+  Patch by Stefan Roese, 13 Jun 2006
+
 * Add MCF5282 support (without preloader)
   relocate ichache_State to ram
   u-boot can run from internal flash
