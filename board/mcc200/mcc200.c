@@ -242,7 +242,7 @@ int misc_init_r (void)
 		/* Unprotect the upper bank of the Flash */
 		*(volatile int*)MPC5XXX_CS0_CFG |= (1 << 6);
 		flash_protect (FLAG_PROTECT_CLEAR,
-			       flash_info[0].start[0],
+			       flash_info[0].start[0] + flash_info[0].size / 2,
 			       (flash_info[0].start[0] + flash_info[0].size) / 2 - 1,
 			       &flash_info[0]);
 		*(volatile int*)MPC5XXX_CS0_CFG &= ~(1 << 6);

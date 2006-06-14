@@ -24,7 +24,7 @@
 
 #include <common.h>
 #include <watchdog.h>
-#include <nios2.h>
+#include <asm/io.h>
 #include <nios2-io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -34,8 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *-----------------------------------------------------------------*/
 #if defined(CONFIG_CONSOLE_JTAG)
 
-static nios_jtag_t *jtag =
-	(nios_jtag_t *)CACHE_BYPASS(CFG_NIOS_CONSOLE);
+static nios_jtag_t *jtag = (nios_jtag_t *)CFG_NIOS_CONSOLE;
 
 void serial_setbrg( void ){ return; }
 int serial_init( void ) { return(0);}
@@ -44,9 +43,9 @@ void serial_putc (char c)
 {
 	unsigned val;
 
-	while (NIOS_JTAG_WSPACE (jtag->control) == 0)
+	while (NIOS_JTAG_WSPACE ( readl (&jtag->control)) == 0)
 		WATCHDOG_RESET ();
-	jtag->data = (unsigned char)c;
+	writel (&jtag->data, (unsigned char)c);
 }
 
 void serial_puts (const char *s)
@@ -57,7 +56,7 @@ void serial_puts (const char *s)
 
 int serial_tstc (void)
 {
-	return (jtag->control & NIOS_JTAG_RRDY);
+	return ( readl (&jtag->control) & NIOS_JTAG_RRDY);
 }
 
 int serial_getc (void)
@@ -67,7 +66,7 @@ int serial_getc (void)
 
 	while (1) {
 		WATCHDOG_RESET ();
-		val = jtag->data;
+		val = readl (&jtag->data);
 		if (val & NIOS_JTAG_RVALID)
 			break;
 	}
@@ -80,8 +79,7 @@ int serial_getc (void)
  *-----------------------------------------------------------------*/
 #else
 
-static nios_uart_t *uart = (nios_uart_t *)
-	CACHE_BYPASS(CFG_NIOS_CONSOLE);
+static nios_uart_t *uart = (nios_uart_t *) CFG_NIOS_CONSOLE;
 
 #if defined(CFG_NIOS_FIXEDBAUD)
 
@@ -98,7 +96,7 @@ void serial_setbrg (void)
 	unsigned div;
 
 	div = (CONFIG_SYS_CLK_FREQ/gd->baudrate)-1;
-	uart->divisor = div;
+	writel (&uart->divisor,div);
 	return;
 }
 
@@ -118,9 +116,9 @@ void serial_putc (char c)
 {
 	if (c == '\n')
 		serial_putc ('\r');
-	while ((uart->status & NIOS_UART_TRDY) == 0)
+	while ((readl (&uart->status) & NIOS_UART_TRDY) == 0)
 		WATCHDOG_RESET ();
-	uart->txdata = (unsigned char)c;
+	writel (&uart->txdata,(unsigned char)c);
 }
 
 void serial_puts (const char *s)
@@ -132,14 +130,14 @@ void serial_puts (const char *s)
 
 int serial_tstc (void)
 {
-	return (uart->status & NIOS_UART_RRDY);
+	return (readl (&uart->status) & NIOS_UART_RRDY);
 }
 
 int serial_getc (void)
 {
 	while (serial_tstc () == 0)
 		WATCHDOG_RESET ();
-	return( uart->rxdata & 0x00ff );
+	return (readl (&uart->rxdata) & 0x00ff );
 }
 
 #endif /* CONFIG_JTAG_CONSOLE */

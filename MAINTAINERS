@@ -283,6 +283,7 @@ Stefan Roese <sr@denx.de>
 	ebony			PPC440GP
 	ocotea			PPC440GX
 	p3p440			PPC440GP
+	pcs440ep		PPC440EP
 	sycamore		PPC405GPr
 	walnut			PPC405GP
 	yellowstone		PPC440GR
@@ -516,6 +517,9 @@ Scott McNutt <smcnutt@psyent.com>
 
 	PCI5441			Nios-II
 	PK1C20			Nios-II
+	EP1C20			Nios-II
+	EP1S10			Nios-II
+	EP1S40			Nios-II
 
 #########################################################################
 # MicroBlaze Systems:							#

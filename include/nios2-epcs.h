@@ -38,6 +38,11 @@ typedef struct epcs_devinfo_t {
 	unsigned char   prot_mask;	/* Protection mask */
 }epcs_devinfo_t;
 
+/* Resets the epcs controller -- to prevent (potential) soft-reset
+ * problems when booting from the epcs controller
+ */
+extern int epcs_reset (void);
+
 /* Returns the devinfo struct if EPCS device is found;
  * NULL otherwise.
  */

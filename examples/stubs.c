@@ -92,7 +92,7 @@ gd_t *global_data;
 #x ":\n"				\
 "	movhi	r8, %%hi(%0)\n"		\
 "	ori	r8, r0, %%lo(%0)\n"	\
-"	add	r8, r0, r15\n"		\
+"	add	r8, r8, r15\n"		\
 "	ldw	r8, 0(r8)\n"		\
 "	ldw	r8, %1(r8)\n"		\
 "	jmp	r8\n"			\

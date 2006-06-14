@@ -1198,12 +1198,19 @@ ppcSync:
 	.globl	relocate_code
 relocate_code:
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	dccci	0,0			    /* Invalidate data cache, now no longer our stack */
+	/*
+	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
+	 * to speed up the boot process. Now this cache needs to be disabled.
+	 */
+	iccci	0,0			/* Invalidate inst cache */
+	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
+	isync
 	addi	r1,r0,0x0000		/* TLB entry #0 */
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
+	sync
 	isync
 #endif
 	mr	r1,  r3		/* Set new stack pointer		*/

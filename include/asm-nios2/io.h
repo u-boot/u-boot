@@ -39,12 +39,13 @@ extern unsigned inl (unsigned port);
 #define readl(addr)\
 	({unsigned long val;\
 	 asm volatile( "ldwio %0, 0(%1)" :"=r"(val) : "r" (addr)); val;})
+
 #define writeb(addr,val)\
-	asm volatile ("stbio %0, 0(%1)" : : "r" (addr), "r" (val))
+	asm volatile ("stbio %1, 0(%0)" : : "r" (addr), "r" (val))
 #define writew(addr,val)\
-	asm volatile ("sthio %0, 0(%1)" : : "r" (addr), "r" (val))
+	asm volatile ("sthio %1, 0(%0)" : : "r" (addr), "r" (val))
 #define writel(addr,val)\
-	asm volatile ("stwio %0, 0(%1)" : : "r" (addr), "r" (val))
+	asm volatile ("stwio %1, 0(%0)" : : "r" (addr), "r" (val))
 
 #define inb(addr)	readb(addr)
 #define inw(addr)	readw(addr)
