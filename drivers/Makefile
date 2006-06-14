@@ -48,7 +48,7 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  ti_pci1410a.o tigon3.o tsec.o \
 	  usb_ohci.o usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o \
 	  videomodes.o w83c553f.o \
-	  ks8695eth.o
+	  ks8695eth.o usbdcore_mpc8xx.o
 
 all:	$(LIB)
 
