@@ -3,7 +3,7 @@
  * Bryan O'Donoghue <bodonoghue@codehermit.ie>
  *
  * Provides support for USB console on the Analogue & Micro Adder87x
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -37,13 +37,13 @@
 
 /* If you have a USB-IF assigned VendorID then you may wish to define
  * your own vendor specific values either in BoardName.h or directly in
- * usbd_vendor_info.h 
+ * usbd_vendor_info.h
  */
 
-/* 
+/*
 #define CONFIG_USBD_MANUFACTURER	"CodeHermit.ie"
 #define CONFIG_USBD_PRODUCT_NAME	"Das U-Boot"
-#define CONFIG_USBD_VENDORID		0xFFFF 
+#define CONFIG_USBD_VENDORID		0xFFFF
 #define CONFIG_USBD_PRODUCTID_GSERIAL	0xFFFF
 #define CONFIG_USBD_PRODUCTID_CDCACM	0xFFFE
 */

@@ -34,7 +34,7 @@
 #define ACM_RESPONSE_AVAILABLE		0x01
 #define ACM_SERIAL_STATE		0x20
 
-/* Format of response expected by a ACM_GET_LINE_ENCODING request */ 
+/* Format of response expected by a ACM_GET_LINE_ENCODING request */
 struct rs232_emu{
 		unsigned long dter;
 		unsigned char stop_bits;

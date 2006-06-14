@@ -769,8 +769,6 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UP2OCR		__REG(0x40600020)
 #define UP3OCR		__REG(0x40600024)
 
-
-
 /*
  * USB Host Controller
  */

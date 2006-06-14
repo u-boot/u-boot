@@ -321,7 +321,7 @@ struct usb_class_union_function_descriptor {
 	u8 bDescriptorType;
 	u8 bDescriptorSubtype;	/* 0x06 */
 	u8 bMasterInterface;
-	//u8 bSlaveInterface0[0];
+	/* u8 bSlaveInterface0[0]; */
 	u8 bSlaveInterface0;
 } __attribute__ ((packed));
 

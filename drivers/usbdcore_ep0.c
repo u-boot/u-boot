@@ -44,7 +44,7 @@
  * XXX
  *
  * As alluded to above, a simple callback cdc_recv_setup has been implemented
- * in the usb_device data structure to facilicate passing 
+ * in the usb_device data structure to facilicate passing
  * Common Device Class packets to a function driver.
  *
  * XXX
@@ -221,7 +221,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 				(struct usb_device_descriptor *) urb->buffer;
 
 		}
-		dbg_ep0(3, "copied device configuration, actual_length: 0x%x", urb->actual_length); 
+		dbg_ep0(3, "copied device configuration, actual_length: 0x%x", urb->actual_length);
 		break;
 
 	case USB_DESCRIPTOR_TYPE_CONFIGURATION:
@@ -268,7 +268,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 				serial_printf("Invalid string index %d\n", index);
 				return -1;
 			}
-			dbg_ep0(3, "string_descriptor: %p length %d", string_descriptor, string_descriptor->bLength); 
+			dbg_ep0(3, "string_descriptor: %p length %d", string_descriptor, string_descriptor->bLength);
 			copy_config (urb, string_descriptor, string_descriptor->bLength, max);
 		}
 		break;
@@ -344,7 +344,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 	case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
 		{
 			/* If a USB device supports both a full speed and low speed operation
-			 * we must send a Device_Qualifier descriptor here 
+			 * we must send a Device_Qualifier descriptor here
 			 */
 			return -1;
 		}

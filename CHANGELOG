@@ -2,7 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
-* Various USB related patches 
+* Code cleanup
+
+* Various USB related patches
   - Add support for mpc8xx USB device.
   - Add support for Common Device Class - Abstract Control Model USB console.
   - Add support for flow control in USB slave devices.

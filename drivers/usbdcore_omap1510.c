@@ -645,7 +645,7 @@ static void omap1510_udc_state_changed (void)
 static void omap1510_udc_setup (struct usb_endpoint_instance *endpoint)
 {
 	UDCDBG ("-> Entering device setup");
-	
+
 	do {
 		const int setup_pktsize = 8;
 		unsigned char *datap =
@@ -1518,7 +1518,7 @@ void udc_startup_events (struct usb_device_instance *device)
 }
 
 /**
- * udc_irq - do pseudo interrupts 
+ * udc_irq - do pseudo interrupts
  */
 void udc_irq(void)
 {

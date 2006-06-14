@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2003
  * Gerry Hamel, geh@ti.com, Texas Instruments
- * 
+ *
  * (C) Copyright 2006
  * Bryan O'Donoghue, bodonoghue@codehermit.ie
  *
@@ -31,7 +31,7 @@
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
 #include <config.h>		/* If defined, override Linux identifiers with
-			   	 * vendor specific ones */	   
+			   	 * vendor specific ones */
 
 #if 0
 #define TTYDBG(fmt,args...)\
@@ -142,10 +142,10 @@ static struct usb_device_descriptor device_descriptor = {
 
 struct acm_config_desc {
 	struct usb_configuration_descriptor configuration_desc;
-	
+
 	/* Master Interface */
 	struct usb_interface_descriptor interface_desc;
-	
+
 	struct usb_class_header_function_descriptor usb_class_header;
 	struct usb_class_call_management_descriptor usb_class_call_mgt;
 	struct usb_class_abstract_control_descriptor usb_class_acm;
@@ -154,22 +154,22 @@ struct acm_config_desc {
 
 	/* Slave Interface */
 	struct usb_interface_descriptor data_class_interface;
-	struct usb_endpoint_descriptor 
+	struct usb_endpoint_descriptor
 		data_endpoints[NUM_ENDPOINTS-1] __attribute__((packed));
 } __attribute__((packed));
 
 static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 	{
 		.configuration_desc ={
-			.bLength = 
+			.bLength =
 				sizeof(struct usb_configuration_descriptor),
     			.bDescriptorType = USB_DT_CONFIG,
-			.wTotalLength =	 
+			.wTotalLength =
 				cpu_to_le16(sizeof(struct acm_config_desc)),
 	    		.bNumInterfaces = NUM_ACM_INTERFACES,
     			.bConfigurationValue = 1,
 			.iConfiguration = STR_CONFIG,
-			.bmAttributes = 
+			.bmAttributes =
 				BMATTRIBUTE_SELF_POWERED|BMATTRIBUTE_RESERVED,
 			.bMaxPower = USBTTY_MAXPOWER
 		},
@@ -180,62 +180,62 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 			.bInterfaceNumber = 0,
 			.bAlternateSetting = 0,
 			.bNumEndpoints = 0x01,
-			.bInterfaceClass = 
+			.bInterfaceClass =
 				COMMUNICATIONS_INTERFACE_CLASS_CONTROL,
 			.bInterfaceSubClass = COMMUNICATIONS_ACM_SUBCLASS,
 			.bInterfaceProtocol = COMMUNICATIONS_V25TER_PROTOCOL,
 			.iInterface = STR_CTRL_INTERFACE,
 		},
 		.usb_class_header = {
-			.bFunctionLength	= 
+			.bFunctionLength	=
 				sizeof(struct usb_class_header_function_descriptor),
-			.bDescriptorType	= CS_INTERFACE,	
+			.bDescriptorType	= CS_INTERFACE,
 			.bDescriptorSubtype	= USB_ST_HEADER,
 			.bcdCDC	= cpu_to_le16(110),
 		},
 		.usb_class_call_mgt = {
-			.bFunctionLength	= 
+			.bFunctionLength	=
 				sizeof(struct usb_class_call_management_descriptor),
 			.bDescriptorType	= CS_INTERFACE,
 			.bDescriptorSubtype	= USB_ST_CMF,
-			.bmCapabilities		= 0x00,	
-			.bDataInterface		= 0x01,	
+			.bmCapabilities		= 0x00,
+			.bDataInterface		= 0x01,
 		},
 		.usb_class_acm = {
-			.bFunctionLength	= 
+			.bFunctionLength	=
 				sizeof(struct usb_class_abstract_control_descriptor),
 			.bDescriptorType	= CS_INTERFACE,
-			.bDescriptorSubtype	= USB_ST_ACMF,	
-			.bmCapabilities		= 0x00,	
+			.bDescriptorSubtype	= USB_ST_ACMF,
+			.bmCapabilities		= 0x00,
 		},
 		.usb_class_union = {
-			.bFunctionLength	= 	
+			.bFunctionLength	=
 				sizeof(struct usb_class_union_function_descriptor),
 			.bDescriptorType	= CS_INTERFACE,
 			.bDescriptorSubtype	= USB_ST_UF,
-			.bMasterInterface	= 0x00,	
-			.bSlaveInterface0	= 0x01,	
+			.bMasterInterface	= 0x00,
+			.bSlaveInterface0	= 0x01,
 		},
 		.notification_endpoint = {
-			.bLength =		
+			.bLength =
 				sizeof(struct usb_endpoint_descriptor),
 			.bDescriptorType	= USB_DT_ENDPOINT,
 			.bEndpointAddress	= 0x01 | USB_DIR_IN,
 			.bmAttributes		= USB_ENDPOINT_XFER_INT,
-			.wMaxPacketSize		
+			.wMaxPacketSize
 				= cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
 			.bInterval		= 0xFF,
 		},
 
 		/* Interface 2 */
 		.data_class_interface = {
-			.bLength		= 
+			.bLength		=
 				sizeof(struct usb_interface_descriptor),
 			.bDescriptorType	= USB_DT_INTERFACE,
 			.bInterfaceNumber	= 0x01,
 			.bAlternateSetting	= 0x00,
 			.bNumEndpoints		= 0x02,
-			.bInterfaceClass	= 
+			.bInterfaceClass	=
 				COMMUNICATIONS_INTERFACE_CLASS_DATA,
 			.bInterfaceSubClass	= DATA_INTERFACE_SUBCLASS_NONE,
 			.bInterfaceProtocol	= DATA_INTERFACE_PROTOCOL_NONE,
@@ -243,30 +243,30 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 		},
 		.data_endpoints = {
 			{
-				.bLength		= 
+				.bLength		=
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType	= USB_DT_ENDPOINT,
 				.bEndpointAddress	= 0x02 | USB_DIR_OUT,
-				.bmAttributes		= 
+				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
-				.wMaxPacketSize		= 
+				.wMaxPacketSize		=
 					cpu_to_le16(CONFIG_USBD_SERIAL_BULK_PKTSIZE),
 				.bInterval		= 0xFF,
 			},
 			{
-				.bLength		= 
+				.bLength		=
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType	= USB_DT_ENDPOINT,
 				.bEndpointAddress	= 0x03 | USB_DIR_IN,
-				.bmAttributes		= 
+				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
-				.wMaxPacketSize		= 
+				.wMaxPacketSize		=
 					cpu_to_le16(CONFIG_USBD_SERIAL_BULK_PKTSIZE),
 				.bInterval		= 0xFF,
 			},
 		},
 	},
-};	
+};
 
 static struct rs232_emu rs232_desc={
 		.dter 		=  	115200,
@@ -282,75 +282,75 @@ static struct rs232_emu rs232_desc={
 
 
 struct gserial_config_desc {
-	
+
 	struct usb_configuration_descriptor configuration_desc;
-	struct usb_interface_descriptor 
+	struct usb_interface_descriptor
 		interface_desc[NUM_GSERIAL_INTERFACES] __attribute__((packed));
-	struct usb_endpoint_descriptor 
+	struct usb_endpoint_descriptor
 		data_endpoints[NUM_ENDPOINTS] __attribute__((packed));
 
 } __attribute__((packed));
 
-static struct gserial_config_desc 
+static struct gserial_config_desc
 gserial_configuration_descriptors[NUM_CONFIGS] ={
 	{
 		.configuration_desc ={
 			.bLength = sizeof(struct usb_configuration_descriptor),
 			.bDescriptorType = USB_DT_CONFIG,
-			.wTotalLength =	 
+			.wTotalLength =
 				cpu_to_le16(sizeof(struct gserial_config_desc)),
 			.bNumInterfaces = NUM_GSERIAL_INTERFACES,
 			.bConfigurationValue = 1,
 			.iConfiguration = STR_CONFIG,
-			.bmAttributes = 
+			.bmAttributes =
 				BMATTRIBUTE_SELF_POWERED|BMATTRIBUTE_RESERVED,
 			.bMaxPower = USBTTY_MAXPOWER
 		},
 		.interface_desc = {
 			{
-				.bLength  = 
+				.bLength  =
 					sizeof(struct usb_interface_descriptor),
 				.bDescriptorType = USB_DT_INTERFACE,
 				.bInterfaceNumber = 0,
 				.bAlternateSetting = 0,
 				.bNumEndpoints = NUM_ENDPOINTS,
-				.bInterfaceClass = 
+				.bInterfaceClass =
 					COMMUNICATIONS_INTERFACE_CLASS_VENDOR,
-				.bInterfaceSubClass = 
+				.bInterfaceSubClass =
 					COMMUNICATIONS_NO_SUBCLASS,
-				.bInterfaceProtocol = 
+				.bInterfaceProtocol =
 					COMMUNICATIONS_NO_PROTOCOL,
 				.iInterface = STR_DATA_INTERFACE
 			},
   		},
 		.data_endpoints  = {
 			{
-				.bLength =		
+				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
 				.bEndpointAddress =	0x01 | USB_DIR_OUT,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
-				.wMaxPacketSize =	
+				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_OUT_PKTSIZE),
 				.bInterval=		0xFF,
 			},
 			{
-				.bLength =		
+				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
 				.bEndpointAddress =	0x02 | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
-				.wMaxPacketSize = 	
+				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_IN_PKTSIZE),
 				.bInterval = 		0xFF,
 			},
 			{
-				.bLength = 		
+				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
 				.bEndpointAddress =	0x03 | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_INT,
-    				.wMaxPacketSize =	
+    				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
 				.bInterval =		0xFF,
 			},
@@ -368,7 +368,7 @@ static void usbtty_init_endpoints (void);
 static void usbtty_init_terminal_type(short type);
 static void usbtty_event_handler (struct usb_device_instance *device,
 				usb_device_event_t event, int data);
-static int usbtty_cdc_setup(struct usb_device_request *request, 
+static int usbtty_cdc_setup(struct usb_device_request *request,
 				struct urb *urb);
 static int usbtty_configured (void);
 static int write_buffer (circbuf_t * buf);
@@ -477,12 +477,12 @@ static void __usbtty_puts (const char *str, int len)
 		/* Empty buffer here, if needed, to ensure space... */
 		if (space) {
 			write_buffer (&usbtty_output);
-			
+
 			n = MIN (space, MIN (len, maxlen));
 			buf_push (&usbtty_output, str, n);
 
 			str += n;
-			len -= n;			
+			len -= n;
 		}
 	}
 }
@@ -543,7 +543,7 @@ int drv_usbtty_init (void)
 		tt = "generic";
 	}
 	usbtty_init_terminal_type(strcmp(tt,"cdc_acm"));
-	
+
 	/* prepare buffers... */
 	buf_init (&usbtty_input, USBTTY_BUFFER_SIZE);
 	buf_init (&usbtty_output, USBTTY_BUFFER_SIZE);
@@ -579,7 +579,7 @@ static void usbtty_init_strings (void)
 {
 	struct usb_string_descriptor *string;
 
-	usbtty_string_table[STR_LANG] = 
+	usbtty_string_table[STR_LANG] =
 		(struct usb_string_descriptor*)wstrLang;
 
 	string = (struct usb_string_descriptor *) wstrManufacturer;
@@ -624,7 +624,7 @@ static void usbtty_init_strings (void)
 
 	/* Now, initialize the string table for ep0 handling */
 	usb_strings = usbtty_string_table;
-}	
+}
 
 static void usbtty_init_instances (void)
 {
@@ -690,7 +690,7 @@ static void usbtty_init_instances (void)
 
 		endpoint_instance[i].rcv_packetSize =
 			le16_to_cpu(ep_descriptor_ptrs[i - 1]->wMaxPacketSize);
-		
+
 		endpoint_instance[i].tx_attributes =
 			ep_descriptor_ptrs[i - 1]->bmAttributes;
 
@@ -721,30 +721,30 @@ static void usbtty_init_endpoints (void)
 	int i;
 
 	bus_instance->max_endpoints = NUM_ENDPOINTS + 1;
-	for (i = 1; i <= NUM_ENDPOINTS; i++) {		
+	for (i = 1; i <= NUM_ENDPOINTS; i++) {
 		udc_setup_ep (device_instance, i, &endpoint_instance[i]);
 	}
 }
 
 /* usbtty_init_terminal_type
- * 
+ *
  * Do some late binding for our device type.
  */
 static void usbtty_init_terminal_type(short type)
 {
 	switch(type){
-		/* CDC ACM */			
+		/* CDC ACM */
 		case 0:
 			/* Assign endpoint descriptors */
-			ep_descriptor_ptrs[0] = 
+			ep_descriptor_ptrs[0] =
 				&acm_configuration_descriptors[0].notification_endpoint;
-			ep_descriptor_ptrs[1] = 
+			ep_descriptor_ptrs[1] =
 				&acm_configuration_descriptors[0].data_endpoints[0];
-			ep_descriptor_ptrs[2] = 
+			ep_descriptor_ptrs[2] =
 				&acm_configuration_descriptors[0].data_endpoints[1];
 
 			/* Enumerate Device Descriptor */
-			device_descriptor.bDeviceClass = 
+			device_descriptor.bDeviceClass =
 				COMMUNICATIONS_DEVICE_CLASS;
 			device_descriptor.idProduct =
 				cpu_to_le16(CONFIG_USBD_PRODUCTID_CDCACM);
@@ -752,7 +752,7 @@ static void usbtty_init_terminal_type(short type)
 			/* Assign endpoint indices */
 			tx_endpoint = ACM_TX_ENDPOINT;
 			rx_endpoint = ACM_RX_ENDPOINT;
-			
+
 			/* Configuration Descriptor */
 			configuration_descriptor =
 				(struct usb_configuration_descriptor*)
@@ -766,11 +766,11 @@ static void usbtty_init_terminal_type(short type)
 		case 1:
 		default:
 			/* Assign endpoint descriptors */
-			ep_descriptor_ptrs[0] = 
+			ep_descriptor_ptrs[0] =
 				&gserial_configuration_descriptors[0].data_endpoints[0];
-			ep_descriptor_ptrs[1] = 
+			ep_descriptor_ptrs[1] =
 				&gserial_configuration_descriptors[0].data_endpoints[1];
-			ep_descriptor_ptrs[2] = 
+			ep_descriptor_ptrs[2] =
 				&gserial_configuration_descriptors[0].data_endpoints[2];
 
 			/* Enumerate Device Descriptor */
@@ -783,7 +783,7 @@ static void usbtty_init_terminal_type(short type)
 			rx_endpoint = GSERIAL_RX_ENDPOINT;
 
 			/* Configuration Descriptor */
-			configuration_descriptor = 
+			configuration_descriptor =
 				(struct usb_configuration_descriptor*)
 				&gserial_configuration_descriptors;
 
@@ -832,14 +832,14 @@ static int write_buffer (circbuf_t * buf)
 	if (!usbtty_configured ()) {
 		return 0;
 	}
-	
+
 	struct usb_endpoint_instance *endpoint =
 			&endpoint_instance[tx_endpoint];
 	struct urb *current_urb = NULL;
 
 	current_urb = next_urb (device_instance, endpoint);
-	/* TX data still exists - send it now 
-	 */	
+	/* TX data still exists - send it now
+	 */
 	if(endpoint->sent < current_urb->actual_length){
 		if(udc_endpoint_write (endpoint)){
 			/* Write pre-empted by RX */
@@ -854,11 +854,11 @@ static int write_buffer (circbuf_t * buf)
 		int popnum, popped;
 		int total = 0;
 
-		/* Break buffer into urb sized pieces, 
-		 * and link each to the endpoint 
+		/* Break buffer into urb sized pieces,
+		 * and link each to the endpoint
 		 */
 		while (buf->size > 0) {
-			
+
 			if (!current_urb) {
 				TTYERR ("current_urb is NULL, buf->size %d\n",
 					buf->size);
@@ -881,8 +881,8 @@ static int write_buffer (circbuf_t * buf)
 			current_urb->actual_length += popped;
 			total += popped;
 
-			/* If endpoint->last == 0, then transfers have 
-			 * not started on this endpoint 
+			/* If endpoint->last == 0, then transfers have
+			 * not started on this endpoint
 			 */
 			if (endpoint->last == 0) {
 				if(udc_endpoint_write (endpoint)){
@@ -904,7 +904,7 @@ static int fill_buffer (circbuf_t * buf)
 		&endpoint_instance[rx_endpoint];
 
 	if (endpoint->rcv_urb && endpoint->rcv_urb->actual_length) {
-		unsigned int nb = 0; 
+		unsigned int nb = 0;
 		char *src = (char *) endpoint->rcv_urb->buffer;
 		unsigned int rx_avail = buf->totalsize - buf->size;
 
@@ -913,7 +913,7 @@ static int fill_buffer (circbuf_t * buf)
 			nb = endpoint->rcv_urb->actual_length;
 			buf_push (buf, src, nb);
 			endpoint->rcv_urb->actual_length = 0;
-			
+
 		}
 		return nb;
 	}
@@ -958,7 +958,7 @@ int usbtty_cdc_setup(struct usb_device_request *request, struct urb *urb)
 	   	case ACM_SEND_ENCAPSULATED_COMMAND :	/* Required */
 			break;
 		case ACM_SET_LINE_ENCODING :		/* DTE stop/parity bits
-							 * per character */		
+							 * per character */
 			break;
 	   	case ACM_GET_ENCAPSULATED_RESPONSE :	/* request response */
 			break;
@@ -986,8 +986,8 @@ void usbtty_poll (void)
 	/* New interrupts? */
 	udc_irq();
 
-	/* Write any output data to host buffer 
-	 * (do this before checking interrupts to avoid missing one) 
+	/* Write any output data to host buffer
+	 * (do this before checking interrupts to avoid missing one)
 	 */
 	if (usbtty_configured ()) {
 		write_buffer (&usbtty_output);
@@ -995,9 +995,9 @@ void usbtty_poll (void)
 
 	/* New interrupts? */
 	udc_irq();
-	
-	/* Check for new data from host.. 
-	 * (do this after checking interrupts to get latest data) 
+
+	/* Check for new data from host..
+	 * (do this after checking interrupts to get latest data)
 	 */
 	if (usbtty_configured ()) {
 		fill_buffer (&usbtty_input);

@@ -99,7 +99,7 @@
 #define TX_BD_TO	0x04
 #define TX_BD_NO_PID	0x00
 #define TX_BD_PID_DATA0	0x80
-#define TX_BD_PID_DATA1	0xC0	
+#define TX_BD_PID_DATA1	0xC0
 #define TX_BD_CNF	0x200
 #define TX_BD_TC	0x400
 #define TX_BD_L		0x800
@@ -151,16 +151,16 @@ typedef struct mpc8xx_usb{
 	ushort usber;	/* Event Register */
 	ushort res3;	/* Reserved */
 	ushort usbmr;	/* Mask Register */
-	char res4;	/* Reserved */ 
+	char res4;	/* Reserved */
 	char usbs;	/* Status Register */
 	char res5[8];	/* Reserved */
 }usb_t;
 
 typedef struct mpc8xx_parameter_ram{
-	ushort ep0ptr;	/* Endpoint Pointer Register 0 */	
-	ushort ep1ptr;	/* Endpoint Pointer Register 1 */	
-	ushort ep2ptr;	/* Endpoint Pointer Register 2 */	
-	ushort ep3ptr;	/* Endpoint Pointer Register 3 */	
+	ushort ep0ptr;	/* Endpoint Pointer Register 0 */
+	ushort ep1ptr;	/* Endpoint Pointer Register 1 */
+	ushort ep2ptr;	/* Endpoint Pointer Register 2 */
+	ushort ep3ptr;	/* Endpoint Pointer Register 3 */
 	uint rstate;	/* Receive state */
 	uint rptr;	/* Receive internal data pointer */
 	ushort frame_n;	/* Frame number */
@@ -198,7 +198,7 @@ int udc_init(void);
 void udc_irq(void);
 int udc_endpoint_write(struct usb_endpoint_instance *endpoint);
 void udc_setup_ep(struct usb_device_instance *device, unsigned int ep,
-                  struct usb_endpoint_instance *endpoint);
+		  struct usb_endpoint_instance *endpoint);
 void udc_connect(void);
 void udc_disconnect(void);
 void udc_enable(struct usb_device_instance *device);
