@@ -28,7 +28,11 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
-#include "mt48lc8m32b2-6-7.h"
+/* Two MT48LC8M32B2 for 32 MB */
+/* #include "mt48lc8m32b2-6-7.h" */
+
+/* One MT48LC16M32S2 for 64 MB */
+#include "mt48lc16m32s2-75.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,6 +78,8 @@ static void sdram_start (int hi_addr)
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | hi_addr_bit;
 	__asm__ volatile ("sync");
+
+	udelay(10);
 }
 #endif
 

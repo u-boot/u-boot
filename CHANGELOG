@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix memory init problems on MCC200 board
+
 * Fix IxEthDB.h to compile again
   Patch by Stefan Roese, 14 Jun 2006
 
