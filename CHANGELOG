@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix IxEthDB.h to compile again
+  Patch by Stefan Roese, 14 Jun 2006
+
 * Minor cleanup for PCS440EP board
   Patch by Stefan Roese, 13 Jun 2006
 

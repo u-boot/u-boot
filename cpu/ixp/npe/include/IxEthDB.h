@@ -799,10 +799,10 @@ IxEthDBStatus ixEthDBFilteringDatabaseShowRecords(IxEthDBPortId portID, IxEthDBR
  * @verbatim
     IxEthDBPortMap portMap;
     
-    /* clear all ports from port map */
+    // clear all ports from port map
     memset(portMap, 0, sizeof (portMap)); 
     
-    /* include portID in port map  */
+    // include portID in port map 
     portMap[portID / 8] = 1 << (portID % 8);
    @endverbatim
  *
