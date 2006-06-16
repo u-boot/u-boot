@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix wrong usage of udelay() in led_blink() on trab board
+  Patch by Martin Krause, 27 Oct 2005
+
 * Fix udelay bug in vfd.c for trab board
   Patch by Martin Krause, 27 Oct 2005
 
