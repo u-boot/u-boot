@@ -223,7 +223,7 @@ u16 tsc2000_read_channel (unsigned int channel)
 	u16 res;
 
 	tsc2000_set_mux(channel);
-	udelay(3 * TSC2000_DELAY_BASE);
+	udelay(20 * TSC2000_DELAY_BASE);
 
 	tsc2000_write(TSC2000_REG_ADC, 0x2036);
 	adc_wait_conversion_done ();

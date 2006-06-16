@@ -2,6 +2,13 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
+  In tsc2000_read_channel() the delay after setting the multiplexer 
+  to a temperature channel is increased from 1,5 ms to 10 ms. This
+  is to allow the multiplexer inputs to stabilize after huge steps
+  of the input signal level.
+  Patch by Martin Krause, 08 Nov 2005
+
 * Adjust TQM5200 make targets
   Make the automatic CS configuration the default.
   The dedicated configurations CONFIG_TQM5200_AA, CONFIG_TQM5200_AB
