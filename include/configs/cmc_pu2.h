@@ -108,7 +108,7 @@
 /* still about 20 kB free with this defined */
 #define CFG_LONGHELP
 
-#define CONFIG_BOOTDELAY      3
+#define CONFIG_BOOTDELAY      1
 
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_COMMANDS		\
@@ -205,15 +205,6 @@ struct bd_info_ext {
 #ifdef CONFIG_USE_IRQ
 #error CONFIG_USE_IRQ not supported
 #endif
-
-#define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
-#define CONFIG_SILENT_CONSOLE	 1	/* enable silent startup	*/
-
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "autoboot in %d seconds\n"
-#define CONFIG_AUTOBOOT_STOP_STR "R"	/* default password */
-
-#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"net_nfs=tftp ${loadaddr} ${bootfile};run nfsargs addip addcons " \
