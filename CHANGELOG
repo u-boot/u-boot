@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix setting of environment variable "ver" on trab board
+  The environment variable "ver" is now set before
+  do_auto_update() is called, so that "ver" can be used
+  in USB update scripts.
+  Patch by Martin Krause, 27 Oct 2005
+
 * Fix wrong usage of udelay() in led_blink() on trab board
   Patch by Martin Krause, 27 Oct 2005
 
