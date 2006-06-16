@@ -160,7 +160,6 @@
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
 				CFG_CMD_FAT			| \
-				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
 				CFG_CMD_SNTP			| \
 				CFG_CMD_USB	)
@@ -174,7 +173,6 @@
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
 				CFG_CMD_FAT			| \
-				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
 				CFG_CMD_SNTP			| \
 				CFG_CMD_USB	)
