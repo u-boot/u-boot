@@ -356,8 +356,8 @@ smmaco4_config: unconfig
 	@./mkconfig -a smmaco4 ppc mpc5xxx tqm5200
 
 spieval_config:	unconfig
-	echo "#define CONFIG_CS_AUTOCONF">>include/config.h
-	echo "... with automatic CS configuration"
+	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
+	@echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
 MINI5200_config	\
@@ -394,35 +394,20 @@ Total5200_Rev2_lowboot_config:	unconfig
 		}
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
-TQM5200_auto_config	\
-TQM5200_AA_config	\
-TQM5200_AB_config	\
-TQM5200_AC_config	\
+TQM5200_config	\
+TQM5200_STK100_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
-		  echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
 		}
-	@[ -z "$(findstring AA,$@)" ] || \
-		{ echo "#define CONFIG_TQM5200_AA"	>>include/config.h ; \
-		  echo "... with 4 MB Flash, 16 MB SDRAM, 32 kB EEPROM" ; \
+	@[ -z "$(findstring STK100,$@)" ] || \
+		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \
+		  echo "... on a STK52XX.100 base board" ; \
 		}
-	@[ -z "$(findstring AB,$@)" ] || \
-		{ echo "#define CONFIG_TQM5200_AB"	>>include/config.h ; \
-		  echo "... with 64 MB Flash, 64 MB SDRAM, 32 kB EEPROM, 512 kB SRAM" ; \
-		  echo "... with Graphics Controller"; \
-		}
-	@[ -z "$(findstring AC,$@)" ] || \
-		{ echo "#define CONFIG_TQM5200_AC"	>>include/config.h ; \
-		  echo "... with 4 MB Flash, 128 MB SDRAM" ; \
-		  echo "... with Graphics Controller"; \
-		}
-	@[ -z "$(findstring auto,$@)" ] || \
-		{ echo "#define CONFIG_CS_AUTOCONF"	>>include/config.h ; \
-		  echo "... with automatic CS configuration" ; \
-		}
+	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h ;
+	@echo "... with automatic CS configuration" ;
 	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
 
 #########################################################################

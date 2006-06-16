@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Adjust TQM5200 make targets
+  Make the automatic CS configuration the default.
+  The dedicated configurations CONFIG_TQM5200_AA, CONFIG_TQM5200_AB
+  and CONFIG_TQM5200_AC are removed.
+  "TQM5200_config" is now the default for STK52XX.200 base boards.
+  On a STK52XX.100 base board "TQM5200_STK100_config" must be used.
+  Patch by Martin Krause, 07 Nov 2005
+
 * Fix setting of environment variable "ver" on trab board
   The environment variable "ver" is now set before
   do_auto_update() is called, so that "ver" can be used

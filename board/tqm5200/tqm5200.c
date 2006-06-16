@@ -254,13 +254,7 @@ int checkboard (void)
 	puts ("Board: AEVFIFO\n");
 	return 0;
 #endif
-#if defined (CONFIG_TQM5200_AA)
-	puts ("Board: TQM5200-AA (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200_AB)
-	puts ("Board: TQM5200-AB (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200_AC)
-	puts ("Board: TQM5200-AC (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200)
+#if defined (CONFIG_TQM5200)
 	puts ("Board: TQM5200 (TQ-Components GmbH)\n");
 #endif
 #if defined (CONFIG_STK52XX)
@@ -572,17 +566,7 @@ static const SMI_REGS init_regs [] =
 void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
-#if defined (CONFIG_TQM5200_AA)
-		strcpy (info, " Board: TQM5200-AA (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200_AB)
-		strcpy (info, " Board: TQM5200-AB (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200_AC)
-		strcpy (info, " Board: TQM5200-AC (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200)
-		strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#else
-#error No supported board selected
-#endif
+	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
 #if defined (CONFIG_STK52XX)
 	} else if (line_number == 2) {
 		strcpy (info, "        on a STK52XX baseboard");
