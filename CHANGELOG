@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for PS/2 keyboard on TQM85xx board
+  Patch by Martin Krause, 07 Nov 2005
+
+  Tested on a STK85XX baseboard. Make sure the PS/2 controller
+  has been programmed. Jumper Settings: X66 1-2, 9-10; X61 2-3
+
 * Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
   In tsc2000_read_channel() the delay after setting the multiplexer 
   to a temperature channel is increased from 1,5 ms to 10 ms. This

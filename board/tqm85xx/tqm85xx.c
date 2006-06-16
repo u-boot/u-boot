@@ -27,6 +27,9 @@
  * MA 02111-1307 USA
  */
 
+#ifdef CONFIG_PS2MULT
+void ps2mult_early_init(void);
+#endif
 
 #include <common.h>
 #include <pci.h>
@@ -410,3 +413,14 @@ void pci_init_board (void)
 	pci_mpc85xx_init (&hose);
 #endif /* CONFIG_PCI */
 }
+
+#ifdef CONFIG_BOARD_EARLY_INIT_R
+int board_early_init_r (void)
+{
+#ifdef CONFIG_PS2MULT
+	ps2mult_early_init();
+#endif /* CONFIG_PS2MULT */
+	return (0);
+}
+#endif /* CONFIG_BOARD_EARLY_INIT_R */
+
