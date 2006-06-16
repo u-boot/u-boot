@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix DDR6 errata on TQM834x boards
+  Patch by Thomas Waehner, 07 Mar 2006
+
 * Remove obsolete flash driver board/tqm5200/flash.c
   Patch by Martin Krause, 11 Jan 2006
 
