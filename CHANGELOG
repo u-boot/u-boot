@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for CONFIG_SERIAL_MULTI on MPC5xxx
+  Patch by Martin Krause, 8 Jun 2006
+
+  This patch supports two serial consoles on boards with
+  a MPC5xxx CPU. The console can be switched at runtime
+  by setting stdin, stdout and stderr to the desired serial
+  interface (serial0 or serial1). The PSCs to be used as
+  console port are definded by CONFIG_PSC_CONSOLE
+  and CONFIG_PSC_CONSOLE2.
+  See README.serial_multi for details.
+
 * Bugfix in I2C initialisation on S3C2400.
   If the bus is blocked because of a previously interrupted
   transfer, up to eleven clocks are generated on the I2CSCL
