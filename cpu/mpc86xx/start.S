@@ -1196,13 +1196,6 @@ secondary_cpu_setup:
 	sync
 #endif
 
-	/* setup the bats */
-	bl	setup_bats
-	sync
-	/* enable address translation */
-	bl	enable_addr_trans
-	sync
-
 	/* enable and invalidate the data cache */
 	bl	dcache_enable
 	sync
@@ -1211,14 +1204,6 @@ secondary_cpu_setup:
         bl      icache_enable
         sync
         
-        /* Set up MSR and HID0, HID1*/        
-       	/* Enable interrupts */
-/*        mfmsr	r28	
-	 li	r4,0
-	ori	r4,r4,MSR_EE
-        or      r28,r28,r4
-        mtmsr   r28
-  */      
 
         /* TBEN  in HID0 */
 	mfspr	r4, HID0
