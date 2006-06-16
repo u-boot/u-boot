@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Bugfix in I2C initialisation on S3C2400.
+  If the bus is blocked because of a previously interrupted
+  transfer, up to eleven clocks are generated on the I2CSCL
+  line to complete the transfer and to free the bus.
+  With this fix pin I2CSCL (PG6) is really configured as GPIO
+  so the clock pulses are really generated.
+  Patch by Martin Krause, 04 Apr 2006
+  
 * Fix DDR6 errata on TQM834x boards
   Patch by Thomas Waehner, 07 Mar 2006
 
