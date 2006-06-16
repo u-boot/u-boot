@@ -1652,6 +1652,11 @@ cm4008_config	:	unconfig
 cm41xx_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t cm41xx NULL ks8695
 
+gth2_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_GTH2 1" >>include/config.h
+	@./mkconfig -a gth2 mips mips gth2
+
 #########################################################################
 ## S3C44B0 Systems
 #########################################################################

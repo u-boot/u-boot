@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for gth2 board
+  Patch by Thomas Lange, Aug 11 2005
+
 * Add support for CONFIG_SERIAL_MULTI on MPC5xxx
   Patch by Martin Krause, 8 Jun 2006
 

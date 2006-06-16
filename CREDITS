@@ -253,7 +253,7 @@ D  Support for Intrinsyc CERF PXA250 board.
 
 N: Thomas Lange
 E: thomas@corelatus.se
-D: Support for GTH and dbau1x00 boards; lots of PCMCIA fixes
+D: Support for GTH, GTH2 and dbau1x00 boards; lots of PCMCIA fixes
 
 N: Marc Leeman
 E: marc.leeman@barco.com
