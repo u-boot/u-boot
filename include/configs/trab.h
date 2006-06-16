@@ -384,10 +384,10 @@
 #define MTDIDS_DEFAULT		"nor0=0"
 
 /* production flash layout */
-#define MTDPARTS_DEFAULT	"mtdparts=0:32k(Firmware1)ro,"		\
+#define MTDPARTS_DEFAULT	"mtdparts=0:16k(Firmware1)ro,"		\
 						"16k(Env1),"		\
 						"16k(Env2),"		\
-						"320k(Firmware2)ro,"	\
+						"336k(Firmware2)ro,"	\
 						"896k(Kernel),"		\
 						"5376k(Root-FS),"	\
 						"1408k(JFFS2),"		\
