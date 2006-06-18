@@ -2,6 +2,76 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for gth2 board
+  Patch by Thomas Lange, Aug 11 2005
+
+* Add support for CONFIG_SERIAL_MULTI on MPC5xxx
+  Patch by Martin Krause, 8 Jun 2006
+
+  This patch supports two serial consoles on boards with
+  a MPC5xxx CPU. The console can be switched at runtime
+  by setting stdin, stdout and stderr to the desired serial
+  interface (serial0 or serial1). The PSCs to be used as
+  console port are definded by CONFIG_PSC_CONSOLE
+  and CONFIG_PSC_CONSOLE2.
+  See README.serial_multi for details.
+
+* Bugfix in I2C initialisation on S3C2400.
+  If the bus is blocked because of a previously interrupted
+  transfer, up to eleven clocks are generated on the I2CSCL
+  line to complete the transfer and to free the bus.
+  With this fix pin I2CSCL (PG6) is really configured as GPIO
+  so the clock pulses are really generated.
+  Patch by Martin Krause, 04 Apr 2006
+  
+* Fix DDR6 errata on TQM834x boards
+  Patch by Thomas Waehner, 07 Mar 2006
+
+* Remove obsolete flash driver board/tqm5200/flash.c
+  Patch by Martin Krause, 11 Jan 2006
+
+* Update configuration for CMC-PU2 board
+  Patch by Martin Krause, 17 Nov 2005
+
+* Add support for PS/2 keyboard on TQM85xx board
+  Patch by Martin Krause, 07 Nov 2005
+
+  Tested on a STK85XX baseboard. Make sure the PS/2 controller
+  has been programmed. Jumper Settings: X66 1-2, 9-10; X61 2-3
+
+* Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
+  In tsc2000_read_channel() the delay after setting the multiplexer 
+  to a temperature channel is increased from 1,5 ms to 10 ms. This
+  is to allow the multiplexer inputs to stabilize after huge steps
+  of the input signal level.
+  Patch by Martin Krause, 08 Nov 2005
+
+* Adjust TQM5200 make targets
+  Make the automatic CS configuration the default.
+  The dedicated configurations CONFIG_TQM5200_AA, CONFIG_TQM5200_AB
+  and CONFIG_TQM5200_AC are removed.
+  "TQM5200_config" is now the default for STK52XX.200 base boards.
+  On a STK52XX.100 base board "TQM5200_STK100_config" must be used.
+  Patch by Martin Krause, 07 Nov 2005
+
+* Fix setting of environment variable "ver" on trab board
+  The environment variable "ver" is now set before
+  do_auto_update() is called, so that "ver" can be used
+  in USB update scripts.
+  Patch by Martin Krause, 27 Oct 2005
+
+* Fix wrong usage of udelay() in led_blink() on trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Fix udelay bug in vfd.c for trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Disable JFFS2 support for trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Change mtdparts definition on trab board to match current flash map
+  Patch by Martin Krause, 27 Oct 2005
+
 * Fix IxEthDB.h to compile again
   Patch by Stefan Roese, 14 Jun 2006
 
