@@ -119,6 +119,11 @@ static __inline__ int au_ffs(int x)
 	return __ilog2(x & -x) + 1;
 }
 
+#define gpio_set(Value)      outl(Value, SYS_OUTPUTSET)
+#define gpio_clear(Value)    outl(Value, SYS_OUTPUTCLR)
+#define gpio_read()          inl(SYS_PINSTATERD)
+#define gpio_tristate(Value) outl(Value, SYS_TRIOUTCLR)
+
 #endif /* !ASSEMBLY */
 
 #ifdef CONFIG_PM

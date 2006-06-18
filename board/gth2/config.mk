@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2004
+# (C) Copyright 2004-2005
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,26 +21,22 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+#  AMD Alchemy AU1000, MIPS32 core
+#
 
-LIB	= lib$(BOARD).a
+ifeq ($(TBASE),0)
+TEXT_BASE = 0
+else
+ifeq ($(TBASE),1)
+TEXT_BASE = 0xbfc10070
+else
+ifeq ($(TBASE),2)
+TEXT_BASE = 0xbfc30070
+else
+## Only to make ordinary make work
+TEXT_BASE = 0x90000000
+endif
+endif
+endif
 
-OBJS	:= $(BOARD).o cmd_stk52xx.o
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
--include .depend
-
-#########################################################################

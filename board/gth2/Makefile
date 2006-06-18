@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2004
+# (C) Copyright 2005
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,22 +25,17 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= $(BOARD).o cmd_stk52xx.o
+OBJS	= $(BOARD).o flash.o ee_access.o
+SOBJS	= lowlevel_init.o
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB):	.depend $(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
 .depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
--include .depend
+sinclude .depend
 
 #########################################################################

@@ -161,6 +161,19 @@ int misc_init_r (void)
 	uchar *str;
 	int i;
 
+#ifdef CONFIG_VERSION_VARIABLE
+	{
+		/* Set version variable. Please note, that this variable is
+		 * also set in main_loop() later in the boot process. The
+		 * version variable has to be set this early, because so it
+		 * could be used in script files on an usb stick, which
+		 * might be called during do_auto_update() */
+		extern char version_string[];
+
+		setenv ("ver", version_string);
+	}
+#endif /* CONFIG_VERSION_VARIABLE */
+
 #ifdef CONFIG_AUTO_UPDATE
 	extern int do_auto_update(void);
 	/* this has priority over all else */

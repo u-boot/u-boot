@@ -153,7 +153,7 @@ void i2c_init (int speed, int slaveadd)
 #endif
 #ifdef CONFIG_S3C2400
 		/* set I2CSDA and I2CSCL (PG5, PG6) to GPIO */
-		gpio->PGCON = (gpio->PGCON & ~0x00003c00) | 0x00000c00;
+		gpio->PGCON = (gpio->PGCON & ~0x00003c00) | 0x00001000;
 #endif
 
 		/* toggle I2CSCL until bus idle */

@@ -406,4 +406,28 @@ static void set_ddr_config(void) {
 		(DDR_REFINT_166MHZ_7US << SDRAM_INTERVAL_REFINT_SHIFT) |
 		(DDR_BSTOPRE << SDRAM_INTERVAL_BSTOPRE_SHIFT);
 	SYNC;
+
+	/* Workaround for DDR6 Erratum
+	 * see MPC8349E Device Errata Rev.8, 2/2006
+	 * This workaround influences the MPC internal "input enables"
+	 * dependent on CAS latency and MPC revision. According to errata
+	 * sheet the internal reserved registers for this workaround are
+	 * not available from revision 2.0 and up.
+	 */
+
+	/* Get REVID from register SPRIDR. Skip workaround if rev >= 2.0
+	 * (0x200)
+	 */
+	if ((im->sysconf.spridr & SPRIDR_REVID) < 0x200) {
+
+		/* There is a internal reserved register at IMMRBAR+0x2F00
+		 * which has to be written with a certain value defined by
+		 * errata sheet.
+		 */
+#if defined(DDR_CASLAT_20)
+		*((u8 *)im + 0x2f00) = 0x201c0000;
+#else
+		*((u8 *)im + 0x2f00) = 0x202c0000;
+#endif
+	}
 }

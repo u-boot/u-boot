@@ -358,6 +358,8 @@ void transfer_pic(int display, unsigned char *adr, int height, int width)
  */
 int vfd_init_clocks (void)
 {
+	int i;
+
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
 	S3C24X0_LCD * const lcd = S3C24X0_GetBase_LCD();
@@ -367,7 +369,9 @@ int vfd_init_clocks (void)
 	 */
 	gpio->PCUP = (gpio->PCUP & 0xFFF0);	/* activate  GPC0...GPC3 pullups */
 	gpio->PCCON = (gpio->PCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
-	udelay (10);				/* allow signals to settle */
+	/* allow signals to settle */
+	for (i=0; i<10000; i++)	/* udelay isn't working yet at this point! */
+		__asm("NOP");
 	vfd_board_id = (~gpio->PCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
 
 	VFD_DISABLE;				/* activate blank for the vfd */
