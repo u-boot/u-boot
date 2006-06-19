@@ -7,6 +7,9 @@
  * added prototypes for ns16550.c
  * reduced no of com ports to 2
  * modifications (c) Rob Taylor, Flying Pig Systems. 2000.
+ * 
+ * added support for port on 64-bit bus
+ * by Richard Danter (richard.danter@windriver.com), (C) 2005 Wind River Systems
  */
 
 #if (CFG_NS16550_REG_SIZE == 1)
@@ -81,6 +84,25 @@ struct NS16550 {
 	unsigned char osc_12m_sel;
 	int pad10:24;
 #endif
+} __attribute__ ((packed));
+#elif (CFG_NS16550_REG_SIZE == -8)
+struct NS16550 {
+	unsigned char rbr;		/* 0 */
+	unsigned char pad0[7];
+	unsigned char ier;		/* 1 */
+	unsigned char pad1[7];
+	unsigned char fcr;		/* 2 */
+	unsigned char pad2[7];
+	unsigned char lcr;		/* 3 */
+	unsigned char pad3[7];
+	unsigned char mcr;		/* 4 */
+	unsigned char pad4[7];
+	unsigned char lsr;		/* 5 */
+	unsigned char pad5[7];
+	unsigned char msr;		/* 6 */
+	unsigned char pad6[7];
+	unsigned char scr;		/* 7 */
+	unsigned char pad7[7];
 } __attribute__ ((packed));
 #else
 #error "Please define NS16550 registers size."

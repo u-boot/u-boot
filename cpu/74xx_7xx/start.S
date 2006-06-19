@@ -756,7 +756,8 @@ in_ram:
 #if defined(CONFIG_AMIGAONEG3SE) || \
     defined(CONFIG_DB64360)	 || \
     defined(CONFIG_DB64460)      || \
-    defined(CONFIG_CPCI750)
+    defined(CONFIG_CPCI750)	|| \
+    defined(CONFIG_PPMC7XX)
 	mr	r4, r9		/* Use RAM copy of the global data */
 #endif
 	bl	after_reloc

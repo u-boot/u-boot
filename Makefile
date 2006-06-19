@@ -1452,6 +1452,9 @@ PCIPPC6_config: unconfig
 ZUMA_config:	unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx evb64260
 
+ppmc7xx_config: unconfig
+	@./mkconfig $(@:_config=) ppc 74xx_7xx ppmc7xx
+	
 #========================================================================
 # ARM
 #========================================================================

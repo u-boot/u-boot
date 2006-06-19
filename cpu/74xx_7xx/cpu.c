@@ -215,7 +215,8 @@ soft_restart(unsigned long addr)
 
 #if !defined(CONFIG_PCIPPC2) && \
     !defined(CONFIG_BAB7xx)  && \
-    !defined(CONFIG_ELPPC)
+    !defined(CONFIG_ELPPC)   && \
+    !defined(CONFIG_PPMC7XX)
 /* no generic way to do board reset. simply call soft_reset. */
 void
 do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

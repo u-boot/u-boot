@@ -142,7 +142,7 @@ LIST_74xx="	\
 "
 
 LIST_7xx="	\
-	BAB7xx		CPCI750		ELPPC				\
+	BAB7xx		CPCI750		ELPPC		ppmc7xx		\
 "
 
 LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
