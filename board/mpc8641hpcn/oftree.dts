@@ -71,7 +71,7 @@
 			device_type = "i2c";
 			compatible = "fsl-i2c";
 			reg = <3000 100>;
-			interrupts = <2b 0>;
+			interrupts = <2b 2>;
 			interrupt-parent = <40000>;
 			dfsrr;
 		};
@@ -80,7 +80,7 @@
 			device_type = "i2c";
 			compatible = "fsl-i2c";
 			reg = <3100 100>;
-			interrupts = <2b 0>;
+			interrupts = <2b 2>;
 			interrupt-parent = <40000>;
 			dfsrr;
 		};
@@ -95,28 +95,28 @@
 			ethernet-phy@0 {
 				linux,phandle = <2452000>;
 				interrupt-parent = <40000>;
-				interrupts = <3a 0>;
+				interrupts = <4a 1>;
 				reg = <0>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@1 {
 				linux,phandle = <2452001>;
 				interrupt-parent = <40000>;
-				interrupts = <3a 0>;
+				interrupts = <4a 1>;
 				reg = <1>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@2 {
 				linux,phandle = <2452002>;
 				interrupt-parent = <40000>;
-				interrupts = <3a 0>;
+				interrupts = <4a 1>;
 				reg = <2>;
 				device_type = "ethernet-phy";
 			};
 			ethernet-phy@3 {
 				linux,phandle = <2452003>;
 				interrupt-parent = <40000>;
-				interrupts = <3a 0>;
+				interrupts = <4a 1>;
 				reg = <3>;
 				device_type = "ethernet-phy";
 			};
@@ -130,7 +130,7 @@
 			compatible = "gianfar";
 			reg = <24000 1000>;
 			address = [ 00 E0 0C 00 73 00 ];
-			interrupts = <1d 3 1e 3 22 3>;
+			interrupts = <1d 2 1e 2 22 2>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452000>;
 		};
@@ -143,7 +143,7 @@
 			compatible = "gianfar";
 			reg = <25000 1000>;
 			address = [ 00 E0 0C 00 73 01 ];
-			interrupts = <23 3 24 3 28 3>;
+			interrupts = <23 2 24 2 28 2>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452001>;
 		};
@@ -156,7 +156,7 @@
 			compatible = "gianfar";
 			reg = <26000 1000>;
 			address = [ 00 E0 0C 00 02 FD ];
-			interrupts = <1F 3 20 3 21 3>;
+			interrupts = <1F 2 20 2 21 2>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452002>;
 		};
@@ -169,16 +169,16 @@
 			compatible = "gianfar";
 			reg = <27000 1000>;
 			address = [ 00 E0 0C 00 03 FD ];
-			interrupts = <25 3 26 3 27 3>;
+			interrupts = <25 2 26 2 27 2>;
 			interrupt-parent = <40000>;
 			phy-handle = <2452003>;
 		};
 		serial@4500 {
 			device_type = "serial";
-			compatible = "ns16550"; 
+			compatible = "ns16550";
 			reg = <4500 100>;
 			clock-frequency = <0>;
-			interrupts = <2a 3>;
+			interrupts = <2a 2>;
 			interrupt-parent = <40000>;
 		};
 
@@ -187,7 +187,7 @@
 			compatible = "ns16550";
 			reg = <4600 100>;
 			clock-frequency = <0>;
-			interrupts = <1c 3>;
+			interrupts = <2a 2>;
 			interrupt-parent = <40000>;
 		};
 
@@ -204,8 +204,8 @@
 				  01000000 0 00000000 e2000000 0 00100000>;
 			clock-frequency = <1fca055>;
 			interrupt-parent = <40000>;
-			interrupts = <8 0>;
-			interrupt-map-mask = <f800 0 0 7>;
+			interrupts = <18 2>;
+			interrupt-map-mask = <f800 0 0 f>;
 			interrupt-map = <
 				/* IDSEL 0x11 */
 				8800 0 0 1 40000 3 0
@@ -220,16 +220,16 @@
 				9000 0 0 4 40000 3 0
 
 				/* IDSEL 0x13 */
-				9800 0 0 1 40000 5 0
-				9800 0 0 2 40000 6 0
-				9800 0 0 3 40000 3 0
-				9800 0 0 4 40000 4 0
+				9800 0 0 1 40000 0 0
+				9800 0 0 2 40000 0 0
+				9800 0 0 3 40000 0 0
+				9800 0 0 4 40000 0 0
 
 				/* IDSEL 0x14 */
-				a000 0 0 1 40000 6 0
-				a000 0 0 2 40000 3 0
-				a000 0 0 3 40000 4 0
-				a000 0 0 4 40000 5 0
+				a000 0 0 1 40000 0 0
+				a000 0 0 2 40000 0 0
+				a000 0 0 3 40000 0 0
+				a000 0 0 4 40000 0 0
 
 				/* IDSEL 0x15 */
 				a800 0 0 1 40000 0 0
@@ -262,41 +262,41 @@
 				c800 0 0 4 40000 0 0
 
 				/* IDSEL 0x1a */
-				d000 0 0 1 40000 0 0
-				d000 0 0 2 40000 0 0
-				d000 0 0 3 40000 0 0
-				d000 0 0 4 40000 0 0
+				d000 0 0 1 40000 6 0
+				d000 0 0 2 40000 3 0
+				d000 0 0 3 40000 4 0
+				d000 0 0 4 40000 5 0
 
 
 				/* IDSEL 0x1b */
-				d800 0 0 1 40000 0 0
+				d800 0 0 1 40000 5 0
 				d800 0 0 2 40000 0 0
 				d800 0 0 3 40000 0 0
 				d800 0 0 4 40000 0 0
 
 				/* IDSEL 0x1c */
-				e000 0 0 1 40000 0 0
-				e000 0 0 2 40000 0 0
-				e000 0 0 3 40000 0 0
-				e000 0 0 4 40000 0 0
+				e000 0 0 1 40000 9 0
+				e000 0 0 2 40000 a 0
+				e000 0 0 3 40000 c 0
+				e000 0 0 4 40000 7 0
 
 				/* IDSEL 0x1d */
-				e800 0 0 1 40000 0 0
-				e800 0 0 2 40000 0 0
-				e800 0 0 3 40000 0 0
+				e800 0 0 1 40000 9 0
+				e800 0 0 2 40000 a 0
+				e800 0 0 3 40000 b 0
 				e800 0 0 4 40000 0 0
 
 				/* IDSEL 0x1e */
-				f000 0 0 1 40000 0 0
+				f000 0 0 1 40000 c 0
 				f000 0 0 2 40000 0 0
 				f000 0 0 3 40000 0 0
 				f000 0 0 4 40000 0 0
 
 				/* IDSEL 0x1f */
 				f800 0 0 1 40000 6 0
-				f800 0 0 2 40000 6 0
-				f800 0 0 3 40000 6 0
-				f800 0 0 4 40000 6 0
+				f800 0 0 2 40000 0 0
+				f800 0 0 3 40000 0 0
+				f800 0 0 4 40000 0 0
 				>;
 		};
 		pic@40000 {
@@ -310,6 +310,22 @@
 			compatible = "chrp,open-pic";
 			device_type = "open-pic";
                         big-endian;
+			interrupts = <
+				10 2 11 2 12 2 13 2
+				14 2 15 2 16 2 17 2
+				18 2 19 2 1a 2 1b 2
+				1c 2 1d 2 1e 2 1f 2
+				20 2 21 2 22 2 23 2
+				24 2 25 2 26 2 27 2
+				28 2 29 2 2a 2 2b 2
+				2c 2 2d 2 2e 2 2f 2
+				30 2 31 2 32 2 33 2
+				34 2 35 2 36 2 37 2
+				38 2 39 2 2a 2 3b 2
+				3c 2 3d 2 3e 2 3f 2
+				48 1 49 2 4a 1
+				>;
+			interrupt-parent = <40000>;
 		};
 	};
 };
