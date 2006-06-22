@@ -269,7 +269,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/*
 	 * No args is a simple reset request.
 	 */
-	if (argv <= 0) {
+	if (argc <= 1) {
 		out8(PIXIS_BASE + PIXIS_RST, 0);
 		/* not reached */
 	}
