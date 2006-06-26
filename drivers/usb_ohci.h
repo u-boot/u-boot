@@ -7,18 +7,14 @@
  * usb-ohci.h
  */
 
-/* functions for doing board specific setup/cleanup */
-#ifdef CFG_USB_BOARD_INIT
+/* functions for doing board or CPU specific setup/cleanup */
 extern int usb_board_init(void);
 extern int usb_board_stop(void);
 extern int usb_cpu_init_fail(void);
-#endif
 
-#ifdef CFG_USB_CPU_INIT
 extern int usb_cpu_init(void);
 extern int usb_cpu_stop(void);
 extern int usb_cpu_init_fail(void);
-#endif
 
 
 static int cc_to_error[16] = {

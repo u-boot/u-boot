@@ -32,7 +32,7 @@
 # include <s3c2410.h>
 #endif
 
-int usb_cpu_init()
+int usb_cpu_init (void)
 {
 
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
@@ -53,7 +53,7 @@ int usb_cpu_init()
 	return 0;
 }
 
-int usb_cpu_stop()
+int usb_cpu_stop (void)
 {
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	/* may not want to do this */
@@ -61,7 +61,7 @@ int usb_cpu_stop()
 	return 0;
 }
 
-int usb_cpu_init_fail()
+int usb_cpu_init_fail (void)
 {
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	clk_power->CLKCON &= ~(1 << 4);
