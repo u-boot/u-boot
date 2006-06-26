@@ -1,5 +1,8 @@
 #
-# (C) Copyright 2003-2004
+# (C) Copyright 2005
+# Richard Danter, Wind River Systems 
+#
+# (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,26 +24,10 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# 
+#
 
-LIB	= lib$(BOARD).a
-
-OBJS	:= $(BOARD).o cmd_stk52xx.o
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
--include .depend
-
-#########################################################################
+TEXT_BASE = 0xFFF00000
+TEXT_END  = 0xFFF40000
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE)

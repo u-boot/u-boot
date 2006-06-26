@@ -28,7 +28,7 @@ LIST_5xxx="	\
 	BC3450		cpci5200	EVAL5200	icecube_5100	\
 	icecube_5200	lite5200b	mcc200		o2dnt		\
 	pf5200		PM520		Total5100	Total5200	\
-	Total5200_Rev2	TQM5200_auto					\
+	Total5200_Rev2	TQM5200						\
 "
 
 #########################################################################
@@ -142,7 +142,7 @@ LIST_74xx="	\
 "
 
 LIST_7xx="	\
-	BAB7xx		CPCI750		ELPPC				\
+	BAB7xx		CPCI750		ELPPC		ppmc7xx		\
 "
 
 LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
@@ -204,9 +204,9 @@ LIST_ARM11="	\
 
 LIST_pxa="	\
 	adsvix		cerf250		cradle		csb226		\
-	delta		innokom		lubbock		pxa255_idp	\
-	wepep250	xaeniax		xm250		xsengine	\
-	zylonite							\
+	delta		innokom		lubbock		pleb2		\
+	pxa255_idp	wepep250	xaeniax		xm250		\
+	xsengine	zylonite					\
 "
 
 LIST_ixp="ixdp425	ixdpg425	pdnb3"
@@ -226,7 +226,7 @@ LIST_mips4kc="incaip"
 
 LIST_mips5kc="purple"
 
-LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el"
+LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el gth2"
 
 LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
 

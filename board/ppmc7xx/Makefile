@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2004
+# (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,10 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= $(BOARD).o cmd_stk52xx.o
+OBJS	:= ppmc7xx.o pci.o flash.o
+SOBJS	:= init.o
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	.depend $(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

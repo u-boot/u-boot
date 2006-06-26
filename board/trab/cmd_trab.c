@@ -729,6 +729,7 @@ static void led_blink (void)
 
 	/* blink LED. This function does not return! */
 	while (1) {
+		reset_timer_masked ();
 		led_set (1);
 		udelay (1000000 / LED_BLINK_FREQ / 2);
 		led_set (0);
