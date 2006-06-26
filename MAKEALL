@@ -301,7 +301,7 @@ build_target() {
 	${MAKE} distclean >/dev/null
 	${MAKE} ${target}_config
 	${MAKE} ${JOBS} all 2>&1 >LOG/$target.MAKELOG | tee LOG/$target.ERR
-#	${CROSS_COMPILE:-ppc_8xx-}size u-boot | tee -a LOG/$target.MAKELOG
+	${CROSS_COMPILE:-ppc_8xx-}size u-boot | tee -a LOG/$target.MAKELOG
 }
 
 #-----------------------------------------------------------------------
