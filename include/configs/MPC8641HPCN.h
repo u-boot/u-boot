@@ -304,6 +304,7 @@
 #define CFG_PCI_MEMORY_SIZE     0x80000000
 
 /* For RTL8139 */
+#define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})
 #define _IO_BASE                0x00000000
 
 #define CFG_PCI2_MEM_BASE	0xa0000000
