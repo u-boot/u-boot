@@ -28,9 +28,9 @@ include $(TOPDIR)/config.mk
 LIB	= lib$(CPU).a
 
 START	= start.o #resetvec.o
-ASOBJS  = cache.o 
+ASOBJS  = cache.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  pci.o i2c.o spd_sdram.o
+	  pci.o pcie_indirect.o i2c.o spd_sdram.o
 OBJS	= $(COBJS)
 
 all:	.depend $(START) $(ASOBJS) $(LIB)

@@ -372,7 +372,7 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private *priv)
 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts (" TIMEOUT !\n");
 				priv->link = 0;
-				break;
+				return 0;
 			}
 
 			if ((i++ % 1000) == 0) {
