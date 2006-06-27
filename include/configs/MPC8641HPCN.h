@@ -46,7 +46,8 @@
 
 #define CFG_RESET_ADDRESS    0xfff00100
 
-#undef CONFIG_PCI
+/*#undef CONFIG_PCI*/
+#define CONFIG_PCI
 
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -209,8 +210,10 @@
 #undef  CFG_RAMBOOT
 #endif
 
-#if !defined(CONFIG_SPD_EEPROM) && !defined(CFG_RAMBOOT)
-#undef CONFIG_SPD_EEPROM        	/* Use SPD EEPROM for DDR setup*/
+#if defined(CFG_RAMBOOT)
+#undef CFG_FLASH_CFI_DRIVER
+#undef CONFIG_SPD_EEPROM
+#define CFG_SDRAM_SIZE	256
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
@@ -294,6 +297,11 @@
 #define CFG_PCI1_IO_BASE	0xe2000000
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
 #define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+
+/* PCI view of System Memory */
+#define CFG_PCI_MEMORY_BUS      0x00000000
+#define CFG_PCI_MEMORY_PHYS     0x00000000
+#define CFG_PCI_MEMORY_SIZE     0x80000000
 
 /* For RTL8139 */
 #define _IO_BASE                0x00000000
@@ -429,10 +437,10 @@
  * BAT6         32M    Cache-inhibited, guarded
  * 0xfe00_0000  32M    FLASH
  */
-#define CFG_DBAT6L      ( CFG_FLASH_BASE | BATL_PP_RW \
+#define CFG_DBAT6L      ((CFG_FLASH_BASE & 0xfe000000) | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT6U      (CFG_FLASH_BASE | BATU_BL_32M | BATU_VS | BATU_VP)
-#define CFG_IBAT6L      (CFG_FLASH_BASE | BATL_PP_RW | BATL_MEMCOHERENCE)
+#define CFG_DBAT6U      ((CFG_FLASH_BASE & 0xfe000000) | BATU_BL_32M | BATU_VS | BATU_VP)
+#define CFG_IBAT6L      ((CFG_FLASH_BASE & 0xfe000000) | BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CFG_IBAT6U      CFG_DBAT6U
 
 #define CFG_DBAT7L 0x00000000

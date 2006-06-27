@@ -284,41 +284,41 @@ typedef struct ccsr_pex {
 	char	res2[16];
 	uint	pme_msg_det;	/* 0x8020 - PEX PME & message detect register */
 	uint    pme_msg_int_en;	/* 0x8024 - PEX PME & message interrupt enable register */
-	uint    pme_msg_dis;	/* 0x802C - PEX PME & message disable register */
-        char	res3[4];	
-	uint    pm_command;	/* 0x8030 - PEX PM Command register */
-        char	res4[3016];
-  	uint    block_rev1;	/* 0x8bf8 - PEX Block Revision register 1 */
-        uint    block_rev2;	/* 0x8bfc - PEX Block Revision register 2 */
+	uint    pme_msg_dis;	/* 0x8028 - PEX PME & message disable register */
+	uint    pm_command;	/* 0x802c - PEX PM Command register */
+	char	res3[3016];
+	uint    block_rev1;	/* 0x8bf8 - PEX Block Revision register 1 */
+	uint    block_rev2;	/* 0x8bfc - PEX Block Revision register 2 */
 	uint	potar0;	        /* 0x8c00 - PEX Outbound Transaction Address Register 0 */
 	uint	potear0;	/* 0x8c04 - PEX Outbound Translation Extended Address Register 0 */
-        char	res5[8];	
+	char	res4[8];
 	uint	powar0;	        /* 0x8c10 - PEX Outbound Window Attributes Register 0 */
-	char	res6[12];
+	char	res5[12];
 	uint	potar1;	        /* 0x8c20 - PEX Outbound Transaction Address Register 1 */
 	uint	potear1;	/* 0x8c24 - PEX Outbound Translation Extended Address Register 1 */
 	uint	powbar1;	/* 0x8c28 - PEX Outbound Window Base Address Register 1 */
-	char	res7[4];
+	char	res6[4];
 	uint	powar1;	        /* 0x8c30 - PEX Outbound Window Attributes Register 1 */
-	char	res8[12];
+	char	res7[12];
 	uint	potar2;	        /* 0x8c40 - PEX Outbound Transaction Address Register 2 */
 	uint	potear2;	/* 0x8c44 - PEX Outbound Translation Extended Address Register 2 */
 	uint	powbar2;	/* 0x8c48 - PEX Outbound Window Base Address Register 2 */
-	char	res9[4];
+	char	res8[4];
 	uint	powar2;	        /* 0x8c50 - PEX Outbound Window Attributes Register 2 */
-	char	res10[12];
+	char	res9[12];
 	uint	potar3;	        /* 0x8c60 - PEX Outbound Transaction Address Register 3 */
 	uint	potear3;	/* 0x8c64 - PEX Outbound Translation Extended Address Register 3 */
 	uint	powbar3;	/* 0x8c68 - PEX Outbound Window Base Address Register 3 */
-	char	res11[4];
+	char	res10[4];
 	uint	powar3;	        /* 0x8c70 - PEX Outbound Window Attributes Register 3 */
-	char	res12[12];
+	char	res11[12];
 	uint	potar4;	        /* 0x8c80 - PEX Outbound Transaction Address Register 4 */
 	uint	potear4;	/* 0x8c84 - PEX Outbound Translation Extended Address Register 4 */
 	uint	powbar4;	/* 0x8c88 - PEX Outbound Window Base Address Register 4 */
-	char	res13[4];
+	char	res12[4];
 	uint	powar4;	        /* 0x8c90 - PEX Outbound Window Attributes Register 4 */
-	char	res14[268];
+	char	res13[12];
+	char	res14[256];
 	uint	pitar3;	        /* 0x8da0 - PEX Inbound Translation Address Register 3  */
 	char	res15[4];
 	uint	piwbar3;	/* 0x8da8 - PEX Inbound Window Base Address Register 3 */
@@ -332,23 +332,25 @@ typedef struct ccsr_pex {
 	uint	piwar2;	        /* 0x8dd0 - PEX Inbound Window Attributes Register 2 */
 	char	res18[12];
 	uint	pitar1;	        /* 0x8de0 - PEX Inbound Translation Address Register 1  */
-	char	res19[4];		
+	char	res19[4];
 	uint	piwbar1;	/* 0x8de8 - PEX Inbound Window Base Address Register 1 */
-	char	res20[4];
+	uint	piwbear1;
 	uint	piwar1;	        /* 0x8df0 - PEX Inbound Window Attributes Register 1 */
-	char	res21[12];
+	char	res20[12];
 	uint	pedr;		/* 0x8e00 - PEX Error Detect Register */
-	uint	pecdr;		/* 0x8e04 - PEX Error Capture Disable Register */
-	uint	peer;		/* 0x8e08 - PEX Error Enable Register */
-	uint	perr_cap0;	/* 0x8e0c - PEX Error Capture Register 0 */
-	uint	perr_cap1;	/* 0x8e10 - PEX Error Capture Register 1 */
-	uint	perr_cap2;	/* 0x8e14 - PEX Error Capture Register 2 */
-	uint	perr_cap3;	/* 0x8e18 - PEX Error Capture Register 3 */
-	char	res22[100];
-	uint	perr_stat;	/* 0x8e80 - PEX Error Status Register */
-	char	res23[124];
-	uint	pdebug;	        /* 0x8f00 - PEX Debug Register */
-   char	res24[248]; //Sri: changed this because of adding 4 bytes before 0x?8020.
+	char    res21[4];
+	uint	peer;		/* 0x8e08 - PEX Error Interrupt Enable Register */
+	char    res22[4];
+	uint	pecdr;		/* 0x8e10 - PEX Error Disable Register */
+	char    res23[12];
+	uint	peer_stat;	/* 0x8e20 - PEX Error Capture Status Register */
+	char    res24[4];
+	uint	perr_cap0;	/* 0x8e28 - PEX Error Capture Register 0 */
+	uint	perr_cap1;	/* 0x8e2c - PEX Error Capture Register 1 */
+	uint	perr_cap2;	/* 0x8e30 - PEX Error Capture Register 2 */
+	uint	perr_cap3;	/* 0x8e34 - PEX Error Capture Register 3 */
+	char	res25[452];
+	char    res26[4];
 } ccsr_pex_t;
 
 /* Hyper Transport Register Block (0xA000-0xB000) */
