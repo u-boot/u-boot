@@ -836,7 +836,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
 #else
-	ft_setup(of_flat_tree, OF_FLAT_TREE_MAX_SIZE, kbd, initrd_start, initrd_end);
+	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
