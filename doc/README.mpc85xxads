@@ -100,6 +100,9 @@ Updated 13-July-2004 Jon Loeliger
 	SW7[1:4]  =    0101 =  5    => 5 x 66	 = 330	CCB Sysclk
 	SW7[5:6]  =	 01	    => 5:2 x 330 = 825	Core clock
 
+    In order to use PCI-X (only in the first PCI slot.  The one with
+    the RIO connector), you need to set SW1[4] (config) to 1 (off).
+    Also, configure the board to run PCI at 66 MHz.
 
 2. MEMORY MAP TO WORK WITH LINUX KERNEL
 
