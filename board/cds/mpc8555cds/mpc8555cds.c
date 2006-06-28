@@ -497,8 +497,8 @@ void
 pci_init_board(void)
 {
 #ifdef CONFIG_PCI
-	extern void pci_mpc85xx_init(struct pci_controller **hose);
+	extern void pci_mpc85xx_init(struct pci_controller *hose);
 
-	pci_mpc85xx_init(*pci_hose);
+	pci_mpc85xx_init(hose);
 #endif
 }
