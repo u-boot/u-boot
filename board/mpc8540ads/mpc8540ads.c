@@ -31,6 +31,12 @@
 #include <asm/immap_85xx.h>
 #include <spd.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+extern void ft_cpu_setup(void *blob, bd_t *bd);
+#endif
+
+
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
@@ -342,3 +348,21 @@ pci_init_board(void)
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
 }
+
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+	ft_cpu_setup(blob, bd);
+
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
+}
+#endif
