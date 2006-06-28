@@ -68,10 +68,14 @@
  * The board, however, can run at 66MHz.  In any event, this value
  * must match the settings of some switches.  Details can be found
  * in the README.mpc85xxads.
+ *
+ * XXX -- Can't we run at 66 MHz, anyway?  PCI should drop to
+ * 33MHz to accommodate, based on a PCI pin.
+ * Note that PCI-X won't work at 33MHz.
  */
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66000000
+#define CONFIG_SYS_CLK_FREQ	33000000
 #endif
 
 
