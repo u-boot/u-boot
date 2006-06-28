@@ -314,6 +314,18 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8548@0"
+#define OF_SOC			"soc8548@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH		"/soc8548@e0000000/serial@4500"
+
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
