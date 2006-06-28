@@ -465,6 +465,13 @@ U_BOOT_CMD(
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
  	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
  	"\t'arg' can be the address of an initrd image\n"
+#ifdef CONFIG_OF_FLAT_TREE
+	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
+	"\ta third argument is required which is the address of the of the\n"
+	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
+	"\tuse a '-' for the second argument. If you do not pass a third\n"
+	"\ta bd_info struct will be passed instead\n"
+#endif
 );
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -499,11 +506,6 @@ fixup_silent_linux ()
 	debug ("after silent fix-up: %s\n", buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
-
-#ifdef CONFIG_OF_FLAT_TREE
-extern const unsigned char oftree_dtb[];
-extern const unsigned int oftree_dtb_len;
-#endif
 
 #ifdef CONFIG_PPC
 static void
@@ -616,7 +618,17 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/*
 	 * Check if there is an initrd image
 	 */
+
+#ifdef CONFIG_OF_FLAT_TREE
+	/* Look for a '-' which indicates to ignore the ramdisk argument */
+	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
+			debug ("Skipping initrd\n");
+			data = 0;
+		}
+	else
+#endif
 	if (argc >= 3) {
+		debug ("Not skipping initrd\n");
 		SHOW_BOOT_PROGRESS (9);
 
 		addr = simple_strtoul(argv[2], NULL, 16);
@@ -724,6 +736,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		len = data = 0;
 	}
 
+#ifdef CONFIG_OF_FLAT_TREE
+	if (argc >= 3)
+	{
+		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
+		printf ("Booting using flat device tree at 0x%x\n",
+				of_flat_tree);
+	}
+#endif
+
 	if (!data) {
 		debug ("No initrd\n");
 	}
@@ -792,15 +813,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_start = 0;
 		initrd_end = 0;
 	}
-
-#ifdef CONFIG_OF_FLAT_TREE
-	if (initrd_start == 0)
-		of_flat_tree = (char *)(((ulong)kbd - OF_FLAT_TREE_MAX_SIZE -
-					sizeof(bd_t)) & ~0xF);
-	else
-		of_flat_tree = (char *)((initrd_start - OF_FLAT_TREE_MAX_SIZE -
-					sizeof(bd_t)) & ~0xF);
-#endif
 
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
