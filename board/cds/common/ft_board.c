@@ -35,6 +35,9 @@ ft_board_setup(void *blob, bd_t *bd)
 	u32 *p;
 	int len;
 
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
 	ft_cpu_setup(blob, bd);
 
 	p = ft_get_prop(blob, "/memory/reg", &len);

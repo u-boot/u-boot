@@ -29,7 +29,8 @@ LIB	= lib$(BOARD).a
 OBJS	:= $(BOARD).o \
 	   ../common/cadmus.o \
 	   ../common/eeprom.o \
-	   ../common/ft_board.o
+	   ../common/ft_board.o \
+	   ../common/via.o
 
 SOBJS	:= init.o
 
