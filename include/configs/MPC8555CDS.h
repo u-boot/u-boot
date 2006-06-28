@@ -318,7 +318,7 @@ extern unsigned long get_clock_freq(void);
 #define OF_CPU			"PowerPC,8555@0"
 #define OF_SOC			"soc8555@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8555@e0000000/serial@4500"
+#define OF_STDOUT_PATH		"/soc8555@e0000000/serial@4600"
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
@@ -335,33 +335,28 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI1_IO_BASE	0x00000000
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #define CFG_PCI2_MEM_BASE	0xa0000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
 #define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI2_IO_BASE	0xe3000000
-#define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
-#define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI2_IO_BASE	0x00000000
+#define CFG_PCI2_IO_PHYS	0xe2100000
+#define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
 
 
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_MPC85XX_PCI2
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
-#if !defined(CONFIG_PCI_PNP)
-    #define PCI_ENET0_IOADDR      0xe0000000
-    #define PCI_ENET0_MEMADDR     0xe0000000
-    #define PCI_IDSEL_NUMBER      0x0c 	/*slot0->3(IDSEL)=12->15*/
-#endif
-
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
