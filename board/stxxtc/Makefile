@@ -25,18 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o oftree.o
+OBJS	= $(BOARD).o
 
 $(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)
-
-%.dtb: %.dts
-	dtc -f -V 0x10 -I dts -O dtb $< >$@
-
-%.c: %.dtb
-	xxd -i $< \
-	   | sed -e "s/^unsigned char/const unsigned char/g" \
-	   | sed -e "s/^unsigned int/const unsigned int/g" > $@
 
 #########################################################################
 
