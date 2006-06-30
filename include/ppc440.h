@@ -214,14 +214,14 @@
 #define mem_dlycal	0x0084	/* delay line calibration register	    */
 #define mem_eccesr	0x0098	/* ECC error status			    */
 
-#ifdef CONFIG_440_GX
+#ifdef CONFIG_440GX
 #define sdr_amp		0x0240
 #define sdr_xpllc	0x01c1
 #define sdr_xplld	0x01c2
 #define sdr_xcr		0x01c0
 #define sdr_sdstp2	0x4001
 #define sdr_sdstp3	0x4003
-#endif	/* CONFIG_440_GX */
+#endif	/* CONFIG_440GX */
 
 #ifdef CONFIG_440SPE
 #undef sdr_sdstp2
@@ -758,9 +758,6 @@
 #define SDRAM_BXCF_M_BE_DISABLE		0x00000000	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_ENABLE		0x00000001	/* Memory Bank Enable	*/
 #endif /* CONFIG_440SPE */
-
-#ifndef CONFIG_440_GX
-#endif	/* not CONFIG_440SPE       */
 
 /*-----------------------------------------------------------------------------
  | External Bus Controller
@@ -1626,7 +1623,7 @@
 
 #define UICB0_ALL		(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
 						 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
-#endif /* CONFIG_440_GX */
+#endif /* CONFIG_440GX */
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller interrupts
 +---------------------------------------------------------------------------*/

@@ -1468,7 +1468,7 @@ trap_init:
 	cmplw	0, r7, r8
 	blt	4b
 
-#if !defined(CONFIG_440_GX) && !defined(CONFIG_440SPE)
+#if !defined(CONFIG_440GX) && !defined(CONFIG_440SPE)
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
 	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
 	mtmsr	r7			/* change MSR */
