@@ -1971,6 +1971,7 @@ clean:
 	rm -f board/netstar/*.srec board/netstar/*.bin
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
+	rm -f include/bmp_logo.h
 
 clobber:	clean
 	find . -type f \( -name .depend \
