@@ -922,6 +922,9 @@ yosemite_config:	unconfig
 yellowstone_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx yellowstone amcc
 
+yucca_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx yucca amcc
+
 #########################################################################
 ## MPC8220 Systems
 #########################################################################

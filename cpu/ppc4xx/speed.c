@@ -29,7 +29,11 @@
 /* ------------------------------------------------------------------------- */
 
 #define ONE_BILLION        1000000000
-
+#ifdef DEBUG
+#define DEBUGF(fmt,args...) printf(fmt ,##args)
+#else
+#define DEBUGF(fmt,args...)
+#endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR)
 
@@ -283,7 +287,7 @@ ulong get_PCI_freq (void)
 	return sys_info.freqPCI;
 }
 
-#elif !defined(CONFIG_440GX) && !defined(CONFIG_440SP)
+#elif !defined(CONFIG_440GX) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 void get_sys_info (sys_info_t * sysInfo)
 {
 	unsigned long strp0;
@@ -326,6 +330,26 @@ void get_sys_info (sys_info_t * sysInfo)
 	unsigned long m;
 	unsigned long prbdv0;
 
+#if defined(CONFIG_440SPE)
+	unsigned long sys_freq;
+	unsigned long sys_per=0;
+	unsigned long msr;
+	unsigned long pci_clock_per;
+	unsigned long sdr_ddrpll;
+
+	/*-------------------------------------------------------------------------+
+	 | Get the system clock period.
+	 +-------------------------------------------------------------------------*/
+	sys_per = determine_sysper();
+
+	msr = (mfmsr () & ~(MSR_EE));	/* disable interrupts */
+
+	/*-------------------------------------------------------------------------+
+	 | Calculate the system clock speed from the period.
+	 +-------------------------------------------------------------------------*/
+	sys_freq=(ONE_BILLION/sys_per)*1000;
+#endif
+
 	/* Extract configured divisors */
 	mfsdr( sdr_sdstp0,strp0 );
 	mfsdr( sdr_sdstp1,strp1 );
@@ -360,12 +384,238 @@ void get_sys_info (sys_info_t * sysInfo)
 		m = sysInfo->pllExtBusDiv * sysInfo->pllOpbDiv * sysInfo->pllFwdDivB;
 
 	/* Now calculate the individual clocks */
+#if defined(CONFIG_440SPE)
+	sysInfo->freqVCOMhz = (m * sys_freq) ;
+#else
 	sysInfo->freqVCOMhz = (m * CONFIG_SYS_CLK_FREQ) + (m>>1);
+#endif
 	sysInfo->freqProcessor = sysInfo->freqVCOMhz/sysInfo->pllFwdDivA;
 	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB/prbdv0;
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
 
+#if defined(CONFIG_440SPE)
+	/* Determine PCI Clock Period */
+	pci_clock_per = determine_pci_clock_per();
+	sysInfo->freqPCI = (ONE_BILLION/pci_clock_per) * 1000;
+	mfsdr(sdr_ddr0, sdr_ddrpll);
+	sysInfo->freqDDR = ((sysInfo->freqPLB) * SDR0_DDR0_DDRM_DECODE(sdr_ddrpll));
+#endif
+
+
+}
+
+#endif
+
+#if defined(CONFIG_440SPE)
+unsigned long determine_sysper(void)
+{
+	unsigned int fpga_clocking_reg;
+	unsigned int master_clock_selection;
+	unsigned long master_clock_per = 0;
+	unsigned long fb_div_selection;
+	unsigned int vco_div_reg_value;
+	unsigned long vco_div_selection;
+	unsigned long sys_per = 0;
+	int extClkVal;
+
+	/*-------------------------------------------------------------------------+
+	 | Read FPGA reg 0 and reg 1 to get FPGA reg information
+	 +-------------------------------------------------------------------------*/
+	fpga_clocking_reg = in16(FPGA_REG16);
+
+
+	/* Determine Master Clock Source Selection */
+	master_clock_selection = fpga_clocking_reg & FPGA_REG16_MASTER_CLK_MASK;
+
+	switch(master_clock_selection) {
+		case FPGA_REG16_MASTER_CLK_66_66:
+			master_clock_per = PERIOD_66_66MHZ;
+			break;
+		case FPGA_REG16_MASTER_CLK_50:
+			master_clock_per = PERIOD_50_00MHZ;
+			break;
+		case FPGA_REG16_MASTER_CLK_33_33:
+			master_clock_per = PERIOD_33_33MHZ;
+			break;
+		case FPGA_REG16_MASTER_CLK_25:
+			master_clock_per = PERIOD_25_00MHZ;
+			break;
+		case FPGA_REG16_MASTER_CLK_EXT:
+			if ((extClkVal==EXTCLK_33_33)
+					&& (extClkVal==EXTCLK_50)
+					&& (extClkVal==EXTCLK_66_66)
+					&& (extClkVal==EXTCLK_83)) {
+				/* calculate master clock period from external clock value */
+				master_clock_per=(ONE_BILLION/extClkVal) * 1000;
+			} else {
+				/* Unsupported */
+				DEBUGF ("%s[%d] *** master clock selection failed ***\n", __FUNCTION__,__LINE__);
+				hang();
+			}
+			break;
+		default:
+			/* Unsupported */
+			DEBUGF ("%s[%d] *** master clock selection failed ***\n", __FUNCTION__,__LINE__);
+			hang();
+			break;
+	}
+
+	/* Determine FB divisors values */
+	if ((fpga_clocking_reg & FPGA_REG16_FB1_DIV_MASK) == FPGA_REG16_FB1_DIV_LOW) {
+		if ((fpga_clocking_reg & FPGA_REG16_FB2_DIV_MASK) == FPGA_REG16_FB2_DIV_LOW)
+			fb_div_selection = FPGA_FB_DIV_6;
+		else
+			fb_div_selection = FPGA_FB_DIV_12;
+	} else {
+		if ((fpga_clocking_reg & FPGA_REG16_FB2_DIV_MASK) == FPGA_REG16_FB2_DIV_LOW)
+			fb_div_selection = FPGA_FB_DIV_10;
+		else
+			fb_div_selection = FPGA_FB_DIV_20;
+	}
+
+	/* Determine VCO divisors values */
+	vco_div_reg_value = fpga_clocking_reg & FPGA_REG16_VCO_DIV_MASK;
+
+	switch(vco_div_reg_value) {
+		case FPGA_REG16_VCO_DIV_4:
+			vco_div_selection = FPGA_VCO_DIV_4;
+			break;
+		case FPGA_REG16_VCO_DIV_6:
+			vco_div_selection = FPGA_VCO_DIV_6;
+			break;
+		case FPGA_REG16_VCO_DIV_8:
+			vco_div_selection = FPGA_VCO_DIV_8;
+			break;
+		case FPGA_REG16_VCO_DIV_10:
+		default:
+			vco_div_selection = FPGA_VCO_DIV_10;
+			break;
+	}
+
+	if (master_clock_selection == FPGA_REG16_MASTER_CLK_EXT) {
+		switch(master_clock_per) {
+			case PERIOD_25_00MHZ:
+				if (fb_div_selection == FPGA_FB_DIV_12) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_75_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_50_00MHZ;
+				}
+				break;
+			case PERIOD_33_33MHZ:
+				if (fb_div_selection == FPGA_FB_DIV_6) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_50_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_33_33MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_10) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_83_33MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_10)
+						sys_per = PERIOD_33_33MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_12) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_100_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_66_66MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_8)
+						sys_per = PERIOD_50_00MHZ;
+				}
+				break;
+			case PERIOD_50_00MHZ:
+				if (fb_div_selection == FPGA_FB_DIV_6) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_75_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_50_00MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_10) {
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_83_33MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_10)
+						sys_per = PERIOD_50_00MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_12) {
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_100_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_8)
+						sys_per = PERIOD_75_00MHZ;
+				}
+				break;
+			case PERIOD_66_66MHZ:
+				if (fb_div_selection == FPGA_FB_DIV_6) {
+					if (vco_div_selection == FPGA_VCO_DIV_4)
+						sys_per = PERIOD_100_00MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_6)
+						sys_per = PERIOD_66_66MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_8)
+						sys_per = PERIOD_50_00MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_10) {
+					if (vco_div_selection == FPGA_VCO_DIV_8)
+						sys_per = PERIOD_83_33MHZ;
+					if (vco_div_selection == FPGA_VCO_DIV_10)
+						sys_per = PERIOD_66_66MHZ;
+				}
+				if (fb_div_selection == FPGA_FB_DIV_12) {
+					if (vco_div_selection == FPGA_VCO_DIV_8)
+						sys_per = PERIOD_100_00MHZ;
+				}
+				break;
+			default:
+				break;
+		}
+
+		if (sys_per == 0) {
+			/* Other combinations are not supported */
+			DEBUGF ("%s[%d] *** sys period compute failed ***\n", __FUNCTION__,__LINE__);
+			hang();
+		}
+	} else {
+		/* calcul system clock without cheking */
+		/* if engineering option clock no check is selected */
+		/* sys_per = master_clock_per * vco_div_selection / fb_div_selection */
+		sys_per = (master_clock_per/fb_div_selection) * vco_div_selection;
+	}
+
+	return(sys_per);
+
+}
+
+/*-------------------------------------------------------------------------+
+| determine_pci_clock_per.
++-------------------------------------------------------------------------*/
+unsigned long determine_pci_clock_per(void)
+{
+	unsigned long pci_clock_selection,  pci_period;
+
+	/*-------------------------------------------------------------------------+
+	 | Read FPGA reg 6 to get PCI 0 FPGA reg information
+	 +-------------------------------------------------------------------------*/
+	pci_clock_selection = in16(FPGA_REG16);	/* was reg6 averifier */
+
+
+	pci_clock_selection = pci_clock_selection & FPGA_REG16_PCI0_CLK_MASK;
+
+	switch (pci_clock_selection) {
+		case FPGA_REG16_PCI0_CLK_133_33:
+			pci_period = PERIOD_133_33MHZ;
+			break;
+		case FPGA_REG16_PCI0_CLK_100:
+			pci_period = PERIOD_100_00MHZ;
+			break;
+		case FPGA_REG16_PCI0_CLK_66_66:
+			pci_period = PERIOD_66_66MHZ;
+			break;
+		default:
+			pci_period = PERIOD_33_33MHZ;;
+			break;
+	}
+
+	return(pci_period);
 }
 #endif
 

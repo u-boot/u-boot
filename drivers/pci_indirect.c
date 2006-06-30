@@ -52,7 +52,7 @@ indirect_##rw##_config_##size(struct pci_controller *hose,               \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);       \
 	return 0;                                                        \
 }
-#elif defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#elif defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SPE)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
 indirect_##rw##_config_##size(struct pci_controller *hose, 		 \

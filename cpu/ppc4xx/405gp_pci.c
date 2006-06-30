@@ -437,7 +437,7 @@ void pci_440_init (struct pci_controller *hose)
 	 * The PCI initialization sequence enable bit must be set ... if not abort
 	 * pci setup since updating the bit requires chip reset.
 	 *--------------------------------------------------------------------------*/
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long strap;
 
 	mfsdr(sdr_sdstp1,strap);
@@ -501,7 +501,7 @@ void pci_440_init (struct pci_controller *hose)
 	out16r( PCIX0_CLS, 0x00060000 ); /* Bridge, host bridge */
 #endif
 
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	out32r( PCIX0_BRDGOPT1, 0x04000060 );               /* PLB Rq pri highest   */
 	out32r( PCIX0_BRDGOPT2, in32(PCIX0_BRDGOPT2) | 0x83 ); /* Enable host config, clear Timeout, ensure int src1  */
 #elif defined(PCIX0_BRDGOPT1)
@@ -519,8 +519,13 @@ void pci_440_init (struct pci_controller *hose)
 	out32r( PCIX0_POM0SA, 0 ); /* disable */
 	out32r( PCIX0_POM1SA, 0 ); /* disable */
 	out32r( PCIX0_POM2SA, 0 ); /* disable */
+#if defined(CONFIG_440SPE)
+	out32r( PCIX0_POM0LAL, 0x10000000 );
+	out32r( PCIX0_POM0LAH, 0x0000000c );
+#else
 	out32r( PCIX0_POM0LAL, 0x00000000 );
 	out32r( PCIX0_POM0LAH, 0x00000003 );
+#endif
 	out32r( PCIX0_POM0PCIAL, CFG_PCI_MEMBASE );
 	out32r( PCIX0_POM0PCIAH, 0x00000000 );
 	out32r( PCIX0_POM0SA, 0xf0000001 ); /* 256MB, enabled */
