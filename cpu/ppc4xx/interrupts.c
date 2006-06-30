@@ -50,18 +50,22 @@ struct	irq_action {
 };
 
 static struct irq_action irq_vecs[32];
+void uic0_interrupt( void * parms); /* UIC0 handler */
 
 #if defined(CONFIG_440)
 static struct irq_action irq_vecs1[32]; /* For UIC1 */
 
 void uic1_interrupt( void * parms); /* UIC1 handler */
 
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 static struct irq_action irq_vecs2[32]; /* For UIC2 */
-
-void uic0_interrupt( void * parms); /* UIC0 handler */
 void uic2_interrupt( void * parms); /* UIC2 handler */
-#endif /* CONFIG_440GX */
+#endif /* CONFIG_440GX CONFIG_440SPE */
+
+#if defined(CONFIG_440SPE)
+static struct irq_action irq_vecs3[32]; /* For UIC3 */
+void uic3_interrupt( void * parms); /* UIC3 handler */
+#endif /* CONFIG_440SPE */
 
 #endif /* CONFIG_440 */
 
@@ -115,11 +119,16 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 		irq_vecs1[vec].handler = NULL;
 		irq_vecs1[vec].arg = NULL;
 		irq_vecs1[vec].count = 0;
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 		irq_vecs2[vec].handler = NULL;
 		irq_vecs2[vec].arg = NULL;
 		irq_vecs2[vec].count = 0;
 #endif /* CONFIG_440GX */
+#if defined(CONFIG_440SPE)
+		irq_vecs3[vec].handler = NULL;
+		irq_vecs3[vec].arg = NULL;
+		irq_vecs3[vec].count = 0;
+#endif /* CONFIG_440SPE */
 #endif
 	}
 
@@ -221,6 +230,34 @@ void external_interrupt(struct pt_regs *regs)
 
 } /* external_interrupt CONFIG_440GX */
 
+#elif defined(CONFIG_440SPE)
+void external_interrupt(struct pt_regs *regs)
+{
+	ulong uic_msr;
+
+	/*
+	 * Read masked interrupt status register to determine interrupt source
+	 */
+	/* 440 SPe uses base uic register */
+	uic_msr = mfdcr(uic0msr);
+
+	if ( (UICB0_UIC1CI & uic_msr) || (UICB0_UIC1NCI & uic_msr) )
+		uic1_interrupt(0);
+
+	if ( (UICB0_UIC2CI & uic_msr) || (UICB0_UIC2NCI & uic_msr) )
+		uic2_interrupt(0);
+
+	if ( (UICB0_UIC3CI & uic_msr) || (UICB0_UIC3NCI & uic_msr) )
+		uic3_interrupt(0);
+
+	if (uic_msr & ~(UICB0_ALL))
+		uic0_interrupt(0);
+
+	mtdcr(uic0sr, uic_msr);
+
+	return;
+} /* external_interrupt CONFIG_440SPE */
+
 #else
 
 void external_interrupt(struct pt_regs *regs)
@@ -266,7 +303,7 @@ void external_interrupt(struct pt_regs *regs)
 }
 #endif
 
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 /* Handler for UIC0 interrupt */
 void uic0_interrupt( void * parms)
 {
@@ -357,8 +394,8 @@ void uic1_interrupt( void * parms)
 }
 #endif /* defined(CONFIG_440) */
 
-#if defined(CONFIG_440GX)
-/* Handler for UIC1 interrupt */
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
+/* Handler for UIC2 interrupt */
 void uic2_interrupt( void * parms)
 {
 	ulong uic2_msr;
@@ -384,7 +421,7 @@ void uic2_interrupt( void * parms)
 				(*irq_vecs2[vec].handler)(irq_vecs2[vec].arg);
 			} else {
 				mtdcr(uic2er, mfdcr(uic2er) & ~(0x80000000 >> vec));
-				printf ("Masking bogus interrupt vector (uic1) 0x%x\n", vec);
+				printf ("Masking bogus interrupt vector (uic2) 0x%x\n", vec);
 			}
 
 			/*
@@ -402,6 +439,51 @@ void uic2_interrupt( void * parms)
 }
 #endif /* defined(CONFIG_440GX) */
 
+#if defined(CONFIG_440SPE)
+/* Handler for UIC3 interrupt */
+void uic3_interrupt( void * parms)
+{
+	ulong uic3_msr;
+	ulong msr_shift;
+	int vec;
+
+	/*
+	 * Read masked interrupt status register to determine interrupt source
+	 */
+	uic3_msr = mfdcr(uic3msr);
+	msr_shift = uic3_msr;
+	vec = 0;
+
+	while (msr_shift != 0) {
+		if (msr_shift & 0x80000000) {
+			/*
+			 * Increment irq counter (for debug purpose only)
+			 */
+			irq_vecs3[vec].count++;
+
+			if (irq_vecs3[vec].handler != NULL) {
+				/* call isr */
+				(*irq_vecs3[vec].handler)(irq_vecs3[vec].arg);
+			} else {
+				mtdcr(uic3er, mfdcr(uic3er) & ~(0x80000000 >> vec));
+				printf ("Masking bogus interrupt vector (uic3) 0x%x\n", vec);
+			}
+
+			/*
+			 * After servicing the interrupt, we have to remove the status indicator.
+			 */
+			mtdcr(uic3sr, (0x80000000 >> vec));
+		}
+
+		/*
+		 * Shift msr to next position and increment vector
+		 */
+		msr_shift <<= 1;
+		vec++;
+	}
+}
+#endif /* defined(CONFIG_440SPE) */
+
 /****************************************************************************/
 
 /*
@@ -414,7 +496,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 	int i = vec;
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	if ((vec > 31) && (vec < 64)) {
 		i = vec - 32;
 		irqa = irq_vecs1;
@@ -441,7 +523,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 	irqa[i].arg = arg;
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	if ((vec > 31) && (vec < 64))
 		mtdcr (uic1er, mfdcr (uic1er) | (0x80000000 >> i));
 	else if (vec > 63)
@@ -464,7 +546,7 @@ void irq_free_handler (int vec)
 	int i = vec;
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	if ((vec > 31) && (vec < 64)) {
 		irqa = irq_vecs1;
 		i = vec - 32;
@@ -485,7 +567,7 @@ void irq_free_handler (int vec)
 #endif
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	if ((vec > 31) && (vec < 64))
 		mtdcr (uic1er, mfdcr (uic1er) & ~(0x80000000 >> i));
 	else if (vec > 63)
@@ -553,7 +635,7 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("\n");
 #endif
 
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	printf ("\nUIC 2\n");
 	printf ("Nr  Routine   Arg       Count\n");
 
@@ -562,6 +644,19 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf ("%02d  %08lx  %08lx  %d\n",
 				vec+63, (ulong)irq_vecs2[vec].handler,
 				(ulong)irq_vecs2[vec].arg, irq_vecs2[vec].count);
+	}
+	printf("\n");
+#endif
+
+#if defined(CONFIG_440SPE)
+	printf ("\nUIC 3\n");
+	printf ("Nr  Routine   Arg       Count\n");
+
+	for (vec=0; vec<32; vec++) {
+		if (irq_vecs3[vec].handler != NULL)
+			printf ("%02d  %08lx  %08lx  %d\n",
+					vec+63, (ulong)irq_vecs3[vec].handler,
+					(ulong)irq_vecs3[vec].arg, irq_vecs3[vec].count);
 	}
 	printf("\n");
 #endif

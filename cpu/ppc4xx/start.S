@@ -155,6 +155,11 @@
 
 /**************************************************************************/
 _start_440:
+	/*----------------------------------------------------------------+
+	| Core bug fix.  Clear the esr
+	+-----------------------------------------------------------------*/
+        addi	r0,r0,0x0000
+        mtspr	esr,r0
 	/*----------------------------------------------------------------*/
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------*/
@@ -166,7 +171,7 @@ _start_440:
 	mtspr	srr1,r0
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP) /* NOTE: 440GX adds machine check status regs */
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)  /* NOTE: 440GX adds machine check status regs */
 	mtspr	mcsrr0,r0
 	mtspr	mcsrr1,r0
 	mfspr	r1, mcsr
@@ -199,6 +204,33 @@ _start_440:
 	lis	r1,0x0030	/* store gathering & broadcast disable */
 	ori	r1,r1,0x6000	/* cache touch */
 	mtspr	ccr0,r1
+
+#if defined (CONFIG_440SPE)
+	/*----------------------------------------------------------------+
+	| Initialize Core Configuration Reg1.
+	| a. ICDPEI: Record even parity. Normal operation.
+	| b. ICTPEI: Record even parity. Normal operation.
+	| c. DCTPEI: Record even parity. Normal operation.
+	| d. DCDPEI: Record even parity. Normal operation.
+	| e. DCUPEI: Record even parity. Normal operation.
+	| f. DCMPEI: Record even parity. Normal operation.
+	| g. FCOM:   Normal operation
+	| h. MMUPEI: Record even parity. Normal operation.
+	| i. FFF:    Flush only as much data as necessary.
+	| j. TCS:    Timebase increments from externally supplied clock
+	+-----------------------------------------------------------------*/
+	addis	r0, r0, 0x0000
+	ori	r0, r0, 0x0080
+	mtspr	ccr1, r0
+
+	/*----------------------------------------------------------------+
+	| Reset the timebase.
+	| The previous write to CCR1 sets the timebase source.
+	+-----------------------------------------------------------------*/
+	addi	r0, r0, 0x0000
+	mtspr	tbl, r0
+	mtspr	tbu, r0
+#endif
 
 	/*----------------------------------------------------------------*/
 	/* Setup interrupt vectors */
@@ -261,15 +293,26 @@ _start_440:
 	mtspr	ivlim,r1
 	mtspr	dvlim,r1
 
+	/*----------------------------------------------------------------+
+	|Initialize MMUCR[STID] = 0.
+	+-----------------------------------------------------------------*/
+	mfspr	r0,mmucr
+	addis	r1,0,0xFFFF
+	ori	r1,r1,0xFF00
+	and	r0,r0,r1
+	mtspr	mmucr,r0
+
 	/*----------------------------------------------------------------*/
 	/* Clear all TLB entries -- TID = 0, TS = 0 */
 	/*----------------------------------------------------------------*/
-	mtspr	mmucr,r0
+	addis	r0,0,0x0000
 	li	r1,0x003f	/* 64 TLB entries */
 	mtctr	r1
-0:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
+rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
+	tlbwe	r0,r1,0x0001
+	tlbwe	r0,r1,0x0002
 	subi	r1,r1,0x0001
-	bdnz	0b
+	bdnz	rsttlb
 
 	/*----------------------------------------------------------------*/
 	/* TLB entry setup -- step thru tlbtab */
@@ -377,7 +420,7 @@ _start:
 	addi	r3,r3,32
 	bdnz	..d_ag
 #else
-#if defined (CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined (CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
 	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
@@ -403,6 +446,19 @@ _start:
 	mtdcr	isram0_sb2cr,r1
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
+	mtdcr	isram0_sb3cr,r1
+#elif defined(CONFIG_440SPE)
+	lis	r1,0x0000		/* BAS = 0000_0000 */
+	ori	r1,r1,0x0984		/* first 64k */
+	mtdcr	isram0_sb0cr,r1
+	lis	r1,0x0001
+	ori	r1,r1,0x0984		/* second 64k */
+	mtdcr	isram0_sb1cr,r1
+	lis	r1, 0x0002
+	ori	r1,r1, 0x0984		/* third 64k */
+	mtdcr	isram0_sb2cr,r1
+	lis	r1, 0x0003
+	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	isram0_sb3cr,r1
 #else
 	ori	r1,r1,0x0380		/* 8k rw */
@@ -1197,7 +1253,7 @@ ppcSync:
  */
 	.globl	relocate_code
 relocate_code:
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SPE)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
@@ -1412,7 +1468,7 @@ trap_init:
 	cmplw	0, r7, r8
 	blt	4b
 
-#if !defined(CONFIG_440_GX)
+#if !defined(CONFIG_440_GX) && !defined(CONFIG_440SPE)
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
 	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
 	mtmsr	r7			/* change MSR */

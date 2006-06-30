@@ -50,7 +50,7 @@
 #include <405_mal.h>
 #include <miiphy.h>
 
-
+#undef ET_DEBUG
 /***********************************************************/
 /* Dump out to the screen PHY regs			   */
 /***********************************************************/
@@ -90,6 +90,10 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 		PHY_ANLPAR_10);
 	miiphy_write (devname, addr, PHY_ANAR, adv);
 
+	miiphy_read (devname, addr, PHY_1000BTCR, &adv);
+	adv |= (0x0300);
+	miiphy_write (devname, addr, PHY_1000BTCR, adv);
+
 	/* Start/Restart aneg */
 	miiphy_read (devname, addr, PHY_BMCR, &ctl);
 	ctl |= (PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
@@ -104,7 +108,7 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 /***********************************************************/
 unsigned int miiphy_getemac_offset (void)
 {
-#if (defined(CONFIG_440) && !defined(CONFIG_440SP)) && defined(CONFIG_NET_MULTI)
+#if (defined(CONFIG_440) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)) && defined(CONFIG_NET_MULTI)
 	unsigned long zmii;
 	unsigned long eoffset;
 
@@ -155,10 +159,12 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	i = 0;
 
 	/* see if it is ready for  sec */
-	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == 0) {
+	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5) {
-#if 0
+#ifdef ET_DEBUG
+			sta_reg = in32 (EMAC_STACR + emac_reg);
+			printf ("read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 			printf ("read err 1\n");
 #endif
 			return -1;
@@ -167,31 +173,41 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	}
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440GX)
-	sta_reg |= EMAC_STACR_READ;
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
+#if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
+		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_READ;
+#else
+		sta_reg |= EMAC_STACR_READ;
+#endif
 #else
 	sta_reg = (sta_reg | EMAC_STACR_READ) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && !defined(CONFIG__440SP) && !defined(CONFIG__440SPE)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;
 #endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
-
+	sta_reg = sta_reg | EMAC_STACR_OC_MASK;	/* new IBM emac v4 */
 	out32 (EMAC_STACR + emac_reg, sta_reg);
-#if 0				/* test-only */
+#ifdef ET_DEBUG
 	printf ("a2: write: EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 
 	sta_reg = in32 (EMAC_STACR + emac_reg);
+#ifdef ET_DEBUG
+		printf ("a21: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+#endif
 	i = 0;
-	while ((sta_reg & EMAC_STACR_OC) == 0) {
+	while ((sta_reg & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5) {
 			return -1;
 		}
 		i++;
 		sta_reg = in32 (EMAC_STACR + emac_reg);
+#ifdef ET_DEBUG
+		printf ("a22: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+#endif
 	}
 	if ((sta_reg & EMAC_STACR_PHYE) != 0) {
 		return -1;
@@ -219,7 +235,7 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	/* see if it is ready for 1000 nsec */
 	i = 0;
 
-	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == 0) {
+	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		if (i > 5)
 			return -1;
 		udelay (7);
@@ -228,16 +244,21 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	sta_reg = 0;
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440GX)
-	sta_reg |= EMAC_STACR_WRITE;
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
+#if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
+		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_WRITE;
+#else
+		sta_reg |= EMAC_STACR_WRITE;
+#endif
 #else
 	sta_reg = (sta_reg | EMAC_STACR_WRITE) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && !defined(CONFIG__440SP) && !defined(CONFIG__440SPE)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;	/* Set clock frequency (PLB freq. dependend) */
 #endif
-	sta_reg = sta_reg | ((unsigned long) addr << 5);	/* Phy address */
+	sta_reg = sta_reg | ((unsigned long) addr << 5);/* Phy address */
+	sta_reg = sta_reg | EMAC_STACR_OC_MASK;		/* new IBM emac v4 */
 	memcpy (&sta_reg, &value, 2);	/* put in data */
 
 	out32 (EMAC_STACR + emac_reg, sta_reg);
@@ -245,12 +266,18 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	/* wait for completion */
 	i = 0;
 	sta_reg = in32 (EMAC_STACR + emac_reg);
-	while ((sta_reg & EMAC_STACR_OC) == 0) {
+#ifdef ET_DEBUG
+		printf ("a31: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+#endif
+	while ((sta_reg & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5)
 			return -1;
 		i++;
 		sta_reg = in32 (EMAC_STACR + emac_reg);
+#ifdef ET_DEBUG
+		printf ("a32: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+#endif
 	}
 
 	if ((sta_reg & EMAC_STACR_PHYE) != 0)

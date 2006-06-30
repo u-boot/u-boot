@@ -42,7 +42,11 @@ struct serial_device *default_serial_console (void)
 	return &serial_scc_device;
 #elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
    || defined(CONFIG_405EP) || defined(CONFIG_MPC5xxx)
-	return &serial0_device;
+#if defined(CONFIG_UART1_CONSOLE)
+		return &serial1_device;
+#else
+		return &serial0_device;
+#endif
 #else
 #error No default console
 #endif
