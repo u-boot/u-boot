@@ -609,6 +609,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
+	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
@@ -618,13 +623,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	board_early_init_r ();
 #endif
 
-	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
-
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
-
-#ifdef CONFIG_SERIAL_MULTI
-	serial_initialize();
-#endif
 
 	/*
 	 * We have to relocate the command table manually
