@@ -82,7 +82,9 @@ int pci_arbiter_enabled(void)
 	return (mfdcr(cpc0_strp1) & CPC0_STRP1_PAE_MASK);
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+     defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+     defined(CONFIG_440SPE)
 	unsigned long val;
 
 	mfsdr(sdr_sdstp1, val);
@@ -91,8 +93,8 @@ int pci_arbiter_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_405EP)|| defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-	defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR) ||  \
+     defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 
 #define I2C_BOOTROM
 
@@ -102,7 +104,9 @@ int i2c_bootrom_enabled(void)
 	return (mfdcr(cpc0_boot) & CPC0_BOOT_SEP);
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+     defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+	defined(CONFIG_440SPE)
 	unsigned long val;
 
 	mfsdr(sdr_sdcs, val);
@@ -248,6 +252,12 @@ int checkcpu (void)
 		puts("SP Rev. B");
 		break;
 
+	case PVR_440SPe_RA:
+		puts("SPe 3GA533C");
+		break;
+	case PVR_440SPe_RB:
+		puts("SPe 3GB533C");
+		break;
 	default:
 		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;

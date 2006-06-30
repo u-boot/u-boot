@@ -92,11 +92,21 @@
 #define MAL_ESR_PBEI	  0x00000001
       /* ^^			 ^^   */
       /* Mal IER		      */
+#ifdef CONFIG_440SPE
+#define MAL_IER_PT	  0x00000080
+#define MAL_IER_PRE	  0x00000040
+#define MAL_IER_PWE	  0x00000020
+#define MAL_IER_DE	  0x00000010
+#define MAL_IER_OTE	  0x00000004
+#define MAL_IER_OE	  0x00000002
+#define MAL_IER_PE	  0x00000001
+#else
 #define MAL_IER_DE	  0x00000010
 #define MAL_IER_NE	  0x00000008
 #define MAL_IER_TE	  0x00000004
 #define MAL_IER_OPBE	  0x00000002
 #define MAL_IER_PLBE	  0x00000001
+#endif
 
 /* MAL Channel Active Set and Reset Registers */
 #define MAL_TXRX_CASR	(0x80000000)

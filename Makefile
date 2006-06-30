@@ -981,6 +981,9 @@ yosemite_config:	unconfig
 yellowstone_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx yellowstone amcc
 
+yucca_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx yucca amcc
+
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
@@ -1968,6 +1971,7 @@ clean:
 	rm -f board/netstar/*.srec board/netstar/*.bin
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
+	rm -f include/bmp_logo.h
 
 clobber:	clean
 	find . -type f \( -name .depend \
