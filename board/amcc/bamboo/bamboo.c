@@ -435,7 +435,7 @@ long int initdram (int board_type)
 	 */
 	init_spd_array();
 
-	dram_size = spd_sdram (0);
+	dram_size = spd_sdram();
 
 	return dram_size;
 }
