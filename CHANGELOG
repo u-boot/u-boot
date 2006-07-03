@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add system memory to the PCI region list for AMCC PPC44x CPUs.
+  Enabled it for Yucca board.
+
 * Cleanup config file and bootup output for Yucca board.
 
 * Fix CONFIG_440_GX define usage.
