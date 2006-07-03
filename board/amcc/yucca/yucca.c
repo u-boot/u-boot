@@ -541,18 +541,15 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	sys_info_t sysinfo;
+	char *s = getenv("serial#");
 
-	get_sys_info (&sysinfo);
+	printf("Board: Yucca - AMCC 440SPe Evaluation Board");
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+	putc('\n');
 
-	printf ("Board: AMCC 440SPe Evaluation Board\n");
-	printf ("\tVCO: %lu MHz\n", sysinfo.freqVCOMhz / 1000000);
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf ("\tPLB: %lu MHz\n", sysinfo.freqPLB / 1000000);
-	printf ("\tOPB: %lu MHz\n", sysinfo.freqOPB / 1000000);
-	printf ("\tEPB: %lu MHz\n", sysinfo.freqEPB / 1000000);
-	printf ("\tPCI: %lu MHz\n", sysinfo.freqPCI / 1000000);
-	printf ("\tDDR: %lu MHz\n", sysinfo.freqDDR / 1000000);
 	return 0;
 }
 
