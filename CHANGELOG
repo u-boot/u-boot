@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add AMCC bamboo board to MAKEALL build script.
+
 * Fix AMCC bamboo eval board compilation errors.
 
 * Add system memory to the PCI region list for AMCC PPC44x CPUs.
