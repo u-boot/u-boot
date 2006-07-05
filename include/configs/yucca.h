@@ -152,29 +152,13 @@
 #undef	CFG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 #define CONFIG_ENV_OVERWRITE	1
 
-#define CONFIG_BOOTARGS		"console=ttyS0,115200n8 root=/dev/nfs rw"
-#define CONFIG_BOOTCOMMAND	"bootm E7C00000" /* autoboot command	*/
-#define CONFIG_BOOTDELAY	-1	/* -1 to disable autoboot	*/
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
-#define CONFIG_MII		1	/* MII PHY management		*/
-#undef CONFIG_NET_MULTI
-#define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
-#define CONFIG_HAS_ETH0
-#define CONFIG_PHY_RESET        1	/* reset phy upon startup	*/
-#define CONFIG_PHY_RESET_DELAY	1000
-#define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-#define CONFIG_NETMASK		255.255.0.0
-#define CONFIG_IPADDR		192.168.80.10
-#define CONFIG_ETHADDR		00:04:AC:01:CA:FE
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-#define CONFIG_SERVERIP		192.168.1.1
+#undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
- 	"loads_echo=1\0"						\
 	"netdev=eth0\0"							\
 	"hostname=yucca\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -190,7 +174,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 		"bootm\0"						\
-	"rootpath=/opt/eldk-4.0/ppc_4xx\0"				\
+	"rootpath=/opt/eldk/ppc_4xx\0"				\
 	"bootfile=yucca/uImage\0"					\
 	"kernel_addr=E7F10000\0"					\
 	"ramdisk_addr=E7F20000\0"					\
@@ -200,21 +184,41 @@
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL		| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_MII	| \
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
+#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
+#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+
+#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
+				CFG_CMD_ASKENV	| \
 				CFG_CMD_EEPROM	| \
-				CFG_CMD_ELF	)
+				CFG_CMD_DHCP	| \
+				CFG_CMD_DIAG	| \
+				CFG_CMD_ELF	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_IRQ	| \
+				CFG_CMD_MII	| \
+				CFG_CMD_NET	| \
+				CFG_CMD_NFS	| \
+				CFG_CMD_PCI	| \
+				CFG_CMD_PING	| \
+				CFG_CMD_REGINFO	| \
+				CFG_CMD_SDRAM	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#define CONFIG_MII		1	/* MII PHY management		*/
+#undef CONFIG_NET_MULTI
+#define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
+#define CONFIG_HAS_ETH0
+#define CONFIG_PHY_RESET        1	/* reset phy upon startup	*/
+#define CONFIG_PHY_RESET_DELAY	1000
+#define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
+#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
