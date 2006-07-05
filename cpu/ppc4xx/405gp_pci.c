@@ -465,17 +465,30 @@ void pci_440_init (struct pci_controller *hose)
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
 
+	/* PCI I/O space */
 	pci_set_region(hose->regions + reg_num++,
 		       0x00000000,
 		       PCIX0_IOBASE,
 		       0x10000,
 		       PCI_REGION_IO);
 
+	/* PCI memory space */
 	pci_set_region(hose->regions + reg_num++,
 		       CFG_PCI_TARGBASE,
 		       CFG_PCI_MEMBASE,
 		       0x10000000,
 		       PCI_REGION_MEM );
+
+#if defined(CONFIG_PCI_SYS_MEM_BUS) && defined(CONFIG_PCI_SYS_MEM_PHYS) && \
+	defined(CONFIG_PCI_SYS_MEM_SIZE)
+	/* System memory space */
+	pci_set_region(hose->regions + reg_num++,
+		       CONFIG_PCI_SYS_MEM_BUS,
+		       CONFIG_PCI_SYS_MEM_PHYS,
+		       CONFIG_PCI_SYS_MEM_SIZE,
+		       PCI_REGION_MEM | PCI_REGION_MEMORY );
+#endif
+
 	hose->region_count = reg_num;
 
 	pci_setup_indirect(hose, PCIX0_CFGADR, PCIX0_CFGDATA);

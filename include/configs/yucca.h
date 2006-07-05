@@ -34,7 +34,6 @@
 #define DEBUG
 #undef DEBUG
 
-#define	 CONFIG_IDENT_STRING "\nU_440SPe_V1R01 level06"
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
@@ -75,6 +74,11 @@
 /* #define CFG_PCI_BASE_IO	0xB8000000 */	/* internal PCI I-O	*/
 /* #define CFG_PCI_BASE_REGS	0xBEC00000 */	/* internal PCI regs	*/
 /* #define CFG_PCI_BASE_CYCLE	0xBED00000 */	/* internal PCI regs	*/
+
+/* System RAM mapped to PCI space */
+#define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
 
 #define CFG_FPGA_BASE		0xe2000000	/* epld			*/
 #define CFG_OPER_FLASH		0xe7000000	/* SRAM - OPER Flash	*/
@@ -149,8 +153,8 @@
 #define CONFIG_ENV_OVERWRITE	1
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200n8 root=/dev/nfs rw"
-#define CONFIG_BOOTCOMMAND	"bootm E7C00000"	/* autoboot command */
-#define CONFIG_BOOTDELAY	-1	/* -1 to disable autoboot */
+#define CONFIG_BOOTCOMMAND	"bootm E7C00000" /* autoboot command	*/
+#define CONFIG_BOOTDELAY	-1	/* -1 to disable autoboot	*/
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
@@ -192,7 +196,7 @@
 	"ramdisk_addr=E7F20000\0"					\
 	"load=tftp 100000 yuca/u-boot.bin\0"				\
 	"update=protect off 2:4-7;era 2:4-7;"				\
-		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
+		"cp.b ${fileaddr} FFFB0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	""
@@ -267,7 +271,7 @@
 /* General PCI */
 #define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
-#define CONFIG_PCI_SCAN_SHOW	i	/* show pci devices on startup	*/
+#define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
 #undef CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /* Board-specific PCI */

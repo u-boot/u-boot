@@ -253,11 +253,13 @@ int checkcpu (void)
 		break;
 
 	case PVR_440SPe_RA:
-		puts("SPe 3GA533C");
+		puts("SPe Rev. A");
 		break;
+
 	case PVR_440SPe_RB:
-		puts("SPe 3GB533C");
+		puts("SPe Rev. B");
 		break;
+
 	default:
 		printf (" UNKNOWN (PVR=%08x)", pvr);
 		break;
