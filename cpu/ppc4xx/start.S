@@ -158,7 +158,7 @@ _start_440:
 	/*----------------------------------------------------------------+
 	| Core bug fix.  Clear the esr
 	+-----------------------------------------------------------------*/
-        addi	r0,r0,0x0000
+	li	r0,0
         mtspr	esr,r0
 	/*----------------------------------------------------------------*/
 	/* Clear and set up some registers. */
@@ -217,17 +217,15 @@ _start_440:
 	| g. FCOM:   Normal operation
 	| h. MMUPEI: Record even parity. Normal operation.
 	| i. FFF:    Flush only as much data as necessary.
-	| j. TCS:    Timebase increments from externally supplied clock
+	| j. TCS:    Timebase increments from CPU clock.
 	+-----------------------------------------------------------------*/
-	addis	r0, r0, 0x0000
-	ori	r0, r0, 0x0080
+	li	r0,0
 	mtspr	ccr1, r0
 
 	/*----------------------------------------------------------------+
 	| Reset the timebase.
 	| The previous write to CCR1 sets the timebase source.
 	+-----------------------------------------------------------------*/
-	addi	r0, r0, 0x0000
 	mtspr	tbl, r0
 	mtspr	tbu, r0
 #endif

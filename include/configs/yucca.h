@@ -243,7 +243,7 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address		*/
 #define CFG_EXTBDINFO		1		/* To use extended board_into (bd_t) */
 
-#define CFG_HZ			1		/* decrementer freq: 1 ms ticks */
+#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * FLASH related
