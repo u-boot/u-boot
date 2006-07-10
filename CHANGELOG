@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix error in flash protection calculation on MCC200 board.
+
 * Major PCMCIA Cleanup to make code better readable and maintainable.
   Notes:
   - Board-dependend code for RPXLITE and RPXCLASSIC-based boards
