@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Major PCMCIA Cleanup to make code better readable and maintainable.
+  Notes:
+  - Board-dependend code for RPXLITE and RPXCLASSIC-based boards
+    placed to the drivers/rpx_pmcia.c file to avoid duplication.
+    Same for TQM8xx-based boards (drivers/tqm8xx_pmcia.c).
+  - drivers/i82365.c has been split into two parts located at
+    board/atc/ti113x.c and board/cpc45/pd67290.c (ATC and CPC45 are
+    the only boards using CONFIG_82365).
+  - Changes were tested for clean build and *very* *few* boards.
+
 * Fix timer problems on AMCC yucca board.
   Set Timer Clock Select to use CPU clock as a timer input source.
 

@@ -308,4 +308,14 @@ typedef struct {
 
 #endif	/* CFG_CMD_PCMCIA || CFG_CMD_IDE && (CONFIG_IDE_8xx_PCCARD || CONFIG_IDE_8xx_DIRECT) */
 
+#ifdef	CONFIG_8xx
+extern u_int *pcmcia_pgcrx[];
+#define	PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
+#endif
+
+#if	(CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD) \
+	|| defined(CONFIG_PXA_PCMCIA)
+extern int check_ide_device(int slot);
+#endif
+
 #endif /* _PCMCIA_H */
