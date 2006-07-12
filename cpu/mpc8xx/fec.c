@@ -396,8 +396,10 @@ static void fec_pin_init(int fecidx)
 	 * * to 2.5 MHz.
 	 * * This MDC frequency is equal to system clock / (2 * MII_SPEED).
 	 * * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
+	 *
+	 * All MII configuration is done via FEC1 registers:
 	 */
-	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
+	immr->im_cpm.cp_fec1.fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
 #if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
 	/* our PHYs are the limit at 2.5 MHz */
