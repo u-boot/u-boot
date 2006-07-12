@@ -270,7 +270,8 @@ init_fnc_t *init_sequence[] = {
 
 #if !defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
+    && !defined(CONFIG_TQM885D)
 	adjust_sdram_tbs_8xx,
 #endif
 	init_timebase,

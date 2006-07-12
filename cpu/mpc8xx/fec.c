@@ -510,8 +510,6 @@ static void fec_pin_init(int fecidx)
 #if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
-
-#warning this configuration is not tested; please report if it works
 		immr->im_cpm.cp_pepar     |=  0x0003fffc;
 		immr->im_cpm.cp_pedir     |=  0x0003fffc;
 		immr->im_cpm.cp_peso      &= ~0x000087fc;

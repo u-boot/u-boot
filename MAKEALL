@@ -53,6 +53,7 @@ LIST_8xx="	\
 	FPS850L		lwmon		QS860T		TQM850L		\
 	GEN860T		MBX		quantum		TQM855L		\
 	GEN860T_SC					TQM860L		\
+							TQM885D		\
 							uc100		\
 							v37		\
 "

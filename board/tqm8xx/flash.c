@@ -33,12 +33,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
+    && !defined(CONFIG_TQM885D)
 # ifndef CFG_OR_TIMING_FLASH_AT_50MHZ
 #  define CFG_OR_TIMING_FLASH_AT_50MHZ	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
 					 OR_SCY_2_CLK | OR_EHTR | OR_BI)
 # endif
-#endif /* CONFIG_TQM8xxL/M, !TQM866M */
+#endif /* CONFIG_TQM8xxL/M, !TQM866M, !TQM885D */
 
 #ifndef	CFG_ENV_ADDR
 #define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
