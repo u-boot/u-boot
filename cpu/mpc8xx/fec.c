@@ -822,6 +822,7 @@ static void fec_halt(struct eth_device* dev)
 #define PHY_ID_LSI80225		0x0016f870	/* LSI 80225 */
 #define PHY_ID_LSI80225B	0x0016f880	/* LSI 80225/B */
 #define PHY_ID_DM9161		0x0181B880	/* Davicom DM9161 */
+#define PHY_ID_KSM8995M		0x00221450	/* MICREL KS8995MA */
 
 /* send command to phy using mii, wait for result */
 static uint
@@ -906,6 +907,9 @@ static int mii_discover_phy(struct eth_device *dev)
 					break;
 				case PHY_ID_DM9161:
 					printf("Davicom DM9161\n");
+					break;
+				case PHY_ID_KSM8995M:
+					printf("MICREL KS8995M\n");
 					break;
 				default:
 					printf("0x%08x\n", phytype);
