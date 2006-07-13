@@ -100,6 +100,7 @@
  */
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
 
@@ -145,6 +146,8 @@
     #define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 #endif
 
+#define CFG_ID_EEPROM	1
+#define ID_EEPROM_ADDR 0x57
 
 /*
  * In MPC8641HPCN, allocate 16MB flash spaces at fe000000 and ff000000.
