@@ -538,7 +538,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			initrd_copy_to_ram = 0;
 	} else {	/* not set, no restrictions to load high */
 		initrd_high = ~0;
-		initrd_copy_to_ram = 0;
 	}
 
 #ifdef CONFIG_LOGBUFFER

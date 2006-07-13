@@ -100,6 +100,7 @@
  */
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
 
