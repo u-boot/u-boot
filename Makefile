@@ -705,6 +705,9 @@ RRvision_LCD_config:	unconfig
 SM850_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx tqm8xx
 
+spc1920_config:
+	@./mkconfig $(@:_config=) ppc mpc8xx spc1920
+
 SPD823TS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx spd8xx
 
@@ -742,6 +745,7 @@ TQM855M_config		\
 TQM860M_config		\
 TQM862M_config		\
 TQM866M_config		\
+TQM885D_config		\
 virtlab2_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _LCD,$@)" ] || \

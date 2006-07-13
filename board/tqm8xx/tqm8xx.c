@@ -119,6 +119,10 @@ int checkboard (void)
 		gd->board_type = 'M';
 	}
 
+	if ((*(s + 6) == 'D')) {	/* a TQM885D type */
+		gd->board_type = 'D';
+	}
+
 	for (; *s; ++s) {
 		if (*s == ' ')
 			break;
@@ -178,7 +182,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		memctl->memc_or3 = CFG_OR3_PRELIM;
 		memctl->memc_br3 = CFG_BR3_PRELIM;
 	}
@@ -197,7 +202,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		memctl->memc_mcr = 0x80006105;	/* SDRAM bank 1 */
 		udelay (1);
 		memctl->memc_mcr = 0x80006230;	/* SDRAM bank 1 - execute twice */
@@ -255,7 +261,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		/*
 		 * Check Bank 1 Memory Size
 		 * use current column settings

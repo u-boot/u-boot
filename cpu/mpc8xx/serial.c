@@ -227,9 +227,12 @@ static int smc_init (void)
 	sp->smc_smcm = 0;
 	sp->smc_smce = 0xff;
 
-	/* Set up the baud rate generator.
-	*/
+#ifdef CFG_SPC1920_SMC1_CLK4 /* clock source is PLD */
+	*((volatile uchar *) CFG_SPC1920_PLD_BASE+6) = 0xff;
+#else
+	/* Set up the baud rate generator */
 	smc_setbrg ();
+#endif
 
 	/* Make the first buffer the only buffer.
 	*/

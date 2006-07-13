@@ -259,7 +259,11 @@ int get_clocks_866 (void)
 	 */
 	sccr_reg = immr->im_clkrst.car_sccr;
 	sccr_reg &= ~SCCR_EBDF11;
+#if defined(CONFIG_TQM885D)
+	if (gd->cpu_clk <= 80000000) {
+#else
 	if (gd->cpu_clk <= 66000000) {
+#endif
 		sccr_reg |= SCCR_EBDF00;	/* bus division factor = 1 */
 		gd->bus_clk = gd->cpu_clk;
 	} else {
@@ -360,7 +364,8 @@ static long init_pll_866 (long clk)
 
 #endif /* CONFIG_8xx_CPUCLK_DEFAULT */
 
-#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M)
+#if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
+    && !defined(CONFIG_TQM885D)
 /*
  * Adjust sdram refresh rate to actual CPU clock
  * and set timebase source according to actual CPU clock
@@ -384,6 +389,6 @@ int adjust_sdram_tbs_8xx (void)
 
 	return (0);
 }
-#endif /* CONFIG_TQM8xxL/M, !TQM866M */
+#endif /* CONFIG_TQM8xxL/M, !TQM866M, !TQM885D */
 
 /* ------------------------------------------------------------------------- */
