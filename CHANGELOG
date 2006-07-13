@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix problems with SanDisk Corporation Cruzer Micro USB memory stick.
+
 * MCC200 board: support console on any one of the Quad UART ports.
 
 * Fix error in flash protection calculation on MCC200 board.
