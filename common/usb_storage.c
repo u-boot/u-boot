@@ -1139,6 +1139,10 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	    /* USB007 Mini-USB2 Flash Drive */
 	    (dev->descriptor.idVendor == 0x066f &&
 	     dev->descriptor.idProduct == 0x2010)
+	    ||
+	    /* SanDisk Corporation Cruzer Micro 20044318410546613953 */
+	    (dev->descriptor.idVendor == 0x0781 &&
+	     dev->descriptor.idProduct == 0x5151)
 	    )
 		USB_STOR_PRINTF("usb_stor_get_info: skipping RESET..\n");
 	else
