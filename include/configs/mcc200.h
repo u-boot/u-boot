@@ -275,11 +275,6 @@
 #define CFG_CS1_SIZE		0x00001000
 #define CFG_CS1_CFG		0x1d300
 
-/* Second Quad UART @0x80010000 */
-#define CFG_CS1_START		0x80010000
-#define CFG_CS1_SIZE		0x00001000
-#define CFG_CS1_CFG		0x1d300
-
 /*
  *  Select one of quarts as a default
  * console. If undefined - PSC console
