@@ -292,7 +292,7 @@
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
-#undef CFG_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
+#define CFG_FLASH_USE_BUFFER_WRITE	1
 
 #if !defined(CFG_LOWBOOT)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
