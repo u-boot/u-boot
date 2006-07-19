@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Bugfix in VFD routine on TRAB board.
+  Make sure upper lext pixel can be set to blue, too
+  (so far only red was possible).
+  Patch by Martin Krause, 15 Feb 2006
+
 * Enable buffered flash writes for TB5200 board.
 
 * Fix some bugs in TRAB board flash driver.
