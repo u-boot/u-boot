@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Adjust RTC century handling on STK52xx board to match Linux driver.
+  Patch by Martin Krause, 12 Jun 2006
+
 * Adjust filenames for USB update images on TRAB board.
   During an automatic update via USB stick, U-Boot searches for
   images with the name "firmware.img" and "kernel.img". This names

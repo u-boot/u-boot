@@ -411,6 +411,8 @@
 #if defined (CONFIG_STK52XX) && !defined (CONFIG_STK52XX_REV100)
 # define CONFIG_RTC_M41T11 1
 # define CFG_I2C_RTC_ADDR 0x68
+# define CFG_M41T11_BASE_YEAR	1900    /* because Linux uses the same base
+					   year */
 #else
 # define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
 #endif
