@@ -281,10 +281,12 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 			if (chip1 == ERR || chip2 == ERR) {
 				rc = ERR_PROG_ERROR;
+				printf ("Flash erase error\n");
 				goto outahere;
 			}
 			if (chip1 == TMO) {
 				rc = ERR_TIMOUT;
+				printf ("Flash erase timeout error\n");
 				goto outahere;
 			}
 		}
@@ -384,8 +386,13 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 
 	*addr = CMD_READ_ARRAY;
 
-	if (chip1 == ERR || chip2 == ERR || *addr != data)
+	if (chip1 == ERR || chip2 == ERR || *addr != data) {
 		rc = ERR_PROG_ERROR;
+		printf ("Flash program error\n");
+		debug ("chip1: %#x, chip2: %#x, addr: %#lx *addr: %#lx, "
+		       "data: %#lx\n",
+		       chip1, chip2, addr, *addr, data);
+	}
 
 	if (iflag)
 		enable_interrupts ();
