@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Adjust filenames for USB update images on TRAB board.
+  During an automatic update via USB stick, U-Boot searches for
+  images with the name "firmware.img" and "kernel.img". This names
+  are now changed to "firmw_01.img" and "kernl_01.img". This is done,
+  to prevent updates of new boards (with the new macronics "c" step
+  flashes) with old, incompatible firmware or kernel versions.
+  Patch by Martin Krause, 21 Jun 2006
+
 * Bugfix in VFD routine on TRAB board.
   Make sure upper lext pixel can be set to blue, too
   (so far only red was possible).
