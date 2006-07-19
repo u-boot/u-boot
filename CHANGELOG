@@ -2,6 +2,17 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix support for PS/2 keyboard on TQM85xx boards
+  The PS/2 keyobard driver for the TQM85xx modules only supports the
+  internal DUART of the MPC85xx CPU. Since the MPC8560 doesn't
+  include a DUART, the TQM8560 modules can't be used with the PS/2
+  keyboard controller on the STK85xx board.
+  The PS/2 keyboard driver should work with the modules TQM8540,
+  TQM8541 and TQM8555, but it only has been tested on a TQM8540, yet.
+  Make sure the PS/2 controller on the STK85xx is programmed. Jumper
+  settings: X66 1-2, 9-10; X61 2-3
+  Patch by Martin Krause, 21 Jun 2006
+
 * Adjust RTC century handling on STK52xx board to match Linux driver.
   Patch by Martin Krause, 12 Jun 2006
 
