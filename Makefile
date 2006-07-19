@@ -407,6 +407,7 @@ Total5200_Rev2_lowboot_config:	unconfig
 TQM5200_config	\
 TQM5200_STK100_config \
 TQM5200_B_config \
+TQM5200_B_HIGHBOOT_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
@@ -420,6 +421,9 @@ MiniFAP_config:	unconfig
 	@[ -z "$(findstring B,$@)" ] || \
 		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
 		  echo "... with MPC5200B processor" ; \
+		}
+	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFFF00000" >board/tqm5200/config.tmp ; \
 		}
 	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h ;
 	@echo "... with automatic CS configuration" ;

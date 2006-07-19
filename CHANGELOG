@@ -2,11 +2,20 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for high-boot on TQM5200 and TQM5200S boards.
+  Hint: the CPLD on the TQM5200 must be programmed with a software
+  version supporting the high boot option! The new TQM5200S is
+  already supporting this option. On the TQM5200 this option will be
+  supported in configurations with MPC5200 rev B processors.
+  To actually "high boot", set jumper X30 on the STK52xx.
+  Patch by Martin Krause, 12 Jul 2006
+
 * Add support for new TQM5200 revisions
   - Support for TQM5200S (short version without graphic controller)
   - Support for modules with 'N' type S29GL128N Spansion flashes
     (requires changes to flash layout)
   - Support for MPC5200B cpu (mostly support for second SDRAM bank)
+  Patch by Martin Krause, 07 Jul 2006
 
 * Fix support for PS/2 keyboard on TQM85xx boards
   The PS/2 keyobard driver for the TQM85xx modules only supports the

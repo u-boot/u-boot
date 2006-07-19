@@ -308,7 +308,7 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
+#define CFG_FLASH_BASE		0xFC000000
 
 /* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
@@ -319,15 +319,11 @@
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
-#if !defined(CFG_LOWBOOT)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
-#else	/* CFG_LOWBOOT */
 #if defined(CONFIG_TQM5200_B)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
 #else
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
 #endif /* CONFIG_TQM5200_B */
-#endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
 
