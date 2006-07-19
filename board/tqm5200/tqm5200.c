@@ -1,11 +1,11 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2003-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2004
  * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
  *
- * (C) Copyright 2004-2005
+ * (C) Copyright 2004-2006
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -30,6 +30,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <asm/processor.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -101,6 +102,8 @@ long int initdram (int board_type)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
+	uint svr, pvr;
+
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
 
@@ -190,11 +193,31 @@ long int initdram (int board_type)
 	} else {
 		dramsize2 = 0;
 	}
-
 #endif /* CFG_RAMBOOT */
 
-/*	return dramsize + dramsize2; */
+	/*
+	 * On MPC5200B we need to set the special configuration delay in the
+	 * DDR controller. Please refer to Freescale's AN3221 "MPC5200B SDRAM
+	 * Initialization and Configuration", 3.3.1 SDelay--MBAR + 0x0190:
+	 *
+	 * "The SDelay should be written to a value of 0x00000004. It is
+	 * required to account for changes caused by normal wafer processing
+	 * parameters."
+	 */
+	svr = get_svr();
+	pvr = get_pvr();
+	if ((SVR_MJREV(svr) >= 2) &&
+	    (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
+
+		*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
+		__asm__ volatile ("sync");
+	}
+
+#if defined(CONFIG_TQM5200_B)
+	return dramsize + dramsize2;
+#else
 	return dramsize;
+#endif /* CONFIG_TQM5200_B */
 }
 
 #elif defined(CONFIG_MGT5100)
@@ -255,7 +278,11 @@ int checkboard (void)
 	return 0;
 #endif
 #if defined (CONFIG_TQM5200)
+#if defined(CONFIG_TQM5200_B)
+	puts ("Board: TQM5200 or TQM5200S (TQ-Components GmbH)\n");
+#else
 	puts ("Board: TQM5200 (TQ-Components GmbH)\n");
+#endif /* CONFIG_TQM5200_B */
 #endif
 #if defined (CONFIG_STK52XX)
 	puts ("       on a STK52XX baseboard\n");

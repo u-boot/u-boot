@@ -147,6 +147,30 @@
 
 #undef	CONFIG_BOOTARGS
 
+#if defined(CONFIG_TQM5200_B)
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"flash_self=run ramargs addip;"					\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm ${kernel_addr}\0"				\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"				\
+	"update=protect off FC000000 FC07FFFF;"				\
+		"erase FC000000 FC07FFFF;"				\
+		"cp.b 200000 FC000000 ${filesize};"			\
+		"protect on FC000000 FC07FFFF\0"			\
+	""
+#else
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
@@ -169,6 +193,7 @@
 		"cp.b 200000 FC000000 ${filesize};"			\
 		"protect on FC000000 FC05FFFF\0"			\
 	""
+#endif /* CONFIG_TQM5200_B */
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -228,7 +253,7 @@
  */
 #define CFG_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
 
-/* use CFI flash driver if no module variant is spezified */
+/* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
@@ -240,31 +265,46 @@
 #if !defined(CFG_LOWBOOT)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
 #else	/* CFG_LOWBOOT */
+#if defined(CONFIG_TQM5200_B)
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
+#else
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
+#endif /* CONFIG_TQM5200_B */
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
 /* Dynamic MTD partition support */
 #define CONFIG_JFFS2_CMDLINE
 #define MTDIDS_DEFAULT		"nor0=TQM5200-0"
+#if defined(CONFIG_TQM5200_B)
+#define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
+						"1280k(kernel),"	\
+						"2m(initrd),"		\
+						"4m(small-fs),"		\
+						"16m(big-fs),"		\
+						"8m(misc)"
+#else
 #define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
 						"1408k(kernel),"	\
 						"2m(initrd),"		\
 						"4m(small-fs),"		\
 						"16m(big-fs),"		\
 						"8m(misc)"
+#endif /* CONFIG_TQM5200_B */
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
+#if defined(CONFIG_TQM5200_B)
+#define CFG_ENV_SECT_SIZE	0x40000
+#else
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#endif /* CONFIG_TQM5200_B */
 
 /*
  * Memory map
@@ -292,7 +332,11 @@
 #   define CFG_RAMBOOT		1
 #endif
 
+#if defined(CONFIG_TQM5200_B)
+#define CFG_MONITOR_LEN		(512 << 10)	/* Reserve 512 kB for Monitor	*/
+#else
 #define CFG_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
+#endif /* CONFIG_TQM5200_B */
 #define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 

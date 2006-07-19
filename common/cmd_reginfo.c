@@ -328,7 +328,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		(*(volatile ulong*)MPC5XXX_ADDECR & 0x02000000) ? 1 : 0);
 	printf ("\tSDRAMCS0: %08X\n",
 		*(volatile ulong*)MPC5XXX_SDRAM_CS0CFG);
-	printf ("\tSDRAMCS0: %08X\n",
+	printf ("\tSDRAMCS1: %08X\n",
 		*(volatile ulong*)MPC5XXX_SDRAM_CS1CFG);
 #endif /* CONFIG_MPC5200 */
 	return 0;

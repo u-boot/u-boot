@@ -22,7 +22,7 @@
  */
 
 /*
- * SKT52XX specific functions
+ * STK52XX specific functions
  */
 /*#define DEBUG*/
 
@@ -1209,7 +1209,7 @@ U_BOOT_CMD(
 	fkt ,	4,	1,	cmd_fkt,
 	"fkt     - Function test routines\n",
 	"led number on/off\n"
-	"     - 'number's like printed on SKT52XX board\n"
+	"     - 'number's like printed on STK52XX board\n"
 	"fkt can\n"
 	"     - loopback plug for X83 required\n"
 	"fkt rs232 number\n"

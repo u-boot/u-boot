@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
+# published by the Free Software Foundatio; either version 2 of
 # the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -360,7 +360,12 @@ spieval_config:	unconfig
 	@echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
+TB5200_B_config \
 TB5200_config:	unconfig
+	@[ -z "$(findstring _B,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... with MPC5200B processor" ; \
+		}
 	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
 	@echo "... with automatic CS configuration"
 	@./mkconfig -a TB5200 ppc mpc5xxx tqm5200
@@ -401,6 +406,7 @@ Total5200_Rev2_lowboot_config:	unconfig
 
 TQM5200_config	\
 TQM5200_STK100_config \
+TQM5200_B_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
@@ -410,6 +416,10 @@ MiniFAP_config:	unconfig
 	@[ -z "$(findstring STK100,$@)" ] || \
 		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \
 		  echo "... on a STK52XX.100 base board" ; \
+		}
+	@[ -z "$(findstring B,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... with MPC5200B processor" ; \
 		}
 	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h ;
 	@echo "... with automatic CS configuration" ;
