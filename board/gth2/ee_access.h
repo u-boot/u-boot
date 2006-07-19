@@ -21,7 +21,7 @@ int ee_crc_ok( u8 *Buffer, int Len, u8 Crc );
 #define EE_BUSY  0x40000000
 #define EE_ERROR 0x20000000
 
-/* Commands */ 
+/* Commands */
 #define EE_CMD_NOP      0
 #define EE_CMD_INIT_RES 1
 #define EE_CMD_WR_BYTE  2

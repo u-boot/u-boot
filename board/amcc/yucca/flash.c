@@ -1004,7 +1004,7 @@ unsigned long flash_init(void)
 		}
 	} /*else if (index == 0) {*/
 /*		if (in8(FPGA_SETTING_REG) & FPGA_SET_REG_OP_CODE_FLASH_ABOVE)*/
-/*			index = 8;*//* sram below op code flash -> new index 8*/
+/*			index = 8;*/ /* sram below op code flash -> new index 8*/
 /*	}*/
 
 	DEBUGF("\n");

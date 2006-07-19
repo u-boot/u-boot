@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -34,7 +34,7 @@
 
 #define CONFIG_AU1000		1
 
-#define CONFIG_MISC_INIT_R      1
+#define CONFIG_MISC_INIT_R	1
 
 #define CONFIG_ETHADDR		DE:AD:BE:EF:01:02    /* Ethernet address */
 
@@ -59,21 +59,21 @@
 #define CONFIG_AUTOBOOT_DELAY_STR "d"
 #define CONFIG_AUTOBOOT_STOP_STR " "
 
-#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
-#define	CONFIG_BOOTARGS "panic=1"
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
+#define CONFIG_BOOTARGS "panic=1"
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"addmisc=setenv bootargs $(bootargs) "				\
-	        "ethaddr=$(ethaddr) \0"					\
-        "netboot=bootp;run addmisc;bootm\0"                             \
-                ""
+		"ethaddr=$(ethaddr) \0"					\
+	"netboot=bootp;run addmisc;bootm\0"				\
+		""
 
 /* Boot from Compact flash partition 2 as default */
 #define CONFIG_BOOTCOMMAND	"ide reset;disk 0x81000000 0:2;run addmisc;bootm"
 
-#define CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP ) & \
+#define CONFIG_COMMANDS ((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP ) & \
  ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
-   CFG_CMD_MII | CFG_CMD_LOADS  | CFG_CMD_LOADB | CFG_CMD_ELF | \
+   CFG_CMD_MII | CFG_CMD_LOADS	| CFG_CMD_LOADB | CFG_CMD_ELF | \
    CFG_CMD_BDI | CFG_CMD_BEDBUG | CFG_CMD_NFS | CFG_CMD_AUTOSCRIPT ))
 
 #include <cmd_confdefs.h>
@@ -81,11 +81,11 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory      */
-#define	CFG_PROMPT		"GTH2 # "	/* Monitor Command Prompt    */
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args*/
+#define CFG_LONGHELP				/* undef to save memory	     */
+#define CFG_PROMPT		"GTH2 # "	/* Monitor Command Prompt    */
+#define CFG_CBSIZE		256		/* Console I/O Buffer Size   */
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
+#define CFG_MAXARGS		16		/* max number of command args*/
 
 #define CFG_MALLOC_LEN		128*1024
 
@@ -93,16 +93,16 @@
 
 #define CFG_MHZ			500
 
-#define CFG_HZ                  (CFG_MHZ * 1000000) /* FIXME causes overflow in net.c */
+#define CFG_HZ			(CFG_MHZ * 1000000) /* FIXME causes overflow in net.c */
 
 #define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
 
-#define	CFG_LOAD_ADDR		0x81000000     /* default load address	*/
+#define CFG_LOAD_ADDR		0x81000000     /* default load address	*/
 
 #define CFG_MEMTEST_START	0x80100000
 #define CFG_MEMTEST_END		0x83000000
 
-#define CONFIG_HW_WATCHDOG      1
+#define CONFIG_HW_WATCHDOG	1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -113,8 +113,8 @@
 #define PHYS_FLASH		0xbfc00000 /* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
-#define	CFG_MONITOR_BASE	TEXT_BASE
-#define	CFG_MONITOR_LEN		(192 << 10)
+#define CFG_MONITOR_BASE	TEXT_BASE
+#define CFG_MONITOR_LEN		(192 << 10)
 
 #define CFG_INIT_SP_OFFSET	0x400000
 
@@ -125,7 +125,7 @@
 #define CFG_FLASH_ERASE_TOUT	(2 * CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2 * CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_NOWHERE	1
+#define CFG_ENV_IS_NOWHERE	1
 
 /* Address and size of Primary Environment Sector	*/
 #define CFG_ENV_ADDR		0xB0030000
@@ -158,21 +158,21 @@
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
 #define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
 #define CFG_ATA_IDE0_OFFSET	0
 
-#define CFG_ATA_BASE_ADDR       CFG_PCMCIA_IO_BASE
+#define CFG_ATA_BASE_ADDR	CFG_PCMCIA_IO_BASE
 
 /* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET     0
+#define CFG_ATA_DATA_OFFSET	0
 
-/* Offset for normal register accesses  */
-#define CFG_ATA_REG_OFFSET      0
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	0
 
-/* Offset for alternate registers       */
-#define CFG_ATA_ALT_OFFSET      0x0200
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	0x0200
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

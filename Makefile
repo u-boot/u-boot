@@ -360,6 +360,11 @@ spieval_config:	unconfig
 	@echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
+TB5200_config:	unconfig
+	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
+	@echo "... with automatic CS configuration"
+	@./mkconfig -a TB5200 ppc mpc5xxx tqm5200
+
 MINI5200_config	\
 EVAL5200_config	\
 TOP5200_config:	unconfig
@@ -1461,7 +1466,7 @@ ZUMA_config:	unconfig
 
 ppmc7xx_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx ppmc7xx
-	
+
 #========================================================================
 # ARM
 #========================================================================

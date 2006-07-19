@@ -423,4 +423,3 @@ int board_early_init_r (void)
 	return (0);
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
-

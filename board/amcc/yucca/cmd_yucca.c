@@ -30,7 +30,7 @@
 #include <asm/byteorder.h>
 
 extern void print_evb440spe_info(void);
-static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, 
+static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag,
 		int flag, int argc, char *argv[]);
 
 extern int cmd_get_data_size(char* arg, int default_size);

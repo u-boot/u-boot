@@ -635,7 +635,7 @@ void serial_setbrg (void)
 
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
-#endif /* !defined(CFG_EXT_SERIAL_CLOCK) && (...) */ 
+#endif /* !defined(CFG_EXT_SERIAL_CLOCK) && (...) */
 
 #if defined(CONFIG_SERIAL_MULTI)
 	out8 (dev_base + UART_LCR, 0x80);	/* set DLAB bit */

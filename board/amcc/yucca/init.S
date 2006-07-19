@@ -102,4 +102,3 @@ tlbtab:
 	tlbentry(CFG_PCI_BASE, SZ_256M, 0x00000000, 0xC, AC_R|AC_W|SA_G|SA_I)
 	tlbentry(CFG_PCI_MEMBASE, SZ_256M, 0x10000000, 0xC, AC_R|AC_W|SA_G|SA_I)
 	tlbtab_end
-

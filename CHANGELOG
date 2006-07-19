@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for TB5200 board
+  The TB5200 ("Tinybox") is a small baseboard for the TQM5200 module
+  integrated in a little aluminium case.
+  Patch by Martin Krause, 8 Jun 2006
+
 * Enable buffered flash writes for TQM5200 board.
 
 * Fix problems with SanDisk Corporation Cruzer Micro USB memory stick.
@@ -18,7 +23,7 @@ Changes since U-Boot 1.1.4:
 
 * Add support for SPC1920 board.
   Patch by Markus Klotzbuecher, 12 Jul 2006
-  
+
 * MCC200 board: support console on any one of the Quad UART ports.
 
 * Fix error in flash protection calculation on MCC200 board.
@@ -60,14 +65,14 @@ Changes since U-Boot 1.1.4:
 * VoiceBlue update: use new MTD flash partitioning methods, use more
   reasonable TEXT_BASE, update default environment and enable keyed
   autoboot.
-  Patch by Ladislav Michl, 16. Aug 2005 
+  Patch by Ladislav Michl, 16. Aug 2005
 
 * Add forgotten changes for the PLEB 2 Board.
   Patch by David Snowdon, 13. Aug 2005
 
 * Add support for wrPPMC7xx/74xx boards
   Patch by Richard Danter, 12 Aug 2005
- 
+
 * Add support for gth2 board
   Patch by Thomas Lange, Aug 11 2005
 
@@ -89,7 +94,7 @@ Changes since U-Boot 1.1.4:
   With this fix pin I2CSCL (PG6) is really configured as GPIO
   so the clock pulses are really generated.
   Patch by Martin Krause, 04 Apr 2006
-  
+
 * Fix DDR6 errata on TQM834x boards
   Patch by Thomas Waehner, 07 Mar 2006
 
@@ -106,7 +111,7 @@ Changes since U-Boot 1.1.4:
   has been programmed. Jumper Settings: X66 1-2, 9-10; X61 2-3
 
 * Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
-  In tsc2000_read_channel() the delay after setting the multiplexer 
+  In tsc2000_read_channel() the delay after setting the multiplexer
   to a temperature channel is increased from 1,5 ms to 10 ms. This
   is to allow the multiplexer inputs to stabilize after huge steps
   of the input signal level.

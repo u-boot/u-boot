@@ -260,6 +260,9 @@ int checkboard (void)
 #if defined (CONFIG_STK52XX)
 	puts ("       on a STK52XX baseboard\n");
 #endif
+#if defined (CONFIG_TB5200)
+	puts ("       on a TB5200 baseboard\n");
+#endif
 
 	return 0;
 }
@@ -567,9 +570,14 @@ void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
 	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#if defined (CONFIG_STK52XX)
+#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200)
 	} else if (line_number == 2) {
+#if defined (CONFIG_STK52XX)
 		strcpy (info, "        on a STK52XX baseboard");
+#endif
+#if defined (CONFIG_TB5200)
+		strcpy (info, "        on a TB5200 baseboard");
+#endif
 #endif
 	}
 	else {

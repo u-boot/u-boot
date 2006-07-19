@@ -1094,4 +1094,3 @@ unsigned long ppcMfsdr(unsigned long sdr_reg)
 
 	return (sdr_value);
 }
-

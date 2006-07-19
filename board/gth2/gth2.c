@@ -61,13 +61,13 @@ void init_log_serial(void){
 	u32 *serial_log_offsetp = (u32*)SERIAL_LOG_BUFFER;
 
 	/* Copy buffer from last run */
-	memcpy(serial_log_buffer + 4096, 
-	       serial_log_buffer, 
+	memcpy(serial_log_buffer + 4096,
+	       serial_log_buffer,
 	       4096);
 
 	memset(serial_log_buffer, 0, 4096);
 
-	*serial_log_offsetp = 4;	
+	*serial_log_offsetp = 4;
 }
 
 
@@ -118,7 +118,7 @@ void set_ledcard(u32 value){
 		udelay(1);
 		*sys_outputclr = GPIO_LEDCLK;
 		udelay(1);
-		
+
 		value<<=1;
 	}
 	/* Data is enable output */
@@ -228,7 +228,7 @@ static void write_bootdata (volatile u16 * addr, u8 System, u8 Count)
 		printf ("Invalid boot count %u, setting 1\n", Count);
 		Count = 1;
 	}
-	
+
 	printf ("Boot attempt %d\n", Count);
 
 	data = (System << 8) | Count;
@@ -241,9 +241,9 @@ static void write_bootdata (volatile u16 * addr, u8 System, u8 Count)
 }
 
 static int random_system(void){
-	/* EEPROM read failed. Just try to choose one 
+	/* EEPROM read failed. Just try to choose one
 	   system release and hope it works */
-	
+
 	/* FIXME */
 	return(SYSTEM_BOOT);
 }
@@ -320,8 +320,8 @@ static void check_boot_tries (void)
 			data = *addr;
 			system = data >> 8;
 			count = data & 0xFF;
-			if ((system != SYSTEM_BOOT) & 
-			    (system != SYSTEM2_BOOT) & 
+			if ((system != SYSTEM_BOOT) &
+			    (system != SYSTEM2_BOOT) &
 			    (system != FAILSAFE_BOOT)) {
 				printf ("*** Wrong system %d\n", system);
 				system = FAILSAFE_BOOT;

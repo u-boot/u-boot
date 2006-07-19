@@ -191,7 +191,7 @@ int pcmcia_hardware_enable(int slot)
 	udelay(10000);
 	debug ("[%d] %s: PIPR(%p)=0x%x\n", __LINE__,__FUNCTION__,
 	       &(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-	
+
 	if (check_card_is_absent(slot)) {
 		printf ("   No Card found\n");
 		return (1);
@@ -206,7 +206,7 @@ int pcmcia_hardware_enable(int slot)
 	       reg,
 	       (reg&PCMCIA_VS1(slot))?"n":"ff",
 	       (reg&PCMCIA_VS2(slot))?"n":"ff");
-	
+
 	if ((reg & mask) == mask) {
 		power_on_5_0(slot);
 		puts (" 5.0V card found: ");
@@ -228,7 +228,7 @@ int pcmcia_hardware_enable(int slot)
 	reg &= ~__MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg |= __MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	reg &= ~NSCU_GCRX_CXOE;
-	
+
 	PCMCIA_PGCRX(slot) = reg;
 
 	udelay(250000);	/* some cards need >150 ms to come up :-( */
@@ -285,7 +285,7 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
 	reg &= ~__MY_PCMCIA_GCRX_CXOE;		/* active low  */
 	reg |= NSCU_GCRX_CXOE;			/* active low  */
-	
+
 	PCMCIA_PGCRX(slot) = reg;
 	udelay(500);
 

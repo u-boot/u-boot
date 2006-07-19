@@ -30,6 +30,7 @@
 #include <command.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined (CONFIG_STK52XX)
 
 #define DEFAULT_VOL	45
 #define DEFAULT_FREQ	500
@@ -60,7 +61,6 @@ static int spi_transmit(unsigned char data);
 static void pcm1772_write_reg(unsigned char addr, unsigned char data);
 static void set_attenuation(unsigned char attenuation);
 
-#ifdef CONFIG_STK52XX
 static void spi_init(void)
 {
 	struct mpc5xxx_spi *spi = (struct mpc5xxx_spi*)MPC5XXX_SPI;
