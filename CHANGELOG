@@ -2,6 +2,15 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix some bugs in TRAB board flash driver.
+  - increase CFG_FLASH_ERASE_TOUT from 2 to 15 seconds
+  - use CFG_FLASH_WRITE_TOUT for programming instead of CFG_FLASH_ERASE_TOUT
+  - remove "Unlock Bypass" mode, because macronix flashes do not support
+    this mode officially
+  - fix flash reset command from 0x00FF to 0x00F0. 0x00FF is only specified
+    for Intel compatible flashes, not for AMD compatible.
+  Patch by Martin Krause, 15 Feb 2006
+
 * Add additional error messages to flash driver on TRAB board
   (for erase errors and timeout errors)
   Patch by Martin Krause, 14 Feb 2006
