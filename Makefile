@@ -1623,6 +1623,9 @@ omap730p2_cs3boot_config :	unconfig
 	fi;
 	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 NULL omap
 
+sbc2410x_config: unconfig
+	@./mkconfig $(@:_config=) arm arm920t sbc2410x NULL s3c24x0
+
 scb9328_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t scb9328 NULL imx
 

@@ -181,9 +181,10 @@ LIST_ARM9="	\
 	ap966		cp920t		cp922_XA10	cp926ejs	\
 	cp946es		cp966		lpd7a400	mp2usb		\
 	mx1ads		mx1fs2		netstar		omap1510inn	\
-	omap1610h2	omap1610inn	omap730p2	scb9328		\
-	smdk2400	smdk2410	trab		VCMA9		\
-	versatile	versatileab	versatilepb	voiceblue
+	omap1610h2	omap1610inn	omap730p2	sbc2410x	\
+	scb9328		smdk2400	smdk2410	trab		\
+	VCMA9		versatile	versatileab	versatilepb	\
+	voiceblue							\
 "
 
 #########################################################################

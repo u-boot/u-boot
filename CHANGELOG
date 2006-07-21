@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for friendly-arm SBC-2410X board
+  Patch by JinHua Luo, 01 Sep 2005
+  
 * Fix multi-part image support on i386 platform.
   Patch by David Updegraff, 19 Aug 2005
 
