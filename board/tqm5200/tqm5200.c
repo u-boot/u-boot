@@ -273,26 +273,35 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
-#if defined (CONFIG_AEVFIFO)
+#if defined(CONFIG_AEVFIFO)
 	puts ("Board: AEVFIFO\n");
 	return 0;
 #endif
-#if defined (CONFIG_TQM5200)
-#if defined(CONFIG_TQM5200_B)
-	puts ("Board: TQM5200 or TQM5200S (TQ-Components GmbH)\n");
+
+#if defined(CONFIG_TQM5200S)
+# define MODULE_NAME	"TQM5200S"
 #else
-	puts ("Board: TQM5200 (TQ-Components GmbH)\n");
-#endif /* CONFIG_TQM5200_B */
+# define MODULE_NAME	"TQM5200"
 #endif
-#if defined (CONFIG_STK52XX)
-	puts ("       on a STK52XX baseboard\n");
+
+#if defined(CONFIG_STK52XX)
+# define CARRIER_NAME	"STK52xx"
+#elif defined(CONFIG_TB5200)
+# define CARRIER_NAME	"TB5200"
+#elif defined(CONFIG_CAMERON)
+# define CARRIER_NAME	"Cameron"
+#else
+# error "Unknown carrier board"
 #endif
-#if defined (CONFIG_TB5200)
-	puts ("       on a TB5200 baseboard\n");
-#endif
+
+	puts (	"Board: " MODULE_NAME " (TQ-Components GmbH)\n"
+		"       on a " CARRIER_NAME " carrier board\n");
 
 	return 0;
 }
+
+#undef MODULE_NAME
+#undef CARRIER_NAME
 
 void flash_preinit(void)
 {
@@ -435,7 +444,6 @@ int board_early_init_r (void)
 #endif
 #endif /* CONFIG_PS2MULT */
 
-#if defined(CONFIG_CS_AUTOCONF)
 int last_stage_init (void)
 {
 	/*
@@ -530,7 +538,6 @@ int last_stage_init (void)
 
 	return 0;
 }
-#endif /* CONFIG_CS_AUTOCONF */
 
 #ifdef CONFIG_VIDEO_SM501
 
@@ -600,10 +607,10 @@ void video_get_info_str (int line_number, char *info)
 #if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200)
 	} else if (line_number == 2) {
 #if defined (CONFIG_STK52XX)
-		strcpy (info, "        on a STK52XX baseboard");
+		strcpy (info, "        on a STK52xx carrier board");
 #endif
 #if defined (CONFIG_TB5200)
-		strcpy (info, "        on a TB5200 baseboard");
+		strcpy (info, "        on a TB5200 carrier board");
 #endif
 #endif
 	}

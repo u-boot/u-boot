@@ -9,19 +9,23 @@
 #
 
 APPEND=no	# Default: Create new config file
+BOARD_NAME=""	# Name to print in make output
 
 while [ $# -gt 0 ] ; do
 	case "$1" in
 	--) shift ; break ;;
 	-a) shift ; APPEND=yes ;;
+	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;
 	*)  break ;;
 	esac
 done
 
+[ "${BOARD_NAME}" ] || BOARD_NAME="$1"
+
 [ $# -lt 4 ] && exit 1
 [ $# -gt 6 ] && exit 1
 
-echo "Configuring for $1 board..."
+echo "Configuring for ${BOARD_NAME} board..."
 
 cd ./include
 

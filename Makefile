@@ -356,8 +356,6 @@ smmaco4_config: unconfig
 	@./mkconfig -a smmaco4 ppc mpc5xxx tqm5200
 
 spieval_config:	unconfig
-	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
-	@echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
 
 TB5200_B_config \
@@ -366,15 +364,13 @@ TB5200_config:	unconfig
 		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
 		  echo "... with MPC5200B processor" ; \
 		}
-	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
-	@echo "... with automatic CS configuration"
-	@./mkconfig -a TB5200 ppc mpc5xxx tqm5200
+	@./mkconfig -n $@ -a TB5200 ppc mpc5xxx tqm5200
 
 MINI5200_config	\
 EVAL5200_config	\
 TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
-	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
+	@./mkconfig -n $@ -a TOP5200 ppc mpc5xxx top5200 emk
 
 Total5100_config		\
 Total5200_config		\
@@ -405,29 +401,39 @@ Total5200_Rev2_lowboot_config:	unconfig
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
 TQM5200_config	\
-TQM5200_STK100_config \
 TQM5200_B_config \
 TQM5200_B_HIGHBOOT_config \
+TQM5200S_config \
+TQM5200S_HIGHBOOT_config \
+TQM5200_STK100_config \
+cameron_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
 		}
+	@[ -z "$(findstring cameron,$@)" ] || \
+		{ echo "#define CONFIG_CAMERON"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... TQM5200S on Cameron" ; \
+		}
 	@[ -z "$(findstring STK100,$@)" ] || \
 		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \
 		  echo "... on a STK52XX.100 base board" ; \
 		}
-	@[ -z "$(findstring B,$@)" ] || \
+	@[ -z "$(findstring TQM5200_B,$@)" ] || \
 		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
-		  echo "... with MPC5200B processor" ; \
+		}
+	@[ -z "$(findstring TQM5200S,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
 		}
 	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFFF00000" >board/tqm5200/config.tmp ; \
 		}
-	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h ;
-	@echo "... with automatic CS configuration" ;
-	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
+	@./mkconfig -n $@ -a TQM5200 ppc mpc5xxx tqm5200
 
 #########################################################################
 ## MPC8xx Systems

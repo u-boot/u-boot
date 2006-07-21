@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2005
+ * (C) Copyright 2003-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2004-2005
@@ -370,10 +370,7 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
-/* automatic configuration of chip selects */
-#ifdef CONFIG_CS_AUTOCONF
 #define CONFIG_LAST_STAGE_INIT
-#endif
 
 /*
  * SRAM - Do not map below 2 GB in address space, because this area is used
