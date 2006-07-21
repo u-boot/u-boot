@@ -37,7 +37,7 @@
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module		*/
 #undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules	*/
 
-#ifndef CONFIG_CAMERON			/* On a Cameron board or ...		*/
+#ifndef CONFIG_CAM5200			/* On a Cameron board or ...		*/
 #define CONFIG_STK52XX		1	/* ... on a STK52XX board		*/
 #endif
 
@@ -132,7 +132,7 @@
 #define ADD_USB_CMD		0
 #endif
 
-#ifndef CONFIG_CAMERON
+#ifndef CONFIG_CAM5200
 /* POST support */
 #define CONFIG_POST		(CFG_POST_MEMORY   | \
 				 CFG_POST_CPU	   | \
@@ -218,7 +218,7 @@
 		"cp.b 200000 FC000000 ${filesize};"			\
 		"protect on FC000000 FC05FFFF\0"
 # endif /* CONFIG_TQM5200_B */
-#elif defined (CONFIG_CAMERON)
+#elif defined (CONFIG_CAM5200)
 #   define ENV_UPDT							\
 	"update=protect off FC000000 FC03FFFF;"				\
 		"erase FC000000 FC03FFFF;"				\
@@ -331,7 +331,7 @@
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
-#if defined (CONFIG_CAMERON)
+#if defined (CONFIG_CAM5200)
 # define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
 #elif defined(CONFIG_TQM5200_B)
 # define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
@@ -371,7 +371,7 @@
 						"8m(misc),"		\
 						"16m(big-fs)"
 # endif /* CONFIG_TQM5200_B */
-#elif defined (CONFIG_CAMERON)
+#elif defined (CONFIG_CAM5200)
 #   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
 						"1792k(kernel),"	\
 						"3584k(small-fs),"	\
@@ -421,7 +421,7 @@
 #   define CFG_RAMBOOT		1
 #endif
 
-#if defined (CONFIG_CAMERON)
+#if defined (CONFIG_CAM5200)
 # define CFG_MONITOR_LEN	(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #elif defined(CONFIG_TQM5200_B)
 # define CFG_MONITOR_LEN	(512 << 10)	/* Reserve 512 kB for Monitor	*/

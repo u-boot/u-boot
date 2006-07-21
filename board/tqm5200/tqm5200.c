@@ -288,8 +288,8 @@ int checkboard (void)
 # define CARRIER_NAME	"STK52xx"
 #elif defined(CONFIG_TB5200)
 # define CARRIER_NAME	"TB5200"
-#elif defined(CONFIG_CAMERON)
-# define CARRIER_NAME	"Cameron"
+#elif defined(CONFIG_CAM5200)
+# define CARRIER_NAME	"Cam5200"
 #else
 # error "Unknown carrier board"
 #endif

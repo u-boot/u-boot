@@ -406,18 +406,18 @@ TQM5200_B_HIGHBOOT_config \
 TQM5200S_config \
 TQM5200S_HIGHBOOT_config \
 TQM5200_STK100_config \
-cameron_config \
+cam5200_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
 		}
-	@[ -z "$(findstring cameron,$@)" ] || \
-		{ echo "#define CONFIG_CAMERON"	>>include/config.h ; \
+	@[ -z "$(findstring cam5200,$@)" ] || \
+		{ echo "#define CONFIG_CAM5200"	>>include/config.h ; \
 		  echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
 		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
-		  echo "... TQM5200S on Cameron" ; \
+		  echo "... TQM5200S on Cam5200" ; \
 		}
 	@[ -z "$(findstring STK100,$@)" ] || \
 		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \
