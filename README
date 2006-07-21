@@ -1490,6 +1490,12 @@ The following options need to be configured:
 		of the backslashes before semicolons and special
 		symbols.
 
+- Commandline Editing and History:
+		CONFIG_CMDLINE_EDITING
+
+                Enable editiong and History functions for interactive
+                commandline input operations
+
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
 
