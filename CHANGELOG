@@ -3,7 +3,7 @@ Changes since U-Boot 1.1.4:
 ======================================================================
 
 * Fix MIPS LE build problem
-  Patch by Thomas Lange, 10 Aug 2005
+  Patch by Matej Kupljen, 10 Aug 2005
 
 * Check argument count in "mii" command.
   Problem pointed out by Andrew Dyer, 13 Jun 2005
