@@ -747,7 +747,7 @@ static int cread_line(char *buf, unsigned int *len)
 		ichar = getcmd_getch();
 
 		if ((ichar == '\n') || (ichar == '\r')) {
-			printf("\n");
+			putc('\n');
 			break;
 		}
 
@@ -804,7 +804,7 @@ static int cread_line(char *buf, unsigned int *len)
 				esc_save[esc_len] = ichar;
 				esc_len = 1;
 			} else {
-				printf("impossible condition #876\n");
+				puts("impossible condition #876\n");
 				esc_len = 0;
 			}
 			break;
@@ -940,7 +940,7 @@ int readline (const char *const prompt)
 		initted = 1;
 	}
 
-	printf("%s",prompt);
+	puts (prompt);
 
 	return cread_line(p, &len);
 #else
