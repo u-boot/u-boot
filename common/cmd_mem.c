@@ -707,7 +707,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CFG_MEMTEST_SCRATCH)
 	vu_long *dummy = (vu_long*)CFG_MEMTEST_SCRATCH;
 #else
-	vu_long *dummy = NULL;
+	vu_long *dummy = 0;	/* yes, this is address 0x0, not NULL */
 #endif
 	int	j;
 	int iterations = 1;
