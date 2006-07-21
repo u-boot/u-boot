@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add readline cmdline-editing extension
+  Patch by JinHua Luo, 01 Sep 2005
+  
 * Add support for friendly-arm SBC-2410X board
   Patch by JinHua Luo, 01 Sep 2005
   
