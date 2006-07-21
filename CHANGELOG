@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Check argument count in "mii" command.
+  Problem pointed out by Andrew Dyer, 13 Jun 2005
+
 * Cleanup TQM5200 board configurations:
   - make highboot configurations use environment at high end, too,
     to avoid flash fragmentation
