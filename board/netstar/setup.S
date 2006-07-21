@@ -58,10 +58,10 @@ VAL_EMIFF_SDRAM_CONFIG:		.word ((0 << 0) | (0 << 1) | (3 << 2) | (0xf << 4) | (0
 VAL_EMIFF_SDRAM_CONFIG:		.word ((0 << 0) | (0 << 1) | (3 << 2) | (0xd << 4) | (0x246 << 8) | (0 << 24) | (0 << 26) | (0 << 27))
 #endif
 
-VAL_EMIFF_SDRAM_CONFIG2:	.word 0x00000003
+VAL_EMIFF_SDRAM_CONFIG2:	.word 0x00000003 
 VAL_EMIFF_MRS:			.word 0x00000037
 
-/*
+/* 
  * GPIO04 - Green LED (Red LED is connected to LED Pulse Generator)
  * GPIO07 - LAN91C111 reset
  */
@@ -106,7 +106,7 @@ MUX_CONFIG_OFFSETS:
 	.align 1
 	.byte 0x00		@ FUNC_MUX_CTRL_0
 	.byte 0x04		@ FUNC_MUX_CTRL_1
-	.byte 0x08		@ FUNC_MUX_CTRL_2
+	.byte 0x08		@ FUNC_MUX_CTRL_2 
 	.byte 0x10		@ FUNC_MUX_CTRL_3
 	.byte 0x14		@ FUNC_MUX_CTRL_4
 	.byte 0x18		@ FUNC_MUX_CTRL_5
@@ -145,25 +145,23 @@ lowlevel_init:
 	nop
 
 	/* Setup clocking mode */
-	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ prepare base of CLOCK unit
-	ldrh	r1, [r0, #0x18]			@ get reset status
+	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ base of CLOCK unit
+	ldrh	r1, [r0, #0x18]			@ ARM_SYST - get reset status
 	bic	r1, r1, #(7 << 11)		@ clear clock select
 	orr	r1, r1, #(2 << 11)		@ set synchronous scalable
-	mov	r2, #0				@ set wait counter to 100 clock cycles
-
-icache_loop:
-	cmp	r2, #0x01
-	streqh	r1, [r0, #0x18]
-	add	r2, r2, #0x01
-	cmp	r2, #0x10
-	bne	icache_loop
+	mov	r2, #0
+loop:
+	cmp	r2, #1				@ this loop will wait for at least 100 cycles
+	streqh	r1, [r0, #0x18]			@ before issuing next request from MPU
+	add	r2, r2, #1			@ on the 1st run code is loaded into I-cache
+	cmp	r2, #16				@ and second run will set clocking mode
+	bne	loop
 	nop
 
-	/* Setup clock divisors */
-	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ base of CLOCK unit
+	/* Setup clock dividers */
 	ldr	r1, _OMAP5910_ARM_CKCTL
 	orr	r1, r1, #0x2000			@ enable DSP clock
-	strh	r1, [r0, #0x00]			@ setup clock divisors
+	strh	r1, [r0]			@ setup clock divisors
 
 	/* Setup DPLL to generate requested freq */
 	ldr	r0, OMAP5910_DPLL1_BASE		@ base of DPLL1 register
@@ -182,18 +180,17 @@ locking:
 	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ base of CLOCK unit
 	mov	r1, #(1 << 10)			@ disable idle mode do not check
 						@ nWAKEUP pin, other remain active
-	strh	r1, [r0, #0x04]
+	strh	r1, [r0, #0x04] 
 	ldr	r1, _OMAP5910_ARM_EN_CLK
 	strh	r1, [r0, #0x08]
 	mov	r1, #0x003f			@ FLASH.RP not enabled in idle and
-						@ max delayed ( 32 x CLKIN )
-	strh	r1, [r0, #0x0c]
+	strh	r1, [r0, #0x0c]			@ max delayed ( 32 x CLKIN )
 
 	/* Configure 5910 pins functions to match our board. */
 	ldr     r0, MUX_CONFIG_BASE
 	adr	r1, MUX_CONFIG_VALUES
 	adr	r2, MUX_CONFIG_OFFSETS
-next_mux_cfg:
+next_mux_cfg:	 
 	ldrb	r3, [r2], #1
 	ldr	r4, [r1], #4
 	cmp	r3, #0xff
@@ -240,15 +237,15 @@ next_mux_cfg:
 	strh	r1, [r0, #0x34]
 
 	/* Setup clock divisors */
-	ldr	r0, OMAP5910_ULPD_PWR_MNG_BASE	@ base of ULDPL DPLL1 register
+	ldr	r0, OMAP5910_ULPD_PWR_MNG_BASE	@ base of ULDPL DPLL1 register    
 
 	mov	r1, #0x0010			@ set PLL_ENABLE
-	orr	r1, r1, #0x2000			@ set IOB to new locking
-	strh	r1, [r0]			@ write
+	orr	r1, r1, #0x2000			@ set IOB to new locking 
+	strh	r1, [r0]			@ write 
 
 ulocking:
 	ldrh	r1, [r0]			@ get DPLL value
-	tst	r1, #1
+	tst	r1, #1			      
 	beq	ulocking			@ while LOCK not set
 
 	/* EMIF init */
@@ -257,7 +254,7 @@ ulocking:
 	bic	r1, r1, #0x0c			@ pwr down disabled, flash WP
 	orr	r1, r1, #0x01
 	str	r1, [r0, #0x0c]
-
+	
 	ldr	r1, VAL_EMIFS_CS0_CONFIG
 	str	r1, [r0, #0x10]			@ EMIFS_CS0_CONFIG
 	ldr	r1, VAL_EMIFS_CS1_CONFIG

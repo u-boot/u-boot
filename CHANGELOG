@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update NetStar board
+  Patch by Ladislav Michl, 03 Nov 2005
+
 * Make code better readable.
   Patch by Ladislav Michl, 14 Sep 2005
 
