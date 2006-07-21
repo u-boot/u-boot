@@ -233,6 +233,7 @@ D: Port to Windriver ppmc8260 board
 N: Sangmoon Kim
 E: dogoil@etinsys.com
 D: Support for debris board
+D: Support for KVME080 board
 
 N: Frederick W. Klatt
 E: fred.klatt@windriver.com

@@ -1063,6 +1063,9 @@ eXalion_config: unconfig
 HIDDEN_DRAGON_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x hidden_dragon
 
+kvme080_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x kvme080 etin
+
 MOUSSE_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x mousse
 

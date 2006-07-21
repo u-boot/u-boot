@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for KVME080 board
+  Patch by Sangmoon Kim, 18 Aug 2005
+
 * Fix MIPS LE build problem
   Patch by Matej Kupljen, 10 Aug 2005
 
