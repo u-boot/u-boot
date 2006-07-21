@@ -95,7 +95,7 @@
 			CFG_CMD_REGINFO  | \
 			CFG_CMD_DATE	 | \
 			CFG_CMD_PING     | \
-                        CFG_CMD_DHCP     | \
+			CFG_CMD_DHCP     | \
 			CFG_CMD_ELF)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

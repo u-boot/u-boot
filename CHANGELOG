@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Code cleanup
+
 * Update NetStar board
   Patch by Ladislav Michl, 03 Nov 2005
 
@@ -10,13 +12,13 @@ Changes since U-Boot 1.1.4:
 
 * Enable initrd ATAG for xm250 board.
   Patch by Josef Wagner, 05 Sep 2005
-  
+
 * Add readline cmdline-editing extension
   Patch by JinHua Luo, 01 Sep 2005
-  
+
 * Add support for friendly-arm SBC-2410X board
   Patch by JinHua Luo, 01 Sep 2005
-  
+
 * Fix multi-part image support on i386 platform.
   Patch by David Updegraff, 19 Aug 2005
 

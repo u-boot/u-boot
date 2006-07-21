@@ -101,7 +101,7 @@ cyg_crc16(unsigned char *buf, int len)
 
     cksum = 0;
     for (i = 0;  i < len;  i++) {
-        cksum = crc16_tab[((cksum>>8) ^ *buf++) & 0xFF] ^ (cksum << 8);
+	cksum = crc16_tab[((cksum>>8) ^ *buf++) & 0xFF] ^ (cksum << 8);
     }
     return cksum;
 }

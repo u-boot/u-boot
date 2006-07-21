@@ -113,7 +113,7 @@ locking:
 	ldr	r0, MPU_CLKM_BASE		@ base of CLOCK unit
 	mov	r1, #(1 << 10)			@ disable idle mode do not check
 						@ nWAKEUP pin, other remain active
-	strh	r1, [r0, #0x04] 
+	strh	r1, [r0, #0x04]
 	ldr	r1, EN_CLK_VAL
 	strh	r1, [r0, #0x08]
 	mov	r1, #0x003f			@ FLASH.RP not enabled in idle and
