@@ -424,10 +424,12 @@ static void set_ddr_config(void) {
 		 * which has to be written with a certain value defined by
 		 * errata sheet.
 		 */
+		u32 *reserved_p = (u32 *)((u8 *)im + 0x2f00);
+
 #if defined(DDR_CASLAT_20)
-		*((u8 *)im + 0x2f00) = 0x201c0000;
+		*reserved_p = 0x201c0000;
 #else
-		*((u8 *)im + 0x2f00) = 0x202c0000;
+		*reserved_p = 0x202c0000;
 #endif
 	}
 }

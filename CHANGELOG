@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* More code cleanup
+
 * Disabled kvme080 board in MAKEALL because of build problems.
 
 * Code cleanup

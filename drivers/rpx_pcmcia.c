@@ -2,7 +2,9 @@
 /* RPX Boards from Embedded Planet					*/
 /* -------------------------------------------------------------------- */
 #include <common.h>
+#ifdef CONFIG_8xx
 #include <mpc8xx.h>
+#endif
 #include <pcmcia.h>
 
 #undef	CONFIG_PCMCIA

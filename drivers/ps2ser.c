@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <asm/atomic.h>
 #include <ps2mult.h>
-#ifdef CFG_NS16550
+#if defined(CFG_NS16550) || defined(CONFIG_MPC85xx)
 #include <ns16550.h>
 #endif
 

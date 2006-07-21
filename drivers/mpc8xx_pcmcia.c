@@ -1,5 +1,7 @@
 #include <common.h>
+#if defined(CONFIG_8xx)
 #include <mpc8xx.h>
+#endif
 #include <pcmcia.h>
 
 #undef	CONFIG_PCMCIA

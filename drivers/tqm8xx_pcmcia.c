@@ -3,7 +3,9 @@
 /* SC8xx   Boards by SinoVee Microsystems				*/
 /* -------------------------------------------------------------------- */
 #include <common.h>
+#ifdef CONFIG_8xx
 #include <mpc8xx.h>
+#endif
 #include <pcmcia.h>
 
 #undef	CONFIG_PCMCIA
@@ -242,8 +244,6 @@ int pcmcia_hardware_enable(int slot)
 #if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
 int pcmcia_hardware_disable(int slot)
 {
-	volatile pcmconf8xx_t *pcmp =
-		(pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
 	u_long reg;
 
 	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
@@ -268,9 +268,11 @@ int pcmcia_hardware_disable(int slot)
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
 #ifndef CONFIG_NSCU
+	u_long reg;
+# ifdef DEBUG
 	volatile pcmconf8xx_t *pcmp =
 		(pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	u_long reg;
+# endif
 
 	debug ("voltage_set: " PCMCIA_BOARD_MSG
 		" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",

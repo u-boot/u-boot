@@ -261,8 +261,8 @@ zm_dprintf(char *fmt, ...)
 static void
 zm_flush(void)
 {
-    char *p = zm_out_start;
 #ifdef REDBOOT
+    char *p = zm_out_start;
     while (*p) mon_write_char(*p++);
 #endif
     zm_out = zm_out_start;
