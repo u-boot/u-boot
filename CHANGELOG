@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* MCC200: set default configuration to low_boot DDR,
+  and support for configurable options high_boot and/or SDRAM.   
+
 * Add support for 256 MB SDRAM on CPU87
   Patch by Josef Wagner, 25 Nov 2005
 

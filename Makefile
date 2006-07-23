@@ -323,13 +323,25 @@ lite5200b_LOWBOOT_config:	unconfig
 	@./mkconfig -a IceCube  ppc mpc5xxx icecube
 
 mcc200_config	\
-mcc200_lowboot_config:	unconfig
+mcc200_SDRAM	\
+mcc200_highboot	\
+mcc200_highboot_SDRAM:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring lowboot_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFC000000" >board/mcc200/config.tmp ; \
-		  echo "... with lowboot configuration" ; \
+	@[ -n "$(findstring highboot,$@)" ] || \
+		{ echo "... with lowboot configuration" ; \
 		}
-	@./mkconfig mcc200 ppc mpc5xxx mcc200
+	@[ -z "$(findstring highboot,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFFF00000" >board/mcc200/config.tmp ; \
+		  echo "... with highboot configuration" ; \
+		}
+	@[ -n "$(findstring _SDRAM,$@)" ] || \
+		{ echo "... with DDR" ; \
+		}
+	@[ -z "$(findstring _SDRAM,$@)" ] || \
+		{ echo "#define CONFIG_MCC200_SDRAM"	>>include/config.h ; \
+		  echo "... with SDRAM" ; \
+		}
+	@./mkconfig -a mcc200 ppc mpc5xxx mcc200
 
 o2dnt_config:
 	@./mkconfig o2dnt ppc mpc5xxx o2dnt
