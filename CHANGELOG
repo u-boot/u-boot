@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* AMCC bamboo (440EP) U-Boot image reduced to 384kbyte
+  Please see doc/README.bamboo for details.
+  Patch by Stefan Roese, 27 Jul 2006
+
 * Fix CONFIG_CMDLINE_EDITING implementation
   Patch by Stefan Roese, 27 Jul 2006
 
