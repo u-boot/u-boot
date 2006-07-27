@@ -53,7 +53,6 @@ extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #define MAX_DELAY_STOP_STR 32
 
-static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen);
 static int parse_line (char *, char *[]);
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 static int abortboot(int);
@@ -63,8 +62,11 @@ static int abortboot(int);
 
 char        console_buffer[CFG_CBSIZE];		/* console I/O buffer	*/
 
+#ifndef CONFIG_CMDLINE_EDITING
+static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen);
 static char erase_seq[] = "\b \b";		/* erase sequence	*/
 static char   tab_seq[] = "        ";		/* used to expand TABs	*/
+#endif /* CONFIG_CMDLINE_EDITING */
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 static uint64_t endtime = 0;  /* must be set, default is instant timeout */
@@ -641,6 +643,7 @@ static char* hist_next(void)
 	return (ret);
 }
 
+#ifndef CONFIG_CMDLINE_EDITING
 static void cread_print_hist_list(void)
 {
 	int i;
@@ -659,6 +662,7 @@ static void cread_print_hist_list(void)
 		i++;
 	}
 }
+#endif /* CONFIG_CMDLINE_EDITING */
 
 #define BEGINNING_OF_LINE() {			\
 	while (num) {				\
@@ -942,7 +946,8 @@ int readline (const char *const prompt)
 
 	puts (prompt);
 
-	return cread_line(p, &len);
+	cread_line(p, &len);
+	return len;
 #else
 	char   *p = console_buffer;
 	int	n = 0;				/* buffer index		*/
@@ -1044,6 +1049,7 @@ int readline (const char *const prompt)
 
 /****************************************************************************/
 
+#ifndef CONFIG_CMDLINE_EDITING
 static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 {
 	char *s;
@@ -1073,6 +1079,7 @@ static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 	(*np)--;
 	return (p);
 }
+#endif /* CONFIG_CMDLINE_EDITING */
 
 /****************************************************************************/
 
