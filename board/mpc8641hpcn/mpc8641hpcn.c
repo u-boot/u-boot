@@ -359,3 +359,67 @@ my_usage:
 	puts("For example:   reset cf 40 2.5 10\n");
 	puts("See MPC8641HPCN Design Workbook for valid values of command line parameters.\n");
 }
+
+/*
+ * get_board_sys_clk
+ *      Reads the FPGA on board for CONFIG_SYS_CLK_FREQ
+ */
+
+unsigned long get_board_sys_clk(ulong dummy)
+{
+	u8 i, go_bit, rd_clks;
+	ulong val = 0;
+
+	go_bit = in8(PIXIS_BASE + PIXIS_VCTL);
+	go_bit &= 0x01;
+
+	rd_clks = in8(PIXIS_BASE + PIXIS_VCFGEN0);
+	rd_clks &= 0x1C;
+
+	/*
+	 * Only if both go bit and the SCLK bit in VCFGEN0 are set
+	 * should we be using the AUX register. Remember, we also set the
+	 * GO bit to boot from the alternate bank on the on-board flash
+	 */
+
+	if (go_bit) {
+		if (rd_clks == 0x1c)
+			i = in8(PIXIS_BASE + PIXIS_AUX);
+		else
+			i = in8(PIXIS_BASE + PIXIS_SPD);
+	} else {
+		i = in8(PIXIS_BASE + PIXIS_SPD);
+	}
+
+	i &= 0x07;
+
+	switch (i) {
+	case 0:
+		val = 33000000;
+		break;
+	case 1:
+		val = 40000000;
+		break;
+	case 2:
+		val = 50000000;
+		break;
+	case 3:
+		val = 66000000;
+		break;
+	case 4:
+		val = 83000000;
+		break;
+	case 5:
+		val = 100000000;
+		break;
+	case 6:
+		val = 134000000;
+		break;
+	case 7:
+		val = 166000000;
+		break;
+	}
+
+	return val;
+}
+
