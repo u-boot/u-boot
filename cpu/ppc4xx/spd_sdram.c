@@ -1007,9 +1007,9 @@ void program_cfg0(unsigned long* dimm_populated,
 	}
 
 	/*
-	 * program Page Management Unit
+	 * program Page Management Unit (0 == enabled)
 	 */
-	cfg0 |= SDRAM_CFG0_PMUD;
+	cfg0 &= ~SDRAM_CFG0_PMUD;
 
 	/*
 	 * program Memory Controller Options 0
