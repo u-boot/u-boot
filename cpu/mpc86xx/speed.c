@@ -30,6 +30,7 @@
 #include <asm/processor.h>
 
 
+#ifdef MPC8641HPCN
 /*
  * get_board_sys_clk
  *	Reads the FPGA on board for CONFIG_SYS_CLK_FREQ
@@ -93,6 +94,7 @@ unsigned long get_board_sys_clk(ulong dummy)
 	return val;
 }
 
+#endif
 
 void get_sys_info (sys_info_t *sysInfo)
 {
