@@ -268,7 +268,7 @@
 
 #define OF_CPU		"PowerPC,8641@0"
 #define OF_SOC		"soc8641@f8000000"
-#define OF_TBCLK	(bd->bi_busfreq / 8)
+#define OF_TBCLK	(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH	"/soc8641@f8000000/serial@4500"
 
 #define CFG_64BIT_VSPRINTF	1
