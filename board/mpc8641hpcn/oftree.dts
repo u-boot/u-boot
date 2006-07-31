@@ -187,7 +187,7 @@
 			compatible = "ns16550";
 			reg = <4600 100>;
 			clock-frequency = <0>;
-			interrupts = <2a 2>;
+			interrupts = <1c 2>;
 			interrupt-parent = <40000>;
 		};
 

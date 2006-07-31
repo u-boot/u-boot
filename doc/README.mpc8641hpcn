@@ -117,7 +117,7 @@ To Flash U-boot into the alternative bank (0xFF800000 - 0xFFBFFFFF):
 	0xf800_0000	0xf80f_ffff	CCSR		1M
 	0xf810_0000	0xf81f_ffff	PIXIS		1M
 	0xf840_0000	0xf840_3fff	Stack space	32K
-	0xe200_0000	0xe2ff_ffff	PCI1/PEX1 IO	512M
-	0xe300_0000	0xe3ff_ffff	PCI2/PEX2 IO	512M
+	0xe200_0000	0xe2ff_ffff	PCI1/PEX1 IO	16M
+	0xe300_0000	0xe3ff_ffff	PCI2/PEX2 IO	16M
 	0xfe00_0000	0xfeff_ffff	Flash(alternate)16M
 	0xff00_0000	0xffff_ffff	Flash(boot bank)16M
