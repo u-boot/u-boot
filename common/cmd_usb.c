@@ -186,7 +186,7 @@ void usb_display_conf_desc(struct usb_config_descriptor *config,struct usb_devic
 void usb_display_if_desc(struct usb_interface_descriptor *ifdesc,struct usb_device *dev)
 {
 	printf("     Interface: %d\n",ifdesc->bInterfaceNumber);
-	printf("     - Alternate Settings %d, Endpoints: %d\n",ifdesc->bAlternateSetting,ifdesc->bNumEndpoints);
+	printf("     - Alternate Setting %d, Endpoints: %d\n",ifdesc->bAlternateSetting,ifdesc->bNumEndpoints);
 	printf("     - Class ");
 	usb_display_class_sub(ifdesc->bInterfaceClass,ifdesc->bInterfaceSubClass,ifdesc->bInterfaceProtocol);
 	printf("\n");

@@ -108,6 +108,7 @@ struct usb_interface_descriptor {
 	unsigned char  iInterface;
 
 	unsigned char  no_of_ep;
+	unsigned char  num_altsetting;
 	unsigned char  act_altsetting;
 	struct usb_endpoint_descriptor ep_desc[USB_MAXENDPOINTS];
 } __attribute__ ((packed));
