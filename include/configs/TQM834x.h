@@ -36,6 +36,7 @@
  */
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC83XX		1	/* MPC83XX family */
+#define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC834X		1	/* MPC834X specific */
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
 
@@ -55,6 +56,17 @@
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
 #define CFG_LCRR		(LCRR_DBYP | LCRR_CLKDIV_8)
+
+#define CFG_SCCR_INIT		(SCCR_DEFAULT & (~SCCR_CLK_MASK))
+#define CFG_SCCR_TSEC1CM	SCCR_TSEC1CM_1	/* TSEC1 clock setting */
+#define CFG_SCCR_TSEC2CM	SCCR_TSEC2CM_1	/* TSEC2 clock setting */
+#define CFG_SCCR_ENCCM		SCCR_ENCCM_3	/* ENC clock setting */
+#define CFG_SCCR_USBCM		SCCR_USBCM_3	/* USB clock setting */
+#define CFG_SCCR_VAL		( CFG_SCCR_INIT		\
+				| CFG_SCCR_TSEC1CM	\
+				| CFG_SCCR_TSEC2CM	\
+				| CFG_SCCR_ENCCM	\
+				| CFG_SCCR_USBCM	)
 
 /* board pre init: do not call, nothing to do */
 #undef CONFIG_BOARD_EARLY_INIT_F
