@@ -72,6 +72,8 @@ static int running;
 static int asynch_allowed;
 static struct devrequest setup_packet;
 
+char usb_started; /* flag for the started/stopped USB status */
+
 /**********************************************************************
  * some forward declerations...
  */
@@ -110,10 +112,12 @@ int usb_init(void)
 		printf("scanning bus for devices... ");
 		running=1;
 		usb_scan_devices();
+		usb_started = 1;
 		return 0;
 	}
 	else {
 		printf("Error, couldn't init Lowlevel part\n");
+		usb_started = 0;
 		return -1;
 	}
 }
@@ -124,6 +128,7 @@ int usb_init(void)
 int usb_stop(void)
 {
 	asynch_allowed=1;
+	usb_started = 0;
 	usb_hub_reset();
 	return usb_lowlevel_stop();
 }

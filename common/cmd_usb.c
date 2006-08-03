@@ -444,6 +444,7 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	int i;
 	struct usb_device *dev = NULL;
+	extern char usb_started;
 #ifdef CONFIG_USB_STORAGE
 	block_dev_desc_t *stor_dev;
 #endif
@@ -476,6 +477,10 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("stopping USB..\n");
 		usb_stop();
 		return 0;
+	}
+	if (!usb_started) {
+		printf("USB is stopped. Please issue 'usb start' first.\n");
+		return 1;
 	}
 	if (strncmp(argv[1],"tree",4) == 0) {
 		printf("\nDevice Tree:\n");
