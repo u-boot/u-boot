@@ -174,9 +174,6 @@ endif
 ifeq ($(CPU),ppc4xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
-ifeq ($(CPU),mpc83xx)
-OBJS += cpu/$(CPU)/resetvec.o
-endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
