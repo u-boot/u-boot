@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Change "mii info" to not print an error upon missing PHY at address
+  Patch by Stefan Roese, 07 Aug 2006
+
 * PPC440 DDR setup: Set SDRAM0_CFG0[PMU]=0 for best performance
   AMCC suggested to set the PMU bit to 0 for best performace on
   the PPC440 DDR controller.
