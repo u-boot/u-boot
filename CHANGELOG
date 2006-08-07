@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add Macronix MXLV320T flash support for AMCC Bamboo
+  Patch by Stefan Roese, 07 Aug 2006
+
 * Change "mii info" to not print an error upon missing PHY at address
   Patch by Stefan Roese, 07 Aug 2006
 
