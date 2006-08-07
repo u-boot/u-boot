@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix control-c handing in CONFIG_CMDLINE_EDITING
+  Properly pass break code back from readline.
+  Patch by Roger Blofeld, 31 Jul 2006
+
 * Add commandline history support to all AMCC eval boards
   Patch by Stefan Roese, 07 Aug 2006
 

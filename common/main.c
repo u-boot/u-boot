@@ -937,6 +937,7 @@ int readline (const char *const prompt)
 #ifdef CONFIG_CMDLINE_EDITING
 	char *p = console_buffer;
 	unsigned int len=MAX_CMDBUF_SIZE;
+	int rc;
 	static int initted = 0;
 
 	if (!initted) {
@@ -946,8 +947,8 @@ int readline (const char *const prompt)
 
 	puts (prompt);
 
-	cread_line(p, &len);
-	return len;
+	rc = cread_line(p, &len);
+	return rc < 0 ? rc : len;
 #else
 	char   *p = console_buffer;
 	int	n = 0;				/* buffer index		*/
