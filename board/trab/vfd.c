@@ -251,19 +251,17 @@ void create_vfd_table(void)
 			    unsigned long adr  = gd->fb_base;
 			    unsigned int bit_nr = 0;
 
-			    if (vfd_table[x][y][color][display][entry]) {
+			    pixel  = vfd_table[x][y][color][display][entry] + frame_buf_offs;
+			    /*
+			     * wrap arround if offset
+			     * (see manual S3C2400)
+			     */
+			    if (pixel>=FRAME_BUF_SIZE*8)
+				    pixel = pixel-(FRAME_BUF_SIZE*8);
+			    adr    = gd->fb_base+(pixel/32)*4+(3-(pixel%32)/8);
+			    bit_nr = pixel%8;
+			    bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
 
-				pixel  = vfd_table[x][y][color][display][entry] + frame_buf_offs;
-				 /*
-				  * wrap arround if offset
-				  * (see manual S3C2400)
-				  */
-				if (pixel>=FRAME_BUF_SIZE*8)
-					pixel = pixel-(FRAME_BUF_SIZE*8);
-				adr    = gd->fb_base+(pixel/32)*4+(3-(pixel%32)/8);
-				bit_nr = pixel%8;
-				bit_nr = (bit_nr>3)?bit_nr-4:bit_nr+4;
-			    }
 			    adr_vfd_table[x][y][color][display][entry] = adr;
 			    bit_vfd_table[x][y][color][display][entry] = bit_nr;
 			}

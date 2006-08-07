@@ -1,10 +1,10 @@
 /*
  * flash.c
  * -------
- * 
+ *
  * Flash programming routines for the Wind River PPMC 74xx/7xx
  * based on flash.c from the TQM8260 board.
- * 
+ *
  * By Richard Danter (richard.danter@windriver.com)
  * Copyright (C) 2005 Wind River Systems
  */
@@ -27,13 +27,13 @@ void flash_reset (void)
 {
 	unsigned long msr;
 	DWORD cmd_reset = 0x00F000F000F000F0LL;
-	
+
 	if (flash_info[0].flash_id != FLASH_UNKNOWN) {
 		msr = get_msr ();
 		set_msr (msr | MSR_FP);
 
 		write_via_fpu ((DWORD*)flash_info[0].start[0], &cmd_reset );
-		
+
 		set_msr (msr);
 	}
 }
@@ -50,16 +50,16 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 
 	/* Enable FPU */
 	msr = get_msr ();
-	set_msr (msr | MSR_FP);	
-							
+	set_msr (msr | MSR_FP);
+
 	/* Write auto-select command sequence */
 	write_via_fpu ((DWORD*)(baseaddr + (0x0555 << 3)), &cmd_select[0] );
 	write_via_fpu ((DWORD*)(baseaddr + (0x02AA << 3)), &cmd_select[1] );
 	write_via_fpu ((DWORD*)(baseaddr + (0x0555 << 3)), &cmd_select[2] );
-	
+
 	/* Restore FPU */
 	set_msr (msr);
-	
+
 	/* Read manufacturer ID */
 	flashtest = *(volatile DWORD*)baseaddr;
 	switch ((int)flashtest) {
@@ -70,7 +70,7 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 		info->flash_id = FLASH_MAN_FUJ;
 		break;
 	default:
-		/* No, faulty or unknown flash */ 
+		/* No, faulty or unknown flash */
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
@@ -291,7 +291,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	DWORD cmd_erase[6] = { 0x00AA00AA00AA00AALL, 0x0055005500550055LL,
 						   0x0080008000800080LL, 0x00AA00AA00AA00AALL,
 						   0x0055005500550055LL, 0x0030003000300030LL };
-	
+
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
 			printf ("- missing\n");
@@ -319,7 +319,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	/* Enable FPU */
 	msr = get_msr();
 	set_msr ( msr | MSR_FP );
-						   
+
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 
@@ -344,7 +344,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 	/* Restore FPU */
 	set_msr (msr);
-	
+
 	/* wait at least 80us - let's wait 1 ms */
 	udelay (1000);
 
@@ -373,7 +373,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
   DONE:
 	/* reset to read mode */
 	flash_reset ();
-	
+
 	printf (" done\n");
 	return 0;
 }
@@ -446,7 +446,7 @@ static int write_dword (flash_info_t * info, ulong dest, unsigned char *pdata)
 	DWORD data;
 	DWORD cmd_write[3] = { 0x00AA00AA00AA00AALL, 0x0055005500550055LL,
 						   0x00A000A000A000A0LL };
-						   
+
 	for (data = 0, i = 0; i < 8; i++)
 		data = (data << 8) + *pdata++;
 
@@ -454,11 +454,11 @@ static int write_dword (flash_info_t * info, ulong dest, unsigned char *pdata)
 	if ((*(DWORD*)dest & data) != data) {
 		return (2);
 	}
-	
+
 	/* Enable FPU */
 	msr = get_msr();
 	set_msr( msr | MSR_FP );
-	
+
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 
@@ -473,7 +473,7 @@ static int write_dword (flash_info_t * info, ulong dest, unsigned char *pdata)
 
 	/* Restore FPU */
 	set_msr(msr);
-	
+
 	/* data polling for D7 */
 	start = get_timer (0);
 	while (*(volatile DWORD*)dest != data ) {

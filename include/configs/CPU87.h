@@ -455,7 +455,7 @@
 #define CFG_MIN_AM_MASK 0xC0000000
 
 /*
- * we use the same values for 32 MB and 128 MB SDRAM
+ * we use the same values for 32 MB, 128 MB and 256 MB SDRAM
  * refresh rate = 7.68 uS (100 MHz Bus Clock)
  */
 
@@ -510,6 +510,24 @@
 			 PSDMR_WRC_1C			|\
 			 PSDMR_CL_2)
 
+	/* SDRAM initialization values for 10-column chips
+	 */
+#define CFG_OR2_10COL	(CFG_MIN_AM_MASK		|\
+			 ORxS_BPD_4			|\
+			 ORxS_ROWST_PBI1_A4		|\
+			 ORxS_NUMR_13)
+
+#define CFG_PSDMR_10COL	(PSDMR_PBI			|\
+			 PSDMR_SDAM_A17_IS_A5		|\
+			 PSDMR_BSMA_A13_A15		|\
+			 PSDMR_SDA10_PBI1_A6		|\
+			 PSDMR_RFRC_7_CLK		|\
+			 PSDMR_PRETOACT_2W		|\
+			 PSDMR_ACTTORW_2W		|\
+			 PSDMR_LDOTOPRE_1C		|\
+			 PSDMR_WRC_1C			|\
+			 PSDMR_CL_2)
+			 
 /*
  * Init Memory Controller:
  *
@@ -588,9 +606,9 @@
 			 BRx_MS_SDRAM_P			|\
 			 BRx_V)
 
-#define CFG_OR2_PRELIM	 CFG_OR2_9COL
+#define CFG_OR2_PRELIM	 CFG_OR2_8COL
 
-#define CFG_PSDMR	 CFG_PSDMR_9COL
+#define CFG_PSDMR	 CFG_PSDMR_8COL
 #endif /* CFG_RAMBOOT */
 
 /* Bank 3 - Dual Ported SRAM

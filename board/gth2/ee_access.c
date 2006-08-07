@@ -8,7 +8,7 @@
    For documentaion, see data sheet for DS2438, 2438.pdf
 
    By Thomas.Lange@corelatus.com 001025
-   
+
    Copyright (C) 2000-2005 Corelatus AB */
 
 /* This program is free software; you can redistribute it and/or
@@ -105,7 +105,7 @@ static u8 make_new_crc( u8 Old_crc, u8 New_value ){
 	/* Compute a new checksum with new byte, using previous checksum as input
 	   See DS app note 17, understanding and using cyclic redundancy checks...
 	   Also see DS2438, page 11 */
-	return( crc_lookup[Old_crc ^ New_value ]); 
+	return( crc_lookup[Old_crc ^ New_value ]);
 }
 
 int ee_crc_ok( u8 *Buffer, int Len, u8 Crc ){
@@ -119,16 +119,16 @@ int ee_crc_ok( u8 *Buffer, int Len, u8 Crc ){
 		Curr_byte++;
 	}
 	E_DEBUG("Calculated CRC = 0x%x, read = 0x%x\n", Curr_crc, Crc);
-  
+
 	if(Curr_crc == Crc){
-		/* Good */ 
+		/* Good */
 		return(TRUE);
 	}
 	printk(KERN_ERR"EE checksum error, Calculated CRC = 0x%x, read = 0x%x\n", Curr_crc, Crc);
 	return(FALSE);
 }
 
-static void 
+static void
 set_idle(void){
 	/* Send idle and keep start time
 	   Continous 1 is idle */
@@ -136,7 +136,7 @@ set_idle(void){
 }
 
 
-static int 
+static int
 do_cpu_reset(void){
 	/* Release reset and verify that chip responds with presence pulse */
 	int Retries=0;
@@ -146,10 +146,10 @@ do_cpu_reset(void){
 		/* Send reset */
 		WRITE_PORT(0);
 		udelay(RESET_LOW_TIME);
-    
+
 		/* Release reset */
 		WRITE_PORT(1);
-    
+
 		/* Wait for EEPROM to drive output */
 		udelay(PRESENCE_TIMEOUT);
 		if(!READ_PORT){
@@ -166,17 +166,17 @@ do_cpu_reset(void){
 	}
 
 	printk(KERN_ERR"eeprom did not respond when releasing reset\n");
-    
+
 	/* Make sure chip releases pin */
 	udelay(PRESENCE_LOW_TIME);
 
 	/* Set to idle again */
 	set_idle();
- 
+
 	return(-EIO);
 }
 
-static u8 
+static u8
 read_cpu_byte(void){
 	/* Read a single byte from EEPROM
 	   Read LSb first */
@@ -186,36 +186,36 @@ read_cpu_byte(void){
 	u32 Flags;
 
 	E_DEBUG("Reading byte\n");
-  
+
 	for(i=0;i<8;i++){
 		/* Small delay between pulses */
 		udelay(1);
 
-#ifdef __KERNEL__  
-		/* Disable irq */ 
+#ifdef __KERNEL__
+		/* Disable irq */
 		save_flags(Flags);
 		cli();
-#endif    
+#endif
 
 		/* Pull down pin short time to start read
 		   See page 26 in data sheet */
-    
+
 		WRITE_PORT(0);
 		udelay(READ_LOW);
 		WRITE_PORT(1);
-        
+
 		/* Wait for chip to drive pin */
 		udelay(READ_TIMEOUT);
-    
+
 		Value = READ_PORT;
 		if(Value)
 			Value=1;
 
 #ifdef __KERNEL__
-		/* Enable irq */ 
+		/* Enable irq */
 		restore_flags(Flags);
 #endif
-    
+
 		/* Wait for chip to release pin */
 		udelay(TOTAL_READ_LOW-READ_TIMEOUT);
 
@@ -230,30 +230,30 @@ read_cpu_byte(void){
 	return(Result);
 }
 
-static void 
+static void
 write_cpu_byte(u8 Byte){
 	/* Write a single byte to EEPROM
 	   Write LSb first */
 	int i;
 	int Value;
 	u32 Flags;
-  
+
 	E_DEBUG("Writing byte 0x%x\n",Byte);
-  
+
 	for(i=0;i<8;i++){
 		/* Small delay between pulses */
 		udelay(1);
 		Value = Byte&1;
-    
+
 #ifdef __KERNEL__
-		/* Disable irq */ 
+		/* Disable irq */
 		save_flags(Flags);
 		cli();
-#endif    
+#endif
 
 		/* Pull down pin short time for a 1, long time for a 0
 		   See page 26 in data sheet */
-    
+
 		WRITE_PORT(0);
 		if(Value){
 			/* Write a 1 */
@@ -267,54 +267,54 @@ write_cpu_byte(u8 Byte){
 		WRITE_PORT(1);
 
 #ifdef __KERNEL__
-		/* Enable irq */ 
+		/* Enable irq */
 		restore_flags(Flags);
 #endif
 
 		if(Value)
 			/* Wait for chip to read the 1 */
 			udelay(TOTAL_WRITE_LOW-WRITE_1_LOW);
-        
+
 		/* E_DEBUG("Wrote %d\n",Value); */
 		Byte>>=1;
 	}
 }
 
 int ee_do_cpu_command( u8 *Tx, int Tx_len, u8 *Rx, int Rx_len, int Send_skip ){
-	/* Execute this command string, including 
+	/* Execute this command string, including
 	   giving reset and setting to idle after command
-	   if Rx_len is set, we read out data from EEPROM */ 
+	   if Rx_len is set, we read out data from EEPROM */
 	int i;
 
 	E_DEBUG("Command, Tx_len %d, Rx_len %d\n", Tx_len, Rx_len );
-  
+
 	if(do_cpu_reset()){
 		/* Failed! */
 		return(-EIO);
 	}
 
 	if(Send_skip)
-		/* Always send SKIP_ROM first to tell chip we are sending a command, 
+		/* Always send SKIP_ROM first to tell chip we are sending a command,
 		   except when we read out rom data for chip */
 		write_cpu_byte(SKIP_ROM);
-  
+
 	/* Always have Tx data */
 	for(i=0;i<Tx_len;i++){
 		write_cpu_byte(Tx[i]);
 	}
-  
+
 	if(Rx_len){
 		for(i=0;i<Rx_len;i++){
 			Rx[i]=read_cpu_byte();
 		}
 	}
-  
+
 	set_idle();
 
 	E_DEBUG("Command done\n");
 
 	return(0);
-} 
+}
 
 int ee_init_cpu_data(void){
 	int i;
@@ -323,7 +323,7 @@ int ee_init_cpu_data(void){
 	/* Leave it floting since altera is driving the same pin */
 	set_idle();
 
-	/* Copy all User EEPROM data to scratchpad */ 
+	/* Copy all User EEPROM data to scratchpad */
 	for(i=0;i<USER_PAGES;i++){
 		Tx[0]=RECALL_MEMORY;
 		Tx[1]=EE_USER_PAGE_0+i;
@@ -332,16 +332,16 @@ int ee_init_cpu_data(void){
 
 	/* Make sure chip doesnt store measurements in NVRAM */
 	Tx[0]=WRITE_SCRATCHPAD;
-	Tx[1]=0; /* Page */ 
+	Tx[1]=0; /* Page */
 	Tx[2]=9;
 	if(ee_do_cpu_command(Tx,3,NULL,0,TRUE)) return(-EIO);
 
 	Tx[0]=COPY_SCRATCHPAD;
 	if(ee_do_cpu_command(Tx,2,NULL,0,TRUE)) return(-EIO);
-  
+
 	for(i=0;i<10;i++){
 		udelay(1000);
 	}
-  
+
 	return(0);
 }

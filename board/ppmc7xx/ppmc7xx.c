@@ -1,9 +1,9 @@
 /*
  * ppmc7xx.c
  * ---------
- * 
+ *
  * Main board-specific routines for Wind River PPMC 7xx/74xx board.
- * 
+ *
  * By Richard Danter (richard.danter@windriver.com)
  * Copyright (C) 2005 Wind River Systems
  */
@@ -24,7 +24,7 @@ extern void _start_warm(void);
 
 /*
  * initdram()
- * 
+ *
  * This function normally initialises the (S)DRAM of the system. For this board
  * the SDRAM was already initialised by board_asm_init (see init.S) so we just
  * return the size of RAM.
@@ -37,12 +37,12 @@ long initdram( int board_type )
 
 /*
  * after_reloc()
- * 
+ *
  * This is called after U-Boot has been copied from Flash/ROM to RAM. It gives
  * us an opportunity to do some additional setup before the rest of the system
  * is initialised. We don't need to do anything, so we just call board_init_r()
  * which should never return.
- */ 
+ */
 void after_reloc( ulong dest_addr, gd_t* gd )
 {
 	/* Jump to the main U-Boot board init code */
@@ -52,7 +52,7 @@ void after_reloc( ulong dest_addr, gd_t* gd )
 
 /*
  * checkboard()
- * 
+ *
  * We could do some board level checks here, such as working out what version
  * it is, but for this board we simply display it's name (on the console).
  */
@@ -65,7 +65,7 @@ int checkboard( void )
 
 /*
  * misc_init_r
- * 
+ *
  * Used for other setup which needs to be done late in the bring-up phase.
  */
 int misc_init_r( void )
@@ -78,27 +78,27 @@ int misc_init_r( void )
 
 	/* Enable the I-Cache */
 	icache_enable();
-	
+
 	return 0;
 }
 
 
 /*
  * do_reset()
- * 
+ *
  * Shell command to reset the board.
  */
 void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 {
 	printf( "Resetting...\n" );
-	
+
 	/* Disabe and invalidate cache */
 	icache_disable();
 	dcache_disable();
 
 	/* Jump to warm start (in RAM) */
 	_start_warm();
-	
+
 	/* Should never get here */
 	while(1);
 }

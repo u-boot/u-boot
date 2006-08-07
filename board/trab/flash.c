@@ -281,10 +281,12 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 			if (chip1 == ERR || chip2 == ERR) {
 				rc = ERR_PROG_ERROR;
+				printf ("Flash erase error\n");
 				goto outahere;
 			}
 			if (chip1 == TMO) {
 				rc = ERR_TIMOUT;
+				printf ("Flash erase timeout error\n");
 				goto outahere;
 			}
 		}
@@ -340,7 +342,9 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 #endif
 	iflag = disable_interrupts ();
 
-	*addr = CMD_PROGRAM;
+	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
+	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
+	MEM_FLASH_ADDR1 = CMD_PROGRAM;
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
@@ -352,7 +356,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
 			chip1 = ERR | TMO;
 			break;
 		}
@@ -384,8 +388,13 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 
 	*addr = CMD_READ_ARRAY;
 
-	if (chip1 == ERR || chip2 == ERR || *addr != data)
+	if (chip1 == ERR || chip2 == ERR || *addr != data) {
 		rc = ERR_PROG_ERROR;
+		printf ("Flash program error\n");
+		debug ("chip1: %#x, chip2: %#x, addr: %#lx *addr: %#lx, "
+		       "data: %#lx\n",
+		       chip1, chip2, addr, *addr, data);
+	}
 
 	if (iflag)
 		enable_interrupts ();
@@ -407,10 +416,6 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	ulong cp, wp, data;
 	int l;
 	int i, rc;
-
-	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
-	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
-	MEM_FLASH_ADDR1 = CMD_UNLOCK_BYPASS;
 
 	wp = (addr & ~3);	/* get lower word aligned address */
 
@@ -479,9 +484,6 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 
 	Done:
 
-	MEM_FLASH_ADDR = CMD_UNLOCK_BYPASS_RES1;
-	MEM_FLASH_ADDR = CMD_UNLOCK_BYPASS_RES2;
-
 	return (rc);
 }
 
@@ -515,7 +517,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
-		addr[0] = 0x00FF00FF;		/* restore read mode */
+		addr[0] = CMD_READ_ARRAY;	/* restore read mode */
 		debug ("## flash_init: unknown manufacturer\n");
 		return (0);			/* no or unknown flash	*/
 	}
@@ -530,7 +532,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 71;
 		info->size = 0x00800000;
 
-		addr[0] = 0x00FF00FF;		/* restore read mode */
+		addr[0] = CMD_READ_ARRAY;	/* restore read mode */
 		break;				/* =>  8 MB		*/
 
 	case AMD_ID_LV640U:
@@ -538,7 +540,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 128;
 		info->size = 0x01000000;
 
-		addr[0] = 0x00F000F0;		/* restore read mode */
+		addr[0] = CMD_READ_ARRAY;	/* restore read mode */
 		break;				/* => 16 MB		*/
 
 	case MX_ID_LV320B:
@@ -546,13 +548,13 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		info->sector_count = 71;
 		info->size = 0x00800000;
 
-		addr[0] = 0x00FF00FF;		/* restore read mode */
+		addr[0] = CMD_READ_ARRAY;	/* restore read mode */
 		break;				/* =>  8 MB		*/
 
 	default:
 		debug ("## flash_init: unknown flash chip\n");
 		info->flash_id = FLASH_UNKNOWN;
-		addr[0] = 0x00FF00FF;		/* restore read mode */
+		addr[0] = CMD_READ_ARRAY;	/* restore read mode */
 		return (0);			/* => no or unknown flash */
 
 	}

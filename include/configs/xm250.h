@@ -119,9 +119,9 @@
 /*
  * Definitions related to passing arguments to kernel.
  */
-#define CONFIG_CMDLINE_TAG	     1	 /* send commandline to Kernel		*/
-#define CONFIG_SETUP_MEMORY_TAGS     1	 /* send memory definition to kernel	*/
-#undef	CONFIG_INITRD_TAG		 /* do not send initrd params		*/
+#define CONFIG_CMDLINE_TAG	 1	 /* send commandline to Kernel		*/
+#define CONFIG_SETUP_MEMORY_TAGS 1	 /* send memory definition to kernel	*/
+#define	CONFIG_INITRD_TAG	 1	 /* do not send initrd params		*/
 #undef	CONFIG_VFD			 /* do not send framebuffer setup	*/
 
 /*

@@ -32,7 +32,12 @@
 /* #include "mt48lc8m32b2-6-7.h" */
 
 /* One MT48LC16M32S2 for 64 MB */
-#include "mt48lc16m32s2-75.h"
+/* #include "mt48lc16m32s2-75.h" */
+#if defined (CONFIG_MCC200_SDRAM)
+#include "mt48lc16m16a2-75.h"
+#else
+#include "mt46v16m16-75.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -249,7 +254,7 @@ int misc_init_r (void)
 		*(volatile int*)MPC5XXX_CS0_CFG |= (1 << 6);
 		flash_protect (FLAG_PROTECT_CLEAR,
 			       flash_info[0].start[0] + flash_info[0].size / 2,
-			       (flash_info[0].start[0] + flash_info[0].size) / 2 - 1,
+			       (flash_info[0].start[0] - 1) + flash_info[0].size,
 			       &flash_info[0]);
 		*(volatile int*)MPC5XXX_CS0_CFG &= ~(1 << 6);
 	}

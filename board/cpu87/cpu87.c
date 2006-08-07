@@ -197,7 +197,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
  */
 int checkboard (void)
 {
-	printf ("Board: CPU87 (Rev %02x)\n", CPU86_REV);
+	printf ("Board: CPU87 (Rev %02x)\n", CPU86_REV & 0x7f);
 	return 0;
 }
 
@@ -280,7 +280,7 @@ long int initdram (int board_type)
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
 #ifndef CFG_RAMBOOT
-	ulong size8, size9;
+	ulong size8, size9, size10;
 #endif
 	long psize;
 
@@ -294,17 +294,25 @@ long int initdram (int board_type)
 	 */
 	size8 = try_init (memctl, CFG_PSDMR_8COL, CFG_OR2_8COL,
 			  (uchar *) CFG_SDRAM_BASE);
+	
 	size9 = try_init (memctl, CFG_PSDMR_9COL, CFG_OR2_9COL,
 			  (uchar *) CFG_SDRAM_BASE);
-
-	if (size8 < size9) {
-		psize = size9;
-		printf ("(60x:9COL) ");
-	} else {
+	
+	size10 = try_init (memctl, CFG_PSDMR_10COL, CFG_OR2_10COL,
+			  (uchar *) CFG_SDRAM_BASE);
+	
+	psize = max(size8,max(size9,size10));
+	
+	if (psize == size8) {
 		psize = try_init (memctl, CFG_PSDMR_8COL, CFG_OR2_8COL,
 				  (uchar *) CFG_SDRAM_BASE);
 		printf ("(60x:8COL) ");
-	}
+	} else if (psize == size9){
+		psize = try_init (memctl, CFG_PSDMR_9COL, CFG_OR2_9COL,
+				  (uchar *) CFG_SDRAM_BASE);
+		printf ("(60x:9COL) ");
+	} else
+		printf ("(60x:10COL) ");
 
 #endif	/* CFG_RAMBOOT */
 

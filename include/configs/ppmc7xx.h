@@ -1,9 +1,9 @@
 /*
  * ppmc7xx.h
  * ---------
- * 
+ *
  * Wind River PPMC 7xx/74xx board configuration file.
- * 
+ *
  * By Richard Danter (richard.danter@windriver.com)
  * Copyright (C) 2005 Wind River Systems
  */
@@ -16,15 +16,15 @@
 
 
 /*===================================================================
- * 
+ *
  * User configurable settings - Modify to your preference
- * 
+ *
  *===================================================================
  */
 
 /*
  * Debug
- * 
+ *
  * DEBUG			- Define this is you want extra debug info
  * GTREGREAD			- Required to build with debug
  * do_bdinfo			- Required to build with debug
@@ -37,7 +37,7 @@
 
 /*
  * CPU type
- * 
+ *
  * CONFIG_7xx			- We have a 750 or 755 CPU
  * CONFIG_74xx			- We have a 7400 CPU
  * CONFIG_ALTIVEC		- We have altivec enabled CPU (only 7400)
@@ -52,11 +52,11 @@
 
 /*
  * Monitor configuration
- * 
+ *
  * CONFIG_COMMANDS		- List of command sets to include in shell
- * 
+ *
  * The following command sets have been tested and known to work:
- * 
+ *
  * CFG_CMD_CACHE		- Cache control commands
  * CFG_CMD_MEMORY		- Memory display, change and test commands
  * CFG_CMD_FLASH		- Erase and program flash
@@ -91,7 +91,7 @@
 
 /*
  * PCI config
- * 
+ *
  * CONFIG_PCI				- Enable PCI bus
  * CONFIG_PCI_PNP			- Enable Plug & Play support
  * CONFIG_PCI_SCAN_SHOW		- Enable display of devices at startup
@@ -104,7 +104,7 @@
 
 /*
  * Network config
- * 
+ *
  * CONFIG_NET_MULTI			- Support for multiple network interfaces
  * CONFIG_EEPRO100			- Intel 8255x Ethernet Controller
  * CONFIG_EEPRO100_SROM_WRITE - Enable writing to network card ROM
@@ -117,18 +117,18 @@
 
 /*
  * Enable extra init functions
- * 
+ *
  * CONFIG_MISC_INIT_F		- Call pre-relocation init functions
  * CONFIG_MISC_INIT_R		- Call post relocation init functions
  */
 
 #undef	CONFIG_MISC_INIT_F
-#define CONFIG_MISC_INIT_R 
+#define CONFIG_MISC_INIT_R
 
 
 /*
  * Boot config
- * 
+ *
  * CONFIG_BOOTCOMMAND		- Command(s) to execute to auto-boot
  * CONFIG_BOOTDELAY			- How long to wait before auto-boot (in sec)
  */
@@ -142,9 +142,9 @@
 
 
 /*===================================================================
- * 
+ *
  * Board configuration settings - You should not need to modify these
- * 
+ *
  *===================================================================
  */
 
@@ -154,9 +154,9 @@
 
 /*
  * Memory map
- * 
+ *
  * This board runs in a standard CHRP (Map-B) configuration.
- * 
+ *
  *	Type		Start		End			Size	Width	Chip Sel
  *	----------- ----------- ----------- ------- ------- --------
  *	SDRAM		0x00000000	0x04000000	64MB	64b		SDRAMCS0
@@ -164,9 +164,9 @@
  *	UART		0x7C000000						RCS2
  *	Mailbox		0xFF000000						RCS1
  *	Flash		0xFFC00000	0xFFFFFFFF	4MB	64b		RCS0
- * 
+ *
  * Flash sectors are laid out as follows.
- * 
+ *
  *	Sector	Start		End			Size	Comments
  *	------- ----------- ----------- ------- -----------
  *	 0		0xFFC00000	0xFFC3FFFF	256KB
@@ -193,7 +193,7 @@
 
 /*
  * SDRAM config - see memory map details above.
- * 
+ *
  * CFG_SDRAM_BASE			- Start address of SDRAM, this _must_ be zero!
  * CFG_SDRAM_SIZE			- Total size of contiguous SDRAM bank(s)
  */
@@ -202,9 +202,9 @@
 #define CFG_SDRAM_SIZE			0x04000000
 
 
-/* 
+/*
  * Flash config - see memory map details above.
- * 
+ *
  * CFG_FLASH_BASE			- Start address of flash memory
  * CFG_FLASH_SIZE			- Total size of contiguous flash mem
  * CFG_FLASH_ERASE_TOUT		- Erase timeout in ms
@@ -223,7 +223,7 @@
 
 /*
  * Monitor config - see memory map details above
- * 
+ *
  * CFG_MONITOR_BASE			- Base address of monitor code
  * CFG_MALLOC_LEN			- Size of malloc pool (128KB)
  */
@@ -234,7 +234,7 @@
 
 /*
  * Command shell settings
- * 
+ *
  * CFG_BARGSIZE			- Boot Argument buffer size
  * CFG_BOOTMAPSZ		- Size of app's mapped RAM at boot (Linux=8MB)
  * CFG_CBSIZE			- Console Buffer (input) size
@@ -261,10 +261,10 @@
 
 /*
  * Environment config - see memory map details above
- * 
+ *
  * CFG_ENV_IS_IN_FLASH		- The env variables are stored in flash
  * CFG_ENV_ADDR			- Address of the sector containing env vars
- * CFG_ENV_SIZE			- Ammount of RAM for env vars (used to save RAM, 4KB) 
+ * CFG_ENV_SIZE			- Ammount of RAM for env vars (used to save RAM, 4KB)
  * CFG_ENV_SECT_SIZE		- Size of sector containing env vars (32KB)
  */
 
@@ -282,7 +282,7 @@
  * Since the main system RAM is initialised very early, we place the INIT_RAM
  * in the main system RAM just above the exception vectors. The contents are
  * copied to top of RAM by the init code.
- * 
+ *
  * CFG_INIT_RAM_ADDR		- Address of Init RAM, above exception vect
  * CFG_INIT_RAM_END			- Size of Init RAM
  * CFG_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
@@ -297,7 +297,7 @@
 
 /*
  * Initial BAT config
- * 
+ *
  * BAT0	- System SDRAM
  * BAT1 - LED's and Serial Port
  * BAT2 - PCI Memory
@@ -327,7 +327,7 @@
 
 /*
  * Cache config
- * 
+ *
  * CFG_CACHELINE_SIZE		- Size of a cache line (CPU specific)
  * CFG_L2					- L2 cache enabled if defined
  * L2_INIT					- L2 cache init flags
@@ -342,7 +342,7 @@
 
 /*
  * Clocks config
- * 
+ *
  * CFG_BUS_HZ				- Bus clock frequency in Hz
  * CFG_BUS_CLK				- As above (?)
  * CFG_HZ					- Decrementer freq in Hz
@@ -355,7 +355,7 @@
 
 /*
  * Serial port config
- * 
+ *
  * CFG_BAUDRATE_TABLE		- List of valid baud rates
  * CFG_NS16550				- Include the NS16550 driver
  * CFG_NS16550_SERIAL		- Include the serial (wrapper) driver
@@ -398,7 +398,7 @@
 
 /*
  * Extra init functions
- * 
+ *
  * CFG_BOARD_ASM_INIT		- Call assembly init code
  */
 
@@ -407,11 +407,11 @@
 
 /*
  * Boot flags
- * 
+ *
  * BOOTFLAG_COLD			- Indicates a power-on boot
  * BOOTFLAG_WARM			- Indicates a software reset
  */
- 
+
 #define BOOTFLAG_COLD			0x01
 #define BOOTFLAG_WARM			0x02
 

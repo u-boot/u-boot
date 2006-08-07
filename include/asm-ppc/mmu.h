@@ -470,4 +470,45 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_SIZE_1G		(LAWAR_SIZE_BASE+19)
 #define LAWAR_SIZE_2G		(LAWAR_SIZE_BASE+20)
 
+#ifdef CONFIG_440SPE
+/*----------------------------------------------------------------------------+
+| Following instructions are not available in Book E mode of the GNU assembler.
++----------------------------------------------------------------------------*/
+#define DCCCI(ra,rb)			.long 0x7c000000|\
+					(ra<<16)|(rb<<11)|(454<<1)
+
+#define ICCCI(ra,rb)			.long 0x7c000000|\
+					(ra<<16)|(rb<<11)|(966<<1)
+
+#define DCREAD(rt,ra,rb)		.long 0x7c000000|\
+					(rt<<21)|(ra<<16)|(rb<<11)|(486<<1)
+
+#define ICREAD(ra,rb)			.long 0x7c000000|\
+					(ra<<16)|(rb<<11)|(998<<1)
+
+#define TLBSX(rt,ra,rb)			.long 0x7c000000|\
+					(rt<<21)|(ra<<16)|(rb<<11)|(914<<1)
+
+#define TLBWE(rs,ra,ws)			.long 0x7c000000|\
+					(rs<<21)|(ra<<16)|(ws<<11)|(978<<1)
+
+#define TLBRE(rt,ra,ws)			.long 0x7c000000|\
+					(rt<<21)|(ra<<16)|(ws<<11)|(946<<1)
+
+#define TLBSXDOT(rt,ra,rb)		.long 0x7c000001|\
+					(rt<<21)|(ra<<16)|(rb<<11)|(914<<1)
+
+#define MSYNC				.long 0x7c000000|\
+					(598<<1)
+
+#define MBAR_INST 				.long 0x7c000000|\
+					(854<<1)
+
+/*----------------------------------------------------------------------------+
+| Following instruction is not available in PPC405 mode of the GNU assembler.
++----------------------------------------------------------------------------*/
+#define TLBRE(rt,ra,ws)			.long 0x7c000000|\
+					(rt<<21)|(ra<<16)|(ws<<11)|(946<<1)
+
+#endif
 #endif /* _PPC_MMU_H_ */

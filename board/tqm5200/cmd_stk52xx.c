@@ -22,7 +22,7 @@
  */
 
 /*
- * SKT52XX specific functions
+ * STK52XX specific functions
  */
 /*#define DEBUG*/
 
@@ -30,6 +30,7 @@
 #include <command.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined (CONFIG_STK52XX)
 
 #define DEFAULT_VOL	45
 #define DEFAULT_FREQ	500
@@ -60,7 +61,6 @@ static int spi_transmit(unsigned char data);
 static void pcm1772_write_reg(unsigned char addr, unsigned char data);
 static void set_attenuation(unsigned char attenuation);
 
-#ifdef CONFIG_STK52XX
 static void spi_init(void)
 {
 	struct mpc5xxx_spi *spi = (struct mpc5xxx_spi*)MPC5XXX_SPI;
@@ -1209,7 +1209,7 @@ U_BOOT_CMD(
 	fkt ,	4,	1,	cmd_fkt,
 	"fkt     - Function test routines\n",
 	"led number on/off\n"
-	"     - 'number's like printed on SKT52XX board\n"
+	"     - 'number's like printed on STK52XX board\n"
 	"fkt can\n"
 	"     - loopback plug for X83 required\n"
 	"fkt rs232 number\n"

@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	} else if ((argc == 4) && (strcmp(argv[1], "-v") == 0)) {
 		char *endptr, *nptr = argv[2];
 		unsigned ver = strtoul(nptr, &endptr, 0);
-		if (nptr != '\0' && endptr == '\0')
+		if (*nptr != '\0' && *endptr == '\0')
 			return doit(argv[3], ver);
 	}
 	fprintf(stderr, "Usage: crcit [-v version] <image>\n");

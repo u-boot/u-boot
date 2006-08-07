@@ -7,7 +7,7 @@
  * added prototypes for ns16550.c
  * reduced no of com ports to 2
  * modifications (c) Rob Taylor, Flying Pig Systems. 2000.
- * 
+ *
  * added support for port on 64-bit bus
  * by Richard Danter (richard.danter@windriver.com), (C) 2005 Wind River Systems
  */

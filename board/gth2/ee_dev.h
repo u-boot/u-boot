@@ -21,7 +21,7 @@
 #ifndef INCeedevh
 #define INCeedevh
 
-#define E_DEBUG(fmt,args...) if( Debug ) printk(KERN_DEBUG"EE: " fmt, ##args) 
+#define E_DEBUG(fmt,args...) if( Debug ) printk(KERN_DEBUG"EE: " fmt, ##args)
 
 /* MIPS */
 #define WRITE_PORT(Value) write_gpio_data(Value)

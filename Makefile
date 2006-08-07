@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
+# published by the Free Software Foundatio; either version 2 of
 # the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -323,13 +323,25 @@ lite5200b_LOWBOOT_config:	unconfig
 	@./mkconfig -a IceCube  ppc mpc5xxx icecube
 
 mcc200_config	\
-mcc200_lowboot_config:	unconfig
+mcc200_SDRAM	\
+mcc200_highboot	\
+mcc200_highboot_SDRAM:	unconfig
 	@ >include/config.h
-	@[ -z "$(findstring lowboot_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFC000000" >board/mcc200/config.tmp ; \
-		  echo "... with lowboot configuration" ; \
+	@[ -n "$(findstring highboot,$@)" ] || \
+		{ echo "... with lowboot configuration" ; \
 		}
-	@./mkconfig mcc200 ppc mpc5xxx mcc200
+	@[ -z "$(findstring highboot,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFFF00000" >board/mcc200/config.tmp ; \
+		  echo "... with highboot configuration" ; \
+		}
+	@[ -n "$(findstring _SDRAM,$@)" ] || \
+		{ echo "... with DDR" ; \
+		}
+	@[ -z "$(findstring _SDRAM,$@)" ] || \
+		{ echo "#define CONFIG_MCC200_SDRAM"	>>include/config.h ; \
+		  echo "... with SDRAM" ; \
+		}
+	@./mkconfig -a mcc200 ppc mpc5xxx mcc200
 
 o2dnt_config:
 	@./mkconfig o2dnt ppc mpc5xxx o2dnt
@@ -356,15 +368,21 @@ smmaco4_config: unconfig
 	@./mkconfig -a smmaco4 ppc mpc5xxx tqm5200
 
 spieval_config:	unconfig
-	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h
-	@echo "... with automatic CS configuration"
 	@./mkconfig -a spieval ppc mpc5xxx tqm5200
+
+TB5200_B_config \
+TB5200_config:	unconfig
+	@[ -z "$(findstring _B,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... with MPC5200B processor" ; \
+		}
+	@./mkconfig -n $@ -a TB5200 ppc mpc5xxx tqm5200
 
 MINI5200_config	\
 EVAL5200_config	\
 TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>include/config.h
-	@./mkconfig -a TOP5200 ppc mpc5xxx top5200 emk
+	@./mkconfig -n $@ -a TOP5200 ppc mpc5xxx top5200 emk
 
 Total5100_config		\
 Total5200_config		\
@@ -395,20 +413,39 @@ Total5200_Rev2_lowboot_config:	unconfig
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
 TQM5200_config	\
+TQM5200_B_config \
+TQM5200_B_HIGHBOOT_config \
+TQM5200S_config \
+TQM5200S_HIGHBOOT_config \
 TQM5200_STK100_config \
+cam5200_config \
 MiniFAP_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
 		}
+	@[ -z "$(findstring cam5200,$@)" ] || \
+		{ echo "#define CONFIG_CAM5200"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... TQM5200S on Cam5200" ; \
+		}
 	@[ -z "$(findstring STK100,$@)" ] || \
 		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \
 		  echo "... on a STK52XX.100 base board" ; \
 		}
-	@echo "#define CONFIG_CS_AUTOCONF">>include/config.h ;
-	@echo "... with automatic CS configuration" ;
-	@./mkconfig -a TQM5200 ppc mpc5xxx tqm5200
+	@[ -z "$(findstring TQM5200_B,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		}
+	@[ -z "$(findstring TQM5200S,$@)" ] || \
+		{ echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		}
+	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFFF00000" >board/tqm5200/config.tmp ; \
+		}
+	@./mkconfig -n $@ -a TQM5200 ppc mpc5xxx tqm5200
 
 #########################################################################
 ## MPC8xx Systems
@@ -708,6 +745,9 @@ RRvision_LCD_config:	unconfig
 SM850_config	:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx tqm8xx
 
+spc1920_config:
+	@./mkconfig $(@:_config=) ppc mpc8xx spc1920
+
 SPD823TS_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc8xx spd8xx
 
@@ -745,6 +785,7 @@ TQM855M_config		\
 TQM860M_config		\
 TQM862M_config		\
 TQM866M_config		\
+TQM885D_config		\
 virtlab2_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring _LCD,$@)" ] || \
@@ -984,6 +1025,9 @@ yosemite_config:	unconfig
 yellowstone_config:	unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx yellowstone amcc
 
+yucca_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx yucca amcc
+
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
@@ -1033,6 +1077,9 @@ eXalion_config: unconfig
 
 HIDDEN_DRAGON_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x hidden_dragon
+
+kvme080_config: unconfig
+	@./mkconfig $(@:_config=) ppc mpc824x kvme080 etin
 
 MOUSSE_config: unconfig
 	@./mkconfig $(@:_config=) ppc mpc824x mousse
@@ -1457,7 +1504,7 @@ ZUMA_config:	unconfig
 
 ppmc7xx_config: unconfig
 	@./mkconfig $(@:_config=) ppc 74xx_7xx ppmc7xx
-	
+
 #========================================================================
 # ARM
 #========================================================================
@@ -1590,6 +1637,9 @@ omap730p2_cs3boot_config :	unconfig
 		echo "... configured for CS3 boot"; \
 	fi;
 	@./mkconfig -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 NULL omap
+
+sbc2410x_config: unconfig
+	@./mkconfig $(@:_config=) arm arm920t sbc2410x NULL s3c24x0
 
 scb9328_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t scb9328 NULL imx
@@ -1971,6 +2021,7 @@ clean:
 	rm -f board/netstar/*.srec board/netstar/*.bin
 	rm -f board/trab/trab_fkt board/voiceblue/eeprom
 	rm -f board/integratorap/u-boot.lds board/integratorcp/u-boot.lds
+	rm -f include/bmp_logo.h
 
 clobber:	clean
 	find . -type f \( -name .depend \

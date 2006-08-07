@@ -57,9 +57,9 @@
  *		valid then run it.
  *	2) if preinst.img is found load it into memory. If it is
  *		valid then run it. Update the EEPROM.
- *	3) if firmware.img is found load it into memory. If it is valid,
+ *	3) if firmw_01.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
- *	4) if kernel.img is found load it into memory. If it is valid,
+ *	4) if kernl_01.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
  *	5) if app.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
@@ -81,8 +81,8 @@
 /* possible names of files on the USB stick. */
 #define AU_PREPARE	"prepare.img"
 #define AU_PREINST	"preinst.img"
-#define AU_FIRMWARE	"firmware.img"
-#define AU_KERNEL	"kernel.img"
+#define AU_FIRMWARE	"firmw_01.img"
+#define AU_KERNEL	"kernl_01.img"
 #define AU_APP		"app.img"
 #define AU_DISK		"disk.img"
 #define AU_POSTINST	"postinst.img"

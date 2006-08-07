@@ -452,32 +452,25 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
-/* automatic configuration of chip selects */
-#ifdef CONFIG_CS_AUTOCONF
 #define CONFIG_LAST_STAGE_INIT
-#endif
 
 /*
  * SRAM - Do not map below 2 GB in address space, because this area is used
  * for SDRAM autosizing.
  */
-#if defined (CONFIG_CS_AUTOCONF)
 #define CFG_CS2_START		0xE5000000
 #define CFG_CS2_SIZE		0x100000	/* 1 MByte */
 #define CFG_CS2_CFG		0x0004D930
-#endif
 
 /*
  * Grafic controller - Do not map below 2 GB in address space, because this
  * area is used for SDRAM autosizing.
  */
-#if defined (CONFIG_CS_AUTOCONF)
 #define SM501_FB_BASE		0xE0000000
 #define CFG_CS1_START		(SM501_FB_BASE)
 #define CFG_CS1_SIZE		0x4000000	/* 64 MByte */
 #define CFG_CS1_CFG		0x8F48FF70
 #define SM501_MMIO_BASE		CFG_CS1_START + 0x03E00000
-#endif
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333311	/* 1 dead cycle for flash and SM501 */

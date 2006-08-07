@@ -119,6 +119,10 @@ int checkboard (void)
 		gd->board_type = 'M';
 	}
 
+	if ((*(s + 6) == 'D')) {	/* a TQM885D type */
+		gd->board_type = 'D';
+	}
+
 	for (; *s; ++s) {
 		if (*s == ' ')
 			break;
@@ -178,7 +182,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		memctl->memc_or3 = CFG_OR3_PRELIM;
 		memctl->memc_br3 = CFG_BR3_PRELIM;
 	}
@@ -197,7 +202,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* only one SDRAM bank on L, M and D modules */
 		memctl->memc_mcr = 0x80006105;	/* SDRAM bank 1 */
 		udelay (1);
 		memctl->memc_mcr = 0x80006230;	/* SDRAM bank 1 - execute twice */
@@ -214,8 +220,7 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM,
-					   SDRAM_MAX_SIZE);
+	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size8 >> 20);
 
 	udelay (1000);
@@ -223,8 +228,7 @@ long int initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM,
-					   SDRAM_MAX_SIZE);
+	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
 	udelay(1000);
@@ -233,8 +237,7 @@ long int initdram (int board_type)
 	/*
 	 * try 10 column mode
 	 */
-	size10 = dram_size (CFG_MAMR_10COL, (ulong *) SDRAM_BASE2_PRELIM,
-					     SDRAM_MAX_SIZE);
+	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 10 column mode: %ld MB\n", size10 >> 20);
 #else
 	size10 = 0;
@@ -255,7 +258,8 @@ long int initdram (int board_type)
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
-	    (board_type != 'M') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'M') &&
+	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
 		/*
 		 * Check Bank 1 Memory Size
 		 * use current column settings

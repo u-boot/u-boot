@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o ee_access.o
+OBJS	= $(BOARD).o flash.o ee_access.o pcmcia.o
 
 $(LIB):	.depend $(OBJS)
 	$(AR) crv $@ $(OBJS)

@@ -1,0 +1,15 @@
+The configuration for the AMCC 440EP eval board "Bamboo" was changed
+to only use 384 kbytes of FLASH for the U-Boot image. This way the
+redundant environment can be saved in the remaining 2 sectors of the
+same flash chip.
+
+Caution: With an upgrade from an earlier U-Boot version the current
+environment will be erased since the environment is now saved in
+different sectors. By using the following command the environment can
+be saved after upgrading the U-Boot image and *before* resetting the
+board:
+
+setenv recover_env 'prot off FFF80000 FFF9FFFF;era FFF80000 FFF9FFFF;' \
+	'cp.b FFF60000 FFF80000 20000'
+
+2006-07-27, Stefan Roese <sr@denx.de>

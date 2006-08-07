@@ -31,7 +31,48 @@
 #ifndef _VECNUMS_H_
 #define _VECNUMS_H_
 
-#if defined(CONFIG_440SP)
+#if defined(CONFIG_440SPE)
+/* UIC 0 */
+#define VECNUM_U0           0           /* UART0                        */
+#define VECNUM_U1           1           /* UART1                        */
+#define VECNUM_IIC0         2           /* IIC0                         */
+#define VECNUM_IIC1         3           /* IIC1                         */
+#define VECNUM_PIM          4           /* PCI inbound message          */
+#define VECNUM_PCRW         5           /* PCI command reg write        */
+#define VECNUM_PPM          6           /* PCI power management         */
+#define VECNUM_MSI0         7           /* PCI MSI level 0              */
+#define VECNUM_MSI1         8           /* PCI MSI level 0              */
+#define VECNUM_MSI2         9           /* PCI MSI level 0              */
+#define VECNUM_D0           12          /* DMA channel 0                */
+#define VECNUM_D1           13          /* DMA channel 1                */
+#define VECNUM_D2           14          /* DMA channel 2                */
+#define VECNUM_D3           15          /* DMA channel 3                */
+#define VECNUM_UIC1NC       30          /* UIC1 non-critical interrupt  */
+#define VECNUM_UIC1C        31          /* UIC1 critical interrupt      */
+
+/* UIC 1 */
+#define VECNUM_MS           (32 + 1 )   /* MAL SERR                     */
+#define VECNUM_TXDE         (32 + 2 )   /* MAL TXDE                     */
+#define VECNUM_RXDE         (32 + 3 )   /* MAL RXDE                     */
+#define VECNUM_MTE          (32 + 6 )   /* MAL Tx EOB                   */
+#define VECNUM_MRE          (32 + 7 )   /* MAL Rx EOB                   */
+#define VECNUM_CT0          (32 + 12 )  /* GPT compare timer 0          */
+#define VECNUM_CT1          (32 + 13 )  /* GPT compare timer 1          */
+#define VECNUM_CT2          (32 + 14 )  /* GPT compare timer 2          */
+#define VECNUM_CT3          (32 + 15 )  /* GPT compare timer 3          */
+#define VECNUM_CT4          (32 + 16 )  /* GPT compare timer 4          */
+#define VECNUM_ETH0         (32 + 28)   /* Ethernet interrupt status    */
+#define VECNUM_EWU0         (32 + 29)   /* Emac  wakeup                 */
+
+/* UIC 2 */
+#define VECNUM_EIR5         (62 + 24)   /* External interrupt 5         */
+#define VECNUM_EIR4         (62 + 25)   /* External interrupt 4         */
+#define VECNUM_EIR3         (62 + 26)   /* External interrupt 3         */
+#define VECNUM_EIR2         (62 + 27)   /* External interrupt 2         */
+#define VECNUM_EIR1         (62 + 28)   /* External interrupt 1         */
+#define VECNUM_EIR0         (62 + 29)   /* External interrupt 0         */
+
+#elif defined(CONFIG_440SP)
 
 /* UIC 0 */
 #define VECNUM_U0           0           /* UART0                        */

@@ -379,7 +379,7 @@ long int initdram(int board_type)
 		/*
 		 * Enable the controller, then wait for DCEN to complete
 		 */
-		mtsdram(mem_cfg0, 0x86000000);	/* DCEN=1, PMUD=1, 64-bit	*/
+		mtsdram(mem_cfg0, 0x82000000);	/* DCEN=1, PMUD=0, 64-bit	*/
 		udelay(10000);
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {

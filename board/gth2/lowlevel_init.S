@@ -197,11 +197,11 @@ noCacheJump:
 
 	/* RCE2 CP Altera */
 	li	t0, MEM_STCFG2
-	li	t1, 0x00000280 /* BE, EW */ 
+	li	t1, 0x00000280 /* BE, EW */
 	sw	t1, 0(t0)
 
 	li	t0, MEM_STTIME2
-	li	t1, 0x0303000c 
+	li	t1, 0x0303000c
 	sw	t1, 0(t0)
 
 	li	t0, MEM_STADDR2
@@ -210,11 +210,11 @@ noCacheJump:
 
 	/* RCE3 DP Altera */
 	li	t0, MEM_STCFG3
-	li	t1, 0x00000280 /* BE, EW */ 
+	li	t1, 0x00000280 /* BE, EW */
 	sw	t1, 0(t0)
 
 	li	t0, MEM_STTIME3
-	li	t1, 0x0303000c 
+	li	t1, 0x0303000c
 	sw	t1, 0(t0)
 
 	li	t0, MEM_STADDR3
@@ -428,14 +428,14 @@ mt0:	sw	t0, 0(t0)
 	li	t0, 0x80000000
 	li	t1, 0xFFF000 /* 64 MB */
 mt1:	lw	t2, 0(t0)
-	bne	t0, t2, memhang	
+	bne	t0, t2, memhang
 	add	t1, -1
 	add	t0, 4
 	bne	t1, zero, mt1
 	nop
 	nop
 	.globl	clearmem
-clearmem:		
+clearmem:
 		/* Clear memory */
 	li	t0, 0x80000000
 	li	t1, 0xFFF000 /* 64 MB */
@@ -445,10 +445,10 @@ mtc:	sw	zero, 0(t0)
 	bne	t1, zero, mtc
 	nop
 	nop
-memtestend:		
+memtestend:
 	j	ra
 	nop
-	
-memhang:	
+
+memhang:
 	b	memhang
 	nop

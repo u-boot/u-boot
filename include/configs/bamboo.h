@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2006
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -49,7 +49,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 #define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
 #define CFG_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
@@ -257,8 +257,8 @@
 	"kernel_addr=fff00000\0"					\
 	"ramdisk_addr=fff10000\0"					\
 	"load=tftp 100000 /tftpboot/bamboo/u-boot.bin\0"		\
-	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
-		"cp.b 100000 fff80000 80000;"			        \
+	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
+		"cp.b 100000 fffa0000 60000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	""
@@ -357,6 +357,14 @@
 #define CONFIG_LYNXKDI          1       /* support kdi files            */
 
 #define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
+
+#define CONFIG_CMDLINE_EDITING
+
+#ifdef CONFIG_CMDLINE_EDITING
+#undef CONFIG_AUTO_COMPLETE
+#else
+#define CONFIG_AUTO_COMPLETE
+#endif
 
 /*-----------------------------------------------------------------------
  * PCI stuff

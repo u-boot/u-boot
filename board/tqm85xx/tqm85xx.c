@@ -27,10 +27,6 @@
  * MA 02111-1307 USA
  */
 
-#ifdef CONFIG_PS2MULT
-void ps2mult_early_init(void);
-#endif
-
 #include <common.h>
 #include <pci.h>
 #include <asm/processor.h>
@@ -46,6 +42,10 @@ extern flash_info_t flash_info[];	/* FLASH chips info */
 void local_bus_init (void);
 long int fixed_sdram (void);
 ulong flash_get_size (ulong base, int banknum);
+
+#ifdef CONFIG_PS2MULT
+void ps2mult_early_init(void);
+#endif
 
 #ifdef CONFIG_CPM2
 /*
@@ -423,4 +423,3 @@ int board_early_init_r (void)
 	return (0);
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
-

@@ -2,6 +2,193 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Prevent USB commands from working when USB is stopped.
+
+* Add rudimentary handling of alternate settings of USB interfaces.
+  This is in order to fix issues with some USB sticks timing out
+  during initialization. Some code readability improvements.
+
+* PPC440 DDR setup: Set SDRAM0_CFG0[PMU]=0 for best performance
+  AMCC suggested to set the PMU bit to 0 for best performace on
+  the PPC440 DDR controller.
+  Please see doc/README.440-DDR-performance for details.
+  Patch by Stefan Roese, 28 Jul 2006
+
+* AMCC bamboo (440EP) U-Boot image reduced to 384kbyte
+  Please see doc/README.bamboo for details.
+  Patch by Stefan Roese, 27 Jul 2006
+
+* Fix CONFIG_CMDLINE_EDITING implementation
+  Patch by Stefan Roese, 27 Jul 2006
+
+* Fix preboot message on TQM5200 after switching to hush parser.
+
+* MCC200: set default configuration to low_boot DDR,
+  and support for configurable options high_boot and/or SDRAM.
+
+* Add support for 256 MB SDRAM on CPU87
+  Patch by Josef Wagner, 25 Nov 2005
+
+* Add configuration for cam5200 board (based on TQM5200S).
+
+* More code cleanup
+
+* Disabled kvme080 board in MAKEALL because of build problems.
+
+* Code cleanup
+
+* Update NetStar board
+  Patch by Ladislav Michl, 03 Nov 2005
+
+* Make code better readable.
+  Patch by Ladislav Michl, 14 Sep 2005
+
+* Enable initrd ATAG for xm250 board.
+  Patch by Josef Wagner, 05 Sep 2005
+
+* Add readline cmdline-editing extension
+  Patch by JinHua Luo, 01 Sep 2005
+
+* Add support for friendly-arm SBC-2410X board
+  Patch by JinHua Luo, 01 Sep 2005
+
+* Fix multi-part image support on i386 platform.
+  Patch by David Updegraff, 19 Aug 2005
+
+* Add support for KVME080 board
+  Patch by Sangmoon Kim, 18 Aug 2005
+
+* Fix MIPS LE build problem
+  Patch by Matej Kupljen, 10 Aug 2005
+
+* Check argument count in "mii" command.
+  Problem pointed out by Andrew Dyer, 13 Jun 2005
+
+* Cleanup TQM5200 board configurations:
+  - make highboot configurations use environment at high end, too,
+    to avoid flash fragmentation
+  - always use redundand environment
+  - don't enable video code for modules without graphics controller
+  - provide useful (though different) mtdparts settings
+  - get rid of CONFIG_CS_AUTOCONF which was always set anyway
+
+* Extend mkconfig tool to print more useful target name
+
+* Add support for high-boot on TQM5200 and TQM5200S boards.
+  Hint: the CPLD on the TQM5200 must be programmed with a software
+  version supporting the high boot option! The new TQM5200S is
+  already supporting this option. On the TQM5200 this option will be
+  supported in configurations with MPC5200 rev B processors.
+  To actually "high boot", set jumper X30 on the STK52xx.
+  Patch by Martin Krause, 12 Jul 2006
+
+* Add support for new TQM5200 revisions
+  - Support for TQM5200S (short version without graphic controller)
+  - Support for modules with 'N' type S29GL128N Spansion flashes
+    (requires changes to flash layout)
+  - Support for MPC5200B cpu (mostly support for second SDRAM bank)
+  Patch by Martin Krause, 07 Jul 2006
+
+* Fix support for PS/2 keyboard on TQM85xx boards
+  The PS/2 keyobard driver for the TQM85xx modules only supports the
+  internal DUART of the MPC85xx CPU. Since the MPC8560 doesn't
+  include a DUART, the TQM8560 modules can't be used with the PS/2
+  keyboard controller on the STK85xx board.
+  The PS/2 keyboard driver should work with the modules TQM8540,
+  TQM8541 and TQM8555, but it only has been tested on a TQM8540, yet.
+  Make sure the PS/2 controller on the STK85xx is programmed. Jumper
+  settings: X66 1-2, 9-10; X61 2-3
+  Patch by Martin Krause, 21 Jun 2006
+
+* Adjust RTC century handling on STK52xx board to match Linux driver.
+  Patch by Martin Krause, 12 Jun 2006
+
+* Adjust filenames for USB update images on TRAB board.
+  During an automatic update via USB stick, U-Boot searches for
+  images with the name "firmware.img" and "kernel.img". This names
+  are now changed to "firmw_01.img" and "kernl_01.img". This is done,
+  to prevent updates of new boards (with the new macronics "c" step
+  flashes) with old, incompatible firmware or kernel versions.
+  Patch by Martin Krause, 21 Jun 2006
+
+* Bugfix in VFD routine on TRAB board.
+  Make sure upper lext pixel can be set to blue, too
+  (so far only red was possible).
+  Patch by Martin Krause, 15 Feb 2006
+
+* Enable buffered flash writes for TB5200 board.
+
+* Fix some bugs in TRAB board flash driver.
+  - increase CFG_FLASH_ERASE_TOUT from 2 to 15 seconds
+  - use CFG_FLASH_WRITE_TOUT for programming instead of CFG_FLASH_ERASE_TOUT
+  - remove "Unlock Bypass" mode, because macronix flashes do not support
+    this mode officially
+  - fix flash reset command from 0x00FF to 0x00F0. 0x00FF is only specified
+    for Intel compatible flashes, not for AMD compatible.
+  Patch by Martin Krause, 15 Feb 2006
+
+* Add additional error messages to flash driver on TRAB board
+  (for erase errors and timeout errors)
+  Patch by Martin Krause, 14 Feb 2006
+
+* Add support for TB5200 board
+  The TB5200 ("Tinybox") is a small baseboard for the TQM5200 module
+  integrated in a little aluminium case.
+  Patch by Martin Krause, 8 Jun 2006
+
+* Enable buffered flash writes for TQM5200 board.
+
+* Fix problems with SanDisk Corporation Cruzer Micro USB memory stick.
+
+* Add support for TQM885D board.
+  Patch by Martin Krause, 20 Mar 2006
+
+* Fix FEC initialisation: All MII configuration is done via FEC1
+  registers, but MII_SPEED was configured according to FEC used. So
+  if only FEC2 was used, this caused the real MII_SPEED register in
+  FEC1 to stay uninitalised, leqading to "mii_send STUCK!" messages.
+  Fix: always configure MII_SPEED on FEC1 only.
+  Patch by Markus Klotzbuecher, 12 Jul 2006
+
+* Add support for SPC1920 board.
+  Patch by Markus Klotzbuecher, 12 Jul 2006
+
+* MCC200 board: support console on any one of the Quad UART ports.
+
+* Fix error in flash protection calculation on MCC200 board.
+
+* Major PCMCIA Cleanup to make code better readable and maintainable.
+  Notes:
+  - Board-dependend code for RPXLITE and RPXCLASSIC-based boards
+    placed to the drivers/rpx_pmcia.c file to avoid duplication.
+    Same for TQM8xx-based boards (drivers/tqm8xx_pmcia.c).
+  - drivers/i82365.c has been split into two parts located at
+    board/atc/ti113x.c and board/cpc45/pd67290.c (ATC and CPC45 are
+    the only boards using CONFIG_82365).
+  - Changes were tested for clean build and *very* *few* boards.
+
+* Fix timer problems on AMCC yucca board.
+  Set Timer Clock Select to use CPU clock as a timer input source.
+
+* Bring yucca config more in line with other AMCC boards.
+
+* Add AMCC bamboo board to MAKEALL build script.
+
+* Fix AMCC bamboo eval board compilation errors.
+
+* Add system memory to the PCI region list for AMCC PPC44x CPUs.
+  Enabled it for Yucca board.
+
+* Cleanup config file and bootup output for Yucca board.
+
+* Fix CONFIG_440_GX define usage.
+
+* Remove autogenerated bmp_logo.h file.
+
+* Add support for AMCC 440SPe CPU based eval board (Yucca).
+
+* Call serial_initialize() before first debug() is used.
+
 * Code cleanup
 
 * Various USB related patches
@@ -21,14 +208,14 @@ Changes since U-Boot 1.1.4:
 * VoiceBlue update: use new MTD flash partitioning methods, use more
   reasonable TEXT_BASE, update default environment and enable keyed
   autoboot.
-  Patch by Ladislav Michl, 16. Aug 2005 
+  Patch by Ladislav Michl, 16. Aug 2005
 
 * Add forgotten changes for the PLEB 2 Board.
   Patch by David Snowdon, 13. Aug 2005
 
 * Add support for wrPPMC7xx/74xx boards
   Patch by Richard Danter, 12 Aug 2005
- 
+
 * Add support for gth2 board
   Patch by Thomas Lange, Aug 11 2005
 
@@ -50,7 +237,7 @@ Changes since U-Boot 1.1.4:
   With this fix pin I2CSCL (PG6) is really configured as GPIO
   so the clock pulses are really generated.
   Patch by Martin Krause, 04 Apr 2006
-  
+
 * Fix DDR6 errata on TQM834x boards
   Patch by Thomas Waehner, 07 Mar 2006
 
@@ -67,7 +254,7 @@ Changes since U-Boot 1.1.4:
   has been programmed. Jumper Settings: X66 1-2, 9-10; X61 2-3
 
 * Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
-  In tsc2000_read_channel() the delay after setting the multiplexer 
+  In tsc2000_read_channel() the delay after setting the multiplexer
   to a temperature channel is increased from 1,5 ms to 10 ms. This
   is to allow the multiplexer inputs to stabilize after huge steps
   of the input signal level.

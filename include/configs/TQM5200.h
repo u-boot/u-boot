@@ -2,7 +2,7 @@
  * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2004-2005
+ * (C) Copyright 2004-2006
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -32,27 +32,30 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
-#define CONFIG_TQM5200		1	/* ... on TQM5200 module */
-#undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules */
-#define CONFIG_STK52XX		1	/* ... on a STK52XX base board */
+#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
+#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU)	*/
+#define CONFIG_TQM5200		1	/* ... on TQM5200 module		*/
+#undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules	*/
 
-#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
+#ifndef CONFIG_CAM5200			/* On a Cameron board or ...		*/
+#define CONFIG_STK52XX		1	/* ... on a STK52XX board		*/
+#endif
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH 	*/
+#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
 /*
  * Serial console configuration
  */
-#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
-#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
+#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1			*/
+#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps			*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #ifdef CONFIG_STK52XX
@@ -96,7 +99,7 @@
 /*
  * Video console
  */
-#if 1
+#ifndef CONFIG_TQM5200S		/* No graphics controller on TQM5200S */
 #define CONFIG_VIDEO
 #define CONFIG_VIDEO_SM501
 #define CONFIG_VIDEO_SM501_32BPP
@@ -129,10 +132,12 @@
 #define ADD_USB_CMD		0
 #endif
 
+#ifndef CONFIG_CAM5200
 /* POST support */
 #define CONFIG_POST		(CFG_POST_MEMORY   | \
 				 CFG_POST_CPU	   | \
 				 CFG_POST_I2C)
+#endif
 
 #ifdef CONFIG_POST
 #define CFG_CMD_POST_DIAG CFG_CMD_DIAG
@@ -176,8 +181,8 @@
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
-#if (TEXT_BASE == 0xFC000000)		/* Boot low */
-#   define CFG_LOWBOOT		1
+#if (TEXT_BASE != 0xFFF00000)
+#   define CFG_LOWBOOT		1	/* Boot low */
 #endif
 
 /*
@@ -186,10 +191,42 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"echo;" \
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
+
+#ifdef CONFIG_STK52XX
+# if defined(CONFIG_TQM5200_B)
+#  if defined(CFG_LOWBOOT)
+#   define ENV_UPDT							\
+	"update=protect off FC000000 FC07FFFF;"				\
+		"erase FC000000 FC07FFFF;"				\
+		"cp.b 200000 FC000000 ${filesize};"			\
+		"protect on FC000000 FC07FFFF\0"
+#  else	/* highboot */
+#   define ENV_UPDT							\
+	"update=protect off FFF00000 FFF7FFFF;"				\
+		"erase FFF00000 FFF7FFFF;"				\
+		"cp.b 200000 FFF00000 ${filesize};"			\
+		"protect on FFF00000 FFF7FFFF\0"
+#  endif /* CFG_LOWBOOT */
+# else	/* !CONFIG_TQM5200_B */
+#  define ENV_UPDT							\
+	"update=protect off FC000000 FC05FFFF;"				\
+		"erase FC000000 FC05FFFF;"				\
+		"cp.b 200000 FC000000 ${filesize};"			\
+		"protect on FC000000 FC05FFFF\0"
+# endif /* CONFIG_TQM5200_B */
+#elif defined (CONFIG_CAM5200)
+#   define ENV_UPDT							\
+	"update=protect off FC000000 FC03FFFF;"				\
+		"erase FC000000 FC03FFFF;"				\
+		"cp.b 200000 FC000000 ${filesize};"			\
+		"protect on FC000000 FC03FFFF\0"
+#else
+# error "Unknown Carrier Board"
+#endif	/* CONFIG_STK52XX */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -200,18 +237,18 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_self=run ramargs addip;"					\
+	"addcons=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate}\0"				\
+	"flash_self=run ramargs addip addcons;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_nfs=run nfsargs addip;"					\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
+		"bootm\0"						\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
-	"load=tftp 200000 ${u-boot}\0"					\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"				\
-	"update=protect off FC000000 FC05FFFF;"				\
-		"erase FC000000 FC05FFFF;"				\
-		"cp.b 200000 FC000000 ${filesize};"			\
-		"protect on FC000000 FC05FFFF\0"			\
+	"load=tftp 200000 ${u-boot}\0"					\
+	ENV_UPDT							\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
@@ -283,45 +320,80 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
+#define CFG_FLASH_BASE		0xFC000000
 
-/* use CFI flash driver if no module variant is spezified */
+/* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
-#undef CFG_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
+#define CFG_FLASH_USE_BUFFER_WRITE	1
 
-#if !defined(CFG_LOWBOOT)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
-#else	/* CFG_LOWBOOT */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
-#endif	/* CFG_LOWBOOT */
+#if defined (CONFIG_CAM5200)
+# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
+#elif defined(CONFIG_TQM5200_B)
+# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
+#else
+# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
+#endif
+
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
 /* Dynamic MTD partition support */
 #define CONFIG_JFFS2_CMDLINE
 #define MTDIDS_DEFAULT		"nor0=TQM5200-0"
-#define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
+
+#ifdef CONFIG_STK52XX
+# if defined(CONFIG_TQM5200_B)
+#  if defined(CFG_LOWBOOT)
+#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:1m(firmware),"	\
+						"1536k(kernel),"	\
+						"3584k(small-fs),"	\
+						"2m(initrd),"		\
+						"8m(misc),"		\
+						"16m(big-fs)"
+#  else	/* highboot */
+#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:2560k(kernel),"	\
+						"3584k(small-fs),"	\
+						"2m(initrd),"		\
+						"8m(misc),"		\
+						"15m(big-fs),"		\
+						"1m(firmware)"
+#  endif /* CFG_LOWBOOT */
+# else	/* !CONFIG_TQM5200_B */
+#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
 						"1408k(kernel),"	\
 						"2m(initrd),"		\
 						"4m(small-fs),"		\
-						"16m(big-fs),"		\
-						"8m(misc)"
+						"8m(misc),"		\
+						"16m(big-fs)"
+# endif /* CONFIG_TQM5200_B */
+#elif defined (CONFIG_CAM5200)
+#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
+						"1792k(kernel),"	\
+						"3584k(small-fs),"	\
+						"2m(initrd),"		\
+						"8m(misc),"		\
+						"16m(big-fs)"
+#else
+# error "Unknown Carrier Board"
+#endif	/* CONFIG_STK52XX */
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000
+#define CFG_ENV_SIZE		0x4000	/* 16 k - keep small for fast booting */
+#if defined(CONFIG_TQM5200_B)
+#define CFG_ENV_SECT_SIZE	0x40000
+#else
 #define CFG_ENV_SECT_SIZE	0x20000
+#endif /* CONFIG_TQM5200_B */
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*
  * Memory map
@@ -349,8 +421,15 @@
 #   define CFG_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
+#if defined (CONFIG_CAM5200)
+# define CFG_MONITOR_LEN	(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#elif defined(CONFIG_TQM5200_B)
+# define CFG_MONITOR_LEN	(512 << 10)	/* Reserve 512 kB for Monitor	*/
+#else
+# define CFG_MONITOR_LEN	(384 << 10)	/* Reserve 384 kB for Monitor	*/
+#endif
+
+#define CFG_MALLOC_LEN		(1024 << 10)	/* Reserve 1024 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
@@ -411,6 +490,8 @@
 #if defined (CONFIG_STK52XX) && !defined (CONFIG_STK52XX_REV100)
 # define CONFIG_RTC_M41T11 1
 # define CFG_I2C_RTC_ADDR 0x68
+# define CFG_M41T11_BASE_YEAR	1900    /* because Linux uses the same base
+					   year */
 #else
 # define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
 #endif
@@ -420,6 +501,10 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+
+#define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define	CFG_PROMPT_HUSH_PS2	"> "
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
@@ -466,32 +551,25 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
-/* automatic configuration of chip selects */
-#ifdef CONFIG_CS_AUTOCONF
 #define CONFIG_LAST_STAGE_INIT
-#endif
 
 /*
  * SRAM - Do not map below 2 GB in address space, because this area is used
  * for SDRAM autosizing.
  */
-#if defined (CONFIG_CS_AUTOCONF)
 #define CFG_CS2_START		0xE5000000
 #define CFG_CS2_SIZE		0x100000	/* 1 MByte */
 #define CFG_CS2_CFG		0x0004D930
-#endif
 
 /*
  * Grafic controller - Do not map below 2 GB in address space, because this
  * area is used for SDRAM autosizing.
  */
-#if defined (CONFIG_CS_AUTOCONF)
 #define SM501_FB_BASE		0xE0000000
 #define CFG_CS1_START		(SM501_FB_BASE)
 #define CFG_CS1_SIZE		0x4000000	/* 64 MByte */
 #define CFG_CS1_CFG		0x8F48FF70
 #define SM501_MMIO_BASE		CFG_CS1_START + 0x03E00000
-#endif
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333311	/* 1 dead cycle for flash and SM501 */
