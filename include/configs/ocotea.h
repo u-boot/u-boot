@@ -158,7 +158,13 @@
 #undef	CONFIG_SOFT_I2C			    /* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES    {0x69}  /* Don't probe these addrs */
+
+#define CFG_I2C_MULTI_EEPROMS
+#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
+#define CFG_EEPROM_PAGE_WRITE_BITS 3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
@@ -219,6 +225,9 @@
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CONFIG_PHY_RESET        1       /* reset phy upon startup         */
 #define CONFIG_PHY_RESET_DELAY	1000
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
@@ -226,6 +235,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
 				CFG_CMD_ELF	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_MII	| \
@@ -264,14 +274,11 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff

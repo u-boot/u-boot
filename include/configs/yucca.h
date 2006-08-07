@@ -220,6 +220,9 @@
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
+
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 /*
@@ -244,6 +247,12 @@
 #define CFG_EXTBDINFO		1		/* To use extended board_into (bd_t) */
 
 #define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * FLASH related
