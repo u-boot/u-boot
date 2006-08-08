@@ -44,7 +44,7 @@ extern int dma_xfer(void *dest, uint count, void *src);
 /*
  * Only one of the following three should be 1; others should be 0
  * By default the cache line interleaving is selected if
- * the CONFIG_DDR_INTERLEAVE flag is defined in MPC8641HPCN.h
+ * the CONFIG_DDR_INTERLEAVE flag is defined
  */
 #define CFG_PAGE_INTERLEAVING		0
 #define CFG_BANK_INTERLEAVING		0
@@ -137,8 +137,8 @@ convert_bcd_tenths_to_cycle_time_ps(unsigned int spd_val)
 		800,
 		900,
 		250,
-		330,	/* FIXME: Is 333 better/valid? */
-		660,	/* FIXME: Is 667 better/valid? */
+		330,
+		660,
 		750,
 		0,	/* undefined */
 		0	/* undefined */
@@ -167,7 +167,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	unsigned int dqs_cfg;
 	unsigned char twr_clk, twtr_clk, twr_auto_clk;
 	unsigned int tCKmin_ps, tCKmax_ps;
-	unsigned int max_data_rate, effective_data_rate;
+	unsigned int max_data_rate;
 	unsigned int busfreq;
 	unsigned sdram_cfg_1;
 	unsigned int memsize;
@@ -187,6 +187,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	unsigned char d_init;
 	unsigned int law_size;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+	unsigned int tCycle_ps, modfreq;
 
 	if (ddr_num == 1)
 		ddr = &immap->im_ddr1;
@@ -288,7 +289,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	}
 
 #ifdef CONFIG_DDR_INTERLEAVE
-#ifdef CONFIG_MPC8641HPCN
+
 	if (dimm_num != 1) {
 		printf("For interleaving memory on HPCN, need to use DIMM 1 for DDR Controller %d !\n", ddr_num);
 		return 0;
@@ -340,8 +341,6 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 			rank_density /= 2;
 		}
 	}
-#endif	/* CONFIG_MPC8641HPCN */
-
 #else	/* CONFIG_DDR_INTERLEAVE */
 
 	if (dimm_num == 1) {
@@ -468,81 +467,42 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	 */
 	busfreq = get_bus_freq(0) / 1000000;	/* MHz */
 
-	effective_data_rate = max_data_rate;
-	if (busfreq < 90) {
-		/* DDR rate out-of-range */
-		puts("DDR: platform frequency is not fit for DDR rate\n");
+	if ((spd.mem_type == SPD_MEMTYPE_DDR2) && (busfreq < 266)) {
+		printf("DDR: platform frequency too low for correct DDR2 controller operation\n");
 		return 0;
-
-	} else if (90 <= busfreq && busfreq < 230 && max_data_rate >= 230) {
-		/*
-		 * busfreq 90~230 range, treated as DDR 200.
-		 */
-		effective_data_rate = 200;
-		if (spd.clk_cycle3 == 0xa0)	/* 10 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0xa0)
-			caslat--;
-
-	} else if (230 <= busfreq && busfreq < 280 && max_data_rate >= 280) {
-		/*
-		 * busfreq 230~280 range, treated as DDR 266.
-		 */
-		effective_data_rate = 266;
-		if (spd.clk_cycle3 == 0x75)	/* 7.5 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x75)
-			caslat--;
-
-	} else if (280 <= busfreq && busfreq < 350 && max_data_rate >= 350) {
-		/*
-		 * busfreq 280~350 range, treated as DDR 333.
-		 */
-		effective_data_rate = 333;
-		if (spd.clk_cycle3 == 0x60)	/* 6.0 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x60)
-			caslat--;
-
-	} else if (350 <= busfreq && busfreq < 460 && max_data_rate >= 460) {
-		/*
-		 * busfreq 350~460 range, treated as DDR 400.
-		 */
-		effective_data_rate = 400;
-		if (spd.clk_cycle3 == 0x50)	/* 5.0 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x50)
-			caslat--;
-
-	} else if (460 <= busfreq && busfreq < 560 && max_data_rate >= 560) {
-		/*
-		 * busfreq 460~560 range, treated as DDR 533.
-		 */
-		effective_data_rate = 533;
-		if (spd.clk_cycle3 == 0x3D)	/* 3.75 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x3D)
-			caslat--;
-
-	} else if (560 <= busfreq && busfreq < 700 && max_data_rate >= 700) {
-		/*
-		 * busfreq 560~700 range, treated as DDR 667.
-		 */
-		effective_data_rate = 667;
-		if (spd.clk_cycle3 == 0x30)	/* 3.0 ns */
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x30)
-			caslat--;
-
-	} else if (700 <= busfreq) {
-		/*
-		 * DDR rate out-of-range
-		 */
-		printf("DDR: Bus freq %d MHz is not fit for DDR rate %d MHz\n",
-		     busfreq, max_data_rate);
+	} else if (busfreq < 90) {
+		printf("DDR: platform frequency too low for correct DDR1 operation\n");
 		return 0;
 	}
 
+	if ((busfreq <= modfreq) && (spd.cas_lat & (1 << (caslat - 2)))) {
+		caslat -= 2;
+	} else {
+		tCycle_ps = convert_bcd_tenths_to_cycle_time_ps(spd.clk_cycle2);
+		modfreq = 2 * 1000 * 1000 / tCycle_ps;
+		if ((busfreq <= modfreq) && (spd.cas_lat & (1 << (caslat - 1))))
+			caslat -= 1;
+		else if (busfreq > max_data_rate) {
+			printf("DDR: Bus freq %d MHz is not fit for DDR rate %d MHz\n",
+		     	busfreq, max_data_rate);
+			return 0;
+		}
+	}
+
+	/*
+	 * Empirically set ~MCAS-to-preamble override for DDR 2.
+	 * Your milage will vary.
+	 */
+	cpo = 0;
+	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
+		if (busfreq <= 333) {
+			cpo = 0x7;
+		} else if (busfreq <= 400) {
+			cpo = 0x9;
+		} else {
+			cpo = 0xa;
+		}
+	}
 
 	/*
 	 * Convert caslat clocks to DDR controller value.
@@ -554,7 +514,6 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 		caslat_ctrl =  (2 * caslat - 1) & 0x0f;
 	}
 
-	debug("DDR: effective data rate is %d MHz\n", effective_data_rate);
 	debug("DDR: caslat SPD bit is %d, controller field is 0x%x\n",
 	      caslat, caslat_ctrl);
 
@@ -676,7 +635,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	    && (odt_wr_cfg || odt_rd_cfg)
 	    && (caslat < 4)) {
 		add_lat = 4 - caslat;
-		if (add_lat > trcd_clk) {
+		if (add_lat >= trcd_clk) {
 			add_lat = trcd_clk - 1;
 		}
 	}
@@ -715,22 +674,6 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 
 		cke_min_clk = 3;	/* By the book. */
 		four_act = picos_to_clk(37500);	/* By the book. 1k pages? */
-	}
-
-	/*
-	 * Empirically set ~MCAS-to-preamble override for DDR 2.
-	 * Your milage will vary.
-	 */
-	cpo = 0;
-	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		if (effective_data_rate == 266 || effective_data_rate == 333) {
-			cpo = 0x7;		/* READ_LAT + 5/4 */
-		} else if (effective_data_rate == 400) {
-			cpo = 0x9;		/* READ_LAT + 7/4 */
-		} else {
-			/* Pure speculation */
-			cpo = 0xb;
-		}
 	}
 
 	ddr->timing_cfg_2 = (0
