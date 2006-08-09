@@ -25,27 +25,15 @@ include $(TOPDIR)/config.mk
 
 LIB	= lib$(BOARD).a
 
-OBJS	:= $(BOARD).o pixis.o sys_eeprom.o oftree.o
+OBJS	:= $(BOARD).o pixis.o sys_eeprom.o
 SOBJS	:= init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
 
-ifndef DTC
-DTC	:= dtc
-endif
-
-%.dtb: %.dts
-	$(DTC) -f -V 0x10 -I dts -O dtb $< >$@
-
-%.c: %.dtb
-	xxd -i $< \
-    | sed -e "s/^unsigned char/const unsigned char/g" \
-    | sed -e "s/^unsigned int/const unsigned int/g" > $@
-
-
 clean:
-	rm -f $(OBJS) $(SOBJS) *.dtb oftree.c
+	rm -f $(OBJS) $(SOBJS)
+
 .PHONY: distclean
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
