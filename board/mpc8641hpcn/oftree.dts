@@ -341,6 +341,48 @@
 				>;
 			interrupt-parent = <40000>;
 		};
+		rio@c0000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			device_type = "rio";
+			model = "pq38";
+			compatible = "85xx";
+			ranges = <0 c0000000 20000000>;
+			reg = <c0000 13000>;
+			linux,phandle = <c0000>;
+		};
+		rio_message@d3000 {
+			device_type = "network";
+			compatible = "85xx";
+			linux,phandle = <d3000>;
+			reg = <d3000 d3100>;
+			interrupts = <35 2 36 2>;
+			interrupt-parent = <40000>;
+		};
+		rio_message@d3100 {
+			device_type = "network";
+			compatible = "85xx";
+			linux,phandle = <d3100>;
+			reg = <d3100 d3200>;
+			interrupts = <37 2 38 2>;
+			interrupt-parent = <40000>;
+		};
+		rio_doorbell@d3400 {
+			device_type = "doorbell";
+			compatible = "85xx";
+			linux,phandle = <d3400>;
+			reg = <d3400 d34e0>;
+			interrupts = <31 2 32 2>;
+			interrupt-parent = <40000>;
+		};
+		rio_portwrite@d34e0 {
+			device_type = "portwrite";
+			compatible = "85xx";
+			linux,phandle = <d34e0>;
+			reg = <d34e0 d3500>;
+			interrupts = <30 2>;
+			interrupt-parent = <40000>;
+		};
 	};
 };
 
