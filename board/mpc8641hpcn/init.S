@@ -84,6 +84,9 @@
 #define LAWAR8  ((LAWAR_TRGT_IF_DDR2 | (LAWAR_SIZE & LAWAR_SIZE_512M)) & ~LAWAR_EN)
 #endif
 
+#define LAWBAR9 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
+#define LAWAR9  (LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
+
 	.section .bootpg, "ax"
 	.globl	law_entry
 law_entry:
@@ -162,6 +165,15 @@ law_entry:
 
 	lis     r6,LAWAR8@h
 	ori     r6,r6,LAWAR8@l
+	stwu    r6, 0x20(r5)
+
+	/* LAWBAR9, LAWAR9 */
+	lis     r6,LAWBAR9@h
+	ori     r6,r6,LAWBAR9@l
+	stwu    r6, 0x20(r4)
+
+	lis     r6,LAWAR9@h
+	ori     r6,r6,LAWAR9@l
 	stwu    r6, 0x20(r5)
 
 	blr
