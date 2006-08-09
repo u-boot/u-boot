@@ -32,6 +32,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+
 #ifdef CONFIG_CPM2
 static void config_8560_ioports (volatile immap_t * immr)
 {

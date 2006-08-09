@@ -210,8 +210,8 @@ tlb1_entry:
  * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
  * 0xa000_0000     0xbfff_ffff     PCI2 MEM                512M
  * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
- * 0xe300_0000     0xe3ff_ffff     PCI2 IO                 16M
+ * 0xe200_0000     0xe20f_ffff     PCI1 IO                 1M
+ * 0xe210_0000     0xe21f_ffff     PCI2 IO                 1M
  * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
  * 0xf800_0000     0xf80f_ffff     NVRAM/CADMUS (*)        1M
  * 0xff00_0000     0xff7f_ffff     FLASH (2nd bank)        8M
@@ -234,11 +234,11 @@ tlb1_entry:
 #define LAWBAR2 ((CFG_PCI2_MEM_BASE>>12) & 0xfffff)
 #define LAWAR2 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
-#define LAWBAR3 ((CFG_PCI1_IO_BASE>>12) & 0xfffff)
-#define LAWAR3 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_16M))
+#define LAWBAR3 ((CFG_PCI1_IO_PHYS>>12) & 0xfffff)
+#define LAWAR3 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_1M))
 
-#define LAWBAR4 ((CFG_PCI2_IO_BASE>>12) & 0xfffff)
-#define LAWAR4 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_16M))
+#define LAWBAR4 ((CFG_PCI2_IO_PHYS>>12) & 0xfffff)
+#define LAWAR4 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_1M))
 
 /* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 #define LAWBAR5 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
