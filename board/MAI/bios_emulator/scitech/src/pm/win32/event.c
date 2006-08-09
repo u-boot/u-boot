@@ -147,14 +147,14 @@ void _EVT_pumpMessages(void)
 		if (EVT.oldMove != -1) {
 		    EVT.evtq[EVT.oldMove].where_x = evt.where_x;/* Modify existing one  */
 		    EVT.evtq[EVT.oldMove].where_y = evt.where_y;
-/*                  EVT.evtq[EVT.oldMove].relative_x += mickeyX;    // TODO! */
-/*                  EVT.evtq[EVT.oldMove].relative_y += mickeyY;    // TODO! */
+/*                  EVT.evtq[EVT.oldMove].relative_x += mickeyX;    / / TODO! */
+/*                  EVT.evtq[EVT.oldMove].relative_y += mickeyY;    / / TODO! */
 		    evt.what = 0;
 		    }
 		else {
 		    EVT.oldMove = EVT.freeHead; /* Save id of this move event   */
-/*                  evt.relative_x = mickeyX;    // TODO! */
-/*                  evt.relative_y = mickeyY;    // TODO! */
+/*                  evt.relative_x = mickeyX;    / / TODO! */
+/*                  evt.relative_y = mickeyY;    / / TODO! */
 		    }
 		}
 	    else

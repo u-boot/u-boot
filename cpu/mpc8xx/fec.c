@@ -396,8 +396,10 @@ static void fec_pin_init(int fecidx)
 	 * * to 2.5 MHz.
 	 * * This MDC frequency is equal to system clock / (2 * MII_SPEED).
 	 * * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
+	 *
+	 * All MII configuration is done via FEC1 registers:
 	 */
-	fecp->fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
+	immr->im_cpm.cp_fec1.fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
 #if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
 	/* our PHYs are the limit at 2.5 MHz */
@@ -508,8 +510,6 @@ static void fec_pin_init(int fecidx)
 #if defined(CONFIG_MPC885_FAMILY) /* MPC87x/88x have got 2 FECs and different pinout */
 
 #if !defined(CONFIG_RMII)
-
-#warning this configuration is not tested; please report if it works
 		immr->im_cpm.cp_pepar     |=  0x0003fffc;
 		immr->im_cpm.cp_pedir     |=  0x0003fffc;
 		immr->im_cpm.cp_peso      &= ~0x000087fc;
@@ -822,6 +822,7 @@ static void fec_halt(struct eth_device* dev)
 #define PHY_ID_LSI80225		0x0016f870	/* LSI 80225 */
 #define PHY_ID_LSI80225B	0x0016f880	/* LSI 80225/B */
 #define PHY_ID_DM9161		0x0181B880	/* Davicom DM9161 */
+#define PHY_ID_KSM8995M		0x00221450	/* MICREL KS8995MA */
 
 /* send command to phy using mii, wait for result */
 static uint
@@ -906,6 +907,9 @@ static int mii_discover_phy(struct eth_device *dev)
 					break;
 				case PHY_ID_DM9161:
 					printf("Davicom DM9161\n");
+					break;
+				case PHY_ID_KSM8995M:
+					printf("MICREL KS8995M\n");
 					break;
 				default:
 					printf("0x%08x\n", phytype);

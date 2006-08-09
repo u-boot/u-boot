@@ -27,14 +27,14 @@ LIST_5xx="	\
 LIST_5xxx="	\
 	BC3450		cpci5200	EVAL5200	icecube_5100	\
 	icecube_5200	lite5200b	mcc200		o2dnt		\
-	pf5200		PM520		Total5100	Total5200	\
-	Total5200_Rev2	TQM5200_auto					\
+	pf5200		PM520		TB5200		Total5100	\
+	Total5200	Total5200_Rev2	TQM5200		TQM5200_B	\
+	TQM5200S							\
 "
 
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
-
 LIST_8xx="	\
 	Adder87x	GENIETV		MBX860T		R360MPI		\
 	AdderII		GTH		MHPC		RBC823		\
@@ -44,16 +44,18 @@ LIST_8xx="	\
 	CCM		IP860		NETPHONE	RPXlite_DW	\
 	cogent_mpc8xx	IVML24		NETTA		RRvision	\
 	ELPT860		IVML24_128	NETTA2		SM850		\
-	EP88x		IVML24_256	NETTA_ISDN	SPD823TS	\
-	ESTEEM192E	IVMS8		NETVIA		svm_sc8xx	\
-	ETX094		IVMS8_128	NETVIA_V2	SXNI855T	\
-	FADS823		IVMS8_256	NX823		TOP860		\
-	FADS850SAR	KUP4K		pcu_e		TQM823L		\
-	FADS860T	KUP4X		QS823		TQM823L_LCD	\
-	FLAGADM		LANTEC		QS850		TQM850L		\
-	FPS850L		lwmon		QS860T		TQM855L		\
-	GEN860T		MBX		quantum		TQM860L		\
-	GEN860T_SC					uc100		\
+	EP88x		IVML24_256	NETTA_ISDN	spc1920		\
+	ESTEEM192E	IVMS8		NETVIA		SPD823TS	\
+	ETX094		IVMS8_128	NETVIA_V2	svm_sc8xx	\
+	FADS823		IVMS8_256	NX823		SXNI855T	\
+	FADS850SAR	KUP4K		pcu_e		TOP860		\
+	FADS860T	KUP4X		QS823		TQM823L		\
+	FLAGADM		LANTEC		QS850		TQM823L_LCD	\
+	FPS850L		lwmon		QS860T		TQM850L		\
+	GEN860T		MBX		quantum		TQM855L		\
+	GEN860T_SC					TQM860L		\
+							TQM885D		\
+							uc100		\
 							v37		\
 "
 
@@ -72,10 +74,10 @@ LIST_4xx="	\
 	luan		METROBOX	MIP405		MIP405T		\
 	ML2		ml300		ocotea		OCRTC		\
 	ORSG		p3p440		PCI405		pcs440ep	\
-	PIP405		PLU405		PMC405	        PPChameleonEVB	\
-	sbc405		VOH405		VOM405          W7OLMC		\
+	PIP405		PLU405		PMC405		PPChameleonEVB	\
+	sbc405		VOH405		VOM405		W7OLMC		\
 	W7OLMG		walnut		WUH405		XPEDITE1K	\
-	yellowstone	yosemite					\
+	yellowstone	yosemite	yucca		bamboo		\
 "
 
 #########################################################################
@@ -93,9 +95,9 @@ LIST_8220="	\
 LIST_824x="	\
 	A3000		barco		BMW		CPC45		\
 	CU824		debris		eXalion		HIDDEN_DRAGON	\
-	MOUSSE		MUSENKI		MVBLUE		OXC		\
-	PN62		Sandpoint8240	Sandpoint8245	sbc8240		\
-	SL8245		utx8245						\
+			MOUSSE		MUSENKI		MVBLUE		\
+	OXC		PN62		Sandpoint8240	Sandpoint8245	\
+	sbc8240		SL8245		utx8245				\
 "
 
 #########################################################################
@@ -142,7 +144,7 @@ LIST_74xx="	\
 "
 
 LIST_7xx="	\
-	BAB7xx		CPCI750		ELPPC				\
+	BAB7xx		CPCI750		ELPPC		ppmc7xx		\
 "
 
 LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
@@ -179,9 +181,10 @@ LIST_ARM9="	\
 	ap966		cp920t		cp922_XA10	cp926ejs	\
 	cp946es		cp966		lpd7a400	mp2usb		\
 	mx1ads		mx1fs2		netstar		omap1510inn	\
-	omap1610h2	omap1610inn	omap730p2	scb9328		\
-	smdk2400	smdk2410	trab		VCMA9		\
-	versatile	versatileab	versatilepb	voiceblue
+	omap1610h2	omap1610inn	omap730p2	sbc2410x	\
+	scb9328		smdk2400	smdk2410	trab		\
+	VCMA9		versatile	versatileab	versatilepb	\
+	voiceblue							\
 "
 
 #########################################################################
@@ -204,9 +207,9 @@ LIST_ARM11="	\
 
 LIST_pxa="	\
 	adsvix		cerf250		cradle		csb226		\
-	delta		innokom		lubbock		pxa255_idp	\
-	wepep250	xaeniax		xm250		xsengine	\
-	zylonite							\
+	delta		innokom		lubbock		pleb2		\
+	pxa255_idp	wepep250	xaeniax		xm250		\
+	xsengine	zylonite					\
 "
 
 LIST_ixp="ixdp425	ixdpg425	pdnb3"
@@ -226,7 +229,7 @@ LIST_mips4kc="incaip"
 
 LIST_mips5kc="purple"
 
-LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el"
+LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el gth2"
 
 LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
 
@@ -255,29 +258,38 @@ LIST_x86="${LIST_I486}"
 #########################################################################
 
 LIST_nios="	\
-	ADNPESC1 ADNPESC1_base_32					\
+	ADNPESC1		ADNPESC1_base_32			\
 	ADNPESC1_DNPEVA2_base_32					\
-	DK1C20 DK1C20_standard_32					\
-	DK1S10 DK1S10_standard_32 DK1S10_mtx_ldk_20			\
+	DK1C20			DK1C20_standard_32			\
+	DK1S10			DK1S10_standard_32 DK1S10_mtx_ldk_20	\
 "
 
 #########################################################################
 ## Nios-II Systems
 #########################################################################
 
-LIST_nios2="PCI5441 PK1C20"
+LIST_nios2="	\
+	EP1C20		EP1S10		EP1S40				\
+	PCI5441		PK1C20						\
+"
 
 #########################################################################
 ## MicroBlaze Systems
 #########################################################################
 
-LIST_microblaze="suzaku"
+LIST_microblaze="	\
+	suzaku
+"
 
 #########################################################################
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="cobra5272 M5272C3 M5282EVB TASREG r5200 M5271EVB"
+LIST_coldfire="	\
+	cobra5272	EB+MCF-EV123	EB+MCF-EV123_internal		\
+	M5271EVB	M5272C3		M5282EVB	TASREG		\
+	r5200		M5271EVB					\
+"
 
 #-----------------------------------------------------------------------
 

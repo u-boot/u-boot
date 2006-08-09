@@ -28,12 +28,17 @@
 #
 #	0xFC000000   boot low (standard configuration with room for max 64 MByte
 #		     Flash ROM)
+#	0xFFF00000   boot high (for a backup copy of U-Boot)
 #	0x00100000   boot from RAM (for testing only)
 #
+
+sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 ## Standard: boot low
 TEXT_BASE = 0xFC000000
+## For a backup copy of U-Boot at the end of flash: boot high
+# TEXT_BASE = 0xFFF00000
 ## For testing: boot from RAM
 # TEXT_BASE = 0x00100000
 endif

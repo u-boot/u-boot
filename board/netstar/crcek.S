@@ -13,6 +13,7 @@
  *	u32 - crc32
  */
 
+#include <config.h>
 #include "crcek.h"
 
 /**
@@ -39,7 +40,7 @@
 	.macro crcuj, offset, size
 	mov	r0, #0
 	ldr	r1, \offset
-	ldr	r2, [r1]
+	ldr	r2, [r1], #4
 	cmp	r2, r0		@ no data, no problem
 	beq	2f
 	tst	r2, #3		@ unaligned size
@@ -47,7 +48,6 @@
 	ldr	r3, \size
 	cmp	r2, r3		@ bogus size
 	bhi	2f
-	add	r1, r1, #4
 	do_crc32
 	ldr	r1, [r1]
 2:
@@ -55,16 +55,71 @@
 	.endm
 
 	.macro wait, reg
-	mov	\reg, #0x1000
+	mov	\reg, #0x100000
 3:
 	subs	\reg, \reg, #0x1
 	bne 	3b
-
 	.endm
+
 .text
 .globl crcek
 crcek:
-	b	crc2_bad
+	/* Enable I-cache */
+	mrc	p15, 0, r1, c0, c0, 0		@ read C15 ID register
+	mrc	p15, 0, r1, c0, c0, 1		@ read C15 Cache information register
+	mrc	p15, 0, r1, c1, c0, 0		@ read C15 Control register
+	orr	r1, r1, #0x1000			@ enable I-cache, map interrupt vector 0xffff0000
+	mcr	p15, 0, r1, c1, c0, 0		@ write C15 Control register
+	mov	r1, #0x00
+	mcr	p15, 0, r1, c7, c5, 0		@ Flush I-cache
+	nop
+	nop
+	nop
+	nop
+
+	/* Setup clocking mode */
+	ldr	r0, MPU_CLKM_BASE		@ base of CLOCK unit
+	ldrh	r1, [r0, #0x18]			@ ARM_SYST - get reset status
+	bic	r1, r1, #(7 << 11)		@ clear clock select
+	orr	r1, r1, #(2 << 11)		@ set synchronous scalable
+	mov	r2, #0
+loop:
+	cmp	r2, #1				@ this loop will wait for at least 100 cycles
+	streqh	r1, [r0, #0x18]			@ before issuing next request from MPU
+	add	r2, r2, #1			@ on the 1st run code is loaded into I-cache
+	cmp	r2, #16				@ and second run will set clocking mode
+	bne	loop
+	nop
+
+	/* Setup clock dividers */
+	ldr	r1, CKCTL_VAL
+	orr	r1, r1, #0x2000			@ enable DSP clock
+	strh	r1, [r0]			@ setup clock divisors
+
+	/* Setup DPLL to generate requested freq */
+	ldr	r0, DPLL1_BASE			@ base of DPLL1 register
+	mov	r1, #0x0010			@ set PLL_ENABLE
+	orr	r1, r1, #0x2000			@ set IOB to new locking
+	orr	r1, r1, #(OMAP5910_DPLL_MUL << 7) @ setup multiplier CLKREF
+	orr	r1, r1, #(OMAP5910_DPLL_DIV << 5) @ setup divider CLKREF
+	strh	r1, [r0]			@ write
+
+locking:
+	ldrh	r1, [r0]			@ get DPLL value
+	tst	r1, #0x01
+	beq	locking				@ while LOCK not set
+
+	/* Enable clock */
+	ldr	r0, MPU_CLKM_BASE		@ base of CLOCK unit
+	mov	r1, #(1 << 10)			@ disable idle mode do not check
+						@ nWAKEUP pin, other remain active
+	strh	r1, [r0, #0x04]
+	ldr	r1, EN_CLK_VAL
+	strh	r1, [r0, #0x08]
+	mov	r1, #0x003f			@ FLASH.RP not enabled in idle and
+	strh	r1, [r0, #0x0c]			@ max delayed ( 32 x CLKIN )
+
+
 	mov	r6, #0
 	crcuj	_LOADER1_OFFSET, _LOADER_SIZE
 	bne	crc1_bad
@@ -76,9 +131,8 @@ crc1_bad:
 crc2_bad:
 	ldr	r3, _LOADER1_OFFSET
 	ldr	r4, _LOADER2_OFFSET
-	b	boot_2nd
-	tst	r6, #3
-	beq	one_is_bad	@ one of them (or both) has bad crc
+	teq	r6, #3
+	bne	one_is_bad	@ one of them (or both) has bad crc
 	ldr	r1, [r3, #4]
 	ldr	r2, [r4, #4]
 	cmp	r1, r2		@ boot 2nd loader if versions differ
@@ -90,6 +144,7 @@ one_is_bad:
 	tst	r6, #2
 	bne	boot_2nd
 @ We are doomed, so let user know.
+hell:
 	ldr	r0, GPIO_BASE	@ configure GPIO pins
 	ldr	r1, GPIO_DIRECTION
 	strh	r1, [r0, #0x08]
@@ -171,6 +226,15 @@ CRC32_TABLE:
 
 GPIO_BASE:
 	.word 0xfffce000
+MPU_CLKM_BASE:
+	.word 0xfffece00
+DPLL1_BASE:
+	.word 0xfffecf00
+
+CKCTL_VAL:
+	.word OMAP5910_ARM_CKCTL
+EN_CLK_VAL:
+	.word OMAP5910_ARM_EN_CLK
 GPIO_DIRECTION:
 	.word 0x0000ffe7
 

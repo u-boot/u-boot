@@ -181,6 +181,9 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 {
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 	uint32_t failsafe = 10000;
+#if defined(CONFIG_440SPE)
+	unsigned long mfr;
+#endif
 
 	out32 (EMAC_IER + hw_p->hw_addr, 0x00000000);	/* disable emac interrupts */
 
@@ -202,7 +205,22 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	}
 
 	/* EMAC RESET */
+#if defined(CONFIG_440SPE)
+	/* provide clocks for EMAC internal loopback  */
+	mfsdr (sdr_mfr, mfr);
+	mfr |= 0x08000000;
+	mtsdr(sdr_mfr, mfr);
+#endif
+
 	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
+
+#if defined(CONFIG_440SPE)
+	/* remove clocks for EMAC internal loopback  */
+	mfsdr (sdr_mfr, mfr);
+	mfr &= ~0x08000000;
+	mtsdr(sdr_mfr, mfr);
+#endif
+
 
 #ifndef CONFIG_NETCONSOLE
 	hw_p->print_speed = 1;	/* print speed message again next time */
@@ -301,7 +319,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	return ((int)pfc1);
 
 }
-#endif
+#endif	/* CONFIG_440_GX */
 
 static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 {
@@ -314,12 +332,16 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	unsigned mode_reg;
 	unsigned short devnum;
 	unsigned short reg_short;
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	sys_info_t sysinfo;
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
 	int ethgroup = -1;
 #endif
 #endif
+#if defined(CONFIG_440SPE)
+	unsigned long mfr;
+#endif
+
 
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
@@ -330,7 +352,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		return -1;
 	}
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/* Need to get the OPB frequency so we can access the PHY */
 	get_sys_info (&sysinfo);
 #endif
@@ -360,6 +382,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->stats.pkts_tx = 0;
 	hw_p->stats.pkts_rx = 0;
 	hw_p->stats.pkts_handled = 0;
+	hw_p->print_speed = 1;	/* print speed message again next time */
 #endif
 
 	hw_p->tx_err_index = 0; /* Transmit Error Index for tx_err_log */
@@ -373,7 +396,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->tx_i_index = 0;	/* Transmit Interrupt Queue Index */
 	hw_p->tx_u_index = 0;	/* Transmit User Queue Index */
 
-#if defined(CONFIG_440) && !defined(CONFIG_440SP)
+#if defined(CONFIG_440) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 	/* set RMII mode */
 	/* NOTE: 440GX spec states that mode is mutually exclusive */
 	/* NOTE: Therefore, disable all other EMACS, since we handle */
@@ -406,6 +429,12 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	__asm__ volatile ("eieio");
 
 	/* reset emac so we have access to the phy */
+#if defined(CONFIG_440SPE)
+	/* provide clocks for EMAC internal loopback  */
+	mfsdr (sdr_mfr, mfr);
+	mfr |= 0x08000000;
+	mtsdr(sdr_mfr, mfr);
+#endif
 
 	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 	__asm__ volatile ("eieio");
@@ -416,7 +445,14 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		failsafe--;
 	}
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440SPE)
+	/* remove clocks for EMAC internal loopback  */
+	mfsdr (sdr_mfr, mfr);
+	mfr &= ~0x08000000;
+	mtsdr(sdr_mfr, mfr);
+#endif
+
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/* Whack the M1 register */
 	mode_reg = 0x0;
 	mode_reg &= ~0x00000038;
@@ -468,7 +504,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	if (hw_p->first_init == 0) {
 		miiphy_reset (dev->name, reg);
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #if defined(CONFIG_CIS8201_PHY)
 		/*
 		 * Cicada 8201 PHY needs to have an extended register whacked
@@ -544,7 +580,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			(int) speed, (duplex == HALF) ? "HALF" : "FULL");
 	}
 
-#if defined(CONFIG_440) && !defined(CONFIG_440SP)
+#if defined(CONFIG_440) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	mfsdr(sdr_mfr, reg);
 	if (speed == 100) {
@@ -575,7 +611,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif /* defined(CONFIG_440) && !defined(CONFIG_440SP) */
 
 	/* set the Mal configuration reg */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
 	       MAL_CR_PLBLT_DEFAULT | MAL_CR_EOPIE | 0x00330000);
 #else
@@ -759,8 +795,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* set speed */
 	if (speed == _1000BASET) {
-#if defined(CONFIG_440SP)
-#define SDR0_PFC1_EM_1000	0x00200000
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 		unsigned long pfc1;
 		mfsdr (sdr_pfc1, pfc1);
 		pfc1 |= SDR0_PFC1_EM_1000;
@@ -787,7 +822,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* set receive	low/high water mark register */
 #if defined(CONFIG_440)
-	/* 440GP has a 64 byte burst length */
+	/* 440s has a 64 byte burst length */
 	out32 (EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x80009000);
 #else
 	/* 405s have a 16 byte burst length */
@@ -895,7 +930,7 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 
 #if defined (CONFIG_440)
 
-#if defined(CONFIG_440SP)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 /*
  * Hack: On 440SP all enet irq sources are located on UIC1
  * Needs some cleanup. --sr
@@ -1367,20 +1402,19 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #endif
 	/* set phy num and mode */
 	bis->bi_phynum[0] = CONFIG_PHY_ADDR;
+	bis->bi_phymode[0] = 0;
+
 #if defined(CONFIG_PHY1_ADDR)
 	bis->bi_phynum[1] = CONFIG_PHY1_ADDR;
+	bis->bi_phymode[1] = 0;
 #endif
 #if defined(CONFIG_440GX)
 	bis->bi_phynum[2] = CONFIG_PHY2_ADDR;
 	bis->bi_phynum[3] = CONFIG_PHY3_ADDR;
-	bis->bi_phymode[0] = 0;
-	bis->bi_phymode[1] = 0;
 	bis->bi_phymode[2] = 2;
 	bis->bi_phymode[3] = 2;
 
-#if defined (CONFIG_440GX)
 	ppc_4xx_eth_setup_bridge(0, bis);
-#endif
 #endif
 
 	for (eth_num = 0; eth_num < LAST_EMAC_NUM; eth_num++) {
@@ -1478,9 +1512,15 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 
 		if (0 == virgin) {
 			/* set the MAL IER ??? names may change with new spec ??? */
+#if defined(CONFIG_440SPE)
+			mal_ier =
+				MAL_IER_PT | MAL_IER_PRE | MAL_IER_PWE |
+				MAL_IER_DE | MAL_IER_OTE | MAL_IER_OE | MAL_IER_PE ;
+#else
 			mal_ier =
 				MAL_IER_DE | MAL_IER_NE | MAL_IER_TE |
 				MAL_IER_OPBE | MAL_IER_PLBE;
+#endif
 			mtdcr (malesr, 0xffffffff);	/* clear pending interrupts */
 			mtdcr (maltxdeir, 0xffffffff);	/* clear pending interrupts */
 			mtdcr (malrxdeir, 0xffffffff);	/* clear pending interrupts */
@@ -1510,11 +1550,13 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #else
 		emac0_dev = dev;
 #endif
+
+#if defined(CONFIG_NET_MULTI)
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 		miiphy_register (dev->name,
 				 emac4xx_miiphy_read, emac4xx_miiphy_write);
 #endif
-
+#endif
 	}			/* end for each supported device */
 	return (1);
 }

@@ -191,16 +191,6 @@
 
 #undef	CONFIG_BOOTARGS
 
-#if defined (CONFIG_TQM5200_AA)
-# define CONFIG_U_BOOT_SUFFIX	"-AA\0"
-#elif defined (CONFIG_TQM5200_AB)
-# define CONFIG_U_BOOT_SUFFIX	"-AB\0"
-#elif defined (CONFIG_TQM5200_AC)
-# define CONFIG_U_BOOT_SUFFIX	"-AC\0"
-#else
-# define CONFIG_U_BOOT_SUFFIX	"\0"
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
@@ -217,7 +207,7 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
 	"load=tftp 200000 ${u-boot}\0"					\
-	"u-boot=/tftpboot/tqm5200/u-boot.bin"	CONFIG_U_BOOT_SUFFIX	\
+	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"				\
 	"update=protect off FC000000 FC05FFFF;"				\
 		"erase FC000000 FC05FFFF;"				\
 		"cp.b 200000 FC000000 ${filesize};"			\
@@ -283,13 +273,6 @@
 #endif
 
 /* List of I2C addresses to be verified by POST */
-#if defined (CONFIG_TQM5200_AA) || defined (CONFIG_TQM5200_AB)
-#define I2C_ADDR_LIST	{	CFG_I2C_EEPROM_ADDR,	\
-				CFG_I2C_SLAVE }
-#elif defined (CONFIG_TQM5200_AC)
-#define I2C_ADDR_LIST	{	CFG_I2C_SLAVE }
-#endif
-
 #if defined (CONFIG_MINIFAP)
 #undef I2C_ADDR_LIST
 #define I2C_ADDR_LIST	{	CFG_I2C_EEPROM_ADDR,	\
@@ -469,37 +452,25 @@
 #define CFG_CS0_START		CFG_FLASH_BASE
 #define CFG_CS0_SIZE		CFG_FLASH_SIZE
 
-/* automatic configuration of chip selects */
-#ifdef CONFIG_CS_AUTOCONF
 #define CONFIG_LAST_STAGE_INIT
-#endif
 
 /*
  * SRAM - Do not map below 2 GB in address space, because this area is used
  * for SDRAM autosizing.
  */
-#if defined CONFIG_TQM5200_AB || defined (CONFIG_CS_AUTOCONF)
 #define CFG_CS2_START		0xE5000000
-#ifdef CONFIG_TQM5200_AB
-#define CFG_CS2_SIZE		0x80000		/* 512 kByte */
-#else  /* CONFIG_CS_AUTOCONF */
 #define CFG_CS2_SIZE		0x100000	/* 1 MByte */
-#endif
 #define CFG_CS2_CFG		0x0004D930
-#endif
 
 /*
  * Grafic controller - Do not map below 2 GB in address space, because this
  * area is used for SDRAM autosizing.
  */
-#if defined (CONFIG_TQM5200_AB) || defined (CONFIG_TQM5200_AC) || \
-    defined (CONFIG_CS_AUTOCONF)
 #define SM501_FB_BASE		0xE0000000
 #define CFG_CS1_START		(SM501_FB_BASE)
 #define CFG_CS1_SIZE		0x4000000	/* 64 MByte */
 #define CFG_CS1_CFG		0x8F48FF70
 #define SM501_MMIO_BASE		CFG_CS1_START + 0x03E00000
-#endif
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333311	/* 1 dead cycle for flash and SM501 */

@@ -105,6 +105,10 @@ N: Magnus Damm
 E: damm@opensource.se
 D: 8xxrom
 
+N: Richard Danter
+E: richard.danter@windriver.com
+D: Support for Wind River PPMC 7xx/74xx boards
+
 N: George G. Davis
 E: gdavis@mvista.com
 D: Board ports for ADS GraphicsClient+ and Intel Assabet
@@ -229,6 +233,7 @@ D: Port to Windriver ppmc8260 board
 N: Sangmoon Kim
 E: dogoil@etinsys.com
 D: Support for debris board
+D: Support for KVME080 board
 
 N: Frederick W. Klatt
 E: fred.klatt@windriver.com
@@ -253,7 +258,7 @@ D  Support for Intrinsyc CERF PXA250 board.
 
 N: Thomas Lange
 E: thomas@corelatus.se
-D: Support for GTH and dbau1x00 boards; lots of PCMCIA fixes
+D: Support for GTH, GTH2 and dbau1x00 boards; lots of PCMCIA fixes
 
 N: Marc Leeman
 E: marc.leeman@barco.com

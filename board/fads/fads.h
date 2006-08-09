@@ -467,7 +467,9 @@
 #define CONFIG_ISO_PARTITION	1
 
 #undef	CONFIG_ATAPI
+#if 0	/* does not make sense when CFG_CMD_IDE is not enabled, too */
 #define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
+#endif
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
 #undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/

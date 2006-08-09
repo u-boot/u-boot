@@ -26,16 +26,18 @@
 #
 #	Valid values for TEXT_BASE are:
 #
-#	0xFFF00000   boot high (standard configuration)
-#	0xFE000000   boot low
+#	0xFC000000   boot low (standard configuration)
+#	0xFFF00000   boot high
 #	0x00100000   boot from RAM (for testing only)
 #
 
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
-## Standard: boot high
-TEXT_BASE = 0xFFF00000
+## Standard: boot low
+TEXT_BASE = 0xFC000000
+## Boot high
+# TEXT_BASE = 0xFFF00000
 ## For testing: boot from RAM
 # TEXT_BASE = 0x00100000
 endif

@@ -1,11 +1,11 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2003-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2004
  * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
  *
- * (C) Copyright 2004-2005
+ * (C) Copyright 2004-2006
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -30,6 +30,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <asm/processor.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -101,6 +102,8 @@ long int initdram (int board_type)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
+	uint svr, pvr;
+
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
 
@@ -190,11 +193,31 @@ long int initdram (int board_type)
 	} else {
 		dramsize2 = 0;
 	}
-
 #endif /* CFG_RAMBOOT */
 
-/*	return dramsize + dramsize2; */
+	/*
+	 * On MPC5200B we need to set the special configuration delay in the
+	 * DDR controller. Please refer to Freescale's AN3221 "MPC5200B SDRAM
+	 * Initialization and Configuration", 3.3.1 SDelay--MBAR + 0x0190:
+	 *
+	 * "The SDelay should be written to a value of 0x00000004. It is
+	 * required to account for changes caused by normal wafer processing
+	 * parameters."
+	 */
+	svr = get_svr();
+	pvr = get_pvr();
+	if ((SVR_MJREV(svr) >= 2) &&
+	    (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
+
+		*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
+		__asm__ volatile ("sync");
+	}
+
+#if defined(CONFIG_TQM5200_B)
+	return dramsize + dramsize2;
+#else
 	return dramsize;
+#endif /* CONFIG_TQM5200_B */
 }
 
 #elif defined(CONFIG_MGT5100)
@@ -250,25 +273,35 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
-#if defined (CONFIG_AEVFIFO)
+#if defined(CONFIG_AEVFIFO)
 	puts ("Board: AEVFIFO\n");
 	return 0;
 #endif
-#if defined (CONFIG_TQM5200_AA)
-	puts ("Board: TQM5200-AA (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200_AB)
-	puts ("Board: TQM5200-AB (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200_AC)
-	puts ("Board: TQM5200-AC (TQ-Components GmbH)\n");
-#elif defined (CONFIG_TQM5200)
-	puts ("Board: TQM5200 (TQ-Components GmbH)\n");
+
+#if defined(CONFIG_TQM5200S)
+# define MODULE_NAME	"TQM5200S"
+#else
+# define MODULE_NAME	"TQM5200"
 #endif
-#if defined (CONFIG_STK52XX)
-	puts ("       on a STK52XX baseboard\n");
+
+#if defined(CONFIG_STK52XX)
+# define CARRIER_NAME	"STK52xx"
+#elif defined(CONFIG_TB5200)
+# define CARRIER_NAME	"TB5200"
+#elif defined(CONFIG_CAM5200)
+# define CARRIER_NAME	"Cam5200"
+#else
+# error "Unknown carrier board"
 #endif
+
+	puts (	"Board: " MODULE_NAME " (TQ-Components GmbH)\n"
+		"       on a " CARRIER_NAME " carrier board\n");
 
 	return 0;
 }
+
+#undef MODULE_NAME
+#undef CARRIER_NAME
 
 void flash_preinit(void)
 {
@@ -411,7 +444,6 @@ int board_early_init_r (void)
 #endif
 #endif /* CONFIG_PS2MULT */
 
-#if defined(CONFIG_CS_AUTOCONF)
 int last_stage_init (void)
 {
 	/*
@@ -506,7 +538,6 @@ int last_stage_init (void)
 
 	return 0;
 }
-#endif /* CONFIG_CS_AUTOCONF */
 
 #ifdef CONFIG_VIDEO_SM501
 
@@ -572,20 +603,15 @@ static const SMI_REGS init_regs [] =
 void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
-#if defined (CONFIG_TQM5200_AA)
-		strcpy (info, " Board: TQM5200-AA (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200_AB)
-		strcpy (info, " Board: TQM5200-AB (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200_AC)
-		strcpy (info, " Board: TQM5200-AC (TQ-Components GmbH)");
-#elif defined (CONFIG_TQM5200)
-		strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#else
-#error No supported board selected
-#endif
-#if defined (CONFIG_STK52XX)
+	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
+#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200)
 	} else if (line_number == 2) {
-		strcpy (info, "        on a STK52XX baseboard");
+#if defined (CONFIG_STK52XX)
+		strcpy (info, "        on a STK52xx carrier board");
+#endif
+#if defined (CONFIG_TB5200)
+		strcpy (info, "        on a TB5200 carrier board");
+#endif
 #endif
 	}
 	else {

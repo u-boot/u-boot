@@ -33,7 +33,7 @@
 
 #define	KBD_BUFFER_LEN		0x20  /* size of the keyboardbuffer */
 
-#ifdef CONFIG_MPC5xxx
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
 int ps2ser_check(void);
 #endif
 
@@ -75,7 +75,7 @@ static void kbd_put_queue(char data)
 /* test if a character is in the queue */
 static int kbd_testc(void)
 {
-#ifdef CONFIG_MPC5xxx
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
 	/* no ISR is used, so received chars must be polled */
 	ps2ser_check();
 #endif
@@ -90,7 +90,7 @@ static int kbd_getc(void)
 {
 	char c;
 	while(in_pointer==out_pointer) {
-#ifdef CONFIG_MPC5xxx
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
 	/* no ISR is used, so received chars must be polled */
 	ps2ser_check();
 #endif

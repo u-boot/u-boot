@@ -120,12 +120,13 @@ typedef void (interrupt_handler_t)(void *);
 
 /*
  * enable common handling for all TQM8xxL/M boards:
- * - CONFIG_TQM8xxM will be defined for all TQM8xxM boards
+ * - CONFIG_TQM8xxM will be defined for all TQM8xxM and TQM885D boards
  * - CONFIG_TQM8xxL will be defined for all TQM8xxL _and_ TQM8xxM boards
  */
 #if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
     defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M)
+    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M) || \
+    defined(CONFIG_TQM885D)
 # ifndef CONFIG_TQM8xxM
 #  define CONFIG_TQM8xxM
 # endif
@@ -470,6 +471,10 @@ void   get_sys_info  ( sys_info_t * );
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
     typedef PPC440_SYS_INFO sys_info_t;
+#	if defined(CONFIG_440SPE)
+	 unsigned long determine_sysper(void);
+	 unsigned long determine_pci_clock_per(void);
+#	endif
 #  else
     typedef PPC405_SYS_INFO sys_info_t;
 #  endif

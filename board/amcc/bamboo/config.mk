@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,7 +21,7 @@
 # MA 02111-1307 USA
 #
 
-TEXT_BASE = 0xFFF80000
+TEXT_BASE = 0xFFFA0000
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 

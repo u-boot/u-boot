@@ -145,25 +145,23 @@ lowlevel_init:
 	nop
 
 	/* Setup clocking mode */
-	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ prepare base of CLOCK unit
-	ldrh	r1, [r0, #0x18]			@ get reset status
+	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ base of CLOCK unit
+	ldrh	r1, [r0, #0x18]			@ ARM_SYST - get reset status
 	bic	r1, r1, #(7 << 11)		@ clear clock select
 	orr	r1, r1, #(2 << 11)		@ set synchronous scalable
-	mov	r2, #0				@ set wait counter to 100 clock cycles
-
-icache_loop:
-	cmp	r2, #0x01
-	streqh	r1, [r0, #0x18]
-	add	r2, r2, #0x01
-	cmp	r2, #0x10
-	bne	icache_loop
+	mov	r2, #0
+loop:
+	cmp	r2, #1				@ this loop will wait for at least 100 cycles
+	streqh	r1, [r0, #0x18]			@ before issuing next request from MPU
+	add	r2, r2, #1			@ on the 1st run code is loaded into I-cache
+	cmp	r2, #16				@ and second run will set clocking mode
+	bne	loop
 	nop
 
-	/* Setup clock divisors */
-	ldr	r0, OMAP5910_MPU_CLKM_BASE	@ base of CLOCK unit
+	/* Setup clock dividers */
 	ldr	r1, _OMAP5910_ARM_CKCTL
 	orr	r1, r1, #0x2000			@ enable DSP clock
-	strh	r1, [r0, #0x00]			@ setup clock divisors
+	strh	r1, [r0]			@ setup clock divisors
 
 	/* Setup DPLL to generate requested freq */
 	ldr	r0, OMAP5910_DPLL1_BASE		@ base of DPLL1 register
@@ -186,8 +184,7 @@ locking:
 	ldr	r1, _OMAP5910_ARM_EN_CLK
 	strh	r1, [r0, #0x08]
 	mov	r1, #0x003f			@ FLASH.RP not enabled in idle and
-						@ max delayed ( 32 x CLKIN )
-	strh	r1, [r0, #0x0c]
+	strh	r1, [r0, #0x0c]			@ max delayed ( 32 x CLKIN )
 
 	/* Configure 5910 pins functions to match our board. */
 	ldr     r0, MUX_CONFIG_BASE

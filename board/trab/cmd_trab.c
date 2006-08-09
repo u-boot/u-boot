@@ -147,11 +147,11 @@ u8 status;
 u16 pass_cycles;
 u16 first_error_cycle;
 u8 first_error_num;
-unsigned char first_error_name[16];
+char first_error_name[16];
 u16 act_cycle;
 
 typedef struct test_function_s {
-	unsigned char *name;
+	char *name;
 	int (*pf)(void);
 } test_function_t;
 
@@ -376,7 +376,7 @@ int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return (1);
 	}
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_FIRST_ERROR_NAME,
-			       1, first_error_name,
+			       1, (unsigned char*)first_error_name,
 			       sizeof (first_error_name))) {
 		return (1);
 	}
@@ -537,7 +537,7 @@ static int test_eeprom (void)
 
 	/* write test string 1, read back and verify */
 	if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_TEST, 1,
-				EEPROM_TEST_STRING_1,
+				(unsigned char*)EEPROM_TEST_STRING_1,
 				sizeof (EEPROM_TEST_STRING_1))) {
 		return (1);
 	}
@@ -547,7 +547,7 @@ static int test_eeprom (void)
 		return (1);
 	}
 
-	if (strcmp (temp, EEPROM_TEST_STRING_1) != 0) {
+	if (strcmp ((char *)temp, EEPROM_TEST_STRING_1) != 0) {
 		result = 1;
 		printf ("%s: error; read_str = \"%s\"\n", __FUNCTION__, temp);
 	}
@@ -555,7 +555,7 @@ static int test_eeprom (void)
 	/* write test string 2, read back and verify */
 	if (result == 0) {
 		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_TEST, 1,
-					EEPROM_TEST_STRING_2,
+					(unsigned char*)EEPROM_TEST_STRING_2,
 					sizeof (EEPROM_TEST_STRING_2))) {
 			return (1);
 		}
@@ -565,7 +565,7 @@ static int test_eeprom (void)
 			return (1);
 		}
 
-		if (strcmp (temp, EEPROM_TEST_STRING_2) != 0) {
+		if (strcmp ((char *)temp, EEPROM_TEST_STRING_2) != 0) {
 			result = 1;
 			printf ("%s: error; read str = \"%s\"\n",
 				__FUNCTION__, temp);
@@ -729,6 +729,7 @@ static void led_blink (void)
 
 	/* blink LED. This function does not return! */
 	while (1) {
+		reset_timer_masked ();
 		led_set (1);
 		udelay (1000000 / LED_BLINK_FREQ / 2);
 		led_set (0);
@@ -776,7 +777,7 @@ static int global_vars_write_to_eeprom (void)
 		return (1);
 	}
 	if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_FIRST_ERROR_NAME,
-				1, first_error_name,
+				1, (unsigned char*) first_error_name,
 				sizeof(first_error_name))) {
 		return (1);
 	}

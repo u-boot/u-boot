@@ -47,8 +47,22 @@
 
 /*
  * Serial console configuration
+ *
+ *  To select console on the one of 8 external UARTs,
+ * define CONFIG_QUART_CONSOLE as 1, 2, 3, or 4 for the first Quad UART,
+ * or as 5, 6, 7, or 8 for the second Quad UART.
+ *
+ *  CONFIG_PSC_CONSOLE must be undefined in this case.
+ */
+/* #define CONFIG_QUART_CONSOLE	1	*/ /* console is on UART1 of QUART1	*/
+/*
+ *  To select console on PSC1, define CONFIG_PSC_CONSOLE as 1
+ * and undefine CONFIG_QUART_CONSOLE.
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1			*/
+#if defined(CONFIG_QUART_CONSOLE) && defined(CONFIG_PSC_CONSOLE)
+#error "Select only one console device!"
+#endif
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
@@ -256,11 +270,59 @@
 #define CFG_CS2_SIZE		0x00001000
 #define CFG_CS2_CFG		0x1d300
 
+/* Second Quad UART @0x80010000 */
+#define CFG_CS1_START		0x80010000
+#define CFG_CS1_SIZE		0x00001000
+#define CFG_CS1_CFG		0x1d300
+
+/*
+ *  Select one of quarts as a default
+ * console. If undefined - PSC console
+ * wil be default
+ */
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333333
 
 #define CFG_RESET_ADDRESS	0xff000000
 
+/*
+ * QUART Expanders support
+ */
+#if defined(CONFIG_QUART_CONSOLE)
+/*
+ * We'll use NS16550 chip routines,
+ */
+#define CFG_NS16550		1
+#define CFG_NS16550_SERIAL	1
+#define CONFIG_CONS_INDEX	1
+/*
+ *  To achieve necessary offset on SC16C554
+ * A0-A2 (register select) pins with NS16550
+ * functions (in struct NS16550), REG_SIZE
+ * should be 4, because A0-A2 pins are connected
+ * to DA2-DA4 address bus lines.
+ */
+#define CFG_NS16550_REG_SIZE	4
+/*
+ * LocalPlus Bus already inited in cpu_init_f(),
+ * so can work with QUART's chip selects.
+ * One of four SC16C554 UARTs is selected with
+ * A3-A4 (DA5-DA6) lines.
+ */
+#if (CONFIG_QUART_CONSOLE > 0) && (CONFIG_QUART_CONSOLE < 5)
+#define CFG_NS16550_COM1	(CFG_CS2_START | (CONFIG_QUART_CONSOLE - 1)<<5)
+#elif (CONFIG_QUART_CONSOLE > 4) && (CONFIG_QUART_CONSOLE < 9)
+#define CFG_NS16550_COM1	(CFG_CS1_START | (CONFIG_QUART_CONSOLE - 5)<<5)
+#elif
+#error "Wrong QUART expander number."
+#endif
+
+/*
+ * SC16C554 chip's external crystal oscillator frequency
+ * is 7.3728 MHz
+ */
+#define CFG_NS16550_CLK		7372800
+#endif /* CONFIG_QUART_CONSOLE */
 /*-----------------------------------------------------------------------
  * USB stuff
  *-----------------------------------------------------------------------

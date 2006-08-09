@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -275,11 +275,11 @@ int serial_tstc ()
 #define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000300
 #endif
 
-#if defined(CONFIG_440SP)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define UART2_BASE  CFG_PERIPHERAL_BASE + 0x00000600
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define CR0_MASK        0xdfffffff
 #define CR0_EXTCLK_ENA  0x00800000
 #define CR0_UDIV_POS    0
@@ -309,14 +309,18 @@ int serial_tstc ()
 #if defined(CONFIG_UART1_CONSOLE)
 #define ACTING_UART0_BASE	UART1_BASE
 #define ACTING_UART1_BASE	UART0_BASE
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+	defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+	defined(CONFIG_440SPE)
 #define UART0_SDR           sdr_uart1
 #define UART1_SDR           sdr_uart0
 #endif /* CONFIG_440GX */
 #else
 #define ACTING_UART0_BASE	UART0_BASE
 #define ACTING_UART1_BASE	UART1_BASE
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+	defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+	defined(CONFIG_440SPE)
 #define UART0_SDR           sdr_uart0
 #define UART1_SDR           sdr_uart1
 #endif /* CONFIG_440GX */
@@ -437,7 +441,8 @@ int serial_init(void)
 	unsigned long tmp;
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || \
+	defined(CONFIG_440SPE)
 #if defined(CONFIG_SERIAL_MULTI)
 	if (UART0_BASE == dev_base) {
 		mfsdr(UART0_SDR,reg);
@@ -466,7 +471,9 @@ int serial_init(void)
 	serial_divs (gd->baudrate, &udiv, &bdiv);
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+	defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+	defined(CONFIG_440SPE)
 	reg |= udiv << CR0_UDIV_POS;	/* set the UART divisor */
 #if defined(CONFIG_SERIAL_MULTI)
 	if (UART0_BASE == dev_base) {
@@ -607,8 +614,28 @@ void serial_setbrg (void)
 #else
 	udiv = ((mfdcr (cntrl0) & 0x3e) >> 1) + 1;
 #endif /* CONFIG_405EP */
+
+#if !defined(CFG_EXT_SERIAL_CLOCK) && \
+	( defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+	  defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
+	  defined(CONFIG_440SPE) )
+	serial_divs (gd->baudrate, &udiv, &bdiv);
+	tmp = udiv << CR0_UDIV_POS;		/* set the UART divisor */
+#if defined(CONFIG_SERIAL_MULTI)
+	if (UART0_BASE == dev_base) {
+		mtsdr (UART0_SDR, tmp);
+	} else {
+		mtsdr (UART1_SDR, tmp);
+	}
+#else
+	mtsdr (UART0_SDR, tmp);
+#endif
+
+#else
+
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
+#endif /* !defined(CFG_EXT_SERIAL_CLOCK) && (...) */
 
 #if defined(CONFIG_SERIAL_MULTI)
 	out8 (dev_base + UART_LCR, 0x80);	/* set DLAB bit */

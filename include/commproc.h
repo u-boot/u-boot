@@ -1405,15 +1405,16 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_SXNI855T */
 
-/***  MVS1, TQM823L/M, TQM850L/M, ETX094, R360MPI  *******************/
+/***  MVS1, TQM823L/M, TQM850L/M, TQM885D, ETX094, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
     defined(CONFIG_R360MPI) || defined(CONFIG_RBC823)  || \
     defined(CONFIG_TQM823L) || defined(CONFIG_TQM823M) || \
     defined(CONFIG_TQM850L) || defined(CONFIG_TQM850M) || \
-    defined(CONFIG_ETX094)  || defined(CONFIG_RRVISION)|| \
-    defined(CONFIG_VIRTLAB2)||				  \
+    defined(CONFIG_TQM885D) || defined(CONFIG_ETX094)  || \
+    defined(CONFIG_RRVISION)|| defined(CONFIG_VIRTLAB2)|| \
    (defined(CONFIG_LANTEC) && CONFIG_LANTEC < 2)
+
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.
  */
@@ -1438,6 +1439,11 @@ typedef struct scc_enet {
  */
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00002600)
+
+# ifdef CONFIG_FEC_ENET		/* Use FEC for Fast Ethernet */
+#define FEC_ENET
+# endif	/* CONFIG_FEC_ENET */
+
 #endif	/* CONFIG_MVS v1, CONFIG_TQM823L/M, CONFIG_TQM850L/M, etc. */
 
 /***  TQM855L/M, TQM860L/M, TQM862L/M, TQM866L/M  *********************/

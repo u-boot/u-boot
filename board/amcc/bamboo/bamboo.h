@@ -283,10 +283,8 @@
 /*----------------------------------------------------------------------------+
   | PPC440EP GPIOs addresses.
   +----------------------------------------------------------------------------*/
-#define GPIO0_BASE	 0xEF600B00
 #define GPIO0_REAL	 0xEF600B00
 
-#define GPIO1_BASE	 0xEF600C00
 #define GPIO1_REAL	 0xEF600C00
 
 /* Offsets */
@@ -330,17 +328,6 @@
 #define GPIO_IS2(x)	(x+GPIOx_IS2L)	 /* GPIO Input register2 High or Low */
 #define GPIO_IS3(x)	(x+GPIOx_IS3L)	 /* GPIO Input register3 High or Low */
 
-
-/*----------------------------------------------------------------------------+
-  | Declare Configuration values
-  +----------------------------------------------------------------------------*/
-typedef enum gpio_select { GPIO_SEL, GPIO_ALT1, GPIO_ALT2, GPIO_ALT3 } gpio_select_t;
-typedef enum gpio_driver { GPIO_DIS, GPIO_IN, GPIO_OUT, GPIO_BI } gpio_driver_t;
-
-typedef struct { unsigned long	add;	/* gpio core base address */
-	gpio_driver_t  in_out; /* Driver Setting */
-	gpio_select_t  alt_nb; /* Selected Alternate */
-} gpio_param_s;
 
 /*----------------------------------------------------------------------------+
   |			XX     XX

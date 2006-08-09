@@ -1,7 +1,12 @@
 
 U-Boot for Motorola M68K
 
-Last Update: January 12, 2004
+====================================================================
+History
+
+August 08,2005; 	Jens Scharsig <esw@bus-elektronik.de>
+			MCF5282 implementation without preloader
+January 12, 2004; 	<josef.baumgartner@telex.de>
 ====================================================================
 
 This file contains status information for the port of U-Boot to the
@@ -33,16 +38,8 @@ CPU specific code is located in: cpu/mcf52x2
 -----------------------------
 CPU specific code is located in: cpu/mcf52x2
 
-At the moment the code isn't fully implemented and still needs a pre-loader!
-The preloader must initialize the processor and then start u-boot. The board
-must be configured for a pre-loader (see 4.1)
-
-For the preloader, please see
-http://mailman.uclinux.org/pipermail/uclinux-dev/2003-December/023384.html
-
-U-boot is configured to run at 0x20000 at default. This can be configured by
-change TEXT_BASE in board/m5282evb/config.mk and CFG_MONITOR_BASE in
-include/configs/M5282EVB.h.
+The MCF5282 Port no longer needs a preloader and can place in external or
+internal FLASH.
 
 
 3. SUPPORTED BOARDs
@@ -67,6 +64,27 @@ Board specific code is located in: board/m5282evb
 
 To configure the board, type: make M5272C3_config
 
+At the moment the code isn't fully implemented and still needs a pre-loader!
+The preloader must initialize the processor and then start u-boot. The board
+must be configured for a pre-loader (see 4.1)
+
+For the preloader, please see
+http://mailman.uclinux.org/pipermail/uclinux-dev/2003-December/023384.html
+
+U-boot is configured to run at 0x20000 at default. This can be configured by
+change TEXT_BASE in board/m5282evb/config.mk and CFG_MONITOR_BASE in
+include/configs/M5282EVB.h.
+
+3.2 BuS EB+MCF-EV123
+---------------------
+
+Board specific code is located in: board/bus/EB+MCF-EV123
+
+To configure the board, type:
+
+make EB+MCF-EV123_config 		for external FLASH
+make EB+MCF-EV123_internal_config 	for internal FLASH
+
 
 4. CONFIGURATION OPTIONS/SETTINGS
 ----------------------------------
@@ -79,7 +97,6 @@ initial vector table and basic processor initialization will not
 be compiled in. The start address of u-boot must be adjusted in
 the boards config header file (CFG_MONITOR_BASE) and Makefile
 (TEXT_BASE) to the load address.
-
 
 4.1 MCF5272 specific Options/Settings
 -------------------------------------
@@ -123,14 +140,27 @@ CFG_INT_FLASH_BASE
 CFG_ENET_BD_BASE
 		-- defines the base addres of the FEC buffer descriptors
 
+CFG_MFD
+		-- defines the PLL Multiplication Factor Devider
+		   (see table 9-4 of MCF user manual)
+CFG_RFD		-- defines the PLL Reduce Frecuency Devider
+		   (see table 9-4 of MCF user manual)
+
+CFG_CSx_BASE	-- defines the base address of chip select x
+CFG_CSx_SIZE	-- defines the memory size (address range) of chip select x
+CFG_CSx_WIDTH	-- defines the bus with of chip select x
+CFG_CSx_RO 	-- if set to 0 chip select x is read/wirte
+			else chipselct is read only
+CFG_CSx_WS	-- defines the number of wait states  of chip select x
+
+CFG_PxDDR	-- defines the contents of the Data Direction Registers
+CFG_PxDAT	-- defines the contents of the Data Registers
+CFG_PXCNT	-- defines the contents of the Port Configuration Registers
+
+CFG_PxPAR	-- defines the function of ports
+
 
 5. COMPILER
 -----------
 To create U-Boot the gcc-2.95.3 compiler set (m68k-elf-20030314) from uClinux.org was used.
 You can download it from: http://www.uclinux.org/pub/uClinux/m68k-elf-tools/
-
-
-Regards,
-
-Josef
-<josef.baumgartner@telex.de>

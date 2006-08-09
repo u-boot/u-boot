@@ -133,12 +133,21 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_NUM_DEV	    4
 #elif (defined(CONFIG_440) || defined(CONFIG_405EP)) &&	\
 	defined(CONFIG_NET_MULTI) &&			\
-	!defined(CONFIG_440SP)
+	!defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 #define EMAC_NUM_DEV	    2
 #else
 #define EMAC_NUM_DEV	    1
 #endif
 
+#ifdef CONFIG_IBM_EMAC4_V4	/* EMAC4 V4 changed bit setting */
+#define EMAC_STACR_OC_MASK	(0x00008000)
+#else
+#define EMAC_STACR_OC_MASK	(0x00000000)
+#endif
+
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#define SDR0_PFC1_EM_1000	(0x00200000)
+#endif
 
 /*ZMII Bridge Register addresses */
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
@@ -323,7 +332,7 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M0_WKE			    (0x04000000)
 
 /* on 440GX EMAC_MR1 has a different layout! */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)
@@ -424,8 +433,21 @@ typedef struct emac_4xx_hw_st {
 /* STA CONTROL REG */
 #define EMAC_STACR_OC			(0x00008000)
 #define EMAC_STACR_PHYE			(0x00004000)
+
+#ifdef CONFIG_IBM_EMAC4_V4	/* EMAC4 V4 changed bit setting */
+#define EMAC_STACR_INDIRECT_MODE	(0x00002000)
+#define EMAC_STACR_WRITE		(0x00000800) /* $BUC */
+#define EMAC_STACR_READ			(0x00001000) /* $BUC */
+#define EMAC_STACR_OP_MASK		(0x00001800)
+#define EMAC_STACR_MDIO_ADDR		(0x00000000)
+#define EMAC_STACR_MDIO_WRITE		(0x00000800)
+#define EMAC_STACR_MDIO_READ		(0x00001800)
+#define EMAC_STACR_MDIO_READ_INC	(0x00001000)
+#else
 #define EMAC_STACR_WRITE		(0x00002000)
 #define EMAC_STACR_READ			(0x00001000)
+#endif
+
 #define EMAC_STACR_CLK_83MHZ	(0x00000800)  /* 0's for 50Mhz */
 #define EMAC_STACR_CLK_66MHZ	(0x00000400)
 #define EMAC_STACR_CLK_100MHZ	(0x00000C00)

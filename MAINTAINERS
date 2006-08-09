@@ -197,6 +197,7 @@ Brad Kemp <Brad.Kemp@seranoa.com>
 Sangmoon Kim <dogoil@etinsys.com>
 
 	debris			MPC8245
+	KVME080			MPC8245
 
 Thomas Lange <thomas@corelatus.se>
 
@@ -489,6 +490,7 @@ Wolfgang Denk <wd@denx.de>
 
 Thomas Lange <thomas@corelatus.se>
 	dbau1x00		MIPS32 Au1000
+	gth2			MIPS32 Au1000
 
 #########################################################################
 # Nios-32 Systems:							#
@@ -517,6 +519,9 @@ Scott McNutt <smcnutt@psyent.com>
 
 	PCI5441			Nios-II
 	PK1C20			Nios-II
+	EP1C20			Nios-II
+	EP1S10			Nios-II
+	EP1S40			Nios-II
 
 #########################################################################
 # MicroBlaze Systems:							#

@@ -151,6 +151,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		initrd_end = 0;
 	}
 
+	/* if multi-part image, we need to advance base ptr */
+	if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1])) {
+		int i;
+		for (i=0, addr+=sizeof(int); len_ptr[i++]; addr+=sizeof(int));
+	}
+
 	base_ptr = load_zimage((void*)addr + sizeof(image_header_t), ntohl(hdr->ih_size),
 			       initrd_start, initrd_end-initrd_start, 0);
 

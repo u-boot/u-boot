@@ -967,21 +967,21 @@ static int touch_write_clibration_values (int calib_point, int x, int y)
 
 	if (calib_point == CALIB_TL) {
 		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X0, 1,
-			       (char *)&x, 2)) {
+			       (unsigned char *)&x, 2)) {
 			return 1;
 		}
 		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y0, 1,
-			       (char *)&y, 2)) {
+			       (unsigned char *)&y, 2)) {
 			return 1;
 		}
 
 		/* verify written values */
 		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X0, 1,
-			      (char *)&x_verify, 2)) {
+			      (unsigned char *)&x_verify, 2)) {
 			return 1;
 		}
 		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y0, 1,
-			       (char *)&y_verify, 2)) {
+			       (unsigned char *)&y_verify, 2)) {
 			return 1;
 		}
 		if ((y != y_verify) || (x != x_verify)) {
@@ -993,21 +993,21 @@ static int touch_write_clibration_values (int calib_point, int x, int y)
 	}
 	else if (calib_point == CALIB_DR) {
 		  if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X1, 1,
-			       (char *)&x, 2)) {
+			       (unsigned char *)&x, 2)) {
 			return 1;
 		  }
 		if (i2c_write_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y1, 1,
-			       (char *)&y, 2)) {
+			       (unsigned char *)&y, 2)) {
 			return 1;
 		}
 
 		/* verify written values */
 		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_X1, 1,
-				       (char *)&x_verify, 2)) {
+				       (unsigned char *)&x_verify, 2)) {
 			return 1;
 		}
 		if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, TOUCH_Y1, 1,
-			       (char *)&y_verify, 2)) {
+			       (unsigned char *)&y_verify, 2)) {
 			return 1;
 		}
 		if ((y != y_verify) || (x != x_verify)) {
@@ -1110,7 +1110,7 @@ int do_serial_number (char **argv)
 
 	if (strcmp (argv[2], "read") == 0) {
 		if (i2c_read (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
-			      (char *)&serial_number, 4)) {
+			      (unsigned char *)&serial_number, 4)) {
 			printf ("could not read from eeprom\n");
 			return (1);
 		}
@@ -1121,7 +1121,7 @@ int do_serial_number (char **argv)
 	else if (strcmp (argv[2], "write") == 0) {
 		serial_number = simple_strtoul(argv[3], NULL, 10);
 		if (i2c_write (I2C_EEPROM_DEV_ADDR, SERIAL_NUMBER, 1,
-			      (char *)&serial_number, 4)) {
+			      (unsigned char *)&serial_number, 4)) {
 			printf ("could not write to eeprom\n");
 			return (1);
 		}
@@ -1141,7 +1141,7 @@ int do_crc16 (void)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
 	int crc;
-	char buf[EEPROM_MAX_CRC_BUF];
+	unsigned char buf[EEPROM_MAX_CRC_BUF];
 
 	if (i2c_read (I2C_EEPROM_DEV_ADDR, 0, 1, buf, 60)) {
 		printf ("could not read from eeprom\n");
@@ -1153,7 +1153,7 @@ int do_crc16 (void)
 	print_identifier ();
 	printf ("crc16=%#04x\n", crc);
 
-	if (i2c_write (I2C_EEPROM_DEV_ADDR, CRC16, 1, (char *)&crc,
+	if (i2c_write (I2C_EEPROM_DEV_ADDR, CRC16, 1, (unsigned char *)&crc,
 		       sizeof (crc))) {
 		printf ("could not read from eeprom\n");
 		return (1);

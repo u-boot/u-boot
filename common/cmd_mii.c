@@ -57,6 +57,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	int		rcode = 0;
 	char		*devname;
 
+	if (argc < 2) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
 #if defined(CONFIG_8xx) || defined(CONFIG_MCF52x2)
 	mii_init ();
 #endif

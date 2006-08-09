@@ -57,9 +57,9 @@
  *		valid then run it.
  *	2) if preinst.img is found load it into memory. If it is
  *		valid then run it. Update the EEPROM.
- *	3) if firmware.img is found load it into memory. If it is valid,
+ *	3) if firmw_01.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
- *	4) if kernel.img is found load it into memory. If it is valid,
+ *	4) if kernl_01.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
  *	5) if app.img is found load it into memory. If it is valid,
  *		burn it into FLASH and update the EEPROM.
@@ -81,8 +81,8 @@
 /* possible names of files on the USB stick. */
 #define AU_PREPARE	"prepare.img"
 #define AU_PREINST	"preinst.img"
-#define AU_FIRMWARE	"firmware.img"
-#define AU_KERNEL	"kernel.img"
+#define AU_FIRMWARE	"firmw_01.img"
+#define AU_KERNEL	"kernl_01.img"
 #define AU_APP		"app.img"
 #define AU_DISK		"disk.img"
 #define AU_POSTINST	"postinst.img"
@@ -222,7 +222,7 @@ au_check_cksum_valid(int idx, long nbytes)
 	/* check the data CRC */
 	checksum = ntohl(hdr->ih_dcrc);
 
-	if (crc32 (0, (char *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
+	if (crc32 (0, (uchar *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
 		!= checksum)
 	{
 		printf ("Image %s bad data checksum\n", aufile[idx]);
@@ -261,7 +261,7 @@ au_check_header_valid(int idx, long nbytes)
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
-	if (crc32 (0, (char *)hdr, sizeof(*hdr)) != checksum) {
+	if (crc32 (0, (uchar *)hdr, sizeof(*hdr)) != checksum) {
 		printf ("Image %s bad header checksum\n", aufile[idx]);
 		return -1;
 	}
@@ -397,7 +397,7 @@ au_do_update(int idx, long sz)
 	}
 
 	/* check the dcrc of the copy */
-	if (crc32 (0, (char *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
+	if (crc32 (0, (uchar *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
 		printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
 		return -1;
 	}
@@ -613,7 +613,8 @@ do_auto_update(void)
 #define VFD_LOGO_WIDTH 112
 #define VFD_LOGO_HEIGHT 72
 				/* must call transfer_pic directly */
-				transfer_pic(3, env, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
+				transfer_pic(3, (unsigned char *)env,
+					     VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
 			}
 			bitmap_first = 1;
 		}

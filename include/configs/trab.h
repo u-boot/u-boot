@@ -160,7 +160,6 @@
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
 				CFG_CMD_FAT			| \
-				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
 				CFG_CMD_SNTP			| \
 				CFG_CMD_USB	)
@@ -174,7 +173,6 @@
 				CFG_CMD_DATE			| \
 				CFG_CMD_DHCP			| \
 				CFG_CMD_FAT			| \
-				CFG_CMD_JFFS2			| \
 				CFG_CMD_NFS			| \
 				CFG_CMD_SNTP			| \
 				CFG_CMD_USB	)
@@ -384,10 +382,10 @@
 #define MTDIDS_DEFAULT		"nor0=0"
 
 /* production flash layout */
-#define MTDPARTS_DEFAULT	"mtdparts=0:32k(Firmware1)ro,"		\
+#define MTDPARTS_DEFAULT	"mtdparts=0:16k(Firmware1)ro,"		\
 						"16k(Env1),"		\
 						"16k(Env2),"		\
-						"320k(Firmware2)ro,"	\
+						"336k(Firmware2)ro,"	\
 						"896k(Kernel),"		\
 						"5376k(Root-FS),"	\
 						"1408k(JFFS2),"		\
@@ -404,7 +402,7 @@
 #endif
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
+#define CFG_FLASH_ERASE_TOUT	(15*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
 #define	CFG_ENV_IS_IN_FLASH	1

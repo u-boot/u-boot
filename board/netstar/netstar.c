@@ -27,7 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* arch number of NetStar board */
-	/* TODO: use define from asm/mach-types.h */
 	gd->bd->bi_arch_number = 692;
 
 	/* adress of boot parameters */
@@ -51,14 +50,10 @@ int dram_init(void)
 	return 0;
 }
 
-extern void partition_flash(void);
-
 int misc_init_r(void)
 {
 	return 0;
 }
-
-extern void nand_init(void);
 
 int board_late_init(void)
 {

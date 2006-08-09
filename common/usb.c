@@ -72,6 +72,8 @@ static int running;
 static int asynch_allowed;
 static struct devrequest setup_packet;
 
+char usb_started; /* flag for the started/stopped USB status */
+
 /**********************************************************************
  * some forward declerations...
  */
@@ -110,10 +112,12 @@ int usb_init(void)
 		printf("scanning bus for devices... ");
 		running=1;
 		usb_scan_devices();
+		usb_started = 1;
 		return 0;
 	}
 	else {
 		printf("Error, couldn't init Lowlevel part\n");
+		usb_started = 0;
 		return -1;
 	}
 }
@@ -124,6 +128,7 @@ int usb_init(void)
 int usb_stop(void)
 {
 	asynch_allowed=1;
+	usb_started = 0;
 	usb_hub_reset();
 	return usb_lowlevel_stop();
 }
@@ -280,56 +285,68 @@ int usb_set_maxpacket(struct usb_device *dev)
 int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
 {
 	struct usb_descriptor_header *head;
-	int index,ifno,epno;
-	ifno=-1;
-	epno=-1;
+	int index, ifno, epno, curr_if_num;
+	int i;
+	unsigned char *ch;
 
-	dev->configno=cfgno;
-	head =(struct usb_descriptor_header *)&buffer[0];
-	if(head->bDescriptorType!=USB_DT_CONFIG) {
-		printf(" ERROR: NOT USB_CONFIG_DESC %x\n",head->bDescriptorType);
+	ifno = -1;
+	epno = -1;
+	curr_if_num = -1;
+
+	dev->configno = cfgno;
+	head = (struct usb_descriptor_header *) &buffer[0];
+	if(head->bDescriptorType != USB_DT_CONFIG) {
+		printf(" ERROR: NOT USB_CONFIG_DESC %x\n", head->bDescriptorType);
 		return -1;
 	}
-	memcpy(&dev->config,buffer,buffer[0]);
-	dev->config.wTotalLength=swap_16(dev->config.wTotalLength);
-	dev->config.no_of_if=0;
+	memcpy(&dev->config, buffer, buffer[0]);
+	dev->config.wTotalLength = swap_16(dev->config.wTotalLength);
+	dev->config.no_of_if = 0;
 
-	index=dev->config.bLength;
+	index = dev->config.bLength;
 	/* Ok the first entry must be a configuration entry, now process the others */
-	head=(struct usb_descriptor_header *)&buffer[index];
-	while(index+1 < dev->config.wTotalLength) {
+	head = (struct usb_descriptor_header *) &buffer[index];
+	while(index + 1 < dev->config.wTotalLength) {
 		switch(head->bDescriptorType) {
 			case USB_DT_INTERFACE:
-				ifno=dev->config.no_of_if;
-				dev->config.no_of_if++; /* found an interface desc, increase numbers */
-				memcpy(&dev->config.if_desc[ifno],&buffer[index],buffer[index]); /* copy new desc */
-				dev->config.if_desc[ifno].no_of_ep=0;
-
+				if(((struct usb_interface_descriptor *) &buffer[index])->
+					bInterfaceNumber != curr_if_num) {
+					/* this is a new interface, copy new desc */
+					ifno = dev->config.no_of_if;
+					dev->config.no_of_if++;
+					memcpy(&dev->config.if_desc[ifno],
+						&buffer[index], buffer[index]);
+					dev->config.if_desc[ifno].no_of_ep = 0;
+					dev->config.if_desc[ifno].num_altsetting = 1;
+					curr_if_num = dev->config.if_desc[ifno].bInterfaceNumber;
+				} else {
+					/* found alternate setting for the interface */
+					dev->config.if_desc[ifno].num_altsetting++;
+				}
 				break;
 			case USB_DT_ENDPOINT:
-				epno=dev->config.if_desc[ifno].no_of_ep;
+				epno = dev->config.if_desc[ifno].no_of_ep;
 				dev->config.if_desc[ifno].no_of_ep++; /* found an endpoint */
-				memcpy(&dev->config.if_desc[ifno].ep_desc[epno],&buffer[index],buffer[index]);
-				dev->config.if_desc[ifno].ep_desc[epno].wMaxPacketSize
-					=swap_16(dev->config.if_desc[ifno].ep_desc[epno].wMaxPacketSize);
-				USB_PRINTF("if %d, ep %d\n",ifno,epno);
+				memcpy(&dev->config.if_desc[ifno].ep_desc[epno],
+					&buffer[index], buffer[index]);
+				dev->config.if_desc[ifno].ep_desc[epno].wMaxPacketSize =
+					swap_16(dev->config.if_desc[ifno].ep_desc[epno].wMaxPacketSize);
+				USB_PRINTF("if %d, ep %d\n", ifno, epno);
 				break;
 			default:
-				if(head->bLength==0)
+				if(head->bLength == 0)
 					return 1;
-				USB_PRINTF("unknown Description Type : %x\n",head->bDescriptorType);
+				USB_PRINTF("unknown Description Type : %x\n", head->bDescriptorType);
 				{
-					int i;
-					unsigned char *ch;
-					ch=(unsigned char *)head;
-					for(i=0;i<head->bLength; i++)
-						USB_PRINTF("%02X ",*ch++);
+					ch = (unsigned char *)head;
+					for(i = 0; i < head->bLength; i++)
+						USB_PRINTF("%02X ", *ch++);
 					USB_PRINTF("\n\n\n");
 				}
 				break;
 		}
-		index+=head->bLength;
-		head=(struct usb_descriptor_header *)&buffer[index];
+		index += head->bLength;
+		head = (struct usb_descriptor_header *)&buffer[index];
 	}
 	return 1;
 }
@@ -443,6 +460,14 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 		printf("selecting invalid interface %d", interface);
 		return -1;
 	}
+	/*
+	 * We should return now for devices with only one alternate setting.
+	 * According to 9.4.10 of the Universal Serial Bus Specification Revision 2.0
+	 * such devices can return with a STALL. This results in some USB sticks
+	 * timeouting during initialization and then being unusable in U-Boot.
+	 */
+	if (if_face->num_altsetting == 1)
+		return 0;
 
 	if ((ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 	    USB_REQ_SET_INTERFACE, USB_RECIP_INTERFACE, alternate,

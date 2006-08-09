@@ -47,6 +47,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
+#define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
+
 /*
  * Physical Memory Map
  */
@@ -94,7 +96,6 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CFG_JFFS_CUSTOM_PART	/* see board/voiceblue/jffs2parts.c */
 #endif
 
 /*
@@ -104,9 +105,11 @@
 #ifdef VOICEBLUE_SMALL_FLASH
 #define CFG_MALLOC_LEN		(SZ_64K - CFG_GBL_DATA_SIZE)
 #define CONFIG_STACKSIZE	SZ_8K
+#define PHYS_SDRAM_1_RESERVED	0
 #else
 #define CFG_MALLOC_LEN		SZ_4M
 #define CONFIG_STACKSIZE	SZ_1M
+#define PHYS_SDRAM_1_RESERVED	(CFG_MONITOR_LEN + CFG_MALLOC_LEN + CONFIG_STACKSIZE)
 #endif
 
 /*
@@ -174,6 +177,7 @@
 #define CONFIG_BOOTCOMMAND	"run nboot"
 #define CONFIG_PREBOOT		"run setup"
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"silent=1\0"						\
 	"ospart=0\0"						\
 	"swapos=no\0"						\
 	"setpart="						\
@@ -185,14 +189,36 @@
 	"fi\0"							\
 	"setup=setenv bootargs console=ttyS0,$baudrate "	\
 		"mtdparts=$mtdparts\0"				\
-	"nfsargs=run setpart; setenv bootargs $bootargs "	\
-		"root=/dev/nfs ip=dhcp\0"			\
+	"nfsargs=setenv bootargs $bootargs "			\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " \
+		"nfsroot=$rootpath root=/dev/nfs\0"		\
 	"flashargs=run setpart; setenv bootargs $bootargs "	\
 		"root=/dev/mtdblock$partition ro "		\
 		"rootfstype=jffs2\0"				\
-	"nboot=run nfsargs; bootp; tftp; bootm\0"		\
-	"fboot=run flashargs; fsload /boot/uImage; bootm\0"
+	"initrdargs=setenv bootargs $bootargs "			\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
+	"fboot=run flashargs; fsload /boot/uImage; bootm\0"	\
+	"iboot=bootp; run initrdargs; tftp; bootm\0"		\
+	"nboot=bootp; run nfsargs; tftp; bootm\0"
 #endif
+
+#ifndef VOICEBLUE_SMALL_FLASH
+#define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
+
+#if 1	/* feel free to disable for development */
+#define CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
+#define CONFIG_AUTOBOOT_PROMPT	"\nVoiceBlue Enterprise - booting...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"."	/* 1st "password"	*/
+#endif
+
+/*
+ * JFFS2 partitions (mtdparts command line support)
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=omapflash.0"
+#define MTDPARTS_DEFAULT	"mtdparts=omapflash.0:128k(uboot),64k(env),64k(r_env),16256k(data1),-(data2)"
+
+#endif	/* VOICEBLUE_SMALL_FLASH */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -213,7 +239,7 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	PHYS_SDRAM_1
-#define CFG_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE
+#define CFG_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - PHYS_SDRAM_1_RESERVED
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
@@ -246,23 +272,5 @@
 				 (OMAP5910_ARM_TIM_SEL << 12))
 
 #define VOICEBLUE_LED_REG	0x04030000
-
-/*
- * JFFS2 partitions
- *
- */
-/* No command line, one static partition */
-#undef CONFIG_JFFS2_CMDLINE
-#define CONFIG_JFFS2_DEV		"nor0"
-#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
-#define CONFIG_JFFS2_PART_OFFSET	0x00040000
-
-/* mtdparts command line support */
-/* Note: fake mtd_id used, no linux mtd map file */
-/*
-#define CONFIG_JFFS2_CMDLINE
-#define MTDIDS_DEFAULT		"nor0=voiceblue-0"
-#define MTDPARTS_DEFAULT	"mtdparts=voiceblue-0:128k(uboot),64k(env),64k(renv),-(jffs2)"
-*/
 
 #endif	/* __CONFIG_H */

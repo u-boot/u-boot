@@ -313,13 +313,13 @@ void sdram_init(void)
 	mtsdram(mem_tr0, 0x410a4012);	/* ?? */
 	mtsdram(mem_rtr, 0x04080000);	/* ?? */
 	mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM    */
-	mtsdram(mem_cfg0, 0x34000000);	/* Disable EEC */
+	mtsdram(mem_cfg0, 0x30000000);	/* Disable EEC */
 	udelay(400);		/* Delay 200 usecs (min)            */
 
 	/*--------------------------------------------------------------------
 	 * Enable the controller, then wait for DCEN to complete
 	 *------------------------------------------------------------------*/
-	mtsdram(mem_cfg0, 0x84000000);	/* Enable */
+	mtsdram(mem_cfg0, 0x80000000);	/* Enable */
 
 	for (;;) {
 		mfsdram(mem_mcsts, reg);
