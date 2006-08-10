@@ -315,7 +315,23 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	/*----------------------------------------------------------------*/
 	/* TLB entry setup -- step thru tlbtab */
 	/*----------------------------------------------------------------*/
+#if defined(CONFIG_440SPE)
+	/*----------------------------------------------------------------*/
+	/* We have different TLB tables for revA and rev B of 440SPe */
+	/*----------------------------------------------------------------*/
+	mfspr	r1, PVR
+	lis	r0,0x5342
+	ori	r0,r0,0x1891
+	cmpw	r7,r1,r0
+	bne	r7,..revA
+	bl	tlbtabB
+	b	..goon
+..revA:
+	bl	tlbtabA
+..goon:
+#else
 	bl	tlbtab		/* Get tlbtab pointer */
+#endif
 	mr	r5,r0
 	li	r1,0x003f	/* 64 TLB entries max */
 	mtctr	r1

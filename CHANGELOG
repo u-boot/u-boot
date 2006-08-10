@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add initial support for PCI-Express on PPC440SPe (Yucca board).
+
 * Fix timer problems on AMCC yucca board.
   Set Timer Clock Select to use CPU clock as a timer input source.
 
