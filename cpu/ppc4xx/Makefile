@@ -31,7 +31,8 @@ COBJS	= 405gp_pci.o 4xx_enet.o \
 	  bedbug_405.o commproc.o \
 	  cpu.o cpu_init.o i2c.o interrupts.o \
 	  miiphy.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o
+	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o \
+	  440spe_pcie.o
 
 OBJS	= $(AOBJS) $(COBJS)
 

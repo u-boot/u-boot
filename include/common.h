@@ -245,6 +245,9 @@ void	pciinfo	      (int, int);
 	void	pci_master_init	     (struct pci_controller *);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
+#if defined(CONFIG_440SPE)
+   void pcie_setup_hoses(void);
+#endif
 #endif
 
 int	misc_init_f   (void);
@@ -462,6 +465,7 @@ void	get_sys_info  ( sys_info_t * );
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
+	 int ppc440spe_revB(void);
 #	endif
 #  else
     typedef PPC405_SYS_INFO sys_info_t;
