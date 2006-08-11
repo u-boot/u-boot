@@ -148,30 +148,28 @@ static void ppc440spe_setup_utl(u32 port) {
 	 */
 	switch (port) {
 	case 0:
-		mtdcr(DCRN_PEGPL_REGBAH(PCIE0), 0x0000000d);
-		mtdcr(DCRN_PEGPL_REGBAL(PCIE0), 0x60000400);
-		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0xFFFFFC01);
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE0), 0x0000000c);
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE0), 0x20000000);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0x00007001);
 		mtdcr(DCRN_PEGPL_SPECIAL(PCIE0), 0x68782800);
-		utl_base = (unsigned int *)(CFG_PCIE1_REGBASE);
 		break;
 
 	case 1:
-		mtdcr(DCRN_PEGPL_REGBAH(PCIE1), 0x0000000d);
-		mtdcr(DCRN_PEGPL_REGBAL(PCIE1), 0x60001400);
-		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0xFFFFFC01);
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE1), 0x0000000c);
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE1), 0x20001000);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0x00007001);
 		mtdcr(DCRN_PEGPL_SPECIAL(PCIE1), 0x68782800);
-		utl_base = (unsigned int *)(CFG_PCIE3_REGBASE);
 		break;
 
 	case 2:
-		mtdcr(DCRN_PEGPL_REGBAH(PCIE2), 0x0000000d);
-		mtdcr(DCRN_PEGPL_REGBAL(PCIE2), 0x60002400);
-		mtdcr(DCRN_PEGPL_REGMSK(PCIE2), 0xFFFFFC01);
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE2), 0x0000000c);
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE2), 0x20002000);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE2), 0x00007001);
 		mtdcr(DCRN_PEGPL_SPECIAL(PCIE2), 0x68782800);
-		utl_base = (unsigned int *)(CFG_PCIE5_REGBASE);
 		break;
 	}
-
+	utl_base = (unsigned int *)(CFG_PCIE_BASE + 0x1000 * port);
+	
 	/*
 	 * Set buffer allocations and then assert VRB and TXE.
 	 */
@@ -182,7 +180,7 @@ static void ppc440spe_setup_utl(u32 port) {
 	out_be32(utl_base + PEUTL_IPHBSZ,  0x08000000);
 	out_be32(utl_base + PEUTL_IPDBSZ,  0x10000000);
 	out_be32(utl_base + PEUTL_RCIRQEN, 0x00f00000);
-	out_be32(utl_base + PEUTL_PCTL,    0x8080007d);
+	out_be32(utl_base + PEUTL_PCTL,    0x80800066);
 }
 
 static int check_error(void)
@@ -420,6 +418,7 @@ int ppc440spe_init_pcie_rootport(int port)
 	 *     PCIE1: 0xd_2000_0000
 	 *     PCIE2: 0xd_4000_0000
 	 */
+
 	switch (port) {
 	case 0:
 		if (ppc440spe_revB()) {
