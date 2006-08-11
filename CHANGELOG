@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Adapt TQM85xx ramdisk address to Linux kernel memory map
+
 * Add initial support for PCI-Express on PPC440SPe (Yucca board).
 
 * Fix compiler warning for TRAB board.

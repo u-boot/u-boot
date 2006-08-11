@@ -449,7 +449,7 @@
 		"run nfsargs addip addcons;bootm\0"			\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
 	"kernel_addr=FE000000\0"					\
-	"ramdisk_addr=FE100000\0"					\
+	"ramdisk_addr=FE180000\0"					\
 	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
