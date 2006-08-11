@@ -424,7 +424,7 @@
 #define CONFIG_BOOTDELAY 5		/* -1 disables auto-boot	*/
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
