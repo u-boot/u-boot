@@ -1032,6 +1032,7 @@ void pcie_setup_hoses(void)
 			continue;
 
 		yucca_setup_pcie_fpga_rootpoint(i);
+
 		if (ppc440spe_init_pcie_rootport(i)) {
 			printf("PCIE%d: initialization failed\n", i);
 			continue;
