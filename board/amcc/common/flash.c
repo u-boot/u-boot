@@ -76,6 +76,9 @@ void flash_print_info(flash_info_t * info)
 	case FLASH_MAN_SST:
 		printf("SST ");
 		break;
+        case FLASH_MAN_MX:
+		printf ("MACRONIX ");
+		break;
 	default:
 		printf("Unknown Vendor ");
 		break;
@@ -123,6 +126,9 @@ void flash_print_info(flash_info_t * info)
 		break;
 	case FLASH_STMW320DT:
 		printf ("M29W320DT (32 M, top sector)\n");
+		break;
+	case FLASH_MXLV320T:
+		printf ("MXLV320T (32 Mbit, top sector)\n");
 		break;
 	default:
 		printf("Unknown Chip Type\n");
@@ -375,6 +381,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 {
 	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
 		return flash_erase_2(info, s_first, s_last);
 	} else {
@@ -555,6 +562,7 @@ static int write_word(flash_info_t * info, ulong dest, ulong data)
 {
 	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
 		return write_word_2(info, dest, data);
 	} else {
@@ -648,6 +656,9 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 	case (CFG_FLASH_WORD_SIZE) STM_MANUFACT:
 		info->flash_id = FLASH_MAN_STM;
 		break;
+	case (CFG_FLASH_WORD_SIZE) MX_MANUFACT:
+		info->flash_id = FLASH_MAN_MX;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
@@ -675,6 +686,12 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 		info->flash_id += FLASH_STMW320DT;
 		info->sector_count = 67;
 		info->size = 0x00400000;  break;	/* => 4 MB	*/
+
+	case (CFG_FLASH_WORD_SIZE)MX_ID_LV320T:
+		info->flash_id += FLASH_MXLV320T;
+		info->sector_count = 71;
+		info->size = 0x00400000;
+		break;	/* => 4 MB	*/
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -711,6 +728,19 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 			--i;
 			info->start[i] = base;
 		}
+	} else if ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) {
+		i = info->sector_count - 1;
+		info->start[i--] = base + info->size - 0x00002000;
+		info->start[i--] = base + info->size - 0x00004000;
+		info->start[i--] = base + info->size - 0x00006000;
+		info->start[i--] = base + info->size - 0x00008000;
+		info->start[i--] = base + info->size - 0x0000a000;
+		info->start[i--] = base + info->size - 0x0000c000;
+		info->start[i--] = base + info->size - 0x0000e000;
+		info->start[i--] = base + info->size - 0x00010000;
+
+		for (; i >= 0; i--)
+			info->start[i] = base + i * 0x00010000;
 	} else {
 		if (info->flash_id & FLASH_BTYPE) {
 			/* set sector offsets for bottom boot block type        */

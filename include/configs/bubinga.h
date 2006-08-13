@@ -200,8 +200,9 @@
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
