@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix fatload command on FAT32 formatted partitions.
+  Patch by Joachim Jaeger, 18 Nov 2005
+
 * Fix drivers/dm9000.c when configured in 32 bit mode.
   Patch by Eric Benard, 17 Nov 2005
 
