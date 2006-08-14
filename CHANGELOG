@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update for SC520 board.
+  Patch by David Updegraff, 02 Dec 2005
+
 * Fixed common.h spelling error.
   Patch by Cory Tusar, 30 Nov 2005
 
