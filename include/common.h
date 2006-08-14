@@ -603,7 +603,7 @@ void	show_boot_progress (int status);
 #endif
 
 #ifdef CONFIG_INIT_CRITICAL
-#error CONFIG_INIT_CRITICAL is depracted!
+#error CONFIG_INIT_CRITICAL is deprecated!
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
 
