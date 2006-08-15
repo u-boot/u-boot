@@ -814,8 +814,9 @@ relocate_code:
 
         mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Global Data pointer	*/
+	mr	r29, r9		/* Save for DECLARE_GLOBAL_DATA_PTR	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
-        
+
 	mr	r3,  r5				/* Destination Address	*/
 	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
 	ori	r4, r4, CFG_MONITOR_BASE@l
