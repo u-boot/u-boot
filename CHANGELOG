@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add initial support for the ALPR board from Prodrive
+  NAND needs some additional testing
+  Patch by Heiko Schocher, 15 Aug 2006
+
 * Add FPGA Altera Cyclone 2 support
   Patch by Heiko Schocher, 15 Aug 2006
 

@@ -475,7 +475,11 @@ void pci_440_init (struct pci_controller *hose)
 	pci_set_region(hose->regions + reg_num++,
 		       CFG_PCI_TARGBASE,
 		       CFG_PCI_MEMBASE,
+#ifdef CFG_PCI_MEMSIZE
+		       CFG_PCI_MEMSIZE,
+#else
 		       0x10000000,
+#endif
 		       PCI_REGION_MEM );
 
 #if defined(CONFIG_PCI_SYS_MEM_BUS) && defined(CONFIG_PCI_SYS_MEM_PHYS) && \
