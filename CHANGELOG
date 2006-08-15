@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add FPGA Altera Cyclone 2 support
+  Patch by Heiko Schocher, 15 Aug 2006
+
 * Fix control-c handing in CONFIG_CMDLINE_EDITING
   Properly pass break code back from readline.
   Patch by Roger Blofeld, 31 Jul 2006
