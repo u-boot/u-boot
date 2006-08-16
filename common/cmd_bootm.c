@@ -528,7 +528,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	image_header_t *hdr = &header;
 #ifdef CONFIG_OF_FLAT_TREE
-	char	*of_flat_tree;
+	char	*of_flat_tree = NULL;
 #endif
 
 	if ((s = getenv ("initrd_high")) != NULL) {
@@ -737,14 +737,73 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_OF_FLAT_TREE
-	if (argc >= 3)
-	{
+	if(argc >= 3) {	
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
-		printf ("Booting using flat device tree at 0x%x\n",
+		hdr = (image_header_t *)of_flat_tree;
+		
+		if  (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#ifndef CFG_NO_FLASH
+			if (addr2info((ulong)of_flat_tree) != NULL) {
+				printf ("Cannot modify flat device tree stored in flash\n" \
+					"Copy to memory before using the bootm command\n");
+				return;
+			}
+#endif
+		} else if (ntohl(hdr->ih_magic) == IH_MAGIC) {
+			printf("## Flat Device Tree Image at %08lX\n", hdr);
+			print_image_hdr(hdr);
+
+			if ((ntohl(hdr->ih_load) <  ((unsigned long)hdr + ntohl(hdr->ih_size) + sizeof(hdr))) &&
+			   ((ntohl(hdr->ih_load) + ntohl(hdr->ih_size)) > (unsigned long)hdr)) {
+				printf ("ERROR: Load address overwrites Flat Device Tree uImage\n");
+				return;
+			}
+			
+			printf("   Verifying Checksum ... ");
+			memmove (&header, (char *)hdr, sizeof(image_header_t));
+			checksum = ntohl(header.ih_hcrc);
+			header.ih_hcrc = 0;
+
+			if(checksum != crc32(0, (uchar *)&header, sizeof(image_header_t))) {
+				printf("ERROR: Flat Device Tree header checksum is invalid\n");
+				return;
+			}
+
+			checksum = ntohl(hdr->ih_dcrc);
+			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
+			len = ntohl(hdr->ih_size);
+
+			if(checksum != crc32(0, (uchar *)addr, len)) {
+				printf("ERROR: Flat Device Tree checksum is invalid\n");
+				return;
+			}
+			printf("OK\n");
+
+			if (ntohl(hdr->ih_type) != IH_TYPE_FLATDT) {
+				printf ("ERROR: uImage not Flat Device Tree type\n");
+				return;
+			}
+			if (ntohl(hdr->ih_comp) != IH_COMP_NONE) {
+				printf("ERROR: uImage is not uncompressed\n");
+				return;
+			}
+			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+				printf ("ERROR: uImage data is not a flat device tree\n");
+				return;
+			}
+					
+			memmove((void *)ntohl(hdr->ih_load), 
+		       		(void *)(of_flat_tree + sizeof(image_header_t)),
+				ntohl(hdr->ih_size));
+			of_flat_tree = (char *)ntohl(hdr->ih_load);
+		} else {
+			printf ("Did not find a flat flat device tree at address %08lX\n", of_flat_tree);
+			return;
+		}
+		printf ("   Booting using flat device tree at 0x%x\n",
 				of_flat_tree);
 	}
 #endif
-
 	if (!data) {
 		debug ("No initrd\n");
 	}
@@ -1272,6 +1331,7 @@ print_type (image_header_t *hdr)
 	case IH_TYPE_MULTI:	type = "Multi-File Image";	break;
 	case IH_TYPE_FIRMWARE:	type = "Firmware";		break;
 	case IH_TYPE_SCRIPT:	type = "Script";		break;
+	case IH_TYPE_FLATDT:	type = "Flat Device Tree";	break;
 	default:		type = "Unknown Image";		break;
 	}
 
