@@ -325,6 +325,7 @@ lite5200b_LOWBOOT_config:	unconfig
 mcc200_config	\
 mcc200_SDRAM	\
 mcc200_highboot	\
+mcc200_COM12	\
 mcc200_highboot_SDRAM:	unconfig
 	@ >include/config.h
 	@[ -n "$(findstring highboot,$@)" ] || \
@@ -340,6 +341,10 @@ mcc200_highboot_SDRAM:	unconfig
 	@[ -z "$(findstring _SDRAM,$@)" ] || \
 		{ echo "#define CONFIG_MCC200_SDRAM"	>>include/config.h ; \
 		  echo "... with SDRAM" ; \
+		}
+	@[ -z "$(findstring COM12,$@)" ] || \
+		{ echo "#define CONFIG_CONSOLE_COM12"	>>include/config.h ; \
+		  echo "... with console on COM12" ; \
 		}
 	@./mkconfig -a mcc200 ppc mpc5xxx mcc200
 

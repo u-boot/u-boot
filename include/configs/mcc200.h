@@ -51,15 +51,20 @@
  *  To select console on the one of 8 external UARTs,
  * define CONFIG_QUART_CONSOLE as 1, 2, 3, or 4 for the first Quad UART,
  * or as 5, 6, 7, or 8 for the second Quad UART.
+ * COM11, COM12, COM13, COM14 are located on the second Quad UART.
  *
  *  CONFIG_PSC_CONSOLE must be undefined in this case.
  */
-/* #define CONFIG_QUART_CONSOLE	1	*/ /* console is on UART1 of QUART1	*/
+#ifdef CONFIG_CONSOLE_COM12
+#define CONFIG_QUART_CONSOLE	6	/* console is on UARTF of QUART2	*/
+#else
+#define CONFIG_QUART_CONSOLE	8	/* console is on UARTH of QUART2	*/
+#endif
 /*
  *  To select console on PSC1, define CONFIG_PSC_CONSOLE as 1
  * and undefine CONFIG_QUART_CONSOLE.
  */
-#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1			*/
+/*#define CONFIG_PSC_CONSOLE	1	*/ /* console is on PSC1		*/
 #if defined(CONFIG_QUART_CONSOLE) && defined(CONFIG_PSC_CONSOLE)
 #error "Select only one console device!"
 #endif
