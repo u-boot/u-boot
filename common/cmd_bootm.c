@@ -737,7 +737,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_OF_FLAT_TREE
-	if(argc >= 3) {	
+	if(argc > 3) {	
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
 		
@@ -802,6 +802,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 		printf ("   Booting using flat device tree at 0x%x\n",
 				of_flat_tree);
+	} else if(getenv("disable_of") == NULL) {
+		printf ("ERROR: bootm needs flat device tree as third argument\n");
+		return;
 	}
 #endif
 	if (!data) {
