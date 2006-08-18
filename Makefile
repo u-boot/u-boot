@@ -424,8 +424,13 @@ TQM5200S_config \
 TQM5200S_HIGHBOOT_config \
 TQM5200_STK100_config \
 cam5200_config \
-MiniFAP_config:	unconfig
+MiniFAP_config \
+fo300_config:	unconfig
 	@ >include/config.h
+	@[ -z "$(findstring fo300,$@)" ] || \
+		{ echo "#define CONFIG_FO300"	>>include/config.h ; \
+		  echo "... TQM5200 on FO300" ; \
+		}
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
