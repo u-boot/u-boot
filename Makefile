@@ -417,16 +417,22 @@ Total5200_Rev2_lowboot_config:	unconfig
 		}
 	@./mkconfig -a Total5200 ppc mpc5xxx total5200
 
-TQM5200_config	\
-TQM5200_B_config \
-TQM5200_B_HIGHBOOT_config \
+cam5200_config \
+fo300_config \
+MiniFAP_config \
 TQM5200S_config \
 TQM5200S_HIGHBOOT_config \
-TQM5200_STK100_config \
-cam5200_config \
-MiniFAP_config \
-fo300_config:	unconfig
+TQM5200_B_config \
+TQM5200_B_HIGHBOOT_config \
+TQM5200_config	\
+TQM5200_STK100_config:	unconfig
 	@ >include/config.h
+	@[ -z "$(findstring cam5200,$@)" ] || \
+		{ echo "#define CONFIG_CAM5200"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
+		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
+		  echo "... TQM5200S on Cam5200" ; \
+		}
 	@[ -z "$(findstring fo300,$@)" ] || \
 		{ echo "#define CONFIG_FO300"	>>include/config.h ; \
 		  echo "... TQM5200 on FO300" ; \
@@ -434,12 +440,6 @@ fo300_config:	unconfig
 	@[ -z "$(findstring MiniFAP,$@)" ] || \
 		{ echo "#define CONFIG_MINIFAP"	>>include/config.h ; \
 		  echo "... TQM5200_AC on MiniFAP" ; \
-		}
-	@[ -z "$(findstring cam5200,$@)" ] || \
-		{ echo "#define CONFIG_CAM5200"	>>include/config.h ; \
-		  echo "#define CONFIG_TQM5200S"	>>include/config.h ; \
-		  echo "#define CONFIG_TQM5200_B"	>>include/config.h ; \
-		  echo "... TQM5200S on Cam5200" ; \
 		}
 	@[ -z "$(findstring STK100,$@)" ] || \
 		{ echo "#define CONFIG_STK52XX_REV100"	>>include/config.h ; \

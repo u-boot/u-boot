@@ -293,7 +293,7 @@ int checkboard (void)
 #elif defined(CONFIG_FO300)
 # define CARRIER_NAME	"FO300"
 #else
-# error "Unknown carrier board"
+# error "UNKNOWN"
 #endif
 
 	puts (	"Board: " MODULE_NAME " (TQ-Components GmbH)\n"

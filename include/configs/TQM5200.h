@@ -37,7 +37,7 @@
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module		*/
 #undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules	*/
 
-/* On a Cameron board or on a FO300 board or ...				*/
+/* On a Cameron or on a FO300 board or ...				*/
 #if !defined(CONFIG_CAM5200) && !defined(CONFIG_FO300)
 #define CONFIG_STK52XX		1	/* ... on a STK52XX board		*/
 #endif
@@ -71,7 +71,7 @@
 
 #undef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED		/* silent console on PSC1 when S1 */
 							/* switch is open */
-#endif
+#endif	/* CONFIG_FO300 */
 
 #ifdef CONFIG_STK52XX
 #define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
