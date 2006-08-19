@@ -314,6 +314,18 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8548@0"
+#define OF_SOC			"soc8548@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH		"/soc8548@e0000000/serial@4600"
+
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
@@ -329,31 +341,26 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI1_IO_BASE	0x00000000
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #define CFG_PCI2_MEM_BASE	0xa0000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
 #define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI2_IO_BASE	0xe3000000
-#define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
-#define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI2_IO_BASE	0x00000000
+#define CFG_PCI2_IO_PHYS	0xe2100000
+#define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
 
 
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_85XX_PCI2
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
-
-#if !defined(CONFIG_PCI_PNP)
-    #define PCI_ENET0_IOADDR      0xe0000000
-    #define PCI_ENET0_MEMADDR     0xe0000000
-    #define PCI_IDSEL_NUMBER      0x0c 	/*slot0->3(IDSEL)=12->15*/
-#endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
@@ -374,7 +381,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_MPC85XX_TSEC2_NAME	"eTSEC1"
 #define CONFIG_MPC85XX_TSEC3	1
 #define CONFIG_MPC85XX_TSEC3_NAME	"eTSEC2"
-#define CONFIG_MPC85XX_TSEC4	1
+#undef CONFIG_MPC85XX_TSEC4
 #define CONFIG_MPC85XX_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 

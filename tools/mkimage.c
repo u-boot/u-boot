@@ -130,6 +130,7 @@ table_entry_t type_name[] = {
     {	IH_TYPE_RAMDISK,    "ramdisk",	  "RAMDisk Image",	},
     {	IH_TYPE_SCRIPT,     "script",	  "Script",		},
     {	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
+    {	IH_TYPE_FLATDT,     "flat_dt",    "Flat Device Tree",	},
     {	-1,		    "",		  "",			},
 };
 

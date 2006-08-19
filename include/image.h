@@ -124,6 +124,7 @@
 #define IH_TYPE_FIRMWARE	5	/* Firmware Image		*/
 #define IH_TYPE_SCRIPT		6	/* Script file			*/
 #define IH_TYPE_FILESYSTEM	7	/* Filesystem Image (any type)	*/
+#define IH_TYPE_FLATDT		8	/* Binary Flat Device Tree Blob	*/
 
 /*
  * Compression Types
