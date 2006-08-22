@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add a fix for a buggy USB device on the FO300 board.
+
 * Add support for WTK FO300 board (TQM5200 based).
 
 * Fix TQM834x hang.

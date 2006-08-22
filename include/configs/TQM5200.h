@@ -63,7 +63,7 @@
 #define CFG_DEVICE_NULLDEV		1	/* enable null device */
 #define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* used to detect S1 switch position */
-
+#define CONFIG_USB_BIN_FIXUP		1	/* for a buggy USB device */
 #if 0
 #define FO300_SILENT_CONSOLE_WHEN_S1_CLOSED	1	/* silent console on PSC1 when S1 */
 							/* switch is closed */
