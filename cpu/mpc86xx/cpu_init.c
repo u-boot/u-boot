@@ -38,11 +38,11 @@
 
 void cpu_init_f(void)
 {
-        DECLARE_GLOBAL_DATA_PTR;
+	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 
-        /* Pointer is writable since we allocated a register for it */
+	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
@@ -104,8 +104,8 @@ void cpu_init_f(void)
 	/* enable the timebase bit in HID0 */
 	set_hid0(get_hid0() | 0x4000000);
 
-        /* enable SYNCBE | ABE bits in  HID1 */
-        set_hid1(get_hid1() | 0x00000C00);
+	/* enable SYNCBE | ABE bits in  HID1 */
+	set_hid1(get_hid1() | 0x00000C00);
 }
 
 /*

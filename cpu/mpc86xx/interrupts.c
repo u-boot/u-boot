@@ -41,7 +41,7 @@ unsigned long decrementer_count;    /* count value for 1e6/HZ microseconds */
 unsigned long timestamp;
 
 
-static __inline__ unsigned long get_msr (void)
+static __inline__ unsigned long get_msr(void)
 {
 	unsigned long msr;
 
@@ -50,12 +50,12 @@ static __inline__ unsigned long get_msr (void)
 	return msr;
 }
 
-static __inline__ void set_msr (unsigned long msr)
+static __inline__ void set_msr(unsigned long msr)
 {
 	asm volatile ("mtmsr %0"::"r" (msr));
 }
 
-static __inline__ unsigned long get_dec (void)
+static __inline__ unsigned long get_dec(void)
 {
 	unsigned long val;
 
@@ -64,57 +64,57 @@ static __inline__ unsigned long get_dec (void)
 	return val;
 }
 
-
-static __inline__ void set_dec (unsigned long val)
+static __inline__ void set_dec(unsigned long val)
 {
 	if (val)
 		asm volatile ("mtdec %0"::"r" (val));
 }
 
 /* interrupt is not supported yet */
-int interrupt_init_cpu (unsigned *decrementer_count)
+int interrupt_init_cpu(unsigned *decrementer_count)
 {
 	return 0;
 }
 
-
-int interrupt_init (void)
+int interrupt_init(void)
 {
 	int ret;
 
 	/* call cpu specific function from $(CPU)/interrupts.c */
-	ret = interrupt_init_cpu (&decrementer_count);
+	ret = interrupt_init_cpu(&decrementer_count);
 
 	if (ret)
 		return ret;
 
-	decrementer_count = get_tbclk()/CFG_HZ;
-	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n", (get_tbclk()/1000000), decrementer_count);
+	decrementer_count = get_tbclk() / CFG_HZ;
+	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n",
+	      (get_tbclk() / 1000000),
+	      decrementer_count);
 
-	set_dec (decrementer_count);
+	set_dec(decrementer_count);
 
-	set_msr (get_msr () | MSR_EE);
+	set_msr(get_msr() | MSR_EE);
 
-	debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n", get_msr(), get_dec());
+	debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n",
+	      get_msr(),
+	      get_dec());
 
 	return 0;
 }
 
-
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
-	set_msr (get_msr () | MSR_EE);
+	set_msr(get_msr() | MSR_EE);
 }
 
 /* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
-	ulong msr = get_msr ();
+	ulong msr = get_msr();
 
-	set_msr (msr & ~MSR_EE);
+	set_msr(msr & ~MSR_EE);
 	return (msr & MSR_EE) != 0;
 }
-
 
 void increment_timestamp(void)
 {
@@ -126,52 +126,49 @@ void increment_timestamp(void)
  * with interrupts disabled.
  * Trivial implementation - no need to be really accurate.
  */
-void
-timer_interrupt_cpu (struct pt_regs *regs)
+void timer_interrupt_cpu(struct pt_regs *regs)
 {
 	/* nothing to do here */
 }
 
-
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt(struct pt_regs *regs)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
-	timer_interrupt_cpu (regs);
+	timer_interrupt_cpu(regs);
 
 	timestamp++;
 
 	ppcDcbf(&timestamp);
 
 	/* Restore Decrementer Count */
-	set_dec (decrementer_count);
+	set_dec(decrementer_count);
 
 #if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
 	if ((timestamp % (CFG_WATCHDOG_FREQ)) == 0)
-		WATCHDOG_RESET ();
-#endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
+		WATCHDOG_RESET();
+#endif /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_STATUS_LED
-	status_led_tick (timestamp);
+	status_led_tick(timestamp);
 #endif /* CONFIG_STATUS_LED */
 
 #ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity (timestamp);
+	board_show_activity(timestamp);
 #endif /* CONFIG_SHOW_ACTIVITY */
-
 
 }
 
-void reset_timer (void)
+void reset_timer(void)
 {
 	timestamp = 0;
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
 	return timestamp - base;
 }
 
-void set_timer (ulong t)
+void set_timer(ulong t)
 {
 	timestamp = t;
 }
@@ -180,24 +177,20 @@ void set_timer (ulong t)
  * Install and free a interrupt handler. Not implemented yet.
  */
 
-void
-irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
+void irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 {
 }
 
-void
-irq_free_handler(int vec)
+void irq_free_handler(int vec)
 {
 }
-
 
 /*
  * irqinfo - print information about PCI devices,not implemented.
  */
-int
-do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	printf ("\nInterrupt-unsupported:\n");
+	printf("\nInterrupt-unsupported:\n");
 
 	return 0;
 }
@@ -205,14 +198,7 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*
  * Handle external interrupts
  */
-void
-external_interrupt(struct pt_regs *regs)
+void external_interrupt(struct pt_regs *regs)
 {
 	puts("external_interrupt (oops!)\n");
 }
-
-
-
-
-
-

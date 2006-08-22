@@ -30,16 +30,16 @@
 #include <asm/processor.h>
 
 
-void get_sys_info (sys_info_t *sysInfo)
+void get_sys_info(sys_info_t *sysInfo)
 {
-	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio, e600_ratio;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
 
-	switch(plat_ratio) {
+	switch (plat_ratio) {
 	case 0x0:
 		sysInfo->freqSystemBus = 16 * CONFIG_SYS_CLK_FREQ;
 		break;
@@ -56,7 +56,7 @@ void get_sys_info (sys_info_t *sysInfo)
 		sysInfo->freqSystemBus = plat_ratio * CONFIG_SYS_CLK_FREQ;
 		break;
 	default:
-	        sysInfo->freqSystemBus = 0;
+		sysInfo->freqSystemBus = 0;
 		break;
 	}
 
@@ -68,19 +68,19 @@ void get_sys_info (sys_info_t *sysInfo)
 		sysInfo->freqProcessor = 2 * sysInfo->freqSystemBus;
 		break;
 	case 0x19:
-		sysInfo->freqProcessor = 5 * sysInfo->freqSystemBus/2;
+		sysInfo->freqProcessor = 5 * sysInfo->freqSystemBus / 2;
 		break;
 	case 0x20:
 		sysInfo->freqProcessor = 3 * sysInfo->freqSystemBus;
 		break;
 	case 0x39:
-		sysInfo->freqProcessor = 7 * sysInfo->freqSystemBus/2;
+		sysInfo->freqProcessor = 7 * sysInfo->freqSystemBus / 2;
 		break;
 	case 0x28:
 		sysInfo->freqProcessor = 4 * sysInfo->freqSystemBus;
 		break;
 	case 0x1d:
-		sysInfo->freqProcessor = 9 * sysInfo->freqSystemBus/2;
+		sysInfo->freqProcessor = 9 * sysInfo->freqSystemBus / 2;
 		break;
 	default:
 		sysInfo->freqProcessor = e600_ratio + sysInfo->freqSystemBus;

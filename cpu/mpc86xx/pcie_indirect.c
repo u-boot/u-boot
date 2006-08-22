@@ -28,20 +28,23 @@
 
 static int
 indirect_read_config_pcie(struct pci_controller *hose,
-		 	 pci_dev_t dev, int offset,
-			 int len,u32 *val)
+			  pci_dev_t dev,
+			  int offset,
+			  int len,
+			  u32 *val)
 {
 	int bus = PCI_BUS(dev);
-	char devfn = ( (PCI_DEV(dev) << 4 ) | (PCI_FUNC(dev)) ) ;
 
-	unsigned char *cfg_data;
+	volatile unsigned char *cfg_data;
 	u32 temp;
 
 	PEX_FIX;
-	if( bus == 0xff) {
-		PCI_CFG_OUT(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000001);
-	}else {
-		PCI_CFG_OUT(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);
+	if (bus == 0xff) {
+		PCI_CFG_OUT(hose->cfg_addr,
+			    dev | (offset & 0xfc) | 0x80000001);
+	} else {
+		PCI_CFG_OUT(hose->cfg_addr,
+			    dev | (offset & 0xfc) | 0x80000000);
 	}
 	/*
 	 * Note: the caller has already checked that offset is
@@ -50,13 +53,13 @@ indirect_read_config_pcie(struct pci_controller *hose,
 	/* ERRATA PCI-Ex 12 - Configuration Address/Data Alignment */
 	cfg_data = hose->cfg_data;
 	PEX_FIX;
-	temp = in_le32(cfg_data);
+	temp = in_le32((u32 *) cfg_data);
 	switch (len) {
 	case 1:
-		*val = (temp >> (((offset & 3))*8)) & 0xff;
+		*val = (temp >> (((offset & 3)) * 8)) & 0xff;
 		break;
 	case 2:
-		*val = (temp >> (((offset & 3))*8)) & 0xffff;
+		*val = (temp >> (((offset & 3)) * 8)) & 0xffff;
 		break;
 	default:
 		*val = temp;
@@ -68,22 +71,22 @@ indirect_read_config_pcie(struct pci_controller *hose,
 
 static int
 indirect_write_config_pcie(struct pci_controller *hose,
-			  pci_dev_t dev,
-			  int offset,
-			  int len,
-			  u32 val)
+			   pci_dev_t dev,
+			   int offset,
+			   int len,
+			   u32 val)
 {
 	int bus = PCI_BUS(dev);
-	char devfn = ( (PCI_DEV(dev) << 4 ) | (PCI_FUNC(dev)) ) ;
-
-	unsigned char *cfg_data;
+	volatile unsigned char *cfg_data;
 	u32 temp;
 
 	PEX_FIX;
-	if( bus == 0xff) {
-		PCI_CFG_OUT(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000001);
-	}else {
-		PCI_CFG_OUT(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);
+	if (bus == 0xff) {
+		PCI_CFG_OUT(hose->cfg_addr,
+			    dev | (offset & 0xfc) | 0x80000001);
+	} else {
+		PCI_CFG_OUT(hose->cfg_addr,
+			    dev | (offset & 0xfc) | 0x80000000);
 	}
 
 	/*
@@ -95,23 +98,23 @@ indirect_write_config_pcie(struct pci_controller *hose,
 	switch (len) {
 	case 1:
 		PEX_FIX;
-		temp = in_le32(cfg_data);
+		temp = in_le32((u32 *) cfg_data);
 		temp = (temp & ~(0xff << ((offset & 3) * 8))) |
-			(val << ((offset & 3) * 8));
+		    (val << ((offset & 3) * 8));
 		PEX_FIX;
-		out_le32(cfg_data, temp);
+		out_le32((u32 *) cfg_data, temp);
 		break;
 	case 2:
 		PEX_FIX;
-		temp = in_le32(cfg_data);
+		temp = in_le32((u32 *) cfg_data);
 		temp = (temp & ~(0xffff << ((offset & 3) * 8)));
-		temp |= (val << ((offset & 3) * 8)) ;
+		temp |= (val << ((offset & 3) * 8));
 		PEX_FIX;
-		out_le32(cfg_data, temp);
+		out_le32((u32 *) cfg_data, temp);
 		break;
 	default:
 		PEX_FIX;
-		out_le32(cfg_data, val);
+		out_le32((u32 *) cfg_data, val);
 		break;
 	}
 	PEX_FIX;
@@ -120,68 +123,66 @@ indirect_write_config_pcie(struct pci_controller *hose,
 
 static int
 indirect_read_config_byte_pcie(struct pci_controller *hose,
-			      pci_dev_t dev,
-			      int offset,
-			      u8 *val)
+			       pci_dev_t dev,
+			       int offset,
+			       u8 *val)
 {
 	u32 val32;
-	indirect_read_config_pcie(hose,dev,offset,1,&val32);
-	*val = (u8)val32;
+	indirect_read_config_pcie(hose, dev, offset, 1, &val32);
+	*val = (u8) val32;
 	return 0;
 }
 
 static int
 indirect_read_config_word_pcie(struct pci_controller *hose,
-			      pci_dev_t dev,
-			      int offset,
-			      u16 *val)
+			       pci_dev_t dev,
+			       int offset,
+			       u16 *val)
 {
 	u32 val32;
-	indirect_read_config_pcie(hose,dev,offset,2,&val32);
-	*val = (u16)val32;
+	indirect_read_config_pcie(hose, dev, offset, 2, &val32);
+	*val = (u16) val32;
 	return 0;
 }
 
 static int
 indirect_read_config_dword_pcie(struct pci_controller *hose,
-			       pci_dev_t dev,
-			       int offset,
-			       u32 *val)
+				pci_dev_t dev,
+				int offset,
+				u32 *val)
 {
-	return indirect_read_config_pcie(hose,dev, offset,4,val);
+	return indirect_read_config_pcie(hose, dev, offset, 4, val);
 }
 
 static int
 indirect_write_config_byte_pcie(struct pci_controller *hose,
-			       pci_dev_t dev,
-			       int offset,
-			       char val)
+				pci_dev_t dev,
+				int offset,
+				u8 val)
 {
-	return indirect_write_config_pcie(hose,dev, offset,1,(u32)val);
+	return indirect_write_config_pcie(hose, dev, offset, 1, (u32) val);
 }
 
 static int
 indirect_write_config_word_pcie(struct pci_controller *hose,
-			       pci_dev_t dev,
-			       int offset,
-			       unsigned short val)
+				pci_dev_t dev,
+				int offset,
+				unsigned short val)
 {
-	return indirect_write_config_pcie(hose,dev, offset,2,(u32)val);
+	return indirect_write_config_pcie(hose, dev, offset, 2, (u32) val);
 }
 
 static int
 indirect_write_config_dword_pcie(struct pci_controller *hose,
-			        pci_dev_t dev,
-			        int offset,
-			        unsigned short val)
+				 pci_dev_t dev,
+				 int offset,
+				 u32 val)
 {
-	return indirect_write_config_pcie(hose,dev, offset,4,val);
+	return indirect_write_config_pcie(hose, dev, offset, 4, val);
 }
 
 void
-pcie_setup_indirect(struct pci_controller* hose,
-		   u32 cfg_addr,
-		   u32 cfg_data)
+pcie_setup_indirect(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 {
 	pci_set_ops(hose,
 		    indirect_read_config_byte_pcie,
@@ -191,8 +192,8 @@ pcie_setup_indirect(struct pci_controller* hose,
 		    indirect_write_config_word_pcie,
 		    indirect_write_config_dword_pcie);
 
-	hose->cfg_addr = (unsigned int *) cfg_addr;
-	hose->cfg_data = (unsigned char *) cfg_data;
+	hose->cfg_addr = (unsigned int *)cfg_addr;
+	hose->cfg_data = (unsigned char *)cfg_data;
 }
 
-#endif	/* CONFIG_PCI */
+#endif				/* CONFIG_PCI */

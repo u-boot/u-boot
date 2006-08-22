@@ -50,12 +50,12 @@ void sdram_init(void);
 long int fixed_sdram(void);
 
 
-int board_early_init_f (void)
+int board_early_init_f(void)
 {
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	puts("Board: MPC8641HPCN\n");
 
@@ -68,7 +68,7 @@ int checkboard (void)
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
 	uint host1_agent = (gur->porbmsr & MPC86xx_PORBMSR_HA) >> 17;
-	uint pex1_agent =  (host1_agent == 0) || (host1_agent == 1);
+	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
 
 	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
 	     || io_sel == 6 || io_sel == 7 || io_sel == 0xF)
@@ -80,7 +80,7 @@ int checkboard (void)
 			debug(" with errors.  Clearing.  Now 0x%08x",
 			      pex1->pme_msg_det);
 		}
-		debug ("\n");
+		debug("\n");
 	} else {
 		puts("PCI-EXPRESS 1: Disabled\n");
 	}
@@ -99,9 +99,9 @@ initdram(int board_type)
 	long dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
+	dram_size = spd_sdram();
 #else
-	dram_size = fixed_sdram ();
+	dram_size = fixed_sdram();
 #endif
 
 #if defined(CFG_RAMBOOT)
@@ -122,7 +122,8 @@ initdram(int board_type)
 
 
 #if defined(CFG_DRAM_TEST)
-int testdram(void)
+int
+testdram(void)
 {
 	uint *pstart = (uint *) CFG_MEMTEST_START;
 	uint *pend = (uint *) CFG_MEMTEST_END;
@@ -134,7 +135,7 @@ int testdram(void)
 
 	for (p = pstart; p < pend; p++) {
 		if (*p != 0xaaaaaaaa) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
+			printf("SDRAM test fails at: %08x\n", (uint) p);
 			return 1;
 		}
 	}
@@ -145,7 +146,7 @@ int testdram(void)
 
 	for (p = pstart; p < pend; p++) {
 		if (*p != 0x55555555) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
+			printf("SDRAM test fails at: %08x\n", (uint) p);
 			return 1;
 		}
 	}
@@ -160,11 +161,12 @@ int testdram(void)
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */
-long int fixed_sdram(void)
+long int
+fixed_sdram(void)
 {
 #if !defined(CFG_RAMBOOT)
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr1;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
 
 	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
 	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
@@ -211,28 +213,25 @@ long int fixed_sdram(void)
 
 #ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_fsl86xxads_config_table[] = {
-    { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-      PCI_IDSEL_NUMBER, PCI_ANY_ID,
-      pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
-				   PCI_ENET0_MEMADDR,
-				   PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
-      } },
-    { }
+	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
+	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
+				     PCI_ENET0_MEMADDR,
+				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
+	{}
 };
 #endif
 
 
 static struct pci_controller hose = {
 #ifndef CONFIG_PCI_PNP
-	config_table: pci_mpc86xxcts_config_table,
+      config_table:pci_mpc86xxcts_config_table,
 #endif
 };
 
-#endif	/* CONFIG_PCI */
+#endif /* CONFIG_PCI */
 
-
-void
-pci_init_board(void)
+void pci_init_board(void)
 {
 #ifdef CONFIG_PCI
 	extern void pci_mpc86xx_init(struct pci_controller *hose);
@@ -260,7 +259,7 @@ ft_board_setup(void *blob, bd_t *bd)
 
 
 void
-mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+mpc8641_reset_board(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	char cmd;
 	ulong val;
@@ -276,7 +275,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	cmd = argv[1][1];
 	switch (cmd) {
-	case 'f':    /* reset with frequency changed */
+	case 'f':		/* reset with frequency changed */
 		if (argc < 5)
 			goto my_usage;
 		read_from_px_regs(0);
@@ -294,7 +293,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		} else
 			goto my_usage;
 
-		while (1); /* Not reached */
+		while (1) ;	/* Not reached */
 
 	case 'l':
 		if (argv[2][1] == 'f') {
@@ -305,7 +304,8 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			corepll = strfractoint(argv[4]);
 			val = val + set_px_corepll(corepll);
-			val = val + set_px_mpxpll(simple_strtoul(argv[5], NULL, 10));
+			val = val + set_px_mpxpll(simple_strtoul(argv[5],
+								 NULL, 10));
 			if (val == 3) {
 				puts("Setting registers VCFGEN0, VCFGEN1, VBOOT, and VCTL\n");
 				set_altbank();
@@ -316,9 +316,9 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			} else
 				goto my_usage;
 
-			while(1); /* Not reached */
+			while (1) ;	/* Not reached */
 
-		} else if(argv[2][1] == 'd'){
+		} else if (argv[2][1] == 'd') {
 			/*
 			 * Reset from alternate bank without changing
 			 * frequencies but with watchdog timer enabled.
@@ -330,7 +330,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			read_from_px_regs_altbank(1);
 			puts("Enabling watchdog timer on the FPGA and resetting board to boot from the other bank....\n");
 			set_px_go_with_watchdog();
-			while(1); /* Not reached */
+			while (1) ;	/* Not reached */
 
 		} else {
 			/*
@@ -339,7 +339,7 @@ mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			 */
 			read_from_px_regs(0);
 			read_from_px_regs_altbank(0);
-			if(argc > 2)
+			if (argc > 2)
 				goto my_usage;
 			puts("Setting registers VCFGNE1, VBOOT, and VCTL\n");
 			set_altbank();
@@ -360,12 +360,14 @@ my_usage:
 	puts("See MPC8641HPCN Design Workbook for valid values of command line parameters.\n");
 }
 
+
 /*
  * get_board_sys_clk
  *      Reads the FPGA on board for CONFIG_SYS_CLK_FREQ
  */
 
-unsigned long get_board_sys_clk(ulong dummy)
+unsigned long
+get_board_sys_clk(ulong dummy)
 {
 	u8 i, go_bit, rd_clks;
 	ulong val = 0;
@@ -422,4 +424,3 @@ unsigned long get_board_sys_clk(ulong dummy)
 
 	return val;
 }
-

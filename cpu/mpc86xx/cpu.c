@@ -38,7 +38,8 @@ extern void mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag,
 #endif
 
 
-int checkcpu (void)
+int
+checkcpu(void)
 {
 	sys_info_t sysinfo;
 	uint pvr, svr;
@@ -59,11 +60,11 @@ int checkcpu (void)
 
 	switch (ver) {
 	case PVR_VER(PVR_86xx):
-	    puts("E600");
-	    break;
+		puts("E600");
+		break;
 	default:
-	    puts("Unknown");
-	    break;
+		puts("Unknown");
+		break;
 	}
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
@@ -75,8 +76,8 @@ int checkcpu (void)
 	puts("    System: ");
 	switch (ver) {
 	case SVR_8641:
-	        puts("8641");
-	        break;
+		puts("8641");
+		break;
 	case SVR_8641D:
 		puts("8641D");
 		break;
@@ -97,10 +98,10 @@ int checkcpu (void)
 	lcrr = CFG_LBC_LCRR;
 #else
 	{
-	    volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	    volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+		volatile immap_t *immap = (immap_t *) CFG_IMMR;
+		volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
-	    lcrr = lbc->lcrr;
+		lcrr = lbc->lcrr;
 	}
 #endif
 	clkdiv = lcrr & 0x0f;
@@ -126,8 +127,10 @@ soft_restart(unsigned long addr)
 {
 #ifndef CONFIG_MPC8641HPCN
 
-	/* SRR0 has system reset vector, SRR1 has default MSR value */
-	/* rfi restores MSR from SRR1 and sets the PC to the SRR0 value */
+	/*
+	 * SRR0 has system reset vector, SRR1 has default MSR value
+	 * rfi restores MSR from SRR1 and sets the PC to the SRR0 value
+	 */
 
 	__asm__ __volatile__ ("mtspr	26, %0"		:: "r" (addr));
 	__asm__ __volatile__ ("li	4, (1 << 6)"	::: "r4");
@@ -140,7 +143,7 @@ soft_restart(unsigned long addr)
 
 #endif /* !CONFIG_MPC8641HPCN */
 
-	while(1);	/* not reached */
+	while (1) ;		/* not reached */
 }
 
 
@@ -185,16 +188,17 @@ do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #endif /* !CONFIG_MPC8641HPCN */
 
-	while(1);	/* not reached */
+	while (1) ;		/* not reached */
 }
 
 
 /*
  * Get timebase clock frequency
  */
-unsigned long get_tbclk(void)
+unsigned long
+get_tbclk(void)
 {
-	sys_info_t  sys_info;
+	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);
 	return (sys_info.freqSystemBus + 3L) / 4L;
@@ -210,9 +214,10 @@ watchdog_reset(void)
 
 
 #if defined(CONFIG_DDR_ECC)
-void dma_init(void)
+void
+dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 
 	dma->satr0 = 0x00040000;
@@ -220,26 +225,28 @@ void dma_init(void)
 	asm("sync; isync");
 }
 
-uint dma_check(void)
+uint
+dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 	volatile uint status = dma->sr0;
 
 	/* While the channel is busy, spin */
-	while((status & 4) == 4) {
+	while ((status & 4) == 4) {
 		status = dma->sr0;
 	}
 
 	if (status != 0) {
-		printf ("DMA Error: status = %x\n", status);
+		printf("DMA Error: status = %x\n", status);
 	}
 	return status;
 }
 
-int dma_xfer(void *dest, uint count, void *src)
+int
+dma_xfer(void *dest, uint count, void *src)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 
 	dma->dar0 = (uint) dest;
@@ -256,7 +263,8 @@ int dma_xfer(void *dest, uint count, void *src)
 
 
 #ifdef CONFIG_OF_FLAT_TREE
-void ft_cpu_setup(void *blob, bd_t *bd)
+void
+ft_cpu_setup(void *blob, bd_t *bd)
 {
 	u32 *p;
 	ulong clock;
@@ -292,7 +300,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #if defined(CONFIG_MPC86XX_TSEC4)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
-	 memcpy(p, bd->bi_enet3addr, 6);
+	memcpy(p, bd->bi_enet3addr, 6);
 #endif
 
 }

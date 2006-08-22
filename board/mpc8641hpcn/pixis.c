@@ -92,13 +92,13 @@ int set_px_sysclk(ulong sysclk)
 		return 0;
 	}
 
-	vclkh = (sysclk_s << 5) | sysclk_r ;
+	vclkh = (sysclk_s << 5) | sysclk_r;
 	vclkl = sysclk_v;
 
 	out8(PIXIS_BASE + PIXIS_VCLKH, vclkh);
 	out8(PIXIS_BASE + PIXIS_VCLKL, vclkl);
 
-	out8(PIXIS_BASE + PIXIS_AUX,sysclk_aux);
+	out8(PIXIS_BASE + PIXIS_AUX, sysclk_aux);
 
 	return 1;
 }
@@ -118,7 +118,7 @@ int set_px_mpxpll(ulong mpxpll)
 	case 12:
 	case 14:
 	case 16:
-		val = (u8)mpxpll;
+		val = (u8) mpxpll;
 		break;
 	default:
 		printf("Unsupported MPXPLL ratio.\n");
@@ -245,19 +245,16 @@ int disable_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* setting VCTL[WDEN] to 0 to disable watch dog */
 	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
-	tmp &= ~ 0x08;
+	tmp &= ~0x08;
 	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
 
 	return 0;
 }
 
-
 U_BOOT_CMD(
-	diswd, 1, 0, disable_watchdog,
-	"diswd	- Disable watchdog timer \n",
-	NULL
-);
-
+	   diswd, 1, 0, disable_watchdog,
+	   "diswd	- Disable watchdog timer \n",
+	   NULL);
 
 /*
  * This function takes the non-integral cpu:mpx pll ratio
@@ -295,11 +292,11 @@ ulong strfractoint(uchar *strptr)
 
 	if (no_dec) {
 		/* Currently needed only for single digit corepll ratios */
-		mulconst=10;
+		mulconst = 10;
 		decval = 0;
 	} else {
 		j = 0;
-		i++; /* Skipping the decimal point */
+		i++;		/* Skipping the decimal point */
 		while ((strptr[i] > 47) && (strptr[i] < 58)) {
 			decarr[j] = strptr[i];
 			i++;
