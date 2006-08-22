@@ -264,7 +264,7 @@
 #define SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
 #define SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
 #define SPRN_IMMR	0x27E  	/* Internal Memory Map Register */
-#define SPRN_LDSTCR     0x3F8   /* Load/Store Control Register */
+#define SPRN_LDSTCR	0x3F8   /* Load/Store Control Register */
 #define SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
 #define SPRN_LR		0x008	/* Link Register */
 #define SPRN_MBAR       0x137   /* System memory base address */
@@ -445,7 +445,7 @@
 #define ESR_ST          0x00800000      /* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
-#define SPRN_MSSCRO     0x3f6
+#define SPRN_MSSCRO	0x3f6
 #endif
 
 
@@ -507,12 +507,12 @@
 #define ICMP	SPRN_ICMP	/* Instruction TLB Compare Register */
 #define IMISS	SPRN_IMISS	/* Instruction TLB Miss Register */
 #define IMMR	SPRN_IMMR      	/* PPC 860/821 Internal Memory Map Register */
-#define LDSTCR  SPRN_LDSTCR     /* Load/Store Control Register */
+#define LDSTCR	SPRN_LDSTCR     /* Load/Store Control Register */
 #define L2CR	SPRN_L2CR    	/* PPC 750 L2 control register */
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_MPC86xx)
-#define MSSCR0  SPRN_MSSCRO
+#define MSSCR0	SPRN_MSSCRO
 #endif
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define PIR	SPRN_PIR
@@ -548,7 +548,7 @@
 #define CSRR0	SPRN_CSRR0
 #define CSRR1	SPRN_CSRR1
 #define IVPR	SPRN_IVPR
-#define USPRG0 SPRN_USPRG
+#define USPRG0	SPRN_USPRG
 #define SPRG4R	SPRN_SPRG4R
 #define SPRG5R	SPRN_SPRG5R
 #define SPRG6R	SPRN_SPRG6R
