@@ -435,8 +435,8 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define BOOKE_PAGESZ_4GB        11
 
 #if defined(CONFIG_MPC86xx)
-#define LAWBAR_BASE_ADDR       0x00FFFFFF
-#define LAWAR_TRGT_IF          0x01F00000
+#define LAWBAR_BASE_ADDR	0x00FFFFFF
+#define LAWAR_TRGT_IF		0x01F00000
 #else
 #define LAWBAR_BASE_ADDR	0x000FFFFF
 #define LAWAR_TRGT_IF		0x00F00000
@@ -448,14 +448,14 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_TRGT_IF_PCI1	0x00000000
 #define LAWAR_TRGT_IF_PCIX	0x00000000
 #define LAWAR_TRGT_IF_PCI2	0x00100000
-#define LAWAR_TRGT_IF_HT        0x00200000
+#define LAWAR_TRGT_IF_HT	0x00200000
 #define LAWAR_TRGT_IF_LBC	0x00400000
 #define LAWAR_TRGT_IF_CCSR	0x00800000
 #define LAWAR_TRGT_IF_DDR_INTERLEAVED 0x00B00000
 #define LAWAR_TRGT_IF_RIO	0x00c00000
 #define LAWAR_TRGT_IF_DDR	0x00f00000
-#define LAWAR_TRGT_IF_DDR1      0x00f00000
-#define LAWAR_TRGT_IF_DDR2      0x01600000
+#define LAWAR_TRGT_IF_DDR1	0x00f00000
+#define LAWAR_TRGT_IF_DDR2	0x01600000
 
 #define LAWAR_SIZE_BASE		0xa
 #define LAWAR_SIZE_4K		(LAWAR_SIZE_BASE+1)
@@ -478,9 +478,9 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_SIZE_512M		(LAWAR_SIZE_BASE+18)
 #define LAWAR_SIZE_1G		(LAWAR_SIZE_BASE+19)
 #define LAWAR_SIZE_2G		(LAWAR_SIZE_BASE+20)
-#define LAWAR_SIZE_4G          (LAWAR_SIZE_BASE+21)
-#define LAWAR_SIZE_8G          (LAWAR_SIZE_BASE+22)
-#define LAWAR_SIZE_16G         (LAWAR_SIZE_BASE+23)
-#define LAWAR_SIZE_32G         (LAWAR_SIZE_BASE+24)
+#define LAWAR_SIZE_4G		(LAWAR_SIZE_BASE+21)
+#define LAWAR_SIZE_8G		(LAWAR_SIZE_BASE+22)
+#define LAWAR_SIZE_16G		(LAWAR_SIZE_BASE+23)
+#define LAWAR_SIZE_32G		(LAWAR_SIZE_BASE+24)
 
 #endif /* _PPC_MMU_H_ */
