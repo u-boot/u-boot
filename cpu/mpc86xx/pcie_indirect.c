@@ -32,9 +32,8 @@ indirect_read_config_pcie(struct pci_controller *hose,
 			 int len,u32 *val)
 {
 	int bus = PCI_BUS(dev);
-	char devfn = ( (PCI_DEV(dev) << 4 ) | (PCI_FUNC(dev)) ) ;
 
-	unsigned char *cfg_data;
+	volatile unsigned char *cfg_data;
 	u32 temp;
 
 	PEX_FIX;
@@ -50,7 +49,7 @@ indirect_read_config_pcie(struct pci_controller *hose,
 	/* ERRATA PCI-Ex 12 - Configuration Address/Data Alignment */
 	cfg_data = hose->cfg_data;
 	PEX_FIX;
-	temp = in_le32(cfg_data);
+	temp = in_le32((u32 *)cfg_data);
 	switch (len) {
 	case 1:
 		*val = (temp >> (((offset & 3))*8)) & 0xff;
@@ -74,9 +73,7 @@ indirect_write_config_pcie(struct pci_controller *hose,
 			  u32 val)
 {
 	int bus = PCI_BUS(dev);
-	char devfn = ( (PCI_DEV(dev) << 4 ) | (PCI_FUNC(dev)) ) ;
-
-	unsigned char *cfg_data;
+	volatile unsigned char *cfg_data;
 	u32 temp;
 
 	PEX_FIX;
@@ -95,23 +92,23 @@ indirect_write_config_pcie(struct pci_controller *hose,
 	switch (len) {
 	case 1:
 		PEX_FIX;
-		temp = in_le32(cfg_data);
+		temp = in_le32((u32 *)cfg_data);
 		temp = (temp & ~(0xff << ((offset & 3) * 8))) |
 			(val << ((offset & 3) * 8));
 		PEX_FIX;
-		out_le32(cfg_data, temp);
+		out_le32((u32 *)cfg_data, temp);
 		break;
 	case 2:
 		PEX_FIX;
-		temp = in_le32(cfg_data);
+		temp = in_le32((u32 *)cfg_data);
 		temp = (temp & ~(0xffff << ((offset & 3) * 8)));
 		temp |= (val << ((offset & 3) * 8)) ;
 		PEX_FIX;
-		out_le32(cfg_data, temp);
+		out_le32((u32 *)cfg_data, temp);
 		break;
 	default:
 		PEX_FIX;
-		out_le32(cfg_data, val);
+		out_le32((u32 *)cfg_data, val);
 		break;
 	}
 	PEX_FIX;
@@ -155,7 +152,7 @@ static int
 indirect_write_config_byte_pcie(struct pci_controller *hose,
 			       pci_dev_t dev,
 			       int offset,
-			       char val)
+			       u8 val)
 {
 	return indirect_write_config_pcie(hose,dev, offset,1,(u32)val);
 }
@@ -173,7 +170,7 @@ static int
 indirect_write_config_dword_pcie(struct pci_controller *hose,
 			        pci_dev_t dev,
 			        int offset,
-			        unsigned short val)
+			        u32 val)
 {
 	return indirect_write_config_pcie(hose,dev, offset,4,val);
 }
