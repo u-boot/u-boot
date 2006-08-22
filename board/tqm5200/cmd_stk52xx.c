@@ -30,8 +30,8 @@
 #include <command.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_BSP)
-#if defined (CONFIG_STK52XX)
 
+#if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define DEFAULT_VOL	45
 #define DEFAULT_FREQ	500
 #define DEFAULT_DURATION	200
@@ -537,7 +537,9 @@ static int cmd_beep(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return rcode;
 }
+#endif
 
+#if defined(CONFIG_STK52XX)
 void led_init(void)
 {
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
@@ -736,7 +738,9 @@ int do_led(char *argv[])
 
 	return 0;
 }
+#endif
 
+#if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 /*
  * return 1 on CAN initialization failure
  * return 0 if no failure
@@ -1106,6 +1110,7 @@ int do_rs232(char *argv[])
 	return error_status;
 }
 
+#ifndef CONFIG_FO300
 static void sm501_backlight (unsigned int state)
 {
 	if (state == BL_ON) {
@@ -1115,6 +1120,7 @@ static void sm501_backlight (unsigned int state)
 		*(vu_long *)(SM501_MMIO_BASE+SM501_PANEL_DISPLAY_CONTROL) &=
 			~((1 << 26) | (1 << 27));
 }
+#endif
 
 int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -1124,7 +1130,9 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Revision 100 of STK52XX not supported!\n");
 	return 1;
 #endif
+#if defined(CONFIG_STK52XX)
 	led_init();
+#endif
 	can_init();
 
 	switch (argc) {
@@ -1152,6 +1160,7 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			else
 				printf ("Error\n");
 			return rcode;
+#ifndef CONFIG_FO300
 		} else if (strncmp (argv[1], "backlight", 4) == 0) {
 			if (strncmp (argv[2], "on", 2) == 0) {
 				sm501_backlight (BL_ON);
@@ -1161,14 +1170,17 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				sm501_backlight (BL_OFF);
 				return 0;
 			}
+#endif
 		}
 		break;
 
+#if defined(CONFIG_STK52XX)
 	case 4:
 		if (strcmp (argv[1], "led") == 0) {
 			return (do_led (argv));
 		}
 		break;
+#endif
 
 	default:
 		break;
@@ -1204,7 +1216,9 @@ U_BOOT_CMD(
 	"[channel]\n"
 	"    - play short beep on \"l\"eft or \"r\"ight channel\n"
 );
+#endif /* CONFIG_STK52XX  || CONFIG_FO300 */
 
+#if defined(CONFIG_STK52XX)
 U_BOOT_CMD(
 	fkt ,	4,	1,	cmd_fkt,
 	"fkt     - Function test routines\n",
@@ -1217,5 +1231,14 @@ U_BOOT_CMD(
 	"fkt backlight on/off\n"
 	"     - switch backlight on or off\n"
 );
-#endif /* CONFIG_STK52XX */
+#elif defined(CONFIG_FO300)
+U_BOOT_CMD(
+	fkt ,	3,	1,	cmd_fkt,
+	"fkt     - Function test routines\n",
+	"fkt can\n"
+	"     - loopback plug for X16/X29 required\n"
+	"fkt rs232 number\n"
+	"     - loopback plug(s) for X21/X22 required\n"
+);
+#endif
 #endif /* CFG_CMD_BSP */

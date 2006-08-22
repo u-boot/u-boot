@@ -175,15 +175,19 @@ typedef struct dir_slot {
 	__u8    name11_12[4];	/* Last 2 characters in name */
 } dir_slot;
 
-/* Private filesystem parameters */
+/* Private filesystem parameters
+ *
+ * Note: FAT buffer has to be 32 bit aligned
+ * (see FAT32 accesses)
+ */
 typedef struct {
+	__u8	fatbuf[FATBUFSIZE]; /* Current FAT buffer */
 	int	fatsize;	/* Size of FAT in bits */
 	__u16	fatlength;	/* Length of FAT in sectors */
 	__u16	fat_sect;	/* Starting sector of the FAT */
 	__u16	rootdir_sect;	/* Start sector of root directory */
 	__u16	clust_size;	/* Size of clusters in sectors */
 	short	data_begin;	/* The sector of the first cluster, can be negative */
-	__u8	fatbuf[FATBUFSIZE]; /* Current FAT buffer */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 } fsdata;
 

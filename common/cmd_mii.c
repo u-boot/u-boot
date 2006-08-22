@@ -117,8 +117,6 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					miiphy_speed (devname, j),
 					(miiphy_duplex (devname, j) == FULL)
 						? "FDX" : "HDX");
-			} else {
-				puts ("Error reading info from the PHY\n");
 			}
 		}
 	} else if (op == 'r') {
@@ -503,8 +501,6 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					miiphy_speed (devname, j),
 					(miiphy_duplex (devname, j) == FULL)
 						? "FDX" : "HDX");
-			} else {
-				puts ("Error reading info from the PHY\n");
 			}
 		}
 	} else if (op[0] == 'r') {

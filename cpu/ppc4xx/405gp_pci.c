@@ -315,7 +315,6 @@ void pci_405gp_init(struct pci_controller *hose)
 #ifdef CONFIG_PCI_SCAN_SHOW
 		printf("PCI:   Bus Dev VenId DevId Class Int\n");
 #endif
-
 		hose->last_busno = pci_hose_scan(hose);
 	}
 #endif  /* CONFIG_PCI_PNP */
@@ -563,10 +562,12 @@ void pci_440_init (struct pci_controller *hose)
 	}
 }
 
-
 void pci_init_board(void)
 {
 	pci_440_init (&ppc440_hose);
+#if defined(CONFIG_440SPE)
+	pcie_setup_hoses();
+#endif
 }
 
 #endif /* CONFIG_440 & CONFIG_PCI */

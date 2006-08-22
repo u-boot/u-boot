@@ -37,7 +37,8 @@
 #define CONFIG_TQM5200		1	/* ... on TQM5200 module		*/
 #undef CONFIG_TQM5200_REV100		/*  define for revision 100 modules	*/
 
-#ifndef CONFIG_CAM5200			/* On a Cameron board or ...		*/
+/* On a Cameron or on a FO300 board or ...				*/
+#if !defined(CONFIG_CAM5200) && !defined(CONFIG_FO300)
 #define CONFIG_STK52XX		1	/* ... on a STK52XX board		*/
 #endif
 
@@ -57,6 +58,20 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1			*/
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps			*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+
+#ifdef CONFIG_FO300
+#define CFG_DEVICE_NULLDEV		1	/* enable null device */
+#define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
+#define CONFIG_BOARD_EARLY_INIT_F	1	/* used to detect S1 switch position */
+
+#if 0
+#define FO300_SILENT_CONSOLE_WHEN_S1_CLOSED	1	/* silent console on PSC1 when S1 */
+							/* switch is closed */
+#endif
+
+#undef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED		/* silent console on PSC1 when S1 */
+							/* switch is open */
+#endif	/* CONFIG_FO300 */
 
 #ifdef CONFIG_STK52XX
 #define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
@@ -105,12 +120,18 @@
 #define CONFIG_VIDEO_SM501_32BPP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_VGA_AS_SINGLE_DEVICE
+
+#ifndef CONFIG_FO300
 #define CONFIG_CONSOLE_EXTRA_INFO
+#else
+#define CONFIG_VIDEO_BMP_LOGO
+#endif
+
+#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 #define CFG_CONSOLE_IS_IN_ENV
-#endif
+#endif /* #ifndef CONFIG_TQM5200S */
 
 #ifdef CONFIG_VIDEO
 #define ADD_BMP_CMD		CFG_CMD_BMP
@@ -124,7 +145,7 @@
 #define CONFIG_ISO_PARTITION
 
 /* USB */
-#ifdef CONFIG_STK52XX
+#if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
@@ -148,7 +169,7 @@
 #endif
 
 /* IDE */
-#if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX)
+#if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define ADD_IDE_CMD		(CFG_CMD_IDE | CFG_CMD_FAT | CFG_CMD_EXT2)
 #else
 #define ADD_IDE_CMD		0
@@ -224,6 +245,12 @@
 		"erase FC000000 FC03FFFF;"				\
 		"cp.b 200000 FC000000 ${filesize};"			\
 		"protect on FC000000 FC03FFFF\0"
+#elif defined (CONFIG_FO300)
+#   define ENV_UPDT							\
+	"update=protect off FC000000 FC05FFFF;"				\
+		"erase FC000000 FC05FFFF;"				\
+		"cp.b 200000 FC000000 ${filesize};"			\
+		"protect on FC000000 FC05FFFF\0"
 #else
 # error "Unknown Carrier Board"
 #endif	/* CONFIG_STK52XX */
@@ -378,6 +405,13 @@
 						"2m(initrd),"		\
 						"8m(misc),"		\
 						"16m(big-fs)"
+#elif defined (CONFIG_FO300)
+#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
+						"1408k(kernel),"	\
+						"2m(initrd),"		\
+						"4m(small-fs),"		\
+						"8m(misc),"		\
+						"16m(big-fs)"
 #else
 # error "Unknown Carrier Board"
 #endif	/* CONFIG_STK52XX */
@@ -450,15 +484,18 @@
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
  *	00 -> No Alternatives, CAN1/2 on PSC2 according to PSC2 setting.
  *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1.
- *	      Use for REV200 STK52XX boards. Do not use with REV100 modules
- *	      (because, there I2C1 is used as I2C bus)
+ *	      Use for REV200 STK52XX boards and FO300 boards. Do not use
+ *	      with REV100 modules (because, there I2C1 is used as I2C bus)
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
  * use PSC2 as CAN: Bits 25:27 (mask: 0x00000030)
  *	000 -> All PSC2 pins are GIOPs
  *	001 -> CAN1/2 on PSC2 pins
  *	       Use for REV100 STK52xx boards
+ *	01x -> Use AC97
+ * use PSC3: Bits 20-23 (mask: 0x00000f00)
+ *	1100 -> UART/SPI (on FO300 board)
  * use PSC6:
- *   on STK52xx:
+ *   on STK52xx and FO300:
  *	use as UART. Pins PSC6_0 to PSC6_3 are used.
  *	Bits 9:11 (mask: 0x00700000):
  *	   101 -> PSC6 : Extended POST test is not available
@@ -480,6 +517,8 @@
 #   define CFG_GPS_PORT_CONFIG	0x91500004
 #  endif
 # endif
+#elif defined (CONFIG_FO300)
+# define CFG_GPS_PORT_CONFIG	0x91502c24
 #else  /* TMQ5200 Inbetriebnahme-Board */
 # define CFG_GPS_PORT_CONFIG	0x81000004
 #endif

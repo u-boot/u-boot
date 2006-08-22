@@ -82,9 +82,12 @@
  *************************************************************************/
 
 	.section .bootpg,"ax"
-	.globl tlbtab
 
-tlbtab:
+/**************************************************************************
+ * TLB table for revA
+ *************************************************************************/
+	.globl tlbtabA
+tlbtabA:
 	tlbtab_start
 	tlbentry(0xfff00000, SZ_16M, 0xfff00000, 4, AC_R|AC_W|AC_X|SA_G)
 
@@ -94,11 +97,56 @@ tlbtab:
 	tlbentry(CFG_SDRAM_BASE + 0x30000000, SZ_256M, 0x30000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
 
 	tlbentry(CFG_ISRAM_BASE, SZ_256K, 0x00000000, 4, AC_R|AC_W|AC_X|SA_I)
-	tlbentry(CFG_FPGA_BASE,SZ_1K, 0xE2000000, 4,AC_R|AC_W|SA_I)
+	tlbentry(CFG_FPGA_BASE, SZ_1K, 0xE2000000, 4,AC_R|AC_W|SA_I)
 
-	tlbentry(CFG_OPER_FLASH,SZ_16M,0xE7000000, 4,AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(CFG_OPER_FLASH, SZ_16M, 0xE7000000, 4,AC_R|AC_W|AC_X|SA_G|SA_I)
 	tlbentry(CFG_PERIPHERAL_BASE, SZ_4K, 0xF0000000, 4, AC_R|AC_W|SA_G|SA_I)
 
 	tlbentry(CFG_PCI_BASE, SZ_256M, 0x00000000, 0xC, AC_R|AC_W|SA_G|SA_I)
 	tlbentry(CFG_PCI_MEMBASE, SZ_256M, 0x10000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE_MEMBASE, SZ_256M, 0xB0000000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE_BASE, SZ_16K, 0x20000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+
+	tlbentry(CFG_PCIE0_CFGBASE, SZ_1K, 0x40000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE1_CFGBASE, SZ_1K, 0x80000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE2_CFGBASE, SZ_1K, 0xC0000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE0_XCFGBASE, SZ_1K, 0x50000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE1_XCFGBASE, SZ_1K, 0x90000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE2_XCFGBASE, SZ_1K, 0xD0000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbtab_end
+
+/**************************************************************************
+ * TLB table for revB
+ *
+ * Notice: revB of the 440SPe chip is very strict about PLB real addresses
+ * and ranges to be mapped for config space: it seems to only work with
+ * d_nnnn_nnnn range (hangs the core upon config transaction attempts when
+ * set otherwise) while revA uses c_nnnn_nnnn.
+ *************************************************************************/
+	.globl tlbtabB
+tlbtabB:
+	tlbtab_start
+	tlbentry(0xfff00000, SZ_16M, 0xfff00000, 4, AC_R|AC_W|AC_X|SA_G)
+
+	tlbentry(CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(CFG_SDRAM_BASE + 0x10000000, SZ_256M, 0x10000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(CFG_SDRAM_BASE + 0x20000000, SZ_256M, 0x20000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(CFG_SDRAM_BASE + 0x30000000, SZ_256M, 0x30000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+
+	tlbentry(CFG_ISRAM_BASE, SZ_256K, 0x00000000, 4, AC_R|AC_W|AC_X|SA_I)
+	tlbentry(CFG_FPGA_BASE, SZ_1K, 0xE2000000, 4,AC_R|AC_W|SA_I)
+
+	tlbentry(CFG_OPER_FLASH, SZ_16M, 0xE7000000, 4,AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(CFG_PERIPHERAL_BASE, SZ_4K, 0xF0000000, 4, AC_R|AC_W|SA_G|SA_I)
+
+	tlbentry(CFG_PCI_BASE, SZ_256M, 0x00000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCI_MEMBASE, SZ_256M, 0x10000000, 0xC, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE_MEMBASE, SZ_256M, 0xB0000000, 0xD, AC_R|AC_W|SA_G|SA_I)
+
+	tlbentry(CFG_PCIE0_CFGBASE, SZ_1K, 0x00100000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE1_CFGBASE, SZ_1K, 0x20100000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE2_CFGBASE, SZ_1K, 0x40100000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE0_XCFGBASE, SZ_1K, 0x10000000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE1_XCFGBASE, SZ_1K, 0x30000000, 0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_PCIE2_XCFGBASE, SZ_1K, 0x50000000, 0xD, AC_R|AC_W|SA_G|SA_I)
 	tlbtab_end

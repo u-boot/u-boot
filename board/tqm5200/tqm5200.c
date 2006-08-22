@@ -290,8 +290,10 @@ int checkboard (void)
 # define CARRIER_NAME	"TB5200"
 #elif defined(CONFIG_CAM5200)
 # define CARRIER_NAME	"Cam5200"
+#elif defined(CONFIG_FO300)
+# define CARRIER_NAME	"FO300"
 #else
-# error "Unknown carrier board"
+# error "UNKNOWN"
 #endif
 
 	puts (	"Board: " MODULE_NAME " (TQ-Components GmbH)\n"
@@ -541,7 +543,11 @@ int last_stage_init (void)
 
 #ifdef CONFIG_VIDEO_SM501
 
+#ifdef CONFIG_FO300
+#define DISPLAY_WIDTH   800
+#else
 #define DISPLAY_WIDTH   640
+#endif
 #define DISPLAY_HEIGHT  480
 
 #ifdef CONFIG_VIDEO_SM501_8BPP
@@ -571,6 +577,28 @@ static const SMI_REGS init_regs [] =
 	{0x80218, 0x000201e9},
 	{0x80200, 0x00013306},
 #else  /* panel + CRT */
+#ifdef CONFIG_FO300
+	{0x00004, 0x0},
+	{0x00048, 0x00021807},
+	{0x0004C, 0x301a0a01},
+	{0x00054, 0x1},
+	{0x00040, 0x00021807},
+	{0x00044, 0x091a0a01},
+	{0x00054, 0x0},
+	{0x80000, 0x0f013106},
+	{0x80004, 0xc428bb17},
+	{0x8000C, 0x00000000},
+	{0x80010, 0x0C800C80},
+	{0x80014, 0x03200000},
+	{0x80018, 0x01e00000},
+	{0x8001C, 0x00000000},
+	{0x80020, 0x01e00320},
+	{0x80024, 0x042a031f},
+	{0x80028, 0x0086034a},
+	{0x8002C, 0x020c01df},
+	{0x80030, 0x000201ea},
+	{0x80200, 0x00010000},
+#else
 	{0x00004, 0x0},
 	{0x00048, 0x00021807},
 	{0x0004C, 0x091a0a01},
@@ -591,6 +619,7 @@ static const SMI_REGS init_regs [] =
 	{0x8002C, 0x020c01df},
 	{0x80030, 0x000201e9},
 	{0x80200, 0x00010000},
+#endif /* #ifdef CONFIG_FO300 */
 #endif
 	{0, 0}
 };
@@ -604,13 +633,16 @@ void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
 	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200)
+#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200) || defined(CONFIG_FO300)
 	} else if (line_number == 2) {
 #if defined (CONFIG_STK52XX)
 		strcpy (info, "        on a STK52xx carrier board");
 #endif
 #if defined (CONFIG_TB5200)
 		strcpy (info, "        on a TB5200 carrier board");
+#endif
+#if defined (CONFIG_FO300)
+		strcpy (info, "        on a FO300 carrier board");
 #endif
 #endif
 	}
@@ -697,3 +729,33 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+#ifdef CONFIG_FO300
+int board_early_init_f (void)
+{
+	vu_long timer3_status;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	/* Configure GPT3 as GPIO input */
+	*(vu_long *)MPC5XXX_GPT3_ENABLE = 0x00000004;
+
+	/* Read in TIMER_3 pin status */
+	timer3_status = *(vu_long *)MPC5XXX_GPT3_STATUS;
+	
+#ifdef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED
+	/* Force silent console mode if S1 switch
+	 * is in closed position (TIMER_3 pin status is LOW). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 0)
+#else
+	/* Force silent console mode if S1 switch
+	 * is in open position (TIMER_3 pin status is HIGH). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 1)
+#endif
+		gd->flags |= GD_FLG_SILENT;
+
+	return 0;
+}
+#endif
+#endif
