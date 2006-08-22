@@ -2,7 +2,7 @@
  * Copyright (C) 1998  Dan Malek <dmalek@jlc.net>
  * Copyright (C) 1999  Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  * Copyright (C) 2000, 2001,2002 Wolfgang Denk <wd@denx.de>
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright Freescale Semiconductor, Inc. 2004, 2006. All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -1214,8 +1214,15 @@ map_flash_by_law1:
 	lis r4, (CFG_FLASH_BASE)@h
 	ori r4, r4, (CFG_FLASH_BASE)@l
 	stw r4, LBLAWBAR1(r3) /* LBLAWBAR1 <= CFG_FLASH_BASE */
-	lis r4, (0x80000016)@h
-	ori r4, r4, (0x80000016)@l
+
+	/* Store 0x80000012 + log2(CFG_FLASH_SIZE) into LBLAWAR1 */
+	lis r4, (0x80000012)@h
+	ori r4, r4, (0x80000012)@l
+	li r5, CFG_FLASH_SIZE
+1:	srawi. r5, r5, 1	/* r5 = r5 >> 1 */
+	addi r4, r4, 1
+	bne 1b
+
 	stw r4, LBLAWAR1(r3) /* LBLAWAR1 <= 8MB Flash Size */
 	blr
 
@@ -1234,17 +1241,23 @@ remap_flash_by_law0:
 	stw r5, BR0(r3) /* r5 <= (CFG_FLASH_BASE & 0xFFFF8000) | (BR0 & 0x00007FFF) */
 
 	lwz r4, OR0(r3)
-	lis r5, 0xFF80 /* 8M */
+	lis r5, ~((CFG_FLASH_SIZE << 4) - 1)
 	or r4, r4, r5
-	stw r4, OR0(r3) /* OR0 <= OR0 | 0xFF800000 */
+	stw r4, OR0(r3)
 
 	lis r4, (CFG_FLASH_BASE)@h
 	ori r4, r4, (CFG_FLASH_BASE)@l
 	stw r4, LBLAWBAR0(r3) /* LBLAWBAR0 <= CFG_FLASH_BASE */
 
-	lis r4, (0x80000016)@h
-	ori r4, r4, (0x80000016)@l
-	stw r4, LBLAWAR0(r3) /* LBLAWAR0 <= 8MB Flash Size */
+	/* Store 0x80000012 + log2(CFG_FLASH_SIZE) into LBLAWAR0 */
+	lis r4, (0x80000012)@h
+	ori r4, r4, (0x80000012)@l
+	li r5, CFG_FLASH_SIZE
+1:	srawi. r5, r5, 1 /* r5 = r5 >> 1 */
+	addi r4, r4, 1
+	bne 1b
+	stw r4, LBLAWAR0(r3) /* LBLAWAR0 <= Flash Size */
+
 
 	xor r4, r4, r4
 	stw r4, LBLAWBAR1(r3)
