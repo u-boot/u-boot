@@ -1,6 +1,6 @@
 /*
  * Copyright 2006 Freescale Semiconductor.
- * Jeffrey Brown (jeffrey@freescale.com)
+ * Jeffrey Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  */
 
@@ -70,10 +70,9 @@
 
 #ifndef __ASSEMBLY__
 
-typedef struct
-{
-  unsigned long freqProcessor;
-  unsigned long freqSystemBus;
+typedef struct {
+	unsigned long freqProcessor;
+	unsigned long freqSystemBus;
 } MPC86xx_SYS_INFO;
 
 #define l1icache_enable	icache_enable
@@ -115,5 +114,3 @@ static __inline__ unsigned long get_l2cr (void)
 
 #endif  /* _ASMLANGUAGE */
 #endif	/* __MPC86xx_H__ */
-
-
