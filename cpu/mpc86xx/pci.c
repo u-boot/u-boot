@@ -34,7 +34,7 @@
 void
 pci_mpc86xx_init(struct pci_controller *hose)
 {
-	volatile immap_t    *immap = (immap_t *)CFG_CCSRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_pex_t *pcie1 = &immap->im_pex1;
 	u16 temp16;
 	u32 temp32;
@@ -46,62 +46,69 @@ pci_mpc86xx_init(struct pci_controller *hose)
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
 
-	if ((io_sel ==2 || io_sel == 3 || io_sel == 5 || io_sel == 6 ||
-	    io_sel == 7 || io_sel == 0xf) && !(devdisr & MPC86xx_DEVDISR_PCIEX1)){
-		printf ("PCI-EXPRESS 1: Configured as %s \n",
-			pcie1_agent ? "Agent" : "Host");
-		if(pcie1_agent) return; /*Don't scan bus when configured as agent*/
-		printf ("               Scanning PCIE bus");
-		debug("0x%08x=0x%08x ", &pcie1->pme_msg_det,pcie1->pme_msg_det);
+	if ((io_sel == 2 || io_sel == 3 || io_sel == 5 || io_sel == 6 ||
+	     io_sel == 7 || io_sel == 0xf)
+	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
+		printf("PCI-EXPRESS 1: Configured as %s \n",
+		       pcie1_agent ? "Agent" : "Host");
+		if (pcie1_agent)
+			return;	/*Don't scan bus when configured as agent */
+		printf("               Scanning PCIE bus");
+		debug("0x%08x=0x%08x ",
+		      &pcie1->pme_msg_det,
+		      pcie1->pme_msg_det);
 		if (pcie1->pme_msg_det) {
 			pcie1->pme_msg_det = 0xffffffff;
-			debug (" with errors.  Clearing.  Now 0x%08x",
-				pcie1->pme_msg_det);
+			debug(" with errors.  Clearing.  Now 0x%08x",
+			      pcie1->pme_msg_det);
 		}
-		debug ("\n");
-	}
-	else{
+		debug("\n");
+	} else {
 		printf("PCI-EXPRESS 1 disabled!\n");
 		return;
 	}
 
-	/*set first_bus=0 only skipped B0:D0:F0 which is
+	/*
+	 * Set first_bus=0 only skipped B0:D0:F0 which is
 	 * a reserved device in M1575, but make it easy for
 	 * most of the scan process.
 	 */
 	hose->first_busno = 0x00;
 	hose->last_busno = 0xfe;
 
-	pcie_setup_indirect(hose,
-			   (CFG_IMMR+0x8000),
-			   (CFG_IMMR+0x8004));
+	pcie_setup_indirect(hose, (CFG_IMMR + 0x8000), (CFG_IMMR + 0x8004));
 
-	pci_hose_read_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND, &temp16);
+	pci_hose_read_config_word(hose,
+				  PCI_BDF(0, 0, 0), PCI_COMMAND, &temp16);
 	temp16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER |
-		  PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
-	pci_hose_write_config_word(hose, PCI_BDF(0,0,0), PCI_COMMAND, temp16);
+	    PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
+	pci_hose_write_config_word(hose,
+				   PCI_BDF(0, 0, 0), PCI_COMMAND, temp16);
 
-	pci_hose_write_config_word(hose,PCI_BDF(0,0,0), PCI_STATUS, 0xffff);
-	pci_hose_write_config_byte(hose, PCI_BDF(0,0,0), PCI_LATENCY_TIMER, 0x80);
+	pci_hose_write_config_word(hose, PCI_BDF(0, 0, 0), PCI_STATUS, 0xffff);
+	pci_hose_write_config_byte(hose,
+				   PCI_BDF(0, 0, 0), PCI_LATENCY_TIMER, 0x80);
 
-	pci_hose_read_config_dword(hose, PCI_BDF(0,0,0), PCI_PRIMARY_BUS, &temp32);
+	pci_hose_read_config_dword(hose, PCI_BDF(0, 0, 0), PCI_PRIMARY_BUS,
+				   &temp32);
 	temp32 = (temp32 & 0xff000000) | (0xff) | (0x0 << 8) | (0xfe << 16);
-	pci_hose_write_config_dword(hose, PCI_BDF(0,0,0), PCI_PRIMARY_BUS, temp32);
+	pci_hose_write_config_dword(hose, PCI_BDF(0, 0, 0), PCI_PRIMARY_BUS,
+				    temp32);
 
 	pcie1->powar1 = 0;
 	pcie1->powar2 = 0;
 	pcie1->piwar1 = 0;
 	pcie1->piwar1 = 0;
 
-	pcie1->powbar1  = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
-	pcie1->powar1   = 0x8004401c;	/* 512M MEM space */
-	pcie1->potar1   = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
-	pcie1->potear1  = 0x00000000;
+	pcie1->powbar1 = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcie1->powar1 = 0x8004401c;	/* 512M MEM space */
+	pcie1->potar1 = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcie1->potear1 = 0x00000000;
 
-	pcie1->powbar2  = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
-	pcie1->powar2   = 0x80088017;	/* 16M IO space */
-	pcie1->potar2   = 0x00000000;
-	pcie1->potear2  = 0x00000000;
+	pcie1->powbar2 = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcie1->powar2 = 0x80088017;	/* 16M IO space */
+	pcie1->potar2 = 0x00000000;
+	pcie1->potear2 = 0x00000000;
 
 	pcie1->pitar1 = 0x00000000;
 	pcie1->piwbar1 = 0x00000000;
@@ -131,9 +138,9 @@ pci_mpc86xx_init(struct pci_controller *hose)
 	pci_register_hose(hose);
 
 	hose->last_busno = pci_hose_scan(hose);
-	debug("pcie_mpc86xx_init: last_busno %x\n",hose->last_busno);
-	debug("pcie_mpc86xx init: current_busno %x\n ",hose->current_busno);
+	debug("pcie_mpc86xx_init: last_busno %x\n", hose->last_busno);
+	debug("pcie_mpc86xx init: current_busno %x\n ", hose->current_busno);
 
 	printf("....PCIE1 scan & enumeration done\n");
 }
-#endif /* CONFIG_PCI */
+#endif				/* CONFIG_PCI */

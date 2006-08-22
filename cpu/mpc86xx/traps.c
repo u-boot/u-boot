@@ -57,21 +57,22 @@ print_backtrace(unsigned long *sp)
 
 	printf("Call backtrace: ");
 	while (sp) {
-		if ((uint)sp > END_OF_MEM)
+		if ((uint) sp > END_OF_MEM)
 			break;
 
 		i = sp[1];
 		if (cnt++ % 7 == 0)
 			printf("\n");
 		printf("%08lX ", i);
-		if (cnt > 32) break;
+		if (cnt > 32)
+			break;
 		sp = (unsigned long *)*sp;
 	}
 	printf("\n");
 }
 
 void
-show_regs(struct pt_regs * regs)
+show_regs(struct pt_regs *regs)
 {
 	int i;
 
@@ -80,21 +81,19 @@ show_regs(struct pt_regs * regs)
 	       regs->nip, regs->xer, regs->link, regs, regs->trap, regs->dar);
 	printf("MSR: %08lx EE: %01x PR: %01x FP:"
 	       " %01x ME: %01x IR/DR: %01x%01x\n",
-	       regs->msr, regs->msr&MSR_EE ? 1 : 0, regs->msr&MSR_PR ? 1 : 0,
-	       regs->msr & MSR_FP ? 1 : 0,regs->msr&MSR_ME ? 1 : 0,
-	       regs->msr&MSR_IR ? 1 : 0,
-	       regs->msr&MSR_DR ? 1 : 0);
+	       regs->msr, regs->msr & MSR_EE ? 1 : 0,
+	       regs->msr & MSR_PR ? 1 : 0, regs->msr & MSR_FP ? 1 : 0,
+	       regs->msr & MSR_ME ? 1 : 0, regs->msr & MSR_IR ? 1 : 0,
+	       regs->msr & MSR_DR ? 1 : 0);
 
 	printf("\n");
-	for (i = 0;  i < 32;  i++) {
-		if ((i % 8) == 0)
-		{
+	for (i = 0; i < 32; i++) {
+		if ((i % 8) == 0) {
 			printf("GPR%02d: ", i);
 		}
 
 		printf("%08lX ", regs->gpr[i]);
-		if ((i % 8) == 7)
-		{
+		if ((i % 8) == 7) {
 			printf("\n");
 		}
 	}
@@ -106,7 +105,7 @@ _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
+	panic("Exception in kernel pc %lx signal %d", regs->nip, signr);
 }
 
 void
@@ -124,25 +123,25 @@ MachineCheckException(struct pt_regs *regs)
 	}
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
 
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
-	printf("regs %p ",regs);
-	switch( regs->msr & 0x000F0000) {
-	case (0x80000000>>12):
+	printf("regs %p ", regs);
+	switch (regs->msr & 0x000F0000) {
+	case (0x80000000 >> 12):
 		printf("Machine check signal - probably due to mm fault\n"
-			"with mmu off\n");
+		       "with mmu off\n");
 		break;
-	case (0x80000000>>13):
+	case (0x80000000 >> 13):
 		printf("Transfer error ack signal\n");
 		break;
-	case (0x80000000>>14):
+	case (0x80000000 >> 14):
 		printf("Data parity signal\n");
 		break;
-	case (0x80000000>>15):
+	case (0x80000000 >> 15):
 		printf("Address parity signal\n");
 		break;
 	default:
@@ -157,7 +156,7 @@ void
 AlignmentException(struct pt_regs *regs)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
 	show_regs(regs);
@@ -172,17 +171,17 @@ ProgramCheckException(struct pt_regs *regs)
 	int i, j;
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
 	show_regs(regs);
 
-	p = (unsigned char *) ((unsigned long)p & 0xFFFFFFE0);
+	p = (unsigned char *)((unsigned long)p & 0xFFFFFFE0);
 	p -= 32;
-	for (i = 0; i < 256; i+=16) {
-		printf("%08x: ", (unsigned int)p+i);
+	for (i = 0; i < 256; i += 16) {
+		printf("%08x: ", (unsigned int)p + i);
 		for (j = 0; j < 16; j++) {
-			printf("%02x ", p[i+j]);
+			printf("%02x ", p[i + j]);
 		}
 		printf("\n");
 	}
@@ -195,7 +194,7 @@ void
 SoftEmuException(struct pt_regs *regs)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
 	show_regs(regs);
@@ -203,12 +202,11 @@ SoftEmuException(struct pt_regs *regs)
 	panic("Software Emulation Exception");
 }
 
-
 void
 UnknownException(struct pt_regs *regs)
 {
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
@@ -216,36 +214,13 @@ UnknownException(struct pt_regs *regs)
 	_exception(0, regs);
 }
 
-/* Probe an address by reading.  If not present, return -1, otherwise
- * return 0.
+/*
+ * Probe an address by reading.
+ * If not present, return -1,
+ * otherwise return 0.
  */
 int
 addr_probe(uint *addr)
 {
-#if 0
-	int	retval;
-
-	__asm__ __volatile__(			\
-		"1:	lwz %0,0(%1)\n"		\
-		"	eieio\n"		\
-		"	li %0,0\n"		\
-		"2:\n"				\
-		".section .fixup,\"ax\"\n"	\
-		"3:	li %0,-1\n"		\
-		"	b 2b\n"			\
-		".section __ex_table,\"a\"\n"	\
-		"	.align 2\n"		\
-		"	.long 1b,3b\n"		\
-		".text"				\
-		: "=r" (retval) : "r"(addr));
-
-	return (retval);
-#endif
 	return 0;
 }
-
-
-
-
-
-

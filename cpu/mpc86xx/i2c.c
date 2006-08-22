@@ -61,7 +61,7 @@ i2c_init(int speed, int slaveadd)
 	writeb(0x3f, I2CFDR);
 
 	/* set default filter */
-	writeb(0x10,I2CDFSRR);
+	writeb(0x10, I2CDFSRR);
 
 	/* write slave address */
 	writeb(slaveadd, I2CADR);
@@ -76,7 +76,7 @@ i2c_init(int speed, int slaveadd)
 static __inline__ int
 i2c_wait4bus(void)
 {
-	ulong timeval = get_timer (0);
+	ulong timeval = get_timer(0);
 
 	while (readb(I2CCSR) & MPC86xx_I2CSR_MBB) {
 		if (get_timer(timeval) > TIMEOUT) {
@@ -91,7 +91,7 @@ static __inline__ int
 i2c_wait(int write)
 {
 	u32 csr;
-	ulong timeval = get_timer (0);
+	ulong timeval = get_timer(0);
 
 	do {
 		csr = readb(I2CCSR);
@@ -105,7 +105,7 @@ i2c_wait(int write)
 			return -1;
 		}
 
-		if (!(csr & MPC86xx_I2CSR_MCF))	{
+		if (!(csr & MPC86xx_I2CSR_MCF)) {
 			debug("i2c_wait: unfinished\n");
 			return -1;
 		}
@@ -123,7 +123,7 @@ i2c_wait(int write)
 }
 
 static __inline__ int
-i2c_write_addr (u8 dev, u8 dir, int rsta)
+i2c_write_addr(u8 dev, u8 dir, int rsta)
 {
 	writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA | MPC86xx_I2CCR_MTX
 	       | (rsta ? MPC86xx_I2CCR_RSTA : 0),
@@ -138,7 +138,7 @@ i2c_write_addr (u8 dev, u8 dir, int rsta)
 }
 
 static __inline__ int
-__i2c_write (u8 *data, int length)
+__i2c_write(u8 *data, int length)
 {
 	int i;
 
@@ -156,7 +156,7 @@ __i2c_write (u8 *data, int length)
 }
 
 static __inline__ int
-__i2c_read (u8 *data, int length)
+__i2c_read(u8 *data, int length)
 {
 	int i;
 
@@ -174,8 +174,7 @@ __i2c_read (u8 *data, int length)
 		/* Generate ack on last next to last byte */
 		if (i == length - 2)
 			writeb(MPC86xx_I2CCR_MEN | MPC86xx_I2CCR_MSTA
-			       | MPC86xx_I2CCR_TXAK,
-			       I2CCCR);
+			       | MPC86xx_I2CCR_TXAK, I2CCCR);
 
 		/* Generate stop on last byte */
 		if (i == length - 1)
@@ -188,10 +187,10 @@ __i2c_read (u8 *data, int length)
 }
 
 int
-i2c_read (u8 dev, uint addr, int alen, u8 *data, int length)
+i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 {
 	int i = 0;
-	u8 *a = (u8*)&addr;
+	u8 *a = (u8 *) &addr;
 
 	if (i2c_wait4bus() < 0)
 		goto exit;
@@ -214,10 +213,10 @@ exit:
 }
 
 int
-i2c_write (u8 dev, uint addr, int alen, u8 *data, int length)
+i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 {
 	int i = 0;
-	u8 *a = (u8*)&addr;
+	u8 *a = (u8 *) &addr;
 
 	if (i2c_wait4bus() < 0)
 		goto exit;
@@ -236,7 +235,8 @@ exit:
 	return !(i == length);
 }
 
-int i2c_probe (uchar chip)
+int
+i2c_probe(uchar chip)
 {
 	int tmp;
 
@@ -250,7 +250,8 @@ int i2c_probe (uchar chip)
 	return i2c_read(chip, 0, 1, (char *)&tmp, 1);
 }
 
-uchar i2c_reg_read (uchar i2c_addr, uchar reg)
+uchar
+i2c_reg_read(uchar i2c_addr, uchar reg)
 {
 	char buf[1];
 
@@ -259,7 +260,8 @@ uchar i2c_reg_read (uchar i2c_addr, uchar reg)
 	return buf[0];
 }
 
-void i2c_reg_write (uchar i2c_addr, uchar reg, uchar val)
+void
+i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
 {
 	i2c_write(i2c_addr, reg, 1, &val, 1);
 }

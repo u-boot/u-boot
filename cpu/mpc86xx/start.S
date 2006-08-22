@@ -74,7 +74,7 @@
  * r4 - 2nd arg to board_init(): boot flag
  */
 	.text
-	.long	0x27051956		/* U-Boot Magic Number		*/
+	.long	0x27051956		/* U-Boot Magic Number */
 	.globl	version_string
 version_string:
 	.ascii	U_BOOT_VERSION
@@ -92,7 +92,7 @@ _start:
 
 	.globl	_start_warm
 _start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot		*/
+	li	r21, BOOTFLAG_WARM	/* Software reboot */
 	b	boot_warm
 	sync
 
@@ -183,7 +183,7 @@ boot_cold:
 boot_warm:
 
 	/* if this is a multi-core system we need to check which cpu
-	 * this is, if it is not cpu 0 send the cpu to the linux reset 
+	 * this is, if it is not cpu 0 send the cpu to the linux reset
 	 * vector */
 #if (CONFIG_NUM_CPUS > 1)
 	mfspr	r0, MSSCR0
@@ -194,7 +194,7 @@ boot_warm:
 
       	bl	secondary_cpu_setup
 #endif
-	
+
 	/* disable everything */
 1:	li	r0, 0
 	mtspr	HID0, r0
@@ -202,17 +202,17 @@ boot_warm:
 	mtmsr	0
 	bl	invalidate_bats
 	sync
-	
+
 #ifdef CFG_L2
 	/* init the L2 cache */
 	addis	r3, r0, L2_INIT@h
 	ori	r3, r3, L2_INIT@l
-	mtspr	l2cr, r3	
+	mtspr	l2cr, r3
 	/* invalidate the L2 cache */
 	bl	l2cache_invalidate
 	sync
 #endif
-	
+
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
@@ -231,7 +231,7 @@ in_flash:
 
 	/* enable extended addressing */
 	bl	enable_ext_addr
-	
+
 	/* setup the bats */
 	bl	setup_bats
 	sync
@@ -240,7 +240,7 @@ in_flash:
 	/* setup ccsrbar */
 	bl	setup_ccsrbar
 #endif
-	
+
 	/* Fix for SMP linux - Changing arbitration to round-robin */
 	lis	r3, CFG_CCSRBAR@h
 	ori	r3, r3, 0x1000
@@ -279,7 +279,7 @@ in_flash:
 	stw	r4, 0(r3)
 	sync
 #endif
-#if 1	
+#if 1
 	/* make sure timer enabled in guts register too */
 	lis	r3, CFG_CCSRBAR@h
 	oris	r3,r3, 0xE
@@ -289,7 +289,7 @@ in_flash:
 	ori	r5,r5,0x5FFF
 	and	r4,r4,r5
 	stw	r4,0(r3)
-#endif	
+#endif
 	/*
 	 * Cache must be enabled here for stack-in-cache trick.
 	 * This means we need to enable the BATS.
@@ -303,13 +303,13 @@ in_flash:
 
 	/* enable and invalidate the data cache */
 /*	bl	l1dcache_enable */
-        bl      dcache_enable 
+        bl      dcache_enable
 	sync
 
 #if 1
 	bl	icache_enable
 #endif
-	
+
 #ifdef CFG_INIT_RAM_LOCK
 	bl	lock_ram_in_cache
 	sync
@@ -330,7 +330,7 @@ in_flash:
 	bl	cpu_init_f
 	sync
 
-#ifdef  RUN_DIAG        
+#ifdef  RUN_DIAG
 
         /* Sri:  Code to run the diagnostic automatically */
 
@@ -361,9 +361,9 @@ in_flash:
 
         /* Branch to diagnostic */
         blr
-        
-diag_done:      
-#endif        
+
+diag_done:
+#endif
 
   /*      bl      l2cache_enable*/
         mr	r3, r21
@@ -377,7 +377,7 @@ diag_done:
 
 	.globl	invalidate_bats
 invalidate_bats:
-	
+
 	/* invalidate BATs */
 	mtspr	IBAT0U, r0
 	mtspr	IBAT1U, r0
@@ -401,12 +401,12 @@ invalidate_bats:
 	isync
 	sync
 	blr
-	
-	
+
+
 	/* setup_bats - set them up to some initial state */
 	.globl	setup_bats
 setup_bats:
-	
+
 	addis	r0, r0, 0x0000
 
 	/* IBAT 0 */
@@ -553,7 +553,7 @@ setup_bats:
 	mtspr   DBAT7U, r3
 	isync
 
-1:	
+1:
 	addis	r3, 0, 0x0000
 	addis	r5, 0, 0x4    /* upper bound of 0x00040000 for 7400/750 */
 	isync
@@ -662,142 +662,140 @@ get_svr:
 	blr
 
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 in8 */
-/* Description:	 Input 8 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 in8
+ * Description:	 Input 8 bits
+ */
 	.globl	in8
 in8:
 	lbz	r3,0x0000(r3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 out8 */
-/* Description:	 Output 8 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 out8
+ * Description:	 Output 8 bits
+ */
 	.globl	out8
 out8:
 	stb	r4,0x0000(r3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 out16 */
-/* Description:	 Output 16 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 out16
+ * Description:	 Output 16 bits
+ */
 	.globl	out16
 out16:
 	sth	r4,0x0000(r3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 out16r */
-/* Description:	 Byte reverse and output 16 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 out16r
+ * Description:	 Byte reverse and output 16 bits
+ */
 	.globl	out16r
 out16r:
 	sthbrx	r4,r0,r3
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 out32 */
-/* Description:	 Output 32 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 out32
+ * Description:	 Output 32 bits
+ */
 	.globl	out32
 out32:
 	stw	r4,0x0000(r3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 out32r */
-/* Description:	 Byte reverse and output 32 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 out32r
+ * Description:	 Byte reverse and output 32 bits
+ */
 	.globl	out32r
 out32r:
 	stwbrx	r4,r0,r3
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 in16 */
-/* Description:	 Input 16 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 in16
+ * Description:	 Input 16 bits
+ */
 	.globl	in16
 in16:
 	lhz	r3,0x0000(r3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 in16r */
-/* Description:	 Input 16 bits and byte reverse */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 in16r
+ * Description:	 Input 16 bits and byte reverse
+ */
 	.globl	in16r
 in16r:
 	lhbrx	r3,r0,r3
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 in32 */
-/* Description:	 Input 32 bits */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 in32
+ * Description:	 Input 32 bits
+ */
 	.globl	in32
 in32:
 	lwz	3,0x0000(3)
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 in32r */
-/* Description:	 Input 32 bits and byte reverse */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 in32r
+ * Description:	 Input 32 bits and byte reverse
+ */
 	.globl	in32r
 in32r:
 	lwbrx	r3,r0,r3
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 ppcDcbf */
-/* Description:	 Data Cache block flush */
-/* Input:	 r3 = effective address */
-/* Output:	 none. */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 ppcDcbf
+ * Description:	 Data Cache block flush
+ * Input:	 r3 = effective address
+ * Output:	 none.
+ */
 	.globl	ppcDcbf
 ppcDcbf:
 	dcbf	r0,r3
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 ppcDcbi */
-/* Description:	 Data Cache block Invalidate */
-/* Input:	 r3 = effective address */
-/* Output:	 none. */
-/*------------------------------------------------------------------------------- */
+/*
+ * Function:	 ppcDcbi
+ * Description:	 Data Cache block Invalidate
+ * Input:	 r3 = effective address
+ * Output:	 none.
+ */
 	.globl	ppcDcbi
 ppcDcbi:
 	dcbi	r0,r3
 	blr
 
-/*--------------------------------------------------------------------------
+/*
  * Function:	 ppcDcbz
  * Description:	 Data Cache block zero.
  * Input:	 r3 = effective address
  * Output:	 none.
- *-------------------------------------------------------------------------- */
-
+ */
 	.globl	ppcDcbz
 ppcDcbz:
 	dcbz	r0,r3
 	blr
 
-/*-------------------------------------------------------------------------- */
-/* Function:	 ppcSync */
-/* Description:	 Processor Synchronize */
-/* Input:	 none. */
-/* Output:	 none. */
-/*-------------------------------------------------------------------------- */
+/*
+ * Function:	 ppcSync
+ * Description:	 Processor Synchronize
+ * Input:	 none.
+ * Output:	 none.
+ */
 	.globl	ppcSync
 ppcSync:
 	sync
 	blr
-	
-/*-----------------------------------------------------------------------*/
+
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -1062,7 +1060,7 @@ enable_ext_addr:
 
 #if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
 .globl setup_ccsrbar
-setup_ccsrbar:		
+setup_ccsrbar:
 	/* Special sequence needed to update CCSRBAR itself */
 	lis	r4, CFG_CCSRBAR_DEFAULT@h
 	ori	r4, r4, CFG_CCSRBAR_DEFAULT@l
@@ -1081,10 +1079,10 @@ setup_ccsrbar:
 	lis	r3, CFG_CCSRBAR@h
 	lwz	r5, CFG_CCSRBAR@l(r3)
 	isync
-	
+
 	blr
 #endif
-			
+
 #ifdef CFG_INIT_RAM_LOCK
 lock_ram_in_cache:
 	/* Allocate Initial RAM in data cache.
@@ -1120,7 +1118,7 @@ lock_ram_in_cache:
 	isync
 	blr
 #endif
-	
+
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
@@ -1146,7 +1144,7 @@ unlock_ram_in_cache:
 	sync
 	blr
 #endif
-#if 0	
+#if 0
 	/* Unlock the first way of the data cache */
 	mfspr   r0, LDSTCR
 	li      r3,0x0080
@@ -1173,16 +1171,16 @@ unlock_ram_in_cache:
  * from Linux.  We'll do some basic cpu init and then pass
  * it to the Linux Reset Vector.
  * Sri:  Much of this initialization is not required. Linux
- * rewrites the bats, and the sprs and also enables the L1 cache.      
+ * rewrites the bats, and the sprs and also enables the L1 cache.
  */
 #if (CONFIG_NUM_CPUS > 1)
 .globl secondary_cpu_setup
-secondary_cpu_setup:	
+secondary_cpu_setup:
 	/* Do only core setup on all cores except cpu0 */
 	bl	invalidate_bats
 	sync
 	bl	enable_ext_addr
-	
+
 #ifdef CFG_L2
 	/* init the L2 cache */
 	addis	r3, r0, L2_INIT@h
@@ -1204,27 +1202,26 @@ secondary_cpu_setup:
         /* enable and invalidate the instruction cache*/
         bl      icache_enable
         sync
-        
 
         /* TBEN  in HID0 */
 	mfspr	r4, HID0
-        oris    r4, r4, 0x0400 
+        oris    r4, r4, 0x0400
         mtspr   HID0, r4
         sync
         isync
-        
+
         /*SYNCBE|ABE in HID1*/
         mfspr	r4, HID1
-        ori     r4, r4, 0x0C00 
+        ori     r4, r4, 0x0C00
         mtspr   HID1, r4
         sync
         isync
-        
+
         lis	r3, CONFIG_LINUX_RESET_VEC@h
 	ori	r3, r3, CONFIG_LINUX_RESET_VEC@l
 	mtlr    r3
 	blr
-	
-	/* Never Returns, Running in Linux Now */    
+
+	/* Never Returns, Running in Linux Now */
 #endif
 
