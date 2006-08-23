@@ -595,6 +595,8 @@
    "consoledev=ttyS0\0"                                                 \
    "ramdiskaddr=400000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"                                  \
+   "dtbaddr=2000000\0"						\
+   "dtbfile=mpc8641_hpcn.dtb\0"                                  \
    "pex0=echo ---------------------------; echo --------- PCI EXPRESS -----\0"\
    "pexstat=mw f8008000 84000004; echo -expect:- 16000000; md f8008004 1\0" \
    "pex1=pci write 1.0.0 4 146; pci write 1.0.0 10 80000000\0" \
@@ -611,14 +613,16 @@
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $dtbaddr $dtbfile;"                                          \
+   "bootm $loadaddr - $dtbaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+   "tftp $dtbaddr $dtbfile;"                                          \
+   "bootm $loadaddr $ramdiskaddr $dtbaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 
