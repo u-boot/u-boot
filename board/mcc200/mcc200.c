@@ -197,7 +197,11 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
+#if defined(CONFIG_PRS200)
+	puts ("Board: PRS200\n");
+#else
 	puts ("Board: MCC200\n");
+#endif
 	return 0;
 }
 

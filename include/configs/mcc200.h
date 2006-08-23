@@ -55,16 +55,28 @@
  *
  *  CONFIG_PSC_CONSOLE must be undefined in this case.
  */
+#if !defined(CONFIG_PRS200)
+/* MCC200 configuration: */
 #ifdef CONFIG_CONSOLE_COM12
 #define CONFIG_QUART_CONSOLE	6	/* console is on UARTF of QUART2	*/
 #else
 #define CONFIG_QUART_CONSOLE	8	/* console is on UARTH of QUART2	*/
 #endif
+#else
+/* PRS200 configuration: */
+#undef CONFIG_QUART_CONSOLE
+#endif /* CONFIG_PRS200 */
 /*
  *  To select console on PSC1, define CONFIG_PSC_CONSOLE as 1
  * and undefine CONFIG_QUART_CONSOLE.
  */
-/*#define CONFIG_PSC_CONSOLE	1	*/ /* console is on PSC1		*/
+#if !defined(CONFIG_PRS200)
+/* MCC200 configuration: */
+#undef CONFIG_PSC_CONSOLE
+#else
+/* PRS200 configuration: */
+#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1		*/
+#endif
 #if defined(CONFIG_QUART_CONSOLE) && defined(CONFIG_PSC_CONSOLE)
 #error "Select only one console device!"
 #endif
@@ -103,33 +115,44 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define XMK_STR(x)	#x
+#define MK_STR(x)	XMK_STR(x)
+
+#ifdef CONFIG_PRS200
+# define CFG__BOARDNAME "prs200"
+#else
+# define CFG__BOARDNAME "mcc200"
+#endif
+
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"hostname=mcc200\0"						\
+	"hostname=" CFG__BOARDNAME "\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
+	"addcons=etenv bootargs ${bootargs} "				\
+		"console=${console},${baudrate}\0"			\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip;"					\
+	"flash_self=run ramargs addip addcons;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addcons;bootm\0"			\
+	"console=ttyS0\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
-	"bootfile=/tftpboot/mcc200/uImage\0"				\
-	"baudrate=115200\0"						\
-	"load=tftp 200000 /tftpboot/mcc200/u-boot.bin\0"		\
-	"update=protect off FFF00000 +${filesize};"			\
-		"era FFF00000 +${filesize};"				\
-		"cp.b 200000 FFF00000 ${filesize}\0"		        \
-	"serverip=192.168.1.1\0"					\
-	"ipaddr=192.168.133.144\0"					\
-	"netmask=255.255.0.0\0"						\
+	"bootfile=/tftpboot/" CFG__BOARDNAME "/uImage\0"		\
+	"load=tftp 200000 /tftpboot/" CFG__BOARDNAME "/u-boot.bin\0"	\
+	"text_base=" MK_STR(TEXT_BASE) "\0"				\
+	"update=protect off ${text_base} +${filesize};"			\
+		"era ${text_base} +${filesize};"			\
+		"cp.b 200000 ${text_base} ${filesize}\0"		\
 	"unlock=yes\0"							\
-	"ethaddr=00:02:44:7D:73:3B\0"					\
 	""
+#undef MK_STR
+#undef XMK_STR
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -314,7 +337,7 @@
  * One of four SC16C554 UARTs is selected with
  * A3-A4 (DA5-DA6) lines.
  */
-#if (CONFIG_QUART_CONSOLE > 0) && (CONFIG_QUART_CONSOLE < 5)
+#if (CONFIG_QUART_CONSOLE > 0) && (CONFIG_QUART_CONSOLE < 5) && !defined(CONFIG_PRS200)
 #define CFG_NS16550_COM1	(CFG_CS2_START | (CONFIG_QUART_CONSOLE - 1)<<5)
 #elif (CONFIG_QUART_CONSOLE > 4) && (CONFIG_QUART_CONSOLE < 9)
 #define CFG_NS16550_COM1	(CFG_CS1_START | (CONFIG_QUART_CONSOLE - 5)<<5)

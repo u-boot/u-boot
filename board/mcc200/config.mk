@@ -22,7 +22,7 @@
 #
 
 #
-# MCC200 board:
+# MCC200, PRS200 boards:
 #
 #	Valid values for TEXT_BASE are:
 #

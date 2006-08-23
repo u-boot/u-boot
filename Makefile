@@ -323,10 +323,15 @@ lite5200b_LOWBOOT_config:	unconfig
 	@./mkconfig -a IceCube  ppc mpc5xxx icecube
 
 mcc200_config	\
-mcc200_SDRAM	\
-mcc200_highboot	\
-mcc200_COM12	\
-mcc200_highboot_SDRAM:	unconfig
+mcc200_SDRAM_config	\
+mcc200_highboot_config	\
+mcc200_COM12_config	\
+mcc200_COM12_SDRAM_config	\
+mcc200_highboot_SDRAM_config	\
+prs200_config	\
+prs200_DDR_config	\
+prs200_highboot_config	\
+prs200_highboot_DDR_config:	unconfig
 	@ >include/config.h
 	@[ -n "$(findstring highboot,$@)" ] || \
 		{ echo "... with lowboot configuration" ; \
@@ -336,7 +341,18 @@ mcc200_highboot_SDRAM:	unconfig
 		  echo "... with highboot configuration" ; \
 		}
 	@[ -n "$(findstring _SDRAM,$@)" ] || \
-		{ echo "... with DDR" ; \
+		{ if [ -n "$(findstring mcc200,$@)" ]; \
+		  then \
+		  	echo "... with DDR" ; \
+		  else \
+			if [ -n "$(findstring _DDR,$@)" ];\
+			then \
+				echo "... with DDR" ; \
+			else \
+				echo "#define CONFIG_MCC200_SDRAM" >>include/config.h ;\
+				echo "... with SDRAM" ; \
+			fi; \
+		  fi; \
 		}
 	@[ -z "$(findstring _SDRAM,$@)" ] || \
 		{ echo "#define CONFIG_MCC200_SDRAM"	>>include/config.h ; \
@@ -346,7 +362,10 @@ mcc200_highboot_SDRAM:	unconfig
 		{ echo "#define CONFIG_CONSOLE_COM12"	>>include/config.h ; \
 		  echo "... with console on COM12" ; \
 		}
-	@./mkconfig -a mcc200 ppc mpc5xxx mcc200
+	@[ -z "$(findstring prs200,$@)" ] || \
+		{ echo "#define CONFIG_PRS200"  >>include/config.h ;\
+		}
+	@./mkconfig -n $@ -a mcc200 ppc mpc5xxx mcc200
 
 o2dnt_config:
 	@./mkconfig o2dnt ppc mpc5xxx o2dnt
