@@ -340,6 +340,17 @@
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SCSI_AHCI
+
+#ifdef CONFIG_SCSI_AHCI
+#define CONFIG_SATA_ULI5288
+#define CFG_SCSI_MAX_SCSI_ID	4
+#define CFG_SCSI_MAX_LUN	1
+#define CFG_SCSI_MAX_DEVICE 	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
+#define CFG_SCSI_MAXDEVICE	CFG_SCSI_MAX_DEVICE
+#endif
+
 #endif	/* CONFIG_PCI */
 
 
@@ -477,7 +488,9 @@
     #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
 				 | CFG_CMD_PCI		\
-				 | CFG_CMD_I2C)		\
+				 | CFG_CMD_I2C		\
+				 | CFG_CMD_SCSI		\
+				 | CFG_CMD_EXT2)	\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				  | CFG_CMD_IMLS	\
@@ -486,7 +499,9 @@
   #else
     #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C)		\
+				 | CFG_CMD_I2C		\
+				 | CFG_CMD_SCSI		\
+				 | CGF_CMD_EXT2)	\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				 | CFG_CMD_IMLS		\
@@ -498,7 +513,9 @@
     #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_PCI		\
 				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
+				| CFG_CMD_I2C		\
+				| CFG_CMD_SCSI		\
+				| CFG_CMD_EXT2)
   #else
     #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_PING		\
