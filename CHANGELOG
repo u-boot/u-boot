@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add a fix for a buggy USB device on the FO300 board.
+
 * Updates for MCC200 / PRS200 boards:
   - support for configurations with SDRAM or DDR memory,
   - support for highboot and lowboot
