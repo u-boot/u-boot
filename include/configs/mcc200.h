@@ -120,8 +120,10 @@
 
 #ifdef CONFIG_PRS200
 # define CFG__BOARDNAME "prs200"
+# define LINUX_CONSOLE  "ttyS0"
 #else
 # define CFG__BOARDNAME "mcc200"
+# define LINUX_CONSOLE  "ttyEU7"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -133,7 +135,7 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"addcons=etenv bootargs ${bootargs} "				\
+	"addcons=setenv bootargs ${bootargs} "				\
 		"console=${console},${baudrate}\0"			\
 	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
@@ -141,7 +143,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};"				\
 		"run nfsargs addip addcons;bootm\0"			\
-	"console=ttyS0\0"						\
+	"console=" MK_STR(LINUX_CONSOLE) "\0"				\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CFG__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CFG__BOARDNAME "/u-boot.bin\0"	\

@@ -327,6 +327,8 @@ mcc200_SDRAM_config	\
 mcc200_highboot_config	\
 mcc200_COM12_config	\
 mcc200_COM12_SDRAM_config	\
+mcc200_COM12_highboot_config	\
+mcc200_COM12_highboot_SDRAM_config	\
 mcc200_highboot_SDRAM_config	\
 prs200_config	\
 prs200_DDR_config	\
