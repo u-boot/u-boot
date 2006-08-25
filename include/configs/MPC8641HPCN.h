@@ -610,15 +610,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"						\
+   "ramdiskaddr=2000000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"                                  \
-   "dtbaddr=2000000\0"						\
+   "dtbaddr=400000\0"						\
    "dtbfile=mpc8641_hpcn.dtb\0"                                  \
-   "pex0=echo ---------------------------; echo --------- PCI EXPRESS -----\0"\
-   "pexstat=mw f8008000 84000004; echo -expect:- 16000000; md f8008004 1\0" \
-   "pex1=pci write 1.0.0 4 146; pci write 1.0.0 10 80000000\0" \
-   "pexd=echo -expect:- xxx01002 00100146; pci display 1.0.0 0 2\0" \
-   "pex=run pexstat; run pex1; run pexd\0" \
    "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
    "dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \
    "maxcpus=2"
