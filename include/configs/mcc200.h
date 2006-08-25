@@ -115,15 +115,15 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
+#define XMK_STR(x)		#x
+#define MK_STR(x)		XMK_STR(x)
 
 #ifdef CONFIG_PRS200
-# define CFG__BOARDNAME "prs200"
-# define LINUX_CONSOLE  "ttyS0"
+# define CFG__BOARDNAME		"prs200"
+# define CFG__LINUX_CONSOLE	"ttyS0"
 #else
-# define CFG__BOARDNAME "mcc200"
-# define LINUX_CONSOLE  "ttyEU7"
+# define CFG__BOARDNAME		"mcc200"
+# define CFG__LINUX_CONSOLE	"ttyEU7"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -143,7 +143,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};"				\
 		"run nfsargs addip addcons;bootm\0"			\
-	"console=" MK_STR(LINUX_CONSOLE) "\0"				\
+	"console=" LINUX_CONSOLE "\0"				\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CFG__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CFG__BOARDNAME "/u-boot.bin\0"	\
