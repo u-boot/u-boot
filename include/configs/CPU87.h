@@ -527,7 +527,7 @@
 			 PSDMR_LDOTOPRE_1C		|\
 			 PSDMR_WRC_1C			|\
 			 PSDMR_CL_2)
-			 
+
 /*
  * Init Memory Controller:
  *

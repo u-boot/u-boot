@@ -743,7 +743,7 @@ int board_early_init_f (void)
 
 	/* Read in TIMER_3 pin status */
 	timer3_status = *(vu_long *)MPC5XXX_GPT3_STATUS;
-	
+
 #ifdef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED
 	/* Force silent console mode if S1 switch
 	 * is in closed position (TIMER_3 pin status is LOW). */
@@ -757,5 +757,5 @@ int board_early_init_f (void)
 
 	return 0;
 }
-#endif
-#endif
+#endif	/* CONFIG_FO300 */
+#endif	/* CONFIG_BOARD_EARLY_INIT_F */

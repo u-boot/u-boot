@@ -169,7 +169,7 @@ static void ppc440spe_setup_utl(u32 port) {
 		break;
 	}
 	utl_base = (unsigned int *)(CFG_PCIE_BASE + 0x1000 * port);
-	
+
 	/*
 	 * Set buffer allocations and then assert VRB and TXE.
 	 */
