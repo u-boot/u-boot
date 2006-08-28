@@ -103,7 +103,7 @@ void ft_prop(struct ft_cxt *cxt, const char *name, const void *data, int sz)
 	if (off == -1) {
 		memcpy(cxt->p_end, name, strlen(name) + 1);
 		off = cxt->p_end - cxt->p;
-		cxt->p_end += strlen(name) + 2;
+		cxt->p_end += strlen(name) + 1;
 	}
 
 	/* now put offset from beginning of *STRUCTURE* */
