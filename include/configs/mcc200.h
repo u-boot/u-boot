@@ -143,7 +143,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};"				\
 		"run nfsargs addip addcons;bootm\0"			\
-	"console=" LINUX_CONSOLE "\0"				\
+	"console=" CFG__LINUX_CONSOLE "\0"				\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CFG__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CFG__BOARDNAME "/u-boot.bin\0"	\

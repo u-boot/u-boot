@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix typo.
+
 * Code cleanup
 
 * Update for MCC200 / PRS200 boards:
