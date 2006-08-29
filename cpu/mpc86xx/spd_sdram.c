@@ -834,7 +834,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	debug("DDR: err_sbe = 0x%08x\n", ddr->err_sbe);
 #endif
 
-	asm("sync;isync");
+	asm volatile("sync;isync");
 	udelay(500);
 
 	/*
@@ -1032,7 +1032,7 @@ unsigned int enable_ddr(unsigned int ddr_num)
 		 */
 		if (config == 0x02) {
 			ddr->err_disable = 0x00000000;
-			asm("sync;isync;");
+			asm volatile("sync;isync;");
 			ddr->err_sbe = 0x00ff0000;
 			ddr->err_int_en = 0x0000000d;
 			sdram_cfg_1 |= 0x20000000;		/* ECC_EN */
@@ -1325,7 +1325,7 @@ ddr_enable_ecc(unsigned int dram_size)
 	 */
 	debug("DMA DDR: err_disable = 0x%08x\n", ddr1->err_disable);
 	ddr1->err_disable = 0x00000000;
-	asm("sync;isync;msync");
+	asm volatile("sync;isync");
 	debug("DMA DDR: err_disable = 0x%08x\n", ddr1->err_disable);
 }
 
