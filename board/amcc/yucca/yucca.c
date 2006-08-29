@@ -32,6 +32,10 @@
 #include <asm-ppc/io.h>
 
 #include "yucca.h"
+#include "../cpu/ppc4xx/440spe_pcie.h"
+
+#undef PCIE_ENDPOINT
+/* #define PCIE_ENDPOINT 1 */
 
 void fpga_init (void);
 
@@ -583,12 +587,12 @@ static long int yucca_probe_for_dimms(void)
 
 		memset(dimm_spd_data, 0, MAX_SPD_BYTES * sizeof(char));
 		if (result == 0) {
-			/* read first byte of SPD data, if there is any data */ 
+			/* read first byte of SPD data, if there is any data */
 			result = i2c_read(dimm_addr, 0, 1, dimm_spd_data, 1);
 
 			if (result == 0) {
 				result = dimm_spd_data[0];
-				result = result > MAX_SPD_BYTES ? 
+				result = result > MAX_SPD_BYTES ?
 						MAX_SPD_BYTES : result;
 				result = i2c_read(dimm_addr, 0, 1,
 							dimm_spd_data, result);
@@ -596,7 +600,7 @@ static long int yucca_probe_for_dimms(void)
 		}
 
 		if ((result == 0) &&
-		    (dimm_spd_data[64] == MICRON_SPD_JEDEC_ID)) {	
+		    (dimm_spd_data[64] == MICRON_SPD_JEDEC_ID)) {
 			dimm_installed[dimm_num] = TRUE;
 			dimms_found++;
 			debug("DIMM slot %d: DDR2 SDRAM detected\n", dimm_num);
@@ -1029,6 +1033,57 @@ void yucca_setup_pcie_fpga_rootpoint(int port)
 
 	out_be16((u16 *)FPGA_REG1C, reset_off | in_be16((u16 *)FPGA_REG1C));
 }
+/*
+ * For the given slot, set endpoint mode, send power to the slot,
+ * turn on the green LED and turn off the yellow LED, enable the clock
+ * .In end point mode reset bit is  read only.
+ */
+void yucca_setup_pcie_fpga_endpoint(int port)
+{
+	u16 power, clock, green_led, yellow_led, reset_off, rootpoint, endpoint;
+
+	switch(port) {
+	case 0:
+		rootpoint   = FPGA_REG1C_PE0_ROOTPOINT;
+		endpoint    = 0;
+		power 	    = FPGA_REG1A_PE0_PWRON;
+		green_led   = FPGA_REG1A_PE0_GLED;
+		clock 	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
+		yellow_led  = FPGA_REG1A_PE0_YLED;
+		reset_off   = FPGA_REG1C_PE0_PERST;
+		break;
+	case 1:
+		rootpoint   = 0;
+		endpoint    = FPGA_REG1C_PE1_ENDPOINT;
+		power 	    = FPGA_REG1A_PE1_PWRON;
+		green_led   = FPGA_REG1A_PE1_GLED;
+		clock 	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
+		yellow_led  = FPGA_REG1A_PE1_YLED;
+		reset_off   = FPGA_REG1C_PE1_PERST;
+		break;
+	case 2:
+		rootpoint   = 0;
+		endpoint    = FPGA_REG1C_PE2_ENDPOINT;
+		power 	    = FPGA_REG1A_PE2_PWRON;
+		green_led   = FPGA_REG1A_PE2_GLED;
+		clock 	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
+		yellow_led  = FPGA_REG1A_PE2_YLED;
+		reset_off   = FPGA_REG1C_PE2_PERST;
+		break;
+
+	default:
+		return;
+	}
+
+	out_be16((u16 *)FPGA_REG1A,
+		 ~(power | clock | green_led) &
+		 (yellow_led | in_be16((u16 *)FPGA_REG1A)));
+
+	out_be16((u16 *)FPGA_REG1C,
+		 ~(rootpoint | reset_off) &
+		 (endpoint | in_be16((u16 *)FPGA_REG1C)));
+}
+
 
 
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
@@ -1048,9 +1103,13 @@ void pcie_setup_hoses(void)
 		if (!yucca_pcie_card_present(i))
 			continue;
 
+#ifdef PCIE_ENDPOINT
+ 		yucca_setup_pcie_fpga_endpoint(i);
+ 		if (ppc440spe_init_pcie_endport(i)) {
+#else
 		yucca_setup_pcie_fpga_rootpoint(i);
-
 		if (ppc440spe_init_pcie_rootport(i)) {
+#endif
 			printf("PCIE%d: initialization failed\n", i);
 			continue;
 		}
@@ -1070,8 +1129,19 @@ void pcie_setup_hoses(void)
 		hose->region_count = 1;
 		pci_register_hose(hose);
 
-		ppc440spe_setup_pcie(hose, i);
+#ifdef PCIE_ENDPOINT
+		ppc440spe_setup_pcie_endpoint(hose, i);
+		/*
+		 * Reson for no scanning is endpoint can not generate
+		 * upstream configuration accesses.
+		 */
+#else
+		ppc440spe_setup_pcie_rootpoint(hose, i);
+		/*
+		 * Config access can only go down stream
+		 */
 		hose->last_busno = pci_hose_scan(hose);
+#endif
 	}
 }
 #endif	/* defined(CONFIG_PCI) */

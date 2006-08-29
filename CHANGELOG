@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* PCIe endpoint support for AMCC Yucca 440SPe board
+  Patch by Tirumala R Marri, 26 Aug 2006
+
 * Improve DIMM detection for AMCC Yucca 440SPe board
   Improved the memory DIMM detection for the Yucca 440SPe board for
   the case where a memory DIMM is falsely detected as present.
