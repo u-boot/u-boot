@@ -115,8 +115,3 @@ int cpu_init_r(void)
 {
 	return 0;
 }
-
-
-
-
-
