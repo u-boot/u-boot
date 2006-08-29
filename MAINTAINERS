@@ -217,6 +217,8 @@ Jon Loeliger <jdl@freescale.com>
 	MPC8541CDS		MPC8541
 	MPC8555CDS		MPC8555
 
+	MPC8641HPCN		MPC8641D
+
 Dan Malek <dan@embeddededge.com>
 
 	STxGP3			MPC85xx
