@@ -562,10 +562,11 @@ int checkboard (void)
 
 static long int yucca_probe_for_dimms(void)
 {
-	long int 	dimm_installed[MAXDIMMS];
-	long int	dimm_num, probe_result;
-	long int	dimms_found = 0;
-	uchar		dimm_addr = IIC0_DIMM0_ADDR;
+	int 	dimm_installed[MAXDIMMS];
+	int	dimm_num, result;
+	int	dimms_found = 0;
+	uchar	dimm_addr = IIC0_DIMM0_ADDR;
+	uchar   dimm_spd_data[MAX_SPD_BYTES];
 
 	for (dimm_num = 0; dimm_num < MAXDIMMS; dimm_num++) {
 		/* check if there is a chip at the dimm address	*/
@@ -577,12 +578,28 @@ static long int yucca_probe_for_dimms(void)
 				dimm_addr = IIC0_DIMM1_ADDR;
 				break;
 		}
-		probe_result = i2c_probe(dimm_addr);
 
-		if (probe_result == 0) {
+		result = i2c_probe(dimm_addr);
+
+		memset(dimm_spd_data, 0, MAX_SPD_BYTES * sizeof(char));
+		if (result == 0) {
+			/* read first byte of SPD data, if there is any data */ 
+			result = i2c_read(dimm_addr, 0, 1, dimm_spd_data, 1);
+
+			if (result == 0) {
+				result = dimm_spd_data[0];
+				result = result > MAX_SPD_BYTES ? 
+						MAX_SPD_BYTES : result;
+				result = i2c_read(dimm_addr, 0, 1,
+							dimm_spd_data, result);
+			}
+		}
+
+		if ((result == 0) &&
+		    (dimm_spd_data[64] == MICRON_SPD_JEDEC_ID)) {	
 			dimm_installed[dimm_num] = TRUE;
 			dimms_found++;
-			debug("DIMM slot %d: DDR2 SDRAM detected\n",dimm_num);
+			debug("DIMM slot %d: DDR2 SDRAM detected\n", dimm_num);
 		} else {
 			dimm_installed[dimm_num] = FALSE;
 			debug("DIMM slot %d: Not populated or cannot sucessfully probe the DIMM\n", dimm_num);

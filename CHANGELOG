@@ -2,6 +2,18 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Improve DIMM detection for AMCC Yucca 440SPe board
+  Improved the memory DIMM detection for the Yucca 440SPe board for
+  the case where a memory DIMM is falsely detected as present.
+  This issue is seen on some AMCC Yucca 440SPe validation boards if
+  only one 512MB memory DIMM is installed, i.e. DIMM slot 0 is
+  populated and DIMM slot 1 is empty.  In this case, U-Boot does
+  not correctly detect that there is only one DIMM memory module
+  installed and will falsely detect two DIMM memory modules are
+  present and therefore U-Boot will not calculate the correct amount
+  of total memory and u-boot will not booting up.
+  Patch by Adam Graham, 24 Aug 2006
+
 * Code cleanup
 
 * Update for MCC200 / PRS200 boards:
