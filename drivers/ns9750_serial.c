@@ -35,6 +35,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CONFIG_CONS_INDEX)
+#error "No console index specified."
+#endif
+
 #define CONSOLE CONFIG_CONS_INDEX
 
 static unsigned int calcBitrateRegister( void );

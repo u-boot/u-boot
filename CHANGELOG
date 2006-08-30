@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Make the serial driver framework work with CONFIG_SERIAL_MULTI
+  enabled
+
 * PCIe endpoint support for AMCC Yucca 440SPe board
   Patch by Tirumala R Marri, 26 Aug 2006
 
