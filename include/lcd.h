@@ -148,7 +148,14 @@ typedef struct vidinfo {
 
 extern vidinfo_t panel_info;
 
-#endif /* CONFIG_MPC823 or CONFIG_PXA250 */
+#elif defined(CONFIG_MCC200)
+typedef struct vidinfo {
+	ushort	vl_col;		/* Number of columns (i.e. 160) */
+	ushort	vl_row;		/* Number of rows (i.e. 100) */
+
+	u_char	vl_bpix;	/* Bits per pixel, 0 = 1 */
+} vidinfo_t;
+#endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 */
 
 /* Video functions */
 

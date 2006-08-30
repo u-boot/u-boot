@@ -259,11 +259,26 @@
 #define CONFIG_PHY_ADDR		1
 
 /*
+ * LCD Splash Screen
+ */
+#define CONFIG_LCD		1
+#if defined(CONFIG_LCD)
+#define CONFIG_SPLASH_SCREEN	1
+#define CFG_CONSOLE_IS_IN_ENV	1
+#define LCD_BPP		LCD_MONOCHROME
+#endif
+
+/*
  * GPIO configuration
  */
 /* 0x10000004 = 32MB SDRAM */
 /* 0x90000004 = 64MB SDRAM */
+#if defined(CONFIG_LCD)
+/* set PSC2 in UART mode */
+#define CFG_GPS_PORT_CONFIG	0x00000044
+#else
 #define CFG_GPS_PORT_CONFIG	0x00000004
+#endif
 
 /*
  * Miscellaneous configurable options
