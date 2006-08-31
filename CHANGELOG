@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Coding Style cleanup.
+  Patch by Stefano Babic, 31 Aug 2006
+
 * Add splashscreen support for MCC200 board.
 
 * Make the serial driver framework work with CONFIG_SERIAL_MULTI
