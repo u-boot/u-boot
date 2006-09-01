@@ -94,6 +94,12 @@ SREC   += mem_to_mem_idma2intr.srec
 BIN    += mem_to_mem_idma2intr.bin mem_to_mem_idma2intr
 endif
 
+# Demo for 52xx IRQs
+ifeq ($(CPU),mpc5xxx)
+SREC   += interrupt.srec
+BIN    += interrupt.bin interrupt
+endif
+
 # Utility for resetting i82559 EEPROM
 ifeq ($(BOARD),oxc)
 SREC   += eepro100_eeprom.srec
