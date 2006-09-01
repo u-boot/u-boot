@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Remove the board/netstar/crcit binary from git repository.
+
 * Fix tools/updater build error.
 
 * Fix tools/easylogo build error.
