@@ -2,6 +2,26 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for a saving build objects in a separate directory.
+  Modifications are based on the linux kernel approach and 
+  support two use cases:
+  
+  1) Add O= to the make command line
+  'make O=/tmp/build all'
+
+  2) Set environement variable BUILD_DIR to point to the desired location
+  'export BUILD_DIR=/tmp/build'
+  'make'
+
+  The second approach can also be used with a MAKEALL script
+  'export BUILD_DIR=/tmp/build'
+  './MAKEALL'
+ 
+  Command line 'O=' setting overrides BUILD_DIR environent variable.
+ 
+  When none of the above methods is used the local build is performed and
+  the object files are placed in the source directory.
+
 * Remove the board/netstar/crcit binary from git repository.
 
 * Fix tools/updater build error.

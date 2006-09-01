@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -104,9 +104,9 @@ ifeq ($(BIG_ENDIAN),y)
 EX_LDFLAGS += -EB
 endif
 
-OBJS	= $(SREC:.srec=.o)
+COBJS	:= $(SREC:.srec=.o)
 
-LIB	= libstubs.a
+LIB	= $(obj)libstubs.a
 LIBAOBJS=
 ifeq ($(ARCH),ppc)
 LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
@@ -115,34 +115,40 @@ ifeq ($(CPU),mpc8xx)
 LIBAOBJS+= test_burst_lib.o
 endif
 LIBCOBJS= stubs.o
-LIBOBJS	= $(LIBAOBJS) $(LIBCOBJS)
+
+LIBOBJS	= $(addprefix $(obj),$(LIBAOBJS) $(LIBCOBJS))
+
+SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(if $(LIBAOBJS),$(LIBAOBJS:.o=.S))
+OBJS	:= $(addprefix $(obj),$(COBJS))
+BIN	:= $(addprefix $(obj),$(BIN))
+SREC	:= $(addprefix $(obj),$(SREC))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 clibdir := $(shell dirname `$(CC) $(CFLAGS) -print-file-name=libc.a`)
 
 CPPFLAGS += -I..
 
-all:	.depend $(OBJS) $(LIB) $(SREC) $(BIN)
+all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN)
 
 #########################################################################
-$(LIB): .depend $(LIBOBJS)
-	$(AR) crv $@ $(LIBOBJS)
+$(LIB):	$(obj).depend $(LIBOBJS)
+		$(AR) crv $@ $(LIBOBJS)
 
-%:	%.o $(LIB)
-	$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
-		-o $@ -e $(<:.o=) $< $(LIB) \
-		-L$(gcclibdir) -lgcc
-%.srec:	%
-	$(OBJCOPY) -O srec $< $@ 2>/dev/null
+$(obj)%:	$(obj)%.o $(LIB)
+		$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
+			-o $@ -e $(notdir $(<:.o=)) $< $(LIB) \
+			-L$(gcclibdir) -lgcc
+$(obj)%.srec:	$(obj)%
+		$(OBJCOPY) -O srec $< $@ 2>/dev/null
 
-%.bin:	%
-	$(OBJCOPY) -O binary $< $@ 2>/dev/null
+$(obj)%.bin:	$(obj)%
+		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,24 +21,15 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).a
-
-COBJS	= $(BOARD).o flash.o pcmcia.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
-
 #########################################################################
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+_depend:	$(obj).depend
 
-sinclude $(obj).depend
+$(obj).depend:	$(src)Makefile $(TOPDIR)/config.mk $(SRCS)
+		@rm -f $@
+		@for f in $(SRCS); do \
+			g=`basename $$f | sed -e 's/\(.*\)\.\w/\1.o/'`; \
+			$(CC) -M $(HOST_CFLAGS) $(CPPFLAGS) -MQ $(obj)$$g $$f >> $@ ; \
+		done
 
 #########################################################################
