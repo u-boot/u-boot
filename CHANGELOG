@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Extended README entry on coding style
+
+* Added another example showing simple interrupt interception.
+
+* Added simple_strtoul(), getenv() and setenv() to the exported functions.
+  Also bumped up ABI version to reflect this change.
+
+* Added interrupt handling capabilities for mpc5xxx processors.
+  Also added Linux like BUG() macros.
+
 * Add splashscreen support for MCC200 board.
 
 * Make the serial driver framework work with CONFIG_SERIAL_MULTI
