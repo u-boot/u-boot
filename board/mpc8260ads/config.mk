@@ -29,7 +29,7 @@
 # MPC8260ADS, MPC8266ADS, and PQ2FADS-ZU/VR boards
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 ## Standard: boot high

@@ -19,28 +19,27 @@
 # MA 02111-1307 USA
 #
 
-TOPDIR=../../
-
 include $(TOPDIR)/config.mk
 
-LIB	= libfat.a
+LIB	= $(obj)libfat.a
 
 AOBJS	=
 COBJS	= fat.o file.o
 
-OBJS	= $(AOBJS) $(COBJS)
+SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB):	.depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) crv $@ $(OBJS)
 
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

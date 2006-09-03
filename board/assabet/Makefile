@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # 2004 (c) MontaVista Software, Inc.
@@ -25,12 +25,16 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:= assabet.o
+COBJS	:= assabet.o
 SOBJS	:= setup.o
 
-$(LIB):	$(OBJS) $(SOBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS) $(SOBJS)
 
 clean:
@@ -41,9 +45,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

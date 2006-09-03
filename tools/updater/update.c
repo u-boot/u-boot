@@ -46,10 +46,6 @@ void _main(void)
     while (1);
 }
 
-int flash_sect_protect (int p, ulong addr_first, ulong addr_last);
-int flash_sect_erase (ulong addr_first, ulong addr_last);
-int flash_write (uchar *src, ulong addr, ulong cnt);
-
 void do_updater(void)
 {
     unsigned long *addr = &__dummy + 65;

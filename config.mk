@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,6 +22,22 @@
 #
 
 #########################################################################
+
+ifneq ($(OBJTREE),$(SRCTREE))
+ifeq ($(CURDIR),$(SRCTREE))
+dir := 
+else
+dir := $(subst $(SRCTREE)/,,$(CURDIR))
+endif
+
+obj := $(if $(dir),$(OBJTREE)/$(dir)/,$(OBJTREE)/)
+src := $(if $(dir),$(SRCTREE)/$(dir)/,$(SRCTREE)/)
+
+$(shell mkdir -p $(obj))
+else
+obj :=
+src :=
+endif
 
 # clean the slate ...
 PLATFORM_RELFLAGS =
@@ -124,9 +140,14 @@ gccincdir := $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE)		\
-	-I$(TOPDIR)/include				\
-	-fno-builtin -ffreestanding -nostdinc -isystem	\
-	$(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
+
+ifneq ($(OBJTREE),$(SRCTREE))
+CPPFLAGS += -I$(OBJTREE)/include2 -I$(OBJTREE)/include
+endif
+
+CPPFLAGS += -I$(TOPDIR)/include
+CPPFLAGS += -fno-builtin -ffreestanding -nostdinc 	\
+	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
 ifdef BUILD_TAG
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes \
@@ -192,11 +213,23 @@ export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################
 
+ifndef REMOTE_BUILD
+
 %.s:	%.S
-	$(CPP) $(AFLAGS) -o $@ $(CURDIR)/$<
+	$(CPP) $(AFLAGS) -o $@ $<
 %.o:	%.S
-	$(CC) $(AFLAGS) -c -o $@ $(CURDIR)/$<
+	$(CC) $(AFLAGS) -c -o $@ $<
 %.o:	%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+else
+
+$(obj)%.s:	%.S
+	$(CPP) $(AFLAGS) -o $@ $<
+$(obj)%.o:	%.S
+	$(CC) $(AFLAGS) -c -o $@ $<
+$(obj)%.o:	%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+endif
 
 #########################################################################

@@ -103,14 +103,17 @@ then
 	echo -n	"#undef CONFIG_CM_TCRAM	" 		>> tmp.fil
 	echo	" /* CM may not have TCRAM */" 		>> tmp.fil
 fi
-mv tmp.fil ./include/config.h
+
+mkdir -p ${obj}include
+mkdir -p ${obj}board/integratorap
+mv tmp.fil ${obj}include/config.h
 # ---------------------------------------------------------
 #	Ensure correct core object loaded first in U-Boot image
 # ---------------------------------------------------------
-sed -r 's/CPU_FILE/cpu\/'$cpu'\/start.o/; s/#.*//' board/integratorap/u-boot.lds.template > board/integratorap/u-boot.lds
+sed -r 's/CPU_FILE/cpu\/'$cpu'\/start.o/; s/#.*//' ${src}board/integratorap/u-boot.lds.template > ${obj}board/integratorap/u-boot.lds
 # ---------------------------------------------------------
 # Complete the configuration
 # ---------------------------------------------------------
-./mkconfig -a integratorap arm $cpu integratorap;
+$MKCONFIG -a integratorap arm $cpu integratorap;
 echo "Variant:: $variant with core $cpu"
 
