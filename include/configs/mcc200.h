@@ -37,12 +37,12 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH 	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     		*/
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
+#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs 			*/
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value 	*/
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
 /*
@@ -92,7 +92,7 @@
 
 /* USB */
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 
 /*
@@ -167,7 +167,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#define CFG_IPBSPEED_133		/* define for 133MHz speed */
 
 /*
  * I2C configuration
@@ -183,9 +183,9 @@
  * TEXT base always at 0xFFF00000
  * ENV_ADDR always at  0xFFF40000
  * FLASH_BASE at 0xFC000000 for 64 MB (only 32MB are supported, not enough addr lines!!!)
- *               0xFE000000 for 32 MB
- *               0xFF000000 for 16 MB
- *               0xFF800000 for  8 MB
+ *		 0xFE000000 for 32 MB
+ *		 0xFF000000 for 16 MB
+ *		 0xFF800000 for  8 MB
  */
 #define CFG_FLASH_BASE		0xfc000000
 #define CFG_FLASH_SIZE		0x04000000
@@ -207,9 +207,9 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars	*/
 
-#define CFG_ENV_SECT_SIZE	0x40000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000	/* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -239,7 +239,7 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE    TEXT_BASE
+#define CFG_MONITOR_BASE	TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #   define CFG_RAMBOOT		1
 #endif
@@ -261,11 +261,14 @@
 /*
  * LCD Splash Screen
  */
+#if !defined(CONFIG_PRS200)
 #define CONFIG_LCD		1
+#endif
+
 #if defined(CONFIG_LCD)
 #define CONFIG_SPLASH_SCREEN	1
 #define CFG_CONSOLE_IS_IN_ENV	1
-#define LCD_BPP		LCD_MONOCHROME
+#define LCD_BPP			LCD_MONOCHROME
 #endif
 
 /*
@@ -283,18 +286,18 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CFG_LONGHELP			/* undef to save memory		*/
+#define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size	*/
 #define CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
+#define CFG_MEMTEST_START	0x00100000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
 #define CFG_LOAD_ADDR		0x100000	/* default load address */

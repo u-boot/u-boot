@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fixed problems on PRS200 board caused by adding splash screen on MCC200
+
 * Extended README entry on coding style
 
 * Added another example showing simple interrupt interception.
