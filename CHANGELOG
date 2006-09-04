@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix build problems on sorcery board.
+
 * Fix coldfire build problems.
   Patch by Marian Balakowicz, 01 Sep 2006
 
