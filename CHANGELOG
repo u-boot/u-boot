@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix mkimage -l bug with multifile images on 64bit platforms
+  Patch by David Updegraff, 06 Sep 2006
+
 * Fix build problems on sorcery board.
 
 * Fix coldfire build problems.

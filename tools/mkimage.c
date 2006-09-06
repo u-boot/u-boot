@@ -632,7 +632,7 @@ print_header (image_header_t *hdr)
 	if (hdr->ih_type == IH_TYPE_MULTI || hdr->ih_type == IH_TYPE_SCRIPT) {
 		int i, ptrs;
 		uint32_t pos;
-		unsigned long *len_ptr = (unsigned long *) (
+		uint32_t *len_ptr = (uint32_t *) (
 					(unsigned long)hdr + sizeof(image_header_t)
 				);
 
