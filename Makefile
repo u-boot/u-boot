@@ -48,7 +48,7 @@ VENDOR=
 #
 # U-boot build supports producing a object files to the separate external
 # directory. Two use cases are supported:
-# 
+#
 # 1) Add O= to the make command line
 # 'make O=/tmp/build all'
 #
@@ -59,12 +59,12 @@ VENDOR=
 # The second approach can also be used with a MAKEALL script
 # 'export BUILD_DIR=/tmp/build'
 # './MAKEALL'
-# 
+#
 # Command line 'O=' setting overrides BUILD_DIR environent variable.
-# 
+#
 # When none of the above methods is used the local build is performed and
 # the object files are placed in the source directory.
-# 
+#
 
 ifdef O
 ifeq ("$(origin O)", "command line")
@@ -101,7 +101,7 @@ src := $(SRCTREE)/
 else
 obj :=
 src :=
-endif   
+endif
 export obj src
 
 #########################################################################
@@ -214,13 +214,18 @@ SUBDIRS	= tools \
 	  post/cpu
 .PHONY : $(SUBDIRS)
 
+ifeq ($(CONFIG_NAND_U_BOOT),y)
+NAND_SPL = nand_spl
+U_BOOT_NAND = $(obj)u-boot-nand.bin
+endif
+
 __OBJS := $(subst $(obj),,$(OBJS))
 __LIBS := $(subst $(obj),,$(LIBS))
 
 #########################################################################
 #########################################################################
 
-ALL = $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
+ALL = $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND)
 
 all:		$(ALL)
 
@@ -257,6 +262,12 @@ $(LIBS):
 
 $(SUBDIRS):
 		$(MAKE) -C $@ all
+
+$(NAND_SPL):	version
+		$(MAKE) -C nand_spl all
+
+$(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
+		cat nand_spl/u-boot-spl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 version:
 		@echo -n "#define U_BOOT_VERSION \"U-Boot " > $(VERSION_FILE); \
@@ -309,7 +320,8 @@ endif
 #########################################################################
 
 unconfig:
-	@rm -f $(obj)include/config.h $(obj)include/config.mk $(obj)board/*/config.tmp
+	@rm -f $(obj)include/config.h $(obj)include/config.mk \
+		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp
 
 #========================================================================
 # PowerPC
@@ -1127,6 +1139,17 @@ PPChameleonEVB_HI_33_config:	unconfig
 
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
+
+sequoia_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sequoia amcc
+
+sequoia_nand_config:	unconfig
+	@ln -s board/amcc/sequoia/Makefile nand_spl/Makefile
+	@echo "#define CONFIG_NAND_U_BOOT" >include/config.h
+	@echo "Compile NAND boot image for sequoia"
+	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+	@echo "TEXT_BASE = 0x01000000" >board/amcc/sequoia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> include/config.mk
 
 sycamore_config:	unconfig
 	@echo "Configuring for sycamore board as subset of walnut..."
@@ -2195,6 +2218,8 @@ clean:
 	rm -f $(obj)board/trab/trab_fkt $(obj)board/voiceblue/eeprom
 	rm -f $(obj)board/integratorap/u-boot.lds $(obj)board/integratorcp/u-boot.lds
 	rm -f $(obj)include/bmp_logo.h
+	find nand_spl -lname "*" -print | xargs rm -f
+	rm -f nand_spl/u-boot-spl nand_spl/u-boot-spl.map
 
 clobber:	clean
 	find $(OBJTREE) -type f \( -name .depend \

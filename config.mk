@@ -132,7 +132,11 @@ DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
 ifndef LDSCRIPT
 #LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+ifeq ($(CONFIG_NAND_U_BOOT),y)
+LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+else
 LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+endif
 endif
 OBJCFLAGS += --gap-fill=0xff
 

@@ -146,8 +146,13 @@ static int _dtt_init(int sensor)
     /*
      * Setup configuraton register
      */
+#ifdef CONFIG_DTT_AD7414
+    /* config = alert active low and disabled */
+    val = 0x60;
+#else
     /* config = 6 sample integration, int mode, active low, and enable */
     val = 0x18;
+#endif
     if (dtt_write(sensor, DTT_CONFIG, val) != 0)
 	return 1;
 

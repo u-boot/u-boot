@@ -2,6 +2,16 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add support for AMCC Sequoia PPC440EPx eval board
+  - Add support for PPC440EPx & PPC440GRx
+  - Add support for PPC440EP(x)/GR(x) NAND controller
+    in cpu/ppc4xx directory
+  - Add NAND boot functionality for Sequoia board,
+    please see doc/README.nand-boot-ppc440 for details
+  - This Sequoia NAND image doesn't support environment
+    in NAND for now. This will be added in a short while.
+  Patch by Stefan Roese, 07 Sep 2006
+
 * Fix mkimage -l bug with multifile images on 64bit platforms
   Patch by David Updegraff, 06 Sep 2006
 

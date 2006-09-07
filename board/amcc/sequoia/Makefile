@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,26 +22,25 @@
 #
 
 include $(TOPDIR)/config.mk
+include $(TOPDIR)/include/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(BOARD).a
 
-START	= start.o resetvec.o kgdb.o
-SOBJS	= dcr.o
-COBJS	= 405gp_pci.o 4xx_enet.o \
-	  bedbug_405.o commproc.o \
-	  cpu.o cpu_init.o i2c.o interrupts.o \
-	  miiphy.o ndfc.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o \
-	  440spe_pcie.o
+COBJS	= $(BOARD).o sdram.o
+SOBJS	= init.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(START) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
