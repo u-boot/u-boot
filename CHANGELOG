@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.
+
 * Fix LOG_DIR directory creation error.
   Add support for automatic creation of BUILD_DIR directory.
 
