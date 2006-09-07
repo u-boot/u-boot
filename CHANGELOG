@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Change Yellowstone to use CFI write buffer
+  Patch by Stefan Roese, 07 Aug 2006
+
 * Add support for AMCC Sequoia PPC440EPx eval board
   - Add support for PPC440EPx & PPC440GRx
   - Add support for PPC440EP(x)/GR(x) NAND controller
