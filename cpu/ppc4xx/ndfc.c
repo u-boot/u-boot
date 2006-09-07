@@ -31,7 +31,9 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY) && \
+	(defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	     \
+	 defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
 
 #include <nand.h>
 #include <linux/mtd/ndfc.h>
