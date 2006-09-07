@@ -2,8 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix build problem with CPCI440
+  Patch by Stefan Roese, 07 Sep 2006
+
 * Change Yellowstone to use CFI write buffer
-  Patch by Stefan Roese, 07 Aug 2006
+  Patch by Stefan Roese, 07 Sep 2006
 
 * Add support for AMCC Sequoia PPC440EPx eval board
   - Add support for PPC440EPx & PPC440GRx
