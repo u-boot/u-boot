@@ -79,6 +79,12 @@ typedef struct i2c
 #endif
 #define I2C_TIMEOUT (CFG_HZ/4)
 
+enum	I2C_BUS_NUM
+{
+	I2C_BUS_1 = 0,
+	I2C_BUS_2,
+};
+
 #ifndef CFG_IMMRBAR
 #error CFG_IMMRBAR is not defined in /include/configs/${BOARD}.h
 #endif
@@ -87,15 +93,12 @@ typedef struct i2c
 #error CFG_I2C_OFFSET is not defined in /include/configs/${BOARD}.h
 #endif
 
-#if defined(CONFIG_MPC8349EMDS) || defined(CONFIG_TQM834X)
-/*
- * MPC8349 have two i2c bus
- */
-extern i2c_t * mpc83xx_i2c;
-#define I2C mpc83xx_i2c
-#else
-#define I2C ((i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET))
-#endif
+#define I2C_1 ((i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET))
+
+/* Optional support for second I2C bus */
+#ifdef        CFG_I2C2_OFFSET
+#define I2C_2 ((i2c_t*)(CFG_IMMRBAR + CFG_I2C2_OFFSET))
+#endif        /* CFG_I2C2_OFFSET */
 
 #define I2C_READ  1
 #define I2C_WRITE 0

@@ -35,7 +35,7 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC83XX		1	/* MPC83XX family */
+#define CONFIG_MPC834X		1	/* MPC834X family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
 
@@ -311,9 +311,11 @@
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support*/
 #undef CONFIG_SOFT_I2C			/* I2C bit-banged */
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{{0,0x69}}	/* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 
