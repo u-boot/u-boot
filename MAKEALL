@@ -18,7 +18,7 @@ if [ ! "${BUILD_DIR}" ] ; then
 	BUILD_DIR="."
 fi
 
-[ -d ${MAKEALL_LOGDIR} ] || mkdir ${MAKEALL_LOGDIR} || exit 1
+[ -d ${LOG_DIR} ] || mkdir ${LOG_DIR} || exit 1
 
 LIST=""
 

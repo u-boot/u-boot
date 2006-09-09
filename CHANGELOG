@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add documentation on the latest build environment extensions to 
+  the README file.
+
+* Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.
+
+* Fix LOG_DIR directory creation error.
+  Add support for automatic creation of BUILD_DIR directory.
+
 * Fix build problem cpu/ppc4xx/ndfc.c
   Patch by Stefan Roese, 07 Sep 2006
 
@@ -48,7 +56,6 @@ Changes since U-Boot 1.1.4:
 * Fix tools/updater build error.
 
 * Fix tools/easylogo build error.
-
 
 * Fixed problems on PRS200 board caused by adding splash screen on MCC200
 

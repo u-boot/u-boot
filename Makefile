@@ -74,6 +74,11 @@ endif
 
 ifneq ($(BUILD_DIR),)
 saved-output := $(BUILD_DIR)
+
+# Attempt to create a output directory.
+$(shell [ -d ${BUILD_DIR} ] || mkdir -p ${BUILD_DIR})
+
+# Verify if it was successful. 
 BUILD_DIR := $(shell cd $(BUILD_DIR) && /bin/pwd)
 $(if $(BUILD_DIR),,$(error output directory "$(saved-output)" does not exist))
 endif # ifneq ($(BUILD_DIR),)
