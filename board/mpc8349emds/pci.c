@@ -68,11 +68,16 @@ static struct pci_controller pci_hose[] = {
 void
 pib_init(void)
 {
-	u8 val8;
+	u8 val8, orig_i2c_bus;
 	/*
 	 * Assign PIB PMC slot to desired PCI bus
 	 */
-	mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C2_OFFSET);
+	/* Switch temporarily to I2C bus #2 */
+	orig_i2c_bus = i2c_get_bus_num();
+
+	if(orig_i2c_bus != I2C_BUS_2)
+	 	i2c_set_bus_num(I2C_BUS_2);
+
 	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
 
 	val8 = 0;
@@ -118,6 +123,9 @@ pib_init(void)
 	printf("PCI1: 32-bit on PMC1, PMC2\n");
 	printf("PCI2: 32-bit on PMC3\n");
 #endif
+	/* Reset to original I2C bus */
+	if(orig_i2c_bus != I2C_BUS_2)
+	 	i2c_set_bus_num(orig_i2c_bus);
 }
 
 /**************************************************************************
