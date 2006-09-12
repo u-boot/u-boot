@@ -33,4 +33,28 @@ is set up. While still running from cache, I experienced problems accessing
 the NAND controller.
 
 
+Example: Build and install NAND boot image for Sequoia (440EPx):
+
+a) Configure for sequoia with NAND boot support:
+# make sequoia_nand_config
+
+b) Build image(s)
+# make
+
+This will generate the SPL image in the "nand_spl" directory:
+nand_spl/u-boot-spl.bin
+Also another image is created spanning a whole NAND block (16kBytes):
+nand_spl/u-boot-spl-16k.bin
+The main NAND U-Boot image is generated in the toplevel directory:
+u-boot.bin
+A combined image of u-boot-spl-16k.bin and u-boot.bin is also created:
+u-boot-nand.bin
+
+This image should be programmed at offset 0 in the NAND flash:
+
+# tftp 100000 /tftpboot/sequoia/u-boot-nand.bin
+# nand erase 0 60000
+# nand write 100000 0 60000
+
+
 September 07 2006, Stefan Roese <sr@denx.de>

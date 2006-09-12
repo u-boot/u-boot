@@ -35,11 +35,11 @@ COBJS	= nand_boot.o ndfc.o sdram.o
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-ALL	= u-boot-spl u-boot-spl.bin u-boot-spl-4k.bin
+ALL	= u-boot-spl u-boot-spl.bin u-boot-spl-16k.bin
 
 all:	$(obj).depend $(ALL)
 
-u-boot-spl-4k.bin: u-boot-spl
+u-boot-spl-16k.bin: u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
 
 u-boot-spl.bin:	u-boot-spl

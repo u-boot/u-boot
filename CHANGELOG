@@ -2,7 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
-* Add documentation on the latest build environment extensions to 
+* Update NAND boot documentation
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Add documentation on the latest build environment extensions to
   the README file.
 
 * Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.
