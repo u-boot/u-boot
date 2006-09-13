@@ -381,7 +381,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_MPC85XX_TSEC2_NAME	"eTSEC1"
 #define CONFIG_MPC85XX_TSEC3	1
 #define CONFIG_MPC85XX_TSEC3_NAME	"eTSEC2"
-#undef CONFIG_MPC85XX_TSEC4
+#define CONFIG_MPC85XX_TSEC4	1
 #define CONFIG_MPC85XX_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 
@@ -483,6 +483,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
+#define CONFIG_HAS_ETH3
+#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253
