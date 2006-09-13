@@ -24,9 +24,35 @@
 
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
-extern void ft_cpu_setup(void *blob, bd_t *bd);
-#endif
+#include "cadmus.h"
 
+extern void ft_cpu_setup(void *blob, bd_t *bd);
+
+static void cds_pci_fixup(void *blob)
+{
+	int len;
+	u32 *map;
+	int slot;
+	int i;
+
+	map = ft_get_prop(blob, "/" OF_SOC "/pci@8000/interrupt-map", &len);
+
+	len /= sizeof(u32);
+
+	slot = get_pci_slot();
+
+	for (i=0;i<len;i+=7) {
+		/* We rotate the interrupt pins so that the mapping
+		 * changes depending on the slot the carrier card is in.
+		 */
+		int j;
+
+		map[3] = ((map[3] + slot - 2) % 4) + 1;
+
+		map+=7;
+	}
+}
+#endif
 
 #if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
 void
@@ -45,5 +71,7 @@ ft_board_setup(void *blob, bd_t *bd)
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
+
+	cds_pci_fixup(blob);
 }
 #endif
