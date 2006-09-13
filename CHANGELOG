@@ -2,9 +2,15 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add NAND environment support for PPC440EPx Sequoia NAND boot config
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Update NAND boot documentation
+  Patch by Stefan Roese, 12 Sep 2006
+
 * Fix alignment problem in "mtdparts" command
 
-* Add documentation on the latest build environment extensions to 
+* Add documentation on the latest build environment extensions to
   the README file.
 
 * Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.

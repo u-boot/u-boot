@@ -166,8 +166,7 @@ void nand_boot(void)
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	ret = nand_load(&nand_info, CFG_NAND_U_BOOT_OFFS,
-			CFG_NAND_U_BOOT_SIZE,
+	ret = nand_load(&nand_info, CFG_NAND_U_BOOT_OFFS, CFG_NAND_U_BOOT_SIZE,
 			(uchar *)CFG_NAND_U_BOOT_DST);
 
 	/*

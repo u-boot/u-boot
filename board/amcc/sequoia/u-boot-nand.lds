@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -55,6 +55,12 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
+
+    /* Align to next NAND block */
+    . = ALIGN(0x4000);
+    common/environment.o  (.ppcenv)
+    /* Keep some space here for redundant env and potential bad env blocks */
+    . = ALIGN(0x10000);
 
     *(.text)
     *(.fixup)

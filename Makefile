@@ -78,7 +78,7 @@ saved-output := $(BUILD_DIR)
 # Attempt to create a output directory.
 $(shell [ -d ${BUILD_DIR} ] || mkdir -p ${BUILD_DIR})
 
-# Verify if it was successful. 
+# Verify if it was successful.
 BUILD_DIR := $(shell cd $(BUILD_DIR) && /bin/pwd)
 $(if $(BUILD_DIR),,$(error output directory "$(saved-output)" does not exist))
 endif # ifneq ($(BUILD_DIR),)
@@ -272,7 +272,7 @@ $(NAND_SPL):	version
 		$(MAKE) -C nand_spl all
 
 $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
-		cat nand_spl/u-boot-spl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
+		cat nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 version:
 		@echo -n "#define U_BOOT_VERSION \"U-Boot " > $(VERSION_FILE); \
