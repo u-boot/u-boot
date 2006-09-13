@@ -1268,7 +1268,7 @@ static void list_partitions(void)
 		part_num = 0;
 		list_for_each(pentry, &dev->parts) {
 			part = list_entry(pentry, struct part_info, link);
-			printf(" %d: %-22s\t0x%08x\t0x%08x\t%d\n",
+			printf("%2d: %-20s0x%08x\t0x%08x\t%d\n",
 					part_num, part->name, part->size,
 					part->offset, part->mask_flags);
 
