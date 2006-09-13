@@ -133,7 +133,7 @@
 #define BI_PHYMODE_GMII  3
 #define BI_PHYMODE_RTBI  4
 #define BI_PHYMODE_TBI   5
-#if defined (CONFIG_440EPX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define BI_PHYMODE_SMII  6
 #define BI_PHYMODE_MII   7
 #endif

@@ -7,6 +7,9 @@ Changes since U-Boot 1.1.4:
 
 * Cleanup examples binaries
 
+* Add support for AMCC Rainier PPX440GRx eval board
+  Patch by Stefan Roese, 13 Sep 2006
+
 * Add NAND environment support for PPC440EPx Sequoia NAND boot config
   Patch by Stefan Roese, 12 Sep 2006
 

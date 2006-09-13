@@ -140,10 +140,12 @@ int misc_init_r(void)
 {
 	uint pbcr;
 	int size_val = 0;
+#ifdef CONFIG_440EPX
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
 	char *act = getenv("usbact");
+#endif
 
 	/*
 	 * FLASH stuff...
@@ -211,6 +213,7 @@ int misc_init_r(void)
 	/*
 	 * USB suff...
 	 */
+#ifdef CONFIG_440EPX
 	if (act == NULL || strcmp(act, "hostdev") == 0)	{
 		/* SDR Setting */
         	mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -322,6 +325,7 @@ int misc_init_r(void)
 
 		printf("USB:   Device(int phy)\n");
 	}
+#endif /* CONFIG_440EPX */
 
 	return 0;
 }
@@ -330,7 +334,11 @@ int checkboard(void)
 {
 	char *s = getenv("serial#");
 
+#ifdef CONFIG_440EPX
 	printf("Board: Sequoia - AMCC PPC440EPx Evaluation Board");
+#else
+	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
+#endif
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);

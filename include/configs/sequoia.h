@@ -31,8 +31,13 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
+/* This config file is used for Sequoia (440EPx) and Rainier (440GRx) */
+#ifndef CONFIG_RAINIER
 #define CONFIG_SEQUOIA		1		/* Board is Sequoia	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
+#else
+#define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
+#endif
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 
@@ -272,11 +277,17 @@
 #define CONFIG_PHY1_ADDR	1
 
 /* USB */
+#ifdef CONFIG_440EPX
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
+
+#define CMD_USB			CFG_CMD_USB
+#else
+#define CMD_USB			0	/* no USB on 440GRx		*/
+#endif /* CONFIG_440EPX */
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -301,7 +312,7 @@
 			       CFG_CMD_PING	|	\
 			       CFG_CMD_REGINFO	|	\
 			       CFG_CMD_SDRAM	|	\
-			       CFG_CMD_USB    )
+			       CMD_USB)
 
 #define CONFIG_SUPPORT_VFAT
 

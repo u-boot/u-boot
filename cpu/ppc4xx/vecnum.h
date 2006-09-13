@@ -31,7 +31,7 @@
 #ifndef _VECNUMS_H_
 #define _VECNUMS_H_
 
-#if defined(CONFIG_440EPX) || defined(CONFIG_440_GRX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* UIC 0 */
 #define VECNUM_U0                   0  /* UART 0                        */
