@@ -389,13 +389,11 @@ extern unsigned long get_clock_freq(void);
 #define TSEC2_PHY_ADDR		1
 #define TSEC3_PHY_ADDR		2
 #define TSEC4_PHY_ADDR		3
-#define FEC_PHY_ADDR		3
 
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
-#define FEC_PHYIDX		0
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
@@ -507,8 +505,11 @@ extern unsigned long get_clock_freq(void);
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS1\0"                                                 \
-   "ramdiskaddr=400000\0"                                               \
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"                                               \
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
+
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -516,7 +517,9 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
+
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \

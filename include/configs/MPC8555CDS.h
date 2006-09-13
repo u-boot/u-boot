@@ -489,8 +489,10 @@ extern unsigned long get_clock_freq(void);
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS1\0"                                                 \
-   "ramdiskaddr=400000\0"                                               \
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"                                               \
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -498,7 +500,8 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
