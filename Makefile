@@ -2209,7 +2209,7 @@ clean:
 	rm -f $(obj)examples/hello_world $(obj)examples/timer \
 	      $(obj)examples/eepro100_eeprom $(obj)examples/sched \
 	      $(obj)examples/mem_to_mem_idma2intr $(obj)examples/82559_eeprom \
-	      $(obj)examples/smc91111_eeprom \
+	      $(obj)examples/smc91111_eeprom $(obj)examples/interrupt \
 	      $(obj)examples/test_burst
 	rm -f $(obj)tools/img2srec $(obj)tools/mkimage $(obj)tools/envcrc \
 		$(obj)tools/gen_eth_addr
