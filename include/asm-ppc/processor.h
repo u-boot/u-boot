@@ -806,6 +806,8 @@
 #define SVR_VER(svr)	(((svr) >>  16) & 0xFFFF)	/* Version field */
 #define SVR_REV(svr)	(((svr) >>   0) & 0xFFFF)	/* Revison field */
 
+#define SVR_SUBVER(svr)	(((svr) >>  8) & 0xFF)	/* Process/MFG sub-version */
+
 #define SVR_FAM(svr)	(((svr) >> 20) & 0xFFF)	/* Family field */
 #define SVR_MEM(svr)	(((svr) >> 16) & 0xF)	/* Member field */
 
@@ -823,9 +825,8 @@
 #define SVR_8541	0x807A
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
-
 #define SVR_8641	0x8090
-#define SVR_8641D	0x8091
+
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
  * able to combine mbx, fads, rpxlite, bseip, and classic into a single
