@@ -76,11 +76,12 @@ checkcpu(void)
 	puts("    System: ");
 	switch (ver) {
 	case SVR_8641:
-		puts("8641");
-		break;
-	case SVR_8641D:
+	    if (SVR_SUBVER(svr) == 1) {
 		puts("8641D");
-		break;
+	    } else {
+		puts("8641");
+	    }
+	    break;
 	default:
 		puts("Unknown");
 		break;
