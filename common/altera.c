@@ -50,7 +50,7 @@ int altera_load( Altera_desc *desc, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {
@@ -83,7 +83,7 @@ int altera_dump( Altera_desc *desc, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {
@@ -111,7 +111,7 @@ int altera_info( Altera_desc *desc )
 {
 	int ret_val = FPGA_FAIL;
 
-	if (altera_validate (desc, __FUNCTION__)) {
+	if (altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
 		case Altera_ACEX1K:
@@ -187,7 +187,7 @@ int altera_reloc( Altera_desc *desc, ulong reloc_offset)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {

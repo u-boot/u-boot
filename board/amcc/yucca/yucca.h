@@ -60,6 +60,9 @@ extern "C" {
 
 #define NUM_TLB_ENTRIES          64
 
+/* MICRON SPD JEDEC ID Code (first byte) - SPD data byte [64] */
+#define MICRON_SPD_JEDEC_ID 0x2c
+
 /*----------------------------------------------------------------------------+
 | TLB specific defines.
 +----------------------------------------------------------------------------*/

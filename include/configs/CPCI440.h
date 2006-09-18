@@ -31,7 +31,8 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-#define CONFIG_EBONY		1	    /* Board is ebony		*/
+#define CONFIG_CPCI440		1	    /* Board is ebony		*/
+#define CONFIG_440GP		1	    /* Specifc GP support	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */

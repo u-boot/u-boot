@@ -23,10 +23,14 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o fpga.o nand.o
+COBJS	= $(BOARD).o fpga.o nand.o
 SOBJS	= init.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) crv $@ $(OBJS)
@@ -39,9 +43,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

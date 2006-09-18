@@ -26,7 +26,7 @@
 #
 
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 ## Standard: boot 64-bit flash

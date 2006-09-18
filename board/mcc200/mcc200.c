@@ -197,12 +197,18 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
+#if defined(CONFIG_PRS200)
+	puts ("Board: PRS200\n");
+#else
 	puts ("Board: MCC200\n");
+#endif
 	return 0;
 }
 
 int misc_init_r (void)
 {
+	ulong flash_sup_end, snum;
+
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -257,6 +263,12 @@ int misc_init_r (void)
 			       (flash_info[0].start[0] - 1) + flash_info[0].size,
 			       &flash_info[0]);
 		*(volatile int*)MPC5XXX_CS0_CFG &= ~(1 << 6);
+		printf ("Warning: Only 32 of 64 MB of Flash are accessible from U-Boot\n");
+		flash_info[0].size = 32 << 20;
+		for (snum = 0, flash_sup_end = gd->bd->bi_flashstart + (32<<20);
+			flash_info[0].start[snum] < flash_sup_end;
+			snum++);
+		flash_info[0].sector_count = snum;
 	}
 
 	return (0);

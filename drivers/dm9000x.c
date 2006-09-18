@@ -436,6 +436,9 @@ eth_rx(void)
 	u8 rxbyte, *rdptr = (u8 *) NetRxPackets[0];
 	u16 RxStatus, RxLen = 0;
 	u32 tmplen, i;
+#ifdef CONFIG_DM9000_USE_32BIT
+	u32 tmpdata;
+#endif
 
 	/* Check packet ready or not */
 	DM9000_ior(DM9000_MRCMDX);	/* Dummy read */

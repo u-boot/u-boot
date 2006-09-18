@@ -22,7 +22,7 @@
 #
 
 #
-# MCC200 board:
+# MCC200, PRS200 boards:
 #
 #	Valid values for TEXT_BASE are:
 #
@@ -31,7 +31,7 @@
 #	0x00100000   boot from RAM (for testing only)
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 ## Standard: boot low

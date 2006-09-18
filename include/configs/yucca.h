@@ -31,9 +31,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG
-#undef DEBUG
-
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/

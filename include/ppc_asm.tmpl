@@ -312,7 +312,7 @@ label:                                                  \
 	lwz     r3,GOT(transfer_to_handler);            \
 	mtlr    r3;                                     \
 	addi    r3,r1,STACK_FRAME_OVERHEAD;             \
-	li      r20,MSR_KERNEL;                         \
+	li      r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE)); \
 	rlwimi  r20,r23,0,25,25;                        \
 	blrl    ;                                       \
 .L_ ## label :                                          \

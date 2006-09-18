@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,26 +23,30 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o oftree.o
+COBJS	= $(BOARD).o oftree.o
 
-$(LIB):	.depend $(OBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) crv $@ $(OBJS)
 
-%.dtb: %.dts
+$(obj)%.dtb: $(src)%.dts
 	dtc -f -V 0x10 -I dts -O dtb $< >$@
 
-%.c: %.dtb
+$(obj)%.c: $(obj)%.dtb
 	xxd -i $< \
 	   | sed -e "s/^unsigned char/const unsigned char/g" \
 	   | sed -e "s/^unsigned int/const unsigned int/g" > $@
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -31,7 +31,9 @@
 #include <common.h>
 #include <config.h>
 #include <pci.h>
+#ifdef CONFIG_SC520_SSI
 #include <ssi.h>
+#endif
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
@@ -143,7 +145,15 @@ unsigned long init_sc520_dram(void)
 
 	u32 dram_present=0;
 	u32 dram_ctrl;
-
+#ifdef CFG_SDRAM_DRCTMCTL
+	/* these memory control registers are set up in the assember part,
+	 * in sc520_asm.S, during 'mem_init'.  If we muck with them here,
+	 * after we are running a stack in RAM, we have troubles.  Besides,
+	 * these refresh and delay values are better ? simply specified
+	 * outright in the include/configs/{cfg} file since the HW designer
+	 * simply dictates it.
+	 */
+#else
 	int val;
 
 	int cas_precharge_delay = CFG_SDRAM_PRECHARGE_DELAY;
@@ -162,6 +172,7 @@ unsigned long init_sc520_dram(void)
 	} else {
 		val = 3;  /* 62.4us */
 	}
+
 	write_mmcr_byte(SC520_DRCCTL, (read_mmcr_byte(SC520_DRCCTL) & 0xcf) | (val<<4));
 
 	val = read_mmcr_byte(SC520_DRCTMCTL);
@@ -181,12 +192,11 @@ unsigned long init_sc520_dram(void)
 		val |= 1;
 	}
 	write_mmcr_byte(SC520_DRCTMCTL, val);
-
+#endif
 
 	/* We read-back the configuration of the dram
 	 * controller that the assembly code wrote */
 	dram_ctrl = read_mmcr_long(SC520_DRCBENDADR);
-
 
 	bd->bi_dram[0].start = 0;
 	if (dram_ctrl & 0x80) {
@@ -274,7 +284,7 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 {
 	int i;
 
-# if 0
+# if 1
 	printf("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
 #endif
 	if (irq < 0 || irq > 15) {

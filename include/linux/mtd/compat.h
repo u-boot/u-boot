@@ -31,11 +31,13 @@
 #define max_t(type,x,y) \
 	({ type __x = (x); type __y = (y); __x > __y ? __x: __y; })
 
+#ifndef BUG
 #define BUG() do { \
 	printf("U-Boot BUG at %s:%d!\n", __FILE__, __LINE__); \
 } while (0)
 
 #define BUG_ON(condition) do { if (condition) BUG(); } while(0)
+#endif /* BUG */
 
 #define likely(x)	__builtin_expect(!!(x), 1)
 #define unlikely(x)	__builtin_expect(!!(x), 0)
