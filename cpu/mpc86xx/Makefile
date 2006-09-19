@@ -25,24 +25,27 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o #resetvec.o
-ASOBJS  = cache.o
+SOBJS	= cache.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
 	  pci.o pcie_indirect.o i2c.o spd_sdram.o
-OBJS	= $(COBJS)
 
-all:	.depend $(START) $(ASOBJS) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
+
+all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
 	$(AR) crv $@ $(ASOBJS) $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(ASOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################
