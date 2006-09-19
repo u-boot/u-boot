@@ -381,7 +381,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_MPC85XX_TSEC2_NAME	"eTSEC1"
 #define CONFIG_MPC85XX_TSEC3	1
 #define CONFIG_MPC85XX_TSEC3_NAME	"eTSEC2"
-#undef CONFIG_MPC85XX_TSEC4
+#define CONFIG_MPC85XX_TSEC4	1
 #define CONFIG_MPC85XX_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 
@@ -389,13 +389,11 @@ extern unsigned long get_clock_freq(void);
 #define TSEC2_PHY_ADDR		1
 #define TSEC3_PHY_ADDR		2
 #define TSEC4_PHY_ADDR		3
-#define FEC_PHY_ADDR		3
 
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
-#define FEC_PHYIDX		0
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
@@ -483,6 +481,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
+#define CONFIG_HAS_ETH3
+#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253
@@ -505,8 +505,11 @@ extern unsigned long get_clock_freq(void);
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS1\0"                                                 \
-   "ramdiskaddr=400000\0"                                               \
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"                                               \
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
+
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -514,7 +517,9 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
+
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \

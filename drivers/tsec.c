@@ -45,9 +45,7 @@ struct tsec_info_struct {
 
 /* The tsec_info structure contains 3 values which the
  * driver uses to determine how to operate a given ethernet
- * device.  For now, the structure is initialized with the
- * knowledge that all current implementations have 2 TSEC
- * devices, and one FEC.  The information needed is:
+ * device. The information needed is:
  *  phyaddr - The address of the PHY which is attached to
  *	the given device.
  *
@@ -57,18 +55,16 @@ struct tsec_info_struct {
  *
  *  phyregidx - This variable specifies which ethernet device
  *	controls the MII Management registers which are connected
- *	to the PHY.  For 8540/8560, only TSEC1 (index 0) has
+ *	to the PHY.  For now, only TSEC1 (index 0) has
  *	access to the PHYs, so all of the entries have "0".
  *
  * The values specified in the table are taken from the board's
  * config file in include/configs/.  When implementing a new
  * board with ethernet capability, it is necessary to define:
- *   TSEC1_PHY_ADDR
- *   TSEC1_PHYIDX
- *   TSEC2_PHY_ADDR
- *   TSEC2_PHYIDX
+ *   TSECn_PHY_ADDR
+ *   TSECn_PHYIDX
  *
- * and for 8560:
+ * for n = 1,2,3, etc.  And for FEC:
  *   FEC_PHY_ADDR
  *   FEC_PHYIDX
  */
@@ -95,10 +91,8 @@ static struct tsec_info_struct tsec_info[] = {
 #else
 	{ 0, 0, 0},
 #endif
-#if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4)
-	{TSEC4_PHY_ADDR, TSEC_REDUCED, TSEC4_PHYIDX},
-#elif defined(CONFIG_MPC86XX_TSEC4)
-       {TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
+#if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4) || defined(CONFIG_MPC86XX_TSEC4)
+	{TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
 #else
 	{ 0, 0, 0},
 #endif
@@ -838,6 +832,58 @@ struct phy_info phy_info_M88E1111S = {
 	},
 };
 
+static unsigned int m88e1145_setmode(uint mii_reg, struct tsec_private *priv)
+{
+	unsigned int temp;
+	uint mii_data = read_phy_reg(priv, mii_reg);
+
+
+	/* Setting MIIM_88E1145_PHY_EXT_CR */
+	if (priv->flags & TSEC_REDUCED)
+		return mii_data |
+			MIIM_M88E1145_RGMII_RX_DELAY |
+			MIIM_M88E1145_RGMII_TX_DELAY;
+	else
+		return mii_data;
+}
+
+static struct phy_info phy_info_M88E1145 = {
+	0x01410cd,
+	"Marvell 88E1145",
+	4,
+	(struct phy_cmd[]) { /* config */
+		/* Errata E0, E1 */
+		{29, 0x001b, NULL},
+		{30, 0x418f, NULL},
+		{29, 0x0016, NULL},
+		{30, 0xa2da, NULL},
+
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO, NULL},
+		{MIIM_88E1145_PHY_EXT_CR, 0, &m88e1145_setmode},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		{MIIM_88E1111_PHY_LED_CONTROL, MIIM_88E1111_PHY_LED_DIRECT, NULL},
+		/* Read the Status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+
 struct phy_info phy_info_cis8204 = {
 	0x3f11,
 	"Cicada Cis8204",
@@ -1055,6 +1101,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
+	&phy_info_M88E1145,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
