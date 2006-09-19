@@ -287,6 +287,7 @@ Stefan Roese <sr@denx.de>
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
+	sequoia			PPC440EPx
 	sycamore		PPC405GPr
 	walnut			PPC405GP
 	yellowstone		PPC440GR
@@ -320,6 +321,11 @@ Rune Torgersen <runet@innovsys.com>
 
 	MPC8266ADS		MPC8266
 
+
+David Updegraff <dave@cray.com>
+
+	CRAYL1			PPC4xx
+
 Josef Wagner <Wagner@Microsys.de>
 
 	CPC45			MPC8245
@@ -349,7 +355,6 @@ Unknown / orphaned boards:
 	RPXClassic		MPC8xx
 	RPXlite			MPC8xx
 
-	CRAYL1			PPC4xx
 	ERIC			PPC4xx
 
 	MOUSSE			MPC824x

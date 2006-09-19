@@ -170,7 +170,7 @@ pci_mpc8220_init(struct pci_controller *hose)
 	hose->region_count = 3;
 
 	hose->cfg_addr = &(xcpci->cfg_adr);
-	hose->cfg_data = CONFIG_PCI_CFG_BUS;
+	hose->cfg_data = (volatile unsigned char *)CONFIG_PCI_CFG_BUS;
 
 	pci_set_ops(hose,
 		mpc8220_pci_read_config_byte,

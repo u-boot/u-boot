@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,6 +24,6 @@
 
 SUBDIRS	:= jffs2 cramfs fdos fat reiserfs ext2
 
-.depend all:
+$(obj).depend all:
 	@for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir $@ ; done

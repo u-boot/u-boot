@@ -763,6 +763,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	spi_init_r ();
 #endif
 
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+	WATCHDOG_RESET ();
+	puts ("NAND:  ");
+	nand_init();		/* go init the NAND */
+#endif
+
 	/* relocate environment function pointers etc. */
 	env_relocate ();
 
@@ -961,12 +967,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 	puts ("DOC:   ");
 	doc_init ();
-#endif
-
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-	WATCHDOG_RESET ();
-	puts ("NAND:  ");
-	nand_init();		/* go init the NAND */
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)

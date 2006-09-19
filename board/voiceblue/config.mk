@@ -3,7 +3,7 @@
 # entry 1000'8000 (mem base + reserved)
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifeq ($(VOICEBLUE_SMALL_FLASH),y)
 # We load ourself to internal SRAM at 2001'2000

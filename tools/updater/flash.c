@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -124,7 +124,7 @@ addr2info (ulong addr)
  *			(only some targets require alignment)
  */
 int
-flash_write (uchar *src, ulong addr, ulong cnt)
+flash_write (char *src, ulong addr, ulong cnt)
 {
 #ifdef CONFIG_SPD823TS
 	return (ERR_TIMOUT);	/* any other error codes are possible as well */

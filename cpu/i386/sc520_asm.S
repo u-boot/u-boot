@@ -462,7 +462,7 @@ emptybank:
 
 #if defined CFG_SDRAM_DRCTMCTL
 	/* just have your hardware desinger _GIVE_ you what you need here! */
-	movl    $DRCTMCTL, %edi   
+	movl    $DRCTMCTL, %edi
 	movb    $CFG_SDRAM_DRCTMCTL,%al
 	movb    (%edi), %al
 #else
@@ -477,7 +477,7 @@ emptybank:
 #ifdef CFG_SDRAM_CAS_LATENCY_3T
 	orb     $0x10, %al
 #endif
-	movb    %al, (%edi) 
+	movb    %al, (%edi)
 #endif
 #endif
 	movl    $DRCCTL, %edi            /* DRAM Control register */
@@ -537,7 +537,7 @@ bank0: 	movl	(%edi), %eax
 	movl	%eax, %ebx
 
 
-done:	
+done:
 	movl	%ebx, %eax
 
 #if CFG_SDRAM_ECC_ENABLE
@@ -547,7 +547,7 @@ done:
 	movl	$0x1, %edi
 memtest0:
 	movb	$0xa5, (%edi)
-	cmpb    $0xa5, (%edi) 
+	cmpb    $0xa5, (%edi)
 	jne	out
 	shrl	$1, %ecx
 	andl	%ecx,%ecx
@@ -571,11 +571,11 @@ set_ecc:
 			/* enable NMI mapping for ECC */
 	movl    $ECCINT, %edi
 	mov	$0x10, %al
-	movb    %al, (%edi) 
+	movb    %al, (%edi)
 			/* Turn on ECC */
 	movl    $ECCCTL, %edi
 	mov	$0x05, %al
-	movb    %al, (%edi) 
+	movb    %al, (%edi)
 #endif
 out:
 	movl	%ebx, %eax

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,25 +21,28 @@
 # MA 02111-1307 USA
 #
 
-SOURCES := crc32.c  fw_env.c  fw_env_main.c
-HEADERS := fw_env.h
+include $(TOPDIR)/config.mk
 
-all:	fw_printenv
+SRCS	:= $(obj)crc32.c  fw_env.c  fw_env_main.c
+HEADERS	:= fw_env.h
 
-fw_printenv:	$(SOURCES) $(HEADERS)
-	$(CROSS_COMPILE)gcc -Wall -DUSE_HOSTCC $(SOURCES) -o fw_printenv
+CPPFLAGS := -Wall -DUSE_HOSTCC
+
+all:	$(obj)fw_printenv
+
+$(obj)fw_printenv:	$(SRCS) $(HEADERS)
+	$(CROSS_COMPILE)gcc $(CPPFLAGS) $(SRCS) -o $(obj)fw_printenv
 
 clean:
-	rm -f fw_printenv crc32.c
+	rm -f $(obj)fw_printenv $(obj)crc32.c
 
-crc32.c:
-	ln -s ../../lib_generic/crc32.c crc32.c
+$(obj)crc32.c:
+	ln -s $(src)../../lib_generic/crc32.c $(obj)crc32.c
 
 #########################################################################
 
-.depend:	Makefile $(SOURCES)
-		$(CC) -M $(HOST_CFLAGS) $(CPPFLAGS) -DUSE_HOSTCC $(SOURCES) > $@
+include $(TOPDIR)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

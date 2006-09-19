@@ -261,6 +261,7 @@
 #define CONFIG_MPC8220_FEC	1
 #define CONFIG_FEC_10MBIT	1 /* Workaround for FEC 100Mbit problem */
 #define CONFIG_PHY_ADDR		0x1F
+#define CONFIG_MII		1
 
 /*
  * Miscellaneous configurable options

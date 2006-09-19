@@ -140,6 +140,7 @@ _start:
 	move.l	#(CFG_MBAR + 1), %d0		/* set IPSBAR address + valid flag */
 	move.l	%d0, 0x40000000
 
+#if defined(CONFIG_M5282)
 	/* Initialize RAMBAR1: locate SRAM and validate it */
 	move.l	#(CFG_INIT_RAM_ADDR + 0x21), %d0
 	movec	%d0, %RAMBAR1
@@ -170,6 +171,7 @@ _after_flashbar_copy:
 	movec	%d0, %RAMBAR0
 #endif /* (TEXT_BASE == CFG_INT_FLASH_BASE) */
 
+#endif
 #endif
 	/* if we come from a pre-loader we have no exception table and
 	 * therefore no VBR to set

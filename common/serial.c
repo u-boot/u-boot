@@ -42,7 +42,19 @@ struct serial_device *default_serial_console (void)
 	return &serial_scc_device;
 #elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
    || defined(CONFIG_405EP) || defined(CONFIG_MPC5xxx)
-#if defined(CONFIG_UART1_CONSOLE)
+#if defined(CONFIG_CONS_INDEX) && defined(CFG_NS16550_SERIAL)
+#if (CONFIG_CONS_INDEX==1)
+	return &eserial1_device;
+#elif (CONFIG_CONS_INDEX==2)
+	return &eserial2_device;
+#elif (CONFIG_CONS_INDEX==3)
+	return &eserial3_device;
+#elif (CONFIG_CONS_INDEX==4)
+	return &eserial4_device;
+#else
+#error "Bad CONFIG_CONS_INDEX."
+#endif
+#elif defined(CONFIG_UART1_CONSOLE)
 		return &serial1_device;
 #else
 		return &serial0_device;
@@ -84,6 +96,20 @@ void serial_initialize (void)
 	serial_register(&serial1_device);
 #endif
 
+#if defined(CFG_NS16550_SERIAL)
+#if defined(CFG_NS16550_COM1)
+	serial_register(&eserial1_device);
+#endif
+#if defined(CFG_NS16550_COM2)
+	serial_register(&eserial2_device);
+#endif
+#if defined(CFG_NS16550_COM3)
+	serial_register(&eserial3_device);
+#endif
+#if defined(CFG_NS16550_COM4)
+	serial_register(&eserial4_device);
+#endif
+#endif /* CFG_NS16550_SERIAL */
 	serial_assign (default_serial_console ()->name);
 }
 

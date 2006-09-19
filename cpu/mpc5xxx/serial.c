@@ -166,6 +166,25 @@ void serial_putc(const char c)
 }
 
 #if defined(CONFIG_SERIAL_MULTI)
+void serial_putc_raw_dev(unsigned long dev_base, const char c)
+#else
+void serial_putc_raw(const char c)
+#endif
+{
+#if defined(CONFIG_SERIAL_MULTI)
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)dev_base;
+#else
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
+	/* Wait for last character to go. */
+	while (!(psc->psc_status & PSC_SR_TXEMP))
+		;
+
+	psc->psc_buffer_8 = c;
+}
+
+
+#if defined(CONFIG_SERIAL_MULTI)
 void serial_puts_dev (unsigned long dev_base, const char *s)
 #else
 void serial_puts (const char *s)
@@ -237,6 +256,43 @@ void serial_setbrg(void)
 	div = (baseclk + (gd->baudrate/2)) / gd->baudrate;
 	psc->ctur = (div >> 8) & 0xFF;
 	psc->ctlr =  div & 0xff;
+}
+
+#if defined(CONFIG_SERIAL_MULTI)
+void serial_setrts_dev (unsigned long dev_base, int s)
+#else
+void serial_setrts(int s)
+#endif
+{
+#if defined(CONFIG_SERIAL_MULTI)
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)dev_base;
+#else
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
+
+	if (s) {
+		/* Assert RTS (become LOW) */
+		psc->op1 = 0x1;
+	}
+	else {
+		/* Negate RTS (become HIGH) */
+		psc->op0 = 0x1;
+	}
+}
+
+#if defined(CONFIG_SERIAL_MULTI)
+int serial_getcts_dev (unsigned long dev_base)
+#else
+int serial_getcts(void)
+#endif
+{
+#if defined(CONFIG_SERIAL_MULTI)
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)dev_base;
+#else
+	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
+#endif
+
+	return (psc->ip & 0x1) ? 0 : 1;
 }
 
 #if defined(CONFIG_SERIAL_MULTI)

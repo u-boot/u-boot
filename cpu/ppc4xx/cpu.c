@@ -41,14 +41,15 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
 #else
 #define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
 #endif
 
-#if defined(CONFIG_405GP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_405GP) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 #define PCI_ASYNC
 
@@ -58,7 +59,8 @@ int pci_async_enabled(void)
 	return (mfdcr(strap) & PSR_PCI_ASYNC_EN);
 #endif
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	unsigned long val;
 
 	mfsdr(sdr_sdstp1, val);
@@ -82,9 +84,10 @@ int pci_arbiter_enabled(void)
 	return (mfdcr(cpc0_strp1) & CPC0_STRP1_PAE_MASK);
 #endif
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
-     defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
-     defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long val;
 
 	mfsdr(sdr_sdstp1, val);
@@ -93,8 +96,10 @@ int pci_arbiter_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR) ||  \
-     defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_405EP) || defined(CONFIG_440GX) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 
 #define I2C_BOOTROM
 
@@ -102,17 +107,75 @@ int i2c_bootrom_enabled(void)
 {
 #if defined(CONFIG_405EP)
 	return (mfdcr(cpc0_boot) & CPC0_BOOT_SEP);
-#endif
-
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
-     defined(CONFIG_440GR) || defined(CONFIG_440SP) || \
-	defined(CONFIG_440SPE)
+#else
 	unsigned long val;
 
 	mfsdr(sdr_sdcs, val);
 	return (val & SDR0_SDCS_SDD);
 #endif
 }
+
+#if defined(CONFIG_440GX)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (16 bits)",
+	"EBC (8 bits)",
+	"EBC (32 bits)",
+	"EBC (8 bits)",
+	"PCI",
+	"I2C (Addr 0x54)",
+	"Reserved",
+	"I2C (Addr 0x50)",
+};
+#endif
+
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#define SDR0_PINSTP_SHIFT	30
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"PCI",
+	"I2C (Addr 0x54)",
+	"I2C (Addr 0x50)",
+};
+#endif
+
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"PCI",
+	"NAND (8 bits)",
+	"EBC (16 bits)",
+	"EBC (16 bits)",
+	"I2C (Addr 0x54)",
+	"PCI",
+	"I2C (Addr 0x52)",
+};
+#endif
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"EBC (16 bits)",
+	"EBC (16 bits)",
+	"NAND (8 bits)",
+	"PCI",
+	"I2C (Addr 0x54)",
+	"PCI",
+	"I2C (Addr 0x52)",
+};
+#endif
+
+#if defined(SDR0_PINSTP_SHIFT)
+static int bootstrap_option(void)
+{
+	unsigned long val;
+
+	mfsdr(sdr_pinstp, val);
+	return ((val & 0xe0000000) >> SDR0_PINSTP_SHIFT);
+}
+#endif /* SDR0_PINSTP_SHIFT */
 #endif
 
 
@@ -244,6 +307,22 @@ int checkcpu (void)
 #endif /* CONFIG_440GR */
 #endif /* CONFIG_440 */
 
+	case PVR_440EPX1_RA:
+		puts("EPx Rev. A - Security/Kasumi support");
+		break;
+
+	case PVR_440EPX2_RA:
+		puts("EPx Rev. A - No Security/Kasumi support");
+		break;
+
+	case PVR_440GRX1_RA:
+		puts("GRx Rev. A - Security/Kasumi support");
+		break;
+
+	case PVR_440GRX2_RA:
+		puts("GRx Rev. A - No Security/Kasumi support");
+		break;
+
 	case PVR_440SP_RA:
 		puts("SP Rev. A");
 		break;
@@ -272,6 +351,10 @@ int checkcpu (void)
 
 #if defined(I2C_BOOTROM)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
+#if defined(SDR0_PINSTP_SHIFT)
+	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
+	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
+#endif
 #endif
 
 #if defined(CONFIG_PCI)

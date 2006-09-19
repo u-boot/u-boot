@@ -173,7 +173,8 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	}
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
 		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_READ;
 #else
@@ -183,7 +184,9 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	sta_reg = (sta_reg | EMAC_STACR_READ) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && !defined(CONFIG__440SP) && !defined(CONFIG__440SPE)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && \
+    !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
+    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;
 #endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
@@ -244,7 +247,8 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	sta_reg = 0;
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
 		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_WRITE;
 #else
@@ -254,7 +258,9 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	sta_reg = (sta_reg | EMAC_STACR_WRITE) & ~EMAC_STACR_CLK_100MHZ;
 #endif
 
-#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && !defined(CONFIG__440SP) && !defined(CONFIG__440SPE)
+#if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && \
+    !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
+    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;	/* Set clock frequency (PLB freq. dependend) */
 #endif
 	sta_reg = sta_reg | ((unsigned long) addr << 5);/* Phy address */
