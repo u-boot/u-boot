@@ -466,6 +466,8 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	 * are slower than the DDR module.
 	 */
 	busfreq = get_bus_freq(0) / 1000000;	/* MHz */
+	tCycle_ps = convert_bcd_tenths_to_cycle_time_ps(spd.clk_cycle3);
+	modfreq = 2 * 1000 * 1000 / tCycle_ps;
 
 	if ((spd.mem_type == SPD_MEMTYPE_DDR2) && (busfreq < 266)) {
 		printf("DDR: platform frequency too low for correct DDR2 controller operation\n");
