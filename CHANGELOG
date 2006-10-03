@@ -2,6 +2,12 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update for CAM5200 board:
+  - Map in a additional chip selects CS4 and CS5.
+  - Modify the port configration, configure six UARTs and no PCI,
+    ATA and USB.
+  - Add custom flash driver to handle specific byte swapping
+
 * Disable autoboot abort for FO300 when silent mode is enabled
   (according to S1 switch setting).
 
