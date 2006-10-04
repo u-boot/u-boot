@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix TLB setup for Ocotea board
+  Patch by Stefan Roese, 30 Sep 2006
+
 * Fix reset problem in sequoia sdram init code
   Patch by Stefan Roese, 23 Sep 2006
 
