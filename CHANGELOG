@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix reset problem in sequoia sdram init code
+  Patch by Stefan Roese, 23 Sep 2006
+
 * Disable autoboot abort for FO300 when silent mode is enabled
   (according to S1 switch setting).
 

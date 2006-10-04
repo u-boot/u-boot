@@ -34,12 +34,6 @@ long int initdram (int board_type)
 
 	mtsdram(DDR0_02, 0x00000000);
 
-	/*
-	 * Soft-reset SDRAM controller
-	 */
-	mtsdr(sdr_srst, SDR0_SRST0_DMC);
-	mtsdr(sdr_srst, 0x00000000);
-
 	mtsdram(DDR0_00, 0x0000190A);
 	mtsdram(DDR0_01, 0x01000000);
 	mtsdram(DDR0_03, 0x02030602);
