@@ -31,8 +31,9 @@
 #define CONFIG_440GX		1	    /* Specifc GX support	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_pre_init	*/
+#define CONFIG_BOARD_RESET	1	    /* call board_reset()	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
-#define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33333000    /* external freq to pll	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -81,44 +82,28 @@
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
- * Environment
- *----------------------------------------------------------------------*/
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
-
-#if 0 /* test-only */
-/*-----------------------------------------------------------------------
- * NVRAM/RTC
- *
- * NOTE: Upper 8 bytes of NVRAM is where the RTC registers are located.
- * The DS1743 code assumes this condition (i.e. -- it assumes the base
- * address for the RTC registers is:
- *
- *	CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE
- *
- *----------------------------------------------------------------------*/
-#define CFG_NVRAM_SIZE	    (0x2000 - 8)    /* NVRAM size(8k)- RTC regs */
-#define CONFIG_RTC_DS174x	1		    /* DS1743 RTC		*/
-#endif
-
-/*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
-
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define FLASH_BASE0_PRELIM	CFG_FLASH_BASE		/* FLASH bank #0	*/
 
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
-#define CFG_FLASH_PROTECTION	1	/* use hardware flash protection	*/
+#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
+#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
+#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
+/*
+ * The following defines are added for buggy IOP480 byte interface.
+ * All other boards should use the standard values (CPCI405 etc.)
+ */
+#define CFG_FLASH_READ0		0x0000	/* 0 is standard			*/
+#define CFG_FLASH_READ1		0x0001	/* 1 is standard			*/
+#define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
-#define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
@@ -177,7 +162,7 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
+	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate}\0"\
 	"flash_nfs=run nfsargs addip addtty;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
@@ -216,24 +201,10 @@
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
 #define CONFIG_88E1111_CLK_DELAY 1	/* set CLK delay on ALPR	*/
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
-#if 0 /* test-only */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SNTP	)
-#else
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_ASKENV	| \
 				CFG_CMD_DHCP	| \
@@ -250,7 +221,6 @@
 				CFG_CMD_FPGA	| \
 				CFG_CMD_NAND	| \
 				CFG_CMD_REGINFO)
-#endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -279,14 +249,11 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -321,7 +288,6 @@
 					ist das mit den multiple Device in PS
 					Mode erklaert ...*/
 
-
 /* FPGA program pin configuration */
 #define CFG_GPIO_CLK		18	/* FPGA clk pin (cpu output)		*/
 #define CFG_GPIO_DATA		19	/* FPGA data pin (cpu output)		*/
@@ -336,14 +302,12 @@
 /*
  * NAND-FLASH stuff
  */
-#define CFG_MAX_NAND_DEVICE	2
-#define NAND_MAX_CHIPS		2
-#define CFG_NAND_BASE		0x50000000	/* NAND FLASH Base Address	*/
-
-#if 0
-#define CONFIG_MTD_DEBUG
-#define CONFIG_MTD_DEBUG_VERBOSE 4
-#endif
+#define CFG_MAX_NAND_DEVICE	4
+#define NAND_MAX_CHIPS		CFG_MAX_NAND_DEVICE
+#define CFG_NAND_BASE		0xF0000000	/* NAND FLASH Base Address	*/
+#define CFG_NAND_BASE_LIST	{ CFG_NAND_BASE + 0, CFG_NAND_BASE + 2,	\
+				  CFG_NAND_BASE + 4, CFG_NAND_BASE + 6 }
+#define CFG_NAND_QUIET_TEST	1	/* don't warn upon unknown NAND flash	*/
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -353,14 +317,9 @@
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
 #define CFG_EBC_PB0AP		0x92015480
 #define CFG_EBC_PB0CR		(CFG_FLASH | 0x3A000) /* BS=2MB,BU=R/W,BW=16bit */
-/* Memory Bank 1 (NAND-FLASH) initialization			*/
-/*#define CFG_EBC_PB1AP		0x108f4380 */	/* TODO */
-/*#define CFG_EBC_PB1AP		0x7f854380 */	/* TODO */
-/*#define CFG_EBC_PB1AP		0x108553c0 */
-/*#define CFG_EBC_PB1AP		0x108053c0 */
-#define CFG_EBC_PB1AP		0x10810180
 
-/*#define CFG_EBC_PB1CR		(CFG_NAND_BASE | 0x18000) *//* BS=1MB,BU=R/W,BW=8bit */
+/* Memory Bank 1 (NAND-FLASH) initialization					*/
+#define CFG_EBC_PB1AP		0x01840380	/* TWT=3			*/
 #define CFG_EBC_PB1CR		(CFG_NAND_BASE | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit */
 
 /*

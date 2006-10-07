@@ -38,11 +38,19 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
+#if 0
 	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_ENABLE | EBC_CFG_RTC_64PERCLK |
 	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
 	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
 	      EBC_CFG_PME_DISABLE | EBC_CFG_PR_32);
+#else
+	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	      EBC_CFG_PTD_DISABLE | EBC_CFG_RTC_64PERCLK |
+	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
+	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
+	      EBC_CFG_PME_DISABLE | EBC_CFG_PR_32);
+#endif
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -230,19 +238,6 @@ int is_pci_host(struct pci_controller *hose)
 #if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
-	unsigned short temp_short;
-#if 0
-	/*--------------------------------------------------------------------------+
-	  | Write the PowerPC440 PCI Configuration regs.
-	  |   Enable PowerPC440 to be a master on the PCI bus (PMM).
-	  |   Enable PowerPC440 to act as a PCI memory target (PTM).
-	  +--------------------------------------------------------------------------*/
-	pci_read_config_word(0, PCI_COMMAND, &temp_short);
-	pci_write_config_word(0, PCI_COMMAND,
-			      temp_short | PCI_COMMAND_MASTER |
-			      PCI_COMMAND_MEMORY);
-#endif
-#if 1
 	/*--------------------------------------------------------------------------+
 	  | PowerPC440 PCI Master configuration.
 	  | Map PLB/processor addresses to PCI memory space.
@@ -265,8 +260,6 @@ void pci_master_init(struct pci_controller *hose)
 	out32r(PCIX0_POM1PCIAL, CFG_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_POM1PCIAH, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_POM1SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
-
-#endif
 }
 #endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
 
@@ -281,3 +274,11 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+void board_reset(void)
+{
+	/*
+	 * Initiate chip reset in debug control register DBCR
+	 */
+	mtspr(dbcr0, 0x20000000);
+}

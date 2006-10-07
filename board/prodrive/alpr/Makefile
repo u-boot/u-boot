@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o fpga.o nand.o
+COBJS	= $(BOARD).o flash.o fpga.o nand.o
 SOBJS	= init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

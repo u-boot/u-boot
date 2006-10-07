@@ -2,6 +2,9 @@
  * (C) Copyright 2006
  * Heiko Schocher, DENX Software Engineering, hs@denx.de
  *
+ * (C) Copyright 2006
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -22,69 +25,27 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 
+#include <asm/processor.h>
 #include <nand.h>
 
-#if 0
-#define HS_printf(fmt,arg...) \
-        printf("HS %s %s: " fmt,__FILE__, __FUNCTION__, ##arg)
-#else
-#define HS_printf(fmt,arg...) \
-        do { } while (0)
-#endif
-
-#if 0
-#define	CPLD_REG	uchar
-#else
-#define	CPLD_REG	u16
-#endif
-
 struct alpr_ndfc_regs {
-	CPLD_REG cmd[4];
-	CPLD_REG addr_wait;
-	CPLD_REG term;
-	CPLD_REG dummy;
-	uchar    dum2[2];
-	CPLD_REG data;
+	u16 cmd[4];
+	u16 addr_wait;
+	u16 term;
+	u16 dummy;
+	u16 dummy2;
+	u16 data;
 };
 
 static u8 hwctl;
-static struct alpr_ndfc_regs *alpr_ndfc;
-static int	alpr_chip = 0;
+static struct alpr_ndfc_regs *alpr_ndfc = NULL;
 
-#if 1
-static int pdnb3_nand_dev_ready(struct mtd_info *mtd);
+#define readb(addr)	(u8)(*(volatile u16 *)(addr))
+#define writeb(d,addr)	*(volatile u16 *)(addr) = ((u16)(d))
 
-#if 1
-static u_char alpr_read (void *padr) {
-	return (u_char )*((u16 *)(padr));
-}
-#else
-static u_char alpr_read (void *padr) {
-	u16	hilf;
-	u_char ret = 0;
-	hilf = *((u16 *)(padr));
-	ret = hilf;
-printf("%p hilf: %x ret: %x\n", padr, hilf, ret);
-	return ret;
-}
-#endif
-
-static void alpr_write (u_char byte, void *padr) {
-HS_printf("%p  Byte: %x\n", padr, byte);
-	*(volatile u16 *)padr = (u16)(byte);
-}
-
-#elif 0
-#define alpr_read(a) (*(volatile u16 *) (a))
-#define alpr_write(a, b) ((*(volatile u16 *) (a)) = (b))
-#else
-#define alpr_read(a) readw(a)
-#define alpr_write(a, b) writew(a, b)
-#endif
 /*
  * The ALPR has a NAND Flash Controller (NDFC) that handles all accesses to
  * the NAND devices.  The NDFC has command, address and data registers that
@@ -93,11 +54,10 @@ HS_printf("%p  Byte: %x\n", padr, byte);
  * We can then use this information in the read and write functions to
  * determine which NDFC register to access.
  *
- * There are 2 NAND devices on the board, a Hynix HY27US08561A (32 MByte).
+ * There are 2 NAND devices on the board, a Hynix HY27US08561A (1 GByte).
  */
-static void pdnb3_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void alpr_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 {
-HS_printf("cmd: %x\n", cmd);
 	switch (cmd) {
 	case NAND_CTL_SETCLE:
 		hwctl |= 0x1;
@@ -114,136 +74,84 @@ HS_printf("cmd: %x\n", cmd);
 	case NAND_CTL_SETNCE:
 		break;
 	case NAND_CTL_CLRNCE:
-		alpr_write(0x00, &(alpr_ndfc->term));
+		writeb(0x00, &(alpr_ndfc->term));
 		break;
 	}
 }
 
-static void pdnb3_nand_write_byte(struct mtd_info *mtd, u_char byte)
+static void alpr_nand_write_byte(struct mtd_info *mtd, u_char byte)
 {
-HS_printf("hwctl: %x %x %x %x\n", hwctl, byte, &(alpr_ndfc->cmd[alpr_chip]), &(alpr_ndfc->addr_wait));
+	struct nand_chip *nand = mtd->priv;
+
 	if (hwctl & 0x1)
-		alpr_write(byte, &(alpr_ndfc->cmd[alpr_chip]));
+		/*
+		 * IO_ADDR_W used as CMD[i] reg to support multiple NAND
+		 * chips.
+		 */
+		writeb(byte, nand->IO_ADDR_W);
 	else if (hwctl & 0x2) {
-		alpr_write(byte, &(alpr_ndfc->addr_wait));
+		writeb(byte, &(alpr_ndfc->addr_wait));
 	} else
-		alpr_write(byte, &(alpr_ndfc->data));
+		writeb(byte, &(alpr_ndfc->data));
 }
 
-static u_char pdnb3_nand_read_byte(struct mtd_info *mtd)
+static u_char alpr_nand_read_byte(struct mtd_info *mtd)
 {
-	return alpr_read(&(alpr_ndfc->data));
+	return readb(&(alpr_ndfc->data));
 }
 
-static void pdnb3_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
+static void alpr_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
+	struct nand_chip *nand = mtd->priv;
 	int i;
 
-/*printf("%s chip:%d hwctl:%x size:%d\n", __FUNCTION__, alpr_chip, hwctl, len);*/
 	for (i = 0; i < len; i++) {
 		if (hwctl & 0x1)
-			alpr_write(buf[i], &(alpr_ndfc->cmd[alpr_chip]));
-		else if (hwctl & 0x2) {
-			alpr_write(buf[i], &(alpr_ndfc->addr_wait));
-		} else {
-			alpr_write(buf[i], &(alpr_ndfc->data));
-			/*printf("i: %d\n", i);*/
-		}	
+			 /*
+			  * IO_ADDR_W used as CMD[i] reg to support multiple NAND
+			  * chips.
+			  */
+			writeb(buf[i], nand->IO_ADDR_W);
+		else if (hwctl & 0x2)
+			writeb(buf[i], &(alpr_ndfc->addr_wait));
+		else
+			writeb(buf[i], &(alpr_ndfc->data));
 	}
 }
 
-static void pdnb3_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
+static void alpr_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	int i;
 
 	for (i = 0; i < len; i++) {
-		buf[i] = alpr_read(&(alpr_ndfc->data));
+		buf[i] = readb(&(alpr_ndfc->data));
 	}
 }
 
-static int pdnb3_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len)
+static int alpr_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	int i;
 
 	for (i = 0; i < len; i++)
-		if (buf[i] != alpr_read(&(alpr_ndfc->data)))
+		if (buf[i] != readb(&(alpr_ndfc->data)))
 			return i;
 
 	return 0;
 }
 
-static int pdnb3_nand_dev_ready(struct mtd_info *mtd)
+static int alpr_nand_dev_ready(struct mtd_info *mtd)
 {
-#if 1
 	volatile u_char val;
 
-/*printf("%s aufruf\n", __FUNCTION__);*/
 	/*
 	 * Blocking read to wait for NAND to be ready
 	 */
-	val = alpr_read(&(alpr_ndfc->addr_wait));
+	val = readb(&(alpr_ndfc->addr_wait));
 
 	/*
 	 * Return always true
 	 */
 	return 1;
-#else
-	u8 hwctl_org = hwctl;
-	unsigned long	timeo;
-	u8	val;
-
-	hwctl = 0x01;
-	pdnb3_nand_write_byte (mtd, NAND_CMD_STATUS);
-	hwctl = hwctl_org;
-
-	reset_timer();
-	while (1) {
-		if (get_timer(0) > timeo) {
-			printf("Timeout!");
-			return 0;
-			}
-
-val = pdnb3_nand_read_byte(mtd);
-/*printf("%s val: %x\n", __FUNCTION__, val);*/
-			if (val & NAND_STATUS_READY)
-				break;
-	}
-	return 1;
-#endif
-
-}
-
-static void alpr_select_chip(struct mtd_info *mtd, int chip)
-{
-	alpr_chip = chip;
-}
-
-static int alpr_nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
-{
-	unsigned long	timeo;
-
-	if (state == FL_ERASING)
-		timeo = CFG_HZ * 400;
-	else
-		timeo = CFG_HZ * 20;
-
-	if ((state == FL_ERASING) && (this->options & NAND_IS_AND))
-		this->cmdfunc(mtd, NAND_CMD_STATUS_MULTI, -1, -1);
-	else
-		this->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
-
-	reset_timer();
-
-	while (1) {
-		if (get_timer(0) > timeo) {
-			printf("Timeout!");
-			return 0;
-			}
-
-			if (this->read_byte(mtd) & NAND_STATUS_READY)
-				break;
-	}
-	return this->read_byte(mtd);
 }
 
 void board_nand_init(struct nand_chip *nand)
@@ -252,20 +160,14 @@ void board_nand_init(struct nand_chip *nand)
 
 	nand->eccmode = NAND_ECC_SOFT;
 
-	/* Set address of NAND IO lines (Using Linear Data Access Region) */
-	nand->IO_ADDR_R = (void __iomem *) ((ulong) alpr_ndfc + 0x10);
-	nand->IO_ADDR_W = (void __iomem *) ((ulong) alpr_ndfc + 0x10);
 	/* Reference hardware control function */
-	nand->hwcontrol  = pdnb3_nand_hwcontrol;
+	nand->hwcontrol  = alpr_nand_hwcontrol;
 	/* Set command delay time */
-	nand->hwcontrol  = pdnb3_nand_hwcontrol;
-	nand->write_byte = pdnb3_nand_write_byte;
-	nand->read_byte  = pdnb3_nand_read_byte;
-	nand->write_buf  = pdnb3_nand_write_buf;
-	nand->read_buf   = pdnb3_nand_read_buf;
-	nand->verify_buf = pdnb3_nand_verify_buf;
-	nand->dev_ready  = pdnb3_nand_dev_ready;
-	nand->select_chip = alpr_select_chip;
-	nand->waitfunc 	 = alpr_nand_wait;
+	nand->write_byte = alpr_nand_write_byte;
+	nand->read_byte  = alpr_nand_read_byte;
+	nand->write_buf  = alpr_nand_write_buf;
+	nand->read_buf   = alpr_nand_read_buf;
+	nand->verify_buf = alpr_nand_verify_buf;
+	nand->dev_ready  = alpr_nand_dev_ready;
 }
 #endif

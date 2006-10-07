@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Update ALPR code (NAND support working now)
+  Patch by Stefan Roese, 07 Oct 2006
+
 * Remove compile warnings in fpga code
   Patch by Stefan Roese, 07 Oct 2006
 
