@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Remove compile warnings in fpga code
+  Patch by Stefan Roese, 07 Oct 2006
+
 * Add CONFIG_BOARD_RESET to configure board specific reset function
   Patch by Stefan Roese, 07 Oct 2006
 

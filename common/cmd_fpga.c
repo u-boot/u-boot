@@ -263,9 +263,9 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				puts ("Bad Magic Number\n");
 				return 1;
 			}
-			data = (char *)(fpga_data + sizeof(image_header_t));
+			data = ((ulong)fpga_data + sizeof(image_header_t));
 			data_size  = ntohl(hdr->ih_size);
-			rc = fpga_load (dev, data, data_size);
+			rc = fpga_load (dev, (void *)data, data_size);
 		}
 		break;
 
