@@ -2407,7 +2407,9 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 	}
 
 	if (!nand_flash_ids[i].name) {
+#ifndef CFG_NAND_QUIET_TEST
 		printk (KERN_WARNING "No NAND device found!!!\n");
+#endif
 		this->select_chip(mtd, -1);
 		return 1;
 	}
