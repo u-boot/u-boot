@@ -36,7 +36,7 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 # HACK: depend needs bootscript.c, which needs tools/mkimage, which is not
 # built in the depend stage.  So... put bootscript.o here, not in OBJS
 $(LIB):	$(OBJS) $(SOBJS) $(obj)bootscript.o
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 clean:
 	rm -f $(SOBJS) $(OBJS) $(obj)bootscript.c \

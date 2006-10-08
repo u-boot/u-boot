@@ -48,7 +48,7 @@ all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 		$(obj)crcek.srec $(obj)crcek.bin $(obj)crcit
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 $(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
 	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \

@@ -37,7 +37,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS) $(obj)kgdb.o
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(obj)kgdb.o
 
 #########################################################################
 

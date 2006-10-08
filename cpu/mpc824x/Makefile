@@ -41,7 +41,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 $(obj)bedbug_603e.c:
 	ln -s $(src)../mpc8260/bedbug_603e.c $(obj)bedbug_603e.c

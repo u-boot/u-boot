@@ -52,7 +52,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
