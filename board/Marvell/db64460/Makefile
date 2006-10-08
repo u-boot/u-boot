@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-# 
+#
 # (C) Copyright 2001
 # Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
 #

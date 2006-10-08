@@ -661,8 +661,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	 *  So, in case of Monochrome BMP we should align widths
 	 * on a byte boundary and convert them from Bit to Byte
 	 * units.
-	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in 
-	 * their own ways, so make the converting to be MCC200 
+	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in
+	 * their own ways, so make the converting to be MCC200
 	 * specific.
 	 */
 #if defined(CONFIG_MCC200)

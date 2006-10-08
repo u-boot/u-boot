@@ -46,7 +46,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
  * swapping is necessary within each 16 bit wide flash 'word'.
  *
  * This driver's task is to handle both flash devices: 32 bit TQM5200B
- * flash chip and 16 bit NIOS cpu flash chip. In the below 
+ * flash chip and 16 bit NIOS cpu flash chip. In the below
  * flash_addr_table table we use least significant address bit to mark
  * 16 bit flash bank and two sets of routines *_32 and *_16 to handle
  * specifics of both flashes.

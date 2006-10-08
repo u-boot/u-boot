@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if !defined(CONFIG_CONS_INDEX)
 #if defined (CONFIG_SERIAL_MULTI)
 /*   with CONFIG_SERIAL_MULTI we might have no console
- *  on these devices 
+ *  on these devices
  */
 #else
 #error	"No console index specified."
@@ -238,7 +238,7 @@ serial_putc(const char c)
 #endif
 
 #if defined(CONFIG_SERIAL_MULTI)
-static inline void 
+static inline void
 serial_putc_raw_dev(unsigned int dev_index,const char c)
 {
 	_serial_putc_raw(c,dev_index);
@@ -310,7 +310,7 @@ serial_setbrg(void)
 #if defined(CONFIG_SERIAL_MULTI)
 
 DECLARE_ESERIAL_FUNCTIONS(1);
-struct serial_device eserial1_device = 
+struct serial_device eserial1_device =
 	INIT_ESERIAL_STRUCTURE(1,"eserial0","EUART1");
 DECLARE_ESERIAL_FUNCTIONS(2);
 struct serial_device eserial2_device =

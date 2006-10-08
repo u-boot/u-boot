@@ -4,7 +4,7 @@
  *
  * (C) Copyright 2006
  * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
- * Alain Saurel,            AMCC/IBM, alain.saurel@fr.ibm.com
+ * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -123,12 +123,12 @@ int board_early_init_f(void)
 
 	/* setup NAND FLASH */
 	mfsdr(SDR0_CUST0, sdr0_cust0);
-        sdr0_cust0 = SDR0_CUST0_MUX_NDFC_SEL	|
+	sdr0_cust0 = SDR0_CUST0_MUX_NDFC_SEL	|
 		SDR0_CUST0_NDFC_ENABLE		|
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
 		(0x80000000 >> (28 + CFG_NAND_CS));
-        mtsdr(SDR0_CUST0, sdr0_cust0);
+	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	return 0;
 }
@@ -216,38 +216,38 @@ int misc_init_r(void)
 #ifdef CONFIG_440EPX
 	if (act == NULL || strcmp(act, "hostdev") == 0)	{
 		/* SDR Setting */
-        	mfsdr(SDR0_PFC1, sdr0_pfc1);
-        	mfsdr(SDR0_USB0, usb2d0cr);
-        	mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
-        	mfsdr(SDR0_USB2H0CR, usb2h0cr);
+		mfsdr(SDR0_PFC1, sdr0_pfc1);
+		mfsdr(SDR0_USB0, usb2d0cr);
+		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
+		mfsdr(SDR0_USB2H0CR, usb2h0cr);
 
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
 		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_XOCLK_EXTERNAL;	/*0*/
-        	usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_WDINT_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_WDINT_16BIT_30MHZ;	/*1*/
+		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_WDINT_MASK;
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_WDINT_16BIT_30MHZ;	/*1*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DVBUS_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PURDIS;		/*0*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PURDIS;		/*0*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DWNSTR_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_HOST;		/*1*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_HOST;		/*1*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_UTMICN_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_HOST;		/*1*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_HOST;		/*1*/
 
 		/* An 8-bit/60MHz interface is the only possible alternative
 		   when connecting the Device to the PHY */
-        	usb2h0cr   = usb2h0cr &~SDR0_USB2H0CR_WDINT_MASK;
-        	usb2h0cr   = usb2h0cr | SDR0_USB2H0CR_WDINT_16BIT_30MHZ;	/*1*/
+		usb2h0cr   = usb2h0cr &~SDR0_USB2H0CR_WDINT_MASK;
+		usb2h0cr   = usb2h0cr | SDR0_USB2H0CR_WDINT_16BIT_30MHZ;	/*1*/
 
-        	/* To enable the USB 2.0 Device function through the UTMI interface */
-        	usb2d0cr = usb2d0cr &~SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK;
-        	usb2d0cr = usb2d0cr | SDR0_USB2D0CR_USB2DEV_SELECTION;		/*1*/
+		/* To enable the USB 2.0 Device function through the UTMI interface */
+		usb2d0cr = usb2d0cr &~SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK;
+		usb2d0cr = usb2d0cr | SDR0_USB2D0CR_USB2DEV_SELECTION;		/*1*/
 
-        	sdr0_pfc1 = sdr0_pfc1 &~SDR0_PFC1_UES_MASK;
-        	sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_USB2D_SEL;		/*0*/
+		sdr0_pfc1 = sdr0_pfc1 &~SDR0_PFC1_UES_MASK;
+		sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_USB2D_SEL;		/*0*/
 
-        	mtsdr(SDR0_PFC1, sdr0_pfc1);
-        	mtsdr(SDR0_USB0, usb2d0cr);
-        	mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
-        	mtsdr(SDR0_USB2H0CR, usb2h0cr);
+		mtsdr(SDR0_PFC1, sdr0_pfc1);
+		mtsdr(SDR0_USB0, usb2d0cr);
+		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
+		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
 		/*clear resets*/
 		udelay (1000);
@@ -264,11 +264,11 @@ int misc_init_r(void)
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
 		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_XOCLK_EXTERNAL;	/*0*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DVBUS_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PURDIS;		/*0*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PURDIS;		/*0*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DWNSTR_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_HOST;		/*1*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_HOST;		/*1*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_UTMICN_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_HOST;		/*1*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_HOST;		/*1*/
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 
 		udelay (1000);
@@ -287,33 +287,33 @@ int misc_init_r(void)
 		/*-------------------PATCH-------------------------------*/
 
 		/* SDR Setting */
-        	mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
+		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mfsdr(SDR0_USB2H0CR, usb2h0cr);
 		mfsdr(SDR0_USB0, usb2d0cr);
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
 
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
 		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_XOCLK_EXTERNAL;	/*0*/
-        	usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_WDINT_MASK;
+		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_WDINT_MASK;
 		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_WDINT_8BIT_60MHZ;	/*0*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DVBUS_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PUREN;		/*1*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DVBUS_PUREN;		/*1*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_DWNSTR_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_DEV;		/*0*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_DWNSTR_DEV;		/*0*/
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_UTMICN_MASK;
-        	usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_DEV;		/*0*/
+		usb2phy0cr = usb2phy0cr | SDR0_USB2PHY0CR_UTMICN_DEV;		/*0*/
 
 		usb2h0cr   = usb2h0cr &~SDR0_USB2H0CR_WDINT_MASK;
-        	usb2h0cr   = usb2h0cr | SDR0_USB2H0CR_WDINT_8BIT_60MHZ;		/*0*/
+		usb2h0cr   = usb2h0cr | SDR0_USB2H0CR_WDINT_8BIT_60MHZ;		/*0*/
 
 		usb2d0cr = usb2d0cr &~SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK;
-        	usb2d0cr = usb2d0cr | SDR0_USB2D0CR_EBC_SELECTION;		/*0*/
+		usb2d0cr = usb2d0cr | SDR0_USB2D0CR_EBC_SELECTION;		/*0*/
 
 		sdr0_pfc1 = sdr0_pfc1 &~SDR0_PFC1_UES_MASK;
-        	sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_EBCHR_SEL;		/*1*/
+		sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_EBCHR_SEL;		/*1*/
 
-        	mtsdr(SDR0_USB2H0CR, usb2h0cr);
-        	mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
+		mtsdr(SDR0_USB2H0CR, usb2h0cr);
+		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mtsdr(SDR0_USB0, usb2d0cr);
 		mtsdr(SDR0_PFC1, sdr0_pfc1);
 

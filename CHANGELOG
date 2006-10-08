@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Coding style cleanup
+
 * Add support for EP82xxM boards
   Patch by Aaron Sells, 20 Jun 2006
 

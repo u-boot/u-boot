@@ -34,7 +34,7 @@ extern int jump_to_uboot(ulong addr);
 
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
-        struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd->priv;
 	int page_addr = block * CFG_NAND_PAGE_COUNT;
 
 	/* Begin command latch cycle */
@@ -73,7 +73,7 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 
 static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 {
-        struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
 	int i;
 

@@ -25,7 +25,7 @@
 
 ifneq ($(OBJTREE),$(SRCTREE))
 ifeq ($(CURDIR),$(SRCTREE))
-dir := 
+dir :=
 else
 dir := $(subst $(SRCTREE)/,,$(CURDIR))
 endif

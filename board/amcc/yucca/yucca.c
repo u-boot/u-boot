@@ -958,7 +958,6 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
-
 int yucca_pcie_card_present(int port)
 {
 	u16 reg;
@@ -1083,8 +1082,6 @@ void yucca_setup_pcie_fpga_endpoint(int port)
 		 ~(rootpoint | reset_off) &
 		 (endpoint | in_be16((u16 *)FPGA_REG1C)));
 }
-
-
 
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
 

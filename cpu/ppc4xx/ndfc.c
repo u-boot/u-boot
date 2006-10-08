@@ -65,8 +65,8 @@ static void ndfc_hwcontrol(struct mtd_info *mtdinfo, int cmd)
 
 static void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 
 	if (hwctl & 0x1)
 		out8(base + NDFC_CMD, byte);
@@ -78,16 +78,16 @@ static void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte)
 
 static u_char ndfc_read_byte(struct mtd_info *mtdinfo)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 
 	return (in8(base + NDFC_DATA));
 }
 
 static int ndfc_dev_ready(struct mtd_info *mtdinfo)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 
 	while (!(in32(base + NDFC_STAT) & NDFC_STAT_IS_READY))
 		;
@@ -110,8 +110,8 @@ static int ndfc_dev_ready(struct mtd_info *mtdinfo)
  */
 static void ndfc_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 	uint32_t *p = (uint32_t *) buf;
 
 	for(;len > 0; len -= 4)
@@ -120,8 +120,8 @@ static void ndfc_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 
 static void ndfc_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 	uint32_t *p = (uint32_t *) buf;
 
 	for(; len > 0; len -= 4)
@@ -130,8 +130,8 @@ static void ndfc_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 
 static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W;
 	uint32_t *p = (uint32_t *) buf;
 
 	for(; len > 0; len -= 4)
