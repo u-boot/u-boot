@@ -2,6 +2,10 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* TQM5200: perform POST memory test only on STK52xx carrier board.
+  (and then only if PSC6_3 is read as "1" when booting).
+  Patch by Martin Krause, 21 Jun 2006
+
 * Move "ar" flags to config.mk to allow for silent "make -s"
   Based on patch by Mike Frysinger, 20 Jun 2006
 
