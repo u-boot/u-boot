@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Make bootp implementation RFC3046 compliant
+  Patch by Joakim Larsson, 27 Jun 2006
+
 * TQM5200: perform POST memory test only on STK52xx carrier board.
   (and then only if PSC6_3 is read as "1" when booting).
   Patch by Martin Krause, 21 Jun 2006
