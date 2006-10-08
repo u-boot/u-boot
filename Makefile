@@ -1332,6 +1332,9 @@ ep8248E_config	:	unconfig
 ep8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 ep8260
 
+ep82xxm_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 ep82xxm
+
 gw8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 gw8260
 
