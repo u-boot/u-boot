@@ -1570,8 +1570,8 @@
 #define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
 #define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
 #if defined(CONFIG_440GX)
-#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 0 Channel table pointer reg   */
-#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 1 Channel table pointer reg   */
+#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
+#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
 #endif /* CONFIG_440GX */
 #define malrcbs0    (MAL_DCR_BASE+0x60) /* RX 0 Channel buffer size reg	    */
 #define malrcbs1    (MAL_DCR_BASE+0x61) /* RX 1 Channel buffer size reg	    */

@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix comments in include/ppc440.h
+  Patch by Martin Hicks, 16 Jun 2006
+
 * Update for CAM5200 board:
   - Map in a additional chip selects CS4 and CS5.
   - Modify the port configration, configure six UARTs and no PCI,
