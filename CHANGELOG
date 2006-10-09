@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix buffer overflow problem in ft_build.c
+  Patch by Fredrik Roubert, 09 Oct 2006
+
 * Make bootp implementation RFC3046 compliant
   Patch by Joakim Larsson, 27 Jun 2006
 

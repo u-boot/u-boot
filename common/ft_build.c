@@ -293,7 +293,9 @@ static void print_data(const void *data, int len)
 		return;
 
 	if (is_printable_string(data, len)) {
-		printf(" = \"%s\"", (char *)data);
+		puts(" = \"");
+		puts(data);
+		puts("\"");
 		return;
 	}
 
