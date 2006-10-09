@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Define IH_CPU_AVR32
+  Make it possible to generate AVR32 uImage files with mkimage and
+  make cmd_bootm recognize them.
+  Patch by Haavard Skinnemoen, 22 Sep 2006
+
 * Make bootp implementation RFC3046 compliant
   Patch by Joakim Larsson, 27 Jun 2006
 

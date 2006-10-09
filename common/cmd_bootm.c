@@ -260,6 +260,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_NIOS2)
 #elif defined(__blackfin__)
 	if (hdr->ih_arch != IH_CPU_BLACKFIN)
+#elif defined(__avr32__)
+	if (hdr->ih_arch != IH_CPU_AVR32)
 #else
 # error Unknown CPU type
 #endif
@@ -1236,6 +1238,7 @@ print_type (image_header_t *hdr)
 	case IH_CPU_INVALID:	arch = "Invalid CPU";		break;
 	case IH_CPU_ALPHA:	arch = "Alpha";			break;
 	case IH_CPU_ARM:	arch = "ARM";			break;
+	case IH_CPU_AVR32:	arch = "AVR32";			break;
 	case IH_CPU_I386:	arch = "Intel x86";		break;
 	case IH_CPU_IA64:	arch = "IA64";			break;
 	case IH_CPU_MIPS:	arch = "MIPS";			break;
