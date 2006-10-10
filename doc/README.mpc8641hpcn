@@ -30,7 +30,7 @@ Switches:
 	SW1(6-8) = 001		CFG_SYSCLK	= 000	:: SYSCLK = 33MHz
 						  001	:: SYSCLK = 40MHz
 
-	SW2(1-4) = 1100		CFG_CCBPLL	= 0010	:: 2X 
+	SW2(1-4) = 1100		CFG_CCBPLL	= 0010	:: 2X
 						  0100	:: 4X
 						  0110	:: 6X
 						  1000	:: 8X
@@ -109,7 +109,7 @@ To Flash U-boot into the alternative bank (0xFF800000 - 0xFFBFFFFF):
 4. Memory Map
 -------------
 
-	Memory Range			Device		Size		
+	Memory Range			Device		Size
 	------------			------		----
 	0x0000_0000	0x7fff_ffff	DDR		2G
 	0x8000_0000	0x9fff_ffff	PCI1/PEX1 MEM	512M
