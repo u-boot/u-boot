@@ -24,7 +24,8 @@
 #include <pci.h>
 
 /* Config the VIA chip */
-void mpc85xx_config_via(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via(struct pci_controller *hose,
+			pci_dev_t dev, struct pci_config_table *tab)
 {
 	pci_dev_t bridge;
 
@@ -47,7 +48,8 @@ void mpc85xx_config_via(struct pci_controller* hose, pci_dev_t dev, struct pci_c
 }
 
 /* Function 1, IDE */
-void mpc85xx_config_via_usbide(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via_usbide(struct pci_controller *hose,
+			       pci_dev_t dev, struct pci_config_table *tab)
 {
 	pciauto_config_device(hose, dev);
 	/*
@@ -64,7 +66,8 @@ void mpc85xx_config_via_usbide(struct pci_controller* hose, pci_dev_t dev, struc
 }
 
 /* Function 2, USB ports 0-1 */
-void mpc85xx_config_via_usb(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via_usb(struct pci_controller *hose,
+			    pci_dev_t dev, struct pci_config_table *tab)
 {
 	pciauto_config_device(hose, dev);
 
@@ -72,7 +75,8 @@ void mpc85xx_config_via_usb(struct pci_controller* hose, pci_dev_t dev, struct p
 }
 
 /* Function 3, USB ports 2-3 */
-void mpc85xx_config_via_usb2(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via_usb2(struct pci_controller *hose,
+			     pci_dev_t dev, struct pci_config_table *tab)
 {
 	pciauto_config_device(hose, dev);
 
@@ -80,7 +84,8 @@ void mpc85xx_config_via_usb2(struct pci_controller* hose, pci_dev_t dev, struct 
 }
 
 /* Function 5, Power Management */
-void mpc85xx_config_via_power(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via_power(struct pci_controller *hose,
+			      pci_dev_t dev, struct pci_config_table *tab)
 {
 	pciauto_config_device(hose, dev);
 
@@ -90,10 +95,10 @@ void mpc85xx_config_via_power(struct pci_controller* hose, pci_dev_t dev, struct
 }
 
 /* Function 6, AC97 Interface */
-void mpc85xx_config_via_ac97(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab)
+void mpc85xx_config_via_ac97(struct pci_controller *hose,
+			     pci_dev_t dev, struct pci_config_table *tab)
 {
 	pciauto_config_device(hose, dev);
 
 	pci_hose_write_config_dword(hose, dev, PCI_BASE_ADDRESS_0, 0x1c00);
 }
-
