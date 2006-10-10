@@ -59,29 +59,29 @@ typedef struct ccsr_local_mcm {
 	char	res22[20];
 	uint	lawbar9;	/* 0xd28 - Local Access Window 9 Base Address Register */
 	char	res23[4];
-	uint	lawar9;		/* 0xd30 - Local Access Window 9 Attributes Register */  
+	uint	lawar9;		/* 0xd30 - Local Access Window 9 Attributes Register */
 	char	res24[716];
 	uint	abcr;		/* 0x1000 - MCM CCB Address Configuration Register */
 	char	res25[4];
-        uint    dbcr;           /* 0x1008 - MCM MPX data bus Configuration Register */   
-	char	res26[4];  
-        uint	pcr;		/* 0x1010 - MCM CCB Port Configuration Register */
-	char	res27[44];  	
-        uint	hpmr0;		/* 0x1040 - MCM HPM Threshold Count Register 0 */
-        uint	hpmr1;		/* 0x1044 - MCM HPM Threshold Count Register 1 */
-        uint	hpmr2;		/* 0x1048 - MCM HPM Threshold Count Register 2 */ 	
-        uint	hpmr3;		/* 0x104c - MCM HPM Threshold Count Register 3 */
-	char	res28[16];  	
-        uint	hpmr4;		/* 0x1060 - MCM HPM Threshold Count Register 4 */
-        uint	hpmr5;		/* 0x1064 - MCM HPM Threshold Count Register 5 */
-        uint	hpmccr;		/* 0x1068 - MCM HPM Cycle Count Register */
-        char	res29[3476];
+	uint    dbcr;           /* 0x1008 - MCM MPX data bus Configuration Register */
+	char	res26[4];
+	uint	pcr;		/* 0x1010 - MCM CCB Port Configuration Register */
+	char	res27[44];
+	uint	hpmr0;		/* 0x1040 - MCM HPM Threshold Count Register 0 */
+	uint	hpmr1;		/* 0x1044 - MCM HPM Threshold Count Register 1 */
+	uint	hpmr2;		/* 0x1048 - MCM HPM Threshold Count Register 2 */
+	uint	hpmr3;		/* 0x104c - MCM HPM Threshold Count Register 3 */
+	char	res28[16];
+	uint	hpmr4;		/* 0x1060 - MCM HPM Threshold Count Register 4 */
+	uint	hpmr5;		/* 0x1064 - MCM HPM Threshold Count Register 5 */
+	uint	hpmccr;		/* 0x1068 - MCM HPM Cycle Count Register */
+	char	res29[3476];
 	uint	edr;		/* 0x1e00 - MCM Error Detect Register */
 	char	res30[4];
 	uint	eer;		/* 0x1e08 - MCM Error Enable Register */
 	uint	eatr;		/* 0x1e0c - MCM Error Attributes Capture Register */
 	uint	eladr;		/* 0x1e10 - MCM Error Low Address Capture Register */
-        uint	ehadr;		/* 0x1e14 - MCM Error High Address Capture Register */
+	uint	ehadr;		/* 0x1e14 - MCM Error High Address Capture Register */
 	char	res31[488];
 } ccsr_local_mcm_t;
 
@@ -106,28 +106,28 @@ typedef struct ccsr_ddr {
 	uint	cs3_config;		/* 0x208c - DDR Chip Select Configuration */
 	uint	cs4_config;		/* 0x2090 - DDR Chip Select Configuration */
 	uint	cs5_config;		/* 0x2094 - DDR Chip Select Configuration */
-        char	res7[104];
-        uint    ext_refrec;             /* 0x2100 - DDR SDRAM extended refresh recovery */
+	char	res7[104];
+	uint    ext_refrec;             /* 0x2100 - DDR SDRAM extended refresh recovery */
 	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
 	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
 	uint	timing_cfg_2;		/* 0x210c - DDR SDRAM Timing Configuration Register 2 */
 	uint	sdram_cfg_1;		/* 0x2110 - DDR SDRAM Control Configuration 1 */
-        uint    sdram_cfg_2;            /* 0x2114 - DDR SDRAM Control Configuration 2 */
+	uint    sdram_cfg_2;            /* 0x2114 - DDR SDRAM Control Configuration 2 */
 	uint	sdram_mode_1;		/* 0x2118 - DDR SDRAM Mode Configuration 1 */
-        uint    sdram_mode_2;		/* 0x211c - DDR SDRAM Mode Configuration 2 */
-        uint    sdram_mode_cntl;        /* 0x2120 - DDR SDRAM Mode Control */
+	uint    sdram_mode_2;		/* 0x211c - DDR SDRAM Mode Configuration 2 */
+	uint    sdram_mode_cntl;        /* 0x2120 - DDR SDRAM Mode Control */
 	uint	sdram_interval;		/* 0x2124 - DDR SDRAM Interval Configuration */
-        uint    sdram_data_init; 	/* 0x2128 - DDR SDRAM Data Initialization */
+	uint    sdram_data_init; 	/* 0x2128 - DDR SDRAM Data Initialization */
 	char	res8[4];
 	uint	sdram_clk_cntl;		/* 0x2130 - DDR SDRAM Clock Control */
-        char    res9[12];
-        uint    sdram_ocd_cntl;		/* 0x2140 - DDR SDRAM OCD Control */
-        uint    sdram_ocd_status;	/* 0x2144 - DDR SDRAM OCD Status */
-        uint    init_addr;		/* 0x2148 - DDR training initialzation address */
-        uint    init_addr_ext;		/* 0x214C - DDR training initialzation extended address */
-        char    res10[2728];
-        uint    ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
-        uint    ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */
+	char    res9[12];
+	uint    sdram_ocd_cntl;		/* 0x2140 - DDR SDRAM OCD Control */
+	uint    sdram_ocd_status;	/* 0x2144 - DDR SDRAM OCD Status */
+	uint    init_addr;		/* 0x2148 - DDR training initialzation address */
+	uint    init_addr_ext;		/* 0x214C - DDR training initialzation extended address */
+	char    res10[2728];
+	uint    ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
+	uint    ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */
 	char	res11[512];
 	uint	data_err_inject_hi;	/* 0x2e00 - DDR Memory Data Path Error Injection Mask High */
 	uint	data_err_inject_lo;	/* 0x2e04 - DDR Memory Data Path Error Injection Mask Low */
@@ -142,7 +142,7 @@ typedef struct ccsr_ddr {
 	uint	err_int_en;		/* 0x2e48 - DDR Memory Error Interrupt Enable */
 	uint	capture_attributes;	/* 0x2e4c - DDR Memory Error Attributes Capture */
 	uint	capture_address;	/* 0x2e50 - DDR Memory Error Address Capture */
-        uint	capture_ext_address;	/* 0x2e54 - DDR Memory Error Extended Address Capture */
+	uint	capture_ext_address;	/* 0x2e54 - DDR Memory Error Extended Address Capture */
 	uint	err_sbe;		/* 0x2e58 - DDR Memory Single-Bit ECC Error Management */
 	char	res14[164];
 	uint	debug_1;		/* 0x2f00 */
@@ -279,7 +279,7 @@ typedef struct ccsr_lbc {
 typedef struct ccsr_pex {
 	uint	cfg_addr;	/* 0x8000 - PEX Configuration Address Register */
 	uint	cfg_data;	/* 0x8004 - PEX Configuration Data Register */
-	char	res1[4];	
+	char	res1[4];
 	uint	out_comp_to;	/* 0x800C - PEX Outbound Completion Timeout Register */
 	char	res2[16];
 	uint	pme_msg_det;	/* 0x8020 - PEX PME & message detect register */
@@ -326,7 +326,7 @@ typedef struct ccsr_pex {
 	uint	piwar3;	        /* 0x8db0 - PEX Inbound Window Attributes Register 3 */
 	char	res16[12];
 	uint	pitar2;	        /* 0x8dc0 - PEX Inbound Translation Address Register 2  */
-	char	res17[4];	
+	char	res17[4];
 	uint	piwbar2;	/* 0x8dc8 - PEX Inbound Window Base Address Register 2 */
 	uint	piwbear2;	/* 0x8dcc - PEX Inbound Window Base Extended Address Register 2 */
 	uint	piwar2;	        /* 0x8dd0 - PEX Inbound Window Attributes Register 2 */
@@ -355,73 +355,73 @@ typedef struct ccsr_pex {
 
 /* Hyper Transport Register Block (0xA000-0xB000) */
 typedef struct ccsr_ht {
-        uint    hcfg_addr;      /* 0xa000 - HT Configuration Address register */ 
-        uint    hcfg_data;      /* 0xa004 - HT Configuration Data register */ 
+	uint    hcfg_addr;      /* 0xa000 - HT Configuration Address register */
+	uint    hcfg_data;      /* 0xa004 - HT Configuration Data register */
 	char	res1[3064];
-        uint    howtar0;        /* 0xac00 - HT Outbound Window 0 Translation register */ 
+	uint    howtar0;        /* 0xac00 - HT Outbound Window 0 Translation register */
 	char	res2[12];
-        uint    howar0;         /* 0xac10 - HT Outbound Window 0 Attributes register */
-	char	res3[12]; 
-        uint    howtar1;        /* 0xac20 - HT Outbound Window 1 Translation register */ 
-	char	res4[4]; 
-        uint    howbar1;        /* 0xac28 - HT Outbound Window 1 Base Address register */ 
-	char	res5[4]; 
-        uint    howar1;         /* 0xac30 - HT Outbound Window 1 Attributes register */ 
-	char	res6[12]; 
-        uint    howtar2;        /* 0xac40 - HT Outbound Window 2 Translation register */ 
-	char	res7[4]; 
-        uint    howbar2;        /* 0xac48 - HT Outbound Window 2 Base Address register */ 
-	char	res8[4]; 
-        uint    howar2;         /* 0xac50 - HT Outbound Window 2 Attributes register */ 
-	char	res9[12]; 
-        uint    howtar3;        /* 0xac60 - HT Outbound Window 3 Translation register */ 
-	char	res10[4]; 
-        uint    howbar3;        /* 0xac68 - HT Outbound Window 3 Base Address register */ 
-	char	res11[4]; 
-        uint    howar3;         /* 0xac70 - HT Outbound Window 3 Attributes  register */ 
-	char	res12[12]; 
-        uint    howtar4;        /* 0xac80 - HT Outbound Window 4 Translation register */ 
-	char	res13[4]; 
-        uint    howbar4;        /* 0xac88 - HT Outbound Window 4 Base Address register */ 
-	char	res14[4]; 
-        uint    howar4;         /* 0xac90 - HT Outbound Window 4 Attributes register */ 
-	char	res15[236]; 
-        uint    hiwtar4;        /* 0xad80 - HT Inbound Window 4 Translation register */ 
-	char	res16[4]; 
-        uint    hiwbar4;        /* 0xad88 - HT Inbound Window 4 Base Address register */ 
-	char	res17[4]; 
-        uint    hiwar4;         /* 0xad90 - HT Inbound Window 4 Attributes register */ 
-	char	res18[12]; 
-        uint    hiwtar3;        /* 0xada0 - HT Inbound Window 3 Translation register */ 
-	char	res19[4]; 
-        uint    hiwbar3;        /* 0xada8 - HT Inbound Window 3 Base Address register */ 
-	char	res20[4]; 
-        uint    hiwar3;         /* 0xadb0 - HT Inbound Window 3 Attributes register */ 
-	char	res21[12]; 
-        uint    hiwtar2;        /* 0xadc0 - HT Inbound Window 2 Translation register */ 
-	char	res22[4]; 
-        uint    hiwbar2;        /* 0xadc8 - HT Inbound Window 2 Base Address register */ 
-	char	res23[4]; 
-        uint    hiwar2;         /* 0xadd0 - HT Inbound Window 2 Attributes register */ 
-	char	res24[12]; 
-        uint    hiwtar1;        /* 0xade0 - HT Inbound Window 1 Translation register */ 
-	char	res25[4]; 
-        uint    hiwbar1;        /* 0xade8 - HT Inbound Window 1 Base Address register */ 
-	char	res26[4]; 
-        uint    hiwar1;         /* 0xadf0 - HT Inbound Window 1 Attributes register */ 
-	char	res27[12]; 
-        uint    hedr;           /* 0xae00 - HT Error Detect register */ 
-	char	res28[4]; 
-        uint    heier;          /* 0xae08 - HT Error Interrupt Enable register */ 
-	char	res29[4]; 
-        uint    hecdr;          /* 0xae10 - HT Error Capture Disbale register */ 
-	char	res30[12]; 
-        uint    hecsr;          /* 0xae20 - HT Error Capture Status register */ 
-	char	res31[4]; 
-        uint    hec0;           /* 0xae28 - HT Error Capture 0 register */ 
-        uint    hec1;           /* 0xae2c - HT Error Capture 1 register */ 
-        uint    hec2;           /* 0xae30 - HT Error Capture 2 register */ 
-        char    res32[460];
+	uint    howar0;         /* 0xac10 - HT Outbound Window 0 Attributes register */
+	char	res3[12];
+	uint    howtar1;        /* 0xac20 - HT Outbound Window 1 Translation register */
+	char	res4[4];
+	uint    howbar1;        /* 0xac28 - HT Outbound Window 1 Base Address register */
+	char	res5[4];
+	uint    howar1;         /* 0xac30 - HT Outbound Window 1 Attributes register */
+	char	res6[12];
+	uint    howtar2;        /* 0xac40 - HT Outbound Window 2 Translation register */
+	char	res7[4];
+	uint    howbar2;        /* 0xac48 - HT Outbound Window 2 Base Address register */
+	char	res8[4];
+	uint    howar2;         /* 0xac50 - HT Outbound Window 2 Attributes register */
+	char	res9[12];
+	uint    howtar3;        /* 0xac60 - HT Outbound Window 3 Translation register */
+	char	res10[4];
+	uint    howbar3;        /* 0xac68 - HT Outbound Window 3 Base Address register */
+	char	res11[4];
+	uint    howar3;         /* 0xac70 - HT Outbound Window 3 Attributes  register */
+	char	res12[12];
+	uint    howtar4;        /* 0xac80 - HT Outbound Window 4 Translation register */
+	char	res13[4];
+	uint    howbar4;        /* 0xac88 - HT Outbound Window 4 Base Address register */
+	char	res14[4];
+	uint    howar4;         /* 0xac90 - HT Outbound Window 4 Attributes register */
+	char	res15[236];
+	uint    hiwtar4;        /* 0xad80 - HT Inbound Window 4 Translation register */
+	char	res16[4];
+	uint    hiwbar4;        /* 0xad88 - HT Inbound Window 4 Base Address register */
+	char	res17[4];
+	uint    hiwar4;         /* 0xad90 - HT Inbound Window 4 Attributes register */
+	char	res18[12];
+	uint    hiwtar3;        /* 0xada0 - HT Inbound Window 3 Translation register */
+	char	res19[4];
+	uint    hiwbar3;        /* 0xada8 - HT Inbound Window 3 Base Address register */
+	char	res20[4];
+	uint    hiwar3;         /* 0xadb0 - HT Inbound Window 3 Attributes register */
+	char	res21[12];
+	uint    hiwtar2;        /* 0xadc0 - HT Inbound Window 2 Translation register */
+	char	res22[4];
+	uint    hiwbar2;        /* 0xadc8 - HT Inbound Window 2 Base Address register */
+	char	res23[4];
+	uint    hiwar2;         /* 0xadd0 - HT Inbound Window 2 Attributes register */
+	char	res24[12];
+	uint    hiwtar1;        /* 0xade0 - HT Inbound Window 1 Translation register */
+	char	res25[4];
+	uint    hiwbar1;        /* 0xade8 - HT Inbound Window 1 Base Address register */
+	char	res26[4];
+	uint    hiwar1;         /* 0xadf0 - HT Inbound Window 1 Attributes register */
+	char	res27[12];
+	uint    hedr;           /* 0xae00 - HT Error Detect register */
+	char	res28[4];
+	uint    heier;          /* 0xae08 - HT Error Interrupt Enable register */
+	char	res29[4];
+	uint    hecdr;          /* 0xae10 - HT Error Capture Disbale register */
+	char	res30[12];
+	uint    hecsr;          /* 0xae20 - HT Error Capture Status register */
+	char	res31[4];
+	uint    hec0;           /* 0xae28 - HT Error Capture 0 register */
+	uint    hec1;           /* 0xae2c - HT Error Capture 1 register */
+	uint    hec2;           /* 0xae30 - HT Error Capture 2 register */
+	char    res32[460];
 } ccsr_ht_t;
 
 /* DMA Registers(0x2_1000-0x2_2000) */
@@ -505,14 +505,14 @@ typedef struct ccsr_dma {
 
 /* tsec1-4: 24000-28000 */
 typedef struct ccsr_tsec {
-        uint    id; 		/* 0x24000 - Controller ID Register */
+	uint    id; 		/* 0x24000 - Controller ID Register */
 	char	res1[12];
 	uint	ievent;		/* 0x24010 - Interrupt Event Register */
 	uint	imask;		/* 0x24014 - Interrupt Mask Register */
 	uint	edis;		/* 0x24018 - Error Disabled Register */
 	char	res2[4];
 	uint	ecntrl;		/* 0x24020 - Ethernet Control Register */
-        char    res2_1[4];
+	char    res2_1[4];
 	uint	ptv;		/* 0x24028 - Pause Time Value Register */
 	uint	dmactrl;	/* 0x2402c - DMA Control Register */
 	uint	tbipa;		/* 0x24030 - TBI PHY Address Register */
@@ -521,102 +521,102 @@ typedef struct ccsr_tsec {
 	char	res4[8];
 	uint	fifo_tx_starve;	/* 0x24098 - FIFO transmit starve register */
 	uint	fifo_tx_starve_shutoff;/* 0x2409c - FIFO transmit starve shutoff register */
-        char    res4_1[4];
-        uint    fifo_rx_pause;  /* 0x240a4 - FIFO receive pause threshold register */
-        uint    fifo_rx_alarm;  /* 0x240a8 - FIFO receive alarm threshold register */
+	char    res4_1[4];
+	uint    fifo_rx_pause;  /* 0x240a4 - FIFO receive pause threshold register */
+	uint    fifo_rx_alarm;  /* 0x240a8 - FIFO receive alarm threshold register */
 	char	res5[84];
 	uint	tctrl;		/* 0x24100 - Transmit Control Register */
 	uint	tstat;		/* 0x24104 - Transmit Status Register */
-        uint    dfvlan;		/* 0x24108 - Default VLAN control word */
-        char    res6[4];
-        uint    txic;		/* 0x24110 - Transmit interrupt coalescing Register */
-        uint    tqueue;         /* 0x24114 - Transmit Queue Control Register */
+	uint    dfvlan;		/* 0x24108 - Default VLAN control word */
+	char    res6[4];
+	uint    txic;		/* 0x24110 - Transmit interrupt coalescing Register */
+	uint    tqueue;         /* 0x24114 - Transmit Queue Control Register */
 	char	res7[40];
-        uint    tr03wt;         /* 0x24140 - TxBD Rings 0-3 round-robin weightings */
-        uint    tw47wt;         /* 0x24144 - TxBD Rings 4-7 round-robin weightings */
-        char    res8[52];
-        uint	tbdbph;	        /* 0x2417c - Transmit Data Buffer Pointer High Register */
-        char    res9[4];
-        uint    tbptr0;         /* 0x24184 - Transmit Buffer Descriptor Pointer for Ring 0 */
-        char    res10[4];
-        uint    tbptr1;         /* 0x2418C - Transmit Buffer Descriptor Pointer for Ring 1 */
-        char    res11[4];
-        uint    tbptr2;         /* 0x24194 - Transmit Buffer Descriptor Pointer for Ring 2 */
-        char    res12[4];
-        uint    tbptr3;         /* 0x2419C - Transmit Buffer Descriptor Pointer for Ring 3 */
-        char    res13[4];
-        uint    tbptr4;         /* 0x241A4 - Transmit Buffer Descriptor Pointer for Ring 4 */
-        char    res14[4];
-        uint    tbptr5;         /* 0x241AC - Transmit Buffer Descriptor Pointer for Ring 5 */
-        char    res15[4];
-        uint    tbptr6;         /* 0x241B4 - Transmit Buffer Descriptor Pointer for Ring 6 */
-        char    res16[4];
-        uint    tbptr7;         /* 0x241BC - Transmit Buffer Descriptor Pointer for Ring 7 */
-        char    res17[64];
+	uint    tr03wt;         /* 0x24140 - TxBD Rings 0-3 round-robin weightings */
+	uint    tw47wt;         /* 0x24144 - TxBD Rings 4-7 round-robin weightings */
+	char    res8[52];
+	uint	tbdbph;	        /* 0x2417c - Transmit Data Buffer Pointer High Register */
+	char    res9[4];
+	uint    tbptr0;         /* 0x24184 - Transmit Buffer Descriptor Pointer for Ring 0 */
+	char    res10[4];
+	uint    tbptr1;         /* 0x2418C - Transmit Buffer Descriptor Pointer for Ring 1 */
+	char    res11[4];
+	uint    tbptr2;         /* 0x24194 - Transmit Buffer Descriptor Pointer for Ring 2 */
+	char    res12[4];
+	uint    tbptr3;         /* 0x2419C - Transmit Buffer Descriptor Pointer for Ring 3 */
+	char    res13[4];
+	uint    tbptr4;         /* 0x241A4 - Transmit Buffer Descriptor Pointer for Ring 4 */
+	char    res14[4];
+	uint    tbptr5;         /* 0x241AC - Transmit Buffer Descriptor Pointer for Ring 5 */
+	char    res15[4];
+	uint    tbptr6;         /* 0x241B4 - Transmit Buffer Descriptor Pointer for Ring 6 */
+	char    res16[4];
+	uint    tbptr7;         /* 0x241BC - Transmit Buffer Descriptor Pointer for Ring 7 */
+	char    res17[64];
 	uint	tbaseh;		/* 0x24200 - Transmit Descriptor Base Address High Register */
 	uint	tbase0;		/* 0x24204 - Transmit Descriptor Base Address Register of Ring 0 */
-        char    res18[4];      
-        uint    tbase1;         /* 0x2420C - Transmit Descriptor base address of Ring 1 */
-        char    res19[4];
-        uint    tbase2;         /* 0x24214 - Transmit Descriptor base address of Ring 2 */
-        char    res20[4];
-        uint    tbase3;         /* 0x2421C - Transmit Descriptor base address of Ring 3 */
-        char    res21[4];
-        uint    tbase4;         /* 0x24224 - Transmit Descriptor base address of Ring 4 */
-        char    res22[4];
-        uint    tbase5;         /* 0x2422C - Transmit Descriptor base address of Ring 5 */
-        char    res23[4];
-        uint    tbase6;         /* 0x24234 - Transmit Descriptor base address of Ring 6 */
-        char    res24[4];
-        uint    tbase7;         /* 0x2423C - Transmit Descriptor base address of Ring 7 */
-        char    res25[192];
+	char    res18[4];
+	uint    tbase1;         /* 0x2420C - Transmit Descriptor base address of Ring 1 */
+	char    res19[4];
+	uint    tbase2;         /* 0x24214 - Transmit Descriptor base address of Ring 2 */
+	char    res20[4];
+	uint    tbase3;         /* 0x2421C - Transmit Descriptor base address of Ring 3 */
+	char    res21[4];
+	uint    tbase4;         /* 0x24224 - Transmit Descriptor base address of Ring 4 */
+	char    res22[4];
+	uint    tbase5;         /* 0x2422C - Transmit Descriptor base address of Ring 5 */
+	char    res23[4];
+	uint    tbase6;         /* 0x24234 - Transmit Descriptor base address of Ring 6 */
+	char    res24[4];
+	uint    tbase7;         /* 0x2423C - Transmit Descriptor base address of Ring 7 */
+	char    res25[192];
 	uint	rctrl;		/* 0x24300 - Receive Control Register */
 	uint	rstat;		/* 0x24304 - Receive Status Register */
 	char	res26[8];
-        uint    rxic;           /* 0x24310 - Receive Interrupt Coalecing Register */
-        uint    rqueue;         /* 0x24314 - Receive queue control register */
+	uint    rxic;           /* 0x24310 - Receive Interrupt Coalecing Register */
+	uint    rqueue;         /* 0x24314 - Receive queue control register */
 	char	res27[24];
-        uint    rbifx;		/* 0x24330 - Receive bit field extract control Register */
-        uint    rqfar;		/* 0x24334 - Receive queue filing table address Register */
-        uint    rqfcr;		/* 0x24338 - Receive queue filing table control Register */
-        uint    rqfpr;      	/* 0x2433c - Receive queue filing table property Register */
+	uint    rbifx;		/* 0x24330 - Receive bit field extract control Register */
+	uint    rqfar;		/* 0x24334 - Receive queue filing table address Register */
+	uint    rqfcr;		/* 0x24338 - Receive queue filing table control Register */
+	uint    rqfpr;      	/* 0x2433c - Receive queue filing table property Register */
 	uint	mrblr;		/* 0x24340 - Maximum Receive Buffer Length Register */
 	char	res28[56];
-        uint    rbdbph;		/* 0x2437C - Receive Data Buffer Pointer High */
-        char    res29[4];
-        uint	rbptr0;		/* 0x24384 - Receive Buffer Descriptor Pointer for Ring 0 */
-        char    res30[4];
-        uint	rbptr1;		/* 0x2438C - Receive Buffer Descriptor Pointer for Ring 1 */
-        char    res31[4];
-        uint	rbptr2;		/* 0x24394 - Receive Buffer Descriptor Pointer for Ring 2 */
-        char    res32[4];
-        uint	rbptr3;		/* 0x2439C - Receive Buffer Descriptor Pointer for Ring 3 */
-        char    res33[4];
-        uint	rbptr4;		/* 0x243A4 - Receive Buffer Descriptor Pointer for Ring 4 */
-        char    res34[4];
-        uint	rbptr5;		/* 0x243AC - Receive Buffer Descriptor Pointer for Ring 5 */
-        char    res35[4];
-        uint	rbptr6;		/* 0x243B4 - Receive Buffer Descriptor Pointer for Ring 6 */
-        char    res36[4];
-        uint	rbptr7;		/* 0x243BC - Receive Buffer Descriptor Pointer for Ring 7 */
-        char    res37[64];
+	uint    rbdbph;		/* 0x2437C - Receive Data Buffer Pointer High */
+	char    res29[4];
+	uint	rbptr0;		/* 0x24384 - Receive Buffer Descriptor Pointer for Ring 0 */
+	char    res30[4];
+	uint	rbptr1;		/* 0x2438C - Receive Buffer Descriptor Pointer for Ring 1 */
+	char    res31[4];
+	uint	rbptr2;		/* 0x24394 - Receive Buffer Descriptor Pointer for Ring 2 */
+	char    res32[4];
+	uint	rbptr3;		/* 0x2439C - Receive Buffer Descriptor Pointer for Ring 3 */
+	char    res33[4];
+	uint	rbptr4;		/* 0x243A4 - Receive Buffer Descriptor Pointer for Ring 4 */
+	char    res34[4];
+	uint	rbptr5;		/* 0x243AC - Receive Buffer Descriptor Pointer for Ring 5 */
+	char    res35[4];
+	uint	rbptr6;		/* 0x243B4 - Receive Buffer Descriptor Pointer for Ring 6 */
+	char    res36[4];
+	uint	rbptr7;		/* 0x243BC - Receive Buffer Descriptor Pointer for Ring 7 */
+	char    res37[64];
 	uint	rbaseh;		/* 0x24400 - Receive Descriptor Base Address High 0 */
 	uint	rbase0;		/* 0x24404 - Receive Descriptor Base Address of Ring 0 */
-        char    res38[4];
+	char    res38[4];
 	uint	rbase1;		/* 0x2440C - Receive Descriptor Base Address of Ring 1 */
-        char    res39[4];
+	char    res39[4];
 	uint	rbase2;		/* 0x24414 - Receive Descriptor Base Address of Ring 2 */
-        char    res40[4];
+	char    res40[4];
 	uint	rbase3;		/* 0x2441C - Receive Descriptor Base Address of Ring 3 */
-        char    res41[4];
+	char    res41[4];
 	uint	rbase4;		/* 0x24424 - Receive Descriptor Base Address of Ring 4 */
-        char    res42[4];
+	char    res42[4];
 	uint	rbase5;		/* 0x2442C - Receive Descriptor Base Address of Ring 5 */
-        char    res43[4];
+	char    res43[4];
 	uint	rbase6;		/* 0x24434 - Receive Descriptor Base Address of Ring 6 */
-        char    res44[4];
+	char    res44[4];
 	uint	rbase7;		/* 0x2443C - Receive Descriptor Base Address of Ring 7 */
-        char    res45[192];
+	char    res45[192];
 	uint	maccfg1;	/* 0x24500 - MAC Configuration 1 Register */
 	uint	maccfg2;	/* 0x24504 - MAC Configuration 2 Register */
 	uint	ipgifg;		/* 0x24508 - Inter Packet Gap/Inter Frame Gap Register */
@@ -629,40 +629,40 @@ typedef struct ccsr_tsec {
 	uint	miimcon;	/* 0x2452c - MII Management Control Register */
 	uint	miimstat;	/* 0x24530 - MII Management Status Register */
 	uint	miimind;	/* 0x24534 - MII Management Indicator Register */
-        uint    ifctrl;		/* 0x24538 - Interface Contrl Register */
+	uint    ifctrl;		/* 0x24538 - Interface Contrl Register */
 	uint	ifstat;		/* 0x2453c - Interface Status Register */
 	uint	macstnaddr1;	/* 0x24540 - Station Address Part 1 Register */
 	uint	macstnaddr2;	/* 0x24544 - Station Address Part 2 Register */
-        uint    mac01addr1;     /* 0x24548 - MAC exact match address 1, part 1 */
-        uint    mac01addr2;     /* 0x2454C - MAC exact match address 1, part 2 */
-        uint    mac02addr1;     /* 0x24550 - MAC exact match address 2, part 1 */
-        uint    mac02addr2;     /* 0x24554 - MAC exact match address 2, part 2 */
-        uint    mac03addr1;     /* 0x24558 - MAC exact match address 3, part 1 */
-        uint    mac03addr2;     /* 0x2455C - MAC exact match address 3, part 2 */
-        uint    mac04addr1;     /* 0x24560 - MAC exact match address 4, part 1 */
-        uint    mac04addr2;     /* 0x24564 - MAC exact match address 4, part 2 */
-        uint    mac05addr1;     /* 0x24568 - MAC exact match address 5, part 1 */
-        uint    mac05addr2;     /* 0x2456C - MAC exact match address 5, part 2 */
-        uint    mac06addr1;     /* 0x24570 - MAC exact match address 6, part 1 */
-        uint    mac06addr2;     /* 0x24574 - MAC exact match address 6, part 2 */
-        uint    mac07addr1;     /* 0x24578 - MAC exact match address 7, part 1 */
-        uint    mac07addr2;     /* 0x2457C - MAC exact match address 7, part 2 */
-        uint    mac08addr1;     /* 0x24580 - MAC exact match address 8, part 1 */
-        uint    mac08addr2;     /* 0x24584 - MAC exact match address 8, part 2 */
-        uint    mac09addr1;     /* 0x24588 - MAC exact match address 9, part 1 */
-        uint    mac09addr2;     /* 0x2458C - MAC exact match address 9, part 2 */
-        uint    mac10addr1;     /* 0x24590 - MAC exact match address 10, part 1 */
-        uint    mac10addr2;     /* 0x24594 - MAC exact match address 10, part 2 */
-        uint    mac11addr1;     /* 0x24598 - MAC exact match address 11, part 1 */
-        uint    mac11addr2;     /* 0x2459C - MAC exact match address 11, part 2 */
-        uint    mac12addr1;     /* 0x245A0 - MAC exact match address 12, part 1 */
-        uint    mac12addr2;     /* 0x245A4 - MAC exact match address 12, part 2 */
-        uint    mac13addr1;     /* 0x245A8 - MAC exact match address 13, part 1 */
-        uint    mac13addr2;     /* 0x245AC - MAC exact match address 13, part 2 */
-        uint    mac14addr1;     /* 0x245B0 - MAC exact match address 14, part 1 */
-        uint    mac14addr2;     /* 0x245B4 - MAC exact match address 14, part 2 */
-        uint    mac15addr1;     /* 0x245B8 - MAC exact match address 15, part 1 */
-        uint    mac15addr2;     /* 0x245BC - MAC exact match address 15, part 2 */
+	uint    mac01addr1;     /* 0x24548 - MAC exact match address 1, part 1 */
+	uint    mac01addr2;     /* 0x2454C - MAC exact match address 1, part 2 */
+	uint    mac02addr1;     /* 0x24550 - MAC exact match address 2, part 1 */
+	uint    mac02addr2;     /* 0x24554 - MAC exact match address 2, part 2 */
+	uint    mac03addr1;     /* 0x24558 - MAC exact match address 3, part 1 */
+	uint    mac03addr2;     /* 0x2455C - MAC exact match address 3, part 2 */
+	uint    mac04addr1;     /* 0x24560 - MAC exact match address 4, part 1 */
+	uint    mac04addr2;     /* 0x24564 - MAC exact match address 4, part 2 */
+	uint    mac05addr1;     /* 0x24568 - MAC exact match address 5, part 1 */
+	uint    mac05addr2;     /* 0x2456C - MAC exact match address 5, part 2 */
+	uint    mac06addr1;     /* 0x24570 - MAC exact match address 6, part 1 */
+	uint    mac06addr2;     /* 0x24574 - MAC exact match address 6, part 2 */
+	uint    mac07addr1;     /* 0x24578 - MAC exact match address 7, part 1 */
+	uint    mac07addr2;     /* 0x2457C - MAC exact match address 7, part 2 */
+	uint    mac08addr1;     /* 0x24580 - MAC exact match address 8, part 1 */
+	uint    mac08addr2;     /* 0x24584 - MAC exact match address 8, part 2 */
+	uint    mac09addr1;     /* 0x24588 - MAC exact match address 9, part 1 */
+	uint    mac09addr2;     /* 0x2458C - MAC exact match address 9, part 2 */
+	uint    mac10addr1;     /* 0x24590 - MAC exact match address 10, part 1 */
+	uint    mac10addr2;     /* 0x24594 - MAC exact match address 10, part 2 */
+	uint    mac11addr1;     /* 0x24598 - MAC exact match address 11, part 1 */
+	uint    mac11addr2;     /* 0x2459C - MAC exact match address 11, part 2 */
+	uint    mac12addr1;     /* 0x245A0 - MAC exact match address 12, part 1 */
+	uint    mac12addr2;     /* 0x245A4 - MAC exact match address 12, part 2 */
+	uint    mac13addr1;     /* 0x245A8 - MAC exact match address 13, part 1 */
+	uint    mac13addr2;     /* 0x245AC - MAC exact match address 13, part 2 */
+	uint    mac14addr1;     /* 0x245B0 - MAC exact match address 14, part 1 */
+	uint    mac14addr2;     /* 0x245B4 - MAC exact match address 14, part 2 */
+	uint    mac15addr1;     /* 0x245B8 - MAC exact match address 15, part 1 */
+	uint    mac15addr2;     /* 0x245BC - MAC exact match address 15, part 2 */
 	char	res48[192];
 	uint	tr64;		/* 0x24680 - Transmit and Receive 64-byte Frame Counter */
 	uint	tr127;		/* 0x24684 - Transmit and Receive 65-127 byte Frame Counter */
@@ -712,7 +712,7 @@ typedef struct ccsr_tsec {
 	uint	car2;		/* 0x24734 - Carry Register Two */
 	uint	cam1;		/* 0x24738 - Carry Mask Register One */
 	uint	cam2;		/* 0x2473c - Carry Mask Register Two */
-        uint    rrej;	        /* 0x24740 - Receive filer rejected packet counter */
+	uint    rrej;	        /* 0x24740 - Receive filer rejected packet counter */
 	char	res50[188];
 	uint	iaddr0;		/* 0x24800 - Indivdual address register 0 */
 	uint	iaddr1;		/* 0x24804 - Indivdual address register 1 */
@@ -732,11 +732,11 @@ typedef struct ccsr_tsec {
 	uint	gaddr6;		/* 0x24898 - Global address register 6 */
 	uint	gaddr7;		/* 0x2489c - Global address register 7 */
 	char	res52[352];
-        uint    fifocfg;        /* 0x24A00 - FIFO interface configuration register */
-        char    res53[500];
-        uint    attr;           /* 0x24BF8 - DMA Attribute register */  
-        uint    attreli;        /* 0x24BFC - DMA Attribute extract length and index register */  
-        char    res54[1024];
+	uint    fifocfg;        /* 0x24A00 - FIFO interface configuration register */
+	char    res53[500];
+	uint    attr;           /* 0x24BF8 - DMA Attribute register */
+	uint    attreli;        /* 0x24BFC - DMA Attribute extract length and index register */
+	char    res54[1024];
 } ccsr_tsec_t;
 
 /* PIC Registers(0x4_0000-0x6_1000) */
@@ -833,7 +833,7 @@ typedef struct ccsr_pic {
 	char	res45[12];
 	uint	pm2mr1;		/* 0x413A0 - Performance monitor 2 mask register 1  */
 	char	res46[12];
-        uint	pm3mr0;		/* 0x413B0 - Performance monitor 3 mask register 0  */
+	uint	pm3mr0;		/* 0x413B0 - Performance monitor 3 mask register 0  */
 	char	res47[12];
 	uint	pm3mr1;		/* 0x413C0 - Performance monitor 3 mask register 1  */
 	char	res48[60];
@@ -1024,7 +1024,7 @@ typedef struct ccsr_pic {
 	uint	iivpr31;	/* 0x505e0 - Internal Interrupt Vector/Priority Register 31 */
 	char	res141[12];
 	uint	iidr31;		/* 0x505f0 - Internal Interrupt Destination Register 31 */
-        char	res142[4108];
+	char	res142[4108];
 	uint	mivpr0;		/* 0x51600 - Messaging Interrupt Vector/Priority Register 0 */
 	char	res143[12];
 	uint	midr0;		/* 0x51610 - Messaging Interrupt Destination Register 0 */
@@ -1109,7 +1109,7 @@ typedef struct ccsr_rio {
 	uint	ecacsr;	        /* 0xc0648 - Port 0 error capture attributes register */
 	uint	pcseccsr0;	/* 0xc064c - Port 0 packet/control symbol error capture register 0 */
 	uint	peccsr1;	/* 0xc0650 - Port 0 error capture command and status register 1 */
-        uint	peccsr2;	/* 0xc0654 - Port 0 error capture command and status register 2 */
+	uint	peccsr2;	/* 0xc0654 - Port 0 error capture command and status register 2 */
 	uint	peccsr3;	/* 0xc0658 - Port 0 error capture command and status register 3 */
 	char	res13[12];
 	uint	ercsr;	        /* 0xc0668 - Port 0 error rate command and status register */
@@ -1133,7 +1133,7 @@ typedef struct ccsr_rio {
 	char	res22[20];
 	uint	slcsr;	        /* 0xd0158 - Port 0 Serial Link Command and Status Register */
 	char	res23[4];
-	uint	sleir;	        /* 0xd0160 - Port 0 Serial Link Error Injection Register */ 
+	uint	sleir;	        /* 0xd0160 - Port 0 Serial Link Error Injection Register */
 	char	res24[2716];
 	uint	rowtar0;	/* 0xd0c00 - RapidIO Outbound Window Translation Address Register 0 */
 	uint	rowtear0;	/* 0xd0c04 - RapidIO Outbound Window Translation Ext. Address Register 0 */
@@ -1282,13 +1282,13 @@ typedef struct ccsr_rio {
 	uint	iqtpar;	        /* 0xd346c - Inbound Doorbell Queue Tail Pointer Address Register */
 	uint	iedqhpar;	/* 0xd3470 - Extended Inbound Doorbell Queue Head Pointer Address Register */
 	uint	idqhpar;	/* 0xd3474 - Inbound Doorbell Queue Head Pointer Address Register */
-        uint	idmirir;	/* 0xd3478 - Inbound Doorbell Max Interrupt Report Interval Register */
+	uint	idmirir;	/* 0xd3478 - Inbound Doorbell Max Interrupt Report Interval Register */
 	char	res57[100];
 	uint	pwmr;		/* 0xd34e0 - Port-Write Mode Register */
 	uint	pwsr;		/* 0xd34e4 - Port-Write Status Register */
 	uint	epwqbar;	/* 0xd34e8 - Extended Port-Write Queue Base Address Register */
 	uint	pwqbar;		/* 0xd34ec - Port-Write Queue Base Address Register */
-        char	res58[51984];
+	char	res58[51984];
 } ccsr_rio_t;
 
 /* Global Utilities Register Block(0xe_0000-0xf_ffff) */
@@ -1313,7 +1313,7 @@ typedef struct ccsr_gur {
 	char	res6[12];
 	uint	devdisr;	/* 0xe0070 - Device disable control */
 #define MPC86xx_DEVDISR_PCIEX1  0x80000000
-#define MPC86xx_DEVDISR_PCIEX2  0x40000000   
+#define MPC86xx_DEVDISR_PCIEX2  0x40000000
 	char	res7[12];
 	uint	powmgtcsr;	/* 0xe0080 - Power management status and control register */
 	char	res8[12];
@@ -1327,11 +1327,11 @@ typedef struct ccsr_gur {
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */
 	char	res12[12];
 	uint	lbcdllcr;	/* 0xe0e20 - LBC DLL control register */
-        int	res13[57];
-        uint    lynxdcr1;        /* 0xe0f08 - Lynx debug control register 1*/
-        int     res14[6];
-        uint    ddrioovcr;      /* 0xe0f24 - DDR IO Overdrive Control register */
-        char	res15[61656];
+	int	res13[57];
+	uint    lynxdcr1;        /* 0xe0f08 - Lynx debug control register 1*/
+	int     res14[6];
+	uint    ddrioovcr;      /* 0xe0f24 - DDR IO Overdrive Control register */
+	char	res15[61656];
 } ccsr_gur_t;
 
 typedef struct immap {
@@ -1340,21 +1340,21 @@ typedef struct immap {
 	ccsr_i2c_t		im_i2c;
 	ccsr_duart_t		im_duart;
 	ccsr_lbc_t		im_lbc;
-        ccsr_ddr_t		im_ddr2; 
-        char                    res1[4096];
+	ccsr_ddr_t		im_ddr2;
+	char                    res1[4096];
 	ccsr_pex_t		im_pex1;
-        ccsr_pex_t		im_pex2;
-        ccsr_ht_t               im_ht;
-        char                    res2[90112];
+	ccsr_pex_t		im_pex2;
+	ccsr_ht_t               im_ht;
+	char                    res2[90112];
 	ccsr_dma_t		im_dma;
-        char                    res3[8192];
+	char                    res3[8192];
 	ccsr_tsec_t		im_tsec1;
 	ccsr_tsec_t		im_tsec2;
-        ccsr_tsec_t             im_tsec3;
-        ccsr_tsec_t             im_tsec4;
-        char                    res4[98304];  
+	ccsr_tsec_t             im_tsec3;
+	ccsr_tsec_t             im_tsec4;
+	char                    res4[98304];
 	ccsr_pic_t		im_pic;
-        char                    res5[389120];
+	char                    res5[389120];
 	ccsr_rio_t		im_rio;
 	ccsr_gur_t		im_gur;
 } immap_t;

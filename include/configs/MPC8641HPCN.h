@@ -85,7 +85,6 @@
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 
-
 /*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
@@ -93,7 +92,6 @@
 #define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
-
 
 /*
  * DDR Setup
@@ -317,7 +315,6 @@
 #define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
 #define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
 
-
 #if defined(CONFIG_PCI)
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
@@ -353,7 +350,6 @@
 
 #endif	/* CONFIG_PCI */
 
-
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
@@ -383,7 +379,6 @@
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #endif	/* CONFIG_TSEC_ENET */
-
 
 /*
  * BAT0         2G     Cacheable, non-guarded
@@ -461,9 +456,6 @@
 #define CFG_DBAT7U 0x00000000
 #define CFG_IBAT7L 0x00000000
 #define CFG_IBAT7U 0x00000000
-
-
-
 
 /*
  * Environment
@@ -571,7 +563,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
-
 
 /*
  * Environment Configuration
