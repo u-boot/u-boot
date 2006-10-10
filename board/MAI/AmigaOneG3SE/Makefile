@@ -50,7 +50,7 @@ EMUOBJ  := $(addprefix $(obj),$(EMUOBJ))
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS) $(EMUSRC)
 	make $(obj)libx86emu.a -C ../bios_emulator/scitech/src/x86emu -f makefile.uboot CROSS_COMPILE=$(CROSS_COMPILE)
 	-rm $(LIB)
-	$(AR) crv $@ $(OBJS) $(SOBJS) $(EMUOBJ)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS) $(EMUOBJ)
 
 
 #########################################################################

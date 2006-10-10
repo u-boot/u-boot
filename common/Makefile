@@ -61,7 +61,7 @@ CPPFLAGS += -I..
 all:	$(LIB) $(AOBJS)
 
 $(LIB): $(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 $(obj)environment.o: $(src)environment.c $(obj)../tools/envcrc
 	$(CC) $(AFLAGS) -Wa,--no-warn \

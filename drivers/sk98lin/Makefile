@@ -94,7 +94,7 @@ HOST_CFLAGS += $(EXTRA_CFLAGS)
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
@@ -104,4 +104,3 @@ include $(SRCTREE)/rules.mk
 sinclude $(obj).depend
 
 #########################################################################
-

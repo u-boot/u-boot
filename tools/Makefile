@@ -108,7 +108,7 @@ endif
 include $(TOPDIR)/config.mk
 
 # now $(obj) is defined
-SRCS	:= $(addprefix $(obj),$(OBJ_LINKS:.o=.c)) $(OBJ_FILES:.o=.c) 
+SRCS	:= $(addprefix $(obj),$(OBJ_LINKS:.o=.c)) $(OBJ_FILES:.o=.c)
 BINS	:= $(addprefix $(obj),$(BIN_FILES))
 
 #

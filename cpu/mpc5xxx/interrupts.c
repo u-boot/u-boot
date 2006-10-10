@@ -32,7 +32,7 @@
  *
  * Based on (well, mostly copied from) the code from the 2.4 kernel by
  * Dale Farnsworth <dfarnsworth@mvista.com> and Kent Borg.
- * 
+ *
  * Copyright (C) 2004 Sylvain Munaut <tnt@246tNt.com>
  * Copyright (C) 2003 Montavista Software, Inc
  */

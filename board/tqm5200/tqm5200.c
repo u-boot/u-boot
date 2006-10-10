@@ -396,6 +396,7 @@ void ide_set_reset (int idereset)
  */
 int post_hotkeys_pressed(void)
 {
+#ifdef CONFIG_STK52XX
 	struct mpc5xxx_gpio *gpio;
 
 	gpio = (struct mpc5xxx_gpio*) MPC5XXX_GPIO;
@@ -414,6 +415,9 @@ int post_hotkeys_pressed(void)
 	gpio->simple_ddr &= ~(0x20000000);
 
 	return ((gpio->simple_ival & 0x20000000) ? 0 : 1);
+#else
+	return 0;
+#endif
 }
 #endif
 

@@ -138,7 +138,7 @@ all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
-		$(AR) crv $@ $(LIBOBJS)
+		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 
 $(obj)%:	$(obj)%.o $(LIB)
 		$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \

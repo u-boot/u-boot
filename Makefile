@@ -1145,6 +1145,21 @@ PPChameleonEVB_HI_33_config:	unconfig
 		}
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
+rainier_config:	unconfig
+	@echo "#define CONFIG_RAINIER" > include/config.h
+	@echo "Configuring for rainier board as subset of sequoia..."
+	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+
+rainier_nand_config:	unconfig
+	@echo "#define CONFIG_RAINIER" > include/config.h
+	@echo "Configuring for rainier board as subset of sequoia..."
+	@ln -s board/amcc/sequoia/Makefile nand_spl/Makefile
+	@echo "#define CONFIG_NAND_U_BOOT" >> include/config.h
+	@echo "Compile NAND boot image for sequoia"
+	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+	@echo "TEXT_BASE = 0x01000000" >board/amcc/sequoia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> include/config.mk
+
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
 
@@ -1319,6 +1334,9 @@ ep8248E_config	:	unconfig
 
 ep8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 ep8260
+
+ep82xxm_config:	unconfig
+	@./mkconfig $(@:_config=) ppc mpc8260 ep82xxm
 
 gw8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 gw8260

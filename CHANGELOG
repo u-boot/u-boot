@@ -2,10 +2,51 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Define IH_CPU_AVR32
+  Make it possible to generate AVR32 uImage files with mkimage and
+  make cmd_bootm recognize them.
+  Patch by Haavard Skinnemoen, 22 Sep 2006
+
+* Fix buffer overflow problem in ft_build.c
+  Patch by Fredrik Roubert, 09 Oct 2006
+
+* Make bootp implementation RFC3046 compliant
+  Patch by Joakim Larsson, 27 Jun 2006
+
+* TQM5200: perform POST memory test only on STK52xx carrier board.
+  (and then only if PSC6_3 is read as "1" when booting).
+  Patch by Martin Krause, 21 Jun 2006
+
+* Move "ar" flags to config.mk to allow for silent "make -s"
+  Based on patch by Mike Frysinger, 20 Jun 2006
+
+* Coding style cleanup
+
+* Add support for EP82xxM boards
+  Patch by Aaron Sells, 20 Jun 2006
+
+* Fix comments in include/ppc440.h
+  Patch by Martin Hicks, 16 Jun 2006
+
+* Update for CAM5200 board:
+  - Map in a additional chip selects CS4 and CS5.
+  - Modify the port configration, configure six UARTs and no PCI,
+    ATA and USB.
+  - Add custom flash driver to handle specific byte swapping
+
+* Fix TLB setup for Ocotea board
+  Patch by Stefan Roese, 30 Sep 2006
+
+* Fix reset problem in sequoia sdram init code
+  Patch by Stefan Roese, 23 Sep 2006
+
 * Disable autoboot abort for FO300 when silent mode is enabled
   (according to S1 switch setting).
 
 * Cleanup examples binaries
+
+* Add support for AMCC Rainier PPX440GRx eval board
+  Patch by Stefan Roese, 13 Sep 2006
 
 * Add NAND environment support for PPC440EPx Sequoia NAND boot config
   Patch by Stefan Roese, 12 Sep 2006

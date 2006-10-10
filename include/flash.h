@@ -209,6 +209,9 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define AMD_ID_GL064M_3 0x22012201	/* 3rd ID word for S29GL064M-R6 */
 #define AMD_ID_GL064MT_2 0x22102210	/* 2nd ID word for S29GL064M-R3 (top boot sector) */
 #define AMD_ID_GL064MT_3 0x22012201	/* 3rd ID word for S29GL064M-R3 (top boot sector) */
+#define AMD_ID_GL128N_2	0x22212221	/* 2nd ID word for S29GL128N */
+#define AMD_ID_GL128N_3	0x22012201	/* 3rd ID word for S29GL128N */
+
 
 #define AMD_ID_LV320B_2 0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
 #define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */
@@ -417,6 +420,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_FUJLV650	0x00D0		/* Fujitsu MBM 29LV650UE/651UE		*/
 #define FLASH_MT28S4M16LC 0x00E1	/* Micron MT28S4M16LC			*/
 #define FLASH_S29GL064M 0x00F0		/* Spansion S29GL064M-R6		*/
+#define FLASH_S29GL128N 0x00F1		/* Spansion S29GL128N			*/
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

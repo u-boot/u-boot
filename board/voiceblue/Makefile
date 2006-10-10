@@ -42,7 +42,7 @@ lnk = $(if $(obj),$(obj),.)
 all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 $(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
 	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
