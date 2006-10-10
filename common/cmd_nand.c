@@ -135,10 +135,15 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr, off, size;
 	char *cmd, *s;
 	nand_info_t *nand;
+	int quiet = 0;
+	const char *quiet_str = getenv("quiet");
 
 	/* at least two arguments please */
 	if (argc < 2)
 		goto usage;
+
+	if (quiet_str)
+		quiet = simple_strtoul(quiet_str, NULL, 0) != 0;
 
 	cmd = argv[1];
 
@@ -178,7 +183,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	if (strcmp(cmd, "bad") != 0 && strcmp(cmd, "erase") != 0 &&
 	    strncmp(cmd, "dump", 4) != 0 &&
-	    strncmp(cmd, "read", 4) != 0 && strncmp(cmd, "write", 5) != 0)
+	    strncmp(cmd, "read", 4) != 0 && strncmp(cmd, "write", 5) != 0 &&
+	    strcmp(cmd, "scrub") != 0 && strcmp(cmd, "markbad") != 0 &&
+	    strcmp(cmd, "biterr") != 0 &&
+	    strcmp(cmd, "lock") != 0 && strcmp(cmd, "unlock") != 0 )
 		goto usage;
 
 	/* the following commands operate on the current device */
@@ -197,14 +205,64 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 0;
 	}
 
-	if (strcmp(cmd, "erase") == 0) {
-		arg_off_size(argc - 2, argv + 2, &off, &size, nand->size);
-		if (off == 0 && size == 0)
-			return 1;
+	if (strcmp(cmd, "erase") == 0 || strcmp(cmd, "scrub") == 0) {
+		nand_erase_options_t opts;
+		int clean = argc >= 3 && !strcmp("clean", argv[2]);
+		int rest_argc = argc - 2;
+		char **rest_argv = argv + 2;
+		int scrub = !strcmp(cmd, "scrub");
 
-		printf("\nNAND erase: device %d offset 0x%x, size 0x%x ",
-		       nand_curr_device, off, size);
-		ret = nand_erase(nand, off, size);
+		if (clean) {
+			rest_argc--;
+			rest_argv++;
+		}
+
+		if (rest_argc == 0) {
+
+			printf("\nNAND %s: device %d whole chip\n",
+			       cmd,
+			       nand_curr_device);
+
+			off = size = 0;
+		} else {
+			arg_off_size(rest_argc, rest_argv, &off, &size,
+				     nand->size);
+
+			if (off == 0 && size == 0)
+				return 1;
+
+			printf("\nNAND %s: device %d offset 0x%x, size 0x%x\n",
+			       cmd, nand_curr_device, off, size);
+		}
+
+		memset(&opts, 0, sizeof(opts));
+		opts.offset = off;
+		opts.length = size;
+		opts.jffs2  = clean;
+		opts.quiet  = quiet;
+
+		if (scrub) {
+			printf("Warning: "
+			       "scrub option will erase all factory set "
+			       "bad blocks!\n"
+			       "	 "
+			       "There is no reliable way to recover them.\n"
+			       "	 "
+			       "Use this command only for testing purposes "
+			       "if you\n"
+			       "	 "
+			       "are shure of what you are doing!\n"
+			       "\nReally scrub this NAND flash? <y/N>\n"
+				);
+
+			if (getc() == 'y' && getc() == '\r') {
+				opts.scrub = 1;
+			} else {
+				printf("scrub aborted\n");
+				return -1;
+			}
+		}
+		ret = nand_erase_opts(nand, &opts);
 		printf("%s\n", ret ? "ERROR" : "OK");
 
 		return ret == 0 ? 0 : 1;
@@ -228,37 +286,153 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* read write */
 	if (strncmp(cmd, "read", 4) == 0 || strncmp(cmd, "write", 5) == 0) {
+		int read;
+
 		if (argc < 4)
 			goto usage;
-/*
-		s = strchr(cmd, '.');
-		clean = CLEAN_NONE;
-		if (s != NULL) {
-			if (strcmp(s, ".jffs2") == 0 || strcmp(s, ".e") == 0
-			    || strcmp(s, ".i"))
-				clean = CLEAN_JFFS2;
-		}
-*/
+
 		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
 
 		arg_off_size(argc - 3, argv + 3, &off, &size, nand->size);
 		if (off == 0 && size == 0)
 			return 1;
 
-		i = strncmp(cmd, "read", 4) == 0;	/* 1 = read, 0 = write */
+		read = strncmp(cmd, "read", 4) == 0; /* 1 = read, 0 = write */
 		printf("\nNAND %s: device %d offset %u, size %u ... ",
-		       i ? "read" : "write", nand_curr_device, off, size);
+		       read ? "read" : "write", nand_curr_device, off, size);
 
-		if (i)
+		s = strchr(cmd, '.');
+		if (s != NULL &&
+		    (!strcmp(s, ".jffs2") || !strcmp(s, ".e") || !strcmp(s, ".i"))) {
+			if (read) {
+				/* read */
+				nand_read_options_t opts;
+				memset(&opts, 0, sizeof(opts));
+				opts.buffer	= (u_char*) addr;
+				opts.length	= size;
+				opts.offset	= off;
+				opts.quiet      = quiet;
+				ret = nand_read_opts(nand, &opts);
+			} else {
+				/* write */
+				nand_write_options_t opts;
+				memset(&opts, 0, sizeof(opts));
+				opts.buffer	= (u_char*) addr;
+				opts.length	= size;
+				opts.offset	= off;
+				/* opts.forcejffs2 = 1; */
+				opts.pad	= 1;
+				opts.blockalign = 1;
+				opts.quiet      = quiet;
+				ret = nand_write_opts(nand, &opts);
+			}
+			printf("%s\n", ret ? "ERROR" : "OK");
+			return ret == 0 ? 0 : 1;
+		}
+
+		if (read)
 			ret = nand_read(nand, off, &size, (u_char *)addr);
 		else
 			ret = nand_write(nand, off, &size, (u_char *)addr);
 
 		printf(" %d bytes %s: %s\n", size,
-		       i ? "read" : "written", ret ? "ERROR" : "OK");
+		       read ? "read" : "written", ret ? "ERROR" : "OK");
 
 		return ret == 0 ? 0 : 1;
 	}
+
+	/* 2006-09-28 gc: implement missing commands */
+	if (strcmp(cmd, "markbad") == 0) {
+		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
+
+		int ret = nand->block_markbad(nand, addr);
+		if (ret == 0) {
+			printf("block 0x%08lx successfully marked as bad\n",
+			       (ulong) addr);
+			return 0;
+		} else {
+			printf("block 0x%08lx NOT marked as bad! ERROR %d\n",
+			       (ulong) addr, ret);
+		}
+		return 1;
+	}
+	if (strcmp(cmd, "biterr") == 0) {
+		/* todo */
+		return 1;
+	}
+
+	if (strcmp(cmd, "lock") == 0) {
+		int tight  = 0;
+		int status = 0;
+		if (argc == 3) {
+			if (!strcmp("tight", argv[2]))
+				tight = 1;
+			if (!strcmp("status", argv[2]))
+				status = 1;
+		}
+
+		if (status) {
+			ulong block_start = 0;
+			ulong off;
+			int last_status = -1;
+
+			struct nand_chip *nand_chip = nand->priv;
+			/* check the WP bit */
+			nand_chip->cmdfunc (nand, NAND_CMD_STATUS, -1, -1);
+			printf("device is %swrite protected\n",
+			       (nand_chip->read_byte(nand) & 0x80 ?
+				"NOT " : "" ) );
+
+			for (off = 0; off < nand->size; off += nand->oobblock) {
+				int s = nand_get_lock_status(nand, off);
+
+				/* print message only if status has changed
+				 * or at end of chip
+				 */
+				if (off == nand->size - nand->oobblock
+				    || (s != last_status && off != 0))	{
+
+					printf("%08x - %08x: %8d pages %s%s%s\n",
+					       block_start,
+					       off-1,
+					       (off-block_start)/nand->oobblock,
+					       ((last_status & NAND_LOCK_STATUS_TIGHT) ? "TIGHT " : ""),
+					       ((last_status & NAND_LOCK_STATUS_LOCK) ? "LOCK " : ""),
+					       ((last_status & NAND_LOCK_STATUS_UNLOCK) ? "UNLOCK " : ""));
+				}
+
+				last_status = s;
+		       }
+		} else {
+			if (!nand_lock(nand, tight)) {
+				printf ("NAND flash successfully locked\n");
+			} else {
+				printf ("Error locking NAND flash. \n");
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	if (strcmp(cmd, "unlock") == 0) {
+		if (argc == 2) {
+			off = 0;
+			size = nand->size;
+		} else {
+			arg_off_size(argc - 2, argv + 2, &off, &size,
+				     nand->size);
+		}
+
+		if (!nand_unlock(nand, off, size)) {
+			printf("NAND flash successfully unlocked\n");
+		} else {
+			printf("Error unlocking NAND flash. "
+			       "Write and erase will probably fail\n");
+			return 1;
+		}
+		return 0;
+	}
+
 usage:
 	printf("Usage:\n%s\n", cmdtp->usage);
 	return 1;
@@ -277,7 +451,9 @@ U_BOOT_CMD(nand, 5, 1, do_nand,
 	"nand dump[.oob] off - dump page\n"
 	"nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off - mark bad block at offset (UNSAFE)\n"
-	"nand biterr off - make a bit error at offset (UNSAFE)\n");
+	"nand biterr off - make a bit error at offset (UNSAFE)\n"
+	"nand lock [tight] [status] - bring nand to lock state or display locked pages\n"
+	"nand unlock [offset] [size] - unlock section\n");
 
 int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -596,7 +772,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		printf ("\nNAND %s: device %d offset %ld, size %ld ... ",
+		printf ("\nNAND %s: device %d offset %ld, size %ld ...\n",
 			(cmd & NANDRW_READ) ? "read" : "write",
 			curr_device, off, size);
 
@@ -615,7 +791,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ulong size = simple_strtoul(argv[3 + clean], NULL, 16);
 		int ret;
 
-		printf ("\nNAND erase: device %d offset %ld, size %ld ... ",
+		printf ("\nNAND erase: device %d offset %ld, size %ld ...\n",
 			curr_device, off, size);
 
 		ret = nand_legacy_erase (nand_dev_desc + curr_device,
@@ -635,7 +811,7 @@ int do_nand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	nand,	5,	1,	do_nand,
-	"nand    - NAND sub-system\n",
+	"nand    - legacy NAND sub-system\n",
 	"info  - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
 	"nand read[.jffs2[s]]  addr off size\n"
