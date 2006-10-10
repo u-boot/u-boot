@@ -1224,4 +1224,3 @@ secondary_cpu_setup:
 
 	/* Never Returns, Running in Linux Now */
 #endif
-

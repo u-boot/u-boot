@@ -177,4 +177,3 @@ law_entry:
 	stwu    r6, 0x20(r5)
 
 	blr
-
