@@ -851,7 +851,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	NetCopyIP(&bp->bp_ciaddr, &bp_offer->bp_ciaddr); /* both in network byte order */
 	NetCopyIP(&bp->bp_yiaddr, &bp_offer->bp_yiaddr);
 	NetCopyIP(&bp->bp_siaddr, &bp_offer->bp_siaddr);
-	/* 
+	/*
 	 * RFC3046 requires Relay Agents to discard packets with
 	 * nonzero and offered giaddr
 	 */
