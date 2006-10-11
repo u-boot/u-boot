@@ -341,7 +341,6 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return ret == 0 ? 0 : 1;
 	}
 
-	/* 2006-09-28 gc: implement missing commands */
 	if (strcmp(cmd, "markbad") == 0) {
 		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
 
