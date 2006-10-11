@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2004
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,12 +23,16 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:= $(BOARD).o cmd_stk52xx.o cmd_tb5200.o
+COBJS	:= $(BOARD).o cmd_stk52xx.o cmd_tb5200.o cam5200_flash.o
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
@@ -36,11 +40,14 @@ clean:
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
+cam5200_flash.o:	cam5200_flash.c
+	$(CC) $(CFLAGS) -fno-strict-aliasing -c -o $@ $<
+
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

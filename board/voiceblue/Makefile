@@ -1,4 +1,4 @@
-# (C) Copyright 2000-2002
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de
 #
 # (C) Copyright 2005
@@ -24,43 +24,51 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:= voiceblue.o
+COBJS	:= voiceblue.o
 SOBJS	:= setup.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) eeprom.c eeprom_start.S
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 LOAD_ADDR = 0x10400000
 LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
+lnk = $(if $(obj),$(obj),.)
 
-all:	$(LIB) eeprom.srec eeprom.bin
+all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-eeprom.srec:	eeprom.o eeprom_start.o
-	$(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
-		-o $(<:.o=) -e $(<:.o=) $^ \
-		-L../../examples -lstubs \
-		-L../../lib_generic -lgeneric \
+$(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
+	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
+		-o $(<:.o=) -e eeprom eeprom.o eeprom_start.o \
+		-L$(obj)../../examples -lstubs \
+		-L$(obj)../../lib_generic -lgeneric \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
-eeprom.bin:	eeprom.srec
+$(obj)eeprom.bin:	$(obj)eeprom.srec
 	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
 
 clean:
-	rm -f $(SOBJS) $(OBJS) eeprom eeprom.srec eeprom.bin
+	rm -f $(SOBJS) $(OBJS) $(obj)eeprom \
+		$(obj)eeprom.srec $(obj)eeprom.bin \
+		$(obj)eeprom.o $(obj)eeprom_start.o
+
 
 distclean:	clean
 	rm -f $(LIB) core config.tmp *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

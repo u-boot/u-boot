@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,20 +23,22 @@
 
 include $(TOPDIR)/config.mk
 
-OBJS	= $(AOBJS) $(COBJS)
+SRCS 	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
+LIB	:= $(obj)$(LIB)
 
 CPPFLAGS += -I$(TOPDIR)
 
 all:	$(LIB)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend: Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-	$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > .depend
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

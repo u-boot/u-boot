@@ -2,6 +2,173 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Several improvements to the new NAND subsystem:
+  - JFFS2 related commands implemented in mtd-utils style
+  - Support for bad blocks
+  - Bad block testing commands
+  - NAND lock commands
+  Please take a look at doc/README.nand for more details
+  Patch by Guido Classen, 10 Oct 2006
+
+* Define IH_CPU_AVR32
+  Make it possible to generate AVR32 uImage files with mkimage and
+  make cmd_bootm recognize them.
+  Patch by Haavard Skinnemoen, 22 Sep 2006
+
+* Fix buffer overflow problem in ft_build.c
+  Patch by Fredrik Roubert, 09 Oct 2006
+
+* Make bootp implementation RFC3046 compliant
+  Patch by Joakim Larsson, 27 Jun 2006
+
+* TQM5200: perform POST memory test only on STK52xx carrier board.
+  (and then only if PSC6_3 is read as "1" when booting).
+  Patch by Martin Krause, 21 Jun 2006
+
+* Move "ar" flags to config.mk to allow for silent "make -s"
+  Based on patch by Mike Frysinger, 20 Jun 2006
+
+* Coding style cleanup
+
+* Add support for EP82xxM boards
+  Patch by Aaron Sells, 20 Jun 2006
+
+* Fix comments in include/ppc440.h
+  Patch by Martin Hicks, 16 Jun 2006
+
+* Update for CAM5200 board:
+  - Map in a additional chip selects CS4 and CS5.
+  - Modify the port configration, configure six UARTs and no PCI,
+    ATA and USB.
+  - Add custom flash driver to handle specific byte swapping
+
+* Fix TLB setup for Ocotea board
+  Patch by Stefan Roese, 30 Sep 2006
+
+* Fix reset problem in sequoia sdram init code
+  Patch by Stefan Roese, 23 Sep 2006
+
+* Disable autoboot abort for FO300 when silent mode is enabled
+  (according to S1 switch setting).
+
+* Cleanup examples binaries
+
+* Add support for AMCC Rainier PPX440GRx eval board
+  Patch by Stefan Roese, 13 Sep 2006
+
+* Add NAND environment support for PPC440EPx Sequoia NAND boot config
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Update NAND boot documentation
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Fix alignment problem in "mtdparts" command
+
+* Add documentation on the latest build environment extensions to
+  the README file.
+
+* Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.
+
+* Fix LOG_DIR directory creation error.
+  Add support for automatic creation of BUILD_DIR directory.
+
+* Fix build problem cpu/ppc4xx/ndfc.c
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Fix build problem with CPCI440
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Change Yellowstone to use CFI write buffer
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Add support for AMCC Sequoia PPC440EPx eval board
+  - Add support for PPC440EPx & PPC440GRx
+  - Add support for PPC440EP(x)/GR(x) NAND controller
+    in cpu/ppc4xx directory
+  - Add NAND boot functionality for Sequoia board,
+    please see doc/README.nand-boot-ppc440 for details
+  - This Sequoia NAND image doesn't support environment
+    in NAND for now. This will be added in a short while.
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Fix mkimage -l bug with multifile images on 64bit platforms
+  Patch by David Updegraff, 06 Sep 2006
+
+* Fix build problems on sorcery board.
+
+* Fix coldfire build problems.
+  Patch by Marian Balakowicz, 01 Sep 2006
+
+* Add support for a saving build objects in a separate directory.
+  Modifications are based on the Linux kernel approach and support
+  two use cases:
+  1) Add O= to the make command line 'make O=/tmp/build all'
+  2) Set environement variable BUILD_DIR to point to the desired location
+	'export BUILD_DIR=/tmp/build'
+	'make'
+  The second approach can also be used with a MAKEALL script
+	'export BUILD_DIR=/tmp/build'
+	'./MAKEALL'
+  Command line 'O=' setting overrides the BUILD_DIR environent variable.
+  When none of the above methods is used the local build is performed
+  and the object files are placed in the source directory.
+
+* Remove the board/netstar/crcit binary from git repository.
+
+* Fix tools/updater build error.
+
+* Fix tools/easylogo build error.
+
+* Fixed problems on PRS200 board caused by adding splash screen on MCC200
+
+* Extended README entry on coding style
+
+* Added another example showing simple interrupt interception.
+
+* Added simple_strtoul(), getenv() and setenv() to the exported functions.
+  Also bumped up ABI version to reflect this change.
+
+* Added interrupt handling capabilities for mpc5xxx processors.
+  Also added Linux like BUG() macros.
+
+* Coding Style cleanup.
+  Patch by Stefano Babic, 31 Aug 2006
+
+* Add splashscreen support for MCC200 board.
+
+* Make the serial driver framework work with CONFIG_SERIAL_MULTI
+  enabled
+
+* PCIe endpoint support for AMCC Yucca 440SPe board
+  Patch by Tirumala R Marri, 26 Aug 2006
+
+* Improve DIMM detection for AMCC Yucca 440SPe board
+  Improved the memory DIMM detection for the Yucca 440SPe board for
+  the case where a memory DIMM is falsely detected as present.
+  This issue is seen on some AMCC Yucca 440SPe validation boards if
+  only one 512MB memory DIMM is installed, i.e. DIMM slot 0 is
+  populated and DIMM slot 1 is empty.  In this case, U-Boot does
+  not correctly detect that there is only one DIMM memory module
+  installed and will falsely detect two DIMM memory modules are
+  present and therefore U-Boot will not calculate the correct amount
+  of total memory and u-boot will not booting up.
+  Patch by Adam Graham, 24 Aug 2006
+
+* Fix typo.
+
+* Code cleanup
+
+* Update for MCC200 / PRS200 boards:
+  - auto-adjust console device for Linux.
+  - fix typos.
+
+* Add a fix for a buggy USB device on the FO300 board.
+
+* Updates for MCC200 / PRS200 boards:
+  - support for configurations with SDRAM or DDR memory,
+  - support for highboot and lowboot
+  - adjusting environment definitions
+
 * Add support for WTK FO300 board (TQM5200 based).
 
 * Fix TQM834x hang.

@@ -149,7 +149,7 @@ unsigned long init_sc520_dram(void)
 	/* these memory control registers are set up in the assember part,
 	 * in sc520_asm.S, during 'mem_init'.  If we muck with them here,
 	 * after we are running a stack in RAM, we have troubles.  Besides,
-	 * these refresh and delay values are better ? simply specified 
+	 * these refresh and delay values are better ? simply specified
 	 * outright in the include/configs/{cfg} file since the HW designer
 	 * simply dictates it.
 	 */

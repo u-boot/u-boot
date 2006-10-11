@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2002
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,10 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:= trab.o flash.o vfd.o cmd_trab.o memory.o tsc2000.o auto_update.o
+COBJS	:= trab.o flash.o vfd.o cmd_trab.o memory.o tsc2000.o auto_update.o
 SOBJS	:= lowlevel_init.o
+
+COBJS_FKT := trab_fkt.o rs485.o tsc2000.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(COBJS_FKT:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+OBJS_FKT := $(addprefix $(obj),$(COBJS_FKT))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
@@ -34,32 +42,32 @@ LOAD_ADDR = 0xc100000
 
 #########################################################################
 
-all:	$(LIB) trab_fkt.srec trab_fkt.bin
+all:	$(LIB) $(obj)trab_fkt.srec $(obj)trab_fkt.bin
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-trab_fkt.srec:	trab_fkt.o rs485.o tsc2000.o $(LIB)
-	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e $(<:.o=) $^ $(LIB) \
-		-L../../examples -lstubs \
-		-L../../lib_generic -lgeneric \
+$(obj)trab_fkt.srec:	$(OBJS_FKT) $(LIB)
+	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e trab_fkt $^ $(LIB) \
+		-L$(obj)../../examples -lstubs \
+		-L$(obj)../../lib_generic -lgeneric \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
-trab_fkt.bin:	trab_fkt.srec
+$(obj)trab_fkt.bin:	$(obj)trab_fkt.srec
 	$(OBJCOPY) -I srec -O binary $< $@
 
 clean:
-	rm -f $(SOBJS) $(OBJS)
+	rm -f $(SOBJS) $(OBJS) $(OBJS_FKT)
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

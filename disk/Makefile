@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,20 +25,23 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DET_DEBUG -DDEBUG
 
-LIB	= libdisk.a
+LIB	= $(obj)libdisk.a
 
-OBJS	= part.o part_mac.o part_dos.o part_iso.o part_amiga.o
+COBJS	= part.o part_mac.o part_dos.o part_iso.o part_amiga.o
+
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

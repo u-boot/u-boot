@@ -76,7 +76,7 @@
 #define m16_swap(x) swap_16(x)
 #define m32_swap(x) swap_32(x)
 
-#ifdef CONFIG_440EP
+#if defined(CONFIG_440EP) || defined(CONFIG_440EPX)
 #define ohci_cpu_to_le16(x) (x)
 #define ohci_cpu_to_le32(x) (x)
 #else
@@ -1599,7 +1599,11 @@ int usb_lowlevel_init(void)
 	gohci.disabled = 1;
 	gohci.sleeping = 0;
 	gohci.irq = -1;
-	gohci.regs = (struct ohci_regs *)(CFG_PERIPHERAL_BASE | 0x1000);
+#if defined(CONFIG_440EP)
+ 	gohci.regs = (struct ohci_regs *)(CFG_PERIPHERAL_BASE | 0x1000);
+#elif defined(CONFIG_440EPX)
+	gohci.regs = (struct ohci_regs *)(CFG_USB_HOST);
+#endif
 
 	gohci.flags = 0;
 	gohci.slot_name = "ppc440";

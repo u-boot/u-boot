@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2001
 # Erik Theisen, Wave 7 Optics, etheisen@mindspring.com.
 #
@@ -25,20 +28,23 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DDEBUG
 
-LIB	= libdtt.a
+LIB	= $(obj)libdtt.a
 
-OBJS	= lm75.o ds1621.o adm1021.o
+COBJS	= lm75.o ds1621.o adm1021.o
+
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

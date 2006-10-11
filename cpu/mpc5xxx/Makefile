@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,23 +23,27 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-ASOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
-OBJS	= i2c.o traps.o cpu.o cpu_init.o fec.o ide.o interrupts.o \
+SOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
+COBJS	= i2c.o traps.o cpu.o cpu_init.o fec.o ide.o interrupts.o \
 	  loadtask.o pci_mpc5200.o serial.o speed.o usb_ohci.o
 
-all:	.depend $(START) $(ASOBJS) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
+
+all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

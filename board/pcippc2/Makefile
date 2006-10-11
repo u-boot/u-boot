@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,23 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o cpc710_pci.o flash.o sconsole.o \
 	  fpga_serial.o pcippc2_fpga.o cpc710_init_ram.o i2c.o
 
-AOBJS	=
+SOBJS	=
 
-OBJS	= $(COBJS) $(AOBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
-.depend: Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-	$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,22 +23,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(ARCH).a
+LIB	= $(obj)lib$(ARCH).a
 
-AOBJS	=
+SOBJS	=
 
 COBJS	= board.o time.o mips_linux.o
 
-OBJS	= $(AOBJS) $(COBJS)
+SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

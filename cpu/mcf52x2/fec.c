@@ -267,6 +267,7 @@ int eth_init (bd_t * bd)
 	fecp->fec_hash_table_high = 0;
 	fecp->fec_hash_table_low = 0;
 #endif
+#endif
 
 	/* Set maximum receive buffer size.
 	 */

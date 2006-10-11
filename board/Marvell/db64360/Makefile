@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2001
 # Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
 #
@@ -22,23 +25,30 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 SOBJS	= ../common/misc.o
 
-OBJS	= $(BOARD).o ../common/flash.o ../common/serial.o ../common/memory.o pci.o \
+COBJS	= $(BOARD).o ../common/flash.o ../common/serial.o ../common/memory.o pci.o \
 	  mv_eth.o ../common/ns16550.o mpsc.o ../common/i2c.o \
 	  sdram_init.o ../common/intel_flash.o
 
-$(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

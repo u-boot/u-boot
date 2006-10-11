@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2005 blackfin.uclinux.org
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -27,21 +27,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(ARCH).a
+LIB	= $(obj)lib$(ARCH).a
 
-AOBJS	=
+SOBJS	=
 
 COBJS	= board.o bf533_linux.o bf533_string.o cache.o muldi3.o
-OBJS	= $(AOBJS) $(COBJS)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

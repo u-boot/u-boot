@@ -94,6 +94,7 @@ table_entry_t arch_name[] = {
     {	IH_CPU_SPARC,		"sparc",	"SPARC",	},
     {	IH_CPU_SPARC64,		"sparc64",	"SPARC 64 Bit",	},
     {	IH_CPU_BLACKFIN,	"blackfin",	"Blackfin",	},
+    {	IH_CPU_AVR32,		"avr32",	"AVR32",	},
     {	-1,			"",		"",		},
 };
 
@@ -633,7 +634,7 @@ print_header (image_header_t *hdr)
 	if (hdr->ih_type == IH_TYPE_MULTI || hdr->ih_type == IH_TYPE_SCRIPT) {
 		int i, ptrs;
 		uint32_t pos;
-		unsigned long *len_ptr = (unsigned long *) (
+		uint32_t *len_ptr = (uint32_t *) (
 					(unsigned long)hdr + sizeof(image_header_t)
 				);
 

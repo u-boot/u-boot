@@ -3,7 +3,7 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_440EP
+#if (defined(CONFIG_440EP) || defined(CONFIG_440EPX)) && (CONFIG_COMMANDS & CFG_CMD_USB)
 
 #include <usb.h>
 #include "usbdev.h"
@@ -186,6 +186,21 @@ int usbInt(void)
 	return 0;
 }
 
+#if defined(CONFIG_440EPX)
+void usb_dev_init()
+{
+	printf("USB 2.0 Device init\n");
+
+	/*usb dev init */
+	*(unsigned char *)USB2D0_POWER_8 = 0xa1;	/* 2.0 */
+
+	/*enable interrupts */
+	*(unsigned char *)USB2D0_INTRUSBE_8 = 0x0f;
+
+	irq_install_handler(VECNUM_HSB2D, (interrupt_handler_t *) usbInt,
+			    NULL);
+}
+#else
 void usb_dev_init()
 {
 #ifdef USB_2_0_DEVICE
@@ -210,5 +225,6 @@ void usb_dev_init()
 	irq_install_handler(VECNUM_USBDEV, (interrupt_handler_t *) usbInt,
 			    NULL);
 }
+#endif
 
-#endif				/*CONFIG_440EP */
+#endif /* CONFIG_440EP || CONFIG_440EPX */

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,9 +25,9 @@ include $(TOPDIR)/config.mk
 
 # CFLAGS += -DET_DEBUG -DDEBUG
 
-LIB	= libdrivers.a
+LIB	= $(obj)libdrivers.a
 
-OBJS	= 3c589.o 5701rls.o ali512x.o \
+COBJS	= 3c589.o 5701rls.o ali512x.o \
 	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o dm9000x.o \
 	  e1000.o eepro100.o \
@@ -52,16 +52,19 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  pxa_pcmcia.o mpc8xx_pcmcia.o tqm8xx_pcmcia.o	\
 	  rpx_pcmcia.o
 
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
 all:	$(LIB)
 
-$(LIB): $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

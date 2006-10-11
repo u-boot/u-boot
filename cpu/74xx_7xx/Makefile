@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2001
 # Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
 #
@@ -23,22 +26,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-ASOBJS	= cache.o kgdb.o io.o
-OBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o
+SOBJS	= cache.o kgdb.o io.o
+COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o
 
-all:	.depend $(START) $(ASOBJS) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
+
+all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(ASOBJS) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(ASOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

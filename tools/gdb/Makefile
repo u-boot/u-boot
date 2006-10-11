@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2000
 # Murray Jensen <Murray.Jensen@csiro.au>
 #
@@ -25,7 +28,11 @@ include $(TOPDIR)/config.mk
 
 BINS	= gdbsend gdbcont
 
-OBJS	= gdbsend.o gdbcont.o error.o remote.o serial.o
+COBJS	= gdbsend.o gdbcont.o error.o remote.o serial.o
+
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+BINS	:= $(addprefix $(obj),$(BINS))
 
 #
 # Use native tools and options
@@ -44,26 +51,26 @@ all:
 
 else	# ! CYGWIN
 
-all:	$(BINS)
+all:	$(obj).depend $(BINS)
 
-gdbsend:	gdbsend.o error.o remote.o serial.o
+$(obj)gdbsend:	$(obj)gdbsend.o $(obj)error.o $(obj)remote.o $(obj)serial.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 
-gdbcont:	gdbcont.o error.o remote.o serial.o
+$(obj)gdbcont:	$(obj)gdbcont.o $(obj)error.o $(obj)remote.o $(obj)serial.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 
 clean:
 	rm -f $(OBJS)
 
 distclean:	clean
-	rm -f $(BINS) core *.bak .depend
+	rm -f $(BINS) $(obj)core $(obj)*.bak $(obj).depend
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) -I../include $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################
 

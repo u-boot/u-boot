@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,35 +23,41 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o flash.o
+COBJS	= $(BOARD).o flash.o
 SOBJS	= init.o
+
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 # HACK: depend needs bootscript.c, which needs tools/mkimage, which is not
 # built in the depend stage.  So... put bootscript.o here, not in OBJS
-$(LIB):	$(OBJS) $(SOBJS) bootscript.o
-	$(AR) crv $@ $^
+$(LIB):	$(OBJS) $(SOBJS) $(obj)bootscript.o
+	$(AR) $(ARFLAGS) $@ $^
 
 clean:
-	rm -f $(SOBJS) $(OBJS) bootscript.c bootscript.image bootscript.o
+	rm -f $(SOBJS) $(OBJS) $(obj)bootscript.c \
+		$(obj)bootscript.image $(obj)bootscript.o
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
-$(BOARD).o : $(BOARD).c bootscript.o
+$(obj)$(BOARD).o : $(src)$(BOARD).c $(obj)bootscript.o
 
-bootscript.c: bootscript.image
+$(obj)bootscript.c: $(obj)bootscript.image
 	od -t x1 -v -A x $^ | awk -f x2c.awk > $@
 
-bootscript.image: bootscript.hush Makefile
-	-$(TOPDIR)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d  bootscript.hush $@
+$(obj)bootscript.image: $(src)bootscript.hush $(src)Makefile
+	-$(OBJTREE)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d $(src)bootscript.hush $@
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2001-2004
+# (C) Copyright 2001-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,24 +25,27 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DDEBUG
 
-LIB	= librtc.a
+LIB	= $(obj)librtc.a
 
-OBJS	= date.o   \
+COBJS	= date.o   \
 	  bf533_rtc.o ds12887.o ds1302.o ds1306.o ds1307.o \
 	  ds1337.o ds1374.o ds1556.o ds164x.o ds174x.o \
 	  m41t11.o max6900.o m48t35ax.o mc146818.o mk48t59.o \
 	  mpc5xxx.o mpc8xx.o pcf8563.o s3c24x0_rtc.o rs5c372.o
 
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
 all:	$(LIB)
 
-$(LIB):	$(START) $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

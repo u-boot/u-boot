@@ -1,7 +1,8 @@
 #ifndef _440_i2c_h_
 #define _440_i2c_h_
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define    I2C_BASE_ADDR (CFG_PERIPHERAL_BASE + 0x00000700)
 #else
 #define    I2C_BASE_ADDR (CFG_PERIPHERAL_BASE + 0x00000400)

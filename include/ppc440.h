@@ -82,7 +82,10 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -151,7 +154,18 @@
 #define sdr_ecid1	0x0081
 #define sdr_ecid2	0x0082
 #define sdr_jtag	0x00c0
+#if !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
 #define sdr_ddrdl	0x00e0
+#else
+#define sdr_cfg		0x00e0
+#define SDR_CFG_LT2_MASK          0x01000000 /* Leakage test 2*/
+#define SDR_CFG_64_32BITS_MASK    0x01000000 /* Switch DDR 64 bits or 32 bits */
+#define SDR_CFG_32BITS            0x00000000  /* 32 bits */
+#define SDR_CFG_64BITS            0x01000000  /* 64 bits */
+#define SDR_CFG_MC_V2518_MASK     0x02000000 /* Low VDD2518 (2.5 or 1.8V) */
+#define SDR_CFG_MC_V25            0x00000000  /* 2.5 V */
+#define SDR_CFG_MC_V18            0x02000000  /* 1.8 V */
+#endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
 #define sdr_ebc		0x0100
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
@@ -179,6 +193,54 @@
 #define sdr_pfc1	0x4101	/* Pin Function 1 */
 #define sdr_plbtr	0x4200
 #define sdr_mfr		0x4300	/* SDR0_MFR reg */
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) /* test-only!!!! */
+#define DDR0_00	0x00
+#define DDR0_01	0x01
+#define DDR0_02	0x02
+#define DDR0_03	0x03
+#define DDR0_04	0x04
+#define DDR0_05	0x05
+#define DDR0_06	0x06
+#define DDR0_07	0x07
+#define DDR0_08	0x08
+#define DDR0_09	0x09
+#define DDR0_10	0x0A
+#define DDR0_11	0x0B
+#define DDR0_12	0x0C
+#define DDR0_13	0x0D
+#define DDR0_14	0x0E
+#define DDR0_15	0x0F
+#define DDR0_16	0x10
+#define DDR0_17	0x11
+#define DDR0_18	0x12
+#define DDR0_19	0x13
+#define DDR0_20	0x14
+#define DDR0_21	0x15
+#define DDR0_22	0x16
+#define DDR0_23	0x17
+#define DDR0_24	0x18
+#define DDR0_25	0x19
+#define DDR0_26	0x1A
+#define DDR0_27	0x1B
+#define DDR0_28	0x1C
+#define DDR0_29	0x1D
+#define DDR0_30	0x1E
+#define DDR0_31	0x1F
+#define DDR0_32	0x20
+#define DDR0_33	0x21
+#define DDR0_34	0x22
+#define DDR0_35	0x23
+#define DDR0_36	0x24
+#define DDR0_37	0x25
+#define DDR0_38	0x26
+#define DDR0_39	0x27
+#define DDR0_40	0x28
+#define DDR0_41	0x29
+#define DDR0_42	0x2A
+#define DDR0_43	0x2B
+#define DDR0_44	0x2C
+#endif /*CONFIG_440EPX*/
 
 /*-----------------------------------------------------------------------------
  | SDRAM Controller
@@ -787,7 +849,8 @@
 #define xbcfg		0x23	/* external bus configuration reg	*/
 #define xbcid		0x24	/* external bus core id reg		*/
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* PLB4 to PLB3 Bridge OUT */
 #define P4P3_DCR_BASE           0x020
@@ -877,6 +940,7 @@
 #define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
 #define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
 
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 /* Pin Function Control Register 1 */
 #define SDR0_PFC1                    0x4101
 #define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
@@ -917,6 +981,178 @@
 #define   SDR0_USB0_LEEN_MASK         0x00000001    /* Little Endian selection */
 #define   SDR0_USB0_LEEN_DISABLE      0x00000000      /* Little Endian Disable */
 #define   SDR0_USB0_LEEN_ENABLE       0x00000001      /* Little Endian Enable */
+
+/* Miscealleneaous Function Reg. */
+#define SDR0_MFR                     0x4300
+#define   SDR0_MFR_ETH0_CLK_SEL_MASK   0x08000000   /* Ethernet0 Clock Select */
+#define   SDR0_MFR_ETH0_CLK_SEL_EXT    0x00000000
+#define   SDR0_MFR_ETH1_CLK_SEL_MASK   0x04000000   /* Ethernet1 Clock Select */
+#define   SDR0_MFR_ETH1_CLK_SEL_EXT    0x00000000
+#define   SDR0_MFR_ZMII_MODE_MASK      0x03000000   /* ZMII Mode Mask */
+#define   SDR0_MFR_ZMII_MODE_MII       0x00000000     /* ZMII Mode MII */
+#define   SDR0_MFR_ZMII_MODE_SMII      0x01000000     /* ZMII Mode SMII */
+#define   SDR0_MFR_ZMII_MODE_RMII_10M  0x02000000     /* ZMII Mode RMII - 10 Mbs */
+#define   SDR0_MFR_ZMII_MODE_RMII_100M 0x03000000     /* ZMII Mode RMII - 100 Mbs */
+#define   SDR0_MFR_ZMII_MODE_BIT0      0x02000000     /* ZMII Mode Bit0 */
+#define   SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
+#define   SDR0_MFR_ZM_ENCODE(n)        ((((unsigned long)(n))&0x3)<<24)
+#define   SDR0_MFR_ZM_DECODE(n)        ((((unsigned long)(n))<<24)&0x3)
+
+#define   SDR0_MFR_ERRATA3_EN0         0x00800000
+#define   SDR0_MFR_ERRATA3_EN1         0x00400000
+#define   SDR0_MFR_PKT_REJ_MASK        0x00180000   /* Pkt Rej. Enable Mask */
+#define   SDR0_MFR_PKT_REJ_EN          0x00180000   /* Pkt Rej. Enable on both EMAC3 0-1 */
+#define   SDR0_MFR_PKT_REJ_EN0         0x00100000   /* Pkt Rej. Enable on EMAC3(0) */
+#define   SDR0_MFR_PKT_REJ_EN1         0x00080000   /* Pkt Rej. Enable on EMAC3(1) */
+#define   SDR0_MFR_PKT_REJ_POL         0x00200000   /* Packet Reject Polarity */
+
+#endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR_USB2D0CR                 0x0320
+#define   SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK   0x00000004    /* USB 2.0 Device/EBC Master Selection */
+#define   SDR0_USB2D0CR_USB2DEV_SELECTION      0x00000004    /* USB 2.0 Device Selection */
+#define   SDR0_USB2D0CR_EBC_SELECTION          0x00000000    /* EBC Selection */
+
+#define   SDR0_USB2D0CR_USB_DEV_INT_SEL_MASK   0x00000002    /* USB Device Interface Selection */
+#define   SDR0_USB2D0CR_USB20D_DEVSEL          0x00000000      /* USB2.0 Device Selected */
+#define   SDR0_USB2D0CR_USB11D_DEVSEL          0x00000002      /* USB1.1 Device Selected */
+
+#define   SDR0_USB2D0CR_LEEN_MASK              0x00000001    /* Little Endian selection */
+#define   SDR0_USB2D0CR_LEEN_DISABLE           0x00000000      /* Little Endian Disable */
+#define   SDR0_USB2D0CR_LEEN_ENABLE            0x00000001      /* Little Endian Enable */
+
+/* USB2 Host Control Register */
+#define SDR0_USB2H0CR                0x0340
+#define   SDR0_USB2H0CR_WDINT_MASK             0x00000001 /* Host UTMI Word Interface */
+#define   SDR0_USB2H0CR_WDINT_8BIT_60MHZ       0x00000000  /* 8-bit/60MHz */
+#define   SDR0_USB2H0CR_WDINT_16BIT_30MHZ      0x00000001  /* 16-bit/30MHz */
+#define   SDR0_USB2H0CR_EFLADJ_MASK            0x0000007e /* EHCI Frame Length Adjustment */
+
+/* Pin Function Control Register 1 */
+#define SDR0_PFC1                    0x4101
+#define   SDR0_PFC1_U1ME_MASK                  0x02000000    /* UART1 Mode Enable */
+#define   SDR0_PFC1_U1ME_DSR_DTR               0x00000000      /* UART1 in DSR/DTR Mode */
+#define   SDR0_PFC1_U1ME_CTS_RTS               0x02000000      /* UART1 in CTS/RTS Mode */
+
+#define   SDR0_PFC1_SELECT_MASK                0x01C00000 /* Ethernet Pin Select EMAC 0 */
+#define   SDR0_PFC1_SELECT_CONFIG_1_1          0x00C00000   /* 1xMII   using RGMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_1_2          0x00000000   /* 1xMII   using  ZMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_2            0x00C00000   /* 1xGMII  using RGMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_3            0x01000000   /* 1xTBI   using RGMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_4            0x01400000   /* 2xRGMII using RGMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_5            0x01800000   /* 2xRTBI  using RGMII bridge */
+#define   SDR0_PFC1_SELECT_CONFIG_6            0x00800000   /* 2xSMII  using  ZMII bridge */
+
+#define   SDR0_PFC1_U0ME_MASK                  0x00080000    /* UART0 Mode Enable */
+#define   SDR0_PFC1_U0ME_DSR_DTR               0x00000000      /* UART0 in DSR/DTR Mode */
+#define   SDR0_PFC1_U0ME_CTS_RTS               0x00080000      /* UART0 in CTS/RTS Mode */
+#define   SDR0_PFC1_U0IM_MASK                  0x00040000    /* UART0 Interface Mode */
+#define   SDR0_PFC1_U0IM_8PINS                 0x00000000      /* UART0 Interface Mode 8 pins */
+#define   SDR0_PFC1_U0IM_4PINS                 0x00040000      /* UART0 Interface Mode 4 pins */
+#define   SDR0_PFC1_SIS_MASK                   0x00020000    /* SCP or IIC1 Selection */
+#define   SDR0_PFC1_SIS_SCP_SEL                0x00000000      /* SCP Selected */
+#define   SDR0_PFC1_SIS_IIC1_SEL               0x00020000      /* IIC1 Selected */
+#define   SDR0_PFC1_UES_MASK                   0x00010000    /* USB2D_RX_Active / EBC_Hold Req Selection */
+#define   SDR0_PFC1_UES_USB2D_SEL              0x00000000      /* USB2D_RX_Active Selected */
+#define   SDR0_PFC1_UES_EBCHR_SEL              0x00010000      /* EBC_Hold Req Selected */
+#define   SDR0_PFC1_DIS_MASK                   0x00008000    /* DMA_Req(1) / UIC_IRQ(5) Selection */
+#define   SDR0_PFC1_DIS_DMAR_SEL               0x00000000      /* DMA_Req(1) Selected */
+#define   SDR0_PFC1_DIS_UICIRQ5_SEL            0x00008000      /* UIC_IRQ(5) Selected */
+#define   SDR0_PFC1_ERE_MASK                   0x00004000    /* EBC Mast.Ext.Req.En./GPIO0(27) Selection */
+#define   SDR0_PFC1_ERE_EXTR_SEL               0x00000000      /* EBC Mast.Ext.Req.En. Selected */
+#define   SDR0_PFC1_ERE_GPIO0_27_SEL           0x00004000      /* GPIO0(27) Selected */
+#define   SDR0_PFC1_UPR_MASK                   0x00002000    /* USB2 Device Packet Reject Selection */
+#define   SDR0_PFC1_UPR_DISABLE                0x00000000      /* USB2 Device Packet Reject Disable */
+#define   SDR0_PFC1_UPR_ENABLE                 0x00002000      /* USB2 Device Packet Reject Enable */
+
+#define   SDR0_PFC1_PLB_PME_MASK               0x00001000    /* PLB3/PLB4 Perf. Monitor En. Selection */
+#define   SDR0_PFC1_PLB_PME_PLB3_SEL           0x00000000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_PLB_PME_PLB4_SEL           0x00001000      /* PLB3 Performance Monitor Enable */
+#define   SDR0_PFC1_GFGGI_MASK                 0x0000000F    /* GPT Frequency Generation Gated In */
+
+/* Ethernet PLL Configuration Register */
+#define SDR0_PFC2                    0x4102
+#define   SDR0_PFC2_TUNE_MASK                  0x01FF8000  /* Loop stability tuning bits */
+#define   SDR0_PFC2_MULTI_MASK                 0x00007C00  /* Frequency multiplication selector */
+#define   SDR0_PFC2_RANGEB_MASK                0x00000380  /* PLLOUTB/C frequency selector */
+#define   SDR0_PFC2_RANGEA_MASK                0x00000071  /* PLLOUTA frequency selector */
+
+#define   SDR0_PFC2_SELECT_MASK                0xE0000000  /* Ethernet Pin select EMAC1 */
+#define   SDR0_PFC2_SELECT_CONFIG_1_1          0x60000000   /* 1xMII   using RGMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_1_2          0x00000000   /* 1xMII   using  ZMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_2            0x60000000   /* 1xGMII  using RGMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_3            0x80000000   /* 1xTBI   using RGMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_4            0xA0000000   /* 2xRGMII using RGMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_5            0xC0000000   /* 2xRTBI  using RGMII bridge */
+#define   SDR0_PFC2_SELECT_CONFIG_6            0x40000000   /* 2xSMII  using  ZMII bridge */
+
+/* USB2PHY0 Control Register */
+#define SDR0_USB2PHY0CR               0x4103
+#define   SDR0_USB2PHY0CR_UTMICN_MASK          0x00100000 /*  PHY UTMI interface connection */
+#define   SDR0_USB2PHY0CR_UTMICN_DEV           0x00000000  /* Device support */
+#define   SDR0_USB2PHY0CR_UTMICN_HOST          0x00100000  /* Host support */
+
+#define   SDR0_USB2PHY0CR_DWNSTR_MASK          0x00400000 /* Select downstream port mode */
+#define   SDR0_USB2PHY0CR_DWNSTR_DEV           0x00000000  /* Device */
+#define   SDR0_USB2PHY0CR_DWNSTR_HOST          0x00400000  /* Host   */
+
+#define   SDR0_USB2PHY0CR_DVBUS_MASK           0x00800000 /* VBus detect (Device mode only)  */
+#define   SDR0_USB2PHY0CR_DVBUS_PURDIS         0x00000000  /* Pull-up resistance on D+ is disabled */
+#define   SDR0_USB2PHY0CR_DVBUS_PUREN          0x00800000  /* Pull-up resistance on D+ is enabled */
+
+#define   SDR0_USB2PHY0CR_WDINT_MASK           0x01000000 /* PHY UTMI data width and clock select  */
+#define   SDR0_USB2PHY0CR_WDINT_8BIT_60MHZ     0x00000000  /* 8-bit data/60MHz */
+#define   SDR0_USB2PHY0CR_WDINT_16BIT_30MHZ    0x01000000  /* 16-bit data/30MHz */
+
+#define   SDR0_USB2PHY0CR_LOOPEN_MASK          0x02000000 /* Loop back test enable  */
+#define   SDR0_USB2PHY0CR_LOOP_ENABLE          0x00000000  /* Loop back disabled */
+#define   SDR0_USB2PHY0CR_LOOP_DISABLE         0x02000000  /* Loop back enabled (only test purposes) */
+
+#define   SDR0_USB2PHY0CR_XOON_MASK            0x04000000 /* Force XO block on during a suspend  */
+#define   SDR0_USB2PHY0CR_XO_ON                0x00000000  /* PHY XO block is powered-on */
+#define   SDR0_USB2PHY0CR_XO_OFF               0x04000000  /* PHY XO block is powered-off when all ports are suspended */
+
+#define   SDR0_USB2PHY0CR_PWRSAV_MASK          0x08000000 /* Select PHY power-save mode  */
+#define   SDR0_USB2PHY0CR_PWRSAV_OFF           0x00000000  /* Non-power-save mode */
+#define   SDR0_USB2PHY0CR_PWRSAV_ON            0x08000000  /* Power-save mode. Valid only for full-speed operation */
+
+#define   SDR0_USB2PHY0CR_XOREF_MASK           0x10000000 /* Select reference clock source  */
+#define   SDR0_USB2PHY0CR_XOREF_INTERNAL       0x00000000  /* PHY PLL uses chip internal 48M clock as a reference */
+#define   SDR0_USB2PHY0CR_XOREF_XO             0x10000000  /* PHY PLL uses internal XO block output as a reference */
+
+#define   SDR0_USB2PHY0CR_XOCLK_MASK           0x20000000 /* Select clock for XO block  */
+#define   SDR0_USB2PHY0CR_XOCLK_EXTERNAL       0x00000000  /* PHY macro used an external clock */
+#define   SDR0_USB2PHY0CR_XOCLK_CRYSTAL        0x20000000  /* PHY macro uses the clock from a crystal */
+
+#define   SDR0_USB2PHY0CR_CLKSEL_MASK          0xc0000000 /* Select ref clk freq */
+#define   SDR0_USB2PHY0CR_CLKSEL_12MHZ         0x00000000 /* Select ref clk freq = 12 MHz*/
+#define   SDR0_USB2PHY0CR_CLKSEL_48MHZ         0x40000000 /* Select ref clk freq = 48 MHz*/
+#define   SDR0_USB2PHY0CR_CLKSEL_24MHZ         0x80000000 /* Select ref clk freq = 24 MHz*/
+
+/* Miscealleneaous Function Reg. */
+#define SDR0_MFR                     0x4300
+#define   SDR0_MFR_ETH0_CLK_SEL_MASK   0x08000000   /* Ethernet0 Clock Select */
+#define   SDR0_MFR_ETH0_CLK_SEL_EXT    0x00000000
+#define   SDR0_MFR_ETH1_CLK_SEL_MASK   0x04000000   /* Ethernet1 Clock Select */
+#define   SDR0_MFR_ETH1_CLK_SEL_EXT    0x00000000
+#define   SDR0_MFR_ZMII_MODE_MASK      0x03000000   /* ZMII Mode Mask */
+#define   SDR0_MFR_ZMII_MODE_MII       0x00000000     /* ZMII Mode MII */
+#define   SDR0_MFR_ZMII_MODE_SMII      0x01000000     /* ZMII Mode SMII */
+#define   SDR0_MFR_ZMII_MODE_BIT0      0x02000000     /* ZMII Mode Bit0 */
+#define   SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
+#define   SDR0_MFR_ZM_ENCODE(n)        ((((unsigned long)(n))&0x3)<<24)
+#define   SDR0_MFR_ZM_DECODE(n)        ((((unsigned long)(n))<<24)&0x3)
+
+#define   SDR0_MFR_ERRATA3_EN0         0x00800000
+#define   SDR0_MFR_ERRATA3_EN1         0x00400000
+#define   SDR0_MFR_PKT_REJ_MASK        0x00180000   /* Pkt Rej. Enable Mask */
+#define   SDR0_MFR_PKT_REJ_EN          0x00180000   /* Pkt Rej. Enable on both EMAC3 0-1 */
+#define   SDR0_MFR_PKT_REJ_EN0         0x00100000   /* Pkt Rej. Enable on EMAC3(0) */
+#define   SDR0_MFR_PKT_REJ_EN1         0x00080000   /* Pkt Rej. Enable on EMAC3(1) */
+#define   SDR0_MFR_PKT_REJ_POL         0x00200000   /* Packet Reject Polarity */
+
+#endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
 
 /* CUST0 Customer Configuration Register0 */
 #define SDR0_CUST0                   0x4000
@@ -1007,27 +1243,18 @@
 #define   SDR0_PFC1_PLB_PME_PLB4_SEL  0x00001000      /* PLB3 Performance Monitor Enable */
 #define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
 
-/* Miscealleneaous Function Reg. */
-#define SDR0_MFR                     0x4300
-#define   SDR0_MFR_ETH0_CLK_SEL        0x08000000   /* Ethernet0 Clock Select */
-#define   SDR0_MFR_ETH1_CLK_SEL        0x04000000   /* Ethernet1 Clock Select */
-#define   SDR0_MFR_ZMII_MODE_MASK      0x03000000   /* ZMII Mode Mask */
-#define   SDR0_MFR_ZMII_MODE_MII       0x00000000     /* ZMII Mode MII */
-#define   SDR0_MFR_ZMII_MODE_SMII      0x01000000     /* ZMII Mode SMII */
-#define   SDR0_MFR_ZMII_MODE_RMII_10M  0x02000000     /* ZMII Mode RMII - 10 Mbs */
-#define   SDR0_MFR_ZMII_MODE_RMII_100M 0x03000000     /* ZMII Mode RMII - 100 Mbs */
-#define   SDR0_MFR_ZMII_MODE_BIT0      0x02000000     /* ZMII Mode Bit0 */
-#define   SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
-#define   SDR0_MFR_ZM_ENCODE(n)        ((((unsigned long)(n))&0x3)<<24)
-#define   SDR0_MFR_ZM_DECODE(n)        ((((unsigned long)(n))<<24)&0x3)
-
-#define   SDR0_MFR_ERRATA3_EN0         0x00800000
-#define   SDR0_MFR_ERRATA3_EN1         0x00400000
-#define   SDR0_MFR_PKT_REJ_MASK        0x00300000   /* Pkt Rej. Enable Mask */
-#define   SDR0_MFR_PKT_REJ_EN          0x00300000   /* Pkt Rej. Enable on both EMAC3 0-1 */
-#define   SDR0_MFR_PKT_REJ_EN0         0x00200000   /* Pkt Rej. Enable on EMAC3(0) */
-#define   SDR0_MFR_PKT_REJ_EN1         0x00100000   /* Pkt Rej. Enable on EMAC3(1) */
-#define   SDR0_MFR_PKT_REJ_POL         0x00080000   /* Packet Reject Polarity */
+/*-----------------------------------------------------------------------------
+ | Internal SRAM
+ +----------------------------------------------------------------------------*/
+#define ISRAM0_DCR_BASE 0x380
+#define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
+#define isram0_bear	(ISRAM0_DCR_BASE+0x04)	/* SRAM bus error addr reg */
+#define isram0_besr0	(ISRAM0_DCR_BASE+0x05)	/* SRAM bus error status reg 0 */
+#define isram0_besr1	(ISRAM0_DCR_BASE+0x06)	/* SRAM bus error status reg 1 */
+#define isram0_pmeg	(ISRAM0_DCR_BASE+0x07)	/* SRAM power management */
+#define isram0_cid	(ISRAM0_DCR_BASE+0x08)	/* SRAM bus core id reg */
+#define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
+#define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
 
 #else
 
@@ -1121,7 +1348,7 @@
 #define uic1vr	(UIC1_DCR_BASE+0x7)   /* UIC1 vector			   */
 #define uic1vcr (UIC1_DCR_BASE+0x8)   /* UIC1 vector configuration	   */
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define UIC2_DCR_BASE 0xe0
 #define uic2sr	(UIC0_DCR_BASE+0x0)   /* UIC2 status-Read Clear		*/
 #define uic2srs	(UIC0_DCR_BASE+0x1)   /* UIC2 status-Read Set */
@@ -1343,8 +1570,8 @@
 #define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
 #define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
 #if defined(CONFIG_440GX)
-#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 0 Channel table pointer reg   */
-#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 1 Channel table pointer reg   */
+#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
+#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
 #endif /* CONFIG_440GX */
 #define malrcbs0    (MAL_DCR_BASE+0x60) /* RX 0 Channel buffer size reg	    */
 #define malrcbs1    (MAL_DCR_BASE+0x61) /* RX 1 Channel buffer size reg	    */
@@ -1423,6 +1650,46 @@
 #define UIC_EIR6	0x00000004	/* External interrupt 6		    */
 #define UIC_UIC1NC	0x00000002	/* UIC1 non-critical interrupt	    */
 #define UIC_UIC1C	0x00000001	/* UIC1 critical interrupt	    */
+
+#elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+
+#define UIC_U0        0x80000000  /* UART 0                             */
+#define UIC_U1        0x40000000  /* UART 1                             */
+#define UIC_IIC0      0x20000000  /* IIC                                */
+#define UIC_KRD       0x10000000  /* Kasumi Ready for data              */
+#define UIC_KDA       0x08000000  /* Kasumi Data Available              */
+#define UIC_PCRW      0x04000000  /* PCI command register write         */
+#define UIC_PPM       0x02000000  /* PCI power management               */
+#define UIC_IIC1      0x01000000  /* IIC                                */
+#define UIC_SPI       0x00800000  /* SPI                                */
+#define UIC_EPCISER   0x00400000  /* External PCI SERR                  */
+#define UIC_MTE       0x00200000  /* MAL TXEOB                          */
+#define UIC_MRE       0x00100000  /* MAL RXEOB                          */
+#define UIC_D0        0x00080000  /* DMA channel 0                      */
+#define UIC_D1        0x00040000  /* DMA channel 1                      */
+#define UIC_D2        0x00020000  /* DMA channel 2                      */
+#define UIC_D3        0x00010000  /* DMA channel 3                      */
+#define UIC_UD0       0x00008000  /* UDMA irq 0                         */
+#define UIC_UD1       0x00004000  /* UDMA irq 1                         */
+#define UIC_UD2       0x00002000  /* UDMA irq 2                         */
+#define UIC_UD3       0x00001000  /* UDMA irq 3                         */
+#define UIC_HSB2D     0x00000800  /* USB2.0 Device                      */
+#define UIC_OHCI1     0x00000400  /* USB2.0 Host OHCI irq 1             */
+#define UIC_OHCI2     0x00000200  /* USB2.0 Host OHCI irq 2             */
+#define UIC_EIP94     0x00000100  /* Security EIP94                     */
+#define UIC_ETH0      0x00000080  /* Emac 0                             */
+#define UIC_ETH1      0x00000040  /* Emac 1                             */
+#define UIC_EHCI      0x00000020  /* USB2.0 Host EHCI                   */
+#define UIC_EIR4      0x00000010  /* External interrupt 4               */
+#define UIC_UIC2NC    0x00000008  /* UIC2 non-critical interrupt        */
+#define UIC_UIC2C     0x00000004  /* UIC2 critical interrupt            */
+#define UIC_UIC1NC    0x00000002  /* UIC1 non-critical interrupt        */
+#define UIC_UIC1C     0x00000001  /* UIC1 critical interrupt            */
+
+/* For compatibility with 405 code */
+#define UIC_MAL_TXEOB	UIC_MTE
+#define UIC_MAL_RXEOB	UIC_MRE
+
 #elif !defined(CONFIG_440SPE)
 #define UIC_U0		0x80000000	/* UART 0			    */
 #define UIC_U1		0x40000000	/* UART 1			    */
@@ -1531,6 +1798,48 @@
 #define UIC_EWU0	0x00000004	/* Ethernet 0 wakeup		    */
 #define UIC_ETH1	0x00000002	/* Ethernet 1			    */
 #define UIC_EWU1	0x00000001	/* Ethernet 1 wakeup		    */
+
+#elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+
+#define UIC_MS        0x80000000  /* MAL SERR                           */
+#define UIC_MTDE      0x40000000  /* MAL TXDE                           */
+#define UIC_MRDE      0x20000000  /* MAL RXDE                           */
+#define UIC_U2        0x10000000  /* UART 2                             */
+#define UIC_U3        0x08000000  /* UART 3                             */
+#define UIC_EBCO      0x04000000  /* EBCO interrupt status              */
+#define UIC_NDFC      0x02000000  /* NDFC                               */
+#define UIC_KSLE      0x01000000  /* KASUMI slave error                 */
+#define UIC_CT5       0x00800000  /* GPT compare timer 5                */
+#define UIC_CT6       0x00400000  /* GPT compare timer 6                */
+#define UIC_PLB34I0   0x00200000  /* PLB3X4X MIRQ0                      */
+#define UIC_PLB34I1   0x00100000  /* PLB3X4X MIRQ1                      */
+#define UIC_PLB34I2   0x00080000  /* PLB3X4X MIRQ2                      */
+#define UIC_PLB34I3   0x00040000  /* PLB3X4X MIRQ3                      */
+#define UIC_PLB34I4   0x00020000  /* PLB3X4X MIRQ4                      */
+#define UIC_PLB34I5   0x00010000  /* PLB3X4X MIRQ5                      */
+#define UIC_CT0       0x00008000  /* GPT compare timer 0                */
+#define UIC_CT1       0x00004000  /* GPT compare timer 1                */
+#define UIC_EIR7      0x00002000  /* External interrupt 7               */
+#define UIC_EIR8      0x00001000  /* External interrupt 8               */
+#define UIC_EIR9      0x00000800  /* External interrupt 9               */
+#define UIC_CT2       0x00000400  /* GPT compare timer 2                */
+#define UIC_CT3       0x00000200  /* GPT compare timer 3                */
+#define UIC_CT4       0x00000100  /* GPT compare timer 4                */
+#define UIC_SRE       0x00000080  /* Serial ROM error                   */
+#define UIC_GPTDC     0x00000040  /* GPT decrementer pulse              */
+#define UIC_RSVD0     0x00000020  /* Reserved                           */
+#define UIC_EPCIPER   0x00000010  /* External PCI PERR                  */
+#define UIC_EIR0      0x00000008  /* External interrupt 0               */
+#define UIC_EWU0      0x00000004  /* Ethernet 0 wakeup                  */
+#define UIC_EIR1      0x00000002  /* External interrupt 1               */
+#define UIC_EWU1      0x00000001  /* Ethernet 1 wakeup                  */
+
+/* For compatibility with 405 code */
+#define UIC_MAL_SERR	UIC_MS
+#define UIC_MAL_TXDE	UIC_MTDE
+#define UIC_MAL_RXDE	UIC_MRDE
+#define UIC_ENET	UIC_ETH0
+
 #elif !defined(CONFIG_440SPE)
 #define UIC_MS		0x80000000	/* MAL SERR			    */
 #define UIC_MTDE	0x40000000	/* MAL TXDE			    */
@@ -1608,6 +1917,20 @@
 #define UIC_RSVD29	0x00000004	/* Reserved			    */
 #define UIC_RSVD30	0x00000002	/* Reserved			    */
 #define UIC_RSVD31	0x00000001	/* Reserved			    */
+
+#elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX) /* UIC2 */
+
+#define UIC_EIR5    0x80000000  /* External interrupt 5                 */
+#define UIC_EIR6    0x40000000  /* External interrupt 6                 */
+#define UIC_OPB     0x20000000  /* OPB to PLB bridge interrupt stat     */
+#define UIC_EIR2    0x10000000  /* External interrupt 2                 */
+#define UIC_EIR3    0x08000000  /* External interrupt 3                 */
+#define UIC_DDR2    0x04000000  /* DDR2 sdram                           */
+#define UIC_MCTX0   0x02000000  /* MAl intp coalescence TX0             */
+#define UIC_MCTX1   0x01000000  /* MAl intp coalescence TX1             */
+#define UIC_MCTR0   0x00800000  /* MAl intp coalescence TR0             */
+#define UIC_MCTR1   0x00400000  /* MAl intp coalescence TR1             */
+
 #endif	/* CONFIG_440GX */
 
 /*---------------------------------------------------------------------------+
@@ -1623,6 +1946,17 @@
 
 #define UICB0_ALL		(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
 						 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
+
+#elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+
+#define UICB0_UIC1CI	0x00000000	/* UIC1 Critical Interrupt	    */
+#define UICB0_UIC1NCI	0x00000000	/* UIC1 Noncritical Interrupt	    */
+#define UICB0_UIC2CI	0x00000000	/* UIC2 Critical Interrupt	    */
+#define UICB0_UIC2NCI	0x00000000	/* UIC2 Noncritical Interrupt	    */
+
+#define UICB0_ALL		(UICB0_UIC1CI | UICB0_UIC1NCI | \
+						 UICB0_UIC1CI | UICB0_UIC2NCI)
+
 #endif /* CONFIG_440GX */
 /*---------------------------------------------------------------------------+
 |  Universal interrupt controller interrupts
@@ -2262,7 +2596,8 @@
 #define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 13)
 #define SDR0_SDSTP1_PISE_MASK		(0x80000000 >> 15)
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 21)
 #define SDR0_SDSTP1_PAME_MASK		(0x80000000 >> 27)
 #endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
@@ -2390,11 +2725,81 @@
 #define SDR0_MFR_ZMII_MODE_BIT1      0x01000000     /* ZMII Mode Bit1 */
 #define SDR0_MFR_ERRATA3_EN0         0x00800000
 #define SDR0_MFR_ERRATA3_EN1         0x00400000
+#if defined(CONFIG_440GX) /* test-only: only 440GX or 440SPE??? */
 #define SDR0_MFR_PKT_REJ_MASK        0x00300000   /* Pkt Rej. Enable Mask */
 #define SDR0_MFR_PKT_REJ_EN          0x00300000   /* Pkt Rej. Enable on both EMAC3 0-1 */
 #define SDR0_MFR_PKT_REJ_EN0         0x00200000   /* Pkt Rej. Enable on EMAC3(0) */
 #define SDR0_MFR_PKT_REJ_EN1         0x00100000   /* Pkt Rej. Enable on EMAC3(1) */
 #define SDR0_MFR_PKT_REJ_POL         0x00080000   /* Packet Reject Polarity      */
+#endif
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_PFC1_EPS_ENCODE(n)		((((unsigned long)(n))&0x07)<<22)
+#define SDR0_PFC1_EPS_DECODE(n)		((((unsigned long)(n))>>22)&0x07)
+#define SDR0_PFC2_EPS_ENCODE(n)		((((unsigned long)(n))&0x07)<<29)
+#define SDR0_PFC2_EPS_DECODE(n)		((((unsigned long)(n))>>29)&0x07)
+#endif
+
+#define SDR0_MFR_ECS_MASK		0x10000000
+#define SDR0_MFR_ECS_INTERNAL		0x10000000
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_SRST0        0x200
+#define SDR0_SRST0_BGO          0x80000000 /* PLB to OPB bridge */
+#define SDR0_SRST0_PLB4         0x40000000 /* PLB4 arbiter */
+#define SDR0_SRST0_EBC          0x20000000 /* External bus controller */
+#define SDR0_SRST0_OPB          0x10000000 /* OPB arbiter */
+#define SDR0_SRST0_UART0        0x08000000 /* Universal asynchronous receiver/transmitter 0 */
+#define SDR0_SRST0_UART1        0x04000000 /* Universal asynchronous receiver/transmitter 1 */
+#define SDR0_SRST0_IIC0         0x02000000 /* Inter integrated circuit 0 */
+#define SDR0_SRST0_USB2H        0x01000000 /* USB2.0 Host */
+#define SDR0_SRST0_GPIO         0x00800000 /* General purpose I/O */
+#define SDR0_SRST0_GPT          0x00400000 /* General purpose timer */
+#define SDR0_SRST0_DMC          0x00200000 /* DDR SDRAM memory controller */
+#define SDR0_SRST0_PCI          0x00100000 /* PCI */
+#define SDR0_SRST0_EMAC0        0x00080000 /* Ethernet media access controller 0 */
+#define SDR0_SRST0_EMAC1        0x00040000 /* Ethernet media access controller 1 */
+#define SDR0_SRST0_CPM0         0x00020000 /* Clock and power management */
+#define SDR0_SRST0_ZMII         0x00010000 /* ZMII bridge */
+#define SDR0_SRST0_UIC0         0x00008000 /* Universal interrupt controller 0 */
+#define SDR0_SRST0_UIC1         0x00004000 /* Universal interrupt controller 1 */
+#define SDR0_SRST0_IIC1         0x00002000 /* Inter integrated circuit 1 */
+#define SDR0_SRST0_SCP          0x00001000 /* Serial communications port */
+#define SDR0_SRST0_BGI          0x00000800 /* OPB to PLB bridge */
+#define SDR0_SRST0_DMA          0x00000400 /* Direct memory access controller */
+#define SDR0_SRST0_DMAC         0x00000200 /* DMA channel */
+#define SDR0_SRST0_MAL          0x00000100 /* Media access layer */
+#define SDR0_SRST0_USB2D        0x00000080 /* USB2.0 device */
+#define SDR0_SRST0_GPTR         0x00000040 /* General purpose timer */
+#define SDR0_SRST0_P4P3         0x00000010 /* PLB4 to PLB3 bridge */
+#define SDR0_SRST0_P3P4         0x00000008 /* PLB3 to PLB4 bridge */
+#define SDR0_SRST0_PLB3         0x00000004 /* PLB3 arbiter */
+#define SDR0_SRST0_UART2        0x00000002 /* Universal asynchronous receiver/transmitter 2 */
+#define SDR0_SRST0_UART3        0x00000001 /* Universal asynchronous receiver/transmitter 3 */
+
+#define SDR0_SRST1        0x201
+#define SDR0_SRST1_NDFC         0x80000000 /* Nand flash controller */
+#define SDR0_SRST1_OPBA1        0x40000000 /* OPB Arbiter attached to PLB4 */
+#define SDR0_SRST1_P4OPB0       0x20000000 /* PLB4 to OPB Bridge0 */
+#define SDR0_SRST1_PLB42OPB0    SDR0_SRST1_P4OPB0
+#define SDR0_SRST1_DMA4         0x10000000 /* DMA to PLB4 */
+#define SDR0_SRST1_DMA4CH       0x08000000 /* DMA Channel to PLB4 */
+#define SDR0_SRST1_OPBA2        0x04000000 /* OPB Arbiter attached to PLB4 USB 2.0 Host */
+#define SDR0_SRST1_OPB2PLB40    0x02000000 /* OPB to PLB4 Bridge attached to USB 2.0 Host */
+#define SDR0_SRST1_PLB42OPB1    0x01000000 /* PLB4 to OPB Bridge attached to USB 2.0 Host */
+#define SDR0_SRST1_CPM1         0x00800000 /* Clock and Power management 1 */
+#define SDR0_SRST1_UIC2         0x00400000 /* Universal Interrupt Controller 2 */
+#define SDR0_SRST1_CRYP0        0x00200000 /* Security Engine */
+#define SDR0_SRST1_USB20PHY     0x00100000 /* USB 2.0 Phy */
+#define SDR0_SRST1_USB2HUTMI    0x00080000 /* USB 2.0 Host UTMI Interface */
+#define SDR0_SRST1_USB2HPHY     0x00040000 /* USB 2.0 Host Phy Interface */
+#define SDR0_SRST1_SRAM0        0x00020000 /* Internal SRAM Controller */
+#define SDR0_SRST1_RGMII0       0x00010000 /* RGMII Bridge */
+#define SDR0_SRST1_ETHPLL       0x00008000 /* Ethernet PLL */
+#define SDR0_SRST1_FPU          0x00004000 /* Floating Point Unit */
+#define SDR0_SRST1_KASU0        0x00002000 /* Kasumi Engine */
+
+#else
 
 #define SDR0_SRST_BGO			0x80000000
 #define SDR0_SRST_PLB			0x40000000
@@ -2427,10 +2832,15 @@
 #define SDR0_SRST_EMAC3			0x00000008
 #define SDR0_SRST_RGMII			0x00000001
 
+#endif
+
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if !defined (CONFIG_440GX) && !defined(CONFIG_440EP) && !defined(CONFIG_440GR) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
+#if !defined (CONFIG_440GX) && \
+    !defined(CONFIG_440EP) && !defined(CONFIG_440GR) && \
+    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) && \
+    !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 #define PLLSYS0_TUNE_MASK	0xffc00000	/* PLL TUNE bits	    */
 #define PLLSYS0_FB_DIV_MASK	0x003c0000	/* Feedback divisor	    */
 #define PLLSYS0_FWD_DIV_A_MASK	0x00038000	/* Forward divisor A	    */
@@ -2498,6 +2908,120 @@
 #define PLLSYS1_NTO1_MASK	0x00000001	/* CPU:PLB N-to-1 ratio */
 #endif /* CONFIG_440GX */
 
+#if defined (CONFIG_440EPX) || defined (CONFIG_440GRX)
+/*--------------------------------------*/
+#define CPR0_PLLC                   0x40
+#define   CPR0_PLLC_RST_MASK           0x80000000
+#define   CPR0_PLLC_RST_PLLLOCKED      0x00000000
+#define   CPR0_PLLC_RST_PLLRESET       0x80000000
+#define   CPR0_PLLC_ENG_MASK           0x40000000
+#define   CPR0_PLLC_ENG_DISABLE        0x00000000
+#define   CPR0_PLLC_ENG_ENABLE         0x40000000
+#define   CPR0_PLLC_ENG_ENCODE(n)      ((((unsigned long)(n))&0x01)<<30)
+#define   CPR0_PLLC_ENG_DECODE(n)      ((((unsigned long)(n))>>30)&0x01)
+#define   CPR0_PLLC_SRC_MASK           0x20000000
+#define   CPR0_PLLC_SRC_PLLOUTA        0x00000000
+#define   CPR0_PLLC_SRC_PLLOUTB        0x20000000
+#define   CPR0_PLLC_SRC_ENCODE(n)      ((((unsigned long)(n))&0x01)<<29)
+#define   CPR0_PLLC_SRC_DECODE(n)      ((((unsigned long)(n))>>29)&0x01)
+#define   CPR0_PLLC_SEL_MASK           0x07000000
+#define   CPR0_PLLC_SEL_PLL            0x00000000
+#define   CPR0_PLLC_SEL_CPU            0x01000000
+#define   CPR0_PLLC_SEL_PER            0x05000000
+#define   CPR0_PLLC_SEL_ENCODE(n)      ((((unsigned long)(n))&0x07)<<24)
+#define   CPR0_PLLC_SEL_DECODE(n)      ((((unsigned long)(n))>>24)&0x07)
+#define   CPR0_PLLC_TUNE_MASK          0x000003FF
+#define   CPR0_PLLC_TUNE_ENCODE(n)     ((((unsigned long)(n))&0x3FF)<<0)
+#define   CPR0_PLLC_TUNE_DECODE(n)     ((((unsigned long)(n))>>0)&0x3FF)
+/*--------------------------------------*/
+#define CPR0_PLLD                   0x60
+#define   CPR0_PLLD_FBDV_MASK          0x1F000000
+#define   CPR0_PLLD_FBDV_ENCODE(n)     ((((unsigned long)(n))&0x1F)<<24)
+#define   CPR0_PLLD_FBDV_DECODE(n)     ((((((unsigned long)(n))>>24)-1)&0x1F)+1)
+#define   CPR0_PLLD_FWDVA_MASK         0x000F0000
+#define   CPR0_PLLD_FWDVA_ENCODE(n)    ((((unsigned long)(n))&0x0F)<<16)
+#define   CPR0_PLLD_FWDVA_DECODE(n)    ((((((unsigned long)(n))>>16)-1)&0x0F)+1)
+#define   CPR0_PLLD_FWDVB_MASK         0x00000700
+#define   CPR0_PLLD_FWDVB_ENCODE(n)    ((((unsigned long)(n))&0x07)<<8)
+#define   CPR0_PLLD_FWDVB_DECODE(n)    ((((((unsigned long)(n))>>8)-1)&0x07)+1)
+#define   CPR0_PLLD_LFBDV_MASK         0x0000003F
+#define   CPR0_PLLD_LFBDV_ENCODE(n)    ((((unsigned long)(n))&0x3F)<<0)
+#define   CPR0_PLLD_LFBDV_DECODE(n)    ((((((unsigned long)(n))>>0)-1)&0x3F)+1)
+/*--------------------------------------*/
+#define CPR0_PRIMAD                 0x80
+#define   CPR0_PRIMAD_PRADV0_MASK      0x07000000
+#define   CPR0_PRIMAD_PRADV0_ENCODE(n) ((((unsigned long)(n))&0x07)<<24)
+#define   CPR0_PRIMAD_PRADV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x07)+1)
+/*--------------------------------------*/
+#define CPR0_PRIMBD                 0xA0
+#define   CPR0_PRIMBD_PRBDV0_MASK      0x07000000
+#define   CPR0_PRIMBD_PRBDV0_ENCODE(n) ((((unsigned long)(n))&0x07)<<24)
+#define   CPR0_PRIMBD_PRBDV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x07)+1)
+/*--------------------------------------*/
+#if 0
+#define CPR0_CPM0_ER                0xB0    /* CPM Enable Register */
+#define CPR0_CPM0_FR                0xB1    /* CPM Force Register */
+#define CPR0_CPM0_SR                0xB2    /* CPM Status Register */
+#define CPR0_CPM0_IIC0               0x80000000    /* Inter-Intergrated Circuit0 */
+#define CPR0_CPM0_IIC1               0x40000000    /* Inter-Intergrated Circuit1 */
+#define CPR0_CPM0_PCI                0x20000000    /* Peripheral Component Interconnect */
+#define CPR0_CPM0_USB1H              0x08000000    /* USB1.1 Host */
+#define CPR0_CPM0_FPU                0x04000000    /* PPC440 FPU */
+#define CPR0_CPM0_CPU                0x02000000    /* PPC440x5 Processor Core */
+#define CPR0_CPM0_DMA                0x01000000    /* Direct Memory Access Controller */
+#define CPR0_CPM0_BGO                0x00800000    /* PLB to OPB Bridge */
+#define CPR0_CPM0_BGI                0x00400000    /* OPB to PLB Bridge */
+#define CPR0_CPM0_EBC                0x00200000    /* External Bus Controller */
+#define CPR0_CPM0_NDFC               0x00100000    /* Nand Flash Controller */
+#define CPR0_CPM0_MADMAL             0x00080000    /* DDR SDRAM Controller or MADMAL ??? */
+#define CPR0_CPM0_DMC                0x00080000    /* DDR SDRAM Controller or MADMAL ??? */
+#define CPR0_CPM0_PLB4               0x00040000    /* PLB4 Arbiter */
+#define CPR0_CPM0_PLB4x3x            0x00020000    /* PLB4 to PLB3 */
+#define CPR0_CPM0_PLB3x4x            0x00010000    /* PLB3 to PLB4 */
+#define CPR0_CPM0_PLB3               0x00008000    /* PLB3 Arbiter */
+#define CPR0_CPM0_PPM                0x00002000    /* PLB Performance Monitor */
+#define CPR0_CPM0_UIC1               0x00001000    /* Universal Interrupt Controller 1 */
+#define CPR0_CPM0_GPIO               0x00000800    /* General Purpose IO */
+#define CPR0_CPM0_GPT                0x00000400    /* General Purpose Timer */
+#define CPR0_CPM0_UART0              0x00000200    /* Universal Asynchronous Rcver/Xmitter 0 */
+#define CPR0_CPM0_UART1              0x00000100    /* Universal Asynchronous Rcver/Xmitter 1 */
+#define CPR0_CPM0_UIC0               0x00000080    /* Universal Interrupt Controller 0 */
+#define CPR0_CPM0_TMRCLK             0x00000040    /* CPU Timer */
+#define CPR0_CPM0_EMC0               0x00000020    /* Ethernet 0 */
+#define CPR0_CPM0_EMC1               0x00000010    /* Ethernet 1 */
+#define CPR0_CPM0_UART2              0x00000008    /* Universal Asynchronous Rcver/Xmitter 2 */
+#define CPR0_CPM0_UART3              0x00000004    /* Universal Asynchronous Rcver/Xmitter 3 */
+#define CPR0_CPM0_USB2D              0x00000002    /* USB2.0 Device */
+#define CPR0_CPM0_USB2H              0x00000001    /* USB2.0 Host */
+#endif
+/*--------------------------------------*/
+#define CPR0_OPBD                   0xC0
+#define   CPR0_OPBD_OPBDV0_MASK        0x03000000
+#define   CPR0_OPBD_OPBDV0_ENCODE(n)   ((((unsigned long)(n))&0x03)<<24)
+#define   CPR0_OPBD_OPBDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x03)+1)
+/*--------------------------------------*/
+#define CPR0_PERD                   0xE0
+#define   CPR0_PERD_PERDV0_MASK        0x07000000
+#define   CPR0_PERD_PERDV0_ENCODE(n)   ((((unsigned long)(n))&0x07)<<24)
+#define   CPR0_PERD_PERDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x07)+1)
+/*--------------------------------------*/
+#define CPR0_MALD                  0x100
+#define   CPR0_MALD_MALDV0_MASK        0x03000000
+#define   CPR0_MALD_MALDV0_ENCODE(n)   ((((unsigned long)(n))&0x03)<<24)
+#define   CPR0_MALD_MALDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x03)+1)
+/*--------------------------------------*/
+#define CPR0_SPCID                 0x120
+#define   CPR0_SPCID_SPCIDV0_MASK      0x03000000
+#define   CPR0_SPCID_SPCIDV0_ENCODE(n) ((((unsigned long)(n))&0x03)<<24)
+#define   CPR0_SPCID_SPCIDV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x03)+1)
+/*--------------------------------------*/
+#define CPR0_ICFG                  0x140
+#define   CPR0_ICFG_RLI_MASK           0x80000000
+#define   CPR0_ICFG_RLI_RESETCPR       0x00000000
+#define   CPR0_ICFG_RLI_PRESERVECPR    0x80000000
+#define   CPR0_ICFG_ICS_MASK           0x00000007
+#endif /* defined (CONFIG_440EPX) || defined (CONFIG_440GRX) */
+
 /*-----------------------------------------------------------------------------
 | IIC Register Offsets
 '----------------------------------------------------------------------------*/
@@ -2539,7 +3063,8 @@
 #define PCIX0_CFGBASE		(CFG_PCI_BASE + 0x0ec80000)
 #define PCIX0_IOBASE		(CFG_PCI_BASE + 0x08000000)
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* PCI Local Configuration Registers
    --------------------------------- */
@@ -2625,6 +3150,33 @@
 
 #endif /* !defined(CONFIG_440EP) !defined(CONFIG_440GR) */
 
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+
+/* USB2.0 Device */
+#define USB2D0_BASE         CFG_USB2D0_BASE
+
+#define USB2D0_INTRIN       (USB2D0_BASE + 0x00000000)
+
+#define USB2D0_INTRIN       (USB2D0_BASE + 0x00000000) /* Interrupt register for Endpoint 0 plus IN Endpoints 1 to 3 */
+#define USB2D0_POWER        (USB2D0_BASE + 0x00000000) /* Power management register */
+#define USB2D0_FADDR        (USB2D0_BASE + 0x00000000) /* Function address register */
+#define USB2D0_INTRINE      (USB2D0_BASE + 0x00000000) /* Interrupt enable register for USB2D0_INTRIN */
+#define USB2D0_INTROUT      (USB2D0_BASE + 0x00000000) /* Interrupt register for OUT Endpoints 1 to 3 */
+#define USB2D0_INTRUSBE     (USB2D0_BASE + 0x00000000) /* Interrupt enable register for USB2D0_INTRUSB */
+#define USB2D0_INTRUSB      (USB2D0_BASE + 0x00000000) /* Interrupt register for common USB interrupts */
+#define USB2D0_INTROUTE     (USB2D0_BASE + 0x00000000) /* Interrupt enable register for IntrOut */
+#define USB2D0_TSTMODE      (USB2D0_BASE + 0x00000000) /* Enables the USB 2.0 test modes */
+#define USB2D0_INDEX        (USB2D0_BASE + 0x00000000) /* Index register for selecting the Endpoint status/control registers */
+#define USB2D0_FRAME        (USB2D0_BASE + 0x00000000) /* Frame number */
+#define USB2D0_INCSR0       (USB2D0_BASE + 0x00000000) /* Control Status register for Endpoint 0. (Index register set to select Endpoint 0) */
+#define USB2D0_INCSR        (USB2D0_BASE + 0x00000000) /* Control Status register for IN Endpoint. (Index register set to select Endpoints 13) */
+#define USB2D0_INMAXP       (USB2D0_BASE + 0x00000000) /* Maximum packet size for IN Endpoint. (Index register set to select Endpoints 13) */
+#define USB2D0_OUTCSR       (USB2D0_BASE + 0x00000000) /* Control Status register for OUT Endpoint. (Index register set to select Endpoints 13) */
+#define USB2D0_OUTMAXP      (USB2D0_BASE + 0x00000000) /* Maximum packet size for OUT Endpoint. (Index register set to select Endpoints 13) */
+#define USB2D0_OUTCOUNT0    (USB2D0_BASE + 0x00000000) /* Number of received bytes in Endpoint 0 FIFO. (Index register set to select Endpoint 0) */
+#define USB2D0_OUTCOUNT     (USB2D0_BASE + 0x00000000) /* Number of bytes in OUT Endpoint FIFO. (Index register set to select Endpoints 13) */
+#endif
+
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
@@ -2640,7 +3192,8 @@
 #define GPIO0_IR               (GPIO0_BASE+0x1C)
 #endif /* CONFIG_440GP */
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
 

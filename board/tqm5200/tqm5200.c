@@ -396,6 +396,7 @@ void ide_set_reset (int idereset)
  */
 int post_hotkeys_pressed(void)
 {
+#ifdef CONFIG_STK52XX
 	struct mpc5xxx_gpio *gpio;
 
 	gpio = (struct mpc5xxx_gpio*) MPC5XXX_GPIO;
@@ -414,6 +415,9 @@ int post_hotkeys_pressed(void)
 	gpio->simple_ddr &= ~(0x20000000);
 
 	return ((gpio->simple_ival & 0x20000000) ? 0 : 1);
+#else
+	return 0;
+#endif
 }
 #endif
 
@@ -445,6 +449,43 @@ int board_early_init_r (void)
 }
 #endif
 #endif /* CONFIG_PS2MULT */
+
+#ifdef CONFIG_FO300
+int silent_boot (void)
+{
+	vu_long timer3_status;
+
+	/* Configure GPT3 as GPIO input */
+	*(vu_long *)MPC5XXX_GPT3_ENABLE = 0x00000004;
+
+	/* Read in TIMER_3 pin status */
+	timer3_status = *(vu_long *)MPC5XXX_GPT3_STATUS;
+
+#ifdef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED
+	/* Force silent console mode if S1 switch
+	 * is in closed position (TIMER_3 pin status is LOW). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 0)
+		return 1;
+#else
+	/* Force silent console mode if S1 switch
+	 * is in open position (TIMER_3 pin status is HIGH). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 1)
+		return 1;
+#endif
+
+	return 0;
+}
+
+int board_early_init_f (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (silent_boot())
+		gd->flags |= GD_FLG_SILENT;
+
+	return 0;
+}
+#endif	/* CONFIG_FO300 */
 
 int last_stage_init (void)
 {
@@ -537,6 +578,13 @@ int last_stage_init (void)
 		*(volatile u16 *)CFG_CS1_START = save;
 		__asm__ volatile ("sync");
 	}
+
+#ifdef CONFIG_FO300
+	if (silent_boot()) {
+		setenv("bootdelay", "0");
+		disable_ctrlc(1);
+	}
+#endif
 
 	return 0;
 }
@@ -729,33 +777,3 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
-
-
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-#ifdef CONFIG_FO300
-int board_early_init_f (void)
-{
-	vu_long timer3_status;
-	DECLARE_GLOBAL_DATA_PTR;
-
-	/* Configure GPT3 as GPIO input */
-	*(vu_long *)MPC5XXX_GPT3_ENABLE = 0x00000004;
-
-	/* Read in TIMER_3 pin status */
-	timer3_status = *(vu_long *)MPC5XXX_GPT3_STATUS;
-	
-#ifdef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED
-	/* Force silent console mode if S1 switch
-	 * is in closed position (TIMER_3 pin status is LOW). */
-	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 0)
-#else
-	/* Force silent console mode if S1 switch
-	 * is in open position (TIMER_3 pin status is HIGH). */
-	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 1)
-#endif
-		gd->flags |= GD_FLG_SILENT;
-
-	return 0;
-}
-#endif
-#endif
