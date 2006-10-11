@@ -64,6 +64,8 @@ void *ft_get_prop(void *bphp, const char *propname, int *szp);
 
 #ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup(void *blob, bd_t *bd);
+void ft_cpu_setup(void *blob, bd_t *bd);
+void ft_pci_setup(void *blob, bd_t *bd);
 #endif
 
 #endif

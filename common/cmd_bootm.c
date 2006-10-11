@@ -510,7 +510,7 @@ fixup_silent_linux ()
 #endif /* CONFIG_SILENT_CONSOLE */
 
 #ifdef CONFIG_PPC
-static void
+static void  __attribute__((noinline))
 do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		int	argc, char *argv[],
 		ulong	addr,
@@ -625,7 +625,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
-			data = 0;
+			len = data = 0;
 		}
 	else
 #endif
@@ -900,8 +900,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
 #else
-	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
-	/* ft_dump_blob(of_flat_tree); */
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
@@ -917,9 +915,12 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if (getenv("disable_of") != NULL)
 		(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end,
 			cmd_start, cmd_end);
-	else
+	else {
+		ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
+		/* ft_dump_blob(of_flat_tree); */
 		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
-
+	}
+		
 #endif
 }
 #endif /* CONFIG_PPC */
