@@ -207,3 +207,47 @@ As mentioned above, the legacy code is still used by the DoC subsystem.
 The consequence of this is that the legacy NAND can't be removed  from
 the tree until the DoC is ported to use the new NAND support (or boards
 with DoC will break).
+
+
+
+Additional improvements to the NAND subsystem by Guido Classen, 10-10-2006
+
+JFFS2 related commands:
+
+  implement "nand erase clean" and old "nand erase"
+  using both the new code which is able to skip bad blocks
+  "nand erase clean" additionally writes JFFS2-cleanmarkers in the oob.
+
+  "nand write.jffs2"
+  like "nand write" but skip found bad eraseblocks
+
+  "nand read.jffs2"
+  like "nand read" but skip found bad eraseblocks
+
+Miscellaneous and testing commands:
+  "markbad [offset]"
+  create an artificial bad block (for testing bad block handling)
+
+  "scrub [offset length]"
+  like "erase" but don't skip bad block. Instead erase them.
+  DANGEROUS!!! Factory set bad blocks will be lost. Use only
+  to remove artificial bad blocks created with the "markbad" command.
+
+
+NAND locking command (for chips with active LOCKPRE pin)
+
+  "nand lock"
+  set NAND chip to lock state (all pages locked)
+
+  "nand lock tight"
+  set NAND chip to lock tight state (software can't change locking anymore)
+
+  "nand lock status"
+  displays current locking status of all pages
+
+  "nand unlock [offset] [size]"
+  unlock consecutive area (can be called multiple times for different areas)
+
+
+I have tested the code with board containing 128MiB NAND large page chips
+and 32MiB small page chips.

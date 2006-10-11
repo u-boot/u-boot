@@ -2,6 +2,14 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Several improvements to the new NAND subsystem:
+  - JFFS2 related commands implemented in mtd-utils style
+  - Support for bad blocks
+  - Bad block testing commands
+  - NAND lock commands
+  Please take a look at doc/README.nand for more details
+  Patch by Guido Classen, 10 Oct 2006
+
 * Define IH_CPU_AVR32
   Make it possible to generate AVR32 uImage files with mkimage and
   make cmd_bootm recognize them.
