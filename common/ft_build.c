@@ -87,9 +87,9 @@ static int lookup_string(struct ft_cxt *cxt, const char *name)
 
 	p = cxt->p;
 	while (p < cxt->p_end) {
-		if (strcmp(p, name) == 0)
+		if (strcmp((char *)p, name) == 0)
 			return p - cxt->p;
-		p += strlen(p) + 1;
+		p += strlen((char *)p) + 1;
 	}
 
 	return -1;
@@ -143,9 +143,9 @@ void ft_init_cxt(struct ft_cxt *cxt, void *blob)
 	cxt->p_rsvmap += SIZE_OF_RSVMAP_ENTRY;
 	}
 
-	cxt->p_start = (char*)bph + bph->off_dt_struct;
-	cxt->p_end = (char *)bph + bph->totalsize;
-	cxt->p = (char *)bph + bph->off_dt_strings;
+	cxt->p_start = (u8 *)bph + bph->off_dt_struct;
+	cxt->p_end = (u8 *)bph + bph->totalsize;
+	cxt->p = (u8 *)bph + bph->off_dt_strings;
 }
 
 /* add a reserver physical area to the rsvmap */

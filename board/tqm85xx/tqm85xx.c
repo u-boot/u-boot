@@ -408,8 +408,6 @@ static struct pci_controller hose = {
 void pci_init_board (void)
 {
 #ifdef CONFIG_PCI
-	extern void pci_mpc85xx_init (struct pci_controller *hose);
-
 	pci_mpc85xx_init (&hose);
 #endif /* CONFIG_PCI */
 }

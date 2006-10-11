@@ -623,7 +623,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
-			data = 0;
+			len = data = 0;
 		}
 	else
 #endif
