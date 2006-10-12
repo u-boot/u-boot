@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix spelling; minor code cleanup.
+
 * Fix JFFS2 compilation problem
   Patch by Stefan Roese, 12 Oct 2006
 

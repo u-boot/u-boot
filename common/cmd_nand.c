@@ -251,7 +251,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			       "Use this command only for testing purposes "
 			       "if you\n"
 			       "	 "
-			       "are shure of what you are doing!\n"
+			       "are sure of what you are doing!\n"
 			       "\nReally scrub this NAND flash? <y/N>\n"
 				);
 
