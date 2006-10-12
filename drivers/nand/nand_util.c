@@ -170,9 +170,9 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			if (ret > 0) {
 				if (!opts->quiet)
 					printf("\rSkipping bad block at  "
-                                               "0x%08x                   "
-                                               "                         \n",
-                                               erase.addr);
+					       "0x%08x                   "
+					       "                         \n",
+					       erase.addr);
 				continue;
 
 			} else if (ret < 0) {

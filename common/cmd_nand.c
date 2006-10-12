@@ -251,7 +251,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			       "Use this command only for testing purposes "
 			       "if you\n"
 			       "	 "
-			       "are shure of what you are doing!\n"
+			       "are sure of what you are doing!\n"
 			       "\nReally scrub this NAND flash? <y/N>\n"
 				);
 
@@ -341,7 +341,6 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return ret == 0 ? 0 : 1;
 	}
 
-	/* 2006-09-28 gc: implement missing commands */
 	if (strcmp(cmd, "markbad") == 0) {
 		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
 
