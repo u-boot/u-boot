@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix JFFS2 compilation problem
+  Patch by Stefan Roese, 12 Oct 2006
+
 * Cleanup of NAND update patch (remove changelog from cmd_nand.c)
   Patch by Guido Classen, 10 Oct 2006
 
