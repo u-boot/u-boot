@@ -226,13 +226,19 @@ cpu_init_f (void)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
-	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);   /* output select */
+#if defined(CFG_GPIO0_OR)
+	out32(GPIO0_OR, CFG_GPIO0_OR);		/* set initial state of output pins	*/
+#endif
+#if defined(CFG_GPIO0_ODR)
+	out32(GPIO0_ODR, CFG_GPIO0_ODR);	/* open-drain select			*/
+#endif
+	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select			*/
 	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
-	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H); /* input select */
+	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select				*/
 	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
-	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);   /* three-state select */
+	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select			*/
 	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
-	out32(GPIO0_TCR, CFG_GPIO0_TCR);     /* enable output driver for outputs */
+	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
 
 	/*
 	 * Set EMAC noise filter bits

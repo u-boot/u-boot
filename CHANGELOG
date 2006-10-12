@@ -2,6 +2,11 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* PPC405EP: Add CFG_GPIO0_OR, CFG_GPIO0_ODR to setup GPIO completely.
+  - Add configuration of Open Drain GPIO Output selection
+  - Add configuration of initial value of GPIO output pins
+  Patch by Tolunay Orkun, 07 Apr 2006
+
 * Fix spelling; minor code cleanup.
 
 * Fix JFFS2 compilation problem
