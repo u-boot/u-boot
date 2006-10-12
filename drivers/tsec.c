@@ -12,8 +12,6 @@
  */
 
 #include <config.h>
-#include <mpc85xx.h>
-#include <mpc86xx.h>
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
@@ -838,7 +836,6 @@ struct phy_info phy_info_M88E1111S = {
 
 static unsigned int m88e1145_setmode(uint mii_reg, struct tsec_private *priv)
 {
-	unsigned int temp;
 	uint mii_data = read_phy_reg(priv, mii_reg);
 
 	/* Setting MIIM_88E1145_PHY_EXT_CR */
