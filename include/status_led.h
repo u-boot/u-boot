@@ -346,6 +346,15 @@ void status_led_set  (int led, int state);
 #elif defined(CONFIG_NIOS2)
 /* XXX empty just to avoid the error */
 /************************************************************************/
+#elif defined(CONFIG_V38B)
+
+# define STATUS_LED_BIT		0x0010			/* Timer7 GPIO */
+# define STATUS_LED_PERIOD	(CFG_HZ / 2)
+# define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0 */
+# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
+
 #else
 # error Status LED configuration missing
 #endif
