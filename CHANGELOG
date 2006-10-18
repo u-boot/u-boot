@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Add (preliminary) support for V38B board
+
 * PPC405EP: Add support for board configuration of CPC0_PCI register
   This is needed to be able to configure PerWE*/PCI_INT* pin as PerWE*
   Patch by Tolunay Orkun, 07 Apr 2006
