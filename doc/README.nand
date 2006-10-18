@@ -1,8 +1,6 @@
 NAND FLASH commands and notes
 
-
 See NOTE below!!!
-
 
 # (C) Copyright 2003
 # Dave Ellis, SIXNET, dge@sixnetio.com
@@ -207,7 +205,6 @@ As mentioned above, the legacy code is still used by the DoC subsystem.
 The consequence of this is that the legacy NAND can't be removed  from
 the tree until the DoC is ported to use the new NAND support (or boards
 with DoC will break).
-
 
 
 Additional improvements to the NAND subsystem by Guido Classen, 10-10-2006

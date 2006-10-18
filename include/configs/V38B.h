@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU General Public License
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -35,35 +35,35 @@
  * (easy to change)
 */
 
-#define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
-#define CONFIG_V38B			1	/* ... on V38B board */
-#define CFG_MPC5XXX_CLKIN	33000000	/* ... running at 33.000000MHz */
+#define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU	*/
+#define CONFIG_MPC5200			1	/* This is an MPC5200 CPU	*/
+#define CONFIG_V38B			1	/* ... on V38B board		*/
+#define CFG_MPC5XXX_CLKIN	33000000	/* ... running at 33.000000MHz	*/
 
-#define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC  */
-#define CONFIG_MPC5200_DDR		1	/* has DDR SDRAM    */
-#define CONFIG_HW_WATCHDOG		1	/* has watchdog     */
+#define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC		*/
+#define CONFIG_MPC5200_DDR		1	/* has DDR SDRAM		*/
+#define CONFIG_HW_WATCHDOG		1	/* has watchdog			*/
 
 #define CONFIG_NETCONSOLE		1
 
-#define CONFIG_BOARD_EARLY_INIT_R	1	/* make flash read/write */
+#define CONFIG_BOARD_EARLY_INIT_R	1	/* make flash read/write	*/
 
-#define CFG_XLB_PIPELINING		1	/* gives better performance */
+#define CFG_XLB_PIPELINING		1	/* gives better performance	*/
 
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
+#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
 /*
  * Serial console configuration
  */
-#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
-#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
+#define CONFIG_PSC_CONSOLE	1	/* console is on PSC1	*/
+#define CONFIG_BAUDRATE		115200	/* ... at 115200 bps	*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 
@@ -97,12 +97,12 @@
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
-#define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
 				 CFG_CMD_FAT	| \
 				 CFG_CMD_I2C	| \
 				 CFG_CMD_IDE	| \
@@ -112,7 +112,7 @@
 				 CFG_CMD_IRQ	| \
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_MII	| \
-				 CFG_CMD_SDRAMi	| \
+				 CFG_CMD_SDRAMi | \
 				 CFG_CMD_DATE	| \
 				 CFG_CMD_USB	| \
 				 CFG_CMD_FAT)
@@ -123,7 +123,7 @@
 /*
  * Boot low with 16 MB Flash
  */
-#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT		1
 #   define CFG_LOWBOOT16	1
 
 /*
@@ -131,35 +131,35 @@
  */
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds */
 
-#define CONFIG_PREBOOT	"echo;"	\
+#define CONFIG_PREBOOT	"echo;" \
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
 
-#define	CONFIG_EXTRA_ENV_SETTINGS	                            \
-        "netdev=eth0\0"                                             \
-        "devno=5\0"                                                 \
-        "hostname=V38B_$(devno)\0"                                  \
-        "ipaddr=10.100.99.$(devno)\0"                               \
-        "netmask=255.255.0.0\0"                                     \
-        "serverip=10.100.10.90\0"                                   \
-        "gatewayip=10.100.254.254\0"                                \
-        "ramargs=setenv bootargs root=/dev/ram rw\0"                \
-        "rootpath=/opt/eldk/ppc_6xx\0"                              \
-        "bootfile=mpc5200/uImage\0"                                 \
-        "bootcmd=run net_nfs\0"                                     \
-        "addip=setenv bootargs $(bootargs) "                        \
-            "ip=$(ipaddr):$(serverip):$(gatewayip):"                \
-            "$(netmask):$(hostname):$(netdev):off panic=1\0"        \
-        "flash_nfs=run nfsargs addip;bootm $(kernel_addr)\0"        \
-        "flash_self=run ramargs addip;bootm $(kernel_addr) "        \
-            "$(ramdisk_addr)\0"                                     \
-        "net_nfs=tftp 200000 $(bootfile);run nfsargs "              \
-            "addip;bootm\0"                                         \
-        "nfsargs=setenv bootargs root=/dev/nfs rw "                 \
-            "nfsroot=$(serverip):$(rootpath)\0"                     \
-        ""
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"devno=5\0"							\
+	"hostname=V38B_$(devno)\0"					\
+	"ipaddr=10.100.99.$(devno)\0"					\
+	"netmask=255.255.0.0\0"						\
+	"serverip=10.100.10.90\0"					\
+	"gatewayip=10.100.254.254\0"					\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"bootfile=mpc5200/uImage\0"					\
+	"bootcmd=run net_nfs\0"						\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
+		"$(netmask):$(hostname):$(netdev):off panic=1\0"	\
+	"flash_nfs=run nfsargs addip;bootm $(kernel_addr)\0"		\
+	"flash_self=run ramargs addip;bootm $(kernel_addr) "		\
+		"$(ramdisk_addr)\0"					\
+	"net_nfs=tftp 200000 $(bootfile);run nfsargs "			\
+		"addip;bootm\0"						\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$(serverip):$(rootpath)\0"			\
+	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -196,13 +196,13 @@
  */
 #define CFG_FLASH_CFI		1		/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1		/* Use the common driver */
-#define CFG_FLASH_CFI_AMD_RESET	1
+#define CFG_FLASH_CFI_AMD_RESET 1
 #define CFG_FLASH_BASE		0xFF000000
 #define CFG_MAX_FLASH_BANKS	1		/* max num of flash banks */
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 #define CFG_FLASH_SIZE		0x01000000	/* 16 MiB */
 #define CFG_MAX_FLASH_SECT	256		/* max num of sects on one chip */
-#define CFG_FLASH_USE_BUFFER_WRITE	1	/* flash write speed-up */ 
+#define CFG_FLASH_USE_BUFFER_WRITE	1	/* flash write speed-up */
 
 /*
  * Environment settings
@@ -243,7 +243,7 @@
  */
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_PHY_ADDR		0x00
-#define CONFIG_MII              1
+#define CONFIG_MII		1
 
 /*
  * GPIO configuration
@@ -307,12 +307,12 @@
  *-----------------------------------------------------------------------
  */
 
-#undef  CONFIG_IDE_8xx_PCCARD		/* Don't use IDE with PC Card	Adapter	*/
+#undef	CONFIG_IDE_8xx_PCCARD		/* Don't use IDE with PC Card	Adapter */
 
-#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/
+#undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 
-#define	CONFIG_IDE_RESET		/* reset for ide supported	*/
+#define CONFIG_IDE_RESET		/* reset for ide supported	*/
 #define CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
@@ -331,13 +331,13 @@
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	(0x005C)
 
-/* Interval between registers                                                */
-#define CFG_ATA_STRIDE          4
+/* Interval between registers						     */
+#define CFG_ATA_STRIDE		4
 
-/* Status LED                                                */
+/* Status LED						     */
 
-#define  CONFIG_STATUS_LED               /* Status LED enabled           */
-#define  CONFIG_BOARD_SPECIFIC_LED       /* version has board specific leds */
+#define	 CONFIG_STATUS_LED		 /* Status LED enabled		 */
+#define	 CONFIG_BOARD_SPECIFIC_LED	 /* version has board specific leds */
 
 #define CFG_LED_BASE	(0xf0000600 + 0x70)	/* Timer 7 GPIO */
 

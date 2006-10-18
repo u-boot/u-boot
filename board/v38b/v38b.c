@@ -250,4 +250,3 @@ void hw_watchdog_reset(void)
 {
 /* TODO fill this in */
 }
-

@@ -118,7 +118,7 @@ void read_2501_memory(unsigned char *psernum, unsigned char *perr)
 	crcval = 0;
 
 	for (i=0; i<NBYTES; i++)
-		
+
 
 	if (!check_device())
 		*perr = ERR_NO_NUMBER;
@@ -224,7 +224,7 @@ static void read_byte(unsigned char  *data)
 			rdat = (rdat >> 1) | 0x80;
 		else
 			rdat = rdat >> 1;
-		
+
 		udelay(60);	/* at least 60 us */
 	}
 	/* copy the return value */
