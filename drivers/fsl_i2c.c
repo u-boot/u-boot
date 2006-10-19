@@ -16,18 +16,16 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
-#include <command.h>
 
 #ifdef CONFIG_HARD_I2C
 
+#include <command.h>
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>
 
 #define I2C_TIMEOUT	(CFG_HZ / 4)
-
-#define I2C	((struct fsl_i2c *)(CFG_IMMR + CFG_I2C_OFFSET))
+#define I2C		((struct fsl_i2c *)(CFG_IMMR + CFG_I2C_OFFSET))
 
 
 void
@@ -170,24 +168,19 @@ i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	int i = 0;
 	u8 *a = (u8*)&addr;
 
-	if (i2c_wait4bus () < 0)
-		goto exit;
+	if (i2c_wait4bus() >= 0
+	    && i2c_write_addr(dev, I2C_WRITE, 0) != 0
+	    && __i2c_write(&a[4 - alen], alen) == alen
+	    && i2c_write_addr(dev, I2C_READ, 1) != 0) {
+		i = __i2c_read(data, length);
+	}
 
-	if (i2c_write_addr(dev, I2C_WRITE, 0) == 0)
-		goto exit;
-
-	if (__i2c_write(&a[4 - alen], alen) != alen)
-		goto exit;
-
-	if (i2c_write_addr(dev, I2C_READ, 1) == 0)
-		goto exit;
-
-	i = __i2c_read(data, length);
-
- exit:
 	writeb(I2C_CR_MEN, &I2C->cr);
 
-	return !(i == length);
+	if (i == length)
+	    return 0;
+
+	return -1;
 }
 
 int
@@ -196,21 +189,18 @@ i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	int i = 0;
 	u8 *a = (u8*)&addr;
 
-	if (i2c_wait4bus() < 0)
-		goto exit;
+	if (i2c_wait4bus() >= 0
+	    && i2c_write_addr(dev, I2C_WRITE, 0) != 0
+	    && __i2c_write(&a[4 - alen], alen) == alen) {
+		i = __i2c_write(data, length);
+	}
 
-	if (i2c_write_addr(dev, I2C_WRITE, 0) == 0)
-		goto exit;
-
-	if (__i2c_write(&a[4 - alen], alen) != alen)
-		goto exit;
-
-	i = __i2c_write(data, length);
-
- exit:
 	writeb(I2C_CR_MEN, &I2C->cr);
 
-	return !(i == length);
+	if (i == length)
+	    return 0;
+
+	return -1;
 }
 
 int
