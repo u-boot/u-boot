@@ -29,6 +29,9 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 #if defined(CONFIG_PCI)
 
@@ -42,7 +45,9 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 
 	volatile immap_t    *immap = (immap_t *)CFG_CCSRBAR;
 	volatile ccsr_pcix_t *pcix = &immap->im_pcix;
+#ifdef CONFIG_MPC85XX_PCI2
 	volatile ccsr_pcix_t *pcix2 = &immap->im_pcix2;
+#endif
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	struct pci_controller * hose;
 

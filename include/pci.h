@@ -501,4 +501,7 @@ extern int pci_hose_config_device(struct pci_controller *hose,
 extern void pci_mpc824x_init (struct pci_controller *hose);
 #endif
 
+#ifdef CONFIG_MPC85xx
+extern void pci_mpc85xx_init (struct pci_controller *hose);
+#endif
 #endif	/* _PCI_H */
