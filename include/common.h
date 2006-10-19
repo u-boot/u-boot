@@ -320,7 +320,8 @@ void	board_ether_init (void);
 
 #if defined(CONFIG_RPXCLASSIC)	|| defined(CONFIG_MBX) || \
     defined(CONFIG_IAD210)	|| defined(CONFIG_XPEDITE1K) || \
-    defined(CONFIG_METROBOX)    || defined(CONFIG_KAREF)
+    defined(CONFIG_METROBOX)    || defined(CONFIG_KAREF) || \
+    defined(CONFIG_V38B)
 void	board_get_enetaddr (uchar *addr);
 #endif
 

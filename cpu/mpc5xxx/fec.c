@@ -882,7 +882,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
     defined(CONFIG_ICECUBE) || defined(CONFIG_INKA4X0)	|| \
     defined(CONFIG_MCC200)  || defined(CONFIG_O2DNT)	|| \
     defined(CONFIG_PM520)   || defined(CONFIG_TOP5200)	|| \
-    defined(CONFIG_TQM5200)
+    defined(CONFIG_TQM5200) || defined(CONFIG_V38B)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else

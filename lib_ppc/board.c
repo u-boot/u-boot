@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -805,7 +805,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif	/* CFG_EXTBDINFO */
 
 	s = getenv ("ethaddr");
-#if defined (CONFIG_MBX) || defined (CONFIG_RPXCLASSIC) || defined(CONFIG_IAD210)
+#if defined (CONFIG_MBX) || \
+    defined (CONFIG_RPXCLASSIC) || \
+    defined(CONFIG_IAD210) || \
+    defined(CONFIG_V38B)
 	if (s == NULL)
 		board_get_enetaddr (bd->bi_enetaddr);
 	else
