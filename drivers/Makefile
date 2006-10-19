@@ -50,7 +50,8 @@ COBJS	= 3c589.o 5701rls.o ali512x.o \
 	  videomodes.o w83c553f.o \
 	  ks8695eth.o \
 	  pxa_pcmcia.o mpc8xx_pcmcia.o tqm8xx_pcmcia.o	\
-	  rpx_pcmcia.o
+	  rpx_pcmcia.o \
+	  fsl_i2c.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

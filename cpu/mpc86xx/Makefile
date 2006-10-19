@@ -30,7 +30,7 @@ LIB	= $(obj)lib$(CPU).a
 START	= start.o #resetvec.o
 SOBJS	= cache.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  pci.o pcie_indirect.o i2c.o spd_sdram.o
+	  pci.o pcie_indirect.o spd_sdram.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
