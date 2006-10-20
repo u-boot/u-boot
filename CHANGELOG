@@ -2,6 +2,8 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* MCC200: Fix uninitialized variable problem in LCD driver
+
 * Add board/cpu specific NAND chip select function to 440 NDFC
   Based on idea and implementation from Jeff Mann
   Patch by Stefan Roese, 20 Oct 2006
