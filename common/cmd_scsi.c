@@ -43,8 +43,13 @@
 #else
 #define SCSI_DEV_ID		CONFIG_SCSI_DEV_ID
 #endif
+#elif defined CONFIG_SATA_ULI5288
+
+#define SCSI_VEND_ID 0x10b9
+#define SCSI_DEV_ID  0x5288
+
 #else
-#error CONFIG_SCSI_SYM53C8XX must be defined
+#error no scsi device defined
 #endif
 
 

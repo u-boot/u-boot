@@ -31,6 +31,11 @@
 #include <asm/immap_85xx.h>
 #include <spd.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
+
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
@@ -311,24 +316,8 @@ long int fixed_sdram (void)
  * Initialize PCI Devices, report devices found.
  */
 
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc85xxads_config_table[] = {
-    { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-      PCI_IDSEL_NUMBER, PCI_ANY_ID,
-      pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
-				   PCI_ENET0_MEMADDR,
-				   PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
-      } },
-    { }
-};
-#endif
 
-
-static struct pci_controller hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table: pci_mpc85xxads_config_table,
-#endif
-};
+static struct pci_controller hose;
 
 #endif	/* CONFIG_PCI */
 
@@ -337,8 +326,27 @@ void
 pci_init_board(void)
 {
 #ifdef CONFIG_PCI
-	extern void pci_mpc85xx_init(struct pci_controller *hose);
-
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
 }
+
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+	ft_cpu_setup(blob, bd);
+
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
+}
+#endif

@@ -447,6 +447,11 @@ The following options need to be configured:
 		Board code has addition modification that it wants to make
 		to the flat device tree before handing it off to the kernel
 
+		CONFIG_OF_BOOT_CPU
+
+		This define fills in the correct boot cpu in the boot
+		param header, the default value is zero if undefined.
+
 - Serial Ports:
 		CFG_PL010_SERIAL
 
@@ -3054,6 +3059,55 @@ format!) to the "bootm" command:
 	VFS: Mounted root (ext2 filesystem).
 
 	bash#
+
+Boot Linux and pass a flat device tree:
+-----------
+
+First, U-Boot must be compiled with the appropriate defines. See the section
+titled "Linux Kernel Interface" above for a more in depth explanation. The
+following is an example of how to start a kernel and pass an updated
+flat device tree:
+
+=> print oftaddr
+oftaddr=0x300000
+=> print oft
+oft=oftrees/mpc8540ads.dtb
+=> tftp $oftaddr $oft
+Speed: 1000, full duplex
+Using TSEC0 device
+TFTP from server 192.168.1.1; our IP address is 192.168.1.101
+Filename 'oftrees/mpc8540ads.dtb'.
+Load address: 0x300000
+Loading: #
+done
+Bytes transferred = 4106 (100a hex)
+=> tftp $loadaddr $bootfile
+Speed: 1000, full duplex
+Using TSEC0 device
+TFTP from server 192.168.1.1; our IP address is 192.168.1.2
+Filename 'uImage'.
+Load address: 0x200000
+Loading:############
+done
+Bytes transferred = 1029407 (fb51f hex)
+=> print loadaddr
+loadaddr=200000
+=> print oftaddr
+oftaddr=0x300000
+=> bootm $loadaddr - $oftaddr
+## Booting image at 00200000 ...
+   Image Name:   Linux-2.6.17-dirty
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    1029343 Bytes = 1005.2 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+Booting using flat device tree at 0x300000
+Using MPC85xx ADS machine description
+Memory CAM mapping: CAM0=256Mb, CAM1=256Mb, CAM2=0Mb residual: 0Mb
+[snip]
+
 
 More About U-Boot Image Types:
 ------------------------------

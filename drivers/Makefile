@@ -44,13 +44,14 @@ COBJS	= 3c589.o 5701rls.o ali512x.o \
 	  serial.o serial_max3100.o \
 	  serial_pl010.o serial_pl011.o serial_xuartlite.o \
 	  sl811_usb.o sm501.o smc91111.o smiLynxEM.o \
-	  status_led.o sym53c8xx.o \
+	  status_led.o sym53c8xx.o ahci.o \
 	  ti_pci1410a.o tigon3.o tsec.o \
 	  usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o \
 	  videomodes.o w83c553f.o \
 	  ks8695eth.o \
 	  pxa_pcmcia.o mpc8xx_pcmcia.o tqm8xx_pcmcia.o	\
-	  rpx_pcmcia.o
+	  rpx_pcmcia.o \
+	  fsl_i2c.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

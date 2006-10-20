@@ -102,7 +102,8 @@ void pciauto_setup_device(struct pci_controller *hose,
 
 		/* Check the BAR type and set our address mask */
 		if (bar_response & PCI_BASE_ADDRESS_SPACE) {
-			bar_size = ~(bar_response & PCI_BASE_ADDRESS_IO_MASK) + 1;
+			bar_size = ((~(bar_response & PCI_BASE_ADDRESS_IO_MASK))
+				   & 0xffff) + 1;
 			bar_res = io;
 
 			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%x, ", bar_nr, bar_size);
@@ -186,7 +187,7 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	} else {
 		/* We don't support prefetchable memory for now, so disable */
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE, 0x1000);
-		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x1000);
+		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x0);
 	}
 
 	if (pci_io) {

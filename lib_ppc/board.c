@@ -504,7 +504,7 @@ void board_init_f (ulong bootflag)
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
-    defined(CONFIG_E500)
+    defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
 #if defined(CONFIG_MPC5xxx)
@@ -869,6 +869,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+#endif
+
+#ifdef CFG_ID_EEPROM
+	mac_read_from_eeprom();
 #endif
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
