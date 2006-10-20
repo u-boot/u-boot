@@ -932,8 +932,8 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 	const unsigned char max_vendor_len = 40;
 	const unsigned char max_product_len = 20;
 	if (descriptor.idVendor == 0x0424 && descriptor.idProduct == 0x223a) {
-		strncpy(vendor, "SMSC", max_vendor_len);
-		strncpy(product, "Flash Media Cntrller", max_product_len);
+		strncpy ((char *)vendor, "SMSC", max_vendor_len);
+		strncpy ((char *)product, "Flash Media Cntrller", max_product_len);
 	}
 }
 #endif /* CONFIG_USB_BIN_FIXUP */
