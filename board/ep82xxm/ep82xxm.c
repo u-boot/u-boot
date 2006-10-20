@@ -227,8 +227,6 @@ long int initdram(int board_type)
 #ifndef CFG_RAMBOOT
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
-	vu_char *ramaddr = (vu_char *)CFG_SDRAM_BASE;
-	uchar c = 0xFF;
 	uint psdmr = CFG_PSDMR;
 	int i;
 
