@@ -329,7 +329,7 @@ pci_init_board(void)
 
 int last_stage_init(void)
 {
-	unsigned int temp;
+	unsigned short temp;
 
 	/* Change the resistors for the PHY */
 	/* This is needed to get the RGMII working for the 1.3+

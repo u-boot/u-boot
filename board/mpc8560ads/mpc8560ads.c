@@ -33,6 +33,10 @@
 #include <spd.h>
 #include <miiphy.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif

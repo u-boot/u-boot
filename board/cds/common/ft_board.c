@@ -45,8 +45,6 @@ static void cds_pci_fixup(void *blob)
 		/* We rotate the interrupt pins so that the mapping
 		 * changes depending on the slot the carrier card is in.
 		 */
-		int j;
-
 		map[3] = ((map[3] + slot - 2) % 4) + 1;
 
 		map+=7;
