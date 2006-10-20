@@ -18,11 +18,14 @@
 
 #include <common.h>
 
+#ifdef CONFIG_FSL_I2C
 #ifdef CONFIG_HARD_I2C
 
 #include <command.h>
+#include <i2c.h>		/* Functional interface */
+
 #include <asm/io.h>
-#include <asm/fsl_i2c.h>
+#include <asm/fsl_i2c.h>	/* HW definitions */
 
 #define I2C_TIMEOUT	(CFG_HZ / 4)
 #define I2C		((struct fsl_i2c *)(CFG_IMMR + CFG_I2C_OFFSET))
@@ -32,7 +35,7 @@ void
 i2c_init(int speed, int slaveadd)
 {
 	/* stop I2C controller */
-	writeb(0x0 , &I2C->cr);
+	writeb(0x0, &I2C->cr);
 
 	/* set clock */
 	writeb(0x3f, &I2C->fdr);
@@ -53,7 +56,7 @@ i2c_init(int speed, int slaveadd)
 static __inline__ int
 i2c_wait4bus(void)
 {
-	ulong timeval = get_timer (0);
+	ulong timeval = get_timer(0);
 
 	while (readb(&I2C->sr) & I2C_SR_MBB) {
 		if (get_timer(timeval) > I2C_TIMEOUT) {
@@ -235,3 +238,4 @@ i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
 }
 
 #endif /* CONFIG_HARD_I2C */
+#endif /* CONFIG_FSL_I2C */
