@@ -190,6 +190,7 @@ int checkcpu (void)
 	uint pvr = get_pvr();
 	ulong clock = gd->cpu_clk;
 	char buf[32];
+	char addstr[64] = "";
 
 #if !defined(CONFIG_IOP480)
 	sys_info_t sys_info;
@@ -308,19 +309,23 @@ int checkcpu (void)
 #endif /* CONFIG_440 */
 
 	case PVR_440EPX1_RA:
-		puts("EPx Rev. A - Security/Kasumi support");
+		puts("EPx Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	case PVR_440EPX2_RA:
-		puts("EPx Rev. A - No Security/Kasumi support");
+		puts("EPx Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
 		break;
 
 	case PVR_440GRX1_RA:
-		puts("GRx Rev. A - Security/Kasumi support");
+		puts("GRx Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	case PVR_440GRX2_RA:
-		puts("GRx Rev. A - No Security/Kasumi support");
+		puts("GRx Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
 		break;
 
 	case PVR_440SP_RA:
@@ -348,6 +353,9 @@ int checkcpu (void)
 	       sys_info.freqPLB / 1000000,
 	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
 	       FREQ_EBC / 1000000);
+
+	if (addstr[0] != 0)
+		printf("       %s\n", addstr);
 
 #if defined(I2C_BOOTROM)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");

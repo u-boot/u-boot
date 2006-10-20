@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Make 4xx bootup message shorter on 440EPx/GRx platforms
+  Patch by Stefan Roese, 18 Oct 2006
+
 * Add (preliminary) support for V38B board
 
 * PPC405EP: Add support for board configuration of CPC0_PCI register
