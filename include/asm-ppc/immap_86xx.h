@@ -10,6 +10,8 @@
 #ifndef __IMMAP_86xx__
 #define __IMMAP_86xx__
 
+#include <asm/types.h>
+#include <asm/fsl_i2c.h>
 
 /* Local-Access Registers and MCM Registers(0x0000-0x2000) */
 typedef struct ccsr_local_mcm {
@@ -155,52 +157,9 @@ typedef struct ccsr_ddr {
 
 
 /* Daul I2C Registers(0x3000-0x4000) */
-
 typedef struct ccsr_i2c {
-	u_char	i2cadr1;	/* 0x3000 - I2C 1 Address Register */
-#define MPC86xx_I2CADR_MASK	0xFE
-	char	res1[3];
-	u_char	i2cfdr1;	/* 0x3004 - I2C 1 Frequency Divider Register */
-#define MPC86xx_I2CFDR_MASK	0x3F
-	char	res2[3];
-	u_char	i2ccr1;		/* 0x3008 - I2C 1 Control Register */
-#define MPC86xx_I2CCR_MEN	0x80
-#define MPC86xx_I2CCR_MIEN	0x40
-#define MPC86xx_I2CCR_MSTA      0x20
-#define MPC86xx_I2CCR_MTX       0x10
-#define MPC86xx_I2CCR_TXAK      0x08
-#define MPC86xx_I2CCR_RSTA      0x04
-#define MPC86xx_I2CCR_BCST      0x01
-	char	res3[3];
-	u_char	i2csr1;		/* 0x300c - I2C 1 Status Register */
-#define MPC86xx_I2CSR_MCF	0x80
-#define MPC86xx_I2CSR_MAAS      0x40
-#define MPC86xx_I2CSR_MBB       0x20
-#define MPC86xx_I2CSR_MAL       0x10
-#define MPC86xx_I2CSR_BCSTM     0x08
-#define MPC86xx_I2CSR_SRW       0x04
-#define MPC86xx_I2CSR_MIF       0x02
-#define MPC86xx_I2CSR_RXAK      0x01
-	char	res4[3];
-	u_char	i2cdr1;		/* 0x3010 - I2C 1 Data Register */
-#define MPC86xx_I2CDR_DATA	0xFF
-	char	res5[3];
-	u_char	i2cdfsrr1;	/* 0x3014 - I2C 1 Digital Filtering Sampling Rate Register */
-#define MPC86xx_I2CDFSRR	0x3F
-	char	res6[235];
-
-	u_char	i2cadr2;	/* 0x3100 - I2C 2 Address Register */
-	char	res7[3];
-	u_char	i2cfdr2;	/* 0x3104 - I2C 2 Frequency Divider Register */
-	char	res8[3];
-	u_char	i2ccr2;		/* 0x3108 - I2C 2 Control Register */
-	char	res9[3];
-	u_char	i2csr2;		/* 0x310c - I2C 2 Status Register */
-	char	res10[3];
-	u_char	i2cdr2;		/* 0x3110 - I2C 2 Data Register */
-	char	res11[3];
-	u_char	i2cdfsrr2;	/* 0x3114 - I2C 2 Digital Filtering Sampling Rate Register */
-	char	res12[3819];
+	struct fsl_i2c	i2c[2];
+	u8	res[4096 - 2 * sizeof(struct fsl_i2c)];
 } ccsr_i2c_t;
 
 /* DUART Registers(0x4000-0x5000) */
