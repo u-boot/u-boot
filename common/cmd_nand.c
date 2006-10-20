@@ -178,6 +178,14 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		printf("Device %d: %s", dev, nand_info[dev].name);
 		puts("... is now current device\n");
 		nand_curr_device = dev;
+
+#ifdef CFG_NAND_SELECT_DEVICE
+		/*
+		 * Select the chip in the board/cpu specific driver
+		 */
+		board_nand_select_device(nand_info[dev].priv, dev);
+#endif
+
 		return 0;
 	}
 
