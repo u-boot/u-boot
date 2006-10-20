@@ -2,6 +2,9 @@
 Changes since U-Boot 1.1.4:
 ======================================================================
 
+* Fix compile problem in include/configs/ep82xxm.h
+  (must have never been tested before!)
+
 * MCC200: Fix uninitialized variable problem in LCD driver
 
 * Add board/cpu specific NAND chip select function to 440 NDFC

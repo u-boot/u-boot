@@ -28,7 +28,7 @@
 #define CONFIG_MPC8260
 #define CPU_ID_STR		"MPC8270"
 
-#define CONFIG_EP82XXM	/* Embedded Planet EP82xxM H 1.0 board /*
+#define CONFIG_EP82XXM	/* Embedded Planet EP82xxM H 1.0 board */
 			/* 256MB SDRAM / 64MB FLASH */
 
 #undef DEBUG
