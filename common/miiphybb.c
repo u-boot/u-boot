@@ -41,7 +41,7 @@
 static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
 {
 	int j;			/* counter */
-#ifndef CONFIG_EP8248
+#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
 	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
 #endif
 
@@ -126,7 +126,7 @@ int bb_miiphy_read (char *devname, unsigned char addr,
 {
 	short rdreg;		/* register working value */
 	int j;			/* counter */
-#ifndef CONFIG_EP8248
+#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
 	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
 #endif
 
@@ -193,7 +193,7 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	int j;			/* counter */
-#ifndef CONFIG_EP8248
+#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
 	volatile ioport_t *iop = ioport_addr ((immap_t *) CFG_IMMR, MDIO_PORT);
 #endif
 

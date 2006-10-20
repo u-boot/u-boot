@@ -1,6 +1,8 @@
 ======================================================================
-Changes since U-Boot 1.1.4:
+Changes for U-Boot 1.1.5:
 ======================================================================
+
+* Cleanup compile warnings. Prepare for release 1.1.5
 
 * Fix compile problem in include/configs/ep82xxm.h
   (must have never been tested before!)

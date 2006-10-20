@@ -190,9 +190,9 @@ int checkcpu (void)
 	uint pvr = get_pvr();
 	ulong clock = gd->cpu_clk;
 	char buf[32];
-	char addstr[64] = "";
 
 #if !defined(CONFIG_IOP480)
+	char addstr[64] = "";
 	sys_info_t sys_info;
 
 	puts ("CPU:   ");
@@ -362,8 +362,8 @@ int checkcpu (void)
 #if defined(SDR0_PINSTP_SHIFT)
 	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
-#endif
-#endif
+#endif	/* SDR0_PINSTP_SHIFT */
+#endif	/* I2C_BOOTROM */
 
 #if defined(CONFIG_PCI)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
