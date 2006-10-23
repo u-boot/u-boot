@@ -22,7 +22,6 @@
 #
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/include/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
