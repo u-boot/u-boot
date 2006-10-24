@@ -132,6 +132,7 @@ Directory Hierarchy:
   - arm925t	Files specific to ARM 925 CPUs
   - arm926ejs	Files specific to ARM 926 CPUs
   - arm1136	Files specific to ARM 1136 CPUs
+  - at32ap	Files specific to Atmel AVR32 AP CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
@@ -257,6 +258,9 @@ The following options need to be configured:
 		----------------------
 		CONFIG_NIOS2
 
+		AVR32 based CPUs:
+		----------------------
+		CONFIG_AT32AP
 
 - Board Type:	Define exactly one of
 
