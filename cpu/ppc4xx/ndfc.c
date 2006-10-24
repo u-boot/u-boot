@@ -144,16 +144,21 @@ static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 
 void board_nand_select_device(struct nand_chip *nand, int chip)
 {
+	/*
+	 * Don't use "chip" to address the NAND device,
+	 * generate the cs from the address where it is encoded.
+	 */
+	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
 	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
 
 	/* Set NandFlash Core Configuration Register */
 	/* 1col x 2 rows */
-	out32(base + NDFC_CCR, 0x00000000 | (chip << 24));
+	out32(base + NDFC_CCR, 0x00000000 | (cs << 24));
 }
 
 void board_nand_init(struct nand_chip *nand)
 {
-	int chip = (ulong)nand->IO_ADDR_W & 0x00000003;
+	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
 	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
 
 	nand->eccmode = NAND_ECC_SOFT;
@@ -181,8 +186,8 @@ void board_nand_init(struct nand_chip *nand)
 	/*
 	 * Select required NAND chip in NDFC
 	 */
-	board_nand_select_device(nand, chip);
-	out32(base + NDFC_BCFG0 + (chip << 2), 0x80002222);
+	board_nand_select_device(nand, cs);
+	out32(base + NDFC_BCFG0 + (cs << 2), 0x80002222);
 }
 
 #endif

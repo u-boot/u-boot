@@ -4,6 +4,9 @@ Changes for U-Boot 1.1.5:
 
 * Fix sequoia separate object direcory building problems.
 
+* Fix bug in PPC440 NAND driver cpu/ppc4xx/ndfc.c
+  Patch by Stefan Roese, 24 Oct 2006
+
 * Cleanup compile warnings. Prepare for release 1.1.5
 
 * Fix compile problem in include/configs/ep82xxm.h
