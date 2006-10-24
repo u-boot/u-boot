@@ -770,7 +770,7 @@ spd_sdram(void)
 	 * Determine Refresh Rate.
 	 */
 	refresh_clk = determine_refresh_rate(spd.refresh & 0x7);
-	
+
 	/*
 	 * Set BSTOPRE to 0x100 for page mode
 	 * If auto-charge is used, set BSTOPRE = 0

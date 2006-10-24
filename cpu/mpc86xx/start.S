@@ -40,8 +40,8 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 
-#ifndef  CONFIG_IDENT_STRING
-#define  CONFIG_IDENT_STRING ""
+#ifndef	CONFIG_IDENT_STRING
+#define CONFIG_IDENT_STRING ""
 #endif
 
 /* We don't want the  MMU yet.
@@ -188,11 +188,11 @@ boot_warm:
 #if (CONFIG_NUM_CPUS > 1)
 	mfspr	r0, MSSCR0
 	andi.	r0, r0, 0x0020
-        rlwinm  r0,r0,27,31,31
-        mtspr	PIR, r0
+	rlwinm	r0,r0,27,31,31
+	mtspr	PIR, r0
 	beq	1f
 
-      	bl	secondary_cpu_setup
+	bl	secondary_cpu_setup
 #endif
 
 	/* disable everything */
@@ -249,7 +249,7 @@ in_flash:
 	stw	r4, 0(r3)
 
 	/* setup the law entries */
-	bl 	law_entry
+	bl	law_entry
 	sync
 
 	/* Don't use this feature due to bug in 8641D PD4 */
@@ -303,7 +303,7 @@ in_flash:
 
 	/* enable and invalidate the data cache */
 /*	bl	l1dcache_enable */
-        bl      dcache_enable
+	bl	dcache_enable
 	sync
 
 #if 1
@@ -320,56 +320,56 @@ in_flash:
 	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
 	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
 
-	li	r0, 0		/* Make room for stack frame header and	*/
+	li	r0, 0		/* Make room for stack frame header and */
 	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
 
 	GET_GOT			/* initialize GOT access	*/
 
-	/* run low-level CPU init code     (from Flash)	*/
+	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
 	sync
 
-#ifdef  RUN_DIAG
+#ifdef	RUN_DIAG
 
-        /* Sri:  Code to run the diagnostic automatically */
+	/* Sri:	 Code to run the diagnostic automatically */
 
-        /* Load PX_AUX register address in r4 */
-        lis     r4, 0xf810
-        ori     r4, r4, 0x6
-        /* Load contents of PX_AUX in r3 bits 24 to 31*/
-        lbz     r3, 0(r4)
+	/* Load PX_AUX register address in r4 */
+	lis	r4, 0xf810
+	ori	r4, r4, 0x6
+	/* Load contents of PX_AUX in r3 bits 24 to 31*/
+	lbz	r3, 0(r4)
 
-        /* Mask and obtain the bit in r3 */
-        rlwinm. r3, r3, 0, 24, 24
-        /* If not zero, jump and continue with u-boot */
-        bne     diag_done
+	/* Mask and obtain the bit in r3 */
+	rlwinm. r3, r3, 0, 24, 24
+	/* If not zero, jump and continue with u-boot */
+	bne	diag_done
 
-        /* Load back contents of PX_AUX in r3 bits 24 to 31 */
-        lbz     r3, 0(r4)
-        /* Set the MSB of the register value */
-        ori     r3, r3, 0x80
-        /* Write value in r3 back to PX_AUX */
-        stb     r3, 0(r4)
+	/* Load back contents of PX_AUX in r3 bits 24 to 31 */
+	lbz	r3, 0(r4)
+	/* Set the MSB of the register value */
+	ori	r3, r3, 0x80
+	/* Write value in r3 back to PX_AUX */
+	stb	r3, 0(r4)
 
-        /* Get the address to jump to in r3*/
-        lis     r3, CFG_DIAG_ADDR@h
-        ori     r3, r3, CFG_DIAG_ADDR@l
+	/* Get the address to jump to in r3*/
+	lis	r3, CFG_DIAG_ADDR@h
+	ori	r3, r3, CFG_DIAG_ADDR@l
 
-        /* Load the LR with the branch address */
-        mtlr    r3
+	/* Load the LR with the branch address */
+	mtlr	r3
 
-        /* Branch to diagnostic */
-        blr
+	/* Branch to diagnostic */
+	blr
 
 diag_done:
 #endif
 
-  /*      bl      l2cache_enable*/
-        mr	r3, r21
+/*	bl	l2cache_enable */
+	mr	r3, r21
 
 	/* r3: BOOTFLAG */
-	/* run 1st part of board init code (from Flash)   */
+	/* run 1st part of board init code (from Flash)	  */
 	bl	board_init_f
 	sync
 
@@ -383,20 +383,20 @@ invalidate_bats:
 	mtspr	IBAT1U, r0
 	mtspr	IBAT2U, r0
 	mtspr	IBAT3U, r0
-	mtspr   IBAT4U, r0
-	mtspr   IBAT5U, r0
-	mtspr   IBAT6U, r0
-	mtspr   IBAT7U, r0
+	mtspr	IBAT4U, r0
+	mtspr	IBAT5U, r0
+	mtspr	IBAT6U, r0
+	mtspr	IBAT7U, r0
 
 	isync
 	mtspr	DBAT0U, r0
 	mtspr	DBAT1U, r0
 	mtspr	DBAT2U, r0
 	mtspr	DBAT3U, r0
-	mtspr   DBAT4U, r0
-	mtspr   DBAT5U, r0
-	mtspr   DBAT6U, r0
-	mtspr   DBAT7U, r0
+	mtspr	DBAT4U, r0
+	mtspr	DBAT5U, r0
+	mtspr	DBAT6U, r0
+	mtspr	DBAT7U, r0
 
 	isync
 	sync
@@ -482,80 +482,80 @@ setup_bats:
 	isync
 
 	/* IBAT 4 */
-	addis   r4, r0, CFG_IBAT4L@h
-	ori     r4, r4, CFG_IBAT4L@l
-	addis   r3, r0, CFG_IBAT4U@h
-	ori     r3, r3, CFG_IBAT4U@l
-	mtspr   IBAT4L, r4
-	mtspr   IBAT4U, r3
+	addis	r4, r0, CFG_IBAT4L@h
+	ori	r4, r4, CFG_IBAT4L@l
+	addis	r3, r0, CFG_IBAT4U@h
+	ori	r3, r3, CFG_IBAT4U@l
+	mtspr	IBAT4L, r4
+	mtspr	IBAT4U, r3
 	isync
 
 	/* DBAT 4 */
-	addis   r4, r0, CFG_DBAT4L@h
-	ori     r4, r4, CFG_DBAT4L@l
-	addis   r3, r0, CFG_DBAT4U@h
-	ori     r3, r3, CFG_DBAT4U@l
-	mtspr   DBAT4L, r4
-	mtspr   DBAT4U, r3
+	addis	r4, r0, CFG_DBAT4L@h
+	ori	r4, r4, CFG_DBAT4L@l
+	addis	r3, r0, CFG_DBAT4U@h
+	ori	r3, r3, CFG_DBAT4U@l
+	mtspr	DBAT4L, r4
+	mtspr	DBAT4U, r3
 	isync
 
 	/* IBAT 5 */
-	addis   r4, r0, CFG_IBAT5L@h
-	ori     r4, r4, CFG_IBAT5L@l
-	addis   r3, r0, CFG_IBAT5U@h
-	ori     r3, r3, CFG_IBAT5U@l
-	mtspr   IBAT5L, r4
-	mtspr   IBAT5U, r3
+	addis	r4, r0, CFG_IBAT5L@h
+	ori	r4, r4, CFG_IBAT5L@l
+	addis	r3, r0, CFG_IBAT5U@h
+	ori	r3, r3, CFG_IBAT5U@l
+	mtspr	IBAT5L, r4
+	mtspr	IBAT5U, r3
 	isync
 
 	/* DBAT 5 */
-	addis   r4, r0, CFG_DBAT5L@h
-	ori     r4, r4, CFG_DBAT5L@l
-	addis   r3, r0, CFG_DBAT5U@h
-	ori     r3, r3, CFG_DBAT5U@l
-	mtspr   DBAT5L, r4
-	mtspr   DBAT5U, r3
+	addis	r4, r0, CFG_DBAT5L@h
+	ori	r4, r4, CFG_DBAT5L@l
+	addis	r3, r0, CFG_DBAT5U@h
+	ori	r3, r3, CFG_DBAT5U@l
+	mtspr	DBAT5L, r4
+	mtspr	DBAT5U, r3
 	isync
 
 	/* IBAT 6 */
-	addis   r4, r0, CFG_IBAT6L@h
-	ori     r4, r4, CFG_IBAT6L@l
-	addis   r3, r0, CFG_IBAT6U@h
-	ori     r3, r3, CFG_IBAT6U@l
-	mtspr   IBAT6L, r4
-	mtspr   IBAT6U, r3
+	addis	r4, r0, CFG_IBAT6L@h
+	ori	r4, r4, CFG_IBAT6L@l
+	addis	r3, r0, CFG_IBAT6U@h
+	ori	r3, r3, CFG_IBAT6U@l
+	mtspr	IBAT6L, r4
+	mtspr	IBAT6U, r3
 	isync
 
 	/* DBAT 6 */
-	addis   r4, r0, CFG_DBAT6L@h
-	ori     r4, r4, CFG_DBAT6L@l
-	addis   r3, r0, CFG_DBAT6U@h
-	ori     r3, r3, CFG_DBAT6U@l
-	mtspr   DBAT6L, r4
-	mtspr   DBAT6U, r3
+	addis	r4, r0, CFG_DBAT6L@h
+	ori	r4, r4, CFG_DBAT6L@l
+	addis	r3, r0, CFG_DBAT6U@h
+	ori	r3, r3, CFG_DBAT6U@l
+	mtspr	DBAT6L, r4
+	mtspr	DBAT6U, r3
 	isync
 
 	/* IBAT 7 */
-	addis   r4, r0, CFG_IBAT7L@h
-	ori     r4, r4, CFG_IBAT7L@l
-	addis   r3, r0, CFG_IBAT7U@h
-	ori     r3, r3, CFG_IBAT7U@l
-	mtspr   IBAT7L, r4
-	mtspr   IBAT7U, r3
+	addis	r4, r0, CFG_IBAT7L@h
+	ori	r4, r4, CFG_IBAT7L@l
+	addis	r3, r0, CFG_IBAT7U@h
+	ori	r3, r3, CFG_IBAT7U@l
+	mtspr	IBAT7L, r4
+	mtspr	IBAT7U, r3
 	isync
 
 	/* DBAT 7 */
-	addis   r4, r0, CFG_DBAT7L@h
-	ori     r4, r4, CFG_DBAT7L@l
-	addis   r3, r0, CFG_DBAT7U@h
-	ori     r3, r3, CFG_DBAT7U@l
-	mtspr   DBAT7L, r4
-	mtspr   DBAT7U, r3
+	addis	r4, r0, CFG_DBAT7L@h
+	ori	r4, r4, CFG_DBAT7L@l
+	addis	r3, r0, CFG_DBAT7U@h
+	ori	r3, r3, CFG_DBAT7U@l
+	mtspr	DBAT7L, r4
+	mtspr	DBAT7U, r3
 	isync
 
 1:
 	addis	r3, 0, 0x0000
-	addis	r5, 0, 0x4    /* upper bound of 0x00040000 for 7400/750 */
+	addis	r5, 0, 0x4	/* upper bound of 0x00040000 for 7400/750 */
 	isync
 
 tlblp:
@@ -663,8 +663,8 @@ get_svr:
 
 
 /*
- * Function:	 in8
- * Description:	 Input 8 bits
+ * Function:	in8
+ * Description:	Input 8 bits
  */
 	.globl	in8
 in8:
@@ -672,8 +672,8 @@ in8:
 	blr
 
 /*
- * Function:	 out8
- * Description:	 Output 8 bits
+ * Function:	out8
+ * Description:	Output 8 bits
  */
 	.globl	out8
 out8:
@@ -681,8 +681,8 @@ out8:
 	blr
 
 /*
- * Function:	 out16
- * Description:	 Output 16 bits
+ * Function:	out16
+ * Description:	Output 16 bits
  */
 	.globl	out16
 out16:
@@ -690,8 +690,8 @@ out16:
 	blr
 
 /*
- * Function:	 out16r
- * Description:	 Byte reverse and output 16 bits
+ * Function:	out16r
+ * Description:	Byte reverse and output 16 bits
  */
 	.globl	out16r
 out16r:
@@ -699,8 +699,8 @@ out16r:
 	blr
 
 /*
- * Function:	 out32
- * Description:	 Output 32 bits
+ * Function:	out32
+ * Description:	Output 32 bits
  */
 	.globl	out32
 out32:
@@ -708,8 +708,8 @@ out32:
 	blr
 
 /*
- * Function:	 out32r
- * Description:	 Byte reverse and output 32 bits
+ * Function:	out32r
+ * Description:	Byte reverse and output 32 bits
  */
 	.globl	out32r
 out32r:
@@ -717,8 +717,8 @@ out32r:
 	blr
 
 /*
- * Function:	 in16
- * Description:	 Input 16 bits
+ * Function:	in16
+ * Description:	Input 16 bits
  */
 	.globl	in16
 in16:
@@ -726,8 +726,8 @@ in16:
 	blr
 
 /*
- * Function:	 in16r
- * Description:	 Input 16 bits and byte reverse
+ * Function:	in16r
+ * Description:	Input 16 bits and byte reverse
  */
 	.globl	in16r
 in16r:
@@ -735,8 +735,8 @@ in16r:
 	blr
 
 /*
- * Function:	 in32
- * Description:	 Input 32 bits
+ * Function:	in32
+ * Description:	Input 32 bits
  */
 	.globl	in32
 in32:
@@ -744,8 +744,8 @@ in32:
 	blr
 
 /*
- * Function:	 in32r
- * Description:	 Input 32 bits and byte reverse
+ * Function:	in32r
+ * Description:	Input 32 bits and byte reverse
  */
 	.globl	in32r
 in32r:
@@ -753,10 +753,10 @@ in32r:
 	blr
 
 /*
- * Function:	 ppcDcbf
- * Description:	 Data Cache block flush
- * Input:	 r3 = effective address
- * Output:	 none.
+ * Function:	ppcDcbf
+ * Description:	Data Cache block flush
+ * Input:	r3 = effective address
+ * Output:	none.
  */
 	.globl	ppcDcbf
 ppcDcbf:
@@ -764,10 +764,10 @@ ppcDcbf:
 	blr
 
 /*
- * Function:	 ppcDcbi
- * Description:	 Data Cache block Invalidate
- * Input:	 r3 = effective address
- * Output:	 none.
+ * Function:	ppcDcbi
+ * Description:	Data Cache block Invalidate
+ * Input:	r3 = effective address
+ * Output:	none.
  */
 	.globl	ppcDcbi
 ppcDcbi:
@@ -775,10 +775,10 @@ ppcDcbi:
 	blr
 
 /*
- * Function:	 ppcDcbz
- * Description:	 Data Cache block zero.
- * Input:	 r3 = effective address
- * Output:	 none.
+ * Function:	ppcDcbz
+ * Description:	Data Cache block zero.
+ * Input:	r3 = effective address
+ * Output:	none.
  */
 	.globl	ppcDcbz
 ppcDcbz:
@@ -786,10 +786,10 @@ ppcDcbz:
 	blr
 
 /*
- * Function:	 ppcSync
- * Description:	 Processor Synchronize
- * Input:	 none.
- * Output:	 none.
+ * Function:	ppcSync
+ * Description:	Processor Synchronize
+ * Input:	none.
+ * Output:	none.
  */
 	.globl	ppcSync
 ppcSync:
@@ -810,7 +810,7 @@ ppcSync:
 	.globl	relocate_code
 relocate_code:
 
-        mr	r1,  r3		/* Set new stack pointer		*/
+	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Global Data pointer	*/
 	mr	r29, r9		/* Save for DECLARE_GLOBAL_DATA_PTR	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
@@ -891,7 +891,7 @@ relocate_code:
 	add	r4,r4,r6
 	cmplw	r4,r5
 	blt	6b
-7:	sync			/* Wait for all icbi to complete on bus	*/
+7:	sync			/* Wait for all icbi to complete on bus */
 	isync
 
 /*
@@ -1051,9 +1051,9 @@ trap_reloc:
 .globl enable_ext_addr
 enable_ext_addr:
 	mfspr	r0, HID0
-	lis     r0, (HID0_HIGH_BAT_EN | HID0_XBSEN | HID0_XAEN)@h
+	lis	r0, (HID0_HIGH_BAT_EN | HID0_XBSEN | HID0_XAEN)@h
 	ori	r0, r0, (HID0_HIGH_BAT_EN | HID0_XBSEN | HID0_XAEN)@l
-	mtspr   HID0, r0
+	mtspr	HID0, r0
 	sync
 	isync
 	blr
@@ -1065,8 +1065,8 @@ setup_ccsrbar:
 	lis	r4, CFG_CCSRBAR_DEFAULT@h
 	ori	r4, r4, CFG_CCSRBAR_DEFAULT@l
 
-	lis   	r5, CFG_CCSRBAR@h
-	ori   	r5, r5, CFG_CCSRBAR@l
+	lis	r5, CFG_CCSRBAR@h
+	ori	r5, r5, CFG_CCSRBAR@l
 	srwi	r6,r5,12
 	stw	r6, 0(r4)
 	isync
@@ -1130,36 +1130,36 @@ unlock_ram_in_cache:
 1:	icbi	r0, r3
 	addi	r3, r3, 32
 	bdnz	1b
-	sync			/* Wait for all icbi to complete on bus	*/
+	sync			/* Wait for all icbi to complete on bus */
 	isync
 #if 1
 /* Unlock the data cache and invalidate it */
-	mfspr   r0, HID0
-	li      r3,0x1000
-	andc    r0,r0,r3
+	mfspr	r0, HID0
+	li	r3,0x1000
+	andc	r0,r0,r3
 	li	r3,0x0400
 	or	r0,r0,r3
 	sync
-	mtspr   HID0, r0
+	mtspr	HID0, r0
 	sync
 	blr
 #endif
 #if 0
 	/* Unlock the first way of the data cache */
-	mfspr   r0, LDSTCR
-	li      r3,0x0080
-	andc    r0,r0,r3
+	mfspr	r0, LDSTCR
+	li	r3,0x0080
+	andc	r0,r0,r3
 #ifdef CONFIG_ALTIVEC
 	dssall
 #endif
 	sync
-	mtspr   LDSTCR, r0
+	mtspr	LDSTCR, r0
 	sync
 	isync
 	li	r3,0x0400
 	or	r0,r0,r3
 	sync
-	mtspr   HID0, r0
+	mtspr	HID0, r0
 	sync
 	blr
 #endif
@@ -1168,9 +1168,9 @@ unlock_ram_in_cache:
 /* If this is a multi-cpu system then we need to handle the
  * 2nd cpu.  The assumption is that the 2nd cpu is being
  * held in boot holdoff mode until the 1st cpu unlocks it
- * from Linux.  We'll do some basic cpu init and then pass
+ * from Linux.	We'll do some basic cpu init and then pass
  * it to the Linux Reset Vector.
- * Sri:  Much of this initialization is not required. Linux
+ * Sri:	 Much of this initialization is not required. Linux
  * rewrites the bats, and the sprs and also enables the L1 cache.
  */
 #if (CONFIG_NUM_CPUS > 1)
@@ -1199,27 +1199,27 @@ secondary_cpu_setup:
 	bl	dcache_enable
 	sync
 
-        /* enable and invalidate the instruction cache*/
-        bl      icache_enable
-        sync
+	/* enable and invalidate the instruction cache*/
+	bl	icache_enable
+	sync
 
-        /* TBEN  in HID0 */
+	/* TBEN in HID0 */
 	mfspr	r4, HID0
-        oris    r4, r4, 0x0400
-        mtspr   HID0, r4
-        sync
-        isync
+	oris	r4, r4, 0x0400
+	mtspr	HID0, r4
+	sync
+	isync
 
-        /*SYNCBE|ABE in HID1*/
-        mfspr	r4, HID1
-        ori     r4, r4, 0x0C00
-        mtspr   HID1, r4
-        sync
-        isync
+	/*SYNCBE|ABE in HID1*/
+	mfspr	r4, HID1
+	ori	r4, r4, 0x0C00
+	mtspr	HID1, r4
+	sync
+	isync
 
-        lis	r3, CONFIG_LINUX_RESET_VEC@h
+	lis	r3, CONFIG_LINUX_RESET_VEC@h
 	ori	r3, r3, CONFIG_LINUX_RESET_VEC@l
-	mtlr    r3
+	mtlr	r3
 	blr
 
 	/* Never Returns, Running in Linux Now */
