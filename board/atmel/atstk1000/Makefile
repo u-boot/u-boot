@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2002-2006
+# (C) Copyright 2001-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# Copyright (C) 2005-2006 Atmel Corporation
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -19,27 +21,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	:= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o sdram.o
-SOBJS	= init.o
+COBJS	:= $(BOARD).o flash.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

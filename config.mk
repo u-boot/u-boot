@@ -169,7 +169,7 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
-AFLAGS_DEBUG := -Wa,-gstabs
+AFLAGS_DEBUG := -Wa,-g
 
 # turn jbsr into jsr for m68k
 ifeq ($(ARCH),m68k)

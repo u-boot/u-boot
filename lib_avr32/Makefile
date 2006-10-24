@@ -2,6 +2,8 @@
 # (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
+# (C) Copyright 2004-2006 Atmel Corporation
+#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -23,23 +25,17 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(ARCH).a
 
-COBJS	= $(BOARD).o sdram.o
-SOBJS	= init.o
+SOBJS	= memset.o
+
+COBJS	= board.o interrupts.o avr32_linux.o div64.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 

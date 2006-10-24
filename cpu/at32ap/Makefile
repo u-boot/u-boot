@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2002-2006
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# Copyright (C) 2005-2006 Atmel Corporation.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,23 +25,20 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	:= $(obj)lib$(CPU).a
 
-COBJS	= $(BOARD).o sdram.o
-SOBJS	= init.o
+START	:= start.o
+SOBJS	:= entry.o
+COBJS	:= cpu.o hsdramc.o exception.o cache.o
+COBJS	+= interrupts.o device.o pm.o pio.o
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+all: $(obj).depend $(START) $(LIB)
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB): $(OBJS)
+	$(AR) crv $@ $^
 
 #########################################################################
 

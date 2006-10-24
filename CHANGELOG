@@ -2,6 +2,8 @@
 Changes for U-Boot 1.1.5:
 ======================================================================
 
+* Fix sequoia separate object direcory building problems.
+
 * Cleanup compile warnings. Prepare for release 1.1.5
 
 * Fix compile problem in include/configs/ep82xxm.h
