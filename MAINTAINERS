@@ -561,6 +561,10 @@ Zachary P. Landau <zachary.landau@labxtechnologies.com>
 #	Board			CPU					#
 #########################################################################
 
+Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+	ATSTK1000		AT32AP7000
+
 #########################################################################
 # End of MAINTAINERS list						#
 #########################################################################

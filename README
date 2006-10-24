@@ -330,6 +330,15 @@ The following options need to be configured:
 		CONFIG_PCI5441 CONFIG_PK1C20
 		CONFIG_EP1C20 CONFIG_EP1S10 CONFIG_EP1S40
 
+		AVR32 based boards:
+		-------------------
+
+		CONFIG_ATSTK1000
+
+- CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
+		Define exactly one of
+		CONFIG_ATSTK1002
+
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
 		Define exactly one of
