@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
+#include <miiphy.h>
 
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
@@ -324,4 +325,35 @@ pci_init_board(void)
 #ifdef CONFIG_PCI
 	pci_mpc85xx_init(&hose);
 #endif
+}
+
+int last_stage_init(void)
+{
+	unsigned short temp;
+
+	/* Change the resistors for the PHY */
+	/* This is needed to get the RGMII working for the 1.3+
+	 * CDS cards */
+	if (get_board_version() ==  0x13) {
+		miiphy_write(CONFIG_MPC85XX_TSEC1_NAME,
+				TSEC1_PHY_ADDR, 29, 18);
+
+		miiphy_read(CONFIG_MPC85XX_TSEC1_NAME,
+				TSEC1_PHY_ADDR, 30, &temp);
+
+		temp = (temp & 0xf03f);
+		temp |= 2 << 9;		/* 36 ohm */
+		temp |= 2 << 6;		/* 39 ohm */
+
+		miiphy_write(CONFIG_MPC85XX_TSEC1_NAME,
+				TSEC1_PHY_ADDR, 30, temp);
+
+		miiphy_write(CONFIG_MPC85XX_TSEC1_NAME,
+				TSEC1_PHY_ADDR, 29, 3);
+
+		miiphy_write(CONFIG_MPC85XX_TSEC1_NAME,
+				TSEC1_PHY_ADDR, 30, 0x8000);
+	}
+
+	return 0;
 }

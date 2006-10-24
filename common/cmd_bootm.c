@@ -739,10 +739,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_OF_FLAT_TREE
-	if(argc > 3) {	
+	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
-		
+
 		if  (*(ulong *)of_flat_tree == OF_DT_HEADER) {
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL) {
@@ -760,7 +760,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				printf ("ERROR: Load address overwrites Flat Device Tree uImage\n");
 				return;
 			}
-			
+
 			printf("   Verifying Checksum ... ");
 			memmove (&header, (char *)hdr, sizeof(image_header_t));
 			checksum = ntohl(header.ih_hcrc);
@@ -793,8 +793,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				printf ("ERROR: uImage data is not a flat device tree\n");
 				return;
 			}
-					
-			memmove((void *)ntohl(hdr->ih_load), 
+
+			memmove((void *)ntohl(hdr->ih_load),
 		       		(void *)(of_flat_tree + sizeof(image_header_t)),
 				ntohl(hdr->ih_size));
 			of_flat_tree = (char *)ntohl(hdr->ih_load);
@@ -900,6 +900,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
 #else
+	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
+	/* ft_dump_blob(of_flat_tree); */
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();

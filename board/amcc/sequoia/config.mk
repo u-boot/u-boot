@@ -24,7 +24,7 @@
 # AMCC 440EPx Reference Platform (Sequoia) board
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFFA0000

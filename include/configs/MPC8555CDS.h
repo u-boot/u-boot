@@ -320,13 +320,17 @@ extern unsigned long get_clock_freq(void);
 #define OF_TBCLK		(bd->bi_busfreq / 8)
 #define OF_STDOUT_PATH		"/soc8555@e0000000/serial@4600"
 
-/* I2C */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_EEPROM_ADDR	0x57
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
 
 /*
  * General PCI
@@ -489,8 +493,10 @@ extern unsigned long get_clock_freq(void);
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS1\0"                                                 \
-   "ramdiskaddr=400000\0"                                               \
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"                                               \
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -498,7 +504,8 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \

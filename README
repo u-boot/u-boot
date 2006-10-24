@@ -132,6 +132,7 @@ Directory Hierarchy:
   - arm925t	Files specific to ARM 925 CPUs
   - arm926ejs	Files specific to ARM 926 CPUs
   - arm1136	Files specific to ARM 1136 CPUs
+  - at32ap	Files specific to Atmel AVR32 AP CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
@@ -156,6 +157,7 @@ Directory Hierarchy:
 - examples	Example code for standalone applications, etc.
 - include	Header Files
 - lib_arm	Files generic to ARM	 architecture
+- lib_avr32	Files generic to AVR32	 architecture
 - lib_generic	Files generic to all	 architectures
 - lib_i386	Files generic to i386	 architecture
 - lib_m68k	Files generic to m68k	 architecture
@@ -256,6 +258,9 @@ The following options need to be configured:
 		----------------------
 		CONFIG_NIOS2
 
+		AVR32 based CPUs:
+		----------------------
+		CONFIG_AT32AP
 
 - Board Type:	Define exactly one of
 
@@ -324,6 +329,15 @@ The following options need to be configured:
 
 		CONFIG_PCI5441 CONFIG_PK1C20
 		CONFIG_EP1C20 CONFIG_EP1S10 CONFIG_EP1S40
+
+		AVR32 based boards:
+		-------------------
+
+		CONFIG_ATSTK1000
+
+- CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
+		Define exactly one of
+		CONFIG_ATSTK1002
 
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
@@ -2727,9 +2741,9 @@ defines the following image properties:
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
   LynxOS, pSOS, QNX, RTEMS, ARTOS;
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, ARTOS, LynxOS).
-* Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
+* Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
   IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, Intel x86, MIPS, NIOS, PowerPC).
+  Currently supported: ARM, AVR32, Intel x86, MIPS, NIOS, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point

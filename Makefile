@@ -152,6 +152,9 @@ endif
 ifeq ($(ARCH),blackfin)
 CROSS_COMPILE = bfin-elf-
 endif
+ifeq ($(ARCH),avr32)
+CROSS_COMPILE = avr32-
+endif
 endif
 endif
 
@@ -175,6 +178,9 @@ ifeq ($(CPU),mpc83xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
+OBJS += cpu/$(CPU)/resetvec.o
+endif
+ifeq ($(CPU),mpc86xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),bf533)
@@ -269,10 +275,10 @@ $(SUBDIRS):
 		$(MAKE) -C $@ all
 
 $(NAND_SPL):	version
-		$(MAKE) -C nand_spl all
+		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
 $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
-		cat nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
+		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 version:
 		@echo -n "#define U_BOOT_VERSION \"U-Boot " > $(VERSION_FILE); \
@@ -1146,19 +1152,22 @@ PPChameleonEVB_HI_33_config:	unconfig
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
 rainier_config:	unconfig
-	@echo "#define CONFIG_RAINIER" > include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
 	@echo "Configuring for rainier board as subset of sequoia..."
 	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
 
 rainier_nand_config:	unconfig
-	@echo "#define CONFIG_RAINIER" > include/config.h
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/sequoia
+	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
 	@echo "Configuring for rainier board as subset of sequoia..."
-	@ln -s board/amcc/sequoia/Makefile nand_spl/Makefile
-	@echo "#define CONFIG_NAND_U_BOOT" >> include/config.h
+	@echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h
 	@echo "Compile NAND boot image for sequoia"
 	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
-	@echo "TEXT_BASE = 0x01000000" >board/amcc/sequoia/config.tmp
-	@echo "CONFIG_NAND_U_BOOT = y" >> include/config.mk
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
@@ -1167,12 +1176,14 @@ sequoia_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sequoia amcc
 
 sequoia_nand_config:	unconfig
-	@ln -s board/amcc/sequoia/Makefile nand_spl/Makefile
-	@echo "#define CONFIG_NAND_U_BOOT" >include/config.h
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/sequoia
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@echo "Compile NAND boot image for sequoia"
 	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
-	@echo "TEXT_BASE = 0x01000000" >board/amcc/sequoia/config.tmp
-	@echo "CONFIG_NAND_U_BOOT = y" >> include/config.mk
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 sycamore_config:	unconfig
 	@echo "Configuring for sycamore board as subset of walnut..."
@@ -1669,6 +1680,14 @@ TQM8560_config:		unconfig
 	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx
 
 #########################################################################
+## MPC86xx Systems
+#########################################################################
+
+MPC8641HPCN_config:    unconfig
+	@./mkconfig $(@:_config=) ppc mpc86xx mpc8641hpcn
+
+
+#########################################################################
 ## 74xx/7xx Systems
 #########################################################################
 
@@ -2099,6 +2118,13 @@ pb1000_config		: 	unconfig
 	@echo "#define CONFIG_PB1000 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
 
+#========================================================================
+# AVR32
+#========================================================================
+#########################################################################
+## AT32AP7xxx
+#########################################################################
+
 #########################################################################
 ## MIPS64 5Kc
 #########################################################################
@@ -2244,8 +2270,7 @@ clean:
 	rm -f $(obj)board/trab/trab_fkt $(obj)board/voiceblue/eeprom
 	rm -f $(obj)board/integratorap/u-boot.lds $(obj)board/integratorcp/u-boot.lds
 	rm -f $(obj)include/bmp_logo.h
-	find nand_spl -lname "*" -print | xargs rm -f
-	rm -f nand_spl/u-boot-spl nand_spl/u-boot-spl.map
+	rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
 
 clobber:	clean
 	find $(OBJTREE) -type f \( -name .depend \
@@ -2258,6 +2283,7 @@ clobber:	clean
 	rm -f $(obj)tools/crc32.c $(obj)tools/environment.c $(obj)tools/env/crc32.c
 	rm -f $(obj)tools/inca-swap-bytes $(obj)cpu/mpc824x/bedbug_603e.c
 	rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
+	[ ! -d $(OBJTREE)/nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f
 
 ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \

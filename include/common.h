@@ -79,6 +79,10 @@ typedef volatile unsigned char	vu_char;
 #endif
 #include <asm/immap_8260.h>
 #endif
+#ifdef CONFIG_MPC86xx
+#include <mpc86xx.h>
+#include <asm/immap_86xx.h>
+#endif
 #ifdef CONFIG_MPC85xx
 #include <mpc85xx.h>
 #include <asm/immap_85xx.h>
@@ -200,6 +204,9 @@ int	checkdram     (void);
 char *	strmhz(char *buf, long hz);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
+#ifdef CFG_ID_EEPROM
+int mac_read_from_eeprom(void);
+#endif
 
 /* common/flash.c */
 void flash_perror (int);
@@ -377,6 +384,7 @@ void	trap_init     (ulong);
     defined (CONFIG_74xx)	|| \
     defined (CONFIG_MPC8220)	|| \
     defined (CONFIG_MPC85xx)	|| \
+    defined (CONFIG_MPC86xx)	|| \
     defined (CONFIG_MPC83XX)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
@@ -465,6 +473,10 @@ ulong	get_bus_freq  (ulong);
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
 #endif
+#if defined(CONFIG_MPC86xx)
+typedef MPC86xx_SYS_INFO sys_info_t;
+void   get_sys_info  ( sys_info_t * );
+#endif
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
@@ -484,7 +496,7 @@ void	get_sys_info  ( sys_info_t * );
 #if defined(CONFIG_8xx) || defined(CONFIG_8260)
 void	cpu_init_f    (volatile immap_t *immr);
 #endif
-#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2)
+#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2) ||defined(CONFIG_MPC86xx)
 void	cpu_init_f    (void);
 #endif
 

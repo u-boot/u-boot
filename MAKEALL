@@ -302,6 +302,12 @@ LIST_coldfire="	\
 	r5200		M5271EVB					\
 "
 
+#########################################################################
+## AVR32 Systems
+#########################################################################
+
+LIST_avr32="atstk1002"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -334,7 +340,8 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	x86|I486| \
-	coldfire)
+	coldfire| \
+	avr32)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

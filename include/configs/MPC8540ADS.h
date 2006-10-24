@@ -312,12 +312,16 @@
 #define CFG_64BIT_VSPRINTF	1
 #define CFG_64BIT_STRTOUL	1
 
-/* I2C */
-#define  CONFIG_HARD_I2C		/* I2C with hardware support*/
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
 
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address */
@@ -517,8 +521,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"						\
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"						\
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -526,13 +532,15 @@
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND

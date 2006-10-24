@@ -102,7 +102,8 @@ void pciauto_setup_device(struct pci_controller *hose,
 
 		/* Check the BAR type and set our address mask */
 		if (bar_response & PCI_BASE_ADDRESS_SPACE) {
-			bar_size = ~(bar_response & PCI_BASE_ADDRESS_IO_MASK) + 1;
+			bar_size = ((~(bar_response & PCI_BASE_ADDRESS_IO_MASK))
+				   & 0xffff) + 1;
 			bar_res = io;
 
 			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%x, ", bar_nr, bar_size);
