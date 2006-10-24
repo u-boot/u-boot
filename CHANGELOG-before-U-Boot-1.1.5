@@ -1,0 +1,5593 @@
+======================================================================
+Changes for U-Boot 1.1.5:
+======================================================================
+
+* Cleanup compile warnings. Prepare for release 1.1.5
+
+* Fix compile problem in include/configs/ep82xxm.h
+  (must have never been tested before!)
+
+* MCC200: Fix uninitialized variable problem in LCD driver
+
+* Add board/cpu specific NAND chip select function to 440 NDFC
+  Based on idea and implementation from Jeff Mann
+  Patch by Stefan Roese, 20 Oct 2006
+
+* Make 4xx bootup message shorter on 440EPx/GRx platforms
+  Patch by Stefan Roese, 18 Oct 2006
+
+* Add (preliminary) support for V38B board
+
+* PPC405EP: Add support for board configuration of CPC0_PCI register
+  This is needed to be able to configure PerWE*/PCI_INT* pin as PerWE*
+  Patch by Tolunay Orkun, 07 Apr 2006
+
+* PPC405EP: Add CFG_GPIO0_OR, CFG_GPIO0_ODR to setup GPIO completely.
+  - Add configuration of Open Drain GPIO Output selection
+  - Add configuration of initial value of GPIO output pins
+  Patch by Tolunay Orkun, 07 Apr 2006
+
+* Fix spelling; minor code cleanup.
+
+* Fix JFFS2 compilation problem
+  Patch by Stefan Roese, 12 Oct 2006
+
+* Cleanup of NAND update patch (remove changelog from cmd_nand.c)
+  Patch by Guido Classen, 10 Oct 2006
+
+* Several improvements to the new NAND subsystem:
+  - JFFS2 related commands implemented in mtd-utils style
+  - Support for bad blocks
+  - Bad block testing commands
+  - NAND lock commands
+  Please take a look at doc/README.nand for more details
+  Patch by Guido Classen, 10 Oct 2006
+
+* Define IH_CPU_AVR32
+  Make it possible to generate AVR32 uImage files with mkimage and
+  make cmd_bootm recognize them.
+  Patch by Haavard Skinnemoen, 22 Sep 2006
+
+* Fix buffer overflow problem in ft_build.c
+  Patch by Fredrik Roubert, 09 Oct 2006
+
+* Make bootp implementation RFC3046 compliant
+  Patch by Joakim Larsson, 27 Jun 2006
+
+* TQM5200: perform POST memory test only on STK52xx carrier board.
+  (and then only if PSC6_3 is read as "1" when booting).
+  Patch by Martin Krause, 21 Jun 2006
+
+* Move "ar" flags to config.mk to allow for silent "make -s"
+  Based on patch by Mike Frysinger, 20 Jun 2006
+
+* Coding style cleanup
+
+* Add support for EP82xxM boards
+  Patch by Aaron Sells, 20 Jun 2006
+
+* Fix comments in include/ppc440.h
+  Patch by Martin Hicks, 16 Jun 2006
+
+* Update for CAM5200 board:
+  - Map in a additional chip selects CS4 and CS5.
+  - Modify the port configration, configure six UARTs and no PCI,
+    ATA and USB.
+  - Add custom flash driver to handle specific byte swapping
+
+* Fix TLB setup for Ocotea board
+  Patch by Stefan Roese, 30 Sep 2006
+
+* Fix reset problem in sequoia sdram init code
+  Patch by Stefan Roese, 23 Sep 2006
+
+* Disable autoboot abort for FO300 when silent mode is enabled
+  (according to S1 switch setting).
+
+* Cleanup examples binaries
+
+* Add support for AMCC Rainier PPX440GRx eval board
+  Patch by Stefan Roese, 13 Sep 2006
+
+* Add NAND environment support for PPC440EPx Sequoia NAND boot config
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Update NAND boot documentation
+  Patch by Stefan Roese, 12 Sep 2006
+
+* Fix alignment problem in "mtdparts" command
+
+* Add documentation on the latest build environment extensions to
+  the README file.
+
+* Remove dead code (i2o and dma) from cpu/mpc824x/drivers/ directory.
+
+* Fix LOG_DIR directory creation error.
+  Add support for automatic creation of BUILD_DIR directory.
+
+* Fix build problem cpu/ppc4xx/ndfc.c
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Fix build problem with CPCI440
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Change Yellowstone to use CFI write buffer
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Add support for AMCC Sequoia PPC440EPx eval board
+  - Add support for PPC440EPx & PPC440GRx
+  - Add support for PPC440EP(x)/GR(x) NAND controller
+    in cpu/ppc4xx directory
+  - Add NAND boot functionality for Sequoia board,
+    please see doc/README.nand-boot-ppc440 for details
+  - This Sequoia NAND image doesn't support environment
+    in NAND for now. This will be added in a short while.
+  Patch by Stefan Roese, 07 Sep 2006
+
+* Fix mkimage -l bug with multifile images on 64bit platforms
+  Patch by David Updegraff, 06 Sep 2006
+
+* Fix build problems on sorcery board.
+
+* Fix coldfire build problems.
+  Patch by Marian Balakowicz, 01 Sep 2006
+
+* Add support for a saving build objects in a separate directory.
+  Modifications are based on the Linux kernel approach and support
+  two use cases:
+  1) Add O= to the make command line 'make O=/tmp/build all'
+  2) Set environement variable BUILD_DIR to point to the desired location
+	'export BUILD_DIR=/tmp/build'
+	'make'
+  The second approach can also be used with a MAKEALL script
+	'export BUILD_DIR=/tmp/build'
+	'./MAKEALL'
+  Command line 'O=' setting overrides the BUILD_DIR environent variable.
+  When none of the above methods is used the local build is performed
+  and the object files are placed in the source directory.
+
+* Remove the board/netstar/crcit binary from git repository.
+
+* Fix tools/updater build error.
+
+* Fix tools/easylogo build error.
+
+* Fixed problems on PRS200 board caused by adding splash screen on MCC200
+
+* Extended README entry on coding style
+
+* Added another example showing simple interrupt interception.
+
+* Added simple_strtoul(), getenv() and setenv() to the exported functions.
+  Also bumped up ABI version to reflect this change.
+
+* Added interrupt handling capabilities for mpc5xxx processors.
+  Also added Linux like BUG() macros.
+
+* Coding Style cleanup.
+  Patch by Stefano Babic, 31 Aug 2006
+
+* Add splashscreen support for MCC200 board.
+
+* Make the serial driver framework work with CONFIG_SERIAL_MULTI
+  enabled
+
+* PCIe endpoint support for AMCC Yucca 440SPe board
+  Patch by Tirumala R Marri, 26 Aug 2006
+
+* Improve DIMM detection for AMCC Yucca 440SPe board
+  Improved the memory DIMM detection for the Yucca 440SPe board for
+  the case where a memory DIMM is falsely detected as present.
+  This issue is seen on some AMCC Yucca 440SPe validation boards if
+  only one 512MB memory DIMM is installed, i.e. DIMM slot 0 is
+  populated and DIMM slot 1 is empty.  In this case, U-Boot does
+  not correctly detect that there is only one DIMM memory module
+  installed and will falsely detect two DIMM memory modules are
+  present and therefore U-Boot will not calculate the correct amount
+  of total memory and u-boot will not booting up.
+  Patch by Adam Graham, 24 Aug 2006
+
+* Fix typo.
+
+* Code cleanup
+
+* Update for MCC200 / PRS200 boards:
+  - auto-adjust console device for Linux.
+  - fix typos.
+
+* Add a fix for a buggy USB device on the FO300 board.
+
+* Updates for MCC200 / PRS200 boards:
+  - support for configurations with SDRAM or DDR memory,
+  - support for highboot and lowboot
+  - adjusting environment definitions
+
+* Add support for WTK FO300 board (TQM5200 based).
+
+* Fix TQM834x hang.
+
+* Update for SC520 board.
+  Patch by David Updegraff, 02 Dec 2005
+
+* Fixed common.h spelling error.
+  Patch by Cory Tusar, 30 Nov 2005
+
+* Fix typo.
+  Patch by Andreas Engel, 28 Nov 2005
+
+* Fix fatload command on FAT32 formatted partitions.
+  Patch by Joachim Jaeger, 18 Nov 2005
+
+* Fix drivers/dm9000.c when configured in 32 bit mode.
+  Patch by Eric Benard, 17 Nov 2005
+
+* Cleanup debug code for yucca board.
+
+* MCC200: restrict addressable flash space to 32 MB
+
+* Add debug console on COM12 for MCC200 board
+
+* Fix control-c handing in CONFIG_CMDLINE_EDITING
+  Properly pass break code back from readline.
+  Patch by Roger Blofeld, 31 Jul 2006
+
+* Add commandline history support to all AMCC eval boards
+  Patch by Stefan Roese, 07 Aug 2006
+
+* Add Macronix MXLV320T flash support for AMCC Bamboo
+  Patch by Stefan Roese, 07 Aug 2006
+
+* Change "mii info" to not print an error upon missing PHY at address
+  Patch by Stefan Roese, 07 Aug 2006
+
+* Fix PCI-Express on PPC440SPe rev. A.
+
+* Fix preboot message on TQM85xx after switching to hush parser.
+
+* Adapt TQM85xx ramdisk address to Linux kernel memory map
+
+* Add initial support for PCI-Express on PPC440SPe (Yucca board).
+
+* Fix compiler warning for TRAB board.
+  Patch by Martin Krause, 07 Aug 2006
+
+* Prevent USB commands from working when USB is stopped.
+
+* Add rudimentary handling of alternate settings of USB interfaces.
+  This is in order to fix issues with some USB sticks timing out
+  during initialization. Some code readability improvements.
+
+* PPC440 DDR setup: Set SDRAM0_CFG0[PMU]=0 for best performance
+  AMCC suggested to set the PMU bit to 0 for best performace on
+  the PPC440 DDR controller.
+  Please see doc/README.440-DDR-performance for details.
+  Patch by Stefan Roese, 28 Jul 2006
+
+* AMCC bamboo (440EP) U-Boot image reduced to 384kbyte
+  Please see doc/README.bamboo for details.
+  Patch by Stefan Roese, 27 Jul 2006
+
+* Fix CONFIG_CMDLINE_EDITING implementation
+  Patch by Stefan Roese, 27 Jul 2006
+
+* Fix preboot message on TQM5200 after switching to hush parser.
+
+* MCC200: set default configuration to low_boot DDR,
+  and support for configurable options high_boot and/or SDRAM.
+
+* Add support for 256 MB SDRAM on CPU87
+  Patch by Josef Wagner, 25 Nov 2005
+
+* Add configuration for cam5200 board (based on TQM5200S).
+
+* More code cleanup
+
+* Disabled kvme080 board in MAKEALL because of build problems.
+
+* Code cleanup
+
+* Update NetStar board
+  Patch by Ladislav Michl, 03 Nov 2005
+
+* Make code better readable.
+  Patch by Ladislav Michl, 14 Sep 2005
+
+* Enable initrd ATAG for xm250 board.
+  Patch by Josef Wagner, 05 Sep 2005
+
+* Add readline cmdline-editing extension
+  Patch by JinHua Luo, 01 Sep 2005
+
+* Add support for friendly-arm SBC-2410X board
+  Patch by JinHua Luo, 01 Sep 2005
+
+* Fix multi-part image support on i386 platform.
+  Patch by David Updegraff, 19 Aug 2005
+
+* Add support for KVME080 board
+  Patch by Sangmoon Kim, 18 Aug 2005
+
+* Fix MIPS LE build problem
+  Patch by Matej Kupljen, 10 Aug 2005
+
+* Check argument count in "mii" command.
+  Problem pointed out by Andrew Dyer, 13 Jun 2005
+
+* Cleanup TQM5200 board configurations:
+  - make highboot configurations use environment at high end, too,
+    to avoid flash fragmentation
+  - always use redundand environment
+  - don't enable video code for modules without graphics controller
+  - provide useful (though different) mtdparts settings
+  - get rid of CONFIG_CS_AUTOCONF which was always set anyway
+
+* Extend mkconfig tool to print more useful target name
+
+* Add support for high-boot on TQM5200 and TQM5200S boards.
+  Hint: the CPLD on the TQM5200 must be programmed with a software
+  version supporting the high boot option! The new TQM5200S is
+  already supporting this option. On the TQM5200 this option will be
+  supported in configurations with MPC5200 rev B processors.
+  To actually "high boot", set jumper X30 on the STK52xx.
+  Patch by Martin Krause, 12 Jul 2006
+
+* Add support for new TQM5200 revisions
+  - Support for TQM5200S (short version without graphic controller)
+  - Support for modules with 'N' type S29GL128N Spansion flashes
+    (requires changes to flash layout)
+  - Support for MPC5200B cpu (mostly support for second SDRAM bank)
+  Patch by Martin Krause, 07 Jul 2006
+
+* Fix support for PS/2 keyboard on TQM85xx boards
+  The PS/2 keyobard driver for the TQM85xx modules only supports the
+  internal DUART of the MPC85xx CPU. Since the MPC8560 doesn't
+  include a DUART, the TQM8560 modules can't be used with the PS/2
+  keyboard controller on the STK85xx board.
+  The PS/2 keyboard driver should work with the modules TQM8540,
+  TQM8541 and TQM8555, but it only has been tested on a TQM8540, yet.
+  Make sure the PS/2 controller on the STK85xx is programmed. Jumper
+  settings: X66 1-2, 9-10; X61 2-3
+  Patch by Martin Krause, 21 Jun 2006
+
+* Adjust RTC century handling on STK52xx board to match Linux driver.
+  Patch by Martin Krause, 12 Jun 2006
+
+* Adjust filenames for USB update images on TRAB board.
+  During an automatic update via USB stick, U-Boot searches for
+  images with the name "firmware.img" and "kernel.img". This names
+  are now changed to "firmw_01.img" and "kernl_01.img". This is done,
+  to prevent updates of new boards (with the new macronics "c" step
+  flashes) with old, incompatible firmware or kernel versions.
+  Patch by Martin Krause, 21 Jun 2006
+
+* Bugfix in VFD routine on TRAB board.
+  Make sure upper lext pixel can be set to blue, too
+  (so far only red was possible).
+  Patch by Martin Krause, 15 Feb 2006
+
+* Enable buffered flash writes for TB5200 board.
+
+* Fix some bugs in TRAB board flash driver.
+  - increase CFG_FLASH_ERASE_TOUT from 2 to 15 seconds
+  - use CFG_FLASH_WRITE_TOUT for programming instead of CFG_FLASH_ERASE_TOUT
+  - remove "Unlock Bypass" mode, because macronix flashes do not support
+    this mode officially
+  - fix flash reset command from 0x00FF to 0x00F0. 0x00FF is only specified
+    for Intel compatible flashes, not for AMD compatible.
+  Patch by Martin Krause, 15 Feb 2006
+
+* Add additional error messages to flash driver on TRAB board
+  (for erase errors and timeout errors)
+  Patch by Martin Krause, 14 Feb 2006
+
+* Add support for TB5200 board
+  The TB5200 ("Tinybox") is a small baseboard for the TQM5200 module
+  integrated in a little aluminium case.
+  Patch by Martin Krause, 8 Jun 2006
+
+* Enable buffered flash writes for TQM5200 board.
+
+* Fix problems with SanDisk Corporation Cruzer Micro USB memory stick.
+
+* Add support for TQM885D board.
+  Patch by Martin Krause, 20 Mar 2006
+
+* Fix FEC initialisation: All MII configuration is done via FEC1
+  registers, but MII_SPEED was configured according to FEC used. So
+  if only FEC2 was used, this caused the real MII_SPEED register in
+  FEC1 to stay uninitalised, leqading to "mii_send STUCK!" messages.
+  Fix: always configure MII_SPEED on FEC1 only.
+  Patch by Markus Klotzbuecher, 12 Jul 2006
+
+* Add support for SPC1920 board.
+  Patch by Markus Klotzbuecher, 12 Jul 2006
+
+* MCC200 board: support console on any one of the Quad UART ports.
+
+* Fix error in flash protection calculation on MCC200 board.
+
+* Major PCMCIA Cleanup to make code better readable and maintainable.
+  Notes:
+  - Board-dependend code for RPXLITE and RPXCLASSIC-based boards
+    placed to the drivers/rpx_pmcia.c file to avoid duplication.
+    Same for TQM8xx-based boards (drivers/tqm8xx_pmcia.c).
+  - drivers/i82365.c has been split into two parts located at
+    board/atc/ti113x.c and board/cpc45/pd67290.c (ATC and CPC45 are
+    the only boards using CONFIG_82365).
+  - Changes were tested for clean build and *very* *few* boards.
+
+* Fix timer problems on AMCC yucca board.
+  Set Timer Clock Select to use CPU clock as a timer input source.
+
+* Bring yucca config more in line with other AMCC boards.
+
+* Add AMCC bamboo board to MAKEALL build script.
+
+* Fix AMCC bamboo eval board compilation errors.
+
+* Add system memory to the PCI region list for AMCC PPC44x CPUs.
+  Enabled it for Yucca board.
+
+* Cleanup config file and bootup output for Yucca board.
+
+* Fix CONFIG_440_GX define usage.
+
+* Remove autogenerated bmp_logo.h file.
+
+* Add support for AMCC 440SPe CPU based eval board (Yucca).
+
+* Call serial_initialize() before first debug() is used.
+
+* Cleanup trab board for GCC-4.x
+
+* VoiceBlue update: use new MTD flash partitioning methods, use more
+  reasonable TEXT_BASE, update default environment and enable keyed
+  autoboot.
+  Patch by Ladislav Michl, 16. Aug 2005
+
+* Add forgotten changes for the PLEB 2 Board.
+  Patch by David Snowdon, 13. Aug 2005
+
+* Add support for wrPPMC7xx/74xx boards
+  Patch by Richard Danter, 12 Aug 2005
+
+* Add support for gth2 board
+  Patch by Thomas Lange, Aug 11 2005
+
+* Add support for CONFIG_SERIAL_MULTI on MPC5xxx
+  Patch by Martin Krause, 8 Jun 2006
+
+  This patch supports two serial consoles on boards with
+  a MPC5xxx CPU. The console can be switched at runtime
+  by setting stdin, stdout and stderr to the desired serial
+  interface (serial0 or serial1). The PSCs to be used as
+  console port are definded by CONFIG_PSC_CONSOLE
+  and CONFIG_PSC_CONSOLE2.
+  See README.serial_multi for details.
+
+* Bugfix in I2C initialisation on S3C2400.
+  If the bus is blocked because of a previously interrupted
+  transfer, up to eleven clocks are generated on the I2CSCL
+  line to complete the transfer and to free the bus.
+  With this fix pin I2CSCL (PG6) is really configured as GPIO
+  so the clock pulses are really generated.
+  Patch by Martin Krause, 04 Apr 2006
+
+* Fix DDR6 errata on TQM834x boards
+  Patch by Thomas Waehner, 07 Mar 2006
+
+* Remove obsolete flash driver board/tqm5200/flash.c
+  Patch by Martin Krause, 11 Jan 2006
+
+* Update configuration for CMC-PU2 board
+  Patch by Martin Krause, 17 Nov 2005
+
+* Add support for PS/2 keyboard on TQM85xx board
+  Patch by Martin Krause, 07 Nov 2005
+
+  Tested on a STK85XX baseboard. Make sure the PS/2 controller
+  has been programmed. Jumper Settings: X66 1-2, 9-10; X61 2-3
+
+* Fix TRAB channel switching delay for trab_fkt.bin standalone applikation
+  In tsc2000_read_channel() the delay after setting the multiplexer
+  to a temperature channel is increased from 1,5 ms to 10 ms. This
+  is to allow the multiplexer inputs to stabilize after huge steps
+  of the input signal level.
+  Patch by Martin Krause, 08 Nov 2005
+
+* Adjust TQM5200 make targets
+  Make the automatic CS configuration the default.
+  The dedicated configurations CONFIG_TQM5200_AA, CONFIG_TQM5200_AB
+  and CONFIG_TQM5200_AC are removed.
+  "TQM5200_config" is now the default for STK52XX.200 base boards.
+  On a STK52XX.100 base board "TQM5200_STK100_config" must be used.
+  Patch by Martin Krause, 07 Nov 2005
+
+* Fix setting of environment variable "ver" on trab board
+  The environment variable "ver" is now set before
+  do_auto_update() is called, so that "ver" can be used
+  in USB update scripts.
+  Patch by Martin Krause, 27 Oct 2005
+
+* Fix wrong usage of udelay() in led_blink() on trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Fix udelay bug in vfd.c for trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Disable JFFS2 support for trab board
+  Patch by Martin Krause, 27 Oct 2005
+
+* Change mtdparts definition on trab board to match current flash map
+  Patch by Martin Krause, 27 Oct 2005
+
+* Fix memory init problems on MCC200 board
+
+* Fix IxEthDB.h to compile again
+  Patch by Stefan Roese, 14 Jun 2006
+
+* Minor cleanup for PCS440EP board
+  Patch by Stefan Roese, 13 Jun 2006
+
+* Add MCF5282 support (without preloader)
+  relocate ichache_State to ram
+  u-boot can run from internal flash
+  Add EB+MCF-EV123 board support.
+  Add m68k Boards to MAKEALL
+  Patch from Jens Scharsig, 08 Aug 2005
+
+* Nios II - Add Altera EP1C20, EP1S10 and EP1S40 boards
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Nios II - Add EPCS Controller bootrom work-around
+  -When booting from an epcs controller, the epcs bootrom may leave the
+  slave select in an asserted state causing soft reset hang. This
+  patch ensures slave select is negated at reset.
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Update PK1C20 board
+  -Update base addresses for standard configuration
+  -Eliminate use of CACHE_BYPASS in board code
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Nios II - Fix I/O Macros and mini-app stubs
+  -Fix asm/io.h macros
+  -Eliminate use of CACHE_BYPASS in cpu code
+  -Eliminate assembler warnings
+  -Fix mini-app stubs and force no small data
+  Patch by Scott McNutt, 08 Jun 2006
+
+* Fix U-Boot environment sector protection on MCC200 board
+
+* Minor cleanup for PCS440EP board
+
+* Update PCS440EP port to fit into one flash device (incl. environment)
+  Patch by Stefan Roese, 06 Jun 2006
+
+* Add support for PCS440EP board
+  Patch by Stefan Roese, 02 Jun 2006
+
+* Fix examples/Makefile; some build targets were lost
+
+* Fix watchdog handling in CFI flash driver
+  Just use udelay() when waiting for status changes which will
+  implicitely trigger the watchdog.
+
+* Fix PCI to memory window size problems on PM82x boards
+  We use the "automatic" mode that was used for  the  MPC8266ADS  and
+  MPC8272 boards. Eventually this should be used on all boards?]
+  Patch by Wolfgang Grandegger, 17 Jan 2006
+
+* Correct GPIO setup (UART1/IRQ's) on yosemite & yellowstone
+  Patch by Stefan Roese, 29 May 2006
+
+* Update Intel IXP4xx support
+  - Add IXP4xx NPE ethernet MAC support
+  - Add support for Intel IXDPG425 board
+  - Add support for Prodrive PDNB3 board
+  - Add IRQ support
+  Patch by Stefan Roese, 23 May 2006
+
+* Fix problem in PVR detection for 440GR
+  Patch by Stefan Roese, 18 May 2006
+
+* Fix gcc 3.4.x AFLAGS setting for m68k platform.
+
+* Enable autoboot for M5271EVB board.
+
+* Changed default ramdisk addr in yosemite/yellowstone ports
+  Patch by Stefan Roese, 15 May 2006
+
+* Fix PCMCIA support on virtlab2
+
+* Add support for VirtLab2 board
+  (needed because of differences in the PCMCIA hardware).
+
+* Minor cleanup.
+
+* Update yosemite configuration to enable flash write buffer support
+  Patch by Stefan Roese, 10 May 2006
+
+* Fix compile warnings in common/xyzModem.c
+  Patch by Stefan Roese, 10 May 2006
+
+* Add support for AMCC 440EP Rev C and 440GR Rev B
+  Patch by John Otken, 08 May 2006
+
+* OMAP 5912/OSK: update EMIFS CS1 timings:
+  Problems have been seen in the linux kernel's smc91x network driver
+  due to improper bus timings.  The latest 2.6 OMAP kernels currently
+  have a workaround, but this fix belongs in u-boot.
+  Patch by Kevin Hilman, 13 Oct 2005
+
+* Fix REG_MPU_LOAD_TIMER definition in multiple OMAP ports
+  Patch by Hiroki Kaminaga, 11 Mar 2006
+
+* Update omap5912osk board support
+  - Fix OMAP support that omap5912osk compiles in current source tree
+  - Update with code from "http://omap.spectrumdigital.com/osk5912"
+    to fix problems with DDR initialization
+  - Fix timer setup
+  - Use CFI flash driver and support complete 32MB of onboard flash
+  - Add "print_cpuinfo()" and "checkboard()" functions to display
+    CPU (with frequency) and Board infos
+  Patch by Stefan Roese, 10 May 2006
+
+* Fix watchdog issues for ColdFire boards.
+
+* Add M5271EVB board support.
+
+* Make R5200 specific low level initialization board conditional.
+
+* Update CPU target identification strings for ColdFire family.
+
+* Update register definitions for MCF5271.
+
+* Fix serial console support for MCF5271.
+
+* Fixes for gcc 3.4 based m68k toolchain,
+  based on patch by Jate Sujjavanich.
+
+* Fix lowboot support on MCC200 board
+
+* Merged MPC8349ADS and MPC8349EMDS ports into MPC8349EMDS port:
+  - Removed MPC8349ADS port
+  - Added PCI support to MPC8349ADS
+  - reworked memory map to allow mapping of all regions with BATs
+  Patch by Kumar Gala, 20 Apr 2006
+
+* Coding Style cleanup
+
+* Write RTC seconds first to maintain settings integrity per
+  Maxim/Dallas DS1306 data sheet.
+  Patch by Alan J. Luse, 02 May 2006
+
+* Scheduled for removal: strnicmp() which is unused
+
+* Update for Intel Monahans boards:
+  - support for magic key detection and handling on delta board
+  - NAND support for zylonite board + some minor cleanup
+
+* Declare load_serial_ymodem() when using CFG_CMD_LOADB.
+  Patch by Jon Loeliger, 01 May 2006
+
+* Fixed handling of bad checksums with "mkimage -l"
+
+* Added support for BC3450 board
+  Patch by Stefan Strobl, 21 Oct 2005
+
+* Update for NC650 board:
+  - Support rev1 and rev2 hardware
+  - adapt to new NAND layer
+  - add CP850 configuration based on NC650
+
+* MPC5200: enable snooping of DMA transactions on XLB even if no PCI
+  is configured; othrwise DMA accesses aren't cache coherent which
+  causes for example USB to fail.
+
+* Some code cleanup
+
+* Fix dbau1x00 boards broken by dbau1550 patch
+  PLL:s were not set for boards other than 1550.
+  Flash CFI caused card to hang due to undefined CFG_FLASH_BANKS_LIST.
+  Default boot is now bootp for cards other than 1550.
+  Patch by Thomas Lange, 10 Aug 2005
+
+* Fixes common/cmd_flash.c:
+  - fix some compiler/parser error, if using m68k tool chain
+  - optical fix for protect on/off all messages, if using more
+    then one bank
+  Patch by Jens Scharsig, 28 Jul 2005
+
+* Fix Quad UART mapping on MCC200 board due to new HW revision
+
+* Fix JFFS2 support for legacy NAND driver.
+
+* Remove dependencies between DoC code and old legacy NAND driver.
+
+* Fix PM828_PCI target, for which PCI was *not* configured in.
+
+* Fix Lite5200B support: initialize SDelay register
+  See Freescale's AN3221 "MPC5200B SDRAM Initialization and
+  Configuration", 3.3.1 SDelay--MBAR + 0x0190
+
+* Changes/fixes for drivers/cfi_flash.c:
+
+  - Add Intel legacy lock/unlock support to common CFI driver
+
+    On some Intel flash's (e.g. Intel J3) legacy unlocking is
+    supported, meaning that unlocking of one sector will unlock
+    all sectors of this bank. Using this feature, unlocking
+    of all sectors upon startup (via env var "unlock=yes") will
+    get much faster.
+
+  - Fixed problem with multiple reads of envronment variable
+    "unlock" as pointed out by Reinhard Arlt & Anders Larsen.
+
+  - Removed unwanted linefeeds from "protect" command when
+    CFG_FLASH_PROTECTION is enabled.
+
+  - Changed p3p400 board to use CFG_FLASH_PROTECTION
+
+  Patch by Stefan Roese, 01 Apr 2006
+
+* Changes/fixes for drivers/cfi_flash.c:
+  - Correctly handle the cases where CFG_HZ != 1000 (several
+    XScale-based boards)
+  - Fix the timeout calculation of buffered writes (off by a
+    factor of 1000)
+  Patch by Anders Larsen, 31 Mar 2006
+
+* Updates to common PPC4xx onboard (DDR)SDRAM init code (405 and 440)
+
+  405 SDRAM: - The SDRAM parameters can now be defined in the board
+	       config file and the 405 SDRAM controller values will
+	       be calculated upon bootup (see PPChameleonEVB).
+	       When those settings are not defined in the board
+	       config file, the register setup will be as it is now,
+	       so this implementation should not break any current
+	       design using this code.
+
+	       Thanks to Andrea Marson from DAVE for this patch.
+
+  440 DDR:   - Added function sdram_tr1_set to auto calculate the
+	       TR1 value for the DDR.
+	     - Added ECC support (see p3p440).
+
+  Patch by Stefan Roese, 17 Mar 2006
+
+* Fix CONFIG_SKIP_LOWLEVEL_INIT dependency in cpu/arm920t/start.S
+  Patch by Peter Menzebach, 13 Oct 2005 [DNX#2006040142000473]
+
+* Add support for ymodem protocol download
+  Patch by Stefano Babic, 29 Mar 2006
+
+* Memory Map Update for Delta board: U-Boot is at 0x80000000-0x84000000
+  Merge from Markus Klotzbücher's repo, 01 Apr 2006
+
+* GCC-4.x fixes: clean up global data pointer initialization for all
+  boards
+
+* Update for Delta board:
+  - redundant NAND environment
+  - misc Monahans cleanups (remove dead code etc.)
+  - DA9030 Initialization; some minimal changes to PXA I2C driver to
+    make it work with the Monahans.
+  - Make Monahans clock frequency configurable using
+    CFG_MONAHANS_RUN_MODE_OSC_RATIO and
+    CFG_MONAHANS_TURBO_RUN_MODE_RATIO.
+  Merge from Markus Klotzbücher's repo, 25 Mar 2006
+
+* Enable Quad UART om MCC200 board.
+
+* Cleanup MCC200 board configuration; omit non-existent stuff.
+
+* Add support for MPC859/866 Rev. A.0
+
+* Add command for handling DDR ECC registers on MPC8349EE MDS board.
+
+* Fix DDR ECC bit definitions for MPC83xx.
+
+* Add initial support for MPC8349E MDS board.
+
+* Add support for ECC DDR initialization on MPC83xx.
+
+* Add DMA support for MPC83xx.
+
+* Add sync in do_reset() routine for MPC83xx after RPR register
+  was written to. It is need on some targets when BAT translation
+  is enabled.
+
+* Add bit definitions for MPC83xx DDR controller registers.
+
+* Add Dcbz(), Dcbi() and Dcbf() routines for MPC83xx.
+
+* Correct shift offsets in icache_status and dcache_status for MPC83xx.
+
+* Add support for DS1374 RTC chip.
+
+* Add support for Lite5200B board.
+  Patch by  Patch by Jose Maria (Txema) Lopez, 16 Jan 2006
+
+* Apply SoC concept to arm926ejs CPUs, i.e. move the SoC specific
+  timer and cpu_reset code from cpu/$(CPU) into the new
+  cpu/$(CPU)/$(SOC) directories
+  Patch by Andreas Engel, 13 Mar 2006
+
+* Change max size of uncompressed uImage's to 8MByte and add
+  CFG_BOOTM_LEN to adjust this setting.
+
+  As mentioned by Robin Getz on 2005-05-24 the size of uncompressed
+  uImages was restricted to 4MBytes. This default size is now
+  increased to 8Mbytes and can be overrided by setting CFG_BOOTM_LEN
+  in the board config file.
+
+  Patch by Stefan Roese, 13 Mar 2006
+
+* Fix problem with updated PCI code in cpu/ppc4xx/405gp_pci.c
+  Patch by Stefan Roese, 13 Mar 2006
+
+* cpu/ppc4xx/start.S : exceptions are enabled after relocation
+  Patch by Cedric Vincent, 06 Jul 2005
+
+* au1x00_eth.c: check malloc return value and abort if it failed
+  Patch by Andrew Dyer, 26 Jul 2005
+
+* Change the sequence of events in soft_i2c.c:send_ack() to keep from
+  incorrectly generating start/stop conditions on the bus.
+  Patch by Andrew Dyer, 26 Jul 2005
+
+* Fix bug in [id]cache_status commands for MPC85xx processors;
+  should look at LSB of L1CSRn registers to determine if L1 cache is
+  enabled, not the MSB.
+  Patch by Murray Jensen, 19 Jul 2005
+
+* Fix array overflow with fw_setenv on uninitialised environment
+  Patch by Murray Jensen, 15 Jul 2005
+
+* Add support for EmbeddedPlanet EP88x boards
+  Patch by Yuli Barcohen, 13 Jul 2005
+
+* Remove board specific configuration includes from the common xilinx
+  ethernet and iic adapter code.
+  Patch by Michael Libeskind, 12 Jul 2005
+
+* Add Nat Semi DP83865 PHY support to MPC85xx TSEC driver
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Add (some) definitions for the MPC85xx local bus controller
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Add CPM2 I/O pin functions for MPC85xx processors
+  Patch by Murray Jensen, 08 Jul 2005
+
+* Fix compile problem
+
+* Added PCI support for MPC8349ADS board
+  Patch by Kumar Gala 11 Jan 2006
+
+* Enable address translation on MPC83xx
+  Patch by Kumar Gala, 10 Feb 2006
+
+* Decopuled setting of OR/BR and LBLAWBAR/LBLAWAR on MPC83xx
+  Patch by Kumar Gala, 25 Jan 2006
+
+* Fixed defines for MPC83xx SICRL register to match current specs
+  Patch by Kumar Gala, 23 Jan 2006
+
+* Only disable the MPC83xx watchdog if its enabled out of reset.
+  If its disabled out of reset SW can later enable it if so desired
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Allow config of GPIO direction & data registers at boot on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Enable time handling on 83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Make System IO Config Registers board configurable on MPC83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Fixed PCI indirect config ops to handle multiple PCI controllers
+  We need to adjust the bus number we are trying to access based
+  on which PCI controller its on
+  Patch by Kumar Gala, 12 Jan 2006
+
+* Report back PCI bus when doing table based device config
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added support for PCI prefetchable region and BARs
+  If a host controller sets up a region as prefetchable and
+  a device's BAR denotes it as prefetchable, allocate the
+  BAR into the prefetch region.
+
+  If a BAR is prefetchable and no prefetchable region has
+  been setup by the controller we fall back to allocating
+  the BAR into the normally memory region.
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add helper function for generic flat device tree fixups for mpc83xx
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add support for passing initrd information via flat device tree
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added OF_STDOUT_PATH and OF_SOC
+
+  OF_STDOUT_PATH specifies the path to the device the kernel can use
+  for console output
+
+  OF_SOC specifies the proper name of the SOC node if one exists.
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Allow board code to fixup the flat device tree before booting a kernel
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Added CONFIG_ options for bd_t and env in flat dev tree
+
+	CONFIG_OF_HAS_BD_T will put a copy of the bd_t
+	into the resulting flat device tree.
+
+	CONFIG_OF_HAS_UBOOT_ENV will copy the environment
+	variables from u-boot into the flat device tree
+
+  Patch by Kumar Gala, 11 Jan 2006
+
+* Add support for the DHCP vendor optional bootfile (#67).
+  Ignores the vendor TFTP server name option (#66).
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Fix a HW timing issue on 8548 CDS for eTSEC 3 in RGMII mode
+  Patch by Andy Fleming, 14 Jun 2005
+
+* Fix bad register definitions for LTX971 PHY on MPC85xx boards.
+  Patch by Gerhard Jaeger, 21 Jun 2005
+
+* Add netconsole and some more commands to RPXlite_DW board
+  Patch by Sam Song, 19 Jun 2005
+
+* Fix bad declaration on pci_cfgfunc_nothing
+  Patch by Sam Song, 19 Jun 2005
+
+* Adjust "echo" as a default command
+  Patch by Sam Song, 19 Jun 2005
+
+* Fix PCIDF calculation in cpu/mpc8260/speed.c for MPC8280EC
+  Patch by KokHow Teh, 16 Jun 2005
+
+* Add crc of data to jffs2 (in jffs2_1pass_build_lists()).
+  Patch by Rick Bronson, 15 Jun 2005
+
+* Coding Style cleanup
+
+* Avoid dereferencing NULL in find_cmd() if no valid commands were found
+  Patch by Andrew Dyer, 13 Jun 2005
+
+* Add ADI Blackfin support
+  - add support for Analog Devices Blackfin BF533 CPU
+  - add support for the ADI BF533 Stamp uClinux board
+  - add support for the ADI BF533 EZKit board
+  Patches by Richard Klingler, 11 Jun 2005
+
+* Add loads of ntohl() in image header handling
+  Patch by Steven Scholz, 10 Jun 2005
+
+* Switch MPC86xADS and MPC885ADS boards to use cpuclk environment
+  variable to set clock
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* RPXlite configuration fixes
+  - Use correct flash sector size
+  - Use correct memory test end address
+  - Add support for bzip2 compression
+  - Various small fixes
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Memory configuration changes for ZPC.1900 board
+  - Fix SDRAM timing on both local bus and 60x bus
+  - Add support for second flash bank (SIMM)
+  - Change boot flash base
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Add support for Adder boards with 16MB SDRAM;
+  add support for second FEC on Adder87x board.
+  Patch by Yuli Barcohen, 05 Jun 2005
+
+* Fix conditional for including ks8695eth driver
+  Patch by Greg Ungerer, 04 Jun 2005
+
+* Fix Makefile: include config.mk only after CROSS_COMPILE is defined
+  Patch by Friedrich Lobenstock, 02 Jun 2005
+
+* Fix comment in common/soft_i2c.c
+  Patches by Peter Korsgaard/Tolunay Orkun, 26 May 2005
+
+* Cleanup compiler warnings.
+  Patch by Greg Ungerer, 21 May 2005
+
+* Word alignment fixes for word aligned NS16550 UART
+  Patch by Jean-Paul Saman, 01 Mar 2005
+
+  Fixes bug with UART that only supports word aligned access: removed
+  "__attribute__ ((packed));" for "(CFG_NS16550_REG_SIZE == 4)" some
+  (broken!) versions of GCC generate byte accesses when encountering
+  the packed attribute regardless if the struct is already correctly
+  aligned for a platform. Peripherals that can only handle word
+  aligned access won't work properly when accessed with byte access.
+  The struct NS16550 is already word aligned for REG_SIZE = 4, so
+  there is no need to packed the struct in that case.
+
+* Fix behaviour if gatewayip is not set
+  Patch by Robin Gilks, 23 Dec 2004
+
+* Fix cleanup for netstart board.
+  Remove build results from repository
+
+* Some code cleanup for GCC 4.x
+
+* Fixes to support environment in NAND flash;
+  enable NAND flash based environment for delta board.
+
+* Add support for Intel Monahans CPU on Zylonite and Delta boards
+  (This is Work in Progress!)
+
+* Add support for TQM8260-AI boards.
+
+* Minor code cleanup
+
+* Merge the new NAND code (testing-NAND brach); see doc/README.nand
+  Rewrite of NAND code based on what is in 2.6.12 Linux kernel
+  Patch by Ladislav Michl, 29 Jun 2005
+
+* Add lowboot target to mcc200 board
+  Patch by Stefan Roese, 4 Mar 2006
+
+* Fix problem with flash_get_size() from CFI driver update
+  Patch by Stefan Roese, 1 Mar 2006
+
+* Make CFG_NO_FLASH work on ARM systems
+  Patch by Markus Klotzbuecher, 27 Feb 2006
+
+* Update mcc200 config: Disable PCI and DoC, use 133 MHz IPB clock,
+  use hush shell.
+
+* Convert mcc200 to use common CFI flash driver
+  Patch by Stefan Roese, 28 Feb 2006
+
+* Add env-variable "unlock" to handle initial state of sectors
+  (locked/unlocked).
+
+  Only the U-Boot image and it's environment is protected,
+  all other sectors are unprotected (unlocked) if flash
+  hardware protection is used (CFG_FLASH_PROTECTION) and
+  the environment variable "unlock" is set to "yes".
+
+  Patch by Stefan Roese, 28 Feb 2006
+
+* Update drivers/cfi_flash.c:
+  - find_sector() called in both versions of flash_write_cfiword()
+  Patch by Peter Pearse, 27th Feb 2006
+
+* CFI support for a x8/x16 AMD/Spansion flash configured in x8 mode
+  Patch by Jose Maria Lopez, 16 Jan 2006
+
+* Add support for AMD/Spansion Flashes in flash_write_cfibuffer
+  Patch by Alex Bastos and Thomas Schaefer, 2005-08-29
+
+* Changes/fixes for drivers/cfi_flash.c:
+  We *should* check if there are any error bits if the previous call
+  returned ERR_OK (Otherwise we will have output an error message in
+  flash_status_check() already.)  The original code would only check for
+  error bits if flash_status_check() returns ERR_TIMEOUT.
+  Patch by Marcus Hall, 23 Aug 2005
+
+* Changes/fixes for drivers/cfi_flash.c:
+  - Add CFG_FLASH_PROTECT_CLEAR on drivers/cfi_flash.c
+  - Prohibit buffer write when buffer_size is 1 on drivers/cfi_flash.c
+  Patch by Sangmoon Kim, 19 Aug 2005
+
+* Fixes for drivers/cfi_flash.c:
+  - Fix wrong timeout value usage in flash_status_check()
+  - Round write_tout up when converting to msec in flash_get_size()
+  - Remove clearing flash status at the end of flash_write_cfibuffer()
+    which sets Intel 28F640J3 flash back to command mode on CSB472
+  Patch by Tolunay Orkun, 02 July 2005
+
+* Add basic support for the SMMACO4 Board from PanDaCom.
+  Patch by Heiko Schocher, 20 Feb 2006
+
+* Add GIT version information (commid ID) to untagged U-Boot versions
+
+  As done in the linux kernel, the U-Boot version (U_BOOT_VERSION)
+  of all unreleased (untagged) U-Boot images will be automatically
+  extended upon compiletime with a part of the GIT commit ID and
+  possibly with "dirty" if uncommited changes are detected.
+
+  Here an example for the resulting version:
+  "U-Boot 1.1.4-g3457ac18-dirty"
+
+  The version is now maintained in the toplevel Makefile and the
+  version headers are autogenerated.
+
+  Patch by Stefan Roese, 9 Feb 2006
+
+* Update default environment for INKA4x00 board.
+
+* Convert CPCI750 to use common CFI flash driver
+  Patch by Reinhard Arlt, 8 Feb 2006
+
+* Various changes to esd HH405 board specific files
+  Patch by Matthias Fuchs, 07 Feb 2006
+
+* Cleanup U-Boot boot messages on ARM.
+
+  To match the U-Boot user interface on ARM platforms to the U-Boot
+  standard (as on PPC platforms), some messages with debug character
+  are removed from the default U-Boot build.
+  Enable DEBUG for lib_arm/board.c to enable debug messages.
+  New CONFIG_DISPLAY_CPUINFO and CONFIG_DISPLAY_BOARDINFO options.
+  Patch	 by Stefan Roese, 24 Jan 2006
+
+* Fix various compiler warnings on ppc4xx builds (ELDK 4.0)
+  Patch by Stefan Roese, 18 Jan 2006
+
+* Add VGA support (CT69000) to CPCI750 board.
+  Insert missing __le32_to_cpu() for filesize in ext2fs_read_file().
+  Patch by Reinhard Arlt, 30 Dec 2005
+
+* PMC405 and CPCI405: Moved configuration of pci resources
+  into config file.
+  PMC405 and CPCI2DP: Added firmware download and booting via pci.
+  Patch by Matthias Fuchs, 20 Dec 2005
+
+* Add ColdFire targets to MAKEALL script
+  Patch by Zachary Landau, 26 Jan 2006
+
+* Add support for r5200 board
+  Patch by Zachary Landau, 26 Jan 2006
+
+* Add support for Freescale M5271 processor
+  Patch by Zachary Landau, 26 Jan 2006
+
+* Fix 28F256J3A support on PM520 board
+  (without bank-switching only 32 MB can be accessed)
+
+* Fix mkimage bug with multifile images created on 64 bit systems.
+
+* Add support for 28F256J3A flash (=> 64 MB) on PM520 board
+
+* Fix compiler problem with at91rm9200dk board.
+  Patch by Eugen Bigz, 19 Dec 2005
+
+======================================================================
+Changes for U-Boot 1.1.4:
+======================================================================
+
+* Changes to Yellowstone & Yosemite 440EP/GR eval boards:
+  - Changed GPIO setup to enable another address line in order to
+    address 64M of FLASH.
+  - Added function sdram_tr1_set to auto calculate the tr1 value for
+    the DDR.
+  Patch by Steven Blakeslee, 12 Dec 2005
+
+* MPC5200:  Set PCI retry counter to 0 = infinite retry;
+  The default of 255 is too short for slow devices.
+  Patch by Martin Nykodym, 12 Dec 2005
+
+* Change port configuration for O2DNT (CODEC1 on PSC1).
+
+* Fix register for PCI async mode on PPC440EP
+  Patch by Youngchul Bang, 08 Dec 2005
+
+* Fix U-Boot linking problems (add .eh_frame segment to linker script)
+  This segment may be required by some libgcc.a functions
+  (like _udivdi3).
+
+* Fix DPRAM offset/size for MPC8541/8555.
+  Simplify TQM85xx Makefile handling.
+
+* Fix data overflow (typo?) in rtc/ds1302.c
+
+* Fix U-Boot compilation for MIPS boards using ELDK 4.0
+
+* Add support for TQM8541/8555 boards, TQM85xx support reworked:
+  - Support for TQM8541/8555 boards added.
+  - Complete rework of TQM8540/8560 support.
+  - Common TQM85xx code now supports all current TQM85xx platforms
+    (TQM8540/8541/8555/8560).
+  - DDR SDRAM size detection added.
+  - CAS latency default values can be overwritten by setting "serial#"
+    to e.g. "ABC0001 casl=25" -> CAS latency 2.5 will be used.
+    If problems are detected with this non default CAS latency,
+    the default values will be used instead.
+  - Flash size detection added.
+  - Moved FCC ethernet driver initialization behind TSEC driver init
+    -> TSEC is first device.
+  Patch by Stefan Roese, 30 Nov 2005
+
+* Add support for AMCC 440SP, add support for AMCC Luan 440SP eval board.
+  Patch by John Otken, 23 Nov 2005
+
+* Changed PPC44x startup message (cpu info, speed...) to common style:
+  On PPC44x platforms, the startup message generated in "cpu.c" only
+  comprised the ppc type and revision but not additional information
+  like speed etc. Those speed infos where printed in the board specific
+  code. This new implementation now prints all CPU infos in the common
+  cpu specific code. No board specific code is needed anymore and
+  therefore removed from all current 44x implementations.
+  Patch by Stefan Roese, 27 Nov 2005
+
+* Adjust TQM834x PHY addresses for latest hardware revision.
+
+* Increase malloc arena on TQM5200 board to 256 kB.
+  With 64 kb uniform flash sector size the old value of 128 kB was
+  too small.
+
+* Fix miiphy global data initialization (problem on 4xx boards when
+  no ethaddr is assigned). Initialization moved from
+  miiphy_register() to eth_initialize().
+
+  Based on initial patch for 4xx platform by Matthias Fuchs.
+
+* Remove unnnecessary #include <linux/types.h> from include/asm-*/u-boot.h
+
+* Allow use of include/image.h and include/asm-*/u-boot.h in proprietary code.
+  The COPYING file was extended to make clear that these files can be
+  used in non-GPL code, too.
+  Also, a corresponding note was placed in the headers of the affected files.
+
+* Add support for Prodrive P3P440 board:
+  - Added onboard PPC440 DDR autodetection in cpu/ppc/sdram.c
+  - CFG_FLASH_QUIET_TEST added to use the common CFI driver
+    for bank autodetection
+  Patch by Stefan Roese, 22 Nov 2005
+
+* Change all '$(...)' variable references into '${...}'
+  which makes the environment compatible with the hush shell.
+  WARNING: Support for the old '$(...)' syntax will be
+  discontinued in a later version.
+
+* Minor changes to init flags in TQM834x PCI.
+
+* Fix Bamboo DDR SDRAM initialization (problem with onboard SDRAM)
+  Patch by Stefan Roese, 15 Nov 2005
+
+* New PPC 405EP board added: CMS700
+  Added CONFIG_NET_MULTI for VOM405 board.
+  Added reset_phy() for VOM405 board.
+  Patch by Matthias Fuchs, 09 Nov 2005
+
+* Updated PCI mapping for esd CPCI2DP board.
+  Add support for error LED.
+  Patch by Matthias Fuchs, 07 Nov 2005
+
+* Fix MPC85xx PCI support (pci_register_hose() before pci config access)
+  Patch by Stefan Roese, 07 Nov 2005
+
+* Correct PPC Timebase register definitions (SPRN_TBRL...)
+  Patch by Stefan Roese, 07 Nov 2005
+
+* Adjust bd->bi_flashstart on Yellowstone & Yosemite to correct size
+  Patch by Stefan Roese, 05 Nov 2005
+
+* Additional fix for external IRQ config on Yellowstone & Yosemite
+  Patch by Stefan Roese, 03 Nov 2005
+
+* Add support for Ocotea pass 3 with 440GX Rev. F
+  Patch by Stefan Roese, 01 Nov 2005
+
+* Fix external IRQ configuration on Yellowstone & Yosemite
+  Patch by Stefan Roese, 28 Oct 2005
+
+* Add support for multiple PHYs.
+  Tested on the following boards:
+	cmcpu2	    (at91rm9200/ether.c)
+	PPChameleon (ppc4xx/4xx_enet.c)
+	yukon	    (mpc8220/fec.c)
+	uc100	    (mpc8xx/fec.c)
+	tqm834x	    (mpc834x/tsec.c) with EEPRO100
+	lite5200    (mpc5xxx/fec.c) with EEPRO100 card (drivers/eepro100.c)
+  Main changes include:
+  common/miiphyutil.c
+  - miiphy_register routine was added to allow multiple PHYs to be registered
+  - miiphy_read and miiphy_write are now defined in this file, and
+    require additional argument (char *devname)
+  - other miiphy_* routines also require additional device name argument
+  ../lib_i386/board.c
+  ../lib_ppc/board.c
+  Calling reset_phy() was moved to be executed *after* eth_initialize().
+  This is necessary as now some of the implementations of reset_phy()
+  may need to use miiphy_reset() which is not allowed before eth_initialize()
+  as eth_initialize registers all required miiphy_* routines.
+  Tested on IP860 and PHY initializes properly after this change.
+
+* Correct includes for flat tree builder.
+
+* Fix conflicting types (flash_write()) in trab auto_update.c.
+
+* Add PCI support for the TQM834x board.
+
+* Add missing 4xx board to MAKEALL
+  Patch by Stefan Roese, 20 Oct 2005
+
+* Fix conflicting types (flash_write()) in esd auto_update.c
+  Patch by Stefan Roese, 20 Oct 2005
+
+* Fix problem with sleep in NetConsole (use get_timer())
+  Patch by Stefan Roese, 20 Oct 2005
+
+* Add NetConsole Support for AMCC eval boards
+  Patch by Stefan Roese, 20 Oct 2005
+
+* Fix NetConsole support on 4xx (only print eth link on 1st transfer)
+  Patch by Stefan Roese, 18 Oct 2005
+
+* Add fat & ext2 support to AMCC 440EP boards Yosemite & Bamboo.
+  Fix identation on ext2ls help entry.
+  Patch by Stefan Roese, 14 Oct 2005
+
+* Add support for TQM834x boards.
+  Cleanup.
+
+* Cleanup for GCC-4.x
+
+* Add documentation for Open Firmware Flat Tree and usage.
+  Patch by Pantelis Antoniou, 13 Oct 2005
+
+* Add missing files for Pantelis Antoniou's patch
+  Patch by Pantelis Antoniou, 04 Sep 2005
+
+* Fix problem in ppc4xx eth-driver without ethaddr (only without
+  CONFIG_NET_MULTI set)
+  Patch by Stefan Roese, 10 Oct 2005
+
+* Fix gzip bmp support (test if malloc fails, warning when truncated).
+  Increase CFG_VIDEO_LOGO_MAX_SIZE on HH405 board.
+  Patch by Stefan Roese, 07 Oct 2005
+
+* Add support for OF flat tree for the STXtc board.
+  Patch by Pantelis Antoniou, 04 Sep 2005
+
+* Support passing of OF flat trees to the kernel.
+  Patch by Pantelis Antoniou, 04 Sep 2005
+
+* Cleanup
+
+* Add support for NetSilicon NS7520 processor.
+  Patch by Art Shipkowski, 12 May 2005
+
+* Add support for AP1000 board.
+  Patch by James MacAulay, 07 Oct 2005
+
+* Eliminate hard-coded address of Ethernet transfer buffer on at91rm9200
+  Patch by Anders Larsen, 07 Oct 2005
+
+  The Atmel errata #11 states that the transfer buffer descriptor
+  table must be aligned on a 16-word boundary. As it turned out, this
+  is insufficient - it seems the table must be aligned on a boundary
+  at least as large as the table itself (in Linux this is not an
+  issue - the table is aligned on a PAGE_SIZE (4096) boundary).
+
+* Fixed compilation for ARM when using a (standard) hard-FP toolchain
+  Patch by Anders Larsen, 07 Oct 2005
+
+* Cleanup warnings for cpu/arm720t & cpu/arm1136 files.
+  sed the linker scripts, rather than pre-process them.
+  Patch by Peter Pearse, 07 Oct 2005
+
+* Update make target for ARM supported boards.
+  Use lowlevel_init() instead of platformsetup() [rename].
+  Patch by Peter Pearse, 06 Oct 2005
+
+* Fix booting from serial dataflash on AT91RM9200
+  Patch by Peter Menzebach, 29 Aug 2005
+
+* Add JFFS2 support for TRAB board
+  Patch by Martin Krause, 25 Aug 2005
+
+* Remove unnecessary dependency of netconsole on CONFIG_NET_MULTI
+  Patch by Marcus Hall, 24 Aug 2005
+
+* Fix the machine-id of the Cogent csb637 board
+  Patch by Anders Larsen, 05 Oct 2005
+
+* Complete support for the KwikByte KB920x boards
+  Patch by Anders Larsen, 05 Oct 2005
+
+* Set the AT91RM9200 clock to asynchronous mode
+  Patch by Anders Larsen, 03 May 2005
+
+* Set the AT91RM9200 clock to synchronous mode
+  Patch by Anders Larsen, 29 Apr 2005
+
+* Add support for Cogent csb637
+  Patch by Anders Larsen, 29 Apr 2005
+
+* Fix dm9161.c initialization
+  Patch by Anders Larsen, 29 Apr 2005
+
+* Fix problems introduced by Patch by Steven Scholz, 02 Mar 2005
+  (8e2be51de8dd03c1ce4d06cbb18ad06133d47cd5)
+
+* Move dm9161.c and lxt972.c into cpu/arm920t/at91rm9200
+  Patch by Anders Larsen, 29 Apr 2005
+
+* Fix device partition intialization for SystemACE disks.
+  Patch by Stephen Williams, 28 Apr 2005
+
+* Added support for KwikByte KB920x boards (based on AT91RM9200)
+  Patch by Matt ?? <kb9200_dev@kwikbyte.com>, 27 Apr 2005
+
+* Add support for S29GL064M-R3 flash chip on xsengine board
+  Patch by Kurt Stremerch, 18 Apr 2005
+
+* E500 update: repoint IVPR to RAM when code is relocated
+  Patch by Kylo Ginsberg, 13 Apr 2005
+
+* Fix loop end test in lib_generic/string.c:strswab()
+  Patch by Andrew Dyer, October 10, 2005
+  Signed-off-by: Andrew Dyer <amdyer@gmail.com>
+
+* Cleanup
+
+* Update ARM Integrator boards:
+  Correct addessing errors in platform files.
+  Split off common core module data from Integrator header files to
+  include/armcoremodule.h.
+  Patch by Peter Pearse, 04 Oct 2005
+
+* Make sure only supported compiler options are used
+  Import "cc-option" shell function from kernel and
+  use it to get the correct ARM GCC options for individual CPUs
+  Patch by Peter Pearse, 30 Jun 2005
+
+* Fix 440GR to print correct cpu revision
+  Patch by Stefan Roese, 04 Oct 2005
+
+* Change board message on AMCC Yosemite & Yellowstone to common style
+  Patch by Stefan Roese, 03 Oct 2005
+
+* Fix compiler warning
+
+* Fix FEC PHY addresses for TQM85xx boards
+
+* Fix uninitialized variable problem in hush shell
+  Patch by Lars Rostock, 26 Sep 2005
+
+* Undo change of f6e20fc6ca... to include/configs/trab.h
+  (Must have been an accident?)
+
+* Add support for AT91RM9200 OHCI Controller.
+  Patch by Eric Benard, 07 Apr 2005
+
+* Update ARM mach-types.h
+  Patch by Eric Benard, 07 Apr 2005
+
+* Add support for MP2USB board.
+  Patch by Eric Benard, 07 Apr 2005
+
+* Add board support for armadillo HT1070
+  Patch by Rowel Atienza, 06 Apr 2005
+
+* Second Ethernet address enabled for MPC885ADS and MPC8272ADS.
+  Patch by Vitaly Bordug, 30 Mar 2005
+
+* Add iopset command on mpc8xx
+  Patch by Daniel Eisenhut, 25 Mar 2005
+
+* Add support for MII in eepro100 driver.
+  Patch by Gleb Natapov, 21 Mar 2005
+
+* Fixes to the Lubbock (PXA 25x) support:
+  - Resolve the FIXME with respect to saving the u-boot environment.
+  - Make the default load address land in real memory.
+  - Fix lan91c96 SMC_{in,out}{b,w,l}() macros
+  Patch by David Brownell, 10 Mar 2005
+
+* Add Barco Streaming Video Card (SVC) and Sample Compress Network (SCN) board
+  Patch by Marc Leeman, 04 Mar 2005
+
+* OMAP242x H4 board update
+  - fix for ES2 differences.
+  - switch to using the cfi_flash driver.
+  - fix SRAM build address.
+  - fix for GP device operation.
+  - unlock SRAM for GP devices.
+  - display more device information.
+  - fix potential deadlock in omap24xx_i2c driver.
+  - fix DLL load values to match dpllout*1 operation.
+  - fix 2nd chip select init for combo DDR device.
+  - add support for CFI Intel 28F256L18 on H4 board.
+  Patch by Richard Woodruff, 03 Mar 2005
+
+* Fix formating in include/asm-arm/arch-at91rm9200/AT91RM9200.h
+  Patch by Steven Scholz, 02 Mar 2005
+
+* Fix typo in eth.c
+  Patch by Ara Avanesyan, 24 Feb 2005
+
+* Remove unneeded #include <malloc.h>
+  Patch by Ladislav Michl, 22 Feb 2005
+
+* Add cramfs support for m68k
+  Patch by Zachary Landau, 21 Feb 2005
+
+* Update ep8260: Fix flash timeouts; improve clock resolution for faster UARTs
+  Patch by Jeff Angielski, 21 Feb 2005
+
+* Fix au1x00_serial baud rate calculation:
+  remove hardcoded cpu clock divisor and use register instead;
+  round up instead of truncate
+  Patch by Andrew Dyer, 15 Feb 2005
+
+* Add Xilinx Spartan3 family FPGA support
+  Patch by Kurt Stremerch, 14 Feb 2005
+
+* Fix drivers/cfi_flash.c: use info->reset_cmd instead of FLASH_CMD_RESET
+  Patch by Zachary Landau, 11 Feb 2005
+
+* Fix VOH405 Support
+  Patch by Matthias Fuchs, 25 Sep 2005
+
+* Added support for PCI bridge on MPC8272ADS
+  Patch by Vitaly Bordug, Feb 09 2005
+
+* Update multicore CM9XX support for Integrator AP to allow booting from flash
+  Patch by Jean-Paul Saman, 8 Feb 2005
+
+* Fix strswab() to reliably find end of string
+  Patch by Andrew Dyer, 08 Feb 2005
+
+* Fix typos in include/ppc440.h
+  Patch by Andrew E Mileski, 04 Feb 2005
+
+* Add Vibren (was Accelent) PXA255 IDP Support
+  Patch by Cliff Brake, 04 Feb 2005
+
+* Fix tools/bmp_logo.c using incorrect offset to pixel data
+  Patch by Andrew Dyer, 31 Jan 2005
+
+* Add ARM946E cpu and core module targets; remap memory to 0x00000000
+  Patch by Peter Pearse, 2 Feb 2005
+
+* Fix error handling in tools/env/fw_env.c
+  Patch by Ara Avanesyan, 01 Feb 2005
+
+* Fix MGT5100 PSC baudrate calculation
+  Patch by Sebastian Schau, 27 Jan 2005
+
+* OMAP242x fix for GP device booting
+  - Add SRAM unlock for GP devices.
+  - Change DDR DLL unlock value to allow DPLLout*1 operation.
+  Patches by Richard Woodruff, 21 Jan 2005:
+
+* Add support for AMD's Pb1x00 eval board;
+  add MII routines to the au1x00 ethernet driver;
+  add USB ohci driver (work in progress)
+  Patch by Thomas Sailer, 20 Jan 2005
+
+* Update omap5912osk board
+  Use drivers/cfi_flash.c instead of private flash driver;
+  Remove hardcoded personalized settings from omap5912osk.h;
+  Fix spacing with (RO) marks in 'flinfo' output.
+  Patch by Michael Bendzick, 14 Jan 2005
+
+* Fix warnings for PCI code on ixp
+  Patch by Joe <lgxue@yahoo.com>, 13 Jan 2005
+
+* virtex2 fix for bogus download error messages
+  The virtex2 FPGA download code watches for init going active during
+  a download of config data as an error condition. init also goes
+  active after a configuration is finished in concert with the done
+  signal. So far, the code does not check for done active until all
+  of the configuration data is sent. If configuration data has a few
+  extra pad bytes at the end, this would cause an error message even
+  though the download had suceeded.
+  NOTE: virtex2 slave serial and spartan2 versions may still have the
+  same problem.
+  Patch by Andrew Dyer, 12 Jan 2005
+
+* Optimize flash_make_cmd in drivers/cfi_flash.c for little endian
+  Fix "WARNING: flash_make_cmd: unsuppported LittleEndian mode"
+  message when probing for nonexistent flash in little endian mode.
+  As a side effect more efficient and smaller code is generated,
+  which is always a Good Thing (TM).
+  Patch by Ladislav Michl, 24 Sep 2005
+
+* Update for TFTP using a fixed UDP port
+  Use the approved environment variable names. Added "tftpdstp" to
+  allow ports other than 69 per Tolunay Orkun's recommendation.
+  Patch by Jerry Van Baren, 12 Jan 2005
+
+* Allow to force TFTP to use a fixed UDP port
+  (Add a configuration option CONFIG_TFTP_PORT and optional env
+  variable tftpport)
+  Patch by Jerry Van Baren, 10 Jan 2005
+
+* Fix ethernet timeouts on dbau1550 and other au1x00 systems
+  Patch by Leif Lindholm, 29 Dec 2004
+
+* Cleanup: fix broken builds
+
+* Fix PHY address argument passing with mii info command
+  Patch by Andrew Dyer, 28 Dec 2004
+
+* Cleanup (PPC4xx is AMCC now)
+
+* esd CPCI2DP board added
+  Patch by Matthias Fuchs, 22 Sep 2005
+
+* esd PMC405 board updated
+  Patch by Matthias Fuchs, 22 Sep 2005
+
+* Add SM501 support to HH405 board.
+  Add support for gzip compressed bmp's (CONFIG_VIDEO_BMP_GZIP).
+  Add support for eeprom write-enable (CFG_EEPROM_WREN).
+  Patch by Stefan Roese, 22 Sep 2005
+
+* Fix autonegotiation in tsec ethernet driver
+  Patch by Stefan Roese, 21 Sep 2005
+
+* Fix bug in auto_update (trab board)
+  Patch by Martin Krause, 16 Sep 2005
+
+* Fix computation of framebuffer palette for 8bpp LCD bitmaps
+  Patch by Francesco Mandracci, 16 Sep 2005
+
+* Update configuration for INKA4x0 board
+
+* Update configuration for PM854 board
+  Based on patch by R. Loeffl, 20 Jul 2005
+
+* Add PCI support to TQM8540 and TQM8560 boards
+  Patch by Stefan Roese, 15 Sep 2005
+
+* Update AMCC Yosemite to get a consistent setup for all AMCC eval
+  boards (baudrate, environment...). Flash driver fixed.
+  Patch by Stefan Roese, 15 Sep 2005
+
+* Fix problem in 440GP ethernet driver (ebony). Add support for 2nd
+  ethernet port on ebony.
+  Patch by Stefan Roese, 7 Sep 2005
+
+* Added support for mtddevnum and mtddevname variables (mtdparts command)
+
+* Change default console baud rate for stxxtc board
+
+* Add I2C support to TQM8540 and TQM8560 boards (EEPROM, RTC, LM75-DTT).
+  Patch by Stefan Roese, 31 Aug 2005
+
+* Fix default command set (don't include CFG_CMD_DISPLAY command)
+  Patch by Pantelis Antoniou, 02 Sep 2005
+
+* Cleanup
+
+* Enable SM712 driver support for HMI1001 board.
+
+* Fix problems with ld version 2.16 (dot outside sections problem)
+  Pointed out by Gerhard Jaeger, 31 Aug 2005;
+  cf. http://sourceware.org/ml/binutils/2005-08/msg00412.html
+
+* Prepare U-Boot for gcc-4.x: fix global data pointer initialization
+
+* Adjust CS3 timings on HMI1001 board for dot matrix display under Linux
+
+* Add keyboard and dot matrix display support for HMI1001 board.
+
+* Prepare U-Boot for gcc-4.x
+
+* Fixed Bamboo port to enable running without DDR-DIMM
+  (Bamboo has also 64MB onboard DDR)
+  Patch by Stefan Roese, 24 Aug 2005
+
+* Merged 405gp_enet.c and 440gx_enet.c to generic 4xx_enet.c
+  now handling all 4xx cpu's
+  Patch by Stefan Roese, 16 Aug 2005
+
+* Fix make dependencies for at91rm9200 and ks8695 cpus
+  Patch by Steven Scholz, 23 Aug 2005
+
+* Add JFFS2 support for TQM5200 board
+
+* Add esd cpci5200 and pf5200 boards
+  Patch by Reinhard Arlt, 22 Aug 2005
+
+* Fix sysclock for TQM8540 and TQM8560 boards
+  Patch by Martin Krause, 25 Jul 2005
+
+* Initialize serial# and ethaddr from manufacturer data in EEPROM on CMC-PU2
+  Patch by Martin Krause, 08 Jun 2005
+
+* Add new board specific commands for TQM5200/STK52XX
+  - Sound commands (beep, wav, sound)
+  - Test commands (led, can, backlight, rs232)
+  Patch by Martin Krause, 02 May 2005
+
+* Change main clock on CMC-PU2 board from 207 MHz to 179 MHz
+  because of a bug in the AT91RM9200 CPU PLL
+  Patch by Martin Krause, 22 Apr 2005
+
+* Add automatic HW detection for another CMC_PU2 variant
+  Patch by Martin Krause, 20 Apr 2005
+
+* Remove CONFIG_AT91RM9200DK in CMC-PU2 configuration
+  Patch by Martin Krause, 19 Apr 2005
+
+* Fix initialization problem on TQM5200 without SM501
+  Patch by Martin Krause, 08 Apr 2005
+
+* Add RTC support for STK52XX.200
+  Patch by Martin Krause, 07 Apr 2005
+
+* Add support for IFM o2dnt board
+
+* Enable PCI on hmi1001 board
+
+* Fix return values of the jffs2 commands ls/fsload/fsinfo,
+  so we can use them to, e.g., check the existence of a file with
+  "if ls foo; then this; else that; fi" in the hush shell
+  Patch by Andreas Engel, 16 August 2005
+
+* Coding style cleanup
+
+* Add support for Silicon Turnkey eXpress XTc (mpc87x/88x) board.
+  Patch by Dan Malek and Pantelis Antoniou, 15 Aug 2005
+
+* Check return value of malloc in 440gx_enet.c
+  Patch by Travis B. Sawyer, 18 Jul 2005
+
+* Add Sandburst Metrobox and Sandburst Karef board support packages.
+  Second serial port on 440GX now defined as a system device.
+  Add 'Short Etch' code for Cicada PHY within 440gx_enet.c
+  Patch by Travis B. Sawyer, 12 Jul 2005
+
+======================================================================
+Changes for U-Boot 1.1.3:
+======================================================================
+
+* Minor code cleanup
+
+* Add forgotten new fils from latest VoiceBlue update
+
+* Make bootretry feature work with hush shell.
+  Caveat: this currently *requires* CONFIG_RESET_TO_RETRY to be set, too.
+  Patch by Andreas Engel, 19 Jul 2005
+
+* Update Hymod Board Database PHP code in "tools" directory
+  Patch by Murray Jensen, 01 Jul 2005
+
+* Make "tr" command use POSIX compliant; export HOSTOS make variable
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Fix Murray Jensen's mail address.
+  Patch by Murray Jensen, 30 Jun 2005
+
+* Preserve PHY_BMCR during a soft reset.
+  Patch by Carl Riechers, 24 Jun 2005
+
+* VoiceBlue update: eeprom tool can also store firmware version now.
+  eeprom.bin is runable by jumping at load address.
+  Patch by Ladislav Michl, 23 May 2005
+
+* Move the AT91RM9200DK to the ARM Systems list.
+  Patch by Anders Larsen, 26 Apr 2005
+
+* Eliminate calls of ARM libgcc.a helper functions _divsi3 and _modsi3
+  Patch by Anders Larsen, 26 Apr 2005
+
+* measure_gclk() is needed when DEBUG is enabled
+  Patch by Bryan O'Donoghue, 25 Apr 2005
+
+* Add UPD-Checksum code, fix problem in net.c (return instead of break)
+  Patch by Reinhard Arlt, 12 Aug 2005
+
+* esd PCI405 board updated
+  Patch by Matthias Fuchs, 28 Jul 2005
+
+* esd WUH405 and DU405 board updated
+  Patch by Matthias Fuchs, 27 Jul 2005
+
+* Fix problem in cmd_nand.c (only when defined CFG_NAND_SKIP_BAD_DOT_I)
+  Patch by Matthias Fuchs, 4 May 2005
+
+* Update AMCC Yosemite to get a consistent setup for all AMCC eval
+  boards (baudrate, environment...). Flash driver fixed.
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Changed AMCC Bubinga (405EP) configuration to support 2nd eth port
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Add NAND FLASH support for AMCC Bamboo 440EP eval board
+  Patch by Stefan Roese, 11 Aug 2005
+
+* Add configuration for IFM AEV FIFO board.
+  Minor coding style cleanup.
+
+* Add configuration for IFM SPI eval board
+
+* Fix CompactFlash problem on HMI1001 board
+
+* Make new "mtdparts" code build with older compilers
+  Patch by Andrea Scian, 09 Aug 2005
+
+* Changed CONFIG_440_GX, CONFIG_440_EP and CONFIG_440_GR options to
+  CONFIG_44GX, CONFIG_440EP and CONFIG_440GR for a consistent design
+  with the 405 defines and the linux kernel defines.
+  Patch by Stefan Roese, 08 Aug 2005
+
+* Fix compiler warnings with older GCC versions
+
+* Add common (with Linux) MTD partition scheme and "mtdparts" command
+
+  Old, obsolete and duplicated code was cleaned up and replace by the
+  new partitioning method. There are two possible approaches now:
+
+  The first one is to define a single, static partition:
+
+  #undef CONFIG_JFFS2_CMDLINE
+  #define CONFIG_JFFS2_DEV		 "nor0"
+  #define CONFIG_JFFS2_PART_SIZE	 0xFFFFFFFF	/* use whole device */
+  #define CONFIG_JFFS2_PART_SIZE	 0x00100000	/* use 1MB */
+  #define CONFIG_JFFS2_PART_OFFSET	 0x00000000
+
+  The second method uses the mtdparts command line option and dynamic
+  partitioning:
+
+  /* mtdparts command line support */
+  #define CONFIG_JFFS2_CMDLINE
+  #define MTDIDS_DEFAULT	 "nor1=zuma-1,nor2=zuma-2"
+  #define MTDPARTS_DEFAULT	 "mtdparts=zuma-1:-(jffs2),zuma-2:-(user)"
+
+  Command line of course produces bigger images, and may be inappropriate
+  for some targets, so by default it's off.
+
+* Fix build problems for PM856 Board
+
+* Fix sign extension bug in 'fpga loadb' command;
+  make 'fpga loadb' always print the file header info
+  Patch by Andrew Dyer, 11 Jan 2005
+
+* Fix errors that occur when accessing SystemACE CF
+  Patch by Jeff Angielski, 09 Jan 2005
+
+* Document switching between U-Boot and PlanetCore on RPXlite
+  by Sam Song, 24 Dec 2004
+
+* Fix PowerQUICC II mask detection.
+  Patch by Eugene Surovegin, 20 Dec 2004
+
+* Add support for Altera NIOS DK1C20 board
+  Patch by Shlomo Kut, 13 Dec 2004
+
+* Add support for ep8248 board
+  Patch by Yuli Barcohen, 12 Dec 2004
+
+  Minor code cleanup.
+
+* Fix baudrate setting for KGDB on MPC8260
+  Patch by HoJin, 11 Dec 2004
+
+* Fix 'mii help' text formatting
+  Patch by Cory Tusar, 10 Dec 2004
+
+* Fix return code of NFS command
+  Patch by Hiroshi Ito, 11 Dec 2004
+
+* Fix typo
+
+* Fix compiler warnings in cpu/ppc4xx/usbdev.c
+  Patch by Steven Blakeslee, 04 Aug 2005
+
+* Add support for AMCC Bamboo PPC440EP eval board
+  Patch by Stefan Roese, 04 Aug 2005
+
+* Patch by Jon Loeliger
+  Fix style issues primarily in 85xx and 83xx boards.
+    - C++ comments
+    - Trailing white space
+    - Indentation not by TAB
+    - Excessive amount of empty lines
+    - Trailing empty lines
+
+* Patch by Ron Alder, 11 Jul 2005
+    Add Xianghua Xiao and Lunsheng Wang's support for the
+    GDA MPC8540 EVAL board.
+
+* Patch by Eran Liberty
+  Add support for the Freescale MPC8349ADS board.
+
+* Patch by Jon Loeliger, 25 Jul 2005
+  Move the TSEC driver out of cpu/mpc85xx as it will be shared
+  by the upcoming mpc83xx family as well.
+
+* Patch by Jon Loeliger, 05 May 2005
+  Implemented support for MPC8548CDS board.
+  Added DDR II support based on SPD values for MPC85xx boards.
+  This roll-up patch also includes bugfies for the previously
+  published patches:
+    DDRII CPO, pre eTSEC, 8548 LBIU, Andy's TSEC, eTSEC 3&4 I/O
+
+* Patch by Jon Loeliger, 10 Feb 2005
+  Add config option CONFIG_HAS_FEC calling out 8540 FEC features.
+
+* Patch by Jon Loeliger, Kumar Gala, 08 Feb 2005
+  For MPC85xxCDS:
+    Adds Relaxed Timing TRLX bit to FLASH ORx regs to allow
+    for faster flash parts.
+    Add documentation for BR/OR for FLASH.
+
+* Patch by Jon Loeliger 08 Feb 2005
+  Determine L2 Cache size dynamically on 85XX boards.
+
+* Patch by Jon Loeliger, Kumar Gala 08 Feb 2005
+  - Convert the CPM2 based functionality to use new CONFIG_CPM2
+    option rather than a myriad of CONFIG_MPC8560-like variants.
+    Applies to MPC85xx and MPC8260 boards, includes stxgp3 and sbc8560.
+    Eliminates the CONFIG_MPC8560 option entirely.  Distributes the
+    new CONFIG_CPM2 option to each 8260 board.
+
+* Add support for MicroSys PM856 board
+  Patch by Josef Wagner, 03 Aug 2005
+
+* Minor fixes to PM854 board
+  Patch by Josef Wagner, 03 Aug 2005
+
+* Adjust configuration of XENIAX board
+  (chip select and GPIO required for USB operation)
+
+* Fix typos in cpu/85xx/start.S which caused DataTLB exception to be
+  routed to the Watchdog handler
+  Patch by Eugene Surovegin, 18 Jun 2005
+
+* (re)enabled scsi commands do_scsi() and do_scsiboot()
+  Patch by Denis Peter, 06 Dec 2004
+
+* Fix endianess problem in TFTP / NFS default filenames
+  Patch by Hiroshi Ito, 06 Dec 2004
+
+* Ignore broadcast status bit in received frames in 8260 FCC ethernet
+  loopback test code
+  Patch by Murray Jensen, 18 Jul 2005
+
+* Fix typo in mkconfig script (used == instead of =)
+  Patch by Murray Jensen, 18 Jul 2005
+
+* Cleanup build problems on 64 bit build hosts
+
+* Update MAINTAINERS file
+
+* Patch by Stefan Roese, 01 Aug 2005:
+  - Major cleanup for AMCC eval boards Walnut, Bubinga, Ebony, Ocotea
+    (former IBM eval board). Please see "doc/README.AMCC-eval-boards-cleanup"
+    for details.
+  - Sycamore (PPC405GPr) eval board added (Walnut port is extended
+    to run on both 405GP and 405GPr eval boards).
+
+* Patch by Steven Blakeslee, 27 Jul 2005:
+  - Add support for AMCC PPC440EP/GR.
+  - Add support for AMCC Yosemite PPC440EP eval board.
+  - Add support for AMCC Yellowstone PPC440GR eval board.
+
+* Minor fixes for PPChameleon Board:
+  - fix alignment of NAND size
+  - make code do what the comment says
+
+* Implement h/w sector protection status synchronization at boot.
+  The code is provided for, and was tested on, the Yukon/Alaska
+  and PM520 boards only.
+
+  A bug in flash_real_protect() for the Yukon board was fixed by
+  adding a function that tells if two banks are on one flash chip.
+
+* Fix sysmon POST problem: check I2C error codes
+  This fixes a problem of displaying bogus voltages when the voltages
+  are so low that the I2C devices start failing while the rest of the
+  system keeps running.
+
+* Patch by Cedric Vincent, 6 Jul 2005:
+  Fix CFG_CMD_SETGETDCR handling in "common/cmd_dcr.c"
+
+* Patch by Jon Loeliger, 20 Jul 2005:
+  Add missing PCI IO port definitions.
+
+* Add CompactFlash support for HMI1001 board.
+
+* Adjust printed board ID for LWMON board.
+
+* Fix low-level OHCI transfers for ARM920t and MPC5xxx
+
+* Add new argument format for flash commands to allow for usage like
+  "erase $(addr) +$(filesize)", i. e. a size argument can be used and
+  U-Boot will automaticially find the end of the corresponding sector.
+
+* Patch by Stefan Roese, 5 Jul 2005:
+  Update uc100 board PHY setup
+
+* Patch by Stefan Roese, 1 Jul 2005:
+  Fix PHY address for CATcenter board (now correct!)
+
+* Patch by Stefan Roese, 30 Jun 2005:
+  Fix PHY addresses for PPChameleon and CATcenter boards
+  Change MAINTAINER for most esd boards
+
+* Patch by Detlev Zundel, 30 Jun 2005:
+  Fix LCD logo for lwmon board which got lost in the merge of 8xx and PXA LCD code
+
+* Fix baudrate calculation problem on MPC5200 systems
+
+* Add EEPROM and RTC support for HMI1001 board
+
+* Patch by Detlev Zundel, 20 Jun 2005:
+  Fix initialization of low active GPIO pins on inka4x0 board
+
+* Enable redundant environment, disable HW flash protection of
+  HMI1001 board
+
+* Patch by Travis Sawyer, 10 Jun 2005:
+  Initialize allocated dev and private hw structures
+  after their respective allocation in 440gx_enet.c
+
+* Patch by Steven Scholz, 10 Jun 2005:
+  Fix byteorder problems with second argument of "bootm" with
+  standalone images;
+
+* Add support for HMI1001 board
+
+* Disable "date" and "sntp" commands on TQM866M
+
+* Fix watchdog reset problems on LWMON board
+
+* Patch by Juergen Selent, 17 May 2005:
+  Add support for Funkwerk VoVPN gateway module.
+
+* Cleanup debug code for MPC8220 FEC driver
+
+* Extend burst mode RAM test program to take a loop count
+  (0 = infinite)
+
+* Use CONFIG_DRIVER_KS8695ETH to enable KS8695 ethernet driver on
+  those boards that use it.
+
+* Patches by Greg Ungerer, 19 May 2005:
+  - add support for the KS8695P (ARM 922 based) CPU
+  - add support for the OpenGear CM4008, CM4116 and CM4148 boards
+
+* Patch by Steven Scholz, 19 May 2005:
+  Add support for CONFIG_SERIAL_TAG on ARM boards
+
+* Add PCI support for Sorcery board.
+  Code cleanup (especially Sorcery / Alaska / Yukon serial driver).
+
+* Fix compile problems caused by new burst mode SDRAM test;
+  make port pins to trigger logic analyzer configurable
+
+* Fix timer handling on MPC85xx systems
+
+* Fix debug code in omap5912osk flash driver
+
+* Add support for MPC8247 based "IDS8247" board.
+
+* Add support for 2 x TSEC interfaces on the TQM8540 board.
+
+* On LWMON we must use the watchdog to reset the board as the CPU
+  genereated HRESET pulse is too short to reset the external
+  circuitry.
+
+* Add test tool to exercise SDRAM accesses in burst mode
+  (as standalone program, MPC8xx/PowerPC only)
+
+* Increase CFG_MONITOR_LEN for Rattler board to match actual code
+  size.
+
+* Major upate of JFFS2 code; now in sync with snapshot of MTD CVS of
+  March 13, 2005); new configuration option CONFIG_JFFS2_LZO_LZARI
+  added to support LZO and LZARI compression modes (undefined by
+  default).
+
+* Fix problem with symbolic links in JFFS2 code.
+
+* Use linker ASSERT statement to prevent undetected overlapping of
+  sections on PPChameleon board; other boards might use this, too.
+
+* Patch by Stefan Roese, 03 May 2005:
+  Update for P3G4
+  Fix problems in cmd_universe.c
+
+* Patch by Matthias Fuchs, 03 May 2005:
+  Added missing variable declaration in cmd_nand.c
+  Modified CFG_PCI_PTM1MS in configs/PLU405.h to map 128MB ram
+
+* Fix INKA4x0: use CS1 as gpio_wkup_6 output
+
+* Fix bug in the SDRAM initialization code for canmb, IceCube and
+  PM520 boards.
+  Fix PHY address for canmb board.
+
+* Cleanup serial console baudrate calculation on AT91RM9200;
+  get rid of obsolete CFG_AT91C_BRGR_DIVISOR definition
+
+* Patch by Matthias Fuchs, 18 Apr 2005:
+  Make PCI target address spaces on PMC405 and CPCI405 boards
+  configurable via environment variables
+
+* Auto-size RAM on canmb board.
+
+* Add support for canmb board
+
+* Patch by Stefan Roese, 13 Apr 2005:
+  Update for esd apc405
+
+* Fixes for TQM8560 board:
+  - fix clock rates
+  - remove debug messages
+  - fix flash sector protection
+
+* Patch by Steven Scholz, 07 Apr 2005:
+  Add i2c_reg_write() and i2c_reg_write() for at91rm9200 I2C
+
+* Patches by Steven Scholz, 07 Apr 2005:
+  Fix compiler warning in altera.c
+  Fix warning in cpu/arm920t/at91rm9200/i2c.c
+
+* Patch by Ladislav Michl, 06 Apr 2005:
+  Fix voiceblue configuration.
+
+* Patch by Stefan Roese, 06 Apr 2005:
+  Updates for OCOTEA board:
+  - Changed U-Boot size from 512kByte to 256kByte
+  - Fixed flash driver to support boot from soldered user flash
+  - Added README for switch from PIBS firmware to U-Boot
+
+* Patch by Travis Sawyer, 05 Apr 2005:
+  - Change timer frequency for ppc 440 from 10 ms to 1 ms.
+    Problem found by Andrew Wozniak.
+
+* Patch by Steven Scholz, 06 Apr 2005:
+  - creating SoC subdir for Atmel AT91RM9200 cpu/arm920t/at91rm9200
+  - moving code out of cpu/at91rm9200 into cpu/arm920t/at91rm9200
+
+* Patches by Robert Whaley, 29 Nov 2004:
+  - update the pxa-regs.h file for PXA27x chips
+  - add PXA27x based ADSVIX board
+  - add support for MMC on PXA27x processors
+
+* Patch by Andrew E. Mileski, 28 Nov 2004:
+  Fix PPC4xx SPD SDRAM detection bug
+
+* Patch by Hiroshi Ito, 26 Nov 2004:
+  Fix logic of "test -z" and "test -n" commands
+
+* Patch by Ladislav Michl, 05 Apr 2005:
+  Add support for VoiceBlue board.
+
+* Patch by Ladislav Michl, 05 Apr 2005:
+  Fix netboot_common() prototypes.
+
+* Patch by Steven Scholz, 05 Apr 2005:
+  Use i.MX watchdog timer for reset_cpu()
+
+* Patch by Steven Scholz, 05 Apr 2005:
+  Move reset_cpu() out of cpu/arm920t/start.S into the SoC specific
+  subdirectories cpu/arm920t/imx/ and cpu/arm920t/s3c24x0/
+  (now in interupts.c)
+
+* Add support for MPC8220 based "sorcery" board.
+
+* Add support for TQM8560 board.
+
+* Add FEC support for TQM8540 board.
+  Interfaces are named as follows: "ENET1" - TSEC2, "ENET2" - FEC
+
+* Patch by Martin Krause, 04 Apr 2005:
+  Update default configuration for CMC_PU2 board.
+
+* Patch by Steven Scholz, 04 Apr 2005:
+  - remove all references to CONFIG_INIT_CRITICAL for ARM based boards
+  - introduce two new configuration options instead:
+    CONFIG_SKIP_LOWLEVEL_INIT and CONFIG_SKIP_RELOCATE_UBOOT
+
+* Patch by Steven Scholz, 04 Apr 2005:
+  Make sure that MDIO clock does not exceed 2.5 MHz on AT91
+
+* Fix timer code for ARM systems: make sure that udelay() does not
+  reset timers so it's save to use udelay() in timeout code.
+
+* Patch by Mathias Küster, 23 Nov 2004:
+  add udelay support for the mcf5282 cpu
+
+* Patch by Tolunay Orkun, 16 November 2004:
+  fix incorrect onboard Xilinx CPLD base address
+
+* Patch by Jerry Van Baren, 08 Nov 2004:
+  - Add low-boot option for MPC8260ADS board (if lowboot is selected,
+    the jumper for the HRCW source should select flash. If lowboot is
+    not selected, the jumper for the HRCW source should select the
+    BCSR.
+  - change default load base address to 0x00400000
+
+* Patch by Yuli Barcohen, 08 Nov 2004:
+  Add support for Analogue & Micro Rattler boards.
+  Tested on Rattler8248.
+
+* Patch by Andre Renaud, 08 Nov 2004:
+  Fix watchdog support in common/lcd.c
+
+* Patch by Marc Leeman, 05 Nov 2003:
+  Enable all 4 PCMBRW buffers for the MPC8245 processor since the CPU
+  bug only affects the XPC8245 processors
+
+* Patches by Josef Wagner, 29 Oct 2004:
+  - Add support for MicroSys CPU87 board
+  - Add support for MicroSys PM854 board
+
+* Patch by Jian Zhang, 02 Nov 2004:
+  Add 16-bit NAND support
+
+* Patch by Scott McNutt, 01 Nov 2004:
+  Add missing NIOS/NIOS2 support for "iminfo" command
+
+* Patch by Detlev Zundel, 29 Oct 2004:
+  Add missing NIOS/NIOS2 support for "mkimage" tool.
+
+* Patch by David Adair, 27 Oct 2004:
+  Add missing 440GX SDRAM Controller reset
+
+* Patch by Steven Scholz, 25 Oct 2004:
+  Declare reset_cpu() in include/common.h instead locally
+
+* Patch by Yusdi Santoso, 22 Oct 2004:
+  - Add support for HIDDEN_DRAGON board
+  - fix endianess problem in driver/rtl1839.c
+
+* Patch by Allen Curtis, 21 Oct 2004:
+  support multiple serial ports
+
+* Patch by Richard Klingler, 03 Apr 2005:
+  Add call to eth_halt() in net/net.c when called functions fail
+  after eth_init() has been called.
+
+* Patch by Sam Song, 3 April 2005:
+  - Update README.Netconsole
+  - Update README
+
+* Prepare for SoC rework of ARM code:
+  - rename CONFIG_BOOTBINFUNC into  CONFIG_INIT_CRITICAL
+  - rename memsetup into lowlevel_init (function name and source files)
+  Patch by Steven Scholz, 03 Apr 2005:
+  - create SoC specific directories include/asm-arm/arch-imx and
+    include/asm-arm/arch-s3c24x0
+
+* Fix problems with SNTP support;
+  enable SNTP support in some boards.
+
+* Patches by Martin Krause, 01 Apr 2005:
+  - Fix flash erase timeout on CMC_PU2
+  - Add automatic HW detection for CMC_PU2 and CMC_BASIC
+
+* Patch by Steven Scholz, 13 March 2005:
+  fix cache enabling for AT91RM9200
+
+* Patch by Masami Komiya, 30 Mar 2005:
+  add SNTP support and expand time server and time offset fields of
+  DHCP support. See doc/README.SNTP
+
+* Patch by Steven Scholz, 13 Dec 2004:
+  Fix bug in at91rm920 ethernet driver
+
+* Patch by Steven Scholz, 13 Dec 2004:
+  Remove duplicated code by merging memsetup.S files for
+  at91rm9200 boards into one cpu/at91rm9200/lowlevel.S
+
+* Patch by Detlev Zundel, 31 Mar 2005:
+  Cleanup duplicate definition of overwrite_console()
+
+* Update TQM5200 configuration;
+  prepare for Rev. 200 starter kit boards
+
+* Patch by Scott McNutt, 21 Oct 2004:
+  Add support for Nios-II EPCS Controller core.
+
+* Patch by Scott McNutt, 20 Oct 2004:
+  Nios-II cleanups:
+  - Add sysid command (Nios-II only).
+  - Locate default exception trampoline at proper offset.
+  - Implement I/O routines (readb, writeb, etc)
+  - Implement do_bootm_linux
+
+* Patches by Martin Krause, 22 Mar 2005:
+  - use TQM5200_auto as MAKEALL target for TQM5200 systems
+  - add support for SM501 graphics controller
+  - add support for graphic console on TQM5200
+  - add support for TQM5200 Rev 200
+  - cleanup, fix typo in include/configs/TQM5200.h
+
+* Patch by Manfred Baral, 17 Mar 2005:
+  Fix typo
+
+* Fix RTC configuration for PPChameleon board
+
+* Cleanup, fix typo in include/configs/TQM5200.h
+
+* Patch by Stefan Roese, 16 Mar 2005:
+  Update for esd auto_update and hh405 board
+
+* Adapt for U-Boot image size (new features enabled) on TQM5200
+
+* Update code for TQM8540 board (and 85xx in general):
+  - Change the name of the Ethernet driver: MOTO ENET -> ENET
+  - Reformat boot messages
+  - Enable redundant environment
+  - Replace the -O2 optimization flag with -mno-string
+
+* Patch by David Brownell, 10 Mar 2005:
+  Restore copyright statements in OHCI drivers.
+
+* Add support for TQM8540 board
+
+* Patch by Detlev Zundel, 14 Mar 2005:
+  NC650: changed NAND flash addressing to using UPMB
+
+* Patch by Stefan Roese, 14 Mar 2005:
+  Update for esd voh405 fpga image
+
+* INKA4x0: Allow initialization of LCD backlight dimming from
+  "brightness" environment variable.
+
+* Add port initialization for digital I/O on INKA4x0
+
+* Patch by Stefan Roese, 01 Mar 2005:
+  Update for esd boards dp405 and hub405
+
+* Fix get_partition_info() parameter error in all other calls
+  (common/cmd_ide.c, common/cmd_reiser.c, common/cmd_scsi.c).
+
+* Enable USB and IDE support for INKA4x0 board
+
+* Patch by Andrew Dyer, 28 Feb 2005:
+  fix ext2load passing an incorrect pointer to get_partition_info()
+  resulting in load failure for devices other than 0
+
+* Add support for SRAM and 2 x Quad UARTs on INKA4x0 board
+
+* Cleanup USB and partition defines
+
+* Add support for ext2 filesystems and image timestamps to TQM5200 board
+
+* Add reset code for Coral-P on INKA4x0 board
+
+* Patch by Martin Krause, 28 Jun 2004:
+  Update for TRAB board.
+
+* Fix some missing "volatile"s in MPC5xxx FEC driver
+
+* Fix cirrus voltage detection (for CPC45)
+
+* Fix byteorder problem in usbboot and scsiboot commands.
+
+* Patch by Cajus Hahn, 04 Feb 2005:
+  - don't insist on leading '/' for filename in ext2load
+  - set default partition to useful value (1) in ext2load
+
+* Patch by Andrew Dyer, 08 Jan 2005:
+  fix wrong return codes in ext2 code
+
+* Removed '--no-warn-mismatch' option from Makefile. This option
+  makes 'ld' to overlook binary objects compatibility.
+
+* Moved $(PLATFORM_LIBS) from the library group (--start-group ...
+  --end-group) outside of the group. This will make 'ld' to do
+  _multiple_ search in the library group when resolving symbol
+  references and do only a _single_ seach in libgcc.a after the group
+  search.
+
+* Fix stability problems on CPC45 board again.
+
+* Make image detection for diskboot / usbboot / scsiboot more robust
+  (also check header checksum)
+
+* Update CPC45 board configuration.
+
+* Add USB and PCI support for INKA4x0 board
+
+* Fix IDE stability problems on CPC45 board (needs 2 x EIEIO).
+
+* Code cleanup
+
+* Patch by Robin Getz, 13 Oct 2004:
+  Add standalone application to change SMC91C111 MAC addresses,
+  see examples/README.smc91111_eeprom
+
+* Patch by Xiaogeng (Shawn) Jin, 12 Oct 2004:
+  Fix Flash support for ARM Integrator CP.
+
+* Patch by Richard Woodruff, 10 Jan 2005:
+  Update support for OMAP2420 (ARM11) and H4 board:
+  o clean up and add new types to H4 memory probe code.
+  o fix to work with internal boot.
+  o added PRCM config III operation.
+  o fix marginal flash timings.
+  o add revison ATAG usage.
+  o enable voltage scaling at power chip.
+  o fix compile error for i2c.
+
+* Fix network problem (error when receiving multiple ARP packets)
+
+* Patch by Daniel Poirot, 12 Oct 2004:
+  Add support for Wind River sbc405 board
+
+* Patch by Rainer Brestan, 12 Oct 2004:
+  Make examples/Makefile more robust
+
+* Patch by Sam Song, 11 October 2004:
+  - Add RESET/PREBOOT/AUTOBOOT support for RPXlite_DW board
+  - Adjust CPU:BUS frequency ratio 1:1 when core frequency
+    less than 50MHz
+
+* Patch by Sam Song, 10 Oct 2004:
+  Fix a parameter error in run_command() in main.c
+
+* Patch by Richard Woodruff, 01 Oct 2004:
+  add support for the TI OMAP2420 processor and its H4 reference
+  board
+
+* Patch by Christian Pellegrin, 24 Sep 2004:
+  Added support for NE2000 compatible (DP8390, DP83902) NICs.
+
+* Patch by Leif Lindholm, 23 Sep 2004:
+  add support for the AMD db1550 board
+
+* Patch by Travis Sawyer, 15 Sep 2004:
+  Add CONFIG_SERIAL_MULTI support for ppc4xx,
+  update README.serial_multi
+
+* Patches by David Snowdon, 07 Sep 2004:
+  - add u-boot.hex target in the top level Makefile
+  - add support for the UNSW/NICTA PLEB 2 board (pleb2)
+  - use -mtune=xscale and -march=armv5 options for PXA
+
+* Patch by Florian Schlote, 08 Sep 2004:
+  Add support for SenTec-COBRA5272-board (ColdFire).
+
+* Patch by Gleb Natapov, 07 Sep 2004:
+  mpc824x: set PCI latency timer to a sane value
+  (is 0 after reset).
+
+* Patch by Kurt Stremerch, 03 Sep 2004:
+  Add bitstream configuration option for fpga command (Xilinx only).
+
+* Patch by Kurt Stremerch, 03 Sep 2004:
+  Add Xilinx Spartan2E family FPGA support
+
+* Patch by Jeff Angielski, 02 Sep 2004:
+  Add Added support for H2 revision of the EP8260 board.
+  Fixed formatting for some of the EP8260 related source files.
+
+* Patch by Jon Loeliger, 02 Sep 2004:
+  Reset monitor size back to 256 so environment can be written
+  to flash on MPC85xx ADS and CDS releases.
+
+* Patch by Paolo Broggini, 02 Sep 2004:
+  Make BSS clearing on ARM systems more robust
+
+* Patch by Yue Hu and Joe, 01 Sep 2004:
+  - add PCI support for ixp425;
+  - add EEPRO100 suppor tfor ixdp425 board.
+
+* Fix problem with protected sector detection in driver/cfi_flash.c
+
+======================================================================
+Changes for U-Boot 1.1.2:
+======================================================================
+
+* Code cleanup, mostly for GCC-3.3.x
+
+* Cleanup confusing use of CONFIG_ETH*ADDR - ust his only to
+  pre-define a MAC address; use CONFIG_HAS_ETH* to enable support for
+  additional ethernet addresses.
+
+* Cleanup drivers/i82365.c - avoid duplication of code
+
+* Fix bogus "cannot span across banks" flash error message
+
+* Code cleanup
+
+* Add support for CompactFlash for the CPC45 Board.
+
+* Fix problems with CMC_PU2 flash driver.
+
+* Cleanup:
+  - avoid trigraph warning in fs/ext2/ext2fs.c
+  - rename UC100 -> uc100
+
+* Add support for UC100 board
+
+* Patch by Stefan Roese, 16 Dez 2004:
+  - ext2fs support added
+  - Tundra universe support added
+  - ColdFire MCF5249 support added (no preloader needed!)
+  - MCF5249 board TASREG added
+  - PPC boards added: APC405, CPCI405DT, CPCI750, G2000, HH405,
+    VOM405, WUH405
+  - some esd boards updated
+  - memory commands "mdc" and "mwc" added for cyclic read/write
+    (CONFIG_MX_CYCLIC, see README for further description)
+
+* Add support for INKA4X0 board
+
+* Patch by Steven Scholz, 12 Dec 2004:
+  Fix typo in AT91 memory setup.
+
+* Patch by Martin Krause, 27 Oct 2004:
+  - add support for "STK52xx" board (including PS/2 multiplexer)
+  - add hardware detection for TQM5200
+
+* Clean up CMC PU2 flash driver
+
+* Update MAINTAINERS file
+
+* Fix bug in MPC823 LCD driver
+
+* Fix udelay() on AT91RM9200 for delays < 1 ms.
+
+* Enable long help on CMC PU2 board;
+  fix reset issue;
+  increase CPU speed from 179 to 207 MHz.
+
+* Fix smc91111 ethernet driver for Xaeniax board (need to handle
+  unaligned tail part specially).
+
+* Update for AT91RM9200DK and CMC_PU2 boards:
+  - Enable booting directly from flash
+  - fix CMC_PU2 flash driver
+
+* Fix mkimage usage message
+
+* Map SRAM on NC650 board
+
+* Work around for Ethernet problems on Xaeniax board
+
+* Patch by TsiChung Liew, 23 Sep 2004:
+  - add support for MPC8220 CPU
+  - Add support for Alaska and Yukon boards
+
+* Fix configuration for ERIC board (needs more room)
+
+* Adjust MIPS compiler options at run-time depending on tools version
+  ("-march=4kc -mtune=4kc -Wa,-mips_allow_branch_to_undefined" for new,
+  "-mcpu=4kc" for old tools)
+
+* Add passing of the command line and memory size information to  the
+  kernel on xaeniax board.
+
+* Enable NAND flash support for NC650 board.
+
+* Patch by Thomas Lange 07 Oct 2004:
+  Updated README for DBAu1x00 boards to match current status
+
+* Patch by Philippe Robin, 28 Sept 2004:
+  Fix Flash support for Versatile.
+
+* Patch by Roger Blofeld, 16 Sep 2004:
+  Fix timeout for DHCP command retry
+
+* Patch by Pantelis Antoniou, 14 Sep 2004:
+  Fix early serial hang when CONFIG_SERIAL_MULTI is defined.
+
+* Patch by Pantelis Antoniou, 14 Sep 2004:
+  Kick watchdog when bz-decompressing
+
+* Fix CFG_HZ problems on AT91RM9200 systems
+  [Remember: CFG_HZ should be 1000 on ALL systems!]
+
+* Patch by Gridish Shlomi, 30 Aug 2004:
+  - Add support to revA version of PQ27 and PQ27E.
+  - Reverted MPC8260ADS baudrate back to original 115200
+
+* Patch by Hojin, 17 Sep 2004:
+  Fix typo in cfi_flash.c
+
+* Patch by Mark Jonas, 09 September 2004:
+  mtest's data line test (with CFG_ALT_MEMTEST set) returned a wrong
+  error message
+
+* Patch by Mark Jonas, 31 August 2004:
+  Added option CFG_XLB_PIPELINING to enable XLB pipelining. This
+  improves FTP performance for MPC5200 systems. Enabled for IceCube
+  by default.
+
+* Patch by Michael Bendzick, 30 Aug 2004:
+  - Improve platform.S code for omap1510inn that detects whether code
+    is running from SDRAM or not. Patch allows SDRAM to be configured
+    if code is running out of SRAM at 0x20000000.
+
+* Patch by Frederick Klatt, 30 Aug 2004:
+  Add support for the Wind River SBC8540/SBC8560 boards
+
+* Configure SX1 board to use drivers/cfi_flash.c
+
+* Patches by Michael Bendzick, 30 Aug 2004:
+  - Configure omap1510inn board to use drivers/cfi_flash.c
+  - Make drivers/cfi_flash.c protect environment and redundant
+    environment.
+
+* Patch by Steven Scholz, 23 Jun 2004:
+  - Add script (tools/img2brec.sh) to programm U-Boot into
+    (Synch)Flash using the Bootstrap Mode of the MC9328MX1/L
+
+* Patches by Scott McNutt, 24 Aug 2004:
+  - Add support for Altera Nios-II processors.
+  - Add support for Psyent PCI-5441 board.
+  - Add support for Psyent PK1C20 board.
+
+* Patches by Jon Loeliger, 24 Aug 2004:
+  - Add support for the MPC8541 and MPC8555 CDS boards
+  - Cleanup eth?addr handling: make dependent on CONFIG_ETH?ADDR
+  - Convert MPC85xxADS to use common CFI flash driver
+  - Fix PCI window on MPC85xx; remove unneeded PCI initialization
+    from board_early_init_f()
+  - Provide SW workaround for PCI initialization on 85xx CDS
+
+* Patches by George G. Davis, 24 Aug 2004:
+  - Enable ramdisk/initrd tagged param support for omap1610h2_config
+  - Remove static network setup defaults from mx1ads_config
+  - update ARM boards to use constants from mach-types.h
+
+* Patch by Gary Jennejohn, 04 Oct 2004:
+  - fix I2C on at91rm9200
+  - add support for Ricoh RS5C372A RTC
+
+* Patch by Gary Jennejohn, 01 Oct 2004:
+  - add support for CMC PU2 board
+  - add support for I2C on at91rm9200
+
+* Patch by Gary Jennejohn, 28 Sep 2004:
+  fix baudrate handling on at91rm9200
+
+* Patch by Yuli Barcohen, 22 Aug 2004:
+  - remove ZPC.1900 board-specific flash driver;
+    switch the port to generic CFI driver;
+  - port clean-up
+
+* Patch by Hinko Kocevar, 21 Aug 2004:
+  Add calc_fbsize() function used with VIDEOLFB_TAG on TRAB
+
+* Clean up tools/bmp_logo.c to not add trailing white space
+
+* Patch by Hinko Kocevar, 21 Aug 2004:
+  - Group common framebuffer functions in common/lcd.c
+  - Group common framebuffer macros and #defines in include/lcd.h
+  - Provide calc_fbsize() for video ATAG
+
+* Patch by Sam Song, 21 August 2004:
+  - Fix a typo in README
+  - Align "(RO)" output for "flinfo" after "protect on"
+  - Add RESET support for RPXlite_DW board; adjust CPU:BUS frequency
+    ratio 1:1 when core frequency less than 50MHz
+
+* Patches by Hinko Kocevar, 21 Aug 2004:
+  - fix some "use of label at end of compound statement" warnings
+  - Define type of LCD panel on lubbock board if CONFIG_LCD is used
+
+* Patch by Steven Scholz, 16 Aug 2004:
+  - Introducing the concept of SoCs "./cpu/$(CPU)/$(SOC)"
+  - creating subdirs for SoCs ./cpu/arm920t/imx and ./cpu/arm920t/s3c24x0
+  - moving SoC specific code out of cpu/arm920t/ into cpu/arm920t/$(SOC)/
+  - moving drivers/s3c24x0_i2c.c and drivers/serial_imx.c out of drivers/
+    into cpu/arm920t/$(SOC)/
+
+* Patches by Sean Chang, 09 Aug 2004:
+  - Added support for both 8 and 16 bit mode access to System ACE CF
+    through MPU.
+  - Fixed missing System ACE CF device during get FAT partition info
+    in fat_register_device function.
+  - Enabled System ACE CF support on ML300.
+
+* Patch by Sean Chang, 09 Aug 2004:
+  Synch defines for saveenv and do_saveenv functions so they get
+  compiled under the same statement.
+
+* Patch by Sean Chang, 09 Aug 2004:
+  - Added I2C support for ML300.
+  - Added support for ML300 to read out its environment information
+    stored on the EEPROM.
+  - Added support to use board specific parameters as part of
+    U-Boot's environment information.
+  - Updated MLD files to support configuration for new features
+    above.
+
+* Patches by Travis Sawyer, 05 Aug 2004:
+  - Remove incorrect bridge settings for eth group 6
+  - Add call to setup bridge in ppc_440x_eth_initialize
+  - Fix ppc_440x_eth_init to reset the phy only if its the
+    first time through, otherwise, just check the phy for the
+    autonegotiated speed/duplex.  This allows the use of netconsole
+  - only print the speed/duplex the first time the phy is reset.
+
+* Patch by Shlomo Kut, 29 Mar 2004:
+  Add support for MKS Instruments "Quantum" board
+
+* Fix build problem with Cogent boards;
+  avoid using <asm/byteorder.h> when using the host compiler
+
+* Patch by Ganapathi C, 04 Aug 2004:
+  Fix NFS timeout issue
+
+* Patch by Yuli Barcohen, 19 Jul 2004:
+  - Fix host tools building in Cygwin environment
+  - Fix header files search order for host tools
+
+* Patch by Tom Armistead, 19 Jul 2004:
+  Fix kgdb.S support for 74xx_75x cpu
+
+* Patch by Jon Loeliger, 15 Jul 2004:
+  Fix MPC85xx I2C driver
+
+* Fix problems with CDROM drive as slave device on Lite5200 IDE bus.
+
+* Patch by Stephen Williams, 15 July 2004
+  Set the PCI class code for JSE board as part of PCI interface setup
+
+* Patch by Michael Bendzick, 15 Jul 2004:
+  Fix problem with writes with odd sizes in drivers/cfi_flash.c when
+  CFG_FLASH_USE_BUFFER_WRITE is set
+
+* Patch by Yuli Barcohen, 13 Jul 2004:
+  Allow clock setting on MPC866/MPC885 series chips according to
+  environment variable `cpuclk'
+
+* Patch by Yuli Barcohen, 20 Apr 2004:
+  Remove unnecessary redefine of CPM_DATAONLY_SIZE for MPC826x
+
+* Patch by Vincent Dubey, 24 Sep 2004:
+  Add support for xaeniax board
+
+* Add comment about non-GPL character of standalone applications to
+  COPYING file
+
+* Fix FEC ethernet problem on NSCU board.
+
+* Patch by Gary Jennejohn, 09 Sep 2004:
+  allow to use USART1 as console port on at91rm9200dk boards
+
+* Patch by Stefan Roese, 16 Sep 2004:
+  Update AR405 board.
+
+* Fix SysClk handling for PPChameleon and CATcenter boards
+
+* Patch by Detlev Zundel, 08 Sep 2004:
+  Update etags build target
+
+* Improve NetConsole support: add support for broadcast destination
+  address and buffered input.
+
+* Cleanup compiler warnings for GCC 3.3.x and later
+
+* Fix problem in cmd_jffs2.c introduced by CFG_JFFS_SINGLE_PART patch
+
+* Add support for IDS "NC650" board
+
+* Add automatic update support for LWMON board
+
+* Clear Block Lock-Bits when erasing flash on LWMON board.
+
+* Fix return code of "fatload" command
+
+* Enable MSDOS/VFAT filesystem support for LWMON board
+
+* Patch by Martin Krause, 03 Aug 2004:
+  change timing for SM501 graphics controller on TQM5200 module
+
+* Patch by Mark Jonas, 13 July 2004:
+  - Total5200 LCD now run in little endian mode. Endianess conversion
+    is done in hardware.
+  - Removed last reference to "console" environment variable.
+
+* Patches by Lars Munch, 12 Jul 2004:
+  - move at45.c to board/at91rm9200dk/ since this is at91rm9200dk
+    board specific
+  - split out the LXT971A PHY from ns_9750_eth.h
+  - split the dm9161 phy part out of at91rm9200_ether.c
+
+* Patch by Andreas Engel, 12 Jul 2004:
+  Replaced hardcoded PL011 clock frequency with config variable.
+  Fixed wrong CONFIG_CMD_DFL doc.
+
+* Patch by Thomas Viehweger, 09 Jun 2004:
+  make it possible to remove chpart when there is only one partition
+
+* Add support for console over UDP (compatible to Ingo Molnar's
+  netconsole patch under Linux)
+
+* Patch by Jon Loeliger, 16 Jul 2004:
+  - support larger DDR memories up to 2G on the PC8540/8560ADS and
+    STXGP3 boards
+  - Made MPC8540/8560ADS be 33Mhz PCI by default.
+  - Removed moldy CONFIG_RAM_AS_FLASH, CFG_FLASH_PORT_WIDTH_16
+    and CONFIG_L2_INIT_RAM options.
+  - Refactor Local Bus initialization out of SDRAM setup.
+  - Re-implement new version of LBC11/DDR11 errata workarounds.
+  - Moved board specific PCI init parts out of CPU directory.
+  - Added TLB entry for PCI-1 IO Memory
+  - Updated README.mpc85xxads
+
+* Patch by Sascha Hauer, 28 Jun:
+  - add generic support for Motorola i.MX architecture
+  - add support for mx1ads, mx1fs2 and scb9328 boards
+
+* Patches by Marc Leeman, 23 Jul 2004:
+  - Add define for the PCI/Memory Buffer Configuration Register
+  - corrected comments in cpu/mpc824x/cpu_init.c
+
+* Add support for multiple serial interfaces
+  (for example to allow modem dial-in / dial-out)
+
+* Patch by Stefan Roese, 15 Jul 2004:
+  cpu/ppc4xx/sdram.c rewritten now using get_ram_size()
+
+* Fix NSCU config; add ethernet wakeup code.
+
+* Add link for preloader for Motorola ColdFire to README.m68k
+
+* Patch by Michael Bendzick, 12 Jul 2004:
+  fix output formatting in drivers/cfi_flash.c
+
+* Patch by Mark Jonas, 02 Jul 2004:
+  Fix lowboot (again) on MPC5xxx
+
+* Patch by Curt Brune, 07 Jul 2004:
+  relocate exception vectors on arm720t if needed
+
+* Patch by George G. Davis, 06 Jul 2004:
+  - update mach-types.h to latest arm.linux.org.uk master list
+  - Set correct OMAP1610 bi_arch_number for build target
+
+* Patch by Curt Brune, 06 Jul 2004:
+  evb4510: add support for timer interrupt; cleanup
+
+* Patch by Dan Poirot, 06 Jul 2004:
+  Fix sbc8260 environment variables
+
+* Cleanup redundand "console" environment variable
+
+* Patch by Mark Jonas, 05 Jul 2004:
+  add support for the Total5100's and Total5200's LCD screen
+
+* Patches by Dan Eisenhut, 01 Jul 2004:
+  - README fixes.
+  - Move doc2000.h include to prevent compiler warning on some boards
+
+* Patch by Mark Jonas, 01 Jul 2004:
+  Added support for Total5100 and Total5200 (Rev.1 and Rev.2)
+  MGT5100 and MPC5200 based Freescale platforms.
+
+* Patch by Philippe Robin, 01 Jul 2004:
+  Add initialization for Integrator and versatile board files.
+
+* Patch by Hinko Kocevar, 01 Jun 2004:
+  Fix VFD FB allocation, add LCD FB allocation on ARM
+
+* Patch by Martin Krause, 30 Jun 2004:
+  Add support for TQM5200 board
+
+* Patch by Martin Krause, 29 Jun 2004:
+  Add loopw command: infinite write loop on address range
+
+* Patches by Yasushi Shoji, 29 Jun 2004:
+  - add empty include/asm-microblaze/processor.h
+  - add to CREDITS and MAINTAINERS
+  - add gd initialization
+  - add MicroBlaze and SUZAKU board to MAKEALL script
+  - add reset support for SUZAKU
+  - add flush_cache() for MicroBlaze
+  - add CFG_FLASH_SIZE to include/configs/suzaku.h since we have fixed
+    size flash memory on SUZAKU
+
+* Patch by Prakash Kumar, 27 Jun 2004:
+  Add support for the PXA250 based Intrinsyc Cerf board.
+
+* Patch by Yasushi Shoji, 27 Jun 2004:
+  fix comment in include/common.h
+
+* Rename SBC8560 into sbc8560 for consistency
+
+* Patch by Daniel Poirot, 24 Jun 2004:
+  Add support for Wind River's sbc8240 board
+
+* Patches by Yasushi Shoji, 26 Jun 2004:
+  - drivers/serial_xuartlite.c: fix "return 0" in void function
+  - add microblaze support to mkimage tool
+
+* Patch by Fred Klatt, 25 Jun 2004:
+  Add support for WindRiver's sbc8560 board
+
+* Patch by Nicolas Lacressonniere, 24 Jun 2004
+  Small Bugs fixes for "at91rm9200dk" board:
+  - Timing modifications for SPI DataFlash access
+  - Fix NAND flash detection bug
+
+* Patch by Nicolas Lacressonniere, 24 Jun 2004:
+  Add Support for Flash AT49BV6416 for AT91RM9200DK board
+
+* Patch by Jon Loeliger, 17 June 2004:
+  Completion of the 8540ADS/8560ADS updates:
+  Fix some PCI and Rapid I/O memory maps,
+  Initialize both TSEC 1 and 2,
+  Initialize SDRAM
+  Update MAINTAINER for 85xx boards and README.mpc85xxads
+
+* Patch by Yuli Barcohen, 16 Jun 2004:
+  Remove obsolete AdderII port which was superseded by unified
+  AdderII/Adder87x port
+
+* Patch by Ladislav Michl, 16 Jun 2004:
+  Fix gcc-3.3.3 warnings for smc91111.c
+
+* Patch by Stefan Roese, 02 Jul 2004:
+  - Fix bug in 405 ethernet driver; allocated data not cleared!
+  - Fix problem in 405 i2c driver; don't try to print without console!
+
+* Patch by Paul Ruhland, 11 Jun 2004:
+  Remove debug code from 'board/lpd7a40x/flash.c'
+
+* Patch by Andrea Marson, 11 Jun 2004:
+  Update for PPChameleon board:
+  - support for SysClk @ 25MHz
+  - support for Silicon Motion SM712 VGA controller
+  - some clean ups
+
+* Patches by Richard Woodruff, 10 Jun 2004:
+  - fix problems with examples/stubs.c for GCC >= 3.4
+  - fix problems with gd initialization
+
+* Patch by Curt Brune, 17 May 2004:
+  - Add support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
+  - Add support for ESPD-Inc. EVB4510 Board
+
+* Patch by Marc Leeman, 11 May 2004:
+  Fix for MPC8245 - reading PPC Memory from another device with the
+  PPC as PCI target device corrupts data due to interenal hardware
+  buffering.
+
+* Fix "cls" command when used with splash screen
+
+* Increase NFS download timeout (now 1 min - 10 sec is to short for a
+  slow download of a big image)
+
+* Add "cls" function to MPC823 LCD driver so we can reinitialize the
+  display even after showing a bitmap
+
+* Patch by Josef Wagner, 04 Jun 2004:
+  - DDR Ram support for PM520 (MPC5200)
+  - support for different flash types (PM520)
+  - USB / IDE / CF-Card / DiskOnChip support for PM520
+  - 8 bit boot rom support for PM520/CE520
+  - Add auto SDRAM module detection for MicroSys CPC45 board (MPC8245)
+  - I2C and RTC support for CPC45
+  - support of new flash type (28F160C3T) for CPC45
+
+* Fix flash parameters passed to Linux for PPChameleon board
+
+* Remove eth_init() from lib_arm/board.c; it's done in net.net.c.
+
+* Patch by Paul Ruhland, 10 Jun 2004:
+  fix support for Logic SDK-LH7A404 board and clean up the
+  LH7A404 register macros.
+
+* Patch by Matthew McClintock, 10 Jun 2004:
+  Modify code to select correct serial clock on Sandpoint8245
+
+* Patch by Robert Schwebel, 10 Jun 2004:
+  Add support for Intel K3 strata flash.
+
+* Patch by Thomas Brand, 10 Jun 2004:
+  Fix "loads" command on DK1S10 board
+
+* Patch by Yuli Barcohen, 09 Jun 2004:
+  Add support for 8MB flash SIMM and JFFS2 file system on
+  Motorola FADS board and its derivatives (MPC86xADS, MPC885ADS).
+
+* Patch by Yuli Barcohen, 09 Jun 2004:
+  Add support for Analogue&Micro Adder87x and the older AdderII board.
+
+* Patch by Ming-Len Wu, 09 Jun 2004:
+  Add suppport for MC9328 (Dargonball) CPU and Motorola MX1ADS board
+
+* Patch by Sam Song, 09 Jun 2004:
+  - Add support for RPXlite_DW board
+  - Update FLASH driver for 4*AM29DL323DB90VI
+  - Add option configuration of CFG_ENV_IS_IN_NVRAM on RPXlite_DW board
+
+* Patch by Mark Jonas, 08 June 2004:
+  - Make MPC5200 boards evaluate the SVR to print processor name and
+    version in checkcpu() (cpu/mpc5xxx/cpu.c).
+
+* Patch by Kai-Uwe Bloem, 06 May 2004:
+  Fix endianess problem in cramfs code
+
+* Patch by Tom Armistead, 04 Jun 2004:
+  Add support for MAX6900 RTC
+
+* Patches by Ladislav Michl, 03 Jun 2004:
+  - fix cfi_flash.c on LE systems
+  - let 'make mrproper' delete u-boot.img as well
+  - turn printf into debug in cfi_flash.c
+
+* Patch by Kurt Stremerch, 28 May 2004:
+  Add support for Exys XSEngine board
+
+* Patch by Martin Krause, 27 May 2004:
+  Fix a MPC5xxx I2C timing issue in i2c_probe().
+
+* Patch by Leif Lindholm, 27 May 2004:
+  Fix board_init_f() for dbau1x00 board.
+
+* Patch by Imre Deak, 26 May 2004:
+  On OMAP1610 platforms check if booting from RAM(CS0) or flash(CS3).
+  Set flash base accordingly, and decide whether to do or skip board
+  specific setup steps.
+
+* Patch by Josef Baumgartner, 26 May 2004:
+  Add missing define in include/asm-m68k/global_data.h
+
+* Patch by Josef Baumgartner, 25 May 2004:
+  Add missing functions get_ticks() and get_tbclk() in lib_m68k/time.c
+
+* Patch by Paul Ruhland, 24 May 2004:
+  fix SDRAM initialization for LPD7A400 board.
+
+* Patch by Jian Zhang, 20 May 2004:
+  add support for environment in NAND flash
+
+* Patch by Yuli Barcohen, 20 May 2004:
+  Add support for Interphase iSPAN boards.
+
+* Patches by Paul Ruhland, 17 May 2004:
+  - Add I/O functions to the smc91111 ethernet driver to support the
+    Logic LPD7A40x boards.
+  - Add support for the Logic Zoom LH7A40x based SDK board(s),
+    specifically the LPD7A400.
+
+* Patches by Robert Schwebel, 15 May 2004:
+  - call MAC address reading code also for SMSC91C111;
+  - make SMSC91C111 timeout configurable, remove duplicate code
+  - fix get_timer() for PXA
+  - update doc/README.JFFS2
+  - use "bootfile" env variable also for jffs2
+
+* Patch by Tolunay Orkun, 14 May 2004:
+  Add support for Cogent CSB472 board (8MB Flash Rev)
+
+* Patch by Thomas Viehweger, 14 May 2004:
+  - flash.h: more flash types added
+  - immap_8260.h: some bits added (useful for RMII)
+  - cmd_coninfo.c: typo corrected, printf -> puts
+  - reduced size by replacing spaces with tab
+
+* Patch by Robert Schwebel, 13 May 2004:
+  Add 'imgextract' command: extract one part of a multi file image.
+
+* Patches by Jon Loeliger, 11 May 2004:
+  Dynamically handle REV1 and REV2 MPC85xx parts.
+    (Jon Loeliger, 10-May-2004).
+  New consistent memory map and Local Access Window across MPC85xx line.
+  New CCSRBAR at 0xE000_0000 now.
+  Add RAPID I/O memory map.
+  New memory map in README.MPC85xxads
+    (Kumar Gala, 10-May-2004)
+  Better board and CPU identification on MPC85xx boards at boot.
+    (Jon Loeliger, 10-May-2004)
+  SDRAM clock control fixes on MPC8540ADS & MPC8560 boards.
+  Some configuration options for MPC8540ADS & MPC8560ADS cleaned up.
+    (Jim Robertson, 10-May-2004)
+  Rewrite of the MPC85xx Three Speed Ethernet Controller (TSEC) driver.
+  Supports multiple PHYs.
+    (Andy Fleming, 10-May-2004)
+  Some README.MPC85xxads updates.
+    (Kumar Gala, 10-May-2004)
+  Copyright updates for "Freescale"
+    (Andy Fleming, 10-May-2004)
+
+* Patch by Stephen Williams, 11 May 2004:
+  Add flash support for ST M29W040B
+  Reduce JSE specific flash.c to remove dead code.
+
+* Patch by Markus Pietrek, 04 May 2004:
+  Fix clear_bss code for ARM systems (all except s3c44b0 which
+  doesn't clear BSS at all?)
+
+* Fix "ping" problem on INC-IP board. Strange problem:
+  Sometimes the store word instruction hangs while writing to one of
+  the Switch registers, but only if the next instruction is 16-byte
+  aligned. Moving the instruction into a separate function somehow
+  makes the problem go away.
+
+* Patch by Rishi Bhattacharya, 08 May 2004:
+  Add support for TI OMAP5912 OSK Board
+
+* Patch by Sam Song May, 07 May 2004:
+  Fix typo of UPM table for rmu board
+
+* Patch by Pantelis Antoniou, 05 May 2004:
+  - Intracom board update.
+  - Add Codec POST.
+
+* Add support for the second Ethernet interface for the 'PPChameleon'
+  board.
+
+* Patch by Dave Peverley, 30 Apr 2004:
+  Add support for OMAP730 Perseus2 Development board
+
+* Patch by Alan J. Luse, 29 Apr 2004:
+  Fix flash chip-select (OR0) option register setting on FADS boards.
+
+* Patch by Alan J. Luse, 29 Apr 2004:
+  Report MII network speed and duplex setting properly when
+  auto-negotiate is not enabled.
+
+* Patch by Jarrett Redd, 29 Apr 2004:
+  Fix hang on reset on Ocotea board due to flash in wrong mode.
+
+* Patch by Dave Peverley, 29 Apr 2004:
+  add MAC address detection to smc91111 driver
+
+* Patch by David Müller, 28 Apr 2004:
+  fix typo in lib_arm/board.c
+
+* Patch by Tolunay Orkun, 20 Apr 2004:
+  - README update: add CONFIG_CSB272 and csb272_config
+  - add descriptions for some MII/PHY options, CONFIG_I2CFAST, and
+    i2cfast environment variable
+
+* Patch by Yuli Barcohen, 19 Apr 2004:
+  - Rename DUET_ADS to MPC885ADS
+  - Rename CONFIG_DUET to CONFIG_MPC885_FAMILY
+  - Rename CONFIG_866_et_al to CONFIG_MPC866_FAMILY
+  - Clean up FADS family port to use the new defines
+
+* Fix PCI support on CPC45 board
+
+* Patch by Scott McNutt, 25 Apr 2004:
+  Add Nios GDB/JTAG Console support:
+  - Add stubs to support gdb via JTAG.
+  - Add support for console over JTAG.
+  - Minor cleanup.
+
+* Add support for CATcenter board (based on PPChameleon ME module)
+
+* Patch by Klaus Heydeck, 12 May 2004:
+  Using external watchdog for KUP4 boards in mpc8xx/cpu.c;
+  load_sernum_ethaddr() for KUP4 boards in lib_ppc/board.c;
+  various changes to KUP4 board specific files
+
+* Fix minor network problem on MPC5200: need some delay between
+  resetting the PHY and sending the first packet. Implemented in a
+  "natural" way by invoking the PHY reset and initialization code
+  only once after power on vs. each time the interface is brought up.
+
+* Add some limited support for low-speed devices to SL811 USB controller
+  (at least "usb reset" now passes successfully and "usb info" displays
+  correct information)
+
+* Change init sequence for multiple network interfaces: initialize
+  on-chip interfaces before external cards.
+
+* Fix memory leak in the NAND-specific JFFS2 code
+
+* Fix SL811 USB controller when attached to a USB hub
+
+* Fix config option spelling in PM520 config file
+
+* Fix PHY discovery problem in cpu/mpc8xx/fec.c (introduced by
+  patches by Pantelis Antoniou, 30 Mar 2004)
+
+* Fix minor NAND JFFS2 related issue
+
+* Fixes for SL811 USB controller:
+  - implement workaround for broken memory stick
+  - improve error handling
+
+* Increase packet send timeout to 1 ms in cpu/mpc8xx/scc.c to better
+  cope with congested networks.
+
+======================================================================
+Changes for U-Boot 1.1.1:
+======================================================================
+
+* Patch by Travis Sawyer, 23 Apr 2004:
+  Fix VSC/CIS 8201 phy descrambler interoperability timing due to
+  errata from Vitesse Semiconductor.
+
+* Patch by Philippe Robin, 22 Apr 2004:
+  Fix ethernet configuration for "versatile" board
+
+* Patch by Kshitij Gupta, 21 Apr 2004:
+  Remove busy loop and use MPU timer fr usleep() on OMAP1510/1610 boards
+
+* Patch by Steven Scholz, 24 Feb 2004:
+  Fix a bug in AT91RM9200 ethernet driver:
+  The MII interface is now initialized before accessing the PHY.
+
+* Patch by John Kerl, 19 Apr 2004:
+  Use U-boot's miiphy.h for PHY register names, rather than
+  introducing a new header file.
+
+* Update pci_ids.h from linux-2.4.26
+
+* Patch by Masami Komiya, 19 Apr 2004:
+  Fix problem cause by VLAN function on little endian architecture
+  without VLAN environment
+
+* Clean up the TQM8xx_YYMHz configurations; allow to use the same
+  binary image for all clock frequencies. Implement run-time
+  optimization of flash access timing based on the actual bus
+  frequency.
+
+* Modify KUP4X board configuration to use SL811 driver for USB memory
+  sticks (including FAT / VFAT filesystem support)
+
+* Add SL811 Host Controller Interface driver for USB
+
+* Add CFG_I2C_EEPROM_ADDR_OVERFLOW desription to README
+
+* Patch by Pantelis Antoniou, 19 Apr 2004:
+  Allow to use shell style syntax (i. e. ${var} ) with standard parser.
+  Minor patches for Intracom boards.
+
+* Patch by Christian Pell, 19 Apr 2004:
+  cleanup support for CF/IDE on PCMCIA for PXA25X
+
+* Temporarily disabled John Kerl's extended MII command code because
+  "miivals.h" is missing
+
+* Patches by Mark Jonas, 13 Apr 2004:
+  - Remove CS0 chip select timing setting from cpu/mpc5xxx/start.S
+  - Add sync instructions to IceCube SDRAM init code
+  - Move SDRAM chip constants into seperate include files
+  - Unify DDR and SDR initialization code
+  - Unify all IceCube (Lite5xxx) target names
+
+* Patch by John Kerl, 16 Apr 2004:
+  Enable ranges in mii command, e.g. mii read 0-1f 0 or
+  mii read 4-7 18-1a.  Also add mii dump subcommand for
+  pretty-printing standard regs 0-5.
+
+* Patch by  Stephen Williams, 16 April 2004:
+  fix typo in JSE.h; update MAINTAINERS
+
+* Patch by Matthew S. McClintock, 14 Apr 2004:
+  fix initdram function for utx8245 board
+
+* Patch by Markus Pietrek, 14 Apr 2004:
+  use ATAG_INITRD2 instead of deprecated ATAG_INITRD tag
+
+* Patch by Reinhard Meyer, 18 Apr 2004:
+  provide the IDE Reset Function for EMK 5200 boards
+
+* Patch by Masami Komiya, 12 Apr 2004:
+  fix pci_hose_write_config_{byte,word}_via_dword problems
+
+* Patch by Sangmoon Kim, 12 Apr 2004:
+  Update max RAM size for debris board
+
+* Patch by Travis Sawyer, 08 Apr 2004:
+  Add TLB entry for second DIMM slot on ocotea
+
+* Patch by Masami Komiya, 08 Apr 2004:
+  add RTL8169 network driver
+
+* Patch by Dan Malek, 07 Apr 2004:
+  - Add support for RPC/STx GP3, Motorola 8560 board
+  - Update 85xx TSEC driver so it searches MII for first available PHY
+    and uses that one.
+  - Add functions to support console MII commands.
+
+* Patch by Tolunay Orkun, 07 Apr 2004:
+  Move initialization of bi_iic_fast[]
+  from board_init_f() to board_init_r()
+
+* Patch by Yasushi Shoji, 07 Apr 2004:
+  Cleanup microblaze port
+
+* Patch by Sangmoon Kim, 07 Apr 2004:
+  Add auto SDRAM module detection for Debris board
+
+* Patch by Rune Torgersen, 06 Apr 2004:
+  - Fix some PCI problems on the MPC8266ADS board
+  - Fix the location of some PCI entries in the immap structure
+
+* Patch by Yasushi Shoji, 07 Apr 2004:
+  - add support for microblaze processors
+  - add support for AtmarkTechno "suzaku" board
+
+* Configure PPChameleon board to use redundand environment in flash
+
+* Configure PPChameleon board to use JFFS2 NAND support.
+
+* Added support for JFFS2 filesystem (read-only) on top of NAND flash
+
+* Patch by Rune Torgersen, 16 Apr 2004:
+  LBA48 fixes
+
+* Patches by Pantelis Antoniou, 16 Apr 2004:
+  - add support for a new version of an Intracom board and fix
+    various other things on others.
+  - add verify support to the crc32 command (define
+    CONFIG_CRC32_VERIFY to enable it)
+  - fix FEC driver for MPC8xx systems:
+    1. fix compilation problems for boards that use dynamic
+       allocation of DPRAM
+    2. shut down FEC after network transfers
+  - HUSH parser fixes:
+    1. A new test command was added. This is a simplified version of
+       the one in the bourne shell.
+    2. A new exit command was added which terminates the current
+       executing script.
+    3. Fixed handing of $? (exit code of last executed command)
+  - Fix some compile problems;
+    add "once" functionality for the netretry variable
+
+* Patch by George G. Davis, 02 Apr 2004:
+  add support for Intel Assabet board
+
+* Patch by Stephen Williams, 01 Apr 2004:
+  Add support for Picture Elements JSE board
+
+* Patch by Christian Pell, 01 Apr 2004:
+  Add CompactFlash support for PXA systems.
+
+* Patches by Pantelis Antoniou, 30 Mar 2004:
+  - add auto-complete support to the U-Boot CLI
+  - add support for NETTA and NETPHONE boards; fix NETVIA board
+  - add support for the Epson 156x series of graphical displays
+    (These displays are serial and not suitable for using a normal
+    framebuffer console on them)
+  - add infrastructure needed in order to POST any DSPs in a board
+  - improve and fix various things in the MPC8xx FEC driver:
+    1. The new 87x and 88x series of processors have two FECs,
+       and the new driver supports them both.
+    2. Another change in the 87x/88x series is support for
+       the RMII (Reduced MII) interface. However numerous
+       changes are needed to make it work since the PHYs
+       are connected to the same lines. That means that
+       you have to address them correctly over the MII
+       interface.
+    3. We now correctly match the MII/RMII interface
+       configuration to what the PHY reports.
+  - Fix problem when readingthe MII status register. Due to the
+    internal design of many PHYs you have to read the register
+    twice. The problem is more apparent in 10Mbit mode.
+  - add new mode ".jffs2s" for reading from a NAND device: it just
+    skips over bad blocks.
+  - add networking support for VLANs (802.1q), and CDP (Cisco
+    Discovery Protocol)
+  - some minor patches / cleanup
+
+* Patch by Yuli Barcohen, 28 Mar 2004:
+  - Add support for MPC8272 family including MPC8247/8248/8271/8272
+  - Add support for MPC8272ADS evaluation board (another flavour of MPC8260ADS)
+  - Change configuration method for MPC8260ADS family
+
+* add startup code to clear the BSS of standalone applications
+
+* Fix if / elif handling bug in HUSH shell
+
+======================================================================
+Changes for U-Boot 1.1.0:
+======================================================================
+
+* Patch by Mark Jonas: Remove config.tmp files only when
+  unconfiguring the board
+
+* Adapt RMU board for bigger flash memory
+
+* Patch by Klaus Heydeck, 13 Mar 2003:
+  Add support for KUP4X Board
+
+* Patch by Pavel Bartusek, 21 Mar 2004
+  Add Reiserfs support
+
+* Patch by Hinko Kocevar, 20 Mar 2004
+  - Add auto-release for SMSC LAN91c111 driver
+  - Add save/restore of PTR and PNR regs as suggested in datasheet
+
+* Patch by Stephen Williams, 19 March 2004
+  Increase speed of sector reads from SystemACE,
+  shorten poll timeout and remove a useless reset
+
+* Patch by Tolunay Orkun, 19 Mar 2004:
+  Make GigE PHY 1000Mbps Speed/Duplex detection conditional
+  (CONFIG_PHY_GIGE)
+
+* Patch by Brad Kemp, 18 Mar 2004:
+  prevent machine checks during a PCI scan
+
+* Patch by Pierre Aubert, 18 Mar 2004:
+  Fix string cleaning in IDE identification
+
+* Patch by Pierre Aubert, 18 Mar 2004:
+  - Unify video mode handling for Chips & Technologies 69000 Video
+    chip and Silicon Motion SMI 712/710/810 Video chip
+  - Add selection of the video output (CRT or LCD) via 'videoout'
+    environment variable for the Silicon Motion
+  - README update
+
+* Patch by Pierre Aubert, 18 Mar 2004:
+  include/common.h typo fix
+
+* Patches by Tolunay Orkun, 17 Mar 2004:
+  - Add support for bd->bi_iic_fast[] initialization via environment
+    variable "i2cfast" (CONFIG_I2CFAST)
+  - Add "i2cfast" u-boot environment variable support for csb272
+
+* Patch by Carl Riechers, 17 Mar 2004:
+  Ignore '\0' characters in console input for use with telnet and
+  telco pads.
+
+* Patch by Leon Kukovec, 17 Mar 2004:
+  typo fix for strswab prototype #ifdef
+
+* Patches by Thomas Viehweger, 16 Mar 2004:
+  - show PCI clock frequency on MPC8260 systems
+  - add FCC_PSMR_RMII flag for HiP7 processors
+  - in do_jffs2_fsload(), take load address from load_addr if not set
+    explicit, update load_addr otherwise
+  - replaced printf by putc/puts when no formatting is needed
+    (smaller code size, faster execution)
+
+* Patch by Phillippe Robin, 16 Mar 2004:
+  avoid dereferencing NULL pointer in lib_arm/armlinux.c
+
+* Patch by Stephen Williams, 15 Mar 2004:
+  Fix CONFIG_SERIAL_SOFTWARE_FIFO documentation
+
+* Patch by Tolunay Orkun, 15 Mar 2004:
+  Initialize bi_opbfreq to real OPB frequency via get_OPB_freq()
+
+* Patch by Travis Sawyer, 15 Mar 2004:
+  Update CREDITS & MAINTAINERS files for PPC440GX & Ocotea port
+
+* Add start-up delay to make sure power has stabilized before
+  attempting to switch on USB on SX1 board.
+
+* Patch by Josef Wagner, 18 Mar 2004:
+  - Add support for MicroSys XM250 board (PXA255)
+  - Add support for MicroSys PM828 board (MPC8280)
+  - Add support for 32 MB Flash on PM825/826
+  - new SDRAM refresh rate for PM825/PM826
+  - added support for MicroSys PM520 (MPC5200)
+  - replaced Query by Identify command in CPU86/flash.c
+    to support 28F160F3B
+
+* Fix wrap around problem with udelay() on ARM920T
+
+* Add support for Macronix flash on TRAB board
+
+* Patch by Pierre Aubert, 15 Mar 2004:
+  Fix buffer overflow in IDE identification
+
+* Fix power-off of LCD for out-of-band temperatures on LWMON board
+
+* Remove redundand #define in IceCube.h
+
+* Patch by Steven Scholz, 27 Feb 2004:
+  - Adding get_ticks() and get_tbclk() for AT91RM9200
+  - Many white space fixes in cpu/at91rm9200/interrupts.c
+
+* Patches by Steven Scholz, 20 Feb 2004:
+  some cleanup in AT91RM9200 related code
+
+* Patches by Travis Sawyer, 12 Mar 2004:
+  - Fix Gigabit Ethernet support for 440GX
+  - Add Gigabit Ethernet Support to MII PHY utilities
+
+* Patch by Brad Kemp, 12 Mar 2004:
+  Fixes for drivers/cfi_flash.c:
+  - Better support for x8/x16 implementations
+  - Added failure for AMD chips attempting to use CFG_FLASH_USE_BUFFER_WRITE
+  - Added defines for AMD command and address constants
+
+* Patch by Leon Kukovec, 12 Mar 2004:
+  Fix get_dentfromdir() to correctly handle deleted dentries
+
+* Patch by George G. Davis, 11 Mar 2004:
+  Remove hard coded network settings in TI OMAP1610 H2
+  default board config
+
+* Patch by George G. Davis, 11 Mar 2004:
+  add support for ADS GraphicsClient+ board.
+
+* Patch by Pierre Aubert, 11 Mar 2004:
+  - add bitmap command and splash screen support in cfb console
+  - add [optional] origin in the bitmap display command
+
+* Patch by Travis Sawyer, 11 Mar 2004:
+  Fix ocotea board early init interrupt setup.
+
+* Patch by Thomas Viehweger, 11 Mar 2004:
+  Remove redundand code; add  PCI-specific bits to include/mpc8260.h
+
+* Patch by Stephan Linz, 09 Mar 2004
+  - Add support for the SSV ADNP/ESC1 (Nios Softcore)
+
+* Patch by George G. Davis, 9 Mar 2004:
+  fix recent build failure for SA1100 target
+
+* Patch by Travis Sawyer, 09 Mar 2004:
+  Support native interrupt mode for the IBM440GX.
+  Previously it was running in 440GP compatibility mode.
+
+* Patch by Philippe Robin, 09 Mar 2004:
+  Added ARM Integrator AP, CP and Versatile PB926EJ-S Reference
+  Platform support.
+
+* Patch by Masami Komiya, 08 Mar 2004:
+  Don't overwrite server IP address or boot file name
+  when the boot server does not return values
+
+* Patch by Tolunay Orkun, 5 Mar 2004:
+  Removed compile time restriction on CFG_I2C_SPEED for DS1338 RTC
+
+* Patch by Tolunay Orkun, 5 Mar 2004:
+  Fix early board initialization for Cogent CSB272 board
+
+* Patch by Ed Okerson, 3 Mar 2004:
+  fix CFI flash writes for little endian systems
+
+* Patch by Reinhard Meyer, 01 Mar 2004:
+  generalize USB and IDE support for MPC5200 with according
+  changes to IceCube.h and TOP5200.h
+  add Am29LV256 256 MBit FLASH support for TOP5200 boards
+  add info about USB and IDE to README
+
+* Patch by Yuli Barcohen, 4 Mar 2004:
+  Fix problems with GCC 3.3.x which changed handling of global
+  variables explicitly initialized to zero (now in .bss instead of
+  .data as before).
+
+* Patch by Leon Kukovec, 02 Mar 2004:
+  add strswab() to fix IDE LBA capacity, firmware and model numbers
+  on little endian machines
+
+* Patch by Masami Komiya, 02 Mar 2004:
+  - Remove get_ticks() from NFS code
+  - Add verification of RPC transaction ID
+
+* Patch by Pierre Aubert, 02 Mar 2004:
+  cleanup for IDE and USB drivers for MPC5200
+
+* Patch by Travis Sawyer, 01 Mar 2004:
+  Ocotea:
+  - Add IBM PPC440GX Ref Platform support (Ocotea)
+    Original code by Paul Reynolds <PaulReynolds@lhsolutions.com>
+    Adapted to U-Boot and 440GX port
+  440gx_enet.c:
+  - Add gracious handling of all Ethernet Pin Selections for 440GX
+  - Add RGMII selection for Cicada CIS8201 Gigabit PHY
+  ppc440.h:
+  - Add needed bit definitions
+  - Fix formatting
+
+* Patch by Carl Riechers, 1 Mar 2004:
+  Add PPC440GX prbdv0 divider to fix memory clock calculation.
+
+* Patch by Stephan Linz, 27 Feb 2004
+  - avoid problems for targets without NFS download support
+
+* Patch by Rune Torgersen, 27 Feb 2004:
+  - Added LBA48 support (CONFIG_LBA48 & CFG_64BIT_LBA)
+  - Added support for 64bit printing in vsprintf (CFG_64BIT_VSPRINTF)
+  - Added support for 64bit strtoul (CFG_64BIT_STRTOUL)
+
+* Patch by Masami Komiya, 27 Feb 2004:
+  Fix rarpboot: add autoload by NFS
+
+* Patch by Dan Eisenhut, 26 Feb 2004:
+  fix flash_write return value in saveenv
+
+* Patch by Stephan Linz, 11 Dec 2003
+  expand config.mk to avoid trigraph warnings on NIOS
+
+* Rename "BMS2003" board into "HMI10"
+
+* SX1 patches: use "serial#" for USB serial #; use redundand environment
+  storage; auto-set console on USB port (using preboot command)
+
+* Add support for SX1 mobile phone; add support for USB-based console
+  (enable with "setenv stdout usbtty; setenv stdin usbtty")
+
+* Fix LOWBOOT configuration for MPC5200 with DDR memory
+
+* Fix SDRAM timings for LITE5200 / IceCube board
+
+* Handle Auti-MDIX / connection status for INCA-IP
+
+* Fix USB problems when attempting to read 0 bytes
+
+* Patch by Travis Sawyer, 26 Feb 2004:
+  Fix broken compile for XPEDITE1K target.
+
+* Patch by Stephan Linz, 26 Feb 2004:
+  Bug fix for NFS code on NIOS targets
+
+* Patch by Stephen Williams, 26 Feb 2004:
+  Break up SystemACE reads of large block counts
+
+* Patch by Pierre Aubert, 26 Feb 2004
+  add IDE support for MPC5200
+
+* Patch by Masami Komiya, 26 Feb 2004:
+  add autoload via NFS
+
+* Patch by Stephen Williams
+  Use of CONFIG_SERIAL_SOFTWARE_FIFO in board.c consistent with uses
+  elsewhere in the source.
+
+* Patch by Steven Scholz, 25 Feb 2004:
+  - Timeouts in FPGA code should be based on CFG_HZ
+  - Minor cleanup in code for Altera FPGA ACEX1K
+
+* Patch by Steven Scholz, 25 Feb 2004:
+  Changed "Directory Hierarchy" section in README
+
+* Patch by Masami Komiya, 25 Feb 2004:
+  Reduce copy count in nfs_read_reply() of NFS code
+
+* Patch by Markus Pietrek, 24 Feb 2004:
+  NS9750 DevBoard added
+
+* Patch by Pierre Aubert, 24 Feb 2004
+  add USB support for MPC5200
+
+* Patch by Steven Scholz, 24 Feb 2004:
+  - fix MII commands to use values from last command
+
+* Patch by Torsten Demke, 24 Feb 2004:
+  Add support for the eXalion platform (SPSW-8240, F-30, F-300)
+
+* Patch by Rahul Shanbhag, 19 Feb 2004:
+  Fixes for for OMAP1610 board:
+  - shift some IRQ specific code to platform.S file
+  - remove duplicatewatchdog reset code from start.S
+
+* Make Auto-MDIX Support configurable on INCA-IP board
+
+* Fix license for mkimage tool
+
+* Patch by Masami Komiya, 24 Feb 2004:
+  Update NetBootFileXferSize in NFS code
+
+* Patch by Scott McNutt, 24 Feb 2004:
+  fix packet length in NFS code
+
+* Patch by Masami Komiy, 22 Feb 2004:
+  Add support for NFS for file download
+
+* Patch by Andrea Scian, 17 Feb 2004:
+  Add support for S3C44B0 processor and DAVE B2 board
+
+* Patch by Steven Scholz, 20 Feb 2004:
+  - Add support for MII commands on AT91RM9200 boards
+  - some cleanup in AT91RM9200 ethernet code
+
+* Patch by Peter Ryser, 20 Feb 2004:
+  Add support for the Xilinx ML300 platform
+
+* Patch by Stephan Linz, 17 Feb 2004:
+  Fix watchdog support for NIOS
+
+* Patch by Josh Fryman, 16 Feb 2004:
+  Fix byte-swapping for cfi_flash.c for different bus widths
+
+* Patch by Jon Diekema, 14 Jeb 2004:
+  Remove duplicate "FPGA Support" notes from the README file
+
+* Patches by Reinhard Meyer, 14 Feb 2004:
+  - update board/emk tree; use common flash driver
+  - Corrected tested bits in machine check exception in cpu/mpc5xxx/traps.c
+    [adapted for other PPC CPUs -- wd]
+  - Added support for the M48T08 on the EVAL5200 board in rtc/mk48t59.c
+
+* Patch by Jon Diekema, 13 Feb 2004:
+  Call show_boot_progress() whenever POST "FAILED" is printed.
+
+* Patch by Nishant Kamat, 13 Feb 2004:
+  Add support for TI OMAP1610 H2 Board
+  Fixes for cpu/arm926ejs/interrupt.c
+	(based on Richard Woodruff's patch for arm925, 16 Oct 03)
+  Fix for a timer bug in OMAP1610 Innovator
+  Add support for CS0 (ROM)/CS3 (Flash) boot in OMAP1610 Innovator and H2
+
+* Patches by Stephan Linz, 12 Feb 2004:
+  - add support for NIOS timer with variable period preload counter value
+  - prepare POST framework support for NIOS targets
+
+* Patch by Denis Peter, 11 Feb 2004:
+  add POST support for the MIP405 board
+
+* Patch by Laurent Mohin, 10 Feb 2004:
+  Fix buffer overflow in common/usb.c
+
+* Patch by Tolunay Orkun, 10 Feb 2004:
+  Add support for Cogent CSB272 board
+
+* Patch by Thomas Elste, 10 Feb 2004:
+  Add support for NET+50 CPU and ModNET50 board
+
+* Patch by Sam Song, 10 Feb 2004:
+  Fix typos in cfi_flash.c
+
+* Patch by Leon Kukovec, 10 Feb 2004
+  Fixed long dir entry slot id calculation in get_vfatname
+
+* Patch by Robin Gilks, 10 Feb 2004:
+  add "itest" command (operators: -eq, -ne, -lt, -gt, -le, -ge, ==,
+  !=, <>, <, >, <=, >=)
+
+* Fix problem with side effects in macros in include/usb.h
+
+* Patch by David Benson, 13 Nov 2003:
+  bug 841358 - fix TFTP download size limit
+
+* Fixing bug 850768:
+  improper flush_cache() in load_serial()
+
+* Fixing bug 834943:
+  MPC8540 - missing volatile declarations
+
+* Patch by Stephen Williams, 09 Feb 2004:
+  Add support for Xilinx SystemACE chip:
+  - New files common/cmd_ace.c and include/systemace.h
+  - Hook systemace support into cmd_fat and the partition manager
+
+* Patch by Travis Sawyer, 09 Feb 2004:
+  Add bi_opbfreq & bi_iic_fast to 440GX bd_info as needed for Linux
+
+* Patch by Travis Sawyer, 09 Feb 2004:
+  o 440GX:
+    - Fix PCI Indirect access for type 1 config cycles with ppc440.
+    - Add phymode for 440 enet
+    - fix pci pre init
+  o XPedite1K:
+    - Change board_pre_init to board_early_init_f
+    - Add user flash to bus controller setup
+    - Fix pci pre init
+    - Fix is_pci_host to check GPIO for monarch bit
+    - Force xpedite1k to pci conventional mode (via #define option)
+
+* Patch by Brad Kemp, 4 Feb 2004:
+  - handle the machine check that is generated during the PCI scans
+    on 82xx processors.
+  - define the registers used in the IMMR by the PCI subsystem.
+
+* Patch by Pierre Aubert, 03 Feb 2004:
+  cpu/mpc5xxx/start.S: copy MBAR into SPR311
+
+* Patch by Jeff Angielski, 03 Feb 2004:
+  Fix copy & paste error in cpu/mpc8260/pci.c
+
+* Patch by Reinhard Meyer, 24 Jan 2004:
+  Fix typo in cpu/mpc5xxx/pci_mpc5200.c
+
+* Add Auto-MDIX support for INCA-IP
+
+* Some code cleanup
+
+* Patch by Josef Baumgartner, 10 Feb 2004:
+  Fixes for ColdFire port
+
+* Patch by Brad Kemp, 11 Feb 2004:
+  Fix CFI flash driver problems
+
+* Make sure to use a bus clock divider of 2 only when running TQM8xxM
+  modules at CPU clock frequencies above 66 MHz.
+
+* Optimize flash programming speed for LWMON (by another 100% :-)
+
+* Patch by Jian Zhang, 3 Feb 2004:
+  - Changed the incorrect FAT12BUFSIZE
+  - data_begin in fsdata can be negative. Changed it to be short.
+
+* Patches by Stephan Linz, 30 Jan 2004:
+  1: - board/altera/common/flash.c:flash_erase():
+       o allow interrupts befor get_timer() call
+       o check-up each erased sector and avoid unexpected timeouts
+     - board/altera/dk1c20/dk1s10.c:board_early_init_f():
+       o enclose sevenseg_set() in cpp condition
+     - remove the ASMI configuration for DK1S10_standard_32 (never present)
+     - fix some typed in mistakes in the NIOS documentation
+  2: - split DK1C20 configuration into several header files:
+       o two new files for each NIOS CPU description
+       o U-Boot related part is remaining in DK1C20.h
+  3: - split DK1S10 configuration into several header files:
+       o two new files for each NIOS CPU description
+       o U-Boot related part is remaining in DK1S10.h
+  4: - Add support for the Microtronix Linux Development Kit
+       NIOS CPU configuration at the Altera Nios Development Kit,
+       Stratix Edition (DK-1S10)
+  5: - Add documentation for the Altera Nios Development Kit,
+       Stratix Edition (DK-1S10)
+  6: - Add support for the Nios Serial Peripharel Interface (SPI)
+       (master only)
+  7: - Add support for the common U-Boot SPI framework at
+       RTC driver DS1306
+
+* Patch by Rahul Shanbhag, 28 Jan 2004:
+  Fix flash protection/locking handling for OMAP1610 innovator board.
+
+* Patch by Rolf Peukert, 28 Jan 2004:
+  fix flash write problems on CSB226 board (write with 32 bit bus width)
+
+* Patches by Mark Jonas, 16 Jan 2004:
+  - fix rounding error when calculating baudrates for MPC5200 PSCs
+  - make sure CFG_RAMBOOT and CFG_LOWBOOT are not enabled at the same
+    time which is not supported
+
+* Patch by Yuli Barcohen, 26 Jan 2004:
+  Allow bzip2 compression for small memory footprint boards
+
+* Patch by Brad Kemp, 21 Jan 2004:
+  Add support for CFI flash driver for both the Intel and the AMD
+  command sets.
+
+* Patch by Travis Sawyer, 20 Jan 2004:
+  Fix pci bridge auto enumeration of sibling p2p bridges.
+
+* Patch by Tolunay Orkun, 12 Jan 2004:
+  Add some delays as needed for Intel LXT971A PHY support
+
+* Patches by Stephan Linz, 09 Jan 2004:
+  - avoid warning: unused variable `piop' in board/altera/common/sevenseg.c
+  - make DK1C20 board configuration related to ASMI conform to
+    documentation
+
+* Patch by Anders Larsen, 09 Jan 2004:
+
+  ARM memory layout fixes: the abort-stack is now set up in the
+  correct RAM area, and the BSS is zeroed out as it should be.
+
+  Furthermore, the magic variables 'armboot_end' and 'armboot_end_data'
+  of the linker scripts are replaced by '__bss_start' and '_end',
+  resp., which is a further step to eliminate unnecessary differences
+  between the implementation of the CPU architectures.
+
+* Patch by liang a lei, 9 Jan 2004:
+  Fix Intel 28F128J3 ID in include/flash.h
+
+* Patch by Masami Komiya, 09 Jan 2004:
+  add support for TB0229 board (NEC VR4131 MIPS processor)
+
+* Patch by Leon Kukovec, 12 Dec 2003:
+  changed extern __inline__ into static __inline__ in
+  include/linux/byteorder/swab.h
+
+* Patch by Travis Sawyer, 30 Dec 2003:
+  Add support for IBM PPC440GX. Multiple EMAC Ethernet devices,
+  select MDI port based on enabled EMAC device.
+  Add support for XES Inc <http://www.xes-inc.com> XPedite1000 440GX
+  base PrPMC board.
+
+* Patch by Wolter Kamphuis, 15 Dec 2003:
+  made CONFIG_SILENT_CONSOLE usable on all architectures
+
+* Disable date command on TQM866M - there is no RTC on MPC866
+
+* Fix variable CPU clock for MPC859/866 systems for low CPU clocks
+
+* Implement adaptive SDRAM timing configuration based on actual CPU
+  clock frequency for INCA-IP; fix problem with board hanging when
+  switching from 150MHz to 100MHz
+
+* Add PCMCIA CS support for BMS2003 board
+
+* Add variable CPU clock for MPC859/866 systems (so far only TQM866M):
+  see doc/README.MPC866 for details;
+  implement workaround for "SIU4" and "SIU9" silicon bugs on MPC866;
+  calculate CPU clock frequency from PLL register values.
+
+* Add support for 128 MB RAM on TQM8xxL/M modules
+
+* Fix PS/2 keyboard problem caused by statically initialized variable
+  pointing to a location in flash
+
+* Fix INCA-IP clock calculation: 400/3 = 133.3 MHz, not 130.
+
+* The PS/2 mux on the BMS2003 board needs 450 ms after power on
+  before we can access it; add delay in case we are faster (with no
+  CF card inserted)
+
+* Cleanup of some init functions
+
+* Make sure SCC Ethernet is always stopped by the time we boot Linux
+  to avoid Linux crashes by early packets coming in.
+
+* Accelerate flash accesses on LWMON board by using buffered writes
+
+* Fix typo in Makefile;
+  fix problem with PARTNUM detection
+
+* Patch by Reinhard Meyer, 09 Jan 2004:
+  - add RTC support for MPC5200 based boards (requires RTC_XTAL)
+
+* Add support for IDE LED on BMS2003 board
+  (exclusive with status LED!)
+
+* Add support for PS/2 keyboard (used with PS/2 multiplexor on
+  BMS2003 board)
+
+* Patches by Reinhard Meyer, 4 Jan 2004 + 7 Jan 2004:
+  Add common files for "emk" boards
+
+* Add a common get_ram_size() function and modify the the
+  board-specific files to invoke that common implementation.
+
+======================================================================
+Changes for U-Boot 1.0.1:
+======================================================================
+
+* Set default clock for INCA-IP to 150 MHz
+
+* Make BMS2003 use a separate config file to avoid #ifdef mess;
+  add I2C support; add support for DS1337 RTC
+
+* Add CompactFlash support  for BMS2003 board
+
+* Add support for status LED on BMS2003 board
+
+* Patch by Scott McNutt, 02 Jan 2004:
+  Add support for the Nios Active Serial Memory Interface (ASMI)
+  on Cyclone devices
+
+* Patch by Andrea Marson, 16 Dec 2003:
+  Add support for the PPChameleon ME and HI modules
+
+* Patch by Yuli Barcohen, 22 Dec 2003:
+  Add support for Motorola DUET ADS board (MPC87x/88x)
+
+* Patch by Robert Schwebel, 15 Dec 2003:
+  add support for cramfs (uses JFFS2 command interface)
+
+* Patches by Stephan Linz, 11 Dec 2003:
+  - more documentation for NIOS port
+  - new struct nios_pio_t, struct nios_spi_t
+  - Reconfiguration for NIOS Development Kit DK1C20:
+    o move board related code from board/dk1c20
+      to board/altera/dk1c20
+    o create a new common source path board/altera/common
+      and move generic flash access stuff into it
+    o change/expand configuration file DK1C20.h
+  - Add support for NIOS Development Kit DK1S10
+  - Add status LED support for NIOS systems
+  - Add dual 7-segment LED support for Altera NIOS DevKits
+
+* Patch by Ronen Shitrit, 10 Dec 2003:
+  Add support for the Marvell DB64360 / DB64460 development boards
+
+* Patch by Detlev Zundel, 10 Dec 2003:
+  fix dependency problem in examples/Makefile
+
+* Patch by Denis Peter, 8 Dec 2003
+  - add support for the PATI board (MPC555)
+  - add SPI support for the MPC5xx
+
+* Patch by Anders Larsen, 08 Dec 2003:
+  add configuration options CONFIG_SERIAL_TAG and CONFIG_REVISION_TAG
+  to pass ATAG_SERIAL and ATAG_REVISION, resp., to the ARM target;
+  cleanup some redundand #defines
+
+* Patch by André Schwarz, 8 Dec 2003:
+  fixes for Davicom DM9102A Ethernet Chip (#define CONFIG_TULIP_FIX_DAVICOM):
+  - TX and RX deskriptors must be quad-word aligned
+  - does not work with only one TX deskriptor
+  - standard reset method does not work
+
+* Patch by Masami Komiya, 08 Dec 2003:
+  add RTL8139 ethernet driver
+
+* Patches by Ed Okerson, 07 Dec 2003:
+  - fix ethernet for the AU1x00 processors in little-endian mode.
+  - extend memsetup.S for the AU1x00 processors in BE and LE modes
+
+* Minor code cleanup (coding style)
+
+* Patch by Reinhard Meyer, 30 Dec 2003:
+  - cpu/mpc5xxx/fec.c: added CONFIG_PHY_ADDR, added CONFIG_PHY_TYPE,
+  - added CONFIG_PHY_ADDR to include/configs/IceCube.h,
+  - turned debug print of PHY registers into a function (called in two places)
+  - added support for EMK MPC5200 based modules
+
+* Fix MPC8xx PLPRCR_MFD_SHIFT typo
+
+* Add support for TQM866M modules
+
+* Fixes for TQM855M with 4 MB flash (Am29DL163 = _no_ mirror bit flash)
+
+* Fix a few compiler warnings
+
+* Patch by Reinhard Meyer, 28 Dec 2003:
+  Add initial support for TOP5200 board
+
+* Make CPU clock on ICA-IP board controllable by a "cpuclk"
+  environment variable which can set to "100", "133", or "150". The
+  CPU clock will be configured accordingly upon next reboot. Other
+  values are ignored. In case of an invalid or undefined "cpuclk"
+  value, the compile-time default CPU clock speed will be used.
+
+* Enable Quad-UART on BMS2003 board (initialize the PCMCIA memory
+  window that is used to access the UART registers by the Linux driver)
+
+* Patch by Reinhard Meyer, 20 Dec 2003:
+  Fix clock calculation for the MPC5200 for higher clock frequencies
+  (above 2**32 / 10 = 429.5 MHz).
+
+* Fix CONFIG_PLL_PCI_TO_MEM_MULTIPLIER divider error in SP8240 configuration
+
+* Fix IceCube CLKIN configuration (it's 33.000000MHz)
+
+* Add new configuration for IceCube board with DDR memory
+
+* Update TRAB memory configurations
+
+* Add JFFS2 support for INCA-IP board
+
+* Patch by Bill Hargen, 09 Dec 2003:
+  - BUBINGA405EP: changed flash driver to protect top sector containing
+    first instruction.
+  - BUBINGA405EP: configured "eeprom" command to access boot config EEPROM.
+  - BUBINGA405EP: fixed PLL init (init chip selects before FPGA/NVRAM access).
+  - 405EP: fixed SPD-based SDRAM init (only use banks 0 and 1).
+  - 405EP: added/fixed support for "reginfo" command.
+  - 4xx: removed spurious MII error messages on "mii info" command.
+
+* Patch by Bernhard Kuhn, 28 Nov 2003:
+  add support for ColdFire CPU
+  add support for Motorola M5272C3 and M5282EVB boards
+
+* Patch by Pierre Aubert, 24 Nov 2003:
+  - add a return value for the fpga command
+  - add ide_preinit() function called in ide_init if CONFIG_IDE_PREINIT
+    is defined. If ide_preinit fails, ide_init is aborted.
+  - fix an endianess problem in fat.h
+
+* Patch by Wolter Kamphuis, 05 Dec 2003:
+  Add support for SNMC's QS850/QS823/QS860T boards
+
+* Patch by Yuli Barcohen, 3 Dec 2003:
+  "revive" U-Boot support for old Motorola MPC860ADS board
+
+* Patch by Cam(ilo?), 03 Dec 2003:
+  make examples build even with broken Montavista objcopy
+
+* Patch by Pavel Bartusek, 27 Nov 2003:
+  fix conversion problem with "bootretry" evironment variable
+
+* Patch by Andre Schwarz, 24 Nov 2003:
+  add support for mvblue (mvBlueLYNX and mvBlueBOX) boards
+
+* Patch by Pavel Bartusek, 21 Nov 2003:
+  set ZMII bridge speed on 440
+
+* Patch by Anders Larsen, 17 Nov 2003:
+  Fix mismatched #ifdef / #endif in include/asm-arm/arch-pxa/hardware.h
+
+* Patches by David Müller, 14 Nov 2003:
+  - board/mpl/common/common_util.c
+    * implement support for BZIP2 compressed images
+    * various cleanups (printf -> puts, ...)
+  - board/mpl/common/flash.c
+    * report correct errors to upper layers
+    * check the erase fail and VPP low bits in status reg
+  - board/mpl/vcma9/cmd_vcma9.c
+  - board/mpl/vcma9/flash.c
+    * various cleanups (printf -> puts, ...)
+  - common/cmd_usb.c
+    * fix typo in comment
+  - cpu/arm920t/usb_ohci.c
+    * support for S3C2410 is missing in #if line
+  - drivers/cs8900.c
+    * reinit some registers in case of error (cable missing, ...)
+  - fs/fat/fat.c
+    * support for USB/MMC devices is missing in #if line
+  - include/configs/MIP405.h
+  - include/configs/PIP405.h
+    * enable BZIP2 support
+    * enlarge malloc space to 1MiB because of BZIP2 support
+  - include/configs/VCMA9.h
+    * enable BZIP2 support
+    * enlarge malloc space to 1MiB because of BZIP2 support
+    * enable USB support
+  - lib_arm/armlinux.c
+    * change calling convention of ARM Linux kernel as
+      described on http://www.arm.linux.org.uk/developer/booting.php
+
+* Patch by Thomas Lange, 14 Nov 2003:
+  Split dbau1x00 into dbau1000, dbau1100 and dbau1500 configs to
+  support all these AMD boards.
+
+* Patch by Thomas Lange, 14 Nov 2003:
+  Workaround for mips au1x00 physical memory accesses (the au1x00
+  uses a 36 bit bus internally and cannot access physical memory
+  directly. Use the uncached SDRAM address instead of the physical
+  one.)
+
+* Patch by Xue Ligong (Joe), 13 Nov 2003:
+  add Realtek 8019 ethernet driver
+
+* Patch by Yuli Barcohen, 13 Nov 2003:
+  MPC826xADS/PQ2FADS  cleanup
+
+* Patch by Anders Larsen, 12 Nov 2003:
+  Update README to mark the PORTIO commands non-standard
+
+* Patch by Nicolas Lacressonnière, 12 Nov 2003:
+  update for for Atmel AT91RM9200DK development kit:
+  - support for environment variables in DataFlash
+  - Atmel DataFlash AT45DB1282 support
+
+* Patch by Jeff Carr, 11 Nov 2003:
+  add support for new version of 8270 processors
+
+* Patches by George G. Davis, 05 Nov 2003:
+  - only pass the ARM linux initrd tag to the kernel when an initrd
+    is actually present
+  - update omap1510inn configuration file
+
+* Patches by Stephan Linz, 3 Nov 2003:
+  - more endianess fixes for LAN91C111 driver
+  - CFG_HZ configuration patch for NIOS Cyclone board
+
+* Patch by Stephan Linz, 28 Oct 2003:
+  fix PHY_INT_REG vs. PHY_MASK_REG bug in drivers/smc91111.c
+
+* Patch by Steven Scholz, 20 Oct 2003:
+  - make "mii info <addr>" show infor for PHY at "addr" only
+  - Endian fix for miiphy_info()
+
+* Patch by Gleb Natapov, 19 Sep 2003:
+  Move most of the timer interrupt related PPC code to ppc_lib/interrupts.c
+
+* Patch by Anders Larsen, 17 Sep 2003:
+  Bring ARM memory layout in sync with the documentation:
+  stack and malloc-heap are now located _below_ the U-Boot code
+
+* Accelerate booting on TRAB board: read and check  autoupdate	image
+  headers first instead of always reading the whole images.
+
+* Fix type in MPC5XXX code (pointed out by Victor Wren)
+
+* Enabled password check on RMU board
+
+* Fix configuration problem with IceCube in LOWBOOT configuration:
+  envrionment got embedded, corrupting the image layout.
+
+* Fix NEC display names (it's 6440 [for 640x480], not 6640).
+
+* Added BMS2003 board
+  add support for NEC NL6448BC33-54. 10.4", 640x480 TFT display
+
+* Fix flash driver for TRAB board (must use Unlock Bypass Reset
+  command to exit Unlock Bypass Mode); adjust timings for flash, SRAM
+  and CPLD
+
+* Use "-fPIC" instead of "-mrelocatable" to prevent problems with
+  recent tools
+
+* Add checksum verification to 'imls' command
+
+* Add bd_info fields needed for 4xx Linux I2C driver
+
+* Patch by Martin Krause, 4 Nov. 2003:
+  Fix error in cmd_vfd.c (TRAB board: "vfd /1" shows now only one Bitmap)
+
+* Print used network interface when CONFIG_NET_MULTI is set
+
+* Patch by Bernhard Kuhn, 28 Oct 2003:
+  Add low boot support for MPC5200
+
+* Fix problem with dual PCMCIA support (NSCU)
+
+* Fix MPC5200 I2C initialization function
+
+======================================================================
+Changes for U-Boot 1.0.0:
+======================================================================
+
+* Fix parameter passing to standalone images with bootm command
+
+* Patch by Kyle Harris, 30 Oct 2003:
+  Fix build errors for ixdp425 board
+
+* Patch by David M. Horn, 29 Oct 2003:
+  Fixes to build under CYGWIN
+
+* Get IceCube MGT5100 working (again)
+
+* Fix problems in memory test on some boards (which was not
+  non-destructive as intended)
+
+* Patch by Gary Jennejohn, 28 Oct 2003:
+  Change fs/fat/fat.c to put I/O buffers in BSS instead on the stack
+  to prevent stack overflow on ARM systems
+
+* Patch by Stephan Linz, 28 Oct 2003:
+  fix init sequence error for NIOS port
+
+* Allow lowercase spelling for IceCube_5200; support MPC5200LITE name
+
+* Add CONFIG_VERSION_VARIABLE to TRAB configuration
+
+* Patch by Xiao Xianghua, 23 Oct 2003:
+  small patch for mpc85xx
+
+* Fix small problem in MPC5200 I2C driver
+
+* Fix FCC3 support on ATC board
+
+* Correct header printing for multi-image files in do_bootm()
+
+* Make CONFIG_SILENT_CONSOLE work with CONFIG_AUTOBOOT_KEYED
+
+* Fix PCI problems on PPChameleon board
+
+* Patch by Steven Scholz, 18 Oct 2003:
+  Fix AT91RM9200 ethernet driver
+
+* Patch by Nye Liu, 17 Oct 2003:
+  Fix typo in include/mpc8xx.h
+
+* Patch by Richard Woodruff, 16 Oct 03:
+  Fixes for cpu/arm925/interrupt.c
+  - Initialize timestamp & lastdec vars.
+  - fix timestamp overflows.
+  - fix lastdec overflow.
+  - smarter normalization to allow udelay() below 1ms to work.
+
+* Patch by Scott McNutt, 16 Oct
+  add networking support for the Altera Nios Development Kit,
+  Cyclone Edition (DK-1C20)
+
+* Patch by Jon Diekema, 14 Oct 2003:
+  add hint about doc/README.silent to README file
+
+* Add CompactFlash support for NSCU
+
+* Fix PCI problems on PPChameleonEVB
+
+* TRAB auto-update: Base decision if we have to strip the image
+  header on image type as encoded in the header
+  (include image type patch by Martin Krause, 17 Oct 2003)
+
+* Patches by Xianghua Xiao, 15 Oct 2003:
+
+  - Added Motorola CPU 8540/8560 support (cpu/85xx)
+  - Added Motorola MPC8540ADS board support (board/mpc8540ads)
+  - Added Motorola MPC8560ADS board support (board/mpc8560ads)
+
+* Fix flash timings on TRAB board
+
+* Make sure HUSH is initialized for running auto-update scripts
+
+* Make 5200 reset command _really_ reset the board, without running
+  any other code after it
+
+* Fix errors with flash erase when range spans	across banks
+  that are mapped in reverse order
+
+* Fix flash mapping and display on P3G4 board
+
+* Patch by Kyle Harris, 15 Jul 2003:
+  - add support for Intel IXP425 CPU
+  - add support for IXDP425 eval board
+
+* Added config option CONFIG_SILENT_CONSOLE.  See doc/README.silent
+  for more information
+
+* Patch by Steven Scholz, 10 Oct 2003
+  - Add support for Altera FPGA ACEX1K
+
+* Patches by Thomas Lange, 09 Oct 2003:
+  - fix cmd_ide.c for non ppc boards (read/write functions did not
+    add ATA base address)
+  - fix for shannon board
+  - #ifdef CONFIG_IDE_8xx_DIRECT some otherwise unused code
+  - Endian swap ATA identity for all big endian CPUs, not just PPC
+  - MIPS only: New option CONFIG_MEMSIZE_IN_BYTES for passing memsize
+    args to linux
+  - add support for dbau1x00 board (MIPS32)
+
+* Patch by Sangmoon Kim, 07 Oct 2003:
+  add support for debris board
+
+* Patch by Martin Krause, 09 Oct 2003:
+  Fixes for TRAB board
+  - /board/trab/rs485.c: correct baudrate
+  - /board/trab/cmd_trab.c: bug fix for problem with timer overflow in
+    udelay(); fix some timing problems with adc controller
+  - /board/trab/trab_fkt.c: add new commands: gain, eeprom and power;
+    modify commands: touch and buzzer
+
+* Disable CONFIG_SUPPORT_VFAT when used with CONFIG_AUTO_UPDATE
+  (quick & dirty workaround for rogue pointer problem in get_vfatname());
+  Use direct function calls for auto_update instead of hush commands
+
+* Patch by Scott McNutt, 04 Oct 2003:
+  - add support for Altera Nios-32 CPU
+  - add support for Nios Cyclone Development Kit (DK-1C20)
+
+* Patch by Steven Scholz, 29 Sep 2003:
+  - A second parameter for bootm overwrites the load address for
+    "Standalone Application" images.
+  - bootm sets environment variable "filesize" to the resulting
+    (uncompressed) data length for "Standalone Application" images
+    when autostart is set to "no". Now you can do something like
+	if bootm $fpgadata $some_free_ram ; then
+		fpga load 0 $some_free_ram $filesize
+	fi
+
+* Patch by Denis Peter, 25 Sept 2003:
+  add support for the MIP405 Rev. C board
+
+* Patch by Yuli Barcohen, 25 Sep 2003:
+  add support for Zephyr Engineering ZPC.1900 board
+
+* Patch by Anders Larsen, 23 Sep 2003:
+  add CMD_PORTIO to CFG_CMD_NONSTD (commands in question are only
+  implemented for the x86 architecture)
+
+* Patch by Sangmoon Kim, 23 Sep 2003:
+  fix pll_pci_to_mem_multiplier table for MPC8245
+
+* Patch by Anders Larsen, 22 Sep 2003:
+  enable timed autoboot on PXA
+
+* Patch by David Müller, 22 Sep 2003:
+  - add $(CFLAGS) to "-print-libgcc-filename" so compiler driver
+    returns correct libgcc file path
+  - "latency" reduction of busy-loop waiting to improve "U-Boot" boot
+    time on s3c24x0 systems
+
+* Patch by Jon Diekema, 19 Sep 2003:
+  - Add CFG_FAULT_ECHO_LINK_DOWN option to echo the inverted Ethernet
+    link state to the fault LED.
+  - In NetLoop, make the Fault LED reflect the link status.  The link
+    status gets updated on entry, and on timeouts.
+
+* Patch by Anders Larsen, 18 Sep 2003:
+  allow mkimage to build and run on Cygwin-hosted systems
+
+* Patch by Frank Müller, 18 Sep 2003:
+  use bi_intfreq instead of bi_busfreq to compute fec_mii_speed in
+  cpu/mpc8xx/fec.c
+
+* Patch by Pantelis Antoniou, 16 Sep 2003:
+  add tool to compute fileds in the PLPRCR register for MPC86x
+
+* Use IH_TYPE_FILESYSTEM for TRAB "disk" images.
+
+* Fix build problems under FreeBSD
+
+* Add generic filesystem image type
+
+* Make fatload set filesize environment variable
+
+* enable basic / medium / high-end configurations for PPChameleonEVB
+  board; fix NAND code
+
+* enable TFTP client code to specify to the server the desired
+  timeout value (see RFC-2349)
+
+* Improve SDRAM setup for TRAB board
+
+* Suppress all output with splashscreen configured only if "splashimage"
+  is set
+
+* Fix problems with I2C support for mpc5200
+
+* Adapt TRAB configuration and auto_update to new memory layout
+
+* Add configuration for wtk board
+
+* Add support for the Sharp LQ065T9DR51U LCD display
+
+* Patch by Rune Torgersen, 17 Sep 2003:
+  - Fixes for MPC8266 default config
+  - Allow eth_loopback_test() on 8260 to use a subset of the FCC's
+
+* Patches by Jon Diekema, 17 Sep 2003:
+  - update README (SHOW_BOOT_PROGRESS values for cmd_nand.c and
+    env_common.c)
+  - sbc8260 tweaks
+  - adjust "help" output
+
+* Patches by Anders Larsen, 17 Sep 2003:
+  - fix spelling errors
+  - set GD_FLG_DEVINIT flag only after device function pointers
+    are valid
+  - Allow CFG_ALT_MEMTEST on systems where address zero isn't
+    writeable
+  - enable 3.rd UART (ST-UART) on PXA(XScale) CPUs
+  - trigger watchdog while waiting in serial driver
+
+* Add auto-update code for TRAB board using USB memory sticks,
+  support new configuration with more memory
+
+* disable MPC5200 bus pipelining as workaround for bus contention
+
+* Modify XLB arbiter priorities on MPC5200 so all devices use same
+  priority; configure critical interrupts to be handled like external
+  interrupts
+
+* Make IPB clock on MGT5100/MPC5200 configurable in board config file;
+  go back to 66 MHz for stability
+
+* Patches by Jon Diekema, 15 Sep 2003:
+  - add description for missing CFG_CMD_* entries in the README file
+  - sacsng tweaks
+
+* Patch by Gleb Natapov, 14 Sep 2003:
+  enable watchdog support for all MPC824x boards that have a watchdog
+
+* On MPC5200, restrict FEC to a maximum of 10 Mbps to work around the
+  "Non-octet Aligned Frame" errors we see at 100 Mbps
+
+* Patch by Sharad Gupta, 14 Sep 2003:
+  fix SPR numbers for upper BAT register ([ID]BAT[4-7][UL])
+
+* Patch by llandre, 11 Sep 2003:
+  update configuration for PPChameleonEVB board
+
+* Patch by David Müller, 13 Sep 2003:
+  various changes to VCMA9 board specific files
+
+* Add I2C support for MGT5100 / MPC5200
+
+* Patch by Rune Torgersen, 11 Sep 2003:
+  Changed default memory option on MPC8266ADS to NOT be Page Based
+  Interleave, since this doesn't work very well with the standard
+  16MB DIMM
+
+* Patch by George G. Davis, 12 Sep 2003:
+  fix Makefile settings for sk98 driver
+
+* Patch by Stefan Roese, 12 Sep 2003:
+  - new boards added: DP405, HUB405, PLU405, VOH405
+  - some esd boards updated
+  - cpu/ppc4xx/sdram.c: disable memory controller before setting
+    first values
+  - cpu/ppc4xx/405_pci.c: set vendor id on PPC405EP systems
+
+* Patch by Martin Krause, 11 Sep 2003:
+  add burn-in tests for TRAB board
+
+* Enable instruction cache on MPC5200 board
+
+* Patch by Denis Peter, 11 Sep 2003:
+  - fix USB data pointer assignment for bulk only transfer.
+  - prevent to display erased directories in FAT filesystem.
+
+* Change output format for NAND flash - make it look like for other
+  memory, too
+
+======================================================================
+Changes for U-Boot 0.4.8:
+======================================================================
+
+* Add I2C and RTC support for RMU board
+
+* Patches by Denis Peter, 9 Sep 2003:
+  add FAT support for IDE, SCSI and USB
+
+* Patches by Gleb Natapov, 2 Sep 2003:
+  - cleanup of POST code for unsupported architectures
+  - MPC824x locks way0 of data cache for use as initial RAM;
+    this patch unlocks it after relocation to RAM and invalidates
+    the locked entries.
+
+* Patch by Gleb Natapov, 30 Aug 2003:
+  new I2C driver for mpc107 bridge. Now works from flash.
+
+* Patch by Dave Ellis, 11 Aug 2003:
+  - JFFS2: fix typo in common/cmd_jffs2.c
+  - JFFS2: fix CFG_JFFS2_SORT_FRAGMENTS option
+  - JFFS2: remove node version 0 warning
+  - JFFS2: accept JFFS2 PADDING nodes
+  - SXNI855T: add AM29LV800 support
+  - SXNI855T: move environment from EEPROM to flash
+  - SXNI855T: boot from JFFS2 in NOR or NAND flash
+
+* Patch by Bill Hargen, 11 Aug 2003:
+  fixes for I2C on MPC8240
+  - fix i2c_write routine
+  - fix iprobe command
+  - eliminates use of global variables, plus dead code, cleanup.
+
+* Add support for USB Mass Storage Devices (BBB)
+  (tested with USB memory sticks only)
+
+* Avoid flicker on TRAB's VFD
+
+* Add support for SK98xx driver
+
+* Add PCI support for SL8245 board
+
+* Support IceCube board configurations with 1 x AMD AM29LV065 (8 MB)
+  or 1 x AM29LV652 (two LV065 in one chip = 16 MB);
+  Run IPB at 133 Mhz; adjust the MII clock frequency accordingly
+
+* Set BRG_CLK on PM825/826 to 64MHz (VCO_OUT / 4, instead of 16	 MHz)
+  to allow for more accurate baudrate settings
+  (error now 0.7% at 115 kbps, instead of 3.5% before)
+
+* Patch by Andreas Mohr, 4 Sep 2003:
+  Fix a lot of spelling errors
+
+* Add support for PPChameleon Eval Board
+
+* Add support for P3G4 board
+
+* Fix problem with MGT5100 FEC driver: add "early" MAC address
+  initialization
+
+* Patch by Yuli Barcohen, 7 Aug 2003:
+  check BCSR to detect if the board is configured in PCI mode
+
+======================================================================
+Changes for U-Boot 0.4.7:
+======================================================================
+
+* Patch by Raghu Krishnaprasad, 7 Aug 2003:
+  add support for Adder II MPC852T module
+
+* Patch by George G. Davis, 19 Aug 2003:
+  fix TI Innovator/OMAP1510 pin configs
+
+* Patches by Kshitij, 18 Aug 2003
+  - add support for arm926ejs cpu core
+  - add support for TI OMAP 1610 Innovator Board
+
+* Patch by Yuli Barcohen, 14 Aug 2003:
+  add support for bzip2 uncompression
+
+* Add GCC library to examples/Makefile so GCC utility functions will
+  be resolved, too
+
+* Add I2C and RTC support for RMU board using software I2C driver
+  (because of better response to iprobe command); fix problem with
+  "reset" command
+
+* Patch by Matthias Fuchs, 28 Aug 2003:
+  Added CONFIG_BOOTP_DNS2 and CONFIG_BOOTP_SEND_HOSTNAME to
+  CONFIG_BOOTP_MAKS (see README).
+
+* Fix ICU862 environment problem
+
+* Fix RAM size detection for RMU board
+
+* Implement "reset" for MGT5100/MPC5200 systems
+
+======================================================================
+Changes for U-Boot 0.4.6:
+======================================================================
+
+* Make Ethernet autonegotiation on INCA-IP work for all clock rates;
+  allow selection of clock frequency as "make" target
+
+* Implement memory autosizing code for IceCube boards
+
+* Configure network port on INCA-IP for autonegotiation
+
+* Fix overflow problem in network timeout code
+
+* Patch by Richard Woodruff, 8 Aug 2003:
+  Allow crc32 to be used at address 0x000 (crc32_no_comp, too).
+
+======================================================================
+Changes for U-Boot 0.4.5:
+======================================================================
+
+* Update for TQM board defaults:
+  disable clocks_in_mhz, enable boot count limit
+
+* Removed tools/gdb from "make all" target.  Added make target "gdbtools"
+  in toplevel directory instead.  Removed astest.c from tools/gdb because
+  it is no longer relevant.
+
+* Fix PCI support for MPC5200 / IceCube Board
+
+* Map ISP1362 USB OTG controller for NSCU board
+
+* Patch by Brad Parker, 02 Aug 2003:
+  fix sc520_cdp problems
+
+* Implement Boot Cycle Detection (Req. 2.3 of OSDL CGL Reqirements)
+
+* Allow erase command to cross flash bank boundaries
+
+* Patch by Scott McNutt, 21 Jul 2003:
+  Add support for LynuxWorks Kernel Downloadable Images (KDIs).
+  Both LynxOS and BlueCat linux KDIs are supported.
+
+* Patch by Richard Woodruff, 25 Jul 2003:
+  use more reliable reset for OMAP/925T
+
+* Patch by Nye Liu, 25 Jul 2003:
+  fix typo in mpc8xx.h
+
+* Patch by Richard Woodruff, 24 Jul 2003:
+  Fixes for cmd_nand.c:
+  - Fixed null dereferece which could result in incorrect ECC values.
+  - Added support for devices with no Ready/Busy signal hooked up.
+  - Added OMAP1510 read/write protect handling.
+  - Fixed nand.h's ECCPOS. A conflict existed with POS5 and badblock
+    for non-JFFS2.
+  - Switched default ECC to be JFFS2.
+
+* Allow crc32 to be used at address 0x000
+
+* Provide consistent interface to standalone applications to access
+  the 'global_data' structure
+  Provide a doc/README.standalone more useful to users/developers.
+
+* Make IceCube MGT5100 FEC driver work
+
+* Implement new mechanism to export U-Boot's functions to standalone
+  applications: instead of using (PPC-specific) system calls we now
+  use a jump table; please see doc/README.standalone for details
+
+* Patch by Dave Westwood, 24 Jul 2003:
+  added support for Unity OS (a proprietary OS)
+
+* Patch by Detlev Zundel, 23 Jul 2003:
+  add "imls" command to print flash table of contents
+
+* Fix cold boot detection for log buffer reset
+
+* Return error for invalid length specifiers with "cp.X" etc.
+
+* Fix startup problem on MIPS
+
+* Allow for CONFIG_SPLASH_SCREEN even when no explicit
+  bitmap support is configured
+
+* Patch by Bill Hargen, 18 Jul 2003:
+  - fix endinaness problem in cpu/mpc824x/drivers/i2c/i2c1.c
+
+* Patch by Denis Peter, 18 Jul 2003:
+  - fix memory configuration for MIP405T
+  - fix printout of baudrate for "loadb <loadaddr> <baudrate>"
+
+* Cleanup of TQM82xx configurations; use "official" board types
+  to make selection easier.
+
+* Patch by Martin Krause, 17 Jul 2003:
+  add delay to get I2C working with "imm" command and s3c24x0_i2c.c
+
+* Patch by Richard Woodruff, 17 July 03:
+  - Fixed bug in OMAP1510 baud rate divisor settings.
+
+* Patch by Nye Liu, 16 July 2003:
+  MPC860FADS fixes:
+  - add MPC86xADS support (uses MPC86xADS.h)
+  - add 866P/T core support (also MPC859T/MPC859DSL/MPC852T)
+    o PLPRCR changes
+    o BRG changes (EXTAL/XTAL restricted to 10MHz)
+    o don't trust gclk() software measurement by default, depend on
+      CONFIG_8xx_GCLK_FREQ
+  - add DRAM SIMM not installed detection
+  - use more "correct" SDRAM initialization sequence
+  - allow different SDRAM sizes (8xxADS has 8M)
+  - default DER is 0
+  - remove unused MAMR defines from FADS860T.h (all done in fads.c)
+  - rename MAMR/MBMR defines to be more consistent. Should eventually
+    be merged into MxMR to better reflect the PowerQUICC datasheet.
+
+* Patch by Yuli Barcohen, 16 Jul 2003:
+  support new Motorola PQ2FADS-ZU evaluation board which replaced
+  MPC8260ADS and MPC8266ADS
+
+======================================================================
+Changes for U-Boot 0.4.4:
+======================================================================
+
+* Add support for IceCube board (with MGT5100 and MPC5200 CPUs)
+
+* Add support for MGT5100 and MPC5200 processors
+
+* Patch by Lutz Dennig, 15 Jul 2003:
+  update for R360MPI board
+
+======================================================================
+Changes for U-Boot 0.4.3:
+======================================================================
+
+* Patches by Kshitij, 04 Jul 2003
+  - added support for arm925t cpu core
+  - added support for TI OMAP 1510 Innovator Board
+
+* Patches by Martin Krause, 14 Jul 2003:
+  - add I2C support for s3c2400 systems (trab board)
+  - (re-) add "ping" to command table
+
+* Fix handling of "slow" POST routines
+
+* Patches by Yuli Barcohen, 13 Jul 2003:
+  - Correct flash and JFFS2 support for MPC8260ADS
+  - fix PVR values and clock generation for PowerQUICC II family
+    (8270/8275/8280)
+
+* Patch by Bernhard Kuhn, 08 Jul 2003:
+  - add support for M68K targets
+
+* Patch by Ken Chou, 3 Jul:
+  - Fix PCI config table for A3000
+  - Fix iobase for natsemi.c
+    (PCI_BASE_ADDRESS_0 is the IO base register for DP83815)
+
+* Allow to enable "slow" POST routines by key press on power-on
+* Fix temperature dependend switching of LCD backlight on LWMON
+* Tweak output format for LWMON
+
+* Patch by Stefan Roese, 11 Jul 2003:
+  - Fix bug in CONFIG_VERSION_VARIABLE.
+  - AR405 config updated.
+  - OCRTC/ORSG: bsp command added.
+  - ASH405 bsp update.
+
+======================================================================
+Changes for U-Boot 0.4.2:
+======================================================================
+
+* Add support for NSCU board
+
+* Add support for TQM823M, TQM850M, TQM855M and TQM860M modules
+
+* Add support for Am29LV160ML, Am29LV320ML, and Am29LV640ML
+  mirror bit flash on TQM8xxM modules
+
+* Patch by Kenneth Johansson, 30 Jun 2003:
+  get rid of MK_CMD_ENTRY macro; update doc/README.command
+
+* Patch by Seb James, 30 Jun 2003:
+  Improve documentation of I2C configuration in README
+
+* Fix problems with previous log buffer "fixes"
+
+* Fix minor help text issues
+
+* "log append" did not append a newline
+
+======================================================================
+Changes for U-Boot 0.4.1:
+======================================================================
+
+* Fix some missing commands, cleanup header files
+  (autoscript, bmp, bsp, fat, mmc, nand, portio, ...)
+
+* Rewrite command lookup and help command (fix problems with bubble
+  sort when sorting command name list). Minor cleanup here and there.
+
+* Merge from "stable branch", tag LABEL_2003_06_28_1800-stable:
+  - Allow to call sysmon function interactively
+  - PIC on LWMON board needs delay after power-on
+  - Add missing RSR definitions for MPC8xx
+  - Improve log buffer handling: guarantee clean reset after power-on
+  - Add support for EXBITGEN board (aka "genie")
+  - Add support for SL8245 board
+
+* Code cleanup:
+  - remove trailing white space, trailing empty lines, C++ comments, etc.
+  - split cmd_boot.c (separate cmd_bdinfo.c and cmd_load.c)
+
+* Patches by Kenneth Johansson, 25 Jun 2003:
+  - major rework of command structure
+    (work done mostly by Michal Cendrowski and Joakim Kristiansen)
+
+======================================================================
+Changes for U-Boot 0.4.0:
+======================================================================
+
+* Patches by Robert Schwebel, 26 Jun 2003:
+  - csb226 configuration updated
+  - credits for logodl port updated
+  - innokom configuration updated
+  - logodl tree update, still with coding style inconsistencies
+  - added OCM for ppc405 warning to README
+
+* Patch by Pantelis Antoniou, 25 Jun 2003:
+  update NetVia with V2 board support
+
+* Header file cleanup for ARM
+
+* Patch by Murray Jensen, 24 Jun 2003:
+  - make sure to use only U-boot provided header files
+  - fix problems with ".rodata.str1.4" section as used by GCC-3.x
+
+* Patch by Stefan Roese, 24 Jun 2003:
+  - Update esd ASH405 board files.
+  - Update esd DASA_SIM config file.
+  - Add ping command to some esd boards.
+
+* Patch by Yuli Barcohen, 23 Jun 2003:
+  Update for MPC8260ADS board
+
+* Patch by Murray Jensen, 23 Jun 2003:
+  - cleanup of GCC 3.x compiler warnings
+
+* Patch by Rune Torgersen, 4 Jun 2003:
+  add large memory support for MPC8266ADS board
+
+* Patch by Richard Woodruff, 19 June 03:
+  - Enabled standard u-boot device abstraction for ARM
+  - Enabled console device for ARM
+  - Initilized bi_baudrate for ARM
+
+* Patch by Bill Hargen, 23 Apr 2003:
+  fix byte order for 824x I2C addresses (write op)
+
+* Patch by Murray Jensen, 20 Jun 2003:
+  - hymod update
+  - cleanup (especially for gcc-3.x compilers)
+
+* Patch by Tom Guilliams, 20 Jun 2003:
+  added CONFIG_750FX support for IBM 750FX processors
+
+* Patch by Devin Crumb, 02 Apr 2003:
+  Fix clock divider rounding problem in drivers/serial.c
+
+* Patch by Richard Woodruff, 19 June 03:
+  - Fixed smc91c111 driver to sync with the u-boot environment
+    (driver/smc91c111.c).
+  - Added eth_init error return check in NetLoop (net/net.c).
+
+* Patch by Ken Chou, 19 June 2003:
+  Added support for A3000 SBC board (Artis Microsystems Inc.)
+
+* Patches by Murray Jensen, 17 Jun 2003:
+  - Hymod board database mods: add "who" field and new xilinx chip types
+  - provide new "init_cmd_timeout()" function so code external to
+    "common/main.c" can use the "reset_cmd_timeout()" function before
+    entering the main loop
+  - add DTT support for adm1021 (new file dtt/adm1021.c; config
+    slightly different. see include/configs/hymod.h for an example
+    (requires CONFIG_DTT_ADM1021, CONFIG_DTT_SENSORS, and
+    CFG_DTT_ADM1021 defined)
+  - add new "eeprom_probe()" function which has similar args and
+    behaves in a similar way to "eeprom_read()" etc.
+  - add 8260 FCC ethernet loopback code (new "eth_loopback_test()"
+    function which is enabled by defining CONFIG_ETHER_LOOPBACK_TEST)
+  - gdbtools copyright update
+  - ensure that set_msr() executes the "sync" and "isync" instructions
+    after the "mtmsr" instruction in cpu/mpc8260/interrupts.c
+  - 8260 I/O ports fix: Open Drain should be set last when configuring
+  - add SIU IRQ defines for 8260
+  - allow LDSCRIPT override and OBJCFLAGS initialization: change to
+    config.mk to allow board configurations to override the GNU
+    linker script, selected via the LDSCRIPT, make variable, and to
+    give an initial value to the OBJCFLAGS make variable
+  - 8260 i2c enhancement:
+    o correctly extends the timeout depending on the size of all
+      queued messages for both transmit and receive
+    o will not continue with receive if transmit times out
+    o ensures that the error callback is done for all queued tx
+      and rx messages
+    o correctly detects both tx and rx timeouts, only delivers one to
+      the callback, and does not overwrite an earlier error
+    o logic in i2c_probe now correct
+  - add "vprintf()" function so that "panic()" function can be
+    technically correct
+  - many Hymod board changes
+
+* Patches by Robert Schwebel, 14 Jun 2003:
+  - add support for Logotronic DL datalogger board
+  - cleanup serial line after kermit binary download
+  - add debugX macro (debug level support)
+  - update mach-types.h to latest arm.linux.org.uk master list.
+
+* Patches by David Müller, 12 Jun 2003:
+  - rewrite of the S3C24X0 register definitions stuff
+  - "driver" for the built-in S3C24X0 RTC
+
+* Patches by Yuli Barcohen, 12 Jun 2003:
+  - Add MII support and Ethernet PHY initialization for MPC8260ADS board
+  - Fix incorrect SIUMCR initialisation caused by wrong Hard Reset
+    configuration word supplied by FPGA on some MPC8260ADS boards
+
+* Patch by Pantelis Antoniou, 10 Jun 2003:
+  Unify status LED interface
+
+* Add support for DS12887 RTC; add RTC support for ATC board
+
+* Patch by Nicolas Lacressonniere, 11 Jun 2003:
+  Modifications for Atmel AT91RM9200DK ARM920T based development kit
+  - Add Atmel DataFlash support for reading and writing.
+  - Add possibility to boot a Linux from DataFlash with BOOTM command.
+  - Add Flash detection on Atmel AT91RM9200DK
+    (between Atmel AT49BV1614 and AT49BV1614A flashes)
+  - Replace old Ethernet PHY layer functions
+  - Change link address
+
+* Patch by Frank Smith, 9 Jun 2003:
+  use CRIT_EXCEPTION for machine check on 4xx
+
+* Patch by Detlev Zundel, 13 Jun 2003:
+  added implementation of the "carinfo" command in cmd_immap.c
+
+* Fix CONFIG_NET_MULTI support in include/net.h
+
+* Patches by Kyle Harris, 13 Mar 2003:
+  - Add FAT partition support
+  - Add command support for FAT
+  - Add command support for MMC
+  ----
+  - Add Intel PXA support for video
+  - Add Intel PXA support for MMC
+  ----
+  - Enable MMC and FAT for lubbock board
+  - Other misc changes for lubbock board
+
+* Patch by Robert Schwebel, April 02, 2003:
+  fix for SMSC91111 driver
+
+* Patch by Vladimir Gurevich, 04 Jun 2003:
+  make ppc405 ethernet driver compatible with CONFIG_NET_MULTI option
+
+* Patch by Stefan Roese, 05 Jun 2003:
+  - PPC4xx: Fix bug for initial stack in data cache as pointed out by
+    Thomas Schaefer (tschaefer@giga-stream.de). Now inital stack in
+    data cache can be used even if the chip select is in use.
+  - CFG_RX_ETH_BUFFER added to set the ethernet receive buffer count
+    (see README for further description).
+  - Changed config files of CONFIG_EEPRO100 boards to use the
+    CFG_RX_ETH_BUFFER define.
+
+* Add support for RMU board
+
+* Add support for TQM862L at 100/50 MHz
+
+* Patch by Pantelis Antoniou, 02 Jun 2003:
+  major reconstruction of networking code;
+  add "ping" support (outgoing only!)
+
+* Patch by Denis Peter, 04 June 2003:
+  add support for the MIP405T board
+
+* Patches by Udi Finkelstein, 2 June 2003:
+  - Added support for custom keyboards, initialized by defining a
+    board-specific drv_keyboard_init as well as defining CONFIG_KEYBOARD .
+  - Added support for the RBC823 board.
+  - cpu/mpc8xx/lcd.c now automatically calculates the
+    Horizontal Pixel Count field.
+
+* Fix alignment problem in BOOTP (dhcp_leasetime option)
+  [pointed out by Nicolas Lacressonnière, 2 Jun 2003]
+
+* Patch by Mark Rakes, 14 May 2003:
+  add support for Intel e1000 gig cards.
+
+* Patch by Nye Liu, 3 Jun 2003:
+  fix critical typo in MAMR definition (include/mpc8xx.h)
+
+* Fix requirement to align U-Boot image on 16 kB boundaries on PPC.
+
+* Patch by Klaus Heydeck, 2 Jun 2003
+  Minor changes for KUP4K configuration
+
+* Patch by Marc Singer, 29 May 2003:
+  Fixed rarp boot method for IA32 and other little-endian CPUs.
+
+* Patch by Marc Singer, 28 May 2003:
+  Added port I/O commands.
+
+* Patch by Matthew McClintock, 28 May 2003
+  - cpu/mpc824x/start.S: fix relocation code when booting from RAM
+  - minor patches for utx8245
+
+* Patch by Daniel Engström, 28 May 2003:
+  x86 update
+
+* Patch by Dave Ellis, 9 May 2003 + 27 May 2003:
+  add nand flash support to SXNI855T configuration
+  fix/extend nand flash support:
+  - fix 'nand erase' command so does not erase bad blocks
+  - fix 'nand write' command so does not write to bad blocks
+  - fix nand_probe() so handles no flash detected properly
+  - add doc/README.nand
+  - add .jffs2 and .oob options to nand read/write
+  - add 'nand bad' command to list bad blocks
+  - add 'clean' option to 'nand erase' to write JFFS2 clean markers
+  - make NAND read/write faster
+
+* Patch by Rune Torgersen, 23 May 2003:
+  Update for MPC8266ADS board
+
+* Get (mostly) rid of CFG_MONITOR_LEN definition; compute real length
+  instead CFG_MONITOR_LEN is now only used to determine	 _at_compile_
+  _time_  (!) if the environment is embedded within the U-Boot image,
+  or in a separate flash sector.
+
+* Cleanup CFG_DER #defines in config files (wd maintained only)
+
+* Fix data abort exception handling for arm920t CPU
+
+* Fix alignment problems with flash driver for TRAB board
+
+* Patch by Donald White, 21 May 2003:
+  fix calculation of base address in pci_hose_config_device()
+
+* Fix bug in command line parsing: "cmd1;cmd2" is supposed to always
+  execute "cmd2", even if "cmd1" fails. Note that this is different
+  to "run var1 var2" where the contents of "var2" will NOT be
+  executed when a command in "var1" fails.
+
+* Add zero-copy ramdisk support (requires corresponding kernel support!)
+
+* Patch by Kyle Harris, 20 May 2003:
+  In preparation for an ixp port, rename cpu/xscale and arch-xscale
+  into cpu/pxa and arch-pxa.
+
+* Patch by Stefan Roese, 23 May 2003:
+  - IBM PPC405EP port added.
+  - CONFIG_UART1_CONSOLE added. If defined internal UART1 (and not
+    UART0) is used as default U-Boot console. PPC4xx only!
+  - esd ASH405 board added (PPC405EP based).
+  - BUBINGA405EP board added (PPC405EP based - IBM Eval Board).
+  - esd CPCI405AB board added.
+  - esd PMC405 board added.
+  - Update of some esd boards.
+
+* Patch by Denis Peter, 19 Mai 2003:
+  add support for the MIP405-3 board
+
+* Patch by Dave Ellis, 22 May 2003:
+  Fix problem with only partially cleared .bss segment
+
+* Patch by Rune Torgersen, 12 May 2003:
+  get PCI to work on a MPC8266ADS board; incorporate change to
+  cpu/mpc8260/pci.c to enable overrides of PCI memory parameters
+
+* Patch by Nye Liu, 1 May 2003:
+  minor patches for the FADS8xx
+
+* Patch by Thomas Schäfer, 28 Apr 2003:
+  Fix SPD handling for 256 ECC DIMM on Walnut
+
+* Add support for arbitrary bitmaps for TRAB's	VFD command;
+  allow to pass boot bitmap addresses in environment variables;
+  allow for zero boot delay
+
+* Patch by Christian Geißinger, 19 May 2002:
+  On TRAB: wait until the dummy byte has been completely sent
+
+* Patch by David Updegraff, 22 Apr 2003:
+  update for CrayL1 board
+
+* Patch by Pantelis Antoniou, 21 Apr 2003:
+  add boot support for ARTOS (a proprietary OS)
+
+* Patch by Steven Scholz, 11 Apr 2003:
+  Add support for RTC DS1338
+
+* Patch by Rod Boyce, 24 Jan 2003:
+  Fix counting of extended partitions in diskboot command
+
+* Patch by Christophe Lindheimer, 20 May 2003:
+  allow the use of CFG_LOADS when CFG_NO_FLASH is set
+
+* Fix SDRAM timing on Purple board
+
+* Add support for CompactFlash on ATC board
+  (includes support for Intel 82365 and compatible PC Card controllers,
+  and Yenta-compatible PCI-to-CardBus controllers)
+
+* Patch by Mathijs Haarman, 08 May 2003:
+  Add lan91c96 driver (tested on Lubbock and custom PXA250 board only)
+
+* Fix problem with usage of "true" (undefined in current versions of bfd.h)
+
+* Add support for Promess ATC board
+
+* Patch by Keith Outwater, 28 Apr 2003:
+  - Miscellaneous corrections and additions to GEN860T board specific code.
+  - Added GEN860_SC variant to GEN860T.
+  - Miscellaneous corrections to GEN860T documentation.
+  - Correct duplicate entry in U-Boot CREDITS file.
+  - Add GEN860T_SC entry in MAINTAINERS file.
+  - Update CREDITS file with GEN860T_SC info.
+
+* Update Smiths Aerospace addresses in MAINTAINERS file
+
+* Fix error handling in hush's version of "run" command
+
+* LWMON extensions:
+  - Splashscreen support
+  - modem support
+  - sysmon support
+  - temperature dependend enabling of LCD
+
+* Allow booting from old "PPCBoot" disk partitions
+
+* Add support for TQM8255 Board / MPC8255 CPU
+
+======================================================================
+Changes for U-Boot 0.3.1:
+======================================================================
+
+* Make sure Block Lock Bits get cleared in R360MPI flash driver
+
+* MPC823 LCD driver: Fill color map backwards, to allow for steady
+  display when Linux takes over
+
+* Patch by Erwin Rol, 27 Feb 2003:
+  Add support for RTEMS (this time for real).
+
+* Add support for "bmp info" and "bmp display" commands to load
+  bitmap images; this can be used (for example in a "preboot"
+  command) to display a splash screen very quickly after poweron.
+
+* Add support for 133 MHz clock on INCA-IP board
+
+* Patch by Lutz Dennig, 10 Apr 2003:
+  Update for R360MPI board
+
+* Add new meaning to "autostart" environment variable:
+  If set to "no", a standalone image passed to the
+  "bootm" command will be copied to the load address
+  (and eventually uncompressed), but NOT be started.
+  This can be used to load and uncompress arbitrary
+  data.
+
+* Patch by Stefan Roese, 10 Apr 2003:
+  Changed DHCP client to use IP address from server option field #54
+  from the OFFER packet in the server option field #54 in the REQUEST
+  packet. This fixes a problem using a Windows 2000 DHCP server,
+  where the DHCP-server is not the TFTP-server.
+
+* Set max brightness for MN11236 displays on TRAB board
+
+* Add support for TQM862L modules
+
+======================================================================
+Changes for U-Boot 0.3.0:
+======================================================================
+
+* Patch by Arun Dharankar, 4 Apr 2003:
+  Add IDMA example code (tested on 8260 only)
+
+* Add support for Purple Board (MIPS64 5Kc)
+
+* Add support for MIPS64 5Kc CPUs
+
+* Fix missing setting of "loadaddr" and "bootfile" on ARM and MIPS
+
+* Patch by Denis Peter, 04 Apr 2003:
+  - update MIP405-4 board
+
+* Patch by Stefan Roese, 4 Apr 2003:
+  - U-Boot version environment variable "ver" added
+    (CONFIG_VERSION_VARIABLE).
+  - Changed PPC405GPr version from A to B.
+  - Changed CPCI405 to use CTS instead of DSR on PPC405 UART1.
+
+* Patches by Denis Peter, 03 April 2003:
+  - fix PCI IRQs on MPL boards
+  - fix two more un-relocated pointer problems
+
+* Fix behaviour of "run" command:
+  - print error message iv variable does not exist
+  - terminate processing of arguments in case of error
+
+* Patches by Peter Figuli, 10 Mar 2003
+  - Add support for BTUART on PXA platform
+  - Add support for WEP EP250 (PXA) board
+
+* Fix flash problems on INCA-IP; add tool to allow bruning images  to
+  flash using a BDI2000
+
+* Implement fix for I2C Edge Conditions problem for all boards that
+  use the bit-banging driver (common/soft_i2c.c)
+
+* Patch by Martin Winistoerfer, 23 Mar 2003
+  - Add port to MPC555/556 microcontrollers
+  - Add support for cmi customer board with
+    Intel 28F128J3A, 28F320J3A or 28F640J3A flash.
+
+* Patch by Rick Bronson, 28 Mar 2003:
+  - fix common/cmd_nand.c
+
+* Patch by Arun Dharankar, 24 Mar 2003:
+  - add threads / scheduler example code
+
+* Add patches by Robert Schwebel, 31 Mar 2003:
+  - add ctrl-c support for kermit download
+  - align bdinfo output on ARM
+  - csb226 board: bring in sync with innokom/memsetup.S
+  - csb226 board: fix MDREFR handling
+  - misc doc fixes / extensions
+  - innokom board: cleanup, MDREFR fix in memsetup.S, config update
+  - add BOOT_PROGRESS to armlinux.c
+
+* Add CPU ID, version, and clock speed for INCA-IP
+
+* Patches by Dave Ellis, 18 Mar 2003 for SXNI855T board:
+  - fix SRAM and SDRAM memory sizing
+  - add status LED support
+  - add MAC address for second (SCC1) ethernet port
+
+* Update default environment for TQM8260 board
+
+* Patch by Rick Bronson, 16 Mar 2003:
+  - Add NAND flash support for reading, writing, and erasing NAND
+    flash (certain forms of which are called SmartMedia).
+  - Add support for Atmel AT91RM9200DK ARM920T based development kit.
+
+* Patches by Robert Schwebel, 19 Mar 2003:
+  - use arm-linux-gcc as default compiler for ARM
+  - fix i2c fixup code
+  - fix missing baudrate setting
+  - added $loadaddr / CFG_LOAD_ADDR support to loadb
+  - moved "ignoring trailing characters" _before_ u-boot wants to
+    print out diagnostics messages; removes bogus characters at the
+    end of transmission
+
+* Patch by John Zhan, 18 Mar 2003:
+  Add support for SinoVee Microsystems SC8xx boards
+
+* Patch by Rolf Offermanns, 21 Mar 2003:
+  ported the dnp1110 related changes from the current armboot cvs to
+  current u-boot cvs. smc91111 does not work. problem marked in
+  smc91111.c, grep for "FIXME".
+
+* Patch by Brian Auld, 25 Mar 2003:
+  Add support for STM flash chips on ebony board
+
+* Add PCI support for MPC8250 Boards (PM825 module)
+
+* Patch by Stefan Roese, 25 Mar 2003:
+  - PCI405 update.
+
+* Patch by Stefan Roese, 20 Mar 2003:
+  - CPCI4052 update (support for revision 3).
+  - Set edge conditioning circuitry on PPC405GPr for compatibility
+    to existing PPC405GP designs.
+  - Clip udiv to 5 bits on PPC405 (serial.c).
+
+* Extend INCAIP board support:
+  - add automatic RAM size detection
+  - add "bdinfo" command
+  - pass flash address and size to Linux kernel
+  - switch to 150 MHz clock
+
+* Avoid flicker on the TRAB's VFD by synchronizing the enable with
+  the HSYNC/VSYNC. Requires new CPLD code (Version 101 for Rev. 100
+  boards, version 153 for Rev. 200 boards).
+
+* Patch by Vladimir Gurevich, 12 Mar 2003:
+  Fix relocation problem of statically initialized string pointers
+  in common/cmd_pci.c
+
+* Patch by Kai-Uwe Blöm, 12 Mar 2003:
+  Cleanup & bug fixes for JFFS2 code:
+  - the memory mangement was broken. It caused havoc on malloc by
+    writing beyond the block boundaries.
+  - the length calculation for files was wrong, sometimes resulting
+    in short file reads.
+  - data copying now optionally takes fragment version numbers into
+    account, to avoid copying from older data.
+  See doc/README.JFFS2 for details.
+
+* Patch by Josef Wagner, 12 Mar 2003:
+  - 16/32 MB and 50/80 MHz support with auto-detection for IP860
+  - ETH05 and BEDBUG support for CU824
+  - added support for MicroSys CPC45
+  - new BOOTROM/FLASH0 and DOC base for PM826
+
+* Patch by Robert Schwebel, 12 Mar 2003:
+  Fix the chpart command on innokom board
+
+* Name cleanup:
+  mv include/asm-i386/ppcboot-i386.h include/asm-i386/u-boot-i386.h
+  s/PPCBoot/U-Boot/ in some files
+  s/pImage/uImage/  in some files
+
+* Patch by Detlev Zundel, 15 Jan 2003:
+  Fix '' command line quoting
+
+* Patch by The LEOX team, 19 Jan 2003:
+  - add support for the ELPT860 board
+  - add support for Dallas ds164x RTC
+
+* Patches by David Müller, 31 Jan 2003:
+  - minimal setup for CardBus bridges
+  - add EEPROM read/write support in the CS8900 driver
+  - add support for the builtin I2C controller in the Samsung s3c24x0 chips
+  - add support for MPL's VCMA9 (Samsung s3c2410 based) board
+
+* Patch by Steven Scholz, 04 Feb 2003:
+  add support for RTC DS1307
+
+* Patch by Reinhard Meyer, 5 Feb 2003:
+  fix PLPRCR/SCCR init sequence on 8xx to allow for
+  changes of EBDF by software
+
+* Patch by Vladimir Gurevich, 07 Feb 2003:
+  "API-compatibility patch" for 4xx I2C driver
+
+* TRAB fixes / extensions:
+  - Restore VFD brightness as saved in environment
+  - add support for Fujitsu flashes
+  - make sure both buzzers are turned off (drive low level)
+
+* Patches by Robert Schwebel, 06 Mar 2003:
+  - fix bug in BOOTP code (must use NetCopyIP)
+  - update of CSB226 port
+  - clear BSS segment on XScale
+  - added support for i2c_init_board() function
+  - update to the Innokom plattform
+
+* Extend support for redundand environments for configurations where
+  environment size < sector size
+
+* Patch by Rune Torgersen, 13 Feb 2003:
+  Add support for Motorola MPC8266ADS board
+
+* Patch by Kyle Harris, 19 Feb 2003:
+  patches for the Intel lubbock board:
+  memsetup.S - general cleanup (based on Robert's csb226 code)
+  flash.c - overhaul, actually works now
+  lubbock.c - fix init funcs to return proper value
+
+* Patch by Kenneth Johansson, 26 Feb 2003:
+  - Fixed off by one in RFTA calculation.
+  - No need to abort when LDF is lower than we can program it's only
+    minimum timing so clamp it to what we can do.
+  - Takes function pointer to function for reading the spd_nvram. Usefull
+    for faking data or hardcode a module without the nvram.
+  - fix other user for above change
+  - fix some comments.
+
+* Patches by Brian Waite, 26 Feb 2003:
+  - fix port for evb64260 board
+  - fix PCI for evb64260 board
+  - fix PCI scan
+
+* Patch by Reinhard Meyer, 1 Mar 2003:
+  Add support for EMK TOP860 Module
+
+* Patch by Yuli Barcohen, 02 Mar 2003:
+  Add SPD EEPROM support for MPC8260ADS board
+
+* Patch by Robert Schwebel, 21 Jan 2003:
+  - Add support for Innokom board
+  - Don't complain if "install" fails
+  - README cleanup (remove duplicated lines)
+  - Update PXA header files
+
+* Add documentation for existing POST code (doc/README.POST)
+
+* Patch by Laudney Ren, 15 Jan 2003:
+  Fix handling of redundand environment in "tools/envcrc.c"
+
+* Patch by Detlev Zundel, 28 Feb 2003:
+  Add bedbug support for 824x systems
+
+* Add support for 16 MB flash configuration of TRAB board
+
+* Patch by Erwin Rol, 27 Feb 2003:
+  Add support for RTEMS
+
+* Add image information to README
+
+* Patch by Stefan Roese, 18 Feb 2003:
+  CPCIISER4 configuration updated.
+
+* Patch by Stefan Roese, 17 Feb 2003:
+  Fixed bug in ext. serial clock setup on PPC405 (since PPC440 port).
+
+* Patch by Stefan Roese, 13 Feb 2003:
+  Add "pcidelay" environment variable (in ms, enabled via
+  CONFIG_PCI_BOOTDELAY).
+  PCI spec 2.2 defines, that a pci target has 2^25 pci clocks after
+  RST# to respond to configuration cycles (33MHz -> 1s).
+
+* Fix dual PCMCIA slot support (when running with just one
+  slot populated)
+
+* Add VFD type detection to trab board
+
+* extend drivers/cs8900.c driver to synchronize	 ethaddr  environment
+  variable with value in the EEPROM
+
+* Patch by Stefan Roese, 10 Feb 2003:
+  Add support for 4MB and 128MB onboard SDRAM (cpu/ppc4xx/sdram.c)
+
+* Add support for MIPS32 4Kc CPUs
+
+* Add support for INCA-IP Board
+
+======================================================================
+Changes for U-Boot 0.2.2:
+======================================================================
+
+* Add dual ethernet support on PM826
+
+* Add support for LXT971 PHY on PM826
+
+* Patch by Tord Andersson, 16 Jan 2003:
+  Fix flash sector count for TQM8xxL
+
+* Fix I2C EEPROM problem on ICU862 board (would only write the first
+  16 bytes out of each 32 byte block)
+
+======================================================================
+Changes for U-Boot 0.2.1:
+======================================================================
+
+* Add support for V37 board
+  (patch by Jón Benediktsson, 11 Dec 2002)
+
+* Update baudrate in bd_info when it gets changed
+
+* Add watchdog trigger points while waiting for serial port
+  (so far only 8xx -- needed on LWMON with 100ms watchdog)
+
+* Improve command line tool to access the U-Boot's environment
+  (figuration of the utility, using a config file)
+
+* Add single quote support for (old) command line parser
+
+* Switch LWMON board default config from FRAM to EEPROM;
+  in POST, EEPROM shows up on 8 addresses
+
+======================================================================
+Changes for U-Boot 0.2.0:
+======================================================================
+
+* Use 1-byte-read instead of -write for iprobe() function
+  Add i2c commands to PM826 config
+
+* extend I2C POST code: check for list on known addresses
+
+* Improve log buffer code; use "loglevel" to decide which messages
+  to log on the console, too (like in Linux); get rid of "logstart"
+
+* Add command line tool to access the U-Boot's environment
+  (board-specific for TRAB now, to be fixed later)
+
+* Patch by Hans-Joerg Frieden, 06 Dec 2002
+  Fix misc problems with AmigaOne support
+
+* Patch by Chris Hallinan, 3 Dec 2002:
+  minor cleanup to the MPC8245 EPIC driver
+
+* Patch by Pierre Aubert , 28 Nov 2002
+  Add support for external (SIU) interrupts on MPC8xx
+
+* Patch by Pierre Aubert , 28 Nov 2002
+  Fix nested syscalls bug in standalone applications
+
+* Patch by David Müller, 27 Nov 2002:
+  fix output of "pciinfo" command for CardBus bridge devices.
+
+* Fix bug in TQM8260 board detection - boards got stuck when board ID
+  was not readable
+
+* Add LED indication for IDE activity on KUP4K board
+
+* Fix startup problems with VFD display on TRAB
+
+* Patch by Pierre Aubert, 20 Nov 2002
+  Add driver for Epson SED13806 graphic controller.
+  Add support for BMP logos in cfb_console driver.
+
+* Added support for both PCMCIA slots (at the same time!) on MPC8xx
+
+* Patch by Rod Boyce, 21 Nov 2002:
+  fix PCMCIA on MBX8xx board
+
+* Patch by Pierre Aubert , 21 Nov 2002
+  Add CFG_CPM_POST_WORD_ADDR to make the offset of the
+  bootmode word in DPRAM configurable
+
+* Patch by Daniel Engström, 18 Nov 2002:
+  Fixes for x86 port (mostly strings issues)
+
+* Patch by Ken Chou, 18 Nov 2002:
+  Fix for natsemi NIC cards (DP83815)
+
+* Patch by Pierre Aubert, 19 Nov 2002:
+  fix a bug for the MII configuration, and some warnings
+
+* Patch by Thomas Frieden, 13 Nov 2002:
+  Add code for AmigaOne board
+  (preliminary merge to U-Boot, still WIP)
+
+* Patch by Jon Diekema, 12 Nov 2002:
+  - Adding URL for IEEE OUI lookup
+  - Making the autoboot #defines dependent on CONFIG_AUTOBOOT_KEYED
+    being defined.
+  - In the CONFIG_EXTRA_ENV_SETTINGS #define, the root-on-initrd and
+    root-on-nfs macros are designed to switch how the default boot
+    method gets defined.
+
+* Patch by Daniel Engström, 13 Nov 2002:
+  Add support for i386 architecture and AMD SC520 board
+
+* Patch by Pierre Aubert, 12 Nov 2002:
+  Add support for DOS filesystem and booting from DOS floppy disk
+
+* Patch by Jim Sandoz, 07 Nov 2002:
+  Increase number of network RX buffers (PKTBUFSRX in
+  "include/net.h") for EEPRO100 based boards (especially SP8240)
+  which showed "Receiver is not ready" errors when U-Boot was
+  processing the receive buffers slower than the network controller
+  was filling them.
+
+* Patch by Andreas Oberritter, 09 Nov 2002:
+  Change behaviour of NetLoop(): return -1 for errors, filesize
+  otherwise; return code 0 is valid an means no file loaded - in this
+  case the environment still gets updated!
+
+* Patches by Jon Diekema, 9 Nov 2002:
+  - improve ADC/DAC clocking on the SACSng board to align
+    the failing edges of LRCLK and SCLK
+  - sbc8260 configuration tweaks
+  - add status LED support for 82xx systems
+  - wire sspi/sspo commands into command handler; improved error
+    handlering
+  - add timestamp support and alternate memory test to the
+    SACSng configuration
+
+* Patch by Vince Husovsky, 7 Nov 2002:
+  Add "-n" to linker options to get rid of "Not enough room for
+  program headers" problem
+
+* Patch by David Müller, 05 Nov 2002
+  Rename CONFIG_PLL_INPUT_FREQ to CONFIG_SYS_CLK_FREQ
+  so we can use an already existing name
+
+* Patch by Pierre Aubert, 05 Nov 2002
+  Hardware relatied improvments in FDC boot code
+
+* Patch by Holger Schurig, 5 Nov 2002:
+  Make the PXA really change it's frequency
+
+* Patch by Pierre Aubert, 05 Nov 2002
+  Add support for slave serial Spartan 2 FPGAs
+
+* Fix uninitialized memory (MAC	 address)  in  8xx  SCC/FEC  ethernet
+  drivers
+
+* Add support for log buffer which can be passed to Linux kernel's
+  syslog mechanism; used especially for POST results.
+
+* Patch by Klaus Heydeck, 31 Oct 2002:
+  Add initial support for kup4k board
+
+* Patch by Robert Schwebel, 04 Nov 2002:
+  - use watchdog to reset PXA250 systems
+  - added progress callbacks to (some of the) ARM code
+  - update for Cogent CSB226 board
+
+* Add support for FPS860 board
+
+* Patch by Guillaume Alexandre,, 04 Nov 2002:
+  Improve PCI access on 32-bits Compact PCI bus
+
+* Fix mdelay() on TRAB - this was still the debugging version with
+  seconds instead of ms.
+
+* Patch by Robert Schwebel, 1 Nov 2002:
+  XScale related cleanup (affects all ARM boards)
+
+* Cleanup of names and README.
+
+======================================================================
+Notes for U-Boot 0.1.0:
+======================================================================
+
+This is the initial version of "Das U-Boot", the Universal Boot Loader.
+
+It is based on version 2.0.0 (the "Halloween Release") of PPCBoot.
+For information about the history of the project please see the
+PPCBoot project page at http://sourceforge.net/projects/ppcboot
+
+======================================================================
