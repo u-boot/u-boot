@@ -57,6 +57,10 @@ ifeq ($(ARCH),blackfin)
 LOAD_ADDR = 0x1000
 endif
 
+ifeq ($(ARCH),avr32)
+LOAD_ADDR = 0x00000000
+endif
+
 include $(TOPDIR)/config.mk
 
 ELF	= hello_world

@@ -152,6 +152,9 @@ endif
 ifeq ($(ARCH),blackfin)
 CROSS_COMPILE = bfin-elf-
 endif
+ifeq ($(ARCH),avr32)
+CROSS_COMPILE = avr32-
+endif
 endif
 endif
 
@@ -2098,6 +2101,10 @@ pb1000_config		: 	unconfig
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_PB1000 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
+
+#========================================================================
+# AVR32
+#========================================================================
 
 #########################################################################
 ## MIPS64 5Kc

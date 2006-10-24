@@ -138,6 +138,19 @@ gd_t *global_data;
 "	P0 = [P0 + %1]\n"		\
 "	JUMP (P0)\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "P0");
+#elif defined(CONFIG_AVR32)
+/*
+ * r6 holds the pointer to the global_data. r8 is call clobbered.
+ */
+#define EXPORT_FUNC(x)					\
+	asm volatile(					\
+		"	.globl\t" #x "\n"		\
+		#x ":\n"				\
+		"	ld.w	r8, r6[%0]\n"		\
+		"	ld.w	pc, r8[%1]\n"		\
+		:					\
+		: "i"(offsetof(gd_t, jt)), "i"(XF_ ##x)	\
+		: "r8");
 #else
 #error stubs definition missing for this architecture
 #endif
