@@ -318,9 +318,6 @@ $(obj)System.map:	$(obj)u-boot
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
 		sort > $(obj)System.map
 
-CHANGELOG:
-	git log --no-merges U-Boot-1_1_5.. > $@
-
 #########################################################################
 else
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
@@ -330,6 +327,10 @@ dep tags ctags etags $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
 endif
+
+.PHONY : CHANGELOG
+CHANGELOG:
+	git log --no-merges U-Boot-1_1_5.. > $@
 
 #########################################################################
 

@@ -1,3 +1,10 @@
+commit 7c52c4b943ff52bbe8796a7e2d3e476ceaf3f512
+Author: Wolfgang Denk <wd@denx.de>
+Date:   Tue Oct 24 21:35:55 2006 +0200
+
+    Switch to automatically generated CHANGELOG file.
+    (use "make CHANGELOG" to update it from time to time)
+
 commit 7ade0c634a979c32fa91a74e8f5775f24651fbe6
 Author: Stefan Roese <sr@denx.de>
 Date:   Tue Oct 24 18:06:48 2006 +0200
