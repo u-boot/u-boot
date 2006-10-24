@@ -59,51 +59,60 @@ endif
 
 include $(TOPDIR)/config.mk
 
+ELF	= hello_world
 SREC	= hello_world.srec
-BIN	= hello_world.bin hello_world
+BIN	= hello_world.bin
 
 ifeq ($(CPU),mpc8xx)
+ELF	= test_burst
 SREC	= test_burst.srec
-BIN	= test_burst.bin test_burst
+BIN	= test_burst.bin
 endif
 
 ifeq ($(ARCH),i386)
-SREC   += 82559_eeprom.srec
-BIN    += 82559_eeprom.bin 82559_eeprom
+ELF	+= 82559_eeprom
+SREC	+= 82559_eeprom.srec
+BIN	+= 82559_eeprom.bin
 endif
 
 ifeq ($(ARCH),ppc)
-SREC   += sched.srec
-BIN    += sched.bin sched
+ELF	+= sched
+SREC	+= sched.srec
+BIN	+= sched.bin
 endif
 
 ifeq ($(ARCH),blackfin)
+ELF	+= smc91111_eeprom
 SREC	+= smc91111_eeprom.srec
-BIN 	+= smc91111_eeprom.bin smc91111_eeprom
+BIN 	+= smc91111_eeprom.bin
 endif
 
 # The following example is pretty 8xx specific...
 ifeq ($(CPU),mpc8xx)
-SREC   += timer.srec
-BIN    += timer.bin timer
+ELF	+= timer
+SREC	+= timer.srec
+BIN	+= timer.bin
 endif
 
 # The following example is 8260 specific...
 ifeq ($(CPU),mpc8260)
-SREC   += mem_to_mem_idma2intr.srec
-BIN    += mem_to_mem_idma2intr.bin mem_to_mem_idma2intr
+ELF	+= mem_to_mem_idma2intr
+SREC	+= mem_to_mem_idma2intr.srec
+BIN	+= mem_to_mem_idma2intr.bin
 endif
 
 # Demo for 52xx IRQs
 ifeq ($(CPU),mpc5xxx)
-SREC   += interrupt.srec
-BIN    += interrupt.bin interrupt
+ELF	+= interrupt
+SREC	+= interrupt.srec
+BIN	+= interrupt.bin
 endif
 
 # Utility for resetting i82559 EEPROM
 ifeq ($(BOARD),oxc)
-SREC   += eepro100_eeprom.srec
-BIN    += eepro100_eeprom.bin eepro100_eeprom
+ELF	+= eepro100_eeprom
+SREC	+= eepro100_eeprom.srec
+BIN	+= eepro100_eeprom.bin
 endif
 
 ifeq ($(BIG_ENDIAN),y)
@@ -126,6 +135,7 @@ LIBOBJS	= $(addprefix $(obj),$(LIBAOBJS) $(LIBCOBJS))
 
 SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(if $(LIBAOBJS),$(LIBAOBJS:.o=.S))
 OBJS	:= $(addprefix $(obj),$(COBJS))
+ELF	:= $(addprefix $(obj),$(ELF))
 BIN	:= $(addprefix $(obj),$(BIN))
 SREC	:= $(addprefix $(obj),$(SREC))
 
@@ -134,19 +144,23 @@ clibdir := $(shell dirname `$(CC) $(CFLAGS) -print-file-name=libc.a`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN)
+all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
 		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 
+$(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
 		$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
 			-o $@ -e $(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
+
+$(SREC):
 $(obj)%.srec:	$(obj)%
 		$(OBJCOPY) -O srec $< $@ 2>/dev/null
 
+$(BIN):
 $(obj)%.bin:	$(obj)%
 		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
