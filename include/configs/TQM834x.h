@@ -95,6 +95,7 @@
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #undef CFG_FLASH_CHECKSUM
 #define CFG_FLASH_BASE		0x80000000	/* start of FLASH   */
+#define CFG_FLASH_SIZE		8		/* FLASH size in MB */
 
 /* buffered writes in the AMD chip set is not supported yet */
 #undef CFG_FLASH_USE_BUFFER_WRITE
