@@ -20,27 +20,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <config.h>
-
 OUTPUT_FORMAT("elf32-avr32", "elf32-avr32", "elf32-avr32")
 OUTPUT_ARCH(avr32)
 ENTRY(_start)
 
 SECTIONS
 {
-	. = CFG_FLASH_BASE;
+	. = 0;
 	_text = .;
 	.text : {
 		*(.text)
 		*(.text.*)
 	}
 
-	. = ALIGN(CFG_ICACHE_LINESZ);
+	. = ALIGN(32);
 	__flashprog_start = .;
 	.flashprog : {
 		*(.flashprog)
 	}
-	. = ALIGN(CFG_ICACHE_LINESZ);
+	. = ALIGN(32);
 	__flashprog_end = .;
 
 	. = ALIGN(8);
@@ -51,7 +49,7 @@ SECTIONS
 	_etext = .;
 
 	__data_lma = ALIGN(8);
-	. = CFG_INTRAM_BASE;
+	. = 0x24000000;
 	_data = .;
 	.data : AT(__data_lma) {
 		*(.data)
