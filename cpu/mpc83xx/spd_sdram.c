@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2006 Freescale Semiconductor, Inc.
+ *
  * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -28,6 +30,10 @@
  *
  * 20050101: Eran Liberty (liberty@freescale.com)
  *           Initial file creating (porting from 85XX & 8260)
+ * 20060601: Dave Liu (daveliu@freescale.com)
+ *           DDR ECC support
+ *           unify variable names for 83xx
+ *           code cleanup
  */
 
 #include <common.h>
@@ -39,7 +45,7 @@
 
 #ifdef CONFIG_SPD_EEPROM
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 extern void dma_init(void);
 extern uint dma_check(void);
 extern int dma_xfer(void *dest, uint count, void *src);
@@ -52,15 +58,18 @@ extern int dma_xfer(void *dest, uint count, void *src);
 /*
  * Convert picoseconds into clock cycles (rounding up if needed).
  */
+extern ulong get_ddr_clk(ulong dummy);
 
 int
 picos_to_clk(int picos)
 {
+	unsigned int ddr_bus_clk;
 	int clks;
 
-	clks = picos / (2000000000 / (get_bus_freq(0) / 1000));
-	if (picos % (2000000000 / (get_bus_freq(0) / 1000)) != 0) {
-	clks++;
+	ddr_bus_clk = get_ddr_clk(0) >> 1;
+	clks = picos / ((1000000000 / ddr_bus_clk) * 1000);
+	if (picos % ((1000000000 / ddr_bus_clk) * 1000) !=0) {
+		clks++;
 	}
 
 	return clks;
@@ -104,32 +113,53 @@ static void spd_debug(spd_eeprom_t *spd)
 long int spd_sdram()
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
-	volatile law8349_t *ecm = &immap->sysconf.ddrlaw[0];
+	volatile ddr83xx_t *ddr = &immap->ddr;
+	volatile law83xx_t *ecm = &immap->sysconf.ddrlaw[0];
 	spd_eeprom_t spd;
-	unsigned tmp, tmp1;
+	unsigned tmp;
 	unsigned int memsize;
 	unsigned int law_size;
-	unsigned char caslat;
-	unsigned int trfc, trfc_clk, trfc_low;
+	unsigned char caslat, caslat_ctrl;
+	unsigned char burstlen;
+	unsigned int max_bus_clk;
+	unsigned int max_data_rate, effective_data_rate;
+	unsigned int ddrc_clk;
+	unsigned int refresh_clk;
+	unsigned sdram_cfg;
+	unsigned int ddrc_ecc_enable;
 
+
+        /* Read SPD parameters with I2C */
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
 #ifdef SPD_DEBUG
 	spd_debug(&spd);
 #endif
+	/* Check the memory type */
+	if (spd.mem_type != SPD_MEMTYPE_DDR) {
+		printf("DDR: Module mem type is %02X\n", spd.mem_type);
+		return 0;
+	}
+
+	/* Check the number of physical bank */
 	if (spd.nrows > 2) {
-		puts("DDR:Only two chip selects are supported on ADS.\n");
+		printf("DDR: The number of physical bank is %02X\n", spd.nrows);
 		return 0;
 	}
 
-	if (spd.nrow_addr < 12
-	    || spd.nrow_addr > 14
-	    || spd.ncol_addr < 8
-	    || spd.ncol_addr > 11) {
-		puts("DDR:Row or Col number unsupported.\n");
+	/* Check if the number of row of the module is in the range of DDRC */
+	if (spd.nrow_addr < 12 || spd.nrow_addr > 14) {
+		printf("DDR: Row number is out of range of DDRC, row=%02X\n",
+							 spd.nrow_addr);
 		return 0;
 	}
 
+	/* Check if the number of col of the module is in the range of DDRC */
+	if (spd.ncol_addr < 8 || spd.ncol_addr > 11) {
+		printf("DDR: Col number is out of range of DDRC, col=%02X\n",
+							 spd.ncol_addr);
+		return 0;
+	}
+        /* Setup DDR chip select register */
 	ddr->csbnds[2].csbnds = (banksize(spd.row_dens) >> 24) - 1;
 	ddr->cs_config[2] = ( 1 << 31
 			    | (spd.nrow_addr - 12) << 8
@@ -172,54 +202,84 @@ long int spd_sdram()
 	debug("DDR:ar=0x%08x\n", ecm->ar);
 
 	/*
-	 * find the largest CAS
+	 * Find the largest CAS by locating the highest 1 bit
+	 * in the spd.cas_lat field.  Translate it to a DDR
+	 * controller field value:
+	 *
+	 *	CAS Lat	 DDR I	   Ctrl
+	 *	Clocks	 SPD Bit   Value
+	 *	-------+--------+---------
+	 *	1.0        0        001
+	 *	1.5        1        010
+	 *	2.0        2        011
+	 *	2.5        3        100
+	 *	3.0        4        101
+	 *	3.5        5        110
+	 *	4.0        6        111
 	 */
-	if(spd.cas_lat & 0x40) {
-		caslat = 7;
-	} else if (spd.cas_lat & 0x20) {
-		caslat = 6;
-	} else if (spd.cas_lat & 0x10) {
-		caslat = 5;
-	} else if (spd.cas_lat & 0x08) {
-		caslat = 4;
-	} else if (spd.cas_lat & 0x04) {
-		caslat = 3;
-	} else if (spd.cas_lat & 0x02) {
-		caslat = 2;
-	} else if (spd.cas_lat & 0x01) {
-		caslat = 1;
-	} else {
-		puts("DDR:no valid CAS Latency information.\n");
+	caslat = __ilog2(spd.cas_lat);
+
+	if (caslat > 4 ) {
+		printf("DDR: Invalid SPD CAS Latency, caslat=%02X\n", caslat);
 		return 0;
 	}
+	max_bus_clk = 1000 *10 / (((spd.clk_cycle & 0xF0) >> 4) * 10
+			+ (spd.clk_cycle & 0x0f));
+	max_data_rate = max_bus_clk * 2;
 
-	tmp = 20000 / (((spd.clk_cycle & 0xF0) >> 4) * 10
-		       + (spd.clk_cycle & 0x0f));
-	debug("DDR:Module maximum data rate is: %dMhz\n", tmp);
+	debug("DDR:Module maximum data rate is: %dMhz\n", max_data_rate);
 
-	tmp1 = get_bus_freq(0) / 1000000;
-	if (tmp1 < 230 && tmp1 >= 90 && tmp >= 230) {
-		/* 90~230 range, treated as DDR 200 */
-		if (spd.clk_cycle3 == 0xa0)
-			caslat -= 2;
-		else if(spd.clk_cycle2 == 0xa0)
-			caslat--;
-	} else if (tmp1 < 280 && tmp1 >= 230 && tmp >= 280) {
-		/* 230-280 range, treated as DDR 266 */
-		if (spd.clk_cycle3 == 0x75)
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x75)
-			caslat--;
-	} else if (tmp1 < 350 && tmp1 >= 280 && tmp >= 350) {
-		/* 280~350 range, treated as DDR 333 */
-		if (spd.clk_cycle3 == 0x60)
-			caslat -= 2;
-		else if (spd.clk_cycle2 == 0x60)
-			caslat--;
-	} else if (tmp1 < 90 || tmp1 >= 350) {
-		/* DDR rate out-of-range */
-		puts("DDR:platform frequency is not fit for DDR rate\n");
+	ddrc_clk = get_ddr_clk(0) / 1000000;
+
+	if (max_data_rate >= 390) { /* it is DDR 400 */
+		printf("DDR: platform not support DDR 400\n");
 		return 0;
+	} else if (max_data_rate >= 323) { /* it is DDR 333 */
+		if (ddrc_clk <= 350 && ddrc_clk > 280) {
+			/* DDRC clk at 280~350 */
+			effective_data_rate = 333; /* 6ns */
+			caslat = caslat;
+		} else if (ddrc_clk <= 280 && ddrc_clk > 230) {
+			/* DDRC clk at 230~280 */
+			if (spd.clk_cycle2 == 0x75) {
+				effective_data_rate = 266; /* 7.5ns */
+				caslat = caslat - 1;
+			}
+		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
+			/* DDRC clk at 90~230 */
+			if (spd.clk_cycle3 == 0xa0) {
+				effective_data_rate = 200; /* 10ns */
+				caslat = caslat - 2;
+			}
+		}
+	} else if (max_data_rate >= 256) { /* it is DDR 266 */
+		if (ddrc_clk <= 350 && ddrc_clk > 280) {
+			/* DDRC clk at 280~350 */
+			printf("DDR: DDR controller freq is more than "
+				"max data rate of the module\n");
+			return 0;
+		} else if (ddrc_clk <= 280 && ddrc_clk > 230) {
+			/* DDRC clk at 230~280 */
+			effective_data_rate = 266; /* 7.5ns */
+			caslat = caslat;
+		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
+			/* DDRC clk at 90~230 */
+			if (spd.clk_cycle2 == 0xa0) {
+				effective_data_rate = 200; /* 10ns */
+				caslat = caslat - 1;
+			}
+		}
+	} else if (max_data_rate >= 190) { /* it is DDR 200 */
+		if (ddrc_clk <= 350 && ddrc_clk > 230) {
+			/* DDRC clk at 230~350 */
+			printf("DDR: DDR controller freq is more than "
+				"max data rate of the module\n");
+			return 0;
+		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
+			/* DDRC clk at 90~230 */
+			effective_data_rate = 200; /* 10ns */
+			caslat = caslat;
+		}
 	}
 
 	/*
@@ -229,16 +289,14 @@ long int spd_sdram()
 	 * note: WRREC(Twr) and WRTORD(Twtr) are not in SPD,
 	 * use conservative value here.
 	 */
-	trfc = spd.trfc * 1000;         /* up to ps */
-	trfc_clk = picos_to_clk(trfc);
-	trfc_low = (trfc_clk - 8) & 0xf;
+	caslat_ctrl = (caslat + 1) & 0x07; /* see as above */
 
 	ddr->timing_cfg_1 =
 	    (((picos_to_clk(spd.trp * 250) & 0x07) << 28 ) |
 	     ((picos_to_clk(spd.tras * 1000) & 0x0f ) << 24 ) |
 	     ((picos_to_clk(spd.trcd * 250) & 0x07) << 20 ) |
-	     ((caslat & 0x07) << 16 ) |
-	     (trfc_low << 12 ) |
+	     ((caslat_ctrl & 0x07) << 16 ) |
+	     (((picos_to_clk(spd.trfc * 1000) - 8) & 0x0f) << 12 ) |
 	     ( 0x300 ) |
 	     ((picos_to_clk(spd.trrd * 250) & 0x07) << 4) | 1);
 
@@ -246,36 +304,49 @@ long int spd_sdram()
 
 	debug("DDR:timing_cfg_1=0x%08x\n", ddr->timing_cfg_1);
 	debug("DDR:timing_cfg_2=0x%08x\n", ddr->timing_cfg_2);
+	/* Setup init value, but not enable */
+	ddr->sdram_cfg = 0x42000000;
 
-	/*
-	 * Only DDR I is supported
-	 * DDR I and II have different mode-register-set definition
+	/* Check DIMM data bus width */
+	if (spd.dataw_lsb == 0x20)
+	{
+		burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
+		printf("\n   DDR DIMM: data bus width is 32 bit");
+	}
+	else
+	{
+		burstlen = 0x02; /* Others act as 64 bit bus, burst len is 4 */
+		printf("\n   DDR DIMM: data bus width is 64 bit");
+	}
+
+	/* Is this an ECC DDR chip? */
+	if (spd.config == 0x02) {
+		printf(" with ECC\n");
+	}
+	else
+		printf(" without ECC\n");
+
+	/* Burst length is always 4 for 64 bit data bus, 8 for 32 bit data bus,
+	   Burst type is sequential
 	 */
 	switch(caslat) {
+	case 1:
+		ddr->sdram_mode = 0x50 | burstlen; /* CL=1.5 */
+		break;
 	case 2:
-		tmp = 0x50; /* 1.5 */
+		ddr->sdram_mode = 0x20 | burstlen; /* CL=2.0 */
 		break;
 	case 3:
-		tmp = 0x20; /* 2.0 */
+		ddr->sdram_mode = 0x60 | burstlen; /* CL=2.5 */
 		break;
 	case 4:
-		tmp = 0x60; /* 2.5 */
-		break;
-	case 5:
-		tmp = 0x30; /* 3.0 */
+		ddr->sdram_mode = 0x30 | burstlen; /* CL=3.0 */
 		break;
 	default:
-		puts("DDR:only CAS Latency 1.5, 2.0, 2.5, 3.0 is supported.\n");
+		printf("DDR:only CAS Latency 1.5, 2.0, 2.5, 3.0 "
+					"is supported.\n");
 		return 0;
 	}
-#if defined (CONFIG_DDR_32BIT)
-	/* set burst length to 8 for 32-bit data path */
-	tmp |= 0x03;
-#else
-	/* set burst length to 4 - default for 64-bit data path */
-	tmp |= 0x02;
-#endif
-	ddr->sdram_mode = tmp;
 	debug("DDR:sdram_mode=0x%08x\n", ddr->sdram_mode);
 
 	switch(spd.refresh) {
@@ -315,33 +386,15 @@ long int spd_sdram()
 	ddr->sdram_interval = ((tmp & 0x3fff) << 16) | 0x100;
 	debug("DDR:sdram_interval=0x%08x\n", ddr->sdram_interval);
 
-	/*
-	 * Is this an ECC DDR chip?
-	 */
-#if defined(CONFIG_DDR_ECC)
-	if (spd.config == 0x02) {
-		/* disable error detection */
-		ddr->err_disable = ~ECC_ERROR_ENABLE;
+	/* SS_EN = 0, source synchronous disable
+	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
+         */
+	ddr->sdram_clk_cntl = 0x00000000;
+	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
-		/* set single bit error threshold to maximum value,
-		 * reset counter to zero */
-		ddr->err_sbe = (255 << ECC_ERROR_MAN_SBET_SHIFT) |
-			(0 << ECC_ERROR_MAN_SBEC_SHIFT);
-	}
-	debug("DDR:err_disable=0x%08x\n", ddr->err_disable);
-	debug("DDR:err_sbe=0x%08x\n", ddr->err_sbe);
-#endif
 	asm("sync;isync");
 
-	udelay(500);
-
-	/*
-	 * SS_EN=1,
-	 * CLK_ADJST = 2-MCK/MCK_B, is lauched 1/2 of one SDRAM
-	 * clock cycle after address/command
-	 */
-	/*ddr->sdram_clk_cntl = 0x82000000;*/
-	ddr->sdram_clk_cntl = (DDR_SDRAM_CLK_CNTL_SS_EN|DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05);
+	udelay(600);
 
 	/*
 	 * Figure out the settings for the sdram_cfg register.  Build up
@@ -352,38 +405,48 @@ long int spd_sdram()
 	 * sdram_cfg[0]   = 1 (ddr sdram logic enable)
 	 * sdram_cfg[1]   = 1 (self-refresh-enable)
 	 * sdram_cfg[6:7] = 2 (SDRAM type = DDR SDRAM)
+	 * sdram_cfg[12] = 0 (32_BE =0 , 64 bit bus mode)
+	 * sdram_cfg[13] = 0 (8_BE =0, 4-beat bursts)
 	 */
-	tmp = 0xc2000000;
+	sdram_cfg = 0xC2000000;
 
-#if defined (CONFIG_DDR_32BIT)
-	/* in 32-Bit mode burst len is 8 beats */
-	tmp |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);
-#endif
-	/*
-	 * sdram_cfg[3] = RD_EN - registered DIMM enable
-	 *   A value of 0x26 indicates micron registered DIMMS (micron.com)
-	 */
-	if (spd.mod_attr == 0x26) {
-		tmp |= 0x10000000;
+	/* sdram_cfg[3] = RD_EN - registered DIMM enable */
+	if (spd.mod_attr & 0x02) {
+		sdram_cfg |= 0x10000000;
 	}
+
+	/* The DIMM is 32bit width */
+	if (spd.dataw_lsb == 0x20) {
+		sdram_cfg |= 0x000C0000;
+	}
+	ddrc_ecc_enable = 0;
 
 #if defined(CONFIG_DDR_ECC)
-	/*
-	 * If the user wanted ECC (enabled via sdram_cfg[2])
-	 */
+	/* Enable ECC with sdram_cfg[2] */
 	if (spd.config == 0x02) {
-		tmp |= SDRAM_CFG_ECC_EN;
+		sdram_cfg |= 0x20000000;
+		ddrc_ecc_enable = 1;
+		/* disable error detection */
+		ddr->err_disable = ~ECC_ERROR_ENABLE;
+		/* set single bit error threshold to maximum value,
+		 * reset counter to zero */
+		ddr->err_sbe = (255 << ECC_ERROR_MAN_SBET_SHIFT) |
+			(0 << ECC_ERROR_MAN_SBEC_SHIFT);
 	}
+
+	debug("DDR:err_disable=0x%08x\n", ddr->err_disable);
+	debug("DDR:err_sbe=0x%08x\n", ddr->err_sbe);
 #endif
+	printf("   DDRC ECC mode: %s", ddrc_ecc_enable ? "ON":"OFF");
 
 #if defined(CONFIG_DDR_2T_TIMING)
 	/*
 	 * Enable 2T timing by setting sdram_cfg[16].
 	 */
-	tmp |= SDRAM_CFG_2T_EN;
+	sdram_cfg |= SDRAM_CFG_2T_EN;
 #endif
-
-	ddr->sdram_cfg = tmp;
+	/* Enable controller, and GO! */
+	ddr->sdram_cfg = sdram_cfg;
 	asm("sync;isync");
 	udelay(500);
 
@@ -393,7 +456,7 @@ long int spd_sdram()
 #endif /* CONFIG_SPD_EEPROM */
 
 
-#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 /*
  * Use timebase counter, get_timer() is not availabe
  * at this point of initialization yet.
@@ -431,7 +494,7 @@ void ddr_enable_ecc(unsigned int dram_size)
 {
 	uint *p;
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
+	volatile ddr83xx_t *ddr= &immap->ddr;
 	unsigned long t_start, t_end;
 #if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
 	uint i;

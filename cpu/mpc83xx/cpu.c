@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -195,7 +195,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 void dma_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile dma8349_t *dma = &immap->dma;
+	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 dmamr0 = swab32(dma->dmamr0);
 
@@ -226,7 +226,7 @@ void dma_init(void)
 uint dma_check(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile dma8349_t *dma = &immap->dma;
+	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 byte_count = swab32(dma->dmabcr0);
 
@@ -245,7 +245,7 @@ uint dma_check(void)
 int dma_xfer(void *dest, u32 count, void *src)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile dma8349_t *dma = &immap->dma;
+	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 dmamr0;
 
 	/* initialize DMASARn, DMADAR and DMAABCRn */

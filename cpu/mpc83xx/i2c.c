@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2006 Freescale Semiconductor, Inc.
+ *
  * (C) Copyright 2003,Motorola Inc.
  * Xianghua Xiao <x.xiao@motorola.com>
  * Adapted for Motorola 85xx chip.
@@ -31,6 +33,8 @@
  *
  * 20050101: Eran Liberty (liberty@freescale.com)
  *           Initial file creating (porting from 85XX & 8260)
+ * 20060601: Dave Liu (daveliu@freescale.com)
+ *           Unified variable names for mpc83xx
  */
 
 #include <common.h>
@@ -42,7 +46,7 @@
 #include <asm/i2c.h>
 
 #if defined(CONFIG_MPC8349EMDS) || defined(CONFIG_TQM834X)
-i2c_t * mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET);
+i2c_t * mpc83xx_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET);
 #endif
 
 void
@@ -52,7 +56,7 @@ i2c_init(int speed, int slaveadd)
 	writeb(0x00 , &I2C->cr);
 
 	/* set clock */
-	writeb(0x3f, &I2C->fdr);
+	writeb(speed, &I2C->fdr);
 
 	/* set default filter */
 	writeb(0x10,&I2C->dfsrr);

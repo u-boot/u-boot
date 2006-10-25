@@ -337,6 +337,12 @@ int get_clocks (void)
 	return 0;
 }
 
+ulong get_ddr_clk(ulong dummy)
+{
+	return gd->ddr_clk;
+}
+
+
 /********************************************
  * get_bus_freq
  * return system bus freq in Hz

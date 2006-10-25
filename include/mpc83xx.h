@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,6 +29,7 @@
 #ifndef __MPC83XX_H__
 #define __MPC83XX_H__
 
+#include <config.h>
 #if defined(CONFIG_E300)
 #include <asm/e300.h>
 #endif
@@ -85,6 +86,11 @@
 #define LBLAWBAR3 0x0038
 #define LBLAWAR3  0x003C
 
+/*
+ * The device ID and revision numbers
+ */
+#define SPR_8349E_REV10 0x80300100
+#define SPR_8349E_REV11 0x80300101
 
 /*
  * Base Registers & Option Registers
@@ -243,6 +249,12 @@
 #define HRCWH_BIG_ENDIAN             0x00000000
 #define HRCWH_LITTLE_ENDIAN          0x00000008
 
+#define HRCWH_LALE_NORMAL            0x00000000
+#define HRCWH_LALE_EARLY             0x00000004
+
+#define HRCWH_LDP_SET                0x00000000
+#define HRCWH_LDP_CLEAR              0x00000002
+
 /*
  * Hard Reset Configration Word - Low
  */
@@ -309,5 +321,31 @@
 #define LCRR_CLKDIV_4  0x00000004
 #define LCRR_CLKDIV_8  0x00000008
 #define LCRR_CLKDIV_SHIFT       0
+
+/*
+ * SCCR-System Clock Control Register
+ */
+#define SCCR_TSEC1CM_0	0x00000000
+#define SCCR_TSEC1CM_1	0x40000000
+#define SCCR_TSEC1CM_2	0x80000000
+#define SCCR_TSEC1CM_3	0xC0000000
+#define SCCR_TSEC2CM_0	0x00000000
+#define SCCR_TSEC2CM_1	0x10000000
+#define SCCR_TSEC2CM_2	0x20000000
+#define SCCR_TSEC2CM_3	0x30000000
+#define SCCR_ENCCM_0	0x00000000
+#define SCCR_ENCCM_1	0x01000000
+#define SCCR_ENCCM_2	0x02000000
+#define SCCR_ENCCM_3	0x03000000
+#define SCCR_USBCM_0	0x00000000
+#define SCCR_USBCM_1	0x00500000
+#define SCCR_USBCM_2	0x00A00000
+#define SCCR_USBCM_3	0x00F00000
+
+#define SCCR_CLK_MASK	( SCCR_TSEC1CM_3	\
+			| SCCR_TSEC2CM_3	\
+			| SCCR_ENCCM_3		\
+			| SCCR_USBCM_3		)
+#define SCCR_DEFAULT	0xFFFFFFFF
 
 #endif	/* __MPC83XX_H__ */

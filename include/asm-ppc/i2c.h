@@ -91,8 +91,8 @@ typedef struct i2c
 /*
  * MPC8349 have two i2c bus
  */
-extern i2c_t * mpc8349_i2c;
-#define I2C mpc8349_i2c
+extern i2c_t * mpc83xx_i2c;
+#define I2C mpc83xx_i2c
 #else
 #define I2C ((i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET))
 #endif

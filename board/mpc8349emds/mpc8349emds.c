@@ -168,7 +168,7 @@ int checkboard (void)
 void sdram_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile lbus8349_t *lbc= &immap->lbus;
+	volatile lbus83xx_t *lbc= &immap->lbus;
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 
 	puts("\n   SDRAM on Local Bus: ");
@@ -246,7 +246,7 @@ void sdram_init(void)
 void ecc_print_status(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
+	volatile ddr83xx_t *ddr = &immap->ddr;
 
 	printf("\nECC mode: %s\n\n", (ddr->sdram_cfg & SDRAM_CFG_ECC_EN) ? "ON" : "OFF");
 
@@ -321,7 +321,7 @@ void ecc_print_status(void)
 int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
+	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile u32 val;
 	u64 *addr, count, val64;
 	register u64 *i;
