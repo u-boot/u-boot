@@ -929,7 +929,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
-#else
+#else	/* CONFIG_OF_FLAT_TREE */
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		ulong of_start, of_len;
@@ -971,8 +971,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		/* ft_dump_blob(of_flat_tree); */
 		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
 	}
-		
-#endif
+#endif	/* CONFIG_OF_FLAT_TREE */
 }
 #endif /* CONFIG_PPC */
 

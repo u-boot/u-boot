@@ -330,7 +330,7 @@ endif
 
 .PHONY : CHANGELOG
 CHANGELOG:
-	git log --no-merges U-Boot-1_1_5.. > $@
+	git log --no-merges U-Boot-1_1_5.. | unexpand -a > $@
 
 #########################################################################
 

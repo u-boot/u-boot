@@ -181,7 +181,7 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	if (argc < 4) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
-        }
+	}
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);
@@ -198,9 +198,9 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * First parameter has format adr_dcrn; dat_dcrn will be
 		 * calculated as adr_dcrn+1.
 		 */
-        	adr_dcrn = (unsigned short) simple_strtoul (buf, NULL, 16);
-        	dat_dcrn = adr_dcrn+1;
-        }
+		adr_dcrn = (unsigned short) simple_strtoul (buf, NULL, 16);
+		dat_dcrn = adr_dcrn+1;
+	}
 
 	/* Register's offset */
 	offset = (unsigned short) simple_strtoul (argv[2], NULL, 16);
