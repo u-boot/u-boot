@@ -169,7 +169,9 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
-AFLAGS_DEBUG := -Wa,-g
+# $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
+# option to the assembler.
+AFLAGS_DEBUG :=
 
 # turn jbsr into jsr for m68k
 ifeq ($(ARCH),m68k)
