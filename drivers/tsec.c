@@ -313,7 +313,8 @@ static int init_phy(struct eth_device *dev)
 	 * PHY */
 	curphy = get_phy_info(dev);
 
-	if (NULL == curphy) {
+	if (curphy == NULL) {
+		priv->phyinfo = NULL;
 		printf("%s: No PHY found\n", dev->name);
 
 		return 0;
@@ -661,7 +662,8 @@ static void startup_tsec(struct eth_device *dev)
 	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
 
 	/* Start up the PHY */
-	phy_run_commands(priv, priv->phyinfo->startup);
+	if(priv->phyinfo)
+		phy_run_commands(priv, priv->phyinfo->startup);
 	adjust_link(dev);
 
 	/* Enable Transmit and Receive */
@@ -765,7 +767,8 @@ static void tsec_halt(struct eth_device *dev)
 	regs->maccfg1 &= ~(MACCFG1_TX_EN | MACCFG1_RX_EN);
 
 	/* Shut down the PHY, as needed */
-	phy_run_commands(priv, priv->phyinfo->shutdown);
+	if(priv->phyinfo)
+		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
 struct phy_info phy_info_M88E1011S = {
