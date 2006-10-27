@@ -195,7 +195,6 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	unsigned int tCKmin_ps, tCKmax_ps;
 	unsigned int max_data_rate;
 	unsigned int busfreq;
-	unsigned sdram_cfg_1;
 	unsigned int memsize;
 	unsigned char caslat, caslat_ctrl;
 	unsigned int trfc, trfc_clk, trfc_low, trfc_high;
@@ -209,10 +208,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	unsigned char cpo;
 	unsigned char burst_len;
 	unsigned int mode_caslat;
-	unsigned char sdram_type;
 	unsigned char d_init;
-	unsigned int law_size;
-	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 	unsigned int tCycle_ps, modfreq;
 
 	if (ddr_num == 1)
@@ -1107,12 +1103,12 @@ spd_sdram(void)
 	unsigned int law_size_ddr1;
 	unsigned int law_size_ddr2;
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
-	volatile ccsr_ddr_t *ddr2 = &immap->im_ddr2;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
 #ifdef CONFIG_DDR_INTERLEAVE
 	unsigned int law_size_interleaved;
+	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
+	volatile ccsr_ddr_t *ddr2 = &immap->im_ddr2;
 
 	memsize_ddr1_dimm1 = spd_init(SPD_EEPROM_ADDRESS1,
 				      1, 1,
