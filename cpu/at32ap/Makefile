@@ -38,7 +38,7 @@ START	:= $(addprefix $(obj),$(START))
 all: $(obj).depend $(START) $(LIB)
 
 $(LIB): $(OBJS)
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 #########################################################################
 
