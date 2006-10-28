@@ -1466,9 +1466,13 @@ The following options need to be configured:
 		default value of 5 is used.
 
 - Command Interpreter:
-		CFG_AUTO_COMPLETE
+		CONFIG_AUTO_COMPLETE
 
 		Enable auto completion of commands using TAB.
+
+                Note that this feature has NOT been implemented yet
+                for the "hush" shell.
+
 
 		CFG_HUSH_PARSER
 
