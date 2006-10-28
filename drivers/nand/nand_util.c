@@ -83,15 +83,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 
 	erase.mtd = meminfo;
 	erase.len  = meminfo->erasesize;
-	if (opts->offset == 0 && opts->length == 0) {
-		/* erase complete chip */
-		erase.addr = 0;
-		erase_length = meminfo->size;
-	} else {
-		/* erase specified region */
-		erase.addr = opts->offset;
-		erase_length = opts->length;
-	}
+	erase.addr = opts->offset;
+	erase_length = opts->length;
 
 	isNAND = meminfo->type == MTD_NANDFLASH ? 1 : 0;
 
