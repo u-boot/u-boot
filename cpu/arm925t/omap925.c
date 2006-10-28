@@ -25,40 +25,6 @@
 #include <command.h>
 #include <arm925t.h>
 
-ushort gpioreserved;
-
-void gpioreserve(ushort mask)
-{
-	gpioreserved |= mask;
-}
-
-void gpiosetdir(ushort mask, ushort in)
-{
-	*(ushort *)GPIO_DIR_CONTROL_REG = (*(ushort *)GPIO_DIR_CONTROL_REG & ~mask) | (in & mask);
-}
-
-
-void gpiosetout(ushort mask, ushort out)
-{
-	ushort *r_ptr, r_val;
-
-	r_ptr = (ushort *)GPIO_DATA_OUTPUT_REG;	/* set pointer */
-	r_val = *r_ptr & ~mask;		/* get previous val, clear bits we want to change */
-	r_val |= (out & mask);		/* set specified bits in value + plus origional ones */
-	*r_ptr = r_val;			/* write it out */
-/*
- * gcc screwed this one up :(.
- *
- * *(ushort *)GPIO_DATA_OUTPUT_REG = (*(ushort *)GPIO_DATA_OUTPUT_REG & ~mask) | (out & mask);
- */
-
-}
-
-void gpioinit(void)
-{
-}
-
-
 #define MIF_CONFIG_REG 0xFFFECC0C
 #define FLASH_GLOBAL_CTRL_NWP 1
 
