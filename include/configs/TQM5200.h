@@ -566,6 +566,7 @@
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CFG_PROMPT_HUSH_PS2	"> "
 

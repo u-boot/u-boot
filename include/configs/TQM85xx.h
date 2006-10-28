@@ -186,10 +186,10 @@
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-/* Use the HUSH parser */
-#define CFG_HUSH_PARSER
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
 
