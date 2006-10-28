@@ -28,8 +28,7 @@ int board_init(void)
 	*((volatile unsigned char *) VOICEBLUE_LED_REG) = 0xaa;
 
 	/* arch number of VoiceBlue board */
-	/* TODO: use define from asm/mach-types.h */
-	gd->bd->bi_arch_number = 218;
+	gd->bd->bi_arch_number = MACH_TYPE_VOICEBLUE;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;
@@ -41,8 +40,8 @@ int dram_init(void)
 {
 	*((volatile unsigned short *) VOICEBLUE_LED_REG) = 0xff;
 
- 	/* Take the Ethernet controller out of reset and wait
- 	 * for the EEPROM load to complete. */
+	/* Take the Ethernet controller out of reset and wait
+	 * for the EEPROM load to complete. */
 	*((volatile unsigned short *) GPIO_DATA_OUTPUT_REG) |= 0x80;
 	udelay(10);	/* doesn't work before interrupt_init call */
 	*((volatile unsigned short *) GPIO_DATA_OUTPUT_REG) &= ~0x80;
