@@ -1,3 +1,80 @@
+commit 2751a95abd1b96911081c357e96a12fa97b40dee
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sat Oct 28 02:29:14 2006 +0200
+
+    Enable commandline editing and hush shell on all TQM boards.
+
+commit 8078f1a5f63a739b8533478f6c2b62fb1e2f79d7
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sat Oct 28 02:28:02 2006 +0200
+
+    README says CFG_AUTO_COMPLETE, but ocde uses CONFIG_AUTO_COMPLETE
+
+commit 471a7be7a042e95e440f5de969c9765214ae8d6e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Oct 28 01:14:32 2006 +0200
+
+    Check for illegal character '=' in environment variable names.
+
+    Make sure the string passed as variable name does not contain a '='
+    character. This not only prevents the common error or typing
+    "setenv foo=bar" instead of "setenv foo bar", but (more importantly)
+    also closes a backdoor which allowed to delete write-protected
+    environment variables, for example by using "setenv ethaddr=".
+
+commit 19973b6ad9863a56f5c5fbcfd90e20ab2490a2c2
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sat Oct 28 00:38:39 2006 +0200
+
+    Minor code cleanup.
+
+commit e11887a77d81077416a2d1c5e0354916fee8c034
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Oct 26 17:55:31 2006 +0200
+
+    Don't pass any debug options directly to the assembler
+
+    When passing the -g option to gcc, gcc automatically selects a
+    suitable --g<format> option to pass on to the assembler.
+    Thus, there's no point in forcing a specific debug option on the
+    assembler using the -Wa mechanism.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit ea08ff6e14f9ebb8c07cfa79c51ef540eb087393
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Oct 27 07:47:22 2006 -0500
+
+    MPC86xx: Cleaned up unused and conditionally used local variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d38936cdae46bfd2623ff83f6ce9b616d36ab0f9
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Fri Oct 27 11:55:21 2006 +0200
+
+    Fix "ar" flags in some Makefiles to allow for silent "make -s"
+
+commit 4653f91c13ed51c21cc4c3855745d69a3fb1817f
+Author: Ben Warren <bwarren@qstreams.com>
+Date:	Thu Oct 26 14:38:25 2006 -0400
+
+    Fix TSEC driver (now for real): avoid crashes if PHY is not attached
+    to a TSEC (e.g. a switch is connected via RMII) or
+    if the PHY is defective/incorrectly configured.
+
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit b985b5d6e4fb88f508f7aa0f126c2e27ada2b999
+Author: Ben Warren <bwarren@qstreams.com>
+Date:	Thu Oct 26 14:38:25 2006 -0400
+
+    Fix TSEC driver: avoid crashes if PHY is not attached
+    to a TSEC (e.g. a switch is connected via RMII) or
+    if the PHY is defective/incorrectly configured.
+
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
 commit 2b2a40bebbf1822506e80e631d7253e60f0e0fe6
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Thu Oct 26 16:24:31 2006 +0200
