@@ -1300,7 +1300,7 @@ static void list_partitions(void)
  * Given partition identifier in form of <dev_type><dev_num>,<part_num> find
  * corresponding device and verify partition number.
  *
- * @param id string describing device and partition
+ * @param id string describing device and partition or partition name
  * @param dev pointer to the requested device (output)
  * @param part_num verified partition number (output)
  * @param part pointer to requested partition (output)
@@ -1309,10 +1309,22 @@ static void list_partitions(void)
 int find_dev_and_part(const char *id, struct mtd_device **dev,
 		u8 *part_num, struct part_info **part)
 {
+	struct list_head *dentry, *pentry;
 	u8 type, dnum, pnum;
 	const char *p;
 
 	DEBUGF("--- find_dev_and_part ---\nid = %s\n", id);
+
+	list_for_each(dentry, &devices) {
+		*part_num = 0;
+		*dev = list_entry(dentry, struct mtd_device, link);
+		list_for_each(pentry, &(*dev)->parts) {
+			*part = list_entry(pentry, struct part_info, link);
+			if (strcmp((*part)->name, id) == 0)
+				return 0;
+			(*part_num)++;
+		}
+	}
 
 	p = id;
 	*dev = NULL;
