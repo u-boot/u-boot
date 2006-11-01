@@ -1110,10 +1110,8 @@ struct phy_info phy_info_dp83865 = {
 };
 
 struct phy_info *phy_info[] = {
-#if 0
-	&phy_info_cis8201,
-#endif
 	&phy_info_cis8204,
+	&phy_info_cis8201,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,

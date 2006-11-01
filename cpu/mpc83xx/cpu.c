@@ -69,9 +69,72 @@ int checkcpu(void)
 }
 
 
+/**
+ * Program a UPM with the code supplied in the table.
+ *
+ * The 'dummy' variable is used to increment the MAD. 'dummy' is
+ * supposed to be a pointer to the memory of the device being
+ * programmed by the UPM.  The data in the MDR is written into
+ * memory and the MAD is incremented every time there's a read
+ * from 'dummy'. Unfortunately, the current prototype for this
+ * function doesn't allow for passing the address of this
+ * device, and changing the prototype will break a number lots
+ * of other code, so we need to use a round-about way of finding
+ * the value for 'dummy'.
+ *
+ * The value can be extracted from the base address bits of the
+ * Base Register (BR) associated with the specific UPM.  To find
+ * that BR, we need to scan all 8 BRs until we find the one that
+ * has its MSEL bits matching the UPM we want.  Once we know the
+ * right BR, we can extract the base address bits from it.
+ *
+ * The MxMR and the BR and OR of the chosen bank should all be
+ * configured before calling this function.
+ *
+ * Parameters:
+ * upm: 0=UPMA, 1=UPMB, 2=UPMC
+ * table: Pointer to an array of values to program
+ * size: Number of elements in the array.  Must be 64 or less.
+*/
 void upmconfig (uint upm, uint *table, uint size)
 {
-	hang();		/* FIXME: upconfig() needed? */
+#if defined(CONFIG_MPC834X)
+	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile lbus83xx_t *lbus = &immap->lbus;
+	volatile uchar *dummy = NULL;
+	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
+	volatile u32 *mxmr = &lbus->mamr + upm;	/* Pointer to mamr, mbmr, or mcmr */
+	uint i;
+
+	/* Scan all the banks to determine the base address of the device */
+	for (i = 0; i < 8; i++) {
+		if ((lbus->bank[i].br & BR_MSEL) == msel) {
+			dummy = (uchar *) (lbus->bank[i].br & BR_BA);
+			break;
+		}
+	}
+
+	if (!dummy) {
+		printf("Error: %s() could not find matching BR\n", __FUNCTION__);
+		hang();
+	}
+
+	/* Set the OP field in the MxMR to "write" and the MAD field to 000000 */
+	*mxmr = (*mxmr & 0xCFFFFFC0) | 0x10000000;
+
+	for (i = 0; i < size; i++) {
+		lbus->mdr = table[i];
+		__asm__ __volatile__ ("sync");
+		*dummy;	/* Write the value to memory and increment MAD */
+		__asm__ __volatile__ ("sync");
+	}
+
+	/* Set the OP field in the MxMR to "normal" and the MAD field to 000000 */
+	*mxmr &= 0xCFFFFFC0;
+#else
+	printf("Error: %s() not defined for this configuration.\n", __FUNCTION__);
+	hang();
+#endif
 }
 
 
@@ -150,9 +213,21 @@ unsigned long get_tbclk(void)
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)
 {
-	hang();		/* FIXME: implement watchdog_reset()? */
+#ifdef CONFIG_MPC834X
+	int re_enable = disable_interrupts();
+
+	/* Reset the 83xx watchdog */
+	volatile immap_t *immr = (immap_t *) CFG_IMMRBAR;
+	immr->wdt.swsrr = 0x556c;
+	immr->wdt.swsrr = 0xaa39;
+
+	if (re_enable)
+		enable_interrupts ();
+#else
+	hang();
+#endif
 }
-#endif /* CONFIG_WATCHDOG */
+#endif
 
 #if defined(CONFIG_OF_FLAT_TREE)
 void

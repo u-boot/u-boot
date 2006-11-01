@@ -339,6 +339,10 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
 
+Timur Tabi <timur@freescale.com>
+
+	MPC8349E-mITX		MPC8349
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:

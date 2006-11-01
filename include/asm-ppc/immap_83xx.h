@@ -82,15 +82,25 @@ typedef struct sysconf83xx {
 	u8 res5[0x04];
 	u32 spcr; /* System Priority Configuration Register */
 #define SPCR_PCIHPE   0x10000000 /* PCI Highest Priority Enable. */
+#define SPCR_PCIHPE_SHIFT	(31-3)
 #define SPCR_PCIPR    0x03000000 /* PCI bridge system bus request priority. */
+#define SPCR_PCIPR_SHIFT	(31-7)
 #define SPCR_TBEN     0x00400000 /* E300 PowerPC core time base unit enable. */
+#define SPCR_TBEN_SHIFT		(31-9)
 #define SPCR_COREPR   0x00300000 /* E300 PowerPC Core system bus request priority. */
+#define SPCR_COREPR_SHIFT	(31-11)
 #define SPCR_TSEC1DP  0x00003000 /* TSEC1 data priority. */
+#define SPCR_TSEC1DP_SHIFT	(31-19)
 #define SPCR_TSEC1BDP 0x00000C00 /* TSEC1 buffer descriptor priority. */
+#define SPCR_TSEC1BDP_SHIFT	(31-21)
 #define SPCR_TSEC1EP  0x00000300 /* TSEC1 emergency priority. */
+#define SPCR_TSEC1EP_SHIFT	(31-23)
 #define SPCR_TSEC2DP  0x00000030 /* TSEC2 data priority. */
+#define SPCR_TSEC2DP_SHIFT	(31-27)
 #define SPCR_TSEC2BDP 0x0000000C /* TSEC2 buffer descriptor priority. */
+#define SPCR_TSEC2BDP_SHIFT	(31-29)
 #define SPCR_TSEC2EP  0x00000003 /* TSEC2 emergency priority. */
+#define SPCR_TSEC2EP_SHIFT	(31-31)
 #define SPCR_RES      ~(SPCR_PCIHPE | SPCR_PCIPR | SPCR_TBEN | SPCR_COREPR \
 			| SPCR_TSEC1DP | SPCR_TSEC1BDP | SPCR_TSEC1EP \
 			| SPCR_TSEC2DP | SPCR_TSEC2BDP | SPCR_TSEC2EP)
@@ -416,11 +426,17 @@ typedef struct ipic83xx {
 typedef struct arbiter83xx {
 	u32 acr; /* Arbiter Configuration Register */
 #define ACR_COREDIS    0x10000000 /* Core disable. */
+#define ACR_COREDIS_SHIFT		(31-7)
 #define ACR_PIPE_DEP   0x00070000 /* Pipeline depth (number of outstanding transactions). */
+#define ACR_PIPE_DEP_SHIFT		(31-15)
 #define ACR_PCI_RPTCNT 0x00007000 /* PCI repeat count. */
+#define ACR_PCI_RPTCNT_SHIFT		(31-19)
 #define ACR_RPTCNT     0x00000700 /* Repeat count. */
+#define ACR_RPTCNT_SHIFT		(31-23)
 #define ACR_APARK      0x00000030 /* Address parking. */
+#define ACR_APARK_SHIFT			(31-27)
 #define ACR_PARKM	   0x0000000F /* Parking master. */
+#define ACR_PARKM_SHIFT			(31-31)
 #define ACR_RES ~(ACR_COREDIS|ACR_PIPE_DEP|ACR_PCI_RPTCNT|ACR_RPTCNT|ACR_APARK|ACR_PARKM)
 	u32 atr; /* Arbiter Timers Register */
 #define ATR_DTO 0x00FF0000 /* Data time out. */

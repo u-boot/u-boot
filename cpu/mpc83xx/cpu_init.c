@@ -46,6 +46,37 @@ void cpu_init_f (volatile immap_t * im)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 
+	/* system performance tweaking */
+
+#ifdef CFG_ACR_PIPE_DEP
+	/* Arbiter pipeline depth */
+	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) | (3 << ACR_PIPE_DEP_SHIFT);
+#endif
+
+#ifdef CFG_SPCR_TSEC1EP
+	/* TSEC1 Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) | (3 << SPCR_TSEC1EP_SHIFT);
+#endif
+
+#ifdef CFG_SPCR_TSEC2EP
+	/* TSEC2 Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) | (3 << SPCR_TSEC2EP_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC1CM
+	/* TSEC1 clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) | (1 << SCCR_TSEC1CM_SHIFT);
+#endif
+#ifdef CFG_SCCR_TSEC2CM
+	/* TSEC2 & I2C1 clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) | (1 << SCCR_TSEC2CM_SHIFT);
+#endif
+
+#ifdef CFG_ACR_RPTCNT
+	/* Arbiter repeat count */
+	im->arbiter.acr = ((im->arbiter.acr & ~(ACR_RPTCNT)) | (3 << ACR_RPTCNT_SHIFT));
+#endif
+
 	/* RSR - Reset Status Register - clear all status (4.6.1.3) */
 	gd->reset_status = im->reset.rsr;
 	im->reset.rsr = ~(RSR_RES);

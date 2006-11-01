@@ -133,6 +133,26 @@ long int spd_sdram()
 
 
         /* Read SPD parameters with I2C */
+#ifdef CFG_83XX_DDR_USES_CS0
+	ddr->csbnds[0].csbnds = (banksize(spd.row_dens) >> 24) - 1;
+	ddr->cs_config[0] = ( 1 << 31
+			    | (spd.nrow_addr - 12) << 8
+			    | (spd.ncol_addr - 8) );
+	debug("\n");
+	debug("cs0_bnds = 0x%08x\n",ddr->csbnds[0].csbnds);
+	debug("cs0_config = 0x%08x\n",ddr->cs_config[0]);
+
+	if (spd.nrows == 2) {
+		ddr->csbnds[1].csbnds = ( (banksize(spd.row_dens) >> 8)
+				  | ((banksize(spd.row_dens) >> 23) - 1) );
+		ddr->cs_config[1] = ( 1<<31
+				    | (spd.nrow_addr-12) << 8
+				    | (spd.ncol_addr-8) );
+		debug("cs1_bnds = 0x%08x\n",ddr->csbnds[1].csbnds);
+		debug("cs1_config = 0x%08x\n",ddr->cs_config[1]);
+	}
+
+#else
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
 #ifdef SPD_DEBUG
 	spd_debug(&spd);
@@ -180,6 +200,7 @@ long int spd_sdram()
 		debug("cs3_bnds = 0x%08x\n",ddr->csbnds[3].csbnds);
 		debug("cs3_config = 0x%08x\n",ddr->cs_config[3]);
 	}
+#endif
 
 	if (spd.mem_type != 0x07) {
 		puts("No DDR module found!\n");
