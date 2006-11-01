@@ -604,7 +604,7 @@
 
 /* System IO Config */
 #define CFG_SICRH SICRH_TSOBI1	/* Needed for gigabit to work on TSEC 1 */
-#define CFG_SICRL SICRL_LDP_A
+#define CFG_SICRL (SICRL_LDP_A | SICRL_USB1)
 
 #define CFG_HID0_INIT 0x000000000
 
@@ -701,7 +701,7 @@
 #define CONFIG_SERVERIP		10.82.48.106
 #define CONFIG_GATEWAYIP	10.82.19.254
 #define CONFIG_NETMASK		255.255.252.0
-
+#define CONFIG_NETDEV		eth0
 
 #define CONFIG_HOSTNAME		mpc8349emitx
 #define CONFIG_ROOTPATH		/nfsroot0/u/timur/itx-ltib/rootfs
@@ -722,16 +722,19 @@
 #define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
 #endif
 
-#define CONFIG_BOOTARGS \
-	"root=/dev/nfs rw nfsroot=$serverip:$rootpath " \
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=ttyS0,$baudrate $othbootargs"
-
 #define XMK_STR(x)	#x
 #define MK_STR(x)	XMK_STR(x)
 
+#define CONFIG_BOOTARGS \
+	"root=/dev/nfs rw" \
+	" nfsroot=" MK_STR(CONFIG_SERVERIP) ":" MK_STR(CONFIG_ROOTPATH) \
+	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" \
+		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
+		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \
+	" console=ttyS0," MK_STR(CONFIG_BAUDRATE)
+
 #define	CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=eth0\0" \
+	"netdev=" MK_STR(CONFIG_NETDEV) "\0" \
 	"tftpflash=tftpboot $loadaddr " MK_STR(CONFIG_UBOOTPATH) "; " \
 		"erase " MK_STR(CONFIG_UBOOTSTART) " " MK_STR(CONFIG_UBOOTEND) "; " \
 		"cp.b $loadaddr " MK_STR(CONFIG_UBOOTSTART) " $filesize; " \

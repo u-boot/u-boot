@@ -150,7 +150,7 @@ void pci_init_board(void)
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_1G;
 
 	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
-	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
+	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_32M;
 
 	/*
 	 * Configure PCI Outbound Translation Windows
@@ -159,18 +159,17 @@ void pci_init_board(void)
 	/* PCI1 mem space - prefetch */
 	pci_pot[0].potar = (CFG_PCI1_MEM_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[0].pobar = (CFG_PCI1_MEM_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[0].pocmr =
-	    POCMR_EN | POCMR_PREFETCH_EN | (POCMR_CM_256M & POCMR_CM_MASK);
+	pci_pot[0].pocmr = POCMR_EN | POCMR_PREFETCH_EN | POCMR_CM_256M;
 
 	/* PCI1 IO space */
 	pci_pot[1].potar = (CFG_PCI1_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[1].pobar = (CFG_PCI1_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_1M & POCMR_CM_MASK);
+	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | POCMR_CM_16M;
 
 	/* PCI1 mmio - non-prefetch mem space */
 	pci_pot[2].potar = (CFG_PCI1_MMIO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[2].pobar = (CFG_PCI1_MMIO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[2].pocmr = POCMR_EN | (POCMR_CM_256M & POCMR_CM_MASK);
+	pci_pot[2].pocmr = POCMR_EN | POCMR_CM_256M;
 
 	/*
 	 * Configure PCI Inbound Translation Windows
@@ -250,21 +249,17 @@ void pci_init_board(void)
 	/* PCI2 mem space - prefetch */
 	pci_pot[3].potar = (CFG_PCI2_MEM_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[3].pobar = (CFG_PCI2_MEM_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[3].pocmr =
-	    POCMR_EN | POCMR_PCI2 | POCMR_PREFETCH_EN | (POCMR_CM_256M &
-							 POCMR_CM_MASK);
+	pci_pot[3].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_PREFETCH_EN | POCMR_CM_256M;
 
 	/* PCI2 IO space */
 	pci_pot[4].potar = (CFG_PCI2_IO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[4].pobar = (CFG_PCI2_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[4].pocmr =
-	    POCMR_EN | POCMR_PCI2 | POCMR_IO | (POCMR_CM_1M & POCMR_CM_MASK);
+	pci_pot[4].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_IO | POCMR_CM_16M;
 
 	/* PCI2 mmio - non-prefetch mem space */
 	pci_pot[5].potar = (CFG_PCI2_MMIO_BASE >> 12) & POTAR_TA_MASK;
 	pci_pot[5].pobar = (CFG_PCI2_MMIO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[5].pocmr =
-	    POCMR_EN | POCMR_PCI2 | (POCMR_CM_256M & POCMR_CM_MASK);
+	pci_pot[5].pocmr = POCMR_EN | POCMR_PCI2 | POCMR_CM_256M;
 
 	/*
 	 * Configure PCI Inbound Translation Windows
