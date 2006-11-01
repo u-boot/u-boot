@@ -297,12 +297,12 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		*p = cpu_to_be32(clock);
 
 #ifdef CONFIG_MPC83XX_TSEC1
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/address", &len);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
 		memcpy(p, bd->bi_enetaddr, 6);
 #endif
 
 #ifdef CONFIG_MPC83XX_TSEC2
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/address", &len);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
 		memcpy(p, bd->bi_enet1addr, 6);
 #endif
 }
