@@ -112,11 +112,14 @@ static void spd_debug(spd_eeprom_t *spd)
 
 long int spd_sdram()
 {
+#ifdef CONFIG_MPC834X
+	int caslat_83xx;  /* For Errata DDR6 */
+#endif
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile law83xx_t *ecm = &immap->sysconf.ddrlaw[0];
 	spd_eeprom_t spd;
-	unsigned tmp;
+	unsigned int tmp, tmp1;
 	unsigned int memsize;
 	unsigned int law_size;
 	unsigned char caslat, caslat_ctrl;
@@ -282,6 +285,40 @@ long int spd_sdram()
 		}
 	}
 
+#ifdef CONFIG_MPC834X
+/* Errata DDR6
+   This errata affects all MPC8349E, MPC8343E and MPC8347E processors.
+*/
+	if ((tmp1 >= 280) && (tmp1 < 350)) /* CSB=333 */
+	{
+		if (spd.mid[0] == 0x2c) {
+			/* Micron memory running at 333 MHz */
+			/* Chances are, U-Boot will crash before we get here,
+			   but just in case, display a message and return error. */
+			printf("Micron DDR not supported at 333MHz CSB\n");
+			return 0;
+		} else if (spd.mid[0] == 0xad) {
+			printf("Hynix DDR does not require Errata DDR6\n");
+		} else {
+			/* enable 2 cycle Earlier for CL=2.5 or 3 */
+			ddr->debug_reg = 0x202c0000;
+			printf("Errata DDR6 (debug_reg=0x%x)\n", ddr->debug_reg);
+		}
+		caslat_83xx = caslat;
+	}
+
+	if ((tmp1 >= 230) && (tmp1 < 280)) {  /* CSB=266 */
+		if (spd.mid[0] != 0x2c) /* non-Micron */
+			caslat_83xx = caslat - 1;
+
+	}
+
+	if ((tmp1 >= 90) && (tmp1 < 230)) {  /* CSB=200 */
+		caslat = 3;
+		caslat_83xx = 2;
+	}
+#endif
+
 	/*
 	 * note: caslat must also be programmed into ddr->sdram_mode
 	 * register.
@@ -295,7 +332,11 @@ long int spd_sdram()
 	    (((picos_to_clk(spd.trp * 250) & 0x07) << 28 ) |
 	     ((picos_to_clk(spd.tras * 1000) & 0x0f ) << 24 ) |
 	     ((picos_to_clk(spd.trcd * 250) & 0x07) << 20 ) |
+#ifdef CONFIG_MPC834x
+	     ((caslat_83xx & 0x07) << 16 ) |
+#else
 	     ((caslat_ctrl & 0x07) << 16 ) |
+#endif
 	     (((picos_to_clk(spd.trfc * 1000) - 8) & 0x0f) << 12 ) |
 	     ( 0x300 ) |
 	     ((picos_to_clk(spd.trrd * 250) & 0x07) << 4) | 1);
