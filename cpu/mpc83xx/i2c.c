@@ -47,75 +47,121 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Three I2C bus speeds are supported here (50kHz, 100kHz
- * and 400kHz).  It should be easy to add more.  Note that
- * the maximum bus speed for I2C bus 1 is CSB/3, while I2C
- * bus 2 can go as high as CSB.
- * Typical values for CSB are 266MHz and 200MHz.  */
-
-                                                                      /* 50kH  100kHz  400kHz */
-static const uchar speed_map_266[][3] =
-                                                                      {{0x2e,         0x2a,   0x20},  /* base 88MHz */
-                                                                       {0x34,         0x30,   0x28}}; /* base 266 MHz */
-
-static const uchar speed_map_200[][3] =
-                                                                      {{0x2c,         0x28,   0x20},  /* base 66 MHz */
-                                                                       {0x33,         0x2f,   0x26}}; /* base 200 MHz */
-
 /* Initialize the bus pointer to whatever one the SPD EEPROM is on.
  * Default is bus 1.  This is necessary because the DDR initialization
  * runs from ROM, and we can't switch buses because we can't modify
  * the i2c_dev variable.  Everything gets straightened out once i2c_init
  * is called from RAM.  */
 
-#if defined CFG_SPD_BUS_NUM
-static i2c_t *i2c_dev = CFG_SPD_BUS_NUM;
-#else
-static i2c_t *i2c_dev = I2C_1;
+#ifndef CFG_SPD_BUS_NUM
+#define CFG_SPD_BUS_NUM 1
 #endif
 
-static uchar busNum = I2C_BUS_1 ;
-static int bus_speed[2] = {0, 0};
+static unsigned int i2c_bus_num = CFG_SPD_BUS_NUM;
 
-static int set_speed(int speed)
+#if CFG_SPD_BUS_NUM == 1
+static volatile i2c_t *i2c_dev = I2C_1;
+#else
+static volatile i2c_t *i2c_dev = I2C_2;
+#endif
+
+static int i2c_bus_speed[2] = {0, 0};
+
+/*
+ * Map the frequency divider to the FDR.  This data is taken from table 17-5
+ * of the MPC8349EA reference manual, with duplicates removed.
+ */
+static struct {
+    unsigned int divider;
+    u8 fdr;
+} i2c_speed_map[] =
 {
-      uchar value;
-      const uchar *spdPtr;
+	{0, 0x20},
+	{256, 0x20},
+	{288, 0x21},
+	{320, 0x22},
+	{352, 0x23},
+	{384, 0x24},
+	{416, 0x01},
+	{448, 0x25},
+	{480, 0x02},
+	{512, 0x26},
+	{576, 0x27},
+	{640, 0x28},
+	{704, 0x05},
+	{768, 0x29},
+	{832, 0x06},
+	{896, 0x2A},
+	{1024, 0x2B},
+	{1152, 0x08},
+	{1280, 0x2C},
+	{1536, 0x2D},
+	{1792, 0x2E},
+	{1920, 0x0B},
+	{2048, 0x2F},
+	{2304, 0x0C},
+	{2560, 0x30},
+	{3072, 0x31},
+	{3584, 0x32},
+	{3840, 0x0F},
+	{4096, 0x33},
+	{4608, 0x10},
+	{5120, 0x34},
+	{6144, 0x35},
+	{7168, 0x36},
+	{7680, 0x13},
+	{8192, 0x37},
+	{9216, 0x14},
+	{10240, 0x38},
+	{12288, 0x39},
+	{14336, 0x3A},
+	{15360, 0x17},
+	{16384, 0x3B},
+	{18432, 0x18},
+	{20480, 0x3C},
+	{24576, 0x3D},
+	{28672, 0x3E},
+	{30720, 0x1B},
+	{32768, 0x3F},
+	{36864, 0x1C},
+	{40960, 0x1D},
+	{49152, 0x1E},
+	{61440, 0x1F},
+	{-1, 0x1F}
+};
 
-      /* Global data contains maximum I2C bus 1 speed, which is CSB/3 */
-      if(gd->i2c_clk == 88000000)
-      {
-              spdPtr = speed_map_266[busNum];
-      }
-      else if(gd->i2c_clk == 66000000)
-      {
-              spdPtr = speed_map_200[busNum];
-      }
-      else
-      {
-              printf("Max I2C bus speed %d not supported\n", gd->i2c_clk);
-              return -1;
-      }
+#define NUM_I2C_SPEEDS (sizeof(i2c_speed_map) / sizeof(i2c_speed_map[0]))
 
-      switch(speed)
-      {
-              case 50000:
-                      value   = *(spdPtr + 0);
-                      break;
-              case 100000:
-                      value   = *(spdPtr + 1);
-                      break;
-              case 400000:
-                      value   = *(spdPtr + 2);
-                      break;
-              default:
-                      printf("I2C bus speed %d not supported\n", speed);
-                      return -2;
-      }
-      /* set clock */
-      writeb(value, &i2c_dev->fdr);
-      bus_speed[busNum] = speed;
-      return 0;
+static int set_speed(unsigned int speed)
+{
+	unsigned long i2c_clk;
+	unsigned int divider, i;
+	u8 fdr = 0x3F;
+
+	i2c_clk = (i2c_bus_num == 2) ? gd->i2c2_clk : gd->i2c1_clk;
+
+	divider = i2c_clk / speed;
+
+	/* Scan i2c_speed_map[] for the closest matching divider.*/
+
+	for (i = 0; i < NUM_I2C_SPEEDS-1; i++) {
+		/* Locate our divider in between two entries in i2c_speed_map[] */
+		if ((divider >= i2c_speed_map[i].divider) &&
+		    (divider <= i2c_speed_map[i+1].divider)) {
+			/* Which one is closer? */
+			if ((divider - i2c_speed_map[i].divider) < (i2c_speed_map[i+1].divider - divider)) {
+				fdr = i2c_speed_map[i].fdr;
+			} else {
+				fdr = i2c_speed_map[i+1].fdr;
+			}
+			break;
+		}
+	}
+
+	writeb(fdr, &i2c_dev->fdr);
+	i2c_bus_speed[i2c_bus_num - 1] = speed;
+
+	return 0;
 }
 
 
@@ -125,16 +171,16 @@ static void _i2c_init(int speed, int slaveadd)
 	writeb(0x00 , &i2c_dev->cr);
 
 	/* set clock */
-	writeb(speed, &i2c_dev->fdr);
+	set_speed(speed);
 
 	/* set default filter */
-	writeb(0x10,&i2c_dev->dfsrr);
+	writeb(IC2_FDR,&i2c_dev->dfsrr);
 
 	/* write slave address */
 	writeb(slaveadd, &i2c_dev->adr);
 
 	/* clear status register */
-	writeb(0x00, &i2c_dev->sr);
+	writeb(I2C_CR_MTX, &i2c_dev->sr);
 
 	/* start I2C controller */
 	writeb(I2C_CR_MEN, &i2c_dev->cr);
@@ -142,19 +188,19 @@ static void _i2c_init(int speed, int slaveadd)
 
 void i2c_init(int speed, int slaveadd)
 {
-      /* Set both interfaces to the same speed and slave address */
-      /* Note: This function gets called twice - before and after
-       * relocation to RAM.  The first time it's called, we are unable
-       * to change buses, so whichever one 'i2c_dev' was initialized to
-       * gets set twice.  When run from RAM both buses get set properly */
+	/* Set both interfaces to the same speed and slave address */
+	/* Note: This function gets called twice - before and after
+	 * relocation to RAM.  The first time it's called, we are unable
+	 * to change buses, so whichever one 'i2c_dev' was initialized to
+	 * gets set twice.  When run from RAM both buses get set properly */
 
-      i2c_set_bus_num(I2C_BUS_1);
-      _i2c_init(speed, slaveadd);
-#ifdef        CFG_I2C2_OFFSET
-      i2c_set_bus_num(I2C_BUS_2);
-      _i2c_init(speed, slaveadd);
-      i2c_set_bus_num(I2C_BUS_1);
-#endif        /* CFG_I2C2_OFFSET */
+	i2c_set_bus_num(1);
+	_i2c_init(speed, slaveadd);
+#ifdef	CFG_I2C2_OFFSET
+	i2c_set_bus_num(2);
+	_i2c_init(speed, slaveadd);
+	i2c_set_bus_num(1);
+#endif	/* CFG_I2C2_OFFSET */
 }
 
 static __inline__ int
@@ -340,38 +386,38 @@ void i2c_reg_write (uchar i2c_addr, uchar reg, uchar val)
 	i2c_write (i2c_addr, reg, 1, &val, 1);
 }
 
-int 	i2c_set_bus_num(uchar bus)
+int i2c_set_bus_num(unsigned int bus)
 {
-	if(bus == I2C_BUS_1)
+	if(bus == 1)
 	{
 		i2c_dev = I2C_1;
 	}
 #ifdef	CFG_I2C2_OFFSET
-	else if(bus == I2C_BUS_2)
+	else if(bus == 2)
 	{
 		i2c_dev = I2C_2;
 	}
-#endif	/* CFG_I2C2_OFFSET */
+#endif
 	else
 	{
 		return -1;
 	}
-	busNum = bus;
+	i2c_bus_num = bus;
 	return 0;
 }
 
-int 	i2c_set_bus_speed(int speed)
+int i2c_set_bus_speed(unsigned int speed)
 {
 	return set_speed(speed);
 }
 
-uchar i2c_get_bus_num(void)
+unsigned int i2c_get_bus_num(void)
 {
-	return busNum;
+	return i2c_bus_num;
 }
 
-int 	i2c_get_bus_speed(void)
+unsigned int i2c_get_bus_speed(void)
 {
-	return bus_speed[busNum];
+	return i2c_bus_speed[i2c_bus_num - 1];
 }
 #endif /* CONFIG_HARD_I2C */

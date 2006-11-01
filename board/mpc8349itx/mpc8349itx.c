@@ -259,7 +259,7 @@ int checkboard(void)
 	puts("Board: Freescale MPC8349E-mITX");
 
 #ifdef CONFIG_HARD_I2C
-	i2c_set_bus_num(I2C_BUS_2);
+	i2c_set_bus_num(2);
 	if (i2c_read(CFG_I2C_8574A_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) ==
 	    0)
 		printf(" %u.%u (PCF8475A)", (i2c_data & 0x02) >> 1,
@@ -379,7 +379,7 @@ int misc_init_r(void)
 
 	u8 data[sizeof(eeprom_data)];
 
-	i2c_set_bus_num(I2C_BUS_1);
+	i2c_set_bus_num(1);
 
 	if (i2c_read(CFG_I2C_EEPROM_ADDR, 0, 2, data, sizeof(data)) == 0) {
 		if (memcmp(data, eeprom_data, sizeof(data)) != 0) {
@@ -397,7 +397,7 @@ int misc_init_r(void)
 #endif
 
 #ifdef CFG_I2C_RTC_ADDR
-	i2c_set_bus_num(I2C_BUS_2);
+	i2c_set_bus_num(2);
 
 	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 1, ds1339_data, sizeof(ds1339_data))
 	    == 0) {

@@ -36,8 +36,8 @@
  */
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC83XX		1	/* MPC83XX family */
-#define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC834X		1	/* MPC834X specific */
+#define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
 
 /* IMMR Base Addres Register, use Freescale default: 0xff400000 */

@@ -97,7 +97,7 @@ void  i2c_reg_write(uchar chip, uchar reg, uchar val);
  * 	Returns: 0 on success, not 0 on failure
  *
  */
-int		i2c_set_bus_num(uchar bus);
+int i2c_set_bus_num(unsigned int bus);
 
 /*
  * i2c_get_bus_num:
@@ -105,7 +105,7 @@ int		i2c_set_bus_num(uchar bus);
  *  Returns index of currently active I2C bus.  Zero-based.
  */
 
-uchar	i2c_get_bus_num(void);
+unsigned int i2c_get_bus_num(void);
 
 /*
  * i2c_set_bus_speed:
@@ -117,7 +117,7 @@ uchar	i2c_get_bus_num(void);
  * 	Returns: 0 on success, not 0 on failure
  *
  */
-int		i2c_set_bus_speed(int);
+int i2c_set_bus_speed(unsigned int);
 
 /*
  * i2c_get_bus_speed:
@@ -125,6 +125,6 @@ int		i2c_set_bus_speed(int);
  *  Returns speed of currently active I2C bus in Hz
  */
 
-int		i2c_get_bus_speed(void);
+unsigned int i2c_get_bus_speed(void);
 
 #endif	/* _I2C_H_ */

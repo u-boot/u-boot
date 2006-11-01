@@ -81,7 +81,7 @@
 #define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_OFFSET      	0x3000
 #define CFG_I2C2_OFFSET      	0x3100
-#define CFG_SPD_BUS_NUM		I2C_2
+#define CFG_SPD_BUS_NUM		2
 
 #define CFG_I2C_8574_ADDR1	0x20	/* I2C2, PCF8574 */
 #define CFG_I2C_8574_ADDR2	0x21	/* I2C2, PCF8574 */

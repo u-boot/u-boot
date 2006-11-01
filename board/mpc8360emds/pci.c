@@ -198,8 +198,11 @@ void pci_init_board(void)
 	 * Assign PIB PMC slot to desired PCI bus
 	 */
 
-	mpc83xx_i2c = (i2c_t *) (CFG_IMMRBAR + CFG_I2C2_OFFSET);
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	/* Switch temporarily to I2C bus #2 */
+	orig_i2c_bus = i2c_get_bus_num();
+
+	if(orig_i2c_bus != 2)
+	 	i2c_set_bus_num(2);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);
@@ -226,6 +229,10 @@ void pci_init_board(void)
 	val8 = 0xef;
 	i2c_write(0x27, 0x3, 1, &val8, 1);
 	asm("eieio");
+
+	/* Reset to original I2C bus */
+	if(orig_i2c_bus != 2)
+	 	i2c_set_bus_num(orig_i2c_bus);
 
 	/*
 	 * Release PCI RST Output signal
