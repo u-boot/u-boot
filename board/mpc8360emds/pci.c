@@ -234,6 +234,10 @@ void pci_init_board(void)
 	if(orig_i2c_bus != 2)
 	 	i2c_set_bus_num(orig_i2c_bus);
 
+	/* Reset to original I2C bus */
+	if(orig_i2c_bus != 2)
+		i2c_set_bus_num(orig_i2c_bus);
+
 	/*
 	 * Release PCI RST Output signal
 	 */
@@ -298,4 +302,19 @@ void pci_init_board(void)
 	hose->last_busno = pci_hose_scan(hose);
 }
 #endif				/* CONFIG_PCISLAVE */
+
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+       	u32 *p;
+       	int len;
+
+       	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
+       	if (p != NULL) {
+		p[0] = hose[0].first_busno;
+		p[1] = hose[0].last_busno;
+       	}
+}
+#endif				/* CONFIG_OF_FLAT_TREE */
 #endif				/* CONFIG_PCI */

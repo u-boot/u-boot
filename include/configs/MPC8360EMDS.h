@@ -101,6 +101,8 @@
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 #define CFG_DDR_SDRAM_BASE	CFG_DDR_BASE
 
+#define CFG_83XX_DDR_USES_CS0
+
 #undef	CONFIG_DDR_ECC		/* only for ECC DDR module */
 #define CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
 
@@ -312,6 +314,18 @@
 #ifdef  CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8360@0"
+#define OF_SOC			"soc8360@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc8360@e0000000/serial@4500"
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -591,23 +605,29 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS		                        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"			                        \
+   "ramdiskaddr=1000000\0"			                        \
    "ramdiskfile=ramfs.83xx\0"						\
+   "fdtaddr=400000\0"							\
+   "fdtfile=mpc8349emds.dtb\0"						\
+   ""
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
-   "nfsroot=$serverip:$rootpath "                                       \
-   "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off "    \
-   "console=$consoledev,$baudrate $othbootargs;"                        \
+      "nfsroot=$serverip:$rootpath "                                    \
+      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define CONFIG_RAMBOOTCOMMAND						\
    "setenv bootargs root=/dev/ram rw "                                  \
-   "console=$consoledev,$baudrate $othbootargs;"                        \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
+
 
 #define CONFIG_BOOTCOMMAND CONFIG_NFSBOOTCOMMAND
 

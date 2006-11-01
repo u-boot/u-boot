@@ -385,4 +385,26 @@ pci_init_board(void)
 
 }
 
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+       	u32 *p;
+       	int len;
+
+       	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
+       	if (p != NULL) {
+		p[0] = pci_hose[0].first_busno;
+		p[1] = pci_hose[0].last_busno;
+       	}
+
+#ifdef CONFIG_MPC83XX_PCI2
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8600/bus-range", &len);
+	if (p != NULL) {
+		p[0] = pci_hose[1].first_busno;
+		p[1] = pci_hose[1].last_busno;
+	}
+#endif
+}
+#endif /* CONFIG_OF_FLAT_TREE */
 #endif /* CONFIG_PCI */

@@ -33,6 +33,10 @@
 #if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
 #endif
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 int fixed_sdram(void);
 void sdram_init(void);
 
@@ -564,3 +568,23 @@ U_BOOT_CMD(
 	"  - re-inits memory"
 );
 #endif /* if defined(CONFIG_DDR_ECC) && defined(CONFIG_DDR_ECC_CMD) */
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+	ft_cpu_setup(blob, bd);
+
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
+}
+#endif

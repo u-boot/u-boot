@@ -383,6 +383,17 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8349@0"
+#define OF_SOC			"soc8349@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
 
 #ifdef CONFIG_PCI
 
@@ -697,17 +708,17 @@
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 
-#define CONFIG_IPADDR		10.82.19.159
-#define CONFIG_SERVERIP		10.82.48.106
-#define CONFIG_GATEWAYIP	10.82.19.254
+#define CONFIG_IPADDR		192.168.1.253
+#define CONFIG_SERVERIP		192.168.1.1
+#define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.252.0
 #define CONFIG_NETDEV		eth0
 
 #define CONFIG_HOSTNAME		mpc8349emitx
-#define CONFIG_ROOTPATH		/nfsroot0/u/timur/itx-ltib/rootfs
-#define CONFIG_BOOTFILE		timur/uImage
+#define CONFIG_ROOTPATH		/nfsroot/rootfs
+#define CONFIG_BOOTFILE		uImage
 
-#define CONFIG_UBOOTPATH	timur/u-boot.bin
+#define CONFIG_UBOOTPATH	u-boot.bin
 #define CONFIG_UBOOTSTART	fe700000
 #define CONFIG_UBOOTEND		fe77ffff
 
@@ -747,7 +758,27 @@
 		"cmp.b $loadaddr FEF00000 $filesize\0" \
 	"tftplinux=tftpboot $loadaddr $bootfile; bootm\0" \
 	"copyuboot=erase " MK_STR(CONFIG_UBOOTSTART) " " MK_STR(CONFIG_UBOOTEND) "; " \
-		"cp.b fef00000 " MK_STR(CONFIG_UBOOTSTART) " 80000\0"
+		"cp.b fef00000 " MK_STR(CONFIG_UBOOTSTART) " 80000\0"	\
+        "fdtaddr=400000\0"                                              \
+        "fdtfile=mpc8349emitx.dtb\0"                                    \
+        ""
+
+#define CONFIG_NFSBOOTCOMMAND                                           \
+   "setenv bootargs root=/dev/nfs rw "                                  \
+      "nfsroot=$serverip:$rootpath "                                    \
+      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
+   "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"                                            \
+   "bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_RAMBOOTCOMMAND                                           \
+   "setenv bootargs root=/dev/ram rw "                                  \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
+   "tftp $ramdiskaddr $ramdiskfile;"                                    \
+   "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"                                            \
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 
 #undef MK_STR

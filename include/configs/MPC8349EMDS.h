@@ -35,6 +35,7 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
+#define CONFIG_MPC83XX		1	/* MPC83XX family */
 #define CONFIG_MPC834X		1	/* MPC834X family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
@@ -58,6 +59,17 @@
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_8X1
 #endif
 #endif
+
+#define CFG_SCCR_INIT		(SCCR_DEFAULT & (~SCCR_CLK_MASK))
+#define CFG_SCCR_TSEC1CM	SCCR_TSEC1CM_1	/* TSEC1 clock setting */
+#define CFG_SCCR_TSEC2CM	SCCR_TSEC2CM_1	/* TSEC2 clock setting */
+#define CFG_SCCR_ENCCM		SCCR_ENCCM_3	/* ENC clock setting */
+#define CFG_SCCR_USBCM		SCCR_USBCM_3	/* USB clock setting */
+#define CFG_SCCR_VAL		( CFG_SCCR_INIT		\
+				| CFG_SCCR_TSEC1CM	\
+				| CFG_SCCR_TSEC2CM	\
+				| CFG_SCCR_ENCCM	\
+				| CFG_SCCR_USBCM	)
 
 #define CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
 
@@ -307,6 +319,18 @@
 #ifdef  CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8349@0"
+#define OF_SOC			"soc8349@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support*/
@@ -668,11 +692,11 @@
 #define CONFIG_ETH1ADDR		00:E0:0C:00:7E:21
 #endif
 
-#define CONFIG_IPADDR		192.168.205.5
+#define CONFIG_IPADDR		192.168.1.253
 
 #define CONFIG_HOSTNAME		mpc8349emds
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
-#define CONFIG_BOOTFILE		/tftpboot/tqm83xx/uImage
+#define CONFIG_ROOTPATH		/nfsroot/rootfs
+#define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_SERVERIP		192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
@@ -705,13 +729,30 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"	\
 		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_6xx\0"					\
-	"bootfile=/tftpboot/mpc8349emds/uImage\0"			\
 	"load=tftp 100000 /tftpboot/mpc8349emds/u-boot.bin\0"		\
 	"update=protect off fe000000 fe03ffff; "			\
 		"era fe000000 fe03ffff; cp.b 100000 fe000000 ${filesize}\0"	\
 	"upd=run load;run update\0"					\
+	"fdtaddr=400000\0"						\
+	"fdtfile=mpc8349emds.dtb\0"					\
 	""
+
+#define CONFIG_NFSBOOTCOMMAND	                                        \
+   "setenv bootargs root=/dev/nfs rw "                                  \
+      "nfsroot=$serverip:$rootpath "                                    \
+      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
+   "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_RAMBOOTCOMMAND						\
+   "setenv bootargs root=/dev/ram rw "                                  \
+      "console=$consoledev,$baudrate $othbootargs;"                     \
+   "tftp $ramdiskaddr $ramdiskfile;"                                    \
+   "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

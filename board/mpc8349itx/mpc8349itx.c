@@ -37,6 +37,9 @@
 #else
 #include <asm/mmu.h>
 #endif
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 #ifndef CONFIG_SPD_EEPROM
 /*************************************************************************
@@ -459,3 +462,23 @@ int misc_init_r(void)
 
 	return rc;
 }
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+	ft_cpu_setup(blob, bd);
+
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
+}
+#endif
