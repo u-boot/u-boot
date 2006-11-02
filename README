@@ -2312,17 +2312,17 @@ configurations; the following names are supported:
 	csb272_config		lwmon_config		sbc8260_config
 	CU824_config		MBX860T_config		sbc8560_33_config
 	DUET_ADS_config		MBX_config		sbc8560_66_config
-	EBONY_config		MPC8260ADS_config	SM850_config
-	ELPT860_config		MPC8540ADS_config	SPD823TS_config
-	ESTEEM192E_config	MPC8540EVAL_config	stxgp3_config
-	ETX094_config		MPC8560ADS_config	SXNI855T_config
-	FADS823_config		NETVIA_config		TQM823L_config
-	FADS850SAR_config	omap1510inn_config	TQM850L_config
-	FADS860T_config		omap1610h2_config	TQM855L_config
-	FPS850L_config		omap1610inn_config	TQM860L_config
-				omap5912osk_config	walnut_config
-				omap2420h4_config	Yukon8220_config
-							ZPC1900_config
+	EBONY_config		mpc7448hpc2_config	SM850_config
+	ELPT860_config		MPC8260ADS_config	SPD823TS_config
+	ESTEEM192E_config	MPC8540ADS_config	stxgp3_config
+	ETX094_config		MPC8540EVAL_config	SXNI855T_config
+	FADS823_config		NMPC8560ADS_config	TQM823L_config
+	FADS850SAR_config	NETVIA_config		TQM850L_config
+	FADS860T_config		omap1510inn_config	TQM855L_config
+	FPS850L_config		omap1610h2_config	TQM860L_config
+				omap1610inn_config	walnut_config
+				omap5912osk_config	Yukon8220_config
+				omap2420h4_config	ZPC1900_config
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for

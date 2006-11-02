@@ -35,8 +35,8 @@ COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  lan91c96.o \
 	  natsemi.o ne2000.o netarm_eth.o netconsole.o \
 	  ns16550.o ns8382x.o ns87308.o ns7520_eth.o omap1510_i2c.o \
-	  omap24xx_i2c.o pci.o pci_auto.o pci_indirect.o \
-	  pcnet.o plb2800_eth.o \
+	  omap24xx_i2c.o pci.o pci_auto.o pci_indirect.o tsi108_pci.o\
+	  tsi108_i2c.o pcnet.o plb2800_eth.o \
 	  ps2ser.o ps2mult.o pc_keyb.o \
 	  rtl8019.o rtl8139.o rtl8169.o \
 	  s3c4510b_eth.o s3c4510b_uart.o \
@@ -45,7 +45,7 @@ COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  serial_pl010.o serial_pl011.o serial_xuartlite.o \
 	  sl811_usb.o sm501.o smc91111.o smiLynxEM.o \
 	  status_led.o sym53c8xx.o ahci.o \
-	  ti_pci1410a.o tigon3.o tsec.o \
+	  ti_pci1410a.o tigon3.o tsec.o tsi108_eth.o\
 	  usbdcore.o usbdcore_ep0.o usbdcore_omap1510.o usbtty.o \
 	  videomodes.o w83c553f.o \
 	  ks8695eth.o \

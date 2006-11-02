@@ -112,6 +112,7 @@ typedef enum __cpu_t {
 	CPU_7400,
 	CPU_7410,
 	CPU_7450, CPU_7455, CPU_7457,
+	CPU_7447A, CPU_7448,
 	CPU_UNKNOWN} cpu_t;
 
 extern cpu_t get_cpu_type(void);

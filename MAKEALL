@@ -150,8 +150,8 @@ LIST_85xx="	\
 #########################################################################
 
 LIST_74xx="	\
-	DB64360		DB64460		EVB64260	P3G4		\
-	PCIPPC2		PCIPPC6		ZUMA				\
+	DB64360		DB64460		EVB64260	mpc7448hpc2	\
+	P3G4    	PCIPPC2		PCIPPC6		ZUMA		\
 "
 
 LIST_7xx="	\

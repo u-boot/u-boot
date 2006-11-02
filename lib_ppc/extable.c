@@ -50,14 +50,22 @@ search_one_table(const struct exception_table_entry *first,
 		 const struct exception_table_entry *last,
 		 unsigned long value)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
 	while (first <= last) {
 		const struct exception_table_entry *mid;
 		long diff;
 
 		mid = (last - first) / 2 + first;
+#ifdef CFG_EXCEPTION_AFTER_RELOCATE
+		diff = (mid->insn + gd->reloc_off) - value;
+		if (diff == 0)
+			return (mid->fixup + gd->reloc_off);
+#else
 		diff = mid->insn - value;
 		if (diff == 0)
 			return mid->fixup;
+#endif
 		else if (diff < 0)
 			first = mid+1;
 		else
@@ -75,8 +83,10 @@ search_exception_table(unsigned long addr)
 
 	/* There is only the kernel to search.  */
 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
+#if !defined(CFG_SERIAL_HANG_IN_EXCEPTION)
 	if (ex_tab_message)
 		printf("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
+#endif
 	if (ret) return ret;
 
 	return 0;
