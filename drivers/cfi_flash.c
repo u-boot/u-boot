@@ -2,9 +2,12 @@
  * (C) Copyright 2002-2004
  * Brad Kemp, Seranoa Networks, Brad.Kemp@seranoa.com
  *
- * Copyright (C) 2003 Arabella Software Ltd.
+ * Copyright (C) 2003, 2006 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  * Modified to work with AMD flashes
+ * Added support for byte lanes swap
+ * Added support for 32-bit chips consisting of two 16-bit devices
+ * (for example, S70GL256M00)
  *
  * Copyright (C) 2004
  * Ed Okerson
@@ -45,10 +48,13 @@
 /* #define DEBUG	*/
 
 #include <common.h>
+
+#ifdef	CFG_FLASH_CFI_DRIVER
+
+#include <watchdog.h>
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <environment.h>
-#ifdef	CFG_FLASH_CFI_DRIVER
 
 /*
  * This file implements a Common Flash Interface (CFI) driver for U-Boot.
@@ -70,6 +76,10 @@
  * Add support for other command sets Use the PRI and ALT to determine command set
  * Verify erase and program timeouts.
  */
+
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_FLASH_CFI_SWAP)
+#define CFG_FLASH_CFI_SWAP
+#endif
 
 #ifndef CFG_FLASH_BANKS_LIST
 #define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE }
@@ -268,7 +278,7 @@ inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 	uchar *cp;
 
 	cp = flash_make_addr (info, 0, offset);
-#if defined(__LITTLE_ENDIAN)
+#if defined(CFG_FLASH_CFI_SWAP)
 	return (cp[0]);
 #else
 	return (cp[info->portwidth - 1]);
@@ -295,7 +305,7 @@ ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(__LITTLE_ENDIAN)
+#if defined(CFG_FLASH_CFI_SWAP)
 	retval = ((addr[(info->portwidth)] << 8) | addr[0]);
 #else
 	retval = ((addr[(2 * info->portwidth) - 1] << 8) |
@@ -327,7 +337,7 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(__LITTLE_ENDIAN)
+#if defined(CFG_FLASH_CFI_SWAP)
 	retval = (addr[0] << 16) | (addr[(info->portwidth)] << 24) |
 		(addr[(2 * info->portwidth)]) | (addr[(3 * info->portwidth)] << 8);
 #else
@@ -892,12 +902,22 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 	int i;
 	uchar *cp = (uchar *) cmdbuf;
 
-#if defined(__LITTLE_ENDIAN)
+#if defined(CFG_FLASH_CFI_SWAP)
 	for (i = info->portwidth; i > 0; i--)
 #else
 	for (i = 1; i <= info->portwidth; i++)
 #endif
 		*cp++ = (i & (info->chipwidth - 1)) ? '\0' : cmd;
+#ifdef CFG_FLASH_CFI_2x16
+	if ((info->portwidth == FLASH_CFI_32BIT) && (info->chipwidth == FLASH_CFI_BY16))
+	{
+	   uchar tmp;
+	   cp = (uchar *) cmdbuf;
+	   tmp = cp[1];
+	   cp[1] = cp[2];
+	   cp[2] = tmp;
+	}
+#endif /* CFG_FLASH_CFI_2x16 */
 }
 
 /*
