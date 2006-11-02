@@ -1,3 +1,48 @@
+commit 1954be6e9c9421b45d0a9d05b10356acc7563150
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Oct 29 01:03:51 2006 +0200
+
+    Automatically adjust ARFLAGS so "make -s" is really silent.
+
+commit fae684e89844856383bdf101440889557df3e6b1
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 28 16:45:00 2006 +0200
+
+    [PATCH] omap925.c: Remove unused functions
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1265581502ab8ea8c08e8edbe9bf64fbd62fd776
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 28 17:12:58 2006 +0200
+
+    [PATCH] Add some missing machtypes for netstar & voiceblue boards
+
+    Use MACH_TYPE_NETSTAR and MACH_TYPE_VOICEBLUE defines instead of
+    numbers in code.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 856f054410cef52d868feb330168b2a4c4091328
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 28 15:55:52 2006 +0200
+
+    [PATCH] NAND: Partition name support added to NAND subsystem
+
+    chpart, nboot and NAND subsystem related commands now accept also partition
+    name to specify offset.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 07a69a18c2ecfda904231fdf23e2523ea7792eb6
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sat Oct 28 02:29:44 2006 +0200
+
+    Update CHANGELOG.
+
 commit 2751a95abd1b96911081c357e96a12fa97b40dee
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Sat Oct 28 02:29:14 2006 +0200
