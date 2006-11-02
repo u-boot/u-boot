@@ -341,9 +341,7 @@ void pci_init_board(void)
 #define SM501_GPIO_DATA_DIR_HIGH	0x0001000CUL
 #define SM501_GPIO_DATA_HIGH		0x00010004UL
 #define SM501_GPIO_51			0x00080000UL
-#else
-#define GPIO_PSC1_4	0x01000000UL
-#endif
+#endif /* CONFIG MINIFAP */
 
 void init_ide_reset (void)
 {
@@ -381,9 +379,9 @@ void ide_set_reset (int idereset)
 	}
 #else
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |=  GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 #endif
 }
