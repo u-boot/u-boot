@@ -402,6 +402,11 @@ void		ppcSync(void);
 void		ppcDcbz(unsigned long value);
 #endif
 
+#if defined (CONFIG_MPC83XX)
+void		ppcDWload(unsigned int *addr, unsigned int *ret);
+void		ppcDWstore(unsigned int *addr, unsigned int *value);
+#endif
+
 /* $(CPU)/cpu.c */
 int	checkcpu      (void);
 int	checkicache   (void);

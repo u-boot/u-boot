@@ -535,6 +535,7 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 				/* write memory location injecting errors */
 				ppcDWstore((u32 *) i, pattern);
+				__asm__ __volatile__("sync");
 
 				/* disable injects */
 				ddr->ecc_err_inject &= ~ECC_ERR_INJECT_EIEN;
@@ -543,10 +544,12 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 				/* read data, this generates ECC error */
 				ppcDWload((u32 *) i, ret);
+				__asm__ __volatile__("sync");
 
 				/* re-initialize memory, double word write the location again,
 				 * generates new ECC code this time */
 				ppcDWstore((u32 *) i, writeback);
+				__asm__ __volatile__("sync");
 			}
 			enable_interrupts();
 			return 0;
@@ -588,6 +591,7 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				 * double word write the location again,
 				 * generates new ECC code this time */
 				ppcDWstore((u32 *) i, writeback);
+				__asm__ __volatile__("sync");
 			}
 			enable_interrupts();
 			return 0;

@@ -562,54 +562,38 @@ static __inline__ unsigned long get_tbms (void)
 /* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
-	uint *p;
 	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
 	volatile ddr83xx_t *ddr= &immap->ddr;
 	unsigned long t_start, t_end;
+	register u64 *p;
+	register uint size;
+	unsigned int pattern[2];
 #if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
 	uint i;
 #endif
-
-	debug("Initialize a Cachline in DRAM\n");
 	icache_enable();
-
-#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
-	/* Initialise DMA for direct Transfers */
-	dma_init();
-#endif
-
 	t_start = get_tbms();
+	pattern[0] = 0xdeadbeef;
+	pattern[1] = 0xdeadbeef;
 
 #if !defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
-	debug("DDR init: Cache flush method\n");
-	for (p = 0; p < (uint *)(dram_size); p++) {
-		if (((unsigned int)p & 0x1f) == 0) {
-			ppcDcbz((unsigned long) p);
-		}
-
-		/* write pattern to cache and flush */
-		*p = (unsigned int)0xdeadbeef;
-
-		if (((unsigned int)p & 0x1c) == 0x1c) {
-			ppcDcbf((unsigned long) p);
-		}
+	debug("ddr init: CPU FP write method\n");
+	size = dram_size;
+	for (p = 0; p < (u64*)(size); p++) {
+		ppcDWstore((u32*)p, pattern);
 	}
+	__asm__ __volatile__ ("sync");
 #else
-	printf("DDR init: DMA method\n");
-	for (p = 0; p < (uint *)(8 * 1024); p++) {
-		/* zero one data cache line */
-		if (((unsigned int)p & 0x1f) == 0) {
-			ppcDcbz((unsigned long)p);
-		}
-
-		/* write pattern to it and flush */
-		*p = (unsigned int)0xdeadbeef;
-
-		if (((unsigned int)p & 0x1c) == 0x1c) {
-			ppcDcbf((unsigned long)p);
-		}
+	debug("ddr init: DMA method\n");
+	size = 0x2000;
+	for (p = 0; p < (u64*)(size); p++) {
+		ppcDWstore((u32*)p, pattern);
 	}
+	__asm__ __volatile__ ("sync");
 
+	/* Initialise DMA for direct transfer */
+	dma_init();
+	/* Start DMA to transfer */
 	dma_xfer((uint *)0x2000, 0x2000, (uint *)0); /* 8K */
 	dma_xfer((uint *)0x4000, 0x4000, (uint *)0); /* 16K */
 	dma_xfer((uint *)0x8000, 0x8000, (uint *)0); /* 32K */
