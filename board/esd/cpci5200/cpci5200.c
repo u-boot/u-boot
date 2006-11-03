@@ -199,8 +199,6 @@ void pci_init_board(void
 
 #if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
 
-#define GPIO_PSC1_4	0x01000000UL
-
 void init_ide_reset(void)
 {
 	debug("init_ide_reset\n");
@@ -215,9 +213,9 @@ void ide_set_reset(int idereset)
 	debug("ide_reset(%d)\n", idereset);
 
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |= GPIO_PSC1_4;
 	}
 }
 #endif				/* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
@@ -242,7 +240,7 @@ void init_ata_reset(void)
 	debug("init_ata_reset\n");
 
 	/* Configure GPIO_WU6 as GPIO output for ATA reset */
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA |= GPIO_WU6;
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |= GPIO_WU6;
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_WU6;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR |= GPIO_WU6;
 	__asm__ volatile ("sync");
