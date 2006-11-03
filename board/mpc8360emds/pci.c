@@ -63,7 +63,7 @@ void pci_init_board(void)
 	volatile pcictrl83xx_t *pci_ctrl;
 	volatile pciconf83xx_t *pci_conf;
 
-	immr = (immap_t *) CFG_IMMRBAR;
+	immr = (immap_t *) CFG_IMMR;
 	pci_law = immr->sysconf.pcilaw;
 	pci_pot = immr->ios.pot;
 	pci_ctrl = immr->pci_ctrl;
@@ -89,7 +89,7 @@ void pci_init_board(void)
 	hose[0].first_busno = 0;
 	hose[0].last_busno = 0xff;
 	pci_setup_indirect(&hose[0],
-			   (CFG_IMMRBAR + 0x8300), (CFG_IMMRBAR + 0x8304));
+			   (CFG_IMMR + 0x8300), (CFG_IMMR + 0x8304));
 	reg16 = 0xff;
 
 	pci_hose_read_config_word(&hose[0], PCI_BDF(0, 0, 0),
@@ -131,7 +131,7 @@ void pci_init_board(void)
 	u32 val32;
 	u32 dev;
 
-	immr = (immap_t *) CFG_IMMRBAR;
+	immr = (immap_t *) CFG_IMMR;
 	clk = (clk83xx_t *) & immr->clk;
 	pci_law = immr->sysconf.pcilaw;
 	pci_pot = immr->ios.pot;
@@ -274,7 +274,7 @@ void pci_init_board(void)
 	hose[0].region_count = 4;
 
 	pci_setup_indirect(&hose[0],
-			   (CFG_IMMRBAR + 0x8300), (CFG_IMMRBAR + 0x8304));
+			   (CFG_IMMR + 0x8300), (CFG_IMMR + 0x8304));
 
 	pci_register_hose(hose);
 

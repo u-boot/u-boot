@@ -104,9 +104,9 @@ version_string:
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CFG_DEFAULT_IMMR */
-#ifndef CFG_IMMRBAR
-#define CFG_IMMRBAR CONFIG_DEFAULT_IMMR
-#endif /* CFG_IMMRBAR */
+#ifndef CFG_IMMR
+#define CFG_IMMR CONFIG_DEFAULT_IMMR
+#endif /* CFG_IMMR */
 
 /*
  * After configuration, a system reset exception is executed using the
@@ -152,8 +152,8 @@ boot_cold: /* time t 3 */
 	nop
 boot_warm: /* time t 5 */
 	mfmsr	r5			/* save msr contents	*/
-	lis	r3, CFG_IMMRBAR@h
-	ori	r3, r3, CFG_IMMRBAR@l
+	lis	r3, CFG_IMMR@h
+	ori	r3, r3, CFG_IMMR@l
 	stw	r3, IMMRBAR(r4)
 
 	/* Initialise the E300 processor core		*/
@@ -226,7 +226,7 @@ in_flash:
 	GET_GOT			/* initialize GOT access	*/
 
 	/* r3: IMMR */
-	lis	r3, CFG_IMMRBAR@h
+	lis	r3, CFG_IMMR@h
 	/* run low-level CPU init code (in Flash)*/
 	bl	cpu_init_f
 
@@ -446,7 +446,7 @@ init_e300_core: /* time t 10 */
 	mtspr	SRR1, r3			/* Make SRR1 match MSR */
 
 
-	lis	r3, CFG_IMMRBAR@h
+	lis	r3, CFG_IMMR@h
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the Wathcdog values and reset it (if req) */
 	/*------------------------------------------------------*/
@@ -1201,7 +1201,7 @@ map_flash_by_law1:
 	/* When booting from ROM (Flash or EPROM), clear the  */
 	/* Address Mask in OR0 so ROM appears everywhere      */
 	/*----------------------------------------------------*/
-	lis	r3, (CFG_IMMRBAR)@h  /* r3 <= CFG_IMMRBAR    */
+	lis	r3, (CFG_IMMR)@h  /* r3 <= CFG_IMMR    */
 	lwz	r4, OR0@l(r3)
 	li	r5, 0x7fff        /* r5 <= 0x00007FFFF */
 	and	r4, r4, r5

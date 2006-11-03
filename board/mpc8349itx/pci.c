@@ -88,7 +88,7 @@ void pci_init_board(void)
 	u32 dev;
 	struct pci_controller *hose;
 
-	immr = (immap_t *) CFG_IMMRBAR;
+	immr = (immap_t *) CFG_IMMR;
 	clk = (clk83xx_t *) & immr->clk;
 	pci_law = immr->sysconf.pcilaw;
 	pci_pot = immr->ios.pot;
@@ -211,7 +211,7 @@ void pci_init_board(void)
 	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMRBAR + 0x8300), (CFG_IMMRBAR + 0x8304));
+			   (CFG_IMMR + 0x8300), (CFG_IMMR + 0x8304));
 
 	pci_register_hose(hose);
 
@@ -302,7 +302,7 @@ void pci_init_board(void)
 	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMRBAR + 0x8380), (CFG_IMMRBAR + 0x8384));
+			   (CFG_IMMR + 0x8380), (CFG_IMMR + 0x8384));
 
 	pci_register_hose(hose);
 

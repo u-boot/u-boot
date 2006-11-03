@@ -106,7 +106,7 @@ void sdram_init(void);
 
 long int initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
@@ -141,7 +141,7 @@ long int initdram(int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
@@ -196,7 +196,7 @@ int checkboard(void)
 
 void sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile lbus83xx_t *lbc = &immap->lbus;
 	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
 
@@ -267,7 +267,7 @@ void sdram_init(void)
  */
 void ecc_print_status(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 
 	printf("\nECC mode: %s\n\n",
@@ -347,7 +347,7 @@ void ecc_print_status(void)
 
 int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile u32 val;
 	u64 *addr;

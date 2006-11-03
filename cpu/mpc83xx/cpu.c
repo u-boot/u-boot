@@ -49,7 +49,7 @@ int checkcpu(void)
 	u32 spridr;
 	char buf[32];
 
-	immr = (immap_t *)CFG_IMMRBAR;
+	immr = (immap_t *)CFG_IMMR;
 
 	if ((pvr & 0xFFFF0000) != PVR_83xx) {
 		puts("Not MPC83xx Family!!!\n");
@@ -141,7 +141,7 @@ int checkcpu(void)
 void upmconfig (uint upm, uint *table, uint size)
 {
 #if defined(CONFIG_MPC834X)
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile lbus83xx_t *lbus = &immap->lbus;
 	volatile uchar *dummy = NULL;
 	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
@@ -188,7 +188,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr;
 #endif
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
 #ifdef MPC83xx_RESET
 	/* Interrupts and MMU off */
@@ -259,7 +259,7 @@ void watchdog_reset (void)
 	int re_enable = disable_interrupts();
 
 	/* Reset the 83xx watchdog */
-	volatile immap_t *immr = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	immr->wdt.swsrr = 0x556c;
 	immr->wdt.swsrr = 0xaa39;
 
@@ -311,7 +311,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 dmamr0 = swab32(dma->dmamr0);
@@ -342,7 +342,7 @@ void dma_init(void)
 
 uint dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 byte_count = swab32(dma->dmabcr0);
@@ -361,7 +361,7 @@ uint dma_check(void)
 
 int dma_xfer(void *dest, u32 count, void *src)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 dmamr0;
 

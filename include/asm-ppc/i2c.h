@@ -79,19 +79,19 @@ typedef struct i2c
 #endif
 #define I2C_TIMEOUT (CFG_HZ/4)
 
-#ifndef CFG_IMMRBAR
-#error CFG_IMMRBAR is not defined in /include/configs/${BOARD}.h
+#ifndef CFG_IMMR
+#error CFG_IMMR is not defined in /include/configs/${BOARD}.h
 #endif
 
 #ifndef CFG_I2C_OFFSET
 #error CFG_I2C_OFFSET is not defined in /include/configs/${BOARD}.h
 #endif
 
-#define I2C_1 ((i2c_t*)(CFG_IMMRBAR + CFG_I2C_OFFSET))
+#define I2C_1 ((i2c_t*)(CFG_IMMR + CFG_I2C_OFFSET))
 
 /* Optional support for second I2C bus */
 #ifdef	CFG_I2C2_OFFSET
-#define I2C_2 ((i2c_t*)(CFG_IMMRBAR + CFG_I2C2_OFFSET))
+#define I2C_2 ((i2c_t*)(CFG_IMMR + CFG_I2C2_OFFSET))
 #endif	/* CFG_I2C2_OFFSET */
 
 #define I2C_READ  1

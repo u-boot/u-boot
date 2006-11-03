@@ -34,7 +34,7 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 	u32			pin_2bit_assign;
 	u32			pin_1bit_mask;
 	u32			tmp_val;
-	volatile immap_t	*im = (volatile immap_t *)CFG_IMMRBAR;
+	volatile immap_t	*im = (volatile immap_t *)CFG_IMMR;
 	volatile gpio83xx_t	*par_io =(volatile gpio83xx_t *)&im->gpio;
 
 	/* Caculate pin location and 2bit mask and dir */

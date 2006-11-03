@@ -112,7 +112,7 @@ static void spd_debug(spd_eeprom_t *spd)
 
 long int spd_sdram()
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile law83xx_t *ecm = &immap->sysconf.ddrlaw[0];
 	spd_eeprom_t spd;
@@ -562,7 +562,7 @@ static __inline__ unsigned long get_tbms (void)
 /* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ddr83xx_t *ddr= &immap->ddr;
 	unsigned long t_start, t_end;
 	register u64 *p;

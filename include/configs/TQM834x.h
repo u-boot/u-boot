@@ -41,7 +41,7 @@
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
 
 /* IMMR Base Addres Register, use Freescale default: 0xff400000 */
-#define CFG_IMMRBAR		0xff400000
+#define CFG_IMMR		0xff400000
 
 /* System clock. Primary input clock when in PCI host mode */
 #define CONFIG_83XX_CLKIN	66666000	/* 66,666 MHz */
@@ -210,8 +210,8 @@ extern int tqm834x_num_flash_banks;
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-#define CFG_NS16550_COM1	(CFG_IMMRBAR + 0x4500)
-#define CFG_NS16550_COM2	(CFG_IMMRBAR + 0x4600)
+#define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
+#define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /*
  * I2C
@@ -248,9 +248,9 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_MII
 
 #define CFG_TSEC1_OFFSET	0x24000
-#define CFG_TSEC1		(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
+#define CFG_TSEC1		(CFG_IMMR + CFG_TSEC1_OFFSET)
 #define CFG_TSEC2_OFFSET	0x25000
-#define CFG_TSEC2		(CFG_IMMRBAR + CFG_TSEC2_OFFSET)
+#define CFG_TSEC2		(CFG_IMMR + CFG_TSEC2_OFFSET)
 
 #if defined(CONFIG_TSEC_ENET)
 
@@ -473,8 +473,8 @@ extern int tqm834x_num_flash_banks;
 #endif
 
 /* IMMRBAR */
-#define CFG_IBAT6L	(CFG_IMMRBAR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_IBAT6U	(CFG_IMMRBAR | BATU_BL_1M | BATU_VS | BATU_VP)
+#define CFG_IBAT6L	(CFG_IMMR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_IBAT6U	(CFG_IMMR | BATU_BL_1M | BATU_VS | BATU_VP)
 
 /* FLASH */
 #define CFG_IBAT7L	(CFG_FLASH_BASE | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)

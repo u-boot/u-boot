@@ -128,7 +128,7 @@
 #endif
 #endif
 
-#define CFG_IMMRBAR		0xE0000000	/* The IMMR is relocated to here */
+#define CFG_IMMR		0xE0000000	/* The IMMR is relocated to here */
 
 #undef CFG_DRAM_TEST                   		/* memory test, takes time */
 #define CFG_MEMTEST_START       0x00003000      /* memtest region */
@@ -374,8 +374,8 @@
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-#define CFG_NS16550_COM1	(CFG_IMMRBAR + 0x4500)
-#define CFG_NS16550_COM2	(CFG_IMMRBAR + 0x4600)
+#define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
+#define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
@@ -653,8 +653,8 @@
 #endif
 
 /* IMMRBAR @ 0xE0000000, PCI IO @ 0xE2000000 & BCSR @ 0xE2400000 */
-#define CFG_IBAT5L	(CFG_IMMRBAR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_IBAT5U	(CFG_IMMRBAR | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CFG_IBAT5L	(CFG_IMMR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_IBAT5U	(CFG_IMMR | BATU_BL_256M | BATU_VS | BATU_VP)
 
 /* SDRAM @ 0xF0000000, stack in DCACHE 0xFDF00000 & FLASH @ 0xFE000000 */
 #define CFG_IBAT6L	(0xF0000000 | BATL_PP_10 | BATL_MEMCOHERENCE)

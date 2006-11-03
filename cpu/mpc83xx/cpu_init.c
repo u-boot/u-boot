@@ -219,7 +219,7 @@ void cpu_init_f (volatile immap_t * im)
 int cpu_init_r (void)
 {
 #ifdef CONFIG_QE
-	uint qe_base = CFG_IMMRBAR + 0x00100000; /* QE immr base */
+	uint qe_base = CFG_IMMR + 0x00100000; /* QE immr base */
 	qe_init(qe_base);
 	qe_reset();
 #endif

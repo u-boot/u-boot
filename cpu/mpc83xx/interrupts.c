@@ -45,7 +45,7 @@ struct irq_action {
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
 

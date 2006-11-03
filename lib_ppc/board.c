@@ -511,7 +511,7 @@ void board_init_f (ulong bootflag)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83XX)
-	bd->bi_immrbar = CFG_IMMRBAR;
+	bd->bi_immrbar = CFG_IMMR;
 #endif
 #if defined(CONFIG_MPC8220)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */

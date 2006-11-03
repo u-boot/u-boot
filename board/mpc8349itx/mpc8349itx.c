@@ -47,7 +47,7 @@
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 ddr_size;		/* The size of RAM, in bytes */
 	u32 ddr_size_log2 = 0;
 
@@ -139,7 +139,7 @@ volatile static struct pci_controller hose[] = {
 
 void sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile lbus83xx_t *lbc = &immap->lbus;
 
 #if defined(CFG_BR2_PRELIM) \
@@ -219,7 +219,7 @@ void sdram_init(void)
 
 long int initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 msize = 0;
 #ifdef CONFIG_DDR_ECC
 	volatile ddr83xx_t *ddr = &im->ddr;
@@ -328,7 +328,7 @@ int misc_init_f(void)
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01
 	};
-	volatile immap_t *immap = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile lbus83xx_t *lbus = &immap->lbus;
 
 	lbus->bank[3].br = CFG_BR3_PRELIM;
