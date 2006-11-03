@@ -53,38 +53,38 @@ typedef enum {
 
 typedef struct {
 	mult_t core_csb_ratio;
-	mult_t  vco_divider;
+	mult_t vco_divider;
 } corecnf_t;
 
 corecnf_t corecnf_tab[] = {
-	{ _byp, _byp},	/* 0x00 */
-	{ _byp, _byp},	/* 0x01 */
-	{ _byp, _byp},	/* 0x02 */
-	{ _byp, _byp},	/* 0x03 */
-	{ _byp, _byp},	/* 0x04 */
-	{ _byp, _byp},	/* 0x05 */
-	{ _byp, _byp},	/* 0x06 */
-	{ _byp, _byp},	/* 0x07 */
-	{  _1x,  _x2},	/* 0x08 */
-	{  _1x,  _x4},	/* 0x09 */
-	{  _1x,  _x8},	/* 0x0A */
-	{  _1x,  _x8},	/* 0x0B */
-	{_1_5x,  _x2},	/* 0x0C */
-	{_1_5x,  _x4},	/* 0x0D */
-	{_1_5x,  _x8},	/* 0x0E */
-	{_1_5x,  _x8},	/* 0x0F */
-	{  _2x,  _x2},	/* 0x10 */
-	{  _2x,  _x4},	/* 0x11 */
-	{  _2x,  _x8},	/* 0x12 */
-	{  _2x,  _x8},	/* 0x13 */
-	{_2_5x,  _x2},	/* 0x14 */
-	{_2_5x,  _x4},	/* 0x15 */
-	{_2_5x,  _x8},	/* 0x16 */
-	{_2_5x,  _x8},	/* 0x17 */
-	{  _3x,  _x2},	/* 0x18 */
-	{  _3x,  _x4},	/* 0x19 */
-	{  _3x,  _x8},	/* 0x1A */
-	{  _3x,  _x8},	/* 0x1B */
+	{_byp, _byp},		/* 0x00 */
+	{_byp, _byp},		/* 0x01 */
+	{_byp, _byp},		/* 0x02 */
+	{_byp, _byp},		/* 0x03 */
+	{_byp, _byp},		/* 0x04 */
+	{_byp, _byp},		/* 0x05 */
+	{_byp, _byp},		/* 0x06 */
+	{_byp, _byp},		/* 0x07 */
+	{_1x, _x2},		/* 0x08 */
+	{_1x, _x4},		/* 0x09 */
+	{_1x, _x8},		/* 0x0A */
+	{_1x, _x8},		/* 0x0B */
+	{_1_5x, _x2},		/* 0x0C */
+	{_1_5x, _x4},		/* 0x0D */
+	{_1_5x, _x8},		/* 0x0E */
+	{_1_5x, _x8},		/* 0x0F */
+	{_2x, _x2},		/* 0x10 */
+	{_2x, _x4},		/* 0x11 */
+	{_2x, _x8},		/* 0x12 */
+	{_2x, _x8},		/* 0x13 */
+	{_2_5x, _x2},		/* 0x14 */
+	{_2_5x, _x4},		/* 0x15 */
+	{_2_5x, _x8},		/* 0x16 */
+	{_2_5x, _x8},		/* 0x17 */
+	{_3x, _x2},		/* 0x18 */
+	{_3x, _x4},		/* 0x19 */
+	{_3x, _x8},		/* 0x1A */
+	{_3x, _x8},		/* 0x1B */
 };
 
 /* ----------------------------------------------------------------- */
@@ -92,15 +92,15 @@ corecnf_t corecnf_tab[] = {
 /*
  *
  */
-int get_clocks (void)
+int get_clocks(void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *) CFG_IMMRBAR;
 	u32 pci_sync_in;
-	u8  spmf;
-	u8  clkin_div;
+	u8 spmf;
+	u8 clkin_div;
 	u32 sccr;
 	u32 corecnf_tab_index;
-	u8  corepll;
+	u8 corepll;
 	u32 lcrr;
 
 	u32 csb_clk;
@@ -125,7 +125,7 @@ int get_clocks (void)
 	u32 brg_clk;
 #endif
 
-	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
+	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
 
 	clkin_div = ((im->clk.spmr & SPMR_CKID) >> SPMR_CKID_SHIFT);
@@ -224,17 +224,18 @@ int get_clocks (void)
 		return -8;
 	}
 
-	if (usbmph_clk != 0
-		&& usbdr_clk != 0
-		&& usbmph_clk != usbdr_clk ) {
-		/* if USB MPH clock is not disabled and USB DR clock is not disabled than USB MPH & USB DR must have the same rate */
+	if (usbmph_clk != 0 && usbdr_clk != 0 && usbmph_clk != usbdr_clk) {
+		/* if USB MPH clock is not disabled and
+		 * USB DR clock is not disabled then
+		 * USB MPH & USB DR must have the same rate
+		 */
 		return -9;
 	}
 #endif
 #if defined (CONFIG_MPC8360)
 	i2c1_clk = csb_clk;
 #endif
-	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
+	i2c2_clk = csb_clk;	/* i2c-2 clk is equal to csb clk */
 
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
@@ -254,7 +255,8 @@ int get_clocks (void)
 		return -6;
 	}
 #if defined(CONFIG_MPC8349) || defined(CONFIG_MPC8360)
-	lbiu_clk = csb_clk * (1 + ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
+	lbiu_clk = csb_clk *
+	           (1 + ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
 #else
 #error Unknown MPC83xx chip
 #endif
@@ -270,17 +272,19 @@ int get_clocks (void)
 		return -10;
 	}
 #if defined(CONFIG_MPC8349) || defined(CONFIG_MPC8360)
-	ddr_clk = csb_clk * (1 + ((im->reset.rcwl & RCWL_DDRCM) >> RCWL_DDRCM_SHIFT));
+	ddr_clk = csb_clk *
+		  (1 + ((im->reset.rcwl & RCWL_DDRCM) >> RCWL_DDRCM_SHIFT));
 	corepll = (im->reset.rcwl & RCWL_COREPLL) >> RCWL_COREPLL_SHIFT;
 #if defined (CONFIG_MPC8360)
-	ddr_sec_clk = csb_clk * (1 + ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
+	ddr_sec_clk = csb_clk * (1 +
+		       ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
 #endif
 #else
 #error Unknown MPC83xx chip
 #endif
 
 	corecnf_tab_index = ((corepll & 0x1F) << 2) | ((corepll & 0x60) >> 5);
-	if (corecnf_tab_index > (sizeof(corecnf_tab)/sizeof(corecnf_t)) ) {
+	if (corecnf_tab_index > (sizeof(corecnf_tab) / sizeof(corecnf_t))) {
 		/* corecnf_tab_index is too high, possibly worng value */
 		return -11;
 	}
@@ -297,7 +301,7 @@ int get_clocks (void)
 		core_clk = 2 * csb_clk;
 		break;
 	case _2_5x:
-		core_clk = ( 5 * csb_clk) / 2;
+		core_clk = (5 * csb_clk) / 2;
 		break;
 	case _3x:
 		core_clk = 3 * csb_clk;
@@ -310,31 +314,31 @@ int get_clocks (void)
 #if defined (CONFIG_MPC8360)
 	qepmf = (im->reset.rcwl & RCWL_CEPMF) >> RCWL_CEPMF_SHIFT;
 	qepdf = (im->reset.rcwl & RCWL_CEPDF) >> RCWL_CEPDF_SHIFT;
-	qe_clk = (pci_sync_in * qepmf)/(1+qepdf);
+	qe_clk = (pci_sync_in * qepmf) / (1 + qepdf);
 	brg_clk = qe_clk / 2;
 #endif
 
-	gd->csb_clk     = csb_clk;
+	gd->csb_clk = csb_clk;
 #if defined(CONFIG_MPC8349)
-	gd->tsec1_clk   = tsec1_clk;
-	gd->tsec2_clk   = tsec2_clk;
-	gd->usbmph_clk  = usbmph_clk;
-	gd->usbdr_clk   = usbdr_clk;
+	gd->tsec1_clk = tsec1_clk;
+	gd->tsec2_clk = tsec2_clk;
+	gd->usbmph_clk = usbmph_clk;
+	gd->usbdr_clk = usbdr_clk;
 #endif
-	gd->core_clk    = core_clk;
-	gd->i2c1_clk    = i2c1_clk;
-	gd->i2c2_clk    = i2c2_clk;
-	gd->enc_clk     = enc_clk;
-	gd->lbiu_clk    = lbiu_clk;
-	gd->lclk_clk    = lclk_clk;
-	gd->ddr_clk     = ddr_clk;
+	gd->core_clk = core_clk;
+	gd->i2c1_clk = i2c1_clk;
+	gd->i2c2_clk = i2c2_clk;
+	gd->enc_clk = enc_clk;
+	gd->lbiu_clk = lbiu_clk;
+	gd->lclk_clk = lclk_clk;
+	gd->ddr_clk = ddr_clk;
 #if defined (CONFIG_MPC8360)
 	gd->ddr_sec_clk = ddr_sec_clk;
-	gd->qe_clk      = qe_clk;
-	gd->brg_clk     = brg_clk;
+	gd->qe_clk = qe_clk;
+	gd->brg_clk = brg_clk;
 #endif
-	gd->cpu_clk     = gd->core_clk;
-	gd->bus_clk     = gd->csb_clk;
+	gd->cpu_clk = gd->core_clk;
+	gd->bus_clk = gd->csb_clk;
 	return 0;
 
 }
@@ -344,38 +348,37 @@ ulong get_ddr_clk(ulong dummy)
 	return gd->ddr_clk;
 }
 
-
 /********************************************
  * get_bus_freq
  * return system bus freq in Hz
  *********************************************/
-ulong get_bus_freq (ulong dummy)
+ulong get_bus_freq(ulong dummy)
 {
 	return gd->csb_clk;
 }
 
-int print_clock_conf (void)
+int print_clock_conf(void)
 {
 	printf("Clock configuration:\n");
-	printf("  Coherent System Bus: %4d MHz\n",gd->csb_clk/1000000);
-	printf("  Core:                %4d MHz\n",gd->core_clk/1000000);
+	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
+	printf("  Core:                %4d MHz\n", gd->core_clk / 1000000);
 #if defined (CONFIG_MPC8360)
-	printf("  QE:                  %4d MHz\n",gd->qe_clk/1000000);
+	printf("  QE:                  %4d MHz\n", gd->qe_clk / 1000000);
 #endif
-	printf("  Local Bus Controller:%4d MHz\n",gd->lbiu_clk/1000000);
-	printf("  Local Bus:           %4d MHz\n",gd->lclk_clk/1000000);
-	printf("  DDR:                 %4d MHz\n",gd->ddr_clk/1000000);
+	printf("  Local Bus Controller:%4d MHz\n", gd->lbiu_clk / 1000000);
+	printf("  Local Bus:           %4d MHz\n", gd->lclk_clk / 1000000);
+	printf("  DDR:                 %4d MHz\n", gd->ddr_clk / 1000000);
 #if defined (CONFIG_MPC8360)
-	printf("  DDR Secondary:       %4d MHz\n",gd->ddr_sec_clk/1000000);
+	printf("  DDR Secondary:       %4d MHz\n", gd->ddr_sec_clk / 1000000);
 #endif
-	printf("  SEC:                 %4d MHz\n",gd->enc_clk/1000000);
-	printf("  I2C1:                %4d MHz\n",gd->i2c1_clk/1000000);
-	printf("  I2C2:                %4d MHz\n",gd->i2c2_clk/1000000);
+	printf("  SEC:                 %4d MHz\n", gd->enc_clk / 1000000);
+	printf("  I2C1:                %4d MHz\n", gd->i2c1_clk / 1000000);
+	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
 #if defined(CONFIG_MPC8349)
-	printf("  TSEC1:               %4d MHz\n",gd->tsec1_clk/1000000);
-	printf("  TSEC2:               %4d MHz\n",gd->tsec2_clk/1000000);
-	printf("  USB MPH:             %4d MHz\n",gd->usbmph_clk/1000000);
-	printf("  USB DR:              %4d MHz\n",gd->usbdr_clk/1000000);
+	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
+	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
+	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);
+	printf("  USB DR:              %4d MHz\n", gd->usbdr_clk / 1000000);
 #endif
 	return 0;
 }
