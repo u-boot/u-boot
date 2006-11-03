@@ -364,6 +364,35 @@
 #endif
 
 /*
+ * QE UEC ethernet configuration
+ */
+#define CONFIG_UEC_ETH
+#define CONFIG_ETHPRIME		"Freescale GETH"
+#define CONFIG_PHY_MODE_NEED_CHANGE
+
+#define CONFIG_UEC_ETH1		/* GETH1 */
+
+#ifdef CONFIG_UEC_ETH1
+#define CFG_UEC1_UCC_NUM	0	/* UCC1 */
+#define CFG_UEC1_RX_CLK		QE_CLK_NONE
+#define CFG_UEC1_TX_CLK		QE_CLK9
+#define CFG_UEC1_ETH_TYPE	GIGA_ETH
+#define CFG_UEC1_PHY_ADDR	0
+#define CFG_UEC1_INTERFACE_MODE	ENET_1000_GMII
+#endif
+
+#define CONFIG_UEC_ETH2		/* GETH2 */
+
+#ifdef CONFIG_UEC_ETH2
+#define CFG_UEC2_UCC_NUM	1	/* UCC2 */
+#define CFG_UEC2_RX_CLK		QE_CLK_NONE
+#define CFG_UEC2_TX_CLK		QE_CLK4
+#define CFG_UEC2_ETH_TYPE	GIGA_ETH
+#define CFG_UEC2_PHY_ADDR	1
+#define CFG_UEC2_INTERFACE_MODE	ENET_1000_GMII
+#endif
+
+/*
  * Environment
  */
 

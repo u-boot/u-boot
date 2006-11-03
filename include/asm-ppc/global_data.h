@@ -69,6 +69,8 @@ typedef	struct	global_data {
 #if defined(CONFIG_QE)
 	u32 qe_clk;
 	u32 brg_clk;
+	uint mp_alloc_base;
+	uint mp_alloc_top;
 #endif /* CONFIG_QE */
 #if defined (CONFIG_MPC8360)
 	u32  ddr_sec_clk;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,6 +30,30 @@
 #include <ioports.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_QE
+extern qe_iop_conf_t qe_iop_conf_tab[];
+extern void qe_config_iopin(u8 port, u8 pin, int dir,
+			 int open_drain, int assign);
+extern void qe_init(uint qe_base);
+extern void qe_reset(void);
+
+static void config_qe_ioports(void)
+{
+	u8	port, pin;
+	int	dir, open_drain, assign;
+	int	i;
+
+	for (i = 0; qe_iop_conf_tab[i].assign != QE_IOP_TAB_END; i++) {
+		port		= qe_iop_conf_tab[i].port;
+		pin		= qe_iop_conf_tab[i].pin;
+		dir		= qe_iop_conf_tab[i].dir;
+		open_drain	= qe_iop_conf_tab[i].open_drain;
+		assign		= qe_iop_conf_tab[i].assign;
+		qe_config_iopin(port, pin, dir, open_drain, assign);
+	}
+}
+#endif
 
 /*
  * Breathe some life into the CPU...
@@ -99,6 +123,10 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 #ifdef CFG_SICRL
 	im->sysconf.sicrl = CFG_SICRL;
+#endif
+#ifdef CONFIG_QE
+	/* Config QE ioports */
+	config_qe_ioports();
 #endif
 
 	/*
@@ -188,12 +216,12 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 }
 
-
-/*
- * Initialize higher level parts of CPU like time base and timers.
- */
-
 int cpu_init_r (void)
 {
+#ifdef CONFIG_QE
+	uint qe_base = CFG_IMMRBAR + 0x00100000; /* QE immr base */
+	qe_init(qe_base);
+	qe_reset();
+#endif
 	return 0;
 }
