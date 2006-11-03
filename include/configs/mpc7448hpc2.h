@@ -149,10 +149,6 @@
 #define CONFIG_BOOTFILE     zImage.initrd.elf
 #define CONFIG_LOADADDR     0x400000
 
-#define CONFIG_TESTDRAMDATA     y
-#define CONFIG_TESTDRAMADDRESS  n
-#define CONFIG_TESETDRAMWALK    n
-
 /*-------------------------------------------------------------------------- */
 
 #define CONFIG_LOADS_ECHO   0	/* echo off for serial download */
@@ -163,10 +159,6 @@
 #define CONFIG_BOOTP_MASK  (CONFIG_BOOTP_DEFAULT | \
                             CONFIG_BOOTP_BOOTFILESIZE)
 
-/* Flash banks JFFS2 should use */
-#define CFG_JFFS2_FIRST_BANK   1
-#define CFG_JFFS2_NUM_BANKS    1
-
 #define CONFIG_COMMANDS (CONFIG_CMD_DFL \
 		| CFG_CMD_ASKENV \
 		| CFG_CMD_CACHE \
@@ -174,7 +166,6 @@
 		| CFG_CMD_I2C \
 		| CFG_CMD_SDRAM \
 		| CFG_CMD_EEPROM \
-		| CFG_CMD_NET \
 		| CFG_CMD_FLASH \
 		| CFG_CMD_ENV \
 		| CFG_CMD_BSP \
@@ -220,7 +211,7 @@
  *   CFG_DRAM_TEST_DATA - Enables test for shorted or open data lines
  *			  Environment variable 'test_dram_data' must be
  *			  set to 'y'.
- *   CFG_DRAM_TEST_DATA - Enables test to verify that each word is uniquely
+ *   CFG_DRAM_TEST_ADDRESS - Enables test to verify that each word is uniquely
  *			  addressable. Environment variable
  *			  'test_dram_address' must be set to 'y'.
  *   CFG_DRAM_TEST_WALK - Enables test a 64-bit walking ones pattern test.
@@ -228,10 +219,10 @@
  *			  Environment variable 'test_dram_walk' must be
  *			  set to 'y'.
  */
-#define CFG_DRAM_TEST
-#if defined(CFG_DRAM_TEST)
+#undef CFG_DRAM_TEST
 #define CFG_MEMTEST_START       0x00400000	/* memtest works on */
 #define CFG_MEMTEST_END         0x07c00000	/* 4 ... 124 MB in DRAM */
+#if defined(CFG_DRAM_TEST)
 #define CFG_DRAM_TEST_DATA
 #define CFG_DRAM_TEST_ADDRESS
 #define CFG_DRAM_TEST_WALK

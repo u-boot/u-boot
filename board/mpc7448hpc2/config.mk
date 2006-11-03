@@ -21,7 +21,7 @@
 #
 
 # Flash address
-TEXT_BASE = 0xFFF00000
+TEXT_BASE = 0xFF000000
 # RAM address
 #TEXT_BASE = 0x00400000
 
