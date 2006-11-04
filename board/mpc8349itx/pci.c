@@ -29,6 +29,9 @@
 #include <pci.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,7 +108,7 @@ void pci_init_board(void)
 	udelay(2000);
 
 #ifdef CONFIG_HARD_I2C
-	i2c_set_bus_num(2);
+	i2c_set_bus_num(1);
 	/* Read the PCI_M66EN jumper setting */
 	if ((i2c_read(CFG_I2C_8574_ADDR2, 0, 0, &reg8, sizeof(reg8)) == 0) ||
 	    (i2c_read(CFG_I2C_8574A_ADDR2, 0, 0, &reg8, sizeof(reg8)) == 0)) {

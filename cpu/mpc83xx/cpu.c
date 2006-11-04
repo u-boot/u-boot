@@ -111,7 +111,7 @@ int checkcpu(void)
 }
 
 
-/**
+/*
  * Program a UPM with the code supplied in the table.
  *
  * The 'dummy' variable is used to increment the MAD. 'dummy' is
@@ -137,7 +137,7 @@ int checkcpu(void)
  * upm: 0=UPMA, 1=UPMB, 2=UPMC
  * table: Pointer to an array of values to program
  * size: Number of elements in the array.  Must be 64 or less.
-*/
+ */
 void upmconfig (uint upm, uint *table, uint size)
 {
 #if defined(CONFIG_MPC834X)

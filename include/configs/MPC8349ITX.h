@@ -41,14 +41,14 @@
  						Align.	Board
  Bus	Addr    Part No.	Description	Length	Location
  ----------------------------------------------------------------
- I2C1	0x50    M24256-BWMN6P	Board EEPROM	2       U64
+ I2C0	0x50    M24256-BWMN6P	Board EEPROM	2       U64
 
- I2C2	0x20    PCF8574		I2C Expander	0	U8
- I2C2	0x21    PCF8574		I2C Expander	0       U10
- I2C2	0x38    PCF8574A	I2C Expander    0	U8
- I2C2	0x39    PCF8574A	I2C Expander	0	U10
- I2C2	0x51    (DDR)		DDR EEPROM	1	U1
- I2C2	0x68    DS1339		RTC		1	U68
+ I2C1	0x20    PCF8574		I2C Expander	0	U8
+ I2C1	0x21    PCF8574		I2C Expander	0       U10
+ I2C1	0x38    PCF8574A	I2C Expander    0	U8
+ I2C1	0x39    PCF8574A	I2C Expander	0	U10
+ I2C1	0x51    (DDR)		DDR EEPROM	1	U1
+ I2C1	0x68    DS1339		RTC		1	U68
 
  Note that a given board has *either* a pair of 8574s or a pair of 8574As.
 */
@@ -77,19 +77,20 @@
 #define CONFIG_MISC_INIT_F
 #define CONFIG_MISC_INIT_R
 
+#define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_OFFSET      	0x3000
 #define CFG_I2C2_OFFSET      	0x3100
-#define CFG_SPD_BUS_NUM		2
+#define CFG_SPD_BUS_NUM		1	/* The I2C bus for SPD */
 
-#define CFG_I2C_8574_ADDR1	0x20	/* I2C2, PCF8574 */
-#define CFG_I2C_8574_ADDR2	0x21	/* I2C2, PCF8574 */
-#define CFG_I2C_8574A_ADDR1	0x38	/* I2C2, PCF8574A */
-#define CFG_I2C_8574A_ADDR2	0x39	/* I2C2, PCF8574A */
-#define CFG_I2C_EEPROM_ADDR	0x50    /* I2C1, Board EEPROM */
-#define CFG_I2C_RTC_ADDR	0x68	/* I2C2, DS1339 RTC*/
-#define SPD_EEPROM_ADDRESS	0x51	/* I2C2, DDR */
+#define CFG_I2C_8574_ADDR1	0x20	/* I2C1, PCF8574 */
+#define CFG_I2C_8574_ADDR2	0x21	/* I2C1, PCF8574 */
+#define CFG_I2C_8574A_ADDR1	0x38	/* I2C1, PCF8574A */
+#define CFG_I2C_8574A_ADDR2	0x39	/* I2C1, PCF8574A */
+#define CFG_I2C_EEPROM_ADDR	0x50    /* I2C0, Board EEPROM */
+#define CFG_I2C_RTC_ADDR	0x68	/* I2C1, DS1339 RTC*/
+#define SPD_EEPROM_ADDRESS	0x51	/* I2C1, DDR */
 
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
@@ -175,6 +176,7 @@
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		16		/* FLASH size in MB */
+#define CFG_FLASH_EMPTY_INFO
 
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_V)
 #define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
@@ -610,7 +612,7 @@
 #define CFG_SPCR_TSEC1EP	3	/* TSEC1 emergency priority (0-3) */
 #define CFG_SPCR_TSEC2EP	3	/* TSEC2 emergency priority (0-3) */
 #define CFG_SCCR_TSEC1CM	1	/* TSEC1 clock mode (0-3) */
-#define CFG_SCCR_TSEC2CM	1	/* TSEC2 & I2C1 clock mode (0-3) */
+#define CFG_SCCR_TSEC2CM	1	/* TSEC2 & I2C0 clock mode (0-3) */
 #define CFG_ACR_RPTCNT		3	/* Arbiter repeat count */
 
 /* System IO Config */
@@ -708,6 +710,19 @@
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 
+#if 1
+#define CONFIG_IPADDR		10.82.19.159
+#define CONFIG_SERVERIP		10.82.48.106
+#define CONFIG_GATEWAYIP	10.82.19.254
+#define CONFIG_NETMASK		255.255.252.0
+#define CONFIG_NETDEV		eth0
+
+#define CONFIG_HOSTNAME		mpc8349emitx
+#define CONFIG_ROOTPATH		/nfsroot0/u/timur/itx-ltib/rootfs
+#define CONFIG_BOOTFILE		timur/uImage
+
+#define CONFIG_UBOOTPATH	timur/u-boot.bin
+#else
 #define CONFIG_IPADDR		192.168.1.253
 #define CONFIG_SERVERIP		192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
@@ -719,6 +734,8 @@
 #define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_UBOOTPATH	u-boot.bin
+#endif
+
 #define CONFIG_UBOOTSTART	fe700000
 #define CONFIG_UBOOTEND		fe77ffff
 

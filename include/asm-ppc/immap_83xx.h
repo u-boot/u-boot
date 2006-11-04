@@ -39,7 +39,7 @@
 
 #include <config.h>
 #include <asm/types.h>
-#include <asm/i2c.h>
+#include <asm/fsl_i2c.h>
 
 /*
  * Local Access Window.
@@ -2007,7 +2007,7 @@ typedef struct immap {
 	qesba83xx_t qesba;	/* QE Secondary Bus Access Windows */
 #endif
 	ddr83xx_t ddr;		/* DDR Memory Controller Memory */
-	i2c_t i2c[2];		/* I2C1 Controller */
+	fsl_i2c_t i2c[2];	/* I2C Controllers */
 	u8 res2[0x1300];
 	duart83xx_t duart[2];	/* DUART */
 #if defined (CONFIG_MPC8349)

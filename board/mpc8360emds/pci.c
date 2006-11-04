@@ -19,7 +19,7 @@
 #include <pci.h>
 #include <i2c.h>
 
-#include <asm/i2c.h>
+#include <asm/fsl_i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -200,9 +200,7 @@ void pci_init_board(void)
 
 	/* Switch temporarily to I2C bus #2 */
 	orig_i2c_bus = i2c_get_bus_num();
-
-	if(orig_i2c_bus != 2)
-	 	i2c_set_bus_num(2);
+ 	i2c_set_bus_num(1);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);
@@ -231,12 +229,7 @@ void pci_init_board(void)
 	asm("eieio");
 
 	/* Reset to original I2C bus */
-	if(orig_i2c_bus != 2)
-	 	i2c_set_bus_num(orig_i2c_bus);
-
-	/* Reset to original I2C bus */
-	if(orig_i2c_bus != 2)
-		i2c_set_bus_num(orig_i2c_bus);
+	i2c_set_bus_num(orig_i2c_bus);
 
 	/*
 	 * Release PCI RST Output signal

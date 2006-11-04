@@ -218,6 +218,7 @@ extern int tqm834x_num_flash_banks;
  */
 #define CONFIG_HARD_I2C				/* I2C with hardware support	*/
 #undef CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#define CONFIG_FSL_I2C
 #define CFG_I2C_SPEED			400000	/* I2C speed: 400KHz		*/
 #define CFG_I2C_SLAVE			0x7F	/* slave address		*/
 #define CFG_I2C_OFFSET			0x3000

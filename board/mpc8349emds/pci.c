@@ -74,9 +74,7 @@ pib_init(void)
 	 */
 	/* Switch temporarily to I2C bus #2 */
 	orig_i2c_bus = i2c_get_bus_num();
-
-	if(orig_i2c_bus != 2)
-	 	i2c_set_bus_num(2);
+        i2c_set_bus_num(1);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);
@@ -122,8 +120,7 @@ pib_init(void)
 	printf("PCI2: 32-bit on PMC3\n");
 #endif
 	/* Reset to original I2C bus */
-	if(orig_i2c_bus != 2)
-	 	i2c_set_bus_num(orig_i2c_bus);
+	i2c_set_bus_num(orig_i2c_bus);
 }
 
 /**************************************************************************

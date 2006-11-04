@@ -134,8 +134,7 @@ volatile static struct pci_controller hose[] = {
 };
 #endif				/* CONFIG_PCI */
 
-/* If MPC8349E-mITX is soldered with SDRAM, then initialize it.
-*/
+/* If MPC8349E-mITX is soldered with SDRAM, then initialize it. */
 
 void sdram_init(void)
 {
@@ -255,32 +254,12 @@ long int initdram(int board_type)
 
 int checkboard(void)
 {
-#ifdef CONFIG_HARD_I2C
-	u8 i2c_data;
-#endif
-
-	puts("Board: Freescale MPC8349E-mITX");
-
-#ifdef CONFIG_HARD_I2C
-	i2c_set_bus_num(2);
-	if (i2c_read(CFG_I2C_8574A_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) ==
-	    0)
-		printf(" %u.%u (PCF8475A)", (i2c_data & 0x02) >> 1,
-		       i2c_data & 0x01);
-	else if (i2c_read(CFG_I2C_8574_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data))
-		 == 0)
-		printf(" %u.%u (PCF8475)", (i2c_data & 0x02) >> 1,
-		       i2c_data & 0x01);
-	else
-		printf(" ?.?");
-#endif
-
-	puts("\n");
+	puts("Board: Freescale MPC8349E-mITX\n");
 
 	return 0;
 }
 
-/**
+/*
  * Implement a work-around for a hardware problem with compact
  * flash.
  *
@@ -347,7 +326,7 @@ int misc_init_f(void)
 	return 0;
 }
 
-/**
+/*
  * Make sure the EEPROM has the HRCW correctly programmed.
  * Make sure the RTC is correctly programmed.
  *
@@ -366,7 +345,8 @@ int misc_init_r(void)
 
 #ifdef CONFIG_HARD_I2C
 
-	uchar orig_bus = i2c_get_bus_num();;
+	unsigned int orig_bus = i2c_get_bus_num();;
+	u8 i2c_data;
 
 #ifdef CFG_I2C_RTC_ADDR
 	char ds1339_data[17];
@@ -381,8 +361,21 @@ int misc_init_r(void)
 	};
 
 	u8 data[sizeof(eeprom_data)];
+#endif
 
+	printf("Board revision: ");
 	i2c_set_bus_num(1);
+	if (i2c_read(CFG_I2C_8574A_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
+		printf("%u.%u (PCF8475A)\n", (i2c_data & 0x02) >> 1, i2c_data & 0x01);
+	else if (i2c_read(CFG_I2C_8574_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
+		printf("%u.%u (PCF8475)\n",  (i2c_data & 0x02) >> 1, i2c_data & 0x01);
+	else {
+		printf("Unknown\n");
+		rc = 1;
+	}
+
+#ifdef CFG_I2C_EEPROM_ADDR
+	i2c_set_bus_num(0);
 
 	if (i2c_read(CFG_I2C_EEPROM_ADDR, 0, 2, data, sizeof(data)) == 0) {
 		if (memcmp(data, eeprom_data, sizeof(data)) != 0) {
@@ -400,7 +393,7 @@ int misc_init_r(void)
 #endif
 
 #ifdef CFG_I2C_RTC_ADDR
-	i2c_set_bus_num(2);
+	i2c_set_bus_num(1);
 
 	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 1, ds1339_data, sizeof(ds1339_data))
 	    == 0) {
