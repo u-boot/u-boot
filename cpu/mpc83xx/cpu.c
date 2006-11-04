@@ -43,28 +43,70 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu(void)
 {
+	volatile immap_t *immr;
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr();
+	u32 spridr;
 	char buf[32];
+
+	immr = (immap_t *)CFG_IMMRBAR;
 
 	if ((pvr & 0xFFFF0000) != PVR_83xx) {
 		puts("Not MPC83xx Family!!!\n");
 		return -1;
 	}
 
-	puts("CPU:   MPC83xx, ");
-	switch(pvr) {
-	case PVR_8349_REV10:
+	spridr = immr->sysconf.spridr;
+	puts("CPU: ");
+	switch(spridr) {
+	case SPR_8349E_REV10:
+	case SPR_8349E_REV11:
+		puts("MPC8349E, ");
 		break;
-	case PVR_8349_REV11:
+	case SPR_8349_REV10:
+	case SPR_8349_REV11:
+		puts("MPC8349, ");
+		break;
+	case SPR_8347E_REV10_TBGA:
+	case SPR_8347E_REV11_TBGA:
+	case SPR_8347E_REV10_PBGA:
+	case SPR_8347E_REV11_PBGA:
+		puts("MPC8347E, ");
+		break;
+	case SPR_8347_REV10_TBGA:
+	case SPR_8347_REV11_TBGA:
+	case SPR_8347_REV10_PBGA:
+	case SPR_8347_REV11_PBGA:
+		puts("MPC8347, ");
+		break;
+	case SPR_8343E_REV10:
+	case SPR_8343E_REV11:
+		puts("MPC8343E, ");
+		break;
+	case SPR_8343_REV10:
+	case SPR_8343_REV11:
+		puts("MPC8343, ");
+		break;
+	case SPR_8360E_REV10:
+	case SPR_8360E_REV11:
+	case SPR_8360E_REV12:
+		puts("MPC8360E, ");
+		break;
+	case SPR_8360_REV10:
+	case SPR_8360_REV11:
+	case SPR_8360_REV12:
+		puts("MPC8360, ");
 		break;
 	default:
 		puts("Rev: Unknown\n");
 		return -1;	/* Not sure what this is */
 	}
-	printf("Rev: %d.%d at %s MHz\n", (pvr & 0xf0) >> 4,
-		(pvr & 0x0f), strmhz(buf, clock));
 
+#if defined(CONFIG_MPC8349)
+	printf("Rev: %02x at %s MHz\n", (spridr & 0x0000FFFF)>>4 |(spridr & 0x0000000F), strmhz(buf, clock));
+#else
+	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
+#endif
 	return 0;
 }
 
