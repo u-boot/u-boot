@@ -341,9 +341,7 @@ void pci_init_board(void)
 #define SM501_GPIO_DATA_DIR_HIGH	0x0001000CUL
 #define SM501_GPIO_DATA_HIGH		0x00010004UL
 #define SM501_GPIO_51			0x00080000UL
-#else
-#define GPIO_PSC1_4	0x01000000UL
-#endif
+#endif /* CONFIG MINIFAP */
 
 void init_ide_reset (void)
 {
@@ -381,9 +379,9 @@ void ide_set_reset (int idereset)
 	}
 #else
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |=  GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 #endif
 }
@@ -396,6 +394,7 @@ void ide_set_reset (int idereset)
  */
 int post_hotkeys_pressed(void)
 {
+#ifdef CONFIG_STK52XX
 	struct mpc5xxx_gpio *gpio;
 
 	gpio = (struct mpc5xxx_gpio*) MPC5XXX_GPIO;
@@ -414,6 +413,9 @@ int post_hotkeys_pressed(void)
 	gpio->simple_ddr &= ~(0x20000000);
 
 	return ((gpio->simple_ival & 0x20000000) ? 0 : 1);
+#else
+	return 0;
+#endif
 }
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -504,7 +504,7 @@ void board_init_f (ulong bootflag)
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
-    defined(CONFIG_E500)
+    defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
 #endif
 #if defined(CONFIG_MPC5xxx)
@@ -805,7 +805,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif	/* CFG_EXTBDINFO */
 
 	s = getenv ("ethaddr");
-#if defined (CONFIG_MBX) || defined (CONFIG_RPXCLASSIC) || defined(CONFIG_IAD210)
+#if defined (CONFIG_MBX) || \
+    defined (CONFIG_RPXCLASSIC) || \
+    defined(CONFIG_IAD210) || \
+    defined(CONFIG_V38B)
 	if (s == NULL)
 		board_get_enetaddr (bd->bi_enetaddr);
 	else
@@ -866,6 +869,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+#endif
+
+#ifdef CFG_ID_EEPROM
+	mac_read_from_eeprom();
 #endif
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \

@@ -264,6 +264,7 @@
 #define SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
 #define SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
 #define SPRN_IMMR	0x27E  	/* Internal Memory Map Register */
+#define SPRN_LDSTCR	0x3F8   /* Load/Store Control Register */
 #define SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
 #define SPRN_LR		0x008	/* Link Register */
 #define SPRN_MBAR       0x137   /* System memory base address */
@@ -443,6 +444,11 @@
 #define SPRN_MCSR	0x23c	/* Machine Check Syndrome register */
 #define ESR_ST          0x00800000      /* Store Operation */
 
+#if defined(CONFIG_MPC86xx)
+#define SPRN_MSSCRO	0x3f6
+#endif
+
+
 /* Short-hand versions for a number of the above SPRNs */
 
 #define CTR	SPRN_CTR	/* Counter Register */
@@ -501,10 +507,14 @@
 #define ICMP	SPRN_ICMP	/* Instruction TLB Compare Register */
 #define IMISS	SPRN_IMISS	/* Instruction TLB Miss Register */
 #define IMMR	SPRN_IMMR      	/* PPC 860/821 Internal Memory Map Register */
+#define LDSTCR	SPRN_LDSTCR     /* Load/Store Control Register */
 #define L2CR	SPRN_L2CR    	/* PPC 750 L2 control register */
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
-#if defined(CONFIG_E500)
+#if defined(CONFIG_MPC86xx)
+#define MSSCR0	SPRN_MSSCRO
+#endif
+#if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define PIR	SPRN_PIR
 #endif
 #define SVR	SPRN_SVR	/* System-On-Chip Version Register */
@@ -538,7 +548,7 @@
 #define CSRR0	SPRN_CSRR0
 #define CSRR1	SPRN_CSRR1
 #define IVPR	SPRN_IVPR
-#define USPRG0	SPRN_USPRG0
+#define USPRG0	SPRN_USPRG
 #define SPRG4R	SPRN_SPRG4R
 #define SPRG5R	SPRN_SPRG5R
 #define SPRG6R	SPRN_SPRG6R
@@ -763,6 +773,8 @@
 #define PVR_85xx_REV1	(PVR_85xx | 0x0010)
 #define PVR_85xx_REV2	(PVR_85xx | 0x0020)
 
+#define PVR_86xx	0x80040000
+#define PVR_86xx_REV1	(PVR_86xx | 0x0010)
 
 /*
  * For the 8xx processors, all of them report the same PVR family for
@@ -798,6 +810,8 @@
 #define SVR_VER(svr)	(((svr) >>  16) & 0xFFFF)	/* Version field */
 #define SVR_REV(svr)	(((svr) >>   0) & 0xFFFF)	/* Revison field */
 
+#define SVR_SUBVER(svr)	(((svr) >>  8) & 0xFF)	/* Process/MFG sub-version */
+
 #define SVR_FAM(svr)	(((svr) >> 20) & 0xFFF)	/* Family field */
 #define SVR_MEM(svr)	(((svr) >> 16) & 0xF)	/* Member field */
 
@@ -815,6 +829,7 @@
 #define SVR_8541	0x807A
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
+#define SVR_8641	0x8090
 
 
 /* I am just adding a single entry for 8260 boards.  I think we may be

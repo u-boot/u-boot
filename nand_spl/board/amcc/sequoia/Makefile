@@ -22,9 +22,9 @@
 #
 
 include $(TOPDIR)/config.mk
-include board/$(BOARDDIR)/config.mk
+include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
-LDSCRIPT= board/$(BOARDDIR)/u-boot.lds
+LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
@@ -32,48 +32,64 @@ CFLAGS	+= -DCONFIG_NAND_SPL
 SOBJS	= start.o init.o resetvec.o
 COBJS	= nand_boot.o ndfc.o sdram.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+__OBJS	:= $(SOBJS) $(COBJS)
+LNDIR	:= $(OBJTREE)/nand_spl/board/$(BOARDDIR)
 
-ALL	= u-boot-spl u-boot-spl.bin u-boot-spl-16k.bin
+nandobj	:= $(OBJTREE)/nand_spl/
+
+ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
 all:	$(obj).depend $(ALL)
 
-u-boot-spl-16k.bin: u-boot-spl
+$(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
 
-u-boot-spl.bin:	u-boot-spl
+$(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
-u-boot-spl:	$(OBJS)
-	$(LD) $(LDFLAGS) $$UNDEF_SYM $(OBJS) \
-		-Map u-boot-spl.map -o u-boot-spl
+$(nandobj)u-boot-spl:	$(OBJS)
+	cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
+		-Map $(nandobj)u-boot-spl.map \
+		-o $(nandobj)u-boot-spl
 
 # create symbolic links for common files
 
 # from cpu directory
-ndfc.c:
-	@rm -f ndfc.c
-	ln -s ../cpu/ppc4xx/ndfc.c ndfc.c
+$(obj)ndfc.c:
+	@rm -f $(obj)ndfc.c
+	ln -s $(SRCTREE)/cpu/ppc4xx/ndfc.c $(obj)ndfc.c
 
-resetvec.S:
-	@rm -f resetvec.S
-	ln -s ../cpu/ppc4xx/resetvec.S resetvec.S
+$(obj)resetvec.S:
+	@rm -f $(obj)resetvec.S
+	ln -s $(SRCTREE)/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
 
-start.S:
-	@rm -f start.S
-	ln -s ../cpu/ppc4xx/start.S start.S
+$(obj)start.S:
+	@rm -f $(obj)start.S
+	ln -s $(SRCTREE)/cpu/ppc4xx/start.S $(obj)start.S
 
 # from board directory
-init.S:
-	@rm -f init.S
-	ln -s ../board/amcc/sequoia/init.S init.S
+$(obj)init.S:
+	@rm -f $(obj)init.S
+	ln -s $(SRCTREE)/board/amcc/sequoia/init.S $(obj)init.S
 
-sdram.c:
-	@rm -f sdram.c
-	ln -s ../board/amcc/sequoia/sdram.c sdram.c
+$(obj)sdram.c:
+	@rm -f $(obj)sdram.c
+	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $(obj)sdram.c
+
+# from nand_spl directory
+$(obj)nand_boot.c:
+	@rm -f $(obj)nand_boot.c
+	ln -s $(SRCTREE)/nand_spl/nand_boot.c $(obj)nand_boot.c
 
 #########################################################################
+
+$(obj)%.o:	$(obj)%.S
+	$(CC) $(AFLAGS) -c -o $@ $<
+
+$(obj)%.o:	$(obj)%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk

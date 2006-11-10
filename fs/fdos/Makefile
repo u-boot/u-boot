@@ -41,7 +41,7 @@ OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 all:	$(LIB) $(AOBJS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 
 #########################################################################

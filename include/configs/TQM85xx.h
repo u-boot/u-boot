@@ -186,18 +186,23 @@
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-/* Use the HUSH parser */
-#define CFG_HUSH_PARSER
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-/* I2C */
+
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES	{0x48}	/* Don't probe these addrs	*/
+#define CFG_I2C_OFFSET		0x3000
 
 /* I2C RTC */
 #define CONFIG_RTC_DS1337		/* Use ds1337 rtc via i2c	*/

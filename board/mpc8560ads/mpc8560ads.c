@@ -33,6 +33,10 @@
 #include <spd.h>
 #include <miiphy.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
@@ -539,8 +543,15 @@ void
 pci_init_board(void)
 {
 #ifdef CONFIG_PCI
-	extern void pci_mpc85xx_init(struct pci_controller *hose);
-
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
 }
+
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif

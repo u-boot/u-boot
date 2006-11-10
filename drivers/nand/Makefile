@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libnand.a
 
-COBJS 	:= nand.o nand_base.o nand_ids.o nand_ecc.o nand_bbt.o
+COBJS 	:= nand.o nand_base.o nand_ids.o nand_ecc.o nand_bbt.o nand_util.o
 
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
@@ -33,7 +33,7 @@ OBJS 	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 

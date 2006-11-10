@@ -1,30 +1,31 @@
 /*
-*  Copyright (C) 2002 Scott McNutt <smcnutt@artesyncp.com>
-*
-* See file CREDITS for list of people who contributed to this
-* project.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; either version 2 of
-* the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-* MA 02111-1307 USA
-*/
+ *  Copyright (C) 2002 Scott McNutt <smcnutt@artesyncp.com>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
 
 #include <ppc_asm.tmpl>
 #include <config.h>
 
 /* General */
 #define TLB_VALID   0x00000200
+#define _256M       0x10000000
 
 /* Supported page sizes */
 
@@ -32,10 +33,11 @@
 #define SZ_4K	    0x00000010
 #define SZ_16K	    0x00000020
 #define SZ_64K	    0x00000030
-#define SZ_256K    0x00000040
+#define SZ_256K	    0x00000040
 #define SZ_1M	    0x00000050
+#define SZ_8M       0x00000060
 #define SZ_16M	    0x00000070
-#define SZ_256M    0x00000090
+#define SZ_256M	    0x00000090
 
 /* Storage attributes */
 #define SA_W	    0x00000800	    /* Write-through */
@@ -54,7 +56,7 @@
 #define EPN(e)		((e) & 0xfffffc00)
 #define TLB0(epn,sz)	( (EPN((epn)) | (sz) | TLB_VALID ) )
 #define TLB1(rpn,erpn)	( ((rpn)&0xfffffc00) | (erpn) )
-#define TLB2(a)	( (a)&0x00000fbf )
+#define TLB2(a)		( (a)&0x00000fbf )
 
 #define tlbtab_start\
 	mflr    r1  ;\
@@ -86,12 +88,14 @@
 
 tlbtab:
     tlbtab_start
-    tlbentry( 0xf0000000, SZ_256M, 0xf0000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
-    tlbentry( CFG_PERIPHERAL_BASE, SZ_256M, 0x40000000, 1, AC_R|AC_W|SA_G|SA_I)
+    tlbentry( 0xf0000000, SZ_256M, 0xf0000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+    tlbentry( CFG_PERIPHERAL_BASE, SZ_256M, 0x40000000, 1, AC_R|AC_W|SA_G|SA_I )
     tlbentry( CFG_ISRAM_BASE, SZ_4K, 0x80000000, 0, AC_R|AC_W|AC_X )
     tlbentry( CFG_ISRAM_BASE + 0x1000, SZ_4K, 0x80001000, 0, AC_R|AC_W|AC_X )
     tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
-    tlbentry( CFG_SDRAM_BASE+0x10000000, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+    tlbentry( CFG_SDRAM_BASE + 0x10000000, SZ_256M, 0x10000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+    tlbentry( CFG_SDRAM_BASE + 0x20000000, SZ_256M, 0x20000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+    tlbentry( CFG_SDRAM_BASE + 0x30000000, SZ_256M, 0x30000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
     tlbentry( CFG_PCI_BASE, SZ_256M, 0x00000000, 2, AC_R|AC_W|SA_G|SA_I )
     tlbentry( CFG_PCI_MEMBASE, SZ_256M, 0x00000000, 3, AC_R|AC_W|SA_G|SA_I )
     tlbtab_end

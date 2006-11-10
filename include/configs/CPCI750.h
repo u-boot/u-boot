@@ -74,7 +74,7 @@
 
 #define CFG_PROMPT_HUSH_PS2	"> "
 
-#define CFG_AUTO_COMPLETE 1
+#define CONFIG_AUTO_COMPLETE 1
 
 /* Define which ETH port will be used for connecting the network */
 #define CFG_ETH_PORT		ETH_0

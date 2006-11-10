@@ -134,13 +134,6 @@
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif
 
-/*-----------------------------------------------------------------------
- * NAND FLASH
- *----------------------------------------------------------------------*/
-#define CFG_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
-#define CFG_NAND_BASE		CFG_NAND_ADDR
-
 /*
  * IPL (Initial Program Loader, integrated inside CPU)
  * Will load first 4k from NAND (SPL) into cache and execute it from there.
@@ -404,6 +397,14 @@
 /* Memory Bank 2 (CPLD) initialization						*/
 #define CFG_EBC_PB2AP		0x24814580
 #define CFG_EBC_PB2CR		(CFG_CPLD | 0x38000)
+
+/*-----------------------------------------------------------------------
+ * NAND FLASH
+ *----------------------------------------------------------------------*/
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
+#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

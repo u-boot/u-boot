@@ -167,6 +167,11 @@ int _do_setenv (int flag, int argc, char *argv[])
 
 	name = argv[1];
 
+	if (strchr(name, '=')) {
+		printf ("## Error: illegal character '=' in variable name \"%s\"\n", name);
+		return 1;
+	}
+
 	/*
 	 * search if variable with this name already exists
 	 */

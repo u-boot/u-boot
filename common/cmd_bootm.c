@@ -260,6 +260,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_NIOS2)
 #elif defined(__blackfin__)
 	if (hdr->ih_arch != IH_CPU_BLACKFIN)
+#elif defined(__avr32__)
+	if (hdr->ih_arch != IH_CPU_AVR32)
 #else
 # error Unknown CPU type
 #endif
@@ -465,6 +467,13 @@ U_BOOT_CMD(
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
  	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
  	"\t'arg' can be the address of an initrd image\n"
+#ifdef CONFIG_OF_FLAT_TREE
+	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
+	"\ta third argument is required which is the address of the of the\n"
+	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
+	"\tuse a '-' for the second argument. If you do not pass a third\n"
+	"\ta bd_info struct will be passed instead\n"
+#endif
 );
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -500,13 +509,8 @@ fixup_silent_linux ()
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
-#ifdef CONFIG_OF_FLAT_TREE
-extern const unsigned char oftree_dtb[];
-extern const unsigned int oftree_dtb_len;
-#endif
-
 #ifdef CONFIG_PPC
-static void
+static void  __attribute__((noinline))
 do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		int	argc, char *argv[],
 		ulong	addr,
@@ -526,7 +530,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	image_header_t *hdr = &header;
 #ifdef CONFIG_OF_FLAT_TREE
-	char	*of_flat_tree;
+	char	*of_flat_tree = NULL;
+	ulong	of_data = 0;
 #endif
 
 	if ((s = getenv ("initrd_high")) != NULL) {
@@ -616,7 +621,17 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/*
 	 * Check if there is an initrd image
 	 */
+
+#ifdef CONFIG_OF_FLAT_TREE
+	/* Look for a '-' which indicates to ignore the ramdisk argument */
+	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
+			debug ("Skipping initrd\n");
+			len = data = 0;
+		}
+	else
+#endif
 	if (argc >= 3) {
+		debug ("Not skipping initrd\n");
 		SHOW_BOOT_PROGRESS (9);
 
 		addr = simple_strtoul(argv[2], NULL, 16);
@@ -724,6 +739,106 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		len = data = 0;
 	}
 
+#ifdef CONFIG_OF_FLAT_TREE
+	if(argc > 3) {
+		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
+		hdr = (image_header_t *)of_flat_tree;
+
+		if  (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#ifndef CFG_NO_FLASH
+			if (addr2info((ulong)of_flat_tree) != NULL)
+				of_data = (ulong)of_flat_tree;
+#endif
+		} else if (ntohl(hdr->ih_magic) == IH_MAGIC) {
+			printf("## Flat Device Tree Image at %08lX\n", hdr);
+			print_image_hdr(hdr);
+
+			if ((ntohl(hdr->ih_load) <  ((unsigned long)hdr + ntohl(hdr->ih_size) + sizeof(hdr))) &&
+			   ((ntohl(hdr->ih_load) + ntohl(hdr->ih_size)) > (unsigned long)hdr)) {
+				printf ("ERROR: Load address overwrites Flat Device Tree uImage\n");
+				return;
+			}
+
+			printf("   Verifying Checksum ... ");
+			memmove (&header, (char *)hdr, sizeof(image_header_t));
+			checksum = ntohl(header.ih_hcrc);
+			header.ih_hcrc = 0;
+
+			if(checksum != crc32(0, (uchar *)&header, sizeof(image_header_t))) {
+				printf("ERROR: Flat Device Tree header checksum is invalid\n");
+				return;
+			}
+
+			checksum = ntohl(hdr->ih_dcrc);
+			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
+			len = ntohl(hdr->ih_size);
+
+			if(checksum != crc32(0, (uchar *)addr, len)) {
+				printf("ERROR: Flat Device Tree checksum is invalid\n");
+				return;
+			}
+			printf("OK\n");
+
+			if (ntohl(hdr->ih_type) != IH_TYPE_FLATDT) {
+				printf ("ERROR: uImage not Flat Device Tree type\n");
+				return;
+			}
+			if (ntohl(hdr->ih_comp) != IH_COMP_NONE) {
+				printf("ERROR: uImage is not uncompressed\n");
+				return;
+			}
+			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+				printf ("ERROR: uImage data is not a flat device tree\n");
+				return;
+			}
+
+			memmove((void *)ntohl(hdr->ih_load),
+		       		(void *)(of_flat_tree + sizeof(image_header_t)),
+				ntohl(hdr->ih_size));
+			of_flat_tree = (char *)ntohl(hdr->ih_load);
+		} else {
+			printf ("Did not find a flat flat device tree at address %08lX\n", of_flat_tree);
+			return;
+		}
+		printf ("   Booting using flat device tree at 0x%x\n",
+				of_flat_tree);
+	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
+		u_long tail    = ntohl(len_ptr[0]) % 4;
+		int i;
+
+		/* skip kernel length, initrd length, and terminator */
+		of_data = (ulong)(&len_ptr[3]);
+		/* skip any additional image length fields */
+		for (i=2; len_ptr[i]; ++i)
+			of_data += 4;
+		/* add kernel length, and align */
+		of_data += ntohl(len_ptr[0]);
+		if (tail) {
+			of_data += 4 - tail;
+		}
+
+		/* add initrd length, and align */
+		tail = ntohl(len_ptr[1]) % 4;
+		of_data += ntohl(len_ptr[1]);
+		if (tail) {
+			of_data += 4 - tail;
+		}
+
+		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
+			printf ("ERROR: image is not a flat device tree\n");
+			return;
+		}
+
+		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+			printf ("ERROR: flat device tree size does not agree with image\n");
+			return;
+		}
+
+	} else if (getenv("disable_of") == NULL) {
+		printf ("ERROR: bootm needs flat device tree as third argument\n");
+		return;
+	}
+#endif
 	if (!data) {
 		debug ("No initrd\n");
 	}
@@ -793,15 +908,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
-#ifdef CONFIG_OF_FLAT_TREE
-	if (initrd_start == 0)
-		of_flat_tree = (char *)(((ulong)kbd - OF_FLAT_TREE_MAX_SIZE -
-					sizeof(bd_t)) & ~0xF);
-	else
-		of_flat_tree = (char *)((initrd_start - OF_FLAT_TREE_MAX_SIZE -
-					sizeof(bd_t)) & ~0xF);
-#endif
-
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
@@ -823,8 +929,27 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 
-#else
-	ft_setup(of_flat_tree, OF_FLAT_TREE_MAX_SIZE, kbd, initrd_start, initrd_end);
+#else	/* CONFIG_OF_FLAT_TREE */
+	/* move of_flat_tree if needed */
+	if (of_data) {
+		ulong of_start, of_len;
+		of_len = ((struct boot_param_header *)of_data)->totalsize;
+		/* provide extra 8k pad */
+		if (initrd_start)
+			of_start = initrd_start - of_len - 8192;
+		else
+			of_start  = (ulong)kbd - of_len - 8192;
+		of_start &= ~(4096 - 1);	/* align on page */
+		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
+			of_data, of_data + of_len - 1, of_len, of_len);
+
+		of_flat_tree = (char *)of_start;
+		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
+			of_start, of_start + of_len - 1);
+		memmove ((void *)of_start, (void *)of_data, of_len);
+	}
+
+	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
@@ -841,10 +966,12 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if (getenv("disable_of") != NULL)
 		(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end,
 			cmd_start, cmd_end);
-	else
+	else {
+		ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
+		/* ft_dump_blob(of_flat_tree); */
 		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
-
-#endif
+	}
+#endif	/* CONFIG_OF_FLAT_TREE */
 }
 #endif /* CONFIG_PPC */
 
@@ -1236,6 +1363,7 @@ print_type (image_header_t *hdr)
 	case IH_CPU_INVALID:	arch = "Invalid CPU";		break;
 	case IH_CPU_ALPHA:	arch = "Alpha";			break;
 	case IH_CPU_ARM:	arch = "ARM";			break;
+	case IH_CPU_AVR32:	arch = "AVR32";			break;
 	case IH_CPU_I386:	arch = "Intel x86";		break;
 	case IH_CPU_IA64:	arch = "IA64";			break;
 	case IH_CPU_MIPS:	arch = "MIPS";			break;
@@ -1260,6 +1388,7 @@ print_type (image_header_t *hdr)
 	case IH_TYPE_MULTI:	type = "Multi-File Image";	break;
 	case IH_TYPE_FIRMWARE:	type = "Firmware";		break;
 	case IH_TYPE_SCRIPT:	type = "Script";		break;
+	case IH_TYPE_FLATDT:	type = "Flat Device Tree";	break;
 	default:		type = "Unknown Image";		break;
 	}
 

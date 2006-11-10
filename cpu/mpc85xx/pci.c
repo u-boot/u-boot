@@ -29,19 +29,85 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 #if defined(CONFIG_PCI)
 
+static struct pci_controller *pci_hose;
+
 void
-pci_mpc85xx_init(struct pci_controller *hose)
+pci_mpc85xx_init(struct pci_controller *board_hose)
 {
+	u16 reg16;
+	u32 dev;
+
 	volatile immap_t    *immap = (immap_t *)CFG_CCSRBAR;
 	volatile ccsr_pcix_t *pcix = &immap->im_pcix;
+#ifdef CONFIG_MPC85XX_PCI2
+	volatile ccsr_pcix_t *pcix2 = &immap->im_pcix2;
+#endif
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	struct pci_controller * hose;
 
-	u16 reg16;
+	pci_hose = board_hose;
+
+	hose = &pci_hose[0];
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
+
+	pci_setup_indirect(hose,
+			   (CFG_IMMR+0x8000),
+			   (CFG_IMMR+0x8004));
+
+	/*
+	 * Hose scan.
+	 */
+	dev = PCI_BDF(hose->first_busno, 0, 0);
+	pci_hose_read_config_word (hose, dev, PCI_COMMAND, &reg16);
+	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, reg16);
+
+	/*
+	 * Clear non-reserved bits in status register.
+	 */
+	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
+
+	if (!(gur->pordevsr & PORDEVSR_PCI)) {
+		/* PCI-X init */
+		if (CONFIG_SYS_CLK_FREQ < 66000000)
+			printf("PCI-X will only work at 66 MHz\n");
+
+		reg16 = PCI_X_CMD_MAX_SPLIT | PCI_X_CMD_MAX_READ
+			| PCI_X_CMD_ERO | PCI_X_CMD_DPERR_E;
+		pci_hose_write_config_word(hose, dev, PCIX_COMMAND, reg16);
+	}
+
+	pcix->potar1   = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcix->potear1  = 0x00000000;
+	pcix->powbar1  = (CFG_PCI1_MEM_PHYS >> 12) & 0x000fffff;
+	pcix->powbear1 = 0x00000000;
+	pcix->powar1 = (POWAR_EN | POWAR_MEM_READ |
+			POWAR_MEM_WRITE | POWAR_MEM_512M);
+
+	pcix->potar2  = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcix->potear2  = 0x00000000;
+	pcix->powbar2  = (CFG_PCI1_IO_PHYS >> 12) & 0x000fffff;
+	pcix->powbear2 = 0x00000000;
+	pcix->powar2 = (POWAR_EN | POWAR_IO_READ |
+			POWAR_IO_WRITE | POWAR_IO_1M);
+
+	pcix->pitar1 = 0x00000000;
+	pcix->piwbar1 = 0x00000000;
+	pcix->piwar1 = (PIWAR_EN | PIWAR_PF | PIWAR_LOCAL |
+			PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP | PIWAR_MEM_2G);
+
+	pcix->powar3 = 0;
+	pcix->powar4 = 0;
+	pcix->piwar2 = 0;
+	pcix->piwar3 = 0;
 
 	pci_set_region(hose->regions + 0,
 		       CFG_PCI1_MEM_BASE,
@@ -57,41 +123,7 @@ pci_mpc85xx_init(struct pci_controller *hose)
 
 	hose->region_count = 2;
 
-	pci_setup_indirect(hose,
-			   (CFG_IMMR+0x8000),
-			   (CFG_IMMR+0x8004));
-
-	pcix->potar1   = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
-	pcix->potear1  = 0x00000000;
-	pcix->powbar1  = (CFG_PCI1_MEM_BASE >> 12) & 0x000fffff;
-	pcix->powbear1 = 0x00000000;
-	pcix->powar1   = 0x8004401c;	/* 512M MEM space */
-
-	pcix->potar2   = 0x00000000;
-	pcix->potear2  = 0x00000000;
-	pcix->powbar2  = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
-	pcix->powbear2 = 0x00000000;
-	pcix->powar2   = 0x80088017;	/* 16M IO space */
-
-	pcix->pitar1 = 0x00000000;
-	pcix->piwbar1 = 0x00000000;
-	pcix->piwar1 = 0xa0f5501e;	/* Enable, Prefetch, Local Mem,
-					 * Snoop R/W, 2G */
-
-	/*
-	 * Hose scan.
-	 */
 	pci_register_hose(hose);
-
-	pci_read_config_word (PCI_BDF(0,0,0), PCI_COMMAND, &reg16);
-	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config_word(PCI_BDF(0,0,0), PCI_COMMAND, reg16);
-
-	/*
-	 * Clear non-reserved bits in status register.
-	 */
-	pci_write_config_word(PCI_BDF(0,0,0), PCI_STATUS, 0xffff);
-	pci_write_config_byte(PCI_BDF(0,0,0), PCI_LATENCY_TIMER,0x80);
 
 #if defined(CONFIG_MPC8555CDS) || defined(CONFIG_MPC8541CDS)
 	/*
@@ -117,6 +149,94 @@ pci_mpc85xx_init(struct pci_controller *hose)
 #endif
 
 	hose->last_busno = pci_hose_scan(hose);
+
+#ifdef CONFIG_MPC85XX_PCI2
+	hose = &pci_hose[1];
+
+	hose->first_busno = pci_hose[0].last_busno + 1;
+	hose->last_busno = 0xff;
+
+	pci_setup_indirect(hose,
+			   (CFG_IMMR+0x9000),
+			   (CFG_IMMR+0x9004));
+
+	dev = PCI_BDF(hose->first_busno, 0, 0);
+	pci_hose_read_config_word (hose, dev, PCI_COMMAND, &reg16);
+	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, reg16);
+
+	/*
+	 * Clear non-reserved bits in status register.
+	 */
+	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
+
+	pcix2->potar1   = (CFG_PCI2_MEM_BASE >> 12) & 0x000fffff;
+	pcix2->potear1  = 0x00000000;
+	pcix2->powbar1  = (CFG_PCI2_MEM_PHYS >> 12) & 0x000fffff;
+	pcix2->powbear1 = 0x00000000;
+	pcix2->powar1 = (POWAR_EN | POWAR_MEM_READ |
+			POWAR_MEM_WRITE | POWAR_MEM_512M);
+
+	pcix2->potar2  = (CFG_PCI2_IO_BASE >> 12) & 0x000fffff;
+	pcix2->potear2  = 0x00000000;
+	pcix2->powbar2  = (CFG_PCI2_IO_PHYS >> 12) & 0x000fffff;
+	pcix2->powbear2 = 0x00000000;
+	pcix2->powar2 = (POWAR_EN | POWAR_IO_READ |
+			POWAR_IO_WRITE | POWAR_IO_1M);
+
+	pcix2->pitar1 = 0x00000000;
+	pcix2->piwbar1 = 0x00000000;
+	pcix2->piwar1 = (PIWAR_EN | PIWAR_PF | PIWAR_LOCAL |
+			PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP | PIWAR_MEM_2G);
+
+	pcix2->powar3 = 0;
+	pcix2->powar4 = 0;
+	pcix2->piwar2 = 0;
+	pcix2->piwar3 = 0;
+
+	pci_set_region(hose->regions + 0,
+		       CFG_PCI2_MEM_BASE,
+		       CFG_PCI2_MEM_PHYS,
+		       CFG_PCI2_MEM_SIZE,
+		       PCI_REGION_MEM);
+
+	pci_set_region(hose->regions + 1,
+		       CFG_PCI2_IO_BASE,
+		       CFG_PCI2_IO_PHYS,
+		       CFG_PCI2_IO_SIZE,
+		       PCI_REGION_IO);
+
+	hose->region_count = 2;
+
+	/*
+	 * Hose scan.
+	 */
+	pci_register_hose(hose);
+
+	hose->last_busno = pci_hose_scan(hose);
+#endif
 }
 
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8000/bus-range", &len);
+	if (p != NULL) {
+		p[0] = pci_hose[0].first_busno;
+		p[1] = pci_hose[0].last_busno;
+	}
+
+#ifdef CONFIG_MPC85XX_PCI2
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@9000/bus-range", &len);
+	if (p != NULL) {
+		p[0] = pci_hose[1].first_busno;
+		p[1] = pci_hose[1].last_busno;
+	}
+#endif
+}
+#endif /* CONFIG_OF_FLAT_TREE */
 #endif /* CONFIG_PCI */

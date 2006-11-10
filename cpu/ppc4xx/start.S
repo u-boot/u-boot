@@ -173,9 +173,9 @@
 
 /**************************************************************************/
 _start_440:
-        /*--------------------------------------------------------------------+
-        | 440EPX BUP Change - Hardware team request
-        +--------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------+
+	| 440EPX BUP Change - Hardware team request
+	+--------------------------------------------------------------------*/
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	sync
 	nop
@@ -1697,7 +1697,8 @@ ppc405ep_init:
 	mtdcr	ebccfgd,r3
 #endif
 
-	addi	r3,0,CPC0_PCI_HOST_CFG_EN
+#ifndef CFG_CPC0_PCI
+	li	r3,CPC0_PCI_HOST_CFG_EN
 #ifdef CONFIG_BUBINGA
 	/*
 	!-----------------------------------------------------------------------
@@ -1712,6 +1713,9 @@ ppc405ep_init:
 	beq	..pci_cfg_set		  /* if not set, then bypass reg write*/
 #endif
 	ori	r3,r3,CPC0_PCI_ARBIT_EN
+#else /* CFG_CPC0_PCI */
+	li	r3,CFG_CPC0_PCI
+#endif /* CFG_CPC0_PCI */
 ..pci_cfg_set:
 	mtdcr	CPC0_PCI, r3		 /* Enable internal arbiter*/
 

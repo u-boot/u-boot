@@ -31,7 +31,9 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= $(BOARD).o \
 	   ../common/cadmus.o \
-	   ../common/eeprom.o
+	   ../common/eeprom.o \
+	   ../common/ft_board.o \
+	   ../common/via.o
 
 SOBJS	:= init.o
 
@@ -40,7 +42,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(OBJS) $(SOBJS)

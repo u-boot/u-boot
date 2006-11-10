@@ -65,8 +65,8 @@ static void ndfc_hwcontrol(struct mtd_info *mtdinfo, int cmd)
 
 static void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 
 	if (hwctl & 0x1)
 		out8(base + NDFC_CMD, byte);
@@ -78,16 +78,16 @@ static void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte)
 
 static u_char ndfc_read_byte(struct mtd_info *mtdinfo)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 
 	return (in8(base + NDFC_DATA));
 }
 
 static int ndfc_dev_ready(struct mtd_info *mtdinfo)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 
 	while (!(in32(base + NDFC_STAT) & NDFC_STAT_IS_READY))
 		;
@@ -110,31 +110,31 @@ static int ndfc_dev_ready(struct mtd_info *mtdinfo)
  */
 static void ndfc_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 	uint32_t *p = (uint32_t *) buf;
 
-	for(;len > 0; len -= 4)
+	for (;len > 0; len -= 4)
 		*p++ = in32(base + NDFC_DATA);
 }
 
 static void ndfc_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 	uint32_t *p = (uint32_t *) buf;
 
-	for(; len > 0; len -= 4)
+	for (; len > 0; len -= 4)
 		out32(base + NDFC_DATA, *p++);
 }
 
 static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
-        struct nand_chip *this = mtdinfo->priv;
-        ulong base = (ulong) this->IO_ADDR_W;
+	struct nand_chip *this = mtdinfo->priv;
+	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
 	uint32_t *p = (uint32_t *) buf;
 
-	for(; len > 0; len -= 4)
+	for (; len > 0; len -= 4)
 		if (*p++ != in32(base + NDFC_DATA))
 			return -1;
 
@@ -142,8 +142,25 @@ static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 }
 #endif /* #ifndef CONFIG_NAND_SPL */
 
+void board_nand_select_device(struct nand_chip *nand, int chip)
+{
+	/*
+	 * Don't use "chip" to address the NAND device,
+	 * generate the cs from the address where it is encoded.
+	 */
+	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
+	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
+
+	/* Set NandFlash Core Configuration Register */
+	/* 1col x 2 rows */
+	out32(base + NDFC_CCR, 0x00000000 | (cs << 24));
+}
+
 void board_nand_init(struct nand_chip *nand)
 {
+	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
+	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
+
 	nand->eccmode = NAND_ECC_SOFT;
 
 	nand->hwcontrol  = ndfc_hwcontrol;
@@ -166,10 +183,11 @@ void board_nand_init(struct nand_chip *nand)
 	mtebc(pb0ap, CFG_EBC_PB0AP);
 #endif
 
-	/* Set NandFlash Core Configuration Register */
-	/* Chip select 3, 1col x 2 rows */
-	out32(CFG_NAND_BASE + NDFC_CCR, 0x00000000 | (CFG_NAND_CS << 24));
-	out32(CFG_NAND_BASE + NDFC_BCFG0 + (CFG_NAND_CS << 2), 0x80002222);
+	/*
+	 * Select required NAND chip in NDFC
+	 */
+	board_nand_select_device(nand, cs);
+	out32(base + NDFC_BCFG0 + (cs << 2), 0x80002222);
 }
 
 #endif

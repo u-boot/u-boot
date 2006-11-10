@@ -25,7 +25,7 @@
 
 ifneq ($(OBJTREE),$(SRCTREE))
 ifeq ($(CURDIR),$(SRCTREE))
-dir := 
+dir :=
 else
 dir := $(subst $(SRCTREE)/,,$(CURDIR))
 endif
@@ -127,6 +127,11 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
 
+ifneq (,$(findstring s,$(MAKEFLAGS)))
+ARFLAGS = cr
+else
+ARFLAGS = crv
+endif
 RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
@@ -168,7 +173,9 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
-AFLAGS_DEBUG := -Wa,-gstabs
+# $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
+# option to the assembler.
+AFLAGS_DEBUG :=
 
 # turn jbsr into jsr for m68k
 ifeq ($(ARCH),m68k)

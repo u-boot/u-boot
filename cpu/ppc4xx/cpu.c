@@ -196,6 +196,7 @@ int checkcpu (void)
 	char buf[32];
 
 #if !defined(CONFIG_IOP480)
+	char addstr[64] = "";
 	sys_info_t sys_info;
 
 	puts ("CPU:   ");
@@ -312,19 +313,23 @@ int checkcpu (void)
 #endif /* CONFIG_440 */
 
 	case PVR_440EPX1_RA:
-		puts("EPx Rev. A - Security/Kasumi support");
+		puts("EPx Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	case PVR_440EPX2_RA:
-		puts("EPx Rev. A - No Security/Kasumi support");
+		puts("EPx Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
 		break;
 
 	case PVR_440GRX1_RA:
-		puts("GRx Rev. A - Security/Kasumi support");
+		puts("GRx Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	case PVR_440GRX2_RA:
-		puts("GRx Rev. A - No Security/Kasumi support");
+		puts("GRx Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
 		break;
 
 	case PVR_440SP_RA:
@@ -353,13 +358,16 @@ int checkcpu (void)
 	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
 	       FREQ_EBC / 1000000);
 
+	if (addstr[0] != 0)
+		printf("       %s\n", addstr);
+
 #if defined(I2C_BOOTROM)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
 #if defined(SDR0_PINSTP_SHIFT)
 	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
-#endif
-#endif
+#endif	/* SDR0_PINSTP_SHIFT */
+#endif	/* I2C_BOOTROM */
 
 #if defined(CONFIG_PCI)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");

@@ -25,22 +25,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o oftree.o
+COBJS	= $(BOARD).o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-$(obj)%.dtb: $(src)%.dts
-	dtc -f -V 0x10 -I dts -O dtb $< >$@
-
-$(obj)%.c: $(obj)%.dtb
-	xxd -i $< \
-	   | sed -e "s/^unsigned char/const unsigned char/g" \
-	   | sed -e "s/^unsigned int/const unsigned int/g" > $@
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 

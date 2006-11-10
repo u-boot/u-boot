@@ -196,6 +196,22 @@ int eth_initialize(bd_t *bis)
 	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
 #    endif
 #endif
+#if defined(CONFIG_MPC86XX_TSEC1)
+       tsec_initialize(bis, 0, CONFIG_MPC86XX_TSEC1_NAME);
+#endif
+
+#if defined(CONFIG_MPC86XX_TSEC2)
+       tsec_initialize(bis, 1, CONFIG_MPC86XX_TSEC2_NAME);
+#endif
+
+#if defined(CONFIG_MPC86XX_TSEC3)
+       tsec_initialize(bis, 2, CONFIG_MPC86XX_TSEC3_NAME);
+#endif
+
+#if defined(CONFIG_MPC86XX_TSEC4)
+       tsec_initialize(bis, 3, CONFIG_MPC86XX_TSEC4_NAME);
+#endif
+
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
 #endif

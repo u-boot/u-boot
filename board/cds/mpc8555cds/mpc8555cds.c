@@ -29,6 +29,7 @@
 
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
+#include "../common/via.h"
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -464,38 +465,38 @@ testdram(void)
 }
 #endif
 
-#if defined(CONFIG_PCI)
-
-/*
- * Initialize PCI Devices, report devices found.
+#ifdef CONFIG_PCI
+/* For some reason the Tundra PCI bridge shows up on itself as a
+ * different device.  Work around that by refusing to configure it
  */
+void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab) { }
 
-#ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_mpc85xxcds_config_table[] = {
-    { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-      PCI_IDSEL_NUMBER, PCI_ANY_ID,
-      pci_cfgfunc_config_device, { PCI_ENET0_IOADDR,
-				   PCI_ENET0_MEMADDR,
-				   PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
-      } },
-    { }
+	{0x10e3, 0x0513, PCI_ANY_ID, 1, 3, PCI_ANY_ID, dummy_func, {0,0,0}},
+	{0x1106, 0x0686, PCI_ANY_ID, 1, 2, 0, mpc85xx_config_via, {0,0,0}},
+	{0x1106, 0x0571, PCI_ANY_ID, 1, 2, 1, mpc85xx_config_via_usbide, {0,0,0}},
+	{0x1105, 0x3038, PCI_ANY_ID, 1, 2, 2, mpc85xx_config_via_usb, {0,0,0}},
+	{0x1106, 0x3038, PCI_ANY_ID, 1, 2, 3, mpc85xx_config_via_usb2, {0,0,0}},
+	{0x1106, 0x3058, PCI_ANY_ID, 1, 2, 5, mpc85xx_config_via_power, {0,0,0}},
+	{0x1106, 0x3068, PCI_ANY_ID, 1, 2, 6, mpc85xx_config_via_ac97, {0,0,0}}
 };
-#endif
 
-static struct pci_controller hose = {
-#ifndef CONFIG_PCI_PNP
+
+static struct pci_controller hose[] = {
+	{
 	config_table: pci_mpc85xxcds_config_table,
+	},
+#ifdef CONFIG_MPC85XX_PCI2
+	{ }
 #endif
 };
 
-#endif	/* CONFIG_PCI */
+#endif
 
 void
 pci_init_board(void)
 {
 #ifdef CONFIG_PCI
-	extern void pci_mpc85xx_init(struct pci_controller *hose);
-
-	pci_mpc85xx_init(&hose);
+	pci_mpc85xx_init(hose);
 #endif
 }

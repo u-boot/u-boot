@@ -22,7 +22,6 @@
 #
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/include/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
@@ -34,7 +33,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

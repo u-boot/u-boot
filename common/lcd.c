@@ -578,7 +578,9 @@ void bitmap_plot (int x, int y)
  */
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
+#if !defined(CONFIG_MCC200)
 	ushort *cmap;
+#endif
 	ushort i, j;
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
@@ -624,13 +626,13 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	debug ("Display-bmp: %d x %d  with %d colors\n",
 		(int)width, (int)height, (int)colors);
 
+#if !defined(CONFIG_MCC200)
+	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bpix==8) {
 #if defined(CONFIG_PXA250)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
-#elif defined(CONFIG_MCC200)
-		/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 #else
 # error "Don't know location of color map"
 #endif
@@ -654,6 +656,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 		}
 	}
+#endif
 
 	/*
 	 *  BMP format for Monochrome assumes that the state of a
@@ -661,8 +664,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	 *  So, in case of Monochrome BMP we should align widths
 	 * on a byte boundary and convert them from Bit to Byte
 	 * units.
-	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in 
-	 * their own ways, so make the converting to be MCC200 
+	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in
+	 * their own ways, so make the converting to be MCC200
 	 * specific.
 	 */
 #if defined(CONFIG_MCC200)

@@ -31,7 +31,7 @@ BINS	= gdbsend gdbcont
 COBJS	= gdbsend.o gdbcont.o error.o remote.o serial.o
 
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SRCS	:= $(COBJS:.o=.c) 
+SRCS	:= $(COBJS:.o=.c)
 BINS	:= $(addprefix $(obj),$(BINS))
 
 #

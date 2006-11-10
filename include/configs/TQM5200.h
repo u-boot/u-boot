@@ -285,7 +285,7 @@
  */
 #define CFG_IPBSPEED_133		/* define for 133MHz speed */
 
-#if defined(CFG_IPBSPEED_133)
+#if defined(CFG_IPBSPEED_133) && !defined(CONFIG_CAM5200)
 /*
  * PCI Bus clocking configuration
  *
@@ -349,13 +349,29 @@
  */
 #define CFG_FLASH_BASE		0xFC000000
 
+#ifndef CONFIG_CAM5200
 /* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
+#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
+					   (= chip selects) */
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+#else /* CONFIG_CAM5200 */
+#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks
+					   (= chip selects) */
+#define CFG_FLASH_WORD_SIZE	unsigned int /* main flash device with */
+#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
+#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
+
+#define CFG_FLASH_ADDR0		0x555
+#define CFG_FLASH_ADDR1		0x2AA
+#define CFG_FLASH_2ND_16BIT_DEV	1	/* NIOS flash is a 16bit device */
+#define CFG_MAX_FLASH_SECT	128
+#endif /* ifndef CONFIG_CAM5200 */
+
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */
-#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
 #if defined (CONFIG_CAM5200)
@@ -365,9 +381,6 @@
 #else
 # define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
 #endif
-
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
-					   (= chip selects) */
 
 /* Dynamic MTD partition support */
 #define CONFIG_JFFS2_CMDLINE
@@ -401,10 +414,8 @@
 #elif defined (CONFIG_CAM5200)
 #   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
 						"1792k(kernel),"	\
-						"3584k(small-fs),"	\
-						"2m(initrd),"		\
-						"8m(misc),"		\
-						"16m(big-fs)"
+						"5632k(rootfs),"	\
+						"24m(home)"
 #elif defined (CONFIG_FO300)
 #   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
 						"1408k(kernel),"	\
@@ -479,31 +490,43 @@
 /*
  * GPIO configuration
  *
- * use pin gpio_wkup_6 as second SDRAM chip select (mem_cs1):
- *	Bit 0 (mask: 0x80000000): 1
+ * use CS1: Bit 0 (mask: 0x80000000):
+ *	   1 -> Pin gpio_wkup_6 as second SDRAM chip select (mem_cs1).
  * use ALT CAN position: Bits 2-3 (mask: 0x30000000):
- *	00 -> No Alternatives, CAN1/2 on PSC2 according to PSC2 setting.
- *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1.
- *	      Use for REV200 STK52XX boards and FO300 boards. Do not use
- *	      with REV100 modules (because, there I2C1 is used as I2C bus)
- * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
- * use PSC2 as CAN: Bits 25:27 (mask: 0x00000030)
- *	000 -> All PSC2 pins are GIOPs
- *	001 -> CAN1/2 on PSC2 pins
- *	       Use for REV100 STK52xx boards
- *	01x -> Use AC97
- * use PSC3: Bits 20-23 (mask: 0x00000f00)
- *	1100 -> UART/SPI (on FO300 board)
- * use PSC6:
- *   on STK52xx and FO300:
- *	use as UART. Pins PSC6_0 to PSC6_3 are used.
- *	Bits 9:11 (mask: 0x00700000):
- *	   101 -> PSC6 : Extended POST test is not available
- *   on MINI-FAP and TQM5200_IB:
- *	use PSC6_0 to PSC6_3 as GPIO: Bits 9:11 (mask: 0x00700000):
- *	   000 -> PSC6 could not be used as UART, CODEC or IrDA
- *   GPIO on PSC6_3 is used in post_hotkeys_pressed() to enable extended POST
- *   tests.
+ *	  00 -> No Alternatives, CAN1/2 on PSC2 according to PSC2 setting.
+ *		SPI on PSC3 according to PSC3 setting. Use for CAM5200.
+ *	  01 -> CAN1 on I2C1, CAN2 on Tmr0/1.
+ *		Use for REV200 STK52XX boards and FO300 boards. Do not use
+ *		with REV100 modules (because, there I2C1 is used as I2C bus).
+ * use ATA: Bits 6-7 (mask 0x03000000):
+ *	  00 -> No ATA chip selects, csb_4/5 used as normal chip selects.
+ *		Use for CAM5200 board.
+ *	  01 -> ATA cs0/1 on csb_4/5. Use for the remaining boards.
+ * use PSC6: Bits 9-11 (mask 0x00700000):
+ *	 000 -> use PSC6_0 to PSC6_3 as GPIO, PSC6 could not be used as
+ *		UART, CODEC or IrDA.
+ *		GPIO on PSC6_3 is used in post_hotkeys_pressed() to
+ *		enable extended POST tests.
+ *		Use for MINI-FAP and TQM5200_IB boards.
+ *	 101 -> use PSC6 as UART. Pins PSC6_0 to PSC6_3 are used.
+ *		Extended POST test is not available.
+ *		Use for STK52xx, FO300 and CAM5200 boards.
+ * use PCI_DIS: Bit 16 (mask 0x00008000):
+ *	   1 -> disable PCI controller (on CAM5200 board).
+ * use USB: Bits 18-19 (mask 0x00003000):
+ *	  10 -> two UARTs (on FO300 and CAM5200).
+ * use PSC3: Bits 20-23 (mask: 0x00000f00):
+ *	0000 -> All PSC3 pins are GPIOs.
+ *	1100 -> UART/SPI (on FO300 board).
+ *	0100 -> UART (on CAM5200 board).
+ * use PSC2: Bits 25:27 (mask: 0x00000030):
+ *	 000 -> All PSC2 pins are GPIOs.
+ *	 100 -> UART (on CAM5200 board).
+ *	 001 -> CAN1/2 on PSC2 pins.
+ *	        Use for REV100 STK52xx boards
+ *	 01x -> Use AC97 (on FO300 board).
+ * use PSC1: Bits 29-31 (mask: 0x00000007):
+ *	 100 -> UART (on all boards).
  */
 #if defined (CONFIG_MINIFAP)
 # define CFG_GPS_PORT_CONFIG	0x91000004
@@ -519,6 +542,8 @@
 # endif
 #elif defined (CONFIG_FO300)
 # define CFG_GPS_PORT_CONFIG	0x91502c24
+#elif defined (CONFIG_CAM5200)
+# define CFG_GPS_PORT_CONFIG	0x8050A444
 #else  /* TMQ5200 Inbetriebnahme-Board */
 # define CFG_GPS_PORT_CONFIG	0x81000004
 #endif
@@ -541,6 +566,7 @@
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CFG_PROMPT_HUSH_PS2	"> "
 
@@ -612,6 +638,16 @@
 
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x33333311	/* 1 dead cycle for flash and SM501 */
+
+#if defined(CONFIG_CAM5200)
+#define CFG_CS4_START		0xB0000000
+#define CFG_CS4_SIZE		0x00010000
+#define CFG_CS4_CFG		0x01019C10
+
+#define CFG_CS5_START		0xD0000000
+#define CFG_CS5_SIZE		0x01208000
+#define CFG_CS5_CFG		0x1414BF10
+#endif
 
 #define CFG_RESET_ADDRESS	0xff000000
 

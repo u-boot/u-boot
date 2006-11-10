@@ -218,6 +218,8 @@ Jon Loeliger <jdl@freescale.com>
 	MPC8541CDS		MPC8541
 	MPC8555CDS		MPC8555
 
+	MPC8641HPCN		MPC8641D
+
 Dan Malek <dan@embeddededge.com>
 
 	STxGP3			MPC85xx
@@ -554,6 +556,17 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 Zachary P. Landau <zachary.landau@labxtechnologies.com>
 
 	r5200			mcf52x2
+
+#########################################################################
+# AVR32 Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+	ATSTK1000		AT32AP7000
 
 #########################################################################
 # End of MAINTAINERS list						#
