@@ -246,7 +246,7 @@
 /*
  * GPIO configuration
  */
-#define CFG_GPS_PORT_CONFIG	0x90000404
+#define CFG_GPS_PORT_CONFIG	0x90001404
 
 /*
  * Miscellaneous configurable options
