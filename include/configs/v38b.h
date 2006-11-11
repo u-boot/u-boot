@@ -34,7 +34,7 @@
 #define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC */
 #define CONFIG_MPC5200_DDR		1	/* has DDR SDRAM */
 
-#define CONFIG_HW_WATCHDOG		1	/* has watchdog */
+#undef CONFIG_HW_WATCHDOG			/* don't use watchdog */
 
 #define CONFIG_NETCONSOLE		1
 
