@@ -1,3 +1,68 @@
+commit ce3f1a40c507afbab06c5eb58ccdc6713eda3245
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:48:22 2006 +0100
+
+    Disable the watchdog in the default config for the V38B board.
+
+commit 44a47e6db2694841211f1c8fdbafd36992e9cd1a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:43:00 2006 +0100
+
+    Change the GPIO pin multiplexing configuration for V38B. The USB GPIO pin
+    group is enabled for USB earlier (in cpu_init_f() instead of
+    usb_lowlevel_init()).
+
+commit 91650b3e4de688038d4f71279c44858e3e2c6870
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 6 17:06:36 2006 +0100
+
+    Sequential accesses to non-existent memory must be synchronized,
+    at least on G2 cores.
+
+    This fixes get_ram_size() problems on MPC5200 Rev. B boards.
+
+commit c59200443072353044aa4bf737a5a60f9a9af231
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Nov 2 15:15:01 2006 +0100
+
+    Release U-Boot 1.1.6
+
+commit 25721b5cec2be4bce79cfade17ec8f6aa1e67526
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 02:04:38 2006 +0100
+
+    Finish up support for MarelV38B board
+     - add watchdog support
+     - enable GPIO_WKUP_7 pin for input
+     - code cleanup
+
+commit ffa150bc90c943ca265170bd1be3f293674dd5c7
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:45:46 2006 +0100
+
+    - Fix issues related to the use of ELDK 4 when compiling for MarelV38B:
+	  * remove warnings when compiling ethaddr.c
+	  * adjust linker script (fixes a crash resulting from incorrect
+	  definition of __u_boot_cmd_start)
+    - Some MarelV38B code cleanup.
+
+commit dae80f3caf9754a6dd3ddf3cf903d0c46cbd4385
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:38:16 2006 +0100
+
+    - Add MPC5XXX register definition MPC5XXX_WU_GPIO_DATA_I and change the
+      MPC5XXX_WU_GPIO_DATA macro to MPC5XXX_WU_GPIO_DATA_O (per MPC5200 User's
+      Manual). Replace the uses of MPC5XXX_WU_GPIO_DATA with
+      MPC5XXX_WU_GPIO_DATA_O for affected boards.
+
+    - Add defintions for some MPC5XXX GPIO pins.
+
+commit 82d9c9ec29a1bec1b03ba616425ebaed231072c8
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:34:29 2006 +0100
+
+    Changed MarelV38B board make target to lowercase. Config file cleanup.
+
 commit 1954be6e9c9421b45d0a9d05b10356acc7563150
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Sun Oct 29 01:03:51 2006 +0200
