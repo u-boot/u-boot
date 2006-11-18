@@ -21,5 +21,5 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS	+= -ffixed-r5 -mno-pic -mrelax
+PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax
 PLATFORM_LDFLAGS	+= --relax
