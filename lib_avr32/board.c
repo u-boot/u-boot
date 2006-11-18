@@ -122,15 +122,13 @@ static void display_flash_config (void)
 	printf("at address 0x%08lx\n", gd->bd->bi_flashstart);
 }
 
-void start_u_boot (void)
+void board_init_f(ulong unused)
 {
 	gd_t gd_data;
 
 	/* Initialize the global data pointer */
 	memset(&gd_data, 0, sizeof(gd_data));
 	gd = &gd_data;
-
-	monitor_flash_len = _edata - _text;
 
 	/* Perform initialization sequence */
 	cpu_init();
@@ -140,10 +138,18 @@ void start_u_boot (void)
 	serial_init();
 	console_init_f();
 	display_banner();
-
 	board_init_memories();
-	mem_malloc_init();
 
+	board_init_r(gd, CFG_MONITOR_BASE);
+}
+
+void board_init_r(gd_t *new_gd, ulong dest_addr)
+{
+	gd = new_gd;
+
+	monitor_flash_len = _edata - _text;
+
+	mem_malloc_init();
 	gd->bd = malloc(sizeof(bd_t));
 	memset(gd->bd, 0, sizeof(bd_t));
 	gd->bd->bi_baudrate = gd->baudrate;

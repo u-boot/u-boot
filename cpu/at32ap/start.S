@@ -95,7 +95,7 @@ _start:
 	/* Initialize the GOT pointer */
 	lddpc	r6, got_init
 3:	rsub	r6, pc
-	ld.w	pc, r6[start_u_boot@got]
+	ld.w	pc, r6[board_init_f@got]
 
 	.align	2
 	.type	sp_init,@object
