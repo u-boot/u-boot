@@ -131,6 +131,7 @@ void board_init_f(ulong unused)
 	gd = &gd_data;
 
 	/* Perform initialization sequence */
+	board_early_init_f();
 	cpu_init();
 	timer_init();
 	env_init();

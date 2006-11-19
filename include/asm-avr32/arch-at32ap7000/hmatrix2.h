@@ -224,9 +224,9 @@
 	 | HMATRIX2_BF(name,value))
 
 /* Register access macros */
-#define hmatrix2_readl(port,reg)				\
-	readl((port)->regs + HMATRIX2_##reg)
-#define hmatrix2_writel(port,reg,value)				\
-	writel((value), (port)->regs + HMATRIX2_##reg)
+#define hmatrix2_readl(reg)					\
+	readl((void *)HMATRIX_BASE + HMATRIX2_##reg)
+#define hmatrix2_writel(reg,value)				\
+	writel((value), (void *)HMATRIX_BASE + HMATRIX2_##reg)
 
 #endif /* __ASM_AVR32_HMATRIX2_H__ */

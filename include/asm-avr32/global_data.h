@@ -35,8 +35,6 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	const struct device	*console_uart;
-	const struct device	*sm;
 	unsigned long	baudrate;
 	unsigned long	sdram_size;
 	unsigned long	have_console;	/* serial_init() was called */

@@ -62,9 +62,10 @@
  */
 #define CFG_PLL0_OPT			0x04
 
-#define CFG_USART1			1
-
-#define CFG_CONSOLE_UART_DEV		DEVICE_USART1
+#undef CONFIG_USART0
+#define CONFIG_USART1			1
+#undef CONFIG_USART2
+#undef CONFIG_USART3
 
 /* User serviceable stuff */
 #define CONFIG_CMDLINE_TAG		1

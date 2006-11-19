@@ -19,16 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <common.h>
-
-#ifdef CFG_POWER_MANAGER
-#include <asm/errno.h>
-#include <asm/io.h>
-
-#include <asm/arch/memory-map.h>
-
-#include "sm.h"
-
+#ifndef __ASM_AVR32_ARCH_CLK_H__
+#define __ASM_AVR32_ARCH_CLK_H__
 
 #ifdef CONFIG_PLL
 #define MAIN_CLK_RATE ((CFG_OSC0_HZ / CFG_PLL0_DIV) * CFG_PLL0_MUL)
@@ -36,7 +28,31 @@
 #define MAIN_CLK_RATE (CFG_OSC0_HZ)
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
+static inline unsigned long get_cpu_clk_rate(void)
+{
+	return MAIN_CLK_RATE >> CFG_CLKDIV_CPU;
+}
+static inline unsigned long get_hsb_clk_rate(void)
+{
+	return MAIN_CLK_RATE >> CFG_CLKDIV_HSB;
+}
+static inline unsigned long get_pba_clk_rate(void)
+{
+	return MAIN_CLK_RATE >> CFG_CLKDIV_PBA;
+}
+static inline unsigned long get_pbb_clk_rate(void)
+{
+	return MAIN_CLK_RATE >> CFG_CLKDIV_PBB;
+}
 
+/* Accessors for specific devices. More will be added as needed. */
+static inline unsigned long get_sdram_clk_rate(void)
+{
+	return get_hsb_clk_rate();
+}
+static inline unsigned long get_usart_clk_rate(unsigned int dev_id)
+{
+	return get_pba_clk_rate();
+}
 
-#endif /* CFG_POWER_MANAGER */
+#endif /* __ASM_AVR32_ARCH_CLK_H__ */

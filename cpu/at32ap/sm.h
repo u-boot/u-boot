@@ -196,9 +196,9 @@
 	 | SM_BF(name,value))
 
 /* Register access macros */
-#define sm_readl(port,reg)				\
-	readl((port)->regs + SM_##reg)
-#define sm_writel(port,reg,value)			\
-	writel((value), (port)->regs + SM_##reg)
+#define sm_readl(reg)					\
+	readl((void *)SM_BASE + SM_##reg)
+#define sm_writel(reg,value)				\
+	writel((value), (void *)SM_BASE + SM_##reg)
 
 #endif /* __CPU_AT32AP_SM_H__ */

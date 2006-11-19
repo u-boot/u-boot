@@ -25,16 +25,10 @@
 #include <asm/io.h>
 #include <asm/sdram.h>
 
-#include <asm/arch/platform.h>
+#include <asm/arch/clk.h>
+#include <asm/arch/memory-map.h>
 
 #include "hsdramc1.h"
-
-struct hsdramc {
-	const struct device *hebi;
-	void *regs;
-};
-
-static struct hsdramc hsdramc;
 
 unsigned long sdram_init(const struct sdram_info *info)
 {
@@ -43,16 +37,6 @@ unsigned long sdram_init(const struct sdram_info *info)
 	unsigned long tmp;
 	unsigned long bus_hz;
 	unsigned int i;
-
-	hsdramc.hebi = get_device(DEVICE_HEBI);
-	if (!hsdramc.hebi)
-		return 0;
-
-	/* FIXME: Both of these lines are complete hacks */
-	hsdramc.regs = hsdramc.hebi->regs + 0x400;
-	bus_hz = pm_get_clock_freq(hsdramc.hebi->resource[0].u.clock.id);
-
-	cpu_enable_sdram();
 
 	tmp = (HSDRAMC1_BF(NC, info->col_bits - 8)
 	       | HSDRAMC1_BF(NR, info->row_bits - 11)
@@ -74,7 +58,7 @@ unsigned long sdram_init(const struct sdram_info *info)
 			   + info->bank_bits + 2);
 #endif
 
-	hsdramc1_writel(&hsdramc, CR, tmp);
+	hsdramc1_writel(CR, tmp);
 
 	/*
 	 * Initialization sequence for SDRAM, from the data sheet:
@@ -87,15 +71,15 @@ unsigned long sdram_init(const struct sdram_info *info)
 	/*
 	 * 2. A Precharge All command is issued to the SDRAM
 	 */
-	hsdramc1_writel(&hsdramc, MR, HSDRAMC1_MODE_BANKS_PRECHARGE);
-	hsdramc1_readl(&hsdramc, MR);
+	hsdramc1_writel(MR, HSDRAMC1_MODE_BANKS_PRECHARGE);
+	hsdramc1_readl(MR);
 	writel(0, sdram);
 
 	/*
 	 * 3. Eight auto-refresh (CBR) cycles are provided
 	 */
-	hsdramc1_writel(&hsdramc, MR, HSDRAMC1_MODE_AUTO_REFRESH);
-	hsdramc1_readl(&hsdramc, MR);
+	hsdramc1_writel(MR, HSDRAMC1_MODE_AUTO_REFRESH);
+	hsdramc1_readl(MR);
 	for (i = 0; i < 8; i++)
 		writel(0, sdram);
 
@@ -106,8 +90,8 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 *
 	 * CAS from info struct, burst length 1, serial burst type
 	 */
-	hsdramc1_writel(&hsdramc, MR, HSDRAMC1_MODE_LOAD_MODE);
-	hsdramc1_readl(&hsdramc, MR);
+	hsdramc1_writel(MR, HSDRAMC1_MODE_LOAD_MODE);
+	hsdramc1_readl(MR);
 	writel(0, sdram + (info->cas << 4));
 
 	/*
@@ -117,9 +101,9 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 * From the timing diagram, it looks like tMRD is 3
 	 * cycles...try a dummy read from the peripheral bus.
 	 */
-	hsdramc1_readl(&hsdramc, MR);
-	hsdramc1_writel(&hsdramc, MR, HSDRAMC1_MODE_NORMAL);
-	hsdramc1_readl(&hsdramc, MR);
+	hsdramc1_readl(MR);
+	hsdramc1_writel(MR, HSDRAMC1_MODE_NORMAL);
+	hsdramc1_readl(MR);
 	writel(0, sdram);
 
 	/*
@@ -128,7 +112,8 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 *
 	 * 15.6 us is a typical value for a burst of length one
 	 */
-	hsdramc1_writel(&hsdramc, TR, (156 * (bus_hz / 1000)) / 10000);
+	bus_hz = get_sdram_clk_rate();
+	hsdramc1_writel(TR, (156 * (bus_hz / 1000)) / 10000);
 
 	printf("SDRAM: %u MB at address 0x%08lx\n",
 	       sdram_size >> 20, info->phys_addr);

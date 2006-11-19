@@ -26,33 +26,79 @@
 #include <asm/sections.h>
 #include <asm/sysreg.h>
 
+#include <asm/arch/clk.h>
 #include <asm/arch/memory-map.h>
-#include <asm/arch/platform.h>
 
 #include "hsmc3.h"
+#include "sm.h"
+
+/* Sanity checks */
+#if (CFG_CLKDIV_CPU > CFG_CLKDIV_HSB)		\
+	|| (CFG_CLKDIV_HSB > CFG_CLKDIV_PBA)	\
+	|| (CFG_CLKDIV_HSB > CFG_CLKDIV_PBB)
+# error Constraint fCPU >= fHSB >= fPB{A,B} violated
+#endif
+#if defined(CONFIG_PLL) && ((CFG_PLL0_MUL < 1) || (CFG_PLL0_DIV < 1))
+# error Invalid PLL multiplier and/or divider
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static void pm_init(void)
+{
+	uint32_t cksel;
+
+#ifdef CONFIG_PLL
+	/* Initialize the PLL */
+	sm_writel(PM_PLL0, (SM_BF(PLLCOUNT, CFG_PLL0_SUPPRESS_CYCLES)
+			    | SM_BF(PLLMUL, CFG_PLL0_MUL - 1)
+			    | SM_BF(PLLDIV, CFG_PLL0_DIV - 1)
+			    | SM_BF(PLLOPT, CFG_PLL0_OPT)
+			    | SM_BF(PLLOSC, 0)
+			    | SM_BIT(PLLEN)));
+
+	/* Wait for lock */
+	while (!(sm_readl(PM_ISR) & SM_BIT(LOCK0))) ;
+#endif
+
+	/* Set up clocks for the CPU and all peripheral buses */
+	cksel = 0;
+	if (CFG_CLKDIV_CPU)
+		cksel |= SM_BIT(CPUDIV) | SM_BF(CPUSEL, CFG_CLKDIV_CPU - 1);
+	if (CFG_CLKDIV_HSB)
+		cksel |= SM_BIT(HSBDIV) | SM_BF(HSBSEL, CFG_CLKDIV_HSB - 1);
+	if (CFG_CLKDIV_PBA)
+		cksel |= SM_BIT(PBADIV) | SM_BF(PBASEL, CFG_CLKDIV_PBA - 1);
+	if (CFG_CLKDIV_PBB)
+		cksel |= SM_BIT(PBBDIV) | SM_BF(PBBSEL, CFG_CLKDIV_PBB - 1);
+	sm_writel(PM_CKSEL, cksel);
+
+	gd->cpu_hz = get_cpu_clk_rate();
+
+#ifdef CONFIG_PLL
+	/* Use PLL0 as main clock */
+	sm_writel(PM_MCCTRL, SM_BIT(PLLSEL));
+#endif
+}
+
 int cpu_init(void)
 {
-	const struct device *hebi;
 	extern void _evba(void);
 	char *p;
 
 	gd->cpu_hz = CFG_OSC0_HZ;
 
-	/* fff03400: 00010001 04030402 00050005 10011103 */
-	hebi = get_device(DEVICE_HEBI);
-	hsmc3_writel(hebi, MODE0, 0x00031103);
-	hsmc3_writel(hebi, CYCLE0, 0x000c000d);
-	hsmc3_writel(hebi, PULSE0, 0x0b0a0906);
-	hsmc3_writel(hebi, SETUP0, 0x00010002);
+	/* TODO: Move somewhere else, but needs to be run before we
+	 * increase the clock frequency. */
+	hsmc3_writel(MODE0, 0x00031103);
+	hsmc3_writel(CYCLE0, 0x000c000d);
+	hsmc3_writel(PULSE0, 0x0b0a0906);
+	hsmc3_writel(SETUP0, 0x00010002);
 
 	pm_init();
 
 	sysreg_write(EVBA, (unsigned long)&_evba);
 	asm volatile("csrf	%0" : : "i"(SYSREG_EM_OFFSET));
-	gd->console_uart = get_device(CFG_CONSOLE_UART_DEV);
 
 	/* Lock everything that mess with the flash in the icache */
 	for (p = __flashprog_start; p <= (__flashprog_end + CFG_ICACHE_LINESZ);
