@@ -43,9 +43,14 @@ typedef struct {
 	ulong	write_tout;		/* maximum write timeout		*/
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
 	ushort	vendor;			/* the primary vendor id		*/
-	ushort	cmd_reset;		/* Vendor specific reset command	*/
+	ushort	cmd_reset;		/* vendor specific reset command	*/
 	ushort	interface;		/* used for x8/x16 adjustments		*/
 	ushort	legacy_unlock;		/* support Intel legacy (un)locking	*/
+	uchar	manufacturer_id;	/* manufacturer id			*/
+	ushort	device_id;		/* device id				*/
+	ushort	device_id2;		/* extended device id			*/
+	ushort	ext_addr;		/* extended query table address		*/
+	ushort	cfi_version;		/* cfi version				*/
 #endif
 } flash_info_t;
 
@@ -439,6 +444,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_MAN_MT	0x00400000
 #define FLASH_MAN_SHARP 0x00500000
 #define FLASH_MAN_ATM	0x00600000
+#define FLASH_MAN_CFI	0x01000000
 
 
 #define FLASH_TYPEMASK	0x0000FFFF	/* extract FLASH type	information	*/
