@@ -1,3 +1,25 @@
+commit 260421a21e934a68d31fb6125b0fbd2631a8ca20
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 13 13:55:24 2006 +0100
+
+    [PATCH] CFI driver AMD Command Set Top boot geometry reversal, etc. [Updated]
+
+       * Adds support for AMD command set Top Boot flash geometry reversal
+       * Adds support for reading JEDEC Manufacturer ID and Device ID
+       * Adds support for displaying command set, manufacturer id and
+	 device ids (flinfo)
+       * Makes flinfo output to be consistent when CFG_FLASH_EMPTY_INFO defined
+       * Removes outdated change history (refer to git log instead)
+
+    Signed-off-by: Tolunay Orkun <listmember@orkun.us>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b21b511d4c50408f4853f46f06b601272196223f
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Nov 12 21:13:23 2006 +0100
+
+    Update CHANGELOG
+
 commit ce3f1a40c507afbab06c5eb58ccdc6713eda3245
 Author: Bartlomiej Sieka <tur@semihalf.com>
 Date:	Sat Nov 11 22:48:22 2006 +0100
