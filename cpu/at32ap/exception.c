@@ -24,6 +24,8 @@
 #include <asm/sysreg.h>
 #include <asm/ptrace.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static const char * const cpu_modes[8] = {
 	"Application", "Supervisor", "Interrupt level 0", "Interrupt level 1",
 	"Interrupt level 2", "Interrupt level 3", "Exception", "NMI"
@@ -109,11 +111,10 @@ void do_unknown_exception(unsigned int ecr, struct pt_regs *regs)
 	printf("CPU Mode: %s\n", cpu_modes[mode]);
 
 	/* Avoid exception loops */
-	if (regs->sp >= CFG_INIT_SP_ADDR
-	    || regs->sp < (CFG_INIT_SP_ADDR - CONFIG_STACKSIZE))
+	if (regs->sp < CFG_SDRAM_BASE || regs->sp >= gd->stack_end)
 		printf("\nStack pointer seems bogus, won't do stack dump\n");
 	else
-		dump_mem("\nStack: ", regs->sp, CFG_INIT_SP_ADDR);
+		dump_mem("\nStack: ", regs->sp, gd->stack_end);
 
 	panic("Unhandled exception\n");
 }

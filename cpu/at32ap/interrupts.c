@@ -115,8 +115,11 @@ void udelay(unsigned long usec)
 static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
 				 unsigned int priority)
 {
+	extern void _evba(void);
 	unsigned long intpr;
 	unsigned long handler_addr = (unsigned long)handler;
+
+	handler_addr -= (unsigned long)&_evba;
 
 	if ((handler_addr & HANDLER_MASK) != handler_addr
 	    || (priority & INTLEV_MASK) != priority)

@@ -47,11 +47,14 @@ static unsigned long mem_malloc_start = 0;
 static unsigned long mem_malloc_end = 0;
 static unsigned long mem_malloc_brk = 0;
 
-/* The malloc area is wherever the board wants it to be */
+/* The malloc area is right below the monitor image in RAM */
 static void mem_malloc_init(void)
 {
-	mem_malloc_start = CFG_MALLOC_START;
-	mem_malloc_end = CFG_MALLOC_END;
+	unsigned long monitor_addr;
+
+	monitor_addr = CFG_MONITOR_BASE + gd->reloc_off;
+	mem_malloc_end = monitor_addr;
+	mem_malloc_start = mem_malloc_end - CFG_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
 	printf("malloc: Using memory from 0x%08lx to 0x%08lx\n",
@@ -125,6 +128,12 @@ static void display_flash_config (void)
 void board_init_f(ulong unused)
 {
 	gd_t gd_data;
+	gd_t *new_gd;
+	bd_t *bd;
+	unsigned long *new_sp;
+	unsigned long monitor_len;
+	unsigned long monitor_addr;
+	unsigned long addr;
 
 	/* Initialize the global data pointer */
 	memset(&gd_data, 0, sizeof(gd_data));
@@ -133,7 +142,6 @@ void board_init_f(ulong unused)
 	/* Perform initialization sequence */
 	board_early_init_f();
 	cpu_init();
-	timer_init();
 	env_init();
 	init_baudrate();
 	serial_init();
@@ -141,28 +149,120 @@ void board_init_f(ulong unused)
 	display_banner();
 	board_init_memories();
 
-	board_init_r(gd, CFG_MONITOR_BASE);
+	/* If we have no SDRAM, we can't go on */
+	if (!gd->sdram_size)
+		panic("No working SDRAM available\n");
+
+	/*
+	 * Now that we have DRAM mapped and working, we can
+	 * relocate the code and continue running from DRAM.
+	 *
+	 * Reserve memory at end of RAM for (top down in that order):
+	 *  - u-boot image
+	 *  - heap for malloc()
+	 *  - board info struct
+	 *  - global data struct
+	 *  - stack
+	 */
+	addr = CFG_SDRAM_BASE + gd->sdram_size;
+	monitor_len = _end - _text;
+
+	/*
+	 * Reserve memory for u-boot code, data and bss.
+	 * Round down to next 4 kB limit.
+	 */
+	addr -= monitor_len;
+	addr &= ~(4096UL - 1);
+	monitor_addr = addr;
+
+	/* Reserve memory for malloc() */
+	addr -= CFG_MALLOC_LEN;
+
+	/* Allocate a Board Info struct on a word boundary */
+	addr -= sizeof(bd_t);
+	addr &= ~3UL;
+	gd->bd = bd = (bd_t *)addr;
+
+	/* Allocate a new global data copy on a 8-byte boundary. */
+	addr -= sizeof(gd_t);
+	addr &= ~7UL;
+	new_gd = (gd_t *)addr;
+
+	/* And finally, a new, bigger stack. */
+	new_sp = (unsigned long *)addr;
+	gd->stack_end = addr;
+	*(--new_sp) = 0;
+	*(--new_sp) = 0;
+
+	/*
+	 * Initialize the board information struct with the
+	 * information we have.
+	 */
+	bd->bi_dram[0].start = CFG_SDRAM_BASE;
+	bd->bi_dram[0].size = gd->sdram_size;
+	bd->bi_baudrate = gd->baudrate;
+
+	memcpy(new_gd, gd, sizeof(gd_t));
+
+	relocate_code((unsigned long)new_sp, new_gd, monitor_addr);
 }
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
+	extern void malloc_bin_reloc (void);
+#ifndef CFG_ENV_IS_NOWHERE
+	extern char * env_name_spec;
+#endif
+	cmd_tbl_t *cmdtp;
+	bd_t *bd;
+
 	gd = new_gd;
+	bd = gd->bd;
+
+	gd->flags |= GD_FLG_RELOC;
+	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 
 	monitor_flash_len = _edata - _text;
 
-	mem_malloc_init();
-	gd->bd = malloc(sizeof(bd_t));
-	memset(gd->bd, 0, sizeof(bd_t));
-	gd->bd->bi_baudrate = gd->baudrate;
-	gd->bd->bi_dram[0].start = CFG_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->sdram_size;
+	/*
+	 * We have to relocate the command table manually
+	 */
+	for (cmdtp = &__u_boot_cmd_start;
+	     cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
+		unsigned long addr;
 
+		addr = (unsigned long)cmdtp->cmd + gd->reloc_off;
+		cmdtp->cmd = (typeof(cmdtp->cmd))addr;
+
+		addr = (unsigned long)cmdtp->name + gd->reloc_off;
+		cmdtp->name = (typeof(cmdtp->name))addr;
+
+		if (cmdtp->usage) {
+			addr = (unsigned long)cmdtp->usage + gd->reloc_off;
+			cmdtp->usage = (typeof(cmdtp->usage))addr;
+		}
+#ifdef CFG_LONGHELP
+		if (cmdtp->help) {
+			addr = (unsigned long)cmdtp->help + gd->reloc_off;
+			cmdtp->help = (typeof(cmdtp->help))addr;
+		}
+#endif
+	}
+
+	/* there are some other pointer constants we must deal with */
+#ifndef CFG_ENV_IS_NOWHERE
+	env_name_spec += gd->reloc_off;
+#endif
+
+	timer_init();
+	mem_malloc_init();
+	malloc_bin_reloc();
 	board_init_info();
 	flash_init();
 
-	if (gd->bd->bi_flashsize)
+	if (bd->bi_flashsize)
 		display_flash_config();
-	if (gd->bd->bi_dram[0].size)
+	if (bd->bi_dram[0].size)
 		display_dram_config();
 
 	gd->bd->bi_boot_params = malloc(CFG_BOOTPARAMS_LEN);

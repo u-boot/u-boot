@@ -151,16 +151,8 @@
 #define CFG_INIT_SP_ADDR		(CFG_INTRAM_BASE + CFG_INTRAM_SIZE)
 
 #define CFG_MALLOC_LEN			(256*1024)
-#define CFG_MALLOC_END							\
-	({								\
-		DECLARE_GLOBAL_DATA_PTR;				\
-		CFG_SDRAM_BASE + gd->sdram_size;			\
-	})
-#define CFG_MALLOC_START		(CFG_MALLOC_END - CFG_MALLOC_LEN)
-
 #define CFG_DMA_ALLOC_LEN		(16384)
-#define CFG_DMA_ALLOC_END		(CFG_MALLOC_START)
-#define CFG_DMA_ALLOC_START		(CFG_DMA_ALLOC_END - CFG_DMA_ALLOC_LEN)
+
 /* Allow 2MB for the kernel run-time image */
 #define CFG_LOAD_ADDR			(CFG_SDRAM_BASE + 0x00200000)
 #define CFG_BOOTPARAMS_LEN		(16 * 1024)
