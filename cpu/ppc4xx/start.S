@@ -204,6 +204,18 @@ _start_440:
 	mfspr	r1,mcsr
 	mtspr	mcsr,r1
 #endif
+
+	/*----------------------------------------------------------------*/
+	/* CCR0 init */
+	/*----------------------------------------------------------------*/
+	/* Disable store gathering & broadcast, guarantee inst/data
+	* cache block touch, force load/store alignment
+	* (see errata 1.12: 440_33)
+	*/
+	lis	r1,0x0030	/* store gathering & broadcast disable */
+	ori	r1,r1,0x6000	/* cache touch */
+	mtspr	ccr0,r1
+
 	/*----------------------------------------------------------------*/
 	/* Initialize debug */
 	/*----------------------------------------------------------------*/
@@ -224,17 +236,6 @@ _start_440:
 	mfspr	r1,dbsr
 	mtspr	dbsr,r1		/* Clear all valid bits */
 skip_debug_init:
-
-	/*----------------------------------------------------------------*/
-	/* CCR0 init */
-	/*----------------------------------------------------------------*/
-	/* Disable store gathering & broadcast, guarantee inst/data
-	* cache block touch, force load/store alignment
-	* (see errata 1.12: 440_33)
-	*/
-	lis	r1,0x0030	/* store gathering & broadcast disable */
-	ori	r1,r1,0x6000	/* cache touch */
-	mtspr	ccr0,r1
 
 #if defined (CONFIG_440SPE)
 	/*----------------------------------------------------------------+
