@@ -289,7 +289,7 @@ int checkboard (void)
 #elif defined(CONFIG_TB5200)
 # define CARRIER_NAME	"TB5200"
 #elif defined(CONFIG_CAM5200)
-# define CARRIER_NAME	"Cam5200"
+# define CARRIER_NAME	"CAM5200"
 #elif defined(CONFIG_FO300)
 # define CARRIER_NAME	"FO300"
 #else
