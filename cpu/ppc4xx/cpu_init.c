@@ -321,6 +321,10 @@ cpu_init_f (void)
 #else
 	val |= 0xf0000000;      /* generate system reset after 2.684 seconds */
 #endif
+#if defined(CFG_4xx_RESET_TYPE)
+	val &= ~0x30000000;			/* clear WRC bits */
+	val |= CFG_4xx_RESET_TYPE << 28;	/* set board specific WRC type */
+#endif
 	mtspr(tcr, val);
 
 	val = mfspr(tsr);

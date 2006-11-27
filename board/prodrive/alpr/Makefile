@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o flash.o fpga.o nand.o
+COBJS	= $(BOARD).o fpga.o nand.o
 SOBJS	= init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
@@ -33,7 +33,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

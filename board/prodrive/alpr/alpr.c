@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 #include <ppc4xx_enet.h>
+#include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,24 +34,14 @@ extern int alpr_fpga_init(void);
 
 int board_early_init_f (void)
 {
-	unsigned long mfr;
-
-	/*-------------------------------------------------------------------------+
-	  | Initialize EBC CONFIG
-	  +-------------------------------------------------------------------------*/
-#if 0
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
-	      EBC_CFG_PTD_ENABLE | EBC_CFG_RTC_64PERCLK |
-	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
-	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
-	      EBC_CFG_PME_DISABLE | EBC_CFG_PR_32);
-#else
+	/*-------------------------------------------------------------------------
+	 * Initialize EBC CONFIG
+	 *-------------------------------------------------------------------------*/
 	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_DISABLE | EBC_CFG_RTC_64PERCLK |
 	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
 	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
 	      EBC_CFG_PME_DISABLE | EBC_CFG_PR_32);
-#endif
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -58,8 +49,8 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0xffffffff);	/* clear all */
 	mtdcr (uic0er, 0x00000000);	/* disable all */
 	mtdcr (uic0cr, 0x00000009);	/* SMI & UIC1 crit are critical */
-	mtdcr (uic0pr, 0xfffffe13);	/* per ref-board manual */
-	mtdcr (uic0tr, 0x01c00008);	/* per ref-board manual */
+	mtdcr (uic0pr, 0xfffffe03);	/* per manual */
+	mtdcr (uic0tr, 0x01c00000);	/* per manual */
 	mtdcr (uic0vr, 0x00000001);	/* int31 highest, base=0x000 */
 	mtdcr (uic0sr, 0xffffffff);	/* clear all */
 
@@ -85,10 +76,55 @@ int board_early_init_f (void)
 	mtdcr (uicb0pr, 0xfc000000); /* */
 	mtdcr (uicb0tr, 0x00000000); /* */
 	mtdcr (uicb0vr, 0x00000001); /* */
-	mfsdr (sdr_mfr, mfr);
-	mfr &= ~SDR0_MFR_ECS_MASK;
+
+	/* Setup GPIO/IRQ multiplexing */
+	mtsdr(sdr_pfc0, 0x01a03e00);
 
 	return 0;
+}
+
+int last_stage_init(void)
+{
+	unsigned short reg;
+
+	/*
+	 * Configure LED's of both Marvell 88E1111 PHY's
+	 *
+	 * This has to be done after the 4xx ethernet driver is loaded,
+	 * so "last_stage_init()" is the right place.
+	 */
+	miiphy_read("ppc_4xx_eth2", CONFIG_PHY2_ADDR, 0x18, &reg);
+	reg |= 0x0001;
+	miiphy_write("ppc_4xx_eth2", CONFIG_PHY2_ADDR, 0x18, reg);
+	miiphy_read("ppc_4xx_eth3", CONFIG_PHY3_ADDR, 0x18, &reg);
+	reg |= 0x0001;
+	miiphy_write("ppc_4xx_eth3", CONFIG_PHY3_ADDR, 0x18, reg);
+
+	return 0;
+}
+
+static int board_rev(void)
+{
+	int rev;
+	u32 pfc0;
+
+	/* Setup GPIO14 & 15 as GPIO */
+	mfsdr(sdr_pfc0, pfc0);
+	pfc0 |= CFG_GPIO_REV0 | CFG_GPIO_REV1;
+	mtsdr(sdr_pfc0, pfc0);
+
+	/* Setup as input */
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV0));
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV0));
+
+	rev = (in32(GPIO0_IR) >> 16) & 0x3;
+
+	/* Setup GPIO14 & 15 as non GPIO again */
+	mfsdr(sdr_pfc0, pfc0);
+	pfc0 &= ~(CFG_GPIO_REV0 | CFG_GPIO_REV1);
+	mtsdr(sdr_pfc0, pfc0);
+
+	return rev;
 }
 
 int checkboard (void)
@@ -100,7 +136,7 @@ int checkboard (void)
 		puts (", serial# ");
 		puts (s);
 	}
-	putc ('\n');
+	printf(" (Rev. %d)\n", board_rev());
 
 	return (0);
 }
@@ -224,10 +260,26 @@ void pci_target_init(struct pci_controller * hose )
  *
  ************************************************************************/
 #if defined(CONFIG_PCI)
+
+static void wait_for_pci_ready(void)
+{
+	/*
+	 * Configure EREADY as input
+	 */
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~CFG_GPIO_EREADY);
+	udelay(1000);
+
+	for (;;) {
+		if (in32(GPIO0_IR) & CFG_GPIO_EREADY)
+			return;
+	}
+
+}
+
 int is_pci_host(struct pci_controller *hose)
 {
-    /* The ocotea board is always configured as host. */
-    return(1);
+	wait_for_pci_ready();
+	return 1;		/* return 1 for host controller */
 }
 #endif /* defined(CONFIG_PCI) */
 
@@ -274,11 +326,3 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
-
-void board_reset(void)
-{
-	/*
-	 * Initiate chip reset in debug control register DBCR
-	 */
-	mtspr(dbcr0, 0x20000000);
-}

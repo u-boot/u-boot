@@ -470,8 +470,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #else
 	if ((devnum == 0) || (devnum == 1)) {
 		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
-	}
-	else { /* ((devnum == 2) || (devnum == 3)) */
+	} else { /* ((devnum == 2) || (devnum == 3)) */
 		out32 (ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
@@ -808,7 +807,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		hw_p->rx[i].ctrl |= MAL_RX_CTRL_EMPTY | MAL_RX_CTRL_INTR;
 		hw_p->rx_ready[i] = -1;
 #if 0
-		printf ("RX_BUFF %d @ 0x%08lx\n", i, (ulong) rx[i].data_ptr);
+		printf ("RX_BUFF %d @ 0x%08lx\n", i, (ulong) hw_p->rx[i].data_ptr);
 #endif
 	}
 

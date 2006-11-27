@@ -36,7 +36,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_FPGA)
+#if defined(CONFIG_FPGA)
 
 #ifdef FPGA_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -44,46 +44,38 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	PRINTF(fmt,args...)
 #endif
 
-static	unsigned long	regval;
+static unsigned long regval;
 
-#define SET_GPIO_REG_0(reg, bit) {\
-					regval = in32(reg);\
-					regval &= ~(0x80000000 >> bit);\
-					out32(reg, regval);\
-					}
+#define SET_GPIO_REG_0(reg, bit) {				\
+		regval = in32(reg);				\
+		regval &= ~(0x80000000 >> bit);			\
+		out32(reg, regval);				\
+	}
 
-#define SET_GPIO_REG_1(reg, bit) {\
-					regval = in32(reg);\
-					regval |= (0x80000000 >> bit);\
-					out32(reg, regval);\
-					}
+#define SET_GPIO_REG_1(reg, bit) {				\
+		regval = in32(reg);				\
+		regval |= (0x80000000 >> bit);			\
+		out32(reg, regval);				\
+	}
 
-#define	GPIO_CLK_PIN			0x00002000
-#define	GPIO_CLK_PIN_I			0xffffdfff
-#define GPIO_DAT_PIN			0x00001000
-#define GPIO_DAT_PIN_I			0xffffefff
-#define GPIO_CLKDAT_PIN_I		0xffffcfff
+#define	SET_GPIO_0(bit)		SET_GPIO_REG_0(GPIO0_OR, bit)
+#define	SET_GPIO_1(bit)		SET_GPIO_REG_1(GPIO0_OR, bit)
 
-#define SET_GPIO_CLK_0			out32(GPIO0_OR, in32(GPIO0_OR) & GPIO_CLK_PIN_I);
-#define SET_GPIO_CLK_1			out32(GPIO0_OR, in32(GPIO0_OR) | GPIO_CLK_PIN);
-#define SET_GPIO_DAT_0			out32(GPIO0_OR, in32(GPIO0_OR) & GPIO_DAT_PIN_I);
-#define SET_GPIO_DAT_1			out32(GPIO0_OR, in32(GPIO0_OR) | GPIO_DAT_PIN);
+#define FPGA_PRG		(0x80000000 >> CFG_GPIO_PROG_EN)
+#define FPGA_CONFIG		(0x80000000 >> CFG_GPIO_CONFIG)
+#define FPGA_DATA		(0x80000000 >> CFG_GPIO_DATA)
+#define FPGA_CLK		(0x80000000 >> CFG_GPIO_CLK)
+#define OLD_VAL			(FPGA_PRG | FPGA_CONFIG)
 
-#define	SET_GPIO_0(bit) SET_GPIO_REG_0(GPIO0_OR, bit)
-#define	SET_GPIO_1(bit) SET_GPIO_REG_1(GPIO0_OR, bit)
+#define SET_FPGA(data)		out32(GPIO0_OR, data)
 
-#define SET_GPIO_CLK_0_Z1		out32(GPIO0_OR, (in32(GPIO0_OR) & GPIO_CLK_PIN_I) | GPIO_DAT_PIN);
-#define SET_GPIO_CLK_0_Z0		out32(GPIO0_OR, in32(GPIO0_OR) & GPIO_CLKDAT_PIN_I);
+#define FPGA_WRITE_1 {							\
+		SET_FPGA(OLD_VAL | 0        | FPGA_DATA);  /* set data to 1  */	\
+		SET_FPGA(OLD_VAL | FPGA_CLK | FPGA_DATA);} /* set data to 1  */
 
-#define FPGA_WRITE_1 { \
-			SET_GPIO_CLK_0_Z1\
-			SET_GPIO_CLK_1}
-
-#define FPGA_WRITE_0 { \
-			SET_GPIO_CLK_0_Z0\
-			SET_GPIO_CLK_1}
-
-#define P_GP(reg) (reg & 0x00023f00)
+#define FPGA_WRITE_0 {							\
+		SET_FPGA(OLD_VAL | 0        | 0        );   /* set data to 0  */ \
+		SET_FPGA(OLD_VAL | FPGA_CLK | 0        );}  /* set data to 1  */
 
 /* Plattforminitializations */
 /* Here we have to set the FPGA Chain */
@@ -102,7 +94,7 @@ int fpga_pre_fn (int cookie)
 	SET_GPIO_REG_0(GPIO0_ODR, CFG_GPIO_SEL_DPR);
 	SET_GPIO_0((CFG_GPIO_SEL_DPR));
 
-	/* initialize the GPIO Pins */	
+	/* initialize the GPIO Pins */
 	/* output */
 	SET_GPIO_0(CFG_GPIO_CLK);
 	SET_GPIO_REG_1(GPIO0_TCR, CFG_GPIO_CLK);
@@ -174,7 +166,7 @@ int fpga_done_fn (int cookie)
 }
 
 /* writes the complete buffer to the FPGA
-   writing the complete buffer in one function is very faster,
+   writing the complete buffer in one function is much faster,
    then calling it for every bit */
 int fpga_write_fn (void *buf, size_t len, int flush, int cookie)
 {
@@ -182,14 +174,10 @@ int fpga_write_fn (void *buf, size_t len, int flush, int cookie)
 	unsigned char *data = (unsigned char *) buf;
 	unsigned char val=0;
 	int		i;
+	int len_40 = len / 40;
 
 	while (bytecount < len) {
-#ifdef CFG_FPGA_CHECK_CTRLC
-		if (ctrlc ()) {
-			return FPGA_FAIL;
-		}
-#endif
-		val = data[bytecount ++ ];
+		val = data[bytecount++];
 		i = 8;
 		do {
 			if (val & 0x01) {
@@ -202,8 +190,13 @@ int fpga_write_fn (void *buf, size_t len, int flush, int cookie)
 		} while (i > 0);
 
 #ifdef CFG_FPGA_PROG_FEEDBACK
-		if (bytecount % (len / 40) == 0)
+		if (bytecount % len_40 == 0) {
 			putc ('.');		/* let them know we are alive */
+#ifdef CFG_FPGA_CHECK_CTRLC
+			if (ctrlc ())
+				return FPGA_FAIL;
+#endif
+		}
 #endif
 	}
 	return FPGA_SUCCESS;

@@ -31,25 +31,25 @@
 #define CONFIG_440GX		1	    /* Specifc GX support	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_pre_init	*/
-#define CONFIG_BOARD_RESET	1	    /* call board_reset()	*/
+#define CONFIG_LAST_STAGE_INIT	1	    /* call last_stage_init()	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
-#define CONFIG_SYS_CLK_FREQ	33333000    /* external freq to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_SDRAM_BASE	    0x00000000	    /* _must_ be 0		*/
-#define CFG_FLASH_BASE	    0xffe00000	    /* start of FLASH		*/
-#define CFG_MONITOR_BASE    0xfffc0000	    /* start of monitor		*/
-#define CFG_PCI_MEMBASE	    0x80000000	    /* mapped pci memory	*/
-#define	CFG_PCI_MEMSIZE	    0x40000000	    /* size of mapped pci memory */
-#define CFG_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
-#define CFG_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
-#define CFG_PCI_BASE	    0xd0000000	    /* internal PCI regs	*/
-#define CFG_PCI_MEMBASE1        CFG_PCI_MEMBASE  + 0x10000000
-#define CFG_PCI_MEMBASE2        CFG_PCI_MEMBASE1 + 0x10000000
-#define CFG_PCI_MEMBASE3        CFG_PCI_MEMBASE2 + 0x10000000
+#define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0			*/
+#define CFG_FLASH_BASE		0xffe00000	/* start of FLASH		*/
+#define CFG_MONITOR_BASE	0xfffc0000	/* start of monitor		*/
+#define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory		*/
+#define	CFG_PCI_MEMSIZE		0x40000000	/* size of mapped pci memory	*/
+#define CFG_PERIPHERAL_BASE	0xe0000000	/* internal peripherals		*/
+#define CFG_ISRAM_BASE		0xc0000000	/* internal SRAM		*/
+#define CFG_PCI_BASE		0xd0000000	/* internal PCI regs		*/
+#define CFG_PCI_MEMBASE1	CFG_PCI_MEMBASE  + 0x10000000
+#define CFG_PCI_MEMBASE2	CFG_PCI_MEMBASE1 + 0x10000000
+#define CFG_PCI_MEMBASE3	CFG_PCI_MEMBASE2 + 0x10000000
 
 
 #define CFG_FPGA_BASE	    (CFG_PERIPHERAL_BASE + 0x08300000)
@@ -84,26 +84,13 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define FLASH_BASE0_PRELIM	CFG_FLASH_BASE		/* FLASH bank #0	*/
-
+#define CFG_FLASH_CFI		1	/* The flash is CFI compatible		*/
+#define CFG_FLASH_CFI_DRIVER	1	/* Use common CFI driver		*/
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
-
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
-
-#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
-/*
- * The following defines are added for buggy IOP480 byte interface.
- * All other boards should use the standard values (CPCI405 etc.)
- */
-#define CFG_FLASH_READ0		0x0000	/* 0 is standard			*/
-#define CFG_FLASH_READ1		0x0001	/* 1 is standard			*/
-#define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
-
+#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
@@ -154,7 +141,7 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
+	"netdev=eth3\0"							\
 	"hostname=alpr\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
@@ -162,18 +149,19 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate}\0"\
+	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate} " \
+		"mem=193M\0"						\
 	"flash_nfs=run nfsargs addip addtty;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=/tftpboot/alpr/uImage\0"				\
+	"rootpath=/opt/projects/alpr/nfs_root\0"			\
+	"bootfile=/alpr/uImage\0"					\
 	"kernel_addr=fff00000\0"					\
 	"ramdisk_addr=fff10000\0"					\
-	"load=tftp 100000 /tftpboot/alpr/u-boot.bin\0"			\
+	"load=tftp 100000 /alpr/u-boot/u-boot.bin\0"			\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
@@ -181,7 +169,7 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_BOOTDELAY	2	/* autoboot after 5 seconds	*/
 
 #define CONFIG_BAUDRATE		115200
 
@@ -192,8 +180,8 @@
 #define CONFIG_NET_MULTI	1
 #define CONFIG_PHY_ADDR		0x02	/* dummy setting, no EMAC0 used	*/
 #define CONFIG_PHY1_ADDR	0x03	/* dummy setting, no EMAC1 used	*/
-#define CONFIG_PHY2_ADDR	0x00	/* test-only: will be changed	*/
-#define CONFIG_PHY3_ADDR	0x01	/* PHY address for EMAC3	*/
+#define CONFIG_PHY2_ADDR	0x01	/* PHY address for EMAC2	*/
+#define CONFIG_PHY3_ADDR	0x02	/* PHY address for EMAC3	*/
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
@@ -251,9 +239,11 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
+#define CONFIG_MX_CYCLIC     	1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
+#define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
+
+#define CFG_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -264,7 +254,7 @@
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CFG_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
-#define CONFIG_PCI_BOOTDELAY    0       /* enable pci bootdelay variable*/
+#define CONFIG_PCI_BOOTDELAY	1       /* enable pci bootdelay variable*/
 
 /* Board-specific PCI */
 #define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
@@ -276,11 +266,10 @@
 
 /*-----------------------------------------------------------------------
  * FPGA stuff
- *-----------------------------------------------------------------------
- */
+ *-----------------------------------------------------------------------*/
 #define CONFIG_FPGA             CFG_ALTERA_CYCLON2
-#undef CFG_FPGA_CHECK_CTRLC
-#undef CFG_FPGA_PROG_FEEDBACK
+#define CFG_FPGA_CHECK_CTRLC
+#define CFG_FPGA_PROG_FEEDBACK
 #define CONFIG_FPGA_COUNT       1		/* Ich habe 2 ... aber in
 					Reihe geschaltet -> sollte gehen,
 					aufpassen mit Datasize ist jetzt
@@ -299,9 +288,16 @@
 #define CFG_GPIO_SEL_AVR	15	/* cpu output */
 #define CFG_GPIO_PROG_EN	23	/* cpu output */
 
-/*
+/*-----------------------------------------------------------------------
+ * Definitions for GPIO setup
+ *-----------------------------------------------------------------------*/
+#define CFG_GPIO_EREADY		(0x80000000 >> 26)
+#define CFG_GPIO_REV0		(0x80000000 >> 14)
+#define CFG_GPIO_REV1		(0x80000000 >> 15)
+
+/*-----------------------------------------------------------------------
  * NAND-FLASH stuff
- */
+ *-----------------------------------------------------------------------*/
 #define CFG_MAX_NAND_DEVICE	4
 #define NAND_MAX_CHIPS		CFG_MAX_NAND_DEVICE
 #define CFG_NAND_BASE		0xF0000000	/* NAND FLASH Base Address	*/
@@ -320,7 +316,7 @@
 
 /* Memory Bank 1 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB1AP		0x01840380	/* TWT=3			*/
-#define CFG_EBC_PB1CR		(CFG_NAND_BASE | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit */
+#define CFG_EBC_PB1CR		(CFG_NAND_BASE | 0x18000) /* BS=1MB,BU=R/W,BW=8bit */
 
 /*
  * For booting Linux, the board info and command line data
@@ -333,9 +329,7 @@
  */
 #define CFG_DCACHE_SIZE		32768	/* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*
  * Internal Definitions

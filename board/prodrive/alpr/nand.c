@@ -32,19 +32,19 @@
 #include <nand.h>
 
 struct alpr_ndfc_regs {
-	u16 cmd[4];
-	u16 addr_wait;
-	u16 term;
-	u16 dummy;
-	u16 dummy2;
-	u16 data;
+	u8 cmd[4];
+	u8 addr_wait;
+	u8 term;
+	u8 dummy;
+	u8 dummy2;
+	u8 data;
 };
 
 static u8 hwctl;
 static struct alpr_ndfc_regs *alpr_ndfc = NULL;
 
-#define readb(addr)	(u8)(*(volatile u16 *)(addr))
-#define writeb(d,addr)	*(volatile u16 *)(addr) = ((u16)(d))
+#define readb(addr)	(u8)(*(volatile u8 *)(addr))
+#define writeb(d,addr)	*(volatile u8 *)(addr) = ((u8)(d))
 
 /*
  * The ALPR has a NAND Flash Controller (NDFC) that handles all accesses to
