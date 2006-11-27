@@ -264,10 +264,10 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 		bis->bi_phymode[3] = BI_PHYMODE_ZMII;
 		break;
 	case 2:
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(0);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(1);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(2);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(3);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(0);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(1);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(2);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(3);
 		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
