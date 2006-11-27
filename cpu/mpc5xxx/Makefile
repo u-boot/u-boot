@@ -28,7 +28,7 @@ LIB	= lib$(CPU).a
 START	= start.o
 ASOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
 OBJS	= i2c.o traps.o cpu.o cpu_init.o fec.o ide.o interrupts.o \
-	  loadtask.o pci_mpc5200.o serial.o speed.o usb_ohci.o
+	  loadtask.o pci_mpc5200.o serial.o speed.o usb_ohci.o usb.o
 
 all:	.depend $(START) $(ASOBJS) $(LIB)
 

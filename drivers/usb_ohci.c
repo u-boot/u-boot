@@ -45,6 +45,7 @@
 
 #ifdef CONFIG_USB_OHCI
 
+/* mk: are these really required? */
 #if defined(CONFIG_S3C2400)
 # include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -53,6 +54,8 @@
 # include <asm/arch/hardware.h>
 #elif defined(CONFIG_CPU_MONAHANS)
 # include <asm/arch/pxa-regs.h>
+#elif defined(CONFIG_MPC5200)
+# include <mpc5xxx.h>
 #endif
 
 #include <malloc.h>
@@ -557,8 +560,10 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
  * the link from the ed still points to another operational ed or 0
  * so the HC can eventually finish the processing of the unlinked ed */
 
-static int ep_unlink (ohci_t *ohci, ed_t *ed)
+static int ep_unlink (ohci_t *ohci, ed_t *edi)
 {
+	volatile ed_t *ed = edi;
+
 	ed->hwINFO |= m32_swap (OHCI_ED_SKIP);
 
 	switch (ed->type) {
@@ -825,6 +830,9 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 				} else
 					td_list->ed->hwHeadP &= m32_swap (0xfffffff2);
 			}
+#ifdef CONFIG_MPC5200
+			td_list->hwNextTD = 0;
+#endif
 		}
 
 		td_list->next_dl_td = td_rev;
@@ -1448,7 +1456,8 @@ static int hc_reset (ohci_t *ohci)
 		readl(&ohci->regs->control));
 
 	/* Reset USB (needed by some controllers) */
-	writel (0, &ohci->regs->control);
+	ohci->hc_control = 0;
+	writel (ohci->hc_control, &ohci->regs->control);
 
 	/* HC Reset requires max 10 us delay */
 	writel (OHCI_HCR,  &ohci->regs->cmdstatus);

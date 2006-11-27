@@ -88,6 +88,7 @@
 #define CFG_USB_OHCI_CPU_INIT	1
 #define CFG_USB_OHCI_REGS_BASE	S3C24X0_USB_HOST_BASE
 #define CFG_USB_OHCI_SLOT_NAME	"s3c2400"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 /*
  * Size of malloc() pool
