@@ -43,8 +43,9 @@
 #include <common.h>
 /* #include <pci.h> no PCI on the S3C24X0 */
 
-#ifdef CONFIG_USB_OHCI
+#ifdef CONFIG_USB_OHCI_NEW
 
+/* mk: are these really required? */
 #if defined(CONFIG_S3C2400)
 # include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -53,21 +54,28 @@
 # include <asm/arch/hardware.h>
 #elif defined(CONFIG_CPU_MONAHANS)
 # include <asm/arch/pxa-regs.h>
+#elif defined(CONFIG_MPC5200)
+# include <mpc5xxx.h>
 #endif
 
 #include <malloc.h>
 #include <usb.h>
 #include "usb_ohci.h"
 
-#undef S3C24X0_merge
+#define S3C24X0_merge
 
 #if defined(CONFIG_ARM920T) || \
     defined(CONFIG_S3C2400) || \
-    defined(CONFIG_S3C2410)
+    defined(CONFIG_S3C2410) || \
+    defined(CONFIG_440EP) || \
+    defined(CONFIG_MPC5200)
 # define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #endif
 
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
+#undef DEBUG
+#undef SHOW_INFO
+#undef OHCI_FILL_TRACE
 
 /* For initializing controller (mask in an HCFS mode too) */
 #define OHCI_CONTROL_INIT \
@@ -92,8 +100,13 @@
 #define info(format, arg...) do {} while(0)
 #endif
 
-#define m16_swap(x) swap_16(x)
-#define m32_swap(x) swap_32(x)
+#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
+# define m16_swap(x) (x)
+# define m32_swap(x) (x)
+#else
+# define m16_swap(x) swap_16(x)
+# define m32_swap(x) swap_32(x)
+#endif
 
 /* global ohci_t */
 static ohci_t gohci;
@@ -520,7 +533,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_controltail == NULL) {
 			writel (ed, &ohci->regs->ed_controlhead);
 		} else {
-			ohci->ed_controltail->hwNextED = m32_swap (ed);
+			ohci->ed_controltail->hwNextED = m32_swap ((unsigned long)ed);
 		}
 		ed->ed_prev = ohci->ed_controltail;
 		if (!ohci->ed_controltail && !ohci->ed_rm_list[0] &&
@@ -536,7 +549,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 		if (ohci->ed_bulktail == NULL) {
 			writel (ed, &ohci->regs->ed_bulkhead);
 		} else {
-			ohci->ed_bulktail->hwNextED = m32_swap (ed);
+			ohci->ed_bulktail->hwNextED = m32_swap ((unsigned long)ed);
 		}
 		ed->ed_prev = ohci->ed_bulktail;
 		if (!ohci->ed_bulktail && !ohci->ed_rm_list[0] &&
@@ -557,8 +570,10 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
  * the link from the ed still points to another operational ed or 0
  * so the HC can eventually finish the processing of the unlinked ed */
 
-static int ep_unlink (ohci_t *ohci, ed_t *ed)
+static int ep_unlink (ohci_t *ohci, ed_t *edi)
 {
+	volatile ed_t *ed = edi;
+
 	ed->hwINFO |= m32_swap (OHCI_ED_SKIP);
 
 	switch (ed->type) {
@@ -630,7 +645,7 @@ static ed_t * ep_add_ed (struct usb_device *usb_dev, unsigned long pipe)
 		ed->hwINFO = m32_swap (OHCI_ED_SKIP); /* skip ed */
 		/* dummy td; end of td list for ed */
 		td = td_alloc (usb_dev);
-		ed->hwTailP = m32_swap (td);
+		ed->hwTailP = m32_swap ((unsigned long)td);
 		ed->hwHeadP = ed->hwTailP;
 		ed->state = ED_UNLINK;
 		ed->type = usb_pipetype (pipe);
@@ -688,12 +703,12 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 		data = 0;
 
 	td->hwINFO = m32_swap (info);
-	td->hwCBP = m32_swap (data);
+	td->hwCBP = m32_swap ((unsigned long)data);
 	if (data)
-		td->hwBE = m32_swap (data + len - 1);
+		td->hwBE = m32_swap ((unsigned long)(data + len - 1));
 	else
 		td->hwBE = 0;
-	td->hwNextTD = m32_swap (td_pt);
+	td->hwNextTD = m32_swap ((unsigned long)td_pt);
 #ifndef S3C24X0_merge
 	td->hwPSW [0] = m16_swap (((__u32)data & 0x0FFF) | 0xE000);
 #endif
@@ -825,6 +840,9 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 				} else
 					td_list->ed->hwHeadP &= m32_swap (0xfffffff2);
 			}
+#ifdef CONFIG_MPC5200
+			td_list->hwNextTD = 0;
+#endif
 		}
 
 		td_list->next_dl_td = td_rev;
@@ -867,7 +885,12 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 		/* see if this done list makes for all TD's of current URB,
 		 * and mark the URB finished if so */
 		if (++(lurb_priv->td_cnt) == lurb_priv->length) {
+#if 1
+			if ((ed->state & (ED_OPER | ED_UNLINK)) &&
+			    (lurb_priv->state != URB_DEL))
+#else
 			if ((ed->state & (ED_OPER | ED_UNLINK)))
+#endif
 				urb_finished = 1;
 			else
 				dbg("dl_done_list: strange.., ED state %x, ed->state\n");
@@ -1060,9 +1083,15 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 	}
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
+#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
+	wValue	      = __swap_16(cmd->value);
+	wIndex	      = __swap_16(cmd->index);
+	wLength	      = __swap_16(cmd->length);
+#else
 	wValue	      = m16_swap (cmd->value);
 	wIndex	      = m16_swap (cmd->index);
 	wLength	      = m16_swap (cmd->length);
+#endif /* CONFIG_440EP || CONFIG_MPC5200 */
 
 	info("Root-Hub: adr: %2x cmd(%1x): %08x %04x %04x %04x",
 		dev->devnum, 8, bmRType_bReq, wValue, wIndex, wLength);
@@ -1076,6 +1105,20 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 	   RH_OTHER | RH_CLASS	almost ever means HUB_PORT here
 	*/
 
+#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
+	case RH_GET_STATUS:
+			*(__u16 *) data_buf = __swap_16(1); OK (2);
+	case RH_GET_STATUS | RH_INTERFACE:
+			*(__u16 *) data_buf = __swap_16(0); OK (2);
+	case RH_GET_STATUS | RH_ENDPOINT:
+			*(__u16 *) data_buf = __swap_16(0); OK (2);
+	case RH_GET_STATUS | RH_CLASS:
+			*(__u32 *) data_buf = __swap_32(
+				RD_RH_STAT & ~(RH_HS_CRWE | RH_HS_DRWE));
+			OK (4);
+	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
+			*(__u32 *) data_buf = __swap_32(RD_RH_PORTSTAT); OK (4);
+#else
 	case RH_GET_STATUS:
 			*(__u16 *) data_buf = m16_swap (1); OK (2);
 	case RH_GET_STATUS | RH_INTERFACE:
@@ -1088,6 +1131,7 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 			OK (4);
 	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
 			*(__u32 *) data_buf = m32_swap (RD_RH_PORTSTAT); OK (4);
+#endif /* CONFIG_440EP || CONFIG_MPC5200 */
 
 	case RH_CLEAR_FEATURE | RH_ENDPOINT:
 		switch (wValue) {
@@ -1286,8 +1330,10 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		return -1;
 	}
 
+#if 0
 	wait_ms(10);
 	/* ohci_dump_status(&gohci); */
+#endif
 
 	/* allow more time for a BULK device to react - some are slow */
 #define BULK_TO	 5000	/* timeout in milliseconds */
@@ -1329,6 +1375,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			err("CTL:TIMEOUT ");
 #ifdef S3C24X0_merge
 			dbg("submit_common_msg: TO status %x\n", stat);
+			stat = USB_ST_CRC_ERR;
 			urb_finished = 1;
 #endif
 			stat = USB_ST_CRC_ERR;
@@ -1448,7 +1495,8 @@ static int hc_reset (ohci_t *ohci)
 		readl(&ohci->regs->control));
 
 	/* Reset USB (needed by some controllers) */
-	writel (0, &ohci->regs->control);
+	ohci->hc_control = 0;
+	writel (ohci->hc_control, &ohci->regs->control);
 
 	/* HC Reset requires max 10 us delay */
 	writel (OHCI_HCR,  &ohci->regs->cmdstatus);
@@ -1746,5 +1794,4 @@ int usb_lowlevel_stop(void)
 
 	return 0;
 }
-
-#endif /* CONFIG_USB_OHCI */
+#endif /* CONFIG_USB_OHCI_NEW */

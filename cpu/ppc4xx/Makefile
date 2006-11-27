@@ -27,12 +27,11 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o resetvec.o kgdb.o
 SOBJS	= dcr.o
-COBJS	= 405gp_pci.o 4xx_enet.o \
+COBJS	= 405gp_pci.o 440spe_pcie.o 4xx_enet.o \
 	  bedbug_405.o commproc.o \
 	  cpu.o cpu_init.o i2c.o interrupts.o \
 	  miiphy.o ndfc.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o \
-	  440spe_pcie.o
+	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o usb.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

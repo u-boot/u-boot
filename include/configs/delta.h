@@ -103,7 +103,7 @@
 #endif
 
 /* USB */
-#define CONFIG_USB_OHCI         1
+#define CONFIG_USB_OHCI_NEW	1
 #define CONFIG_USB_STORAGE      1
 #define CONFIG_DOS_PARTITION    1
 
@@ -111,6 +111,7 @@
 #define CFG_USB_OHCI_CPU_INIT	1
 #define CFG_USB_OHCI_REGS_BASE	OHCI_REGS_BASE
 #define CFG_USB_OHCI_SLOT_NAME	"delta"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	3
 
 #define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 

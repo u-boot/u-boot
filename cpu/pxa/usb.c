@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
 # ifdef CONFIG_CPU_MONAHANS
 
 #include <asm/arch/pxa-regs.h>
