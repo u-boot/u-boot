@@ -79,8 +79,7 @@
 # ifdef CFG_ENV_OFFSET_REDUND
 #  define CFG_REDUNDAND_ENVIRONMENT
 # endif
-# if defined(CONFIG_NAND_U_BOOT)
-/* Use embedded environment in NAND boot versions */
+# ifdef CFG_ENV_IS_EMBEDDED
 #  define ENV_IS_EMBEDDED	1
 # endif
 #endif /* CFG_ENV_IS_IN_NAND */
