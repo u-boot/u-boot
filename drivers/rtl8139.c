@@ -196,6 +196,7 @@ static void rtl_disable(struct eth_device *dev);
 
 static struct pci_device_id supported[] = {
        {PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139},
+       {PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139},
        {}
 };
 

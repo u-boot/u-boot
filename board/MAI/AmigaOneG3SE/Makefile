@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002
+# (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,8 +22,12 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../menu)
+$(shell mkdir -p $(obj)../bios_emulator)
+endif
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o articiaS.o flash.o serial.o smbus.o articiaS_pci.o \
 		via686.o i8259.o ../bios_emulator/x86interface.o 	\
@@ -31,26 +35,29 @@ COBJS	= $(BOARD).o articiaS.o flash.o serial.o smbus.o articiaS_pci.o \
 		interrupts.o ps2kbd.o video.o usb_uhci.o enet.o	        \
 		../menu/cmd_menu.o cmd_boota.o nvram.o
 
-AOBJS	= board_asm_init.o memio.o
-
-OBJS	= $(COBJS) $(AOBJS)
+SOBJS	= board_asm_init.o memio.o
 
 EMUDIR  = ../bios_emulator/scitech/src/x86emu/
 EMUOBJ  = $(EMUDIR)decode.o $(EMUDIR)ops2.o $(EMUDIR)fpu.o $(EMUDIR)prim_ops.o \
 		$(EMUDIR)ops.o $(EMUDIR)sys.o
-EMUSRC = $(EMUOBJ:.o=.c)
+EMUSRC  = $(EMUOBJ:.o=.c)
 
-$(LIB):	.depend $(OBJS) $(EMUSRC)
-	make libx86emu.a -C ../bios_emulator/scitech/src/x86emu -f makefile.uboot CROSS_COMPILE=$(CROSS_COMPILE)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+EMUOBJ  := $(addprefix $(obj),$(EMUOBJ))
+
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS) $(EMUSRC)
+	make $(obj)libx86emu.a -C ../bios_emulator/scitech/src/x86emu -f makefile.uboot CROSS_COMPILE=$(CROSS_COMPILE)
 	-rm $(LIB)
-	$(AR) crv $@ $(OBJS) $(EMUOBJ)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS) $(EMUOBJ)
 
 
 #########################################################################
 
-.depend: Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-	$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

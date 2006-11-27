@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,15 +24,19 @@
 #
 # Makefile for the SysKonnect SK-98xx device driver.
 #
+
 include $(TOPDIR)/config.mk
 
-LIB := libsk98lin.a
+LIB	:= $(obj)libsk98lin.a
 
-OBJS :=     skge.o skaddr.o skgehwt.o skgeinit.o skgepnmi.o skgesirq.o \
-	     ski2c.o sklm80.o skqueue.o skrlmt.o sktimer.o skvpd.o \
-	     skxmac2.o skcsum.o #skproc.o
+COBJS	:= skge.o skaddr.o skgehwt.o skgeinit.o skgepnmi.o skgesirq.o \
+		ski2c.o sklm80.o skqueue.o skrlmt.o sktimer.o skvpd.o \
+		skxmac2.o skcsum.o #skproc.o
 
-OBJS +=     uboot_skb.o uboot_drv.o
+COBJS	+= uboot_skb.o uboot_drv.o
+
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 # DBGDEF =  \
 # -DDEBUG
@@ -84,18 +88,19 @@ endif
 EXTRA_CFLAGS += -I. -DSK_USE_CSUM $(DBGDEF)
 
 CFLAGS += $(EXTRA_CFLAGS)
+HOST_CFLAGS += $(EXTRA_CFLAGS)
 
 
 all:	$(LIB)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

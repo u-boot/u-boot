@@ -68,6 +68,10 @@
  * The board, however, can run at 66MHz.  In any event, this value
  * must match the settings of some switches.  Details can be found
  * in the README.mpc85xxads.
+ *
+ * XXX -- Can't we run at 66 MHz, anyway?  PCI should drop to
+ * 33MHz to accommodate, based on a PCI pin.
+ * Note that PCI-X won't work at 33MHz.
  */
 
 #ifndef CONFIG_SYS_CLK_FREQ
@@ -293,12 +297,31 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
-/* I2C */
-#define  CONFIG_HARD_I2C		/* I2C with hardware support*/
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8540@0"
+#define OF_SOC			"soc8540@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH		"/soc8540@e0000000/serial@4500"
+
+#define CFG_64BIT_VSPRINTF	1
+#define CFG_64BIT_STRTOUL	1
+
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
 
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address */
@@ -312,9 +335,10 @@
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+
+#define CFG_PCI1_IO_BASE	0x0
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x100000	/* 1M */
 
 #if defined(CONFIG_PCI)
 
@@ -497,8 +521,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"						\
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"						\
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -506,13 +532,15 @@
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
+   "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND

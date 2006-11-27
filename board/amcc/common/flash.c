@@ -35,7 +35,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
+flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -75,6 +75,9 @@ void flash_print_info(flash_info_t * info)
 		break;
 	case FLASH_MAN_SST:
 		printf("SST ");
+		break;
+	case FLASH_MAN_MX:
+		printf ("MACRONIX ");
 		break;
 	default:
 		printf("Unknown Vendor ");
@@ -123,6 +126,9 @@ void flash_print_info(flash_info_t * info)
 		break;
 	case FLASH_STMW320DT:
 		printf ("M29W320DT (32 M, top sector)\n");
+		break;
+	case FLASH_MXLV320T:
+		printf ("MXLV320T (32 Mbit, top sector)\n");
 		break;
 	default:
 		printf("Unknown Chip Type\n");
@@ -217,75 +223,75 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 		return (0);	/* no or unknown flash  */
 	}
 
-	value = addr2[1];	/* device ID            */
+	value = addr2[1];	/* device ID */
 	DEBUGF("\nFLASH DEVICEID: %x\n", value);
 
 	switch (value) {
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV040B:
 		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
-		info->size = 0x0080000;	/* => 512 ko */
+		info->size = 0x0080000;		/* => 512 KiB */
 		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_F040B:
 		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
-		info->size = 0x0080000;	/* => 512 ko */
+		info->size = 0x0080000;		/* => 512 KiB */
 		break;
 
 	case (CFG_FLASH_WORD_SIZE) STM_ID_M29W040B:
 		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
-		info->size = 0x0080000;	/* => 512 ko */
+		info->size = 0x0080000;		/* => 512 KiB */
 		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_F016D:
 		info->flash_id += FLASH_AMD016;
 		info->sector_count = 32;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
+		info->size = 0x00200000;	/* => 2 MiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV033C:
 		info->flash_id += FLASH_AMDLV033C;
 		info->sector_count = 64;
-		info->size = 0x00400000;
-		break;		/* => 4 MB              */
+		info->size = 0x00400000;	/* => 4 MiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV400T:
 		info->flash_id += FLASH_AM400T;
 		info->sector_count = 11;
-		info->size = 0x00080000;
-		break;		/* => 0.5 MB            */
+		info->size = 0x00080000;	/* => 512 KiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV400B:
 		info->flash_id += FLASH_AM400B;
 		info->sector_count = 11;
-		info->size = 0x00080000;
-		break;		/* => 0.5 MB            */
+		info->size = 0x00080000;	/* => 512 KiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV800T:
 		info->flash_id += FLASH_AM800T;
 		info->sector_count = 19;
-		info->size = 0x00100000;
-		break;		/* => 1 MB              */
+		info->size = 0x00100000;	/* => 1 MiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV800B:
 		info->flash_id += FLASH_AM800B;
 		info->sector_count = 19;
-		info->size = 0x00100000;
-		break;		/* => 1 MB              */
+		info->size = 0x00100000;	/* => 1 MiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV160T:
 		info->flash_id += FLASH_AM160T;
 		info->sector_count = 35;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
+		info->size = 0x00200000;	/* => 2 MiB */
+		break;
 
 	case (CFG_FLASH_WORD_SIZE) AMD_ID_LV160B:
 		info->flash_id += FLASH_AM160B;
 		info->sector_count = 35;
-		info->size = 0x00200000;
-		break;		/* => 2 MB              */
+		info->size = 0x00200000;	/* => 2 MiB */
+		break;
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -300,7 +306,7 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 			info->start[i] = base + (i * 0x00010000);
 	} else {
 		if (info->flash_id & FLASH_BTYPE) {
-			/* set sector offsets for bottom boot block type        */
+			/* set sector offsets for bottom boot block type */
 			info->start[0] = base + 0x00000000;
 			info->start[1] = base + 0x00004000;
 			info->start[2] = base + 0x00006000;
@@ -310,7 +316,7 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 				    base + (i * 0x00010000) - 0x00030000;
 			}
 		} else {
-			/* set sector offsets for top boot block type           */
+			/* set sector offsets for top boot block type */
 			i = info->sector_count - 1;
 			info->start[i--] = base + info->size - 0x00004000;
 			info->start[i--] = base + info->size - 0x00006000;
@@ -375,6 +381,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 {
 	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
 		return flash_erase_2(info, s_first, s_last);
 	} else {
@@ -555,6 +562,7 @@ static int write_word(flash_info_t * info, ulong dest, ulong data)
 {
 	if (((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320B) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_AM320T) ||
+	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) ||
 	    ((info->flash_id & FLASH_TYPEMASK) == FLASH_STMW320DT)) {
 		return write_word_2(info, dest, data);
 	} else {
@@ -648,6 +656,9 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 	case (CFG_FLASH_WORD_SIZE) STM_MANUFACT:
 		info->flash_id = FLASH_MAN_STM;
 		break;
+	case (CFG_FLASH_WORD_SIZE) MX_MANUFACT:
+		info->flash_id = FLASH_MAN_MX;
+		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
@@ -655,7 +666,7 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 		return (0);	/* no or unknown flash  */
 	}
 
-	value = addr2[1];	/* device ID            */
+	value = addr2[1];	/* device ID */
 
 	DEBUGF("\nFLASH DEVICEID: %x\n", value);
 
@@ -664,17 +675,23 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320T:
 		info->flash_id += FLASH_AM320T;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;  break;	/* => 4 MiB	*/
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV320B:
 		info->flash_id += FLASH_AM320B;
 		info->sector_count = 71;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;  break;	/* => 4 MiB	*/
 
 	case (CFG_FLASH_WORD_SIZE)STM_ID_29W320DT:
 		info->flash_id += FLASH_STMW320DT;
 		info->sector_count = 67;
-		info->size = 0x00400000;  break;	/* => 4 MB	*/
+		info->size = 0x00400000;  break;	/* => 4 MiB	*/
+
+	case (CFG_FLASH_WORD_SIZE)MX_ID_LV320T:
+		info->flash_id += FLASH_MXLV320T;
+		info->sector_count = 71;
+		info->size = 0x00400000;
+		break;	/* => 4 MB	*/
 
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -711,9 +728,22 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 			--i;
 			info->start[i] = base;
 		}
+	} else if ((info->flash_id & FLASH_TYPEMASK) == FLASH_MXLV320T) {
+		i = info->sector_count - 1;
+		info->start[i--] = base + info->size - 0x00002000;
+		info->start[i--] = base + info->size - 0x00004000;
+		info->start[i--] = base + info->size - 0x00006000;
+		info->start[i--] = base + info->size - 0x00008000;
+		info->start[i--] = base + info->size - 0x0000a000;
+		info->start[i--] = base + info->size - 0x0000c000;
+		info->start[i--] = base + info->size - 0x0000e000;
+		info->start[i--] = base + info->size - 0x00010000;
+
+		for (; i >= 0; i--)
+			info->start[i] = base + i * 0x00010000;
 	} else {
 		if (info->flash_id & FLASH_BTYPE) {
-			/* set sector offsets for bottom boot block type        */
+			/* set sector offsets for bottom boot block type */
 			info->start[0] = base + 0x00000000;
 			info->start[1] = base + 0x00004000;
 			info->start[2] = base + 0x00006000;
@@ -723,7 +753,7 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 				    base + (i * 0x00010000) - 0x00030000;
 			}
 		} else {
-			/* set sector offsets for top boot block type           */
+			/* set sector offsets for top boot block type */
 			i = info->sector_count - 1;
 			info->start[i--] = base + info->size - 0x00004000;
 			info->start[i--] = base + info->size - 0x00006000;

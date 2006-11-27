@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2004
+# (C) Copyright 2004-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= libcommon.a
+LIB	= $(obj)libcommon.a
 
 AOBJS	=
 
@@ -51,30 +51,31 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o \
 	  memsize.o miiphybb.o miiphyutil.o \
 	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o spartan3.o \
 	  usb.o usb_kbd.o usb_storage.o \
-	  virtex2.o xilinx.o crc16.o xyzModem.o
+	  virtex2.o xilinx.o crc16.o xyzModem.o cmd_mac.o
 
-OBJS	= $(AOBJS) $(COBJS)
+SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
 CPPFLAGS += -I..
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB): .depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-environment.o: environment.c ../tools/envcrc
+$(obj)environment.o: $(src)environment.c $(obj)../tools/envcrc
 	$(CC) $(AFLAGS) -Wa,--no-warn \
-		-DENV_CRC=$(shell ../tools/envcrc) \
-		-c -o $@ environment.c
+		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
+		-c -o $@ $(src)environment.c
 
-../tools/envcrc:
+$(obj)../tools/envcrc:
 	$(MAKE) -C ../tools
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

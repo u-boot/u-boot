@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,28 +23,31 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o resetvec.o kgdb.o
-AOBJS	= dcr.o
+SOBJS	= dcr.o
 COBJS	= 405gp_pci.o 4xx_enet.o \
 	  bedbug_405.o commproc.o \
 	  cpu.o cpu_init.o i2c.o interrupts.o \
-	  miiphy.o sdram.o serial.o \
-	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o
+	  miiphy.o ndfc.o sdram.o serial.o \
+	  spd_sdram.o speed.o traps.o usb_ohci.o usbdev.o \
+	  440spe_pcie.o
 
-OBJS	= $(AOBJS) $(COBJS)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
 
-all:	.depend $(START) $(LIB)
+all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2002
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,21 +23,24 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= libgeneric.a
+LIB	= $(obj)libgeneric.a
 
-OBJS	= bzlib.o bzlib_crctable.o bzlib_decompress.o \
+COBJS	= bzlib.o bzlib_crctable.o bzlib_decompress.o \
 	  bzlib_randtable.o bzlib_huffman.o \
 	  crc32.o ctype.o display_options.o ldiv.o \
 	  string.o vsprintf.o zlib.o
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+SRCS 	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

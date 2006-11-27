@@ -95,14 +95,12 @@ static __inline__ int abortboot(int bootdelay)
 {
 	int abort = 0;
 	uint64_t etime = endtick(bootdelay);
-	struct
-	{
+	struct {
 		char* str;
 		u_int len;
 		int retry;
 	}
-	delaykey [] =
-	{
+	delaykey [] = {
 		{ str: getenv ("bootdelaykey"),  retry: 1 },
 		{ str: getenv ("bootdelaykey2"), retry: 1 },
 		{ str: getenv ("bootstopkey"),   retry: 0 },
@@ -498,7 +496,7 @@ void main_loop (void)
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 /***************************************************************************
- * initialise command line timeout
+ * initialize command line timeout
  */
 void init_cmd_timeout(void)
 {
@@ -529,23 +527,9 @@ void reset_cmd_timeout(void)
  * Author: Janghoon Lyu <nandy@mizi.com>
  */
 
-#if 1	/* avoid redundand code -- wd */
 #define putnstr(str,n)	do {			\
 		printf ("%.*s", n, str);	\
 	} while (0)
-#else
-void putnstr(const char *str, size_t n)
-{
-	if (str == NULL)
-		return;
-
-	while (n && *str != '\0') {
-		putc(*str);
-		str++;
-		n--;
-	}
-}
-#endif
 
 #define CTL_CH(c)		((c) - 'a' + 1)
 
@@ -937,6 +921,7 @@ int readline (const char *const prompt)
 #ifdef CONFIG_CMDLINE_EDITING
 	char *p = console_buffer;
 	unsigned int len=MAX_CMDBUF_SIZE;
+	int rc;
 	static int initted = 0;
 
 	if (!initted) {
@@ -946,8 +931,8 @@ int readline (const char *const prompt)
 
 	puts (prompt);
 
-	cread_line(p, &len);
-	return len;
+	rc = cread_line(p, &len);
+	return rc < 0 ? rc : len;
 #else
 	char   *p = console_buffer;
 	int	n = 0;				/* buffer index		*/
@@ -1137,97 +1122,99 @@ static void process_macros (const char *input, char *output)
 {
 	char c, prev;
 	const char *varname_start = NULL;
-	int inputcnt  = strlen (input);
+	int inputcnt = strlen (input);
 	int outputcnt = CFG_CBSIZE;
-	int state = 0;	/* 0 = waiting for '$'	*/
-			/* 1 = waiting for '(' or '{' */
-			/* 2 = waiting for ')' or '}' */
-			/* 3 = waiting for '''  */
+	int state = 0;		/* 0 = waiting for '$'  */
+
+	/* 1 = waiting for '(' or '{' */
+	/* 2 = waiting for ')' or '}' */
+	/* 3 = waiting for '''  */
 #ifdef DEBUG_PARSER
 	char *output_start = output;
 
-	printf ("[PROCESS_MACROS] INPUT len %d: \"%s\"\n", strlen(input), input);
+	printf ("[PROCESS_MACROS] INPUT len %d: \"%s\"\n", strlen (input),
+		input);
 #endif
 
-	prev = '\0';			/* previous character	*/
+	prev = '\0';		/* previous character   */
 
 	while (inputcnt && outputcnt) {
-	    c = *input++;
-	    inputcnt--;
-
-	    if (state!=3) {
-	    /* remove one level of escape characters */
-	    if ((c == '\\') && (prev != '\\')) {
-		if (inputcnt-- == 0)
-			break;
-		prev = c;
 		c = *input++;
-	    }
-	    }
+		inputcnt--;
 
-	    switch (state) {
-	    case 0:			/* Waiting for (unescaped) $	*/
-		if ((c == '\'') && (prev != '\\')) {
-			state = 3;
-			break;
+		if (state != 3) {
+			/* remove one level of escape characters */
+			if ((c == '\\') && (prev != '\\')) {
+				if (inputcnt-- == 0)
+					break;
+				prev = c;
+				c = *input++;
+			}
 		}
-		if ((c == '$') && (prev != '\\')) {
-			state++;
-		} else {
-			*(output++) = c;
-			outputcnt--;
-		}
-		break;
-	    case 1:			/* Waiting for (	*/
-		if (c == '(' || c == '{') {
-			state++;
-			varname_start = input;
-		} else {
-			state = 0;
-			*(output++) = '$';
-			outputcnt--;
 
-			if (outputcnt) {
+		switch (state) {
+		case 0:	/* Waiting for (unescaped) $    */
+			if ((c == '\'') && (prev != '\\')) {
+				state = 3;
+				break;
+			}
+			if ((c == '$') && (prev != '\\')) {
+				state++;
+			} else {
 				*(output++) = c;
 				outputcnt--;
 			}
-		}
-		break;
-	    case 2:			/* Waiting for )	*/
-		if (c == ')' || c == '}') {
-			int i;
-			char envname[CFG_CBSIZE], *envval;
-			int envcnt = input-varname_start-1; /* Varname # of chars */
+			break;
+		case 1:	/* Waiting for (        */
+			if (c == '(' || c == '{') {
+				state++;
+				varname_start = input;
+			} else {
+				state = 0;
+				*(output++) = '$';
+				outputcnt--;
 
-			/* Get the varname */
-			for (i = 0; i < envcnt; i++) {
-				envname[i] = varname_start[i];
-			}
-			envname[i] = 0;
-
-			/* Get its value */
-			envval = getenv (envname);
-
-			/* Copy into the line if it exists */
-			if (envval != NULL)
-				while ((*envval) && outputcnt) {
-					*(output++) = *(envval++);
+				if (outputcnt) {
+					*(output++) = c;
 					outputcnt--;
 				}
-			/* Look for another '$' */
-			state = 0;
+			}
+			break;
+		case 2:	/* Waiting for )        */
+			if (c == ')' || c == '}') {
+				int i;
+				char envname[CFG_CBSIZE], *envval;
+				int envcnt = input - varname_start - 1;	/* Varname # of chars */
+
+				/* Get the varname */
+				for (i = 0; i < envcnt; i++) {
+					envname[i] = varname_start[i];
+				}
+				envname[i] = 0;
+
+				/* Get its value */
+				envval = getenv (envname);
+
+				/* Copy into the line if it exists */
+				if (envval != NULL)
+					while ((*envval) && outputcnt) {
+						*(output++) = *(envval++);
+						outputcnt--;
+					}
+				/* Look for another '$' */
+				state = 0;
+			}
+			break;
+		case 3:	/* Waiting for '        */
+			if ((c == '\'') && (prev != '\\')) {
+				state = 0;
+			} else {
+				*(output++) = c;
+				outputcnt--;
+			}
+			break;
 		}
-		break;
-	    case 3:			/* Waiting for '	*/
-		if ((c == '\'') && (prev != '\\')) {
-			state = 0;
-		} else {
-			*(output++) = c;
-			outputcnt--;
-		}
-		break;
-	    }
-	    prev = c;
+		prev = c;
 	}
 
 	if (outputcnt)
@@ -1235,7 +1222,7 @@ static void process_macros (const char *input, char *output)
 
 #ifdef DEBUG_PARSER
 	printf ("[PROCESS_MACROS] OUTPUT len %d: \"%s\"\n",
-		strlen(output_start), output_start);
+		strlen (output_start), output_start);
 #endif
 }
 

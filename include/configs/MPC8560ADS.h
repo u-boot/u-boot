@@ -290,12 +290,28 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
-/* I2C */
-#define  CONFIG_HARD_I2C		/* I2C with hardware support*/
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8560@0"
+#define OF_SOC			"soc8560@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH		"/soc8560@e0000000/serial@4500"
+
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
 
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address */

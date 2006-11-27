@@ -186,18 +186,23 @@
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-/* Use the HUSH parser */
-#define CFG_HUSH_PARSER
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-/* I2C */
+
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES	{0x48}	/* Don't probe these addrs	*/
+#define CFG_I2C_OFFSET		0x3000
 
 /* I2C RTC */
 #define CONFIG_RTC_DS1337		/* Use ds1337 rtc via i2c	*/
@@ -424,7 +429,7 @@
 #define CONFIG_BOOTDELAY 5		/* -1 disables auto-boot	*/
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
@@ -449,7 +454,7 @@
 		"run nfsargs addip addcons;bootm\0"			\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
 	"kernel_addr=FE000000\0"					\
-	"ramdisk_addr=FE100000\0"					\
+	"ramdisk_addr=FE180000\0"					\
 	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \

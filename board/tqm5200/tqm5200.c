@@ -289,9 +289,11 @@ int checkboard (void)
 #elif defined(CONFIG_TB5200)
 # define CARRIER_NAME	"TB5200"
 #elif defined(CONFIG_CAM5200)
-# define CARRIER_NAME	"Cam5200"
+# define CARRIER_NAME	"CAM5200"
+#elif defined(CONFIG_FO300)
+# define CARRIER_NAME	"FO300"
 #else
-# error "Unknown carrier board"
+# error "UNKNOWN"
 #endif
 
 	puts (	"Board: " MODULE_NAME " (TQ-Components GmbH)\n"
@@ -339,9 +341,7 @@ void pci_init_board(void)
 #define SM501_GPIO_DATA_DIR_HIGH	0x0001000CUL
 #define SM501_GPIO_DATA_HIGH		0x00010004UL
 #define SM501_GPIO_51			0x00080000UL
-#else
-#define GPIO_PSC1_4	0x01000000UL
-#endif
+#endif /* CONFIG MINIFAP */
 
 void init_ide_reset (void)
 {
@@ -379,9 +379,9 @@ void ide_set_reset (int idereset)
 	}
 #else
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |=  GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 #endif
 }
@@ -394,6 +394,7 @@ void ide_set_reset (int idereset)
  */
 int post_hotkeys_pressed(void)
 {
+#ifdef CONFIG_STK52XX
 	struct mpc5xxx_gpio *gpio;
 
 	gpio = (struct mpc5xxx_gpio*) MPC5XXX_GPIO;
@@ -412,6 +413,9 @@ int post_hotkeys_pressed(void)
 	gpio->simple_ddr &= ~(0x20000000);
 
 	return ((gpio->simple_ival & 0x20000000) ? 0 : 1);
+#else
+	return 0;
+#endif
 }
 #endif
 
@@ -443,6 +447,43 @@ int board_early_init_r (void)
 }
 #endif
 #endif /* CONFIG_PS2MULT */
+
+#ifdef CONFIG_FO300
+int silent_boot (void)
+{
+	vu_long timer3_status;
+
+	/* Configure GPT3 as GPIO input */
+	*(vu_long *)MPC5XXX_GPT3_ENABLE = 0x00000004;
+
+	/* Read in TIMER_3 pin status */
+	timer3_status = *(vu_long *)MPC5XXX_GPT3_STATUS;
+
+#ifdef FO300_SILENT_CONSOLE_WHEN_S1_CLOSED
+	/* Force silent console mode if S1 switch
+	 * is in closed position (TIMER_3 pin status is LOW). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 0)
+		return 1;
+#else
+	/* Force silent console mode if S1 switch
+	 * is in open position (TIMER_3 pin status is HIGH). */
+	if (MPC5XXX_GPT_GPIO_PIN(timer3_status) == 1)
+		return 1;
+#endif
+
+	return 0;
+}
+
+int board_early_init_f (void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (silent_boot())
+		gd->flags |= GD_FLG_SILENT;
+
+	return 0;
+}
+#endif	/* CONFIG_FO300 */
 
 int last_stage_init (void)
 {
@@ -536,12 +577,23 @@ int last_stage_init (void)
 		__asm__ volatile ("sync");
 	}
 
+#ifdef CONFIG_FO300
+	if (silent_boot()) {
+		setenv("bootdelay", "0");
+		disable_ctrlc(1);
+	}
+#endif
+
 	return 0;
 }
 
 #ifdef CONFIG_VIDEO_SM501
 
+#ifdef CONFIG_FO300
+#define DISPLAY_WIDTH   800
+#else
 #define DISPLAY_WIDTH   640
+#endif
 #define DISPLAY_HEIGHT  480
 
 #ifdef CONFIG_VIDEO_SM501_8BPP
@@ -571,6 +623,28 @@ static const SMI_REGS init_regs [] =
 	{0x80218, 0x000201e9},
 	{0x80200, 0x00013306},
 #else  /* panel + CRT */
+#ifdef CONFIG_FO300
+	{0x00004, 0x0},
+	{0x00048, 0x00021807},
+	{0x0004C, 0x301a0a01},
+	{0x00054, 0x1},
+	{0x00040, 0x00021807},
+	{0x00044, 0x091a0a01},
+	{0x00054, 0x0},
+	{0x80000, 0x0f013106},
+	{0x80004, 0xc428bb17},
+	{0x8000C, 0x00000000},
+	{0x80010, 0x0C800C80},
+	{0x80014, 0x03200000},
+	{0x80018, 0x01e00000},
+	{0x8001C, 0x00000000},
+	{0x80020, 0x01e00320},
+	{0x80024, 0x042a031f},
+	{0x80028, 0x0086034a},
+	{0x8002C, 0x020c01df},
+	{0x80030, 0x000201ea},
+	{0x80200, 0x00010000},
+#else
 	{0x00004, 0x0},
 	{0x00048, 0x00021807},
 	{0x0004C, 0x091a0a01},
@@ -591,6 +665,7 @@ static const SMI_REGS init_regs [] =
 	{0x8002C, 0x020c01df},
 	{0x80030, 0x000201e9},
 	{0x80200, 0x00010000},
+#endif /* #ifdef CONFIG_FO300 */
 #endif
 	{0, 0}
 };
@@ -604,13 +679,16 @@ void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
 	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200)
+#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200) || defined(CONFIG_FO300)
 	} else if (line_number == 2) {
 #if defined (CONFIG_STK52XX)
 		strcpy (info, "        on a STK52xx carrier board");
 #endif
 #if defined (CONFIG_TB5200)
 		strcpy (info, "        on a TB5200 carrier board");
+#endif
+#if defined (CONFIG_FO300)
+		strcpy (info, "        on a FO300 carrier board");
 #endif
 #endif
 	}

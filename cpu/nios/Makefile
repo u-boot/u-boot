@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,22 +23,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-AOBJS	= traps.o
-OBJS	= cpu.o interrupts.o serial.o asmi.o spi.o
+SOBJS	= traps.o
+COBJS	= cpu.o interrupts.o serial.o asmi.o spi.o
 
-all:	.depend $(START) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
 
-$(LIB):	$(OBJS) $(AOBJS)
-	$(AR) crv $@ $(OBJS) $(AOBJS)
+all:	$(obj).depend $(START) $(LIB)
+
+$(LIB):	$(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend: Makefile $(START:.o=.S) $(OBJS:.o=.c) $(AOBJS:.o=.S)
-	$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) $(AOBJS:.o=.S) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

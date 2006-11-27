@@ -23,11 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB := libnpe.a
+LIB := $(obj)libnpe.a
 
-CFLAGS  += -I$(TOPDIR)/cpu/ixp/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB
+LOCAL_CFLAGS  += -I$(TOPDIR)/cpu/ixp/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB
+CFLAGS  += $(LOCAL_CFLAGS)
+HOST_CFLAGS  += $(LOCAL_CFLAGS)
 
-OBJS := npe.o \
+COBJS := npe.o \
 	miiphy.o \
 	IxOsalBufferMgt.o \
 	IxOsalIoMem.o \
@@ -78,14 +80,21 @@ OBJS := npe.o \
 	IxNpeMhSolicitedCbMgr.o \
 	IxNpeMhUnsolicitedCbMgr.o
 
+
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
+
 all:	$(LIB)
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
+
+#########################################################################

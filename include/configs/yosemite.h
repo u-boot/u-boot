@@ -65,6 +65,7 @@
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
+#define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
 #define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
 #define CFG_INIT_RAM_END	(8 << 10)
 #define CFG_GBL_DATA_SIZE	256			/* num bytes initial data*/
@@ -231,6 +232,7 @@
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
 				CFG_CMD_ELF	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
 				CFG_CMD_MII	| \
@@ -271,6 +273,12 @@
 #define CONFIG_LYNXKDI          1       /* support kdi files            */
 
 #define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * PCI stuff

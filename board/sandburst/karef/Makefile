@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2005
 # Sandburst Corporation
 # Travis B. Sawyer
@@ -23,6 +26,9 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 # TBS: add for debugging purposes
 BUILDUSER := $(shell whoami)
@@ -32,16 +38,19 @@ CFLAGS += -DBUILDUSER='"$(BUILDUSER)"'
 # TBS: end debugging
 
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o ../common/flash.o ../common/ppc440gx_i2c.o \
+COBJS	= $(BOARD).o ../common/flash.o ../common/ppc440gx_i2c.o \
 	../common/sb_common.o
 
 SOBJS	= init.o
 
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
@@ -51,9 +60,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

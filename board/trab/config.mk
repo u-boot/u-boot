@@ -19,7 +19,7 @@
 # download areas is 0C80'0000
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0x0DF40000

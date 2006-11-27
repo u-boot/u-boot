@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2002
 # Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
 #
@@ -23,22 +26,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o start16.o reset.o
 COBJS	= serial.o interrupts.o cpu.o timer.o sc520.o
-AOBJS	= sc520_asm.o
+SOBJS	= sc520_asm.o
 
-all:	.depend $(START) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
 
-$(LIB):	$(COBJS) $(AOBJS)
-	$(AR) crv $@ $(COBJS) $(AOBJS)
+all:	$(obj).depend $(START) $(LIB)
+
+$(LIB):	$(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(COBJS:.o=.c) $(AOBJS:.o=.S)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(COBJS:.o=.c) $(AOBJS:.o=.S) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

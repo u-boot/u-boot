@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2001	Wolfgang Denk, DENX Software Engineering, wd@denx.de
-#
+# (C) Copyright 2001-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,15 +22,21 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:=  pati.o ../common/flash.o ../common/memtst.o cmd_pati.o ../common/common_util.o
+COBJS	:=  pati.o ../common/flash.o ../common/memtst.o cmd_pati.o ../common/common_util.o
 #### cmd_pati.o
-SOBJS	:=
 
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
@@ -40,9 +46,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

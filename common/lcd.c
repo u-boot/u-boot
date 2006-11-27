@@ -578,13 +578,16 @@ void bitmap_plot (int x, int y)
  */
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
+#if !defined(CONFIG_MCC200)
 	ushort *cmap;
+#endif
 	ushort i, j;
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
 	uchar *bmap;
 	ushort padded_line;
 	unsigned long width, height;
+	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors,bpix;
 	unsigned long compression;
 #if defined(CONFIG_PXA250)
@@ -623,6 +626,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	debug ("Display-bmp: %d x %d  with %d colors\n",
 		(int)width, (int)height, (int)colors);
 
+#if !defined(CONFIG_MCC200)
+	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bpix==8) {
 #if defined(CONFIG_PXA250)
 		cmap = (ushort *)fbi->palette;
@@ -651,10 +656,30 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 		}
 	}
+#endif
+
+	/*
+	 *  BMP format for Monochrome assumes that the state of a
+	 * pixel is described on a per Bit basis, not per Byte.
+	 *  So, in case of Monochrome BMP we should align widths
+	 * on a byte boundary and convert them from Bit to Byte
+	 * units.
+	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in
+	 * their own ways, so make the converting to be MCC200
+	 * specific.
+	 */
+#if defined(CONFIG_MCC200)
+	if (bpix==1)
+	{
+		width = ((width + 7) & ~7) >> 3;
+		x     = ((x + 7) & ~7) >> 3;
+		pwidth= ((pwidth + 7) & ~7) >> 3;
+	}
+#endif
 
 	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
-	if ((x + width)>panel_info.vl_col)
-		width = panel_info.vl_col - x;
+	if ((x + width)>pwidth)
+		width = pwidth - x;
 	if ((y + height)>panel_info.vl_row)
 		height = panel_info.vl_row - y;
 
@@ -666,7 +691,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		for (j = 0; j < width ; j++)
 #if defined(CONFIG_PXA250)
 			*(fb++)=*(bmap++);
-#elif defined(CONFIG_MPC823)
+#elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 			*(fb++)=255-*(bmap++);
 #endif
 		bmap += (width - padded_line);

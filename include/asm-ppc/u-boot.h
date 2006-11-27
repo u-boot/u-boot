@@ -45,7 +45,7 @@ typedef struct bd_info {
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
 #if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260) \
-	|| defined(CONFIG_E500)
+	|| defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
 #if defined(CONFIG_MPC5xxx)
@@ -108,7 +108,8 @@ typedef struct bd_info {
 #endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined (CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR)
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
 	int		bi_iic_fast[2];		/* Use fast i2c mode */
 #endif

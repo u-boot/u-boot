@@ -1,6 +1,6 @@
 
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,19 +23,26 @@
 #
 
 include $(TOPDIR)/config.mk
+# ifneq ($(OBJTREE),$(SRCTREE))
+# $(shell mkdir -p $(obj)../common/xilinx_jtag)
+# endif
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 # Objects for Xilinx JTAG programming (CPLD)
 # CPLD  = ../common/xilinx_jtag/lenval.o \
 # 	  ../common/xilinx_jtag/micro.o \
 # 	  ../common/xilinx_jtag/ports.o
 
-# OBJS	= $(BOARD).o flash.o $(CPLD)
-OBJS	= $(BOARD).o flash.o
+# COBJS	= $(BOARD).o flash.o $(CPLD)
+COBJS	= $(BOARD).o flash.o
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
@@ -45,9 +52,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
--include .depend
+sinclude $(obj).depend
 
 #########################################################################

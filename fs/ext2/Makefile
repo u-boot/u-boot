@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2003
 # Pavel Bartusek, Sysgo Real-Time Solutions AG, pba@sysgo.de
 #
@@ -24,25 +27,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= libext2fs.a
+LIB	= $(obj)libext2fs.a
 
 AOBJS	=
 COBJS	= ext2fs.o dev.o
-OBJS	= $(AOBJS) $(COBJS)
+
+SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
 #CPPFLAGS +=
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
-
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

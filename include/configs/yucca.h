@@ -31,9 +31,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG
-#undef DEBUG
-
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
@@ -63,17 +60,20 @@
 #define CFG_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
 #define CFG_ISRAM_BASE		0x90000000	/* internal SRAM	*/
 
-#define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
-#define CFG_PCI_MEMBASE1	0x90000000	/* mapped pci memory	*/
-#define CFG_PCI_MEMBASE2	0xa0000000	/* mapped pci memory	*/
-#define CFG_PCI_MEMBASE3	0xb0000000	/* mapped pci memory	*/
-
+#define CFG_PCI_MEMBASE		0x80000000	/* mapped PCI memory	*/
 #define CFG_PCI_BASE		0xd0000000	/* internal PCI regs	*/
-#define CFG_PCI_TARGBASE	0x80000000	/*PCIaddr mapped to CFG_PCI_MEMBASE*/
+#define CFG_PCI_TARGBASE	CFG_PCI_MEMBASE
 
-/* #define CFG_PCI_BASE_IO	0xB8000000 */	/* internal PCI I-O	*/
-/* #define CFG_PCI_BASE_REGS	0xBEC00000 */	/* internal PCI regs	*/
-/* #define CFG_PCI_BASE_CYCLE	0xBED00000 */	/* internal PCI regs	*/
+#define CFG_PCIE_MEMBASE	0xb0000000	/* mapped PCIe memory	*/
+#define CFG_PCIE_MEMSIZE	0x01000000
+#define CFG_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
+
+#define CFG_PCIE0_CFGBASE	0xc0000000
+#define CFG_PCIE0_XCFGBASE	0xc0000400
+#define CFG_PCIE1_CFGBASE	0xc0001000
+#define CFG_PCIE1_XCFGBASE	0xc0001400
+#define CFG_PCIE2_CFGBASE	0xc0002000
+#define CFG_PCIE2_XCFGBASE	0xc0002400
 
 /* System RAM mapped to PCI space */
 #define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
@@ -220,6 +220,9 @@
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
+
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 /*
@@ -244,6 +247,12 @@
 #define CFG_EXTBDINFO		1		/* To use extended board_into (bd_t) */
 
 #define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * FLASH related
@@ -292,6 +301,7 @@
  */
 /* Support for Intel 82557/82559/82559ER chips. */
 #define CONFIG_EEPRO100
+
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -506,8 +516,8 @@
 #define FPGA_REG1C_PE1_WAKE		0x0040
 #define FPGA_REG1C_PE2_WAKE		0x0020
 #define FPGA_REG1C_PE0_PERST		0x0010
-#define FPGA_REG1C_PE1_PERST		0x0080
-#define FPGA_REG1C_PE2_PERST		0x0040
+#define FPGA_REG1C_PE1_PERST		0x0008
+#define FPGA_REG1C_PE2_PERST		0x0004
 
 /*----------------------------------------------------------------------------+
 | Defines

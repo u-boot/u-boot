@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,6 +22,22 @@
 #
 
 #########################################################################
+
+ifneq ($(OBJTREE),$(SRCTREE))
+ifeq ($(CURDIR),$(SRCTREE))
+dir :=
+else
+dir := $(subst $(SRCTREE)/,,$(CURDIR))
+endif
+
+obj := $(if $(dir),$(OBJTREE)/$(dir)/,$(OBJTREE)/)
+src := $(if $(dir),$(SRCTREE)/$(dir)/,$(SRCTREE)/)
+
+$(shell mkdir -p $(obj))
+else
+obj :=
+src :=
+endif
 
 # clean the slate ...
 PLATFORM_RELFLAGS =
@@ -111,12 +127,21 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
 
+ifneq (,$(findstring s,$(MAKEFLAGS)))
+ARFLAGS = cr
+else
+ARFLAGS = crv
+endif
 RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
 ifndef LDSCRIPT
 #LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+ifeq ($(CONFIG_NAND_U_BOOT),y)
+LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+else
 LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+endif
 endif
 OBJCFLAGS += --gap-fill=0xff
 
@@ -124,9 +149,14 @@ gccincdir := $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE)		\
-	-I$(TOPDIR)/include				\
-	-fno-builtin -ffreestanding -nostdinc -isystem	\
-	$(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
+
+ifneq ($(OBJTREE),$(SRCTREE))
+CPPFLAGS += -I$(OBJTREE)/include2 -I$(OBJTREE)/include
+endif
+
+CPPFLAGS += -I$(TOPDIR)/include
+CPPFLAGS += -fno-builtin -ffreestanding -nostdinc 	\
+	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
 ifdef BUILD_TAG
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes \
@@ -143,7 +173,9 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
-AFLAGS_DEBUG := -Wa,-gstabs
+# $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
+# option to the assembler.
+AFLAGS_DEBUG :=
 
 # turn jbsr into jsr for m68k
 ifeq ($(ARCH),m68k)
@@ -192,11 +224,23 @@ export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################
 
+ifndef REMOTE_BUILD
+
 %.s:	%.S
-	$(CPP) $(AFLAGS) -o $@ $(CURDIR)/$<
+	$(CPP) $(AFLAGS) -o $@ $<
 %.o:	%.S
-	$(CC) $(AFLAGS) -c -o $@ $(CURDIR)/$<
+	$(CC) $(AFLAGS) -c -o $@ $<
 %.o:	%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+else
+
+$(obj)%.s:	%.S
+	$(CPP) $(AFLAGS) -o $@ $<
+$(obj)%.o:	%.S
+	$(CC) $(AFLAGS) -c -o $@ $<
+$(obj)%.o:	%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+endif
 
 #########################################################################

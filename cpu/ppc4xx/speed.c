@@ -199,7 +199,8 @@ ulong get_PCI_freq (void)
 
 #elif defined(CONFIG_440)
 
-#if  defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 void get_sys_info (sys_info_t *sysInfo)
 {
 	unsigned long temp;

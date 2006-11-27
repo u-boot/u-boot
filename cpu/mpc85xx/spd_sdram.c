@@ -131,8 +131,8 @@ convert_bcd_tenths_to_cycle_time_ps(unsigned int spd_val)
 		800,
 		900,
 		250,
-		330,	/* FIXME: Is 333 better/valid? */
-		660,	/* FIXME: Is 667 better/valid? */
+		330,
+		660,
 		750,
 		0,	/* undefined */
 		0	/* undefined */
@@ -143,6 +143,28 @@ convert_bcd_tenths_to_cycle_time_ps(unsigned int spd_val)
 	unsigned int ps = whole_ns * 1000 + tenths_ps[tenth_ns];
 
 	return ps;
+}
+
+
+/*
+ * Determine Refresh Rate.  Ignore self refresh bit on DDR I.
+ * Table from SPD Spec, Byte 12, converted to picoseconds and
+ * filled in with "default" normal values.
+ */
+unsigned int determine_refresh_rate(unsigned int spd_refresh)
+{
+	unsigned int refresh_time_ns[8] = {
+		15625000,	/* 0 Normal    1.00x */
+		3900000,	/* 1 Reduced    .25x */
+		7800000,	/* 2 Extended   .50x */
+		31300000,	/* 3 Extended  2.00x */
+		62500000,	/* 4 Extended  4.00x */
+		125000000,	/* 5 Extended  8.00x */
+		15625000,	/* 6 Normal    1.00x  filler */
+		15625000,	/* 7 Normal    1.00x  filler */
+	};
+
+	return picos_to_clk(refresh_time_ns[spd_refresh & 0x7]);
 }
 
 
@@ -157,6 +179,10 @@ spd_sdram(void)
 	unsigned int rank_density;
 	unsigned int odt_rd_cfg, odt_wr_cfg;
 	unsigned int odt_cfg, mode_odt_enable;
+	unsigned int refresh_clk;
+#ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
+	unsigned char clk_adjust;
+#endif
 	unsigned int dqs_cfg;
 	unsigned char twr_clk, twtr_clk, twr_auto_clk;
 	unsigned int tCKmin_ps, tCKmax_ps;
@@ -740,38 +766,21 @@ spd_sdram(void)
 	ddr->sdram_mode_2 = 0;
 	debug("DDR: sdram_mode_2 = 0x%08x\n", ddr->sdram_mode_2);
 
+	/*
+	 * Determine Refresh Rate.
+	 */
+	refresh_clk = determine_refresh_rate(spd.refresh & 0x7);
 
 	/*
-	 * Determine Refresh Rate.  Ignore self refresh bit on DDR I.
-	 * Table from SPD Spec, Byte 12, converted to picoseconds and
-	 * filled in with "default" normal values.
+	 * Set BSTOPRE to 0x100 for page mode
+	 * If auto-charge is used, set BSTOPRE = 0
 	 */
-	{
-		unsigned int refresh_clk;
-		unsigned int refresh_time_ns[8] = {
-			15625000,	/* 0 Normal    1.00x */
-			3900000,	/* 1 Reduced    .25x */
-			7800000,	/* 2 Extended   .50x */
-			31300000,	/* 3 Extended  2.00x */
-			62500000,	/* 4 Extended  4.00x */
-			125000000,	/* 5 Extended  8.00x */
-			15625000,	/* 6 Normal    1.00x  filler */
-			15625000,	/* 7 Normal    1.00x  filler */
-		};
-
-		refresh_clk = picos_to_clk(refresh_time_ns[spd.refresh & 0x7]);
-
-		/*
-		 * Set BSTOPRE to 0x100 for page mode
-		 * If auto-charge is used, set BSTOPRE = 0
-		 */
-		ddr->sdram_interval =
-			(0
-			 | (refresh_clk & 0x3fff) << 16
-			 | 0x100
-			 );
-		debug("DDR: sdram_interval = 0x%08x\n", ddr->sdram_interval);
-	}
+	ddr->sdram_interval =
+	    (0
+	     | (refresh_clk & 0x3fff) << 16
+	     | 0x100
+	     );
+	debug("DDR: sdram_interval = 0x%08x\n", ddr->sdram_interval);
 
 	/*
 	 * Is this an ECC DDR chip?
@@ -835,28 +844,23 @@ spd_sdram(void)
 
 
 #ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
-	{
-		unsigned char clk_adjust;
+	/*
+	 * Setup the clock control.
+	 * SDRAM_CLK_CNTL[0] = Source synchronous enable == 1
+	 * SDRAM_CLK_CNTL[5-7] = Clock Adjust
+	 *	0110	3/4 cycle late
+	 *	0111	7/8 cycle late
+	 */
+	if (spd.mem_type == SPD_MEMTYPE_DDR)
+		clk_adjust = 0x6;
+	else
+		clk_adjust = 0x7;
 
-		/*
-		 * Setup the clock control.
-		 * SDRAM_CLK_CNTL[0] = Source synchronous enable == 1
-		 * SDRAM_CLK_CNTL[5-7] = Clock Adjust
-		 *	0110	3/4 cycle late
-		 *	0111	7/8 cycle late
-		 */
-		if (spd.mem_type == SPD_MEMTYPE_DDR) {
-			clk_adjust = 0x6;
-		} else {
-			clk_adjust = 0x7;
-		}
-
-		ddr->sdram_clk_cntl = (0
+	ddr->sdram_clk_cntl = (0
 			       | 0x80000000
 			       | (clk_adjust << 23)
 			       );
-		debug("DDR: sdram_clk_cntl = 0x%08x\n", ddr->sdram_clk_cntl);
-	}
+	debug("DDR: sdram_clk_cntl = 0x%08x\n", ddr->sdram_clk_cntl);
 #endif
 
 	/*
@@ -1081,26 +1085,16 @@ ddr_enable_ecc(unsigned int dram_size)
 		}
 	}
 
-	/* 8K */
-	dma_xfer((uint *)0x2000, 0x2000, (uint *)0);
-	/* 16K */
-	dma_xfer((uint *)0x4000, 0x4000, (uint *)0);
-	/* 32K */
-	dma_xfer((uint *)0x8000, 0x8000, (uint *)0);
-	/* 64K */
-	dma_xfer((uint *)0x10000, 0x10000, (uint *)0);
-	/* 128k */
-	dma_xfer((uint *)0x20000, 0x20000, (uint *)0);
-	/* 256k */
-	dma_xfer((uint *)0x40000, 0x40000, (uint *)0);
-	/* 512k */
-	dma_xfer((uint *)0x80000, 0x80000, (uint *)0);
-	/* 1M */
-	dma_xfer((uint *)0x100000, 0x100000, (uint *)0);
-	/* 2M */
-	dma_xfer((uint *)0x200000, 0x200000, (uint *)0);
-	/* 4M */
-	dma_xfer((uint *)0x400000, 0x400000, (uint *)0);
+	dma_xfer((uint *)0x002000, 0x002000, (uint *)0); /* 8K */
+	dma_xfer((uint *)0x004000, 0x004000, (uint *)0); /* 16K */
+	dma_xfer((uint *)0x008000, 0x008000, (uint *)0); /* 32K */
+	dma_xfer((uint *)0x010000, 0x010000, (uint *)0); /* 64K */
+	dma_xfer((uint *)0x020000, 0x020000, (uint *)0); /* 128k */
+	dma_xfer((uint *)0x040000, 0x040000, (uint *)0); /* 256k */
+	dma_xfer((uint *)0x080000, 0x080000, (uint *)0); /* 512k */
+	dma_xfer((uint *)0x100000, 0x100000, (uint *)0); /* 1M */
+	dma_xfer((uint *)0x200000, 0x200000, (uint *)0); /* 2M */
+	dma_xfer((uint *)0x400000, 0x400000, (uint *)0); /* 4M */
 
 	for (i = 1; i < dram_size / 0x800000; i++) {
 		dma_xfer((uint *)(0x800000*i), 0x800000, (uint *)0);

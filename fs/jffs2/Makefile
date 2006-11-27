@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,26 +23,28 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= libjffs2.a
+LIB	= $(obj)libjffs2.a
 
 AOBJS	=
 COBJS	= jffs2_1pass.o compr_rtime.o compr_rubin.o compr_zlib.o mini_inflate.o
 COBJS	+= compr_lzo.o compr_lzari.o
-OBJS	= $(AOBJS) $(COBJS)
+
+SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
 #CPPFLAGS +=
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

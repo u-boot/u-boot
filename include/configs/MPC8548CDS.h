@@ -314,13 +314,29 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
-/* I2C */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+
+#define OF_CPU			"PowerPC,8548@0"
+#define OF_SOC			"soc8548@e0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_STDOUT_PATH		"/soc8548@e0000000/serial@4600"
+
+/*
+ * I2C
+ */
+#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_EEPROM_ADDR	0x57
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
 
 /*
  * General PCI
@@ -329,31 +345,26 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI1_IO_BASE	0x00000000
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #define CFG_PCI2_MEM_BASE	0xa0000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
 #define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI2_IO_BASE	0xe3000000
-#define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
-#define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI2_IO_BASE	0x00000000
+#define CFG_PCI2_IO_PHYS	0xe2100000
+#define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
 
 
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_85XX_PCI2
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
-
-#if !defined(CONFIG_PCI_PNP)
-    #define PCI_ENET0_IOADDR      0xe0000000
-    #define PCI_ENET0_MEMADDR     0xe0000000
-    #define PCI_IDSEL_NUMBER      0x0c 	/*slot0->3(IDSEL)=12->15*/
-#endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
@@ -374,7 +385,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_MPC85XX_TSEC2_NAME	"eTSEC1"
 #define CONFIG_MPC85XX_TSEC3	1
 #define CONFIG_MPC85XX_TSEC3_NAME	"eTSEC2"
-#define CONFIG_MPC85XX_TSEC4	1
+#undef CONFIG_MPC85XX_TSEC4
 #define CONFIG_MPC85XX_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 
@@ -382,13 +393,11 @@ extern unsigned long get_clock_freq(void);
 #define TSEC2_PHY_ADDR		1
 #define TSEC3_PHY_ADDR		2
 #define TSEC4_PHY_ADDR		3
-#define FEC_PHY_ADDR		3
 
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
-#define FEC_PHYIDX		0
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
@@ -476,6 +485,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
+#define CONFIG_HAS_ETH3
+#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253
@@ -498,8 +509,11 @@ extern unsigned long get_clock_freq(void);
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS1\0"                                                 \
-   "ramdiskaddr=400000\0"                                               \
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "ramdiskaddr=600000\0"                                               \
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=your.fdt.dtb\0"
+
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -507,7 +521,9 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
+
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \

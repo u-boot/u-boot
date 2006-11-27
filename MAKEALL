@@ -8,7 +8,17 @@ else
 	MAKE=make
 fi
 
-[ -d LOG ] || mkdir LOG || exit 1
+if [ "${MAKEALL_LOGDIR}" ] ; then
+	LOG_DIR=${MAKEALL_LOGDIR}
+else
+	LOG_DIR="LOG"
+fi
+
+if [ ! "${BUILD_DIR}" ] ; then
+	BUILD_DIR="."
+fi
+
+[ -d ${LOG_DIR} ] || mkdir ${LOG_DIR} || exit 1
 
 LIST=""
 
@@ -25,11 +35,11 @@ LIST_5xx="	\
 #########################################################################
 
 LIST_5xxx="	\
-	BC3450		cpci5200	EVAL5200	icecube_5100	\
-	icecube_5200	lite5200b	mcc200		o2dnt		\
-	pf5200		PM520		TB5200		Total5100	\
-	Total5200	Total5200_Rev2	TQM5200		TQM5200_B	\
-	TQM5200S							\
+	BC3450		cpci5200	EVAL5200	fo300		\
+	icecube_5100	icecube_5200	lite5200b	mcc200		\
+	o2dnt		pf5200		PM520		TB5200		\
+	Total5100	Total5200	Total5200_Rev2	TQM5200		\
+	TQM5200_B	TQM5200S	v38b				\
 "
 
 #########################################################################
@@ -65,19 +75,20 @@ LIST_8xx="	\
 
 LIST_4xx="	\
 	ADCIOP		AP1000		AR405		ASH405		\
-	bubinga		CANBT		CMS700		CPCI2DP		\
-	CPCI405		CPCI4052	CPCI405AB	CPCI405DT	\
-	CPCI440		CPCIISER4	CRAYL1		csb272		\
-	csb472		DASA_SIM	DP405		DU405		\
-	ebony		ERIC		EXBITGEN	G2000		\
-	HH405		HUB405		JSE		KAREF		\
-	luan		METROBOX	MIP405		MIP405T		\
-	ML2		ml300		ocotea		OCRTC		\
-	ORSG		p3p440		PCI405		pcs440ep	\
-	PIP405		PLU405		PMC405		PPChameleonEVB	\
-	sbc405		VOH405		VOM405		W7OLMC		\
-	W7OLMG		walnut		WUH405		XPEDITE1K	\
-	yellowstone	yosemite	yucca		bamboo		\
+	bamboo		bubinga		CANBT		CMS700		\
+	CPCI2DP		CPCI405		CPCI4052	CPCI405AB	\
+	CPCI405DT	CPCI440		CPCIISER4	CRAYL1		\
+	csb272		csb472		DASA_SIM	DP405		\
+	DU405		ebony		ERIC		EXBITGEN	\
+	G2000		HH405		HUB405		JSE		\
+	KAREF		luan		METROBOX	MIP405		\
+	MIP405T		ML2		ml300		ocotea		\
+	OCRTC		ORSG		p3p440		PCI405		\
+	pcs440ep	PIP405		PLU405		PMC405		\
+	PPChameleonEVB	sbc405		sequoia		sequoia_nand	\
+	VOH405		VOM405		W7OLMC		W7OLMG		\
+	walnut		WUH405		XPEDITE1K	yellowstone	\
+	yosemite	yucca		bamboo		\
 "
 
 #########################################################################
@@ -106,12 +117,12 @@ LIST_824x="	\
 
 LIST_8260="	\
 	atc		cogent_mpc8260	CPU86		CPU87		\
-	ep8248		ep8260		gw8260		hymod		\
-	IPHASE4539	ISPAN		MPC8260ADS	MPC8266ADS	\
-	MPC8272ADS	PM826		PM828		ppmc8260	\
-	Rattler8248	RPXsuper	rsdproto	sacsng		\
-	sbc8260		SCM		TQM8260_AC	TQM8260_AD	\
-	TQM8260_AE	ZPC1900						\
+	ep8248		ep8260		ep82xxm		gw8260		\
+	hymod		IPHASE4539	ISPAN		MPC8260ADS	\
+	MPC8266ADS	MPC8272ADS	PM826		PM828		\
+	ppmc8260	Rattler8248	RPXsuper	rsdproto	\
+	sacsng		sbc8260		SCM		TQM8260_AC	\
+	TQM8260_AD	TQM8260_AE	ZPC1900				\
 "
 
 #########################################################################
@@ -291,6 +302,12 @@ LIST_coldfire="	\
 	r5200		M5271EVB					\
 "
 
+#########################################################################
+## AVR32 Systems
+#########################################################################
+
+LIST_avr32="atstk1002"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -303,8 +320,12 @@ build_target() {
 
 	${MAKE} distclean >/dev/null
 	${MAKE} ${target}_config
-	${MAKE} ${JOBS} all 2>&1 >LOG/$target.MAKELOG | tee LOG/$target.ERR
-	${CROSS_COMPILE:-ppc_8xx-}size u-boot | tee -a LOG/$target.MAKELOG
+
+	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
+				| tee ${LOG_DIR}/$target.ERR
+
+	${CROSS_COMPILE:-ppc_8xx-}size ${BUILD_DIR}/u-boot \
+				| tee -a ${LOG_DIR}/$target.MAKELOG
 }
 
 #-----------------------------------------------------------------------
@@ -319,7 +340,8 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	x86|I486| \
-	coldfire)
+	coldfire| \
+	avr32)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

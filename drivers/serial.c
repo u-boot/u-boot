@@ -30,10 +30,20 @@
 #include <ns87308.h>
 #endif
 
+#if defined (CONFIG_SERIAL_MULTI)
+#include <serial.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_CONS_INDEX)
+#if defined (CONFIG_SERIAL_MULTI)
+/*   with CONFIG_SERIAL_MULTI we might have no console
+ *  on these devices
+ */
+#else
 #error	"No console index specified."
+#endif /* CONFIG_SERIAL_MULTI */
 #elif (CONFIG_CONS_INDEX < 1) || (CONFIG_CONS_INDEX > 4)
 #error	"Invalid console index value."
 #endif
@@ -75,7 +85,42 @@ static NS16550_t serial_ports[4] = {
 };
 
 #define PORT	serial_ports[port-1]
+#if defined(CONFIG_CONS_INDEX)
 #define CONSOLE	(serial_ports[CONFIG_CONS_INDEX-1])
+#endif
+
+#if defined(CONFIG_SERIAL_MULTI)
+
+/* Multi serial device functions */
+#define DECLARE_ESERIAL_FUNCTIONS(port) \
+    int  eserial##port##_init (void) {\
+	int clock_divisor; \
+	clock_divisor = calc_divisor(serial_ports[port-1]); \
+	NS16550_init(serial_ports[port-1], clock_divisor); \
+	return(0);}\
+    void eserial##port##_setbrg (void) {\
+	serial_setbrg_dev(port);}\
+    int  eserial##port##_getc (void) {\
+	return serial_getc_dev(port);}\
+    int  eserial##port##_tstc (void) {\
+	return serial_tstc_dev(port);}\
+    void eserial##port##_putc (const char c) {\
+	serial_putc_dev(port, c);}\
+    void eserial##port##_puts (const char *s) {\
+	serial_puts_dev(port, s);}
+
+/* Serial device descriptor */
+#define INIT_ESERIAL_STRUCTURE(port,name,bus) {\
+	name,\
+	bus,\
+	eserial##port##_init,\
+	eserial##port##_setbrg,\
+	eserial##port##_getc,\
+	eserial##port##_tstc,\
+	eserial##port##_putc,\
+	eserial##port##_puts, }
+
+#endif /* CONFIG_SERIAL_MULTI */
 
 static int calc_divisor (NS16550_t port)
 {
@@ -103,6 +148,7 @@ static int calc_divisor (NS16550_t port)
 
 }
 
+#if !defined(CONFIG_SERIAL_MULTI)
 int serial_init (void)
 {
 	int clock_divisor;
@@ -130,6 +176,7 @@ int serial_init (void)
 
 	return (0);
 }
+#endif
 
 void
 _serial_putc(const char c,const int port)
@@ -176,40 +223,104 @@ _serial_setbrg (const int port)
 	NS16550_reinit(PORT, clock_divisor);
 }
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline void
+serial_putc_dev(unsigned int dev_index,const char c)
+{
+	_serial_putc(c,dev_index);
+}
+#else
 void
 serial_putc(const char c)
 {
 	_serial_putc(c,CONFIG_CONS_INDEX);
 }
+#endif
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline void
+serial_putc_raw_dev(unsigned int dev_index,const char c)
+{
+	_serial_putc_raw(c,dev_index);
+}
+#else
 void
 serial_putc_raw(const char c)
 {
 	_serial_putc_raw(c,CONFIG_CONS_INDEX);
 }
+#endif
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline void
+serial_puts_dev(unsigned int dev_index,const char *s)
+{
+	_serial_puts(s,dev_index);
+}
+#else
 void
 serial_puts(const char *s)
 {
 	_serial_puts(s,CONFIG_CONS_INDEX);
 }
+#endif
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline int
+serial_getc_dev(unsigned int dev_index)
+{
+	return _serial_getc(dev_index);
+}
+#else
 int
 serial_getc(void)
 {
 	return _serial_getc(CONFIG_CONS_INDEX);
 }
+#endif
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline int
+serial_tstc_dev(unsigned int dev_index)
+{
+	return _serial_tstc(dev_index);
+}
+#else
 int
 serial_tstc(void)
 {
 	return _serial_tstc(CONFIG_CONS_INDEX);
 }
+#endif
 
+#if defined(CONFIG_SERIAL_MULTI)
+static inline void
+serial_setbrg_dev(unsigned int dev_index)
+{
+	_serial_setbrg(dev_index);
+}
+#else
 void
 serial_setbrg(void)
 {
 	_serial_setbrg(CONFIG_CONS_INDEX);
 }
+#endif
+
+#if defined(CONFIG_SERIAL_MULTI)
+
+DECLARE_ESERIAL_FUNCTIONS(1);
+struct serial_device eserial1_device =
+	INIT_ESERIAL_STRUCTURE(1,"eserial0","EUART1");
+DECLARE_ESERIAL_FUNCTIONS(2);
+struct serial_device eserial2_device =
+	INIT_ESERIAL_STRUCTURE(2,"eserial1","EUART2");
+DECLARE_ESERIAL_FUNCTIONS(3);
+struct serial_device eserial3_device =
+	INIT_ESERIAL_STRUCTURE(3,"eserial2","EUART3");
+DECLARE_ESERIAL_FUNCTIONS(4);
+struct serial_device eserial4_device =
+	INIT_ESERIAL_STRUCTURE(4,"eserial3","EUART4");
+#endif /* CONFIG_SERIAL_MULTI */
 
 #endif

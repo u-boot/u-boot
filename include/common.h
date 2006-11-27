@@ -79,6 +79,10 @@ typedef volatile unsigned char	vu_char;
 #endif
 #include <asm/immap_8260.h>
 #endif
+#ifdef CONFIG_MPC86xx
+#include <mpc86xx.h>
+#include <asm/immap_86xx.h>
+#endif
 #ifdef CONFIG_MPC85xx
 #include <mpc85xx.h>
 #include <asm/immap_85xx.h>
@@ -108,6 +112,12 @@ typedef volatile unsigned char	vu_char;
 #define debug(fmt,args...)
 #define debugX(level,fmt,args...)
 #endif	/* DEBUG */
+
+#define BUG() do { \
+	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__); \
+	panic("BUG!"); \
+} while (0)
+#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
 
 typedef void (interrupt_handler_t)(void *);
 
@@ -194,6 +204,9 @@ int	checkdram     (void);
 char *	strmhz(char *buf, long hz);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
+#ifdef CFG_ID_EEPROM
+int mac_read_from_eeprom(void);
+#endif
 
 /* common/flash.c */
 void flash_perror (int);
@@ -245,6 +258,9 @@ void	pciinfo	      (int, int);
 	void	pci_master_init	     (struct pci_controller *);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
+#if defined(CONFIG_440SPE)
+   void pcie_setup_hoses(void);
+#endif
 #endif
 
 int	misc_init_f   (void);
@@ -254,7 +270,7 @@ int	misc_init_r   (void);
 void	jumptable_init(void);
 
 /* common/memsize.c */
-int	get_ram_size  (volatile long *, long);
+long	get_ram_size  (volatile long *, long);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
@@ -304,7 +320,8 @@ void	board_ether_init (void);
 
 #if defined(CONFIG_RPXCLASSIC)	|| defined(CONFIG_MBX) || \
     defined(CONFIG_IAD210)	|| defined(CONFIG_XPEDITE1K) || \
-    defined(CONFIG_METROBOX)    || defined(CONFIG_KAREF)
+    defined(CONFIG_METROBOX)    || defined(CONFIG_KAREF) || \
+    defined(CONFIG_V38B)
 void	board_get_enetaddr (uchar *addr);
 #endif
 
@@ -367,6 +384,7 @@ void	trap_init     (ulong);
     defined (CONFIG_74xx)	|| \
     defined (CONFIG_MPC8220)	|| \
     defined (CONFIG_MPC85xx)	|| \
+    defined (CONFIG_MPC86xx)	|| \
     defined (CONFIG_MPC83XX)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
@@ -455,6 +473,10 @@ ulong	get_bus_freq  (ulong);
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
 #endif
+#if defined(CONFIG_MPC86xx)
+typedef MPC86xx_SYS_INFO sys_info_t;
+void   get_sys_info  ( sys_info_t * );
+#endif
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
@@ -462,6 +484,7 @@ void	get_sys_info  ( sys_info_t * );
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
+	 int ppc440spe_revB(void);
 #	endif
 #  else
     typedef PPC405_SYS_INFO sys_info_t;
@@ -473,7 +496,7 @@ void	get_sys_info  ( sys_info_t * );
 #if defined(CONFIG_8xx) || defined(CONFIG_8260)
 void	cpu_init_f    (volatile immap_t *immr);
 #endif
-#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2)
+#if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2) ||defined(CONFIG_MPC86xx)
 void	cpu_init_f    (void);
 #endif
 
@@ -599,7 +622,7 @@ void	show_boot_progress (int status);
 #endif
 
 #ifdef CONFIG_INIT_CRITICAL
-#error CONFIG_INIT_CRITICAL is depracted!
+#error CONFIG_INIT_CRITICAL is deprecated!
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
 

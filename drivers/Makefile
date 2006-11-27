@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,9 +25,9 @@ include $(TOPDIR)/config.mk
 
 # CFLAGS += -DET_DEBUG -DDEBUG
 
-LIB	= libdrivers.a
+LIB	= $(obj)libdrivers.a
 
-OBJS	= 3c589.o 5701rls.o ali512x.o \
+COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o dm9000x.o \
 	  e1000.o eepro100.o \
@@ -44,7 +44,7 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  serial.o serial_max3100.o \
 	  serial_pl010.o serial_pl011.o serial_xuartlite.o \
 	  sl811_usb.o sm501.o smc91111.o smiLynxEM.o \
-	  status_led.o sym53c8xx.o \
+	  status_led.o sym53c8xx.o ahci.o \
 	  ti_pci1410a.o tigon3.o tsec.o \
 	  usb_ohci.o \
 	  usbdcore.o usbdcore_ep0.o usbdcore_mpc8xx.o usbdcore_omap1510.o \
@@ -52,18 +52,22 @@ OBJS	= 3c589.o 5701rls.o ali512x.o \
 	  videomodes.o w83c553f.o \
 	  ks8695eth.o \
 	  pxa_pcmcia.o mpc8xx_pcmcia.o tqm8xx_pcmcia.o	\
-	  rpx_pcmcia.o
+	  rpx_pcmcia.o \
+	  fsl_i2c.o
+
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
-$(LIB): $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -353,6 +353,12 @@ extern int tqm834x_num_flash_banks;
 #define CFG_LOAD_ADDR		0x2000000	/* default load address */
 #define CFG_PROMPT		"=> "		/* Monitor Command Prompt */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CFG_HUSH_PARSER
+#define	CFG_PROMPT_HUSH_PS2	"> "
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 	#define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -422,9 +428,9 @@ extern int tqm834x_num_flash_banks;
 #define CFG_SICRL	SICRL_LDP_A
 
 /* i-cache and d-cache disabled */
-#define CFG_HID0_INIT		0x000000000
-#define CFG_HID0_FINAL		CFG_HID0_INIT
-#define CFG_HID2		0x000000000
+#define CFG_HID0_INIT	0x000000000
+#define CFG_HID0_FINAL	CFG_HID0_INIT
+#define CFG_HID2	HID2_HBE
 
 /* DDR 0 - 512M */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
@@ -437,12 +443,21 @@ extern int tqm834x_num_flash_banks;
 #define CFG_IBAT2U	(CFG_INIT_RAM_ADDR | BATU_BL_128K | BATU_VS | BATU_VP)
 
 /* PCI */
-#define CFG_IBAT3L	(CFG_PCI1_MEM_BASE | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#ifdef CONFIG_PCI
+#define CFG_IBAT3L	(CFG_PCI1_MEM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT3U	(CFG_PCI1_MEM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_IBAT4L	(CFG_PCI1_MEM_BASE + 0x10000000 | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_IBAT4L	(CFG_PCI1_MEM_BASE + 0x10000000 | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT4U	(CFG_PCI1_MEM_BASE + 0x10000000 | BATU_BL_256M | BATU_VS | BATU_VP)
 #define CFG_IBAT5L	(CFG_PCI1_IO_BASE | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_IBAT5U	(CFG_PCI1_IO_BASE + 0x10000000 | BATU_BL_16M | BATU_VS | BATU_VP)
+#else
+#define CFG_IBAT3L	(0)
+#define CFG_IBAT3U	(0)
+#define CFG_IBAT4L	(0)
+#define CFG_IBAT4U	(0)
+#define CFG_IBAT5L	(0)
+#define CFG_IBAT5U	(0)
+#endif
 
 /* IMMRBAR */
 #define CFG_IBAT6L	(CFG_IMMRBAR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)

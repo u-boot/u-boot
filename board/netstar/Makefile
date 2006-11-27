@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2005
 # Ladislav Michl, 2N Telekomunikace, michl@2n.cz
 #
@@ -23,63 +26,71 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	:= netstar.o flash.o nand.o
+COBJS	:= netstar.o flash.o nand.o
 SOBJS	:= setup.o crcek.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) eeprom.c \
+		eeprom_start.S
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 LOAD_ADDR = 0x10400000
 LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
+lnk = $(if $(obj),$(obj),.)
 
 HOST_CFLAGS = -Wall -pedantic -I$(TOPDIR)/include
 
-all:	$(LIB) eeprom.srec eeprom.bin crcek.srec crcek.bin crcit
+all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
+		$(obj)crcek.srec $(obj)crcek.bin $(obj)crcit
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
-eeprom.srec:	eeprom.o eeprom_start.o
-	$(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
-		-o $(<:.o=) -e $(<:.o=) $^ \
-		-L../../examples -lstubs \
-		-L../../lib_generic -lgeneric \
+$(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
+	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
+		-o $(<:.o=) -e eeprom eeprom.o eeprom_start.o \
+		-L$(obj)../../examples -lstubs \
+		-L$(obj)../../lib_generic -lgeneric \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
-eeprom.bin:	eeprom.srec
+$(obj)eeprom.bin:	$(obj)eeprom.srec
 	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
 
-crcek.srec:	crcek.o
+$(obj)crcek.srec:	$(obj)crcek.o
 	$(LD) -g -Ttext 0x00000000 \
-		-o $(<:.o=) -e $(<:.o=) $^
+		-o $(<:.o=) -e crcek $^
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
-crcek.bin:	crcek.srec
+$(obj)crcek.bin:	$(obj)crcek.srec
 	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
 
-crcit:		crcit.o crc32.o
+$(obj)crcit:		$(obj)crcit.o $(obj)crc32.o
 	$(HOSTCC) $(HOST_CFLAGS) -o $@ $^
 
-crcit.o:	crcit.c
-	$(HOSTCC) $(HOST_CFLAGS) -c $<
+$(obj)crcit.o:	crcit.c
+	$(HOSTCC) $(HOST_CFLAGS) -o $@ -c $<
 
-crc32.o:	$(TOPDIR)/tools/crc32.c
-	$(HOSTCC) $(HOST_CFLAGS) -DUSE_HOSTCC -c $<
+$(obj)crc32.o:	$(OBJTREE)/tools/crc32.c
+	$(HOSTCC) $(HOST_CFLAGS) -DUSE_HOSTCC -o $@ -c $<
 
 clean:
-	rm -f $(SOBJS) $(OBJS) eeprom eeprom.srec eeprom.bin \
-		crcek crcek.srec crcek.bin
+	rm -f $(SOBJS) $(OBJS) $(obj)eeprom $(obj)eeprom.srec \
+		$(obj)eeprom.bin $(obj)crcek $(obj)crcek.srec \
+		$(obj)crcek.bin
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

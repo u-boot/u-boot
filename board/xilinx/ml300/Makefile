@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -19,14 +19,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
+#
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+$(shell mkdir -p $(obj)../xilinx_enet)
+$(shell mkdir -p $(obj)../xilinx_iic)
+endif
 
-CFLAGS   += -I../ml300 -I../common -I../xilinx_enet -I../xilinx_iic
+INCS		:= -I../ml300 -I../common -I../xilinx_enet -I../xilinx_iic
+CFLAGS		+= $(INCS)
+HOST_CFLAGS	+= $(INCS)
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o \
+COBJS	= $(BOARD).o \
 	  serial.o \
 	  ../xilinx_enet/emac_adapter.o  ../xilinx_enet/xemac.o \
 	  ../xilinx_enet/xemac_options.o ../xilinx_enet/xemac_polled.o \
@@ -39,8 +47,12 @@ OBJS	= $(BOARD).o \
 
 SOBJS	= init.o
 
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
@@ -50,9 +62,9 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

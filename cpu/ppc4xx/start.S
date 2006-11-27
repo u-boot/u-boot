@@ -117,12 +117,16 @@
 
 	.extern ext_bus_cntlr_init
 	.extern sdram_init
+#ifdef CONFIG_NAND_U_BOOT
+	.extern reconfig_tlb0
+#endif
 
 /*
  * Set up GOT: Global Offset Table
  *
  * Use r14 to access the GOT
  */
+#if !defined(CONFIG_NAND_SPL)
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -136,6 +140,18 @@
 	GOT_ENTRY(_end)
 	GOT_ENTRY(__bss_start)
 	END_GOT
+#endif /* CONFIG_NAND_SPL */
+
+#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+	/*
+	 * NAND U-Boot image is started from offset 0
+	 */
+	.text
+	bl	reconfig_tlb0
+	GET_GOT
+	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
+	bl	board_init_f
+#endif
 
 /*
  * 440 Startup -- on reset only the top 4k of the effective
@@ -150,11 +166,21 @@
  */
 
 #if defined(CONFIG_440)
+#if !defined(CONFIG_NAND_SPL)
     .section .bootpg,"ax"
+#endif
     .globl _start_440
 
 /**************************************************************************/
 _start_440:
+	/*--------------------------------------------------------------------+
+	| 440EPX BUP Change - Hardware team request
+	+--------------------------------------------------------------------*/
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+	sync
+	nop
+	nop
+#endif
 	/*----------------------------------------------------------------+
 	| Core bug fix.  Clear the esr
 	+-----------------------------------------------------------------*/
@@ -171,15 +197,31 @@ _start_440:
 	mtspr	srr1,r0
 	mtspr	csrr0,r0
 	mtspr	csrr1,r0
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)  /* NOTE: 440GX adds machine check status regs */
+	/* NOTE: 440GX adds machine check status regs */
+#if defined(CONFIG_440) && !defined(CONFIG_440GP)
 	mtspr	mcsrr0,r0
 	mtspr	mcsrr1,r0
-	mfspr	r1, mcsr
+	mfspr	r1,mcsr
 	mtspr	mcsr,r1
 #endif
+
+	/*----------------------------------------------------------------*/
+	/* CCR0 init */
+	/*----------------------------------------------------------------*/
+	/* Disable store gathering & broadcast, guarantee inst/data
+	* cache block touch, force load/store alignment
+	* (see errata 1.12: 440_33)
+	*/
+	lis	r1,0x0030	/* store gathering & broadcast disable */
+	ori	r1,r1,0x6000	/* cache touch */
+	mtspr	ccr0,r1
+
 	/*----------------------------------------------------------------*/
 	/* Initialize debug */
 	/*----------------------------------------------------------------*/
+	mfspr	r1,dbcr0
+	andis.	r1, r1, 0x8000	/* test DBCR0[EDM] bit			*/
+	bne	skip_debug_init	/* if set, don't clear debug register	*/
 	mtspr	dbcr0,r0
 	mtspr	dbcr1,r0
 	mtspr	dbcr2,r0
@@ -193,17 +235,7 @@ _start_440:
 
 	mfspr	r1,dbsr
 	mtspr	dbsr,r1		/* Clear all valid bits */
-
-	/*----------------------------------------------------------------*/
-	/* CCR0 init */
-	/*----------------------------------------------------------------*/
-	/* Disable store gathering & broadcast, guarantee inst/data
-	* cache block touch, force load/store alignment
-	* (see errata 1.12: 440_33)
-	*/
-	lis	r1,0x0030	/* store gathering & broadcast disable */
-	ori	r1,r1,0x6000	/* cache touch */
-	mtspr	ccr0,r1
+skip_debug_init:
 
 #if defined (CONFIG_440SPE)
 	/*----------------------------------------------------------------+
@@ -315,7 +347,23 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	/*----------------------------------------------------------------*/
 	/* TLB entry setup -- step thru tlbtab */
 	/*----------------------------------------------------------------*/
+#if defined(CONFIG_440SPE)
+	/*----------------------------------------------------------------*/
+	/* We have different TLB tables for revA and rev B of 440SPe */
+	/*----------------------------------------------------------------*/
+	mfspr	r1, PVR
+	lis	r0,0x5342
+	ori	r0,r0,0x1891
+	cmpw	r7,r1,r0
+	bne	r7,..revA
+	bl	tlbtabB
+	b	..goon
+..revA:
+	bl	tlbtabA
+..goon:
+#else
 	bl	tlbtab		/* Get tlbtab pointer */
+#endif
 	mr	r5,r0
 	li	r1,0x003f	/* 64 TLB entries max */
 	mtctr	r1
@@ -336,7 +384,53 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	/*----------------------------------------------------------------*/
 	/* Continue from 'normal' start */
 	/*----------------------------------------------------------------*/
-2:	bl	3f
+2:
+
+#if defined(CONFIG_NAND_SPL)
+	/*
+	 * Enable internal SRAM
+	 */
+	lis	r2,0x7fff
+	ori	r2,r2,0xffff
+	mfdcr	r1,isram0_dpc
+	and	r1,r1,r2		/* Disable parity check */
+	mtdcr	isram0_dpc,r1
+	mfdcr	r1,isram0_pmeg
+	and	r1,r1,r2		/* Disable pwr mgmt */
+	mtdcr	isram0_pmeg,r1
+
+	/*
+	 * Copy SPL from cache into internal SRAM
+	 */
+	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
+	mtctr	r4
+	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+spl_loop:
+	lwzu	r4,4(r2)
+	stwu	r4,4(r3)
+	bdnz	spl_loop
+
+	/*
+	 * Jump to code in RAM
+	 */
+	bl	00f
+00:	mflr	r10
+	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
+	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
+	sub	r10,r10,r3
+	addi	r10,r10,28
+	mtlr	r10
+	blr
+
+start_ram:
+	sync
+	isync
+#endif
+
+	bl	3f
 	b	_start
 
 3:	li	r0,0
@@ -350,6 +444,7 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
  * r3 - 1st arg to board_init(): IMMP pointer
  * r4 - 2nd arg to board_init(): boot flag
  */
+#ifndef CONFIG_NAND_SPL
 	.text
 	.long	0x27051956		/* U-Boot Magic Number			*/
 	.globl	version_string
@@ -363,6 +458,7 @@ version_string:
  * location (0x100) is where the CriticalInput Execption should be.
  */
 	. = EXC_OFF_SYS_RESET
+#endif
 	.globl	_start
 _start:
 
@@ -401,7 +497,8 @@ _start:
 	/* Setup the internal SRAM */
 	/*----------------------------------------------------------------*/
 	li	r0,0
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+
+#ifdef CFG_INIT_RAM_DCACHE
 	/* Clear Dcache to use as RAM */
 	addis	r3,r0,CFG_INIT_RAM_ADDR@h
 	ori	r3,r3,CFG_INIT_RAM_ADDR@l
@@ -417,19 +514,22 @@ _start:
 	dcbz	r0,r3
 	addi	r3,r3,32
 	bdnz	..d_ag
-#else
-#if defined (CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#endif /* CFG_INIT_RAM_DCACHE */
+
+	/* 440EP & 440GR are only 440er PPC's without internal SRAM */
+#if !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
+	/* not all PPC's have internal SRAM usable as L2-cache */
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
-	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
 
-	li	r2,0x7fff
+	lis	r2,0x7fff
 	ori	r2,r2,0xffff
 	mfdcr	r1,isram0_dpc
 	and	r1,r1,r2		/* Disable parity check */
 	mtdcr	isram0_dpc,r1
 	mfdcr	r1,isram0_pmeg
-	andis.	r1,r1,r2		/* Disable pwr mgmt */
+	and	r1,r1,r2		/* Disable pwr mgmt */
 	mtdcr	isram0_pmeg,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
@@ -458,11 +558,12 @@ _start:
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	isram0_sb3cr,r1
-#else
+#elif defined(CONFIG_440GP)
 	ori	r1,r1,0x0380		/* 8k rw */
 	mtdcr	isram0_sb0cr,r1
+	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
 #endif
-#endif
+#endif /* #if !defined(CONFIG_440EP) && !defined(CONFIG_440GR) */
 
 	/*----------------------------------------------------------------*/
 	/* Setup the stack in internal SRAM */
@@ -479,10 +580,14 @@ _start:
 	stwu	r1,-8(r1)		/* Save back chain and move SP */
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
 
+#ifdef CONFIG_NAND_SPL
+	bl	nand_boot		/* will not return */
+#else
 	GET_GOT
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
+#endif
 
 #endif /* CONFIG_440 */
 
@@ -792,6 +897,7 @@ _start:
 	/*----------------------------------------------------------------------- */
 
 
+#ifndef CONFIG_NAND_SPL
 /*****************************************************************************/
 	.globl	_start_of_vectors
 _start_of_vectors:
@@ -997,6 +1103,7 @@ crit_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfci
+#endif /* CONFIG_NAND_SPL */
 
 /* Cache functions.
 */
@@ -1238,6 +1345,7 @@ ppcSync:
 
 /*------------------------------------------------------------------------------*/
 
+#ifndef CONFIG_NAND_SPL
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -1251,7 +1359,9 @@ ppcSync:
  */
 	.globl	relocate_code
 relocate_code:
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SPE)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
@@ -1466,22 +1576,22 @@ trap_init:
 	cmplw	0, r7, r8
 	blt	4b
 
-#if !defined(CONFIG_440GX) && !defined(CONFIG_440SPE)
+#if !defined(CONFIG_440)
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
 	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
 	mtmsr	r7			/* change MSR */
 #else
-	bl	__440gx_msr_set
-	b	__440gx_msr_continue
+	bl	__440_msr_set
+	b	__440_msr_continue
 
-__440gx_msr_set:
+__440_msr_set:
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
 	oris	r7,r7,0x0002		/* set CE bit (Critical Exceptions) */
 	mtspr	srr1,r7
 	mflr	r7
 	mtspr	srr0,r7
 	rfi
-__440gx_msr_continue:
+__440_msr_continue:
 #endif
 
 	mtlr	r4			/* restore link register	*/
@@ -1500,6 +1610,7 @@ trap_reloc:
 	stw	r0, 4(r7)
 
 	blr
+#endif /* CONFIG_NAND_SPL */
 
 
 /**************************************************************************/
@@ -1587,7 +1698,8 @@ ppc405ep_init:
 	mtdcr	ebccfgd,r3
 #endif
 
-	addi	r3,0,CPC0_PCI_HOST_CFG_EN
+#ifndef CFG_CPC0_PCI
+	li	r3,CPC0_PCI_HOST_CFG_EN
 #ifdef CONFIG_BUBINGA
 	/*
 	!-----------------------------------------------------------------------
@@ -1602,6 +1714,9 @@ ppc405ep_init:
 	beq	..pci_cfg_set		  /* if not set, then bypass reg write*/
 #endif
 	ori	r3,r3,CPC0_PCI_ARBIT_EN
+#else /* CFG_CPC0_PCI */
+	li	r3,CFG_CPC0_PCI
+#endif /* CFG_CPC0_PCI */
 ..pci_cfg_set:
 	mtdcr	CPC0_PCI, r3		 /* Enable internal arbiter*/
 

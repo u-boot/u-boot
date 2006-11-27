@@ -36,19 +36,18 @@ struct boot_param_header {
 
 struct ft_cxt {
 	struct boot_param_header *bph;
-	int max_size;		/* maximum size of tree */
-	int overflow;		/* set when this happens */
-	u8 *p, *pstr, *pres;	/* running pointers */
-	u8 *p_begin, *pstr_begin, *pres_begin;	/* starting pointers */
-	u8 *p_anchor;		/* start of constructed area */
-	int struct_size, strings_size, res_size;
+	u8 *p_rsvmap;
+	u8 *p_start;  /* pointer to beginning of dt_struct */
+	u8 *p_end; /* pointer to end of dt_strings */
+	u8 *p; /* pointer to end of dt_struct and beginning of dt_strings */
 };
 
 void ft_begin_node(struct ft_cxt *cxt, const char *name);
+void ft_init_cxt(struct ft_cxt *cxt, void *blob);
 void ft_end_node(struct ft_cxt *cxt);
 
-void ft_begin_tree(struct ft_cxt *cxt);
-int ft_end_tree(struct ft_cxt *cxt);
+void ft_end_tree(struct ft_cxt *cxt);
+void ft_finalize_tree(struct ft_cxt *cxt);
 
 void ft_nop(struct ft_cxt *cxt);
 void ft_prop(struct ft_cxt *cxt, const char *name, const void *data, int sz);
@@ -57,12 +56,16 @@ void ft_prop_int(struct ft_cxt *cxt, const char *name, int val);
 void ft_begin(struct ft_cxt *cxt, void *blob, int max_size);
 void ft_add_rsvmap(struct ft_cxt *cxt, u64 physaddr, u64 size);
 
-void ft_setup(void *blob, int size, bd_t * bd, ulong initrd_start, ulong initrd_end);
+void ft_setup(void *blob, bd_t * bd, ulong initrd_start, ulong initrd_end);
 
 void ft_dump_blob(const void *bphp);
 void ft_merge_blob(struct ft_cxt *cxt, void *blob);
 void *ft_get_prop(void *bphp, const char *propname, int *szp);
 
+#ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup(void *blob, bd_t *bd);
+void ft_cpu_setup(void *blob, bd_t *bd);
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
 
 #endif

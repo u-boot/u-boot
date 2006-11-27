@@ -113,6 +113,7 @@
 .equ            DRCCFG,     0x0fffef014   /* DRAM bank configuration register */
 .equ            DRCBENDADR, 0x0fffef018   /* DRAM bank ending address register */
 .equ            ECCCTL,     0x0fffef020   /* DRAM ECC control register */
+.equ            ECCINT,     0x0fffefd18   /* DRAM ECC nmi-INT mapping */
 .equ            DBCTL,      0x0fffef040   /* DRAM buffer control register */
 
 .equ            CACHELINESZ, 0x00000010   /* size of our cache line (read buffer) */
@@ -459,6 +460,12 @@ emptybank:
 	incl    %edi
 	loop    cleanuplp
 
+#if defined CFG_SDRAM_DRCTMCTL
+	/* just have your hardware desinger _GIVE_ you what you need here! */
+	movl    $DRCTMCTL, %edi
+	movb    $CFG_SDRAM_DRCTMCTL,%al
+	movb    (%edi), %al
+#else
 #if defined(CFG_SDRAM_CAS_LATENCY_2T) || defined(CFG_SDRAM_CAS_LATENCY_3T)
 	/* set the CAS latency now since it is hard to do
 	 * when we run from the RAM */
@@ -471,6 +478,7 @@ emptybank:
 	orb     $0x10, %al
 #endif
 	movb    %al, (%edi)
+#endif
 #endif
 	movl    $DRCCTL, %edi            /* DRAM Control register */
 	movb    $0x3,%al                 /* Load mode register cmd */
@@ -528,9 +536,49 @@ bank0: 	movl	(%edi), %eax
 	shll	$22, %eax
 	movl	%eax, %ebx
 
-done:	movl	%ebx, %eax
 
+done:
+	movl	%ebx, %eax
+
+#if CFG_SDRAM_ECC_ENABLE
+	/* A nominal memory test: just a byte at each address line */
+	movl    %eax, %ecx
+	shrl    $0x1, %ecx
+	movl	$0x1, %edi
+memtest0:
+	movb	$0xa5, (%edi)
+	cmpb    $0xa5, (%edi)
+	jne	out
+	shrl	$1, %ecx
+	andl	%ecx,%ecx
+	jz	set_ecc
+	shll	$1, %edi
+	jmp	memtest0
+
+set_ecc:
+	/* clear all ram with a memset */
+	movl	%eax, %ecx
+	xorl	%esi, %esi
+	xorl	%edi, %edi
+	xorl	%eax, %eax
+	shrl	$2, %ecx
+	cld
+	rep 	stosl
+			/* enable read, write buffers */
+	movb    $0x11, %al
+	movl    $DBCTL, %edi
+	movb    %al, (%edi)
+			/* enable NMI mapping for ECC */
+	movl    $ECCINT, %edi
+	mov	$0x10, %al
+	movb    %al, (%edi)
+			/* Turn on ECC */
+	movl    $ECCCTL, %edi
+	mov	$0x05, %al
+	movb    %al, (%edi)
+#endif
+out:
+	movl	%ebx, %eax
 	jmp	*%ebp
-
 
 #endif /* CONFIG_SC520 */

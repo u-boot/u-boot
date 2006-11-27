@@ -145,6 +145,13 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
+#define CFG_I2C_MULTI_EEPROMS
+#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
+#define CFG_EEPROM_PAGE_WRITE_BITS 3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
@@ -215,6 +222,7 @@
 				CFG_CMD_DHCP		|	\
 				CFG_CMD_DIAG		|	\
 				CFG_CMD_ELF		|	\
+				CFG_CMD_EEPROM		|	\
 				CFG_CMD_I2C		|	\
 				CFG_CMD_IRQ		|	\
 				CFG_CMD_MII		|	\
@@ -252,6 +260,12 @@
 #undef  CONFIG_LYNXKDI			/* support kdi files            */
 
 #define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * PCI stuff

@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* arch number of NetStar board */
-	gd->bd->bi_arch_number = 692;
+	gd->bd->bi_arch_number = MACH_TYPE_NETSTAR;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;

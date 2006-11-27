@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001, 2002
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,21 +23,24 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(SOC).a
+LIB	= $(obj)lib$(SOC).a
 
-OBJS	= i2c.o interrupts.o serial.o speed.o \
+COBJS	= i2c.o interrupts.o serial.o speed.o \
 	  usb.o
 
-all:	.depend $(LIB)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

@@ -90,6 +90,11 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
 
+#define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
+
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
+
 #define CONFIG_RTC_DS174x	1	/* use DS1743 RTC in Walnut	*/
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
@@ -97,6 +102,7 @@
 				CFG_CMD_DATE	| \
 				CFG_CMD_DHCP	| \
 				CFG_CMD_DIAG	| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_ELF	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_IRQ	| \
@@ -156,15 +162,11 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
-#define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support	*/
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW		1	/* enable loopw command		*/
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
-
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
-#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
 
 /*-----------------------------------------------------------------------
  * I2C stuff
@@ -174,6 +176,13 @@
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
+
+#define CFG_I2C_MULTI_EEPROMS
+#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
+#define CFG_EEPROM_PAGE_WRITE_BITS 3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /*-----------------------------------------------------------------------
  * PCI stuff

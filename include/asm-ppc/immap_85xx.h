@@ -9,6 +9,9 @@
 #ifndef __IMMAP_85xx__
 #define __IMMAP_85xx__
 
+#include <asm/types.h>
+#include <asm/fsl_i2c.h>
+
 /*
  * Local-Access Registers and ECM Registers(0x0000-0x2000)
  */
@@ -129,37 +132,8 @@ typedef struct ccsr_ddr {
  * I2C Registers(0x3000-0x4000)
  */
 typedef struct ccsr_i2c {
-	u_char	i2cadr;		/* 0x3000 - I2C Address Register */
-#define MPC85xx_I2CADR_MASK	0xFE
-	char	res1[3];
-	u_char	i2cfdr;		/* 0x3004 - I2C Frequency Divider Register */
-#define MPC85xx_I2CFDR_MASK	0x3F
-	char	res2[3];
-	u_char	i2ccr;		/* 0x3008 - I2C Control Register */
-#define MPC85xx_I2CCR_MEN	0x80
-#define MPC85xx_I2CCR_MIEN	0x40
-#define MPC85xx_I2CCR_MSTA      0x20
-#define MPC85xx_I2CCR_MTX       0x10
-#define MPC85xx_I2CCR_TXAK      0x08
-#define MPC85xx_I2CCR_RSTA      0x04
-#define MPC85xx_I2CCR_BCST      0x01
-	char	res3[3];
-	u_char	i2csr;		/* 0x300c - I2C Status Register */
-#define MPC85xx_I2CSR_MCF	0x80
-#define MPC85xx_I2CSR_MAAS      0x40
-#define MPC85xx_I2CSR_MBB       0x20
-#define MPC85xx_I2CSR_MAL       0x10
-#define MPC85xx_I2CSR_BCSTM     0x08
-#define MPC85xx_I2CSR_SRW       0x04
-#define MPC85xx_I2CSR_MIF       0x02
-#define MPC85xx_I2CSR_RXAK      0x01
-	char	res4[3];
-	u_char	i2cdr;		/* 0x3010 - I2C Data Register */
-#define MPC85xx_I2CDR_DATA	0xFF
-	char	res5[3];
-	u_char	i2cdfsrr;	/* 0x3014 - I2C Digital Filtering Sampling Rate Register */
-#define MPC85xx_I2CDFSRR	0x3F
-	char	res6[4075];
+	struct fsl_i2c	i2c[1];
+	u8	res[4096 - 1 * sizeof(struct fsl_i2c)];
 } ccsr_i2c_t;
 
 #if defined(CONFIG_MPC8540) \
@@ -246,7 +220,6 @@ typedef struct ccsr_lbc {
 
 /*
  * PCI Registers(0x8000-0x9000)
- * Omitting Reserved(0x9000-0x2_0000)
  */
 typedef struct ccsr_pcix {
 	uint	cfg_addr;	/* 0x8000 - PCIX Configuration Address Register */
@@ -309,8 +282,26 @@ typedef struct ccsr_pcix {
 	uint	peextaddrcr;	/* 0x8e14 - PCIX  Error Extended Address Capture Register */
 	uint	pedlcr;		/* 0x8e18 - PCIX Error Data Low Capture Register */
 	uint	pedhcr;		/* 0x8e1c - PCIX Error Error Data High Capture Register */
-	char	res11[94688];
+	uint	gas_timr;	/* 0x8e20 - PCIX Gasket Timer Register */
+	char	res11[476];
 } ccsr_pcix_t;
+
+#define PCIX_COMMAND	0x62
+#define POWAR_EN	0x80000000
+#define POWAR_IO_READ	0x00080000
+#define POWAR_MEM_READ	0x00040000
+#define POWAR_IO_WRITE	0x00008000
+#define POWAR_MEM_WRITE	0x00004000
+#define POWAR_MEM_512M	0x0000001c
+#define POWAR_IO_1M	0x00000013
+
+#define PIWAR_EN	0x80000000
+#define PIWAR_PF	0x20000000
+#define PIWAR_LOCAL	0x00f00000
+#define PIWAR_READ_SNOOP	0x00050000
+#define PIWAR_WRITE_SNOOP	0x00005000
+#define PIWAR_MEM_2G		0x0000001e
+
 
 /*
  * L2 Cache Registers(0x2_0000-0x2_1000)
@@ -1572,6 +1563,8 @@ typedef struct ccsr_gur {
 	char	res15[61651];
 } ccsr_gur_t;
 
+#define PORDEVSR_PCI	(0x00800000)	/* PCI Mode */
+
 typedef struct immap {
 	ccsr_local_ecm_t	im_local_ecm;
 	ccsr_ddr_t		im_ddr;
@@ -1579,6 +1572,8 @@ typedef struct immap {
 	ccsr_duart_t		im_duart;
 	ccsr_lbc_t		im_lbc;
 	ccsr_pcix_t		im_pcix;
+	ccsr_pcix_t		im_pcix2;
+	char			reserved[90112];
 	ccsr_l2cache_t		im_l2cache;
 	ccsr_dma_t		im_dma;
 	ccsr_tsec_t		im_tsec1;

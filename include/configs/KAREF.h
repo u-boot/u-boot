@@ -200,7 +200,6 @@
 
 /* Include auto complete with tabs */
 #define CONFIG_AUTO_COMPLETE 1
-#define CFG_AUTO_COMPLETE    1
 #define CFG_ALT_MEMTEST	     1	     /* use real memory test	 */
 
 

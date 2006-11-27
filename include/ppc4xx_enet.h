@@ -145,12 +145,14 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_STACR_OC_MASK	(0x00000000)
 #endif
 
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_PFC1_EM_1000	(0x00200000)
 #endif
 
 /*ZMII Bridge Register addresses */
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0D00)
 #else
 #define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0780)
@@ -163,6 +165,7 @@ typedef struct emac_4xx_hw_st {
 #define ZMII_MDI0			0x80000000
 
 /* ZMII FER Register Bit Definitions */
+#define ZMII_FER_DIS		(0x0)
 #define ZMII_FER_MDI		(0x8)
 #define ZMII_FER_SMII		(0x4)
 #define ZMII_FER_RMII		(0x2)
@@ -197,7 +200,11 @@ typedef struct emac_4xx_hw_st {
 #define ZMII_SMIISR_V(__x)	((3 - __x) * 8)
 
 /* RGMII Register Addresses */
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1000)
+#else
 #define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x0790)
+#endif
 #define RGMII_FER		(RGMII_BASE + 0x00)
 #define RGMII_SSR		(RGMII_BASE + 0x04)
 
@@ -216,7 +223,11 @@ typedef struct emac_4xx_hw_st {
 #define RGMII_SSR_SP_100MBPS	(0x02)
 #define RGMII_SSR_SP_1000MBPS	(0x04)
 
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define RGMII_SSR_V(__x)	((__x) * 8)
+#else
 #define RGMII_SSR_V(__x)	((__x -2) * 8)
+#endif
 
 
 /*---------------------------------------------------------------------------+
@@ -286,7 +297,8 @@ typedef struct emac_4xx_hw_st {
 
 /* Ethernet MAC Regsiter Addresses */
 #if defined(CONFIG_440)
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
 #else
 #define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)
@@ -332,7 +344,9 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M0_WKE			    (0x04000000)
 
 /* on 440GX EMAC_MR1 has a different layout! */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)

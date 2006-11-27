@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,26 +22,35 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)drivers/epic)
+$(shell mkdir -p $(obj)drivers/i2c)
+endif
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
-START	= start.S
-OBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
-	  drivers/epic/epic1.o drivers/i2c/i2c.o pci.o bedbug_603e.o
+START	= start.o
+COBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
+	  drivers/epic/epic1.o drivers/i2c/i2c.o pci.o
+COBJS_LN = bedbug_603e.o
 
-all:	.depend $(START) $(LIB)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c) $(addprefix $(obj),$(COBJS_LN:.o=.c))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS) $(COBJS_LN))
+START	:= $(addprefix $(obj),$(START))
+
+all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-bedbug_603e.c:
-	ln -s ../mpc8260/bedbug_603e.c bedbug_603e.c
+$(obj)bedbug_603e.c:
+	ln -s $(src)../mpc8260/bedbug_603e.c $(obj)bedbug_603e.c
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S)  $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

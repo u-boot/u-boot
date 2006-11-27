@@ -218,6 +218,8 @@ Jon Loeliger <jdl@freescale.com>
 	MPC8541CDS		MPC8541
 	MPC8555CDS		MPC8555
 
+	MPC8641HPCN		MPC8641D
+
 Dan Malek <dan@embeddededge.com>
 
 	STxGP3			MPC85xx
@@ -285,6 +287,7 @@ Stefan Roese <sr@denx.de>
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
+	sequoia			PPC440EPx
 	sycamore		PPC405GPr
 	walnut			PPC405GP
 	yellowstone		PPC440GR
@@ -318,6 +321,11 @@ Rune Torgersen <runet@innovsys.com>
 
 	MPC8266ADS		MPC8266
 
+
+David Updegraff <dave@cray.com>
+
+	CRAYL1			PPC4xx
+
 Josef Wagner <Wagner@Microsys.de>
 
 	CPC45			MPC8245
@@ -347,7 +355,6 @@ Unknown / orphaned boards:
 	RPXClassic		MPC8xx
 	RPXlite			MPC8xx
 
-	CRAYL1			PPC4xx
 	ERIC			PPC4xx
 
 	MOUSSE			MPC824x
@@ -548,6 +555,17 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 Zachary P. Landau <zachary.landau@labxtechnologies.com>
 
 	r5200			mcf52x2
+
+#########################################################################
+# AVR32 Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+	ATSTK1000		AT32AP7000
 
 #########################################################################
 # End of MAINTAINERS list						#

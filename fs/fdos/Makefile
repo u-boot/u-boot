@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2002
 # Stäubli Faverges - <www.staubli.com>
 # Pierre AUBERT  p.aubert@staubli.com
@@ -25,25 +28,27 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= libfdos.a
+LIB	= $(obj)libfdos.a
 
 AOBJS	=
 COBJS	= fat.o vfat.o dev.o fdos.o fs.o subdir.o
-OBJS	= $(AOBJS) $(COBJS)
+
+SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
 #CPPFLAGS +=
 
 all:	$(LIB) $(AOBJS)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

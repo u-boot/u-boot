@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
 # (C) Copyright 2001
 # Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
 #
@@ -23,22 +26,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 SOBJS	= misc.o
-OBJS	= $(BOARD).o flash.o serial.o memory.o pci.o \
+COBJS	= $(BOARD).o flash.o serial.o memory.o pci.o \
 	  eth.o eth_addrtbl.o mpsc.o i2c.o \
 	  sdram_init.o zuma_pbb.o intel_flash.o zuma_pbb_mbox.o
 
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################
