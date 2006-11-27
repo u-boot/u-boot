@@ -759,7 +759,7 @@ unsigned long flash_init(void)
 
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 			printf("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n",
-					i, size_b[i], size_b[i] << 20);
+					i+1, size_b[i], size_b[i] << 20);
 			flash_info[i].sector_count = -1;
 			flash_info[i].size = 0;
 		}

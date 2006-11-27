@@ -88,7 +88,7 @@ LIST_4xx="	\
 	PMC405		PPChameleonEVB	sbc405		sequoia		\
 	sequoia_nand	VOH405		VOM405		W7OLMC		\
 	W7OLMG		walnut		WUH405		XPEDITE1K	\
-	yellowstone	yosemite	yucca		bamboo		\
+	yellowstone	yosemite	yucca				\
 "
 
 #########################################################################
