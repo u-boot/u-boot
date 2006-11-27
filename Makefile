@@ -984,6 +984,9 @@ xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(
 ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
+alpr_config:	unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx alpr prodrive
+
 AP1000_config:unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ap1000 amirix
 

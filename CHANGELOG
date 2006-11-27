@@ -1,3 +1,9 @@
+commit 4f4b602ec7524a032bdf3c6d28c7f525a4a67eaa
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 22:53:53 2006 +0100
+
+    Update CHANGELOG
+
 commit f6e495f54cdb8fe340b9c03deab40ad746d52fae
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Nov 27 17:43:25 2006 +0100

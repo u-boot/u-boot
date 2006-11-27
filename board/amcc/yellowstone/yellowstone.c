@@ -552,3 +552,9 @@ void hw_watchdog_reset(void)
 
 }
 #endif
+
+void board_reset(void)
+{
+	/* give reset to BCSR */
+	*(unsigned char *)(CFG_BCSR_BASE | 0x06) = 0x09;
+}

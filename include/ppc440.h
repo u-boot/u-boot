@@ -3183,7 +3183,7 @@
 #define GPIO0			0
 #define GPIO1			1
 
-#if defined(CONFIG_440GP)
+#if defined(CONFIG_440GP) || defined(CONFIG_440GX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
