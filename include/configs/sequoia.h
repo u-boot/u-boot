@@ -102,6 +102,7 @@
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
 #define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
+#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*-----------------------------------------------------------------------
