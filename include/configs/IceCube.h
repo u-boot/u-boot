@@ -94,9 +94,16 @@
 
 /* USB */
 #if 1
-#define CONFIG_USB_OHCI
+#define CONFIG_USB_OHCI_NEW
 #define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT
+#define CFG_USB_OHCI_REGS_BASE	MPC5XXX_USB
+#define CFG_USB_OHCI_SLOT_NAME	"mpc5200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+
 #else
 #define ADD_USB_CMD             0
 #endif
