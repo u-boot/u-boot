@@ -1,3 +1,66 @@
+commit f6e495f54cdb8fe340b9c03deab40ad746d52fae
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:43:25 2006 +0100
+
+    [PATCH] 4xx_enet.c: Correct the setting of zmiifer register
+
+    Patch below corrects the setting of the zmiifer register, it was
+    overwritting the register rather than ORing the settings.
+
+    Signed-off-by: Neil Wilson <NWilson@airspan.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d1a72545296800b7e219f93104ad5836f0003d66
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:34:10 2006 +0100
+
+    [PATCH] Select NAND embedded environment from board configuration
+
+    The current NAND Bootloader setup forces the environment
+    variables to be in line with the bootloader. This change
+    enables the configuration to be made in the board include
+    file instead so that it can be individually enabled.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 15784862857c3c2214498defcfed84ff137fb81e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:22:19 2006 +0100
+
+    [PATCH] nand_wait() timeout fixes
+
+    Two fixes for the nand_wait() function in
+    drivers/nand/nand_base.c:
+
+    1. Use correct timeouts. The original timeouts in Linux
+    source are 400ms and 20ms not 40s and 20s
+
+    2. Return correct error value in case of timeout. 0 is
+    interpreted as OK.
+
+    Signed-off-by: Rui Sousa <rui.sousa@laposte.net>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit da5553b095bf04f4f109ad7e565dae3aba47b230
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:04:06 2006 +0100
+
+    [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
+
+    This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
+    arguments to bootm.	 It removes the getenv("disable_of") test that used
+    to be used for this purpose.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit a9398e018593782c5fa7d0741955fc1256b34c1e
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 15:32:42 2006 +0100
+
+    Minor code cleanup. Update CHANGELOG.
+
 commit 78d620ebb5871d252270dedfad60c6568993b780
 Author: Wolfgang Denk <wd@atlas.denx.de>
 Date:	Thu Nov 23 22:58:58 2006 +0100
