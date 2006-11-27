@@ -560,22 +560,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	 * otherwise, just check the speeds & feeds
 	 */
 	if (hw_p->first_init == 0) {
-#if defined(CONFIG_88E1111_CLK_DELAY)
-		/*
-		 * On some boards (e.g. ALPR) the Marvell 88E1111 PHY needs
-		 * the "RGMII transmit timing control" and "RGMII receive
-		 * timing control" bits set, so that Gbit communication works
-		 * without problems.
-		 * Also set the "Transmitter disable" to 1 to enable the
-		 * transmitter.
-		 * After setting these bits a soft-reset must occur for this
-		 * change to become active.
-		 */
-		miiphy_read (dev->name, reg, 0x14, &reg_short);
-		reg_short |= (1 << 7) | (1 << 1) | (1 << 0);
-		miiphy_write (dev->name, reg, 0x14, reg_short);
-#endif
-#if defined(CONFIG_M88E1111_PHY) /* test-only: merge with CONFIG_88E1111_CLK_DELAY !!! */
+#if defined(CONFIG_M88E1111_PHY)
 		miiphy_write (dev->name, reg, 0x14, 0x0ce3);
 		miiphy_write (dev->name, reg, 0x18, 0x4101);
 		miiphy_write (dev->name, reg, 0x09, 0x0e00);

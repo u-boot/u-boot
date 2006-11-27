@@ -187,7 +187,7 @@
 #define CONFIG_HAS_ETH2
 #define CONFIG_HAS_ETH3
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
-#define CONFIG_88E1111_CLK_DELAY 1	/* set CLK delay on ALPR	*/
+#define CONFIG_M88E1111_PHY	1	/* needed for PHY specific setup*/
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
