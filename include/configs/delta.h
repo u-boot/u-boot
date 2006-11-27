@@ -103,7 +103,7 @@
 #endif
 
 /* USB */
-#define CONFIG_USB_OHCI         1
+#define CONFIG_USB_OHCI_NEW	1
 #define CONFIG_USB_STORAGE      1
 #define CONFIG_DOS_PARTITION    1
 

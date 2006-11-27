@@ -43,7 +43,7 @@
 #include <common.h>
 /* #include <pci.h> no PCI on the S3C24X0 */
 
-#ifdef CONFIG_USB_OHCI
+#ifdef CONFIG_USB_OHCI_NEW
 
 /* mk: are these really required? */
 #if defined(CONFIG_S3C2400)
@@ -1756,4 +1756,4 @@ int usb_lowlevel_stop(void)
 	return 0;
 }
 
-#endif /* CONFIG_USB_OHCI */
+#endif /* CONFIG_USB_OHCI_NEW */
