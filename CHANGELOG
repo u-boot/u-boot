@@ -1,3 +1,37 @@
+commit 78d620ebb5871d252270dedfad60c6568993b780
+Author: Wolfgang Denk <wd@atlas.denx.de>
+Date:	Thu Nov 23 22:58:58 2006 +0100
+
+    Updates for TQM5200 modules:
+    - fix off-by-one error in board/tqm5200/cam5200_flash.c error message
+    - simplify "udate" definitions
+
+commit 2053283304eeddf250d109e6791eb6fa4cad14f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 22 13:20:50 2006 +0100
+
+    [PATCH] PPC4xx start.S: Fix for processor errata
+
+    Fixed cpu/ppc4xx/start.S for 440EPx Errata: further corrects PPC440EPx
+    errata 1.12: 440_33 by moving patch up in code.
+
+    Signed-off-by: Jeff Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4ef6251403f637841000e0fef9e832aa01339822
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 20 20:39:52 2006 +0100
+
+    [PATCH] Update AMCC Sequoia config file to support 64MByte NOR FLASH
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbd8da164b976d38616bd9c69c5e86e193cdf0
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 20 10:28:30 2006 +0100
+
+    Update CHANGELOG
+
 commit 260421a21e934a68d31fb6125b0fbd2631a8ca20
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Nov 13 13:55:24 2006 +0100

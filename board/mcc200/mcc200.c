@@ -205,8 +205,7 @@ long int initdram (int board_type)
 	 */
 	svr = get_svr();
 	pvr = get_pvr();
-	if ((SVR_MJREV(svr) >= 2) && (PVR_MAJ(pvr) == 1) && 
-	    (PVR_MIN(pvr) == 4)) {
+	if ((SVR_MJREV(svr) >= 2) && (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
 		*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
 		__asm__ volatile ("sync");
 	}

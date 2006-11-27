@@ -1470,8 +1470,8 @@ The following options need to be configured:
 
 		Enable auto completion of commands using TAB.
 
-                Note that this feature has NOT been implemented yet
-                for the "hush" shell.
+		Note that this feature has NOT been implemented yet
+		for the "hush" shell.
 
 
 		CFG_HUSH_PARSER
@@ -3114,11 +3114,11 @@ loadaddr=200000
 oftaddr=0x300000
 => bootm $loadaddr - $oftaddr
 ## Booting image at 00200000 ...
-   Image Name:   Linux-2.6.17-dirty
-   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
-   Data Size:    1029343 Bytes = 1005.2 kB
+   Image Name:	 Linux-2.6.17-dirty
+   Image Type:	 PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:	 1029343 Bytes = 1005.2 kB
    Load Address: 00000000
-   Entry Point:  00000000
+   Entry Point:	 00000000
    Verifying Checksum ... OK
    Uncompressing Kernel Image ... OK
 Booting using flat device tree at 0x300000
