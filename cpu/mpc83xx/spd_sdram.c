@@ -25,15 +25,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Change log:
- *
- * 20050101: Eran Liberty (liberty@freescale.com)
- *           Initial file creating (porting from 85XX & 8260)
- * 20060601: Dave Liu (daveliu@freescale.com)
- *           DDR ECC support
- *           unify variable names for 83xx
- *           code cleanup
  */
 
 #include <common.h>
@@ -44,6 +35,8 @@
 #include <spd_sdram.h>
 
 #ifdef CONFIG_SPD_EEPROM
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 extern void dma_init(void);
@@ -58,19 +51,16 @@ extern int dma_xfer(void *dest, uint count, void *src);
 /*
  * Convert picoseconds into clock cycles (rounding up if needed).
  */
-extern ulong get_ddr_clk(ulong dummy);
-
 int
 picos_to_clk(int picos)
 {
 	unsigned int ddr_bus_clk;
 	int clks;
 
-	ddr_bus_clk = get_ddr_clk(0) >> 1;
+	ddr_bus_clk = gd->ddr_clk >> 1;
 	clks = picos / ((1000000000 / ddr_bus_clk) * 1000);
-	if (picos % ((1000000000 / ddr_bus_clk) * 1000) !=0) {
+	if (picos % ((1000000000 / ddr_bus_clk) * 1000) != 0)
 		clks++;
-	}
 
 	return clks;
 }
@@ -249,7 +239,7 @@ long int spd_sdram()
 
 	debug("DDR:Module maximum data rate is: %dMhz\n", max_data_rate);
 
-	ddrc_clk = get_ddr_clk(0) / 1000000;
+	ddrc_clk = gd->ddr_clk / 1000000;
 
 	if (max_data_rate >= 390) { /* it is DDR 400 */
 		if (ddrc_clk <= 410 && ddrc_clk > 350) {
@@ -259,31 +249,28 @@ long int spd_sdram()
 		} else if (ddrc_clk <= 350 && ddrc_clk > 280) {
 			/* DDR controller clk at 280~350 */
 			effective_data_rate = 333; /* 6ns */
-			if (spd.clk_cycle2 == 0x60) {
+			if (spd.clk_cycle2 == 0x60)
 				caslat = caslat - 1;
-			} else {
+			else
 				caslat = caslat;
-			}
 		} else if (ddrc_clk <= 280 && ddrc_clk > 230) {
 			/* DDR controller clk at 230~280 */
 			effective_data_rate = 266; /* 7.5ns */
-			if (spd.clk_cycle3 == 0x75) {
+			if (spd.clk_cycle3 == 0x75)
 				caslat = caslat - 2;
-			} else if (spd.clk_cycle2 == 0x60) {
+			else if (spd.clk_cycle2 == 0x60)
 				caslat = caslat - 1;
-			} else {
+			else
 				caslat = caslat;
-			}
 		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
 			/* DDR controller clk at 90~230 */
 			effective_data_rate = 200; /* 10ns */
-			if (spd.clk_cycle3 == 0x75) {
+			if (spd.clk_cycle3 == 0x75)
 				caslat = caslat - 2;
-			} else if (spd.clk_cycle2 == 0x60) {
+			else if (spd.clk_cycle2 == 0x60)
 				caslat = caslat - 1;
-			} else {
+			else
 				caslat = caslat;
-			}
 		}
 	} else if (max_data_rate >= 323) { /* it is DDR 333 */
 		if (ddrc_clk <= 350 && ddrc_clk > 280) {
@@ -293,21 +280,19 @@ long int spd_sdram()
 		} else if (ddrc_clk <= 280 && ddrc_clk > 230) {
 			/* DDR controller clk at 230~280 */
 			effective_data_rate = 266; /* 7.5ns */
-			if (spd.clk_cycle2 == 0x75) {
+			if (spd.clk_cycle2 == 0x75)
 				caslat = caslat - 1;
-			} else {
+			else
 				caslat = caslat;
-			}
 		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
 			/* DDR controller clk at 90~230 */
 			effective_data_rate = 200; /* 10ns */
-			if (spd.clk_cycle3 == 0xa0) {
+			if (spd.clk_cycle3 == 0xa0)
 				caslat = caslat - 2;
-			} else if (spd.clk_cycle2 == 0x75) {
+			else if (spd.clk_cycle2 == 0x75)
 				caslat = caslat - 1;
-			} else {
+			else
 				caslat = caslat;
-			}
 		}
 	} else if (max_data_rate >= 256) { /* it is DDR 266 */
 		if (ddrc_clk <= 350 && ddrc_clk > 280) {
@@ -322,9 +307,8 @@ long int spd_sdram()
 		} else if (ddrc_clk <= 230 && ddrc_clk > 90) {
 			/* DDR controller clk at 90~230 */
 			effective_data_rate = 200; /* 10ns */
-			if (spd.clk_cycle2 == 0xa0) {
+			if (spd.clk_cycle2 == 0xa0)
 				caslat = caslat - 1;
-			}
 		}
 	} else if (max_data_rate >= 190) { /* it is DDR 200 */
 		if (ddrc_clk <= 350 && ddrc_clk > 230) {
@@ -346,13 +330,13 @@ long int spd_sdram()
 	 * Errata DDR6 work around: input enable 2 cycles earlier.
 	 * including MPC834x Rev1.0/1.1 and MPC8360 Rev1.1/1.2.
 	 */
-	if (caslat == 2) {
+	if (caslat == 2)
 		ddr->debug_reg = 0x201c0000; /* CL=2 */
-	} else if (caslat == 3) {
+	else if (caslat == 3)
 		ddr->debug_reg = 0x202c0000; /* CL=2.5 */
-	} else if (caslat == 4) {
+	else if (caslat == 4)
 		ddr->debug_reg = 0x202c0000; /* CL=3.0 */
-	}
+
 	__asm__ __volatile__ ("sync");
 
 	debug("Errata DDR6 (debug_reg=0x%08x)\n", ddr->debug_reg);
@@ -392,11 +376,10 @@ long int spd_sdram()
 	}
 
 	/* Is this an ECC DDR chip? */
-	if (spd.config == 0x02) {
+	if (spd.config == 0x02)
 		printf(" with ECC\n");
-	} else {
+	else
 		printf(" without ECC\n");
-	}
 
 	/* Burst length is always 4 for 64 bit data bus, 8 for 32 bit data bus,
 	   Burst type is sequential
@@ -482,14 +465,13 @@ long int spd_sdram()
 	sdram_cfg = 0xC2000000;
 
 	/* sdram_cfg[3] = RD_EN - registered DIMM enable */
-	if (spd.mod_attr & 0x02) {
+	if (spd.mod_attr & 0x02)
 		sdram_cfg |= 0x10000000;
-	}
 
 	/* The DIMM is 32bit width */
-	if (spd.dataw_lsb == 0x20) {
+	if (spd.dataw_lsb == 0x20)
 		sdram_cfg |= 0x000C0000;
-	}
+
 	ddrc_ecc_enable = 0;
 
 #if defined(CONFIG_DDR_ECC)

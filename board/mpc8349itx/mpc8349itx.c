@@ -349,7 +349,7 @@ int misc_init_r(void)
 	u8 i2c_data;
 
 #ifdef CFG_I2C_RTC_ADDR
-	char ds1339_data[17];
+	u8 ds1339_data[17];
 #endif
 
 #ifdef CFG_I2C_EEPROM_ADDR
