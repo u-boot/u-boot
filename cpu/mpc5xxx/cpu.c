@@ -31,6 +31,10 @@
 #include <mpc5xxx.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu (void)
@@ -102,3 +106,27 @@ unsigned long get_tbclk (void)
 }
 
 /* ------------------------------------------------------------------------- */
+
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_cpu_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	ulong clock;
+	int len;
+
+	clock = bd->bi_busfreq;
+	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+}
+#endif
