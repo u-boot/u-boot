@@ -29,6 +29,9 @@
 
 #define I2C_TIMEOUT	(CFG_HZ / 4)
 
+#define I2C_READ_BIT  1
+#define I2C_WRITE_BIT 0
+
 /* Initialize the bus pointer to whatever one the SPD EEPROM is on.
  * Default is bus 0.  This is necessary because the DDR initialization
  * runs from ROM, and we can't switch buses because we can't modify
@@ -110,7 +113,7 @@ i2c_wait(int write)
 			return -1;
 		}
 
-		if (write == I2C_WRITE && (csr & I2C_SR_RXAK)) {
+		if (write == I2C_WRITE_BIT && (csr & I2C_SR_RXAK)) {
 			debug("i2c_wait: No RXACK\n");
 			return -1;
 		}
@@ -131,7 +134,7 @@ i2c_write_addr (u8 dev, u8 dir, int rsta)
 
 	writeb((dev << 1) | dir, &i2c_dev[i2c_bus_num]->dr);
 
-	if (i2c_wait(I2C_WRITE) < 0)
+	if (i2c_wait(I2C_WRITE_BIT) < 0)
 		return 0;
 
 	return 1;
@@ -148,7 +151,7 @@ __i2c_write(u8 *data, int length)
 	for (i = 0; i < length; i++) {
 		writeb(data[i], &i2c_dev[i2c_bus_num]->dr);
 
-		if (i2c_wait(I2C_WRITE) < 0)
+		if (i2c_wait(I2C_WRITE_BIT) < 0)
 			break;
 	}
 
@@ -167,7 +170,7 @@ __i2c_read(u8 *data, int length)
 	readb(&i2c_dev[i2c_bus_num]->dr);
 
 	for (i = 0; i < length; i++) {
-		if (i2c_wait(I2C_READ) < 0)
+		if (i2c_wait(I2C_READ_BIT) < 0)
 			break;
 
 		/* Generate ack on last next to last byte */
@@ -192,9 +195,9 @@ i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	u8 *a = (u8*)&addr;
 
 	if (i2c_wait4bus() >= 0
-	    && i2c_write_addr(dev, I2C_WRITE, 0) != 0
+	    && i2c_write_addr(dev, I2C_WRITE_BIT, 0) != 0
 	    && __i2c_write(&a[4 - alen], alen) == alen
-	    && i2c_write_addr(dev, I2C_READ, 1) != 0) {
+	    && i2c_write_addr(dev, I2C_READ_BIT, 1) != 0) {
 		i = __i2c_read(data, length);
 	}
 
@@ -213,7 +216,7 @@ i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	u8 *a = (u8*)&addr;
 
 	if (i2c_wait4bus() >= 0
-	    && i2c_write_addr(dev, I2C_WRITE, 0) != 0
+	    && i2c_write_addr(dev, I2C_WRITE_BIT, 0) != 0
 	    && __i2c_write(&a[4 - alen], alen) == alen) {
 		i = __i2c_write(data, length);
 	}
