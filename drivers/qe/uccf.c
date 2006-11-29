@@ -100,9 +100,9 @@ static void ucc_get_cmxucr_reg(int ucc_num, volatile u32 **p_cmxucr,
 
 static int ucc_set_clk_src(int ucc_num, qe_clock_e clock, comm_dir_e mode)
 {
-	volatile u32	*p_cmxucr;
-	u8		reg_num;
-	u8		shift;
+	volatile u32	*p_cmxucr = NULL;
+	u8		reg_num = 0;
+	u8		shift = 0;
 	u32		clockBits;
 	u32		clockMask;
 	int		source = -1;
