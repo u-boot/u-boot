@@ -112,21 +112,20 @@ void
 ft_cpu_setup(void *blob, bd_t *bd)
 {
 	u32 *p;
-	ulong clock;
 	int len;
 
-	clock = bd->bi_busfreq;
+	/* Core XLB bus frequency */
 	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
 	if (p != NULL)
-		*p = cpu_to_be32(clock);
+		*p = cpu_to_be32(bd->bi_busfreq);
 
+	/* SOC peripherals use the IPB bus frequency */
 	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
 	if (p != NULL)
-		*p = cpu_to_be32(clock);
+		*p = cpu_to_be32(bd->bi_ipbfreq);
 
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/mac-address", &len);
 	if (p != NULL)
 		memcpy(p, bd->bi_enetaddr, 6);
-
 }
 #endif
