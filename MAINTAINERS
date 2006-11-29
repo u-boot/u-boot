@@ -281,6 +281,7 @@ Stefan Roese <sr@denx.de>
 
 	TQM85xx			MPC8540/8541/8555/8560
 
+	alpr			PPC440GX
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
 	ebony			PPC440GP

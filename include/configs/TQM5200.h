@@ -217,43 +217,19 @@
 
 #undef	CONFIG_BOOTARGS
 
-#ifdef CONFIG_STK52XX
-# if defined(CONFIG_TQM5200_B)
-#  if defined(CFG_LOWBOOT)
-#   define ENV_UPDT							\
-	"update=protect off FC000000 FC07FFFF;"				\
-		"erase FC000000 FC07FFFF;"				\
-		"cp.b 200000 FC000000 ${filesize};"			\
-		"protect on FC000000 FC07FFFF\0"
-#  else	/* highboot */
-#   define ENV_UPDT							\
-	"update=protect off FFF00000 FFF7FFFF;"				\
-		"erase FFF00000 FFF7FFFF;"				\
+#if defined(CONFIG_TQM5200_B) && !defined(CFG_LOWBOOT)
+# define ENV_UPDT							\
+	"update=protect off FFF00000 +${filesize};"			\
+		"erase FFF00000 +${filesize};"				\
 		"cp.b 200000 FFF00000 ${filesize};"			\
-		"protect on FFF00000 FFF7FFFF\0"
-#  endif /* CFG_LOWBOOT */
-# else	/* !CONFIG_TQM5200_B */
-#  define ENV_UPDT							\
-	"update=protect off FC000000 FC05FFFF;"				\
-		"erase FC000000 FC05FFFF;"				\
-		"cp.b 200000 FC000000 ${filesize};"			\
-		"protect on FC000000 FC05FFFF\0"
-# endif /* CONFIG_TQM5200_B */
-#elif defined (CONFIG_CAM5200)
+		"protect on FFF00000 +${filesize}\0"
+#else	/* default lowboot configuration */
 #   define ENV_UPDT							\
-	"update=protect off FC000000 FC03FFFF;"				\
-		"erase FC000000 FC03FFFF;"				\
+	"update=protect off FC000000 +${filesize};"			\
+		"erase FC000000 +${filesize};"				\
 		"cp.b 200000 FC000000 ${filesize};"			\
-		"protect on FC000000 FC03FFFF\0"
-#elif defined (CONFIG_FO300)
-#   define ENV_UPDT							\
-	"update=protect off FC000000 FC05FFFF;"				\
-		"erase FC000000 FC05FFFF;"				\
-		"cp.b 200000 FC000000 ${filesize};"			\
-		"protect on FC000000 FC05FFFF\0"
-#else
-# error "Unknown Carrier Board"
-#endif	/* CONFIG_STK52XX */
+		"protect on FC000000 +${filesize}\0"
+#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -432,7 +408,7 @@
  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x4000	/* 16 k - keep small for fast booting */
-#if defined(CONFIG_TQM5200_B)
+#if defined(CONFIG_TQM5200_B) || defined (CONFIG_CAM5200)
 #define CFG_ENV_SECT_SIZE	0x40000
 #else
 #define CFG_ENV_SECT_SIZE	0x20000

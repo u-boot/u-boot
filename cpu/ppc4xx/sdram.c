@@ -351,6 +351,14 @@ long int initdram(int board_type)
 	int i;
 	int tr1_bank1;
 
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+	/*
+	 * Soft-reset SDRAM controller.
+	 */
+	mtsdr(sdr_srst, SDR0_SRST_DMC);
+	mtsdr(sdr_srst, 0x00000000);
+#endif
+
 	for (i=0; i<N_MB0CF; i++) {
 		/*
 		 * Disable memory controller.

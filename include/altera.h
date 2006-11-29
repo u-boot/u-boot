@@ -34,8 +34,10 @@
 /* Altera Model definitions
  *********************************************************************/
 #define CFG_ACEX1K		CFG_FPGA_DEV( 0x1 )
+#define CFG_CYCLON2		CFG_FPGA_DEV( 0x2 )
 
 #define CFG_ALTERA_ACEX1K	(CFG_FPGA_ALTERA | CFG_ACEX1K)
+#define CFG_ALTERA_CYCLON2	(CFG_FPGA_ALTERA | CFG_CYCLON2)
 /* Add new models here */
 
 /* Altera Interface definitions
@@ -56,6 +58,7 @@ typedef enum {				/* typedef Altera_iface */
 typedef enum {			/* typedef Altera_Family */
     min_altera_type,		/* insert all new types after this */
     Altera_ACEX1K,		/* ACEX1K Family */
+    Altera_CYC2,		/* CYCLONII Family */
 /* Add new models here */
     max_altera_type		/* insert all new types before this */
 } Altera_Family;		/* end, typedef Altera_Family */
@@ -84,6 +87,7 @@ typedef int (*Altera_status_fn)( int cookie );
 typedef int (*Altera_done_fn)( int cookie );
 typedef int (*Altera_clk_fn)( int assert_clk, int flush, int cookie );
 typedef int (*Altera_data_fn)( int assert_data, int flush, int cookie );
+typedef int (*Altera_write_fn)(void *buf, size_t len, int flush, int cookie);
 typedef int (*Altera_abort_fn)( int cookie );
 typedef int (*Altera_post_fn)( int cookie );
 
