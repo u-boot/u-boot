@@ -343,6 +343,14 @@ Timur Tabi <timur@freescale.com>
 
 	MPC8349E-mITX		MPC8349
 
+Kim Phillips <kim.phillips@freescale.com>
+
+	MPC8349EMDS		MPC8349
+
+Dave Liu <daveliu@freescale.com>
+
+	MPC8360EMDS		MPC8360
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
