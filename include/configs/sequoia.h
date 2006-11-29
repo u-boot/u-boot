@@ -53,7 +53,7 @@
 
 #define CFG_BOOT_BASE_ADDR	0xf0000000
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CFG_FLASH_BASE		0xfe000000	/* start of FLASH	*/
+#define CFG_FLASH_BASE		0xfc000000	/* start of FLASH	*/
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_NAND_ADDR		0xd0000000      /* NAND Flash		*/
 #define CFG_OCM_BASE		0xe0010000      /* ocm			*/
@@ -102,6 +102,7 @@
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
 #define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
+#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -234,10 +235,10 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
+	"rootpath=/opt/eldk/ppc_4xxFP\0"					\
 	"bootfile=/tftpboot/sequoia/uImage\0"				\
-	"kernel_addr=FE000000\0"					\
-	"ramdisk_addr=FE180000\0"					\
+	"kernel_addr=FC000000\0"					\
+	"ramdisk_addr=FC180000\0"					\
 	"load=tftp 100000 /tftpboot/sequoia/u-boot.bin\0"		\
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFA0000 60000\0"			        \
@@ -378,7 +379,7 @@
 #define CFG_NAND_CS		3		/* NAND chip connected to CSx	*/
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x03017300
-#define CFG_EBC_PB0CR		(CFG_FLASH | 0xba000)
+#define CFG_EBC_PB0CR		(CFG_FLASH | 0xda000)
 
 /* Memory Bank 3 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB3AP		0x018003c0
@@ -387,7 +388,7 @@
 #define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
 /* Memory Bank 3 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB3AP		0x03017300
-#define CFG_EBC_PB3CR		(CFG_FLASH | 0xba000)
+#define CFG_EBC_PB3CR		(CFG_FLASH | 0xda000)
 
 /* Memory Bank 0 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x018003c0

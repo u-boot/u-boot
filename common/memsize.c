@@ -21,6 +21,16 @@
  * MA 02111-1307 USA
  */
 
+#include <config.h>
+#ifdef __PPC__
+/*
+ * At least on G2 PowerPC cores, sequential accesses to non-existent
+ * memory must be synchronized.
+ */
+# include <asm/io.h>	/* for sync() */
+#else
+# define sync()		/* nothing */
+#endif
 
 /*
  * Check memory range for valid RAM. A simple memory test determines
@@ -38,20 +48,27 @@ long get_ram_size(volatile long *base, long maxsize)
 
 	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
 		addr = base + cnt;	/* pointer arith! */
+		sync ();
 		save[i++] = *addr;
+		sync ();
 		*addr = ~cnt;
 	}
 
 	addr = base;
+	sync ();
 	save[i] = *addr;
+	sync ();
 	*addr = 0;
 
+	sync ();
 	if ((val = *addr) != 0) {
 		/* Restore the original data before leaving the function.
 		 */
+		sync ();
 		*addr = save[i];
 		for (cnt = 1; cnt < maxsize / sizeof(long); cnt <<= 1) {
 			addr  = base + cnt;
+			sync ();
 			*addr = save[--i];
 		}
 		return (0);

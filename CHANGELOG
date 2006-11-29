@@ -1,3 +1,193 @@
+commit 4f4b602ec7524a032bdf3c6d28c7f525a4a67eaa
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 22:53:53 2006 +0100
+
+    Update CHANGELOG
+
+commit f6e495f54cdb8fe340b9c03deab40ad746d52fae
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:43:25 2006 +0100
+
+    [PATCH] 4xx_enet.c: Correct the setting of zmiifer register
+
+    Patch below corrects the setting of the zmiifer register, it was
+    overwritting the register rather than ORing the settings.
+
+    Signed-off-by: Neil Wilson <NWilson@airspan.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d1a72545296800b7e219f93104ad5836f0003d66
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:34:10 2006 +0100
+
+    [PATCH] Select NAND embedded environment from board configuration
+
+    The current NAND Bootloader setup forces the environment
+    variables to be in line with the bootloader. This change
+    enables the configuration to be made in the board include
+    file instead so that it can be individually enabled.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 15784862857c3c2214498defcfed84ff137fb81e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:22:19 2006 +0100
+
+    [PATCH] nand_wait() timeout fixes
+
+    Two fixes for the nand_wait() function in
+    drivers/nand/nand_base.c:
+
+    1. Use correct timeouts. The original timeouts in Linux
+    source are 400ms and 20ms not 40s and 20s
+
+    2. Return correct error value in case of timeout. 0 is
+    interpreted as OK.
+
+    Signed-off-by: Rui Sousa <rui.sousa@laposte.net>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit da5553b095bf04f4f109ad7e565dae3aba47b230
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:04:06 2006 +0100
+
+    [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
+
+    This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
+    arguments to bootm.	 It removes the getenv("disable_of") test that used
+    to be used for this purpose.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit a9398e018593782c5fa7d0741955fc1256b34c1e
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 15:32:42 2006 +0100
+
+    Minor code cleanup. Update CHANGELOG.
+
+commit 78d620ebb5871d252270dedfad60c6568993b780
+Author: Wolfgang Denk <wd@atlas.denx.de>
+Date:	Thu Nov 23 22:58:58 2006 +0100
+
+    Updates for TQM5200 modules:
+    - fix off-by-one error in board/tqm5200/cam5200_flash.c error message
+    - simplify "udate" definitions
+
+commit 2053283304eeddf250d109e6791eb6fa4cad14f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 22 13:20:50 2006 +0100
+
+    [PATCH] PPC4xx start.S: Fix for processor errata
+
+    Fixed cpu/ppc4xx/start.S for 440EPx Errata: further corrects PPC440EPx
+    errata 1.12: 440_33 by moving patch up in code.
+
+    Signed-off-by: Jeff Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4ef6251403f637841000e0fef9e832aa01339822
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 20 20:39:52 2006 +0100
+
+    [PATCH] Update AMCC Sequoia config file to support 64MByte NOR FLASH
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbd8da164b976d38616bd9c69c5e86e193cdf0
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 20 10:28:30 2006 +0100
+
+    Update CHANGELOG
+
+commit 260421a21e934a68d31fb6125b0fbd2631a8ca20
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 13 13:55:24 2006 +0100
+
+    [PATCH] CFI driver AMD Command Set Top boot geometry reversal, etc. [Updated]
+
+       * Adds support for AMD command set Top Boot flash geometry reversal
+       * Adds support for reading JEDEC Manufacturer ID and Device ID
+       * Adds support for displaying command set, manufacturer id and
+	 device ids (flinfo)
+       * Makes flinfo output to be consistent when CFG_FLASH_EMPTY_INFO defined
+       * Removes outdated change history (refer to git log instead)
+
+    Signed-off-by: Tolunay Orkun <listmember@orkun.us>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b21b511d4c50408f4853f46f06b601272196223f
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Nov 12 21:13:23 2006 +0100
+
+    Update CHANGELOG
+
+commit ce3f1a40c507afbab06c5eb58ccdc6713eda3245
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:48:22 2006 +0100
+
+    Disable the watchdog in the default config for the V38B board.
+
+commit 44a47e6db2694841211f1c8fdbafd36992e9cd1a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:43:00 2006 +0100
+
+    Change the GPIO pin multiplexing configuration for V38B. The USB GPIO pin
+    group is enabled for USB earlier (in cpu_init_f() instead of
+    usb_lowlevel_init()).
+
+commit 91650b3e4de688038d4f71279c44858e3e2c6870
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 6 17:06:36 2006 +0100
+
+    Sequential accesses to non-existent memory must be synchronized,
+    at least on G2 cores.
+
+    This fixes get_ram_size() problems on MPC5200 Rev. B boards.
+
+commit c59200443072353044aa4bf737a5a60f9a9af231
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Nov 2 15:15:01 2006 +0100
+
+    Release U-Boot 1.1.6
+
+commit 25721b5cec2be4bce79cfade17ec8f6aa1e67526
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 02:04:38 2006 +0100
+
+    Finish up support for MarelV38B board
+     - add watchdog support
+     - enable GPIO_WKUP_7 pin for input
+     - code cleanup
+
+commit ffa150bc90c943ca265170bd1be3f293674dd5c7
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:45:46 2006 +0100
+
+    - Fix issues related to the use of ELDK 4 when compiling for MarelV38B:
+	  * remove warnings when compiling ethaddr.c
+	  * adjust linker script (fixes a crash resulting from incorrect
+	  definition of __u_boot_cmd_start)
+    - Some MarelV38B code cleanup.
+
+commit dae80f3caf9754a6dd3ddf3cf903d0c46cbd4385
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:38:16 2006 +0100
+
+    - Add MPC5XXX register definition MPC5XXX_WU_GPIO_DATA_I and change the
+      MPC5XXX_WU_GPIO_DATA macro to MPC5XXX_WU_GPIO_DATA_O (per MPC5200 User's
+      Manual). Replace the uses of MPC5XXX_WU_GPIO_DATA with
+      MPC5XXX_WU_GPIO_DATA_O for affected boards.
+
+    - Add defintions for some MPC5XXX GPIO pins.
+
+commit 82d9c9ec29a1bec1b03ba616425ebaed231072c8
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:34:29 2006 +0100
+
+    Changed MarelV38B board make target to lowercase. Config file cleanup.
+
 commit 1954be6e9c9421b45d0a9d05b10356acc7563150
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Sun Oct 29 01:03:51 2006 +0200

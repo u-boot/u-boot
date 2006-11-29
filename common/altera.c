@@ -50,15 +50,20 @@ int altera_load( Altera_desc *desc, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {
 		case Altera_ACEX1K:
+		case Altera_CYC2:
 #if (CONFIG_FPGA & CFG_ACEX1K)
 			PRINTF ("%s: Launching the ACEX1K Loader...\n",
 					__FUNCTION__);
 			ret_val = ACEX1K_load (desc, buf, bsize);
+#elif (CONFIG_FPGA & CFG_CYCLON2)
+			PRINTF ("%s: Launching the CYCLON II Loader...\n",
+					__FUNCTION__);
+			ret_val = CYC2_load (desc, buf, bsize);
 #else
 			printf ("%s: No support for ACEX1K devices.\n",
 					__FUNCTION__);
@@ -78,7 +83,7 @@ int altera_dump( Altera_desc *desc, void *buf, size_t bsize )
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {
@@ -106,13 +111,16 @@ int altera_info( Altera_desc *desc )
 {
 	int ret_val = FPGA_FAIL;
 
-	if (altera_validate (desc, __FUNCTION__)) {
+	if (altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
 		case Altera_ACEX1K:
 			printf ("ACEX1K\n");
 			break;
 			/* Add new family types here */
+		case Altera_CYC2:
+			printf ("CYCLON II\n");
+			break;
 		default:
 			printf ("Unknown family type, %d\n", desc->family);
 		}
@@ -147,8 +155,11 @@ int altera_info( Altera_desc *desc )
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
 			switch (desc->family) {
 			case Altera_ACEX1K:
+			case Altera_CYC2:
 #if (CONFIG_FPGA & CFG_ACEX1K)
 				ACEX1K_info (desc);
+#elif (CONFIG_FPGA & CFG_CYCLON2)
+				CYC2_info (desc);
 #else
 				/* just in case */
 				printf ("%s: No support for ACEX1K devices.\n",
@@ -176,7 +187,7 @@ int altera_reloc( Altera_desc *desc, ulong reloc_offset)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, __FUNCTION__)) {
+	if (!altera_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else {
 		switch (desc->family) {
@@ -185,6 +196,14 @@ int altera_reloc( Altera_desc *desc, ulong reloc_offset)
 			ret_val = ACEX1K_reloc (desc, reloc_offset);
 #else
 			printf ("%s: No support for ACEX devices.\n",
+					__FUNCTION__);
+#endif
+			break;
+		case Altera_CYC2:
+#if (CONFIG_FPGA & CFG_CYCLON2)
+			ret_val = CYC2_reloc (desc, reloc_offset);
+#else
+			printf ("%s: No support for CYCLON II devices.\n",
 					__FUNCTION__);
 #endif
 			break;

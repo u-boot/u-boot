@@ -139,7 +139,7 @@ static int fpga_dev_info( int devnum )
 			printf( "Xilinx Device\nDescriptor @ 0x%p\n", desc );
 			ret_val = xilinx_info( desc->devdesc );
 #else
-			fpga_no_sup( __FUNCTION__, "Xilinx devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Xilinx devices" );
 #endif
 			break;
 		case fpga_altera:
@@ -178,7 +178,7 @@ int fpga_reloc( fpga_type devtype, void *desc, ulong reloc_off )
 #if CONFIG_FPGA & CFG_FPGA_XILINX
 		ret_val = xilinx_reloc( desc, reloc_off );
 #else
-		fpga_no_sup( __FUNCTION__, "Xilinx devices" );
+		fpga_no_sup( (char *)__FUNCTION__, "Xilinx devices" );
 #endif
 		break;
 	case fpga_altera:
@@ -271,7 +271,7 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 #if CONFIG_FPGA & CFG_FPGA_XILINX
 			ret_val = xilinx_load( desc->devdesc, buf, bsize );
 #else
-			fpga_no_sup( __FUNCTION__, "Xilinx devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Xilinx devices" );
 #endif
 			break;
 		case fpga_altera:
@@ -304,7 +304,7 @@ int fpga_dump( int devnum, void *buf, size_t bsize )
 #if CONFIG_FPGA & CFG_FPGA_XILINX
 			ret_val = xilinx_dump( desc->devdesc, buf, bsize );
 #else
-			fpga_no_sup( __FUNCTION__, "Xilinx devices" );
+			fpga_no_sup( (char *)__FUNCTION__, "Xilinx devices" );
 #endif
 			break;
 		case fpga_altera:

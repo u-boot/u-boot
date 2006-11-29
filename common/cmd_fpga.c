@@ -55,6 +55,7 @@ static int fpga_get_op (char *opstr);
 #define FPGA_LOAD   1
 #define FPGA_LOADB  2
 #define FPGA_DUMP   3
+#define FPGA_LOADMK 4
 
 /* Convert bitstream data and load into the fpga */
 int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
@@ -251,6 +252,23 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		rc = fpga_loadbitstream(dev, fpga_data, data_size);
 		break;
 
+	case FPGA_LOADMK:
+		{
+			image_header_t header;
+			image_header_t *hdr = &header;
+			ulong	data;
+
+			memmove (&header, (char *)fpga_data, sizeof(image_header_t));
+			if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+				puts ("Bad Magic Number\n");
+				return 1;
+			}
+			data = ((ulong)fpga_data + sizeof(image_header_t));
+			data_size  = ntohl(hdr->ih_size);
+			rc = fpga_load (dev, (void *)data, data_size);
+		}
+		break;
+
 	case FPGA_DUMP:
 		rc = fpga_dump (dev, fpga_data, data_size);
 		break;
@@ -282,6 +300,8 @@ static int fpga_get_op (char *opstr)
 		op = FPGA_LOADB;
 	} else if (!strcmp ("load", opstr)) {
 		op = FPGA_LOAD;
+	} else if (!strcmp ("loadmk", opstr)) {
+		op = FPGA_LOADMK;
 	} else if (!strcmp ("dump", opstr)) {
 		op = FPGA_DUMP;
 	}
@@ -299,5 +319,6 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tinfo\tlist known device information\n"
 	    "\tload\tLoad device from memory buffer\n"
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
+	    "\tloadmk\tLoad device generated with mkimage\n"
 	    "\tdump\tLoad device to memory buffer\n");
 #endif /* CONFIG_FPGA && CONFIG_COMMANDS & CFG_CMD_FPGA */
