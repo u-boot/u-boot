@@ -22,41 +22,22 @@
  */
 
 /*
- * cpu_init.c - low level cpu init
- *
- * there's really nothing going on here yet.  future work area?
+ * eth.h - header file for the polled mode GT ethernet driver
  */
 
+#ifndef __EVB64360_ETH_H__
+#define __EVB64360_ETH_H__
+
+#include <asm/types.h>
+#include <asm/io.h>
+#include <asm/byteorder.h>
 #include <common.h>
-#include <74xx_7xx.h>
 
-/*
- * Breath some life into the CPU...
- *
- * there's basically nothing to do here since the memory controller
- * isn't on the CPU in this case.
- */
-void
-cpu_init_f (void)
-{
-	switch (get_cpu_type()) {
-	case CPU_7450:
-	case CPU_7455:
-	case CPU_7457:
-	case CPU_7448:
-		/* enable the timebase bit in HID0 */
-		set_hid0(get_hid0() | 0x4000000);
-		break;
-	default:
-		/* do nothing */
-		break;
-	}
-}
 
-/*
- * initialize higher level parts of CPU like timers
- */
-int cpu_init_r (void)
-{
-	return (0);
-}
+int db64360_eth0_poll(void);
+int db64360_eth0_transmit(unsigned int s, volatile char *p);
+void db64360_eth0_disable(void);
+bool network_start(bd_t *bis);
+
+
+#endif /* __EVB64360_ETH_H__ */

@@ -44,7 +44,8 @@
 
 #if !defined(CONFIG_DB64360) && \
     !defined(CONFIG_DB64460) && \
-    !defined(CONFIG_CPCI750)
+    !defined(CONFIG_CPCI750) && \
+    !defined(CONFIG_P3Mx)
 #include <galileo/gt64260R.h>
 #endif
 
@@ -270,7 +271,7 @@ in_flash:
 	 * gt-regs BAT can be reused after board_init_f calls
 	 * board_early_init_f (EVB only).
 	 */
-#if !defined(CONFIG_BAB7xx) && !defined(CONFIG_ELPPC)
+#if !defined(CONFIG_BAB7xx) && !defined(CONFIG_ELPPC) && !defined(CONFIG_P3Mx)
 	/* enable address translation */
 	bl	enable_addr_trans
 	sync
@@ -757,7 +758,8 @@ in_ram:
     defined(CONFIG_DB64360)	 || \
     defined(CONFIG_DB64460)      || \
     defined(CONFIG_CPCI750)	|| \
-    defined(CONFIG_PPMC7XX)
+    defined(CONFIG_PPMC7XX)     || \
+    defined(CONFIG_P3Mx)
 	mr	r4, r9		/* Use RAM copy of the global data */
 #endif
 	bl	after_reloc

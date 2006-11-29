@@ -1724,6 +1724,16 @@ EVB64260_750CX_config:	unconfig
 P3G4_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx evb64260
 
+p3m750_config	\
+p3m7448_config:		unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring 750_,$@)" ] ; then \
+		echo "#define CONFIG_P3M750" >>$(obj)include/config.h ; \
+	else \
+		echo "#define CONFIG_P3M7448" >>$(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a p3mx ppc 74xx_7xx p3mx prodrive
+
 PCIPPC2_config \
 PCIPPC6_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx pcippc2

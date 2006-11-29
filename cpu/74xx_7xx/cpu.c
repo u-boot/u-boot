@@ -101,6 +101,10 @@ get_cpu_type(void)
 		type = CPU_7457;
 		break;
 
+	case 0x8004:
+		type = CPU_7448;
+		break;
+
 	default:
 		break;
 	}
@@ -150,6 +154,10 @@ int checkcpu (void)
 
 	case CPU_7410:
 		str = "MPC7410";
+		break;
+
+	case CPU_7448:
+		str = "MPC7448";
 		break;
 
 	case CPU_7450:

@@ -91,6 +91,7 @@ int get_clocks (void)
 
 	/* calculate the clock frequency based upon the CPU type */
 	switch (get_cpu_type()) {
+	case CPU_7448:
 	case CPU_7455:
 	case CPU_7457:
 		/*

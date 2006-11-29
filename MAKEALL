@@ -151,11 +151,12 @@ LIST_85xx="	\
 
 LIST_74xx="	\
 	DB64360		DB64460		EVB64260	P3G4		\
-	PCIPPC2		PCIPPC6		ZUMA				\
+	p3m7448		PCIPPC2		PCIPPC6		ZUMA		\
 "
 
 LIST_7xx="	\
-	BAB7xx		CPCI750		ELPPC		ppmc7xx		\
+	BAB7xx		CPCI750		ELPPC		p3m750		\
+	ppmc7xx								\
 "
 
 LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
