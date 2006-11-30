@@ -15,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -46,33 +46,28 @@
 #endif
 
 /* PHY DFCDL Registers */
-#define ETH_PHY_DFCDL_CONFIG0_REG     0x2100
-#define ETH_PHY_DFCDL_CONFIG1_REG     0x2104
-#define ETH_PHY_DFCDL_ADDR_REG        0x2110
-#define ETH_PHY_DFCDL_DATA0_REG       0x2114
+#define ETH_PHY_DFCDL_CONFIG0_REG	0x2100
+#define ETH_PHY_DFCDL_CONFIG1_REG	0x2104
+#define ETH_PHY_DFCDL_ADDR_REG		0x2110
+#define ETH_PHY_DFCDL_DATA0_REG		0x2114
 
-#define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */
-#define PHY_UPDATE_TIMEOUT	10000
+#define PHY_AUTONEGOTIATE_TIMEOUT	4000	/* 4000 ms autonegotiate timeout */
+#define PHY_UPDATE_TIMEOUT		10000
 
 #undef MV64460_CHECKSUM_OFFLOAD
 /*************************************************************************
-**************************************************************************
-**************************************************************************
-*  The first part is the high level driver of the gigE ethernet ports.   *
-**************************************************************************
-**************************************************************************
+*  The first part is the high level driver of the gigE ethernet ports.	 *
 *************************************************************************/
 
 /* Definition for configuring driver */
 /* #define UPDATE_STATS_BY_SOFTWARE */
 #undef MV64460_RX_QUEUE_FILL_ON_TASK
 
-
 /* Constants */
 #define MAGIC_ETH_RUNNING		8031971
-#define MV64460_INTERNAL_SRAM_SIZE                      _256K
+#define MV64460_INTERNAL_SRAM_SIZE	_256K
 #define EXTRA_BYTES 32
-#define WRAP       ETH_HLEN + 2 + 4 + 16
+#define WRAP	   ETH_HLEN + 2 + 4 + 16
 #define BUFFER_MTU dev->mtu + WRAP
 #define INT_CAUSE_UNMASK_ALL		0x0007ffff
 #define INT_CAUSE_UNMASK_ALL_EXT	0x0011ffff
@@ -111,7 +106,7 @@ int mv_miiphy_write(char *devname, unsigned char phy_addr,
 
 int phy_setup_aneg (char *devname, unsigned char addr);
 
-#ifndef  UPDATE_STATS_BY_SOFTWARE
+#ifndef	 UPDATE_STATS_BY_SOFTWARE
 static void mv64460_eth_print_stat (struct eth_device *dev);
 #endif
 /* Processes a received packet */
@@ -141,8 +136,10 @@ void print_globals (struct eth_device *dev)
 
 	printf ("GT Internal Base Address:	%08x\n",
 		INTERNAL_REG_BASE_ADDR);
-	printf ("Base Address for TX-DESCs:	%08x	Number of allocated Buffers %d\n", (unsigned int) ((ETH_PORT_INFO *) dev->priv)->p_tx_desc_area_base[0], MV64460_TX_QUEUE_SIZE);
-	printf ("Base Address for RX-DESCs:	%08x	Number of allocated Buffers %d\n", (unsigned int) ((ETH_PORT_INFO *) dev->priv)->p_rx_desc_area_base[0], MV64460_RX_QUEUE_SIZE);
+	printf ("Base Address for TX-DESCs:	%08x	Number of allocated Buffers %d\n",
+		(unsigned int) ((ETH_PORT_INFO *) dev->priv)->p_tx_desc_area_base[0], MV64460_TX_QUEUE_SIZE);
+	printf ("Base Address for RX-DESCs:	%08x	Number of allocated Buffers %d\n",
+		(unsigned int) ((ETH_PORT_INFO *) dev->priv)->p_rx_desc_area_base[0], MV64460_RX_QUEUE_SIZE);
 	printf ("Base Address for RX-Buffer:	%08x	allocated Bytes %d\n",
 		(unsigned int) ((ETH_PORT_INFO *) dev->priv)->
 		p_rx_buffer_base[0],
@@ -153,8 +150,6 @@ void print_globals (struct eth_device *dev)
 		(MV64460_TX_QUEUE_SIZE * MV64460_TX_BUFFER_SIZE) + 32);
 }
 #endif
-
-
 
 /**********************************************************************
  * mv64460_eth_print_phy_status
@@ -221,84 +216,37 @@ void db64460_eth_disable (struct eth_device *dev)
 	mv64460_eth_stop (dev);
 }
 
-
 #define DFCDL(write,read)   ((write << 6) | read)
-unsigned int  ethDfcdls[] = {         			  DFCDL(0,0),
-                                                  DFCDL(1,1),
-                                                  DFCDL(2,2),
-                                                  DFCDL(3,3),
-                                                  DFCDL(4,4),
-                                                  DFCDL(5,5),
-                                                  DFCDL(6,6),
-                                                  DFCDL(7,7),
-                                                  DFCDL(8,8),
-                                                  DFCDL(9,9),
-                                                  DFCDL(10,10),
-                                                  DFCDL(11,11),
-                                                  DFCDL(12,12),
-                                                  DFCDL(13,13),
-                                                  DFCDL(14,14),
-                                                  DFCDL(15,15),
-                                                  DFCDL(16,16),
-                                                  DFCDL(17,17),
-                                                  DFCDL(18,18),
-                                                  DFCDL(19,19),
-                                                  DFCDL(20,20),
-                                                  DFCDL(21,21),
-                                                  DFCDL(22,22),
-                                                  DFCDL(23,23),
-                                                  DFCDL(24,24),
-                                                  DFCDL(25,25),
-                                                  DFCDL(26,26),
-                                                  DFCDL(27,27),
-                                                  DFCDL(28,28),
-                                                  DFCDL(29,29),
-                                                  DFCDL(30,30),
-                                                  DFCDL(31,31),
-                                                  DFCDL(32,32),
-                                                  DFCDL(33,33),
-                                                  DFCDL(34,34),
-                                                  DFCDL(35,35),
-                                                  DFCDL(36,36),
-                                                  DFCDL(37,37),
-                                                  DFCDL(38,38),
-                                                  DFCDL(39,39),
-                                                  DFCDL(40,40),
-                                                  DFCDL(41,41),
-                                                  DFCDL(42,42),
-                                                  DFCDL(43,43),
-                                                  DFCDL(44,44),
-                                                  DFCDL(45,45),
-                                                  DFCDL(46,46),
-                                                  DFCDL(47,47),
-                                                  DFCDL(48,48),
-                                                  DFCDL(49,49),
-                                                  DFCDL(50,50),
-                                                  DFCDL(51,51),
-                                                  DFCDL(52,52),
-                                                  DFCDL(53,53),
-                                                  DFCDL(54,54),
-                                                  DFCDL(55,55),
-                                                  DFCDL(56,56),
-                                                  DFCDL(57,57),
-                                                  DFCDL(58,58),
-                                                  DFCDL(59,59),
-                                                  DFCDL(60,60),
-                                                  DFCDL(61,61),
-                                                  DFCDL(62,62),
-                                                  DFCDL(63,63) };
+unsigned int  ethDfcdls[] = {
+	DFCDL(0,0),	DFCDL(1,1),	DFCDL(2,2),	DFCDL(3,3),
+	DFCDL(4,4),	DFCDL(5,5),	DFCDL(6,6),	DFCDL(7,7),
+	DFCDL(8,8),	DFCDL(9,9),	DFCDL(10,10),	DFCDL(11,11),
+	DFCDL(12,12),	DFCDL(13,13),	DFCDL(14,14),	DFCDL(15,15),
+	DFCDL(16,16),	DFCDL(17,17),	DFCDL(18,18),	DFCDL(19,19),
+	DFCDL(20,20),	DFCDL(21,21),	DFCDL(22,22),	DFCDL(23,23),
+	DFCDL(24,24),	DFCDL(25,25),	DFCDL(26,26),	DFCDL(27,27),
+	DFCDL(28,28),	DFCDL(29,29),	DFCDL(30,30),	DFCDL(31,31),
+	DFCDL(32,32),	DFCDL(33,33),	DFCDL(34,34),	DFCDL(35,35),
+	DFCDL(36,36),	DFCDL(37,37),	DFCDL(38,38),	DFCDL(39,39),
+	DFCDL(40,40),	DFCDL(41,41),	DFCDL(42,42),	DFCDL(43,43),
+	DFCDL(44,44),	DFCDL(45,45),	DFCDL(46,46),	DFCDL(47,47),
+	DFCDL(48,48),	DFCDL(49,49),	DFCDL(50,50),	DFCDL(51,51),
+	DFCDL(52,52),	DFCDL(53,53),	DFCDL(54,54),	DFCDL(55,55),
+	DFCDL(56,56),	DFCDL(57,57),	DFCDL(58,58),	DFCDL(59,59),
+	DFCDL(60,60),	DFCDL(61,61),	DFCDL(62,62),	DFCDL(63,63),
+};
 
-void mv_eth_phy_init(void)
+void mv_eth_phy_init (void)
 {
-  int i;
+	int i;
 
-  MV_REG_WRITE(ETH_PHY_DFCDL_ADDR_REG, 0);
+	MV_REG_WRITE (ETH_PHY_DFCDL_ADDR_REG, 0);
 
-  for (i = 0 ; i < 64; i++) {
-    MV_REG_WRITE(ETH_PHY_DFCDL_DATA0_REG, ethDfcdls[i]);
-  }
+	for (i = 0; i < 64; i++) {
+		MV_REG_WRITE (ETH_PHY_DFCDL_DATA0_REG, ethDfcdls[i]);
+	}
 
-  MV_REG_WRITE(ETH_PHY_DFCDL_CONFIG0_REG,0x300000);
+	MV_REG_WRITE (ETH_PHY_DFCDL_CONFIG0_REG, 0x300000);
 }
 
 void mv6446x_eth_initialize (bd_t * bis)
@@ -309,9 +257,9 @@ void mv6446x_eth_initialize (bd_t * bis)
 	int devnum, x, temp;
 	char *s, *e, buf[64];
 
-/* P3M750 only
- * Set RGMII clock drives strength
- */
+	/* P3M750 only
+	 * Set RGMII clock drives strength
+	 */
 	temp = MV_REG_READ(0x20A0);
 	temp |= 0x04000080;
 	MV_REG_WRITE(0x20A0, temp);
@@ -338,15 +286,12 @@ void mv6446x_eth_initialize (bd_t * bis)
 		case 0:
 			s = "ethaddr";
 			break;
-
 		case 1:
 			s = "eth1addr";
 			break;
-
 		case 2:
 			s = "eth2addr";
 			break;
-
 		default:	/* this should never happen */
 			printf ("%s: Invalid device number %d\n",
 				__FUNCTION__, devnum);
@@ -440,15 +385,12 @@ void mv6446x_eth_initialize (bd_t * bis)
 		case 0:
 			s = "ethaddr";
 			break;
-
 		case 1:
 			s = "eth1addr";
 			break;
-
 		case 2:
 			s = "eth2addr";
 			break;
-
 		default:	/* this should never happen */
 			printf ("%s: Invalid device number %d\n",
 				__FUNCTION__, devnum);
@@ -538,13 +480,11 @@ static int mv64460_eth_real_open (struct eth_device *dev)
 	   see ./net/eth.c eth_set_enetaddr() */
 	memcpy (ethernet_private->port_mac_addr, dev->enetaddr, 6);
 
-	port_private =
-		(struct mv64460_eth_priv *) ethernet_private->port_private;
+	port_private = (struct mv64460_eth_priv *) ethernet_private->port_private;
 	port_num = port_private->port_num;
 
 	/* Stop RX Queues */
-	MV_REG_WRITE (MV64460_ETH_RECEIVE_QUEUE_COMMAND_REG (port_num),
-		      0x0000ff00);
+	MV_REG_WRITE (MV64460_ETH_RECEIVE_QUEUE_COMMAND_REG (port_num), 0x0000ff00);
 
 	/* Clear the ethernet port interrupts */
 	MV_REG_WRITE (MV64460_ETH_INTERRUPT_CAUSE_REG (port_num), 0);
@@ -685,7 +625,6 @@ static int mv64460_eth_real_open (struct eth_device *dev)
 	return 1;
 }
 
-
 static int mv64460_eth_free_tx_rings (struct eth_device *dev)
 {
 	unsigned int queue;
@@ -738,7 +677,6 @@ static int mv64460_eth_free_rx_rings (struct eth_device *dev)
 	port_private =
 		(struct mv64460_eth_priv *) ethernet_private->port_private;
 	port_num = port_private->port_num;
-
 
 	/* Stop RX Queues */
 	MV_REG_WRITE (MV64460_ETH_RECEIVE_QUEUE_COMMAND_REG (port_num),
@@ -823,7 +761,7 @@ static int mv64460_eth_real_stop (struct eth_device *dev)
 	MV_RESET_REG_BITS (MV64460_CPU_INTERRUPT0_MASK_HIGH,
 			   BIT0 << port_num);
 	/* Print Network statistics */
-#ifndef  UPDATE_STATS_BY_SOFTWARE
+#ifndef	 UPDATE_STATS_BY_SOFTWARE
 	/*
 	 * Print statistics (only if ethernet is running),
 	 * then zero all the stats fields in memory
@@ -838,7 +776,6 @@ static int mv64460_eth_real_stop (struct eth_device *dev)
 	return 0;
 }
 
-
 /**********************************************************************
  * mv64460_eth_start_xmit
  *
@@ -846,7 +783,7 @@ static int mv64460_eth_real_stop (struct eth_device *dev)
  * required port.
  *
  * Input : skb - a pointer to socket buffer
- *         dev - a pointer to the required port
+ *	   dev - a pointer to the required port
  *
  * Output : zero upon success
  **********************************************************************/
@@ -882,7 +819,7 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
 			printf ("ETH Queue is full. \n");
 		if (status == ETH_QUEUE_LAST_RESOURCE)
 			printf ("ETH Queue: using last available resource. \n");
-		goto error;
+		return 1;
 	}
 
 	/* Update statistics and start of transmittion time */
@@ -918,10 +855,7 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
 		}
 	} while (release_result == ETH_OK);
 
-	return 0;		/* success */
-
-     error:
-	return 1;		/* Failed - higher layers will free the skb */
+	return 0;	/* success */
 }
 
 /**********************************************************************
@@ -931,7 +865,7 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
  * queues toward kernel core or FastRoute them to another interface.
  *
  * Input : dev - a pointer to the required interface
- *         max - maximum number to receive (0 means unlimted)
+ *	   max - maximum number to receive (0 means unlimted)
  *
  * Output : number of served packets
  **********************************************************************/
@@ -1054,7 +988,6 @@ static struct net_device_stats *mv64460_eth_get_stats (struct eth_device *dev)
 	return port_private->stats;
 }
 
-
 /**********************************************************************
  * mv64460_eth_update_stat
  *
@@ -1136,7 +1069,7 @@ static void mv64460_eth_update_stat (struct eth_device *dev)
 	/* detailed tx errors */
 }
 
-#ifndef  UPDATE_STATS_BY_SOFTWARE
+#ifndef	 UPDATE_STATS_BY_SOFTWARE
 /**********************************************************************
  * mv64460_eth_print_stat
  *
@@ -1198,7 +1131,7 @@ bool db64460_eth_start (struct eth_device *dev)
 /*************************************************************************
 **************************************************************************
 **************************************************************************
-*  The second part is the low level driver of the gigE ethernet ports.   *
+*  The second part is the low level driver of the gigE ethernet ports.	 *
 **************************************************************************
 **************************************************************************
 *************************************************************************/
@@ -1214,7 +1147,7 @@ bool db64460_eth_start (struct eth_device *dev)
 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
@@ -1227,7 +1160,7 @@ bool db64460_eth_start (struct eth_device *dev)
  * Marvell's Gigabit Ethernet controller low level driver
  *
  * DESCRIPTION:
- *       This file introduce low level API to Marvell's Gigabit Ethernet
+ *	 This file introduce low level API to Marvell's Gigabit Ethernet
  *		controller. This Gigabit Ethernet Controller driver API controls
  *		1) Operations (i.e. port init, start, reset etc').
  *		2) Data flow (i.e. port send, receive etc').
@@ -1339,23 +1272,23 @@ bool db64460_eth_start (struct eth_device *dev)
  *
  *		EXTERNAL INTERFACE
  *
- *       Prior to calling the initialization routine eth_port_init() the user
+ *	 Prior to calling the initialization routine eth_port_init() the user
  *	 must set the following fields under ETH_PORT_INFO struct:
- *       port_num             User Ethernet port number.
- *       port_phy_addr		    User PHY address of Ethernet port.
- *       port_mac_addr[6]	    User defined port MAC address.
- *       port_config          User port configuration value.
- *       port_config_extend    User port config extend value.
- *       port_sdma_config      User port SDMA config value.
- *       port_serial_control   User port serial control value.
- *       *port_virt_to_phys ()  User function to cast virtual addr to CPU bus addr.
- *       *port_private        User scratch pad for user specific data structures.
+ *	 port_num	      User Ethernet port number.
+ *	 port_phy_addr		    User PHY address of Ethernet port.
+ *	 port_mac_addr[6]	    User defined port MAC address.
+ *	 port_config	      User port configuration value.
+ *	 port_config_extend    User port config extend value.
+ *	 port_sdma_config      User port SDMA config value.
+ *	 port_serial_control   User port serial control value.
+ *	 *port_virt_to_phys ()	User function to cast virtual addr to CPU bus addr.
+ *	 *port_private	      User scratch pad for user specific data structures.
  *
- *       This driver introduce a set of default values:
- *       PORT_CONFIG_VALUE           Default port configuration value
- *       PORT_CONFIG_EXTEND_VALUE    Default port extend configuration value
- *       PORT_SDMA_CONFIG_VALUE      Default sdma control value
- *       PORT_SERIAL_CONTROL_VALUE   Default port serial control value
+ *	 This driver introduce a set of default values:
+ *	 PORT_CONFIG_VALUE	     Default port configuration value
+ *	 PORT_CONFIG_EXTEND_VALUE    Default port extend configuration value
+ *	 PORT_SDMA_CONFIG_VALUE	     Default sdma control value
+ *	 PORT_SERIAL_CONTROL_VALUE   Default port serial control value
  *
  *		This driver data flow is done using the PKT_INFO struct which is
  *		a unified struct for Rx and Tx operations:
@@ -1374,7 +1307,7 @@ bool db64460_eth_start (struct eth_device *dev)
  *
  *		This macro applies assembly code to flush and invalidate cache
  *		line.
- *		address        - address base.
+ *		address	       - address base.
  *		address offset - address offset
  *
  *
@@ -1522,25 +1455,25 @@ u32 mv_get_internal_sram_base (void)
 * eth_port_init - Initialize the Ethernet port driver
 *
 * DESCRIPTION:
-*       This function prepares the ethernet port to start its activity:
-*       1) Completes the ethernet port driver struct initialization toward port
-*           start routine.
-*       2) Resets the device to a quiescent state in case of warm reboot.
-*       3) Enable SDMA access to all four DRAM banks as well as internal SRAM.
-*       4) Clean MAC tables. The reset status of those tables is unknown.
-*       5) Set PHY address.
-*       Note: Call this routine prior to eth_port_start routine and after setting
-*       user values in the user fields of Ethernet port control struct (i.e.
-*       port_phy_addr).
+*	This function prepares the ethernet port to start its activity:
+*	1) Completes the ethernet port driver struct initialization toward port
+*	    start routine.
+*	2) Resets the device to a quiescent state in case of warm reboot.
+*	3) Enable SDMA access to all four DRAM banks as well as internal SRAM.
+*	4) Clean MAC tables. The reset status of those tables is unknown.
+*	5) Set PHY address.
+*	Note: Call this routine prior to eth_port_start routine and after setting
+*	user values in the user fields of Ethernet port control struct (i.e.
+*	port_phy_addr).
 *
 * INPUT:
-*       ETH_PORT_INFO 	*p_eth_port_ctrl       Ethernet port control struct
+*	ETH_PORT_INFO	*p_eth_port_ctrl       Ethernet port control struct
 *
 * OUTPUT:
-*       See description.
+*	See description.
 *
 * RETURN:
-*       None.
+*	None.
 *
 *******************************************************************************/
 static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
@@ -1574,7 +1507,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 
 	/* Set access parameters for DRAM bank 0 */
 	win_param.win = ETH_WIN0;	/* Use Ethernet window 0 */
-	win_param.target = ETH_TARGET_DRAM;	/* Window target - DDR  */
+	win_param.target = ETH_TARGET_DRAM;	/* Window target - DDR	*/
 	win_param.attributes = EBAR_ATTR_DRAM_CS0;	/* Enable DRAM bank   */
 #ifndef CONFIG_NOT_COHERENT_CACHE
 	win_param.attributes |= EBAR_ATTR_DRAM_CACHE_COHERENCY_WB;
@@ -1582,7 +1515,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 	win_param.high_addr = 0;
 	/* Get bank base */
 	win_param.base_addr = mv_get_dram_bank_base_addr (BANK0);
-	win_param.size = mv_get_dram_bank_size (BANK0);	/* Get bank size */
+	win_param.size = mv_get_dram_bank_size (BANK0); /* Get bank size */
 	if (win_param.size == 0)
 		win_param.enable = 0;
 	else
@@ -1602,7 +1535,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 	win_param.high_addr = 0;
 	/* Get bank base */
 	win_param.base_addr = mv_get_dram_bank_base_addr (BANK1);
-	win_param.size = mv_get_dram_bank_size (BANK1);	/* Get bank size */
+	win_param.size = mv_get_dram_bank_size (BANK1); /* Get bank size */
 	if (win_param.size == 0)
 		win_param.enable = 0;
 	else
@@ -1622,7 +1555,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 	win_param.high_addr = 0;
 	/* Get bank base */
 	win_param.base_addr = mv_get_dram_bank_base_addr (BANK2);
-	win_param.size = mv_get_dram_bank_size (BANK2);	/* Get bank size */
+	win_param.size = mv_get_dram_bank_size (BANK2); /* Get bank size */
 	if (win_param.size == 0)
 		win_param.enable = 0;
 	else
@@ -1642,7 +1575,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 	win_param.high_addr = 0;
 	/* Get bank base */
 	win_param.base_addr = mv_get_dram_bank_base_addr (BANK3);
-	win_param.size = mv_get_dram_bank_size (BANK3);	/* Get bank size */
+	win_param.size = mv_get_dram_bank_size (BANK3); /* Get bank size */
 	if (win_param.size == 0)
 		win_param.enable = 0;
 	else
@@ -1678,30 +1611,30 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 * eth_port_start - Start the Ethernet port activity.
 *
 * DESCRIPTION:
-*       This routine prepares the Ethernet port for Rx and Tx activity:
-*       1. Initialize Tx and Rx Current Descriptor Pointer for each queue that
-*           has been initialized a descriptor's ring (using ether_init_tx_desc_ring
-*           for Tx and ether_init_rx_desc_ring for Rx)
-*       2. Initialize and enable the Ethernet configuration port by writing to
-*           the port's configuration and command registers.
-*       3. Initialize and enable the SDMA by writing to the SDMA's
+*	This routine prepares the Ethernet port for Rx and Tx activity:
+*	1. Initialize Tx and Rx Current Descriptor Pointer for each queue that
+*	    has been initialized a descriptor's ring (using ether_init_tx_desc_ring
+*	    for Tx and ether_init_rx_desc_ring for Rx)
+*	2. Initialize and enable the Ethernet configuration port by writing to
+*	    the port's configuration and command registers.
+*	3. Initialize and enable the SDMA by writing to the SDMA's
 *    configuration and command registers.
-*       After completing these steps, the ethernet port SDMA can starts to
-*       perform Rx and Tx activities.
+*	After completing these steps, the ethernet port SDMA can starts to
+*	perform Rx and Tx activities.
 *
-*       Note: Each Rx and Tx queue descriptor's list must be initialized prior
-*       to calling this function (use ether_init_tx_desc_ring for Tx queues and
-*       ether_init_rx_desc_ring for Rx queues).
+*	Note: Each Rx and Tx queue descriptor's list must be initialized prior
+*	to calling this function (use ether_init_tx_desc_ring for Tx queues and
+*	ether_init_rx_desc_ring for Rx queues).
 *
 * INPUT:
-*       ETH_PORT_INFO 	*p_eth_port_ctrl       Ethernet port control struct
+*	ETH_PORT_INFO	*p_eth_port_ctrl       Ethernet port control struct
 *
 * OUTPUT:
-*       Ethernet port is ready to receive and transmit.
+*	Ethernet port is ready to receive and transmit.
 *
 * RETURN:
-*       false if the port PHY is not up.
-*       true otherwise.
+*	false if the port PHY is not up.
+*	true otherwise.
 *
 *******************************************************************************/
 static bool eth_port_start (ETH_PORT_INFO * p_eth_port_ctrl)
@@ -1711,7 +1644,6 @@ static bool eth_port_start (ETH_PORT_INFO * p_eth_port_ctrl)
 	volatile ETH_RX_DESC *p_rx_curr_desc;
 	unsigned int phy_reg_data;
 	ETH_PORT eth_port_num = p_eth_port_ctrl->port_num;
-
 
 	/* Assignment of Tx CTRP of given queue */
 	for (queue = 0; queue < MAX_TX_QUEUE_NUM; queue++) {
@@ -1782,13 +1714,13 @@ static bool eth_port_start (ETH_PORT_INFO * p_eth_port_ctrl)
 *		This function Set the port Ethernet MAC address.
 *
 * INPUT:
-*	ETH_PORT eth_port_num     Port number.
-*	char *        p_addr		Address to be set
-*	ETH_QUEUE 	  queue		Rx queue number for this MAC address.
+*	ETH_PORT eth_port_num	  Port number.
+*	char *	      p_addr		Address to be set
+*	ETH_QUEUE	  queue		Rx queue number for this MAC address.
 *
 * OUTPUT:
 *	Set MAC address low and high registers. also calls eth_port_uc_addr()
-*       To set the unicast table with the proper information.
+*	To set the unicast table with the proper information.
 *
 * RETURN:
 *	N/A.
@@ -1822,10 +1754,10 @@ static void eth_port_uc_addr_set (ETH_PORT eth_port_num,
 *	parameters.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
+*	ETH_PORT	eth_port_num	  Port number.
 *	unsigned char uc_nibble		Unicast MAC Address last nibble.
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option	    0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	This function add/removes MAC addresses from the port unicast address
@@ -1904,10 +1836,10 @@ static bool eth_port_uc_addr (ETH_PORT eth_port_num,
 *	   In this case, the function calculates the CRC-8bit value and calls
 *	   eth_port_omc_addr() routine to set the Other Multicast Table.
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	*p_addr		Unicast MAC Address.
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num	  Port number.
+*	unsigned char	*p_addr		Unicast MAC Address.
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option	    0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -1928,13 +1860,12 @@ static void eth_port_mc_addr (ETH_PORT eth_port_num,
 	int crc[8];
 	int i;
 
-
 	if ((p_addr[0] == 0x01) &&
 	    (p_addr[1] == 0x00) &&
-	    (p_addr[2] == 0x5E) && (p_addr[3] == 0x00) && (p_addr[4] == 0x00))
+	    (p_addr[2] == 0x5E) && (p_addr[3] == 0x00) && (p_addr[4] == 0x00)) {
 
 		eth_port_smc_addr (eth_port_num, p_addr[5], queue, option);
-	else {
+	} else {
 		/* Calculate CRC-8 out of the given address */
 		mac_h = (p_addr[0] << 8) | (p_addr[1]);
 		mac_l = (p_addr[2] << 24) | (p_addr[3] << 16) |
@@ -1944,7 +1875,6 @@ static void eth_port_mc_addr (ETH_PORT eth_port_num,
 			mac_array[i] = (mac_l >> i) & 0x1;
 		for (i = 32; i < 48; i++)
 			mac_array[i] = (mac_h >> (i - 32)) & 0x1;
-
 
 		crc[0] = mac_array[45] ^ mac_array[43] ^ mac_array[40] ^
 			mac_array[39] ^ mac_array[35] ^ mac_array[34] ^
@@ -2038,10 +1968,10 @@ static void eth_port_mc_addr (ETH_PORT eth_port_num,
 *	according to the argument given.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	mc_byte		Multicast addr last byte (MAC DA[7:0] bits).
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num	  Port number.
+*	unsigned char	mc_byte		Multicast addr last byte (MAC DA[7:0] bits).
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option	    0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -2060,7 +1990,7 @@ static bool eth_port_smc_addr (ETH_PORT eth_port_num,
 	unsigned int reg_offset;
 
 	/* Locate the SMC table entry */
-	tbl_offset = (mc_byte / 4) * 4;	/* Register offset from SMC table base */
+	tbl_offset = (mc_byte / 4) * 4; /* Register offset from SMC table base */
 	reg_offset = mc_byte % 4;	/* Entry offset within the above register */
 	queue &= 0x7;
 
@@ -2102,10 +2032,10 @@ static bool eth_port_smc_addr (ETH_PORT eth_port_num,
 *	CRC-8 argument given.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	  crc8		A CRC-8bit (Polynomial: x^8+x^2+x^1+1).
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num	  Port number.
+*	unsigned char	  crc8		A CRC-8bit (Polynomial: x^8+x^2+x^1+1).
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option	    0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -2158,17 +2088,17 @@ static bool eth_port_omc_addr (ETH_PORT eth_port_num,
 * eth_port_init_mac_tables - Clear all entrance in the UC, SMC and OMC tables
 *
 * DESCRIPTION:
-*       Go through all the DA filter tables (Unicast, Special Multicast & Other
-*       Multicast) and set each entry to 0.
+*	Go through all the DA filter tables (Unicast, Special Multicast & Other
+*	Multicast) and set each entry to 0.
 *
 * INPUT:
 *	ETH_PORT    eth_port_num   Ethernet Port number. See ETH_PORT enum.
 *
 * OUTPUT:
-*       Multicast and Unicast packets are rejected.
+*	Multicast and Unicast packets are rejected.
 *
 * RETURN:
-*       None.
+*	None.
 *
 *******************************************************************************/
 static void eth_port_init_mac_tables (ETH_PORT eth_port_num)
@@ -2192,17 +2122,17 @@ static void eth_port_init_mac_tables (ETH_PORT eth_port_num)
 * eth_clear_mib_counters - Clear all MIB counters
 *
 * DESCRIPTION:
-*       This function clears all MIB counters of a specific ethernet port.
-*       A read from the MIB counter will reset the counter.
+*	This function clears all MIB counters of a specific ethernet port.
+*	A read from the MIB counter will reset the counter.
 *
 * INPUT:
 *	ETH_PORT    eth_port_num   Ethernet Port number. See ETH_PORT enum.
 *
 * OUTPUT:
-*       After reading all MIB counters, the counters resets.
+*	After reading all MIB counters, the counters resets.
 *
 * RETURN:
-*       MIB counter value.
+*	MIB counter value.
 *
 *******************************************************************************/
 static void eth_clear_mib_counters (ETH_PORT eth_port_num)
@@ -2223,21 +2153,21 @@ static void eth_clear_mib_counters (ETH_PORT eth_port_num)
 * eth_read_mib_counter - Read a MIB counter
 *
 * DESCRIPTION:
-*       This function reads a MIB counter of a specific ethernet port.
-*       NOTE - If read from ETH_MIB_GOOD_OCTETS_RECEIVED_LOW, then the
-*       following read must be from ETH_MIB_GOOD_OCTETS_RECEIVED_HIGH
-*       register. The same applies for ETH_MIB_GOOD_OCTETS_SENT_LOW and
-*       ETH_MIB_GOOD_OCTETS_SENT_HIGH
+*	This function reads a MIB counter of a specific ethernet port.
+*	NOTE - If read from ETH_MIB_GOOD_OCTETS_RECEIVED_LOW, then the
+*	following read must be from ETH_MIB_GOOD_OCTETS_RECEIVED_HIGH
+*	register. The same applies for ETH_MIB_GOOD_OCTETS_SENT_LOW and
+*	ETH_MIB_GOOD_OCTETS_SENT_HIGH
 *
 * INPUT:
 *	ETH_PORT    eth_port_num   Ethernet Port number. See ETH_PORT enum.
-*       unsigned int mib_offset   MIB counter offset (use ETH_MIB_... macros).
+*	unsigned int mib_offset	  MIB counter offset (use ETH_MIB_... macros).
 *
 * OUTPUT:
-*       After reading the MIB counter, the counter resets.
+*	After reading the MIB counter, the counter resets.
 *
 * RETURN:
-*       MIB counter value.
+*	MIB counter value.
 *
 *******************************************************************************/
 unsigned int eth_read_mib_counter (ETH_PORT eth_port_num,
@@ -2251,17 +2181,17 @@ unsigned int eth_read_mib_counter (ETH_PORT eth_port_num,
 * ethernet_phy_set - Set the ethernet port PHY address.
 *
 * DESCRIPTION:
-*       This routine set the ethernet port PHY address according to given
-*       parameter.
+*	This routine set the ethernet port PHY address according to given
+*	parameter.
 *
 * INPUT:
-*		ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
+*		ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
 *
 * OUTPUT:
-*       Set PHY Address Register with given PHY address parameter.
+*	Set PHY Address Register with given PHY address parameter.
 *
 * RETURN:
-*       None.
+*	None.
 *
 *******************************************************************************/
 static void ethernet_phy_set (ETH_PORT eth_port_num, int phy_addr)
@@ -2282,16 +2212,16 @@ static void ethernet_phy_set (ETH_PORT eth_port_num, int phy_addr)
  * ethernet_phy_get - Get the ethernet port PHY address.
  *
  * DESCRIPTION:
- *       This routine returns the given ethernet port PHY address.
+ *	 This routine returns the given ethernet port PHY address.
  *
  * INPUT:
- *		ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
+ *		ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
  *
  * OUTPUT:
- *       None.
+ *	 None.
  *
  * RETURN:
- *       PHY address.
+ *	 PHY address.
  *
  *******************************************************************************/
 static int ethernet_phy_get (ETH_PORT eth_port_num)
@@ -2333,17 +2263,17 @@ int phy_setup_aneg (char *devname, unsigned char addr)
  * ethernet_phy_reset - Reset Ethernet port PHY.
  *
  * DESCRIPTION:
- *       This routine utilize the SMI interface to reset the ethernet port PHY.
- *       The routine waits until the link is up again or link up is timeout.
+ *	 This routine utilize the SMI interface to reset the ethernet port PHY.
+ *	 The routine waits until the link is up again or link up is timeout.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
  *
  * OUTPUT:
- *       The ethernet port PHY renew its link.
+ *	 The ethernet port PHY renew its link.
  *
  * RETURN:
- *       None.
+ *	 None.
  *
  *******************************************************************************/
 static bool ethernet_phy_reset (ETH_PORT eth_port_num)
@@ -2352,12 +2282,12 @@ static bool ethernet_phy_reset (ETH_PORT eth_port_num)
 	unsigned int phy_reg_data;
 
 	eth_port_read_smi_reg (eth_port_num, 20, &phy_reg_data);
-	phy_reg_data |= 0x0083;	/* Set bit 7 to 1 for different RGMII timing */
+	phy_reg_data |= 0x0083; /* Set bit 7 to 1 for different RGMII timing */
 	eth_port_write_smi_reg (eth_port_num, 20, phy_reg_data);
 
 	/* Reset the PHY */
 	eth_port_read_smi_reg (eth_port_num, 0, &phy_reg_data);
-	phy_reg_data |= 0x8000;	/* Set bit 15 to reset the PHY */
+	phy_reg_data |= 0x8000; /* Set bit 15 to reset the PHY */
 	eth_port_write_smi_reg (eth_port_num, 0, phy_reg_data);
 
 	/* Poll on the PHY LINK */
@@ -2376,18 +2306,18 @@ static bool ethernet_phy_reset (ETH_PORT eth_port_num)
  * eth_port_reset - Reset Ethernet port
  *
  * DESCRIPTION:
- * 	This routine resets the chip by aborting any SDMA engine activity and
- *      clearing the MIB counters. The Receiver and the Transmit unit are in
- *      idle state after this command is performed and the port is disabled.
+ *	This routine resets the chip by aborting any SDMA engine activity and
+ *	clearing the MIB counters. The Receiver and the Transmit unit are in
+ *	idle state after this command is performed and the port is disabled.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
  *
  * OUTPUT:
- *       Channel activity is halted.
+ *	 Channel activity is halted.
  *
  * RETURN:
- *       None.
+ *	 None.
  *
  *******************************************************************************/
 static void eth_port_reset (ETH_PORT eth_port_num)
@@ -2455,19 +2385,19 @@ static void eth_port_reset (ETH_PORT eth_port_num)
  * ethernet_set_config_reg - Set specified bits in configuration register.
  *
  * DESCRIPTION:
- *       This function sets specified bits in the given ethernet
- *       configuration register.
+ *	 This function sets specified bits in the given ethernet
+ *	 configuration register.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
- *      unsigned int    value   32 bit value.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
+ *	unsigned int	value	32 bit value.
  *
  * OUTPUT:
- *      The set bits in the value parameter are set in the configuration
- *      register.
+ *	The set bits in the value parameter are set in the configuration
+ *	register.
  *
  * RETURN:
- *      None.
+ *	None.
  *
  *******************************************************************************/
 static void ethernet_set_config_reg (ETH_PORT eth_port_num,
@@ -2490,19 +2420,19 @@ static void ethernet_set_config_reg (ETH_PORT eth_port_num,
  * ethernet_reset_config_reg - Reset specified bits in configuration register.
  *
  * DESCRIPTION:
- *       This function resets specified bits in the given Ethernet
- *       configuration register.
+ *	 This function resets specified bits in the given Ethernet
+ *	 configuration register.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
- *      unsigned int    value   32 bit value.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
+ *	unsigned int	value	32 bit value.
  *
  * OUTPUT:
- *      The set bits in the value parameter are reset in the configuration
- *      register.
+ *	The set bits in the value parameter are reset in the configuration
+ *	register.
  *
  * RETURN:
- *      None.
+ *	None.
  *
  *******************************************************************************/
 static void ethernet_reset_config_reg (ETH_PORT eth_port_num,
@@ -2525,17 +2455,17 @@ static void ethernet_reset_config_reg (ETH_PORT eth_port_num,
  * ethernet_get_config_reg - Get the port configuration register
  *
  * DESCRIPTION:
- *       This function returns the configuration register value of the given
- *       ethernet port.
+ *	 This function returns the configuration register value of the given
+ *	 ethernet port.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
  *
  * OUTPUT:
- *       None.
+ *	 None.
  *
  * RETURN:
- *       Port configuration register value.
+ *	 Port configuration register value.
  *
  *******************************************************************************/
 static unsigned int ethernet_get_config_reg (ETH_PORT eth_port_num)
@@ -2553,20 +2483,20 @@ static unsigned int ethernet_get_config_reg (ETH_PORT eth_port_num)
  * eth_port_read_smi_reg - Read PHY registers
  *
  * DESCRIPTION:
- *       This routine utilize the SMI interface to interact with the PHY in
- *       order to perform PHY register read.
+ *	 This routine utilize the SMI interface to interact with the PHY in
+ *	 order to perform PHY register read.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
- *       unsigned int   phy_reg   PHY register address offset.
- *       unsigned int   *value   Register value buffer.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
+ *	 unsigned int	phy_reg	  PHY register address offset.
+ *	 unsigned int	*value	 Register value buffer.
  *
  * OUTPUT:
- *       Write the value of a specified PHY register into given buffer.
+ *	 Write the value of a specified PHY register into given buffer.
  *
  * RETURN:
- *       false if the PHY is busy or read data is not in valid state.
- *       true otherwise.
+ *	 false if the PHY is busy or read data is not in valid state.
+ *	 true otherwise.
  *
  *******************************************************************************/
 static bool eth_port_read_smi_reg (ETH_PORT eth_port_num,
@@ -2601,7 +2531,7 @@ static bool eth_port_read_smi_reg (ETH_PORT eth_port_num,
 			return false;
 		}
 	}
-	while ((reg_value & ETH_SMI_READ_VALID) != ETH_SMI_READ_VALID);	/* Bit set equ operation done */
+	while ((reg_value & ETH_SMI_READ_VALID) != ETH_SMI_READ_VALID); /* Bit set equ operation done */
 
 	/* Wait for the data to update in the SMI register */
 #define PHY_UPDATE_TIMEOUT	10000
@@ -2642,7 +2572,7 @@ int mv_miiphy_read(char *devname, unsigned char phy_addr,
 			return false;
 		}
 	}
-	while ((reg_value & ETH_SMI_READ_VALID) != ETH_SMI_READ_VALID);	/* Bit set equ operation done */
+	while ((reg_value & ETH_SMI_READ_VALID) != ETH_SMI_READ_VALID); /* Bit set equ operation done */
 
 	/* Wait for the data to update in the SMI register */
 	for (time_out = 0; time_out < PHY_UPDATE_TIMEOUT; time_out++);
@@ -2658,20 +2588,20 @@ int mv_miiphy_read(char *devname, unsigned char phy_addr,
  * eth_port_write_smi_reg - Write to PHY registers
  *
  * DESCRIPTION:
- *       This routine utilize the SMI interface to interact with the PHY in
- *       order to perform writes to PHY registers.
+ *	 This routine utilize the SMI interface to interact with the PHY in
+ *	 order to perform writes to PHY registers.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
- *      unsigned int   phy_reg   PHY register address offset.
- *      unsigned int    value   Register value.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
+ *	unsigned int   phy_reg	 PHY register address offset.
+ *	unsigned int	value	Register value.
  *
  * OUTPUT:
- *      Write the given value to the specified PHY register.
+ *	Write the given value to the specified PHY register.
  *
  * RETURN:
- *      false if the PHY is busy.
- *      true otherwise.
+ *	false if the PHY is busy.
+ *	true otherwise.
  *
  *******************************************************************************/
 static bool eth_port_write_smi_reg (ETH_PORT eth_port_num,
@@ -2725,18 +2655,18 @@ int mv_miiphy_write(char *devname, unsigned char phy_addr,
  * eth_set_access_control - Config address decode parameters for Ethernet unit
  *
  * DESCRIPTION:
- *       This function configures the address decode parameters for the Gigabit
- *       Ethernet Controller according the given parameters struct.
+ *	 This function configures the address decode parameters for the Gigabit
+ *	 Ethernet Controller according the given parameters struct.
  *
  * INPUT:
- *	ETH_PORT   eth_port_num   Ethernet Port number. See ETH_PORT enum.
- *       ETH_WIN_PARAM  *param   Address decode parameter struct.
+ *	ETH_PORT   eth_port_num	  Ethernet Port number. See ETH_PORT enum.
+ *	 ETH_WIN_PARAM	*param	 Address decode parameter struct.
  *
  * OUTPUT:
- *       An access window is opened using the given access parameters.
+ *	 An access window is opened using the given access parameters.
  *
  * RETURN:
- *       None.
+ *	 None.
  *
  *******************************************************************************/
 static void eth_set_access_control (ETH_PORT eth_port_num,
@@ -2779,30 +2709,30 @@ static void eth_set_access_control (ETH_PORT eth_port_num,
  * ether_init_rx_desc_ring - Curve a Rx chain desc list and buffer in memory.
  *
  * DESCRIPTION:
- *       This function prepares a Rx chained list of descriptors and packet
- *       buffers in a form of a ring. The routine must be called after port
- *       initialization routine and before port start routine.
- *       The Ethernet SDMA engine uses CPU bus addresses to access the various
- *       devices in the system (i.e. DRAM). This function uses the ethernet
- *       struct 'virtual to physical' routine (set by the user) to set the ring
- *       with physical addresses.
+ *	 This function prepares a Rx chained list of descriptors and packet
+ *	 buffers in a form of a ring. The routine must be called after port
+ *	 initialization routine and before port start routine.
+ *	 The Ethernet SDMA engine uses CPU bus addresses to access the various
+ *	 devices in the system (i.e. DRAM). This function uses the ethernet
+ *	 struct 'virtual to physical' routine (set by the user) to set the ring
+ *	 with physical addresses.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
- *      int 			rx_desc_num       Number of Rx descriptors
- *      int 			rx_buff_size      Size of Rx buffer
- *      unsigned int    rx_desc_base_addr  Rx descriptors memory area base addr.
- *      unsigned int    rx_buff_base_addr  Rx buffer memory area base addr.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	rx_queue	 Number of Rx queue.
+ *	int			rx_desc_num	  Number of Rx descriptors
+ *	int			rx_buff_size	  Size of Rx buffer
+ *	unsigned int	rx_desc_base_addr  Rx descriptors memory area base addr.
+ *	unsigned int	rx_buff_base_addr  Rx buffer memory area base addr.
  *
  * OUTPUT:
- *      The routine updates the Ethernet port control struct with information
- *      regarding the Rx descriptors and buffers.
+ *	The routine updates the Ethernet port control struct with information
+ *	regarding the Rx descriptors and buffers.
  *
  * RETURN:
- *      false if the given descriptors memory area is not aligned according to
- *      Ethernet SDMA specifications.
- *      true otherwise.
+ *	false if the given descriptors memory area is not aligned according to
+ *	Ethernet SDMA specifications.
+ *	true otherwise.
  *
  *******************************************************************************/
 static bool ether_init_rx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
@@ -2817,7 +2747,6 @@ static bool ether_init_rx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
 	unsigned int buffer_addr;
 	int ix;			/* a counter */
 
-
 	p_rx_desc = (ETH_RX_DESC *) rx_desc_base_addr;
 	p_rx_prev_desc = p_rx_desc;
 	buffer_addr = rx_buff_base_addr;
@@ -2830,7 +2759,7 @@ static bool ether_init_rx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
 	if ((rx_buff_size < 8) || (rx_buff_size > RX_BUFFER_MAX_SIZE))
 		return false;
 
-	/* Rx buffers must be 64-bit aligned.       */
+	/* Rx buffers must be 64-bit aligned.	    */
 	if ((rx_buff_base_addr + rx_buff_size) & 0x7)
 		return false;
 
@@ -2873,30 +2802,30 @@ static bool ether_init_rx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
  * ether_init_tx_desc_ring - Curve a Tx chain desc list and buffer in memory.
  *
  * DESCRIPTION:
- *       This function prepares a Tx chained list of descriptors and packet
- *       buffers in a form of a ring. The routine must be called after port
- *       initialization routine and before port start routine.
- *       The Ethernet SDMA engine uses CPU bus addresses to access the various
- *       devices in the system (i.e. DRAM). This function uses the ethernet
- *       struct 'virtual to physical' routine (set by the user) to set the ring
- *       with physical addresses.
+ *	 This function prepares a Tx chained list of descriptors and packet
+ *	 buffers in a form of a ring. The routine must be called after port
+ *	 initialization routine and before port start routine.
+ *	 The Ethernet SDMA engine uses CPU bus addresses to access the various
+ *	 devices in the system (i.e. DRAM). This function uses the ethernet
+ *	 struct 'virtual to physical' routine (set by the user) to set the ring
+ *	 with physical addresses.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
- *      int 			tx_desc_num       Number of Tx descriptors
- *      int 			tx_buff_size      Size of Tx buffer
- *      unsigned int    tx_desc_base_addr  Tx descriptors memory area base addr.
- *      unsigned int    tx_buff_base_addr  Tx buffer memory area base addr.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	tx_queue	 Number of Tx queue.
+ *	int			tx_desc_num	  Number of Tx descriptors
+ *	int			tx_buff_size	  Size of Tx buffer
+ *	unsigned int	tx_desc_base_addr  Tx descriptors memory area base addr.
+ *	unsigned int	tx_buff_base_addr  Tx buffer memory area base addr.
  *
  * OUTPUT:
- *      The routine updates the Ethernet port control struct with information
- *      regarding the Tx descriptors and buffers.
+ *	The routine updates the Ethernet port control struct with information
+ *	regarding the Tx descriptors and buffers.
  *
  * RETURN:
- *      false if the given descriptors memory area is not aligned according to
- *      Ethernet SDMA specifications.
- *      true otherwise.
+ *	false if the given descriptors memory area is not aligned according to
+ *	Ethernet SDMA specifications.
+ *	true otherwise.
  *
  *******************************************************************************/
 static bool ether_init_tx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
@@ -2911,7 +2840,6 @@ static bool ether_init_tx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
 	ETH_TX_DESC *p_tx_prev_desc;
 	unsigned int buffer_addr;
 	int ix;			/* a counter */
-
 
 	/* save the first desc pointer to link with the last descriptor */
 	p_tx_desc = (ETH_TX_DESC *) tx_desc_base_addr;
@@ -2968,27 +2896,27 @@ static bool ether_init_tx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * DESCRIPTION:
  *	This routine send a given packet described by p_pktinfo parameter. It
- *      supports transmitting of a packet spaned over multiple buffers. The
- *      routine updates 'curr' and 'first' indexes according to the packet
- *      segment passed to the routine. In case the packet segment is first,
- *      the 'first' index is update. In any case, the 'curr' index is updated.
- *      If the routine get into Tx resource error it assigns 'curr' index as
- *      'first'. This way the function can abort Tx process of multiple
- *      descriptors per packet.
+ *	supports transmitting of a packet spaned over multiple buffers. The
+ *	routine updates 'curr' and 'first' indexes according to the packet
+ *	segment passed to the routine. In case the packet segment is first,
+ *	the 'first' index is update. In any case, the 'curr' index is updated.
+ *	If the routine get into Tx resource error it assigns 'curr' index as
+ *	'first'. This way the function can abort Tx process of multiple
+ *	descriptors per packet.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
- *	PKT_INFO        *p_pkt_info       User packet buffer.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	tx_queue	 Number of Tx queue.
+ *	PKT_INFO	*p_pkt_info	  User packet buffer.
  *
  * OUTPUT:
  *	Tx ring 'curr' and 'first' indexes are updated.
  *
  * RETURN:
- *      ETH_QUEUE_FULL in case of Tx resource error.
+ *	ETH_QUEUE_FULL in case of Tx resource error.
  *	ETH_ERROR in case the routine can not access Tx desc ring.
  *	ETH_QUEUE_LAST_RESOURCE if the routine uses the last Tx resource.
- *      ETH_OK otherwise.
+ *	ETH_OK otherwise.
  *
  *******************************************************************************/
 static ETH_FUNC_RET_STATUS eth_port_send (ETH_PORT_INFO * p_eth_port_ctrl,
@@ -3026,7 +2954,7 @@ static ETH_FUNC_RET_STATUS eth_port_send (ETH_PORT_INFO * p_eth_port_ctrl,
 	}
 
 	/* Buffers with a payload smaller than 8 bytes must be aligned to 64-bit */
-	/* boundary. We use the memory allocated for Tx descriptor. This memory  */
+	/* boundary. We use the memory allocated for Tx descriptor. This memory	 */
 	/* located in TX_BUF_OFFSET_IN_DESC offset within the Tx descriptor. */
 	if (p_pkt_info->byte_cnt <= 8) {
 		printf ("You have failed in the < 8 bytes errata - fixme\n");	/* RABEEH - TBD */
@@ -3087,24 +3015,24 @@ static ETH_FUNC_RET_STATUS eth_port_send (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * DESCRIPTION:
  *	This routine returns the transmitted packet information to the caller.
- *      It uses the 'first' index to support Tx desc return in case a transmit
- *      of a packet spanned over multiple buffer still in process.
- *      In case the Tx queue was in "resource error" condition, where there are
- *      no available Tx resources, the function resets the resource error flag.
+ *	It uses the 'first' index to support Tx desc return in case a transmit
+ *	of a packet spanned over multiple buffer still in process.
+ *	In case the Tx queue was in "resource error" condition, where there are
+ *	no available Tx resources, the function resets the resource error flag.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
- *	PKT_INFO        *p_pkt_info       User packet buffer.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	tx_queue	 Number of Tx queue.
+ *	PKT_INFO	*p_pkt_info	  User packet buffer.
  *
  * OUTPUT:
  *	Tx ring 'first' and 'used' indexes are updated.
  *
  * RETURN:
  *	ETH_ERROR in case the routine can not access Tx desc ring.
- *      ETH_RETRY in case there is transmission in process.
+ *	ETH_RETRY in case there is transmission in process.
  *	ETH_END_OF_JOB if the routine has nothing to release.
- *      ETH_OK otherwise.
+ *	ETH_OK otherwise.
  *
  *******************************************************************************/
 static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
@@ -3116,11 +3044,9 @@ static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
 	volatile ETH_TX_DESC *p_tx_desc_first = NULL;
 	unsigned int command_status;
 
-
 	/* Get the Tx Desc ring indexes */
 	USED_TFD_GET (p_tx_desc_used, tx_queue);
 	FIRST_TFD_GET (p_tx_desc_first, tx_queue);
-
 
 	/* Sanity check */
 	if (p_tx_desc_used == NULL)
@@ -3163,16 +3089,16 @@ static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
  * eth_port_receive - Get received information from Rx ring.
  *
  * DESCRIPTION:
- * 	This routine returns the received data to the caller. There is no
+ *	This routine returns the received data to the caller. There is no
  *	data copying during routine operation. All information is returned
  *	using pointer to packet information struct passed from the caller.
- *      If the routine exhausts	Rx ring resources then the resource error flag
- *      is set.
+ *	If the routine exhausts Rx ring resources then the resource error flag
+ *	is set.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
- *	PKT_INFO        *p_pkt_info       User packet buffer.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	rx_queue	 Number of Rx queue.
+ *	PKT_INFO	*p_pkt_info	  User packet buffer.
  *
  * OUTPUT:
  *	Rx ring current and used indexes are updated.
@@ -3181,7 +3107,7 @@ static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
  *	ETH_ERROR in case the routine can not access Rx desc ring.
  *	ETH_QUEUE_FULL if Rx ring resources are exhausted.
  *	ETH_END_OF_JOB if there is no received data.
- *      ETH_OK otherwise.
+ *	ETH_OK otherwise.
  *
  *******************************************************************************/
 static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
@@ -3213,7 +3139,7 @@ static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
 
 	/* Nothing to receive... */
 	if (command_status & (ETH_BUFFER_OWNED_BY_DMA)) {
-/* 	DP(printf("Rx: command_status: %08x\n", command_status)); */
+/*	DP(printf("Rx: command_status: %08x\n", command_status)); */
 		D_CACHE_FLUSH_LINE ((unsigned int) p_rx_curr_desc, 0);
 /*	DP(printf("\nETH_END_OF_JOB ...\n"));*/
 		return ETH_END_OF_JOB;
@@ -3223,10 +3149,10 @@ static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
 	p_pkt_info->cmd_sts = command_status;
 	p_pkt_info->buf_ptr = (p_rx_curr_desc->buf_ptr) + RX_BUF_OFFSET;
 	p_pkt_info->return_info = p_rx_curr_desc->return_info;
-	p_pkt_info->l4i_chk = p_rx_curr_desc->buf_size;	/* IP fragment indicator */
+	p_pkt_info->l4i_chk = p_rx_curr_desc->buf_size; /* IP fragment indicator */
 
 	/* Clean the return info field to indicate that the packet has been */
-	/* moved to the upper layers                                        */
+	/* moved to the upper layers					    */
 	p_rx_curr_desc->return_info = 0;
 
 	/* Update 'curr' in data structure */
@@ -3247,21 +3173,21 @@ static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * DESCRIPTION:
  *	This routine returns a Rx buffer back to the Rx ring. It retrieves the
- *      next 'used' descriptor and attached the returned buffer to it.
- *      In case the Rx ring was in "resource error" condition, where there are
- *      no available Rx resources, the function resets the resource error flag.
+ *	next 'used' descriptor and attached the returned buffer to it.
+ *	In case the Rx ring was in "resource error" condition, where there are
+ *	no available Rx resources, the function resets the resource error flag.
  *
  * INPUT:
- *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
- *      PKT_INFO        *p_pkt_info       Information on the returned buffer.
+ *	ETH_PORT_INFO	*p_eth_port_ctrl   Ethernet Port Control srtuct.
+ *	ETH_QUEUE	rx_queue	 Number of Rx queue.
+ *	PKT_INFO	*p_pkt_info	  Information on the returned buffer.
  *
  * OUTPUT:
  *	New available Rx resource in Rx descriptor ring.
  *
  * RETURN:
  *	ETH_ERROR in case the routine can not access Rx desc ring.
- *      ETH_OK otherwise.
+ *	ETH_OK otherwise.
  *
  *******************************************************************************/
 static ETH_FUNC_RET_STATUS eth_rx_return_buff (ETH_PORT_INFO *
@@ -3316,9 +3242,9 @@ static ETH_FUNC_RET_STATUS eth_rx_return_buff (ETH_PORT_INFO *
  *	, and the required delay of the interrupt in usec.
  *
  * INPUT:
- *	ETH_PORT eth_port_num      Ethernet port number
- *	unsigned int t_clk        t_clk of the MV-643xx chip in HZ units
- *	unsigned int delay       Delay in usec
+ *	ETH_PORT eth_port_num	   Ethernet port number
+ *	unsigned int t_clk	  t_clk of the MV-643xx chip in HZ units
+ *	unsigned int delay	 Delay in usec
  *
  * OUTPUT:
  *	Interrupt coalescing mechanism value is set in MV-643xx chip.
@@ -3357,9 +3283,9 @@ static unsigned int eth_port_set_rx_coal (ETH_PORT eth_port_num,
  *	MV-643xx chip and the required delay in the interrupt in uSec
  *
  * INPUT:
- *	ETH_PORT eth_port_num      Ethernet port number
- *	unsigned int t_clk        t_clk of the MV-643xx chip in HZ units
- *	unsigned int delay       Delay in uSeconds
+ *	ETH_PORT eth_port_num	   Ethernet port number
+ *	unsigned int t_clk	  t_clk of the MV-643xx chip in HZ units
+ *	unsigned int delay	 Delay in uSeconds
  *
  * OUTPUT:
  *	Interrupt coalescing mechanism value is set in MV-643xx chip.
@@ -3387,20 +3313,20 @@ static unsigned int eth_port_set_tx_coal (ETH_PORT eth_port_num,
  * eth_b_copy - Copy bytes from source to destination
  *
  * DESCRIPTION:
- *       This function supports the eight bytes limitation on Tx buffer size.
- *       The routine will zero eight bytes starting from the destination address
- *       followed by copying bytes from the source address to the destination.
+ *	 This function supports the eight bytes limitation on Tx buffer size.
+ *	 The routine will zero eight bytes starting from the destination address
+ *	 followed by copying bytes from the source address to the destination.
  *
  * INPUT:
- *       unsigned int src_addr    32 bit source address.
- *       unsigned int dst_addr    32 bit destination address.
- *       int        byte_count    Number of bytes to copy.
+ *	 unsigned int src_addr	  32 bit source address.
+ *	 unsigned int dst_addr	  32 bit destination address.
+ *	 int	    byte_count	  Number of bytes to copy.
  *
  * OUTPUT:
- *       See description.
+ *	 See description.
  *
  * RETURN:
- *       None.
+ *	 None.
  *
  *******************************************************************************/
 static void eth_b_copy (unsigned int src_addr, unsigned int dst_addr,

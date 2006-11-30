@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -44,7 +44,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #undef	DEBUG
-#define	MAP_PCI
+#define MAP_PCI
 
 #ifdef DEBUG
 #define DP(x) x
@@ -70,11 +70,12 @@ int memory_map_bank (unsigned int bankNo,
 #endif
 
 #ifdef DEBUG
-	if (bankLength > 0)
+	if (bankLength > 0) {
 		printf ("mapping bank %d at %08x - %08x\n",
 			bankNo, bankBase, bankBase + bankLength - 1);
-	else
+	} else {
 		printf ("unmapping bank %d\n", bankNo);
+	}
 #endif
 
 	memoryMapBank (bankNo, bankBase, bankLength);
@@ -176,7 +177,7 @@ long int initdram (int board_type)
 	/* calibrate delay lines */
 	set_dfcdlInit();
 
-	GT_REG_WRITE(MV64460_SDRAM_OPERATION, SDRAM_NOP); 		/* 0x1418 */
+	GT_REG_WRITE(MV64460_SDRAM_OPERATION, SDRAM_NOP);		/* 0x1418 */
 	do {
 		tmp = GTREGREAD(MV64460_SDRAM_OPERATION);
 	} while(tmp != 0x0);
@@ -197,8 +198,8 @@ long int initdram (int board_type)
 	/* SDRAM drive strength */
 	GT_REG_WRITE(MV64460_SDRAM_ADDR_CTRL_PADS_CALIBRATION, 0x80000000); /* 0x14C0 */
 	GT_REG_WRITE(MV64460_SDRAM_ADDR_CTRL_PADS_CALIBRATION, 0x80000008); /* 0x14C0 */
-	GT_REG_WRITE(MV64460_SDRAM_DATA_PADS_CALIBRATION, 0x80000000);      /* 0x14C4 */
-	GT_REG_WRITE(MV64460_SDRAM_DATA_PADS_CALIBRATION, 0x80000008);      /* 0x14C4 */
+	GT_REG_WRITE(MV64460_SDRAM_DATA_PADS_CALIBRATION, 0x80000000);	    /* 0x14C4 */
+	GT_REG_WRITE(MV64460_SDRAM_DATA_PADS_CALIBRATION, 0x80000008);	    /* 0x14C4 */
 
 	/* setup SDRAM device registers */
 
@@ -306,22 +307,22 @@ void board_add_ram_info(int use_default)
 /*
  * mvDmaIsChannelActive - Check if IDMA channel is active
  *
- * channel      = IDMA channel number from 0 to 7
+ * channel	= IDMA channel number from 0 to 7
  */
 int mvDmaIsChannelActive (int channel)
 {
-        ulong data;
+	ulong data;
 
-        data = GTREGREAD (MV64460_DMA_CHANNEL0_CONTROL + 4 * channel);
-        if (data & BIT14)	/* activity status */
-                return 1;
+	data = GTREGREAD (MV64460_DMA_CHANNEL0_CONTROL + 4 * channel);
+	if (data & BIT14)	/* activity status */
+		return 1;
 
-        return 0;
+	return 0;
 }
 
 /*
  * mvDmaSetMemorySpace - Set a DMA memory window for the DMA's address decoding
- *                       map.
+ *			 map.
  *
  * memSpace	= IDMA memory window number from 0 to 7
  * trg_if	= Target interface:
@@ -363,9 +364,9 @@ int mvDmaSetMemorySpace (ulong memSpace,
 
 /*
  * mvDmaTransfer - Transfer data from src_addr to dst_addr on one of the 4
- *                 DMA channels.
+ *		   DMA channels.
  *
- * channel      = IDMA channel number from 0 to 3
+ * channel	= IDMA channel number from 0 to 3
  * destAddr	= Destination address
  * sourceAddr	= Source address
  * size		= Size in bytes
@@ -385,7 +386,7 @@ int mvDmaTransfer (int channel, ulong sourceAddr,
 	GT_REG_WRITE (MV64460_DMA_CHANNEL0_SOURCE_ADDR + engOffReg, sourceAddr);
 	GT_REG_WRITE (MV64460_DMA_CHANNEL0_DESTINATION_ADDR + engOffReg, destAddr);
 	command = command |
-		BIT12   |			/* DMA_CHANNEL_ENABLE */
+		BIT12	|			/* DMA_CHANNEL_ENABLE */
 		BIT9;				/* DMA_NON_CHAIN_MODE */
 	/* Activate DMA channel By writting to mvDmaControlRegister */
 	GT_REG_WRITE (MV64460_DMA_CHANNEL0_CONTROL + engOffReg, command);
