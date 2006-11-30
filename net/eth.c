@@ -142,13 +142,10 @@ int eth_initialize(bd_t *bis)
 	miiphy_init();
 #endif
 
-#ifdef CONFIG_DB64360
+#if defined(CONFIG_DB64360) || defined(CONFIG_CPCI750)
 	mv6436x_eth_initialize(bis);
 #endif
-#ifdef CONFIG_CPCI750
-	mv6436x_eth_initialize(bis);
-#endif
-#ifdef CONFIG_DB64460
+#if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
 #endif
 #if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)

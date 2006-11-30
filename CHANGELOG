@@ -1,3 +1,85 @@
+commit 726e90aacf0b1ecb0e7055be574622fbe3e450ba
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Wed Nov 29 16:23:42 2006 +0100
+
+    [PATCH] [MPC52xx] Use IPB bus frequency for SOC peripherals
+
+    The soc node of the mpc52xx needs to be loaded with the IPB bus frequency,
+    not the XLB frequency.
+
+    This patch depends on the previous patches for MPC52xx device tree support
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
+
+commit 1eac2a71417b6675b11aace72102a2e7fde8f5c6
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 15:42:37 2006 +0100
+
+    [PATCH] Add support for Prodrive P3M750 & P3M7448 (P3Mx) boards
+
+    This patch adds support for the Prodrive P3M750 (PPC750 & MV64460)
+    and the P3M7448 (MPC7448 & MV64460) PMC modules. Both modules are
+    quite similar and share the same board directory "prodrive/p3mx"
+    and the same config file "p3mx.h".
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1bdd46832aeb569f5e04b1f20f64318525b6525a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 12:53:15 2006 +0100
+
+    [PATCH] common/cmd_elf.c: Enable loadaddr as parameter in bootvx command
+
+    In the bootvx command the load address was only read from the env
+    variable "loadaddr" and not optionally passed as paramter as described
+    in the help. This is fixed with this patch. The behaviour is now the
+    same as in the bootelf command.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4e26f1074c3ac1bd8fd094f0dc4a1c4a0b15a592
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 12:03:57 2006 +0100
+
+    [PATCH] include/ppc440.h minor error affecting interrupts
+
+    Fixed include/ppc440.c for UIC address Bug
+
+    Corrects bug affecting the addresses for the universal interrupt
+    controller UIC2 and UIC3 on the PPC440 Epx, GRx, and SPE chips.
+
+    Signed-off-by: Jeff Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e59581c56ab5d6e0207ddac3b2c1d55cb36ec706
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 17:55:49 2006 +0100
+
+    [PATCH] Enable the IceCube/lite5200 variants to pass a device tree to Linux.
+
+    This patch adds the code and configuration necessary to boot with an
+    arch/powerpc Linux kernel.
+
+    Signed-off-by: Grant Likely <grant.likely@gmail.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit e732faec95a83cb468b4850ae807c8301dde8f6a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 16:09:24 2006 +0100
+
+    [PATCH] PPC4xx: 440SP Rev. C detection added
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e7f3e9ff01fbd7fa72eb42a9675fbed6bc4736b0
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 11:04:45 2006 +0100
+
+    [PATCH] nand: Fix patch merge problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 4f4b602ec7524a032bdf3c6d28c7f525a4a67eaa
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Mon Nov 27 22:53:53 2006 +0100
@@ -66,6 +148,46 @@ Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Mon Nov 27 15:32:42 2006 +0100
 
     Minor code cleanup. Update CHANGELOG.
+
+commit 1729b92cde575476684bffe819d0b7791b57bff2
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:52:04 2006 +0100
+
+    [PATCH] 4xx: Fix problem with board specific reset code (now for real)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cc5ee8a92a0e3ca6f727af71b8fd206460c7afd7
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:49:51 2006 +0100
+
+    [PATCH] alpr: remove unused board specific flash driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1f94d162e2b5f0edc28d9fb11482502c44d218e1
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:48:41 2006 +0100
+
+    [PATCH] 4xx: Fix problem with board specific reset code
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ec0c2ec725aec9524a177a77ce75559e644a931a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:46:06 2006 +0100
+
+    [PATCH] Remove testing 4xx enet PHY setup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1c2ce2262069510f31c7d3fd7efd3d58b8c0c148
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:12:17 2006 +0100
+
+    [PATCH] Update Prodrive ALPR board support (440GX)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 78d620ebb5871d252270dedfad60c6568993b780
 Author: Wolfgang Denk <wd@atlas.denx.de>
@@ -641,6 +763,34 @@ Date:	Tue Oct 10 17:02:22 2006 -0500
 
     Fix whitespace and 80-col issues.
 
+commit 5c912cb1c31266c66ca59b36f9b6f87296421d75
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:36:51 2006 +0200
+
+    CFG_NAND_QUIET_TEST added to not warn upon missing NAND device
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit 5bc528fa4da751d472397b308137238a6465afd2
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:35:25 2006 +0200
+
+    Update ALPR code (NAND support working now)
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit 77d5034847d328753b80c46b83f960a14a26f40e
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:33:03 2006 +0200
+
+    Remove compile warnings in fpga code
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit f3443867e90d2979a7dd1c65b0d537777e1f9850
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:30:52 2006 +0200
+
+    Add CONFIG_BOARD_RESET to configure board specific reset function
+    Patch by Stefan Roese, 07 Oct 2006
+
 commit f55df18187e7a45cb73fec4370d12135e6691ae1
 Author: John Traill <john.traill@freescale.com>
 Date:	Fri Sep 29 08:23:12 2006 +0100
@@ -872,6 +1022,21 @@ Date:	Wed Aug 16 10:54:09 2006 -0500
     * Support for FDT in uImage format, error when using FDT from flash
 
     Signed-off-by: Matthew McClintock <msm@freescale.com>
+
+commit 899620c2d66d4eef3b2a0034d062e71d45d886c9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 15 14:22:35 2006 +0200
+
+    Add initial support for the ALPR board from Prodrive
+    NAND needs some additional testing
+    Patch by Heiko Schocher, 15 Aug 2006
+
+commit f0ff4692ff3372dec55074a8eb444943ab095abb
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 15 14:15:51 2006 +0200
+
+    Add FPGA Altera Cyclone 2 support
+    Patch by Heiko Schocher, 15 Aug 2006
 
 commit fecf1c7e4de1b2779edc18742b91c22bdc32b68b
 Author: Jon Loeliger <jdl@freescale.com>
