@@ -103,7 +103,7 @@ Freescale MPC8360EMDS Board
 
     Or via tftp:
 
-        tftp 10000 u-boot.bin
+	tftp 10000 u-boot.bin
 
 5.1 Reflash U-boot Image using U-boot
 

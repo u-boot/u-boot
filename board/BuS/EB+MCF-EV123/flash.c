@@ -256,7 +256,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		enable_interrupts ();
 
 	if (cflag)
-  		icache_enable ();
+		icache_enable ();
 
 	return rc;
 }

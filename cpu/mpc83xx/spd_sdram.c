@@ -117,7 +117,7 @@ long int spd_sdram()
 	unsigned sdram_cfg;
 	unsigned int ddrc_ecc_enable;
 
-        /* Read SPD parameters with I2C */
+	/* Read SPD parameters with I2C */
 	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
 #ifdef SPD_DEBUG
 	spd_debug(&spd);
@@ -147,7 +147,7 @@ long int spd_sdram()
 							 spd.ncol_addr);
 		return 0;
 	}
-        /* Setup DDR chip select register */
+	/* Setup DDR chip select register */
 #ifdef CFG_83XX_DDR_USES_CS0
 	ddr->csbnds[0].csbnds = (banksize(spd.row_dens) >> 24) - 1;
 	ddr->cs_config[0] = ( 1 << 31
@@ -218,13 +218,13 @@ long int spd_sdram()
 	 *	CAS Lat	 DDR I	   Ctrl
 	 *	Clocks	 SPD Bit   Value
 	 *	-------+--------+---------
-	 *	1.0        0        001
-	 *	1.5        1        010
-	 *	2.0        2        011
-	 *	2.5        3        100
-	 *	3.0        4        101
-	 *	3.5        5        110
-	 *	4.0        6        111
+	 *	1.0	   0	    001
+	 *	1.5	   1	    010
+	 *	2.0	   2	    011
+	 *	2.5	   3	    100
+	 *	3.0	   4	    101
+	 *	3.5	   5	    110
+	 *	4.0	   6	    111
 	 */
 	caslat = __ilog2(spd.cas_lat);
 
@@ -442,7 +442,7 @@ long int spd_sdram()
 
 	/* SS_EN = 0, source synchronous disable
 	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
-         */
+	 */
 	ddr->sdram_clk_cntl = 0x00000000;
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 

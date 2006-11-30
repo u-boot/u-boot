@@ -74,7 +74,7 @@ pib_init(void)
 	 */
 	/* Switch temporarily to I2C bus #2 */
 	orig_i2c_bus = i2c_get_bus_num();
-        i2c_set_bus_num(1);
+	i2c_set_bus_num(1);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);

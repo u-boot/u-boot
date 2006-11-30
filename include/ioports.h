@@ -63,4 +63,3 @@ typedef struct {
 } qe_iop_conf_t;
 
 #define QE_IOP_TAB_END	(-1)
-

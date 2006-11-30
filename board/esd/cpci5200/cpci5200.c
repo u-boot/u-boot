@@ -191,8 +191,7 @@ static struct pci_controller hose;
 
 extern void pci_mpc5xxx_init(struct pci_controller *);
 
-void pci_init_board(void
-    ) {
+void pci_init_board(void) {
 	pci_mpc5xxx_init(&hose);
 }
 #endif

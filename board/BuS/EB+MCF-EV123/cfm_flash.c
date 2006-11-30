@@ -60,7 +60,7 @@ void cfm_flash_init (flash_info_t * info)
 	MCFCFM_MCR = 0;
 	MCFCFM_CLKD = CFM_CLK;
 	debug ("CFM Clock divider: %ld (%d Hz @ %ld Hz)\n",CFM_CLK,\
-	 	CFG_CLK / (2* ((CFM_CLK & 0x3F)+1) * (1+((CFM_CLK & 0x40)>>6)*7)),\
+		CFG_CLK / (2* ((CFM_CLK & 0x3F)+1) * (1+((CFM_CLK & 0x40)>>6)*7)),\
 		CFG_CLK);
 	MCFCFM_SACC = 0;
 	MCFCFM_DACC = 0;

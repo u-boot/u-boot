@@ -30,7 +30,7 @@ endif
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o articiaS.o flash.o serial.o smbus.o articiaS_pci.o \
-		via686.o i8259.o ../bios_emulator/x86interface.o 	\
+		via686.o i8259.o ../bios_emulator/x86interface.o	\
 		../bios_emulator/bios.o ../bios_emulator/glue.o		\
 		interrupts.o ps2kbd.o video.o usb_uhci.o enet.o	        \
 		../menu/cmd_menu.o cmd_boota.o nvram.o

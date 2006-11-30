@@ -10,7 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -120,7 +120,7 @@
 #define CFG_DDR_CONFIG (CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9)
 #define CFG_DDR_TIMING_1	0x37344321 /* tCL-tRCD-tRP-tRAS=2.5-3-3-7 */
 #define CFG_DDR_TIMING_2	0x00000800 /* may need tuning */
-#define CFG_DDR_CONTROL 	0x42008000 /* Self refresh,2T timing */
+#define CFG_DDR_CONTROL		0x42008000 /* Self refresh,2T timing */
 #define CFG_DDR_MODE		0x20000162 /* DLL,normal,seq,4/2.5 */
 #define CFG_DDR_INTERVAL	0x045b0100 /* page mode */
 #endif
@@ -141,7 +141,7 @@
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
 #else
-#undef  CFG_RAMBOOT
+#undef	CFG_RAMBOOT
 #endif
 
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
@@ -217,7 +217,7 @@
  *    SDRAM for MSEL = BR2[24:26] = 011
  *    Valid = BR[31] = 1
  *
- * 0    4    8    12   16   20   24   28
+ * 0	4    8	  12   16   20	 24   28
  * 1111 0000 0000 0000 0001 1000 0110 0001 = f0001861
  *
  * CFG_LBC_SDRAM_BASE should be masked and OR'ed into
@@ -233,10 +233,10 @@
  *    64MB mask for AM, OR2[0:7] = 1111 1100
  *		   XAM, OR2[17:18] = 11
  *    9 columns OR2[19-21] = 010
- *    13 rows   OR2[23-25] = 100
+ *    13 rows	OR2[23-25] = 100
  *    EAD set for extra time OR[31] = 1
  *
- * 0    4    8    12   16   20   24   28
+ * 0	4    8	  12   16   20	 24   28
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
 
@@ -248,13 +248,13 @@
 /*
  * LSDMR masks
  */
-#define CFG_LBC_LSDMR_OP_NORMAL	(0 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_ARFRSH	(1 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_SRFRSH	(2 << (31 - 4))
+#define CFG_LBC_LSDMR_OP_NORMAL (0 << (31 - 4))
+#define CFG_LBC_LSDMR_OP_ARFRSH (1 << (31 - 4))
+#define CFG_LBC_LSDMR_OP_SRFRSH (2 << (31 - 4))
 #define CFG_LBC_LSDMR_OP_MRW	(3 << (31 - 4))
 #define CFG_LBC_LSDMR_OP_PRECH	(4 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_PCHALL	(5 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_ACTBNK	(6 << (31 - 4))
+#define CFG_LBC_LSDMR_OP_PCHALL (5 << (31 - 4))
+#define CFG_LBC_LSDMR_OP_ACTBNK (6 << (31 - 4))
 #define CFG_LBC_LSDMR_OP_RWINV	(7 << (31 - 4))
 
 #define CFG_LBC_LSDMR_COMMON	0x0063b723
@@ -311,7 +311,7 @@
 
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
-#ifdef  CFG_HUSH_PARSER
+#ifdef	CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
@@ -335,7 +335,7 @@
 #define CFG_I2C_SLAVE	0x7F
 #define CFG_I2C_NOPROBES	{0x52} /* Don't probe these addrs */
 #define CFG_I2C_OFFSET	0x3000
-#define CFG_I2C2_OFFSET	0x3100
+#define CFG_I2C2_OFFSET 0x3100
 
 /*
  * Config on-board RTC
@@ -369,7 +369,7 @@
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CFG_PCI_SUBSYS_VENDORID	0x1957	/* Freescale */
+#define CFG_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 
 #endif	/* CONFIG_PCI */
 
@@ -393,7 +393,7 @@
 #define CFG_UEC1_TX_CLK		QE_CLK9
 #define CFG_UEC1_ETH_TYPE	GIGA_ETH
 #define CFG_UEC1_PHY_ADDR	0
-#define CFG_UEC1_INTERFACE_MODE	ENET_1000_GMII
+#define CFG_UEC1_INTERFACE_MODE ENET_1000_GMII
 #endif
 
 #define CONFIG_UEC_ETH2		/* GETH2 */
@@ -404,7 +404,7 @@
 #define CFG_UEC2_TX_CLK		QE_CLK4
 #define CFG_UEC2_ETH_TYPE	GIGA_ETH
 #define CFG_UEC2_PHY_ADDR	1
-#define CFG_UEC2_INTERFACE_MODE	ENET_1000_GMII
+#define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
 #endif
 
 /*
@@ -414,7 +414,7 @@
 #ifndef CFG_RAMBOOT
 	#define CFG_ENV_IS_IN_FLASH	1
 	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-	#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+	#define CFG_ENV_SECT_SIZE	0x40000 /* 256K(one sector) for env */
 	#define CFG_ENV_SIZE		0x2000
 #else
 	#define CFG_NO_FLASH		1	/* Flash is not usable now */
@@ -428,16 +428,16 @@
 
 #if defined(CFG_RAMBOOT)
 #if defined(CONFIG_PCI)
-#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL \
+#define	 CONFIG_COMMANDS	((CONFIG_CMD_DFL \
 				| CFG_CMD_PING \
 				| CFG_CMD_ASKENV \
-                               	| CFG_CMD_PCI \
-                              	| CFG_CMD_I2C) \
+				| CFG_CMD_PCI \
+				| CFG_CMD_I2C) \
 				& \
 				~(CFG_CMD_ENV \
 				| CFG_CMD_LOADS))
 #else
-#define  CONFIG_COMMANDS	((CONFIG_CMD_DFL \
+#define	 CONFIG_COMMANDS	((CONFIG_CMD_DFL \
 				| CFG_CMD_PING \
 				| CFG_CMD_ASKENV \
 				| CFG_CMD_I2C) \
@@ -447,13 +447,13 @@
 #endif
 #else
 #if defined(CONFIG_PCI)
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
+#define	 CONFIG_COMMANDS	(CONFIG_CMD_DFL \
 				| CFG_CMD_PCI \
 				| CFG_CMD_PING \
 				| CFG_CMD_ASKENV \
 				| CFG_CMD_I2C)
 #else
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
+#define	 CONFIG_COMMANDS	(CONFIG_CMD_DFL \
 				| CFG_CMD_PING \
 				| CFG_CMD_ASKENV \
 				| CFG_CMD_I2C  )
@@ -593,39 +593,39 @@
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_ETHADDR	00:04:9f:ef:01:01
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR	00:04:9f:ef:01:02
+#define CONFIG_ETH1ADDR 00:04:9f:ef:01:02
 #endif
 
-#define CONFIG_BAUDRATE	115200
+#define CONFIG_BAUDRATE 115200
 
-#define CONFIG_LOADADDR	200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR 200000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY 6 	/* -1 disables auto-boot */
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
+#define CONFIG_BOOTDELAY 6	/* -1 disables auto-boot */
+#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		                        \
-   "netdev=eth0\0"                                                      \
-   "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=1000000\0"			                        \
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+   "netdev=eth0\0"							\
+   "consoledev=ttyS0\0"							\
+   "ramdiskaddr=1000000\0"						\
    "ramdiskfile=ramfs.83xx\0"						\
    "fdtaddr=400000\0"							\
    "fdtfile=mpc8349emds.dtb\0"						\
    ""
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
-   "setenv bootargs root=/dev/nfs rw "                                  \
-      "nfsroot=$serverip:$rootpath "                                    \
+#define CONFIG_NFSBOOTCOMMAND						\
+   "setenv bootargs root=/dev/nfs rw "					\
+      "nfsroot=$serverip:$rootpath "					\
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $loadaddr $bootfile;"                                          \
+      "console=$consoledev,$baudrate $othbootargs;"			\
+   "tftp $loadaddr $bootfile;"						\
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND						\
-   "setenv bootargs root=/dev/ram rw "                                  \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $ramdiskaddr $ramdiskfile;"                                    \
-   "tftp $loadaddr $bootfile;"                                          \
+   "setenv bootargs root=/dev/ram rw "					\
+      "console=$consoledev,$baudrate $othbootargs;"			\
+   "tftp $ramdiskaddr $ramdiskfile;"					\
+   "tftp $loadaddr $bootfile;"						\
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 

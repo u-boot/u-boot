@@ -46,7 +46,7 @@ u32 ucc_fast_get_qe_cr_subblock(int ucc_num)
 		case 6:	return QE_CR_SUBBLOCK_UCCFAST7;
 		case 7:	return QE_CR_SUBBLOCK_UCCFAST8;
 		default:	return QE_CR_SUBBLOCK_INVALID;
-    }
+	}
 }
 
 static void ucc_get_cmxucr_reg(int ucc_num, volatile u32 **p_cmxucr,
