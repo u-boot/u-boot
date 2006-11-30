@@ -1,8 +1,5 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# Copyright 2004 Freescale Semiconductor, Inc.
+# Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,28 +20,14 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# MPC8349ITX
+#
 
-LIB	= $(obj)lib$(CPU).a
+TEXT_BASE  =   0xFEF00000
 
-START	= start.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  spd_sdram.o qe_io.o
-
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ifneq ($(OBJTREE),$(SRCTREE))
+# We are building u-boot in a separate directory, use generated
+# .lds script from OBJTREE directory.
+LDSCRIPT := $(OBJTREE)/board/$(BOARDDIR)/u-boot.lds
+endif

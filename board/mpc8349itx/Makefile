@@ -1,8 +1,5 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# Copyright 2004 Freescale Semiconductor, Inc.
+# Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,24 +22,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(BOARD).a
 
-START	= start.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  spd_sdram.o qe_io.o
+COBJS	:= $(BOARD).o pci.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(START) $(LIB)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-# defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend

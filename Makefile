@@ -174,9 +174,6 @@ endif
 ifeq ($(CPU),ppc4xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
-ifeq ($(CPU),mpc83xx)
-OBJS += cpu/$(CPU)/resetvec.o
-endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
@@ -206,6 +203,9 @@ LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+ifeq ($(CPU),mpc83xx)
+LIBS += drivers/qe/qe.a
+endif
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
@@ -1588,14 +1588,38 @@ r5200_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
-MPC8349ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349ads
-
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x
 
 MPC8349EMDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349emds
+
+MPC8360EMDS_config \
+MPC8360EMDS_HOST_33_config \
+MPC8360EMDS_HOST_66_config \
+MPC8360EMDS_SLAVE_config:	unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _HOST_,$@)" ] ; then \
+		echo -n "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _SLAVE_,$@)" ] ; then \
+		echo "...PCI SLAVE 66M"  ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+		echo "#define CONFIG_PCISLAVE" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define PCI_33M" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define PCI_66M" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
+
+MPC8349ITX_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349itx
 
 #########################################################################
 ## MPC85xx Systems

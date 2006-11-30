@@ -1,8 +1,5 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# Copyright 2004 Freescale Semiconductor, Inc.
+# Copyright (C) 2006 Freescale Semiconductor, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -14,7 +11,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -25,24 +22,20 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB 	:= $(obj)qe.a
 
-START	= start.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  spd_sdram.o qe_io.o
+COBJS 	:= qe.o uccf.o uec.o uec_phy.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(obj).depend $(START) $(LIB)
+all:	$(LIB)
 
-$(LIB):	$(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-# defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend

@@ -12,6 +12,8 @@
 #define PVR_83xx 0x80830000
 #define PVR_8349_REV10 (PVR_83xx | 0x0010)
 #define PVR_8349_REV11 (PVR_83xx | 0x0011)
+#define PVR_8360_REV10 (PVR_83xx | 0x0020)
+#define PVR_8360_REV11 (PVR_83xx | 0x0020)
 
 /*
  * Hardware Implementation-Dependent Register 0 (HID0)
