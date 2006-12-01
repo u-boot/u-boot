@@ -1713,6 +1713,7 @@ static int nand_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
 				goto out;
 			}
 			*retlen = written;
+			bufstart = (u_char*) &buf[written];
 
 			ofs = autoplace ? mtd->oobavail : mtd->oobsize;
 			if (eccbuf)

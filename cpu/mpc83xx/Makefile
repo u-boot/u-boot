@@ -27,9 +27,9 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).a
 
-START	= start.o resetvec.o
+START	= start.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  i2c.o spd_sdram.o
+	  spd_sdram.o qe_io.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

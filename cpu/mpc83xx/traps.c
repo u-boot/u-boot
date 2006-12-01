@@ -1,5 +1,8 @@
 /*
- * linux/arch/ppc/kernel/traps.c
+ * (C) Copyright 2000
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * Copyright (C) 1995-1996  Gary Thomas (gdt@linuxppc.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,19 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Change log:
- *
- * Copyright (C) 1995-1996  Gary Thomas (gdt@linuxppc.org)
- *
- * Modified by Cort Dougan (cort@cs.nmt.edu)
- * and Paul Mackerras (paulus@cs.anu.edu.au)
- *
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * 20050101: Eran Liberty (liberty@freescale.com)
- *           Initial file creating (porting from 85XX & 8260)
  */
 
 /*

@@ -41,57 +41,57 @@
 
 /* 3Com Commands, top 5 bits are command and bottom 11 bits are parameters */
 
-#define TotalReset 		(0<<11)
-#define SelectWindow 		(1<<11)
-#define StartCoax 		(2<<11)
-#define RxDisable 		(3<<11)
-#define RxEnable 		(4<<11)
-#define RxReset 		(5<<11)
-#define UpStall 		(6<<11)
-#define UpUnstall 		(6<<11)+1
-#define DownStall 		(6<<11)+2
-#define DownUnstall 		(6<<11)+3
-#define RxDiscard 		(8<<11)
-#define TxEnable 		(9<<11)
-#define TxDisable 		(10<<11)
-#define TxReset 		(11<<11)
-#define FakeIntr 		(12<<11)
-#define AckIntr 		(13<<11)
-#define SetIntrEnb 		(14<<11)
-#define SetStatusEnb 		(15<<11)
-#define SetRxFilter 		(16<<11)
-#define SetRxThreshold 		(17<<11)
-#define SetTxThreshold 		(18<<11)
-#define SetTxStart 		(19<<11)
-#define StartDMAUp 		(20<<11)
-#define StartDMADown 		(20<<11)+1
+#define TotalReset		(0<<11)
+#define SelectWindow		(1<<11)
+#define StartCoax		(2<<11)
+#define RxDisable		(3<<11)
+#define RxEnable		(4<<11)
+#define RxReset			(5<<11)
+#define UpStall			(6<<11)
+#define UpUnstall		(6<<11)+1
+#define DownStall		(6<<11)+2
+#define DownUnstall		(6<<11)+3
+#define RxDiscard		(8<<11)
+#define TxEnable		(9<<11)
+#define TxDisable		(10<<11)
+#define TxReset			(11<<11)
+#define FakeIntr		(12<<11)
+#define AckIntr			(13<<11)
+#define SetIntrEnb		(14<<11)
+#define SetStatusEnb		(15<<11)
+#define SetRxFilter		(16<<11)
+#define SetRxThreshold		(17<<11)
+#define SetTxThreshold		(18<<11)
+#define SetTxStart		(19<<11)
+#define StartDMAUp		(20<<11)
+#define StartDMADown		(20<<11)+1
 #define StatsEnable		(21<<11)
 #define StatsDisable		(22<<11)
-#define StopCoax 		(23<<11)
-#define SetFilterBit 		(25<<11)
+#define StopCoax		(23<<11)
+#define SetFilterBit		(25<<11)
 
 /* The SetRxFilter command accepts the following classes */
 
-#define RxStation 		1
+#define RxStation		1
 #define RxMulticast		2
 #define RxBroadcast		4
-#define RxProm 			8
+#define RxProm			8
 
 /* 3Com status word defnitions */
 
-#define IntLatch 		0x0001
-#define HostError 		0x0002
-#define TxComplete 		0x0004
-#define TxAvailable 		0x0008
-#define RxComplete 		0x0010
-#define RxEarly 		0x0020
-#define IntReq 			0x0040
-#define StatsFull 		0x0080
-#define DMADone 		(1<<8)
-#define DownComplete 		(1<<9)
-#define UpComplete 		(1<<10)
-#define DMAInProgress 		(1<<11)			/* DMA controller is still busy.*/
-#define CmdInProgress 		(1<<12)           	/* EL3_CMD is still busy.*/
+#define IntLatch		0x0001
+#define HostError		0x0002
+#define TxComplete		0x0004
+#define TxAvailable		0x0008
+#define RxComplete		0x0010
+#define RxEarly			0x0020
+#define IntReq			0x0040
+#define StatsFull		0x0080
+#define DMADone			(1<<8)
+#define DownComplete		(1<<9)
+#define UpComplete		(1<<10)
+#define DMAInProgress		(1<<11)			/* DMA controller is still busy.*/
+#define CmdInProgress		(1<<12)          	/* EL3_CMD is still busy.*/
 
 /* Polling Registers */
 
@@ -100,17 +100,17 @@
 
 /* Register window 0 offets */
 
-#define Wn0EepromCmd 		10	          	/* Window 0: EEPROM command register. */
-#define Wn0EepromData 		12             		/* Window 0: EEPROM results register. */
+#define Wn0EepromCmd		10	         	/* Window 0: EEPROM command register. */
+#define Wn0EepromData		12            		/* Window 0: EEPROM results register. */
 #define IntrStatus		0x0E	                /* Valid in all windows. */
 
 /* Register window 0 EEPROM bits */
 
-#define EEPROM_Read 		0x80
-#define EEPROM_WRITE 		0x40
-#define EEPROM_ERASE 		0xC0
-#define EEPROM_EWENB 		0x30            	/* Enable erasing/writing for 10 msec. */
-#define EEPROM_EWDIS 		0x00            	/* Disable EWENB before 10 msec timeout. */
+#define EEPROM_Read		0x80
+#define EEPROM_WRITE		0x40
+#define EEPROM_ERASE		0xC0
+#define EEPROM_EWENB		0x30          		/* Enable erasing/writing for 10 msec. */
+#define EEPROM_EWDIS		0x00           		/* Disable EWENB before 10 msec timeout. */
 
 /* EEPROM locations. */
 
@@ -129,13 +129,13 @@
 
 /* Register window 1 offsets, the window used in normal operation */
 
-#define TX_FIFO 		0x10
-#define RX_FIFO 		0x10
-#define RxErrors 		0x14
-#define RxStatus 		0x18
+#define TX_FIFO			0x10
+#define RX_FIFOa		0x10
+#define RxErrors		0x14
+#define RxStatus		0x18
 #define Timer			0x1A
-#define TxStatus 		0x1B
-#define TxFree 			0x1C	 		/* Remaining free bytes in Tx buffer. */
+#define TxStatus		0x1B
+#define TxFree			0x1C			/* Remaining free bytes in Tx buffer. */
 
 /* Register Window 2 */
 
@@ -147,47 +147,47 @@
 #define Wn3_MAC_Ctrl		6
 #define Wn3_Options		8
 
-#define BFEXT(value, offset, bitcount)  					\
+#define BFEXT(value, offset, bitcount)					\
 	((((unsigned long)(value)) >> (offset)) & ((1 << (bitcount)) - 1))
 
 #define BFINS(lhs, rhs, offset, bitcount)                                       \
-	(((lhs) & ~((((1 << (bitcount)) - 1)) << (offset))) |   		\
+	(((lhs) & ~((((1 << (bitcount)) - 1)) << (offset))) |			\
 	(((rhs) & ((1 << (bitcount)) - 1)) << (offset)))
 
 #define RAM_SIZE(v)             BFEXT(v, 0, 3)
-#define RAM_WIDTH(v)    	BFEXT(v, 3, 1)
-#define RAM_SPEED(v)    	BFEXT(v, 4, 2)
+#define RAM_WIDTH(v)		BFEXT(v, 3, 1)
+#define RAM_SPEED(v) 	   	BFEXT(v, 4, 2)
 #define ROM_SIZE(v)             BFEXT(v, 6, 2)
-#define RAM_SPLIT(v)    	BFEXT(v, 16, 2)
+#define RAM_SPLIT(v)		BFEXT(v, 16, 2)
 #define XCVR(v)                 BFEXT(v, 20, 4)
-#define AUTOSELECT(v)   	BFEXT(v, 24, 1)
+#define AUTOSELECT(v)		BFEXT(v, 24, 1)
 
 /* Register Window 4: Xcvr/media bits */
 
-#define Wn4_FIFODiag 		4
-#define Wn4_NetDiag 		6
+#define Wn4_FIFODiag		4
+#define Wn4_NetDiag		6
 #define Wn4_PhysicalMgmt	8
-#define Wn4_Media 		10
+#define Wn4_Media		10
 
-#define Media_SQE 		0x0008     		/* Enable SQE error counting for AUI. */
-#define Media_10TP 		0x00C0			/* Enable link beat and jabber for 10baseT. */
-#define Media_Lnk 		0x0080			/* Enable just link beat for 100TX/100FX. */
-#define Media_LnkBeat 		0x0800
+#define Media_SQE		0x0008		/* Enable SQE error counting for AUI. */
+#define Media_10TP		0x00C0		/* Enable link beat and jabber for 10baseT. */
+#define Media_Lnk		0x0080		/* Enable just link beat for 100TX/100FX. */
+#define Media_LnkBeat		0x0800
 
 /* Register Window 7: Bus Master control */
 
-#define Wn7_MasterAddr 		0
-#define Wn7_MasterLen 		6
-#define Wn7_MasterStatus 	12
+#define Wn7_MasterAddr		0
+#define Wn7_MasterLen		6
+#define Wn7_MasterStatus	12
 
 /* Boomerang bus master control registers. */
 
-#define PktStatus 		0x20
+#define PktStatus		0x20
 #define DownListPtr		0x24
-#define FragAddr 		0x28
-#define FragLen 		0x2c
+#define FragAddr		0x28
+#define FragLen			0x2c
 #define TxFreeThreshold 	0x2f
-#define UpPktStatus 		0x30
+#define UpPktStatus		0x30
 #define UpListPtr 		0x38
 
 /* The Rx and Tx descriptor lists. */

@@ -93,7 +93,7 @@ MKCONFIG	:= $(SRCTREE)/mkconfig
 export MKCONFIG
 
 ifneq ($(OBJTREE),$(SRCTREE))
-REMOTE_BUILD 	:= 1
+REMOTE_BUILD	:= 1
 export REMOTE_BUILD
 endif
 
@@ -174,9 +174,6 @@ endif
 ifeq ($(CPU),ppc4xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
-ifeq ($(CPU),mpc83xx)
-OBJS += cpu/$(CPU)/resetvec.o
-endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
@@ -206,6 +203,9 @@ LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+ifeq ($(CPU),mpc83xx)
+LIBS += drivers/qe/qe.a
+endif
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/cpu/libcpu.a
 LIBS += common/libcommon.a
@@ -378,8 +378,8 @@ Lite5200_LOWBOOT08_config		\
 icecube_5200_config			\
 icecube_5200_LOWBOOT_config		\
 icecube_5200_LOWBOOT08_config		\
-icecube_5200_DDR_config 		\
-icecube_5200_DDR_LOWBOOT_config 	\
+icecube_5200_DDR_config			\
+icecube_5200_DDR_LOWBOOT_config		\
 icecube_5200_DDR_LOWBOOT08_config	\
 icecube_5100_config:			unconfig
 	@mkdir -p $(obj)include
@@ -458,7 +458,7 @@ prs200_highboot_DDR_config:	unconfig
 	@[ -n "$(findstring _SDRAM,$@)" ] || \
 		{ if [ -n "$(findstring mcc200,$@)" ]; \
 		  then \
-		  	echo "... with DDR" ; \
+			echo "... with DDR" ; \
 		  else \
 			if [ -n "$(findstring _DDR,$@)" ];\
 			then \
@@ -865,9 +865,9 @@ RPXClassic_config:	unconfig
 RPXlite_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx RPXlite
 
-RPXlite_DW_64_config  		\
-RPXlite_DW_LCD_config 		\
-RPXlite_DW_64_LCD_config 	\
+RPXlite_DW_64_config		\
+RPXlite_DW_LCD_config		\
+RPXlite_DW_64_LCD_config	\
 RPXlite_DW_NVRAM_config		\
 RPXlite_DW_NVRAM_64_config      \
 RPXlite_DW_NVRAM_LCD_config	\
@@ -880,12 +880,12 @@ RPXlite_DW_config:         unconfig
 		  echo "... with 64MHz system clock ..."; \
 		}
 	@[ -z "$(findstring _LCD,$@)" ] || \
-		{ echo "#define CONFIG_LCD"          	>>$(obj)include/config.h ; \
+		{ echo "#define CONFIG_LCD"		>>$(obj)include/config.h ; \
 		  echo "#define CONFIG_NEC_NL6448BC20"	>>$(obj)include/config.h ; \
 		  echo "... with LCD display ..."; \
 		}
 	@[ -z "$(findstring _NVRAM,$@)" ] || \
-		{ echo "#define  CFG_ENV_IS_IN_NVRAM" 	>>$(obj)include/config.h ; \
+		{ echo "#define  CFG_ENV_IS_IN_NVRAM"	>>$(obj)include/config.h ; \
 		  echo "... with ENV in NVRAM ..."; \
 		}
 	@$(MKCONFIG) -a RPXlite_DW ppc mpc8xx RPXlite_dw
@@ -1588,14 +1588,38 @@ r5200_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
-MPC8349ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349ads
-
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x
 
 MPC8349EMDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349emds
+
+MPC8360EMDS_config \
+MPC8360EMDS_HOST_33_config \
+MPC8360EMDS_HOST_66_config \
+MPC8360EMDS_SLAVE_config:	unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _HOST_,$@)" ] ; then \
+		echo -n "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _SLAVE_,$@)" ] ; then \
+		echo "...PCI SLAVE 66M"  ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+		echo "#define CONFIG_PCISLAVE" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define PCI_33M" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define PCI_66M" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
+
+MPC8349ITX_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349itx
 
 #########################################################################
 ## MPC85xx Systems
@@ -1797,7 +1821,7 @@ ap966_config		\
 ap922_config		\
 ap922_XA10_config	\
 ap7_config		\
-ap720t_config  		\
+ap720t_config		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
@@ -1954,7 +1978,7 @@ cm4008_config	:	unconfig
 cm41xx_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cm41xx NULL ks8695
 
-gth2_config		: 	unconfig
+gth2_config		:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_GTH2 1" >>$(obj)include/config.h
@@ -2100,19 +2124,19 @@ tb0229_config: unconfig
 #########################################################################
 ## MIPS32 AU1X00
 #########################################################################
-dbau1000_config		: 	unconfig
+dbau1000_config		:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_DBAU1000 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
 
-dbau1100_config		: 	unconfig
+dbau1100_config		:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_DBAU1100 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
 
-dbau1500_config		: 	unconfig
+dbau1500_config		:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_DBAU1500 1" >>$(obj)include/config.h
@@ -2130,7 +2154,7 @@ dbau1550_el_config	:	unconfig
 	@echo "#define CONFIG_DBAU1550 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
 
-pb1000_config		: 	unconfig
+pb1000_config		:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_PB1000 1" >>$(obj)include/config.h

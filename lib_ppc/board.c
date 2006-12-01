@@ -511,7 +511,7 @@ void board_init_f (ulong bootflag)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83XX)
-	bd->bi_immrbar = CFG_IMMRBAR;
+	bd->bi_immrbar = CFG_IMMR;
 #endif
 #if defined(CONFIG_MPC8220)
 	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
@@ -521,17 +521,17 @@ void board_init_f (ulong bootflag)
 	bd->bi_pevfreq   = gd->pev_clk;
 	bd->bi_flbfreq   = gd->flb_clk;
 
-    /* store bootparam to sram (backward compatible), here? */
-    {
-	u32 *sram = (u32 *)CFG_SRAM_BASE;
-	*sram++ = gd->ram_size;
-	*sram++ = gd->bus_clk;
-	*sram++ = gd->inp_clk;
-	*sram++ = gd->cpu_clk;
-	*sram++ = gd->vco_clk;
-	*sram++ = gd->flb_clk;
-	*sram++ = 0xb8c3ba11;  /* boot signature */
-    }
+	/* store bootparam to sram (backward compatible), here? */
+	{
+		u32 *sram = (u32 *)CFG_SRAM_BASE;
+		*sram++ = gd->ram_size;
+		*sram++ = gd->bus_clk;
+		*sram++ = gd->inp_clk;
+		*sram++ = gd->cpu_clk;
+		*sram++ = gd->vco_clk;
+		*sram++ = gd->flb_clk;
+		*sram++ = 0xb8c3ba11;  /* boot signature */
+	}
 #endif
 
 	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */

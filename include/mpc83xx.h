@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -8,16 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
  */
 
 /*
@@ -29,6 +19,7 @@
 #ifndef __MPC83XX_H__
 #define __MPC83XX_H__
 
+#include <config.h>
 #if defined(CONFIG_E300)
 #include <asm/e300.h>
 #endif
@@ -85,6 +76,33 @@
 #define LBLAWBAR3 0x0038
 #define LBLAWAR3  0x003C
 
+/*
+ * The device ID and revision numbers
+ */
+#define SPR_8349E_REV10		0x80300100
+#define SPR_8349_REV10		0x80310100
+#define SPR_8347E_REV10_TBGA	0x80320100
+#define SPR_8347_REV10_TBGA	0x80330100
+#define SPR_8347E_REV10_PBGA	0x80340100
+#define SPR_8347_REV10_PBGA	0x80350100
+#define SPR_8343E_REV10		0x80360100
+#define SPR_8343_REV10		0x80370100
+
+#define SPR_8349E_REV11		0x80300101
+#define SPR_8349_REV11		0x80310101
+#define SPR_8347E_REV11_TBGA	0x80320101
+#define SPR_8347_REV11_TBGA	0x80330101
+#define SPR_8347E_REV11_PBGA	0x80340101
+#define SPR_8347_REV11_PBGA	0x80350101
+#define SPR_8343E_REV11		0x80360101
+#define SPR_8343_REV11		0x80370101
+
+#define SPR_8360E_REV10		0x80480010
+#define SPR_8360_REV10		0x80490010
+#define SPR_8360E_REV11		0x80480011
+#define SPR_8360_REV11		0x80490011
+#define SPR_8360E_REV12		0x80480012
+#define SPR_8360_REV12		0x80490012
 
 /*
  * Base Registers & Option Registers
@@ -116,9 +134,17 @@
 #define BR_MS_UPMA	0x00000080  /* UPMA */
 #define BR_MS_UPMB	0x000000A0  /* UPMB */
 #define BR_MS_UPMC	0x000000C0  /* UPMC */
+#if defined (CONFIG_MPC8360)
+#define BR_ATOM		0x0000000C
+#define BR_ATOM_SHIFT		2
+#endif
 #define BR_V		0x00000001
 #define BR_V_SHIFT		 0
+#if defined (CONFIG_MPC8349)
 #define BR_RES		~(BR_BA|BR_PS|BR_DECC|BR_WP|BR_MSEL|BR_V)
+#elif defined (CONFIG_MPC8360)
+#define BR_RES		~(BR_BA|BR_PS|BR_DECC|BR_WP|BR_MSEL|BR_ATOM|BR_V)
+#endif
 
 #define OR0 0x5004
 #define OR1 0x500C
@@ -201,14 +227,21 @@
 #define HRCWH_PCI_AGENT              0x00000000
 #define HRCWH_PCI_HOST               0x80000000
 
+#if defined (CONFIG_MPC8349)
 #define HRCWH_32_BIT_PCI             0x00000000
 #define HRCWH_64_BIT_PCI             0x40000000
+#endif
 
 #define HRCWH_PCI1_ARBITER_DISABLE   0x00000000
 #define HRCWH_PCI1_ARBITER_ENABLE    0x20000000
 
+#if defined (CONFIG_MPC8349)
 #define HRCWH_PCI2_ARBITER_DISABLE   0x00000000
 #define HRCWH_PCI2_ARBITER_ENABLE    0x10000000
+#elif defined (CONFIG_MPC8360)
+#define HRCWH_PCICKDRV_DISABLE       0x00000000
+#define HRCWH_PCICKDRV_ENABLE        0x10000000
+#endif
 
 #define HRCWH_CORE_DISABLE           0x08000000
 #define HRCWH_CORE_ENABLE            0x00000000
@@ -225,11 +258,14 @@
 
 #define HRCWH_ROM_LOC_DDR_SDRAM      0x00000000
 #define HRCWH_ROM_LOC_PCI1           0x00100000
+#if defined (CONFIG_MPC8349)
 #define HRCWH_ROM_LOC_PCI2           0x00200000
+#endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT     0x00500000
 #define HRCWH_ROM_LOC_LOCAL_16BIT    0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT    0x00700000
 
+#if defined (CONFIG_MPC8349)
 #define HRCWH_TSEC1M_IN_RGMII        0x00000000
 #define HRCWH_TSEC1M_IN_RTBI         0x00004000
 #define HRCWH_TSEC1M_IN_GMII         0x00008000
@@ -239,9 +275,21 @@
 #define HRCWH_TSEC2M_IN_RTBI         0x00001000
 #define HRCWH_TSEC2M_IN_GMII         0x00002000
 #define HRCWH_TSEC2M_IN_TBI          0x00003000
+#endif
+
+#if defined (CONFIG_MPC8360)
+#define HRCWH_SECONDARY_DDR_DISABLE  0x00000000
+#define HRCWH_SECONDARY_DDR_ENABLE   0x00000010
+#endif
 
 #define HRCWH_BIG_ENDIAN             0x00000000
 #define HRCWH_LITTLE_ENDIAN          0x00000008
+
+#define HRCWH_LALE_NORMAL            0x00000000
+#define HRCWH_LALE_EARLY             0x00000004
+
+#define HRCWH_LDP_SET                0x00000000
+#define HRCWH_LDP_CLEAR              0x00000002
 
 /*
  * Hard Reset Configration Word - Low
@@ -281,6 +329,47 @@
 #define HRCWL_CORE_TO_CSB_2_5X1      0x00050000
 #define HRCWL_CORE_TO_CSB_3X1        0x00060000
 
+#if defined (CONFIG_MPC8360)
+#define HRCWL_CE_PLL_VCO_DIV_4       0x00000000
+#define HRCWL_CE_PLL_VCO_DIV_8       0x00000040
+#define HRCWL_CE_PLL_VCO_DIV_2       0x00000080
+
+#define HRCWL_CE_PLL_DIV_1X1         0x00000000
+#define HRCWL_CE_PLL_DIV_2X1         0x00000020
+
+#define HRCWL_CE_TO_PLL_1X16_        0x00000000
+#define HRCWL_CE_TO_PLL_1X2          0x00000002
+#define HRCWL_CE_TO_PLL_1X3          0x00000003
+#define HRCWL_CE_TO_PLL_1X4          0x00000004
+#define HRCWL_CE_TO_PLL_1X5          0x00000005
+#define HRCWL_CE_TO_PLL_1X6          0x00000006
+#define HRCWL_CE_TO_PLL_1X7          0x00000007
+#define HRCWL_CE_TO_PLL_1X8          0x00000008
+#define HRCWL_CE_TO_PLL_1X9          0x00000009
+#define HRCWL_CE_TO_PLL_1X10         0x0000000A
+#define HRCWL_CE_TO_PLL_1X11         0x0000000B
+#define HRCWL_CE_TO_PLL_1X12         0x0000000C
+#define HRCWL_CE_TO_PLL_1X13         0x0000000D
+#define HRCWL_CE_TO_PLL_1X14         0x0000000E
+#define HRCWL_CE_TO_PLL_1X15         0x0000000F
+#define HRCWL_CE_TO_PLL_1X16         0x00000010
+#define HRCWL_CE_TO_PLL_1X17         0x00000011
+#define HRCWL_CE_TO_PLL_1X18         0x00000012
+#define HRCWL_CE_TO_PLL_1X19         0x00000013
+#define HRCWL_CE_TO_PLL_1X20         0x00000014
+#define HRCWL_CE_TO_PLL_1X21         0x00000015
+#define HRCWL_CE_TO_PLL_1X22         0x00000016
+#define HRCWL_CE_TO_PLL_1X23         0x00000017
+#define HRCWL_CE_TO_PLL_1X24         0x00000018
+#define HRCWL_CE_TO_PLL_1X25         0x00000019
+#define HRCWL_CE_TO_PLL_1X26         0x0000001A
+#define HRCWL_CE_TO_PLL_1X27         0x0000001B
+#define HRCWL_CE_TO_PLL_1X28         0x0000001C
+#define HRCWL_CE_TO_PLL_1X29         0x0000001D
+#define HRCWL_CE_TO_PLL_1X30         0x0000001E
+#define HRCWL_CE_TO_PLL_1X31         0x0000001F
+#endif
+
 /*
  * LCRR - Clock Ratio Register (10.3.1.16)
  */
@@ -309,5 +398,32 @@
 #define LCRR_CLKDIV_4  0x00000004
 #define LCRR_CLKDIV_8  0x00000008
 #define LCRR_CLKDIV_SHIFT       0
+
+/*
+ * SCCR-System Clock Control Register
+ */
+#define SCCR_TSEC1CM_0	0x00000000
+#define SCCR_TSEC1CM_1	0x40000000
+#define SCCR_TSEC1CM_2	0x80000000
+#define SCCR_TSEC1CM_3	0xC0000000
+#define SCCR_TSEC2CM_0	0x00000000
+#define SCCR_TSEC2CM_1	0x10000000
+#define SCCR_TSEC2CM_2	0x20000000
+#define SCCR_TSEC2CM_3	0x30000000
+#define SCCR_ENCCM_0	0x00000000
+#define SCCR_ENCCM_1	0x01000000
+#define SCCR_ENCCM_2	0x02000000
+#define SCCR_ENCCM_3	0x03000000
+#define SCCR_USBCM_0	0x00000000
+#define SCCR_USBCM_1	0x00500000
+#define SCCR_USBCM_2	0x00A00000
+#define SCCR_USBCM_3	0x00F00000
+
+#define SCCR_CLK_MASK	( SCCR_TSEC1CM_3	\
+			| SCCR_TSEC2CM_3	\
+			| SCCR_ENCCM_3		\
+			| SCCR_USBCM_3		)
+
+#define SCCR_DEFAULT	0xFFFFFFFF
 
 #endif	/* __MPC83XX_H__ */

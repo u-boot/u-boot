@@ -83,8 +83,4 @@ typedef struct fsl_i2c {
 	u8 res6[0xE8];
 } fsl_i2c_t;
 
-
-#define I2C_READ  1
-#define I2C_WRITE 0
-
 #endif	/* _ASM_I2C_H_ */

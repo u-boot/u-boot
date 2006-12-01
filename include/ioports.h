@@ -53,3 +53,13 @@ typedef struct {
  * like the table in the 8260UM (and in the hymod manuals).
  */
 extern const iop_conf_t iop_conf_tab[4][32];
+
+typedef struct {
+	unsigned char	port;
+	unsigned char	pin;
+	int		dir;
+	int		open_drain;
+	int		assign;
+} qe_iop_conf_t;
+
+#define QE_IOP_TAB_END	(-1)
