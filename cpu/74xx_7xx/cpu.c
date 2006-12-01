@@ -303,7 +303,7 @@ watchdog_reset(void)
 
 #ifdef CONFIG_OF_FLAT_TREE
 void
-ft_cpu_setup(void *blob, bd_t *bd)
+ft_cpu_setup (void *blob, bd_t *bd)
 {
 	u32 *p;
 	ulong clock;
@@ -311,18 +311,18 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		
 	clock = bd->bi_busfreq;
 	
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	p = ft_get_prop (blob, "/cpus/" OF_CPU "/bus-frequency", &len);
 	if (p != NULL)
-		*p = cpu_to_be32(clock);
+		*p = cpu_to_be32 (clock);
 
 #if defined(CONFIG_TSI108_ETH)
-	p = ft_get_prop(blob, "/" OF_TSI "/ethernet@6200/address", &len);
-		memcpy(p, bd->bi_enetaddr, 6);
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6200/address", &len);
+		memcpy (p, bd->bi_enetaddr, 6);
 #endif
- 
+
 #if defined(CONFIG_HAS_ETH1)
-	p = ft_get_prop(blob, "/" OF_TSI "/ethernet@6600/address", &len);
-		memcpy(p, bd->bi_enet1addr, 6);
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6600/address", &len);
+		memcpy (p, bd->bi_enet1addr, 6);
 #endif
 }
 #endif

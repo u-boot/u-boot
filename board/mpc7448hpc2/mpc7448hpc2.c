@@ -25,7 +25,7 @@
  */
 
 /*
- * board support/init functions for the 
+ * board support/init functions for the
  * Freescale MPC7448 HPC2 (High-Performance Computing 2 Platform).
  */
 
@@ -33,39 +33,38 @@
 #include <74xx_7xx.h>
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
-extern void ft_cpu_setup(void *blob, bd_t *bd);
+extern void ft_cpu_setup (void *blob, bd_t *bd);
 #endif
 
 #undef	DEBUG
 
-extern void flush_data_cache(void);
-extern void invalidate_l1_instruction_cache(void);
-extern void tsi108_init_f(void);
+extern void flush_data_cache (void);
+extern void invalidate_l1_instruction_cache (void);
+extern void tsi108_init_f (void);
 
-int display_mem_map(void);
+int display_mem_map (void);
 
-void after_reloc(ulong dest_addr)
+void after_reloc (ulong dest_addr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	
 	/*
 	 * Jump to the main U-Boot board init code
 	 */
-	board_init_r((gd_t *) gd, dest_addr);
+	board_init_r ((gd_t *) gd, dest_addr);
 	/* NOTREACHED */
 }
 
 /*
  * Check Board Identity:
- *
  * report board type
  */
 
-int checkboard(void)
+int checkboard (void)
 {
 	int l_type = 0;
 
-	printf("BOARD: %s\n", CFG_BOARD_NAME);
+	printf ("BOARD: %s\n", CFG_BOARD_NAME);
 	return (l_type);
 }
 
@@ -75,19 +74,19 @@ int checkboard(void)
  * report calling processor number
  */
 
-int read_pid(void)
+int read_pid (void)
 {
 	return 0;		/* we are on single CPU platform for a while */
 }
 
-long int dram_size(int board_type)
+long int dram_size (int board_type)
 {
 	return 0x20000000;	/* 256M bytes */
 }
 
-long int initdram(int board_type)
+long int initdram (int board_type)
 {
-	return dram_size(board_type);
+	return dram_size (board_type);
 }
 
 /* DRAM check routines copied from gw8260 */
@@ -114,11 +113,11 @@ long int initdram(int board_type)
 /*   May cloober fr0.						     */
 /*								     */
 /*********************************************************************/
-static void move64(unsigned long long *src, unsigned long long *dest)
+static void move64 (unsigned long long *src, unsigned long long *dest)
 {
-	asm("lfd  0, 0(3)\n\t"	/* fpr0   =  *scr       */
-	    "stfd 0, 0(4)"	/* *dest  =  fpr0       */
-      : : :"fr0");		/* Clobbers fr0         */
+	asm ("lfd  0, 0(3)\n\t"	/* fpr0   =  *scr */
+		"stfd 0, 0(4)"	/* *dest  =  fpr0 */
+		: : :"fr0");	/* Clobbers fr0   */
 	return;
 }
 
@@ -183,28 +182,28 @@ unsigned long long pattern[] = {
 /*  Assumes only one one SDRAM bank				     */
 /*								     */
 /*********************************************************************/
-int mem_test_data(void)
+int mem_test_data (void)
 {
 	unsigned long long *pmem = (unsigned long long *)CFG_MEMTEST_START;
 	unsigned long long temp64;
-	int num_patterns = sizeof(pattern) / sizeof(pattern[0]);
+	int num_patterns = sizeof (pattern) / sizeof (pattern[0]);
 	int i;
 	unsigned int hi, lo;
 
 	for (i = 0; i < num_patterns; i++) {
-		move64(&(pattern[i]), pmem);
-		move64(pmem, &temp64);
+		move64 (&(pattern[i]), pmem);
+		move64 (pmem, &temp64);
 
-		/* hi = (temp64>>32) & 0xffffffff;          */
-		/* lo = temp64 & 0xffffffff;                */
-		/* printf("\ntemp64 = 0x%08x%08x", hi, lo); */
+		/* hi = (temp64>>32) & 0xffffffff; */
+		/* lo = temp64 & 0xffffffff;       */
+		/* printf ("\ntemp64 = 0x%08x%08x", hi, lo); */
 
 		hi = (pattern[i] >> 32) & 0xffffffff;
 		lo = pattern[i] & 0xffffffff;
-		/* printf("\npattern[%d] = 0x%08x%08x", i, hi, lo);  */
+		/* printf ("\npattern[%d] = 0x%08x%08x", i, hi, lo);  */
 
 		if (temp64 != pattern[i]) {
-			printf("\n   Data Test Failed, pattern 0x%08x%08x",
+			printf ("\n   Data Test Failed, pattern 0x%08x%08x",
 			       hi, lo);
 			return 1;
 		}
@@ -236,7 +235,7 @@ int mem_test_data(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_test_address(void)
+int mem_test_address (void)
 {
 	volatile unsigned int *pmem =
 	    (volatile unsigned int *)CFG_MEMTEST_START;
@@ -251,13 +250,13 @@ int mem_test_address(void)
 	/* verify each loaction */
 	for (i = 0; i < size; i++) {
 		if (pmem[i] != i) {
-			printf("\n   Address Test Failed at 0x%x", i);
+			printf ("\n   Address Test Failed at 0x%x", i);
 			return 1;
 		}
 	}
 	return 0;
 }
-#endif				/* CFG_DRAM_TEST_ADDRESS */
+#endif	/* CFG_DRAM_TEST_ADDRESS */
 
 #if defined (CFG_DRAM_TEST_WALK)
 /*********************************************************************/
@@ -287,7 +286,7 @@ int mem_test_address(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_march(volatile unsigned long long *base,
+int mem_march (volatile unsigned long long *base,
 	      unsigned int size,
 	      unsigned long long rmask,
 	      unsigned long long wmask, short read, short write)
@@ -299,14 +298,14 @@ int mem_march(volatile unsigned long long *base,
 	for (i = 0; i < size; i++) {
 		if (read != 0) {
 			/* temp = base[i]; */
-			move64((unsigned long long *)&(base[i]), &temp);
+			move64 ((unsigned long long *)&(base[i]), &temp);
 			if (rmask != temp) {
 				hitemp = (temp >> 32) & 0xffffffff;
 				lotemp = temp & 0xffffffff;
 				himask = (rmask >> 32) & 0xffffffff;
 				lomask = rmask & 0xffffffff;
 
-				printf("\n Walking one's test failed:	\ 
+				printf ("\n Walking one's test failed:	\
 					address = 0x%08x," "\n\texpected \
 					0x%08x%08x, found 0x%08x%08x", i << 3,\
 					himask, lomask, hitemp, lotemp);
@@ -315,12 +314,12 @@ int mem_march(volatile unsigned long long *base,
 		}
 		if (write != 0) {
 			/*  base[i] = wmask; */
-			move64(&wmask, (unsigned long long *)&(base[i]));
+			move64 (&wmask, (unsigned long long *)&(base[i]));
 		}
 	}
 	return 0;
 }
-#endif				/* CFG_DRAM_TEST_WALK */
+#endif	/* CFG_DRAM_TEST_WALK */
 
 /*********************************************************************/
 /* NAME:   mem_test_walk() -  a simple walking ones test	     */
@@ -348,7 +347,7 @@ int mem_march(volatile unsigned long long *base,
 /*								     */
 /*								     */
 /*********************************************************************/
-int mem_test_walk(void)
+int mem_test_walk (void)
 {
 	unsigned long long mask;
 	volatile unsigned long long *pmem =
@@ -359,32 +358,31 @@ int mem_test_walk(void)
 
 	mask = 0x01;
 
-	printf("Initial Pass");
-	mem_march(pmem, size, 0x0, 0x1, 0, 1);
+	printf ("Initial Pass");
+	mem_march (pmem, size, 0x0, 0x1, 0, 1);
 
-	printf("\b\b\b\b\b\b\b\b\b\b\b\b");
-	printf("		");
-	printf("         ");
-	printf("\b\b\b\b\b\b\b\b\b\b\b\b");
+	printf ("\b\b\b\b\b\b\b\b\b\b\b\b");
+	printf ("		");
+	printf ("         ");
+	printf ("\b\b\b\b\b\b\b\b\b\b\b\b");
 
 	for (i = 0; i < 63; i++) {
-		printf("Pass %2d", i + 2);
-		if (mem_march(pmem, size, mask, mask << 1, 1, 1) != 0) {
-			/*printf("mask: 0x%x, pass: %d, ", mask, i); */
+		printf ("Pass %2d", i + 2);
+		if (mem_march(pmem, size, mask, mask << 1, 1, 1) != 0)
+			/*printf ("mask: 0x%x, pass: %d, ", mask, i); */
 			return 1;
-		}
 		mask = mask << 1;
-		printf("\b\b\b\b\b\b\b");
+		printf ("\b\b\b\b\b\b\b");
 	}
 
-	printf("Last Pass");
+	printf ("Last Pass");
 	if (mem_march(pmem, size, 0, mask, 0, 1) != 0) {
-		/* printf("mask: 0x%x", mask); */
+		/* printf ("mask: 0x%x", mask); */
 		return 1;
 	}
-	printf("\b\b\b\b\b\b\b\b\b");
-	printf("	     ");
-	printf("\b\b\b\b\b\b\b\b\b");
+	printf ("\b\b\b\b\b\b\b\b\b");
+	printf ("	     ");
+	printf ("\b\b\b\b\b\b\b\b\b");
 
 	return 0;
 }
@@ -412,60 +410,58 @@ int mem_test_walk(void)
 /*								     */
 /*								     */
 /*********************************************************************/
-int testdram(void)
+int testdram (void)
 {
 	char *s;
 	int rundata, runaddress, runwalk;
 
-	s = getenv("testdramdata");
+	s = getenv ("testdramdata");
 	rundata = (s && (*s == 'y')) ? 1 : 0;
-	s = getenv("testdramaddress");
+	s = getenv ("testdramaddress");
 	runaddress = (s && (*s == 'y')) ? 1 : 0;
-	s = getenv("testdramwalk");
+	s = getenv ("testdramwalk");
 	runwalk = (s && (*s == 'y')) ? 1 : 0;
 
 /*    rundata = 1; */
 /*    runaddress = 0; */
 /*    runwalk = 0; */
 
-	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
-		printf("Testing RAM from 0x%08x to 0x%08x ...  \
+	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1))
+		printf ("Testing RAM from 0x%08x to 0x%08x ...  \
 			(don't panic... that will take a moment !!!!)\n", \
 			CFG_MEMTEST_START, CFG_MEMTEST_END);
-	}
 #ifdef CFG_DRAM_TEST_DATA
 	if (rundata == 1) {
-		printf("Test DATA ...  ");
+		printf ("Test DATA ...  ");
 		if (mem_test_data () == 1) {
-			printf("failed \n");
+			printf ("failed \n");
 			return 1;
 		} else
-			printf("ok \n");
+			printf ("ok \n");
 	}
 #endif
 #ifdef CFG_DRAM_TEST_ADDRESS
 	if (runaddress == 1) {
-		printf("Test ADDRESS ...  ");
+		printf ("Test ADDRESS ...  ");
 		if (mem_test_address () == 1) {
-			printf("failed \n");
+			printf ("failed \n");
 			return 1;
 		} else
-			printf("ok \n");
+			printf ("ok \n");
 	}
 #endif
 #ifdef CFG_DRAM_TEST_WALK
 	if (runwalk == 1) {
-		printf("Test WALKING ONEs ...  ");
-		if (mem_test_walk() == 1) {
-			printf("failed \n");
+		printf ("Test WALKING ONEs ...  ");
+		if (mem_test_walk () == 1) {
+			printf ("failed \n");
 			return 1;
 		} else
-			printf("ok \n");
+			printf ("ok \n");
 	}
 #endif
-	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
-		printf("passed\n");
-	}
+	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1))
+		printf ("passed\n");
 	return 0;
 
 }
@@ -473,17 +469,17 @@ int testdram(void)
 
 #if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
 void
-ft_board_setup(void *blob, bd_t *bd)
+ft_board_setup (void *blob, bd_t *bd)
 {
 	u32 *p;
 	int len;
 
-	ft_cpu_setup(blob, bd);
+	ft_cpu_setup (blob, bd);
 
-	p = ft_get_prop(blob, "/memory/reg", &len);
+	p = ft_get_prop (blob, "/memory/reg", &len);
 	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
+		*p++ = cpu_to_be32 (bd->bi_memstart);
+		*p = cpu_to_be32 (bd->bi_memsize);
 	}
 }
 #endif

@@ -23,26 +23,30 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
-OBJS	= $(BOARD).o tsi108_init.o
+COBJS	:= $(BOARD).o tsi108_init.o
+SOBJS	:= asm_init.o
 
-SOBJS	= asm_init.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	.depend $(OBJS) $(SOBJS)
-	$(AR) crv $@  $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
 
+.PHONY: distclean
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude ($obj).depend
 
 #########################################################################

@@ -1,6 +1,6 @@
 /*****************************************************************************
  * (C) Copyright 2003;  Tundra Semiconductor Corp.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -33,7 +33,7 @@
 #include <asm/processor.h>
 #include <tsi108.h>
 
-extern void mpicInit(int verbose);
+extern void mpicInit (int verbose);
 
 /*
  * Configuration Options
@@ -118,11 +118,11 @@ static PLL_CTRL_SET pll0_config[8] = {
 static int pb_clk_sel[8] = { 0, 0, 183, 100, 133, 167, 200, 233 };
 
 /*
- * get_board_bus_clk()
+ * get_board_bus_clk ()
  *
  * returns the bus clock in Hz.
  */
-unsigned long get_board_bus_clk(void)
+unsigned long get_board_bus_clk (void)
 {
 	ulong i;
 
@@ -134,37 +134,38 @@ unsigned long get_board_bus_clk(void)
 }
 
 /*
- * board_early_init_f()
+ * board_early_init_f ()
  *
  * board-specific initialization executed from flash
  */
 
-int board_early_init_f(void)
+int board_early_init_f (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	ulong i;
 
 	gd->mem_clk = 0;
-	i = in32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PWRUP_STATUS);
-	i = (i >> 20) & 0x07;
+	i = in32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET +
+			CG_PWRUP_STATUS);
+	i = (i >> 20) & 0x07;	/* value of SW4[4:7] */
 	switch (i) {
-	case 0:
-		printf("Using external clock\n");
+	case 0:	/* external clock */
+		printf ("Using external clock\n");
 		break;
-	case 1:
+	case 1:	/* system clock */
 		gd->mem_clk = gd->bus_clk;
 		break;
-	case 4:
-	case 5:
-	case 6:
+	case 4:	/* 133 MHz */
+	case 5:	/* 166 MHz */
+	case 6:	/* 200 MHz */
 		gd->mem_clk = pb_clk_sel[i] * 1000000;
 		break;
 	default:
-		printf("Invalid DDR2 clock setting\n");
+		printf ("Invalid DDR2 clock setting\n");
 		return -1;
 	}
-	printf("BUS!   %d MHz\n", get_board_bus_clk() / 1000000);
-	printf("MEM!   %d MHz\n", gd->mem_clk / 1000000);
+	printf ("BUS: %d MHz\n", get_board_bus_clk() / 1000000);
+	printf ("MEM: %d MHz\n", gd->mem_clk / 1000000);
 	return 0;
 }
 
@@ -173,175 +174,174 @@ int board_early_init_f(void)
  * relocation. Contains code that cannot be executed from flash.
  */
 
-int board_early_init_r(void)
+int board_early_init_r (void)
 {
 	ulong temp, i;
 	ulong reg_val;
 	volatile ulong *reg_ptr;
 	
 	reg_ptr =
-	    (ulong *) (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + 0x900);
+		(ulong *) (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + 0x900);
 
 	for (i = 0; i < 32; i++) {
 		*reg_ptr++ = 0x00000201;	/* SWAP ENABLED */
 		*reg_ptr++ = 0x00;
 	}
 
-	__asm__ __volatile__("eieio");
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("eieio");
+	__asm__ __volatile__ ("sync");
 
 	/* Setup PB_OCN_BAR2: size 256B + ENable @ 0x0_80000000 */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR2,
-	      0x80000001);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR2,
+		0x80000001);
+	__asm__ __volatile__ ("sync");
 
 	/* Make sure that OCN_BAR2 decoder is set (to allow following immediate
-	 * read from SDRAM) 
+	 * read from SDRAM)
 	 */
 
 	temp = in32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR2);
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("sync");
 
 	/*
 	 * Remap PB_OCN_BAR1 to accomodate PCI-bus aperture and EPROM into the
 	 * processor bus address space. Immediately after reset LUT and address
 	 * translation are disabled for this BAR. Now we have to initialize LUT
 	 * and switch from the BOOT mode to the normal operation mode.
-	 * 
+	 *
 	 * The aperture defined by PB_OCN_BAR1 startes at address 0xE0000000
-	 * and covers 512MB of address space. To allow larger aperture we also 
+	 * and covers 512MB of address space. To allow larger aperture we also
 	 * have to relocate register window of Tsi108
 	 *
-	 * Initialize LUT (32-entries) prior switching PB_OCN_BAR1 from BOOT 
+	 * Initialize LUT (32-entries) prior switching PB_OCN_BAR1 from BOOT
 	 * mode.
-	 * 
+	 *
 	 * initialize pointer to LUT associated with PB_OCN_BAR1
 	 */
 	reg_ptr =
-	    (ulong *) (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + 0x800);
+		(ulong *) (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + 0x800);
 
 	for (i = 0; i < 32; i++) {
 		*reg_ptr++ = pb2ocn_lut1[i].lower;
 		*reg_ptr++ = pb2ocn_lut1[i].upper;
 	}
 
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("sync");
 
 	/* Base addresses for Cs0, CS1, CS2, CS3 */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_ADDR,
-	      0x00000000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_ADDR,
+		0x00000000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_ADDR,
-	      0x00100000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_ADDR,
+		0x00100000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_ADDR,
-	      0x00200000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_ADDR,
+		0x00200000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_ADDR,
-	      0x00300000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_ADDR,
+		0x00300000);
+	__asm__ __volatile__ ("sync");
 
 	/* Masks for HLP banks */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_MASK,
-	      0xFFF00000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_MASK,
+		0xFFF00000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_MASK,
-	      0xFFF00000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_MASK,
+		0xFFF00000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_MASK,
-	      0xFFF00000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_MASK,
+		0xFFF00000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_MASK,
-	      0xFFF00000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_MASK,
+		0xFFF00000);
+	__asm__ __volatile__ ("sync");
 
 	/* Set CTRL0 values for banks */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_CTRL0,
-	      0x7FFC44C2);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_CTRL0,
+		0x7FFC44C2);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_CTRL0,
-	      0x7FFC44C0);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_CTRL0,
+		0x7FFC44C0);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_CTRL0,
-	      0x7FFC44C0);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_CTRL0,
+		0x7FFC44C0);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_CTRL0,
-	      0x7FFC44C2);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_CTRL0,
+		0x7FFC44C2);
+	__asm__ __volatile__ ("sync");
 
 	/* Set banks to latched mode, enabled, and other default settings */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_CTRL1,
-	      0x7C0F2000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_CTRL1,
+		0x7C0F2000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_CTRL1,
-	      0x7C0F2000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B1_CTRL1,
+		0x7C0F2000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_CTRL1,
-	      0x7C0F2000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B2_CTRL1,
+		0x7C0F2000);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_CTRL1,
-	      0x7C0F2000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_CTRL1,
+		0x7C0F2000);
+	__asm__ __volatile__ ("sync");
 	
 	/*
 	 * Set new value for PB_OCN_BAR1: switch from BOOT to LUT mode.
 	 * value for PB_OCN_BAR1: (BA-0xE000_0000 + size 512MB + ENable)
 	 */
-	out32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR1,
-	      0xE0000011);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR1,
+		0xE0000011);
+	__asm__ __volatile__ ("sync");
 
-	/* Make sure that OCN_BAR2 decoder is set (to allow following 
-	 * immediate read from SDRAM) 
+	/* Make sure that OCN_BAR2 decoder is set (to allow following
+	 * immediate read from SDRAM)
 	 */
-	  
+	
 	temp = in32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR1);
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("sync");
 
 	/*
 	 * SRI: At this point we have enabled the HLP banks. That means we can
 	 * now read from the NVRAM and initialize the environment variables.
 	 * We will over-ride the env_init called in board_init_f
 	 * This is really a work-around because, the HLP bank 1
-	 * where NVRAM resides is not visible during board_init_f 
+	 * where NVRAM resides is not visible during board_init_f
 	 * (lib_ppc/board.c)
 	 * Alternatively, we could use the I2C EEPROM at start-up to configure
 	 * and enable all HLP banks and not just HLP 0 as is being done for
 	 * Taiga Rev. 2.
 	 */
 	
-	env_init();
+	env_init ();
 
 #ifndef DISABLE_PBM
 	
 	/*
-	 * For IBM processors we have to set Address-Only commands generated 
+	 * For IBM processors we have to set Address-Only commands generated
 	 * by PBM that are different from ones set after reset.
 	 */
 
-	temp = get_cpu_type();
+	temp = get_cpu_type ();
 
-	if ((CPU_750FX == temp) || (CPU_750GX == temp)) {
-		out32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_MCMD,
-		      0x00009955);
-	}
+	if ((CPU_750FX == temp) || (CPU_750GX == temp))
+		out32 (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_MCMD,
+			0x00009955);
 #endif	/* DISABLE_PBM */
 
 #ifdef CONFIG_PCI
@@ -350,42 +350,42 @@ int board_early_init_r(void)
 	 */
 
 	/* Map PCI/X Configuration Space (16MB @ 0x0_FE000000) */
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_BAR0_UPPER,
-	      0);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET +
+		PCI_PFAB_BAR0_UPPER, 0);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_BAR0,
-	      0xFB000001);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_BAR0,
+		0xFB000001);
+	__asm__ __volatile__ ("sync");
 
 	/* Set Bus Number for the attached PCI/X bus (we will use 0 for NB) */
 
-	temp =
-	    in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PCIX_STAT);
+	temp =	in32(CFG_TSI108_CSR_BASE +
+		TSI108_PCI_REG_OFFSET + PCI_PCIX_STAT);
 
 	temp &= ~0xFF00;	/* Clear the BUS_NUM field */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PCIX_STAT,
-	      temp);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PCIX_STAT,
+		temp);
 
 	/* Map PCI/X IO Space (64KB @ 0x0_FD000000) takes one 16MB LUT entry */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_IO_UPPER,
-	      0);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_IO_UPPER,
+		0);
+	__asm__ __volatile__ ("sync");
 
 	/* This register is on the PCI side to interpret the address it receives
-	 * and maps it as a IO address. 
+	 * and maps it as a IO address.
 	 */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_IO,
-	      0xFA000001);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_IO,
+		0xFA000001);
+	__asm__ __volatile__ ("sync");
 
 	/*
 	 * Map PCI/X Memory Space
 	 *
-	 * Transactions directed from OCM to PCI Memory Space are directed 
+	 * Transactions directed from OCM to PCI Memory Space are directed
 	 * from PB to PCI
 	 * unchanged (as defined by PB_OCN_BAR1,2 and LUT settings).
 	 * If address remapping is required the corresponding PCI_PFAB_MEM32
@@ -393,7 +393,7 @@ int board_early_init_r(void)
 	 *
 	 * Map the path from the PCI/X bus into the system memory
 	 *
-	 * The memory mapped window assotiated with PCI P2O_BAR2 provides 
+	 * The memory mapped window assotiated with PCI P2O_BAR2 provides
 	 * access to the system memory without address remapping.
 	 * All system memory is opened for accesses initiated by PCI/X bus
 	 * masters.
@@ -404,13 +404,13 @@ int board_early_init_r(void)
 	 */
 
 	reg_ptr =
-	    (ulong *) (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + 0x500);
+		(ulong *) (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + 0x500);
 
 #ifdef DISABLE_PBM
 
-	/* In case when PBM is disabled (no HW supported cache snoopng on PB) 
-	 * P2O_BAR2 is directly mapped into the system memory without address 
-	 * translation. 
+	/* In case when PBM is disabled (no HW supported cache snoopng on PB)
+	 * P2O_BAR2 is directly mapped into the system memory without address
+	 * translation.
 	 */
 
 	reg_val = 0x00000004;	/* SDRAM port + NO Addr_Translation */
@@ -438,30 +438,30 @@ int board_early_init_r(void)
 	reg_val = 0x00007100;
 #endif
 
-	__asm__ __volatile__("eieio");
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("eieio");
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_PAGE_SIZES,
-	      reg_val);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_PAGE_SIZES,
+		reg_val);
+	__asm__ __volatile__ ("sync");
 
-	/* Set 64-bit PCI bus address for system memory 
-	 * ( 0 is the best choice for easy mapping) 
+	/* Set 64-bit PCI bus address for system memory
+	 * ( 0 is the best choice for easy mapping)
 	 */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR2,
-	      0x00000000);
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR2_UPPER,
-	      0x00000000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR2,
+		0x00000000);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR2_UPPER,
+		0x00000000);
+	__asm__ __volatile__ ("sync");
 
 #ifndef DISABLE_PBM
 	/*
-	 *  The memory mapped window assotiated with PCI P2O_BAR3 provides 
-	 *  access to the system memory using SDRAM OCN port and address 
-	 *  translation. This is alternative way to access SDRAM from PCI 
+	 *  The memory mapped window assotiated with PCI P2O_BAR3 provides
+	 *  access to the system memory using SDRAM OCN port and address
+	 *  translation. This is alternative way to access SDRAM from PCI
 	 *  required for Tsi108 emulation testing.
-	 *  All system memory is opened for accesses initiated by 
+	 *  All system memory is opened for accesses initiated by
 	 *  PCI/X bus masters.
 	 *
 	 *  Initialize LUT associated with PCI P2O_BAR3
@@ -469,7 +469,7 @@ int board_early_init_r(void)
 	 *  set pointer to LUT associated with PCI P2O_BAR3
 	 */
 	reg_ptr =
-	    (ulong *) (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + 0x600);
+		(ulong *) (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + 0x600);
 
 	reg_val = 0x00000004;	/* Destination port = SDC */
 
@@ -483,45 +483,45 @@ int board_early_init_r(void)
 		reg_val += 0x01000000;
 	}
 
-	__asm__ __volatile__("eieio");
-	__asm__ __volatile__("sync");
+	__asm__ __volatile__ ("eieio");
+	__asm__ __volatile__ ("sync");
 
 	/* Configure PCI P2O_BAR3 (size = 512MB, Enabled) */
 
 	reg_val =
-	    in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET +
+		in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET +
 		 PCI_P2O_PAGE_SIZES);
 	reg_val &= ~0x00FF;
 	reg_val |= 0x0071;
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_PAGE_SIZES,
-	      reg_val);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_PAGE_SIZES,
+		reg_val);
+	__asm__ __volatile__ ("sync");
 
 	/* Set 64-bit base PCI bus address for window (0x20000000) */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR3_UPPER,
-	      0x00000000);
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR3,
-	      0x20000000);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR3_UPPER,
+		0x00000000);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR3,
+		0x20000000);
+	__asm__ __volatile__ ("sync");
 
 #endif	/* !DISABLE_PBM */
 
 #ifdef ENABLE_PCI_CSR_BAR	
 	/* open if required access to Tsi108 CSRs from the PCI/X bus */
 	/* enable BAR0 on the PCI/X bus */
-	reg_val =
-	    in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_MISC_CSR);
+	reg_val = in32(CFG_TSI108_CSR_BASE +
+		TSI108_PCI_REG_OFFSET + PCI_MISC_CSR);
 	reg_val |= 0x02;
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_MISC_CSR,
-	      reg_val);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_MISC_CSR,
+		reg_val);
+	__asm__ __volatile__ ("sync");
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR0_UPPER,
-	      0x00000000);
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR0,
-	      CFG_TSI108_CSR_BASE);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR0_UPPER,
+		0x00000000);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_P2O_BAR0,
+		CFG_TSI108_CSR_BASE);
+	__asm__ __volatile__ ("sync");
 
 #endif
 
@@ -531,32 +531,32 @@ int board_early_init_r(void)
 	
 	reg_val = in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_CSR);
 	reg_val |= 0x06;
-	out32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_CSR, reg_val);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_CSR, reg_val);
+	__asm__ __volatile__ ("sync");
 
 #endif	/* CONFIG_PCI */
 
 	/*
 	 * Initialize MPIC outputs (interrupt pins):
 	 * Interrupt routing on the Grendel Emul. Board:
-	 *    PB_INT[0] -> INT (CPU0)
-	 *    PB_INT[1] -> INT (CPU1)
-	 *    PB_INT[2] -> MCP (CPU0)
-	 *    PB_INT[3] -> MCP (CPU1)
+	 * PB_INT[0] -> INT (CPU0)
+	 * PB_INT[1] -> INT (CPU1)
+	 * PB_INT[2] -> MCP (CPU0)
+	 * PB_INT[3] -> MCP (CPU1)
 	 * Set interrupt controller outputs as Level_Sensitive/Active_Low
 	 */
-	out32(CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(0), 0x02);
-	out32(CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(1), 0x02);
-	out32(CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(2), 0x02);
-	out32(CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(3), 0x02);
-	__asm__ __volatile__("sync");
+	out32 (CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(0), 0x02);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(1), 0x02);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(2), 0x02);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_MPIC_REG_OFFSET + MPIC_CSR(3), 0x02);
+	__asm__ __volatile__ ("sync");
 
 	/*
 	 * Ensure that Machine Check exception is enabled
 	 * We need it to support PCI Bus probing (configuration reads)
 	 */
 	
-	reg_val = mfmsr();
+	reg_val = mfmsr ();
 	mtmsr(reg_val | MSR_ME);
 
 	return 0;
@@ -567,7 +567,7 @@ int board_early_init_r(void)
  * used in the misc_init_r function
  */
 
-unsigned long get_l2cr(void)
+unsigned long get_l2cr (void)
 {
 	unsigned long l2controlreg;
 	asm volatile ("mfspr %0, 1017":"=r" (l2controlreg):);
@@ -581,79 +581,82 @@ unsigned long get_l2cr(void)
  *
  */
 
-int misc_init_r(void)
+int misc_init_r (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 #ifdef CFG_CLK_SPREAD	/* Initialize Spread-Spectrum Clock generation */
 	ulong i;
 
 	/* Ensure that Spread-Spectrum is disabled */
-	out32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0, 0);
-	out32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0, 0);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0, 0);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0, 0);
 
 	/* Initialize PLL1: CG_PCI_CLK , internal OCN_CLK
 	 * Uses pre-calculated value for Fout = 800 MHz, Fs = 30 kHz, D = 0.5%
 	 */
 
-	out32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0, 0x002e0044);	/* D = 0.25% */
-	out32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL1, 0x00000039);	/* BWADJ */
+	out32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0,
+		0x002e0044);	/* D = 0.25% */
+	out32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL1,
+		0x00000039);	/* BWADJ */
 
 	/* Initialize PLL0: CG_PB_CLKO  */
 	/* Detect PB clock freq. */
 	i = in32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PWRUP_STATUS);
 	i = (i >> 16) & 0x07;	/* Get PB PLL multiplier */
 
-	out32(CFG_TSI108_CSR_BASE +
-	      TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0, pll0_config[i].ctrl0);
-	out32(CFG_TSI108_CSR_BASE +
-	      TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL1, pll0_config[i].ctrl1);
+	out32 (CFG_TSI108_CSR_BASE +
+		TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0, pll0_config[i].ctrl0);
+	out32 (CFG_TSI108_CSR_BASE +
+		TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL1, pll0_config[i].ctrl1);
 
 	/* Wait and set SSEN for both PLL0 and 1 */
-	udelay(1000);
-	out32(CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0, 0x802e0044);	/* D=0.25% */
-	out32(CFG_TSI108_CSR_BASE +
-	      TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0,
-	      0x80000000 | pll0_config[i].ctrl0);
+	udelay (1000);
+	out32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET + CG_PLL1_CTRL0,
+		0x802e0044);	/* D=0.25% */
+	out32 (CFG_TSI108_CSR_BASE +
+		TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0,
+	 	0x80000000 | pll0_config[i].ctrl0);
 #endif	/* CFG_CLK_SPREAD */
 
 #ifdef CFG_L2
-	l2cache_enable();
+	l2cache_enable ();
 #endif
-	printf("BUS:   %d MHz\n", gd->bus_clk / 1000000);
-	printf("MEM:   %d MHz\n", gd->mem_clk / 1000000);
+	printf ("BUS:   %d MHz\n", gd->bus_clk / 1000000);
+	printf ("MEM:   %d MHz\n", gd->mem_clk / 1000000);
 
 	/*
-	 * All the information needed to print the cache details is avaiblable 
-	 * at this point i.e. above call to l2cache_enable is the very last 
-	 * thing done with regards to enabling diabling the cache. 
+	 * All the information needed to print the cache details is avaiblable
+	 * at this point i.e. above call to l2cache_enable is the very last
+	 * thing done with regards to enabling diabling the cache.
 	 * So this seems like a good place to print all this information
 	 */
 	
-	printf("CACHE: ");
+	printf ("CACHE: ");
 	switch (get_cpu_type()) {
 	case CPU_7447A:
-		printf("L1 Instruction cache - 32KB 8-way");
-		(get_hid0() & (1 << 15)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
-		printf("       L1 Data cache - 32KB 8-way");
-		(get_hid0() & (1 << 14)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
-		printf("       Unified L2 cache - 512KB 8-way");
-		(get_l2cr() & (1 << 31)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
-		printf("\n");
+		printf ("L1 Instruction cache - 32KB 8-way");
+		(get_hid0 () & (1 << 15)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
+		printf ("L1 Data cache - 32KB 8-way");
+		(get_hid0 () & (1 << 14)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
+		printf ("Unified L2 cache - 512KB 8-way");
+		(get_l2cr () & (1 << 31)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
+		printf ("\n");
 		break;
 
 	case CPU_7448:
-		printf("L1 Instruction cache - 32KB 8-way");
-		(get_hid0() & (1 << 15)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
-		printf("       L1 Data cache - 32KB 8-way");
-		(get_hid0() & (1 << 14)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
-		printf("       Unified L2 cache - 1MB 8-way");
-		(get_l2cr() & (1 << 31)) ? printf(" ENABLED\n") :
-		    printf(" DISABLED\n");
+		printf ("L1 Instruction cache - 32KB 8-way");
+		(get_hid0 () & (1 << 15)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
+		printf ("L1 Data cache - 32KB 8-way");
+		(get_hid0 () & (1 << 14)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
+		printf ("Unified L2 cache - 1MB 8-way");
+		(get_l2cr () & (1 << 31)) ? printf (" ENABLED\n") :
+			printf (" DISABLED\n");
 		break;
 	default:
 		break;
