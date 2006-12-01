@@ -340,6 +340,10 @@ int checkcpu (void)
 		puts("SP Rev. B");
 		break;
 
+	case PVR_440SP_RC:
+		puts("SP Rev. C");
+		break;
+
 	case PVR_440SPe_RA:
 		puts("SPe Rev. A");
 		break;

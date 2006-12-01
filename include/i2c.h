@@ -82,4 +82,49 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len);
 uchar i2c_reg_read (uchar chip, uchar reg);
 void  i2c_reg_write(uchar chip, uchar reg, uchar val);
 
+/*
+ * Functions for setting the current I2C bus and its speed
+ */
+
+/*
+ * i2c_set_bus_num:
+ *
+ *  Change the active I2C bus.  Subsequent read/write calls will
+ *  go to this one.
+ *
+ * 	bus - bus index, zero based
+ *
+ * 	Returns: 0 on success, not 0 on failure
+ *
+ */
+int i2c_set_bus_num(unsigned int bus);
+
+/*
+ * i2c_get_bus_num:
+ *
+ *  Returns index of currently active I2C bus.  Zero-based.
+ */
+
+unsigned int i2c_get_bus_num(void);
+
+/*
+ * i2c_set_bus_speed:
+ *
+ *  Change the speed of the active I2C bus
+ *
+ * 	speed - bus speed in Hz
+ *
+ * 	Returns: 0 on success, not 0 on failure
+ *
+ */
+int i2c_set_bus_speed(unsigned int);
+
+/*
+ * i2c_get_bus_speed:
+ *
+ *  Returns speed of currently active I2C bus in Hz
+ */
+
+unsigned int i2c_get_bus_speed(void);
+
 #endif	/* _I2C_H_ */

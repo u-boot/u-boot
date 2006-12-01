@@ -838,9 +838,9 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	unsigned long	timeo;
 
 	if (state == FL_ERASING)
-		timeo += (HZ * 400) / 1000;
+ 		timeo = (CFG_HZ * 400) / 1000;
 	else
-		timeo += (HZ * 20) / 1000;
+		timeo = (CFG_HZ * 20) / 1000;
 
 	if ((state == FL_ERASING) && (this->options & NAND_IS_AND))
 		this->cmdfunc(mtd, NAND_CMD_STATUS_MULTI, -1, -1);
@@ -1713,6 +1713,7 @@ static int nand_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
 				goto out;
 			}
 			*retlen = written;
+			bufstart = (u_char*) &buf[written];
 
 			ofs = autoplace ? mtd->oobavail : mtd->oobsize;
 			if (eccbuf)

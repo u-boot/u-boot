@@ -30,7 +30,7 @@
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
     #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
 #elif defined(CONFIG_MPC83XX)
-    #define TSEC_BASE_ADDR	(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
+    #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
 #endif
 
 

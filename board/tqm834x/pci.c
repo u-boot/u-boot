@@ -69,17 +69,17 @@ void
 pci_init_board(void)
 {
 	volatile immap_t *	immr;
-	volatile clk8349_t *	clk;
-	volatile law8349_t *	pci_law;
-	volatile pot8349_t *	pci_pot;
-	volatile pcictrl8349_t *	pci_ctrl;
-	volatile pciconf8349_t *	pci_conf;
+	volatile clk83xx_t *	clk;
+	volatile law83xx_t *	pci_law;
+	volatile pot83xx_t *	pci_pot;
+	volatile pcictrl83xx_t *	pci_ctrl;
+	volatile pciconf83xx_t *	pci_conf;
 	u16 reg16;
 	u32 reg32;
 	struct	pci_controller * hose;
 
-	immr = (immap_t *)CFG_IMMRBAR;
-	clk = (clk8349_t *)&immr->clk;
+	immr = (immap_t *)CFG_IMMR;
+	clk = (clk83xx_t *)&immr->clk;
 	pci_law = immr->sysconf.pcilaw;
 	pci_pot = immr->ios.pot;
 	pci_ctrl = immr->pci_ctrl;
@@ -186,8 +186,8 @@ pci_init_board(void)
 	hose->region_count = 3;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMRBAR+0x8300),
-			   (CFG_IMMRBAR+0x8304));
+			   (CFG_IMMR+0x8300),
+			   (CFG_IMMR+0x8304));
 
 	pci_register_hose(hose);
 

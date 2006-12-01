@@ -33,6 +33,10 @@
 #if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
 #endif
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 int fixed_sdram(void);
 void sdram_init(void);
 
@@ -59,7 +63,7 @@ int board_early_init_f (void)
 
 long int initdram (int board_type)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
@@ -96,7 +100,7 @@ long int initdram (int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
+	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
@@ -167,8 +171,8 @@ int checkboard (void)
 
 void sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile lbus8349_t *lbc= &immap->lbus;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile lbus83xx_t *lbc= &immap->lbus;
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 
 	puts("\n   SDRAM on Local Bus: ");
@@ -245,8 +249,8 @@ void sdram_init(void)
  */
 void ecc_print_status(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ddr83xx_t *ddr = &immap->ddr;
 
 	printf("\nECC mode: %s\n\n", (ddr->sdram_cfg & SDRAM_CFG_ECC_EN) ? "ON" : "OFF");
 
@@ -320,8 +324,8 @@ void ecc_print_status(void)
 
 int do_ecc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMRBAR;
-	volatile ddr8349_t *ddr = &immap->ddr;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile u32 val;
 	u64 *addr, count, val64;
 	register u64 *i;
@@ -564,3 +568,23 @@ U_BOOT_CMD(
 	"  - re-inits memory"
 );
 #endif /* if defined(CONFIG_DDR_ECC) && defined(CONFIG_DDR_ECC_CMD) */
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 *p;
+	int len;
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+	ft_cpu_setup(blob, bd);
+
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
+}
+#endif

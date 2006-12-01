@@ -2,7 +2,7 @@
  * Copyright (C) 1998  Dan Malek <dmalek@jlc.net>
  * Copyright (C) 1999  Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  * Copyright (C) 2000, 2001,2002 Wolfgang Denk <wd@denx.de>
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * Copyright Freescale Semiconductor, Inc. 2004, 2006. All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -104,9 +104,9 @@ version_string:
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CFG_DEFAULT_IMMR */
-#ifndef CFG_IMMRBAR
-#define CFG_IMMRBAR CONFIG_DEFAULT_IMMR
-#endif /* CFG_IMMRBAR */
+#ifndef CFG_IMMR
+#define CFG_IMMR CONFIG_DEFAULT_IMMR
+#endif /* CFG_IMMR */
 
 /*
  * After configuration, a system reset exception is executed using the
@@ -152,8 +152,8 @@ boot_cold: /* time t 3 */
 	nop
 boot_warm: /* time t 5 */
 	mfmsr	r5			/* save msr contents	*/
-	lis	r3, CFG_IMMRBAR@h
-	ori	r3, r3, CFG_IMMRBAR@l
+	lis	r3, CFG_IMMR@h
+	ori	r3, r3, CFG_IMMR@l
 	stw	r3, IMMRBAR(r4)
 
 	/* Initialise the E300 processor core		*/
@@ -226,7 +226,7 @@ in_flash:
 	GET_GOT			/* initialize GOT access	*/
 
 	/* r3: IMMR */
-	lis	r3, CFG_IMMRBAR@h
+	lis	r3, CFG_IMMR@h
 	/* run low-level CPU init code (in Flash)*/
 	bl	cpu_init_f
 
@@ -446,7 +446,7 @@ init_e300_core: /* time t 10 */
 	mtspr	SRR1, r3			/* Make SRR1 match MSR */
 
 
-	lis	r3, CFG_IMMRBAR@h
+	lis	r3, CFG_IMMR@h
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the Wathcdog values and reset it (if req) */
 	/*------------------------------------------------------*/
@@ -870,6 +870,18 @@ ppcDcbz:
 	dcbz	r0,r3
 	blr
 
+	.globl	ppcDWstore
+ppcDWstore:
+	lfd	1, 0(r4)
+	stfd	1, 0(r3)
+	blr
+
+	.globl	ppcDWload
+ppcDWload:
+	lfd	1, 0(r3)
+	stfd	1, 0(r4)
+	blr
+
 /*-------------------------------------------------------------------*/
 
 /*
@@ -1189,7 +1201,7 @@ map_flash_by_law1:
 	/* When booting from ROM (Flash or EPROM), clear the  */
 	/* Address Mask in OR0 so ROM appears everywhere      */
 	/*----------------------------------------------------*/
-	lis	r3, (CFG_IMMRBAR)@h  /* r3 <= CFG_IMMRBAR    */
+	lis	r3, (CFG_IMMR)@h  /* r3 <= CFG_IMMR    */
 	lwz	r4, OR0@l(r3)
 	li	r5, 0x7fff        /* r5 <= 0x00007FFFF */
 	and	r4, r4, r5
@@ -1214,8 +1226,15 @@ map_flash_by_law1:
 	lis r4, (CFG_FLASH_BASE)@h
 	ori r4, r4, (CFG_FLASH_BASE)@l
 	stw r4, LBLAWBAR1(r3) /* LBLAWBAR1 <= CFG_FLASH_BASE */
-	lis r4, (0x80000016)@h
-	ori r4, r4, (0x80000016)@l
+
+	/* Store 0x80000012 + log2(CFG_FLASH_SIZE) into LBLAWAR1 */
+	lis r4, (0x80000012)@h
+	ori r4, r4, (0x80000012)@l
+	li r5, CFG_FLASH_SIZE
+1:	srawi. r5, r5, 1	/* r5 = r5 >> 1 */
+	addi r4, r4, 1
+	bne 1b
+
 	stw r4, LBLAWAR1(r3) /* LBLAWAR1 <= 8MB Flash Size */
 	blr
 
@@ -1234,17 +1253,23 @@ remap_flash_by_law0:
 	stw r5, BR0(r3) /* r5 <= (CFG_FLASH_BASE & 0xFFFF8000) | (BR0 & 0x00007FFF) */
 
 	lwz r4, OR0(r3)
-	lis r5, 0xFF80 /* 8M */
+	lis r5, ~((CFG_FLASH_SIZE << 4) - 1)
 	or r4, r4, r5
-	stw r4, OR0(r3) /* OR0 <= OR0 | 0xFF800000 */
+	stw r4, OR0(r3)
 
 	lis r4, (CFG_FLASH_BASE)@h
 	ori r4, r4, (CFG_FLASH_BASE)@l
 	stw r4, LBLAWBAR0(r3) /* LBLAWBAR0 <= CFG_FLASH_BASE */
 
-	lis r4, (0x80000016)@h
-	ori r4, r4, (0x80000016)@l
-	stw r4, LBLAWAR0(r3) /* LBLAWAR0 <= 8MB Flash Size */
+	/* Store 0x80000012 + log2(CFG_FLASH_SIZE) into LBLAWAR0 */
+	lis r4, (0x80000012)@h
+	ori r4, r4, (0x80000012)@l
+	li r5, CFG_FLASH_SIZE
+1:	srawi. r5, r5, 1 /* r5 = r5 >> 1 */
+	addi r4, r4, 1
+	bne 1b
+	stw r4, LBLAWAR0(r3) /* LBLAWAR0 <= Flash Size */
+
 
 	xor r4, r4, r4
 	stw r4, LBLAWBAR1(r3)

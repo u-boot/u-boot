@@ -37,10 +37,11 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC83XX		1	/* MPC83XX family */
 #define CONFIG_MPC834X		1	/* MPC834X specific */
+#define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
 
 /* IMMR Base Addres Register, use Freescale default: 0xff400000 */
-#define CFG_IMMRBAR		0xff400000
+#define CFG_IMMR		0xff400000
 
 /* System clock. Primary input clock when in PCI host mode */
 #define CONFIG_83XX_CLKIN	66666000	/* 66,666 MHz */
@@ -55,6 +56,17 @@
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
 #define CFG_LCRR		(LCRR_DBYP | LCRR_CLKDIV_8)
+
+#define CFG_SCCR_INIT		(SCCR_DEFAULT & (~SCCR_CLK_MASK))
+#define CFG_SCCR_TSEC1CM	SCCR_TSEC1CM_1	/* TSEC1 clock setting */
+#define CFG_SCCR_TSEC2CM	SCCR_TSEC2CM_1	/* TSEC2 clock setting */
+#define CFG_SCCR_ENCCM		SCCR_ENCCM_3	/* ENC clock setting */
+#define CFG_SCCR_USBCM		SCCR_USBCM_3	/* USB clock setting */
+#define CFG_SCCR_VAL		( CFG_SCCR_INIT		\
+				| CFG_SCCR_TSEC1CM	\
+				| CFG_SCCR_TSEC2CM	\
+				| CFG_SCCR_ENCCM	\
+				| CFG_SCCR_USBCM	)
 
 /* board pre init: do not call, nothing to do */
 #undef CONFIG_BOARD_EARLY_INIT_F
@@ -83,6 +95,7 @@
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #undef CFG_FLASH_CHECKSUM
 #define CFG_FLASH_BASE		0x80000000	/* start of FLASH   */
+#define CFG_FLASH_SIZE		8		/* FLASH size in MB */
 
 /* buffered writes in the AMD chip set is not supported yet */
 #undef CFG_FLASH_USE_BUFFER_WRITE
@@ -197,14 +210,15 @@ extern int tqm834x_num_flash_banks;
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-#define CFG_NS16550_COM1	(CFG_IMMRBAR + 0x4500)
-#define CFG_NS16550_COM2	(CFG_IMMRBAR + 0x4600)
+#define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
+#define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /*
  * I2C
  */
 #define CONFIG_HARD_I2C				/* I2C with hardware support	*/
 #undef CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#define CONFIG_FSL_I2C
 #define CFG_I2C_SPEED			400000	/* I2C speed: 400KHz		*/
 #define CFG_I2C_SLAVE			0x7F	/* slave address		*/
 #define CFG_I2C_OFFSET			0x3000
@@ -235,9 +249,9 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_MII
 
 #define CFG_TSEC1_OFFSET	0x24000
-#define CFG_TSEC1		(CFG_IMMRBAR + CFG_TSEC1_OFFSET)
+#define CFG_TSEC1		(CFG_IMMR + CFG_TSEC1_OFFSET)
 #define CFG_TSEC2_OFFSET	0x25000
-#define CFG_TSEC2		(CFG_IMMRBAR + CFG_TSEC2_OFFSET)
+#define CFG_TSEC2		(CFG_IMMR + CFG_TSEC2_OFFSET)
 
 #if defined(CONFIG_TSEC_ENET)
 
@@ -460,8 +474,8 @@ extern int tqm834x_num_flash_banks;
 #endif
 
 /* IMMRBAR */
-#define CFG_IBAT6L	(CFG_IMMRBAR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_IBAT6U	(CFG_IMMRBAR | BATU_BL_1M | BATU_VS | BATU_VP)
+#define CFG_IBAT6L	(CFG_IMMR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CFG_IBAT6U	(CFG_IMMR | BATU_BL_1M | BATU_VS | BATU_VP)
 
 /* FLASH */
 #define CFG_IBAT7L	(CFG_FLASH_BASE | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
