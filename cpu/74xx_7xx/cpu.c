@@ -108,11 +108,11 @@ get_cpu_type(void)
 	case 0x8003:
 		type = CPU_7447A;
 		break;
-		
+
 	case 0x8004:
 		type = CPU_7448;
 		break;
-		
+
 	default:
 		break;
 	}
@@ -164,6 +164,10 @@ int checkcpu (void)
 		str = "MPC7410";
 		break;
 
+	case CPU_7447A:
+		str = "MPC7447A";
+		break;
+
 	case CPU_7448:
 		str = "MPC7448";
 		break;
@@ -178,14 +182,6 @@ int checkcpu (void)
 
 	case CPU_7457:
 		str = "MPC7457";
-		break;
-
-	case CPU_7447A:
-		str = "MPC7447A";
-		break;
-
-	case CPU_7448:
-		str = "MPC7448";
 		break;
 
 	default:

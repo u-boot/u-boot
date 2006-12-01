@@ -439,6 +439,5 @@
  */
 #define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02	/* Software reboot */
-#define CFG_EXCEPTION_AFTER_RELOCATE
 #define CFG_SERIAL_HANG_IN_EXCEPTION
 #endif	/* __CONFIG_H */
