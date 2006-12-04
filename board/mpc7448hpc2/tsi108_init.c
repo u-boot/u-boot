@@ -147,7 +147,7 @@ int board_early_init_f (void)
 	gd->mem_clk = 0;
 	i = in32 (CFG_TSI108_CSR_BASE + TSI108_CLK_REG_OFFSET +
 			CG_PWRUP_STATUS);
-	i = (i >> 20) & 0x07;	/* value of SW4[4:7] */
+	i = (i >> 20) & 0x07;	/* Get GD PLL multiplier */
 	switch (i) {
 	case 0:	/* external clock */
 		printf ("Using external clock\n");
@@ -229,7 +229,7 @@ int board_early_init_r (void)
 
 	__asm__ __volatile__ ("sync");
 
-	/* Base addresses for Cs0, CS1, CS2, CS3 */
+	/* Base addresses for CS0, CS1, CS2, CS3 */
 
 	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B0_ADDR,
 		0x00000000);

@@ -37,6 +37,8 @@
  * on our cache or tlb entries.
  */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct exception_table_entry
 {
 	unsigned long insn, fixup;
@@ -50,22 +52,20 @@ search_one_table(const struct exception_table_entry *first,
 		 const struct exception_table_entry *last,
 		 unsigned long value)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	while (first <= last) {
 		const struct exception_table_entry *mid;
 		long diff;
 
 		mid = (last - first) / 2 + first;
-		if (mid > CFG_MONITOR_BASE){ 
+		if (mid > CFG_MONITOR_BASE) {
 		/* exception occurs in FLASH, before u-boot relocation.
-		 * No relocation offset is needed. 
+		 * No relocation offset is needed.
 		 */
 			diff = mid->insn - value;
 			if (diff == 0)
 				return mid->fixup;
 		} else {
-		/* exception occurs in RAM, after u-boot relocation. 
+		/* exception occurs in RAM, after u-boot relocation.
 		 * A relocation offset should be added.
 		 */
 			diff = (mid->insn + gd->reloc_off) - value;
