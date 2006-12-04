@@ -108,11 +108,11 @@ get_cpu_type(void)
 	case 0x8003:
 		type = CPU_7447A;
 		break;
-		
+
 	case 0x8004:
 		type = CPU_7448;
 		break;
-		
+
 	default:
 		break;
 	}
@@ -164,6 +164,14 @@ int checkcpu (void)
 		str = "MPC7410";
 		break;
 
+	case CPU_7447A:
+		str = "MPC7447A";
+		break;
+
+	case CPU_7448:
+		str = "MPC7448";
+		break;
+
 	case CPU_7450:
 		str = "MPC7450";
 		break;
@@ -174,14 +182,6 @@ int checkcpu (void)
 
 	case CPU_7457:
 		str = "MPC7457";
-		break;
-
-	case CPU_7447A:
-		str = "MPC7447A";
-		break;
-
-	case CPU_7448:
-		str = "MPC7448";
 		break;
 
 	default:
@@ -241,7 +241,7 @@ soft_restart(unsigned long addr)
 void
 do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-    	ulong addr;
+	ulong addr;
 	/* flush and disable I/D cache */
 	__asm__ __volatile__ ("mfspr	3, 1008"	::: "r3");
 	__asm__ __volatile__ ("ori	5, 5, 0xcc00"	::: "r5");
@@ -303,7 +303,7 @@ watchdog_reset(void)
 
 #ifdef CONFIG_OF_FLAT_TREE
 void
-ft_cpu_setup(void *blob, bd_t *bd)
+ft_cpu_setup (void *blob, bd_t *bd)
 {
 	u32 *p;
 	ulong clock;
@@ -311,18 +311,18 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		
 	clock = bd->bi_busfreq;
 	
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	p = ft_get_prop (blob, "/cpus/" OF_CPU "/bus-frequency", &len);
 	if (p != NULL)
-		*p = cpu_to_be32(clock);
+		*p = cpu_to_be32 (clock);
 
 #if defined(CONFIG_TSI108_ETH)
-	p = ft_get_prop(blob, "/" OF_TSI "/ethernet@6200/address", &len);
-		memcpy(p, bd->bi_enetaddr, 6);
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6200/address", &len);
+		memcpy (p, bd->bi_enetaddr, 6);
 #endif
- 
+
 #if defined(CONFIG_HAS_ETH1)
-	p = ft_get_prop(blob, "/" OF_TSI "/ethernet@6600/address", &len);
-		memcpy(p, bd->bi_enet1addr, 6);
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6600/address", &len);
+		memcpy (p, bd->bi_enet1addr, 6);
 #endif
 }
 #endif

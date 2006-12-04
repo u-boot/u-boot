@@ -1,3 +1,737 @@
+commit 8d9a8610b8256331132227e9e6585c6bd5742787
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Nov 30 01:54:07 2006 +0100
+
+    Code cleanup. Update CHANGELOG.
+
+commit 726e90aacf0b1ecb0e7055be574622fbe3e450ba
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Wed Nov 29 16:23:42 2006 +0100
+
+    [PATCH] [MPC52xx] Use IPB bus frequency for SOC peripherals
+
+    The soc node of the mpc52xx needs to be loaded with the IPB bus frequency,
+    not the XLB frequency.
+
+    This patch depends on the previous patches for MPC52xx device tree support
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
+
+commit 1eac2a71417b6675b11aace72102a2e7fde8f5c6
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 15:42:37 2006 +0100
+
+    [PATCH] Add support for Prodrive P3M750 & P3M7448 (P3Mx) boards
+
+    This patch adds support for the Prodrive P3M750 (PPC750 & MV64460)
+    and the P3M7448 (MPC7448 & MV64460) PMC modules. Both modules are
+    quite similar and share the same board directory "prodrive/p3mx"
+    and the same config file "p3mx.h".
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1bdd46832aeb569f5e04b1f20f64318525b6525a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 12:53:15 2006 +0100
+
+    [PATCH] common/cmd_elf.c: Enable loadaddr as parameter in bootvx command
+
+    In the bootvx command the load address was only read from the env
+    variable "loadaddr" and not optionally passed as paramter as described
+    in the help. This is fixed with this patch. The behaviour is now the
+    same as in the bootelf command.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4e26f1074c3ac1bd8fd094f0dc4a1c4a0b15a592
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 29 12:03:57 2006 +0100
+
+    [PATCH] include/ppc440.h minor error affecting interrupts
+
+    Fixed include/ppc440.c for UIC address Bug
+
+    Corrects bug affecting the addresses for the universal interrupt
+    controller UIC2 and UIC3 on the PPC440 Epx, GRx, and SPE chips.
+
+    Signed-off-by: Jeff Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1939d969443ccf316cab2bf32ab1027d4db5ba1a
+Author: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date:	Tue Nov 28 16:17:27 2006 -0600
+
+    Make fsl-i2c not conflict with SOFT I2C
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 14198bf768fdc958e3c1afd2404e5262208e98d7
+Author: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date:	Tue Nov 28 16:17:18 2006 -0600
+
+    Fix I2C master address initialization.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit cf3d045e51ca8dcc6cf759827140861d6ac25c04
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Nov 28 23:31:19 2006 -0600
+
+    Assign maintainers for mpc8349emds and mpc8360emds
+
+    Dave for mpc8360emds, and me for mpc8349emds.
+
+commit 1aa934c81b77f2080d3ca4b226eab67b17a33961
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Nov 28 23:28:33 2006 -0600
+
+    Eliminate gcc 4 'used uninitialized' warnings in drivers/qe/uccf.c
+
+    give initial values for reg_num, shift, p_cmxucr in ucc_set_clk_src
+    since they are passed by reference to ucc_get_cmxucr_reg and assigned.
+
+commit e857a5bdb3954b896c0920cb9d8d2b1b9c107ce5
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Nov 28 12:09:35 2006 -0600
+
+    mpc83xx: Miscellaneous code style fixes
+
+    Implement various code style fixes and similar changes.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit e59581c56ab5d6e0207ddac3b2c1d55cb36ec706
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 17:55:49 2006 +0100
+
+    [PATCH] Enable the IceCube/lite5200 variants to pass a device tree to Linux.
+
+    This patch adds the code and configuration necessary to boot with an
+    arch/powerpc Linux kernel.
+
+    Signed-off-by: Grant Likely <grant.likely@gmail.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit e732faec95a83cb468b4850ae807c8301dde8f6a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 16:09:24 2006 +0100
+
+    [PATCH] PPC4xx: 440SP Rev. C detection added
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e7f3e9ff01fbd7fa72eb42a9675fbed6bc4736b0
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 11:04:45 2006 +0100
+
+    [PATCH] nand: Fix patch merge problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4f4b602ec7524a032bdf3c6d28c7f525a4a67eaa
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 22:53:53 2006 +0100
+
+    Update CHANGELOG
+
+commit f6e495f54cdb8fe340b9c03deab40ad746d52fae
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:43:25 2006 +0100
+
+    [PATCH] 4xx_enet.c: Correct the setting of zmiifer register
+
+    Patch below corrects the setting of the zmiifer register, it was
+    overwritting the register rather than ORing the settings.
+
+    Signed-off-by: Neil Wilson <NWilson@airspan.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d1a72545296800b7e219f93104ad5836f0003d66
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:34:10 2006 +0100
+
+    [PATCH] Select NAND embedded environment from board configuration
+
+    The current NAND Bootloader setup forces the environment
+    variables to be in line with the bootloader. This change
+    enables the configuration to be made in the board include
+    file instead so that it can be individually enabled.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 15784862857c3c2214498defcfed84ff137fb81e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:22:19 2006 +0100
+
+    [PATCH] nand_wait() timeout fixes
+
+    Two fixes for the nand_wait() function in
+    drivers/nand/nand_base.c:
+
+    1. Use correct timeouts. The original timeouts in Linux
+    source are 400ms and 20ms not 40s and 20s
+
+    2. Return correct error value in case of timeout. 0 is
+    interpreted as OK.
+
+    Signed-off-by: Rui Sousa <rui.sousa@laposte.net>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit da5553b095bf04f4f109ad7e565dae3aba47b230
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 17:04:06 2006 +0100
+
+    [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
+
+    This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
+    arguments to bootm.	 It removes the getenv("disable_of") test that used
+    to be used for this purpose.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit a9398e018593782c5fa7d0741955fc1256b34c1e
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 27 15:32:42 2006 +0100
+
+    Minor code cleanup. Update CHANGELOG.
+
+commit 1729b92cde575476684bffe819d0b7791b57bff2
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:52:04 2006 +0100
+
+    [PATCH] 4xx: Fix problem with board specific reset code (now for real)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cc5ee8a92a0e3ca6f727af71b8fd206460c7afd7
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:49:51 2006 +0100
+
+    [PATCH] alpr: remove unused board specific flash driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1f94d162e2b5f0edc28d9fb11482502c44d218e1
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:48:41 2006 +0100
+
+    [PATCH] 4xx: Fix problem with board specific reset code
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ec0c2ec725aec9524a177a77ce75559e644a931a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:46:06 2006 +0100
+
+    [PATCH] Remove testing 4xx enet PHY setup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1c2ce2262069510f31c7d3fd7efd3d58b8c0c148
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 27 14:12:17 2006 +0100
+
+    [PATCH] Update Prodrive ALPR board support (440GX)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 78d620ebb5871d252270dedfad60c6568993b780
+Author: Wolfgang Denk <wd@atlas.denx.de>
+Date:	Thu Nov 23 22:58:58 2006 +0100
+
+    Updates for TQM5200 modules:
+    - fix off-by-one error in board/tqm5200/cam5200_flash.c error message
+    - simplify "udate" definitions
+
+commit 2053283304eeddf250d109e6791eb6fa4cad14f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 22 13:20:50 2006 +0100
+
+    [PATCH] PPC4xx start.S: Fix for processor errata
+
+    Fixed cpu/ppc4xx/start.S for 440EPx Errata: further corrects PPC440EPx
+    errata 1.12: 440_33 by moving patch up in code.
+
+    Signed-off-by: Jeff Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4ef6251403f637841000e0fef9e832aa01339822
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 20 20:39:52 2006 +0100
+
+    [PATCH] Update AMCC Sequoia config file to support 64MByte NOR FLASH
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbd8da164b976d38616bd9c69c5e86e193cdf0
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 20 10:28:30 2006 +0100
+
+    Update CHANGELOG
+
+commit 260421a21e934a68d31fb6125b0fbd2631a8ca20
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 13 13:55:24 2006 +0100
+
+    [PATCH] CFI driver AMD Command Set Top boot geometry reversal, etc. [Updated]
+
+       * Adds support for AMD command set Top Boot flash geometry reversal
+       * Adds support for reading JEDEC Manufacturer ID and Device ID
+       * Adds support for displaying command set, manufacturer id and
+	 device ids (flinfo)
+       * Makes flinfo output to be consistent when CFG_FLASH_EMPTY_INFO defined
+       * Removes outdated change history (refer to git log instead)
+
+    Signed-off-by: Tolunay Orkun <listmember@orkun.us>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b21b511d4c50408f4853f46f06b601272196223f
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Nov 12 21:13:23 2006 +0100
+
+    Update CHANGELOG
+
+commit ce3f1a40c507afbab06c5eb58ccdc6713eda3245
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:48:22 2006 +0100
+
+    Disable the watchdog in the default config for the V38B board.
+
+commit 44a47e6db2694841211f1c8fdbafd36992e9cd1a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sat Nov 11 22:43:00 2006 +0100
+
+    Change the GPIO pin multiplexing configuration for V38B. The USB GPIO pin
+    group is enabled for USB earlier (in cpu_init_f() instead of
+    usb_lowlevel_init()).
+
+commit 91650b3e4de688038d4f71279c44858e3e2c6870
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Nov 6 17:06:36 2006 +0100
+
+    Sequential accesses to non-existent memory must be synchronized,
+    at least on G2 cores.
+
+    This fixes get_ram_size() problems on MPC5200 Rev. B boards.
+
+commit be5e61815d5a1fac290ce9c0ef09cb6a8e4288fa
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Nov 3 19:15:00 2006 -0600
+
+    mpc83xx: Update 83xx to use fsl_i2c.c
+
+    Update the 83xx tree to use I2C support in drivers/fsl_i2c.c.  Delete
+    cpu/mpc83xx/i2c.c, include/asm-ppc/i2c.h, and all references to those files.
+    Added multiple I2C bus support to fsl_i2c.c.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit d239d74b1c937984bc519083a8e7de373a390f06
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Nov 3 12:00:28 2006 -0600
+
+    mpc83xx: Replace CFG_IMMRBAR with CFG_IMMR
+
+    Replace all instances of CFG_IMMRBAR with CFG_IMMR, so that the 83xx
+    tree matches the other 8xxx trees.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit f7fb2e703ec9688541416962724adff70a7322cb
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Nov 2 19:47:11 2006 -0600
+
+    mpc83xx: Lindent and clean up cpu/mpc83xx/speed.c
+
+commit 90f30a710a3c619b5405860a686c4ddfc495d4b6
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Thu Nov 2 18:05:50 2006 -0600
+
+    mpc83xx: Fix the incorrect dcbz operation
+
+    The 834x rev1.x silicon has one CPU5 errata.
+
+    The issue is when the data cache locked with
+    HID0[DLOCK], the dcbz instruction looks like no-op inst.
+
+    The right behavior of the data cache is when the data cache
+    Locked with HID0[DLOCK], the dcbz instruction allocates
+    new tags in cache.
+
+    The 834x rev3.0 and later and 8360 have not this bug inside.
+
+    So, when 834x rev3.0/8360 are working with ECC, the dcbz
+    instruction will corrupt the stack in cache, the processor will
+    checkstop reset.
+
+    However, the 834x rev1.x can work with ECC with these code,
+    because the sillicon has this cache bug. The dcbz will not
+    corrupt the stack in cache.
+    Really, it is the fault code running on fault sillicon.
+
+    This patch fix the incorrect dcbz operation. Instead of
+    CPU FP writing to initialise the ECC.
+
+    CHANGELOG:
+    * Fix the incorrect dcbz operation instead of CPU FP
+    writing to initialise the ECC memory. Otherwise, it
+    will corrupt the stack in cache, The processor will checkstop
+    reset.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit bf0b542d6773a5a1cbce77691f009b06d9aeb57d
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Nov 1 00:10:40 2006 -0600
+
+    mpc83xx: add OF_FLAT_TREE bits to 83xx boards
+
+    add ft_pci_setup, OF_CPU, OF_SOC, OF_TBCLK, and
+    STDOUT_PATH configuration bits to mpc8349emds,
+    mpc8349itx, and mpc8360emds board code.
+
+    redo environment to use bootm with the fdtaddr
+    for booting ARCH=powerpc kernels by default,
+    and provide default fdtaddr values.
+
+commit 48041365b3420589ad464ebc7752e0053538b729
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Nov 1 00:07:25 2006 -0600
+
+    mpc83xx: change ft code to modify local-mac-address property
+
+    Update 83xx OF code to update local-mac-address properties
+    for ethernet instead of the obsolete 'address' property.
+
+commit 9ca880a250870a7d55754291b5591d2b5fe89b54
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Oct 31 21:23:16 2006 -0600
+
+    mpc83xx: Fix dual I2C support for the MPC8349ITX, MPC8349EMDS, TQM834x, and MPC8360EMDS
+
+    This patch also adds an improved I2C set_speed(), which handles all clock
+    frequencies.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit ac4b5622ce050b5ee1e154b98df630d778661632
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Tue Oct 31 19:54:59 2006 -0600
+
+    mpc83xx: add the README.mpc8360emds
+
+    add doc/README.mpc8360emds to accompany the new board support
+
+commit 7737d5c658c606f999dfbe3e86b0fed49e5c50ef
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Nov 3 12:11:15 2006 -0600
+
+    mpc83xx: add QE ethernet support
+
+    this patch adds support for the QUICC Engine based UCC gigabit ethernet device.
+
+commit 5f8204394e39bbe8cd9f08b8f8d145b6c01f7c73
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Nov 3 19:33:44 2006 -0600
+
+    mpc83xx: Add MPC8360EMDS basic board support
+
+    Add support for the Freescale MPC8360EMDS board.
+    Includes DDR, DUART, Local Bus, PCI.
+
+commit 23892e49352de74f7fac36ff90bb1be143d195e3
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Tue Oct 31 19:30:40 2006 -0600
+
+    mpc83xx: add the QUICC Engine (QE) immap file
+
+    common QE immap file.  Also required for 8360.
+
+commit b701652a4992bdcc62fb1a6038a85beef9e55da4
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Tue Oct 31 19:25:38 2006 -0600
+
+    mpc83xx: Add 8360 specifics to 83xx immap
+
+    Mainly add QE device dependencies, with appropriate 8360 protection.
+    Lindent also run.
+
+commit 988833324a7fda482c8ac3ca23eb539f8232e404
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Oct 31 19:14:41 2006 -0600
+
+    mpc83xx: Fix PCI, USB, bootargs for MPC8349E-mITX
+
+    PREREQUISITE PATCHES:
+
+    * This patch can only be applied after the following patches have been applied:
+
+      1) DNX#2006092142000015 "Add support for the MPC8349E-mITX  1/2"
+      2) DNX#2006092142000024 "Add support for the MPC8349E-mITX  2/2"
+
+    CHANGELOG:
+
+    * For the 8349E-mITX, fix some size values in pci_init_board(), enable
+      the clock for the 2nd USB board (Linux kernel will hang otherwise),
+      and fix the CONFIG_BOOTARGS macro.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 2ad6b513b31070bd0c003792ed1c3e7f5d740357
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Oct 31 18:44:42 2006 -0600
+
+    mpc83xx: Add support for the MPC8349E-mITX
+
+    PREREQUISITE PATCHES:
+
+    * This patch can only be applied after the following patches have been applied:
+
+      1) DNX#2006090742000024 "Add support for multiple I2C buses"
+      2) DNX#2006090742000033 "Multi-bus I2C implementation of MPC834x"
+      3) DNX#2006091242000041 "Additional MPC8349 support for multibus i2c"
+      4) DNX#2006091242000078 "Add support for variable flash memory sizes on 83xx systems"
+      5) DNX#2006091242000069 "Add support for Errata DDR6 on MPC 834x systems"
+
+    CHANGELOG:
+
+    * Add support for the Freescale MPC8349E-mITX reference design platform.
+      The second TSEC (Vitesse 7385 switch) is not supported at this time.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 183da6d9b446cc12123455844ad1187e2375626f
+Author: Ben Warren <bwarren@qstreams.com>
+Date:	Tue Sep 12 10:15:53 2006 -0400
+
+    Additional MPC8349 support for multibus i2c
+
+    Hello,
+
+    Here is a patch for a file that was accidentally left out of a previous
+    attempt.
+
+    It accompanies the patch with ticket DNX#2006090742000024
+
+    CHANGELOG:
+	    Change PCI initialization to use new multi-bus I2C API.
+
+    regards,
+    Ben
+
+commit b24f119d672b709d153ff2ac091d4aa63ec6877d
+Author: Ben Warren <bwarren@qstreams.com>
+Date:	Thu Sep 7 16:51:04 2006 -0400
+
+    Multi-bus I2C implementation of MPC834x
+
+    Hello,
+
+    Attached is a patch implementing multiple I2C buses on the MPC834x CPU
+    family and the MPC8349EMDS board in particular.
+    This patch requires Patch 1 (Add support for multiple I2C buses).
+    Testing was performed on a 533MHz board.
+
+    /*** Note: This patch replaces ticket DNX#2006083042000027 ***/
+
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+    CHANGELOG:
+	    Implemented driver-level code to support two I2C buses on the
+    MPC834x CPU family and the MPC8349EMDS board.  Available I2C bus speeds
+    are 50kHz, 100kHz and 400kHz on each bus.
+
+    regards,
+    Ben
+
+commit bb99ad6d8257bf828f150d40f507b30d80a4a7ae
+Author: Ben Warren <bwarren@qstreams.com>
+Date:	Thu Sep 7 16:50:54 2006 -0400
+
+    Add support for multiple I2C buses
+
+    Hello,
+
+    Attached is a patch providing support for multiple I2C buses at the
+    command level.  The second part of the patch includes an implementation
+    for the MPC834x CPU and MPC8349EMDS board.
+
+    /*** Note: This patch replaces ticket DNX#2006083042000018 ***/
+
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+    Overview:
+
+    1. Include new 'i2c' command (based on USB implementation) using
+    CONFIG_I2C_CMD_TREE.
+
+    2. Allow multiple buses by defining CONFIG_I2C_MULTI_BUS.  Note that
+    the commands to change bus number and speed are only available under the
+    new 'i2c' command mentioned in the first bullet.
+
+    3. The option CFG_I2C_NOPROBES has been expanded to work in multi-bus
+    systems.  When CONFIG_I2C_MULTI_BUS is used, this option takes the form
+    of an array of bus-device pairs.  Otherwise, it is an array of uchar.
+
+    CHANGELOG:
+	    Added new 'i2c' master command for all I2C interaction.  This is
+    conditionally compiled with CONFIG_I2C_CMD_TREE.  New commands added for
+    setting I2C bus speed as well as changing the active bus if the board
+    has more than one (conditionally compiled with
+    CONFIG_I2C_MULTI_BUS).  Updated NOPROBE logic to handle multiple buses.
+    Updated README.
+
+    regards,
+    Ben
+
+commit bed85caf872714ebf53013967a695c9d63acfc68
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Oct 31 18:13:36 2006 -0600
+
+    mpc83xx: Add support for Errata DDR6 on MPC 834x systems
+
+    CHANGELOG:
+
+    * Errata DDR6, which affects all current MPC 834x processors, lists changes
+      required to maintain compatibility with various types of DDR memory.  This
+      patch implements those changes.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit afd6e470f639883002c7c59d562690a5cb0f4865
+Author: Timur Tabi <timur@freescale.com>
+Date:	Wed Oct 25 18:45:23 2006 -0500
+
+    mpc83xx: fix TQM build by defining a CFG_FLASH_SIZE for it
+
+commit 31068b7c4abeefcb2c8fd4fbeccc8ec6c6d0475a
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Aug 22 17:07:00 2006 -0500
+
+    mpc83xx: Add support for variable flash memory sizes on 83xx systems
+
+    CHANGELOG:
+
+    * On 83xx systems, use the CFG_FLASH_SIZE macro to program the LBC local access
+       window registers, instead of using a hard-coded value of 8MB.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 2fc34ae66e73fa7841d1a006dc1b5dcbc1f78965
+Author: Tanya Jiang <tanya.jiang@freescale.com>
+Date:	Thu Aug 3 18:38:13 2006 +0800
+
+    mpc83xx: Unified TQM834x variable names with 83xx and consolidated macros
+
+    Unified TQM834x variable names with 83xx and consolidated macro
+    in preparation for the 8360 and other upcoming 83xx devices.
+
+    Signed-off-by: Tanya Jiang <tanya.jiang@freescale.com>
+
+commit f6eda7f80ccc13d658020268c507d7173cf2e8aa
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Wed Oct 25 14:41:21 2006 -0500
+
+    mpc83xx: Changed to unified mpx83xx names and added common 83xx changes
+
+    Incorporated the common unified variable names and the changes in preparation
+    for releasing mpc8360 patches.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 3894c46c27c64891f93ac04edde86a9fa9758d92
+Author: Tanya Jiang <tanya.jiang@freescale.com>
+Date:	Thu Aug 3 18:36:02 2006 +0800
+
+    mpc83xx: Fix missing build for mpc8349emds pci.c
+
+    Make pci build for mpc8349emds
+
+    Signed-off-by: Tanya Jiang <tanya.jiang@freescale.com>
+
+commit 09a81ff740b29deea1e2ab08a3c2ac136c2e6219
+Author: Tanya Jiang <tanya.jiang@freescale.com>
+Date:	Thu Aug 3 18:39:49 2006 +0800
+
+    mpc83xx: Removed unused file resetvec.S for mpc83xx cpu
+
+    Removed unused file resetvec.S for mpc83xx cpu
+
+    Signed-off-by: Tanya Jiang <tanya.jiang@freescale.com>
+
+commit 04f899fc465c3e44f2b55ecc70618f5696fc0ddf
+Author: Nick Spence <Nick.Spence@freescale.com>
+Date:	Sat Sep 30 00:32:59 2006 -0700
+
+    NAND Flash verify across block boundaries
+
+    This patch addresses a problem when CONFIG_MTD_NAND_VERIFY_WRITE is
+    defined
+    and the write crosses a block boundary. The pointer to the verification
+    buffer (bufstart) is not being updated to reflect the starting of the
+    new
+    block so the verification of the second block fails.
+
+    CHANGELOG:
+
+    * Fix NAND FLASH page verification across block boundaries
+
+commit f484dc791a3932537213c43c654cc1295c64b84c
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Thu Sep 7 07:39:46 2006 -0700
+
+    Added RGMII support to the TSECs and Marvell 881111 Phy
+
+    Added a phy initialization to adjust the RGMII RX and TX timing
+    Always set the R100 bit in 100 BaseT mode regardless of the TSEC mode
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+
+commit c59200443072353044aa4bf737a5a60f9a9af231
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Nov 2 15:15:01 2006 +0100
+
+    Release U-Boot 1.1.6
+
+commit 25721b5cec2be4bce79cfade17ec8f6aa1e67526
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 02:04:38 2006 +0100
+
+    Finish up support for MarelV38B board
+     - add watchdog support
+     - enable GPIO_WKUP_7 pin for input
+     - code cleanup
+
+commit ffa150bc90c943ca265170bd1be3f293674dd5c7
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:45:46 2006 +0100
+
+    - Fix issues related to the use of ELDK 4 when compiling for MarelV38B:
+	  * remove warnings when compiling ethaddr.c
+	  * adjust linker script (fixes a crash resulting from incorrect
+	  definition of __u_boot_cmd_start)
+    - Some MarelV38B code cleanup.
+
+commit dae80f3caf9754a6dd3ddf3cf903d0c46cbd4385
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:38:16 2006 +0100
+
+    - Add MPC5XXX register definition MPC5XXX_WU_GPIO_DATA_I and change the
+      MPC5XXX_WU_GPIO_DATA macro to MPC5XXX_WU_GPIO_DATA_O (per MPC5200 User's
+      Manual). Replace the uses of MPC5XXX_WU_GPIO_DATA with
+      MPC5XXX_WU_GPIO_DATA_O for affected boards.
+
+    - Add defintions for some MPC5XXX GPIO pins.
+
+commit 82d9c9ec29a1bec1b03ba616425ebaed231072c8
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Nov 1 01:34:29 2006 +0100
+
+    Changed MarelV38B board make target to lowercase. Config file cleanup.
+
 commit 1954be6e9c9421b45d0a9d05b10356acc7563150
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Sun Oct 29 01:03:51 2006 +0200
@@ -451,6 +1185,34 @@ Date:	Tue Oct 10 17:02:22 2006 -0500
 
     Fix whitespace and 80-col issues.
 
+commit 5c912cb1c31266c66ca59b36f9b6f87296421d75
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:36:51 2006 +0200
+
+    CFG_NAND_QUIET_TEST added to not warn upon missing NAND device
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit 5bc528fa4da751d472397b308137238a6465afd2
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:35:25 2006 +0200
+
+    Update ALPR code (NAND support working now)
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit 77d5034847d328753b80c46b83f960a14a26f40e
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:33:03 2006 +0200
+
+    Remove compile warnings in fpga code
+    Patch by Stefan Roese, 07 Oct 2006
+
+commit f3443867e90d2979a7dd1c65b0d537777e1f9850
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 7 11:30:52 2006 +0200
+
+    Add CONFIG_BOARD_RESET to configure board specific reset function
+    Patch by Stefan Roese, 07 Oct 2006
+
 commit f55df18187e7a45cb73fec4370d12135e6691ae1
 Author: John Traill <john.traill@freescale.com>
 Date:	Fri Sep 29 08:23:12 2006 +0100
@@ -682,6 +1444,21 @@ Date:	Wed Aug 16 10:54:09 2006 -0500
     * Support for FDT in uImage format, error when using FDT from flash
 
     Signed-off-by: Matthew McClintock <msm@freescale.com>
+
+commit 899620c2d66d4eef3b2a0034d062e71d45d886c9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 15 14:22:35 2006 +0200
+
+    Add initial support for the ALPR board from Prodrive
+    NAND needs some additional testing
+    Patch by Heiko Schocher, 15 Aug 2006
+
+commit f0ff4692ff3372dec55074a8eb444943ab095abb
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 15 14:15:51 2006 +0200
+
+    Add FPGA Altera Cyclone 2 support
+    Patch by Heiko Schocher, 15 Aug 2006
 
 commit fecf1c7e4de1b2779edc18742b91c22bdc32b68b
 Author: Jon Loeliger <jdl@freescale.com>

@@ -270,7 +270,7 @@ int	misc_init_r   (void);
 void	jumptable_init(void);
 
 /* common/memsize.c */
-int	get_ram_size  (volatile long *, long);
+long	get_ram_size  (volatile long *, long);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
@@ -400,6 +400,11 @@ void		ppcDcbf(unsigned long value);
 void		ppcDcbi(unsigned long value);
 void		ppcSync(void);
 void		ppcDcbz(unsigned long value);
+#endif
+
+#if defined (CONFIG_MPC83XX)
+void		ppcDWload(unsigned int *addr, unsigned int *ret);
+void		ppcDWstore(unsigned int *addr, unsigned int *value);
 #endif
 
 /* $(CPU)/cpu.c */

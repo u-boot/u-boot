@@ -55,6 +55,7 @@ extern int skge_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
+extern int uec_initialize(int);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -143,13 +144,10 @@ int eth_initialize(bd_t *bis)
 	miiphy_init();
 #endif
 
-#ifdef CONFIG_DB64360
+#if defined(CONFIG_DB64360) || defined(CONFIG_CPCI750)
 	mv6436x_eth_initialize(bis);
 #endif
-#ifdef CONFIG_CPCI750
-	mv6436x_eth_initialize(bis);
-#endif
-#ifdef CONFIG_DB64460
+#if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
 #endif
 #if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
@@ -196,6 +194,12 @@ int eth_initialize(bd_t *bis)
 #    elif defined(CONFIG_MPC83XX_TSEC4)
 	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
 #    endif
+#endif
+#if defined(CONFIG_UEC_ETH1)
+	uec_initialize(0);
+#endif
+#if defined(CONFIG_UEC_ETH2)
+	uec_initialize(1);
 #endif
 #if defined(CONFIG_MPC86XX_TSEC1)
        tsec_initialize(bis, 0, CONFIG_MPC86XX_TSEC1_NAME);

@@ -66,7 +66,7 @@ int init_vcxk(void)
 	return 1;
 }
 
-void 	vcxk_loadimage(ulong source)
+void	vcxk_loadimage(ulong source)
 {
 	int cnt;
 	vcxk_acknowledge_wait();

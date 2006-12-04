@@ -610,11 +610,10 @@ static void adjust_link(struct eth_device *dev)
 			regs->maccfg2 = ((regs->maccfg2 & ~(MACCFG2_IF))
 					 | MACCFG2_MII);
 
-			/* If We're in reduced mode, we need
-			 * to say whether we're 10 or 100 MB.
+			/* Set R100 bit in all modes although
+			 * it is only used in RGMII mode
 			 */
-			if ((priv->speed == 100)
-			    && (priv->flags & TSEC_REDUCED))
+			if (priv->speed == 100)
 				regs->ecntrl |= ECNTRL_R100;
 			else
 				regs->ecntrl &= ~(ECNTRL_R100);
@@ -816,6 +815,7 @@ struct phy_info phy_info_M88E1111S = {
 			   {0x1d, 0x5, NULL},
 			   {0x1e, 0x0, NULL},
 			   {0x1e, 0x100, NULL},
+			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
 			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
@@ -1110,10 +1110,8 @@ struct phy_info phy_info_dp83865 = {
 };
 
 struct phy_info *phy_info[] = {
-#if 0
-	&phy_info_cis8201,
-#endif
 	&phy_info_cis8204,
+	&phy_info_cis8201,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,

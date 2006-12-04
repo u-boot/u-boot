@@ -69,7 +69,7 @@ static void set_cs_config(short cs, long config);
 static void set_ddr_config(void);
 
 /* Local variable */
-static volatile immap_t *im = (immap_t *)CFG_IMMRBAR;
+static volatile immap_t *im = (immap_t *)CFG_IMMR;
 
 /**************************************************************************
  * Board initialzation after relocation to RAM. Used to detect the number
@@ -147,7 +147,7 @@ int checkboard (void)
 	volatile immap_t * immr;
 	u32 w, f;
 
-	immr = (immap_t *)CFG_IMMRBAR;
+	immr = (immap_t *)CFG_IMMR;
 	if (!(immr->reset.rcwh & RCWH_PCIHOST)) {
 		printf("PCI:   NOT in host mode..?!\n");
 		return 0;

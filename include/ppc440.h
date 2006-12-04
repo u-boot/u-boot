@@ -1350,26 +1350,26 @@
 
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define UIC2_DCR_BASE 0xe0
-#define uic2sr	(UIC0_DCR_BASE+0x0)   /* UIC2 status-Read Clear		*/
-#define uic2srs	(UIC0_DCR_BASE+0x1)   /* UIC2 status-Read Set */
-#define uic2er	(UIC0_DCR_BASE+0x2)   /* UIC2 enable			*/
-#define uic2cr	(UIC0_DCR_BASE+0x3)   /* UIC2 critical			*/
-#define uic2pr	(UIC0_DCR_BASE+0x4)   /* UIC2 polarity			*/
-#define uic2tr	(UIC0_DCR_BASE+0x5)   /* UIC2 triggering		*/
-#define uic2msr (UIC0_DCR_BASE+0x6)   /* UIC2 masked status		*/
-#define uic2vr	(UIC0_DCR_BASE+0x7)   /* UIC2 vector			*/
-#define uic2vcr (UIC0_DCR_BASE+0x8)   /* UIC2 vector configuration	*/
+#define uic2sr	(UIC2_DCR_BASE+0x0)   /* UIC2 status-Read Clear		*/
+#define uic2srs	(UIC2_DCR_BASE+0x1)   /* UIC2 status-Read Set */
+#define uic2er	(UIC2_DCR_BASE+0x2)   /* UIC2 enable			*/
+#define uic2cr	(UIC2_DCR_BASE+0x3)   /* UIC2 critical			*/
+#define uic2pr	(UIC2_DCR_BASE+0x4)   /* UIC2 polarity			*/
+#define uic2tr	(UIC2_DCR_BASE+0x5)   /* UIC2 triggering		*/
+#define uic2msr (UIC2_DCR_BASE+0x6)   /* UIC2 masked status		*/
+#define uic2vr	(UIC2_DCR_BASE+0x7)   /* UIC2 vector			*/
+#define uic2vcr (UIC2_DCR_BASE+0x8)   /* UIC2 vector configuration	*/
 
 #define UIC3_DCR_BASE 0xf0
-#define uic3sr	(UIC1_DCR_BASE+0x0)   /* UIC3 status-Read Clear		*/
-#define uic3srs	(UIC0_DCR_BASE+0x1)   /* UIC3 status-Read Set */
-#define uic3er	(UIC1_DCR_BASE+0x2)   /* UIC3 enable			*/
-#define uic3cr	(UIC1_DCR_BASE+0x3)   /* UIC3 critical			*/
-#define uic3pr	(UIC1_DCR_BASE+0x4)   /* UIC3 polarity			*/
-#define uic3tr	(UIC1_DCR_BASE+0x5)   /* UIC3 triggering		*/
-#define uic3msr (UIC1_DCR_BASE+0x6)   /* UIC3 masked status		*/
-#define uic3vr	(UIC1_DCR_BASE+0x7)   /* UIC3 vector			*/
-#define uic3vcr (UIC1_DCR_BASE+0x8)   /* UIC3 vector configuration	*/
+#define uic3sr	(UIC3_DCR_BASE+0x0)   /* UIC3 status-Read Clear		*/
+#define uic3srs	(UIC3_DCR_BASE+0x1)   /* UIC3 status-Read Set */
+#define uic3er	(UIC3_DCR_BASE+0x2)   /* UIC3 enable			*/
+#define uic3cr	(UIC3_DCR_BASE+0x3)   /* UIC3 critical			*/
+#define uic3pr	(UIC3_DCR_BASE+0x4)   /* UIC3 polarity			*/
+#define uic3tr	(UIC3_DCR_BASE+0x5)   /* UIC3 triggering		*/
+#define uic3msr (UIC3_DCR_BASE+0x6)   /* UIC3 masked status		*/
+#define uic3vr	(UIC3_DCR_BASE+0x7)   /* UIC3 vector			*/
+#define uic3vcr (UIC3_DCR_BASE+0x8)   /* UIC3 vector configuration	*/
 #endif /* CONFIG_440SPE */
 
 #if defined(CONFIG_440GX)
@@ -3183,7 +3183,7 @@
 #define GPIO0			0
 #define GPIO1			1
 
-#if defined(CONFIG_440GP)
+#if defined(CONFIG_440GP) || defined(CONFIG_440GX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)

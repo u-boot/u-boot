@@ -23,19 +23,18 @@
  */
 
 #include <config.h>
+#include <common.h>
 
 #ifdef CONFIG_TSI108_I2C
-
-#include <common.h>
 #include <tsi108.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
 
-#define I2C_DELAY           100000
+#define I2C_DELAY	100000
 #undef  DEBUG_I2C
 
 #ifdef DEBUG_I2C
-#define DPRINT(x) printf(x)
+#define DPRINT(x) printf (x)
 #else
 #define DPRINT(x)
 #endif
@@ -43,7 +42,7 @@
 /* All functions assume that Tsi108 I2C block is the only master on the bus */
 /* I2C read helper function */
 
-static int i2c_read_byte(
+static int i2c_read_byte (
 		uint i2c_chan,	/* I2C channel number: 0 - main, 1 - SDC SPD */
 		uchar chip_addr,/* I2C device address on the bus */
 		uint byte_addr,	/* Byte address within I2C device */
@@ -55,19 +54,17 @@ static int i2c_read_byte(
 	u32 op_status = TSI108_I2C_TIMEOUT_ERR;
 	u32 chan_offset = TSI108_I2C_OFFSET;
 
-	DPRINT(("I2C read_byte() %d 0x%02x 0x%02x\n",
+	DPRINT (("I2C read_byte() %d 0x%02x 0x%02x\n",
 		i2c_chan, chip_addr, byte_addr));
 
-	if (0 != i2c_chan) {
+	if (0 != i2c_chan)
 		chan_offset = TSI108_I2C_SDRAM_OFFSET;
-	}
 
 	/* Check if I2C operation is in progress */
 	temp = *(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
 
 	if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_WR_STATUS |
-			  I2C_CNTRL2_START))
-	    ) {
+			  I2C_CNTRL2_START))) {
 		/* Set device address and operation (read = 0) */
 		temp = (byte_addr << 16) | ((chip_addr & 0x07) << 8) |
 		    ((chip_addr >> 3) & 0x0F);
@@ -75,7 +72,7 @@ static int i2c_read_byte(
 		    temp;
 
 		/* Issue the read command
-		 * (at this moment all other parameters are 0 
+		 * (at this moment all other parameters are 0
 		 * (size = 1 byte, lane = 0)
 		 */
 
@@ -108,7 +105,7 @@ static int i2c_read_byte(
 					/* report HW error */
 					op_status = TSI108_I2C_IF_ERROR;
 
-					DPRINT(("I2C HW error reported: 0x%02x\n", temp));
+					DPRINT (("I2C HW error reported: 0x%02x\n", temp));
 				}
 
 				break;
@@ -117,20 +114,20 @@ static int i2c_read_byte(
 	} else {
 		op_status = TSI108_I2C_IF_BUSY;
 
-		DPRINT(("I2C Transaction start failed: 0x%02x\n", temp));
+		DPRINT (("I2C Transaction start failed: 0x%02x\n", temp));
 	}
 
-	DPRINT(("I2C read_byte() status: 0x%02x\n", op_status));
+	DPRINT (("I2C read_byte() status: 0x%02x\n", op_status));
 	return op_status;
 }
 
-/* 
+/*
  * I2C Read interface as defined in "include/i2c.h" :
  *   chip_addr: I2C chip address, range 0..127
  *                  (to read from SPD channel EEPROM use (0xD0 ... 0xD7)
  *              NOTE: The bit 7 in the chip_addr serves as a channel select.
  *              This hack is for enabling "isdram" command on Tsi108 boards
- *              without changes to common code. Used for I2C reads only. 
+ *              without changes to common code. Used for I2C reads only.
  *   byte_addr: Memory or register address within the chip
  *   alen:      Number of bytes to use for addr (typically 1, 2 for larger
  *              memories, 0 for register type devices with only one
@@ -141,7 +138,8 @@ static int i2c_read_byte(
  *   Returns: 0 on success, not 0 on failure
  */
 
-int i2c_read(uchar chip_addr, uint byte_addr, int alen, uchar * buffer, int len)
+int i2c_read (uchar chip_addr, uint byte_addr, int alen,
+		uchar * buffer, int len)
 {
 	u32 op_status = TSI108_I2C_PARAM_ERR;
 	u32 i2c_if = 0;
@@ -159,20 +157,20 @@ int i2c_read(uchar chip_addr, uint byte_addr, int alen, uchar * buffer, int len)
 					  buffer++);
 
 			if (TSI108_I2C_SUCCESS != op_status) {
-				DPRINT(("I2C read_byte() failed: 0x%02x (%d left)\n", op_status, len));
+				DPRINT (("I2C read_byte() failed: 0x%02x (%d left)\n", op_status, len));
 
 				break;
 			}
 		}
 	}
 
-	DPRINT(("I2C read() status: 0x%02x\n", op_status));
+	DPRINT (("I2C read() status: 0x%02x\n", op_status));
 	return op_status;
 }
 
 /* I2C write helper function */
 
-static int i2c_write_byte(uchar chip_addr,/* I2C device address on the bus */
+static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 			  uint byte_addr, /* Byte address within I2C device */
 			  uchar * buffer  /*  pointer to data buffer */
 			  )
@@ -210,7 +208,7 @@ static int i2c_write_byte(uchar chip_addr,/* I2C device address on the bus */
 
 		/* Wait until operation completed */
 		do {
-			// Read I2C operation status
+			/* Read I2C operation status */
 			temp =
 			    *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 				      I2C_CNTRL2);
@@ -227,7 +225,7 @@ static int i2c_write_byte(uchar chip_addr,/* I2C device address on the bus */
 					/* report detected HW error */
 					op_status = TSI108_I2C_IF_ERROR;
 
-					DPRINT(("I2C HW error reported: 0x%02x\n", temp));
+					DPRINT (("I2C HW error reported: 0x%02x\n", temp));
 				}
 
 				break;
@@ -237,13 +235,13 @@ static int i2c_write_byte(uchar chip_addr,/* I2C device address on the bus */
 	} else {
 		op_status = TSI108_I2C_IF_BUSY;
 
-		DPRINT(("I2C Transaction start failed: 0x%02x\n", temp));
+		DPRINT (("I2C Transaction start failed: 0x%02x\n", temp));
 	}
 
 	return op_status;
 }
 
-/* 
+/*
  * I2C Write interface as defined in "include/i2c.h" :
  *   chip_addr: I2C chip address, range 0..127
  *   byte_addr: Memory or register address within the chip
@@ -256,7 +254,7 @@ static int i2c_write_byte(uchar chip_addr,/* I2C device address on the bus */
  *   Returns: 0 on success, not 0 on failure
  */
 
-int i2c_write(uchar chip_addr, uint byte_addr, int alen, uchar * buffer,
+int i2c_write (uchar chip_addr, uint byte_addr, int alen, uchar * buffer,
 	      int len)
 {
 	u32 op_status = TSI108_I2C_PARAM_ERR;
@@ -265,10 +263,10 @@ int i2c_write(uchar chip_addr, uint byte_addr, int alen, uchar * buffer,
 	if (chip_addr <= 0x7F && (byte_addr + len) <= (0x01 << (alen * 8))) {
 		while (len--) {
 			op_status =
-			    i2c_write_byte(chip_addr, byte_addr++, buffer++);
+			    i2c_write_byte (chip_addr, byte_addr++, buffer++);
 
 			if (TSI108_I2C_SUCCESS != op_status) {
-				DPRINT(("I2C write_byte() failed: 0x%02x (%d left)\n", op_status, len));
+				DPRINT (("I2C write_byte() failed: 0x%02x (%d left)\n", op_status, len));
 
 				break;
 			}
@@ -278,13 +276,13 @@ int i2c_write(uchar chip_addr, uint byte_addr, int alen, uchar * buffer,
 	return op_status;
 }
 
-/* 
+/*
  * I2C interface function as defined in "include/i2c.h".
  * Probe the given I2C chip address by reading single byte from offset 0.
  * Returns 0 if a chip responded, not 0 on failure.
  */
 
-int i2c_probe(uchar chip)
+int i2c_probe (uchar chip)
 {
 	u32 tmp;
 
@@ -293,8 +291,8 @@ int i2c_probe(uchar chip)
 	 * The Tsi108 HW doesn't support sending just the chip address
 	 * and checkong for an <ACK> back.
 	 */
-	return i2c_read(chip, 0, 1, (char *)&tmp, 1);
+	return i2c_read (chip, 0, 1, (char *)&tmp, 1);
 }
 
-#endif				/* (CONFIG_COMMANDS & CFG_CMD_I2C) */
+#endif	/* (CONFIG_COMMANDS & CFG_CMD_I2C) */
 #endif /* CONFIG_TSI108_I2C */

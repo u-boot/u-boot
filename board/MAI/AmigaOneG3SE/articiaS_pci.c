@@ -368,11 +368,11 @@ void articiaS_pci_init (void)
 	if (articiaS_init_vga() == -1)
 	{
 	    /* If the VGA didn't init and we have stdout set to VGA, reset to serial */
-/* 	    s = getenv("stdout"); */
-/* 	    if (s && strcmp(s, "vga") == 0) */
-/* 	    { */
-/* 		setenv("stdout", "serial"); */
-/* 	    } */
+/*	    s = getenv("stdout"); */
+/*	    if (s && strcmp(s, "vga") == 0) */
+/*	    { */
+/*		setenv("stdout", "serial"); */
+/*	    } */
 	}
     }
     pci_write_config_byte(PCI_BDF(0,1,0), PCI_INTERRUPT_LINE, 0xFF);

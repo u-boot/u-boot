@@ -21,13 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Change log:
- *
- * Hacked for MPC8260 by Murray.Jensen@cmst.csiro.au, 22-Oct-00
- *
- * 20050101: Eran Liberty (liberty@freescale.com)
- *           Initial file creating (porting from 85XX & 8260)
  */
 
 #include <common.h>
@@ -45,7 +38,7 @@ struct irq_action {
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMRBAR;
+	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 
 	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
 

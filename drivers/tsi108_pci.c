@@ -36,7 +36,7 @@
 
 struct pci_controller local_hose;
 
-void tsi108_clear_pci_error(void)
+void tsi108_clear_pci_error (void)
 {
 	u32 err_stat, err_addr, pci_stat;
 
@@ -79,11 +79,11 @@ void tsi108_clear_pci_error(void)
 	return;
 }
 
-unsigned int __get_pci_config_dword(u32 addr)
+unsigned int __get_pci_config_dword (u32 addr)
 {
 	unsigned int retval;
 
-	__asm__ __volatile__("       lwbrx %0,0,%1\n"
+	__asm__ __volatile__ ("       lwbrx %0,0,%1\n"
 			     "1:     eieio\n"
 			     "2:\n"
 			     ".section .fixup,\"ax\"\n"
@@ -97,53 +97,53 @@ unsigned int __get_pci_config_dword(u32 addr)
 	return (retval);
 }
 
-static int tsi108_read_config_dword(struct pci_controller *hose,
+static int tsi108_read_config_dword (struct pci_controller *hose,
 				    pci_dev_t dev, int offset, u32 * value)
 {
 	dev &= (CFG_PCI_CFG_SIZE - 1);
 	dev |= (CFG_PCI_CFG_BASE | (offset & 0xfc));
 	*value = __get_pci_config_dword(dev);
 	if (0xFFFFFFFF == *value)
-		tsi108_clear_pci_error();
+		tsi108_clear_pci_error ();
 	return 0;
 }
 
-static int tsi108_write_config_dword(struct pci_controller *hose,
+static int tsi108_write_config_dword (struct pci_controller *hose,
 				     pci_dev_t dev, int offset, u32 value)
 {
 	dev &= (CFG_PCI_CFG_SIZE - 1);
 	dev |= (CFG_PCI_CFG_BASE | (offset & 0xfc));
 
-	out_le32((volatile unsigned *)dev, value);
+	out_le32 ((volatile unsigned *)dev, value);
 
 	return 0;
 }
 
-void pci_init_board(void)
+void pci_init_board (void)
 {
 	struct pci_controller *hose = (struct pci_controller *)&local_hose;
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
 
-	pci_set_region(hose->regions + 0,
+	pci_set_region (hose->regions + 0,
 		       CFG_PCI_MEMORY_BUS,
 		       CFG_PCI_MEMORY_PHYS,
 		       CFG_PCI_MEMORY_SIZE, PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 	/* PCI memory space */
-	pci_set_region(hose->regions + 1,
+	pci_set_region (hose->regions + 1,
 		       CFG_PCI_MEM_BUS,
 		       CFG_PCI_MEM_PHYS, CFG_PCI_MEM_SIZE, PCI_REGION_MEM);
 
 	/* PCI I/O space */
-	pci_set_region(hose->regions + 2,
+	pci_set_region (hose->regions + 2,
 		       CFG_PCI_IO_BUS,
 		       CFG_PCI_IO_PHYS, CFG_PCI_IO_SIZE, PCI_REGION_IO);
 
 	hose->region_count = 3;
 
-	pci_set_ops(hose,
+	pci_set_ops (hose,
 		    pci_hose_read_config_byte_via_dword,
 		    pci_hose_read_config_word_via_dword,
 		    tsi108_read_config_dword,
@@ -151,22 +151,22 @@ void pci_init_board(void)
 		    pci_hose_write_config_word_via_dword,
 		    tsi108_write_config_dword);
 
-	pci_register_hose(hose);
+	pci_register_hose (hose);
 
-	hose->last_busno = pci_hose_scan(hose);
+	hose->last_busno = pci_hose_scan (hose);
 
-	debug("Done PCI initialization\n");
+	debug ("Done PCI initialization\n");
 	return;
 }
 
 #ifdef CONFIG_OF_FLAT_TREE
 void
-ft_pci_setup(void *blob, bd_t *bd)
+ft_pci_setup (void *blob, bd_t *bd)
 {
 	u32 *p;
 	int len;
 
-	p = (u32 *)ft_get_prop(blob, "/" OF_TSI "/pci@1000/bus-range", &len);
+	p = (u32 *)ft_get_prop (blob, "/" OF_TSI "/pci@1000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = local_hose.first_busno;
 		p[1] = local_hose.last_busno;

@@ -838,9 +838,9 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	unsigned long	timeo;
 
 	if (state == FL_ERASING)
-		timeo = CFG_HZ * 400;
+ 		timeo = (CFG_HZ * 400) / 1000;
 	else
-		timeo = CFG_HZ * 20;
+		timeo = (CFG_HZ * 20) / 1000;
 
 	if ((state == FL_ERASING) && (this->options & NAND_IS_AND))
 		this->cmdfunc(mtd, NAND_CMD_STATUS_MULTI, -1, -1);
@@ -852,8 +852,8 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	while (1) {
 		if (get_timer(0) > timeo) {
 			printf("Timeout!");
-			return 0;
-			}
+			return 0x01;
+		}
 
 		if (this->dev_ready) {
 			if (this->dev_ready(mtd))
@@ -1713,6 +1713,7 @@ static int nand_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
 				goto out;
 			}
 			*retlen = written;
+			bufstart = (u_char*) &buf[written];
 
 			ofs = autoplace ? mtd->oobavail : mtd->oobsize;
 			if (eccbuf)
@@ -2407,7 +2408,9 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 	}
 
 	if (!nand_flash_ids[i].name) {
+#ifndef CFG_NAND_QUIET_TEST
 		printk (KERN_WARNING "No NAND device found!!!\n");
+#endif
 		this->select_chip(mtd, -1);
 		return 1;
 	}

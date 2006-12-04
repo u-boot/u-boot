@@ -68,12 +68,13 @@ static struct pci_controller pci_hose[] = {
 void
 pib_init(void)
 {
-	u8 val8;
+	u8 val8, orig_i2c_bus;
 	/*
 	 * Assign PIB PMC slot to desired PCI bus
 	 */
-	mpc8349_i2c = (i2c_t*)(CFG_IMMRBAR + CFG_I2C2_OFFSET);
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	/* Switch temporarily to I2C bus #2 */
+	orig_i2c_bus = i2c_get_bus_num();
+	i2c_set_bus_num(1);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);
@@ -118,6 +119,8 @@ pib_init(void)
 	printf("PCI1: 32-bit on PMC1, PMC2\n");
 	printf("PCI2: 32-bit on PMC3\n");
 #endif
+	/* Reset to original I2C bus */
+	i2c_set_bus_num(orig_i2c_bus);
 }
 
 /**************************************************************************
@@ -130,18 +133,18 @@ void
 pci_init_board(void)
 {
 	volatile immap_t *	immr;
-	volatile clk8349_t *	clk;
-	volatile law8349_t *	pci_law;
-	volatile pot8349_t *	pci_pot;
-	volatile pcictrl8349_t *	pci_ctrl;
-	volatile pciconf8349_t *	pci_conf;
+	volatile clk83xx_t *	clk;
+	volatile law83xx_t *	pci_law;
+	volatile pot83xx_t *	pci_pot;
+	volatile pcictrl83xx_t *	pci_ctrl;
+	volatile pciconf83xx_t *	pci_conf;
 	u16 reg16;
 	u32 reg32;
 	u32 dev;
 	struct	pci_controller * hose;
 
-	immr = (immap_t *)CFG_IMMRBAR;
-	clk = (clk8349_t *)&immr->clk;
+	immr = (immap_t *)CFG_IMMR;
+	clk = (clk83xx_t *)&immr->clk;
 	pci_law = immr->sysconf.pcilaw;
 	pci_pot = immr->ios.pot;
 	pci_ctrl = immr->pci_ctrl;
@@ -254,8 +257,8 @@ pci_init_board(void)
 	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMRBAR+0x8300),
-			   (CFG_IMMRBAR+0x8304));
+			   (CFG_IMMR+0x8300),
+			   (CFG_IMMR+0x8304));
 
 	pci_register_hose(hose);
 
@@ -350,8 +353,8 @@ pci_init_board(void)
 	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMRBAR+0x8380),
-			   (CFG_IMMRBAR+0x8384));
+			   (CFG_IMMR+0x8380),
+			   (CFG_IMMR+0x8384));
 
 	pci_register_hose(hose);
 
@@ -379,4 +382,26 @@ pci_init_board(void)
 
 }
 
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+       	u32 *p;
+       	int len;
+
+       	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
+       	if (p != NULL) {
+		p[0] = pci_hose[0].first_busno;
+		p[1] = pci_hose[0].last_busno;
+       	}
+
+#ifdef CONFIG_MPC83XX_PCI2
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8600/bus-range", &len);
+	if (p != NULL) {
+		p[0] = pci_hose[1].first_busno;
+		p[1] = pci_hose[1].last_busno;
+	}
+#endif
+}
+#endif /* CONFIG_OF_FLAT_TREE */
 #endif /* CONFIG_PCI */

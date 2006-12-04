@@ -264,10 +264,10 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 		bis->bi_phymode[3] = BI_PHYMODE_ZMII;
 		break;
 	case 2:
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(0);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(1);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(2);
-		zmiifer = ZMII_FER_SMII << ZMII_FER_V(3);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(0);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(1);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(2);
+		zmiifer |= ZMII_FER_SMII << ZMII_FER_V(3);
 		bis->bi_phymode[0] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[1] = BI_PHYMODE_ZMII;
 		bis->bi_phymode[2] = BI_PHYMODE_ZMII;
@@ -470,8 +470,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #else
 	if ((devnum == 0) || (devnum == 1)) {
 		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
-	}
-	else { /* ((devnum == 2) || (devnum == 3)) */
+	} else { /* ((devnum == 2) || (devnum == 3)) */
 		out32 (ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
 		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
 				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
@@ -561,22 +560,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	 * otherwise, just check the speeds & feeds
 	 */
 	if (hw_p->first_init == 0) {
-#if defined(CONFIG_88E1111_CLK_DELAY)
-		/*
-		 * On some boards (e.g. ALPR) the Marvell 88E1111 PHY needs
-		 * the "RGMII transmit timing control" and "RGMII receive
-		 * timing control" bits set, so that Gbit communication works
-		 * without problems.
-		 * Also set the "Transmitter disable" to 1 to enable the
-		 * transmitter.
-		 * After setting these bits a soft-reset must occur for this
-		 * change to become active.
-		 */
-		miiphy_read (dev->name, reg, 0x14, &reg_short);
-		reg_short |= (1 << 7) | (1 << 1) | (1 << 0);
-		miiphy_write (dev->name, reg, 0x14, reg_short);
-#endif
-#if defined(CONFIG_M88E1111_PHY) /* test-only: merge with CONFIG_88E1111_CLK_DELAY !!! */
+#if defined(CONFIG_M88E1111_PHY)
 		miiphy_write (dev->name, reg, 0x14, 0x0ce3);
 		miiphy_write (dev->name, reg, 0x18, 0x4101);
 		miiphy_write (dev->name, reg, 0x09, 0x0e00);
@@ -808,7 +792,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		hw_p->rx[i].ctrl |= MAL_RX_CTRL_EMPTY | MAL_RX_CTRL_INTR;
 		hw_p->rx_ready[i] = -1;
 #if 0
-		printf ("RX_BUFF %d @ 0x%08lx\n", i, (ulong) rx[i].data_ptr);
+		printf ("RX_BUFF %d @ 0x%08lx\n", i, (ulong) hw_p->rx[i].data_ptr);
 #endif
 	}
 

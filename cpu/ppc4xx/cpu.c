@@ -41,6 +41,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
+#if defined(CONFIG_BOARD_RESET)
+void board_reset(void);
+#endif
+
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
 #else
@@ -336,6 +340,10 @@ int checkcpu (void)
 		puts("SP Rev. B");
 		break;
 
+	case PVR_440SP_RC:
+		puts("SP Rev. C");
+		break;
+
 	case PVR_440SPe_RA:
 		puts("SPe Rev. A");
 		break;
@@ -422,23 +430,19 @@ int ppc440spe_revB() {
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_YOSEMITE) || defined(CONFIG_YELLOWSTONE)
-	/*give reset to BCSR*/
-	*(unsigned char*)(CFG_BCSR_BASE | 0x06) = 0x09;
-
+#if defined(CONFIG_BOARD_RESET)
+	board_reset();
 #else
-
+#if defined(CFG_4xx_RESET_TYPE)
+	mtspr(dbcr0, CFG_4xx_RESET_TYPE << 28);
+#else
 	/*
 	 * Initiate system reset in debug control register DBCR
 	 */
-	__asm__ __volatile__("lis   3, 0x3000" ::: "r3");
-#if defined(CONFIG_440)
-	__asm__ __volatile__("mtspr 0x134, 3");
-#else
-	__asm__ __volatile__("mtspr 0x3f2, 3");
-#endif
+	mtspr(dbcr0, 0x30000000);
+#endif /* defined(CFG_4xx_RESET_TYPE) */
+#endif /* defined(CONFIG_BOARD_RESET) */
 
-#endif/* defined(CONFIG_YOSEMITE) || defined(CONFIG_YELLOWSTONE)*/
 	return 1;
 }
 

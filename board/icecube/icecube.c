@@ -29,6 +29,10 @@
 #include <pci.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #if defined(CONFIG_LITE5200B)
 #include "mt46v32m16.h"
 #else
@@ -312,7 +316,7 @@ void init_ide_reset (void)
 {
 	debug ("init_ide_reset\n");
 
-    	/* Configure PSC1_4 as GPIO output for ATA reset */
+	/* Configure PSC1_4 as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
 	/* Deassert reset */
@@ -332,3 +336,11 @@ void ide_set_reset (int idereset)
 	}
 }
 #endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif

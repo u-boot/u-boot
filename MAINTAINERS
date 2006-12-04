@@ -277,10 +277,13 @@ Daniel Poirot <dan.poirot@windriver.com>
 
 Stefan Roese <sr@denx.de>
 
+	P3M7448			MPC7448
+
 	uc100			MPC857
 
 	TQM85xx			MPC8540/8541/8555/8560
 
+	alpr			PPC440GX
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
 	ebony			PPC440GP
@@ -292,6 +295,8 @@ Stefan Roese <sr@denx.de>
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
+
+	P3M750			PPC750FX/GX/GL
 
 Yusdi Santoso <yusdi_santoso@adaptec.com>
 
@@ -338,6 +343,18 @@ Stephen Williams <steve@icarus.com>
 John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
+
+Timur Tabi <timur@freescale.com>
+
+	MPC8349E-mITX		MPC8349
+
+Kim Phillips <kim.phillips@freescale.com>
+
+	MPC8349EMDS		MPC8349
+
+Dave Liu <daveliu@freescale.com>
+
+	MPC8360EMDS		MPC8360
 
 -------------------------------------------------------------------------
 
