@@ -203,30 +203,8 @@
 #define CFG_MAXARGS	16		/* max number of command args */
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
 
-/*
-#define CFG_DRAM_TEST
- *			DRAM tests
- * CFG_DRAM_TEST - enables the following tests.
- *
- * CFG_DRAM_TEST_DATA - Enables test for shorted or open data lines
- *			Environment variable 'test_dram_data' must be
- *			set to 'y'.
- * CFG_DRAM_TEST_ADDRESS - Enables test to verify that each word
- * 			is uniquely addressable. Environment variable
- *			'test_dram_address' must be set to 'y'.
- * CFG_DRAM_TEST_WALK - Enables test a 64-bit walking ones pattern test.
- *			This test takes about 6 minutes to test 64 MB.
- *			Environment variable 'test_dram_walk' must be
- *			set to 'y'.
- */
-#undef CFG_DRAM_TEST
 #define CFG_MEMTEST_START	0x00400000	/* memtest works on */
 #define CFG_MEMTEST_END		0x07c00000	/* 4 ... 124 MB in DRAM */
-#if defined(CFG_DRAM_TEST)
-#define CFG_DRAM_TEST_DATA
-#define CFG_DRAM_TEST_ADDRESS
-#define CFG_DRAM_TEST_WALK
-#endif	/* CFG_DRAM_TEST */
 
 #define CFG_LOAD_ADDR	0x00400000	/* default load address */
 
