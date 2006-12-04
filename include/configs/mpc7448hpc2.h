@@ -3,7 +3,7 @@
  *
  * (C) Copyright 2006
  * Alex Bounine , Tundra Semiconductor Corp.
- * Roy Zang	, Freescale Corp.
+ * Roy Zang	, <tie-fei.zang@freescale.com> Freescale Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -60,12 +60,7 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 
-/* Default MAC Addresses for on-chip GIGE Controller */
-
-#define CONFIG_ETHADDR		00:06:D2:00:00:01
-
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:06:D2:00:00:02
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -140,11 +135,6 @@
 #define CONFIG_TSI108_ETH_NUM_PORTS	2
 
 #define CONFIG_NET_MULTI
-
-#define CONFIG_IPADDR		172.27.234.48
-#define CONFIG_SERVERIP		172.27.234.10
-#define CONFIG_NETMASK		255.255.0.0
-#define CONFIG_GATEWAYIP	172.27.255.254
 
 #define CONFIG_BOOTFILE		zImage.initrd.elf
 #define CONFIG_LOADADDR		0x400000
