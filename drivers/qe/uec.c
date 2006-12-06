@@ -1122,7 +1122,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	uec_private_t		*uec;
 	ucc_fast_private_t	*uccf;
 	volatile qe_bd_t	*bd;
-	volatile u16		status;
+	u16			status;
 	int			i;
 	int			result = 0;
 
@@ -1131,7 +1131,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	bd = uec->txBd;
 
 	/* Find an empty TxBD */
-	for (i = 0; BD_STATUS(bd) & TxBD_READY; i++) {
+	for (i = 0; bd->status & TxBD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx buffer not ready\n", dev->name);
 			return result;
@@ -1150,13 +1150,11 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	ucc_fast_transmit_on_demand(uccf);
 
 	/* Wait for buffer to be transmitted */
-	status = BD_STATUS(bd);
-	for (i = 0; status & TxBD_READY; i++) {
+	for (i = 0; bd->status & TxBD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx error\n", dev->name);
 			return result;
 		}
-		status = BD_STATUS(bd);
 	}
 
 	/* Ok, the buffer be transimitted */
@@ -1171,12 +1169,12 @@ static int uec_recv(struct eth_device* dev)
 {
 	uec_private_t		*uec = dev->priv;
 	volatile qe_bd_t	*bd;
-	volatile u16		status;
+	u16			status;
 	u16			len;
 	u8			*data;
 
 	bd = uec->rxBd;
-	status = BD_STATUS(bd);
+	status = bd->status;
 
 	while (!(status & RxBD_EMPTY)) {
 		if (!(status & RxBD_ERROR)) {
@@ -1190,7 +1188,7 @@ static int uec_recv(struct eth_device* dev)
 		BD_LENGTH_SET(bd, 0);
 		BD_STATUS_SET(bd, status | RxBD_EMPTY);
 		BD_ADVANCE(bd, status, uec->p_rx_bd_ring);
-		status = BD_STATUS(bd);
+		status = bd->status;
 	}
 	uec->rxBd = bd;
 
