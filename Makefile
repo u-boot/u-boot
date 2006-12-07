@@ -1648,6 +1648,30 @@ MPC8360EMDS_SLAVE_config:	unconfig
 MPC8349ITX_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349itx
 
+MPC832XEMDS_config \
+MPC832XEMDS_HOST_33_config \
+MPC832XEMDS_HOST_66_config \
+MPC832XEMDS_SLAVE_config:	unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _HOST_,$@)" ] ; then \
+		echo -n "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _SLAVE_,$@)" ] ; then \
+		echo "...PCI SLAVE 66M"  ; \
+		echo "#define CONFIG_PCI" >>include/config.h ; \
+		echo "#define CONFIG_PCISLAVE" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define PCI_33M" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define PCI_66M" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################

@@ -119,6 +119,11 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CFG_SICRL
 	im->sysconf.sicrl = CFG_SICRL;
 #endif
+	/* DDR control driver register */
+#ifdef CFG_DDRCDR
+	im->sysconf.ddrcdr = CFG_DDRCDR;
+#endif
+
 #ifdef CONFIG_QE
 	/* Config QE ioports */
 	config_qe_ioports();

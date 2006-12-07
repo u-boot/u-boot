@@ -75,6 +75,15 @@
 #define SPR_8360E_REV12			0x80480012
 #define SPR_8360_REV12			0x80490012
 
+#define SPR_8323E_REV10			0x80620010
+#define SPR_8323_REV10			0x80630010
+#define SPR_8321E_REV10			0x80660010
+#define SPR_8321_REV10			0x80670010
+#define SPR_8323E_REV11			0x80620011
+#define SPR_8323_REV11			0x80630011
+#define SPR_8321E_REV11			0x80660011
+#define SPR_8321_REV11			0x80670011
+
 /* SPCR - System Priority Configuration Register
  */
 #define SPCR_PCIHPE			0x10000000	/* PCI Highest Priority Enable */
@@ -167,6 +176,14 @@
 #define SICRH_UC1EOBI			0x00000004
 #define SICRH_UC2E1OBI			0x00000002
 #define SICRH_UC2E2OBI			0x00000001
+
+#elif defined(CONFIG_MPC832X)
+/* SICRL bits - MPC832X specific */
+#define SICRL_LDP_LCS_A			0x80000000
+#define SICRL_IRQ_CKS			0x20000000
+#define SICRL_PCI_MSRC			0x10000000
+#define SICRL_URT_CTPR			0x06000000
+#define SICRL_IRQ_CTPR			0x00C00000
 #endif
 
 /* SWCRR - System Watchdog Control Register
@@ -270,7 +287,7 @@
 #define HRCWL_CORE_TO_CSB_2_5X1		0x00050000
 #define HRCWL_CORE_TO_CSB_3X1		0x00060000
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 #define HRCWL_CEVCOD			0x000000C0
 #define HRCWL_CEVCOD_SHIFT		6
 #define HRCWL_CE_PLL_VCO_DIV_4		0x00000000
@@ -718,7 +735,7 @@
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 #define BR_ATOM				0x0000000C
 #define BR_ATOM_SHIFT			2
 #endif

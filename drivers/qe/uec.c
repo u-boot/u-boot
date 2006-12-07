@@ -432,7 +432,12 @@ static int init_phy(struct eth_device *dev)
 	}
 	memset(mii_info, 0, sizeof(*mii_info));
 
-	mii_info->speed = SPEED_1000;
+	if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
+		mii_info->speed = SPEED_1000;
+	} else {
+		mii_info->speed = SPEED_100;
+	}
+
 	mii_info->duplex = DUPLEX_FULL;
 	mii_info->pause = 0;
 	mii_info->link = 1;
@@ -508,7 +513,8 @@ static void adjust_link(struct eth_device *dev)
 		}
 
 		if (mii_info->speed != uec->oldspeed) {
-			switch (mii_info->speed) {
+			if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
+				switch (mii_info->speed) {
 				case 1000:
 					break;
 				case 100:
@@ -531,6 +537,7 @@ static void adjust_link(struct eth_device *dev)
 					printf("%s: Ack,Speed(%d)is illegal\n",
 						dev->name, mii_info->speed);
 					break;
+				}
 			}
 
 			printf("%s: Speed %dBT\n", dev->name, mii_info->speed);

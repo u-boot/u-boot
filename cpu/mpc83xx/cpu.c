@@ -92,6 +92,22 @@ int checkcpu(void)
 	case SPR_8360_REV12:
 		puts("MPC8360, ");
 		break;
+	case SPR_8323E_REV10:
+	case SPR_8323E_REV11:
+		puts("MPC8323E, ");
+		break;
+	case SPR_8323_REV10:
+	case SPR_8323_REV11:
+		puts("MPC8323, ");
+		break;
+	case SPR_8321E_REV10:
+	case SPR_8321E_REV11:
+		puts("MPC8321E, ");
+		break;
+	case SPR_8321_REV10:
+	case SPR_8321_REV11:
+		puts("MPC8321, ");
+		break;
 	default:
 		puts("Rev: Unknown\n");
 		return -1;	/* Not sure what this is */

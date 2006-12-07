@@ -60,7 +60,10 @@ typedef struct sysconf83xx {
 	u32 spcr;		/* System Priority Configuration Register */
 	u32 sicrl;		/* System I/O Configuration Register Low */
 	u32 sicrh;		/* System I/O Configuration Register High */
-	u8 res6[0xE4];
+	u8 res6[0x0C];
+	u32 ddrcdr;		/* DDR Control Driver Register */
+	u32 ddrdsr;		/* DDR Debug Status Register */
+	u8 res7[0xD0];
 } sysconf83xx_t;
 
 /*
@@ -274,25 +277,35 @@ typedef struct ddr83xx {
 	ddr_cs_bnds_t csbnds[4];/* Chip Select x Memory Bounds */
 	u8 res0[0x60];
 	u32 cs_config[4];	/* Chip Select x Configuration */
-	u8 res1[0x78];
+	u8 res1[0x70];
+	u32 timing_cfg_3;	/* SDRAM Timing Configuration 3 */
+	u32 timing_cfg_0;	/* SDRAM Timing Configuration 0 */
 	u32 timing_cfg_1;	/* SDRAM Timing Configuration 1 */
 	u32 timing_cfg_2;	/* SDRAM Timing Configuration 2 */
 	u32 sdram_cfg;		/* SDRAM Control Configuration */
-	u8 res2[4];
+	u32 sdram_cfg2;		/* SDRAM Control Configuration 2 */
 	u32 sdram_mode;		/* SDRAM Mode Configuration */
-	u8 res3[8];
+	u32 sdram_mode2;	/* SDRAM Mode Configuration 2 */
+	u32 sdram_md_cntl;	/* SDRAM Mode Control */
 	u32 sdram_interval;	/* SDRAM Interval Configuration */
-	u8 res9[8];
-	u32 sdram_clk_cntl;
-	u8 res4[0xCCC];
+	u32 ddr_data_init;	/* SDRAM Data Initialization */
+	u8 res2[4];
+	u32 sdram_clk_cntl;	/* SDRAM Clock Control */
+	u8 res3[0x14];
+	u32 ddr_init_addr;	/* DDR training initialization address */
+	u32 ddr_init_ext_addr;	/* DDR training initialization extended address */
+	u8 res4[0xAA8];
+	u32 ddr_ip_rev1;	/* DDR IP block revision 1 */
+	u32 ddr_ip_rev2;	/* DDR IP block revision 2 */
+	u8 res5[0x200];
 	u32 data_err_inject_hi;	/* Memory Data Path Error Injection Mask High */
 	u32 data_err_inject_lo;	/* Memory Data Path Error Injection Mask Low */
 	u32 ecc_err_inject;	/* Memory Data Path Error Injection Mask ECC */
-	u8 res5[0x14];
+	u8 res6[0x14];
 	u32 capture_data_hi;	/* Memory Data Path Read Capture High */
 	u32 capture_data_lo;	/* Memory Data Path Read Capture Low */
 	u32 capture_ecc;	/* Memory Data Path Read Capture ECC */
-	u8 res6[0x14];
+	u8 res7[0x14];
 	u32 err_detect;		/* Memory Error Detect */
 	u32 err_disable;	/* Memory Error Disable */
 	u32 err_int_en;		/* Memory Error Interrupt Enable */
@@ -300,9 +313,9 @@ typedef struct ddr83xx {
 	u32 capture_address;	/* Memory Error Address Capture */
 	u32 capture_ext_address;/* Memory Error Extended Address Capture */
 	u32 err_sbe;		/* Memory Single-Bit ECC Error Management */
-	u8 res7[0xA4];
+	u8 res8[0xA4];
 	u32 debug_reg;
-	u8 res8[0xFC];
+	u8 res9[0xFC];
 } ddr83xx_t;
 
 /*
@@ -605,6 +618,43 @@ typedef struct immap {
 	u8			res9[0x22000];
 	security83xx_t		security;
 	u8			res10[0xC0000];
+	u8			qe[0x100000];	/* QE block */
+} immap_t;
+
+#elif defined(CONFIG_MPC832X)
+typedef struct immap {
+	sysconf83xx_t		sysconf;	/* System configuration */
+	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
+	rtclk83xx_t		rtc;		/* Real Time Clock Module Registers */
+	rtclk83xx_t		pit;		/* Periodic Interval Timer */
+	gtm83xx_t		gtm[2];		/* Global Timers Module */
+	ipic83xx_t		ipic;		/* Integrated Programmable Interrupt Controller */
+	arbiter83xx_t		arbiter;	/* System Arbiter Registers */
+	reset83xx_t		reset;		/* Reset Module */
+	clk83xx_t		clk;		/* System Clock Module */
+	pmc83xx_t		pmc;		/* Power Management Control Module */
+	qepi83xx_t		qepi;		/* QE Ports Interrupts Registers */
+	u8			res0[0x300];
+	u8			dll_ddr[0x100];
+	u8			dll_lbc[0x100];
+	u8			res1[0x200];
+	qepio83xx_t		qepio;		/* QE Parallel I/O ports */
+	u8			res2[0x800];
+	ddr83xx_t		ddr;		/* DDR Memory Controller Memory */
+	fsl_i2c_t		i2c[2];		/* I2C Controllers */
+	u8			res3[0x1300];
+	duart83xx_t		duart[2];	/* DUART */
+	u8			res4[0x900];
+	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	u8			res5[0x2000];
+	dma83xx_t		dma;		/* DMA */
+	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
+	u8			res6[128];
+	ios83xx_t		ios;		/* Sequencer (IOS) */
+	pcictrl83xx_t		pci_ctrl[1];	/* PCI Controller Control and Status Registers */
+	u8			res7[0x27A00];
+	security83xx_t		security;
+	u8			res8[0xC0000];
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
 #endif
