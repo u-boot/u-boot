@@ -148,14 +148,14 @@ int checkboard (void)
 	u32 w, f;
 
 	immr = (immap_t *)CFG_IMMR;
-	if (!(immr->reset.rcwh & RCWH_PCIHOST)) {
+	if (!(immr->reset.rcwh & HRCWH_PCI_HOST)) {
 		printf("PCI:   NOT in host mode..?!\n");
 		return 0;
 	}
 
 	/* get bus width */
 	w = 32;
-	if (immr->reset.rcwh & RCWH_PCI64)
+	if (immr->reset.rcwh & HRCWH_64_BIT_PCI)
 		w = 64;
 
 	/* get clock */

@@ -202,12 +202,12 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.lblaw[7].ar = CFG_LBLAWAR7_PRELIM;
 #endif
 #ifdef CFG_GPIO1_PRELIM
-	im->pgio[0].dir = CFG_GPIO1_DIR;
-	im->pgio[0].dat = CFG_GPIO1_DAT;
+	im->gpio[0].dir = CFG_GPIO1_DIR;
+	im->gpio[0].dat = CFG_GPIO1_DAT;
 #endif
 #ifdef CFG_GPIO2_PRELIM
-	im->pgio[1].dir = CFG_GPIO2_DIR;
-	im->pgio[1].dat = CFG_GPIO2_DAT;
+	im->gpio[1].dir = CFG_GPIO2_DIR;
+	im->gpio[1].dat = CFG_GPIO2_DAT;
 #endif
 }
 
