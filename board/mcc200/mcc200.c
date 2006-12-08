@@ -44,6 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
+extern int do_auto_update(void);
 ulong flash_get_size (ulong base, int banknum);
 
 #ifndef CFG_RAMBOOT
@@ -227,6 +228,10 @@ int misc_init_r (void)
 {
 	ulong flash_sup_end, snum;
 
+#ifdef CONFIG_AUTO_UPDATE
+	/* this has priority over all else */
+	do_auto_update();
+#endif
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
