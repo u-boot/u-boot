@@ -28,6 +28,8 @@ void jumptable_init (void)
 	gd->jt[XF_get_timer] = (void *) get_timer;
 	gd->jt[XF_simple_strtoul] = (void *) simple_strtoul;
 	gd->jt[XF_udelay] = (void *) udelay;
+	gd->jt[XF_simple_strtol] = (void *) simple_strtol;
+	gd->jt[XF_strcmp] = (void *) strcmp;
 #if defined(CONFIG_I386) || defined(CONFIG_PPC)
 	gd->jt[XF_install_hdlr] = (void *) irq_install_handler;
 	gd->jt[XF_free_hdlr] = (void *) irq_free_handler;
