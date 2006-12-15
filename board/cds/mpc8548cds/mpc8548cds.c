@@ -51,6 +51,7 @@ int checkboard (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -89,6 +90,12 @@ int checkboard (void)
 	 */
 	local_bus_init ();
 
+	/*
+	 * Fix CPU2 errata: A core hang possible while executing a
+	 * msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 */
+	ecm->eebpcr |= (1 << 16);
 
 	/*
 	 * Hack TSEC 3 and 4 IO voltages.
