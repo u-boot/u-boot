@@ -125,3 +125,13 @@ void gpio_enable_macb1(void)
 	gpio_select_periph_B(GPIO_PIN_PD15, 0);	/* SPD	*/
 #endif
 }
+
+void gpio_enable_mmci(void)
+{
+	gpio_select_periph_A(GPIO_PIN_PA10, 0);	/* CLK	 */
+	gpio_select_periph_A(GPIO_PIN_PA11, 0);	/* CMD	 */
+	gpio_select_periph_A(GPIO_PIN_PA12, 0);	/* DATA0 */
+	gpio_select_periph_A(GPIO_PIN_PA13, 0);	/* DATA1 */
+	gpio_select_periph_A(GPIO_PIN_PA14, 0);	/* DATA2 */
+	gpio_select_periph_A(GPIO_PIN_PA15, 0);	/* DATA3 */
+}

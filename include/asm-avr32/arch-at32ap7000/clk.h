@@ -62,5 +62,9 @@ static inline unsigned long get_macb_hclk_rate(unsigned int dev_id)
 {
 	return get_hsb_clk_rate();
 }
+static inline unsigned long get_mci_clk_rate(void)
+{
+	return get_pbb_clk_rate();
+}
 
 #endif /* __ASM_AVR32_ARCH_CLK_H__ */
