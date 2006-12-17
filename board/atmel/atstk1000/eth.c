@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2005-2006 Atmel Corporation
  *
+ * Ethernet initialization for the ATSTK1000 starterkit
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -21,49 +23,16 @@
  */
 #include <common.h>
 
-#include <asm/io.h>
-#include <asm/sdram.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/hmatrix2.h>
+#include <asm/arch/memory-map.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 
-static const struct sdram_info sdram = {
-	.phys_addr	= CFG_SDRAM_BASE,
-	.row_bits	= 11,
-	.col_bits	= 8,
-	.bank_bits	= 2,
-	.cas		= 3,
-	.twr		= 2,
-	.trc		= 7,
-	.trp		= 2,
-	.trcd		= 2,
-	.tras		= 5,
-	.txsr		= 5,
-};
-
-int board_early_init_f(void)
+#if defined(CONFIG_MACB) && (CONFIG_COMMANDS & CFG_CMD_NET)
+void atstk1000_eth_initialize(bd_t *bi)
 {
-	/* Set the SDRAM_ENABLE bit in the HEBI SFR */
-	hmatrix2_writel(SFR4, 1 << 1);
+	int id = 0;
 
-	gpio_enable_ebi();
-	gpio_enable_usart1();
-#if defined(CONFIG_MACB)
-	gpio_enable_macb0();
-	gpio_enable_macb1();
+	macb_eth_initialize(id++, (void *)MACB0_BASE, bi->bi_phy_id[0]);
+	macb_eth_initialize(id++, (void *)MACB1_BASE, bi->bi_phy_id[1]);
+}
 #endif
-
-	return 0;
-}
-
-long int initdram(int board_type)
-{
-	return sdram_init(&sdram);
-}
-
-void board_init_info(void)
-{
-	gd->bd->bi_phy_id[0] = 0x10;
-	gd->bd->bi_phy_id[1] = 0x11;
-}
