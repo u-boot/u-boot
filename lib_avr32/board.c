@@ -125,7 +125,7 @@ static void display_flash_config (void)
 	printf("at address 0x%08lx\n", gd->bd->bi_flashstart);
 }
 
-void board_init_f(ulong unused)
+void board_init_f(ulong board_type)
 {
 	gd_t gd_data;
 	gd_t *new_gd;
@@ -134,6 +134,7 @@ void board_init_f(ulong unused)
 	unsigned long monitor_len;
 	unsigned long monitor_addr;
 	unsigned long addr;
+	long sdram_size;
 
 	/* Initialize the global data pointer */
 	memset(&gd_data, 0, sizeof(gd_data));
@@ -147,10 +148,10 @@ void board_init_f(ulong unused)
 	serial_init();
 	console_init_f();
 	display_banner();
-	board_init_memories();
+	sdram_size = initdram(board_type);
 
 	/* If we have no SDRAM, we can't go on */
-	if (!gd->sdram_size)
+	if (sdram_size <= 0)
 		panic("No working SDRAM available\n");
 
 	/*
@@ -164,7 +165,7 @@ void board_init_f(ulong unused)
 	 *  - global data struct
 	 *  - stack
 	 */
-	addr = CFG_SDRAM_BASE + gd->sdram_size;
+	addr = CFG_SDRAM_BASE + sdram_size;
 	monitor_len = _end - _text;
 
 	/*
@@ -199,7 +200,7 @@ void board_init_f(ulong unused)
 	 * information we have.
 	 */
 	bd->bi_dram[0].start = CFG_SDRAM_BASE;
-	bd->bi_dram[0].size = gd->sdram_size;
+	bd->bi_dram[0].size = sdram_size;
 	bd->bi_baudrate = gd->baudrate;
 
 	memcpy(new_gd, gd, sizeof(gd_t));

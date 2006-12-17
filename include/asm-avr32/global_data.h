@@ -36,7 +36,6 @@ typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned long	baudrate;
-	unsigned long	sdram_size;
 	unsigned long	stack_end;	/* highest stack address */
 	unsigned long	have_console;	/* serial_init() was called */
 	unsigned long	reloc_off;	/* Relocation Offset */

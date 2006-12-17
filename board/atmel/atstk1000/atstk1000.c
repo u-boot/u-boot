@@ -53,9 +53,9 @@ int board_early_init_f(void)
 	return 0;
 }
 
-void board_init_memories(void)
+long int initdram(int board_type)
 {
-	gd->sdram_size = sdram_init(&sdram);
+	return sdram_init(&sdram);
 }
 
 void board_init_info(void)
