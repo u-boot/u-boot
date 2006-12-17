@@ -76,6 +76,50 @@ void *sbrk(ptrdiff_t increment)
 	return ((void *)old);
 }
 
+#ifdef CFG_DMA_ALLOC_LEN
+#include <asm/cacheflush.h>
+#include <asm/io.h>
+
+static unsigned long dma_alloc_start;
+static unsigned long dma_alloc_end;
+static unsigned long dma_alloc_brk;
+
+static void dma_alloc_init(void)
+{
+	unsigned long monitor_addr;
+
+	monitor_addr = CFG_MONITOR_BASE + gd->reloc_off;
+	dma_alloc_end = monitor_addr - CFG_MALLOC_LEN;
+	dma_alloc_start = dma_alloc_end - CFG_DMA_ALLOC_LEN;
+	dma_alloc_brk = dma_alloc_start;
+
+	printf("DMA: Using memory from 0x%08lx to 0x%08lx\n",
+	       dma_alloc_start, dma_alloc_end);
+
+	dcache_invalidate_range(cached(dma_alloc_start),
+				dma_alloc_end - dma_alloc_start);
+}
+
+void *dma_alloc_coherent(size_t len, unsigned long *handle)
+{
+	unsigned long paddr = dma_alloc_brk;
+
+	if (dma_alloc_brk + len > dma_alloc_end)
+		return NULL;
+
+	dma_alloc_brk = ((paddr + len + CFG_DCACHE_LINESZ - 1)
+			 & ~(CFG_DCACHE_LINESZ - 1));
+
+	*handle = paddr;
+	return uncached(paddr);
+}
+#else
+static inline void dma_alloc_init(void)
+{
+
+}
+#endif
+
 static int init_baudrate(void)
 {
 	char tmp[64];
@@ -179,6 +223,12 @@ void board_init_f(ulong board_type)
 	/* Reserve memory for malloc() */
 	addr -= CFG_MALLOC_LEN;
 
+#ifdef CFG_DMA_ALLOC_LEN
+	/* Reserve DMA memory (must be cache aligned) */
+	addr &= ~(CFG_DCACHE_LINESZ - 1);
+	addr -= CFG_DMA_ALLOC_LEN;
+#endif
+
 	/* Allocate a Board Info struct on a word boundary */
 	addr -= sizeof(bd_t);
 	addr &= ~3UL;
@@ -258,6 +308,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	timer_init();
 	mem_malloc_init();
 	malloc_bin_reloc();
+	dma_alloc_init();
 	board_init_info();
 	flash_init();
 
