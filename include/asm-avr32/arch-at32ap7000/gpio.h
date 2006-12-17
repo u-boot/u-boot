@@ -205,6 +205,8 @@ void gpio_enable_usart0(void);
 void gpio_enable_usart1(void);
 void gpio_enable_usart2(void);
 void gpio_enable_usart3(void);
+void gpio_enable_macb0(void);
+void gpio_enable_macb1(void);
 
 #endif /* __ASM_AVR32_ARCH_GPIO_H__ */
 
