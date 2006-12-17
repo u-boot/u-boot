@@ -53,6 +53,9 @@ int board_early_init_f(void)
 	gpio_enable_macb0();
 	gpio_enable_macb1();
 #endif
+#if defined(CONFIG_MMC)
+	gpio_enable_mmci();
+#endif
 
 	return 0;
 }

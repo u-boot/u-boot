@@ -68,6 +68,8 @@
 #undef CONFIG_USART3
 
 /* User serviceable stuff */
+#define CONFIG_DOS_PARTITION		1
+
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
@@ -138,11 +140,11 @@
 					 /* | CFG_CMD_SAVES */		\
 					 /* | CFG_CMD_SPI */		\
 					 /* | CFG_CMD_PING */		\
-					 /* | CFG_CMD_MMC */		\
-					 /* | CFG_CMD_FAT */		\
+					 | CFG_CMD_MMC			\
+					 | CFG_CMD_FAT			\
 					 | CFG_CMD_IMLS			\
 					 /* | CFG_CMD_ITEST */		\
-					 /* | CFG_CMD_EXT2 */		\
+					 | CFG_CMD_EXT2			\
 					 | CFG_CMD_JFFS2		\
 		)
 
@@ -153,6 +155,7 @@
 #define CONFIG_PIO2			1
 #define CFG_NR_PIOS			5
 #define CFG_HSDRAMC			1
+#define CONFIG_MMC			1
 
 #define CFG_DCACHE_LINESZ		32
 #define CFG_ICACHE_LINESZ		32
