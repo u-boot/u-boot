@@ -41,7 +41,7 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
+#undef CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
