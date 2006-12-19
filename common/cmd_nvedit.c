@@ -248,7 +248,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 				baudrate);
 			udelay(50000);
 			gd->baudrate = baudrate;
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_MCF52x2)
 			gd->bd->bi_baudrate = baudrate;
 #endif
 
