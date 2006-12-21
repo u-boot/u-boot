@@ -1536,6 +1536,9 @@ TQM8265_AA_config:  unconfig
 	fi
 	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260
 
+TQM8272_config: unconfig
+	@$(MKCONFIG) -a TQM8272 ppc mpc8260 tqm8272
+
 VoVPN-GW_66MHz_config	\
 VoVPN-GW_100MHz_config:		unconfig
 	@mkdir -p $(obj)include

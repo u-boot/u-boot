@@ -148,7 +148,7 @@ static int pdnb3_nand_dev_ready(struct mtd_info *mtd)
 	return 1;
 }
 
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 	pdnb3_ndfc = (struct pdnb3_ndfc_regs *)CFG_NAND_BASE;
 
@@ -167,5 +167,6 @@ void board_nand_init(struct nand_chip *nand)
 	nand->read_buf   = pdnb3_nand_read_buf;
 	nand->verify_buf = pdnb3_nand_verify_buf;
 	nand->dev_ready  = pdnb3_nand_dev_ready;
+	return 0;
 }
 #endif

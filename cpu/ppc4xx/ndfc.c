@@ -156,7 +156,7 @@ void board_nand_select_device(struct nand_chip *nand, int chip)
 	out32(base + NDFC_CCR, 0x00000000 | (cs << 24));
 }
 
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
 	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
@@ -188,6 +188,7 @@ void board_nand_init(struct nand_chip *nand)
 	 */
 	board_nand_select_device(nand, cs);
 	out32(base + NDFC_BCFG0 + (cs << 2), 0x80002222);
+	return 0;
 }
 
 #endif

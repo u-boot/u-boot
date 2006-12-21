@@ -25,6 +25,10 @@
 #include <mpc8260.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_BOARD_GET_CPU_CLK_F)
+extern unsigned long board_get_cpu_clk_f (void);
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
@@ -112,7 +116,11 @@ int get_clocks (void)
 #if !defined(CONFIG_8260_CLKIN)
 #error clock measuring not implemented yet - define CONFIG_8260_CLKIN
 #else
+#if defined(CONFIG_BOARD_GET_CPU_CLK_F)
+	clkin = board_get_cpu_clk_f ();
+#else
 	clkin = CONFIG_8260_CLKIN;
+#endif
 #endif
 
 	sccr = immap->im_clkrst.car_sccr;

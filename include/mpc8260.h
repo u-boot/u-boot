@@ -35,7 +35,15 @@
 #endif
 #ifndef CPU_ID_STR
 #if defined(CONFIG_MPC8272_FAMILY)
+#ifdef CONFIG_MPC8247
+#define CPU_ID_STR	"MPC8247"
+#elif defined CONFIG_MPC8248
+#define CPU_ID_STR	"MPC8248"
+#elif defined CONFIG_MPC8271
+#define CPU_ID_STR	"MPC8271"
+#else
 #define CPU_ID_STR	"MPC8272"
+#endif
 #else
 #define CPU_ID_STR	"MPC8260"
 #endif
@@ -65,6 +73,7 @@
 #define BCR_NPQM2	0x00002000	/* Non PowerQUICC-II Master 2	*/
 #define BCR_EXDD	0x00000400	/* External Master Delay Disable*/
 #define BCR_ISPS	0x00000010	/* Internal Space Port Size	*/
+
 
 /*-----------------------------------------------------------------------
  * PPC_ACR - 60x Bus Arbiter Configuration Register			 4-28
@@ -168,6 +177,7 @@
 #define SIUMCR_MMR10	0x00008000	/* - " -			*/
 #define SIUMCR_MMR11	0x0000c000	/* - " -			*/
 #define SIUMCR_LPBSE	0x00002000	/* LocalBus Parity Byte Select Enable*/
+#define SIUMCR_ABE	0x00000400	/* Address output buffer impedance*/
 
 /*-----------------------------------------------------------------------
  * IMMR - Internal Memory Map Register					 4-34

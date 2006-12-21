@@ -448,7 +448,7 @@ static void dfc_gpio_init(void)
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 	unsigned long tCH, tCS, tWH, tWP, tRH, tRP, tRP_high, tR, tWHR, tAR;
 
@@ -576,6 +576,7 @@ void board_nand_init(struct nand_chip *nand)
 	nand->cmdfunc = dfc_cmdfunc;
 	nand->autooob = &delta_oob;
 	nand->badblock_pattern = &delta_bbt_descr;
+	return 0;
 }
 
 #else
