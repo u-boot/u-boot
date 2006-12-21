@@ -94,6 +94,8 @@
 #define CONFIG_USB_OHCI
 #define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
+/* automatic software updates (see board/mcc200/auto_update.c) */
+#define CONFIG_AUTO_UPDATE 1
 
 /*
  * Supported commands
@@ -173,7 +175,7 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_MODULE		1	/* Select I2C module #1 or #2 */
+#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
 
 #define CFG_I2C_SPEED		100000 /* 100 kHz */
 #define CFG_I2C_SLAVE		0x7F
