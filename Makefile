@@ -1569,6 +1569,9 @@ EB+MCF-EV123_internal_config :	unconfig
 	@echo "TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
 
+idmr_config :			unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 idmr
+
 M5271EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5271evb
 
