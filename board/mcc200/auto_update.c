@@ -79,8 +79,7 @@
 #define AU_FIRMWARE	"u-boot.img"
 #define AU_KERNEL	"kernel.img"
 
-struct flash_layout
-{
+struct flash_layout {
 	long start;
 	long end;
 };
@@ -139,33 +138,28 @@ extern int flash_write (char *, ulong, ulong);
 extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
 
-int
-au_check_cksum_valid(int idx, long nbytes)
+int au_check_cksum_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
 	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
 
-	if (nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size)))
-	{
+	if (nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size))) {
 		printf ("Image %s bad total SIZE\n", aufile[idx]);
 		return -1;
 	}
 	/* check the data CRC */
 	checksum = ntohl(hdr->ih_dcrc);
 
-	if (crc32 (0, (uchar *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
-		!= checksum)
-	{
+	if (crc32 (0, (uchar *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size)) != checksum) {
 		printf ("Image %s bad data checksum\n", aufile[idx]);
 		return -1;
 	}
 	return 0;
 }
 
-int
-au_check_header_valid(int idx, long nbytes)
+int au_check_header_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
 	unsigned long checksum;
@@ -180,13 +174,11 @@ au_check_header_valid(int idx, long nbytes)
 	printf("size %#x %#lx ", ntohl(hdr->ih_size), nbytes);
 	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
 #endif
-	if (nbytes < sizeof(*hdr))
-	{
+	if (nbytes < sizeof(*hdr)) {
 		printf ("Image %s bad header SIZE\n", aufile[idx]);
 		return -1;
 	}
-	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_PPC)
-	{
+	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_PPC) {
 		printf ("Image %s bad MAGIC or ARCH\n", aufile[idx]);
 		return -1;
 	}
@@ -222,9 +214,7 @@ au_check_header_valid(int idx, long nbytes)
 	return 0;
 }
 
-
-int
-au_do_update(int idx, long sz)
+int au_do_update(int idx, long sz)
 {
 	image_header_t *hdr;
 	char *addr;
@@ -303,14 +293,12 @@ au_do_update(int idx, long sz)
 	return 0;
 }
 
-
 /*
  * this is called from board_init() after the hardware has been set up
  * and is usable. That seems like a good time to do this.
  * Right now the return value is ignored.
  */
-int 
-do_auto_update(void)
+int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
