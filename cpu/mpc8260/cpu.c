@@ -49,6 +49,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_GET_CPU_STR_F)
+extern int get_cpu_str_f (char *buf);
+#endif
+
 int checkcpu (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
@@ -81,7 +85,12 @@ int checkcpu (void)
 	if ((immr & IMMR_ISB_MSK) != CFG_IMMR)
 		return -1;	/* whoops! someone moved the IMMR */
 
+#if defined(CONFIG_GET_CPU_STR_F)
+	get_cpu_str_f (buf);
+	printf ("%s (HiP%d Rev %02x, Mask ", buf, k, rev);
+#else
 	printf (CPU_ID_STR " (HiP%d Rev %02x, Mask ", k, rev);
+#endif
 
 	/*
 	 * the bottom 16 bits of the immr are the Part Number and Mask Number

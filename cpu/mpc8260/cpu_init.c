@@ -28,6 +28,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_BOARD_GET_CPU_CLK_F)
+extern unsigned long board_get_cpu_clk_f (void);
+#endif
+
 static void config_8260_ioports (volatile immap_t * immr)
 {
 	int portnum;
@@ -90,6 +94,7 @@ static void config_8260_ioports (volatile immap_t * immr)
 	}
 }
 
+#define SET_VAL_MASK(a, b, mask) ((a & mask) | (b & ~mask))
 /*
  * Breath some life into the CPU...
  *
@@ -101,6 +106,9 @@ void cpu_init_f (volatile immap_t * immr)
 {
 #if !defined(CONFIG_COGENT)		/* done in start.S for the cogent */
 	uint sccr;
+#endif
+#if defined(CONFIG_BOARD_GET_CPU_CLK_F)
+	unsigned long cpu_clk;
 #endif
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	extern void m8260_cpm_reset (void);
@@ -119,10 +127,27 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_clkrst.car_rmr = CFG_RMR;
 
 	/* BCR - Bus Configuration Register (4-25) */
+#if defined(CFG_BCR_60x) && (CFG_BCR_SINGLE)
+	if (immr->im_siu_conf.sc_bcr & BCR_EBM) {
+		immr->im_siu_conf.sc_bcr = CFG_BCR_60x;
+	} else {
+		immr->im_siu_conf.sc_bcr = CFG_BCR_SINGLE;
+	}
+#else
 	immr->im_siu_conf.sc_bcr = CFG_BCR;
+#endif
 
 	/* SIUMCR - contains debug pin configuration (4-31) */
+#if defined(CFG_SIUMCR_LOW) && (CFG_SIUMCR_HIGH)
+	cpu_clk = board_get_cpu_clk_f ();
+	if (cpu_clk >= 100000000) {
+		immr->im_siu_conf.sc_siumcr = CFG_SIUMCR_HIGH;
+	} else {
+		immr->im_siu_conf.sc_siumcr = CFG_SIUMCR_LOW;
+	}
+#else
 	immr->im_siu_conf.sc_siumcr = CFG_SIUMCR;
+#endif
 
 	config_8260_ioports (immr);
 
@@ -157,7 +182,8 @@ void cpu_init_f (volatile immap_t * immr)
 #endif
 
 	/* now restrict to preliminary range */
-	memctl->memc_br0 = CFG_BR0_PRELIM;
+	/* the PS came from the HRCW, don´t change it */
+	memctl->memc_br0 = SET_VAL_MASK(memctl->memc_br0 , CFG_BR0_PRELIM, BRx_PS_MSK);
 	memctl->memc_or0 = CFG_OR0_PRELIM;
 
 #if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
