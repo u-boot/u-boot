@@ -38,8 +38,8 @@
 #define CONFIG_TQM8272		1
 
 #define	CONFIG_GET_CPU_STR_F	1	/* Get the CPU ID STR */
-#define CONFIG_BOARD_GET_CPU_CLK_F	1 /* Get the CLKIN from board fct */ 
- 
+#define CONFIG_BOARD_GET_CPU_CLK_F	1 /* Get the CLKIN from board fct */
+
 #define	STK82xx_150		1	/* on a STK82xx.150 */
 
 #define CONFIG_CPM2		1	/* Has a CPM2 */
@@ -71,13 +71,13 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
-		"console=$(consdev),$(baudrate)\0"				\
-	"flash_nfs=run nfsargs addip addcons;"					\
+		"console=$(consdev),$(baudrate)\0"			\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addcons;"					\
+	"flash_self=run ramargs addip addcons;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 300000 ${bootfile};"				\
-		"run nfsargs addip addcons;bootm\0"	\
+		"run nfsargs addip addcons;bootm\0"			\
 	"rootpath=/opt/eldk/ppc_82xx\0"					\
 	"bootfile=/tftpboot/tqm8272/uImage\0"				\
 	"kernel_addr=40080000\0"					\
@@ -86,7 +86,7 @@
 	"update=protect off 40000000 4003ffff;era 40000000 4003ffff;"	\
 		"cp.b 300000 40000000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"cphwib=cp.b 4003fc00 33fc00 400\0"		\
+	"cphwib=cp.b 4003fc00 33fc00 400\0"				\
 	"upd=run load;run cphwib;run update\0"				\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
@@ -260,7 +260,6 @@
 #endif
 
 #define MIIDELAY	udelay(1)
-
 
 
 /* system clock rate (CLKIN) - equal to the 60x and local bus speed */
@@ -499,7 +498,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot                 */
 
-
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
@@ -600,7 +598,7 @@
  *  0   60x     GPCM    32 bit  FLASH
  *  1   60x     SDRAM   64 bit  SDRAM
  *  2   60x	UPMB	 8 bit	NAND
- *  3   60x	UPMC	 8 bit	CAN	
+ *  3   60x	UPMC	 8 bit	CAN
  *
  */
 
@@ -633,7 +631,6 @@
  *-----------------------------------------------------------------------------
  */
 #define CFG_MRS_OFFS	0x00000110
-
 
 /* Bank 0 - FLASH
  */
@@ -723,7 +720,6 @@
 			 PSDMR_EAMUX                    |\
 			 PSDMR_BUFCMD			|\
 			 PSDMR_CL_2)
-
 
 #define PSDMR_RFRC_66MHZ_SINGLE         0x00028000  /* PSDMR[RFRC] at 66 MHz single mode */
 #define PSDMR_RFRC_100MHZ_SINGLE        0x00030000  /* PSDMR[RFRC] at 100 MHz single mode */

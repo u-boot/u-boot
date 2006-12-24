@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -40,7 +40,7 @@
 	printf ("TQM8272 %s %s: " fmt,__FILE__, __FUNCTION__, ##arg)
 #else
 #define deb_printf(fmt,arg...) \
-        do { } while (0)
+	do { } while (0)
 #endif
 
 #if defined(CONFIG_BOARD_GET_CPU_CLK_F)
@@ -58,261 +58,261 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
     {	/*	      conf ppar psor pdir podr pdat */
-	/* PA31 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 *ATMTXEN */
-	/* PA30 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTCA   */
-	/* PA29 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTSOC  */
-	/* PA28 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 *ATMRXEN */
-	/* PA27 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRSOC */
-	/* PA26 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRCA */
-	/* PA25 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[0] */
-	/* PA24 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[1] */
-	/* PA23 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[2] */
-	/* PA22 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[3] */
-	/* PA21 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[4] */
-	/* PA20 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[5] */
-	/* PA19 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[6] */
-	/* PA18 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMTXD[7] */
-	/* PA17 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[7] */
-	/* PA16 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[6] */
-	/* PA15 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[5] */
-	/* PA14 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[4] */
-	/* PA13 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[3] */
-	/* PA12 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[2] */
-	/* PA11 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[1] */
-	/* PA10 */ {   0,   0,   0,   1,   0,   0   }, /* FCC1 ATMRXD[0] */
-	/* PA9  */ {   1,   1,   0,   1,   0,   0   }, /* SMC2 TXD */
-	/* PA8  */ {   1,   1,   0,   0,   0,   0   }, /* SMC2 RXD */
-	/* PA7  */ {   0,   0,   0,   1,   0,   0   }, /* PA7 */
-	/* PA6  */ {   0,   0,   0,   1,   0,   0   }, /* PA6 */
-	/* PA5  */ {   0,   0,   0,   1,   0,   0   }, /* PA5 */
-	/* PA4  */ {   0,   0,   0,   1,   0,   0   }, /* PA4 */
-	/* PA3  */ {   0,   0,   0,   1,   0,   0   }, /* PA3 */
-	/* PA2  */ {   0,   0,   0,   1,   0,   0   }, /* PA2 */
-	/* PA1  */ {   0,   0,   0,   1,   0,   0   }, /* PA1 */
-	/* PA0  */ {   0,   0,   0,   1,   0,   0   }  /* PA0 */
+	/* PA31 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 *ATMTXEN */
+	/* PA30 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTCA	*/
+	/* PA29 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTSOC	*/
+	/* PA28 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 *ATMRXEN */
+	/* PA27 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRSOC */
+	/* PA26 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRCA */
+	/* PA25 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[0] */
+	/* PA24 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[1] */
+	/* PA23 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[2] */
+	/* PA22 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[3] */
+	/* PA21 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[4] */
+	/* PA20 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[5] */
+	/* PA19 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[6] */
+	/* PA18 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMTXD[7] */
+	/* PA17 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[7] */
+	/* PA16 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[6] */
+	/* PA15 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[5] */
+	/* PA14 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[4] */
+	/* PA13 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[3] */
+	/* PA12 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[2] */
+	/* PA11 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[1] */
+	/* PA10 */ {   0,   0,	 0,   1,   0,	0   }, /* FCC1 ATMRXD[0] */
+	/* PA9	*/ {   1,   1,	 0,   1,   0,	0   }, /* SMC2 TXD */
+	/* PA8	*/ {   1,   1,	 0,   0,   0,	0   }, /* SMC2 RXD */
+	/* PA7	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA7 */
+	/* PA6	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA6 */
+	/* PA5	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA5 */
+	/* PA4	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA4 */
+	/* PA3	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA3 */
+	/* PA2	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA2 */
+	/* PA1	*/ {   0,   0,	 0,   1,   0,	0   }, /* PA1 */
+	/* PA0	*/ {   0,   0,	 0,   1,   0,	0   }  /* PA0 */
     },
 
     /* Port B configuration */
-    {   /*	      conf ppar psor pdir podr pdat */
-	/* PB31 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TX_ER */
-	/* PB30 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_DV */
-	/* PB29 */ {   1,   1,   1,   1,   0,   0   }, /* FCC2 MII TX_EN */
-	/* PB28 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_ER */
-	/* PB27 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII COL */
-	/* PB26 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII CRS */
-	/* PB25 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[3] */
-	/* PB24 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[2] */
-	/* PB23 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[1] */
-	/* PB22 */ {   1,   1,   0,   1,   0,   0   }, /* FCC2 MII TxD[0] */
-	/* PB21 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[0] */
-	/* PB20 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[1] */
-	/* PB19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[2] */
-	/* PB18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RxD[3] */
-	/* PB17 */ {   0,   0,   0,   0,   0,   0   }, /* PB17 */
-	/* PB16 */ {   0,   0,   0,   0,   0,   0   }, /* PB16 */
-	/* PB15 */ {   0,   0,   0,   0,   0,   0   }, /* PB15 */
-	/* PB14 */ {   0,   0,   0,   0,   0,   0   }, /* PB14 */
-	/* PB13 */ {   0,   0,   0,   0,   0,   0   }, /* PB13 */
-	/* PB12 */ {   0,   0,   0,   0,   0,   0   }, /* PB12 */
-	/* PB11 */ {   0,   0,   0,   0,   0,   0   }, /* PB11 */
-	/* PB10 */ {   0,   0,   0,   0,   0,   0   }, /* PB10 */
-	/* PB9  */ {   0,   0,   0,   0,   0,   0   }, /* PB9 */
-	/* PB8  */ {   0,   0,   0,   0,   0,   0   }, /* PB8 */
-	/* PB7  */ {   0,   0,   0,   0,   0,   0   }, /* PB7 */
-	/* PB6  */ {   0,   0,   0,   0,   0,   0   }, /* PB6 */
-	/* PB5  */ {   0,   0,   0,   0,   0,   0   }, /* PB5 */
-	/* PB4  */ {   0,   0,   0,   0,   0,   0   }, /* PB4 */
-	/* PB3  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB2  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB1  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PB0  */ {   0,   0,   0,   0,   0,   0   }  /* pin doesn't exist */
+    {	/*	      conf ppar psor pdir podr pdat */
+	/* PB31 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TX_ER */
+	/* PB30 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_DV */
+	/* PB29 */ {   1,   1,	 1,   1,   0,	0   }, /* FCC2 MII TX_EN */
+	/* PB28 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_ER */
+	/* PB27 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII COL */
+	/* PB26 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII CRS */
+	/* PB25 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[3] */
+	/* PB24 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[2] */
+	/* PB23 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[1] */
+	/* PB22 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[0] */
+	/* PB21 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[0] */
+	/* PB20 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[1] */
+	/* PB19 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[2] */
+	/* PB18 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[3] */
+	/* PB17 */ {   0,   0,	 0,   0,   0,	0   }, /* PB17 */
+	/* PB16 */ {   0,   0,	 0,   0,   0,	0   }, /* PB16 */
+	/* PB15 */ {   0,   0,	 0,   0,   0,	0   }, /* PB15 */
+	/* PB14 */ {   0,   0,	 0,   0,   0,	0   }, /* PB14 */
+	/* PB13 */ {   0,   0,	 0,   0,   0,	0   }, /* PB13 */
+	/* PB12 */ {   0,   0,	 0,   0,   0,	0   }, /* PB12 */
+	/* PB11 */ {   0,   0,	 0,   0,   0,	0   }, /* PB11 */
+	/* PB10 */ {   0,   0,	 0,   0,   0,	0   }, /* PB10 */
+	/* PB9	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB9 */
+	/* PB8	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB8 */
+	/* PB7	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB7 */
+	/* PB6	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB6 */
+	/* PB5	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB5 */
+	/* PB4	*/ {   0,   0,	 0,   0,   0,	0   }, /* PB4 */
+	/* PB3	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PB2	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PB1	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PB0	*/ {   0,   0,	 0,   0,   0,	0   }  /* pin doesn't exist */
     },
 
     /* Port C */
-    {   /*	      conf ppar psor pdir podr pdat */
-	/* PC31 */ {   0,   0,   0,   1,   0,   0   }, /* PC31 */
-	/* PC30 */ {   0,   0,   0,   0,   0,   0   }, /* PC30 */
-	/* PC29 */ {   1,   1,   1,   0,   0,   0   }, /* SCC1 EN *CLSN */
-	/* PC28 */ {   0,   0,   0,   1,   0,   0   }, /* PC28 */
-	/* PC27 */ {   0,   0,   0,   1,   0,   0   }, /* PC27 */
-	/* PC26 */ {   0,   0,   0,   1,   0,   0   }, /* PC26 */
-	/* PC25 */ {   0,   0,   0,   1,   0,   0   }, /* PC25 */
-	/* PC24 */ {   0,   0,   0,   1,   0,   0   }, /* PC24 */
-	/* PC23 */ {   0,   1,   0,   1,   0,   0   }, /* ATMTFCLK */
-	/* PC22 */ {   0,   1,   0,   0,   0,   0   }, /* ATMRFCLK */
-	/* PC21 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN RXCLK */
-	/* PC20 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN TXCLK */
-	/* PC19 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII RX_CLK */
-	/* PC18 */ {   1,   1,   0,   0,   0,   0   }, /* FCC2 MII TX_CLK */
-	/* PC17 */ {   1,   0,   0,   1,   0,   0   }, /* PC17 MDC */
-	/* PC16 */ {   1,   0,   0,   0,   0,   0   }, /* PC16 MDIO*/
-	/* PC15 */ {   0,   0,   0,   1,   0,   0   }, /* PC15 */
-	/* PC14 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN *CD */
-	/* PC13 */ {   0,   0,   0,   1,   0,   0   }, /* PC13 */
-	/* PC12 */ {   0,   0,   0,   1,   0,   0   }, /* PC12 */
-	/* PC11 */ {   0,   0,   0,   1,   0,   0   }, /* PC11 */
-	/* PC10 */ {   0,   0,   0,   1,   0,   0   }, /* PC10 */
-	/* PC9  */ {   0,   0,   0,   1,   0,   0   }, /* PC9 */
-	/* PC8  */ {   0,   0,   0,   1,   0,   0   }, /* PC8 */
-	/* PC7  */ {   0,   0,   0,   1,   0,   0   }, /* PC7 */
-	/* PC6  */ {   0,   0,   0,   1,   0,   0   }, /* PC6 */
-	/* PC5  */ {   1,   1,   0,   1,   0,   0   }, /* PC5 SMC1 TXD */
-	/* PC4  */ {   1,   1,   0,   0,   0,   0   }, /* PC4 SMC1 RXD */
-	/* PC3  */ {   0,   0,   0,   1,   0,   0   }, /* PC3 */
-	/* PC2  */ {   0,   0,   0,   1,   0,   1   }, /* ENET FDE */
-	/* PC1  */ {   0,   0,   0,   1,   0,   0   }, /* ENET DSQE */
-	/* PC0  */ {   0,   0,   0,   1,   0,   0   }, /* ENET LBK */
+    {	/*	      conf ppar psor pdir podr pdat */
+	/* PC31 */ {   0,   0,	 0,   1,   0,	0   }, /* PC31 */
+	/* PC30 */ {   0,   0,	 0,   0,   0,	0   }, /* PC30 */
+	/* PC29 */ {   1,   1,	 1,   0,   0,	0   }, /* SCC1 EN *CLSN */
+	/* PC28 */ {   0,   0,	 0,   1,   0,	0   }, /* PC28 */
+	/* PC27 */ {   0,   0,	 0,   1,   0,	0   }, /* PC27 */
+	/* PC26 */ {   0,   0,	 0,   1,   0,	0   }, /* PC26 */
+	/* PC25 */ {   0,   0,	 0,   1,   0,	0   }, /* PC25 */
+	/* PC24 */ {   0,   0,	 0,   1,   0,	0   }, /* PC24 */
+	/* PC23 */ {   0,   1,	 0,   1,   0,	0   }, /* ATMTFCLK */
+	/* PC22 */ {   0,   1,	 0,   0,   0,	0   }, /* ATMRFCLK */
+	/* PC21 */ {   1,   1,	 0,   0,   0,	0   }, /* SCC1 EN RXCLK */
+	/* PC20 */ {   1,   1,	 0,   0,   0,	0   }, /* SCC1 EN TXCLK */
+	/* PC19 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_CLK */
+	/* PC18 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII TX_CLK */
+	/* PC17 */ {   1,   0,	 0,   1,   0,	0   }, /* PC17 MDC */
+	/* PC16 */ {   1,   0,	 0,   0,   0,	0   }, /* PC16 MDIO*/
+	/* PC15 */ {   0,   0,	 0,   1,   0,	0   }, /* PC15 */
+	/* PC14 */ {   1,   1,	 0,   0,   0,	0   }, /* SCC1 EN *CD */
+	/* PC13 */ {   0,   0,	 0,   1,   0,	0   }, /* PC13 */
+	/* PC12 */ {   0,   0,	 0,   1,   0,	0   }, /* PC12 */
+	/* PC11 */ {   0,   0,	 0,   1,   0,	0   }, /* PC11 */
+	/* PC10 */ {   0,   0,	 0,   1,   0,	0   }, /* PC10 */
+	/* PC9	*/ {   0,   0,	 0,   1,   0,	0   }, /* PC9 */
+	/* PC8	*/ {   0,   0,	 0,   1,   0,	0   }, /* PC8 */
+	/* PC7	*/ {   0,   0,	 0,   1,   0,	0   }, /* PC7 */
+	/* PC6	*/ {   0,   0,	 0,   1,   0,	0   }, /* PC6 */
+	/* PC5	*/ {   1,   1,	 0,   1,   0,	0   }, /* PC5 SMC1 TXD */
+	/* PC4	*/ {   1,   1,	 0,   0,   0,	0   }, /* PC4 SMC1 RXD */
+	/* PC3	*/ {   0,   0,	 0,   1,   0,	0   }, /* PC3 */
+	/* PC2	*/ {   0,   0,	 0,   1,   0,	1   }, /* ENET FDE */
+	/* PC1	*/ {   0,   0,	 0,   1,   0,	0   }, /* ENET DSQE */
+	/* PC0	*/ {   0,   0,	 0,   1,   0,	0   }, /* ENET LBK */
     },
 
     /* Port D */
-    {   /*	      conf ppar psor pdir podr pdat */
-	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 EN RxD */
-	/* PD30 */ {   1,   1,   1,   1,   0,   0   }, /* SCC1 EN TxD */
-	/* PD29 */ {   1,   1,   0,   1,   0,   0   }, /* SCC1 EN TENA */
-	/* PD28 */ {   0,   0,   0,   1,   0,   0   }, /* PD28 */
-	/* PD27 */ {   0,   0,   0,   1,   0,   0   }, /* PD27 */
-	/* PD26 */ {   0,   0,   0,   1,   0,   0   }, /* PD26 */
-	/* PD25 */ {   0,   0,   0,   1,   0,   0   }, /* PD25 */
-	/* PD24 */ {   0,   0,   0,   1,   0,   0   }, /* PD24 */
-	/* PD23 */ {   0,   0,   0,   1,   0,   0   }, /* PD23 */
-	/* PD22 */ {   0,   0,   0,   1,   0,   0   }, /* PD22 */
-	/* PD21 */ {   0,   0,   0,   1,   0,   0   }, /* PD21 */
-	/* PD20 */ {   0,   0,   0,   1,   0,   0   }, /* PD20 */
-	/* PD19 */ {   0,   0,   0,   1,   0,   0   }, /* PD19 */
-	/* PD18 */ {   0,   0,   0,   1,   0,   0   }, /* PD19 */
-	/* PD17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXPRTY */
-	/* PD16 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXPRTY */
+    {	/*	      conf ppar psor pdir podr pdat */
+	/* PD31 */ {   1,   1,	 0,   0,   0,	0   }, /* SCC1 EN RxD */
+	/* PD30 */ {   1,   1,	 1,   1,   0,	0   }, /* SCC1 EN TxD */
+	/* PD29 */ {   1,   1,	 0,   1,   0,	0   }, /* SCC1 EN TENA */
+	/* PD28 */ {   0,   0,	 0,   1,   0,	0   }, /* PD28 */
+	/* PD27 */ {   0,   0,	 0,   1,   0,	0   }, /* PD27 */
+	/* PD26 */ {   0,   0,	 0,   1,   0,	0   }, /* PD26 */
+	/* PD25 */ {   0,   0,	 0,   1,   0,	0   }, /* PD25 */
+	/* PD24 */ {   0,   0,	 0,   1,   0,	0   }, /* PD24 */
+	/* PD23 */ {   0,   0,	 0,   1,   0,	0   }, /* PD23 */
+	/* PD22 */ {   0,   0,	 0,   1,   0,	0   }, /* PD22 */
+	/* PD21 */ {   0,   0,	 0,   1,   0,	0   }, /* PD21 */
+	/* PD20 */ {   0,   0,	 0,   1,   0,	0   }, /* PD20 */
+	/* PD19 */ {   0,   0,	 0,   1,   0,	0   }, /* PD19 */
+	/* PD18 */ {   0,   0,	 0,   1,   0,	0   }, /* PD19 */
+	/* PD17 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC1 ATMRXPRTY */
+	/* PD16 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC1 ATMTXPRTY */
 #if defined(CONFIG_SOFT_I2C)
-	/* PD15 */ {   1,   0,   0,   1,   1,   1   }, /* I2C SDA */
-	/* PD14 */ {   1,   0,   0,   1,   1,   1   }, /* I2C SCL */
+	/* PD15 */ {   1,   0,	 0,   1,   1,	1   }, /* I2C SDA */
+	/* PD14 */ {   1,   0,	 0,   1,   1,	1   }, /* I2C SCL */
 #else
 #if defined(CONFIG_HARD_I2C)
-	/* PD15 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SDA */
-	/* PD14 */ {   1,   1,   1,   0,   1,   0   }, /* I2C SCL */
+	/* PD15 */ {   1,   1,	 1,   0,   1,	0   }, /* I2C SDA */
+	/* PD14 */ {   1,   1,	 1,   0,   1,	0   }, /* I2C SCL */
 #else /* normal I/O port pins */
-	/* PD15 */ {   0,   1,   1,   0,   1,   0   }, /* I2C SDA */
-	/* PD14 */ {   0,   1,   1,   0,   1,   0   }, /* I2C SCL */
+	/* PD15 */ {   0,   1,	 1,   0,   1,	0   }, /* I2C SDA */
+	/* PD14 */ {   0,   1,	 1,   0,   1,	0   }, /* I2C SCL */
 #endif
 #endif
-	/* PD13 */ {   0,   0,   0,   0,   0,   0   }, /* PD13 */
-	/* PD12 */ {   0,   0,   0,   0,   0,   0   }, /* PD12 */
-	/* PD11 */ {   0,   0,   0,   0,   0,   0   }, /* PD11 */
-	/* PD10 */ {   0,   0,   0,   0,   0,   0   }, /* PD10 */
-	/* PD9  */ {   1,   1,   0,   1,   0,   0   }, /* SMC1 TXD */
-	/* PD8  */ {   1,   1,   0,   0,   0,   0   }, /* SMC1 RXD */
-	/* PD7  */ {   0,   0,   0,   1,   0,   1   }, /* PD7 */
-	/* PD6  */ {   0,   0,   0,   1,   0,   1   }, /* PD6 */
-	/* PD5  */ {   0,   0,   0,   1,   0,   0   }, /* PD5 */
-	/* PD4  */ {   0,   0,   0,   1,   0,   1   }, /* PD4 */
-	/* PD3  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PD2  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PD1  */ {   0,   0,   0,   0,   0,   0   }, /* pin doesn't exist */
-	/* PD0  */ {   0,   0,   0,   0,   0,   0   }  /* pin doesn't exist */
+	/* PD13 */ {   0,   0,	 0,   0,   0,	0   }, /* PD13 */
+	/* PD12 */ {   0,   0,	 0,   0,   0,	0   }, /* PD12 */
+	/* PD11 */ {   0,   0,	 0,   0,   0,	0   }, /* PD11 */
+	/* PD10 */ {   0,   0,	 0,   0,   0,	0   }, /* PD10 */
+	/* PD9	*/ {   1,   1,	 0,   1,   0,	0   }, /* SMC1 TXD */
+	/* PD8	*/ {   1,   1,	 0,   0,   0,	0   }, /* SMC1 RXD */
+	/* PD7	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD7 */
+	/* PD6	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD6 */
+	/* PD5	*/ {   0,   0,	 0,   1,   0,	0   }, /* PD5 */
+	/* PD4	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD4 */
+	/* PD3	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PD2	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PD1	*/ {   0,   0,	 0,   0,   0,	0   }, /* pin doesn't exist */
+	/* PD0	*/ {   0,   0,	 0,   0,   0,	0   }  /* pin doesn't exist */
     }
 };
 
-#define	_NOT_USED_	0xFFFFFFFF
+#define _NOT_USED_	0xFFFFFFFF
 
 /* UPM pattern for bus clock = 66.7 MHz */
 static const uint upmTable67[] =
 {
-    /* Offset */  /* UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */    0x0fa3f100, 0x0fa3b000, 0x0fa33100, 0x0fa33000,
-    /* 0x04 */    0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
+    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
+    /* 0x00 */	0x0fa3f100, 0x0fa3b000, 0x0fa33100, 0x0fa33000,
+    /* 0x04 */	0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */    0x00a3fc00, 0x00a3fc00, 0x00a3fc00, 0x00a3fc00,
-    /* 0x1C */    0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
+		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
+    /* 0x18 */	0x00a3fc00, 0x00a3fc00, 0x00a3fc00, 0x00a3fc00,
+    /* 0x1C */	0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Write Burst RAM array entry -> unused */
+    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Refresh Timer RAM array entry -> unused */
+    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Exception RAM array entry -> unsused */
+    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 };
 
 /* UPM pattern for bus clock = 100 MHz */
 static const uint upmTable100[] =
 {
-    /* Offset */  /* UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */    0x0fa3f200, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
-    /* 0x04 */    0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
+    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
+    /* 0x00 */	0x0fa3f200, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
+    /* 0x04 */	0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */    0x00a3ff00, 0x00a3fc00, 0x00a3fc00, 0x0fa3fc00,
-    /* 0x1C */    0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
+		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
+    /* 0x18 */	0x00a3ff00, 0x00a3fc00, 0x00a3fc00, 0x0fa3fc00,
+    /* 0x1C */	0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Write Burst RAM array entry -> unused */
+    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Refresh Timer RAM array entry -> unused */
+    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Exception RAM array entry -> unsused */
+    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 };
 
 /* UPM pattern for bus clock = 133.3 MHz */
 static const uint upmTable133[] =
 {
-    /* Offset */  /* UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */    0x0fa3f300, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
-    /* 0x04 */    0x0fa33200, 0x0fa33004, 0xfffffc01, 0xfffffc00,
+    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
+    /* 0x00 */	0x0fa3f300, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
+    /* 0x04 */	0x0fa33200, 0x0fa33004, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */    0x00a3ff00, 0x00a3fc00, 0x00a3fd00, 0x0fa3fc00,
-    /* 0x1C */    0x0fa3fd00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
+		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
+    /* 0x18 */	0x00a3ff00, 0x00a3fc00, 0x00a3fd00, 0x0fa3fc00,
+    /* 0x1C */	0x0fa3fd00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
 
-                  /* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Write Burst RAM array entry -> unused */
+    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Refresh Timer RAM array entry -> unused */
+    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Exception RAM array entry -> unsused */
+    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 };
 
 static int	chipsel = 0;
@@ -320,69 +320,69 @@ static int	chipsel = 0;
 /* UPM pattern for slow init */
 static const uint upmTableSlow[] =
 {
-    /* Offset */  /* UPM Read Single RAM array entry */
-    /* 0x00 */    0xffffee00, 0x00ffcc80, 0x00ffcf00, 0x00ffdc00,
-    /* 0x04 */    0x00ffce80, 0x00ffcc00, 0x00ffee00, 0x3fffcc07,
+    /* Offset	UPM Read Single RAM array entry */
+    /* 0x00 */	0xffffee00, 0x00ffcc80, 0x00ffcf00, 0x00ffdc00,
+    /* 0x04 */	0x00ffce80, 0x00ffcc00, 0x00ffee00, 0x3fffcc07,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Write Single RAM array entry */
-    /* 0x18 */    0xffffee00, 0x00ffec80, 0x00ffef00, 0x00fffc80,
-    /* 0x1C */    0x00fffe00, 0x00ffec00, 0x0fffef00, 0x3fffec05,
+		/* UPM Write Single RAM array entry */
+    /* 0x18 */	0xffffee00, 0x00ffec80, 0x00ffef00, 0x00fffc80,
+    /* 0x1C */	0x00fffe00, 0x00ffec00, 0x0fffef00, 0x3fffec05,
 
-                  /* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Write Burst RAM array entry -> unused */
+    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Refresh Timer RAM array entry -> unused */
+    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Exception RAM array entry -> unused */
-    /* 0x3C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Exception RAM array entry -> unused */
+    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 };
 
 /* UPM pattern for fast init */
 static const uint upmTableFast[] =
 {
-    /* Offset */  /* UPM Read Single RAM array entry */
-    /* 0x00 */    0xffffee00, 0x00ffcc80, 0x00ffcd80, 0x00ffdc00,
-    /* 0x04 */    0x00ffdc00, 0x00ffcf00, 0x00ffec00, 0x3fffcc07,
+    /* Offset	UPM Read Single RAM array entry */
+    /* 0x00 */	0xffffee00, 0x00ffcc80, 0x00ffcd80, 0x00ffdc00,
+    /* 0x04 */	0x00ffdc00, 0x00ffcf00, 0x00ffec00, 0x3fffcc07,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		/* UPM Read Burst RAM array entry -> unused */
+    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
-                  /* UPM Write Single RAM array entry */
-    /* 0x18 */    0xffffee00, 0x00ffec80, 0x00ffee80, 0x00fffc00,
-    /* 0x1C */    0x00fffc00, 0x00ffec00, 0x0fffef00, 0x3fffec05,
+		/* UPM Write Single RAM array entry */
+    /* 0x18 */	0xffffee00, 0x00ffec80, 0x00ffee80, 0x00fffc00,
+    /* 0x1C */	0x00fffc00, 0x00ffec00, 0x0fffef00, 0x3fffec05,
 
-                  /* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Write Burst RAM array entry -> unused */
+    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Refresh Timer RAM array entry -> unused */
+    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 
-                  /* UPM Exception RAM array entry -> unused */
-    /* 0x3C */    0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* UPM Exception RAM array entry -> unused */
+    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 };
 
 
@@ -605,8 +605,7 @@ static inline int scanChar (char *p, int len, unsigned long *number)
 	int	akt = 0;
 
 	*number = 0;
-	while (akt < len)
-	{
+	while (akt < len) {
 		if ((*p >= '0') && (*p <= '9')) {
 			*number *= 10;
 			*number += *p - '0';
@@ -655,14 +654,14 @@ static int dump_hwib(void)
 		printf ("HWIB on %x\n", HWIB_INFO_START_ADDR);
 		printf ("serial : %s\n", s);
 		printf ("ethaddr: %s\n", hw->ethaddr);
-		printf ("FLASH  : %x nr:%d\n", hw->flash, hw->flash_nr);
-		printf ("RAM    : %x cs:%d\n", hw->ram, hw->ram_cs);
-		printf ("CPU    : %d\n", hw->cpunr);
-		printf ("CAN    : %d\n", hw->can);
+		printf ("FLASH	: %x nr:%d\n", hw->flash, hw->flash_nr);
+		printf ("RAM	: %x cs:%d\n", hw->ram, hw->ram_cs);
+		printf ("CPU	: %d\n", hw->cpunr);
+		printf ("CAN	: %d\n", hw->can);
 		if (hw->eeprom) printf ("EEprom : %x\n", hw->eeprom);
 		else printf ("No EEprom\n");
 		if (hw->nand) {
-			printf ("NAND   : %x\n", hw->nand);
+			printf ("NAND	: %x\n", hw->nand);
 			printf ("NAND CS: %d\n", hw->nand_cs);
 		} else { printf ("No NAND\n");}
 		printf ("Bus %s mode.\n", (hw->Bus ? "60x" : "Single PQII"));
@@ -676,7 +675,7 @@ static int dump_hwib(void)
 		if (hw->busclk_real_ok) {
 			printf ("  real Clk: %d\n", hw->busclk_real);
 		}
-		printf ("CAS    : %d\n", get_cas_latency());
+		printf ("CAS	: %d\n", get_cas_latency());
 	} else {
 		printf("HWIB @%x not OK\n", HWIB_INFO_START_ADDR);
 	}
@@ -764,16 +763,16 @@ int analyse_hwib (void)
 		p++;
 	}
 
-	if (*p == 'A') hw->can = 1;	
-	if (*p == 'B') hw->can = 2;	
+	if (*p == 'A') hw->can = 1;
+	if (*p == 'B') hw->can = 2;
 	p +=1;
 	p +=1;	/* connector */
 	if (*p != '0') {
 		hw->eeprom = 0x100 << (*p - 'A');
 	}
 	p++;
-	
-        if ((*p < '0') || (*p > '9')) {
+
+	if ((*p < '0') || (*p > '9')) {
 		/* NAND before z-option */
 		hw->nand = 0x8000000 << (*p - 'A');
 		p++;
@@ -913,7 +912,7 @@ unsigned long board_get_cpu_clk_f (void)
 
 static int can_test (unsigned long off)
 {
-	volatile unsigned char  *base	= (unsigned char *) (CFG_CAN_BASE + off);
+	volatile unsigned char	*base	= (unsigned char *) (CFG_CAN_BASE + off);
 
 	*(base + 0x17) = 'T';
 	*(base + 0x18) = 'Q';
@@ -928,16 +927,16 @@ static int can_test (unsigned long off)
 
 static int can_config_one (unsigned long off)
 {
-	volatile unsigned char  *ctrl	= (unsigned char *) (CFG_CAN_BASE + off);
-	volatile unsigned char  *cpu_if	= (unsigned char *) (CFG_CAN_BASE + off + 0x02);
-	volatile unsigned char  *clkout	= (unsigned char *) (CFG_CAN_BASE + off + 0x1f);
+	volatile unsigned char	*ctrl	= (unsigned char *) (CFG_CAN_BASE + off);
+	volatile unsigned char	*cpu_if = (unsigned char *) (CFG_CAN_BASE + off + 0x02);
+	volatile unsigned char	*clkout = (unsigned char *) (CFG_CAN_BASE + off + 0x1f);
 	unsigned char temp;
 
-	*cpu_if	= 0x45;
+	*cpu_if = 0x45;
 	temp = *ctrl;
 	temp |= 0x40;
 	*ctrl	= temp;
-	*clkout	= 0x20;
+	*clkout = 0x20;
 	temp = *ctrl;
 	temp &= ~0x40;
 	*ctrl	= temp;
@@ -959,7 +958,7 @@ static int can_config (void)
 
 static int init_can (void)
 {
-	volatile immap_t * immr	= (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CFG_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	int	count = 0;
 
@@ -976,10 +975,10 @@ static int init_can (void)
 					MxMR_OP_NORM);
 		/* can configure */
 		count = can_config ();
-		printf ("CAN:   %d @ %x\n", count, CFG_CAN_BASE);
+		printf ("CAN:	%d @ %x\n", count, CFG_CAN_BASE);
 		if (hwinf.can != count) printf("!!! difference to HWIB\n");
 	} else {
-		printf ("CAN:   No\n");
+		printf ("CAN:	No\n");
 	}
 	return 0;
 }
@@ -999,8 +998,8 @@ int do_hwib_dump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	  hwib,	1,	1,	do_hwib_dump,
-	  "hwib    - dump HWIB'\n",
+	  hwib, 1,	1,	do_hwib_dump,
+	  "hwib	   - dump HWIB'\n",
 	  "\n"
 );
 
@@ -1049,7 +1048,7 @@ static int get_flash_timing (void)
 /* Update the Flash_Size and the Flash Timing */
 int update_flash_size (int flash_size)
 {
-	volatile immap_t * immr	= (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CFG_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	unsigned long reg;
 	unsigned long tim;
@@ -1164,11 +1163,11 @@ void board_nand_select_device(struct nand_chip *nand, int chip)
 int board_nand_init(struct nand_chip *nand)
 {
 	static	int	UpmInit = 0;
-	volatile immap_t * immr	= (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CFG_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 
 	if (hwinf.nand == 0) return -1;
-	
+
 	/* Setup the UPM */
 	if (UpmInit == 0) {
 		switch (hwinf.busclk_real) {
@@ -1195,14 +1194,14 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->eccmode = NAND_ECC_SOFT;
 
-	nand->hwcontrol  = upmnand_hwcontrol;
-	nand->read_byte  = upmnand_read_byte;
+	nand->hwcontrol	 = upmnand_hwcontrol;
+	nand->read_byte	 = upmnand_read_byte;
 	nand->write_byte = upmnand_write_byte;
-	nand->dev_ready  = tqm8272_dev_ready;
- 
+	nand->dev_ready	 = tqm8272_dev_ready;
+
 #ifndef CONFIG_NAND_SPL
-	nand->write_buf  = tqm8272_write_buf;
-	nand->read_buf   = tqm8272_read_buf;
+	nand->write_buf	 = tqm8272_write_buf;
+	nand->read_buf	 = tqm8272_read_buf;
 	nand->verify_buf = tqm8272_verify_buf;
 #endif
 
@@ -1233,4 +1232,3 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
-
