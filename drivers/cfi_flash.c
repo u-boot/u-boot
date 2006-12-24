@@ -1149,6 +1149,7 @@ static int flash_detect_cfi (flash_info_t * info)
 			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
 			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
 				info->interface = flash_read_ushort (info, 0, FLASH_OFFSET_INTERFACE);
+				info->cfi_offset=flash_offset_cfi[cfi_offset];
 				debug ("device interface is %d\n",
 				       info->interface);
 				debug ("found port %d chip %d ",
@@ -1193,7 +1194,7 @@ ulong flash_get_size (ulong base, int banknum)
 		info->vendor = flash_read_ushort (info, 0,
 					FLASH_OFFSET_PRIMARY_VENDOR);
 		flash_read_jedec_ids (info);
-		flash_write_cmd (info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
+		flash_write_cmd (info, 0, info->cfi_offset, FLASH_CMD_CFI);
 		num_erase_regions = flash_read_uchar (info,
 					FLASH_OFFSET_NUM_ERASE_REGIONS);
 		info->ext_addr = flash_read_ushort (info, 0,
