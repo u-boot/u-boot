@@ -39,6 +39,7 @@
 #define CONFIG_NETCONSOLE		1
 
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* do board-specific init */
+#define CONFIG_BOARD_EARLY_INIT_F	1	/* do board-specific init */
 
 #define CFG_XLB_PIPELINING		1	/* gives better performance */
 
@@ -101,7 +102,7 @@
 				 CFG_CMD_IRQ	| \
 				 CFG_CMD_JFFS2	| \
 				 CFG_CMD_MII	| \
-				 CFG_CMD_SDRAMi	| \
+				 CFG_CMD_SDRAM	| \
 				 CFG_CMD_DATE	| \
 				 CFG_CMD_USB	| \
 				 CFG_CMD_FAT)
@@ -135,7 +136,7 @@
 	"preboot=echo;echo Type \"run flash_nfs\" to mount root "	\
 		"filesystem over NFS; echo\0"				\
 	"netdev=eth0\0"							\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw wdt=off \0"		\
 	"addip=setenv bootargs $(bootargs) "				\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
 		"$(netmask):$(hostname):$(netdev):off panic=1\0"	\
@@ -144,7 +145,7 @@
 		"$(ramdisk_addr)\0"					\
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=$(serverip):$(rootpath) wdt=off\0"		\
 	"hostname=v38b\0"						\
 	"ethact=FEC ETHERNET\0"						\
 	"rootpath=/opt/eldk-3.1.1/ppc_6xx\0"				\
