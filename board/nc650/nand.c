@@ -106,12 +106,13 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd)
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 
 	nand->hwcontrol = nc650_hwcontrol;
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->chip_delay = 12;
 /*	nand->options = NAND_SAMSUNG_LP_OPTIONS;*/
+	return 0;
 }
 #endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */

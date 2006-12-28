@@ -105,7 +105,7 @@ static int ppchameleonevb_device_ready(struct mtd_info *mtdinfo)
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 
 	nand->hwcontrol = ppchameleonevb_hwcontrol;
@@ -113,5 +113,6 @@ void board_nand_init(struct nand_chip *nand)
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->chip_delay = NAND_BIG_DELAY_US;
 	nand->options = NAND_SAMSUNG_LP_OPTIONS;
+	return 0;
 }
 #endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */

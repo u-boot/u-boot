@@ -51,6 +51,7 @@ typedef struct {
 	ushort	device_id2;		/* extended device id			*/
 	ushort	ext_addr;		/* extended query table address		*/
 	ushort	cfi_version;		/* cfi version				*/
+	ushort	cfi_offset;		/* offset for cfi query 		*/
 #endif
 } flash_info_t;
 
