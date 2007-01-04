@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2006
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,30 +21,14 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# TQM8272 boards
+#
 
-LIB	= $(obj)lib$(BOARD).a
+# This should be equal to the CFG_FLASH_BASE define in config_TQM8260.h
+# for the "final" configuration, with U-Boot in flash, or the address
+# in RAM where U-Boot is loaded at for debugging.
+#
+TEXT_BASE = 0x40000000
 
-COBJS	:= $(BOARD).o lcd.o auto_update.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)

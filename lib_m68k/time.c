@@ -153,7 +153,11 @@ void udelay(unsigned long usec)
 		timerp[MCFTIMER_PMR] = 0;
 		/* set period to 1 us */
 		timerp[MCFTIMER_PCSR] =
+#ifdef CONFIG_M5271
+			(6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#else /* !CONFIG_M5271 */
 			(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#endif /* CONFIG_M5271 */
 
 		timerp[MCFTIMER_PMR] = tmp;
 		while (timerp[MCFTIMER_PCNTR] > 0);
@@ -171,7 +175,11 @@ void timer_init (void)
 	timerp[MCFTIMER_PCSR] = MCFTIMER_PCSR_OVW;
 	timerp[MCFTIMER_PMR] = lastinc = 0;
 	timerp[MCFTIMER_PCSR] =
+#ifdef CONFIG_M5271
+		(6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#else /* !CONFIG_M5271 */
 		(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#endif /* CONFIG_M5271 */
 }
 
 void set_timer (ulong t)

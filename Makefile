@@ -1539,6 +1539,9 @@ TQM8265_AA_config:  unconfig
 	fi
 	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260
 
+TQM8272_config: unconfig
+	@$(MKCONFIG) -a TQM8272 ppc mpc8260 tqm8272
+
 VoVPN-GW_66MHz_config	\
 VoVPN-GW_100MHz_config:		unconfig
 	@mkdir -p $(obj)include
@@ -1568,6 +1571,9 @@ EB+MCF-EV123_internal_config :	unconfig
 	@ >$(obj)include/config.h
 	@echo "TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+idmr_config :			unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 idmr
 
 M5271EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5271evb

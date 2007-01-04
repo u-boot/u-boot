@@ -72,6 +72,10 @@
 #include <keyboard.h>
 #endif
 
+#ifdef CFG_UPDATE_FLASH_SIZE
+extern int update_flash_size (int flash_size);
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 void doc_init (void);
 #endif
@@ -730,6 +734,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	bd->bi_flashstart = CFG_FLASH_BASE;	/* update start of FLASH memory    */
 	bd->bi_flashsize = flash_size;	/* size of FLASH memory (final value) */
+
+#if defined(CFG_UPDATE_FLASH_SIZE)
+	/* Make a update of the Memctrl. */
+	update_flash_size (flash_size);
+#endif
+
+
 # if defined(CONFIG_PCU_E) || defined(CONFIG_OXC) || defined(CONFIG_RMU)
 	/* flash mapped at end of memory map */
 	bd->bi_flashoffset = TEXT_BASE + flash_size;
@@ -876,6 +887,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
+    defined(CONFIG_TQM8272) || \
     defined(CONFIG_CCM) || defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X)
 	load_sernum_ethaddr ();
 #endif

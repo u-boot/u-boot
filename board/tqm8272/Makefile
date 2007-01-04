@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2006
+# (C) Copyright 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,28 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= lib$(BOARD).a
 
-COBJS	:= $(BOARD).o lcd.o auto_update.o
+OBJS	= $(BOARD).o ../tqm8xx/load_sernum_ethaddr.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+$(LIB):	.depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude $(obj).depend
+sinclude .depend
 
 #########################################################################

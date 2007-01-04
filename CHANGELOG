@@ -1,3 +1,27 @@
+commit c84bad0ef60e7055ab0bd49b93069509cecc382a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Dec 20 00:29:43 2006 +0100
+
+    Fix to make the baudrate changes immediate for the MCF52x2 family.
+
+commit daa6e418bcc0c717752e8de939c213c790286096
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Dec 20 00:27:32 2006 +0100
+
+    Preliminary support for the iDMR board (ColdFire).
+
+commit cdb97a6678826f85e7c69eae6a1c113d034c9b10
+Author: Andrei Safronov <safronov@pollux.denx.de>
+Date:	Fri Dec 8 16:23:08 2006 +0100
+
+    automatic update mechanism
+
+commit dd520bf314c7add4183c5191692180f576f96b60
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Nov 30 18:02:20 2006 +0100
+
+    Code cleanup.
+
 commit 8d9a8610b8256331132227e9e6585c6bd5742787
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Thu Nov 30 01:54:07 2006 +0100

@@ -31,6 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
+ulong flash_get_size (ulong base, int banknum);
+
 int board_early_init_f(void)
 {
 	unsigned long sdr0_cust0;
@@ -152,6 +154,11 @@ int misc_init_r(void)
 	 */
 
 	/* Re-do sizing to get full correct info */
+
+	/* adjust flash start and offset */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
+
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	mtdcr(ebccfga, pb3cr);
 #else
@@ -192,9 +199,10 @@ int misc_init_r(void)
 #endif
 	mtdcr(ebccfgd, pbcr);
 
-	/* adjust flash start and offset */
-	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
-	gd->bd->bi_flashoffset = 0;
+	/*
+	 * Re-check to get correct base address
+	 */
+	flash_get_size(gd->bd->bi_flashstart, 0);
 
 #ifdef CFG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */

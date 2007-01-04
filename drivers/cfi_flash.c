@@ -111,6 +111,7 @@
 #define FLASH_OFFSET_DEVICE_ID2		0x0E
 #define FLASH_OFFSET_DEVICE_ID3		0x0F
 #define FLASH_OFFSET_CFI		0x55
+#define FLASH_OFFSET_CFI_ALT		0x555
 #define FLASH_OFFSET_CFI_RESP		0x10
 #define FLASH_OFFSET_PRIMARY_VENDOR	0x13
 #define FLASH_OFFSET_EXT_QUERY_T_P_ADDR	0x15	/* extended query table primary addr */
@@ -160,6 +161,8 @@ typedef union {
 } cfiptr_t;
 
 #define NUM_ERASE_REGIONS	4 /* max. number of erase regions */
+
+static uint flash_offset_cfi[2]={FLASH_OFFSET_CFI,FLASH_OFFSET_CFI_ALT};
 
 /* use CFG_MAX_FLASH_BANKS_DETECT if defined */
 #ifdef CFG_MAX_FLASH_BANKS_DETECT
@@ -350,7 +353,7 @@ unsigned long flash_init (void)
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CFG_FLASH_QUIET_TEST
 			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n",
-				i, flash_info[i].size, flash_info[i].size << 20);
+				i+1, flash_info[i].size, flash_info[i].size << 20);
 #endif /* CFG_FLASH_QUIET_TEST */
 		}
 #ifdef CFG_FLASH_PROTECTION
@@ -1153,6 +1156,7 @@ static void flash_read_jedec_ids (flash_info_t * info)
 */
 static int flash_detect_cfi (flash_info_t * info)
 {
+	int cfi_offset;
 	debug ("flash detect cfi\n");
 
 	for (info->portwidth = CFG_FLASH_CFI_WIDTH;
@@ -1161,19 +1165,22 @@ static int flash_detect_cfi (flash_info_t * info)
 		     info->chipwidth <= info->portwidth;
 		     info->chipwidth <<= 1) {
 			flash_write_cmd (info, 0, 0, info->cmd_reset);
-			flash_write_cmd (info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
-			if (flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
-			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
-			    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
-				info->interface = flash_read_ushort (info, 0, FLASH_OFFSET_INTERFACE);
-				debug ("device interface is %d\n",
-				       info->interface);
-				debug ("found port %d chip %d ",
-				       info->portwidth, info->chipwidth);
-				debug ("port %d bits chip %d bits\n",
-				       info->portwidth << CFI_FLASH_SHIFT_WIDTH,
-				       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-				return 1;
+			for (cfi_offset=0; cfi_offset < sizeof(flash_offset_cfi)/sizeof(uint); cfi_offset++) {
+				flash_write_cmd (info, 0, flash_offset_cfi[cfi_offset], FLASH_CMD_CFI);
+				if (flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
+				 && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
+				 && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
+					info->interface = flash_read_ushort (info, 0, FLASH_OFFSET_INTERFACE);
+					info->cfi_offset=flash_offset_cfi[cfi_offset];
+					debug ("device interface is %d\n",
+						info->interface);
+					debug ("found port %d chip %d ",
+						info->portwidth, info->chipwidth);
+					debug ("port %d bits chip %d bits\n",
+						info->portwidth << CFI_FLASH_SHIFT_WIDTH,
+						info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+					return 1;
+				}
 			}
 		}
 	}
@@ -1210,7 +1217,7 @@ ulong flash_get_size (ulong base, int banknum)
 		info->vendor = flash_read_ushort (info, 0,
 					FLASH_OFFSET_PRIMARY_VENDOR);
 		flash_read_jedec_ids (info);
-		flash_write_cmd (info, 0, FLASH_OFFSET_CFI, FLASH_CMD_CFI);
+		flash_write_cmd (info, 0, info->cfi_offset, FLASH_CMD_CFI);
 		num_erase_regions = flash_read_uchar (info,
 					FLASH_OFFSET_NUM_ERASE_REGIONS);
 		info->ext_addr = flash_read_ushort (info, 0,
