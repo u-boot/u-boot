@@ -191,16 +191,8 @@ int checkboard (void)
 	return 0;
 }
 
-
-int board_early_init_r(void)
+int board_early_init_f(void)
 {
-	/*
-	 * Now, when we are in RAM, enable flash write access for the
-	 * detection process.  Note that CS_BOOT cannot be cleared when
-	 * executing in flash.
-	 */
-	*(vu_long *) MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
-
 #ifdef CONFIG_HW_WATCHDOG
 	/*
 	 * Enable and configure the direction (output) of PSC3_9 - watchdog
@@ -210,6 +202,17 @@ int board_early_init_r(void)
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR |= GPIO_PSC3_9;
 #endif /* CONFIG_HW_WATCHDOG */
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+	/*
+	 * Now, when we are in RAM, enable flash write access for the
+	 * detection process.  Note that CS_BOOT cannot be cleared when
+	 * executing in flash.
+	 */
+	*(vu_long *) MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 
 	/*
 	 * Enable GPIO_WKUP_7 to "read the status of the actual power
