@@ -31,9 +31,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-
-#define mtebc(reg, data)  mtdcr(ebccfga,reg);mtdcr(ebccfgd,data)
-
 #ifdef CFG_INIT_DCACHE_CS
 # if (CFG_INIT_DCACHE_CS == 0)
 #  define PBxAP pb0ap
