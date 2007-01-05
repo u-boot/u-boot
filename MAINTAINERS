@@ -221,9 +221,10 @@ Jon Loeliger <jdl@freescale.com>
 
 	MPC8641HPCN		MPC8641D
 
-Dan Malek <dan@embeddededge.com>
+Dan Malek <dan@embeddedalley.com>
 
 	STxGP3			MPC85xx
+	STxSSA			MPC85xx
 	STxXTc			MPC8xx
 
 Eran Man <eran@nbase.co.il>
