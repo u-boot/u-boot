@@ -887,11 +887,13 @@
 
 /* PLB4 Arbiter - PowerPC440EP Pass1 */
 #define PLB4_DCR_BASE           0x080
+#define plb4_acr                (PLB4_DCR_BASE+0x1)
 #define plb4_revid              (PLB4_DCR_BASE+0x2)
-#define plb4_acr                (PLB4_DCR_BASE+0x3)
 #define plb4_besr               (PLB4_DCR_BASE+0x4)
 #define plb4_bearl              (PLB4_DCR_BASE+0x6)
 #define plb4_bearh              (PLB4_DCR_BASE+0x7)
+
+#define PLB4_ACR_WRP		(0x80000000 >> 7)
 
 /* Nebula PLB4 Arbiter - PowerPC440EP */
 #define PLB_ARBITER_BASE   0x80
@@ -3284,26 +3286,26 @@ typedef struct { unsigned long	add;	/* gpio core base address */
 /*
  * Macros for accessing the indirect EBC registers
  */
-#define mtebc(reg, data)	mtdcr(ebccfga,reg);mtdcr(ebccfgd,data)
-#define mfebc(reg, data)	mtdcr(ebccfga,reg);data = mfdcr(ebccfgd)
+#define mtebc(reg, data)	{ mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); }
+#define mfebc(reg, data)	{ mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); }
 
 /*
  * Macros for accessing the indirect SDRAM controller registers
  */
-#define mtsdram(reg, data)	mtdcr(memcfga,reg);mtdcr(memcfgd,data)
-#define mfsdram(reg, data)	mtdcr(memcfga,reg);data = mfdcr(memcfgd)
+#define mtsdram(reg, data)	{ mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
+#define mfsdram(reg, data)	{ mtdcr(memcfga,reg);data = mfdcr(memcfgd); }
 
 /*
  * Macros for accessing the indirect clocking controller registers
  */
-#define mtclk(reg, data)	mtdcr(clkcfga,reg);mtdcr(clkcfgd,data)
-#define mfclk(reg, data)	mtdcr(clkcfga,reg);data = mfdcr(clkcfgd)
+#define mtclk(reg, data)	{ mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); }
+#define mfclk(reg, data)	{ mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); }
 
 /*
  * Macros for accessing the sdr controller registers
  */
-#define mtsdr(reg, data)	mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data)
-#define mfsdr(reg, data)	mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd)
+#define mtsdr(reg, data)	{ mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); }
+#define mfsdr(reg, data)	{ mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); }
 
 
 #ifndef __ASSEMBLY__
