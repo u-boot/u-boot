@@ -1,3 +1,124 @@
+commit f07ae7a9daef27a3d0213a4f3fe39d5342173c02
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 6 15:58:09 2007 +0100
+
+    [PATCH] 44x: Fix problem with DDR controller setup (refresh rate)
+
+    This patch fixes a problem with an incorrect setup for the refresh
+    timer of the 44x DDR controller in the file cpu/ppc4xx/sdram.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f16c1da9577f06c5fc08651a4065537407de4635
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 6 15:56:13 2007 +0100
+
+    [PATCH] Update ALPR board files
+
+    This update brings the ALPR board support to the newest version.
+    It also fixes a problem with the NAND driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cd1d937f90250a32988c37b2b4af8364d25de8ed
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 11:46:05 2007 +0100
+
+    [PATCH] nand: Fix problem with oobsize calculation
+
+    Here the description from Brian Brelsford <Brian_Brelsford@dell.com>:
+
+    The Hynix part returns a 0x1d in the 4th ID byte. The Samsung part
+    returns a 0x15. In the code fragment below bits [1:0] determine the
+    page size, it is ANDed via "(extid & 0x3)" then shifted out. The
+    next field is also ANDed with 0x3. However this is a one bit field
+    as defined in the Hynix and Samsung parts in the 4th ID byte that
+    determins the oobsize, not a two bit field. It works on Samsung as
+    bits[3:2] are 01. However for the Hynix there is a 11 in these two
+    bits, so the oob size gets messed up.
+
+    I checked the correct linux code and the suggested fix from Brian is
+    also available in the linux nand mtd driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a78bc443ae5a4a8ba87590587d5e35bf5a787b2e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 10:40:36 2007 +0100
+
+    [PATCH] Clear PLB4A0_ACR[WRP] on Sequoia (440EPx)
+
+    This fix will make the MAL burst disabling patch for the Linux
+    EMAC driver obsolete.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 023889838282b6237b401664f22dd22dfba2c066
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 10:38:05 2007 +0100
+
+    [PATCH] Add DDR2 optimization code for Sequoia (440EPx) board
+
+    This code will optimize the DDR2 controller setup on a board specific
+    basis.
+
+    Note: This code doesn't work right now on the NAND booting image for the
+    Sequoia board, since it doesn't fit into the 4kBytes for the SPL image.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cce4acbb68398634b8d011ed7bb0d12269c84230
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Dec 28 19:08:21 2006 +0100
+
+    Few V38B changes:
+      - fix a typo in V38B config file
+      - move watchdog initialisation earlier in the boot process
+      - add "wdt=off" to default kernel command line (disables kernel watchdog)
+
+commit 92eb729bad876725aeea908d2addba0800620840
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Dec 27 01:26:13 2006 +0100
+
+    Fix bug in adaption of Stefano Babic's CFI driver patch.
+
+commit 9c0f42ecfe25f7ffce8ec7a815f03864d723ffe3
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Dec 24 01:42:57 2006 +0100
+
+    Minor code cleanup.
+
+commit d784fdb05900ada3686d5778783e1fb328e9fb66
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Dec 12 00:22:42 2006 +0100
+
+    Fix cfi failure with Spansion Flash (Spansion Flash Devices have a different offset to go into CFI mode)
+
+commit 1b3c360c235dc684ec06c2d5f183f0a282ce45e2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 22 14:29:40 2006 +0100
+
+    [PATCH] Fix sequoia flash autodetection (finally correct)
+
+    Now 32MByte and 64MByte FLASH is know to work and other
+    configurations should work too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 82e5236a8b719543643fd26d5827938ab2b94818
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Fri Dec 22 10:30:26 2006 +0100
+
+    Minor code cleanup; update CHANGELOG.
+
+commit fa23044564091f05d9695beb7b5b9a931e7f41a4
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Dec 21 17:17:02 2006 +0100
+
+    Added support for the TQM8272 board from TQ
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
 commit c84bad0ef60e7055ab0bd49b93069509cecc382a
 Author: Bartlomiej Sieka <tur@semihalf.com>
 Date:	Wed Dec 20 00:29:43 2006 +0100
@@ -210,7 +331,7 @@ Date:	Mon Nov 27 17:04:06 2006 +0100
     [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
 
     This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
-    arguments to bootm.	 It removes the getenv("disable_of") test that used
+    arguments to bootm.  It removes the getenv("disable_of") test that used
     to be used for this purpose.
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
@@ -908,7 +1029,7 @@ Date:	Tue Oct 24 23:47:37 2006 -0500
 
     If a Multi-Image file contains a third image we try to use it as a
     device tree.  The device tree image is assumed to be uncompressed in the
-    image file.	 We automatically allocate space for the device tree in memory
+    image file.  We automatically allocate space for the device tree in memory
     and provide an 8k pad to allow more than a reasonable amount of growth.
 
     Additionally, a device tree that was contained in flash will now automatically
