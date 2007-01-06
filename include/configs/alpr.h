@@ -166,8 +166,23 @@
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
+	"ethprime=ppc_4xx_eth3\0"					\
+	"ethact=ppc_4xx_eth3\0"						\
+	"autoload=no\0"							\
+	"ipconfig=dhcp;setenv serverip 11.0.0.152\0"			\
+	"actkernel=kernel2\0"						\
+	"load_fpga=fpga load 0 ffe00000 10dd9a\0"			\
+	"mtdargs=setenv bootargs root=/dev/mtdblock6 rw "		\
+		"rootfstype=jffs2 init=/sbin/init\0"			\
+	"kernel1_mtd=nand read 200000 0 200000;run mtdargs addip addtty"\
+		";bootm 200000\0"					\
+	"kernel2_mtd=nand read 200000 200000 200000;run mtdargs addip "	\
+		"addtty;bootm 200000\0"					\
+	"kernel1=run ipconfig load_fpga kernel1_mtd\0"			\
+	"kernel2=run ipconfig load_fpga kernel2_mtd\0"			\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#define CONFIG_BOOTCOMMAND	"run kernel2"
 
 #define CONFIG_BOOTDELAY	2	/* autoboot after 5 seconds	*/
 
@@ -291,6 +306,8 @@
 /*-----------------------------------------------------------------------
  * Definitions for GPIO setup
  *-----------------------------------------------------------------------*/
+#define CFG_GPIO_SHUTDOWN	(0x80000000 >> 6)
+#define CFG_GPIO_SSD_EMPTY	(0x80000000 >> 9)
 #define CFG_GPIO_EREADY		(0x80000000 >> 26)
 #define CFG_GPIO_REV0		(0x80000000 >> 14)
 #define CFG_GPIO_REV1		(0x80000000 >> 15)
