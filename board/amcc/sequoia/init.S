@@ -90,7 +90,7 @@ tlbtab:
 	/*
 	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
 	 * speed up boot process. It is patched after relocation to enable SA_I
-	*/
+	 */
 #ifndef CONFIG_NAND_SPL
 	tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
 #else
