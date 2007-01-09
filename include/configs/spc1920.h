@@ -392,10 +392,23 @@
 #endif /* CONFIG_SPC1920_HPI_TEST */
 
 /*
+ * Ramtron FM18L08 FRAM 32KB on CS4
+ */
+#define CFG_SPC1920_FRAM_BASE	0x80100000
+#define CFG_PRELIM_OR4_AM	0xffff8000
+#define CFG_OR4_PRELIM		(CFG_PRELIM_OR4_AM | \
+					OR_ACS_DIV2 | \
+					OR_BI | \
+					OR_SCY_4_CLK | \
+					OR_TRLX)
+
+#define CFG_BR4_PRELIM ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+
+/*
  * PLD CS5
  */
 #define CFG_SPC1920_PLD_BASE	0x80000000
-#define CFG_PRELIM_OR5_AM	0xfff00000
+#define CFG_PRELIM_OR5_AM	0xffff8000
 
 #define CFG_OR5_PRELIM		(CFG_PRELIM_OR5_AM | \
 					OR_CSNT_SAM | \

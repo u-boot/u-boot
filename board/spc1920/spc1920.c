@@ -176,6 +176,11 @@ long int initdram (int board_type)
 	hpi_init();
 
 	/* PLD Setup */
+	memctl->memc_or4 = CFG_OR4_PRELIM;
+	memctl->memc_br4 = CFG_BR4_PRELIM;
+	udelay(1000);
+
+	/* PLD Setup */
 	memctl->memc_or5 = CFG_OR5_PRELIM;
 	memctl->memc_br5 = CFG_BR5_PRELIM;
 	udelay(1000);
