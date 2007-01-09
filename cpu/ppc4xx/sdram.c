@@ -380,7 +380,7 @@ long int initdram(int board_type)
 		mtsdram(mem_b0cr, mb0cf[i].reg);
 		mtsdram(mem_tr0, 0x41094012);
 		mtsdram(mem_tr1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
-		mtsdram(mem_rtr, 0x7e000000);	/* Interval 15.20µs @ 133MHz PLB*/
+		mtsdram(mem_rtr, 0x04100000);	/* Interval 7.8µs @ 133MHz PLB	*/
 		mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM*/
 		udelay(400);			/* Delay 200 usecs (min)	*/
 

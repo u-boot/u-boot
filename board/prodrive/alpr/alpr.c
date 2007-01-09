@@ -77,8 +77,12 @@ int board_early_init_f (void)
 	mtdcr (uicb0tr, 0x00000000); /* */
 	mtdcr (uicb0vr, 0x00000001); /* */
 
+	/* Setup shutdown/SSD empty interrupt as inputs */
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_SHUTDOWN | CFG_GPIO_SSD_EMPTY));
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_SHUTDOWN | CFG_GPIO_SSD_EMPTY));
+
 	/* Setup GPIO/IRQ multiplexing */
-	mtsdr(sdr_pfc0, 0x01a03e00);
+	mtsdr(sdr_pfc0, 0x01a33e00);
 
 	return 0;
 }
@@ -105,26 +109,11 @@ int last_stage_init(void)
 
 static int board_rev(void)
 {
-	int rev;
-	u32 pfc0;
-
-	/* Setup GPIO14 & 15 as GPIO */
-	mfsdr(sdr_pfc0, pfc0);
-	pfc0 |= CFG_GPIO_REV0 | CFG_GPIO_REV1;
-	mtsdr(sdr_pfc0, pfc0);
-
 	/* Setup as input */
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV0));
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV0));
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV1));
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV1));
 
-	rev = (in32(GPIO0_IR) >> 16) & 0x3;
-
-	/* Setup GPIO14 & 15 as non GPIO again */
-	mfsdr(sdr_pfc0, pfc0);
-	pfc0 &= ~(CFG_GPIO_REV0 | CFG_GPIO_REV1);
-	mtsdr(sdr_pfc0, pfc0);
-
-	return rev;
+	return (in32(GPIO0_IR) >> 16) & 0x3;
 }
 
 int checkboard (void)

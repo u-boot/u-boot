@@ -154,7 +154,7 @@ static int alpr_nand_dev_ready(struct mtd_info *mtd)
 	return 1;
 }
 
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 	alpr_ndfc = (struct alpr_ndfc_regs *)CFG_NAND_BASE;
 
@@ -169,5 +169,7 @@ void board_nand_init(struct nand_chip *nand)
 	nand->read_buf   = alpr_nand_read_buf;
 	nand->verify_buf = alpr_nand_verify_buf;
 	nand->dev_ready  = alpr_nand_dev_ready;
+
+	return 0;
 }
 #endif
