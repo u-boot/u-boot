@@ -557,6 +557,7 @@ Total5200_Rev2_lowboot_config:	unconfig
 	@$(MKCONFIG) -a Total5200 ppc mpc5xxx total5200
 
 cam5200_config \
+cam5200_niosflash_config \
 fo300_config \
 MiniFAP_config \
 TQM5200S_config \
@@ -573,6 +574,10 @@ TQM5200_STK100_config:	unconfig
 		  echo "#define CONFIG_TQM5200S"	>>$(obj)include/config.h ; \
 		  echo "#define CONFIG_TQM5200_B"	>>$(obj)include/config.h ; \
 		  echo "... TQM5200S on Cam5200" ; \
+		}
+	@[ -z "$(findstring niosflash,$@)" ] || \
+		{ echo "#define CONFIG_CAM5200_NIOSFLASH"	>>$(obj)include/config.h ; \
+		  echo "... with NIOS flash driver" ; \
 		}
 	@[ -z "$(findstring fo300,$@)" ] || \
 		{ echo "#define CONFIG_FO300"	>>$(obj)include/config.h ; \
