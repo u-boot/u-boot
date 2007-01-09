@@ -209,11 +209,19 @@ int board_early_init_f(void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
+	/* Set Go/NoGo led (PA15) to color red */
+	immap->im_ioport.iop_papar &= ~0x1;
+	immap->im_ioport.iop_paodr &= ~0x1;
+	immap->im_ioport.iop_padir |= 0x1;
+	immap->im_ioport.iop_padat |= 0x1;
 
+#if 0
 	/* Turn on LED PD9 */
 	immap->im_ioport.iop_pdpar &= ~(0x0040);
 	immap->im_ioport.iop_pddir |= 0x0040;
 	immap->im_ioport.iop_pddat |= 0x0040;
+
+#endif
 
 	/* Enable PD10 (COM2_EN) */
 	immap->im_ioport.iop_pdpar &= ~0x0020;
