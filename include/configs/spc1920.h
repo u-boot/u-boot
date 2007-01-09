@@ -89,6 +89,7 @@
 			 | CFG_CMD_PING \
 			 | CFG_CMD_DHCP \
 			 | CFG_CMD_IMMAP \
+                         | CFG_CMD_I2C \
 			 | CFG_CMD_MII)
 			/* & ~( CFG_CMD_NET)) */
 
@@ -197,9 +198,30 @@
  * I2C configuration
  */
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address defaults */
-#define CFG_I2C_SLAVE		0x7F
+/* enable I2C and select the hardware/software driver */
+#undef CONFIG_HARD_I2C                 /* I2C with hardware support    */
+#define CONFIG_SOFT_I2C                1       /* I2C bit-banged               */
+
+#define CFG_I2C_SPEED          93000   /* 93 kHz is supposed to work   */
+#define CFG_I2C_SLAVE          0xFE
+
+#ifdef CONFIG_SOFT_I2C
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+#define PB_SCL         0x00000020      /* PB 26 */
+#define PB_SDA         0x00000010      /* PB 27 */
+
+#define I2C_INIT       (immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE     (immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE   (immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ       ((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+                       else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+                       else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY      udelay(2)       /* 1/4 I2C clock duration */
+#endif /* CONFIG_SOFT_I2C */
 #endif
 
 /*-----------------------------------------------------------------------
