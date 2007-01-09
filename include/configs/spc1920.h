@@ -383,12 +383,12 @@
 #define HPI_REG(x)             (*((volatile u16 *) (CFG_SPC1920_HPI_BASE + x)))
 #define HPI_HPIC_1             HPI_REG(0)
 #define HPI_HPIC_2             HPI_REG(2)
-#define HPI_HPIA_1             HPI_REG(0x2000000)
-#define HPI_HPIA_2             HPI_REG(0x2000000 + 2)
-#define HPI_HPID_INC_1         HPI_REG(0x1000000)
-#define HPI_HPID_INC_2         HPI_REG(0x1000000 + 2)
-#define HPI_HPID_NOINC_1       HPI_REG(0x3000000)
-#define HPI_HPID_NOINC_2       HPI_REG(0x3000000 + 2)
+#define HPI_HPIA_1             HPI_REG(0x2000008)
+#define HPI_HPIA_2             HPI_REG(0x2000008 + 2)
+#define HPI_HPID_INC_1         HPI_REG(0x1000004)
+#define HPI_HPID_INC_2         HPI_REG(0x1000004 + 2)
+#define HPI_HPID_NOINC_1       HPI_REG(0x300000c)
+#define HPI_HPID_NOINC_2       HPI_REG(0x300000c + 2)
 #endif /* CONFIG_SPC1920_HPI_TEST */
 
 /*
