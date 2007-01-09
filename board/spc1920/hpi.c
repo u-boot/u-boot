@@ -40,7 +40,6 @@
 
 #include "pld.h"
 #include "hpi.h"
-#include "spc1920.h" /* led function */
 
 #define	_NOT_USED_	0xFFFFFFFF
 

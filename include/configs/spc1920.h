@@ -51,12 +51,12 @@
 #define CFG_8xx_CPUCLK_MIN		40000000
 #define CFG_8xx_CPUCLK_MAX		133000000
 
-#define CFG_RESET_ADDRESS		0xf8000000
+#define CFG_RESET_ADDRESS		0xC0000000
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_LAST_STAGE_INIT
 
-
-#if 1
+#if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
@@ -89,7 +89,6 @@
 			 | CFG_CMD_JFFS2 \
 			 | CFG_CMD_PING \
 			 | CFG_CMD_DHCP \
-			 | CFG_CMD_IMMAP \
 			 | CFG_CMD_I2C \
 			 | CFG_CMD_MII)
 			/* & ~( CFG_CMD_NET)) */
@@ -248,7 +247,7 @@
  *-----------------------------------------------------------------------
  * PCMCIA config., multi-function pin tri-state
  */
-#define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
+#define CFG_SIUMCR      (SIUMCR_FRC)
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control				11-26
@@ -393,7 +392,7 @@
 #endif /* CONFIG_SPC1920_HPI_TEST */
 
 /*
- * PLD CS5 
+ * PLD CS5
  */
 #define CFG_SPC1920_PLD_BASE	0x80000000
 #define CFG_PRELIM_OR5_AM	0xfff00000

@@ -220,10 +220,20 @@ int board_early_init_f(void)
 	immap->im_ioport.iop_pdpar &= ~(0x0040);
 	immap->im_ioport.iop_pddir |= 0x0040;
 	immap->im_ioport.iop_pddat |= 0x0040;
-
 #endif
 
-	/* Enable PD10 (COM2_EN) */
+	/*
+	 * Enable console on SMC1. This requires turning on
+	 * the com2_en signal and SMC1_DISABLE
+	 */
+
+	/* SMC1_DISABLE: PB17 */
+	immap->im_cpm.cp_pbodr &= ~0x4000;
+	immap->im_cpm.cp_pbpar &= ~0x4000;
+	immap->im_cpm.cp_pbdir |= 0x4000;
+	immap->im_cpm.cp_pbdat &= ~0x4000;
+
+	/* COM2_EN: PD10 */
 	immap->im_ioport.iop_pdpar &= ~0x0020;
 	immap->im_ioport.iop_pddir &= ~0x4000;
 	immap->im_ioport.iop_pddir |= 0x0020;
