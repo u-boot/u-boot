@@ -44,7 +44,7 @@
 #define CONFIG_BAUDRATE		19200
 
 /* use PLD CLK4 instead of brg */
-#undef CFG_SPC1920_SMC1_CLK4
+#define CFG_SPC1920_SMC1_CLK4
 
 #define CONFIG_8xx_OSCLK		10000000 /* 10 MHz oscillator on EXTCLK  */
 #define CONFIG_8xx_CPUCLK_DEFAULT	50000000
