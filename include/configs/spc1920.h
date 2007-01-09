@@ -330,6 +330,40 @@
 			MBMR_TLFB_4X) /* 0x04804114 */ /* 0x10802114 */
 
 
+/*
+ * DSP Host Port Interface CS3
+ */
+#define CFG_SPC1920_HPI_BASE   0x90000000
+#define CFG_PRELIM_OR3_AM      0xF0000000
+
+#define CFG_OR3_PRELIM         (CFG_PRELIM_OR3_AM | \
+				       OR_G5LS | \
+				       OR_SCY_0_CLK | \
+				       OR_BI)
+
+#define CFG_BR3_PRELIM ((CFG_SPC1920_HPI_BASE & BR_BA_MSK) | \
+					       BR_MS_UPMA | \
+					       BR_PS_16 | \
+					       BR_V);
+
+#define CFG_MAMR (MAMR_GPL_A4DIS | \
+		MAMR_RLFA_5X | \
+		MAMR_WLFA_5X)
+
+#define CONFIG_SPC1920_HPI_TEST
+
+#ifdef CONFIG_SPC1920_HPI_TEST
+#define HPI_REG(x)             (*((volatile u16 *) (CFG_SPC1920_HPI_BASE + x)))
+#define HPI_HPIC_1             HPI_REG(0)
+#define HPI_HPIC_2             HPI_REG(2)
+#define HPI_HPIA_1             HPI_REG(0x2000000)
+#define HPI_HPIA_2             HPI_REG(0x2000000 + 2)
+#define HPI_HPID_INC_1         HPI_REG(0x1000000)
+#define HPI_HPID_INC_2         HPI_REG(0x1000000 + 2)
+#define HPI_HPID_NOINC_1       HPI_REG(0x3000000)
+#define HPI_HPID_NOINC_2       HPI_REG(0x3000000 + 2)
+#endif /* CONFIG_SPC1920_HPI_TEST */
+
 /* PLD CS5 */
 #define CFG_SPC1920_PLD_BASE	0x80000000
 #define CFG_PRELIM_OR5_AM	0xffff8000

@@ -27,9 +27,9 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include "pld.h"
+#include "hpi.h"
 
 #define	_NOT_USED_	0xFFFFFFFF
-/* #define debug(fmt,args...)     printf (fmt ,##args) */
 
 static long int dram_size (long int, long int *, long int);
 
@@ -172,6 +172,8 @@ long int initdram (int board_type)
 	memctl->memc_br1 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V;
 	udelay (1000);
 
+	/* initalize the DSP Host Port Interface */
+	hpi_init();
 
 	/* PLD Setup */
 	memctl->memc_or5 = CFG_OR5_PRELIM;
@@ -228,6 +230,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int last_stage_init(void)
+{
+#ifdef CONFIG_SPC1920_HPI_TEST
+	printf("CMB1920 Host Port Interface Test: %s\n",
+	       hpi_test() ? "Failed!" : "OK");
+#endif
+	return 0;
+}
 
 int checkboard (void)
 {
