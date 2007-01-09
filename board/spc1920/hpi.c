@@ -148,8 +148,8 @@ int hpi_init(void)
 	udelay(100);
 
 	memctl->memc_mamr = CFG_MAMR;
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CFG_OR3;
+	memctl->memc_br3 = CFG_BR3;
 
 	/* reset dsp */
 	dsp_reset();

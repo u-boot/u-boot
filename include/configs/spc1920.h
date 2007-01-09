@@ -361,14 +361,14 @@
  * DSP Host Port Interface CS3
  */
 #define CFG_SPC1920_HPI_BASE   0x90000000
-#define CFG_PRELIM_OR3_AM      0xF0000000
+#define CFG_PRELIM_OR3_AM      0xF8000000
 
-#define CFG_OR3_PRELIM         (CFG_PRELIM_OR3_AM | \
+#define CFG_OR3         (CFG_PRELIM_OR3_AM | \
 				       OR_G5LS | \
 				       OR_SCY_0_CLK | \
 				       OR_BI)
 
-#define CFG_BR3_PRELIM ((CFG_SPC1920_HPI_BASE & BR_BA_MSK) | \
+#define CFG_BR3 ((CFG_SPC1920_HPI_BASE & BR_BA_MSK) | \
 					       BR_MS_UPMA | \
 					       BR_PS_16 | \
 					       BR_V);
@@ -396,13 +396,13 @@
  */
 #define CFG_SPC1920_FRAM_BASE	0x80100000
 #define CFG_PRELIM_OR4_AM	0xffff8000
-#define CFG_OR4_PRELIM		(CFG_PRELIM_OR4_AM | \
+#define CFG_OR4		(CFG_PRELIM_OR4_AM | \
 					OR_ACS_DIV2 | \
 					OR_BI | \
 					OR_SCY_4_CLK | \
 					OR_TRLX)
 
-#define CFG_BR4_PRELIM ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+#define CFG_BR4 ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
 
 /*
  * PLD CS5
