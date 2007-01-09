@@ -89,7 +89,7 @@
 			 | CFG_CMD_PING \
 			 | CFG_CMD_DHCP \
 			 | CFG_CMD_IMMAP \
-                         | CFG_CMD_I2C \
+			 | CFG_CMD_I2C \
 			 | CFG_CMD_MII)
 			/* & ~( CFG_CMD_NET)) */
 
@@ -217,9 +217,9 @@
 #define I2C_TRISTATE   (immr->im_cpm.cp_pbdir &= ~PB_SDA)
 #define I2C_READ       ((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
 #define I2C_SDA(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-                       else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+		       else    immr->im_cpm.cp_pbdat &= ~PB_SDA
 #define I2C_SCL(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-                       else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+		       else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY      udelay(2)       /* 1/4 I2C clock duration */
 #endif /* CONFIG_SOFT_I2C */
 #endif
@@ -386,9 +386,11 @@
 #define HPI_HPID_NOINC_2       HPI_REG(0x3000000 + 2)
 #endif /* CONFIG_SPC1920_HPI_TEST */
 
-/* PLD CS5 */
+/*
+ * PLD CS5 
+ */
 #define CFG_SPC1920_PLD_BASE	0x80000000
-#define CFG_PRELIM_OR5_AM	0xffff8000
+#define CFG_PRELIM_OR5_AM	0xfff00000
 
 #define CFG_OR5_PRELIM		(CFG_PRELIM_OR5_AM | \
 					OR_CSNT_SAM | \
@@ -398,10 +400,6 @@
 					OR_TRLX)
 
 #define CFG_BR5_PRELIM ((CFG_SPC1920_PLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
-
-/* #define CFG_PLD_BASE   0x30000000 */
-/* #define CFG_OR5_PRELIM 0xffff1110 */
-/* #define CFG_BR5_PRELIM 0x30000401 */
 
 /*
  * Internal Definitions
