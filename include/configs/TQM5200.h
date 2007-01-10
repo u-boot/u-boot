@@ -231,6 +231,17 @@
 		"protect on FC000000 +${filesize}\0"
 #endif
 
+#ifndef CONFIG_CAM5200
+#define CUSTOM_ENV_SETTINGS						\
+	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
+#else
+#define CUSTOM_ENV_SETTINGS 						\
+	"bootfile=cam5200/uImage\0"					\
+	"u-boot=cam5200/u-boot.bin\0"					\
+	"setup=tftp 200000 cam5200/setup.img; autoscr 200000\0"
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
@@ -248,8 +259,7 @@
 		"bootm ${kernel_addr}\0"				\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
 		"bootm\0"						\
-	"bootfile=/tftpboot/tqm5200/uImage\0"				\
-	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"				\
+	CUSTOM_ENV_SETTINGS						\
 	"load=tftp 200000 ${u-boot}\0"					\
 	ENV_UPDT							\
 	""
