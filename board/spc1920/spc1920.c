@@ -27,9 +27,9 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include "pld.h"
+#include "hpi.h"
 
 #define	_NOT_USED_	0xFFFFFFFF
-/* #define debug(fmt,args...)     printf (fmt ,##args) */
 
 static long int dram_size (long int, long int *, long int);
 
@@ -172,10 +172,12 @@ long int initdram (int board_type)
 	memctl->memc_br1 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V;
 	udelay (1000);
 
+	/* initalize the DSP Host Port Interface */
+	hpi_init();
 
-	/* PLD Setup */
-	memctl->memc_or5 = CFG_OR5_PRELIM;
-	memctl->memc_br5 = CFG_BR5_PRELIM;
+	/* FRAM Setup */
+	memctl->memc_or4 = CFG_OR4;
+	memctl->memc_br4 = CFG_BR4;
 	udelay(1000);
 
 	return (size_b0);
@@ -207,13 +209,31 @@ int board_early_init_f(void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
+	/* Set Go/NoGo led (PA15) to color red */
+	immap->im_ioport.iop_papar &= ~0x1;
+	immap->im_ioport.iop_paodr &= ~0x1;
+	immap->im_ioport.iop_padir |= 0x1;
+	immap->im_ioport.iop_padat |= 0x1;
 
+#if 0
 	/* Turn on LED PD9 */
 	immap->im_ioport.iop_pdpar &= ~(0x0040);
 	immap->im_ioport.iop_pddir |= 0x0040;
 	immap->im_ioport.iop_pddat |= 0x0040;
+#endif
 
-	/* Enable PD10 (COM2_EN) */
+	/*
+	 * Enable console on SMC1. This requires turning on
+	 * the com2_en signal and SMC1_DISABLE
+	 */
+
+	/* SMC1_DISABLE: PB17 */
+	immap->im_cpm.cp_pbodr &= ~0x4000;
+	immap->im_cpm.cp_pbpar &= ~0x4000;
+	immap->im_cpm.cp_pbdir |= 0x4000;
+	immap->im_cpm.cp_pbdat &= ~0x4000;
+
+	/* COM2_EN: PD10 */
 	immap->im_ioport.iop_pdpar &= ~0x0020;
 	immap->im_ioport.iop_pddir &= ~0x4000;
 	immap->im_ioport.iop_pddir |= 0x0020;
@@ -228,6 +248,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int last_stage_init(void)
+{
+#ifdef CONFIG_SPC1920_HPI_TEST
+	printf("CMB1920 Host Port Interface Test: %s\n",
+	       hpi_test() ? "Failed!" : "OK");
+#endif
+	return 0;
+}
 
 int checkboard (void)
 {

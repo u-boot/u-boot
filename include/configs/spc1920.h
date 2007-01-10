@@ -44,19 +44,19 @@
 #define CONFIG_BAUDRATE		19200
 
 /* use PLD CLK4 instead of brg */
-#undef CFG_SPC1920_SMC1_CLK4
+#define CFG_SPC1920_SMC1_CLK4
 
 #define CONFIG_8xx_OSCLK		10000000 /* 10 MHz oscillator on EXTCLK  */
 #define CONFIG_8xx_CPUCLK_DEFAULT	50000000
 #define CFG_8xx_CPUCLK_MIN		40000000
 #define CFG_8xx_CPUCLK_MAX		133000000
 
-#define CFG_RESET_ADDRESS		0xf8000000
+#define CFG_RESET_ADDRESS		0xC0000000
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_LAST_STAGE_INIT
 
-
-#if 1
+#if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
@@ -83,12 +83,13 @@
 #ifndef CONFIG_COMMANDS
 #define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
 			 | CFG_CMD_ASKENV \
+			 | CFG_CMD_DATE \
 			 | CFG_CMD_ECHO   \
 			 | CFG_CMD_IMMAP  \
 			 | CFG_CMD_JFFS2 \
 			 | CFG_CMD_PING \
 			 | CFG_CMD_DHCP \
-			 | CFG_CMD_IMMAP \
+			 | CFG_CMD_I2C \
 			 | CFG_CMD_MII)
 			/* & ~( CFG_CMD_NET)) */
 
@@ -193,13 +194,39 @@
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 
+#ifdef CFG_CMD_DATE
+# define CONFIG_RTC_DS3231
+# define CFG_I2C_RTC_ADDR      0x68
+#endif
+
 /*-----------------------------------------------------------------------
  * I2C configuration
  */
 #if (CONFIG_COMMANDS & CFG_CMD_I2C)
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address defaults */
-#define CFG_I2C_SLAVE		0x7F
+/* enable I2C and select the hardware/software driver */
+#undef CONFIG_HARD_I2C                 /* I2C with hardware support    */
+#define CONFIG_SOFT_I2C                1       /* I2C bit-banged               */
+
+#define CFG_I2C_SPEED          93000   /* 93 kHz is supposed to work   */
+#define CFG_I2C_SLAVE          0xFE
+
+#ifdef CONFIG_SOFT_I2C
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+#define PB_SCL         0x00000020      /* PB 26 */
+#define PB_SDA         0x00000010      /* PB 27 */
+
+#define I2C_INIT       (immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE     (immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE   (immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ       ((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
+		       else    immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)   if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
+		       else    immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY      udelay(2)       /* 1/4 I2C clock duration */
+#endif /* CONFIG_SOFT_I2C */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -220,7 +247,7 @@
  *-----------------------------------------------------------------------
  * PCMCIA config., multi-function pin tri-state
  */
-#define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
+#define CFG_SIUMCR      (SIUMCR_FRC)
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control				11-26
@@ -283,7 +310,7 @@
  * FLASH timing:
  */
 #define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
-				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
+				 OR_SCY_6_CLK | OR_EHTR | OR_BI)
 
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
@@ -330,7 +357,56 @@
 			MBMR_TLFB_4X) /* 0x04804114 */ /* 0x10802114 */
 
 
-/* PLD CS5 */
+/*
+ * DSP Host Port Interface CS3
+ */
+#define CFG_SPC1920_HPI_BASE   0x90000000
+#define CFG_PRELIM_OR3_AM      0xF8000000
+
+#define CFG_OR3         (CFG_PRELIM_OR3_AM | \
+				       OR_G5LS | \
+				       OR_SCY_0_CLK | \
+				       OR_BI)
+
+#define CFG_BR3 ((CFG_SPC1920_HPI_BASE & BR_BA_MSK) | \
+					       BR_MS_UPMA | \
+					       BR_PS_16 | \
+					       BR_V);
+
+#define CFG_MAMR (MAMR_GPL_A4DIS | \
+		MAMR_RLFA_5X | \
+		MAMR_WLFA_5X)
+
+#define CONFIG_SPC1920_HPI_TEST
+
+#ifdef CONFIG_SPC1920_HPI_TEST
+#define HPI_REG(x)             (*((volatile u16 *) (CFG_SPC1920_HPI_BASE + x)))
+#define HPI_HPIC_1             HPI_REG(0)
+#define HPI_HPIC_2             HPI_REG(2)
+#define HPI_HPIA_1             HPI_REG(0x2000008)
+#define HPI_HPIA_2             HPI_REG(0x2000008 + 2)
+#define HPI_HPID_INC_1         HPI_REG(0x1000004)
+#define HPI_HPID_INC_2         HPI_REG(0x1000004 + 2)
+#define HPI_HPID_NOINC_1       HPI_REG(0x300000c)
+#define HPI_HPID_NOINC_2       HPI_REG(0x300000c + 2)
+#endif /* CONFIG_SPC1920_HPI_TEST */
+
+/*
+ * Ramtron FM18L08 FRAM 32KB on CS4
+ */
+#define CFG_SPC1920_FRAM_BASE	0x80100000
+#define CFG_PRELIM_OR4_AM	0xffff8000
+#define CFG_OR4		(CFG_PRELIM_OR4_AM | \
+					OR_ACS_DIV2 | \
+					OR_BI | \
+					OR_SCY_4_CLK | \
+					OR_TRLX)
+
+#define CFG_BR4 ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+
+/*
+ * PLD CS5
+ */
 #define CFG_SPC1920_PLD_BASE	0x80000000
 #define CFG_PRELIM_OR5_AM	0xffff8000
 
@@ -342,10 +418,6 @@
 					OR_TRLX)
 
 #define CFG_BR5_PRELIM ((CFG_SPC1920_PLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
-
-/* #define CFG_PLD_BASE   0x30000000 */
-/* #define CFG_OR5_PRELIM 0xffff1110 */
-/* #define CFG_BR5_PRELIM 0x30000401 */
 
 /*
  * Internal Definitions
