@@ -31,7 +31,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-
 #define mtebc(reg, data)  mtdcr(ebccfga,reg);mtdcr(ebccfgd,data)
 
 #ifdef CFG_INIT_DCACHE_CS
@@ -312,6 +311,10 @@ cpu_init_f (void)
 	mtebc(pb7cr, CFG_EBC_PB7CR);
 #endif
 
+#if defined (CONFIG_SOLIDCARD3)
+mtebc(epcr, 0xb84ef000);
+*(unsigned long *)0x79000080 = 0x0001;
+#endif
 #if defined(CONFIG_WATCHDOG)
 	unsigned long val;
 

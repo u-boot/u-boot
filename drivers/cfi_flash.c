@@ -40,6 +40,10 @@
 #include <environment.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
 
+#if defined(CONFIG_SOLIDCARD3)
+#define __LITTLE_ENDIAN
+#endif
+
 /*
  * This file implements a Common Flash Interface (CFI) driver for U-Boot.
  * The width of the port and the width of the chips are determined at initialization.
@@ -867,7 +871,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 		cword->c = c;
 		break;
 	case FLASH_CFI_16BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
 		w = c;
 		w <<= 8;
 		cword->w = (cword->w >> 8) | w;
@@ -1359,7 +1363,6 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	ctladdr.cp = flash_make_addr (info, 0, 0);
 	cptr.cp = (uchar *) dest;
 
-
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -1531,4 +1534,9 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	}
 }
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
+
+#if defined(CONFIG_SOLIDCARD3)
+#undef __LITTLE_ENDIAN
+#endif
+
 #endif /* CFG_FLASH_CFI */
