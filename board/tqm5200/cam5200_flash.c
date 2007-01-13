@@ -25,7 +25,7 @@
 #include <mpc5xxx.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_CAM5200
+#if defined(CONFIG_CAM5200) && defined(CONFIG_CAM5200_NIOSFLASH)
 
 #if 0
 #define DEBUGF(x...) printf(x)
@@ -783,4 +783,4 @@ unsigned long flash_init(void)
 
 	return total_b;
 }
-#endif /* ifdef CONFIG_CAM5200 */
+#endif /* if defined(CONFIG_CAM5200) && defined(CONFIG_CAM5200_NIOSFLASH) */

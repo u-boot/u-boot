@@ -231,6 +231,17 @@
 		"protect on FC000000 +${filesize}\0"
 #endif
 
+#ifndef CONFIG_CAM5200
+#define CUSTOM_ENV_SETTINGS						\
+	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
+#else
+#define CUSTOM_ENV_SETTINGS 						\
+	"bootfile=cam5200/uImage\0"					\
+	"u-boot=cam5200/u-boot.bin\0"					\
+	"setup=tftp 200000 cam5200/setup.img; autoscr 200000\0"
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
@@ -248,8 +259,7 @@
 		"bootm ${kernel_addr}\0"				\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
 		"bootm\0"						\
-	"bootfile=/tftpboot/tqm5200/uImage\0"				\
-	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"				\
+	CUSTOM_ENV_SETTINGS						\
 	"load=tftp 200000 ${u-boot}\0"					\
 	ENV_UPDT							\
 	""
@@ -325,15 +335,7 @@
  */
 #define CFG_FLASH_BASE		0xFC000000
 
-#ifndef CONFIG_CAM5200
-/* use CFI flash driver */
-#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
-#define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
-					   (= chip selects) */
-#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
-#else /* CONFIG_CAM5200 */
+#if defined(CONFIG_CAM5200) && defined(CONFIG_CAM5200_NIOSFLASH)
 #define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks
 					   (= chip selects) */
 #define CFG_FLASH_WORD_SIZE	unsigned int /* main flash device with */
@@ -344,7 +346,15 @@
 #define CFG_FLASH_ADDR1		0x2AA
 #define CFG_FLASH_2ND_16BIT_DEV	1	/* NIOS flash is a 16bit device */
 #define CFG_MAX_FLASH_SECT	128
-#endif /* ifndef CONFIG_CAM5200 */
+#else
+/* use CFI flash driver */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
+#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
+					   (= chip selects) */
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+#endif
 
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */
