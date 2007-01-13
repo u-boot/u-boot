@@ -350,12 +350,19 @@ int misc_init_r(void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	u8 rev;
+	u8 val;
 
 #ifdef CONFIG_440EPX
 	printf("Board: Sequoia - AMCC PPC440EPx Evaluation Board");
 #else
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
+
+	rev = *(u8 *)(CFG_CPLD + 0);
+	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
+
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);
