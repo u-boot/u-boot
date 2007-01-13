@@ -39,24 +39,6 @@ int board_early_init_f(void)
 	reg = mfdcr(ebccfgd);
 	mtdcr(ebccfgd, reg | 0x04000000);	/* Set ATC */
 
-	mtebc(pb0ap, 0x03017300);	/* FLASH/SRAM */
-	mtebc(pb0cr, 0xfc0da000);	/* BAS=0xfc0 64MB r/w 16-bit */
-
-	mtebc(pb1ap, 0x00000000);
-	mtebc(pb1cr, 0x00000000);
-
-	mtebc(pb2ap, 0x04814500);
-	/*CPLD*/ mtebc(pb2cr, 0x80018000);	/*BAS=0x800 1MB r/w 8-bit */
-
-	mtebc(pb3ap, 0x00000000);
-	mtebc(pb3cr, 0x00000000);
-
-	mtebc(pb4ap, 0x00000000);
-	mtebc(pb4cr, 0x00000000);
-
-	mtebc(pb5ap, 0x00000000);
-	mtebc(pb5cr, 0x00000000);
-
 	/*--------------------------------------------------------------------
 	 * Setup the GPIO pins
 	 *-------------------------------------------------------------------*/
@@ -190,8 +172,15 @@ int misc_init_r (void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	u8 rev;
+	u8 val;
 
 	printf("Board: Yellowstone - AMCC PPC440GR Evaluation Board");
+
+	rev = *(u8 *)(CFG_CPLD + 0);
+	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
+
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);
