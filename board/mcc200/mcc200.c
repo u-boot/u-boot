@@ -228,10 +228,6 @@ int misc_init_r (void)
 {
 	ulong flash_sup_end, snum;
 
-#ifdef CONFIG_AUTO_UPDATE
-	/* this has priority over all else */
-	do_auto_update();
-#endif
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -294,6 +290,9 @@ int misc_init_r (void)
 		flash_info[0].sector_count = snum;
 	}
 
+#ifdef CONFIG_AUTO_UPDATE
+        do_auto_update();
+#endif
 	return (0);
 }
 

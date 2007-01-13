@@ -121,10 +121,10 @@ struct flash_layout aufl_layout[AU_MAXFILES] = { \
 #define I2C_PSOC_KEYPAD_ADDR	0x53
 
 /* keypad mask */
-#define KEYPAD_ROW	3
-#define KEYPAD_COL	3
-#define KEYPAD_MASK_LO	((1<<(KEYPAD_COL-1+(KEYPAD_ROW*4-4)))&0xFF)
-#define KEYPAD_MASK_HI	((1<<(KEYPAD_COL-1+(KEYPAD_ROW*4-4)))>>8)
+#define KEYPAD_ROW	2
+#define KEYPAD_COL	2
+#define KEYPAD_MASK_LO	((1<<(KEYPAD_COL-1+(KEYPAD_ROW*3-3)))&0xFF)
+#define KEYPAD_MASK_HI	((1<<(KEYPAD_COL-1+(KEYPAD_ROW*3-3)))>>8)
 
 /* externals */
 extern int fat_register_device(block_dev_desc_t *, int);
