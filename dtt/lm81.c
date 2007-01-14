@@ -80,7 +80,7 @@ int dtt_write(int sensor, int reg, int val)
     /*
      * Write value to register.
      */
-    if (i2c_write(sensor, reg, 1, data, 1) != 0)
+    if (i2c_write(sensor, reg, 1, &data, 1) != 0)
 	return 1;
 
     return 0;
@@ -88,6 +88,7 @@ int dtt_write(int sensor, int reg, int val)
 
 #define DTT_MANU	0x3e
 #define DTT_REV		0x3f
+#define DTT_CONFIG	0x40
 #define DTT_ADR		0x48
 
 static int _dtt_init(int sensor)
@@ -98,6 +99,8 @@ static int _dtt_init(int sensor)
 
 	if (dtt_write (sensor, DTT_CONFIG, 0x01) < 0)
 		return 1;
+	/* The LM81 needs 400ms to get the correct values ... */
+	udelay (400000);
 	man = dtt_read (sensor, DTT_MANU);
 	if (man != 0x01)
 		return 1;
@@ -109,8 +112,6 @@ static int _dtt_init(int sensor)
 		return 1;
 
 	printf ("DTT:   Found LM81@%x Rev: %d\n", adr, rev);
-	/* The LM81 needs 400ms to get the correct values ... */
-	udelay (400000);
 	return 0;
 } /* _dtt_init() */
 
