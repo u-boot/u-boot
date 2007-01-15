@@ -439,7 +439,7 @@ int ppc440spe_revB() {
 	unsigned int pvr;
 
 	pvr = get_pvr();
-	if (pvr == PVR_440SPe_RB)
+	if ((pvr == PVR_440SPe_6_RB) || (pvr == PVR_440SPe_RB))
 		return 1;
 	else
 		return 0;
