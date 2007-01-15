@@ -602,6 +602,8 @@ TQM5200_STK100_config:	unconfig
 		{ echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp ; \
 		}
 	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
+uc101_config:         unconfig
+	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
 
 #########################################################################
 ## MPC8xx Systems

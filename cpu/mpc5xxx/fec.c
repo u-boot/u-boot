@@ -376,7 +376,7 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 
 #if (DEBUG & 0x2)
 	if (fec->xcv_type != SEVENWIRE)
-		mpc5xxx_fec_phydump ();
+		mpc5xxx_fec_phydump (dev->name);
 #endif
 
 	/*
@@ -575,7 +575,7 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 
 #if (DEBUG & 0x2)
 	if (fec->xcv_type != SEVENWIRE)
-		mpc5xxx_fec_phydump ();
+		mpc5xxx_fec_phydump (dev->name);
 #endif
 
 	/*
@@ -882,7 +882,8 @@ int mpc5xxx_fec_initialize(bd_t * bis)
     defined(CONFIG_ICECUBE) || defined(CONFIG_INKA4X0)	|| \
     defined(CONFIG_MCC200)  || defined(CONFIG_O2DNT)	|| \
     defined(CONFIG_PM520)   || defined(CONFIG_TOP5200)	|| \
-    defined(CONFIG_TQM5200) || defined(CONFIG_V38B)
+    defined(CONFIG_TQM5200) || defined(CONFIG_V38B)	|| \
+    defined(CONFIG_UC101)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else

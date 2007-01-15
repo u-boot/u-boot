@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2001
-# Erik Theisen, Wave 7 Optics, etheisen@mindspring.com.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -24,27 +21,21 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# INKA 4X0 board:
+#
+#	Valid values for TEXT_BASE are:
+#
+#	0xFFE00000   boot high
+#
+#	0x00100000   boot from RAM (for testing only)
+#
 
-#CFLAGS += -DDEBUG
+ifndef TEXT_BASE
+## Standard: boot high
+TEXT_BASE = 0xFFF00000
+## For testing: boot from RAM
+#TEXT_BASE = 0x00100000
+endif
 
-LIB	= $(obj)libdtt.a
-
-COBJS	= lm75.o ds1621.o adm1021.o lm81.o
-
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
