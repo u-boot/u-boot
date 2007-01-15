@@ -86,7 +86,6 @@
 #define DDR0_00_DLL_START_POINT_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
 
 
-
 #define DDR0_01                         0x01
 #define DDR0_01_PLB0_DB_CS_LOWER_MASK     0x1F000000
 #define DDR0_01_PLB0_DB_CS_LOWER_ENCODE(n)  ((((unsigned long)(n))&0x1F)<<24)
@@ -353,8 +352,6 @@
 #define DDR0_22_DLL_DQS_BYPASS_8_MASK     0x0000007F
 #define DDR0_22_DLL_DQS_BYPASS_8_ENCODE(n)  ((((unsigned long)(n))&0x7F)<<0)
 #define DDR0_22_DLL_DQS_BYPASS_8_DECODE(n)  ((((unsigned long)(n))>>0)&0x7F)
-
-
 
 
 #define DDR0_23                         0x17

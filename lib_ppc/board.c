@@ -76,6 +76,10 @@
 extern int update_flash_size (int flash_size);
 #endif
 
+#if defined(CONFIG_SOLIDCARD3)
+extern void sc3_read_eeprom(void);
+#endif
+
 #if (CONFIG_COMMANDS & CFG_CMD_DOC)
 void doc_init (void);
 #endif
@@ -93,6 +97,9 @@ static char *failed = "*** failed ***\n";
 extern flash_info_t flash_info[];
 #endif
 
+#if defined(CONFIG_START_IDE)
+extern int board_start_ide(void);
+#endif
 #include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -815,6 +822,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif	/* CONFIG_405GP, CONFIG_405EP */
 #endif	/* CFG_EXTBDINFO */
 
+#if defined(CONFIG_SOLIDCARD3)
+	sc3_read_eeprom();
+#endif
 	s = getenv ("ethaddr");
 #if defined (CONFIG_MBX) || \
     defined (CONFIG_RPXCLASSIC) || \
@@ -921,6 +931,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_KUP4X)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_PCU_E)	|| \
+    defined(CONFIG_SOLIDCARD3)	|| \
     defined(CONFIG_W7O)		|| \
     defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
@@ -1030,7 +1041,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 # else
 	puts ("IDE:   ");
 #endif
+#if defined(CONFIG_START_IDE)
+	if (board_start_ide())
+		ide_init ();
+#else
 	ide_init ();
+#endif
 #endif /* CFG_CMD_IDE */
 
 #ifdef CONFIG_LAST_STAGE_INIT

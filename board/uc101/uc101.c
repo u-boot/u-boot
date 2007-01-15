@@ -65,11 +65,9 @@
 #define GP_SIMP_SET_O(n, v)  (pgpio->simple_dvo = v ? \
 				(pgpio->simple_dvo | (1 << n)) : \
 				(pgpio->simple_dvo & ~(1 << n)) )
-				
+
 #define GP_SIMP_GET_O(n)  ((pgpio->simple_dvo >> n) & 1)
 #define GP_SIMP_GET_I(n)  ((pgpio->simple_ival >> n) & 1)
-
-
 
 #define GP_SINT_SET_O(n, v)  (pgpio->sint_dvo = v ? \
 				(pgpio->sint_dvo | (1 << n)) : \
@@ -228,7 +226,7 @@ int checkboard (void)
 
 static void init_ports (void)
 {
-	volatile struct mpc5xxx_gpio *pgpio = 
+	volatile struct mpc5xxx_gpio *pgpio =
 		(struct mpc5xxx_gpio *)MPC5XXX_GPIO;
 
 	GP_SIMP_ENABLE_I(GPIO_USB_8);	/* HEX Bit 3 */
@@ -371,4 +369,3 @@ void hw_watchdog_reset(void)
 	*(vu_long *)MPC5XXX_GPT0_ENABLE = GPT_OUT_0;
 }
 #endif
-

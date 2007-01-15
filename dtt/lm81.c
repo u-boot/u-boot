@@ -134,8 +134,8 @@ int dtt_init (void)
 } /* dtt_init() */
 
 #define TEMP_FROM_REG(temp) \
-   ((temp)<256?((((temp)&0x1fe) >> 1) * 10)      + ((temp) & 1) * 5:  \
-               ((((temp)&0x1fe) >> 1) -255) * 10 - ((temp) & 1) * 5)  \
+   ((temp)<256?((((temp)&0x1fe) >> 1) * 10)	 + ((temp) & 1) * 5:  \
+	       ((((temp)&0x1fe) >> 1) -255) * 10 - ((temp) & 1) * 5)  \
 
 int dtt_get_temp(int sensor)
 {

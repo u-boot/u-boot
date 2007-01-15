@@ -219,6 +219,10 @@ void set_chip_gpio_configuration(gpio_param_s (*gpio_tab)[GPIO_GROUP_MAX][GPIO_M
 void
 cpu_init_f (void)
 {
+#if defined(CONFIG_WATCHDOG)
+	unsigned long val;
+#endif
+
 #if defined(CONFIG_405EP)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
@@ -309,9 +313,12 @@ cpu_init_f (void)
 	mtebc(pb7cr, CFG_EBC_PB7CR);
 #endif
 
-#if defined(CONFIG_WATCHDOG)
-	unsigned long val;
+#if defined (CONFIG_SOLIDCARD3)
+	mtebc(epcr, 0xb84ef000);
+	*(unsigned long *)0x79000080 = 0x0001;
+#endif
 
+#if defined(CONFIG_WATCHDOG)
 	val = mfspr(tcr);
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	val |= 0xb8000000;      /* generate system reset after 1.34 seconds */
