@@ -1648,6 +1648,9 @@ MPC8360EMDS_SLAVE_config:	unconfig
 MPC8349ITX_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349itx
 
+sbc8349_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
+
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \

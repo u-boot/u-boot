@@ -440,10 +440,14 @@ long int spd_sdram()
 	ddr->sdram_interval = ((refresh_clk & 0x3fff) << 16) | 0x100;
 	debug("DDR:sdram_interval=0x%08x\n", ddr->sdram_interval);
 
+#ifdef CFG_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
+	ddr->sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
+#else
 	/* SS_EN = 0, source synchronous disable
 	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
 	 */
 	ddr->sdram_clk_cntl = 0x00000000;
+#endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
 	asm("sync;isync");

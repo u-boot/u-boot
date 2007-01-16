@@ -160,6 +160,10 @@ N: Thomas Frieden
 E: ThomasF@hyperion-entertainment.com
 D: Support for AmigaOne
 
+N: Paul Gortmaker
+E: paul.gortmaker@windriver.com
+D: Support for WRS SBC8347/8349 boards
+
 N: Frank Gottschling
 E: fgottschling@eltec.de
 D: Support for ELTEC MHPC/BAB7xx/ELPPC boards, cfb-console, i8042, SMI LynxEM
