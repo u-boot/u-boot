@@ -96,6 +96,31 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	3 /* autoboot after 3 seconds	      */
 
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"nand_args=setenv bootargs root=/dev/mtdblock4 rw\0"		\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm ${kernel_addr}\0"				\
+	"flash_nand=nand_args addip addcon;bootm ${kernel_addr}\0"	\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_4xx\0"					\
+	"bootfile=/tftpboot/sc3/uImage\0"				\
+	"kernel_addr=FFE08000\0"					\
+	""
+#undef CONFIG_BOOTCOMMAND
+
 #define CONFIG_SILENT_CONSOLE	1	/* enable silent startup */
 #define CFG_DEVICE_NULLDEV	1	/* include nulldev device	*/
 
