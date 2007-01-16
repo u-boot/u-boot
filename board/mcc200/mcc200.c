@@ -92,8 +92,8 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
- *            is something else than 0x00000000.
+ *	      use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *	      is something else than 0x00000000.
  */
 
 long int initdram (int board_type)
@@ -291,7 +291,7 @@ int misc_init_r (void)
 	}
 
 #ifdef CONFIG_AUTO_UPDATE
-        do_auto_update();
+	do_auto_update();
 #endif
 	return (0);
 }

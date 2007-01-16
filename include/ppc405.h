@@ -160,6 +160,7 @@
   #define mem_bear    0x10    /* bus error address reg		     */
 #endif
   #define mem_mcopt1  0x20    /* memory controller options 1	     */
+  #define mem_status  0x24    /* memory status			     */
   #define mem_rtr     0x30    /* refresh timer reg		     */
   #define mem_pmit    0x34    /* power management idle timer	     */
   #define mem_mb0cf   0x40    /* memory bank 0 configuration	     */
