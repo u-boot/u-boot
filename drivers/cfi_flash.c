@@ -860,7 +860,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
  */
 static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 {
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
 	unsigned short	w;
 	unsigned int	l;
 	unsigned long long ll;
@@ -880,7 +880,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_32BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
 		l = c;
 		l <<= 24;
 		cword->l = (cword->l >> 8) | l;
@@ -889,7 +889,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_64BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
 		ll = c;
 		ll <<= 56;
 		cword->ll = (cword->ll >> 8) | ll;
