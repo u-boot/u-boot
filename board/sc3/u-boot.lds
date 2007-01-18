@@ -62,7 +62,7 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
-    board/solidcard3/init.o	(.text)
+    board/sc3/init.o	(.text)
     cpu/ppc4xx/kgdb.o	(.text)
     cpu/ppc4xx/traps.o	(.text)
     cpu/ppc4xx/interrupts.o	(.text)
