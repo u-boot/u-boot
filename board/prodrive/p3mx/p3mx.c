@@ -45,6 +45,7 @@
 #include "mpsc.h"
 #include "64460.h"
 #include "mv_regs.h"
+#include "p3mx.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,6 +80,7 @@ extern flash_info_t flash_info[];
 void board_prebootm_init (void);
 unsigned int INTERNAL_REG_BASE_ADDR = CFG_GT_REGS;
 int display_mem_map (void);
+void set_led(int);
 
 /* ------------------------------------------------------------------------- */
 
@@ -246,7 +248,6 @@ int board_early_init_f (void)
 	 * that if it's not at the power-on location, it's where we put
 	 * it last time. (huber)
 	 */
-
 	my_remap_gt_regs (CFG_DFL_GT_REGS, CFG_GT_REGS);
 
 #ifdef CONFIG_PCI
@@ -286,6 +287,8 @@ int board_early_init_f (void)
 	GT_REG_WRITE (MPP_CONTROL3, CFG_MPP_CONTROL_3);
 
 	GT_REG_WRITE (GPP_LEVEL_CONTROL, CFG_GPP_LEVEL_CONTROL);
+
+	set_led(LED_RED);
 
 	return 0;
 }
@@ -332,6 +335,7 @@ void after_reloc (ulong dest_addr, gd_t * gd)
 /*	display_mem_map(); */
 
 	/* now, jump to the main U-Boot board init code */
+	set_led(LED_GREEN);
 	board_init_r (gd, dest_addr);
 	/* NOTREACHED */
 }
@@ -356,15 +360,66 @@ int checkboard (void)
 	return (0);
 }
 
-/* utility functions */
-void debug_led (int led, int mode)
+void set_led(int col)
 {
+	int tmp;
+	int on_pin;
+	int off_pin;
+
+	/* Program Mpp[22] as Gpp[22]
+	 * Program Mpp[23] as Gpp[23]
+	 */
+	tmp = GTREGREAD(MPP_CONTROL2);
+	tmp &= 0x00ffffff;
+	GT_REG_WRITE(MPP_CONTROL2,tmp);
+
+	/* Program Gpp[22] and Gpp[23] as output
+	 */
+	tmp = GTREGREAD(GPP_IO_CONTROL);
+	tmp |= 0x00C00000;
+	GT_REG_WRITE(GPP_IO_CONTROL, tmp);
+
+	/* Program Gpp[22] and Gpp[23] as active high
+	 */
+	tmp = GTREGREAD(GPP_LEVEL_CONTROL);
+	tmp &= 0xff3fffff;
+	GT_REG_WRITE(GPP_LEVEL_CONTROL, tmp);
+
+	switch(col) {
+	default:
+	case LED_OFF :
+		on_pin  = 0;
+		off_pin = ((1 << 23) | (1 << 22));
+		break;
+	case LED_RED :
+		on_pin  = (1 << 23);
+		off_pin = (1 << 22);
+		break;
+	case LED_GREEN :
+		on_pin  = (1 << 22);
+		off_pin = (1 << 23);
+		break;
+	case LED_ORANGE :
+		on_pin  = ((1 << 23) | (1 << 22));
+		off_pin = 0;
+		break;
+	}
+
+	/* Set output Gpp[22] and Gpp[23]
+	 */
+	tmp = GTREGREAD(GPP_VALUE);
+	tmp |= on_pin;
+	tmp &= ~off_pin;
+	GT_REG_WRITE(GPP_VALUE, tmp);
 }
 
 int display_mem_map (void)
 {
-	int i, j;
+	int i;
 	unsigned int base, size, width;
+#ifdef CONFIG_PCI
+	int j;
+#endif
 
 	/* SDRAM */
 	printf ("SD (DDR) RAM\n");

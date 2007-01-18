@@ -65,7 +65,7 @@ int mvDmaTransfer (int, ulong, ulong, ulong, ulong);
 int memory_map_bank (unsigned int bankNo,
 		     unsigned int bankBase, unsigned int bankLength)
 {
-#ifdef MAP_PCI
+#if defined (MAP_PCI) && defined (CONFIG_PCI)
 	PCI_HOST host;
 #endif
 
@@ -80,7 +80,7 @@ int memory_map_bank (unsigned int bankNo,
 
 	memoryMapBank (bankNo, bankBase, bankLength);
 
-#ifdef MAP_PCI
+#if defined (MAP_PCI) && defined (CONFIG_PCI)
 	for (host = PCI_HOST0; host <= PCI_HOST1; host++) {
 		const int features =
 			PREFETCH_ENABLE |

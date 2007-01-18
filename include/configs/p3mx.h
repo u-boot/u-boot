@@ -168,10 +168,12 @@
 #define PCI_HOST_FORCE	1		/* configure as pci host	*/
 #define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
 
-#define CONFIG_PCI			/* include pci support		*/
+#undef CONFIG_PCI			/* include pci support		*/
+#ifdef CONFIG_PCI
 #define CONFIG_PCI_HOST PCI_HOST_FORCE	/* select pci host function	*/
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show devices on bus		*/
+#endif /* CONFIG_PCI */
 
 /* PCI MEMORY MAP section */
 #define CFG_PCI0_MEM_BASE	0x80000000
@@ -194,7 +196,6 @@
 #define CFG_PCI1_IO_SPACE_PCI	0x00000000
 
 #define CFG_ISA_IO_BASE_ADDRESS (CFG_PCI0_IO_BASE)
-
 #define CFG_PCI_IDSEL 0x30
 
 #undef	CONFIG_BOOTARGS
