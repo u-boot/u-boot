@@ -31,32 +31,32 @@
 #undef USE_VGA_GRAPHICS
 
 /* Memory Map
-0x00000000 .... 0x03FFFFFF -> RAM (up to 128MiB)
-0x74000000 .... 0x740FFFFF -> CS#6
-0x74100000 .... 0x741FFFFF -> CS#7
-0x74200000 .... 0x742FFFFF -> CS4# if no internal USB
-0x74300000 .... 0x743FFFFF -> CS5# if no boosted IDE
-0x77C00000 .... 0x77CFFFFF -> CS4# USB HC (1 MiB)
-0x77D00000 .... 0x77DFFFFF -> CS1# NAND-Flash (1 MiB)
-0x78000000 .... 0x78FFFFFF -> CS2# ISA-Bus Speicherzugriff (16 MiB)
-0x79000000 .... 0x7900FFFF -> CS2# ISA-Bus IO-Zugriff (16 MiB, mapped: 64kiB)
-0x79010000 .... 0x79FFFFFF -> CS2# ISA-Bus IO-Zugriff (mirrored)
-0x7A000000 .... 0x7A0FFFFF -> CS5# IDE emulation (1MiB)
-
-0x80000000 .... 0x9FFFFFFF -> PCI-Bus Speicherzugriff (512MiB, mapped: 1:1)
-0xA0000000 .... 0xBFFFFFFF -> PCI-Bus Speicherzugriff (512MiB, mapped: 0x00000000...0x1FFFFFFF)
-0xE8000000 .... 0xE800FFFF -> PCI-Bus IO-Zugriff (64kiB, translated to PCI: 0x0000...0xFFFF)
-0xE8800000 .... 0xEBFFFFFF -> PCI-Bus IO-Zugriff (56MiB, translated to PCI: 0x00800000...0x3FFFFFF)
-0xEED00000 .... 0xEED00003 -> PCI-Bus
-0xEF400000 .... 0xEF40003F -> PCI-Bus Local Configuration Registers
-0xEF40003F .... 0xEF5FFFFF -> reserved
-0xEF600000 .... 0xEFFFFFFF -> 405GP internal Devices (10 MiB)
-0xF0000000 .... 0xF01FFFFF -> Flash-ROM (2 MiB)
-0xF0200000 .... 0xF7FFFFFF -> free for flash devices
-0xF8000000 .... 0xF8000FFF -> OnChipMemory (4kiB)
-0xF8001000 .... 0xFFDFFFFF -> free for flash devices
-0xFFE00000 .... 0xFFFFFFFF -> BOOT-ROM (2 MiB)
-*/
+ * 0x00000000 .... 0x03FFFFFF -> RAM (up to 128MiB)
+ * 0x74000000 .... 0x740FFFFF -> CS#6
+ * 0x74100000 .... 0x741FFFFF -> CS#7
+ * 0x74200000 .... 0x742FFFFF -> CS4# if no internal USB
+ * 0x74300000 .... 0x743FFFFF -> CS5# if no boosted IDE
+ * 0x77C00000 .... 0x77CFFFFF -> CS4# USB HC (1 MiB)
+ * 0x77D00000 .... 0x77DFFFFF -> CS1# NAND-Flash (1 MiB)
+ * 0x78000000 .... 0x78FFFFFF -> CS2# ISA-Bus Speicherzugriff (16 MiB)
+ * 0x79000000 .... 0x7900FFFF -> CS2# ISA-Bus IO-Zugriff (16 MiB, mapped: 64kiB)
+ * 0x79010000 .... 0x79FFFFFF -> CS2# ISA-Bus IO-Zugriff (mirrored)
+ * 0x7A000000 .... 0x7A0FFFFF -> CS5# IDE emulation (1MiB)
+ *
+ * 0x80000000 .... 0x9FFFFFFF -> PCI-Bus Speicherzugriff (512MiB, mapped: 1:1)
+ * 0xA0000000 .... 0xBFFFFFFF -> PCI-Bus Speicherzugriff (512MiB, mapped: 0x00000000...0x1FFFFFFF)
+ * 0xE8000000 .... 0xE800FFFF -> PCI-Bus IO-Zugriff (64kiB, translated to PCI: 0x0000...0xFFFF)
+ * 0xE8800000 .... 0xEBFFFFFF -> PCI-Bus IO-Zugriff (56MiB, translated to PCI: 0x00800000...0x3FFFFFF)
+ * 0xEED00000 .... 0xEED00003 -> PCI-Bus
+ * 0xEF400000 .... 0xEF40003F -> PCI-Bus Local Configuration Registers
+ * 0xEF40003F .... 0xEF5FFFFF -> reserved
+ * 0xEF600000 .... 0xEFFFFFFF -> 405GP internal Devices (10 MiB)
+ * 0xF0000000 .... 0xF01FFFFF -> Flash-ROM (2 MiB)
+ * 0xF0200000 .... 0xF7FFFFFF -> free for flash devices
+ * 0xF8000000 .... 0xF8000FFF -> OnChipMemory (4kiB)
+ * 0xF8001000 .... 0xFFDFFFFF -> free for flash devices
+ * 0xFFE00000 .... 0xFFFFFFFF -> BOOT-ROM (2 MiB)
+ */
 
 #define CONFIG_SOLIDCARD3	1
 #define CONFIG_4xx	1
@@ -65,10 +65,11 @@
 #define CONFIG_BOARD_EARLY_INIT_F	1
 
 /*
- * define IDE_USES_ISA_EMULATION for slower IDE access in the ISA-IO address range
- * If undefed, IDE access uses a seperat emulation with higher access speed
+ * Define IDE_USES_ISA_EMULATION for slower IDE access in the ISA-IO address range
+ * If undefined, IDE access uses a seperat emulation with higher access speed.
  * Consider to inform your Linux IDE driver about the different addresses!
- * IDE_USES_ISA_EMULATION is only used if your CONFIG_COMMANDS macro includes the CFG_CMD_IDE macro!
+ * IDE_USES_ISA_EMULATION is only used if your CONFIG_COMMANDS macro includes
+ * the CFG_CMD_IDE macro!
  */
 #define IDE_USES_ISA_EMULATION
 
@@ -384,9 +385,14 @@ extern unsigned long offsetOfEnvironment;
 
 #define CFG_ENV_IS_IN_FLASH	1
 #if CFG_ENV_IS_IN_FLASH
-	#define CFG_ENV_OFFSET		0x00000000  /* Offset of Environment Sector in bottom type */
-	#define CFG_ENV_SIZE		0x4000	    /* Total Size of Environment Sector	*/
-	#define CFG_ENV_SECT_SIZE	0x4000	    /* see README - env sector total size	*/
+#define CFG_ENV_OFFSET		0x00000000  /* Offset of Environment Sector in bottom type */
+#define CFG_ENV_SIZE		0x4000	    /* Total Size of Environment Sector	*/
+#define CFG_ENV_SECT_SIZE	0x4000	    /* see README - env sector total size	*/
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
 #endif
 /* let us changing anything in our environment */
 #define CONFIG_ENV_OVERWRITE

@@ -33,7 +33,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include "solidcard3.h"
+#include "sc3.h"
 #include <pci.h>
 #include <i2c.h>
 #include <malloc.h>

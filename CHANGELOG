@@ -1,3 +1,9 @@
+commit 1bbbbdd20fcec9933697000dcf55ff7972622596
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Jan 16 12:46:35 2007 +0100
+
+    Update default environment for Solidcard3
+
 commit 5a5c56986a9ccf71642c8b6374eb18487b15fecd
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Jan 15 09:46:29 2007 +0100
@@ -72,6 +78,14 @@ Date:	Sat Jan 13 07:57:51 2007 +0100
     the board message.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ca43ba18e910206ef8063e4b22d282630bff3fd2
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Jan 11 15:44:44 2007 +0100
+
+	Added support for the SOLIDCARD III board from Eurodesign
+
+	Signed-off-by: Heiko Schocher <hs@denx.de>
 
 commit 6abaee42621c07e81a2cd189ad4368b5e8c50280
 Author: Reinhard Thies <Reinhard.Thies@web.de>

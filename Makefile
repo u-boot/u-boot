@@ -1200,8 +1200,8 @@ sequoia_nand_config:	unconfig
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
-solidcard3_config:unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx solidcard3
+sc3_config:unconfig
+	@./mkconfig $(@:_config=) ppc ppc4xx sc3
 
 sycamore_config:	unconfig
 	@echo "Configuring for sycamore board as subset of walnut..."
