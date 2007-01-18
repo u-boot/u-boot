@@ -1207,6 +1207,9 @@ sycamore_config:	unconfig
 	@echo "Configuring for sycamore board as subset of walnut..."
 	@$(MKCONFIG) -a walnut ppc ppc4xx walnut amcc
 
+taishan_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
+
 VOH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx voh405 esd
 
