@@ -465,6 +465,7 @@ Stefan Roese <sr@denx.de>
 
 	ixdpg425		xscale
 	pdnb3			xscale
+	scpu			xscale
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

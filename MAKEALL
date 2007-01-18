@@ -225,7 +225,7 @@ LIST_pxa="	\
 	xsengine	zylonite					\
 "
 
-LIST_ixp="ixdp425	ixdpg425	pdnb3"
+LIST_ixp="ixdp425	ixdpg425	pdnb3		scpu"
 
 
 LIST_arm="	\

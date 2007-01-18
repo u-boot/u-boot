@@ -2066,8 +2066,15 @@ pleb2_config	:	unconfig
 logodl_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa logodl
 
-pdnb3_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm ixp pdnb3 prodrive
+pdnb3_config \
+scpu_config:    unconfig
+	@if [ "$(findstring scpu_,$@)" ] ; then \
+		echo "#define CONFIG_SCPU"      >>include/config.h ; \
+		echo "... on SCPU board variant" ; \
+	else \
+		>include/config.h ; \
+	fi
+	@$(MKCONFIG) -a pdnb3 arm ixp pdnb3 prodrive
 
 pxa255_idp_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa pxa255_idp

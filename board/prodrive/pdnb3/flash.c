@@ -24,6 +24,8 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
+#if !defined(CFG_FLASH_CFI_DRIVER)
+
 /*
  * include common flash code (for esd boards)
  */
@@ -83,3 +85,5 @@ unsigned long flash_init(void)
 
 	return size;
 }
+
+#endif /* CFG_FLASH_CFI_DRIVER */
