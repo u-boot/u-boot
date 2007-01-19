@@ -188,7 +188,7 @@
  */
 #define CFG_BCSR		0xF8000000
 #define CFG_LBLAWBAR1_PRELIM	CFG_BCSR /* Access window base at BCSR base */
-#define CFG_LBLAWAR1_PRELIM	0x8000000E /* Access window size 32K */
+#define CFG_LBLAWAR1_PRELIM	0x8000000F /* Access window size 64K */
 
 #define CFG_BR1_PRELIM		(CFG_BCSR|0x00000801) /* Port size=8bit, MSEL=GPCM */
 #define CFG_OR1_PRELIM		0xFFFFE9f7 /* length 32K */
@@ -278,8 +278,8 @@
 /*
  * Windows to access PIB via local bus
  */
-#define CFG_LBLAWBAR3_PRELIM	0xf8008000 /* windows base 0xf8008000 */
-#define CFG_LBLAWAR3_PRELIM	0x8000000f /* windows size 64KB */
+#define CFG_LBLAWBAR3_PRELIM	0xf8010000 /* windows base 0xf8010000 */
+#define CFG_LBLAWAR3_PRELIM	0x8000000e /* windows size 32KB */
 
 /*
  * CS4 on Local Bus, to PIB
