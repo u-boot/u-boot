@@ -119,6 +119,8 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
+	"u-boot=/tftpboot/sc3/u-boot.bin\0"				\
+	"setup=tftp 200000 /tftpboot/sc3/setup.img;autoscr 200000\0"	\
 	"kernel_addr=FFE08000\0"					\
 	""
 #undef CONFIG_BOOTCOMMAND
@@ -165,18 +167,19 @@
 
 #define CONFIG_COMMANDS	  \
 	   (CONFIG_CMD_DFL	| \
-			CFG_CMD_PCI	| \
-			CFG_CMD_IRQ	| \
-			CFG_CMD_NET	| \
-			CFG_CMD_MII	| \
-			CFG_CMD_PING	| \
-			CFG_CMD_NAND	| \
-			CFG_CMD_JFFS2	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_IDE	| \
-			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP	| \
-			CFG_CMD_CACHE	| \
+			CFG_CMD_AUTOSCRIPT	| \
+			CFG_CMD_PCI		| \
+			CFG_CMD_IRQ		| \
+			CFG_CMD_NET		| \
+			CFG_CMD_MII		| \
+			CFG_CMD_PING		| \
+			CFG_CMD_NAND		| \
+			CFG_CMD_JFFS2		| \
+			CFG_CMD_I2C		| \
+			CFG_CMD_IDE		| \
+			CFG_CMD_DATE		| \
+			CFG_CMD_DHCP		| \
+			CFG_CMD_CACHE		| \
 			CFG_CMD_ELF	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -384,6 +387,7 @@ extern unsigned long offsetOfEnvironment;
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CFG_WRITE_SWAPPED_DATA		/* swap Databytes between reading/writing */
 
 #define CFG_ENV_IS_IN_FLASH	1
 #if CFG_ENV_IS_IN_FLASH

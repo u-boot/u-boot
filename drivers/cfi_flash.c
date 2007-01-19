@@ -40,10 +40,6 @@
 #include <environment.h>
 #ifdef	CFG_FLASH_CFI_DRIVER
 
-#if defined(CONFIG_SOLIDCARD3)
-#define __LITTLE_ENDIAN
-#endif
-
 /*
  * This file implements a Common Flash Interface (CFI) driver for U-Boot.
  * The width of the port and the width of the chips are determined at initialization.
@@ -58,6 +54,8 @@
  * AMD/Spansion Application Note: Migration from Single-byte to Three-byte
  *   Device IDs, Publication Number 25538 Revision A, November 8, 2001
  *
+ * define CFG_WRITE_SWAPPED_DATA, if you have to swap the Bytes between
+ * reading and writing ... (yes there is such a Hardware).
  */
 
 #ifndef CFG_FLASH_BANKS_LIST
@@ -260,7 +258,7 @@ inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 	uchar *cp;
 
 	cp = flash_make_addr (info, 0, offset);
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	return (cp[0]);
 #else
 	return (cp[info->portwidth - 1]);
@@ -287,7 +285,7 @@ ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	retval = ((addr[(info->portwidth)] << 8) | addr[0]);
 #else
 	retval = ((addr[(2 * info->portwidth) - 1] << 8) |
@@ -319,7 +317,7 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	retval = (addr[0] << 16) | (addr[(info->portwidth)] << 24) |
 		(addr[(2 * info->portwidth)]) | (addr[(3 * info->portwidth)] << 8);
 #else
@@ -860,7 +858,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
  */
 static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 {
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 	unsigned short	w;
 	unsigned int	l;
 	unsigned long long ll;
@@ -871,7 +869,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 		cword->c = c;
 		break;
 	case FLASH_CFI_16BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		w = c;
 		w <<= 8;
 		cword->w = (cword->w >> 8) | w;
@@ -880,7 +878,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_32BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		l = c;
 		l <<= 24;
 		cword->l = (cword->l >> 8) | l;
@@ -889,7 +887,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_64BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SOLIDCARD3)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		ll = c;
 		ll <<= 56;
 		cword->ll = (cword->ll >> 8) | ll;
@@ -909,7 +907,7 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 	int i;
 	uchar *cp = (uchar *) cmdbuf;
 
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	for (i = info->portwidth; i > 0; i--)
 #else
 	for (i = 1; i <= info->portwidth; i++)
@@ -1534,9 +1532,5 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	}
 }
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
-
-#if defined(CONFIG_SOLIDCARD3)
-#undef __LITTLE_ENDIAN
-#endif
 
 #endif /* CFG_FLASH_CFI */
