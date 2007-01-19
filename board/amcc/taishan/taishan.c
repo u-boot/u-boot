@@ -164,7 +164,7 @@ int board_early_init_f (void)
 
 	*GpioOdr &= ~(0x00300000);
 	*GpioTcr |= 0x00300000;
-        *GpioOr  |= 0x00300000;
+	*GpioOr  |= 0x00300000;
 
 	return 0;
 }

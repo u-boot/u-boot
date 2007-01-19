@@ -267,7 +267,7 @@ U_BOOT_CMD(lcd_cur, 3, 1, do_lcd_cur,
 	   "<count> <dir>- shift cursor on lcd <count> times, direction is <dir> \n"
 	   " <count> - 0~31\n" " <dir> - 0,backward; 1, forward\n");
 
-#if 0 // test-only
+#if 0 /* test-only */
 void set_phy_loopback_mode(void)
 {
 	char devemac2[32];
@@ -318,7 +318,7 @@ void set_phy_loopback_mode(void)
 	udelay(1000);
 	miiphy_write(devemac3, CONFIG_PHY3_ADDR, 0, 0x6000);
 	udelay(1000);
-#endif
+#endif	/* 0 */
 }
 
 void set_phy_normal_mode(void)
@@ -354,7 +354,7 @@ void set_phy_normal_mode(void)
 
 	miiphy_write(devemac3, CONFIG_PHY3_ADDR, 0x1c, 0x74f0);
 }
-#endif
+#endif	/* 0 - test only */
 
 static int do_led_test_off(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {

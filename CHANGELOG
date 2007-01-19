@@ -1,3 +1,69 @@
+commit f539b7ba7d7ef6dd187c8209609001cb1cd95e39
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jan 19 19:57:10 2007 +0100
+
+    [PATCH] SC3 board: added CFG_CMD_AUTOSCRIPT.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit d0b6e14087ddd8789f224a48e1d33f2a5df4d167
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jan 19 18:05:26 2007 +0100
+
+    [PATCH] CFI: define CFG_WRITE_SWAPPED_DATA for the CFI-Flash driver
+		 if you must swap the bytes between reading/writing.
+		 (Needed for the SC3 board)
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 9d8d5a5bfb64768f29a0cb47fc37cd6f4c40e276
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 16:05:47 2007 +0100
+
+    [PATCH] Add support for Prodrive SCPU (PDNB3 variant) board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0057d758e3e874cbe7f24745d0cce8c1cb6c207e
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 11:54:52 2007 +0100
+
+    [PATCH] Update Prodrive P3Mx support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 34167a36c29ee946b727465db5c014746a08e978
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 11:48:10 2007 +0100
+
+    [PATCH] Add missing Taishan config file
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cb4820725e9fc409c5cbc8e83054a6ed522d2111
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Jan 18 11:28:51 2007 +0100
+
+    [PATCH] Fix: Compilerwarnings for SC3 board.
+		 The EBC Configuration Register is now by CFG_EBC_CFG definable
+		 Added JFFS2 support for the SC3 board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 5fb692cae57d1710c8f52a427cf7f39a37383fcd
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 10:25:34 2007 +0100
+
+    [PATCH] Add support for AMCC Taishan PPC440GX eval board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6d3e0107235aa0e6a6dcb77f9884497280bf85ad
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Jan 16 18:30:50 2007 +0100
+
+    Raname solidcard3 into sc3; add redundant env for sc3
+
 commit 1bbbbdd20fcec9933697000dcf55ff7972622596
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Tue Jan 16 12:46:35 2007 +0100
