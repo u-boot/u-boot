@@ -32,12 +32,6 @@
 #include <ft_build.h>
 #endif
 
-#ifdef CONFIG_MPC8641HPCN
-extern void mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag,
-				int argc, char *argv[]);
-#endif
-
-
 int
 checkcpu(void)
 {
@@ -185,7 +179,7 @@ do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #else /* CONFIG_MPC8641HPCN */
 
-	mpc8641_reset_board(cmdtp, flag, argc, argv);
+	out8(PIXIS_BASE + PIXIS_RST, 0);
 
 #endif /* !CONFIG_MPC8641HPCN */
 
