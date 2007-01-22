@@ -166,6 +166,11 @@ struct eth_device *emac0_dev = NULL;
 #define LAST_EMAC_NUM	1
 #endif
 
+/* normal boards start with EMAC0 */
+#if !defined(CONFIG_EMAC_NR_START)
+#define CONFIG_EMAC_NR_START	0
+#endif
+
 /*-----------------------------------------------------------------------------+
  * Prototypes and externals.
  *-----------------------------------------------------------------------------*/
@@ -601,6 +606,26 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			/* end Vitesse/Cicada errata */
 		}
 #endif
+
+#if defined(CONFIG_ET1011C_PHY)
+		/*
+		 * Agere ET1011c PHY needs to have an extended register whacked
+		 * for RGMII mode.
+		 */
+		if (((devnum == 2) || (devnum ==3)) && (4 == ethgroup)) {
+			miiphy_read (dev->name, reg, 0x16, &reg_short);
+			reg_short &= ~(0x7);
+			reg_short |= 0x6;	/* RGMII DLL Delay*/
+			miiphy_write (dev->name, reg, 0x16, reg_short);
+
+			miiphy_read (dev->name, reg, 0x17, &reg_short);
+			reg_short &= ~(0x40);
+			miiphy_write (dev->name, reg, 0x17, reg_short);
+
+			miiphy_write(dev->name, reg, 0x1c, 0x74f0);
+		}
+#endif
+
 #endif
 		/* Start/Restart autonegotiation */
 		phy_setup_aneg (dev->name, reg);
@@ -643,8 +668,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	if (hw_p->print_speed) {
 		hw_p->print_speed = 0;
-		printf ("ENET Speed is %d Mbps - %s duplex connection\n",
-			(int) speed, (duplex == HALF) ? "HALF" : "FULL");
+		printf ("ENET Speed is %d Mbps - %s duplex connection (EMAC%d)\n",
+			(int) speed, (duplex == HALF) ? "HALF" : "FULL",
+			hw_p->devnum);
 	}
 
 #if defined(CONFIG_440) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
@@ -1493,6 +1519,8 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 	struct eth_device *dev;
 	int eth_num = 0;
 	EMAC_4XX_HW_PST hw = NULL;
+	u8 ethaddr[4 + CONFIG_EMAC_NR_START][6];
+	u32 hw_addr[4];
 
 #if defined(CONFIG_440GX)
 	unsigned long pfc1;
@@ -1502,6 +1530,43 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 	pfc1 |= 0x01200000;
 	mtsdr (sdr_pfc1, pfc1);
 #endif
+
+	/* first clear all mac-addresses */
+	for (eth_num = 0; eth_num < LAST_EMAC_NUM; eth_num++)
+		memcpy(ethaddr[eth_num], "\0\0\0\0\0\0", 6);
+
+	for (eth_num = 0; eth_num < LAST_EMAC_NUM; eth_num++) {
+		switch (eth_num) {
+		default:		/* fall through */
+		case 0:
+			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
+			       bis->bi_enetaddr, 6);
+			hw_addr[eth_num] = 0x0;
+			break;
+#ifdef CONFIG_HAS_ETH1
+		case 1:
+			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
+			       bis->bi_enet1addr, 6);
+			hw_addr[eth_num] = 0x100;
+			break;
+#endif
+#ifdef CONFIG_HAS_ETH2
+		case 2:
+			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
+			       bis->bi_enet2addr, 6);
+			hw_addr[eth_num] = 0x400;
+			break;
+#endif
+#ifdef CONFIG_HAS_ETH3
+		case 3:
+			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
+			       bis->bi_enet3addr, 6);
+			hw_addr[eth_num] = 0x600;
+			break;
+#endif
+		}
+	}
+
 	/* set phy num and mode */
 	bis->bi_phynum[0] = CONFIG_PHY_ADDR;
 	bis->bi_phymode[0] = 0;
@@ -1520,40 +1585,13 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #endif
 
 	for (eth_num = 0; eth_num < LAST_EMAC_NUM; eth_num++) {
-
-		/* See if we can actually bring up the interface, otherwise, skip it */
-		switch (eth_num) {
-		default:		/* fall through */
-		case 0:
-			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
-				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
-				continue;
-			}
-			break;
-#ifdef CONFIG_HAS_ETH1
-		case 1:
-			if (memcmp (bis->bi_enet1addr, "\0\0\0\0\0\0", 6) == 0) {
-				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
-				continue;
-			}
-			break;
-#endif
-#ifdef CONFIG_HAS_ETH2
-		case 2:
-			if (memcmp (bis->bi_enet2addr, "\0\0\0\0\0\0", 6) == 0) {
-				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
-				continue;
-			}
-			break;
-#endif
-#ifdef CONFIG_HAS_ETH3
-		case 3:
-			if (memcmp (bis->bi_enet3addr, "\0\0\0\0\0\0", 6) == 0) {
-				bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
-				continue;
-			}
-			break;
-#endif
+		/*
+		 * See if we can actually bring up the interface,
+		 * otherwise, skip it
+		 */
+		if (memcmp (ethaddr[eth_num], "\0\0\0\0\0\0", 6) == 0) {
+			bis->bi_phymode[eth_num] = BI_PHYMODE_NONE;
+			continue;
 		}
 
 		/* Allocate device structure */
@@ -1576,36 +1614,12 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 		}
 		memset(hw, 0, sizeof(*hw));
 
-		switch (eth_num) {
-		default:		/* fall through */
-		case 0:
-			hw->hw_addr = 0;
-			memcpy (dev->enetaddr, bis->bi_enetaddr, 6);
-			break;
-#ifdef CONFIG_HAS_ETH1
-		case 1:
-			hw->hw_addr = 0x100;
-			memcpy (dev->enetaddr, bis->bi_enet1addr, 6);
-			break;
-#endif
-#ifdef CONFIG_HAS_ETH2
-		case 2:
-			hw->hw_addr = 0x400;
-			memcpy (dev->enetaddr, bis->bi_enet2addr, 6);
-			break;
-#endif
-#ifdef CONFIG_HAS_ETH3
-		case 3:
-			hw->hw_addr = 0x600;
-			memcpy (dev->enetaddr, bis->bi_enet3addr, 6);
-			break;
-#endif
-		}
-
+		hw->hw_addr = hw_addr[eth_num];
+		memcpy (dev->enetaddr, ethaddr[eth_num], 6);
 		hw->devnum = eth_num;
 		hw->print_speed = 1;
 
-		sprintf (dev->name, "ppc_4xx_eth%d", eth_num);
+		sprintf (dev->name, "ppc_4xx_eth%d", eth_num - CONFIG_EMAC_NR_START);
 		dev->priv = (void *) hw;
 		dev->init = ppc_4xx_eth_init;
 		dev->halt = ppc_4xx_eth_halt;
@@ -1662,7 +1676,6 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 	}			/* end for each supported device */
 	return (1);
 }
-
 
 #if !defined(CONFIG_NET_MULTI)
 void eth_halt (void) {

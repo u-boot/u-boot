@@ -29,6 +29,7 @@
 
 #if defined(CONFIG_DTT_LM75) || \
     defined(CONFIG_DTT_DS1621) || \
+    defined(CONFIG_DTT_LM81) || \
     defined(CONFIG_DTT_ADM1021)
 
 #define CONFIG_DTT				/* We have a DTT */
@@ -56,6 +57,14 @@ extern int dtt_get_temp(int sensor);
 #define DTT_CONFIG		0x1
 #define DTT_TEMP_HYST		0x2
 #define DTT_TEMP_SET		0x3
+#endif
+
+#if defined(CONFIG_DTT_LM81)
+#define DTT_READ_TEMP		0x27
+#define DTT_CONFIG_TEMP		0x4b
+#define DTT_TEMP_MAX		0x39
+#define DTT_TEMP_HYST		0x3a
+#define DTT_CONFIG		0x40
 #endif
 
 #if defined(CONFIG_DTT_DS1621)

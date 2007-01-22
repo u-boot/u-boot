@@ -35,9 +35,9 @@ ulong flash_get_size (ulong base, int banknum);
 
 int board_early_init_f(void)
 {
-	unsigned long sdr0_cust0;
-	unsigned long sdr0_pfc1, sdr0_pfc2;
-	register uint reg;
+	u32 sdr0_cust0;
+	u32 sdr0_pfc1, sdr0_pfc2;
+	u32 reg;
 
 	mtdcr(ebccfga, xbcfg);
 	mtdcr(ebccfgd, 0xb8400000);
@@ -142,6 +142,7 @@ int misc_init_r(void)
 {
 	uint pbcr;
 	int size_val = 0;
+	u32 reg;
 #ifdef CONFIG_440EPX
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
@@ -335,18 +336,33 @@ int misc_init_r(void)
 	}
 #endif /* CONFIG_440EPX */
 
+	/*
+	 * Clear PLB4A0_ACR[WRP]
+	 * This fix will make the MAL burst disabling patch for the Linux
+	 * EMAC driver obsolete.
+	 */
+	reg = mfdcr(plb4_acr) & ~PLB4_ACR_WRP;
+	mtdcr(plb4_acr, reg);
+
 	return 0;
 }
 
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	u8 rev;
+	u8 val;
 
 #ifdef CONFIG_440EPX
 	printf("Board: Sequoia - AMCC PPC440EPx Evaluation Board");
 #else
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
+
+	rev = *(u8 *)(CFG_CPLD + 0);
+	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
+
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);

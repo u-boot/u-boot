@@ -123,7 +123,7 @@ void cpu_init_f (void)
 #endif
 
 #if defined(CFG_CS7_START) && defined(CFG_CS7_SIZE)
-	*(vu_long *)MPC5XXX_CS7_START = START_REG(CFG_CS5_START);
+	*(vu_long *)MPC5XXX_CS7_START = START_REG(CFG_CS7_START);
 	*(vu_long *)MPC5XXX_CS7_STOP = STOP_REG(CFG_CS7_START, CFG_CS7_SIZE);
 	addecr |= (1 << 27);
 #endif

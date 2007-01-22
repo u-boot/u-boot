@@ -1,3 +1,394 @@
+commit f539b7ba7d7ef6dd187c8209609001cb1cd95e39
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jan 19 19:57:10 2007 +0100
+
+    [PATCH] SC3 board: added CFG_CMD_AUTOSCRIPT.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit d0b6e14087ddd8789f224a48e1d33f2a5df4d167
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jan 19 18:05:26 2007 +0100
+
+    [PATCH] CFI: define CFG_WRITE_SWAPPED_DATA for the CFI-Flash driver
+		 if you must swap the bytes between reading/writing.
+		 (Needed for the SC3 board)
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 9d8d5a5bfb64768f29a0cb47fc37cd6f4c40e276
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 16:05:47 2007 +0100
+
+    [PATCH] Add support for Prodrive SCPU (PDNB3 variant) board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0057d758e3e874cbe7f24745d0cce8c1cb6c207e
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 11:54:52 2007 +0100
+
+    [PATCH] Update Prodrive P3Mx support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 34167a36c29ee946b727465db5c014746a08e978
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 11:48:10 2007 +0100
+
+    [PATCH] Add missing Taishan config file
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cb4820725e9fc409c5cbc8e83054a6ed522d2111
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Jan 18 11:28:51 2007 +0100
+
+    [PATCH] Fix: Compilerwarnings for SC3 board.
+		 The EBC Configuration Register is now by CFG_EBC_CFG definable
+		 Added JFFS2 support for the SC3 board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 5fb692cae57d1710c8f52a427cf7f39a37383fcd
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 18 10:25:34 2007 +0100
+
+    [PATCH] Add support for AMCC Taishan PPC440GX eval board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6d3e0107235aa0e6a6dcb77f9884497280bf85ad
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Jan 16 18:30:50 2007 +0100
+
+    Raname solidcard3 into sc3; add redundant env for sc3
+
+commit 1bbbbdd20fcec9933697000dcf55ff7972622596
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Jan 16 12:46:35 2007 +0100
+
+    Update default environment for Solidcard3
+
+commit 5a5c56986a9ccf71642c8b6374eb18487b15fecd
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jan 15 09:46:29 2007 +0100
+
+    [PATCH] Fix 440SPe rev B detection from previous patch
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a443d31410c571ee8f970da819a44d698fdd6b1f
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sun Jan 14 13:35:31 2007 +0100
+
+	[FIX] correct I2C Writes for the LM81 Sensor.
+
+	Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 0bba5452835f19a61204edcda3a58112fd8e2208
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sat Jan 13 11:17:10 2007 +0100
+
+    Undo commit 3033ebb2: reset command does not take any arguments
+
+    Haiying Wang's modification to the reset command was broken, undo it.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 95981778cff0038fd9941044d6a3eda810e33258
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 13 08:01:03 2007 +0100
+
+    [PATCH] Update 440SP(e) cpu revisions
+
+    Also display enabled/disabled RAID 6 support for 440SP/440SPe PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 77ddc5b9afb325262fd88752ba430a1dded1f0c7
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 13 07:59:56 2007 +0100
+
+    [PATCH] Update Yellowstone (440GR) to display board rev and PCI bus speed
+
+    Now the board revision and the current PCI bus speed are printed after
+    the board message.
+
+    Also the EBC initialising is now done via defines in the board config
+    file.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 36adff362c2c0141ff8a810d42a7e478f779130f
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 13 07:59:19 2007 +0100
+
+    [PATCH] Update Yosemite (440EP) to display board rev and PCI bus speed
+
+    Now the board revision and the current PCI bus speed are printed after
+    the board message.
+
+    Also the EBC initialising is now done via defines in the board config
+    file.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e0b9ea8c8a294de6a5350ae638879d24b5b709d6
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 13 07:57:51 2007 +0100
+
+    [PATCH] Update Sequoia (440EPx) to display board rev and PCI bus speed
+
+    Now the board revision and the current PCI bus speed are printed after
+    the board message.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ca43ba18e910206ef8063e4b22d282630bff3fd2
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Jan 11 15:44:44 2007 +0100
+
+	Added support for the SOLIDCARD III board from Eurodesign
+
+	Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 6abaee42621c07e81a2cd189ad4368b5e8c50280
+Author: Reinhard Thies <Reinhard.Thies@web.de>
+Date:	Wed Jan 10 14:41:14 2007 +0100
+
+    Adjusted default environment for cam5200 board.
+
+commit bab5a90d4ccc1a46a8127b867fa59028cc623ad9
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Jan 10 15:35:52 2007 +0100
+
+    Update CHANGELOG
+
+commit 787fa15860a57833e50bd30555079a9cd4e519b8
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Jan 10 01:28:39 2007 +0100
+
+    Fix auto_update for MCC200 board.
+
+    The invocation of do_auto_update() is moved to the end of the
+    misc_init_r() function, after the flash mappings have been
+    initialized. Please find attached a patch that implements that
+    change.
+
+    Also correct the decoding of the keypad status. With this update, the
+    key that will trigger the update is Column 2, Row 2.
+
+commit d9384de2f571046e71081bae22b49e3d5ca2e3d5
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Jan 10 00:26:15 2007 +0100
+
+    CAM5200 flash driver modifications:
+    - use CFI driver (replaces custom flash driver) for main 'cam5200' target
+    - add second build target 'cam5200_niosflash' which still uses custom driver
+
+commit 67fea022fa957f59653b5238c7496f80a6b70432
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Jan 9 16:02:48 2007 +0100
+
+    SPC1920: cleanup memory contoller setup
+
+commit 8fc2102faa23593c80381437c09f7745a14deb40
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Jan 9 14:57:14 2007 +0100
+
+    Fix the cpu speed setup to work with all boards.
+
+commit 9295acb77481cf099ef9b40e1fa2d145b3c7490c
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Jan 9 14:57:13 2007 +0100
+
+    SPC1920: add support for the FM18L08 Ramtron FRAM
+
+commit 38ccd2fdf3364a53fe80e9b365303ecdafc9e223
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Jan 9 14:57:13 2007 +0100
+
+    SPC1920: update the HPI register addresses to work with the second
+    generation of hardware
+
+commit 5921e5313fc3eadd42770c2b99badd7fae5ecf1e
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:13 2007 +0100
+
+    Miscellanious spc1920 related cleanups
+
+commit e4c2d37adc8bb1bf69dcf600cbc6c75f916a6120
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Jan 9 14:57:12 2007 +0100
+
+    SPC1920 GO/NOGO led should be set to color red in U-Boot
+
+commit 0be62728aac459ba268d6d752ed49ec0e2bc7348
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:12 2007 +0100
+
+    Add support for the DS3231 RTC
+
+commit 8139567b60d678584b05f0718a681f2047c5e14f
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:11 2007 +0100
+
+    SMC1 uses external CLK4 instead of BRG on spc1920
+
+commit d8d9de1a02fbd880b613d607143d1f57342affc7
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:10 2007 +0100
+
+    Update the SPC1920 CMB PLD driver
+
+commit 3f34f869162750e5e999fd140f884f5de952bcfe
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:10 2007 +0100
+
+    Add / enable I2C support on the spc1920 board
+
+commit d28707dbce1e9ac2017ad051da4133bf22b4204f
+Author: Markus Klotzbuecher <mk@creamnet.de>
+Date:	Tue Jan 9 14:57:10 2007 +0100
+
+    Add support for the tms320671x host port interface (HPI)
+
+commit f4eb54529bb3664c3a562e488b460fe075f79d67
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Jan 7 00:13:11 2007 +0100
+
+    Prepare for release 1.2.0
+
+commit f07ae7a9daef27a3d0213a4f3fe39d5342173c02
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 6 15:58:09 2007 +0100
+
+    [PATCH] 44x: Fix problem with DDR controller setup (refresh rate)
+
+    This patch fixes a problem with an incorrect setup for the refresh
+    timer of the 44x DDR controller in the file cpu/ppc4xx/sdram.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f16c1da9577f06c5fc08651a4065537407de4635
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 6 15:56:13 2007 +0100
+
+    [PATCH] Update ALPR board files
+
+    This update brings the ALPR board support to the newest version.
+    It also fixes a problem with the NAND driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cd1d937f90250a32988c37b2b4af8364d25de8ed
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 11:46:05 2007 +0100
+
+    [PATCH] nand: Fix problem with oobsize calculation
+
+    Here the description from Brian Brelsford <Brian_Brelsford@dell.com>:
+
+    The Hynix part returns a 0x1d in the 4th ID byte. The Samsung part
+    returns a 0x15. In the code fragment below bits [1:0] determine the
+    page size, it is ANDed via "(extid & 0x3)" then shifted out. The
+    next field is also ANDed with 0x3. However this is a one bit field
+    as defined in the Hynix and Samsung parts in the 4th ID byte that
+    determins the oobsize, not a two bit field. It works on Samsung as
+    bits[3:2] are 01. However for the Hynix there is a 11 in these two
+    bits, so the oob size gets messed up.
+
+    I checked the correct linux code and the suggested fix from Brian is
+    also available in the linux nand mtd driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a78bc443ae5a4a8ba87590587d5e35bf5a787b2e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 10:40:36 2007 +0100
+
+    [PATCH] Clear PLB4A0_ACR[WRP] on Sequoia (440EPx)
+
+    This fix will make the MAL burst disabling patch for the Linux
+    EMAC driver obsolete.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 023889838282b6237b401664f22dd22dfba2c066
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 5 10:38:05 2007 +0100
+
+    [PATCH] Add DDR2 optimization code for Sequoia (440EPx) board
+
+    This code will optimize the DDR2 controller setup on a board specific
+    basis.
+
+    Note: This code doesn't work right now on the NAND booting image for the
+    Sequoia board, since it doesn't fit into the 4kBytes for the SPL image.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cce4acbb68398634b8d011ed7bb0d12269c84230
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Dec 28 19:08:21 2006 +0100
+
+    Few V38B changes:
+      - fix a typo in V38B config file
+      - move watchdog initialisation earlier in the boot process
+      - add "wdt=off" to default kernel command line (disables kernel watchdog)
+
+commit 92eb729bad876725aeea908d2addba0800620840
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Dec 27 01:26:13 2006 +0100
+
+    Fix bug in adaption of Stefano Babic's CFI driver patch.
+
+commit 9c0f42ecfe25f7ffce8ec7a815f03864d723ffe3
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Dec 24 01:42:57 2006 +0100
+
+    Minor code cleanup.
+
+commit d784fdb05900ada3686d5778783e1fb328e9fb66
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Dec 12 00:22:42 2006 +0100
+
+    Fix cfi failure with Spansion Flash (Spansion Flash Devices have a different offset to go into CFI mode)
+
+commit 1b3c360c235dc684ec06c2d5f183f0a282ce45e2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 22 14:29:40 2006 +0100
+
+    [PATCH] Fix sequoia flash autodetection (finally correct)
+
+    Now 32MByte and 64MByte FLASH is know to work and other
+    configurations should work too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 82e5236a8b719543643fd26d5827938ab2b94818
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Fri Dec 22 10:30:26 2006 +0100
+
+    Minor code cleanup; update CHANGELOG.
+
+commit fa23044564091f05d9695beb7b5b9a931e7f41a4
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Dec 21 17:17:02 2006 +0100
+
+    Added support for the TQM8272 board from TQ
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 6dedf3d49dd14c3bf541c8ecee7ffaac5f0e1d6c
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Thu Dec 21 16:14:48 2006 +0100
+
+    [PATCH] Add support for the UC101 board from MAN.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
 commit c84bad0ef60e7055ab0bd49b93069509cecc382a
 Author: Bartlomiej Sieka <tur@semihalf.com>
 Date:	Wed Dec 20 00:29:43 2006 +0100
@@ -210,7 +601,7 @@ Date:	Mon Nov 27 17:04:06 2006 +0100
     [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
 
     This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
-    arguments to bootm.	 It removes the getenv("disable_of") test that used
+    arguments to bootm.  It removes the getenv("disable_of") test that used
     to be used for this purpose.
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
@@ -908,7 +1299,7 @@ Date:	Tue Oct 24 23:47:37 2006 -0500
 
     If a Multi-Image file contains a third image we try to use it as a
     device tree.  The device tree image is assumed to be uncompressed in the
-    image file.	 We automatically allocate space for the device tree in memory
+    image file.  We automatically allocate space for the device tree in memory
     and provide an 8k pad to allow more than a reasonable amount of growth.
 
     Additionally, a device tree that was contained in flash will now automatically

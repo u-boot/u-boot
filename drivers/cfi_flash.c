@@ -2,7 +2,7 @@
  * (C) Copyright 2002-2004
  * Brad Kemp, Seranoa Networks, Brad.Kemp@seranoa.com
  *
- * Copyright (C) 2003, 2006 Arabella Software Ltd.
+ * Copyright (C) 2003 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
  *
  * Copyright (C) 2004
@@ -35,13 +35,10 @@
 /* #define DEBUG	*/
 
 #include <common.h>
-
-#ifdef	CFG_FLASH_CFI_DRIVER
-
-#include <watchdog.h>
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <environment.h>
+#ifdef	CFG_FLASH_CFI_DRIVER
 
 /*
  * This file implements a Common Flash Interface (CFI) driver for U-Boot.
@@ -57,11 +54,9 @@
  * AMD/Spansion Application Note: Migration from Single-byte to Three-byte
  *   Device IDs, Publication Number 25538 Revision A, November 8, 2001
  *
+ * define CFG_WRITE_SWAPPED_DATA, if you have to swap the Bytes between
+ * reading and writing ... (yes there is such a Hardware).
  */
-
-#if defined(__LITTLE_ENDIAN) && !defined(CFG_FLASH_CFI_SWAP)
-#define CFG_FLASH_CFI_SWAP
-#endif
 
 #ifndef CFG_FLASH_BANKS_LIST
 #define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE }
@@ -263,7 +258,7 @@ inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 	uchar *cp;
 
 	cp = flash_make_addr (info, 0, offset);
-#if defined(CFG_FLASH_CFI_SWAP)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	return (cp[0]);
 #else
 	return (cp[info->portwidth - 1]);
@@ -290,7 +285,7 @@ ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(CFG_FLASH_CFI_SWAP)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	retval = ((addr[(info->portwidth)] << 8) | addr[0]);
 #else
 	retval = ((addr[(2 * info->portwidth) - 1] << 8) |
@@ -322,7 +317,7 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 		debug ("addr[%x] = 0x%x\n", x, addr[x]);
 	}
 #endif
-#if defined(CFG_FLASH_CFI_SWAP)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	retval = (addr[0] << 16) | (addr[(info->portwidth)] << 24) |
 		(addr[(2 * info->portwidth)]) | (addr[(3 * info->portwidth)] << 8);
 #else
@@ -863,7 +858,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
  */
 static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 {
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 	unsigned short	w;
 	unsigned int	l;
 	unsigned long long ll;
@@ -874,7 +869,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 		cword->c = c;
 		break;
 	case FLASH_CFI_16BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		w = c;
 		w <<= 8;
 		cword->w = (cword->w >> 8) | w;
@@ -883,7 +878,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_32BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		l = c;
 		l <<= 24;
 		cword->l = (cword->l >> 8) | l;
@@ -892,7 +887,7 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_64BIT:
-#if defined(__LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_WRITE_SWAPPED_DATA)
 		ll = c;
 		ll <<= 56;
 		cword->ll = (cword->ll >> 8) | ll;
@@ -912,22 +907,12 @@ static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
 	int i;
 	uchar *cp = (uchar *) cmdbuf;
 
-#if defined(CFG_FLASH_CFI_SWAP)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 	for (i = info->portwidth; i > 0; i--)
 #else
 	for (i = 1; i <= info->portwidth; i++)
 #endif
 		*cp++ = (i & (info->chipwidth - 1)) ? '\0' : cmd;
-#ifdef CFG_FLASH_CFI_2x16
-	if ((info->portwidth == FLASH_CFI_32BIT) && (info->chipwidth == FLASH_CFI_BY16))
-	{
-	   uchar tmp;
-	   cp = (uchar *) cmdbuf;
-	   tmp = cp[1];
-	   cp[1] = cp[2];
-	   cp[2] = tmp;
-	}
-#endif /* CFG_FLASH_CFI_2x16 */
 }
 
 /*
@@ -1376,7 +1361,6 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	ctladdr.cp = flash_make_addr (info, 0, 0);
 	cptr.cp = (uchar *) dest;
 
-
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -1548,4 +1532,5 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	}
 }
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
+
 #endif /* CFG_FLASH_CFI */

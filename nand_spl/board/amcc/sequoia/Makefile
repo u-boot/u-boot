@@ -76,7 +76,9 @@ $(obj)init.S:
 
 $(obj)sdram.c:
 	@rm -f $(obj)sdram.c
+	@rm -f $(obj)sdram.h
 	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $(obj)sdram.c
+	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.h $(obj)sdram.h
 
 # from nand_spl directory
 $(obj)nand_boot.c:

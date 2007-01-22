@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2006
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
@@ -32,9 +32,9 @@
 #include <asm/processor.h>
 #include "sdram.h"
 
-
 #ifdef CONFIG_SDRAM_BANK0
 
+#ifndef CONFIG_440
 
 #ifndef CFG_SDRAM_TABLE
 sdram_conf_t mb0cf[] = {
@@ -49,9 +49,6 @@ sdram_conf_t mb0cf[] = CFG_SDRAM_TABLE;
 #endif
 
 #define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
-
-
-#ifndef CONFIG_440
 
 #ifdef CFG_SDRAM_CASL
 static ulong ns2clks(ulong ns)
@@ -221,6 +218,26 @@ void sdram_init(void)
 
 #else /* CONFIG_440 */
 
+/*
+ * Define some default values. Those can be overwritten in the
+ * board config file.
+ */
+
+#ifndef CFG_SDRAM_TABLE
+sdram_conf_t mb0cf[] = {
+	{(256 << 20), 13, 0x000C4001},	/* 256MB mode 3, 13x10(4)	*/
+	{(64 << 20),  12, 0x00082001}	/* 64MB mode 2, 12x9(4)		*/
+};
+#else
+sdram_conf_t mb0cf[] = CFG_SDRAM_TABLE;
+#endif
+
+#ifndef CFG_SDRAM0_TR0
+#define	CFG_SDRAM0_TR0		0x41094012
+#endif
+
+#define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
+
 #define NUM_TRIES 64
 #define NUM_READS 10
 
@@ -295,7 +312,6 @@ static void sdram_tr1_set(int ram_address, int* tr1_value)
 	*tr1_value = (first_good + last_bad) / 2;
 }
 
-
 #ifdef CONFIG_SDRAM_ECC
 static void ecc_init(ulong start, ulong size)
 {
@@ -351,7 +367,8 @@ long int initdram(int board_type)
 	int i;
 	int tr1_bank1;
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || \
+    defined(CONFIG_440GR) || defined(CONFIG_440SP)
 	/*
 	 * Soft-reset SDRAM controller.
 	 */
@@ -378,9 +395,9 @@ long int initdram(int board_type)
 		 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 		 */
 		mtsdram(mem_b0cr, mb0cf[i].reg);
-		mtsdram(mem_tr0, 0x41094012);
+		mtsdram(mem_tr0, CFG_SDRAM0_TR0);
 		mtsdram(mem_tr1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
-		mtsdram(mem_rtr, 0x7e000000);	/* Interval 15.20µs @ 133MHz PLB*/
+		mtsdram(mem_rtr, 0x04100000);	/* Interval 7.8µs @ 133MHz PLB	*/
 		mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM*/
 		udelay(400);			/* Delay 200 usecs (min)	*/
 

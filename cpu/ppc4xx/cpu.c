@@ -332,24 +332,44 @@ int checkcpu (void)
 		strcpy(addstr, "No Security/Kasumi support");
 		break;
 
-	case PVR_440SP_RA:
-		puts("SP Rev. A");
+	case PVR_440SP_6_RAB:
+		puts("SP Rev. A/B");
+		strcpy(addstr, "RAID 6 support");
 		break;
 
-	case PVR_440SP_RB:
-		puts("SP Rev. B");
+	case PVR_440SP_RAB:
+		puts("SP Rev. A/B");
+		strcpy(addstr, "No RAID 6 support");
+		break;
+
+	case PVR_440SP_6_RC:
+		puts("SP Rev. C");
+		strcpy(addstr, "RAID 6 support");
 		break;
 
 	case PVR_440SP_RC:
 		puts("SP Rev. C");
+		strcpy(addstr, "No RAID 6 support");
+		break;
+
+	case PVR_440SPe_6_RA:
+		puts("SPe Rev. A");
+		strcpy(addstr, "RAID 6 support");
 		break;
 
 	case PVR_440SPe_RA:
 		puts("SPe Rev. A");
+		strcpy(addstr, "No RAID 6 support");
+		break;
+
+	case PVR_440SPe_6_RB:
+		puts("SPe Rev. B");
+		strcpy(addstr, "RAID 6 support");
 		break;
 
 	case PVR_440SPe_RB:
 		puts("SPe Rev. B");
+		strcpy(addstr, "No RAID 6 support");
 		break;
 
 	default:
@@ -419,7 +439,7 @@ int ppc440spe_revB() {
 	unsigned int pvr;
 
 	pvr = get_pvr();
-	if (pvr == PVR_440SPe_RB)
+	if ((pvr == PVR_440SPe_6_RB) || (pvr == PVR_440SPe_RB))
 		return 1;
 	else
 		return 0;

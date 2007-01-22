@@ -92,8 +92,8 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
- *            is something else than 0x00000000.
+ *	      use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *	      is something else than 0x00000000.
  */
 
 long int initdram (int board_type)
@@ -228,10 +228,6 @@ int misc_init_r (void)
 {
 	ulong flash_sup_end, snum;
 
-#ifdef CONFIG_AUTO_UPDATE
-	/* this has priority over all else */
-	do_auto_update();
-#endif
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -294,6 +290,9 @@ int misc_init_r (void)
 		flash_info[0].sector_count = snum;
 	}
 
+#ifdef CONFIG_AUTO_UPDATE
+	do_auto_update();
+#endif
 	return (0);
 }
 

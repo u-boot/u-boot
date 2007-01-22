@@ -747,11 +747,14 @@
 #define PVR_440GX_RC	0x51B21892
 #define PVR_440GX_RF	0x51B21894
 #define PVR_405EP_RB	0x51210950
-#define PVR_440SP_RA	0x53221850
-#define PVR_440SP_RB	0x53221891
-#define PVR_440SP_RC	0x53221892
-#define PVR_440SPe_RA	0x53421890
-#define PVR_440SPe_RB	0x53421891
+#define PVR_440SP_6_RAB	0x53221850 /* 440SP rev A&B with RAID 6 support enabled	*/
+#define PVR_440SP_RAB	0x53321850 /* 440SP rev A&B without RAID 6 support	*/
+#define PVR_440SP_6_RC	0x53221891 /* 440SP rev C with RAID 6 support enabled	*/
+#define PVR_440SP_RC	0x53321891 /* 440SP rev C without RAID 6 support	*/
+#define PVR_440SPe_6_RA	0x53421890 /* 440SPe rev A with RAID 6 support enabled	*/
+#define PVR_440SPe_RA	0x53521890 /* 440SPe rev A without RAID 6 support	*/
+#define PVR_440SPe_6_RB	0x53421891 /* 440SPe rev B with RAID 6 support enabled	*/
+#define PVR_440SPe_RB	0x53521891 /* 440SPe rev B without RAID 6 support	*/
 #define PVR_601		0x00010000
 #define PVR_602		0x00050000
 #define PVR_603		0x00030000

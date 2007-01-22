@@ -302,6 +302,20 @@
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
+ * External Bus Controller (EBC) Setup
+ *----------------------------------------------------------------------*/
+#define CFG_FLASH		CFG_FLASH_BASE
+#define CFG_CPLD		0x80000000
+
+/* Memory Bank 0 (NOR-FLASH) initialization					*/
+#define CFG_EBC_PB0AP		0x03017300
+#define CFG_EBC_PB0CR		(CFG_FLASH | 0xda000)
+
+/* Memory Bank 2 (CPLD) initialization						*/
+#define CFG_EBC_PB2AP		0x04814500
+#define CFG_EBC_PB2CR		(CFG_CPLD | 0x18000)
+
+/*-----------------------------------------------------------------------
  * Cache Configuration
  */
 #define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
