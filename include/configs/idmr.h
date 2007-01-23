@@ -83,6 +83,7 @@
  */
 #define CONFIG_COMMANDS		((CONFIG_CMD_DFL		| \
 					CFG_CMD_PING		| \
+					CFG_CMD_JFFS2		| \
 					CFG_CMD_NET)		& \
 					~(CFG_CMD_LOADS		| \
 						CFG_CMD_LOADB))
@@ -193,6 +194,17 @@
 
 /* Port configuration */
 #define CFG_FECI2C		0xF0
+
+
+/* Dynamic MTD partition support */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=idmr-0"
+
+#define MTDPARTS_DEFAULT	"mtdparts=idmr-0:128k(u-boot),"	\
+						"64k(env),"	\
+						"640k(kernel),"	\
+						"2m(rootfs),"	\
+						"-(user)";
 
 #if (CONFIG_COMMANDS & CFG_CMD_MII)
 #error MII commands don't work on iDMR board and sholud not be enabled.
