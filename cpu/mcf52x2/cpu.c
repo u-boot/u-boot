@@ -49,11 +49,43 @@
 #endif
 
 #ifdef	CONFIG_M5271
+/*
+ * Both MCF5270 and MCF5271 are members of the MPC5271 family. Try to
+ * determine which one we are running on, based on the Chip Identification
+ * Register (CIR).
+ */
 int checkcpu (void)
 {
 	char buf[32];
+	unsigned short cir;	/* Chip Identification Register */
+	unsigned short pin;	/* Part identification number */
+	unsigned char prn;	/* Part revision number */
+	char *cpu_model;
 
-	printf ("CPU:   Freescale Coldfire MCF5271 at %s MHz\n", strmhz(buf, CFG_CLK));
+	cir = mbar_readShort(MCF_CCM_CIR);
+	pin = cir >> MCF_CCM_CIR_PIN_LEN;
+	prn = cir & MCF_CCM_CIR_PRN_MASK;
+
+	switch (pin) {
+	case MCF_CCM_CIR_PIN_MCF5270:
+		cpu_model = "5270";
+		break;
+	case MCF_CCM_CIR_PIN_MCF5271:
+		cpu_model = "5271";
+		break;
+	default:
+		cpu_model = NULL;
+		break;
+	}
+
+	if (cpu_model)
+		printf("CPU:   Freescale ColdFire MCF%s rev. %hu, at %s MHz\n",
+			cpu_model, prn, strmhz(buf, CFG_CLK));
+	else
+		printf("CPU:   Unknown - Freescale ColdFire MCF5271 family"
+			" (PIN: 0x%x) rev. %hu, at %s MHz\n",
+			pin, prn, strmhz(buf, CFG_CLK));
+
 	return 0;
 }
 
