@@ -83,8 +83,7 @@
  */
 #define CONFIG_COMMANDS		((CONFIG_CMD_DFL		| \
 					CFG_CMD_PING		| \
-					CFG_CMD_NET		| \
-					CFG_CMD_MII)		& \
+					CFG_CMD_NET)		& \
 					~(CFG_CMD_LOADS		| \
 						CFG_CMD_LOADB))
 
@@ -194,4 +193,9 @@
 
 /* Port configuration */
 #define CFG_FECI2C		0xF0
+
+#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#error MII commands don't work on iDMR board and sholud not be enabled.
+#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) */
+
 #endif /* _IDMR_H */
