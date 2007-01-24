@@ -2029,6 +2029,9 @@ modnet50_config :	unconfig
 evb4510_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t evb4510
 
+lpc2292sodimm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm720t lpc2292sodimm
+
 #########################################################################
 ## XScale Systems
 #########################################################################

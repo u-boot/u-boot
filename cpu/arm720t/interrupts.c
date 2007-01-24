@@ -36,6 +36,12 @@
 #define TIMER_LOAD_VAL 0xffff
 /* macro to read the 16 bit timer */
 #define READ_TIMER (IO_TC1D & 0xffff)
+
+#ifdef CONFIG_LPC2292
+#undef READ_TIMER
+#define READ_TIMER (0xFFFFFFFF - GET32(T0TC))
+#endif
+
 #else
 #define IRQEN	(*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_INTR_ENABLE))
 #define TM2CTRL (*(volatile unsigned int *)(NETARM_GEN_MODULE_BASE + NETARM_GEN_TIMER2_CONTROL))
@@ -195,6 +201,13 @@ void do_irq (struct pt_regs *pt_regs)
 	}
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No do_irq() for IntegratorAP/CM720T as yet */
+#elif defined(CONFIG_LPC2292)
+
+    void (*pfnct)(void);
+
+    pfnct = (void (*)(void))VICVectAddr;
+
+    (*pfnct)();
 #else
 #error do_irq() not defined for this CPU type
 #endif
@@ -293,6 +306,13 @@ int interrupt_init (void)
 
 	/* Start timer */
 	SET_REG( REG_TMOD, TM0_RUN);
+#elif defined(CONFIG_LPC2292)
+	PUT32(T0IR, 0);		/* disable all timer0 interrupts */
+	PUT32(T0TCR, 0);	/* disable timer0 */
+	PUT32(T0PR, CFG_SYS_CLK_FREQ / CFG_HZ);
+ 	PUT32(T0MCR, 0);
+	PUT32(T0TC, 0);
+	PUT32(T0TCR, 1);	/* enable timer0 */
 
 #else
 #error No interrupt_init() defined for this CPU type
@@ -309,7 +329,7 @@ int interrupt_init (void)
  */
 
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO) || defined(CONFIG_LPC2292)
 
 void reset_timer (void)
 {
@@ -337,7 +357,12 @@ void udelay (unsigned long usec)
 	tmo += get_timer (0);
 
 	while (get_timer_masked () < tmo)
+#ifdef CONFIG_LPC2292
+		/* GJ - not sure whether this is really needed or a misunderstanding */
+		__asm__ __volatile__(" nop");
+#else
 		/*NOP*/;
+#endif
 }
 
 void reset_timer_masked (void)

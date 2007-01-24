@@ -73,7 +73,7 @@ int cleanup_before_linux (void)
 	/* go to high speed */
 	IO_SYSCON3 = (IO_SYSCON3 & ~CLKCTL) | CLKCTL_73;
 #endif
-#elif defined(CONFIG_NETARM) || defined(CONFIG_S3C4510B)
+#elif defined(CONFIG_NETARM) || defined(CONFIG_S3C4510B) || defined(CONFIG_LPC2292)
 	disable_interrupts ();
 	/* Nothing more needed */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
@@ -252,6 +252,7 @@ int dcache_status (void)
 	void icache_enable (void)
 	{
 	}
+#elif defined(CONFIG_LPC2292) /* just to satisfy the compiler */
 #else
 #error No icache/dcache enable/disable functions defined for this CPU type
 #endif

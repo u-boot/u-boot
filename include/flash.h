@@ -304,6 +304,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 
 #define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )		*/
 #define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )	*/
+#define PHILIPS_LPC2292 0x0401FF13  /* LPC2292 internal FLASH			*/
 
 /*-----------------------------------------------------------------------
  * Internal FLASH identification codes
