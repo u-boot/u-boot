@@ -28,4 +28,3 @@
 #address where u-boot will be relocated
 #TEXT_BASE = 0x0
 TEXT_BASE = 0x81500000
-

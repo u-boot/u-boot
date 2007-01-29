@@ -41,8 +41,8 @@ block_dev_desc_t * mmc_get_dev(int dev)
 	return (block_dev_desc_t *)(&mmc_dev);
 }
 
-unsigned long mmc_block_read(int dev, 
-			     unsigned long start, 
+unsigned long mmc_block_read(int dev,
+			     unsigned long start,
 			     lbaint_t blkcnt,
 			     unsigned long *buffer)
 {
@@ -52,7 +52,7 @@ unsigned long mmc_block_read(int dev,
 	unsigned long addr = start;
 
 #ifdef MMC_DEBUG
-	printf("mmc_block_read: start=%lu, blkcnt=%lu\n", start, 
+	printf("mmc_block_read: start=%lu, blkcnt=%lu\n", start,
 		 (unsigned long)blkcnt);
 #endif
 
@@ -64,7 +64,7 @@ unsigned long mmc_block_read(int dev,
 		rc++;
 		addr++;
 		p += hw_sect_size;
-	} 
+	}
 
 	return rc;
 }

@@ -64,7 +64,7 @@ int get_flash_sector(flash_info_t * info, ulong flash_addr)
 
 /*-----------------------------------------------------------------------
  * This function assumes that flash_addr is aligned on 512 bytes boundary
- * in flash. This function also assumes that prepare have been called 
+ * in flash. This function also assumes that prepare have been called
  * for the sector in question.
  */
 int copy_buffer_to_flash(flash_info_t * info, ulong flash_addr)
@@ -141,7 +141,7 @@ ulong flash_init (void)
 	for (j = 0; j < 7; j++, k++) {
 		flash_info[0].start[k] = flashbase;
 		flashbase += 0x00002000;
-	}		
+	}
 	size += flash_info[0].size;
 
 	flash_info[1].flash_id = (SST_MANUFACT & FLASH_VENDMASK);
@@ -163,7 +163,7 @@ ulong flash_init (void)
 
 	flash_protect (FLAG_PROTECT_SET,
 		 CFG_ENV_ADDR,
-		 CFG_ENV_ADDR + CFG_ENV_SIZE - 1, 
+		 CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
 		 &flash_info[0]);
 
 	return size;
@@ -292,9 +292,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 	switch (info->flash_id & FLASH_VENDMASK) {
 		case (SST_MANUFACT & FLASH_VENDMASK):
-			return flash_erase_sst(info, s_first, s_last);  
+			return flash_erase_sst(info, s_first, s_last);
 		case (PHILIPS_LPC2292 & FLASH_VENDMASK):
-			return flash_erase_philips(info, s_first, s_last);  
+			return flash_erase_philips(info, s_first, s_last);
 		default:
 			return ERR_PROTECTED;
 	}
@@ -350,13 +350,12 @@ int write_buff_sst (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		src_org++;
 	}
 
-
 	return ret;
 }
 
-int write_buff_philips (flash_info_t * info, 
-			uchar * src, 
-			ulong addr, 
+int write_buff_philips (flash_info_t * info,
+			uchar * src,
+			ulong addr,
 			ulong cnt)
 {
 	int first_copy_size;
@@ -393,9 +392,9 @@ int write_buff_philips (flash_info_t * info,
 #endif
 
 	/* copy first block */
-	memcpy((void*)COPY_BUFFER_LOCATION, 
+	memcpy((void*)COPY_BUFFER_LOCATION,
 		(void*)(first_block * 512), 512);
-	memcpy((void*)(COPY_BUFFER_LOCATION + 512 - first_copy_size), 
+	memcpy((void*)(COPY_BUFFER_LOCATION + 512 - first_copy_size),
 		src, first_copy_size);
 	copy_buffer_to_flash(info, first_block * 512);
 	src += first_copy_size;
@@ -414,7 +413,7 @@ int write_buff_philips (flash_info_t * info,
 		memcpy((void*)COPY_BUFFER_LOCATION, src, 512);
 		copy_buffer_to_flash(info, addr);
 		src += 512;
-		addr += 512;    
+		addr += 512;
 	}
 
 
@@ -431,9 +430,9 @@ int write_buff_philips (flash_info_t * info,
 		(ulong)addr);
 #endif
 		/* copy last block */
-		memcpy((void*)COPY_BUFFER_LOCATION, 
+		memcpy((void*)COPY_BUFFER_LOCATION,
 			(void*)(last_block * 512), 512);
-		memcpy((void*)COPY_BUFFER_LOCATION, 
+		memcpy((void*)COPY_BUFFER_LOCATION,
 			src, last_copy_size);
 		copy_buffer_to_flash(info, addr);
 	}
@@ -467,9 +466,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 	switch (info->flash_id & FLASH_VENDMASK) {
 		case (SST_MANUFACT & FLASH_VENDMASK):
-			return write_buff_sst(info, src, addr, cnt);  
+			return write_buff_sst(info, src, addr, cnt);
 		case (PHILIPS_LPC2292 & FLASH_VENDMASK):
-			return write_buff_philips(info, src, addr, cnt);  
+			return write_buff_philips(info, src, addr, cnt);
 		default:
 			return ERR_PROG_ERROR;
 	}

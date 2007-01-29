@@ -1,3 +1,46 @@
+commit 6bd2447ee47ee23c18d2b3c7ccd5a20f7626f5b3
+Author: Gary Jennejohn <garyj@pollux.denx.de>
+Date:	Wed Jan 24 12:16:56 2007 +0100
+
+    Add port for the lpc2292sodimm evaluation board from EmbeddedArtists
+
+commit 2daf046ba627f85f44195815778140039636244e
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Jan 23 17:22:06 2007 +0100
+
+    [iDMR] Add MTD and JFFS2 support, also add default partition definition.
+
+commit f7db33101fbc9c8f0a10738ce87034875a17aeb9
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Jan 23 14:21:14 2007 +0100
+
+    [iDMR] Flash driver on initialisation write-protects some sectors,
+    currently sectors 0-3. Sector 3 does not need to be protected, though
+    (U-boot occupies sectors 0-1 and the environment sector 2). This commit
+    fixes this, i.e., only sectors 0-2 are protected.
+
+commit 0ed47bb119cd2c4c16edb2548789148f9e6dc9de
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Jan 23 14:11:22 2007 +0100
+
+    [iDMR] Using MII-related commands on iDRM board doesn't work now (e.g.,
+    "mii device" results in "Unexpected exception"). Fixing this properly
+    requires some clean-up in the FEC drivers infrastructure for ColdFire, so
+    this commit disables MII commads for now.
+
+commit 363d1d8f9c99b63daef81f5985cab3fc00edde5c
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Jan 23 13:25:22 2007 +0100
+
+    [ColdFire MCF5271 family] Add CPU detection based on the value of Chip
+    Identification Register (CIR).
+
+commit a4012396645533aef218354eeba754dff0deace8
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Fri Jan 19 23:08:39 2007 +0100
+
+    Minor code cleanup.
+
 commit f539b7ba7d7ef6dd187c8209609001cb1cd95e39
 Author: Heiko Schocher <hs@pollux.denx.de>
 Date:	Fri Jan 19 19:57:10 2007 +0100

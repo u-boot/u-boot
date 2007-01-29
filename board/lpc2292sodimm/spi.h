@@ -79,6 +79,4 @@ static inline void spi_set_cfg(unsigned char phase,
 
 	PUT8(S0SPCR, v);
 }
-
-#endif
-
+#endif /* SPI_H */

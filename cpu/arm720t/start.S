@@ -328,13 +328,13 @@ cpu_init_crit:
 	/* Set-up PLL */
 	mov	r3, #0xAA
 	mov	r4, #0x55
-	/* First disconnect and disable the PLL */	
+	/* First disconnect and disable the PLL */
 	ldr	r0, PLLCON_ADR
 	mov	r1, #0x00
 	str	r1, [r0]
 	ldr	r0, PLLFEED_ADR /* start feed sequence */
 	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */	
+	str	r4, [r0]	/* feed sequence done */
 	/* Set new M and P values */
 	ldr	r0, PLLCFG_ADR
 	mov	r1, #0x23	/* M=4 and P=2 */
@@ -349,10 +349,10 @@ cpu_init_crit:
 	ldr	r0, PLLFEED_ADR /* start feed sequence */
 	str	r3, [r0]
 	str	r4, [r0]	/* feed sequence done */
-	/* Wait for the lock */	
+	/* Wait for the lock */
 	ldr	r0, PLLSTAT_ADR
 	mov	r1, #0x400	/* lock bit */
-lock_loop:	
+lock_loop:
 	ldr	r2, [r0]
 	and	r2, r1, r2
 	cmp	r2, #0
@@ -363,7 +363,7 @@ lock_loop:
 	str	r1, [r0]
 	ldr	r0, PLLFEED_ADR /* start feed sequence */
 	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */		
+	str	r4, [r0]	/* feed sequence done */
 	/* Set-up VPBDIV register */
 	ldr	r0, VPBDIV_ADR
 	mov	r1, #0x01	/* VPB clock is same as process clock */

@@ -24,7 +24,7 @@
 
 #define MMC_Enable() PUT32(IO1CLR, 1l << 22)
 #define MMC_Disable() PUT32(IO1SET, 1l << 22)
-#define mmc_spi_cfg() spi_set_clock(8); spi_set_cfg(0, 1, 0); 
+#define mmc_spi_cfg() spi_set_clock(8); spi_set_cfg(0, 1, 0);
 
 static unsigned char Write_Command_MMC (unsigned char *CMD);
 static void MMC_Read_Block(unsigned char *CMD, unsigned char *Buffer,
@@ -124,7 +124,7 @@ void MMC_Read_Block(unsigned char *CMD, unsigned char *Buffer, unsigned short
 		MMC_Disable();
 		spi_unlock();
 		return;
-	}	
+	}
 
 	while (spi_read() != 0xfe) {};
 	for (a = 0; a < Bytes; a++)
@@ -146,7 +146,7 @@ void MMC_Read_Block(unsigned char *CMD, unsigned char *Buffer, unsigned short
 unsigned char mmc_read_sector (unsigned long addr,unsigned char *Buffer)
 {
 	/* Command 16 to read aBlocks from the MMC/SD - caed */
-	unsigned char CMD[] = {0x51,0x00,0x00,0x00,0x00,0xFF}; 
+	unsigned char CMD[] = {0x51,0x00,0x00,0x00,0x00,0xFF};
 
 	/* The addres on the MMC/SD-card is in bytes,
 	addr is transformed from blocks to bytes and the result is
@@ -171,7 +171,7 @@ unsigned char mmc_write_sector (unsigned long addr,unsigned char *Buffer)
 	unsigned char tmp, a;
 	unsigned short int b;
 	/* Command 24 to write a block to the MMC/SD - card */
-	unsigned char CMD[] = {0x58, 0x00, 0x00, 0x00, 0x00, 0xFF}; 
+	unsigned char CMD[] = {0x58, 0x00, 0x00, 0x00, 0x00, 0xFF};
 
 	/* The addres on the MMC/SD-card is in bytes,
 	addr is transformed from blocks to bytes and the result is
@@ -193,14 +193,14 @@ unsigned char mmc_write_sector (unsigned long addr,unsigned char *Buffer)
 		MMC_Disable();
 		spi_unlock();
 		return(tmp);
-	}	
+	}
 
 	/* Do a short delay and send a clock-pulse to the MMC/SD-card */
 	for (a = 0; a < 100; a++)
 		spi_read();
 
 	/* Send a start byte to the MMC/SD-card */
-	spi_write(0xFE);	
+	spi_write(0xFE);
 
 	/* Write the block (512 bytes) to the MMC/SD-card */
 	for (b = 0; b < 512; b++)

@@ -27,10 +27,10 @@
 #define 	SRAM_SIZE	0x00004000
 #define   BCFG0_VALUE 0x1000ffef
 #define   BCFG1_VALUE 0x10001C61
-	
+
 _TEXT_BASE:
 	.word	TEXT_BASE
-MEMMAP_ADR:	
+MEMMAP_ADR:
 	.word	MEMMAP
 BCFG0_ADR:
   .word BCFG0
@@ -69,19 +69,19 @@ lowlevel_init:
 	and	r1, r1, r2
 	orr	r1, r1, r3
 	str	r1, [r0]
-		
+
 	/* move vectors to beginning of SRAM */
-	mov	r2, #SRAM_START		
+	mov	r2, #SRAM_START
 	mov	r0, #0 /*_start*/
-	ldmneia r0!, {r3-r10}		
-	stmneia r2!, {r3-r10}		
+	ldmneia r0!, {r3-r10}
+	stmneia r2!, {r3-r10}
 	ldmneia r0, {r3-r9}
 	stmneia r2, {r3-r9}
 
-        /* Set-up MEMMAP register, so vectors are taken from SRAM */
+	/* Set-up MEMMAP register, so vectors are taken from SRAM */
 	ldr	r0, MEMMAP_ADR
 	mov	r1, #0x02	/* vectors re-mapped to static RAM */
 	str	r1, [r0]
-			
+
 	/* everything is fine now */
 	mov	pc, lr
