@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -135,7 +135,7 @@
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \"run kernelx\" to boot the system;"			\
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -144,7 +144,7 @@
 	"netdev=eth3\0"							\
 	"hostname=alpr\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
+		"nfsroot=${serverip}:${rootpath} ${init}\0"		\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
@@ -170,7 +170,6 @@
 	"ethact=ppc_4xx_eth3\0"						\
 	"autoload=no\0"							\
 	"ipconfig=dhcp;setenv serverip 11.0.0.152\0"			\
-	"actkernel=kernel2\0"						\
 	"load_fpga=fpga load 0 ffe00000 10dd9a\0"			\
 	"mtdargs=setenv bootargs root=/dev/mtdblock6 rw "		\
 		"rootfstype=jffs2 init=/sbin/init\0"			\
@@ -178,8 +177,10 @@
 		";bootm 200000\0"					\
 	"kernel2_mtd=nand read 200000 200000 200000;run mtdargs addip "	\
 		"addtty;bootm 200000\0"					\
-	"kernel1=run ipconfig load_fpga kernel1_mtd\0"			\
-	"kernel2=run ipconfig load_fpga kernel2_mtd\0"			\
+	"kernel1=setenv actkernel 'kernel1';run load_fpga "		\
+		"kernel1_mtd\0"						\
+	"kernel2=setenv actkernel 'kernel2';run load_fpga "		\
+		"kernel2_mtd\0"						\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run kernel2"
@@ -244,6 +245,7 @@
 #define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
+#define CFG_ALT_MEMTEST		1	/* Enable more extensive memtest*/
 #define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
