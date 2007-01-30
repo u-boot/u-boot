@@ -99,7 +99,7 @@ int get_clocks(void)
 	u32 lcrr;
 
 	u32 csb_clk;
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbmph_clk;
@@ -148,7 +148,7 @@ int get_clocks(void)
 
 	sccr = im->clk.sccr;
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
 		tsec1_clk = 0;
@@ -314,7 +314,7 @@ int get_clocks(void)
 #endif
 
 	gd->csb_clk = csb_clk;
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	gd->tsec1_clk = tsec1_clk;
 	gd->tsec2_clk = tsec2_clk;
 	gd->usbmph_clk = usbmph_clk;
@@ -371,7 +371,7 @@ int print_clock_conf(void)
 #if !defined(CONFIG_MPC832X)
 	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
 #endif
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
 	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
 	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);

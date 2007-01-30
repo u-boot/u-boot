@@ -544,7 +544,7 @@ typedef struct security83xx {
 	u8 fixme[0x10000];
 } security83xx_t;
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

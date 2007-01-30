@@ -96,7 +96,7 @@
 #define SPCR_COREPR			0x00300000	/* E300 PowerPC Core system bus request priority */
 #define SPCR_COREPR_SHIFT		(31-11)
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 /* SPCR bits - MPC8349 specific */
 #define SPCR_TSEC1DP			0x00003000	/* TSEC1 data priority */
 #define SPCR_TSEC1DP_SHIFT		(31-19)
@@ -114,7 +114,7 @@
 
 /* SICRL/H - System I/O Configuration Register Low/High
  */
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 /* SICRL bits - MPC8349 specific */
 #define SICRL_LDP_A			0x80000000
 #define SICRL_USB1			0x40000000
@@ -340,7 +340,7 @@
 #define HRCWH_PCI_HOST_SHIFT		31
 #define HRCWH_PCI_AGENT			0x00000000
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 #define HRCWH_32_BIT_PCI		0x00000000
 #define HRCWH_64_BIT_PCI		0x40000000
 #endif
@@ -351,7 +351,7 @@
 #define HRCWH_PCI_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI_ARBITER_ENABLE	0x20000000
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 #define HRCWH_PCI2_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI2_ARBITER_ENABLE	0x10000000
 
@@ -375,14 +375,14 @@
 
 #define HRCWH_ROM_LOC_DDR_SDRAM		0x00000000
 #define HRCWH_ROM_LOC_PCI1		0x00100000
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT	0x00500000
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 #define HRCWH_TSEC1M_IN_RGMII		0x00000000
 #define HRCWH_TSEC1M_IN_RTBI		0x00004000
 #define HRCWH_TSEC1M_IN_GMII		0x00008000
@@ -742,7 +742,7 @@
 #define BR_V				0x00000001
 #define BR_V_SHIFT			0
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
 #elif defined(CONFIG_MPC8360)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)

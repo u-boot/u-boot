@@ -113,7 +113,7 @@ int checkcpu(void)
 		return -1;	/* Not sure what this is */
 	}
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	printf("Rev: %02x at %s MHz\n", (spridr & 0x0000FFFF)>>4 |(spridr & 0x0000000F), strmhz(buf, clock));
 #else
 	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
