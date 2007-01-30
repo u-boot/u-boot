@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
@@ -23,7 +23,7 @@
  */
 
 /************************************************************************
- * sequoia.h - configuration for Sequoia board (PowerPC440EPx)
+ * sequoia.h - configuration for Sequoia & Rainier boards
  ***********************************************************************/
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -31,7 +31,7 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-/* This config file is used for Sequoia (440EPx) and Rainier (440GRx) */
+/* This config file is used for Sequoia (440EPx) and Rainier (440GRx)	*/
 #ifndef CONFIG_RAINIER
 #define CONFIG_SEQUOIA		1		/* Board is Sequoia	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
@@ -39,7 +39,7 @@
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
 #endif
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
-#define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
+#define CONFIG_SYS_CLK_FREQ	33000000	/* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
@@ -222,9 +222,21 @@
 
 #undef	CONFIG_BOOTARGS
 
+/* Setup some board specific values for the default environment variables */
+#ifndef CONFIG_RAINIER
+#define CONFIG_HOSTNAME		sequoia
+#define CFG_BOOTFILE		"bootfile=/tftpboot/sequoia/uImage\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
+#else
+#define CONFIG_HOSTNAME		rainier
+#define CFG_BOOTFILE		"bootfile=/tftpboot/rainier/uImage\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xx\0"
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	CFG_BOOTFILE							\
+	CFG_ROOTPATH							\
 	"netdev=eth0\0"							\
-	"hostname=sequoia\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -238,13 +250,11 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xxFP\0"					\
-	"bootfile=/tftpboot/sequoia/uImage\0"				\
 	"kernel_addr=FC000000\0"					\
 	"ramdisk_addr=FC180000\0"					\
-	"load=tftp 100000 /tftpboot/sequoia/u-boot.bin\0"		\
+	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
-		"cp.b 100000 FFFA0000 60000\0"			        \
+		"cp.b 200000 FFFA0000 60000\0"			        \
 	"upd=run load;run update\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
