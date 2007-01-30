@@ -43,7 +43,11 @@ _start: b	reset
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
 	ldr	pc, _data_abort
+#ifdef CONFIG_LPC2292
+	.word	0xB4405F76 /* 2's complement of the checksum of the vectors */
+#else
 	ldr	pc, _not_used
+#endif
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
@@ -123,6 +127,10 @@ reset:
 	bl	cpu_init_crit
 #endif
 
+#ifdef CONFIG_LPC2292
+	bl	lowlevel_init
+#endif
+
 #ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
@@ -131,6 +139,7 @@ relocate:				/* relocate U-Boot to RAM	    */
 	beq	stack_setup
 
 #if TEXT_BASE
+#ifndef CONFIG_LPC2292 /* already done in lowlevel_init */
 	ldr	r2, =0x0		/* Relocate the exception vectors   */
 	cmp	r1, r2			/* and associated data to address   */
 	ldmneia r0!, {r3-r10}		/* 0x0. Do nothing if TEXT_BASE is  */
@@ -138,6 +147,7 @@ relocate:				/* relocate U-Boot to RAM	    */
 	ldmneia r0, {r3-r9}
 	stmneia r2, {r3-r9}
 	adrne	r0, _start		/* restore r0			    */
+#endif	/* !CONFIG_LPC2292 */
 #endif
 
 	ldr	r2, _armboot_start
@@ -205,6 +215,14 @@ SYSCON3:	.word	0x80002200
 #define CLKCTL_36      0x2  /* 36.864 MHz */
 #define CLKCTL_49      0x4  /* 49.152 MHz */
 #define CLKCTL_73      0x6  /* 73.728 MHz */
+
+#elif defined(CONFIG_LPC2292)
+PLLCFG_ADR:	.word	PLLCFG
+PLLFEED_ADR:	.word	PLLFEED
+PLLCON_ADR:	.word	PLLCON
+PLLSTAT_ADR:	.word	PLLSTAT
+VPBDIV_ADR:	.word	VPBDIV
+MEMMAP_ADR:	.word	MEMMAP
 
 #endif
 
@@ -306,6 +324,50 @@ cpu_init_crit:
 
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific initialisation for IntegratorAP/CM720T as yet */
+#elif defined(CONFIG_LPC2292)
+	/* Set-up PLL */
+	mov	r3, #0xAA
+	mov	r4, #0x55
+	/* First disconnect and disable the PLL */
+	ldr	r0, PLLCON_ADR
+	mov	r1, #0x00
+	str	r1, [r0]
+	ldr	r0, PLLFEED_ADR /* start feed sequence */
+	str	r3, [r0]
+	str	r4, [r0]	/* feed sequence done */
+	/* Set new M and P values */
+	ldr	r0, PLLCFG_ADR
+	mov	r1, #0x23	/* M=4 and P=2 */
+	str	r1, [r0]
+	ldr	r0, PLLFEED_ADR /* start feed sequence */
+	str	r3, [r0]
+	str	r4, [r0]	/* feed sequence done */
+	/* Then enable the PLL */
+	ldr	r0, PLLCON_ADR
+	mov	r1, #0x01	/* PLL enable bit */
+	str	r1, [r0]
+	ldr	r0, PLLFEED_ADR /* start feed sequence */
+	str	r3, [r0]
+	str	r4, [r0]	/* feed sequence done */
+	/* Wait for the lock */
+	ldr	r0, PLLSTAT_ADR
+	mov	r1, #0x400	/* lock bit */
+lock_loop:
+	ldr	r2, [r0]
+	and	r2, r1, r2
+	cmp	r2, #0
+	beq	lock_loop
+	/* And finally connect the PLL */
+	ldr	r0, PLLCON_ADR
+	mov	r1, #0x03	/* PLL enable bit and connect bit */
+	str	r1, [r0]
+	ldr	r0, PLLFEED_ADR /* start feed sequence */
+	str	r3, [r0]
+	str	r4, [r0]	/* feed sequence done */
+	/* Set-up VPBDIV register */
+	ldr	r0, VPBDIV_ADR
+	mov	r1, #0x01	/* VPB clock is same as process clock */
+	str	r1, [r0]
 #else
 #error No cpu_init_crit() defined for current CPU type
 #endif
@@ -321,6 +383,7 @@ cpu_init_crit:
 	str	r1, [r0]
 #endif
 
+#ifndef CONFIG_LPC2292
 	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -329,6 +392,7 @@ cpu_init_crit:
 	 */
 	bl	lowlevel_init
 	mov	lr, ip
+#endif
 
 	mov	pc, lr
 
@@ -537,6 +601,11 @@ reset_cpu:
  * on external peripherals such as watchdog timers, etc. */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific reset actions for IntegratorAP/CM720T as yet */
+#elif defined(CONFIG_LPC2292)
+	.align	5
+.globl reset_cpu
+reset_cpu:
+	mov	pc, r0
 #else
 #error No reset_cpu() defined for current CPU type
 #endif
