@@ -266,7 +266,6 @@ unsigned long get_tbclk(void)
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)
 {
-#ifdef CONFIG_MPC834X
 	int re_enable = disable_interrupts();
 
 	/* Reset the 83xx watchdog */
@@ -276,9 +275,6 @@ void watchdog_reset (void)
 
 	if (re_enable)
 		enable_interrupts ();
-#else
-	hang();
-#endif
 }
 #endif
 
