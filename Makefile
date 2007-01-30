@@ -1236,7 +1236,10 @@ yosemite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yosemite amcc
 
 yellowstone_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yellowstone amcc
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_YELLOWSTONE" > $(obj)include/config.h
+	@echo "Configuring for yellowstone board as subset of yosemite..."
+	@$(MKCONFIG) -a yosemite ppc ppc4xx yosemite amcc
 
 yucca_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yucca amcc
