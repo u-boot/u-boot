@@ -1148,7 +1148,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	/* Init TxBD */
 	BD_DATA_SET(bd, buf);
 	BD_LENGTH_SET(bd, len);
-	status = BD_STATUS(bd);
+	status = bd->status;
 	status &= BD_WRAP;
 	status |= (TxBD_READY | TxBD_LAST);
 	BD_STATUS_SET(bd, status);
