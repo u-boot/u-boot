@@ -354,6 +354,8 @@ int board_early_init_f (void)
 	initUsbHost (&cpldConfig_1);
 	writeb (cpldConfig_1, CPLD_CONTROL_1);
 #endif
+	/* FIXME: for what must we do this */
+	*(unsigned long *)0x79000080 = 0x0001;
 	return(0);
 }
 

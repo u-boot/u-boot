@@ -292,6 +292,7 @@ Stefan Roese <sr@denx.de>
 	pcs440ep		PPC440EP
 	sequoia			PPC440EPx
 	sycamore		PPC405GPr
+	taishan			PPC440GX
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
@@ -464,6 +465,7 @@ Stefan Roese <sr@denx.de>
 
 	ixdpg425		xscale
 	pdnb3			xscale
+	scpu			xscale
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

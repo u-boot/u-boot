@@ -26,10 +26,9 @@
 #include <common.h>
 #include <pci.h>
 
-#include "440spe_pcie.h"
+#if defined(CONFIG_440SPE) && defined(CONFIG_PCI)
 
-#if defined(CONFIG_440SPE)
-#if defined(CONFIG_PCI)
+#include "440spe_pcie.h"
 
 enum {
 	PTYPE_ENDPOINT		= 0x0,
@@ -958,5 +957,4 @@ int ppc440spe_setup_pcie_endpoint(struct pci_controller *hose, int port)
 
 	return 0;
 }
-#endif /* CONFIG_PCI */
-#endif /* CONFIG_440SPE */
+#endif /* CONFIG_440SPE && CONFIG_PCI */

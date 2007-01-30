@@ -108,7 +108,8 @@
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"nand_args=setenv bootargs root=/dev/mtdblock4 rw\0"		\
+	"nand_args=setenv bootargs root=/dev/mtdblock5 rw"		\
+		"rootfstype=jffs2\0"					\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
@@ -118,6 +119,8 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
+	"u-boot=/tftpboot/sc3/u-boot.bin\0"				\
+	"setup=tftp 200000 /tftpboot/sc3/setup.img;autoscr 200000\0"	\
 	"kernel_addr=FFE08000\0"					\
 	""
 #undef CONFIG_BOOTCOMMAND
@@ -164,18 +167,20 @@
 
 #define CONFIG_COMMANDS	  \
 	   (CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_NET | \
-				CFG_CMD_MII | \
-				CFG_CMD_PING | \
-				CFG_CMD_NAND | \
-				CFG_CMD_I2C | \
-				CFG_CMD_IDE | \
-				CFG_CMD_DATE | \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_CACHE  | \
-				CFG_CMD_ELF	)
+			CFG_CMD_AUTOSCRIPT	| \
+			CFG_CMD_PCI		| \
+			CFG_CMD_IRQ		| \
+			CFG_CMD_NET		| \
+			CFG_CMD_MII		| \
+			CFG_CMD_PING		| \
+			CFG_CMD_NAND		| \
+			CFG_CMD_JFFS2		| \
+			CFG_CMD_I2C		| \
+			CFG_CMD_IDE		| \
+			CFG_CMD_DATE		| \
+			CFG_CMD_DHCP		| \
+			CFG_CMD_CACHE		| \
+			CFG_CMD_ELF	)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -382,6 +387,7 @@ extern unsigned long offsetOfEnvironment;
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CFG_WRITE_SWAPPED_DATA		/* swap Databytes between reading/writing */
 
 #define CFG_ENV_IS_IN_FLASH	1
 #if CFG_ENV_IS_IN_FLASH
@@ -403,6 +409,15 @@ extern unsigned long offsetOfEnvironment;
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE		0x77D00000
+
+
+#define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
+
+/* No command line, one static partition Partition 3 contains jffs2 rootfs */
+#undef	CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV		"nand0"
+#define CONFIG_JFFS2_PART_SIZE		0x00400000
+#define CONFIG_JFFS2_PART_OFFSET	0x00c00000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -515,6 +530,8 @@ extern unsigned long offsetOfEnvironment;
 
 #undef CFG_EBC_PB7AP
 #undef CFG_EBC_PB7CR
+
+#define CFG_EBC_CFG    0xb84ef000
 
 #define CONFIG_SDRAM_BANK0	/* use the standard SDRAM initialization */
 #undef CONFIG_SPD_EEPROM

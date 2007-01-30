@@ -97,7 +97,7 @@ unsigned long flash_init (void)
 
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + 0x30000, &flash_info[0]);
+		       CFG_FLASH_BASE + 0x2ffff, &flash_info[0]);
 
 	return size;
 }

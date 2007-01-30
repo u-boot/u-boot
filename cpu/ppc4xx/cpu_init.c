@@ -313,9 +313,8 @@ cpu_init_f (void)
 	mtebc(pb7cr, CFG_EBC_PB7CR);
 #endif
 
-#if defined (CONFIG_SOLIDCARD3)
-	mtebc(epcr, 0xb84ef000);
-	*(unsigned long *)0x79000080 = 0x0001;
+#if defined (CFG_EBC_CFG)
+	mtebc(epcr, CFG_EBC_CFG);
 #endif
 
 #if defined(CONFIG_WATCHDOG)
