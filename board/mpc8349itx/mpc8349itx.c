@@ -134,88 +134,6 @@ volatile static struct pci_controller hose[] = {
 };
 #endif				/* CONFIG_PCI */
 
-/* If MPC8349E-mITX is soldered with SDRAM, then initialize it. */
-
-void sdram_init(void)
-{
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile lbus83xx_t *lbc = &immap->lbus;
-
-#if defined(CFG_BR2_PRELIM) \
-	&& defined(CFG_OR2_PRELIM) \
-	&& defined(CFG_LBLAWBAR2_PRELIM) \
-	&& defined(CFG_LBLAWAR2_PRELIM) \
-	&& !defined(CONFIG_COMPACT_FLASH)
-
-	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
-
-	puts("\n   SDRAM on Local Bus: ");
-	print_size(CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
-
-	/*
-	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
-	 */
-
-	/*setup mtrpt, lsrt and lbcr for LB bus */
-	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->mrtpr = CFG_LBC_MRTPR;
-	lbc->lsrt = CFG_LBC_LSRT;
-	asm("sync");
-
-	/*
-	 * Configure the SDRAM controller Machine Mode register.
-	 */
-	lbc->lsdmr = CFG_LBC_LSDMR_5;	/* 0x40636733; normal operation */
-
-	lbc->lsdmr = CFG_LBC_LSDMR_1;	/*0x68636733; precharge all the banks */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_2;	/*0x48636733; auto refresh */
-	asm("sync");
-	*sdram_addr = 0xff; /*1 time*/
-	udelay(100);
-	*sdram_addr = 0xff; /*2 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*3 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*4 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*5 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*6 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*7 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*8 times*/
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_4;	/*0x58636733;mode register write operation */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_5;	/*0x40636733;normal operation */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-#else
-	puts("SDRAM on Local Bus is NOT available!\n");
-
-#ifdef CFG_BR2_PRELIM
-	lbc->bank[2].br = CFG_BR2_PRELIM;
-	lbc->bank[2].or = CFG_OR2_PRELIM;
-#endif
-
-#ifdef CFG_BR3_PRELIM
-	lbc->bank[3].br = CFG_BR3_PRELIM;
-	lbc->bank[3].or = CFG_OR3_PRELIM;
-#endif
-#endif
-}
-
 long int initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
@@ -243,12 +161,8 @@ long int initdram(int board_type)
 		ddr_enable_ecc(msize * 1048576);
 #endif
 
-	/*
-	 * Initialize SDRAM if it is on local bus.
-	 */
-	sdram_init();
 	puts("   DDR RAM: ");
-	/* return total bus SDRAM size(bytes)  -- DDR */
+	/* return total bus RAM size(bytes) */
 	return msize * 1024 * 1024;
 }
 
