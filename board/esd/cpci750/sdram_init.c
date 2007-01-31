@@ -1504,6 +1504,8 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 
 /*	for (i = info->slot * 2; i < ((info->slot * 2) + info->banks); i++) */
 	{
+	        int l, l1;
+
 		i = info->slot;
 		DP (printf
 		    ("\n*** Running a MRS cycle for bank %d ***\n", i));
@@ -1511,20 +1513,39 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 		/* map the bank */
 		memory_map_bank (i, 0, GB / 4);
 #if 1				/* test only */
-		/* set SDRAM mode */ /* To_do check it */
-		GT_REG_WRITE (SDRAM_OPERATION, 0x3);
-		check = GTREGREAD (SDRAM_OPERATION);
-		DP (printf
-		    ("\n*** SDRAM_OPERATION 1418 (0 = Normal Operation) = %08lx ***\n",
-		     check));
 
+		tmp = GTREGREAD (SDRAM_MODE);
+		GT_REG_WRITE (EXTENDED_DRAM_MODE, 0x0);
+		GT_REG_WRITE (SDRAM_OPERATION, 0x4);
+		while (GTREGREAD (SDRAM_OPERATION) != 0) {
+		        DP (printf
+			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
+		}
+
+		GT_REG_WRITE (SDRAM_MODE, tmp | 0x80);
+		GT_REG_WRITE (SDRAM_OPERATION, 0x3);
+		while (GTREGREAD (SDRAM_OPERATION) != 0) {
+		        DP (printf
+			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
+		}
+		l1 = 0;
+		for (l=0;l<200;l++)
+		        l1 += GTREGREAD (SDRAM_OPERATION);
+
+		GT_REG_WRITE (SDRAM_MODE, tmp);
+		GT_REG_WRITE (SDRAM_OPERATION, 0x3);
+		while (GTREGREAD (SDRAM_OPERATION) != 0) {
+		        DP (printf
+			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
+		}
 
 		/* switch back to normal operation mode */
-		GT_REG_WRITE (SDRAM_OPERATION, 0);
-		check = GTREGREAD (SDRAM_OPERATION);
-		DP (printf
-		    ("\n*** SDRAM_OPERATION 1418 (0 = Normal Operation) = %08lx ***\n",
-		     check));
+		GT_REG_WRITE (SDRAM_OPERATION, 0x5);
+		while (GTREGREAD (SDRAM_OPERATION) != 0) {
+		        DP (printf
+			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
+		}
+
 #endif /* test only */
 		/* unmap the bank */
 		memory_map_bank (i, 0, 0);
