@@ -168,7 +168,11 @@ long int initdram(int board_type)
 
 int checkboard(void)
 {
+#ifdef CONFIG_MPC8349ITX
 	puts("Board: Freescale MPC8349E-mITX\n");
+#else
+	puts("Board: Freescale MPC8349E-mITX-GP\n");
+#endif
 
 	return 0;
 }
@@ -181,6 +185,7 @@ int checkboard(void)
  */
 int misc_init_f(void)
 {
+#ifdef CONFIG_VSC7385
 	volatile u32 *vsc7385_cpuctrl;
 
 	/* 0x1c0c0 is the VSC7385 CPU Control (CPUCTRL) Register.  The power up
@@ -200,6 +205,7 @@ int misc_init_f(void)
 
 	vsc7385_cpuctrl = (volatile u32 *)(CFG_VSC7385_BASE + 0x1c0c0);
 	*vsc7385_cpuctrl |= 0x0c;
+#endif
 
 #ifdef CONFIG_COMPACT_FLASH
 	/* UPM Table Configuration Code */
@@ -269,9 +275,19 @@ int misc_init_r(void)
 #ifdef CFG_I2C_EEPROM_ADDR
 	static u8 eeprom_data[] =	/* HRCW data */
 	{
-		0xaa, 0x55, 0xaa,
-		0x7c, 0x02, 0x40, 0x05, 0x04, 0x00, 0x00,
-		0x7c, 0x02, 0x41, 0xb4, 0x60, 0xa0, 0x00,
+		0xAA, 0x55, 0xAA,       /* Preamble */
+		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x02, 0x40, 	        /* RCWL ADDR=0x0_0900 */
+		(CFG_HRCW_LOW >> 24) & 0xFF,
+		(CFG_HRCW_LOW >> 16) & 0xFF,
+		(CFG_HRCW_LOW >> 8) & 0xFF,
+		CFG_HRCW_LOW & 0xFF,
+		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x02, 0x41,	        /* RCWH ADDR=0x0_0904 */
+		(CFG_HRCW_HIGH >> 24) & 0xFF,
+		(CFG_HRCW_HIGH >> 16) & 0xFF,
+		(CFG_HRCW_HIGH >> 8) & 0xFF,
+		CFG_HRCW_HIGH & 0xFF
 	};
 
 	u8 data[sizeof(eeprom_data)];
