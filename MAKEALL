@@ -37,9 +37,9 @@ LIST_5xx="	\
 LIST_5xxx="	\
 	BC3450		cpci5200	EVAL5200	fo300		\
 	icecube_5100	icecube_5200	lite5200b	mcc200		\
-	o2dnt		pf5200		PM520		TB5200		\
-	Total5100	Total5200	Total5200_Rev2	TQM5200		\
-	TQM5200_B	TQM5200S	v38b				\
+	mecp5200	o2dnt		pf5200		PM520		\
+	TB5200		Total5100	Total5200	Total5200_Rev2	\
+	TQM5200		TQM5200_B	TQM5200S	v38b		\
 "
 
 #########################################################################
@@ -181,7 +181,7 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 LIST_ARM7="	\
 	armadillo	B2		ep7312		evb4510		\
 	impa7		integratorap	ap7		ap720t		\
-	modnet50							\
+	lpc2292sodimm	modnet50					\
 "
 
 #########################################################################

@@ -312,25 +312,29 @@ int checkcpu (void)
 #endif /* CONFIG_440GR */
 #endif /* CONFIG_440 */
 
-	case PVR_440EPX1_RA:
+#ifdef CONFIG_440EPX
+	case PVR_440EPX1_RA: /* 440EPx rev A and 440GRx rev A have same PVR */
 		puts("EPx Rev. A");
 		strcpy(addstr, "Security/Kasumi support");
 		break;
 
-	case PVR_440EPX2_RA:
+	case PVR_440EPX2_RA: /* 440EPx rev A and 440GRx rev A have same PVR */
 		puts("EPx Rev. A");
 		strcpy(addstr, "No Security/Kasumi support");
 		break;
+#endif /* CONFIG_440EPX */
 
-	case PVR_440GRX1_RA:
+#ifdef CONFIG_440GRX
+	case PVR_440GRX1_RA: /* 440EPx rev A and 440GRx rev A have same PVR */
 		puts("GRx Rev. A");
 		strcpy(addstr, "Security/Kasumi support");
 		break;
 
-	case PVR_440GRX2_RA:
+	case PVR_440GRX2_RA: /* 440EPx rev A and 440GRx rev A have same PVR */
 		puts("GRx Rev. A");
 		strcpy(addstr, "No Security/Kasumi support");
 		break;
+#endif /* CONFIG_440GRX */
 
 	case PVR_440SP_6_RAB:
 		puts("SP Rev. A/B");

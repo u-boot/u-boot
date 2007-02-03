@@ -65,12 +65,14 @@ int board_early_init_f(void)
 	out32(GPIO1_TSRL, in32(GPIO1_TSRL) & ~0x0000ff00);
 	out32(GPIO1_ISR1L, in32(GPIO1_ISR1L) | 0x00005500);
 
+#ifdef CONFIG_440EP
 	/*setup USB 2.0 */
 	out32(GPIO1_TCR, in32(GPIO1_TCR) | 0xc0000000);
 	out32(GPIO1_OSRL, in32(GPIO1_OSRL) | 0x50000000);
 	out32(GPIO0_TCR, in32(GPIO0_TCR) | 0xf);
 	out32(GPIO0_OSRH, in32(GPIO0_OSRH) | 0xaa);
 	out32(GPIO0_ISR2H, in32(GPIO0_ISR2H) | 0x00000500);
+#endif
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -105,8 +107,10 @@ int board_early_init_f(void)
 	/*enable ethernet */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x08) = 0xf0;
 
+#ifdef CONFIG_440EP
 	/*enable usb 1.1 fs device and remove usb 2.0 reset */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x09) = 0x00;
+#endif
 
 	/*get rid of flash write protect */
 	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x00;
@@ -171,7 +175,11 @@ int checkboard(void)
 	u8 rev;
 	u8 val;
 
+#ifdef CONFIG_440EP
 	printf("Board: Yosemite - AMCC PPC440EP Evaluation Board");
+#else
+	printf("Board: Yellowstone - AMCC PPC440GR Evaluation Board");
+#endif
 
 	rev = *(u8 *)(CFG_CPLD + 0);
 	val = *(u8 *)(CFG_CPLD + 5) & 0x01;

@@ -740,8 +740,8 @@
 #define PVR_440GR_RB	0x422218D4 /* 440EP rev C and 440GR rev B have same PVR */
 #define PVR_440EPX1_RA  0x216218D0 /* 440EPX rev A with Security / Kasumi */
 #define PVR_440EPX2_RA  0x216218D4 /* 440EPX rev A without Security / Kasumi */
-#define PVR_440GRX1_RA  0x216218D8 /* 440GRX rev A with Security / Kasumi */
-#define PVR_440GRX2_RA  0x216218DC /* 440GRX rev A without Security / Kasumi */
+#define PVR_440GRX1_RA  0x216218D0 /* 440GRX rev A with Security / Kasumi */
+#define PVR_440GRX2_RA  0x216218D4 /* 440GRX rev A without Security / Kasumi */
 #define PVR_440GX_RA	0x51B21850
 #define PVR_440GX_RB	0x51B21851
 #define PVR_440GX_RC	0x51B21892

@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <74xx_7xx.h>
 #include "../../Marvell/include/memory.h"
 #include "../../Marvell/include/pci.h"
@@ -899,3 +900,24 @@ void board_prebootm_init ()
 	flush_data_cache ();
 	dcache_disable ();
 }
+
+
+int do_show_cfg(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	unsigned int reset_sample_low;
+	unsigned int reset_sample_high;
+
+	GT_REG_READ(0x3c4, &reset_sample_low);
+	GT_REG_READ(0x3d4, &reset_sample_high);
+	printf("Reset configuration 0x%08x 0x%08x\n", reset_sample_low, reset_sample_high);
+
+        return(0);
+}
+
+
+U_BOOT_CMD(
+	show_cfg,	1,	1,	do_show_cfg,
+	"show_cfg- Show Marvell strapping register\n",
+	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)\n"
+	);
+

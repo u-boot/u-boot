@@ -482,6 +482,9 @@ prs200_highboot_DDR_config:	unconfig
 		}
 	@$(MKCONFIG) -n $@ -a mcc200 ppc mpc5xxx mcc200
 
+mecp5200_config:  unconfig
+	@$(MKCONFIG) -a mecp5200  ppc mpc5xxx mecp5200 esd
+
 o2dnt_config:
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
@@ -1236,7 +1239,10 @@ yosemite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yosemite amcc
 
 yellowstone_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yellowstone amcc
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_YELLOWSTONE" > $(obj)include/config.h
+	@echo "Configuring for yellowstone board as subset of yosemite..."
+	@$(MKCONFIG) -a yosemite ppc ppc4xx yosemite amcc
 
 yucca_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yucca amcc
@@ -2028,6 +2034,9 @@ modnet50_config :	unconfig
 
 evb4510_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t evb4510
+
+lpc2292sodimm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm720t lpc2292sodimm
 
 #########################################################################
 ## XScale Systems

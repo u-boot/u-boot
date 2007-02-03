@@ -1,5 +1,6 @@
+
 #
-# (C) Copyright 2002
+# (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,24 +22,30 @@
 # MA 02111-1307 USA
 #
 
-#
-# esd ADCIOP boards
-#
+include $(TOPDIR)/config.mk
 
-#TEXT_BASE = 0x00001000
+LIB	= $(obj)lib$(BOARD).a
 
-ifeq ($(ramsym),1)
-TEXT_BASE = 0xFBD00000
-else
-TEXT_BASE = 0xFFF80000
-endif
+COBJS	= $(BOARD).o
 
-PLATFORM_CPPFLAGS += -DCONFIG_440=1
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-ifeq ($(debug),1)
-PLATFORM_CPPFLAGS += -DDEBUG
-endif
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-ifeq ($(dbcr),1)
-PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
-endif
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
