@@ -88,14 +88,18 @@ int pci_arbiter_enabled(void)
 	return (mfdcr(cpc0_strp1) & CPC0_STRP1_PAE_MASK);
 #endif
 
-#if defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long val;
 
-	mfsdr(sdr_sdstp1, val);
-	return (val & SDR0_SDSTP1_PAE_MASK);
+	mfsdr(sdr_xcr, val);
+	return (val & 0x80000000);
+#endif
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+	unsigned long val;
+
+	mfsdr(sdr_pci0, val);
+	return (val & 0x80000000);
 #endif
 }
 #endif

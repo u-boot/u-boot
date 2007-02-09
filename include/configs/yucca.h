@@ -178,6 +178,7 @@
 	"bootfile=yucca/uImage\0"					\
 	"kernel_addr=E7F10000\0"					\
 	"ramdisk_addr=E7F20000\0"					\
+	"initrd_high=30000000\0"					\
 	"load=tftp 100000 yuca/u-boot.bin\0"				\
 	"update=protect off 2:4-7;era 2:4-7;"				\
 		"cp.b ${fileaddr} FFFB0000 ${filesize};"		\

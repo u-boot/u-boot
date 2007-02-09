@@ -257,6 +257,7 @@
 	"bootfile=/tftpboot/bamboo/uImage\0"				\
 	"kernel_addr=fff00000\0"					\
 	"ramdisk_addr=fff10000\0"					\
+	"initrd_high=30000000\0"					\
 	"load=tftp 100000 /tftpboot/bamboo/u-boot.bin\0"		\
 	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
 		"cp.b 100000 fffa0000 60000;"			        \
