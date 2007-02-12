@@ -482,6 +482,9 @@ prs200_highboot_DDR_config:	unconfig
 		}
 	@$(MKCONFIG) -n $@ -a mcc200 ppc mpc5xxx mcc200
 
+mecp5200_config:  unconfig
+	@$(MKCONFIG) -a mecp5200  ppc mpc5xxx mecp5200 esd
+
 o2dnt_config:
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
@@ -1169,18 +1172,16 @@ PPChameleonEVB_HI_33_config:	unconfig
 rainier_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
-	@echo "Configuring for rainier board as subset of sequoia..."
-	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 
 rainier_nand_config:	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)nand_spl
 	@mkdir -p $(obj)board/amcc/sequoia
 	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
-	@echo "Configuring for rainier board as subset of sequoia..."
 	@echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h
 	@echo "Compile NAND boot image for sequoia"
-	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
@@ -1204,8 +1205,7 @@ sc3_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx sc3
 
 sycamore_config:	unconfig
-	@echo "Configuring for sycamore board as subset of walnut..."
-	@$(MKCONFIG) -a walnut ppc ppc4xx walnut amcc
+	@$(MKCONFIG) -n $@ -a walnut ppc ppc4xx walnut amcc
 
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
@@ -1236,7 +1236,9 @@ yosemite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yosemite amcc
 
 yellowstone_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yellowstone amcc
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_YELLOWSTONE" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a yosemite ppc ppc4xx yosemite amcc
 
 yucca_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yucca amcc

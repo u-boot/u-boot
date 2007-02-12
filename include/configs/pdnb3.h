@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * Configuation settings for the PDNB3 board.
@@ -237,18 +237,19 @@
 
 #define	CFG_ENV_IS_IN_FLASH	1
 
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
 #if defined(CONFIG_SCPU)
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+/* no redundant environment on SCPU */
+#define CFG_ENV_SECT_SIZE	0x20000 /* size of one complete sector		*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #else
-#define CFG_ENV_SECT_SIZE	0x1000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x1000 	/* size of one complete sector		*/
 #define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
-#endif
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#endif
 
 #if !defined(CONFIG_SCPU)
 /*

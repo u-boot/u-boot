@@ -188,6 +188,7 @@
 	"bootfile=/tftpboot/taishan/uImage\0"				\
 	"kernel_addr=fc000000\0"					\
 	"ramdisk_addr=fc180000\0"					\
+	"initrd_high=30000000\0"					\
 	"load=tftp 100000 /tftpboot/taishan/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \

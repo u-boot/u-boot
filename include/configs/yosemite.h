@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2006
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,7 +22,7 @@
  */
 
 /************************************************************************
- * yosemite.h - configuration for YOSEMITE board
+ * yosemite.h - configuration for Yosemite & Yellowstone boards
  ***********************************************************************/
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -30,9 +30,16 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-#define CONFIG_YOSEMITE		1	/* Board is Yosemite            */
-#define CONFIG_440EP		1	/* Specific PPC440EP support    */
-#define CONFIG_4xx		1	/* ... PPC4xx family	        */
+/* This config file is used for Yosemite (440EP) and Yellowstone (440GR)*/
+#ifndef CONFIG_YELLOWSTONE
+#define CONFIG_YOSEMITE		1	/* Board is Yosemite		*/
+#define CONFIG_440EP		1	/* Specific PPC440EP support	*/
+#define CONFIG_HOSTNAME		yosemite
+#else
+#define CONFIG_440GR		1	/* Specific PPC440GR support	*/
+#define CONFIG_HOSTNAME		yellowstone
+#endif
+#define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	66666666    /* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/
@@ -159,9 +166,21 @@
 
 #undef	CONFIG_BOOTARGS
 
+/* Setup some board specific values for the default environment variables */
+#ifndef CONFIG_YELLOWSTONE
+#define CONFIG_HOSTNAME		yosemite
+#define CFG_BOOTFILE		"bootfile=/tftpboot/yosemite/uImage\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
+#else
+#define CONFIG_HOSTNAME		yellowstone
+#define CFG_BOOTFILE		"bootfile=/tftpboot/yellowstone/uImage\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xx\0"
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	CFG_BOOTFILE							\
+	CFG_ROOTPATH							\
 	"netdev=eth0\0"							\
-	"hostname=yosemite\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -175,13 +194,12 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=/tftpboot/yosemite/uImage\0"				\
+	"bootfile=/tftpboot/${hostname}/uImage\0"			\
 	"kernel_addr=fc000000\0"					\
 	"ramdisk_addr=fc180000\0"					\
-	"load=tftp 100000 /tftpboot/yosemite/u-boot.bin\0"		\
+	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
 	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
-		"cp.b 100000 fff80000 80000;"			        \
+		"cp.b 200000 fff80000 80000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	""
@@ -218,9 +236,15 @@
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
-/*Comment this out to enable USB 1.1 device*/
+/* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
-#endif /*CONFIG_440EP*/
+
+#define CMD_USB			(CFG_CMD_USB | CFG_CMD_FAT | CFG_CMD_EXT2)
+
+#define CONFIG_SUPPORT_VFAT
+#else
+#define CMD_USB			0	/* no USB on 440GR		*/
+#endif /* CONFIG_440EP */
 
 #ifdef DEBUG
 #define CONFIG_PANIC_HANG
@@ -243,11 +267,7 @@
 				CFG_CMD_PING	| \
 				CFG_CMD_REGINFO	| \
 				CFG_CMD_SDRAM	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_EXT2	| \
-				CFG_CMD_USB	)
-
-#define CONFIG_SUPPORT_VFAT
+				CMD_USB)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

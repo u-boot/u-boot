@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,16 +27,6 @@ SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/
    __DYNAMIC = 0;    */
 SECTIONS
 {
-  .resetvec 0xFFFFFFFC :
-  {
-    *(.resetvec)
-  } = 0xffff
-
-  .bootpg 0xFFFFF000 :
-  {
-    cpu/ppc4xx/start.o	(.bootpg)
-  } = 0xffff
-
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
@@ -63,44 +53,21 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
-    cpu/ppc4xx/start.o	(.text)
-    board/amcc/yellowstone/init.o	(.text)
-    cpu/ppc4xx/kgdb.o	(.text)
-    cpu/ppc4xx/traps.o	(.text)
-    cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/serial.o	(.text)
-    cpu/ppc4xx/cpu_init.o	(.text)
-    cpu/ppc4xx/speed.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_ppc/extable.o	(.text)
-    lib_generic/zlib.o		(.text)
-
-/*    . = env_offset;*/
-/*    common/environment.o(.text)*/
-
+    cpu/mpc5xxx/start.o	(.text)
     *(.text)
     *(.fixup)
     *(.got1)
-  }
-  _etext = .;
-  PROVIDE (etext = .);
-  .rodata    :
-  {
+    . = ALIGN(16);
     *(.rodata)
     *(.rodata1)
     *(.rodata.str1.4)
-    *(.eh_frame)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }
   .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
-  . = (. + 0x00FF) & 0xFFFFFF00;
+  . = (. + 0x0FFF) & 0xFFFFF000;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -111,8 +78,8 @@ SECTIONS
     _FIXUP_TABLE_ = .;
     *(.fixup)
   }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
-  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
+  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
+  __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
 
   .data    :
   {
@@ -126,22 +93,20 @@ SECTIONS
   _edata  =  .;
   PROVIDE (edata = .);
 
-  . = .;
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
 
-  . = .;
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
-  . = ALIGN(256);
+  . = ALIGN(4096);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(256);
+  . = ALIGN(4096);
   __init_end = .;
 
   __bss_start = .;
