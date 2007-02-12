@@ -46,7 +46,7 @@ int board_init (void)
 	gd->bd->bi_arch_number = 83;
 
 	/* location of boot parameters */
-	gd->bd->bi_boot_params = 0xc0000100;
+	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
 }
