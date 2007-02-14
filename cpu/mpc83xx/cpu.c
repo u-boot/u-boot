@@ -56,30 +56,38 @@ int checkcpu(void)
 	switch(spridr) {
 	case SPR_8349E_REV10:
 	case SPR_8349E_REV11:
+	case SPR_8349E_REV31:
 		puts("MPC8349E, ");
 		break;
 	case SPR_8349_REV10:
 	case SPR_8349_REV11:
+	case SPR_8349_REV31:
 		puts("MPC8349, ");
 		break;
 	case SPR_8347E_REV10_TBGA:
 	case SPR_8347E_REV11_TBGA:
+	case SPR_8347E_REV31_TBGA:
 	case SPR_8347E_REV10_PBGA:
 	case SPR_8347E_REV11_PBGA:
+	case SPR_8347E_REV31_PBGA:
 		puts("MPC8347E, ");
 		break;
 	case SPR_8347_REV10_TBGA:
 	case SPR_8347_REV11_TBGA:
+	case SPR_8347_REV31_TBGA:
 	case SPR_8347_REV10_PBGA:
 	case SPR_8347_REV11_PBGA:
+	case SPR_8347_REV31_PBGA:
 		puts("MPC8347, ");
 		break;
 	case SPR_8343E_REV10:
 	case SPR_8343E_REV11:
+	case SPR_8343E_REV31:
 		puts("MPC8343E, ");
 		break;
 	case SPR_8343_REV10:
 	case SPR_8343_REV11:
+	case SPR_8343_REV31:
 		puts("MPC8343, ");
 		break;
 	case SPR_8360E_REV10:
@@ -109,12 +117,15 @@ int checkcpu(void)
 		puts("MPC8321, ");
 		break;
 	default:
-		puts("Rev: Unknown\n");
-		return -1;	/* Not sure what this is */
+		puts("Rev: Unknown revision number.\nWarning: Unsupported cpu revision!\n");
+		return 0;
 	}
 
 #if defined(CONFIG_MPC834X)
-	printf("Rev: %02x at %s MHz\n", (spridr & 0x0000FFFF)>>4 |(spridr & 0x0000000F), strmhz(buf, clock));
+	/* Multiple revisons of 834x processors may have the same SPRIDR value.
+	 * So use PVR to identify the revision number.
+	 */
+	printf("Rev: %02x at %s MHz\n", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
 #else
 	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
 #endif
