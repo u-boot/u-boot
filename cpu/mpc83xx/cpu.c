@@ -93,11 +93,13 @@ int checkcpu(void)
 	case SPR_8360E_REV10:
 	case SPR_8360E_REV11:
 	case SPR_8360E_REV12:
+	case SPR_8360E_REV20:
 		puts("MPC8360E, ");
 		break;
 	case SPR_8360_REV10:
 	case SPR_8360_REV11:
 	case SPR_8360_REV12:
+	case SPR_8360_REV20:
 		puts("MPC8360, ");
 		break;
 	case SPR_8323E_REV10:
