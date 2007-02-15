@@ -90,10 +90,17 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 
 int board_early_init_f(void)
 {
-	volatile u8 *bcsr = (volatile u8 *)CFG_BCSR;
+
+	u8 *bcsr = (u8 *)CFG_BCSR;
+	const immap_t *immr = (immap_t *)CFG_IMMR;
 
 	/* Enable flash write */
 	bcsr[0xa] &= ~0x04;
+
+	/* Disable G1TXCLK, G2TXCLK h/w buffers (rev.2 h/w bug workaround) */
+	if (immr->sysconf.spridr == SPR_8360_REV20 ||
+	    immr->sysconf.spridr == SPR_8360E_REV20)
+		bcsr[0xe] = 0x30;
 
 	return 0;
 }
