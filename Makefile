@@ -411,6 +411,9 @@ icecube_5100_config:			unconfig
 		}
 	@$(MKCONFIG) -a IceCube ppc mpc5xxx icecube
 
+jupiter_config:         unconfig
+	@$(MKCONFIG) jupiter ppc mpc5xxx jupiter
+
 v38b_config: unconfig
 	@./mkconfig -a v38b ppc mpc5xxx v38b
 
