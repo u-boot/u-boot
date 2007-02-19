@@ -94,21 +94,21 @@ char *aufile[AU_MAXFILES] = {
 /* sizes of flash areas for each file */
 long ausize[AU_MAXFILES] = {
 	(AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST,
-	(AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST,
-	(AU_FL_ROOTFS_ND + 1) - AU_FL_ROOTFS_ST
+	(AU_FL_KERNEL_ND   + 1) - AU_FL_KERNEL_ST,
+	(AU_FL_ROOTFS_ND   + 1) - AU_FL_ROOTFS_ST,
 };
 
 /* array of flash areas start and end addresses */
 struct flash_layout aufl_layout[AU_MAXFILES] = {
-	{AU_FL_FIRMWARE_ST, AU_FL_FIRMWARE_ND,},
-	{AU_FL_KERNEL_ST, AU_FL_KERNEL_ND,},
-	{AU_FL_ROOTFS_ST, AU_FL_ROOTFS_ND,}
+	{ AU_FL_FIRMWARE_ST,	AU_FL_FIRMWARE_ND, },
+	{ AU_FL_KERNEL_ST,	AU_FL_KERNEL_ND,   },
+	{ AU_FL_ROOTFS_ST,	AU_FL_ROOTFS_ND,   },
 };
 
 /* where to load files into memory */
 #define LOAD_ADDR ((unsigned char *)0x00200000)
 
-/* the app is the largest image */
+/* the root file system is the largest image */
 #define MAX_LOADSZ ausize[IDX_ROOTFS]
 
 /*i2c address of the keypad status*/
@@ -193,7 +193,9 @@ int au_check_header_valid(int idx, long nbytes)
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
-	if ((idx == IDX_ROOTFS) && (hdr->ih_type != IH_TYPE_RAMDISK)) {
+	if ((idx == IDX_ROOTFS) &&
+		( (hdr->ih_type != IH_TYPE_RAMDISK) || (hdr->ih_type != IH_TYPE_FILESYSTEM) )
+	   ) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
@@ -277,9 +279,9 @@ int au_do_update(int idx, long sz)
 		return -1;
 	}
 
-	/* check the dcrc of the copy */
+	/* check the data CRC of the copy */
 	if (crc32 (0, (uchar *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
-		printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
+		printf ("Image %s Bad Data Checksum after COPY\n", aufile[idx]);
 		return -1;
 	}
 
