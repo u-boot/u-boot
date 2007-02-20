@@ -28,7 +28,7 @@ $(shell mkdir -p $(obj)../xilinx_enet)
 $(shell mkdir -p $(obj)../xilinx_iic)
 endif
 
-INCS		:= -I../ml300 -I../common -I../xilinx_enet -I../xilinx_iic
+INCS		:= -I../common -I../xilinx_enet -I../xilinx_iic
 CFLAGS		+= $(INCS)
 HOST_CFLAGS	+= $(INCS)
 

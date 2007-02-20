@@ -40,8 +40,7 @@
 #include <asm/processor.h>
 #include <common.h>
 #include <command.h>
-#include <configs/ml300.h>
-#include "xparameters.h"
+#include <config.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
