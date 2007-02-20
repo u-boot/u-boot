@@ -66,8 +66,8 @@
                              writeb(val>>8, CFG_SYSTEMACE_BASE+off+1);}
 #endif
 #else
-#define ace_readw(off) (readw(CFG_SYSTEMACE_BASE+off))
-#define ace_writew(val, off) (writew(val, CFG_SYSTEMACE_BASE+off))
+#define ace_readw(off) (in16(CFG_SYSTEMACE_BASE+off))
+#define ace_writew(val, off) (out16(CFG_SYSTEMACE_BASE+off,val))
 #endif
 
 /* */
@@ -118,6 +118,14 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		systemace_dev.blksz = 512;
 		systemace_dev.removable = 1;
 		systemace_dev.block_read = systemace_read;
+
+#if (CFG_SYSTEMACE_WIDTH == 16)
+		/*
+		 * By default the SystemACE comes up in 8-bit mode.
+		 * Ensure that 16-bit mode gets enabled.
+		 */
+		ace_writew(0x0001, 0);
+#endif
 
 		init_part(&systemace_dev);
 
@@ -197,7 +205,7 @@ static unsigned long systemace_read(int dev, unsigned long start,
 #endif
 		/* Write LBA block address */
 		ace_writew((start >> 0) & 0xffff, 0x10);
-		ace_writew((start >> 16) & 0x00ff, 0x12);
+		ace_writew((start >> 16) & 0x0fff, 0x12);
 
 		/* NOTE: in the Write Sector count below, a count of 0
 		   causes a transfer of 256, so &0xff gives the right
