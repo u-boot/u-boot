@@ -46,6 +46,16 @@
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+#define CFG_MAX_I2C_BUS		2
+#define I2C_GET_BUS()		i2c_get_bus_num()
+#define I2C_SET_BUS(a)		i2c_set_bus_num(a)
+#else
+#define CFG_MAX_I2C_BUS		1
+#define I2C_GET_BUS()		0
+#define I2C_SET_BUS(a)
+#endif
+
 /*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.

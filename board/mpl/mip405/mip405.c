@@ -65,7 +65,7 @@
 #include <common.h>
 #include "mip405.h"
 #include <asm/processor.h>
-#include <405gp_i2c.h>
+#include <4xx_i2c.h>
 #include <miiphy.h>
 #include "../common/common_util.h"
 #include <i2c.h>

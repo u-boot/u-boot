@@ -27,13 +27,8 @@
  */
 #include <common.h>
 #include <ppc4xx.h>
-#if defined(CONFIG_440)
-#   include <440_i2c.h>
-#else
-#   include <405gp_i2c.h>
-#endif
+#include <4xx_i2c.h>
 #include <i2c.h>
-#include <440_i2c.h>
 #include <command.h>
 #include "ppc440gx_i2c.h"
 
