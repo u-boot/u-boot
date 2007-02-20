@@ -56,6 +56,7 @@
 
 
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
+#include <part.h>
 #include <usb.h>
 
 #ifdef CONFIG_USB_STORAGE
@@ -168,13 +169,13 @@ static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
 int usb_stor_get_info(struct usb_device *dev, struct us_data *us, block_dev_desc_t *dev_desc);
 int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,struct us_data *ss);
-unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcnt, unsigned long *buffer);
+unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcnt, void *buffer);
 struct usb_device * usb_get_dev_index(int index);
 void uhci_show_temp_int_td(void);
 
 block_dev_desc_t *usb_stor_get_dev(int index)
 {
-	return &usb_dev_desc[index];
+	return (index < USB_MAX_STOR_DEV) ? &usb_dev_desc[index] : NULL;
 }
 
 
@@ -940,7 +941,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 
 #define USB_MAX_READ_BLK 20
 
-unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcnt, unsigned long *buffer)
+unsigned long usb_stor_read(int device, unsigned long blknr, unsigned long blkcnt, void *buffer)
 {
 	unsigned long start,blks, buf_addr;
 	unsigned short smallblks;

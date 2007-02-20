@@ -1,6 +1,7 @@
 /*
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2005
+ *
+ * Roel Loeffen, (C) Copyright 2006 Prodrive B.V. roel.loeffen@prodrive.nl
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,35 +22,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef	_IDE_H
-#define _IDE_H
+#ifndef __P3MX_H__
+#define __P3MX_H__
 
-#define	IDE_BUS(dev)	(dev >> 1)
+#define LED_OFF		1
+#define LED_GREEN	2
+#define LED_RED		3
+#define LED_ORANGE	4
 
-#ifdef CONFIG_IDE_LED
+#endif /* __P3MX_H__ */
 
-/*
- * LED Port
- */
-#define	LED_PORT	((uchar *)(PER8_BASE + 0x3000))
-#define LED_IDE1	0x01
-#define LED_IDE2	0x02
-#define	DEVICE_LED(d)	((d & 2) | ((d & 2) == 0)) /* depends on bit positions! */
-
-#endif /* CONFIG_IDE_LED */
-
-#ifdef CFG_64BIT_LBA
-typedef uint64_t lbaint_t;
-#else
-typedef ulong lbaint_t;
-#endif
-
-/*
- * Function Prototypes
- */
-
-void ide_init(void);
-ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
-ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
-
-#endif /* _IDE_H */

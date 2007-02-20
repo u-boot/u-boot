@@ -37,9 +37,9 @@
 *
 ******************************************************************************/
 
+#include <config.h>
 #include <common.h>
 #include <net.h>
-#include "xparameters.h"
 #include "xemac.h"
 
 #if defined(XPAR_EMAC_0_DEVICE_ID)

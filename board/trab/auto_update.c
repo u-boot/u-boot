@@ -203,7 +203,6 @@ extern int flash_write (char *, ulong, ulong);
 /* change char* to void* to shutup the compiler */
 extern int i2c_write_multiple (uchar, uint, int, void *, int);
 extern int i2c_read_multiple (uchar, uint, int, void *, int);
-extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
 
 int

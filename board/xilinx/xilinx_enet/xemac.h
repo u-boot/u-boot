@@ -257,9 +257,9 @@
 
 /***************************** Include Files *********************************/
 
+#include <config.h>
 #include "xbasic_types.h"
 #include "xstatus.h"
-#include "xparameters.h"
 #include "xpacket_fifo_v1_00_b.h"	/* Uses v1.00b of Packet Fifo */
 #include "xdma_channel.h"
 

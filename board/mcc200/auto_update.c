@@ -23,6 +23,7 @@
 #include <image.h>
 #include <asm/byteorder.h>
 #include <usb.h>
+#include <part.h>
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
@@ -47,25 +48,6 @@
 #error "must define CFG_CMD_FAT"
 #endif
 
-/*
- * Check whether a USB memory stick is plugged in.
- * If one is found:
- *	1) if prepare.img ist found load it into memory. If it is
- *		valid then run it.
- *	2) if preinst.img is found load it into memory. If it is
- *		valid then run it. Update the EEPROM.
- *	3) if firmw_01.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	4) if kernl_01.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	5) if app.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	6) if disk.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	7) if postinst.img is found load it into memory. If it is
- *		valid then run it. Update the EEPROM.
- */
-
 #undef AU_DEBUG
 
 #undef debug
@@ -78,6 +60,7 @@
 /* possible names of files on the USB stick. */
 #define AU_FIRMWARE	"u-boot.img"
 #define AU_KERNEL	"kernel.img"
+#define AU_ROOTFS	"rootfs.img"
 
 struct flash_layout {
 	long start;
@@ -89,33 +72,45 @@ struct flash_layout {
 #define AU_FL_FIRMWARE_ND	0xfC03FFFF
 #define AU_FL_KERNEL_ST		0xfC0C0000
 #define AU_FL_KERNEL_ND		0xfC1BFFFF
+#define AU_FL_ROOTFS_ST		0xFC1C0000
+#define AU_FL_ROOTFS_ND		0xFCFBFFFF
 
 static int au_usb_stor_curr_dev; /* current device */
 
 /* index of each file in the following arrays */
 #define IDX_FIRMWARE	0
 #define IDX_KERNEL	1
+#define IDX_ROOTFS	2
 
 /* max. number of files which could interest us */
-#define AU_MAXFILES 2
+#define AU_MAXFILES 3
 
 /* pointers to file names */
-char *aufile[AU_MAXFILES];
+char *aufile[AU_MAXFILES] = {
+	AU_FIRMWARE,
+	AU_KERNEL,
+	AU_ROOTFS
+};
 
 /* sizes of flash areas for each file */
-long ausize[AU_MAXFILES];
+long ausize[AU_MAXFILES] = {
+	(AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST,
+	(AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST,
+	(AU_FL_ROOTFS_ND + 1) - AU_FL_ROOTFS_ST
+};
 
 /* array of flash areas start and end addresses */
-struct flash_layout aufl_layout[AU_MAXFILES] = { \
-	{AU_FL_FIRMWARE_ST, AU_FL_FIRMWARE_ND,}, \
-	{AU_FL_KERNEL_ST, AU_FL_KERNEL_ND,}, \
+struct flash_layout aufl_layout[AU_MAXFILES] = {
+	{AU_FL_FIRMWARE_ST, AU_FL_FIRMWARE_ND,},
+	{AU_FL_KERNEL_ST, AU_FL_KERNEL_ND,},
+	{AU_FL_ROOTFS_ST, AU_FL_ROOTFS_ND,}
 };
 
 /* where to load files into memory */
 #define LOAD_ADDR ((unsigned char *)0x00200000)
 
 /* the app is the largest image */
-#define MAX_LOADSZ ausize[IDX_KERNEL]
+#define MAX_LOADSZ ausize[IDX_ROOTFS]
 
 /*i2c address of the keypad status*/
 #define I2C_PSOC_KEYPAD_ADDR	0x53
@@ -134,8 +129,6 @@ extern int i2c_read (unsigned char, unsigned int, int , unsigned char* , int);
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
-/* change char* to void* to shutup the compiler */
-extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
 
 int au_check_cksum_valid(int idx, long nbytes)
@@ -163,7 +156,6 @@ int au_check_header_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
 	unsigned long checksum;
-	unsigned char buf[4];
 
 	hdr = (image_header_t *)LOAD_ADDR;
 	/* check the easy ones first */
@@ -197,6 +189,10 @@ int au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
+		printf ("Image %s wrong type\n", aufile[idx]);
+		return -1;
+	}
+	if ((idx == IDX_ROOTFS) && (hdr->ih_type != IH_TYPE_RAMDISK)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
@@ -257,7 +253,7 @@ int au_do_update(int idx, long sz)
 	flash_sect_erase(start, end);
 	wait_ms(100);
 	/* strip the header - except for the kernel and ramdisk */
-	if (hdr->ih_type == IH_TYPE_KERNEL) {
+	if (hdr->ih_type == IH_TYPE_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK) {
 		addr = (char *)hdr;
 		off = sizeof(*hdr);
 		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
@@ -305,7 +301,7 @@ int do_auto_update(void)
 	int i, res, bitmap_first, cnt, old_ctrlc, got_ctrlc;
 	char *env;
 	long start, end;
-	char keypad_status1[2] = {0,0}, keypad_status2[2] = {0,0};
+	uchar keypad_status1[2] = {0,0}, keypad_status2[2] = {0,0};
 
 	/*
 	 * Read keypad status
@@ -317,10 +313,6 @@ int do_auto_update(void)
 	/*
 	 * Check keypad
 	 */
-	if ( !(keypad_status1[0] & KEYPAD_MASK_HI) ||
-	      (keypad_status1[0] != keypad_status2[0])) {
-		return 0;
-	}
 	if ( !(keypad_status1[1] & KEYPAD_MASK_LO) ||
 	      (keypad_status1[1] != keypad_status2[1])) {
 		return 0;
@@ -359,14 +351,6 @@ int do_auto_update(void)
 		debug ("file_fat_detectfs failed\n");
 	}
 
-	/* initialize the array of file names */
-	memset(aufile, 0, sizeof(aufile));
-	aufile[IDX_FIRMWARE] = AU_FIRMWARE;
-	aufile[IDX_KERNEL] = AU_KERNEL;
-	/* initialize the array of flash sizes */
-	memset(ausize, 0, sizeof(ausize));
-	ausize[IDX_FIRMWARE] = (AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST;
-	ausize[IDX_KERNEL] = (AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST;
 	/*
 	 * now check whether start and end are defined using environment
 	 * variables.
@@ -381,8 +365,8 @@ int do_auto_update(void)
 		end = simple_strtoul(env, NULL, 16);
 	if (start >= 0 && end && end > start) {
 		ausize[IDX_FIRMWARE] = (end + 1) - start;
-		aufl_layout[0].start = start;
-		aufl_layout[0].end = end;
+		aufl_layout[IDX_FIRMWARE].start = start;
+		aufl_layout[IDX_FIRMWARE].end = end;
 	}
 	start = -1;
 	end = 0;
@@ -394,9 +378,23 @@ int do_auto_update(void)
 		end = simple_strtoul(env, NULL, 16);
 	if (start >= 0 && end && end > start) {
 		ausize[IDX_KERNEL] = (end + 1) - start;
-		aufl_layout[1].start = start;
-		aufl_layout[1].end = end;
+		aufl_layout[IDX_KERNEL].start = start;
+		aufl_layout[IDX_KERNEL].end = end;
 	}
+	start = -1;
+	end = 0;
+	env = getenv("rootfs_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("rootfs_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start >= 0 && end && end > start) {
+		ausize[IDX_ROOTFS] = (end + 1) - start;
+		aufl_layout[IDX_ROOTFS].start = start;
+		aufl_layout[IDX_ROOTFS].end = end;
+	}
+
 	/* make certain that HUSH is runnable */
 	u_boot_hush_start();
 	/* make sure that we see CTRL-C and save the old state */
@@ -443,8 +441,8 @@ int do_auto_update(void)
 			}
 			cnt++;
 #ifdef AU_TEST_ONLY
-		} while (res < 0 && cnt < 3);
-		if (cnt < 3)
+		} while (res < 0 && cnt < (AU_MAXFILES + 1));
+		if (cnt < (AU_MAXFILES + 1))
 #else
 		} while (res < 0);
 #endif

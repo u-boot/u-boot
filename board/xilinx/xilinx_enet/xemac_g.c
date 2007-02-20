@@ -43,7 +43,7 @@
 *
 *******************************************************************/
 
-#include "xparameters.h"
+#include <config.h>
 #include "xemac.h"
 
 /*

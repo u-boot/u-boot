@@ -33,6 +33,7 @@
 #include <asm/byteorder.h>
 #include <linux/mtd/nand_legacy.h>
 #include <fat.h>
+#include <part.h>
 
 #include "auto_update.h"
 
@@ -71,8 +72,6 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
-/* change char* to void* to shutup the compiler */
-extern block_dev_desc_t *get_dev (char*, int);
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 /* references to names in cmd_nand.c */

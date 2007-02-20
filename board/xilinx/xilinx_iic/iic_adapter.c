@@ -37,10 +37,10 @@
 *
 ******************************************************************************/
 
+#include <config.h>
 #include <common.h>
 #include <environment.h>
 #include <net.h>
-#include "xparameters.h"
 
 #ifdef CFG_ENV_IS_IN_EEPROM
 #include <i2c.h>
