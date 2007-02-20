@@ -31,20 +31,26 @@
 #include <command.h>
 #include <image.h>
 #include <asm/byteorder.h>
+
 #if defined(CONFIG_IDE_8xx_DIRECT) || defined(CONFIG_IDE_PCMCIA)
 # include <pcmcia.h>
 #endif
+
 #ifdef CONFIG_8xx
 # include <mpc8xx.h>
 #endif
+
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
+
 #include <ide.h>
 #include <ata.h>
+
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif
+
 #ifndef __PPC__
 #include <asm/io.h>
 #ifdef __MIPS__
@@ -697,7 +703,7 @@ void ide_init (void)
 
 block_dev_desc_t * ide_get_dev(int dev)
 {
-	return ((block_dev_desc_t *)&ide_dev_desc[dev]);
+	return (dev < CFG_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
 }
 
 

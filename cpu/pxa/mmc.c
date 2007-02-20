@@ -37,7 +37,7 @@ static block_dev_desc_t mmc_dev;
 
 block_dev_desc_t * mmc_get_dev(int dev)
 {
-	return ((block_dev_desc_t *)&mmc_dev);
+	return (dev == 0) ? &mmc_dev : NULL;
 }
 
 /*

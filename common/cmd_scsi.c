@@ -194,7 +194,7 @@ void scsi_init(void)
 
 block_dev_desc_t * scsi_get_dev(int dev)
 {
-	return((block_dev_desc_t *)&scsi_dev_desc[dev]);
+	return (dev < CFG_SCSI_MAX_DEVICE) ? &scsi_dev_desc[dev] : NULL;
 }
 
 

@@ -23,6 +23,7 @@
 #include <image.h>
 #include <asm/byteorder.h>
 #include <usb.h>
+#include <part.h>
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
@@ -128,8 +129,6 @@ extern int i2c_read (unsigned char, unsigned int, int , unsigned char* , int);
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
-/* change char* to void* to shutup the compiler */
-extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
 
 int au_check_cksum_valid(int idx, long nbytes)

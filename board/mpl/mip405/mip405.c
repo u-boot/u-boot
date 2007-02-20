@@ -73,9 +73,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern block_dev_desc_t * scsi_get_dev(int dev);
-extern block_dev_desc_t * ide_get_dev(int dev);
-
 #undef SDRAM_DEBUG
 #define ENABLE_ECC /* for ecc boards */
 #define FALSE           0

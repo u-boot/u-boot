@@ -56,6 +56,7 @@
 
 
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
+#include <part.h>
 #include <usb.h>
 
 #ifdef CONFIG_USB_STORAGE
@@ -174,7 +175,7 @@ void uhci_show_temp_int_td(void);
 
 block_dev_desc_t *usb_stor_get_dev(int index)
 {
-	return &usb_dev_desc[index];
+	return (index < USB_MAX_STOR_DEV) ? &usb_dev_desc[index] : NULL;
 }
 
 
