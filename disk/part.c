@@ -64,13 +64,25 @@ static const struct block_drvr block_drvr[] = {
 	{ },
 };
 
+#ifndef CFG_FIXUP_RELOCATION
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 block_dev_desc_t *get_dev(char* ifname, int dev)
 {
 	const struct block_drvr *drvr = block_drvr;
 
 	while (drvr->name) {
+#ifndef CFG_FIXUP_RELOCATION
+		block_dev_desc_t* (*reloc_get_dev)(int dev);
+
+		reloc_get_dev = drvr->get_dev + gd->reloc_off;
+		if (strncmp(ifname, drvr->name, strlen(drvr->name)) == 0)
+			return reloc_get_dev(dev);
+#else
 		if (strncmp(ifname, drvr->name, strlen(drvr->name)) == 0)
 			return drvr->get_dev(dev);
+#endif
 		drvr++;
 	}
 	return NULL;
