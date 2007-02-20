@@ -49,7 +49,7 @@ typedef ulong lbaint_t;
  */
 
 void ide_init(void);
-ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, ulong *buffer);
-ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, ulong *buffer);
+ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
+ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
 
 #endif /* _IDE_H */

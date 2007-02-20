@@ -188,7 +188,7 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer);
+ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer);
 #endif
 
 
@@ -1233,7 +1233,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
+ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -1353,7 +1353,7 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
+ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -2015,7 +2015,7 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE	/* max blocks */
 
-ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, ulong *buffer)
+ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char ccb[12]; /* Command descriptor block */

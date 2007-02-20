@@ -74,7 +74,7 @@ void scsi_setup_inquiry(ccb * pccb);
 void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 
-ulong scsi_read(int device, ulong blknr, ulong blkcnt, ulong *buffer);
+ulong scsi_read(int device, ulong blknr, ulong blkcnt, void *buffer);
 
 
 /*********************************************************************************
@@ -424,7 +424,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #define SCSI_MAX_READ_BLK 0xFFFF /* almost the maximum amount of the scsi_ext command.. */
 
-ulong scsi_read(int device, ulong blknr, ulong blkcnt, ulong *buffer)
+ulong scsi_read(int device, ulong blknr, ulong blkcnt, void *buffer)
 {
 	ulong start,blks, buf_addr;
 	unsigned short smallblks;

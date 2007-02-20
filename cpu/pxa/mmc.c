@@ -363,7 +363,7 @@ mmc_write(uchar *src, ulong dst, int size)
 
 ulong
 /****************************************************/
-mmc_bread(int dev_num, ulong blknr, ulong blkcnt, ulong *dst)
+mmc_bread(int dev_num, ulong blknr, ulong blkcnt, void *dst)
 /****************************************************/
 {
 	int mmc_block_size = MMC_BLOCK_SIZE;
