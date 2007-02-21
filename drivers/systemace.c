@@ -57,13 +57,13 @@
 #if !defined(__BIG_ENDIAN)
 #define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)<<8) | \
                         (readb(CFG_SYSTEMACE_BASE+off+1)))
-#define ace_write(val, off) {writeb(val>>8, CFG_SYSTEMACE_BASE+off); \
-                             writeb(val, CFG_SYSTEMACE_BASE+off+1);}
+#define ace_writew(val, off) {writeb(val>>8, CFG_SYSTEMACE_BASE+off); \
+			      writeb(val, CFG_SYSTEMACE_BASE+off+1);}
 #else
 #define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)) | \
                         (readb(CFG_SYSTEMACE_BASE+off+1)<<8))
-#define ace_write(val, off) {writeb(val, CFG_SYSTEMACE_BASE+off); \
-                             writeb(val>>8, CFG_SYSTEMACE_BASE+off+1);}
+#define ace_writew(val, off) {writeb(val, CFG_SYSTEMACE_BASE+off); \
+			      writeb(val>>8, CFG_SYSTEMACE_BASE+off+1);}
 #endif
 #else
 #define ace_readw(off) (in16(CFG_SYSTEMACE_BASE+off))
