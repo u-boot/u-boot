@@ -29,6 +29,10 @@
 #include <asm/arch/hardware.h>
 #endif	/* XXX###XXX */
 
+static inline void sync(void)
+{
+}
+
 /*
  * Generic virtual read/write.  Note that we don't support half-word
  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w
