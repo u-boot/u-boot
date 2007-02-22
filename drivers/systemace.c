@@ -119,13 +119,10 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		systemace_dev.removable = 1;
 		systemace_dev.block_read = systemace_read;
 
-#if (CFG_SYSTEMACE_WIDTH == 16)
 		/*
-		 * By default the SystemACE comes up in 8-bit mode.
-		 * Ensure that 16-bit mode gets enabled.
+		 * Ensure the correct bus mode (8/16 bits) gets enabled
 		 */
-		ace_writew(0x0001, 0);
-#endif
+		ace_writew(CFG_SYSTEMACE_WIDTH == 8 ? 0 : 0x0001, 0);
 
 		init_part(&systemace_dev);
 
