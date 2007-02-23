@@ -161,7 +161,7 @@ tlb1_entry:
 	 * 0xd0000000	256M	Rapid IO MEM Second half
 	 */
 	.long TLB1_MAS0(1, 3, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1GB)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1G)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_PEX_MEM_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_PEX_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
