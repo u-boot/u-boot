@@ -350,6 +350,7 @@
 
 #define OF_CPU			"PowerPC,8360@0"
 #define OF_SOC			"soc8360@e0000000"
+#define OF_QE			"qe@e0100000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc8360@e0000000/serial@4500"
 

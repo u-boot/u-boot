@@ -335,6 +335,46 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	if (p != NULL)
 		memcpy(p, bd->bi_enet1addr, 6);
 #endif
+
+#ifdef CONFIG_UEC_ETH1
+#if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+#elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+#endif
+#endif
+
+#ifdef CONFIG_UEC_ETH2
+#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+#elif CFG_UEC2_UCC_NUM == 3  /* UCC4 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+#endif
+#endif
 }
 #endif
 
