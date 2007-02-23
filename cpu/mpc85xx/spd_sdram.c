@@ -263,13 +263,14 @@ spd_sdram(void)
 	}
 
 	/*
-	 * Adjust DDR II IO voltage biasing.  It just makes it work.
+	 * Adjust DDR II IO voltage biasing.
+	 * Only 8548 rev 1 needs the fix
 	 */
-	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		gur->ddrioovcr = (0
-				  | 0x80000000		/* Enable */
-				  | 0x10000000		/* VSEL to 1.8V */
-				  );
+	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
+			(SVR_MJREV(get_svr()) == 1) &&
+			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
+		gur->ddrioovcr = (0x80000000	/* Enable */
+				  | 0x10000000);/* VSEL to 1.8V */
 	}
 
 	/*
