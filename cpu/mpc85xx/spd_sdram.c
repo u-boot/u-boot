@@ -995,17 +995,24 @@ setup_laws_and_tlbs(unsigned int memsize)
 		break;
 	case 256:
 	case 512:
+		tlb_size = BOOKE_PAGESZ_256M;
+		break;
 	case 1024:
 	case 2048:
-		tlb_size = BOOKE_PAGESZ_256M;
+		if (PVR_VER(get_pvr()) > PVR_VER(PVR_85xx))
+			tlb_size = BOOKE_PAGESZ_1G;
+		else
+			tlb_size = BOOKE_PAGESZ_256M;
 		break;
 	default:
 		puts("DDR: only 16M,32M,64M,128M,256M,512M,1G and 2G are supported.\n");
 
 		/*
 		 * The memory was not able to be mapped.
+		 * Default to a small size.
 		 */
-		return 0;
+		tlb_size = BOOKE_PAGESZ_64M;
+		memsize=64;
 		break;
 	}
 
