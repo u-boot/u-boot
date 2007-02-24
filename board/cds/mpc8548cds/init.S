@@ -248,7 +248,7 @@ tlb1_entry:
 #define LAWBAR6 ((CFG_PEX_MEM_BASE>>12) & 0xfffff)
 #define LAWAR6 	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
-#define LAWBAR7 ((CFG_PEX_IO_BASE>>12) & 0xfffff)
+#define LAWBAR7 ((CFG_PEX_IO_PHYS>>12) & 0xfffff)
 #define LAWAR7 	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
 #define LAWBAR8 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
