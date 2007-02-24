@@ -786,14 +786,17 @@ spd_sdram(void)
 	 * Is this an ECC DDR chip?
 	 * But don't mess with it if the DDR controller will init mem.
 	 */
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+#ifdef CONFIG_DDR_ECC
 	if (spd.config == 0x02) {
+#ifndef CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 		ddr->err_disable = 0x0000000d;
+#endif
 		ddr->err_sbe = 0x00ff0000;
 	}
+
 	debug("DDR: err_disable = 0x%08x\n", ddr->err_disable);
 	debug("DDR: err_sbe = 0x%08x\n", ddr->err_sbe);
-#endif
+#endif /* CONFIG_DDR_ECC */
 
 	asm("sync;isync;msync");
 	udelay(500);
