@@ -1859,11 +1859,11 @@ pll_wait:
 
 #if defined(CONFIG_440)
 #define function_prolog(func_name)      .text; \
-                                        .align 2; \
-                                        .globl func_name; \
-                                        func_name:
+					.align 2; \
+					.globl func_name; \
+					func_name:
 #define function_epilog(func_name)      .type func_name,@function; \
-                                        .size func_name,.-func_name
+					.size func_name,.-func_name
 
 /*----------------------------------------------------------------------------+
 | mttlb3.
@@ -1877,7 +1877,7 @@ pll_wait:
 | mftlb3.
 +----------------------------------------------------------------------------*/
 	function_prolog(mftlb3)
-        TLBRE(3,3,2)
+	TLBRE(3,3,2)
 	blr
 	function_epilog(mftlb3)
 
@@ -1893,7 +1893,7 @@ pll_wait:
 | mftlb2.
 +----------------------------------------------------------------------------*/
 	function_prolog(mftlb2)
-        TLBRE(3,3,1)
+	TLBRE(3,3,1)
 	blr
 	function_epilog(mftlb2)
 
@@ -1909,7 +1909,7 @@ pll_wait:
 | mftlb1.
 +----------------------------------------------------------------------------*/
 	function_prolog(mftlb1)
-        TLBRE(3,3,0)
+	TLBRE(3,3,0)
 	blr
 	function_epilog(mftlb1)
 #endif /* CONFIG_440 */

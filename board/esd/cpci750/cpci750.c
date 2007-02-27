@@ -366,12 +366,12 @@ int misc_init_r ()
 	dcache_lock ();
 #endif
 	if (flash_info[3].size < CFG_FLASH_INCREMENT) {
-	        unsigned int flash_offset;
+		unsigned int flash_offset;
 		unsigned int l;
 
 		flash_offset =  CFG_FLASH_INCREMENT - flash_info[3].size;
 		for (l = 0; l < CFG_MAX_FLASH_SECT; l++) {
-		        if (flash_info[3].start[l] != 0) {
+			if (flash_info[3].start[l] != 0) {
 			      flash_info[3].start[l] += flash_offset;
 			}
 		}
@@ -503,7 +503,7 @@ static void move64 (unsigned long long *src, unsigned long long *dest)
 {
 	asm ("lfd  0, 0(3)\n\t"	/* fpr0   =  *scr       */
 	     "stfd 0, 0(4)"	/* *dest  =  fpr0       */
-      : : : "fr0");		/* Clobbers fr0         */
+      : : : "fr0");		/* Clobbers fr0		*/
 	return;
 }
 
@@ -581,9 +581,9 @@ int mem_test_data (void)
 		move64 (&(pattern[i]), pmem);
 		move64 (pmem, &temp64);
 
-		/* hi = (temp64>>32) & 0xffffffff;          */
-		/* lo = temp64 & 0xffffffff;                */
-		/* printf("\ntemp64 = 0x%08x%08x", hi, lo); */
+		/* hi = (temp64>>32) & 0xffffffff;		*/
+		/* lo = temp64 & 0xffffffff;			*/
+		/* printf("\ntemp64 = 0x%08x%08x", hi, lo);	*/
 
 		hi = (pattern[i] >> 32) & 0xffffffff;
 		lo = pattern[i] & 0xffffffff;
@@ -856,11 +856,11 @@ int testdram (void)
 }
 #endif /* CFG_DRAM_TEST */
 
-/* ronen - the below functions are used by the bootm function           */
+/* ronen - the below functions are used by the bootm function		*/
 /*  - we map the base register to fbe00000 (same mapping as in the LSP) */
 /*  - we turn off the RX gig dmas - to prevent the dma from overunning  */
-/*    the kernel data areas.                                            */
-/*  - we diable and invalidate the icache and dcache.                   */
+/*    the kernel data areas.						*/
+/*  - we diable and invalidate the icache and dcache.			*/
 void my_remap_gt_regs_bootm (u32 cur_loc, u32 new_loc)
 {
 	u32 temp;
@@ -911,13 +911,11 @@ int do_show_cfg(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	GT_REG_READ(0x3d4, &reset_sample_high);
 	printf("Reset configuration 0x%08x 0x%08x\n", reset_sample_low, reset_sample_high);
 
-        return(0);
+	return(0);
 }
-
 
 U_BOOT_CMD(
 	show_cfg,	1,	1,	do_show_cfg,
 	"show_cfg- Show Marvell strapping register\n",
 	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)\n"
 	);
-

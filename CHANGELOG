@@ -1,3 +1,443 @@
+commit 638dd1458bbdc2a55d4b9e25c5c4e1f838a5dc72
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Tue Feb 27 12:40:16 2007 +0300
+
+    MCC200 update - add LCD Progress Indicator
+
+commit 6c7cac8c4fce0ea2bf8e15ed8658d87974155b44
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Feb 22 07:43:34 2007 +0100
+
+    [PATCH] get_dev() now unconditionally uses manual relocation
+
+    Since the relocation fix is not included yet and we're not sure how
+    it will be added, this patch removes code that required relocation
+    to be fixed for now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8274ec0bd01d2feb2c7f095eba78d42ea009798b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Feb 22 07:40:23 2007 +0100
+
+    [PATCH] Change systemace driver to select 8 & 16bit mode
+
+    As suggested by Grant Likely this patch enables the Xilinx SystemACE
+    driver to select 8 or 16bit mode upon startup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3a197b2fe49d6fa03978e60af2394efe9c70b527
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed Feb 21 16:52:31 2007 +0100
+
+    [PATCH v3] Add sync to ensure flash_write_cmd is fully finished
+
+    Some CPUs like PPC, BLACKFIN need sync() to ensure cfi flash write command
+    is fully finished. The sync() is defined in each CPU's io.h file. For
+    those CPUs which do not need sync for now, a dummy sync() is defined in
+    their io.h as well.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit da04995c7dc6772013a9a0dc5c767f190c402478
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 21 13:44:34 2007 +0100
+
+    [PATCH] Fix problem in systemace driver (ace_writew instead of ace_write)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 751bb57107d78978ae08e697c3deba816f5be091
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 13:21:57 2007 +0100
+
+    [PATCH] Fix relocation problem with "new" get_dev() function
+
+    This patch enables the "new" get_dev() function for block devices
+    introduced by Grant Likely to be used on systems that still suffer
+    from the relocation problems (manual relocation neede because of
+    problems with linker script).
+
+    Hopefully we can resolve this relocation issue soon for all platform
+    so we don't need this additional code anymore.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d93e2212f962668b3dce091ff5edc33f2347fe37
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 13:17:42 2007 +0100
+
+    [PATCH] Update SystemACE driver for 16bit access
+
+    This patch removes some problems when the Xilinx SystemACE driver
+    is used with 16bit access on an big endian platform (like the
+    AMCC Katmai).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 874bb7b88fe9b4648e1288a387af2e31014a72f3
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 13:15:40 2007 +0100
+
+    [PATCH] Clean up Katmai (440SPe) linker script
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4745acaa1a603b67f6b9b7970365ebadd7d6586f
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 10:57:08 2007 +0100
+
+    [PATCH] Add support for the AMCC Katmai (440SPe) eval board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0dc018ece13effc689e47479ea9ebf1c98a507f5
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 10:51:26 2007 +0100
+
+    [PATCH] I2C: Add support for multiple I2C busses for RTC & DTT
+
+    This patch switches to the desired I2C bus when the date/dtt
+    commands are called. This can be configured using the
+    CFG_RTC_BUS_NUM and/or CFG_DTT_BUS_NUM defines.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4037ed3b63923cfcec27f784a89057c3cbabcedb
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 10:43:34 2007 +0100
+
+    [PATCH] PPC4xx: Add 440SP(e) DDR2 SPD DIMM support
+
+    This patch adds support for the DDR2 controller used on the
+    440SP and 440SPe. It is tested on the Katmai (440SPe) eval
+    board and works fine with the following DIMM modules:
+
+    - Corsair CM2X512-5400C4 (512MByte per DIMM)
+    - Kingston ValueRAM KVR667D2N5/512 (512MByte per DIMM)
+    - Kingston ValueRAM KVR667D2N5K2/2G (1GByte per DIMM)
+
+    This patch also adds the nice functionality to dynamically
+    create the TLB entries for the SDRAM (tlb.c). So we should
+    never run into such problems with wrong (too short) TLB
+    initialization again on these platforms.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 36d830c9830379045f5daa9f542ac1c990c70068
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 10:35:42 2007 +0100
+
+    [PATCH] PPC4xx: Split 4xx SPD SDRAM init routines into 2 files
+
+    Since the existing 4xx SPD SDRAM initialization routines for the
+    405 SDRAM controller and the 440 DDR controller don't have much in
+    common this patch splits both drivers into different files.
+
+    This is in preparation for the 440 DDR2 controller support (440SP/e).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 79b2d0bb2eae09602448f7a7cb56530d2f31e6c6
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 20 10:27:08 2007 +0100
+
+    [PATCH] PPC4xx: Add support for multiple I2C busses
+
+    This patch adds support for multiple I2C busses on the PPC4xx
+    platforms. Define CONFIG_I2C_MULTI_BUS in the board config file
+    to make use of this feature.
+
+    It also merges the 405 and 440 i2c header files into one common
+    file 4xx_i2c.h.
+
+    Also the 4xx i2c reset procedure is reworked since I experienced
+    some problems with the first access on the 440SPe Katmai board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit eb867a76238fb38e952c37871b16d0d7fd61c95f
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:45 2007 +0100
+
+    [PATCH 9_9] Use "void *" not "unsigned long *" for block dev read_write buffer pointers
+
+    Block device read/write is anonymous data; there is no need to use a
+    typed pointer.  void * is fine.  Also add a hook for block_read functions
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 53758fa20e935cc87eeb0519ed365df753a6f289
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:38 2007 +0100
+
+    [PATCH 8_9] Add block_write hook to block_dev_desc_t
+
+    Preparation for future patches which support block device writing
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f4852ebe6ca946a509667eb68be42026f837be76
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:31 2007 +0100
+
+    [PATCH 7_9] Replace ace_readw_ace_writeb functions with macros
+
+    Register read/write does not need to be wrapped in a full function.  The
+    patch replaces them with macros.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 3a8ce9af6fcb5744a7851b4440c07688acc40844
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:23 2007 +0100
+
+    [PATCH 6_9] Move common_cmd_ace.c to drivers_systemace.c
+
+    The code in this file is not a command; it is a device driver.  Put it in
+    the correct place.	There are zero functional changes in this patch, it
+    only moves the file.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 984618f3e7794c783ec8d1511e74c6ee2d69bfe4
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:16 2007 +0100
+
+    [PATCH 5_9] Whitespace fixup on common_cmd_ace.c (using Lindent)
+
+    This patch is in preparation of additional changes to the sysace driver.
+    May as well take this opportunity to fixup the inconsistent whitespace since
+    this file is about to undergo major changes anyway.
+
+    There are zero functional changes in this patch.  It only cleans up the
+    the whitespace.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 80ba981d940471fe7e539e64fa3d2bd80002beda
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:07 2007 +0100
+
+    [PATCH 4_4] Remove local implementation of isprint() in ft_build.c
+
+    isprint is already defined in ctype.c
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit c95c4280d751ca078c2ff58228d2f2b44ccf0600
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:05:00 2007 +0100
+
+    [PATCH 3_9] Move buffer print code from md command to common function
+
+    Printing a buffer is a darn useful thing.  Move the buffer print code
+    into print_buffer() in lib_generic/
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 99b0f0fd3fbf2572ae1a7723dd90cffc8e85130a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:04:52 2007 +0100
+
+    [PATCH 2_4] Use config.h, not xparameters.h, for xilinx targets
+
+    Change the xilinx device drivers and board code to include config.h
+    instead of xparameters.h directly.	config.h always includes the
+    correct xparameters file.  This change reduces the posibility of
+    including the wrong file when adding a new xilinx board port
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 735dd97b1b20e777d059c7b389fe9d70cd3f80c7
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Feb 20 09:04:34 2007 +0100
+
+    [PATCH 1_4] Merge common get_dev() routines for block devices
+
+    Each of the filesystem drivers duplicate the get_dev routine.  This change
+    merges them into a single function in part.c
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f5fcc3c20b65554e98a165542c36ee0c610a2d81
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Feb 19 23:09:51 2007 +0100
+
+    MCC200: Software Updater: allow both "ramdisk" and "filesystem" types
+    as root file system images.
+
+commit 489c696ae7211218961d159e43e722d74c36fcbc
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Wed Feb 14 14:30:28 2007 +0300
+
+    MCC200: Extensions to Software Update Mechanism
+
+    Update / extend Software Update Mechanism for MCC200 board:
+
+    - Add support for rootfs image added. The environment variables
+      "rootfs_st" and "rootfs_nd" can be used to override the default
+      values of the image start and end.
+    - Remove excessive key check code.
+    - Code cleanup.
+
+commit 4be23a12f23f1372634edc3215137b09768b7949
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Feb 19 08:23:15 2007 +0100
+
+    [PATCH] Update Sequoia EBC configuration (NOR FLASH)
+
+    As spotted by Matthias Fuchs, the READY input should not be
+    enabled for the NOR FLASH on the Sequoia board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 497d012e5be0194e1084073d0081eb1a844796b2
+Author: Gary Jennejohn <garyj@pollux.denx.de>
+Date:	Mon Feb 12 13:11:50 2007 +0100
+
+    LPC2292: patch from Siemens.
+
+commit b0b1a920aebead0d44146e73676ae9d80fffc8e2
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Feb 10 08:49:31 2007 +0100
+
+    [PATCH] Add missing p3mx.h file to repository (ups)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 53d4a4983fb9b3ae5f7b2f10c599aca2b1b4034a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Feb 9 10:45:42 2007 +0100
+
+    [Motion-PRO] Preliminary support for the Motion-PRO board.
+
+commit 5a753f98c6a01bd1c61a9a3f95e8329a35f62994
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 7 16:51:08 2007 +0100
+
+    [PATCH] Update some AMCC 4xx board config files (set initrd_high)
+
+    Some boards that can have more than 768MBytes of SDRAM need to
+    set "initrd_high", so that the initrd can be accessed by the
+    Linux kernel.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7372ca68227930d03cffa548310524cad5b96733
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Feb 2 12:44:22 2007 +0100
+
+    [PATCH] Correctly display PCI arbiter en-/disabled on some 4xx boards
+
+    Previously the strapping DCR/SDR was read to determine if the internal PCI
+    arbiter is enabled or not. This strapping bit can be overridden, so now
+    the current status is read from the correct DCR/SDR register.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2aa54f651a42d198673318f07a20c89a43e4d197
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Feb 2 12:42:08 2007 +0100
+
+    [PATCH] Change configuration output of Sycamore, Yellowstone & Rainier
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 23744d6b5bf17592eb6a0ef4f318f6089f55993b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Feb 1 13:22:41 2007 +0100
+
+    [PATCH] Remove PCI-PNP configuration from Sequoia/Rainier config file
+
+    When PCI PNP is enabled the pci pnp configuration routine is called
+    which sets the PCI_CACHE_SIZE_LINE to 8. This seems to generate some
+    problems with some PCI cards. For now disable the PCI PNP configuration.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2902fadade3be7659467e8d074048c6b7068f5c0
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 31 16:56:10 2007 +0100
+
+    [PATCH] Update 440EPx/440GRx cpu detection
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d5ea287b02a6945c3977410e364a879dd1a555c8
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 31 16:38:04 2007 +0100
+
+    [PATCH] Update esd cpci5200 files
+
+    Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+
+commit 8b7d1f0ab7d7c4fe3160bbf74a7e9690d9f3a3ab
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 31 16:37:34 2007 +0100
+
+    [PATCH] Add support for esd mecp5200 board
+
+    Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+
+commit 71a4e5fda8b60044ab9f46069fa1cfa26bdd07ff
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 31 12:38:50 2007 +0100
+
+    [PATCH] Remove unneccessary yellowstone board config file
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e802594b6fa1b166308820c276b96dc0d7cc731c
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jan 30 17:06:10 2007 +0100
+
+    [PATCH] Update Sequoia (440EPx) config file
+
+    The config file now handles the 2nd target, the Rainier (440GRx)
+    evaluation board better. Additionally the PPC input clock was
+    adjusted to match the correct value of 33.0 MHz.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 700200c67e73b83751418abe7815840dca8fd6cb
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jan 30 17:04:19 2007 +0100
+
+    [PATCH] Merge Yosemite & Yellowstone board ports
+
+    Now the AMCC eval boards Yosemite (440EP) and Yellowstone (440GR)
+    share one config file and all board specific files. This way we
+    don't have to maintain two different sets of files for nearly
+    identical boards.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1bbf5eae322f5f1f6427ecc3ac13a0cb7dba8ad6
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jan 30 15:01:49 2007 +0100
+
+    [PATCH] Update Prodrive SCPU (PDNB3 variant) board
+
+    SCPU doesn't use redundant environment in flash.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6304430ed642ea8fa15c9e5af965ac2e033eec45
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jan 30 12:51:07 2007 +0100
+
+    [PATCH] alpr: Update alpr board config file
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f8db84f132b1e335f20f96138a1f09ed97b08664
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Jan 30 00:50:40 2007 +0100
+
+    LPC2292 SODIMM port coding style cleanup.
+
 commit 6bd2447ee47ee23c18d2b3c7ccd5a20f7626f5b3
 Author: Gary Jennejohn <garyj@pollux.denx.de>
 Date:	Wed Jan 24 12:16:56 2007 +0100

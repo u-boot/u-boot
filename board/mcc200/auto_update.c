@@ -430,7 +430,7 @@ int do_auto_update(void)
 
 	bitmap_first = 0;
 
- 	/* validate the images first */
+	/* validate the images first */
 	for (i = 0; i < AU_MAXFILES; i++) {
 		ulong imsize;
 		/* just read the header */
@@ -448,7 +448,7 @@ int do_auto_update(void)
 			continue;
 		}
 		/* totsize accounts for image size and flash erase size */
- 		totsize += (imsize + (aufl_layout[i].end - aufl_layout[i].start));
+		totsize += (imsize + (aufl_layout[i].end - aufl_layout[i].start));
 	}
 
 #ifdef CONFIG_PROGRESSBAR
@@ -470,8 +470,8 @@ int do_auto_update(void)
 
 		if (sz != ausize[i]) {
 			printf ("%s: size %d read %d?\n", aufile[i], ausize[i], sz);
-  			continue;
-  		}
+			continue;
+		}
 
 		if (sz <= 0 || sz <= sizeof(image_header_t)) {
 			debug ("%s not found\n", aufile[i]);

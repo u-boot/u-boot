@@ -37,8 +37,8 @@ typedef struct region {
 } region_t;
 
 static int add_tlb_entry(unsigned long base_addr,
-                         unsigned long tlb_word0_size_value,
-                         unsigned long tlb_word2_i_value)
+			 unsigned long tlb_word0_size_value,
+			 unsigned long tlb_word2_i_value)
 {
 	int i;
 	unsigned long tlb_word0_value;
@@ -82,7 +82,7 @@ static int add_tlb_entry(unsigned long base_addr,
 }
 
 static void program_tlb_addr(unsigned long base_addr, unsigned long mem_size,
-                             unsigned long tlb_word2_i_value)
+			     unsigned long tlb_word2_i_value)
 {
 	int rc;
 	int tlb_i;
