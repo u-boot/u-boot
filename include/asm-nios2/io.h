@@ -24,7 +24,10 @@
 #ifndef __ASM_NIOS2_IO_H_
 #define __ASM_NIOS2_IO_H_
 
-#define sync() asm volatile ("sync" : : : "memory");
+static inline void sync(void)
+{
+	__asm__ __volatile__ ("sync" : : : "memory");
+}
 
 extern unsigned char inb (unsigned char *port);
 extern unsigned short inw (unsigned short *port);

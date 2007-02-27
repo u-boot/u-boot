@@ -447,4 +447,8 @@ extern void (*_dma_cache_inv)(unsigned long start, unsigned long size);
 #define dma_cache_wback(start,size)	_dma_cache_wback(start,size)
 #define dma_cache_inv(start,size)	_dma_cache_inv(start,size)
 
+static inline void sync(void)
+{
+}
+
 #endif /* _ASM_IO_H */

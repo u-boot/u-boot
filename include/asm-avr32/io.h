@@ -89,4 +89,8 @@ static __inline__ void * phys_to_virt(unsigned long address)
 
 #endif /* __KERNEL__ */
 
+static inline void sync(void)
+{
+}
+
 #endif /* __ASM_AVR32_IO_H */

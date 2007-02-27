@@ -1095,6 +1095,9 @@ JSE_config:	unconfig
 KAREF_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx karef sandburst
 
+katmai_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx katmai amcc
+
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 

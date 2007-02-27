@@ -201,4 +201,8 @@ __OUTS(b)
 __OUTS(w)
 __OUTS(l)
 
+static inline void sync(void)
+{
+}
+
 #endif

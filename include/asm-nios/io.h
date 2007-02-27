@@ -97,4 +97,8 @@ static inline void outsl (unsigned long port, const void *src, unsigned long cou
 	while (count--) outl (*p++, port);
 }
 
+static inline void sync(void)
+{
+}
+
 #endif /* __ASM_NIOS_IO_H_ */

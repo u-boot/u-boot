@@ -240,6 +240,7 @@
   #define pbesr0      0x21    /* periph bus error status reg 0       */
   #define pbesr1      0x22    /* periph bus error status reg 1       */
   #define epcr        0x23    /* external periph control reg         */
+#define EBC0_CFG	0x23	/* external bus configuration reg	*/
 
 #ifdef CONFIG_405EP
 /******************************************************************************

@@ -533,9 +533,12 @@
 #define SDRAM_MCSTAT_MIC_MASK		0x80000000	/* Memory init status mask	*/
 #define SDRAM_MCSTAT_MIC_NOTCOMP	0x00000000	/* Mem init not complete	*/
 #define SDRAM_MCSTAT_MIC_COMP		0x80000000	/* Mem init complete		*/
-#define SDRAM_MCSTAT_SRMS_MASK		0x80000000	/* Mem self refresh stat mask	*/
+#define SDRAM_MCSTAT_SRMS_MASK		0x40000000	/* Mem self refresh stat mask	*/
 #define SDRAM_MCSTAT_SRMS_NOT_SF	0x00000000	/* Mem not in self refresh	*/
-#define SDRAM_MCSTAT_SRMS_SF		0x80000000	/* Mem in self refresh		*/
+#define SDRAM_MCSTAT_SRMS_SF		0x40000000	/* Mem in self refresh		*/
+#define SDRAM_MCSTAT_IDLE_MASK		0x20000000	/* Mem self refresh stat mask	*/
+#define SDRAM_MCSTAT_IDLE_NOT		0x00000000	/* Mem contr not idle		*/
+#define SDRAM_MCSTAT_IDLE		0x20000000	/* Mem contr idle		*/
 
 /*-----------------------------------------------------------------------------+
 |  Memory Controller Options 1
@@ -730,6 +733,7 @@
 #define SDRAM_WRDTR_LLWP_1_CYC		0x00000000
 #define SDRAM_WRDTR_WTR_MASK		0x0E000000
 #define SDRAM_WRDTR_WTR_0_DEG		0x06000000
+#define SDRAM_WRDTR_WTR_90_DEG_ADV	0x04000000
 #define SDRAM_WRDTR_WTR_180_DEG_ADV	0x02000000
 #define SDRAM_WRDTR_WTR_270_DEG_ADV	0x00000000
 
@@ -847,6 +851,7 @@
 #define pbear		0x20	/* periph bus error addr reg		*/
 #define pbesr		0x21	/* periph bus error status reg		*/
 #define xbcfg		0x23	/* external bus configuration reg	*/
+#define EBC0_CFG	0x23	/* external bus configuration reg	*/
 #define xbcid		0x24	/* external bus core id reg		*/
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \

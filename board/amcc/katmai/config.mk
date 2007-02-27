@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,34 +21,18 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# AMCC 440SPe Evaluation (Katmai) board
+#
 
-LIB	= $(obj)lib$(CPU).a
+TEXT_BASE = 0xfffc0000
 
-START	= start.o resetvec.o kgdb.o
-SOBJS	= dcr.o
-COBJS	= 405gp_pci.o 4xx_enet.o \
-	  bedbug_405.o commproc.o \
-	  cpu.o cpu_init.o i2c.o interrupts.o \
-	  miiphy.o ndfc.o sdram.o serial.o \
-	  40x_spd_sdram.o 44x_spd_ddr.o 44x_spd_ddr2.o speed.o \
-	  tlb.o traps.o usb_ohci.o usbdev.o \
-	  440spe_pcie.o
+PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
 
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
+endif

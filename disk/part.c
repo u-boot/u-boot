@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
+#include <part.h>
 
 #undef	PART_DEBUG
 
@@ -31,6 +32,58 @@
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
 #define PRINTF(fmt,args...)
+#endif
+
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     defined(CONFIG_MMC) || \
+     defined(CONFIG_SYSTEMACE) )
+
+struct block_drvr {
+	char *name;
+	block_dev_desc_t* (*get_dev)(int dev);
+};
+
+static const struct block_drvr block_drvr[] = {
+#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+	{ .name = "ide", .get_dev = ide_get_dev, },
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+	{ .name = "scsi", .get_dev = scsi_get_dev, },
+#endif
+#if ((CONFIG_COMMANDS & CFG_CMD_USB) && defined(CONFIG_USB_STORAGE))
+	{ .name = "usb", .get_dev = usb_stor_get_dev, },
+#endif
+#if defined(CONFIG_MMC)
+	{ .name = "mmc", .get_dev = mmc_get_dev, },
+#endif
+#if defined(CONFIG_SYSTEMACE)
+	{ .name = "ace", .get_dev = systemace_get_dev, },
+#endif
+	{ },
+};
+
+DECLARE_GLOBAL_DATA_PTR;
+
+block_dev_desc_t *get_dev(char* ifname, int dev)
+{
+	const struct block_drvr *drvr = block_drvr;
+	block_dev_desc_t* (*reloc_get_dev)(int dev);
+
+	while (drvr->name) {
+		reloc_get_dev = drvr->get_dev + gd->reloc_off;
+		if (strncmp(ifname, drvr->name, strlen(drvr->name)) == 0)
+			return reloc_get_dev(dev);
+		drvr++;
+	}
+	return NULL;
+}
+#else
+block_dev_desc_t *get_dev(char* ifname, int dev)
+{
+	return NULL;
+}
 #endif
 
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \

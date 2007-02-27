@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,43 +22,24 @@
 #
 
 include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-$(shell mkdir -p $(obj)../xilinx_enet)
-$(shell mkdir -p $(obj)../xilinx_iic)
-endif
-
-INCS		:= -I../common -I../xilinx_enet -I../xilinx_iic
-CFLAGS		+= $(INCS)
-HOST_CFLAGS	+= $(INCS)
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o \
-	  serial.o \
-	  ../xilinx_enet/emac_adapter.o  ../xilinx_enet/xemac.o \
-	  ../xilinx_enet/xemac_options.o ../xilinx_enet/xemac_polled.o \
-	  ../xilinx_enet/xemac_intr.o ../xilinx_enet/xemac_g.o \
-	  ../xilinx_enet/xemac_intr_dma.o ../xilinx_iic/iic_adapter.o \
-	  ../xilinx_iic/xiic_l.o ../common/xipif_v1_23_b.o \
-	  ../common/xbasic_types.o ../common/xdma_channel.o \
-	  ../common/xdma_channel_sg.o ../common/xpacket_fifo_v1_00_b.o \
-	  ../common/xversion.o \
-
+COBJS	= $(BOARD).o cmd_katmai.o
 SOBJS	= init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $^
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak .depend *~
 
 #########################################################################
 

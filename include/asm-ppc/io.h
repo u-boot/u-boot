@@ -95,8 +95,15 @@ extern void _outsl_ns(volatile u32 *port, const void *buf, int nl);
  * Acts as a barrier to ensure all previous I/O accesses have
  * completed before any further ones are issued.
  */
-#define eieio() __asm__ __volatile__ ("eieio" : : : "memory");
-#define sync()  __asm__ __volatile__ ("sync" : : : "memory");
+static inline void eieio(void)
+{
+	__asm__ __volatile__ ("eieio" : : : "memory");
+}
+
+static inline void sync(void)
+{
+	__asm__ __volatile__ ("sync" : : : "memory");
+}
 
 /* Enforce in-order execution of data I/O.
  * No distinction between read/write on PPC; use eieio for all three.

@@ -141,11 +141,12 @@ long int initdram (int board_type)
 		dramsize = 0;
 
 	/* set SDRAM CS0 size according to the amount of RAM found */
-	if (dramsize > 0)
+	if (dramsize > 0) {
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x13 +
 			__builtin_ffs(dramsize >> 20) - 1;
-        else
+	} else {
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
+	}
 
 	/* let SDRAM CS1 start right after CS0 and disable it */
 	*(vu_long *) MPC5XXX_SDRAM_CS1CFG = dramsize;
