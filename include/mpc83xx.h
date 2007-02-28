@@ -509,6 +509,7 @@
 #define SCCR_PCICM_SHIFT		16
 
 /* SCCR bits - MPC8349 specific */
+#ifdef CONFIG_MPC834X
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
@@ -522,6 +523,7 @@
 #define SCCR_TSEC2CM_1			0x10000000
 #define SCCR_TSEC2CM_2			0x20000000
 #define SCCR_TSEC2CM_3			0x30000000
+#endif
 
 #define SCCR_USBMPHCM			0x00c00000
 #define SCCR_USBMPHCM_SHIFT		22
@@ -532,13 +534,6 @@
 #define SCCR_USBCM_1			0x00500000
 #define SCCR_USBCM_2			0x00A00000
 #define SCCR_USBCM_3			0x00F00000
-
-#define SCCR_CLK_MASK			( SCCR_TSEC1CM_3	\
-					| SCCR_TSEC2CM_3	\
-					| SCCR_ENCCM_3		\
-					| SCCR_USBCM_3		)
-
-#define SCCR_DEFAULT			0xFFFFFFFF
 
 /* CSn_BDNS - Chip Select memory Bounds Register
  */
