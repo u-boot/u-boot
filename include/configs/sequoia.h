@@ -391,7 +391,7 @@
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CFG_NAND_CS		3		/* NAND chip connected to CSx	*/
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
-#define CFG_EBC_PB0AP		0x03017300
+#define CFG_EBC_PB0AP		0x03017200
 #define CFG_EBC_PB0CR		(CFG_FLASH | 0xda000)
 
 /* Memory Bank 3 (NAND-FLASH) initialization					*/
@@ -400,7 +400,7 @@
 #else
 #define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
 /* Memory Bank 3 (NOR-FLASH) initialization					*/
-#define CFG_EBC_PB3AP		0x03017300
+#define CFG_EBC_PB3AP		0x03017200
 #define CFG_EBC_PB3CR		(CFG_FLASH | 0xda000)
 
 /* Memory Bank 0 (NAND-FLASH) initialization					*/

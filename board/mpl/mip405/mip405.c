@@ -65,16 +65,13 @@
 #include <common.h>
 #include "mip405.h"
 #include <asm/processor.h>
-#include <405gp_i2c.h>
+#include <4xx_i2c.h>
 #include <miiphy.h>
 #include "../common/common_util.h"
 #include <i2c.h>
 #include <rtc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-extern block_dev_desc_t * scsi_get_dev(int dev);
-extern block_dev_desc_t * ide_get_dev(int dev);
 
 #undef SDRAM_DEBUG
 #define ENABLE_ECC /* for ecc boards */

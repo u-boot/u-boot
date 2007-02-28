@@ -88,10 +88,10 @@
 /* USB */
 #if 0
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #else
-#define ADD_USB_CMD             0
+#define ADD_USB_CMD		0
 #endif
 
 /*
@@ -100,7 +100,7 @@
 #define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
 				 CFG_CMD_EEPROM	| \
 				 CFG_CMD_FAT	| \
-                                 CFG_CMD_EXT2   | \
+				 CFG_CMD_EXT2	| \
 				 CFG_CMD_I2C	| \
 				 CFG_CMD_IDE	| \
 				 CFG_CMD_BSP	| \
@@ -110,11 +110,11 @@
 #include <cmd_confdefs.h>
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
-#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT		1
 #   define CFG_LOWBOOT16	1
 #endif
 #if (TEXT_BASE == 0xFF800000)		/* Boot low with  8 MB Flash */
-#   define CFG_LOWBOOT	        1
+#   define CFG_LOWBOOT		1
 #   define CFG_LOWBOOT08	1
 #endif
 
@@ -131,20 +131,20 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=eth0\0" \
-        "flash_vxworks0=run ata_vxworks_args;setenv loadaddr ff000000;bootvx\0" \
-        "flash_vxworks1=run ata_vxworks_args;setenv loadaddr ff200000:bootvx\0" \
-        "net_vxworks=tftp $(loadaddr) $(image);run vxworks_args;bootvx\0" \
-        "vxworks_args=setenv bootargs fec(0,0)$(host):$(image) h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script)\0" \
-        "ata_vxworks_args=setenv bootargs /ata0/vxWorks h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script) o=fec0 \0" \
-        "loadaddr=01000000\0" \
-        "serverip=192.168.2.99\0" \
-        "gatewayip=10.0.0.79\0" \
-        "user=mu\0" \
-        "target=mecp5200.esd\0" \
-        "script=mecp5200.bat\0" \
-        "image=/tftpboot/vxWorks_mecp5200\0" \
-        "ipaddr=10.0.13.196\0" \
-        "netmask=255.255.0.0\0" \
+	"flash_vxworks0=run ata_vxworks_args;setenv loadaddr ff000000;bootvx\0" \
+	"flash_vxworks1=run ata_vxworks_args;setenv loadaddr ff200000:bootvx\0" \
+	"net_vxworks=tftp $(loadaddr) $(image);run vxworks_args;bootvx\0" \
+	"vxworks_args=setenv bootargs fec(0,0)$(host):$(image) h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script)\0" \
+	"ata_vxworks_args=setenv bootargs /ata0/vxWorks h=$(serverip) e=$(ipaddr) g=$(gatewayip) u=$(user) $(pass) tn=$(target) s=$(script) o=fec0 \0" \
+	"loadaddr=01000000\0" \
+	"serverip=192.168.2.99\0" \
+	"gatewayip=10.0.0.79\0" \
+	"user=mu\0" \
+	"target=mecp5200.esd\0" \
+	"script=mecp5200.bat\0" \
+	"image=/tftpboot/vxWorks_mecp5200\0" \
+	"ipaddr=10.0.13.196\0" \
+	"netmask=255.255.0.0\0" \
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_vxworks0"
@@ -171,12 +171,12 @@
 #define CFG_I2C_EEPROM_ADDR_LEN		2
 #define CFG_EEPROM_PAGE_WRITE_BITS	5
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
-#define CFG_I2C_MULTI_EEPROMS           1
+#define CFG_I2C_MULTI_EEPROMS		1
 /*
  * Flash configuration
  */
 #define CFG_FLASH_BASE		0xFFC00000
-#define CFG_FLASH_SIZE	        0x00400000
+#define CFG_FLASH_SIZE		0x00400000
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x003E0000)
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 #define CFG_MAX_FLASH_SECT	512
@@ -200,15 +200,15 @@
 #define CONFIG_ENV_OVERWRITE	1
 #endif
 
-#define CFG_FLASH_CFI_DRIVER    1          /* Flash is CFI conformant           */
-#define CFG_FLASH_CFI           1          /* Flash is CFI conformant           */
-#define CFG_FLASH_PROTECTION    1          /* use hardware protection           */
+#define CFG_FLASH_CFI_DRIVER	1	   /* Flash is CFI conformant		*/
+#define CFG_FLASH_CFI		1	   /* Flash is CFI conformant		*/
+#define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
 #if 0
 #define CFG_FLASH_USE_BUFFER_WRITE 1       /* use buffered writes (20x faster)  */
 #endif
-#define CFG_FLASH_INCREMENT     0x00400000 /* size of  flash bank               */
+#define CFG_FLASH_INCREMENT	0x00400000 /* size of  flash bank		*/
 #define CFG_FLASH_BANKS_LIST  { CFG_FLASH_BASE }
-#define CFG_FLASH_EMPTY_INFO    1          /* show if bank is empty             */
+#define CFG_FLASH_EMPTY_INFO	1	   /* show if bank is empty		*/
 
 
 /*
@@ -272,7 +272,7 @@
 
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
-#define CFG_HZ			1000	        /* decrementer freq: 1 ms ticks */
+#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 #define CFG_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
 
@@ -339,7 +339,7 @@
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	(0x005C)
 
-/* Interval between registers                                                */
-#define CFG_ATA_STRIDE          4
+/* Interval between registers		*/
+#define CFG_ATA_STRIDE		4
 
 #endif /* __CONFIG_H */

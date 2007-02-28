@@ -23,6 +23,7 @@
 #include <image.h>
 #include <asm/byteorder.h>
 #include <usb.h>
+#include <part.h>
 
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
@@ -47,25 +48,6 @@
 #error "must define CFG_CMD_FAT"
 #endif
 
-/*
- * Check whether a USB memory stick is plugged in.
- * If one is found:
- *	1) if prepare.img ist found load it into memory. If it is
- *		valid then run it.
- *	2) if preinst.img is found load it into memory. If it is
- *		valid then run it. Update the EEPROM.
- *	3) if firmw_01.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	4) if kernl_01.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	5) if app.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	6) if disk.img is found load it into memory. If it is valid,
- *		burn it into FLASH and update the EEPROM.
- *	7) if postinst.img is found load it into memory. If it is
- *		valid then run it. Update the EEPROM.
- */
-
 #undef AU_DEBUG
 
 #undef debug
@@ -78,6 +60,7 @@
 /* possible names of files on the USB stick. */
 #define AU_FIRMWARE	"u-boot.img"
 #define AU_KERNEL	"kernel.img"
+#define AU_ROOTFS	"rootfs.img"
 
 struct flash_layout {
 	long start;
@@ -89,33 +72,47 @@ struct flash_layout {
 #define AU_FL_FIRMWARE_ND	0xfC03FFFF
 #define AU_FL_KERNEL_ST		0xfC0C0000
 #define AU_FL_KERNEL_ND		0xfC1BFFFF
+#define AU_FL_ROOTFS_ST		0xFC1C0000
+#define AU_FL_ROOTFS_ND		0xFCFBFFFF
 
 static int au_usb_stor_curr_dev; /* current device */
 
 /* index of each file in the following arrays */
 #define IDX_FIRMWARE	0
 #define IDX_KERNEL	1
+#define IDX_ROOTFS	2
 
 /* max. number of files which could interest us */
-#define AU_MAXFILES 2
+#define AU_MAXFILES 3
 
 /* pointers to file names */
-char *aufile[AU_MAXFILES];
+char *aufile[AU_MAXFILES] = {
+	AU_FIRMWARE,
+	AU_KERNEL,
+	AU_ROOTFS
+};
 
 /* sizes of flash areas for each file */
-long ausize[AU_MAXFILES];
+long ausize[AU_MAXFILES] = {
+	(AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST,
+	(AU_FL_KERNEL_ND   + 1) - AU_FL_KERNEL_ST,
+	(AU_FL_ROOTFS_ND   + 1) - AU_FL_ROOTFS_ST,
+};
 
 /* array of flash areas start and end addresses */
-struct flash_layout aufl_layout[AU_MAXFILES] = { \
-	{AU_FL_FIRMWARE_ST, AU_FL_FIRMWARE_ND,}, \
-	{AU_FL_KERNEL_ST, AU_FL_KERNEL_ND,}, \
+struct flash_layout aufl_layout[AU_MAXFILES] = {
+	{ AU_FL_FIRMWARE_ST,	AU_FL_FIRMWARE_ND, },
+	{ AU_FL_KERNEL_ST,	AU_FL_KERNEL_ND,   },
+	{ AU_FL_ROOTFS_ST,	AU_FL_ROOTFS_ND,   },
 };
+
+ulong totsize;
 
 /* where to load files into memory */
 #define LOAD_ADDR ((unsigned char *)0x00200000)
 
-/* the app is the largest image */
-#define MAX_LOADSZ ausize[IDX_KERNEL]
+/* the root file system is the largest image */
+#define MAX_LOADSZ ausize[IDX_ROOTFS]
 
 /*i2c address of the keypad status*/
 #define I2C_PSOC_KEYPAD_ADDR	0x53
@@ -134,9 +131,12 @@ extern int i2c_read (unsigned char, unsigned int, int , unsigned char* , int);
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
-/* change char* to void* to shutup the compiler */
-extern block_dev_desc_t *get_dev (char*, int);
 extern int u_boot_hush_start(void);
+#ifdef CONFIG_PROGRESSBAR
+extern void show_progress(int, int);
+extern void lcd_puts (char *);
+extern void lcd_enable(void);
+#endif
 
 int au_check_cksum_valid(int idx, long nbytes)
 {
@@ -162,8 +162,7 @@ int au_check_cksum_valid(int idx, long nbytes)
 int au_check_header_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
-	unsigned long checksum;
-	unsigned char buf[4];
+	unsigned long checksum, fsize;
 
 	hdr = (image_header_t *)LOAD_ADDR;
 	/* check the easy ones first */
@@ -176,10 +175,12 @@ int au_check_header_valid(int idx, long nbytes)
 #endif
 	if (nbytes < sizeof(*hdr)) {
 		printf ("Image %s bad header SIZE\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
 	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_PPC) {
 		printf ("Image %s bad MAGIC or ARCH\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
 	/* check the hdr CRC */
@@ -188,30 +189,46 @@ int au_check_header_valid(int idx, long nbytes)
 
 	if (crc32 (0, (uchar *)hdr, sizeof(*hdr)) != checksum) {
 		printf ("Image %s bad header checksum\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
 	hdr->ih_hcrc = htonl(checksum);
 	/* check the type - could do this all in one gigantic if() */
 	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
 	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
+		ausize[idx] = 0;
+		return -1;
+	}
+	if ((idx == IDX_ROOTFS) &&
+		( (hdr->ih_type != IH_TYPE_RAMDISK) && (hdr->ih_type != IH_TYPE_FILESYSTEM) )
+	   ) {
+		printf ("Image %s wrong type\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
 	/* recycle checksum */
 	checksum = ntohl(hdr->ih_size);
-	/* for kernel and app the image header must also fit into flash */
-	if (idx != IDX_FIRMWARE)
+
+	fsize = checksum + sizeof(*hdr);
+	/* for kernel and ramdisk the image header must also fit into flash */
+	if (idx == IDX_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK)
 		checksum += sizeof(*hdr);
+
 	/* check the size does not exceed space in flash. HUSH scripts */
-	/* all have ausize[] set to 0 */
 	if ((ausize[idx] != 0) && (ausize[idx] < checksum)) {
 		printf ("Image %s is bigger than FLASH\n", aufile[idx]);
+		ausize[idx] = 0;
 		return -1;
 	}
-	return 0;
+	/* Update with the real filesize */
+	ausize[idx] = fsize;
+
+	return checksum; /* return size to be written to flash */
 }
 
 int au_do_update(int idx, long sz)
@@ -256,8 +273,12 @@ int au_do_update(int idx, long sz)
 	debug ("flash_sect_erase(%lx, %lx);\n", start, end);
 	flash_sect_erase(start, end);
 	wait_ms(100);
+#ifdef CONFIG_PROGRESSBAR
+	show_progress(end - start, totsize);
+#endif
+
 	/* strip the header - except for the kernel and ramdisk */
-	if (hdr->ih_type == IH_TYPE_KERNEL) {
+	if (hdr->ih_type == IH_TYPE_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK) {
 		addr = (char *)hdr;
 		off = sizeof(*hdr);
 		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
@@ -280,9 +301,13 @@ int au_do_update(int idx, long sz)
 		return -1;
 	}
 
-	/* check the dcrc of the copy */
+#ifdef CONFIG_PROGRESSBAR
+	show_progress(nbytes, totsize);
+#endif
+
+	/* check the data CRC of the copy */
 	if (crc32 (0, (uchar *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
-		printf ("Image %s Bad Data Checksum After COPY\n", aufile[idx]);
+		printf ("Image %s Bad Data Checksum after COPY\n", aufile[idx]);
 		return -1;
 	}
 
@@ -302,10 +327,10 @@ int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
-	int i, res, bitmap_first, cnt, old_ctrlc, got_ctrlc;
+	int i, res = 0, bitmap_first, cnt, old_ctrlc, got_ctrlc;
 	char *env;
 	long start, end;
-	char keypad_status1[2] = {0,0}, keypad_status2[2] = {0,0};
+	uchar keypad_status1[2] = {0,0}, keypad_status2[2] = {0,0};
 
 	/*
 	 * Read keypad status
@@ -317,14 +342,11 @@ int do_auto_update(void)
 	/*
 	 * Check keypad
 	 */
-	if ( !(keypad_status1[0] & KEYPAD_MASK_HI) ||
-	      (keypad_status1[0] != keypad_status2[0])) {
-		return 0;
-	}
 	if ( !(keypad_status1[1] & KEYPAD_MASK_LO) ||
 	      (keypad_status1[1] != keypad_status2[1])) {
 		return 0;
 	}
+
 	au_usb_stor_curr_dev = -1;
 	/* start USB */
 	if (usb_stop() < 0) {
@@ -359,14 +381,6 @@ int do_auto_update(void)
 		debug ("file_fat_detectfs failed\n");
 	}
 
-	/* initialize the array of file names */
-	memset(aufile, 0, sizeof(aufile));
-	aufile[IDX_FIRMWARE] = AU_FIRMWARE;
-	aufile[IDX_KERNEL] = AU_KERNEL;
-	/* initialize the array of flash sizes */
-	memset(ausize, 0, sizeof(ausize));
-	ausize[IDX_FIRMWARE] = (AU_FL_FIRMWARE_ND + 1) - AU_FL_FIRMWARE_ST;
-	ausize[IDX_KERNEL] = (AU_FL_KERNEL_ND + 1) - AU_FL_KERNEL_ST;
 	/*
 	 * now check whether start and end are defined using environment
 	 * variables.
@@ -381,8 +395,8 @@ int do_auto_update(void)
 		end = simple_strtoul(env, NULL, 16);
 	if (start >= 0 && end && end > start) {
 		ausize[IDX_FIRMWARE] = (end + 1) - start;
-		aufl_layout[0].start = start;
-		aufl_layout[0].end = end;
+		aufl_layout[IDX_FIRMWARE].start = start;
+		aufl_layout[IDX_FIRMWARE].end = end;
 	}
 	start = -1;
 	end = 0;
@@ -394,32 +408,73 @@ int do_auto_update(void)
 		end = simple_strtoul(env, NULL, 16);
 	if (start >= 0 && end && end > start) {
 		ausize[IDX_KERNEL] = (end + 1) - start;
-		aufl_layout[1].start = start;
-		aufl_layout[1].end = end;
+		aufl_layout[IDX_KERNEL].start = start;
+		aufl_layout[IDX_KERNEL].end = end;
 	}
+	start = -1;
+	end = 0;
+	env = getenv("rootfs_st");
+	if (env != NULL)
+		start = simple_strtoul(env, NULL, 16);
+	env = getenv("rootfs_nd");
+	if (env != NULL)
+		end = simple_strtoul(env, NULL, 16);
+	if (start >= 0 && end && end > start) {
+		ausize[IDX_ROOTFS] = (end + 1) - start;
+		aufl_layout[IDX_ROOTFS].start = start;
+		aufl_layout[IDX_ROOTFS].end = end;
+	}
+
 	/* make certain that HUSH is runnable */
 	u_boot_hush_start();
 	/* make sure that we see CTRL-C and save the old state */
 	old_ctrlc = disable_ctrlc(0);
 
 	bitmap_first = 0;
-	/* just loop thru all the possible files */
+
+	/* validate the images first */
 	for (i = 0; i < AU_MAXFILES; i++) {
+		ulong imsize;
 		/* just read the header */
 		sz = file_fat_read(aufile[i], LOAD_ADDR, sizeof(image_header_t));
 		debug ("read %s sz %ld hdr %d\n",
 			aufile[i], sz, sizeof(image_header_t));
 		if (sz <= 0 || sz < sizeof(image_header_t)) {
 			debug ("%s not found\n", aufile[i]);
+			ausize[i] = 0;
 			continue;
 		}
-		if (au_check_header_valid(i, sz) < 0) {
+		/* au_check_header_valid() updates ausize[] */
+		if ((imsize = au_check_header_valid(i, sz)) < 0) {
 			debug ("%s header not valid\n", aufile[i]);
 			continue;
 		}
-		sz = file_fat_read(aufile[i], LOAD_ADDR, MAX_LOADSZ);
+		/* totsize accounts for image size and flash erase size */
+		totsize += (imsize + (aufl_layout[i].end - aufl_layout[i].start));
+	}
+
+#ifdef CONFIG_PROGRESSBAR
+	if (totsize) {
+		lcd_puts(" Update in progress\n");
+		lcd_enable();
+	}
+#endif
+
+	/* just loop thru all the possible files */
+	for (i = 0; i < AU_MAXFILES && totsize; i++) {
+		if (!ausize[i]) {
+			continue;
+		}
+		sz = file_fat_read(aufile[i], LOAD_ADDR, ausize[i]);
+
 		debug ("read %s sz %ld hdr %d\n",
 			aufile[i], sz, sizeof(image_header_t));
+
+		if (sz != ausize[i]) {
+			printf ("%s: size %d read %d?\n", aufile[i], ausize[i], sz);
+			continue;
+		}
+
 		if (sz <= 0 || sz <= sizeof(image_header_t)) {
 			debug ("%s not found\n", aufile[i]);
 			continue;
@@ -443,8 +498,8 @@ int do_auto_update(void)
 			}
 			cnt++;
 #ifdef AU_TEST_ONLY
-		} while (res < 0 && cnt < 3);
-		if (cnt < 3)
+		} while (res < 0 && cnt < (AU_MAXFILES + 1));
+		if (cnt < (AU_MAXFILES + 1))
 #else
 		} while (res < 0);
 #endif
@@ -452,6 +507,16 @@ int do_auto_update(void)
 	usb_stop();
 	/* restore the old state */
 	disable_ctrlc(old_ctrlc);
+#ifdef CONFIG_PROGRESSBAR
+	if (totsize) {
+		if (!res) {
+			lcd_puts("\n  Update completed\n");
+		} else {
+			lcd_puts("\n   Update error\n");
+		}
+		lcd_enable();
+	}
+#endif
 	return 0;
 }
 #endif /* CONFIG_AUTO_UPDATE */

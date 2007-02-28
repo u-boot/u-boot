@@ -125,4 +125,8 @@ io_outsl (unsigned long port, const void *src, unsigned long count)
 #define ioremap_writethrough(physaddr, size)	(physaddr)
 #define ioremap_fullcache(physaddr, size)	(physaddr)
 
+static inline void sync(void)
+{
+}
+
 #endif /* __MICROBLAZE_IO_H__ */

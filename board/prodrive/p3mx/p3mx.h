@@ -31,4 +31,3 @@
 #define LED_ORANGE	4
 
 #endif /* __P3MX_H__ */
-

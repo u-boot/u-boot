@@ -25,7 +25,7 @@
 #include "du405.h"
 #include <asm/processor.h>
 #include <ppc4xx.h>
-#include <405gp_i2c.h>
+#include <4xx_i2c.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;

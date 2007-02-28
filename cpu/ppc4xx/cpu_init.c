@@ -314,7 +314,7 @@ cpu_init_f (void)
 #endif
 
 #if defined (CFG_EBC_CFG)
-	mtebc(epcr, CFG_EBC_CFG);
+	mtebc(EBC0_CFG, CFG_EBC_CFG);
 #endif
 
 #if defined(CONFIG_WATCHDOG)

@@ -22,6 +22,7 @@
  */
 #ifndef _PART_H
 #define _PART_H
+
 #include <ide.h>
 
 typedef struct block_dev_desc {
@@ -43,7 +44,11 @@ typedef struct block_dev_desc {
 	unsigned long	(*block_read)(int dev,
 				      unsigned long start,
 				      lbaint_t blkcnt,
-				      unsigned long *buffer);
+				      void *buffer);
+	unsigned long	(*block_write)(int dev,
+				       unsigned long start,
+				       lbaint_t blkcnt,
+				       const void *buffer);
 }block_dev_desc_t;
 
 /* Interface types: */
@@ -82,6 +87,14 @@ typedef struct disk_partition {
 	uchar	name[32];	/* partition name			*/
 	uchar	type[32];	/* string type description		*/
 } disk_partition_t;
+
+/* Misc _get_dev functions */
+block_dev_desc_t* get_dev(char* ifname, int dev);
+block_dev_desc_t* ide_get_dev(int dev);
+block_dev_desc_t* scsi_get_dev(int dev);
+block_dev_desc_t* usb_stor_get_dev(int dev);
+block_dev_desc_t* mmc_get_dev(int dev);
+block_dev_desc_t* systemace_get_dev(int dev);
 
 /* disk/part.c */
 int get_partition_info (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);

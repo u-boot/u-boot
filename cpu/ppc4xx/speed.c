@@ -331,7 +331,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	unsigned long m;
 	unsigned long prbdv0;
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_YUCCA)
 	unsigned long sys_freq;
 	unsigned long sys_per=0;
 	unsigned long msr;
@@ -348,7 +348,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	/*-------------------------------------------------------------------------+
 	 | Calculate the system clock speed from the period.
 	 +-------------------------------------------------------------------------*/
-	sys_freq=(ONE_BILLION/sys_per)*1000;
+	sys_freq = (ONE_BILLION / sys_per) * 1000;
 #endif
 
 	/* Extract configured divisors */
@@ -385,17 +385,17 @@ void get_sys_info (sys_info_t * sysInfo)
 		m = sysInfo->pllExtBusDiv * sysInfo->pllOpbDiv * sysInfo->pllFwdDivB;
 
 	/* Now calculate the individual clocks */
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_YUCCA)
 	sysInfo->freqVCOMhz = (m * sys_freq) ;
 #else
-	sysInfo->freqVCOMhz = (m * CONFIG_SYS_CLK_FREQ) + (m>>1);
+	sysInfo->freqVCOMhz = (m * CONFIG_SYS_CLK_FREQ) + (m >> 1);
 #endif
 	sysInfo->freqProcessor = sysInfo->freqVCOMhz/sysInfo->pllFwdDivA;
 	sysInfo->freqPLB = sysInfo->freqVCOMhz/sysInfo->pllFwdDivB/prbdv0;
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEPB = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_YUCCA)
 	/* Determine PCI Clock Period */
 	pci_clock_per = determine_pci_clock_per();
 	sysInfo->freqPCI = (ONE_BILLION/pci_clock_per) * 1000;
@@ -408,7 +408,7 @@ void get_sys_info (sys_info_t * sysInfo)
 
 #endif
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_YUCCA)
 unsigned long determine_sysper(void)
 {
 	unsigned int fpga_clocking_reg;
@@ -583,7 +583,6 @@ unsigned long determine_sysper(void)
 	}
 
 	return(sys_per);
-
 }
 
 /*-------------------------------------------------------------------------+

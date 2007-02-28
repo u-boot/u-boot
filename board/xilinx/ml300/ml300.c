@@ -38,9 +38,9 @@
  *
  */
 
+#include <config.h>
 #include <common.h>
 #include <asm/processor.h>
-#include "xparameters.h"
 
 #ifdef CFG_ENV_IS_IN_EEPROM
 extern void convert_env(void);

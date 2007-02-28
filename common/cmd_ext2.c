@@ -33,6 +33,7 @@
  * Ext2fs support
  */
 #include <common.h>
+#include <part.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_EXT2)
 #include <config.h>
@@ -57,41 +58,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-static block_dev_desc_t *get_dev (char* ifname, int dev)
-{
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
-	if (strncmp(ifname,"ide",3)==0) {
-		extern block_dev_desc_t * ide_get_dev(int dev);
-		return((dev >= CFG_IDE_MAXDEVICE) ? NULL : ide_get_dev(dev));
-	}
-#endif
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
-	if (strncmp(ifname,"scsi",4)==0) {
-		extern block_dev_desc_t * scsi_get_dev(int dev);
-		return((dev >= CFG_SCSI_MAXDEVICE) ? NULL : scsi_get_dev(dev));
-	}
-#endif
-#if ((CONFIG_COMMANDS & CFG_CMD_USB) && defined(CONFIG_USB_STORAGE))
-	if (strncmp(ifname,"usb",3)==0) {
-		extern block_dev_desc_t * usb_stor_get_dev(int dev);
-		return((dev >= USB_MAX_STOR_DEV) ? NULL : usb_stor_get_dev(dev));
-	}
-#endif
-#if defined(CONFIG_MMC)
-	if (strncmp(ifname,"mmc",3)==0) {
-		extern block_dev_desc_t *  mmc_get_dev(int dev);
-		return((dev >= 1) ? NULL : mmc_get_dev(dev));
-	}
-#endif
-#if defined(CONFIG_SYSTEMACE)
-	if (strcmp(ifname,"ace")==0) {
-		extern block_dev_desc_t *  systemace_get_dev(int dev);
-		return((dev >= 1) ? NULL : systemace_get_dev(dev));
-	}
-#endif
-	return(NULL);
-}
-
 int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *filename = "/";
@@ -106,7 +72,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return(1);
 	}
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
-	dev_desc=get_dev(argv[1],dev);
+	dev_desc = get_dev(argv[1],dev);
 
 	if (dev_desc == NULL) {
 		printf ("\n** Block device %s %d not supported\n", argv[1], dev);
@@ -210,7 +176,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
-	dev_desc=get_dev(argv[1],dev);
+	dev_desc = get_dev(argv[1],dev);
 	if (dev_desc==NULL) {
 		printf ("\n** Block device %s %d not supported\n", argv[1], dev);
 		return(1);

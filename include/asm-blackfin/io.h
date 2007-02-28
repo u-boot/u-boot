@@ -25,6 +25,11 @@
 #ifndef _BLACKFIN_IO_H
 #define _BLACKFIN_IO_H
 
+static inline void sync(void)
+{
+	__asm__ __volatile__ asm("ssync" : : : "memory");
+}
+
 #ifdef __KERNEL__
 
 #include <linux/config.h>

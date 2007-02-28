@@ -607,6 +607,9 @@ TQM5200_STK100_config:	unconfig
 	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
 uc101_config:         unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
+motionpro_config:         unconfig
+	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
+
 
 #########################################################################
 ## MPC8xx Systems
@@ -1091,6 +1094,9 @@ JSE_config:	unconfig
 
 KAREF_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx karef sandburst
+
+katmai_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx katmai amcc
 
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc

@@ -1347,6 +1347,16 @@ The following options need to be configured:
 		If defined, then this indicates the I2C bus number for DDR SPD.
 		If not defined, then U-Boot assumes that SPD is on I2C bus 0.
 
+		CFG_RTC_BUS_NUM
+
+		If defined, then this indicates the I2C bus number for the RTC.
+		If not defined, then U-Boot assumes that RTC is on I2C bus 0.
+
+		CFG_DTT_BUS_NUM
+
+		If defined, then this indicates the I2C bus number for the DTT.
+		If not defined, then U-Boot assumes that DTT is on I2C bus 0.
+
 		CONFIG_FSL_I2C
 
 		Define this option if you want to use Freescale's I2C driver in

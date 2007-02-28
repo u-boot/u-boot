@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #include <ft_build.h>
+#include <linux/ctype.h>
 
 #undef DEBUG
 
@@ -178,11 +179,6 @@ void ft_finalize_tree(struct ft_cxt *cxt) {
 	bph->off_dt_struct = cxt->p_start - (u8 *)bph;
 	bph->off_dt_strings = cxt->p - (u8 *)bph;
 	bph->dt_strings_size = cxt->p_end - cxt->p;
-}
-
-static inline int isprint(int c)
-{
-	return c >= 0x20 && c <= 0x7e;
 }
 
 static int is_printable_string(const void *data, int len)
