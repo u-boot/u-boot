@@ -395,6 +395,14 @@ extern unsigned long get_clock_freq(void);
 #define CFG_RIO_MEM_SIZE	0x20000000	/* 512M */
 #endif
 
+#ifdef CONFIG_LEGACY
+#define BRIDGE_ID 17
+#define VIA_ID 2
+#else
+#define BRIDGE_ID 28
+#define VIA_ID 4
+#endif
+
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI

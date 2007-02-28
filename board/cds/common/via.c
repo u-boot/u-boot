@@ -45,7 +45,7 @@ void mpc85xx_config_via(struct pci_controller *hose,
 	 * This allows legacy I/O (i8259, etc) on the VIA
 	 * southbridge to be accessed.
 	 */
-	bridge = PCI_BDF(0,17,0);
+	bridge = PCI_BDF(0,BRIDGE_ID,0);
 	pci_hose_write_config_byte(hose, bridge, PCI_IO_BASE, 0);
 	pci_hose_write_config_word(hose, bridge, PCI_IO_BASE_UPPER16, 0);
 	pci_hose_write_config_byte(hose, bridge, PCI_IO_LIMIT, 0x10);
