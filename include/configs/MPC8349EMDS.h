@@ -342,6 +342,7 @@
 #define CFG_NS16550_COM1        (CFG_IMMR+0x4500)
 #define CFG_NS16550_COM2        (CFG_IMMR+0x4600)
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
 #ifdef  CFG_HUSH_PARSER
