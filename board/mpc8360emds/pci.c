@@ -18,6 +18,9 @@
 #include <common.h>
 #include <pci.h>
 #include <i2c.h>
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 #include <asm/fsl_i2c.h>
 
