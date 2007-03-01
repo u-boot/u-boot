@@ -56,12 +56,12 @@
 #if (CFG_SYSTEMACE_WIDTH == 8)
 #if !defined(__BIG_ENDIAN)
 #define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)<<8) | \
-                        (readb(CFG_SYSTEMACE_BASE+off+1)))
+			(readb(CFG_SYSTEMACE_BASE+off+1)))
 #define ace_writew(val, off) {writeb(val>>8, CFG_SYSTEMACE_BASE+off); \
 			      writeb(val, CFG_SYSTEMACE_BASE+off+1);}
 #else
 #define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)) | \
-                        (readb(CFG_SYSTEMACE_BASE+off+1)<<8))
+			(readb(CFG_SYSTEMACE_BASE+off+1)<<8))
 #define ace_writew(val, off) {writeb(val, CFG_SYSTEMACE_BASE+off); \
 			      writeb(val>>8, CFG_SYSTEMACE_BASE+off+1);}
 #endif
@@ -73,7 +73,7 @@
 /* */
 
 static unsigned long systemace_read(int dev, unsigned long start,
-                                    unsigned long blkcnt, void *buffer);
+				    unsigned long blkcnt, void *buffer);
 
 static block_dev_desc_t systemace_dev = { 0 };
 
@@ -137,7 +137,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
  * number of blocks read. A zero return indicates an error.
  */
 static unsigned long systemace_read(int dev, unsigned long start,
-                                    unsigned long blkcnt, void *buffer)
+				    unsigned long blkcnt, void *buffer)
 {
 	int retry;
 	unsigned blk_countdown;

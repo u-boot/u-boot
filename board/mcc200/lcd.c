@@ -24,13 +24,13 @@
 
 #ifdef CONFIG_LCD
 
-#define SWAPPED_LCD
+#undef SWAPPED_LCD /* For the previous h/w version */
 /*
  *  The name of the device used for communication
  * with the PSoC.
  */
 #define PSOC_PSC	MPC5XXX_PSC2
-#define PSOC_BAUD	500000UL
+#define PSOC_BAUD	230400UL
 
 #define RTS_ASSERT	1
 #define RTS_NEGATE	0
@@ -181,10 +181,35 @@ void lcd_enable (void)
 		udelay (PSOC_WAIT_TIME);
 	}
 	if (!retries) {
-		printf ("%s Error: PSoC doesn't respond on "
+		printf ("%s Warning: PSoC doesn't respond on "
 			"RTS NEGATE\n",	__FUNCTION__);
 	}
 
 	return;
 }
+#ifdef CONFIG_PROGRESSBAR
+
+#define FONT_WIDTH      8 /* the same as VIDEO_FONT_WIDTH in video_font.h */
+void show_progress (int size, int tot)
+{
+	int cnt;
+	int i;
+	static int rc = 0;
+
+	rc += size;
+
+	cnt = ((LCD_WIDTH/FONT_WIDTH) * rc) / tot;
+
+	rc -= (cnt * tot) / (LCD_WIDTH/FONT_WIDTH);
+
+	for (i = 0; i < cnt; i++) {
+		lcd_putc(0xdc);
+	}
+
+	if (cnt) {
+		lcd_enable(); /* MCC200-specific - send the framebuffer to PSoC */
+	}
+}
+
+#endif
 #endif /* CONFIG_LCD */

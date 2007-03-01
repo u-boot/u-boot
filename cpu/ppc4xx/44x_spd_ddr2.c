@@ -48,10 +48,10 @@
  * Defines
  *-----------------------------------------------------------------------------*/
 #ifndef	TRUE
-#define TRUE            1
+#define TRUE		1
 #endif
 #ifndef FALSE
-#define FALSE           0
+#define FALSE		0
 #endif
 
 #define SDRAM_DDR1	1
@@ -199,9 +199,9 @@ static void program_DQS_calibration(unsigned long *dimm_populated,
 				    unsigned char *iic0_dimm_addr,
 				    unsigned long num_dimm_banks);
 #ifdef HARD_CODED_DQS /* calibration test with hardvalues */
-static void          test(void);
+static void	test(void);
 #else
-static void          DQS_calibration_process(void);
+static void	DQS_calibration_process(void);
 #endif
 #if defined(DEBUG)
 static void ppc440sp_sdram_register_dump(void);
@@ -354,12 +354,12 @@ static unsigned long sdram_memsize(void)
  * .data sections.  It also cannot call routines that require these sections.
  *-----------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------
- * Function:     initdram
+ * Function:	 initdram
  * Description:  Configures SDRAM memory banks for DDR operation.
- *               Auto Memory Configuration option reads the DDR SDRAM EEPROMs
- *               via the IIC bus and then configures the DDR SDRAM memory
- *               banks appropriately. If Auto Memory Configuration is
- *               not used, it is assumed that no DIMM is plugged
+ *		 Auto Memory Configuration option reads the DDR SDRAM EEPROMs
+ *		 via the IIC bus and then configures the DDR SDRAM memory
+ *		 banks appropriately. If Auto Memory Configuration is
+ *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
 long int initdram(int board_type)
 {
@@ -589,10 +589,10 @@ static void get_spd_info(unsigned long *dimm_populated,
 #ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
-        if (is_ecc_enabled())
-                puts(" (ECC enabled)");
-        else
-                puts(" (ECC not enabled)");
+	if (is_ecc_enabled())
+		puts(" (ECC enabled)");
+	else
+		puts(" (ECC not enabled)");
 }
 #endif
 
@@ -1165,7 +1165,7 @@ static void program_initplr(unsigned long *dimm_populated,
 
 	/******************************************************
 	 ** Assumption: if more than one DIMM, all DIMMs are the same
-	 **             as already checked in check_memory_type
+	 **		as already checked in check_memory_type
 	 ******************************************************/
 
 	if ((dimm_populated[0] == SDRAM_DDR1) || (dimm_populated[1] == SDRAM_DDR1)) {

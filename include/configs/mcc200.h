@@ -265,6 +265,7 @@
  */
 #if !defined(CONFIG_PRS200)
 #define CONFIG_LCD		1
+#define CONFIG_PROGRESSBAR 1
 #endif
 
 #if defined(CONFIG_LCD)
