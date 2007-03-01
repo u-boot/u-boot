@@ -115,7 +115,7 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"flash_nfs=run nfsargs addip;"					\
 		"bootm ${kernel_addr}\0"				\
-	"flash_nand=nand_args addip addcon;bootm ${kernel_addr}\0"	\
+	"flash_nand=run nand_args addip addcon;bootm ${kernel_addr}\0"	\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
