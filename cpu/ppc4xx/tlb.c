@@ -166,13 +166,13 @@ static void program_tlb_addr(unsigned long base_addr, unsigned long mem_size,
  * Common usage for boards with SDRAM DIMM modules to dynamically
  * configure the TLB's for the SDRAM
  */
-void program_tlb(u32 start, u32 size)
+void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value)
 {
 	region_t region_array;
 
 	region_array.base = start;
 	region_array.size = size;
-	region_array.tlb_word2_i_value = TLB_WORD2_I_ENABLE;	/* disable cache (for now) */
+	region_array.tlb_word2_i_value = tlb_word2_i_value;	/* en-/disable cache */
 
 	/* Call the routine to add in the tlb entries for the memory regions */
 	program_tlb_addr(region_array.base, region_array.size,

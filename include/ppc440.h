@@ -3190,7 +3190,8 @@
 #define GPIO0			0
 #define GPIO1			1
 
-#if defined(CONFIG_440GP) || defined(CONFIG_440GX)
+#if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
@@ -3275,6 +3276,8 @@
 #define GPIO_IN_SEL	    0x40000000	    /* GPIO_IN value put in GPIO_ISx for the GPIO nb 0 */
 					    /* For the other GPIO number, you must shift */
 
+#define GPIO_VAL(gpio)		(0x80000000 >> (gpio))
+
 #ifndef __ASSEMBLY__
 
 typedef enum gpio_select { GPIO_SEL, GPIO_ALT1, GPIO_ALT2, GPIO_ALT3 } gpio_select_t;
@@ -3284,7 +3287,6 @@ typedef struct { unsigned long	add;	/* gpio core base address */
 	gpio_driver_t  in_out; /* Driver Setting */
 	gpio_select_t  alt_nb; /* Selected Alternate */
 } gpio_param_s;
-
 
 #endif /* __ASSEMBLY__ */
 

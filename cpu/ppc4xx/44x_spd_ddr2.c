@@ -34,6 +34,7 @@
 #endif
 
 #include <common.h>
+#include <command.h>
 #include <ppc4xx.h>
 #include <i2c.h>
 #include <asm/io.h>
@@ -43,6 +44,9 @@
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440SP) || defined(CONFIG_440SPE))
 
+/*-----------------------------------------------------------------------------+
+ * Defines
+ *-----------------------------------------------------------------------------*/
 #ifndef	TRUE
 #define TRUE            1
 #endif
@@ -63,16 +67,66 @@
 
 #define MULDIV64(m1, m2, d)	(u32)(((u64)(m1) * (u64)(m2)) / (u64)(d))
 
-#if defined(DEBUG)
-static void ppc440sp_sdram_register_dump(void);
-#endif
+#define CMD_NOP		(7 << 19)
+#define CMD_PRECHARGE	(2 << 19)
+#define CMD_REFRESH	(1 << 19)
+#define CMD_EMR		(0 << 19)
+#define CMD_READ	(5 << 19)
+#define CMD_WRITE	(4 << 19)
 
-/*-----------------------------------------------------------------------------+
- * Defines
- *-----------------------------------------------------------------------------*/
+#define SELECT_MR	(0 << 16)
+#define SELECT_EMR	(1 << 16)
+#define SELECT_EMR2	(2 << 16)
+#define SELECT_EMR3	(3 << 16)
+
+/* MR */
+#define DLL_RESET	0x00000100
+
+#define WRITE_RECOV_2	(1 << 9)
+#define WRITE_RECOV_3	(2 << 9)
+#define WRITE_RECOV_4	(3 << 9)
+#define WRITE_RECOV_5	(4 << 9)
+#define WRITE_RECOV_6	(5 << 9)
+
+#define BURST_LEN_4	0x00000002
+
+/* EMR */
+#define ODT_0_OHM	0x00000000
+#define ODT_50_OHM	0x00000044
+#define ODT_75_OHM	0x00000004
+#define ODT_150_OHM	0x00000040
+
+#define ODS_FULL	0x00000000
+#define ODS_REDUCED	0x00000002
+
+/* defines for ODT (On Die Termination) of the 440SP(e) DDR2 controller */
+#define ODT_EB0R	(0x80000000 >> 8)
+#define ODT_EB0W	(0x80000000 >> 7)
+#define CALC_ODT_R(n)	(ODT_EB0R << (n << 1))
+#define CALC_ODT_W(n)	(ODT_EB0W << (n << 1))
+#define CALC_ODT_RW(n)	(CALC_ODT_R(n) | CALC_ODT_W(n))
+
 /* Defines for the Read Cycle Delay test */
 #define NUMMEMTESTS 8
 #define NUMMEMWORDS 8
+
+#define CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
+
+/*
+ * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
+ * region. Right now the cache should still be disabled in U-Boot because of the
+ * EMAC driver, that need it's buffer descriptor to be located in non cached
+ * memory.
+ *
+ * If at some time this restriction doesn't apply anymore, just define
+ * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * everything correctly.
+ */
+#ifdef CFG_ENABLE_SDRAM_CACHE
+#define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
+#else
+#define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
+#endif
 
 /* Private Structure Definitions */
 
@@ -89,7 +143,7 @@ typedef enum ddr_cas_id {
  * Prototypes
  *-----------------------------------------------------------------------------*/
 static unsigned long sdram_memsize(void);
-void program_tlb(u32 start, u32 size);
+void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -114,7 +168,8 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_mode(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks,
-                         ddr_cas_id_t *selected_cas);
+                         ddr_cas_id_t *selected_cas,
+                         int *write_recovery);
 static void program_tr(unsigned long *dimm_populated,
 		       unsigned char *iic0_dimm_addr,
 		       unsigned long num_dimm_banks);
@@ -130,22 +185,30 @@ static void program_copt1(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas);
+                            ddr_cas_id_t selected_cas,
+			    int write_recovery);
 static unsigned long is_ecc_enabled(void);
 static void program_ecc(unsigned long *dimm_populated,
 			unsigned char *iic0_dimm_addr,
-			unsigned long num_dimm_banks);
+			unsigned long num_dimm_banks,
+			unsigned long tlb_word2_i_value);
 static void program_ecc_addr(unsigned long start_address,
-			     unsigned long num_bytes);
-
+			     unsigned long num_bytes,
+			     unsigned long tlb_word2_i_value);
+static void program_DQS_calibration(unsigned long *dimm_populated,
+				    unsigned char *iic0_dimm_addr,
+				    unsigned long num_dimm_banks);
 #ifdef HARD_CODED_DQS /* calibration test with hardvalues */
 static void          test(void);
 #else
 static void          DQS_calibration_process(void);
 #endif
-static void program_DQS_calibration(unsigned long *dimm_populated,
-				    unsigned char *iic0_dimm_addr,
-				    unsigned long num_dimm_banks);
+#if defined(DEBUG)
+static void ppc440sp_sdram_register_dump(void);
+#endif
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+void dcbz_area(u32 start_address, u32 num_bytes);
+void dflush(void);
 
 static u32 mfdcr_any(u32 dcr)
 {
@@ -235,7 +298,7 @@ static unsigned long sdram_memsize(void)
 	    && ((mcopt2 & SDRAM_MCOPT2_SREN_MASK) == SDRAM_MCOPT2_SREN_EXIT)
 	    && ((mcstat & (SDRAM_MCSTAT_MIC_MASK | SDRAM_MCSTAT_SRMS_MASK))
 		== (SDRAM_MCSTAT_MIC_COMP | SDRAM_MCSTAT_SRMS_NOT_SF))) {
-		for (i = 0; i < 4; i++) {
+		for (i = 0; i < MAXBXCF; i++) {
 			mfsdram(SDRAM_MB0CF + (i << 2), mb0cf);
 			/* Banks enabled */
 			if ((mb0cf & SDRAM_BXCF_M_BE_MASK) == SDRAM_BXCF_M_BE_ENABLE) {
@@ -300,14 +363,15 @@ static unsigned long sdram_memsize(void)
  *-----------------------------------------------------------------------------*/
 long int initdram(int board_type)
 {
+	unsigned char iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned char spd0[MAX_SPD_BYTES];
 	unsigned char spd1[MAX_SPD_BYTES];
 	unsigned char *dimm_spd[MAXDIMMS];
 	unsigned long dimm_populated[MAXDIMMS];
-	unsigned char iic0_dimm_addr[MAXDIMMS];
 	unsigned long num_dimm_banks;		    /* on board dimm banks */
 	unsigned long val;
 	ddr_cas_id_t  selected_cas;
+	int write_recovery;
 	unsigned long dram_size = 0;
 
 	num_dimm_banks = sizeof(iic0_dimm_addr);
@@ -319,15 +383,9 @@ long int initdram(int board_type)
 	dimm_spd[1] = spd1;
 
 	/*------------------------------------------------------------------
-	 * Set up an array of iic0 dimm addresses.
-	 *-----------------------------------------------------------------*/
-	iic0_dimm_addr[0] = IIC0_DIMM0_ADDR;
-	iic0_dimm_addr[1] = IIC0_DIMM1_ADDR;
-
-	/*------------------------------------------------------------------
 	 * Reset the DDR-SDRAM controller.
 	 *-----------------------------------------------------------------*/
-	mtsdr(SDR0_SRST, 0x00200000);
+	mtsdr(SDR0_SRST, (0x80000000 >> 10));
 	mtsdr(SDR0_SRST, 0x00000000);
 
 	/*
@@ -399,7 +457,8 @@ long int initdram(int board_type)
 	/*------------------------------------------------------------------
 	 * Program SDRAM mode register.
 	 *-----------------------------------------------------------------*/
-	program_mode(dimm_populated, iic0_dimm_addr, num_dimm_banks, &selected_cas);
+	program_mode(dimm_populated, iic0_dimm_addr, num_dimm_banks,
+		     &selected_cas, &write_recovery);
 
 	/*------------------------------------------------------------------
 	 * Set the SDRAM Write Data/DM/DQS Clock Timing Reg
@@ -438,7 +497,7 @@ long int initdram(int board_type)
 	 * Program Initialization preload registers.
 	 *-----------------------------------------------------------------*/
 	program_initplr(dimm_populated, iic0_dimm_addr, num_dimm_banks,
-			selected_cas);
+			selected_cas, write_recovery);
 
 	/*------------------------------------------------------------------
 	 * Delay to ensure 200usec have elapsed since reset.
@@ -471,19 +530,17 @@ long int initdram(int board_type)
 	dram_size = sdram_memsize();
 
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, dram_size);
-
-#if 1 /* TODO: ECC support will come later */
-	/*------------------------------------------------------------------
-	 * If ecc is enabled, initialize the parity bits.
-	 *-----------------------------------------------------------------*/
-	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks);
-#endif
+	program_tlb(0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
 	/*------------------------------------------------------------------
 	 * DQS calibration.
 	 *-----------------------------------------------------------------*/
 	program_DQS_calibration(dimm_populated, iic0_dimm_addr, num_dimm_banks);
+
+	/*------------------------------------------------------------------
+	 * If ecc is enabled, initialize the parity bits.
+	 *-----------------------------------------------------------------*/
+	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks, MY_TLB_WORD2_I_ENABLE);
 
 #ifdef DEBUG
 	ppc440sp_sdram_register_dump();
@@ -996,8 +1053,8 @@ static void program_codt(unsigned long *dimm_populated,
 				dimm_type = SDRAM_DDR1;
 			}
 
-			total_rank +=  dimm_rank;
-			total_dimm ++;
+			total_rank += dimm_rank;
+			total_dimm++;
 			if ((dimm_num == 0) && (total_dimm == 1))
 				firstSlot = TRUE;
 			else
@@ -1008,49 +1065,49 @@ static void program_codt(unsigned long *dimm_populated,
 		codt |= SDRAM_CODT_DQS_1_8_V_DDR2;
 		if ((total_dimm == 1) && (firstSlot == TRUE)) {
 			if (total_rank == 1) {
-				codt |= 0x00800000;
-				modt0 = 0x01000000;
+				codt |= CALC_ODT_R(0);
+				modt0 = CALC_ODT_W(0);
 				modt1 = 0x00000000;
 				modt2 = 0x00000000;
 				modt3 = 0x00000000;
 			}
 			if (total_rank == 2) {
-				codt |= 0x02800000;
-				modt0 = 0x06000000;
-				modt1 = 0x01800000;
+				codt |= CALC_ODT_R(0) | CALC_ODT_R(1);
+				modt0 = CALC_ODT_W(0);
+				modt1 = CALC_ODT_W(0);
 				modt2 = 0x00000000;
 				modt3 = 0x00000000;
 			}
-		} else {
+		} else if ((total_dimm == 1) && (firstSlot != TRUE)) {
 			if (total_rank == 1) {
-				codt |= 0x00800000;
-				modt0 = 0x01000000;
+				codt |= CALC_ODT_R(2);
+				modt0 = 0x00000000;
 				modt1 = 0x00000000;
-				modt2 = 0x00000000;
+				modt2 = CALC_ODT_W(2);
 				modt3 = 0x00000000;
 			}
 			if (total_rank == 2) {
-				codt |= 0x02800000;
-				modt0 = 0x06000000;
-				modt1 = 0x01800000;
-				modt2 = 0x00000000;
-				modt3 = 0x00000000;
+				codt |= CALC_ODT_R(2) | CALC_ODT_R(3);
+				modt0 = 0x00000000;
+				modt1 = 0x00000000;
+				modt2 = CALC_ODT_W(2);
+				modt3 = CALC_ODT_W(2);
 			}
 		}
 		if (total_dimm == 2) {
 			if (total_rank == 2) {
-				codt |= 0x08800000;
-				modt0 = 0x18000000;
+				codt |= CALC_ODT_R(0) | CALC_ODT_R(2);
+				modt0 = CALC_ODT_RW(2);
 				modt1 = 0x00000000;
-				modt2 = 0x01800000;
+				modt2 = CALC_ODT_RW(0);
 				modt3 = 0x00000000;
 			}
 			if (total_rank == 4) {
-				codt |= 0x2a800000;
-				modt0 = 0x18000000;
-				modt1 = 0x18000000;
-				modt2 = 0x01800000;
-				modt3 = 0x01800000;
+				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) | CALC_ODT_R(2) | CALC_ODT_R(3);
+				modt0 = CALC_ODT_RW(2);
+				modt1 = 0x00000000;
+				modt2 = CALC_ODT_RW(0);
+				modt3 = 0x00000000;
 			}
 		}
   	} else {
@@ -1092,9 +1149,19 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas)
+                            ddr_cas_id_t selected_cas,
+			    int write_recovery)
 {
-	unsigned long MR_CAS_value = 0;
+	u32 cas = 0;
+	u32 odt = 0;
+	u32 ods = 0;
+	u32 mr;
+	u32 wr;
+	u32 emr;
+	u32 emr2;
+	u32 emr3;
+	int dimm_num;
+	int total_dimm = 0;
 
 	/******************************************************
 	 ** Assumption: if more than one DIMM, all DIMMs are the same
@@ -1112,41 +1179,90 @@ static void program_initplr(unsigned long *dimm_populated,
 		mtsdram(SDRAM_INITPLR7, 0x81000062);
 	} else if ((dimm_populated[0] == SDRAM_DDR2) || (dimm_populated[1] == SDRAM_DDR2)) {
 		switch (selected_cas) {
-			/*
-			 * The CAS latency is a field of the Mode Reg
-			 * that need to be set from caller input.
-			 * CAS bits in Mode Reg are starting at bit 4 at least for the Micron DDR2
-			 * this is the reason of the shift.
-			 */
 		case DDR_CAS_3:
-			MR_CAS_value = 3 << 4;
+			cas = 3 << 4;
 			break;
 		case DDR_CAS_4:
-			MR_CAS_value = 4 << 4;
+			cas = 4 << 4;
 			break;
 		case DDR_CAS_5:
-			MR_CAS_value = 5 << 4;
+			cas = 5 << 4;
 			break;
 		default:
-			printf("ERROR: ucode error on selected_cas value %d", (unsigned char)selected_cas);
+			printf("ERROR: ucode error on selected_cas value %d", selected_cas);
 			hang();
 			break;
 		}
 
-		mtsdram(SDRAM_INITPLR0,  0xB5380000);			/* NOP */
-		mtsdram(SDRAM_INITPLR1,  0x82100400);			/* precharge 8 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR2,  0x80820000);			/* EMR2 */
-		mtsdram(SDRAM_INITPLR3,  0x80830000);			/* EMR3 */
-		mtsdram(SDRAM_INITPLR4,  0x80810000);			/* EMR DLL ENABLE */
-		mtsdram(SDRAM_INITPLR5,  0x80800502 | MR_CAS_value);	/* MR w/ DLL reset */
-		mtsdram(SDRAM_INITPLR6,  0x82100400);			/* precharge 8 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR7,  0x8a080000);			/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR8,  0x8a080000);			/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR9,  0x8a080000);			/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR10, 0x8a080000);			/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR11, 0x80800402 | MR_CAS_value);	/* MR w/o DLL reset */
-		mtsdram(SDRAM_INITPLR12, 0x80810380);			/* EMR OCD Default */
-		mtsdram(SDRAM_INITPLR13, 0x80810000);			/* EMR OCD Exit */
+#if 0
+		/*
+		 * ToDo - Still a problem with the write recovery:
+		 * On the Corsair CM2X512-5400C4 module, setting write recovery
+		 * in the INITPLR reg to the value calculated in program_mode()
+		 * results in not correctly working DDR2 memory (crash after
+		 * relocation).
+		 *
+		 * So for now, set the write recovery to 3. This seems to work
+		 * on the Corair module too.
+		 *
+		 * 2007-03-01, sr
+		 */
+		switch (write_recovery) {
+		case 3:
+			wr = WRITE_RECOV_3;
+			break;
+		case 4:
+			wr = WRITE_RECOV_4;
+			break;
+		case 5:
+			wr = WRITE_RECOV_5;
+			break;
+		case 6:
+			wr = WRITE_RECOV_6;
+			break;
+		default:
+			printf("ERROR: write recovery not support (%d)", write_recovery);
+			hang();
+			break;
+		}
+#else
+		wr = WRITE_RECOV_3; /* test-only, see description above */
+#endif
+
+		for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++)
+			if (dimm_populated[dimm_num] != SDRAM_NONE)
+				total_dimm++;
+		if (total_dimm == 1) {
+			odt = ODT_150_OHM;
+			ods = ODS_FULL;
+		} else if (total_dimm == 2) {
+			odt = ODT_75_OHM;
+			ods = ODS_REDUCED;
+		} else {
+			printf("ERROR: Unsupported number of DIMM's (%d)", total_dimm);
+			hang();
+		}
+
+		mr = CMD_EMR | SELECT_MR | BURST_LEN_4 | wr | cas;
+		emr = CMD_EMR | SELECT_EMR | odt | ods;
+		emr2 = CMD_EMR | SELECT_EMR2;
+		emr3 = CMD_EMR | SELECT_EMR3;
+		mtsdram(SDRAM_INITPLR0,  0xB5000000 | CMD_NOP);		/* NOP */
+		udelay(1000);
+		mtsdram(SDRAM_INITPLR1,  0x82000400 | CMD_PRECHARGE);	/* precharge 8 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR2,  0x80800000 | emr2);		/* EMR2 */
+		mtsdram(SDRAM_INITPLR3,  0x80800000 | emr3);		/* EMR3 */
+		mtsdram(SDRAM_INITPLR4,  0x80800000 | emr);		/* EMR DLL ENABLE */
+		mtsdram(SDRAM_INITPLR5,  0x80800000 | mr | DLL_RESET);	/* MR w/ DLL reset */
+		udelay(1000);
+		mtsdram(SDRAM_INITPLR6,  0x82000400 | CMD_PRECHARGE);	/* precharge 8 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR7,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR8,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR9,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR10, 0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
+		mtsdram(SDRAM_INITPLR11, 0x80000000 | mr);		/* MR w/o DLL reset */
+		mtsdram(SDRAM_INITPLR12, 0x80800380 | emr);		/* EMR OCD Default */
+		mtsdram(SDRAM_INITPLR13, 0x80800000 | emr);		/* EMR OCD Exit */
 	} else {
 		printf("ERROR: ucode error as unknown DDR type in program_initplr");
 		hang();
@@ -1161,7 +1277,8 @@ static void program_initplr(unsigned long *dimm_populated,
 static void program_mode(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks,
-			 ddr_cas_id_t *selected_cas)
+			 ddr_cas_id_t *selected_cas,
+			 int *write_recovery)
 {
 	unsigned long dimm_num;
 	unsigned long sdram_ddr1;
@@ -1424,7 +1541,11 @@ static void program_mode(unsigned long *dimm_populated,
 			mmode |= SDRAM_MMODE_WR_DDR2_6_CYC;
 			break;
 		}
+		*write_recovery = t_wr_clk;
 	}
+
+	debug("CAS latency = %d\n", *selected_cas);
+	debug("Write recovery = %d\n", *write_recovery);
 
 	mtsdram(SDRAM_MMODE, mmode);
 }
@@ -2017,7 +2138,8 @@ static unsigned long is_ecc_enabled(void)
  *-----------------------------------------------------------------------------*/
 static void program_ecc(unsigned long *dimm_populated,
 			unsigned char *iic0_dimm_addr,
-			unsigned long num_dimm_banks)
+			unsigned long num_dimm_banks,
+			unsigned long tlb_word2_i_value)
 {
 	unsigned long mcopt1;
 	unsigned long mcopt2;
@@ -2046,23 +2168,59 @@ static void program_ecc(unsigned long *dimm_populated,
 		    && ((mcstat & (SDRAM_MCSTAT_MIC_MASK | SDRAM_MCSTAT_SRMS_MASK))
 			== (SDRAM_MCSTAT_MIC_COMP | SDRAM_MCSTAT_SRMS_NOT_SF))) {
 
-			program_ecc_addr(0, sdram_memsize());
+			program_ecc_addr(0, sdram_memsize(), tlb_word2_i_value);
 		}
 	}
 
 	return;
 }
 
+#ifdef CONFIG_ECC_ERROR_RESET
+/*
+ * Check for ECC errors and reset board upon any error here
+ *
+ * On the Katmai 440SPe eval board, from time to time, the first
+ * lword write access after DDR2 initializazion with ECC checking
+ * enabled, leads to an ECC error. I couldn't find a configuration
+ * without this happening. On my board with the current setup it
+ * happens about 1 from 10 times.
+ *
+ * The ECC modules used for testing are:
+ * - Kingston ValueRAM KVR667D2E5/512 (tested with 1 and 2 DIMM's)
+ *
+ * This has to get fixed for the Katmai and tested for the other
+ * board (440SP/440SPe) that will eventually use this code in the
+ * future.
+ *
+ * 2007-03-01, sr
+ */
+static void check_ecc(void)
+{
+	u32 val;
+
+	mfsdram(SDRAM_ECCCR, val);
+	if (val != 0) {
+		printf("\nECC error: MCIF0_ECCES=%08lx MQ0_ESL=%08lx address=%08lx\n",
+		       val, mfdcr(0x4c), mfdcr(0x4e));
+		printf("ECC error occured, resetting board...\n");
+		do_reset(NULL, 0, 0, NULL);
+	}
+}
+#endif
+
 /*-----------------------------------------------------------------------------+
  * program_ecc_addr.
  *-----------------------------------------------------------------------------*/
 static void program_ecc_addr(unsigned long start_address,
-			     unsigned long num_bytes)
+			     unsigned long num_bytes,
+			     unsigned long tlb_word2_i_value)
 {
 	unsigned long current_address;
 	unsigned long end_address;
 	unsigned long address_increment;
 	unsigned long mcopt1;
+	char str[] = "ECC generation...";
+	int i;
 
 	current_address = start_address;
 	mfsdram(SDRAM_MCOPT1, mcopt1);
@@ -2073,26 +2231,49 @@ static void program_ecc_addr(unsigned long start_address,
 		eieio();
 		wait_ddr_idle();
 
-		/* ECC bit set method for non-cached memory */
-		if ((mcopt1 & SDRAM_MCOPT1_DMWD_MASK) == SDRAM_MCOPT1_DMWD_32)
-			address_increment = 4;
-		else
-			address_increment = 8;
-		end_address = current_address + num_bytes;
+		puts(str);
+		if (tlb_word2_i_value == TLB_WORD2_I_ENABLE) {
+			/* ECC bit set method for non-cached memory */
+			if ((mcopt1 & SDRAM_MCOPT1_DMWD_MASK) == SDRAM_MCOPT1_DMWD_32)
+				address_increment = 4;
+			else
+				address_increment = 8;
+			end_address = current_address + num_bytes;
 
-		while (current_address < end_address) {
-			*((unsigned long *)current_address) = 0x00000000;
-			current_address += address_increment;
+			while (current_address < end_address) {
+				*((unsigned long *)current_address) = 0x00000000;
+				current_address += address_increment;
+			}
+		} else {
+			/* ECC bit set method for cached memory */
+			dcbz_area(start_address, num_bytes);
+			dflush();
 		}
+		for (i=0; i<strlen(str); i++)
+			putc('\b');
+
 		sync();
 		eieio();
 		wait_ddr_idle();
+
+		/* clear ECC error repoting registers */
+		mtsdram(SDRAM_ECCCR, 0xffffffff);
+		mtdcr(0x4c, 0xffffffff);
 
 		mtsdram(SDRAM_MCOPT1,
-			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_CHK);
+			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_CHK_REP);
 		sync();
 		eieio();
 		wait_ddr_idle();
+
+#ifdef CONFIG_ECC_ERROR_RESET
+		/*
+		 * One write to 0 is enough to trigger this ECC error
+		 * (see description above)
+		 */
+		out_be32(0, 0x12345678);
+		check_ecc();
+#endif
 	}
 }
 
