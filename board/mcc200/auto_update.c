@@ -162,7 +162,7 @@ int au_check_cksum_valid(int idx, long nbytes)
 int au_check_header_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
-	unsigned long checksum;
+	unsigned long checksum, fsize;
 
 	hdr = (image_header_t *)LOAD_ADDR;
 	/* check the easy ones first */
@@ -205,7 +205,7 @@ int au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	if ((idx == IDX_ROOTFS) &&
-		( (hdr->ih_type != IH_TYPE_RAMDISK) || (hdr->ih_type != IH_TYPE_FILESYSTEM) )
+		( (hdr->ih_type != IH_TYPE_RAMDISK) && (hdr->ih_type != IH_TYPE_FILESYSTEM) )
 	   ) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		ausize[idx] = 0;
@@ -213,8 +213,10 @@ int au_check_header_valid(int idx, long nbytes)
 	}
 	/* recycle checksum */
 	checksum = ntohl(hdr->ih_size);
-	/* for kernel and app the image header must also fit into flash */
-	if (idx != IDX_FIRMWARE)
+
+	fsize = checksum + sizeof(*hdr);
+	/* for kernel and ramdisk the image header must also fit into flash */
+	if (idx == IDX_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK)
 		checksum += sizeof(*hdr);
 
 	/* check the size does not exceed space in flash. HUSH scripts */
@@ -224,7 +226,7 @@ int au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	/* Update with the real filesize */
-	ausize[idx] = (idx == IDX_FIRMWARE ? checksum + sizeof(*hdr) : checksum);
+	ausize[idx] = fsize;
 
 	return checksum; /* return size to be written to flash */
 }

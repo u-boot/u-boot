@@ -107,11 +107,8 @@
  * DDR SDRAM
  *----------------------------------------------------------------------*/
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
-#define SPD_EEPROM_ADDRESS {0x51, 0x52}	/* SPD i2c spd addresses	*/
-#define IIC0_DIMM0_ADDR		0x51
-#define IIC0_DIMM1_ADDR		0x52
+#define SPD_EEPROM_ADDRESS	{0x51, 0x52}	/* SPD i2c spd addresses*/
 #undef  CONFIG_STRESS
-#undef  ENABLE_ECC
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -383,6 +380,22 @@
 				 EBC_CFG_EMC_DEFAULT  |	\
 				 EBC_CFG_PME_DISABLE  |	\
 				 EBC_CFG_PR_16)
+
+/*-----------------------------------------------------------------------
+ * GPIO Setup
+ *----------------------------------------------------------------------*/
+#define CFG_GPIO_PCIE_PRESENT0	17
+#define CFG_GPIO_PCIE_PRESENT1	21
+#define CFG_GPIO_PCIE_PRESENT2	23
+#define CFG_GPIO_RS232_FORCEOFF	30
+
+#define CFG_PFC0		(GPIO_VAL(CFG_GPIO_PCIE_PRESENT0) | \
+				 GPIO_VAL(CFG_GPIO_PCIE_PRESENT1) | \
+				 GPIO_VAL(CFG_GPIO_PCIE_PRESENT2) | \
+				 GPIO_VAL(CFG_GPIO_RS232_FORCEOFF))
+#define CFG_GPIO_OR		GPIO_VAL(CFG_GPIO_RS232_FORCEOFF)
+#define CFG_GPIO_TCR		GPIO_VAL(CFG_GPIO_RS232_FORCEOFF)
+#define CFG_GPIO_ODR		0
 
 /*
  * For booting Linux, the board info and command line data

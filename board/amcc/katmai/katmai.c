@@ -28,7 +28,6 @@
 #include <i2c.h>
 #include <asm-ppc/io.h>
 
-#include "katmai.h"
 #include "../cpu/ppc4xx/440spe_pcie.h"
 
 #undef PCIE_ENDPOINT
@@ -40,7 +39,6 @@ void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
 int board_early_init_f (void)
 {
 	unsigned long mfr;
-	unsigned long pfc;
 
 	/*----------------------------------------------------------------------+
 	 * Interrupt controller setup for the Katmai 440SPe Evaluation board.
@@ -228,15 +226,11 @@ int board_early_init_f (void)
 	mfr &= ~SDR0_MFR_ECS_MASK;
 /*	mtsdr(sdr_mfr, mfr); */
 
-	/*
-	 * Setup GPIO signalling per defines in katmai.h
-	 */
-	pfc = PFC0_KATMAI;
-	mtsdr(SDR0_PFC0, pfc);
+	mtsdr(SDR0_PFC0, CFG_PFC0);
 
-	out32(GPIO0_OR_ADDR, GPIO_OR_KATMAI);
-	out32(GPIO0_ODR_ADDR, GPIO_ODR_KATMAI);
-	out32(GPIO0_TCR_ADDR, GPIO_TCR_KATMAI);
+	out32(GPIO0_OR, CFG_GPIO_OR);
+	out32(GPIO0_ODR, CFG_GPIO_ODR);
+	out32(GPIO0_TCR, CFG_GPIO_TCR);
 
 	return 0;
 }
@@ -378,6 +372,23 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
+int katmai_pcie_card_present(int port)
+{
+	u32 val;
+
+	val = in32(GPIO0_IR);
+	switch (port) {
+	case 0:
+		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT0));
+	case 1:
+		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT1));
+	case 2:
+		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT2));
+	default:
+		return 0;
+	}
+}
+
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
 
 void pcie_setup_hoses(void)
@@ -391,6 +402,10 @@ void pcie_setup_hoses(void)
 	 */
 	bus = 1;
 	for (i = 0; i <= 2; i++) {
+		/* Check for katmai card presence */
+		if (!katmai_pcie_card_present(i))
+			continue;
+
 #ifdef PCIE_ENDPOINT
  		if (ppc440spe_init_pcie_endport(i)) {
 #else
