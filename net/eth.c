@@ -52,6 +52,7 @@ extern int rtl8139_initialize(bd_t*);
 extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
+extern int tsi108_eth_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
@@ -248,6 +249,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_NS8382X
 	ns8382x_initialize(bis);
+#endif
+#if defined(CONFIG_TSI108_ETH)
+	tsi108_eth_initialize(bis);
 #endif
 #if defined(CONFIG_RTL8139)
 	rtl8139_initialize(bis);
