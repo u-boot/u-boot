@@ -82,15 +82,10 @@ static int i2c_read_byte (
 		/* Wait until operation completed */
 		do {
 			/* Read I2C operation status */
-			temp =
-			    *(u32 *) (CFG_TSI108_CSR_BASE + chan_offset +
-				      I2C_CNTRL2);
+			temp = *(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
 
-			if (0 ==
-			    (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_START)))
-			{
-				if (0 ==
-				    (temp &
+			if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_START))) {
+				if (0 == (temp &
 				     (I2C_CNTRL2_I2C_CFGERR |
 				      I2C_CNTRL2_I2C_TO_ERR))
 				    ) {
@@ -152,9 +147,7 @@ int i2c_read (uchar chip_addr, uint byte_addr, int alen,
 	/* Check for valid I2C address */
 	if (chip_addr <= 0x7F && (byte_addr + len) <= (0x01 << (alen * 8))) {
 		while (len--) {
-			op_status =
-			    i2c_read_byte(i2c_if, chip_addr, byte_addr++,
-					  buffer++);
+			op_status = i2c_read_byte(i2c_if, chip_addr, byte_addr++, buffer++);
 
 			if (TSI108_I2C_SUCCESS != op_status) {
 				DPRINT (("I2C read_byte() failed: 0x%02x (%d left)\n", op_status, len));
@@ -182,10 +175,7 @@ static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 	/* Check if I2C operation is in progress */
 	temp = *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
 
-	if (0 ==
-	    (temp &
-	     (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START)))
-	{
+	if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START))) {
 		/* Place data into the I2C Tx Register */
 		*(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 			  I2C_TX_DATA) = (u32) * buffer;
@@ -200,7 +190,7 @@ static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 		/* Issue the write command (at this moment all other parameters
 		 * are 0 (size = 1 byte, lane = 0)
 		 */
-		
+
 		*(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 			  I2C_CNTRL2) = (I2C_CNTRL2_START);
 
@@ -209,15 +199,10 @@ static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 		/* Wait until operation completed */
 		do {
 			/* Read I2C operation status */
-			temp =
-			    *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
-				      I2C_CNTRL2);
+			temp = *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
 
-			if (0 ==
-			    (temp & (I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START)))
-			{
-				if (0 ==
-				    (temp &
+			if (0 == (temp & (I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START))) {
+				if (0 == (temp &
 				     (I2C_CNTRL2_I2C_CFGERR |
 				      I2C_CNTRL2_I2C_TO_ERR))) {
 					op_status = TSI108_I2C_SUCCESS;

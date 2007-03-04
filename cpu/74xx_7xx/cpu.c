@@ -308,9 +308,9 @@ ft_cpu_setup (void *blob, bd_t *bd)
 	u32 *p;
 	ulong clock;
 	int len;
-		
+
 	clock = bd->bi_busfreq;
-	
+
 	p = ft_get_prop (blob, "/cpus/" OF_CPU "/bus-frequency", &len);
 	if (p != NULL)
 		*p = cpu_to_be32 (clock);

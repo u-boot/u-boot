@@ -92,7 +92,7 @@ SW2[1-6]: CPU core frequency
 		CPU Core Frequency (MHz)
 			Bus Frequency
 	123456		100	133	167	200	Ratio
-	
+
 	------
 	SW2=101100	500	667	833	1000	5x
 	SW2=100100	550	733	917	1100	5.5x
@@ -109,43 +109,43 @@ hardware specifications for more information.
 
 SW2[7-8]: Bus Protocol and CPU Reset Option
 
-	7		
+	7
 	-
 	SW2=0		System bus uses MPX bus protocol
 	SW2=1		System bus uses 60x bus protocol
 
-	8		
+	8
 	-
 	SW2=0		TSI108 can cause CPU reset
 	SW2=1		TSI108 can not cause CPU reset
 
 SW3[1-8] system options
 
-	123		
+	123
 	---
 	SW3=xxx		Connected to GPIO[0:2] on TSI108
 
-	4		
+	4
 	-
 	SW3=0		CPU boots from low half of flash
 	SW3=1		CPU boots from high half of flash
 
-	5		
+	5
 	-
 	SW3=0		SATA and slot2 connected to PCI bus
 	SW3=1		Only slot1 connected to PCI bus
 
-	6		
+	6
 	-
 	SW3=0		USB connected to PCI bus
 	SW3=1		USB disconnected from PCI bus
 
-	7		
+	7
 	-
 	SW3=0		Flash is write protected
 	SW3=1		Flash is NOT write protected
 
-	8		
+	8
 	-
 	SW3=0		CPU will boot from flash
 	SW3=1		CPU will boot from PromJet
@@ -166,20 +166,19 @@ SW4[4-6]: DDR2 SDRAM frequency
 			Bus Frequency (MHz)
 	---
 	SW4=000		external clock
-	SW4=011		system clock	
+	SW4=011		system clock
 	SW4=100		133
 	SW4=101		166
 	SW4=110		200
 	others		reserved
 
 SW4[7-8]: PCI/PCI-X frequency control
-	7		
+	7
 	-
 	SW4=0		PCI/PCI-X bus operates normally
 	SW4=1		PCI bus forced to PCI-33 mode
 
-	8		
+	8
 	-
 	SW4=0		PCI-X mode at 133 MHz allowed
 	SW4=1		PCI-X mode limited to 100 MHz
-

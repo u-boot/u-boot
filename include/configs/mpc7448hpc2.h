@@ -285,7 +285,7 @@
 /* PCI view of System Memory */
 #define CFG_PCI_MEMORY_BUS	0x00000000
 #define CFG_PCI_MEMORY_PHYS	0x00000000
-#define CFG_PCI_MEMORY_SIZE	0x80000000	
+#define CFG_PCI_MEMORY_SIZE	0x80000000
 
 /* PCI Memory Space */
 #define CFG_PCI_MEM_BUS		(CFG_PCI_MEM_PHYS)

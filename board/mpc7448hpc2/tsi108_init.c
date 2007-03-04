@@ -179,7 +179,7 @@ int board_early_init_r (void)
 	ulong temp, i;
 	ulong reg_val;
 	volatile ulong *reg_ptr;
-	
+
 	reg_ptr =
 		(ulong *) (CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + 0x900);
 
@@ -300,7 +300,7 @@ int board_early_init_r (void)
 	out32 (CFG_TSI108_CSR_BASE + TSI108_HLP_REG_OFFSET + HLP_B3_CTRL1,
 		0x7C0F2000);
 	__asm__ __volatile__ ("sync");
-	
+
 	/*
 	 * Set new value for PB_OCN_BAR1: switch from BOOT to LUT mode.
 	 * value for PB_OCN_BAR1: (BA-0xE000_0000 + size 512MB + ENable)
@@ -312,7 +312,7 @@ int board_early_init_r (void)
 	/* Make sure that OCN_BAR2 decoder is set (to allow following
 	 * immediate read from SDRAM)
 	 */
-	
+
 	temp = in32(CFG_TSI108_CSR_BASE + TSI108_PB_REG_OFFSET + PB_OCN_BAR1);
 	__asm__ __volatile__ ("sync");
 
@@ -327,11 +327,11 @@ int board_early_init_r (void)
 	 * and enable all HLP banks and not just HLP 0 as is being done for
 	 * Taiga Rev. 2.
 	 */
-	
+
 	env_init ();
 
 #ifndef DISABLE_PBM
-	
+
 	/*
 	 * For IBM processors we have to set Address-Only commands generated
 	 * by PBM that are different from ones set after reset.
@@ -475,10 +475,10 @@ int board_early_init_r (void)
 
 	for (i = 0; i < 32; i++) {
 		*reg_ptr++ = reg_val;	/* P2O_BAR3_LUTx */
-		
+
 /* P2O_BAR3_LUT_UPPERx : Set data swapping mode for PBM (byte swapping) */
-		*reg_ptr++ = 0;	
-		
+		*reg_ptr++ = 0;
+
 /* offset = 16MB, address translation is enabled to allow byte swapping */
 		reg_val += 0x01000000;
 	}
@@ -507,7 +507,7 @@ int board_early_init_r (void)
 
 #endif	/* !DISABLE_PBM */
 
-#ifdef ENABLE_PCI_CSR_BAR	
+#ifdef ENABLE_PCI_CSR_BAR
 	/* open if required access to Tsi108 CSRs from the PCI/X bus */
 	/* enable BAR0 on the PCI/X bus */
 	reg_val = in32(CFG_TSI108_CSR_BASE +
@@ -528,7 +528,7 @@ int board_early_init_r (void)
 	/*
 	 * Finally enable PCI/X Bus Master and Memory Space access
 	 */
-	
+
 	reg_val = in32(CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_CSR);
 	reg_val |= 0x06;
 	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_CSR, reg_val);
@@ -555,7 +555,7 @@ int board_early_init_r (void)
 	 * Ensure that Machine Check exception is enabled
 	 * We need it to support PCI Bus probing (configuration reads)
 	 */
-	
+
 	reg_val = mfmsr ();
 	mtmsr(reg_val | MSR_ME);
 
@@ -631,7 +631,7 @@ int misc_init_r (void)
 	 * thing done with regards to enabling diabling the cache.
 	 * So this seems like a good place to print all this information
 	 */
-	
+
 	printf ("CACHE: ");
 	switch (get_cpu_type()) {
 	case CPU_7447A:

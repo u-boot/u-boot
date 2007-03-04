@@ -47,7 +47,7 @@ int display_mem_map (void);
 void after_reloc (ulong dest_addr)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	
+
 	/*
 	 * Jump to the main U-Boot board init code
 	 */
