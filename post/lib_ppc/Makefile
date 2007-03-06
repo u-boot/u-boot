@@ -22,10 +22,11 @@
 #
 
 
-SUBDIRS = drivers cpu lib_$(ARCH) board/$(BOARDDIR)
+LIB	= libpostppc.a
 
-LIB	= libpost.a
-
-COBJS	= post.o tests.o
+AOBJS	= asm.o
+COBJS	= cpu.o cmp.o cmpi.o two.o twox.o three.o threex.o
+COBJS   += threei.o andi.o srawi.o rlwnm.o rlwinm.o rlwimi.o
+COBJS	+= store.o load.o cr.o b.o multi.o string.o complex.o
 
 include $(TOPDIR)/post/rules.mk

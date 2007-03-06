@@ -203,7 +203,13 @@ ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
 LIBS += drivers/sk98lin/libsk98lin.a
-LIBS += post/libpost.a post/cpu/libcpu.a
+LIBS += post/libpost.a post/drivers/libpostdrivers.a
+LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
+	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)
+LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
+	"post/cpu/$(CPU)/libpost$(CPU).a"; fi)
+LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
+	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
 LIBS += $(BOARDLIBS)
 
@@ -216,9 +222,8 @@ PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
-	  examples \
-	  post \
-	  post/cpu
+	  examples
+
 .PHONY : $(SUBDIRS)
 
 ifeq ($(CONFIG_NAND_U_BOOT),y)

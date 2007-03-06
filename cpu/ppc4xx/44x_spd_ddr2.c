@@ -168,8 +168,8 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_mode(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks,
-                         ddr_cas_id_t *selected_cas,
-                         int *write_recovery);
+			 ddr_cas_id_t *selected_cas,
+			 int *write_recovery);
 static void program_tr(unsigned long *dimm_populated,
 		       unsigned char *iic0_dimm_addr,
 		       unsigned long num_dimm_banks);
@@ -185,7 +185,7 @@ static void program_copt1(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas,
+			    ddr_cas_id_t selected_cas,
 			    int write_recovery);
 static unsigned long is_ecc_enabled(void);
 static void program_ecc(unsigned long *dimm_populated,
@@ -1149,7 +1149,7 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas,
+			    ddr_cas_id_t selected_cas,
 			    int write_recovery)
 {
 	u32 cas = 0;
