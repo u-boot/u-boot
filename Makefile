@@ -118,7 +118,7 @@ include $(OBJTREE)/include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
 
 ifndef CROSS_COMPILE
-ifeq ($(HOSTARCH),ppc)
+ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE =
 else
 ifeq ($(ARCH),ppc)
@@ -128,11 +128,7 @@ ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
 endif
 ifeq ($(ARCH),i386)
-ifeq ($(HOSTARCH),i386)
-CROSS_COMPILE =
-else
 CROSS_COMPILE = i386-linux-
-endif
 endif
 ifeq ($(ARCH),mips)
 CROSS_COMPILE = mips_4KC-
