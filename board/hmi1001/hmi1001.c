@@ -103,9 +103,9 @@ long int initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x20000000);
+	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
 	sdram_start(1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x20000000);
+	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -179,7 +179,7 @@ struct kbd_data_t* get_keys (struct kbd_data_t *kbd_data)
 	return kbd_data;
 }
 
-static int compare_magic (const struct kbd_data_t *kbd_data, uchar *str)
+static int compare_magic (const struct kbd_data_t *kbd_data, char *str)
 {
 	char s1 = str[0];
 	char s2;
@@ -222,11 +222,11 @@ static int compare_magic (const struct kbd_data_t *kbd_data, uchar *str)
 	return 0;
 }
 
-static uchar *key_match (const struct kbd_data_t *kbd_data)
+static char *key_match (const struct kbd_data_t *kbd_data)
 {
-	uchar magic[sizeof (kbd_magic_prefix) + 1];
-	uchar *suffix;
-	uchar *kbd_magic_keys;
+	char magic[sizeof (kbd_magic_prefix) + 1];
+	char *suffix;
+	char *kbd_magic_keys;
 
 	/*
 	 * The following string defines the characters that can be appended
@@ -247,7 +247,7 @@ static uchar *key_match (const struct kbd_data_t *kbd_data)
 		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
 
 		if (compare_magic(kbd_data, getenv(magic)) == 0) {
-			uchar cmd_name[sizeof (kbd_command_prefix) + 1];
+			char cmd_name[sizeof (kbd_command_prefix) + 1];
 			char *cmd;
 
 			sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
@@ -267,7 +267,7 @@ int misc_init_r (void)
 #ifdef CONFIG_PREBOOT
 	struct kbd_data_t kbd_data;
 	/* Decode keys */
-	uchar *str = strdup (key_match (get_keys (&kbd_data)));
+	char *str = strdup (key_match (get_keys (&kbd_data)));
 	/* Set or delete definition */
 	setenv ("preboot", str);
 	free (str);
