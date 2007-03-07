@@ -148,8 +148,9 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CONFIG_SPD_EEPROM	1	 /* Use SPD EEPROM for setup	 */
+#define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS {0x53,0x52}	/* SPD i2c spd addresses	*/
+#define CONFIG_PROG_SDRAM_TLB	1	/* setup SDRAM TLB's dynamically*/
 
 /*-----------------------------------------------------------------------
  * I2C
