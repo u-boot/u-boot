@@ -1424,6 +1424,26 @@ NetReceive(volatile uchar * inpkt, int len)
 				/* XXX point to ip packet */
 				(*packetHandler)((uchar *)ip, 0, 0, 0);
 				return;
+			case ICMP_ECHO_REQUEST:
+#ifdef ET_DEBUG
+				printf ("Got ICMP ECHO REQUEST, return %d bytes \n",
+					ETHER_HDR_SIZE + len);
+#endif
+				memcpy (&et->et_dest[0], &et->et_src[0], 6);
+				memcpy (&et->et_src[ 0], NetOurEther, 6);
+
+				ip->ip_sum = 0;
+				ip->ip_off = 0;
+				NetCopyIP((void*)&ip->ip_dst, &ip->ip_src);
+				NetCopyIP((void*)&ip->ip_src, &NetOurIP);
+				ip->ip_sum = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP >> 1);
+
+				icmph->type = ICMP_ECHO_REPLY;
+				icmph->checksum = 0;
+				icmph->checksum = ~NetCksum((uchar *)icmph,
+						(len - IP_HDR_SIZE_NO_UDP) >> 1);
+				(void) eth_send((uchar *)et, ETHER_HDR_SIZE + len);
+				return;
 #endif
 			default:
 				return;
