@@ -215,12 +215,6 @@ int checkboard (void)
 	}
 
 	putc ('\n');
-
-	/*
-	 * Disable sleep mode in LXT971
-	 */
-	lxt971_no_sleep();
-
 	return 0;
 }
 
@@ -292,3 +286,14 @@ void board_auto_update_show(int au_active)
 	}
 }
 #endif
+
+void reset_phy(void)
+{
+#ifdef CONFIG_LXT971_NO_SLEEP
+
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+#endif
+}
