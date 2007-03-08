@@ -1361,7 +1361,7 @@ ppcSync:
 relocate_code:
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
