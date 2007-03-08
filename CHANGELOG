@@ -1,3 +1,172 @@
+commit 00cdb4ce5e1b42248e7e6522ad0da3421b988afa
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 8 10:13:16 2007 +0100
+
+    [PATCH] Update AMCC Luan 440SP eval board support
+
+    The AMCC Luan now uses the common 440SP(e) DDR SPD code for DDR
+    inititializition. This includes DDR auto calibration and support
+    for different DIMM modules, instead of the fixed setup used in
+    the earlier version.
+
+    This patch also enables the cache in FLASH for the startup
+    phase of U-Boot (while running from FLASH). After relocating to
+    SDRAM the cache is disabled again. This will speed up the boot
+    process, especially the SDRAM setup, since there are some loops
+    for memory testing (auto calibration).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2f5df47351910a2936c7741cf111855829200943
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 8 10:10:18 2007 +0100
+
+    [PATCH] Update AMCC Yucca 440SPe eval board support
+
+    The AMCC Yucca now uses the common 440SP(e) DDR SPD code for DDR
+    inititializition. This includes DDR auto calibration and support
+    for different DIMM modules, instead of the fixed setup used in
+    the earlier version.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2721a68a9ea91f1e494649ce68b2577261f578e2
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 8 10:07:18 2007 +0100
+
+    ppc4xx: Small AMCC Katmai 440SPe update
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df294497479b1dca6dd86318b2a912f72fede0df
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 8 10:06:09 2007 +0100
+
+    ppc4xx: Update 440SP/440SPe DDR SPD setup code to support 440SP
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fa1aef15bcd47736687be1af544506e90fba545d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 7 16:43:00 2007 +0100
+
+    [PATCH] Use dynamic SDRAM TLB setup on AMCC Ocotea eval board
+
+    Define CONFIG_PROG_SDRAM_TLB so that the TLB entries for the
+    DDR memory are dynamically programmed matching the total size
+    of the equipped memory (DIMM modules).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e2ebe696818939e2b974628be9c921ea3fe9de13
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 7 16:39:36 2007 +0100
+
+    [PATCH] Fix AMCC 44x SPD SDRAM init code to support 2 DIMM's
+
+    This patch fixes a problem that occurs when 2 DIMM's are
+    used. This problem was first spotted and fixed by Gerald Jackson
+    <gerald.jackson@reaonixsecurity.com> but this patch fixes the
+    problem in a little more clever way.
+
+    This patch also adds the nice functionality to dynamically
+    create the TLB entries for the SDRAM (tlb.c). So we should
+    never run into such problems with wrong (too short) TLB
+    initialization again on these platforms.
+
+    As this feature is new to the "old" 44x SPD DDR driver, it
+    has to be enabled via the CONFIG_PROG_SDRAM_TLB define.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 39218433983417b9df087976a79e3f80dd5e83d6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 7 16:33:44 2007 +0100
+
+    UC101: fix compiler warnings
+
+commit 8d7e2732221bc2d64df14f700c64c23e0a4c3dce
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Mar 7 16:19:46 2007 +0100
+
+    HMI1001: fix build error, cleanup compiler warnings.
+
+commit ad5bb451ade552c44bef9119d907929ebc2c126f
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Mar 6 18:08:43 2007 +0100
+
+    Restructure POST directory to support of other CPUs, boards, etc.
+
+commit a5284efd125967675b2e9c6ef7b95832268ad360
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Mar 6 18:01:47 2007 +0100
+
+    Fix HOSTARCH handling.
+    Patch by Mike Frysinger, Mar 05 2007
+
+commit 07b7b0037aac5102939917d7cbe561b5c0d5aa44
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 6 07:47:04 2007 +0100
+
+    [PATCH] Speed optimization of AMCC Sequoia/Rainier DDR2 setup
+
+    As provided by the AMCC applications team, this patch optimizes the
+    DDR2 setup for 166MHz bus speed. The values provided are also save
+    to use on a "normal" 133MHz PLB bus system. Only the refresh counter
+    setup has to be adjusted as done in this patch.
+
+    For this the NAND booting version had to include the "speed.c" file
+    from the cpu/ppc4xx directory. With this addition the NAND SPL image
+    will just fit into the 4kbytes of program space. gcc version 4.x as
+    provided with ELDK 4.x is needed to generate this optimized code.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ba58e4c9a9a917ce795dd16d4ec8d515f9f7aa35
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 1 21:11:36 2007 +0100
+
+    [PATCH] Update AMCC Katmai 440SPe eval board support
+
+    This patch updates the recently added Katmai board support. The biggest
+    change is the support of ECC DIMM modules in the 440SP(e) SPD DDR2
+    driver.
+
+    Please note, that still some problems are left with some memory
+    configurations. See the driver for more details.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8c12045a3b06c5b6675d3fe02fbc9f545988129a
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 1 07:03:25 2007 +0100
+
+    [PATCH] I2C: Add missing default CFG_RTC_BUS_NUM & CFG_DTT_BUS_NUM
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ccbc7036648e465697ca298ba51e0e76dda352a0
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Feb 28 01:28:53 2007 +0100
+
+    SC3: fix typo in default environment
+
+commit e344568b1b46af85ec32d815586f91bc115d6223
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Tue Feb 27 20:15:30 2007 +0300
+
+    MCC200: Fixes for update procedure
+
+    - fix logic error in image type handling
+    - make sure file system images (cramfs etc.) get stored in flash
+      with image header stripped so they can be mounted through MTD
+
+commit 743571145b37182757d4e688a77860b36ee77573
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Tue Feb 27 14:26:04 2007 +0100
+
+    Minor code cleanup.
+
 commit 638dd1458bbdc2a55d4b9e25c5c4e1f838a5dc72
 Author: Sergei Poselenov <sposelenov@emcraft.com>
 Date:	Tue Feb 27 12:40:16 2007 +0300
@@ -292,6 +461,14 @@ Date:	Mon Feb 19 08:23:15 2007 +0100
     enabled for the NOR FLASH on the Sequoia board.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2605e90bf676d48123afe5719a846d2b52b24aac
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Feb 16 07:57:42 2007 +0100
+
+    [PATCH] Added support for the jupiter board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
 
 commit 497d012e5be0194e1084073d0081eb1a844796b2
 Author: Gary Jennejohn <garyj@pollux.denx.de>
