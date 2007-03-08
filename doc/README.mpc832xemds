@@ -126,4 +126,3 @@ Maybe 3ffff will work too, that corresponds to the erased sectors.
 
 6. Notes
 	1) The console baudrate for MPC832XEMDS is 115200bps.
-
