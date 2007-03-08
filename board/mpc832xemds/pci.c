@@ -36,21 +36,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_mpc83xxemds_config_table[] = {
 	{
-	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 pci_cfgfunc_config_device,
-	 {PCI_ENET0_IOADDR,
-	  PCI_ENET0_MEMADDR,
-	  PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
-	 },
+		PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+		pci_cfgfunc_config_device,
+		{PCI_ENET0_IOADDR,
+		PCI_ENET0_MEMADDR,
+		PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
+	},
 	{}
 }
 #endif
 static struct pci_controller hose[] = {
 	{
 #ifndef CONFIG_PCI_PNP
-	      config_table:pci_mpc83xxemds_config_table,
+		config_table:pci_mpc83xxemds_config_table,
 #endif
-	 },
+	},
 };
 
 /**********************************************************************
@@ -203,7 +203,7 @@ void pci_init_board(void)
 
 	/* Switch temporarily to I2C bus #2 */
 	orig_i2c_bus = i2c_get_bus_num();
- 	i2c_set_bus_num(1);
+	i2c_set_bus_num(1);
 
 	val8 = 0;
 	i2c_write(0x23, 0x6, 1, &val8, 1);
@@ -217,7 +217,7 @@ void pci_init_board(void)
 	val8 = 0x34;
 	i2c_write(0x26, 0x7, 1, &val8, 1);
 
-	val8 = 0xf3;		/*PMC1, PMC2, PMC3 slot to PCI bus */
+	val8 = 0xf9;		/* PMC2, PMC3 slot to PCI bus */
 	i2c_write(0x26, 0x2, 1, &val8, 1);
 	val8 = 0xff;
 	i2c_write(0x26, 0x3, 1, &val8, 1);
@@ -290,7 +290,7 @@ void pci_init_board(void)
 	pci_hose_write_config_byte(&hose[0], dev, PCI_LATENCY_TIMER, 0x80);
 	pci_hose_write_config_byte(&hose[0], dev, PCI_CACHE_LINE_SIZE, 0x08);
 
-	printf("PCI 32bit bus on PMC1 & PMC2 & PMC3\n");
+	printf("PCI 32bit bus on PMC2 & PMC3\n");
 
 	/*
 	 * Hose scan.
@@ -303,14 +303,14 @@ void pci_init_board(void)
 void
 ft_pci_setup(void *blob, bd_t *bd)
 {
-       	u32 *p;
-       	int len;
+	u32 *p;
+	int len;
 
-       	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
-       	if (p != NULL) {
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
+	if (p != NULL) {
 		p[0] = hose[0].first_busno;
 		p[1] = hose[0].last_busno;
-       	}
+	}
 }
 #endif				/* CONFIG_OF_FLAT_TREE */
 #endif				/* CONFIG_PCI */

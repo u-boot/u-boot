@@ -90,10 +90,17 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 
 int board_early_init_f(void)
 {
-	volatile u8 *bcsr = (volatile u8 *)CFG_BCSR;
+
+	u8 *bcsr = (u8 *)CFG_BCSR;
+	const immap_t *immr = (immap_t *)CFG_IMMR;
 
 	/* Enable flash write */
 	bcsr[0xa] &= ~0x04;
+
+	/* Disable G1TXCLK, G2TXCLK h/w buffers (rev.2 h/w bug workaround) */
+	if (immr->sysconf.spridr == SPR_8360_REV20 ||
+	    immr->sysconf.spridr == SPR_8360E_REV20)
+		bcsr[0xe] = 0x30;
 
 	return 0;
 }
@@ -158,6 +165,20 @@ int fixed_sdram(void)
 #if (CFG_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
+#ifdef CONFIG_DDR_II
+	im->ddr.csbnds[0].csbnds = CFG_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CFG_DDR_CS0_CONFIG;
+	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CFG_DDR_MODE;
+	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
+	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
+#else
 	im->ddr.csbnds[0].csbnds = 0x00000007;
 	im->ddr.csbnds[1].csbnds = 0x0008000f;
 
@@ -170,6 +191,7 @@ int fixed_sdram(void)
 
 	im->ddr.sdram_mode = CFG_DDR_MODE;
 	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+#endif
 	udelay(200);
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 

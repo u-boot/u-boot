@@ -1,5 +1,5 @@
 #
-# Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
+# Copyright (c) 2006 Wind River Systems, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,17 +21,7 @@
 #
 
 #
-# MPC8349E-mITX and MPC8349E-mITX-GP
+# SBC8349E
 #
 
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef TEXT_BASE
-TEXT_BASE  =   0xFEF00000
-endif
-
-ifneq ($(OBJTREE),$(SRCTREE))
-# We are building u-boot in a separate directory, use generated
-# .lds script from OBJTREE directory.
-LDSCRIPT := $(OBJTREE)/board/$(BOARDDIR)/u-boot.lds
-endif
+TEXT_BASE  =   0xFFF00000

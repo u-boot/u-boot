@@ -99,7 +99,7 @@ int get_clocks(void)
 	u32 lcrr;
 
 	u32 csb_clk;
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbmph_clk;
@@ -107,15 +107,19 @@ int get_clocks(void)
 #endif
 	u32 core_clk;
 	u32 i2c1_clk;
+#if !defined(CONFIG_MPC832X)
 	u32 i2c2_clk;
+#endif
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 ddr_clk;
-#if defined (CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360)
+	u32 ddr_sec_clk;
+#endif
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	u32 qepmf;
 	u32 qepdf;
-	u32 ddr_sec_clk;
 	u32 qe_clk;
 	u32 brg_clk;
 #endif
@@ -139,12 +143,12 @@ int get_clocks(void)
 #endif
 	}
 
-	spmf = ((im->reset.rcwl & RCWL_SPMF) >> RCWL_SPMF_SHIFT);
+	spmf = ((im->reset.rcwl & HRCWL_SPMF) >> HRCWL_SPMF_SHIFT);
 	csb_clk = pci_sync_in * (1 + clkin_div) * spmf;
 
 	sccr = im->clk.sccr;
 
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
 		tsec1_clk = 0;
@@ -227,10 +231,12 @@ int get_clocks(void)
 		return -9;
 	}
 #endif
-#if defined (CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	i2c1_clk = csb_clk;
 #endif
+#if !defined(CONFIG_MPC832X)
 	i2c2_clk = csb_clk;	/* i2c-2 clk is equal to csb clk */
+#endif
 
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
@@ -249,12 +255,9 @@ int get_clocks(void)
 		/* unkown SCCR_ENCCM value */
 		return -6;
 	}
-#if defined(CONFIG_MPC8349) || defined(CONFIG_MPC8360)
+
 	lbiu_clk = csb_clk *
-	           (1 + ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
-#else
-#error Unknown MPC83xx chip
-#endif
+	           (1 + ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
 	lcrr = (im->lbus.lcrr & LCRR_CLKDIV) >> LCRR_CLKDIV_SHIFT;
 	switch (lcrr) {
 	case 2:
@@ -266,16 +269,13 @@ int get_clocks(void)
 		/* unknown lcrr */
 		return -10;
 	}
-#if defined(CONFIG_MPC8349) || defined(CONFIG_MPC8360)
+
 	ddr_clk = csb_clk *
-		  (1 + ((im->reset.rcwl & RCWL_DDRCM) >> RCWL_DDRCM_SHIFT));
-	corepll = (im->reset.rcwl & RCWL_COREPLL) >> RCWL_COREPLL_SHIFT;
-#if defined (CONFIG_MPC8360)
+		  (1 + ((im->reset.rcwl & HRCWL_DDRCM) >> HRCWL_DDRCM_SHIFT));
+	corepll = (im->reset.rcwl & HRCWL_COREPLL) >> HRCWL_COREPLL_SHIFT;
+#if defined(CONFIG_MPC8360)
 	ddr_sec_clk = csb_clk * (1 +
-		       ((im->reset.rcwl & RCWL_LBIUCM) >> RCWL_LBIUCM_SHIFT));
-#endif
-#else
-#error Unknown MPC83xx chip
+		       ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
 #endif
 
 	corecnf_tab_index = ((corepll & 0x1F) << 2) | ((corepll & 0x60) >> 5);
@@ -306,15 +306,15 @@ int get_clocks(void)
 		return -12;
 	}
 
-#if defined (CONFIG_MPC8360)
-	qepmf = (im->reset.rcwl & RCWL_CEPMF) >> RCWL_CEPMF_SHIFT;
-	qepdf = (im->reset.rcwl & RCWL_CEPDF) >> RCWL_CEPDF_SHIFT;
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
+	qepmf = (im->reset.rcwl & HRCWL_CEPMF) >> HRCWL_CEPMF_SHIFT;
+	qepdf = (im->reset.rcwl & HRCWL_CEPDF) >> HRCWL_CEPDF_SHIFT;
 	qe_clk = (pci_sync_in * qepmf) / (1 + qepdf);
 	brg_clk = qe_clk / 2;
 #endif
 
 	gd->csb_clk = csb_clk;
-#if defined(CONFIG_MPC8349)
+#if defined(CONFIG_MPC834X)
 	gd->tsec1_clk = tsec1_clk;
 	gd->tsec2_clk = tsec2_clk;
 	gd->usbmph_clk = usbmph_clk;
@@ -322,13 +322,17 @@ int get_clocks(void)
 #endif
 	gd->core_clk = core_clk;
 	gd->i2c1_clk = i2c1_clk;
+#if !defined(CONFIG_MPC832X)
 	gd->i2c2_clk = i2c2_clk;
+#endif
 	gd->enc_clk = enc_clk;
 	gd->lbiu_clk = lbiu_clk;
 	gd->lclk_clk = lclk_clk;
 	gd->ddr_clk = ddr_clk;
-#if defined (CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360)
 	gd->ddr_sec_clk = ddr_sec_clk;
+#endif
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
@@ -352,19 +356,22 @@ int print_clock_conf(void)
 	printf("Clock configuration:\n");
 	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 	printf("  Core:                %4d MHz\n", gd->core_clk / 1000000);
-#if defined (CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	printf("  QE:                  %4d MHz\n", gd->qe_clk / 1000000);
+	printf("  BRG:                 %4d MHz\n", gd->brg_clk / 1000000);
 #endif
 	printf("  Local Bus Controller:%4d MHz\n", gd->lbiu_clk / 1000000);
 	printf("  Local Bus:           %4d MHz\n", gd->lclk_clk / 1000000);
 	printf("  DDR:                 %4d MHz\n", gd->ddr_clk / 1000000);
-#if defined (CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360)
 	printf("  DDR Secondary:       %4d MHz\n", gd->ddr_sec_clk / 1000000);
 #endif
 	printf("  SEC:                 %4d MHz\n", gd->enc_clk / 1000000);
 	printf("  I2C1:                %4d MHz\n", gd->i2c1_clk / 1000000);
+#if !defined(CONFIG_MPC832X)
 	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
-#if defined(CONFIG_MPC8349)
+#endif
+#if defined(CONFIG_MPC834X)
 	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
 	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
 	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);

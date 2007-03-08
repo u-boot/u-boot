@@ -1,6 +1,9 @@
 /*
- * (C) Copyright 2006
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * sbc8349.c -- WindRiver SBC8349 board support.
+ * Copyright (c) 2006-2007 Wind River Systems, Inc.
+ *
+ * Paul Gortmaker <paul.gortmaker@windriver.com>
+ * Based on board/mpc8349emds/mpc8349emds.c (and previous 834x releases.)
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -44,20 +47,12 @@ void sdram_init(void);
 void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f (void)
 {
-	volatile u8* bcsr = (volatile u8*)CFG_BCSR;
-
-	/* Enable flash write */
-	bcsr[1] &= ~0x01;
-
-#ifdef CFG_USE_MPC834XSYS_USB_PHY
-	/* Use USB PHY on SYS board */
-	bcsr[5] |= 0x02;
-#endif
-
 	return 0;
 }
+#endif
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8349_CLKIN) + 1)
 
@@ -117,22 +112,8 @@ int fixed_sdram(void)
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 
 #if (CFG_DDR_SIZE != 256)
-#warning Currenly any ddr size other than 256 is not supported
+#warning Currently any ddr size other than 256 is not supported
 #endif
-#ifdef CONFIG_DDR_II
-	im->ddr.csbnds[2].csbnds = CFG_DDR_CS2_BNDS;
-	im->ddr.cs_config[2] = CFG_DDR_CS2_CONFIG;
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
-#else
 	im->ddr.csbnds[2].csbnds = 0x0000000f;
 	im->ddr.cs_config[2] = CFG_DDR_CONFIG;
 
@@ -157,7 +138,6 @@ int fixed_sdram(void)
 	im->ddr.sdram_mode = CFG_DDR_MODE;
 
 	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
-#endif
 	udelay(200);
 
 	/* enable DDR controller */
@@ -169,12 +149,12 @@ int fixed_sdram(void)
 
 int checkboard (void)
 {
-	puts("Board: Freescale MPC8349EMDS\n");
+	puts("Board: Wind River SBC834x\n");
 	return 0;
 }
 
 /*
- * if MPC8349EMDS is soldered with SDRAM
+ * if board is fitted with SDRAM
  */
 #if defined(CFG_BR2_PRELIM)  \
 	&& defined(CFG_OR2_PRELIM) \
@@ -254,7 +234,7 @@ void sdram_init(void)
 #else
 void sdram_init(void)
 {
-	puts("   SDRAM on Local Bus is NOT available!\n");
+	puts("   SDRAM on Local Bus: Disabled in config\n");
 }
 #endif
 

@@ -21,7 +21,7 @@
  */
 
 /*
- MPC8349E-mITX board configuration file
+ MPC8349E-mITX and MPC8349E-mITX-GP board configuration file
 
  Memory map:
 
@@ -31,11 +31,11 @@
  0xE000_0000-0xEFFF_FFFF IMMR (1 MB)
  0xE200_0000-0xE2FF_FFFF PCI1 I/O space (16 MB)
  0xE300_0000-0xE3FF_FFFF PCI2 I/O space (16 MB)
- 0xF000_0000-0xF000_FFFF Compact Flash
+ 0xF000_0000-0xF000_FFFF Compact Flash (MPC8349E-mITX only)
  0xF001_0000-0xF001_FFFF Local bus expansion slot
- 0xF800_0000-0xF801_FFFF GBE L2 Switch VSC7385
- 0xFF00_0000-0xFF7F_FFFF Alternative bank of Flash memory (8MB)
- 0xFF80_0000-0xFFFF_FFFF Boot Flash (8 MB)
+ 0xF800_0000-0xF801_FFFF Vitesse 7385 Parallel Interface (MPC8349E-mITX only)
+ 0xFE00_0000-0xFE7F_FFFF First 8MB bank of Flash memory
+ 0xFE80_0000-0xFEFF_FFFF Second 8MB bank of Flash memory (MPC8349E-mITX only)
 
  I2C address list:
 						Align.	Board
@@ -56,7 +56,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG
+#if (TEXT_BASE == 0xFE000000)
+#define CFG_LOWBOOT
+#endif
 
 /*
  * High Level Configuration Options
@@ -64,14 +66,26 @@
 #define CONFIG_MPC834X		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
 
-#define CONFIG_PCI
+#define CFG_IMMR		0xE0000000	/* The IMMR is relocated to here */
 
+
+/* On-board devices */
+
+#ifdef CONFIG_MPC8349ITX
 #define CONFIG_COMPACT_FLASH	/* The CF card interface on the back of the board */
+#define CONFIG_VSC7385		/* The Vitesse 7385 5-port switch */
+#endif
+
+#define CONFIG_PCI
 #define CONFIG_RTC_DS1337
+#define CONFIG_HARD_I2C
+#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
+
+/*
+ * Device configurations
+ */
 
 /* I2C */
-#define CONFIG_HARD_I2C
-
 #ifdef CONFIG_HARD_I2C
 
 #define CONFIG_MISC_INIT_F
@@ -111,119 +125,8 @@
 
 #endif
 
-#define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_ENV_OVERWRITE
-
-#define PCI_66M
-#ifdef PCI_66M
-#define CONFIG_83XX_CLKIN	66666666	/* in Hz */
-#else
-#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_66M
-#define CONFIG_SYS_CLK_FREQ	66666666
-#else
-#define CONFIG_SYS_CLK_FREQ	33333333
-#endif
-#endif
-
-#define CFG_IMMR		0xE0000000	/* The IMMR is relocated to here */
-
-#undef CFG_DRAM_TEST				/* memory test, takes time */
-#define CFG_MEMTEST_START	0x00003000	/* memtest region */
-#define CFG_MEMTEST_END		0x07100000	/* only has 128M */
-
-/*
- * DDR Setup
- */
-#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
-#undef CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
-#define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
-
-/*
- * 32-bit data path mode.
- *
- * Please note that using this mode for devices with the real density of 64-bit
- * effectively reduces the amount of available memory due to the effect of
- * wrapping around while translating address to row/columns, for example in the
- * 256MB module the upper 128MB get aliased with contents of the lower
- * 128MB); normally this define should be used for devices with real 32-bit
- * data path.
- */
-#undef CONFIG_DDR_32BIT
-
-#define CFG_DDR_BASE	0x00000000	/* DDR is system memory*/
-#define CFG_SDRAM_BASE CFG_DDR_BASE
-#define CFG_DDR_SDRAM_BASE CFG_DDR_BASE
-#undef	CONFIG_DDR_2T_TIMING
-#define CFG_83XX_DDR_USES_CS0
-
-#ifndef CONFIG_SPD_EEPROM
-/*
- * Manually set up DDR parameters
- */
-    #define CFG_DDR_SIZE	256		/* Mb */
-    #define CFG_DDR_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
-
-    #define CFG_DDR_TIMING_1	0x26242321
-    #define CFG_DDR_TIMING_2	0x00000800  /* P9-45, may need tuning */
-#endif
-
-/* FLASH on the Local Bus */
-#define CFG_FLASH_CFI				/* use the Common Flash Interface */
-#define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
-#define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
-#define CFG_FLASH_SIZE		16		/* FLASH size in MB */
-#define CFG_FLASH_EMPTY_INFO
-
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_V)
-#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
-				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
-#define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* Window base at flash base */
-#define CFG_LBLAWAR0_PRELIM	0x80000017	/* 16Mb window bytes */
-
-/* VSC7385 on the Local Bus */
-#define CFG_VSC7385_BASE	0xF8000000	/* start of VSC7385   */
-
-#define CFG_BR1_PRELIM		(CFG_VSC7385_BASE | BR_PS_8 | BR_V)
-#define CFG_OR1_PRELIM		(0xFFFE0000 /* 128KB */ | \
-				OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
-				OR_GPCM_SETA | OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
-
-#define CFG_LBLAWBAR1_PRELIM	CFG_VSC7385_BASE	/* Access window base at VSC7385 base */
-#define CFG_LBLAWAR1_PRELIM	0x80000010		/* Access window size 128K */
-
-#define CFG_MAX_FLASH_BANKS	2		/* number of banks */
-#define CFG_MAX_FLASH_SECT	135		/* sectors per device */
-
-#define CFG_FLASH_BANKS_LIST {CFG_FLASH_BASE, CFG_FLASH_BASE + 0x800000}
-
-#undef	CFG_FLASH_CHECKSUM
-#define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CFG_LED_BASE		0xF9000000  /* start of LED and Board ID */
-#define CFG_BR2_PRELIM		(CFG_LED_BASE | BR_PS_8 | BR_V)
-#define CFG_OR2_PRELIM		(0xFFE00000 /* 2MB */ | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | \
-				OR_GPCM_SCY_9 | \
-				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
-
+/* Compact Flash */
 #ifdef CONFIG_COMPACT_FLASH
-
-#define CFG_CF_BASE		0xF0000000
-
-#define CFG_BR3_PRELIM		(CFG_CF_BASE | BR_PS_16 | BR_MS_UPMA | BR_V)
-#define CFG_OR3_PRELIM		(OR_UPM_AM | OR_UPM_BI)
-
-#define CFG_LBLAWBAR2_PRELIM	CFG_CF_BASE	/* Window base at flash base + LED & Board ID */
-#define CFG_LBLAWAR2_PRELIM	0x8000000F	/* 64K bytes */
-
-#undef CONFIG_IDE_RESET
-#undef CONFIG_IDE_PREINIT
 
 #define CFG_IDE_MAXBUS		1
 #define CFG_IDE_MAXDEVICE	1
@@ -237,13 +140,108 @@
 
 #define ATA_RESET_TIME	1	/* If a CF card is not inserted, time out quickly */
 
-#endif
-
 #define CONFIG_DOS_PARTITION
 
-#define CFG_MID_FLASH_JUMP	0x7F000000
-#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#endif
 
+/*
+ * DDR Setup
+ */
+#define CFG_DDR_BASE		0x00000000	/* DDR is system memory*/
+#define CFG_SDRAM_BASE 		CFG_DDR_BASE
+#define CFG_DDR_SDRAM_BASE 	CFG_DDR_BASE
+#define CFG_83XX_DDR_USES_CS0
+#define CFG_MEMTEST_START	0x1000		/* memtest region */
+#define CFG_MEMTEST_END		0x2000
+
+#ifdef CONFIG_HARD_I2C
+#define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
+#endif
+
+#ifndef CONFIG_SPD_EEPROM	/* No SPD? Then manually set up DDR parameters */
+    #define CFG_DDR_SIZE	256		/* Mb */
+    #define CFG_DDR_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
+
+    #define CFG_DDR_TIMING_1	0x26242321
+    #define CFG_DDR_TIMING_2	0x00000800  /* P9-45, may need tuning */
+#endif
+
+/*
+ *Flash on the Local Bus
+ */
+
+#define CFG_FLASH_CFI				/* use the Common Flash Interface */
+#define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
+#define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
+#define CFG_FLASH_EMPTY_INFO
+#define CFG_MAX_FLASH_SECT	135	/* 127 64KB sectors + 8 8KB sectors per device */
+#define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
+#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
+#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+
+/* The ITX has two flash chips, but the ITX-GP has only one.  To support both
+boards, we say we have two, but don't display a message if we find only one. */
+#define CFG_FLASH_QUIET_TEST
+#define CFG_MAX_FLASH_BANKS	2		/* number of banks */
+#define CFG_FLASH_BANKS_LIST 	{CFG_FLASH_BASE, CFG_FLASH_BASE + 0x800000}
+#define CFG_FLASH_SIZE		16		/* FLASH size in MB */
+#define CFG_FLASH_SIZE_SHIFT	4		/* log2 of the above value */
+
+/*
+ * BRx, ORx, LBLAWBARx, and LBLAWARx
+ */
+
+/* Flash */
+
+#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_V)
+#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
+#define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE
+#define CFG_LBLAWAR0_PRELIM	(LBLAWAR_EN | (0x13 + CFG_FLASH_SIZE_SHIFT))
+
+/* Vitesse 7385 */
+
+#ifdef CONFIG_VSC7385
+
+#define CFG_VSC7385_BASE	0xF8000000
+
+#define CFG_BR1_PRELIM		(CFG_VSC7385_BASE | BR_PS_8 | BR_V)
+#define CFG_OR1_PRELIM		(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | \
+				OR_GPCM_SCY_15 | OR_GPCM_SETA | OR_GPCM_TRLX | \
+				OR_GPCM_EHTR | OR_GPCM_EAD)
+
+#define CFG_LBLAWBAR1_PRELIM	CFG_VSC7385_BASE
+#define CFG_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
+
+#endif
+
+/* LED */
+
+#define CFG_LED_BASE		0xF9000000
+#define CFG_BR2_PRELIM		(CFG_LED_BASE | BR_PS_8 | BR_V)
+#define CFG_OR2_PRELIM		(OR_AM_2MB | OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | \
+				OR_GPCM_XACS | OR_GPCM_SCY_9 | OR_GPCM_TRLX | \
+				OR_GPCM_EHTR | OR_GPCM_EAD)
+
+/* Compact Flash */
+
+#ifdef CONFIG_COMPACT_FLASH
+
+#define CFG_CF_BASE		0xF0000000
+
+#define CFG_BR3_PRELIM		(CFG_CF_BASE | BR_PS_16 | BR_MS_UPMA | BR_V)
+#define CFG_OR3_PRELIM		(OR_UPM_AM | OR_UPM_BI)
+
+#define CFG_LBLAWBAR3_PRELIM	CFG_CF_BASE
+#define CFG_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_64KB)
+
+#endif
+
+/*
+ * U-Boot memory configuration
+ */
+#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
@@ -253,10 +251,10 @@
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK
-#define CFG_INIT_RAM_ADDR	0xFD000000		/* Initial RAM address */
-#define CFG_INIT_RAM_END	0x1000	     /* End of used area in RAM*/
+#define CFG_INIT_RAM_ADDR	0xFD000000	/* Initial RAM address */
+#define CFG_INIT_RAM_END	0x1000		/* End of used area in RAM*/
 
-#define CFG_GBL_DATA_SIZE	0x100	  /* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	0x100		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -272,96 +270,8 @@
 #define CFG_LCRR	(LCRR_DBYP | LCRR_CLKDIV_4)
 #define CFG_LBC_LBCR	0x00000000
 
-#undef CFG_LB_SDRAM	/* if board has SRDAM on local bus */
-
-#ifdef CFG_LB_SDRAM
-/*local bus BR2, OR2 definition for SDRAM if soldered on the ADS board*/
-/*
- * Base Register 2 and Option Register 2 configure SDRAM.
- * The SDRAM base address, CFG_LBC_SDRAM_BASE, is 0xf0000000.
- *
- * For BR2, need:
- *    Base address of 0xf0000000 = BR[0:16] = 1111 0000 0000 0000 0
- *    port-size = 32-bits = BR2[19:20] = 11
- *    no parity checking = BR2[21:22] = 00
- *    SDRAM for MSEL = BR2[24:26] = 011
- *    Valid = BR[31] = 1
- *
- * 0	4    8	  12   16   20	 24   28
- * 1111 0000 0000 0000 0001 1000 0110 0001 = F0001861
- */
-
-#define CFG_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
-#define CFG_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
-
-#define CFG_LBLAWBAR2_PRELIM	0xF0000000
-#define CFG_LBLAWAR2_PRELIM	0x80000019 /* 64M */
-
-#define CFG_BR2_PRELIM		(CFG_LBC_SDRAM_BASE | BR_PS_32 | BR_MS_SDRAM | BR_V)
-#define CFG_OR2_PRELIM		(0xFC000000 /* 64 MB */ | \
-				 OR_SDRAM_XAM | \
-				 ((9 - 7) << OR_SDRAM_COLS_SHIFT) | \
-				 ((13 - 9) << OR_SDRAM_ROWS_SHIFT) | \
-				 OR_SDRAM_EAD)
-
 #define CFG_LBC_LSRT	0x32000000    /* LB sdram refresh timer, about 6us */
 #define CFG_LBC_MRTPR	0x20000000    /* LB refresh timer prescal, 266MHz/32*/
-
-/*
- * LSDMR masks
- */
-#define CFG_LBC_LSDMR_RFEN	(1 << (31 -  1))
-#define CFG_LBC_LSDMR_BSMA1516	(3 << (31 - 10))
-#define CFG_LBC_LSDMR_BSMA1617	(4 << (31 - 10))
-#define CFG_LBC_LSDMR_RFCR5	(3 << (31 - 16))
-#define CFG_LBC_LSDMR_RFCR8	(5 << (31 - 16))
-#define CFG_LBC_LSDMR_RFCR16	(7 << (31 - 16))
-#define CFG_LBC_LSDMR_PRETOACT3 (3 << (31 - 19))
-#define CFG_LBC_LSDMR_PRETOACT6 (5 << (31 - 19))
-#define CFG_LBC_LSDMR_PRETOACT7 (7 << (31 - 19))
-#define CFG_LBC_LSDMR_ACTTORW3	(3 << (31 - 22))
-#define CFG_LBC_LSDMR_ACTTORW7	(7 << (31 - 22))
-#define CFG_LBC_LSDMR_ACTTORW6	(6 << (31 - 22))
-#define CFG_LBC_LSDMR_BL8	(1 << (31 - 23))
-#define CFG_LBC_LSDMR_WRC2	(2 << (31 - 27))
-#define CFG_LBC_LSDMR_WRC3	(3 << (31 - 27))
-#define CFG_LBC_LSDMR_WRC4	(0 << (31 - 27))
-#define CFG_LBC_LSDMR_BUFCMD	(1 << (31 - 29))
-#define CFG_LBC_LSDMR_CL3	(3 << (31 - 31))
-
-#define CFG_LBC_LSDMR_OP_NORMAL (0 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_ARFRSH (1 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_SRFRSH (2 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_MRW	(3 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_PRECH	(4 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_PCHALL (5 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_ACTBNK (6 << (31 - 4))
-#define CFG_LBC_LSDMR_OP_RWINV	(7 << (31 - 4))
-
-#define CFG_LBC_LSDMR_COMMON	( CFG_LBC_LSDMR_RFEN		\
-				| CFG_LBC_LSDMR_BSMA1516	\
-				| CFG_LBC_LSDMR_RFCR8		\
-				| CFG_LBC_LSDMR_PRETOACT6	\
-				| CFG_LBC_LSDMR_ACTTORW3	\
-				| CFG_LBC_LSDMR_BL8		\
-				| CFG_LBC_LSDMR_WRC3		\
-				| CFG_LBC_LSDMR_CL3		\
-				)
-
-/*
- * SDRAM Controller configuration sequence.
- */
-#define CFG_LBC_LSDMR_1		( CFG_LBC_LSDMR_COMMON \
-				| CFG_LBC_LSDMR_OP_PCHALL)
-#define CFG_LBC_LSDMR_2		( CFG_LBC_LSDMR_COMMON \
-				| CFG_LBC_LSDMR_OP_ARFRSH)
-#define CFG_LBC_LSDMR_3		( CFG_LBC_LSDMR_COMMON \
-				| CFG_LBC_LSDMR_OP_ARFRSH)
-#define CFG_LBC_LSDMR_4		( CFG_LBC_LSDMR_COMMON \
-				| CFG_LBC_LSDMR_OP_MRW)
-#define CFG_LBC_LSDMR_5		( CFG_LBC_LSDMR_COMMON \
-				| CFG_LBC_LSDMR_OP_NORMAL)
-#endif
 
 /*
  * Serial Port
@@ -374,20 +284,16 @@
 #define CFG_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
+
+#define CONFIG_BAUDRATE		115200
 
 #define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
-/* Use the HUSH parser */
-#define CFG_HUSH_PARSER
-#ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
-#endif
-
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_FLAT_TREE
+#define CONFIG_OF_BOARD_SETUP
 
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
@@ -397,6 +303,9 @@
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
 
+/*
+ * PCI
+ */
 #ifdef CONFIG_PCI
 
 #define CONFIG_MPC83XX_PCI2
@@ -447,14 +356,18 @@
 
 #endif
 
+#define PCI_66M
+#ifdef PCI_66M
+#define CONFIG_83XX_CLKIN	66666666	/* in Hz */
+#else
+#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
+#endif
+
 /* TSEC */
 
 #ifdef CONFIG_TSEC_ENET
 
-#ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI
-#endif
-
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE		/* In case CFG_CMD_MII is specified */
 
@@ -468,6 +381,7 @@
 #endif
 
 #ifdef CONFIG_MPC83XX_TSEC2
+#define CONFIG_HAS_ETH1
 #define CONFIG_MPC83XX_TSEC2_NAME  "TSEC1"
 #define CFG_TSEC2_OFFSET	0x25000
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
@@ -479,14 +393,15 @@
 
 #endif
 
-
 /*
  * Environment
  */
+#define CONFIG_ENV_OVERWRITE
+
 #ifndef CFG_RAMBOOT
   #define CFG_ENV_IS_IN_FLASH
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-  #define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
+  #define CFG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
+  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + (4 * CFG_ENV_SECT_SIZE))
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
@@ -533,16 +448,23 @@
 /* Watchdog */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
-#ifdef CONFIG_WATCHDOG
-#define CFG_WATCHDOG_VALUE	0xFFFFFFC3
-#endif
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory */
+#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
+#define CFG_HUSH_PARSER			/* Use the HUSH parser */
+#define CFG_PROMPT_HUSH_PS2 "> "
+
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
-#define CFG_PROMPT	"MPC8349E-mITX> "		/* Monitor Command Prompt */
+#define CONFIG_LOADADDR	200000	/* default location for tftp and bootm */
+
+#ifdef CONFIG_MPC8349ITX
+#define CFG_PROMPT	"MPC8349E-mITX> "	/* Monitor Command Prompt */
+#else
+#define CFG_PROMPT	"MPC8349E-mITX-GP> "	/* Monitor Command Prompt */
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
     #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
@@ -562,14 +484,14 @@
  */
 #define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/* Cache Configuration */
+/*
+ * Cache Configuration
+ */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log2 of the above value */
 #endif
-
-#define CFG_RCWH_PCIHOST 0x80000000 /* PCIHOST	*/
 
 #define CFG_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
@@ -578,12 +500,12 @@
 	HRCWL_VCO_1X2 |\
 	HRCWL_CORE_TO_CSB_2X1)
 
-#ifdef PCI_64BIT
+#ifdef CFG_LOWBOOT
 #define CFG_HRCW_HIGH (\
 	HRCWH_PCI_HOST |\
-	HRCWH_64_BIT_PCI |\
+	HRCWH_32_BIT_PCI |\
 	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_PCI2_ARBITER_DISABLE |\
+	HRCWH_PCI2_ARBITER_ENABLE |\
 	HRCWH_CORE_ENABLE |\
 	HRCWH_FROM_0X00000100 |\
 	HRCWH_BOOTSEQ_DISABLE |\
@@ -596,7 +518,7 @@
 	HRCWH_PCI_HOST |\
 	HRCWH_32_BIT_PCI |\
 	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_PCI2_ARBITER_DISABLE |\
+	HRCWH_PCI2_ARBITER_ENABLE |\
 	HRCWH_CORE_ENABLE |\
 	HRCWH_FROM_0XFFF00100 |\
 	HRCWH_BOOTSEQ_DISABLE |\
@@ -606,30 +528,32 @@
 	HRCWH_TSEC2M_IN_GMII )
 #endif
 
-/* System performance */
+/*
+ * System performance
+ */
 #define CFG_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
 #define CFG_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
 #define CFG_SPCR_TSEC1EP	3	/* TSEC1 emergency priority (0-3) */
 #define CFG_SPCR_TSEC2EP	3	/* TSEC2 emergency priority (0-3) */
 #define CFG_SCCR_TSEC1CM	1	/* TSEC1 clock mode (0-3) */
 #define CFG_SCCR_TSEC2CM	1	/* TSEC2 & I2C0 clock mode (0-3) */
-#define CFG_ACR_RPTCNT		3	/* Arbiter repeat count */
 
-/* System IO Config */
+/*
+ * System IO Config
+ */
 #define CFG_SICRH SICRH_TSOBI1	/* Needed for gigabit to work on TSEC 1 */
 #define CFG_SICRL (SICRL_LDP_A | SICRL_USB1)
 
-#define CFG_HID0_INIT 0x000000000
-
-#define CFG_HID0_FINAL CFG_HID0_INIT
+#define CFG_HID0_INIT	0x000000000
+#define CFG_HID0_FINAL	CFG_HID0_INIT
 
 #define CFG_HID2	HID2_HBE
 
-/* DDR @ 0x00000000 */
+/* DDR  */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT0U	(CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
 
-/* PCI @ 0x80000000 */
+/* PCI  */
 #ifdef CONFIG_PCI
 #define CFG_IBAT1L	(CFG_PCI1_MEM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT1U	(CFG_PCI1_MEM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
@@ -706,49 +630,33 @@
 #endif
 
 #ifdef CONFIG_MPC83XX_TSEC2
-#define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 
-#if 1
-#define CONFIG_IPADDR		10.82.19.159
-#define CONFIG_SERVERIP		10.82.48.106
-#define CONFIG_GATEWAYIP	10.82.19.254
-#define CONFIG_NETMASK		255.255.252.0
-#define CONFIG_NETDEV		eth0
-
-#define CONFIG_HOSTNAME		mpc8349emitx
-#define CONFIG_ROOTPATH		/nfsroot0/u/timur/itx-ltib/rootfs
-#define CONFIG_BOOTFILE		timur/uImage
-
-#define CONFIG_UBOOTPATH	timur/u-boot.bin
-#else
 #define CONFIG_IPADDR		192.168.1.253
 #define CONFIG_SERVERIP		192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.252.0
 #define CONFIG_NETDEV		eth0
 
+#ifdef CONFIG_MPC8349ITX
 #define CONFIG_HOSTNAME		mpc8349emitx
+#else
+#define CONFIG_HOSTNAME		mpc8349emitxgp
+#endif
+
+/* Default path and filenames */
 #define CONFIG_ROOTPATH		/nfsroot/rootfs
 #define CONFIG_BOOTFILE		uImage
+#define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
-#define CONFIG_UBOOTPATH	u-boot.bin
-#endif
-
-#define CONFIG_UBOOTSTART	fe700000
-#define CONFIG_UBOOTEND		fe77ffff
-
-#define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
-
-#define CONFIG_BAUDRATE		115200
-
-#undef CONFIG_BOOTCOMMAND
-#ifdef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTDELAY	6
+#ifdef CONFIG_MPC8349ITX
+#define CONFIG_FDTFILE		mpc8349emitx.dtb
 #else
-#define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
+#define CONFIG_FDTFILE		mpc8349emitxgp.dtb
 #endif
+
+#define CONFIG_BOOTDELAY	0
 
 #define XMK_STR(x)	#x
 #define MK_STR(x)	XMK_STR(x)
@@ -756,47 +664,38 @@
 #define CONFIG_BOOTARGS \
 	"root=/dev/nfs rw" \
 	" nfsroot=" MK_STR(CONFIG_SERVERIP) ":" MK_STR(CONFIG_ROOTPATH) \
-	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" \
+	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" 	\
 		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
 		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \
 	" console=ttyS0," MK_STR(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=" MK_STR(CONFIG_NETDEV) "\0" \
-	"tftpflash=tftpboot $loadaddr " MK_STR(CONFIG_UBOOTPATH) "; " \
-		"erase " MK_STR(CONFIG_UBOOTSTART) " " MK_STR(CONFIG_UBOOTEND) "; " \
-		"cp.b $loadaddr " MK_STR(CONFIG_UBOOTSTART) " $filesize; " \
-		"cmp.b $loadaddr " MK_STR(CONFIG_UBOOTSTART) " $filesize\0" \
-	"tftpupdate=tftpboot $loadaddr " MK_STR(CONFIG_UBOOTPATH) "; " \
-		"protect off FEF00000 FEF7FFFF; " \
-		"erase FEF00000 FEF7FFFF; " \
-		"cp.b $loadaddr FEF00000 $filesize; " \
-		"protect on FEF00000 FEF7FFFF; " \
-		"cmp.b $loadaddr FEF00000 $filesize\0" \
-	"tftplinux=tftpboot $loadaddr $bootfile; bootm\0" \
-	"copyuboot=erase " MK_STR(CONFIG_UBOOTSTART) " " MK_STR(CONFIG_UBOOTEND) "; " \
-		"cp.b fef00000 " MK_STR(CONFIG_UBOOTSTART) " 80000\0"	\
+	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
+	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
+	"tftpflash=tftpboot $loadaddr $uboot; " 			\
+		"protect off " MK_STR(TEXT_BASE) " +$filesize; " 	\
+		"erase " MK_STR(TEXT_BASE) " +$filesize; " 		\
+		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; " 	\
+		"protect on " MK_STR(TEXT_BASE) " +$filesize; " 	\
+		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0" 	\
 	"fdtaddr=400000\0"						\
-	"fdtfile=mpc8349emitx.dtb\0"					\
-	""
+	"fdtfile=" MK_STR(CONFIG_FDTFILE) "\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
-   "setenv bootargs root=/dev/nfs rw "					\
-      "nfsroot=$serverip:$rootpath "					\
-      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-      "console=$consoledev,$baudrate $othbootargs;"			\
-   "tftp $loadaddr $bootfile;"						\
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr - $fdtaddr"
+	"setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath"	\
+	" ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+	" console=$console,$baudrate $othbootargs; "			\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND						\
-   "setenv bootargs root=/dev/ram rw "					\
-      "console=$consoledev,$baudrate $othbootargs;"			\
-   "tftp $ramdiskaddr $ramdiskfile;"					\
-   "tftp $loadaddr $bootfile;"						\
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr $ramdiskaddr $fdtaddr"
-
+	"setenv bootargs root=/dev/ram rw"				\
+	" console=$console,$baudrate $othbootargs; "			\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #undef MK_STR
 #undef XMK_STR

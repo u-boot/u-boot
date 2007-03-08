@@ -1,0 +1,99 @@
+
+
+	U-Boot for Wind River SBC834x Boards
+	====================================
+
+
+The Wind River SBC834x board is a 6U form factor (not CPCI) reference
+design that uses the MPC8347E or MPC8349E processor.  U-Boot support
+for this board is heavily based on the existing U-Boot support for
+Freescale MPC8349 reference boards.
+
+Support has been primarily tested on the SBC8349 version of the board,
+although earlier versions were also tested on the SBC8347.  The primary
+difference in the two is the level of PCI functionality.
+
+	http://www.windriver.com/products/OCD/SBC8347E_49E/
+
+
+Flash Details:
+==============
+
+The flash type is intel 28F640Jx (4096x16) [one device].  Base address
+is 0xFF80_0000 which is also where the Hardware Reset Configuration
+Word (HRCW) is stored.  Caution should be used to not overwrite the
+HRCW, or "CF RCW" with a Wind River ICE will be required to restore
+the HRCW and allow the board to enter background mode for further
+steps in the flash process.
+
+
+Restoring a corrupted or missing flash image:
+=============================================
+
+Details for storing U-boot to flash using a Wind River ICE can be found
+on page 19 of the board manual (request ERG-00328-001).  The following
+is a summary of that information:
+
+  - Connect ICE and establish connection to it from WorkBench/OCD.
+  - Ensure you have background mode (BKM) in the OCD terminal window.
+  - Select the appropriate flash type (listed above)
+  - Prepare a u-boot image by using the Wind River Convert utility;
+    by using "Convert and Add file" on the ELF file from your build.
+    Convert from FFF0_0000 to FFFF_FFFF (or to FFF3_FFFF if you are
+    trying to preserve your old environment settings).
+  - Set the start address of the erase/flash process to FFF0_0000
+  - Set the target RAM required to 64kB.
+  - Select sectors for erasing (see note on enviroment below)
+  - Select Erase and Reprogram.
+
+Note that some versions of the register files used with Workbench
+would zero some TSEC registers, which inhibits ethernet operation
+by u-boot when this register file is played to the target.  Using
+"INN" in the OCD terminal window instead of "IN" before the "GO"
+will not play the register file, and allow u-boot to use the TSEC
+interface while executed from the ICE "GO" command.
+
+Alternatively, you can locate the register file which will be named
+WRS_SBC8349_PCT00328001.reg or similar) and "REM" out all the lines
+beginning with "SCGA TSEC1" and "SCGA TSEC2".  This allows you to
+use all the remaining register file content.
+
+If you wish to preserve your prior U-Boot environment settings,
+then convert (and erase to) 0xFFF3FFFF instead of 0xFFFFFFFF.
+The size for converting (and erasing) must be at least as large
+as u-boot.bin.
+
+
+Updating U-Boot with U-Boot:
+============================
+
+This procedure is very similar to other boards that have u-boot installed.
+Assuming that the network has been configured, and that the new u-boot.bin
+has been copied to the TFTP server, the commands are:
+
+	tftp 200000 u-boot.bin
+	protect off all
+	erase fff00000 fff3ffff
+	cp.b 200000 fff00000 3ffff
+	protect on all
+
+
+PCI:
+====
+
+This board and U-Boot have been tested with PCI built in, on a SBC8349
+and confirmed that the "pci" command showed the intel e1000 that was
+present in the PCI slot.  Note that if a 33MHz 32bit card is inserted
+in the slot, then the whole board will clock down to a 33MHz base
+clock instead of the default 66MHz.  This will change the baud clocks
+and mess up your serial console output.  If you want to use a 33MHz PCI
+card, then you should build a U-Boot with #undef PCI_66M in the
+include/configs/sbc8349.h and store this to flash prior to powering down
+the board and inserting the 33MHz PCI card.
+
+By default PCI support is disabled to better support very early
+revision MPC834x chips with possible PCI issues.  Also PCI support is
+untested on the sbc8347 variants at this point in time.
+
+
+						Paul Gortmaker, 01/2007

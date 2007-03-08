@@ -1,6 +1,9 @@
 /*
- * (C) Copyright 2006
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * WindRiver SBC8349 U-Boot configuration file.
+ * Copyright (c) 2006, 2007 Wind River Systems, Inc.
+ *
+ * Paul Gortmaker <paul.gortmaker@windriver.com>
+ * Based on the MPC8349EMDS config.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,8 +25,7 @@
  */
 
 /*
- * mpc8349emds board configuration file
- *
+ * sbc8349 board configuration file.
  */
 
 #ifndef __CONFIG_H
@@ -38,10 +40,11 @@
 #define CONFIG_MPC83XX		1	/* MPC83XX family */
 #define CONFIG_MPC834X		1	/* MPC834X family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
-#define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
+#define CONFIG_SBC8349		1	/* WRS SBC8349 board specific */
 
 #undef CONFIG_PCI
-#undef CONFIG_MPC83XX_PCI2 		/* support for 2nd PCI controller */
+/* Don't enable PCI2 on sbc834x - it doesn't exist physically. */
+#undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
 #define PCI_66M
 #ifdef PCI_66M
@@ -60,20 +63,21 @@
 #endif
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
+#undef CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
 
 #define CFG_IMMR		0xE0000000
 
 #undef CFG_DRAM_TEST				/* memory test, takes time */
-#define CFG_MEMTEST_START	0x00000000      /* memtest region */
+#define CFG_MEMTEST_START	0x00000000	/* memtest region */
 #define CFG_MEMTEST_END		0x00100000
 
 /*
  * DDR Setup
  */
-#define CONFIG_DDR_ECC			/* support DDR ECC function */
-#define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
+#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
+#undef CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
+#define CFG_83XX_DDR_USES_CS0		/* WRS; Fsl board uses CS2/CS3 */
 
 /*
  * 32-bit data path mode.
@@ -91,39 +95,21 @@
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 #define CFG_DDR_SDRAM_BASE	CFG_DDR_BASE
 #define CFG_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
-				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
-#undef  CONFIG_DDR_2T_TIMING
-
-/*
- * DDRCDR - DDR Control Driver Register
- */
-#define CFG_DDRCDR_VALUE	0x80080001
+				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_075)
+#define CONFIG_DDR_2T_TIMING
 
 #if defined(CONFIG_SPD_EEPROM)
 /*
  * Determine DDR configuration from I2C interface.
  */
-#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+#define SPD_EEPROM_ADDRESS	0x52		/* DDR DIMM */
+
 #else
 /*
  * Manually set up DDR parameters
+ * NB: manual DDR setup untested on sbc834x
  */
 #define CFG_DDR_SIZE		256		/* MB */
-#if defined(CONFIG_DDR_II)
-#define CFG_DDRCDR		0x80080001
-#define CFG_DDR_CS2_BNDS	0x0000000f
-#define CFG_DDR_CS2_CONFIG	0x80330102
-#define CFG_DDR_TIMING_0	0x00220802
-#define CFG_DDR_TIMING_1	0x38357322
-#define CFG_DDR_TIMING_2	0x2f9048c8
-#define CFG_DDR_TIMING_3	0x00000000
-#define CFG_DDR_CLK_CNTL	0x02000000
-#define CFG_DDR_MODE		0x47d00432
-#define CFG_DDR_MODE2		0x8000c000
-#define CFG_DDR_INTERVAL	0x03cf0080
-#define CFG_DDR_SDRAM_CFG	0x43000000
-#define CFG_DDR_SDRAM_CFG2	0x00401000
-#else
 #define CFG_DDR_CONFIG		(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
 #define CFG_DDR_TIMING_1	0x36332321
 #define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
@@ -138,34 +124,32 @@
 #define CFG_DDR_MODE		0x00000022	/* DLL,normal,seq,4/2.5, 4 burst len */
 #endif
 #endif
-#endif
 
 /*
  * SDRAM on the Local Bus
  */
-#define CFG_LBC_SDRAM_BASE	0xF0000000	/* Localbus SDRAM */
-#define CFG_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
+#define CFG_LBC_SDRAM_BASE	0x10000000	/* Localbus SDRAM */
+#define CFG_LBC_SDRAM_SIZE	128		/* LBC SDRAM is 128MB */
 
 /*
  * FLASH on the Local Bus
  */
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
-#define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
-#define CFG_FLASH_SIZE		32		/* max flash size in MB */
+#define CFG_FLASH_BASE		0xFF800000	/* start of FLASH   */
+#define CFG_FLASH_SIZE		8		/* flash size in MB */
 /* #define CFG_FLASH_USE_BUFFER_WRITE */
 
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE |	/* flash Base address */ \
-				(2 << BR_PS_SHIFT) |	/* 16 bit port size */	 \
+				(2 << BR_PS_SHIFT) |	/* 32 bit port size */	 \
 				BR_V)			/* valid */
-#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
-				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
+
+#define CFG_OR0_PRELIM		0xFF806FF7	/* 8 MB flash size */
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* window base at flash base */
-#define CFG_LBLAWAR0_PRELIM	0x80000018	/* 32 MB window size */
+#define CFG_LBLAWAR0_PRELIM	0x80000016	/* 8 MB window size */
 
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
-#define CFG_MAX_FLASH_SECT	256		/* max sectors per device */
+#define CFG_MAX_FLASH_SECT	64		/* sectors per device */
 
 #undef CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
@@ -179,15 +163,6 @@
 #else
 #undef  CFG_RAMBOOT
 #endif
-
-/*
- * BCSR register on local bus 32KB, 8-bit wide for MDS config reg
- */
-#define CFG_BCSR		0xE2400000
-#define CFG_LBLAWBAR1_PRELIM	CFG_BCSR		/* Access window base at BCSR base */
-#define CFG_LBLAWAR1_PRELIM	0x8000000E		/* Access window size 32K */
-#define CFG_BR1_PRELIM		(CFG_BCSR|0x00000801)	/* Port-size=8bit, MSEL=GPCM */
-#define CFG_OR1_PRELIM		0xFFFFE8F0		/* length 32K */
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK	1
@@ -210,14 +185,10 @@
 #define CFG_LCRR	(LCRR_DBYP | LCRR_CLKDIV_4)
 #define CFG_LBC_LBCR	0x00000000
 
-/*
- * The MPC834xEA MDS for 834xE rev3.1 may not be assembled SDRAM memory.
- * if board has SRDAM on local bus, you can define CFG_LB_SDRAM
- */
-#undef CFG_LB_SDRAM
+#undef CFG_LB_SDRAM	/* if board has SDRAM on local bus */
 
 #ifdef CFG_LB_SDRAM
-/* Local bus BR2, OR2 definition for SDRAM if soldered on the MDS board */
+/* Local bus BR2, OR2 definition for SDRAM if soldered on the board*/
 /*
  * Base Register 2 and Option Register 2 configure SDRAM.
  * The SDRAM base address, CFG_LBC_SDRAM_BASE, is 0xf0000000.
@@ -354,22 +325,20 @@
 #define CONFIG_HARD_I2C			/* I2C with hardware support*/
 #undef CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CONFIG_FSL_I2C
-#define CONFIG_I2C_MULTI_BUS
 #define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES	{{0,0x69}}	/* Don't probe these addrs */
-#define CFG_I2C_OFFSET		0x3000
+#define CFG_I2C1_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
+#define CFG_I2C_OFFSET		CFG_I2C2_OFFSET
+/* could also use CONFIG_I2C_MULTI_BUS and CONFIG_SPD_BUS_NUM... */
 
 /* TSEC */
 #define CFG_TSEC1_OFFSET 0x24000
 #define CFG_TSEC1 (CFG_IMMR+CFG_TSEC1_OFFSET)
 #define CFG_TSEC2_OFFSET 0x25000
 #define CFG_TSEC2 (CFG_IMMR+CFG_TSEC2_OFFSET)
-
-/* USB */
-#define CFG_USE_MPC834XSYS_USB_PHY	1 /* Use SYS board PHY */
 
 /*
  * General PCI
@@ -397,6 +366,7 @@
 
 #if defined(CONFIG_PCI)
 
+#define PCI_64BIT
 #define PCI_ONE_PCI1
 #if defined(PCI_64BIT)
 #undef PCI_ALL_PCI1
@@ -413,7 +383,7 @@
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
 	#define PCI_ENET0_MEMADDR	0xFIXME
-	#define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+	#define PCI_IDSEL_NUMBER	0xFIXME
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -431,13 +401,13 @@
 #define CONFIG_NET_MULTI	1
 #endif
 
-#define CONFIG_GMII		1	/* MII PHY management */
 #define CONFIG_MPC83XX_TSEC1	1
 #define CONFIG_MPC83XX_TSEC1_NAME	"TSEC0"
 #define CONFIG_MPC83XX_TSEC2	1
 #define CONFIG_MPC83XX_TSEC2_NAME	"TSEC1"
-#define TSEC1_PHY_ADDR		0
-#define TSEC2_PHY_ADDR		1
+#define CONFIG_PHY_BCM5421S	1
+#define TSEC1_PHY_ADDR		0x19
+#define TSEC2_PHY_ADDR		0x1a
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
@@ -445,12 +415,6 @@
 #define CONFIG_ETHPRIME		"TSEC0"
 
 #endif	/* CONFIG_TSEC_ENET */
-
-/*
- * Configure on-board RTC
- */
-#define CONFIG_RTC_DS1374			/* use ds1374 rtc via i2c	*/
-#define CFG_I2C_RTC_ADDR		0x68	/* at address 0x68		*/
 
 /*
  * Environment
@@ -480,16 +444,14 @@
 #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
 				 | CFG_CMD_PCI		\
-				 | CFG_CMD_I2C          \
-				 | CFG_CMD_DATE)	\
+				 | CFG_CMD_I2C)		\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				  | CFG_CMD_LOADS))
 #else
 #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C		\
-				 | CFG_CMD_DATE)	\
+				 | CFG_CMD_I2C)		\
 				&			\
 				 ~(CFG_CMD_ENV		\
 				  | CFG_CMD_LOADS))
@@ -500,14 +462,12 @@
 				| CFG_CMD_PCI		\
 				| CFG_CMD_PING		\
 				| CFG_CMD_I2C		\
-				| CFG_CMD_DATE		\
 				)
 #else
 #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_PING		\
-				| CFG_CMD_I2C       	\
-				| CFG_CMD_MII       	\
-				| CFG_CMD_DATE		\
+				| CFG_CMD_I2C		\
+				| CFG_CMD_MII		\
 				)
 #endif
 #endif
@@ -659,7 +619,7 @@
 #define CFG_IBAT4U	(0)
 #endif
 
-/* IMMRBAR @ 0xE0000000, PCI IO @ 0xE2000000 & BCSR @ 0xE2400000 */
+/* IMMRBAR @ 0xE0000000, PCI IO @ 0xE2000000 */
 #define CFG_IBAT5L	(CFG_IMMR | BATL_PP_10 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CFG_IBAT5U	(CFG_IMMR | BATU_BL_256M | BATU_VS | BATU_VP)
 
@@ -706,15 +666,15 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
-#define CONFIG_ETHADDR		00:04:9f:ef:23:33
+#define CONFIG_ETHADDR		00:a0:1e:a0:13:8d
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:E0:0C:00:7E:21
+#define CONFIG_ETH1ADDR		00:a0:1e:a0:13:8e
 #endif
 
-#define CONFIG_IPADDR		192.168.1.253
+#define CONFIG_IPADDR		192.168.1.234
 
-#define CONFIG_HOSTNAME		mpc8349emds
-#define CONFIG_ROOTPATH		/nfsroot/rootfs
+#define CONFIG_HOSTNAME		SBC8349
+#define CONFIG_ROOTPATH		/tftpboot/rootfs
 #define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_SERVERIP		192.168.1.1
@@ -728,13 +688,9 @@
 
 #define CONFIG_BAUDRATE	 115200
 
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
-	"echo"
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"hostname=mpc8349emds\0"					\
+	"hostname=sbc8349\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -748,12 +704,12 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"	\
 		"bootm\0"						\
-	"load=tftp 100000 /tftpboot/mpc8349emds/u-boot.bin\0"		\
-	"update=protect off fe000000 fe03ffff; "			\
-		"era fe000000 fe03ffff; cp.b 100000 fe000000 ${filesize}\0"	\
+	"load=tftp 100000 /tftpboot/sbc8349/u-boot.bin\0"		\
+	"update=protect off fff00000 fff3ffff; "			\
+		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0"	\
 	"upd=run load;run update\0"					\
 	"fdtaddr=400000\0"						\
-	"fdtfile=mpc8349emds.dtb\0"					\
+	"fdtfile=sbc8349.dtb\0"					\
 	""
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \

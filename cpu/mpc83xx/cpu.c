@@ -56,49 +56,78 @@ int checkcpu(void)
 	switch(spridr) {
 	case SPR_8349E_REV10:
 	case SPR_8349E_REV11:
+	case SPR_8349E_REV31:
 		puts("MPC8349E, ");
 		break;
 	case SPR_8349_REV10:
 	case SPR_8349_REV11:
+	case SPR_8349_REV31:
 		puts("MPC8349, ");
 		break;
 	case SPR_8347E_REV10_TBGA:
 	case SPR_8347E_REV11_TBGA:
+	case SPR_8347E_REV31_TBGA:
 	case SPR_8347E_REV10_PBGA:
 	case SPR_8347E_REV11_PBGA:
+	case SPR_8347E_REV31_PBGA:
 		puts("MPC8347E, ");
 		break;
 	case SPR_8347_REV10_TBGA:
 	case SPR_8347_REV11_TBGA:
+	case SPR_8347_REV31_TBGA:
 	case SPR_8347_REV10_PBGA:
 	case SPR_8347_REV11_PBGA:
+	case SPR_8347_REV31_PBGA:
 		puts("MPC8347, ");
 		break;
 	case SPR_8343E_REV10:
 	case SPR_8343E_REV11:
+	case SPR_8343E_REV31:
 		puts("MPC8343E, ");
 		break;
 	case SPR_8343_REV10:
 	case SPR_8343_REV11:
+	case SPR_8343_REV31:
 		puts("MPC8343, ");
 		break;
 	case SPR_8360E_REV10:
 	case SPR_8360E_REV11:
 	case SPR_8360E_REV12:
+	case SPR_8360E_REV20:
 		puts("MPC8360E, ");
 		break;
 	case SPR_8360_REV10:
 	case SPR_8360_REV11:
 	case SPR_8360_REV12:
+	case SPR_8360_REV20:
 		puts("MPC8360, ");
 		break;
+	case SPR_8323E_REV10:
+	case SPR_8323E_REV11:
+		puts("MPC8323E, ");
+		break;
+	case SPR_8323_REV10:
+	case SPR_8323_REV11:
+		puts("MPC8323, ");
+		break;
+	case SPR_8321E_REV10:
+	case SPR_8321E_REV11:
+		puts("MPC8321E, ");
+		break;
+	case SPR_8321_REV10:
+	case SPR_8321_REV11:
+		puts("MPC8321, ");
+		break;
 	default:
-		puts("Rev: Unknown\n");
-		return -1;	/* Not sure what this is */
+		puts("Rev: Unknown revision number.\nWarning: Unsupported cpu revision!\n");
+		return 0;
 	}
 
-#if defined(CONFIG_MPC8349)
-	printf("Rev: %02x at %s MHz\n", (spridr & 0x0000FFFF)>>4 |(spridr & 0x0000000F), strmhz(buf, clock));
+#if defined(CONFIG_MPC834X)
+	/* Multiple revisons of 834x processors may have the same SPRIDR value.
+	 * So use PVR to identify the revision number.
+	 */
+	printf("Rev: %02x at %s MHz\n", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
 #else
 	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
 #endif
@@ -250,7 +279,6 @@ unsigned long get_tbclk(void)
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)
 {
-#ifdef CONFIG_MPC834X
 	int re_enable = disable_interrupts();
 
 	/* Reset the 83xx watchdog */
@@ -260,9 +288,6 @@ void watchdog_reset (void)
 
 	if (re_enable)
 		enable_interrupts ();
-#else
-	hang();
-#endif
 }
 #endif
 
@@ -292,13 +317,63 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		*p = cpu_to_be32(clock);
 
 #ifdef CONFIG_MPC83XX_TSEC1
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
+	if (p != NULL)
 		memcpy(p, bd->bi_enetaddr, 6);
 #endif
 
 #ifdef CONFIG_MPC83XX_TSEC2
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
+	if (p != NULL)
 		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+#endif
+
+#ifdef CONFIG_UEC_ETH1
+#if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+#elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+#endif
+#endif
+
+#ifdef CONFIG_UEC_ETH2
+#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+#elif CFG_UEC2_UCC_NUM == 3  /* UCC4 */
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+#endif
 #endif
 }
 #endif

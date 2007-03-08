@@ -58,6 +58,7 @@ i2c_init(int speed, int slaveadd)
 	dev = (struct fsl_i2c *) (CFG_IMMR + CFG_I2C_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
+	udelay(5);				/* let it shutdown in peace */
 	writeb(0x3F, &dev->fdr);		/* set bus speed */
 	writeb(0x3F, &dev->dfsrr);		/* set default filter */
 	writeb(slaveadd << 1, &dev->adr);	/* write slave address */
@@ -191,15 +192,17 @@ __i2c_read(u8 *data, int length)
 int
 i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 {
-	int i = 0;
+	int i = -1; /* signal error */
 	u8 *a = (u8*)&addr;
 
 	if (i2c_wait4bus() >= 0
 	    && i2c_write_addr(dev, I2C_WRITE_BIT, 0) != 0
-	    && __i2c_write(&a[4 - alen], alen) == alen
-	    && i2c_write_addr(dev, I2C_READ_BIT, 1) != 0) {
+	    && __i2c_write(&a[4 - alen], alen) == alen)
+		i = 0; /* No error so far */
+
+	if (length
+	    && i2c_write_addr(dev, I2C_READ_BIT, 1) != 0)
 		i = __i2c_read(data, length);
-	}
 
 	writeb(I2C_CR_MEN, &i2c_dev[i2c_bus_num]->cr);
 
@@ -212,7 +215,7 @@ i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 int
 i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 {
-	int i = 0;
+	int i = -1; /* signal error */
 	u8 *a = (u8*)&addr;
 
 	if (i2c_wait4bus() >= 0
@@ -232,16 +235,14 @@ i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 int
 i2c_probe(uchar chip)
 {
-	int tmp;
-
-	/*
-	 * Try to read the first location of the chip.  The underlying
-	 * driver doesn't appear to support sending just the chip address
-	 * and looking for an <ACK> back.
+	/* For unknow reason the controller will ACK when
+	 * probing for a slave with the same address, so skip
+	 * it.
 	 */
-	udelay(10000);
+	if (chip == (readb(&i2c_dev[i2c_bus_num]->adr) >> 1))
+		return -1;
 
-	return i2c_read(chip, 0, 1, (uchar *)&tmp, 1);
+	return i2c_read(chip, 0, 0, NULL, 0);
 }
 
 uchar

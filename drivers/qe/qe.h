@@ -30,7 +30,7 @@
 #define UCC_MAX_NUM	8
 
 #define QE_DATAONLY_BASE	(uint)(128)
-#define QE_DATAONLY_SIZE	((uint)(0xc000) - QE_DATAONLY_BASE)
+#define QE_DATAONLY_SIZE	(QE_MURAM_SIZE - QE_DATAONLY_BASE)
 
 /* QE threads SNUM
 */

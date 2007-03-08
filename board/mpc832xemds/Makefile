@@ -1,5 +1,6 @@
 #
-# Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,18 +21,30 @@
 # MA 02111-1307 USA
 #
 
-#
-# MPC8349E-mITX and MPC8349E-mITX-GP
-#
+include $(TOPDIR)/config.mk
 
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+LIB	= $(obj)lib$(BOARD).a
 
-ifndef TEXT_BASE
-TEXT_BASE  =   0xFEF00000
-endif
+COBJS	:= $(BOARD).o pci.o
 
-ifneq ($(OBJTREE),$(SRCTREE))
-# We are building u-boot in a separate directory, use generated
-# .lds script from OBJTREE directory.
-LDSCRIPT := $(OBJTREE)/board/$(BOARDDIR)/u-boot.lds
-endif
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
