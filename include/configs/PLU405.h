@@ -51,17 +51,13 @@
 
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#if 0 /* test-only */
 #define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
-#define CONFIG_PHY1_ADDR	1	/* PHY address			*/
-#else
-#define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR		0	/* PHY address			*/
-#endif
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 

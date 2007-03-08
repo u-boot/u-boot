@@ -460,6 +460,7 @@ int i2c_set_bus_num(unsigned int bus)
 
 	return 0;
 }
+#endif	/* CONFIG_I2C_MULTI_BUS */
 
 /* TODO: add 100/400k switching */
 unsigned int i2c_get_bus_speed(void)
@@ -474,5 +475,4 @@ int i2c_set_bus_speed(unsigned int speed)
 
 	return 0;
 }
-#endif	/* CONFIG_I2C_MULTI_BUS */
 #endif	/* CONFIG_HARD_I2C */
