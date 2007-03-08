@@ -701,6 +701,7 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch(data[2]) {
 		case 2:  puts ("EDO\n");	break;
 		case 4:  puts ("SDRAM\n");	break;
+		case 8:  puts ("DDR2\n");	break;
 		default: puts ("unknown\n");	break;
 	}
 	puts ("Row address bits             ");
@@ -722,6 +723,7 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		case 2:  puts ("HSTL 1.5\n");	break;
 		case 3:  puts ("SSTL 3.3\n");	break;
 		case 4:  puts ("SSTL 2.5\n");	break;
+		case 5:  puts ("SSTL 1.8\n");	break;
 		default: puts ("unknown\n");	break;
 	}
 	printf("SDRAM cycle time             %d.%d nS\n",
