@@ -22,10 +22,8 @@
 #
 
 
-SUBDIRS = drivers cpu lib_$(ARCH) board/$(BOARDDIR)
+LIB	= libpostnetta.a
 
-LIB	= libpost.a
-
-COBJS	= post.o tests.o
+COBJS	= codec.o dsp.o
 
 include $(TOPDIR)/post/rules.mk

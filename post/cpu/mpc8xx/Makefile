@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002-2006
+# (C) Copyright 2002-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,11 +21,9 @@
 # MA 02111-1307 USA
 #
 
+LIB	= libpostmpc8xx.a
 
-SUBDIRS = drivers cpu lib_$(ARCH) board/$(BOARDDIR)
-
-LIB	= libpost.a
-
-COBJS	= post.o tests.o
+AOBJS	= cache_8xx.o
+COBJS	= ether.o spr.o uart.o usb.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

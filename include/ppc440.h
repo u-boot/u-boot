@@ -3293,26 +3293,26 @@ typedef struct { unsigned long	add;	/* gpio core base address */
 /*
  * Macros for accessing the indirect EBC registers
  */
-#define mtebc(reg, data)	{ mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); }
-#define mfebc(reg, data)	{ mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); }
+#define mtebc(reg, data)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); } while (0)
+#define mfebc(reg, data)	do { mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); } while (0)
 
 /*
  * Macros for accessing the indirect SDRAM controller registers
  */
-#define mtsdram(reg, data)	{ mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
-#define mfsdram(reg, data)	{ mtdcr(memcfga,reg);data = mfdcr(memcfgd); }
+#define mtsdram(reg, data)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,data); } while (0)
+#define mfsdram(reg, data)	do { mtdcr(memcfga,reg);data = mfdcr(memcfgd); } while (0)
 
 /*
  * Macros for accessing the indirect clocking controller registers
  */
-#define mtclk(reg, data)	{ mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); }
-#define mfclk(reg, data)	{ mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); }
+#define mtclk(reg, data)	do { mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); } while (0)
+#define mfclk(reg, data)	do { mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); } while (0)
 
 /*
  * Macros for accessing the sdr controller registers
  */
-#define mtsdr(reg, data)	{ mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); }
-#define mfsdr(reg, data)	{ mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); }
+#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
+#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
 
 #ifndef __ASSEMBLY__

@@ -46,6 +46,7 @@
 #include <asm/processor.h>
 #include <i2c.h>
 #include <ppc4xx.h>
+#include <asm/mmu.h>
 
 #if defined(CONFIG_SPD_EEPROM) &&					\
 	(defined(CONFIG_440GP) || defined(CONFIG_440GX) ||		\
@@ -229,6 +230,22 @@
 #define TRUE			1
 #define FALSE			0
 
+/*
+ * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
+ * region. Right now the cache should still be disabled in U-Boot because of the
+ * EMAC driver, that need it's buffer descriptor to be located in non cached
+ * memory.
+ *
+ * If at some time this restriction doesn't apply anymore, just define
+ * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * everything correctly.
+ */
+#ifdef CFG_ENABLE_SDRAM_CACHE
+#define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
+#else
+#define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
+#endif
+
 const unsigned long test[NUMMEMTESTS][NUMMEMWORDS] = {
 	{0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
 	 0xFFFFFFFF, 0xFFFFFFFF},
@@ -259,6 +276,7 @@ typedef struct bank_param BANKPARMS;
 #ifdef CFG_SIMULATE_SPD_EEPROM
 extern unsigned char cfg_simulate_spd_eeprom[128];
 #endif
+void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
 
 unsigned char spd_read(uchar chip, uint addr);
 
@@ -376,6 +394,11 @@ long int spd_sdram(void) {
 	 */
 	total_size = program_bxcr(dimm_populated, iic0_dimm_addr,
 				  num_dimm_banks);
+
+#ifdef CONFIG_PROG_SDRAM_TLB /* this define should eventually be removed */
+	/* and program tlb entries for this size (dynamic) */
+	program_tlb(0, total_size, MY_TLB_WORD2_I_ENABLE);
+#endif
 
 	/*
 	 * program SDRAM Clock Timing Register (SDRAM0_CLKTR)
@@ -1330,11 +1353,11 @@ unsigned long program_bxcr(unsigned long* dimm_populated,
 			 */
 			cr |= SDRAM_BXCR_SDBE;
 
-			for (i = 0; i < num_banks; i++) {
-				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
+ 			for (i = 0; i < num_banks; i++) {
+				bank_parms[ctrl_bank_num[dimm_num]+i+dimm_num].bank_size_bytes =
 					(4 * 1024 * 1024) * bank_size_id;
-				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
-			}
+				bank_parms[ctrl_bank_num[dimm_num]+i+dimm_num].cr = cr;
+ 			}
 		}
 	}
 

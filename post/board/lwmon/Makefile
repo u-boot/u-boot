@@ -22,10 +22,8 @@
 #
 
 
-SUBDIRS = drivers cpu lib_$(ARCH) board/$(BOARDDIR)
+LIB	= libpostlwmon.a
 
-LIB	= libpost.a
-
-COBJS	= post.o tests.o
+COBJS	= sysmon.o
 
 include $(TOPDIR)/post/rules.mk

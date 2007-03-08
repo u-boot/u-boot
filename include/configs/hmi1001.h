@@ -210,6 +210,7 @@
  */
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_PHY_ADDR		0x00
+#define CONFIG_MII		1		/* MII PHY management		*/
 
 /*
  * GPIO configuration
