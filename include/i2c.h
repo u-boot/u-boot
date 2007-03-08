@@ -63,6 +63,9 @@
 #if !defined(CFG_DTT_BUS_NUM)
 #define CFG_DTT_BUS_NUM		0
 #endif
+#if !defined(CFG_SPD_BUS_NUM)
+#define CFG_SPD_BUS_NUM		0
+#endif
 
 /*
  * Initialization, must be called once on start up, may be called
