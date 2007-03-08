@@ -948,6 +948,26 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 /***************************************************/
 
+#if defined(CONFIG_I2C_CMD_TREE)
+U_BOOT_CMD(
+	i2c, 6, 1, do_i2c,
+ 	"i2c     - I2C sub-system\n",
+#if defined(CONFIG_I2C_MULTI_BUS)
+	"dev [dev] - show or set current I2C bus\n"
+#endif  /* CONFIG_I2C_MULTI_BUS */
+	"i2c speed [speed] - show or set I2C bus speed\n"
+	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
+	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
+	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
+	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
+	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
+	"i2c probe - show devices on the I2C bus\n"
+	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
+#if (CONFIG_COMMANDS & CFG_CMD_SDRAM)
+	"i2c sdram chip - print SDRAM configuration information\n"
+#endif  /* CFG_CMD_SDRAM */
+);
+#else /* CONFIG_I2C_CMD_TREE */
 U_BOOT_CMD(
 	imd,	4,	1,	do_i2c_md,		\
 	"imd     - i2c memory display\n",				\
@@ -1002,26 +1022,6 @@ U_BOOT_CMD(
 	"      (valid chip values 50..57)\n"
 );
 #endif
-
-#if defined(CONFIG_I2C_CMD_TREE)
-U_BOOT_CMD(
-	i2c, 6, 1, do_i2c,
- 	"i2c     - I2C sub-system\n",
-#if defined(CONFIG_I2C_MULTI_BUS)
-	"dev [dev] - show or set current I2C bus\n"
-#endif  /* CONFIG_I2C_MULTI_BUS */
-	"i2c speed [speed] - show or set I2C bus speed\n"
-	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
-	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
-	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
-	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
-	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
-	"i2c probe - show devices on the I2C bus\n"
-	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
-#if (CONFIG_COMMANDS & CFG_CMD_SDRAM)
-	"i2c sdram chip - print SDRAM configuration information\n"
-#endif  /* CFG_CMD_SDRAM */
-);
 #endif  /* CONFIG_I2C_CMD_TREE */
 
 #endif	/* CFG_CMD_I2C */
