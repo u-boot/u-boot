@@ -417,7 +417,9 @@
 #define SDR0_PEGPLLSET1		0x000003A0	/* PE Pll LC Tank Setting1 */
 #define SDR0_PEGPLLSET2		0x000003A1	/* PE Pll LC Tank Setting2 */
 #define SDR0_PEGPLLSTS		0x000003A2	/* PE Pll LC Tank Status */
+#endif /* CONFIG_440SPE */
 
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 /*----------------------------------------------------------------------------+
 | SDRAM Controller
 +----------------------------------------------------------------------------*/
@@ -453,9 +455,16 @@
 /*-----------------------------------------------------------------------------+
 |  Memory Bank 0-7 configuration
 +-----------------------------------------------------------------------------*/
-#define SDRAM_RXBAS_SDBA_MASK		0xFF800000	/* Base address	*/
+#if defined(CONFIG_440SPE)
+#define SDRAM_RXBAS_SDBA_MASK		0xFFE00000	/* Base address	*/
 #define SDRAM_RXBAS_SDBA_ENCODE(n)	((((unsigned long)(n))&0xFFE00000)>>2)
 #define SDRAM_RXBAS_SDBA_DECODE(n)	((((unsigned long)(n))&0xFFE00000)<<2)
+#endif /* CONFIG_440SPE */
+#if defined(CONFIG_440SP)
+#define SDRAM_RXBAS_SDBA_MASK		0xFF800000	/* Base address	*/
+#define SDRAM_RXBAS_SDBA_ENCODE(n)	((((unsigned long)(n))&0xFF800000))
+#define SDRAM_RXBAS_SDBA_DECODE(n)	((((unsigned long)(n))&0xFF800000))
+#endif /* CONFIG_440SP */
 #define SDRAM_RXBAS_SDSZ_MASK		0x0000FFC0	/* Size		*/
 #define SDRAM_RXBAS_SDSZ_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<6)
 #define SDRAM_RXBAS_SDSZ_DECODE(n)	((((unsigned long)(n))>>6)&0x3FF)
@@ -2167,6 +2176,20 @@
 /*-----------------------------------------------------------------------------+
 |  SDR0 Bit Settings
 +-----------------------------------------------------------------------------*/
+#if defined(CONFIG_440SP)
+#define SDR0_SRST			0x0200
+
+#define SDR0_DDR0			0x00E1
+#define SDR0_DDR0_DPLLRST		0x80000000
+#define SDR0_DDR0_DDRM_MASK		0x60000000
+#define SDR0_DDR0_DDRM_DDR1		0x20000000
+#define SDR0_DDR0_DDRM_DDR2		0x40000000
+#define SDR0_DDR0_DDRM_ENCODE(n)	((((unsigned long)(n))&0x03)<<29)
+#define SDR0_DDR0_DDRM_DECODE(n)	((((unsigned long)(n))>>29)&0x03)
+#define SDR0_DDR0_TUNE_ENCODE(n)	((((unsigned long)(n))&0x2FF)<<0)
+#define SDR0_DDR0_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x2FF)
+#endif
+
 #if defined(CONFIG_440SPE)
 #define SDR0_CP440			0x0180
 #define SDR0_CP440_ERPN_MASK		0x30000000

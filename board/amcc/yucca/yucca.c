@@ -44,8 +44,6 @@ int compare_to_true(char *str );
 char *remove_l_w_space(char *in_str );
 char *remove_t_w_space(char *in_str );
 int get_console_port(void);
-unsigned long ppcMfcpr(unsigned long cpr_reg);
-unsigned long ppcMfsdr(unsigned long sdr_reg);
 
 int ppc440spe_init_pcie_rootport(int port);
 void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
@@ -221,7 +219,7 @@ int board_early_init_f (void)
 	 |
 	 +-------------------------------------------------------------------*/
 	/* Read Pin Strap Register in PPC440SP */
-	sdr0_pinstp = ppcMfsdr(SDR0_PINSTP);
+	mfsdr(SDR0_PINSTP, sdr0_pinstp);
 	bootstrap_settings = sdr0_pinstp & SDR0_PINSTP_BOOTSTRAP_MASK;
 
 	switch (bootstrap_settings) {
@@ -246,7 +244,7 @@ int board_early_init_f (void)
 			 * Boot Settings in IIC EEprom address 0x50 or 0x54
 			 * Read Serial Device Strap Register1 in PPC440SPe
 			 */
-			sdr0_sdstp1 = ppcMfsdr(SDR0_SDSTP1);
+			mfsdr(SDR0_SDSTP1, sdr0_sdstp1);
 			boot_selection = sdr0_sdstp1 & SDR0_SDSTP1_ERPN_MASK;
 			ebc_data_width = sdr0_sdstp1 & SDR0_SDSTP1_EBCW_MASK;
 
@@ -562,277 +560,6 @@ int checkboard (void)
 	putc('\n');
 
 	return 0;
-}
-
-static long int yucca_probe_for_dimms(void)
-{
-	int 	dimm_installed[MAXDIMMS];
-	int	dimm_num, result;
-	int	dimms_found = 0;
-	uchar	dimm_addr = IIC0_DIMM0_ADDR;
-	uchar   dimm_spd_data[MAX_SPD_BYTES];
-
-	for (dimm_num = 0; dimm_num < MAXDIMMS; dimm_num++) {
-		/* check if there is a chip at the dimm address	*/
-		switch (dimm_num) {
-			case 0:
-				dimm_addr = IIC0_DIMM0_ADDR;
-				break;
-			case 1:
-				dimm_addr = IIC0_DIMM1_ADDR;
-				break;
-		}
-
-		result = i2c_probe(dimm_addr);
-
-		memset(dimm_spd_data, 0, MAX_SPD_BYTES * sizeof(char));
-		if (result == 0) {
-			/* read first byte of SPD data, if there is any data */
-			result = i2c_read(dimm_addr, 0, 1, dimm_spd_data, 1);
-
-			if (result == 0) {
-				result = dimm_spd_data[0];
-				result = result > MAX_SPD_BYTES ?
-						MAX_SPD_BYTES : result;
-				result = i2c_read(dimm_addr, 0, 1,
-							dimm_spd_data, result);
-			}
-		}
-
-		if ((result == 0) &&
-		    (dimm_spd_data[64] == MICRON_SPD_JEDEC_ID)) {
-			dimm_installed[dimm_num] = TRUE;
-			dimms_found++;
-			debug("DIMM slot %d: DDR2 SDRAM detected\n", dimm_num);
-		} else {
-			dimm_installed[dimm_num] = FALSE;
-			debug("DIMM slot %d: Not populated or cannot sucessfully probe the DIMM\n", dimm_num);
-		}
-	}
-
-	if (dimms_found == 0) {
-		printf("ERROR - No memory installed.  Install a DDR-SDRAM DIMM.\n\n");
-		hang();
-	}
-
-	if (dimm_installed[0] != TRUE) {
-		printf("\nERROR - DIMM slot 0 must be populated before DIMM slot 1.\n");
-		printf("        Unsupported configuration. Move DIMM module from DIMM slot 1 to slot 0.\n\n");
-		hang();
-	}
-
-	return dimms_found;
-}
-
-/*************************************************************************
- * init SDRAM controller with fixed value
- * the initialization values are for 2x MICRON DDR2
- * PN: MT18HTF6472DY-53EB2
- * 512MB, DDR2, 533, CL4, ECC, REG
- ************************************************************************/
-static long int fixed_sdram(void)
-{
-	long int yucca_dimms = 0;
-
-	yucca_dimms = yucca_probe_for_dimms();
-
-	/* SDRAM0_MCOPT2 (0X21) Clear DCEN BIT	*/
-	mtdcr( 0x10, 0x00000021 );
-	mtdcr( 0x11, 0x84000000 );
-
-	/* SDRAM0_MCOPT1 (0X20) ECC OFF / 64 bits / 4 banks / DDR2	*/
-	mtdcr( 0x10, 0x00000020 );
-	mtdcr( 0x11, 0x2D122000 );
-
-	/* SET MCIF0_CODT   Die Termination On	*/
-	mtdcr( 0x10, 0x00000026 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x2A800021 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x02800021 );
-
-	/* On-Die Termination for Bank 0	*/
-	mtdcr( 0x10, 0x00000022 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x18000000 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x06000000 );
-
-	/*	On-Die Termination for Bank 1	*/
-	mtdcr( 0x10, 0x00000023 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x18000000 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x01800000 );
-
-	/*	On-Die Termination for Bank 2	*/
-	mtdcr( 0x10, 0x00000024 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x01800000 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x00000000 );
-
-	/*	On-Die Termination for Bank 3	*/
-	mtdcr( 0x10, 0x00000025 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x01800000 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x00000000 );
-
-	/* Refresh Time register (0x30) Refresh every 7.8125uS	*/
-	mtdcr( 0x10, 0x00000030 );
-	mtdcr( 0x11, 0x08200000 );
-
-	/* SET MCIF0_MMODE  	 CL 4	*/
-	mtdcr( 0x10, 0x00000088 );
-	mtdcr( 0x11, 0x00000642 );
-
-	/* MCIF0_MEMODE	*/
-	mtdcr( 0x10, 0x00000089 );
-	mtdcr( 0x11, 0x00000004 );
-
-	/*SET MCIF0_MB0CF 	*/
-	mtdcr( 0x10, 0x00000040 );
-	mtdcr( 0x11, 0x00000201 );
-
-	/* SET MCIF0_MB1CF 	*/
-	mtdcr( 0x10, 0x00000044 );
-	mtdcr( 0x11, 0x00000201 );
-
-	/* SET MCIF0_MB2CF 	*/
-	mtdcr( 0x10, 0x00000048 );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x00000201 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x00000000 );
-
-	/* SET MCIF0_MB3CF 	*/
-	mtdcr( 0x10, 0x0000004c );
-	if (yucca_dimms == 2)
-		mtdcr( 0x11, 0x00000201 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x11, 0x00000000 );
-
-	/* SET MCIF0_INITPLR0  # NOP		*/
-	mtdcr( 0x10, 0x00000050 );
-	mtdcr( 0x11, 0xB5380000 );
-
-	/* SET MCIF0_INITPLR1  # PRE		*/
-	mtdcr( 0x10, 0x00000051 );
-	mtdcr( 0x11, 0x82100400 );
-
-	/* SET MCIF0_INITPLR2  # EMR2		*/
-	mtdcr( 0x10, 0x00000052 );
-	mtdcr( 0x11, 0x80820000 );
-
-	/* SET MCIF0_INITPLR3  # EMR3		*/
-	mtdcr( 0x10, 0x00000053 );
-	mtdcr( 0x11, 0x80830000 );
-
-	/* SET MCIF0_INITPLR4  # EMR DLL ENABLE	*/
-	mtdcr( 0x10, 0x00000054 );
-	mtdcr( 0x11, 0x80810000 );
-
-	/* SET MCIF0_INITPLR5  # MR DLL RESET	*/
-	mtdcr( 0x10, 0x00000055 );
-	mtdcr( 0x11, 0x80800542 );
-
-	/* SET MCIF0_INITPLR6  # PRE		*/
-	mtdcr( 0x10, 0x00000056 );
-	mtdcr( 0x11, 0x82100400 );
-
-	/* SET MCIF0_INITPLR7  # Refresh	*/
-	mtdcr( 0x10, 0x00000057 );
-	mtdcr( 0x11, 0x8A080000 );
-
-	/* SET MCIF0_INITPLR8  # Refresh	*/
-	mtdcr( 0x10, 0x00000058 );
-	mtdcr( 0x11, 0x8A080000 );
-
-	/* SET MCIF0_INITPLR9  # Refresh	*/
-	mtdcr( 0x10, 0x00000059 );
-	mtdcr( 0x11, 0x8A080000 );
-
-	/* SET MCIF0_INITPLR10 # Refresh	*/
-	mtdcr( 0x10, 0x0000005A );
-	mtdcr( 0x11, 0x8A080000 );
-
-	/* SET MCIF0_INITPLR11 # MR		*/
-	mtdcr( 0x10, 0x0000005B );
-	mtdcr( 0x11, 0x80800442 );
-
-	/* SET MCIF0_INITPLR12 # EMR OCD Default*/
-	mtdcr( 0x10, 0x0000005C );
-	mtdcr( 0x11, 0x80810380 );
-
-	/* SET MCIF0_INITPLR13 # EMR OCD Exit	*/
-	mtdcr( 0x10, 0x0000005D );
-	mtdcr( 0x11, 0x80810000 );
-
-	/* 0x80: Adv Addr clock by 180 deg	*/
-	mtdcr( 0x10, 0x00000080 );
-	mtdcr( 0x11, 0x80000000 );
-
-	/* 0x21: Exit self refresh, set DC_EN	*/
-	mtdcr( 0x10, 0x00000021 );
-	mtdcr( 0x11, 0x28000000 );
-
-	/* 0x81: Write DQS Adv 90 + Fractional DQS Delay	*/
-	mtdcr( 0x10, 0x00000081 );
-	mtdcr( 0x11, 0x80000800 );
-
-	/* MCIF0_SDTR1	*/
-	mtdcr( 0x10, 0x00000085 );
-	mtdcr( 0x11, 0x80201000 );
-
-	/* MCIF0_SDTR2	*/
-	mtdcr( 0x10, 0x00000086 );
-	mtdcr( 0x11, 0x42103242 );
-
-	/* MCIF0_SDTR3	*/
-	mtdcr( 0x10, 0x00000087 );
-	mtdcr( 0x11, 0x0C100D14 );
-
-	/* SET MQ0_B0BAS  base addr 00000000 / 256MB	*/
-	mtdcr( 0x40, 0x0000F800 );
-
-	/* SET MQ0_B1BAS  base addr 10000000 / 256MB	*/
-	mtdcr( 0x41, 0x0400F800 );
-
-	/* SET MQ0_B2BAS  base addr 20000000 / 256MB	*/
-	if (yucca_dimms == 2)
-		mtdcr( 0x42, 0x0800F800 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x42, 0x00000000 );
-
-	/* SET MQ0_B3BAS  base addr 30000000 / 256MB	*/
-	if (yucca_dimms == 2)
-		mtdcr( 0x43, 0x0C00F800 );
-	else if (yucca_dimms == 1)
-		mtdcr( 0x43, 0x00000000 );
-
-	/* SDRAM_RQDC	*/
-	mtdcr( 0x10, 0x00000070 );
-	mtdcr( 0x11, 0x8000003F );
-
-	/* SDRAM_RDCC	*/
-	mtdcr( 0x10, 0x00000078 );
-	mtdcr( 0x11, 0x80000000 );
-
-	/* SDRAM_RFDC	*/
-	mtdcr( 0x10, 0x00000074 );
-	mtdcr( 0x11, 0x00000220 );
-
-	return (yucca_dimms * 512) << 20;
-}
-
-long int initdram (int board_type)
-{
-	long dram_size = 0;
-
-	dram_size = fixed_sdram();
-
-	return dram_size;
 }
 
 #if defined(CFG_DRAM_TEST)
@@ -1266,43 +993,4 @@ int onboard_pci_arbiter_selected(int core_pci)
 	else
 #endif
 	return (BOARD_OPTION_NOT_SELECTED);
-}
-
-/*---------------------------------------------------------------------------+
- | ppcMfcpr.
- +---------------------------------------------------------------------------*/
-unsigned long ppcMfcpr(unsigned long cpr_reg)
-{
-	unsigned long msr;
-	unsigned long cpr_cfgaddr_temp;
-	unsigned long cpr_value;
-
-	msr = (mfmsr () & ~(MSR_EE));
-	cpr_cfgaddr_temp =  mfdcr(CPR0_CFGADDR);
-	mtdcr(CPR0_CFGADDR, cpr_reg);
-	cpr_value =  mfdcr(CPR0_CFGDATA);
-	mtdcr(CPR0_CFGADDR, cpr_cfgaddr_temp);
-	mtmsr(msr);
-
-	return (cpr_value);
-}
-
-/*----------------------------------------------------------------------------+
-| Indirect Access of the System DCR's (SDR)
-| ppcMfsdr
-+----------------------------------------------------------------------------*/
-unsigned long ppcMfsdr(unsigned long sdr_reg)
-{
-	unsigned long msr;
-	unsigned long sdr_cfgaddr_temp;
-	unsigned long sdr_value;
-
-	msr = (mfmsr () & ~(MSR_EE));
-	sdr_cfgaddr_temp =  mfdcr(SDR0_CFGADDR);
-	mtdcr(SDR0_CFGADDR, sdr_reg);
-	sdr_value =  mfdcr(SDR0_CFGDATA);
-	mtdcr(SDR0_CFGADDR, sdr_cfgaddr_temp);
-	mtmsr(msr);
-
-	return (sdr_value);
 }

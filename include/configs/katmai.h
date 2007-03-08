@@ -108,6 +108,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x51, 0x52}	/* SPD i2c spd addresses*/
+#define CONFIG_DDR_ECC		1	/* with ECC support		*/
 #undef  CONFIG_STRESS
 
 /*-----------------------------------------------------------------------
