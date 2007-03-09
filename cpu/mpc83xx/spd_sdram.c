@@ -58,8 +58,8 @@ picos_to_clk(int picos)
 	int clks;
 
 	ddr_bus_clk = gd->ddr_clk >> 1;
-	clks = picos / ((1000000000 / ddr_bus_clk) * 1000);
-	if (picos % ((1000000000 / ddr_bus_clk) * 1000) != 0)
+	clks = picos / (1000000000 / (ddr_bus_clk / 1000));
+	if (picos % (1000000000 / (ddr_bus_clk / 1000)) != 0)
 		clks++;
 
 	return clks;
@@ -624,7 +624,7 @@ long int spd_sdram()
 			 | (1 << (16 + 10))             /* DQS Differential disable */
 			 | (add_lat << (16 + 3))        /* Additive Latency in EMRS1 */
 			 | (mode_odt_enable << 16)      /* ODT Enable in EMRS1 */
-			 | ((twr_clk >> 1) << 9)        /* Write Recovery Autopre */
+			 | ((twr_clk - 1) << 9)         /* Write Recovery Autopre */
 			 | (caslat << 4)                /* caslat */
 			 | (burstlen << 0)              /* Burst length */
 			);
