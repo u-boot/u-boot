@@ -146,7 +146,7 @@ ifeq ($(ARCH),microblaze)
 CROSS_COMPILE = mb-
 endif
 ifeq ($(ARCH),blackfin)
-CROSS_COMPILE = bfin-elf-
+CROSS_COMPILE = bfin-uclinux-
 endif
 ifeq ($(ARCH),avr32)
 CROSS_COMPILE = avr32-
@@ -178,7 +178,7 @@ OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),bf533)
 OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
-OBJS += cpu/$(CPU)/cplbhdlr.o	cpu/$(CPU)/cplbmgr.o	cpu/$(CPU)/flush.o
+OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
 endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
@@ -2350,14 +2350,11 @@ suzaku_config:	unconfig
 #########################################################################
 ## Blackfin
 #########################################################################
-ezkit533_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 ezkit533
+bf533-ezkit_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-ezkit
 
-stamp_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 stamp
-
-dspstamp_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 dsp_stamp
+bf533-stamp_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-stamp
 
 #========================================================================
 # AVR32
@@ -2394,6 +2391,7 @@ clean:
 	rm -f $(obj)board/netstar/*.srec $(obj)board/netstar/*.bin
 	rm -f $(obj)board/trab/trab_fkt $(obj)board/voiceblue/eeprom
 	rm -f $(obj)board/integratorap/u-boot.lds $(obj)board/integratorcp/u-boot.lds
+	rm -f $(obj)board/bf*/u-boot.lds
 	rm -f $(obj)include/bmp_logo.h
 	rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
 
