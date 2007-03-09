@@ -3,13 +3,12 @@
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.
- *
- * Blackfin BF533/2.6 support : LG Soft India
  */
 #define ASSEMBLY
 
 #include <asm/linkage.h>
 #include <asm/cplb.h>
+#include <config.h>
 #include <asm/blackfin.h>
 
 .text
@@ -20,7 +19,7 @@
  * in the instruction cache.
  */
 
-ENTRY(flush_instruction_cache)
+ENTRY(_flush_instruction_cache)
 	[--SP] = ( R7:6, P5:4 );
 	LINK 12;
 	SP += -12;
@@ -33,7 +32,7 @@ ENTRY(flush_instruction_cache)
 inext:	R0 = [P5++];
 	R1 = [P4++];
 	[--SP] =  RETS;
-	CALL icplb_flush;	/* R0 = page, R1 = data*/
+	CALL _icplb_flush;	/* R0 = page, R1 = data*/
 	RETS = [SP++];
 iskip:	R6 += -1;
 	CC = R6;
@@ -52,7 +51,7 @@ iskip:	R6 += -1;
  */
 
 .align 2
-ENTRY(icplb_flush)
+ENTRY(_icplb_flush)
 	[--SP] = ( R7:0, P5:0 );
 	[--SP] = LC0;
 	[--SP] = LT0;
@@ -60,7 +59,7 @@ ENTRY(icplb_flush)
 	[--SP] = LC1;
 	[--SP] = LT1;
 	[--SP] = LB1;
-
+	
 	/* If it's a 1K or 4K page, then it's quickest to
 	 * just systematically flush all the addresses in
 	 * the page, regardless of whether they're in the
@@ -86,11 +85,12 @@ ENTRY(icplb_flush)
 	 */
 
 	R3 = ((12<<8)|2);		/* Extraction pattern */
-	nop;				/*Anamoly 05000209*/
-	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits*/
-	R3.H = R4.L << 0 ;		/* Save in extraction pattern for later deposit.*/
+	nop;				/* Anamoly 05000209 */
+	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits */
 
-
+	/* Save in extraction pattern for later deposit. */
+	R3.H = R4.L << 0;
+	
 	/* So:
 	 * R0 = Page start
 	 * R1 = Page length (actually, offset into size/prefix tables)
@@ -101,7 +101,7 @@ ENTRY(icplb_flush)
 	 * sub-bank, looking for dirty, valid tags that match our
 	 * address prefix.
 	 */
-
+	
 	P5.L = (ITEST_COMMAND & 0xFFFF);
 	P5.H = (ITEST_COMMAND >> 16);
 	P4.L = (ITEST_DATA0 & 0xFFFF);
@@ -119,7 +119,7 @@ ENTRY(icplb_flush)
 	 * fetching tags, so we only have to set Set, Bank,
 	 * Sub-bank and Way.
 	 */
-
+	
 	P2 = 4;
 	LSETUP (ifs1, ife1) LC1 = P2;
 ifs1:	P0 = 32;		/* iterate over all sets*/
@@ -142,7 +142,7 @@ ifs0:	R6 = R5 << 5;		/* Combine set*/
 	IF !CC JUMP ifskip;	/* Skip it if it doesn't match.*/
 
 	/* Tag address matches against page, so this is an entry
-	 * we must flush.
+	 * we must flush. 
 	 */
 
 	R7 >>= 10;		/* Mask off the non-address bits*/
@@ -181,17 +181,17 @@ iflush_whole_page:
 	IFLUSH [P0++];		/* because CSYNC can't end loops.*/
 	LSETUP (isall, ieall) LC0 = P1;
 isall:IFLUSH [P0++];
-ieall: NOP;
+ieall: NOP;	
 	SSYNC;
 	JUMP ifinished;
 
-/* This is an external function being called by the user
+/* This is an external function being called by the user 
  * application through __flush_cache_all. Currently this function
  * serves the purpose of flushing all the pending writes in
  * in the data cache.
  */
 
-ENTRY(flush_data_cache)
+ENTRY(_flush_data_cache)
 	[--SP] = ( R7:6, P5:4 );
 	LINK 12;
 	SP += -12;
@@ -209,7 +209,7 @@ next:	R0 = [P5++];
 	CC = R2;
 	IF !CC JUMP skip;	/* If not, ignore it.*/
 	[--SP] = RETS;
-	CALL dcplb_flush;	/* R0 = page, R1 = data*/
+	CALL _dcplb_flush;	/* R0 = page, R1 = data*/
 	RETS = [SP++];
 skip:	R6 += -1;
 	CC = R6;
@@ -222,13 +222,13 @@ skip:	R6 += -1;
 
 /* This is an internal function to flush all pending
  * writes in the cache associated with a particular DCPLB.
- *
+ * 
  * R0 -  page's start address
  * R1 -  CPLB's data field.
  */
 
 .align 2
-ENTRY(dcplb_flush)
+ENTRY(_dcplb_flush)
 	[--SP] = ( R7:0, P5:0 );
 	[--SP] = LC0;
 	[--SP] = LT0;
@@ -236,7 +236,7 @@ ENTRY(dcplb_flush)
 	[--SP] = LC1;
 	[--SP] = LT1;
 	[--SP] = LB1;
-
+	
 	/* If it's a 1K or 4K page, then it's quickest to
 	 * just systematically flush all the addresses in
 	 * the page, regardless of whether they're in the
@@ -250,9 +250,9 @@ ENTRY(dcplb_flush)
 
 	/* We're only interested in the page's size, so extract
 	 * this from the CPLB (bits 17:16), and scale to give an
-	 * offset into the page_size and page_prefix tables.
+	 * offset into the page_size and page_prefix tables.	
 	 */
-
+		
 	R1 <<= 14;
 	R1 >>= 30;
 	R1 <<= 2;
@@ -260,9 +260,9 @@ ENTRY(dcplb_flush)
 	/* The page could be mapped into Bank A or Bank B, depending
 	 * on (a) whether both banks are configured as cache, and
 	 * (b) on whether address bit A[x] is set. x is determined
-	 * by DCBS in DMEM_CONTROL
+	 * by DCBS in DMEM_CONTROL		
 	 */
-
+	
 	R2 = 0;			/* Default to Bank A (Bank B would be 1)*/
 
 	P0.L = (DMEM_CONTROL & 0xFFFF);
@@ -290,7 +290,8 @@ bank_chosen:
 	R3 = ((12<<8)|2);		/* Extraction pattern */
 	nop;				/*Anamoly 05000209*/
 	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits*/
-	R3.H = R4.L << 0 ;		/* Save in extraction pattern for later deposit.*/
+	/* Save in extraction pattern for later deposit.*/
+	R3.H = R4.L << 0;
 
 	/* So:
 	 * R0 = Page start
@@ -303,7 +304,7 @@ bank_chosen:
 	 * sub-bank, looking for dirty, valid tags that match our
 	 * address prefix.
 	 */
-
+	
 	P5.L = (DTEST_COMMAND & 0xFFFF);
 	P5.H = (DTEST_COMMAND >> 16);
 	P4.L = (DTEST_DATA0 & 0xFFFF);
@@ -322,7 +323,7 @@ bank_chosen:
 	 * fetching tags, so we only have to set Set, Bank,
 	 * Sub-bank and Way.
 	 */
-
+	
 	P2 = 2;
 	LSETUP (fs1, fe1) LC1 = P2;
 fs1:	P0 = 64;		/* iterate over all sets*/
@@ -386,7 +387,7 @@ dflush_whole_page:
 	CC = BITTST(R1, 16);	/* Whether 1K or 4K*/
 	IF CC P1 = P2;
 	P1 += -1;		/* Unroll one iteration*/
-    SSYNC;
+	SSYNC;
 	FLUSHINV [P0++];	/* because CSYNC can't end loops.*/
 	LSETUP (eall, eall) LC0 = P1;
 eall:	FLUSHINV [P0++];

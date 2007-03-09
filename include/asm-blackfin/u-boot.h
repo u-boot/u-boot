@@ -29,7 +29,7 @@
 #define _U_BOOT_H_	1
 
 typedef struct bd_info {
-	int bi_baudrate;		/* serial console baudrate */
+	int bi_baudrate;	/* serial console baudrate */
 	unsigned long bi_ip_addr;	/* IP Address */
 	unsigned char bi_enetaddr[6];	/* Ethernet adress */
 	unsigned long bi_arch_number;	/* unique id for this board */

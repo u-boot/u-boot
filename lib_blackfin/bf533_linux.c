@@ -43,20 +43,21 @@
 #define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#define CMD_LINE_ADDR 0xFF900000  /* L1 scratchpad */
+#define CMD_LINE_ADDR 0xFF900000	/* L1 scratchpad */
 
 #ifdef SHARED_RESOURCES
-	extern void swap_to(int device_id);
+extern void swap_to(int device_id);
 #endif
 
+extern image_header_t header;
+extern void flush_instruction_cache(void);
+extern void flush_data_cache(void);
 static char *make_command_line(void);
 
-extern image_header_t header;
-extern int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		    ulong addr, ulong * len_ptr, int verify)
 {
-	int (*appl)(char *cmdline);
+	int (*appl) (char *cmdline);
 	char *cmdline;
 
 #ifdef SHARED_RESOURCES
@@ -66,26 +67,26 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	appl = (int (*)(char *))ntohl(header.ih_ep);
 	printf("Starting Kernel at = %x\n", appl);
 	cmdline = make_command_line();
-	if(icache_status()){
+	if (icache_status()) {
 		flush_instruction_cache();
 		icache_disable();
-		}
-	if(dcache_status()){
+	}
+	if (dcache_status()) {
 		flush_data_cache();
 		dcache_disable();
-		}
-	(*appl)(cmdline);
+	}
+	(*appl) (cmdline);
 }
 
 char *make_command_line(void)
 {
-    char *dest = (char *) CMD_LINE_ADDR;
-    char *bootargs;
+	char *dest = (char *)CMD_LINE_ADDR;
+	char *bootargs;
 
-    if ( (bootargs = getenv("bootargs")) == NULL )
-	return NULL;
+	if ((bootargs = getenv("bootargs")) == NULL)
+		return NULL;
 
-    strncpy(dest, bootargs, 0x1000);
-    dest[0xfff] = 0;
-    return dest;
+	strncpy(dest, bootargs, 0x1000);
+	dest[0xfff] = 0;
+	return dest;
 }

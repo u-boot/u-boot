@@ -24,8 +24,8 @@
 
 #define ASSEMBLY
 #include <linux/config.h>
-#include <asm/blackfin.h>
 #include <config.h>
+#include <asm/blackfin.h>
 
 .global	start1;
 .global	_start1;
@@ -34,5 +34,5 @@
 _start1:
 start1:
 	sp += -12;
-	call	board_init_f;
+	call	_board_init_f;
 	sp += 12;

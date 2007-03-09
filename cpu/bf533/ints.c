@@ -51,9 +51,9 @@
 void blackfin_irq_panic(int reason, struct pt_regs *regs)
 {
 	printf("\n\nException: IRQ 0x%x entered\n", reason);
-	printf("code=[0x%x], ", (unsigned int) (regs->seqstat & 0x3f));
-	printf("stack frame=0x%x, ", (unsigned int) regs);
-	printf("bad PC=0x%04x\n", (unsigned int) regs->pc);
+	printf("code=[0x%x], ", (unsigned int)(regs->seqstat & 0x3f));
+	printf("stack frame=0x%x, ", (unsigned int)regs);
+	printf("bad PC=0x%04x\n", (unsigned int)regs->pc);
 	dump(regs);
 	printf("Unhandled IRQ or exceptions!\n");
 	printf("Please reset the board \n");
@@ -61,44 +61,54 @@ void blackfin_irq_panic(int reason, struct pt_regs *regs)
 
 void blackfin_init_IRQ(void)
 {
-	*(unsigned volatile long *) (SIC_IMASK) = SIC_UNMASK_ALL;
+	*(unsigned volatile long *)(SIC_IMASK) = SIC_UNMASK_ALL;
 	cli();
 #ifndef CONFIG_KGDB
-	*(unsigned volatile long *) (EVT_EMULATION_ADDR) = 0x0;
+	*(unsigned volatile long *)(EVT_EMULATION_ADDR) = 0x0;
 #endif
-	*(unsigned volatile long *) (EVT_NMI_ADDR) =
-		(unsigned volatile long) evt_nmi;
-	*(unsigned volatile long *) (EVT_EXCEPTION_ADDR) =
-		(unsigned volatile long) trap;
-	*(unsigned volatile long *) (EVT_HARDWARE_ERROR_ADDR) =
-		(unsigned volatile long) evt_ivhw;
-	*(unsigned volatile long *) (EVT_RESET_ADDR) =
-		(unsigned volatile long) evt_rst;
-	*(unsigned volatile long *) (EVT_TIMER_ADDR) =
-		(unsigned volatile long) evt_timer;
-	*(unsigned volatile long *) (EVT_IVG7_ADDR) =
-		(unsigned volatile long) evt_evt7;
-	*(unsigned volatile long *) (EVT_IVG8_ADDR) =
-		(unsigned volatile long) evt_evt8;
-	*(unsigned volatile long *) (EVT_IVG9_ADDR) =
-		(unsigned volatile long) evt_evt9;
-	*(unsigned volatile long *) (EVT_IVG10_ADDR) =
-		(unsigned volatile long) evt_evt10;
-	*(unsigned volatile long *) (EVT_IVG11_ADDR) =
-		(unsigned volatile long) evt_evt11;
-	*(unsigned volatile long *) (EVT_IVG12_ADDR) =
-		(unsigned volatile long) evt_evt12;
-	*(unsigned volatile long *) (EVT_IVG13_ADDR) =
-		(unsigned volatile long) evt_evt13;
-	*(unsigned volatile long *) (EVT_IVG14_ADDR) =
-		(unsigned volatile long) evt_system_call;
-	*(unsigned volatile long *) (EVT_IVG15_ADDR) =
-		(unsigned volatile long) evt_soft_int1;
-	*(volatile unsigned long *) ILAT = 0;
+	*(unsigned volatile long *)(EVT_NMI_ADDR) =
+	    (unsigned volatile long)evt_nmi;
+	*(unsigned volatile long *)(EVT_EXCEPTION_ADDR) =
+	    (unsigned volatile long)trap;
+	*(unsigned volatile long *)(EVT_HARDWARE_ERROR_ADDR) =
+	    (unsigned volatile long)evt_ivhw;
+	*(unsigned volatile long *)(EVT_RESET_ADDR) =
+	    (unsigned volatile long)evt_rst;
+	*(unsigned volatile long *)(EVT_TIMER_ADDR) =
+	    (unsigned volatile long)evt_timer;
+	*(unsigned volatile long *)(EVT_IVG7_ADDR) =
+	    (unsigned volatile long)evt_evt7;
+	*(unsigned volatile long *)(EVT_IVG8_ADDR) =
+	    (unsigned volatile long)evt_evt8;
+	*(unsigned volatile long *)(EVT_IVG9_ADDR) =
+	    (unsigned volatile long)evt_evt9;
+	*(unsigned volatile long *)(EVT_IVG10_ADDR) =
+	    (unsigned volatile long)evt_evt10;
+	*(unsigned volatile long *)(EVT_IVG11_ADDR) =
+	    (unsigned volatile long)evt_evt11;
+	*(unsigned volatile long *)(EVT_IVG12_ADDR) =
+	    (unsigned volatile long)evt_evt12;
+	*(unsigned volatile long *)(EVT_IVG13_ADDR) =
+	    (unsigned volatile long)evt_evt13;
+	*(unsigned volatile long *)(EVT_IVG14_ADDR) =
+	    (unsigned volatile long)evt_system_call;
+	*(unsigned volatile long *)(EVT_IVG15_ADDR) =
+	    (unsigned volatile long)evt_soft_int1;
+	*(volatile unsigned long *)ILAT = 0;
 	asm("csync;");
 	sti();
-	*(volatile unsigned long *) IMASK = 0xffbf;
+	*(volatile unsigned long *)IMASK = 0xffbf;
 	asm("csync;");
+}
+
+void exception_handle(void)
+{
+#if defined (CONFIG_PANIC_HANG)
+	display_excp();
+#else
+	udelay(100000);		/* allow messages to go out */
+	do_reset(NULL, 0, 0, NULL);
+#endif
 }
 
 void display_excp(void)
