@@ -14,14 +14,11 @@
 #endif
 #include <asm/arch-common/def_LPBlackfin.h>
 
-// Cache & SRAM Memory
+/* Cache & SRAM Memory	*/
 #define pSRAM_BASE_ADDRESS ((volatile void **)SRAM_BASE_ADDRESS)
 #define pDMEM_CONTROL ((volatile unsigned long *)DMEM_CONTROL)
 #define pDCPLB_STATUS ((volatile unsigned long *)DCPLB_STATUS)
 #define pDCPLB_FAULT_ADDR ((volatile void **)DCPLB_FAULT_ADDR)
-/*
-#define MMR_TIMEOUT            0xFFE00010  // Memory-Mapped Register Timeout Register
-*/
 #define pDCPLB_ADDR0 ((volatile void **)DCPLB_ADDR0)
 #define pDCPLB_ADDR1 ((volatile void **)DCPLB_ADDR1)
 #define pDCPLB_ADDR2 ((volatile void **)DCPLB_ADDR2)
@@ -55,15 +52,8 @@
 #define pDCPLB_DATA14 ((volatile unsigned long *)DCPLB_DATA14)
 #define pDCPLB_DATA15 ((volatile unsigned long *)DCPLB_DATA15)
 #define pDTEST_COMMAND ((volatile unsigned long *)DTEST_COMMAND)
-/*
-#define DTEST_INDEX            0xFFE00304  // Data Test Index Register
-*/
 #define pDTEST_DATA0 ((volatile unsigned long *)DTEST_DATA0)
 #define pDTEST_DATA1 ((volatile unsigned long *)DTEST_DATA1)
-/*
-#define DTEST_DATA2            0xFFE00408  // Data Test Data Register
-#define DTEST_DATA3            0xFFE0040C  // Data Test Data Register
-*/
 #define pIMEM_CONTROL ((volatile unsigned long *)IMEM_CONTROL)
 #define pICPLB_STATUS ((volatile unsigned long *)ICPLB_STATUS)
 #define pICPLB_FAULT_ADDR ((volatile void **)ICPLB_FAULT_ADDR)
@@ -100,13 +90,10 @@
 #define pICPLB_DATA14 ((volatile unsigned long *)ICPLB_DATA14)
 #define pICPLB_DATA15 ((volatile unsigned long *)ICPLB_DATA15)
 #define pITEST_COMMAND ((volatile unsigned long *)ITEST_COMMAND)
-/*
-#define ITEST_INDEX            0xFFE01304  // Instruction Test Index Register
-*/
 #define pITEST_DATA0 ((volatile unsigned long *)ITEST_DATA0)
 #define pITEST_DATA1 ((volatile unsigned long *)ITEST_DATA1)
 
-// Event/Interrupt Registers
+/* Event/Interrupt Registers */
 #define pEVT0 ((volatile void **)EVT0)
 #define pEVT1 ((volatile void **)EVT1)
 #define pEVT2 ((volatile void **)EVT2)
@@ -127,24 +114,24 @@
 #define pIPEND ((volatile unsigned long *)IPEND)
 #define pILAT ((volatile unsigned long *)ILAT)
 
-// Core Timer Registers
+/* Core Timer Registers */
 #define pTCNTL ((volatile unsigned long *)TCNTL)
 #define pTPERIOD ((volatile unsigned long *)TPERIOD)
 #define pTSCALE ((volatile unsigned long *)TSCALE)
 #define pTCOUNT ((volatile unsigned long *)TCOUNT)
 
-// Debug/MP/Emulation Registers
+/* Debug/MP/Emulation Registers */
 #define pDSPID ((volatile unsigned long *)DSPID)
 #define pDBGCTL ((volatile unsigned long *)DBGCTL)
 #define pDBGSTAT ((volatile unsigned long *)DBGSTAT)
 #define pEMUDAT ((volatile unsigned long *)EMUDAT)
 
-// Trace Buffer Registers
+/* Trace Buffer Registers */
 #define pTBUFCTL ((volatile unsigned long *)TBUFCTL)
 #define pTBUFSTAT ((volatile unsigned long *)TBUFSTAT)
 #define pTBUF ((volatile void **)TBUF)
 
-// Watch Point Control Registers
+/* Watch Point Control Registers */
 #define pWPIACTL ((volatile unsigned long *)WPIACTL)
 #define pWPIA0 ((volatile void **)WPIA0)
 #define pWPIA1 ((volatile void **)WPIA1)
@@ -165,13 +152,9 @@
 #define pWPDACNT1 ((volatile unsigned long *)WPDACNT1)
 #define pWPSTAT ((volatile unsigned long *)WPSTAT)
 
-// Performance Monitor Registers
+/* Performance Monitor Registers */
 #define pPFCTL ((volatile unsigned long *)PFCTL)
 #define pPFCNTR0 ((volatile unsigned long *)PFCNTR0)
 #define pPFCNTR1 ((volatile unsigned long *)PFCNTR1)
-
-/*
-#define IPRIO                  0xFFE02110  // Core Interrupt Priority Register
-*/
 
 #endif /* _CDEF_LPBLACKFIN_H */

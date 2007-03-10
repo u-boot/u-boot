@@ -1,9 +1,9 @@
 #
 # U-boot - Makefile
 #
-# Copyright (c) 2005-2007 Analog Device Inc.
+# Copyright (c) 2007 Analog Device Inc.
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this

@@ -95,7 +95,7 @@ ENTRY(_icplb_flush)
 	 * R0 = Page start
 	 * R1 = Page length (actually, offset into size/prefix tables)
 	 * R3 = sub-bank deposit values
-  	 *
+	 *
 	 * The cache has 2 Ways, and 64 sets, so we iterate through
 	 * the sets, accessing the tag for each Way, for our Bank and
 	 * sub-bank, looking for dirty, valid tags that match our
@@ -142,7 +142,7 @@ ifs0:	R6 = R5 << 5;		/* Combine set*/
 	IF !CC JUMP ifskip;	/* Skip it if it doesn't match.*/
 
 	/* Tag address matches against page, so this is an entry
-	 * we must flush. 
+	 * we must flush.
 	 */
 
 	R7 >>= 10;		/* Mask off the non-address bits*/
@@ -185,7 +185,7 @@ ieall: NOP;
 	SSYNC;
 	JUMP ifinished;
 
-/* This is an external function being called by the user 
+/* This is an external function being called by the user
  * application through __flush_cache_all. Currently this function
  * serves the purpose of flushing all the pending writes in
  * in the data cache.
@@ -222,7 +222,7 @@ skip:	R6 += -1;
 
 /* This is an internal function to flush all pending
  * writes in the cache associated with a particular DCPLB.
- * 
+ *
  * R0 -  page's start address
  * R1 -  CPLB's data field.
  */
@@ -260,7 +260,7 @@ ENTRY(_dcplb_flush)
 	/* The page could be mapped into Bank A or Bank B, depending
 	 * on (a) whether both banks are configured as cache, and
 	 * (b) on whether address bit A[x] is set. x is determined
-	 * by DCBS in DMEM_CONTROL		
+	 * by DCBS in DMEM_CONTROL
 	 */
 	
 	R2 = 0;			/* Default to Bank A (Bank B would be 1)*/

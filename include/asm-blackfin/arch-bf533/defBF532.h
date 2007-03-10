@@ -88,7 +88,7 @@
 #define UART_LCR		0xFFC0040C	/* Line Control Register */
 #define UART_MCR		0xFFC00410	/* Modem Control Register */
 #define UART_LSR		0xFFC00414	/* Line Status Register */
-/* #define UART_MSR 0xFFC00418 *//* Modem Status Register (UNUSED in ADSP-BF532) */
+/* #define UART_MSR 0xFFC00418 */		/* Modem Status Register (UNUSED in ADSP-BF532) */
 #define UART_SCR		0xFFC0041C	/* SCR Scratch Register */
 #define UART_GCTL		0xFFC00424	/* Global Control Register */
 

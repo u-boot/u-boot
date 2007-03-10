@@ -95,7 +95,7 @@ _evt_rst:
 	sp += 12;
 
 _evt_rst_exit:
-	rtn; 
+	rtn;
 
 irq_panic:
 	r0 = IRQ_EVX;
@@ -134,7 +134,7 @@ _evt_evt7:
 
 evt_evt7_exit:
 	RESTORE_CONTEXT
-	rti; 
+	rti;
 
 .global _evt_evt8
 _evt_evt8:

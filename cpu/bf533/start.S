@@ -32,7 +32,7 @@
 
 /*
  * Note: A change in this file subsequently requires a change in
- *       board/$(board_name)/config.mk for a valid u-boot.bin 
+ *       board/$(board_name)/config.mk for a valid u-boot.bin
  */
 
 #define ASSEMBLY
@@ -152,10 +152,10 @@ no_soft_reset:
 	[ p0 ++ ] = r1;
 	
 	p0.h = hi(SIC_IWR);
-        p0.l = lo(SIC_IWR);
-        r0.l = 0x1;
-        w[p0] = r0.l;
-        SSYNC;
+	p0.l = lo(SIC_IWR);
+	r0.l = 0x1;
+	w[p0] = r0.l;
+	SSYNC;
 
 	sp.l = (0xffb01000 & 0xFFFF);
 	sp.h = (0xffb01000 >> 16);

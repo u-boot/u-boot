@@ -68,7 +68,7 @@ ENTRY(_invalidate_entire_icache)
 	(R7:5) =[SP++];
 	RTS;
 
-/* 
+/*
  * Invalidate the Entire Data cache by
  * clearing DMC[1:0] bits
  */
@@ -80,7 +80,7 @@ ENTRY(_dcache_invalidate)
 	P0.H = (DMEM_CONTROL >> 16);
 	R7 =[P0];
 
-/* 
+/*
  * Clear the DMC[1:0] bits, All valid bits in the data
  * cache are set to the invalid state
  */
@@ -118,7 +118,7 @@ ENTRY(_blackfin_dcache_invalidate_range)
 	CC = P0 < P1(iu);
 	IF CC JUMP 1b(bp);
 
-/* 
+/*
  * If the data crosses a cache line, then we'll be pointing to
  * the last cache line, but won't have flushed/invalidated it yet, so do
  * one more.

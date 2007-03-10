@@ -45,7 +45,7 @@ int is_vblank_line(const int line)
 {
 	/*
 	 *  This array contains a single bit for each line in
-	 *  an NTSC frame. 
+	 *  an NTSC frame.
 	 */
 	if ((line <= 18) || (line >= 264 && line <= 281) || (line == 528))
 		return true;
