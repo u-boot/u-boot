@@ -26,23 +26,27 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(CPU).a
+LIB	= $(obj)lib$(CPU).a
 
 START	= start.o start1.o interrupt.o cache.o flush.o init_sdram.o
-OBJS	= cpu.o traps.o ints.o serial.o interrupts.o video.o
+COBJS	= cpu.o traps.o ints.o serial.o interrupts.o video.o
 
 EXTRA = init_sdram_bootrom_initblock.o
 
-all:	.depend $(START) $(LIB) .depend $(EXTRA)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+START	:= $(addprefix $(obj),$(START))
+
+all:	$(obj).depend $(START) $(LIB) $(obj).depend $(EXTRA)
 
 $(LIB):	$(OBJS)
-	$(AR) cr $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

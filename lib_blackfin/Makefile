@@ -27,21 +27,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(ARCH).a
+LIB	= $(obj)lib$(ARCH).a
 
-AOBJS	= memcpy.o memcmp.o memset.o memmove.o
+SOBJS	= memcpy.o memcmp.o memset.o memmove.o
 
 COBJS	= post.o tests.o board.o bf533_linux.o bf533_string.o cache.o muldi3.o
-OBJS	= $(AOBJS) $(COBJS)
 
-$(LIB):	.depend $(OBJS)
-	$(AR) cr $@ $(OBJS)
+SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(AOBJS:.o=.S) $(COBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(AOBJS:.o=.S) $(COBJS:.o=.c) > $@
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################
