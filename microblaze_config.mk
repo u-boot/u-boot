@@ -22,7 +22,7 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -ffixed-r31
+PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
 
 ifdef CONFIG_MICROBLAZE_HARD_MULT
 PLATFORM_CPPFLAGS += -mno-xl-soft-mul

@@ -222,6 +222,14 @@ void env_relocate (void)
 	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #endif
 
+#ifdef CONFIG_MICROBLAZE
+	/*
+	 * FIXME MALLOC error for Microblaze - error malloc return
+	 * bad value. Correct value is CFG_MONITOR_BASE - CFG_MALLOC_LEN.
+	 */
+	env_ptr = (env_t *)CFG_MONITOR_BASE;
+	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
+#endif
 	/*
 	 * After relocation to RAM, we can always use the "memory" functions
 	 */

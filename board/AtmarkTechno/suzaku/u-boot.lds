@@ -61,6 +61,6 @@ SECTIONS
 	{
 		__bss_start = .;
 		*(.bss)
-		__bss_start = .;
+		__bss_end = .;
 	}
 }
