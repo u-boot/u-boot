@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <asm/mem_init.h>
+#include <asm/io.h>
 #include "bf533-stamp.h"
 
 #define STATUS_LED_OFF 0
@@ -74,9 +75,9 @@ void swap_to(int device_id)
 
 	if (device_id == ETHERNET) {
 		*pFIO_DIR = PF0;
-		__builtin_bfin_ssync();
+		sync();
 		*pFIO_FLAG_S = PF0;
-		__builtin_bfin_ssync();
+		sync();
 	} else if (device_id == FLASH) {
 		*pFIO_DIR = (PF4 | PF3 | PF2 | PF1 | PF0);
 		*pFIO_FLAG_S = (PF4 | PF3 | PF2);
@@ -86,7 +87,7 @@ void swap_to(int device_id)
 		*pFIO_EDGE = (PF8 | PF7 | PF6 | PF5);
 		*pFIO_INEN = (PF8 | PF7 | PF6 | PF5);
 		*pFIO_FLAG_D = (PF4 | PF3 | PF2);
-		__builtin_bfin_ssync();
+		sync();
 	} else {
 		printf("Unknown bank to switch\n");
 	}
@@ -153,15 +154,15 @@ void cf_outb(unsigned char val, volatile unsigned char *addr)
 	 */
 	*pFIO_FLAG_S = CF_PF0;
 	*pFIO_FLAG_C = CF_PF1;
-	__builtin_bfin_ssync();
+	sync();
 
 	*(addr) = val;
-	__builtin_bfin_ssync();
+	sync();
 
 	/* Setback PF1 PF0 to 0 0 to address external
 	 * memory banks  */
 	*(volatile unsigned short *)pFIO_FLAG_C = CF_PF1_PF0;
-	__builtin_bfin_ssync();
+	sync();
 }
 
 unsigned char cf_inb(volatile unsigned char *addr)
@@ -170,13 +171,13 @@ unsigned char cf_inb(volatile unsigned char *addr)
 
 	*pFIO_FLAG_S = CF_PF0;
 	*pFIO_FLAG_C = CF_PF1;
-	__builtin_bfin_ssync();
+	sync();
 
 	c = *(addr);
-	__builtin_bfin_ssync();
+	sync();
 
 	*pFIO_FLAG_C = CF_PF1_PF0;
-	__builtin_bfin_ssync();
+	sync();
 
 	return c;
 }
@@ -187,15 +188,15 @@ void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words)
 
 	*pFIO_FLAG_S = CF_PF0;
 	*pFIO_FLAG_C = CF_PF1;
-	__builtin_bfin_ssync();
+	sync();
 
 	for (i = 0; i < words; i++) {
 		*(sect_buf + i) = *(addr);
-		__builtin_bfin_ssync();
+		sync();
 	}
 
 	*pFIO_FLAG_C = CF_PF1_PF0;
-	__builtin_bfin_ssync();
+	sync();
 }
 
 void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
@@ -204,15 +205,15 @@ void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
 
 	*pFIO_FLAG_S = CF_PF0;
 	*pFIO_FLAG_C = CF_PF1;
-	__builtin_bfin_ssync();
+	sync();
 
 	for (i = 0; i < words; i++) {
 		*(addr) = *(sect_buf + i);
-		__builtin_bfin_ssync();
+		sync();
 	}
 
 	*pFIO_FLAG_C = CF_PF1_PF0;
-	__builtin_bfin_ssync();
+	sync();
 }
 #endif
 
@@ -233,7 +234,7 @@ void stamp_led_set(int LED1, int LED2, int LED3)
 		*pFIO_FLAG_S = PF4;
 	else
 		*pFIO_FLAG_C = PF4;
-	__builtin_bfin_ssync();
+	sync();
 }
 
 void show_boot_progress(int status)

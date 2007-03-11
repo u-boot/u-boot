@@ -26,6 +26,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/io.h>
 #include "flash-defines.h"
 
 void flash_reset(void)
@@ -282,9 +283,9 @@ int write_flash(long nOffset, int nValue)
 	long addr;
 
 	addr = (CFG_FLASH_BASE + nOffset);
-	__builtin_bfin_ssync();
+	sync();
 	*(unsigned volatile short *)addr = nValue;
-	__builtin_bfin_ssync();
+	sync();
 	if (poll_toggle_bit(nOffset) < 0)
 		return FLASH_FAIL;
 	return FLASH_SUCCESS;
@@ -297,9 +298,9 @@ int read_flash(long nOffset, int *pnValue)
 
 	if (nOffset != 0x2)
 		reset_flash();
-	__builtin_bfin_ssync();
+	sync();
 	nValue = *(volatile unsigned short *)addr;
-	__builtin_bfin_ssync();
+	sync();
 	*pnValue = nValue;
 	return TRUE;
 }

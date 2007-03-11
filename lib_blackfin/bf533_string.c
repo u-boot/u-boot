@@ -30,6 +30,7 @@
 #include <asm/page.h>
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/io.h>
 
 extern void blackfin_icache_flush_range(const void *, const void *);
 extern void blackfin_dcache_flush_range(const void *, const void *);
@@ -175,7 +176,7 @@ void *dma_memcpy(void *dest, const void *src, size_t count)
 
 	/* Enable source DMA */
 	*pMDMA_S0_CONFIG = (DMAEN);
-	__builtin_bfin_ssync();
+	sync();
 
 	*pMDMA_D0_CONFIG = (WNR | DMAEN);
 

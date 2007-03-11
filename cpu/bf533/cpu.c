@@ -30,22 +30,13 @@
 #include <command.h>
 #include <asm/entry.h>
 #include <asm/cplb.h>
+#include <asm/io.h>
 
 #define CACHE_ON 1
 #define CACHE_OFF 0
 
 extern unsigned int icplb_table[page_descriptor_table_size][2];
 extern unsigned int dcplb_table[page_descriptor_table_size][2];
-
-#ifdef DEBUG
-#define pr_debug(fmt,arg...)  printf(fmt,##arg)
-#else
-static inline int
-    __attribute__ ((format(printf, 1, 2))) pr_debug(const char *fmt, ...)
-{
-	return 0;
-}
-#endif
 
 int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -70,10 +61,6 @@ void icache_enable(void)
 {
 	unsigned int *I0, *I1;
 	int i, j = 0;
-#ifdef __ADSPBF537__
-	if ((*pCHIPID >> 28) < 2)
-		return;
-#endif
 
 	/* Before enable icache, disable it first */
 	icache_disable();
@@ -83,7 +70,7 @@ void icache_enable(void)
 	/* make sure the locked ones go in first */
 	for (i = 0; i < page_descriptor_table_size; i++) {
 		if (CPLB_LOCK & icplb_table[i][1]) {
-			pr_debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
 				 icplb_table[i][0], icplb_table[i][1]);
 			*I0++ = icplb_table[i][0];
 			*I1++ = icplb_table[i][1];
@@ -93,7 +80,7 @@ void icache_enable(void)
 
 	for (i = 0; i < page_descriptor_table_size; i++) {
 		if (!(CPLB_LOCK & icplb_table[i][1])) {
-			pr_debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
 				 icplb_table[i][0], icplb_table[i][1]);
 			*I0++ = icplb_table[i][0];
 			*I1++ = icplb_table[i][1];
@@ -107,31 +94,27 @@ void icache_enable(void)
 	/* Fill the rest with invalid entry */
 	if (j <= 15) {
 		for (; j <= 16; j++) {
-			pr_debug("filling %i with 0", j);
+			debug("filling %i with 0", j);
 			*I1++ = 0x0;
 		}
 
 	}
 
 	cli();
-	__builtin_bfin_ssync();
+	sync();
 	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL = IMC | ENICPLB;
-	__builtin_bfin_ssync();
+	sync();
 	sti();
 }
 
 void icache_disable(void)
 {
-#ifdef __ADSPBF537__
-	if ((*pCHIPID >> 28) < 2)
-		return;
-#endif
 	cli();
-	__builtin_bfin_ssync();
+	sync();
 	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL &= ~(IMC | ENICPLB);
-	__builtin_bfin_ssync();
+	sync();
 	sti();
 }
 
@@ -160,20 +143,20 @@ void dcache_enable(void)
 	/* make sure the locked ones go in first */
 	for (i = 0; i < page_descriptor_table_size; i++) {
 		if (CPLB_LOCK & dcplb_table[i][1]) {
-			pr_debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
 				 dcplb_table[i][0], dcplb_table[i][1]);
 			*I0++ = dcplb_table[i][0];
 			*I1++ = dcplb_table[i][1];
 			j++;
 		} else {
-			pr_debug("skip   %02i %02i 0x%08x 0x%08x\n", i, j,
+			debug("skip   %02i %02i 0x%08x 0x%08x\n", i, j,
 				 dcplb_table[i][0], dcplb_table[i][1]);
 		}
 	}
 
 	for (i = 0; i < page_descriptor_table_size; i++) {
 		if (!(CPLB_LOCK & dcplb_table[i][1])) {
-			pr_debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
 				 dcplb_table[i][0], dcplb_table[i][1]);
 			*I0++ = dcplb_table[i][0];
 			*I1++ = dcplb_table[i][1];
@@ -187,33 +170,32 @@ void dcache_enable(void)
 	/* Fill the rest with invalid entry */
 	if (j <= 15) {
 		for (; j <= 16; j++) {
-			pr_debug("filling %i with 0", j);
+			debug("filling %i with 0", j);
 			*I1++ = 0x0;
 		}
 	}
 
 	cli();
 	temp = *(unsigned int *)DMEM_CONTROL;
-	__builtin_bfin_ssync();
+	sync();
 	asm(" .align 8; ");
 	*(unsigned int *)DMEM_CONTROL =
 	    ACACHE_BCACHE | ENDCPLB | PORT_PREF0 | temp;
-	__builtin_bfin_ssync();
+	sync();
 	sti();
 }
 
 void dcache_disable(void)
 {
-
 	unsigned int *I0, *I1;
 	int i;
 
 	cli();
-	__builtin_bfin_ssync();
+	sync();
 	asm(" .align 8; ");
 	*(unsigned int *)DMEM_CONTROL &=
 	    ~(ACACHE_BCACHE | ENDCPLB | PORT_PREF0);
-	__builtin_bfin_ssync();
+	sync();
 	sti();
 
 	/* after disable dcache,

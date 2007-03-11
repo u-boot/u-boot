@@ -42,16 +42,6 @@
 int post_flag;
 #endif
 
-#ifdef DEBUG
-#define pr_debug(fmt,arg...)  printf(fmt,##arg)
-#else
-static inline int
-    __attribute__ ((format(printf, 1, 2))) pr_debug(const char *fmt, ...)
-{
-	return 0;
-}
-#endif
-
 #ifndef CFG_NO_FLASH
 extern flash_info_t flash_info[];
 #endif
@@ -293,7 +283,7 @@ void board_init_f(ulong bootflag)
 	display_banner();	/* say that we are here */
 
 	for (i = 0; i < page_descriptor_table_size; i++) {
-		pr_debug
+		debug
 		    ("data (%02i)= 0x%08x : 0x%08x    intr = 0x%08x : 0x%08x\n",
 		     i, dcplb_table[i][0], dcplb_table[i][1], icplb_table[i][0],
 		     icplb_table[i][1]);

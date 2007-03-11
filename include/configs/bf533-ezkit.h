@@ -90,7 +90,7 @@
 #define CONFIG_SCLK_HZ		CONFIG_CLKIN_HZ
 #endif
 
-#define CONFIG_MEM_SIZ		32	/* 128, 64, 32, 16 */
+#define CONFIG_MEM_SIZE		32	/* 128, 64, 32, 16 */
 #define CONFIG_MEM_ADD_WDTH	9	/* 8, 9, 10, 11    */
 #define CONFIG_MEM_MT48LC16M16A2TG_75	1
 

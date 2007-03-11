@@ -59,7 +59,7 @@ ENTRY(_icplb_flush)
 	[--SP] = LC1;
 	[--SP] = LT1;
 	[--SP] = LB1;
-	
+
 	/* If it's a 1K or 4K page, then it's quickest to
 	 * just systematically flush all the addresses in
 	 * the page, regardless of whether they're in the
@@ -101,7 +101,7 @@ ENTRY(_icplb_flush)
 	 * sub-bank, looking for dirty, valid tags that match our
 	 * address prefix.
 	 */
-	
+
 	P5.L = (ITEST_COMMAND & 0xFFFF);
 	P5.H = (ITEST_COMMAND >> 16);
 	P4.L = (ITEST_DATA0 & 0xFFFF);
@@ -119,7 +119,7 @@ ENTRY(_icplb_flush)
 	 * fetching tags, so we only have to set Set, Bank,
 	 * Sub-bank and Way.
 	 */
-	
+
 	P2 = 4;
 	LSETUP (ifs1, ife1) LC1 = P2;
 ifs1:	P0 = 32;		/* iterate over all sets*/
@@ -180,8 +180,10 @@ iflush_whole_page:
 	SSYNC;
 	IFLUSH [P0++];		/* because CSYNC can't end loops.*/
 	LSETUP (isall, ieall) LC0 = P1;
-isall:IFLUSH [P0++];
-ieall: NOP;	
+isall:
+	IFLUSH [P0++];
+ieall:
+	NOP;
 	SSYNC;
 	JUMP ifinished;
 
@@ -236,7 +238,7 @@ ENTRY(_dcplb_flush)
 	[--SP] = LC1;
 	[--SP] = LT1;
 	[--SP] = LB1;
-	
+
 	/* If it's a 1K or 4K page, then it's quickest to
 	 * just systematically flush all the addresses in
 	 * the page, regardless of whether they're in the
@@ -250,9 +252,9 @@ ENTRY(_dcplb_flush)
 
 	/* We're only interested in the page's size, so extract
 	 * this from the CPLB (bits 17:16), and scale to give an
-	 * offset into the page_size and page_prefix tables.	
+	 * offset into the page_size and page_prefix tables.
 	 */
-		
+
 	R1 <<= 14;
 	R1 >>= 30;
 	R1 <<= 2;
@@ -298,13 +300,13 @@ bank_chosen:
 	 * R1 = Page length (actually, offset into size/prefix tables)
 	 * R2 = Bank select mask
 	 * R3 = sub-bank deposit values
-  	 *
+	 *
 	 * The cache has 2 Ways, and 64 sets, so we iterate through
 	 * the sets, accessing the tag for each Way, for our Bank and
 	 * sub-bank, looking for dirty, valid tags that match our
 	 * address prefix.
 	 */
-	
+
 	P5.L = (DTEST_COMMAND & 0xFFFF);
 	P5.H = (DTEST_COMMAND >> 16);
 	P4.L = (DTEST_DATA0 & 0xFFFF);
@@ -323,7 +325,7 @@ bank_chosen:
 	 * fetching tags, so we only have to set Set, Bank,
 	 * Sub-bank and Way.
 	 */
-	
+
 	P2 = 2;
 	LSETUP (fs1, fe1) LC1 = P2;
 fs1:	P0 = 64;		/* iterate over all sets*/
