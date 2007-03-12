@@ -120,7 +120,7 @@
  */
 
 #define CFG_FLASH_CFI		/* The flash is CFI compatible  */
-#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver        */
+#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver	*/
 #define	CFG_FLASH_CFI_AMD_RESET
 
 #define CFG_FLASH_BASE		0x20000000
@@ -228,7 +228,7 @@
 #endif
 
 /* configuration lookup from the BOOTP/DHCP server, */
-/* but not try to load any image using TFTP         */
+/* but not try to load any image using TFTP	    */
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
@@ -289,7 +289,7 @@
 		"$(rootpath) console=ttyBF0,57600\0"	\
 	"addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):" \
 		"$(gatewayip):$(netmask):$(hostname):eth0:off\0" \
-        "ramboot=tftpboot $(loadaddr) linux; " \
+	"ramboot=tftpboot $(loadaddr) linux; " \
 		"run ramargs;run addip;bootelf\0" \
 	"nfsboot=tftpboot $(loadaddr) linux; "	\
 		"run nfsargs;run addip;bootelf\0" \

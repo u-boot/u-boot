@@ -82,7 +82,7 @@ _stext:
 	SSYNC;
 
 	/* As per HW reference manual DAG registers,
-	 * DATA and Address resgister shall be zero'd 
+	 * DATA and Address resgister shall be zero'd
 	 * in initialization, after a reset state
 	 */
 	r1 = 0;	/* Data registers zero'd */
@@ -99,7 +99,7 @@ _stext:
 	p3 = 0;
 	p4 = 0;
 	p5 = 0;
-	
+
 	i0 = 0; /* DAG Registers zero'd */
 	i1 = 0;
 	i2 = 0;
@@ -150,7 +150,7 @@ no_soft_reset:
 	r1 = 0;
 	LSETUP(4,4) lc0 = p1;
 	[ p0 ++ ] = r1;
-	
+
 	p0.h = hi(SIC_IWR);
 	p0.l = lo(SIC_IWR);
 	r0.l = 0x1;
@@ -259,8 +259,8 @@ DMA:
 	/* Set Destination DMAConfig = DMA Enable,
 	Memory Write, 8-Bit Transfers, 1-D DMA, Flow - Stop, IOC */
 	W[P1+OFFSET_(MDMA_D0_CONFIG)] = R4;
-	
-WAIT_DMA_DONE:	
+
+WAIT_DMA_DONE:
 	p0.h = hi(MDMA_D0_IRQ_STATUS);
 	p0.l = lo(MDMA_D0_IRQ_STATUS);
 	R0 = W[P0](Z);

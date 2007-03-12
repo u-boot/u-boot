@@ -90,7 +90,7 @@ ENTRY(_icplb_flush)
 
 	/* Save in extraction pattern for later deposit. */
 	R3.H = R4.L << 0;
-	
+
 	/* So:
 	 * R0 = Page start
 	 * R1 = Page length (actually, offset into size/prefix tables)
@@ -264,7 +264,7 @@ ENTRY(_dcplb_flush)
 	 * (b) on whether address bit A[x] is set. x is determined
 	 * by DCBS in DMEM_CONTROL
 	 */
-	
+
 	R2 = 0;			/* Default to Bank A (Bank B would be 1)*/
 
 	P0.L = (DMEM_CONTROL & 0xFFFF);
