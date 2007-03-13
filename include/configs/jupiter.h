@@ -116,12 +116,16 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
+	"flash_nfs=run nfsargs addip addcon;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"addcon=setenv bootargs ${bootargs} console=${contyp},"		\
+		"${baudrate}\0"						\
+	"contyp=ttyS0\0"						\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcon;"	\
+		"bootm\0"						\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/jupiter/uImage\0"				\
 	""
 
@@ -195,6 +199,10 @@
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_OVERWRITE	1
 
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
 /*
  * Memory map
  */
@@ -240,6 +248,12 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CFG_HUSH_PARSER
+#define	CFG_PROMPT_HUSH_PS2	"> "
+#endif
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
