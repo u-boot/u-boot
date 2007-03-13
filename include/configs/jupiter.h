@@ -116,14 +116,14 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip addcon;"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"addcon=setenv bootargs ${bootargs} console=${contyp},"		\
+	"addcons=setenv bootargs ${bootargs} console=${contyp},"	\
 		"${baudrate}\0"						\
 	"contyp=ttyS0\0"						\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcon;"	\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
 		"bootm\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/jupiter/uImage\0"				\
