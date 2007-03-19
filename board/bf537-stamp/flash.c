@@ -330,14 +330,14 @@ int erase_block_flash(int nBlock)
 	if ((nBlock < 0) || (nBlock > AFP_NumSectors))
 		return FALSE;
 
-	// figure out the offset of the block in flash
+	/* figure out the offset of the block in flash */
 	if ((nBlock >= 0) && (nBlock < SecFlashABegin))
 		ulSectorOff = nBlock * AFP_SectorSize1;
 
 	else if ((nBlock >= SecFlashABegin) && (nBlock < NUM_SECTORS))
 		ulSectorOff =
 		    SecFlashAOff + (nBlock - SecFlashABegin) * AFP_SectorSize2;
-	// no such sector
+	/* no such sector */
 	else
 		return FLASH_FAIL;
 
@@ -388,15 +388,15 @@ void get_sector_number(long ulOffset, int *pnSector)
 	long lMainEnd = 0x400000;
 	long lBootEnd = 0x10000;
 
-	// sector numbers for the FLASH A boot sectors
+	/* sector numbers for the FLASH A boot sectors */
 	if (ulOffset < lBootEnd) {
 		nSector = (int)ulOffset / AFP_SectorSize1;
 	}
-	// sector numbers for the FLASH B boot sectors
+	/* sector numbers for the FLASH B boot sectors */
 	else if ((ulOffset >= lBootEnd) && (ulOffset < lMainEnd)) {
 		nSector = ((ulOffset / (AFP_SectorSize2)) + 7);
 	}
-	// if it is a valid sector, set it
+	/* if it is a valid sector, set it */
 	if ((nSector >= 0) && (nSector < AFP_NumSectors))
 		*pnSector = nSector;
 
