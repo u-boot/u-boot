@@ -336,6 +336,10 @@ int misc_init_r(void)
 	}
 #endif /* CONFIG_440EPX */
 
+	mfsdr(SDR0_SRST1, reg);		/* enable security/kasumi engines */
+	reg &= ~(SDR0_SRST1_CRYP0 | SDR0_SRST1_KASU0);
+	mtsdr(SDR0_SRST1, reg);
+
 	/*
 	 * Clear PLB4A0_ACR[WRP]
 	 * This fix will make the MAL burst disabling patch for the Linux
