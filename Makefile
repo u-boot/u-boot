@@ -182,7 +182,11 @@ OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
 endif
 ifeq ($(CPU),bf537)
 OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
-OBJS += cpu/$(CPU)/flush.o      cpu/$(CPU)/init_sdram.o
+OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
+endif
+ifeq ($(CPU),bf561)
+OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
+OBJS += cpu/$(CPU)/flush.o 	cpu/$(CPU)/init_sdram.o
 endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
@@ -2363,6 +2367,9 @@ bf533-stamp_config:	unconfig
 bf537-stamp_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin bf537 bf537-stamp
 
+bf561-ezkit_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) blackfin bf561 bf561-ezkit
+
 #========================================================================
 # AVR32
 #========================================================================
@@ -2399,7 +2406,7 @@ clean:
 	rm -f $(obj)board/trab/trab_fkt $(obj)board/voiceblue/eeprom
 	rm -f $(obj)board/integratorap/u-boot.lds $(obj)board/integratorcp/u-boot.lds
 	rm -f $(obj)board/bf533-ezkit/u-boot.lds $(obj)board/bf533-stamp/u-boot.lds
-	rm -f $(obj)board/bf537-stamp/u-boot.lds
+	rm -f $(obj)board/bf537-stamp/u-boot.lds $(obj)board/bf561-ezkit/u-boot.lds
 	rm -f $(obj)include/bmp_logo.h
 	rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
 
