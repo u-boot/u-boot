@@ -113,10 +113,13 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
+	"addcons=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate}\0"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"flash_nand=run nand_args addip addcon;bootm ${kernel_addr}\0"	\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"flash_nand=run nand_args addip addcons;bootm ${kernel_addr}\0"	\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
+		"bootm\0"						\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
 	"u-boot=/tftpboot/sc3/u-boot.bin\0"				\

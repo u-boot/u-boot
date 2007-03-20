@@ -1,6 +1,9 @@
 /*
+ * (C) Copyright 2007
+ * Matthias Fuchs, esd gmbh, matthias.fuchs@esd-electronics.com
+ *
  * (C) Copyright 2001-2004
- * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,8 +35,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_IDENT_STRING     " $Name: esd_PCI405_05_07_28 $"
-
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_PCI405		1	/* ...on a PCI405 board		*/
@@ -53,9 +54,9 @@
 	"mem_linux=14336k\0"					        \
 	"optargs=panic=0\0"					        \
 	"ramargs=setenv bootargs mem=$mem_linux root=/dev/ram rw\0"	\
-	"addcon=setenv bootargs $bootargs console=ttyS0,$baudrate $optargs\0" \
+	"addcons=setenv bootargs $bootargs console=ttyS0,$baudrate $optargs\0" \
 	""
-#define	CONFIG_BOOTCOMMAND      "run ramargs;run addcon;loadpci"
+#define	CONFIG_BOOTCOMMAND      "run ramargs;run addcons;loadpci"
 
 #define CONFIG_PREBOOT                  /* enable preboot variable      */
 
