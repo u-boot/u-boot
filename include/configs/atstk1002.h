@@ -76,12 +76,27 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyUS0 root=/dev/mtdblock1 fbmem=600k"
+	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2 fbmem=600k"
+
+#define CONFIG_BOOTCOMMAND						\
+	"fsload; bootm $(fileaddr)"
+
+/*
+ * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
+ * data on the serial line may interrupt the boot sequence.
+ */
+#define CONFIG_BOOTDELAY		2
+#define CONFIG_AUTOBOOT			1
+#define CONFIG_AUTOBOOT_KEYED		1
+#define CONFIG_AUTOBOOT_PROMPT				\
+        "Press SPACE to abort autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"d"
+#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 #define CONFIG_COMMANDS			(CFG_CMD_BDI			\
 					 | CFG_CMD_LOADS		\
 					 | CFG_CMD_LOADB		\
-					 /* | CFG_CMD_IMI */		\
+					 | CFG_CMD_IMI			\
 					 /* | CFG_CMD_CACHE */		\
 					 | CFG_CMD_FLASH		\
 					 | CFG_CMD_MEMORY		\
@@ -109,9 +124,10 @@
 					 /* | CFG_CMD_PING */		\
 					 /* | CFG_CMD_MMC */		\
 					 /* | CFG_CMD_FAT */		\
-					 /* | CFG_CMD_IMLS */		\
+					 | CFG_CMD_IMLS			\
 					 /* | CFG_CMD_ITEST */		\
 					 /* | CFG_CMD_EXT2 */		\
+					 | CFG_CMD_JFFS2		\
 		)
 
 #include <cmd_confdefs.h>
