@@ -112,11 +112,6 @@ extern __inline__ int get_order(unsigned long size)
 #define virt_to_page(addr)		(mem_map + (((unsigned long)(addr)-PAGE_OFFSET) >> PAGE_SHIFT))
 #define VALID_PAGE(page)		((page - mem_map) < max_mapnr)
 
-#define BUG() do	{ \
-	 \
-	while (1);	/* dead-loop */ \
-} while (0)
-
 #define PAGE_BUG(page) do	{ \
 	BUG(); \
 } while (0)

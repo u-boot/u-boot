@@ -258,7 +258,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
 #elif defined(__nios2__)
 	if (hdr->ih_arch != IH_CPU_NIOS2)
-#elif defined(__blackfin__)
+#elif defined(__bfin__)
 	if (hdr->ih_arch != IH_CPU_BLACKFIN)
 #elif defined(__avr32__)
 	if (hdr->ih_arch != IH_CPU_AVR32)
@@ -1367,6 +1367,7 @@ print_type (image_header_t *hdr)
 	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
 	case IH_CPU_NIOS:	arch = "Nios";			break;
 	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
+	case IH_CPU_BLACKFIN:	arch = "Blackfin";		break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 

@@ -312,6 +312,14 @@ LIST_coldfire="	\
 
 LIST_avr32="atstk1002"
 
+#########################################################################
+## Blackfin Systems
+#########################################################################
+
+LIST_blackfin=" \
+	bf533-ezkit	bf533-stamp	bf537-stamp	bf561-ezkit	\
+"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -345,6 +353,7 @@ do
 	nios|nios2| \
 	x86|I486| \
 	coldfire| \
+	blackfin| \
 	avr32)
 			for target in `eval echo '$LIST_'${arg}`
 			do

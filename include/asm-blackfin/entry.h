@@ -370,16 +370,12 @@
 #define STR1(X) 		#X
 
 #if defined(NEW_PT_REGS)
-
 #define PT_OFF_ORIG_R0		208
 #define PT_OFF_SR		8
-
 #else
-
 #define PT_OFF_ORIG_R0		0x54
 #define PT_OFF_SR		0x38	/* seqstat in pt_regs */
-
-#endif
 #endif
 
+#endif
 #endif

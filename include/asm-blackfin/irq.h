@@ -39,7 +39,7 @@
 #define _BLACKFIN_IRQ_H_
 
 #include <linux/config.h>
-#include <asm/cpu/bf533_irq.h>
+#include <asm/hw_irq.h>
 
 /*
  *   On the Blackfin, the interrupt structure allows remmapping of the hardware
@@ -85,8 +85,8 @@ static __inline__ int irq_cannonicalize(int irq)
 extern void (*mach_enable_irq) (unsigned int);
 extern void (*mach_disable_irq) (unsigned int);
 extern int sys_request_irq(unsigned int,
-			void (*)(int, void *, struct pt_regs *),
-			unsigned long, const char *, void *);
+			   void (*)(int, void *, struct pt_regs *),
+			   unsigned long, const char *, void *);
 extern void sys_free_irq(unsigned int, void *);
 
 /*

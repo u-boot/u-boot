@@ -25,22 +25,16 @@
 #ifndef _BLACKFIN_H_
 #define _BLACKFIN_H_
 
-#include <asm/cpu/defBF533.h>
-#include <asm/cpu/bf533_serial.h>
+#if !(defined(__ASSEMBLY__) || defined(ASSEMBLY))
+# ifdef SHARED_RESOURCES
+#  include <asm/shared_resources.h>
+# endif
 
-#ifndef __ASSEMBLY__
-#ifndef ASSEMBLY
+# include <linux/types.h>
 
-#ifdef SHARED_RESOURCES
- #include <asm/shared_resources.h>
-#endif
-#include <asm/cpu/cdefBF53x.h>
-
-#endif
+extern u_long get_sclk(void);
 #endif
 
-#include <asm/cpu/defBF533.h>
-#include <asm/cpu/defBF533_extn.h>
-#include <asm/cpu/bf533_serial.h>
+#include <asm/arch-common/cdefBF5xx.h>
 
 #endif
