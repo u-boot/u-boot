@@ -242,26 +242,26 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	len_ptr = (ulong *)data;
 
-#if defined(__PPC__)
-	if (hdr->ih_arch != IH_CPU_PPC)
-#elif defined(__ARM__)
+#if defined(__ARM__)
 	if (hdr->ih_arch != IH_CPU_ARM)
+#elif defined(__avr32__)
+	if (hdr->ih_arch != IH_CPU_AVR32)
+#elif defined(__bfin__)
+	if (hdr->ih_arch != IH_CPU_BLACKFIN)
 #elif defined(__I386__)
 	if (hdr->ih_arch != IH_CPU_I386)
-#elif defined(__mips__)
-	if (hdr->ih_arch != IH_CPU_MIPS)
-#elif defined(__nios__)
-	if (hdr->ih_arch != IH_CPU_NIOS)
 #elif defined(__M68K__)
 	if (hdr->ih_arch != IH_CPU_M68K)
 #elif defined(__microblaze__)
 	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
+#elif defined(__mips__)
+	if (hdr->ih_arch != IH_CPU_MIPS)
+#elif defined(__nios__)
+	if (hdr->ih_arch != IH_CPU_NIOS)
 #elif defined(__nios2__)
 	if (hdr->ih_arch != IH_CPU_NIOS2)
-#elif defined(__bfin__)
-	if (hdr->ih_arch != IH_CPU_BLACKFIN)
-#elif defined(__avr32__)
-	if (hdr->ih_arch != IH_CPU_AVR32)
+#elif defined(__PPC__)
+	if (hdr->ih_arch != IH_CPU_PPC)
 #else
 # error Unknown CPU type
 #endif
@@ -1354,20 +1354,20 @@ print_type (image_header_t *hdr)
 	case IH_CPU_ALPHA:	arch = "Alpha";			break;
 	case IH_CPU_ARM:	arch = "ARM";			break;
 	case IH_CPU_AVR32:	arch = "AVR32";			break;
+	case IH_CPU_BLACKFIN:	arch = "Blackfin";		break;
 	case IH_CPU_I386:	arch = "Intel x86";		break;
 	case IH_CPU_IA64:	arch = "IA64";			break;
-	case IH_CPU_MIPS:	arch = "MIPS";			break;
+	case IH_CPU_M68K:	arch = "M68K"; 			break;
+	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
 	case IH_CPU_MIPS64:	arch = "MIPS 64 Bit";		break;
+	case IH_CPU_MIPS:	arch = "MIPS";			break;
+	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
+	case IH_CPU_NIOS:	arch = "Nios";			break;
 	case IH_CPU_PPC:	arch = "PowerPC";		break;
 	case IH_CPU_S390:	arch = "IBM S390";		break;
 	case IH_CPU_SH:		arch = "SuperH";		break;
-	case IH_CPU_SPARC:	arch = "SPARC";			break;
 	case IH_CPU_SPARC64:	arch = "SPARC 64 Bit";		break;
-	case IH_CPU_M68K:	arch = "M68K"; 			break;
-	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
-	case IH_CPU_NIOS:	arch = "Nios";			break;
-	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
-	case IH_CPU_BLACKFIN:	arch = "Blackfin";		break;
+	case IH_CPU_SPARC:	arch = "SPARC";			break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 

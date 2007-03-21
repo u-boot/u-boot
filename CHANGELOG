@@ -1,3 +1,9 @@
+commit 2a8dfe08359a1b663418b2faa1da1d7bce34d302
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 21 23:26:15 2007 +0100
+
+    Code cleanup. Update CHANGELOG
+
 commit e6615ecf4eaf4dd52696934aed8f5c6474cfd286
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Mar 21 14:54:29 2007 +0100
@@ -51,6 +57,18 @@ Date:	Wed Mar 21 08:45:17 2007 +0100
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
 
+commit 654589873dbafcf104dff133ce0d03a4506e9cc3
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Tue Mar 20 18:16:24 2007 +0800
+
+    [Blackfin][PATCH] Add BF561 EZKIT board support
+
+commit a6154fd1cfd020f6da8527e0365b1020a11a71d0
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 22:55:58 2007 +0800
+
+    [Blackfin][PATCH] minor cleanup
+
 commit 389b6bb50f745bf5038ce030300d8a8512e96f79
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Mar 19 13:10:08 2007 +0100
@@ -58,6 +76,18 @@ Date:	Mon Mar 19 13:10:08 2007 +0100
     Remove obsoleted POST files.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8e709bbb2636b5670a8f2b575e138eb1f55773f6
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 01:26:11 2007 +0800
+
+    [PATCH] Add flash chip M29W320ET/B support
+
+commit 26bf7deca364a5b33f39e8f14ddd3f4081345015
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 01:24:52 2007 +0800
+
+    [Blackfin][PATCH] Add BF537 stamp board support
 
 commit 8423e5e31a7235d05a482627315fb11d49c17bd7
 Author: Stefan Roese <sr@denx.de>
@@ -99,6 +129,42 @@ Date:	Tue Mar 13 09:40:59 2007 +0100
 		  CFG_ENV_ADDR_REDUND activated
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 0d93de11449390a5984b0236c3612e50f6dbb7e8
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 12:11:55 2007 +0800
+
+    [Blackfin][PATCH] minor cleanup
+
+commit bfa5754a58477ac917d21527cd0f079d87cf188e
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 01:42:06 2007 +0800
+
+    [Blackfin][PATCH] Fix BUILD_DIR option of MAKEALL building issue
+
+commit 8440bb14581a294375c34b91b42512f9753d1130
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 00:25:14 2007 +0800
+
+    [Blackfin][PATCH] code cleanup
+
+commit 8db13d63157811c839d15a313d9f2d2f5fd10af3
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Sat Mar 10 23:49:29 2007 +0800
+
+    [Blackfin][PATCH] code cleanup
+
+commit ef26a08fef928b7bc11ae2c109e638dc3a016d91
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Fri Mar 9 13:40:56 2007 +0800
+
+    [Blackfin][PATCH-2/2] Common files changed to support bf533 platform
+
+commit 3f0606ad0b5639f7f22848fe5b4574e754d0470f
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Fri Mar 9 13:38:44 2007 +0800
+
+    [Blackfin]PATCH-1/2]: Remove obsolete blackfin port and add bf533 platform support
 
 commit 992423ab43c2bcf6b704853bd00af77450915e20
 Author: Stefan Roese <sr@denx.de>
