@@ -129,9 +129,9 @@ void cpu_init_f (volatile immap_t * immr)
 	/* BCR - Bus Configuration Register (4-25) */
 #if defined(CFG_BCR_60x) && (CFG_BCR_SINGLE)
 	if (immr->im_siu_conf.sc_bcr & BCR_EBM) {
-		immr->im_siu_conf.sc_bcr = CFG_BCR_60x;
+		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CFG_BCR_60x, 0x80000010);
 	} else {
-		immr->im_siu_conf.sc_bcr = CFG_BCR_SINGLE;
+		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CFG_BCR_SINGLE, 0x80000010);
 	}
 #else
 	immr->im_siu_conf.sc_bcr = CFG_BCR;
@@ -141,9 +141,9 @@ void cpu_init_f (volatile immap_t * immr)
 #if defined(CFG_SIUMCR_LOW) && (CFG_SIUMCR_HIGH)
 	cpu_clk = board_get_cpu_clk_f ();
 	if (cpu_clk >= 100000000) {
-		immr->im_siu_conf.sc_siumcr = CFG_SIUMCR_HIGH;
+		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CFG_SIUMCR_HIGH, 0x9f3cc000);
 	} else {
-		immr->im_siu_conf.sc_siumcr = CFG_SIUMCR_LOW;
+		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CFG_SIUMCR_LOW, 0x9f3cc000);
 	}
 #else
 	immr->im_siu_conf.sc_siumcr = CFG_SIUMCR;
