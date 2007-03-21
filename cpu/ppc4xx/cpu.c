@@ -47,6 +47,9 @@ void board_reset(void);
 
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
+#elif defined(CONFIG_405EZ)
+#define FREQ_EBC		((CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / \
+				 sys_info.pllExtBusDiv)
 #else
 #define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
 #endif
@@ -209,7 +212,8 @@ int checkcpu (void)
 
 	puts("AMCC PowerPC 4");
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ)
 	puts("05");
 #endif
 #if defined(CONFIG_440)
@@ -255,6 +259,10 @@ int checkcpu (void)
 
 	case PVR_405EP_RB:
 		puts("EP Rev. B");
+		break;
+
+	case PVR_405EZ_RA:
+		puts("EZ Rev. A");
 		break;
 
 #if defined(CONFIG_440)
@@ -386,9 +394,9 @@ int checkcpu (void)
 	}
 
 	printf (" at %s MHz (PLB=%lu, OPB=%lu, EBC=%lu MHz)\n", strmhz(buf, clock),
-	       sys_info.freqPLB / 1000000,
-	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
-	       FREQ_EBC / 1000000);
+		sys_info.freqPLB / 1000000,
+		get_OPB_freq() / 1000000,
+		FREQ_EBC / 1000000);
 
 	if (addstr[0] != 0)
 		printf("       %s\n", addstr);
@@ -418,7 +426,7 @@ int checkcpu (void)
 	putc('\n');
 #endif
 
-#if defined(CONFIG_405EP)
+#if defined(CONFIG_405EP) || defined(CONFIG_405EZ)
 	printf ("       16 kB I-Cache 16 kB D-Cache");
 #elif defined(CONFIG_440)
 	printf ("       32 kB I-Cache 32 kB D-Cache");

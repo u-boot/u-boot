@@ -256,7 +256,8 @@ cpu_init_f (void)
 	 */
 #if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
 #if (defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
-     defined(CONFIG_405EP) || defined(CONFIG_405))
+     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
+     defined(CONFIG_405))
 	/*
 	 * Move the next instructions into icache, since these modify the flash
 	 * we are running from!

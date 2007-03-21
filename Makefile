@@ -998,6 +998,9 @@ wtk_config:	unconfig
 #########################################################################
 xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(subst _config,,$1))))))
 
+acadia_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx acadia amcc
+
 ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
