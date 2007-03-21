@@ -275,22 +275,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 				  | SIUMCR_BCTLC00
 				  | SIUMCR_MMR11;
 #elif defined(CONFIG_TQM8272)
-#if 0
-	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
-						~SIUMCR_LBPC11 &
-						~SIUMCR_CS10PC11 &
-						~SIUMCR_LBPC11) |
-					SIUMCR_LBPC01 |
-					SIUMCR_CS10PC01 |
-					SIUMCR_APPC10;
-#else
-#if 0
-	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr |
-					SIUMCR_APPC10);
-#else
-	immap->im_siu_conf.sc_siumcr = 0x88000000;
-#endif
-#endif
+/* nothing to do for this Board here */
 #else
 	/*
 	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
@@ -304,7 +289,6 @@ void pci_mpc8250_init (struct pci_controller *hose)
 					SIUMCR_CS10PC01 |
 					SIUMCR_APPC10;
 #endif
-printf("%s siumcr: %x\n", __FUNCTION__, immap->im_siu_conf.sc_siumcr);
 
 	/* Make PCI lowest priority */
 	/* Each 4 bits is a device bus request	and the MS 4bits
