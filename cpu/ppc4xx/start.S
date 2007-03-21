@@ -699,7 +699,9 @@ _start:
 #endif	/* CONFIG_IOP480 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
+    defined(CONFIG_405)
 	/*----------------------------------------------------------------------- */
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------------- */
@@ -727,13 +729,13 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* Enable two 128MB cachable regions. */
 	/*----------------------------------------------------------------------- */
-	addis	r4,r0,0x8000
-	addi	r4,r4,0x0001
+	lis	r4,0x8000
+	ori	r4,r4,0x0001
 	mticcr	r4			/* instruction cache */
 	isync
 
-	addis	r4,r0,0x0000
-	addi	r4,r4,0x0000
+	lis	r4,0x0000
+	ori	r4,r4,0x0000
 	mtdccr	r4			/* data cache */
 
 #if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
@@ -755,6 +757,70 @@ _start:
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
+/* test-only... (clean up later when NAND booting is supported) */
+#if defined(CONFIG_405EZ)
+	/********************************************************************
+	 * Setup OCM - On Chip Memory - PPC405EZ uses OCM Controller V2
+	 *******************************************************************/
+	/*
+	 * We can map the OCM on the PLB3, so map it at
+	 * CFG_OCM_DATA_ADDR + 0x8000
+	 */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	ori	r3,r3,0x8270	/* 32K Offset, 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
+	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
+	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
+	isync
+
+	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	ori	r3,r3,0x0270            /* 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmdscr1, r3            /* Set Data Side */
+	mtdcr	ocmiscr1, r3            /* Set Instruction Side */
+	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
+	mtdcr	ocmdscr2, r3            /* Set Data Side */
+	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
+	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
+	mtdcr	ocmdsisdpc,r4
+
+	isync
+
+#if defined(CONFIG_NAND_SPL)
+	/*
+	 * 405EZ can boot from NAND Flash.
+	 * If we are booting the SPL (Pre-loader), copy code from
+	 * the mapped 4K NAND Flash to the OCM
+	 */
+	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
+	mtctr	r4
+	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+spl_loop:
+	lwzu	r4,4(r2)
+	stwu	r4,4(r3)
+	bdnz	spl_loop
+
+	/*
+	 * Jump to code in OCM Ram
+	 */
+	bl 	00f
+00:	mflr	r10
+	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
+	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
+	sub	r10,r10,r3
+	addi	r10,r10,28
+	mtlr	r10
+	blr
+start_ram:
+	sync
+	isync
+#endif
+#else
+/* ...test-only */
 	/********************************************************************
 	 * Setup OCM - On Chip Memory
 	 *******************************************************************/
@@ -774,6 +840,7 @@ _start:
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
 	mtdcr	ocmdscntl, r4
 	isync
+#endif /* CONFIG_405EZ */
 #endif
 
 	/*----------------------------------------------------------------------- */

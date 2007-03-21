@@ -130,13 +130,13 @@ typedef struct emac_4xx_hw_st {
 
 
 #if defined(CONFIG_440GX)
-#define EMAC_NUM_DEV	    4
+#define EMAC_NUM_DEV		4
 #elif (defined(CONFIG_440) || defined(CONFIG_405EP)) &&	\
 	defined(CONFIG_NET_MULTI) &&			\
 	!defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
-#define EMAC_NUM_DEV	    2
+#define EMAC_NUM_DEV		2
 #else
-#define EMAC_NUM_DEV	    1
+#define EMAC_NUM_DEV		1
 #endif
 
 #ifdef CONFIG_IBM_EMAC4_V4	/* EMAC4 V4 changed bit setting */
@@ -153,16 +153,16 @@ typedef struct emac_4xx_hw_st {
 /*ZMII Bridge Register addresses */
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0D00)
+#define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0D00)
 #else
-#define ZMII_BASE			(CFG_PERIPHERAL_BASE + 0x0780)
+#define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0780)
 #endif
-#define ZMII_FER			(ZMII_BASE)
-#define ZMII_SSR			(ZMII_BASE + 4)
-#define ZMII_SMIISR			(ZMII_BASE + 8)
+#define ZMII_FER		(ZMII_BASE)
+#define ZMII_SSR		(ZMII_BASE + 4)
+#define ZMII_SMIISR		(ZMII_BASE + 8)
 
-#define ZMII_RMII			0x22000000
-#define ZMII_MDI0			0x80000000
+#define ZMII_RMII		0x22000000
+#define ZMII_MDI0		0x80000000
 
 /* ZMII FER Register Bit Definitions */
 #define ZMII_FER_DIS		(0x0)
@@ -299,49 +299,41 @@ typedef struct emac_4xx_hw_st {
 #if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0E00)
+#define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0E00)
 #else
-#define EMAC_BASE			    (CFG_PERIPHERAL_BASE + 0x0800)
+#define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0800)
 #endif
 #else
-#define EMAC_BASE 			0xEF600800
+#if defined(CONFIG_405EZ)
+#define EMAC_BASE 		0xEF600900
+#else
+#define EMAC_BASE 		0xEF600800
+#endif
 #endif
 
-#define EMAC_M0				    (EMAC_BASE)
-#define EMAC_M1				    (EMAC_BASE + 4)
-#define EMAC_TXM0				(EMAC_BASE + 8)
-#define EMAC_TXM1				(EMAC_BASE + 12)
-#define EMAC_RXM				(EMAC_BASE + 16)
-#define EMAC_ISR				(EMAC_BASE + 20)
-#define EMAC_IER				(EMAC_BASE + 24)
-#define EMAC_IAH				(EMAC_BASE + 28)
-#define EMAC_IAL				(EMAC_BASE + 32)
-#define EMAC_VLAN_TPID_REG		(EMAC_BASE + 36)
-#define EMAC_VLAN_TCI_REG		(EMAC_BASE + 40)
+#define EMAC_M0			(EMAC_BASE)
+#define EMAC_M1			(EMAC_BASE + 4)
+#define EMAC_TXM0		(EMAC_BASE + 8)
+#define EMAC_TXM1		(EMAC_BASE + 12)
+#define EMAC_RXM		(EMAC_BASE + 16)
+#define EMAC_ISR		(EMAC_BASE + 20)
+#define EMAC_IER		(EMAC_BASE + 24)
+#define EMAC_IAH		(EMAC_BASE + 28)
+#define EMAC_IAL		(EMAC_BASE + 32)
 #define EMAC_PAUSE_TIME_REG	(EMAC_BASE + 44)
-#define EMAC_IND_HASH_1			(EMAC_BASE + 48)
-#define EMAC_IND_HASH_2			(EMAC_BASE + 52)
-#define EMAC_IND_HASH_3			(EMAC_BASE + 56)
-#define EMAC_IND_HASH_4			(EMAC_BASE + 60)
-#define EMAC_GRP_HASH_1			(EMAC_BASE + 64)
-#define EMAC_GRP_HASH_2			(EMAC_BASE + 68)
-#define EMAC_GRP_HASH_3			(EMAC_BASE + 72)
-#define EMAC_GRP_HASH_4			(EMAC_BASE + 76)
-#define EMAC_LST_SRC_LOW		(EMAC_BASE + 80)
-#define EMAC_LST_SRC_HI			(EMAC_BASE + 84)
 #define EMAC_I_FRAME_GAP_REG	(EMAC_BASE + 88)
-#define EMAC_STACR			    (EMAC_BASE + 92)
-#define EMAC_TRTR				(EMAC_BASE + 96)
-#define EMAC_RX_HI_LO_WMARK		(EMAC_BASE + 100)
+#define EMAC_STACR		(EMAC_BASE + 92)
+#define EMAC_TRTR		(EMAC_BASE + 96)
+#define EMAC_RX_HI_LO_WMARK	(EMAC_BASE + 100)
 
 /* bit definitions */
 /* MODE REG 0 */
-#define EMAC_M0_RXI			    (0x80000000)
-#define EMAC_M0_TXI			    (0x40000000)
-#define EMAC_M0_SRST			(0x20000000)
-#define EMAC_M0_TXE			    (0x10000000)
-#define EMAC_M0_RXE			    (0x08000000)
-#define EMAC_M0_WKE			    (0x04000000)
+#define EMAC_M0_RXI		(0x80000000)
+#define EMAC_M0_TXI		(0x40000000)
+#define EMAC_M0_SRST		(0x20000000)
+#define EMAC_M0_TXE		(0x10000000)
+#define EMAC_M0_RXE		(0x08000000)
+#define EMAC_M0_WKE		(0x04000000)
 
 /* on 440GX EMAC_MR1 has a different layout! */
 #if defined(CONFIG_440GX) || \
@@ -351,23 +343,23 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)
 #define EMAC_M1_VLE		(0x20000000)
-#define EMAC_M1_EIFC			(0x10000000)
-#define EMAC_M1_APP			    (0x08000000)
-#define EMAC_M1_RSVD			(0x06000000)
-#define EMAC_M1_IST			    (0x01000000)
-#define EMAC_M1_MF_1000MBPS		(0x00800000)	/* 0's for 10MBPS */
-#define EMAC_M1_MF_100MBPS		(0x00400000)
-#define EMAC_M1_RFS_16K			(0x00280000)	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_8K			(0x00200000)	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_4K			(0x00180000)	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_2K			(0x00100000)
-#define EMAC_M1_RFS_1K			(0x00080000)
-#define EMAC_M1_TX_FIFO_16K		(0x00050000)	/* 0's for 512 byte */
-#define EMAC_M1_TX_FIFO_8K		(0x00040000)
-#define EMAC_M1_TX_FIFO_4K		(0x00030000)
+#define EMAC_M1_EIFC		(0x10000000)
+#define EMAC_M1_APP		(0x08000000)
+#define EMAC_M1_RSVD		(0x06000000)
+#define EMAC_M1_IST		(0x01000000)
+#define EMAC_M1_MF_1000MBPS	(0x00800000)	/* 0's for 10MBPS */
+#define EMAC_M1_MF_100MBPS	(0x00400000)
+#define EMAC_M1_RFS_16K		(0x00280000)	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_8K		(0x00200000)	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_4K		(0x00180000)	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_2K		(0x00100000)
+#define EMAC_M1_RFS_1K		(0x00080000)
+#define EMAC_M1_TX_FIFO_16K	(0x00050000)	/* 0's for 512 byte */
+#define EMAC_M1_TX_FIFO_8K	(0x00040000)
+#define EMAC_M1_TX_FIFO_4K	(0x00030000)
 #define EMAC_M1_TX_FIFO_2K	(0x00020000)
-#define EMAC_M1_TX_FIFO_1K		(0x00010000)
-#define EMAC_M1_TR_MULTI		(0x00008000)	/* 0'x for single packet */
+#define EMAC_M1_TX_FIFO_1K	(0x00010000)
+#define EMAC_M1_TR_MULTI	(0x00008000)	/* 0'x for single packet */
 #define EMAC_M1_MWSW		(0x00007000)
 #define EMAC_M1_JUMBO_ENABLE	(0x00000800)
 #define EMAC_M1_IPPA		(0x000007c0)
@@ -378,34 +370,34 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_RSVD1		(0x00000007)
 #else /* defined(CONFIG_440GX) */
 /* EMAC_MR1 is the same on 405GP, 405GPr, 405EP, 440GP, 440EP */
-#define EMAC_M1_FDE			0x80000000
-#define EMAC_M1_ILE			0x40000000
-#define EMAC_M1_VLE			0x20000000
-#define EMAC_M1_EIFC			0x10000000
-#define EMAC_M1_APP			0x08000000
-#define EMAC_M1_AEMI			0x02000000
-#define EMAC_M1_IST			0x01000000
-#define EMAC_M1_MF_1000MBPS		0x00800000	/* 0's for 10MBPS */
-#define EMAC_M1_MF_100MBPS		0x00400000
-#define EMAC_M1_RFS_4K			0x00300000	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_2K			0x00200000
-#define EMAC_M1_RFS_1K			0x00100000
-#define EMAC_M1_TX_FIFO_2K		0x00080000	/* 0's for 512 byte */
-#define EMAC_M1_TX_FIFO_1K		0x00040000
-#define EMAC_M1_TR0_DEPEND		0x00010000	/* 0'x for single packet */
-#define EMAC_M1_TR0_MULTI		0x00008000
-#define EMAC_M1_TR1_DEPEND		0x00004000
-#define EMAC_M1_TR1_MULTI		0x00002000
+#define EMAC_M1_FDE		0x80000000
+#define EMAC_M1_ILE		0x40000000
+#define EMAC_M1_VLE		0x20000000
+#define EMAC_M1_EIFC		0x10000000
+#define EMAC_M1_APP		0x08000000
+#define EMAC_M1_AEMI		0x02000000
+#define EMAC_M1_IST		0x01000000
+#define EMAC_M1_MF_1000MBPS	0x00800000	/* 0's for 10MBPS */
+#define EMAC_M1_MF_100MBPS	0x00400000
+#define EMAC_M1_RFS_4K		0x00300000	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_2K		0x00200000
+#define EMAC_M1_RFS_1K		0x00100000
+#define EMAC_M1_TX_FIFO_2K	0x00080000	/* 0's for 512 byte */
+#define EMAC_M1_TX_FIFO_1K	0x00040000
+#define EMAC_M1_TR0_DEPEND	0x00010000	/* 0'x for single packet */
+#define EMAC_M1_TR0_MULTI	0x00008000
+#define EMAC_M1_TR1_DEPEND	0x00004000
+#define EMAC_M1_TR1_MULTI	0x00002000
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-#define EMAC_M1_JUMBO_ENABLE		0x00001000
+#define EMAC_M1_JUMBO_ENABLE	0x00001000
 #endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
 #endif /* defined(CONFIG_440GX) */
 
 /* Transmit Mode Register 0 */
-#define EMAC_TXM0_GNP0			(0x80000000)
-#define EMAC_TXM0_GNP1			(0x40000000)
-#define EMAC_TXM0_GNPD			(0x20000000)
-#define EMAC_TXM0_FC			(0x10000000)
+#define EMAC_TXM0_GNP0		(0x80000000)
+#define EMAC_TXM0_GNP1		(0x40000000)
+#define EMAC_TXM0_GNPD		(0x20000000)
+#define EMAC_TXM0_FC		(0x10000000)
 
 /* Receive Mode Register */
 #define EMAC_RMR_SP		(0x80000000)
@@ -427,39 +419,38 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_ISR_PP		(0x01000000)
 #define EMAC_ISR_BP		(0x00800000)
 #define EMAC_ISR_RP		(0x00400000)
-#define EMAC_ISR_SE			(0x00200000)
-#define EMAC_ISR_SYE			(0x00100000)
-#define EMAC_ISR_BFCS			(0x00080000)
-#define EMAC_ISR_PTLE			(0x00040000)
-#define EMAC_ISR_ORE			(0x00020000)
-#define EMAC_ISR_IRE			(0x00010000)
-#define EMAC_ISR_DBDM			(0x00000200)
-#define EMAC_ISR_DB0			(0x00000100)
-#define EMAC_ISR_SE0			(0x00000080)
-#define EMAC_ISR_TE0			(0x00000040)
-#define EMAC_ISR_DB1			(0x00000020)
-#define EMAC_ISR_SE1			(0x00000010)
-#define EMAC_ISR_TE1			(0x00000008)
-#define EMAC_ISR_MOS			(0x00000002)
-#define EMAC_ISR_MOF			(0x00000001)
-
+#define EMAC_ISR_SE		(0x00200000)
+#define EMAC_ISR_SYE		(0x00100000)
+#define EMAC_ISR_BFCS		(0x00080000)
+#define EMAC_ISR_PTLE		(0x00040000)
+#define EMAC_ISR_ORE		(0x00020000)
+#define EMAC_ISR_IRE		(0x00010000)
+#define EMAC_ISR_DBDM		(0x00000200)
+#define EMAC_ISR_DB0		(0x00000100)
+#define EMAC_ISR_SE0		(0x00000080)
+#define EMAC_ISR_TE0		(0x00000040)
+#define EMAC_ISR_DB1		(0x00000020)
+#define EMAC_ISR_SE1		(0x00000010)
+#define EMAC_ISR_TE1		(0x00000008)
+#define EMAC_ISR_MOS		(0x00000002)
+#define EMAC_ISR_MOF		(0x00000001)
 
 /* STA CONTROL REG */
-#define EMAC_STACR_OC			(0x00008000)
-#define EMAC_STACR_PHYE			(0x00004000)
+#define EMAC_STACR_OC		(0x00008000)
+#define EMAC_STACR_PHYE		(0x00004000)
 
 #ifdef CONFIG_IBM_EMAC4_V4	/* EMAC4 V4 changed bit setting */
-#define EMAC_STACR_INDIRECT_MODE	(0x00002000)
-#define EMAC_STACR_WRITE		(0x00000800) /* $BUC */
-#define EMAC_STACR_READ			(0x00001000) /* $BUC */
-#define EMAC_STACR_OP_MASK		(0x00001800)
-#define EMAC_STACR_MDIO_ADDR		(0x00000000)
-#define EMAC_STACR_MDIO_WRITE		(0x00000800)
-#define EMAC_STACR_MDIO_READ		(0x00001800)
-#define EMAC_STACR_MDIO_READ_INC	(0x00001000)
+#define EMAC_STACR_INDIRECT_MODE (0x00002000)
+#define EMAC_STACR_WRITE	(0x00000800) /* $BUC */
+#define EMAC_STACR_READ		(0x00001000) /* $BUC */
+#define EMAC_STACR_OP_MASK	(0x00001800)
+#define EMAC_STACR_MDIO_ADDR	(0x00000000)
+#define EMAC_STACR_MDIO_WRITE	(0x00000800)
+#define EMAC_STACR_MDIO_READ	(0x00001800)
+#define EMAC_STACR_MDIO_READ_INC (0x00001000)
 #else
-#define EMAC_STACR_WRITE		(0x00002000)
-#define EMAC_STACR_READ			(0x00001000)
+#define EMAC_STACR_WRITE	(0x00002000)
+#define EMAC_STACR_READ		(0x00001000)
 #endif
 
 #define EMAC_STACR_CLK_83MHZ	(0x00000800)  /* 0's for 50Mhz */
@@ -467,9 +458,9 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_STACR_CLK_100MHZ	(0x00000C00)
 
 /* Transmit Request Threshold Register */
-#define EMAC_TRTR_256			(0x18000000)   /* 0's for 64 Bytes */
-#define EMAC_TRTR_192			(0x10000000)
-#define EMAC_TRTR_128			(0x01000000)
+#define EMAC_TRTR_256		(0x18000000)   /* 0's for 64 Bytes */
+#define EMAC_TRTR_192		(0x10000000)
+#define EMAC_TRTR_128		(0x01000000)
 
 /* the follwing defines are for the MadMAL status and control registers. */
 /* For bits 0..5 look at the mal.h file					 */
