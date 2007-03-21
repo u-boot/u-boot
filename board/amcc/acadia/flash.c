@@ -727,7 +727,7 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 	}
 #endif /* TODO: remove ifdef when Flash responds correctly */
 
-	/* 
+	/*
 	 * TODO: Start
 	 * 	 uncomment block above when Flash responds correctly.
 	 *	 also remove the lines below:
@@ -847,7 +847,7 @@ static int wait_for_DQ7_2(flash_info_t * info, int sect)
 	last = start;
 	while ((addr[0] & (CFG_FLASH_WORD_SIZE) 0x00800080) !=
 	       (CFG_FLASH_WORD_SIZE) 0x00800080) {
-		DEBUGF("DQ7_2: start = 0x%08lx, now = 0x%08lx\n", start, now);	
+		DEBUGF("DQ7_2: start = 0x%08lx, now = 0x%08lx\n", start, now);
 		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
 			printf("Timeout\n");
 			return -1;
@@ -871,7 +871,7 @@ static int wait_for_DQ7_2(flash_info_t * info, int sect)
 static void wr_flash_cmd(ulong sector, ushort addr, CFG_FLASH_WORD_SIZE value)
 {
 	int fw_size;
-	
+
 	fw_size = sizeof(value);
 	switch (fw_size)
 	{
@@ -991,8 +991,8 @@ static int flash_erase_2(flash_info_t * info, int s_first, int s_last)
 	addr[0] = (CFG_FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
 
 	printf(" done\n");
-	
-	if (count > 0) {	
+
+	if (count > 0) {
 		return 0;
 	} else {
 		return 1;

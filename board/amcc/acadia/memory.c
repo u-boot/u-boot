@@ -55,7 +55,6 @@ void sdram_init(void)
 	if ((is_cram_inited() != 1) || (spr_reg != LOAK_SPL)) {
 		mtspr(SPRG7, LOAK_NONE);	/* "NONE" */
 	}
-
 #if 1
 	/*
 	 * When running the NAND SPL, the normal EBC configuration is not
@@ -77,7 +76,6 @@ void sdram_init(void)
 	mtspr(SPRG6, LOAK_SPL);	/* "SPL " */
 	mtspr(SPRG7, LOAK_OCM);	/* "OCM " */
 #endif
-
 	return;
 }
 
@@ -98,13 +96,11 @@ static void cram_bcr_write(u32 wr_val)
 	wr_val = wr_val << 2;
 	/* wr_val = 0x1c048; */
 
-
 	/*
 	 * # stop PLL clock before programming CRAM
 	 * set EPLD0_MUX_CTL.OESPR3 = 1
 	 * delay 2
 	 */
-
 
 	/*
 	 * # CS1
@@ -146,7 +142,6 @@ static void cram_bcr_write(u32 wr_val)
 	 * # Start PLL clock before programming CRAM
 	 * set EPLD0_MUX_CTL.OESPR3 = 0
 	 */
-
 
 	/*
 	 * set CRAMCR = 0x1
@@ -254,9 +249,6 @@ static u32 is_cram(void)
 		gpio_reg = in32(GPIO1_OR);
 		out32(GPIO1_OR,  gpio_reg | 0x00000400);
 
-
-
-
 		/* Read Version ID */
 		cram_id = (volatile u32) in32(CRAM_BANK0_BASE+CRAM_DIDR);
 		udelay(100000);
@@ -309,8 +301,7 @@ static long int cram_init(u32 already_inited)
 	 * In the case of NAND boot and SPI boot, CRAM will already be
 	 * initialized by the pre-loader
 	 */
-	if (already_inited != 1)
-	{
+	if (already_inited != 1) {
 		/*
 		 * #o CRAM Card
 		 * #  - CRAMCRE @reg16 = 1; for CRAM to use
@@ -322,7 +313,6 @@ static long int cram_init(u32 already_inited)
 		 * set EPLD0_ETHRSTBOOT.SLCRAM = 0
 		 * #end
 		 */
-
 
 		/*
 		 * #1. EBC need to program READY, CLK, ADV for ASync mode
@@ -448,8 +438,6 @@ static long int cram_init(u32 already_inited)
 		/*
 		 * set EPLD0_MUX_CTL.OESPR3 = 0
 		 */
-
-
 		mtspr(SPRG7, LOAK_CRAM);	/* "CRAM" */
 	} /* if (already_inited != 1) */
 

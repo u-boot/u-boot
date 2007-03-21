@@ -33,7 +33,7 @@ endif
 
 ifeq ($(CONFIG_SPI_U_BOOT),y)
 LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/u-boot-spi.lds
-PAD_TO = 0x00840000 
+PAD_TO = 0x00840000
 endif
 
 ifeq ($(debug),1)

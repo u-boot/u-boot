@@ -184,9 +184,9 @@ unsigned long get_tbclk (void)
 	/*
 	 * Determine FBK_DIV.
 	 */
-        pllFbkDiv = ((cpr_plld & PLLD_FBDV_MASK) >> 24);
-        if (pllFbkDiv == 0)
-                pllFbkDiv = 256;
+	pllFbkDiv = ((cpr_plld & PLLD_FBDV_MASK) >> 24);
+	if (pllFbkDiv == 0)
+		pllFbkDiv = 256;
 
 	freqProcessor = (CONFIG_SYS_CLK_FREQ * pllFbkDiv) / primad_cpudv;
 
