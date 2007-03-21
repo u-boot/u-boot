@@ -231,6 +231,47 @@
 
 #else /* !defined(CONFIG_440) */
 
+#if defined(CONFIG_405EZ)
+#define VECNUM_D0		0	/* DMA channel 0		*/
+#define VECNUM_D1		1	/* DMA channel 1		*/
+#define VECNUM_D2		2	/* DMA channel 2		*/
+#define VECNUM_D3		3	/* DMA channel 3		*/
+#define VECNUM_1588		4	/* IEEE 1588 network synchronization */
+#define VECNUM_U0		5	/* UART0			*/
+#define VECNUM_U1		6	/* UART1			*/
+#define VECNUM_CAN0		7	/* CAN 0			*/
+#define VECNUM_CAN1		8	/* CAN 1			*/
+#define VECNUM_SPI		9	/* SPI				*/
+#define VECNUM_IIC0		10	/* I2C				*/
+#define VECNUM_CHT0		11	/* Chameleon timer high pri interrupt */
+#define VECNUM_CHT1		12	/* Chameleon timer high pri interrupt */
+#define VECNUM_USBH1		13	/* USB Host 1			*/
+#define VECNUM_USBH2		14	/* USB Host 2			*/
+#define VECNUM_USBDEV		15	/* USB Device			*/
+#define VECNUM_ETH0		16	/* 10/100 Ethernet interrupt status */
+#define VECNUM_EWU0		17	/* Ethernet wakeup sequence detected */
+
+#define VECNUM_MADMAL		18	/* Logical OR of following MadMAL int */
+#define VECNUM_MS		18	/*	MAL_SERR_INT 		*/
+#define VECNUM_TXDE		18	/* 	MAL_TXDE_INT 		*/
+#define VECNUM_RXDE		18	/*	MAL_RXDE_INT 		*/
+
+#define VECNUM_MTE		19	/* MAL TXEOB			*/
+#define VECNUM_MTE1		20	/* MAL TXEOB1			*/
+#define VECNUM_MRE		21	/* MAL RXEOB			*/
+#define VECNUM_NAND		22	/* NAND Flash controller	*/
+#define VECNUM_ADC		23	/* ADC				*/
+#define VECNUM_DAC		24	/* DAC				*/
+#define VECNUM_OPB2PLB		25	/* OPB to PLB bridge interrupt	*/
+#define VECNUM_RESERVED0	26	/* Reserved			*/
+#define VECNUM_EIR0		27	/* External interrupt 0		*/
+#define VECNUM_EIR1		28	/* External interrupt 1		*/
+#define VECNUM_EIR2		29	/* External interrupt 2		*/
+#define VECNUM_EIR3		30	/* External interrupt 3		*/
+#define VECNUM_EIR4		31	/* External interrupt 4		*/
+
+#else	/* !CONFIG_405EZ */
+
 #define VECNUM_U0           0           /* UART0                        */
 #define VECNUM_U1           1           /* UART1                        */
 #define VECNUM_D0           5           /* DMA channel 0                */
@@ -251,6 +292,7 @@
 #define VECNUM_EIR4         29          /* External interrupt 4         */
 #define VECNUM_EIR5         30          /* External interrupt 5         */
 #define VECNUM_EIR6         31          /* External interrupt 6         */
+#endif	/* defined(CONFIG_405EZ) */
 
 #endif /* defined(CONFIG_440) */
 

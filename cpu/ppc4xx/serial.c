@@ -264,7 +264,8 @@ int serial_tstc ()
 #endif	/* CONFIG_IOP480 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP) || \
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
     defined(CONFIG_440)
 
 #if defined(CONFIG_440)
@@ -309,7 +310,7 @@ int serial_tstc ()
 #define MFREG(a, d)	mfsdr(a, d)
 #define MTREG(a, d)	mtsdr(a, d)
 #endif /* #if defined(CONFIG_440GP) */
-#elif defined(CONFIG_405EP)
+#elif defined(CONFIG_405EP) || defined(CONFIG_405EZ)
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
 #define UCR0_MASK       0x0000007f
@@ -392,47 +393,95 @@ volatile static serial_buffer_t buf_info;
 
 #if defined(CONFIG_440) && !defined(CFG_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
-			 unsigned short *pbdiv )
+			 unsigned short *pbdiv)
 {
-	sys_info_t	sysinfo;
+	sys_info_t sysinfo;
 	unsigned long div;		/* total divisor udiv * bdiv */
 	unsigned long umin;		/* minimum udiv	*/
-	unsigned short diff;    /* smallest diff */
-	unsigned long udiv;     /* best udiv */
-
-	unsigned short idiff;   /* current diff */
-	unsigned short ibdiv;   /* current bdiv */
+	unsigned short diff;		/* smallest diff */
+	unsigned long udiv;		/* best udiv */
+	unsigned short idiff;		/* current diff */
+	unsigned short ibdiv;		/* current bdiv */
 	unsigned long i;
-	unsigned long est;      /* current estimate */
+	unsigned long est;		/* current estimate */
 
-	get_sys_info( &sysinfo );
+	get_sys_info(&sysinfo);
 
-	udiv = 32;     /* Assume lowest possible serial clk */
-	div = sysinfo.freqPLB/(16*baudrate); /* total divisor */
-	umin = sysinfo.pllOpbDiv<<1; /* 2 x OPB divisor */
-	diff = 32;      /* highest possible */
+	udiv = 32;			/* Assume lowest possible serial clk */
+	div = sysinfo.freqPLB / (16 * baudrate); /* total divisor */
+	umin = sysinfo.pllOpbDiv << 1;	/* 2 x OPB divisor */
+	diff = 32;			/* highest possible */
 
 	/* i is the test udiv value -- start with the largest
 	 * possible (32) to minimize serial clock and constrain
 	 * search to umin.
 	 */
-	for( i = 32; i > umin; i-- ){
-		ibdiv = div/i;
+	for (i = 32; i > umin; i--) {
+		ibdiv = div / i;
 		est = i * ibdiv;
 		idiff = (est > div) ? (est-div) : (div-est);
-		if( idiff == 0 ){
+		if (idiff == 0) {
 			udiv = i;
 			break;      /* can't do better */
-		}
-		else if( idiff < diff ){
+		} else if (idiff < diff) {
 			udiv = i;       /* best so far */
 			diff = idiff;   /* update lowest diff*/
 		}
 	}
 
 	*pudiv = udiv;
-	*pbdiv = div/udiv;
+	*pbdiv = div / udiv;
+}
 
+#elif defined(CONFIG_405EZ)
+
+static void serial_divs (int baudrate, unsigned long *pudiv,
+			 unsigned short *pbdiv)
+{
+	sys_info_t sysinfo;
+	unsigned long div;		/* total divisor udiv * bdiv */
+	unsigned long umin;		/* minimum udiv	*/
+	unsigned short diff;		/* smallest diff */
+	unsigned long udiv;		/* best udiv */
+	unsigned short idiff;		/* current diff */
+	unsigned short ibdiv;		/* current bdiv */
+	unsigned long i;
+	unsigned long est;		/* current estimate */
+	unsigned long plloutb;
+	u32 reg;
+
+	get_sys_info(&sysinfo);
+
+	plloutb = ((CONFIG_SYS_CLK_FREQ * sysinfo.pllFwdDiv * sysinfo.pllFbkDiv)
+		   / sysinfo.pllFwdDivB);
+	udiv = 256;			/* Assume lowest possible serial clk */
+	div = plloutb / (16 * baudrate); /* total divisor */
+	umin = (plloutb / get_OPB_freq()) << 1;	/* 2 x OPB divisor */
+	diff = 256;			/* highest possible */
+
+	/* i is the test udiv value -- start with the largest
+	 * possible (256) to minimize serial clock and constrain
+	 * search to umin.
+	 */
+	for (i = 256; i > umin; i--) {
+		ibdiv = div / i;
+		est = i * ibdiv;
+		idiff = (est > div) ? (est-div) : (div-est);
+		if (idiff == 0) {
+			udiv = i;
+			break;      /* can't do better */
+		} else if (idiff < diff) {
+			udiv = i;       /* best so far */
+			diff = idiff;   /* update lowest diff*/
+		}
+	}
+
+	*pudiv = udiv;
+	mfcpr(cprperd0, reg);
+	reg &= ~0x0000ffff;
+	reg |= ((udiv - 0) << 8) | (udiv - 0);
+	mtcpr(cprperd0, reg);
+	*pbdiv = div / udiv;
 }
 #endif /* defined(CONFIG_440) && !defined(CFG_EXT_SERIAL_CLK) */
 
@@ -518,6 +567,10 @@ int serial_init (void)
 	unsigned short bdiv;
 	volatile char val;
 
+#if defined(CONFIG_405EZ)
+	serial_divs(gd->baudrate, &udiv, &bdiv);
+	clk = tmp = reg = 0;
+#else
 #ifdef CONFIG_405EP
 	reg = mfdcr(cpc0_ucr) & ~(UCR0_MASK | UCR1_MASK);
 	clk = gd->cpu_clk;
@@ -548,9 +601,9 @@ int serial_init (void)
 	reg |= (udiv - 1) << CR0_UDIV_POS;	/* set the UART divisor */
 	mtdcr (cntrl0, reg);
 #endif /* CONFIG_405EP */
-
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
+#endif /* CONFIG_405EZ */
 
 	out8(UART_BASE + UART_LCR, 0x80);	/* set DLAB bit */
 	out8(UART_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
