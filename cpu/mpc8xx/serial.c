@@ -229,15 +229,14 @@ static int smc_init (void)
 
 #ifdef CFG_SPC1920_SMC1_CLK4
 	/* clock source is PLD */
-
+	
 	/* set freq to 19200 Baud */
 	*((volatile uchar *) CFG_SPC1920_PLD_BASE+6) = 0x3;
 	/* configure clk4 as input */
 	im->im_ioport.iop_pdpar |= 0x800;
 	im->im_ioport.iop_pddir &= ~0x800;
 
-	cp->cp_simode = 0x0000;
-	cp->cp_simode |= 0x7000;
+	cp->cp_simode = ((cp->cp_simode & ~0xf000) | 0x7000);	
 #else
 	/* Set up the baud rate generator */
 	smc_setbrg ();
