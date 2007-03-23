@@ -161,10 +161,20 @@
 #define UDC_VBUS_CTRL	    (1 << 19)
 #define UDC_VBUS_MODE	    (1 << 18)
 
+/* OMAP Endpoint parameters */
+#define EP0_MAX_PACKET_SIZE 64
+#define UDC_OUT_ENDPOINT 2
+#define UDC_OUT_PACKET_SIZE 64
+#define UDC_IN_ENDPOINT	1
+#define UDC_IN_PACKET_SIZE 64
+#define UDC_INT_ENDPOINT 5
+#define UDC_INT_PKTSIZE	16
+#define UDC_BULK_PKTSIZE 16
 
-void omap1510_udc_irq(void);
-void omap1510_udc_noniso_irq(void);
-
+void udc_irq (void);
+/* Flow control */
+void udc_set_nak(int epid);
+void udc_unset_nak (int epid);
 
 /* Higher level functions for abstracting away from specific device */
 void udc_endpoint_write(struct usb_endpoint_instance *endpoint);

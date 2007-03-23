@@ -7,6 +7,15 @@
  * usb-ohci.h
  */
 
+/* functions for doing board or CPU specific setup/cleanup */
+extern int usb_board_init(void);
+extern int usb_board_stop(void);
+extern int usb_cpu_init_fail(void);
+
+extern int usb_cpu_init(void);
+extern int usb_cpu_stop(void);
+extern int usb_cpu_init_fail(void);
+
 
 static int cc_to_error[16] = {
 
@@ -104,7 +113,9 @@ struct td {
 	__u32 hwNextTD;		/* Next TD Pointer */
 	__u32 hwBE;		/* Memory Buffer End Pointer */
 
+/* #ifndef CONFIG_MPC5200 /\* this seems wrong *\/ */
 	__u16 hwPSW[MAXPSW];
+/* #endif */
 	__u8 unused;
 	__u8 index;
 	struct ed *ed;
@@ -128,8 +139,13 @@ typedef struct td td_t;
 #define NUM_INTS 32	/* part of the OHCI standard */
 struct ohci_hcca {
 	__u32	int_table[NUM_INTS];	/* Interrupt ED table */
+#if defined(CONFIG_MPC5200)
+	__u16	pad1;			/* set to 0 on each frame_no change */
+	__u16	frame_no;		/* current frame number */
+#else
 	__u16	frame_no;		/* current frame number */
 	__u16	pad1;			/* set to 0 on each frame_no change */
+#endif
 	__u32	done_head;		/* info returned for an interrupt */
 	u8		reserved_for_hc[116];
 } __attribute((aligned(256)));
@@ -138,7 +154,9 @@ struct ohci_hcca {
 /*
  * Maximum number of root hub ports.
  */
-#define MAX_ROOT_PORTS	15	/* maximum OHCI root hub ports */
+#ifndef CFG_USB_OHCI_MAX_ROOT_PORTS
+# error "CFG_USB_OHCI_MAX_ROOT_PORTS undefined!"
+#endif
 
 /*
  * This is the structure of the OHCI controller's memory mapped I/O
@@ -172,7 +190,7 @@ struct ohci_regs {
 		__u32	a;
 		__u32	b;
 		__u32	status;
-		__u32	portstatus[MAX_ROOT_PORTS];
+		__u32	portstatus[CFG_USB_OHCI_MAX_ROOT_PORTS];
 	} roothub;
 } __attribute((aligned(32)));
 

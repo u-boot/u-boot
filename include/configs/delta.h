@@ -94,12 +94,26 @@
 # define CONFIG_COMMANDS	((CONFIG_CMD_DFL \
 				  | CFG_CMD_ENV \
 				  | CFG_CMD_NAND \
-				  | CFG_CMD_I2C) \
+				  | CFG_CMD_I2C \
+				  | CFG_CMD_USB \
+				  | CFG_CMD_FAT) \
 				 & ~(CFG_CMD_NET \
 				     | CFG_CMD_FLASH \
 				     | CFG_CMD_IMLS))
 #endif
 
+/* USB */
+#define CONFIG_USB_OHCI_NEW	1
+#define CONFIG_USB_STORAGE      1
+#define CONFIG_DOS_PARTITION    1
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	OHCI_REGS_BASE
+#define CFG_USB_OHCI_SLOT_NAME	"delta"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	3
+
+#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>

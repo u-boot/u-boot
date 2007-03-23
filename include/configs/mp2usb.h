@@ -101,11 +101,17 @@
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
-#define CONFIG_USB_OHCI		1
+#define CONFIG_USB_OHCI_NEW	1
 #define CONFIG_USB_KEYBOARD	1
 #define CONFIG_USB_STORAGE	1
 #define CONFIG_DOS_PARTITION	1
 #define CONFIG_AT91C_PQFP_UHPBUG 1
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT		1
+#define CFG_USB_OHCI_REGS_BASE		AT91_USB_HOST_BASE
+#define CFG_USB_OHCI_SLOT_NAME		"at91rm9200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 #undef CONFIG_HARD_I2C
 
@@ -127,7 +133,7 @@
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL	| \
 			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP 	| \
+			CFG_CMD_DHCP	| \
 			CFG_CMD_EEPROM	| \
 			CFG_CMD_I2C	| \
 			CFG_CMD_NFS	| \
@@ -136,7 +142,7 @@
 #else
 #define CONFIG_COMMANDS		\
 		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP 	| \
+			CFG_CMD_DHCP	| \
 			CFG_CMD_NFS	| \
 			CFG_CMD_SNTP	| \
 			CFG_CMD_USB      | \
@@ -156,7 +162,7 @@
 
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000
-#define PHYS_SDRAM_SIZE		0x08000000 	/* 128 megs */
+#define PHYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
 #define CFG_MEMTEST_START	PHYS_SDRAM
 #define CFG_MEMTEST_END		CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144

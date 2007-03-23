@@ -34,7 +34,7 @@
 
 #ifdef CONFIG_AUTO_UPDATE
 
-#ifndef CONFIG_USB_OHCI
+#ifndef CONFIG_USB_OHCI_NEW
 #error "must define CONFIG_USB_OHCI"
 #endif
 
