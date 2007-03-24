@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,15 +25,6 @@ sinclude $(TOPDIR)/board/amcc/liveoak/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFFC0000
-endif
-
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
-endif
-
-ifeq ($(CONFIG_SPI_U_BOOT),y)
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/u-boot-spi.lds
-PAD_TO = 0x00840000 
 endif
 
 ifeq ($(debug),1)
