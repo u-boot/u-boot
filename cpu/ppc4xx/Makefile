@@ -29,7 +29,7 @@ START	= start.o resetvec.o kgdb.o
 SOBJS	= dcr.o
 COBJS	= 405gp_pci.o 4xx_enet.o \
 	  bedbug_405.o commproc.o \
-	  cpu.o cpu_init.o i2c.o interrupts.o \
+	  cpu.o cpu_init.o gpio.o i2c.o interrupts.o \
 	  miiphy.o ndfc.o sdram.o serial.o \
 	  40x_spd_sdram.o 44x_spd_ddr.o 44x_spd_ddr2.o speed.o \
 	  tlb.o traps.o usb_ohci.o usbdev.o \

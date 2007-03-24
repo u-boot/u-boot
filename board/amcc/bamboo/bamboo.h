@@ -264,18 +264,8 @@
 #define TRUE 1
 #define FALSE 0
 
-#define GPIO_GROUP_MAX	    2
-#define GPIO_MAX	    32
-#define GPIO_ALT1_SEL	    0x40000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 0 */
-#define GPIO_ALT2_SEL	    0x80000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 1 */
-#define GPIO_ALT3_SEL	    0xC0000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 2 */
-#define GPIO_MASK	    0xC0000000	    /* GPIO_MASK */
-#define GPIO_IN_SEL	    0x40000000	    /* GPIO_IN value put in GPIO_ISx for the GPIO nb 0 */
-					    /* For the other GPIO number, you must shift */
-
 #define GPIO0		0
 #define GPIO1		1
-
 
 /*#define MAX_SELECTION_NB	CORE_NB */
 #define MAX_CORE_SELECT_NB	22
