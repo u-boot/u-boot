@@ -562,6 +562,11 @@ Yasushi Shoji <yashi@atmark-techno.com>
 
 	SUZAKU			MicroBlaze
 
+Michal Simek <monstr@monstr.eu>
+
+	ML401			MicroBlaze
+	XUPV2P			MicroBlaze
+
 #########################################################################
 # Coldfire Systems:							#
 #									#

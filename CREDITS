@@ -470,3 +470,8 @@ N: Timur Tabi
 E: timur@freescale.com
 D: Support for MPC8349E-mITX
 W: www.freescale.com
+
+N: Michal Simek
+E: monstr@monstr.eu
+D: Support for Microblaze, ML401, XUPV2P board
+W: www.monstr.eu

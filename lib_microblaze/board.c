@@ -59,8 +59,8 @@ static ulong mem_malloc_brk;
  */
 static void mem_malloc_init (void)
 {
-	mem_malloc_end = CFG_MONITOR_BASE + CFG_MONITOR_LEN;
-	mem_malloc_start = CFG_MONITOR_BASE;
+	mem_malloc_end = (CFG_MALLOC_BASE + CFG_MALLOC_LEN);
+	mem_malloc_start = CFG_MALLOC_BASE;
 	mem_malloc_brk = mem_malloc_start;
 	memset ((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
 }

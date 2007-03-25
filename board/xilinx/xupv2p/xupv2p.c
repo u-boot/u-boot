@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * (C) Copyright 2007 Michal Simek
  *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * Michal  SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,46 +22,28 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_ARCH(microblaze)
-ENTRY(_start)
+/* This is a board specific file.  It's OK to include board specific
+ * header files */
 
-SECTIONS
+#include <common.h>
+#include <configs/ml401.h>
+
+void do_reset (void)
 {
-	.text ALIGN(0x4):
-	{
-		__text_start = .;
-		cpu/microblaze/start.o (.text)
-		*(.text)
-		__text_end = .;
-	}
+#ifdef CFG_GPIO_0
+	*((unsigned long *)(CFG_GPIO_0_ADDR)) =
+	    ++(*((unsigned long *)(CFG_GPIO_0_ADDR)));
+#endif
+#ifdef CFG_RESET_ADDRESS
+	puts ("Reseting board\n");
+	asm ("bra r0");
+#endif
+}
 
-	.rodata ALIGN(0x4):
-	{
-		__rodata_start = .;
-		*(.rodata)
-		__rodata_end = .;
-	}
-
-	.data ALIGN(0x4):
-	{
-		__data_start = .;
-		*(.data)
-		__data_end = .;
-	}
-
-	.u_boot_cmd ALIGN(0x4):
-	{
-		. = .;
-		__u_boot_cmd_start = .;
-		*(.u_boot_cmd)
-		__u_boot_cmd_end = .;
-	}
-
-	.bss ALIGN(0x4):
-	{
-		__bss_start = .;
-		*(.bss)
-		__bss_end = .;
-	}
-	__end = . ;
+int gpio_init (void)
+{
+#ifdef CFG_GPIO_0
+	*((unsigned long *)(CFG_GPIO_0_ADDR)) = 0x0;
+#endif
+	return 0;
 }

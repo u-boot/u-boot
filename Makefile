@@ -2309,6 +2309,11 @@ ml401_config:	unconfig
 	@echo "#define CONFIG_ML401 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) microblaze microblaze ml401 xilinx
 
+xupv2p_config:	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_XUPV2P 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) microblaze microblaze xupv2p xilinx
+
 #########################################################################
 ## Blackfin
 #########################################################################

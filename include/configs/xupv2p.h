@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Czech Technical University.
  *
- * Michal SIMEK <monstr@seznam.cz>
+ * Michal SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,22 +25,30 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "../board/xilinx/ml401/xparameters.h"
+#include "../board/xilinx/xupv2p/xparameters.h"
 
 #define	CONFIG_MICROBLAZE	1	/* MicroBlaze CPU */
-#define	CONFIG_ML401		1	/* ML401 Board */
+#define	CONFIG_XUPV2P		1
 
 /* uart */
 #define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
 #define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
-/* setting reset address */
-#define	CFG_RESET_ADDRESS	TEXT_BASE
-
 /* ethernet */
-#define CONFIG_EMACLITE		1
+#define CONFIG_EMAC	1
 #define XPAR_EMAC_0_DEVICE_ID	XPAR_XEMAC_NUM_INSTANCES
+
+/*
+ * setting reset address
+ * 
+ * TEXT_BASE is set to place, where the U-BOOT run in RAM, but
+ * if you want to store U-BOOT in flash, set CFG_RESET_ADDRESS
+ * to FLASH memory and after loading bitstream jump to FLASH.
+ * U-BOOT auto-relocate to TEXT_BASE. After RESET command Microblaze
+ * jump to CFG_RESET_ADDRESS where is the original U-BOOT code.
+ */
+#define	CFG_RESET_ADDRESS	0x36000000
 
 /* gpio */
 #define	CFG_GPIO_0		1
@@ -60,29 +68,29 @@
 
 /*
  * memory layout - Example
- * TEXT_BASE = 0x1200_0000;
- * CFG_SRAM_BASE = 0x1000_0000;
- * CFG_SRAM_SIZE = 0x0400_0000;
+ * TEXT_BASE = 0x3600_0000;
+ * CFG_SRAM_BASE = 0x3000_0000;
+ * CFG_SRAM_SIZE = 0x1000_0000;
  *
- * CFG_GBL_DATA_OFFSET = 0x1000_0000 + 0x0400_0000 - 0x1000 = 0x13FF_F000
- * CFG_MONITOR_BASE = 0x13FF_F000 - 0x40000 = 0x13FB_F000
- * CFG_MALLOC_BASE = 0x13FB_F000 - 0x40000 = 0x13F7_F000 
+ * CFG_GBL_DATA_OFFSET = 0x3000_0000 + 0x1000_0000 - 0x1000 = 0x3FFF_F000
+ * CFG_MONITOR_BASE = 0x3FFF_F000 - 0x40000 = 0x3FFB_F000
+ * CFG_MALLOC_BASE = 0x3FFB_F000 - 0x40000 = 0x3FF7_F000
  *
- * 0x1000_0000	CFG_SDRAM_BASE
+ * 0x3000_0000	CFG_SDRAM_BASE
  *					FREE
- * 0x1200_0000	TEXT_BASE
+ * 0x3600_0000	TEXT_BASE
  *		U-BOOT code
- * 0x1202_0000
+ * 0x3602_0000
  *					FREE
  *
  *					STACK
- * 0x13F7_F000	CFG_MALLOC_BASE
+ * 0x3FF7_F000	CFG_MALLOC_BASE
  *					MALLOC_AREA	256kB	Alloc
- * 0x11FB_F000	CFG_MONITOR_BASE
+ * 0x3FFB_F000	CFG_MONITOR_BASE
  *					MONITOR_CODE	256kB	Env
- * 0x13FF_F000	CFG_GBL_DATA_OFFSET
+ * 0x3FFF_F000	CFG_GBL_DATA_OFFSET
  * 					GLOBAL_DATA	4kB	bd, gd
- * 0x1400_0000	CFG_SDRAM_BASE + CFG_SDRAM_SIZE
+ * 0x4000_0000	CFG_SDRAM_BASE + CFG_SDRAM_SIZE
  */
 
 /* ddr sdram - main memory */
@@ -104,98 +112,29 @@
 #define	CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
 
 /* stack */
-#define	CFG_INIT_SP_OFFSET	CFG_MONITOR_BASE
+#define	CFG_INIT_SP_OFFSET	CFG_MALLOC_BASE
 
-/*#define	RAMENV */
-#define	FLASH
+#define	CFG_NO_FLASH		1
+#define	CFG_ENV_IS_NOWHERE	1
+#define	CFG_ENV_SIZE		0x1000
+#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
+#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
+			CFG_CMD_MEMORY |\
+			CFG_CMD_IRQ |\
+			CFG_CMD_BDI |\
+			CFG_CMD_NET |\
+			CFG_CMD_IMI |\
+			CFG_CMD_ECHO |\
+			CFG_CMD_CACHE |\
+			CFG_CMD_RUN |\
+			CFG_CMD_AUTOSCRIPT |\
+			CFG_CMD_ASKENV |\
+			CFG_CMD_LOADS |\
+			CFG_CMD_LOADB |\
+			CFG_CMD_MISC |\
+			CFG_CMD_PING \
+			)
 
-#ifdef FLASH
-	#define	CFG_FLASH_BASE		XILINX_FLASH_START
-	#define	CFG_FLASH_SIZE		XILINX_FLASH_SIZE
-	#define	CFG_FLASH_CFI		1
-	#define	CFG_FLASH_CFI_DRIVER	1
-	#define	CFG_FLASH_EMPTY_INFO	1	/* ?empty sector */
-	#define	CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-	#define	CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
-
-	#ifdef	RAMENV
-		#define	CFG_ENV_IS_NOWHERE	1
-		#define	CFG_ENV_SIZE		0x1000
-		#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
-
-	#else	/* !RAMENV */
-		#define	CFG_ENV_IS_IN_FLASH	1
-		#define	CFG_ENV_ADDR		0x40000
-		#define	CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-		#define	CFG_ENV_SIZE		0x2000
-	#endif /* !RAMBOOT */
-#else /* !FLASH */
-	/* ENV in RAM */
-	#define	CFG_NO_FLASH		1
-	#define	CFG_ENV_IS_NOWHERE	1
-	#define	CFG_ENV_SIZE		0x1000
-	#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
-#endif /* !FLASH */
-
-#ifdef	FLASH
-	#ifdef	RAMENV
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_IMLS |\
-				CFG_CMD_FLASH |\
-				CFG_CMD_PING \
-				)
-	#else	/* !RAMENV */
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_IMLS |\
-				CFG_CMD_FLASH |\
-				CFG_CMD_PING |\
-				CFG_CMD_ENV |\
-				CFG_CMD_SAVES \
-				)
-
-	#endif
-
-#else	/* !FLASH */
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_PING \
-				)
-#endif	/* !FLASH */
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
@@ -220,11 +159,16 @@
 #define	CFG_USR_EXCEP	/* user exception */
 #define CFG_HZ	1000
 
+#define CONFIG_PREBOOT	"echo U-BOOT by mONStR;"	\
+	"base 0;" \
+	"echo"
+
+
 /* system ace */
-/*#define CONFIG_SYSTEMACE
-#define DEBUG_SYSTEMACE
-#define CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-#define CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-#define CONFIG_DOS_PARTITION
-*/
+/*#define	CONFIG_SYSTEMACE
+#define	DEBUG_SYSTEMACE
+#define	CFG_SYSTEMACE_BASE	0xCF000000
+#define	CFG_SYSTEMACE_WIDTH	16
+#define	CONFIG_DOS_PARTITION*/
+
 #endif	/* __CONFIG_H */

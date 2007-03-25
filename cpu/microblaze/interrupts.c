@@ -95,7 +95,7 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 {
 	struct irq_action *act;
 	/* irq out of range */
-	if ((irq < 0) || (irq > CONFIG_XILINX_INTC_0_NUM_INTR_INPUTS)) {
+	if ((irq < 0) || (irq > CFG_INTC_0_NUM)) {
 		puts ("IRQ out of range\n");
 		return;
 	}
@@ -131,7 +131,7 @@ int interrupts_init (void)
 {
 	int i;
 	/* initialize irq list */
-	for (i = 0; i < CONFIG_XILINX_INTC_0_NUM_INTR_INPUTS; i++) {
+	for (i = 0; i < CFG_INTC_0_NUM; i++) {
 		vecs[i].handler = (interrupt_handler_t *) def_hdlr;
 		vecs[i].arg = (void *)i;
 		vecs[i].count = 0;
@@ -189,7 +189,7 @@ int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	      "Nr  Routine   Arg       Count\n"
 	      "-----------------------------\n");
 
-	for (i = 0; i < CONFIG_XILINX_INTC_0_NUM_INTR_INPUTS; i++) {
+	for (i = 0; i < CFG_INTC_0_NUM; i++) {
 		if (act->handler != (interrupt_handler_t*) def_hdlr) {
 			printf ("%02d  %08lx  %08lx  %d\n", i,
 				(int)act->handler, (int)act->arg, act->count);

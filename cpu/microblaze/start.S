@@ -31,6 +31,7 @@
 _start:
 	mts	rmsr, r0	/* disable cache */
 	addi	r1, r0, CFG_INIT_SP_OFFSET
+	addi	r1, r1, -4	/* Decrement SP to top of memory */
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
 	addi	r6, r0, 0xb000	/* hex b000 opcode imm */
 	bslli	r6, r6, 16	/* shift */
@@ -53,6 +54,23 @@ _start:
 	lhu	r7, r1, r0
 	shi	r7, r0, 0x2
 	shi	r6, r0, 0x6
+/* 
+ * Copy U-Boot code to TEXT_BASE
+ * solve problem with sbrk_base
+ */
+#if (CFG_RESET_ADDRESS != TEXT_BASE)
+	addi	r4, r0, __end
+	addi	r5, r0, __text_start
+	rsub	r4, r5, r4	/* size = __end - __text_start */
+	addi	r6, r0, CFG_RESET_ADDRESS	/* source address */
+	addi	r7, r0, 0	/* counter */
+4:
+	lw	r8, r6, r7
+	sw	r8, r5, r7
+	addi	r7, r7, 0x4
+	cmp	r8, r4, r7
+	blti	r8, 4b
+#endif
 #endif
 
 #ifdef CFG_USR_EXCEP
@@ -85,6 +103,17 @@ _start:
 	ori	r12, r12, 0xa0
 	mts	rmsr, r12
 
-	/* jumping to board_init */
+clear_bss:
+	/* clear BSS segments */
+	addi	r5, r0, __bss_start
+	addi	r4, r0, __bss_end
+	cmp	r6, r5, r4
+	beqi	r6, 3f
+2:
+	swi     r0, r5, 0 /* write zero to loc */
+	addi    r5, r5, 4 /* increment to next loc */
+	cmp     r6, r5, r4 /* check if we have reach the end */
+	bnei    r6, 2b
+3:	/* jumping to board_init */
 	brai	board_init
 1:	bri	1b
