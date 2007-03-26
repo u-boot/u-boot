@@ -62,8 +62,6 @@
 #include <usb.h>
 #include "usb_ohci.h"
 
-#define S3C24X0_merge
-
 #if defined(CONFIG_ARM920T) || \
     defined(CONFIG_S3C2400) || \
     defined(CONFIG_S3C2410) || \
@@ -123,10 +121,8 @@ int got_rhsc;
 /* device which was disconnected */
 struct usb_device *devgone;
 
-#ifdef S3C24X0_merge
 /* flag guarding URB transation */
 int urb_finished = 0;
-#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -433,7 +429,7 @@ int sohci_submit_job(struct usb_device *dev, unsigned long pipe, void *buffer,
 		err("sohci_submit_job: EPIPE");
 		return -1;
 	}
-#ifdef S3C24X0_merge
+
 	/* if we have an unfinished URB from previous transaction let's
 	 * fail and scream as quickly as possible so as not to corrupt
 	 * further communication */
@@ -443,7 +439,6 @@ int sohci_submit_job(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 	/* we're about to begin a new transaction here so mark the URB unfinished */
 	urb_finished = 0;
-#endif
 
 	/* every endpoint has a ed, locate and fill it */
 	if (!(ed = ep_add_ed (dev, pipe))) {
@@ -709,9 +704,6 @@ static void td_fill (ohci_t *ohci, unsigned int info,
 	else
 		td->hwBE = 0;
 	td->hwNextTD = m32_swap ((unsigned long)td_pt);
-#ifndef S3C24X0_merge
-	td->hwPSW [0] = m16_swap (((__u32)data & 0x0FFF) | 0xE000);
-#endif
 
 	/* append to queue */
 	td->ed->hwTailP = td->hwNextTD;
@@ -881,7 +873,7 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 			dbg("ConditionCode %#x", cc);
 			stat = cc_to_error[cc];
 		}
-#ifdef S3C24X0_merge
+
 		/* see if this done list makes for all TD's of current URB,
 		 * and mark the URB finished if so */
 		if (++(lurb_priv->td_cnt) == lurb_priv->length) {
@@ -890,7 +882,6 @@ static int dl_done_list (ohci_t *ohci, td_t *td_list)
 			    (lurb_priv->state != URB_DEL))
 #else
 			if ((ed->state & (ED_OPER | ED_UNLINK)))
-#endif
 				urb_finished = 1;
 			else
 				dbg("dl_done_list: strange.., ED state %x, ed->state\n");
@@ -1351,7 +1342,6 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			break;
 		}
 
-#ifdef S3C24X0_merge
 		/* NOTE: since we are not interrupt driven in U-Boot and always
 		 * handle only one URB at a time, we cannot assume the
 		 * transaction finished on the first successful return from
@@ -1362,9 +1352,6 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		 * hc_interrupt() gets called again as there needs to be some
 		 * more TD's to process still */
 		if ((stat >= 0) && (stat != 0xff) && (urb_finished)) {
-#else
-		if (stat >= 0 && stat != 0xff) {
-#endif
 			/* 0xff is returned for an SF-interrupt */
 			break;
 		}
@@ -1373,38 +1360,13 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			wait_ms(1);
 		} else {
 			err("CTL:TIMEOUT ");
-#ifdef S3C24X0_merge
 			dbg("submit_common_msg: TO status %x\n", stat);
 			stat = USB_ST_CRC_ERR;
 			urb_finished = 1;
-#endif
 			stat = USB_ST_CRC_ERR;
 			break;
 		}
 	}
-#ifndef S3C24X0_merge
-	/* we got an Root Hub Status Change interrupt */
-	if (got_rhsc) {
-#ifdef DEBUG
-		ohci_dump_roothub (&gohci, 1);
-#endif
-		got_rhsc = 0;
-		/* abuse timeout */
-		timeout = rh_check_port_status(&gohci);
-		if (timeout >= 0) {
-#if 0 /* this does nothing useful, but leave it here in case that changes */
-			/* the called routine adds 1 to the passed value */
-			usb_hub_port_connect_change(gohci.rh.dev, timeout - 1);
-#endif
-			/*
-			 * XXX
-			 * This is potentially dangerous because it assumes
-			 * that only one device is ever plugged in!
-			 */
-			devgone = dev;
-		}
-	}
-#endif /* S3C24X0_merge */
 
 	dev->status = stat;
 	dev->act_len = transfer_len;
@@ -1582,8 +1544,6 @@ static int hc_interrupt (void)
 	int ints;
 	int stat = -1;
 
-#ifdef S3C24X0_merge
-
 	if ((ohci->hcca->done_head != 0) &&
 	    !(m32_swap (ohci->hcca->done_head) & 0x01)) {
 		ints =  OHCI_INTR_WDH;
@@ -1595,20 +1555,12 @@ static int hc_interrupt (void)
 		dbg("hc_interrupt: returning..\n");
 		return 0xff;
 	}
-#else
-	if ((ohci->hcca->done_head != 0) && !(m32_swap (ohci->hcca->done_head) & 0x01)) {
-		ints =	OHCI_INTR_WDH;
-	} else {
-		ints = readl (&regs->intrstatus);
-	}
-#endif
+
 	/* dbg("Interrupt: %x frame: %x", ints, le16_to_cpu (ohci->hcca->frame_no)); */
 
 	if (ints & OHCI_INTR_RHSC) {
 		got_rhsc = 1;
-#ifdef S3C24X0_merge
 		stat = 0xff;
-#endif
 	}
 
 	if (ints & OHCI_INTR_UE) {
@@ -1762,9 +1714,7 @@ int usb_lowlevel_init(void)
 	ohci_dump (&gohci, 1);
 #else
 	wait_ms(1);
-# ifdef S3C24X0_merge
 	urb_finished = 1;
-# endif
 #endif
 	ohci_inited = 1;
 	return 0;
