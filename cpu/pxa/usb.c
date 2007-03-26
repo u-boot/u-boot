@@ -24,15 +24,21 @@
 #include <common.h>
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
-# ifdef CONFIG_CPU_MONAHANS
+# if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 
 #include <asm/arch/pxa-regs.h>
 
 int usb_cpu_init()
 {
+#if defined(CONFIG_CPU_MONAHANS)
 	/* Enable USB host clock. */
 	CKENA |= (CKENA_2_USBHOST |  CKENA_20_UDC);
 	udelay(100);
+#endif
+#if defined(CONFIG_PXA27X)
+	/* Enable USB host clock. */
+	CKEN |= CKEN10_USBHOST;
+#endif
 
 	/* Configure Port 2 for Host (USB Client Registers) */
 	UP2OCR = 0x3000c;
@@ -55,7 +61,12 @@ int usb_cpu_init()
 	UHCHR |= UHCHR_PSPL; /* USBHPWR is active low */
 #endif
 
+#if defined(CONFIG_CPU_MONAHANS)
 	UHCHR &= ~UHCHR_SSEP0;
+#endif
+#if defined(CONFIG_PXA27X)
+	UHCHR &= ~UHCHR_SSEP2;
+#endif
 	UHCHR &= ~UHCHR_SSEP1;
 	UHCHR &= ~UHCHR_SSE;
 
@@ -74,5 +85,5 @@ int usb_cpu_init_fail()
 	return 0;
 }
 
-# endif /* CONFIG_CPU_MONAHANS */
+# endif /* defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X) */
 #endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */

@@ -248,6 +248,7 @@ The following options need to be configured:
 		CONFIG_SA1110
 		CONFIG_ARM7
 		CONFIG_PXA250
+		CONFIG_PXA27X
 		CONFIG_CPU_MONAHANS
 
 		MicroBlaze based CPUs:
