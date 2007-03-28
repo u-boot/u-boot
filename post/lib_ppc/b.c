@@ -49,7 +49,7 @@ extern void cpu_post_exec_31 (ulong *code, ulong *ctr, ulong *lr, ulong *jump,
     ulong cr);
 
 static int cpu_post_test_bc (ulong cmd, ulong bo, ulong bi,
-    int pjump, int dec, int link, ulong pctr, ulong cr)
+    int pjump, int decr, int link, ulong pctr, ulong cr)
 {
     int ret = 0;
     ulong lr = 0;
@@ -77,7 +77,7 @@ static int cpu_post_test_bc (ulong cmd, ulong bo, ulong bi,
 	ret = pjump == jump ? 0 : -1;
     if (ret == 0)
     {
-	if (dec)
+	if (decr)
 	    ret = pctr == ctr + 1 ? 0 : -1;
 	else
 	    ret = pctr == ctr ? 0 : -1;
@@ -163,7 +163,7 @@ int cpu_post_test_b (void)
 		    {
 			for (ctr = 1; ctr <= 2 && ret == 0; ctr++)
 			{
-			    int dec = cd < 2;
+			    int decr = cd < 2;
 			    int cr = cond ? 0x80000000 : 0x00000000;
 			    int jumpc = cc >= 2 ||
 					(cc == 0 && !cond) ||
@@ -174,7 +174,7 @@ int cpu_post_test_b (void)
 			    int jump = jumpc && jumpd;
 
 			    ret = cpu_post_test_bc (link ? OP_BCL : OP_BC,
-				(cc << 3) + (cd << 1), 0, jump, dec, link,
+				(cc << 3) + (cd << 1), 0, jump, decr, link,
 				ctr, cr);
 
 			    if (ret != 0)
