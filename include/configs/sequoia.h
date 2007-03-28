@@ -33,7 +33,6 @@
  *----------------------------------------------------------------------*/
 /* This config file is used for Sequoia (440EPx) and Rainier (440GRx)	*/
 #ifndef CONFIG_RAINIER
-#define CONFIG_SEQUOIA		1		/* Board is Sequoia	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #else
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
