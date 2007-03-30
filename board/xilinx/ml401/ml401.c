@@ -26,7 +26,7 @@
  * header files */
 
 #include <common.h>
-#include <configs/ml401.h>
+#include <config.h>
 
 void do_reset (void)
 {
