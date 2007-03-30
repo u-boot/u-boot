@@ -51,6 +51,10 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 115200 }
 
+/* System Register (GPIO) */
+#define MICROBLAZE_SYSREG_BASE_ADDR 0xFFFFA000
+#define MICROBLAZE_SYSREG_RECONFIGURE (1 << 0)
+
 #define CONFIG_COMMANDS		(CONFIG__CMD_DFL)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
