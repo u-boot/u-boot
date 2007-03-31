@@ -30,8 +30,14 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
-#include <ft_build.h>
 #include <asm/processor.h>
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <libfdt_env.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -288,6 +294,100 @@ void watchdog_reset (void)
 
 	if (re_enable)
 		enable_interrupts ();
+}
+#endif
+
+#if defined(CONFIG_OF_LIBFDT)
+
+/*
+ * Fixups to the fdt.  If "create" is TRUE, the node is created
+ * unconditionally.  If "create" is FALSE, the node is updated
+ * only if it already exists.
+ */
+#define	FT_UPDATE	0x00000000		/* update existing property only */
+#define	FT_CREATE	0x00000001		/* create property if it doesn't exist */
+#define	FT_BUSFREQ	0x00000002		/* source is bd->bi_busfreq */
+#define	FT_ENETADDR	0x00000004		/* source is bd->bi_enetaddr */
+static const struct {
+	int  createflags;
+	char *node;
+	char *prop;
+} fixup_props[] = {
+	{	FT_CREATE | FT_BUSFREQ,
+		"/cpus/" OF_CPU,
+		 "bus-frequency",
+	},
+	{	FT_CREATE | FT_BUSFREQ,
+		"/cpus/" OF_SOC,
+		"bus-frequency"
+	},
+	{	FT_CREATE | FT_BUSFREQ,
+		"/" OF_SOC "/serial@4500/",
+		"clock-frequency"
+	},
+	{	FT_CREATE | FT_BUSFREQ,
+		"/" OF_SOC "/serial@4600/",
+		"clock-frequency"
+	},
+#ifdef CONFIG_MPC83XX_TSEC1
+	{	FT_UPDATE | FT_ENETADDR,
+		"/" OF_SOC "/ethernet@24000,
+		"mac-address",
+	},
+	{	FT_UPDATE | FT_ENETADDR,
+		"/" OF_SOC "/ethernet@24000,
+		"local-mac-address",
+	},
+#endif
+#ifdef CONFIG_MPC83XX_TSEC2
+	{	FT_UPDATE | FT_ENETADDR,
+		"/" OF_SOC "/ethernet@25000,
+		"mac-address",
+	},
+	{	FT_UPDATE | FT_ENETADDR,
+		"/" OF_SOC "/ethernet@25000,
+		"local-mac-address",
+	},
+#endif
+};
+
+void
+ft_cpu_setup(void *blob, bd_t *bd)
+{
+	int   nodeoffset;
+	int   err;
+	int j;
+
+	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
+		nodeoffset = fdt_path_offset (fdt, fixup_props[j].node);
+		if (nodeoffset >= 0) {
+			/*
+			 * If unconditional create or the property already exists...
+			 */
+			if ((fixup_props[j].createflags & FT_CREATE) ||
+				(fdt_get_property(fdt, nodeoffset, fixup_props[j].prop, 0))) {
+				if (fixup_props[j].createflags & FT_BUSFREQ) {
+					u32   tmp;
+
+					tmp = cpu_to_be32(bd->bi_busfreq);
+					err = fdt_setprop(fdt, nodeoffset,
+							fixup_props[j].prop, &tmp, sizeof(tmp));
+				} else if (fixup_props[j].createflags & FT_ENETADDR) {
+					err = fdt_setprop(fdt, nodeoffset,
+							fixup_props[j].prop, bd->bi_enetaddr, 6);
+				} else {
+					printf("ft_cpu_setup: %s %s has no flag for the value to set\n",
+						fixup_props[j].node, 
+						fixup_props[j].prop);
+				}
+				if (err < 0)
+					printf("libfdt: %s %s returned %s\n",
+						fixup_props[j].node, 
+						fixup_props[j].prop,
+						fdt_strerror(err));
+			}
+		}
+	}
 }
 #endif
 
