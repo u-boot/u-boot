@@ -2,21 +2,15 @@
 #define _LIBFDT_ENV_H
 
 #include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-#include <endian.h>
-#include <byteswap.h>
+#include <linux/types.h>
+#include <asm/byteorder.h>
+#include <linux/string.h>
 
-#if __BYTE_ORDER == __BIG_ENDIAN
-#define fdt32_to_cpu(x)		(x)
-#define cpu_to_fdt32(x)		(x)
-#define fdt64_to_cpu(x)		(x)
-#define cpu_to_fdt64(x)		(x)
-#else
-#define fdt32_to_cpu(x)		(bswap_32((x)))
-#define cpu_to_fdt32(x)		(bswap_32((x)))
-#define fdt64_to_cpu(x)		(bswap_64((x)))
-#define cpu_to_fdt64(x)		(bswap_64((x)))
-#endif
+struct fdt_header *fdt;         /* Pointer to the working fdt */
+
+#define fdt32_to_cpu(x)		__be32_to_cpu(x)
+#define cpu_to_fdt32(x)		__cpu_to_be32(x)
+#define fdt64_to_cpu(x)		__be64_to_cpu(x)
+#define cpu_to_fdt64(x)		__cpu_to_be64(x)
 
 #endif /* _LIBFDT_ENV_H */

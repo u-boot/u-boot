@@ -1,88 +1,47 @@
-PREFIX = /usr/local
-TARGETLIBS = libfdt.a
-LIBOBJS = fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o fdt_strerror.o
+#
+# (C) Copyright 2000-2007
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# See file CREDITS for list of people who contributed to this
+# project.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307 USA
+#
 
-SOURCE = $(shell find . -maxdepth 1 ! -name version.h -a -name '*.[h]')
-SOURCE += *.c Makefile
-NODEPTARGETS=<clean>
+include $(TOPDIR)/config.mk
 
-CPPFLAGS = -I.
-CFLAGS = -Wall -g
+LIB	= $(obj)libfdt.a
 
-LIBDIR = $(PREFIX)/$(LIB32)
+SOBJS	= 
 
-EXTRA_DIST = \
-	README \
-	HOWTO \
-	LGPL-2.1
+COBJS	= fdt.o  fdt_ro.o  fdt_rw.o  fdt_strerror.o  fdt_sw.o  fdt_wip.o
 
-ifdef V
-VECHO = :
-else
-VECHO = echo "	"
-ARFLAGS = rc
-.SILENT:
-endif
 
-DEPFILES = $(LIBOBJS:%.o=%.d)
+SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-all:	libs tests
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-.PHONY:	tests libs
+#########################################################################
 
-libs:	$(TARGETLIBS)
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
 
-tests:	tests/all
+sinclude $(obj).depend
 
-tests/%: libs
-	$(MAKE) -C tests $*
+#########################################################################
 
-check:	all
-	cd tests; ./run_tests.sh
-
-checkv:	all
-	cd tests; ./run_tests.sh -v
-
-func:	all
-	cd tests; ./run_tests.sh -t func
-
-funcv:	all
-	cd tests; ./run_tests.sh -t func -v
-
-stress:	all
-	cd tests; ./run_tests.sh -t stress
-
-stressv: all
-	cd tests; ./run_tests.sh -t stress -v
-
-%.o: %.c
-	@$(VECHO) CC $@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
-
-libfdt.a: $(LIBOBJS)
-	@$(VECHO) AR $@
-	$(AR) $(ARFLAGS) $@ $^
-
-%.i:	%.c
-	@$(VECHO) CPP $@
-	$(CC) $(CPPFLAGS) -E $< > $@
-
-%.s:	%.c
-	@$(VECHO) CC -S $@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -S $<
-
-clean:
-	@$(VECHO) CLEAN
-	rm -f *~ *.o *.so *.a *.d *.i *.s core a.out $(VERSION)
-	$(MAKE) -C tests clean
-
-%.d: %.c
-	@$(CC) $(CPPFLAGS) -MM -MT "$*.o $@" $< > $@
-
-# Workaround: Don't build dependencies for certain targets
-#    When the include below is executed, make will use the %.d target above to
-# generate missing files.  For certain targets (clean, version.h, etc) we don't
-# need or want these dependency files, so don't include them in this case.
-ifeq (,$(findstring <$(MAKECMDGOALS)>,$(NODEPTARGETS)))
--include $(DEPFILES)
-endif
