@@ -28,6 +28,7 @@
 #include <asm/byteorder.h>
 
 #define	CONFIG_STRESS		/* enable 667 MHz CPU freq selection */
+#define DEBUG
 
 static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -194,7 +195,8 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		data = 0x000004E1;
 
 	if (strcmp(plbClock, "166") == 0)
-		data |= 0x05950000;
+/*		data |= 0x05950000; */	/* this set's DDR2 clock == PLB clock */
+		data |= 0x05A50000;	/* this set's DDR2 clock == 2 * PLB clock */
 	else
 		data |= 0x05A50000;
 
