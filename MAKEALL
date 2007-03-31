@@ -312,6 +312,14 @@ LIST_coldfire="	\
 
 LIST_avr32="atstk1002"
 
+#########################################################################
+## Blackfin Systems
+#########################################################################
+
+LIST_blackfin=" \
+	bf533-ezkit	bf533-stamp	bf537-stamp	bf561-ezkit	\
+"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -338,14 +346,15 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
-	arm|SA|ARM7|ARM9|ARM10|ARM11|pxa|ixp| \
+	arm|SA|ARM7|ARM9|ARM10|ARM11|ixp|pxa| \
+	avr32| \
+	blackfin| \
+	coldfire| \
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \
-	x86|I486| \
-	coldfire| \
-	avr32)
+	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
+	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

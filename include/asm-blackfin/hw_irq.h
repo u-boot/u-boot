@@ -30,8 +30,14 @@
 
 #include <linux/config.h>
 #ifdef CONFIG_EZKIT533
-#include <asm/board/bf533_irq.h>
+#include <asm/arch-bf533/irq.h>
+#endif
+#ifdef CONFIG_EZKIT561
+#include <asm/arch-bf561/irq.h>
 #endif
 #ifdef CONFIG_STAMP
-#include <asm/board/bf533_irq.h>
+#include <asm/arch-bf533/irq.h>
+#endif
+#ifdef CONFIG_BF537
+#include <asm/arch-bf537/irq.h>
 #endif

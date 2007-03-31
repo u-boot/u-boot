@@ -768,7 +768,7 @@ int analyse_hwib (void)
 	p +=1;
 	p +=1;	/* connector */
 	if (*p != '0') {
-		hw->eeprom = 0x100 << (*p - 'A');
+		hw->eeprom = 0x1000 << (*p - 'A');
 	}
 	p++;
 

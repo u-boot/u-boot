@@ -39,7 +39,8 @@ struct hwclk_time;
 struct gendisk;
 struct buffer_head;
 
-extern void (*mach_sched_init) (void (*handler)	(int, void *, struct pt_regs *));
+extern
+    void (*mach_sched_init) (void (*handler) (int, void *, struct pt_regs *));
 
 /* machine dependent keyboard functions */
 extern int (*mach_keyb_init) (void);

@@ -28,6 +28,8 @@
 #ifndef __BLACKFIN_BOARD_H__
 #define __BLACKFIN_BOARD_H__
 
+#include <version.h>
+
 extern void timer_init(void);
 extern void init_IRQ(void);
 extern void rtc_init(void);

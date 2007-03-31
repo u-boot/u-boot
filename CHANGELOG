@@ -1,3 +1,239 @@
+commit 2a8dfe08359a1b663418b2faa1da1d7bce34d302
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 21 23:26:15 2007 +0100
+
+    Code cleanup. Update CHANGELOG
+
+commit e6615ecf4eaf4dd52696934aed8f5c6474cfd286
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 21 14:54:29 2007 +0100
+
+    ppc4xx: Fix file mode of include/configs/acadia.h
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d5f4614c9350d9333e575100fb250aab774d0258
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Mar 21 14:41:46 2007 +0100
+
+    SPC1920: fix small clock routing bug
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 16c0cc1c82081a493ab87c51980b28336ce1bce8
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 21 13:39:57 2007 +0100
+
+    [PATCH] Add AMCC Acadia (405EZ) eval board support
+
+    This patch adds support for the new AMCC Acadia eval board.
+
+    Please note that this Acadia/405EZ support is still in a beta stage.
+    Still lot's of cleanup needed but we need a preliminary release now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e01bd218b00af73499331a1a701625a852cd286f
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 21 13:38:59 2007 +0100
+
+    [PATCH] Add AMCC PPC405EZ support
+
+    This patch adds support for the new AMCC 405EZ PPC. It is in
+    preparation for the AMCC Acadia board support.
+
+    Please note that this Acadia/405EZ support is still in a beta stage.
+    Still lot's of cleanup needed but we need a preliminary release now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 07e82cb2e284a893df6693f2a1337ab2c47bf6a1
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Wed Mar 21 08:45:17 2007 +0100
+
+    [PATCH] TQM8272: dont change the bits given from the HRCW
+		     for the SIUMCR and BCR Register.
+		     Fix the calculation for the EEprom Size
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 654589873dbafcf104dff133ce0d03a4506e9cc3
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Tue Mar 20 18:16:24 2007 +0800
+
+    [Blackfin][PATCH] Add BF561 EZKIT board support
+
+commit a6154fd1cfd020f6da8527e0365b1020a11a71d0
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 22:55:58 2007 +0800
+
+    [Blackfin][PATCH] minor cleanup
+
+commit 389b6bb50f745bf5038ce030300d8a8512e96f79
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 19 13:10:08 2007 +0100
+
+    Remove obsoleted POST files.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8e709bbb2636b5670a8f2b575e138eb1f55773f6
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 01:26:11 2007 +0800
+
+    [PATCH] Add flash chip M29W320ET/B support
+
+commit 26bf7deca364a5b33f39e8f14ddd3f4081345015
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 19 01:24:52 2007 +0800
+
+    [Blackfin][PATCH] Add BF537 stamp board support
+
+commit 8423e5e31a7235d05a482627315fb11d49c17bd7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Mar 16 21:11:42 2007 +0100
+
+    [PATCH] Use dynamic SDRAM TLB setup on AMCC Ebony eval board
+
+    Define CONFIG_PROG_SDRAM_TLB so that the TLB entries for the
+    DDR memory are dynamically programmed matching the total size
+    of the equipped memory (DIMM modules).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 76d1466f918b881cda2d259254761e73885093c2
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Mar 13 13:38:05 2007 +0100
+
+    [PATCH] renamed environment variable 'addcon' to 'addcons' for PCI405
+	    boards in terms of unification.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit a7090b993d3d4d2221ac3f33e6cb1d1b2ccc6bf0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 13 16:05:55 2007 +0100
+
+    Make SC3 board build with 'make O='; use 'addcons' consistently
+    (SC3 and Jupiter used to use 'addcon' instead).
+
+    Signed-off-by: Wolfgang Denk wd@denx.de
+
+commit 8502e30a28e492c756ea2d7df0ace026388fce4b
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Tue Mar 13 09:40:59 2007 +0100
+
+    [PATCH] update board config for jupiter Board:
+	    added Hush Shell,
+		  CONFIG_CMDLINE_EDITING,
+		  CFG_ENV_ADDR_REDUND activated
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 0d93de11449390a5984b0236c3612e50f6dbb7e8
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 12:11:55 2007 +0800
+
+    [Blackfin][PATCH] minor cleanup
+
+commit bfa5754a58477ac917d21527cd0f079d87cf188e
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 01:42:06 2007 +0800
+
+    [Blackfin][PATCH] Fix BUILD_DIR option of MAKEALL building issue
+
+commit 8440bb14581a294375c34b91b42512f9753d1130
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Mon Mar 12 00:25:14 2007 +0800
+
+    [Blackfin][PATCH] code cleanup
+
+commit 8db13d63157811c839d15a313d9f2d2f5fd10af3
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Sat Mar 10 23:49:29 2007 +0800
+
+    [Blackfin][PATCH] code cleanup
+
+commit ef26a08fef928b7bc11ae2c109e638dc3a016d91
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Fri Mar 9 13:40:56 2007 +0800
+
+    [Blackfin][PATCH-2/2] Common files changed to support bf533 platform
+
+commit 3f0606ad0b5639f7f22848fe5b4574e754d0470f
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Fri Mar 9 13:38:44 2007 +0800
+
+    [Blackfin]PATCH-1/2]: Remove obsolete blackfin port and add bf533 platform support
+
+commit 992423ab43c2bcf6b704853bd00af77450915e20
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 8 23:00:08 2007 +0100
+
+    ppc4xx: Fix file mode of sequoia.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit eb92f613556800f7483666db09d9a237ad911d4a
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Mar 8 22:52:51 2007 +0100
+
+    Minor cleanup.
+
+commit 8ce16f55c7b9752af3d8bed84521aec5337e2de1
+Author: John Otken john@softadvances.com <john@softadvances.com>
+Date:	Thu Mar 8 09:39:48 2007 -0600
+
+    ppc4xx: Clear Sequoia/Rainier security engine reset bits
+
+    Signed-off-by: John Otken john@softadvances.com <john@softadvances.com>
+
+commit 650a330dd2539130c8c324791e2f9f75aed79d4e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Mar 8 16:26:52 2007 +0100
+
+    [PATCH] I2C: add some more SPD eeprom decoding for DDR2 modules
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit d9fc703246840c4b268debf48c334ba55c597dc0
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Mar 8 16:25:47 2007 +0100
+
+    [PATCH] I2C: disable flat i2c commands when CONFIG_I2C_CMD_TREE is defined
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit ced5b9029043397348cdc88e0cfcd6b1f629250b
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Mar 8 16:23:11 2007 +0100
+
+    [PATCH] 4xx: allow CONFIG_I2C_CMD_TREE without CONFIG_I2C_MULTI_BUS
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit d8a8ea5c476d37006fc7f85b7f903142795c8b14
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Mar 8 16:20:32 2007 +0100
+
+    [PATCH] I2C: Add missing default CFG_SPD_BUS_NUM
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit f9fc6a5852a6335840882fa2111925010eea1abe
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Mar 7 15:32:01 2007 +0100
+
+    fixed ethernet phy configuration for plu405 board
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 769104c9356594deb2092e204a39c05b33202d6c
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Thu Mar 8 21:49:27 2007 +0100
+
+    Minor cleanup
+
 commit 00cdb4ce5e1b42248e7e6522ad0da3421b988afa
 Author: Stefan Roese <sr@denx.de>
 Date:	Thu Mar 8 10:13:16 2007 +0100
@@ -121,6 +357,347 @@ Date:	Tue Mar 6 07:47:04 2007 +0100
     provided with ELDK 4.x is needed to generate this optimized code.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 781e026c8aa6f7e9eb5f0e72cc4d20971219b148
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 28 00:02:04 2007 -0600
+
+    mpc83xx: fix implicit declaration of function 'ft_get_prop' warnings
+
+    (cherry picked from c5bf13b02284c3204a723566a9bab700e5059659 commit)
+
+commit 4feab4de7bfc2cb2fed36ad76f93c3a69659bbaf
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Feb 27 23:51:42 2007 -0600
+
+    mpc83xx: Fix config of Arbiter, System Priority, and Clock Mode
+
+    The config value for:
+    * CFG_ACR_PIPE_DEP
+    * CFG_ACR_RPTCNT
+    * CFG_SPCR_TSEC1EP
+    * CFG_SPCR_TSEC2EP
+    * CFG_SCCR_TSEC1CM
+    * CFG_SCCR_TSEC2CM
+
+    Were not being used when setting the appropriate register
+
+    Added:
+    * CFG_SCCR_USBMPHCM
+    * CFG_SCCR_USBDRCM
+    * CFG_SCCR_PCICM
+    * CFG_SCCR_ENCCM
+
+    To allow full config of the SCCR.
+
+    Also removed random CFG_SCCR settings in MPC8349EMDS, TQM834x, and sbc8349
+    that were just bogus.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit d51b3cf371cd441030460ef19d36b2924c361b1a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Feb 22 20:06:57 2007 -0600
+
+    mpc83xx: update [local-]mac-address properties on UEC based devices
+
+    8360 and 832x weren't updating their [local-]mac-address
+    properties. This patch fixes that.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 61f4f912acbe60776c5e00df1ec94094ce672957
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Feb 13 10:41:42 2007 -0600
+
+    mpc83xx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, this patch
+    updates ftp_cpu_setup() to write the MAC address to mac-address if it exists.
+    This function already updates local-mac-address.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 22d71a71f57fd5d38b27ac3848e50d790360a598
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Feb 27 18:41:08 2007 -0600
+
+    mpc83xx: add command line editing by default
+
+commit 3fc0bd159103b536e1c54c6f4457a09b3aba66ca
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 14 19:50:53 2007 -0600
+
+    mpc83xx: Disable G1TXCLK, G2TXCLK h/w buffers
+
+    Disable G1TXCLK, G2TXCLK h/w buffers. This patch
+    fixes a networking timeout issue with MPC8360EA (Rev.2) PBs.
+
+    Verified on Rev. 1.1, Rev. 1.2, and Rev. 2.0 boards.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Emilian Medve <Emilian.Medve@freescale.com>
+
+commit d61853cf2472e0b8bcbd131461a93d1c49ff0c1f
+Author: Xie Xiaobo <r63061@freescale.com>
+Date:	Wed Feb 14 18:27:17 2007 +0800
+
+    mpc83xx: Add DDR2 controller fixed/SPD Init for MPC83xx
+
+    The code supply fixed and SPD initialization for MPC83xx DDR2 Controller.
+    it pass DDR/DDR2 compliance tests.
+
+    Signed-off-by: Xie Xiaobo <X.Xie@freescale.com>
+
+commit b110f40bd180c6b560276589beedf753e97c46ce
+Author: Xie Xiaobo <r63061@freescale.com>
+Date:	Wed Feb 14 18:27:06 2007 +0800
+
+    mpc83xx: Add the cpu specific code for MPC8360E rev2.0 MDS
+
+    MPC8360E rev2.0 have new spridr,and PVR value,
+    The MDS board for MPC8360E rev2.0 has 32M bytes Flash and 256M DDR2 DIMM.
+
+    Signed-off-by: Xie Xiaobo <X.Xie@freescale.com>
+
+commit 8d172c0f0d85998a256a95b7459a5403a30380ed
+Author: Xie Xiaobo <r63061@freescale.com>
+Date:	Wed Feb 14 18:26:44 2007 +0800
+
+    mpc83xx: Add the cpu and board specific code for MPC8349E rev3.1 MDS
+
+    MPC8349E rev3.1 have new spridr,and PVR value,
+    The MDS board for MPC8349E rev3.1 has 32M bytes Flash and 256M DDR2 DIMM.
+
+    Signed-off-by: Xie Xiaobo<X.Xie@freescale.com>
+
+commit f6f5f709e5c8e4564c4dfeecfdf2279244f9c83b
+Author: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date:	Wed Jan 31 11:04:19 2007 +0100
+
+    mpc83xx: Fix empty i2c reads/writes in fsl_i2c.c
+
+    Fix empty i2c reads/writes, i2c_write(0x50, 0x00, 0, NULL, 0)
+    which is used to se if an slave will ACK after receiving its address.
+
+    Correct i2c probing to use this method as the old method could upset
+    a slave as it wrote a data byte to it.
+
+    Add a small delay in i2c_init() to let the controller
+    shutdown any ongoing I2C activity.
+
+    Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit 7a78f148d6a7298e4fface680dc7eacd877b1aba
+Author: Timur Tabi <timur@freescale.com>
+Date:	Wed Jan 31 15:54:29 2007 -0600
+
+    mpc83xx: Add support for the MPC8349E-mITX-GP
+
+    Add support for the MPC8349E-mITX-GP, a stripped-down version of the
+    MPC8349E-mITX.  Bonus features include support for low-boot (BMS bit in
+    HRCW is 0) for the ITX and a README for the ITX and the ITX-GP.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit fab16807adad350f618024350c6950165c247c72
+Author: Timur Tabi <timur@freescale.com>
+Date:	Wed Jan 31 15:54:20 2007 -0600
+
+    mpc83xx: Delete sdram_init() for MPC8349E-mITX
+
+    There is no SDRAM on any of the 8349 ITX variants, so function sdram_init()
+    never does anything.  This patch deletes it.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit a87c856eb411b9365937d0d4b9c21e46adbe1c14
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Jan 19 10:43:26 2007 +0800
+
+    mpc83xx: Fix the LAW1/3 bug
+
+    The patch solves the alignment problem of the local bus access windows to
+    render accessible the memory bank and PHY registers of UPC 1 (starting at
+    0xf801 0000). What we actually did was to adjust the sizes of the bus
+    access windows so that the base address alignment requirement would be met.
+
+    Signed-off-by: Chereji Marian <marian.chereji@freescale.com>
+    Signed-off-by: Gridish Shlomi <gridish@freescale.com>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 97c4b397dce236a7318b304667bf89e59d08b17c
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jan 30 16:15:31 2007 -0600
+
+    mpc83xx: don't hang if watchdog configured on 8360, 832x
+
+    don't hang if watchdog configured on 8360, 832x
+
+    The watchdog programming model is the same across all 83xx devices;
+    make the code reflect that.
+
+commit b70047478570e371ce7223be342ce98afea0f7d6
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jan 30 16:15:21 2007 -0600
+
+    mpc83xx: protect memcpy to bad address if a local-mac-address is missing from dt
+
+    protect memcpy to bad address if a local-mac-address is missing from dt
+
+commit 6752ed088c75c26a89b70c46b7326a4cd6015f29
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jan 30 16:15:04 2007 -0600
+
+    mpc83xx: make 8360 default environment fdt be 8360 (not 8349)
+
+    make 8360 default environment fdt be 8360 (not 8349)
+
+commit a28899c910024a0226331df07207b1038c300c93
+Author: Emilian Medve <Emilian.Medve@freescale.com>
+Date:	Tue Jan 30 16:14:50 2007 -0600
+
+    mpc83xx: Fix alternating tx error / tx buffer not ready bug in QE UEC
+
+    The problem is not gcc4 but the code itself. The BD_STATUS() macro can't
+    be used for busy-waiting since it strips the 'volatile' property from
+    the bd variable. gcc3 was working by pure luck.
+
+    This is a follow on patch to "Fix the UEC driver bug of QE"
+
+commit 3e78a31cfe3d3022f46f67eb88e1281d5cc2eb89
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Jan 30 14:08:30 2007 -0600
+
+    mpc83xx: Replace CONFIG_MPC8349 and use CONFIG_MPC834X instead
+
+    The code that is ifdef'd with CONFIG_MPC8349 is actually applicable to all
+    MPC834X class processors.  Change the protections from CONFIG_MPC8349 to
+    CONFIG_MPC834X so they are more generic.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ae246dc6c1937c291014eadd90b6d48c438c7cb0
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Jan 25 13:40:55 2007 -0600
+
+    mpc83xx: add MPC832XEMDS and sbc8349 to MAKEALL
+
+commit 4decd84e8f04279c5cfff7f8e907465ef8d8a3fb
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jan 24 17:18:37 2007 -0600
+
+    mpc83xx: sort Makefile targets
+
+    reordered targets alphabetically
+
+commit 91e25769771c1164ed63ffca0add49f934ae3343
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Tue Jan 16 11:38:14 2007 -0500
+
+    mpc83xx: U-Boot support for Wind River SBC8349
+
+    I've redone the SBC8349 support to match git-current, which
+    incorporates all the MPC834x updates from Freescale since the 1.1.6
+    release,  including the DDR changes.
+
+    I've kept all the SBC8349 files as parallel as possible to the
+    MPC8349EMDS ones for ease of maintenance and to allow for easy
+    inspection of what was changed to support this board.  Hence the SBC8349
+    U-Boot has FDT support and everything else that the MPC8349EMDS has.
+
+    Fortunately the Freescale updates added support for boards using CS0,
+    but I had to change spd_sdram.c to allow for board specific settings for
+    the sdram_clk_cntl (it is/was hard coded to zero, and that remains the
+    default if the board doesn't specify a value.)
+
+    Hopefully this should be mergeable as-is and require no whitespace
+    cleanups or similar, but if something doesn't measure up then let me
+    know and I'll fix it.
+
+    Thanks,
+    Paul.
+
+commit 05031db456ab227f3e3752f37b9b812b65bb83ad
+Author: Sam Song <samsongshu@yahoo.com.cn>
+Date:	Thu Dec 14 19:03:21 2006 +0800
+
+    mpc83xx: Remove a redundant semicolon in mpc8349itx.c
+
+    A redundant semicolon existed in mpc8349itx.c
+    should be removed.
+
+    Signed-off-by: Sam Song <samsongshu@yahoo.com.cn>
+
+commit f35f358241c549be3f75cfe2eaa642914275b7ba
+Author: Jerry Van Baren <gerald.vanbaren@comcast.net>
+Date:	Wed Dec 6 21:23:55 2006 -0500
+
+    mpc83xx: Put the version (and magic) after the HRCW.
+
+    Put the version (and magic) after the HRCW.  This puts it in a fixed
+    location in flash, not at the start of flash but as close as we can get.
+
+    Signed-off-by: Jerry Van Baren <vanbaren@cideas.com>
+
+commit 48aecd969171a6e99a55fae04933857787f9a5bd
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Dec 7 21:14:51 2006 +0800
+
+    mpc83xx: Add the MPC832XEMDS board readme
+
+    Add the MPC832XEMDS board readme
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 24c3aca3f1358b113d3215adb5433b156e99f72b
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Dec 7 21:13:15 2006 +0800
+
+    mpc83xx: Add support for the MPC832XEMDS board
+
+    This patch supports DUART, ETH3/4 and PCI etc.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit e080313c32322e15ab5a18eb896a252858c57284
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Dec 7 21:11:58 2006 +0800
+
+    mpc83xx: streamline the 83xx immr head file
+
+    For better format and style, I streamlined the 83xx head files,
+    including immap_83xx.h and mpc83xx.h. In the old head files, 1)
+    duplicated macro definition appear in the both files; 2) the structure
+    of QE immr is duplicated in the immap_83xx.h and immap_qe.h; 3) The
+    macro definition put inside the each structure. So, I cleaned up the
+    structure of QE immr from immap_83xx.h, deleted the duplicated stuff and
+    moved the macro definition to mpc83xx.h, Just like MPC8260.
+
+    CHANGELOG
+
+    *streamline the 83xx immr head file
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit ddd02492f43db5408f5ab9f823b0ba5796e28ef0
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Dec 6 11:38:17 2006 +0800
+
+    mpc83xx: Fix the UEC driver bug of QE
+
+    The patch prevents the GCC tool chain from striping useful code for
+    optimization. It will make UEC ethernet driver workable, Otherwise the
+    UEC will fail in tx when you are using gcc4.x. but the driver can work
+    when using gcc3.4.3.
+
+    CHANGELOG
+
+    *Prevent the GCC from striping code for optimization, Otherwise the UEC
+    will tx failed when you are using gcc4.x.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
 
 commit ba58e4c9a9a917ce795dd16d4ec8d515f9f7aa35
 Author: Stefan Roese <sr@denx.de>
@@ -1197,6 +1774,14 @@ Date:	Tue Nov 28 16:09:24 2006 +0100
     Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit e7f3e9ff01fbd7fa72eb42a9675fbed6bc4736b0
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 28 11:04:45 2006 +0100
+
+    [PATCH] nand: Fix patch merge problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 58e3b14c18ed3288ceef8d086946dbf3df64ccf2
 Author: Stefan Roese <sr@denx.de>
 Date:	Tue Nov 28 11:04:45 2006 +0100
 

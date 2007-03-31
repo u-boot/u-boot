@@ -28,14 +28,16 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).a
 
-START	= start.o start1.o interrupt.o cache.o cplbhdlr.o cplbmgr.o flush.o
-COBJS	= cpu.o traps.o ints.o serial.o interrupts.o
+START	= start.o start1.o interrupt.o cache.o flush.o init_sdram.o
+COBJS	= cpu.o traps.o ints.o serial.o interrupts.o video.o
+
+EXTRA = init_sdram_bootrom_initblock.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
 START	:= $(addprefix $(obj),$(START))
 
-all:	$(obj).depend $(START) $(LIB)
+all:	$(obj).depend $(START) $(LIB) $(obj).depend $(EXTRA)
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

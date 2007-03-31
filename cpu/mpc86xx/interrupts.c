@@ -80,6 +80,26 @@ int interrupt_init(void)
 {
 	int ret;
 
+	/*
+	 * The IRQ0 on Rev 2 is pulled high (low in Rev 1.x) to
+	 * implement PEX10 errata.  As INT is active high, it
+	 * will cause core to take 0x500 interrupt.
+	 *
+	 * Due to the PIC's default pass through mode, as soon
+	 * as interrupts are enabled (MSR[EE] = 1), an interrupt
+	 * will be taken and u-boot will hang.  This is due to a
+	 * hardware change (per an errata fix) on new revisions
+	 * of the board with Rev 2.x parts.
+	 *
+	 * Setting the PIC to mixed mode prevents the hang.
+	 */
+	if ((get_svr() & 0xf0) == 0x20) {
+		volatile immap_t *immr = (immap_t *)CFG_IMMR;
+		immr->im_pic.gcr = MPC86xx_PICGCR_RST;
+		while (immr->im_pic.gcr & MPC86xx_PICGCR_RST);
+		immr->im_pic.gcr = MPC86xx_PICGCR_MODE;
+	}
+
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	ret = interrupt_init_cpu(&decrementer_count);
 
