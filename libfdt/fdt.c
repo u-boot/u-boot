@@ -58,45 +58,6 @@ void *fdt_offset_ptr(const void *fdt, int offset, int len)
 	return p;
 }
 
-uint32_t _fdt_next_tag(const void *fdt, int offset, int *nextoffset)
-{
-	const uint32_t *tagp, *lenp;
-	uint32_t tag;
-	const char *p;
-
-	if (offset % FDT_TAGSIZE)
-		return -1;
-
-	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
-	if (! tagp)
-		return FDT_END; /* premature end */
-	tag = fdt32_to_cpu(*tagp);
-	offset += FDT_TAGSIZE;
-
-	switch (tag) {
-	case FDT_BEGIN_NODE:
-		/* skip name */
-		do {
-			p = fdt_offset_ptr(fdt, offset++, 1);
-		} while (p && (*p != '\0'));
-		if (! p)
-			return FDT_END;
-		break;
-	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (! lenp)
-			return FDT_END;
-		/* skip name offset, length and value */
-		offset += 2*FDT_TAGSIZE + fdt32_to_cpu(*lenp);
-		break;
-	}
-
-	if (nextoffset)
-		*nextoffset = ALIGN(offset, FDT_TAGSIZE);
-
-	return tag;
-}
-
 const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 {
 	int len = strlen(s) + 1;

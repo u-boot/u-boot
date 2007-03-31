@@ -68,12 +68,12 @@ int _fdt_node_end_offset(void *fdt, int nodeoffset)
 	uint32_t tag;
 	int offset, nextoffset;
 
-	tag = _fdt_next_tag(fdt, nodeoffset, &nextoffset);
+	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, NULL);
 	if (tag != FDT_BEGIN_NODE)
 		return -FDT_ERR_BADOFFSET;
 	do {
 		offset = nextoffset;
-		tag = _fdt_next_tag(fdt, offset, &nextoffset);
+		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
 
 		switch (tag) {
 		case FDT_END:

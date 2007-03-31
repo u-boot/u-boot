@@ -145,7 +145,7 @@ static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
 	int namestroff;
 	int err;
 
-	tag = _fdt_next_tag(fdt, nodeoffset, &nextoffset);
+	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, NULL);
 	if (tag != FDT_BEGIN_NODE)
 		return -FDT_ERR_BADOFFSET;
 
@@ -219,10 +219,10 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 		return offset;
 
 	/* Try to place the new node after the parent's properties */
-	_fdt_next_tag(fdt, parentoffset, &nextoffset); /* skip the BEGIN_NODE */
+	fdt_next_tag(fdt, parentoffset, &nextoffset, NULL); /* skip the BEGIN_NODE */
 	do {
 		offset = nextoffset;
-		tag = _fdt_next_tag(fdt, offset, &nextoffset);
+		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
 	} while (tag == FDT_PROP);
 
 	nh = _fdt_offset_ptr(fdt, offset);

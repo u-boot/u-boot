@@ -48,11 +48,24 @@ static int offset_streq(const void *fdt, int offset,
 	return 1;
 }
 
+/*
+ * Return a pointer to the string at the given string offset.
+ */
 char *fdt_string(const void *fdt, int stroffset)
 {
 	return (char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 }
 
+/*
+ * Return the node offset of the node specified by:
+ *   parentoffset - starting place (0 to start at the root)
+ *   name         - name being searched for
+ *   namelen      - length of the name: typically strlen(name)
+ *
+ * Notes:
+ *   If the start node has subnodes, the subnodes are _not_ searched for the
+ *     requested name.
+ */
 int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 			       const char *name, int namelen)
 {
@@ -62,13 +75,13 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 
 	CHECK_HEADER(fdt);
 
-	tag = _fdt_next_tag(fdt, parentoffset, &nextoffset);
+	tag = fdt_next_tag(fdt, parentoffset, &nextoffset, NULL);
 	if (tag != FDT_BEGIN_NODE)
 		return -FDT_ERR_BADOFFSET;
 
 	do {
 		offset = nextoffset;
-		tag = _fdt_next_tag(fdt, offset, &nextoffset);
+		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
 
 		switch (tag) {
 		case FDT_END:
@@ -76,10 +89,15 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 
 		case FDT_BEGIN_NODE:
 			level++;
+			/*
+			 * If we are nested down levels, ignore the strings
+			 * until we get back to the proper level.
+			 */
 			if (level != 1)
 				continue;
+
+			/* Return the offset if this is "our" string. */
 			if (offset_streq(fdt, offset+FDT_TAGSIZE, name, namelen))
-				/* Found it! */
 				return offset;
 			break;
 
@@ -99,12 +117,19 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 	return -FDT_ERR_NOTFOUND;
 }
 
+/*
+ * See fdt_subnode_offset_namelen()
+ */
 int fdt_subnode_offset(const void *fdt, int parentoffset,
 		       const char *name)
 {
 	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
+/*
+ * Searches for the node corresponding to the given path and returns the
+ * offset of that node.
+ */
 int fdt_path_offset(const void *fdt, const char *path)
 {
 	const char *end = path + strlen(path);
@@ -113,21 +138,33 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	CHECK_HEADER(fdt);
 
+	/* Paths must be absolute */
 	if (*path != '/')
 		return -FDT_ERR_BADPATH;
 
 	while (*p) {
 		const char *q;
 
+		/* Skip path separator(s) */
 		while (*p == '/')
 			p++;
 		if (! *p)
 			return -FDT_ERR_BADPATH;
+
+		/*
+		 * Find the next path separator.  The characters between
+		 * p and q are the next segment of the the path to find.
+		 */
 		q = strchr(p, '/');
 		if (! q)
 			q = end;
 
+		/*
+		 * Find the offset corresponding to the this path segment.
+		 */
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
+
+		/* Oops, error, abort abort abort */
 		if (offset < 0)
 			return offset;
 
@@ -137,6 +174,10 @@ int fdt_path_offset(const void *fdt, const char *path)
 	return offset;	
 }
 
+/*
+ * Given the offset of a node and a name of a property in that node, return
+ * a pointer to the property struct.
+ */
 struct fdt_property *fdt_get_property(const void *fdt,
 				      int nodeoffset,
 				      const char *name, int *lenp)
@@ -155,14 +196,14 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	if (nodeoffset % FDT_TAGSIZE)
 		goto fail;
 
-	tag = _fdt_next_tag(fdt, nodeoffset, &nextoffset);
+	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, NULL);
 	if (tag != FDT_BEGIN_NODE)
 		goto fail;
 
 	do {
 		offset = nextoffset;
 
-		tag = _fdt_next_tag(fdt, offset, &nextoffset);
+		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
 		switch (tag) {
 		case FDT_END:
 			err = -FDT_ERR_TRUNCATED;
@@ -177,6 +218,10 @@ struct fdt_property *fdt_get_property(const void *fdt,
 			break;
 
 		case FDT_PROP:
+			/*
+			 * If we are nested down levels, ignore the strings
+			 * until we get back to the proper level.
+			 */
 			if (level != 0)
 				continue;
 
@@ -216,6 +261,10 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	return NULL;
 }
 
+/*
+ * Given the offset of a node and a name of a property in that node, return
+ * a pointer to the property data (ONLY).
+ */
 void *fdt_getprop(const void *fdt, int nodeoffset,
 		  const char *name, int *lenp)
 {
@@ -225,5 +274,60 @@ void *fdt_getprop(const void *fdt, int nodeoffset,
 	if (! prop)
 		return NULL;
 
-	return prop->data;
+	return (void *)prop->data;
 }
+
+
+uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset, char **namep)
+{
+	const uint32_t *tagp, *lenp;
+	uint32_t tag;
+	const char *p;
+
+	if (offset % FDT_TAGSIZE)
+		return -1;
+
+	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
+	if (! tagp)
+		return FDT_END; /* premature end */
+	tag = fdt32_to_cpu(*tagp);
+	offset += FDT_TAGSIZE;
+
+	switch (tag) {
+	case FDT_BEGIN_NODE:
+		if(namep)
+			*namep = fdt_offset_ptr(fdt, offset, 1);
+
+		/* skip name */
+		do {
+			p = fdt_offset_ptr(fdt, offset++, 1);
+		} while (p && (*p != '\0'));
+		if (! p)
+			return FDT_END;
+		break;
+	case FDT_PROP:
+		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
+		if (! lenp)
+			return FDT_END;
+		/*
+		 * Get the property and set the namep to the name.
+		 */
+		if(namep) {
+			struct fdt_property *prop;
+
+			prop = fdt_offset_ptr_typed(fdt, offset - FDT_TAGSIZE, prop);
+			if (! prop)
+				return -FDT_ERR_BADSTRUCTURE;
+			*namep = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+		}
+		/* skip name offset, length and value */
+		offset += 2*FDT_TAGSIZE + fdt32_to_cpu(*lenp);
+		break;
+	}
+
+	if (nextoffset)
+		*nextoffset = ALIGN(offset, FDT_TAGSIZE);
+
+	return tag;
+}
+

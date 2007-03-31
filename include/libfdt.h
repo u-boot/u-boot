@@ -81,6 +81,9 @@ struct fdt_property *fdt_get_property(const void *fdt, int nodeoffset,
 void *fdt_getprop(const void *fdt, int nodeoffset,
 		  const char *name, int *lenp);
 
+uint32_t fdt_next_tag(const void *fdt, int offset,
+                      int *nextoffset, char **namep);
+
 /* Write-in-place functions */
 int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
 			const void *val, int len);

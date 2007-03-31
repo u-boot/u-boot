@@ -203,7 +203,7 @@ int fdt_finish(void *fdt)
 
 	/* Walk the structure, correcting string offsets */
 	offset = 0;
-	while ((tag = _fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
+	while ((tag = fdt_next_tag(fdt, offset, &nextoffset, NULL)) != FDT_END) {
 		if (tag == FDT_PROP) {
 			struct fdt_property *prop = fdt_offset_ptr(fdt, offset,
 								   sizeof(*prop));
