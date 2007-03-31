@@ -38,7 +38,7 @@
 #include <fdt.h>
 #include <libfdt.h>
 #endif
-#if defined(CONFIG_OF_FLAT_TREE) 
+#if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
 

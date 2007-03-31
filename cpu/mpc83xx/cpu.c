@@ -377,12 +377,12 @@ ft_cpu_setup(void *blob, bd_t *bd)
 							fixup_props[j].prop, bd->bi_enetaddr, 6);
 				} else {
 					printf("ft_cpu_setup: %s %s has no flag for the value to set\n",
-						fixup_props[j].node, 
+						fixup_props[j].node,
 						fixup_props[j].prop);
 				}
 				if (err < 0)
 					printf("libfdt: %s %s returned %s\n",
-						fixup_props[j].node, 
+						fixup_props[j].node,
 						fixup_props[j].prop,
 						fdt_strerror(err));
 			}
