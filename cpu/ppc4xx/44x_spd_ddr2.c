@@ -585,16 +585,23 @@ static void get_spd_info(unsigned long *dimm_populated,
 #ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
+	PPC440_SYS_INFO board_cfg;
 	u32 val;
 
 	if (is_ecc_enabled())
-		puts(" (ECC enabled, ");
+		puts(" (ECC");
 	else
-		puts(" (ECC not enabled, ");
+		puts(" (ECC not");
+
+	get_sys_info(&board_cfg);
+
+	mfsdr(SDR0_DDR0, val);
+	val = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(val), 1);
+	printf(" enabled, %d MHz", (val * 2) / 1000000);
 
 	mfsdram(SDRAM_MMODE, val);
 	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
-	printf("CL=%d)", val);
+	printf(", CL%d)", val);
 }
 #endif
 
@@ -1323,6 +1330,7 @@ static void program_mode(unsigned long *dimm_populated,
 
 	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(sdr_ddrpll), 1);
+	debug("sdram_freq=%d\n", sdram_freq);
 
 	/*------------------------------------------------------------------
 	 * Handle the timing.  We need to find the worst case timing of all
@@ -1352,6 +1360,7 @@ static void program_mode(unsigned long *dimm_populated,
 
 			/* t_wr_ns = max(t_wr_ns, (unsigned long)dimm_spd[dimm_num][36] >> 2); */ /*  not used in this loop. */
 			cas_bit = spd_read(iic0_dimm_addr[dimm_num], 18);
+			debug("cas_bit[SPD byte 18]=%02x\n", cas_bit);
 
 			/* For a particular DIMM, grab the three CAS values it supports */
 			for (cas_index = 0; cas_index < 3; cas_index++) {
@@ -1370,7 +1379,8 @@ static void program_mode(unsigned long *dimm_populated,
 				if ((tcyc_reg & 0x0F) >= 10) {
 					if ((tcyc_reg & 0x0F) == 0x0D) {
 						/* Convert from hex to decimal */
-						cycle_time_ns_x_100[cas_index] = (((tcyc_reg & 0xF0) >> 4) * 100) + 75;
+						cycle_time_ns_x_100[cas_index] =
+							(((tcyc_reg & 0xF0) >> 4) * 100) + 75;
 					} else {
 						printf("ERROR: SPD reported Tcyc is incorrect for DIMM "
 						       "in slot %d\n", (unsigned int)dimm_num);
@@ -1378,9 +1388,12 @@ static void program_mode(unsigned long *dimm_populated,
 					}
 				} else {
 					/* Convert from hex to decimal */
-					cycle_time_ns_x_100[cas_index] = (((tcyc_reg & 0xF0) >> 4) * 100) +
+					cycle_time_ns_x_100[cas_index] =
+						(((tcyc_reg & 0xF0) >> 4) * 100) +
 						((tcyc_reg & 0x0F)*10);
 				}
+				debug("cas_index=%d: cycle_time_ns_x_100=%d\n", cas_index,
+				      cycle_time_ns_x_100[cas_index]);
 			}
 
 			/* The rest of this routine determines if CAS 2.0, 2.5, 3.0, 4.0 and 5.0 are */
@@ -1393,8 +1406,10 @@ static void program_mode(unsigned long *dimm_populated,
 				 *  Bit   7    6    5    4    3    2    1    0
 				 *       TBD  4.0  3.5  3.0  2.5  2.0  1.5  1.0
 				 */
-				if (((cas_bit & 0x40) == 0x40) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x40) == 0x40) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1402,8 +1417,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_4_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1411,8 +1428,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_3_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_2_5_tcyc_ns_x_100 = max(max_2_5_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_2_5_tcyc_ns_x_100 = max(max_2_5_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1420,8 +1439,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_2_5_available = FALSE;
 				}
 
-				if (((cas_bit & 0x04) == 0x04) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_2_0_tcyc_ns_x_100 = max(max_2_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x04) == 0x04) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_2_0_tcyc_ns_x_100 = max(max_2_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1434,8 +1455,10 @@ static void program_mode(unsigned long *dimm_populated,
 				 *  Bit   7    6    5    4    3    2    1    0
 				 *       TBD  6.0  5.0  4.0  3.0  2.0  TBD  TBD
 				 */
-				if (((cas_bit & 0x20) == 0x20) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_5_0_tcyc_ns_x_100 = max(max_5_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x20) == 0x20) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_5_0_tcyc_ns_x_100 = max(max_5_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1443,8 +1466,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_5_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1452,8 +1477,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_4_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1476,6 +1503,9 @@ static void program_mode(unsigned long *dimm_populated,
 	cycle_3_0_clk = MULDIV64(ONE_BILLION, 100, max_3_0_tcyc_ns_x_100) + 10;
 	cycle_4_0_clk = MULDIV64(ONE_BILLION, 100, max_4_0_tcyc_ns_x_100) + 10;
 	cycle_5_0_clk = MULDIV64(ONE_BILLION, 100, max_5_0_tcyc_ns_x_100) + 10;
+	debug("cycle_3_0_clk=%d\n", cycle_3_0_clk);
+	debug("cycle_4_0_clk=%d\n", cycle_4_0_clk);
+	debug("cycle_5_0_clk=%d\n", cycle_5_0_clk);
 
 	if (sdram_ddr1 == TRUE) { /* DDR1 */
 		if ((cas_2_0_available == TRUE) && (sdram_freq <= cycle_2_0_clk)) {
