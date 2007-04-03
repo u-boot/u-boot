@@ -31,7 +31,7 @@ COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o dm9000x.o \
 	  e1000.o eepro100.o \
-	  i8042.o inca-ip_sw.o keyboard.o \
+	  i8042.o inca-ip_sw.o isp116x-hcd.o keyboard.o \
 	  lan91c96.o \
 	  natsemi.o ne2000.o netarm_eth.o netconsole.o \
 	  ns16550.o ns8382x.o ns87308.o ns7520_eth.o omap1510_i2c.o \
