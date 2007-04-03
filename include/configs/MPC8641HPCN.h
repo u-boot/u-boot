@@ -212,7 +212,6 @@
 #endif
 
 #if defined(CFG_RAMBOOT)
-#undef CFG_FLASH_CFI_DRIVER
 #undef CONFIG_SPD_EEPROM
 #define CFG_SDRAM_SIZE	256
 #endif
@@ -468,7 +467,6 @@
     #define CFG_ENV_SECT_SIZE		0x40000	/* 256K(one sector) for env */
     #define CFG_ENV_SIZE		0x2000
 #else
-    #define CFG_NO_FLASH		1	/* Flash is not usable now */
     #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
     #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
     #define CFG_ENV_SIZE		0x2000
@@ -486,21 +484,13 @@
 				 | CFG_CMD_SCSI		\
 				 | CFG_CMD_EXT2)	\
 				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_IMLS	\
-				  | CFG_CMD_FLASH	\
-				  | CFG_CMD_LOADS))
+				 ~(CFG_CMD_ENV))
   #else
     #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
 				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C		\
-				 | CFG_CMD_SCSI		\
-				 | CGF_CMD_EXT2)	\
+				 | CFG_CMD_I2C)		\
 				&			\
-				 ~(CFG_CMD_ENV		\
-				 | CFG_CMD_IMLS		\
-				 | CFG_CMD_FLASH	\
-				 | CFG_CMD_LOADS))
+				 ~(CFG_CMD_ENV))
   #endif
 #else
   #if defined(CONFIG_PCI)
