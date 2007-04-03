@@ -1,3 +1,121 @@
+commit aea03c4e8c3a21ce43d3faf48a6e6d474c8bdf73
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 14:30:53 2007 -0400
+
+    Fix some minor whitespace violations.
+
+commit 213bf8c822de8eecaf69860684469cdaba2e9e6a
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:23:51 2007 -0400
+
+    Add a flattened device tree (fdt) command (2 of 2)
+
+    Modifications to the existing code to support the new fdt command.
+
+commit 781e09ee6e3e3e392ab362c1f0ef1068adc76e3e
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:22:10 2007 -0400
+
+    Add a flattened device tree (fdt) command (1 of 2)
+
+    The fdt command uses David Gibson's libfdt library to manipulate as well
+    as print the flattened device tree.  This patch is the new command,
+    the second part is the modifications to the existing code.
+
+commit 3af0d587d93e0be5f96e1b30fa41e662f8b0803e
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:13:43 2007 -0400
+
+    libfdt: Enhanced and published fdt_next_tag()
+
+    Enhanced the formerly private function _fdt_next_tag() to allow stepping
+      through the tree, used to produce a human-readable dump, and made
+      it part of the published interface.
+    Also added some comments.
+
+commit fa3a74cec73dfd06a5ae35a9a3368200273aaa71
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:05:39 2007 -0400
+
+    libfdt: Customizations for use by u-boot.
+
+    Changes to David Gibson's original source to fit into u-boot's
+    environment.  No functionality changes.
+
+commit 35748177c64a4a83a00057e93bb33e40278a2a96
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:00:56 2007 -0400
+
+    libfdt: Import libfdt source (2 of 2)
+
+    This adds the applicable libfdt source files (unmodified) and a README
+    to explain where the source came from.
+
+commit 7cd5da0fe877e7171a4cdd44880bce783132871a
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 11:59:59 2007 -0400
+
+    libfdt: Import libfdt source (1 of 2)
+
+    This adds the applicable libfdt source files (unmodified) and a README
+    to explain where the source came from.
+
+commit 6eb1df835191d8ce4b81d5af40fa8e0fbe78e997
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Dec 12 11:02:20 2006 -0600
+
+    Fix 8641HPCN problem with ld version 2.16
+
+    (Dot outside sections problem).
+
+    This fix is in the spirit of 807d5d7319330e336ab34a5623c5e0d73b87d540.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9964a4dd0d4ef5a037febaebf1aa494b1a72991c
+Author: Haiying Wang <haiying.wang@freescale.com>
+Date:	Thu Dec 7 10:35:55 2006 -0600
+
+    Set Rev 2.x 86xx PIC in mixed mode.
+
+    Prevent false interrupt from hanging Linux as MSR[EE] is set
+    to enable interrupts by changing the PIC out of the default
+    pass through mode into mixed mode.
+
+    Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5a58a73ceb0a4059c42ef64cedbc1a45e0aaa00e
+Author: Jason Jin <jason.jin@freescale.com>
+Date:	Thu Dec 7 10:32:35 2006 -0600
+
+    Add flash cmd function to 8641HPCN ramboot
+
+    Also fixes some commmand for 8641 HPCN ramboot case.
+
+    Signed-off-by: Jason Jin <jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2ccceacc04b009d923afb7c26189ba2f8a2a5d46
+Author: Ed Swarthout <ed.swarthout@freescale.com>
+Date:	Thu Dec 7 10:34:14 2006 -0600
+
+    Add support for 8641 Rev 2 silicon.
+
+    Without this patch, I am unable to get to the prompt on rev 2 silicon.
+    Only set ddrioovcr for rev1.
+
+    Signed-off-by: Ed Swarthout<ed.swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 44ba464b99001f8bd1c456a1e9d59726252f707a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 22 00:13:12 2007 +0100
+
+    Code cleanup / re-insert previous Copyright entries.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 2a8dfe08359a1b663418b2faa1da1d7bce34d302
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Mar 21 23:26:15 2007 +0100

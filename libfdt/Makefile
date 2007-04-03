@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libfdt.a
 
-SOBJS	= 
+SOBJS	=
 
 COBJS	= fdt.o  fdt_ro.o  fdt_rw.o  fdt_strerror.o  fdt_sw.o  fdt_wip.o
 
@@ -44,4 +44,3 @@ include $(SRCTREE)/rules.mk
 sinclude $(obj).depend
 
 #########################################################################
-

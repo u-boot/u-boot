@@ -31,4 +31,3 @@ TEXT_BASE = 0xFE000000
 # Additional board-specific libraries
 #
 BOARDLIBS = libfdt/libfdt.a
-

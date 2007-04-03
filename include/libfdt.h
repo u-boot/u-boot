@@ -46,15 +46,15 @@
 
 #define fdt_get_header(fdt, field) \
 	(fdt32_to_cpu(((struct fdt_header *)(fdt))->field))
-#define fdt_magic(fdt) 			(fdt_get_header(fdt, magic))
+#define fdt_magic(fdt)			(fdt_get_header(fdt, magic))
 #define fdt_totalsize(fdt)		(fdt_get_header(fdt, totalsize))
 #define fdt_off_dt_struct(fdt)		(fdt_get_header(fdt, off_dt_struct))
 #define fdt_off_dt_strings(fdt)		(fdt_get_header(fdt, off_dt_strings))
 #define fdt_off_mem_rsvmap(fdt)		(fdt_get_header(fdt, off_mem_rsvmap))
 #define fdt_version(fdt)		(fdt_get_header(fdt, version))
-#define fdt_last_comp_version(fdt) 	(fdt_get_header(fdt, last_comp_version))
-#define fdt_boot_cpuid_phys(fdt) 	(fdt_get_header(fdt, boot_cpuid_phys))
-#define fdt_size_dt_strings(fdt) 	(fdt_get_header(fdt, size_dt_strings))
+#define fdt_last_comp_version(fdt)	(fdt_get_header(fdt, last_comp_version))
+#define fdt_boot_cpuid_phys(fdt)	(fdt_get_header(fdt, boot_cpuid_phys))
+#define fdt_size_dt_strings(fdt)	(fdt_get_header(fdt, size_dt_strings))
 #define fdt_size_dt_struct(fdt)		(fdt_get_header(fdt, size_dt_struct))
 
 #define fdt_set_header(fdt, field, val) \
@@ -82,7 +82,7 @@ void *fdt_getprop(const void *fdt, int nodeoffset,
 		  const char *name, int *lenp);
 
 uint32_t fdt_next_tag(const void *fdt, int offset,
-                      int *nextoffset, char **namep);
+		      int *nextoffset, char **namep);
 
 /* Write-in-place functions */
 int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,

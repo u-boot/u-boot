@@ -23,12 +23,11 @@
 
 #include "libfdt_internal.h"
 
-#define CHECK_HEADER(fdt) \
-	{ \
-		int err; \
-		if ((err = _fdt_check_header(fdt)) != 0) \
-			return err; \
-	}
+#define CHECK_HEADER(fdt)	{ \
+	int err; \
+	if ((err = _fdt_check_header(fdt)) != 0) \
+		return err; \
+}
 
 static int offset_streq(const void *fdt, int offset,
 			const char *s, int len)
@@ -255,7 +254,7 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	} while (level >= 0);
 
 	err = -FDT_ERR_NOTFOUND;
- fail:
+fail:
 	if (lenp)
 		*lenp = err;
 	return NULL;
@@ -330,4 +329,3 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset, char **namep
 
 	return tag;
 }
-
