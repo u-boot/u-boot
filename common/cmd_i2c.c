@@ -969,7 +969,7 @@ U_BOOT_CMD(
 	"i2c sdram chip - print SDRAM configuration information\n"
 #endif  /* CFG_CMD_SDRAM */
 );
-#else /* CONFIG_I2C_CMD_TREE */
+#endif /* CONFIG_I2C_CMD_TREE */
 U_BOOT_CMD(
 	imd,	4,	1,	do_i2c_md,		\
 	"imd     - i2c memory display\n",				\
@@ -1024,6 +1024,5 @@ U_BOOT_CMD(
 	"      (valid chip values 50..57)\n"
 );
 #endif
-#endif  /* CONFIG_I2C_CMD_TREE */
 
 #endif	/* CFG_CMD_I2C */

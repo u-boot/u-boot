@@ -26,9 +26,6 @@
 
 extern void board_pll_init_f(void);
 
-/* Some specific Acadia Defines */
-#define CPLD_BASE	0x80000000
-
 void liveoak_gpio_init(void)
 {
 	/*
@@ -54,62 +51,12 @@ void liveoak_gpio_init(void)
 	out32(GPIO1_TCR, CFG_GPIO1_TCR);  /* enable output driver for outputs */
 }
 
-#if 0 /* test-only: not called at all??? */
-void ext_bus_cntlr_init(void)
-{
-#if (defined(EBC_PB4AP) && defined(EBC_PB4CR) && !(CFG_INIT_DCACHE_CS == 4))
-       	mtebc(pb4ap, EBC_PB4AP);
-       	mtebc(pb4cr, EBC_PB4CR);
-#endif
-}
-#endif
-
 int board_early_init_f(void)
 {
 	unsigned int reg;
 
-#if 0 /* test-only */
-	/*
-	 * If CRAM memory and SPI/NAND boot, and if the CRAM memory is
-	 * already initialized by the pre-loader then we can't reinitialize
-	 * CPR registers, GPIO registers and EBC registers as this will
-	 * have the effect of un-initializing CRAM.
-	 */
-	spr_reg = (volatile unsigned long) mfspr(SPRG7);
-	if (spr_reg != LOAK_CRAM) { /* != CRAM */
-		board_pll_init_f();
-		liveoak_gpio_init();
-		ext_bus_cntlr_init();
-
-		mtebc(pb1ap, CFG_EBC_PB1AP);
-		mtebc(pb1cr, CFG_EBC_PB1CR);
-
-		mtebc(pb2ap, CFG_EBC_PB2AP);
-		mtebc(pb2cr, CFG_EBC_PB2CR);
-	}
-#else
 	board_pll_init_f();
 	liveoak_gpio_init();
-/*	ext_bus_cntlr_init(); */
-#endif
-
-#if 0 /* test-only (orig) */
-	/*
-	 * If we boot from NAND Flash, we are running in
-	 * RAM, so disable the EBC_CS0 so that it goes back
-	 * to the NOR Flash.  It will be enabled later
-	 * for the NAND Flash on EBC_CS1
-	 */
-	mfsdr(sdrultra0, reg);
-	mtsdr(sdrultra0, reg & ~SDR_ULTRA0_CSNSEL0);
-#endif
-#if 0 /* test-only */
-	/* configure for NAND */
-	mfsdr(sdrultra0, reg);
-	reg &= ~SDR_ULTRA0_CSN_MASK;
-	reg |= SDR_ULTRA0_CSNSEL0 >> CFG_NAND_CS;
-	mtsdr(sdrultra0, reg & ~SDR_ULTRA0_CSNSEL0);
-#endif
 
 	/* USB Host core needs this bit set */
 	mfsdr(sdrultra1, reg);
@@ -128,7 +75,7 @@ int board_early_init_f(void)
 int misc_init_f(void)
 {
 	/* Set EPLD to take PHY out of reset */
-	out8(CPLD_BASE + 0x05, 0x00);
+	out8(CFG_CPLD_BASE + 0x05, 0x00);
 	udelay(100000);
 
 	return 0;

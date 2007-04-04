@@ -3290,29 +3290,6 @@
 #define GPIO1_ISR3H            (GPIO1_BASE+0x44)
 #endif
 
-#define GPIO_GROUP_MAX	    2
-#define GPIO_MAX	    32
-#define GPIO_ALT1_SEL	    0x40000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 0 */
-#define GPIO_ALT2_SEL	    0x80000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 1 */
-#define GPIO_ALT3_SEL	    0xC0000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 2 */
-#define GPIO_MASK	    0xC0000000	    /* GPIO_MASK */
-#define GPIO_IN_SEL	    0x40000000	    /* GPIO_IN value put in GPIO_ISx for the GPIO nb 0 */
-					    /* For the other GPIO number, you must shift */
-
-#define GPIO_VAL(gpio)		(0x80000000 >> (gpio))
-
-#ifndef __ASSEMBLY__
-
-typedef enum gpio_select { GPIO_SEL, GPIO_ALT1, GPIO_ALT2, GPIO_ALT3 } gpio_select_t;
-typedef enum gpio_driver { GPIO_DIS, GPIO_IN, GPIO_OUT, GPIO_BI } gpio_driver_t;
-
-typedef struct { unsigned long	add;	/* gpio core base address */
-	gpio_driver_t  in_out; /* Driver Setting */
-	gpio_select_t  alt_nb; /* Selected Alternate */
-} gpio_param_s;
-
-#endif /* __ASSEMBLY__ */
-
 /*
  * Macros for accessing the indirect EBC registers
  */

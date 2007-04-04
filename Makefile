@@ -1190,43 +1190,30 @@ PPChameleonEVB_HI_33_config:	unconfig
 		}
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
-rainier_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
-
-rainier_nand_config:	unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)nand_spl
-	@mkdir -p $(obj)board/amcc/sequoia
-	@echo "#define CONFIG_RAINIER" > $(obj)include/config.h
-	@echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h
-	@echo "Compile NAND boot image for sequoia"
-	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
-	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
-
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
 
-sequoia_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sequoia amcc
+sequoia_config \
+rainier_config: unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >$(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 
-sequoia_nand_config:	unconfig
+sequoia_nand_config \
+rainier_nand_config: unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)nand_spl
 	@mkdir -p $(obj)board/amcc/sequoia
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
-	@echo "Compile NAND boot image for sequoia"
-	@$(MKCONFIG) -a sequoia ppc ppc4xx sequoia amcc
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 sc3_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx sc3
-
-sycamore_config:	unconfig
-	@$(MKCONFIG) -n $@ -a walnut ppc ppc4xx walnut amcc
 
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
@@ -1244,8 +1231,10 @@ W7OLMC_config	\
 W7OLMG_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx w7o
 
-walnut_config: unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx walnut amcc
+# Walnut & Sycamore images are identical (recognized via PVR)
+walnut_config \
+sycamore_config: unconfig
+	@$(MKCONFIG) -n $@ -a walnut ppc ppc4xx walnut amcc
 
 WUH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx wuh405 esd
@@ -1253,12 +1242,11 @@ WUH405_config:	unconfig
 XPEDITE1K_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx xpedite1k
 
-yosemite_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yosemite amcc
-
-yellowstone_config:	unconfig
+yosemite_config \
+yellowstone_config: unconfig
 	@mkdir -p $(obj)include
-	@echo "#define CONFIG_YELLOWSTONE" > $(obj)include/config.h
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >$(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a yosemite ppc ppc4xx yosemite amcc
 
 yucca_config:	unconfig
