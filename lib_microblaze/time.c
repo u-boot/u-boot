@@ -1,6 +1,8 @@
 /*
+ * (C) Copyright 2007 Michal Simek
  * (C) Copyright 2004 Atmark Techno, Inc.
  *
+ * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,6 +24,11 @@
  * MA 02111-1307 USA
  */
 
-void udelay(unsigned long usec)
+#include <common.h>
+
+void udelay (unsigned long usec)
 {
+	int i;
+	i = get_timer (0);
+	while ((get_timer (0) - i) < (usec / 1000)) ;
 }

@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * (C) Copyright 2007 Michal Simek
  *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * Michal SIMEK <moonstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,11 +22,27 @@
  * MA 02111-1307 USA
  */
 
-/* This is a board specific file.  It's OK to include board specific
- * header files */
-#include <config.h>
+#include <common.h>
 
-void do_reset(void)
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+
+int dcache_status (void)
 {
-	*((unsigned long *)(MICROBLAZE_SYSREG_BASE_ADDR)) = MICROBLAZE_SYSREG_RECONFIGURE;
+	int i = 0;
+	int mask = 0x80;
+	__asm__ __volatile__ ("mfs %0,rmsr"::"r" (i):"memory");
+	/* i&=0x80 */
+	__asm__ __volatile__ ("and %0,%0,%1"::"r" (i), "r" (mask):"memory");
+	return i;
 }
+
+int icache_status (void)
+{
+	int i = 0;
+	int mask = 0x20;
+	__asm__ __volatile__ ("mfs %0,rmsr"::"r" (i):"memory");
+	/* i&=0x20 */
+	__asm__ __volatile__ ("and %0,%0,%1"::"r" (i), "r" (mask):"memory");
+	return i;
+}
+#endif

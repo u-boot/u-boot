@@ -1,6 +1,8 @@
 /*
+ * (C) Copyright 2007 Michal Simek
  * (C) Copyright 2004 Atmark Techno, Inc.
  *
+ * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -13,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -30,8 +32,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
+
+#ifdef CFG_GPIO_0
+extern int gpio_init (void);
+#endif
+#ifdef CFG_INTC_0
+extern int interrupts_init (void);
+#endif
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+extern int eth_init (bd_t * bis);
+extern int getenv_IPaddr (char *);
+#endif
 
 /*
  * Begin and End of memory area for malloc(), and current "brk"
@@ -40,6 +52,18 @@ static ulong mem_malloc_start;
 static ulong mem_malloc_end;
 static ulong mem_malloc_brk;
 
+/*
+ * The Malloc area is immediately below the monitor copy in DRAM
+ * aka CFG_MONITOR_BASE - Note there is no need for reloc_off
+ * as our monitory code is run from SDRAM
+ */
+static void mem_malloc_init (void)
+{
+	mem_malloc_end = (CFG_MALLOC_BASE + CFG_MALLOC_LEN);
+	mem_malloc_start = CFG_MALLOC_BASE;
+	mem_malloc_brk = mem_malloc_start;
+	memset ((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
+}
 
 void *sbrk (ptrdiff_t increment)
 {
@@ -50,7 +74,7 @@ void *sbrk (ptrdiff_t increment)
 		return (NULL);
 	}
 	mem_malloc_brk = new;
-	return ((void *) old);
+	return ((void *)old);
 }
 
 /*
@@ -68,24 +92,36 @@ void *sbrk (ptrdiff_t increment)
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
-	serial_init,		/* serial communications setup */
+	env_init,
+	serial_init,
+#ifdef CFG_GPIO_0
+	gpio_init,
+#endif
+#ifdef CFG_INTC_0
+	interrupts_init,
+#endif
 	NULL,
 };
 
-void board_init(void)
+void board_init (void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-
-	/* Pointer is writable since we allocated a register for it. */
-	gd = (gd_t *)CFG_GBL_DATA_OFFSET;
-	memset((void *)gd, 0, CFG_GBL_DATA_SIZE);
-
-	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
+	gd = (gd_t *) CFG_GBL_DATA_OFFSET;
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+	ulong flash_size = 0;
+#endif
+	asm ("nop");	/* FIXME gd is not initialize - wait */
+	memset ((void *)gd, 0, CFG_GBL_DATA_SIZE);
+	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;
-
 	bd = gd->bd;
 	bd->bi_baudrate = CONFIG_BAUDRATE;
+	bd->bi_memstart = CFG_SDRAM_BASE;
+	bd->bi_memsize = CFG_SDRAM_SIZE;
+
+	/* Initialise malloc() area */
+	mem_malloc_init ();
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();
@@ -93,6 +129,37 @@ void board_init(void)
 			hang ();
 		}
 	}
+
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+	bd->bi_flashstart = CFG_FLASH_BASE;
+	if (0 < (flash_size = flash_init ())) {
+		bd->bi_flashsize = flash_size;
+		bd->bi_flashoffset = CFG_FLASH_BASE + flash_size;
+	} else {
+		puts ("Flash init FAILED");
+		bd->bi_flashstart = 0;
+		bd->bi_flashsize = 0;
+		bd->bi_flashoffset = 0;
+	}
+#endif
+
+#if (CONFIG_COMMANDS & CFG_CMD_NET)
+	char *s, *e;
+	int i;
+	/* board MAC address */
+	s = getenv ("ethaddr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+	/* IP Address */
+	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
+	eth_init (bd);
+#endif
+
+	/* relocate environment function pointers etc. */
+	env_relocate ();
 
 	/* main_loop */
 	for (;;) {
@@ -104,5 +171,5 @@ void board_init(void)
 void hang (void)
 {
 	puts ("### ERROR ### Please RESET the board ###\n");
-	for (;;);
+	for (;;) ;
 }
