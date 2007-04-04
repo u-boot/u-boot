@@ -41,7 +41,7 @@
 
 /*
  * setting reset address
- * 
+ *
  * TEXT_BASE is set to place, where the U-BOOT run in RAM, but
  * if you want to store U-BOOT in flash, set CFG_RESET_ADDRESS
  * to FLASH memory and after loading bitstream jump to FLASH.

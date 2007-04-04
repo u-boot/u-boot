@@ -1,3 +1,9 @@
+commit 94abd7c0583ebe01e799b25f451201deeaab550d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 4 01:49:15 2007 +0200
+
+    Minor cleanup.
+
 commit aea03c4e8c3a21ce43d3faf48a6e6d474c8bdf73
 Author: Gerald Van Baren <vanbaren@cideas.com>
 Date:	Sat Mar 31 14:30:53 2007 -0400
@@ -59,6 +65,32 @@ Date:	Sat Mar 31 11:59:59 2007 -0400
 
     This adds the applicable libfdt source files (unmodified) and a README
     to explain where the source came from.
+
+commit 342cd097be1e7affe82f42ab3da220959a699e64
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 30 22:52:09 2007 +0200
+
+    [PATCH] Clean include dependence
+
+commit 6f934210fb293fde2cfb4251c6d96fdc58b6a906
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 30 22:42:45 2007 +0200
+
+    [CLEAN] Remove inefficient Suzaku code
+
+commit 5da048adf44bea5e3b94080d02903c2e3fe7aa4a
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Mar 27 00:32:16 2007 +0200
+
+    PATCH: Resolve GPL license problem
+
+commit 1798049522f594013aea29457d46794298c6ae15
+Author: Michal Simek <root@monstr.eu>
+Date:	Mon Mar 26 01:39:07 2007 +0200
+
+    Support for XUPV2P board
+    Reset support
+    BSP autoconfig support
 
 commit 6eb1df835191d8ce4b81d5af40fa8e0fbe78e997
 Author: Jon Loeliger <jdl@freescale.com>
@@ -265,6 +297,38 @@ Author: Aubrey Li <aubrey.adi@gmail.com>
 Date:	Mon Mar 12 00:25:14 2007 +0800
 
     [Blackfin][PATCH] code cleanup
+
+commit cfc67116a706fd18b8f6a9c11a16753c5626d689
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Mar 11 13:48:24 2007 +0100
+
+    [Microblaze][PATCH] part 2
+    timer support
+    interrupt controller support
+    flash support
+    ethernet support
+    cache support
+    board information support
+    env support
+    booting image support
+
+    adding support for Xilinx ML401
+
+commit 76316a318de91f6184e7c22a10e02d275ade2441
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Mar 11 13:42:58 2007 +0100
+
+    [Microblaze][PATCH]
+    timer support
+    interrupt controller support
+    flash support
+    ethernet support
+    cache support
+    board information support
+    env support
+    booting image support
+
+    adding support for Xilinx ML401
 
 commit 8db13d63157811c839d15a313d9f2d2f5fd10af3
 Author: Aubrey Li <aubrey.adi@gmail.com>

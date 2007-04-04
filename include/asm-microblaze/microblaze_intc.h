@@ -38,4 +38,3 @@ struct irq_action {
 	void *arg;
 	int count; /* number of interrupt */
 };
-
