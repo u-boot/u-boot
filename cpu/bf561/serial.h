@@ -1,7 +1,7 @@
 /*
  * U-boot - bf561_serial.h Serial Driver defines
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * bf533_serial.h: Definitions for the BlackFin BF533 DSP serial driver.
@@ -38,8 +38,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _Bf561_SERIAL_H
