@@ -29,9 +29,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/blackfin.h>
-
-extern void blackfin_icache_flush_range(unsigned long, unsigned long);
-extern void blackfin_dcache_flush_range(unsigned long, unsigned long);
+#include "cache.h"
 
 void flush_cache(unsigned long dummy1, unsigned long dummy2)
 {
@@ -43,9 +41,9 @@ void flush_cache(unsigned long dummy1, unsigned long dummy2)
 		return;
 
 	if (icache_status())
-		blackfin_icache_flush_range(dummy1, dummy1 + dummy2);
+		blackfin_icache_flush_range((void*)dummy1, (void*)(dummy1 + dummy2));
 	if (dcache_status())
-		blackfin_dcache_flush_range(dummy1, dummy1 + dummy2);
+		blackfin_dcache_flush_range((void*)dummy1, (void*)(dummy1 + dummy2));
 
 	return;
 }
