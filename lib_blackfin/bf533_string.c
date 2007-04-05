@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <asm/setup.h>
-#include <asm/page.h>
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>

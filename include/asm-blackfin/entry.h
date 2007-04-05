@@ -27,7 +27,6 @@
 
 #include <linux/config.h>
 #include <asm/setup.h>
-#include <asm/page.h>
 
 /*
  * Stack layout in 'ret_from_exception':

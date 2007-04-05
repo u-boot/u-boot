@@ -33,7 +33,6 @@
 
 #include <linux/config.h>
 #include <asm/setup.h>
-#include <asm/page.h>
 
 #define mm_vtop(vaddr)		((unsigned long) vaddr)
 #define mm_ptov(vaddr)		((unsigned long) vaddr)
