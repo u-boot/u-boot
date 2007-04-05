@@ -37,6 +37,7 @@ extern void cf_outb(unsigned char val, volatile unsigned char *addr);
 
 static inline void sync(void)
 {
+	__builtin_bfin_ssync();
 }
 
 /*
