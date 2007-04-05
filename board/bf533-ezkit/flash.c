@@ -1,7 +1,7 @@
 /*
  * U-boot - flash.c Flash driver for PSD4256GV
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  * This file is based on BF533EzFlash.c originally written by Analog Devices, Inc.
  *
  * (C) Copyright 2000-2004
@@ -22,8 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <asm/io.h>
@@ -178,63 +178,66 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 	int ret;
-
-	ret = write_data(addr, cnt, 1, (int *)src);
+	int d;
+	if (addr % 2) {
+		read_flash(addr - 1 - CFG_FLASH_BASE, &d);
+		d = (int)((d & 0x00FF) | (*src++ << 8));
+		ret = write_data(addr - 1, 2, (uchar *) & d);
+		if (ret == FLASH_FAIL)
+			return ERR_NOT_ERASED;
+		ret = write_data(addr + 1, cnt - 1, src);
+	} else
+		ret = write_data(addr, cnt, src);
 	if (ret == FLASH_FAIL)
 		return ERR_NOT_ERASED;
 	return FLASH_SUCCESS;
 }
 
-int write_data(long lStart, long lCount, long lStride, int *pnData)
+int write_data(long lStart, long lCount, uchar * pnData)
 {
 	long i = 0;
-	int j = 0;
 	unsigned long ulOffset = lStart - CFG_FLASH_BASE;
 	int d;
-	int iShift = 0;
-	int iNumWords = 2;
-	int nLeftover = lCount % 4;
 	int nSector = 0;
+	int flag = 0;
 
-	for (i = 0; (i < lCount / 4) && (i < BUFFER_SIZE); i++) {
-		for (iShift = 0, j = 0; (j < iNumWords);
-		     j++, ulOffset += (lStride * 2)) {
-			if ((ulOffset >= INVALIDLOCNSTART)
-			    && (ulOffset < INVALIDLOCNEND)) {
-				printf
-				    ("Invalid locations, Try writing to another location \n");
-				return FLASH_FAIL;
-			}
-			get_sector_number(ulOffset, &nSector);
-			read_flash(ulOffset, &d);
-			if (d != 0xffff) {
-				printf
-				    ("Flash not erased at offset 0x%x Please erase to reprogram \n",
-				     ulOffset);
-				return FLASH_FAIL;
-			}
-			unlock_flash(ulOffset);
-			if (write_flash(ulOffset, (pnData[i] >> iShift)) < 0) {
-				printf("Error programming the flash \n");
-				return FLASH_FAIL;
-			}
-			iShift += 16;
-		}
+	if (lCount % 2) {
+		flag = 1;
+		lCount = lCount - 1;
 	}
-	if (nLeftover > 0) {
-		if ((ulOffset >= INVALIDLOCNSTART)
-		    && (ulOffset < INVALIDLOCNEND))
-			return FLASH_FAIL;
+
+	for (i = 0; i < lCount - 1; i += 2, ulOffset += 2) {
 		get_sector_number(ulOffset, &nSector);
 		read_flash(ulOffset, &d);
 		if (d != 0xffff) {
 			printf
-			    ("Flash already programmed. Please erase to reprogram \n");
-			printf("uloffset = 0x%x \t d = 0x%x\n", ulOffset, d);
+			    ("Flash not erased at offset 0x%x Please erase to reprogram \n",
+			     ulOffset);
 			return FLASH_FAIL;
 		}
 		unlock_flash(ulOffset);
-		if (write_flash(ulOffset, pnData[i]) < 0) {
+		d = (int)(pnData[i] | pnData[i + 1] << 8);
+		write_flash(ulOffset, d);
+		if (poll_toggle_bit(ulOffset) < 0) {
+			printf("Error programming the flash \n");
+			return FLASH_FAIL;
+		}
+		if ((i > 0) && (!(i % AFP_SectorSize2)))
+			printf(".");
+	}
+	if (flag) {
+		get_sector_number(ulOffset, &nSector);
+		read_flash(ulOffset, &d);
+		if (d != 0xffff) {
+			printf
+			    ("Flash not erased at offset 0x%x Please erase to reprogram \n",
+			     ulOffset);
+			return FLASH_FAIL;
+		}
+		unlock_flash(ulOffset);
+		d = (int)(pnData[i] | (d & 0xFF00));
+		write_flash(ulOffset, d);
+		if (poll_toggle_bit(ulOffset) < 0) {
 			printf("Error programming the flash \n");
 			return FLASH_FAIL;
 		}

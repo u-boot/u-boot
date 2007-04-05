@@ -60,7 +60,7 @@ void reset_flash(void);
 int erase_flash(void);
 int erase_block_flash(int, unsigned long);
 void unlock_flash(long lOffset);
-int write_data(long lStart, long lCount, long lStride, int *pnData);
+int write_data(long lStart, long lCount, uchar *pnData);
 int FillData(long lStart, long lCount, long lStride, int *pnData);
 int read_data(long lStart, long lCount, long lStride, int *pnData);
 int read_flash(long nOffset, int *pnValue);
