@@ -25,7 +25,7 @@
 
 #define CHECK_HEADER(fdt)	{ \
 	int err; \
-	if ((err = _fdt_check_header(fdt)) != 0) \
+	if ((err = fdt_check_header(fdt)) != 0) \
 		return err; \
 }
 
@@ -188,7 +188,7 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	int offset, nextoffset;
 	int err;
 
-	if ((err = _fdt_check_header(fdt)) != 0)
+	if ((err = fdt_check_header(fdt)) != 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;

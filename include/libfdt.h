@@ -1,5 +1,3 @@
-#ifndef _LIBFDT_H
-#define _LIBFDT_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
@@ -18,6 +16,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+#ifndef _LIBFDT_H
+#define _LIBFDT_H
 
 #include <fdt.h>
 #include <libfdt_env.h>
@@ -59,6 +60,8 @@
 
 #define fdt_set_header(fdt, field, val) \
 	((struct fdt_header *)(fdt))->field = cpu_to_fdt32(val)
+
+int fdt_check_header(const void *fdt);
 
 void *fdt_offset_ptr(const void *fdt, int offset, int checklen);
 

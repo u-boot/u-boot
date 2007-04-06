@@ -23,7 +23,7 @@
 
 #include "libfdt_internal.h"
 
-int _fdt_check_header(const void *fdt)
+int fdt_check_header(const void *fdt)
 {
 	if (fdt_magic(fdt) == FDT_MAGIC) {
 		/* Complete tree */
@@ -72,7 +72,7 @@ const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
-	int err = _fdt_check_header(fdt);
+	int err = fdt_check_header(fdt);
 
 	if (err)
 		return err;
