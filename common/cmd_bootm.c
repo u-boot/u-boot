@@ -950,7 +950,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
-		err = fdt_open_into(of_start, of_data, of_len);
+		err = fdt_open_into((void *)of_start, (void *)of_data, of_len);
 		if (err != 0) {
 			printf ("libfdt: %s\n", fdt_strerror(err));
 		}

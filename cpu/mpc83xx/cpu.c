@@ -364,6 +364,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 			/*
 			 * If unconditional create or the property already exists...
 			 */
+			err = 0;
 			if ((fixup_props[j].createflags & FT_CREATE) ||
 				(fdt_get_property(fdt, nodeoffset, fixup_props[j].prop, 0))) {
 				if (fixup_props[j].createflags & FT_BUSFREQ) {
