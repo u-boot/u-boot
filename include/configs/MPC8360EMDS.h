@@ -342,8 +342,12 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
+#undef  CONFIG_OF_FLAT_TREE
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_HAS_BD_T	1
+#define CONFIG_OF_HAS_UBOOT_ENV	1
+
 
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192

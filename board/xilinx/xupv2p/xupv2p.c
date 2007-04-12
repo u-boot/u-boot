@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * (C) Copyright 2007 Michal Simek
  *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * Michal  SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,9 +24,26 @@
 
 /* This is a board specific file.  It's OK to include board specific
  * header files */
+
+#include <common.h>
 #include <config.h>
 
-void do_reset(void)
+void do_reset (void)
 {
-	*((unsigned long *)(MICROBLAZE_SYSREG_BASE_ADDR)) = MICROBLAZE_SYSREG_RECONFIGURE;
+#ifdef CFG_GPIO_0
+	*((unsigned long *)(CFG_GPIO_0_ADDR)) =
+	    ++(*((unsigned long *)(CFG_GPIO_0_ADDR)));
+#endif
+#ifdef CFG_RESET_ADDRESS
+	puts ("Reseting board\n");
+	asm ("bra r0");
+#endif
+}
+
+int gpio_init (void)
+{
+#ifdef CFG_GPIO_0
+	*((unsigned long *)(CFG_GPIO_0_ADDR)) = 0x0;
+#endif
+	return 0;
 }

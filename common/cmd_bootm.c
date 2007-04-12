@@ -34,7 +34,11 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_LIBFDT)
+#include <fdt.h>
+#include <libfdt.h>
+#endif
+#if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
 
@@ -467,7 +471,7 @@ U_BOOT_CMD(
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
  	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
  	"\t'arg' can be the address of an initrd image\n"
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
 	"\ta third argument is required which is the address of the of the\n"
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
@@ -529,7 +533,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	image_header_t *hdr = &header;
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = NULL;
 	ulong	of_data = 0;
 #endif
@@ -622,7 +626,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 * Check if there is an initrd image
 	 */
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
@@ -739,12 +743,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		len = data = 0;
 	}
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
-
-		if  (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#if defined(CONFIG_OF_LIBFDT)
+		if (be32_to_cpu(fdt_magic(of_flat_tree)) == FDT_MAGIC) {
+#else
+		if (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
@@ -787,7 +794,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				printf("ERROR: uImage is not uncompressed\n");
 				return;
 			}
+#if defined(CONFIG_OF_LIBFDT)
+			if (be32_to_cpu(fdt_magic(of_flat_tree + sizeof(image_header_t))) != FDT_MAGIC) {
+#else
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+#endif
 				printf ("ERROR: uImage data is not a flat device tree\n");
 				return;
 			}
@@ -824,12 +835,20 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_data += 4 - tail;
 		}
 
+#if defined(CONFIG_OF_LIBFDT)
+		if (be32_to_cpu(fdt_magic(of_data)) != FDT_MAGIC) {
+#else
 		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
+#endif
 			printf ("ERROR: image is not a flat device tree\n");
 			return;
 		}
 
+#if defined(CONFIG_OF_LIBFDT)
+		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
+#else
 		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+#endif
 			printf ("ERROR: flat device tree size does not agree with image\n");
 			return;
 		}
@@ -913,7 +932,31 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	unlock_ram_in_cache();
 #endif
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_LIBFDT)
+	/* move of_flat_tree if needed */
+	if (of_data) {
+		int err;
+		ulong of_start, of_len;
+		of_len = be32_to_cpu(fdt_totalsize(of_data));
+		/* provide extra 8k pad */
+		if (initrd_start)
+			of_start = initrd_start - of_len - 8192;
+		else
+			of_start  = (ulong)kbd - of_len - 8192;
+		of_start &= ~(4096 - 1);	/* align on page */
+		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
+			of_data, of_data + of_len - 1, of_len, of_len);
+
+
+		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
+			of_start, of_start + of_len - 1);
+		err = fdt_open_into(of_start, of_data, of_len);
+		if (err != 0) {
+			printf ("libfdt: %s\n", fdt_strerror(err));
+		}
+	}
+#endif
+#if defined(CONFIG_OF_FLAT_TREE)
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		ulong of_start, of_len;
@@ -942,13 +985,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: Start of command line string
 	 *   r7: End   of command line string
 	 */
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	if (!of_flat_tree)	/* no device tree; boot old style */
 #endif
 		(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 		/* does not return */
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	/*
 	 * Linux Kernel Parameters (passing device tree):
 	 *   r3: ptr to OF flat tree, followed by the board info data
@@ -957,8 +1000,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: NULL
 	 *   r7: NULL
 	 */
+#if defined(CONFIG_OF_FLAT_TREE)
 	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
+#endif
 
 	(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
 #endif

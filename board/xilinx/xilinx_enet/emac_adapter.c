@@ -147,7 +147,11 @@ eth_rx(void)
 	RecvFrameLength = PKTSIZE;
 	Result = XEmac_PollRecv(&Emac, (u8 *) etherrxbuff, &RecvFrameLength);
 	if (Result == XST_SUCCESS) {
+#ifndef CONFIG_EMACLITE
 		NetReceive((uchar *)etherrxbuff, RecvFrameLength);
+#else
+		NetReceive(etherrxbuff, RecvFrameLength);
+#endif
 		return (1);
 	} else {
 		return (0);

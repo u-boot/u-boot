@@ -1,7 +1,6 @@
 #
-# (C) Copyright 2004 Atmark Techno, Inc.
-#
-# Yasushi SHOJI <yashi@atmark-techno.com>
+# (C) Copyright 2000-2007
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,16 +21,26 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
+include $(TOPDIR)/config.mk
 
-ifdef CONFIG_MICROBLAZE_HARD_MULT
-PLATFORM_CPPFLAGS += -mno-xl-soft-mul
-endif
+LIB	= $(obj)libfdt.a
 
-ifdef CONFIG_MICROBLAZE_HARD_DIV
-PLATFORM_CPPFLAGS += -mno-xl-soft-div
-endif
+SOBJS	=
 
-ifdef CONFIG_MICROBLAZE_HARD_BARREL
-PLATFORM_CPPFLAGS += -mxl-barrel-shift
-endif
+COBJS	= fdt.o  fdt_ro.o  fdt_rw.o  fdt_strerror.o  fdt_sw.o  fdt_wip.o
+
+
+SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

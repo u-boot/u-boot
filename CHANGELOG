@@ -1,3 +1,276 @@
+commit 51056dd9863e6a1bc363afbbe1775c58cd967418
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 11 17:22:55 2007 +0200
+
+    Update for SC3 board
+
+    * Make IDE timeout configurable through ide_reset_timeout variable.
+    * Use Newline as "password" string
+    * Use just a single partition in NAND flash
+
+commit 31c98a88228021b314c89ebb8104fb6473da4471
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 4 02:09:30 2007 +0200
+
+    Minor coding style cleanup.
+
+commit 94abd7c0583ebe01e799b25f451201deeaab550d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 4 01:49:15 2007 +0200
+
+    Minor cleanup.
+
+commit aea03c4e8c3a21ce43d3faf48a6e6d474c8bdf73
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 14:30:53 2007 -0400
+
+    Fix some minor whitespace violations.
+
+commit 213bf8c822de8eecaf69860684469cdaba2e9e6a
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:23:51 2007 -0400
+
+    Add a flattened device tree (fdt) command (2 of 2)
+
+    Modifications to the existing code to support the new fdt command.
+
+commit 781e09ee6e3e3e392ab362c1f0ef1068adc76e3e
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:22:10 2007 -0400
+
+    Add a flattened device tree (fdt) command (1 of 2)
+
+    The fdt command uses David Gibson's libfdt library to manipulate as well
+    as print the flattened device tree.  This patch is the new command,
+    the second part is the modifications to the existing code.
+
+commit 3af0d587d93e0be5f96e1b30fa41e662f8b0803e
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:13:43 2007 -0400
+
+    libfdt: Enhanced and published fdt_next_tag()
+
+    Enhanced the formerly private function _fdt_next_tag() to allow stepping
+      through the tree, used to produce a human-readable dump, and made
+      it part of the published interface.
+    Also added some comments.
+
+commit fa3a74cec73dfd06a5ae35a9a3368200273aaa71
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:05:39 2007 -0400
+
+    libfdt: Customizations for use by u-boot.
+
+    Changes to David Gibson's original source to fit into u-boot's
+    environment.  No functionality changes.
+
+commit 35748177c64a4a83a00057e93bb33e40278a2a96
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 12:00:56 2007 -0400
+
+    libfdt: Import libfdt source (2 of 2)
+
+    This adds the applicable libfdt source files (unmodified) and a README
+    to explain where the source came from.
+
+commit 7cd5da0fe877e7171a4cdd44880bce783132871a
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Mar 31 11:59:59 2007 -0400
+
+    libfdt: Import libfdt source (1 of 2)
+
+    This adds the applicable libfdt source files (unmodified) and a README
+    to explain where the source came from.
+
+commit da6ebc1bc082cbe3b6bbde079cafe09f7ebbad4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 13:16:23 2007 +0200
+
+    ppc4xx: Update Katmai bootstrap command
+
+    Now the DDR2 frequency is also 2*PLB frequency when 166MHz PLB
+    is selected.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cabee756a6532986729477c3cc1ea16ef8517ad2
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 13:15:06 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Additional RAM information is now printed upon powerup, like
+    DDR2 frequency and CAS latency.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 60723803431ac75cad085690789e433d5ab9174e
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:48:36 2007 +0200
+
+    ppc4xx: Change Yucca config file to support ECC
+
+    With the updated 44x DDR2 driver the Yucca board now supports
+    ECC generation and checking.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 490e5730c674b20d708b783a2c5ffd7208f83873
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:47:34 2007 +0200
+
+    ppc4xx: Fix "bootstrap" command for Katmai board
+
+    The board specific "bootstrap" command is now fixed and can
+    be used for the AMCC Katmai board to configure different
+    CPU/PLB/OPB frequencies.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 94f54703c3a776ec23e427ca2a16e0a79a5d50c1
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:46:08 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Fix a bug in the auto calibration routine. This driver now runs
+    more reliable with the tested modules. It's also tested with
+    167MHz PLB frequency (667MHz DDR2 frequency) on the Katmai.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 342cd097be1e7affe82f42ab3da220959a699e64
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 30 22:52:09 2007 +0200
+
+    [PATCH] Clean include dependence
+
+commit 6f934210fb293fde2cfb4251c6d96fdc58b6a906
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 30 22:42:45 2007 +0200
+
+    [CLEAN] Remove inefficient Suzaku code
+
+commit 430f1b0f9a670c2f13eaa52e66a10db96dd3647d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 28 15:03:16 2007 +0200
+
+    Merge some AMCC make targets to keep the top-level Makefile smaller
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0c75c9d84307a9f1cbe1ff0c4d8937ee3a96475e
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 28 14:52:12 2007 +0200
+
+    i2c: Enable "old" i2c commands even when CONFIG_I2C_CMD_TREE is defined
+
+    The "old" i2c commands (iprobe, imd...) are now compiled in again,
+    even when the i2c command tree is enabled via the CONFIG_I2C_CMD_TREE
+    config option.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5da048adf44bea5e3b94080d02903c2e3fe7aa4a
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Mar 27 00:32:16 2007 +0200
+
+    PATCH: Resolve GPL license problem
+
+commit 1798049522f594013aea29457d46794298c6ae15
+Author: Michal Simek <root@monstr.eu>
+Date:	Mon Mar 26 01:39:07 2007 +0200
+
+    Support for XUPV2P board
+    Reset support
+    BSP autoconfig support
+
+commit 0d974d5297349504a2ddfa09314be573b5df320a
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:57:09 2007 +0100
+
+    [PATCH] Add 4xx GPIO functions
+
+    This patch adds some 4xx GPIO functions. It also moves some of the
+    common code and defines into a common 4xx GPIO header file.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2db633658bbf366ab0c8dad7a0727e1fb2ae6b11
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:55:58 2007 +0100
+
+    [PATCH] Small Sequoia cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3cb86f3e40d2a80356177434a99f75bc8baa9caf
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:45:34 2007 +0100
+
+    [PATCH] Clean up 40EZ/Acadia support
+
+    This patch cleans up all the open issue of the preliminary
+    Acadia support.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6eb1df835191d8ce4b81d5af40fa8e0fbe78e997
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Dec 12 11:02:20 2006 -0600
+
+    Fix 8641HPCN problem with ld version 2.16
+
+    (Dot outside sections problem).
+
+    This fix is in the spirit of 807d5d7319330e336ab34a5623c5e0d73b87d540.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9964a4dd0d4ef5a037febaebf1aa494b1a72991c
+Author: Haiying Wang <haiying.wang@freescale.com>
+Date:	Thu Dec 7 10:35:55 2006 -0600
+
+    Set Rev 2.x 86xx PIC in mixed mode.
+
+    Prevent false interrupt from hanging Linux as MSR[EE] is set
+    to enable interrupts by changing the PIC out of the default
+    pass through mode into mixed mode.
+
+    Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5a58a73ceb0a4059c42ef64cedbc1a45e0aaa00e
+Author: Jason Jin <jason.jin@freescale.com>
+Date:	Thu Dec 7 10:32:35 2006 -0600
+
+    Add flash cmd function to 8641HPCN ramboot
+
+    Also fixes some commmand for 8641 HPCN ramboot case.
+
+    Signed-off-by: Jason Jin <jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2ccceacc04b009d923afb7c26189ba2f8a2a5d46
+Author: Ed Swarthout <ed.swarthout@freescale.com>
+Date:	Thu Dec 7 10:34:14 2006 -0600
+
+    Add support for 8641 Rev 2 silicon.
+
+    Without this patch, I am unable to get to the prompt on rev 2 silicon.
+    Only set ddrioovcr for rev1.
+
+    Signed-off-by: Ed Swarthout<ed.swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 44ba464b99001f8bd1c456a1e9d59726252f707a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 22 00:13:12 2007 +0100
+
+    Code cleanup / re-insert previous Copyright entries.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 2a8dfe08359a1b663418b2faa1da1d7bce34d302
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Mar 21 23:26:15 2007 +0100
@@ -147,6 +420,38 @@ Author: Aubrey Li <aubrey.adi@gmail.com>
 Date:	Mon Mar 12 00:25:14 2007 +0800
 
     [Blackfin][PATCH] code cleanup
+
+commit cfc67116a706fd18b8f6a9c11a16753c5626d689
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Mar 11 13:48:24 2007 +0100
+
+    [Microblaze][PATCH] part 2
+    timer support
+    interrupt controller support
+    flash support
+    ethernet support
+    cache support
+    board information support
+    env support
+    booting image support
+
+    adding support for Xilinx ML401
+
+commit 76316a318de91f6184e7c22a10e02d275ade2441
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Mar 11 13:42:58 2007 +0100
+
+    [Microblaze][PATCH]
+    timer support
+    interrupt controller support
+    flash support
+    ethernet support
+    cache support
+    board information support
+    env support
+    booting image support
+
+    adding support for Xilinx ML401
 
 commit 8db13d63157811c839d15a313d9f2d2f5fd10af3
 Author: Aubrey Li <aubrey.adi@gmail.com>

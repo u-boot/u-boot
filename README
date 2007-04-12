@@ -164,6 +164,7 @@ Directory Hierarchy:
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- libfdt 	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test
 - rtc		Real Time Clock drivers
@@ -430,12 +431,23 @@ The following options need to be configured:
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
-		CONFIG_OF_FLAT_TREE
+		CONFIG_OF_LIBFDT / CONFIG_OF_FLAT_TREE
 
 		New kernel versions are expecting firmware settings to be
-		passed using flat open firmware trees.
-		The environment variable "disable_of", when set, disables this
-		functionality.
+		passed using flattened device trees (based on open firmware
+		concepts).
+
+		CONFIG_OF_LIBFDT
+		 * New libfdt-based support
+		 * Adds the "fdt" command
+		 * The bootm command does _not_ modify the fdt
+
+		CONFIG_OF_FLAT_TREE
+		 * Deprecated, see CONFIG_OF_LIBFDT
+		 * Original ft_build.c-based support
+		 * Automatically modifies the dft as part of the bootm command
+		 * The environment variable "disable_of", when set,
+		     disables this functionality.
 
 		CONFIG_OF_FLAT_TREE_MAX_SIZE
 
@@ -448,13 +460,16 @@ The following options need to be configured:
 
 		CONFIG_OF_HAS_BD_T
 
-		The resulting flat device tree will have a copy of the bd_t.
-		Space should be pre-allocated in the dts for the bd_t.
+		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
+		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
+		     will have a copy of the bd_t.  Space should be
+		     pre-allocated in the dts for the bd_t.
 
 		CONFIG_OF_HAS_UBOOT_ENV
 
-		The resulting flat device tree will have a copy of u-boot's
-		environment variables
+		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
+		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
+		     will have a copy of u-boot's environment variables
 
 		CONFIG_OF_BOARD_SETUP
 
@@ -721,6 +736,8 @@ The following options need to be configured:
 
 		#define CONFIG_COMMANDS (CFG_CMD_ALL & ~CFG_CMD_NET)
 
+	Other Commands:
+		fdt (flattened device tree) command: CONFIG_OF_LIBFDT
 
 	Note:	Don't enable the "icache" and "dcache" commands
 		(configuration option CFG_CMD_CACHE) unless you know

@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * (C) Copyright 2007 Michal Simek
  *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * Michal  SIMEK <monstr@monstr.cz>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,8 +22,19 @@
  * MA 02111-1307 USA
  */
 
-#include <config.h>
+typedef volatile struct microblaze_intc_t {
+	int isr; /* interrupt status register */
+	int ipr; /* interrupt pending register */
+	int ier; /* interrupt enable register */
+	int iar; /* interrupt acknowledge register */
+	int sie; /* set interrupt enable bits */
+	int cie; /* clear interrupt enable bits */
+	int ivr; /* interrupt vector register */
+	int mer; /* master enable register */
+} microblaze_intc_t;
 
-#ifdef CONFIG_SUZAKU
-#include <asm/suzaku.h>
-#endif
+struct irq_action {
+	interrupt_handler_t *handler; /* pointer to interrupt rutine */
+	void *arg;
+	int count; /* number of interrupt */
+};

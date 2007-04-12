@@ -22,21 +22,38 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+$(shell mkdir -p $(obj)../xilinx_enet)
+endif
 
-LIB	= $(obj)lib$(CPU).a
+INCS		:= -I../common -I../xilinx_enet
+CFLAGS		+= $(INCS)
+HOST_CFLAGS	+= $(INCS)
 
-START	= start.o
-SOBJS	= dcache.o icache.o irq.o disable_int.o enable_int.o
-COBJS	= cpu.o interrupts.o cache.o exception.o timer.o
+LIB	= $(obj)lib$(BOARD).a
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+COBJS	= $(BOARD).o \
+	  ../xilinx_enet/emac_adapter.o  ../xilinx_enet/xemac.o \
+	  ../xilinx_enet/xemac_options.o ../xilinx_enet/xemac_polled.o \
+	  ../xilinx_enet/xemac_intr.o ../xilinx_enet/xemac_g.o \
+	  ../xilinx_enet/xemac_intr_dma.o ../common/xipif_v1_23_b.o \
+	  ../common/xbasic_types.o ../common/xdma_channel.o \
+	  ../common/xdma_channel_sg.o ../common/xpacket_fifo_v1_00_b.o \
+	  ../common/xversion.o \
 
-all:	$(obj).depend $(START) $(LIB)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

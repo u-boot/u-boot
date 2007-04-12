@@ -513,9 +513,11 @@ void ide_init (void)
 #endif
 	unsigned char c;
 	int i, bus;
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
+	unsigned int ata_reset_time;
+#endif
 #ifdef CONFIG_AMIGAONEG3SE
 	unsigned int max_bus_scan;
-	unsigned int ata_reset_time;
 	char *s;
 #endif
 #ifdef CONFIG_IDE_8xx_PCCARD
@@ -617,10 +619,9 @@ void ide_init (void)
 		udelay (100000);		/* 100 ms */
 		ide_outb (dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
 		udelay (100000);		/* 100 ms */
-#ifdef CONFIG_AMIGAONEG3SE
-		ata_reset_time = ATA_RESET_TIME;
-		s = getenv("ide_reset_timeout");
-		if (s) ata_reset_time = 2*simple_strtol(s, NULL, 10);
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
+		if ((s = getenv("ide_reset_timeout")) != NULL)
+			ata_reset_time = simple_strtol(s, NULL, 10);
 #endif
 		i = 0;
 		do {
@@ -628,7 +629,7 @@ void ide_init (void)
 
 			c = ide_inb (dev, ATA_STATUS);
 			i++;
-#ifdef CONFIG_AMIGAONEG3SE
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
 			if (i > (ata_reset_time * 100)) {
 #else
 			if (i > (ATA_RESET_TIME * 100)) {
