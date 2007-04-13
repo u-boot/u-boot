@@ -1344,7 +1344,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		++n;
 		++blknr;
-		buffer += ATA_SECTORWORDS;
+		buffer += ATA_BLOCKSIZE;
 	}
 IDE_READ_E:
 	ide_led (DEVICE_LED(device), 0);	/* LED off	*/
@@ -1428,7 +1428,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		c = ide_inb (device, ATA_STATUS);	/* clear IRQ */
 		++n;
 		++blknr;
-		buffer += ATA_SECTORWORDS;
+		buffer += ATA_BLOCKSIZE;
 	}
 WR_OUT:
 	ide_led (DEVICE_LED(device), 0);	/* LED off	*/
@@ -2052,7 +2052,7 @@ ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		n+=cnt;
 		blkcnt-=cnt;
 		blknr+=cnt;
-		buffer+=cnt*(ATAPI_READ_BLOCK_SIZE/4); /* ulong blocksize in ulong */
+		buffer+=(cnt*ATAPI_READ_BLOCK_SIZE);
 	} while (blkcnt > 0);
 	return (n);
 }
