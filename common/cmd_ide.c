@@ -423,7 +423,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
-	if (get_partition_info (ide_dev_desc, part, &info)) {
+	if (get_partition_info (&ide_dev_desc[dev], part, &info)) {
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	}
