@@ -300,93 +300,174 @@ void watchdog_reset (void)
 #if defined(CONFIG_OF_LIBFDT)
 
 /*
+ * "Setter" functions used to add/modify FDT entries.
+ */
+static int fdt_set_eth0(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	/*
+	 * Fix it up if it exists, don't create it if it doesn't exist.
+	 */
+	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
+		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enetaddr, 6);
+	}
+	return -FDT_ERR_NOTFOUND;
+}
+#ifdef CONFIG_HAS_ETH1
+/* second onboard ethernet port */
+static int fdt_set_eth1(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	/*
+	 * Fix it up if it exists, don't create it if it doesn't exist.
+	 */
+	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
+		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet1addr, 6);
+	}
+	return -FDT_ERR_NOTFOUND;
+}
+#endif
+#ifdef CONFIG_HAS_ETH2
+/* third onboard ethernet port */
+static int fdt_set_eth2(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	/*
+	 * Fix it up if it exists, don't create it if it doesn't exist.
+	 */
+	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
+		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet2addr, 6);
+	}
+	return -FDT_ERR_NOTFOUND;
+}
+#endif
+#ifdef CONFIG_HAS_ETH3
+/* fourth onboard ethernet port */
+static int fdt_set_eth3(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	/*
+	 * Fix it up if it exists, don't create it if it doesn't exist.
+	 */
+	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
+		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet3addr, 6);
+	}
+	return -FDT_ERR_NOTFOUND;
+}
+#endif
+
+static int fdt_set_busfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	u32  tmp;
+	/*
+	 * Create or update the property.
+	 */
+	tmp = cpu_to_be32(bd->bi_busfreq);
+	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+}
+
+/*
  * Fixups to the fdt.  If "create" is TRUE, the node is created
  * unconditionally.  If "create" is FALSE, the node is updated
  * only if it already exists.
  */
-#define	FT_UPDATE	0x00000000		/* update existing property only */
-#define	FT_CREATE	0x00000001		/* create property if it doesn't exist */
-#define	FT_BUSFREQ	0x00000002		/* source is bd->bi_busfreq */
-#define	FT_ENETADDR	0x00000004		/* source is bd->bi_enetaddr */
 static const struct {
-	int  createflags;
 	char *node;
 	char *prop;
+	int (*set_fn)(void *fdt, int nodeoffset, const char *name, bd_t *bd);
 } fixup_props[] = {
-	{	FT_CREATE | FT_BUSFREQ,
-		"/cpus/" OF_CPU,
+	{	"/cpus/" OF_CPU,
 		 "bus-frequency",
+		fdt_set_busfreq
 	},
-	{	FT_CREATE | FT_BUSFREQ,
-		"/cpus/" OF_SOC,
-		"bus-frequency"
+	{	"/cpus/" OF_SOC,
+		"bus-frequency",
+		fdt_set_busfreq
 	},
-	{	FT_CREATE | FT_BUSFREQ,
-		"/" OF_SOC "/serial@4500/",
-		"clock-frequency"
+	{	"/" OF_SOC "/serial@4500/",
+		"clock-frequency",
+		fdt_set_busfreq
 	},
-	{	FT_CREATE | FT_BUSFREQ,
-		"/" OF_SOC "/serial@4600/",
-		"clock-frequency"
+	{	"/" OF_SOC "/serial@4600/",
+		"clock-frequency",
+		fdt_set_busfreq
 	},
 #ifdef CONFIG_MPC83XX_TSEC1
-	{	FT_UPDATE | FT_ENETADDR,
-		"/" OF_SOC "/ethernet@24000,
+	{	"/" OF_SOC "/ethernet@24000,
 		"mac-address",
+		fdt_set_eth0
 	},
-	{	FT_UPDATE | FT_ENETADDR,
-		"/" OF_SOC "/ethernet@24000,
+	{	"/" OF_SOC "/ethernet@24000,
 		"local-mac-address",
+		fdt_set_eth0
 	},
 #endif
 #ifdef CONFIG_MPC83XX_TSEC2
-	{	FT_UPDATE | FT_ENETADDR,
-		"/" OF_SOC "/ethernet@25000,
+	{	"/" OF_SOC "/ethernet@25000,
 		"mac-address",
+		fdt_set_eth1
 	},
-	{	FT_UPDATE | FT_ENETADDR,
-		"/" OF_SOC "/ethernet@25000,
+	{	"/" OF_SOC "/ethernet@25000,
 		"local-mac-address",
+		fdt_set_eth1
 	},
+#endif
+#ifdef CONFIG_UEC_ETH1
+#if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
+	{	"/" OF_QE "/ucc@2000/mac-address",
+		"mac-address",
+		fdt_set_eth0
+	},
+	{	"/" OF_QE "/ucc@2000/mac-address",
+		"local-mac-address",
+		fdt_set_eth0
+	},
+#elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
+	{	"/" OF_QE "/ucc@2200/mac-address",
+		"mac-address",
+		fdt_set_eth0
+	},
+	{	"/" OF_QE "/ucc@2200/mac-address",
+		"local-mac-address",
+		fdt_set_eth0
+	},
+#endif
+#endif
+#ifdef CONFIG_UEC_ETH2
+#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
+	{	"/" OF_QE "/ucc@3000/mac-address",
+		"mac-address",
+		fdt_set_eth1
+	},
+	{	"/" OF_QE "/ucc@3000/mac-address",
+		"local-mac-address",
+		fdt_set_eth1
+	},
+#elif CFG_UEC1_UCC_NUM == 3  /* UCC4 */
+	{	"/" OF_QE "/ucc@3200/mac-address",
+		"mac-address",
+		fdt_set_eth1
+	},
+	{	"/" OF_QE "/ucc@3200/mac-address",
+		"local-mac-address",
+		fdt_set_eth1
+	},
+#endif
 #endif
 };
 
 void
 ft_cpu_setup(void *blob, bd_t *bd)
 {
-	int   nodeoffset;
-	int   err;
-	int j;
+	int  nodeoffset;
+	int  err;
+	int  j;
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_path_offset (fdt, fixup_props[j].node);
+		nodeoffset = fdt_path_offset(fdt, fixup_props[j].node);
 		if (nodeoffset >= 0) {
-			/*
-			 * If unconditional create or the property already exists...
-			 */
-			err = 0;
-			if ((fixup_props[j].createflags & FT_CREATE) ||
-				(fdt_get_property(fdt, nodeoffset, fixup_props[j].prop, 0))) {
-				if (fixup_props[j].createflags & FT_BUSFREQ) {
-					u32   tmp;
-
-					tmp = cpu_to_be32(bd->bi_busfreq);
-					err = fdt_setprop(fdt, nodeoffset,
-							fixup_props[j].prop, &tmp, sizeof(tmp));
-				} else if (fixup_props[j].createflags & FT_ENETADDR) {
-					err = fdt_setprop(fdt, nodeoffset,
-							fixup_props[j].prop, bd->bi_enetaddr, 6);
-				} else {
-					printf("ft_cpu_setup: %s %s has no flag for the value to set\n",
-						fixup_props[j].node,
-						fixup_props[j].prop);
-				}
-				if (err < 0)
-					printf("libfdt: %s %s returned %s\n",
-						fixup_props[j].node,
-						fixup_props[j].prop,
-						fdt_strerror(err));
-			}
+			err = (*fixup_props[j].set_fn)(blob, nodeoffset, fixup_props[j].prop, bd);
+			if (err < 0)
+				printf("set_fn/libfdt: %s %s returned %s\n",
+					fixup_props[j].node,
+					fixup_props[j].prop,
+					fdt_strerror(err));
 		}
 	}
 }
