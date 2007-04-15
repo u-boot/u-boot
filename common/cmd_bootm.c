@@ -37,6 +37,7 @@
 #if defined(CONFIG_OF_LIBFDT)
 #include <fdt.h>
 #include <libfdt.h>
+#include <fdt_support.h>
 #endif
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
@@ -748,7 +749,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
 #if defined(CONFIG_OF_LIBFDT)
-		if (be32_to_cpu(fdt_magic(of_flat_tree)) == FDT_MAGIC) {
+		if (fdt_check_header(of_flat_tree) == 0) {
 #else
 		if (*(ulong *)of_flat_tree == OF_DT_HEADER) {
 #endif
@@ -795,7 +796,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				return;
 			}
 #if defined(CONFIG_OF_LIBFDT)
-			if (be32_to_cpu(fdt_magic(of_flat_tree + sizeof(image_header_t))) != FDT_MAGIC) {
+			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) == 0) {
 #else
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #endif
@@ -836,7 +837,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 
 #if defined(CONFIG_OF_LIBFDT)
-		if (be32_to_cpu(fdt_magic(of_data)) != FDT_MAGIC) {
+		if (fdt_check_header((void *)of_data) != 0) {
 #else
 		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
 #endif
@@ -937,23 +938,44 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if (of_data) {
 		int err;
 		ulong of_start, of_len;
+
 		of_len = be32_to_cpu(fdt_totalsize(of_data));
-		/* provide extra 8k pad */
+		/* position on a 4K boundary before the initrd/kbd */
 		if (initrd_start)
-			of_start = initrd_start - of_len - 8192;
+			of_start = initrd_start - of_len;
 		else
-			of_start  = (ulong)kbd - of_len - 8192;
+			of_start  = (ulong)kbd - of_len;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
 
-
+		of_flat_tree = (char *)of_start;
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
 		err = fdt_open_into((void *)of_start, (void *)of_data, of_len);
 		if (err != 0) {
-			printf ("libfdt: %s\n", fdt_strerror(err));
+			printf ("libfdt: %s " __FILE__ " %d\n", fdt_strerror(err), __LINE__);
 		}
+		/*
+		 * Add the chosen node if it doesn't exist, add the env and bd_t
+		 * if the user wants it (the logic is in the subroutines).
+		 */
+		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+				printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
+				return;
+		}
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+		if (fdt_env(of_flat_tree) < 0) {
+				printf("Failed creating the /u-boot-env node, aborting.\n");
+				return;
+		}
+#endif
+#ifdef CONFIG_OF_HAS_BD_T
+		if (fdt_bd_t(of_flat_tree) < 0) {
+				printf("Failed creating the /bd_t node, aborting.\n");
+				return;
+		}
+#endif
 	}
 #endif
 #if defined(CONFIG_OF_FLAT_TREE)
@@ -1004,6 +1026,24 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
 #endif
+#if defined(CONFIG_OF_LIBFDT)
+	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+		printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
+		return;
+	}
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+	if (fdt_env(of_flat_tree) < 0) {
+		printf("Failed creating the /u-boot-env node, aborting.\n");
+		return;
+	}
+#endif
+#ifdef CONFIG_OF_HAS_BD_T
+	if (fdt_bd_t(of_flat_tree) < 0) {
+		printf("Failed creating the /bd_t node, aborting.\n");
+		return;
+	}
+#endif
+#endif /* if defined(CONFIG_OF_LIBFDT) */
 
 	(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
 #endif

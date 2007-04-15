@@ -55,9 +55,33 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		return err;
 	}
 
-#warning "Don't double-add the reserved map"
 	if (initrd_start && initrd_end) {
-		err = fdt_add_reservemap_entry(fdt,
+		struct fdt_reserve_entry *re;
+		int  used;
+		int  total;
+		int  j;
+
+		err = fdt_num_reservemap(fdt, &used, &total);
+		if (err < 0) {
+			printf("libfdt: %s\n", fdt_strerror(err));
+			return err;
+		}
+		if (used >= total) {
+			printf("fdt_chosen: no room in the reserved map (%d of %d)\n",
+				used, total);
+			return -1;
+		}
+		/*
+		 * Look for an existing entry and update it.  If we don't find
+		 * the entry, we will j be the next available slot.
+		 */
+		for (j = 0; j < used; j++) {
+			err = fdt_get_reservemap(fdt, j, &re);
+			if (re->address == initrd_start) {
+				break;
+			}
+		}
+		err = fdt_replace_reservemap_entry(fdt, j,
 			initrd_start, initrd_end - initrd_start + 1);
 		if (err < 0) {
 			printf("libfdt: %s\n", fdt_strerror(err));
@@ -202,13 +226,13 @@ int fdt_env(void *fdt)
 			continue;
 		err = fdt_setprop(fdt, nodeoffset, lval, rval, strlen(rval)+1);
 		if (err < 0) {
-			printf("libfdt: %s\n", lval, fdt_strerror(err));
+			printf("libfdt: %s\n", fdt_strerror(err));
 			return err;
 		}
 	}
 	return 0;
 }
-#endif /* CONFIG_OF_HAS_UBOOT_ENV */
+#endif /* ifdef CONFIG_OF_HAS_UBOOT_ENV */
 
 /********************************************************************/
 
@@ -318,6 +342,6 @@ int fdt_bd_t(void *fdt)
 
 	return 0;
 }
-#endif /* CONFIG_OF_HAS_BD_T */
+#endif /* ifdef CONFIG_OF_HAS_BD_T */
 
 #endif /* CONFIG_OF_LIBFDT */
