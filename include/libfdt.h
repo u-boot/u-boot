@@ -86,6 +86,8 @@ void *fdt_getprop(const void *fdt, int nodeoffset,
 
 uint32_t fdt_next_tag(const void *fdt, int offset,
 		      int *nextoffset, char **namep);
+int fdt_num_reservemap(void *fdt, int *used, int *total);
+int fdt_get_reservemap(void *fdt, int n, struct fdt_reserve_entry *re);
 
 /* Write-in-place functions */
 int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
@@ -99,6 +101,8 @@ int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
 
 int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
 int fdt_nop_node(void *fdt, int nodeoffset);
+int fdt_insert_reservemap_entry(void *fdt, int n, uint64_t addr, uint64_t size);
+
 
 /* Sequential-write functions */
 int fdt_create(void *buf, int bufsize);
@@ -115,6 +119,7 @@ int fdt_property(void *fdt, const char *name, const void *val, int len);
 	fdt_property(fdt, name, str, strlen(str)+1)
 int fdt_end_node(void *fdt);
 int fdt_finish(void *fdt);
+int fdt_replace_reservemap_entry(void *fdt, int n, uint64_t addr, uint64_t size);
 
 /* Read-write functions */
 int fdt_open_into(void *fdt, void *buf, int bufsize);
