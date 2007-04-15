@@ -467,6 +467,10 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 		miiphy_write(dev->name, phyAddr, 0x0, 0x8000);
 		udelay(1000);
 
+#if defined(CONFIG_UC101)
+		/* Set the LED configuration Register for the UC101 Board */
+		miiphy_write(dev->name, phyAddr, 0x14, 0x4122);
+#endif
 		if (fec->xcv_type == MII10) {
 			/*
 			 * Force 10Base-T, FDX operation

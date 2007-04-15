@@ -1,3 +1,36 @@
+commit 37403005cfe6bb13964d450f6a48a0b0f2f7017e
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sat Apr 14 05:26:48 2007 +0200
+
+    [Fix]	Set the LED status register on the UC101 for the LXT971 PHY.
+	    clear the Display after reset.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 6c9ba919375db977aaad9146bf320c7afd07ae7a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 11 17:25:01 2007 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 51056dd9863e6a1bc363afbbe1775c58cd967418
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 11 17:22:55 2007 +0200
+
+    Update for SC3 board
+
+    * Make IDE timeout configurable through ide_reset_timeout variable.
+    * Use Newline as "password" string
+    * Use just a single partition in NAND flash
+
+commit 31c98a88228021b314c89ebb8104fb6473da4471
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 4 02:09:30 2007 +0200
+
+    Minor coding style cleanup.
+
 commit 94abd7c0583ebe01e799b25f451201deeaab550d
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 4 01:49:15 2007 +0200
@@ -66,6 +99,63 @@ Date:	Sat Mar 31 11:59:59 2007 -0400
     This adds the applicable libfdt source files (unmodified) and a README
     to explain where the source came from.
 
+commit da6ebc1bc082cbe3b6bbde079cafe09f7ebbad4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 13:16:23 2007 +0200
+
+    ppc4xx: Update Katmai bootstrap command
+
+    Now the DDR2 frequency is also 2*PLB frequency when 166MHz PLB
+    is selected.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cabee756a6532986729477c3cc1ea16ef8517ad2
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 13:15:06 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Additional RAM information is now printed upon powerup, like
+    DDR2 frequency and CAS latency.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 60723803431ac75cad085690789e433d5ab9174e
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:48:36 2007 +0200
+
+    ppc4xx: Change Yucca config file to support ECC
+
+    With the updated 44x DDR2 driver the Yucca board now supports
+    ECC generation and checking.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 490e5730c674b20d708b783a2c5ffd7208f83873
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:47:34 2007 +0200
+
+    ppc4xx: Fix "bootstrap" command for Katmai board
+
+    The board specific "bootstrap" command is now fixed and can
+    be used for the AMCC Katmai board to configure different
+    CPU/PLB/OPB frequencies.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 94f54703c3a776ec23e427ca2a16e0a79a5d50c1
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 31 08:46:08 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Fix a bug in the auto calibration routine. This driver now runs
+    more reliable with the tested modules. It's also tested with
+    167MHz PLB frequency (667MHz DDR2 frequency) on the Katmai.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 342cd097be1e7affe82f42ab3da220959a699e64
 Author: Michal Simek <monstr@monstr.eu>
 Date:	Fri Mar 30 22:52:09 2007 +0200
@@ -77,6 +167,26 @@ Author: Michal Simek <monstr@monstr.eu>
 Date:	Fri Mar 30 22:42:45 2007 +0200
 
     [CLEAN] Remove inefficient Suzaku code
+
+commit 430f1b0f9a670c2f13eaa52e66a10db96dd3647d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 28 15:03:16 2007 +0200
+
+    Merge some AMCC make targets to keep the top-level Makefile smaller
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0c75c9d84307a9f1cbe1ff0c4d8937ee3a96475e
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 28 14:52:12 2007 +0200
+
+    i2c: Enable "old" i2c commands even when CONFIG_I2C_CMD_TREE is defined
+
+    The "old" i2c commands (iprobe, imd...) are now compiled in again,
+    even when the i2c command tree is enabled via the CONFIG_I2C_CMD_TREE
+    config option.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 5da048adf44bea5e3b94080d02903c2e3fe7aa4a
 Author: Michal Simek <monstr@monstr.eu>
@@ -91,6 +201,36 @@ Date:	Mon Mar 26 01:39:07 2007 +0200
     Support for XUPV2P board
     Reset support
     BSP autoconfig support
+
+commit 0d974d5297349504a2ddfa09314be573b5df320a
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:57:09 2007 +0100
+
+    [PATCH] Add 4xx GPIO functions
+
+    This patch adds some 4xx GPIO functions. It also moves some of the
+    common code and defines into a common 4xx GPIO header file.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2db633658bbf366ab0c8dad7a0727e1fb2ae6b11
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:55:58 2007 +0100
+
+    [PATCH] Small Sequoia cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3cb86f3e40d2a80356177434a99f75bc8baa9caf
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 24 15:45:34 2007 +0100
+
+    [PATCH] Clean up 40EZ/Acadia support
+
+    This patch cleans up all the open issue of the preliminary
+    Acadia support.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 6eb1df835191d8ce4b81d5af40fa8e0fbe78e997
 Author: Jon Loeliger <jdl@freescale.com>
