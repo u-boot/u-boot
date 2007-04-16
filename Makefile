@@ -1689,6 +1689,19 @@ MPC8360EMDS_SLAVE_config:	unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
 
+MPC8313ERDB_33_config \
+MPC8313ERDB_66_config: unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define CFG_33MHZ" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define CFG_66MHZ" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
