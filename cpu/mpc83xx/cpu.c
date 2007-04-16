@@ -124,6 +124,18 @@ int checkcpu(void)
 	case SPR_8321_REV11:
 		puts("MPC8321, ");
 		break;
+	case SPR_8311_REV10:
+		puts("MPC8311, ");
+		break;
+	case SPR_8311E_REV10:
+		puts("MPC8311E, ");
+		break;
+	case SPR_8313_REV10:
+		puts("MPC8313, ");
+		break;
+	case SPR_8313E_REV10:
+		puts("MPC8313E, ");
+		break;
 	default:
 		puts("Rev: Unknown revision number.\nWarning: Unsupported cpu revision!\n");
 		return 0;
