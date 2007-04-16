@@ -1269,4 +1269,9 @@
 #define DDRCDR_M_ODR		0x00000002
 #define DDRCDR_Q_DRN		0x00000001
 
+#ifndef __ASSEMBLY__
+struct pci_region;
+void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot);
+#endif
+
 #endif	/* __MPC83XX_H__ */
