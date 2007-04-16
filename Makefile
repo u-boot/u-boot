@@ -430,6 +430,7 @@ inka4x0_config:	unconfig
 	@$(MKCONFIG) inka4x0 ppc mpc5xxx inka4x0
 
 lite5200b_config	\
+lite5200b_PM_config	\
 lite5200b_LOWBOOT_config:	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/icecube
@@ -438,6 +439,10 @@ lite5200b_LOWBOOT_config:	unconfig
 	@ echo "... DDR memory revision"
 	@ echo "#define CONFIG_MPC5200"		>>$(obj)include/config.h
 	@ echo "#define CONFIG_LITE5200B"	>>$(obj)include/config.h
+	@[ -z "$(findstring _PM_,$@)" ] || \
+		{ echo "#define CONFIG_LITE5200B_PM"	>>$(obj)include/config.h ; \
+		  echo "... with power management (low-power mode) support" ; \
+		}
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp ; \
 		  echo "... with LOWBOOT configuration" ; \
