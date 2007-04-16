@@ -52,13 +52,26 @@ int checkcpu(void)
 
 	immr = (immap_t *)CFG_IMMR;
 
-	if ((pvr & 0xFFFF0000) != PVR_83xx) {
-		puts("Not MPC83xx Family!!!\n");
-		return -1;
+	puts("CPU: ");
+
+	switch (pvr & 0xffff0000) {
+		case PVR_E300C1:
+			printf("e300c1, ");
+			break;
+
+		case PVR_E300C2:
+			printf("e300c2, ");
+			break;
+
+		case PVR_E300C3:
+			printf("e300c3, ");
+			break;
+
+		default:
+			printf("Unknown core, ");
 	}
 
 	spridr = immr->sysconf.spridr;
-	puts("CPU: ");
 	switch(spridr) {
 	case SPR_8349E_REV10:
 	case SPR_8349E_REV11:
