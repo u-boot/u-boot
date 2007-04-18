@@ -1,3 +1,64 @@
+commit ad4eb555671d97f96dc56eab55103b1f86874b01
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 14:30:39 2007 +0200
+
+    MCC200 board: remove warning which is obsolete after PSoC firmware changes
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3747a3f010b2b1442dec3e871c69788b6017aaae
+Author: Domen Puncer <domen.puncer@telargo.com>
+Date:	Wed Apr 18 12:11:05 2007 +0200
+
+    [PATCH] icecube/lite5200b: document wakeup from low-power support
+
+    Signed-off-by: Domen Puncer <domen.puncer@telargo.com>
+
+commit e673226ff9d6aa91b47ceac74b8c13770b06bb37
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 18 12:07:47 2007 +0200
+
+    ppc4xx: Update Acadia to not setup PLL when booting via bootstrap EEPROM
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 90e6f41cf09fc98f6ccb510e183d53ab8546cf2f
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 18 12:05:59 2007 +0200
+
+    ppc4xx: Add output for bootrom location to 405EZ ports
+
+    Now 405EZ ports also show upon bootup from which boot device
+    they are configured to boot:
+
+    U-Boot 1.2.0-gd3832e8f-dirty (Apr 18 2007 - 07:47:05)
+
+    CPU:   AMCC PowerPC 405EZ Rev. A at 199.999 MHz (PLB=133, OPB=66, EBC=66 MHz)
+	   Bootstrap Option E - Boot ROM Location EBC (32 bits)
+	   16 kB I-Cache 16 kB D-Cache
+    Board: Acadia - AMCC PPC405EZ Evaluation Board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d3832e8fe1b214ec62424eac36cfda9fc56d21b3
+Author: Domen Puncer <domen.puncer@telargo.com>
+Date:	Mon Apr 16 14:00:13 2007 +0200
+
+    [PATCH] icecube/lite5200b: wakeup from low-power support
+
+    U-Boot part of Lite5200b low power mode support.
+    Puts SDRAM out of self-refresh and transfers control to
+    address saved at physical 0x0.
+
+    Signed-off-by: Domen Puncer <domen.puncer@telargo.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 8048cdd56f04a756eeea4951f402bf5cc33785db
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 14 21:16:54 2007 +0200
+
+    Update CHANGELOG
+
 commit 37403005cfe6bb13964d450f6a48a0b0f2f7017e
 Author: Heiko Schocher <hs@pollux.denx.de>
 Date:	Sat Apr 14 05:26:48 2007 +0200
@@ -6,6 +67,42 @@ Date:	Sat Apr 14 05:26:48 2007 +0200
 	    clear the Display after reset.
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 7882751c78b7ecabfd49b0eff8de27661c71f16c
+Author: Denis Peter <d.peter@mpl.ch>
+Date:	Fri Apr 13 09:13:33 2007 +0200
+
+    [PATCH] Fix bugs in cmd_ide.c and cmd_scsi.c
+
+    Fix bug introduced by "Fix get_partition_info() parameter error in all
+    other calls" from 2005-03-04 in cmd_ide.c and cmd_scsi.c, which prevented
+    to use diskboot or scsiboot form another device than 0.
+
+    Signed-off-by: Denis Peter <d.peter@mpl.ch>
+
+commit 0b94504d22e70f537c17a0d38c87edb6e370977d
+Author: Greg Lopp <lopp@pobox.com>
+Date:	Fri Apr 13 08:02:24 2007 +0200
+
+    [PATCH] Fix use of "void *" for block dev read/write buffer pointers
+
+    Signed-of-by: Greg Lopp <lopp@pobox.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 2ad3aba01d37b72e7c957b07e102fccd64fe6d13
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Thu Apr 12 14:15:59 2007 +0200
+
+    ppc4xx: Fix i2c divisor calcularion for PPC4xx
+
+    This patch fixes changes the i2c_init(...) function to use the function
+    get_OPB_freq() rather than calculating the OPB speed by
+    sysInfo.freqPLB/sysInfo.pllOpbDiv. The get_OPB_freq() function is
+    specific per processor. The prior method was not and so was calculating
+    the wrong speed for some PPC4xx processors.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 6c9ba919375db977aaad9146bf320c7afd07ae7a
 Author: Wolfgang Denk <wd@denx.de>
@@ -25,6 +122,54 @@ Date:	Wed Apr 11 17:22:55 2007 +0200
     * Use Newline as "password" string
     * Use just a single partition in NAND flash
 
+commit c0707ce65677650b5ceab0500ee50ae5168afef2
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:34:06 2007 +0800
+
+    [Blackfin][PATCH] Kill off a bunch of common local prototypes
+
+commit 7b7e30aa64bb6657a1bfd32fdbdbfeb561e6a48d
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:33:04 2007 +0800
+
+    [Blackfin][PATCH] Fix dynamic CPLB generation issue
+
+commit 0445e3a264251d75b1be45ef713c70726a2952f0
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:31:47 2007 +0800
+
+    [Blackfin][PATCH] minior cleanup
+
+commit 155fd766573981090e638b493d5857562151862e
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:31:18 2007 +0800
+
+    [Blackfin][PATCH] Fix copyright and update license
+
+commit 9fd437bbd75d282f899e1da50be20a2bf38450bc
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:30:25 2007 +0800
+
+    [Blackfin][PATCH] Add BF537 EMAC driver initialization
+
+commit 889256e8604e0c68db1d866d720894dffede9df6
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:29:55 2007 +0800
+
+    [Blackfin][PATCH] call real the system synchronize instruction
+
+commit e0df1c921b788289564e4c1ee7120a6a9cd3ab05
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:29:17 2007 +0800
+
+    [Blackfin][PATCH] remove asm/page.h as we do not actually use/want any of these definitions nor does any other arch include it
+
+commit dfeeab2cd680df047e68e723b246adf6f33bb556
+Author: Aubrey Li <aubrey.adi@gmail.com>
+Date:	Thu Apr 5 18:28:34 2007 +0800
+
+    [Blackfin][PATCH]: fix flash unaligned copy issue
+
 commit 31c98a88228021b314c89ebb8104fb6473da4471
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 4 02:09:30 2007 +0200
@@ -36,6 +181,18 @@ Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 4 01:49:15 2007 +0200
 
     Minor cleanup.
+
+commit a65c5768e5537530bd1780af3d3fddc3113a163c
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 2 10:09:30 2007 +0200
+
+    ppc4xx: Change SysACE address on Katmai
+
+    With this new base address of the Xilinx SystemACE controller
+    the Linux driver will be easier to adapt, since it can now be
+    mapped via the "normal" ioremap() call.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit aea03c4e8c3a21ce43d3faf48a6e6d474c8bdf73
 Author: Gerald Van Baren <vanbaren@cideas.com>
