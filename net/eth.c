@@ -55,6 +55,7 @@ extern int skge_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
+extern int bfin_EMAC_initialize(bd_t *);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -254,6 +255,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_RTL8169)
 	rtl8169_initialize(bis);
+#endif
+#if defined(CONFIG_BF537)
+	bfin_EMAC_initialize(bis);
 #endif
 
 	if (!eth_devices) {

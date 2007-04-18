@@ -1,7 +1,7 @@
 /*
  * U-boot - u-boot.h Structure declarations for board specific data
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,15 +21,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _U_BOOT_H_
 #define _U_BOOT_H_	1
 
 typedef struct bd_info {
-	int bi_baudrate;	/* serial console baudrate */
+	int bi_baudrate;		/* serial console baudrate */
 	unsigned long bi_ip_addr;	/* IP Address */
 	unsigned char bi_enetaddr[6];	/* Ethernet adress */
 	unsigned long bi_arch_number;	/* unique id for this board */
