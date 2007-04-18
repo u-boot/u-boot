@@ -1,3 +1,20 @@
+commit 37403005cfe6bb13964d450f6a48a0b0f2f7017e
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sat Apr 14 05:26:48 2007 +0200
+
+    [Fix]	Set the LED status register on the UC101 for the LXT971 PHY.
+	    clear the Display after reset.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 6c9ba919375db977aaad9146bf320c7afd07ae7a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 11 17:25:01 2007 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 51056dd9863e6a1bc363afbbe1775c58cd967418
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 11 17:22:55 2007 +0200

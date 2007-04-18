@@ -221,6 +221,8 @@ long int initdram (int board_type)
 int checkboard (void)
 {
 	puts ("Board: MAN UC101\n");
+	/* clear the Display */
+	*(char *)(CFG_DISP_CWORD) = 0x80;
 	return 0;
 }
 
