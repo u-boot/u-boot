@@ -125,6 +125,7 @@ int i2c_bootrom_enabled(void)
 	return (val & SDR0_SDCS_SDD);
 #endif
 }
+#endif
 
 #if defined(CONFIG_440GX)
 #define SDR0_PINSTP_SHIFT	29
@@ -178,16 +179,37 @@ static char *bootstrap_str[] = {
 };
 #endif
 
+#if defined(CONFIG_405EZ)
+#define SDR0_PINSTP_SHIFT	28
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"SPI (fast)",
+	"NAND (512 page, 4 addr cycle)",
+	"I2C (Addr 0x50)",
+	"EBC (32 bits)",
+	"I2C (Addr 0x50)",
+	"NAND (2K page, 5 addr cycle)",
+	"I2C (Addr 0x50)",
+	"EBC (16 bits)",
+	"Reserved",
+	"NAND (2K page, 4 addr cycle)",
+	"I2C (Addr 0x50)",
+	"NAND (512 page, 3 addr cycle)",
+	"I2C (Addr 0x50)",
+	"SPI (slow)",
+	"I2C (Addr 0x50)",
+};
+#endif
+
 #if defined(SDR0_PINSTP_SHIFT)
 static int bootstrap_option(void)
 {
 	unsigned long val;
 
-	mfsdr(sdr_pinstp, val);
-	return ((val & 0xe0000000) >> SDR0_PINSTP_SHIFT);
+	mfsdr(SDR_PINSTP, val);
+	return ((val & 0xf0000000) >> SDR0_PINSTP_SHIFT);
 }
 #endif /* SDR0_PINSTP_SHIFT */
-#endif
 
 
 #if defined(CONFIG_440)
@@ -403,11 +425,11 @@ int checkcpu (void)
 
 #if defined(I2C_BOOTROM)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
+#endif	/* I2C_BOOTROM */
 #if defined(SDR0_PINSTP_SHIFT)
 	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
 #endif	/* SDR0_PINSTP_SHIFT */
-#endif	/* I2C_BOOTROM */
 
 #if defined(CONFIG_PCI)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
