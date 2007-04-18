@@ -20,6 +20,7 @@
  * MA 02111-1307 USA
  */
 
+extern void pixis_reset(void);
 extern int set_px_sysclk(ulong sysclk);
 extern int set_px_mpxpll(ulong mpxpll);
 extern int set_px_corepll(ulong corepll);
@@ -28,6 +29,3 @@ extern void read_from_px_regs_altbank(int set);
 extern void set_altbank(void);
 extern void set_px_go(void);
 extern void set_px_go_with_watchdog(void);
-extern int disable_watchdog(cmd_tbl_t *cmdtp,
-			    int flag, int argc, char *argv[]);
-extern ulong strfractoint(uchar *strptr);
