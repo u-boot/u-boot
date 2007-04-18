@@ -1124,7 +1124,7 @@ static void program_codt(unsigned long *dimm_populated,
 				modt3 = 0x00000000;
 			}
 		}
-  	} else {
+	} else {
 		codt |= SDRAM_CODT_DQS_2_5_V_DDR1;
 		modt0 = 0x00000000;
 		modt1 = 0x00000000;
