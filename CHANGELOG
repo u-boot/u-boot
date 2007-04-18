@@ -65,6 +65,239 @@ Date:	Sat Apr 14 21:16:54 2007 +0200
 
     Update CHANGELOG
 
+commit 8e6875183cdca91c134408d119d4abcd48ef6856
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 18:56:46 2006 +0100
+
+    AVR32: Enable MMC support
+
+    Set up the portmux for the MMC interface and enable the MMC driver
+    along with support for DOS partitions, ext2 and FAT filesystems.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit fc26c97bb6df41b4a95662c34054fe912387bf38
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Jan 20 10:03:53 2006 +0100
+
+    Atmel MCI driver
+
+    Driver for the Atmel MCI controller (MMC interface) for AT32AP CPUs.
+
+    The AT91 ARM-based CPUs use basically the same hardware, so it should
+    be possible to share this driver, but no effort has been made so far.
+
+    Hardware documentation can be found in the AT32AP7000 data sheet,
+    which can be downloaded from
+
+    http://www.atmel.com/dyn/products/datasheets.asp?family_id=682
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 05fdab1ef6a10d049a50021a86f1226f444d9b9f
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 18:55:37 2006 +0100
+
+    AVR32: Add clk and gpio infrastructure for mmci
+
+    Implement functions for configuring the mmci pins, as well as
+    functions for getting the clock rate of the mmci controller.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 7fac3f69e9f05c5e5326681976c35d129324c4de
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 18:53:56 2006 +0100
+
+    Enable partition support with MMC
+
+    Include implementations of init_part() and get_partition_info() when
+    CONFIG_MMC is set.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 9a24f477a1ed5bb0f74377c985d754ebbfa44872
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 17:14:30 2006 +0100
+
+    AVR32: Enable networking
+
+    Implement MACB initialization for AVR32 and ATSTK1000, and turn
+    everything on, including the MACB driver.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 5c1fe1ffffd1750a7e47e5a2e2cd600c00e4f009
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Jan 20 10:03:34 2006 +0100
+
+    Atmel MACB ethernet driver
+
+    Driver for the Atmel MACB on-chip ethernet controller.
+
+    This driver has been tested on the ATSTK1000 board with a AT32AP7000
+    CPU. It should probably work on AT91SAM926x as well with some minor
+    modifications.
+
+    Hardware documentation can be found in the AT32AP7000 data sheet,
+    which can be downloaded from
+
+    http://www.atmel.com/dyn/products/datasheets.asp?family_id=682
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit b4ec9c2d43d894729bb633bfdbdfa95a962c1556
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 16:56:14 2006 +0100
+
+    AVR32: Add clk and gpio infrastructure for macb0 and macb1
+
+    Implement functions for configuring the macb0 and macb1 pins, as
+    well as functions for getting the clock rate of the various
+    busses the macb ethernet controllers are connected to.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit d5acb95b16a0a74c643524342c3437e765426d05
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 15:39:15 2006 +0100
+
+    AVR32: Implement simple DMA memory allocator
+
+    Implement dma_alloc_coherent() which returns cache-aligned
+    uncacheable memory.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 91975b0fea773c9e681fea8cf3349669f27685ee
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 15:46:02 2006 +0100
+
+    Import <linux/mii.h> from the Linux kernel
+
+    Instead of creating yet another set of MII register definitions
+    in the macb driver, here's a complete set of definitions for everyone
+    to use.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 1b804b229556a4d862da93c0ec94e79419364b2c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed Mar 21 19:47:36 2007 +0100
+
+    AVR32: Include more commands for ATSTK1000
+
+    Include the imi, imls and jffs commands sets by default on ATSTK1000.
+    Also define CONFIG_BOOTARGS to something more useful, define
+    CONFIG_BOOTCOMMAND and enable autoboot by default.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 9c0deb5ae3ea0189f2e08ac29ef1316f1fb8548d
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed Mar 21 19:44:48 2007 +0100
+
+    AVR32: Provide a definition of struct stat
+
+    Copy the definition of struct stat from the Linux kernel.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 12f099c08167a7a51aeee623bc16dafd0841271c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Dec 17 14:46:06 2006 +0100
+
+    AVR32: Use initdram() instead of board_init_memories()
+
+    Conform to the "standard" interface and use initdram() instead of
+    board_init_memories() on AVR32. This enables us to get rid of the
+    sdram_size member of the global_data struct as well.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 1f4f2121c2685182eb87fa9a9b799d1917387a1c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Nov 20 15:53:10 2006 +0100
+
+    AVR32: Relocate u-boot to SDRAM
+
+    Relocate the u-boot image into SDRAM like everyone else does. This
+    means that we can handle much larger .data and .bss than we used to.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit df548d3c3e2bbc40258713167859ffc2ce99a900
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sun Nov 19 18:06:53 2006 +0100
+
+    AVR32: Resource management rewrite
+
+    Rewrite the resource management code (i.e. I/O memory, clock gating,
+    gpio) so it doesn't depend on any global state. This is necessary
+    because this code is heavily used before relocation to RAM, so we
+    can't write to any global variables.
+
+    As an added bonus, this makes u-boot's memory footprint a bit smaller,
+    although some functionality has been left out; all clocks are enabled
+    all the time, and there's no checking for gpio line conflicts.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 03d1e1365796cd15d1726e8a51fd8b5be50b2fe9
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Nov 18 18:01:13 2006 +0100
+
+    AVR32: Clean up memory-map.h for at32ap7000
+
+    Convert spaces to tabs (must have missed this one last time around),
+    sort the entries by address and group them together by bus
+    connectivity.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 28c699ef69f4b6cdf252e4747b7b590028a88981
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Nov 18 17:32:31 2006 +0100
+
+    AVR32: Build position-independent u-boot
+
+    Add -fPIC -mno-init-got to the avr32-specific CFLAGS to make u-boot
+    position independent. This will make relocation a lot easier.
+
+    -mno-init-got means that gcc shouldn't emit code to load the GOT
+    address into r6 in every function prologue. We do it once and for
+    all in the early startup assembly code, so enabling this option
+    makes u-boot a bit faster and smaller.
+
+    The assembly parts have always been position-independent, so no code
+    changes should be necessary.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 5374b36de91d006d1df9536259fa9f66b01aa3aa
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Nov 18 17:24:31 2006 +0100
+
+    AVR32: Use avr32-linux- cross-compilation prefix by default
+
+    It doesn't really matter which toolchain you use to compile u-boot,
+    but the avr32-linux one is probably what most people have installed.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit c841beeddebece0039e724fb27f4d1a39ee1c6b6
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Nov 18 17:15:30 2006 +0100
+
+    AVR32: Split start_u_boot into board_init_f and board_init_r
+
+    Split the avr32 initialization code into a function to run before
+    relocation, board_init_f and a function to run after relocation,
+    board_init_r. For now, board_init_f simply calls board_init_r
+    at the end.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
 commit 37403005cfe6bb13964d450f6a48a0b0f2f7017e
 Author: Heiko Schocher <hs@pollux.denx.de>
 Date:	Sat Apr 14 05:26:48 2007 +0200
@@ -842,6 +1075,12 @@ Date:	Tue Mar 6 07:47:04 2007 +0100
     provided with ELDK 4.x is needed to generate this optimized code.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 647d3c3eed0da1d1505eecabe0b0fab96f956e68
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Sun Mar 4 01:36:05 2007 +0100
+
+    Some code cleanup.
 
 commit 781e026c8aa6f7e9eb5f0e72cc4d20971219b148
 Author: Kim Phillips <kim.phillips@freescale.com>
@@ -1714,6 +1953,15 @@ Date:	Tue Jan 23 13:25:22 2007 +0100
     [ColdFire MCF5271 family] Add CPU detection based on the value of Chip
     Identification Register (CIR).
 
+commit fdef388758506765d4d6a7155c8f1584c63ff581
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Mon Jan 22 13:19:21 2007 +0800
+
+    use  CFG_WRITE_SWAPPED_DATA define instead of define CFG_FLASH_CFI_SWAP
+    The patch by Heiko Schocher <hs@pollux.denx.de> on Jan, 19, 2007
+    fixes cfi_driver bug for mpc7448hpc2 board. The default cfi_driver can support
+    mpc7448hpc2 board.
+
 commit a4012396645533aef218354eeba754dff0deace8
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Fri Jan 19 23:08:39 2007 +0100
@@ -2128,6 +2376,72 @@ Author: Andrei Safronov <safronov@pollux.denx.de>
 Date:	Fri Dec 8 16:23:08 2006 +0100
 
     automatic update mechanism
+
+commit 9d27b3a0685ff99fc477983f315c04d49f657a8a
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Mon Dec 4 17:56:59 2006 +0800
+
+    Slight code clean up.
+    Add comments, delete duplicate define and remove spaces.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 4dbcd69e3e2776ea334590d5768e3692c5fae5c1
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Mon Dec 4 17:54:21 2006 +0800
+
+    Introduce PLL_CFG[0:4] table for processor 7448/7447A/7455/7457. The original
+    multiplier table can not refect the real PLL clock behavior of these
+    processors. Please refer to the hardware specification for detailed
+    information of the corresponding processors.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 4efe20c9579011d9987f62ed7d35ee8cdc1cf0e0
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Mon Dec 4 14:46:23 2006 +0800
+
+    Remove the static MAC address, ip address, server ip, netmask and
+    gateway ip for network setting.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 6f12c61cf31ed73d72ddfcfc712a854a3a177aaf
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Mon Dec 4 14:33:08 2006 +0800
+
+    Remove the duplicate memory test code for mpc744ihpc2 board.
+    If a memory test is needed, please use the functions in
+    post/memory.c or memtest command.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit c9c1eeed7dd193fa65fb194654132040d49d4d3a
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Fri Dec 1 19:01:25 2006 +0800
+
+    Fix the exception occuring in RAM table search issue.
+    The original search_one_table() function code can only processes the search
+    for the exception occurring in FLASH/ROM, because the exception and fixup
+    table usually locate in FLASH. If the exception address is also in
+    FLASH, it will be OK.
+    If the exception occurs in RAM, after the u-boot relocation, a
+    relocation offset should be added.
+
+    clean up the code in cpu/74xx_7xx/cpu.c
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit ee311214e0d216f904feea269599d0934bf71f23
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Fri Dec 1 11:47:36 2006 +0800
+
+    Clean up the code according to codestyle:
+    (1) remove some C++ comments.
+    (2) remove trailing white space.
+    (3) remove trailing empty line.
+    (4) Indentation by table.
+    (5) remove {} in one line condition.
+    (6) add space before '(' in function call.
+    Remove some weird printf () output.
+    Add necessary comments.
+    Modified Makefile to support building in a separate directory.
 
 commit dd520bf314c7add4183c5191692180f576f96b60
 Author: Wolfgang Denk <wd@pollux.denx.de>
@@ -2835,11 +3149,190 @@ Date:	Thu Sep 7 07:39:46 2006 -0700
 
     Signed-off-by: Nick Spence <nick.spence@freescale.com>
 
+commit 4831c8b8a97799da77923d6bbb4c260c0d45521c
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Fri Nov 3 13:10:00 2006 +0800
+
+    Remove some unused CFG define.
+    undef CFG_DRAM_TEST
+
+commit 99c09c4dec34f77c243bf51bea532e3f339410ad
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Fri Nov 3 13:07:36 2006 +0800
+
+    Change the TEXT_BASE from 0xFFF00000 to 0xFF000000.
+    Both work. 0xFF000000 seems more reasonable.
+
 commit c59200443072353044aa4bf737a5a60f9a9af231
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Thu Nov 2 15:15:01 2006 +0100
 
     Release U-Boot 1.1.6
+
+commit c1fbe4103a0d6c8957f912af902d705ba67836f2
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 19:14:48 2006 +0800
+
+    This patch comes from Yuli's posted patch on 8/8/2006
+    titled "CFI Driver Little-Endian write Issue".
+
+    http://sourceforge.net/mailarchive/message.php?msg_id=36311999
+
+    If that patch applied, please discard this one.
+    Until now , I do not see his patch is applied. So please apply this one.
+
+    Signed-off-by: Yuli Barcohen <yuli@arabellasw.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit b825f158e449e1e9cf74c08e572955e122394c96
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 19:12:31 2006 +0800
+
+    Tsi108 on chip i2c support.
+
+    The i2c  Interface provides a master-only, serial interface that can be
+    used for initializing Tsi108/Tsi109 registers from an EEPROM after a
+    device reset.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 9226e7d6f09b9a1ac074cd918c81225a4689bba8
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 19:11:06 2006 +0800
+
+    Tsi108 on chip pci controller support.
+
+    If there is no pci card, the tsi108/109 pci configure read will
+    cause a machine check exception to the processor. PCI error should
+    also be cleared after the read.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit d1927cee977126e547ceeba23e4f978f377cfb8f
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 19:08:55 2006 +0800
+
+    Tundra tsi108 on chip Ethernet controller support.
+
+    The following is a brief description of the Ethernet controller:
+    The Tsi108/9 Ethernet Controller connects Switch Fabric to two independent
+    Gigabit Ethernet ports,E0 and E1.  It uses a single Management interface
+    to manage the two physical connection devices (PHYs).  Each Ethernet port
+    has its own statistics monitor that tracks and reports key interface
+    statistics.  Each port supports a 256-entry hash table for address
+    filtering.	In addition, each port is bridged to the Switch Fabric
+    through a 2-Kbyte transmit FIFO and a 4-Kbyte Receive FIFO.
+
+    Each Ethernet port also has a pair of internal Ethernet DMA channels to
+    support the transmit and receive data flows.  The Ethernet DMA channels
+    use descriptors set up in memory, the memory map of the device, and
+    access via the Switch Fabric.  The Ethernet Controller?s DMA arbiter
+    handles arbitration for the Switch Fabric.	The Controller also
+    has a register businterface for register accesses and status monitor
+    control.
+
+    The PMD (Physical Media Device) interface operates in MII, GMII, or TBI
+    modes.  The MII mode is used for connecting with 10 or 100 Mbit/s PMDs.
+    The GMII and TBI modes are used to connect with Gigabit PMDs.  Internal
+    data flows to and from the Ethernet Controller through the Switch Fabric.
+
+    Each Ethernet port uses its transmit and receive DMA channels to manage
+    data flows through buffer descriptors that are predefined by the
+    system (the descriptors can exist anywhere in the system memory map).
+    These descriptors are data structures that point to buffers filled
+    with data ready to transmit over Ethernet, or they point to empty
+    buffers ready to receive data from Ethernet.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 78aa0c3427f3ecdeb34aabfbbe2dd23b6ad8f40e
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 19:01:33 2006 +0800
+
+    Tundra tsi108 header file.
+
+    The Tundra Semiconductor Corporation (Tundra) Tsi108 is a host bridge for
+    PowerPC processors that offers numerous system interconnect options for
+    embedded application designers. The Tsi108 can interconnect 60x or
+    MPX processors to PCI/X peripherals, DDR2-400 memory, Gigabit Ethernet,
+    and Flash. Provided the macro define for tsi108 chip.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 87c4db09699c6b89176b31004afcb83eb1585d47
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:59:15 2006 +0800
+
+    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    mpc7448hpc2 board support high level code:tsi108 init + mpc7448hpc2.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 27801b8ab11c61b577e45742a515bb3b23b80241
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:57:21 2006 +0800
+
+    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    Make ,config.mk and link file for the mpc7448hpc2 board.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit c6411c0c3bbc79f9ba8aef58296a42d8f9d8a0a6
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:55:04 2006 +0800
+
+    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    The mpc7448hpc2 board support header file.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 625bb5ddb50b243f931262ca8c46956409471917
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:52:21 2006 +0800
+
+    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    The mpc7448hpc2 board support low level assemble language init code.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 4c52783b3d024e153c4972b97332e314bc3bdc46
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:49:51 2006 +0800
+
+    General code modification for mpc7448hpc2 board support.
+    1. Add 7447A and 7448 processor support.
+    2. Add the following flags.
+
+    CFG_CONFIG_BUS_CLK : If the 74xx bus frequency can be configured dynamically
+    (such as by switch on board), this flag should be set.
+
+    CFG_EXCEPTION_AFTER_RELOCATE: If an exception occurs after the u-boot
+    relocates to RAM, this flag should be set.
+
+    CFG_SERIAL_HANG_IN_EXCEPTION: If the print out function will cause the
+    system hang in exception, this flag should be set.
+
+    There is a design issue for tsi108/109 pci configure  read. When pci scan
+    the slots, if there is no pci card, the tsi108/9 will cause a machine
+    check exception for mpc7448 processor.
+
+    Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 69366bf42f22d67efce8da3f8c40a43d4a3c2695
+Author: roy zang <tie-fei.zang@freescale.com>
+Date:	Thu Nov 2 18:34:47 2006 +0800
+
+    Add README file for mpc7448hpc2 board.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
 
 commit 25721b5cec2be4bce79cfade17ec8f6aa1e67526
 Author: Bartlomiej Sieka <tur@semihalf.com>
