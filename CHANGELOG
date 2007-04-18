@@ -1,3 +1,11 @@
+commit fd094c6379e2ef8a4d0ceb5640b24cb0c8d04449
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 17:20:58 2007 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 2a26ec4732efd7a308d0bbc97714c1d75ef1173b
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 18 17:07:26 2007 +0200
@@ -66,6 +74,32 @@ Date:	Mon Apr 16 14:00:13 2007 +0200
 
     Signed-off-by: Domen Puncer <domen.puncer@telargo.com>
     Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f35a53fc7b0c79fcfe7bdc01163c4b34aaba1460
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sun Apr 15 13:54:26 2007 -0400
+
+    Fix the ft_cpu_setup() property settings.
+
+    Use "setter" functions instead of flags, cleaner and more flexible.
+    It also fixes the problem noted by Timur Tabi that the ethernet MAC
+    addresses were all being set incorrectly to the same MAC address.
+
+commit c28abb9c614f65ce2096cc4a66fc886c77d0e5a4
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Apr 14 22:51:24 2007 -0400
+
+    Improve the bootm command for CONFIG_OF_LIBFDT
+
+    In bootm, create the "/chosen" node only if it doesn't already exist
+      (better matches the previous behavior).
+    Update for proper reserved memory map handling for initrd.
+
+commit 3f9f08cf91c8a6949a5d78a18bd3d8df7b86d888
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Apr 14 22:46:41 2007 -0400
+
+    Add some utilities to manipulate the reserved memory map.
 
 commit 8048cdd56f04a756eeea4951f402bf5cc33785db
 Author: Wolfgang Denk <wd@denx.de>
@@ -388,6 +422,26 @@ Date:	Mon Jan 22 12:37:30 2007 -0600
 
     Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 64dbbd40c58349b64f43fd33dbb5ca0adb67d642
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri Apr 6 14:19:43 2007 -0400
+
+    Moved fdt command support code to fdt_support.c
+
+    ...in preparation for improving the bootm command's handling of fdt blobs.
+    Also cleaned up some coding sloppiness.
+
+commit 6679f9299534e488a171a9bb8f9bb891de247aab
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri Apr 6 14:17:14 2007 -0400
+
+    libfdt: Make fdt_check_header() public
+
+    Changed _fdt_check_header() to fdt_check_header() and made it part of
+    the interface - it is a useful routine.
+
+    Also did some asthetics cleanup to the include files (headers).
 
 commit c0707ce65677650b5ceab0500ee50ae5168afef2
 Author: Aubrey Li <aubrey.adi@gmail.com>

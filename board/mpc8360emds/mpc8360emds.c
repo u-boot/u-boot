@@ -704,4 +704,3 @@ ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 }
 #endif /* CONFIG_OF_x */
-

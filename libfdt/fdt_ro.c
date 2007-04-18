@@ -400,4 +400,3 @@ int fdt_get_reservemap(void *fdt, int n, struct fdt_reserve_entry *re)
 	}
 	return 0;
 }
-

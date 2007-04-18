@@ -135,4 +135,3 @@ int fdt_replace_reservemap_entry(void *fdt, int n, uint64_t addr, uint64_t size)
 
 	return 0;
 }
-
