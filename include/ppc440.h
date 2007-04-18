@@ -148,7 +148,7 @@
 #define sdrcfgd		(SDR_DCR_BASE+0x1)
 #define sdr_sdstp0	0x0020	    /* */
 #define sdr_sdstp1	0x0021	    /* */
-#define sdr_pinstp	0x0040
+#define SDR_PINSTP	0x0040
 #define sdr_sdcs	0x0060
 #define sdr_ecid0	0x0080
 #define sdr_ecid1	0x0081

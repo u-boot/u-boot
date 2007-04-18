@@ -26,7 +26,7 @@
 
 extern void board_pll_init_f(void);
 
-void liveoak_gpio_init(void)
+static void acadia_gpio_init(void)
 {
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
@@ -55,8 +55,12 @@ int board_early_init_f(void)
 {
 	unsigned int reg;
 
-	board_pll_init_f();
-	liveoak_gpio_init();
+	/* don't reinit PLL when booting via I2C bootstrap option */
+	mfsdr(SDR_PINSTP, reg);
+	if (reg != 0xf0000000)
+		board_pll_init_f();
+
+	acadia_gpio_init();
 
 	/* USB Host core needs this bit set */
 	mfsdr(sdrultra1, reg);
