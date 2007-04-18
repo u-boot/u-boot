@@ -110,3 +110,29 @@ int fdt_nop_node(void *fdt, int nodeoffset)
 	nop_region(fdt_offset_ptr(fdt, nodeoffset, 0), endoffset - nodeoffset);
 	return 0;
 }
+
+/*
+ * Replace a reserve map entry in the nth slot.
+ */
+int fdt_replace_reservemap_entry(void *fdt, int n, uint64_t addr, uint64_t size)
+{
+	struct fdt_reserve_entry *re;
+	int  used;
+	int  total;
+	int  err;
+
+	err = fdt_num_reservemap(fdt, &used, &total);
+	if (err != 0)
+		return err;
+
+	if (n >= total)
+		return -FDT_ERR_NOSPACE;
+	re = (struct fdt_reserve_entry *)
+		(fdt + fdt_off_mem_rsvmap(fdt) +
+		 (n * sizeof(struct fdt_reserve_entry)));
+	re->address = cpu_to_fdt64(addr);
+	re->size    = cpu_to_fdt64(size);
+
+	return 0;
+}
+

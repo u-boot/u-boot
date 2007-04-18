@@ -25,7 +25,7 @@
 
 #define CHECK_HEADER(fdt)	{ \
 	int err; \
-	if ((err = _fdt_check_header(fdt)) != 0) \
+	if ((err = fdt_check_header(fdt)) != 0) \
 		return err; \
 }
 
@@ -188,7 +188,7 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	int offset, nextoffset;
 	int err;
 
-	if ((err = _fdt_check_header(fdt)) != 0)
+	if ((err = fdt_check_header(fdt)) != 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
@@ -329,3 +329,75 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset, char **namep
 
 	return tag;
 }
+
+/*
+ * Return the number of used reserve map entries and total slots available.
+ */
+int fdt_num_reservemap(void *fdt, int *used, int *total)
+{
+	struct fdt_reserve_entry *re;
+	int  start;
+	int  end;
+	int  err = fdt_check_header(fdt);
+
+	if (err != 0)
+		return err;
+
+	start = fdt_off_mem_rsvmap(fdt);
+
+	/*
+	 * Convention is that the reserve map is before the dt_struct,
+	 * but it does not have to be.
+	 */
+	end = fdt_totalsize(fdt);
+	if (end > fdt_off_dt_struct(fdt))
+		end = fdt_off_dt_struct(fdt);
+	if (end > fdt_off_dt_strings(fdt))
+		end = fdt_off_dt_strings(fdt);
+
+	/*
+	 * Since the reserved area list is zero terminated, you get one fewer.
+	 */
+	if (total)
+		*total = ((end - start) / sizeof(struct fdt_reserve_entry)) - 1;
+
+	if (used) {
+		*used = 0;
+		while (start < end) {
+			re = (struct fdt_reserve_entry *)(fdt + start);
+			if (re->size == 0)
+				return 0;	/* zero size terminates the list */
+
+			*used += 1;
+			start += sizeof(struct fdt_reserve_entry);
+		}
+		/*
+		 * If we get here, there was no zero size termination.
+		 */
+		return -FDT_ERR_BADLAYOUT;
+	}
+	return 0;
+}
+
+/*
+ * Return the nth reserve map entry.
+ */
+int fdt_get_reservemap(void *fdt, int n, struct fdt_reserve_entry *re)
+{
+	int  used;
+	int  total;
+	int  err;
+
+	err = fdt_num_reservemap(fdt, &used, &total);
+	if (err != 0)
+		return err;
+
+	if (n >= total)
+		return -FDT_ERR_NOSPACE;
+	if (re) {
+		*re = *(struct fdt_reserve_entry *)
+			_fdt_offset_ptr(fdt, n * sizeof(struct fdt_reserve_entry));
+	}
+	return 0;
+}
+

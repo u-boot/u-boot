@@ -27,7 +27,7 @@ static int rw_check_header(void *fdt)
 {
 	int err;
 
-	if ((err = _fdt_check_header(fdt)))
+	if ((err = fdt_check_header(fdt)))
 		return err;
 	if (fdt_version(fdt) < 0x11)
 		return -FDT_ERR_BADVERSION;
