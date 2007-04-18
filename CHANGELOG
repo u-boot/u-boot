@@ -1,3 +1,11 @@
+commit 2a26ec4732efd7a308d0bbc97714c1d75ef1173b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 17:07:26 2007 +0200
+
+    Cleanup, update CHANGELOG
+
+    Sigend-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5f6c732affea9647762d27a4617a2ae64c52dceb
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 18 16:17:46 2007 +0200
@@ -361,6 +369,26 @@ Date:	Wed Apr 11 17:22:55 2007 +0200
     * Use Newline as "password" string
     * Use just a single partition in NAND flash
 
+commit 3d98b85800c80dc68227c8f10bf5c93456d6d054
+Author: Haiying Wang <haiying.wang@freescale.com>
+Date:	Mon Jan 22 12:37:30 2007 -0600
+
+    Add PIXIS FPGA support for MPC8641HPCN board.
+
+    Move the 8641HPCN's PIXIS code to the new directory
+    board/freescale/common/ as it will be shared by
+    future boards not in the same processor family.
+
+    Write a "pixis_reset" command that utilizes the FPGA
+    reset sequencer to support alternate soft-reset options
+    such as using the "alternate" flash bank, enabling
+    the watch dog, or choosing different CPU frequencies.
+
+    Add documentation for the pixis_reset to README.mpc8641hpcn.
+
+    Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit c0707ce65677650b5ceab0500ee50ae5168afef2
 Author: Aubrey Li <aubrey.adi@gmail.com>
 Date:	Thu Apr 5 18:34:06 2007 +0800
@@ -408,6 +436,18 @@ Author: Aubrey Li <aubrey.adi@gmail.com>
 Date:	Thu Apr 5 18:28:34 2007 +0800
 
     [Blackfin][PATCH]: fix flash unaligned copy issue
+
+commit 443feb740584e406efa203af909fe2926608e8d5
+Author: Igor Marnat <marny@rambler.ru>
+Date:	Wed Mar 21 09:55:01 2007 +0300
+
+    Update usage of 'nc' in README.NetConsole
+
+    Added information about usage of NetConsole on systems where the -l and -p
+    switches are mutually exclusive.
+
+    Signed-off-by: Igor Marnat <marny@rambler.ru>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
 
 commit 31c98a88228021b314c89ebb8104fb6473da4471
 Author: Wolfgang Denk <wd@denx.de>
@@ -999,6 +1039,24 @@ Date:	Thu Mar 8 10:06:09 2007 +0100
     ppc4xx: Update 440SP/440SPe DDR SPD setup code to support 440SP
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 83853178bd36bca6f0f8f1331476620c84a587fc
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Mar 7 12:14:50 2007 -0600
+
+    net - Support ping reply when processing net-loop
+
+    Add ICMP_ECHO_REQUEST packet support by responding with a ICMP_ECHO_REPLY.
+
+    This permits the ping command to test the phy interface when the phy
+    is put in loopback mode (typically by setting register 0 bit 14).
+
+    It also allows the port to respond to an external ping when u-boot is
+    processing some other net command (such as tftp).  This is useful when
+    tftp appears to hang.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
 
 commit fa1aef15bcd47736687be1af544506e90fba545d
 Author: Stefan Roese <sr@denx.de>
