@@ -149,7 +149,7 @@ ifeq ($(ARCH),blackfin)
 CROSS_COMPILE = bfin-uclinux-
 endif
 ifeq ($(ARCH),avr32)
-CROSS_COMPILE = avr32-
+CROSS_COMPILE = avr32-linux-
 endif
 endif
 endif

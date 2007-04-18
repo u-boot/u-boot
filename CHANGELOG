@@ -1,3 +1,9 @@
+commit 5f6c732affea9647762d27a4617a2ae64c52dceb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 16:17:46 2007 +0200
+
+    Update CHANGELOG
+
 commit ad4eb555671d97f96dc56eab55103b1f86874b01
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 18 14:30:39 2007 +0200

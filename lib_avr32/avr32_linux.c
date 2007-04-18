@@ -27,7 +27,7 @@
 #include <asm/addrspace.h>
 #include <asm/io.h>
 #include <asm/setup.h>
-#include <asm/arch/platform.h>
+#include <asm/arch/clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -133,7 +133,7 @@ static struct tag *setup_clock_tags(struct tag *params)
 	params->hdr.size = tag_size(tag_clock);
 	params->u.clock.clock_id = ACLOCK_HSB;
 	params->u.clock.clock_flags = 0;
-	params->u.clock.clock_hz = pm_get_clock_freq(CLOCK_HSB);
+	params->u.clock.clock_hz = get_hsb_clk_rate();
 #endif
 
 	return tag_next(params);

@@ -70,32 +70,12 @@ _start:
 
 2:	lddpc	sp, sp_init
 
-	/*
-	 * Relocate the data section and initialize .bss.  Everything
-	 * is guaranteed to be at least doubleword aligned by the
-	 * linker script.
-	 */
-	lddpc	r12, .Ldata_vma
-	lddpc	r11, .Ldata_lma
-	lddpc	r10, .Ldata_end
-	sub	r10, r12
-4:	ld.d	r8, r11++
-	sub	r10, 8
-	st.d	r12++, r8
-	brne	4b
-
-	mov	r8, 0
-	mov	r9, 0
-	lddpc	r10, .Lbss_end
-	sub	r10, r12
-4:	sub	r10, 8
-	st.d	r12++, r8
-	brne	4b
-
 	/* Initialize the GOT pointer */
 	lddpc	r6, got_init
 3:	rsub	r6, pc
-	ld.w	pc, r6[start_u_boot@got]
+
+	/* Let's go */
+	rjmp	board_init_f
 
 	.align	2
 	.type	sp_init,@object
@@ -103,11 +83,82 @@ sp_init:
 	.long	CFG_INIT_SP_ADDR
 got_init:
 	.long	3b - _GLOBAL_OFFSET_TABLE_
-.Ldata_lma:
-	.long	__data_lma
-.Ldata_vma:
-	.long	_data
-.Ldata_end:
-	.long	_edata
-.Lbss_end:
-	.long	_end
+
+	/*
+	 * void	relocate_code(new_sp, new_gd, monitor_addr)
+	 *
+	 * Relocate the u-boot image into RAM and continue from there.
+	 * Does not return.
+	 */
+	.global	relocate_code
+	.type	relocate_code,@function
+relocate_code:
+	mov	sp, r12		/* use new stack */
+	mov	r12, r11	/* save new_gd */
+	mov	r11, r10	/* save destination address */
+
+	/* copy .text section and flush the cache along the way */
+	lda.w	r8, _text
+	lda.w	r9, _etext
+	sub	lr, r10, r8	/* relocation offset */
+
+1:	ldm	r8++, r0-r3
+	stm	r10, r0-r3
+	sub	r10, -16
+	ldm	r8++, r0-r3
+	stm	r10, r0-r3
+	sub	r10, -16
+	cp.w	r8, r9
+	cache	r10[-4], 0x0d	/* dcache clean/invalidate */
+	cache	r10[-4], 0x01	/* icache invalidate */
+	brlt	1b
+
+	/* flush write buffer */
+	sync	0
+
+	/* copy data sections */
+	lda.w	r9, _edata
+1:	ld.d	r0, r8++
+	st.d	r10++, r0
+	cp.w	r8, r9
+	brlt	1b
+
+	/* zero out .bss */
+	mov	r0, 0
+	mov	r1, 0
+	lda.w	r9, _end
+	sub	r9, r8
+1:	st.d	r10++, r0
+	sub	r9, 8
+	brgt	1b
+
+	/* jump to RAM */
+	sub	r0, pc, . - in_ram
+	add	pc, r0, lr
+
+	.align	2
+in_ram:
+	/* find the new GOT and relocate it */
+	lddpc	r6, got_init_reloc
+3:	rsub	r6, pc
+	mov	r8, r6
+	lda.w	r9, _egot
+	lda.w	r10, _got
+	sub	r9, r10
+1:	ld.w	r0, r8[0]
+	add	r0, lr
+	st.w	r8++, r0
+	sub	r9, 4
+	brgt	1b
+
+	/* Move the exception handlers */
+	mfsr	r2, SYSREG_EVBA
+	add	r2, lr
+	mtsr	SYSREG_EVBA, r2
+
+	/* Do the rest of the initialization sequence */
+	call	board_init_r
+
+	.align	2
+got_init_reloc:
+	.long	3b - _GLOBAL_OFFSET_TABLE_

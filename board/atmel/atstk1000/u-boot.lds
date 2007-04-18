@@ -40,35 +40,38 @@ SECTIONS
 	}
 	. = ALIGN(32);
 	__flashprog_end = .;
+	_etext = .;
 
-	. = ALIGN(8);
 	.rodata : {
 		*(.rodata)
 		*(.rodata.*)
 	}
-	_etext = .;
 
-	__data_lma = ALIGN(8);
-	. = 0x24000000;
+	. = ALIGN(8);
 	_data = .;
-	.data : AT(__data_lma) {
+	.data : {
 		*(.data)
 		*(.data.*)
 	}
 
 	. = ALIGN(4);
 	__u_boot_cmd_start = .;
-	__u_boot_cmd_lma = __data_lma + (__u_boot_cmd_start - _data);
-	.u_boot_cmd : AT(__u_boot_cmd_lma) {
+	.u_boot_cmd : {
 		KEEP(*(.u_boot_cmd))
 	}
 	__u_boot_cmd_end = .;
 
+	. = ALIGN(4);
+	_got = .;
+	.got : {
+		*(.got)
+	}
+	_egot = .;
+
 	. = ALIGN(8);
 	_edata = .;
-	__edata_lma = __u_boot_cmd_lma + (_edata - __u_boot_cmd_start);
 
-	.bss : AT(__edata_lma) {
+	.bss : {
 		*(.bss)
 		*(.bss.*)
 	}
