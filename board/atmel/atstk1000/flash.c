@@ -159,7 +159,7 @@ int __flashprog write_buff(flash_info_t *info, uchar *src,
 {
 	unsigned long flags;
 	uint16_t *base, *p, *s, *end;
-	uint16_t word, status;
+	uint16_t word, status, status1;
 	int ret = ERR_OK;
 
 	if (addr < info->start[0]
@@ -194,20 +194,33 @@ int __flashprog write_buff(flash_info_t *info, uchar *src,
 		sync_write_buffer();
 
 		/* Wait for completion */
+		status1 = readw(p);
 		do {
 			/* TODO: Timeout */
-			status = readw(p);
-		} while ((status != word) && !(status & 0x28));
+			status = status1;
+			status1 = readw(p);
+		} while (((status ^ status1) & 0x40)	/* toggled */
+			 && !(status1 & 0x28));		/* error bits */
+
+		/*
+		 * We'll need to check once again for toggle bit
+		 * because the toggle bit may stop toggling as I/O5
+		 * changes to "1" (ref at49bv642.pdf p9)
+		 */
+		status1 = readw(p);
+		status = readw(p);
+		if ((status ^ status1) & 0x40) {
+			printf("Flash write error at address 0x%p: "
+			       "0x%02x != 0x%02x\n",
+			       p, status,word);
+			ret = ERR_PROG_ERROR;
+			writew(0xf0, base);
+			readw(base);
+			break;
+		}
 
 		writew(0xf0, base);
 		readw(base);
-
-		if (status != word) {
-			printf("Flash write error at address 0x%p: 0x%02x\n",
-			       p, status);
-			ret = ERR_PROG_ERROR;
-			break;
-		}
 	}
 
 	if (flags)
