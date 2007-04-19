@@ -336,6 +336,10 @@ int misc_init_r(void)
 	}
 #endif /* CONFIG_440EPX */
 
+	mfsdr(SDR0_SRST1, reg);		/* enable security/kasumi engines */
+	reg &= ~(SDR0_SRST1_CRYP0 | SDR0_SRST1_KASU0);
+	mtsdr(SDR0_SRST1, reg);
+
 	/*
 	 * Clear PLB4A0_ACR[WRP]
 	 * This fix will make the MAL burst disabling patch for the Linux
@@ -359,8 +363,8 @@ int checkboard(void)
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
 
-	rev = *(u8 *)(CFG_CPLD + 0);
-	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	rev = *(u8 *)(CFG_BCSR_BASE + 0);
+	val = *(u8 *)(CFG_BCSR_BASE + 5) & 0x01;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {

@@ -15,6 +15,11 @@
 #define PVR_8360_REV10 (PVR_83xx | 0x0020)
 #define PVR_8360_REV11 (PVR_83xx | 0x0020)
 
+#if defined(CONFIG_MPC832X)
+#undef PVR_83xx
+#define PVR_83xx 0x80840000
+#endif
+
 /*
  * Hardware Implementation-Dependent Register 0 (HID0)
  */

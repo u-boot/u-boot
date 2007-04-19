@@ -1,7 +1,7 @@
 /*
  * U-boot - processor.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * include/asm-m68k/processor.h
@@ -23,8 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef __ASM_BLACKFIN_PROCESSOR_H
@@ -126,8 +126,7 @@ static inline void release_thread(struct task_struct *dead_task)
 {
 }
 
-extern int kernel_thread(int (*fn) (void *), void *arg,
-			 unsigned long flags);
+extern int kernel_thread(int (*fn) (void *), void *arg, unsigned long flags);
 
 #define copy_segments(tsk, mm)		do { } while (0)
 #define release_segments(mm)		do { } while (0)

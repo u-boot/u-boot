@@ -252,6 +252,8 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define STM_ID_x800AB	0x005B005B	/* M29W800AB ID (8M = 512K x 16 )	*/
 #define STM_ID_29W320DT 0x22CA22CA	/* M29W320DT ID (32 M, top boot sector) */
 #define STM_ID_29W320DB 0x22CB22CB	/* M29W320DB ID (32 M, bottom boot sect)	*/
+#define STM_ID_29W320ET 0x22562256	/* M29W320ET ID (32 M, top boot sector) */
+#define STM_ID_29W320EB 0x22572257	/* M29W320EB ID (32 M, bottom boot sect)*/
 #define STM_ID_29W040B	0x00E300E3	/* M29W040B ID (4M = 512K x 8)	*/
 #define FLASH_PSD4256GV 0x00E9		/* PSD4256 Flash and CPLD combination	*/
 

@@ -60,17 +60,6 @@
 #endif
 #endif
 
-#define CFG_SCCR_INIT		(SCCR_DEFAULT & (~SCCR_CLK_MASK))
-#define CFG_SCCR_TSEC1CM	SCCR_TSEC1CM_1	/* TSEC1 clock setting */
-#define CFG_SCCR_TSEC2CM	SCCR_TSEC2CM_1	/* TSEC2 clock setting */
-#define CFG_SCCR_ENCCM		SCCR_ENCCM_3	/* ENC clock setting */
-#define CFG_SCCR_USBCM		SCCR_USBCM_3	/* USB clock setting */
-#define CFG_SCCR_VAL		( CFG_SCCR_INIT		\
-				| CFG_SCCR_TSEC1CM	\
-				| CFG_SCCR_TSEC2CM	\
-				| CFG_SCCR_ENCCM	\
-				| CFG_SCCR_USBCM	)
-
 #define CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
 
 #define CFG_IMMR		0xE0000000
@@ -82,7 +71,7 @@
 /*
  * DDR Setup
  */
-#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
+#define CONFIG_DDR_ECC			/* support DDR ECC function */
 #define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
@@ -101,7 +90,14 @@
 #define CFG_DDR_BASE		0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 #define CFG_DDR_SDRAM_BASE	CFG_DDR_BASE
+#define CFG_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
+				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
 #undef  CONFIG_DDR_2T_TIMING
+
+/*
+ * DDRCDR - DDR Control Driver Register
+ */
+#define CFG_DDRCDR_VALUE	0x80080001
 
 #if defined(CONFIG_SPD_EEPROM)
 /*
@@ -113,6 +109,21 @@
  * Manually set up DDR parameters
  */
 #define CFG_DDR_SIZE		256		/* MB */
+#if defined(CONFIG_DDR_II)
+#define CFG_DDRCDR		0x80080001
+#define CFG_DDR_CS2_BNDS	0x0000000f
+#define CFG_DDR_CS2_CONFIG	0x80330102
+#define CFG_DDR_TIMING_0	0x00220802
+#define CFG_DDR_TIMING_1	0x38357322
+#define CFG_DDR_TIMING_2	0x2f9048c8
+#define CFG_DDR_TIMING_3	0x00000000
+#define CFG_DDR_CLK_CNTL	0x02000000
+#define CFG_DDR_MODE		0x47d00432
+#define CFG_DDR_MODE2		0x8000c000
+#define CFG_DDR_INTERVAL	0x03cf0080
+#define CFG_DDR_SDRAM_CFG	0x43000000
+#define CFG_DDR_SDRAM_CFG2	0x00401000
+#else
 #define CFG_DDR_CONFIG		(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
 #define CFG_DDR_TIMING_1	0x36332321
 #define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
@@ -125,6 +136,7 @@
 #else
 /* the default burst length is 4 - for 64-bit data path */
 #define CFG_DDR_MODE		0x00000022	/* DLL,normal,seq,4/2.5, 4 burst len */
+#endif
 #endif
 #endif
 
@@ -140,19 +152,20 @@
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
-#define CFG_FLASH_SIZE		8		/* flash size in MB */
+#define CFG_FLASH_SIZE		32		/* max flash size in MB */
 /* #define CFG_FLASH_USE_BUFFER_WRITE */
 
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE |	/* flash Base address */ \
-				(2 << BR_PS_SHIFT) |	/* 32 bit port size */	 \
+				(2 << BR_PS_SHIFT) |	/* 16 bit port size */	 \
 				BR_V)			/* valid */
-
-#define CFG_OR0_PRELIM		0xFF806FF7	/* 8 MB flash size */
+#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* window base at flash base */
-#define CFG_LBLAWAR0_PRELIM	0x80000016	/* 8 MB window size */
+#define CFG_LBLAWAR0_PRELIM	0x80000018	/* 32 MB window size */
 
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
-#define CFG_MAX_FLASH_SECT	64		/* sectors per device */
+#define CFG_MAX_FLASH_SECT	256		/* max sectors per device */
 
 #undef CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
@@ -197,7 +210,11 @@
 #define CFG_LCRR	(LCRR_DBYP | LCRR_CLKDIV_4)
 #define CFG_LBC_LBCR	0x00000000
 
-#define CFG_LB_SDRAM	/* if board has SRDAM on local bus */
+/*
+ * The MPC834xEA MDS for 834xE rev3.1 may not be assembled SDRAM memory.
+ * if board has SRDAM on local bus, you can define CFG_LB_SDRAM
+ */
+#undef CFG_LB_SDRAM
 
 #ifdef CFG_LB_SDRAM
 /* Local bus BR2, OR2 definition for SDRAM if soldered on the MDS board */
@@ -314,6 +331,7 @@
 #define CFG_NS16550_COM1        (CFG_IMMR+0x4500)
 #define CFG_NS16550_COM2        (CFG_IMMR+0x4600)
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
 #ifdef  CFG_HUSH_PARSER

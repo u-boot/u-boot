@@ -381,6 +381,61 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 	return 0;
 }
 
+/*
+ * Parse the BCM54xx status register for speed and duplex information.
+ * The linux sungem_phy has this information, but in a table format.
+ */
+uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
+{
+
+	switch((mii_reg & MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK) >> MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT){
+
+		case 1:
+			printf("Enet starting in 10BT/HD\n");
+			priv->duplexity = 0;
+			priv->speed = 10;
+			break;
+
+		case 2:
+			printf("Enet starting in 10BT/FD\n");
+			priv->duplexity = 1;
+			priv->speed = 10;
+			break;
+
+		case 3:
+			printf("Enet starting in 100BT/HD\n");
+			priv->duplexity = 0;
+			priv->speed = 100;
+			break;
+
+		case 5:
+			printf("Enet starting in 100BT/FD\n");
+			priv->duplexity = 1;
+			priv->speed = 100;
+			break;
+
+		case 6:
+			printf("Enet starting in 1000BT/HD\n");
+			priv->duplexity = 0;
+			priv->speed = 1000;
+			break;
+
+		case 7:
+			printf("Enet starting in 1000BT/FD\n");
+			priv->duplexity = 1;
+			priv->speed = 1000;
+			break;
+
+		default:
+			printf("Auto-neg error, defaulting to 10BT/HD\n");
+			priv->duplexity = 0;
+			priv->speed = 10;
+			break;
+	}
+
+	return 0;
+
+}
 /* Parse the 88E1011's status register for speed and duplex
  * information
  */
@@ -770,6 +825,34 @@ static void tsec_halt(struct eth_device *dev)
 		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
+/* The 5411 id is 0x206070, the 5421 is 0x2060e0 */
+struct phy_info phy_info_BCM5461S = {
+	0x02060c1,	/* 5461 ID */
+	"Broadcom BCM5461S",
+	0, /* not clear to me what minor revisions we can shift away */
+	(struct phy_cmd[]) { /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_BCM54xx_AUXSTATUS, miim_read, &mii_parse_BCM54xx_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info phy_info_M88E1011S = {
 	0x01410c6,
 	"Marvell 88E1011S",
@@ -1112,6 +1195,7 @@ struct phy_info phy_info_dp83865 = {
 struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
+	&phy_info_BCM5461S,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,

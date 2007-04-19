@@ -119,6 +119,20 @@ int fixed_sdram(void)
 #if (CFG_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
+#ifdef CONFIG_DDR_II
+	im->ddr.csbnds[2].csbnds = CFG_DDR_CS2_BNDS;
+	im->ddr.cs_config[2] = CFG_DDR_CS2_CONFIG;
+	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CFG_DDR_MODE;
+	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
+	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
+#else
 	im->ddr.csbnds[2].csbnds = 0x0000000f;
 	im->ddr.cs_config[2] = CFG_DDR_CONFIG;
 
@@ -143,6 +157,7 @@ int fixed_sdram(void)
 	im->ddr.sdram_mode = CFG_DDR_MODE;
 
 	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+#endif
 	udelay(200);
 
 	/* enable DDR controller */
@@ -239,7 +254,7 @@ void sdram_init(void)
 #else
 void sdram_init(void)
 {
-	put("SDRAM on Local Bus is NOT available!\n");
+	puts("   SDRAM on Local Bus is NOT available!\n");
 }
 #endif
 

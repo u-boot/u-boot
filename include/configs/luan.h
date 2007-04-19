@@ -37,8 +37,9 @@
 #define CONFIG_440		1
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external freq to pll	*/
 
-#define CONFIG_BOARD_EARLY_INIT_F 1     /* call board_early_init_f()	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
+#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -132,10 +133,9 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#undef  CONFIG_SPD_EEPROM		/* SPD EEPROM init doesn't support DDR2 */
-#define SPD_EEPROM_ADDRESS {0x52,0x53}	/* I2C SPD addresses */
-#define IIC0_DIMM0_ADDR         0x52
-#define IIC0_DIMM1_ADDR         0x53
+#define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
+#define SPD_EEPROM_ADDRESS	{0x53, 0x52}	/* SPD i2c spd addresses*/
+#undef CONFIG_DDR_ECC			/* no ECC support for now	*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -206,11 +206,6 @@
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 #define CONFIG_NET_MULTI		/* needed for NetConsole	*/
 
-/* Partitions */
-#define CONFIG_MAC_PARTITION
-#define CONFIG_DOS_PARTITION
-#define CONFIG_ISO_PARTITION
-
 #ifdef DEBUG
 #define CONFIG_PANIC_HANG
 #else
@@ -219,9 +214,7 @@
 
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL		|	\
 				CFG_CMD_ASKENV		|	\
-			        CFG_CMD_CACHE		|	\
 				CFG_CMD_DHCP		|	\
-				CFG_CMD_DIAG		|	\
 				CFG_CMD_ELF		|	\
 				CFG_CMD_EEPROM		|	\
 				CFG_CMD_I2C		|	\
@@ -232,7 +225,6 @@
 				CFG_CMD_PCI		|	\
 				CFG_CMD_PING		|	\
 				CFG_CMD_REGINFO		|	\
-				CFG_CMD_SETGETDCR	|	\
 				CFG_CMD_SDRAM		|	\
 				0)
 

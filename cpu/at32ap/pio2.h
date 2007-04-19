@@ -36,9 +36,9 @@
 #define PIO2_OWSR				0x00a8
 
 /* Register access macros */
-#define pio2_readl(port,reg)				\
-	readl((port)->regs + PIO2_##reg)
-#define pio2_writel(port,reg,value)			\
-	writel((value), (port)->regs + PIO2_##reg)
+#define pio2_readl(base,reg)				\
+	readl((void *)base + PIO2_##reg)
+#define pio2_writel(base,reg,value)			\
+	writel((value), (void *)base + PIO2_##reg)
 
 #endif /* __CPU_AT32AP_PIO2_H__ */

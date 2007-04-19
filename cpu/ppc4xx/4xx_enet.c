@@ -1333,6 +1333,9 @@ int enetInt (struct eth_device *dev)
 			}
 		}
 		mtdcr (uicsr, MAL_UIC_DEF|EMAC_UIC_DEF|EMAC_UIC_DEF1);	/* Clear */
+#if defined(CONFIG_405EZ)
+		mtsdr (sdricintstat, SDR_ICRX_STAT | SDR_ICTX0_STAT | SDR_ICTX1_STAT);
+#endif	/* defined(CONFIG_405EZ) */
 	}
 	while (serviced);
 

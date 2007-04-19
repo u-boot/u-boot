@@ -46,6 +46,11 @@
 	.globl tlbtabA
 tlbtabA:
 	tlbtab_start
+
+	/*
+	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
+	 * speed up boot process. It is patched after relocation to enable SA_I
+	 */
 	tlbentry(0xff000000, SZ_16M, 0xff000000, 4, AC_R|AC_W|AC_X|SA_G)
 
 	/*
@@ -81,6 +86,11 @@ tlbtabA:
 	.globl tlbtabB
 tlbtabB:
 	tlbtab_start
+
+	/*
+	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
+	 * speed up boot process. It is patched after relocation to enable SA_I
+	 */
 	tlbentry(0xff000000, SZ_16M, 0xff000000, 4, AC_R|AC_W|AC_X|SA_G)
 
 	/*
@@ -93,7 +103,7 @@ tlbtabB:
 
 	tlbentry(CFG_PERIPHERAL_BASE, SZ_4K, 0xF0000000, 4, AC_R|AC_W|SA_G|SA_I)
 
-	tlbentry(CFG_ACE_BASE, SZ_1K, 0xE0000000, 4,AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CFG_ACE_BASE, SZ_1K, CFG_ACE_BASE, 4,AC_R|AC_W|SA_G|SA_I)
 
 	tlbentry(CFG_PCI_BASE, SZ_256M, 0x00000000, 0xC, AC_R|AC_W|SA_G|SA_I)
 	tlbentry(CFG_PCI_MEMBASE, SZ_256M, 0x10000000, 0xC, AC_R|AC_W|SA_G|SA_I)

@@ -275,6 +275,7 @@ Stefan Roese <sr@denx.de>
 
 	TQM85xx			MPC8540/8541/8555/8560
 
+	acadia			PPC405EZ
 	alpr			PPC440GX
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
@@ -341,6 +342,7 @@ John Zhan <zhanz@sinovee.com>
 Timur Tabi <timur@freescale.com>
 
 	MPC8349E-mITX		MPC8349
+	MPC8349E-mITX-GP	MPC8349
 
 Kim Phillips <kim.phillips@freescale.com>
 
@@ -564,6 +566,11 @@ Scott McNutt <smcnutt@psyent.com>
 Yasushi Shoji <yashi@atmark-techno.com>
 
 	SUZAKU			MicroBlaze
+
+Michal Simek <monstr@monstr.eu>
+
+	ML401			MicroBlaze
+	XUPV2P			MicroBlaze
 
 #########################################################################
 # Coldfire Systems:							#

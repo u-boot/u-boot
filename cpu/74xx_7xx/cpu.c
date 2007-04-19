@@ -44,6 +44,10 @@
 #include <74xx_7xx.h>
 #include <asm/cache.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #ifdef CONFIG_AMIGAONEG3SE
 #include "../board/MAI/AmigaOneG3SE/via686.h"
 #include "../board/MAI/AmigaOneG3SE/memio.h"
@@ -101,6 +105,10 @@ get_cpu_type(void)
 		type = CPU_7457;
 		break;
 
+	case 0x8003:
+		type = CPU_7447A;
+		break;
+
 	case 0x8004:
 		type = CPU_7448;
 		break;
@@ -154,6 +162,10 @@ int checkcpu (void)
 
 	case CPU_7410:
 		str = "MPC7410";
+		break;
+
+	case CPU_7447A:
+		str = "MPC7447A";
 		break;
 
 	case CPU_7448:
@@ -264,20 +276,19 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*
  * For the 7400 the TB clock runs at 1/4 the cpu bus speed.
  */
-#ifdef CONFIG_AMIGAONEG3SE
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CFG_CONFIG_BUS_CLK)
 unsigned long get_tbclk(void)
 {
 	return (gd->bus_clk / 4);
 }
-#else	/* ! CONFIG_AMIGAONEG3SE */
+#else	/* ! CONFIG_AMIGAONEG3SE and !CFG_CONFIG_BUS_CLK*/
 
 unsigned long get_tbclk (void)
 {
 	return CFG_BUS_HZ / 4;
 }
-#endif	/* CONFIG_AMIGAONEG3SE */
+#endif	/* CONFIG_AMIGAONEG3SE or CFG_CONFIG_BUS_CLK*/
 /* ------------------------------------------------------------------------- */
-
 #if defined(CONFIG_WATCHDOG)
 #if !defined(CONFIG_PCIPPC2) && !defined(CONFIG_BAB7xx)
 void
@@ -288,4 +299,31 @@ watchdog_reset(void)
 #endif  /* !CONFIG_PCIPPC2 && !CONFIG_BAB7xx */
 #endif	/* CONFIG_WATCHDOG */
 
+/* ------------------------------------------------------------------------- */
+
+#ifdef CONFIG_OF_FLAT_TREE
+void
+ft_cpu_setup (void *blob, bd_t *bd)
+{
+	u32 *p;
+	ulong clock;
+	int len;
+
+	clock = bd->bi_busfreq;
+
+	p = ft_get_prop (blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32 (clock);
+
+#if defined(CONFIG_TSI108_ETH)
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6200/address", &len);
+		memcpy (p, bd->bi_enetaddr, 6);
+#endif
+
+#if defined(CONFIG_HAS_ETH1)
+	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6600/address", &len);
+		memcpy (p, bd->bi_enet1addr, 6);
+#endif
+}
+#endif
 /* ------------------------------------------------------------------------- */

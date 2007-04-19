@@ -180,6 +180,32 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
+#elif defined(CONFIG_MICROBLAZE) /* ! PPC, which leaves Microblaze */
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int i;
+	bd_t *bd = gd->bd;
+	print_num ("mem start      ",	(ulong)bd->bi_memstart);
+	print_num ("mem size       ",	(ulong)bd->bi_memsize);
+	print_num ("flash start    ",	(ulong)bd->bi_flashstart);
+	print_num ("flash size     ",	(ulong)bd->bi_flashsize);
+	print_num ("flash offset   ",	(ulong)bd->bi_flashoffset);
+#if defined(CFG_SRAM_BASE)
+	print_num ("sram start     ",	(ulong)bd->bi_sramstart);
+	print_num ("sram size      ",	(ulong)bd->bi_sramsize);
+#endif
+#if defined(CFG_CMD_NET)
+	puts ("ethaddr     =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
+	}
+	puts ("\nip_addr     = ");
+	print_IPaddr (bd->bi_ip_addr);
+#endif
+	printf ("\nbaudrate    = %d bps\n", (ulong)bd->bi_baudrate);
+	return 0;
+}
 
 #else /* ! PPC, which leaves MIPS */
 

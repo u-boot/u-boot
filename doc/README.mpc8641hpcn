@@ -121,3 +121,37 @@ To Flash U-boot into the alternative bank (0xFF800000 - 0xFFBFFFFF):
 	0xe300_0000	0xe3ff_ffff	PCI2/PEX2 IO	16M
 	0xfe00_0000	0xfeff_ffff	Flash(alternate)16M
 	0xff00_0000	0xffff_ffff	Flash(boot bank)16M
+
+5. pixis_reset command
+--------------------
+A new command, "pixis_reset", is introduced to reset mpc8641hpcn board
+using the FPGA sequencer.  When the board restarts, it has the option
+of using either the current or alternate flash bank as the boot
+image, with or without the watchdog timer enabled, and finally with
+or without frequency changes.
+
+Usage is;
+
+	pixis_reset
+	pixis_reset altbank
+	pixis_reset altbank wd
+	pixis_reset altbank cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>
+	pixis_reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>
+
+Examples;
+
+	/* reset to current bank, like "reset" command */
+	pixis_reset
+
+	/* reset board but use the to alternate flash bank */
+	pixis_reset altbank
+
+	/* reset board, use alternate flash bank with watchdog timer enabled*/
+	pixis_reset altbank wd
+
+	/* reset board to alternate bank with frequency changed.
+	 * 40 is SYSCLK, 2.5 is COREPLL ratio, 10 is MPXPLL ratio
+	 */
+	pixis-reset altbank cf 40 2.5 10
+
+Valid clock choices are in the 8641 Reference Manuals.

@@ -1,7 +1,7 @@
 /*
  * U-boot - uaccess.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * Based on: include/asm-m68knommu/uaccess.h
@@ -22,8 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef __BLACKFIN_UACCESS_H
@@ -41,11 +41,10 @@
 /* We let the MMU do all checking */
 static inline int access_ok(int type, const void *addr, unsigned long size)
 {
-	return ((unsigned long) addr < 0x10f00000);	/* need final decision - Tony */
+	return ((unsigned long)addr < 0x10f00000);	/* need final decision - Tony */
 }
 
-static inline int verify_area(int type, const void *addr,
-			      unsigned long size)
+static inline int verify_area(int type, const void *addr, unsigned long size)
 {
 	return access_ok(type, addr, size) ? 0 : -EFAULT;
 }
@@ -173,12 +172,11 @@ static inline int bad_user_access_length(void)
  * Copy a null terminated string from userspace.
  */
 
-static inline long strncpy_from_user(char *dst, const char *src,
-				     long count)
+static inline long strncpy_from_user(char *dst, const char *src, long count)
 {
 	char *tmp;
 	strncpy(dst, src, count);
-	for (tmp = dst; *tmp && count > 0; tmp++, count--);
+	for (tmp = dst; *tmp && count > 0; tmp++, count--) ;
 	return (tmp - dst);	/* DAVIDM should we count a NUL ?  check getname */
 }
 

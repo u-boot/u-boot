@@ -1,7 +1,7 @@
 /*
  * U-boot - entry.h Routines for context saving and restoring
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -18,8 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef __BLACKFIN_ENTRY_H
@@ -27,7 +27,6 @@
 
 #include <linux/config.h>
 #include <asm/setup.h>
-#include <asm/page.h>
 
 /*
  * Stack layout in 'ret_from_exception':
@@ -370,16 +369,12 @@
 #define STR1(X) 		#X
 
 #if defined(NEW_PT_REGS)
-
 #define PT_OFF_ORIG_R0		208
 #define PT_OFF_SR		8
-
 #else
-
 #define PT_OFF_ORIG_R0		0x54
 #define PT_OFF_SR		0x38	/* seqstat in pt_regs */
-
-#endif
 #endif
 
+#endif
 #endif

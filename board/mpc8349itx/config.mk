@@ -21,10 +21,14 @@
 #
 
 #
-# MPC8349ITX
+# MPC8349E-mITX and MPC8349E-mITX-GP
 #
 
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+
+ifndef TEXT_BASE
 TEXT_BASE  =   0xFEF00000
+endif
 
 ifneq ($(OBJTREE),$(SRCTREE))
 # We are building u-boot in a separate directory, use generated

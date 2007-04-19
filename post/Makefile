@@ -22,14 +22,10 @@
 #
 
 
-SUBDIRS = cpu
+SUBDIRS = drivers cpu lib_$(ARCH) board/$(BOARDDIR)
 
 LIB	= libpost.a
 
-AOBJS	= cache_8xx.o
-COBJS	= cache.o codec.o cpu.o dsp.o ether.o
-COBJS  += i2c.o memory.o post.o rtc.o
-COBJS  += spr.o sysmon.o tests.o uart.o
-COBJS  += usb.o watchdog.o
+COBJS	= post.o tests.o
 
 include $(TOPDIR)/post/rules.mk

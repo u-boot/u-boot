@@ -721,6 +721,8 @@ typedef struct ccsr_pic {
 	uint	frr;		/* 0x41000 - Feature Reporting Register */
 	char	res10[28];
 	uint	gcr;		/* 0x41020 - Global Configuration Register */
+#define MPC86xx_PICGCR_RST	0x80000000
+#define MPC86xx_PICGCR_MODE	0x20000000
 	char	res11[92];
 	uint	vir;		/* 0x41080 - Vendor Identification Register */
 	char	res12[12];

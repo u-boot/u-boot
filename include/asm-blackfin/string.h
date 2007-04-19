@@ -1,7 +1,7 @@
 /*
  * U-boot - string.h String functions
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -18,8 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 /* Changed by Lineo Inc. May 2001 */
@@ -30,22 +30,26 @@
 #ifdef __KERNEL__		/* only set these up for kernel code */
 
 #include <asm/setup.h>
-#include <asm/page.h>
-#include <asm/cpu/defBF533.h>
+#include <config.h>
+#include <asm/blackfin.h>
 
 #define __HAVE_ARCH_STRCPY
 #define __HAVE_ARCH_STRNCPY
 #define __HAVE_ARCH_STRCMP
 #define __HAVE_ARCH_STRNCMP
 #define __HAVE_ARCH_MEMCPY
+#define __HAVE_ARCH_MEMCMP
+#define __HAVE_ARCH_MEMSET
+#define __HAVE_ARCH_MEMMOVE
 
 extern char *strcpy(char *dest, const char *src);
 extern char *strncpy(char *dest, const char *src, size_t n);
 extern int strcmp(const char *cs, const char *ct);
 extern int strncmp(const char *cs, const char *ct, size_t count);
-extern void * memcpy(void * dest,const void *src,size_t count);
+extern void *memcpy(void *dest, const void *src, size_t count);
 extern void *memset(void *s, int c, size_t count);
 extern int memcmp(const void *, const void *, __kernel_size_t);
+extern void *memmove(void *dest, const void *src, size_t count);
 
 #else				/* KERNEL */
 

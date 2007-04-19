@@ -107,10 +107,11 @@
 #define CALC_ODT_RW(n)	(CALC_ODT_R(n) | CALC_ODT_W(n))
 
 /* Defines for the Read Cycle Delay test */
-#define NUMMEMTESTS 8
-#define NUMMEMWORDS 8
+#define NUMMEMTESTS	8
+#define NUMMEMWORDS	8
+#define NUMLOOPS	256		/* memory test loops */
 
-#define CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
+#undef CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
 
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
@@ -168,8 +169,8 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_mode(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks,
-                         ddr_cas_id_t *selected_cas,
-                         int *write_recovery);
+			 ddr_cas_id_t *selected_cas,
+			 int *write_recovery);
 static void program_tr(unsigned long *dimm_populated,
 		       unsigned char *iic0_dimm_addr,
 		       unsigned long num_dimm_banks);
@@ -185,9 +186,10 @@ static void program_copt1(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas,
+			    ddr_cas_id_t selected_cas,
 			    int write_recovery);
 static unsigned long is_ecc_enabled(void);
+#ifdef CONFIG_DDR_ECC
 static void program_ecc(unsigned long *dimm_populated,
 			unsigned char *iic0_dimm_addr,
 			unsigned long num_dimm_banks,
@@ -195,6 +197,7 @@ static void program_ecc(unsigned long *dimm_populated,
 static void program_ecc_addr(unsigned long start_address,
 			     unsigned long num_bytes,
 			     unsigned long tlb_word2_i_value);
+#endif
 static void program_DQS_calibration(unsigned long *dimm_populated,
 				    unsigned char *iic0_dimm_addr,
 				    unsigned long num_dimm_banks);
@@ -253,15 +256,6 @@ static void mtdcr_any(u32 dcr, u32 val)
 	default:
 		printf("DCR %d not defined in case statement!!!\n", dcr);
 	}
-}
-
-static void wait_ddr_idle(void)
-{
-	u32 val;
-
-	do {
-		mfsdram(SDRAM_MCSTAT, val);
-	} while ((val & SDRAM_MCSTAT_IDLE_MASK) == SDRAM_MCSTAT_IDLE_NOT);
 }
 
 static unsigned char spd_read(uchar chip, uint addr)
@@ -491,7 +485,7 @@ long int initdram(int board_type)
 		(val & ~(SDRAM_MEMODE_DIC_MASK  | SDRAM_MEMODE_DLL_MASK |
 			 SDRAM_MEMODE_RTT_MASK | SDRAM_MEMODE_DQS_MASK)) |
 		(SDRAM_MEMODE_DIC_NORMAL | SDRAM_MEMODE_DLL_ENABLE
-		 | SDRAM_MEMODE_RTT_75OHM | SDRAM_MEMODE_DQS_ENABLE));
+		 | SDRAM_MEMODE_RTT_150OHM | SDRAM_MEMODE_DQS_ENABLE));
 
 	/*------------------------------------------------------------------
 	 * Program Initialization preload registers.
@@ -537,10 +531,12 @@ long int initdram(int board_type)
 	 *-----------------------------------------------------------------*/
 	program_DQS_calibration(dimm_populated, iic0_dimm_addr, num_dimm_banks);
 
+#ifdef CONFIG_DDR_ECC
 	/*------------------------------------------------------------------
 	 * If ecc is enabled, initialize the parity bits.
 	 *-----------------------------------------------------------------*/
 	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks, MY_TLB_WORD2_I_ENABLE);
+#endif
 
 #ifdef DEBUG
 	ppc440sp_sdram_register_dump();
@@ -589,10 +585,23 @@ static void get_spd_info(unsigned long *dimm_populated,
 #ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
+	PPC440_SYS_INFO board_cfg;
+	u32 val;
+
 	if (is_ecc_enabled())
-		puts(" (ECC enabled)");
+		puts(" (ECC");
 	else
-		puts(" (ECC not enabled)");
+		puts(" (ECC not");
+
+	get_sys_info(&board_cfg);
+
+	mfsdr(SDR0_DDR0, val);
+	val = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(val), 1);
+	printf(" enabled, %d MHz", (val * 2) / 1000000);
+
+	mfsdram(SDRAM_MMODE, val);
+	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
+	printf(", CL%d)", val);
 }
 #endif
 
@@ -702,7 +711,7 @@ static void check_frequency(unsigned long *dimm_populated,
 	 *-----------------------------------------------------------------*/
 	get_sys_info(&board_cfg);
 
-	mfsdr(sdr_ddr0, sdr_ddrpll);
+	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = ((board_cfg.freqPLB) * SDR0_DDR0_DDRM_DECODE(sdr_ddrpll));
 
 	/*
@@ -736,6 +745,7 @@ static void check_frequency(unsigned long *dimm_populated,
 			else
 				cycle_time = (((tcyc_reg & 0xF0) >> 4) * 100) +
 					((tcyc_reg & 0x0F)*10);
+			debug("cycle_time=%d [10 picoseconds]\n", cycle_time);
 
 			if  (cycle_time > (calc_cycle_time + 10)) {
 				/*
@@ -877,7 +887,11 @@ static void program_copt1(unsigned long *dimm_populated,
 	unsigned long ddrtype;
 	unsigned long val;
 
+#ifdef CONFIG_DDR_ECC
 	ecc_enabled = TRUE;
+#else
+	ecc_enabled = FALSE;
+#endif
 	dimm_32bit = FALSE;
 	dimm_64bit = FALSE;
 	buf0 = FALSE;
@@ -1110,7 +1124,7 @@ static void program_codt(unsigned long *dimm_populated,
 				modt3 = 0x00000000;
 			}
 		}
-  	} else {
+	} else {
 		codt |= SDRAM_CODT_DQS_2_5_V_DDR1;
 		modt0 = 0x00000000;
 		modt1 = 0x00000000;
@@ -1149,7 +1163,7 @@ static void program_codt(unsigned long *dimm_populated,
 static void program_initplr(unsigned long *dimm_populated,
 			    unsigned char *iic0_dimm_addr,
 			    unsigned long num_dimm_banks,
-                            ddr_cas_id_t selected_cas,
+			    ddr_cas_id_t selected_cas,
 			    int write_recovery)
 {
 	u32 cas = 0;
@@ -1314,8 +1328,9 @@ static void program_mode(unsigned long *dimm_populated,
 	 *-----------------------------------------------------------------*/
 	get_sys_info(&board_cfg);
 
-	mfsdr(sdr_ddr0, sdr_ddrpll);
+	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(sdr_ddrpll), 1);
+	debug("sdram_freq=%d\n", sdram_freq);
 
 	/*------------------------------------------------------------------
 	 * Handle the timing.  We need to find the worst case timing of all
@@ -1345,6 +1360,7 @@ static void program_mode(unsigned long *dimm_populated,
 
 			/* t_wr_ns = max(t_wr_ns, (unsigned long)dimm_spd[dimm_num][36] >> 2); */ /*  not used in this loop. */
 			cas_bit = spd_read(iic0_dimm_addr[dimm_num], 18);
+			debug("cas_bit[SPD byte 18]=%02x\n", cas_bit);
 
 			/* For a particular DIMM, grab the three CAS values it supports */
 			for (cas_index = 0; cas_index < 3; cas_index++) {
@@ -1363,7 +1379,8 @@ static void program_mode(unsigned long *dimm_populated,
 				if ((tcyc_reg & 0x0F) >= 10) {
 					if ((tcyc_reg & 0x0F) == 0x0D) {
 						/* Convert from hex to decimal */
-						cycle_time_ns_x_100[cas_index] = (((tcyc_reg & 0xF0) >> 4) * 100) + 75;
+						cycle_time_ns_x_100[cas_index] =
+							(((tcyc_reg & 0xF0) >> 4) * 100) + 75;
 					} else {
 						printf("ERROR: SPD reported Tcyc is incorrect for DIMM "
 						       "in slot %d\n", (unsigned int)dimm_num);
@@ -1371,9 +1388,12 @@ static void program_mode(unsigned long *dimm_populated,
 					}
 				} else {
 					/* Convert from hex to decimal */
-					cycle_time_ns_x_100[cas_index] = (((tcyc_reg & 0xF0) >> 4) * 100) +
+					cycle_time_ns_x_100[cas_index] =
+						(((tcyc_reg & 0xF0) >> 4) * 100) +
 						((tcyc_reg & 0x0F)*10);
 				}
+				debug("cas_index=%d: cycle_time_ns_x_100=%d\n", cas_index,
+				      cycle_time_ns_x_100[cas_index]);
 			}
 
 			/* The rest of this routine determines if CAS 2.0, 2.5, 3.0, 4.0 and 5.0 are */
@@ -1386,8 +1406,10 @@ static void program_mode(unsigned long *dimm_populated,
 				 *  Bit   7    6    5    4    3    2    1    0
 				 *       TBD  4.0  3.5  3.0  2.5  2.0  1.5  1.0
 				 */
-				if (((cas_bit & 0x40) == 0x40) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x40) == 0x40) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1395,8 +1417,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_4_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1404,8 +1428,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_3_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_2_5_tcyc_ns_x_100 = max(max_2_5_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_2_5_tcyc_ns_x_100 = max(max_2_5_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1413,8 +1439,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_2_5_available = FALSE;
 				}
 
-				if (((cas_bit & 0x04) == 0x04) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_2_0_tcyc_ns_x_100 = max(max_2_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x04) == 0x04) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_2_0_tcyc_ns_x_100 = max(max_2_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1427,8 +1455,10 @@ static void program_mode(unsigned long *dimm_populated,
 				 *  Bit   7    6    5    4    3    2    1    0
 				 *       TBD  6.0  5.0  4.0  3.0  2.0  TBD  TBD
 				 */
-				if (((cas_bit & 0x20) == 0x20) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_5_0_tcyc_ns_x_100 = max(max_5_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x20) == 0x20) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_5_0_tcyc_ns_x_100 = max(max_5_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1436,8 +1466,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_5_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x10) == 0x10) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_4_0_tcyc_ns_x_100 = max(max_4_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1445,8 +1477,10 @@ static void program_mode(unsigned long *dimm_populated,
 					cas_4_0_available = FALSE;
 				}
 
-				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) && (cycle_time_ns_x_100[cas_index] != 0)) {
-					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100, cycle_time_ns_x_100[cas_index]);
+				if (((cas_bit & 0x08) == 0x08) && (cas_index < 3) &&
+				    (cycle_time_ns_x_100[cas_index] != 0)) {
+					max_3_0_tcyc_ns_x_100 = max(max_3_0_tcyc_ns_x_100,
+								    cycle_time_ns_x_100[cas_index]);
 					cas_index++;
 				} else {
 					if (cas_index != 0)
@@ -1463,11 +1497,15 @@ static void program_mode(unsigned long *dimm_populated,
 	mfsdram(SDRAM_MMODE, mmode);
 	mmode = mmode & ~(SDRAM_MMODE_WR_MASK | SDRAM_MMODE_DCL_MASK);
 
-	cycle_2_0_clk = MULDIV64(ONE_BILLION, 100, max_2_0_tcyc_ns_x_100);
-	cycle_2_5_clk = MULDIV64(ONE_BILLION, 100, max_2_5_tcyc_ns_x_100);
-	cycle_3_0_clk = MULDIV64(ONE_BILLION, 100, max_3_0_tcyc_ns_x_100);
-	cycle_4_0_clk = MULDIV64(ONE_BILLION, 100, max_4_0_tcyc_ns_x_100);
-	cycle_5_0_clk = MULDIV64(ONE_BILLION, 100, max_5_0_tcyc_ns_x_100);
+	/* add 10 here because of rounding problems */
+	cycle_2_0_clk = MULDIV64(ONE_BILLION, 100, max_2_0_tcyc_ns_x_100) + 10;
+	cycle_2_5_clk = MULDIV64(ONE_BILLION, 100, max_2_5_tcyc_ns_x_100) + 10;
+	cycle_3_0_clk = MULDIV64(ONE_BILLION, 100, max_3_0_tcyc_ns_x_100) + 10;
+	cycle_4_0_clk = MULDIV64(ONE_BILLION, 100, max_4_0_tcyc_ns_x_100) + 10;
+	cycle_5_0_clk = MULDIV64(ONE_BILLION, 100, max_5_0_tcyc_ns_x_100) + 10;
+	debug("cycle_3_0_clk=%d\n", cycle_3_0_clk);
+	debug("cycle_4_0_clk=%d\n", cycle_4_0_clk);
+	debug("cycle_5_0_clk=%d\n", cycle_5_0_clk);
 
 	if (sdram_ddr1 == TRUE) { /* DDR1 */
 		if ((cas_2_0_available == TRUE) && (sdram_freq <= cycle_2_0_clk)) {
@@ -1486,6 +1524,9 @@ static void program_mode(unsigned long *dimm_populated,
 			hang();
 		}
 	} else { /* DDR2 */
+		debug("cas_3_0_available=%d\n", cas_3_0_available);
+		debug("cas_4_0_available=%d\n", cas_4_0_available);
+		debug("cas_5_0_available=%d\n", cas_5_0_available);
 		if ((cas_3_0_available == TRUE) && (sdram_freq <= cycle_3_0_clk)) {
 			mmode |= SDRAM_MMODE_DCL_DDR2_3_0_CLK;
 			*selected_cas = DDR_CAS_3;
@@ -1498,7 +1539,11 @@ static void program_mode(unsigned long *dimm_populated,
 		} else {
 			printf("ERROR: Cannot find a supported CAS latency with the installed DIMMs.\n");
 			printf("Only DIMMs DDR2 with CAS latencies of 3.0, 4.0, and 5.0 are supported.\n");
-			printf("Make sure the PLB speed is within the supported range of the DIMMs.\n\n");
+			printf("Make sure the PLB speed is within the supported range of the DIMMs.\n");
+			printf("cas3=%d cas4=%d cas5=%d\n",
+			       cas_3_0_available, cas_4_0_available, cas_5_0_available);
+			printf("sdram_freq=%d cycle3=%d cycle4=%d cycle5=%d\n\n",
+			       sdram_freq, cycle_3_0_clk, cycle_4_0_clk, cycle_5_0_clk);
 			hang();
 		}
 	}
@@ -1575,7 +1620,7 @@ static void program_rtr(unsigned long *dimm_populated,
 	/*------------------------------------------------------------------
 	 * Set the SDRAM Refresh Timing Register, SDRAM_RTR
 	 *-----------------------------------------------------------------*/
-	mfsdr(sdr_ddr0, sdr_ddrpll);
+	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = ((board_cfg.freqPLB) * SDR0_DDR0_DDRM_DECODE(sdr_ddrpll));
 
 	max_refresh_rate = 0;
@@ -1661,7 +1706,7 @@ static void program_tr(unsigned long *dimm_populated,
 	 *-----------------------------------------------------------------*/
 	get_sys_info(&board_cfg);
 
-	mfsdr(sdr_ddr0, sdr_ddrpll);
+	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = ((board_cfg.freqPLB) * SDR0_DDR0_DDRM_DECODE(sdr_ddrpll));
 
 	/*------------------------------------------------------------------
@@ -2069,7 +2114,7 @@ static void program_memory_queue(unsigned long *dimm_populated,
 			 * Set the sizes
 			 *-----------------------------------------------------------------*/
 			baseadd_size = 0;
-			rank_size_bytes = 1024 * 1024 * rank_size_id;
+			rank_size_bytes = 4 * 1024 * 1024 * rank_size_id;
 			switch (rank_size_id) {
 			case 0x02:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_8;
@@ -2106,8 +2151,8 @@ static void program_memory_queue(unsigned long *dimm_populated,
 
 			for (i = 0; i < num_ranks; i++)	{
 				mtdcr_any(rank_reg+i+dimm_num+bank_0_populated,
-					  (rank_base_addr & SDRAM_RXBAS_SDBA_MASK) |
-					  baseadd_size);
+					  (SDRAM_RXBAS_SDBA_ENCODE(rank_base_addr) |
+					   baseadd_size));
 				rank_base_addr += rank_size_bytes;
 			}
 		}
@@ -2130,9 +2175,22 @@ static unsigned long is_ecc_enabled(void)
 		ecc = max(ecc, SDRAM_MCOPT1_MCHK_CHK_DECODE(val));
 	}
 
-	return(ecc);
+	return ecc;
 }
 
+static void blank_string(int size)
+{
+	int i;
+
+	for (i=0; i<size; i++)
+		putc('\b');
+	for (i=0; i<size; i++)
+		putc(' ');
+	for (i=0; i<size; i++)
+		putc('\b');
+}
+
+#ifdef CONFIG_DDR_ECC
 /*-----------------------------------------------------------------------------+
  * program_ecc.
  *-----------------------------------------------------------------------------*/
@@ -2208,6 +2266,15 @@ static void check_ecc(void)
 }
 #endif
 
+static void wait_ddr_idle(void)
+{
+	u32 val;
+
+	do {
+		mfsdram(SDRAM_MCSTAT, val);
+	} while ((val & SDRAM_MCSTAT_IDLE_MASK) == SDRAM_MCSTAT_IDLE_NOT);
+}
+
 /*-----------------------------------------------------------------------------+
  * program_ecc_addr.
  *-----------------------------------------------------------------------------*/
@@ -2219,8 +2286,10 @@ static void program_ecc_addr(unsigned long start_address,
 	unsigned long end_address;
 	unsigned long address_increment;
 	unsigned long mcopt1;
-	char str[] = "ECC generation...";
-	int i;
+	char str[] = "ECC generation -";
+	char slash[] = "\\|/-\\|/-";
+	int loop = 0;
+	int loopi = 0;
 
 	current_address = start_address;
 	mfsdram(SDRAM_MCOPT1, mcopt1);
@@ -2243,14 +2312,20 @@ static void program_ecc_addr(unsigned long start_address,
 			while (current_address < end_address) {
 				*((unsigned long *)current_address) = 0x00000000;
 				current_address += address_increment;
+
+				if ((loop++ % (2 << 20)) == 0) {
+					putc('\b');
+					putc(slash[loopi++ % 8]);
+				}
 			}
+
 		} else {
 			/* ECC bit set method for cached memory */
 			dcbz_area(start_address, num_bytes);
 			dflush();
 		}
-		for (i=0; i<strlen(str); i++)
-			putc('\b');
+
+		blank_string(strlen(str));
 
 		sync();
 		eieio();
@@ -2276,6 +2351,7 @@ static void program_ecc_addr(unsigned long start_address,
 #endif
 	}
 }
+#endif
 
 /*-----------------------------------------------------------------------------+
  * program_DQS_calibration.
@@ -2332,7 +2408,7 @@ static void program_DQS_calibration(unsigned long *dimm_populated,
 #endif
 }
 
-static u32 short_mem_test(void)
+static int short_mem_test(void)
 {
 	u32 *membase;
 	u32 bxcr_num;
@@ -2356,42 +2432,41 @@ static u32 short_mem_test(void)
 		 0xAA55AA55, 0xAA55AA55, 0x55AA55AA, 0x55AA55AA},
 		{0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55,
 		 0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55} };
+	int l;
 
 	for (bxcr_num = 0; bxcr_num < MAXBXCF; bxcr_num++) {
 		mfsdram(SDRAM_MB0CF + (bxcr_num << 2), bxcf);
 
 		/* Banks enabled */
 		if ((bxcf & SDRAM_BXCF_M_BE_MASK) == SDRAM_BXCF_M_BE_ENABLE) {
-
 			/* Bank is enabled */
-			membase = (u32 *)(SDRAM_RXBAS_SDBA_DECODE(mfdcr_any(SDRAM_R0BAS+bxcr_num)));
 
 			/*------------------------------------------------------------------
 			 * Run the short memory test.
 			 *-----------------------------------------------------------------*/
+			membase = (u32 *)(SDRAM_RXBAS_SDBA_DECODE(mfdcr_any(SDRAM_R0BAS+bxcr_num)));
+
 			for (i = 0; i < NUMMEMTESTS; i++) {
 				for (j = 0; j < NUMMEMWORDS; j++) {
 					membase[j] = test[i][j];
 					ppcDcbf((u32)&(membase[j]));
 				}
 				sync();
-				for (j = 0; j < NUMMEMWORDS; j++) {
-					if (membase[j] != test[i][j]) {
+				for (l=0; l<NUMLOOPS; l++) {
+					for (j = 0; j < NUMMEMWORDS; j++) {
+						if (membase[j] != test[i][j]) {
+							ppcDcbf((u32)&(membase[j]));
+							return 0;
+						}
 						ppcDcbf((u32)&(membase[j]));
-						break;
 					}
-					ppcDcbf((u32)&(membase[j]));
+					sync();
 				}
-				sync();
-				if (j < NUMMEMWORDS)
-					break;
 			}
-			if (i < NUMMEMTESTS)
-				break;
 		}	/* if bank enabled */
 	}		/* for bxcf_num */
 
-	return bxcr_num;
+	return 1;
 }
 
 #ifndef HARD_CODED_DQS
@@ -2400,12 +2475,10 @@ static u32 short_mem_test(void)
  *-----------------------------------------------------------------------------*/
 static void DQS_calibration_process(void)
 {
-	unsigned long ecc_temp;
 	unsigned long rfdc_reg;
 	unsigned long rffd;
 	unsigned long rqdc_reg;
 	unsigned long rqfd;
-	unsigned long bxcr_num;
 	unsigned long val;
 	long rqfd_average;
 	long rffd_average;
@@ -2425,6 +2498,10 @@ static void DQS_calibration_process(void)
 	long max_end;
 	unsigned char fail_found;
 	unsigned char pass_found;
+	u32 rqfd_start;
+	char str[] = "Auto calibration -";
+	char slash[] = "\\|/-\\|/-";
+	int loopi = 0;
 
 	/*------------------------------------------------------------------
 	 * Test to determine the best read clock delay tuning bits.
@@ -2449,11 +2526,16 @@ static void DQS_calibration_process(void)
 	 * we can clock the DDR interface at is 200 MHz (2x 100 MHz PLB speed),
 	 * from experimentation it is safe to say you will always have a failure.
 	 *-----------------------------------------------------------------*/
-	mfsdram(SDRAM_MCOPT1, ecc_temp);
-	ecc_temp &= SDRAM_MCOPT1_MCHK_MASK;
-	mfsdram(SDRAM_MCOPT1, val);
-	mtsdram(SDRAM_MCOPT1, (val & ~SDRAM_MCOPT1_MCHK_MASK) |
-		SDRAM_MCOPT1_MCHK_NON);
+
+	/* first fix RQDC[RQFD] to an average of 80 degre phase shift to find RFDC[RFFD] */
+	rqfd_start = 64; /* test-only: don't know if this is the _best_ start value */
+
+	puts(str);
+
+calibration_loop:
+	mfsdram(SDRAM_RQDC, rqdc_reg);
+	mtsdram(SDRAM_RQDC, (rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |
+		SDRAM_RQDC_RQFD_ENCODE(rqfd_start));
 
 	max_start = 0;
 	min_end = 0;
@@ -2477,9 +2559,6 @@ static void DQS_calibration_process(void)
 	fail_found = FALSE;
 	pass_found = FALSE;
 
-	/* first fix RQDC[RQFD] to an average of 80 degre phase shift to find RFDC[RFFD] */
-	/* rqdc_reg = mfsdram(SDRAM_RQDC) & ~(SDRAM_RQDC_RQFD_MASK); */
-
 	/*
 	 * get the delay line calibration register value
 	 */
@@ -2495,13 +2574,10 @@ static void DQS_calibration_process(void)
 		 *-----------------------------------------------------------------*/
 		mtsdram(SDRAM_RFDC, rfdc_reg | SDRAM_RFDC_RFFD_ENCODE(rffd));
 
-		/* do the small memory test */
-		bxcr_num = short_mem_test();
-
 		/*------------------------------------------------------------------
 		 * See if the rffd value passed.
 		 *-----------------------------------------------------------------*/
-		if (bxcr_num == MAXBXCF) {
+		if (short_mem_test()) {
 			if (fail_found == TRUE) {
 				pass_found = TRUE;
 				if (current_pass_length == 0)
@@ -2530,7 +2606,6 @@ static void DQS_calibration_process(void)
 			}
 		}
 	}		/* for rffd */
-
 
 	/*------------------------------------------------------------------
 	 * Set the average RFFD value
@@ -2564,13 +2639,10 @@ static void DQS_calibration_process(void)
 		 *-----------------------------------------------------------------*/
 		mtsdram(SDRAM_RQDC, rqdc_reg | SDRAM_RQDC_RQFD_ENCODE(rqfd));
 
-		/* do the small memory test */
-		bxcr_num = short_mem_test();
-
 		/*------------------------------------------------------------------
 		 * See if the rffd value passed.
 		 *-----------------------------------------------------------------*/
-		if (bxcr_num == MAXBXCF) {
+		if (short_mem_test()) {
 			if (fail_found == TRUE) {
 				pass_found = TRUE;
 				if (current_pass_length == 0)
@@ -2598,29 +2670,34 @@ static void DQS_calibration_process(void)
 		}
 	}
 
+	rqfd_average = ((max_start + max_end) >> 1);
+
 	/*------------------------------------------------------------------
 	 * Make sure we found the valid read passing window.  Halt if not
 	 *-----------------------------------------------------------------*/
 	if (window_found == FALSE) {
-		printf("ERROR: Cannot determine a common read delay for the "
+		if (rqfd_start < SDRAM_RQDC_RQFD_MAX) {
+			putc('\b');
+			putc(slash[loopi++ % 8]);
+
+			/* try again from with a different RQFD start value */
+			rqfd_start++;
+			goto calibration_loop;
+		}
+
+		printf("\nERROR: Cannot determine a common read delay for the "
 		       "DIMM(s) installed.\n");
 		debug("%s[%d] ERROR : \n", __FUNCTION__,__LINE__);
 		hang();
 	}
 
-	rqfd_average = ((max_start + max_end) >> 1);
+	blank_string(strlen(str));
 
 	if (rqfd_average < 0)
 		rqfd_average = 0;
 
 	if (rqfd_average > SDRAM_RQDC_RQFD_MAX)
 		rqfd_average = SDRAM_RQDC_RQFD_MAX;
-
-	/*------------------------------------------------------------------
-	 * Restore the ECC variable to what it originally was
-	 *-----------------------------------------------------------------*/
-	mfsdram(SDRAM_MCOPT1, val);
-	mtsdram(SDRAM_MCOPT1, (val & ~SDRAM_MCOPT1_MCHK_MASK) | ecc_temp);
 
 	mtsdram(SDRAM_RQDC,
 		(rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |

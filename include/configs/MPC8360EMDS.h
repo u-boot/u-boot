@@ -100,11 +100,18 @@
 #define CFG_DDR_BASE		0x00000000 /* DDR is system memory */
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 #define CFG_DDR_SDRAM_BASE	CFG_DDR_BASE
+#define CFG_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
+				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
 
 #define CFG_83XX_DDR_USES_CS0
 
-#undef	CONFIG_DDR_ECC		/* only for ECC DDR module */
+#define CONFIG_DDR_ECC		/* support DDR ECC function */
 #define CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
+
+/*
+ * DDRCDR - DDR Control Driver Register
+ */
+#define CFG_DDRCDR_VALUE	0x80080001
 
 #define CONFIG_SPD_EEPROM	/* Use SPD EEPROM for DDR setup */
 #if defined(CONFIG_SPD_EEPROM)
@@ -117,12 +124,28 @@
  * Manually set up DDR parameters
  */
 #define CFG_DDR_SIZE		256 /* MB */
+#if defined(CONFIG_DDR_II)
+#define CFG_DDRCDR		0x80080001
+#define CFG_DDR_CS0_BNDS	0x0000000f
+#define CFG_DDR_CS0_CONFIG	0x80330102
+#define CFG_DDR_TIMING_0	0x00220802
+#define CFG_DDR_TIMING_1	0x38357322
+#define CFG_DDR_TIMING_2	0x2f9048c8
+#define CFG_DDR_TIMING_3	0x00000000
+#define CFG_DDR_CLK_CNTL	0x02000000
+#define CFG_DDR_MODE		0x47d00432
+#define CFG_DDR_MODE2		0x8000c000
+#define CFG_DDR_INTERVAL	0x03cf0080
+#define CFG_DDR_SDRAM_CFG	0x43000000
+#define CFG_DDR_SDRAM_CFG2	0x00401000
+#else
 #define CFG_DDR_CONFIG (CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9)
 #define CFG_DDR_TIMING_1	0x37344321 /* tCL-tRCD-tRP-tRAS=2.5-3-3-7 */
 #define CFG_DDR_TIMING_2	0x00000800 /* may need tuning */
 #define CFG_DDR_CONTROL		0x42008000 /* Self refresh,2T timing */
 #define CFG_DDR_MODE		0x20000162 /* DLL,normal,seq,4/2.5 */
 #define CFG_DDR_INTERVAL	0x045b0100 /* page mode */
+#endif
 #endif
 
 /*
@@ -168,7 +191,7 @@
 #define CFG_FLASH_CFI		/* use the Common Flash Interface */
 #define CFG_FLASH_CFI_DRIVER	/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000 /* FLASH base address */
-#define CFG_FLASH_SIZE		16 /* FLASH size is 16M */
+#define CFG_FLASH_SIZE		32 /* max FLASH size is 32M */
 
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE /* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
@@ -176,10 +199,12 @@
 #define CFG_BR0_PRELIM	(CFG_FLASH_BASE | /* Flash Base address */ \
 			(2 << BR_PS_SHIFT) | /* 16 bit port size */ \
 			BR_V)	/* valid */
-#define CFG_OR0_PRELIM		0xfe006ff7 /* 16MB Flash size */
+#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
 
 #define CFG_MAX_FLASH_BANKS	1 /* number of banks */
-#define CFG_MAX_FLASH_SECT	128 /* sectors per device */
+#define CFG_MAX_FLASH_SECT	256 /* max sectors per device */
 
 #undef	CFG_FLASH_CHECKSUM
 
@@ -188,7 +213,7 @@
  */
 #define CFG_BCSR		0xF8000000
 #define CFG_LBLAWBAR1_PRELIM	CFG_BCSR /* Access window base at BCSR base */
-#define CFG_LBLAWAR1_PRELIM	0x8000000E /* Access window size 32K */
+#define CFG_LBLAWAR1_PRELIM	0x8000000F /* Access window size 64K */
 
 #define CFG_BR1_PRELIM		(CFG_BCSR|0x00000801) /* Port size=8bit, MSEL=GPCM */
 #define CFG_OR1_PRELIM		0xFFFFE9f7 /* length 32K */
@@ -278,8 +303,8 @@
 /*
  * Windows to access PIB via local bus
  */
-#define CFG_LBLAWBAR3_PRELIM	0xf8008000 /* windows base 0xf8008000 */
-#define CFG_LBLAWAR3_PRELIM	0x8000000f /* windows size 64KB */
+#define CFG_LBLAWBAR3_PRELIM	0xf8010000 /* windows base 0xf8010000 */
+#define CFG_LBLAWAR3_PRELIM	0x8000000e /* windows size 32KB */
 
 /*
  * CS4 on Local Bus, to PIB
@@ -309,6 +334,7 @@
 #define CFG_NS16550_COM1	(CFG_IMMR+0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR+0x4600)
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
 #ifdef	CFG_HUSH_PARSER
@@ -316,14 +342,19 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
+#undef  CONFIG_OF_FLAT_TREE
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_HAS_BD_T	1
+#define CONFIG_OF_HAS_UBOOT_ENV	1
+
 
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8360@0"
 #define OF_SOC			"soc8360@e0000000"
+#define OF_QE			"qe@e0100000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc8360@e0000000/serial@4500"
 
@@ -609,7 +640,7 @@
    "ramdiskaddr=1000000\0"						\
    "ramdiskfile=ramfs.83xx\0"						\
    "fdtaddr=400000\0"							\
-   "fdtfile=mpc8349emds.dtb\0"						\
+   "fdtfile=mpc8360emds.dtb\0"						\
    ""
 
 #define CONFIG_NFSBOOTCOMMAND						\

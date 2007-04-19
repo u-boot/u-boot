@@ -432,7 +432,12 @@ static int init_phy(struct eth_device *dev)
 	}
 	memset(mii_info, 0, sizeof(*mii_info));
 
-	mii_info->speed = SPEED_1000;
+	if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
+		mii_info->speed = SPEED_1000;
+	} else {
+		mii_info->speed = SPEED_100;
+	}
+
 	mii_info->duplex = DUPLEX_FULL;
 	mii_info->pause = 0;
 	mii_info->link = 1;
@@ -508,7 +513,8 @@ static void adjust_link(struct eth_device *dev)
 		}
 
 		if (mii_info->speed != uec->oldspeed) {
-			switch (mii_info->speed) {
+			if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
+				switch (mii_info->speed) {
 				case 1000:
 					break;
 				case 100:
@@ -531,6 +537,7 @@ static void adjust_link(struct eth_device *dev)
 					printf("%s: Ack,Speed(%d)is illegal\n",
 						dev->name, mii_info->speed);
 					break;
+				}
 			}
 
 			printf("%s: Speed %dBT\n", dev->name, mii_info->speed);
@@ -1122,7 +1129,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	uec_private_t		*uec;
 	ucc_fast_private_t	*uccf;
 	volatile qe_bd_t	*bd;
-	volatile u16		status;
+	u16			status;
 	int			i;
 	int			result = 0;
 
@@ -1131,7 +1138,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	bd = uec->txBd;
 
 	/* Find an empty TxBD */
-	for (i = 0; BD_STATUS(bd) & TxBD_READY; i++) {
+	for (i = 0; bd->status & TxBD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx buffer not ready\n", dev->name);
 			return result;
@@ -1141,7 +1148,7 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	/* Init TxBD */
 	BD_DATA_SET(bd, buf);
 	BD_LENGTH_SET(bd, len);
-	status = BD_STATUS(bd);
+	status = bd->status;
 	status &= BD_WRAP;
 	status |= (TxBD_READY | TxBD_LAST);
 	BD_STATUS_SET(bd, status);
@@ -1150,13 +1157,11 @@ static int uec_send(struct eth_device* dev, volatile void *buf, int len)
 	ucc_fast_transmit_on_demand(uccf);
 
 	/* Wait for buffer to be transmitted */
-	status = BD_STATUS(bd);
-	for (i = 0; status & TxBD_READY; i++) {
+	for (i = 0; bd->status & TxBD_READY; i++) {
 		if (i > 0x100000) {
 			printf("%s: tx error\n", dev->name);
 			return result;
 		}
-		status = BD_STATUS(bd);
 	}
 
 	/* Ok, the buffer be transimitted */
@@ -1171,12 +1176,12 @@ static int uec_recv(struct eth_device* dev)
 {
 	uec_private_t		*uec = dev->priv;
 	volatile qe_bd_t	*bd;
-	volatile u16		status;
+	u16			status;
 	u16			len;
 	u8			*data;
 
 	bd = uec->rxBd;
-	status = BD_STATUS(bd);
+	status = bd->status;
 
 	while (!(status & RxBD_EMPTY)) {
 		if (!(status & RxBD_ERROR)) {
@@ -1190,7 +1195,7 @@ static int uec_recv(struct eth_device* dev)
 		BD_LENGTH_SET(bd, 0);
 		BD_STATUS_SET(bd, status | RxBD_EMPTY);
 		BD_ADVANCE(bd, status, uec->p_rx_bd_ring);
-		status = BD_STATUS(bd);
+		status = bd->status;
 	}
 	uec->rxBd = bd;
 

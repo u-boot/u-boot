@@ -109,6 +109,11 @@
 #define MIIM_GBIT_CONTROL	0x9
 #define MIIM_GBIT_CONTROL_INIT	0xe00
 
+/* Broadcom BCM54xx -- taken from linux sungem_phy */
+#define MIIM_BCM54xx_AUXSTATUS			0x19
+#define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
+#define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
+
 /* Cicada Auxiliary Control/Status Register */
 #define MIIM_CIS8201_AUX_CONSTAT        0x1c
 #define MIIM_CIS8201_AUXCONSTAT_INIT    0x0004

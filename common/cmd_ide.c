@@ -423,7 +423,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
-	if (get_partition_info (ide_dev_desc, part, &info)) {
+	if (get_partition_info (&ide_dev_desc[dev], part, &info)) {
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
 	}
@@ -513,9 +513,11 @@ void ide_init (void)
 #endif
 	unsigned char c;
 	int i, bus;
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
+	unsigned int ata_reset_time;
+#endif
 #ifdef CONFIG_AMIGAONEG3SE
 	unsigned int max_bus_scan;
-	unsigned int ata_reset_time;
 	char *s;
 #endif
 #ifdef CONFIG_IDE_8xx_PCCARD
@@ -617,10 +619,9 @@ void ide_init (void)
 		udelay (100000);		/* 100 ms */
 		ide_outb (dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
 		udelay (100000);		/* 100 ms */
-#ifdef CONFIG_AMIGAONEG3SE
-		ata_reset_time = ATA_RESET_TIME;
-		s = getenv("ide_reset_timeout");
-		if (s) ata_reset_time = 2*simple_strtol(s, NULL, 10);
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
+		if ((s = getenv("ide_reset_timeout")) != NULL)
+			ata_reset_time = simple_strtol(s, NULL, 10);
 #endif
 		i = 0;
 		do {
@@ -628,7 +629,7 @@ void ide_init (void)
 
 			c = ide_inb (dev, ATA_STATUS);
 			i++;
-#ifdef CONFIG_AMIGAONEG3SE
+#if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
 			if (i > (ata_reset_time * 100)) {
 #else
 			if (i > (ATA_RESET_TIME * 100)) {
@@ -1343,7 +1344,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		++n;
 		++blknr;
-		buffer += ATA_SECTORWORDS;
+		buffer += ATA_BLOCKSIZE;
 	}
 IDE_READ_E:
 	ide_led (DEVICE_LED(device), 0);	/* LED off	*/
@@ -1427,7 +1428,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		c = ide_inb (device, ATA_STATUS);	/* clear IRQ */
 		++n;
 		++blknr;
-		buffer += ATA_SECTORWORDS;
+		buffer += ATA_BLOCKSIZE;
 	}
 WR_OUT:
 	ide_led (DEVICE_LED(device), 0);	/* LED off	*/
@@ -2051,7 +2052,7 @@ ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		n+=cnt;
 		blkcnt-=cnt;
 		blknr+=cnt;
-		buffer+=cnt*(ATAPI_READ_BLOCK_SIZE/4); /* ulong blocksize in ulong */
+		buffer+=(cnt*ATAPI_READ_BLOCK_SIZE);
 	} while (blkcnt > 0);
 	return (n);
 }

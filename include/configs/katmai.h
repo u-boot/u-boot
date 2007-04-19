@@ -78,7 +78,7 @@
 #define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
 #define CONFIG_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
 
-#define CFG_ACE_BASE		0xe0000000	/* Xilinx ACE controller - Compact Flash */
+#define CFG_ACE_BASE		0xfe000000	/* Xilinx ACE controller - Compact Flash */
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)
@@ -108,6 +108,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x51, 0x52}	/* SPD i2c spd addresses*/
+#define CONFIG_DDR_ECC		1	/* with ECC support		*/
 #undef  CONFIG_STRESS
 
 /*-----------------------------------------------------------------------

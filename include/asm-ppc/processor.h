@@ -298,6 +298,10 @@
 #define SPRN_SPRG1	0x111	/* Special Purpose Register General 1 */
 #define SPRN_SPRG2	0x112	/* Special Purpose Register General 2 */
 #define SPRN_SPRG3	0x113	/* Special Purpose Register General 3 */
+#define SPRN_SPRG4	0x114	/* Special Purpose Register General 4 */
+#define SPRN_SPRG5	0x115	/* Special Purpose Register General 5 */
+#define SPRN_SPRG6	0x116	/* Special Purpose Register General 6 */
+#define SPRN_SPRG7	0x117	/* Special Purpose Register General 7 */
 #define SPRN_SRR0	0x01A	/* Save/Restore Register 0 */
 #define SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
 #define SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
@@ -529,6 +533,10 @@
 #define SPRG1   SPRN_SPRG1
 #define SPRG2   SPRN_SPRG2
 #define SPRG3   SPRN_SPRG3
+#define SPRG4   SPRN_SPRG4
+#define SPRG5   SPRN_SPRG5
+#define SPRG6   SPRN_SPRG6
+#define SPRG7   SPRN_SPRG7
 #define SRR0	SPRN_SRR0	/* Save and Restore Register 0 */
 #define SRR1	SPRN_SRR1	/* Save and Restore Register 1 */
 #define SVR	SPRN_SVR	/* System Version Register */
@@ -731,6 +739,7 @@
 #define PVR_405CR_RC	0x40110145  /* same as pc405gp rev e */
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
+#define PVR_405EZ_RA	0x41511460
 #define PVR_440GP_RB	0x40120440
 #define PVR_440GP_RC	0x40120481
 #define PVR_440EP_RA	0x42221850

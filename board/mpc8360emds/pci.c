@@ -18,6 +18,13 @@
 #include <common.h>
 #include <pci.h>
 #include <i2c.h>
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <libfdt_env.h>
+#endif
 
 #include <asm/fsl_i2c.h>
 
@@ -296,6 +303,22 @@ void pci_init_board(void)
 }
 #endif				/* CONFIG_PCISLAVE */
 
+#if defined(CONFIG_OF_LIBFDT)
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+	int nodeoffset;
+	int err;
+	int tmp[2];
+
+	nodeoffset = fdt_path_offset (fdt, "/" OF_SOC "/pci@8500");
+	if (nodeoffset >= 0) {
+		tmp[0] = cpu_to_be32(hose[0].first_busno);
+		tmp[1] = cpu_to_be32(hose[0].last_busno);
+		err = fdt_setprop(fdt, nodeoffset, "bus-range", tmp, sizeof(tmp));
+	}
+}
+#endif				/* CONFIG_OF_LIBFDT */
 #ifdef CONFIG_OF_FLAT_TREE
 void
 ft_pci_setup(void *blob, bd_t *bd)

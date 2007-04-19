@@ -134,88 +134,6 @@ volatile static struct pci_controller hose[] = {
 };
 #endif				/* CONFIG_PCI */
 
-/* If MPC8349E-mITX is soldered with SDRAM, then initialize it. */
-
-void sdram_init(void)
-{
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile lbus83xx_t *lbc = &immap->lbus;
-
-#if defined(CFG_BR2_PRELIM) \
-	&& defined(CFG_OR2_PRELIM) \
-	&& defined(CFG_LBLAWBAR2_PRELIM) \
-	&& defined(CFG_LBLAWAR2_PRELIM) \
-	&& !defined(CONFIG_COMPACT_FLASH)
-
-	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
-
-	puts("\n   SDRAM on Local Bus: ");
-	print_size(CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
-
-	/*
-	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
-	 */
-
-	/*setup mtrpt, lsrt and lbcr for LB bus */
-	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->mrtpr = CFG_LBC_MRTPR;
-	lbc->lsrt = CFG_LBC_LSRT;
-	asm("sync");
-
-	/*
-	 * Configure the SDRAM controller Machine Mode register.
-	 */
-	lbc->lsdmr = CFG_LBC_LSDMR_5;	/* 0x40636733; normal operation */
-
-	lbc->lsdmr = CFG_LBC_LSDMR_1;	/*0x68636733; precharge all the banks */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_2;	/*0x48636733; auto refresh */
-	asm("sync");
-	*sdram_addr = 0xff; /*1 time*/
-	udelay(100);
-	*sdram_addr = 0xff; /*2 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*3 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*4 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*5 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*6 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*7 times*/
-	udelay(100);
-	*sdram_addr = 0xff; /*8 times*/
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_4;	/*0x58636733;mode register write operation */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-	lbc->lsdmr = CFG_LBC_LSDMR_5;	/*0x40636733;normal operation */
-	asm("sync");
-	*sdram_addr = 0xff;
-	udelay(100);
-
-#else
-	puts("SDRAM on Local Bus is NOT available!\n");
-
-#ifdef CFG_BR2_PRELIM
-	lbc->bank[2].br = CFG_BR2_PRELIM;
-	lbc->bank[2].or = CFG_OR2_PRELIM;
-#endif
-
-#ifdef CFG_BR3_PRELIM
-	lbc->bank[3].br = CFG_BR3_PRELIM;
-	lbc->bank[3].or = CFG_OR3_PRELIM;
-#endif
-#endif
-}
-
 long int initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
@@ -243,18 +161,18 @@ long int initdram(int board_type)
 		ddr_enable_ecc(msize * 1048576);
 #endif
 
-	/*
-	 * Initialize SDRAM if it is on local bus.
-	 */
-	sdram_init();
 	puts("   DDR RAM: ");
-	/* return total bus SDRAM size(bytes)  -- DDR */
+	/* return total bus RAM size(bytes) */
 	return msize * 1024 * 1024;
 }
 
 int checkboard(void)
 {
+#ifdef CONFIG_MPC8349ITX
 	puts("Board: Freescale MPC8349E-mITX\n");
+#else
+	puts("Board: Freescale MPC8349E-mITX-GP\n");
+#endif
 
 	return 0;
 }
@@ -267,6 +185,7 @@ int checkboard(void)
  */
 int misc_init_f(void)
 {
+#ifdef CONFIG_VSC7385
 	volatile u32 *vsc7385_cpuctrl;
 
 	/* 0x1c0c0 is the VSC7385 CPU Control (CPUCTRL) Register.  The power up
@@ -286,6 +205,7 @@ int misc_init_f(void)
 
 	vsc7385_cpuctrl = (volatile u32 *)(CFG_VSC7385_BASE + 0x1c0c0);
 	*vsc7385_cpuctrl |= 0x0c;
+#endif
 
 #ifdef CONFIG_COMPACT_FLASH
 	/* UPM Table Configuration Code */
@@ -345,7 +265,7 @@ int misc_init_r(void)
 
 #ifdef CONFIG_HARD_I2C
 
-	unsigned int orig_bus = i2c_get_bus_num();;
+	unsigned int orig_bus = i2c_get_bus_num();
 	u8 i2c_data;
 
 #ifdef CFG_I2C_RTC_ADDR
@@ -355,9 +275,19 @@ int misc_init_r(void)
 #ifdef CFG_I2C_EEPROM_ADDR
 	static u8 eeprom_data[] =	/* HRCW data */
 	{
-		0xaa, 0x55, 0xaa,
-		0x7c, 0x02, 0x40, 0x05, 0x04, 0x00, 0x00,
-		0x7c, 0x02, 0x41, 0xb4, 0x60, 0xa0, 0x00,
+		0xAA, 0x55, 0xAA,       /* Preamble */
+		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x02, 0x40, 	        /* RCWL ADDR=0x0_0900 */
+		(CFG_HRCW_LOW >> 24) & 0xFF,
+		(CFG_HRCW_LOW >> 16) & 0xFF,
+		(CFG_HRCW_LOW >> 8) & 0xFF,
+		CFG_HRCW_LOW & 0xFF,
+		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x02, 0x41,	        /* RCWH ADDR=0x0_0904 */
+		(CFG_HRCW_HIGH >> 24) & 0xFF,
+		(CFG_HRCW_HIGH >> 16) & 0xFF,
+		(CFG_HRCW_HIGH >> 8) & 0xFF,
+		CFG_HRCW_HIGH & 0xFF
 	};
 
 	u8 data[sizeof(eeprom_data)];

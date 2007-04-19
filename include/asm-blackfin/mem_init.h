@@ -1,7 +1,7 @@
 /*
  * U-boot - mem_init.h Header file for memory initialization
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -18,11 +18,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
-#if ( CONFIG_MEM_MT48LC16M16A2TG_75  ||  CONFIG_MEM_MT48LC64M4A2FB_7E )
+#if (CONFIG_MEM_MT48LC16M16A2TG_75 || \
+	CONFIG_MEM_MT48LC64M4A2FB_7E || \
+	CONFIG_MEM_MT48LC16M8A2TG_75 || \
+	CONFIG_MEM_MT48LC8M16A2TG_7E || \
+	CONFIG_MEM_MT48LC8M32B2B5_7  || \
+	CONFIG_MEM_MT48LC32M8A2_75)
+
 	#if ( CONFIG_SCLK_HZ > 119402985 )
 		#define SDRAM_tRP	TRP_2
 		#define SDRAM_tRP_num	2
@@ -66,7 +72,7 @@
 	#if ( CONFIG_SCLK_HZ >  59701493 ) && ( CONFIG_SCLK_HZ <= 66666667 )
 		#define SDRAM_tRP	TRP_1
 		#define SDRAM_tRP_num	1
-		#define SDRAM_tRAS	TRAS_4
+		#define SDRAM_tRAS	TRAS_3
 		#define SDRAM_tRAS_num	3
 		#define SDRAM_tRCD	TRCD_1
 		#define SDRAM_tWR	TWR_2
@@ -99,16 +105,44 @@
 
 #if (CONFIG_MEM_MT48LC16M16A2TG_75)
 	/*SDRAM INFORMATION: */
-	#define SDRAM_Tref	64       /* Refresh period in milliseconds   */
-	#define SDRAM_NRA	8192     /* Number of row addresses in SDRAM */
+	#define SDRAM_Tref	64	/* Refresh period in milliseconds   */
+	#define SDRAM_NRA	8192	/* Number of row addresses in SDRAM */
 	#define SDRAM_CL	CL_3
 #endif
 
 #if (CONFIG_MEM_MT48LC64M4A2FB_7E)
 	/*SDRAM INFORMATION: */
-	#define SDRAM_Tref	64       /* Refresh period in milliseconds   */
-	#define SDRAM_NRA	8192     /* Number of row addresses in SDRAM */
+	#define SDRAM_Tref	64	/* Refresh period in milliseconds   */
+	#define SDRAM_NRA	8192	/* Number of row addresses in SDRAM */
 	#define SDRAM_CL	CL_2
+#endif
+
+#if (CONFIG_MEM_MT48LC16M8A2TG_75)
+	/*SDRAM INFORMATION: */
+	#define SDRAM_Tref      64	/* Refresh period in milliseconds   */
+	#define SDRAM_NRA       4096	/* Number of row addresses in SDRAM */
+	#define SDRAM_CL        CL_3
+#endif
+
+#if (CONFIG_MEM_MT48LC32M8A2_75)
+/*SDRAM INFORMATION: */
+#define SDRAM_Tref  64			/* Refresh period in milliseconds   */
+#define SDRAM_NRA   8192		/* Number of row addresses in SDRAM */
+#define SDRAM_CL    CL_3
+#endif
+
+#if (CONFIG_MEM_MT48LC8M16A2TG_7E)
+	/*SDRAM INFORMATION: */
+	#define SDRAM_Tref	64	/* Refresh period in milliseconds   */
+	#define SDRAM_NRA	4096	/* Number of row addresses in SDRAM */
+	#define SDRAM_CL	CL_2
+#endif
+
+#if (CONFIG_MEM_MT48LC8M32B2B5_7)
+	/*SDRAM INFORMATION: */
+	#define SDRAM_Tref	64	/* Refresh period in milliseconds   */
+	#define SDRAM_NRA	4096	/* Number of row addresses in SDRAM */
+	#define SDRAM_CL	CL_3
 #endif
 
 #if ( CONFIG_MEM_SIZE == 128 )

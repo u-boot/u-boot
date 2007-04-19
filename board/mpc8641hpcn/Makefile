@@ -25,7 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o pixis.o sys_eeprom.o
+COBJS	:= $(BOARD).o sys_eeprom.o \
+		../freescale/common/pixis.o
+
 SOBJS	:= init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
