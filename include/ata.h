@@ -83,6 +83,66 @@
 #define ATA_DEVICE(x)	((x & 1)<<4)
 #define ATA_LBA		0xE0
 
+enum {
+	ATA_MAX_DEVICES = 1,	/* per bus/port */
+	ATA_MAX_PRD = 256,	/* we could make these 256/256 */
+	ATA_SECT_SIZE = 256,	/*256 words per sector */
+
+	/* bits in ATA command block registers */
+	ATA_HOB = (1 << 7),	/* LBA48 selector */
+	ATA_NIEN = (1 << 1),	/* disable-irq flag */
+	/*ATA_LBA                 = (1 << 6), *//* LBA28 selector */
+	ATA_DEV1 = (1 << 4),	/* Select Device 1 (slave) */
+	ATA_DEVICE_OBS = (1 << 7) | (1 << 5),	/* obs bits in dev reg */
+	ATA_DEVCTL_OBS = (1 << 3),	/* obsolete bit in devctl reg */
+	ATA_BUSY = (1 << 7),	/* BSY status bit */
+	ATA_DRDY = (1 << 6),	/* device ready */
+	ATA_DF = (1 << 5),	/* device fault */
+	ATA_DRQ = (1 << 3),	/* data request i/o */
+	ATA_ERR = (1 << 0),	/* have an error */
+	ATA_SRST = (1 << 2),	/* software reset */
+	ATA_ABORTED = (1 << 2),	/* command aborted */
+	/* ATA command block registers */
+	ATA_REG_DATA = 0x00,
+	ATA_REG_ERR = 0x01,
+	ATA_REG_NSECT = 0x02,
+	ATA_REG_LBAL = 0x03,
+	ATA_REG_LBAM = 0x04,
+	ATA_REG_LBAH = 0x05,
+	ATA_REG_DEVICE = 0x06,
+	ATA_REG_STATUS = 0x07,
+	ATA_PCI_CTL_OFS = 0x02,
+	/* and their aliases */
+	ATA_REG_FEATURE = ATA_REG_ERR,
+	ATA_REG_CMD = ATA_REG_STATUS,
+	ATA_REG_BYTEL = ATA_REG_LBAM,
+	ATA_REG_BYTEH = ATA_REG_LBAH,
+	ATA_REG_DEVSEL = ATA_REG_DEVICE,
+	ATA_REG_IRQ = ATA_REG_NSECT,
+
+	/* SETFEATURES stuff */
+	SETFEATURES_XFER = 0x03,
+	XFER_UDMA_7 = 0x47,
+	XFER_UDMA_6 = 0x46,
+	XFER_UDMA_5 = 0x45,
+	XFER_UDMA_4 = 0x44,
+	XFER_UDMA_3 = 0x43,
+	XFER_UDMA_2 = 0x42,
+	XFER_UDMA_1 = 0x41,
+	XFER_UDMA_0 = 0x40,
+	XFER_MW_DMA_2 = 0x22,
+	XFER_MW_DMA_1 = 0x21,
+	XFER_MW_DMA_0 = 0x20,
+	XFER_PIO_4 = 0x0C,
+	XFER_PIO_3 = 0x0B,
+	XFER_PIO_2 = 0x0A,
+	XFER_PIO_1 = 0x09,
+	XFER_PIO_0 = 0x08,
+	XFER_SW_DMA_2 = 0x12,
+	XFER_SW_DMA_1 = 0x11,
+	XFER_SW_DMA_0 = 0x10,
+	XFER_PIO_SLOW = 0x00
+};
 /*
  * ATA Commands (only mandatory commands listed here)
  */
