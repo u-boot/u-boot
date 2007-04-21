@@ -36,7 +36,7 @@
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 /* setting reset address */
-#define	CFG_RESET_ADDRESS	TEXT_BASE
+//#define	CFG_RESET_ADDRESS	TEXT_BASE
 
 /* ethernet */
 #define CONFIG_EMACLITE		1
@@ -66,7 +66,7 @@
  *
  * CFG_GBL_DATA_OFFSET = 0x1000_0000 + 0x0400_0000 - 0x1000 = 0x13FF_F000
  * CFG_MONITOR_BASE = 0x13FF_F000 - 0x40000 = 0x13FB_F000
- * CFG_MALLOC_BASE = 0x13FB_F000 - 0x40000 = 0x13F7_F000 
+ * CFG_MALLOC_BASE = 0x13FB_F000 - 0x40000 = 0x13F7_F000
  *
  * 0x1000_0000	CFG_SDRAM_BASE
  *					FREE
@@ -93,7 +93,8 @@
 
 /* global pointer */
 #define	CFG_GBL_DATA_SIZE	0x1000	/* size of global data */
-#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE) /* start of global data */
+/* start of global data */
+#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE) 
 
 /* monitor code */
 #define	SIZE			0x40000
@@ -152,6 +153,8 @@
 				CFG_CMD_IMI |\
 				CFG_CMD_NET |\
 				CFG_CMD_CACHE |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
 				CFG_CMD_IMLS |\
 				CFG_CMD_FLASH |\
 				CFG_CMD_PING \
@@ -174,6 +177,8 @@
 				CFG_CMD_FLASH |\
 				CFG_CMD_PING |\
 				CFG_CMD_ENV |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
 				CFG_CMD_SAVES \
 				)
 
@@ -189,6 +194,8 @@
 				CFG_CMD_BDI |\
 				CFG_CMD_RUN |\
 				CFG_CMD_LOADS |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
 				CFG_CMD_LOADB |\
 				CFG_CMD_IMI |\
 				CFG_CMD_NET |\
@@ -221,10 +228,11 @@
 #define CFG_HZ	1000
 
 /* system ace */
-/*#define CONFIG_SYSTEMACE
-#define DEBUG_SYSTEMACE
-#define CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-#define CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-#define CONFIG_DOS_PARTITION
-*/
+#define	CONFIG_SYSTEMACE
+/* #define DEBUG_SYSTEMACE */
+#define	SYSTEMACE_CONFIG_FPGA
+#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
+#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
+#define	CONFIG_DOS_PARTITION
+
 #endif	/* __CONFIG_H */
