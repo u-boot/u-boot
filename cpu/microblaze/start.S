@@ -117,3 +117,36 @@ clear_bss:
 3:	/* jumping to board_init */
 	brai	board_init
 1:	bri	1b
+
+/*
+ * Read 16bit little endian
+ */
+	.text
+	.global	in16
+	.ent	in16
+	.align	2
+in16:	lhu	r3, r0, r5
+	bslli	r4, r3, 8
+	bsrli	r3, r3, 8
+	andi	r4, r4, 0xffff
+	or	r3, r3, r4
+	rtsd	r15, 8
+	sext16	r3, r3
+	.end	in16
+
+/*
+ * Write 16bit little endian
+ * first parameter(r5) - address, second(r6) - short value
+ */
+	.text
+	.global	out16
+	.ent	out16
+	.align	2
+out16:	bslli	r3, r6, 8
+	bsrli	r6, r6, 8
+	andi	r3, r3, 0xffff
+	or	r3, r3, r6
+	sh	r3, r0, r5
+	rtsd	r15, 8
+	or	r0, r0, r0
+	.end	out16
