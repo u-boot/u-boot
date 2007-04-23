@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004,2007 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -70,6 +70,12 @@ int checkcpu (void)
 	case SVR_8548_E:
 		puts("8548_E");
 		break;
+	case SVR_8544:
+                puts("8544");
+                break;
+        case SVR_8544_E:
+                puts("8544_E");
+                break;
 	default:
 		puts("Unknown");
 		break;
@@ -112,7 +118,7 @@ int checkcpu (void)
 #endif
 	clkdiv = lcrr & 0x0f;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-#ifdef CONFIG_MPC8548
+#if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.
