@@ -21,74 +21,40 @@
  */
 #include <common.h>
 
-#include <asm/errno.h>
 #include <asm/io.h>
-#include <asm/arch/platform.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/memory-map.h>
 
 #include "pio2.h"
 
-struct pio_state {
-	const struct device *dev;
-	u32 alloc_mask;
-};
-
-static struct pio_state pio_state[CFG_NR_PIOS];
-
-int gpio_set_func(enum device_id gpio_devid, unsigned int start,
-		  unsigned int nr_pins, enum gpio_func func)
+void gpio_select_periph_A(unsigned int pin, int use_pullup)
 {
-	const struct device *gpio;
-	struct pio_state *state;
-	u32 mask;
+	void *base = gpio_pin_to_addr(pin);
+	uint32_t mask = 1 << (pin & 0x1f);
 
-	state = &pio_state[gpio_devid - DEVICE_PIOA];
+	if (!base)
+		panic("Invalid GPIO pin %u\n", pin);
 
-	gpio = get_device(gpio_devid);
-	if (!gpio)
-		return -EBUSY;
-
-	state->dev = gpio;
-	mask = ((1 << nr_pins) - 1) << start;
-
-	if (mask & state->alloc_mask) {
-		put_device(gpio);
-		return -EBUSY;
-	}
-	state->alloc_mask |= mask;
-
-	switch (func) {
-	case GPIO_FUNC_GPIO:
-		/* TODO */
-		return -EINVAL;
-	case GPIO_FUNC_A:
-		pio2_writel(gpio, ASR, mask);
-		pio2_writel(gpio, PDR, mask);
-		pio2_writel(gpio, PUDR, mask);
-		break;
-	case GPIO_FUNC_B:
-		pio2_writel(gpio, BSR, mask);
-		pio2_writel(gpio, PDR, mask);
-		pio2_writel(gpio, PUDR, mask);
-		break;
-	}
-
-	return 0;
+	pio2_writel(base, ASR, mask);
+	pio2_writel(base, PDR, mask);
+	if (use_pullup)
+		pio2_writel(base, PUER, mask);
+	else
+		pio2_writel(base, PUDR, mask);
 }
 
-void gpio_free(enum device_id gpio_devid, unsigned int start,
-	       unsigned int nr_pins)
+void gpio_select_periph_B(unsigned int pin, int use_pullup)
 {
-	const struct device *gpio;
-	struct pio_state *state;
-	u32 mask;
+	void *base = gpio_pin_to_addr(pin);
+	uint32_t mask = 1 << (pin & 0x1f);
 
-	state = &pio_state[gpio_devid - DEVICE_PIOA];
-	gpio = state->dev;
-	mask = ((1 << nr_pins) - 1) << start;
+	if (!base)
+		panic("Invalid GPIO pin %u\n", pin);
 
-	pio2_writel(gpio, ODR, mask);
-	pio2_writel(gpio, PER, mask);
-
-	state->alloc_mask &= ~mask;
-	put_device(gpio);
+	pio2_writel(base, BSR, mask);
+	pio2_writel(base, PDR, mask);
+	if (use_pullup)
+		pio2_writel(base, PUER, mask);
+	else
+		pio2_writel(base, PUDR, mask);
 }

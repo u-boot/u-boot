@@ -31,6 +31,10 @@
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <libfdt_env.h>
+#endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GETH1 */
@@ -658,22 +662,45 @@ U_BOOT_CMD(ecc, 4, 0, do_ecc,
 	   "  - disables injects\n" "  - re-inits memory");
 #endif				/* if defined(CONFIG_DDR_ECC) && defined(CONFIG_DDR_ECC_CMD) */
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if (defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)) \
+     && defined(CONFIG_OF_BOARD_SETUP)
+
+/*
+ * Prototypes of functions that we use.
+ */
+void ft_cpu_setup(void *blob, bd_t *bd);
+
+#ifdef CONFIG_PCI
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
+
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
+#if defined(CONFIG_OF_LIBFDT)
+	int nodeoffset;
+	int tmp[2];
+
+	nodeoffset = fdt_path_offset (fdt, "/memory");
+	if (nodeoffset >= 0) {
+		tmp[0] = cpu_to_be32(bd->bi_memstart);
+		tmp[1] = cpu_to_be32(bd->bi_memsize);
+		fdt_setprop(fdt, nodeoffset, "reg", tmp, sizeof(tmp));
+	}
+#else
 	u32 *p;
 	int len;
-
-#ifdef CONFIG_PCI
-	ft_pci_setup(blob, bd);
-#endif
-	ft_cpu_setup(blob, bd);
 
 	p = ft_get_prop(blob, "/memory/reg", &len);
 	if (p != NULL) {
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
-}
 #endif
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+	ft_cpu_setup(blob, bd);
+}
+#endif /* CONFIG_OF_x */

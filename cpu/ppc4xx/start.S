@@ -2,6 +2,7 @@
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000,2001,2002 Wolfgang Denk <wd@denx.de>
+ *  Copyright (C) 2007 Stefan Roese <sr@denx.de>, DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -757,7 +758,6 @@ _start:
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
-/* test-only... (clean up later when NAND booting is supported) */
 #if defined(CONFIG_405EZ)
 	/********************************************************************
 	 * Setup OCM - On Chip Memory - PPC405EZ uses OCM Controller V2
@@ -786,41 +786,7 @@ _start:
 	mtdcr	ocmdsisdpc,r4
 
 	isync
-
-#if defined(CONFIG_NAND_SPL)
-	/*
-	 * 405EZ can boot from NAND Flash.
-	 * If we are booting the SPL (Pre-loader), copy code from
-	 * the mapped 4K NAND Flash to the OCM
-	 */
-	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
-	mtctr	r4
-	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
-	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
-	lis	r3,CFG_NAND_BOOT_SPL_DST@h
-	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
-spl_loop:
-	lwzu	r4,4(r2)
-	stwu	r4,4(r3)
-	bdnz	spl_loop
-
-	/*
-	 * Jump to code in OCM Ram
-	 */
-	bl 	00f
-00:	mflr	r10
-	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
-	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
-	sub	r10,r10,r3
-	addi	r10,r10,28
-	mtlr	r10
-	blr
-start_ram:
-	sync
-	isync
-#endif
-#else
-/* ...test-only */
+#else /* CONFIG_405EZ */
 	/********************************************************************
 	 * Setup OCM - On Chip Memory
 	 *******************************************************************/
@@ -828,14 +794,15 @@ start_ram:
 	lis	r0, 0x7FFF
 	ori	r0, r0, 0xFFFF
 	mfdcr	r3, ocmiscntl		/* get instr-side IRAM config */
-	mfdcr	r4, ocmdscntl	/* get data-side IRAM config */
-	and	r3, r3, r0	/* disable data-side IRAM */
-	and	r4, r4, r0	/* disable data-side IRAM */
-	mtdcr	ocmiscntl, r3	/* set instr-side IRAM config */
-	mtdcr	ocmdscntl, r4	/* set data-side IRAM config */
+	mfdcr	r4, ocmdscntl		/* get data-side IRAM config */
+	and	r3, r3, r0		/* disable data-side IRAM */
+	and	r4, r4, r0		/* disable data-side IRAM */
+	mtdcr	ocmiscntl, r3		/* set instr-side IRAM config */
+	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
 	isync
 
-	addis	r3, 0, CFG_OCM_DATA_ADDR@h /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
 	mtdcr	ocmdsarc, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
 	mtdcr	ocmdscntl, r4
@@ -1925,11 +1892,11 @@ pll_wait:
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_440)
-#define function_prolog(func_name)      .text; \
+#define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
 					func_name:
-#define function_epilog(func_name)      .type func_name,@function; \
+#define function_epilog(func_name)	.type func_name,@function; \
 					.size func_name,.-func_name
 
 /*----------------------------------------------------------------------------+
@@ -1985,13 +1952,13 @@ pll_wait:
 +----------------------------------------------------------------------------*/
 	function_prolog(dcbz_area)
 	rlwinm. r5,r4,0,27,31
-	rlwinm  r5,r4,27,5,31
-	beq     ..d_ra2
-	addi    r5,r5,0x0001
-..d_ra2:mtctr   r5
-..d_ag2:dcbz    r0,r3
-	addi    r3,r3,32
-	bdnz    ..d_ag2
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ra2
+	addi	r5,r5,0x0001
+..d_ra2:mtctr	r5
+..d_ag2:dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag2
 	sync
 	blr
 	function_epilog(dcbz_area)
@@ -2000,26 +1967,26 @@ pll_wait:
 | dflush.  Assume 32K at vector address is cachable.
 +----------------------------------------------------------------------------*/
 	function_prolog(dflush)
-	mfmsr   r9
-	rlwinm  r8,r9,0,15,13
-	rlwinm  r8,r8,0,17,15
-	mtmsr   r8
-	addi    r3,r0,0x0000
-	mtspr   dvlim,r3
-	mfspr   r3,ivpr
-	addi    r4,r0,1024
-	mtctr   r4
+	mfmsr	r9
+	rlwinm	r8,r9,0,15,13
+	rlwinm	r8,r8,0,17,15
+	mtmsr	r8
+	addi	r3,r0,0x0000
+	mtspr	dvlim,r3
+	mfspr	r3,ivpr
+	addi	r4,r0,1024
+	mtctr	r4
 ..dflush_loop:
-	lwz     r6,0x0(r3)
-	addi    r3,r3,32
-	bdnz    ..dflush_loop
-	addi    r3,r3,-32
-	mtctr   r4
-..ag:   dcbf    r0,r3
-	addi    r3,r3,-32
-	bdnz    ..ag
+	lwz	r6,0x0(r3)
+	addi	r3,r3,32
+	bdnz	..dflush_loop
+	addi	r3,r3,-32
+	mtctr	r4
+..ag:	dcbf	r0,r3
+	addi	r3,r3,-32
+	bdnz	..ag
 	sync
-	mtmsr   r9
+	mtmsr	r9
 	blr
 	function_epilog(dflush)
 #endif /* CONFIG_440 */

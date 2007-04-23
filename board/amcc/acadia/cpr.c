@@ -76,19 +76,19 @@ void board_pll_init_f(void)
 	 * | UART0 |   28.57    |   7 (0x07)|
 	 * | UART1 |   28.57    |   7 (0x07)|
 	 * | DAC   |   28.57    |   7 (0xA7)|
-	 * | ADC   |    4     	|  50 (0x32)|
+	 * | ADC   |    4       |  50 (0x32)|
 	 * | PWM   |   28.57    |   7 (0x07)|
 	 * | EMAC  |    4       |  50 (0x32)|
 	 * -----------------------------------
 	 */
 
 	/* Initialize PLL */
-	mtcpr(cprpllc,   0x20000238);
-	mtcpr(cprplld,   0x03010400);
+	mtcpr(cprpllc, 0x20000238);
+	mtcpr(cprplld, 0x03010400);
 	mtcpr(cprprimad, 0x03050a0a);
-	mtcpr(cprperc0,  0x00000000);
-	mtcpr(cprperd0,  0x070a0707);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(cprperd1,  0x07323200);
+	mtcpr(cprperc0, 0x00000000);
+	mtcpr(cprperd0, 0x070a0707);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(cprperd1, 0x07323200);
 	mtcpr(cprclkupd, 0x40000000);
 }
 
@@ -117,11 +117,11 @@ void board_pll_init_f(void)
 	 */
 
 	/* Initialize PLL */
-	mtcpr(cprpllc,   0x0000033C);
-	mtcpr(cprplld,   0x0a010000);
+	mtcpr(cprpllc, 0x0000033C);
+	mtcpr(cprplld, 0x0a010000);
 	mtcpr(cprprimad, 0x02040808);
-	mtcpr(cprperd0,  0x02080505);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(cprperd1,  0xA6A60300);
+	mtcpr(cprperd0, 0x02080505);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(cprperd1, 0xA6A60300);
 	mtcpr(cprclkupd, 0x40000000);
 }
 
@@ -143,20 +143,20 @@ void board_pll_init_f(void)
 	 */
 
 	/* Initialize PLL */
-	mtcpr(cprpllc,   0x000003BC);
-	mtcpr(cprplld,   0x06060600);
+	mtcpr(cprpllc, 0x000003BC);
+	mtcpr(cprplld, 0x06060600);
 	mtcpr(cprprimad, 0x02020004);
-	mtcpr(cprperd0,  0x04002828);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(cprperd1,  0xC8C81600);
+	mtcpr(cprperd0, 0x04002828);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(cprperd1, 0xC8C81600);
 	mtcpr(cprclkupd, 0x40000000);
 }
-#endif /* CPU_<speed>_405EZ */
+#endif				/* CPU_<speed>_405EZ */
 
 #if defined(CONFIG_NAND_SPL) || defined(CONFIG_SPI_SPL)
 /*
  * Get timebase clock frequency
  */
-unsigned long get_tbclk (void)
+unsigned long get_tbclk(void)
 {
 	unsigned long cpr_plld;
 	unsigned long cpr_primad;
@@ -192,4 +192,4 @@ unsigned long get_tbclk (void)
 
 	return (freqProcessor);
 }
-#endif	/* defined(CONFIG_NAND_SPL) || defined(CONFIG_SPI_SPL) */
+#endif /* defined(CONFIG_NAND_SPL) || defined(CONFIG_SPI_SPL) */

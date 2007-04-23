@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * Copyright (C) 2005-2006 Atmel Corporation
  *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * Ethernet initialization for the ATSTK1000 starterkit
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,9 +21,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#include <common.h>
 
-#include <config.h>
+#include <asm/arch/memory-map.h>
 
-#ifdef CONFIG_SUZAKU
-#include <asm/suzaku.h>
+extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+
+#if defined(CONFIG_MACB) && (CONFIG_COMMANDS & CFG_CMD_NET)
+void atstk1000_eth_initialize(bd_t *bi)
+{
+	int id = 0;
+
+	macb_eth_initialize(id++, (void *)MACB0_BASE, bi->bi_phy_id[0]);
+	macb_eth_initialize(id++, (void *)MACB1_BASE, bi->bi_phy_id[1]);
+}
 #endif

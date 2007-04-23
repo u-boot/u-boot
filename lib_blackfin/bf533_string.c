@@ -1,7 +1,7 @@
 /*
  * U-boot - bf533_string.c Contains library routines.
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,22 +21,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <common.h>
 #include <asm/setup.h>
-#include <asm/page.h>
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>
-
-extern void blackfin_icache_flush_range(const void *, const void *);
-extern void blackfin_dcache_flush_range(const void *, const void *);
-extern void *memcpy_ASM(void *dest, const void *src, size_t count);
-
-void *dma_memcpy(void *, const void *, size_t);
+#include "cache.h"
 
 char *strcpy(char *dest, const char *src)
 {
@@ -118,44 +112,7 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	return __res1;
 }
 
-/*
- * memcpy - Copy one area of memory to another
- * @dest: Where to copy to
- * @src: Where to copy from
- * @count: The size of the area.
- *
- * You should not use this function to access IO space, use memcpy_toio()
- * or memcpy_fromio() instead.
- */
-void *memcpy(void *dest, const void *src, size_t count)
-{
-	char *tmp = (char *)dest, *s = (char *)src;
-
-	/* L1_ISRAM can only be accessed via dma */
-	if ((tmp >= (char *)L1_ISRAM) && (tmp < (char *)L1_ISRAM_END)) {
-		/* L1 is the destination */
-		dma_memcpy(dest, src, count);
-
-		if (icache_status()) {
-			blackfin_icache_flush_range(src, src + count);
-		}
-	} else if ((s >= (char *)L1_ISRAM) && (s < (char *)L1_ISRAM_END)) {
-		/* L1 is the source */
-		dma_memcpy(dest, src, count);
-
-		if (icache_status()) {
-			blackfin_icache_flush_range(dest, dest + count);
-		}
-		if (dcache_status()) {
-			blackfin_dcache_flush_range(dest, dest + count);
-		}
-	} else {
-		memcpy_ASM(dest, src, count);
-	}
-	return dest;
-}
-
-void *dma_memcpy(void *dest, const void *src, size_t count)
+static void *dma_memcpy(void *dest, const void *src, size_t count)
 {
 	*pMDMA_D0_IRQ_STATUS = DMA_DONE | DMA_ERR;
 
@@ -187,5 +144,42 @@ void *dma_memcpy(void *dest, const void *src, size_t count)
 
 	dest += count;
 	src += count;
+	return dest;
+}
+
+/*
+ * memcpy - Copy one area of memory to another
+ * @dest: Where to copy to
+ * @src: Where to copy from
+ * @count: The size of the area.
+ *
+ * You should not use this function to access IO space, use memcpy_toio()
+ * or memcpy_fromio() instead.
+ */
+extern void *memcpy_ASM(void *dest, const void *src, size_t count);
+void *memcpy(void *dest, const void *src, size_t count)
+{
+	char *tmp = (char *) dest, *s = (char *) src;
+
+	if (dcache_status()) {
+		blackfin_dcache_flush_range(src, src+count);
+	}
+	/* L1_ISRAM can only be accessed via dma */
+	if ((tmp >= (char *)L1_ISRAM) && (tmp < (char *)L1_ISRAM_END)) {
+		/* L1 is the destination */
+		dma_memcpy(dest,src,count);
+	} else if ((s >= (char *)L1_ISRAM) && (s < (char *)L1_ISRAM_END)) {
+		/* L1 is the source */
+		dma_memcpy(dest,src,count);
+
+		if (icache_status()) {
+			blackfin_icache_flush_range(dest, dest+count);
+		}
+		if (dcache_status()) {
+			blackfin_dcache_invalidate_range(dest, dest+count);
+		}
+	} else {
+		memcpy_ASM(dest,src,count);
+	}
 	return dest;
 }

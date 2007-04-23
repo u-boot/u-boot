@@ -1,7 +1,6 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
- *
- * Yasushi SHOJI <yashi@atmark-techno.com>
+ * (C) Copyright 2007
+ * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,6 +21,22 @@
  * MA 02111-1307 USA
  */
 
-/* System Register (GPIO) */
-#define MICROBLAZE_SYSREG_BASE_ADDR 0xFFFFA000
-#define MICROBLAZE_SYSREG_RECONFIGURE (1 << 0)
+#ifndef __FDT_SUPPORT_H
+#define __FDT_SUPPORT_H
+
+#ifdef CONFIG_OF_LIBFDT
+
+#include <fdt.h>
+
+int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force);
+
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+int fdt_env(void *fdt);
+#endif
+
+#ifdef CONFIG_OF_HAS_BD_T
+int fdt_bd_t(void *fdt);
+#endif
+
+#endif /* ifdef CONFIG_OF_LIBFDT */
+#endif /* ifndef __FDT_SUPPORT_H */

@@ -179,6 +179,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 #if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
      (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     defined(CONFIG_MMC)		|| \
      defined(CONFIG_SYSTEMACE)          )
 
 #if defined(CONFIG_MAC_PARTITION) || \

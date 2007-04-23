@@ -1,5 +1,7 @@
 /*
- * Copyright 2006 Freescale Semiconductor
+ * (C) Copyright 2007 Michal Simek
+ *
+ * Michal  SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -20,14 +22,25 @@
  * MA 02111-1307 USA
  */
 
-extern int set_px_sysclk(ulong sysclk);
-extern int set_px_mpxpll(ulong mpxpll);
-extern int set_px_corepll(ulong corepll);
-extern void read_from_px_regs(int set);
-extern void read_from_px_regs_altbank(int set);
-extern void set_altbank(void);
-extern void set_px_go(void);
-extern void set_px_go_with_watchdog(void);
-extern int disable_watchdog(cmd_tbl_t *cmdtp,
-			    int flag, int argc, char *argv[]);
-extern ulong strfractoint(uchar *strptr);
+	.text
+	.globl	microblaze_disable_interrupts
+	.ent	microblaze_disable_interrupts
+	.align	2
+microblaze_disable_interrupts:
+	#Make space on stack for a temporary
+	addi	r1, r1, -4
+	#Save register r12
+	swi	r12, r1, 0
+	#Read the MSR register
+	mfs	r12, rmsr
+	#Clear the interrupt enable bit
+	andi	r12, r12, ~2
+	#Save the MSR register
+	mts	rmsr, r12
+	#Load register r12
+	lwi	r12, r1, 0
+	#Return
+	rtsd	r15, 8
+	#Update stack in the delay slot
+	addi	r1, r1, 4
+	.end	microblaze_disable_interrupts

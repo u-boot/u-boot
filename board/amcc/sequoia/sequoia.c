@@ -363,8 +363,8 @@ int checkboard(void)
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
 
-	rev = *(u8 *)(CFG_CPLD + 0);
-	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	rev = *(u8 *)(CFG_BCSR_BASE + 0);
+	val = *(u8 *)(CFG_BCSR_BASE + 5) & 0x01;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {

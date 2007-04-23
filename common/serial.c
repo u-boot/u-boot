@@ -41,7 +41,7 @@ struct serial_device *default_serial_console (void)
    || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 	return &serial_scc_device;
 #elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
-   || defined(CONFIG_405EP) || defined(CONFIG_MPC5xxx)
+   || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_MPC5xxx)
 #if defined(CONFIG_CONS_INDEX) && defined(CFG_NS16550_SERIAL)
 #if (CONFIG_CONS_INDEX==1)
 	return &eserial1_device;
@@ -91,7 +91,7 @@ void serial_initialize (void)
 #endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
- || defined(CONFIG_405EP) || defined(CONFIG_MPC5xxx)
+ || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_MPC5xxx)
 	serial_register(&serial0_device);
 	serial_register(&serial1_device);
 #endif

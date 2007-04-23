@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * (C) Copyright 2007 Michal Simek
+ *
+ * Michal  SIMEK <monstr@monstr.cz>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -19,20 +21,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <common.h>
 
-#include <asm/io.h>
+typedef volatile struct microblaze_intc_t {
+	int isr; /* interrupt status register */
+	int ipr; /* interrupt pending register */
+	int ier; /* interrupt enable register */
+	int iar; /* interrupt acknowledge register */
+	int sie; /* set interrupt enable bits */
+	int cie; /* clear interrupt enable bits */
+	int ivr; /* interrupt vector register */
+	int mer; /* master enable register */
+} microblaze_intc_t;
 
-#include <asm/arch/hmatrix2.h>
-#include <asm/arch/memory-map.h>
-#include <asm/arch/platform.h>
-
-void cpu_enable_sdram(void)
-{
-	const struct device *hmatrix;
-
-	hmatrix = get_device(DEVICE_HMATRIX);
-
-	/* Set the SDRAM_ENABLE bit in the HEBI SFR */
-	hmatrix2_writel(hmatrix, SFR4, 1 << 1);
-}
+struct irq_action {
+	interrupt_handler_t *handler; /* pointer to interrupt rutine */
+	void *arg;
+	int count; /* number of interrupt */
+};

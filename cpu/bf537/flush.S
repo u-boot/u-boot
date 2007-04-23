@@ -1,9 +1,9 @@
-/* Copyright (C) 2003 Analog Devices, Inc. All Rights Reserved.
- * Copyright (C) 2004 LG SOft India. All Rights Reserved.
+/* Copyright (C) 2003-2007 Analog Devices Inc.
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.
  */
+
 #define ASSEMBLY
 
 #include <asm/linkage.h>

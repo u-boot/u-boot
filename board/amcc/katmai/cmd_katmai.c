@@ -27,6 +27,9 @@
 #include <i2c.h>
 #include <asm/byteorder.h>
 
+#define	CONFIG_STRESS		/* enable 667 MHz CPU freq selection */
+#define DEBUG
+
 static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar	chip;
@@ -49,55 +52,28 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	else
 		chip = IIC0_ALT_BOOTPROM_ADDR;
 
-	do {
-		printf("enter sys clock frequency 33 or 66 Mhz or quit to abort\n");
-		nbytes = readline (" ? ");
-
-		if (strcmp(console_buffer, "quit") == 0)
-			return 0;
-
-		if ((strcmp(console_buffer, "33") != 0) &
-		    (strcmp(console_buffer, "66") != 0))
-			nbytes=0;
-
-		strcpy(sysClock, console_buffer);
-
-	} while (nbytes == 0);
+	/* on Katmai SysClk is always 33MHz */
+	strcpy(sysClock, "33");
 
 	do {
-		if (strcmp(sysClock, "66") == 0) {
-			printf("enter cpu clock frequency 400, 533 Mhz or quit to abort\n");
-		} else {
 #ifdef	CONFIG_STRESS
-			printf("enter cpu clock frequency 400, 500, 533, 667 Mhz or quit to abort\n");
+		printf("enter cpu clock frequency 400, 500, 533, 667 Mhz or quit to abort\n");
 #else
-			printf("enter cpu clock frequency 400, 500, 533 Mhz or quit to abort\n");
+		printf("enter cpu clock frequency 400, 500, 533 Mhz or quit to abort\n");
 #endif
-		}
 		nbytes = readline (" ? ");
 
 		if (strcmp(console_buffer, "quit") == 0)
 			return 0;
 
-		if (strcmp(sysClock, "66") == 0) {
-			if ((strcmp(console_buffer, "400") != 0) &
-			    (strcmp(console_buffer, "533") != 0)
+		if ((strcmp(console_buffer, "400") != 0) &&
+		    (strcmp(console_buffer, "500") != 0) &&
+		    (strcmp(console_buffer, "533") != 0)
 #ifdef	CONFIG_STRESS
-			    & (strcmp(console_buffer, "667") != 0)
+		    && (strcmp(console_buffer, "667") != 0)
 #endif
-				) {
-				nbytes = 0;
-			}
-		} else {
-			if ((strcmp(console_buffer, "400") != 0) &
-			    (strcmp(console_buffer, "500") != 0) &
-			    (strcmp(console_buffer, "533") != 0)
-#ifdef	CONFIG_STRESS
-			    & (strcmp(console_buffer, "667") != 0)
-#endif
-				) {
-				nbytes = 0;
-			}
+			) {
+			nbytes = 0;
 		}
 
 		strcpy(cpuClock, console_buffer);
@@ -124,13 +100,13 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				return 0;
 
 			if (strcmp(cpuClock, "400") == 0) {
-				if ((strcmp(console_buffer, "100") != 0) &
+				if ((strcmp(console_buffer, "100") != 0) &&
 				    (strcmp(console_buffer, "133") != 0))
 					nbytes = 0;
 			}
 #ifdef	CONFIG_STRESS
 			if (strcmp(cpuClock, "667") == 0) {
-				if ((strcmp(console_buffer, "133") != 0) &
+				if ((strcmp(console_buffer, "133") != 0) &&
 				    (strcmp(console_buffer, "166") != 0))
 					nbytes = 0;
 			}
@@ -147,9 +123,9 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (strcmp(console_buffer, "quit") == 0)
 			return 0;
 
-		if ((strcmp(console_buffer, "33") != 0) &
-		    (strcmp(console_buffer, "66") != 0) &
-		    (strcmp(console_buffer, "100") != 0) &
+		if ((strcmp(console_buffer, "33") != 0) &&
+		    (strcmp(console_buffer, "66") != 0) &&
+		    (strcmp(console_buffer, "100") != 0) &&
 		    (strcmp(console_buffer, "133") != 0)) {
 			nbytes = 0;
 		}
@@ -176,11 +152,11 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} while (nbytes == 0);
 
 	if (strcmp(sysClock, "33") == 0) {
-		if ((strcmp(cpuClock, "400") == 0) &
+		if ((strcmp(cpuClock, "400") == 0) &&
 		    (strcmp(plbClock, "100") == 0))
 			data = 0x8678c206;
 
-		if ((strcmp(cpuClock, "400") == 0) &
+		if ((strcmp(cpuClock, "400") == 0) &&
 		    (strcmp(plbClock, "133") == 0))
 			data = 0x8678c2c6;
 
@@ -189,42 +165,16 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		if ((strcmp(cpuClock, "533") == 0))
 			data = 0x87790252;
-
 #ifdef	CONFIG_STRESS
-		if ((strcmp(cpuClock, "667") == 0) &
+		if ((strcmp(cpuClock, "667") == 0) &&
 		    (strcmp(plbClock, "133") == 0))
 			data = 0x87794256;
 
-		if ((strcmp(cpuClock, "667") == 0) &
+		if ((strcmp(cpuClock, "667") == 0) &&
 		    (strcmp(plbClock, "166") == 0))
 			data = 0x87794206;
-
 #endif
 	}
-	if (strcmp(sysClock, "66") == 0) {
-		if ((strcmp(cpuClock, "400") == 0) &
-		    (strcmp(plbClock, "100") == 0))
-			data = 0x84706206;
-
-		if ((strcmp(cpuClock, "400") == 0) &
-		    (strcmp(plbClock, "133") == 0))
-			data = 0x847062c6;
-
-		if ((strcmp(cpuClock, "533") == 0))
-			data = 0x85708206;
-
-#ifdef	CONFIG_STRESS
-		if ((strcmp(cpuClock, "667") == 0) &
-		    (strcmp(plbClock, "133") == 0))
-			data = 0x8570a256;
-
-		if ((strcmp(cpuClock, "667") == 0) &
-		    (strcmp(plbClock, "166") == 0))
-			data = 0x8570a206;
-
-#endif
-	}
-
 #ifdef	DEBUG
 	printf(" pin strap0 to write in i2c  = %x\n", data);
 #endif	/* DEBUG */
@@ -233,19 +183,20 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("Error writing strap0 in %s\n", argv[2]);
 
 	if (strcmp(pcixClock, "33") == 0)
-		data = 0x00000701;
+		data = 0x000007E1;
 
 	if (strcmp(pcixClock, "66") == 0)
-		data = 0x00000601;
+		data = 0x000006E1;
 
 	if (strcmp(pcixClock, "100") == 0)
-		data = 0x00000501;
+		data = 0x000005E1;
 
 	if (strcmp(pcixClock, "133") == 0)
-		data = 0x00000401;
+		data = 0x000004E1;
 
 	if (strcmp(plbClock, "166") == 0)
-		data |= 0x05950000;
+/*		data |= 0x05950000; */	/* this set's DDR2 clock == PLB clock */
+		data |= 0x05A50000;	/* this set's DDR2 clock == 2 * PLB clock */
 	else
 		data |= 0x05A50000;
 

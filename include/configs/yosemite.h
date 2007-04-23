@@ -32,7 +32,6 @@
  *----------------------------------------------------------------------*/
 /* This config file is used for Yosemite (440EP) and Yellowstone (440GR)*/
 #ifndef CONFIG_YELLOWSTONE
-#define CONFIG_YOSEMITE		1	/* Board is Yosemite		*/
 #define CONFIG_440EP		1	/* Specific PPC440EP support	*/
 #define CONFIG_HOSTNAME		yosemite
 #else
