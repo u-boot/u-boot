@@ -197,6 +197,9 @@ LIBS += cpu/$(CPU)/lib$(CPU).a
 ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
 endif
+ifeq ($(CPU),ixp)
+LIBS += cpu/ixp/npe/libnpe.a
+endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
@@ -219,7 +222,6 @@ LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
 LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
-LIBS += $(BOARDLIBS)
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)

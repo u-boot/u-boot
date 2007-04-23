@@ -27,4 +27,3 @@
 #
 
 TEXT_BASE = 0x40700000
-BOARDLIBS = $(obj)drivers/nand/libnand.a

@@ -192,12 +192,7 @@ The old NAND handling code has been re-factored and is now confined
 to only board-specific files and - unfortunately - to the DoC code
 (see below). A new configuration variable has been introduced:
 CFG_NAND_LEGACY, which has to be defined in the board config file if
-that board uses legacy code. If CFG_NAND_LEGACY is defined, the board
-specific config.mk file should also have "BOARDLIBS =
-drivers/nand_legacy/libnand_legacy.a". For boards using the new NAND
-approach (PPChameleon and netstar at the moment) no variable is
-necessary, but the config.mk should have "BOARDLIBS =
-drivers/nand/libnand.a".
+that board uses legacy code.
 
 The necessary changes have been made to all affected boards, and no
 build breakage has been introduced, except for NETTA and NETTA_ISDN
