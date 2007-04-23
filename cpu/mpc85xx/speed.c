@@ -37,48 +37,20 @@ void get_sys_info (sys_info_t * sysInfo)
 {
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
-	uint plat_ratio,e500_ratio;
+	uint plat_ratio,e500_ratio,half_freqSystemBus;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
-	switch(plat_ratio) {
-	case 0x02:
-	case 0x03:
-	case 0x04:
-	case 0x05:
-	case 0x06:
-	case 0x08:
-	case 0x09:
-	case 0x0a:
-	case 0x0c:
-	case 0x10:
-		sysInfo->freqSystemBus = plat_ratio * CONFIG_SYS_CLK_FREQ;
-		break;
-	default:
-		sysInfo->freqSystemBus = 0;
-		break;
-	}
-
+	sysInfo->freqSystemBus = plat_ratio * CONFIG_SYS_CLK_FREQ;
 	e500_ratio = (gur->porpllsr) & 0x003f0000;
 	e500_ratio >>= 16;
-	switch(e500_ratio) {
-	case 0x04:
-		sysInfo->freqProcessor = 2*sysInfo->freqSystemBus;
-		break;
-	case 0x05:
-		sysInfo->freqProcessor = 5*sysInfo->freqSystemBus/2;
-		break;
-	case 0x06:
-		sysInfo->freqProcessor = 3*sysInfo->freqSystemBus;
-		break;
-	case 0x07:
-		sysInfo->freqProcessor = 7*sysInfo->freqSystemBus/2;
-		break;
-	default:
-		sysInfo->freqProcessor = 0;
-		break;
-	}
+
+	/* Divide before multiply to avoid integer
+	 * overflow for processor speeds above 2GHz */
+	half_freqSystemBus = sysInfo->freqSystemBus/2;
+	sysInfo->freqProcessor = e500_ratio*half_freqSystemBus;
 }
+
 
 int get_clocks (void)
 {
