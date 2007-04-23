@@ -57,25 +57,25 @@ search_one_table(const struct exception_table_entry *first,
 		long diff;
 
 		mid = (last - first) / 2 + first;
-		if (mid > CFG_MONITOR_BASE) {
-		/* exception occurs in FLASH, before u-boot relocation.
-		 * No relocation offset is needed.
-		 */
+		if ((ulong) mid > CFG_MONITOR_BASE) {
+			/* exception occurs in FLASH, before u-boot relocation.
+			 * No relocation offset is needed.
+			 */
 			diff = mid->insn - value;
 			if (diff == 0)
 				return mid->fixup;
 		} else {
-		/* exception occurs in RAM, after u-boot relocation.
-		 * A relocation offset should be added.
-		 */
+			/* exception occurs in RAM, after u-boot relocation.
+			 * A relocation offset should be added.
+			 */
 			diff = (mid->insn + gd->reloc_off) - value;
 			if (diff == 0)
 				return (mid->fixup + gd->reloc_off);
 		}
 		if (diff < 0)
-			first = mid+1;
+			first = mid + 1;
 		else
-			last = mid-1;
+			last = mid - 1;
 	}
 	return 0;
 }
