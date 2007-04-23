@@ -1,7 +1,7 @@
 /*
  * U-boot - cpu.c CPU specific functions
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,80 +21,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <common.h>
 #include <asm/blackfin.h>
 #include <command.h>
 #include <asm/entry.h>
+#include <asm/cplb.h>
+#include <asm/io.h>
 
-#define SSYNC() asm("ssync;")
 #define CACHE_ON 1
 #define CACHE_OFF 0
 
-/* Data Attibutes*/
+extern unsigned int icplb_table[page_descriptor_table_size][2];
+extern unsigned int dcplb_table[page_descriptor_table_size][2];
 
-#define SDRAM_IGENERIC		(PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_USER_RD | CPLB_VALID)
-#define SDRAM_IKERNEL		(PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_USER_RD | CPLB_VALID | CPLB_LOCK)
-#define L1_IMEMORY            	(PAGE_SIZE_1MB | CPLB_L1_CHBL | CPLB_USER_RD | CPLB_VALID | CPLB_LOCK)
-#define SDRAM_INON_CHBL		(PAGE_SIZE_4MB | CPLB_USER_RD | CPLB_VALID)
-
-#define ANOMALY_05000158		0x200
-#define SDRAM_DGENERIC          (PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_RD | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
-#define SDRAM_DNON_CHBL         (PAGE_SIZE_4MB | CPLB_WT | CPLB_L1_AOW | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_USER_RD | CPLB_VALID | ANOMALY_05000158)
-#define SDRAM_DKERNEL           (PAGE_SIZE_4MB | CPLB_L1_CHBL | CPLB_WT | CPLB_L1_AOW | CPLB_USER_RD | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | CPLB_LOCK | ANOMALY_05000158)
-#define L1_DMEMORY              (PAGE_SIZE_4KB | CPLB_L1_CHBL | CPLB_L1_AOW | CPLB_WT | CPLB_SUPV_WR | CPLB_USER_WR | CPLB_VALID | ANOMALY_05000158)
-#define SDRAM_EBIU              (PAGE_SIZE_4MB | CPLB_WT | CPLB_L1_AOW | CPLB_USER_RD | CPLB_USER_WR | CPLB_SUPV_WR | CPLB_VALID | ANOMALY_05000158)
-
-static unsigned int icplb_table[16][2]={
-			{0xFFA00000, L1_IMEMORY},
-			{0x00000000, SDRAM_IKERNEL},	/*SDRAM_Page1*/
-			{0x00400000, SDRAM_IKERNEL},	/*SDRAM_Page1*/
-			{0x07C00000, SDRAM_IKERNEL},    /*SDRAM_Page14*/
-			{0x00800000, SDRAM_IGENERIC},	/*SDRAM_Page2*/
-			{0x00C00000, SDRAM_IGENERIC},	/*SDRAM_Page2*/
-			{0x01000000, SDRAM_IGENERIC},	/*SDRAM_Page4*/
-			{0x01400000, SDRAM_IGENERIC},	/*SDRAM_Page5*/
-			{0x01800000, SDRAM_IGENERIC},	/*SDRAM_Page6*/
-			{0x01C00000, SDRAM_IGENERIC},	/*SDRAM_Page7*/
-			{0x02000000, SDRAM_IGENERIC},	/*SDRAM_Page8*/
-			{0x02400000, SDRAM_IGENERIC},	/*SDRAM_Page9*/
-			{0x02800000, SDRAM_IGENERIC},	/*SDRAM_Page10*/
-			{0x02C00000, SDRAM_IGENERIC},	/*SDRAM_Page11*/
-			{0x03000000, SDRAM_IGENERIC},	/*SDRAM_Page12*/
-			{0x03400000, SDRAM_IGENERIC},	/*SDRAM_Page13*/
-};
-
-static unsigned int dcplb_table[16][2]={
-			{0xFFA00000,L1_DMEMORY},
-			{0x00000000,SDRAM_DKERNEL},	/*SDRAM_Page1*/
-			{0x00400000,SDRAM_DKERNEL},	/*SDRAM_Page1*/
-			{0x07C00000,SDRAM_DKERNEL},	/*SDRAM_Page15*/
-			{0x00800000,SDRAM_DGENERIC},	/*SDRAM_Page2*/
-			{0x00C00000,SDRAM_DGENERIC},	/*SDRAM_Page3*/
-			{0x01000000,SDRAM_DGENERIC},	/*SDRAM_Page4*/
-			{0x01400000,SDRAM_DGENERIC},	/*SDRAM_Page5*/
-			{0x01800000,SDRAM_DGENERIC},	/*SDRAM_Page6*/
-			{0x01C00000,SDRAM_DGENERIC},	/*SDRAM_Page7*/
-			{0x02000000,SDRAM_DGENERIC},	/*SDRAM_Page8*/
-			{0x02400000,SDRAM_DGENERIC},	/*SDRAM_Page9*/
-			{0x02800000,SDRAM_DGENERIC},	/*SDRAM_Page10*/
-			{0x02C00000,SDRAM_DGENERIC},	/*SDRAM_Page11*/
-			{0x03000000,SDRAM_DGENERIC},	/*SDRAM_Page12*/
-			{0x20000000,SDRAM_EBIU},	/*For Network */
-};
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	__asm__ __volatile__
-	("cli r3;"
-	"P0 = %0;"
-	"JUMP (P0);"
-	:
-	: "r" (L1_ISRAM)
-	);
+	__asm__ __volatile__("cli r3;" "P0 = %0;" "JUMP (P0);"::"r"(L1_ISRAM)
+	    );
 
 	return 0;
 }
@@ -112,29 +59,62 @@ int cleanup_before_linux(void)
 
 void icache_enable(void)
 {
-	unsigned int *I0,*I1;
-	int i;
+	unsigned int *I0, *I1;
+	int i, j = 0;
 
+	/* Before enable icache, disable it first */
+	icache_disable();
 	I0 = (unsigned int *)ICPLB_ADDR0;
 	I1 = (unsigned int *)ICPLB_DATA0;
 
-	for(i=0;i<16;i++){
-		*I0++ = icplb_table[i][0];
-		*I1++ = icplb_table[i][1];
+	/* make sure the locked ones go in first */
+	for (i = 0; i < page_descriptor_table_size; i++) {
+		if (CPLB_LOCK & icplb_table[i][1]) {
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+				 icplb_table[i][0], icplb_table[i][1]);
+			*I0++ = icplb_table[i][0];
+			*I1++ = icplb_table[i][1];
+			j++;
 		}
+	}
+
+	for (i = 0; i < page_descriptor_table_size; i++) {
+		if (!(CPLB_LOCK & icplb_table[i][1])) {
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+				 icplb_table[i][0], icplb_table[i][1]);
+			*I0++ = icplb_table[i][0];
+			*I1++ = icplb_table[i][1];
+			j++;
+			if (j == 16) {
+				break;
+			}
+		}
+	}
+
+	/* Fill the rest with invalid entry */
+	if (j <= 15) {
+		for (; j < 16; j++) {
+			debug("filling %i with 0", j);
+			*I1++ = 0x0;
+		}
+
+	}
+
 	cli();
-	SSYNC();
+	sync();
+	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL = IMC | ENICPLB;
-	SSYNC();
+	sync();
 	sti();
 }
 
 void icache_disable(void)
 {
 	cli();
-	SSYNC();
+	sync();
+	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL &= ~(IMC | ENICPLB);
-	SSYNC();
+	sync();
 	sti();
 }
 
@@ -143,7 +123,7 @@ int icache_status(void)
 	unsigned int value;
 	value = *(unsigned int *)IMEM_CONTROL;
 
-	if( value & (IMC|ENICPLB) )
+	if (value & (IMC | ENICPLB))
 		return CACHE_ON;
 	else
 		return CACHE_OFF;
@@ -151,38 +131,90 @@ int icache_status(void)
 
 void dcache_enable(void)
 {
-	unsigned int *I0,*I1;
+	unsigned int *I0, *I1;
 	unsigned int temp;
-	int i;
+	int i, j = 0;
+
+	/* Before enable dcache, disable it first */
+	dcache_disable();
 	I0 = (unsigned int *)DCPLB_ADDR0;
 	I1 = (unsigned int *)DCPLB_DATA0;
 
-	for(i=0;i<16;i++){
-		*I0++ = dcplb_table[i][0];
-		*I1++ = dcplb_table[i][1];
+	/* make sure the locked ones go in first */
+	for (i = 0; i < page_descriptor_table_size; i++) {
+		if (CPLB_LOCK & dcplb_table[i][1]) {
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+				 dcplb_table[i][0], dcplb_table[i][1]);
+			*I0++ = dcplb_table[i][0];
+			*I1++ = dcplb_table[i][1];
+			j++;
+		} else {
+			debug("skip   %02i %02i 0x%08x 0x%08x\n", i, j,
+				 dcplb_table[i][0], dcplb_table[i][1]);
 		}
+	}
+
+	for (i = 0; i < page_descriptor_table_size; i++) {
+		if (!(CPLB_LOCK & dcplb_table[i][1])) {
+			debug("adding %02i %02i 0x%08x 0x%08x\n", i, j,
+				 dcplb_table[i][0], dcplb_table[i][1]);
+			*I0++ = dcplb_table[i][0];
+			*I1++ = dcplb_table[i][1];
+			j++;
+			if (j == 16) {
+				break;
+			}
+		}
+	}
+
+	/* Fill the rest with invalid entry */
+	if (j <= 15) {
+		for (; j < 16; j++) {
+			debug("filling %i with 0", j);
+			*I1++ = 0x0;
+		}
+	}
+
 	cli();
 	temp = *(unsigned int *)DMEM_CONTROL;
-	SSYNC();
-	*(unsigned int *)DMEM_CONTROL = ACACHE_BCACHE |ENDCPLB |PORT_PREF0|temp;
-	SSYNC();
+	sync();
+	asm(" .align 8; ");
+	*(unsigned int *)DMEM_CONTROL =
+	    ACACHE_BCACHE | ENDCPLB | PORT_PREF0 | temp;
+	sync();
 	sti();
 }
 
 void dcache_disable(void)
 {
+	unsigned int *I0, *I1;
+	int i;
+
 	cli();
-	SSYNC();
-	*(unsigned int *)DMEM_CONTROL &= ~(ACACHE_BCACHE |ENDCPLB |PORT_PREF0);
-	SSYNC();
+	sync();
+	asm(" .align 8; ");
+	*(unsigned int *)DMEM_CONTROL &=
+	    ~(ACACHE_BCACHE | ENDCPLB | PORT_PREF0);
+	sync();
 	sti();
+
+	/* after disable dcache,
+	 * clear it so we don't confuse the next application
+	 */
+	I0 = (unsigned int *)DCPLB_ADDR0;
+	I1 = (unsigned int *)DCPLB_DATA0;
+
+	for (i = 0; i < 16; i++) {
+		*I0++ = 0x0;
+		*I1++ = 0x0;
+	}
 }
 
 int dcache_status(void)
 {
 	unsigned int value;
 	value = *(unsigned int *)DMEM_CONTROL;
-	if( value & (ENDCPLB))
+	if (value & (ENDCPLB))
 		return CACHE_ON;
 	else
 		return CACHE_OFF;

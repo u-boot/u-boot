@@ -1,7 +1,7 @@
 #
 # U-boot Makefile
 #
-# Copyright (c) 2005 blackfin.uclinux.org
+# Copyright (c) 2005-2007 Analog Devices Inc.
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,17 +21,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301 USA
 #
 
 include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	=
+SOBJS	= memcpy.o memcmp.o memset.o memmove.o
 
-COBJS	= board.o bf533_linux.o bf533_string.o cache.o muldi3.o
+COBJS	= post.o tests.o board.o bf533_linux.o bf533_string.o cache.o muldi3.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

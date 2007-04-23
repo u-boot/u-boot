@@ -52,9 +52,12 @@ extern int rtl8139_initialize(bd_t*);
 extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
+extern int tsi108_eth_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
+extern int bfin_EMAC_initialize(bd_t *);
+extern int atstk1000_eth_initialize(bd_t *);
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -249,11 +252,20 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_NS8382X
 	ns8382x_initialize(bis);
 #endif
+#if defined(CONFIG_TSI108_ETH)
+	tsi108_eth_initialize(bis);
+#endif
 #if defined(CONFIG_RTL8139)
 	rtl8139_initialize(bis);
 #endif
 #if defined(CONFIG_RTL8169)
 	rtl8169_initialize(bis);
+#endif
+#if defined(CONFIG_BF537)
+	bfin_EMAC_initialize(bis);
+#endif
+#if defined(CONFIG_ATSTK1000)
+	atstk1000_eth_initialize(bis);
 #endif
 
 	if (!eth_devices) {

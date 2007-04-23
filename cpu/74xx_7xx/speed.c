@@ -31,6 +31,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern unsigned long get_board_bus_clk (void);
+
 static const int hid1_multipliers_x_10[] = {
 	25,	/* 0000 - 2.5x */
 	75,	/* 0001 - 7.5x */
@@ -48,6 +50,42 @@ static const int hid1_multipliers_x_10[] = {
 	60,	/* 1101 - 6x */
 	35,	/* 1110 - 3.5x */
 	0	/* 1111 - off */
+};
+
+/* PLL_CFG[0:4] table for cpu 7448/7447A/7455/7457 */
+static const int hid1_74xx_multipliers_x_10[] = {
+	115,	/* 00000 - 11.5x  */
+	170,	/* 00001 - 17x    */
+	75,	/* 00010 -  7.5x  */
+	150,	/* 00011 - 15x    */
+	70,	/* 00100 -  7x    */
+	180,	/* 00101 - 18x    */
+	10,	/* 00110 - bypass */
+	200,	/* 00111 - 20x    */
+	20,	/* 01000 -  2x    */
+	210,	/* 01001 - 21x    */
+	65,	/* 01010 -  6.5x  */
+	130,	/* 01011 - 13x    */
+	85,	/* 01100 -  8.5x  */
+	240,	/* 01101 - 24x    */
+	95,	/* 01110 -  9.5x  */
+	90,	/* 01111 -  9x    */
+	30,	/* 10000 -  3x    */
+	105,	/* 10001 - 10.5x  */
+	55,	/* 10010 -  5.5x  */
+	110,	/* 10011 - 11x    */
+	40,	/* 10100 -  4x    */
+	100,	/* 10101 - 10x    */
+	50,	/* 10110 -  5x    */
+	120,	/* 10111 - 12x    */
+	80,	/* 11000 -  8x    */
+	140,	/* 11001 - 14x    */
+	60,	/* 11010 -  6x    */
+	160,	/* 11011 - 16x    */
+	135,	/* 11100 - 13.5x  */
+	280,	/* 11101 - 28x    */
+	0,	/* 11110 - off    */
+	125	/* 11111 - 12.5x  */
 };
 
 static const int hid1_fx_multipliers_x_10[] = {
@@ -89,22 +127,30 @@ int get_clocks (void)
 {
 	ulong clock = 0;
 
+#ifdef CFG_BUS_CLK
+	gd->bus_clk = CFG_BUS_CLK;	/* bus clock is a fixed frequency */
+#else
+	gd->bus_clk = get_board_bus_clk ();	/* bus clock is configurable */
+#endif
+
 	/* calculate the clock frequency based upon the CPU type */
 	switch (get_cpu_type()) {
+	case CPU_7447A:
 	case CPU_7448:
 	case CPU_7455:
 	case CPU_7457:
 		/*
-		 * It is assumed that the PLL_EXT line is zero.
 		 * Make sure division is done before multiplication to prevent 32-bit
 		 * arithmetic overflows which will cause a negative number
 		 */
-		clock = (CFG_BUS_CLK / 10) * hid1_multipliers_x_10[(get_hid1 () >> 13) & 0xF];
+		clock = (gd->bus_clk / 10) *
+			hid1_74xx_multipliers_x_10[(get_hid1 () >> 12) & 0x1F];
 		break;
 
 	case CPU_750GX:
 	case CPU_750FX:
-		clock = CFG_BUS_CLK * hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
+		clock = gd->bus_clk *
+			hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
 		break;
 
 	case CPU_7450:
@@ -121,7 +167,8 @@ int get_clocks (void)
 		 * Make sure division is done before multiplication to prevent 32-bit
 		 * arithmetic overflows which will cause a negative number
 		 */
-		clock = (CFG_BUS_CLK / 10) * hid1_multipliers_x_10[get_hid1 () >> 28];
+		clock = (gd->bus_clk / 10) *
+			hid1_multipliers_x_10[get_hid1 () >> 28];
 		break;
 
 	case CPU_UNKNOWN:
@@ -131,7 +178,6 @@ int get_clocks (void)
 	}
 
 	gd->cpu_clk = clock;
-	gd->bus_clk = CFG_BUS_CLK;
 
 	return (0);
 }

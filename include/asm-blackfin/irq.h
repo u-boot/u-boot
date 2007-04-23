@@ -1,7 +1,7 @@
 /*
  * U-boot - irq.h Interrupt related header file
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file was based on
  * linux/arch/$(ARCH)/platform/$(PLATFORM)/irq.c
@@ -31,15 +31,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _BLACKFIN_IRQ_H_
 #define _BLACKFIN_IRQ_H_
 
 #include <linux/config.h>
-#include <asm/cpu/bf533_irq.h>
+#include <asm/hw_irq.h>
 
 /*
  *   On the Blackfin, the interrupt structure allows remmapping of the hardware
@@ -85,8 +85,8 @@ static __inline__ int irq_cannonicalize(int irq)
 extern void (*mach_enable_irq) (unsigned int);
 extern void (*mach_disable_irq) (unsigned int);
 extern int sys_request_irq(unsigned int,
-			void (*)(int, void *, struct pt_regs *),
-			unsigned long, const char *, void *);
+			   void (*)(int, void *, struct pt_regs *),
+			   unsigned long, const char *, void *);
 extern void sys_free_irq(unsigned int, void *);
 
 /*

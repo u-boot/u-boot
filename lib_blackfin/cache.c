@@ -1,7 +1,7 @@
 /*
  * U-boot - cache.c
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,20 +21,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 /* for now: just dummy functions to satisfy the linker */
-extern void blackfin_icache_range (unsigned long *, unsigned long *);
-extern void blackfin_dcache_range (unsigned long *, unsigned long *);
-void flush_cache (unsigned long dummy1, unsigned long dummy2)
+#include <config.h>
+#include <common.h>
+#include <asm/blackfin.h>
+#include "cache.h"
+
+void flush_cache(unsigned long dummy1, unsigned long dummy2)
 {
-	if (icache_status ()) {
-		blackfin_icache_flush_range (dummy1, dummy1 + dummy2);
-	}
-	if (dcache_status ()) {
-		blackfin_dcache_flush_range (dummy1, dummy1 + dummy2);
-	}
+	if ((dummy1 >= L1_ISRAM) && (dummy1 < L1_ISRAM_END))
+		return;
+	if ((dummy1 >= DATA_BANKA_SRAM) && (dummy1 < DATA_BANKA_SRAM_END))
+		return;
+	if ((dummy1 >= DATA_BANKB_SRAM) && (dummy1 < DATA_BANKB_SRAM_END))
+		return;
+
+	if (icache_status())
+		blackfin_icache_flush_range((void*)dummy1, (void*)(dummy1 + dummy2));
+	if (dcache_status())
+		blackfin_dcache_flush_range((void*)dummy1, (void*)(dummy1 + dummy2));
+
 	return;
 }

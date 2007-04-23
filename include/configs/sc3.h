@@ -133,8 +133,8 @@
 
 #if 1	/* feel free to disable for development */
 #define CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with S\n"
-#define CONFIG_AUTOBOOT_DELAY_STR	"S"	/* 1st "password"	*/
+#define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with ENTER\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"\n"	/* 1st "password"	*/
 #endif
 
 /*
@@ -416,11 +416,11 @@ extern unsigned long offsetOfEnvironment;
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 
-/* No command line, one static partition Partition 3 contains jffs2 rootfs */
+/* No command line, one static partition */
 #undef	CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nand0"
-#define CONFIG_JFFS2_PART_SIZE		0x00400000
-#define CONFIG_JFFS2_PART_OFFSET	0x00c00000
+#define CONFIG_JFFS2_PART_SIZE		0x01000000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

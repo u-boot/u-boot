@@ -1,6 +1,6 @@
 # U-boot - config.mk
 #
-# Copyright (c) 2005 blackfin.uclinux.org
+# Copyright (c) 2005-2007 Analog Devices Inc.
 #
 # (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -20,8 +20,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301 USA
 #
 
-PLATFORM_RELFLAGS += -ffixed-P5
+PLATFORM_RELFLAGS += -mcpu=bf533 -ffixed-P5

@@ -180,10 +180,6 @@ void lcd_enable (void)
 			break;
 		udelay (PSOC_WAIT_TIME);
 	}
-	if (!retries) {
-		printf ("%s Warning: PSoC doesn't respond on "
-			"RTS NEGATE\n",	__FUNCTION__);
-	}
 
 	return;
 }

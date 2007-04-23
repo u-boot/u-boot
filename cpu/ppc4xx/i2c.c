@@ -91,7 +91,6 @@ static void _i2c_bus_reset(void)
 
 void i2c_init(int speed, int slaveadd)
 {
-	sys_info_t sysInfo;
 	unsigned long freqOPB;
 	int val, divisor;
 	int bus;
@@ -124,8 +123,7 @@ void i2c_init(int speed, int slaveadd)
 
 		/* Clock divide Register */
 		/* get OPB frequency */
-		get_sys_info(&sysInfo);
-		freqOPB = sysInfo.freqPLB / sysInfo.pllOpbDiv;
+		freqOPB = get_OPB_freq();
 		/* set divisor according to freqOPB */
 		divisor = (freqOPB - 1) / 10000000;
 		if (divisor == 0)

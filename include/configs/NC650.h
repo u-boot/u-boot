@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006 Detlev Zundel, dzu@denx.de
+ * (C) Copyright 2006, 2007 Detlev Zundel, dzu@denx.de
  * (C) Copyright 2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -237,18 +237,8 @@
 /*
  * NAND flash support
  */
-#define CFG_NAND_LEGACY
-
 #define CFG_MAX_NAND_DEVICE	1
-#define NAND_ChipID_UNKNOWN	0x00
-#define SECTORSIZE		512
-#define NAND_MAX_FLOORS		1
 #define NAND_MAX_CHIPS		1
-#define ADDR_PAGE		2
-#define ADDR_COLUMN_PAGE	3
-#define ADDR_COLUMN		1
-#define NAND_NO_RB
-
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control					11-9

@@ -132,7 +132,7 @@ gd_t *global_data;
  */
 #define EXPORT_FUNC(x)			\
 	asm volatile (			\
-"       .globl " #x "\n"		\
+"       .globl _" #x "\n_"		\
 #x ":\n"				\
 "	P0 = [P5 + %0]\n"		\
 "	P0 = [P0 + %1]\n"		\

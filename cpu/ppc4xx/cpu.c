@@ -47,6 +47,9 @@ void board_reset(void);
 
 #if defined(CONFIG_440)
 #define FREQ_EBC		(sys_info.freqEPB)
+#elif defined(CONFIG_405EZ)
+#define FREQ_EBC		((CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / \
+				 sys_info.pllExtBusDiv)
 #else
 #define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
 #endif
@@ -122,6 +125,7 @@ int i2c_bootrom_enabled(void)
 	return (val & SDR0_SDCS_SDD);
 #endif
 }
+#endif
 
 #if defined(CONFIG_440GX)
 #define SDR0_PINSTP_SHIFT	29
@@ -175,16 +179,37 @@ static char *bootstrap_str[] = {
 };
 #endif
 
+#if defined(CONFIG_405EZ)
+#define SDR0_PINSTP_SHIFT	28
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"SPI (fast)",
+	"NAND (512 page, 4 addr cycle)",
+	"I2C (Addr 0x50)",
+	"EBC (32 bits)",
+	"I2C (Addr 0x50)",
+	"NAND (2K page, 5 addr cycle)",
+	"I2C (Addr 0x50)",
+	"EBC (16 bits)",
+	"Reserved",
+	"NAND (2K page, 4 addr cycle)",
+	"I2C (Addr 0x50)",
+	"NAND (512 page, 3 addr cycle)",
+	"I2C (Addr 0x50)",
+	"SPI (slow)",
+	"I2C (Addr 0x50)",
+};
+#endif
+
 #if defined(SDR0_PINSTP_SHIFT)
 static int bootstrap_option(void)
 {
 	unsigned long val;
 
-	mfsdr(sdr_pinstp, val);
-	return ((val & 0xe0000000) >> SDR0_PINSTP_SHIFT);
+	mfsdr(SDR_PINSTP, val);
+	return ((val & 0xf0000000) >> SDR0_PINSTP_SHIFT);
 }
 #endif /* SDR0_PINSTP_SHIFT */
-#endif
 
 
 #if defined(CONFIG_440)
@@ -209,7 +234,8 @@ int checkcpu (void)
 
 	puts("AMCC PowerPC 4");
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ)
 	puts("05");
 #endif
 #if defined(CONFIG_440)
@@ -255,6 +281,10 @@ int checkcpu (void)
 
 	case PVR_405EP_RB:
 		puts("EP Rev. B");
+		break;
+
+	case PVR_405EZ_RA:
+		puts("EZ Rev. A");
 		break;
 
 #if defined(CONFIG_440)
@@ -386,20 +416,20 @@ int checkcpu (void)
 	}
 
 	printf (" at %s MHz (PLB=%lu, OPB=%lu, EBC=%lu MHz)\n", strmhz(buf, clock),
-	       sys_info.freqPLB / 1000000,
-	       sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
-	       FREQ_EBC / 1000000);
+		sys_info.freqPLB / 1000000,
+		get_OPB_freq() / 1000000,
+		FREQ_EBC / 1000000);
 
 	if (addstr[0] != 0)
 		printf("       %s\n", addstr);
 
 #if defined(I2C_BOOTROM)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
+#endif	/* I2C_BOOTROM */
 #if defined(SDR0_PINSTP_SHIFT)
 	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
 #endif	/* SDR0_PINSTP_SHIFT */
-#endif	/* I2C_BOOTROM */
 
 #if defined(CONFIG_PCI)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
@@ -418,7 +448,7 @@ int checkcpu (void)
 	putc('\n');
 #endif
 
-#if defined(CONFIG_405EP)
+#if defined(CONFIG_405EP) || defined(CONFIG_405EZ)
 	printf ("       16 kB I-Cache 16 kB D-Cache");
 #elif defined(CONFIG_440)
 	printf ("       32 kB I-Cache 32 kB D-Cache");

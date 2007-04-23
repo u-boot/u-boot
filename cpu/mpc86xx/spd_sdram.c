@@ -284,9 +284,9 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	}
 
 	/*
-	 * Adjust DDR II IO voltage biasing.  It just makes it work.
+	 * Adjust DDR II IO voltage biasing.  Rev1 only
 	 */
-	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
+	if (((get_svr() & 0xf0) == 0x10) && (spd.mem_type == SPD_MEMTYPE_DDR2)) {
 		gur->ddrioovcr = (0
 				  | 0x80000000		/* Enable */
 				  | 0x10000000		/* VSEL to 1.8V */

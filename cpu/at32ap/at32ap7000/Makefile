@@ -24,7 +24,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)lib$(SOC).a
 
-COBJS	:= hebi.o devices.o
+COBJS	:= gpio.o
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 

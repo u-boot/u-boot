@@ -1,7 +1,7 @@
 /*
  * U-boot - blackfin.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -18,29 +18,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _BLACKFIN_H_
 #define _BLACKFIN_H_
 
-#include <asm/cpu/defBF533.h>
-#include <asm/cpu/bf533_serial.h>
+#if !(defined(__ASSEMBLY__) || defined(ASSEMBLY))
+# ifdef SHARED_RESOURCES
+#  include <asm/shared_resources.h>
+# endif
 
-#ifndef __ASSEMBLY__
-#ifndef ASSEMBLY
+# include <linux/types.h>
 
-#ifdef SHARED_RESOURCES
- #include <asm/shared_resources.h>
-#endif
-#include <asm/cpu/cdefBF53x.h>
-
-#endif
+extern u_long get_sclk(void);
 #endif
 
-#include <asm/cpu/defBF533.h>
-#include <asm/cpu/defBF533_extn.h>
-#include <asm/cpu/bf533_serial.h>
+#include <asm/arch-common/cdefBF5xx.h>
 
 #endif

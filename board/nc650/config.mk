@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006 Detlev Zundel, dzu@denx.de
+# (C) Copyright 2006, 2007 Detlev Zundel, dzu@denx.de
 # (C) Copyright 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
@@ -27,4 +27,3 @@
 #
 
 TEXT_BASE = 0x40700000
-BOARDLIBS = $(obj)drivers/nand/libnand.a

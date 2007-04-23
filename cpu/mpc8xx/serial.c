@@ -236,8 +236,7 @@ static int smc_init (void)
 	im->im_ioport.iop_pdpar |= 0x800;
 	im->im_ioport.iop_pddir &= ~0x800;
 
-	cp->cp_simode = 0x0000;
-	cp->cp_simode |= 0x7000;
+	cp->cp_simode = ((cp->cp_simode & ~0xf000) | 0x7000);
 #else
 	/* Set up the baud rate generator */
 	smc_setbrg ();

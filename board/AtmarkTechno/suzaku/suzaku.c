@@ -24,7 +24,7 @@
 
 /* This is a board specific file.  It's OK to include board specific
  * header files */
-#include <asm/suzaku.h>
+#include <config.h>
 
 void do_reset(void)
 {

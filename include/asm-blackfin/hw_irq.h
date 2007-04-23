@@ -1,7 +1,7 @@
 /*
  * U-boot - hw_irq.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * linux/arch/$(ARCH)/platform/$(PLATFORM)/hw_irq.h
@@ -24,14 +24,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <linux/config.h>
 #ifdef CONFIG_EZKIT533
-#include <asm/board/bf533_irq.h>
+#include <asm/arch-bf533/irq.h>
+#endif
+#ifdef CONFIG_EZKIT561
+#include <asm/arch-bf561/irq.h>
 #endif
 #ifdef CONFIG_STAMP
-#include <asm/board/bf533_irq.h>
+#include <asm/arch-bf533/irq.h>
+#endif
+#ifdef CONFIG_BF537
+#include <asm/arch-bf537/irq.h>
 #endif
