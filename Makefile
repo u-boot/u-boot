@@ -1739,6 +1739,9 @@ MPC8548CDS_config:	unconfig
 MPC8555CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8555cds cds
 
+MPC8568MDS_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
+
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
 

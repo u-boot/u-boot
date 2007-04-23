@@ -76,6 +76,9 @@ int checkcpu (void)
         case SVR_8544_E:
                 puts("8544_E");
                 break;
+        case SVR_8568_E:
+                puts("8568_E");
+                break;
 	default:
 		puts("Unknown");
 		break;
@@ -262,6 +265,10 @@ ft_cpu_setup(void *blob, bd_t *bd)
 
 	clock = bd->bi_busfreq;
 	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
+	p = ft_get_prop(blob, "/qe@e0080000/" OF_CPU "/bus-frequency", &len);
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
 

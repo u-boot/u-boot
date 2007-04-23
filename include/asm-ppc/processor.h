@@ -850,6 +850,7 @@
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
 #define SVR_8641	0x8090
+#define SVR_8568_E	0x807D
 
 
 /* I am just adding a single entry for 8260 boards.  I think we may be
