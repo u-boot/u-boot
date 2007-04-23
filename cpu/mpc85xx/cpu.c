@@ -198,9 +198,9 @@ reset_85xx_watchdog(void)
 	 * Clear TSR(WIS) bit by writing 1
 	 */
 	unsigned long val;
-	val = mfspr(tsr);
-	val |= 0x40000000;
-	mtspr(tsr, val);
+	val = mfspr(SPRN_TSR);
+	val |= TSR_WIS;
+	mtspr(SPRN_TSR, val);
 }
 #endif	/* CONFIG_WATCHDOG */
 
@@ -211,6 +211,7 @@ void dma_init(void) {
 
 	dma->satr0 = 0x02c40000;
 	dma->datr0 = 0x02c40000;
+	dma->sr0 = 0xfffffff; /* clear any errors */
 	asm("sync; isync; msync");
 	return;
 }
@@ -224,6 +225,10 @@ uint dma_check(void) {
 	while((status & 4) == 4) {
 		status = dma->sr0;
 	}
+
+	/* clear MR0[CS] channel start bit */
+	dma->mr0 &= 0x00000001;
+	asm("sync;isync;msync");
 
 	if (status != 0) {
 		printf ("DMA Error: status = %x\n", status);
