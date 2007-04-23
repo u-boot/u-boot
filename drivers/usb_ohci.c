@@ -1169,7 +1169,9 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 					    WR_RH_PORTSTAT (RH_PS_PRS);
 					OK (0);
 			case (RH_PORT_POWER):
-					WR_RH_PORTSTAT (RH_PS_PPS ); OK (0);
+					WR_RH_PORTSTAT (RH_PS_PPS );
+					wait_ms(100);
+					OK (0);
 			case (RH_PORT_ENABLE): /* BUG IN HUP CODE *********/
 					if (RD_RH_PORTSTAT & RH_PS_CCS)
 					    WR_RH_PORTSTAT (RH_PS_PES );
