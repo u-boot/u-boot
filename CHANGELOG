@@ -1,3 +1,43 @@
+commit 6923565db12af34fd5e02d354ee65a8c78ac460f
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Apr 20 12:01:47 2007 +0200
+
+    Fix breakage of NC650 board with respect to nand support.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 39f23cd90947639ac278a18ff277ec786b5ac167
+Author: Domen Puncer <domen.puncer@telargo.com>
+Date:	Fri Apr 20 11:13:16 2007 +0200
+
+    [RFC PATCH] icecube/lite5200b: fix OF_TBCLK (timebase-frequency) calculation
+
+    G2 core reference manual says decrementer and time base
+    are decreasing/increasing once every 4 bus clock cycles.
+    Lets fix it, so time in Linux won't run twice as fast
+
+    Signed-off-by: Domen Puncer <domen.puncer@telargo.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 7651f8bdbba03bb0b4f241e2d2c4cb65b230bd56
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Thu Apr 19 23:14:39 2007 -0400
+
+    Fix serious pointer bug with bootm and reserve map.
+
+    What was suppose to be a stack variable was declared as a pointer,
+      overwriting random memory.
+    Also moved the libfdt.a requirement into the main Makefile.  That is
+      The U-Boot Way.
+
+commit 37837828d89084879bee2f2b8c7c68d4695940df
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 17:49:29 2007 +0200
+
+    Clenaup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fd094c6379e2ef8a4d0ceb5640b24cb0c8d04449
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 18 17:20:58 2007 +0200
@@ -61,6 +101,14 @@ Date:	Wed Apr 18 12:05:59 2007 +0200
     Board: Acadia - AMCC PPC405EZ Evaluation Board
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9c00dfb0bf89c8c23e8af5b5bdf49cf66d769f85
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Apr 17 13:30:33 2007 +0100
+
+    Move ppearse to ARM board list
+    Add Konstantin Kletschke for scb9328.
+    Signed-off-by: Peter Pearse <peter.pearse@arm.com>
 
 commit d3832e8fe1b214ec62424eac36cfda9fc56d21b3
 Author: Domen Puncer <domen.puncer@telargo.com>

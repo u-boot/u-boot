@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006 Detlev Zundel, dzu@denx.de
+# (C) Copyright 2006, 2007 Detlev Zundel, dzu@denx.de
 # (C) Copyright 2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #

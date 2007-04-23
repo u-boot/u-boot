@@ -222,6 +222,7 @@ LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
 LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
+LIBS += libfdt/libfdt.a
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)
