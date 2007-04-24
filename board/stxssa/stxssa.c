@@ -203,8 +203,9 @@ void
 reset_phy(void)
 {
 	volatile uint *blatch;
+#if 0
 	int	i;
-
+#endif
 	blatch = (volatile uint *)CFG_LBC_CFGLATCH_BASE;
 
 	/* reset Giga bit Ethernet port if needed here */
@@ -298,10 +299,10 @@ initdram (int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 #if defined(CONFIG_DDR_DLL)
 	{
+		volatile immap_t *immap = (immap_t *)CFG_IMMR;
 		volatile ccsr_gur_t *gur= &immap->im_gur;
 		uint temp_ddrdll = 0;
 
