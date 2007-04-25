@@ -47,9 +47,9 @@
 #define CONFIG_83XX_GENERIC_PCI
 
 #ifdef CFG_66MHZ
-#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
+#define CONFIG_83XX_CLKIN	66666667	/* in Hz */
 #elif defined(CFG_33MHZ)
-#define CONFIG_83XX_CLKIN	33000000	/* in Hz */
+#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
 #else
 #error Unknown oscillator frequency.
 #endif

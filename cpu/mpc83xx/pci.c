@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <pci.h>
+#include <ft_build.h>
 #include <asm/mpc8349_pci.h>
 
 #ifdef CONFIG_83XX_GENERIC_PCI
