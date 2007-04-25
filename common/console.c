@@ -494,13 +494,7 @@ int console_init_r (void)
 	/* suppress all output if splash screen is enabled and we have
 	   a bmp to display                                            */
 	if (getenv("splashimage") != NULL)
-		outputdev = search_device (DEV_FLAGS_OUTPUT, "nulldev");
-#endif
-
-#ifdef CONFIG_SILENT_CONSOLE
-	/* Suppress all output if "silent" mode requested		*/
-	if (gd->flags & GD_FLG_SILENT)
-		outputdev = search_device (DEV_FLAGS_OUTPUT, "nulldev");
+		gd->flags |= GD_FLG_SILENT;
 #endif
 
 	/* Scan devices looking for input and output devices */
