@@ -37,6 +37,11 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * fdt points to our working device tree.
+ */
+struct fdt_header *fdt;
+
 
 /********************************************************************/
 
