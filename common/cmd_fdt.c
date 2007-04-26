@@ -115,7 +115,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		int  len;
 		int  err;
 
-		if (argc != 5) {
+		if (argc < 4) {
 			printf ("Usage:\n%s\n", cmdtp->usage);
 			return 1;
 		}
@@ -129,11 +129,20 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		newaddr = (struct fdt_header *)simple_strtoul(argv[3], NULL, 16);
-		len     =  simple_strtoul(argv[4], NULL, 16);
-		if (len < fdt_totalsize(fdt)) {
-			printf ("New length %d < existing length %d, aborting.\n",
-				len, fdt_totalsize(fdt));
-			return 1;
+
+		/*
+		 * If the user specifies a length, use that.  Otherwise use the
+		 * current length.
+		 */
+		if (argc <= 4) {
+			len = fdt_totalsize(fdt);
+		} else {
+			len = simple_strtoul(argv[4], NULL, 16);
+			if (len < fdt_totalsize(fdt)) {
+				printf ("New length 0x%X < existing length 0x%X, aborting.\n",
+					len, fdt_totalsize(fdt));
+				return 1;
+			}
 		}
 
 		/*
