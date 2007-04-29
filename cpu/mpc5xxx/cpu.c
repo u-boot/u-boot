@@ -53,12 +53,16 @@ int checkcpu (void)
 #else
 	svr = get_svr();
 	pvr = get_pvr();
-	switch (SVR_VER (svr)) {
-	case SVR_MPC5200:
-		printf ("MPC5200");
+
+	switch (pvr) {
+	case PVR_5200:
+		printf("MPC5200");
+		break;
+	case PVR_5200B:
+		printf("MPC5200B");
 		break;
 	default:
-		printf ("MPC52??  (SVR %08x)", svr);
+		printf("Unknown MPC5xxx");
 		break;
 	}
 
