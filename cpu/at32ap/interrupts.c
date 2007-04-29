@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/sysreg.h>
 
-#include <asm/arch/platform.h>
+#include <asm/arch/memory-map.h>
 
 #define HANDLER_MASK	0x00ffffff
 #define INTLEV_SHIFT	30
@@ -43,8 +43,6 @@ volatile unsigned long timer_overflow;
  * right-shift the result by 32 bits.
  */
 static unsigned long tb_factor;
-
-static const struct device *intc_dev;
 
 unsigned long get_tbclk(void)
 {
@@ -117,8 +115,11 @@ void udelay(unsigned long usec)
 static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
 				 unsigned int priority)
 {
+	extern void _evba(void);
 	unsigned long intpr;
 	unsigned long handler_addr = (unsigned long)handler;
+
+	handler_addr -= (unsigned long)&_evba;
 
 	if ((handler_addr & HANDLER_MASK) != handler_addr
 	    || (priority & INTLEV_MASK) != priority)
@@ -126,7 +127,7 @@ static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
 
 	intpr = (handler_addr & HANDLER_MASK);
 	intpr |= (priority & INTLEV_MASK) << INTLEV_SHIFT;
-	writel(intpr, intc_dev->regs + 4 * nr);
+	writel(intpr, (void *)INTC_BASE + 4 * nr);
 
 	return 0;
 }
@@ -143,10 +144,7 @@ void timer_init(void)
 	do_div(tmp, gd->cpu_hz);
 	tb_factor = (u32)tmp;
 
-	intc_dev = get_device(DEVICE_INTC);
-
-	if (!intc_dev
-	    || set_interrupt_handler(0, &timer_interrupt_handler, 3))
+	if (set_interrupt_handler(0, &timer_interrupt_handler, 3))
 		return;
 
 	/* For all practical purposes, this gives us an overflow interrupt */

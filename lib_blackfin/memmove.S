@@ -1,17 +1,8 @@
 /*
- * File:         arch/blackfin/lib/memmove.S
- * Based on:
- * Author:
+ * File: memmove.S
  *
- * Created:
- * Description:
- *
- * Rev:          $Id: memmove.S 2205 2006-09-23 07:53:49Z vapier $
- *
- * Modified:
- *               Copyright 2004-2006 Analog Devices Inc.
- *
- * Bugs:         Enter bugs at http://blackfin.uclinux.org/
+ * Copyright 2004-2007 Analog Devices Inc.
+ * Enter bugs at http://blackfin.uclinux.org/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

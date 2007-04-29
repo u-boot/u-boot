@@ -1,0 +1,184 @@
+Freescale MPC7448hpc2 (Taiga) board
+===================================
+
+Created 08/11/2006 Roy Zang
+--------------------------
+MPC7448hpc2 (Taiga) board is a high-performance PowerPC server reference
+design, which is optimized for high speed throughput between the processor and
+the memory, disk drive and Ethernet port subsystems.
+
+MPC7448hpc2(Taiga) is designed to the micro-ATX chassis, allowing it to be
+used in 1U or 2U rack-mount chassis¡¯, as well as in standard ATX/Micro-ATX
+chassis.
+
+Building U-Boot
+------------------
+The mpc7448hpc2 code base is known to compile using:
+	Binutils 2.15, Gcc 3.4.3, Glibc 2.3.3
+
+	$ make mpc7448hpc2_config
+	Configuring for mpc7448hpc2 board...
+
+	$ make
+
+Memory Map
+----------
+
+The memory map is setup for Linux to operate properly.
+
+The mapping is:
+
+	Range Start	Range End	Definition			Size
+
+	0x0000_0000	0x7fff_ffff	DDR				2G
+	0xe000_0000	0xe7ff_ffff	PCI Memory			128M
+	0xfa00_0000	0xfaff_ffff	PCI IO				16M
+	0xfb00_0000	0xfbff_ffff	PCI Config			16M
+	0xfc00_0000	0xfc0f_ffff	NVRAM/CADMUS			1M
+	0xfe00_0000	0xfeff_ffff	PromJet				16M
+	0xff00_0000	0xff80_0000	FLASH (boot flash)		8M
+	0xff80_0000	0xffff_ffff	FLASH (second half flash)	8M
+
+Using Flash
+-----------
+
+The MPC7448hpc2 board has two "banks" of flash, each 8MB in size
+(2^23 = 0x00800000).
+
+Note: the "bank" here refers to half of the flash. In fact, there is only one
+bank of flash, which is divided into low and high half. Each is controlled by
+the most significant bit of the address bus. The so called "bank" is only for
+convenience.
+
+There is a switch which allows the "bank" to be selected.  The switch
+settings for updating flash are given below.
+
+The u-boot commands for copying the boot-bank into the secondary bank are
+as follows:
+
+	erase ff800000 ff880000
+	cp.b ff000000 ff800000 80000
+
+U-boot commands for downloading an image via tftp and flashing
+it into the secondary bank:
+
+	tftp 10000 <u-boot.bin.image>
+	erase ff000000 ff080000
+	cp.b 10000 ff000000 80000
+
+After copying the image into the second bank of flash, be sure to toggle
+SW3[4] on board before resetting the board in order to set the
+secondary bank as the boot-bank.
+
+Board Switches
+----------------------
+
+Most switches on the board should not be changed.  The most frequent
+user-settable switches on the board are used to configure
+the flash banks and determining the PCI frequency.
+
+SW1[1-5]: Processor core voltage
+
+	12345		Core Voltage
+	-----
+	SW1=01111	1.000V.
+	SW1=01101	1.100V.
+	SW1=01011	1.200V.
+	SW1=01001	1.300V only for MPC7447A.
+
+
+SW2[1-6]: CPU core frequency
+
+		CPU Core Frequency (MHz)
+			Bus Frequency
+	123456		100	133	167	200	Ratio
+
+	------
+	SW2=101100	500	667	833	1000	5x
+	SW2=100100	550	733	917	1100	5.5x
+	SW2=110100	600	800	1000	1200	6x
+	SW2=010100	650	866	1083	1300	6.5x
+	SW2=001000	700	930	1167	1400	7x
+	SW2=000100	750	1000	1250	1500	7.5x
+	SW2=110000	800	1066	1333	1600	8x
+	SW2=011000	850	1333	1417	1700	8.5x only for MPC7447A
+	SW2=011110	900	1200	1500	1800	9x
+
+This table shows only a subset of available frequency options; see the CPU
+hardware specifications for more information.
+
+SW2[7-8]: Bus Protocol and CPU Reset Option
+
+	7
+	-
+	SW2=0		System bus uses MPX bus protocol
+	SW2=1		System bus uses 60x bus protocol
+
+	8
+	-
+	SW2=0		TSI108 can cause CPU reset
+	SW2=1		TSI108 can not cause CPU reset
+
+SW3[1-8] system options
+
+	123
+	---
+	SW3=xxx		Connected to GPIO[0:2] on TSI108
+
+	4
+	-
+	SW3=0		CPU boots from low half of flash
+	SW3=1		CPU boots from high half of flash
+
+	5
+	-
+	SW3=0		SATA and slot2 connected to PCI bus
+	SW3=1		Only slot1 connected to PCI bus
+
+	6
+	-
+	SW3=0		USB connected to PCI bus
+	SW3=1		USB disconnected from PCI bus
+
+	7
+	-
+	SW3=0		Flash is write protected
+	SW3=1		Flash is NOT write protected
+
+	8
+	-
+	SW3=0		CPU will boot from flash
+	SW3=1		CPU will boot from PromJet
+
+SW4[1-3]: System bus frequency
+
+			Bus Frequency (MHz)
+	---
+	SW4=010			183
+	SW4=011			100
+	SW4=100			133
+	SW4=101			166 only for MPC7447A
+	SW4=110			200 only for MPC7448
+	others			reserved
+
+SW4[4-6]: DDR2 SDRAM frequency
+
+			Bus Frequency (MHz)
+	---
+	SW4=000		external clock
+	SW4=011		system clock
+	SW4=100		133
+	SW4=101		166
+	SW4=110		200
+	others		reserved
+
+SW4[7-8]: PCI/PCI-X frequency control
+	7
+	-
+	SW4=0		PCI/PCI-X bus operates normally
+	SW4=1		PCI bus forced to PCI-33 mode
+
+	8
+	-
+	SW4=0		PCI-X mode at 133 MHz allowed
+	SW4=1		PCI-X mode limited to 100 MHz

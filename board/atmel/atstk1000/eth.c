@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * Copyright (C) 2005-2006 Atmel Corporation
+ *
+ * Ethernet initialization for the ATSTK1000 starterkit
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,18 +23,16 @@
  */
 #include <common.h>
 
-#include <asm/io.h>
-
-#include <asm/arch/hmatrix2.h>
 #include <asm/arch/memory-map.h>
-#include <asm/arch/platform.h>
 
-void cpu_enable_sdram(void)
+extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+
+#if defined(CONFIG_MACB) && (CONFIG_COMMANDS & CFG_CMD_NET)
+void atstk1000_eth_initialize(bd_t *bi)
 {
-	const struct device *hmatrix;
+	int id = 0;
 
-	hmatrix = get_device(DEVICE_HMATRIX);
-
-	/* Set the SDRAM_ENABLE bit in the HEBI SFR */
-	hmatrix2_writel(hmatrix, SFR4, 1 << 1);
+	macb_eth_initialize(id++, (void *)MACB0_BASE, bi->bi_phy_id[0]);
+	macb_eth_initialize(id++, (void *)MACB1_BASE, bi->bi_phy_id[1]);
 }
+#endif

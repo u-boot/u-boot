@@ -149,7 +149,7 @@ ifeq ($(ARCH),blackfin)
 CROSS_COMPILE = bfin-uclinux-
 endif
 ifeq ($(ARCH),avr32)
-CROSS_COMPILE = avr32-
+CROSS_COMPILE = avr32-linux-
 endif
 endif
 endif
@@ -219,6 +219,7 @@ LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
 LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
+LIBS += libfdt/libfdt.a
 LIBS += $(BOARDLIBS)
 
 LIBS := $(addprefix $(obj),$(LIBS))
@@ -1818,6 +1819,9 @@ ELPPC_config: unconfig
 EVB64260_config	\
 EVB64260_750CX_config:	unconfig
 	@$(MKCONFIG) EVB64260 ppc 74xx_7xx evb64260
+
+mpc7448hpc2_config:  unconfig
+	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx mpc7448hpc2
 
 P3G4_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx evb64260

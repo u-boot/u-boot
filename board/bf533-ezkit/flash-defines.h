@@ -1,7 +1,7 @@
 /*
  * U-boot - flash-defines.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,8 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef __FLASHDEFINES_H__
@@ -60,7 +60,7 @@ void reset_flash(void);
 int erase_flash(void);
 int erase_block_flash(int, unsigned long);
 void unlock_flash(long lOffset);
-int write_data(long lStart, long lCount, long lStride, int *pnData);
+int write_data(long lStart, long lCount, uchar *pnData);
 int FillData(long lStart, long lCount, long lStride, int *pnData);
 int read_data(long lStart, long lCount, long lStride, int *pnData);
 int read_flash(long nOffset, int *pnValue);

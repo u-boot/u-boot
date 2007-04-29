@@ -1,5 +1,6 @@
 /*
- * Copyright 2006 Freescale Semiconductor
+ * (C) Copyright 2007
+ * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,14 +21,22 @@
  * MA 02111-1307 USA
  */
 
-extern int set_px_sysclk(ulong sysclk);
-extern int set_px_mpxpll(ulong mpxpll);
-extern int set_px_corepll(ulong corepll);
-extern void read_from_px_regs(int set);
-extern void read_from_px_regs_altbank(int set);
-extern void set_altbank(void);
-extern void set_px_go(void);
-extern void set_px_go_with_watchdog(void);
-extern int disable_watchdog(cmd_tbl_t *cmdtp,
-			    int flag, int argc, char *argv[]);
-extern ulong strfractoint(uchar *strptr);
+#ifndef __FDT_SUPPORT_H
+#define __FDT_SUPPORT_H
+
+#ifdef CONFIG_OF_LIBFDT
+
+#include <fdt.h>
+
+int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force);
+
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+int fdt_env(void *fdt);
+#endif
+
+#ifdef CONFIG_OF_HAS_BD_T
+int fdt_bd_t(void *fdt);
+#endif
+
+#endif /* ifdef CONFIG_OF_LIBFDT */
+#endif /* ifndef __FDT_SUPPORT_H */

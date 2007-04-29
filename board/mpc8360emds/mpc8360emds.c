@@ -664,19 +664,28 @@ U_BOOT_CMD(ecc, 4, 0, do_ecc,
 
 #if (defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)) \
      && defined(CONFIG_OF_BOARD_SETUP)
+
+/*
+ * Prototypes of functions that we use.
+ */
+void ft_cpu_setup(void *blob, bd_t *bd);
+
+#ifdef CONFIG_PCI
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
+
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
 #if defined(CONFIG_OF_LIBFDT)
 	int nodeoffset;
-	int err;
 	int tmp[2];
 
 	nodeoffset = fdt_path_offset (fdt, "/memory");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(bd->bi_memstart);
 		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		err = fdt_setprop(fdt, nodeoffset, "reg", tmp, sizeof(tmp));
+		fdt_setprop(fdt, nodeoffset, "reg", tmp, sizeof(tmp));
 	}
 #else
 	u32 *p;
@@ -694,4 +703,4 @@ ft_board_setup(void *blob, bd_t *bd)
 #endif
 	ft_cpu_setup(blob, bd);
 }
-#endif
+#endif /* CONFIG_OF_x */

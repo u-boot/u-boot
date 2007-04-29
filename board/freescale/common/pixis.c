@@ -23,12 +23,23 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <command.h>
+#include <watchdog.h>
 #include <asm/cache.h>
-#include <mpc86xx.h>
 
 #include "pixis.h"
+
+
+static ulong strfractoint(uchar *strptr);
+
+
+/*
+ * Simple board reset.
+ */
+void pixis_reset(void)
+{
+    out8(PIXIS_BASE + PIXIS_RST, 0);
+}
 
 
 /*
@@ -235,7 +246,8 @@ void set_px_go_with_watchdog(void)
 }
 
 
-int disable_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp,
+			       int flag, int argc, char *argv[])
 {
 	u8 tmp;
 
@@ -252,7 +264,7 @@ int disable_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	   diswd, 1, 0, disable_watchdog,
+	   diswd, 1, 0, pixis_disable_watchdog_cmd,
 	   "diswd	- Disable watchdog timer \n",
 	   NULL);
 
@@ -263,7 +275,7 @@ U_BOOT_CMD(
  * input: strptr i.e. argv[2]
  */
 
-ulong strfractoint(uchar *strptr)
+static ulong strfractoint(uchar *strptr)
 {
 	int i, j, retval;
 	int mulconst;
@@ -319,3 +331,142 @@ ulong strfractoint(uchar *strptr)
 
 	return retval;
 }
+
+
+int
+pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	ulong val;
+	ulong corepll;
+
+	/*
+	 * No args is a simple reset request.
+	 */
+	if (argc <= 1) {
+		pixis_reset();
+		/* not reached */
+	}
+
+	if (strcmp(argv[1], "cf") == 0) {
+
+		/*
+		 * Reset with frequency changed:
+		 *    cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>
+		 */
+		if (argc < 5) {
+			puts(cmdtp->usage);
+			return 1;
+		}
+
+		read_from_px_regs(0);
+
+		val = set_px_sysclk(simple_strtoul(argv[2], NULL, 10));
+
+		corepll = strfractoint(argv[3]);
+		val = val + set_px_corepll(corepll);
+		val = val + set_px_mpxpll(simple_strtoul(argv[4], NULL, 10));
+		if (val == 3) {
+			puts("Setting registers VCFGEN0 and VCTL\n");
+			read_from_px_regs(1);
+			puts("Resetting board with values from ");
+			puts("VSPEED0, VSPEED1, VCLKH, and VCLKL \n");
+			set_px_go();
+		} else {
+			puts(cmdtp->usage);
+			return 1;
+		}
+
+		while (1) ;	/* Not reached */
+
+	} else if (strcmp(argv[1], "altbank") == 0) {
+
+		/*
+		 * Reset using alternate flash bank:
+		 */
+		if (argv[2] == 0) {
+			/*
+			 * Reset from alternate bank without changing
+			 * frequency and without watchdog timer enabled.
+			 *	altbank
+			 */
+			read_from_px_regs(0);
+			read_from_px_regs_altbank(0);
+			if (argc > 2) {
+				puts(cmdtp->usage);
+				return 1;
+			}
+			puts("Setting registers VCFGNE1, VBOOT, and VCTL\n");
+			set_altbank();
+			read_from_px_regs_altbank(1);
+			puts("Resetting board to boot from the other bank.\n");
+			set_px_go();
+
+		} else if (strcmp(argv[2], "cf") == 0) {
+			/*
+			 * Reset with frequency changed
+			 *    altbank cf <SYSCLK freq> <COREPLL ratio>
+			 *				<MPXPLL ratio>
+			 */
+			read_from_px_regs(0);
+			read_from_px_regs_altbank(0);
+			val = set_px_sysclk(simple_strtoul(argv[3], NULL, 10));
+			corepll = strfractoint(argv[4]);
+			val = val + set_px_corepll(corepll);
+			val = val + set_px_mpxpll(simple_strtoul(argv[5],
+								 NULL, 10));
+			if (val == 3) {
+				puts("Setting registers VCFGEN0, VCFGEN1, VBOOT, and VCTL\n");
+				set_altbank();
+				read_from_px_regs(1);
+				read_from_px_regs_altbank(1);
+				puts("Enabling watchdog timer on the FPGA\n");
+				puts("Resetting board with values from ");
+				puts("VSPEED0, VSPEED1, VCLKH and VCLKL ");
+				puts("to boot from the other bank.\n");
+				set_px_go_with_watchdog();
+			} else {
+				puts(cmdtp->usage);
+				return 1;
+			}
+
+			while (1) ;	/* Not reached */
+
+		} else if (strcmp(argv[2], "wd") == 0) {
+			/*
+			 * Reset from alternate bank without changing
+			 * frequencies but with watchdog timer enabled:
+			 *    altbank wd
+			 */
+			read_from_px_regs(0);
+			read_from_px_regs_altbank(0);
+			puts("Setting registers VCFGEN1, VBOOT, and VCTL\n");
+			set_altbank();
+			read_from_px_regs_altbank(1);
+			puts("Enabling watchdog timer on the FPGA\n");
+			puts("Resetting board to boot from the other bank.\n");
+			set_px_go_with_watchdog();
+			while (1) ;	/* Not reached */
+
+		} else {
+			puts(cmdtp->usage);
+			return 1;
+		}
+
+	} else {
+		puts(cmdtp->usage);
+		return 1;
+	}
+
+	return 0;
+}
+
+
+U_BOOT_CMD(
+	pixis_reset, CFG_MAXARGS, 1, pixis_reset_cmd,
+	"pixis_reset - Reset the board using the FPGA sequencer\n",
+	"    pixis_reset\n"
+	"    pixis_reset [altbank]\n"
+	"    pixis_reset altbank wd\n"
+	"    pixis_reset altbank cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
+	"    pixis_reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
+	);

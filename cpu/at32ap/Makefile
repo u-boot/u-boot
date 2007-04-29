@@ -30,7 +30,7 @@ LIB	:= $(obj)lib$(CPU).a
 START	:= start.o
 SOBJS	:= entry.o
 COBJS	:= cpu.o hsdramc.o exception.o cache.o
-COBJS	+= interrupts.o device.o pm.o pio.o
+COBJS	+= interrupts.o pio.o atmel_mci.o
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 START	:= $(addprefix $(obj),$(START))
