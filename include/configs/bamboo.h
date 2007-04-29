@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2006
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -43,7 +43,6 @@
  * 2nd ethernet port you have to "undef" the following define.
  */
 #define CONFIG_BAMBOO_NAND      1       /* enable nand flash support    */
-#define CFG_NAND_LEGACY
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -143,65 +142,13 @@
 #endif /* CFG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
- * NAND-FLASH related
+ * NAND FLASH
  *----------------------------------------------------------------------*/
-#define NAND_CMD_REG   (0x00) /* NandFlash Command Register */
-#define NAND_ADDR_REG  (0x04) /* NandFlash Address Register */
-#define NAND_DATA_REG  (0x08) /* NandFlash Data Register */
-#define NAND_ECC0_REG  (0x10) /* NandFlash ECC Register0 */
-#define NAND_ECC1_REG  (0x14) /* NandFlash ECC Register1 */
-#define NAND_ECC2_REG  (0x18) /* NandFlash ECC Register2 */
-#define NAND_ECC3_REG  (0x1C) /* NandFlash ECC Register3 */
-#define NAND_ECC4_REG  (0x20) /* NandFlash ECC Register4 */
-#define NAND_ECC5_REG  (0x24) /* NandFlash ECC Register5 */
-#define NAND_ECC6_REG  (0x28) /* NandFlash ECC Register6 */
-#define NAND_ECC7_REG  (0x2C) /* NandFlash ECC Register7 */
-#define NAND_CR0_REG   (0x30) /* NandFlash Device Bank0 Config Register */
-#define NAND_CR1_REG   (0x34) /* NandFlash Device Bank1 Config Register */
-#define NAND_CR2_REG   (0x38) /* NandFlash Device Bank2 Config Register */
-#define NAND_CR3_REG   (0x3C) /* NandFlash Device Bank3 Config Register */
-#define NAND_CCR_REG   (0x40) /* NandFlash Core Configuration Register */
-#define NAND_STAT_REG  (0x44) /* NandFlash Device Status Register */
-#define NAND_HWCTL_REG (0x48) /* NandFlash Direct Hwd Control Register */
-#define NAND_REVID_REG (0x50) /* NandFlash Core Revision Id Register */
-
-/* Nand Flash K9F1208U0A Command Set => Nand Flash 0 */
-#define NAND0_CMD_READ1_HALF1     0x00     /* Starting addr for 1rst half of registers */
-#define NAND0_CMD_READ1_HALF2     0x01     /* Starting addr for 2nd half of registers */
-#define NAND0_CMD_READ2           0x50
-#define NAND0_CMD_READ_ID         0x90
-#define NAND0_CMD_READ_STATUS     0x70
-#define NAND0_CMD_RESET           0xFF
-#define NAND0_CMD_PAGE_PROG       0x80
-#define NAND0_CMD_PAGE_PROG_TRUE  0x10
-#define NAND0_CMD_PAGE_PROG_DUMMY 0x11
-#define NAND0_CMD_BLOCK_ERASE     0x60
-#define NAND0_CMD_BLOCK_ERASE_END 0xD0
-
-#define CFG_MAX_NAND_DEVICE     1	/* Max number of NAND devices */
-#define SECTORSIZE              512
-
-#define ADDR_COLUMN             1
-#define ADDR_PAGE               2
-#define ADDR_COLUMN_PAGE        3
-
-#define NAND_ChipID_UNKNOWN     0x00
-#define NAND_MAX_FLOORS         1
-#define NAND_MAX_CHIPS          1
-
-#define WRITE_NAND_COMMAND(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_CMD_REG) = d;} while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_ADDR_REG) = d;} while(0)
-#define WRITE_NAND(d, adr)      do {*(volatile u8 *)((ulong)adr+NAND_DATA_REG) = d;} while(0)
-#define READ_NAND(adr)          (*(volatile u8 *)((ulong)adr+NAND_DATA_REG))
-#define NAND_WAIT_READY(nand)   while (!(*(volatile u8 *)((ulong)nand->IO_ADDR+NAND_STAT_REG) & 0x01))
-
-/* not needed with 440EP NAND controller */
-#define NAND_CTL_CLRALE(nandptr)
-#define NAND_CTL_SETALE(nandptr)
-#define NAND_CTL_CLRCLE(nandptr)
-#define NAND_CTL_SETCLE(nandptr)
-#define NAND_DISABLE_CE(nand)
-#define NAND_ENABLE_CE(nand)
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CFG_NAND_CS		1
+#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
+#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
