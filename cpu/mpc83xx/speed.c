@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <mpc83xx.h>
+#include <command.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -365,11 +366,11 @@ ulong get_bus_freq(ulong dummy)
 	return gd->csb_clk;
 }
 
-int print_clock_conf(void)
+int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	printf("Clock configuration:\n");
-	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 	printf("  Core:                %4d MHz\n", gd->core_clk / 1000000);
+	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	printf("  QE:                  %4d MHz\n", gd->qe_clk / 1000000);
 	printf("  BRG:                 %4d MHz\n", gd->brg_clk / 1000000);
@@ -395,3 +396,8 @@ int print_clock_conf(void)
 #endif
 	return 0;
 }
+
+U_BOOT_CMD(clocks, 1, 0, do_clocks,
+	"clocks  - print clock configuration\n",
+	"    clocks\n"
+);

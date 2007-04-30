@@ -52,7 +52,7 @@ int checkcpu(void)
 
 	immr = (immap_t *)CFG_IMMR;
 
-	puts("CPU: ");
+	puts("CPU:   ");
 
 	switch (pvr & 0xffff0000) {
 		case PVR_E300C1:
@@ -158,10 +158,12 @@ int checkcpu(void)
 	/* Multiple revisons of 834x processors may have the same SPRIDR value.
 	 * So use PVR to identify the revision number.
 	 */
-	printf("Rev: %02x at %s MHz\n", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
+	printf("Rev: %02x at %s MHz", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
 #else
-	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
+	printf("Rev: %02x at %s MHz", spridr & 0x0000FFFF, strmhz(buf, clock));
 #endif
+	printf(", CSB: %4d MHz\n", gd->csb_clk / 1000000);
+
 	return 0;
 }
 
