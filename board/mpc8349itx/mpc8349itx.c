@@ -80,8 +80,7 @@ int fixed_sdram(void)
 	im->ddr.sdram_interval =
 	    (0x0410 << SDRAM_INTERVAL_REFINT_SHIFT) | (0x0100 <<
 						       SDRAM_INTERVAL_BSTOPRE_SHIFT);
-	im->ddr.sdram_clk_cntl =
-	    DDR_SDRAM_CLK_CNTL_SS_EN | DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05;
+	im->ddr.sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
 
 	udelay(200);
 

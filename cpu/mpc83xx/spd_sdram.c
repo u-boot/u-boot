@@ -693,11 +693,6 @@ long int spd_sdram()
 
 #ifdef CFG_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
 	ddr->sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
-#else
-	/* SS_EN = 0, source synchronous disable
-	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
-	 */
-	ddr->sdram_clk_cntl = 0x00000000;
 #endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
