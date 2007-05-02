@@ -51,6 +51,8 @@
 
 #include "macb.h"
 
+#define barrier() asm volatile("" ::: "memory")
+
 #define CFG_MACB_RX_BUFFER_SIZE		4096
 #define CFG_MACB_RX_RING_SIZE		(CFG_MACB_RX_BUFFER_SIZE / 128)
 #define CFG_MACB_TX_RING_SIZE		16
@@ -185,31 +187,31 @@ static int macb_send(struct eth_device *netdev, volatile void *packet,
 
 	macb->tx_ring[tx_head].ctrl = ctrl;
 	macb->tx_ring[tx_head].addr = paddr;
+	barrier();
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
 
 	/*
 	 * I guess this is necessary because the networking core may
 	 * re-use the transmit buffer as soon as we return...
 	 */
-	i = 0;
-	while (!(macb->tx_ring[tx_head].ctrl & TXBUF_USED)) {
-		if (i > CFG_MACB_TX_TIMEOUT) {
-			printf("%s: TX timeout\n", netdev->name);
+	for (i = 0; i <= CFG_MACB_TX_TIMEOUT; i++) {
+		barrier();
+		ctrl = macb->tx_ring[tx_head].ctrl;
+		if (ctrl & TXBUF_USED)
 			break;
-		}
 		udelay(1);
-		i++;
 	}
 
 	dma_unmap_single(packet, length, paddr);
 
 	if (i <= CFG_MACB_TX_TIMEOUT) {
-		ctrl = macb->tx_ring[tx_head].ctrl;
 		if (ctrl & TXBUF_UNDERRUN)
 			printf("%s: TX underrun\n", netdev->name);
 		if (ctrl & TXBUF_EXHAUSTED)
 			printf("%s: TX buffers exhausted in mid frame\n",
 			       netdev->name);
+	} else {
+		printf("%s: TX timeout\n", netdev->name);
 	}
 
 	/* No one cares anyway */
@@ -234,6 +236,7 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 		i++;
 	}
 
+	barrier();
 	macb->rx_tail = new_tail;
 }
 
@@ -283,6 +286,7 @@ static int macb_recv(struct eth_device *netdev)
 				rx_tail = 0;
 			}
 		}
+		barrier();
 	}
 
 	return 0;
