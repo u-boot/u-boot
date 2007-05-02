@@ -292,6 +292,32 @@ static int macb_recv(struct eth_device *netdev)
 	return 0;
 }
 
+static void macb_phy_reset(struct macb_device *macb)
+{
+	struct eth_device *netdev = &macb->netdev;
+	int i;
+	u16 status, adv;
+
+	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
+	macb_mdio_write(macb, MII_ADVERTISE, adv);
+	printf("%s: Starting autonegotiation...\n", netdev->name);
+	macb_mdio_write(macb, MII_BMCR, (BMCR_ANENABLE
+					 | BMCR_ANRESTART));
+
+	for (i = 0; i < CFG_MACB_AUTONEG_TIMEOUT / 100; i++) {
+		status = macb_mdio_read(macb, MII_BMSR);
+		if (status & BMSR_ANEGCOMPLETE)
+			break;
+		udelay(100);
+	}
+
+	if (status & BMSR_ANEGCOMPLETE)
+		printf("%s: Autonegotiation complete\n", netdev->name);
+	else
+		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
+		       netdev->name, status);
+}
+
 static int macb_phy_init(struct macb_device *macb)
 {
 	struct eth_device *netdev = &macb->netdev;
@@ -307,36 +333,16 @@ static int macb_phy_init(struct macb_device *macb)
 		return 0;
 	}
 
-	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
-	macb_mdio_write(macb, MII_ADVERTISE, adv);
-	printf("%s: Starting autonegotiation...\n", netdev->name);
-	macb_mdio_write(macb, MII_BMCR, (BMCR_ANENABLE
-					 | BMCR_ANRESTART));
-
-#if 0
-	for (i = 0; i < 9; i++)
-		printf("mii%d: 0x%04x\n", i, macb_mdio_read(macb, i));
-#endif
-
-	for (i = 0; i < CFG_MACB_AUTONEG_TIMEOUT / 100; i++) {
-		status = macb_mdio_read(macb, MII_BMSR);
-		if (status & BMSR_ANEGCOMPLETE)
-			break;
-		udelay(100);
-	}
-
-	if (status & BMSR_ANEGCOMPLETE)
-		printf("%s: Autonegotiation complete\n", netdev->name);
-	else
-		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
-		       netdev->name, status);
-
+	status = macb_mdio_read(macb, MII_BMSR);
 	if (!(status & BMSR_LSTATUS)) {
+		/* Try to re-negotiate if we don't have link already. */
+		macb_phy_reset(macb);
+
 		for (i = 0; i < CFG_MACB_AUTONEG_TIMEOUT / 100; i++) {
-			udelay(100);
 			status = macb_mdio_read(macb, MII_BMSR);
 			if (status & BMSR_LSTATUS)
 				break;
+			udelay(100);
 		}
 	}
 
@@ -345,6 +351,7 @@ static int macb_phy_init(struct macb_device *macb)
 		       netdev->name, status);
 		return 0;
 	} else {
+		adv = macb_mdio_read(macb, MII_ADVERTISE);
 		lpa = macb_mdio_read(macb, MII_LPA);
 		media = mii_nway_result(lpa & adv);
 		speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
