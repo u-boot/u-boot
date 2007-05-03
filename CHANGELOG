@@ -1,3 +1,25 @@
+commit 2c6fb199dc5756fc72f49d1f4de105e089049d65
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 24 14:37:49 2007 +0200
+
+    Cleanup STX GP3SSA code; fix build and compile problems.
+
+commit 35171dc04e028ecacc23ad916a66295472555dbf
+Author: Dan Malek <dan@embeddedalley.com>
+Date:	Fri Jan 5 09:15:34 2007 +0100
+
+    Add support for STX GP3SSA (stxssa) Board
+
+    Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit 14da5f7675bbb427c469e3f45006e027b6e21db9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 20 17:43:28 2007 +0200
+
+    Cleanup compiler warnings, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 6923565db12af34fd5e02d354ee65a8c78ac460f
 Author: Detlev Zundel <dzu@denx.de>
 Date:	Fri Apr 20 12:01:47 2007 +0200

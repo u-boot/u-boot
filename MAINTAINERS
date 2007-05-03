@@ -223,9 +223,9 @@ Jon Loeliger <jdl@freescale.com>
 
 Dan Malek <dan@embeddedalley.com>
 
-	STxGP3			MPC85xx
-	STxSSA			MPC85xx
-	STxXTc			MPC8xx
+	stxgp3			MPC85xx
+	stxssa			MPC85xx
+	stxxtc			MPC8xx
 
 Eran Man <eran@nbase.co.il>
 

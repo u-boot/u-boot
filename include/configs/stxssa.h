@@ -87,9 +87,9 @@
  * which is 64Mbytes.  The CFI works fine and will discover the proper
  * sizes.
  */
-#define CFG_FLASH_BASE		0xfc000000      /* start of FLASH 64M    */
-#define CFG_BR0_PRELIM		0xfc001801	/* port size 32bit      */
-#define CFG_OR0_PRELIM		0xfc000ff7	/* 64 MB Flash           */
+#define CFG_FLASH_BASE		0xFC000000      /* start of FLASH 64M    */
+#define CFG_BR0_PRELIM		0xFC001801	/* port size 32bit      */
+#define CFG_OR0_PRELIM		0xFC000FF7	/* 64 MB Flash           */
 
 #define CFG_FLASH_CFI		1
 #define CFG_FLASH_CFI_DRIVER	1
@@ -163,7 +163,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
+#define CFG_MALLOC_LEN	    	(512 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     2
@@ -173,16 +173,14 @@
 #define CFG_NS16550_REG_SIZE    1
 #define CFG_NS16550_CLK		get_bus_freq(0)
 
-#define CONFIG_BAUDRATE	 	38400
-
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CFG_NS16550_COM1        (CFG_CCSRBAR+0x4500)
 #define CFG_NS16550_COM2        (CFG_CCSRBAR+0x4600)
 
-/* Use the HUSH parser */
-#define CFG_HUSH_PARSER
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef  CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
@@ -300,28 +298,25 @@
 
 #endif
 
-/* Environment */
-/* Config in EEPROM
-*/
-#if 1
+/* Environment - default config is in flash, see below */
+#if 0	/* in EEPROM */
 #define CFG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		0
 #define CFG_ENV_SIZE		2048
-#else
+#else	/* in flash */
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x10000
+#define CFG_ENV_SECT_SIZE	0x40000
 
-#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00030000)
-#define CFG_ENV_OFFSET		0
+#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x4000
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif
-
-#define CONFIG_BOOTARGS "root=/dev/nfs rw ip=any console=ttyS1,38400"
-#define CONFIG_BOOTCOMMAND	"bootm 0xffc00000 0xffd00000"
-#define CONFIG_BOOTDELAY	3	/* -1 disable autoboot */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+
+#define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
 
 #if defined(CFG_RAMBOOT)
   #if defined(CONFIG_PCI)
@@ -406,6 +401,18 @@
 #define CONFIG_ETH2ADDR  00:e0:0c:07:9b:8c
 #endif
 
+/*
+ * Environment in EEPROM is compatible with different flash sector sizes,
+ * but only little space is available, so we use a very simple setup.
+ * With environment in flash, we use a more powerful default configuration.
+ */
+#ifdef CFG_ENV_IS_IN_EEPROM		/* use restricted "standard" environment */
+
+#define CONFIG_BAUDRATE	 	38400
+
+#define CONFIG_BOOTDELAY	3	/* -1 disable autoboot */
+#define CONFIG_BOOTCOMMAND	"bootm 0xffc00000 0xffd00000"
+#define CONFIG_BOOTARGS		"root=/dev/nfs rw ip=any console=ttyS1,$baudrate"
 #define CONFIG_SERVERIP 	192.168.85.1
 #define CONFIG_IPADDR  		192.168.85.60
 #define CONFIG_GATEWAYIP	192.168.85.1
@@ -414,5 +421,45 @@
 #define CONFIG_ROOTPATH 	/gppproot
 #define CONFIG_BOOTFILE 	uImage
 #define CONFIG_LOADADDR		0x1000000
+
+#else /* ENV IS IN FLASH		-- use a full-blown envionment */
+
+#define CONFIG_BAUDRATE	 	115200
+
+#define CONFIG_BOOTDELAY	5	/* -1 disable autoboot */
+
+#define CONFIG_PREBOOT	"echo;"	\
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
+	"echo"
+
+#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"hostname=gp3ssa\0"						\
+	"bootfile=/tftpboot/gp3ssa/uImage\0"				\
+	"loadaddr=400000\0"						\
+	"netdev=eth0\0"							\
+	"consdev=ttyS1\0"						\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=$serverip:$rootpath\0"				\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs $bootargs "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask"		\
+		":$hostname:$netdev:off panic=1\0"			\
+	"addcons=setenv bootargs $bootargs "				\
+		"console=$consdev,$baudrate\0"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
+		"bootm $kernel_addr\0"					\
+	"flash_self=run ramargs addip addcons;"				\
+		"bootm $kernel_addr $ramdisk_addr\0"			\
+	"net_nfs=tftp $loadaddr $bootfile;"				\
+		"run nfsargs addip addcons;bootm\0"			\
+	"rootpath=/opt/eldk/ppc_85xx\0"					\
+	"kernel_addr=FC000000\0"					\
+	"ramdisk_addr=FC200000\0"					\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#endif	/* CFG_ENV_IS_IN_EEPROM */
 
 #endif	/* __CONFIG_H */
