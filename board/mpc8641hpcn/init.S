@@ -59,7 +59,7 @@
 #define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR3 ((CFG_PCI2_MEM_BASE>>12) & 0xffffff)
-#define LAWAR3	(~LAWAR_EN & (LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_512M)))
+#define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 /*
  * This is not so much the SDRAM map as it is the whole localbus map.
@@ -67,11 +67,11 @@
 #define LAWBAR4 ((0xf8100000>>12) & 0xffffff)
 #define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_2M))
 
-#define LAWBAR5 ((CFG_PCI1_IO_BASE>>12) & 0xffffff)
+#define LAWBAR5 ((CFG_PCI1_IO_PHYS>>12) & 0xffffff)
 #define LAWAR5	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
-#define LAWBAR6 ((CFG_PCI2_IO_BASE>>12) & 0xffffff)
-#define LAWAR6	(~LAWAR_EN &( LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_16M)))
+#define LAWBAR6 ((CFG_PCI2_IO_PHYS>>12) & 0xffffff)
+#define LAWAR6	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
 #define LAWBAR7 ((0xfe000000 >>12) & 0xffffff)
 #define LAWAR7	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_32M))
@@ -84,7 +84,7 @@
 #define LAWAR8  ((LAWAR_TRGT_IF_DDR2 | (LAWAR_SIZE & LAWAR_SIZE_512M)) & ~LAWAR_EN)
 #endif
 
-#define LAWBAR9 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
+#define LAWBAR9 ((CFG_RIO_MEM_PHYS>>12) & 0xfffff)
 #define LAWAR9  (LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 	.section .bootpg, "ax"
