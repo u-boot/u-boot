@@ -1538,9 +1538,9 @@ int eth_send(volatile void *packet, int length) {
 int smc_get_ethaddr (bd_t * bd)
 {
 	int env_size, rom_valid, env_present = 0, reg;
-	char *s = NULL, *e, *v_mac, es[] = "11:22:33:44:55:66";
+	char *s = NULL, *e, es[] = "11:22:33:44:55:66";
 	char s_env_mac[64];
-	uchar v_env_mac[6], v_rom_mac[6];
+	uchar v_env_mac[6], v_rom_mac[6], *v_mac;
 
 	env_size = getenv_r ("ethaddr", s_env_mac, sizeof (s_env_mac));
 	if ((env_size > 0) && (env_size < sizeof (es))) {	/* exit if env is bad */
@@ -1563,7 +1563,7 @@ int smc_get_ethaddr (bd_t * bd)
 
 	if (!env_present) {	/* if NO env */
 		if (rom_valid) {	/* but ROM is valid */
-			v_mac = (char *)v_rom_mac;
+			v_mac = v_rom_mac;
 			sprintf (s_env_mac, "%02X:%02X:%02X:%02X:%02X:%02X",
 				 v_mac[0], v_mac[1], v_mac[2], v_mac[3],
 				 v_mac[4], v_mac[5]);
@@ -1573,7 +1573,7 @@ int smc_get_ethaddr (bd_t * bd)
 			return (-1);
 		}
 	} else {		/* good env, don't care ROM */
-		v_mac = (char *)v_env_mac;	/* always use a good env over a ROM */
+		v_mac = v_env_mac;	/* always use a good env over a ROM */
 	}
 
 	if (env_present && rom_valid) { /* if both env and ROM are good */

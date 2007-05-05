@@ -112,16 +112,8 @@ static __inline__ int abortboot(int bootdelay)
 	u_int presskey_max = 0;
 	u_int i;
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
-		/* Restore serial console */
-		console_assign (stdout, "serial");
-		console_assign (stderr, "serial");
-	}
-#endif
-
 #  ifdef CONFIG_AUTOBOOT_PROMPT
-	printf (CONFIG_AUTOBOOT_PROMPT, bootdelay);
+	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
 #  ifdef CONFIG_AUTOBOOT_DELAY_STR
@@ -195,18 +187,12 @@ static __inline__ int abortboot(int bootdelay)
 	}
 #  if DEBUG_BOOTKEYS
 	if (!abort)
-		puts ("key timeout\n");
+		puts("key timeout\n");
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
-	if (abort) {
-		/* permanently enable normal console output */
-		gd->flags &= ~(GD_FLG_SILENT);
-	} else if (gd->flags & GD_FLG_SILENT) {
-		/* Restore silent console */
-		console_assign (stdout, "nulldev");
-		console_assign (stderr, "nulldev");
-	}
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
 #endif
 
 	return abort;
@@ -222,14 +208,6 @@ static __inline__ int abortboot(int bootdelay)
 {
 	int abort = 0;
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
-		/* Restore serial console */
-		console_assign (stdout, "serial");
-		console_assign (stderr, "serial");
-	}
-#endif
-
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT, bootdelay);
 #else
@@ -244,8 +222,8 @@ static __inline__ int abortboot(int bootdelay)
 	if (bootdelay >= 0) {
 		if (tstc()) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
-			puts ("\b\b\b 0");
-			abort = 1; 	/* don't auto boot	*/
+			puts("\b\b\b 0");
+			abort = 1;	/* don't auto boot	*/
 		}
 	}
 #endif
@@ -266,23 +244,17 @@ static __inline__ int abortboot(int bootdelay)
 # endif
 				break;
 			}
-			udelay (10000);
+			udelay(10000);
 		}
 
-		printf ("\b\b\b%2d ", bootdelay);
+		printf("\b\b\b%2d ", bootdelay);
 	}
 
-	putc ('\n');
+	putc('\n');
 
 #ifdef CONFIG_SILENT_CONSOLE
-	if (abort) {
-		/* permanently enable normal console output */
-		gd->flags &= ~(GD_FLG_SILENT);
-	} else if (gd->flags & GD_FLG_SILENT) {
-		/* Restore silent console */
-		console_assign (stdout, "nulldev");
-		console_assign (stderr, "nulldev");
-	}
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
 #endif
 
 	return abort;

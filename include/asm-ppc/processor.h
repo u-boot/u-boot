@@ -706,8 +706,6 @@
 #define SVR_MJREV(svr)	(((svr) >>  4) & 0x0F)   /* Major SOC design revision indicator */
 #define SVR_MNREV(svr)	(((svr) >>  0) & 0x0F)   /* Minor SOC design revision indicator */
 
-/* System-On-Chip Version Numbers (version field only) */
-#define SVR_MPC5200	0x8011
 
 /* Processor Version Register */
 
@@ -817,6 +815,12 @@
 #define PVR_8260_HIP7   0x80822011
 #define PVR_8260_HIP7R1 0x80822013
 #define PVR_8260_HIP7RA	0x80822014
+
+/*
+ * MPC 52xx
+ */
+#define PVR_5200	0x80822011
+#define PVR_5200B	0x80822014
 
 
 /*

@@ -391,7 +391,10 @@ int _do_setenv (int flag, int argc, char *argv[])
 void setenv (char *varname, char *varvalue)
 {
 	char *argv[4] = { "setenv", varname, varvalue, NULL };
-	_do_setenv (0, 3, argv);
+	if (varvalue == NULL)
+		_do_setenv (0, 2, argv);
+	else
+		_do_setenv (0, 3, argv);
 }
 
 int do_setenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
