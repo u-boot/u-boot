@@ -161,6 +161,7 @@
 				CFG_CMD_ECHO |\
 				CFG_CMD_IMLS |\
 				CFG_CMD_FLASH |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_PING \
 				)
 	#else	/* !RAMENV */
@@ -185,6 +186,7 @@
 				CFG_CMD_EXT2 |\
 				CFG_CMD_JFFS2 |\
 				CFG_CMD_ECHO |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_SAVES \
 				)
 
@@ -206,6 +208,7 @@
 				CFG_CMD_IMI |\
 				CFG_CMD_NET |\
 				CFG_CMD_CACHE |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_PING \
 				)
 #endif	/* !FLASH */

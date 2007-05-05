@@ -29,6 +29,9 @@
 /* System Clock Frequency */
 #define XILINX_CLOCK_FREQ	100000000
 
+/* Microblaze is microblaze_0 */
+#define XILINX_FSL_NUMBER	2
+
 /* Interrupt controller is intc_0 */
 #define XILINX_INTC_BASEADDR	0x41200000
 #define XILINX_INTC_NUM_INTR_INPUTS	4
