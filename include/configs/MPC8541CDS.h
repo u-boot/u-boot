@@ -334,7 +334,7 @@ extern unsigned long get_clock_freq(void);
 
 /*
  * General PCI
- * Addresses are mapped 1-1.
+ * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE

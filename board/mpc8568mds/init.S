@@ -1,7 +1,6 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
- * Copyright (C) 2002,2003, Motorola Inc.
- * Xianghua Xiao <X.Xiao@motorola.com>
+ * Copyright 2004-2007 Freescale Semiconductor.
+ * Copyright 2002,2003, Motorola Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -46,10 +45,9 @@
  * MAS2: epn, sharen, x0, x1, w, i, m, g, e
  * MAS3: rpn, u0-u3, ux, sx, uw, sw, ur, sr
  */
-
 #define	entry_start \
-	mflr	r1 	;	\
-	bl	0f 	;
+	mflr	r1	;	\
+	bl	0f	;
 
 #define	entry_end \
 0:	mflr	r0	;	\
@@ -65,8 +63,9 @@ tlb1_entry:
 	/*
 	 * Number of TLB0 and TLB1 entries in the following table
 	 */
-	.long 13
+	.long (2f-1f)/16
 
+1:
 #if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
 	/*
 	 * TLB0		4K	Non-cacheable, guarded
@@ -94,12 +93,11 @@ tlb1_entry:
 	 * These entries end up at TLB0 Indicies 0x10, 0x14, 0x18 and 0x1c,
 	 * and must not collide with other TLB0 entries.
 	 */
+
 	.long TLB1_MAS0(0, 0, 0)
 	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR),
-			0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR), 0,0,0,0,0,0,0,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR), 0,0,0,0,0,1,0,1,0,1)
 
 	.long TLB1_MAS0(0, 0, 0)
 	.long TLB1_MAS1(1, 0, 0, 0, 0)
@@ -112,7 +110,7 @@ tlb1_entry:
 	.long TLB1_MAS1(1, 0, 0, 0, 0)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR + 8 * 1024),
 			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR + 8 * 1024),
+	.long TLB1_MAS3(E500_TLB_EPN(CFG_INIT_RAM_ADDR + 8 * 1024),
 			0,0,0,0,0,1,0,1,0,1)
 
 	.long TLB1_MAS0(0, 0, 0)
@@ -122,61 +120,55 @@ tlb1_entry:
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR + 12 * 1024),
 			0,0,0,0,0,1,0,1,0,1)
 
-
+	/* TLB 1 Initializations */
 	/*
-	 * TLB 0:	16M	Non-cacheable, guarded
-	 * 0xff000000	16M	FLASH
+	 * TLBe 0:	16M	Non-cacheable, guarded
+	 * 0xff000000	16M	FLASH (upper half)
 	 * Out of reset this entry is only 4K.
 	 */
 	.long TLB1_MAS0(1, 0, 0)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE + 0x1000000),
+			0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE + 0x1000000),
+			0,0,0,0,0,1,0,1,0,1)
+
+	/*
+	 * TLBe 1:	16M	Non-cacheable, guarded
+	 * 0xfe000000	16M	FLASH (lower half)
+	 */
+	.long TLB1_MAS0(1, 1, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 1:	256M	Non-cacheable, guarded
-	 * 0x80000000	256M	PCI1 MEM First half
+	 * TLBe 2:	256M	Non-cacheable, guarded
+	 * 0x80000000	256M	PCI1 MEM
 	 */
-	.long TLB1_MAS0(1, 1, 0)
+	.long TLB1_MAS0(1, 2, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 2:	256M	Non-cacheable, guarded
-	 * 0x90000000	256M	PCI1 MEM Second half
-	 */
-	.long TLB1_MAS0(1, 2, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE + 0x10000000),
-			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE + 0x10000000),
-			0,0,0,0,0,1,0,1,0,1)
-
-	/*
-	 * TLB 3:	256M	Non-cacheable, guarded
-	 * 0xc0000000	256M	Rapid IO MEM First half
+	 * TLBe 3:	256M	Non-cacheable, guarded
+	 * 0xa0000000	256M	PCIe Mem
 	 */
 	.long TLB1_MAS0(1, 3, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_RIO_MEM_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_RIO_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_PEX_MEM_BASE), 0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_PEX_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 4:	256M	Non-cacheable, guarded
-	 * 0xd0000000	256M	Rapid IO MEM Second half
+	 * TLBe 4:	Reserved for future usage
 	 */
-	.long TLB1_MAS0(1, 4, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_RIO_MEM_BASE + 0x10000000),
-			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_RIO_MEM_BASE + 0x10000000),
-			0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 5:	64M	Non-cacheable, guarded
+	 * TLBe 5:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR
-	 * 0xe200_0000	16M	PCI1 IO
+	 * 0xe200_0000	8M	PCI1 IO
+	 * 0xe280_0000	8M	PCIe IO
 	 */
 	.long TLB1_MAS0(1, 5, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
@@ -184,7 +176,7 @@ tlb1_entry:
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_CCSRBAR), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 6:	64M	Cacheable, non-guarded
+	 * TLBe 6:	64M	Cacheable, non-guarded
 	 * 0xf000_0000	64M	LBC SDRAM
 	 */
 	.long TLB1_MAS0(1, 6, 0)
@@ -193,88 +185,74 @@ tlb1_entry:
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_LBC_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 7:	16K	Non-cacheable, guarded
-	 * 0xf8000000	16K	BCSR registers
+	 * TLBe 7:	256K	Non-cacheable, guarded
+	 * 0xf8000000	32K BCSR
+	 * 0xf8008000	32K PIB (CS4)
+	 * 0xf8010000	32K PIB (CS5)
 	 */
 	.long TLB1_MAS0(1, 7, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16K)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_BCSR), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_BCSR), 0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256K)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_BCSR_BASE), 0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_BCSR_BASE), 0,0,0,0,0,1,0,1,0,1)
 
-#if !defined(CONFIG_SPD_EEPROM)
-	/*
-	 * TLB 8, 9:	128M	DDR
-	 * 0x00000000	64M	DDR System memory
-	 * 0x04000000	64M	DDR System memory
-	 * Without SPD EEPROM configured DDR, this must be setup manually.
-	 * Make sure the TLB count at the top of this table is correct.
-	 * Likely it needs to be increased by two for these entries.
-	 */
-#error("Update the number of table entries in tlb1_entry")
-	.long TLB1_MAS0(1, 8, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
-
-	.long TLB1_MAS0(1, 9, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE + 0x4000000),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE + 0x4000000),
-			0,0,0,0,0,1,0,1,0,1)
-#endif
-
+2:
 	entry_end
 
 /*
  * LAW(Local Access Window) configuration:
  *
- * 0x0000_0000     0x7fff_ffff     DDR                     2G
- * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
- * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
- * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
- * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
- * 0xf800_0000     0xf80f_ffff     BCSR                    1M
- * 0xff00_0000     0xffff_ffff     FLASH (boot bank)       16M
+ *0)   0x0000_0000   0x7fff_ffff     DDR                     2G
+ *1)   0x8000_0000   0x9fff_ffff     PCI1 MEM                256MB
+ *2)   0xa000_0000   0xbfff_ffff     PCIe MEM                256MB
+ *5)   0xc000_0000   0xdfff_ffff     SRIO                    256MB
+ *-)   0xe000_0000   0xe00f_ffff     CCSR                    1M
+ *3)   0xe200_0000   0xe27f_ffff     PCI1 I/O                8M
+ *4)   0xe280_0000   0xe2ff_ffff     PCIe I/0                8M
+ *6.a) 0xf000_0000   0xf3ff_ffff     SDRAM                   64MB
+ *6.b) 0xf800_0000   0xf800_7fff     BCSR                    32KB
+ *6.c) 0xf800_8000   0xf800_ffff     PIB (CS4)		     32KB
+ *6.d) 0xf801_0000   0xf801_7fff     PIB (CS5)		     32KB
+ *6.e) 0xfe00_0000   0xffff_ffff     Flash                   32MB
  *
- * Notes:
+ *Notes:
  *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
  *    If flash is 8M at default position (last 8M), no LAW needed.
+ *
+ * The defines below are 1-off of the actual LAWAR0 usage.
+ * So LAWAR3 define uses the LAWAR4 register in the ECM.
  */
 
-#if !defined(CONFIG_SPD_EEPROM)
-#define LAWBAR0 ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR0	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M))
-#else
 #define LAWBAR0 0
 #define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
-#endif
 
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
-#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
-/*
- * This is not so much the SDRAM map as it is the whole localbus map.
- */
-#define LAWBAR2 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWBAR2 ((CFG_PEX_MEM_BASE>>12) & 0xfffff)
+#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
 #define LAWBAR3 ((CFG_PCI1_IO_PHYS>>12) & 0xfffff)
-#define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_1M))
+#define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
-/*
- * Rapid IO at 0xc000_0000 for 512 M
- */
-#define LAWBAR4 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
-#define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWBAR4 ((CFG_PEX_IO_PHYS>>12) & 0xfffff)
+#define LAWAR4  (LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
+
+#define LAWBAR5 ((CFG_SRIO_MEM_BASE>>12) & 0xfffff)
+#define LAWAR5	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_256M))
+
+/* LBC window - maps 256M.  That's SDRAM, BCSR, PIBs, and Flash */
+#define LAWBAR6 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
+#define LAWAR6	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
 	.section .bootpg, "ax"
 	.globl	law_entry
+
 law_entry:
 	entry_start
-	.long 0x05
+	.long (4f-3f)/8
+3:
 	.long LAWBAR0,LAWAR0,LAWBAR1,LAWAR1,LAWBAR2,LAWAR2,LAWBAR3,LAWAR3
-	.long LAWBAR4,LAWAR4
+	.long LAWBAR4,LAWAR4,LAWBAR5,LAWAR5,LAWBAR6,LAWAR6
+4:
 	entry_end

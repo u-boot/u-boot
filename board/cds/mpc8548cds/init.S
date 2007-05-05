@@ -64,8 +64,9 @@ tlb1_entry:
 	/*
 	 * Number of TLB0 and TLB1 entries in the following table
 	 */
-	.long 13
+	.long (2f-1f)/16
 
+1:
 #if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
 	/*
 	 * TLB0		4K	Non-cacheable, guarded
@@ -134,7 +135,7 @@ tlb1_entry:
 
 	/*
 	 * TLB 1:	256M	Non-cacheable, guarded
-	 * 0x80000000	256M	PCI1 MEM First half
+	 * 0x80000000	256M	PCI1 MEM
 	 */
 	.long TLB1_MAS0(1, 1, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
@@ -143,40 +144,37 @@ tlb1_entry:
 
 	/*
 	 * TLB 2:	256M	Non-cacheable, guarded
-	 * 0x90000000	256M	PCI1 MEM Second half
+	 * 0x90000000	256M	PCI2 MEM
 	 */
 	.long TLB1_MAS0(1, 2, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE + 0x10000000),
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI2_MEM_BASE),
 			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE + 0x10000000),
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI2_MEM_BASE),
 			0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 3:	256M	Non-cacheable, guarded
-	 * 0xa0000000	256M	PCI2 MEM First half
+	 * TLB 3:	1GB	Non-cacheable, guarded
+	 * 0xa0000000	256M	PEX MEM First half
+	 * 0xb0000000	256M	PEX MEM Second half
+	 * 0xc0000000	256M	Rapid IO MEM First half
+	 * 0xd0000000	256M	Rapid IO MEM Second half
 	 */
 	.long TLB1_MAS0(1, 3, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI2_MEM_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI2_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1G)
+	.long TLB1_MAS2(E500_TLB_EPN(CFG_PEX_MEM_BASE), 0,0,0,0,1,0,1,0)
+	.long TLB1_MAS3(E500_TLB_RPN(CFG_PEX_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLB 4:	256M	Non-cacheable, guarded
-	 * 0xb0000000	256M	PCI2 MEM Second half
+	 * TLB 4:	Reserved for future usage
 	 */
-	.long TLB1_MAS0(1, 4, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI2_MEM_BASE + 0x10000000),
-			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI2_MEM_BASE + 0x10000000),
-			0,0,0,0,0,1,0,1,0,1)
 
 	/*
 	 * TLB 5:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR
-	 * 0xe200_0000	16M	PCI1 IO
-	 * 0xe300_0000	16M	PCI2 IO
+	 * 0xe200_0000	8M	PCI1 IO
+	 * 0xe280_0000	8M	PCI2 IO
+	 * 0xe300_0000	16M	PEX IO
 	 */
 	.long TLB1_MAS0(1, 5, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
@@ -200,19 +198,22 @@ tlb1_entry:
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1M)
 	.long TLB1_MAS2(E500_TLB_EPN(CADMUS_BASE_ADDR), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CADMUS_BASE_ADDR), 0,0,0,0,0,1,0,1,0,1)
-
+2:
 	entry_end
 
 /*
  * LAW(Local Access Window) configuration:
  *
  * 0x0000_0000     0x7fff_ffff     DDR                     2G
- * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
- * 0xa000_0000     0xbfff_ffff     PCI2 MEM                512M
+ * 0x8000_0000     0x8fff_ffff     PCI1 MEM                256M
+ * 0x9000_0000     0x9fff_ffff     PCI2 MEM                256M
+ * 0xa000_0000     0xbfff_ffff     PEX MEM                 512M
+ * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
  * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe20f_ffff     PCI1 IO                 1M
- * 0xe210_0000     0xe21f_ffff     PCI2 IO                 1M
- * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
+ * 0xe200_0000     0xe27f_ffff     PCI1 IO                 8M
+ * 0xe280_0000     0xe2ff_ffff     PCI2 IO                 8M
+ * 0xe300_0000     0xe3ff_ffff     PEX IO                  16M
+ * 0xf000_0000     0xf3ff_ffff     SDRAM                   64M
  * 0xf800_0000     0xf80f_ffff     NVRAM/CADMUS (*)        1M
  * 0xff00_0000     0xff7f_ffff     FLASH (2nd bank)        8M
  * 0xff80_0000     0xffff_ffff     FLASH (boot bank)       8M
@@ -229,27 +230,39 @@ tlb1_entry:
 #define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
-#define LAWAR1 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWAR1 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
 #define LAWBAR2 ((CFG_PCI2_MEM_BASE>>12) & 0xfffff)
-#define LAWAR2 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWAR2 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
 #define LAWBAR3 ((CFG_PCI1_IO_PHYS>>12) & 0xfffff)
-#define LAWAR3 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_1M))
+#define LAWAR3 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
 #define LAWBAR4 ((CFG_PCI2_IO_PHYS>>12) & 0xfffff)
-#define LAWAR4 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_1M))
+#define LAWAR4 	(LAWAR_EN | LAWAR_TRGT_IF_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
 /* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 #define LAWBAR5 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
 #define LAWAR5 	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
+
+#define LAWBAR6 ((CFG_PEX_MEM_BASE>>12) & 0xfffff)
+#define LAWAR6 	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+
+#define LAWBAR7 ((CFG_PEX_IO_PHYS>>12) & 0xfffff)
+#define LAWAR7 	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_16M))
+
+#define LAWBAR8 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
+#define LAWAR8  (LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 	.section .bootpg, "ax"
 	.globl	law_entry
 
 law_entry:
 	entry_start
-	.long 6
+	.long (4f-3f)/8
+3:
 	.long LAWBAR0,LAWAR0,LAWBAR1,LAWAR1,LAWBAR2,LAWAR2,LAWBAR3,LAWAR3
-	.long LAWBAR4,LAWAR4,LAWBAR5,LAWAR5
+	.long LAWBAR4,LAWAR4,LAWBAR5,LAWAR5,LAWBAR6,LAWAR6,LAWBAR7,LAWAR7
+	.long LAWBAR8,LAWAR8
+4:
 	entry_end

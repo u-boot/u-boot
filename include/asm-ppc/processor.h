@@ -232,6 +232,9 @@
 #define   HID0_BHTE	(1<<2)		/* Branch History Table Enable */
 #define   HID0_BTCD	(1<<1)		/* Branch target cache disable */
 #define SPRN_HID1	0x3F1	/* Hardware Implementation Register 1 */
+#define	  HID1_RFXE	(1<<17)		/* Read Fault Exception Enable */
+#define	  HID1_ASTME	(1<<13)		/* Address bus streaming mode */
+#define	  HID1_ABE	(1<<12)		/* Address broadcast enable */
 #define SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
 #ifndef CONFIG_BOOKE
 #define SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */
@@ -415,10 +418,12 @@
 #define SPRN_IVOR15	0x19f	/* Interrupt Vector Offset Register 15 */
 
 /* e500 definitions */
-#define SPRN_L1CSR0     0x3f2   /* L1 Cache Control and Status Register 0 */
+#define SPRN_L1CSR0     0x3f2   /* L1 Data Cache Control and Status Register 0 */
+#define   L1CSR0_CPE            0x00010000	/* Data Cache Parity Enable */
 #define   L1CSR0_DCFI           0x00000002      /* Data Cache Flash Invalidate */
 #define   L1CSR0_DCE            0x00000001      /* Data Cache Enable */
-#define SPRN_L1CSR1     0x3f3   /* L1 Cache Control and Status Register 1 */
+#define SPRN_L1CSR1     0x3f3   /* L1 Instruction Cache Control and Status Register 1 */
+#define   L1CSR1_CPE            0x00010000	/* Instruction Cache Parity Enable */
 #define   L1CSR1_ICFI           0x00000002      /* Instruction Cache Flash Invalidate */
 #define   L1CSR1_ICE            0x00000001      /* Instruction Cache Enable */
 
@@ -840,9 +845,12 @@
 #define SVR_8560	0x8070
 #define SVR_8555	0x8079
 #define SVR_8541	0x807A
+#define SVR_8544	0x8034
+#define SVR_8544_E	0x803C
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
 #define SVR_8641	0x8090
+#define SVR_8568_E	0x807D
 
 
 /* I am just adding a single entry for 8260 boards.  I think we may be

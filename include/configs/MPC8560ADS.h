@@ -320,14 +320,14 @@
 
 /*
  * General PCI
- * Addresses are mapped 1-1.
+ * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI1_IO_BASE	0x00000000
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x100000	/* 1M */
 
 #if defined(CONFIG_PCI)
 

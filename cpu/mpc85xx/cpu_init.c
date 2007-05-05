@@ -143,11 +143,9 @@ void cpu_init_f (void)
 	memctl->br1 = CFG_BR1_PRELIM;
 #endif
 
-#if !defined(CONFIG_MPC85xx)
 #if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
 	memctl->or2 = CFG_OR2_PRELIM;
 	memctl->br2 = CFG_BR2_PRELIM;
-#endif
 #endif
 
 #if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)

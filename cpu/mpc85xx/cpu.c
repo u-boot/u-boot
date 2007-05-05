@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004,2007 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -70,6 +70,15 @@ int checkcpu (void)
 	case SVR_8548_E:
 		puts("8548_E");
 		break;
+	case SVR_8544:
+                puts("8544");
+                break;
+        case SVR_8544_E:
+                puts("8544_E");
+                break;
+        case SVR_8568_E:
+                puts("8568_E");
+                break;
 	default:
 		puts("Unknown");
 		break;
@@ -112,7 +121,7 @@ int checkcpu (void)
 #endif
 	clkdiv = lcrr & 0x0f;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-#ifdef CONFIG_MPC8548
+#if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.
@@ -140,16 +149,25 @@ int checkcpu (void)
 
 int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 {
+	uint pvr;
+	uint ver;
+	pvr = get_pvr();
+	ver = PVR_VER(pvr);
+	if (ver & 1){
+	/* e500 v2 core has reset control register */
+		volatile unsigned int * rstcr;
+		rstcr = (volatile unsigned int *)(CFG_IMMR + 0xE00B0);
+		*rstcr = 0x2;           /* HRESET_REQ */
+	}else{
 	/*
 	 * Initiate hard reset in debug control register DBCR0
 	 * Make sure MSR[DE] = 1
 	 */
-	unsigned long val;
-
-	val = mfspr(DBCR0);
-	val |= 0x70000000;
-	mtspr(DBCR0,val);
-
+		unsigned long val;
+		val = mfspr(DBCR0);
+		val |= 0x70000000;
+		mtspr(DBCR0,val);
+	}
 	return 1;
 }
 
@@ -183,9 +201,9 @@ reset_85xx_watchdog(void)
 	 * Clear TSR(WIS) bit by writing 1
 	 */
 	unsigned long val;
-	val = mfspr(tsr);
-	val |= 0x40000000;
-	mtspr(tsr, val);
+	val = mfspr(SPRN_TSR);
+	val |= TSR_WIS;
+	mtspr(SPRN_TSR, val);
 }
 #endif	/* CONFIG_WATCHDOG */
 
@@ -196,6 +214,7 @@ void dma_init(void) {
 
 	dma->satr0 = 0x02c40000;
 	dma->datr0 = 0x02c40000;
+	dma->sr0 = 0xfffffff; /* clear any errors */
 	asm("sync; isync; msync");
 	return;
 }
@@ -209,6 +228,10 @@ uint dma_check(void) {
 	while((status & 4) == 4) {
 		status = dma->sr0;
 	}
+
+	/* clear MR0[CS] channel start bit */
+	dma->mr0 &= 0x00000001;
+	asm("sync;isync;msync");
 
 	if (status != 0) {
 		printf ("DMA Error: status = %x\n", status);
@@ -245,6 +268,10 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
 
+	p = ft_get_prop(blob, "/qe@e0080000/" OF_CPU "/bus-frequency", &len);
+	if (p != NULL)
+		*p = cpu_to_be32(clock);
+
 	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
@@ -255,21 +282,41 @@ ft_cpu_setup(void *blob, bd_t *bd)
 
 #if defined(CONFIG_MPC85XX_TSEC1)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
+	if (p)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
+	if (p)
 		memcpy(p, bd->bi_enetaddr, 6);
 #endif
 
 #if defined(CONFIG_HAS_ETH1)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
+	if (p)
+		memcpy(p, bd->bi_enet1addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
+	if (p)
 		memcpy(p, bd->bi_enet1addr, 6);
 #endif
 
 #if defined(CONFIG_HAS_ETH2)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/mac-address", &len);
+	if (p)
+		memcpy(p, bd->bi_enet2addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/local-mac-address", &len);
+	if (p)
 		memcpy(p, bd->bi_enet2addr, 6);
 #endif
 
 #if defined(CONFIG_HAS_ETH3)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
+	if (p)
+		memcpy(p, bd->bi_enet3addr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/local-mac-address", &len);
+	if (p)
 		memcpy(p, bd->bi_enet3addr, 6);
 #endif
 
