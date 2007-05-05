@@ -360,7 +360,19 @@
 				 EBC_BXCR_BW_16BIT)
 
 /* Memory Bank 1 (Xilinx System ACE controller) initialization		*/
-#define CFG_EBC_PB1AP		0x7F8FFE80
+#define CFG_EBC_PB1AP		(EBC_BXAP_BME_DISABLED      |		\
+				 EBC_BXAP_TWT_ENCODE(4)     |		\
+				 EBC_BXAP_BCE_DISABLE       |		\
+				 EBC_BXAP_BCT_2TRANS        |		\
+				 EBC_BXAP_CSN_ENCODE(0)     |		\
+				 EBC_BXAP_OEN_ENCODE(0)     |		\
+				 EBC_BXAP_WBN_ENCODE(0)     |		\
+				 EBC_BXAP_WBF_ENCODE(0)     |		\
+				 EBC_BXAP_TH_ENCODE(0)      |		\
+				 EBC_BXAP_RE_DISABLED       |		\
+				 EBC_BXAP_SOR_NONDELAYED    |		\
+				 EBC_BXAP_BEM_WRITEONLY     |		\
+				 EBC_BXAP_PEN_DISABLED)
 #define CFG_EBC_PB1CR		(EBC_BXCR_BAS_ENCODE(CFG_ACE_BASE)  |	\
 				 EBC_BXCR_BS_1MB                    |	\
 				 EBC_BXCR_BU_RW                     |	\

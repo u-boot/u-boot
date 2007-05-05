@@ -30,7 +30,7 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o init.o resetvec.o
-COBJS	= nand_boot.o ndfc.o sdram.o speed.o
+COBJS	= nand_boot.o ndfc.o sdram.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -68,10 +68,6 @@ $(obj)resetvec.S:
 $(obj)start.S:
 	@rm -f $(obj)start.S
 	ln -s $(SRCTREE)/cpu/ppc4xx/start.S $(obj)start.S
-
-$(obj)speed.c:
-	@rm -f $(obj)speed.c
-	ln -s $(SRCTREE)/cpu/ppc4xx/speed.c $(obj)speed.c
 
 # from board directory
 $(obj)init.S:
