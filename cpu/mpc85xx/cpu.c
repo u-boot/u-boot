@@ -71,14 +71,14 @@ int checkcpu (void)
 		puts("8548_E");
 		break;
 	case SVR_8544:
-                puts("8544");
-                break;
-        case SVR_8544_E:
-                puts("8544_E");
-                break;
-        case SVR_8568_E:
-                puts("8568_E");
-                break;
+		puts("8544");
+		break;
+	case SVR_8544_E:
+		puts("8544_E");
+		break;
+	case SVR_8568_E:
+		puts("8568_E");
+		break;
 	default:
 		puts("Unknown");
 		break;
@@ -157,7 +157,7 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	/* e500 v2 core has reset control register */
 		volatile unsigned int * rstcr;
 		rstcr = (volatile unsigned int *)(CFG_IMMR + 0xE00B0);
-		*rstcr = 0x2;           /* HRESET_REQ */
+		*rstcr = 0x2;		/* HRESET_REQ */
 	}else{
 	/*
 	 * Initiate hard reset in debug control register DBCR0

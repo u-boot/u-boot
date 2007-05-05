@@ -1,8 +1,43 @@
+commit 885ec89b648a899a2f32393fd3ffd9f7234c4402
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 18:05:02 2007 +0200
+
+    Add STX GP3 SSA board to MAKEALL script; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5499645b3fe17a548af9dfc479ca6e2455f179a2
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sat May 5 17:15:50 2007 +0200
 
     Make "file" command happy with some config.mk files; update CHANGELOG
+
+commit e3b8c78bc2489c27ae020986ef0eaca684866cef
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Sat May 5 08:32:14 2007 +0200
+
+    ppc4xx: Detect if the sysclk on Sequoia is 33 or 33.333 MHz
+
+    The AMCC Secquoia board has been changed in a new revision from using a
+    33.000 MHz clock to a 33.333 MHz system clock. A bit in the CPLD
+    indicates the difference. This patch reads that bit and uses the correct
+    clock speed for the board. This code is backward compatable will all
+    prior boards. All prior boards will be read as 33.000.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f544ff6656fca263ed1ebe39899b6d95da67c8b8
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat May 5 08:29:01 2007 +0200
+
+    ppc4xx: Sequoia: Remove cpu/ppc4xx/speed.c from NAND booting
+
+    Using cpu/ppc4xx/speed.c to calculate the bus frequency is too big
+    for the 4k NAND boot image so define bus_frequency to 133MHz here
+    which is save for the refresh counter setup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit a79886590593ba1d667c840caa4940c61639f18f
 Author: Thomas Knobloch <knobloch@siemens.com>
@@ -123,6 +158,22 @@ Date:	Fri Mar 16 13:02:53 2007 -0500
 
     Signed-off-by: James Yang <James.Yang@freescale.com>
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8b39501d28754e72726ce7fb02310e56dbdf116a
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Apr 29 14:13:01 2007 +0200
+
+    ppc4xx: Bamboo: Use current NAND driver and *not* the legacy driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 37ed6cdd4159195bfad68d8a237f6adda8f482cb
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Apr 24 14:03:45 2007 +0200
+
+    ppc4xx: setup 440EPx/GRx ZMII/RGMII bridge depending on PFC register content.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 commit 66ed6cca3f340f7a8a06d9272ae2ef8e96f0273d
 Author: Andy Fleming <afleming@freescale.com>
@@ -428,6 +479,20 @@ Date:	Thu Apr 19 23:14:39 2007 -0400
       overwriting random memory.
     Also moved the libfdt.a requirement into the main Makefile.  That is
       The U-Boot Way.
+
+commit d21686263574e95cb3e9e9b0496f968b1b897fdb
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 19 09:53:52 2007 +0200
+
+    ppc4xx: Fix chip select timing for SysACE access on AMCC Katmai
+
+    Previous versions used full wait states for the chip select #1 which
+    is connected to the Xilinix SystemACE controller on the AMCC Katmai
+    evaluation board. This leads to really slow access and therefore low
+    performance. This patch now sets up the chip select a lot faster
+    resulting in much better read/write performance of the Linux driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 37837828d89084879bee2f2b8c7c68d4695940df
 Author: Wolfgang Denk <wd@denx.de>

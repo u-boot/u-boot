@@ -344,7 +344,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	mfsdr(sdr_pfc1, pfc1);
 	pfc1 &= SDR0_PFC1_SELECT_MASK;
 
-	switch (pfc1) { 
+	switch (pfc1) {
 	case SDR0_PFC1_SELECT_CONFIG_2:
 		/* 1 x GMII port */
 		out32 (ZMII_FER, 0x00);
@@ -361,7 +361,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 		break;
 	case SDR0_PFC1_SELECT_CONFIG_6:
 		/* 2 x SMII ports */
-		out32 (ZMII_FER, 
+		out32 (ZMII_FER,
 		       ((ZMII_FER_SMII) << ZMII_FER_V(0)) |
 		       ((ZMII_FER_SMII) << ZMII_FER_V(1)));
 		out32 (RGMII_FER, 0x00000000);

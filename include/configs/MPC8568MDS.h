@@ -149,7 +149,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_BR1_PRELIM		0xf8000801
 #define	CFG_OR1_PRELIM		0xffffe9f7
 
-//#define CFG_FLASH_BANKS_LIST	{0xff800000, CFG_FLASH_BASE}
+/*#define CFG_FLASH_BANKS_LIST	{0xff800000, CFG_FLASH_BASE} */
 #define CFG_MAX_FLASH_BANKS		1		/* number of banks */
 #define CFG_MAX_FLASH_SECT		512		/* sectors per device */
 #undef	CFG_FLASH_CHECKSUM

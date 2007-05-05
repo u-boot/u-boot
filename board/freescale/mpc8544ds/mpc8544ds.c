@@ -52,7 +52,7 @@ int checkboard (void)
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
-        if ((uint)&gur->porpllsr != 0xe00e0000) {
+	if ((uint)&gur->porpllsr != 0xe00e0000) {
 		printf("immap size error %x\n",&gur->porpllsr);
 	}
 	printf ("Board: MPC8544DS\n");
@@ -78,7 +78,6 @@ initdram(int board_type)
 	puts("    DDR: ");
 	return dram_size;
 }
-
 
 #if defined(CFG_DRAM_TEST)
 int
@@ -118,8 +117,6 @@ testdram(void)
 	return 0;
 }
 #endif
-
-
 
 int last_stage_init(void)
 {
@@ -190,16 +187,15 @@ get_board_sys_clk(ulong dummy)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-        u32 *p;
-        int len;
+	u32 *p;
+	int len;
 
-        ft_cpu_setup(blob, bd);
+	ft_cpu_setup(blob, bd);
 
-        p = ft_get_prop(blob, "/memory/reg", &len);
-        if (p != NULL) {
-                *p++ = cpu_to_be32(bd->bi_memstart);
-                *p = cpu_to_be32(bd->bi_memsize);
-        }
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
+	}
 }
 #endif
-
