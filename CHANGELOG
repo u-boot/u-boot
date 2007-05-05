@@ -1,3 +1,44 @@
+commit a79886590593ba1d667c840caa4940c61639f18f
+Author: Thomas Knobloch <knobloch@siemens.com>
+Date:	Sat May 5 07:04:42 2007 +0200
+
+    NAND: Wrong calculation of page number in nand_block_bad()
+
+    In case that there is no memory based bad block table available the
+    function nand_block_checkbad() in drivers/mtd/nand/nand_base.c will call
+    nand_block_bad() directly. When parameter 'getchip' is set to zero,
+    nand_block_bad() will not right shift the offset to calculate the
+    correct page number.
+
+    Signed-off-by: Thomas Knobloch <knobloch@siemens.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9877d7dcd1eebe61aa5d8b8ffe9c048ea426e6f6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 4 10:02:33 2007 +0200
+
+    Fix initrd length corruption in bootm command.
+
+    When using FDT Images, the length of an inital ramdisk was
+    overwritten (bug introduced by commit 87a449c8, 22 Aug 2006).
+
+    Patches by Timur Tabi & Johns Daniel.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c64a89d6ce8584b9fc64f4e85da9ecac3cfc2c2a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 3 16:34:41 2007 +0200
+
+    Update board configuration for STX GP3SSA board:
+
+    Enable hush shell, environment in flash rather in EEPROM,
+    more user-friendly default environment, etc.
+    The simple EEPROM environment can be selected easily in the board
+    config file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 2c6fb199dc5756fc72f49d1f4de105e089049d65
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Apr 24 14:37:49 2007 +0200
@@ -11,6 +52,74 @@ Date:	Fri Jan 5 09:15:34 2007 +0100
     Add support for STX GP3SSA (stxssa) Board
 
     Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit a75af9bfd8fff0499efdbb90601cec5a2afef117
+Author: James Yang <James.Yang@freescale.com>
+Date:	Wed Feb 7 15:28:04 2007 -0600
+
+    Conditionalize 8641 Rev1.0 MCM workarounds
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c1ab82669d9525998c34e802a12cad662723f22a
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Mar 16 13:02:53 2007 -0500
+
+    Rewrote picos_to_clk() to avoid rounding errors.
+    Clarified that conversion is to DRAM clocks rather than platform clocks.
+    Made function static to spd_sdram.c.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 23 12:00:22 2007 +0200
+
+    Remove BOARDLIBS usage completely
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2e343b9a57f32e1bd08c35c9976910333fb4e13d
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Feb 28 05:37:29 2007 -0600
+
+    mpc8641hpcn: Fix LAW and TLB setup to use the IO_PHYS #defines.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 79cb47391eebef85acadb3f6961ef6c55cace6ac
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Fri Jan 19 10:42:37 2007 +0800
+
+    Enable LAWs for MPC8641 PCI-Ex2.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bd7851ce1e1f140665b520026abf1042968b1102
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:12:26 2007 -0500
+
+    mpc86xx; Write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7dbdf28b8bd855a8530dc3292e4982575a197060
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:11:38 2007 -0500
+
+    mpc86xx: protect memcpy to bad address if a mac-address is missing from dt
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 14da5f7675bbb427c469e3f45006e027b6e21db9
 Author: Wolfgang Denk <wd@denx.de>
