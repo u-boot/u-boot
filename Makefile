@@ -1773,6 +1773,9 @@ sbc8560_66_config:      unconfig
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
 
+stxssa_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxssa
+
 TQM8540_config		\
 TQM8541_config		\
 TQM8555_config		\
