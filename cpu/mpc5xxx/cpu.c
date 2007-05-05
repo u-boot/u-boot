@@ -131,5 +131,9 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/mac-address", &len);
 	if (p != NULL)
 		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
 }
 #endif
