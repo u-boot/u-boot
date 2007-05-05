@@ -779,9 +779,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 			checksum = ntohl(hdr->ih_dcrc);
 			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
-			len = ntohl(hdr->ih_size);
 
-			if(checksum != crc32(0, (uchar *)addr, len)) {
+			if(checksum != crc32(0, (uchar *)addr, ntohl(hdr->ih_size))) {
 				printf("ERROR: Flat Device Tree checksum is invalid\n");
 				return;
 			}
