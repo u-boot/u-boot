@@ -45,4 +45,20 @@ int icache_status (void)
 	__asm__ __volatile__ ("and %0,%0,%1"::"r" (i), "r" (mask):"memory");
 	return i;
 }
+
+void	icache_enable (void) {
+	__asm__ __volatile__ ("msrset r0, 0x80");
+}
+
+void	icache_disable(void) {
+	__asm__ __volatile__ ("msrclr r0, 0x80");
+}
+
+void	dcache_enable (void) {
+	__asm__ __volatile__ ("msrset r0, 0x20");
+}
+
+void	dcache_disable(void) {
+	__asm__ __volatile__ ("msrclr r0, 0x20");
+}
 #endif
