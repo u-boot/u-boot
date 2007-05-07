@@ -265,7 +265,7 @@ U_BOOT_CMD (fwr, 4, 1, do_fwr,
 	    "fwr     - write data to FSL\n",
 	    "- [fslnum data [0|x]],  (0 - non blocking|x - blocking).\n");
 
-U_BOOT_CMD (rmsr, 3, 1, do_rmsr,
+U_BOOT_CMD (rmsr, 2, 1, do_rmsr,
 	    "rmsr    - read MSR register\n", "- read MSR register.\n");
 
 #endif				/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */
