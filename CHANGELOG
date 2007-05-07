@@ -4045,27 +4045,9 @@ Date:	Sat Oct 28 02:29:14 2006 +0200
 
     Enable commandline editing and hush shell on all TQM boards.
 
-<<<<<<< master
-* Code cleanup
-
-* Various USB related patches
-  - Add support for mpc8xx USB device.
-  - Add support for Common Device Class - Abstract Control Model USB console.
-  - Add support for flow control in USB slave devices.
-  - Add support for switching between gserial and cdc_acm using environment.
-  - Minor changes to usbdcore_omap1510.c usbdcore_omap1510.h
-  - Update usbcore slightly to ease host enumeration.
-  - Fix non-portable endian problems in usbdcore and usbdcore_ep0.
-  - Add AdderUSB_config as a defconfig to enable usage of the USB console
-    by default with the Adder87x U-Boot port.
-  Patch by Bryan O'Donoghue <bodonoghue@codehermit.ie>, 29 May 2006
-
-* Cleanup trab board for GCC-4.x
-=======
 commit 8078f1a5f63a739b8533478f6c2b62fb1e2f79d7
 Author: Wolfgang Denk <wd@pollux.denx.de>
 Date:	Sat Oct 28 02:28:02 2006 +0200
->>>>>>> trunk
 
     README says CFG_AUTO_COMPLETE, but ocde uses CONFIG_AUTO_COMPLETE
 
