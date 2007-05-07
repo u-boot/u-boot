@@ -396,8 +396,8 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define BOOKE_PAGESZ_16M        7
 #define BOOKE_PAGESZ_64M        8
 #define BOOKE_PAGESZ_256M       9
-#define BOOKE_PAGESZ_1GB        10
-#define BOOKE_PAGESZ_4GB        11
+#define BOOKE_PAGESZ_1G		10
+#define BOOKE_PAGESZ_4G		11
 
 #if defined(CONFIG_MPC86xx)
 #define LAWBAR_BASE_ADDR	0x00FFFFFF
@@ -413,6 +413,7 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_TRGT_IF_PCI1	0x00000000
 #define LAWAR_TRGT_IF_PCIX	0x00000000
 #define LAWAR_TRGT_IF_PCI2	0x00100000
+#define LAWAR_TRGT_IF_PEX	0x00200000
 #define LAWAR_TRGT_IF_LBC	0x00400000
 #define LAWAR_TRGT_IF_CCSR	0x00800000
 #define LAWAR_TRGT_IF_DDR_INTERLEAVED 0x00B00000

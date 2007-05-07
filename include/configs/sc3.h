@@ -113,10 +113,13 @@
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
+	"addcons=setenv bootargs ${bootargs} "				\
+		"console=ttyS0,${baudrate}\0"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"flash_nand=run nand_args addip addcon;bootm ${kernel_addr}\0"	\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"flash_nand=run nand_args addip addcons;bootm ${kernel_addr}\0"	\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
+		"bootm\0"						\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
 	"u-boot=/tftpboot/sc3/u-boot.bin\0"				\
@@ -130,8 +133,8 @@
 
 #if 1	/* feel free to disable for development */
 #define CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with S\n"
-#define CONFIG_AUTOBOOT_DELAY_STR	"S"	/* 1st "password"	*/
+#define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with ENTER\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"\n"	/* 1st "password"	*/
 #endif
 
 /*
@@ -413,11 +416,11 @@ extern unsigned long offsetOfEnvironment;
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 
-/* No command line, one static partition Partition 3 contains jffs2 rootfs */
+/* No command line, one static partition */
 #undef	CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nand0"
-#define CONFIG_JFFS2_PART_SIZE		0x00400000
-#define CONFIG_JFFS2_PART_OFFSET	0x00c00000
+#define CONFIG_JFFS2_PART_SIZE		0x01000000
+#define CONFIG_JFFS2_PART_OFFSET	0x00000000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

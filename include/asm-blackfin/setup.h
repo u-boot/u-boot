@@ -1,7 +1,7 @@
 /*
  * U-boot - setup.h
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * asm/setup.h -- Definition of the Linux/Blackfin setup information
@@ -22,8 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _BLACKFIN_SETUP_H
@@ -75,12 +75,13 @@ extern unsigned long vme_brdtype;
 
 extern int blackfin_num_memory;	/* # of memory blocks found (and used) */
 extern int blackfin_realnum_memory;	/* real # of memory blocks found */
-extern struct mem_info blackfin_memory[NUM_MEMINFO];	/* memory description */
 
 struct mem_info {
 	unsigned long addr;	/* physical address of memory chunk */
 	unsigned long size;	/* length of memory chunk (in bytes) */
 };
+
+extern struct mem_info blackfin_memory[NUM_MEMINFO];	/* memory description */
 #endif
 
 #endif

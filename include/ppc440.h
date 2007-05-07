@@ -148,7 +148,7 @@
 #define sdrcfgd		(SDR_DCR_BASE+0x1)
 #define sdr_sdstp0	0x0020	    /* */
 #define sdr_sdstp1	0x0021	    /* */
-#define sdr_pinstp	0x0040
+#define SDR_PINSTP	0x0040
 #define sdr_sdcs	0x0060
 #define sdr_ecid0	0x0080
 #define sdr_ecid1	0x0081
@@ -417,7 +417,9 @@
 #define SDR0_PEGPLLSET1		0x000003A0	/* PE Pll LC Tank Setting1 */
 #define SDR0_PEGPLLSET2		0x000003A1	/* PE Pll LC Tank Setting2 */
 #define SDR0_PEGPLLSTS		0x000003A2	/* PE Pll LC Tank Status */
+#endif /* CONFIG_440SPE */
 
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 /*----------------------------------------------------------------------------+
 | SDRAM Controller
 +----------------------------------------------------------------------------*/
@@ -453,9 +455,16 @@
 /*-----------------------------------------------------------------------------+
 |  Memory Bank 0-7 configuration
 +-----------------------------------------------------------------------------*/
-#define SDRAM_RXBAS_SDBA_MASK		0xFF800000	/* Base address	*/
+#if defined(CONFIG_440SPE)
+#define SDRAM_RXBAS_SDBA_MASK		0xFFE00000	/* Base address	*/
 #define SDRAM_RXBAS_SDBA_ENCODE(n)	((((unsigned long)(n))&0xFFE00000)>>2)
 #define SDRAM_RXBAS_SDBA_DECODE(n)	((((unsigned long)(n))&0xFFE00000)<<2)
+#endif /* CONFIG_440SPE */
+#if defined(CONFIG_440SP)
+#define SDRAM_RXBAS_SDBA_MASK		0xFF800000	/* Base address	*/
+#define SDRAM_RXBAS_SDBA_ENCODE(n)	((((unsigned long)(n))&0xFF800000))
+#define SDRAM_RXBAS_SDBA_DECODE(n)	((((unsigned long)(n))&0xFF800000))
+#endif /* CONFIG_440SP */
 #define SDRAM_RXBAS_SDSZ_MASK		0x0000FFC0	/* Size		*/
 #define SDRAM_RXBAS_SDSZ_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<6)
 #define SDRAM_RXBAS_SDSZ_DECODE(n)	((((unsigned long)(n))>>6)&0x3FF)
@@ -2167,6 +2176,20 @@
 /*-----------------------------------------------------------------------------+
 |  SDR0 Bit Settings
 +-----------------------------------------------------------------------------*/
+#if defined(CONFIG_440SP)
+#define SDR0_SRST			0x0200
+
+#define SDR0_DDR0			0x00E1
+#define SDR0_DDR0_DPLLRST		0x80000000
+#define SDR0_DDR0_DDRM_MASK		0x60000000
+#define SDR0_DDR0_DDRM_DDR1		0x20000000
+#define SDR0_DDR0_DDRM_DDR2		0x40000000
+#define SDR0_DDR0_DDRM_ENCODE(n)	((((unsigned long)(n))&0x03)<<29)
+#define SDR0_DDR0_DDRM_DECODE(n)	((((unsigned long)(n))>>29)&0x03)
+#define SDR0_DDR0_TUNE_ENCODE(n)	((((unsigned long)(n))&0x2FF)<<0)
+#define SDR0_DDR0_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x2FF)
+#endif
+
 #if defined(CONFIG_440SPE)
 #define SDR0_CP440			0x0180
 #define SDR0_CP440_ERPN_MASK		0x30000000
@@ -3267,52 +3290,29 @@
 #define GPIO1_ISR3H            (GPIO1_BASE+0x44)
 #endif
 
-#define GPIO_GROUP_MAX	    2
-#define GPIO_MAX	    32
-#define GPIO_ALT1_SEL	    0x40000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 0 */
-#define GPIO_ALT2_SEL	    0x80000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 1 */
-#define GPIO_ALT3_SEL	    0xC0000000	    /* GPIO_OUT value put in GPIO_TSx for the GPIO nb 2 */
-#define GPIO_MASK	    0xC0000000	    /* GPIO_MASK */
-#define GPIO_IN_SEL	    0x40000000	    /* GPIO_IN value put in GPIO_ISx for the GPIO nb 0 */
-					    /* For the other GPIO number, you must shift */
-
-#define GPIO_VAL(gpio)		(0x80000000 >> (gpio))
-
-#ifndef __ASSEMBLY__
-
-typedef enum gpio_select { GPIO_SEL, GPIO_ALT1, GPIO_ALT2, GPIO_ALT3 } gpio_select_t;
-typedef enum gpio_driver { GPIO_DIS, GPIO_IN, GPIO_OUT, GPIO_BI } gpio_driver_t;
-
-typedef struct { unsigned long	add;	/* gpio core base address */
-	gpio_driver_t  in_out; /* Driver Setting */
-	gpio_select_t  alt_nb; /* Selected Alternate */
-} gpio_param_s;
-
-#endif /* __ASSEMBLY__ */
-
 /*
  * Macros for accessing the indirect EBC registers
  */
-#define mtebc(reg, data)	{ mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); }
-#define mfebc(reg, data)	{ mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); }
+#define mtebc(reg, data)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); } while (0)
+#define mfebc(reg, data)	do { mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); } while (0)
 
 /*
  * Macros for accessing the indirect SDRAM controller registers
  */
-#define mtsdram(reg, data)	{ mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
-#define mfsdram(reg, data)	{ mtdcr(memcfga,reg);data = mfdcr(memcfgd); }
+#define mtsdram(reg, data)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,data); } while (0)
+#define mfsdram(reg, data)	do { mtdcr(memcfga,reg);data = mfdcr(memcfgd); } while (0)
 
 /*
  * Macros for accessing the indirect clocking controller registers
  */
-#define mtclk(reg, data)	{ mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); }
-#define mfclk(reg, data)	{ mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); }
+#define mtclk(reg, data)	do { mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); } while (0)
+#define mfclk(reg, data)	do { mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); } while (0)
 
 /*
  * Macros for accessing the sdr controller registers
  */
-#define mtsdr(reg, data)	{ mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); }
-#define mfsdr(reg, data)	{ mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); }
+#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
+#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
 
 #ifndef __ASSEMBLY__

@@ -164,6 +164,7 @@ Directory Hierarchy:
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- libfdt 	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test
 - rtc		Real Time Clock drivers
@@ -430,12 +431,23 @@ The following options need to be configured:
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
-		CONFIG_OF_FLAT_TREE
+		CONFIG_OF_LIBFDT / CONFIG_OF_FLAT_TREE
 
 		New kernel versions are expecting firmware settings to be
-		passed using flat open firmware trees.
-		The environment variable "disable_of", when set, disables this
-		functionality.
+		passed using flattened device trees (based on open firmware
+		concepts).
+
+		CONFIG_OF_LIBFDT
+		 * New libfdt-based support
+		 * Adds the "fdt" command
+		 * The bootm command does _not_ modify the fdt
+
+		CONFIG_OF_FLAT_TREE
+		 * Deprecated, see CONFIG_OF_LIBFDT
+		 * Original ft_build.c-based support
+		 * Automatically modifies the dft as part of the bootm command
+		 * The environment variable "disable_of", when set,
+		     disables this functionality.
 
 		CONFIG_OF_FLAT_TREE_MAX_SIZE
 
@@ -448,13 +460,16 @@ The following options need to be configured:
 
 		CONFIG_OF_HAS_BD_T
 
-		The resulting flat device tree will have a copy of the bd_t.
-		Space should be pre-allocated in the dts for the bd_t.
+		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
+		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
+		     will have a copy of the bd_t.  Space should be
+		     pre-allocated in the dts for the bd_t.
 
 		CONFIG_OF_HAS_UBOOT_ENV
 
-		The resulting flat device tree will have a copy of u-boot's
-		environment variables
+		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
+		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
+		     will have a copy of u-boot's environment variables
 
 		CONFIG_OF_BOARD_SETUP
 
@@ -722,6 +737,8 @@ The following options need to be configured:
 
 		#define CONFIG_COMMANDS (CFG_CMD_ALL & ~CFG_CMD_NET)
 
+	Other Commands:
+		fdt (flattened device tree) command: CONFIG_OF_LIBFDT
 
 	Note:	Don't enable the "icache" and "dcache" commands
 		(configuration option CFG_CMD_CACHE) unless you know
@@ -2382,17 +2399,17 @@ configurations; the following names are supported:
 	csb272_config		lwmon_config		sbc8260_config
 	CU824_config		MBX860T_config		sbc8560_33_config
 	DUET_ADS_config		MBX_config		sbc8560_66_config
-	EBONY_config		MPC8260ADS_config	SM850_config
-	ELPT860_config		MPC8540ADS_config	SPD823TS_config
-	ESTEEM192E_config	MPC8540EVAL_config	stxgp3_config
-	ETX094_config		MPC8560ADS_config	SXNI855T_config
-	FADS823_config		NETVIA_config		TQM823L_config
-	FADS850SAR_config	omap1510inn_config	TQM850L_config
-	FADS860T_config		omap1610h2_config	TQM855L_config
-	FPS850L_config		omap1610inn_config	TQM860L_config
-				omap5912osk_config	walnut_config
-				omap2420h4_config	Yukon8220_config
-							ZPC1900_config
+	EBONY_config		mpc7448hpc2_config	SM850_config
+	ELPT860_config		MPC8260ADS_config	SPD823TS_config
+	ESTEEM192E_config	MPC8540ADS_config	stxgp3_config
+	ETX094_config		MPC8540EVAL_config	SXNI855T_config
+	FADS823_config		NMPC8560ADS_config	TQM823L_config
+	FADS850SAR_config	NETVIA_config		TQM850L_config
+	FADS860T_config		omap1510inn_config	TQM855L_config
+	FPS850L_config		omap1610h2_config	TQM860L_config
+				omap1610inn_config	walnut_config
+				omap5912osk_config	Yukon8220_config
+				omap2420h4_config	ZPC1900_config
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for

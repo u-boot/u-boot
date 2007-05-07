@@ -33,13 +33,14 @@
  *----------------------------------------------------------------------*/
 /* This config file is used for Sequoia (440EPx) and Rainier (440GRx)	*/
 #ifndef CONFIG_RAINIER
-#define CONFIG_SEQUOIA		1		/* Board is Sequoia	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #else
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
 #endif
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
-#define CONFIG_SYS_CLK_FREQ	33000000	/* external freq to pll	*/
+/* Detect Sequoia PLL input clock automatically via CPLD bit		*/
+#define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
+				3333333 : 33000000)
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
@@ -75,9 +76,7 @@
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
-
 #define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
@@ -381,9 +380,6 @@
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
-#define CFG_FLASH		CFG_FLASH_BASE
-#define CFG_NAND		0xD0000000
-#define CFG_CPLD		0xC0000000
 
 /*
  * On Sequoia CS0 and CS3 are switched when configuring for NAND booting
@@ -392,25 +388,25 @@
 #define CFG_NAND_CS		3		/* NAND chip connected to CSx	*/
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x03017200
-#define CFG_EBC_PB0CR		(CFG_FLASH | 0xda000)
+#define CFG_EBC_PB0CR		(CFG_FLASH_BASE | 0xda000)
 
 /* Memory Bank 3 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB3AP		0x018003c0
-#define CFG_EBC_PB3CR		(CFG_NAND | 0x1c000)
+#define CFG_EBC_PB3CR		(CFG_NAND_ADDR | 0x1c000)
 #else
 #define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
 /* Memory Bank 3 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB3AP		0x03017200
-#define CFG_EBC_PB3CR		(CFG_FLASH | 0xda000)
+#define CFG_EBC_PB3CR		(CFG_FLASH_BASE | 0xda000)
 
 /* Memory Bank 0 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x018003c0
-#define CFG_EBC_PB0CR		(CFG_NAND | 0x1c000)
+#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1c000)
 #endif
 
 /* Memory Bank 2 (CPLD) initialization						*/
 #define CFG_EBC_PB2AP		0x24814580
-#define CFG_EBC_PB2CR		(CFG_CPLD | 0x38000)
+#define CFG_EBC_PB2CR		(CFG_BCSR_BASE | 0x38000)
 
 /*-----------------------------------------------------------------------
  * NAND FLASH

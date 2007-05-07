@@ -1,7 +1,7 @@
 /*
  * U-boot - global_data.h Declarations for global data of u-boot
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -21,8 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef	__ASM_GBL_DATA_H
@@ -45,11 +45,16 @@ typedef struct global_data {
 	unsigned long board_type;
 	unsigned long baudrate;
 	unsigned long have_console;	/* serial_init() was called */
-	unsigned long ram_size;		/* RAM size */
+	unsigned long ram_size;	/* RAM size */
 	unsigned long reloc_off;	/* Relocation Offset */
-	unsigned long env_addr;		/* Address  of Environment struct */
+	unsigned long env_addr;	/* Address  of Environment struct */
 	unsigned long env_valid;	/* Checksum of Environment valid? */
-	void **jt;			/* jump table */
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+	unsigned long post_log_word;	/* Record POST activities */
+	unsigned long post_init_f_time;	/* When post_init_f started */
+#endif
+
+	void **jt;		/* jump table */
 } gd_t;
 
 /*
@@ -59,6 +64,6 @@ typedef struct global_data {
 #define	GD_FLG_DEVINIT	0x00002	/* Devices have been initialized */
 #define	GD_FLG_SILENT	0x00004	/* Silent mode                   */
 
-#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("P5")
+#define DECLARE_GLOBAL_DATA_PTR     register gd_t * volatile gd asm ("P5")
 
 #endif

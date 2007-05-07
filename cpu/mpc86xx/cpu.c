@@ -32,12 +32,6 @@
 #include <ft_build.h>
 #endif
 
-#ifdef CONFIG_MPC8641HPCN
-extern void mpc8641_reset_board(cmd_tbl_t *cmdtp, int flag,
-				int argc, char *argv[]);
-#endif
-
-
 int
 checkcpu(void)
 {
@@ -185,7 +179,7 @@ do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #else /* CONFIG_MPC8641HPCN */
 
-	mpc8641_reset_board(cmdtp, flag, argc, argv);
+	out8(PIXIS_BASE + PIXIS_RST, 0);
 
 #endif /* !CONFIG_MPC8641HPCN */
 
@@ -286,22 +280,38 @@ ft_cpu_setup(void *blob, bd_t *bd)
 
 #if defined(CONFIG_MPC86XX_TSEC1)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
-	memcpy(p, bd->bi_enetaddr, 6);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
+	if (p)
+		memcpy(p, bd->bi_enetaddr, 6);
 #endif
 
 #if defined(CONFIG_MPC86XX_TSEC2)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
-	memcpy(p, bd->bi_enet1addr, 6);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet1addr, 6);
 #endif
 
 #if defined(CONFIG_MPC86XX_TSEC3)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/mac-address", &len);
-	memcpy(p, bd->bi_enet2addr, 6);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet2addr, 6);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet2addr, 6);
 #endif
 
 #if defined(CONFIG_MPC86XX_TSEC4)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
-	memcpy(p, bd->bi_enet3addr, 6);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet3addr, 6);
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/local-mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enet3addr, 6);
 #endif
 
 }

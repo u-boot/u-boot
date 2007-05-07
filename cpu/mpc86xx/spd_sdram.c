@@ -51,20 +51,32 @@ extern int dma_xfer(void *dest, uint count, void *src);
 #define CFG_SUPER_BANK_INTERLEAVING	0
 
 /*
- * Convert picoseconds into clock cycles (rounding up if needed).
+ * Convert picoseconds into DRAM clock cycles (rounding up if needed).
  */
 
-int
-picos_to_clk(int picos)
+static unsigned int
+picos_to_clk(unsigned int picos)
 {
-	int clks;
+	/* use unsigned long long to avoid rounding errors */
+	const unsigned long long ULL_2e12 = 2000000000000ULL;
+	unsigned long long clks;
+	unsigned long long clks_temp;
 
-	clks = picos / (2000000000 / (get_bus_freq(0) / 1000));
-	if (picos % (2000000000 / (get_bus_freq(0) / 1000)) != 0) {
+	if (! picos)
+	    return 0;
+
+	clks = get_bus_freq(0) * (unsigned long long) picos;
+	clks_temp = clks;
+	clks = clks / ULL_2e12;
+	if (clks_temp % ULL_2e12) {
 		clks++;
 	}
 
-	return clks;
+	if (clks > 0xFFFFFFFFULL) {
+		clks = 0xFFFFFFFFULL;
+	}
+
+	return (unsigned int) clks;
 }
 
 
@@ -284,9 +296,9 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	}
 
 	/*
-	 * Adjust DDR II IO voltage biasing.  It just makes it work.
+	 * Adjust DDR II IO voltage biasing.  Rev1 only
 	 */
-	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
+	if (((get_svr() & 0xf0) == 0x10) && (spd.mem_type == SPD_MEMTYPE_DDR2)) {
 		gur->ddrioovcr = (0
 				  | 0x80000000		/* Enable */
 				  | 0x10000000		/* VSEL to 1.8V */

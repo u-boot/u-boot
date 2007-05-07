@@ -1,7 +1,7 @@
 /*
  * U-boot - serial.c Serial driver for BF533
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on
  * bf533_serial.c: Serial driver for BlackFin BF533 DSP internal UART.
@@ -38,8 +38,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <common.h>
@@ -49,6 +49,7 @@
 #include <asm/bitops.h>
 #include <asm/delay.h>
 #include <asm/uaccess.h>
+#include <asm/io.h>
 #include "bf533_serial.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -58,15 +59,16 @@ unsigned long pll_div_fact;
 void calc_baud(void)
 {
 	unsigned char i;
-	int	temp;
+	int temp;
+	u_long sclk = get_sclk();
 
-	for(i = 0; i < sizeof(baud_table)/sizeof(int); i++) {
-		temp =  CONFIG_SCLK_HZ/(baud_table[i]*8);
-		if ( temp && 0x1 == 1 ) {
+	for (i = 0; i < sizeof(baud_table) / sizeof(int); i++) {
+		temp = sclk / (baud_table[i] * 8);
+		if ((temp & 0x1) == 1) {
 			temp++;
 		}
-		temp = temp/2;
-		hw_baud_table[i].dl_high = (temp >> 8)& 0xFF;
+		temp = temp / 2;
+		hw_baud_table[i].dl_high = (temp >> 8) & 0xFF;
 		hw_baud_table[i].dl_low = (temp) & 0xFF;
 	}
 }
@@ -74,6 +76,7 @@ void calc_baud(void)
 void serial_setbrg(void)
 {
 	int i;
+	DECLARE_GLOBAL_DATA_PTR;
 
 	calc_baud();
 
@@ -84,29 +87,29 @@ void serial_setbrg(void)
 
 	/* Enable UART */
 	*pUART_GCTL |= UART_GCTL_UCEN;
-	asm("ssync;");
+	sync();
 
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH;
-	asm("ssync;");
+	sync();
 
 	*pUART_DLL = hw_baud_table[i].dl_low;
-	asm("ssync;");
+	sync();
 	*pUART_DLH = hw_baud_table[i].dl_high;
-	asm("ssync;");
+	sync();
 
 	/* Clear DLAB in LCR to Access THR RBR IER */
 	ACCESS_PORT_IER;
-	asm("ssync;");
+	sync();
 
 	/* Enable  ERBFI and ELSI interrupts
-	* to poll SIC_ISR register*/
+	 * to poll SIC_ISR register*/
 	*pUART_IER = UART_IER_ELSI | UART_IER_ERBFI | UART_IER_ETBEI;
-	asm("ssync;");
+	sync();
 
 	/* Set LCR to Word Lengh 8-bit word select */
 	*pUART_LCR = UART_LCR_WLS8;
-	asm("ssync;");
+	sync();
 
 	return;
 }
@@ -119,8 +122,7 @@ int serial_init(void)
 
 void serial_putc(const char c)
 {
-	if ((*pUART_LSR) & UART_LSR_TEMT)
-	{
+	if ((*pUART_LSR) & UART_LSR_TEMT) {
 		if (c == '\n')
 			serial_putc('\r');
 
@@ -148,17 +150,16 @@ int serial_getc(void)
 	int ret;
 
 	/* Poll for RX Interrupt */
-	while (!((isr_val = *(volatile unsigned long *)SIC_ISR) & IRQ_UART_RX_BIT));
+	while (!((isr_val =
+		  *(volatile unsigned long *)SIC_ISR) & IRQ_UART_RX_BIT)) ;
 	asm("csync;");
 
 	uart_lsr_val = *pUART_LSR;	/* Clear status bit */
 	uart_rbr_val = *pUART_RBR;	/* getc() */
 
 	if (isr_val & IRQ_UART_ERROR_BIT) {
-		ret =  -1;
-	}
-	else
-	{
+		ret = -1;
+	} else {
 		ret = uart_rbr_val & 0xff;
 	}
 
@@ -180,10 +181,10 @@ static void local_put_char(char ch)
 	save_and_cli(flags);
 
 	/* Poll for TX Interruput */
-	while (!((isr_val = *pSIC_ISR) & IRQ_UART_TX_BIT));
+	while (!((isr_val = *pSIC_ISR) & IRQ_UART_TX_BIT)) ;
 	asm("csync;");
 
-	*pUART_THR = ch;			/* putc() */
+	*pUART_THR = ch;	/* putc() */
 
 	if (isr_val & IRQ_UART_ERROR_BIT) {
 		printf("?");
@@ -191,5 +192,5 @@ static void local_put_char(char ch)
 
 	restore_flags(flags);
 
-	return ;
+	return;
 }

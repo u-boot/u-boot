@@ -45,11 +45,11 @@
 #define EXTCLK_50		50000000
 #define EXTCLK_83		83333333
 
-#define	CONFIG_IBM_EMAC4_V4		1
-#define	CONFIG_MISC_INIT_F		1	/* Use misc_init_f()	*/
+#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
+#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 #undef  CONFIG_STRESS
-#undef  ENABLE_ECC
+
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
@@ -118,10 +118,9 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for setup	*/
-#define SPD_EEPROM_ADDRESS {0x53, 0x52}	/* SPD i2c spd addresses	*/
-#define IIC0_DIMM0_ADDR		0x53
-#define IIC0_DIMM1_ADDR		0x52
+#define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
+#define SPD_EEPROM_ADDRESS	{0x53, 0x52}	/* SPD i2c spd addresses*/
+#define CONFIG_DDR_ECC		1	/* with ECC support		*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -211,6 +210,7 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
+#define	CONFIG_IBM_EMAC4_V4	1
 #define CONFIG_MII		1	/* MII PHY management		*/
 #undef CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/

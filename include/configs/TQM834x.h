@@ -57,17 +57,6 @@
  */
 #define CFG_LCRR		(LCRR_DBYP | LCRR_CLKDIV_8)
 
-#define CFG_SCCR_INIT		(SCCR_DEFAULT & (~SCCR_CLK_MASK))
-#define CFG_SCCR_TSEC1CM	SCCR_TSEC1CM_1	/* TSEC1 clock setting */
-#define CFG_SCCR_TSEC2CM	SCCR_TSEC2CM_1	/* TSEC2 clock setting */
-#define CFG_SCCR_ENCCM		SCCR_ENCCM_3	/* ENC clock setting */
-#define CFG_SCCR_USBCM		SCCR_USBCM_3	/* USB clock setting */
-#define CFG_SCCR_VAL		( CFG_SCCR_INIT		\
-				| CFG_SCCR_TSEC1CM	\
-				| CFG_SCCR_TSEC2CM	\
-				| CFG_SCCR_ENCCM	\
-				| CFG_SCCR_USBCM	)
-
 /* board pre init: do not call, nothing to do */
 #undef CONFIG_BOARD_EARLY_INIT_F
 

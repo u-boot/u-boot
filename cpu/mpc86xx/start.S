@@ -241,25 +241,39 @@ in_flash:
 	bl	setup_ccsrbar
 #endif
 
-	/* Fix for SMP linux - Changing arbitration to round-robin */
-	lis	r3, CFG_CCSRBAR@h
-	ori	r3, r3, 0x1000
-	xor	r4, r4, r4
-	li	r4, 0x1000
-	stw	r4, 0(r3)
 
+	/* -- MPC8641 Rev 1.0 MCM Errata fixups -- */
+
+	/* skip fixups if not Rev 1.0 */
+	mfspr	r4, SVR
+	rlwinm	r4,r4,0,24,31
+	cmpwi	r4,0x10
+	bne	1f
+
+	lis	r3,MCM_ABCR@ha
+	lwz	r4,MCM_ABCR@l(r3)	/* ABCR -> r4 */
+
+	/* set ABCR[A_STRM_CNT] = 0 */
+	rlwinm	r4,r4,0,0,29
+
+	/* set ABCR[ARB_POLICY] to 0x1 (round-robin) */
+	addi	r0,r0,1
+	rlwimi	r4,r0,12,18,19
+
+	stw	r4,MCM_ABCR@l(r3)	/* r4 -> ABCR */
+	sync
+
+	/* Set DBCR[ERD_DIS] */
+	lis	r3,MCM_DBCR@ha
+	lwz	r4,MCM_DBCR@l(r3)
+	oris	r4, r4, 0x4000
+	stw	r4,MCM_DBCR@l(r3)
+	sync
+1:
 	/* setup the law entries */
 	bl	law_entry
 	sync
 
-	/* Don't use this feature due to bug in 8641D PD4 */
-	/* Disable ERD_DIS */
-	lis	r3, CFG_CCSRBAR@h
-	ori	r3, r3, 0x1008
-	lwz	r4, 0(r3)
-	oris	r4, r4, 0x4000
-	stw	r4, 0(r3)
-	sync
 
 #if (EMULATOR_RUN == 1)
 	/* On the emulator we want to adjust these ASAP */

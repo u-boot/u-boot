@@ -547,4 +547,10 @@ typedef struct qe_immap {
 
 extern qe_map_t *qe_immr;
 
+#if defined(CONFIG_MPC8360)
+#define QE_MURAM_SIZE		0xc000UL
+#elif defined(CONFIG_MPC832X)
+#define QE_MURAM_SIZE		0x4000UL
+#endif
+
 #endif				/* __IMMAP_QE_H__ */

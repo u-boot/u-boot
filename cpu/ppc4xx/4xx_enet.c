@@ -339,29 +339,41 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 {
 	unsigned long zmiifer=0x0;
+	unsigned long pfc1;
 
-	/*
-	 * Right now only 2*RGMII is supported. Please extend when needed.
-	 * sr - 2006-08-29
-	 */
-	switch (1) {
-	case 0:
+	mfsdr(sdr_pfc1, pfc1);
+	pfc1 &= SDR0_PFC1_SELECT_MASK;
+
+	switch (pfc1) {
+	case SDR0_PFC1_SELECT_CONFIG_2:
 		/* 1 x GMII port */
 		out32 (ZMII_FER, 0x00);
 		out32 (RGMII_FER, 0x00000037);
 		bis->bi_phymode[0] = BI_PHYMODE_GMII;
 		bis->bi_phymode[1] = BI_PHYMODE_NONE;
 		break;
-	case 1:
+	case SDR0_PFC1_SELECT_CONFIG_4:
 		/* 2 x RGMII ports */
 		out32 (ZMII_FER, 0x00);
 		out32 (RGMII_FER, 0x00000055);
 		bis->bi_phymode[0] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
 		break;
-	case 2:
+	case SDR0_PFC1_SELECT_CONFIG_6:
 		/* 2 x SMII ports */
-
+		out32 (ZMII_FER,
+		       ((ZMII_FER_SMII) << ZMII_FER_V(0)) |
+		       ((ZMII_FER_SMII) << ZMII_FER_V(1)));
+		out32 (RGMII_FER, 0x00000000);
+		bis->bi_phymode[0] = BI_PHYMODE_SMII;
+		bis->bi_phymode[1] = BI_PHYMODE_SMII;
+		break;
+	case SDR0_PFC1_SELECT_CONFIG_1_2:
+		/* only 1 x MII supported */
+		out32 (ZMII_FER, (ZMII_FER_MII) << ZMII_FER_V(0));
+		out32 (RGMII_FER, 0x00000000);
+		bis->bi_phymode[0] = BI_PHYMODE_MII;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
 		break;
 	default:
 		break;
@@ -1333,6 +1345,9 @@ int enetInt (struct eth_device *dev)
 			}
 		}
 		mtdcr (uicsr, MAL_UIC_DEF|EMAC_UIC_DEF|EMAC_UIC_DEF1);	/* Clear */
+#if defined(CONFIG_405EZ)
+		mtsdr (sdricintstat, SDR_ICRX_STAT | SDR_ICTX0_STAT | SDR_ICTX1_STAT);
+#endif	/* defined(CONFIG_405EZ) */
 	}
 	while (serviced);
 

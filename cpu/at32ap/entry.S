@@ -42,8 +42,7 @@ timer_interrupt_handler:
 	 * We're running at interrupt level 3, so we don't need to save
 	 * r8-r12 or lr to the stack.
 	 */
-	mov	r8, lo(timer_overflow)
-	orh	r8, hi(timer_overflow)
+	lda.w	r8, timer_overflow
 	ld.w	r9, r8[0]
 	mov	r10, -1
 	mtsr	SYSREG_COMPARE, r10

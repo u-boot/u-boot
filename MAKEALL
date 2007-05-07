@@ -75,22 +75,22 @@ LIST_8xx="	\
 #########################################################################
 
 LIST_4xx="	\
-	ADCIOP		alpr		AP1000		AR405		\
-	ASH405		bamboo		bubinga		CANBT		\
-	CMS700		CPCI2DP		CPCI405		CPCI4052	\
-	CPCI405AB	CPCI405DT	CPCI440		CPCIISER4	\
-	CRAYL1		csb272		csb472		DASA_SIM	\
-	DP405		DU405		ebony		ERIC		\
-	EXBITGEN	G2000		HH405		HUB405		\
-	JSE		KAREF		katmai		luan		\
-	METROBOX	MIP405		MIP405T		ML2		\
-	ml300		ocotea		OCRTC		ORSG		\
-	p3p440		PCI405		pcs440ep	PIP405		\
-	PLU405		PMC405		PPChameleonEVB	sbc405		\
-	sc3		sequoia		sequoia_nand	taishan		\
-	VOH405		VOM405		W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite	yucca						\
+	acadia		ADCIOP		alpr		AP1000		\
+	AR405		ASH405		bamboo		bubinga		\
+	CANBT		CMS700		CPCI2DP		CPCI405		\
+	CPCI4052	CPCI405AB	CPCI405DT	CPCI440		\
+	CPCIISER4	CRAYL1		csb272		csb472		\
+	DASA_SIM	DP405		DU405		ebony		\
+	ERIC		EXBITGEN	G2000		HH405		\
+	HUB405		JSE		KAREF		katmai		\
+	luan		METROBOX	MIP405		MIP405T		\
+	ML2		ml300		ocotea		OCRTC		\
+	ORSG		p3p440		PCI405		pcs440ep	\
+	PIP405		PLU405		PMC405		PPChameleonEVB	\
+	sbc405		sc3		sequoia		sequoia_nand	\
+	taishan		VOH405		VOM405		W7OLMC		\
+	W7OLMG		walnut		WUH405		XPEDITE1K	\
+	yellowstone	yosemite	yucca				\
 "
 
 #########################################################################
@@ -132,7 +132,8 @@ LIST_8260="	\
 #########################################################################
 
 LIST_83xx="	\
-	TQM834x		MPC8349EMDS	MPC8349ITX	MPC8360EMDS	\
+	MPC832XEMDS	MPC8349EMDS	MPC8349ITX	MPC8349ITXGP	\
+	MPC8360EMDS	sbc8349		TQM834x				\
 "
 
 
@@ -141,10 +142,11 @@ LIST_83xx="	\
 #########################################################################
 
 LIST_85xx="	\
-	MPC8540ADS	MPC8540EVAL	MPC8541CDS	MPC8548CDS	\
-	MPC8555CDS	MPC8560ADS	PM854		PM856		\
-	sbc8540		sbc8560		stxgp3		TQM8540		\
-	TQM8541		TQM8555		TQM8560				\
+	MPC8540ADS	MPC8540EVAL	MPC8541CDS	MPC8544DS	\
+	MPC8548CDS	MPC8555CDS	MPC8560ADS	PM854		\
+	PM856		sbc8540		sbc8560		stxgp3		\
+	stxssa		TQM8540		TQM8541		TQM8555		\
+	TQM8560								\
 "
 
 #########################################################################
@@ -154,6 +156,7 @@ LIST_85xx="	\
 LIST_74xx="	\
 	DB64360		DB64460		EVB64260	P3G4		\
 	p3m7448		PCIPPC2		PCIPPC6		ZUMA		\
+	mpc7448hpc2
 "
 
 LIST_7xx="	\
@@ -311,6 +314,14 @@ LIST_coldfire="	\
 
 LIST_avr32="atstk1002"
 
+#########################################################################
+## Blackfin Systems
+#########################################################################
+
+LIST_blackfin=" \
+	bf533-ezkit	bf533-stamp	bf537-stamp	bf561-ezkit	\
+"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -337,14 +348,15 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
-	arm|SA|ARM7|ARM9|ARM10|ARM11|pxa|ixp| \
+	arm|SA|ARM7|ARM9|ARM10|ARM11|ixp|pxa| \
+	avr32| \
+	blackfin| \
+	coldfire| \
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \
-	x86|I486| \
-	coldfire| \
-	avr32)
+	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
+	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

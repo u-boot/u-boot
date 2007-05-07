@@ -1,7 +1,7 @@
 /*
  * U-boot - interrupts.c Interrupt related routines
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * This file is based on interrupts.c
  * Copyright 1996 Roman Zippel
@@ -10,7 +10,7 @@
  * Copyright 2002 Arcturus Networks Inc. MaTed <mated@sympatico.ca>
  * Copyright 2003 Metrowerks/Motorola
  * Copyright 2003 Bas Vermeulen <bas@buyways.nl>,
- * 			BuyWays B.V. (www.buyways.nl)
+ *			BuyWays B.V. (www.buyways.nl)
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -30,21 +30,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #include <common.h>
 #include <asm/machdep.h>
 #include <asm/irq.h>
-#include <asm/cpu/defBF533.h>
+#include <config.h>
+#include <asm/blackfin.h>
 #include "cpu.h"
 
 static ulong timestamp;
 static ulong last_time;
 static int int_flag;
 
-int irq_flags; /* needed by asm-blackfin/system.h */
+int irq_flags;			/* needed by asm-blackfin/system.h */
 
 /* Functions just to satisfy the linker */
 
@@ -61,7 +62,7 @@ unsigned long long get_ticks(void)
  * This function is derived from PowerPC code (timebase clock frequency).
  * On BF533 it returns the number of timer ticks per second.
  */
-ulong get_tbclk (void)
+ulong get_tbclk(void)
 {
 	ulong tbclk;
 
@@ -91,22 +92,22 @@ void udelay(unsigned long usec)
 	unsigned long cclk;
 	cclk = (CONFIG_CCLK_HZ);
 
-	while ( usec > 1 ) {
-	       /*
-		* how many clock ticks to delay?
-		*  - request(in useconds) * clock_ticks(Hz) / useconds/second
-		*/
+	while (usec > 1) {
+		/*
+		 * how many clock ticks to delay?
+		 *  - request(in useconds) * clock_ticks(Hz) / useconds/second
+		 */
 		if (usec < 1000) {
-			delay = (usec * (cclk/244)) >> 12 ;
+			delay = (usec * (cclk / 244)) >> 12;
 			usec = 0;
 		} else {
-			delay = (1000 * (cclk/244)) >> 12 ;
+			delay = (1000 * (cclk / 244)) >> 12;
 			usec -= 1000;
 		}
 
-		asm volatile (" %0 = CYCLES;": "=g"(start));
+		asm volatile (" %0 = CYCLES;":"=r" (start));
 		do {
-			asm volatile (" %0 = CYCLES; ": "=g"(stop));
+			asm volatile (" %0 = CYCLES; ":"=r" (stop));
 		} while (stop - start < delay);
 	}
 
@@ -117,7 +118,7 @@ void timer_init(void)
 {
 	*pTCNTL = 0x1;
 	*pTSCALE = 0x0;
-	*pTCOUNT  = MAX_TIM_LOAD;
+	*pTCOUNT = MAX_TIM_LOAD;
 	*pTPERIOD = MAX_TIM_LOAD;
 	*pTCNTL = 0x7;
 	asm("CSYNC;");
@@ -146,20 +147,23 @@ ulong get_timer(ulong base)
 	/* Number of clocks elapsed */
 	ulong clocks = (MAX_TIM_LOAD - (*pTCOUNT));
 
-	/* Find if the TCOUNT is reset
-	timestamp gives the number of times
-	TCOUNT got reset */
-	if(clocks < last_time)
+	/**
+	 * Find if the TCOUNT is reset
+	 * timestamp gives the number of times
+	 * TCOUNT got reset
+	 */
+	if (clocks < last_time)
 		timestamp++;
 	last_time = clocks;
 
 	/* Get the number of milliseconds */
-	milisec = clocks/(CONFIG_CCLK_HZ / 1000);
+	milisec = clocks / (CONFIG_CCLK_HZ / 1000);
 
-	/* Find the number of millisonds
-	that got elapsed before this TCOUNT
-	cycle */
-	milisec += timestamp * (MAX_TIM_LOAD/(CONFIG_CCLK_HZ / 1000));
+	/**
+	 * Find the number of millisonds
+	 * that got elapsed before this TCOUNT cycle
+	 */
+	milisec += timestamp * (MAX_TIM_LOAD / (CONFIG_CCLK_HZ / 1000));
 
 	return (milisec - base);
 }

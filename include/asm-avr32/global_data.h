@@ -35,10 +35,8 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	const struct device	*console_uart;
-	const struct device	*sm;
 	unsigned long	baudrate;
-	unsigned long	sdram_size;
+	unsigned long	stack_end;	/* highest stack address */
 	unsigned long	have_console;	/* serial_init() was called */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address of env struct */

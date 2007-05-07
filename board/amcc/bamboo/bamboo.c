@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/gpio.h>
 #include <spd_sdram.h>
 #include <ppc440.h>
 #include "bamboo.h"
@@ -275,87 +276,6 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-/*----------------------------------------------------------------------------+
-  | nand_reset.
-  |   Reset Nand flash
-  |   This routine will abort previous cmd
-  +----------------------------------------------------------------------------*/
-int nand_reset(ulong addr)
-{
-	int wait=0, stat=0;
-
-	out8(addr + NAND_CMD_REG, NAND0_CMD_RESET);
-	out8(addr + NAND_CMD_REG, NAND0_CMD_READ_STATUS);
-
-	while ((stat != 0xc0) && (wait != 0xffff)) {
-		stat = in8(addr + NAND_DATA_REG);
-		wait++;
-	}
-
-	if (stat == 0xc0) {
-		return 0;
-	} else {
-		printf("NAND Reset timeout.\n");
-		return -1;
-	}
-}
-
-void board_nand_set_device(int cs, ulong addr)
-{
-	/* Set NandFlash Core Configuration Register */
-	out32(addr + NAND_CCR_REG, 0x00001000 | (cs << 24));
-
-	switch (cs) {
-	case 1:
-		/* -------
-		 *  NAND0
-		 * -------
-		 * K9F1208U0A : 4 addr cyc, 1 col + 3 Row
-		 * Set NDF1CR - Enable External CS1 in NAND FLASH controller
-		 */
-		out32(addr + NAND_CR1_REG, 0x80002222);
-		break;
-
-	case 2:
-		/* -------
-		 *  NAND1
-		 * -------
-		 * K9K2G0B : 5 addr cyc, 2 col + 3 Row
-		 * Set NDF2CR : Enable External CS2 in NAND FLASH controller
-		 */
-		out32(addr + NAND_CR2_REG, 0xC0007777);
-		break;
-	}
-
-	/* Perform Reset Command */
-	if (nand_reset(addr) != 0)
-		return;
-}
-
-void nand_init(void)
-{
-	board_nand_set_device(1, CFG_NAND_ADDR);
-
-	nand_probe(CFG_NAND_ADDR);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-
-#if 0 /* NAND1 not supported yet */
-	board_nand_set_device(2, CFG_NAND2_ADDR);
-
-	nand_probe(CFG_NAND2_ADDR);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-#endif
-}
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
 int checkboard(void)
 {

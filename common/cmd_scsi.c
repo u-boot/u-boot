@@ -248,7 +248,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
-	if (get_partition_info (scsi_dev_desc, part, &info)) {
+	if (get_partition_info (&scsi_dev_desc[dev], part, &info)) {
 		printf("error reading partinfo\n");
 		return 1;
 	}

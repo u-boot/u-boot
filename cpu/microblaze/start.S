@@ -54,7 +54,7 @@ _start:
 	lhu	r7, r1, r0
 	shi	r7, r0, 0x2
 	shi	r6, r0, 0x6
-/* 
+/*
  * Copy U-Boot code to TEXT_BASE
  * solve problem with sbrk_base
  */

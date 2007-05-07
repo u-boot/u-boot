@@ -9,6 +9,15 @@
 
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset	offset */
 
+
+/*
+ * platform register addresses
+ */
+
+#define GUTS_SVR	(CFG_CCSRBAR + 0xE00A4)
+#define MCM_ABCR	(CFG_CCSRBAR + 0x01000)
+#define MCM_DBCR	(CFG_CCSRBAR + 0x01008)
+
 /*
  * l2cr values.  Look in config_<BOARD>.h for the actual setup
  */

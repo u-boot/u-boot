@@ -38,6 +38,11 @@ The script expects exactly one argument, which is interpreted as  the
 target IP address (or host name, assuming DNS is working). The script
 can be interrupted by pressing ^T (CTRL-T).
 
+Be aware that in some distributives (Fedora Core 5 at least)
+usage of nc has been changed and -l and -p options are considered
+as mutually exclusive. If nc complains about options provided,
+you can just remove the -p option from the script.
+
 It turns out that 'netcat' cannot be used to listen to broadcast
 packets. We developed our own tool 'ncb' (see tools directory) that
 listens to broadcast packets on a given port and dumps them to the

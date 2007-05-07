@@ -34,7 +34,12 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_LIBFDT)
+#include <fdt.h>
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
+#if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
 
@@ -242,26 +247,26 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	len_ptr = (ulong *)data;
 
-#if defined(__PPC__)
-	if (hdr->ih_arch != IH_CPU_PPC)
-#elif defined(__ARM__)
+#if defined(__ARM__)
 	if (hdr->ih_arch != IH_CPU_ARM)
+#elif defined(__avr32__)
+	if (hdr->ih_arch != IH_CPU_AVR32)
+#elif defined(__bfin__)
+	if (hdr->ih_arch != IH_CPU_BLACKFIN)
 #elif defined(__I386__)
 	if (hdr->ih_arch != IH_CPU_I386)
-#elif defined(__mips__)
-	if (hdr->ih_arch != IH_CPU_MIPS)
-#elif defined(__nios__)
-	if (hdr->ih_arch != IH_CPU_NIOS)
 #elif defined(__M68K__)
 	if (hdr->ih_arch != IH_CPU_M68K)
 #elif defined(__microblaze__)
 	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
+#elif defined(__mips__)
+	if (hdr->ih_arch != IH_CPU_MIPS)
+#elif defined(__nios__)
+	if (hdr->ih_arch != IH_CPU_NIOS)
 #elif defined(__nios2__)
 	if (hdr->ih_arch != IH_CPU_NIOS2)
-#elif defined(__blackfin__)
-	if (hdr->ih_arch != IH_CPU_BLACKFIN)
-#elif defined(__avr32__)
-	if (hdr->ih_arch != IH_CPU_AVR32)
+#elif defined(__PPC__)
+	if (hdr->ih_arch != IH_CPU_PPC)
 #else
 # error Unknown CPU type
 #endif
@@ -467,7 +472,7 @@ U_BOOT_CMD(
  	"[addr [arg ...]]\n    - boot application image stored in memory\n"
  	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
  	"\t'arg' can be the address of an initrd image\n"
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
 	"\ta third argument is required which is the address of the of the\n"
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
@@ -529,7 +534,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	image_header_t *hdr = &header;
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = NULL;
 	ulong	of_data = 0;
 #endif
@@ -622,7 +627,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 * Check if there is an initrd image
 	 */
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
@@ -739,12 +744,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		len = data = 0;
 	}
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
-
-		if  (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#if defined(CONFIG_OF_LIBFDT)
+		if (fdt_check_header(of_flat_tree) == 0) {
+#else
+		if (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+#endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
@@ -771,9 +779,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 			checksum = ntohl(hdr->ih_dcrc);
 			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
-			len = ntohl(hdr->ih_size);
 
-			if(checksum != crc32(0, (uchar *)addr, len)) {
+			if(checksum != crc32(0, (uchar *)addr, ntohl(hdr->ih_size))) {
 				printf("ERROR: Flat Device Tree checksum is invalid\n");
 				return;
 			}
@@ -787,7 +794,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				printf("ERROR: uImage is not uncompressed\n");
 				return;
 			}
+#if defined(CONFIG_OF_LIBFDT)
+			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) == 0) {
+#else
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+#endif
 				printf ("ERROR: uImage data is not a flat device tree\n");
 				return;
 			}
@@ -824,12 +835,20 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_data += 4 - tail;
 		}
 
+#if defined(CONFIG_OF_LIBFDT)
+		if (fdt_check_header((void *)of_data) != 0) {
+#else
 		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
+#endif
 			printf ("ERROR: image is not a flat device tree\n");
 			return;
 		}
 
+#if defined(CONFIG_OF_LIBFDT)
+		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
+#else
 		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+#endif
 			printf ("ERROR: flat device tree size does not agree with image\n");
 			return;
 		}
@@ -913,7 +932,52 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	unlock_ram_in_cache();
 #endif
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_LIBFDT)
+	/* move of_flat_tree if needed */
+	if (of_data) {
+		int err;
+		ulong of_start, of_len;
+
+		of_len = be32_to_cpu(fdt_totalsize(of_data));
+		/* position on a 4K boundary before the initrd/kbd */
+		if (initrd_start)
+			of_start = initrd_start - of_len;
+		else
+			of_start  = (ulong)kbd - of_len;
+		of_start &= ~(4096 - 1);	/* align on page */
+		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
+			of_data, of_data + of_len - 1, of_len, of_len);
+
+		of_flat_tree = (char *)of_start;
+		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
+			of_start, of_start + of_len - 1);
+		err = fdt_open_into((void *)of_start, (void *)of_data, of_len);
+		if (err != 0) {
+			printf ("libfdt: %s " __FILE__ " %d\n", fdt_strerror(err), __LINE__);
+		}
+		/*
+		 * Add the chosen node if it doesn't exist, add the env and bd_t
+		 * if the user wants it (the logic is in the subroutines).
+		 */
+		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+				printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
+				return;
+		}
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+		if (fdt_env(of_flat_tree) < 0) {
+				printf("Failed creating the /u-boot-env node, aborting.\n");
+				return;
+		}
+#endif
+#ifdef CONFIG_OF_HAS_BD_T
+		if (fdt_bd_t(of_flat_tree) < 0) {
+				printf("Failed creating the /bd_t node, aborting.\n");
+				return;
+		}
+#endif
+	}
+#endif
+#if defined(CONFIG_OF_FLAT_TREE)
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		ulong of_start, of_len;
@@ -942,13 +1006,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: Start of command line string
 	 *   r7: End   of command line string
 	 */
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	if (!of_flat_tree)	/* no device tree; boot old style */
 #endif
 		(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 		/* does not return */
 
-#ifdef CONFIG_OF_FLAT_TREE
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	/*
 	 * Linux Kernel Parameters (passing device tree):
 	 *   r3: ptr to OF flat tree, followed by the board info data
@@ -957,8 +1021,28 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: NULL
 	 *   r7: NULL
 	 */
+#if defined(CONFIG_OF_FLAT_TREE)
 	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
+#endif
+#if defined(CONFIG_OF_LIBFDT)
+	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+		printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
+		return;
+	}
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+	if (fdt_env(of_flat_tree) < 0) {
+		printf("Failed creating the /u-boot-env node, aborting.\n");
+		return;
+	}
+#endif
+#ifdef CONFIG_OF_HAS_BD_T
+	if (fdt_bd_t(of_flat_tree) < 0) {
+		printf("Failed creating the /bd_t node, aborting.\n");
+		return;
+	}
+#endif
+#endif /* if defined(CONFIG_OF_LIBFDT) */
 
 	(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
 #endif
@@ -1354,19 +1438,20 @@ print_type (image_header_t *hdr)
 	case IH_CPU_ALPHA:	arch = "Alpha";			break;
 	case IH_CPU_ARM:	arch = "ARM";			break;
 	case IH_CPU_AVR32:	arch = "AVR32";			break;
+	case IH_CPU_BLACKFIN:	arch = "Blackfin";		break;
 	case IH_CPU_I386:	arch = "Intel x86";		break;
 	case IH_CPU_IA64:	arch = "IA64";			break;
-	case IH_CPU_MIPS:	arch = "MIPS";			break;
+	case IH_CPU_M68K:	arch = "M68K"; 			break;
+	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
 	case IH_CPU_MIPS64:	arch = "MIPS 64 Bit";		break;
+	case IH_CPU_MIPS:	arch = "MIPS";			break;
+	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
+	case IH_CPU_NIOS:	arch = "Nios";			break;
 	case IH_CPU_PPC:	arch = "PowerPC";		break;
 	case IH_CPU_S390:	arch = "IBM S390";		break;
 	case IH_CPU_SH:		arch = "SuperH";		break;
-	case IH_CPU_SPARC:	arch = "SPARC";			break;
 	case IH_CPU_SPARC64:	arch = "SPARC 64 Bit";		break;
-	case IH_CPU_M68K:	arch = "M68K"; 			break;
-	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
-	case IH_CPU_NIOS:	arch = "Nios";			break;
-	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
+	case IH_CPU_SPARC:	arch = "SPARC";			break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 

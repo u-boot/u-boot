@@ -32,7 +32,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o cmd_autoscript.o \
 	  cmd_cache.o cmd_console.o \
 	  cmd_date.o cmd_dcr.o cmd_diag.o cmd_display.o cmd_doc.o cmd_dtt.o \
 	  cmd_eeprom.o cmd_elf.o cmd_ext2.o \
-	  cmd_fat.o cmd_fdc.o cmd_fdos.o cmd_flash.o cmd_fpga.o \
+	  cmd_fat.o cmd_fdc.o cmd_fdt.o cmd_fdos.o cmd_flash.o cmd_fpga.o \
 	  cmd_i2c.o cmd_ide.o cmd_immap.o cmd_itest.o cmd_jffs2.o \
 	  cmd_load.o cmd_log.o \
 	  cmd_mem.o cmd_mii.o cmd_misc.o cmd_mmc.o \
@@ -45,7 +45,7 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o cmd_autoscript.o \
 	  env_nand.o env_dataflash.o env_flash.o env_eeprom.o \
 	  env_nvram.o env_nowhere.o \
 	  exports.o \
-	  flash.o fpga.o ft_build.o \
+	  fdt_support.o flash.o fpga.o ft_build.o \
 	  hush.o kgdb.o lcd.o lists.o lynxkdi.o \
 	  memsize.o miiphybb.o miiphyutil.o \
 	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o spartan3.o \

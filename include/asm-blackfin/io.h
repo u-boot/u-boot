@@ -1,7 +1,7 @@
 /*
  * U-boot - io.h IO routines
  *
- * Copyright (c) 2005 blackfin.uclinux.org
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -18,17 +18,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifndef _BLACKFIN_IO_H
 #define _BLACKFIN_IO_H
-
-static inline void sync(void)
-{
-	__asm__ __volatile__ asm("ssync" : : : "memory");
-}
 
 #ifdef __KERNEL__
 
@@ -38,7 +33,12 @@ static inline void sync(void)
 extern void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words);
 extern void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words);
 extern unsigned char cf_inb(volatile unsigned char *addr);
-extern void cf_outb(unsigned char val, volatile unsigned char* addr);
+extern void cf_outb(unsigned char val, volatile unsigned char *addr);
+
+static inline void sync(void)
+{
+	__builtin_bfin_ssync();
+}
 
 /*
  * These are for ISA/PCI shared memory _only_ and should never be used
@@ -50,7 +50,6 @@ extern void cf_outb(unsigned char val, volatile unsigned char* addr);
  * differently. On the m68k architecture, we just read/write the
  * memory location directly.
  */
-
 
 #define readb(addr)		({ unsigned char __v = (*(volatile unsigned char *) (addr));asm("ssync;"); __v; })
 #define readw(addr)		({ unsigned short __v = (*(volatile unsigned short *) (addr)); asm("ssync;");__v; })
@@ -100,8 +99,7 @@ extern inline void *ioremap(unsigned long physaddr, unsigned long size)
 {
 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
 }
-extern inline void *ioremap_nocache(unsigned long physaddr,
-				    unsigned long size)
+extern inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
 {
 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
 }

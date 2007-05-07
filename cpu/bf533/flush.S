@@ -1,15 +1,14 @@
-/* Copyright (C) 2003 Analog Devices, Inc. All Rights Reserved.
- * Copyright (C) 2004 LG SOft India. All Rights Reserved.
+/* Copyright (C) 2003-2007 Analog Devices Inc.
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.
- *
- * Blackfin BF533/2.6 support : LG Soft India
  */
+
 #define ASSEMBLY
 
 #include <asm/linkage.h>
 #include <asm/cplb.h>
+#include <config.h>
 #include <asm/blackfin.h>
 
 .text
@@ -20,7 +19,7 @@
  * in the instruction cache.
  */
 
-ENTRY(flush_instruction_cache)
+ENTRY(_flush_instruction_cache)
 	[--SP] = ( R7:6, P5:4 );
 	LINK 12;
 	SP += -12;
@@ -33,7 +32,7 @@ ENTRY(flush_instruction_cache)
 inext:	R0 = [P5++];
 	R1 = [P4++];
 	[--SP] =  RETS;
-	CALL icplb_flush;	/* R0 = page, R1 = data*/
+	CALL _icplb_flush;	/* R0 = page, R1 = data*/
 	RETS = [SP++];
 iskip:	R6 += -1;
 	CC = R6;
@@ -52,7 +51,7 @@ iskip:	R6 += -1;
  */
 
 .align 2
-ENTRY(icplb_flush)
+ENTRY(_icplb_flush)
 	[--SP] = ( R7:0, P5:0 );
 	[--SP] = LC0;
 	[--SP] = LT0;
@@ -86,16 +85,17 @@ ENTRY(icplb_flush)
 	 */
 
 	R3 = ((12<<8)|2);		/* Extraction pattern */
-	nop;				/*Anamoly 05000209*/
-	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits*/
-	R3.H = R4.L << 0 ;		/* Save in extraction pattern for later deposit.*/
+	nop;				/* Anamoly 05000209 */
+	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits */
 
+	/* Save in extraction pattern for later deposit. */
+	R3.H = R4.L << 0;
 
 	/* So:
 	 * R0 = Page start
 	 * R1 = Page length (actually, offset into size/prefix tables)
 	 * R3 = sub-bank deposit values
-  	 *
+	 *
 	 * The cache has 2 Ways, and 64 sets, so we iterate through
 	 * the sets, accessing the tag for each Way, for our Bank and
 	 * sub-bank, looking for dirty, valid tags that match our
@@ -180,8 +180,10 @@ iflush_whole_page:
 	SSYNC;
 	IFLUSH [P0++];		/* because CSYNC can't end loops.*/
 	LSETUP (isall, ieall) LC0 = P1;
-isall:IFLUSH [P0++];
-ieall: NOP;
+isall:
+	IFLUSH [P0++];
+ieall:
+	NOP;
 	SSYNC;
 	JUMP ifinished;
 
@@ -191,7 +193,7 @@ ieall: NOP;
  * in the data cache.
  */
 
-ENTRY(flush_data_cache)
+ENTRY(_flush_data_cache)
 	[--SP] = ( R7:6, P5:4 );
 	LINK 12;
 	SP += -12;
@@ -209,7 +211,7 @@ next:	R0 = [P5++];
 	CC = R2;
 	IF !CC JUMP skip;	/* If not, ignore it.*/
 	[--SP] = RETS;
-	CALL dcplb_flush;	/* R0 = page, R1 = data*/
+	CALL _dcplb_flush;	/* R0 = page, R1 = data*/
 	RETS = [SP++];
 skip:	R6 += -1;
 	CC = R6;
@@ -228,7 +230,7 @@ skip:	R6 += -1;
  */
 
 .align 2
-ENTRY(dcplb_flush)
+ENTRY(_dcplb_flush)
 	[--SP] = ( R7:0, P5:0 );
 	[--SP] = LC0;
 	[--SP] = LT0;
@@ -290,14 +292,15 @@ bank_chosen:
 	R3 = ((12<<8)|2);		/* Extraction pattern */
 	nop;				/*Anamoly 05000209*/
 	R4 = EXTRACT(R0, R3.L) (Z);	/* Extract bits*/
-	R3.H = R4.L << 0 ;		/* Save in extraction pattern for later deposit.*/
+	/* Save in extraction pattern for later deposit.*/
+	R3.H = R4.L << 0;
 
 	/* So:
 	 * R0 = Page start
 	 * R1 = Page length (actually, offset into size/prefix tables)
 	 * R2 = Bank select mask
 	 * R3 = sub-bank deposit values
-  	 *
+	 *
 	 * The cache has 2 Ways, and 64 sets, so we iterate through
 	 * the sets, accessing the tag for each Way, for our Bank and
 	 * sub-bank, looking for dirty, valid tags that match our
@@ -386,7 +389,7 @@ dflush_whole_page:
 	CC = BITTST(R1, 16);	/* Whether 1K or 4K*/
 	IF CC P1 = P2;
 	P1 += -1;		/* Unroll one iteration*/
-    SSYNC;
+	SSYNC;
 	FLUSHINV [P0++];	/* because CSYNC can't end loops.*/
 	LSETUP (eall, eall) LC0 = P1;
 eall:	FLUSHINV [P0++];

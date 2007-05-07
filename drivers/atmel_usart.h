@@ -306,9 +306,9 @@
 	 | USART3_BF(name,value))
 
 /* Register access macros */
-#define usart3_readl(port,reg)				\
-	readl((port)->regs + USART3_##reg)
-#define usart3_writel(port,reg,value)			\
-	writel((value), (port)->regs + USART3_##reg)
+#define usart3_readl(reg)				\
+	readl((void *)USART_BASE + USART3_##reg)
+#define usart3_writel(reg,value)			\
+	writel((value), (void *)USART_BASE + USART3_##reg)
 
 #endif /* __DRIVERS_ATMEL_USART_H__ */

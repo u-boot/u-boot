@@ -2,6 +2,7 @@
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000,2001,2002 Wolfgang Denk <wd@denx.de>
+ *  Copyright (C) 2007 Stefan Roese <sr@denx.de>, DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -699,7 +700,9 @@ _start:
 #endif	/* CONFIG_IOP480 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405) || defined(CONFIG_405EP)
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
+    defined(CONFIG_405)
 	/*----------------------------------------------------------------------- */
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------------- */
@@ -727,13 +730,13 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* Enable two 128MB cachable regions. */
 	/*----------------------------------------------------------------------- */
-	addis	r4,r0,0x8000
-	addi	r4,r4,0x0001
+	lis	r4,0x8000
+	ori	r4,r4,0x0001
 	mticcr	r4			/* instruction cache */
 	isync
 
-	addis	r4,r0,0x0000
-	addi	r4,r4,0x0000
+	lis	r4,0x0000
+	ori	r4,r4,0x0000
 	mtdccr	r4			/* data cache */
 
 #if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
@@ -755,6 +758,35 @@ _start:
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
+#if defined(CONFIG_405EZ)
+	/********************************************************************
+	 * Setup OCM - On Chip Memory - PPC405EZ uses OCM Controller V2
+	 *******************************************************************/
+	/*
+	 * We can map the OCM on the PLB3, so map it at
+	 * CFG_OCM_DATA_ADDR + 0x8000
+	 */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	ori	r3,r3,0x8270	/* 32K Offset, 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
+	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
+	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
+	isync
+
+	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	ori	r3,r3,0x0270            /* 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmdscr1, r3            /* Set Data Side */
+	mtdcr	ocmiscr1, r3            /* Set Instruction Side */
+	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
+	mtdcr	ocmdscr2, r3            /* Set Data Side */
+	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
+	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
+	mtdcr	ocmdsisdpc,r4
+
+	isync
+#else /* CONFIG_405EZ */
 	/********************************************************************
 	 * Setup OCM - On Chip Memory
 	 *******************************************************************/
@@ -762,18 +794,20 @@ _start:
 	lis	r0, 0x7FFF
 	ori	r0, r0, 0xFFFF
 	mfdcr	r3, ocmiscntl		/* get instr-side IRAM config */
-	mfdcr	r4, ocmdscntl	/* get data-side IRAM config */
-	and	r3, r3, r0	/* disable data-side IRAM */
-	and	r4, r4, r0	/* disable data-side IRAM */
-	mtdcr	ocmiscntl, r3	/* set instr-side IRAM config */
-	mtdcr	ocmdscntl, r4	/* set data-side IRAM config */
+	mfdcr	r4, ocmdscntl		/* get data-side IRAM config */
+	and	r3, r3, r0		/* disable data-side IRAM */
+	and	r4, r4, r0		/* disable data-side IRAM */
+	mtdcr	ocmiscntl, r3		/* set instr-side IRAM config */
+	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
 	isync
 
-	addis	r3, 0, CFG_OCM_DATA_ADDR@h /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	ori	r3,r3,CFG_OCM_DATA_ADDR@l
 	mtdcr	ocmdsarc, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
 	mtdcr	ocmdscntl, r4
 	isync
+#endif /* CONFIG_405EZ */
 #endif
 
 	/*----------------------------------------------------------------------- */
@@ -1361,7 +1395,7 @@ ppcSync:
 relocate_code:
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
@@ -1858,11 +1892,11 @@ pll_wait:
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_440)
-#define function_prolog(func_name)      .text; \
+#define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
 					func_name:
-#define function_epilog(func_name)      .type func_name,@function; \
+#define function_epilog(func_name)	.type func_name,@function; \
 					.size func_name,.-func_name
 
 /*----------------------------------------------------------------------------+
@@ -1916,43 +1950,43 @@ pll_wait:
 /*----------------------------------------------------------------------------+
 | dcbz_area.
 +----------------------------------------------------------------------------*/
-        function_prolog(dcbz_area)
-        rlwinm. r5,r4,0,27,31
-        rlwinm  r5,r4,27,5,31
-        beq     ..d_ra2
-        addi    r5,r5,0x0001
-..d_ra2:mtctr   r5
-..d_ag2:dcbz    r0,r3
-        addi    r3,r3,32
-        bdnz    ..d_ag2
-        sync
-        blr
-        function_epilog(dcbz_area)
+	function_prolog(dcbz_area)
+	rlwinm. r5,r4,0,27,31
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ra2
+	addi	r5,r5,0x0001
+..d_ra2:mtctr	r5
+..d_ag2:dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag2
+	sync
+	blr
+	function_epilog(dcbz_area)
 
 /*----------------------------------------------------------------------------+
 | dflush.  Assume 32K at vector address is cachable.
 +----------------------------------------------------------------------------*/
-        function_prolog(dflush)
-        mfmsr   r9
-        rlwinm  r8,r9,0,15,13
-        rlwinm  r8,r8,0,17,15
-        mtmsr   r8
-        addi    r3,r0,0x0000
-        mtspr   dvlim,r3
-        mfspr   r3,ivpr
-        addi    r4,r0,1024
-        mtctr   r4
+	function_prolog(dflush)
+	mfmsr	r9
+	rlwinm	r8,r9,0,15,13
+	rlwinm	r8,r8,0,17,15
+	mtmsr	r8
+	addi	r3,r0,0x0000
+	mtspr	dvlim,r3
+	mfspr	r3,ivpr
+	addi	r4,r0,1024
+	mtctr	r4
 ..dflush_loop:
-        lwz     r6,0x0(r3)
-        addi    r3,r3,32
-        bdnz    ..dflush_loop
-        addi    r3,r3,-32
-        mtctr   r4
-..ag:   dcbf    r0,r3
-        addi    r3,r3,-32
-        bdnz    ..ag
-        sync
-        mtmsr   r9
-        blr
-        function_epilog(dflush)
+	lwz	r6,0x0(r3)
+	addi	r3,r3,32
+	bdnz	..dflush_loop
+	addi	r3,r3,-32
+	mtctr	r4
+..ag:	dcbf	r0,r3
+	addi	r3,r3,-32
+	bdnz	..ag
+	sync
+	mtmsr	r9
+	blr
+	function_epilog(dflush)
 #endif /* CONFIG_440 */

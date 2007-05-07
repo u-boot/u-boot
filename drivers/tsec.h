@@ -7,7 +7,7 @@
  *  terms of the GNU Public License, Version 2, incorporated
  *  herein by reference.
  *
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
@@ -65,6 +65,7 @@
 #define ECNTRL_INIT_SETTINGS	0x00001000
 #define ECNTRL_TBI_MODE         0x00000020
 #define ECNTRL_R100		0x00000008
+#define ECNTRL_SGMII_MODE	0x00000002
 
 #define miim_end -2
 #define miim_read -1
@@ -108,6 +109,11 @@
 
 #define MIIM_GBIT_CONTROL	0x9
 #define MIIM_GBIT_CONTROL_INIT	0xe00
+
+/* Broadcom BCM54xx -- taken from linux sungem_phy */
+#define MIIM_BCM54xx_AUXSTATUS			0x19
+#define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
+#define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
 
 /* Cicada Auxiliary Control/Status Register */
 #define MIIM_CIS8201_AUX_CONSTAT        0x1c

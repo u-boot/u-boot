@@ -87,7 +87,7 @@ START	:= $(addprefix $(obj),$(START))
 
 all:	$(LIB)
 
-$(LIB):	$(obj).depend $(OBJS)
+$(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################

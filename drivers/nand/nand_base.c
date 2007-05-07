@@ -427,8 +427,9 @@ static int nand_block_bad(struct mtd_info *mtd, loff_t ofs, int getchip)
 	struct nand_chip *this = mtd->priv;
 	u16 bad;
 
+	page = (int)(ofs >> this->page_shift) & this->pagemask;
+
 	if (getchip) {
-		page = (int)(ofs >> this->page_shift);
 		chipnr = (int)(ofs >> this->chip_shift);
 
 		/* Grab the lock and see if the device is available */
@@ -436,18 +437,17 @@ static int nand_block_bad(struct mtd_info *mtd, loff_t ofs, int getchip)
 
 		/* Select the NAND device */
 		this->select_chip(mtd, chipnr);
-	} else
-		page = (int) ofs;
+	}
 
 	if (this->options & NAND_BUSWIDTH_16) {
-		this->cmdfunc (mtd, NAND_CMD_READOOB, this->badblockpos & 0xFE, page & this->pagemask);
+		this->cmdfunc (mtd, NAND_CMD_READOOB, this->badblockpos & 0xFE, page);
 		bad = cpu_to_le16(this->read_word(mtd));
 		if (this->badblockpos & 0x1)
 			bad >>= 1;
 		if ((bad & 0xFF) != 0xff)
 			res = 1;
 	} else {
-		this->cmdfunc (mtd, NAND_CMD_READOOB, this->badblockpos, page & this->pagemask);
+		this->cmdfunc (mtd, NAND_CMD_READOOB, this->badblockpos, page);
 		if (this->read_byte(mtd) != 0xff)
 			res = 1;
 	}

@@ -221,10 +221,11 @@ Jon Loeliger <jdl@freescale.com>
 
 	MPC8641HPCN		MPC8641D
 
-Dan Malek <dan@embeddededge.com>
+Dan Malek <dan@embeddedalley.com>
 
-	STxGP3			MPC85xx
-	STxXTc			MPC8xx
+	stxgp3			MPC85xx
+	stxssa			MPC85xx
+	stxxtc			MPC8xx
 
 Eran Man <eran@nbase.co.il>
 
@@ -257,15 +258,6 @@ Frank Panno <fpanno@delphintech.com>
 
 	ep8260			MPC8260
 
-Peter Pearse <peter.pearse@arm.com>
-	integratorcp		All current ARM supplied &
-				supported core modules
-				- see http://www.arm.com
-				/products/DevTools
-				/Hardware_Platforms.html
-	versatile		ARM926EJ-S
-	versatile		ARM926EJ-S
-
 Denis Peter <d.peter@mpl.ch>
 
 	MIP405			PPC4xx
@@ -284,6 +276,7 @@ Stefan Roese <sr@denx.de>
 
 	TQM85xx			MPC8540/8541/8555/8560
 
+	acadia			PPC405EZ
 	alpr			PPC440GX
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
@@ -350,6 +343,7 @@ John Zhan <zhanz@sinovee.com>
 Timur Tabi <timur@freescale.com>
 
 	MPC8349E-mITX		MPC8349
+	MPC8349E-mITX-GP	MPC8349
 
 Kim Phillips <kim.phillips@freescale.com>
 
@@ -442,6 +436,9 @@ Gary Jennejohn <gj@denx.de>
 	smdk2400		ARM920T
 	trab			ARM920T
 
+Konstantin Kletschke <kletschke@synertronixx.de>
+	scb9328			ARM920T
+
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
@@ -458,6 +455,15 @@ David Müller <d.mueller@elsoft.ch>
 Rolf Offermanns <rof@sysgo.de>
 
 	shannon			SA1100
+
+Peter Pearse <peter.pearse@arm.com>
+	integratorcp		All current ARM supplied &
+				supported core modules
+				-see http://www.arm.com
+				/products/DevTools
+				/Hardware_Platforms.html
+	versatile		ARM926EJ-S
+	versatile		ARM926EJ-S
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 

@@ -77,19 +77,11 @@
 	END_GOT
 
 /*
- * Version string - must be in data segment because MPC83xx uses the
- * first 256 bytes for the Hard Reset Configuration Word table (see
- * below).  Similarly, can't have the U-Boot Magic Number as the first
- * thing in the image - don't know how this will affect the image tools,
- * but I guess I'll find out soon.
+ * The Hard Reset Configuration Word (HRCW) table is in the first 64
+ * (0x40) bytes of flash.  It has 8 bytes, but each byte is repeated 8
+ * times so the processor can fetch it out of flash whether the flash
+ * is 8, 16, 32, or 64 bits wide (hardware trickery).
  */
-	.data
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
-	.ascii " ", CONFIG_IDENT_STRING, "\0"
-
 	.text
 #define _HRCW_TABLE_ENTRY(w)		\
 	.fill	8,1,(((w)>>24)&0xff);	\
@@ -99,6 +91,18 @@ version_string:
 
 	_HRCW_TABLE_ENTRY(CFG_HRCW_LOW)
 	_HRCW_TABLE_ENTRY(CFG_HRCW_HIGH)
+
+/*
+ * Magic number and version string - put it after the HRCW since it
+ * cannot be first in flash like it is in many other processors.
+ */
+	.long	0x27051956		/* U-Boot Magic Number */
+
+	.globl	version_string
+version_string:
+	.ascii U_BOOT_VERSION
+	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " ", CONFIG_IDENT_STRING, "\0"
 
 
 #ifndef CONFIG_DEFAULT_IMMR

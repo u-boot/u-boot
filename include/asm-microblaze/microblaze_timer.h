@@ -39,4 +39,3 @@ typedef volatile struct microblaze_timer_t {
 	int loadreg; /* load register TLR */
 	int counter; /* timer/counter register */
 } microblaze_timer_t;
-
