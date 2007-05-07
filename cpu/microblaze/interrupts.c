@@ -36,12 +36,14 @@ extern void microblaze_enable_interrupts (void);
 
 void enable_interrupts (void)
 {
-	microblaze_enable_interrupts ();
+	__asm__ __volatile__ ("msrset r0, 0x2");
+	//microblaze_enable_interrupts ();
 }
 
 int disable_interrupts (void)
 {
-	microblaze_disable_interrupts ();
+	__asm__ __volatile__ ("msrclr r0, 0x2");
+	//microblaze_disable_interrupts ();
 	return 0;
 }
 
@@ -49,6 +51,10 @@ int disable_interrupts (void)
 #ifdef CFG_TIMER_0
 extern void timer_init (void);
 #endif
+#ifdef CFG_FSL_2
+extern void fsl_init2 (void);
+#endif
+
 
 static struct irq_action vecs[CFG_INTC_0_NUM];
 
@@ -140,6 +146,9 @@ int interrupts_init (void)
 	intc_init ();
 #ifdef CFG_TIMER_0
 	timer_init ();
+#endif
+#ifdef CFG_FSL_2
+	fsl_init2 ();
 #endif
 	enable_interrupts ();
 	return 0;
