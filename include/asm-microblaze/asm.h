@@ -31,7 +31,13 @@
 	__asm__ __volatile__ ("nput %0, rfsl" #fslnum ::"r" (val));
 #define PUT(val, fslnum) \
 	__asm__ __volatile__ ("put %0, rfsl" #fslnum ::"r" (val));
-								
+
 /* CPU dependent */
-#define RMSR(val) \
-	__asm__ __volatile__ ("mfs %0,rmsr":"=r" (val));
+#define MFS(val) \
+	__asm__ __volatile__ ("mfs %0, rmsr":"=r" (val));
+
+#define MTS(val) \
+	__asm__ __volatile__ ("mts rmsr, %0"::"r" (val));
+
+#define R14(val) \
+	__asm__ __volatile__ ("addi %0, r14, 0":"=r" (val));

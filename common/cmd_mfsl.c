@@ -238,13 +238,19 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 int do_rmsr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	int val = 0;
+	unsigned int val = 0;
 
+	val = (unsigned int)simple_strtoul (argv[1], NULL, 16);
 	if (argc < 1) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
-	RMSR (val);
+	if (argc > 1) {
+		MTS (val);
+		MFS (val);
+	} else {
+		MFS (val);
+	}
 	printf ("rmsr: 0x%08lx\n", val);
 	return 0;
 }
@@ -259,7 +265,7 @@ U_BOOT_CMD (fwr, 4, 1, do_fwr,
 	    "fwr     - write data to FSL\n",
 	    "- [fslnum data [0|x]],  (0 - non blocking|x - blocking).\n");
 
-U_BOOT_CMD (rmsr, 1, 1, do_rmsr,
+U_BOOT_CMD (rmsr, 3, 1, do_rmsr,
 	    "rmsr    - read MSR register\n", "- read MSR register.\n");
 
-#endif	/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */
+#endif				/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */
