@@ -58,6 +58,10 @@
 #define	FREQUENCE		XILINX_CLOCK_FREQ
 #define	CFG_TIMER_0_PRELOAD	( FREQUENCE/1000 )
 
+/* FSL */
+#define	CFG_FSL_2
+#define	FSL_INTR_2	1
+
 /*
  * memory layout - Example
  * TEXT_BASE = 0x1200_0000;
