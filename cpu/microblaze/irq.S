@@ -151,14 +151,7 @@ _interrupt_handler:
 	addi	r1, r1, 4
 
 	/* enable_interrupt */
-	addi	r1, r1, -4
-	swi	r12, r1, 0
-	mfs	r12, rmsr
-	ori	r12, r12, 2
-	mts	rmsr, r12
-	lwi	r12, r1, 0
-	addi	r1, r1, 4
-	nop
+	msrset	r0, 2
 	bra	r14
 	nop
 	nop
