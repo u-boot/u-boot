@@ -39,3 +39,5 @@ struct irq_action {
 	int count; /* number of interrupt */
 };
 
+void install_interrupt_handler (int irq, interrupt_handler_t * hdlr,
+				       void *arg);

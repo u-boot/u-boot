@@ -27,6 +27,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/microblaze_intc.h>
+#include <asm/asm.h>
 
 #undef DEBUG_INT
 
@@ -106,7 +107,6 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 		act->count = 0;
 		enable_one_interrupt (irq);
 	} else {		/* disable */
-
 		act->handler = (interrupt_handler_t *) def_hdlr;
 		act->arg = (void *)irq;
 		disable_one_interrupt (irq);
@@ -147,12 +147,13 @@ int interrupts_init (void)
 
 void interrupt_handler (void)
 {
-	int irqs;
-	irqs = (intc->isr & intc->ier);	/* find active interrupt */
-
+	int irqs = (intc->isr & intc->ier);	/* find active interrupt */
+	int i = 1;
 #ifdef DEBUG_INT
+	int value;
 	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
 		intc->iar, intc->mer);
+	R14(value);
 	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
 	struct irq_action *act = vecs;
@@ -165,15 +166,19 @@ void interrupt_handler (void)
 #endif
 			act->handler (act->arg);
 			act->count++;
+			intc->iar = i;
+			return;
 		}
 		irqs >>= 1;
 		act++;
+		i <<= 1;
 	}
-	intc->iar = 0xFFFFFFFF;	/* erase all events */
-#ifdef DEBUG
+
+#ifdef DEBUG_INT
 	printf ("Dump INTC reg, isr %x, ier %x, iar %x, mer %x\n", intc->isr,
 		intc->ier, intc->iar, intc->mer);
-	printf ("Interrupt handler on %x line, r14\n", irqs);
+	R14(value);
+	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
 }
 #endif
