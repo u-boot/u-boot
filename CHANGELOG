@@ -1,3 +1,453 @@
+commit 885ec89b648a899a2f32393fd3ffd9f7234c4402
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 18:05:02 2007 +0200
+
+    Add STX GP3 SSA board to MAKEALL script; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5499645b3fe17a548af9dfc479ca6e2455f179a2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 17:15:50 2007 +0200
+
+    Make "file" command happy with some config.mk files; update CHANGELOG
+
+commit e3b8c78bc2489c27ae020986ef0eaca684866cef
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Sat May 5 08:32:14 2007 +0200
+
+    ppc4xx: Detect if the sysclk on Sequoia is 33 or 33.333 MHz
+
+    The AMCC Secquoia board has been changed in a new revision from using a
+    33.000 MHz clock to a 33.333 MHz system clock. A bit in the CPLD
+    indicates the difference. This patch reads that bit and uses the correct
+    clock speed for the board. This code is backward compatable will all
+    prior boards. All prior boards will be read as 33.000.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f544ff6656fca263ed1ebe39899b6d95da67c8b8
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat May 5 08:29:01 2007 +0200
+
+    ppc4xx: Sequoia: Remove cpu/ppc4xx/speed.c from NAND booting
+
+    Using cpu/ppc4xx/speed.c to calculate the bus frequency is too big
+    for the 4k NAND boot image so define bus_frequency to 133MHz here
+    which is save for the refresh counter setup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a79886590593ba1d667c840caa4940c61639f18f
+Author: Thomas Knobloch <knobloch@siemens.com>
+Date:	Sat May 5 07:04:42 2007 +0200
+
+    NAND: Wrong calculation of page number in nand_block_bad()
+
+    In case that there is no memory based bad block table available the
+    function nand_block_checkbad() in drivers/mtd/nand/nand_base.c will call
+    nand_block_bad() directly. When parameter 'getchip' is set to zero,
+    nand_block_bad() will not right shift the offset to calculate the
+    correct page number.
+
+    Signed-off-by: Thomas Knobloch <knobloch@siemens.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9877d7dcd1eebe61aa5d8b8ffe9c048ea426e6f6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 4 10:02:33 2007 +0200
+
+    Fix initrd length corruption in bootm command.
+
+    When using FDT Images, the length of an inital ramdisk was
+    overwritten (bug introduced by commit 87a449c8, 22 Aug 2006).
+
+    Patches by Timur Tabi & Johns Daniel.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c64a89d6ce8584b9fc64f4e85da9ecac3cfc2c2a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 3 16:34:41 2007 +0200
+
+    Update board configuration for STX GP3SSA board:
+
+    Enable hush shell, environment in flash rather in EEPROM,
+    more user-friendly default environment, etc.
+    The simple EEPROM environment can be selected easily in the board
+    config file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2c6fb199dc5756fc72f49d1f4de105e089049d65
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 24 14:37:49 2007 +0200
+
+    Cleanup STX GP3SSA code; fix build and compile problems.
+
+commit 35171dc04e028ecacc23ad916a66295472555dbf
+Author: Dan Malek <dan@embeddedalley.com>
+Date:	Fri Jan 5 09:15:34 2007 +0100
+
+    Add support for STX GP3SSA (stxssa) Board
+
+    Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit ffa621a0d12a1ccd81c936c567f8917a213787a8
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Sat Feb 24 01:08:13 2007 -0600
+
+    Cleaned up some 85xx PCI bugs
+
+    * Cleaned up the CDS PCI Config Tables and added NULL entries to
+      the end
+    * Fixed PCIe LAWBAR assignemt to use the cpu-relative address
+    * Fixed 85xx PCI code to assign powar region sizes based on the
+      config values (rather than hard-coding them)
+    * Fixed the 8548 CDS PCI2 IO to once again have 0 as the base address
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 6743105988fc44d5b0d30388c790607835aae7a6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:54:25 2007 -0500
+
+    Add support for the 8568 MDS board
+
+    This included some changes to common files:
+    * Add 8568 processor SVR to various places
+    * Add support for setting the qe bus-frequency value in the dts
+    * Add the 8568MDS target to the Makefile
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit af1c2b84bf27c8565baddc82d1abb93700d10e2e
+Author: David Updegraff <dave@cray.com>
+Date:	Fri Apr 20 14:34:48 2007 -0500
+
+    Add support for treating unknown PHYs as generic PHYs.
+
+    When bringing up u-boot on new boards, PHY support sometimes gets
+    neglected.	Most PHYs don't really need any special support,
+    though.  By adding a generic entry that always matches if nothing
+    else does, we can provide support for "unsupported" PHYs for the
+    tsec.
+
+    The generic PHY driver supports most PHYs, including gigabit.
+
+    Signed-off-by: David Updegraff <dave@cray.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit a75af9bfd8fff0499efdbb90601cec5a2afef117
+Author: James Yang <James.Yang@freescale.com>
+Date:	Wed Feb 7 15:28:04 2007 -0600
+
+    Conditionalize 8641 Rev1.0 MCM workarounds
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c1ab82669d9525998c34e802a12cad662723f22a
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Mar 16 13:02:53 2007 -0500
+
+    Rewrote picos_to_clk() to avoid rounding errors.
+    Clarified that conversion is to DRAM clocks rather than platform clocks.
+    Made function static to spd_sdram.c.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8b39501d28754e72726ce7fb02310e56dbdf116a
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Apr 29 14:13:01 2007 +0200
+
+    ppc4xx: Bamboo: Use current NAND driver and *not* the legacy driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 37ed6cdd4159195bfad68d8a237f6adda8f482cb
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Apr 24 14:03:45 2007 +0200
+
+    ppc4xx: setup 440EPx/GRx ZMII/RGMII bridge depending on PFC register content.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 66ed6cca3f340f7a8a06d9272ae2ef8e96f0273d
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:37:47 2007 -0500
+
+    Reworked 85xx speed detection code
+
+    Changed the code to read the registers and calculate the clock
+    rates, rather than using a "switch" statement.
+
+    Idea from Andrew Klossner <andrew@cesa.opbu.xerox.com>
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 81f481ca708ed6a56bf9c410e3191dbad581c565
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:24:28 2007 -0500
+
+    Enable 8544 support
+
+    * Add support to the Makefile
+    * Add 8544 configuration support to the tsec driver
+    * Add 8544 SVR numbers to processor.h
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0d8c3a2096eaff8d7de89d45e9af4d4b0d4868fe
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 17:12:25 2007 -0600
+
+    Support 1G size on 8548
+
+    e500v2 and newer cores support 1G page sizes.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 45cef612cc601d2d1c890fbbd7cdc9609a189a46
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 17:11:16 2007 -0600
+
+    Changed BOOKE_PAGESZ_nGB to BOOKE_PAGESZ_nG
+
+    The other pagesz constants use one letter to specify order of
+    magnitude.	Also change the one reference to it in mpc8548cds/init.S
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 1f9a318cea14272edd10d63739e2d326c90f430e
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 16:28:46 2007 -0600
+
+    Only set ddrioovcr for 8548 rev1.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 9343dbf85bc03033f2102d8e8543567c2c1ad2d2
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Sat Feb 24 01:16:45 2007 -0600
+
+    Tweak DDR ECC error counter
+
+    Enable single-bit error counter when memory was cleared by ddr controller.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 85e7c7a45e3dd9c7ce3e722352ba60f8df1a7a4b
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Feb 12 13:34:55 2007 -0600
+
+    85xx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 03b81b48eec0ad249ec97a4ae16c36fa2e014ff4
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 01:44:44 2007 -0500
+
+    Some 85xx cpu cleanups
+
+    * Cleaned up the TSR[WIS] clearing
+    * Cleaned up DMA initialization
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 151d5d992eab8c497b24c816c73dc1ad8bffb4eb
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 01:32:22 2007 -0500
+
+    Add cpu support for the 8544
+
+    Recognize new SVR values, and add a few register definitions
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 25d83d7f4ac65727182d8ddaf7ba42fa74cf65ae
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Apr 11 16:51:02 2007 -0500
+
+    Add MPC8544DS basic port board files.
+
+    Add board port under new board/freescale directory
+    structure and reuse existing PIXIS FPGA support there.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0cde4b00fc7393b89f379d83a9d436dcb1334bfa
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Apr 11 16:50:57 2007 -0500
+
+    Add MPC8544DS main configuration file.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 362dd83077ac04c0296bca3e824ec2fb3d44d9d6
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Wed Dec 27 22:07:15 2006 +0300
+
+    Fix PCI I/O space mapping on Freescale MPC85x0ADS
+
+    The PCI I/O space mapping for Freescale MPC8540ADS board was broken by commit
+    52c7a68b8d587ebcf5a6b051b58b3d3ffa377ddc which failed to update the #define's
+    describing the local address window used for the PCI I/O space accesses -- fix
+    this and carry over the necessary changes into the MPC8560ADS code since the
+    PCI I/O space mapping was also broken for this board (by the earlier commit
+    087454609e47295443af793a282cddcd91a5f49c).	Add the comments clarifying how
+    the PCI I/O space must be mapped to all the MPC85xx board config. headers.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+
+     board/mpc8540ads/init.S	  |    4 ++--
+     board/mpc8560ads/init.S	  |    4 ++--
+     include/configs/MPC8540ADS.h |    5 ++---
+     include/configs/MPC8541CDS.h |    2 +-
+     include/configs/MPC8548CDS.h |    2 +-
+     include/configs/MPC8560ADS.h |    8 ++++----
+     6 files changed, 12 insertions(+), 13 deletions(-)
+
+commit 96629cbabdb727d4a5e62542deefc01d498db6dc
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Tue Dec 5 16:42:30 2006 +0800
+
+    u-boot: Fix e500 v2 core reset bug
+
+    The following patch fixes the e500 v2 core reset bug.
+    For e500 v2 core, a new reset control register is added to reset the
+    processor.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 63247a5acd58032e6cf33f525bc3923b467bac88
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Wed Dec 20 11:01:00 2006 +0800
+
+    u-boot: v2: Remove the fixed TLB and LAW entrynubmer
+
+    Remove the fixed TLB and LAW entry nubmer. Use actually TLB and LAW
+    entry number to control the loop.  This can reduce the potential risk
+    for the 85xx processor increasing its TLB adn LAW entry number.
+
+    Signed-off-by: Swarthout Edward <swarthout@freescale.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 0b1934ba12fd408fcc3b8bd9f4b04864c42a42bf
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Mon Dec 18 17:01:04 2006 +0800
+
+    u-boot: Fix the 85xxcds tsec bug
+
+    Fix the 85xxcds tsec bug.
+    When enable PCI, tsec.o should be added to u-boot.lds to make tsec work.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 7337b237ffc4aaf1b9467024fe472a880d852598
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Fri Dec 15 14:43:31 2006 +0800
+
+    u-boot: Fix CPU2 errata on MPC8548CDS board
+
+    This patch apply workaround of CPU2 errata on MPC8548CDS board.
+
+    Signed-off-by:Ebony Zhu <ebony.zhu@freescale.com>
+
+commit 39b18c4f3e0b6d0dc00f4e68bad2da3766c85f09
+Author: ebony.zhu@freescale.com <ebony.zhu@freescale.com>
+Date:	Mon Dec 18 16:25:15 2006 +0800
+
+    u-boot: Disables MPC8548CDS 2T_TIMING for DDR by default
+
+    This patch disables MPC8548CDS 2T_TIMING for DDR by default.
+
+    Signed-off-by:Ebony Zhu <ebony.zhu@freescale.com>
+
+commit 41fb7e0f1ec9b91bdae2565bab5f2e3ee15039c7
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Thu Dec 14 14:14:55 2006 +0800
+
+    u-boot: Enable PCI function and add PEX & rapidio memory map on MPC8548CDS board
+
+    Enable PCI function and add PEX & rapidio memory map on MPC8548CDS
+    board.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 23 12:00:22 2007 +0200
+
+    Remove BOARDLIBS usage completely
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2e343b9a57f32e1bd08c35c9976910333fb4e13d
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Feb 28 05:37:29 2007 -0600
+
+    mpc8641hpcn: Fix LAW and TLB setup to use the IO_PHYS #defines.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 79cb47391eebef85acadb3f6961ef6c55cace6ac
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Fri Jan 19 10:42:37 2007 +0800
+
+    Enable LAWs for MPC8641 PCI-Ex2.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bd7851ce1e1f140665b520026abf1042968b1102
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:12:26 2007 -0500
+
+    mpc86xx; Write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7dbdf28b8bd855a8530dc3292e4982575a197060
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:11:38 2007 -0500
+
+    mpc86xx: protect memcpy to bad address if a mac-address is missing from dt
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 14da5f7675bbb427c469e3f45006e027b6e21db9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 20 17:43:28 2007 +0200
+
+    Cleanup compiler warnings, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 6923565db12af34fd5e02d354ee65a8c78ac460f
 Author: Detlev Zundel <dzu@denx.de>
 Date:	Fri Apr 20 12:01:47 2007 +0200
@@ -29,6 +479,20 @@ Date:	Thu Apr 19 23:14:39 2007 -0400
       overwriting random memory.
     Also moved the libfdt.a requirement into the main Makefile.  That is
       The U-Boot Way.
+
+commit d21686263574e95cb3e9e9b0496f968b1b897fdb
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 19 09:53:52 2007 +0200
+
+    ppc4xx: Fix chip select timing for SysACE access on AMCC Katmai
+
+    Previous versions used full wait states for the chip select #1 which
+    is connected to the Xilinix SystemACE controller on the AMCC Katmai
+    evaluation board. This leads to really slow access and therefore low
+    performance. This patch now sets up the chip select a lot faster
+    resulting in much better read/write performance of the Linux driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 37837828d89084879bee2f2b8c7c68d4695940df
 Author: Wolfgang Denk <wd@denx.de>

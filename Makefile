@@ -197,6 +197,9 @@ LIBS += cpu/$(CPU)/lib$(CPU).a
 ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
 endif
+ifeq ($(CPU),ixp)
+LIBS += cpu/ixp/npe/libnpe.a
+endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
@@ -220,7 +223,6 @@ LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
-LIBS += $(BOARDLIBS)
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)
@@ -1733,11 +1735,17 @@ MPC8560ADS_config:	unconfig
 MPC8541CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8541cds cds
 
+MPC8544DS_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8544ds freescale
+
 MPC8548CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8548cds cds
 
 MPC8555CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8555cds cds
+
+MPC8568MDS_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
@@ -1773,6 +1781,9 @@ sbc8560_66_config:      unconfig
 
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
+
+stxssa_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxssa
 
 TQM8540_config		\
 TQM8541_config		\

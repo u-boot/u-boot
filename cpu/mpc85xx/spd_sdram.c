@@ -263,13 +263,14 @@ spd_sdram(void)
 	}
 
 	/*
-	 * Adjust DDR II IO voltage biasing.  It just makes it work.
+	 * Adjust DDR II IO voltage biasing.
+	 * Only 8548 rev 1 needs the fix
 	 */
-	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		gur->ddrioovcr = (0
-				  | 0x80000000		/* Enable */
-				  | 0x10000000		/* VSEL to 1.8V */
-				  );
+	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
+			(SVR_MJREV(get_svr()) == 1) &&
+			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
+		gur->ddrioovcr = (0x80000000	/* Enable */
+				  | 0x10000000);/* VSEL to 1.8V */
 	}
 
 	/*
@@ -786,14 +787,17 @@ spd_sdram(void)
 	 * Is this an ECC DDR chip?
 	 * But don't mess with it if the DDR controller will init mem.
 	 */
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+#ifdef CONFIG_DDR_ECC
 	if (spd.config == 0x02) {
+#ifndef CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 		ddr->err_disable = 0x0000000d;
+#endif
 		ddr->err_sbe = 0x00ff0000;
 	}
+
 	debug("DDR: err_disable = 0x%08x\n", ddr->err_disable);
 	debug("DDR: err_sbe = 0x%08x\n", ddr->err_sbe);
-#endif
+#endif /* CONFIG_DDR_ECC */
 
 	asm("sync;isync;msync");
 	udelay(500);
@@ -991,17 +995,24 @@ setup_laws_and_tlbs(unsigned int memsize)
 		break;
 	case 256:
 	case 512:
+		tlb_size = BOOKE_PAGESZ_256M;
+		break;
 	case 1024:
 	case 2048:
-		tlb_size = BOOKE_PAGESZ_256M;
+		if (PVR_VER(get_pvr()) > PVR_VER(PVR_85xx))
+			tlb_size = BOOKE_PAGESZ_1G;
+		else
+			tlb_size = BOOKE_PAGESZ_256M;
 		break;
 	default:
 		puts("DDR: only 16M,32M,64M,128M,256M,512M,1G and 2G are supported.\n");
 
 		/*
 		 * The memory was not able to be mapped.
+		 * Default to a small size.
 		 */
-		return 0;
+		tlb_size = BOOKE_PAGESZ_64M;
+		memsize=64;
 		break;
 	}
 

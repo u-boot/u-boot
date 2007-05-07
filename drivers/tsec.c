@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -66,7 +66,11 @@ struct tsec_info_struct {
  */
 static struct tsec_info_struct tsec_info[] = {
 #if defined(CONFIG_MPC85XX_TSEC1) || defined(CONFIG_MPC83XX_TSEC1)
+#if defined(CONFIG_MPC8544DS)
+	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
+#else
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
+#endif
 #elif defined(CONFIG_MPC86XX_TSEC1)
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
 #else
@@ -376,6 +380,76 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 		udelay(500000);	/* another 500 ms (results in faster booting) */
 	} else {
 		priv->link = 1;
+	}
+
+	return 0;
+}
+
+/* Generic function which updates the speed and duplex.  If
+ * autonegotiation is enabled, it uses the AND of the link
+ * partner's advertised capabilities and our advertised
+ * capabilities.  If autonegotiation is disabled, we use the
+ * appropriate bits in the control register.
+ *
+ * Stolen from Linux's mii.c and phy_device.c
+ */
+uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
+{
+	/* We're using autonegotiation */
+	if (mii_reg & PHY_BMSR_AUTN_ABLE) {
+		uint lpa = 0;
+		uint gblpa = 0;
+
+		/* Check for gigabit capability */
+		if (mii_reg & PHY_BMSR_EXT) {
+			/* We want a list of states supported by
+			 * both PHYs in the link
+			 */
+			gblpa = read_phy_reg(priv, PHY_1000BTSR);
+			gblpa &= read_phy_reg(priv, PHY_1000BTCR) << 2;
+		}
+
+		/* Set the baseline so we only have to set them
+		 * if they're different
+		 */
+		priv->speed = 10;
+		priv->duplexity = 0;
+
+		/* Check the gigabit fields */
+		if (gblpa & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) {
+			priv->speed = 1000;
+
+			if (gblpa & PHY_1000BTSR_1000FD)
+				priv->duplexity = 1;
+
+			/* We're done! */
+			return 0;
+		}
+
+		lpa = read_phy_reg(priv, PHY_ANAR);
+		lpa &= read_phy_reg(priv, PHY_ANLPAR);
+
+		if (lpa & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX)) {
+			priv->speed = 100;
+
+			if (lpa & PHY_ANLPAR_TXFD)
+				priv->duplexity = 1;
+
+		} else if (lpa & PHY_ANLPAR_10FD)
+			priv->duplexity = 1;
+	} else {
+		uint bmcr = read_phy_reg(priv, PHY_BMCR);
+
+		priv->speed = 10;
+		priv->duplexity = 0;
+
+		if (bmcr & PHY_BMCR_DPLX)
+			priv->duplexity = 1;
+
+		if (bmcr & PHY_BMCR_1000_MBPS)
+			priv->speed = 1000;
+		else if (bmcr & PHY_BMCR_100_MBPS)
+			priv->speed = 100;
 	}
 
 	return 0;
@@ -718,6 +792,7 @@ static void startup_tsec(struct eth_device *dev)
 	/* Start up the PHY */
 	if(priv->phyinfo)
 		phy_run_commands(priv, priv->phyinfo->startup);
+
 	adjust_link(dev);
 
 	/* Enable Transmit and Receive */
@@ -1088,6 +1163,27 @@ struct phy_info phy_info_dm9161 = {
 			   {miim_end,}
 			   },
 };
+/* a generic flavor.  */
+struct phy_info phy_info_generic =  {
+	0,
+	"Unknown/Generic PHY",
+	32,
+	(struct phy_cmd[]) { /* config */
+		{PHY_BMCR, PHY_BMCR_RESET, NULL},
+		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		{PHY_BMSR, miim_read, NULL},
+		{PHY_BMSR, miim_read, &mii_parse_sr},
+		{PHY_BMSR, miim_read, &mii_parse_link},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	}
+};
+
 
 uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 {
@@ -1203,6 +1299,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
 	&phy_info_dp83865,
+	&phy_info_generic,
 	NULL
 };
 

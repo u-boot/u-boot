@@ -477,11 +477,14 @@ void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_ta
 static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 	{0x10e3, 0x0513, PCI_ANY_ID, 1, 3, PCI_ANY_ID, dummy_func, {0,0,0}},
 	{0x1106, 0x0686, PCI_ANY_ID, 1, 2, 0, mpc85xx_config_via, {0,0,0}},
-	{0x1106, 0x0571, PCI_ANY_ID, 1, 2, 1, mpc85xx_config_via_usbide, {0,0,0}},
+	{0x1106, 0x0571, PCI_ANY_ID, 1, 2, 1,
+		mpc85xx_config_via_usbide, {0,0,0}},
 	{0x1105, 0x3038, PCI_ANY_ID, 1, 2, 2, mpc85xx_config_via_usb, {0,0,0}},
 	{0x1106, 0x3038, PCI_ANY_ID, 1, 2, 3, mpc85xx_config_via_usb2, {0,0,0}},
-	{0x1106, 0x3058, PCI_ANY_ID, 1, 2, 5, mpc85xx_config_via_power, {0,0,0}},
-	{0x1106, 0x3068, PCI_ANY_ID, 1, 2, 6, mpc85xx_config_via_ac97, {0,0,0}}
+	{0x1106, 0x3058, PCI_ANY_ID, 1, 2, 5,
+		mpc85xx_config_via_power, {0,0,0}},
+	{0x1106, 0x3068, PCI_ANY_ID, 1, 2, 6, mpc85xx_config_via_ac97, {0,0,0}},
+	{},
 };
 
 static struct pci_controller hose[] = {

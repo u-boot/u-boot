@@ -251,13 +251,10 @@ _start_e500:
 	 */
 	bl	tlb1_entry
 	mr	r5,r0
-	li	r1,0x0020	/* max 16 TLB1 plus some TLB0 entries */
-	mtctr	r1
 	lwzu	r4,0(r5)	/* how many TLB1 entries we actually use */
+	mtctr	r4
 
-0:	cmpwi	r4,0
-	beq	1f
-	lwzu	r0,4(r5)
+0:	lwzu	r0,4(r5)
 	lwzu	r1,4(r5)
 	lwzu	r2,4(r5)
 	lwzu	r3,4(r5)
@@ -269,7 +266,6 @@ _start_e500:
 	msync
 	tlbwe
 	isync
-	addi	r4,r4,-1
 	bdnz	0b
 
 1:
@@ -301,20 +297,16 @@ _start_e500:
 
 	bl	law_entry
 	mr	r6,r0
-	li	r1,0x0007	/* 8 LAWs, but reserve one for boot-over-rio-or-pci */
-	mtctr	r1
 	lwzu	r5,0(r6)	/* how many windows we actually use */
+	mtctr	r5
 
 	li	r2,0x0c28	/* the first pair is reserved for boot-over-rio-or-pci */
 	li	r1,0x0c30
 
-0:	cmpwi	r5,0
-	beq	1f
-	lwzu	r4,4(r6)
+0:	lwzu	r4,4(r6)
 	lwzu	r3,4(r6)
 	stwx	r4,r7,r2
 	stwx	r3,r7,r1
-	addi	r5,r5,-1
 	addi	r2,r2,0x0020
 	addi	r1,r1,0x0020
 	bdnz	0b
