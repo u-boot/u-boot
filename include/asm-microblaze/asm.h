@@ -39,5 +39,42 @@
 #define MTS(val) \
 	__asm__ __volatile__ ("mts rmsr, %0"::"r" (val));
 
+/* get return address from interrupt */
 #define R14(val) \
 	__asm__ __volatile__ ("addi %0, r14, 0":"=r" (val));
+
+/* use machine status registe USE_MSR_REG */
+#ifdef XILINX_USE_MSR_INSTR
+#define MSRSET(val) \
+	__asm__ __volatile__ ("msrset r0," #val );
+
+#define MSRCLR(val) \
+	__asm__ __volatile__ ("msrclr r0," #val );
+
+#else
+#define MSRSET(val)						\
+{								\
+	register unsigned tmp;					\
+	__asm__ __volatile__ ("					\
+			mfs 	%0, rmsr;			\
+			ori	%0, %0, "#val";			\
+			mts	rmsr, %0;			\
+			nop;"					\
+			: "=r" (tmp)				\
+			: "d" (val)				\
+			: "memory");				\
+}
+
+#define MSRCLR(val)						\
+{								\
+	register unsigned tmp;					\
+	__asm__ __volatile__ ("					\
+			mfs 	%0, rmsr;			\
+			andi	%0, %0, ~"#val";		\
+			mts	rmsr, %0;			\
+			nop;"					\
+			: "=r" (tmp)				\
+			: "d" (val)				\
+			: "memory");				\
+}
+#endif

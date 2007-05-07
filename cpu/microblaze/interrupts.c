@@ -36,12 +36,12 @@ extern void microblaze_enable_interrupts (void);
 
 void enable_interrupts (void)
 {
-	__asm__ __volatile__ ("msrset r0, 0x2");
+	MSRSET(0x2);
 }
 
 int disable_interrupts (void)
 {
-	__asm__ __volatile__ ("msrclr r0, 0x2");
+	MSRCLR(0x2);
 	return 0;
 }
 

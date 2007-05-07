@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <asm/asm.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_CACHE)
 
@@ -47,18 +48,18 @@ int icache_status (void)
 }
 
 void	icache_enable (void) {
-	__asm__ __volatile__ ("msrset r0, 0x80");
+	MSRSET(0x20);
 }
 
 void	icache_disable(void) {
-	__asm__ __volatile__ ("msrclr r0, 0x80");
+	MSRCLR(0x20);
 }
 
 void	dcache_enable (void) {
-	__asm__ __volatile__ ("msrset r0, 0x20");
+	MSRSET(0x80);
 }
 
 void	dcache_disable(void) {
-	__asm__ __volatile__ ("msrclr r0, 0x20");
+	MSRCLR(0x80);
 }
 #endif
