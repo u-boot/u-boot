@@ -395,7 +395,9 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 {
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
+#ifndef CONFIG_MOTIONPRO
 	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
+#endif /* !CONFIG_MOTIONPRO */
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_init_phy... Begin\n");
@@ -428,6 +430,14 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 	 */
 	fec->eth->imask = 0x00000000;
 
+/*
+ * In original Promess-provided code PHY initialization is disabled with the
+ * following comment: "Phy initialization is DISABLED for now.  There was a
+ * problem with running 100 Mbps on PRO board". Thus we temporarily disable
+ * PHY initialization for the Motion-PRO board, until a proper fix is found.
+ */
+
+#ifndef CONFIG_MOTIONPRO
 	if (fec->xcv_type != SEVENWIRE) {
 		/*
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
@@ -550,6 +560,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 		}
 
 	}
+#endif /* !CONFIG_MOTIONPRO */
 
 #if (DEBUG & 0x2)
 	if (fec->xcv_type != SEVENWIRE)
