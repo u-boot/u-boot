@@ -25,12 +25,27 @@
 /* FSL macros */
 #define NGET(val, fslnum) \
 	__asm__ __volatile__ ("nget %0, rfsl" #fslnum :"=r" (val));
+
 #define GET(val, fslnum) \
 	__asm__ __volatile__ ("get %0, rfsl" #fslnum :"=r" (val));
+
+#define NCGET(val, fslnum) \
+	__asm__ __volatile__ ("ncget %0, rfsl" #fslnum :"=r" (val));
+
+#define CGET(val, fslnum) \
+	__asm__ __volatile__ ("cget %0, rfsl" #fslnum :"=r" (val));
+
 #define NPUT(val, fslnum) \
 	__asm__ __volatile__ ("nput %0, rfsl" #fslnum ::"r" (val));
+
 #define PUT(val, fslnum) \
 	__asm__ __volatile__ ("put %0, rfsl" #fslnum ::"r" (val));
+
+#define NCPUT(val, fslnum) \
+	__asm__ __volatile__ ("ncput %0, rfsl" #fslnum ::"r" (val));
+
+#define CPUT(val, fslnum) \
+	__asm__ __volatile__ ("cput %0, rfsl" #fslnum ::"r" (val));
 
 /* CPU dependent */
 #define MFS(val) \

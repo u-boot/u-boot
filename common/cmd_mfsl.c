@@ -55,73 +55,129 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	switch (fslnum) {
 #if (XILINX_FSL_NUMBER > 0)
 	case 0:
-		if (blocking) {
-			GET (num, 0);
-		} else {
-			NGET (num, 0);
+		switch (blocking) {
+		case 0:	NGET (num, 0);
+			break;
+		case 1:	NCGET (num, 0);
+			break;
+		case 2:	GET (num, 0);
+			break;
+		case 3:	CGET (num, 0);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 1)
 	case 1:
-		if (blocking) {
-			GET (num, 1);
-		} else {
-			NGET (num, 1);
+		switch (blocking) {
+		case 0:	NGET (num, 1);
+			break;
+		case 1:	NCGET (num, 1);
+			break;
+		case 2:	GET (num, 1);
+			break;
+		case 3:	CGET (num, 1);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 2)
 	case 2:
-		if (blocking) {
-			GET (num, 2);
-		} else {
-			NGET (num, 2);
+		switch (blocking) {
+		case 0:	NGET (num, 2);
+			break;
+		case 1:	NCGET (num, 2);
+			break;
+		case 2:	GET (num, 2);
+			break;
+		case 3:	CGET (num, 2);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 3)
 	case 3:
-		if (blocking) {
-			GET (num, 3);
-		} else {
-			NGET (num, 3);
+		switch (blocking) {
+		case 0:	NGET (num, 3);
+			break;
+		case 1:	NCGET (num, 3);
+			break;
+		case 2:	GET (num, 3);
+			break;
+		case 3:	CGET (num, 3);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 4)
 	case 4:
-		if (blocking) {
-			GET (num, 4);
-		} else {
-			NGET (num, 4);
+		switch (blocking) {
+		case 0:	NGET (num, 4);
+			break;
+		case 1:	NCGET (num, 4);
+			break;
+		case 2:	GET (num, 4);
+			break;
+		case 3:	CGET (num, 4);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 5)
 	case 5:
-		if (blocking) {
-			GET (num, 5);
-		} else {
-			NGET (num, 5);
+		switch (blocking) {
+		case 0:	NGET (num, 5);
+			break;
+		case 1:	NCGET (num, 5);
+			break;
+		case 2:	GET (num, 5);
+			break;
+		case 3:	CGET (num, 5);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 6)
 	case 6:
-		if (blocking) {
-			GET (num, 6);
-		} else {
-			NGET (num, 6);
+		switch (blocking) {
+		case 0:	NGET (num, 6);
+			break;
+		case 1:	NCGET (num, 6);
+			break;
+		case 2:	GET (num, 6);
+			break;
+		case 3:	CGET (num, 6);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 7)
 	case 7:
-		if (blocking) {
-			GET (num, 7);
-		} else {
-			NGET (num, 7);
+		switch (blocking) {
+		case 0:	NGET (num, 7);
+			break;
+		case 1:	NCGET (num, 7);
+			break;
+		case 2:	GET (num, 7);
+			break;
+		case 3:	CGET (num, 7);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
@@ -129,8 +185,9 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	printf ("%01x: 0x%08lx - %s read\n", fslnum, num,
-		blocking ? "blocking" : "non blocking");
+	printf ("%01x: 0x%08lx - %s %s read\n", fslnum, num,
+		blocking < 2  ? "non blocking" : "blocking",
+		((blocking == 1) || (blocking == 3)) ? "control" : "data" );
 	return 0;
 }
 
@@ -156,73 +213,129 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	switch (fslnum) {
 #if (XILINX_FSL_NUMBER > 0)
 	case 0:
-		if (blocking) {
-			PUT (num, 0);
-		} else {
-			NPUT (num, 0);
+		switch (blocking) {
+		case 0:	NPUT (num, 0);
+			break;
+		case 1:	NCPUT (num, 0);
+			break;
+		case 2:	PUT (num, 0);
+			break;
+		case 3:	CPUT (num, 0);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 1)
 	case 1:
-		if (blocking) {
-			PUT (num, 1);
-		} else {
-			NPUT (num, 1);
+		switch (blocking) {
+		case 0:	NPUT (num, 1);
+			break;
+		case 1:	NCPUT (num, 1);
+			break;
+		case 2:	PUT (num, 1);
+			break;
+		case 3:	CPUT (num, 1);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 2)
 	case 2:
-		if (blocking) {
-			PUT (num, 2);
-		} else {
-			NPUT (num, 2);
+		switch (blocking) {
+		case 0:	NPUT (num, 2);
+			break;
+		case 1:	NCPUT (num, 2);
+			break;
+		case 2:	PUT (num, 2);
+			break;
+		case 3:	CPUT (num, 2);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 3)
 	case 3:
-		if (blocking) {
-			PUT (num, 3);
-		} else {
-			NPUT (num, 3);
+		switch (blocking) {
+		case 0:	NPUT (num, 3);
+			break;
+		case 1:	NCPUT (num, 3);
+			break;
+		case 2:	PUT (num, 3);
+			break;
+		case 3:	CPUT (num, 3);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 4)
 	case 4:
-		if (blocking) {
-			PUT (num, 4);
-		} else {
-			NPUT (num, 4);
+		switch (blocking) {
+		case 0:	NPUT (num, 4);
+			break;
+		case 1:	NCPUT (num, 4);
+			break;
+		case 2:	PUT (num, 4);
+			break;
+		case 3:	CPUT (num, 4);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 5)
 	case 5:
-		if (blocking) {
-			PUT (num, 5);
-		} else {
-			NPUT (num, 5);
+		switch (blocking) {
+		case 0:	NPUT (num, 5);
+			break;
+		case 1:	NCPUT (num, 5);
+			break;
+		case 2:	PUT (num, 5);
+			break;
+		case 3:	CPUT (num, 5);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 6)
 	case 6:
-		if (blocking) {
-			PUT (num, 6);
-		} else {
-			NPUT (num, 6);
+		switch (blocking) {
+		case 0:	NPUT (num, 6);
+			break;
+		case 1:	NCPUT (num, 6);
+			break;
+		case 2:	PUT (num, 6);
+			break;
+		case 3:	CPUT (num, 6);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
 #if (XILINX_FSL_NUMBER > 7)
 	case 7:
-		if (blocking) {
-			PUT (num, 7);
-		} else {
-			NPUT (num, 7);
+		switch (blocking) {
+		case 0:	NPUT (num, 7);
+			break;
+		case 1:	NCPUT (num, 7);
+			break;
+		case 2:	PUT (num, 7);
+			break;
+		case 3:	CPUT (num, 7);
+			break;
+		default:
+			return 2;
 		}
 		break;
 #endif
@@ -230,8 +343,9 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	printf ("%01x: 0x%08lx - %s write\n", fslnum, num,
-		blocking ? "blocking" : "non blocking");
+	printf ("%01x: 0x%08lx - %s %s write\n", fslnum, num,
+		blocking < 2  ? "non blocking" : "blocking",
+		((blocking == 1) || (blocking == 3)) ? "control" : "data" );
 	return 0;
 
 }
@@ -258,12 +372,21 @@ int do_rmsr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 /***************************************************/
 
 U_BOOT_CMD (frd, 3, 1, do_frd,
-	    "frd     - read data from FSL\n",
-	    "- [fslnum [0|x]],  (0 - non blocking|x - blocking).\n");
+		"frd     - read data from FSL\n",
+		"- [fslnum [0|1|2|3]]\n"
+		" 0 - non blocking data read\n"
+		" 1 - non blocking control read\n"
+		" 2 - blocking data read\n"
+		" 3 - blocking control read\n");
+
 
 U_BOOT_CMD (fwr, 4, 1, do_fwr,
-	    "fwr     - write data to FSL\n",
-	    "- [fslnum data [0|x]],  (0 - non blocking|x - blocking).\n");
+		"fwr     - write data to FSL\n",
+		"- [fslnum [0|1|2|3]]\n"
+		" 0 - non blocking data write\n"
+		" 1 - non blocking control write\n"
+		" 2 - blocking data write\n"
+		" 3 - blocking control write\n");
 
 U_BOOT_CMD (rmsr, 2, 1, do_rmsr,
 	    "rmsr    - read MSR register\n", "- read MSR register.\n");
