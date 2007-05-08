@@ -29,6 +29,9 @@
 #include <common.h>
 #include <mpc5xxx.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
 /* Kollmorgen DPR initialization data */
 struct init_elem {
@@ -169,3 +172,11 @@ int checkboard (void)
 	puts("Board: Promess Motion-PRO board\n");
 	return 0;
 }
+
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
