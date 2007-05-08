@@ -50,7 +50,10 @@
 				CFG_CMD_NET	| \
 				CFG_CMD_PING	| \
 				CFG_CMD_IDE	| \
-				CFG_CMD_FAT)
+				CFG_CMD_FAT	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_EEPROM)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -270,6 +273,31 @@
 #define CFG_ATA_REG_OFFSET	CFG_ATA_DATA_OFFSET
 #define CFG_ATA_STRIDE		4
 #define CONFIG_DOS_PARTITION
+
+
+/*
+ * I2C configuration
+ */
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
+#define CFG_I2C_MODULE		2	/* select I2C module #2 */
+#define CFG_I2C_SPEED		100000	/* 100 kHz */
+#define CFG_I2C_SLAVE		0x7F
+
+
+/*
+ * EEPROM configuration
+ */
+#define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_PAGE_WRITE_BITS	3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CFG_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
+
+
+/*
+ * RTC configuration
+ */
+#define CONFIG_RTC_DS1337	1
+#define CFG_I2C_RTC_ADDR	0x68
 
 
 /*
