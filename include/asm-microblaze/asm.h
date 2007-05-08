@@ -48,11 +48,19 @@
 	__asm__ __volatile__ ("cput %0, rfsl" #fslnum ::"r" (val));
 
 /* CPU dependent */
+/* machine status register */
 #define MFS(val) \
 	__asm__ __volatile__ ("mfs %0, rmsr":"=r" (val));
 
 #define MTS(val) \
 	__asm__ __volatile__ ("mts rmsr, %0"::"r" (val));
+
+/* exception status register */
+#define MFSEAR(val) \
+	__asm__ __volatile ("mfs %0,rear":"=r" (val));
+
+#define MFSESR(val) \
+	__asm__ __volatile ("mfs %0,resr":"=r" (val));
 
 /* get return address from interrupt */
 #define R14(val) \
