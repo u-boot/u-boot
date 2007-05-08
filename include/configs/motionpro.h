@@ -30,7 +30,6 @@
  * High Level Configuration Options
  */
 
-
 /* CPU and board */
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
@@ -49,7 +48,9 @@
 				CFG_CMD_MII	| \
 				CFG_CMD_BEDBUG	| \
 				CFG_CMD_NET	| \
-				CFG_CMD_PING)
+				CFG_CMD_PING	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_FAT)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -104,11 +105,13 @@
 	"kernel_addr=200000\0"						\
 	"fdt_addr=400000\0"						\
 	"ramdisk_addr=500000\0"						\
+	"multi_image_addr=800000\0"					\
 	"rootpath=/opt/eldk-4.1/ppc_6xx\0"				\
 	"u-boot=/tftpboot/motionpro/u-boot.bin\0"			\
 	"bootfile=/tftpboot/motionpro/uImage\0"				\
 	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
 	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
+	"multi_image_file=kernel+initrd+dtb.img\0"			\
 	"load=tftp $(u-boot_addr) $(u-boot)\0"				\
 	"update=prot off fff00000 fff3ffff; era fff00000 fff3ffff; "	\
 		"cp.b $(u-boot_addr) fff00000 $(filesize);"		\
@@ -116,6 +119,7 @@
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
+	"fat_args=setenv bootargs rw\0"					\
 	"addip=setenv bootargs $(bootargs) "				\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
 		"$(netmask):$(hostname):$(netdev):off panic=1 "		\
@@ -128,6 +132,9 @@
 		"tftp $(ramdisk_addr) $(ramdisk_file); "		\
 		"run ramargs addip; "					\
 		"bootm $(kernel_addr) $(ramdisk_addr) $(fdt_addr)\0"	\
+	"fat_multi=run fat_args addip; fatload ide 0:1 "		\
+		"${multi_image_addr} ${multi_image_file}; "		\
+		"bootm ${multi_image_addr}\0"				\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
@@ -249,6 +256,20 @@
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 #define CONFIG_FLASH_16BIT		/* Flash is 16-bit */
+
+
+/*
+ * IDE/ATA configuration
+ */
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+#define CFG_IDE_MAXBUS		1
+#define CFG_IDE_MAXDEVICE	1
+#define CONFIG_IDE_PREINIT
+
+#define CFG_ATA_DATA_OFFSET	0x0060
+#define CFG_ATA_REG_OFFSET	CFG_ATA_DATA_OFFSET
+#define CFG_ATA_STRIDE		4
+#define CONFIG_DOS_PARTITION
 
 
 /*
