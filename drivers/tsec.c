@@ -1037,14 +1037,16 @@ static struct phy_info phy_info_M88E1145 = {
 	"Marvell 88E1145",
 	4,
 	(struct phy_cmd[]){	/* config */
+			   /* Reset the PHY */
+			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+
 			   /* Errata E0, E1 */
 			   {29, 0x001b, NULL},
 			   {30, 0x418f, NULL},
 			   {29, 0x0016, NULL},
 			   {30, 0xa2da, NULL},
 
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   /* Configure the PHY */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
 			   {MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO,
