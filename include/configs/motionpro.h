@@ -147,6 +147,13 @@
  */
 #define CFG_MPC5XXX_CLKIN	25000000
 
+
+/*
+ * Set IPB speed to 100MHz (yes, the #define is misnamed)
+ */
+#define CFG_IPBSPEED_133
+
+
 /*
  * Memory map
  */
