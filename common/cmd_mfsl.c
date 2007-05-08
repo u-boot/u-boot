@@ -350,22 +350,41 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 }
 
-int do_rmsr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	unsigned int reg = 0;
 	unsigned int val = 0;
 
-	val = (unsigned int)simple_strtoul (argv[1], NULL, 16);
+	reg = (unsigned int)simple_strtoul (argv[1], NULL, 16);
+	val = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	if (argc < 1) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
-	if (argc > 1) {
-		MTS (val);
-		MFS (val);
-	} else {
-		MFS (val);
+	switch (reg) {
+	case 0x1:
+		if (argc > 2) {
+			MTS (val, rmsr);
+			NOP;
+			MFS (val, rmsr);
+
+		} else {
+			MFS (val, rmsr);
+		}
+		puts ("MSR");
+		break;
+	case 0x3:
+		MFS (val, rear);
+		puts ("EAR");
+		break;
+	case 0x5:
+		MFS (val, resr);
+		puts ("ESR");
+		break;
+	default:
+		return 1;
 	}
-	printf ("rmsr: 0x%08lx\n", val);
+	printf (": 0x%08lx\n", val);
 	return 0;
 }
 
@@ -388,7 +407,11 @@ U_BOOT_CMD (fwr, 4, 1, do_fwr,
 		" 2 - blocking data write\n"
 		" 3 - blocking control write\n");
 
-U_BOOT_CMD (rmsr, 2, 1, do_rmsr,
-	    "rmsr    - read MSR register\n", "- read MSR register.\n");
+U_BOOT_CMD (rspr, 3, 1, do_rspr,
+		"rmsr    - read/write special purpose register\n",
+		"- reg_num [write value] read/write special purpose register\n"
+		" 0 - MSR - Machine status register\n"
+		" 1 - EAR - Exception address register\n"
+		" 2 - ESR - Exception status register\n");
 
 #endif				/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */

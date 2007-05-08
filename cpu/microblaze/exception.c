@@ -30,9 +30,9 @@ void _hw_exception_handler (void)
 	int address = 0;
 	int state = 0;
 	/* loading address of exception EAR */
-	MFSEAR(address);
+	MFS (address, rear);
 	/* loading excetpion state register ESR */
-	MFSESR(state);
+	MFS (state, resr);
 	printf ("Hardware exception at 0x%x address\n", address);
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:

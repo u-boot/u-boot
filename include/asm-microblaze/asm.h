@@ -49,22 +49,17 @@
 
 /* CPU dependent */
 /* machine status register */
-#define MFS(val) \
-	__asm__ __volatile__ ("mfs %0, rmsr":"=r" (val));
+#define MFS(val, reg) \
+	__asm__ __volatile__ ("mfs %0," #reg :"=r" (val));
 
-#define MTS(val) \
-	__asm__ __volatile__ ("mts rmsr, %0"::"r" (val));
-
-/* exception status register */
-#define MFSEAR(val) \
-	__asm__ __volatile ("mfs %0,rear":"=r" (val));
-
-#define MFSESR(val) \
-	__asm__ __volatile ("mfs %0,resr":"=r" (val));
+#define MTS(val, reg) \
+	__asm__ __volatile__ ("mts " #reg ", %0"::"r" (val));
 
 /* get return address from interrupt */
 #define R14(val) \
 	__asm__ __volatile__ ("addi %0, r14, 0":"=r" (val));
+
+#define NOP	__asm__ __volatile__ ("nop");
 
 /* use machine status registe USE_MSR_REG */
 #ifdef XILINX_USE_MSR_INSTR
