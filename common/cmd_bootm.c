@@ -788,7 +788,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				return;
 			}
 #if defined(CONFIG_OF_LIBFDT)
-			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) == 0) {
+			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #else
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #endif
@@ -944,7 +944,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		of_flat_tree = (char *)of_start;
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
-		err = fdt_open_into((void *)of_start, (void *)of_data, of_len);
+		err = fdt_open_into((void *)of_data, (void *)of_start, of_len);
 		if (err != 0) {
 			printf ("libfdt: %s " __FILE__ " %d\n", fdt_strerror(err), __LINE__);
 		}
