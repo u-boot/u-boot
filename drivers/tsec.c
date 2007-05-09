@@ -1353,8 +1353,10 @@ struct phy_info *get_phy_info(struct eth_device *dev)
 	/* loop through all the known PHY types, and find one that */
 	/* matches the ID we read from the PHY. */
 	for (i = 0; phy_info[i]; i++) {
-		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift))
+		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift)) {
 			theInfo = phy_info[i];
+			break;
+		}
 	}
 
 	if (theInfo == NULL) {
