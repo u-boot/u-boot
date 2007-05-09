@@ -1,12 +1,8 @@
 /*
- * (C) Copyright 2000
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * (C) Copyright 2007
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Configuation settings for the EP7312 board.
- *
- * Modified to work on Armadillo HT1070 ARM720T board
- * (C) Copyright 2005 Rowel Atienza rowel@diwalabs.com
+ * Configuation settings for the LPC2292SODIMM board from Embedded Artists.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -31,7 +27,7 @@
 #define __CONFIG_H
 
 /*
- * If we are developing, we might want to start armboot from ram
+ * If we are developing, we might want to start u-boot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 #undef CONFIG_INIT_CRITICAL		/* undef for developing */
@@ -154,5 +150,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_MMC 1
+/* we use this ethernet chip */
+#define CONFIG_ENC28J60
 
 #endif	/* __CONFIG_H */

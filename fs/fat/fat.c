@@ -89,8 +89,11 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		part_offset=0;
 	}
 	else {
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI) || \
-    (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_SYSTEMACE)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
+     defined(CONFIG_SYSTEMACE)          )
 		disk_partition_t info;
 		if(!get_partition_info(dev_desc, part_no, &info)) {
 			part_offset = info.start;

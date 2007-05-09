@@ -36,8 +36,6 @@
 /* include armadillo specific hardware file if there was one */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 /* include IntegratorCP/CM720T specific hardware file if there was one */
-#elif defined(CONFIG_LPC2292)
-#include <asm-arm/arch-arm720t/lpc2292_registers.h>
 #else
 #error No hardware file defined for this configuration
 #endif
