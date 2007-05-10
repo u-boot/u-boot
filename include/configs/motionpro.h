@@ -51,6 +51,7 @@
 				CFG_CMD_PING	| \
 				CFG_CMD_IDE	| \
 				CFG_CMD_FAT	| \
+				CFG_CMD_JFFS2	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_DATE	| \
 				CFG_CMD_EEPROM)
@@ -260,6 +261,14 @@
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 #define CONFIG_FLASH_16BIT		/* Flash is 16-bit */
 
+/*
+ * MTD configuration
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=motionpro-0"
+#define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
+					"13m(fs),2m(kernel),256k(uboot)," \
+					"64k(env),64k(dtb),-(user_data)"
 
 /*
  * IDE/ATA configuration
