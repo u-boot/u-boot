@@ -559,8 +559,8 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
-   "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=600000\0"						\
+   "consoledev=ttyCPM\0"						\
+   "ramdiskaddr=1000000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"					\
    "fdtaddr=400000\0"							\
    "fdtfile=mpc8560ads.dtb\0"
@@ -579,7 +579,8 @@
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 

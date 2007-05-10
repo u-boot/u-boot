@@ -520,7 +520,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=600000\0"						\
+   "ramdiskaddr=1000000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"					\
    "fdtaddr=400000\0"							\
    "fdtfile=your.fdt.dtb\0"
@@ -540,7 +540,7 @@
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
    "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr $ramdiskaddr"
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 
