@@ -56,27 +56,38 @@ static char data[SCRATCHPAD];
 static int fdt_valid(void);
 static void print_data(const void *data, int len);
 
+static int findnodeoffset(const char *pathp)
+{
+	int  nodeoffset;
+
+	if (strcmp(pathp, "/") == 0) {
+		nodeoffset = 0;
+	} else {
+		nodeoffset = fdt_path_offset (fdt, pathp);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			printf ("findnodeoffset() libfdt: %s\n", fdt_strerror(nodeoffset));
+		}
+	}
+	return nodeoffset;
+}
 
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
 int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	char		op;
-
 	if (argc < 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
 
-	/*
-	 * Figure out which subcommand was given
-	 */
-	op = argv[1][0];
 	/********************************************************************
 	 * Set the address of the fdt
 	 ********************************************************************/
-	if (op == 'a') {
+	if (argv[1][0] == 'a') {
 		/*
 		 * Set the address [and length] of the fdt.
 		 */
@@ -102,7 +113,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				 */
 				err = fdt_open_into(fdt, fdt, len);
 				if (err != 0) {
-					printf ("libfdt: %s\n", fdt_strerror(err));
+					printf ("libfdt fdt_open_into(): %s\n", fdt_strerror(err));
 				}
 			}
 		}
@@ -110,7 +121,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Move the fdt
 	 ********************************************************************/
-	} else if (op == 'm') {
+	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'o')) {
 		struct fdt_header *newaddr;
 		int  len;
 		int  err;
@@ -150,15 +161,48 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 */
 		err = fdt_open_into(fdt, newaddr, len);
 		if (err != 0) {
-			printf ("libfdt: %s\n", fdt_strerror(err));
+			printf ("libfdt fdt_open_into(): %s\n", fdt_strerror(err));
 			return 1;
 		}
 		fdt = newaddr;
 
 	/********************************************************************
-	 * Set the value of a node in the fdt.
+	 * Make a new node
 	 ********************************************************************/
-	} else if (op == 's') {
+	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'k')) {
+		char *pathp;		/* path */
+		char *nodep;		/* new node to add */
+		int  nodeoffset;	/* node offset from libfdt */
+		int  err;
+
+		/*
+		 * Parameters: Node path, new node to be appended to the path.
+		 */
+		if (argc < 4) {
+			printf ("Usage:\n%s\n", cmdtp->usage);
+			return 1;
+		}
+
+		pathp = argv[2];
+		nodep = argv[3];
+
+		nodeoffset = findnodeoffset(pathp);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			return 1;
+		}
+		err = fdt_add_subnode(fdt, nodeoffset, nodep);
+		if (err < 0) {
+			printf ("libfdt fdt_add_subnode(): %s\n", fdt_strerror(err));
+			return 1;
+		}
+
+	/********************************************************************
+	 * Set the value of a property in the fdt.
+	 ********************************************************************/
+	} else if (argv[1][0] == 's') {
 		char *pathp;		/* path */
 		char *prop;			/* property */
 		struct fdt_property *nodep;	/* node struct pointer */
@@ -183,102 +227,85 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		prop   = argv[3];
 		newval = argv[4];
 
-		if (strcmp(pathp, "/") == 0) {
-			nodeoffset = 0;
-		} else {
-			nodeoffset = fdt_path_offset (fdt, pathp);
-			if (nodeoffset < 0) {
-				/*
-			 	 * Not found or something else bad happened.
-			 	 */
-				printf ("libfdt: %s\n", fdt_strerror(nodeoffset));
-				return 1;
-			}
+		nodeoffset = findnodeoffset(pathp);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			return 1;
 		}
-		nodep = fdt_getprop (fdt, nodeoffset, prop, &oldlen);
-		if (oldlen < 0) {
-			printf ("libfdt %s\n", fdt_strerror(oldlen));
-			return 1;
-		} else if (oldlen == 0) {
+		/*
+		 * Convert the new property
+		 */
+		vp = data;
+		if (*newval == '<') {
 			/*
-			 * The specified property has no value
+			 * Bigger values than bytes.
 			 */
-			printf("%s has no value, cannot set one (yet).\n", prop);
-			return 1;
-		} else {
-			/*
-			 * Convert the new property
-			 */
-			vp = data;
-			if (*newval == '<') {
-				/*
-				 * Bigger values than bytes.
-				 */
-				len = 0;
-				newval++;
-				while ((*newval != '>') && (*newval != '\0')) {
-					cp = newval;
-					tmp = simple_strtoul(cp, &newval, 16);
-					if ((newval - cp) <= 2) {
-						*vp = tmp & 0xFF;
-						vp  += 1;
-						len += 1;
-					} else if ((newval - cp) <= 4) {
-						*(uint16_t *)vp = __cpu_to_be16(tmp);
-						vp  += 2;
-						len += 2;
-					} else if ((newval - cp) <= 8) {
-						*(uint32_t *)vp = __cpu_to_be32(tmp);
-						vp  += 4;
-						len += 4;
-					} else {
-						printf("Sorry, I could not convert \"%s\"\n", cp);
-						return 1;
-					}
-					while (*newval == ' ')
-						newval++;
-				}
-				if (*newval != '>') {
-					printf("Unexpected character '%c'\n", *newval);
+			len = 0;
+			newval++;
+			while ((*newval != '>') && (*newval != '\0')) {
+				cp = newval;
+				tmp = simple_strtoul(cp, &newval, 16);
+				if ((newval - cp) <= 2) {
+					*vp = tmp & 0xFF;
+					vp  += 1;
+					len += 1;
+				} else if ((newval - cp) <= 4) {
+					*(uint16_t *)vp = __cpu_to_be16(tmp);
+					vp  += 2;
+					len += 2;
+				} else if ((newval - cp) <= 8) {
+					*(uint32_t *)vp = __cpu_to_be32(tmp);
+					vp  += 4;
+					len += 4;
+				} else {
+					printf("Sorry, I could not convert \"%s\"\n", cp);
 					return 1;
 				}
-			} else if (*newval == '[') {
-				/*
-				 * Byte stream.  Convert the values.
-				 */
-				len = 0;
-				newval++;
-				while ((*newval != ']') && (*newval != '\0')) {
-					tmp = simple_strtoul(newval, &newval, 16);
-					*vp++ = tmp & 0xFF;
-					len++;
-					while (*newval == ' ')
-						newval++;
-				}
-				if (*newval != ']') {
-					printf("Unexpected character '%c'\n", *newval);
-					return 1;
-				}
-			} else {
-				/*
-				 * Assume it is a string.  Copy it into our data area for
-				 * convenience (including the terminating '\0').
-				 */
-				len = strlen(newval) + 1;
-				strcpy(data, newval);
+				while (*newval == ' ')
+					newval++;
 			}
-
-			ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
-			if (ret < 0) {
-				printf ("libfdt %s\n", fdt_strerror(ret));
+			if (*newval != '>') {
+				printf("Unexpected character '%c'\n", *newval);
 				return 1;
 			}
+		} else if (*newval == '[') {
+			/*
+			 * Byte stream.  Convert the values.
+			 */
+			len = 0;
+			newval++;
+			while ((*newval != ']') && (*newval != '\0')) {
+				tmp = simple_strtoul(newval, &newval, 16);
+				*vp++ = tmp & 0xFF;
+				len++;
+				while (*newval == ' ')
+					newval++;
+			}
+			if (*newval != ']') {
+				printf("Unexpected character '%c'\n", *newval);
+				return 1;
+			}
+		} else {
+			/*
+			 * Assume it is a string.  Copy it into our data area for
+			 * convenience (including the terminating '\0').
+			 */
+			len = strlen(newval) + 1;
+			strcpy(data, newval);
+		}
+
+		ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
+		if (ret < 0) {
+			printf ("libfdt fdt_setprop(): %s\n", fdt_strerror(ret));
+			return 1;
 		}
 
 	/********************************************************************
 	 * Print (recursive) / List (single level)
 	 ********************************************************************/
-	} else if ((op == 'p') || (op == 'l')) {
+	} else if ((argv[1][0] == 'p') || (argv[1][0] == 'l')) {
 		/*
 		 * Recursively print (a portion of) the fdt.
 		 */
@@ -297,7 +324,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * list is an alias for print, but limited to 1 level
 		 */
-		if (op == 'l') {
+		if (argv[1][0] == 'l') {
 			depth = 1;
 		}
 
@@ -311,18 +338,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		else
 			prop = NULL;
 
-		if (strcmp(pathp, "/") == 0) {
-			nodeoffset = 0;
-			printf("/");
-		} else {
-			nodeoffset = fdt_path_offset (fdt, pathp);
-			if (nodeoffset < 0) {
-				/*
-				 * Not found or something else bad happened.
-				 */
-				printf ("libfdt %s\n", fdt_strerror(nodeoffset));
-				return 1;
-			}
+		nodeoffset = findnodeoffset(pathp);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			return 1;
 		}
 		/*
 		 * The user passed in a property as well as node path.  Print only
@@ -339,7 +360,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				printf("\n");
 				return 0;
 			} else {
-				printf ("libfdt %s\n", fdt_strerror(len));
+				printf ("libfdt fdt_getprop(): %s\n", fdt_strerror(len));
 				return 1;
 			}
 		}
@@ -359,7 +380,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				level++;
 				offstack[level] = nodeoffset;
 				if (level >= MAX_LEVEL) {
-					printf("Aaaiii <splat> nested too deep.\n");
+					printf("Aaaiii <splat> nested too deep. Aborting.\n");
 					return 1;
 				}
 				break;
@@ -374,7 +395,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			case FDT_PROP:
 				nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
 				if (len < 0) {
-					printf ("libfdt %s\n", fdt_strerror(len));
+					printf ("libfdt fdt_getprop(): %s\n", fdt_strerror(len));
 					return 1;
 				} else if (len == 0) {
 					/* the property has no value */
@@ -403,7 +424,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Remove a property/node
 	 ********************************************************************/
-	} else if (op == 'r') {
+	} else if (argv[1][0] == 'r') {
 		int  nodeoffset;	/* node offset from libfdt */
 		int  err;
 
@@ -411,17 +432,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the path.  The root node is an oddball, the offset
 		 * is zero and has no name.
 		 */
-		if (strcmp(argv[2], "/") == 0) {
-			nodeoffset = 0;
-		} else {
-			nodeoffset = fdt_path_offset (fdt, argv[2]);
-			if (nodeoffset < 0) {
-				/*
-				 * Not found or something else bad happened.
-				 */
-				printf ("libfdt %s\n", fdt_strerror(nodeoffset));
-				return 1;
-			}
+		nodeoffset = findnodeoffset(argv[2]);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			return 1;
 		}
 		/*
 		 * Do the delete.  A fourth parameter means delete a property,
@@ -430,13 +446,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if (argc > 3) {
 			err = fdt_delprop(fdt, nodeoffset, argv[3]);
 			if (err < 0) {
-				printf("fdt_delprop libfdt: %s\n", fdt_strerror(err));
+				printf("libfdt fdt_delprop():  %s\n", fdt_strerror(err));
 				return err;
 			}
 		} else {
 			err = fdt_del_node(fdt, nodeoffset);
 			if (err < 0) {
-				printf("fdt_del_node libfdt: %s\n", fdt_strerror(err));
+				printf("libfdt fdt_del_node():  %s\n", fdt_strerror(err));
 				return err;
 			}
 		}
@@ -444,19 +460,19 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Create a chosen node
 	 ********************************************************************/
-	} else if (op == 'c') {
+	} else if (argv[1][0] == 'c') {
 		fdt_chosen(fdt, 0, 0, 1);
 
 	/********************************************************************
 	 * Create a u-boot-env node
 	 ********************************************************************/
-	} else if (op == 'e') {
+	} else if (argv[1][0] == 'e') {
 		fdt_env(fdt);
 
 	/********************************************************************
 	 * Create a bd_t node
 	 ********************************************************************/
-	} else if (op == 'b') {
+	} else if (argv[1][0] == 'b') {
 		fdt_bd_t(fdt);
 
 	/********************************************************************
@@ -486,7 +502,7 @@ static int fdt_valid(void)
 		return 1;	/* valid */
 
 	if (err < 0) {
-		printf("libfdt: %s", fdt_strerror(err));
+		printf("libfdt fdt_check_header(): %s", fdt_strerror(err));
 		/*
 		 * Be more informative on bad version.
 		 */
@@ -630,7 +646,6 @@ U_BOOT_CMD(
 	"fdt bd_t   - Add/replace the \"/bd_t\" branch in the tree\n"
 #endif
 	"Hints:\n"
-	" * Set a larger length with the fdt addr command to add to the blob.\n"
 	" * If the property you are setting/printing has a '#' character,\n"
 	"     you MUST escape it with a \\ character or quote it with \" or\n"
 	"     it will be ignored as a comment.\n"
