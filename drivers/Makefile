@@ -41,7 +41,7 @@ COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  rtl8019.o rtl8139.o rtl8169.o \
 	  s3c4510b_eth.o s3c4510b_uart.o \
 	  sed13806.o sed156x.o \
-	  serial.o serial_max3100.o \
+	  serial.o serial_max3100.o serial_sh.o \
 	  serial_pl010.o serial_pl011.o serial_xuartlite.o \
 	  sl811_usb.o sm501.o smc91111.o smiLynxEM.o \
 	  status_led.o sym53c8xx.o systemace.o ahci.o \

@@ -479,3 +479,8 @@ N: Michal Simek
 E: monstr@monstr.eu
 D: Support for Microblaze, ML401, XUPV2P board
 W: www.monstr.eu
+
+N: Nobuhiro Iwamatsu
+E: iwamatsu@nigauri.org
+D: Support for SuperH, MS7750SE01 , MS7780SE03  board
+W: www.nigauri.org

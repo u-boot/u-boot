@@ -151,6 +151,9 @@ endif
 ifeq ($(ARCH),avr32)
 CROSS_COMPILE = avr32-linux-
 endif
+ifeq ($(ARCH),sh)
+CROSS_COMPILE = sh4-linux-
+endif
 endif
 endif
 
