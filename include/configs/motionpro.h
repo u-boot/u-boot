@@ -26,11 +26,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
 /*
  * High Level Configuration Options
  */
-
 
 /* CPU and board */
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
@@ -50,7 +48,13 @@
 				CFG_CMD_MII	| \
 				CFG_CMD_BEDBUG	| \
 				CFG_CMD_NET	| \
-				CFG_CMD_PING)
+				CFG_CMD_PING	| \
+				CFG_CMD_IDE	| \
+				CFG_CMD_FAT	| \
+				CFG_CMD_JFFS2	| \
+				CFG_CMD_I2C	| \
+				CFG_CMD_DATE	| \
+				CFG_CMD_EEPROM)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -94,41 +98,49 @@
  * Default environment settings
  */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"sdram_test=0\0"						\
 	"netdev=eth0\0"							\
 	"hostname=motionpro\0"						\
 	"netmask=255.255.0.0\0"						\
 	"ipaddr=192.168.160.22\0"					\
 	"serverip=192.168.1.1\0"					\
 	"gatewayip=192.168.1.1\0"					\
-	"kernel_addr=200000\0"						\
+	"console=ttyPSC0,115200\0"					\
 	"u-boot_addr=100000\0"						\
-	"kernel_sector=20\0"						\
-	"kernel_size=1000\0"						\
-	"console=ttyS0,115200\0"					\
+	"kernel_addr=200000\0"						\
+	"fdt_addr=400000\0"						\
+	"ramdisk_addr=500000\0"						\
+	"multi_image_addr=800000\0"					\
 	"rootpath=/opt/eldk-4.1/ppc_6xx\0"				\
-	"bootfile=/tftpboot/motionpro/uImage\0"				\
 	"u-boot=/tftpboot/motionpro/u-boot.bin\0"			\
+	"bootfile=/tftpboot/motionpro/uImage\0"				\
+	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
+	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
+	"multi_image_file=kernel+initrd+dtb.img\0"			\
 	"load=tftp $(u-boot_addr) $(u-boot)\0"				\
 	"update=prot off fff00000 fff3ffff; era fff00000 fff3ffff; "	\
 		"cp.b $(u-boot_addr) fff00000 $(filesize);"		\
 		"prot on fff00000 fff3ffff\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs $(bootargs) console=$(console) "		\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
-		"$(netmask):$(hostname):$(netdev):off panic=1\0"	\
-	"flash_nfs=run nfsargs addip;bootm $(kernel_addr)\0"		\
-	"flash_self=run ramargs addip;bootm $(kernel_addr) "		\
-		"$(ramdisk_addr)\0"					\
-	"net_nfs=tftp $(kernel_addr) $(bootfile); run nfsargs addip; "	\
-		"bootm $(kernel_addr)\0"				\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"fstype=ext3\0"							\
-	"fatargs=setenv bootargs init=/linuxrc rw\0"			\
+	"fat_args=setenv bootargs rw\0"					\
+	"addip=setenv bootargs $(bootargs) "				\
+		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
+		"$(netmask):$(hostname):$(netdev):off panic=1 "		\
+		"console=$(console)\0"					\
+	"net_nfs=tftp $(kernel_addr) $(bootfile); "			\
+		"tftp $(fdt_addr) $(fdt_file); run nfsargs addip; "	\
+		"bootm $(kernel_addr) - $(fdt_addr)\0"			\
+	"net_self=tftp $(kernel_addr) $(bootfile); "			\
+		"tftp $(fdt_addr) $(fdt_file); "			\
+		"tftp $(ramdisk_addr) $(ramdisk_file); "		\
+		"run ramargs addip; "					\
+		"bootm $(kernel_addr) $(ramdisk_addr) $(fdt_addr)\0"	\
+	"fat_multi=run fat_args addip; fatload ide 0:1 "		\
+		"${multi_image_addr} ${multi_image_file}; "		\
+		"bootm ${multi_image_addr}\0"				\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
-
 
 /*
  * do board-specific init
@@ -145,6 +157,12 @@
  * Clock configuration: SYS_XTALIN = 25MHz
  */
 #define CFG_MPC5XXX_CLKIN	25000000
+
+
+/*
+ * Set IPB speed to 100MHz (yes, the #define is misnamed)
+ */
+#define CFG_IPBSPEED_133
 
 
 /*
@@ -243,6 +261,53 @@
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 #define CONFIG_FLASH_16BIT		/* Flash is 16-bit */
 
+/*
+ * MTD configuration
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=motionpro-0"
+#define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
+					"13m(fs),2m(kernel),256k(uboot)," \
+					"64k(env),64k(dtb),-(user_data)"
+
+/*
+ * IDE/ATA configuration
+ */
+#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+#define CFG_IDE_MAXBUS		1
+#define CFG_IDE_MAXDEVICE	1
+#define CONFIG_IDE_PREINIT
+
+#define CFG_ATA_DATA_OFFSET	0x0060
+#define CFG_ATA_REG_OFFSET	CFG_ATA_DATA_OFFSET
+#define CFG_ATA_STRIDE		4
+#define CONFIG_DOS_PARTITION
+
+
+/*
+ * I2C configuration
+ */
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
+#define CFG_I2C_MODULE		2	/* select I2C module #2 */
+#define CFG_I2C_SPEED		100000	/* 100 kHz */
+#define CFG_I2C_SLAVE		0x7F
+
+
+/*
+ * EEPROM configuration
+ */
+#define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_PAGE_WRITE_BITS	3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CFG_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
+
+
+/*
+ * RTC configuration
+ */
+#define CONFIG_RTC_DS1337	1
+#define CFG_I2C_RTC_ADDR	0x68
+
 
 /*
  * Environment settings
@@ -301,5 +366,16 @@
 
 /* Not needed for MPC 5xxx U-Boot, but used by tools/updater */
 #define CFG_RESET_ADDRESS	0xfff00100
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+#define OF_CPU			"PowerPC,5200@0"
+#define OF_SOC			"soc5200@f0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PAT		"/soc5200@f0000000/serial@2000"
 
 #endif /* __CONFIG_H */
