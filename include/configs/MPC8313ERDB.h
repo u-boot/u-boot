@@ -18,14 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * History
- * 20061201: Wilson Lo (Wilson.Lo@freescale.com)
- *           Initialized
- * 20061210: Tanya Jiang (tanya.jiang@freescale.com)
- *           Code Cleanup
- * 20070410: Scott Wood <scottwood@freescale.com>
- *           More cleanup
  */
 /*
  * mpc8313epb board configuration file
@@ -154,10 +146,10 @@
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE |    /* flash Base address */ \
-				(2 << BR_PS_SHIFT) | /* 16 bit port size */ \
-				BR_V)		     /* valid */
-#define CFG_OR0_PRELIM		( 0xFF000000         /* 16 MByte */ \
+#define CFG_BR0_PRELIM		(CFG_FLASH_BASE |	/* flash Base address */ \
+				(2 << BR_PS_SHIFT) |	/* 16 bit port size */ \
+				BR_V)			/* valid */
+#define CFG_OR0_PRELIM		( 0xFF000000		/* 16 MByte */ \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
 				| OR_GPCM_EHTR \
@@ -197,20 +189,20 @@
 			| (0xFF << LBCR_BMT_SHIFT) \
 			| 0xF )	/* 0x0004ff0f */
 
-#define CFG_LBC_MRTPR	0x20000000  /*TODO */  /* LB refresh timer prescal, 266MHz/32 */
+#define CFG_LBC_MRTPR	0x20000000  /*TODO */ 	/* LB refresh timer prescal, 266MHz/32 */
 
 /* drivers/nand/nand.c */
-#define CFG_NAND_BASE		0xE2800000 /* 0xF0000000 */
+#define CFG_NAND_BASE		0xE2800000	/* 0xF0000000 */
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #define CFG_BR1_PRELIM		( CFG_NAND_BASE \
-				| (2<<BR_DECC_SHIFT) /* Use HW ECC */ \
-				| BR_PS_8            /* Port Size = 8 bit */ \
-				| BR_MS_FCM          /* MSEL = FCM */ \
-				| BR_V )             /* valid */
-#define CFG_OR1_PRELIM		( 0xFFFF8000	/* length 32K */ \
+				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
+				| BR_PS_8		/* Port Size = 8 bit */ \
+				| BR_MS_FCM		/* MSEL = FCM */ \
+				| BR_V )		/* valid */
+#define CFG_OR1_PRELIM		( 0xFFFF8000		/* length 32K */ \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -378,7 +370,7 @@
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define CFG_MAXARGS	16		/* max number of command args */
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
 #define CFG_HZ		1000		/* decrementer freq: 1ms ticks */
@@ -395,7 +387,7 @@
 #define CFG_CACHELINE_SIZE	32
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 
-#define CFG_RCWH_PCIHOST 0x80000000 /* PCIHOST  */
+#define CFG_RCWH_PCIHOST 0x80000000	/* PCIHOST  */
 
 #ifdef CFG_66MHZ
 
@@ -439,12 +431,12 @@
 	HRCWH_LALE_NORMAL)
 
 /* System IO Config */
-#define CFG_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2) /* RGMII */
-#define CFG_SICRL	SICRL_USBDR /* Enable Internal USB Phy  */
+#define CFG_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */
+#define CFG_SICRL	SICRL_USBDR			/* Enable Internal USB Phy  */
 
 #define CFG_HID0_INIT	0x000000000
 #define CFG_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
-                         HID0_ENABLE_DYNAMIC_POWER_MANAGMENT)
+			 HID0_ENABLE_DYNAMIC_POWER_MANAGMENT)
 
 #define CFG_HID2 HID2_HBE
 

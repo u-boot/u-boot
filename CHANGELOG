@@ -1,3 +1,9 @@
+commit d62f64cc23a940eafe712c776b3249e4160753d1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 16 00:13:33 2007 +0200
+
+    Coding Style Cleanup, new CHANGELOG
+
 commit 7d98ba770a7eaefa29ce927f31a0956df85bf650
 Author: Piotr Kruszynski <ppk@semihalf.com>
 Date:	Thu May 10 16:55:52 2007 +0200
@@ -295,6 +301,14 @@ Date:	Fri May 4 10:02:33 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 068aab660bc3912b930be5540e6b3f3fd6ad3c96
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu May 3 19:43:52 2007 -0500
+
+    mpc83xx: fix trivial error in MAKEALL
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
 commit c64a89d6ce8584b9fc64f4e85da9ecac3cfc2c2a
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu May 3 16:34:41 2007 +0200
@@ -376,6 +390,33 @@ Date:	Wed Feb 7 15:28:04 2007 -0600
     Signed-off-by: James Yang <James.Yang@freescale.com>
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
+commit f64702b7fc8f8df39d31add770df6e372f9e9ce3
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Apr 30 13:59:50 2007 -0500
+
+    Fix memory initialization on MPC8349E-mITX
+
+    Define CFG_DDR_SDRAM_CLK_CNTL for the MPC8349E-mITX and MPC8349E-mITX-GP.
+    This allows ddr->sdram_clk_cntl to be properly initialized.  This is necessary
+    on some ITX boards, notably those with a revision 3.1 CPU.
+
+    Also change spd_sdram() in cpu/mpc83xx/spd_sdram.c to not write anything into
+    ddr->sdram_clk_cntl if CFG_DDR_SDRAM_CLK_CNTL is not defined.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Michael Benedict <MBenedict@twacs.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 54b2d434ae9d01787936f34fe1759cf3d7624ae3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Apr 30 15:26:21 2007 -0500
+
+    mpc83xx: replace elaborate boottime verbosity with 'clocks' command
+
+    and fix CPU: to align with Board: display text.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
 commit c1ab82669d9525998c34e802a12cad662723f22a
 Author: James Yang <James.Yang@freescale.com>
 Date:	Fri Mar 16 13:02:53 2007 -0500
@@ -394,6 +435,12 @@ Date:	Sun Apr 29 14:13:01 2007 +0200
     ppc4xx: Bamboo: Use current NAND driver and *not* the legacy driver
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5c5d3242935cf3543af01142627494434834cf98
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Apr 25 12:34:38 2007 -0500
+
+    mpc83xx: minor fixups for 8313rdb introduction
 
 commit 144876a380f5756f57412caf74c1d6dc201dd796
 Author: Michal Simek <monstr@monstr.eu>
@@ -625,6 +672,71 @@ Date:	Thu Dec 14 14:14:55 2006 +0800
     Enable PCI function and add PEX & rapidio memory map on MPC8548CDS
     board.
     Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 96b8a05432f346f36493535c85320b70ec9c7c1b
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:54:15 2007 -0500
+
+    mpc83xx: Add MPC8313ERDB support.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 49ea3b6eafe606285ae4d5c378026153dde53200
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:21 2007 -0500
+
+    mpc83xx: Add generic PCI setup code.
+
+    Board code can now request the generic setup code rather than having to
+    copy-and-paste it for themselves.  Boards should be converted to use this
+    once they're tested with it.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 7c98e5193e93df6b9b651851d54b638a61ebb0ea
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:19 2007 -0500
+
+    mpc83xx: Add 831x support to speed.c.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0f253283a32d91e06844d7f87f9b33f4f4fbce8f
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:18 2007 -0500
+
+    mpc83xx: Add 831x support to global_data.h
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 95e7ef897e54591e615fc1b458b74c286fe1fb06
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:16 2007 -0500
+
+    mpc83xx: Change PVR_83xx to PVR_E300C1-3, and update checkcpu().
+
+    Rather than misleadingly define PVR_83xx as the specific type of 83xx
+    being built for, the PVR of each core revision is defined. checkcpu() now
+    prints the core that it detects, rather than aborting if it doesn't find
+    what it thinks it wants.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit a35b0c4950d84cf9e3a9e32b916135956d1ac636
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:15 2007 -0500
+
+    mpc83xx: Recognize SPR values for MPC8311 and MPC8313.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit d87c57b201b4572d16f1b642998faa00c9912b16
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:31:55 2007 -0500
+
+    mpc83xx: Add register definitions for MPC831x.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
 
 commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
 Author: Stefan Roese <sr@denx.de>
@@ -1133,6 +1245,18 @@ Date:	Fri Apr 13 08:02:24 2007 +0200
 
     Signed-of-by: Greg Lopp <lopp@pobox.com>
     Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6fbf261f8df294e589cfadebebe5468e3c0f29e9
+Author: Xie Xiaobo <r63061@freescale.com>
+Date:	Fri Mar 9 19:08:25 2007 +0800
+
+    Fix two bugs for MPC83xx DDR2 controller SPD Init
+
+    There are a few bugs in the cpu/mpc83xx/spd_sdram.c
+    the first bug is that the picos_to_clk routine introduces a huge
+    rounding error in 83xx.
+    the second bug is that the mode register write recovery field is
+    tWR-1, not tWR >> 1.
 
 commit 2ad3aba01d37b72e7c957b07e102fccd64fe6d13
 Author: Jeffrey Mann <mannj@embeddedplanet.com>
