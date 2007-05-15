@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <asm/microblaze_timer.h>
+#include <asm/microblaze_intc.h>
 
 volatile int timestamp = 0;
 
@@ -44,9 +45,6 @@ void set_timer (ulong t)
 
 #ifdef CFG_INTC_0
 #ifdef CFG_TIMER_0
-extern void install_interrupt_handler (int irq, interrupt_handler_t * hdlr,
-				       void *arg);
-
 microblaze_timer_t *tmr = (microblaze_timer_t *) (CFG_TIMER_0_ADDR);
 
 void timer_isr (void *arg)

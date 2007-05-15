@@ -402,6 +402,10 @@ void		ppcDcbi(unsigned long value);
 void		ppcSync(void);
 void		ppcDcbz(unsigned long value);
 #endif
+#if defined (CONFIG_MICROBLAZE)
+unsigned short	in16(unsigned int);
+void		out16(unsigned int, unsigned short value);
+#endif
 
 #if defined (CONFIG_MPC83XX)
 void		ppcDWload(unsigned int *addr, unsigned int *ret);

@@ -28,6 +28,7 @@
 #include "../board/xilinx/ml401/xparameters.h"
 
 #define	CONFIG_MICROBLAZE	1	/* MicroBlaze CPU */
+#define	MICROBLAZE_V5		1
 #define	CONFIG_ML401		1	/* ML401 Board */
 
 /* uart */
@@ -36,11 +37,11 @@
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 /* setting reset address */
-#define	CFG_RESET_ADDRESS	TEXT_BASE
+//#define	CFG_RESET_ADDRESS	TEXT_BASE
 
 /* ethernet */
 #define CONFIG_EMACLITE		1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_XEMAC_NUM_INSTANCES
+#define XPAR_EMAC_0_DEVICE_ID	XPAR_OPB_ETHERNET_0_DEVICE_ID
 
 /* gpio */
 #define	CFG_GPIO_0		1
@@ -57,6 +58,10 @@
 #define	CFG_TIMER_0_IRQ		XILINX_TIMER_IRQ
 #define	FREQUENCE		XILINX_CLOCK_FREQ
 #define	CFG_TIMER_0_PRELOAD	( FREQUENCE/1000 )
+
+/* FSL */
+#define	CFG_FSL_2
+#define	FSL_INTR_2	1
 
 /*
  * memory layout - Example
@@ -93,7 +98,8 @@
 
 /* global pointer */
 #define	CFG_GBL_DATA_SIZE	0x1000	/* size of global data */
-#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE) /* start of global data */
+/* start of global data */
+#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE) 
 
 /* monitor code */
 #define	SIZE			0x40000
@@ -117,6 +123,7 @@
 	#define	CFG_FLASH_EMPTY_INFO	1	/* ?empty sector */
 	#define	CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
 	#define	CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 
 	#ifdef	RAMENV
 		#define	CFG_ENV_IS_NOWHERE	1
@@ -135,6 +142,7 @@
 	#define	CFG_ENV_IS_NOWHERE	1
 	#define	CFG_ENV_SIZE		0x1000
 	#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
+	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 #endif /* !FLASH */
 
 #ifdef	FLASH
@@ -152,8 +160,13 @@
 				CFG_CMD_IMI |\
 				CFG_CMD_NET |\
 				CFG_CMD_CACHE |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
+				CFG_CMD_JFFS2 |\
+				CFG_CMD_ECHO |\
 				CFG_CMD_IMLS |\
 				CFG_CMD_FLASH |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_PING \
 				)
 	#else	/* !RAMENV */
@@ -174,6 +187,11 @@
 				CFG_CMD_FLASH |\
 				CFG_CMD_PING |\
 				CFG_CMD_ENV |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
+				CFG_CMD_JFFS2 |\
+				CFG_CMD_ECHO |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_SAVES \
 				)
 
@@ -189,15 +207,29 @@
 				CFG_CMD_BDI |\
 				CFG_CMD_RUN |\
 				CFG_CMD_LOADS |\
+				CFG_CMD_FAT |\
+				CFG_CMD_EXT2 |\
 				CFG_CMD_LOADB |\
 				CFG_CMD_IMI |\
 				CFG_CMD_NET |\
 				CFG_CMD_CACHE |\
+				CFG_CMD_MFSL |\
 				CFG_CMD_PING \
 				)
 #endif	/* !FLASH */
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
+
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+/* JFFS2 partitions */
+#define CONFIG_JFFS2_CMDLINE	/* mtdparts command line support */
+#define MTDIDS_DEFAULT		"nor0=ml401-0"
+
+/* default mtd partition table */
+#define MTDPARTS_DEFAULT	"mtdparts=ml401-0:256k(u-boot),"\
+				"256k(env),3m(kernel),1m(romfs),"\
+				"1m(cramfs),-(jffs2)"
+#endif
 
 /* Miscellaneous configurable options */
 #define	CFG_PROMPT	"U-Boot-mONStR> "
@@ -207,7 +239,7 @@
 #define	CFG_LONGHELP
 #define	CFG_LOAD_ADDR	0x12000000 /* default load address */
 
-#define	CONFIG_BOOTDELAY 	30
+#define	CONFIG_BOOTDELAY	30
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		"ml401"
 #define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
@@ -221,10 +253,19 @@
 #define CFG_HZ	1000
 
 /* system ace */
-/*#define CONFIG_SYSTEMACE
-#define DEBUG_SYSTEMACE
-#define CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-#define CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-#define CONFIG_DOS_PARTITION
-*/
+#define	CONFIG_SYSTEMACE
+/* #define DEBUG_SYSTEMACE */
+#define	SYSTEMACE_CONFIG_FPGA
+#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
+#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
+#define	CONFIG_DOS_PARTITION
+
+#define	CONFIG_PREBOOT		"echo U-BOOT for ML401;setenv preboot;echo"
+
+#define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" /* hardware flash protection */\
+					"nor0=ml401-0\0"\
+					"mtdparts=mtdparts=ml401-0:"\
+					"256k(u-boot),256k(env),3m(kernel),"\
+					"1m(romfs),1m(cramfs),-(jffs2)\0"
+
 #endif	/* __CONFIG_H */
