@@ -211,7 +211,7 @@ static unsigned long systemace_read(int dev, unsigned long start,
 		/* Write sector count | ReadMemCardData. */
 		ace_writew((trans & 0xff) | 0x0300, 0x14);
 
-/* 
+/*
  * For FPGA configuration via SystemACE is reset unacceptable
  * CFGDONE bit in STATUSREG is not set to 1.
  */

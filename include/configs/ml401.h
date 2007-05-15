@@ -37,7 +37,7 @@
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 /* setting reset address */
-//#define	CFG_RESET_ADDRESS	TEXT_BASE
+/*#define	CFG_RESET_ADDRESS	TEXT_BASE*/
 
 /* ethernet */
 #define CONFIG_EMACLITE		1
@@ -99,7 +99,7 @@
 /* global pointer */
 #define	CFG_GBL_DATA_SIZE	0x1000	/* size of global data */
 /* start of global data */
-#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE) 
+#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE)
 
 /* monitor code */
 #define	SIZE			0x40000

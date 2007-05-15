@@ -1,3 +1,231 @@
+commit 7d98ba770a7eaefa29ce927f31a0956df85bf650
+Author: Piotr Kruszynski <ppk@semihalf.com>
+Date:	Thu May 10 16:55:52 2007 +0200
+
+    [Motion-PRO] Add MTD and JFFS2 support, also add default partition
+    definition.
+
+commit e69f66c6ebe82bbbd1da766bc4eda40ec7ee5af1
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 15:57:43 2007 +0200
+
+    add: reading special purpose registers
+
+commit 1a50f164beb065f360fbddb76029607d6b099698
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 14:52:52 2007 +0200
+
+    add: Microblaze V5 exception handling
+
+commit ab874d5047e5d30dbc1e517ff26083efffa98ecb
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 14:39:11 2007 +0200
+
+    add: FSL control read and write
+
+commit de1de02a7cbf05e6b63e0d8ffc624f12493f6ba3
+Author: Piotr Kruszynski <ppk@semihalf.com>
+Date:	Tue May 8 13:05:44 2007 +0200
+
+    [Motion-PRO] Add support for I2C, EEPROM and RTC.
+
+commit fa5c2ba123b1bf88455bfc21db5e786ca045029d
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 10:23:56 2007 +0200
+
+    [Motion-PRO] Add ATA support. Add CF-booting commands to the default
+    environment.
+
+commit 06241d50a3ab1b20a0b08baeeaffcaa23ae4b839
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 09:39:12 2007 +0200
+
+    [Motion-PRO] Change IPB clock frequency from 50MHz to 100MHz. This
+    eliminates networking problems in Linux (timeouts).
+
+commit 1f1369c34b629be94702684d41d3fddf0f6193e7
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 09:21:57 2007 +0200
+
+    [Motion-PRO] Enable Flat Device Tree support and modify default environment
+    to allow booting of FDT-expecting kernels.
+
+commit fb05f6da35ea1c15c553abe6f23f656bf18dc5db
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 23:58:31 2007 +0200
+
+    new: USE_MSR_INTR support
+
+commit 008861a2f3ef2c062744d733787c7e530a1b8761
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Mon May 7 22:36:15 2007 +0200
+
+    [MPC5xxx] There are networking problems on the Motion-PRO board with
+    current PHY initalization code (tftp timeouts all the time). This commit
+    temporarily disables PHY initalization sequence to make the networking
+    operational, until a fix is found.
+
+commit abca901869c3760b6c5fecb825db6c1d91a78a93
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 7 22:10:36 2007 +0200
+
+    Get rid of duplicated file (see include/configs/sbc8560.h instead)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 207b7b2c9d9752e0f6478c30c29b7087f6e6cbb6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 7 22:07:08 2007 +0200
+
+    Get rid of duplicated file (see doc/README.SBC8560 instead)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a7bac7e9b57ba948051beb19ec5be3a75ce75383
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:43:10 2007 +0200
+
+    fix: read and write MSR - repair number of parameters
+
+commit 19bf1fbad7f19d5a120be9b1daf136e052fcab39
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:33:51 2007 +0200
+
+    new: fsl interrupt support
+    FSL_Has_data is connected to INTC.
+
+commit 792032baa7d625e34c981ab6df521911bd8dc861
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:30:12 2007 +0200
+
+    fix: interrupt handler
+    remove asm code
+
+commit f3f001a341ef185d0f13841be5b5dc3395aacc31
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:25:08 2007 +0200
+
+    fix: remove asm code
+
+commit fb7c2dbef02c9f6f8d7b04ec4c2bfb91418b9c01
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:12:43 2007 +0200
+
+    fix: clean interrupt
+
+commit 42efed6130c8fcf7da881385b5427065d2801757
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 17:22:25 2007 +0200
+
+    fix: interrupt handler for multiple sources
+
+commit 48fbd3a4cdabbebc1debd7eed73c00c2caf914f6
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 17:11:09 2007 +0200
+
+    new: add writing to msr register
+
+commit ac4cd59d59c9bf3f89cb7a344abf8184d678f562
+Author: Timur Tabi <timur@freescale.com>
+Date:	Sat May 5 08:12:30 2007 +0200
+
+    5xxx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a9d87e2707dcb249f6bb7f7ff7e00acd8cda9fd2
+Author: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+Date:	Sun Apr 29 14:01:54 2007 +0200
+
+    [PATCH] Use PVR to distinguish MPC5200B from MPC5200 in boot message
+
+    MPC5200B systems are incorrectly reported as MPC5200 in U-Boot start-up
+    message. Use PVR to distinguish between the two variants, and print proper CPU
+    information.
+
+    Signed-off-by: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 4ec5bd55ed1ffa91a774af298769621f4fbb18c1
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Apr 25 16:01:26 2007 +0200
+
+    [PATCH] simplify silent console
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit b7598a43f2b421a713d8135e98a42c37d9eb9df0
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Apr 23 15:30:39 2007 +0200
+
+    [PATCH] Avoid assigning PCI resources from zero address
+
+    If a PCI IDE card happens to get a zero address assigned to it, the Linux IDE
+    core complains and IDE drivers fails to work.  Also, assigning zero to a BAR
+    was illegal according to PCI 2.1 (the later revisions seem to have excluded the
+    sentence about "0" being considered an invalid address) -- so, use a reasonable
+    starting value of 0x1000 (that's what the most Linux archs are using).
+
+    Alternatively, one might have fixed the calls to pci_set_region() individually
+    (some code even seems to have taken care of this issue) but that would have
+    been a lot more work. :-)
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 9ffd451afeb08e5be7ddae680487ec962b2bca25
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon Apr 23 14:00:11 2007 +0200
+
+    [patch] setenv(...) can delete environmentalvariables
+
+    update setenv() function so that entering a NULL value for the
+    variable's value will delete the environmental variable
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit ebd0a0ae05a44769c4e27458ad4e9f3438250443
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Apr 23 13:54:24 2007 +0200
+
+    [patch] use unsigned char in smc91111 driver for mac
+
+    the v_mac variable in the smc91111 driver is declared as a signed char ...
+    this causes problems when one of the bytes in the MAC is "signed" like 0xE0
+    because when it gets printed out, you get a display like:
+    0xFFFFFFE0 and that's no good
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ffc50f9bb194343c6303517a517708457a5eb6b8
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat May 5 18:54:42 2007 +0200
+
+    new: FSL and MSR support #2
+
+commit f7e2e0eb0668136305f78bb9c21be79b48a34247
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat May 5 18:27:16 2007 +0200
+
+    new: FSL and MSR support
+
+commit 2f15278c2eb911c668b4fe562130b78cf554d139
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 18:23:11 2007 +0200
+
+    Coding stylke cleanup; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 885ec89b648a899a2f32393fd3ffd9f7234c4402
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sat May 5 18:05:02 2007 +0200
@@ -166,6 +394,12 @@ Date:	Sun Apr 29 14:13:01 2007 +0200
     ppc4xx: Bamboo: Use current NAND driver and *not* the legacy driver
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 144876a380f5756f57412caf74c1d6dc201dd796
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Apr 24 23:01:02 2007 +0200
+
+    [PATCH] MTD partition support, JFFS2 support
 
 commit 37ed6cdd4159195bfad68d8a237f6adda8f482cb
 Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
@@ -399,6 +633,24 @@ Date:	Mon Apr 23 12:00:22 2007 +0200
     Remove BOARDLIBS usage completely
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 32556443840f127170e4baa8bdd5b567039f6c36
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 21:07:22 2007 +0200
+
+    [PATCH] SystemACE support for Microblaze
+
+commit 0643631aa1036cd746bf5d15f5a34bc7bc01ea4f
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 21:02:40 2007 +0200
+
+    16bit read/write little endian
+
+commit 9d1d6a34d26c5933bc097ce73c9348f95573cdd4
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 20:53:31 2007 +0200
+
+    Change ML401 parameters - Xilinx BSP
 
 commit 2e343b9a57f32e1bd08c35c9976910333fb4e13d
 Author: Ed Swarthout <Ed.Swarthout@freescale.com>
