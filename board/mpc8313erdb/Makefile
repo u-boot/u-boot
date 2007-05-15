@@ -2,8 +2,6 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# Copyright 2004 Freescale Semiconductor, Inc.
-#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -25,20 +23,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(BOARD).a
 
-START	= start.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  spd_sdram.o qe_io.o pci.o
+COBJS	:= $(BOARD).o sdram.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(START) $(LIB)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) crv $@ $(OBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

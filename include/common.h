@@ -444,8 +444,6 @@ int	sdram_adjust_866 (void);
 int	adjust_sdram_tbs_8xx (void);
 #if defined(CONFIG_8260)
 int	prt_8260_clks (void);
-#elif defined(CONFIG_MPC83XX)
-int print_clock_conf(void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
