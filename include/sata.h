@@ -24,12 +24,12 @@ struct sata_ioports {
 };
 
 struct sata_port {
-	unsigned char port_no;	/*primary-0, secondary=1 */
-	struct sata_ioports ioaddr;	/*ATA cmd/ctl/dma reg blks */
+	unsigned char port_no;		/* primary=0, secondary=1	*/
+	struct sata_ioports ioaddr;	/* ATA cmd/ctl/dma reg blks	*/
 	unsigned char ctl_reg;
 	unsigned char last_ctl;
-	unsigned char port_state;	/*1-port is present and 
-					   0-port is not available */
+	unsigned char port_state;	/* 1-port is present and	*/
+					   0-port is not available	*/
 	unsigned char dev_mask;
 };
 

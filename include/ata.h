@@ -91,7 +91,7 @@ enum {
 	/* bits in ATA command block registers */
 	ATA_HOB = (1 << 7),	/* LBA48 selector */
 	ATA_NIEN = (1 << 1),	/* disable-irq flag */
-	/*ATA_LBA                 = (1 << 6), *//* LBA28 selector */
+	/*ATA_LBA                 = (1 << 6), */ /* LBA28 selector */
 	ATA_DEV1 = (1 << 4),	/* Select Device 1 (slave) */
 	ATA_DEVICE_OBS = (1 << 7) | (1 << 5),	/* obs bits in dev reg */
 	ATA_DEVCTL_OBS = (1 << 3),	/* obsolete bit in devctl reg */
