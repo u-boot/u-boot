@@ -23,6 +23,7 @@
  */
 
 #include <config.h>
+#include <asm/asm.h>
 	.text
 	.global _interrupt_handler
 _interrupt_handler:
@@ -151,6 +152,11 @@ _interrupt_handler:
 	addi	r1, r1, 4
 
 	/* enable_interrupt */
+#ifdef XILINX_USE_MSR_INSTR
+	msrset	r0, 2
+#else
+	/* FIXME unstable in stressed mode - two irqs */
+	nop
 	addi	r1, r1, -4
 	swi	r12, r1, 0
 	mfs	r12, rmsr
@@ -159,6 +165,7 @@ _interrupt_handler:
 	lwi	r12, r1, 0
 	addi	r1, r1, 4
 	nop
+#endif
 	bra	r14
 	nop
 	nop

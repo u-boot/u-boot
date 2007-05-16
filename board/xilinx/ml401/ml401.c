@@ -27,6 +27,8 @@
 
 #include <common.h>
 #include <config.h>
+#include <asm/microblaze_intc.h>
+#include <asm/asm.h>
 
 void do_reset (void)
 {
@@ -43,7 +45,25 @@ void do_reset (void)
 int gpio_init (void)
 {
 #ifdef CFG_GPIO_0
-	*((unsigned long *)(CFG_GPIO_0_ADDR)) = 0x0;
+	*((unsigned long *)(CFG_GPIO_0_ADDR)) = 0xFFFFFFFF;
 #endif
 	return 0;
 }
+
+#ifdef CFG_FSL_2
+void fsl_isr2 (void *arg) {
+	volatile int num;
+	*((unsigned int *)(CFG_GPIO_0_ADDR + 0x4)) =
+	    ++(*((unsigned int *)(CFG_GPIO_0_ADDR + 0x4)));
+	GET (num, 2);
+	NGET (num, 2);
+	puts("*");
+}
+
+void fsl_init2 (void) {
+	puts("fsl_init2\n");
+	install_interrupt_handler (FSL_INTR_2,\
+ fsl_isr2,\
+ NULL);
+}
+#endif

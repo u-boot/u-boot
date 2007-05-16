@@ -310,10 +310,6 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
 
-#if defined(CONFIG_MPC83XX)
-	print_clock_conf,
-#endif
-
 	checkcpu,
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,

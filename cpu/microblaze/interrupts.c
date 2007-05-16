@@ -27,6 +27,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/microblaze_intc.h>
+#include <asm/asm.h>
 
 #undef DEBUG_INT
 
@@ -35,12 +36,12 @@ extern void microblaze_enable_interrupts (void);
 
 void enable_interrupts (void)
 {
-	microblaze_enable_interrupts ();
+	MSRSET(0x2);
 }
 
 int disable_interrupts (void)
 {
-	microblaze_disable_interrupts ();
+	MSRCLR(0x2);
 	return 0;
 }
 
@@ -48,6 +49,10 @@ int disable_interrupts (void)
 #ifdef CFG_TIMER_0
 extern void timer_init (void);
 #endif
+#ifdef CFG_FSL_2
+extern void fsl_init2 (void);
+#endif
+
 
 static struct irq_action vecs[CFG_INTC_0_NUM];
 
@@ -106,7 +111,6 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 		act->count = 0;
 		enable_one_interrupt (irq);
 	} else {		/* disable */
-
 		act->handler = (interrupt_handler_t *) def_hdlr;
 		act->arg = (void *)irq;
 		disable_one_interrupt (irq);
@@ -141,18 +145,22 @@ int interrupts_init (void)
 #ifdef CFG_TIMER_0
 	timer_init ();
 #endif
+#ifdef CFG_FSL_2
+	fsl_init2 ();
+#endif
 	enable_interrupts ();
 	return 0;
 }
 
 void interrupt_handler (void)
 {
-	int irqs;
-	irqs = (intc->isr & intc->ier);	/* find active interrupt */
-
+	int irqs = (intc->isr & intc->ier);	/* find active interrupt */
+	int i = 1;
 #ifdef DEBUG_INT
+	int value;
 	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
 		intc->iar, intc->mer);
+	R14(value);
 	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
 	struct irq_action *act = vecs;
@@ -165,15 +173,19 @@ void interrupt_handler (void)
 #endif
 			act->handler (act->arg);
 			act->count++;
+			intc->iar = i;
+			return;
 		}
 		irqs >>= 1;
 		act++;
+		i <<= 1;
 	}
-	intc->iar = 0xFFFFFFFF;	/* erase all events */
-#ifdef DEBUG
+
+#ifdef DEBUG_INT
 	printf ("Dump INTC reg, isr %x, ier %x, iar %x, mer %x\n", intc->isr,
 		intc->ier, intc->iar, intc->mer);
-	printf ("Interrupt handler on %x line, r14\n", irqs);
+	R14(value);
+	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
 }
 #endif
