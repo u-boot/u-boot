@@ -29,9 +29,9 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-#include <asm/asm.h>
 
 #if (CONFIG_COMMANDS & CFG_CMD_MFSL)
+#include <asm/asm.h>
 
 int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
