@@ -45,16 +45,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * Scratchpad memory.
- */
-static char data[SCRATCHPAD];
-
-
-/*
  * Function prototypes/declarations.
  */
 static int fdt_valid(void);
-static void print_data(const void *data, int len);
+static int fdt_parse_prop(char *pathp, char *prop, char *newval,
+	char *data, int *len);
+static int fdt_print(char *pathp, char *prop, int depth);
 
 static int findnodeoffset(const char *pathp)
 {
@@ -68,7 +64,8 @@ static int findnodeoffset(const char *pathp)
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("findnodeoffset() libfdt: %s\n", fdt_strerror(nodeoffset));
+			printf ("findnodeoffset() libfdt: %s\n",
+				fdt_strerror(nodeoffset));
 		}
 	}
 	return nodeoffset;
@@ -105,7 +102,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			 */
 			len =  simple_strtoul(argv[3], NULL, 16);
 			if (len < fdt_totalsize(fdt)) {
-				printf ("New length %d < existing length %d, ignoring.\n",
+				printf ("New length %d < existing length %d, "
+					"ignoring.\n",
 					len, fdt_totalsize(fdt));
 			} else {
 				/*
@@ -113,7 +111,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				 */
 				err = fdt_open_into(fdt, fdt, len);
 				if (err != 0) {
-					printf ("libfdt fdt_open_into(): %s\n", fdt_strerror(err));
+					printf ("libfdt fdt_open_into(): %s\n",
+						fdt_strerror(err));
 				}
 			}
 		}
@@ -139,7 +138,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		newaddr = (struct fdt_header *)simple_strtoul(argv[3], NULL, 16);
+		newaddr = (struct fdt_header *)simple_strtoul(argv[3],NULL,16);
 
 		/*
 		 * If the user specifies a length, use that.  Otherwise use the
@@ -150,7 +149,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		} else {
 			len = simple_strtoul(argv[4], NULL, 16);
 			if (len < fdt_totalsize(fdt)) {
-				printf ("New length 0x%X < existing length 0x%X, aborting.\n",
+				printf ("New length 0x%X < existing length "
+					"0x%X, aborting.\n",
 					len, fdt_totalsize(fdt));
 				return 1;
 			}
@@ -161,7 +161,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 */
 		err = fdt_open_into(fdt, newaddr, len);
 		if (err != 0) {
-			printf ("libfdt fdt_open_into(): %s\n", fdt_strerror(err));
+			printf ("libfdt fdt_open_into(): %s\n",
+				fdt_strerror(err));
 			return 1;
 		}
 		fdt = newaddr;
@@ -195,7 +196,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 		err = fdt_add_subnode(fdt, nodeoffset, nodep);
 		if (err < 0) {
-			printf ("libfdt fdt_add_subnode(): %s\n", fdt_strerror(err));
+			printf ("libfdt fdt_add_subnode(): %s\n",
+				fdt_strerror(err));
 			return 1;
 		}
 
@@ -204,16 +206,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 ********************************************************************/
 	} else if (argv[1][0] == 's') {
 		char *pathp;		/* path */
-		char *prop;			/* property */
-		struct fdt_property *nodep;	/* node struct pointer */
+		char *prop;		/* property */
 		char *newval;		/* value from the user (as a string) */
-		char *vp;			/* temporary value pointer */
-		char *cp;			/* temporary char pointer */
 		int  nodeoffset;	/* node offset from libfdt */
-		int  len;			/* new length of the property */
-		int  oldlen;		/* original length of the property */
-		unsigned long tmp;	/* holds converted values */
-		int  ret;			/* return value */
+		static char data[SCRATCHPAD];	/* storage for the property */
+		int  len;		/* new length of the property */
+		int  ret;		/* return value */
 
 		/*
 		 * Parameters: Node path, property, value.
@@ -234,67 +232,9 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			 */
 			return 1;
 		}
-		/*
-		 * Convert the new property
-		 */
-		vp = data;
-		if (*newval == '<') {
-			/*
-			 * Bigger values than bytes.
-			 */
-			len = 0;
-			newval++;
-			while ((*newval != '>') && (*newval != '\0')) {
-				cp = newval;
-				tmp = simple_strtoul(cp, &newval, 16);
-				if ((newval - cp) <= 2) {
-					*vp = tmp & 0xFF;
-					vp  += 1;
-					len += 1;
-				} else if ((newval - cp) <= 4) {
-					*(uint16_t *)vp = __cpu_to_be16(tmp);
-					vp  += 2;
-					len += 2;
-				} else if ((newval - cp) <= 8) {
-					*(uint32_t *)vp = __cpu_to_be32(tmp);
-					vp  += 4;
-					len += 4;
-				} else {
-					printf("Sorry, I could not convert \"%s\"\n", cp);
-					return 1;
-				}
-				while (*newval == ' ')
-					newval++;
-			}
-			if (*newval != '>') {
-				printf("Unexpected character '%c'\n", *newval);
-				return 1;
-			}
-		} else if (*newval == '[') {
-			/*
-			 * Byte stream.  Convert the values.
-			 */
-			len = 0;
-			newval++;
-			while ((*newval != ']') && (*newval != '\0')) {
-				tmp = simple_strtoul(newval, &newval, 16);
-				*vp++ = tmp & 0xFF;
-				len++;
-				while (*newval == ' ')
-					newval++;
-			}
-			if (*newval != ']') {
-				printf("Unexpected character '%c'\n", *newval);
-				return 1;
-			}
-		} else {
-			/*
-			 * Assume it is a string.  Copy it into our data area for
-			 * convenience (including the terminating '\0').
-			 */
-			len = strlen(newval) + 1;
-			strcpy(data, newval);
-		}
+		ret = fdt_parse_prop(pathp, prop, newval, data, &len);
+		if (ret != 0)
+			return ret;
 
 		ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
 		if (ret < 0) {
@@ -306,20 +246,10 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Print (recursive) / List (single level)
 	 ********************************************************************/
 	} else if ((argv[1][0] == 'p') || (argv[1][0] == 'l')) {
-		/*
-		 * Recursively print (a portion of) the fdt.
-		 */
-		static int offstack[MAX_LEVEL];
-		static char tabs[MAX_LEVEL+1] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 		int depth = MAX_LEVEL;	/* how deep to print */
 		char *pathp;		/* path */
-		char *prop;			/* property */
-		void *nodep;		/* property node pointer */
-		int  nodeoffset;	/* node offset from libfdt */
-		int  nextoffset;	/* next node offset from libfdt */
-		uint32_t tag;		/* tag */
-		int  len;			/* length of the property */
-		int  level = 0;		/* keep track of nesting level */
+		char *prop;		/* property */
+		int  ret;		/* return value */
 
 		/*
 		 * list is an alias for print, but limited to 1 level
@@ -338,88 +268,9 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		else
 			prop = NULL;
 
-		nodeoffset = findnodeoffset(pathp);
-		if (nodeoffset < 0) {
-			/*
-			 * Not found or something else bad happened.
-			 */
-			return 1;
-		}
-		/*
-		 * The user passed in a property as well as node path.  Print only
-		 * the given property and then return.
-		 */
-		if (prop) {
-			nodep = fdt_getprop (fdt, nodeoffset, prop, &len);
-			if (len == 0) {
-				printf("%s %s\n", pathp, prop);	/* no property value */
-				return 0;
-			} else if (len > 0) {
-				printf("%s=", prop);
-				print_data (nodep, len);
-				printf("\n");
-				return 0;
-			} else {
-				printf ("libfdt fdt_getprop(): %s\n", fdt_strerror(len));
-				return 1;
-			}
-		}
-
-		/*
-		 * The user passed in a node path and no property, print the node
-		 * and all subnodes.
-		 */
-		offstack[0] = nodeoffset;
-
-		while(level >= 0) {
-			tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, &pathp);
-			switch(tag) {
-			case FDT_BEGIN_NODE:
-				if(level <= depth)
-					printf("%s%s {\n", &tabs[MAX_LEVEL - level], pathp);
-				level++;
-				offstack[level] = nodeoffset;
-				if (level >= MAX_LEVEL) {
-					printf("Aaaiii <splat> nested too deep. Aborting.\n");
-					return 1;
-				}
-				break;
-			case FDT_END_NODE:
-				level--;
-				if(level <= depth)
-					printf("%s};\n", &tabs[MAX_LEVEL - level]);
-				if (level == 0) {
-					level = -1;		/* exit the loop */
-				}
-				break;
-			case FDT_PROP:
-				nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
-				if (len < 0) {
-					printf ("libfdt fdt_getprop(): %s\n", fdt_strerror(len));
-					return 1;
-				} else if (len == 0) {
-					/* the property has no value */
-					if(level <= depth)
-						printf("%s%s;\n", &tabs[MAX_LEVEL - level], pathp);
-				} else {
-					if(level <= depth) {
-						printf("%s%s=", &tabs[MAX_LEVEL - level], pathp);
-						print_data (nodep, len);
-						printf(";\n");
-					}
-				}
-				break;
-			case FDT_NOP:
-				break;
-			case FDT_END:
-				return 1;
-			default:
-				if(level <= depth)
-					printf("Unknown tag 0x%08X\n", tag);
-				return 1;
-			}
-			nodeoffset = nextoffset;
-		}
+		ret = fdt_print(pathp, prop, depth);
+		if (ret != 0)
+			return ret;
 
 	/********************************************************************
 	 * Remove a property/node
@@ -446,13 +297,15 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if (argc > 3) {
 			err = fdt_delprop(fdt, nodeoffset, argv[3]);
 			if (err < 0) {
-				printf("libfdt fdt_delprop():  %s\n", fdt_strerror(err));
+				printf("libfdt fdt_delprop():  %s\n",
+					fdt_strerror(err));
 				return err;
 			}
 		} else {
 			err = fdt_del_node(fdt, nodeoffset);
 			if (err < 0) {
-				printf("libfdt fdt_del_node():  %s\n", fdt_strerror(err));
+				printf("libfdt fdt_del_node():  %s\n",
+					fdt_strerror(err));
 				return err;
 			}
 		}
@@ -486,7 +339,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-/********************************************************************/
+/****************************************************************************/
 
 static int fdt_valid(void)
 {
@@ -509,12 +362,14 @@ static int fdt_valid(void)
 		if (err == -FDT_ERR_BADVERSION) {
 			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION) {
 				printf (" - too old, fdt $d < %d",
-					fdt_version(fdt), FDT_FIRST_SUPPORTED_VERSION);
+					fdt_version(fdt),
+					FDT_FIRST_SUPPORTED_VERSION);
 				fdt = NULL;
 			}
 			if (fdt_last_comp_version(fdt) > FDT_LAST_SUPPORTED_VERSION) {
 				printf (" - too new, fdt $d > %d",
-					fdt_version(fdt), FDT_LAST_SUPPORTED_VERSION);
+					fdt_version(fdt),
+					FDT_LAST_SUPPORTED_VERSION);
 				fdt = NULL;
 			}
 			return 0;
@@ -525,13 +380,91 @@ static int fdt_valid(void)
 	return 1;
 }
 
-/********************************************************************/
+/****************************************************************************/
 
 /*
- * OF flat tree handling
- * Written by: Pantelis Antoniou <pantelis.antoniou@gmail.com>
- * Updated by: Matthew McClintock <msm@freescale.com>
- * Converted to libfdt by: Gerald Van Baren <vanbaren@cideas.com>
+ * Parse the user's input, partially heuristic.  Valid formats:
+ * <00>		- hex byte
+ * <0011>	- hex half word (16 bits)
+ * <00112233>	- hex word (32 bits)
+ *		- hex double words (64 bits) are not supported, must use
+ *			a byte stream instead.
+ * [00 11 22 .. nn] - byte stream
+ * "string"	- If the the value doesn't start with "<" or "[", it is
+ *			treated as a string.  Note that the quotes are
+ *			stripped by the parser before we get the string.
+ */
+static int fdt_parse_prop(char *pathp, char *prop, char *newval,
+	char *data, int *len)
+{
+	char *cp;		/* temporary char pointer */
+	unsigned long tmp;	/* holds converted values */
+
+	if (*newval == '<') {
+		/*
+		 * Bigger values than bytes.
+		 */
+		*len = 0;
+		newval++;
+		while ((*newval != '>') && (*newval != '\0')) {
+			cp = newval;
+			tmp = simple_strtoul(cp, &newval, 16);
+			if ((newval - cp) <= 2) {
+				*data = tmp & 0xFF;
+				data  += 1;
+				*len += 1;
+			} else if ((newval - cp) <= 4) {
+				*(uint16_t *)data = __cpu_to_be16(tmp);
+				data  += 2;
+				*len += 2;
+			} else if ((newval - cp) <= 8) {
+				*(uint32_t *)data = __cpu_to_be32(tmp);
+				data  += 4;
+				*len += 4;
+			} else {
+				printf("Sorry, I could not convert \"%s\"\n",
+					cp);
+				return 1;
+			}
+			while (*newval == ' ')
+				newval++;
+		}
+		if (*newval != '>') {
+			printf("Unexpected character '%c'\n", *newval);
+			return 1;
+		}
+	} else if (*newval == '[') {
+		/*
+		 * Byte stream.  Convert the values.
+		 */
+		*len = 0;
+		newval++;
+		while ((*newval != ']') && (*newval != '\0')) {
+			tmp = simple_strtoul(newval, &newval, 16);
+			*data++ = tmp & 0xFF;
+			*len++;
+			while (*newval == ' ')
+				newval++;
+		}
+		if (*newval != ']') {
+			printf("Unexpected character '%c'\n", *newval);
+			return 1;
+		}
+	} else {
+		/*
+		 * Assume it is a string.  Copy it into our data area for
+		 * convenience (including the terminating '\0').
+		 */
+		*len = strlen(newval) + 1;
+		strcpy(data, newval);
+	}
+	return 0;
+}
+
+/****************************************************************************/
+
+/*
+ * Heuristic to guess if this is a string or concatenated strings.
  */
 
 static int is_printable_string(const void *data, int len)
@@ -571,6 +504,12 @@ static int is_printable_string(const void *data, int len)
 	return 1;
 }
 
+
+/*
+ * Print the property in the best format, a heuristic guess.  Print as
+ * a string, concatenated strings, a byte, word, double word, or (if all
+ * else fails) it is printed as a stream of bytes.
+ */
 static void print_data(const void *data, int len)
 {
 	int j;
@@ -624,6 +563,119 @@ static void print_data(const void *data, int len)
 
 		break;
 	}
+}
+
+/****************************************************************************/
+
+/*
+ * Recursively print (a portion of) the fdt.  The depth parameter
+ * determines how deeply nested the fdt is printed.
+ */
+static int fdt_print(char *pathp, char *prop, int depth)
+{
+	static int offstack[MAX_LEVEL];
+	static char tabs[MAX_LEVEL+1] =
+		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+	void *nodep;		/* property node pointer */
+	int  nodeoffset;	/* node offset from libfdt */
+	int  nextoffset;	/* next node offset from libfdt */
+	uint32_t tag;		/* tag */
+	int  len;		/* length of the property */
+	int  level = 0;		/* keep track of nesting level */
+
+	nodeoffset = findnodeoffset(pathp);
+	if (nodeoffset < 0) {
+		/*
+		 * Not found or something else bad happened.
+		 */
+		return 1;
+	}
+	/*
+	 * The user passed in a property as well as node path.
+	 * Print only the given property and then return.
+	 */
+	if (prop) {
+		nodep = fdt_getprop (fdt, nodeoffset, prop, &len);
+		if (len == 0) {
+			/* no property value */
+			printf("%s %s\n", pathp, prop);
+			return 0;
+		} else if (len > 0) {
+			printf("%s=", prop);
+			print_data (nodep, len);
+			printf("\n");
+			return 0;
+		} else {
+			printf ("libfdt fdt_getprop(): %s\n",
+				fdt_strerror(len));
+			return 1;
+		}
+	}
+
+	/*
+	 * The user passed in a node path and no property,
+	 * print the node and all subnodes.
+	 */
+	offstack[0] = nodeoffset;
+
+	while(level >= 0) {
+		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, &pathp);
+		switch(tag) {
+		case FDT_BEGIN_NODE:
+			if(level <= depth)
+				printf("%s%s {\n",
+					&tabs[MAX_LEVEL - level], pathp);
+			level++;
+			offstack[level] = nodeoffset;
+			if (level >= MAX_LEVEL) {
+				printf("Aaaiii <splat> nested too deep. "
+					"Aborting.\n");
+				return 1;
+			}
+			break;
+		case FDT_END_NODE:
+			level--;
+			if(level <= depth)
+				printf("%s};\n", &tabs[MAX_LEVEL - level]);
+			if (level == 0) {
+				level = -1;		/* exit the loop */
+			}
+			break;
+		case FDT_PROP:
+			nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
+			if (len < 0) {
+				printf ("libfdt fdt_getprop(): %s\n",
+					fdt_strerror(len));
+				return 1;
+			} else if (len == 0) {
+				/* the property has no value */
+				if(level <= depth)
+					printf("%s%s;\n",
+						&tabs[MAX_LEVEL - level],
+						pathp);
+			} else {
+				if(level <= depth) {
+					printf("%s%s=",
+						&tabs[MAX_LEVEL - level],
+						pathp);
+					print_data (nodep, len);
+					printf(";\n");
+				}
+			}
+			break;
+		case FDT_NOP:
+			break;
+		case FDT_END:
+			return 1;
+		default:
+			if(level <= depth)
+				printf("Unknown tag 0x%08X\n", tag);
+			return 1;
+		}
+		nodeoffset = nextoffset;
+	}
+	return 0;
 }
 
 /********************************************************************/
