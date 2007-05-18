@@ -23,15 +23,16 @@
  */
 
 #include <common.h>
+#include <asm/asm.h>
 
 void _hw_exception_handler (void)
 {
 	int address = 0;
 	int state = 0;
 	/* loading address of exception EAR */
-	__asm__ __volatile ("mfs %0,rear"::"r" (address):"memory");
+	MFS (address, rear);
 	/* loading excetpion state register ESR */
-	__asm__ __volatile ("mfs %0,resr"::"r" (state):"memory");
+	MFS (state, resr);
 	printf ("Hardware exception at 0x%x address\n", address);
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:
@@ -49,6 +50,11 @@ void _hw_exception_handler (void)
 	case 0x5:
 		puts ("Divide by zero exception\n");
 		break;
+#ifdef MICROBLAZE_V5
+	case 0x1000:
+		puts ("Exception in delay slot\n");
+		break;
+#endif
 	default:
 		puts ("Undefined cause\n");
 		break;

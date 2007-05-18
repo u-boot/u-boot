@@ -94,6 +94,7 @@
 #define CFG_CMD_EXT2	0x1000000000000000ULL	/* EXT2 Support			*/
 #define CFG_CMD_SNTP	0x2000000000000000ULL	/* SNTP support			*/
 #define CFG_CMD_DISPLAY	0x4000000000000000ULL	/* Display support		*/
+#define CFG_CMD_MFSL	0x8000000000000000ULL	/* FSL support for Microblaze	*/
 
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFULL	/* ALL commands			*/
 
@@ -125,6 +126,7 @@
 			CFG_CMD_IRQ	| \
 			CFG_CMD_JFFS2	| \
 			CFG_CMD_KGDB	| \
+			CFG_CMD_MFSL	| \
 			CFG_CMD_MII	| \
 			CFG_CMD_MMC	| \
 			CFG_CMD_NAND	| \
