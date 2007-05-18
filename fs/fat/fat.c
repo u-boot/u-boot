@@ -59,7 +59,8 @@ int disk_read (__u32 startblock, __u32 getsize, __u8 * bufptr)
 	if (cur_dev == NULL)
 		return -1;
 	if (cur_dev->block_read) {
-		return cur_dev->block_read (cur_dev->dev, startblock, getsize, (unsigned long *)bufptr);
+		return cur_dev->block_read (cur_dev->dev
+			, startblock, getsize, (unsigned long *)bufptr);
 	}
 	return -1;
 }
@@ -996,7 +997,8 @@ file_fat_detectfs(void)
 	memcpy (vol_label, volinfo.volume_label, 11);
 	vol_label[11] = '\0';
 	volinfo.fs_type[5]='\0';
-	printf("Partition %d: Filesystem: %s \"%s\"\n",cur_part,volinfo.fs_type,vol_label);
+	printf("Partition %d: Filesystem: %s \"%s\"\n"
+			,cur_part,volinfo.fs_type,vol_label);
 	return 0;
 }
 

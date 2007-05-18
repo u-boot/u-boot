@@ -101,7 +101,9 @@
 
 #undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for armadillo: kernel img is here*/
+#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for 
+                                                 * armadillo: kernel img is here
+						 */
 
 #define CFG_SYS_CLK_FREQ        58982400        /* Hz */
 #define	CFG_HZ			2048		/* decrementer freq in Hz */
