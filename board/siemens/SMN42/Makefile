@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= flash.o lpc2292sodimm.o
+COBJS	:= flash.o smn42.o
 SOBJTS	:= lowlevel_init.o
 
 SRCS	:= $(SOBJTS:.o=.S) $(COBJS:.o=.c)

@@ -1,5 +1,5 @@
-#ifndef __ARM7_HW_H
-#define __ARM7_HW_H
+#ifndef __ASM_ARCH_HARDWARE_H
+#define __ASM_ARCH_HARDWARE_H
 
 /*
  * Copyright (c) 2004	Cucy Systems (http://www.cucy.com)
@@ -24,20 +24,10 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_S3C4510B)
-#include <asm-arm/arch-arm720t/s3c4510b.h>
-#elif defined(CONFIG_NETARM)
-#include <asm-arm/arch-arm720t/netarm_registers.h>
-#elif defined(CONFIG_IMPA7)
-/* include IMPA7 specific hardware file if there was one */
-#elif defined(CONFIG_EP7312)
-/* include EP7312 specific hardware file if there was one */
-#elif defined(CONFIG_ARMADILLO)
-/* include armadillo specific hardware file if there was one */
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-/* include IntegratorCP/CM720T specific hardware file if there was one */
+#if defined(CONFIG_LPC2292)
+#include <asm-arm/arch-lpc2292/lpc2292_registers.h>
 #else
 #error No hardware file defined for this configuration
 #endif
 
-#endif /* __ARM7_HW_H */
+#endif /* __ASM_ARCH_HARDWARE_H */

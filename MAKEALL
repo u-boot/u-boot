@@ -185,7 +185,7 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 LIST_ARM7="	\
 	armadillo	B2		ep7312		evb4510		\
 	impa7		integratorap	ap7		ap720t		\
-	lpc2292sodimm	modnet50					\
+	lpc2292sodimm	modnet50	SMN42				\
 "
 
 #########################################################################

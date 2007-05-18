@@ -1,9 +1,6 @@
-#ifndef __ARM7_HW_H
-#define __ARM7_HW_H
-
 /*
- * Copyright (c) 2004	Cucy Systems (http://www.cucy.com)
- * Curt Brune <curt@cucy.com>
+ * (C) Copyright 2000
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,20 +21,35 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_S3C4510B)
-#include <asm-arm/arch-arm720t/s3c4510b.h>
-#elif defined(CONFIG_NETARM)
-#include <asm-arm/arch-arm720t/netarm_registers.h>
-#elif defined(CONFIG_IMPA7)
-/* include IMPA7 specific hardware file if there was one */
-#elif defined(CONFIG_EP7312)
-/* include EP7312 specific hardware file if there was one */
-#elif defined(CONFIG_ARMADILLO)
-/* include armadillo specific hardware file if there was one */
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-/* include IntegratorCP/CM720T specific hardware file if there was one */
-#else
-#error No hardware file defined for this configuration
-#endif
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
 
-#endif /* __ARM7_HW_H */
+	. = ALIGN(4);
+	.text      :
+	{
+	  cpu/arm720t/start.o	(.text)
+	  *(.text)
+	}
+
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
+}
