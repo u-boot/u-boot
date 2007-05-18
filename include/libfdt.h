@@ -78,6 +78,12 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
 int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
 
 int fdt_find_node_by_path(const void *fdt, const char *path);
+int fdt_find_node_by_type(const void *fdt, int nodeoffset, const char *type);
+
+int fdt_node_is_compatible(const void *fdt, int nodeoffset,
+			   const char *compat);
+int fdt_find_compatible_node(const void *fdt, int nodeoffset,
+			     const char *type, const char *compat);
 
 struct fdt_property *fdt_get_property(const void *fdt, int nodeoffset,
 				      const char *name, int *lenp);
