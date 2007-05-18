@@ -1626,6 +1626,19 @@ r5200_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
+MPC8313ERDB_33_config \
+MPC8313ERDB_66_config: unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define CFG_33MHZ" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define CFG_66MHZ" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
