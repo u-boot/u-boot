@@ -283,6 +283,10 @@ int fdt_find_node_by_path(const void *fdt, const char *path)
 	if (*path != '/')
 		return -FDT_ERR_BADPATH;
 
+	/* Handle the root path: root offset is 0 */
+	if (strcmp(path, "/") == 0)
+		return 0;
+
 	while (*p) {
 		const char *q;
 

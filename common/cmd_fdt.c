@@ -52,25 +52,6 @@ static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 	char *data, int *len);
 static int fdt_print(char *pathp, char *prop, int depth);
 
-static int findnodeoffset(const char *pathp)
-{
-	int  nodeoffset;
-
-	if (strcmp(pathp, "/") == 0) {
-		nodeoffset = 0;
-	} else {
-		nodeoffset = fdt_find_node_by_path (fdt, pathp);
-		if (nodeoffset < 0) {
-			/*
-			 * Not found or something else bad happened.
-			 */
-			printf ("findnodeoffset() libfdt: %s\n",
-				fdt_strerror(nodeoffset));
-		}
-	}
-	return nodeoffset;
-}
-
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
@@ -187,11 +168,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		pathp = argv[2];
 		nodep = argv[3];
 
-		nodeoffset = findnodeoffset(pathp);
+		nodeoffset = fdt_find_node_by_path (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
+			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+				fdt_strerror(nodeoffset));
 			return 1;
 		}
 		err = fdt_add_subnode(fdt, nodeoffset, nodep);
@@ -225,11 +208,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		prop   = argv[3];
 		newval = argv[4];
 
-		nodeoffset = findnodeoffset(pathp);
+		nodeoffset = fdt_find_node_by_path (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
+			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+				fdt_strerror(nodeoffset));
 			return 1;
 		}
 		ret = fdt_parse_prop(pathp, prop, newval, data, &len);
@@ -283,11 +268,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the path.  The root node is an oddball, the offset
 		 * is zero and has no name.
 		 */
-		nodeoffset = findnodeoffset(argv[2]);
+		nodeoffset = fdt_find_node_by_path (fdt, argv[2]);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
+			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+				fdt_strerror(nodeoffset));
 			return 1;
 		}
 		/*
@@ -584,11 +571,13 @@ static int fdt_print(char *pathp, char *prop, int depth)
 	int  len;		/* length of the property */
 	int  level = 0;		/* keep track of nesting level */
 
-	nodeoffset = findnodeoffset(pathp);
+	nodeoffset = fdt_find_node_by_path (fdt, pathp);
 	if (nodeoffset < 0) {
 		/*
 		 * Not found or something else bad happened.
 		 */
+		printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			fdt_strerror(nodeoffset));
 		return 1;
 	}
 	/*
