@@ -33,12 +33,13 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY) && \
 	(defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	     \
-	 defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
+	 defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	     \
+	 defined(CONFIG_405EZ))
 
 #include <nand.h>
 #include <linux/mtd/ndfc.h>
 #include <asm/processor.h>
-#include <ppc440.h>
+#include <ppc4xx.h>
 
 static u8 hwctl = 0;
 
@@ -176,8 +177,7 @@ int board_nand_init(struct nand_chip *nand)
 	/*
 	 * Setup EBC (CS0 only right now)
 	 */
-	mtdcr(ebccfga, xbcfg);
-	mtdcr(ebccfgd, 0xb8400000);
+	mtebc(EBC0_CFG, 0xb8400000);
 
 	mtebc(pb0cr, CFG_EBC_PB0CR);
 	mtebc(pb0ap, CFG_EBC_PB0AP);
