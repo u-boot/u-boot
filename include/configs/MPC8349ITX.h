@@ -409,6 +409,7 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
+  #undef  CFG_FLASH_CFI_DRIVER
   #define CFG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
   #define CFG_ENV_SIZE		0x2000
@@ -437,7 +438,14 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_COMMANDS_I2C	0
 #endif
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
+#ifdef CFG_NO_FLASH
+#define CONFIG_COMMANDS_DEFAULT (CONFIG_CMD_DFL & ~(CFG_CMD_FLASH | \
+						    CFG_CMD_IMLS))
+#else
+#define CONFIG_COMMANDS_DEFAULT CONFIG_CMD_DFL
+#endif
+
+#define CONFIG_COMMANDS		(CONFIG_COMMANDS_DEFAULT | \
 				CONFIG_COMMANDS_CF	| \
 				CFG_CMD_NET	| \
 				CFG_CMD_PING	| \
