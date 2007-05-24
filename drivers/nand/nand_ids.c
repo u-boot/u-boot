@@ -123,6 +123,7 @@ struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_NATIONAL, "National"},
 	{NAND_MFR_RENESAS, "Renesas"},
 	{NAND_MFR_STMICRO, "ST Micro"},
+	{NAND_MFR_MICRON, "Micron"},
 	{0x0, "Unknown"}
 };
 #endif
