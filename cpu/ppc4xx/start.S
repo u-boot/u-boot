@@ -783,7 +783,7 @@ _start:
 	mtdcr	ocmdscr2, r3            /* Set Data Side */
 	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
 	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
-	mtdcr	ocmdsisdpc,r4
+	mtdcr	ocmdsisdpc,r3
 
 	isync
 #else /* CONFIG_405EZ */
