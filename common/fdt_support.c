@@ -32,6 +32,10 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd);
+#endif
+
 /*
  * Global data (for the gd->bd)
  */
@@ -42,7 +46,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct fdt_header *fdt;
 
-
 /********************************************************************/
 
 int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
@@ -50,15 +53,25 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	bd_t *bd = gd->bd;
 	int   nodeoffset;
 	int   err;
-	u32   tmp;			/* used to set 32 bit integer properties */
-	char  *str;			/* used to set string properties */
-	ulong clock;
+	u32   tmp;		/* used to set 32 bit integer properties */
+	char  *str;		/* used to set string properties */
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
 		printf("libfdt: %s\n", fdt_strerror(err));
 		return err;
 	}
+
+#ifdef CONFIG_OF_BOARD_SETUP
+	/*
+	 * ft_board_setup() sets various board-specific properties to
+	 * the proper values.
+	 *
+	 * STRICTLY SPEAKING, this is out of place, but it isn't clear
+	 * where a better place would be.
+	 */
+	ft_board_setup(fdt, bd);
+#endif
 
 	if (initrd_start && initrd_end) {
 		struct fdt_reserve_entry re;
@@ -72,7 +85,8 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 			return err;
 		}
 		if (used >= total) {
-			printf("WARNING fdt_chosen: no room in the reserved map (%d of %d)\n",
+			printf("WARNING fdt_chosen: "
+				"no room in the reserved map (%d of %d)\n",
 				used, total);
 			return -1;
 		}
@@ -115,7 +129,10 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		 */
 		nodeoffset = fdt_add_subnode(fdt, 0, "chosen");
 		if (nodeoffset < 0) {
-			printf("WARNING fdt_chosen: could not create the \"/chosen node\" (libfdt error %s).\n", fdt_strerror(nodeoffset));
+			printf("WARNING fdt_chosen: "
+				"could not create the \"/chosen node\" "
+				"(libfdt error %s).\n",
+				fdt_strerror(nodeoffset));
 			return nodeoffset;
 		}
 	}
@@ -125,42 +142,42 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	 */
 	str = getenv("bootargs");
 	if (str != NULL) {
-		err = fdt_setprop(fdt, nodeoffset, "bootargs", str, strlen(str)+1);
+		err = fdt_setprop(fdt, nodeoffset,
+			"bootargs", str, strlen(str)+1);
 		if (err < 0)
-			printf("WARNING fdt_chosen: could not set \"bootargs\" (libfdt error %s).\n", fdt_strerror(err));
+			printf("WARNING fdt_chosen: "
+				"could not set \"bootargs\" "
+				"(libfdt error %s).\n",
+				fdt_strerror(err));
 	}
 	if (initrd_start && initrd_end) {
 		tmp = __cpu_to_be32(initrd_start);
-		err = fdt_setprop(fdt, nodeoffset, "linux,initrd-start", &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			 "linux,initrd-start", &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("WARNING fdt_chosen: could not set \"linux,initrd-start\" (libfdt error %s).\n", fdt_strerror(err));
+			printf("WARNING fdt_chosen: "
+				"could not set \"linux,initrd-start\" "
+				"(libfdt error %s).\n",
+				fdt_strerror(err));
 		tmp = __cpu_to_be32(initrd_end);
-		err = fdt_setprop(fdt, nodeoffset, "linux,initrd-end", &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,initrd-end", &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("WARNING fdt_chosen: could not set \"linux,initrd-end\" (libfdt error %s).\n", fdt_strerror(err));
+			printf("WARNING fdt_chosen: "
+				"could not set \"linux,initrd-end\" "
+				"(libfdt error %s).\n",
+				fdt_strerror(err));
 	}
 #ifdef OF_STDOUT_PATH
-	err = fdt_setprop(fdt, nodeoffset, "linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
+	err = fdt_setprop(fdt, nodeoffset,
+		"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
 	if (err < 0)
-		printf("WARNING fdt_chosen: could not set \"linux,stdout-path\" (libfdt error %s).\n", fdt_strerror(err));
+		printf("WARNING fdt_chosen: "
+			"could not set \"linux,stdout-path\" "
+			"(libfdt error %s).\n",
+			fdt_strerror(err));
 #endif
 
-	nodeoffset = fdt_find_node_by_path (fdt, "/cpus");
-	if (nodeoffset >= 0) {
-		clock = cpu_to_be32(bd->bi_intfreq);
-		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
-		if (err < 0)
-			printf("WARNING fdt_chosen: could not set \"clock-frequency\" (libfdt error %s).\n", fdt_strerror(err));
-	}
-#ifdef OF_TBCLK
-	nodeoffset = fdt_find_node_by_path (fdt, "/cpus/" OF_CPU "/timebase-frequency");
-	if (nodeoffset >= 0) {
-		clock = cpu_to_be32(OF_TBCLK);
-		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
-		if (err < 0)
-			printf("WARNING fdt_chosen: could not set \"clock-frequency\" (libfdt error %s).\n", fdt_strerror(err));
-	}
-#endif
 	return err;
 }
 
@@ -203,7 +220,10 @@ int fdt_env(void *fdt)
 	 */
 	nodeoffset = fdt_add_subnode(fdt, 0, "u-boot-env");
 	if (nodeoffset < 0) {
-		printf("WARNING fdt_env: could not create the \"/u-boot-env node\" (libfdt error %s).\n", fdt_strerror(nodeoffset));
+		printf("WARNING fdt_env: "
+			"could not create the \"/u-boot-env node\" "
+			"(libfdt error %s).\n",
+			fdt_strerror(nodeoffset));
 		return nodeoffset;
 	}
 
@@ -231,7 +251,10 @@ int fdt_env(void *fdt)
 			continue;
 		err = fdt_setprop(fdt, nodeoffset, lval, rval, strlen(rval)+1);
 		if (err < 0) {
-			printf("WARNING fdt_env: could not set \"%s\" (libfdt error %s).\n", lval, fdt_strerror(err));
+			printf("WARNING fdt_env: "
+				"could not set \"%s\" "
+				"(libfdt error %s).\n",
+				lval, fdt_strerror(err));
 			return err;
 		}
 	}
@@ -297,7 +320,7 @@ int fdt_bd_t(void *fdt)
 	bd_t *bd = gd->bd;
 	int   nodeoffset;
 	int   err;
-	u32   tmp;			/* used to set 32 bit integer properties */
+	u32   tmp;		/* used to set 32 bit integer properties */
 	int i;
 
 	err = fdt_check_header(fdt);
@@ -323,7 +346,10 @@ int fdt_bd_t(void *fdt)
 	 */
 	nodeoffset = fdt_add_subnode(fdt, 0, "bd_t");
 	if (nodeoffset < 0) {
-		printf("WARNING fdt_bd_t: could not create the \"/bd_t node\" (libfdt error %s).\n", fdt_strerror(nodeoffset));
+		printf("WARNING fdt_bd_t: "
+			"could not create the \"/bd_t node\" "
+			"(libfdt error %s).\n",
+			fdt_strerror(nodeoffset));
 		printf("libfdt: %s\n", fdt_strerror(nodeoffset));
 		return nodeoffset;
 	}
@@ -332,20 +358,29 @@ int fdt_bd_t(void *fdt)
 	 */
 	for (i = 0; i < sizeof(bd_map)/sizeof(bd_map[0]); i++) {
 		tmp = cpu_to_be32(getenv("bootargs"));
-		err = fdt_setprop(fdt, nodeoffset, bd_map[i].name, &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			bd_map[i].name, &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("WARNING fdt_bd_t: could not set \"%s\" (libfdt error %s).\n", bd_map[i].name, fdt_strerror(err));
+			printf("WARNING fdt_bd_t: "
+				"could not set \"%s\" "
+				"(libfdt error %s).\n",
+				bd_map[i].name, fdt_strerror(err));
 	}
 	/*
 	 * Add a couple of oddball entries...
 	 */
 	err = fdt_setprop(fdt, nodeoffset, "enetaddr", &bd->bi_enetaddr, 6);
 	if (err < 0)
-		printf("WARNING fdt_bd_t: could not set \"enetaddr\" (libfdt error %s).\n", fdt_strerror(err));
+		printf("WARNING fdt_bd_t: "
+			"could not set \"enetaddr\" "
+			"(libfdt error %s).\n",
+			fdt_strerror(err));
 	err = fdt_setprop(fdt, nodeoffset, "ethspeed", &bd->bi_ethspeed, 4);
 	if (err < 0)
-		printf("WARNING fdt_bd_t: could not set \"ethspeed\" (libfdt error %s).\n", fdt_strerror(err));
-
+		printf("WARNING fdt_bd_t: "
+			"could not set \"ethspeed\" "
+			"(libfdt error %s).\n",
+			fdt_strerror(err));
 	return 0;
 }
 #endif /* ifdef CONFIG_OF_HAS_BD_T */
