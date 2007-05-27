@@ -1219,6 +1219,8 @@ static void process_macros (const char *input, char *output)
 
 	if (outputcnt)
 		*output = 0;
+	else
+		*(output - 1) = 0;
 
 #ifdef DEBUG_PARSER
 	printf ("[PROCESS_MACROS] OUTPUT len %d: \"%s\"\n",
