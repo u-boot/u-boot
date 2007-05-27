@@ -28,7 +28,7 @@
 
 #include <common.h>
 #include <mpc5xxx.h>
-
+#include <miiphy.h>
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
@@ -81,6 +81,22 @@ int board_early_init_r(void)
 	return 0;
 }
 
+
+/*
+ * Additional PHY intialization. After being reset in mpc5xxx_fec_init_phy(),
+ * PHY goes into FX mode.  To take it out of the FX mode and switch into
+ * desired TX operation, one needs to clear the FX_SEL bit of Mode Control
+ * Register.
+ */
+void reset_phy(void)
+{
+	unsigned short mode_control;
+
+	miiphy_read("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15, &mode_control);
+	miiphy_write("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15,
+			mode_control & 0xfffe);
+	return;
+}
 
 #ifndef CFG_RAMBOOT
 /*
