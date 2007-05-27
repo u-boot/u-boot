@@ -54,7 +54,8 @@
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_DATE	| \
-				CFG_CMD_EEPROM)
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_DTT)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -297,6 +298,7 @@
  * EEPROM configuration
  */
 #define CFG_I2C_EEPROM_ADDR_LEN		1
+#define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* DTT driver needs this */
 #define CFG_EEPROM_PAGE_WRITE_BITS	3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
 #define CFG_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
@@ -329,6 +331,13 @@ extern void __led_init(led_id_t id, int state);
 extern void __led_toggle(led_id_t id);
 extern void __led_set(led_id_t id, int state);
 #endif /* __ASSEMBLY__ */
+
+
+/*
+ * Temperature sensor
+ */
+#define CONFIG_DTT_LM75		1
+#define CONFIG_DTT_SENSORS	{ 0x49 }
 
 
 /*
