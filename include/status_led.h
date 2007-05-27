@@ -355,6 +355,18 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_ACTIVE	0		/* LED on for bit == 0 */
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
+#elif defined(CONFIG_MOTIONPRO)
+
+#define STATUS_LED_BIT		((vu_long *) MPC5XXX_GPT6_ENABLE)
+#define STATUS_LED_PERIOD	(CFG_HZ / 10)
+#define STATUS_LED_STATE	STATUS_LED_BLINKING
+
+#define STATUS_LED_BIT1		((vu_long *) MPC5XXX_GPT7_ENABLE)
+#define STATUS_LED_PERIOD1	(CFG_HZ / 10)
+#define STATUS_LED_STATE1	STATUS_LED_OFF
+
+#define STATUS_LED_BOOT		0	/* LED 0 used for boot status */
+
 #else
 # error Status LED configuration missing
 #endif

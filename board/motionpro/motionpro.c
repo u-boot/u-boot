@@ -33,6 +33,10 @@
 #include <ft_build.h>
 #endif
 
+#if defined(CONFIG_STATUS_LED)
+#include <status_led.h>
+#endif /* CONFIG_STATUS_LED */
+
 /* Kollmorgen DPR initialization data */
 struct init_elem {
 	unsigned long addr;
@@ -180,3 +184,29 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 }
 #endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+
+
+#if defined(CONFIG_STATUS_LED)
+void __led_init (led_id_t regaddr, int state)
+{
+	*((vu_long *) regaddr) |= ENABLE_GPIO_OUT;
+
+	if (state == STATUS_LED_ON)
+		*((vu_long *) regaddr) |= LED_ON;
+	else
+		*((vu_long *) regaddr) &= ~LED_ON;
+}
+
+void __led_set (led_id_t regaddr, int state)
+{
+	if (state == STATUS_LED_ON)
+		*((vu_long *) regaddr) |= LED_ON;
+	else
+		*((vu_long *) regaddr) &= ~LED_ON;
+}
+
+void __led_toggle (led_id_t regaddr)
+{
+	*((vu_long *) regaddr) ^= LED_ON;
+}
+#endif /* CONFIG_STATUS_LED */

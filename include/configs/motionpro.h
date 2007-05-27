@@ -310,6 +310,28 @@
 
 
 /*
+ * Status LED configuration
+ */
+#define CONFIG_STATUS_LED		/* Status LED enabled */
+#define CONFIG_BOARD_SPECIFIC_LED
+
+#define ENABLE_GPIO_OUT		0x00000024
+#define LED_ON			0x00000010
+
+#ifndef __ASSEMBLY__
+/*
+ * In case of Motion-PRO, a LED is identified by its corresponding
+ * GPT Enable and Mode Select Register.
+ */
+typedef volatile unsigned long * led_id_t;
+
+extern void __led_init(led_id_t id, int state);
+extern void __led_toggle(led_id_t id);
+extern void __led_set(led_id_t id, int state);
+#endif /* __ASSEMBLY__ */
+
+
+/*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
