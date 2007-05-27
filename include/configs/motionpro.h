@@ -117,27 +117,27 @@
 	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
 	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
 	"multi_image_file=kernel+initrd+dtb.img\0"			\
-	"load=tftp $(u-boot_addr) $(u-boot)\0"				\
+	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
 	"update=prot off fff00000 fff3ffff; era fff00000 fff3ffff; "	\
-		"cp.b $(u-boot_addr) fff00000 $(filesize);"		\
+		"cp.b ${u-boot_addr} fff00000 ${filesize};"		\
 		"prot on fff00000 fff3ffff\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
 	"fat_args=setenv bootargs rw\0"					\
-	"addmtd=setenv bootargs $(bootargs) $(mtdparts)\0"		\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
-		"$(netmask):$(hostname):$(netdev):off panic=1 "		\
-		"console=$(console)\0"					\
-	"net_nfs=tftp $(kernel_addr) $(bootfile); "			\
-		"tftp $(fdt_addr) $(fdt_file); run nfsargs addip; "	\
-		"bootm $(kernel_addr) - $(fdt_addr)\0"			\
-	"net_self=tftp $(kernel_addr) $(bootfile); "			\
-		"tftp $(fdt_addr) $(fdt_file); "			\
-		"tftp $(ramdisk_addr) $(ramdisk_file); "		\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+		"${netmask}:${hostname}:${netdev}:off panic=1 "		\
+		"console=${console}\0"					\
+	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
+		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip; "	\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_self=tftp ${kernel_addr} ${bootfile}; "			\
+		"tftp ${fdt_addr} ${fdt_file}; "			\
+		"tftp ${ramdisk_addr} ${ramdisk_file}; "		\
 		"run ramargs addip; "					\
-		"bootm $(kernel_addr) $(ramdisk_addr) $(fdt_addr)\0"	\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"fat_multi=run fat_args addip; fatload ide 0:1 "		\
 		"${multi_image_addr} ${multi_image_file}; "		\
 		"bootm ${multi_image_addr}\0"				\
@@ -418,6 +418,6 @@ extern void __led_set(led_id_t id, int state);
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PAT		"/soc5200@f0000000/serial@2000"
+#define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 
 #endif /* __CONFIG_H */

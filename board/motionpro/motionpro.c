@@ -102,7 +102,7 @@ void reset_phy(void)
 /*
  * Helper function to initialize SDRAM controller.
  */
-static void sdram_start (int hi_addr)
+static void sdram_start(int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
 
@@ -134,7 +134,7 @@ static void sdram_start (int hi_addr)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-long int initdram (int board_type)
+long int initdram(int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
@@ -187,7 +187,7 @@ long int initdram (int board_type)
 }
 
 
-int checkboard (void)
+int checkboard(void)
 {
 	uchar rev = *(vu_char *)CPLD_REV_REGISTER;
 	printf("Board: Promess Motion-PRO board (CPLD rev. 0x%02x)\n", rev);
@@ -204,7 +204,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 
 #if defined(CONFIG_STATUS_LED)
-void __led_init (led_id_t regaddr, int state)
+void __led_init(led_id_t regaddr, int state)
 {
 	*((vu_long *) regaddr) |= ENABLE_GPIO_OUT;
 
@@ -214,7 +214,7 @@ void __led_init (led_id_t regaddr, int state)
 		*((vu_long *) regaddr) &= ~LED_ON;
 }
 
-void __led_set (led_id_t regaddr, int state)
+void __led_set(led_id_t regaddr, int state)
 {
 	if (state == STATUS_LED_ON)
 		*((vu_long *) regaddr) |= LED_ON;
@@ -222,7 +222,7 @@ void __led_set (led_id_t regaddr, int state)
 		*((vu_long *) regaddr) &= ~LED_ON;
 }
 
-void __led_toggle (led_id_t regaddr)
+void __led_toggle(led_id_t regaddr)
 {
 	*((vu_long *) regaddr) ^= LED_ON;
 }
