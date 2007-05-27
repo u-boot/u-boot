@@ -299,8 +299,8 @@
  */
 #define CFG_I2C_EEPROM_ADDR_LEN		1
 #define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* DTT driver needs this */
-#define CFG_EEPROM_PAGE_WRITE_BITS	3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CFG_EEPROM_PAGE_WRITE_BITS	1	/* 2 bytes per write cycle */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	5	/* 2ms/cycle + 3ms extra */
 #define CFG_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
 
 
