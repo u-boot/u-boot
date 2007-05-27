@@ -160,9 +160,9 @@
 
 
 /*
- * Set IPB speed to 100MHz (yes, the #define is misnamed)
+ * Set IPB speed to 100MHz
  */
-#define CFG_IPBSPEED_133
+#define CFG_IPBCLK_EQUALS_XLBCLK
 
 
 /*
