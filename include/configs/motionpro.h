@@ -376,7 +376,7 @@ extern void __led_set(led_id_t id, int state);
  */
 #define CFG_LONGHELP			/* undef to save memory    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
