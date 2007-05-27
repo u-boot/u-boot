@@ -125,6 +125,7 @@
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
 	"fat_args=setenv bootargs rw\0"					\
+	"addmtd=setenv bootargs $(bootargs) $(mtdparts)\0"		\
 	"addip=setenv bootargs $(bootargs) "				\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
 		"$(netmask):$(hostname):$(netdev):off panic=1 "		\
@@ -269,7 +270,8 @@
 #define MTDIDS_DEFAULT		"nor0=motionpro-0"
 #define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
 					"13m(fs),2m(kernel),256k(uboot)," \
-					"64k(env),64k(dtb),-(user_data)"
+					"64k(env),64k(redund_env),64k(dtb)," \
+					"-(user_data)"
 
 /*
  * IDE/ATA configuration
@@ -349,6 +351,9 @@ extern void __led_set(led_id_t id, int state);
 #define CFG_ENV_SIZE		0x1000
 #define CFG_ENV_SECT_SIZE	0x10000
 
+/* Configuration of redundant environment */
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*
  * Pin multiplexing configuration
