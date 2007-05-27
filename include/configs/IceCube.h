@@ -167,9 +167,9 @@
  * IPB Bus clocking configuration.
  */
 #if defined(CONFIG_LITE5200B)
-#define CFG_IPBSPEED_133 	/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK 	/* define for 133MHz speed */
 #else
-#undef CFG_IPBSPEED_133   	/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK   	/* define for 133MHz speed */
 #endif
 #endif /* CONFIG_MPC5200 */
 
