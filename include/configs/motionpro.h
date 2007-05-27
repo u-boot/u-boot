@@ -357,6 +357,12 @@ extern void __led_set(led_id_t id, int state);
 
 
 /*
+ * Motion-PRO's CPLD revision control register
+ */
+#define CPLD_REV_REGISTER	(CFG_CS2_START + 0x06)
+
+
+/*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory    */

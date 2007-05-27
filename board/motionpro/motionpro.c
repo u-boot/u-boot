@@ -173,7 +173,8 @@ long int initdram (int board_type)
 
 int checkboard (void)
 {
-	puts("Board: Promess Motion-PRO board\n");
+	uchar rev = *(vu_char *)CPLD_REV_REGISTER;
+	printf("Board: Promess Motion-PRO board (CPLD rev. 0x%02x)\n", rev);
 	return 0;
 }
 
