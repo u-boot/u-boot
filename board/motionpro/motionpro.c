@@ -28,7 +28,14 @@
 
 #include <common.h>
 #include <mpc5xxx.h>
+#include <miiphy.h>
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
 
+#if defined(CONFIG_STATUS_LED)
+#include <status_led.h>
+#endif /* CONFIG_STATUS_LED */
 
 /* Kollmorgen DPR initialization data */
 struct init_elem {
@@ -75,11 +82,27 @@ int board_early_init_r(void)
 }
 
 
+/*
+ * Additional PHY intialization. After being reset in mpc5xxx_fec_init_phy(),
+ * PHY goes into FX mode.  To take it out of the FX mode and switch into
+ * desired TX operation, one needs to clear the FX_SEL bit of Mode Control
+ * Register.
+ */
+void reset_phy(void)
+{
+	unsigned short mode_control;
+
+	miiphy_read("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15, &mode_control);
+	miiphy_write("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15,
+			mode_control & 0xfffe);
+	return;
+}
+
 #ifndef CFG_RAMBOOT
 /*
  * Helper function to initialize SDRAM controller.
  */
-static void sdram_start (int hi_addr)
+static void sdram_start(int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
 
@@ -111,7 +134,7 @@ static void sdram_start (int hi_addr)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-long int initdram (int board_type)
+long int initdram(int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
@@ -165,8 +188,43 @@ long int initdram (int board_type)
 }
 
 
-int checkboard (void)
+int checkboard(void)
 {
-	puts("Board: Promess Motion-PRO board\n");
+	uchar rev = *(vu_char *)CPLD_REV_REGISTER;
+	printf("Board: Promess Motion-PRO board (CPLD rev. 0x%02x)\n", rev);
 	return 0;
 }
+
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+
+
+#if defined(CONFIG_STATUS_LED)
+void __led_init(led_id_t regaddr, int state)
+{
+	*((vu_long *) regaddr) |= ENABLE_GPIO_OUT;
+
+	if (state == STATUS_LED_ON)
+		*((vu_long *) regaddr) |= LED_ON;
+	else
+		*((vu_long *) regaddr) &= ~LED_ON;
+}
+
+void __led_set(led_id_t regaddr, int state)
+{
+	if (state == STATUS_LED_ON)
+		*((vu_long *) regaddr) |= LED_ON;
+	else
+		*((vu_long *) regaddr) &= ~LED_ON;
+}
+
+void __led_toggle(led_id_t regaddr)
+{
+	*((vu_long *) regaddr) ^= LED_ON;
+}
+#endif /* CONFIG_STATUS_LED */

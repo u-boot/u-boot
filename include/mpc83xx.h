@@ -95,6 +95,11 @@
 #define SPR_8321E_REV11			0x80660011
 #define SPR_8321_REV11			0x80670011
 
+#define SPR_8311_REV10			0x80B30010
+#define SPR_8311E_REV10			0x80B20010
+#define SPR_8313_REV10			0x80B10010
+#define SPR_8313E_REV10			0x80B00010
+
 /* SPCR - System Priority Configuration Register
  */
 #define SPCR_PCIHPE			0x10000000	/* PCI Highest Priority Enable */
@@ -121,6 +126,15 @@
 #define SPCR_TSEC2BDP_SHIFT		(31-29)
 #define SPCR_TSEC2EP			0x00000003	/* TSEC2 emergency priority */
 #define SPCR_TSEC2EP_SHIFT		(31-31)
+
+#elif defined(CONFIG_MPC831X)
+/* SPCR bits - MPC831x specific */
+#define SPCR_TSECDP			0x00003000	/* TSEC data priority */
+#define SPCR_TSECDP_SHIFT		(31-19)
+#define SPCR_TSECEP			0x00000C00	/* TSEC emergency priority */
+#define SPCR_TSECEP_SHIFT		(31-21)
+#define SPCR_TSECBDP			0x00000300	/* TSEC buffer descriptor priority */
+#define SPCR_TSECBDP_SHIFT		(31-23)
 #endif
 
 /* SICRL/H - System I/O Configuration Register Low/High
@@ -195,6 +209,36 @@
 #define SICRL_PCI_MSRC			0x10000000
 #define SICRL_URT_CTPR			0x06000000
 #define SICRL_IRQ_CTPR			0x00C00000
+
+#elif defined(CONFIG_MPC831X)
+/* SICRL bits - MPC831x specific */
+#define SICRL_LBC			0x30000000
+#define SICRL_UART			0x0C000000
+#define SICRL_SPI_A			0x03000000
+#define SICRL_SPI_B			0x00C00000
+#define SICRL_SPI_C			0x00300000
+#define SICRL_SPI_D			0x000C0000
+#define SICRL_USBDR			0x00000C00
+#define SICRL_ETSEC1_A			0x0000000C
+#define SICRL_ETSEC2_A			0x00000003
+
+/* SICRH bits - MPC831x specific */
+#define SICRH_INTR_A			0x02000000
+#define SICRH_INTR_B			0x00C00000
+#define SICRH_IIC			0x00300000
+#define SICRH_ETSEC2_B			0x000C0000
+#define SICRH_ETSEC2_C			0x00030000
+#define SICRH_ETSEC2_D			0x0000C000
+#define SICRH_ETSEC2_E			0x00003000
+#define SICRH_ETSEC2_F			0x00000C00
+#define SICRH_ETSEC2_G			0x00000300
+#define SICRH_ETSEC1_B			0x00000080
+#define SICRH_ETSEC1_C			0x00000060
+#define SICRH_GTX1_DLY			0x00000008
+#define SICRH_GTX2_DLY			0x00000004
+#define SICRH_TSOBI1			0x00000002
+#define SICRH_TSOBI2			0x00000001
+
 #endif
 
 /* SWCRR - System Watchdog Control Register
@@ -393,6 +437,28 @@
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
+#if defined(CONFIG_MPC831X)
+#define HRCWH_ROM_LOC_NAND_SP_8BIT 	0x00100000
+#define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
+#define HRCWH_ROM_LOC_NAND_LP_8BIT 	0x00500000
+#define HRCWH_ROM_LOC_NAND_LP_16BIT	0x00600000
+
+#define HRCWH_RL_EXT_LEGACY		0x00000000
+#define HRCWH_RL_EXT_NAND		0x00040000
+
+#define HRCWH_TSEC1M_IN_MII		0x00000000
+#define HRCWH_TSEC1M_IN_RMII		0x00002000
+#define HRCWH_TSEC1M_IN_RGMII		0x00006000
+#define HRCWH_TSEC1M_IN_RTBI		0x0000A000
+#define HRCWH_TSEC1M_IN_SGMII		0x0000C000
+
+#define HRCWH_TSEC2M_IN_MII		0x00000000
+#define HRCWH_TSEC2M_IN_RMII		0x00000400
+#define HRCWH_TSEC2M_IN_RGMII		0x00000C00
+#define HRCWH_TSEC2M_IN_RTBI		0x00001400
+#define HRCWH_TSEC2M_IN_SGMII		0x00001800
+#endif
+
 #if defined(CONFIG_MPC834X)
 #define HRCWH_TSEC1M_IN_RGMII		0x00000000
 #define HRCWH_TSEC1M_IN_RTBI		0x00004000
@@ -523,6 +589,18 @@
 #define SCCR_TSEC2CM_1			0x10000000
 #define SCCR_TSEC2CM_2			0x20000000
 #define SCCR_TSEC2CM_3			0x30000000
+
+#elif defined(CONFIG_MPC831X)
+/* TSEC1 bits are for TSEC2 as well */
+#define SCCR_TSEC1CM			0xc0000000
+#define SCCR_TSEC1CM_SHIFT		30
+#define SCCR_TSEC1CM_1			0x40000000
+#define SCCR_TSEC1CM_2			0x80000000
+#define SCCR_TSEC1CM_3			0xC0000000
+
+#define SCCR_TSEC1ON			0x20000000
+#define SCCR_TSEC2ON			0x10000000
+
 #endif
 
 #define SCCR_USBMPHCM			0x00c00000
@@ -556,6 +634,25 @@
 #define CSCONFIG_COL_BIT_10		0x00000002
 #define CSCONFIG_COL_BIT_11		0x00000003
 
+/* TIMING_CFG_0 - DDR SDRAM Timing Configuration 0
+ */
+#define TIMING_CFG0_RWT			0xC0000000
+#define TIMING_CFG0_RWT_SHIFT		30
+#define TIMING_CFG0_WRT			0x30000000
+#define TIMING_CFG0_WRT_SHIFT		28
+#define TIMING_CFG0_RRT			0x0C000000
+#define TIMING_CFG0_RRT_SHIFT		26
+#define TIMING_CFG0_WWT			0x03000000
+#define TIMING_CFG0_WWT_SHIFT		24
+#define TIMING_CFG0_ACT_PD_EXIT		0x00700000
+#define TIMING_CFG0_ACT_PD_EXIT_SHIFT	20
+#define TIMING_CFG0_PRE_PD_EXIT		0x00070000
+#define TIMING_CFG0_PRE_PD_EXIT_SHIFT	16
+#define TIMING_CFG0_ODT_PD_EXIT		0x00000F00
+#define TIMING_CFG0_ODT_PD_EXIT_SHIFT	8
+#define TIMING_CFG0_MRS_CYC		0x00000F00
+#define TIMING_CFG0_MRS_CYC_SHIFT	0
+
 /* TIMING_CFG_1 - DDR SDRAM Timing Configuration 1
  */
 #define TIMING_CFG1_PRETOACT		0x70000000
@@ -586,6 +683,17 @@
 #define TIMING_CFG2_WR_DATA_DELAY_SHIFT	10
 #define TIMING_CFG2_CPO_DEF		0x00000000	/* default (= CASLAT + 1) */
 
+#define TIMING_CFG2_ADD_LAT		0x70000000
+#define TIMING_CFG2_ADD_LAT_SHIFT	28
+#define TIMING_CFG2_WR_LAT_DELAY	0x00380000
+#define TIMING_CFG2_WR_LAT_DELAY_SHIFT	19
+#define TIMING_CFG2_RD_TO_PRE		0x0000E000
+#define TIMING_CFG2_RD_TO_PRE_SHIFT	13
+#define TIMING_CFG2_CKE_PLS		0x000001C0
+#define TIMING_CFG2_CKE_PLS_SHIFT	6
+#define TIMING_CFG2_FOUR_ACT		0x0000003F
+#define TIMING_CFG2_FOUR_ACT_SHIFT	0
+
 /* DDR_SDRAM_CFG - DDR SDRAM Control Configuration
  */
 #define SDRAM_CFG_MEM_EN		0x80000000
@@ -593,13 +701,14 @@
 #define SDRAM_CFG_ECC_EN		0x20000000
 #define SDRAM_CFG_RD_EN			0x10000000
 #define SDRAM_CFG_SDRAM_TYPE		0x03000000
+#define SDRAM_CFG_SDRAM_TYPE_DDR	0x02000000
 #define SDRAM_CFG_SDRAM_TYPE_SHIFT	24
 #define SDRAM_CFG_DYN_PWR		0x00200000
 #define SDRAM_CFG_32_BE			0x00080000
 #define SDRAM_CFG_8_BE			0x00040000
 #define SDRAM_CFG_NCAP			0x00020000
 #define SDRAM_CFG_2T_EN			0x00008000
-#define SDRAM_CFG_SDRAM_TYPE_DDR	0x02000000
+#define SDRAM_CFG_BI			0x00000001
 
 /* DDR_SDRAM_MODE - DDR SDRAM Mode Register
  */
@@ -732,11 +841,15 @@
 #define BR_PS_32			0x00001800	/* Port Size 32 bit */
 #define BR_DECC				0x00000600
 #define BR_DECC_SHIFT			9
+#define BR_DECC_OFF			0x00000000
+#define BR_DECC_CHK			0x00000200
+#define BR_DECC_CHK_GEN			0x00000400
 #define BR_WP				0x00000100
 #define BR_WP_SHIFT			8
 #define BR_MSEL				0x000000E0
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
+#define BR_MS_FCM			0x00000020	/* FCM */
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
@@ -802,6 +915,34 @@
 #define OR_GPCM_EHTR_SHIFT		1
 #define OR_GPCM_EAD			0x00000001
 #define OR_GPCM_EAD_SHIFT		0
+
+#define OR_FCM_AM			0xFFFF8000
+#define OR_FCM_AM_SHIFT				15
+#define OR_FCM_BCTLD			0x00001000
+#define OR_FCM_BCTLD_SHIFT			12
+#define OR_FCM_PGS			0x00000400
+#define OR_FCM_PGS_SHIFT			10
+#define OR_FCM_CSCT			0x00000200
+#define OR_FCM_CSCT_SHIFT			 9
+#define OR_FCM_CST			0x00000100
+#define OR_FCM_CST_SHIFT			 8
+#define OR_FCM_CHT			0x00000080
+#define OR_FCM_CHT_SHIFT			 7
+#define OR_FCM_SCY			0x00000070
+#define OR_FCM_SCY_SHIFT			 4
+#define OR_FCM_SCY_1			0x00000010
+#define OR_FCM_SCY_2			0x00000020
+#define OR_FCM_SCY_3			0x00000030
+#define OR_FCM_SCY_4			0x00000040
+#define OR_FCM_SCY_5			0x00000050
+#define OR_FCM_SCY_6			0x00000060
+#define OR_FCM_SCY_7			0x00000070
+#define OR_FCM_RST			0x00000008
+#define OR_FCM_RST_SHIFT			 3
+#define OR_FCM_TRLX			0x00000004
+#define OR_FCM_TRLX_SHIFT			 2
+#define OR_FCM_EHTR			0x00000002
+#define OR_FCM_EHTR_SHIFT			 1
 
 #define OR_UPM_AM			0xFFFF8000
 #define OR_UPM_AM_SHIFT			15
@@ -1018,5 +1159,119 @@
 #define PIWAR_IWS_512M			0x0000001C
 #define PIWAR_IWS_1G			0x0000001D
 #define PIWAR_IWS_2G			0x0000001E
+
+/* PMCCR1 - PCI Configuration Register 1
+ */
+#define PMCCR1_POWER_OFF		0x00000020
+
+/* FMR - Flash Mode Register
+ */
+#define FMR_CWTO		0x0000F000
+#define FMR_CWTO_SHIFT		12
+#define FMR_BOOT		0x00000800
+#define FMR_ECCM		0x00000100
+#define FMR_AL			0x00000030
+#define FMR_AL_SHIFT		4
+#define FMR_OP			0x00000003
+#define FMR_OP_SHIFT		0
+
+/* FIR - Flash Instruction Register
+ */
+#define FIR_OP0			0xF0000000
+#define FIR_OP0_SHIFT		28
+#define FIR_OP1			0x0F000000
+#define FIR_OP1_SHIFT		24
+#define FIR_OP2			0x00F00000
+#define FIR_OP2_SHIFT		20
+#define FIR_OP3			0x000F0000
+#define FIR_OP3_SHIFT		16
+#define FIR_OP4			0x0000F000
+#define FIR_OP4_SHIFT		12
+#define FIR_OP5			0x00000F00
+#define FIR_OP5_SHIFT		8
+#define FIR_OP6			0x000000F0
+#define FIR_OP6_SHIFT		4
+#define FIR_OP7			0x0000000F
+#define FIR_OP7_SHIFT		0
+#define FIR_OP_NOP		0x0 /* No operation and end of sequence */
+#define FIR_OP_CA		0x1 /* Issue current column address */
+#define FIR_OP_PA		0x2 /* Issue current block+page address */
+#define FIR_OP_UA		0x3 /* Issue user defined address */
+#define FIR_OP_CM0		0x4 /* Issue command from FCR[CMD0] */
+#define FIR_OP_CM1		0x5 /* Issue command from FCR[CMD1] */
+#define FIR_OP_CM2		0x6 /* Issue command from FCR[CMD2] */
+#define FIR_OP_CM3		0x7 /* Issue command from FCR[CMD3] */
+#define FIR_OP_WB		0x8 /* Write FBCR bytes from FCM buffer */
+#define FIR_OP_WS		0x9 /* Write 1 or 2 bytes from MDR[AS] */
+#define FIR_OP_RB		0xA /* Read FBCR bytes to FCM buffer */
+#define FIR_OP_RS		0xB /* Read 1 or 2 bytes to MDR[AS] */
+#define FIR_OP_CW0		0xC /* Wait then issue FCR[CMD0] */
+#define FIR_OP_CW1		0xD /* Wait then issue FCR[CMD1] */
+#define FIR_OP_RBW		0xE /* Wait then read FBCR bytes */
+#define FIR_OP_RSW		0xF /* Wait then read 1 or 2 bytes */
+
+/* FCR - Flash Command Register
+ */
+#define FCR_CMD0		0xFF000000
+#define FCR_CMD0_SHIFT		24
+#define FCR_CMD1		0x00FF0000
+#define FCR_CMD1_SHIFT		16
+#define FCR_CMD2		0x0000FF00
+#define FCR_CMD2_SHIFT   	8
+#define FCR_CMD3		0x000000FF
+#define FCR_CMD3_SHIFT		0
+
+/* FBAR - Flash Block Address Register
+ */
+#define FBAR_BLK		0x00FFFFFF
+
+/* FPAR - Flash Page Address Register
+ */
+#define FPAR_SP_PI		0x00007C00
+#define FPAR_SP_PI_SHIFT	10
+#define FPAR_SP_MS		0x00000200
+#define FPAR_SP_CI		0x000001FF
+#define FPAR_SP_CI_SHIFT	0
+#define FPAR_LP_PI		0x0003F000
+#define FPAR_LP_PI_SHIFT	12
+#define FPAR_LP_MS		0x00000800
+#define FPAR_LP_CI		0x000007FF
+#define FPAR_LP_CI_SHIFT	0
+
+/* LTESR - Transfer Error Status Register
+ */
+#define LTESR_BM		0x80000000
+#define LTESR_FCT 		0x40000000
+#define LTESR_PAR 		0x20000000
+#define LTESR_WP		0x04000000
+#define LTESR_ATMW		0x00800000
+#define LTESR_ATMR		0x00400000
+#define LTESR_CS		0x00080000
+#define LTESR_CC		0x00000001
+
+/* DDR Control Driver Register
+ */
+#define DDRCDR_EN		0x40000000
+#define DDRCDR_PZ		0x3C000000
+#define DDRCDR_PZ_MAXZ		0x00000000
+#define DDRCDR_PZ_HIZ		0x20000000
+#define DDRCDR_PZ_NOMZ		0x30000000
+#define DDRCDR_PZ_LOZ		0x38000000
+#define DDRCDR_PZ_MINZ		0x3C000000
+#define DDRCDR_NZ		0x3C000000
+#define DDRCDR_NZ_MAXZ		0x00000000
+#define DDRCDR_NZ_HIZ		0x02000000
+#define DDRCDR_NZ_NOMZ		0x03000000
+#define DDRCDR_NZ_LOZ		0x03800000
+#define DDRCDR_NZ_MINZ		0x03C00000
+#define DDRCDR_ODT		0x00080000
+#define DDRCDR_DDR_CFG		0x00040000
+#define DDRCDR_M_ODR		0x00000002
+#define DDRCDR_Q_DRN		0x00000001
+
+#ifndef __ASSEMBLY__
+struct pci_region;
+void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot);
+#endif
 
 #endif	/* __MPC83XX_H__ */

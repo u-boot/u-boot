@@ -719,6 +719,7 @@ The following options need to be configured:
 		CFG_CMD_VFD	* VFD support (TRAB)
 		CFG_CMD_BSP	* Board SPecific functions
 		CFG_CMD_CDP	* Cisco Discover Protocol support
+		CFG_CMD_FSL	* Microblaze FSL support
 		-----------------------------------------------
 		CFG_CMD_ALL	all
 

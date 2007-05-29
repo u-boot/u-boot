@@ -52,13 +52,26 @@ int checkcpu(void)
 
 	immr = (immap_t *)CFG_IMMR;
 
-	if ((pvr & 0xFFFF0000) != PVR_83xx) {
-		puts("Not MPC83xx Family!!!\n");
-		return -1;
+	puts("CPU:   ");
+
+	switch (pvr & 0xffff0000) {
+		case PVR_E300C1:
+			printf("e300c1, ");
+			break;
+
+		case PVR_E300C2:
+			printf("e300c2, ");
+			break;
+
+		case PVR_E300C3:
+			printf("e300c3, ");
+			break;
+
+		default:
+			printf("Unknown core, ");
 	}
 
 	spridr = immr->sysconf.spridr;
-	puts("CPU: ");
 	switch(spridr) {
 	case SPR_8349E_REV10:
 	case SPR_8349E_REV11:
@@ -124,6 +137,18 @@ int checkcpu(void)
 	case SPR_8321_REV11:
 		puts("MPC8321, ");
 		break;
+	case SPR_8311_REV10:
+		puts("MPC8311, ");
+		break;
+	case SPR_8311E_REV10:
+		puts("MPC8311E, ");
+		break;
+	case SPR_8313_REV10:
+		puts("MPC8313, ");
+		break;
+	case SPR_8313E_REV10:
+		puts("MPC8313E, ");
+		break;
 	default:
 		puts("Rev: Unknown revision number.\nWarning: Unsupported cpu revision!\n");
 		return 0;
@@ -133,10 +158,12 @@ int checkcpu(void)
 	/* Multiple revisons of 834x processors may have the same SPRIDR value.
 	 * So use PVR to identify the revision number.
 	 */
-	printf("Rev: %02x at %s MHz\n", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
+	printf("Rev: %02x at %s MHz", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
 #else
-	printf("Rev: %02x at %s MHz\n", spridr & 0x0000FFFF, strmhz(buf, clock));
+	printf("Rev: %02x at %s MHz", spridr & 0x0000FFFF, strmhz(buf, clock));
 #endif
+	printf(", CSB: %4d MHz\n", gd->csb_clk / 1000000);
+
 	return 0;
 }
 

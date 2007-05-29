@@ -55,11 +55,13 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC83XX)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-#if defined (CONFIG_MPC834X)
+#if defined (CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
-	u32 usbmph_clk;
 	u32 usbdr_clk;
+#endif
+#if defined (CONFIG_MPC834X)
+	u32 usbmph_clk;
 #endif /* CONFIG_MPC834X */
 	u32 core_clk;
 	u32 i2c1_clk;

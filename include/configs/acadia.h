@@ -34,7 +34,9 @@
 #define CONFIG_ACADIA		1		/* Board is Acadia	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EZ		1		/* Specifc 405EZ support*/
-#define CONFIG_SYS_CLK_FREQ	66666666	/* external freq to pll	*/
+/* Detect Acadia PLL input clock automatically via CPLD bit		*/
+#define CONFIG_SYS_CLK_FREQ    ((in8(CFG_CPLD_BASE + 0) == 0x0c) ? \
+				66666666 : 33333000)
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_F	1		/* Call misc_init_f	*/
@@ -224,16 +226,6 @@
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
 
-#if 0 /* test-only */
-#define TEST_ONLY_NAND
-#endif
-
-#ifdef TEST_ONLY_NAND
-#define CMD_NAND		CFG_CMD_NAND
-#else
-#define CMD_NAND		0
-#endif
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -252,7 +244,7 @@
 			       CFG_CMD_I2C	|	\
 			       CFG_CMD_IRQ	|	\
 			       CFG_CMD_MII	|	\
-			       CMD_NAND		|	\
+			       CFG_CMD_NAND	|	\
 			       CFG_CMD_NET	|	\
 			       CFG_CMD_NFS	|	\
 			       CFG_CMD_PCI	|	\
@@ -300,7 +292,6 @@
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#ifdef TEST_ONLY_NAND
 /*-----------------------------------------------------------------------
  * NAND FLASH
  *----------------------------------------------------------------------*/
@@ -308,7 +299,6 @@
 #define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
 #define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
-#endif
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -322,7 +312,7 @@
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
-#define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
+#define CFG_NAND_CS		3		/* NAND chip connected to CSx	*/
 
 /* Memory Bank 0 (Flash) initialization						*/
 #define CFG_EBC_PB0AP		0x03337200
@@ -358,7 +348,8 @@
 /*-----------------------------------------------------------------------
  * Definitions for GPIO_0 setup (PPC405EZ specific)
  *
- * GPIO0[0-3]	- External Bus Controller CS_4 - CS_7 Outputs
+ * GPIO0[0-2]	- External Bus Controller CS_4 - CS_6 Outputs
+ * GPIO0[3]	- NAND FLASH Controller CE3 (NFCE3) Output
  * GPIO0[4]	- External Bus Controller Hold Input
  * GPIO0[5]	- External Bus Controller Priority Input
  * GPIO0[6]	- External Bus Controller HLDA Output
@@ -376,10 +367,10 @@
  */
 #define CFG_GPIO0_TCR		0xC0000000
 #define CFG_GPIO0_OSRL		0x50000000
-#define CFG_GPIO0_OSRH		0x00000055
+#define CFG_GPIO0_OSRH		0x02000055
 #define CFG_GPIO0_ISR1L		0x00000000
 #define CFG_GPIO0_ISR1H		0x00000055
-#define CFG_GPIO0_TSRL		0x00000000
+#define CFG_GPIO0_TSRL		0x02000000
 #define CFG_GPIO0_TSRH		0x00000055
 
 /*-----------------------------------------------------------------------

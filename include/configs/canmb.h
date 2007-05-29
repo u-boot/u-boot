@@ -111,7 +111,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK   		/* define for 133MHz speed */
 
 /*
  * Flash configuration, expect one 16 Megabyte Bank at most

@@ -1425,9 +1425,6 @@
 /*----------------------------------------------------------------------------+
 | Clock / Power-on-reset DCR's.
 +----------------------------------------------------------------------------*/
-#define CPR0_CFGADDR			0x00C
-#define CPR0_CFGDATA			0x00D
-
 #define CPR0_CLKUPD			0x20
 #define CPR0_CLKUPD_BSY_MASK		0x80000000
 #define CPR0_CLKUPD_BSY_COMPLETED	0x00000000
@@ -3314,6 +3311,23 @@
 #define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
 #define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
+/*
+ * All 44x except 440GP have CPR registers (indirect DCR)
+ */
+#if !defined(CONFIG_440GP)
+#define CPR0_CFGADDR		0x00C
+#define CPR0_CFGDATA		0x00D
+
+#define mtcpr(reg, data)	do { \
+		mtdcr(CPR0_CFGADDR, reg); \
+		mtdcr(CPR0_CFGDATA, data); \
+	} while (0)
+
+#define mfcpr(reg, data)	do { \
+		mtdcr(CPR0_CFGADDR, reg); \
+		data = mfdcr(CPR0_CFGDATA); \
+	} while (0)
+#endif
 
 #ifndef __ASSEMBLY__
 
