@@ -166,11 +166,18 @@
 /*
  * Now the NAND chip has to be defined (no autodetection used!)
  */
-#define CFG_NAND_PAGE_SIZE	(512)		/* NAND chip page size		*/
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
 #define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
-#define CFG_NAND_PAGE_COUNT	(32)		/* NAND chip page count		*/
-#define CFG_NAND_BAD_BLOCK_POS	(5)		/* Location of bad block marker	*/
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
 #undef CFG_NAND_4_ADDR_CYCLE			/* No fourth addr used (<=32MB)	*/
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
 #ifdef CFG_ENV_IS_IN_NAND
 /*

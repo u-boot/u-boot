@@ -379,7 +379,11 @@ void denali_core_search_data_eye(unsigned long memory_size)
 long int initdram (int board_type)
 {
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+#if !defined(CONFIG_NAND_SPL)
 	ulong speed = get_bus_freq(0);
+#else
+	ulong speed = 133333333;	/* 133MHz is on the safe side	*/
+#endif
 
 	mtsdram(DDR0_02, 0x00000000);
 
