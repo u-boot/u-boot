@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2002-2007
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2007
+# Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,12 +20,23 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+#
+# AMCC 440EP Reference Platform (Bamboo) board
+#
 
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+#
+# TEXT_BASE for SPL:
+#
+# On 440EP(x) platforms the SPL is located at 0xfffff000...0xffffffff,
+# in the last 4kBytes of memory space in cache.
+# We will copy this SPL into instruction-cache in start.S. So we set
+# TEXT_BASE to starting address in i-cache here.
+#
+TEXT_BASE = 0x00800000
 
-ifndef TEXT_BASE
-TEXT_BASE = 0xFFFA0000
-endif
+# PAD_TO used to generate a 16kByte binary needed for the combined image
+# -> PAD_TO = TEXT_BASE + 0x4000
+PAD_TO	= 0x00804000
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 

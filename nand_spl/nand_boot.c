@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -24,27 +24,28 @@
 #define CFG_NAND_READ_DELAY \
 	{ volatile int dummy; int i; for (i=0; i<10000; i++) dummy = i; }
 
-extern void board_nand_init(struct nand_chip *nand);
-extern void ndfc_hwcontrol(struct mtd_info *mtdinfo, int cmd);
-extern void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte);
-extern u_char ndfc_read_byte(struct mtd_info *mtdinfo);
-extern int ndfc_dev_ready(struct mtd_info *mtdinfo);
-extern int jump_to_ram(ulong delta);
-extern int jump_to_uboot(ulong addr);
+static int nand_ecc_pos[] = CFG_NAND_ECCPOS;
 
-static int nand_is_bad_block(struct mtd_info *mtd, int block)
+extern void board_nand_init(struct nand_chip *nand);
+
+static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 cmd)
 {
 	struct nand_chip *this = mtd->priv;
-	int page_addr = block * CFG_NAND_PAGE_COUNT;
+	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
+
+	if (this->dev_ready)
+		this->dev_ready(mtd);
+	else
+		CFG_NAND_READ_DELAY;
 
 	/* Begin command latch cycle */
 	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, NAND_CMD_READOOB);
+	this->write_byte(mtd, cmd);
 	/* Set ALE and clear CLE to start address cycle */
 	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
 	this->hwcontrol(mtd, NAND_CTL_SETALE);
 	/* Column address */
-	this->write_byte(mtd, CFG_NAND_BAD_BLOCK_POS);			/* A[7:0] */
+	this->write_byte(mtd, offs);					/* A[7:0] */
 	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[16:9] */
 	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[24:17] */
 #ifdef CFG_NAND_4_ADDR_CYCLE
@@ -61,6 +62,15 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 		this->dev_ready(mtd);
 	else
 		CFG_NAND_READ_DELAY;
+
+	return 0;
+}
+
+static int nand_is_bad_block(struct mtd_info *mtd, int block)
+{
+	struct nand_chip *this = mtd->priv;
+
+	nand_command(mtd, block, 0, CFG_NAND_BAD_BLOCK_POS, NAND_CMD_READOOB);
 
 	/*
 	 * Read on byte
@@ -74,39 +84,46 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 {
 	struct nand_chip *this = mtd->priv;
-	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
+	u_char *ecc_calc;
+	u_char *ecc_code;
+	u_char *oob_data;
 	int i;
+	int eccsize = CFG_NAND_ECCSIZE;
+	int eccbytes = CFG_NAND_ECCBYTES;
+	int eccsteps = CFG_NAND_ECCSTEPS;
+	uint8_t *p = dst;
+	int stat;
 
-	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, NAND_CMD_READ0);
-	/* Set ALE and clear CLE to start address cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
-	this->hwcontrol(mtd, NAND_CTL_SETALE);
-	/* Column address */
-	this->write_byte(mtd, 0);					/* A[7:0] */
-	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[16:9] */
-	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[24:17] */
-#ifdef CFG_NAND_4_ADDR_CYCLE
-	/* One more address cycle for devices > 32MiB */
-	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:25] */
-#endif
-	/* Latch in address */
-	this->hwcontrol(mtd, NAND_CTL_CLRALE);
+	nand_command(mtd, block, page, 0, NAND_CMD_READ0);
 
-	/*
-	 * Wait a while for the data to be ready
+	/* No malloc available for now, just use some temporary locations
+	 * in SDRAM
 	 */
-	if (this->dev_ready)
-		this->dev_ready(mtd);
-	else
-		CFG_NAND_READ_DELAY;
+	ecc_calc = (u_char *)(CFG_SDRAM_BASE + 0x10000);
+	ecc_code = ecc_calc + 0x100;
+	oob_data = ecc_calc + 0x200;
 
-	/*
-	 * Read page into buffer
-	 */
-	for (i=0; i<CFG_NAND_PAGE_SIZE; i++)
-		*dst++ = this->read_byte(mtd);
+	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
+		this->enable_hwecc(mtd, NAND_ECC_READ);
+		this->read_buf(mtd, p, eccsize);
+		this->calculate_ecc(mtd, p, &ecc_calc[i]);
+	}
+	this->read_buf(mtd, oob_data, CFG_NAND_OOBSIZE);
+
+	/* Pick the ECC bytes out of the oob data */
+	for (i = 0; i < CFG_NAND_ECCTOTAL; i++)
+		ecc_code[i] = oob_data[nand_ecc_pos[i]];
+
+	eccsteps = CFG_NAND_ECCSTEPS;
+	p = dst;
+
+	for (i = 0 ; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
+		/* No chance to do something with the possible error message
+		 * from correct_data(). We just hope that all possible errors
+		 * are corrected by this routine.
+		 */
+		stat = this->correct_data(mtd, p, &ecc_code[i], &ecc_calc[i]);
+	}
 
 	return 0;
 }
