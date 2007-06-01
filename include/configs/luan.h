@@ -135,7 +135,8 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x53, 0x52}	/* SPD i2c spd addresses*/
-#undef CONFIG_DDR_ECC			/* no ECC support for now	*/
+#define CONFIG_DDR_ECC		1	/* with ECC support		*/
+#define CFG_44x_DDR2_CKTR_180	1	/* use 180 deg advance		*/
 
 /*-----------------------------------------------------------------------
  * I2C
