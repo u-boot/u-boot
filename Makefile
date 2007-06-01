@@ -1035,6 +1035,16 @@ ASH405_config:	unconfig
 bamboo_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bamboo amcc
 
+bamboo_nand_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/bamboo
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "Compile NAND boot image for bamboo"
+	@$(MKCONFIG) -a bamboo ppc ppc4xx bamboo amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 bubinga_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bubinga amcc
 

@@ -76,21 +76,21 @@ LIST_8xx="	\
 
 LIST_4xx="	\
 	acadia		ADCIOP		alpr		AP1000		\
-	AR405		ASH405		bamboo		bubinga		\
-	CANBT		CMS700		CPCI2DP		CPCI405		\
-	CPCI4052	CPCI405AB	CPCI405DT	CPCI440		\
-	CPCIISER4	CRAYL1		csb272		csb472		\
-	DASA_SIM	DP405		DU405		ebony		\
-	ERIC		EXBITGEN	G2000		HH405		\
-	HUB405		JSE		KAREF		katmai		\
-	luan		METROBOX	MIP405		MIP405T		\
-	ML2		ml300		ocotea		OCRTC		\
-	ORSG		p3p440		PCI405		pcs440ep	\
-	PIP405		PLU405		PMC405		PPChameleonEVB	\
-	sbc405		sc3		sequoia		sequoia_nand	\
-	taishan		VOH405		VOM405		W7OLMC		\
-	W7OLMG		walnut		WUH405		XPEDITE1K	\
-	yellowstone	yosemite	yucca				\
+	AR405		ASH405		bamboo		bamboo_nand	\
+	bubinga		CANBT		CMS700		CPCI2DP		\
+	CPCI405		CPCI4052	CPCI405AB	CPCI405DT	\
+	CPCI440		CPCIISER4	CRAYL1		csb272		\
+	csb472		DASA_SIM	DP405		DU405		\
+	ebony		ERIC		EXBITGEN	G2000		\
+	HH405		HUB405		JSE		KAREF		\
+	katmai		luan		METROBOX	MIP405		\
+	MIP405T		ML2		ml300		ocotea		\
+	OCRTC		ORSG		p3p440		PCI405		\
+	pcs440ep	PIP405		PLU405		PMC405		\
+	PPChameleonEVB	sbc405		sc3		sequoia		\
+	sequoia_nand	taishan		VOH405		VOM405		\
+	W7OLMC		W7OLMG		walnut		WUH405		\
+	XPEDITE1K	yellowstone	yosemite	yucca		\
 "
 
 #########################################################################
