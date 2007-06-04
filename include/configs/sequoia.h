@@ -40,7 +40,7 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 /* Detect Sequoia PLL input clock automatically via CPLD bit		*/
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
-				3333333 : 33000000)
+				33333333 : 33000000)
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/

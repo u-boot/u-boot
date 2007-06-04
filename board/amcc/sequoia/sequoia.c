@@ -132,6 +132,12 @@ int board_early_init_f(void)
 		(0x80000000 >> (28 + CFG_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
+	/* Update EBC speed after booting from i2c bootstrap settings
+	 * on newer boards with 33.333 MHZ Clocks
+	 */
+	if (in8(CFG_BCSR_BASE + 3) & 0x80)
+		mtcpr(0xe0, 0x02000000);
+
 	return 0;
 }
 
@@ -363,8 +369,8 @@ int checkboard(void)
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
 
-	rev = *(u8 *)(CFG_BCSR_BASE + 0);
-	val = *(u8 *)(CFG_BCSR_BASE + 5) & 0x01;
+	rev = in8(CFG_BCSR_BASE + 0);
+	val = in8(CFG_BCSR_BASE + 5) & 0x01;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {

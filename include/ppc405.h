@@ -547,8 +547,8 @@
 #define sdrcfga (SDR_DCR_BASE+0x0)	/* ADDR */
 #define sdrcfgd (SDR_DCR_BASE+0x1)	/* Data */
 
-#define mtsdr(reg, data) mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data)
-#define mfsdr(reg, data) mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd)
+#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
+#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
 #define sdrnand0	0x4000
 #define sdrultra0	0x4040
@@ -593,8 +593,8 @@
 /*
  * Macro for accessing the indirect CPR register
  */
-#define mtcpr(reg, data)  mtdcr(cprcfga,reg);mtdcr(cprcfgd,data)
-#define mfcpr(reg, data)  mtdcr(cprcfga,reg);data = mfdcr(cprcfgd)
+#define mtcpr(reg, data)	do { mtdcr(cprcfga,reg);mtdcr(cprcfgd,data); } while (0)
+#define mfcpr(reg, data)	do { mtdcr(cprcfga,reg);data = mfdcr(cprcfgd); } while (0)
 
 #define CPR_CLKUPD_ENPLLCH_EN  0x40000000     /* Enable CPR PLL Changes */
 #define CPR_CLKUPD_ENDVCH_EN   0x20000000     /* Enable CPR Sys. Div. Changes */

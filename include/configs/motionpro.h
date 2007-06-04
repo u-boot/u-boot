@@ -54,7 +54,8 @@
 				CFG_CMD_JFFS2	| \
 				CFG_CMD_I2C	| \
 				CFG_CMD_DATE	| \
-				CFG_CMD_EEPROM)
+				CFG_CMD_EEPROM	| \
+				CFG_CMD_DTT)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -75,7 +76,7 @@
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_PHY_ADDR		0x2
 #define CONFIG_PHY_TYPE		0x79c874
-
+#define CONFIG_RESET_PHY_R	1
 
 /*
  * Autobooting
@@ -116,26 +117,27 @@
 	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
 	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
 	"multi_image_file=kernel+initrd+dtb.img\0"			\
-	"load=tftp $(u-boot_addr) $(u-boot)\0"				\
+	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
 	"update=prot off fff00000 fff3ffff; era fff00000 fff3ffff; "	\
-		"cp.b $(u-boot_addr) fff00000 $(filesize);"		\
+		"cp.b ${u-boot_addr} fff00000 ${filesize};"		\
 		"prot on fff00000 fff3ffff\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=$(serverip):$(rootpath)\0"			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
 	"fat_args=setenv bootargs rw\0"					\
-	"addip=setenv bootargs $(bootargs) "				\
-		"ip=$(ipaddr):$(serverip):$(gatewayip):"		\
-		"$(netmask):$(hostname):$(netdev):off panic=1 "		\
-		"console=$(console)\0"					\
-	"net_nfs=tftp $(kernel_addr) $(bootfile); "			\
-		"tftp $(fdt_addr) $(fdt_file); run nfsargs addip; "	\
-		"bootm $(kernel_addr) - $(fdt_addr)\0"			\
-	"net_self=tftp $(kernel_addr) $(bootfile); "			\
-		"tftp $(fdt_addr) $(fdt_file); "			\
-		"tftp $(ramdisk_addr) $(ramdisk_file); "		\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+		"${netmask}:${hostname}:${netdev}:off panic=1 "		\
+		"console=${console}\0"					\
+	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
+		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip; "	\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_self=tftp ${kernel_addr} ${bootfile}; "			\
+		"tftp ${fdt_addr} ${fdt_file}; "			\
+		"tftp ${ramdisk_addr} ${ramdisk_file}; "		\
 		"run ramargs addip; "					\
-		"bootm $(kernel_addr) $(ramdisk_addr) $(fdt_addr)\0"	\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"fat_multi=run fat_args addip; fatload ide 0:1 "		\
 		"${multi_image_addr} ${multi_image_file}; "		\
 		"bootm ${multi_image_addr}\0"				\
@@ -160,9 +162,9 @@
 
 
 /*
- * Set IPB speed to 100MHz (yes, the #define is misnamed)
+ * Set IPB speed to 100MHz
  */
-#define CFG_IPBSPEED_133
+#define CFG_IPBCLK_EQUALS_XLBCLK
 
 
 /*
@@ -268,7 +270,8 @@
 #define MTDIDS_DEFAULT		"nor0=motionpro-0"
 #define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
 					"13m(fs),2m(kernel),256k(uboot)," \
-					"64k(env),64k(dtb),-(user_data)"
+					"64k(env),64k(redund_env),64k(dtb)," \
+					"-(user_data)"
 
 /*
  * IDE/ATA configuration
@@ -297,8 +300,9 @@
  * EEPROM configuration
  */
 #define CFG_I2C_EEPROM_ADDR_LEN		1
-#define CFG_EEPROM_PAGE_WRITE_BITS	3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* DTT driver needs this */
+#define CFG_EEPROM_PAGE_WRITE_BITS	1	/* 2 bytes per write cycle */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	5	/* 2ms/cycle + 3ms extra */
 #define CFG_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
 
 
@@ -310,6 +314,35 @@
 
 
 /*
+ * Status LED configuration
+ */
+#define CONFIG_STATUS_LED		/* Status LED enabled */
+#define CONFIG_BOARD_SPECIFIC_LED
+
+#define ENABLE_GPIO_OUT		0x00000024
+#define LED_ON			0x00000010
+
+#ifndef __ASSEMBLY__
+/*
+ * In case of Motion-PRO, a LED is identified by its corresponding
+ * GPT Enable and Mode Select Register.
+ */
+typedef volatile unsigned long * led_id_t;
+
+extern void __led_init(led_id_t id, int state);
+extern void __led_toggle(led_id_t id);
+extern void __led_set(led_id_t id, int state);
+#endif /* __ASSEMBLY__ */
+
+
+/*
+ * Temperature sensor
+ */
+#define CONFIG_DTT_LM75		1
+#define CONFIG_DTT_SENSORS	{ 0x49 }
+
+
+/*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
@@ -318,6 +351,9 @@
 #define CFG_ENV_SIZE		0x1000
 #define CFG_ENV_SECT_SIZE	0x10000
 
+/* Configuration of redundant environment */
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 /*
  * Pin multiplexing configuration
@@ -335,11 +371,17 @@
 
 
 /*
+ * Motion-PRO's CPLD revision control register
+ */
+#define CPLD_REV_REGISTER	(CFG_CS2_START + 0x06)
+
+
+/*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
@@ -376,6 +418,6 @@
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PAT		"/soc5200@f0000000/serial@2000"
+#define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 
 #endif /* __CONFIG_H */
