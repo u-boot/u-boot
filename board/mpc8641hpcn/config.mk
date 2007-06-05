@@ -25,7 +25,7 @@
 # default CCSRBAR is at 0xff700000
 # assume U-Boot is less than 0.5MB
 #
-TEXT_BASE = 0xfff01000
+TEXT_BASE = 0xfff00000
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx=1
 PLATFORM_CPPFLAGS += -DCONFIG_MPC8641=1 -maltivec -mabi=altivec -msoft-float
