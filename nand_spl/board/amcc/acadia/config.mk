@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2007
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,17 +20,28 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
 #
 # AMCC 405EZ Reference Platform (Acadia) board
 #
 
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+#
+# TEXT_BASE for SPL:
+#
+# On 4xx platforms the SPL is located at 0xfffff000...0xffffffff,
+# in the last 4kBytes of memory space in cache.
+# We will copy this SPL into internal SRAM in start.S. So we set
+# TEXT_BASE to starting address in internal SRAM here.
+#
+TEXT_BASE = 0xF8003000
 
-ifndef TEXT_BASE
-TEXT_BASE = 0xFFFC0000
-endif
+# PAD_TO used to generate a 16kByte binary needed for the combined image
+# -> PAD_TO = TEXT_BASE + 0x4000
+PAD_TO	= 0xF8007000
 
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG
+endif
+
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
 endif

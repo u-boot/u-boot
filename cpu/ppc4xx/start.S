@@ -155,7 +155,9 @@
 	 * NAND U-Boot image is started from offset 0
 	 */
 	.text
+#if defined(CONFIG_440)
 	bl	reconfig_tlb0
+#endif
 	GET_GOT
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
@@ -857,6 +859,38 @@ _start:
 #endif /* CONFIG_405EZ */
 #endif
 
+#ifdef CONFIG_NAND_SPL
+	/*
+	 * Copy SPL from cache into internal SRAM
+	 */
+	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
+	mtctr	r4
+	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+spl_loop:
+	lwzu	r4,4(r2)
+	stwu	r4,4(r3)
+	bdnz	spl_loop
+
+	/*
+	 * Jump to code in RAM
+	 */
+	bl	00f
+00:	mflr	r10
+	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
+	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
+	sub	r10,r10,r3
+	addi	r10,r10,28
+	mtlr	r10
+	blr
+
+start_ram:
+	sync
+	isync
+#endif /* CONFIG_NAND_SPL */
+
 	/*----------------------------------------------------------------------- */
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
 	/*----------------------------------------------------------------------- */
@@ -967,12 +1001,16 @@ _start:
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
+#ifdef CONFIG_NAND_SPL
+	bl	nand_boot		/* will not return */
+#else
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
 	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+#endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
@@ -1187,23 +1225,6 @@ crit_return:
 
 /* Cache functions.
 */
-invalidate_icache:
-	iccci	r0,r0			/* for 405, iccci invalidates the */
-	blr				/*   entire I cache */
-
-invalidate_dcache:
-	addi	r6,0,0x0000		/* clear GPR 6 */
-	/* Do loop for # of dcache congruence classes. */
-	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
-	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
-					/* NOTE: dccci invalidates both */
-	mtctr	r7			/* ways in the D cache */
-..dcloop:
-	dccci	0,r6			/* invalidate line */
-	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
-	bdnz	..dcloop
-	blr
-
 flush_dcache:
 	addis	r9,r0,0x0002		/* set mask for EE and CE msr bits */
 	ori	r9,r9,0x8000
@@ -1732,6 +1753,23 @@ out32:
 	.globl	in32
 in32:
 	lwz	3,0x0000(3)
+	blr
+
+invalidate_icache:
+	iccci	r0,r0			/* for 405, iccci invalidates the */
+	blr				/*   entire I cache */
+
+invalidate_dcache:
+	addi	r6,0,0x0000		/* clear GPR 6 */
+	/* Do loop for # of dcache congruence classes. */
+	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
+	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+					/* NOTE: dccci invalidates both */
+	mtctr	r7			/* ways in the D cache */
+..dcloop:
+	dccci	0,r6			/* invalidate line */
+	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
+	bdnz	..dcloop
 	blr
 
 /**************************************************************************/
