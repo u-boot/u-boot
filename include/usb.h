@@ -180,6 +180,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len,struct devrequest *setup);
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
+void usb_event_poll(void);
 
 /* Defines */
 #define USB_UHCI_VEND_ID 0x8086

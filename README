@@ -901,6 +901,9 @@ The following options need to be configured:
 			CONFIG_USB_CONFIG
 				for differential drivers: 0x00001000
 				for single ended drivers: 0x00005000
+			CFG_USB_EVENT_POLL
+				May be defined to allow interrupt polling
+				instead of using asynchronous interrupts
 
 - USB Device:
 		Define the below if you wish to use the USB console.
