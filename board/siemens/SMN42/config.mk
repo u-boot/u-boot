@@ -1,5 +1,9 @@
 #
-# (C) Copyright 2007
+# (C) Copyright 2000
+# Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+# Marius Groeger <mgroeger@sysgo.de>
+#
+# (C) Copyright 2000
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,31 +25,6 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).a
-
-COBJS	:= flash.o lpc2292sodimm.o
-SOBJTS	:= lowlevel_init.o
-
-SRCS	:= $(SOBJTS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJTS))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+#address where u-boot will be relocated
+#TEXT_BASE = 0x0
+TEXT_BASE = 0x81500000

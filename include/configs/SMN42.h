@@ -2,7 +2,7 @@
  * (C) Copyright 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Configuation settings for the LPC2292SODIMM board from Embedded Artists.
+ * Configuation settings for the SMN42 board from Siemens.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -68,17 +68,50 @@
 
 #define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
+/* enable I2C and select the hardware/software driver */
+#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+/* this would be 0xAE if E0, E1 and E2 were pulled high */
+#define CFG_I2C_SLAVE		0xA0
+#define CFG_I2C_EEPROM_ADDR	(0xA0 >> 1)
+#define CFG_I2C_EEPROM_ADDR_LEN 2 /* 16 bit address */
+#define CFG_EEPROM_PAGE_WRITE_BITS 6 /* 64 bytes per write */
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 20
+/* not used but required by devices.c */
+#define CFG_I2C_SPEED 10000
+
+#ifdef CONFIG_SOFT_I2C
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+#define SCL		0x00000004		/* P0.2 */
+#define SDA		0x00000008		/* P0.3 */
+
+#define	I2C_READ	((GET32(IO0PIN) & SDA) ? 1 : 0)
+#define	I2C_SDA(x)	{ if (x) PUT32(IO0SET, SDA); else PUT32(IO0CLR, SDA); }
+#define	I2C_SCL(x)	{ if (x) PUT32(IO0SET, SCL); else PUT32(IO0CLR, SCL); }
+#define	I2C_DELAY	{ udelay(100); }
+#define	I2C_ACTIVE	{ unsigned int i2ctmp; \
+ 					  i2ctmp = GET32(IO0DIR); \
+					  i2ctmp |= SDA; \
+					  PUT32(IO0DIR, i2ctmp); }
+#define	I2C_TRISTATE	{ unsigned int i2ctmp; \
+ 					      i2ctmp = GET32(IO0DIR); \
+					      i2ctmp &= ~SDA; \
+						  PUT32(IO0DIR, i2ctmp); }
+#endif /* CONFIG_SOFT_I2C */
+
 /*
  * Supported commands
  */
 #define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
 				CFG_CMD_DHCP	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_MMC	| \
-				CFG_CMD_NET	| \
+				CFG_CMD_FAT		| \
+				CFG_CMD_MMC		| \
+				CFG_CMD_NET		| \
+				CFG_CMD_EEPROM	| \
 				CFG_CMD_PING)
 
-#define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -90,20 +123,19 @@
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"LPC2292SODIMM # " /* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"SMN42 # " /* Monitor Command Prompt	*/
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x40000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x40000000	/* 4 ... 8 MB in DRAM	*/
+#define CFG_MEMTEST_START	0x81800000	/* memtest works on	*/
+#define CFG_MEMTEST_END		0x83000000	/* 24 MB in SRAM	*/
 
 #undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for 
-                                                 * armadillo: kernel img is here
-						 */
+#define	CFG_LOAD_ADDR		0x81000000	/* default load address	
+                                                 * for uClinux img is here*/
 
 #define CFG_SYS_CLK_FREQ        58982400        /* Hz */
 #define	CFG_HZ			2048		/* decrementer freq in Hz */
@@ -125,33 +157,42 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x81000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x00800000 /* 8 MB SDRAM */
+#define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of SRAM */
+#define PHYS_SDRAM_1		0x81000000 /* SRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE	0x02000000 /* 32 MB SRAM */
 
+/* This is the external flash */
 #define PHYS_FLASH_1		0x80000000 /* Flash Bank #1 */
-#define PHYS_FLASH_SIZE		0x00200000 /* 2 MB */
-
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define PHYS_FLASH_SIZE		0x01000000 /* 16 MB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	1024	/* max number of sectors on one chip	*/
 
-/* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+/*
+ * The first entry in CFG_FLASH_BANKS_LIST is a dummy, but it must be present.
+ */
+#define CFG_FLASH_BANKS_LIST	{ 0, PHYS_FLASH_1 }
+#define CFG_FLASH_ADDR0			0x555
+#define CFG_FLASH_ADDR1			0x2AA
+#define CFG_FLASH_ERASE_TOUT	16384	/* Timeout for Flash Erase (in ms) */
+#define CFG_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms) */
+
+#define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
+
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(0x0 + 0x3C000)	/* Addr of Environment Sector	*/
+/* The Environment Sector is in the CPU-internal flash */
+#define CFG_FLASH_BASE		0
+#define CFG_ENV_OFFSET		0x3C000
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x2000 /* Total Size of Environment Sector	*/
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_MMC 1
+#define CONFIG_MMC			1
 /* we use this ethernet chip */
 #define CONFIG_ENC28J60
 

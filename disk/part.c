@@ -180,6 +180,7 @@ void dev_print (block_dev_desc_t *dev_desc)
      (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
      (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
      defined(CONFIG_MMC)		|| \
+     (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
      defined(CONFIG_SYSTEMACE)          )
 
 #if defined(CONFIG_MAC_PARTITION) || \
@@ -219,7 +220,8 @@ void init_part (block_dev_desc_t * dev_desc)
 }
 
 
-int get_partition_info (block_dev_desc_t *dev_desc, int part, disk_partition_t *info)
+int get_partition_info (block_dev_desc_t *dev_desc, int part
+					, disk_partition_t *info)
 {
 		switch (dev_desc->part_type) {
 #ifdef CONFIG_MAC_PARTITION
@@ -325,7 +327,8 @@ void print_part (block_dev_desc_t * dev_desc)
 
 
 #else	/* neither MAC nor DOS nor ISO partition configured */
-# error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION nor CONFIG_ISO_PARTITION configured!
+# error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION 
+# error nor CONFIG_ISO_PARTITION configured!
 #endif
 
 #endif	/* (CONFIG_COMMANDS & CFG_CMD_IDE) || CONFIG_COMMANDS & CFG_CMD_SCSI) */

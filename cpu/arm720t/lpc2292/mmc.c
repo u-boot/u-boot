@@ -23,7 +23,7 @@
 #include <part.h>
 #include <fat.h>
 #include "mmc_hw.h"
-#include "spi.h"
+#include <asm/arch/spi.h>
 
 #ifdef CONFIG_MMC
 
@@ -44,7 +44,7 @@ block_dev_desc_t * mmc_get_dev(int dev)
 unsigned long mmc_block_read(int dev,
 			     unsigned long start,
 			     lbaint_t blkcnt,
-			     unsigned long *buffer)
+			     void *buffer)
 {
 	unsigned long rc = 0;
 	unsigned char *p = (unsigned char *)buffer;
@@ -101,6 +101,9 @@ int mmc_init(int verbose)
 		printf("mmc_init\n");
 
 	spi_init();
+	/* this meeds to be done twice */
+	mmc_hw_init();
+	udelay(1000);
 	mmc_hw_init();
 
 	mmc_hw_get_parameters();

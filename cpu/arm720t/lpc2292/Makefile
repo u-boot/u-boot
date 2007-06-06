@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2007
+# (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,23 +23,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(SOC).a
 
-COBJS	:= flash.o lpc2292sodimm.o
-SOBJTS	:= lowlevel_init.o
+COBJS	= flash.o mmc.o mmc_hw.o spi.o
+SOBJS	= $(obj)iap_entry.o
 
-SRCS	:= $(SOBJTS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJTS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+all:	$(obj).depend $(LIB)
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
+# this MUST be compiled as thumb code!
+$(SOBJS):
+	$(CC) $(AFLAGS) -march=armv4t -c -o $(SOBJS) iap_entry.S
 
 #########################################################################
 
