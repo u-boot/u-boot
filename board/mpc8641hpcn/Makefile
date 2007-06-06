@@ -23,6 +23,10 @@
 
 include $(TOPDIR)/config.mk
 
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../freescale/common)
+endif
+
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= $(BOARD).o sys_eeprom.o \

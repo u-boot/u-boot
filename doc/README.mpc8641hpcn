@@ -96,14 +96,17 @@ To Flash U-Boot into the booting bank (0xFFC00000 - 0xFFFFFFFF):
 
 	tftp 1000000 u-boot.bin
 	protect off all
-	erase fff00000 ffffffff
-	cp.b 1000000 fff00100 80000
+	erase fff00000 +$filesize
+	cp.b 1000000 fff00000 $filesize
+
+or use tftpflash command:
+	run tftpflash
 
 To Flash U-boot into the alternative bank (0xFF800000 - 0xFFBFFFFF):
 
 	tftp 1000000 u-boot.bin
-	erase ffb00000 ffbfffff
-	cp.b 1000000 ffb00100 80000
+	erase ffb00000 +$filesize
+	cp.b 1000000 ffb00000 $filesize
 
 
 4. Memory Map
