@@ -38,31 +38,20 @@
  */
 /*
  * IMPORTANT NOTES
- * 1 - you MUST define LITTLEENDIAN in the configuration file for the
- *     board or this driver will NOT work!
+ * 1 - Read doc/README.generic_usb_ohci
  * 2 - this driver is intended for use with USB Mass Storage Devices
  *     (BBB) and USB keyboard. There is NO support for Isochronous pipes!
- * 3 - when running on a PQFP208 AT91RM9200, define CONFIG_AT91C_PQFP_UHPBUG
+ * 2 - when running on a PQFP208 AT91RM9200, define CONFIG_AT91C_PQFP_UHPBUG
  *     to activate workaround for bug #41 or this driver will NOT work!
  */
 
 #include <common.h>
-/* #include <pci.h> no PCI on the S3C24X0 */
 
 #ifdef CONFIG_USB_OHCI_NEW
 
-/* mk: are these really required? */
-#if defined(CONFIG_S3C2400)
-# include <s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-# include <s3c2410.h>
-#elif defined(CONFIG_ARM920T)
-# include <asm/arch/hardware.h>
-#elif defined(CONFIG_CPU_MONAHANS)
-# include <asm/arch/pxa-regs.h>
-#elif defined(CONFIG_MPC5200)
-# include <mpc5xxx.h>
-#elif defined(CONFIG_PCI_OHCI)
+#include <asm/byteorder.h>
+
+#if defined(CONFIG_PCI_OHCI)
 # include <pci.h>
 #endif
 
@@ -88,8 +77,16 @@
 #define OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
 
-#define readl(a) m32_swap(*((vu_long *)(a)))
-#define writel(a, b) (*((vu_long *)(b)) = m32_swap((vu_long)a))
+/*
+ * e.g. PCI controllers need this
+ */
+#ifdef CFG_OHCI_SWAP_REG_ACCESS
+# define readl(a) __swap_16(*((vu_long *)(a)))
+# define writel(a, b) (*((vu_long *)(b)) = __swap_32((vu_long)a))
+#else
+# define readl(a) (*((vu_long *)(a)))
+# define writel(a, b) (*((vu_long *)(b)) = ((vu_long)a))
+#endif /* CFG_OHCI_SWAP_REG_ACCESS */
 
 #define min_t(type,x,y) ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
 
@@ -114,13 +111,13 @@ static struct pci_device_id ohci_pci_ids[] = {
 #define info(format, arg...) do {} while(0)
 #endif
 
-#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
-# define m16_swap(x) (x)
-# define m32_swap(x) (x)
+#ifdef CFG_OHCI_BE_CONTROLLER
+# define m16_swap(x) cpu_to_be16(x)
+# define m32_swap(x) cpu_to_be32(x)
 #else
-# define m16_swap(x) swap_16(x)
-# define m32_swap(x) swap_32(x)
-#endif
+# define m16_swap(x) cpu_to_le16(x)
+# define m32_swap(x) cpu_to_le32(x)
+#endif /* CFG_OHCI_BE_CONTROLLER */
 
 /* global ohci_t */
 static ohci_t gohci;
@@ -1240,15 +1237,9 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe
 	}
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
-#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
-	wValue	      = __swap_16(cmd->value);
-	wIndex	      = __swap_16(cmd->index);
-	wLength	      = __swap_16(cmd->length);
-#else
-	wValue	      = m16_swap (cmd->value);
-	wIndex	      = m16_swap (cmd->index);
-	wLength	      = m16_swap (cmd->length);
-#endif /* CONFIG_440EP || CONFIG_MPC5200 */
+	wValue	      = cpu_to_le16 (cmd->value);
+	wIndex	      = cpu_to_le16 (cmd->index);
+	wLength	      = cpu_to_le16 (cmd->length);
 
 	info("Root-Hub: adr: %2x cmd(%1x): %08x %04x %04x %04x",
 		dev->devnum, 8, bmRType_bReq, wValue, wIndex, wLength);
@@ -1262,33 +1253,18 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe
 	   RH_OTHER | RH_CLASS	almost ever means HUB_PORT here
 	*/
 
-#if defined(CONFIG_440EP) || defined(CONFIG_MPC5200)
 	case RH_GET_STATUS:
-			*(__u16 *) data_buf = __swap_16(1); OK (2);
+			*(__u16 *) data_buf = cpu_to_le16 (1); OK (2);
 	case RH_GET_STATUS | RH_INTERFACE:
-			*(__u16 *) data_buf = __swap_16(0); OK (2);
+			*(__u16 *) data_buf = cpu_to_le16 (0); OK (2);
 	case RH_GET_STATUS | RH_ENDPOINT:
-			*(__u16 *) data_buf = __swap_16(0); OK (2);
+			*(__u16 *) data_buf = cpu_to_le16 (0); OK (2);
 	case RH_GET_STATUS | RH_CLASS:
-			*(__u32 *) data_buf = __swap_32(
+			*(__u32 *) data_buf = cpu_to_le32 (
 				RD_RH_STAT & ~(RH_HS_CRWE | RH_HS_DRWE));
 			OK (4);
 	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
-			*(__u32 *) data_buf = __swap_32(RD_RH_PORTSTAT); OK (4);
-#else
-	case RH_GET_STATUS:
-			*(__u16 *) data_buf = m16_swap (1); OK (2);
-	case RH_GET_STATUS | RH_INTERFACE:
-			*(__u16 *) data_buf = m16_swap (0); OK (2);
-	case RH_GET_STATUS | RH_ENDPOINT:
-			*(__u16 *) data_buf = m16_swap (0); OK (2);
-	case RH_GET_STATUS | RH_CLASS:
-			*(__u32 *) data_buf = m32_swap (
-				RD_RH_STAT & ~(RH_HS_CRWE | RH_HS_DRWE));
-			OK (4);
-	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
-			*(__u32 *) data_buf = m32_swap (RD_RH_PORTSTAT); OK (4);
-#endif /* CONFIG_440EP || CONFIG_MPC5200 */
+			*(__u32 *) data_buf = cpu_to_le32 (RD_RH_PORTSTAT); OK (4);
 
 	case RH_CLEAR_FEATURE | RH_ENDPOINT:
 		switch (wValue) {
