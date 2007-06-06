@@ -63,8 +63,14 @@ int board_early_init_f(void)
 	acadia_gpio_init();
 
 	/* Configure 405EZ for NAND usage */
-	mtsdr(sdrnand0, 0x80c00000);
-	mtsdr(sdrultra0, 0x8d110000);
+	mtsdr(sdrnand0, SDR_NAND0_NDEN | SDR_NAND0_NDAREN | SDR_NAND0_NDRBEN);
+	mfsdr(sdrultra0, reg);
+	reg &= ~SDR_ULTRA0_CSN_MASK;
+	reg |= (SDR_ULTRA0_CSNSEL0 >> CFG_NAND_CS) |
+		SDR_ULTRA0_NDGPIOBP |
+		SDR_ULTRA0_EBCRDYEN |
+		SDR_ULTRA0_NFSRSTEN;
+	mtsdr(sdrultra0, reg);
 
 	/* USB Host core needs this bit set */
 	mfsdr(sdrultra1, reg);

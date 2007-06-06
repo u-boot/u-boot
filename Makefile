@@ -1017,6 +1017,15 @@ xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(
 acadia_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx acadia amcc
 
+acadia_nand_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/acadia
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a acadia ppc ppc4xx acadia amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/acadia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
