@@ -381,12 +381,12 @@ static void str2wide (char *str, u16 * wide)
 {
 	int i;
 	for (i = 0; i < strlen (str) && str[i]; i++){
-		#if defined(__LITTLE_ENDIAN__)
+		#if defined(__LITTLE_ENDIAN)
 			wide[i] = (u16) str[i];
-		#elif defined(__BIG_ENDIAN__)
+		#elif defined(__BIG_ENDIAN)
 			wide[i] = ((u16)(str[i])<<8);
 		#else
-			#error "__LITTLE_ENDIAN__ or __BIG_ENDIAN__ undefined"
+			#error "__LITTLE_ENDIAN or __BIG_ENDIAN undefined"
 		#endif
 	}
 }
