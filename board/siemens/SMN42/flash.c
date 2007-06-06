@@ -25,8 +25,7 @@
 #include <asm/byteorder.h>
 #include <asm/arch/hardware.h>
 
-static unsigned long flash_addr_table[CFG_MAX_FLASH_BANKS] 
-						= CFG_FLASH_BANKS_LIST;
+static unsigned long flash_addr_table[CFG_MAX_FLASH_BANKS] = CFG_FLASH_BANKS_LIST;
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
 extern int lpc2292_copy_buffer_to_flash(flash_info_t *, ulong);

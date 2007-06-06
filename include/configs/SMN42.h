@@ -42,7 +42,7 @@
 #define CONFIG_ARM7		1	/* This is a ARM7 CPU	*/
 #define CONFIG_ARM_THUMB	1	/* this is an ARM720TDMI */
 #define CONFIG_LPC2292
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef	CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #undef CONFIG_USE_IRQ			/* don't need them anymore */
 
@@ -66,10 +66,10 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
 /* enable I2C and select the hardware/software driver */
-#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
 /* this would be 0xAE if E0, E1 and E2 were pulled high */
 #define CFG_I2C_SLAVE		0xA0
@@ -92,11 +92,11 @@
 #define	I2C_SCL(x)	{ if (x) PUT32(IO0SET, SCL); else PUT32(IO0CLR, SCL); }
 #define	I2C_DELAY	{ udelay(100); }
 #define	I2C_ACTIVE	{ unsigned int i2ctmp; \
- 					  i2ctmp = GET32(IO0DIR); \
+					  i2ctmp = GET32(IO0DIR); \
 					  i2ctmp |= SDA; \
 					  PUT32(IO0DIR, i2ctmp); }
 #define	I2C_TRISTATE	{ unsigned int i2ctmp; \
- 					      i2ctmp = GET32(IO0DIR); \
+					      i2ctmp = GET32(IO0DIR); \
 					      i2ctmp &= ~SDA; \
 						  PUT32(IO0DIR, i2ctmp); }
 #endif /* CONFIG_SOFT_I2C */
@@ -132,12 +132,12 @@
 #define CFG_MEMTEST_START	0x81800000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x83000000	/* 24 MB in SRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x81000000	/* default load address	
-                                                 * for uClinux img is here*/
+#define	CFG_LOAD_ADDR		0x81000000	/* default load address	*/
+						/* for uClinux img is here*/
 
-#define CFG_SYS_CLK_FREQ        58982400        /* Hz */
+#define CFG_SYS_CLK_FREQ	58982400	/* Hz */
 #define	CFG_HZ			2048		/* decrementer freq in Hz */
 
 						/* valid baudrates */

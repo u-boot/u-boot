@@ -42,7 +42,7 @@
 #define CONFIG_ARM7		1	/* This is a ARM7 CPU	*/
 #define CONFIG_ARM_THUMB	1	/* this is an ARM720TDMI */
 #define CONFIG_LPC2292
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef	CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #undef CONFIG_USE_IRQ			/* don't need them anymore */
 
@@ -66,7 +66,7 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
 /*
  * Supported commands
@@ -99,13 +99,12 @@
 #define CFG_MEMTEST_START	0x40000000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x40000000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for 
-                                                 * armadillo: kernel img is here
-						 */
+#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for	*/
+						/* armadillo: kernel img is here*/
 
-#define CFG_SYS_CLK_FREQ        58982400        /* Hz */
+#define CFG_SYS_CLK_FREQ	58982400	/* Hz */
 #define	CFG_HZ			2048		/* decrementer freq in Hz */
 
 						/* valid baudrates */

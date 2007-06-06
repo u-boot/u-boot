@@ -327,7 +327,7 @@ void print_part (block_dev_desc_t * dev_desc)
 
 
 #else	/* neither MAC nor DOS nor ISO partition configured */
-# error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION 
+# error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION
 # error nor CONFIG_ISO_PARTITION configured!
 #endif
 

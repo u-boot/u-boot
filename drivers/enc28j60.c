@@ -548,8 +548,8 @@ static void encRx (void)
 		m_nic_bfs (CTL_REG_ECON2, ENC_ECON2_PKTDEC);
 
 		/* taken from the Linux driver */
-		/* Only odd values should be written to ERXRDPTL, 
-		 * see errata B4 pt.13 
+		/* Only odd values should be written to ERXRDPTL,
+		 * see errata B4 pt.13
 		 */
 		rxbuf_rdpt = (next_pointer_msb << 8 | next_pointer_lsb) - 1;
 		if ((rxbuf_rdpt < (m_nic_read(CTL_REG_ERXSTH) << 8 |
