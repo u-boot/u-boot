@@ -64,7 +64,8 @@ struct ed {
 	struct ed *ed_rm_list;
 
 	struct usb_device *usb_dev;
-	__u32 unused[3];
+	void *purb;
+	__u32 unused[2];
 } __attribute((aligned(16)));
 typedef struct ed ed_t;
 
@@ -349,9 +350,14 @@ typedef struct
 	ed_t *ed;
 	__u16 length;	/* number of tds associated with this request */
 	__u16 td_cnt;	/* number of tds already serviced */
+	struct usb_device *dev;
 	int   state;
 	unsigned long pipe;
+	void *transfer_buffer;
+	int transfer_buffer_length;
+	int interval;
 	int actual_length;
+	int finished;
 	td_t *td[N_URB_TD];	/* list pointer to all corresponding TDs associated with this request */
 } urb_priv_t;
 #define URB_DEL 1
@@ -375,6 +381,7 @@ typedef struct ohci {
 
 	struct ohci_regs *regs; /* OHCI controller's memory */
 
+	int ohci_int_load[32];	 /* load of the 32 Interrupt Chains (for load balancing)*/
 	ed_t *ed_rm_list[2];	 /* lists of all endpoints to be removed */
 	ed_t *ed_bulktail;	 /* last endpoint of bulk list */
 	ed_t *ed_controltail;	 /* last endpoint of control list */
@@ -397,7 +404,8 @@ struct ohci_device {
 /* endpoint */
 static int ep_link(ohci_t * ohci, ed_t * ed);
 static int ep_unlink(ohci_t * ohci, ed_t * ed);
-static ed_t * ep_add_ed(struct usb_device * usb_dev, unsigned long pipe);
+static ed_t * ep_add_ed(struct usb_device * usb_dev, unsigned long pipe,
+		int interval, int load);
 
 /*-------------------------------------------------------------------------*/
 
