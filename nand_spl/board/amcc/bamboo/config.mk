@@ -1,7 +1,6 @@
-# Modified by Xianghua Xiao, X.Xiao@motorola.com
-# (C) Copyright 2002,2003 Motorola Inc.
 #
-# Copied from ADS85xx for STx GP3 - Dan Malek
+# (C) Copyright 2007
+# Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,13 +20,30 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
-# default CCARBAR is at 0xff700000
-# assume U-Boot is less than 0.5MB
-# U-Boot is less than 256K, so push
-# it further up into the flash
 #
-TEXT_BASE = 0xFFFC0000
+# AMCC 440EP Reference Platform (Bamboo) board
+#
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx=1
-PLATFORM_CPPFLAGS += -DCONFIG_E500=1
+#
+# TEXT_BASE for SPL:
+#
+# On 440EP(x) platforms the SPL is located at 0xfffff000...0xffffffff,
+# in the last 4kBytes of memory space in cache.
+# We will copy this SPL into instruction-cache in start.S. So we set
+# TEXT_BASE to starting address in i-cache here.
+#
+TEXT_BASE = 0x00800000
+
+# PAD_TO used to generate a 16kByte binary needed for the combined image
+# -> PAD_TO = TEXT_BASE + 0x4000
+PAD_TO	= 0x00804000
+
+PLATFORM_CPPFLAGS += -DCONFIG_440=1
+
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
+
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
+endif

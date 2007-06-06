@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006-2007
+# (C) Copyright 2007
 # Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -72,13 +72,7 @@ $(obj)start.S:
 # from board directory
 $(obj)init.S:
 	@rm -f $(obj)init.S
-	ln -s $(SRCTREE)/board/amcc/sequoia/init.S $(obj)init.S
-
-$(obj)sdram.c:
-	@rm -f $(obj)sdram.c
-	@rm -f $(obj)sdram.h
-	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $(obj)sdram.c
-	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.h $(obj)sdram.h
+	ln -s $(SRCTREE)/board/amcc/bamboo/init.S $(obj)init.S
 
 # from nand_spl directory
 $(obj)nand_boot.c:

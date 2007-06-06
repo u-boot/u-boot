@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -291,6 +291,7 @@ int checkboard(void)
 	return (0);
 }
 
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 /*************************************************************************
  *
  * init_spd_array -- Bamboo has one bank onboard sdram (plus DIMM)
@@ -345,10 +346,12 @@ static void init_spd_array(void)
 	cfg_simulate_spd_eeprom[25]    = 0x00;    /* SDRAM Cycle Time (cas latency 1.5) = N.A */
 	cfg_simulate_spd_eeprom[12]    = 0x82;    /* refresh Rate Type: Normal (15.625us) + Self refresh */
 }
+#endif
 
 long int initdram (int board_type)
 {
-	long dram_size = 0;
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
+	long dram_size;
 
 	/*
 	 * First write simulated values in eeprom array for onboard bank 0
@@ -358,6 +361,9 @@ long int initdram (int board_type)
 	dram_size = spd_sdram();
 
 	return dram_size;
+#else
+	return CFG_MBYTES_SDRAM << 20;
+#endif
 }
 
 #if defined(CFG_DRAM_TEST)
@@ -881,11 +887,11 @@ void ext_bus_cntlr_init(void)
 		/*------------------------------------------------------------------------- */
 	case BOOT_FROM_NAND_FLASH0:
 		/*------------------------------------------------------------------------- */
-		ebc0_cs0_bnap_value = 0;
-		ebc0_cs0_bncr_value = 0;
+		ebc0_cs0_bnap_value = EBC0_BNAP_NAND_FLASH;
+		ebc0_cs0_bncr_value = EBC0_BNCR_NAND_FLASH_CS1;
 
-		ebc0_cs1_bnap_value = EBC0_BNAP_NAND_FLASH;
-		ebc0_cs1_bncr_value = EBC0_BNCR_NAND_FLASH_CS1;
+		ebc0_cs1_bnap_value = 0;
+		ebc0_cs1_bncr_value = 0;
 		ebc0_cs2_bnap_value = 0;
 		ebc0_cs2_bncr_value = 0;
 		ebc0_cs3_bnap_value = 0;
@@ -1409,10 +1415,10 @@ void update_ndfc_ios(void)
 	gpio_tab[GPIO0][6].in_out = GPIO_OUT;	    /* EBC_CS_N(1) */
 	gpio_tab[GPIO0][6].alt_nb = GPIO_ALT1;
 
-#if 0
 	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(2) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 
+#if 0
 	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(3) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 #endif
@@ -1900,12 +1906,21 @@ void configure_ppc440ep_pins(void)
 	{
 		update_ndfc_ios();
 
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
 		      SDR0_CUST0_NDFC_ENABLE	|
 		      SDR0_CUST0_NDFC_BW_8_BIT	|
 		      SDR0_CUST0_NDFC_ARE_MASK	|
 		      SDR0_CUST0_CHIPSELGAT_EN1 |
 		      SDR0_CUST0_CHIPSELGAT_EN2);
+#else
+		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
+		      SDR0_CUST0_NDFC_ENABLE	|
+		      SDR0_CUST0_NDFC_BW_8_BIT	|
+		      SDR0_CUST0_NDFC_ARE_MASK	|
+		      SDR0_CUST0_CHIPSELGAT_EN0 |
+		      SDR0_CUST0_CHIPSELGAT_EN2);
+#endif
 
 		ndfc_selection_in_fpga();
 	}

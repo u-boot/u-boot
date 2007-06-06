@@ -1041,6 +1041,15 @@ ASH405_config:	unconfig
 bamboo_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bamboo amcc
 
+bamboo_nand_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/bamboo
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a bamboo ppc ppc4xx bamboo amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 bubinga_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bubinga amcc
 
@@ -1795,8 +1804,16 @@ sbc8560_66_config:      unconfig
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
 
-stxssa_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxssa
+stxssa_config		\
+stxssa_4M_config:	unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _4M_,$@)" ] ; then \
+		echo "#define CONFIG_STXSSA_4M" >>$(obj)include/config.h ; \
+		echo "... with 4 MiB flash memory" ; \
+	else \
+		>$(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa
 
 TQM8540_config		\
 TQM8541_config		\
