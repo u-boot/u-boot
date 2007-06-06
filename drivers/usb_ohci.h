@@ -10,7 +10,7 @@
 /* functions for doing board or CPU specific setup/cleanup */
 extern int usb_board_init(void);
 extern int usb_board_stop(void);
-extern int usb_cpu_init_fail(void);
+extern int usb_board_init_fail(void);
 
 extern int usb_cpu_init(void);
 extern int usb_cpu_stop(void);
