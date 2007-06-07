@@ -132,7 +132,7 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
  * Searches for the node corresponding to the given path and returns the
  * offset of that node.
  */
-int fdt_path_offset(const void *fdt, const char *path)
+int fdt_find_node_by_path(const void *fdt, const char *path)
 {
 	const char *end = path + strlen(path);
 	const char *p = path;

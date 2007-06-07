@@ -97,7 +97,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	/*
 	 * Find the "chosen" node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/chosen");
+	nodeoffset = fdt_find_node_by_path (fdt, "/chosen");
 
 	/*
 	 * If we have a "chosen" node already the "force the writing"
@@ -145,7 +145,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		printf("WARNING fdt_chosen: could not set \"linux,stdout-path\" (libfdt error %s).\n", fdt_strerror(err));
 #endif
 
-	nodeoffset = fdt_path_offset (fdt, "/cpus");
+	nodeoffset = fdt_find_node_by_path (fdt, "/cpus");
 	if (nodeoffset >= 0) {
 		clock = cpu_to_be32(bd->bi_intfreq);
 		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
@@ -153,7 +153,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 			printf("WARNING fdt_chosen: could not set \"clock-frequency\" (libfdt error %s).\n", fdt_strerror(err));
 	}
 #ifdef OF_TBCLK
-	nodeoffset = fdt_path_offset (fdt, "/cpus/" OF_CPU "/timebase-frequency");
+	nodeoffset = fdt_find_node_by_path (fdt, "/cpus/" OF_CPU "/timebase-frequency");
 	if (nodeoffset >= 0) {
 		clock = cpu_to_be32(OF_TBCLK);
 		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
@@ -190,7 +190,7 @@ int fdt_env(void *fdt)
 	 * See if we already have a "u-boot-env" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/u-boot-env");
+	nodeoffset = fdt_find_node_by_path (fdt, "/u-boot-env");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
@@ -310,7 +310,7 @@ int fdt_bd_t(void *fdt)
 	 * See if we already have a "bd_t" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/bd_t");
+	nodeoffset = fdt_find_node_by_path (fdt, "/bd_t");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {

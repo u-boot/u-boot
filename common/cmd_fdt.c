@@ -59,7 +59,7 @@ static int findnodeoffset(const char *pathp)
 	if (strcmp(pathp, "/") == 0) {
 		nodeoffset = 0;
 	} else {
-		nodeoffset = fdt_path_offset (fdt, pathp);
+		nodeoffset = fdt_find_node_by_path (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
