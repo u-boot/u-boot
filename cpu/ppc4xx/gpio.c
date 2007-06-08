@@ -157,12 +157,12 @@ void gpio_set_chip_configuration(void)
 				switch (gpio_tab[gpio_core][i].alt_nb) {
 				case GPIO_SEL:
 					if (gpio_core == GPIO0) {
-						reg = in32(GPIO0_TCR) | (0x80000000 >> (j));
+						reg = in32(GPIO0_TCR) | (0x80000000 >> (i));
 						out32(GPIO0_TCR, reg);
 					}
 
 					if (gpio_core == GPIO1) {
-						reg = in32(GPIO1_TCR) | (0x80000000 >> (j));
+						reg = in32(GPIO1_TCR) | (0x80000000 >> (i));
 						out32(GPIO1_TCR, reg);
 					}
 
