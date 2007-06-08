@@ -993,11 +993,6 @@ struct phy_info phy_info_M88E1111S = {
 	(struct phy_cmd[]){	/* config */
 			   /* Reset and configure the PHY */
 			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {0x1d, 0x1f, NULL},
-			   {0x1e, 0x200c, NULL},
-			   {0x1d, 0x5, NULL},
-			   {0x1e, 0x0, NULL},
-			   {0x1e, 0x100, NULL},
 			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
