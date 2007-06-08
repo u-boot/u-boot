@@ -58,7 +58,7 @@
  * 0xFFE00000 .... 0xFFFFFFFF -> BOOT-ROM (2 MiB)
  */
 
-#define CONFIG_SOLIDCARD3	1
+#define CONFIG_SC3	1
 #define CONFIG_4xx	1
 #define CONFIG_405GP	1
 
@@ -134,7 +134,8 @@
 #if 1	/* feel free to disable for development */
 #define CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
 #define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with ENTER\n"
-#define CONFIG_AUTOBOOT_DELAY_STR	"\n"	/* 1st "password"	*/
+#define CONFIG_AUTOBOOT_DELAY_STR	"\r"	/* 1st "password"	*/
+#define CONFIG_AUTOBOOT_DELAY_STR2	"\n"	/* 1st "password"	*/
 #endif
 
 /*
