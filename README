@@ -1066,6 +1066,16 @@ The following options need to be configured:
 		Defines a default value for theIP address of a TFTP
 		server to contact when using the "tftboot" command.
 
+- Multicast TFTP Mode:
+		CONFIG_MCAST_TFTP
+
+		Defines whether you want to support multicast TFTP as per
+		rfc-2090; for example to work with atftp.  Lets lots of targets
+		tftp down the same boot image concurrently.  Note: the ethernet
+		driver in use must provide a function: mcast() to join/leave a
+		multicast group.
+
+		CONFIG_BOOTP_RANDOM_DELAY
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
 

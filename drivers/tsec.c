@@ -129,6 +129,9 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value);
 static int tsec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value);
+#ifdef CONFIG_MCAST_TFTP
+static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
+#endif
 
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
@@ -167,6 +170,9 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	dev->halt = tsec_halt;
 	dev->send = tsec_send;
 	dev->recv = tsec_recv;
+#ifdef CONFIG_MCAST_TFTP
+	dev->mcast = tsec_mcast_addr;
+#endif
 
 	/* Tell u-boot to get the addr from the env */
 	for (i = 0; i < 6; i++)
@@ -1538,5 +1544,47 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 }
 
 #endif
+
+#ifdef CONFIG_MCAST_TFTP
+
+/* CREDITS: linux gianfar driver, slightly adjusted... thanx. */
+
+/* Set the appropriate hash bit for the given addr */
+
+/* The algorithm works like so:
+ * 1) Take the Destination Address (ie the multicast address), and
+ * do a CRC on it (little endian), and reverse the bits of the
+ * result.
+ * 2) Use the 8 most significant bits as a hash into a 256-entry
+ * table.  The table is controlled through 8 32-bit registers:
+ * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is
+ * gaddr7.  This means that the 3 most significant bits in the
+ * hash index which gaddr register to use, and the 5 other bits
+ * indicate which bit (assuming an IBM numbering scheme, which
+ * for PowerPC (tm) is usually the case) in the tregister holds
+ * the entry. */
+static int
+tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
+{
+ struct tsec_private *priv = privlist[1];
+ volatile tsec_t *regs = priv->regs;
+ volatile u32  *reg_array, value;
+ u8 result, whichbit, whichreg;
+
+	result = (u8)((ether_crc(MAC_ADDR_LEN,mcast_mac) >> 24) & 0xff);
+	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
+	whichreg = result >> 5;		/* the 3 MSB = which reg to set it in */
+	value = (1 << (31-whichbit));
+
+	reg_array = &(regs->hash.gaddr0);
+
+	if (set) {
+		reg_array[whichreg] |= value;
+	} else {
+		reg_array[whichreg] &= ~value;
+	}
+	return 0;
+}
+#endif /* Multicast TFTP ? */
 
 #endif /* CONFIG_TSEC_ENET */

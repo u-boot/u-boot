@@ -99,10 +99,12 @@ struct eth_device {
 	int state;
 
 	int  (*init) (struct eth_device*, bd_t*);
-	int  (*send) (struct eth_device*, volatile void* pachet, int length);
+	int  (*send) (struct eth_device*, volatile void* packet, int length);
 	int  (*recv) (struct eth_device*);
 	void (*halt) (struct eth_device*);
-
+#ifdef CONFIG_MCAST_TFTP
+	int (*mcast) (struct eth_device*, u32 ip, u8 set);
+#endif
 	struct eth_device *next;
 	void *priv;
 };
@@ -123,6 +125,11 @@ extern int eth_send(volatile void *packet, int length);	   /* Send a packet	*/
 extern int eth_rx(void);			/* Check for received packets	*/
 extern void eth_halt(void);			/* stop SCC			*/
 extern char *eth_get_name(void);		/* get name of current device	*/
+
+#ifdef CONFIG_MCAST_TFTP
+int eth_mcast_join( IPaddr_t mcast_addr, u8 join);
+u32 ether_crc (size_t len, unsigned char const *p);
+#endif
 
 
 /**********************************************************************/
