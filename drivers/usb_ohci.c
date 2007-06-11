@@ -81,7 +81,7 @@
  * e.g. PCI controllers need this
  */
 #ifdef CFG_OHCI_SWAP_REG_ACCESS
-# define readl(a) __swap_16(*((vu_long *)(a)))
+# define readl(a) __swap_32(*((vu_long *)(a)))
 # define writel(a, b) (*((vu_long *)(b)) = __swap_32((vu_long)a))
 #else
 # define readl(a) (*((vu_long *)(a)))
