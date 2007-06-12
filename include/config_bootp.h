@@ -1,0 +1,41 @@
+/*
+ * Copyright 2007 Freescale Semiconductor, Inc.
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License Version 2. This file is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
+
+#ifndef _CONFIG_BOOTP_H
+#define _CONFIG_BOOTP_H
+
+/*
+ * Optional BOOTP fields
+ */
+
+#define CONFIG_BOOTP_SUBNETMASK		0x00000001
+#define CONFIG_BOOTP_GATEWAY		0x00000002
+#define CONFIG_BOOTP_HOSTNAME		0x00000004
+#define CONFIG_BOOTP_NISDOMAIN		0x00000008
+#define CONFIG_BOOTP_BOOTPATH		0x00000010
+#define CONFIG_BOOTP_BOOTFILESIZE	0x00000020
+#define CONFIG_BOOTP_DNS		0x00000040
+#define CONFIG_BOOTP_DNS2		0x00000080
+#define CONFIG_BOOTP_SEND_HOSTNAME	0x00000100
+#define CONFIG_BOOTP_NTPSERVER		0x00000200
+#define CONFIG_BOOTP_TIMEOFFSET		0x00000400
+
+#define CONFIG_BOOTP_VENDOREX		0x80000000
+
+#define CONFIG_BOOTP_ALL		(~CONFIG_BOOTP_VENDOREX)
+
+#define CONFIG_BOOTP_DEFAULT		(CONFIG_BOOTP_SUBNETMASK | \
+					CONFIG_BOOTP_GATEWAY	 | \
+					CONFIG_BOOTP_HOSTNAME	 | \
+					CONFIG_BOOTP_BOOTPATH)
+
+#ifndef CONFIG_BOOTP_MASK
+#define CONFIG_BOOTP_MASK		CONFIG_BOOTP_DEFAULT
+#endif
+
+#endif	/* _CONFIG_BOOTP_H */
