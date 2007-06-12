@@ -541,7 +541,7 @@ The following options need to be configured:
 			CFG_CONSOLE_BLINK_COUNT blink interval (cf. i8042.c)
 			CONFIG_CONSOLE_TIME	display time/date info in
 						upper right corner
-						(requires CFG_CMD_DATE)
+						(requires CONFIG_CMD_DATE)
 			CONFIG_VIDEO_LOGO	display Linux logo in
 						upper left corner
 			CONFIG_VIDEO_BMP_LOGO	use bmp_logo.h instead of
@@ -645,103 +645,96 @@ The following options need to be configured:
 		time on others. This setting #define's the initial
 		value of the "loads_echo" environment variable.
 
-- Kgdb Serial Baudrate: (if CFG_CMD_KGDB is defined)
+- Kgdb Serial Baudrate: (if CONFIG_CMD_KGDB is defined)
 		CONFIG_KGDB_BAUDRATE
 		Select one of the baudrates listed in
 		CFG_BAUDRATE_TABLE, see below.
 
 - Monitor Functions:
-		CONFIG_COMMANDS
-		Most monitor functions can be selected (or
-		de-selected) by adjusting the definition of
-		CONFIG_COMMANDS; to select individual functions,
-		#define CONFIG_COMMANDS by "OR"ing any of the
-		following values:
+		Monitor commands can be included or excluded
+		from the build by using the #include files
+		"config_cmd_all.h" and #undef'ing unwanted
+		commands, or using "config_cmd_default.h"
+		and augmenting with additional #define's
+		for wanted commands.
 
-		#define enables commands:
-		-------------------------
-		CFG_CMD_ASKENV	* ask for env variable
-		CFG_CMD_AUTOSCRIPT Autoscript Support
-		CFG_CMD_BDI	  bdinfo
-		CFG_CMD_BEDBUG	* Include BedBug Debugger
-		CFG_CMD_BMP	* BMP support
-		CFG_CMD_BSP	* Board specific commands
-		CFG_CMD_BOOTD	  bootd
-		CFG_CMD_CACHE	* icache, dcache
-		CFG_CMD_CONSOLE	  coninfo
-		CFG_CMD_DATE	* support for RTC, date/time...
-		CFG_CMD_DHCP	* DHCP support
-		CFG_CMD_DIAG	* Diagnostics
-		CFG_CMD_DOC	* Disk-On-Chip Support
-		CFG_CMD_DTT	* Digital Therm and Thermostat
-		CFG_CMD_ECHO	  echo arguments
-		CFG_CMD_EEPROM	* EEPROM read/write support
-		CFG_CMD_ELF	* bootelf, bootvx
-		CFG_CMD_ENV	  saveenv
-		CFG_CMD_FDC	* Floppy Disk Support
-		CFG_CMD_FAT	* FAT partition support
-		CFG_CMD_FDOS	* Dos diskette Support
-		CFG_CMD_FLASH	  flinfo, erase, protect
-		CFG_CMD_FPGA	  FPGA device initialization support
-		CFG_CMD_HWFLOW	* RTS/CTS hw flow control
-		CFG_CMD_I2C	* I2C serial bus support
-		CFG_CMD_IDE	* IDE harddisk support
-		CFG_CMD_IMI	  iminfo
-		CFG_CMD_IMLS	  List all found images
-		CFG_CMD_IMMAP	* IMMR dump support
-		CFG_CMD_IRQ	* irqinfo
-		CFG_CMD_ITEST	  Integer/string test of 2 values
-		CFG_CMD_JFFS2	* JFFS2 Support
-		CFG_CMD_KGDB	* kgdb
-		CFG_CMD_LOADB	  loadb
-		CFG_CMD_LOADS	  loads
-		CFG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
-				  loop, loopw, mtest
-		CFG_CMD_MISC	  Misc functions like sleep etc
-		CFG_CMD_MMC	* MMC memory mapped support
-		CFG_CMD_MII	* MII utility commands
-		CFG_CMD_NAND	* NAND support
-		CFG_CMD_NET	  bootp, tftpboot, rarpboot
-		CFG_CMD_PCI	* pciinfo
-		CFG_CMD_PCMCIA	* PCMCIA support
-		CFG_CMD_PING	* send ICMP ECHO_REQUEST to network host
-		CFG_CMD_PORTIO	* Port I/O
-		CFG_CMD_REGINFO * Register dump
-		CFG_CMD_RUN	  run command in env variable
-		CFG_CMD_SAVES	* save S record dump
-		CFG_CMD_SCSI	* SCSI Support
-		CFG_CMD_SDRAM	* print SDRAM configuration information
-				  (requires CFG_CMD_I2C)
-		CFG_CMD_SETGETDCR Support for DCR Register access (4xx only)
-		CFG_CMD_SPI	* SPI serial bus support
-		CFG_CMD_USB	* USB support
-		CFG_CMD_VFD	* VFD support (TRAB)
-		CFG_CMD_BSP	* Board SPecific functions
-		CFG_CMD_CDP	* Cisco Discover Protocol support
-		CFG_CMD_FSL	* Microblaze FSL support
-		-----------------------------------------------
-		CFG_CMD_ALL	all
+		The default command configuration includes all commands
+		except those marked below with a "*".
 
-		CONFIG_CMD_DFL	Default configuration; at the moment
-				this is includes all commands, except
-				the ones marked with "*" in the list
-				above.
+		CONFIG_CMD_ASKENV	* ask for env variable
+		CONFIG_CMD_AUTOSCRIPT	  Autoscript Support
+		CONFIG_CMD_BDI		  bdinfo
+		CONFIG_CMD_BEDBUG	* Include BedBug Debugger
+		CONFIG_CMD_BMP		* BMP support
+		CONFIG_CMD_BSP		* Board specific commands
+		CONFIG_CMD_BOOTD	  bootd
+		CONFIG_CMD_CACHE	* icache, dcache
+		CONFIG_CMD_CONSOLE	  coninfo
+		CONFIG_CMD_DATE		* support for RTC, date/time...
+		CONFIG_CMD_DHCP		* DHCP support
+		CONFIG_CMD_DIAG		* Diagnostics
+		CONFIG_CMD_DOC		* Disk-On-Chip Support
+		CONFIG_CMD_DTT		* Digital Therm and Thermostat
+		CONFIG_CMD_ECHO		  echo arguments
+		CONFIG_CMD_EEPROM	* EEPROM read/write support
+		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_ENV		  saveenv
+		CONFIG_CMD_FDC		* Floppy Disk Support
+		CONFIG_CMD_FAT		* FAT partition support
+		CONFIG_CMD_FDOS		* Dos diskette Support
+		CONFIG_CMD_FLASH	  flinfo, erase, protect
+		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
+		CONFIG_CMD_I2C		* I2C serial bus support
+		CONFIG_CMD_IDE		* IDE harddisk support
+		CONFIG_CMD_IMI		  iminfo
+		CONFIG_CMD_IMLS		  List all found images
+		CONFIG_CMD_IMMAP	* IMMR dump support
+		CONFIG_CMD_IRQ		* irqinfo
+		CONFIG_CMD_ITEST	  Integer/string test of 2 values
+		CONFIG_CMD_JFFS2	* JFFS2 Support
+		CONFIG_CMD_KGDB		* kgdb
+		CONFIG_CMD_LOADB	  loadb
+		CONFIG_CMD_LOADS	  loads
+		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
+					  loop, loopw, mtest
+		CONFIG_CMD_MISC		  Misc functions like sleep etc
+		CONFIG_CMD_MMC		* MMC memory mapped support
+		CONFIG_CMD_MII		* MII utility commands
+		CONFIG_CMD_NAND		* NAND support
+		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
+		CONFIG_CMD_PCI		* pciinfo
+		CONFIG_CMD_PCMCIA		* PCMCIA support
+		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
+					  host
+		CONFIG_CMD_PORTIO	* Port I/O
+		CONFIG_CMD_REGINFO	* Register dump
+		CONFIG_CMD_RUN		  run command in env variable
+		CONFIG_CMD_SAVES	* save S record dump
+		CONFIG_CMD_SCSI		* SCSI Support
+		CONFIG_CMD_SDRAM	* print SDRAM configuration information
+					  (requires CONFIG_CMD_I2C)
+		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
+					  (4xx only)
+		CONFIG_CMD_SPI		* SPI serial bus support
+		CONFIG_CMD_USB		* USB support
+		CONFIG_CMD_VFD		* VFD support (TRAB)
+		CONFIG_CMD_BSP		* Board SPecific functions
+		CONFIG_CMD_CDP		* Cisco Discover Protocol support
+		CONFIG_CMD_FSL		* Microblaze FSL support
 
-		If you don't define CONFIG_COMMANDS it defaults to
-		CONFIG_CMD_DFL in include/cmd_confdefs.h. A board can
-		override the default settings in the respective
-		include file.
 
 		EXAMPLE: If you want all functions except of network
 		support you can write:
 
-		#define CONFIG_COMMANDS (CFG_CMD_ALL & ~CFG_CMD_NET)
+		#include "config_cmd_all.h"
+		#undef CONFIG_CMD_NET
 
 	Other Commands:
 		fdt (flattened device tree) command: CONFIG_OF_LIBFDT
 
 	Note:	Don't enable the "icache" and "dcache" commands
-		(configuration option CFG_CMD_CACHE) unless you know
+		(configuration option CONFIG_CMD_CACHE) unless you know
 		what you (and your U-Boot users) are doing. Data
 		cache cannot be enabled on systems like the 8xx or
 		8260 (where accesses to the IMMR region must be
@@ -769,7 +762,7 @@ The following options need to be configured:
 
 - Real-Time Clock:
 
-		When CFG_CMD_DATE is selected, the type of the RTC
+		When CONFIG_CMD_DATE is selected, the type of the RTC
 		has to be selected, too. Define exactly one of the
 		following options:
 
@@ -790,14 +783,14 @@ The following options need to be configured:
 		When CONFIG_TIMESTAMP is selected, the timestamp
 		(date and time) of an image is printed by image
 		commands like bootm or iminfo. This option is
-		automatically enabled when you select CFG_CMD_DATE .
+		automatically enabled when you select CONFIG_CMD_DATE .
 
 - Partition Support:
 		CONFIG_MAC_PARTITION and/or CONFIG_DOS_PARTITION
 		and/or CONFIG_ISO_PARTITION
 
-		If IDE or SCSI support	is  enabled  (CFG_CMD_IDE  or
-		CFG_CMD_SCSI) you must configure support for at least
+		If IDE or SCSI support	is  enabled  (CONFIG_CMD_IDE or
+		CONFIG_CMD_SCSI) you must configure support for at least
 		one partition type as well.
 
 - IDE Reset method:
@@ -907,8 +900,8 @@ The following options need to be configured:
 		enable this define CONFIG_MMC. The MMC can be
 		accessed from the boot prompt by mapping the device
 		to physical memory similar to flash. Command line is
-		enabled with CFG_CMD_MMC. The MMC driver also works with
-		the FAT fs. This is enabled with CFG_CMD_FAT.
+		enabled with CONFIG_CMD_MMC. The MMC driver also works with
+		the FAT fs. This is enabled with CONFIG_CMD_FAT.
 
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
@@ -1220,7 +1213,7 @@ The following options need to be configured:
 		include the appropriate I2C driver for the selected cpu.
 
 		This will allow you to use i2c commands at the u-boot
-		command line (as long as you set CFG_CMD_I2C in
+		command line (as long as you set CONFIG_CMD_I2C in
 		CONFIG_COMMANDS) and communicate with i2c based realtime
 		clock chips. See common/cmd_i2c.c for a description of the
 		command line interface.
@@ -2328,7 +2321,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_LOOPW
 		Add the "loopw" memory command. This only takes effect if
-		the memory commands are activated globally (CFG_CMD_MEM).
+		the memory commands are activated globally (CONFIG_CMD_MEM).
 
 - CONFIG_MX_CYCLIC
 		Add the "mdc" and "mwc" memory commands. These are cyclic
@@ -2342,7 +2335,7 @@ Low Level (hardware related) configuration options:
 		This command will write 12345678 to address 100 all 10 ms.
 
 		This only takes effect if the memory commands are activated
-		globally (CFG_CMD_MEM).
+		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
 - CONFIG_SKIP_RELOCATE_UBOOT
