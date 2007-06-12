@@ -31,7 +31,8 @@
 
 /*#define NFS_DEBUG*/
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) && (CONFIG_COMMANDS & CFG_CMD_NFS))
+#if (((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+    && ((CONFIG_COMMANDS & CFG_CMD_NFS)) || defined(CONFIG_CMD_NFS))
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_TIMEOUT 60

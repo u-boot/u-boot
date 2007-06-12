@@ -12,7 +12,7 @@
 
 #undef	ET_DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 #define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
 #define TIMEOUT		5		/* Seconds to timeout for a lost pkt	*/

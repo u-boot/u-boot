@@ -86,11 +86,11 @@
 #include <status_led.h>
 #include <miiphy.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 #include "sntp.h"
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -133,7 +133,7 @@ uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6] =
 			{ 0, 0, 0, 0, 0, 0 };
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 uchar		NetCDPAddr[6] =		/* Ethernet bcast address		*/
 			{ 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
 #endif
@@ -150,17 +150,17 @@ ushort		NetOurNativeVLAN = 0xFFFF;	/* ditto			*/
 
 char		BootFile[128];		/* Boot File name			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 IPaddr_t	NetPingIP;		/* the ip address to ping 		*/
 
 static void PingStart(void);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 static void CDPStart(void);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 IPaddr_t	NetNtpServerIP;		/* NTP server IP address		*/
 int		NetTimeOffset=0;	/* offset time from UTC			*/
 #endif
@@ -326,13 +326,13 @@ restart:
 	 */
 
 	switch (protocol) {
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 	case PING:
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 	case SNTP:
 #endif
 	case NETCONS:
@@ -344,19 +344,19 @@ restart:
 		NetOurNativeVLAN = getenv_VLAN("nvlan");
 
 		switch (protocol) {
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 		case NFS:
 #endif
 		case NETCONS:
 		case TFTP:
 			NetServerIP = getenv_IPaddr ("serverip");
 			break;
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 		case PING:
 			/* nothing */
 			break;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 		case SNTP:
 			/* nothing */
 			break;
@@ -406,7 +406,7 @@ restart:
 			TftpStart();
 			break;
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 		case DHCP:
 			/* Start with a clean slate... */
 			BootpTry = 0;
@@ -425,17 +425,17 @@ restart:
 			RarpTry = 0;
 			RarpRequest ();
 			break;
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 		case PING:
 			PingStart();
 			break;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 		case NFS:
 			NfsStart();
 			break;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 		case CDP:
 			CDPStart();
 			break;
@@ -445,7 +445,7 @@ restart:
 			NcStart();
 			break;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 		case SNTP:
 			SntpStart();
 			break;
@@ -458,7 +458,7 @@ restart:
 		break;
 	}
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 #if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
 	/*
 	 * Echo the inverted link state to the fault LED.
@@ -507,7 +507,7 @@ restart:
 		if (timeHandler && ((get_timer(0) - timeStart) > timeDelta)) {
 			thand_f *x;
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 #  if defined(CFG_FAULT_ECHO_LINK_DOWN) && \
       defined(CONFIG_STATUS_LED) &&	   \
       defined(STATUS_LED_RED)
@@ -687,7 +687,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	return 0;	/* transmitted */
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 static ushort PingSeqNo;
 
 int PingSend(void)
@@ -777,7 +777,7 @@ static void PingStart(void)
 }
 #endif	/* CFG_CMD_PING */
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 
 #define CDP_DEVICE_ID_TLV		0x0001
 #define CDP_ADDRESS_TLV			0x0002
@@ -1140,7 +1140,7 @@ NetReceive(volatile uchar * inpkt, int len)
 	IPaddr_t tmp;
 	int	x;
 	uchar *pkt;
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 	int iscdp;
 #endif
 	ushort cti = 0, vlanid = VLAN_NONE, myvlanid, mynvlanid;
@@ -1157,7 +1157,7 @@ NetReceive(volatile uchar * inpkt, int len)
 	if (len < ETHER_HDR_SIZE)
 		return;
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 	/* keep track if packet is CDP */
 	iscdp = memcmp(et->et_dest, NetCDPAddr, 6) == 0;
 #endif
@@ -1200,7 +1200,7 @@ NetReceive(volatile uchar * inpkt, int len)
 
 		/* if no VLAN active */
 		if ((ntohs(NetOurVLAN) & VLAN_IDMASK) == VLAN_NONE
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 				&& iscdp == 0
 #endif
 				)
@@ -1218,7 +1218,7 @@ NetReceive(volatile uchar * inpkt, int len)
 	printf("Receive from protocol 0x%x\n", x);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 	if (iscdp) {
 		CDPHandler((uchar *)ip, len);
 		return;
@@ -1416,7 +1416,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				print_IPaddr(icmph->un.gateway);
 				putc(' ');
 				return;
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 			case ICMP_ECHO_REPLY:
 				/*
 				 *	IP header OK.  Pass the packet to the current handler.
@@ -1516,7 +1516,7 @@ static int net_check_prereq (proto_t protocol)
 {
 	switch (protocol) {
 		/* Fall through */
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
 	case PING:
 		if (NetPingIP == 0) {
 			puts ("*** ERROR: ping address not given\n");
@@ -1524,7 +1524,7 @@ static int net_check_prereq (proto_t protocol)
 		}
 		goto common;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
 	case SNTP:
 		if (NetNtpServerIP == 0) {
 			puts ("*** ERROR: NTP server address not given\n");
@@ -1532,7 +1532,7 @@ static int net_check_prereq (proto_t protocol)
 		}
 		goto common;
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
 	case NETCONS:
@@ -1541,7 +1541,7 @@ static int net_check_prereq (proto_t protocol)
 			puts ("*** ERROR: `serverip' not set\n");
 			return (1);
 		}
-#if (CONFIG_COMMANDS & (CFG_CMD_PING | CFG_CMD_SNTP))
+#if (CONFIG_COMMANDS & (CFG_CMD_PING | CFG_CMD_SNTP)) || defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_SNTP)
     common:
 #endif
 

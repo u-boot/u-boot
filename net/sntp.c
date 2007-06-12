@@ -12,7 +12,8 @@
 
 #include "sntp.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) && (CONFIG_COMMANDS & CFG_CMD_SNTP))
+#if (((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+    && ((CONFIG_COMMANDS & CFG_CMD_SNTP)) || defined(CONFIG_CMD_SNTP))
 
 #define SNTP_TIMEOUT 10
 
@@ -67,7 +68,7 @@ SntpHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 	memcpy (&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
 
 	to_tm(ntohl(seconds) - 2208988800UL + NetTimeOffset, &tm);
-#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
 	rtc_set (&tm);
 #endif
 	printf ("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",

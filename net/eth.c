@@ -26,7 +26,7 @@
 #include <net.h>
 #include <miiphy.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(CONFIG_NET_MULTI)
 
 #ifdef CFG_GT_6426x
 extern int gt6426x_eth_initialize(bd_t *bis);
@@ -142,7 +142,7 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
 
@@ -451,7 +451,7 @@ char *eth_get_name (void)
 {
 	return (eth_current ? eth_current->name : "unknown");
 }
-#elif (CONFIG_COMMANDS & CFG_CMD_NET) && !defined(CONFIG_NET_MULTI)
+#elif ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && !defined(CONFIG_NET_MULTI)
 
 extern int at91rm9200_miiphy_initialize(bd_t *bis);
 extern int emac4xx_miiphy_initialize(bd_t *bis);
@@ -460,7 +460,7 @@ extern int ns7520_miiphy_initialize(bd_t *bis);
 
 int eth_initialize(bd_t *bis)
 {
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
 

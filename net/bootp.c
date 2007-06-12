@@ -31,7 +31,7 @@
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 #define TIMEOUT		5		/* Seconds before trying BOOTP again	*/
 #ifndef CONFIG_NET_RETRY_COUNT
@@ -53,7 +53,7 @@ int		BootpTry;
 ulong		seed1, seed2;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 dhcp_state_t dhcp_state = INIT;
 unsigned long dhcp_leasetime = 0;
 IPaddr_t NetDHCPServerIP = 0;
@@ -148,7 +148,7 @@ static int truncate_sz (const char *name, int maxlen, int curlen)
 	return (curlen);
 }
 
-#if !(CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if !((CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP))
 
 static void BootpVendorFieldProcess (u8 * ext)
 {
@@ -344,7 +344,7 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			 */
 			NetState = NETLOOP_SUCCESS;
 			return;
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 		} else if (strcmp(s, "NFS") == 0) {
 			/*
 			 * Use NFS to load the bootfile.
@@ -377,7 +377,7 @@ BootpTimeout(void)
 /*
  *	Initialize BOOTP extension fields in the request.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t RequestedIP)
 {
 	u8 *start = e;
@@ -504,7 +504,7 @@ static int BootpExtended (u8 * e)
 	*e++ = 83;
 	*e++ = 99;
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 	*e++ = 53;		/* DHCP Message Type */
 	*e++ = 1;
 	*e++ = DHCP_DISCOVER;
@@ -570,7 +570,7 @@ BootpRequest (void)
 	Bootp_t *bp;
 	int ext_len, pktlen, iplen;
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 	dhcp_state = INIT;
 #endif
 
@@ -678,7 +678,7 @@ BootpRequest (void)
 	copy_filename (bp->bp_file, BootFile, sizeof(bp->bp_file));
 
 	/* Request additional information from the BOOTP/DHCP server */
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 	ext_len = DhcpExtended((u8 *)bp->bp_vend, DHCP_DISCOVER, 0, 0);
 #else
 	ext_len = BootpExtended((u8 *)bp->bp_vend);
@@ -705,7 +705,7 @@ BootpRequest (void)
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 	NetSetTimeout(SELECT_TIMEOUT * CFG_HZ, BootpTimeout);
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
 	NetSetHandler(DhcpHandler);
 #else
@@ -714,7 +714,7 @@ BootpRequest (void)
 	NetSendPacket(NetTxPacket, pktlen);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 {
 	uchar *end = popt + BOOTP_HDR_SIZE;
@@ -726,7 +726,7 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 		case 1:
 			NetCopyIP (&NetOurSubnetMask, (popt + 2));
 			break;
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+#if ((CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
 			NetCopyLong (&NetTimeOffset, (ulong *) (popt + 2));
 			NetTimeOffset = ntohl (NetTimeOffset);
@@ -755,7 +755,7 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 			memcpy (&NetOurRootPath, popt + 2, size);
 			NetOurRootPath[size] = 0;
 			break;
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+#if ((CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */
 			NetCopyIP (&NetNtpServerIP, (popt + 2));
 			break;
@@ -950,7 +950,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 					 */
 					NetState = NETLOOP_SUCCESS;
 					return;
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
 				} else if (strcmp(s, "NFS") == 0) {
 					/*
 					 * Use NFS to load the bootfile.

@@ -18,7 +18,7 @@
 /*
  *	BOOTP header.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
 #define OPT_SIZE 312	/* Minimum DHCP Options size per RFC2131 - results in 576 byte pkt */
 #else
 #define OPT_SIZE 64
