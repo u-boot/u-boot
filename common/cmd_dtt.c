@@ -25,7 +25,7 @@
 #include <config.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_DTT)
+#if (CONFIG_COMMANDS & CFG_CMD_DTT) || defined(CONFIG_CMD_DTT)
 
 #include <dtt.h>
 #include <i2c.h>

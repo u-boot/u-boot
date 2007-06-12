@@ -31,7 +31,7 @@
 #include <command.h>
 #include <fdc.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDOS)
+#if (CONFIG_COMMANDS & CFG_CMD_FDOS) || defined(CONFIG_CMD_FDOS)
 
 /*-----------------------------------------------------------------------------
  * do_fdosboot --

@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_DISPLAY)
+#if (CONFIG_COMMANDS & CFG_CMD_DISPLAY) || defined(CONFIG_CMD_DISPLAY)
 
 #undef DEBUG_DISP
 

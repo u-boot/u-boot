@@ -27,7 +27,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE) || defined(CONFIG_CMD_CACHE)
 
 static int on_off (const char *);
 

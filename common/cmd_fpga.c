@@ -27,7 +27,7 @@
  */
 #include <common.h>
 #include <command.h>
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 #include <net.h>
 #endif
 #include <fpga.h>
@@ -43,7 +43,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined (CONFIG_FPGA) && ( CONFIG_COMMANDS & CFG_CMD_FPGA )
+#if defined (CONFIG_FPGA) && ((CONFIG_COMMANDS & CFG_CMD_FPGA ) || defined(CONFIG_CMD_FPGA))
 
 /* Local functions */
 static void fpga_usage (cmd_tbl_t * cmdtp);

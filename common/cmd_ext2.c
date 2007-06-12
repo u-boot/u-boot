@@ -35,14 +35,14 @@
 #include <common.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_EXT2)
+#if (CONFIG_COMMANDS & CFG_CMD_EXT2) || defined(CONFIG_CMD_EXT2)
 #include <config.h>
 #include <command.h>
 #include <image.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <ext2fs.h>
-#if ((CONFIG_COMMANDS & CFG_CMD_USB) && defined(CONFIG_USB_STORAGE))
+#if (((CONFIG_COMMANDS & CFG_CMD_USB)  || defined(CONFIG_CMD_USB)) && defined(CONFIG_USB_STORAGE))
 #include <usb.h>
 #endif
 

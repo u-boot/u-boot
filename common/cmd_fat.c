@@ -31,7 +31,7 @@
 #include <ata.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FAT)
+#if (CONFIG_COMMANDS & CFG_CMD_FAT) || defined(CONFIG_CMD_FAT)
 
 #undef	DEBUG
 

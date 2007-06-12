@@ -29,7 +29,7 @@
 #include <config.h>
 #include <command.h>
 
-#if defined(CONFIG_4xx) && (CONFIG_COMMANDS & CFG_CMD_SETGETDCR)
+#if defined(CONFIG_4xx) && ((CONFIG_COMMANDS & CFG_CMD_SETGETDCR) || defined(CONFIG_CMD_SETGETDCR))
 
 unsigned long get_dcr (unsigned short);
 unsigned long set_dcr (unsigned short, unsigned long);

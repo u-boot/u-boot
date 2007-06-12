@@ -19,7 +19,7 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>

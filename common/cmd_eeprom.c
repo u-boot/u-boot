@@ -42,7 +42,7 @@
 #include <command.h>
 #include <i2c.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CFG_ENV_IS_IN_EEPROM)
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CFG_ENV_IS_IN_EEPROM) || defined(CONFIG_CMD_EEPROM)
 
 extern void eeprom_init  (void);
 extern int  eeprom_read  (unsigned dev_addr, unsigned offset,
@@ -62,7 +62,7 @@ extern int eeprom_write_enable (unsigned dev_addr, int state);
 
 /* ------------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_EEPROM)
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CONFIG_CMD_EEPROM)
 int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	const char *const fmt =
@@ -121,7 +121,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CFG_ENV_IS_IN_EEPROM)
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CFG_ENV_IS_IN_EEPROM) || defined(CONFIG_CMD_EEPROM)
 
 #ifndef CONFIG_SPI
 #if !defined(CFG_I2C_EEPROM_ADDR_LEN) || CFG_I2C_EEPROM_ADDR_LEN < 1 || CFG_I2C_EEPROM_ADDR_LEN > 2
@@ -425,7 +425,7 @@ void eeprom_init  (void)
 #endif	/* CFG_CMD_EEPROM */
 /***************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_EEPROM)
+#if (CONFIG_COMMANDS & CFG_CMD_EEPROM) || defined(CONFIG_CMD_EEPROM)
 
 #ifdef CFG_I2C_MULTI_EEPROMS
 U_BOOT_CMD(
