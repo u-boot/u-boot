@@ -19,7 +19,7 @@
  */
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 
 #include <command.h>
 #include <watchdog.h>
@@ -36,7 +36,8 @@
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) \
+    && defined(CONFIG_JFFS2_CMDLINE)
 
 /* parition handling routines */
 int mtdparts_init(void);
@@ -104,7 +105,8 @@ static int
 arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 {
 	int idx = nand_curr_device;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) \
+    && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -152,7 +154,8 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 		*size = nand->size - *off;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) \
+    && defined(CONFIG_JFFS2_CMDLINE)
 out:
 #endif
 	printf("device %d ", idx);
@@ -534,7 +537,8 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	int idx;
 	ulong addr, offset = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) \
+    && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -578,7 +582,8 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		offset = simple_strtoul(argv[3], NULL, 16);
 		break;
 	default:
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) \
+    && defined(CONFIG_JFFS2_CMDLINE)
 usage:
 #endif
 		printf("Usage:\n%s\n", cmdtp->usage);
@@ -627,7 +632,7 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 #if 0
 #include <linux/mtd/nand_ids.h>

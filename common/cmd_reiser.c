@@ -28,7 +28,7 @@
  */
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_REISER)
+#if (CONFIG_COMMANDS & CFG_CMD_REISER) || defined(CONFIG_CMD_REISER)
 #include <config.h>
 #include <command.h>
 #include <image.h>

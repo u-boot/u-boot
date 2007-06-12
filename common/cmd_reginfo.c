@@ -32,7 +32,8 @@
 #elif defined (CONFIG_MPC5200)
 #include <mpc5xxx.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_REGINFO)
+
+#if (CONFIG_COMMANDS & CFG_CMD_REGINFO) || defined(CONFIG_CMD_REGINFO)
 
 int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -341,7 +342,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if ( defined(CONFIG_8xx)   || defined(CONFIG_405GP) || \
       defined(CONFIG_405EP) || defined(CONFIG_MPC5200)  ) && \
-    (CONFIG_COMMANDS & CFG_CMD_REGINFO)
+    ((CONFIG_COMMANDS & CFG_CMD_REGINFO) || defined(CONFIG_CMD_REGINFO))
 
 U_BOOT_CMD(
  	reginfo,	2,	1,	do_reginfo,

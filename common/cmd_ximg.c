@@ -24,7 +24,7 @@
  * MA 02111-1307 USA
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_XIMG)
+#if (CONFIG_COMMANDS & CFG_CMD_XIMG) || defined(CONFIG_CMD_XIMG)
 
 /*
  * Multi Image extract

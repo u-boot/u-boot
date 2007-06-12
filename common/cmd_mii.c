@@ -28,7 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 #ifdef CONFIG_TERSE_MII

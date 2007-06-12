@@ -61,7 +61,7 @@
 
 /* -------------------------------------------------------------------- */
 
-#if	(CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
 
 extern int pcmcia_on (void);
 extern int pcmcia_off (void);
@@ -99,7 +99,8 @@ U_BOOT_CMD(
 
 #undef	CHECK_IDE_DEVICE
 
-#if	(CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)) \
+    && defined(CONFIG_IDE_8xx_PCCARD)
 #define	CHECK_IDE_DEVICE
 #endif
 

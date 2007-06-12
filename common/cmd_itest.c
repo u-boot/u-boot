@@ -32,7 +32,7 @@
 #include <config.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_ITEST)
+#if (CONFIG_COMMANDS & CFG_CMD_ITEST) || defined(CONFIG_CMD_ITEST)
 
 #define EQ	0
 #define NE	1

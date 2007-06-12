@@ -27,7 +27,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MISC)
+#if (CONFIG_COMMANDS & CFG_CMD_MISC) || defined(CONFIG_CMD_MISC)
 
 int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -52,7 +52,7 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 /* Implemented in $(CPU)/interrupts.c */
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
 int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 U_BOOT_CMD(

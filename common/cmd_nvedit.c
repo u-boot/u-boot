@@ -46,7 +46,7 @@
 #include <serial.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 #include <net.h>
 #endif
 
@@ -367,7 +367,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 		load_addr = simple_strtoul(argv[2], NULL, 16);
 		return 0;
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 	if (strcmp(argv[1],"bootfile") == 0) {
 		copy_filename (BootFile, argv[2], sizeof(BootFile));
 		return 0;
@@ -411,7 +411,7 @@ int do_setenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * Prompt for environment variable
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_ASKENV)
+#if (CONFIG_COMMANDS & CFG_CMD_ASKENV) || defined(CONFIG_CMD_ASKENV)
 int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char console_buffer[CFG_CBSIZE];
@@ -542,7 +542,9 @@ int getenv_r (char *name, char *buf, unsigned len)
     ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == \
       (CFG_CMD_ENV|CFG_CMD_FLASH)) || \
     ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_NAND)) == \
-      (CFG_CMD_ENV|CFG_CMD_NAND))
+      (CFG_CMD_ENV|CFG_CMD_NAND)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND))
 int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char * env_name_spec;
@@ -600,7 +602,9 @@ U_BOOT_CMD(
     ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == \
       (CFG_CMD_ENV|CFG_CMD_FLASH)) || \
     ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_NAND)) == \
-      (CFG_CMD_ENV|CFG_CMD_NAND))
+      (CFG_CMD_ENV|CFG_CMD_NAND)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND))
 U_BOOT_CMD(
 	saveenv, 1, 0,	do_saveenv,
 	"saveenv - save environment variables to persistent storage\n",
@@ -609,7 +613,7 @@ U_BOOT_CMD(
 
 #endif	/* CFG_CMD_ENV */
 
-#if (CONFIG_COMMANDS & CFG_CMD_ASKENV)
+#if (CONFIG_COMMANDS & CFG_CMD_ASKENV) || defined(CONFIG_CMD_ASKENV)
 
 U_BOOT_CMD(
 	askenv,	CFG_MAXARGS,	1,	do_askenv,
@@ -626,7 +630,7 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_ASKENV */
 
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if (CONFIG_COMMANDS & CFG_CMD_RUN) || defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 U_BOOT_CMD(
 	run,	CFG_MAXARGS,	1,	do_run,

@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MMC)
+#if (CONFIG_COMMANDS & CFG_CMD_MMC) || defined(CONFIG_CMD_MMC)
 
 #include <mmc.h>
 

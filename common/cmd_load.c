@@ -33,14 +33,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)
+#if (CONFIG_COMMANDS & CFG_CMD_LOADB) || defined(CONFIG_CMD_LOADB)
 static ulong load_serial_ymodem (ulong offset);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if (CONFIG_COMMANDS & CFG_CMD_LOADS) || defined(CONFIG_CMD_LOADS)
 static ulong load_serial (ulong offset);
 static int read_record (char *buf, ulong len);
-# if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+# if (CONFIG_COMMANDS & CFG_CMD_SAVES) || defined(CONFIG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
 static int write_record (char *buf);
 # endif /* CFG_CMD_SAVES */
@@ -50,7 +50,7 @@ static int do_echo = 1;
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if (CONFIG_COMMANDS & CFG_CMD_LOADS) || defined(CONFIG_CMD_LOADS)
 int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong offset = 0;
@@ -253,7 +253,7 @@ read_record (char *buf, ulong len)
 	return (p - buf);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+#if (CONFIG_COMMANDS & CFG_CMD_SAVES) || defined(CONFIG_CMD_SAVES)
 
 int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -404,8 +404,10 @@ write_record (char *buf)
 #endif	/* CFG_CMD_LOADS */
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)  /* loadb command (load binary) included */
-
+#if (CONFIG_COMMANDS & CFG_CMD_LOADB) || defined(CONFIG_CMD_LOADB)
+/*
+ * loadb command (load binary) included
+ */
 #define XON_CHAR        17
 #define XOFF_CHAR       19
 #define START_CHAR      0x01
@@ -1040,7 +1042,7 @@ static ulong load_serial_ymodem (ulong offset)
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if (CONFIG_COMMANDS & CFG_CMD_LOADS) || defined(CONFIG_CMD_LOADS)
 
 #ifdef	CFG_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
@@ -1065,7 +1067,7 @@ U_BOOT_CMD(
  */
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+#if (CONFIG_COMMANDS & CFG_CMD_SAVES) || defined(CONFIG_CMD_SAVES)
 #ifdef	CFG_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	saves, 4, 0,	do_save_serial,
@@ -1086,7 +1088,7 @@ U_BOOT_CMD(
 #endif	/* CFG_CMD_LOADS */
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)
+#if (CONFIG_COMMANDS & CFG_CMD_LOADB) || defined(CONFIG_CMD_LOADB)
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
 	"loadb   - load binary file over serial line (kermit mode)\n",
@@ -1107,7 +1109,7 @@ U_BOOT_CMD(
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_HWFLOW)
+#if (CONFIG_COMMANDS & CFG_CMD_HWFLOW) || defined(CONFIG_CMD_HWFLOW)
 int do_hwflow (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern int hwflow_onoff(int);

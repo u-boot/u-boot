@@ -78,7 +78,7 @@ DECLARE_GLOBAL_DATA_PTR;
 # define SYNC		/* nothing */
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)
 
 #ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
