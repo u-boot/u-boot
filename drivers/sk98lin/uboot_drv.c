@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_SK98)
 
 #include "h/skdrv1st.h"

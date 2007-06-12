@@ -56,8 +56,8 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_NS8382X)
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_NS8382X)
 
 /* defines */
 #define DSIZE     0x00000FFF

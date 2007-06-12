@@ -180,7 +180,7 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
+#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #include <watchdog.h>
 #include <bmp_layout.h>
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
@@ -709,7 +709,7 @@ void video_puts (const char *s)
 
 /*****************************************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
+#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 
 #define FILL_8BIT_332RGB(r,g,b)	{			\
 	*fb = ((r>>5)<<5) | ((g>>5)<<2) | (b>>6);	\

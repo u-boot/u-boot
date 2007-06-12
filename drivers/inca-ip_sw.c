@@ -26,8 +26,8 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) \
-	&& defined(CONFIG_INCA_IP_SWITCH)
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_INCA_IP_SWITCH)
 
 #include <malloc.h>
 #include <net.h>

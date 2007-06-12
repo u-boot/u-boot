@@ -30,7 +30,7 @@
 #include <asm/arch/netarm_registers.h>
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 static int na_mii_poll_busy (void);
 

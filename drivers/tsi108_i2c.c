@@ -28,7 +28,7 @@
 #ifdef CONFIG_TSI108_I2C
 #include <tsi108.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
 
 #define I2C_DELAY	100000
 #undef  DEBUG_I2C

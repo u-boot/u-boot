@@ -30,8 +30,8 @@
 
 #undef DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_EEPRO100)
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_EEPRO100)
 
 	/* Ethernet chip registers.
 	 */
@@ -272,7 +272,7 @@ static inline void OUTL (struct eth_device *dev, int command, u_long addr)
 	*(volatile u32 *) ((addr + dev->iobase)) = cpu_to_le32 (command);
 }
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 static inline int INL (struct eth_device *dev, u_long addr)
 {
 	return le32_to_cpu (*(volatile u32 *) (addr + dev->iobase));
@@ -462,7 +462,7 @@ int eepro100_initialize (bd_t * bis)
 
 		eth_register (dev);
 
-#if defined (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined (CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 		/* register mii command access routines */
 		miiphy_register(dev->name,
 				eepro100_miiphy_read, eepro100_miiphy_write);
