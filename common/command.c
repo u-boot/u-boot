@@ -42,7 +42,7 @@ U_BOOT_CMD(
 	NULL
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_ECHO)
+#if (CONFIG_COMMANDS & CFG_CMD_ECHO) || defined(CONFIG_CMD_ECHO)
 
 int
 do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -409,7 +409,7 @@ void install_auto_complete(void)
 {
 	install_auto_complete_handler("printenv", var_complete);
 	install_auto_complete_handler("setenv", var_complete);
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if (CONFIG_COMMANDS & CFG_CMD_RUN) || defined(CONFIG_CMD_RUN)
 	install_auto_complete_handler("run", var_complete);
 #endif
 }

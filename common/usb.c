@@ -49,7 +49,7 @@
 #include <asm/processor.h>
 #include <linux/ctype.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_CMD_USB)
 
 #include <usb.h>
 #ifdef CONFIG_4xx

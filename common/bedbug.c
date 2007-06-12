@@ -2,7 +2,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)
 
 #include <linux/ctype.h>
 #include <bedbug/bedbug.h>

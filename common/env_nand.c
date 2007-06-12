@@ -39,7 +39,7 @@
 #include <malloc.h>
 #include <nand.h>
 
-#if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND))
+#if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND)) || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND))
 #define CMD_SAVEENV
 #elif defined(CFG_ENV_OFFSET_REDUND)
 #error Cannot use CFG_ENV_OFFSET_REDUND without CFG_CMD_ENV & CFG_CMD_NAND

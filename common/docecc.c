@@ -31,7 +31,7 @@
 #undef ECC_DEBUG
 #undef PSYCHO_DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 
 #include <linux/mtd/doc2000.h>
 

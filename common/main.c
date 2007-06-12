@@ -1311,7 +1311,7 @@ int run_command (const char *cmd, int flag)
 			continue;
 		}
 
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if (CONFIG_COMMANDS & CFG_CMD_BOOTD) || defined(CONFIG_CMD_BOOTD)
 		/* avoid "bootd" recursion */
 		if (cmdtp->cmd == do_bootd) {
 #ifdef DEBUG_PARSER
@@ -1344,7 +1344,7 @@ int run_command (const char *cmd, int flag)
 
 /****************************************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if (CONFIG_COMMANDS & CFG_CMD_RUN) || defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i;

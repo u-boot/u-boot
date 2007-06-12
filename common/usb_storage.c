@@ -55,7 +55,7 @@
 #include <asm/processor.h>
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_CMD_USB)
 #include <part.h>
 #include <usb.h>
 
