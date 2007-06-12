@@ -40,7 +40,7 @@ extern int gpio_init (void);
 #ifdef CFG_INTC_0
 extern int interrupts_init (void);
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 extern int eth_init (bd_t * bis);
 extern int getenv_IPaddr (char *);
 #endif
@@ -108,7 +108,7 @@ void board_init (void)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	gd = (gd_t *) CFG_GBL_DATA_OFFSET;
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH) || defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
@@ -130,7 +130,7 @@ void board_init (void)
 		}
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH) || defined(CONFIG_CMD_FLASH)
 	bd->bi_flashstart = CFG_FLASH_BASE;
 	if (0 < (flash_size = flash_init ())) {
 		bd->bi_flashsize = flash_size;
@@ -143,7 +143,7 @@ void board_init (void)
 	}
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 	char *s, *e;
 	int i;
 	/* board MAC address */

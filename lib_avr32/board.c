@@ -328,7 +328,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	jumptable_init();
 	console_init_r();
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	puts("Net:   ");
 #endif

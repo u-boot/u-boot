@@ -171,8 +171,9 @@ uLong ZEXPORT crc32(crc, buf, len)
     return crc ^ 0xffffffffL;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) || \
-	((CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY))
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)) || \
+	(((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)) \
+	&& !defined(CFG_NAND_LEGACY))
 
 /* No ones complement version. JFFS2 (and other things ?)
  * don't use ones compliment in their CRC calculations.
