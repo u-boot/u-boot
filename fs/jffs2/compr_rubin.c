@@ -39,7 +39,7 @@
  */
 
 #include <config.h>
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)
 
 #include <jffs2/jffs2.h>
 #include <jffs2/compr_rubin.h>

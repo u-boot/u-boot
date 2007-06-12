@@ -50,7 +50,7 @@ All rights reserved. Permission granted for non-commercial use.
 
 
 #include <config.h>
-#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_LZO_LZARI))
+#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2)  || defined(CONFIG_CMD_JFFS2)) && defined(CONFIG_JFFS2_LZO_LZARI)
 
 #include <linux/stddef.h>
 #include <jffs2/jffs2.h>

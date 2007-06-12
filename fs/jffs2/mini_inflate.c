@@ -25,7 +25,7 @@
 
 #include <config.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)
 
 #include <jffs2/mini_inflate.h>
 

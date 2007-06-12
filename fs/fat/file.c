@@ -32,7 +32,7 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FAT)
+#if (CONFIG_COMMANDS & CFG_CMD_FAT) || defined(CONFIG_CMD_FAT)
 
 /* Supported filesystems */
 static const struct filesystem filesystems[] = {
