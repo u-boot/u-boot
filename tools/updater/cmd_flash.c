@@ -28,7 +28,7 @@
 #include <command.h>
 #include <flash.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if (CONFIG_COMMANDS & CFG_CMD_FLASH) || defined(CONFIG_CMD_FLASH)
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
