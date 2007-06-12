@@ -65,7 +65,7 @@ int dram_init (void)
 }
 
 #ifdef CONFIG_DRIVER_ETHER
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 unsigned int lxt972_IsPhyConnected (AT91PS_EMAC p_mac);
 UCHAR lxt972_GetLinkSpeed (AT91PS_EMAC p_mac);

@@ -29,7 +29,7 @@
 #include <command.h>
 #include "pn62.h"
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 

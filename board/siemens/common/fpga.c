@@ -219,7 +219,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
     return 1;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 
 /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 

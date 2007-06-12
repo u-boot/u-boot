@@ -202,7 +202,7 @@ void watchdog_reset (void)
 		enable_interrupts ();
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 int do_wd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	switch (argc) {

@@ -310,7 +310,7 @@ long int initdram (int board_type)
 	return (psize);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 extern void doc_probe (ulong physadr);
 void doc_init (void)
 {

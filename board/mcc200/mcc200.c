@@ -322,7 +322,7 @@ void ide_set_reset (int idereset)
 }
 #endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 extern void doc_probe (ulong physadr);
 void doc_init (void)
 {

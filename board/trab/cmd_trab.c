@@ -32,7 +32,7 @@
  * TRAB board specific commands. Especially commands for burn-in and function
  * test.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 
 /* limits for valid range of VCC5V in mV  */
 #define VCC5V_MIN       4500
@@ -846,7 +846,7 @@ int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int contact_temp;
 	int delay = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
 	struct rtc_time tm;
 #endif
 
@@ -862,7 +862,7 @@ int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	spi_init ();
 	while (1) {
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
 		rtc_get (&tm);
 		printf ("%4d-%02d-%02d %2d:%02d:%02d - ",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,

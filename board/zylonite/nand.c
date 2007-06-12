@@ -22,7 +22,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 #ifdef CONFIG_NEW_NAND_CODE
 
 #include <nand.h>

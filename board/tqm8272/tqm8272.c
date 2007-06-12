@@ -1065,7 +1065,7 @@ int update_flash_size (int flash_size)
 }
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 
 #include <nand.h>
 #include <linux/mtd/mtd.h>

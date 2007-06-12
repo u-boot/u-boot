@@ -837,7 +837,7 @@ void show_boot_progress (int status)
 /*
  * The following are used to control the SPI chip selects for the SPI command.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_SPI)
+#if (CONFIG_COMMANDS & CFG_CMD_SPI) || defined(CONFIG_CMD_SPI)
 
 #define SPI_ADC_CS_MASK	0x00000800
 #define SPI_DAC_CS_MASK	0x00001000

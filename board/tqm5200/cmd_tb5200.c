@@ -29,7 +29,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 #if defined (CONFIG_TB5200)
 
 #define SM501_PANEL_DISPLAY_CONTROL	0x00080000UL
