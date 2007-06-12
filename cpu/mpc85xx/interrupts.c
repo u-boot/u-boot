@@ -144,7 +144,7 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
 
 /*******************************************************************************
  *

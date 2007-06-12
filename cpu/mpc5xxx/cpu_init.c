@@ -198,7 +198,7 @@ int cpu_init_r (void)
 	/* route critical ints to normal ints */
 	*(vu_long *)MPC5XXX_ICTL_EXT |= 0x00000001;
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_MPC5xxx_FEC)
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(CONFIG_MPC5xxx_FEC)
 	/* load FEC microcode */
 	loadtask(0, 2);
 #endif

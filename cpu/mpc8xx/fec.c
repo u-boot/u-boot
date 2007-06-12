@@ -31,7 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #undef	ET_DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && \
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && \
 	(defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2))
 
 /* compatibility test, if only FEC_ENET defined assume ETHER on FEC1 */
@@ -49,7 +49,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(WANT_MII)
 #include <miiphy.h>
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -182,7 +182,7 @@ int fec_initialize(bd_t *bis)
 
 		eth_register(dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name,
 			fec8xx_miiphy_read, fec8xx_miiphy_write);
 #endif
@@ -268,7 +268,7 @@ static int fec_recv (struct eth_device *dev)
 
 			length -= 4;
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 			if ((rx[0] & 1) != 0
 			    && memcmp ((uchar *) rx, NetBcastAddr, 6) != 0
 			    && memcmp ((uchar *) rx, NetCDPAddr, 6) != 0)
@@ -608,7 +608,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	fecp->fec_addr_high = (ea[4] << 8) | (ea[5]);
 #undef ea
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
 	/*
 	 * Turn on multicast address hash table
 	 */
@@ -787,7 +787,7 @@ static void fec_halt(struct eth_device* dev)
 	efis->initialized = 0;
 }
 
-#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 
 /* Make MII read/write commands for the FEC.
 */
@@ -926,7 +926,7 @@ static int mii_discover_phy(struct eth_device *dev)
 }
 #endif	/* CFG_DISCOVER_PHY */
 
-#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
+#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
 
 /****************************************************************************
  * mii_init -- Initialize the MII for MII command without ethernet

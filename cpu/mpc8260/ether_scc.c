@@ -36,7 +36,7 @@
 #include <command.h>
 #include <config.h>
 
-#if defined(CONFIG_ETHER_ON_SCC) && (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_ETHER_ON_SCC) && ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET))
 
 #if (CONFIG_ETHER_INDEX == 1)
 #  define PROFF_ENET            PROFF_SCC1

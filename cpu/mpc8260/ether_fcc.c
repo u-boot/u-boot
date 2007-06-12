@@ -47,13 +47,13 @@
 #include <config.h>
 #include <net.h>
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_COMMANDS & CFG_CMD_NET) && \
+#if defined(CONFIG_ETHER_ON_FCC) && ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && \
 	defined(CONFIG_NET_MULTI)
 
 static struct ether_fcc_info_s
@@ -393,7 +393,7 @@ int fec_initialize(bd_t *bis)
 
 		eth_register(dev);
 
-#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)) \
+#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) \
 		&& defined(CONFIG_BITBANGMII)
 		miiphy_register(dev->name,
 				bb_miiphy_read,	bb_miiphy_write);
