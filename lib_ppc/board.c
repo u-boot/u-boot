@@ -35,13 +35,13 @@
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if (CONFIG_COMMANDS & CFG_CMD_SCSI) || defined(CONFIG_CMD_SCSI)
 #include <scsi.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
 #endif
 #ifdef CONFIG_STATUS_LED
@@ -80,14 +80,14 @@ extern int update_flash_size (int flash_size);
 extern void sc3_read_eeprom(void);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 void doc_init (void);
 #endif
 #if defined(CONFIG_HARD_I2C) || \
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 void nand_init (void);
 #endif
 
@@ -118,7 +118,7 @@ extern ulong __init_end;
 extern ulong _end;
 ulong monitor_flash_len;
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)
 #include <bedbug/type.h>
 #endif
 
@@ -779,7 +779,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	spi_init_r ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 	WATCHDOG_RESET ();
 	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
@@ -941,7 +941,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		hermes_start_lxt980 ((int) bd->bi_ethspeed);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	WATCHDOG_RESET ();
 	puts ("KGDB:  ");
 	kgdb_init ();
@@ -973,7 +973,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
@@ -981,19 +981,19 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if (CONFIG_COMMANDS & CFG_CMD_SCSI) || defined(CONFIG_CMD_SCSI)
 	WATCHDOG_RESET ();
 	puts ("SCSI:  ");
 	scsi_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
 	WATCHDOG_RESET ();
 	puts ("DOC:   ");
 	doc_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET ();
 	puts ("Net:   ");
@@ -1001,7 +1001,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	eth_initialize (bd);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && ( \
+#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && ( \
     defined(CONFIG_CCM)		|| \
     defined(CONFIG_ELPT860)	|| \
     defined(CONFIG_EP8260)	|| \
@@ -1026,13 +1026,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	post_run (NULL, POST_RAM | post_bootmode_get(0));
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) && !(CONFIG_COMMANDS & CFG_CMD_IDE)
+#if ((CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)) \
+    && !((CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE))
 	WATCHDOG_RESET ();
 	puts ("PCMCIA:");
 	pcmcia_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)
 	WATCHDOG_RESET ();
 # ifdef	CONFIG_IDE_8xx_PCCARD
 	puts ("PCMCIA:");
@@ -1057,7 +1058,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	last_stage_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)
 	WATCHDOG_RESET ();
 	bedbug_init ();
 #endif
