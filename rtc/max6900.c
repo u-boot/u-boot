@@ -32,7 +32,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_MAX6900) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_MAX6900) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 #ifndef	CFG_I2C_RTC_ADDR
 #define	CFG_I2C_RTC_ADDR	0x50

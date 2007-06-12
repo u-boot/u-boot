@@ -131,7 +131,7 @@ void nvram_write(short dest, const void *src, size_t count)
 		rtc_write(d++, *s++);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
 
 /* ------------------------------------------------------------------------- */
 

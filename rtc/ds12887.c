@@ -28,7 +28,7 @@
 #include <config.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_DS12887) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS12887) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 #define RTC_SECONDS			0x00
 #define RTC_SECONDS_ALARM		0x01

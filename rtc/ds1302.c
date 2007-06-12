@@ -9,7 +9,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_DS1302) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS1302) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 /* GPP Pins */
 #define DATA		0x200

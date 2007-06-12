@@ -37,7 +37,7 @@
 #include <rtc.h>
 
 
-#if defined(CONFIG_RTC_DS1556) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS1556) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 static uchar rtc_read( unsigned int addr );
 static void  rtc_write( unsigned int addr, uchar val);

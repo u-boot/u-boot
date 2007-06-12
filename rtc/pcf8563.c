@@ -32,7 +32,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_PCF8563) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_PCF8563) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);

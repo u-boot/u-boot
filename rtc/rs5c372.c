@@ -34,7 +34,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_RS5C372A) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_RS5C372A) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 /*
  * Reads are always done starting with register 15, which requires some
  * jumping-through-hoops to access the data correctly.

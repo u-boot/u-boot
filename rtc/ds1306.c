@@ -36,7 +36,7 @@
 #include <rtc.h>
 #include <spi.h>
 
-#if defined(CONFIG_RTC_DS1306) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS1306) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
 
 #define	RTC_SECONDS		0x00
 #define	RTC_MINUTES		0x01
