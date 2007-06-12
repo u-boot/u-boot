@@ -159,7 +159,7 @@ int misc_init_r(void)
 	unsigned char *pMACaddr = (unsigned char *)0x203F0000;
 	u8 SrcAddr[6] = { 0x02, 0x80, 0xAD, 0x20, 0x31, 0xB8 };
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 	/* The 0xFF check here is to make sure we don't use the address
 	 * in flash if it's simply been erased (aka all 0xFF values) */
 	if (getenv("ethaddr") == NULL && is_valid_ether_addr(pMACaddr)) {

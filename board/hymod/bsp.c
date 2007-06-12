@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Board Special Commands: FPGA load/store, EEPROM erase
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 
 #define LOAD_SUCCESS		0
 #define LOAD_FAIL_NOCONF	1

@@ -300,7 +300,7 @@ int misc_init_r (void)
 	gd->bd->bi_flashstart = 0xff800000;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 extern ulong
 nand_probe (ulong physadr);
 

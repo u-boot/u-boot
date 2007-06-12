@@ -112,7 +112,7 @@ int dram_init (void)
 	return (0);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCI) || defined(CONFIG_PCI)
+#if (CONFIG_COMMANDS & CFG_CMD_PCI) || defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 extern struct pci_controller hose;
 extern void pci_ixp_init(struct pci_controller * hose);
 

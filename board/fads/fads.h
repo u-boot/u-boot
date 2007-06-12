@@ -118,7 +118,7 @@
 #define CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 #define	CFG_LONGHELP				/* #undef to save memory	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -217,7 +217,7 @@
 
 #define	CFG_DIRECT_FLASH_TFTP
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2)
 
 /*
  * JFFS2 partitions
@@ -249,7 +249,7 @@
 /*-----------------------------------------------------------------------
  * I2C configuration
  */
-#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address defaults */
 #define CFG_I2C_SLAVE		0x7F

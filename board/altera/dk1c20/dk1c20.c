@@ -55,7 +55,7 @@ long int initdram (int board_type)
 	return (0);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)
 int ide_preinit (void)
 {
 	nios_pio_t *present = (nios_pio_t *) CFG_CF_PRESENT;

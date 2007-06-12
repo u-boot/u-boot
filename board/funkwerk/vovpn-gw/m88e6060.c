@@ -31,7 +31,7 @@
 
 #include "m88e6060.h"
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 static int		prtTab[M88X_PRT_CNT] = { 8, 9, 10, 11, 12, 13 };
 static int		phyTab[M88X_PHY_CNT] = { 0, 1, 2, 3, 4 };
 

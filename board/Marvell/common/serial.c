@@ -145,7 +145,7 @@ void serial_puts (const char *s)
 	}
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 void kgdb_serial_init (void)
 {
 }

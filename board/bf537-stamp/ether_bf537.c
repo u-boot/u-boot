@@ -42,7 +42,7 @@
 #define DEBUGF(fmt,args...)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
 
 #define RXBUF_BASE_ADDR		0xFF900000
 #define TXBUF_BASE_ADDR		0xFF800000

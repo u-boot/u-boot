@@ -30,7 +30,7 @@
 /*
  * BC3450 specific commands
  */
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
 
 #undef DEBUG
 #ifdef DEBUG

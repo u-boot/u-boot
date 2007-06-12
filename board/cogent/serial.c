@@ -90,7 +90,7 @@ int serial_tstc (void)
 
 #endif /* CONS_NONE */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB) && \
+#if ((CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)) && \
     defined(CONFIG_KGDB_NONE)
 
 #if CONFIG_KGDB_INDEX == CONFIG_CONS_INDEX
