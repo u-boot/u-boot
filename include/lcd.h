@@ -173,7 +173,7 @@ void	lcd_printf	(const char *fmt, ...);
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/
 /************************************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
+#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 # include <bmp_layout.h>
 # include <asm/byteorder.h>
 #endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */

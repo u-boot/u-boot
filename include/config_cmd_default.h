@@ -38,4 +38,3 @@
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
 
 #endif	/* _CONFIG_CMD_DEFAULT_H */
-#endif	/* _CONFIG_CMD_DEFAULT_H */

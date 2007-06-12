@@ -15,7 +15,7 @@ EXPORT_FUNC(do_reset)
 EXPORT_FUNC(getenv)
 EXPORT_FUNC(setenv)
 EXPORT_FUNC(simple_strtoul)
-#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
 EXPORT_FUNC(i2c_write)
 EXPORT_FUNC(i2c_read)
 #endif	/* CFG_CMD_I2C */
