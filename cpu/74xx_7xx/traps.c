@@ -40,7 +40,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
 
@@ -133,7 +133,7 @@ MachineCheckException(struct pt_regs *regs)
 		return;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -166,7 +166,7 @@ MachineCheckException(struct pt_regs *regs)
 void
 AlignmentException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -181,7 +181,7 @@ ProgramCheckException(struct pt_regs *regs)
 	unsigned char *p = regs ? (unsigned char *)(regs->nip) : NULL;
 	int i, j;
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -204,7 +204,7 @@ ProgramCheckException(struct pt_regs *regs)
 void
 SoftEmuException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -217,7 +217,7 @@ SoftEmuException(struct pt_regs *regs)
 void
 UnknownException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif

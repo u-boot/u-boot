@@ -190,7 +190,7 @@ void interrupt_handler (void)
 }
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
 #ifdef CFG_INTC_0
 int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {

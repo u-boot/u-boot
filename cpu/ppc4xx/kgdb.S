@@ -34,7 +34,7 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
  /*
  * cache flushing routines for kgdb
  */

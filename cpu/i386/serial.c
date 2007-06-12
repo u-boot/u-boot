@@ -394,7 +394,7 @@ int serial_buffered_tstc(void)
 #endif	/* CONFIG_SERIAL_SOFTWARE_FIFO */
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
 /*
   AS HARNOIS : according to CONFIG_KGDB_SER_INDEX kgdb uses serial port
   number 0 or number 1
