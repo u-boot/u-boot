@@ -298,34 +298,29 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+
 #if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PCI | \
-				CFG_CMD_PING | CFG_CMD_I2C) & \
-				 ~(CFG_CMD_ENV | \
-				  CFG_CMD_LOADS ))
-  #elif defined(CONFIG_TSEC_ENET)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING | \
-				CFG_CMD_MII | CFG_CMD_I2C ) & \
-				~(CFG_CMD_ENV))
-  #elif defined(CONFIG_ETHER_ON_FCC)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_MII | \
-				CFG_CMD_PING | CFG_CMD_I2C) & \
-				~(CFG_CMD_ENV))
-  #endif
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
 #else
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PCI | \
-				CFG_CMD_ELF | CFG_CMD_PING | CFG_CMD_I2C)
-  #elif defined(CONFIG_TSEC_ENET)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PING | \
-				CFG_CMD_ELF | CFG_CMD_MII | CFG_CMD_I2C)
-  #elif defined(CONFIG_ETHER_ON_FCC)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_MII | \
-				CFG_CMD_ELF | CFG_CMD_PING | CFG_CMD_I2C)
-  #endif
+    #define CONFIG_CMD_ELF
 #endif
-#include <cmd_confdefs.h>
+
+#if defined(CONFIG_PCI)
+    #define CONFIG_CMD_PCI
+#endif
+
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+    #define CONFIG_CMD_MII
+#endif
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -334,7 +329,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"GPPP=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -355,7 +350,7 @@
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
@@ -367,7 +362,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

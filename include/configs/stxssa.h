@@ -325,34 +325,30 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
 
-#if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PCI | \
-				CFG_CMD_PING | CFG_CMD_I2C) & \
-				 ~(CFG_CMD_ENV | \
-				  CFG_CMD_LOADS ))
-  #elif defined(CONFIG_TSEC_ENET)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_PING | \
-				CFG_CMD_MII | CFG_CMD_I2C ) & \
-				~(CFG_CMD_ENV))
-  #elif defined(CONFIG_ETHER_ON_FCC)
-  #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL | CFG_CMD_MII | \
-				CFG_CMD_PING | CFG_CMD_I2C) & \
-				~(CFG_CMD_ENV))
-  #endif
-#else
-  #if defined(CONFIG_PCI)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PCI | \
-				CFG_CMD_ELF | CFG_CMD_PING | CFG_CMD_I2C)
-  #elif defined(CONFIG_TSEC_ENET)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_PING | \
-				CFG_CMD_ELF | CFG_CMD_MII | CFG_CMD_I2C)
-  #elif defined(CONFIG_ETHER_ON_FCC)
-  #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_MII | \
-				CFG_CMD_ELF | CFG_CMD_PING | CFG_CMD_I2C)
-  #endif
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+
+#if defined(CONFIG_PCI)
+    #define CONFIG_CMD_PCI
 #endif
-#include <cmd_confdefs.h>
+
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+    #define CONFIG_CMD_MII
+#endif
+
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#else
+    #define CONFIG_CMD_ELF
+#endif
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
