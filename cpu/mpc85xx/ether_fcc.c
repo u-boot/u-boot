@@ -458,7 +458,7 @@ int fec_initialize(bd_t *bis)
 
 		eth_register(dev);
 
-#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) || \
+#if (defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) \
 		&& defined(CONFIG_BITBANGMII)
 		miiphy_register(dev->name,
 				bb_miiphy_read,	bb_miiphy_write);
