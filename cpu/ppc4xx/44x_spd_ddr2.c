@@ -144,7 +144,7 @@ typedef enum ddr_cas_id {
  * Prototypes
  *-----------------------------------------------------------------------------*/
 static unsigned long sdram_memsize(void);
-void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
+void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -528,7 +528,7 @@ long int initdram(int board_type)
 	dram_size = sdram_memsize();
 
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, dram_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
 	/*------------------------------------------------------------------
 	 * DQS calibration.
