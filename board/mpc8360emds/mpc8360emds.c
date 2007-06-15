@@ -103,7 +103,9 @@ int board_early_init_f(void)
 
 	/* Disable G1TXCLK, G2TXCLK h/w buffers (rev.2 h/w bug workaround) */
 	if (immr->sysconf.spridr == SPR_8360_REV20 ||
-	    immr->sysconf.spridr == SPR_8360E_REV20)
+	    immr->sysconf.spridr == SPR_8360E_REV20 ||
+	    immr->sysconf.spridr == SPR_8360_REV21 ||
+	    immr->sysconf.spridr == SPR_8360E_REV21)
 		bcsr[0xe] = 0x30;
 
 	return 0;
