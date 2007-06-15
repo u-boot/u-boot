@@ -1139,6 +1139,9 @@ katmai_config:	unconfig
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 
+lwmon5_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx lwmon5
+
 METROBOX_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx metrobox sandburst
 
