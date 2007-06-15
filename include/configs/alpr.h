@@ -29,6 +29,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_ALPR		1	    /* Board is ebony		*/
 #define CONFIG_440GX		1	    /* Specifc GX support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_pre_init	*/
 #define CONFIG_LAST_STAGE_INIT	1	    /* call last_stage_init()	*/

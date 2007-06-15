@@ -22,5 +22,13 @@
 #
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing
+PLATFORM_CPPFLAGS += -DCONFIG_4xx -ffixed-r2 -ffixed-r29 -mstring -msoft-float
 
-PLATFORM_CPPFLAGS += -DCONFIG_4xx -ffixed-r2 -ffixed-r29 -mstring -Wa,-m405 -mcpu=405 -msoft-float
+cfg=$(shell grep configs $(TOPDIR)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+is440=$(shell grep CONFIG_440 $(TOPDIR)/include/$(cfg))
+
+ifneq (,$(findstring CONFIG_440,$(is440)))
+PLATFORM_CPPFLAGS += -Wa,-m440 -mcpu=440
+else
+PLATFORM_CPPFLAGS += -Wa,-m405 -mcpu=405
+endif

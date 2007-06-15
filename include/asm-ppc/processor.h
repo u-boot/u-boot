@@ -308,7 +308,7 @@
 #define SPRN_SRR0	0x01A	/* Save/Restore Register 0 */
 #define SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
 #define SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
-#define SPRN_SRR3 	0x3DF	/* Save/Restore Register 3 */
+#define SPRN_SRR3	0x3DF	/* Save/Restore Register 3 */
 #ifdef CONFIG_BOOKE
 #define SPRN_SVR	0x3FF	/* System Version Register */
 #else
@@ -451,6 +451,17 @@
 #define SPRN_PID1       0x279   /* Process ID Register 1 */
 #define SPRN_PID2       0x27a   /* Process ID Register 2 */
 #define SPRN_MCSR	0x23c	/* Machine Check Syndrome register */
+#ifdef CONFIG_440
+#define MCSR_MCS	0x80000000	/* Machine Check Summary */
+#define MCSR_IB		0x40000000	/* Instruction PLB Error */
+#define MCSR_DRB	0x20000000	/* Data Read PLB Error */
+#define MCSR_DWB	0x10000000	/* Data Write PLB Error */
+#define MCSR_TLBP	0x08000000	/* TLB Parity Error */
+#define MCSR_ICP	0x04000000	/* I-Cache Parity Error */
+#define MCSR_DCSP	0x02000000	/* D-Cache Search Parity Error */
+#define MCSR_DCFP	0x01000000	/* D-Cache Flush Parity Error */
+#define MCSR_IMPE	0x00800000	/* Imprecise Machine Check Exception */
+#endif
 #define ESR_ST          0x00800000      /* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
@@ -544,6 +555,8 @@
 #define SPRG7   SPRN_SPRG7
 #define SRR0	SPRN_SRR0	/* Save and Restore Register 0 */
 #define SRR1	SPRN_SRR1	/* Save and Restore Register 1 */
+#define SRR2	SPRN_SRR2	/* Save and Restore Register 2 */
+#define SRR3	SPRN_SRR3	/* Save and Restore Register 3 */
 #define SVR	SPRN_SVR	/* System Version Register */
 #define TBRL	SPRN_TBRL	/* Time Base Read Lower Register */
 #define TBRU	SPRN_TBRU	/* Time Base Read Upper Register */
