@@ -29,6 +29,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_LWMON5		1		/* Board is lwmon5	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
+#define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
 
