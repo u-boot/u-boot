@@ -103,6 +103,18 @@ void gpio_write_bit(int pin, int val)
 		out32(GPIO0_OR + offs, in32(GPIO0_OR + offs) & ~GPIO_VAL(pin));
 }
 
+int gpio_read_out_bit(int pin)
+{
+	u32 offs = 0;
+
+	if (pin >= GPIO_MAX) {
+		offs = 0x100;
+		pin -= GPIO_MAX;
+	}
+
+	return (in32(GPIO0_OR + offs) & GPIO_VAL(pin) ? 1 : 0);
+}
+
 #if defined(CFG_440_GPIO_TABLE)
 void gpio_set_chip_configuration(void)
 {
@@ -157,11 +169,37 @@ void gpio_set_chip_configuration(void)
 				switch (gpio_tab[gpio_core][i].alt_nb) {
 				case GPIO_SEL:
 					if (gpio_core == GPIO0) {
+						/*
+						 * Setup output value
+						 * 1 -> high level
+						 * 0 -> low level
+						 * else -> don't touch
+						 */
+						reg = in32(GPIO0_OR);
+						if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
+							reg |= (0x80000000 >> (i));
+						else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
+							reg &= ~(0x80000000 >> (i));
+						out32(GPIO0_OR, reg);
+
 						reg = in32(GPIO0_TCR) | (0x80000000 >> (i));
 						out32(GPIO0_TCR, reg);
 					}
 
 					if (gpio_core == GPIO1) {
+						/*
+						 * Setup output value
+						 * 1 -> high level
+						 * 0 -> low level
+						 * else -> don't touch
+						 */
+						reg = in32(GPIO0_OR);
+						if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
+							reg |= (0x80000000 >> (i));
+						else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
+							reg &= ~(0x80000000 >> (i));
+						out32(GPIO0_OR, reg);
+
 						reg = in32(GPIO1_TCR) | (0x80000000 >> (i));
 						out32(GPIO1_TCR, reg);
 					}
