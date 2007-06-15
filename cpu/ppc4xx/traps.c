@@ -36,6 +36,8 @@
 #include <command.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
@@ -45,8 +47,7 @@ extern unsigned long search_exception_table(unsigned long);
 
 /* THIS NEEDS CHANGING to use the board info structure.
  */
-#define END_OF_MEM	0x00400000
-
+#define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
 
 static __inline__ void set_tsr(unsigned long val)
 {
@@ -88,29 +89,29 @@ extern void do_bedbug_breakpoint(struct pt_regs *);
 void
 print_backtrace(unsigned long *sp)
 {
-	int cnt = 0;
-	unsigned long i;
+        int cnt = 0;
+        unsigned long i;
 
-	printf("Call backtrace: ");
-	while (sp) {
-		if ((uint)sp > END_OF_MEM)
-			break;
+        printf("Call backtrace: ");
+        while (sp) {
+                if ((uint)sp > END_OF_MEM)
+                        break;
 
-		i = sp[1];
-		if (cnt++ % 7 == 0)
-			printf("\n");
-		printf("%08lX ", i);
-		if (cnt > 32) break;
-		sp = (unsigned long *)*sp;
-	}
-	printf("\n");
+                i = sp[1];
+                if (cnt++ % 7 == 0)
+                        printf("\n");
+                printf("%08lX ", i);
+                if (cnt > 32) break;
+                sp = (unsigned long *)*sp;
+        }
+        printf("\n");
 }
 
 void show_regs(struct pt_regs * regs)
 {
 	int i;
 
-	printf("NIP: %08lX XER: %08lX LR: %08lX REGS: %p TRAP: %04lx DAR: %08lX\n",
+	printf("NIP: %08lX XER: %08lX LR: %08lX REGS: %p TRAP: %04lx DEAR: %08lX\n",
 	       regs->nip, regs->xer, regs->link, regs, regs->trap, regs->dar);
 	printf("MSR: %08lx EE: %01x PR: %01x FP: %01x ME: %01x IR/DR: %01x%01x\n",
 	       regs->msr, regs->msr&MSR_EE ? 1 : 0, regs->msr&MSR_PR ? 1 : 0,
@@ -139,14 +140,14 @@ _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
+	panic("Exception");
 }
 
 void
 MachineCheckException(struct pt_regs *regs)
 {
-	unsigned long fixup;
-
+	unsigned long fixup, val;
+	
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
 	 * the PCI exception handler.
@@ -161,26 +162,50 @@ MachineCheckException(struct pt_regs *regs)
 		return;
 #endif
 
-	printf("Machine check in kernel mode.\n");
+	printf("Machine Check Exception.\n");
 	printf("Caused by (from msr): ");
-	printf("regs %p ",regs);
-	switch( regs->msr & 0x000F0000) {
-	case (0x80000000>>12):
-		printf("Machine check signal - probably due to mm fault\n"
-		       "with mmu off\n");
-		break;
-	case (0x80000000>>13):
-		printf("Transfer error ack signal\n");
-		break;
-	case (0x80000000>>14):
-		printf("Data parity signal\n");
-		break;
-	case (0x80000000>>15):
-		printf("Address parity signal\n");
-		break;
-	default:
-		printf("Unknown values in msr\n");
+	printf("regs %p ", regs);
+
+	val = get_esr();
+
+#if !defined(CONFIG_440)
+	if (val& ESR_IMCP) {
+		printf("Instruction");
+		mtspr(ESR, val & ~ESR_IMCP);
+	} else
+		printf("Data");
+	printf(" machine check.\n");
+
+#elif defined(CONFIG_440)
+	if (val& ESR_IMCP){
+		printf("Instruction Synchronous Machine Check exception\n");
+		mtspr(SPRN_ESR, val & ~ESR_IMCP);
 	}
+        else { 
+		val = mfspr(MCSR);
+		if (val & MCSR_IB)
+			printf("Instruction Read PLB Error\n");
+		if (val & MCSR_DRB)
+			printf("Data Read PLB Error\n");
+		if (val & MCSR_DWB)
+			printf("Data Write PLB Error\n");
+		if (val & MCSR_TLBP)
+			printf("TLB Parity Error\n");
+		if (val & MCSR_ICP){
+			/*flush_instruction_cache(); */
+			printf("I-Cache Parity Error\n");
+		}
+		if (val & MCSR_DCSP)
+			printf("D-Cache Search Parity Error\n");
+		if (val & MCSR_DCFP)
+			printf("D-Cache Flush Parity Error\n");
+		if (val & MCSR_IMPE)
+			printf("Machine Check exception is imprecise\n");
+
+		/* Clear MCSR */
+		mtspr(SPRN_MCSR, val);
+	}
+#endif
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("machine check");
@@ -224,7 +249,7 @@ ProgramCheckException(struct pt_regs *regs)
 }
 
 void
-PITException(struct pt_regs *regs)
+DecrementerPITException(struct pt_regs *regs)
 {
 	/*
 	 * Reset PIT interrupt

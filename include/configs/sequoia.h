@@ -37,6 +37,7 @@
 #else
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
 #endif
+#define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 /* Detect Sequoia PLL input clock automatically via CPLD bit		*/
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \

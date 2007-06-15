@@ -38,6 +38,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_KAREF	     1		/* Board is Kamino Ref Variant */
 #define CONFIG_440GX		  1	     /* Specifc GX support	*/
+#define CONFIG_440		  1	     /* ... PPC440 family	*/
 #define CONFIG_4xx		  1	     /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	     /* Call board_pre_init	*/
 #define CONFIG_MISC_INIT_F	  1	     /* Call board misc_init_f	*/

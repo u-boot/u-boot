@@ -27,6 +27,15 @@
 /*--------------------------------------------------------------------- */
 	#define  srr2  0x3de      /* save/restore register 2 */
 	#define  srr3  0x3df      /* save/restore register 3 */
+
+	/*
+	 * 405 does not really have CSRR0/1 but SRR2/3 are used during critical
+	 * exception for the exact same purposes - let's alias them and have a
+	 * common handling in crit_return() and CRIT_EXCEPTION
+	 */
+	#define  csrr0 srr2
+	#define  csrr1 srr3
+
 	#define  dbsr  0x3f0      /* debug status register */
 	#define  dbcr0 0x3f2      /* debug control register 0 */
 	#define  dbcr1 0x3bd      /* debug control register 1 */
