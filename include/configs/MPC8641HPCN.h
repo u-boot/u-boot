@@ -577,6 +577,7 @@
 #define CONFIG_HOSTNAME		unknown
 #define CONFIG_ROOTPATH		/opt/nfsroot
 #define CONFIG_BOOTFILE		uImage
+#define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
 #define CONFIG_SERVERIP		192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
@@ -592,10 +593,17 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
+   "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
+   "tftpflash=tftpboot $loadaddr $uboot; " 			\
+	"protect off " MK_STR(TEXT_BASE) " +$filesize; " 	\
+	"erase " MK_STR(TEXT_BASE) " +$filesize; " 		\
+	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; " 	\
+	"protect on " MK_STR(TEXT_BASE) " +$filesize; " 	\
+	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0" 	\
    "consoledev=ttyS0\0"                                                 \
    "ramdiskaddr=2000000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"                                  \
-   "dtbaddr=400000\0"						\
+   "dtbaddr=c00000\0"						\
    "dtbfile=mpc8641_hpcn.dtb\0"                                  \
    "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
    "dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \

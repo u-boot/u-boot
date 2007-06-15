@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002-2006
+# (C) Copyright 2002-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,7 +21,11 @@
 # MA 02111-1307 USA
 #
 
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+
+ifndef TEXT_BASE
 TEXT_BASE = 0xFFFA0000
+endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 

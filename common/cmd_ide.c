@@ -514,11 +514,11 @@ void ide_init (void)
 	unsigned char c;
 	int i, bus;
 #if defined(CONFIG_AMIGAONEG3SE) || defined(CONFIG_SC3)
-	unsigned int ata_reset_time;
+	unsigned int ata_reset_time = ATA_RESET_TIME;
+	char *s;
 #endif
 #ifdef CONFIG_AMIGAONEG3SE
 	unsigned int max_bus_scan;
-	char *s;
 #endif
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on (void);

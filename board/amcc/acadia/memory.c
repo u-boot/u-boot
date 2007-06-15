@@ -39,6 +39,7 @@ void sdram_init(void)
 	return;
 }
 
+#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 static void cram_bcr_write(u32 wr_val)
 {
 	wr_val <<= 2;
@@ -62,9 +63,12 @@ static void cram_bcr_write(u32 wr_val)
 
 	return;
 }
+#endif
 
 long int initdram(int board_type)
 {
+#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+	int i;
 	u32 val;
 
 	/* 1. EBC need to program READY, CLK, ADV for ASync mode */
@@ -92,7 +96,12 @@ long int initdram(int board_type)
 
 	/* Config EBC to use RDY */
 	mfsdr(sdrultra0, val);
-	mtsdr(sdrultra0, val | 0x04000000);
+	mtsdr(sdrultra0, val | SDR_ULTRA0_EBCRDYEN);
+
+	/* Wait a short while, since for NAND booting this is too fast */
+	for (i=0; i<200000; i++)
+		;
+#endif
 
 	return (CFG_MBYTES_RAM << 20);
 }

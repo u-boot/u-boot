@@ -17,9 +17,10 @@
 
 #include <config.h>
 #include <common.h>
+#ifdef CONFIG_ENC28J60
 #include <net.h>
 #include <asm/arch/hardware.h>
-#include "spi.h"
+#include <asm/arch/spi.h>
 
 /*
  * Control Registers in Bank 0
@@ -36,7 +37,7 @@
 #define CTL_REG_ERXSTL	 0x08
 #define CTL_REG_ERXSTH	 0x09
 #define CTL_REG_ERXNDL	 0x0A
-#define CTL_REG_ERXNDA	 0x0B
+#define CTL_REG_ERXNDH	 0x0B
 #define CTL_REG_ERXRDPTL 0x0C
 #define CTL_REG_ERXRDPTH 0x0D
 #define CTL_REG_ERXWRPTL 0x0E
@@ -137,7 +138,10 @@
 
 #define PHY_REG_PHID1 0x02
 #define PHY_REG_PHID2 0x03
-
+/* taken from the Linux driver */
+#define PHY_REG_PHCON1 0x00
+#define PHY_REG_PHCON2 0x10
+#define PHY_REG_PHLCON 0x14
 
 /*
  * Receive Filter Register (ERXFCON) bits
@@ -274,6 +278,9 @@
 /* Use the lower memory for receiver buffer. See errata pt. 5 */
 #define ENC_RX_BUF_START 0x0000
 #define ENC_TX_BUF_START 0x1800
+/* taken from the Linux driver */
+#define ENC_RX_BUF_END   0x17ff
+#define ENC_TX_BUF_END   0x1fff
 
 /* maximum frame length */
 #define ENC_MAX_FRM_LEN 1518
@@ -293,6 +300,7 @@ static void encBitClr (unsigned char regNo, unsigned char data);
 static void encReset (void);
 static void encInit (unsigned char *pEthAddr);
 static unsigned short phyRead (unsigned char addr);
+static void phyWrite(unsigned char, unsigned short);
 static void encPoll (void);
 static void encRx (void);
 
@@ -318,10 +326,12 @@ static int rxResetCounter = 0;
 #define RX_RESET_COUNTER 1000;
 
 /*-----------------------------------------------------------------------------
- * Returns 0 when failes otherwize 1
+ * Always returns 0
  */
 int eth_init (bd_t * bis)
 {
+	unsigned char estatVal;
+
 	/* configure GPIO */
 	(*((volatile unsigned long *) IO1DIR)) |= ENC_SPI_SLAVE_CS;
 	(*((volatile unsigned long *) IO1DIR)) |= ENC_RESET;
@@ -331,6 +341,14 @@ int eth_init (bd_t * bis)
 	PUT32 (IO1SET, ENC_RESET);
 
 	spi_init ();
+
+	/* taken from the Linux driver - dangerous stuff here! */
+	/* Wait for CLKRDY to become set (i.e., check that we can communicate with
+	   the ENC) */
+	do
+	{
+		estatVal = m_nic_read(CTL_REG_ESTAT);
+	} while ((estatVal & 0x08) || (~estatVal & ENC_ESTAT_CLKRDY));
 
 	/* initialize controller */
 	encReset ();
@@ -353,6 +371,10 @@ int eth_send (volatile void *packet, int length)
 	m_nic_write (CTL_REG_EWRPTL, (ENC_TX_BUF_START & 0xff));
 	m_nic_write (CTL_REG_EWRPTH, (ENC_TX_BUF_START >> 8));
 
+	/* set ETXND */
+	m_nic_write (CTL_REG_ETXNDL, (length + ENC_TX_BUF_START) & 0xFF);
+	m_nic_write (CTL_REG_ETXNDH, (length + ENC_TX_BUF_START) >> 8);
+
 	/* set ETXST */
 	m_nic_write (CTL_REG_ETXSTL, ENC_TX_BUF_START & 0xFF);
 	m_nic_write (CTL_REG_ETXSTH, ENC_TX_BUF_START >> 8);
@@ -360,9 +382,15 @@ int eth_send (volatile void *packet, int length)
 	/* write packet */
 	m_nic_write_data (length, (unsigned char *) packet);
 
-	/* set ETXND */
-	m_nic_write (CTL_REG_ETXNDL, (length + ENC_TX_BUF_START) & 0xFF);
-	m_nic_write (CTL_REG_ETXNDH, (length + ENC_TX_BUF_START) >> 8);
+	/* taken from the Linux driver */
+	/* Verify that the internal transmit logic has not been altered by excessive
+	   collisions.  See Errata B4 12 and 14.
+	 */
+	if (m_nic_read(CTL_REG_EIR) & ENC_EIR_TXERIF) {
+		m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_TXRST);
+		m_nic_bfc(CTL_REG_ECON1, ENC_ECON1_TXRST);
+	}
+	m_nic_bfc(CTL_REG_EIR, (ENC_EIR_TXERIF | ENC_EIR_TXIF));
 
 	/* set ECON1.TXRTS */
 	m_nic_bfs (CTL_REG_ECON1, ENC_ECON1_TXRTS);
@@ -423,8 +451,10 @@ static void encPoll (void)
 	volatile unsigned char estat_reg;
 	unsigned char pkt_cnt;
 
+#ifdef CONFIG_USE_IRQ
 	/* clear global interrupt enable bit in enc28j60 */
 	m_nic_bfc (CTL_REG_EIE, ENC_EIE_INTIE);
+#endif
 	estat_reg = m_nic_read (CTL_REG_ESTAT);
 
 	eir_reg = m_nic_read (CTL_REG_EIR);
@@ -462,8 +492,10 @@ static void encPoll (void)
 		m_nic_bfc (CTL_REG_EIR, ENC_EIR_TXERIF);
 	}
 
+#ifdef CONFIG_USE_IRQ
 	/* set global interrupt enable bit in enc28j60 */
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_INTIE);
+#endif
 }
 
 static void encRx (void)
@@ -473,6 +505,7 @@ static void encRx (void)
 	unsigned short status;
 	unsigned char eir_reg;
 	unsigned char pkt_cnt = 0;
+	unsigned short rxbuf_rdpt;
 
 	/* switch to bank 0 */
 	m_nic_bfc (CTL_REG_ECON1, (ENC_ECON1_BSEL1 | ENC_ECON1_BSEL0));
@@ -489,18 +522,19 @@ static void encRx (void)
 		status = buffer[4];
 		status |= (unsigned short) buffer[5] << 8;
 
-		if (pkt_len <= ENC_MAX_FRM_LEN) {
+		if (pkt_len <= ENC_MAX_FRM_LEN)
 			copy_len = pkt_len;
-		} else {
+		else
 			copy_len = 0;
-			/*      p_priv->stats.rx_dropped++; */
-			/* we will drop this packet */
-		}
 
-		if ((status & (1L << 7)) == 0) {	/* check Received Ok bit */
+		if ((status & (1L << 7)) == 0) /* check Received Ok bit */
 			copy_len = 0;
-			/*      p_priv->stats.rx_errors++; */
-		}
+
+		/* taken from the Linux driver */
+		/* check if next pointer is resonable */
+		if ((((unsigned int)next_pointer_msb << 8) |
+			(unsigned int)next_pointer_lsb) >= ENC_TX_BUF_START)
+			copy_len = 0;
 
 		if (copy_len > 0) {
 			m_nic_read_data (copy_len, buffer);
@@ -512,6 +546,22 @@ static void encRx (void)
 
 		/* decrease packet counter */
 		m_nic_bfs (CTL_REG_ECON2, ENC_ECON2_PKTDEC);
+
+		/* taken from the Linux driver */
+		/* Only odd values should be written to ERXRDPTL,
+		 * see errata B4 pt.13
+		 */
+		rxbuf_rdpt = (next_pointer_msb << 8 | next_pointer_lsb) - 1;
+		if ((rxbuf_rdpt < (m_nic_read(CTL_REG_ERXSTH) << 8 |
+				m_nic_read(CTL_REG_ERXSTL))) || (rxbuf_rdpt >
+				(m_nic_read(CTL_REG_ERXNDH) << 8 |
+				m_nic_read(CTL_REG_ERXNDL)))) {
+			m_nic_write(CTL_REG_ERXRDPTL, m_nic_read(CTL_REG_ERXNDL));
+			m_nic_write(CTL_REG_ERXRDPTH, m_nic_read(CTL_REG_ERXNDH));
+		} else {
+			m_nic_write(CTL_REG_ERXRDPTL, rxbuf_rdpt & 0xFF);
+			m_nic_write(CTL_REG_ERXRDPTH, rxbuf_rdpt >> 8);
+		}
 
 		/* move to bank 1 */
 		m_nic_bfc (CTL_REG_ECON1, ENC_ECON1_BSEL1);
@@ -535,8 +585,6 @@ static void encRx (void)
 
 		eir_reg = m_nic_read (CTL_REG_EIR);
 	} while (pkt_cnt);	/* Use EPKTCNT not EIR.PKTIF flag, see errata pt. 6 */
-	m_nic_write (CTL_REG_ERXRDPTL, next_pointer_lsb);
-	m_nic_write (CTL_REG_ERXRDPTH, next_pointer_msb);
 }
 
 static void encWriteReg (unsigned char regNo, unsigned char data)
@@ -700,12 +748,6 @@ static void encReset (void)
 
 	/* sleep 1 ms. See errata pt. 2 */
 	udelay (1000);
-
-#if 0
-	(*((volatile unsigned long *) IO1CLR)) &= ENC_RESET;
-	mdelay (5);
-	(*((volatile unsigned long *) IO1SET)) &= ENC_RESET;
-#endif
 }
 
 static void encInit (unsigned char *pEthAddr)
@@ -720,43 +762,20 @@ static void encInit (unsigned char *pEthAddr)
 	 * Setup the buffer space. The reset values are valid for the
 	 * other pointers.
 	 */
-#if 0
 	/* We shall not write to ERXST, see errata pt. 5. Instead we
 	   have to make sure that ENC_RX_BUS_START is 0. */
 	m_nic_write_retry (CTL_REG_ERXSTL, (ENC_RX_BUF_START & 0xFF), 1);
 	m_nic_write_retry (CTL_REG_ERXSTH, (ENC_RX_BUF_START >> 8), 1);
-#endif
+
+	/* taken from the Linux driver */
+	m_nic_write_retry (CTL_REG_ERXNDL, (ENC_RX_BUF_END & 0xFF), 1);
+	m_nic_write_retry (CTL_REG_ERXNDH, (ENC_RX_BUF_END >> 8), 1);
+
 	m_nic_write_retry (CTL_REG_ERDPTL, (ENC_RX_BUF_START & 0xFF), 1);
 	m_nic_write_retry (CTL_REG_ERDPTH, (ENC_RX_BUF_START >> 8), 1);
 
 	next_pointer_lsb = (ENC_RX_BUF_START & 0xFF);
 	next_pointer_msb = (ENC_RX_BUF_START >> 8);
-
-	/*
-	 * For tracking purposes, the ERXRDPT registers should be programmed with
-	 * the same value. This is the read pointer.
-	 */
-	m_nic_write (CTL_REG_ERXRDPTL, (ENC_RX_BUF_START & 0xFF));
-	m_nic_write_retry (CTL_REG_ERXRDPTH, (ENC_RX_BUF_START >> 8), 1);
-
-	/* Setup receive filters. */
-
-	/* move to bank 1 */
-	m_nic_bfc (CTL_REG_ECON1, ENC_ECON1_BSEL1);
-	m_nic_bfs (CTL_REG_ECON1, ENC_ECON1_BSEL0);
-
-	/* OR-filtering, Unicast, CRC-check and broadcast */
-	m_nic_write_retry (CTL_REG_ERXFCON,
-			   (ENC_RFR_UCEN | ENC_RFR_CRCEN | ENC_RFR_BCEN), 1);
-
-	/* Wait for Oscillator Start-up Timer (OST). */
-	while ((m_nic_read (CTL_REG_ESTAT) & ENC_ESTAT_CLKRDY) == 0) {
-		static int cnt = 0;
-
-		if (cnt++ >= 1000) {
-			cnt = 0;
-		}
-	}
 
 	/* verify identification */
 	phid1 = phyRead (PHY_REG_PHID1);
@@ -780,16 +799,34 @@ static void encInit (unsigned char *pEthAddr)
 	/* switch to bank 2 */
 	m_nic_bfc (CTL_REG_ECON1, ENC_ECON1_BSEL0);
 	m_nic_bfs (CTL_REG_ECON1, ENC_ECON1_BSEL1);
-	/* clear MAC reset bits */
-	m_nic_write_retry (CTL_REG_MACON2, 0, 1);
 
 	/* enable MAC to receive frames */
-	m_nic_write_retry (CTL_REG_MACON1, ENC_MACON1_MARXEN, 10);
+	/* added some bits from the Linux driver */
+	m_nic_write_retry (CTL_REG_MACON1
+		,(ENC_MACON1_MARXEN | ENC_MACON1_TXPAUS | ENC_MACON1_RXPAUS)
+		,10);
 
 	/* configure pad, tx-crc and duplex */
-	/* TODO maybe enable FRMLNEN */
-	m_nic_write_retry (CTL_REG_MACON3,
-			   (ENC_MACON3_PADCFG0 | ENC_MACON3_TXCRCEN), 10);
+	/* added a bit from the Linux driver */
+	m_nic_write_retry (CTL_REG_MACON3
+		,(ENC_MACON3_PADCFG0 | ENC_MACON3_TXCRCEN | ENC_MACON3_FRMLNEN)
+		,10);
+
+	/* added 4 new lines from the Linux driver */
+	/* Allow infinite deferals if the medium is continously busy */
+	m_nic_write_retry(CTL_REG_MACON4, (1<<6) /*ENC_MACON4_DEFER*/, 10);
+
+	/* Late collisions occur beyond 63 bytes */
+	m_nic_write_retry(CTL_REG_MACLCON2, 63, 10);
+
+	/* Set (low byte) Non-Back-to_Back Inter-Packet Gap. Recommended 0x12 */
+	m_nic_write_retry(CTL_REG_MAIPGL, 0x12, 10);
+
+	/*
+	* Set (high byte) Non-Back-to_Back Inter-Packet Gap. Recommended
+	* 0x0c for half-duplex. Nothing for full-duplex
+	*/
+	m_nic_write_retry(CTL_REG_MAIPGH, 0x0C, 10);
 
 	/* set maximum frame length */
 	m_nic_write_retry (CTL_REG_MAMXFLL, (ENC_MAX_FRM_LEN & 0xff), 10);
@@ -800,15 +837,6 @@ static void encInit (unsigned char *pEthAddr)
 	 * and 0x15 for full duplex.
 	 */
 	m_nic_write_retry (CTL_REG_MABBIPG, 0x12, 10);
-
-	/* Set (low byte) Non-Back-to_Back Inter-Packet Gap. Recommended 0x12 */
-	m_nic_write_retry (CTL_REG_MAIPGL, 0x12, 10);
-
-	/*
-	 * Set (high byte) Non-Back-to_Back Inter-Packet Gap. Recommended
-	 * 0x0c for half-duplex. Nothing for full-duplex
-	 */
-	m_nic_write_retry (CTL_REG_MAIPGH, 0x0C, 10);
 
 	/* set MAC address */
 
@@ -823,18 +851,35 @@ static void encInit (unsigned char *pEthAddr)
 	m_nic_write_retry (CTL_REG_MAADR5, pEthAddr[0], 1);
 
 	/*
+	* PHY Initialization taken from the Linux driver
+	 */
+
+	/* Prevent automatic loopback of data beeing transmitted by setting
+	   ENC_PHCON2_HDLDIS */
+	phyWrite(PHY_REG_PHCON2, (1<<8));
+
+	/* LEDs configuration
+	 * LEDA: LACFG = 0100 -> display link status
+	 * LEDB: LBCFG = 0111 -> display TX & RX activity
+	 * STRCH = 1 -> LED pulses
+	 */
+	phyWrite(PHY_REG_PHLCON, 0x0472);
+
+	/* Reset PDPXMD-bit => half duplex */
+	phyWrite(PHY_REG_PHCON1, 0);
+
+	/*
 	 * Receive settings
 	 */
 
-	/* auto-increment RX-pointer when reading a received packet */
-	m_nic_bfs (CTL_REG_ECON2, ENC_ECON2_AUTOINC);
-
+#ifdef CONFIG_USE_IRQ
 	/* enable interrupts */
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_PKTIE);
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_TXIE);
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_RXERIE);
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_TXERIE);
 	m_nic_bfs (CTL_REG_EIE, ENC_EIE_INTIE);
+#endif
 }
 
 /*****************************************************************************
@@ -864,6 +909,11 @@ static unsigned short phyRead (unsigned char addr)
 	/* set MICMD.MIIRD */
 	m_nic_write (CTL_REG_MICMD, ENC_MICMD_MIIRD);
 
+	/* taken from the Linux driver */
+	/* move to bank 3 */
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL0);
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL1);
+
 	/* poll MISTAT.BUSY bit until operation is complete */
 	while ((m_nic_read (CTL_REG_MISTAT) & ENC_MISTAT_BUSY) != 0) {
 		static int cnt = 0;
@@ -875,6 +925,11 @@ static unsigned short phyRead (unsigned char addr)
 		}
 	}
 
+	/* taken from the Linux driver */
+	/* move to bank 2 */
+	m_nic_bfc(CTL_REG_ECON1, ENC_ECON1_BSEL0);
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL1);
+
 	/* clear MICMD.MIIRD */
 	m_nic_write (CTL_REG_MICMD, 0);
 
@@ -883,3 +938,46 @@ static unsigned short phyRead (unsigned char addr)
 
 	return ret;
 }
+
+/*****************************************************************************
+ *
+ * Taken from the Linux driver.
+ * Description:
+ * Write PHY registers.
+ *
+ * NOTE! This function will change to Bank 3.
+ *
+ * Params:
+ * [in] addr address of the register to write to
+ * [in] data to be written
+ *
+ * Returns:
+ *    None
+ */
+static void phyWrite(unsigned char addr, unsigned short data)
+{
+	/* move to bank 2 */
+	m_nic_bfc(CTL_REG_ECON1, ENC_ECON1_BSEL0);
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL1);
+
+	/* write address to MIREGADR */
+	m_nic_write(CTL_REG_MIREGADR, addr);
+
+	m_nic_write(CTL_REG_MIWRL, data & 0xff);
+	m_nic_write(CTL_REG_MIWRH, data >> 8);
+
+	/* move to bank 3 */
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL0);
+	m_nic_bfs(CTL_REG_ECON1, ENC_ECON1_BSEL1);
+
+	/* poll MISTAT.BUSY bit until operation is complete */
+	while((m_nic_read(CTL_REG_MISTAT) & ENC_MISTAT_BUSY) != 0) {
+		static int cnt = 0;
+
+		if(cnt++ >= 1000) {
+			cnt = 0;
+		}
+	}
+}
+
+#endif /* CONFIG_ENC28J60 */

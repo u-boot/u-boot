@@ -76,7 +76,7 @@
 extern int update_flash_size (int flash_size);
 #endif
 
-#if defined(CONFIG_SOLIDCARD3)
+#if defined(CONFIG_SC3)
 extern void sc3_read_eeprom(void);
 #endif
 
@@ -820,7 +820,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif	/* CONFIG_405GP, CONFIG_405EP */
 #endif	/* CFG_EXTBDINFO */
 
-#if defined(CONFIG_SOLIDCARD3)
+#if defined(CONFIG_SC3)
 	sc3_read_eeprom();
 #endif
 	s = getenv ("ethaddr");
@@ -929,7 +929,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_KUP4X)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_PCU_E)	|| \
-    defined(CONFIG_SOLIDCARD3)	|| \
+    defined(CONFIG_SC3)		|| \
     defined(CONFIG_W7O)		|| \
     defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */

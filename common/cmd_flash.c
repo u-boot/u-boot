@@ -690,7 +690,7 @@ U_BOOT_CMD(
 );
 
 U_BOOT_CMD(
-	erase,   3,   1,  do_flerase,
+	erase,   3,   0,  do_flerase,
 	"erase   - erase FLASH memory\n",
 	"start end\n"
 	"    - erase FLASH from addr 'start' to addr 'end'\n"
@@ -704,7 +704,7 @@ U_BOOT_CMD(
 );
 
 U_BOOT_CMD(
-	protect,  4,  1,   do_protect,
+	protect,  4,  0,   do_protect,
 	"protect - enable or disable FLASH write protection\n",
 	"on  start end\n"
 	"    - protect FLASH from addr 'start' to addr 'end'\n"

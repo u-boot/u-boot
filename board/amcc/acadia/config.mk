@@ -21,6 +21,12 @@
 # MA 02111-1307 USA
 #
 
+#
+# AMCC 405EZ Reference Platform (Acadia) board
+#
+
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFFC0000
 endif
