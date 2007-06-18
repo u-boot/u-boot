@@ -207,9 +207,11 @@ LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/net/libnet.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
+LIBS += drivers/serial/libserial.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
@@ -1636,6 +1638,18 @@ TASREG_config :		unconfig
 
 r5200_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 r5200
+
+M5329AFEE_config \
+M5329BFEE_config :	unconfig
+	@case "$@" in \
+	M5329AFEE_config)	NAND=0;; \
+	M5329BFEE_config)	NAND=16;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${NAND}" != "0" ] ; then \
+		echo "#define NANDFLASH_SIZE	$${NAND}" >> include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
 
 #########################################################################
 ## MPC83xx Systems

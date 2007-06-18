@@ -1,6 +1,7 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Coldfire contribution by Bernhard Kuhn <bkuhn@metrowerks.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,25 +22,4 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(ARCH).a
-
-SOBJS	=
-
-COBJS	= cache.o traps.o time.o interrupts.o board.o m68k_linux.o
-
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+TEXT_BASE = 0

@@ -58,6 +58,7 @@ extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
 extern int atstk1000_eth_initialize(bd_t *);
+extern int mcffec_initialize(bd_t*);
 
 static struct eth_device *eth_devices, *eth_current;
 

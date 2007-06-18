@@ -46,12 +46,10 @@
 #include <asm/immap_5249.h>
 #endif
 
-
 static ulong timestamp;
 #if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 static unsigned short lastinc;
 #endif
-
 
 #if defined(CONFIG_M5272)
 /*
@@ -293,6 +291,171 @@ void set_timer (ulong t)
 }
 #endif
 
+#if defined(CONFIG_MCFTMR)
+#ifndef CFG_UDELAY_BASE
+#	error	"uDelay base not defined!"
+#endif
+
+#if !defined(CFG_TMR_BASE) || !defined(CFG_INTR_BASE) || !defined(CFG_TMRINTR_NO) || !defined(CFG_TMRINTR_MASK)
+#	error	"TMR_BASE, INTR_BASE, TMRINTR_NO or TMRINTR_MASk not defined!"
+#endif
+
+#include <asm/immap_5329.h>
+
+extern void dtimer_interrupt(void *not_used);
+extern void dtimer_interrupt_setup(void);
+extern void dtimer_interrupt_enable(void);
+
+void udelay(unsigned long usec)
+{
+	volatile dtmr_t *timerp = (dtmr_t *) (CFG_UDELAY_BASE);
+	uint start, now, tmp;
+
+	while (usec > 0) {
+		if (usec > 65000)
+			tmp = 65000;
+		else
+			tmp = usec;
+		usec = usec - tmp;
+
+		/* Set up TIMER 3 as timebase clock */
+		timerp->tmr = DTIM_DTMR_RST_RST;
+		timerp->tcn = 0;
+		/* set period to 1 us */
+		timerp->tmr =
+		    (((CFG_CLK / 1000000) -
+		      1) << 8) | DTIM_DTMR_CLK_DIV1 | DTIM_DTMR_FRR | DTIM_DTMR_RST_EN;
+
+		start = now = timerp->tcn;
+		while (now < start + tmp)
+			now = timerp->tcn;
+	}
+}
+
+void dtimer_interrupt(void *not_used)
+{
+	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+
+	/* check for timer interrupt asserted */
+	if ((intp->iprh0 & CFG_TMRINTR_MASK) == CFG_TMRINTR_MASK) {
+		timerp->ter = (DTIM_DTER_CAP | DTIM_DTER_REF);
+		timestamp++;
+		return;
+	}
+}
+
+void timer_init(void)
+{
+	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+
+	timestamp = 0;
+
+	timerp->tcn = 0;
+	timerp->trr = 0;
+
+	/* Set up TIMER 4 as clock */
+	timerp->tmr = DTIM_DTMR_RST_RST;
+
+	/* initialize and enable timer 4 interrupt */
+	irq_install_handler(CFG_TMRINTR_NO, dtimer_interrupt, 0);
+	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
+
+	timerp->tcn = 0;
+	timerp->trr = 1000;	/* Interrupt every ms */
+
+	intp->imrh0 &= ~CFG_TMRINTR_MASK;
+
+	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
+	timerp->tmr = CFG_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 |
+	    DTIM_DTMR_FRR | DTIM_DTMR_ORRI | DTIM_DTMR_RST_EN;
+}
+
+void reset_timer(void)
+{
+	timestamp = 0;
+}
+
+ulong get_timer(ulong base)
+{
+	return (timestamp - base);
+}
+
+void set_timer(ulong t)
+{
+	timestamp = t;
+}
+#endif				/* CONFIG_MCFTMR */
+
+#if defined(CONFIG_MCFPIT)
+#if !defined(CFG_PIT_BASE)
+#	error	"CFG_PIT_BASE not defined!"
+#endif
+
+static unsigned short lastinc;
+
+void udelay(unsigned long usec)
+{
+	volatile pit_t *timerp = (pit_t *) (CFG_UDELAY_BASE);
+	uint tmp;
+
+	while (usec > 0) {
+		if (usec > 65000)
+			tmp = 65000;
+		else
+			tmp = usec;
+		usec = usec - tmp;
+
+		/* Set up TIMER 3 as timebase clock */
+		timerp->pcsr = PIT_PCSR_OVW;
+		timerp->pmr = 0;
+		/* set period to 1 us */
+		timerp->pcsr |= PIT_PCSR_PRE(CFG_PIT_PRESCALE) | PIT_PCSR_EN;
+
+		timerp->pmr = tmp;
+		while (timerp->pcntr > 0) ;
+	}
+}
+
+void timer_init(void)
+{
+	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+	timestamp = 0;
+
+	/* Set up TIMER 4 as poll clock */
+	timerp->pcsr = PIT_PCSR_OVW;
+	timerp->pmr = lastinc = 0;
+	timerp->pcsr |= PIT_PCSR_PRE(CFG_PIT_PRESCALE) | PIT_PCSR_EN;
+}
+
+void set_timer(ulong t)
+{
+	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+
+	timestamp = 0;
+	timerp->pmr = lastinc = 0;
+}
+
+ulong get_timer(ulong base)
+{
+	unsigned short now, diff;
+	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+
+	now = timerp->pcntr;
+	diff = -(now - lastinc);
+
+	timestamp += diff;
+	lastinc = now;
+	return timestamp - base;
+}
+
+void wait_ticks(unsigned long ticks)
+{
+	set_timer(0);
+	while (get_timer(0) < ticks) ;
+}
+#endif				/* CONFIG_MCFPIT */
 
 /*
  * This function is derived from PowerPC code (read timebase as long long).
