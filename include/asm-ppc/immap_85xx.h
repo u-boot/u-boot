@@ -1522,6 +1522,17 @@ typedef struct ccsr_rio {
 	char	res58[60176];
 } ccsr_rio_t;
 
+/* Quick Engine Block Pin Muxing Registers (0xe_0100 - 0xe_01bf) */
+typedef struct par_io {
+	uint	cpodr;		/* 0x100 */
+	uint	cpdat;		/* 0x104 */
+	uint	cpdir1;		/* 0x108 */
+	uint	cpdir2;		/* 0x10c */
+	uint	cppar1;		/* 0x110 */
+	uint	cppar2;		/* 0x114 */
+	char	res[8];
+}par_io_t;
+
 /*
  * Global Utilities Register Block(0xe_0000-0xf_ffff)
  */
@@ -1585,7 +1596,13 @@ typedef struct ccsr_gur {
 	uint	svr;		/* 0xe00a4 - System version register */
 	char	res10a[8];
 	uint	rstcr;		/* 0xe00b0 - Reset control register */
+#ifdef MPC8568
+	char	res10b[76];
+	par_io_t qe_par_io[7];  /* 0xe0100 - 0xe01bf */
+	char	res10c[3136];
+#else
 	char	res10b[3404];
+#endif
 	uint	clkocr;		/* 0xe0e00 - Clock out select register */
 	char	res11[12];
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */

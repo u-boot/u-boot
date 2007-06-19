@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
+#include <i2c.h>
 
 #include "bcsr.h"
 
@@ -49,6 +50,15 @@ int board_early_init_f (void)
 
 	enable_8568mds_duart();
 	enable_8568mds_flash_write();
+
+#ifdef CFG_I2C2_OFFSET
+	/* Enable I2C2_SCL and I2C2_SDA */
+	volatile struct par_io *port_c;
+	port_c = (struct par_io*)(CFG_IMMR + 0xe0140);
+	port_c->cpdir2 |= 0x0f000000;
+	port_c->cppar2 &= ~0x0f000000;
+	port_c->cppar2 |= 0x0a000000;
+#endif
 
 	return 0;
 }
@@ -269,20 +279,62 @@ static struct pci_config_table pci_mpc8568mds_config_table[] = {
 #endif
 
 static struct pci_controller hose[] = {
+	{
 #ifndef CONFIG_PCI_PNP
-	{ config_table: pci_mpc8568mds_config_table,},
+	config_table: pci_mpc8568mds_config_table,
 #endif
-#ifdef CONFIG_MPC85XX_PCI2
-	{},
-#endif
+	}
 };
 
 #endif	/* CONFIG_PCI */
+
+/*
+ * pib_init() -- Initialize the PCA9555 IO expander on the PIB board
+ */
+void
+pib_init(void)
+{
+	u8 val8, orig_i2c_bus;
+	/*
+	 * Assign PIB PMC2/3 to PCI bus
+	 */
+
+	/*switch temporarily to I2C bus #2 */
+	orig_i2c_bus = i2c_get_bus_num();
+	i2c_set_bus_num(1);
+
+	val8 = 0x00;
+	i2c_write(0x23, 0x6, 1, &val8, 1);
+	i2c_write(0x23, 0x7, 1, &val8, 1);
+	val8 = 0xff;
+	i2c_write(0x23, 0x2, 1, &val8, 1);
+	i2c_write(0x23, 0x3, 1, &val8, 1);
+
+	val8 = 0x00;
+	i2c_write(0x26, 0x6, 1, &val8, 1);
+	val8 = 0x34;
+	i2c_write(0x26, 0x7, 1, &val8, 1);
+	val8 = 0xf9;
+	i2c_write(0x26, 0x2, 1, &val8, 1);
+	val8 = 0xff;
+	i2c_write(0x26, 0x3, 1, &val8, 1);
+
+	val8 = 0x00;
+	i2c_write(0x27, 0x6, 1, &val8, 1);
+	i2c_write(0x27, 0x7, 1, &val8, 1);
+	val8 = 0xff;
+	i2c_write(0x27, 0x2, 1, &val8, 1);
+	val8 = 0xef;
+	i2c_write(0x27, 0x3, 1, &val8, 1);
+
+	asm("eieio");
+}
 
 void
 pci_init_board(void)
 {
 #ifdef CONFIG_PCI
+	pib_init();
 	pci_mpc85xx_init(&hose);
 #endif
 }

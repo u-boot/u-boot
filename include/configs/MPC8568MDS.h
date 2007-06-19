@@ -33,7 +33,7 @@
 #define CONFIG_MPC8568		1	/* MPC8568 specific */
 #define CONFIG_MPC8568MDS	1	/* MPC8568MDS board specific */
 
-#undef CONFIG_PCI
+#define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
@@ -306,11 +306,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_EEPROM_ADDR	0x57
+#define CFG_I2C_EEPROM_ADDR	0x52
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES        {0,0x69}	/* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
+#define CFG_I2C2_OFFSET		0x3100
 
 /*
  * General PCI
@@ -318,7 +321,7 @@ extern unsigned long get_clock_freq(void);
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-#define CFG_PCI1_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe2000000
 #define CFG_PCI1_IO_SIZE	0x00800000	/* 8M */
