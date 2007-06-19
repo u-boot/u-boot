@@ -564,7 +564,7 @@ ProgramCheck:
 	STD_EXCEPTION(0x800, FPUnavailable, UnknownException)
 	STD_EXCEPTION(0x900, Decrementer, DecrementerPITException)
 	STD_EXCEPTION(0xa00, APU, UnknownException)
-#endif	
+#endif
 	STD_EXCEPTION(0xc00, SystemCall, UnknownException)
 
 #ifdef CONFIG_440
@@ -889,7 +889,7 @@ _start:
 	 */
 	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
-	ori	r3,r3,0x8270	/* 32K Offset, 16K for Bank 1, R/W/Enable */
+	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
 	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
 	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
@@ -1623,7 +1623,7 @@ trap_init:
 
 	li	r7, .L_APU - _start + _START_OFFSET
         bl      trap_reloc
-        
+
 	li      r7, .L_InstructionTLBError - _start + _START_OFFSET
         bl      trap_reloc
 

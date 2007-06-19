@@ -55,10 +55,12 @@ int board_early_init_f(void)
 {
 	unsigned int reg;
 
+#if !defined(CONFIG_NAND_U_BOOT)
 	/* don't reinit PLL when booting via I2C bootstrap option */
 	mfsdr(SDR_PINSTP, reg);
 	if (reg != 0xf0000000)
 		board_pll_init_f();
+#endif
 
 	acadia_gpio_init();
 

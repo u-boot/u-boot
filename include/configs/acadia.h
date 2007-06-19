@@ -75,7 +75,7 @@
 #define CFG_TEMP_STACK_OCM	1		/* OCM as init ram	*/
 
 /* On Chip Memory location */
-#define CFG_OCM_DATA_ADDR	0xF8000000
+#define CFG_OCM_DATA_ADDR	0xf8000000
 #define CFG_OCM_DATA_SIZE	0x4000			/* 16K of onchip SRAM		*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of SRAM		*/
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of used area in RAM	*/
@@ -159,7 +159,7 @@
  */
 #define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
 #define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
-#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_DATA_ADDR + (12 << 10)) /* Copy SPL here*/
+#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_DATA_ADDR + (16 << 10)) /* Copy SPL here*/
 #define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
 #define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
 #define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
