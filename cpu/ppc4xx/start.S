@@ -110,6 +110,13 @@
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
+#define function_prolog(func_name)      .text; \
+					.align 2; \
+					.globl func_name; \
+					func_name:
+#define function_epilog(func_name)      .type func_name,@function; \
+					.size func_name,.-func_name
+
 /* We don't want the  MMU yet.
 */
 #undef	MSR_KERNEL
@@ -148,7 +155,9 @@
 	 * NAND U-Boot image is started from offset 0
 	 */
 	.text
+#if defined(CONFIG_440)
 	bl	reconfig_tlb0
+#endif
 	GET_GOT
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
@@ -388,8 +397,9 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 2:
 
 #if defined(CONFIG_NAND_SPL)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	/*
-	 * Enable internal SRAM
+	 * Enable internal SRAM (only on 440EPx/GRx, 440EP/GR have no OCM)
 	 */
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
@@ -399,6 +409,45 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	mfdcr	r1,isram0_pmeg
 	and	r1,r1,r2		/* Disable pwr mgmt */
 	mtdcr	isram0_pmeg,r1
+#endif
+#if defined(CONFIG_440EP)
+	/*
+	 * On 440EP with no internal SRAM, we setup SDRAM very early
+	 * and copy the NAND_SPL to SDRAM and jump to it
+	 */
+	/* Clear Dcache to use as RAM */
+	addis	r3,r0,CFG_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	addis	r4,r0,CFG_INIT_RAM_END@h
+	ori	r4,r4,CFG_INIT_RAM_END@l
+	rlwinm. r5,r4,0,27,31
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ran3
+	addi	r5,r5,0x0001
+..d_ran3:
+	mtctr	r5
+..d_ag3:
+	dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag3
+	/*----------------------------------------------------------------*/
+	/* Setup the stack in internal SRAM */
+	/*----------------------------------------------------------------*/
+	lis	r1,CFG_INIT_RAM_ADDR@h
+	ori	r1,r1,CFG_INIT_SP_OFFSET@l
+	li	r0,0
+	stwu	r0,-4(r1)
+	stwu	r0,-4(r1)		/* Terminate call chain */
+
+	stwu	r1,-8(r1)		/* Save back chain and move SP */
+	lis	r0,RESET_VECTOR@h	/* Address of reset vector */
+	ori	r0,r0, RESET_VECTOR@l
+	stwu	r1,-8(r1)		/* Save back chain and move SP */
+	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
+	sync
+	bl	early_sdram_init
+	sync
+#endif /* CONFIG_440EP */
 
 	/*
 	 * Copy SPL from cache into internal SRAM
@@ -429,7 +478,7 @@ spl_loop:
 start_ram:
 	sync
 	isync
-#endif
+#endif /* CONFIG_NAND_SPL */
 
 	bl	3f
 	b	_start
@@ -783,7 +832,7 @@ _start:
 	mtdcr	ocmdscr2, r3            /* Set Data Side */
 	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
 	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
-	mtdcr	ocmdsisdpc,r4
+	mtdcr	ocmdsisdpc,r3
 
 	isync
 #else /* CONFIG_405EZ */
@@ -809,6 +858,38 @@ _start:
 	isync
 #endif /* CONFIG_405EZ */
 #endif
+
+#ifdef CONFIG_NAND_SPL
+	/*
+	 * Copy SPL from cache into internal SRAM
+	 */
+	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
+	mtctr	r4
+	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+spl_loop:
+	lwzu	r4,4(r2)
+	stwu	r4,4(r3)
+	bdnz	spl_loop
+
+	/*
+	 * Jump to code in RAM
+	 */
+	bl	00f
+00:	mflr	r10
+	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
+	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
+	sub	r10,r10,r3
+	addi	r10,r10,28
+	mtlr	r10
+	blr
+
+start_ram:
+	sync
+	isync
+#endif /* CONFIG_NAND_SPL */
 
 	/*----------------------------------------------------------------------- */
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
@@ -920,12 +1001,16 @@ _start:
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
+#ifdef CONFIG_NAND_SPL
+	bl	nand_boot		/* will not return */
+#else
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
 	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+#endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
@@ -1137,27 +1222,9 @@ crit_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfci
-#endif /* CONFIG_NAND_SPL */
 
 /* Cache functions.
 */
-invalidate_icache:
-	iccci	r0,r0			/* for 405, iccci invalidates the */
-	blr				/*   entire I cache */
-
-invalidate_dcache:
-	addi	r6,0,0x0000		/* clear GPR 6 */
-	/* Do loop for # of dcache congruence classes. */
-	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
-	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
-					/* NOTE: dccci invalidates both */
-	mtctr	r7			/* ways in the D cache */
-..dcloop:
-	dccci	0,r6			/* invalidate line */
-	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
-	bdnz	..dcloop
-	blr
-
 flush_dcache:
 	addis	r9,r0,0x0002		/* set mask for EE and CE msr bits */
 	ori	r9,r9,0x8000
@@ -1255,24 +1322,6 @@ wr_tcr:
 	blr
 
 /*------------------------------------------------------------------------------- */
-/* Function:	 in8 */
-/* Description:	 Input 8 bits */
-/*------------------------------------------------------------------------------- */
-	.globl	in8
-in8:
-	lbz	r3,0x0000(r3)
-	blr
-
-/*------------------------------------------------------------------------------- */
-/* Function:	 out8 */
-/* Description:	 Output 8 bits */
-/*------------------------------------------------------------------------------- */
-	.globl	out8
-out8:
-	stb	r4,0x0000(r3)
-	blr
-
-/*------------------------------------------------------------------------------- */
 /* Function:	 out16 */
 /* Description:	 Output 16 bits */
 /*------------------------------------------------------------------------------- */
@@ -1288,15 +1337,6 @@ out16:
 	.globl	out16r
 out16r:
 	sthbrx	r4,r0,r3
-	blr
-
-/*------------------------------------------------------------------------------- */
-/* Function:	 out32 */
-/* Description:	 Output 32 bits */
-/*------------------------------------------------------------------------------- */
-	.globl	out32
-out32:
-	stw	r4,0x0000(r3)
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1324,15 +1364,6 @@ in16:
 	.globl	in16r
 in16r:
 	lhbrx	r3,r0,r3
-	blr
-
-/*------------------------------------------------------------------------------- */
-/* Function:	 in32 */
-/* Description:	 Input 32 bits */
-/*------------------------------------------------------------------------------- */
-	.globl	in32
-in32:
-	lwz	3,0x0000(3)
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1377,9 +1408,6 @@ ppcSync:
 	sync
 	blr
 
-/*------------------------------------------------------------------------------*/
-
-#ifndef CONFIG_NAND_SPL
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -1644,8 +1672,105 @@ trap_reloc:
 	stw	r0, 4(r7)
 
 	blr
+
+#if defined(CONFIG_440)
+/*----------------------------------------------------------------------------+
+| dcbz_area.
++----------------------------------------------------------------------------*/
+	function_prolog(dcbz_area)
+	rlwinm. r5,r4,0,27,31
+	rlwinm  r5,r4,27,5,31
+	beq     ..d_ra2
+	addi    r5,r5,0x0001
+..d_ra2:mtctr   r5
+..d_ag2:dcbz    r0,r3
+	addi    r3,r3,32
+	bdnz    ..d_ag2
+	sync
+	blr
+	function_epilog(dcbz_area)
+
+/*----------------------------------------------------------------------------+
+| dflush.  Assume 32K at vector address is cachable.
++----------------------------------------------------------------------------*/
+	function_prolog(dflush)
+	mfmsr   r9
+	rlwinm  r8,r9,0,15,13
+	rlwinm  r8,r8,0,17,15
+	mtmsr   r8
+	addi    r3,r0,0x0000
+	mtspr   dvlim,r3
+	mfspr   r3,ivpr
+	addi    r4,r0,1024
+	mtctr   r4
+..dflush_loop:
+	lwz     r6,0x0(r3)
+	addi    r3,r3,32
+	bdnz    ..dflush_loop
+	addi    r3,r3,-32
+	mtctr   r4
+..ag:   dcbf    r0,r3
+	addi    r3,r3,-32
+	bdnz    ..ag
+	sync
+	mtmsr   r9
+	blr
+	function_epilog(dflush)
+#endif /* CONFIG_440 */
 #endif /* CONFIG_NAND_SPL */
 
+/*------------------------------------------------------------------------------- */
+/* Function:	 in8 */
+/* Description:	 Input 8 bits */
+/*------------------------------------------------------------------------------- */
+	.globl	in8
+in8:
+	lbz	r3,0x0000(r3)
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 out8 */
+/* Description:	 Output 8 bits */
+/*------------------------------------------------------------------------------- */
+	.globl	out8
+out8:
+	stb	r4,0x0000(r3)
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 out32 */
+/* Description:	 Output 32 bits */
+/*------------------------------------------------------------------------------- */
+	.globl	out32
+out32:
+	stw	r4,0x0000(r3)
+	blr
+
+/*------------------------------------------------------------------------------- */
+/* Function:	 in32 */
+/* Description:	 Input 32 bits */
+/*------------------------------------------------------------------------------- */
+	.globl	in32
+in32:
+	lwz	3,0x0000(3)
+	blr
+
+invalidate_icache:
+	iccci	r0,r0			/* for 405, iccci invalidates the */
+	blr				/*   entire I cache */
+
+invalidate_dcache:
+	addi	r6,0,0x0000		/* clear GPR 6 */
+	/* Do loop for # of dcache congruence classes. */
+	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
+	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+					/* NOTE: dccci invalidates both */
+	mtctr	r7			/* ways in the D cache */
+..dcloop:
+	dccci	0,r6			/* invalidate line */
+	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
+	bdnz	..dcloop
+	blr
 
 /**************************************************************************/
 /* PPC405EP specific stuff						  */
@@ -1892,13 +2017,6 @@ pll_wait:
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_440)
-#define function_prolog(func_name)	.text; \
-					.align 2; \
-					.globl func_name; \
-					func_name:
-#define function_epilog(func_name)	.type func_name,@function; \
-					.size func_name,.-func_name
-
 /*----------------------------------------------------------------------------+
 | mttlb3.
 +----------------------------------------------------------------------------*/
@@ -1946,47 +2064,4 @@ pll_wait:
 	TLBRE(3,3,0)
 	blr
 	function_epilog(mftlb1)
-
-/*----------------------------------------------------------------------------+
-| dcbz_area.
-+----------------------------------------------------------------------------*/
-	function_prolog(dcbz_area)
-	rlwinm. r5,r4,0,27,31
-	rlwinm	r5,r4,27,5,31
-	beq	..d_ra2
-	addi	r5,r5,0x0001
-..d_ra2:mtctr	r5
-..d_ag2:dcbz	r0,r3
-	addi	r3,r3,32
-	bdnz	..d_ag2
-	sync
-	blr
-	function_epilog(dcbz_area)
-
-/*----------------------------------------------------------------------------+
-| dflush.  Assume 32K at vector address is cachable.
-+----------------------------------------------------------------------------*/
-	function_prolog(dflush)
-	mfmsr	r9
-	rlwinm	r8,r9,0,15,13
-	rlwinm	r8,r8,0,17,15
-	mtmsr	r8
-	addi	r3,r0,0x0000
-	mtspr	dvlim,r3
-	mfspr	r3,ivpr
-	addi	r4,r0,1024
-	mtctr	r4
-..dflush_loop:
-	lwz	r6,0x0(r3)
-	addi	r3,r3,32
-	bdnz	..dflush_loop
-	addi	r3,r3,-32
-	mtctr	r4
-..ag:	dcbf	r0,r3
-	addi	r3,r3,-32
-	bdnz	..ag
-	sync
-	mtmsr	r9
-	blr
-	function_epilog(dflush)
 #endif /* CONFIG_440 */

@@ -547,8 +547,8 @@
 #define sdrcfga (SDR_DCR_BASE+0x0)	/* ADDR */
 #define sdrcfgd (SDR_DCR_BASE+0x1)	/* Data */
 
-#define mtsdr(reg, data) mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data)
-#define mfsdr(reg, data) mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd)
+#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
+#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
 #define sdrnand0	0x4000
 #define sdrultra0	0x4040
@@ -556,6 +556,11 @@
 #define sdricintstat	0x4510
 
 #define SDR_NAND0_NDEN		0x80000000
+#define SDR_NAND0_NDBTEN	0x40000000
+#define SDR_NAND0_NDBADR_MASK	0x30000000
+#define SDR_NAND0_NDBPG_MASK	0x0f000000
+#define SDR_NAND0_NDAREN	0x00800000
+#define SDR_NAND0_NDRBEN	0x00400000
 
 #define SDR_ULTRA0_NDGPIOBP	0x80000000
 #define SDR_ULTRA0_CSN_MASK	0x78000000
@@ -563,6 +568,9 @@
 #define SDR_ULTRA0_CSNSEL1	0x20000000
 #define SDR_ULTRA0_CSNSEL2	0x10000000
 #define SDR_ULTRA0_CSNSEL3	0x08000000
+#define SDR_ULTRA0_EBCRDYEN	0x04000000
+#define SDR_ULTRA0_SPISSINEN	0x02000000
+#define SDR_ULTRA0_NFSRSTEN	0x01000000
 
 #define SDR_ULTRA1_LEDNENABLE	0x40000000
 
@@ -593,8 +601,8 @@
 /*
  * Macro for accessing the indirect CPR register
  */
-#define mtcpr(reg, data)  mtdcr(cprcfga,reg);mtdcr(cprcfgd,data)
-#define mfcpr(reg, data)  mtdcr(cprcfga,reg);data = mfdcr(cprcfgd)
+#define mtcpr(reg, data)	do { mtdcr(cprcfga,reg);mtdcr(cprcfgd,data); } while (0)
+#define mfcpr(reg, data)	do { mtdcr(cprcfga,reg);data = mfdcr(cprcfgd); } while (0)
 
 #define CPR_CLKUPD_ENPLLCH_EN  0x40000000     /* Enable CPR PLL Changes */
 #define CPR_CLKUPD_ENDVCH_EN   0x20000000     /* Enable CPR Sys. Div. Changes */

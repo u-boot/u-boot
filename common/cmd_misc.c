@@ -63,7 +63,7 @@ U_BOOT_CMD(
 #endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
 
 U_BOOT_CMD(
-	sleep ,    2,    2,     do_sleep,
+	sleep ,    2,    1,     do_sleep,
 	"sleep   - delay execution for some time\n",
 	"N\n"
 	"    - delay execution for N seconds (N is _decimal_ !!!)\n"

@@ -53,7 +53,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 static unsigned long flash_addr_table[][CFG_MAX_FLASH_BANKS] = {
 	{0x87800001, 0xFFF00000, 0xFFF80000}, /* 0:boot from small flash */
 	{0x00000000, 0x00000000, 0x00000000}, /* 1:boot from pci 66      */
-	{0x00000000, 0x00000000, 0x00000000}, /* 2:boot from nand flash  */
+	{0x87800001, 0x00000000, 0x00000000}, /* 0:boot from nand flash  */
 	{0x87F00000, 0x87F80000, 0xFFC00001}, /* 3:boot from big flash 33*/
 	{0x87F00000, 0x87F80000, 0xFFC00001}, /* 4:boot from big flash 66*/
 	{0x00000000, 0x00000000, 0x00000000}, /* 5:boot from             */
@@ -134,10 +134,10 @@ unsigned long flash_init(void)
 		flash_info[i].size = 0;
 
 		/* check whether the address is 0 */
-		if (flash_addr_table[index][i] == 0) {
+		if (flash_addr_table[index][i] == 0)
 			continue;
-		}
 
+		DEBUGF("Detection bank %d...\n", i);
 		/* call flash_get_size() to initialize sector address */
 		size_b[i] = flash_get_size((vu_long *) flash_addr_table[index][i],
 				   &flash_info[i]);

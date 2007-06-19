@@ -58,8 +58,8 @@ picos_to_clk(int picos)
 	int clks;
 
 	ddr_bus_clk = gd->ddr_clk >> 1;
-	clks = picos / ((1000000000 / ddr_bus_clk) * 1000);
-	if (picos % ((1000000000 / ddr_bus_clk) * 1000) != 0)
+	clks = picos / (1000000000 / (ddr_bus_clk / 1000));
+	if (picos % (1000000000 / (ddr_bus_clk / 1000)) != 0)
 		clks++;
 
 	return clks;
@@ -624,7 +624,7 @@ long int spd_sdram()
 			 | (1 << (16 + 10))             /* DQS Differential disable */
 			 | (add_lat << (16 + 3))        /* Additive Latency in EMRS1 */
 			 | (mode_odt_enable << 16)      /* ODT Enable in EMRS1 */
-			 | ((twr_clk >> 1) << 9)        /* Write Recovery Autopre */
+			 | ((twr_clk - 1) << 9)         /* Write Recovery Autopre */
 			 | (caslat << 4)                /* caslat */
 			 | (burstlen << 0)              /* Burst length */
 			);
@@ -693,11 +693,6 @@ long int spd_sdram()
 
 #ifdef CFG_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
 	ddr->sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
-#else
-	/* SS_EN = 0, source synchronous disable
-	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
-	 */
-	ddr->sdram_clk_cntl = 0x00000000;
 #endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 

@@ -21,7 +21,7 @@
 #include <common.h>
 #include <asm/errno.h>
 #include <asm/arch/hardware.h>
-#include "spi.h"
+#include <asm/arch/spi.h>
 
 unsigned long spi_flags;
 unsigned char spi_idle = 0x00;

@@ -90,14 +90,14 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix->powbar1  = (CFG_PCI1_MEM_PHYS >> 12) & 0x000fffff;
 	pcix->powbear1 = 0x00000000;
 	pcix->powar1 = (POWAR_EN | POWAR_MEM_READ |
-			POWAR_MEM_WRITE | POWAR_MEM_512M);
+			POWAR_MEM_WRITE | (__ilog2(CFG_PCI1_MEM_SIZE) - 1));
 
 	pcix->potar2  = (CFG_PCI1_IO_BASE >> 12) & 0x000fffff;
 	pcix->potear2  = 0x00000000;
 	pcix->powbar2  = (CFG_PCI1_IO_PHYS >> 12) & 0x000fffff;
 	pcix->powbear2 = 0x00000000;
 	pcix->powar2 = (POWAR_EN | POWAR_IO_READ |
-			POWAR_IO_WRITE | POWAR_IO_1M);
+			POWAR_IO_WRITE | (__ilog2(CFG_PCI1_IO_SIZE) - 1));
 
 	pcix->pitar1 = 0x00000000;
 	pcix->piwbar1 = 0x00000000;
@@ -175,14 +175,14 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix2->powbar1  = (CFG_PCI2_MEM_PHYS >> 12) & 0x000fffff;
 	pcix2->powbear1 = 0x00000000;
 	pcix2->powar1 = (POWAR_EN | POWAR_MEM_READ |
-			POWAR_MEM_WRITE | POWAR_MEM_512M);
+			POWAR_MEM_WRITE | (__ilog2(CFG_PCI2_MEM_SIZE) - 1));
 
 	pcix2->potar2  = (CFG_PCI2_IO_BASE >> 12) & 0x000fffff;
 	pcix2->potear2  = 0x00000000;
 	pcix2->powbar2  = (CFG_PCI2_IO_PHYS >> 12) & 0x000fffff;
 	pcix2->powbear2 = 0x00000000;
 	pcix2->powar2 = (POWAR_EN | POWAR_IO_READ |
-			POWAR_IO_WRITE | POWAR_IO_1M);
+			POWAR_IO_WRITE | (__ilog2(CFG_PCI2_IO_SIZE) - 1));
 
 	pcix2->pitar1 = 0x00000000;
 	pcix2->piwbar1 = 0x00000000;

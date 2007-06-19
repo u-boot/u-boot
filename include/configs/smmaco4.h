@@ -138,17 +138,17 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133		/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
-#if defined(CFG_IPBSPEED_133)
+#if defined(CFG_IPBCLK_EQUALS_XLBCLK)
 /*
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet hasn't
- * been tested with a IPB Bus Clock of 66 MHz.
+ * CFG_IPBCLK_EQUALS_XLBCLK is defined. This is because a PCI Clock
+ * of 66 MHz yet hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
-#define CFG_PCISPEED_66			/* define for 66MHz speed */
+#define CFG_PCICLK_EQUALS_IPBCLK_DIV2	/* define for 66MHz speed */
 #endif
 
 /*
@@ -357,7 +357,7 @@
 
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#ifdef CFG_PCISPEED_66
+#ifdef CFG_PCICLK_EQUALS_IPBCLK_DIV2
 #define CFG_BOOTCS_CFG		0x0008DF30 /* for pci_clk  = 66 MHz */
 #else
 #define CFG_BOOTCS_CFG		0x0004DF30 /* for pci_clk = 33 MHz */

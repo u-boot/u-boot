@@ -56,7 +56,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	}
 
 	if (initrd_start && initrd_end) {
-		struct fdt_reserve_entry *re;
+		struct fdt_reserve_entry re;
 		int  used;
 		int  total;
 		int  j;
@@ -77,7 +77,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		 */
 		for (j = 0; j < used; j++) {
 			err = fdt_get_reservemap(fdt, j, &re);
-			if (re->address == initrd_start) {
+			if (re.address == initrd_start) {
 				break;
 			}
 		}

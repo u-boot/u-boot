@@ -1,7 +1,6 @@
 /*
- * (C) Copyright 2007 Michal Simek
- *
- * Michal  SIMEK <monstrmonstr.eu>
+ * (C) Copyright 2007
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,17 +21,45 @@
  * MA 02111-1307 USA
  */
 
-	.text
-	.globl	microblaze_enable_interrupts
-	.ent	microblaze_enable_interrupts
-	.align	2
-microblaze_enable_interrupts:
-	addi	r1, r1, -4
-	swi	r12, r1, 0
-	mfs	r12, rmsr
-	ori	r12, r12, 2
-	mts	rmsr, r12
-	lwi	r12, r1, 0
-	rtsd	r15, 8
-	addi	r1, r1, 4
-	.end	microblaze_enable_interrupts
+OUTPUT_ARCH(powerpc:common)
+SECTIONS
+{
+  .resetvec 0x00800FFC :
+  {
+    *(.resetvec)
+  } = 0xffff
+
+  .text      :
+  {
+    start.o	(.text)
+    init.o	(.text)
+    nand_boot.o	(.text)
+    sdram.o	(.text)
+    ndfc.o	(.text)
+
+    *(.text)
+    *(.fixup)
+  }
+  _etext = .;
+
+  .data    :
+  {
+    *(.rodata*)
+    *(.data*)
+    *(.sdata*)
+    __got2_start = .;
+    *(.got2)
+    __got2_end = .;
+  }
+
+  _edata  =  .;
+
+  __bss_start = .;
+  .bss       :
+  {
+   *(.sbss)
+   *(.bss)
+  }
+
+  _end = . ;
+}

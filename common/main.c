@@ -112,14 +112,6 @@ static __inline__ int abortboot(int bootdelay)
 	u_int presskey_max = 0;
 	u_int i;
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
-		/* Restore serial console */
-		console_assign (stdout, "serial");
-		console_assign (stderr, "serial");
-	}
-#endif
-
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	printf (CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
@@ -199,14 +191,8 @@ static __inline__ int abortboot(int bootdelay)
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
-	if (abort) {
-		/* permanently enable normal console output */
-		gd->flags &= ~(GD_FLG_SILENT);
-	} else if (gd->flags & GD_FLG_SILENT) {
-		/* Restore silent console */
-		console_assign (stdout, "nulldev");
-		console_assign (stderr, "nulldev");
-	}
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
 #endif
 
 	return abort;
@@ -221,14 +207,6 @@ static int menukey = 0;
 static __inline__ int abortboot(int bootdelay)
 {
 	int abort = 0;
-
-#ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT) {
-		/* Restore serial console */
-		console_assign (stdout, "serial");
-		console_assign (stderr, "serial");
-	}
-#endif
 
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT, bootdelay);
@@ -245,7 +223,7 @@ static __inline__ int abortboot(int bootdelay)
 		if (tstc()) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
 			puts ("\b\b\b 0");
-			abort = 1; 	/* don't auto boot	*/
+			abort = 1;	/* don't auto boot	*/
 		}
 	}
 #endif
@@ -275,14 +253,8 @@ static __inline__ int abortboot(int bootdelay)
 	putc ('\n');
 
 #ifdef CONFIG_SILENT_CONSOLE
-	if (abort) {
-		/* permanently enable normal console output */
-		gd->flags &= ~(GD_FLG_SILENT);
-	} else if (gd->flags & GD_FLG_SILENT) {
-		/* Restore silent console */
-		console_assign (stdout, "nulldev");
-		console_assign (stderr, "nulldev");
-	}
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
 #endif
 
 	return abort;
@@ -1219,6 +1191,8 @@ static void process_macros (const char *input, char *output)
 
 	if (outputcnt)
 		*output = 0;
+	else
+		*(output - 1) = 0;
 
 #ifdef DEBUG_PARSER
 	printf ("[PROCESS_MACROS] OUTPUT len %d: \"%s\"\n",
@@ -1362,7 +1336,7 @@ int run_command (const char *cmd, int flag)
 
 		/* Did the user stop this? */
 		if (had_ctrlc ())
-			return 0;	/* if stopped then not repeatable */
+			return -1;	/* if stopped then not repeatable */
 	}
 
 	return rc ? rc : repeatable;

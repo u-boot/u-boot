@@ -38,7 +38,9 @@
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
 #endif
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
-#define CONFIG_SYS_CLK_FREQ	33000000	/* external freq to pll	*/
+/* Detect Sequoia PLL input clock automatically via CPLD bit		*/
+#define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
+				33333333 : 33000000)
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
@@ -166,11 +168,18 @@
 /*
  * Now the NAND chip has to be defined (no autodetection used!)
  */
-#define CFG_NAND_PAGE_SIZE	(512)		/* NAND chip page size		*/
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
 #define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
-#define CFG_NAND_PAGE_COUNT	(32)		/* NAND chip page count		*/
-#define CFG_NAND_BAD_BLOCK_POS	(5)		/* Location of bad block marker	*/
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
 #undef CFG_NAND_4_ADDR_CYCLE			/* No fourth addr used (<=32MB)	*/
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
 #ifdef CFG_ENV_IS_IN_NAND
 /*

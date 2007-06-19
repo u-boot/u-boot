@@ -173,9 +173,6 @@ endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
-ifeq ($(CPU),mpc86xx)
-OBJS += cpu/$(CPU)/resetvec.o
-endif
 ifeq ($(CPU),bf533)
 OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
 OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
@@ -196,6 +193,9 @@ LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
+endif
+ifeq ($(CPU),ixp)
+LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
@@ -219,7 +219,7 @@ LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
 LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
-LIBS += $(BOARDLIBS)
+LIBS += libfdt/libfdt.a
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)
@@ -1014,6 +1014,15 @@ xtract_4xx = $(subst _25,,$(subst _33,,$(subst _BA,,$(subst _ME,,$(subst _HI,,$(
 acadia_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx acadia amcc
 
+acadia_nand_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/acadia
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a acadia ppc ppc4xx acadia amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/acadia/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
@@ -1034,6 +1043,15 @@ ASH405_config:	unconfig
 
 bamboo_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bamboo amcc
+
+bamboo_nand_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)nand_spl
+	@mkdir -p $(obj)board/amcc/bamboo
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a bamboo ppc ppc4xx bamboo amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 bubinga_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bubinga amcc
@@ -1623,6 +1641,19 @@ r5200_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
+MPC8313ERDB_33_config \
+MPC8313ERDB_66_config: unconfig
+	@echo "" >include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "...33M ..." ; \
+		echo "#define CFG_33MHZ" >>include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		echo -n "...66M..." ; \
+		echo "#define CFG_66MHZ" >>include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
@@ -1729,11 +1760,17 @@ MPC8560ADS_config:	unconfig
 MPC8541CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8541cds cds
 
+MPC8544DS_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8544ds freescale
+
 MPC8548CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8548cds cds
 
 MPC8555CDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8555cds cds
+
+MPC8568MDS_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
@@ -1769,6 +1806,17 @@ sbc8560_66_config:      unconfig
 
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
+
+stxssa_config		\
+stxssa_4M_config:	unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _4M_,$@)" ] ; then \
+		echo "#define CONFIG_STXSSA_4M" >>$(obj)include/config.h ; \
+		echo "... with 4 MiB flash memory" ; \
+	else \
+		>$(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa
 
 TQM8540_config		\
 TQM8541_config		\
@@ -2088,7 +2136,10 @@ evb4510_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t evb4510
 
 lpc2292sodimm_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm720t lpc2292sodimm
+	@$(MKCONFIG) $(@:_config=) arm arm720t lpc2292sodimm NULL lpc2292
+
+SMN42_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm720t SMN42 siemens lpc2292
 
 #########################################################################
 ## XScale Systems

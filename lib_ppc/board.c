@@ -76,7 +76,7 @@
 extern int update_flash_size (int flash_size);
 #endif
 
-#if defined(CONFIG_SOLIDCARD3)
+#if defined(CONFIG_SC3)
 extern void sc3_read_eeprom(void);
 #endif
 
@@ -309,10 +309,6 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_rsr,
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
-
-#if defined(CONFIG_MPC83XX)
-	print_clock_conf,
-#endif
 
 	checkcpu,
 #if defined(CONFIG_MPC5xxx)
@@ -568,7 +564,9 @@ void board_init_f (ulong bootflag)
 
 	bd->bi_procfreq = gd->cpu_clk;	/* Processor Speed, In Hz */
 	bd->bi_plb_busfreq = gd->bus_clk;
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
 #elif defined(CONFIG_XILINX_ML300)
@@ -822,7 +820,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif	/* CONFIG_405GP, CONFIG_405EP */
 #endif	/* CFG_EXTBDINFO */
 
-#if defined(CONFIG_SOLIDCARD3)
+#if defined(CONFIG_SC3)
 	sc3_read_eeprom();
 #endif
 	s = getenv ("ethaddr");
@@ -931,7 +929,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined(CONFIG_KUP4X)	|| \
     defined(CONFIG_LWMON)	|| \
     defined(CONFIG_PCU_E)	|| \
-    defined(CONFIG_SOLIDCARD3)	|| \
+    defined(CONFIG_SC3)		|| \
     defined(CONFIG_W7O)		|| \
     defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */

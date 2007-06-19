@@ -53,12 +53,16 @@ int checkcpu (void)
 #else
 	svr = get_svr();
 	pvr = get_pvr();
-	switch (SVR_VER (svr)) {
-	case SVR_MPC5200:
-		printf ("MPC5200");
+
+	switch (pvr) {
+	case PVR_5200:
+		printf("MPC5200");
+		break;
+	case PVR_5200B:
+		printf("MPC5200B");
 		break;
 	default:
-		printf ("MPC52??  (SVR %08x)", svr);
+		printf("Unknown MPC5xxx");
 		break;
 	}
 
@@ -125,6 +129,10 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		*p = cpu_to_be32(bd->bi_ipbfreq);
 
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/mac-address", &len);
+	if (p != NULL)
+		memcpy(p, bd->bi_enetaddr, 6);
+
+	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/local-mac-address", &len);
 	if (p != NULL)
 		memcpy(p, bd->bi_enetaddr, 6);
 }

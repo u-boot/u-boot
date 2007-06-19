@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -277,87 +277,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-/*----------------------------------------------------------------------------+
-  | nand_reset.
-  |   Reset Nand flash
-  |   This routine will abort previous cmd
-  +----------------------------------------------------------------------------*/
-int nand_reset(ulong addr)
-{
-	int wait=0, stat=0;
-
-	out8(addr + NAND_CMD_REG, NAND0_CMD_RESET);
-	out8(addr + NAND_CMD_REG, NAND0_CMD_READ_STATUS);
-
-	while ((stat != 0xc0) && (wait != 0xffff)) {
-		stat = in8(addr + NAND_DATA_REG);
-		wait++;
-	}
-
-	if (stat == 0xc0) {
-		return 0;
-	} else {
-		printf("NAND Reset timeout.\n");
-		return -1;
-	}
-}
-
-void board_nand_set_device(int cs, ulong addr)
-{
-	/* Set NandFlash Core Configuration Register */
-	out32(addr + NAND_CCR_REG, 0x00001000 | (cs << 24));
-
-	switch (cs) {
-	case 1:
-		/* -------
-		 *  NAND0
-		 * -------
-		 * K9F1208U0A : 4 addr cyc, 1 col + 3 Row
-		 * Set NDF1CR - Enable External CS1 in NAND FLASH controller
-		 */
-		out32(addr + NAND_CR1_REG, 0x80002222);
-		break;
-
-	case 2:
-		/* -------
-		 *  NAND1
-		 * -------
-		 * K9K2G0B : 5 addr cyc, 2 col + 3 Row
-		 * Set NDF2CR : Enable External CS2 in NAND FLASH controller
-		 */
-		out32(addr + NAND_CR2_REG, 0xC0007777);
-		break;
-	}
-
-	/* Perform Reset Command */
-	if (nand_reset(addr) != 0)
-		return;
-}
-
-void nand_init(void)
-{
-	board_nand_set_device(1, CFG_NAND_ADDR);
-
-	nand_probe(CFG_NAND_ADDR);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-
-#if 0 /* NAND1 not supported yet */
-	board_nand_set_device(2, CFG_NAND2_ADDR);
-
-	nand_probe(CFG_NAND2_ADDR);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-#endif
-}
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
-
 int checkboard(void)
 {
 	char *s = getenv("serial#");
@@ -372,6 +291,7 @@ int checkboard(void)
 	return (0);
 }
 
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 /*************************************************************************
  *
  * init_spd_array -- Bamboo has one bank onboard sdram (plus DIMM)
@@ -426,10 +346,12 @@ static void init_spd_array(void)
 	cfg_simulate_spd_eeprom[25]    = 0x00;    /* SDRAM Cycle Time (cas latency 1.5) = N.A */
 	cfg_simulate_spd_eeprom[12]    = 0x82;    /* refresh Rate Type: Normal (15.625us) + Self refresh */
 }
+#endif
 
 long int initdram (int board_type)
 {
-	long dram_size = 0;
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
+	long dram_size;
 
 	/*
 	 * First write simulated values in eeprom array for onboard bank 0
@@ -439,6 +361,9 @@ long int initdram (int board_type)
 	dram_size = spd_sdram();
 
 	return dram_size;
+#else
+	return CFG_MBYTES_SDRAM << 20;
+#endif
 }
 
 #if defined(CFG_DRAM_TEST)
@@ -962,11 +887,11 @@ void ext_bus_cntlr_init(void)
 		/*------------------------------------------------------------------------- */
 	case BOOT_FROM_NAND_FLASH0:
 		/*------------------------------------------------------------------------- */
-		ebc0_cs0_bnap_value = 0;
-		ebc0_cs0_bncr_value = 0;
+		ebc0_cs0_bnap_value = EBC0_BNAP_NAND_FLASH;
+		ebc0_cs0_bncr_value = EBC0_BNCR_NAND_FLASH_CS1;
 
-		ebc0_cs1_bnap_value = EBC0_BNAP_NAND_FLASH;
-		ebc0_cs1_bncr_value = EBC0_BNCR_NAND_FLASH_CS1;
+		ebc0_cs1_bnap_value = 0;
+		ebc0_cs1_bncr_value = 0;
 		ebc0_cs2_bnap_value = 0;
 		ebc0_cs2_bncr_value = 0;
 		ebc0_cs3_bnap_value = 0;
@@ -1490,10 +1415,10 @@ void update_ndfc_ios(void)
 	gpio_tab[GPIO0][6].in_out = GPIO_OUT;	    /* EBC_CS_N(1) */
 	gpio_tab[GPIO0][6].alt_nb = GPIO_ALT1;
 
-#if 0
 	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(2) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 
+#if 0
 	gpio_tab[GPIO0][7].in_out = GPIO_OUT;	    /* EBC_CS_N(3) */
 	gpio_tab[GPIO0][7].alt_nb = GPIO_ALT1;
 #endif
@@ -1981,12 +1906,21 @@ void configure_ppc440ep_pins(void)
 	{
 		update_ndfc_ios();
 
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
 		      SDR0_CUST0_NDFC_ENABLE	|
 		      SDR0_CUST0_NDFC_BW_8_BIT	|
 		      SDR0_CUST0_NDFC_ARE_MASK	|
 		      SDR0_CUST0_CHIPSELGAT_EN1 |
 		      SDR0_CUST0_CHIPSELGAT_EN2);
+#else
+		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
+		      SDR0_CUST0_NDFC_ENABLE	|
+		      SDR0_CUST0_NDFC_BW_8_BIT	|
+		      SDR0_CUST0_NDFC_ARE_MASK	|
+		      SDR0_CUST0_CHIPSELGAT_EN0 |
+		      SDR0_CUST0_CHIPSELGAT_EN2);
+#endif
 
 		ndfc_selection_in_fpga();
 	}

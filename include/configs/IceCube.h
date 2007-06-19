@@ -167,9 +167,9 @@
  * IPB Bus clocking configuration.
  */
 #if defined(CONFIG_LITE5200B)
-#define CFG_IPBSPEED_133 	/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK 	/* define for 133MHz speed */
 #else
-#undef CFG_IPBSPEED_133   	/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK   	/* define for 133MHz speed */
 #endif
 #endif /* CONFIG_MPC5200 */
 
@@ -182,7 +182,7 @@
 
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
+#define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 
 /*

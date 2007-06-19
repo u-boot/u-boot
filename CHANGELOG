@@ -1,3 +1,1354 @@
+commit c440bfe6d6d92d66478a7e84402b31f48413617b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jun 6 11:42:13 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Acadia (405EZ) eval board
+
+    This patch adds NAND booting support for the AMCC Acadia eval board.
+
+    Please make sure to configure jumper J7 to position 2-3 when booting
+    from NOR, and to position 1-2 when booting for NAND.
+
+    I also added a board command to configure the I2C bootstrap EEPROM
+    values. Right now only 267MHz is support for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 267 nor	;to configure the board for 267MHz NOR booting
+    => bootstrap 267 nand	;to configure the board for 267MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 32922cdc470fdfd39bea0c1c4f582d3fb340421e
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Jun 5 12:30:52 2007 -0500
+
+    mpc8641 image size cleanup
+
+    e600 does not have a bootpg restriction.
+    Move the version string to beginning of image at fff00000.
+    Resetvec.S is not needed.
+    Update flash copy instructions.
+    Add tftpflash env variable
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e3cbe1f93c5722f8ebbad468e30c069a2b511097
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Mon Jun 4 08:36:05 2007 +0200
+
+    [PATCH] Fix ppc4xx bootstrap letter displayed on startup
+
+    The attached patch is mainly cosmetic, allowing u-boot to
+    display the correct bootstrap option letter according to the
+    datasheets.
+
+    The original patch was extended with 405EZ support by Stefan
+    Roese.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 18d156eb37c90fadc8ec7a81a3b89176161f85b7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 16:18:17 2007 +0200
+
+    ppc4xx: Add missing file for Bamboo NAND booting support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 155a96478a0881e6da96cbbbcf34952d6a3b1b4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:58:19 2007 +0200
+
+    ppc4xx: Undo Sequoia patch for dynamic EBC speed support of 83MHz
+
+    This patch undoes the patch by Jeff Mann with commit-id ada4697d. As
+    suggested by AMCC it is not recommended to dynamically change the EBC
+    speed after bootup. So we undo this change to be on the safe side.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9d9096043e8f713d4bf1743d32e1459e6a11644b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:29:04 2007 +0200
+
+    ppc4xx: Update Sequoia NAND booting support with ECC
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cf959c7d6687567c308e366e9581e1a5aff5cc5b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:27:11 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Bamboo (440EP) eval board
+
+    This patch adds NAND booting support for the AMCC Bamboo eval board.
+    Since the NAND-SPL boot image is limited to 4kbytes, this version
+    only supports the onboard 64MBytes of DDR. The DIMM modules can't be
+    supported, since the setup code for I2C DIMM autodetection and
+    configuration is too big for this NAND bootloader.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42be56f53c8b107868e6125c8524ae84293e95a7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:23:04 2007 +0200
+
+    NAND: Add ECC support to NAND booting support in nand_spl/nand_boot.c
+
+    The U-Boot NAND booting support is now extended to support ECC
+    upon loading of the NAND U-Boot image.
+
+    Tested on AMCC Sequoia (440EPx) and Bamboo (440EP).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a471db07fbb65a841ffc9f4f112562b945230f98
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:19:29 2007 +0200
+
+    ppc4xx: Prepare Bamboo port for NAND booting support
+
+    This patch updates the "normal" Bamboo NOR booting port, so
+    that it is compatible with the coming soon NAND booting
+    Bamboo port.
+
+    It also enables the 2nd NAND flash on the Bamboo.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 53ad02103fb8be4138a9937a8ab91fcdff7b4987
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:16:58 2007 +0200
+
+    ppc4xx: Update in_be32() functions and friends to latest Linux version
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 91da09cfbce0c1de05d6d84aa8363d666fa7ea3c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:15:12 2007 +0200
+
+    NAND: Add hardware ECC support to the PPC4xx NAND driver ndfc.c
+
+    This patch adds hardware ECC support to the NDFC driver. It also
+    changes the register access from using the "simple" in32/out32
+    functions to the in_be32/out_be32 functions, which make sure
+    that the access is correctly synced. This is the only recommended
+    access to SoC registers in the current Linux kernel.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 17b5e862287cca76f19dcf8b741e61a7d06617f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:12:15 2007 +0200
+
+    NAND: Update nand_ecc.c to latest Linux version
+
+    This patch updates the nand_ecc code to the latest Linux version.
+    The main reason for this is the more compact code. This makes
+    it possible to include the ECC code into the NAND bootloader
+    image (NAND_SPL) for PPC4xx.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d2d432760d2199d0e8558fdd9d1789b8131abcf7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:09:50 2007 +0200
+
+    ppc4xx: 44x DDR driver code cleanup and small fix for Bamboo
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbed2803a2ad0521c7362f5d3e065f99abaedc
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:24 2007 +0200
+
+    ppc4xx: Change Luan config file to support ECC
+
+    With the updated 44x DDR2 driver the Luan board now supports
+    ECC generation and checking.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7187db73491c8de0fb56efb5e5134ba5ec443089
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:00 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Add config option for 180 degree advance clock control as needed
+    for the AMCC Luan eval board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ee1529838abbfaa35f14e3ffbeaaba693159475f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 31 17:20:09 2007 +0200
+
+    Add support for STX GP3SSA (stxssa) Board with 4 MiB flash.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7049288fb1f16f1b317140226cdebd07bd416395
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:26:46 2007 +0200
+
+    Motion-PRO: Code cleanup, fix of a typo in OF_STDOUT_PATH.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 4520fd4d2c450da49637216aa0e53739b61c60ac
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:06:36 2007 +0200
+
+    Motion-PRO: Add support for redundant environment.
+
+    Enable redundant environment, add a MTD partition for it; also add env.
+    variable command for passing MTD partitions to the kernel command line.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a26eabeec31746f06d309103690892805696e344
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:05:11 2007 +0200
+
+    Motion-PRO: Change maximum console buffer size from 256 to 1024 bytes.
+
+    Allow passing longer command line to the kernel - useful especially
+    for passing MTD partition layout.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9160b96f71483a116de81c68985e8ee306d36764
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:04:18 2007 +0200
+
+    Fix: Add missing NULL termination in strings expanded by macros parser.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 630ec84aef7228fc1dbfb38dec78541403a786cd
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:03:37 2007 +0200
+
+    Motion-PRO: Update EEPROM's page write bits and write delay.
+
+    Change EEPROM configuration according to the datasheet: "The 24C01A and 24C02A
+    have a page write capability of two bytes", and "This device offers fast (1ms)
+    byte write". Add 3ms of extra delay.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c00125e07c1ebc125bab40e1e18bceed8be0c162
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:58:45 2007 +0200
+
+    MPC5XXX, Motion-PRO: Fix PHY initialization problem.
+
+    After being reset in mpc5xxx_fec_init_phy(), PHY goes into FX mode, in which
+    networking does not function. This commit switches PHY to TX mode by clearing
+    the FX_SEL bit of Mode Control Register. It also reverses commit
+    008861a2f3ef2c062744d733787c7e530a1b8761, i.e., a temporary workaround.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 93b78f534a6e708b4cf1a4ffb4d8438c67a007db
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:57:15 2007 +0200
+
+    Motion-PRO: Add support for the temperature sensor.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c75e639630cc132dc19cd1ecda5922c0db0bfbba
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:55:23 2007 +0200
+
+    Motion-PRO: Add displaying of CPLD revision information during boot.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c99512d6bd3973f01ca2fc4896d829b46e68f150
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:53:43 2007 +0200
+
+    MPC5xxx: Change names of defines related to IPB and PCI clocks.
+
+    Both CFG_PCISPEED_66 and CFG_IPBSPEED_133 are misnamed, as defining
+    them does not cause PCI or IPB clocks to run at the specified speed.
+    Instead, they configure divisors used to calculate said clocks. This
+    patch renames the defines according to their real function.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a11c0b85dc3664bb3c1e781137118730c8f619ab
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:51:48 2007 +0200
+
+    Motion-PRO: Add LED support.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit d756894722c888d09a9fa1df8323753772d3dcce
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 09:49:00 2007 +0200
+
+    ppc4xx: Fix small 405EZ OCM initilization bug in start.S
+
+    As pointed out by Bruce Adler <bruce.adler@acm.org> this patch
+    fixes a small bug in the 405EZ OCM initialization. Thanks for
+    spotting.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5d4a179013d59a76446462e1eb0a969fba63eb81
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 08:22:09 2007 +0200
+
+    ppc4xx: Update AMCC Acadia support for board revision 1.1
+
+    This patch updates the Acadia (405EZ) support for the new 1.1 board
+    revision. It also adds support for NAND FLASH via the 4xx NDFC.
+
+    Please note that the jumper J7 must be in position 2-3 for this
+    NAND support. Position 1-2 is for NAND booting only. NAND booting
+    support will follow later.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9f0077abd69f7a7c756a915b961037302be3e6f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:48:09 2007 +0200
+
+    ppc4xx: Use do { ... } while (0) for CPR & SDR access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f3dfc139a838b0841c151efe00ad47db2366e79
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:46:10 2007 +0200
+
+    ppc4xx: Add 405 support to 4xx NAND driver ndfc.c
+
+    This patch adds support for 405 PPC's to the 4xx NAND driver
+    ndfc.c. This is in preparation for the new AMCC 405EZ.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 10603d76767426be803dadd4fb688b97eb69481c
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 21 07:41:22 2007 +0200
+
+    ppc4xx: Fix problem in 405EZ OCM initialization
+
+    As spotted by Bruce Adler this patch fixes an initialization problem
+    for the 405EZ OCM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3e3b956906eba9e4ad7931581ecedaad10eccce8
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 16:47:03 2007 +0100
+
+    Reduce line lengths to 80 characters max.
+
+commit 93ef45c9ddfdd9fc17c4e74bd8e2f2456580eb72
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:34:07 2007 +0100
+
+    Makefile permissions
+
+commit 1443a31457d68f7e8f0b9403e9832ec1e79dc59d
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:33:11 2007 +0100
+
+    Makefile permissions
+
+commit 70124c2602ae2d4c5d3dba05b482d91548242de8
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed May 16 14:49:12 2007 +0200
+
+    Fix compile problem cause my Microblaze merge
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit ada4697d0230d6da552867777f98a67ec3ba2579
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Wed May 16 13:23:10 2007 +0200
+
+    [PATCH] Run new sequoia boards with an EBC speed of 83MHz
+
+    Because the Sequoia board does not boot with an EBC faster than 66MHz,
+    the clock divider are changed after the initial boot process.
+
+    This allows for maximum clocking speeds  to be achieved on newer boards.
+    Sequoia boards with 666.66 MHz processors require that the EBC divider
+    be set to 3 in order to start the initial boot process at a slower EBC
+    speed. After the initial boot process, the divider can be set back to 2,
+    which will cause the boards to run at 83.333MHz. This is backward
+    compatible with boards with 533.33 MHz processors, as these boards will
+    already be set with an EBC divider of 2.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+
+commit a7676ea7732f3c596805079fed7e5c9fac652cfc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 16 01:16:53 2007 +0200
+
+    Minor Coding Style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d62f64cc23a940eafe712c776b3249e4160753d1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 16 00:13:33 2007 +0200
+
+    Coding Style Cleanup, new CHANGELOG
+
+commit 61936667e86a250ae12fd2dc189d3588f0a59e0b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:49 2007 +0200
+
+    ppc4xx: Add mtcpr/mfcpr access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 343c48bd84606c4025c8a7c7263fda465d6e284c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:06 2007 +0200
+
+    ppc4xx: Set bd->bi_pci_busfreq on 440EPx/GRx too
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7d98ba770a7eaefa29ce927f31a0956df85bf650
+Author: Piotr Kruszynski <ppk@semihalf.com>
+Date:	Thu May 10 16:55:52 2007 +0200
+
+    [Motion-PRO] Add MTD and JFFS2 support, also add default partition
+    definition.
+
+commit 65fb6a676e821f9570a2a376dc204bf611ce5f81
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:42:44 2007 +0100
+
+    Add the board directory for SMN42
+
+commit 160131bf965785419626df6c388729fe0b597992
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:41:58 2007 +0100
+
+    Add the files for the SMN42 board
+
+commit 5c6d2b5a500f8c49670de8910150b78a41f781fc
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:40:34 2007 +0100
+
+    Remove the deleted files for the SMN42 patch
+
+commit b0d8f5bf0d215adc9424cb228b2484dbf07f7761
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:37:56 2007 +0100
+
+    New board SMN42 branch
+
+commit 29f3be0caf0799ca6b89dfd9824c15619a50000f
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 10:24:38 2007 +0100
+
+    Makefile permissions
+
+commit b84289b595731e8851df46e893845cc1322c9b9b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue May 8 14:17:07 2007 -0500
+
+    8641hpcn: Fix Makefile after moving pixis to board/freescale.
+
+    The OBJTREE != SRCTREE build scenario was broken.
+    This fixes it.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e69f66c6ebe82bbbd1da766bc4eda40ec7ee5af1
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 15:57:43 2007 +0200
+
+    add: reading special purpose registers
+
+commit 1a50f164beb065f360fbddb76029607d6b099698
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 14:52:52 2007 +0200
+
+    add: Microblaze V5 exception handling
+
+commit ab874d5047e5d30dbc1e517ff26083efffa98ecb
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue May 8 14:39:11 2007 +0200
+
+    add: FSL control read and write
+
+commit de1de02a7cbf05e6b63e0d8ffc624f12493f6ba3
+Author: Piotr Kruszynski <ppk@semihalf.com>
+Date:	Tue May 8 13:05:44 2007 +0200
+
+    [Motion-PRO] Add support for I2C, EEPROM and RTC.
+
+commit fa5c2ba123b1bf88455bfc21db5e786ca045029d
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 10:23:56 2007 +0200
+
+    [Motion-PRO] Add ATA support. Add CF-booting commands to the default
+    environment.
+
+commit 06241d50a3ab1b20a0b08baeeaffcaa23ae4b839
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 09:39:12 2007 +0200
+
+    [Motion-PRO] Change IPB clock frequency from 50MHz to 100MHz. This
+    eliminates networking problems in Linux (timeouts).
+
+commit 1f1369c34b629be94702684d41d3fddf0f6193e7
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue May 8 09:21:57 2007 +0200
+
+    [Motion-PRO] Enable Flat Device Tree support and modify default environment
+    to allow booting of FDT-expecting kernels.
+
+commit fb05f6da35ea1c15c553abe6f23f656bf18dc5db
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 23:58:31 2007 +0200
+
+    new: USE_MSR_INTR support
+
+commit 008861a2f3ef2c062744d733787c7e530a1b8761
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Mon May 7 22:36:15 2007 +0200
+
+    [MPC5xxx] There are networking problems on the Motion-PRO board with
+    current PHY initalization code (tftp timeouts all the time). This commit
+    temporarily disables PHY initalization sequence to make the networking
+    operational, until a fix is found.
+
+commit abca901869c3760b6c5fecb825db6c1d91a78a93
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 7 22:10:36 2007 +0200
+
+    Get rid of duplicated file (see include/configs/sbc8560.h instead)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 207b7b2c9d9752e0f6478c30c29b7087f6e6cbb6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 7 22:07:08 2007 +0200
+
+    Get rid of duplicated file (see doc/README.SBC8560 instead)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a7bac7e9b57ba948051beb19ec5be3a75ce75383
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:43:10 2007 +0200
+
+    fix: read and write MSR - repair number of parameters
+
+commit 193b4a3bb3acaddf798da8de0da05d94ba8774ee
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon May 7 19:42:49 2007 +0200
+
+    [PATCH] ppc4xx: Fix CONFIG_SYS_CLK_FREQ definition in Sequoia config file
+
+    A '3' got cut off in the formatting of the last patch to automatically
+    change the clock speed of the system clock on sequoia board.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 19bf1fbad7f19d5a120be9b1daf136e052fcab39
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:33:51 2007 +0200
+
+    new: fsl interrupt support
+    FSL_Has_data is connected to INTC.
+
+commit 792032baa7d625e34c981ab6df521911bd8dc861
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:30:12 2007 +0200
+
+    fix: interrupt handler
+    remove asm code
+
+commit f3f001a341ef185d0f13841be5b5dc3395aacc31
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:25:08 2007 +0200
+
+    fix: remove asm code
+
+commit fb7c2dbef02c9f6f8d7b04ec4c2bfb91418b9c01
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 19:12:43 2007 +0200
+
+    fix: clean interrupt
+
+commit 42efed6130c8fcf7da881385b5427065d2801757
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 17:22:25 2007 +0200
+
+    fix: interrupt handler for multiple sources
+
+commit 48fbd3a4cdabbebc1debd7eed73c00c2caf914f6
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon May 7 17:11:09 2007 +0200
+
+    new: add writing to msr register
+
+commit ac4cd59d59c9bf3f89cb7a344abf8184d678f562
+Author: Timur Tabi <timur@freescale.com>
+Date:	Sat May 5 08:12:30 2007 +0200
+
+    5xxx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a9d87e2707dcb249f6bb7f7ff7e00acd8cda9fd2
+Author: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+Date:	Sun Apr 29 14:01:54 2007 +0200
+
+    [PATCH] Use PVR to distinguish MPC5200B from MPC5200 in boot message
+
+    MPC5200B systems are incorrectly reported as MPC5200 in U-Boot start-up
+    message. Use PVR to distinguish between the two variants, and print proper CPU
+    information.
+
+    Signed-off-by: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 4ec5bd55ed1ffa91a774af298769621f4fbb18c1
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Apr 25 16:01:26 2007 +0200
+
+    [PATCH] simplify silent console
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit b7598a43f2b421a713d8135e98a42c37d9eb9df0
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Apr 23 15:30:39 2007 +0200
+
+    [PATCH] Avoid assigning PCI resources from zero address
+
+    If a PCI IDE card happens to get a zero address assigned to it, the Linux IDE
+    core complains and IDE drivers fails to work.  Also, assigning zero to a BAR
+    was illegal according to PCI 2.1 (the later revisions seem to have excluded the
+    sentence about "0" being considered an invalid address) -- so, use a reasonable
+    starting value of 0x1000 (that's what the most Linux archs are using).
+
+    Alternatively, one might have fixed the calls to pci_set_region() individually
+    (some code even seems to have taken care of this issue) but that would have
+    been a lot more work. :-)
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 9ffd451afeb08e5be7ddae680487ec962b2bca25
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon Apr 23 14:00:11 2007 +0200
+
+    [patch] setenv(...) can delete environmentalvariables
+
+    update setenv() function so that entering a NULL value for the
+    variable's value will delete the environmental variable
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit ebd0a0ae05a44769c4e27458ad4e9f3438250443
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Apr 23 13:54:24 2007 +0200
+
+    [patch] use unsigned char in smc91111 driver for mac
+
+    the v_mac variable in the smc91111 driver is declared as a signed char ...
+    this causes problems when one of the bytes in the MAC is "signed" like 0xE0
+    because when it gets printed out, you get a display like:
+    0xFFFFFFE0 and that's no good
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ffc50f9bb194343c6303517a517708457a5eb6b8
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat May 5 18:54:42 2007 +0200
+
+    new: FSL and MSR support #2
+
+commit f7e2e0eb0668136305f78bb9c21be79b48a34247
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat May 5 18:27:16 2007 +0200
+
+    new: FSL and MSR support
+
+commit 2f15278c2eb911c668b4fe562130b78cf554d139
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 18:23:11 2007 +0200
+
+    Coding stylke cleanup; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 885ec89b648a899a2f32393fd3ffd9f7234c4402
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 18:05:02 2007 +0200
+
+    Add STX GP3 SSA board to MAKEALL script; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5499645b3fe17a548af9dfc479ca6e2455f179a2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 5 17:15:50 2007 +0200
+
+    Make "file" command happy with some config.mk files; update CHANGELOG
+
+commit e3b8c78bc2489c27ae020986ef0eaca684866cef
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Sat May 5 08:32:14 2007 +0200
+
+    ppc4xx: Detect if the sysclk on Sequoia is 33 or 33.333 MHz
+
+    The AMCC Secquoia board has been changed in a new revision from using a
+    33.000 MHz clock to a 33.333 MHz system clock. A bit in the CPLD
+    indicates the difference. This patch reads that bit and uses the correct
+    clock speed for the board. This code is backward compatable will all
+    prior boards. All prior boards will be read as 33.000.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f544ff6656fca263ed1ebe39899b6d95da67c8b8
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat May 5 08:29:01 2007 +0200
+
+    ppc4xx: Sequoia: Remove cpu/ppc4xx/speed.c from NAND booting
+
+    Using cpu/ppc4xx/speed.c to calculate the bus frequency is too big
+    for the 4k NAND boot image so define bus_frequency to 133MHz here
+    which is save for the refresh counter setup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a79886590593ba1d667c840caa4940c61639f18f
+Author: Thomas Knobloch <knobloch@siemens.com>
+Date:	Sat May 5 07:04:42 2007 +0200
+
+    NAND: Wrong calculation of page number in nand_block_bad()
+
+    In case that there is no memory based bad block table available the
+    function nand_block_checkbad() in drivers/mtd/nand/nand_base.c will call
+    nand_block_bad() directly. When parameter 'getchip' is set to zero,
+    nand_block_bad() will not right shift the offset to calculate the
+    correct page number.
+
+    Signed-off-by: Thomas Knobloch <knobloch@siemens.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9877d7dcd1eebe61aa5d8b8ffe9c048ea426e6f6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 4 10:02:33 2007 +0200
+
+    Fix initrd length corruption in bootm command.
+
+    When using FDT Images, the length of an inital ramdisk was
+    overwritten (bug introduced by commit 87a449c8, 22 Aug 2006).
+
+    Patches by Timur Tabi & Johns Daniel.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 068aab660bc3912b930be5540e6b3f3fd6ad3c96
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu May 3 19:43:52 2007 -0500
+
+    mpc83xx: fix trivial error in MAKEALL
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c64a89d6ce8584b9fc64f4e85da9ecac3cfc2c2a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 3 16:34:41 2007 +0200
+
+    Update board configuration for STX GP3SSA board:
+
+    Enable hush shell, environment in flash rather in EEPROM,
+    more user-friendly default environment, etc.
+    The simple EEPROM environment can be selected easily in the board
+    config file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2c6fb199dc5756fc72f49d1f4de105e089049d65
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 24 14:37:49 2007 +0200
+
+    Cleanup STX GP3SSA code; fix build and compile problems.
+
+commit 35171dc04e028ecacc23ad916a66295472555dbf
+Author: Dan Malek <dan@embeddedalley.com>
+Date:	Fri Jan 5 09:15:34 2007 +0100
+
+    Add support for STX GP3SSA (stxssa) Board
+
+    Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit ffa621a0d12a1ccd81c936c567f8917a213787a8
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Sat Feb 24 01:08:13 2007 -0600
+
+    Cleaned up some 85xx PCI bugs
+
+    * Cleaned up the CDS PCI Config Tables and added NULL entries to
+      the end
+    * Fixed PCIe LAWBAR assignemt to use the cpu-relative address
+    * Fixed 85xx PCI code to assign powar region sizes based on the
+      config values (rather than hard-coding them)
+    * Fixed the 8548 CDS PCI2 IO to once again have 0 as the base address
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 6743105988fc44d5b0d30388c790607835aae7a6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:54:25 2007 -0500
+
+    Add support for the 8568 MDS board
+
+    This included some changes to common files:
+    * Add 8568 processor SVR to various places
+    * Add support for setting the qe bus-frequency value in the dts
+    * Add the 8568MDS target to the Makefile
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit af1c2b84bf27c8565baddc82d1abb93700d10e2e
+Author: David Updegraff <dave@cray.com>
+Date:	Fri Apr 20 14:34:48 2007 -0500
+
+    Add support for treating unknown PHYs as generic PHYs.
+
+    When bringing up u-boot on new boards, PHY support sometimes gets
+    neglected.	Most PHYs don't really need any special support,
+    though.  By adding a generic entry that always matches if nothing
+    else does, we can provide support for "unsupported" PHYs for the
+    tsec.
+
+    The generic PHY driver supports most PHYs, including gigabit.
+
+    Signed-off-by: David Updegraff <dave@cray.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit a75af9bfd8fff0499efdbb90601cec5a2afef117
+Author: James Yang <James.Yang@freescale.com>
+Date:	Wed Feb 7 15:28:04 2007 -0600
+
+    Conditionalize 8641 Rev1.0 MCM workarounds
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f64702b7fc8f8df39d31add770df6e372f9e9ce3
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Apr 30 13:59:50 2007 -0500
+
+    Fix memory initialization on MPC8349E-mITX
+
+    Define CFG_DDR_SDRAM_CLK_CNTL for the MPC8349E-mITX and MPC8349E-mITX-GP.
+    This allows ddr->sdram_clk_cntl to be properly initialized.  This is necessary
+    on some ITX boards, notably those with a revision 3.1 CPU.
+
+    Also change spd_sdram() in cpu/mpc83xx/spd_sdram.c to not write anything into
+    ddr->sdram_clk_cntl if CFG_DDR_SDRAM_CLK_CNTL is not defined.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Michael Benedict <MBenedict@twacs.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 54b2d434ae9d01787936f34fe1759cf3d7624ae3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Apr 30 15:26:21 2007 -0500
+
+    mpc83xx: replace elaborate boottime verbosity with 'clocks' command
+
+    and fix CPU: to align with Board: display text.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c1ab82669d9525998c34e802a12cad662723f22a
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Mar 16 13:02:53 2007 -0500
+
+    Rewrote picos_to_clk() to avoid rounding errors.
+    Clarified that conversion is to DRAM clocks rather than platform clocks.
+    Made function static to spd_sdram.c.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8b39501d28754e72726ce7fb02310e56dbdf116a
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Apr 29 14:13:01 2007 +0200
+
+    ppc4xx: Bamboo: Use current NAND driver and *not* the legacy driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5c5d3242935cf3543af01142627494434834cf98
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Apr 25 12:34:38 2007 -0500
+
+    mpc83xx: minor fixups for 8313rdb introduction
+
+commit 144876a380f5756f57412caf74c1d6dc201dd796
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Apr 24 23:01:02 2007 +0200
+
+    [PATCH] MTD partition support, JFFS2 support
+
+commit 37ed6cdd4159195bfad68d8a237f6adda8f482cb
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Apr 24 14:03:45 2007 +0200
+
+    ppc4xx: setup 440EPx/GRx ZMII/RGMII bridge depending on PFC register content.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 66ed6cca3f340f7a8a06d9272ae2ef8e96f0273d
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:37:47 2007 -0500
+
+    Reworked 85xx speed detection code
+
+    Changed the code to read the registers and calculate the clock
+    rates, rather than using a "switch" statement.
+
+    Idea from Andrew Klossner <andrew@cesa.opbu.xerox.com>
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 81f481ca708ed6a56bf9c410e3191dbad581c565
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 02:24:28 2007 -0500
+
+    Enable 8544 support
+
+    * Add support to the Makefile
+    * Add 8544 configuration support to the tsec driver
+    * Add 8544 SVR numbers to processor.h
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0d8c3a2096eaff8d7de89d45e9af4d4b0d4868fe
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 17:12:25 2007 -0600
+
+    Support 1G size on 8548
+
+    e500v2 and newer cores support 1G page sizes.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 45cef612cc601d2d1c890fbbd7cdc9609a189a46
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 17:11:16 2007 -0600
+
+    Changed BOOKE_PAGESZ_nGB to BOOKE_PAGESZ_nG
+
+    The other pagesz constants use one letter to specify order of
+    magnitude.	Also change the one reference to it in mpc8548cds/init.S
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 1f9a318cea14272edd10d63739e2d326c90f430e
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 23 16:28:46 2007 -0600
+
+    Only set ddrioovcr for 8548 rev1.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 9343dbf85bc03033f2102d8e8543567c2c1ad2d2
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Sat Feb 24 01:16:45 2007 -0600
+
+    Tweak DDR ECC error counter
+
+    Enable single-bit error counter when memory was cleared by ddr controller.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 85e7c7a45e3dd9c7ce3e722352ba60f8df1a7a4b
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Feb 12 13:34:55 2007 -0600
+
+    85xx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 03b81b48eec0ad249ec97a4ae16c36fa2e014ff4
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 01:44:44 2007 -0500
+
+    Some 85xx cpu cleanups
+
+    * Cleaned up the TSR[WIS] clearing
+    * Cleaned up DMA initialization
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 151d5d992eab8c497b24c816c73dc1ad8bffb4eb
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 23 01:32:22 2007 -0500
+
+    Add cpu support for the 8544
+
+    Recognize new SVR values, and add a few register definitions
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 25d83d7f4ac65727182d8ddaf7ba42fa74cf65ae
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Apr 11 16:51:02 2007 -0500
+
+    Add MPC8544DS basic port board files.
+
+    Add board port under new board/freescale directory
+    structure and reuse existing PIXIS FPGA support there.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0cde4b00fc7393b89f379d83a9d436dcb1334bfa
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Apr 11 16:50:57 2007 -0500
+
+    Add MPC8544DS main configuration file.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 362dd83077ac04c0296bca3e824ec2fb3d44d9d6
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Wed Dec 27 22:07:15 2006 +0300
+
+    Fix PCI I/O space mapping on Freescale MPC85x0ADS
+
+    The PCI I/O space mapping for Freescale MPC8540ADS board was broken by commit
+    52c7a68b8d587ebcf5a6b051b58b3d3ffa377ddc which failed to update the #define's
+    describing the local address window used for the PCI I/O space accesses -- fix
+    this and carry over the necessary changes into the MPC8560ADS code since the
+    PCI I/O space mapping was also broken for this board (by the earlier commit
+    087454609e47295443af793a282cddcd91a5f49c).	Add the comments clarifying how
+    the PCI I/O space must be mapped to all the MPC85xx board config. headers.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+
+     board/mpc8540ads/init.S	  |    4 ++--
+     board/mpc8560ads/init.S	  |    4 ++--
+     include/configs/MPC8540ADS.h |    5 ++---
+     include/configs/MPC8541CDS.h |    2 +-
+     include/configs/MPC8548CDS.h |    2 +-
+     include/configs/MPC8560ADS.h |    8 ++++----
+     6 files changed, 12 insertions(+), 13 deletions(-)
+
+commit 96629cbabdb727d4a5e62542deefc01d498db6dc
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Tue Dec 5 16:42:30 2006 +0800
+
+    u-boot: Fix e500 v2 core reset bug
+
+    The following patch fixes the e500 v2 core reset bug.
+    For e500 v2 core, a new reset control register is added to reset the
+    processor.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 63247a5acd58032e6cf33f525bc3923b467bac88
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Wed Dec 20 11:01:00 2006 +0800
+
+    u-boot: v2: Remove the fixed TLB and LAW entrynubmer
+
+    Remove the fixed TLB and LAW entry nubmer. Use actually TLB and LAW
+    entry number to control the loop.  This can reduce the potential risk
+    for the 85xx processor increasing its TLB adn LAW entry number.
+
+    Signed-off-by: Swarthout Edward <swarthout@freescale.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 0b1934ba12fd408fcc3b8bd9f4b04864c42a42bf
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Mon Dec 18 17:01:04 2006 +0800
+
+    u-boot: Fix the 85xxcds tsec bug
+
+    Fix the 85xxcds tsec bug.
+    When enable PCI, tsec.o should be added to u-boot.lds to make tsec work.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 7337b237ffc4aaf1b9467024fe472a880d852598
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Fri Dec 15 14:43:31 2006 +0800
+
+    u-boot: Fix CPU2 errata on MPC8548CDS board
+
+    This patch apply workaround of CPU2 errata on MPC8548CDS board.
+
+    Signed-off-by:Ebony Zhu <ebony.zhu@freescale.com>
+
+commit 39b18c4f3e0b6d0dc00f4e68bad2da3766c85f09
+Author: ebony.zhu@freescale.com <ebony.zhu@freescale.com>
+Date:	Mon Dec 18 16:25:15 2006 +0800
+
+    u-boot: Disables MPC8548CDS 2T_TIMING for DDR by default
+
+    This patch disables MPC8548CDS 2T_TIMING for DDR by default.
+
+    Signed-off-by:Ebony Zhu <ebony.zhu@freescale.com>
+
+commit 41fb7e0f1ec9b91bdae2565bab5f2e3ee15039c7
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Thu Dec 14 14:14:55 2006 +0800
+
+    u-boot: Enable PCI function and add PEX & rapidio memory map on MPC8548CDS board
+
+    Enable PCI function and add PEX & rapidio memory map on MPC8548CDS
+    board.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 96b8a05432f346f36493535c85320b70ec9c7c1b
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:54:15 2007 -0500
+
+    mpc83xx: Add MPC8313ERDB support.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 49ea3b6eafe606285ae4d5c378026153dde53200
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:21 2007 -0500
+
+    mpc83xx: Add generic PCI setup code.
+
+    Board code can now request the generic setup code rather than having to
+    copy-and-paste it for themselves.  Boards should be converted to use this
+    once they're tested with it.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 7c98e5193e93df6b9b651851d54b638a61ebb0ea
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:19 2007 -0500
+
+    mpc83xx: Add 831x support to speed.c.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0f253283a32d91e06844d7f87f9b33f4f4fbce8f
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:18 2007 -0500
+
+    mpc83xx: Add 831x support to global_data.h
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 95e7ef897e54591e615fc1b458b74c286fe1fb06
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:16 2007 -0500
+
+    mpc83xx: Change PVR_83xx to PVR_E300C1-3, and update checkcpu().
+
+    Rather than misleadingly define PVR_83xx as the specific type of 83xx
+    being built for, the PVR of each core revision is defined. checkcpu() now
+    prints the core that it detects, rather than aborting if it doesn't find
+    what it thinks it wants.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit a35b0c4950d84cf9e3a9e32b916135956d1ac636
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:34:15 2007 -0500
+
+    mpc83xx: Recognize SPR values for MPC8311 and MPC8313.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit d87c57b201b4572d16f1b642998faa00c9912b16
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Apr 16 14:31:55 2007 -0500
+
+    mpc83xx: Add register definitions for MPC831x.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 23 12:00:22 2007 +0200
+
+    Remove BOARDLIBS usage completely
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 32556443840f127170e4baa8bdd5b567039f6c36
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 21:07:22 2007 +0200
+
+    [PATCH] SystemACE support for Microblaze
+
+commit 0643631aa1036cd746bf5d15f5a34bc7bc01ea4f
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 21:02:40 2007 +0200
+
+    16bit read/write little endian
+
+commit 9d1d6a34d26c5933bc097ce73c9348f95573cdd4
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Apr 21 20:53:31 2007 +0200
+
+    Change ML401 parameters - Xilinx BSP
+
+commit 2e343b9a57f32e1bd08c35c9976910333fb4e13d
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Feb 28 05:37:29 2007 -0600
+
+    mpc8641hpcn: Fix LAW and TLB setup to use the IO_PHYS #defines.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 79cb47391eebef85acadb3f6961ef6c55cace6ac
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Fri Jan 19 10:42:37 2007 +0800
+
+    Enable LAWs for MPC8641 PCI-Ex2.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bd7851ce1e1f140665b520026abf1042968b1102
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:12:26 2007 -0500
+
+    mpc86xx; Write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7dbdf28b8bd855a8530dc3292e4982575a197060
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Apr 20 14:11:38 2007 -0500
+
+    mpc86xx: protect memcpy to bad address if a mac-address is missing from dt
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 14da5f7675bbb427c469e3f45006e027b6e21db9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 20 17:43:28 2007 +0200
+
+    Cleanup compiler warnings, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6923565db12af34fd5e02d354ee65a8c78ac460f
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Apr 20 12:01:47 2007 +0200
+
+    Fix breakage of NC650 board with respect to nand support.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 39f23cd90947639ac278a18ff277ec786b5ac167
+Author: Domen Puncer <domen.puncer@telargo.com>
+Date:	Fri Apr 20 11:13:16 2007 +0200
+
+    [RFC PATCH] icecube/lite5200b: fix OF_TBCLK (timebase-frequency) calculation
+
+    G2 core reference manual says decrementer and time base
+    are decreasing/increasing once every 4 bus clock cycles.
+    Lets fix it, so time in Linux won't run twice as fast
+
+    Signed-off-by: Domen Puncer <domen.puncer@telargo.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 7651f8bdbba03bb0b4f241e2d2c4cb65b230bd56
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Thu Apr 19 23:14:39 2007 -0400
+
+    Fix serious pointer bug with bootm and reserve map.
+
+    What was suppose to be a stack variable was declared as a pointer,
+      overwriting random memory.
+    Also moved the libfdt.a requirement into the main Makefile.  That is
+      The U-Boot Way.
+
+commit d21686263574e95cb3e9e9b0496f968b1b897fdb
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 19 09:53:52 2007 +0200
+
+    ppc4xx: Fix chip select timing for SysACE access on AMCC Katmai
+
+    Previous versions used full wait states for the chip select #1 which
+    is connected to the Xilinix SystemACE controller on the AMCC Katmai
+    evaluation board. This leads to really slow access and therefore low
+    performance. This patch now sets up the chip select a lot faster
+    resulting in much better read/write performance of the Linux driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 37837828d89084879bee2f2b8c7c68d4695940df
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 18 17:49:29 2007 +0200
+
+    Clenaup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fd094c6379e2ef8a4d0ceb5640b24cb0c8d04449
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Apr 18 17:20:58 2007 +0200
@@ -61,6 +1412,14 @@ Date:	Wed Apr 18 12:05:59 2007 +0200
     Board: Acadia - AMCC PPC405EZ Evaluation Board
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9c00dfb0bf89c8c23e8af5b5bdf49cf66d769f85
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Apr 17 13:30:33 2007 +0100
+
+    Move ppearse to ARM board list
+    Add Konstantin Kletschke for scb9328.
+    Signed-off-by: Peter Pearse <peter.pearse@arm.com>
 
 commit d3832e8fe1b214ec62424eac36cfda9fc56d21b3
 Author: Domen Puncer <domen.puncer@telargo.com>
@@ -369,6 +1728,18 @@ Date:	Fri Apr 13 08:02:24 2007 +0200
 
     Signed-of-by: Greg Lopp <lopp@pobox.com>
     Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6fbf261f8df294e589cfadebebe5468e3c0f29e9
+Author: Xie Xiaobo <r63061@freescale.com>
+Date:	Fri Mar 9 19:08:25 2007 +0800
+
+    Fix two bugs for MPC83xx DDR2 controller SPD Init
+
+    There are a few bugs in the cpu/mpc83xx/spd_sdram.c
+    the first bug is that the picos_to_clk routine introduces a huge
+    rounding error in 83xx.
+    the second bug is that the mode register write recovery field is
+    tWR-1, not tWR >> 1.
 
 commit 2ad3aba01d37b72e7c957b07e102fccd64fe6d13
 Author: Jeffrey Mann <mannj@embeddedplanet.com>

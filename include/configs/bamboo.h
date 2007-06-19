@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2006
+ * (C) Copyright 2005-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -43,7 +43,6 @@
  * 2nd ethernet port you have to "undef" the following define.
  */
 #define CONFIG_BAMBOO_NAND      1       /* enable nand flash support    */
-#define CFG_NAND_LEGACY
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -51,7 +50,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
+#define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
 #define CFG_FLASH_BASE	        0xfff00000	    /* start of FLASH	*/
 #define CFG_PCI_MEMBASE	        0xa0000000	    /* mapped pci memory*/
@@ -105,14 +104,11 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-/*
- * Define here the location of the environment variables (FLASH or EEPROM).
- * Note: DENX encourages to use redundant environment in FLASH.
- */
-#if 1
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
+#define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
+#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -134,7 +130,7 @@
 
 #ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
+#define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
@@ -142,66 +138,80 @@
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif /* CFG_ENV_IS_IN_FLASH */
 
+/*
+ * IPL (Initial Program Loader, integrated inside CPU)
+ * Will load first 4k from NAND (SPL) into cache and execute it from there.
+ *
+ * SPL (Secondary Program Loader)
+ * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
+ * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
+ * controller and the NAND controller so that the special U-Boot image can be
+ * loaded from NAND to SDRAM.
+ *
+ * NUB (NAND U-Boot)
+ * This NAND U-Boot (NUB) is a special U-Boot version which can be started
+ * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
+ *
+ * On 440EPx the SPL is copied to SDRAM before the NAND controller is
+ * set up. While still running from cache, I experienced problems accessing
+ * the NAND controller.	sr - 2006-08-25
+ */
+#define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
+#define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
+#define CFG_NAND_BOOT_SPL_DST	0x00800000	/* Copy SPL here		*/
+#define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
+#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
+#define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
+
+/*
+ * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
+ */
+#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
+#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
+
+/*
+ * Now the NAND chip has to be defined (no autodetection used!)
+ */
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
+#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
+#define CFG_NAND_4_ADDR_CYCLE	1		/* Fourth addr used (>32MB)	*/
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+
+#ifdef CFG_ENV_IS_IN_NAND
+/*
+ * For NAND booting the environment is embedded in the U-Boot image. Please take
+ * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
+ */
+#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#endif
+
 /*-----------------------------------------------------------------------
- * NAND-FLASH related
+ * NAND FLASH
  *----------------------------------------------------------------------*/
-#define NAND_CMD_REG   (0x00) /* NandFlash Command Register */
-#define NAND_ADDR_REG  (0x04) /* NandFlash Address Register */
-#define NAND_DATA_REG  (0x08) /* NandFlash Data Register */
-#define NAND_ECC0_REG  (0x10) /* NandFlash ECC Register0 */
-#define NAND_ECC1_REG  (0x14) /* NandFlash ECC Register1 */
-#define NAND_ECC2_REG  (0x18) /* NandFlash ECC Register2 */
-#define NAND_ECC3_REG  (0x1C) /* NandFlash ECC Register3 */
-#define NAND_ECC4_REG  (0x20) /* NandFlash ECC Register4 */
-#define NAND_ECC5_REG  (0x24) /* NandFlash ECC Register5 */
-#define NAND_ECC6_REG  (0x28) /* NandFlash ECC Register6 */
-#define NAND_ECC7_REG  (0x2C) /* NandFlash ECC Register7 */
-#define NAND_CR0_REG   (0x30) /* NandFlash Device Bank0 Config Register */
-#define NAND_CR1_REG   (0x34) /* NandFlash Device Bank1 Config Register */
-#define NAND_CR2_REG   (0x38) /* NandFlash Device Bank2 Config Register */
-#define NAND_CR3_REG   (0x3C) /* NandFlash Device Bank3 Config Register */
-#define NAND_CCR_REG   (0x40) /* NandFlash Core Configuration Register */
-#define NAND_STAT_REG  (0x44) /* NandFlash Device Status Register */
-#define NAND_HWCTL_REG (0x48) /* NandFlash Direct Hwd Control Register */
-#define NAND_REVID_REG (0x50) /* NandFlash Core Revision Id Register */
+#define CFG_MAX_NAND_DEVICE	2
+#define NAND_MAX_CHIPS		CFG_MAX_NAND_DEVICE
+#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
+#define CFG_NAND_BASE_LIST	{ CFG_NAND_BASE, CFG_NAND_ADDR + 2 }
+#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
-/* Nand Flash K9F1208U0A Command Set => Nand Flash 0 */
-#define NAND0_CMD_READ1_HALF1     0x00     /* Starting addr for 1rst half of registers */
-#define NAND0_CMD_READ1_HALF2     0x01     /* Starting addr for 2nd half of registers */
-#define NAND0_CMD_READ2           0x50
-#define NAND0_CMD_READ_ID         0x90
-#define NAND0_CMD_READ_STATUS     0x70
-#define NAND0_CMD_RESET           0xFF
-#define NAND0_CMD_PAGE_PROG       0x80
-#define NAND0_CMD_PAGE_PROG_TRUE  0x10
-#define NAND0_CMD_PAGE_PROG_DUMMY 0x11
-#define NAND0_CMD_BLOCK_ERASE     0x60
-#define NAND0_CMD_BLOCK_ERASE_END 0xD0
-
-#define CFG_MAX_NAND_DEVICE     1	/* Max number of NAND devices */
-#define SECTORSIZE              512
-
-#define ADDR_COLUMN             1
-#define ADDR_PAGE               2
-#define ADDR_COLUMN_PAGE        3
-
-#define NAND_ChipID_UNKNOWN     0x00
-#define NAND_MAX_FLOORS         1
-#define NAND_MAX_CHIPS          1
-
-#define WRITE_NAND_COMMAND(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_CMD_REG) = d;} while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u8 *)((ulong)adr+NAND_ADDR_REG) = d;} while(0)
-#define WRITE_NAND(d, adr)      do {*(volatile u8 *)((ulong)adr+NAND_DATA_REG) = d;} while(0)
-#define READ_NAND(adr)          (*(volatile u8 *)((ulong)adr+NAND_DATA_REG))
-#define NAND_WAIT_READY(nand)   while (!(*(volatile u8 *)((ulong)nand->IO_ADDR+NAND_STAT_REG) & 0x01))
-
-/* not needed with 440EP NAND controller */
-#define NAND_CTL_CLRALE(nandptr)
-#define NAND_CTL_SETALE(nandptr)
-#define NAND_CTL_CLRCLE(nandptr)
-#define NAND_CTL_SETCLE(nandptr)
-#define NAND_DISABLE_CE(nand)
-#define NAND_ENABLE_CE(nand)
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#define CFG_NAND_CS		1
+#else
+#define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
+/* Memory Bank 0 (NAND-FLASH) initialization					*/
+#define CFG_EBC_PB0AP		0x018003c0
+#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1c000)
+#endif
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -209,7 +219,8 @@
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for setup             */
 #undef CONFIG_DDR_ECC			/* don't use ECC			*/
 #define CFG_SIMULATE_SPD_EEPROM	0xff	/* simulate spd eeprom on this address	*/
-#define SPD_EEPROM_ADDRESS      {CFG_SIMULATE_SPD_EEPROM, 0x50, 0x51}
+#define SPD_EEPROM_ADDRESS	{CFG_SIMULATE_SPD_EEPROM, 0x50, 0x51}
+#define CFG_MBYTES_SDRAM	(64)	/* 64MB fixed size for early-sdram-init */
 
 /*-----------------------------------------------------------------------
  * I2C

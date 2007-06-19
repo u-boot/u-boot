@@ -51,6 +51,7 @@ int checkboard (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -89,6 +90,12 @@ int checkboard (void)
 	 */
 	local_bus_init ();
 
+	/*
+	 * Fix CPU2 errata: A core hang possible while executing a
+	 * msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 */
+	ecm->eebpcr |= (1 << 16);
 
 	/*
 	 * Hack TSEC 3 and 4 IO voltages.
@@ -303,11 +310,14 @@ void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_ta
 static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 	{0x10e3, 0x0513, PCI_ANY_ID, 1, 3, PCI_ANY_ID, dummy_func, {0,0,0}},
 	{0x1106, 0x0686, PCI_ANY_ID, 1, 2, 0, mpc85xx_config_via, {0,0,0}},
-	{0x1106, 0x0571, PCI_ANY_ID, 1, 2, 1, mpc85xx_config_via_usbide, {0,0,0}},
+	{0x1106, 0x0571, PCI_ANY_ID, 1, 2, 1,
+		mpc85xx_config_via_usbide, {0,0,0}},
 	{0x1105, 0x3038, PCI_ANY_ID, 1, 2, 2, mpc85xx_config_via_usb, {0,0,0}},
 	{0x1106, 0x3038, PCI_ANY_ID, 1, 2, 3, mpc85xx_config_via_usb2, {0,0,0}},
-	{0x1106, 0x3058, PCI_ANY_ID, 1, 2, 5, mpc85xx_config_via_power, {0,0,0}},
-	{0x1106, 0x3068, PCI_ANY_ID, 1, 2, 6, mpc85xx_config_via_ac97, {0,0,0}}
+	{0x1106, 0x3058, PCI_ANY_ID, 1, 2, 5,
+		mpc85xx_config_via_power, {0,0,0}},
+	{0x1106, 0x3068, PCI_ANY_ID, 1, 2, 6, mpc85xx_config_via_ac97, {0,0,0}},
+	{},
 };
 
 static struct pci_controller hose[] = {

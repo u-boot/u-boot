@@ -465,7 +465,11 @@ long int initdram(int board_type)
 	 * Set the SDRAM Clock Timing Register
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_CLKTR, val);
+#ifdef CFG_44x_DDR2_CKTR_180
+	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_180_DEG_ADV);
+#else
 	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_0_DEG);
+#endif
 
 	/*------------------------------------------------------------------
 	 * Program the BxCF registers.
@@ -1117,7 +1121,8 @@ static void program_codt(unsigned long *dimm_populated,
 				modt3 = 0x00000000;
 			}
 			if (total_rank == 4) {
-				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) | CALC_ODT_R(2) | CALC_ODT_R(3);
+				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) |
+					CALC_ODT_R(2) | CALC_ODT_R(3);
 				modt0 = CALC_ODT_RW(2);
 				modt1 = 0x00000000;
 				modt2 = CALC_ODT_RW(0);

@@ -188,7 +188,6 @@
 /*
  * NAND Flash
  */
-/* Use the new NAND code. (BOARDLIBS = drivers/nand/libnand.a required) */
 #undef CFG_NAND_LEGACY
 
 #define CFG_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */

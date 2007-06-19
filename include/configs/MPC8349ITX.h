@@ -154,6 +154,9 @@
 #define CFG_MEMTEST_START	0x1000		/* memtest region */
 #define CFG_MEMTEST_END		0x2000
 
+#define CFG_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
+				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
+
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 #endif

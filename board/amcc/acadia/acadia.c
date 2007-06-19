@@ -62,6 +62,16 @@ int board_early_init_f(void)
 
 	acadia_gpio_init();
 
+	/* Configure 405EZ for NAND usage */
+	mtsdr(sdrnand0, SDR_NAND0_NDEN | SDR_NAND0_NDAREN | SDR_NAND0_NDRBEN);
+	mfsdr(sdrultra0, reg);
+	reg &= ~SDR_ULTRA0_CSN_MASK;
+	reg |= (SDR_ULTRA0_CSNSEL0 >> CFG_NAND_CS) |
+		SDR_ULTRA0_NDGPIOBP |
+		SDR_ULTRA0_EBCRDYEN |
+		SDR_ULTRA0_NFSRSTEN;
+	mtsdr(sdrultra0, reg);
+
 	/* USB Host core needs this bit set */
 	mfsdr(sdrultra1, reg);
 	mtsdr(sdrultra1, reg | SDR_ULTRA1_LEDNENABLE);
@@ -91,8 +101,11 @@ int misc_init_f(void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	u8 rev;
 
-	printf("Board: Acadia - AMCC PPC405EZ Evaluation Board");
+	rev = in8(CFG_CPLD_BASE + 0);
+	printf("Board: Acadia - AMCC PPC405EZ Evaluation Board, Rev. %X", rev);
+
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);

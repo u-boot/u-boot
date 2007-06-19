@@ -177,16 +177,14 @@ long int initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (ulong *) SDRAM_BASE3_PRELIM,
-					   SDRAM_MAX_SIZE);
+	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (ulong *) SDRAM_BASE3_PRELIM,
-					  SDRAM_MAX_SIZE);
+	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 

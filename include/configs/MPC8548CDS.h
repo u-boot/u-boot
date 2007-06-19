@@ -36,12 +36,12 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_MPC8548CDS	1	/* MPC8548CDS board specific */
 
-#undef CONFIG_PCI
+#define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
+#undef CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
@@ -340,22 +340,34 @@ extern unsigned long get_clock_freq(void);
 
 /*
  * General PCI
- * Addresses are mapped 1-1.
+ * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-#define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
+#define CFG_PCI1_MEM_SIZE	0x10000000	/* 256M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe2000000
-#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCI1_IO_SIZE	0x00800000	/* 8M */
 
-#define CFG_PCI2_MEM_BASE	0xa0000000
+#define CFG_PCI2_MEM_BASE	0x90000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
-#define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
+#define CFG_PCI2_MEM_SIZE	0x10000000	/* 256M */
 #define CFG_PCI2_IO_BASE	0x00000000
-#define CFG_PCI2_IO_PHYS	0xe2100000
-#define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCI2_IO_PHYS	0xe2800000
+#define CFG_PCI2_IO_SIZE	0x00800000	/* 8M */
 
+#define CFG_PEX_MEM_BASE	0xa0000000
+#define CFG_PEX_MEM_PHYS	CFG_PEX_MEM_BASE
+#define CFG_PEX_MEM_SIZE	0x20000000	/* 512M */
+#define CFG_PEX_IO_BASE		0x00000000
+#define CFG_PEX_IO_PHYS		0xe3000000
+#define CFG_PEX_IO_SIZE		0x01000000	/* 16M */
+
+/*
+ * RapidIO MMU
+ */
+#define CFG_RIO_MEM_BASE	0xC0000000
+#define CFG_RIO_MEM_SIZE	0x20000000	/* 512M */
 
 #if defined(CONFIG_PCI)
 

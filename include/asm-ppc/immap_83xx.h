@@ -206,7 +206,9 @@ typedef struct pmc83xx {
 	u32 pmccr;		/* PMC Configuration Register */
 	u32 pmcer;		/* PMC Event Register */
 	u32 pmcmr;		/* PMC Mask Register */
-	u8 res0[0xF4];
+	u32 pmccr1;		/* PMC Configuration Register 1 */
+	u32 pmccr2;		/* PMC Configuration Register 2 */
+	u8 res0[0xEC];
 } pmc83xx_t;
 
 /*
@@ -355,7 +357,8 @@ typedef struct lbus83xx {
 	u8 res2[0x8];
 	u32 mrtpr;		/* Memory Refresh Timer Prescaler Register */
 	u32 mdr;		/* UPM Data Register */
-	u8 res3[0x8];
+	u8 res3[0x4];
+	u32 lsor;		/* Special Operation Initiation Register */
 	u32 lsdmr;		/* SDRAM Mode Register */
 	u8 res4[0x8];
 	u32 lurt;		/* UPM Refresh Timer */
@@ -369,8 +372,14 @@ typedef struct lbus83xx {
 	u8 res6[0xC];
 	u32 lbcr;		/* Configuration Register */
 	u32 lcrr;		/* Clock Ratio Register */
-	u8 res7[0x28];
-	u8 res8[0xF00];
+	u8 res7[0x8];
+	u32 fmr;		/* Flash Mode Register */
+	u32 fir;		/* Flash Instruction Register */
+	u32 fcr;		/* Flash Command Register */
+	u32 fbar;		/* Flash Block Addr Register */
+	u32 fpar;		/* Flash Page Addr Register */
+	u32 fbcr;		/* Flash Byte Count Register */
+	u8 res8[0xF08];
 } lbus83xx_t;
 
 /*
@@ -527,7 +536,7 @@ typedef struct pcictrl83xx {
  * USB
  */
 typedef struct usb83xx {
-	u8 fixme[0x2000];
+	u8 fixme[0x1000];
 } usb83xx_t;
 
 /*
@@ -574,7 +583,42 @@ typedef struct immap {
 	ios83xx_t		ios;		/* Sequencer */
 	pcictrl83xx_t		pci_ctrl[2];	/* PCI Controller Control and Status Registers */
 	u8			res5[0x19900];
-	usb83xx_t		usb;
+	usb83xx_t		usb[2];
+	tsec83xx_t		tsec[2];
+	u8			res6[0xA000];
+	security83xx_t		security;
+	u8			res7[0xC0000];
+} immap_t;
+
+#elif defined(CONFIG_MPC831X)
+typedef struct immap {
+	sysconf83xx_t		sysconf;	/* System configuration */
+	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
+	rtclk83xx_t		rtc;		/* Real Time Clock Module Registers */
+	rtclk83xx_t		pit;		/* Periodic Interval Timer */
+	gtm83xx_t		gtm[2];		/* Global Timers Module */
+	ipic83xx_t		ipic;		/* Integrated Programmable Interrupt Controller */
+	arbiter83xx_t		arbiter;	/* System Arbiter Registers */
+	reset83xx_t		reset;		/* Reset Module */
+	clk83xx_t		clk;		/* System Clock Module */
+	pmc83xx_t		pmc;		/* Power Management Control Module */
+	gpio83xx_t		gpio[1];	/* General purpose I/O module */
+	u8			res0[0x1300];
+	ddr83xx_t		ddr;		/* DDR Memory Controller Memory */
+	fsl_i2c_t		i2c[2];		/* I2C Controllers */
+	u8			res1[0x1300];
+	duart83xx_t		duart[2];	/* DUART */
+	u8			res2[0x900];
+	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	u8			res3[0x1000];
+	spi83xx_t		spi;		/* Serial Peripheral Interface */
+	dma83xx_t		dma;		/* DMA */
+	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
+	u8			res4[0x80];
+	ios83xx_t		ios;		/* Sequencer */
+	pcictrl83xx_t		pci_ctrl[1];	/* PCI Controller Control and Status Registers */
+	u8			res5[0x1aa00];
+	usb83xx_t		usb[1];
 	tsec83xx_t		tsec[2];
 	u8			res6[0xA000];
 	security83xx_t		security;

@@ -1,7 +1,6 @@
 /*
- * (C) Copyright 2007 Michal Simek
- *
- * Michal  SIMEK <monstr@monstr.eu>
+ * (C) Copyright 2007
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,25 +21,43 @@
  * MA 02111-1307 USA
  */
 
-	.text
-	.globl	microblaze_disable_interrupts
-	.ent	microblaze_disable_interrupts
-	.align	2
-microblaze_disable_interrupts:
-	#Make space on stack for a temporary
-	addi	r1, r1, -4
-	#Save register r12
-	swi	r12, r1, 0
-	#Read the MSR register
-	mfs	r12, rmsr
-	#Clear the interrupt enable bit
-	andi	r12, r12, ~2
-	#Save the MSR register
-	mts	rmsr, r12
-	#Load register r12
-	lwi	r12, r1, 0
-	#Return
-	rtsd	r15, 8
-	#Update stack in the delay slot
-	addi	r1, r1, 4
-	.end	microblaze_disable_interrupts
+OUTPUT_ARCH(powerpc:common)
+SECTIONS
+{
+  .resetvec 0xF8003FFC :
+  {
+    *(.resetvec)
+  } = 0xffff
+
+  .text      :
+  {
+    start.o	(.text)
+    nand_boot.o	(.text)
+    ndfc.o	(.text)
+
+    *(.text)
+    *(.fixup)
+  }
+  _etext = .;
+
+  .data    :
+  {
+    *(.rodata*)
+    *(.data*)
+    *(.sdata*)
+    __got2_start = .;
+    *(.got2)
+    __got2_end = .;
+  }
+
+  _edata  =  .;
+
+  __bss_start = .;
+  .bss       :
+  {
+   *(.sbss)
+   *(.bss)
+  }
+
+  _end = . ;
+}
