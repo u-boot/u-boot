@@ -692,13 +692,10 @@ spd_sdram(void)
 	 */
 	cpo = 0;
 	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		if (effective_data_rate == 266 || effective_data_rate == 333) {
+		if (effective_data_rate <= 333) {
 			cpo = 0x7;		/* READ_LAT + 5/4 */
-		} else if (effective_data_rate == 400) {
-			cpo = 0x9;		/* READ_LAT + 7/4 */
 		} else {
-			/* Pure speculation */
-			cpo = 0xb;
+			cpo = 0x9;		/* READ_LAT + 7/4 */
 		}
 	}
 
@@ -905,7 +902,12 @@ spd_sdram(void)
 	if (spd.mem_type == SPD_MEMTYPE_DDR)
 		clk_adjust = 0x6;
 	else
+#ifdef CONFIG_MPC8568
+		/* Empirally setting clk_adjust */
+		clk_adjust = 0x6;
+#else
 		clk_adjust = 0x7;
+#endif
 
 	ddr->sdram_clk_cntl = (0
 			       | 0x80000000
