@@ -113,11 +113,11 @@
 
 #if  defined(CONFIG_5xx)
 /* Some special purpose registers */
-#define DER	149		/* Debug Enable Register	    	*/
-#define COUNTA	150		/* Breakpoint Counter	    	 	*/
-#define COUNTB	151		/* Breakpoint Counter	    	 	*/
-#define LCTRL1	156		/* Load/Store Support	    	 	*/
-#define LCTRL2	157		/* Load/Store Support	    	 	*/
+#define DER	149		/* Debug Enable Register		*/
+#define COUNTA	150		/* Breakpoint Counter			*/
+#define COUNTB	151		/* Breakpoint Counter			*/
+#define LCTRL1	156		/* Load/Store Support			*/
+#define LCTRL2	157		/* Load/Store Support			*/
 #define ICTRL	158		/* I-Bus Support Control Register	*/
 #define EID	81
 #endif	/* CONFIG_5xx */
@@ -266,39 +266,39 @@ label:							\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;		\
 	li	r20,MSR_KERNEL;				\
 	rlwimi	r20,r23,0,25,25;			\
-	blrl;	 					\
+	blrl;						\
 .L_ ## label :						\
 	.long	hdlr - _start + _START_OFFSET;		\
 	.long	int_return - _start + _START_OFFSET
 
 #define CRIT_EXCEPTION(n, label, hdlr)				\
-        . = n;							\
+	. = n;							\
 label:								\
-        EXCEPTION_PROLOG(csrr0, csrr1);				\
-        lwz     r3,GOT(transfer_to_handler);			\
-        mtlr    r3;						\
-        addi    r3,r1,STACK_FRAME_OVERHEAD;			\
-        li      r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
-        rlwimi  r20,r23,0,25,25;				\
-        blrl;							\
+	EXCEPTION_PROLOG(csrr0, csrr1);				\
+	lwz	r3,GOT(transfer_to_handler);			\
+	mtlr	r3;						\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	li	r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
+	rlwimi	r20,r23,0,25,25;				\
+	blrl;							\
 .L_ ## label :							\
-        .long   hdlr - _start + _START_OFFSET;			\
-        .long   crit_return - _start + _START_OFFSET
+	.long	hdlr - _start + _START_OFFSET;			\
+	.long	crit_return - _start + _START_OFFSET
 
 #ifdef CONFIG_440
 #define MCK_EXCEPTION(n, label, hdlr)				\
-        . = n;							\
+	. = n;							\
 label:								\
-        EXCEPTION_PROLOG(MCSRR0, MCSRR1);			\
-        lwz     r3,GOT(transfer_to_handler);			\
-        mtlr    r3;						\
-        addi    r3,r1,STACK_FRAME_OVERHEAD;			\
-        li      r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
-        rlwimi  r20,r23,0,25,25;				\
-        blrl;							\
+	EXCEPTION_PROLOG(MCSRR0, MCSRR1);			\
+	lwz	r3,GOT(transfer_to_handler);			\
+	mtlr	r3;						\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	li	r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
+	rlwimi	r20,r23,0,25,25;				\
+	blrl;							\
 .L_ ## label :							\
-        .long   hdlr - _start + _START_OFFSET;			\
-        .long   mck_return - _start + _START_OFFSET
+	.long	hdlr - _start + _START_OFFSET;			\
+	.long	mck_return - _start + _START_OFFSET
 #endif /* CONFIG_440  */
 
 #endif	/* __PPC_ASM_TMPL__ */

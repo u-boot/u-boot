@@ -89,22 +89,22 @@ extern void do_bedbug_breakpoint(struct pt_regs *);
 void
 print_backtrace(unsigned long *sp)
 {
-        int cnt = 0;
-        unsigned long i;
+	int cnt = 0;
+	unsigned long i;
 
-        printf("Call backtrace: ");
-        while (sp) {
-                if ((uint)sp > END_OF_MEM)
-                        break;
+	printf("Call backtrace: ");
+	while (sp) {
+		if ((uint)sp > END_OF_MEM)
+			break;
 
-                i = sp[1];
-                if (cnt++ % 7 == 0)
-                        printf("\n");
-                printf("%08lX ", i);
-                if (cnt > 32) break;
-                sp = (unsigned long *)*sp;
-        }
-        printf("\n");
+		i = sp[1];
+		if (cnt++ % 7 == 0)
+			printf("\n");
+		printf("%08lX ", i);
+		if (cnt > 32) break;
+		sp = (unsigned long *)*sp;
+	}
+	printf("\n");
 }
 
 void show_regs(struct pt_regs * regs)
@@ -121,14 +121,12 @@ void show_regs(struct pt_regs * regs)
 
 	printf("\n");
 	for (i = 0;  i < 32;  i++) {
-		if ((i % 8) == 0)
-		{
+		if ((i % 8) == 0) {
 			printf("GPR%02d: ", i);
 		}
 
 		printf("%08lX ", regs->gpr[i]);
-		if ((i % 8) == 7)
-		{
+		if ((i % 8) == 7) {
 			printf("\n");
 		}
 	}
@@ -147,7 +145,7 @@ void
 MachineCheckException(struct pt_regs *regs)
 {
 	unsigned long fixup, val;
-	
+
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
 	 * the PCI exception handler.
@@ -172,16 +170,16 @@ MachineCheckException(struct pt_regs *regs)
 	if (val& ESR_IMCP) {
 		printf("Instruction");
 		mtspr(ESR, val & ~ESR_IMCP);
-	} else
+	} else {
 		printf("Data");
+	}
 	printf(" machine check.\n");
 
 #elif defined(CONFIG_440)
 	if (val& ESR_IMCP){
 		printf("Instruction Synchronous Machine Check exception\n");
 		mtspr(SPRN_ESR, val & ~ESR_IMCP);
-	}
-        else { 
+	} else {
 		val = mfspr(MCSR);
 		if (val & MCSR_IB)
 			printf("Instruction Read PLB Error\n");
@@ -297,17 +295,17 @@ addr_probe(uint *addr)
 
 	__asm__ __volatile__(			\
 		"1:	lwz %0,0(%1)\n"		\
-						"	eieio\n"		\
-						"	li %0,0\n"		\
-						"2:\n"				\
-						".section .fixup,\"ax\"\n"	\
-						"3:	li %0,-1\n"		\
-						"	b 2b\n"			\
-						".section __ex_table,\"a\"\n"	\
-						"	.align 2\n"		\
-						"	.long 1b,3b\n"		\
-						".text"				\
-						: "=r" (retval) : "r"(addr));
+		"	eieio\n"		\
+		"	li %0,0\n"		\
+		"2:\n"				\
+		".section .fixup,\"ax\"\n"	\
+		"3:	li %0,-1\n"		\
+		"	b 2b\n"			\
+		".section __ex_table,\"a\"\n"	\
+		"	.align 2\n"		\
+		"	.long 1b,3b\n"		\
+		".text"				\
+		: "=r" (retval) : "r"(addr));
 
 	return (retval);
 #endif

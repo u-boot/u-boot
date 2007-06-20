@@ -22,26 +22,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-/*------------------------------------------------------------------------------+ */
-/* */
-/*	 This source code has been made available to you by IBM on an AS-IS */
-/*	 basis.	 Anyone receiving this source is licensed under IBM */
-/*	 copyrights to use it in any way he or she deems fit, including */
-/*	 copying it, modifying it, compiling it, and redistributing it either */
-/*	 with or without modifications.	 No license under IBM patents or */
-/*	 patent applications is to be implied by the copyright license. */
-/* */
-/*	 Any user of this software should understand that IBM cannot provide */
-/*	 technical support for this software and will not be responsible for */
-/*	 any consequences resulting from the use of this software. */
-/* */
-/*	 Any person who transfers this source code or any derivative work */
-/*	 must include the IBM copyright notice, this paragraph, and the */
-/*	 preceding two paragraphs in the transferred software. */
-/* */
-/*	 COPYRIGHT   I B M   CORPORATION 1995 */
-/*	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M */
-/*------------------------------------------------------------------------------- */
+/*------------------------------------------------------------------------------+
+ *
+ *	 This source code has been made available to you by IBM on an AS-IS
+ *	 basis.	 Anyone receiving this source is licensed under IBM
+ *	 copyrights to use it in any way he or she deems fit, including
+ *	 copying it, modifying it, compiling it, and redistributing it either
+ *	 with or without modifications.	 No license under IBM patents or
+ *	 patent applications is to be implied by the copyright license.
+ *
+ *	 Any user of this software should understand that IBM cannot provide
+ *	 technical support for this software and will not be responsible for
+ *	 any consequences resulting from the use of this software.
+ *
+ *	 Any person who transfers this source code or any derivative work
+ *	 must include the IBM copyright notice, this paragraph, and the
+ *	 preceding two paragraphs in the transferred software.
+ *
+ *	 COPYRIGHT   I B M   CORPORATION 1995
+ *	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
+ *-------------------------------------------------------------------------------
+ */
 
 /*  U-Boot - Startup Code for AMCC 4xx PowerPC based Embedded Boards
  *
@@ -110,11 +111,11 @@
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
-#define function_prolog(func_name)      .text; \
+#define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
 					func_name:
-#define function_epilog(func_name)      .type func_name,@function; \
+#define function_epilog(func_name)	.type func_name,@function; \
 					.size func_name,.-func_name
 
 /* We don't want the  MMU yet.
@@ -295,7 +296,7 @@ skip_debug_init:
 	li	r1,0x0c00
 	mtspr	ivor8,r1	/* System call */
 	li	r1,0x0a00
-	mtspr   ivor9,r1	/* Auxiliary Processor unavailable */
+	mtspr	ivor9,r1	/* Auxiliary Processor unavailable */
 	li	r1,0x0900
 	mtspr	ivor10,r1	/* Decrementer */
 	li	r1,0x1300
@@ -514,9 +515,9 @@ _start_of_vectors:
 
 #ifdef CONFIG_440
 /* Machine check */
-        MCK_EXCEPTION(0x200, MachineCheck, MachineCheckException)
+	MCK_EXCEPTION(0x200, MachineCheck, MachineCheckException)
 #else
-        CRIT_EXCEPTION(0x200, MachineCheck, MachineCheckException)
+	CRIT_EXCEPTION(0x200, MachineCheck, MachineCheckException)
 #endif /* CONFIG_440 */
 
 /* Data Storage exception. */
@@ -895,15 +896,15 @@ _start:
 	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
-	ori	r3,r3,0x0270            /* 16K for Bank 1, R/W/Enable */
-	mtdcr	ocmdscr1, r3            /* Set Data Side */
-	mtdcr	ocmiscr1, r3            /* Set Instruction Side */
+	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmdscr1, r3		/* Set Data Side */
+	mtdcr	ocmiscr1, r3		/* Set Instruction Side */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
-	mtdcr	ocmdscr2, r3            /* Set Data Side */
-	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
-	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
+	mtdcr	ocmdscr2, r3		/* Set Data Side */
+	mtdcr	ocmiscr2, r3		/* Set Instruction Side */
+	addis	r3,0,0x0800		/* OCM Data Parity Disable - 1 Wait State */
 	mtdcr	ocmdsisdpc,r3
 
 	isync
@@ -922,7 +923,7 @@ _start:
 	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
 	mtdcr	ocmdsarc, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
@@ -1170,8 +1171,8 @@ crit_return:
 	REST_GPR(31, r1)
 	lwz	r2,_NIP(r1)	/* Restore environment */
 	lwz	r0,_MSR(r1)
-        mtspr   csrr0,r2
-        mtspr   csrr1,r0
+	mtspr	csrr0,r2
+	mtspr	csrr1,r0
 	lwz	r0,GPR0(r1)
 	lwz	r2,GPR2(r1)
 	lwz	r1,GPR1(r1)
@@ -1180,34 +1181,34 @@ crit_return:
 
 #ifdef CONFIG_440
 mck_return:
-        mfmsr   r28             /* Disable interrupts */
-        li      r4,0
-        ori     r4,r4,MSR_EE
-        andc    r28,r28,r4
-        SYNC                    /* Some chip revs need this... */
-        mtmsr   r28
-        SYNC
-        lwz     r2,_CTR(r1)
-        lwz     r0,_LINK(r1)
-        mtctr   r2
-        mtlr    r0
-        lwz     r2,_XER(r1)
-        lwz     r0,_CCR(r1)
-        mtspr   XER,r2
-        mtcrf   0xFF,r0
-        REST_10GPRS(3, r1)
-        REST_10GPRS(13, r1)
-        REST_8GPRS(23, r1)
-        REST_GPR(31, r1)
-        lwz     r2,_NIP(r1)     /* Restore environment */
-        lwz     r0,_MSR(r1)
-        mtspr   mcsrr0,r2
-        mtspr   mcsrr1,r0
-        lwz     r0,GPR0(r1)
-        lwz     r2,GPR2(r1)
-        lwz     r1,GPR1(r1)
-        SYNC
-        rfmci
+	mfmsr	r28		/* Disable interrupts */
+	li	r4,0
+	ori	r4,r4,MSR_EE
+	andc	r28,r28,r4
+	SYNC			/* Some chip revs need this... */
+	mtmsr	r28
+	SYNC
+	lwz	r2,_CTR(r1)
+	lwz	r0,_LINK(r1)
+	mtctr	r2
+	mtlr	r0
+	lwz	r2,_XER(r1)
+	lwz	r0,_CCR(r1)
+	mtspr	XER,r2
+	mtcrf	0xFF,r0
+	REST_10GPRS(3, r1)
+	REST_10GPRS(13, r1)
+	REST_8GPRS(23, r1)
+	REST_GPR(31, r1)
+	lwz	r2,_NIP(r1)	/* Restore environment */
+	lwz	r0,_MSR(r1)
+	mtspr	mcsrr0,r2
+	mtspr	mcsrr1,r0
+	lwz	r0,GPR0(r1)
+	lwz	r2,GPR2(r1)
+	lwz	r1,GPR1(r1)
+	SYNC
+	rfmci
 #endif /* CONFIG_440 */
 
 
@@ -1222,11 +1223,11 @@ mck_return:
 #ifdef CONFIG_440
        .globl  dcache_disable
 dcache_disable:
-        blr
+	blr
 
-        .globl  dcache_status
+	.globl	dcache_status
 dcache_status:
-        blr
+	blr
 #else
 flush_dcache:
 	addis	r9,r0,0x0002		/* set mask for EE and CE msr bits */
@@ -1616,32 +1617,32 @@ trap_init:
 
 #ifdef CONFIG_440
 	li	r7, .L_FPUnavailable - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 
 	li	r7, .L_Decrementer - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 
 	li	r7, .L_APU - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 
-	li      r7, .L_InstructionTLBError - _start + _START_OFFSET
-        bl      trap_reloc
+	li	r7, .L_InstructionTLBError - _start + _START_OFFSET
+	bl	trap_reloc
 
-        li      r7, .L_DataTLBError - _start + _START_OFFSET
-        bl      trap_reloc
+	li	r7, .L_DataTLBError - _start + _START_OFFSET
+	bl	trap_reloc
 #else /* CONFIG_440 */
 	li	r7, .L_PIT - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 
 	li	r7, .L_InstructionTLBMiss - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 
 	li	r7, .L_DataTLBMiss - _start + _START_OFFSET
-        bl      trap_reloc
+	bl	trap_reloc
 #endif /* CONFIG_440 */
 
-        li      r7, .L_DebugBreakpoint - _start + _START_OFFSET
-        bl      trap_reloc
+	li	r7, .L_DebugBreakpoint - _start + _START_OFFSET
+	bl	trap_reloc
 
 #if !defined(CONFIG_440)
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
@@ -1684,13 +1685,13 @@ trap_reloc:
 +----------------------------------------------------------------------------*/
 	function_prolog(dcbz_area)
 	rlwinm. r5,r4,0,27,31
-	rlwinm  r5,r4,27,5,31
-	beq     ..d_ra2
-	addi    r5,r5,0x0001
-..d_ra2:mtctr   r5
-..d_ag2:dcbz    r0,r3
-	addi    r3,r3,32
-	bdnz    ..d_ag2
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ra2
+	addi	r5,r5,0x0001
+..d_ra2:mtctr	r5
+..d_ag2:dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag2
 	sync
 	blr
 	function_epilog(dcbz_area)
@@ -1699,26 +1700,26 @@ trap_reloc:
 | dflush.  Assume 32K at vector address is cachable.
 +----------------------------------------------------------------------------*/
 	function_prolog(dflush)
-	mfmsr   r9
-	rlwinm  r8,r9,0,15,13
-	rlwinm  r8,r8,0,17,15
-	mtmsr   r8
-	addi    r3,r0,0x0000
-	mtspr   dvlim,r3
-	mfspr   r3,ivpr
-	addi    r4,r0,1024
-	mtctr   r4
+	mfmsr	r9
+	rlwinm	r8,r9,0,15,13
+	rlwinm	r8,r8,0,17,15
+	mtmsr	r8
+	addi	r3,r0,0x0000
+	mtspr	dvlim,r3
+	mfspr	r3,ivpr
+	addi	r4,r0,1024
+	mtctr	r4
 ..dflush_loop:
-	lwz     r6,0x0(r3)
-	addi    r3,r3,32
-	bdnz    ..dflush_loop
-	addi    r3,r3,-32
-	mtctr   r4
-..ag:   dcbf    r0,r3
-	addi    r3,r3,-32
-	bdnz    ..ag
+	lwz	r6,0x0(r3)
+	addi	r3,r3,32
+	bdnz	..dflush_loop
+	addi	r3,r3,-32
+	mtctr	r4
+..ag:	dcbf	r0,r3
+	addi	r3,r3,-32
+	bdnz	..ag
 	sync
-	mtmsr   r9
+	mtmsr	r9
 	blr
 	function_epilog(dflush)
 #endif /* CONFIG_440 */

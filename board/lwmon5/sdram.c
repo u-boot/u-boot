@@ -1,10 +1,10 @@
 /*
  * (C) Copyright 2006
- * Sylvie Gohl,             AMCC/IBM, gohl.sylvie@fr.ibm.com
+ * Sylvie Gohl,		    AMCC/IBM, gohl.sylvie@fr.ibm.com
  * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
- * Thierry Roman,           AMCC/IBM, thierry_roman@fr.ibm.com
- * Alain Saurel,            AMCC/IBM, alain.saurel@fr.ibm.com
- * Robert Snyder,           AMCC/IBM, rob.snyder@fr.ibm.com
+ * Thierry Roman,	    AMCC/IBM, thierry_roman@fr.ibm.com
+ * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
+ * Robert Snyder,	    AMCC/IBM, rob.snyder@fr.ibm.com
  *
  * (C) Copyright 2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -49,9 +49,9 @@
  * everything correctly.
  */
 #ifdef CFG_ENABLE_SDRAM_CACHE
-#define MY_TLB_WORD2_I_ENABLE   0                       /* enable caching on SDRAM */
+#define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
-#define MY_TLB_WORD2_I_ENABLE   TLB_WORD2_I_ENABLE      /* disable caching on SDRAM */
+#define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
 #endif
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
@@ -325,8 +325,8 @@ void denali_core_search_data_eye(u32 start_addr, u32 memory_size)
 
 	debug("DQS calibration - Window detected:\n");
 	debug("max_passing_cases = %d\n", max_passing_cases);
-	debug("wr_dqs_shift      = %d\n", wr_dqs_shift);
-	debug("dll_dqs_delay_X   = %d\n", dll_dqs_delay_X);
+	debug("wr_dqs_shift	 = %d\n", wr_dqs_shift);
+	debug("dll_dqs_delay_X	 = %d\n", dll_dqs_delay_X);
 	debug("dll_dqs_delay_X window = %d - %d\n",
 	      dll_dqs_delay_X_start_window, dll_dqs_delay_X_end_window);
 
@@ -561,16 +561,16 @@ long int initdram (int board_type)
 
 	wait_for_dlllock();
 
-        /*
+	/*
 	 * Program tlb entries for this size (dynamic)
 	 */
-        program_tlb(0, 0, CFG_MBYTES_SDRAM << 20, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, CFG_MBYTES_SDRAM << 20, MY_TLB_WORD2_I_ENABLE);
 
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual address
 	 * with cache enabled. This is done for fast ECC generation.
 	 */
-        program_tlb(0, CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
+	program_tlb(0, CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
 
 #ifdef CONFIG_DDR_DATA_EYE
 	/*

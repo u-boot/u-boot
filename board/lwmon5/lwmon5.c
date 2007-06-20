@@ -34,9 +34,9 @@ int board_early_init_f(void)
 	u32 sdr0_pfc1, sdr0_pfc2;
 	u32 reg;
 
-        /* PLB Write pipelining disabled. Denali Core workaround */
-      	mtdcr(plb0_acr, 0xDE000000);
-      	mtdcr(plb1_acr, 0xDE000000);
+	/* PLB Write pipelining disabled. Denali Core workaround */
+	mtdcr(plb0_acr, 0xDE000000);
+	mtdcr(plb1_acr, 0xDE000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -86,9 +86,9 @@ int board_early_init_f(void)
 	mtsdr(SDR0_PFC4, 0x80000000);
 
 	/* PCI arbiter disabled */
-        /* PCI Host Configuration disbaled */
+	/* PCI Host Configuration disbaled */
 	mfsdr(sdr_pci0, reg);
-        reg = 0;
+	reg = 0;
 	mtsdr(sdr_pci0, 0x00000000 | reg);
 
 	gpio_write_bit(CFG_GPIO_FLASH_WP, 1);
