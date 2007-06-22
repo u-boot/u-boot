@@ -1,3 +1,42 @@
+commit 2dc64451b4c08ffd619372abfdc2506a2e2363b9
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Apr 18 14:55:19 2007 +0400
+
+    Adapt log buffer code to support Linux 2.6
+
+    A new environment variable, "logversion", selects the log buffer
+    behaviour. If it is not set or set to a value other than 2, then the
+    old, Linux 2.4.4, behaviour is selected.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit a11e06965ec91270c51853407ff1261d3c740386
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Mar 28 19:06:19 2007 +0400
+
+    Extend POST support for PPC440
+
+    Added memory, CPU, UART, I2C and SPR POST tests for PPC440.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit 02032e8f14751a1a751b09240a4f1cf9f8a2077f
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jun 22 14:58:04 2007 +0200
+
+    [ppc] Fix build breakage for all non-4xx PowerPC variants.
+
+    - adapt to the more generic EXCEPTION_PROLOG and CRIT_EXCEPTION macros
+    - minor 4xx cleanup
+
+commit 83b4cfa3d629dff0264366263c5e94d9a50ad80b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 20 18:14:24 2007 +0200
+
+    Coding style cleanup. Refresh CHANGELOG.
+
 commit b3f9ec86e388207fd03dcdf7b145b9ed080bf024
 Author: Stefan Roese <sr@denx.de>
 Date:	Tue Jun 19 17:22:44 2007 +0200

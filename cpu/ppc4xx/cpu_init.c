@@ -153,7 +153,7 @@ cpu_init_f (void)
 	 */
 	asm volatile("	bl	0f"		::: "lr");
 	asm volatile("0:	mflr	3"		::: "r3");
-	asm volatile("	addi 	4, 0, 14"	::: "r4");
+	asm volatile("	addi	4, 0, 14"	::: "r4");
 	asm volatile("	mtctr	4"		::: "ctr");
 	asm volatile("1:	icbt	0, 3");
 	asm volatile("	addi	3, 3, 32"	::: "r3");

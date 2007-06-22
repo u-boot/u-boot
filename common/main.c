@@ -962,7 +962,7 @@ int readline (const char *const prompt)
 			n = 0;
 			continue;
 
-		case 0x17:				/* ^W - erase word 	*/
+		case 0x17:				/* ^W - erase word	*/
 			p=delete_char(console_buffer, p, &col, &n, plen);
 			while ((n > 0) && (*p != ' ')) {
 				p=delete_char(console_buffer, p, &col, &n, plen);

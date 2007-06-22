@@ -208,12 +208,12 @@
 #define SCCR_DFBRG10	0x00001000	/* BRGCLK division by 16		*/
 #define SCCR_DFBRG11	0x00001800	/* BRGCLK division by 64		*/
 #define SCCR_DFNL000	0x00000000	/* Division by 2 (default = minimum)	*/
-#define SCCR_DFNL001	0x00000100	/* Division by 4 	                */
-#define SCCR_DFNL010	0x00000200	/* Division by 8 	                */
-#define SCCR_DFNL011	0x00000300	/* Division by 16 	                */
-#define SCCR_DFNL100	0x00000400	/* Division by 32 	                */
-#define SCCR_DFNL101	0x00000500	/* Division by 64 	                */
-#define SCCR_DFNL110	0x00000600	/* Division by 128 	                */
+#define SCCR_DFNL001	0x00000100	/* Division by 4	                */
+#define SCCR_DFNL010	0x00000200	/* Division by 8	                */
+#define SCCR_DFNL011	0x00000300	/* Division by 16	                */
+#define SCCR_DFNL100	0x00000400	/* Division by 32	                */
+#define SCCR_DFNL101	0x00000500	/* Division by 64	                */
+#define SCCR_DFNL110	0x00000600	/* Division by 128	                */
 #define SCCR_DFNL111	0x00000700	/* Division by 256 (maximum)		*/
 #define SCCR_DFNH000	0x00000000	/* Division by 1 (default = minimum)	*/
 #define SCCR_DFNH110	0x000000D0	/* Division by 64 (maximum)		*/

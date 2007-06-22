@@ -44,7 +44,7 @@
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH 	*/
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 #define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
@@ -238,7 +238,7 @@
 	"fdt_file=/tftpboot/tqm5200/tqm5200.dtb\0"			\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
 #else
-#define CUSTOM_ENV_SETTINGS 						\
+#define CUSTOM_ENV_SETTINGS						\
 	"bootfile=cam5200/uImage\0"					\
 	"u-boot=cam5200/u-boot.bin\0"					\
 	"setup=tftp 200000 cam5200/setup.img; autoscr 200000\0"

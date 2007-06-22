@@ -664,7 +664,7 @@
 #define PSDMR_CL_3	     0x00000003	/* CAS Latency = 3		*/
 
 /*-----------------------------------------------------------------------
- * LSDMR - Local Bus SDRAM Mode Register			 	10-24
+ * LSDMR - Local Bus SDRAM Mode Register				10-24
  */
 
 /*
@@ -707,23 +707,23 @@
 /*-----------------------------------------------------------------------
  * TMR1-TMR4 - Timer Mode Registers					17-6
  */
-#define TMRx_PS_MSK		0xff00	/* Prescaler Value 		*/
+#define TMRx_PS_MSK		0xff00	/* Prescaler Value		*/
 #define TMRx_CE_MSK		0x00c0	/* Capture Edge and Enable Interrupt*/
-#define TMRx_OM			0x0020	/* Output Mode 			*/
+#define TMRx_OM			0x0020	/* Output Mode			*/
 #define TMRx_ORI		0x0010	/* Output Reference Interrupt Enable*/
-#define TMRx_FRR		0x0008	/* Free Run/Restart 		*/
+#define TMRx_FRR		0x0008	/* Free Run/Restart		*/
 #define TMRx_ICLK_MSK		0x0006	/* Timer Input Clock Source mask */
-#define TMRx_GE			0x0001	/* Gate Enable  		*/
+#define TMRx_GE			0x0001	/* Gate Enable			*/
 
 #define TMRx_CE_INTR_DIS	0x0000	/* Disable Interrupt on capture event*/
 #define TMRx_CE_RISING		0x0040	/* Capture on Rising TINx edge only */
 #define TMRx_CE_FALLING		0x0080	/* Capture on Falling TINx edge only */
-#define TMRx_CE_ANY		0x00c0	/* Capture on any TINx edge 	*/
+#define TMRx_CE_ANY		0x00c0	/* Capture on any TINx edge	*/
 
-#define TMRx_ICLK_IN_CAS	0x0000	/* Internally cascaded input 	*/
+#define TMRx_ICLK_IN_CAS	0x0000	/* Internally cascaded input	*/
 #define TMRx_ICLK_IN_GEN	0x0002	/* Internal General system clock*/
 #define TMRx_ICLK_IN_GEN_DIV16	0x0004	/* Internal General system clk div 16*/
-#define TMRx_ICLK_TIN_PIN	0x0006	/* TINx pin 			*/
+#define TMRx_ICLK_TIN_PIN	0x0006	/* TINx pin			*/
 
 
 /*-----------------------------------------------------------------------

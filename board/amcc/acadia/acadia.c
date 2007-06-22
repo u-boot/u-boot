@@ -31,13 +31,13 @@ static void acadia_gpio_init(void)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
-       	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
-       	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
-       	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
-       	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
-       	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
-       	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
-       	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
+	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
+	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
+	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
+	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
+	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
+	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
+	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
 
 	/*
 	 * Ultra (405EZ) was nice enough to add another GPIO controller

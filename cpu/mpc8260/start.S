@@ -676,13 +676,13 @@ init_debug:
 	bdnz	1b
 
 	/* Load the Instruction Address Breakpoint Register (IABR).	*/
-	/* 								*/
+	/*								*/
 	/* The address to load is stored in the first word of dual port	*/
 	/* ram and should be preserved while the power is on, so you	*/
 	/* can plug addresses into that location then reset the cpu and	*/
 	/* this code will load that address into the IABR after the	*/
 	/* reset.							*/
-	/* 								*/
+	/*								*/
 	/* When the program counter matches the contents of the IABR,	*/
 	/* an exception is generated (before the instruction at that	*/
 	/* location completes). The vector for this exception is 0x1300 */

@@ -112,7 +112,7 @@
 #define	 icdbtrh 0x39f	/* instruction cache debug tag register high */
 #define	 mmucr	0x3b2	/* mmu control register */
 #define	 ccr0	0x3b3	/* core configuration register 0 */
-#define  ccr1  	0x378	/* core configuration for 440x5 only */
+#define  ccr1	0x378	/* core configuration for 440x5 only */
 #define	 icdbdr 0x3d3	/* instruction cache debug data register */
 #define	 dbdr	0x3f3	/* debug data register */
 
@@ -136,7 +136,7 @@
 #define clk_opbd	0x00c0
 #define clk_perd	0x00e0
 #define clk_mald	0x0100
-#define clk_spcid   	0x0120
+#define clk_spcid	0x0120
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
@@ -686,8 +686,8 @@
 #define SDRAM_CODT_CKSE_SINGLE_END		0x00000008
 #define SDRAM_CODT_FEEBBACK_RCV_SINGLE_END	0x00000004
 #define SDRAM_CODT_FEEBBACK_DRV_SINGLE_END	0x00000002
-#define SDRAM_CODT_IO_HIZ  			0x00000000
-#define SDRAM_CODT_IO_NMODE  			0x00000001
+#define SDRAM_CODT_IO_HIZ			0x00000000
+#define SDRAM_CODT_IO_NMODE			0x00000001
 
 /*-----------------------------------------------------------------------------+
 |  SDRAM Mode Register

@@ -218,8 +218,8 @@
 #define CONFIG_EMAC_NR_START	2	/* start with EMAC 2 (skip 0&1)	*/
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_NET_MULTI	1
-#define CONFIG_PHY_ADDR	      	0xff	     /* no phy on EMAC0		*/
-#define CONFIG_PHY1_ADDR      	0xff	     /* no phy on EMAC1		*/
+#define CONFIG_PHY_ADDR		0xff	     /* no phy on EMAC0		*/
+#define CONFIG_PHY1_ADDR	0xff	     /* no phy on EMAC1		*/
 #define CONFIG_PHY2_ADDR	0x1
 #define CONFIG_PHY3_ADDR	0x3
 #define CONFIG_ET1011C_PHY	1

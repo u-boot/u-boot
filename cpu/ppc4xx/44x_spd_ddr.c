@@ -1340,14 +1340,14 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 			 */
 			cr |= SDRAM_BXCR_SDBE;
 
- 			for (i = 0; i < num_banks; i++) {
+			for (i = 0; i < num_banks; i++) {
 				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
 					(4 << 20) * bank_size_id;
 				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
 				debug("DIMM%d-bank %d (SDRAM0_B%dCR): bank_size_bytes=%d\n",
 				      dimm_num, i, ctrl_bank_num[dimm_num]+i,
 				      bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes);
- 			}
+			}
 		}
 	}
 
