@@ -142,6 +142,8 @@
 #define EXC_OFF_JMDDI		0x1600	/* Java Mode denorm detect Interr -- WTF??*/
 #define EXC_OFF_RMTE		0x2000	/* Run Mode or Trace Exception */
 
+#define _START_OFFSET		EXC_OFF_SYS_RESET
+
 #define MAP_A_CONFIG_ADDR_HIGH	0x8000	/* Upper half of CONFIG_ADDR for Map A */
 #define MAP_A_CONFIG_ADDR_LOW	0x0CF8	/* Lower half of CONFIG_ADDR for Map A */
 #define MAP_A_CONFIG_DATA_HIGH	0x8000	/* Upper half of CONFIG_DAT for Map A */

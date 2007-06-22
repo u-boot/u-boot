@@ -36,6 +36,7 @@
  * Exception offsets (PowerPC standard)
  */
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset				*/
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 /*-----------------------------------------------------------------------
  * ISB bit in IMMR to set internal memory map

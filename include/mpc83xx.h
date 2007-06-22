@@ -25,6 +25,7 @@
 /* System reset offset (PowerPC standard)
  */
 #define EXC_OFF_SYS_RESET		0x0100
+#define	_START_OFFSET			EXC_OFF_SYS_RESET
 
 /* IMMRBAR - Internal Memory Register Base Address
  */
