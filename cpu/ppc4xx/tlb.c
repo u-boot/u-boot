@@ -101,6 +101,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_256MB, tlb_i)) == 0) {
 				mem_size -= TLB_256MB_SIZE;
 				phys_addr += TLB_256MB_SIZE;
+				virt_addr += TLB_256MB_SIZE;
 			}
 		} else if (((phys_addr & TLB_16MB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_16MB_SIZE)) {
@@ -109,6 +110,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_16MB, tlb_i)) == 0) {
 				mem_size -= TLB_16MB_SIZE;
 				phys_addr += TLB_16MB_SIZE;
+				virt_addr += TLB_16MB_SIZE;
 			}
 		} else if (((phys_addr & TLB_1MB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_1MB_SIZE)) {
@@ -117,6 +119,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_1MB, tlb_i)) == 0) {
 				mem_size -= TLB_1MB_SIZE;
 				phys_addr += TLB_1MB_SIZE;
+				virt_addr += TLB_1MB_SIZE;
 			}
 		} else if (((phys_addr & TLB_256KB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_256KB_SIZE)) {
@@ -125,6 +128,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_256KB, tlb_i)) == 0) {
 				mem_size -= TLB_256KB_SIZE;
 				phys_addr += TLB_256KB_SIZE;
+				virt_addr += TLB_256KB_SIZE;
 			}
 		} else if (((phys_addr & TLB_64KB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_64KB_SIZE)) {
@@ -133,6 +137,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_64KB, tlb_i)) == 0) {
 				mem_size -= TLB_64KB_SIZE;
 				phys_addr += TLB_64KB_SIZE;
+				virt_addr += TLB_64KB_SIZE;
 			}
 		} else if (((phys_addr & TLB_16KB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_16KB_SIZE)) {
@@ -141,6 +146,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_16KB, tlb_i)) == 0) {
 				mem_size -= TLB_16KB_SIZE;
 				phys_addr += TLB_16KB_SIZE;
+				virt_addr += TLB_16KB_SIZE;
 			}
 		} else if (((phys_addr & TLB_4KB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_4KB_SIZE)) {
@@ -149,6 +155,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_4KB, tlb_i)) == 0) {
 				mem_size -= TLB_4KB_SIZE;
 				phys_addr += TLB_4KB_SIZE;
+				virt_addr += TLB_4KB_SIZE;
 			}
 		} else if (((phys_addr & TLB_1KB_ALIGN_MASK) == phys_addr) &&
 			   (mem_size >= TLB_1KB_SIZE)) {
@@ -157,6 +164,7 @@ static void program_tlb_addr(unsigned long phys_addr,
 						TLB_WORD0_SIZE_1KB, tlb_i)) == 0) {
 				mem_size -= TLB_1KB_SIZE;
 				phys_addr += TLB_1KB_SIZE;
+				virt_addr += TLB_1KB_SIZE;
 			}
 		} else {
 			printf("ERROR: no TLB size exists for the base address 0x%0X.\n",
