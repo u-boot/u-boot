@@ -113,11 +113,11 @@
 
 #if  defined(CONFIG_5xx)
 /* Some special purpose registers */
-#define DER	149		/* Debug Enable Register	    	*/
-#define COUNTA	150		/* Breakpoint Counter	    	 	*/
-#define COUNTB	151		/* Breakpoint Counter	    	 	*/
-#define LCTRL1	156		/* Load/Store Support	    	 	*/
-#define LCTRL2	157		/* Load/Store Support	    	 	*/
+#define DER	149		/* Debug Enable Register		*/
+#define COUNTA	150		/* Breakpoint Counter			*/
+#define COUNTB	151		/* Breakpoint Counter			*/
+#define LCTRL1	156		/* Load/Store Support			*/
+#define LCTRL2	157		/* Load/Store Support			*/
 #define ICTRL	158		/* I-Bus Support Control Register	*/
 #define EID	81
 #endif	/* CONFIG_5xx */
@@ -217,7 +217,7 @@
  * We assume sprg3 has the physical address of the current
  * task's thread_struct.
  */
-#define EXCEPTION_PROLOG	\
+#define EXCEPTION_PROLOG(reg1, reg2)	\
 	mtspr	SPRG0,r20;	\
 	mtspr	SPRG1,r21;	\
 	mfcr	r20;		\
@@ -235,8 +235,10 @@
 	stw	r22,_CTR(r21);	\
 	mfspr	r20,XER;	\
 	stw	r20,_XER(r21);	\
-	mfspr	r22,SRR0;	\
-	mfspr	r23,SRR1;	\
+	mfspr	r20,DEAR;	\
+	stw	r20,_DAR(r21);	\
+	mfspr	r22,reg1;	\
+	mfspr	r23,reg2;	\
 	stw	r0,GPR0(r21);	\
 	stw	r1,GPR1(r21);	\
 	stw	r2,GPR2(r21);	\
@@ -249,41 +251,6 @@
  */
 
 /*
- * Critical exception entry code.  This is just like the other exception
- * code except that it uses SRR2 and SRR3 instead of SRR0 and SRR1.
- */
-#define CRITICAL_EXCEPTION_PROLOG       \
-	mtspr   SPRG0,r20;      \
-	mtspr   SPRG1,r21;      \
-	mfcr    r20;            \
-	subi    r21,r1,INT_FRAME_SIZE+STACK_UNDERHEAD;  /* alloc exc. frame */\
-	stw     r20,_CCR(r21);          /* save registers */ \
-	stw     r22,GPR22(r21); \
-	stw     r23,GPR23(r21); \
-	mfspr   r20,SPRG0;      \
-	stw     r20,GPR20(r21); \
-	mfspr   r22,SPRG1;      \
-	stw     r22,GPR21(r21); \
-	mflr    r20;            \
-	stw     r20,_LINK(r21); \
-	mfctr   r22;            \
-	stw     r22,_CTR(r21);  \
-	mfspr   r20,XER;        \
-	stw     r20,_XER(r21);  \
-	mfspr   r22,990;        /* SRR2 */      \
-	mfspr   r23,991;        /* SRR3 */      \
-	stw     r0,GPR0(r21);   \
-	stw     r1,GPR1(r21);   \
-	stw     r2,GPR2(r21);   \
-	stw     r1,0(r21);      \
-	mr      r1,r21;                 /* set new kernel sp */ \
-	SAVE_4GPRS(3, r21);
-/*
- * Note: code which follows this uses cr0.eq (set if from kernel),
- * r21, r22 (SRR2), and r23 (SRR3).
- */
-
-/*
  * Exception vectors.
  *
  * The data words for `hdlr' and `int_return' are initialized with
@@ -293,30 +260,45 @@
 #define STD_EXCEPTION(n, label, hdlr)			\
 	. = n;						\
 label:							\
-	EXCEPTION_PROLOG;				\
+	EXCEPTION_PROLOG(SRR0, SRR1);			\
 	lwz	r3,GOT(transfer_to_handler);		\
 	mtlr	r3;					\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;		\
 	li	r20,MSR_KERNEL;				\
 	rlwimi	r20,r23,0,25,25;			\
-	blrl	; 					\
+	blrl;						\
 .L_ ## label :						\
-	.long	hdlr - _start + EXC_OFF_SYS_RESET;	\
-	.long	int_return - _start + EXC_OFF_SYS_RESET
+	.long	hdlr - _start + _START_OFFSET;		\
+	.long	int_return - _start + _START_OFFSET
 
+#define CRIT_EXCEPTION(n, label, hdlr)				\
+	. = n;							\
+label:								\
+	EXCEPTION_PROLOG(csrr0, csrr1);				\
+	lwz	r3,GOT(transfer_to_handler);			\
+	mtlr	r3;						\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	li	r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
+	rlwimi	r20,r23,0,25,25;				\
+	blrl;							\
+.L_ ## label :							\
+	.long	hdlr - _start + _START_OFFSET;			\
+	.long	crit_return - _start + _START_OFFSET
 
-#define CRIT_EXCEPTION(n, label, hdlr)                  \
-	. = n;                                          \
-label:                                                  \
-	CRITICAL_EXCEPTION_PROLOG;                      \
-	lwz     r3,GOT(transfer_to_handler);            \
-	mtlr    r3;                                     \
-	addi    r3,r1,STACK_FRAME_OVERHEAD;             \
-	li      r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE)); \
-	rlwimi  r20,r23,0,25,25;                        \
-	blrl    ;                                       \
-.L_ ## label :                                          \
-	.long   hdlr - _start + EXC_OFF_SYS_RESET;      \
-	.long   crit_return - _start + EXC_OFF_SYS_RESET
+#ifdef CONFIG_440
+#define MCK_EXCEPTION(n, label, hdlr)				\
+	. = n;							\
+label:								\
+	EXCEPTION_PROLOG(MCSRR0, MCSRR1);			\
+	lwz	r3,GOT(transfer_to_handler);			\
+	mtlr	r3;						\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	li	r20,(MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE));	\
+	rlwimi	r20,r23,0,25,25;				\
+	blrl;							\
+.L_ ## label :							\
+	.long	hdlr - _start + _START_OFFSET;			\
+	.long	mck_return - _start + _START_OFFSET
+#endif /* CONFIG_440  */
 
 #endif	/* __PPC_ASM_TMPL__ */

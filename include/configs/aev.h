@@ -173,7 +173,7 @@
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBCLK_EQUALS_XLBCLK is defined. This is because a PCI Clock 
+ * CFG_IPBCLK_EQUALS_XLBCLK is defined. This is because a PCI Clock
  * of 66 MHz yet hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
 #define CFG_PCICLK_EQUALS_IPBCLK_DIV2	/* define for 66MHz speed */

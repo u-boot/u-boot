@@ -139,6 +139,7 @@ static char *bootstrap_str[] = {
 	"Reserved",
 	"I2C (Addr 0x50)",
 };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'B', 'D', 'E', 'x', 'F' };
 #endif
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
@@ -149,6 +150,7 @@ static char *bootstrap_str[] = {
 	"I2C (Addr 0x54)",
 	"I2C (Addr 0x50)",
 };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D'};
 #endif
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
@@ -163,6 +165,7 @@ static char *bootstrap_str[] = {
 	"PCI",
 	"I2C (Addr 0x52)",
 };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
 #endif
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
@@ -177,6 +180,7 @@ static char *bootstrap_str[] = {
 	"PCI",
 	"I2C (Addr 0x52)",
 };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
 #endif
 
 #if defined(CONFIG_405EZ)
@@ -199,6 +203,8 @@ static char *bootstrap_str[] = {
 	"SPI (slow)",
 	"I2C (Addr 0x50)",
 };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', \
+				 'I', 'x', 'K', 'L', 'M', 'N', 'O', 'P' };
 #endif
 
 #if defined(SDR0_PINSTP_SHIFT)
@@ -427,7 +433,7 @@ int checkcpu (void)
 	printf ("       I2C boot EEPROM %sabled\n", i2c_bootrom_enabled() ? "en" : "dis");
 #endif	/* I2C_BOOTROM */
 #if defined(SDR0_PINSTP_SHIFT)
-	printf ("       Bootstrap Option %c - ", (char)bootstrap_option() + 'A');
+	printf ("       Bootstrap Option %c - ", bootstrap_char[bootstrap_option()]);
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
 #endif	/* SDR0_PINSTP_SHIFT */
 

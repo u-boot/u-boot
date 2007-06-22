@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_P3P440		1	    /* Board is P3P440		*/
 #define CONFIG_440GP		1	    /* Specifc GP support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	    /* Call misc_init_r		*/

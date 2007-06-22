@@ -1336,7 +1336,7 @@ int run_command (const char *cmd, int flag)
 
 		/* Did the user stop this? */
 		if (had_ctrlc ())
-			return 0;	/* if stopped then not repeatable */
+			return -1;	/* if stopped then not repeatable */
 	}
 
 	return rc ? rc : repeatable;

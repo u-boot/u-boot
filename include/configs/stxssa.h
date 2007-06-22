@@ -80,16 +80,20 @@
  * This address, however, is used to configure a 256M local bus
  * window that includes the Config latch below.
  */
-#define CFG_LBC_OPTION_BASE	0xf0000000      /* Localbus Extension */
+#define CFG_LBC_OPTION_BASE	0xF0000000      /* Localbus Extension */
 #define CFG_LBC_OPTION_SIZE	256		/* 256MB */
 
 /* There are various flash options used, we configure for the largest,
  * which is 64Mbytes.  The CFI works fine and will discover the proper
  * sizes.
  */
-#define CFG_FLASH_BASE		0xFC000000      /* start of FLASH 64M    */
-#define CFG_BR0_PRELIM		0xFC001801	/* port size 32bit      */
-#define CFG_OR0_PRELIM		0xFC000FF7	/* 64 MB Flash           */
+#ifdef CONFIG_STXSSA_4M
+#define CFG_FLASH_BASE		0xFFC00000      /* start of  4 MiB flash */
+#else
+#define CFG_FLASH_BASE		0xFC000000      /* start of 64 MiB flash */
+#endif
+#define CFG_BR0_PRELIM	(CFG_FLASH_BASE | 0x1801) /* port size 32bit	 */
+#define CFG_OR0_PRELIM	(CFG_FLASH_BASE | 0x0FF7)
 
 #define CFG_FLASH_CFI		1
 #define CFG_FLASH_CFI_DRIVER	1
@@ -104,9 +108,9 @@
 /* The configuration latch is Chip Select 1.
  * It's an 8-bit latch in the lower 8 bits of the word.
  */
-#define CFG_LBC_CFGLATCH_BASE	0xfb000000	/* Base of config latch */
-#define CFG_BR1_PRELIM		0xfb001801	/* 32-bit port */
-#define CFG_OR1_PRELIM		0xffff0ff7      /* 64K is enough */
+#define CFG_LBC_CFGLATCH_BASE	0xFB000000	/* Base of config latch */
+#define CFG_BR1_PRELIM		0xFB001801	/* 32-bit port */
+#define CFG_OR1_PRELIM		0xFFFF0FF7      /* 64K is enough */
 
 #define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor	*/
 
@@ -300,17 +304,20 @@
 
 /* Environment - default config is in flash, see below */
 #if 0	/* in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0
-#define CFG_ENV_SIZE		2048
+# define CFG_ENV_IS_IN_EEPROM	1
+# define CFG_ENV_OFFSET		0
+# define CFG_ENV_SIZE		2048
 #else	/* in flash */
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x40000
-
-#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+# define CFG_ENV_IS_IN_FLASH	1
+# ifdef CONFIG_STXSSA_4M
+#  define CFG_ENV_SECT_SIZE	0x20000
+# else	/* default configuration - 64 MiB flash */
+#  define CFG_ENV_SECT_SIZE	0x40000
+# endif
+# define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
+# define CFG_ENV_SIZE		0x4000
+# define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
+# define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/

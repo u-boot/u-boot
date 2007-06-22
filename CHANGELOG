@@ -1,8 +1,596 @@
+commit b3f9ec86e388207fd03dcdf7b145b9ed080bf024
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 17:22:44 2007 +0200
+
+    ppc4xx: Add bootstrap command for AMCC Sequoia (440EPx) eval board
+
+    This patch adds a board command to configure the I2C bootstrap EEPROM
+    values. Right now 533 and 667MHz are supported for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 533 nor	;to configure the board for 533MHz NOR booting
+    => bootstrap 667 nand	;to configure the board for 667MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df8a24cdd30151505cf57bbee5289e91bf53bd1b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:42:31 2007 +0200
+
+    [ppc4xx] Fix problem with NAND booting on AMCC Acadia
+
+    The latest changes showed a problem with the location of the NAND-SPL
+    image in the OCM and the init-data area (incl. cache). This patch
+    fixes this problem.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 86ba99e34194394052d24c04dc40d1263d29a26f
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:40:58 2007 +0200
+
+    [ppc4xx] Change board/amcc/acadia/cpr.c to pll.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e73846b7cf1e29ae635bf9bb5570269663df2ee5
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 11:33:41 2007 +0200
+
+    [ppc4xx] Change lwmon5 port to work with recent 440 exception rework
+
+    Now CONFIG_440 has to be defined in all PPC440 board config files.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit efa35cf12d914d4caba942acd5a6c45f217de302
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Jun 15 11:19:28 2007 +0200
+
+    ppc4xx: Clean up 440 exceptions handling
+
+    - Introduced dedicated switches for building 440 and 405 images required
+      for 440-specific machine instructions like 'rfmci' etc.
+
+    - Exception vectors moved to the proper location (_start moved away from
+      the critical exception handler space, which it occupied)
+
+    - CriticalInput now serviced (with default handler)
+
+    - MachineCheck properly serviced (added a dedicated handler and return
+      subroutine)
+
+    - Overall cleanup of exceptions declared with STD_EXCEPTION macro (unused,
+      unhandled and those not relevant for 4xx were eliminated)
+
+    - Eliminated Linux leftovers, removed dead code
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b765ffb773f5a3cd5aa94ec76b6a05276b8cd5b2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 08:18:01 2007 +0200
+
+    [ppc4xx] Add initial lwmon5 board support
+
+    This patch adds initial support for the Liebherr lwmon5 board euqipped
+    with an AMCC 440EPx PowerPC.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 85f737376d5ff3d5f0d45a8b657686326d175307
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 07:39:43 2007 +0200
+
+    [ppc4xx] Extend 44x GPIO setup with default output state
+
+    The board config array CFG_440_GPIO_TABLE for the ppc440 GPIO setup
+    is extended with the default GPIO output state (level).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dbca208518e5e7f01a6420588d1cd6e60db74c2b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jun 14 11:14:32 2007 +0200
+
+    [ppc4xx] Extend program_tlb() with virtual & physical addresses
+
+    Now program_tlb() allows to program a TLB (or multiple) with
+    different virtual and physical addresses. With this change, now one
+    physical region (e.g. SDRAM) can be mapped 2 times, once with caches
+    diabled and once with caches enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9912121f7ed804ea58fd62f3f230b5dcfc357d88
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 19:02:41 2007 +0200
+
+    Change 'repeatable' attribute of some commands to sensible values.
+
+    Most prominently this changes 'erase' to be non-repeatable.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 5afb202093f6a001797db92cf695b93a70ea9ab4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 18:47:48 2007 +0200
+
+    Fix 'run' not to continue after interrupted command
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 8f8416fada9faf94b9a92f21fe6000643cb521d5
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Jun 8 14:52:22 2007 +0200
+
+    TQM5200: Add Flat Device Tree support, update default env. accordingly.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9045f33c023f698660a2e45d1b2194c0711abebc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 8 10:24:58 2007 +0200
+
+    Fix config problems on SC3 board; make ide_reset_timeout work.
+
+commit fba3fb0449b8a54542aed1e729de76e7f5a2ff1b
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Fri Jun 8 09:55:24 2007 +0200
+
+    [PATCH] fix gpio setting when using CFG_440_GPIO_TABLE
+
+    Set the correct value in GPIOx_TCR when configuring the gpio
+    with CFG_440_GPIO_TABLE.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 725671ccd2cd04c9ebc50c9e5a94dd8cbade66b7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 6 16:26:56 2007 +0200
+
+    Coding Style cleanup; generate new CHANGELOG file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c440bfe6d6d92d66478a7e84402b31f48413617b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jun 6 11:42:13 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Acadia (405EZ) eval board
+
+    This patch adds NAND booting support for the AMCC Acadia eval board.
+
+    Please make sure to configure jumper J7 to position 2-3 when booting
+    from NOR, and to position 1-2 when booting for NAND.
+
+    I also added a board command to configure the I2C bootstrap EEPROM
+    values. Right now only 267MHz is support for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 267 nor	;to configure the board for 267MHz NOR booting
+    => bootstrap 267 nand	;to configure the board for 267MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 32922cdc470fdfd39bea0c1c4f582d3fb340421e
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Jun 5 12:30:52 2007 -0500
+
+    mpc8641 image size cleanup
+
+    e600 does not have a bootpg restriction.
+    Move the version string to beginning of image at fff00000.
+    Resetvec.S is not needed.
+    Update flash copy instructions.
+    Add tftpflash env variable
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e3cbe1f93c5722f8ebbad468e30c069a2b511097
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Mon Jun 4 08:36:05 2007 +0200
+
+    [PATCH] Fix ppc4xx bootstrap letter displayed on startup
+
+    The attached patch is mainly cosmetic, allowing u-boot to
+    display the correct bootstrap option letter according to the
+    datasheets.
+
+    The original patch was extended with 405EZ support by Stefan
+    Roese.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 18d156eb37c90fadc8ec7a81a3b89176161f85b7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 16:18:17 2007 +0200
+
+    ppc4xx: Add missing file for Bamboo NAND booting support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 155a96478a0881e6da96cbbbcf34952d6a3b1b4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:58:19 2007 +0200
+
+    ppc4xx: Undo Sequoia patch for dynamic EBC speed support of 83MHz
+
+    This patch undoes the patch by Jeff Mann with commit-id ada4697d. As
+    suggested by AMCC it is not recommended to dynamically change the EBC
+    speed after bootup. So we undo this change to be on the safe side.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9d9096043e8f713d4bf1743d32e1459e6a11644b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:29:04 2007 +0200
+
+    ppc4xx: Update Sequoia NAND booting support with ECC
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cf959c7d6687567c308e366e9581e1a5aff5cc5b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:27:11 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Bamboo (440EP) eval board
+
+    This patch adds NAND booting support for the AMCC Bamboo eval board.
+    Since the NAND-SPL boot image is limited to 4kbytes, this version
+    only supports the onboard 64MBytes of DDR. The DIMM modules can't be
+    supported, since the setup code for I2C DIMM autodetection and
+    configuration is too big for this NAND bootloader.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42be56f53c8b107868e6125c8524ae84293e95a7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:23:04 2007 +0200
+
+    NAND: Add ECC support to NAND booting support in nand_spl/nand_boot.c
+
+    The U-Boot NAND booting support is now extended to support ECC
+    upon loading of the NAND U-Boot image.
+
+    Tested on AMCC Sequoia (440EPx) and Bamboo (440EP).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a471db07fbb65a841ffc9f4f112562b945230f98
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:19:29 2007 +0200
+
+    ppc4xx: Prepare Bamboo port for NAND booting support
+
+    This patch updates the "normal" Bamboo NOR booting port, so
+    that it is compatible with the coming soon NAND booting
+    Bamboo port.
+
+    It also enables the 2nd NAND flash on the Bamboo.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 53ad02103fb8be4138a9937a8ab91fcdff7b4987
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:16:58 2007 +0200
+
+    ppc4xx: Update in_be32() functions and friends to latest Linux version
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 91da09cfbce0c1de05d6d84aa8363d666fa7ea3c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:15:12 2007 +0200
+
+    NAND: Add hardware ECC support to the PPC4xx NAND driver ndfc.c
+
+    This patch adds hardware ECC support to the NDFC driver. It also
+    changes the register access from using the "simple" in32/out32
+    functions to the in_be32/out_be32 functions, which make sure
+    that the access is correctly synced. This is the only recommended
+    access to SoC registers in the current Linux kernel.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 17b5e862287cca76f19dcf8b741e61a7d06617f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:12:15 2007 +0200
+
+    NAND: Update nand_ecc.c to latest Linux version
+
+    This patch updates the nand_ecc code to the latest Linux version.
+    The main reason for this is the more compact code. This makes
+    it possible to include the ECC code into the NAND bootloader
+    image (NAND_SPL) for PPC4xx.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d2d432760d2199d0e8558fdd9d1789b8131abcf7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:09:50 2007 +0200
+
+    ppc4xx: 44x DDR driver code cleanup and small fix for Bamboo
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbed2803a2ad0521c7362f5d3e065f99abaedc
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:24 2007 +0200
+
+    ppc4xx: Change Luan config file to support ECC
+
+    With the updated 44x DDR2 driver the Luan board now supports
+    ECC generation and checking.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7187db73491c8de0fb56efb5e5134ba5ec443089
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:00 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Add config option for 180 degree advance clock control as needed
+    for the AMCC Luan eval board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ee1529838abbfaa35f14e3ffbeaaba693159475f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 31 17:20:09 2007 +0200
+
+    Add support for STX GP3SSA (stxssa) Board with 4 MiB flash.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7049288fb1f16f1b317140226cdebd07bd416395
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:26:46 2007 +0200
+
+    Motion-PRO: Code cleanup, fix of a typo in OF_STDOUT_PATH.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 4520fd4d2c450da49637216aa0e53739b61c60ac
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:06:36 2007 +0200
+
+    Motion-PRO: Add support for redundant environment.
+
+    Enable redundant environment, add a MTD partition for it; also add env.
+    variable command for passing MTD partitions to the kernel command line.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a26eabeec31746f06d309103690892805696e344
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:05:11 2007 +0200
+
+    Motion-PRO: Change maximum console buffer size from 256 to 1024 bytes.
+
+    Allow passing longer command line to the kernel - useful especially
+    for passing MTD partition layout.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9160b96f71483a116de81c68985e8ee306d36764
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:04:18 2007 +0200
+
+    Fix: Add missing NULL termination in strings expanded by macros parser.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 630ec84aef7228fc1dbfb38dec78541403a786cd
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:03:37 2007 +0200
+
+    Motion-PRO: Update EEPROM's page write bits and write delay.
+
+    Change EEPROM configuration according to the datasheet: "The 24C01A and 24C02A
+    have a page write capability of two bytes", and "This device offers fast (1ms)
+    byte write". Add 3ms of extra delay.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c00125e07c1ebc125bab40e1e18bceed8be0c162
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:58:45 2007 +0200
+
+    MPC5XXX, Motion-PRO: Fix PHY initialization problem.
+
+    After being reset in mpc5xxx_fec_init_phy(), PHY goes into FX mode, in which
+    networking does not function. This commit switches PHY to TX mode by clearing
+    the FX_SEL bit of Mode Control Register. It also reverses commit
+    008861a2f3ef2c062744d733787c7e530a1b8761, i.e., a temporary workaround.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 93b78f534a6e708b4cf1a4ffb4d8438c67a007db
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:57:15 2007 +0200
+
+    Motion-PRO: Add support for the temperature sensor.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c75e639630cc132dc19cd1ecda5922c0db0bfbba
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:55:23 2007 +0200
+
+    Motion-PRO: Add displaying of CPLD revision information during boot.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c99512d6bd3973f01ca2fc4896d829b46e68f150
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:53:43 2007 +0200
+
+    MPC5xxx: Change names of defines related to IPB and PCI clocks.
+
+    Both CFG_PCISPEED_66 and CFG_IPBSPEED_133 are misnamed, as defining
+    them does not cause PCI or IPB clocks to run at the specified speed.
+    Instead, they configure divisors used to calculate said clocks. This
+    patch renames the defines according to their real function.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a11c0b85dc3664bb3c1e781137118730c8f619ab
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:51:48 2007 +0200
+
+    Motion-PRO: Add LED support.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit d756894722c888d09a9fa1df8323753772d3dcce
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 09:49:00 2007 +0200
+
+    ppc4xx: Fix small 405EZ OCM initilization bug in start.S
+
+    As pointed out by Bruce Adler <bruce.adler@acm.org> this patch
+    fixes a small bug in the 405EZ OCM initialization. Thanks for
+    spotting.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5d4a179013d59a76446462e1eb0a969fba63eb81
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 08:22:09 2007 +0200
+
+    ppc4xx: Update AMCC Acadia support for board revision 1.1
+
+    This patch updates the Acadia (405EZ) support for the new 1.1 board
+    revision. It also adds support for NAND FLASH via the 4xx NDFC.
+
+    Please note that the jumper J7 must be in position 2-3 for this
+    NAND support. Position 1-2 is for NAND booting only. NAND booting
+    support will follow later.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9f0077abd69f7a7c756a915b961037302be3e6f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:48:09 2007 +0200
+
+    ppc4xx: Use do { ... } while (0) for CPR & SDR access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f3dfc139a838b0841c151efe00ad47db2366e79
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:46:10 2007 +0200
+
+    ppc4xx: Add 405 support to 4xx NAND driver ndfc.c
+
+    This patch adds support for 405 PPC's to the 4xx NAND driver
+    ndfc.c. This is in preparation for the new AMCC 405EZ.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 10603d76767426be803dadd4fb688b97eb69481c
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 21 07:41:22 2007 +0200
+
+    ppc4xx: Fix problem in 405EZ OCM initialization
+
+    As spotted by Bruce Adler this patch fixes an initialization problem
+    for the 405EZ OCM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3e3b956906eba9e4ad7931581ecedaad10eccce8
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 16:47:03 2007 +0100
+
+    Reduce line lengths to 80 characters max.
+
+commit 93ef45c9ddfdd9fc17c4e74bd8e2f2456580eb72
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:34:07 2007 +0100
+
+    Makefile permissions
+
+commit 1443a31457d68f7e8f0b9403e9832ec1e79dc59d
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:33:11 2007 +0100
+
+    Makefile permissions
+
+commit 70124c2602ae2d4c5d3dba05b482d91548242de8
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed May 16 14:49:12 2007 +0200
+
+    Fix compile problem cause my Microblaze merge
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit ada4697d0230d6da552867777f98a67ec3ba2579
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Wed May 16 13:23:10 2007 +0200
+
+    [PATCH] Run new sequoia boards with an EBC speed of 83MHz
+
+    Because the Sequoia board does not boot with an EBC faster than 66MHz,
+    the clock divider are changed after the initial boot process.
+
+    This allows for maximum clocking speeds  to be achieved on newer boards.
+    Sequoia boards with 666.66 MHz processors require that the EBC divider
+    be set to 3 in order to start the initial boot process at a slower EBC
+    speed. After the initial boot process, the divider can be set back to 2,
+    which will cause the boards to run at 83.333MHz. This is backward
+    compatible with boards with 533.33 MHz processors, as these boards will
+    already be set with an EBC divider of 2.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+
+commit a7676ea7732f3c596805079fed7e5c9fac652cfc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 16 01:16:53 2007 +0200
+
+    Minor Coding Style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit d62f64cc23a940eafe712c776b3249e4160753d1
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed May 16 00:13:33 2007 +0200
 
     Coding Style Cleanup, new CHANGELOG
+
+commit 61936667e86a250ae12fd2dc189d3588f0a59e0b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:49 2007 +0200
+
+    ppc4xx: Add mtcpr/mfcpr access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 343c48bd84606c4025c8a7c7263fda465d6e284c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:06 2007 +0200
+
+    ppc4xx: Set bd->bi_pci_busfreq on 440EPx/GRx too
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 7d98ba770a7eaefa29ce927f31a0956df85bf650
 Author: Piotr Kruszynski <ppk@semihalf.com>
@@ -10,6 +598,48 @@ Date:	Thu May 10 16:55:52 2007 +0200
 
     [Motion-PRO] Add MTD and JFFS2 support, also add default partition
     definition.
+
+commit 65fb6a676e821f9570a2a376dc204bf611ce5f81
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:42:44 2007 +0100
+
+    Add the board directory for SMN42
+
+commit 160131bf965785419626df6c388729fe0b597992
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:41:58 2007 +0100
+
+    Add the files for the SMN42 board
+
+commit 5c6d2b5a500f8c49670de8910150b78a41f781fc
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:40:34 2007 +0100
+
+    Remove the deleted files for the SMN42 patch
+
+commit b0d8f5bf0d215adc9424cb228b2484dbf07f7761
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:37:56 2007 +0100
+
+    New board SMN42 branch
+
+commit 29f3be0caf0799ca6b89dfd9824c15619a50000f
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 10:24:38 2007 +0100
+
+    Makefile permissions
+
+commit b84289b595731e8851df46e893845cc1322c9b9b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue May 8 14:17:07 2007 -0500
+
+    8641hpcn: Fix Makefile after moving pixis to board/freescale.
+
+    The OBJTREE != SRCTREE build scenario was broken.
+    This fixes it.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit e69f66c6ebe82bbbd1da766bc4eda40ec7ee5af1
 Author: Michal Simek <monstr@monstr.eu>
@@ -92,6 +722,18 @@ Author: Michal Simek <monstr@monstr.eu>
 Date:	Mon May 7 19:43:10 2007 +0200
 
     fix: read and write MSR - repair number of parameters
+
+commit 193b4a3bb3acaddf798da8de0da05d94ba8774ee
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon May 7 19:42:49 2007 +0200
+
+    [PATCH] ppc4xx: Fix CONFIG_SYS_CLK_FREQ definition in Sequoia config file
+
+    A '3' got cut off in the formatting of the last patch to automatically
+    change the clock speed of the system clock on sequoia board.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 19bf1fbad7f19d5a120be9b1daf136e052fcab39
 Author: Michal Simek <monstr@monstr.eu>

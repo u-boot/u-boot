@@ -30,6 +30,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_TAISHAN		1	/* Board is taishan		*/
 #define CONFIG_440GX		1	/* Specifc GX support		*/
+#define CONFIG_440		1	/* ... PPC440 family		*/
 #define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #undef	CFG_DRAM_TEST			/* Disable-takes long time!	*/
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external freq to pll	*/

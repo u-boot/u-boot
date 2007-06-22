@@ -82,10 +82,7 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -956,7 +953,8 @@
 #define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
 #define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 /* Pin Function Control Register 1 */
 #define SDR0_PFC1                    0x4101
 #define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
@@ -1102,6 +1100,8 @@
 #define   SDR0_PFC2_SELECT_CONFIG_4            0xA0000000   /* 2xRGMII using RGMII bridge */
 #define   SDR0_PFC2_SELECT_CONFIG_5            0xC0000000   /* 2xRTBI  using RGMII bridge */
 #define   SDR0_PFC2_SELECT_CONFIG_6            0x40000000   /* 2xSMII  using  ZMII bridge */
+
+#define SDR0_PFC4		0x4104
 
 /* USB2PHY0 Control Register */
 #define SDR0_USB2PHY0CR               0x4103

@@ -234,6 +234,8 @@
 #ifndef CONFIG_CAM5200
 #define CUSTOM_ENV_SETTINGS						\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"bootfile_fdt=/tftpboot/tqm5200/uImage_fdt\0"			\
+	"fdt_file=/tftpboot/tqm5200/tqm5200.dtb\0"			\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
 #else
 #define CUSTOM_ENV_SETTINGS 						\
@@ -243,6 +245,10 @@
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"console=ttyS0\0"						\
+	"kernel_addr=200000\0"						\
+	"fdt_addr=400000\0"						\
+	"hostname=tqm5200\0"						\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -252,13 +258,17 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
-		"console=ttyS0,${baudrate}\0"				\
+		"console=${console},${baudrate}\0"			\
 	"flash_self=run ramargs addip addcons;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
-		"bootm\0"						\
+	"net_nfs=tftp ${kernel_addr} ${bootfile};"			\
+		"run nfsargs addip addcons;bootm\0"			\
+	"net_nfs_fdt=tftp ${kernel_addr} ${bootfile_fdt};"		\
+		"tftp ${fdt_addr} ${fdt_file};setenv console ttyPSC0;"	\
+		"run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	CUSTOM_ENV_SETTINGS						\
 	"load=tftp 200000 ${u-boot}\0"					\
 	ENV_UPDT							\
@@ -675,5 +685,19 @@
 
 /* Interval between registers						     */
 #define CFG_ATA_STRIDE		4
+
+/*-----------------------------------------------------------------------
+ * Open firmware flat tree support
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+#define OF_CPU			"PowerPC,5200@0"
+#define OF_SOC			"soc5200@f0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 
 #endif /* __CONFIG_H */

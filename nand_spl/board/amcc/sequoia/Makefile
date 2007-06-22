@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2006-2007
 # Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -30,7 +30,7 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o init.o resetvec.o
-COBJS	= nand_boot.o ndfc.o sdram.o
+COBJS	= nand_boot.o nand_ecc.o ndfc.o sdram.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -84,6 +84,11 @@ $(obj)sdram.c:
 $(obj)nand_boot.c:
 	@rm -f $(obj)nand_boot.c
 	ln -s $(SRCTREE)/nand_spl/nand_boot.c $(obj)nand_boot.c
+
+# from drivers/nand directory
+$(obj)nand_ecc.c:
+	@rm -f $(obj)nand_ecc.c
+	ln -s $(SRCTREE)/drivers/nand/nand_ecc.c $(obj)nand_ecc.c
 
 #########################################################################
 

@@ -59,7 +59,8 @@ int disk_read (__u32 startblock, __u32 getsize, __u8 * bufptr)
 	if (cur_dev == NULL)
 		return -1;
 	if (cur_dev->block_read) {
-		return cur_dev->block_read (cur_dev->dev, startblock, getsize, (unsigned long *)bufptr);
+		return cur_dev->block_read (cur_dev->dev
+			, startblock, getsize, (unsigned long *)bufptr);
 	}
 	return -1;
 }
@@ -89,8 +90,11 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		part_offset=0;
 	}
 	else {
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI) || \
-    (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_SYSTEMACE)
+#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
+     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+     (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
+     defined(CONFIG_SYSTEMACE)          )
 		disk_partition_t info;
 		if(!get_partition_info(dev_desc, part_no, &info)) {
 			part_offset = info.start;
@@ -993,7 +997,8 @@ file_fat_detectfs(void)
 	memcpy (vol_label, volinfo.volume_label, 11);
 	vol_label[11] = '\0';
 	volinfo.fs_type[5]='\0';
-	printf("Partition %d: Filesystem: %s \"%s\"\n",cur_part,volinfo.fs_type,vol_label);
+	printf("Partition %d: Filesystem: %s \"%s\"\n"
+			,cur_part,volinfo.fs_type,vol_label);
 	return 0;
 }
 

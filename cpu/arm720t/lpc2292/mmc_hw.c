@@ -20,7 +20,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/arch/hardware.h>
-#include "spi.h"
+#include <asm/arch/spi.h>
 
 #define MMC_Enable() PUT32(IO1CLR, 1l << 22)
 #define MMC_Disable() PUT32(IO1SET, 1l << 22)

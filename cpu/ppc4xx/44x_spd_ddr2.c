@@ -144,7 +144,7 @@ typedef enum ddr_cas_id {
  * Prototypes
  *-----------------------------------------------------------------------------*/
 static unsigned long sdram_memsize(void);
-void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
+void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -465,7 +465,11 @@ long int initdram(int board_type)
 	 * Set the SDRAM Clock Timing Register
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_CLKTR, val);
+#ifdef CFG_44x_DDR2_CKTR_180
+	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_180_DEG_ADV);
+#else
 	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_0_DEG);
+#endif
 
 	/*------------------------------------------------------------------
 	 * Program the BxCF registers.
@@ -524,7 +528,7 @@ long int initdram(int board_type)
 	dram_size = sdram_memsize();
 
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, dram_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
 	/*------------------------------------------------------------------
 	 * DQS calibration.
@@ -1117,7 +1121,8 @@ static void program_codt(unsigned long *dimm_populated,
 				modt3 = 0x00000000;
 			}
 			if (total_rank == 4) {
-				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) | CALC_ODT_R(2) | CALC_ODT_R(3);
+				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) |
+					CALC_ODT_R(2) | CALC_ODT_R(3);
 				modt0 = CALC_ODT_RW(2);
 				modt1 = 0x00000000;
 				modt2 = CALC_ODT_RW(0);

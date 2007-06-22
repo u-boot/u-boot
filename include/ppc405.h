@@ -27,6 +27,15 @@
 /*--------------------------------------------------------------------- */
 	#define  srr2  0x3de      /* save/restore register 2 */
 	#define  srr3  0x3df      /* save/restore register 3 */
+
+	/*
+	 * 405 does not really have CSRR0/1 but SRR2/3 are used during critical
+	 * exception for the exact same purposes - let's alias them and have a
+	 * common handling in crit_return() and CRIT_EXCEPTION
+	 */
+	#define  csrr0 srr2
+	#define  csrr1 srr3
+
 	#define  dbsr  0x3f0      /* debug status register */
 	#define  dbcr0 0x3f2      /* debug control register 0 */
 	#define  dbcr1 0x3bd      /* debug control register 1 */
@@ -556,6 +565,11 @@
 #define sdricintstat	0x4510
 
 #define SDR_NAND0_NDEN		0x80000000
+#define SDR_NAND0_NDBTEN	0x40000000
+#define SDR_NAND0_NDBADR_MASK	0x30000000
+#define SDR_NAND0_NDBPG_MASK	0x0f000000
+#define SDR_NAND0_NDAREN	0x00800000
+#define SDR_NAND0_NDRBEN	0x00400000
 
 #define SDR_ULTRA0_NDGPIOBP	0x80000000
 #define SDR_ULTRA0_CSN_MASK	0x78000000
@@ -563,6 +577,9 @@
 #define SDR_ULTRA0_CSNSEL1	0x20000000
 #define SDR_ULTRA0_CSNSEL2	0x10000000
 #define SDR_ULTRA0_CSNSEL3	0x08000000
+#define SDR_ULTRA0_EBCRDYEN	0x04000000
+#define SDR_ULTRA0_SPISSINEN	0x02000000
+#define SDR_ULTRA0_NFSRSTEN	0x01000000
 
 #define SDR_ULTRA1_LEDNENABLE	0x40000000
 
