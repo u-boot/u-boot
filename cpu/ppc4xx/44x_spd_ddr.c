@@ -70,6 +70,13 @@
 
 #define ONE_BILLION	1000000000
 
+#if defined(CONFIG_PPC4xx_USE_SPD_DDR_INIT_HANG)
+extern void spd_ddr_init_hang (void);
+#define HANG()	spd_ddr_init_hang()
+#else
+#define HANG()	hang()
+#endif
+
 /*-----------------------------------------------------------------------------
   |  Memory Controller Options 0
   +-----------------------------------------------------------------------------*/
@@ -467,7 +474,7 @@ static void get_spd_info(unsigned long *dimm_populated,
 
 	if (dimm_found == FALSE) {
 		printf("ERROR - No memory installed. Install a DDR-SDRAM DIMM.\n\n");
-		hang();
+		HANG();
 	}
 }
 
@@ -490,7 +497,7 @@ static void check_mem_type(unsigned long *dimm_populated,
 				       dimm_num);
 				printf("Only DDR SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				HANG();
 				break;
 			}
 		}
@@ -510,7 +517,7 @@ static void check_volt_type(unsigned long *dimm_populated,
 			if (voltage_type != 0x04) {
 				printf("ERROR: DIMM %lu with unsupported voltage level.\n",
 				       dimm_num);
-				hang();
+				HANG();
 			} else {
 				debug("DIMM %lu voltage level supported.\n", dimm_num);
 			}
@@ -581,7 +588,7 @@ static void program_cfg0(unsigned long *dimm_populated,
 				printf("WARNING: DIMM with datawidth of %lu bits.\n",
 				       data_width);
 				printf("Only DIMMs with 32 or 64 bit datawidths supported.\n");
-				hang();
+				HANG();
 			}
 			break;
 		}
@@ -769,7 +776,7 @@ static void program_tr0(unsigned long *dimm_populated,
 				if ((tcyc_reg & 0x0F) >= 10) {
 					printf("ERROR: Tcyc incorrect for DIMM in slot %lu\n",
 					       dimm_num);
-					hang();
+					HANG();
 				}
 
 				cycle_time_ns_x_10[cas_index] =
@@ -849,7 +856,7 @@ static void program_tr0(unsigned long *dimm_populated,
 		printf("ERROR: No supported CAS latency with the installed DIMMs.\n");
 		printf("Only CAS latencies of 2.0, 2.5, and 3.0 are supported.\n");
 		printf("Make sure the PLB speed is within the supported range.\n");
-		hang();
+		HANG();
 	}
 
 	/*
@@ -1008,6 +1015,7 @@ static int short_mem_test(void)
 			 */
 			for (i = 0; i < NUMMEMTESTS; i++) {
 				for (j = 0; j < NUMMEMWORDS; j++) {
+//printf("bank enabled base:%x\n", &membase[j]);
 					membase[j] = test[i][j];
 					ppcDcbf((unsigned long)&(membase[j]));
 				}
@@ -1160,7 +1168,7 @@ static void program_tr1(void)
 	 */
 	if (window_found == FALSE) {
 		printf("ERROR: Cannot determine a common read delay.\n");
-		hang();
+		HANG();
 	}
 
 	/*
@@ -1310,7 +1318,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				printf("ERROR: Unsupported value for the banksize: %d.\n",
 				       bank_size_id);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				HANG();
 			}
 
 			switch (num_col_addr) {
@@ -1332,7 +1340,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				printf("ERROR: Unsupported value for number of "
 				       "column addresses: %d.\n", num_col_addr);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				HANG();
 			}
 
 			/*

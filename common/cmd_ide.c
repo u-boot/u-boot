@@ -185,6 +185,9 @@ static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
+#ifndef CFG_ATA_PORT_ADDR
+#define CFG_ATA_PORT_ADDR(port) (port)
+#endif
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
@@ -382,6 +385,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	image_header_t *hdr;
 	int rcode = 0;
 
+	SHOW_BOOT_PROGRESS (41);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -397,44 +401,50 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-42);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (42);
 
 	if (!boot_device) {
 		puts ("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-43);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (43);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if (ide_dev_desc[dev].type==DEV_TYPE_UNKNOWN) {
 		printf ("\n** Device %d not available\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-44);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (44);
 
 	if (*ep) {
 		if (*ep != ':') {
 			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
-			SHOW_BOOT_PROGRESS (-1);
+			SHOW_BOOT_PROGRESS (-45);
 			return 1;
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
+	SHOW_BOOT_PROGRESS (45);
 	if (get_partition_info (&ide_dev_desc[dev], part, &info)) {
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-46);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (46);
 	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
 	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-47);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (47);
 
 	printf ("\nLoading from IDE device %d, partition %d: "
 		"Name: %.32s  Type: %.32s\n",
@@ -445,26 +455,29 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (ide_dev_desc[dev].block_read (dev, info.start, 1, (ulong *)addr) != 1) {
 		printf ("** Read error on %d:%d\n", dev, part);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-48);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (48);
 
 	hdr = (image_header_t *)addr;
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 		printf("\n** Bad Magic Number **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-49);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (49);
 
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
 		puts ("\n** Bad Header Checksum **\n");
-		SHOW_BOOT_PROGRESS (-2);
+		SHOW_BOOT_PROGRESS (-50);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (50);
 	hdr->ih_hcrc = htonl(checksum); /* restore checksum for later use */
 
 	print_image_hdr (hdr);
@@ -477,9 +490,10 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (ide_dev_desc[dev].block_read (dev, info.start+1, cnt,
 		      (ulong *)(addr+info.blksz)) != cnt) {
 		printf ("** Read error on %d:%d\n", dev, part);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-51);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS (51);
 
 
 	/* Loading ok, update default load address */
@@ -807,13 +821,13 @@ ide_outb(int dev, int port, unsigned char val)
 
 	/* Ensure I/O operations complete */
 	EIEIO;
-	*((uchar *)(ATA_CURR_BASE(dev)+port)) = val;
+	*((u16 *)(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port))) = val;
 }
 #else	/* ! __PPC__ */
 static void __inline__
 ide_outb(int dev, int port, unsigned char val)
 {
-	outb(val, ATA_CURR_BASE(dev)+port);
+	outb(val, ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port));
 }
 #endif	/* __PPC__ */
 
@@ -825,7 +839,7 @@ ide_inb(int dev, int port)
 	uchar val;
 	/* Ensure I/O operations complete */
 	EIEIO;
-	val = *((uchar *)(ATA_CURR_BASE(dev)+port));
+	val = *((u16 *)(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
 	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
 		dev, port, (ATA_CURR_BASE(dev)+port), val);
 	return (val);
@@ -834,7 +848,7 @@ ide_inb(int dev, int port)
 static unsigned char __inline__
 ide_inb(int dev, int port)
 {
-  return inb(ATA_CURR_BASE(dev)+port);
+  return inb(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port));
 }
 #endif	/* __PPC__ */
 
@@ -891,6 +905,9 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 #ifdef __MIPS__
 		*dbuf++ = swab16p((u16*)pbuf);
 		*dbuf++ = swab16p((u16*)pbuf);
+#elif defined(CONFIG_PCS440EP)
+		*dbuf++ = *pbuf;
+		*dbuf++ = *pbuf;
 #else
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
@@ -930,10 +947,18 @@ output_data(int dev, ulong *sect_buf, int words)
 	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
 	dbuf = (ushort *)sect_buf;
 	while (words--) {
+#if defined(CONFIG_PCS440EP)
+		/* not tested, because CF was write protected */
+		EIEIO;
+		*pbuf = ld_le16(dbuf++);
+		EIEIO;
+		*pbuf = ld_le16(dbuf++);
+#else
 		EIEIO;
 		*pbuf = *dbuf++;
 		EIEIO;
 		*pbuf = *dbuf++;
+#endif
 	}
 #endif
 }
@@ -981,10 +1006,17 @@ input_data(int dev, ulong *sect_buf, int words)
 	debug("in input data base for read is %lx\n", (unsigned long) pbuf);
 
 	while (words--) {
+#if defined(CONFIG_PCS440EP)
+		EIEIO;
+		*dbuf++ = ld_le16(pbuf);
+		EIEIO;
+		*dbuf++ = ld_le16(pbuf);
+#else
 		EIEIO;
 		*dbuf++ = *pbuf;
 		EIEIO;
 		*dbuf++ = *pbuf;
+#endif
 	}
 #endif
 }
