@@ -37,6 +37,7 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_CPCI405		1	/* ...on a CPCI405 board	*/
 #define CONFIG_CPCI405_VER2	1	/* ...version 2			*/
+#undef  CONFIG_CPCI405_6U               /* enable this for 6U boards    */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
@@ -56,6 +57,10 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
+
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 
@@ -166,6 +171,7 @@
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
 #define CONFIG_PCI			/* include pci support	        */
+#define CFG_PCI_PRE_INIT                /* pci interrupt mapping etc.   */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */

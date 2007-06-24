@@ -23,9 +23,11 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 #include <net.h>
+#include <pci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -179,11 +181,15 @@ int board_early_init_f (void)
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
 	mtdcr(uicer, 0x00000000);       /* disable all ints */
 	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
+#ifdef CONFIG_CPCI405_6U
 	if (cpci405_version() == 3) {
 		mtdcr(uicpr, 0xFFFFFF99);       /* set int polarities */
 	} else {
 		mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
 	}
+#else
+	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+#endif
 	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
 	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
@@ -227,10 +233,10 @@ int cpci405_version(void)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00180000);
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00180000);
+	out_be32((void*)GPIO0_ODR, in_be32((void*)GPIO0_ODR) & ~0x00180000);
+	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) & ~0x00180000);
 	udelay(1000);                   /* wait some time before reading input */
-	value = in32(GPIO0_IR) & 0x00180000;       /* get config bits */
+	value = in_be32((void*)GPIO0_IR) & 0x00180000;       /* get config bits */
 
 	/*
 	 * Restore GPIO settings
@@ -245,7 +251,7 @@ int cpci405_version(void)
 		/* CS2==0 && CS3==1 -> version 2 */
 		return 2;
 	case 0x00100000:
-		/* CS2==1 && CS3==0 -> version 3 */
+		/* CS2==1 && CS3==0 -> version 3 or 6U board */
 		return 3;
 	case 0x00000000:
 		/* CS2==0 && CS3==0 -> version 4 */
@@ -283,7 +289,6 @@ int misc_init_r (void)
 	 * On CPCI-405 version 2 the environment is saved in eeprom!
 	 * FPGA can be gzip compressed (malloc) and booted this late.
 	 */
-
 	if (cpci405_version() >= 2) {
 		/*
 		 * Setup GPIO pins (CS6+CS7 as GPIO)
@@ -354,6 +359,7 @@ int misc_init_r (void)
 		SET_FPGA(FPGA_PRG | FPGA_CLK | FPGA_DATA);
 		udelay(1000); /* wait 1ms */
 
+#ifdef CONFIG_CPCI405_6U
 		if (cpci405_version() == 3) {
 			volatile unsigned short *fpga_mode = (unsigned short *)CFG_FPGA_BASE_ADDR;
 			volatile unsigned char *leds = (unsigned char *)CFG_LED_ADDR;
@@ -375,6 +381,7 @@ int misc_init_r (void)
 			udelay(100);
 			*fpga_mode &= ~(CFG_FPGA_MODE_DUART_RESET);
 		}
+#endif
 	}
 	else {
 		puts("\n*** U-Boot Version does not match Board Version!\n");
@@ -493,12 +500,6 @@ int checkboard (void)
 #endif
 
 	putc ('\n');
-
-	/*
-	 * Disable sleep mode in LXT971
-	 */
-	lxt971_no_sleep();
-
 	return 0;
 }
 
@@ -511,23 +512,21 @@ long int initdram (int board_type)
 	mtdcr(memcfga, mem_mb0cf);
 	val = mfdcr(memcfgd);
 
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
-/* ------------------------------------------------------------------------- */
 
-int testdram (void)
+void reset_phy(void)
 {
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
+#ifdef CONFIG_LXT971_NO_SLEEP
 
-	return (0);
+	/*
+	 * Disable sleep mode in LXT971
+	 */
+	lxt971_no_sleep();
+#endif
 }
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -550,6 +549,41 @@ void ide_set_reset(int on)
 
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CPCI405_VER2 */
+
+
+#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+void cpci405_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
+{
+	unsigned char int_line = 0xff;
+
+	/*
+	 * Write pci interrupt line register (cpci405 specific)
+	 */
+	switch (PCI_DEV(dev) & 0x03) {
+	case 0:
+		int_line = 27 + 2;
+		break;
+	case 1:
+		int_line = 27 + 3;
+		break;
+	case 2:
+		int_line = 27 + 0;
+		break;
+	case 3:
+		int_line = 27 + 1;
+		break;
+	}
+
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, int_line);
+}
+
+int pci_pre_init(struct pci_controller *hose)
+{
+	hose->fixup_irq = cpci405_pci_fixup_irq;
+	return 1;
+}
+#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+
 
 
 #ifdef CONFIG_CPCI405AB
