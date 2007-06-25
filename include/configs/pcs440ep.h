@@ -125,7 +125,6 @@
 #undef CONFIG_DDR_ECC			/* don't use ECC			*/
 #define SPD_EEPROM_ADDRESS      {0x50}
 #define	CONFIG_PROG_SDRAM_TLB	1
-#define CONFIG_PPC4xx_USE_SPD_DDR_INIT_HANG	1
 
 /*-----------------------------------------------------------------------
  * I2C

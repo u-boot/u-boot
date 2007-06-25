@@ -506,8 +506,6 @@ int checkboard(void)
 	return (0);
 }
 
-
-#if defined(CONFIG_PPC4xx_USE_SPD_DDR_INIT_HANG)
 void spd_ddr_init_hang (void)
 {
 	status_led_set (0, STATUS_LED_OFF);
@@ -520,7 +518,6 @@ void spd_ddr_init_hang (void)
 		udelay (100000);
 	}
 }
-#endif
 
 long int initdram (int board_type)
 {
