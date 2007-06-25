@@ -35,18 +35,18 @@
 #define MSR_DWE         (1<<10)         /* Debug Wait Enable (4xx) */
 #define MSR_UBLE        (1<<10)         /* BTB lock enable (e500) */
 #define MSR_BE		(1<<9)		/* Branch Trace */
-#define MSR_DE		(1<<9) 		/* Debug Exception Enable */
+#define MSR_DE		(1<<9)		/* Debug Exception Enable */
 #define MSR_FE1		(1<<8)		/* Floating Exception mode 1 */
 #define MSR_IP		(1<<6)		/* Exception prefix 0x000/0xFFF */
-#define MSR_IR		(1<<5) 		/* Instruction Relocate */
+#define MSR_IR		(1<<5)		/* Instruction Relocate */
 #define MSR_IS          (1<<5)          /* Book E Instruction space */
-#define MSR_DR		(1<<4) 		/* Data Relocate */
+#define MSR_DR		(1<<4)		/* Data Relocate */
 #define MSR_DS          (1<<4)          /* Book E Data space */
 #define MSR_PE		(1<<3)		/* Protection Enable */
 #define MSR_PX		(1<<2)		/* Protection Exclusive Mode */
 #define MSR_PMM         (1<<2)          /* Performance monitor mark bit (e500) */
 #define MSR_RI		(1<<1)		/* Recoverable Exception */
-#define MSR_LE		(1<<0) 		/* Little Endian */
+#define MSR_LE		(1<<0)		/* Little Endian */
 
 #ifdef CONFIG_APUS_FAST_EXCEPT
 #define MSR_		MSR_ME|MSR_IP|MSR_RI
@@ -123,9 +123,9 @@
 #define   DBCR_EDM	0x80000000
 #define   DBCR_IDM	0x40000000
 #define   DBCR_RST(x)	(((x) & 0x3) << 28)
-#define     DBCR_RST_NONE       	0
-#define     DBCR_RST_CORE       	1
-#define     DBCR_RST_CHIP       	2
+#define     DBCR_RST_NONE		0
+#define     DBCR_RST_CORE		1
+#define     DBCR_RST_CHIP		2
 #define     DBCR_RST_SYSTEM		3
 #define   DBCR_IC	0x08000000	/* Instruction Completion Debug Evnt */
 #define   DBCR_BT	0x04000000	/* Branch Taken Debug Event */
@@ -266,7 +266,7 @@
 #define SPRN_ICMP	0x3D5	/* Instruction TLB Compare Register */
 #define SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
 #define SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
-#define SPRN_IMMR	0x27E  	/* Internal Memory Map Register */
+#define SPRN_IMMR	0x27E	/* Internal Memory Map Register */
 #define SPRN_LDSTCR	0x3F8   /* Load/Store Control Register */
 #define SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
 #define SPRN_LR		0x008	/* Link Register */
@@ -495,17 +495,17 @@
 #define DBCR0	SPRN_DBCR0	/* Debug Control Register 0 */
 #define DBCR1	SPRN_DBCR1	/* Debug Control Register 1 */
 #define DBSR	SPRN_DBSR	/* Debug Status Register */
-#define DCMP	SPRN_DCMP      	/* Data TLB Compare Register */
-#define DEC	SPRN_DEC       	/* Decrement Register */
-#define DMISS	SPRN_DMISS     	/* Data TLB Miss Register */
+#define DCMP	SPRN_DCMP	/* Data TLB Compare Register */
+#define DEC	SPRN_DEC	/* Decrement Register */
+#define DMISS	SPRN_DMISS	/* Data TLB Miss Register */
 #define DSISR	SPRN_DSISR	/* Data Storage Interrupt Status Register */
-#define EAR	SPRN_EAR       	/* External Address Register */
+#define EAR	SPRN_EAR	/* External Address Register */
 #define ESR	SPRN_ESR	/* Exception Syndrome Register */
 #define HASH1	SPRN_HASH1	/* Primary Hash Address Register */
 #define HASH2	SPRN_HASH2	/* Secondary Hash Address Register */
 #define HID0	SPRN_HID0	/* Hardware Implementation Register 0 */
 #define HID1	SPRN_HID1	/* Hardware Implementation Register 1 */
-#define IABR	SPRN_IABR      	/* Instruction Address Breakpoint Register */
+#define IABR	SPRN_IABR	/* Instruction Address Breakpoint Register */
 #define IAC1	SPRN_IAC1	/* Instruction Address Register 1 */
 #define IAC2	SPRN_IAC2	/* Instruction Address Register 2 */
 #define IBAT0L	SPRN_IBAT0L	/* Instruction BAT 0 Lower Register */
@@ -522,13 +522,13 @@
 #define IBAT5U	SPRN_IBAT5U	/* Instruction BAT 5 Upper Register */
 #define IBAT6L	SPRN_IBAT6L	/* Instruction BAT 6 Lower Register */
 #define IBAT6U	SPRN_IBAT6U	/* Instruction BAT 6 Upper Register */
-#define IBAT7L 	SPRN_IBAT7L	/* Instruction BAT 7 Lower Register */
+#define IBAT7L	SPRN_IBAT7L	/* Instruction BAT 7 Lower Register */
 #define IBAT7U	SPRN_IBAT7U	/* Instruction BAT 7 Lower Register */
 #define ICMP	SPRN_ICMP	/* Instruction TLB Compare Register */
 #define IMISS	SPRN_IMISS	/* Instruction TLB Miss Register */
-#define IMMR	SPRN_IMMR      	/* PPC 860/821 Internal Memory Map Register */
+#define IMMR	SPRN_IMMR	/* PPC 860/821 Internal Memory Map Register */
 #define LDSTCR	SPRN_LDSTCR     /* Load/Store Control Register */
-#define L2CR	SPRN_L2CR    	/* PPC 750 L2 control register */
+#define L2CR	SPRN_L2CR	/* PPC 750 L2 control register */
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_MPC86xx)
@@ -540,7 +540,7 @@
 #define SVR	SPRN_SVR	/* System-On-Chip Version Register */
 #define PVR	SPRN_PVR	/* Processor Version */
 #define RPA	SPRN_RPA	/* Required Physical Address Register */
-#define SDR1	SPRN_SDR1      	/* MMU hash base register */
+#define SDR1	SPRN_SDR1	/* MMU hash base register */
 #define SPR0	SPRN_SPRG0	/* Supervisor Private Registers */
 #define SPR1	SPRN_SPRG1
 #define SPR2	SPRN_SPRG2
@@ -611,7 +611,7 @@
 #define IVOR35	SPRN_IVOR35
 #define MCSRR0	SPRN_MCSRR0
 #define MCSRR1	SPRN_MCSRR1
-#define L1CSR0 	SPRN_L1CSR0
+#define L1CSR0	SPRN_L1CSR0
 #define L1CSR1	SPRN_L1CSR1
 #define MCSR	SPRN_MCSR
 #define MMUCSR0	SPRN_MMUCSR0
@@ -620,7 +620,7 @@
 #define PID1	SPRN_PID1
 #define PID2	SPRN_PID2
 #define MAS0	SPRN_MAS0
-#define MAS1 	SPRN_MAS1
+#define MAS1	SPRN_MAS1
 #define MAS2	SPRN_MAS2
 #define MAS3	SPRN_MAS3
 #define MAS4	SPRN_MAS4
@@ -632,7 +632,7 @@
 
 #define DCRN_BEAR	0x090	/* Bus Error Address Register */
 #define DCRN_BESR	0x091	/* Bus Error Syndrome Register */
-#define   BESR_DSES    	0x80000000	/* Data-Side Error Status */
+#define   BESR_DSES	0x80000000	/* Data-Side Error Status */
 #define   BESR_DMES	0x40000000	/* DMA Error Status */
 #define   BESR_RWS	0x20000000	/* Read/Write Status */
 #define   BESR_ETMASK	0x1C000000	/* Error Type */
@@ -689,8 +689,8 @@
 #define   IOCR_E3LP	0x01000000
 #define   IOCR_E4TE	0x00800000
 #define   IOCR_E4LP	0x00400000
-#define   IOCR_EDT     	0x00080000
-#define   IOCR_SOR     	0x00040000
+#define   IOCR_EDT	0x00080000
+#define   IOCR_SOR	0x00040000
 #define   IOCR_EDO	0x00008000
 #define   IOCR_2XC	0x00004000
 #define   IOCR_ATC	0x00002000
@@ -815,7 +815,7 @@
 #define PVR_823		PVR_821
 #define PVR_850		PVR_821
 #define PVR_860		PVR_821
-#define PVR_7400       	0x000C0000
+#define PVR_7400	0x000C0000
 #define PVR_8240	0x00810100
 
 /*

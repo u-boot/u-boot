@@ -143,12 +143,12 @@
 #define UIC_USBH1	0x00040000	/* USB Host 1			*/
 #define UIC_USBH2	0x00020000	/* USB Host 2			*/
 #define UIC_USBDEV	0x00010000	/* USB Device			*/
-#define UIC_ENET	0x00008000	/* Ethernet interrupt status 	*/
-#define UIC_ENET1	0x00008000	/* dummy define              	*/
+#define UIC_ENET	0x00008000	/* Ethernet interrupt status	*/
+#define UIC_ENET1	0x00008000	/* dummy define			*/
 #define UIC_EMAC_WAKE	0x00004000	/* EMAC wake up			*/
 
 #define UIC_MADMAL	0x00002000	/* Logical OR of following MadMAL int */
-#define UIC_MAL_SERR 	0x00002000	/*   MAL SERR			*/
+#define UIC_MAL_SERR	0x00002000	/*   MAL SERR			*/
 #define UIC_MAL_TXDE	0x00002000	/*   MAL TXDE			*/
 #define UIC_MAL_RXDE	0x00002000	/*   MAL RXDE			*/
 
@@ -886,7 +886,7 @@
 #define cntrl0  (CNTRL_DCR_BASE+0x1)  /* Control 0 register                  */
 #define cntrl1  (CNTRL_DCR_BASE+0x2)  /* Control 1 register		     */
 #define reset   (CNTRL_DCR_BASE+0x3)  /* reset register			     */
-#define strap   (CNTRL_DCR_BASE+0x4)  /* strap register		   	     */
+#define strap   (CNTRL_DCR_BASE+0x4)  /* strap register			     */
 
 #define ecr     (0xaa)                /* edge conditioner register (405gpr)  */
 
@@ -1119,13 +1119,13 @@
 | UART Register Offsets
 '----------------------------------------------------------------------------*/
 #define		DATA_REG	0x00
-#define		DL_LSB    	0x00
-#define		DL_MSB  	0x01
+#define		DL_LSB		0x00
+#define		DL_MSB		0x01
 #define		INT_ENABLE      0x01
 #define		FIFO_CONTROL    0x02
 #define		LINE_CONTROL    0x03
 #define		MODEM_CONTROL   0x04
-#define		LINE_STATUS  	0x05
+#define		LINE_STATUS	0x05
 #define		MODEM_STATUS    0x06
 #define		SCRATCH         0x07
 

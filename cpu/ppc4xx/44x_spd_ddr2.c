@@ -58,8 +58,8 @@
 #define SDRAM_DDR2	2
 #define SDRAM_NONE	0
 
-#define MAXDIMMS 	2
-#define MAXRANKS 	4
+#define MAXDIMMS	2
+#define MAXRANKS	4
 #define MAXBXCF		4
 #define MAX_SPD_BYTES	256   /* Max number of bytes on the DIMM's SPD EEPROM */
 

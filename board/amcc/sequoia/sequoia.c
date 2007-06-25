@@ -573,3 +573,13 @@ int is_pci_host(struct pci_controller *hose)
 	return (1);
 }
 #endif				/* defined(CONFIG_PCI) */
+#if defined(CONFIG_POST)
+/*
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(void)
+{
+	return 0;	/* No hotkeys supported */
+}
+#endif /* CONFIG_POST */

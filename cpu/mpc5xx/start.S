@@ -155,7 +155,7 @@ in_flash:
 	/* Initialize some SPRs that are hard to access from C			*/
 	/*----------------------------------------------------------------------*/
 
-	lis     r3, CFG_IMMR@h          	/* Pass IMMR as arg1 to C routine */
+	lis     r3, CFG_IMMR@h			/* Pass IMMR as arg1 to C routine */
 	lis	r2, CFG_INIT_SP_ADDR@h
 	ori	r1, r2, CFG_INIT_SP_ADDR@l	/* Set up the stack in internal SRAM */
 	/* Note: R0 is still 0 here */
