@@ -309,7 +309,9 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_rsr,
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
-
+#if defined(CONFIG_MPC83XX)
+	prt_83xx_rsr,
+#endif
 	checkcpu,
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
@@ -376,7 +378,7 @@ void board_init_f (ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-#if !defined(CONFIG_CPM2)
+#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 #endif

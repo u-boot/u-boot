@@ -257,3 +257,39 @@ int cpu_init_r (void)
 #endif
 	return 0;
 }
+
+/*
+ * Figure out the cause of the reset
+ */
+int prt_83xx_rsr(void)
+{
+	static struct {
+		ulong mask;
+		char *desc;
+	} bits[] = {
+		{
+		RSR_SWSR, "Software Soft"}, {
+		RSR_SWHR, "Software Hard"}, {
+		RSR_JSRS, "JTAG Soft"}, {
+		RSR_CSHR, "Check Stop"}, {
+		RSR_SWRS, "Software Watchdog"}, {
+		RSR_BMRS, "Bus Monitor"}, {
+		RSR_SRS,  "External/Internal Soft"}, {
+		RSR_HRS,  "External/Internal Hard"}
+	};
+	static int n = sizeof bits / sizeof bits[0];
+	ulong rsr = gd->reset_status;
+	int i;
+	char *sep;
+
+	puts("Reset Status:");
+
+	sep = " ";
+	for (i = 0; i < n; i++)
+		if (rsr & bits[i].mask) {
+			printf("%s%s", sep, bits[i].desc);
+			sep = ", ";
+		}
+	puts("\n\n");
+	return 0;
+}
