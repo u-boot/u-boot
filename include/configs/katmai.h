@@ -314,7 +314,6 @@
 #undef CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT	1	/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */
 #undef	CFG_PCI_MASTER_INIT
 

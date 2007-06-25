@@ -175,7 +175,6 @@
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
 #define CONFIG_PCI			/* include pci support	        */
-#define CFG_PCI_PRE_INIT                /* pci interrupt mapping etc.   */
 #define CONFIG_PCI_HOST	PCI_HOST_AUTO   /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */

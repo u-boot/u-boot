@@ -551,7 +551,7 @@ void ide_set_reset(int on)
 #endif /* CONFIG_CPCI405_VER2 */
 
 
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 void cpci405_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
 	unsigned char int_line = 0xff;
@@ -582,7 +582,7 @@ int pci_pre_init(struct pci_controller *hose)
 	hose->fixup_irq = cpci405_pci_fixup_irq;
 	return 1;
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif /* defined(CONFIG_PCI) */
 
 
 

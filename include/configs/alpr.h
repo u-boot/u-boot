@@ -275,7 +275,6 @@
 #define CONFIG_PCI_BOOTDELAY	1       /* enable pci bootdelay variable*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */
 #define CFG_PCI_MASTER_INIT
 

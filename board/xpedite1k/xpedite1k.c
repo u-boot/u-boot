@@ -209,7 +209,7 @@ long int fixed_sdram (void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller * hose )
 {
 	unsigned long strap;
@@ -227,7 +227,7 @@ int pci_pre_init(struct pci_controller * hose )
 #endif
 	return 1;
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif /* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
