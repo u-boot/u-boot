@@ -362,7 +362,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (i != BZ_OK) {
 			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
 			show_boot_progress (-6);
-			udelay(100000);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		break;
@@ -741,32 +740,34 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
-#if defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header(of_flat_tree) == 0) {
+#if defined(CONFIG_OF_FLAT_TREE)
+		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #else
-		if (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
 #endif
 		} else if (ntohl(hdr->ih_magic) == IH_MAGIC) {
-			printf("## Flat Device Tree Image at %08lX\n", hdr);
+			printf("## Flat Device Tree at %08lX\n", hdr);
 			print_image_hdr(hdr);
 
 			if ((ntohl(hdr->ih_load) <  ((unsigned long)hdr + ntohl(hdr->ih_size) + sizeof(hdr))) &&
 			   ((ntohl(hdr->ih_load) + ntohl(hdr->ih_size)) > (unsigned long)hdr)) {
-				puts ("ERROR: Load address overwrites Flat Device Tree uImage\nMust RESET board to recover\n");
+				puts ("ERROR: fdt overwritten - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			printf("   Verifying Checksum ... ");
+			puts ("   Verifying Checksum ... ");
 			memmove (&header, (char *)hdr, sizeof(image_header_t));
 			checksum = ntohl(header.ih_hcrc);
 			header.ih_hcrc = 0;
 
 			if(checksum != crc32(0, (uchar *)&header, sizeof(image_header_t))) {
-				puts ("ERROR: Flat Device Tree header checksum is invalid\nMust RESET board to recover\n");
+				puts ("ERROR: fdt header checksum invalid - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
@@ -774,25 +775,29 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
 
 			if(checksum != crc32(0, (uchar *)addr, ntohl(hdr->ih_size))) {
-				puts ("ERROR: Flat Device Tree checksum is invalid\nMust RESET board to recover\n");
+				puts ("ERROR: fdt checksum invalid - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-			printf("OK\n");
+			puts ("OK\n");
 
 			if (ntohl(hdr->ih_type) != IH_TYPE_FLATDT) {
-				puts ("ERROR: uImage not Flat Device Tree type\nMust RESET board to recover\n");
+				puts ("ERROR: uImage is not a fdt - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			if (ntohl(hdr->ih_comp) != IH_COMP_NONE) {
-				puts ("ERROR: uImage is not uncompressed\nMust RESET board to recover\n");
+				puts ("ERROR: uImage is compressed - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-#if defined(CONFIG_OF_LIBFDT)
-			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+#else
+			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
-				puts ("ERROR: uImage data is not a flat device tree\nMust RESET board to recover\n");
+				puts ("ERROR: uImage data is not a fdt - "
+					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
@@ -801,10 +806,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				ntohl(hdr->ih_size));
 			of_flat_tree = (char *)ntohl(hdr->ih_load);
 		} else {
-			puts ("Did not find a flat flat device tree\nMust RESET board to recover\n");
+			puts ("Did not find a flat Flat Device Tree.\n"
+				"Must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-		printf ("   Booting using flat device tree at 0x%x\n",
+		printf ("   Booting using the fdt at 0x%x\n",
 				of_flat_tree);
 	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
 		u_long tail    = ntohl(len_ptr[0]) % 4;
@@ -828,21 +834,23 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_data += 4 - tail;
 		}
 
-#if defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header((void *)of_data) != 0) {
+#if defined(CONFIG_OF_FLAT_TREE)
+		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #else
-		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
+		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
-			puts ("ERROR: image is not a flat device tree\nMust RESET board to recover\n");
+			puts ("ERROR: image is not a fdt - "
+				"must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-#if defined(CONFIG_OF_LIBFDT)
-		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+#else
+		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
 #endif
-			puts ("ERROR: flat device tree size does not agree with image\nMust RESET board to recover\n");
+			puts ("ERROR: fdt size != image size - "
+				"must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 	}
@@ -937,30 +945,35 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_start, of_start + of_len - 1);
 		err = fdt_open_into((void *)of_data, (void *)of_start, of_len);
 		if (err != 0) {
-			printf ("libfdt: %s " __FILE__ " %d\n", fdt_strerror(err), __LINE__);
-		}
-		/*
-		 * Add the chosen node if it doesn't exist, add the env and bd_t
-		 * if the user wants it (the logic is in the subroutines).
-		 */
-		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-			puts ("ERROR: Failed creating the /chosen node, aborting.\nMust RESET board to recover\n");
+			puts ("ERROR: fdt move failed - "
+				"must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
+	}
+	/*
+	 * Add the chosen node if it doesn't exist, add the env and bd_t
+	 * if the user wants it (the logic is in the subroutines).
+	 */
+	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+		puts ("ERROR: /chosen node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
-		if (fdt_env(of_flat_tree) < 0) {
-			puts ("ERROR: Failed creating the /u-boot-env node, aborting.\nMust RESET board to recover\n");
-			do_reset (cmdtp, flag, argc, argv);
-		}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-		if (fdt_bd_t(of_flat_tree) < 0) {
-			puts ("ERROR: Failed creating the /bd_t node, aborting.\nMust RESET board to recover\n");
-			do_reset (cmdtp, flag, argc, argv);
-		}
-#endif
+	if (fdt_env(of_flat_tree) < 0) {
+		puts ("ERROR: /u-boot-env node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
 	}
 #endif
+#ifdef CONFIG_OF_HAS_BD_T
+	if (fdt_bd_t(of_flat_tree) < 0) {
+		puts ("ERROR: /bd_t node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+#endif
+#endif /* CONFIG_OF_LIBFDT */
 #if defined(CONFIG_OF_FLAT_TREE)
 	/* move of_flat_tree if needed */
 	if (of_data) {
@@ -980,30 +993,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_start, of_start + of_len - 1);
 		memmove ((void *)of_start, (void *)of_data, of_len);
 	}
-#endif
-#if defined(CONFIG_OF_FLAT_TREE)
+	/*
+	 * Create the /chosen node and modify the blob with board specific
+	 * values as needed.
+	 */
 	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
 #endif
-#if defined(CONFIG_OF_LIBFDT)
-	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-		puts ("ERROR: Failed to create the /chosen node, aborting.\nMust RESET board to recover\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-	if (fdt_env(of_flat_tree) < 0) {
-		puts ("ERROR: Failed to create the /u-boot-env node, aborting.\nMust RESET board to recover\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-	if (fdt_bd_t(of_flat_tree) < 0) {
-		puts ("ERROR: Failed to create the /bd_t node, aborting.\nMust RESET board to recover\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
-#endif
-#endif /* if defined(CONFIG_OF_LIBFDT) */
-
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
@@ -1017,7 +1013,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if (of_flat_tree) {	/* device tree; boot new style */
 		/*
 		 * Linux Kernel Parameters (passing device tree):
-		 *   r3: ptr to flattened device tree, followed by the board info data
+		 *   r3: pointer to the fdt, followed by the board info data
 		 *   r4: physical pointer to the kernel itself
 		 *   r5: NULL
 		 *   r6: NULL
