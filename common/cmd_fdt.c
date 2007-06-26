@@ -37,7 +37,7 @@
 #include <fdt_support.h>
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
-#define SCRATCHPAD	1024	/* bytes of scratchpad memory */
+#define SCRATCHPAD	1024		/* bytes of scratchpad memory */
 
 /*
  * Global data (for the gd->bd)
@@ -47,6 +47,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Function prototypes/declarations.
  */
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd);
+#endif
+
 static int fdt_valid(void);
 static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 	char *data, int *len);
@@ -297,6 +301,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			}
 		}
 
+#ifdef CONFIG_OF_BOARD_SETUP
+	/********************************************************************
+	 * Call the board-specific fixup routine
+	 ********************************************************************/
+	} else if (argv[1][0] == 'b') {
+		ft_board_setup(fdt, gd->bd);
+#endif
 	/********************************************************************
 	 * Create a chosen node
 	 ********************************************************************/
@@ -429,7 +440,7 @@ static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 		while ((*newval != ']') && (*newval != '\0')) {
 			tmp = simple_strtoul(newval, &newval, 16);
 			*data++ = tmp & 0xFF;
-			*len++;
+			*len    = *len + 1;
 			while (*newval == ' ')
 				newval++;
 		}
@@ -673,25 +684,25 @@ U_BOOT_CMD(
 	fdt,	5,	0,	do_fdt,
 	"fdt     - flattened device tree utility commands\n",
 	    "addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
+#ifdef CONFIG_OF_BOARD_SETUP
+	"fdt boardsetup                      - Do board-specific set up\n"
+#endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr>\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
 	"fdt mknode <path> <node>            - Create a new node after <path>\n"
 	"fdt rm     <path> [<prop>]          - Delete the node or <property>\n"
-	"fdt chosen - Add/update the \"/chosen\" branch in the tree\n"
+	"fdt chosen - Add/update the /chosen branch in the tree\n"
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
-	"fdt env    - Add/replace the \"/u-boot-env\" branch in the tree\n"
+	"fdt env    - Add/replace the /u-boot-env branch in the tree\n"
 #endif
 #ifdef CONFIG_OF_HAS_BD_T
-	"fdt bd_t   - Add/replace the \"/bd_t\" branch in the tree\n"
+	"fdt bd_t   - Add/replace the /bd_t branch in the tree\n"
 #endif
 	"Hints:\n"
-	" * If the property you are setting/printing has a '#' character,\n"
-	"     you MUST escape it with a \\ character or quote it with \" or\n"
-	"     it will be ignored as a comment.\n"
-	" * If the value has spaces in it, you MUST escape the spaces with\n"
-	"     \\ characters or quote it with \"\"\n"
+	" If the property you are setting/printing has a '#' character or spaces,\n"
+	"     you MUST escape it with a \\ character or quote it with \".\n"
 	"Examples: fdt print /               # print the whole tree\n"
 	"          fdt print /cpus \"#address-cells\"\n"
 	"          fdt set   /cpus \"#address-cells\" \"[00 00 00 01]\"\n"

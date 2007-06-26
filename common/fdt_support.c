@@ -32,10 +32,6 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
-#ifdef CONFIG_OF_BOARD_SETUP
-void ft_board_setup(void *blob, bd_t *bd);
-#endif
-
 /*
  * Global data (for the gd->bd)
  */
@@ -61,17 +57,6 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		printf("libfdt: %s\n", fdt_strerror(err));
 		return err;
 	}
-
-#ifdef CONFIG_OF_BOARD_SETUP
-	/*
-	 * ft_board_setup() sets various board-specific properties to
-	 * the proper values.
-	 *
-	 * STRICTLY SPEAKING, this is out of place, but it isn't clear
-	 * where a better place would be.
-	 */
-	ft_board_setup(fdt, bd);
-#endif
 
 	if (initrd_start && initrd_end) {
 		struct fdt_reserve_entry re;
