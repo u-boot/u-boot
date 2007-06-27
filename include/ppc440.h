@@ -1025,7 +1025,7 @@
 #endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define SDR_USB2D0CR                 0x0320
+#define SDR0_USB2D0CR                 0x0320
 #define   SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK   0x00000004    /* USB 2.0 Device/EBC Master Selection */
 #define   SDR0_USB2D0CR_USB2DEV_SELECTION      0x00000004    /* USB 2.0 Device Selection */
 #define   SDR0_USB2D0CR_EBC_SELECTION          0x00000000    /* EBC Selection */
@@ -1423,7 +1423,7 @@
 #define uicvr  uic0vr
 #define uicvcr uic0vcr
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX)
 /*----------------------------------------------------------------------------+
 | Clock / Power-on-reset DCR's.
 +----------------------------------------------------------------------------*/
@@ -1492,9 +1492,11 @@
 #define CPR0_OPBD_OPBDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
 
 #define CPR0_PERD			0xE0
+#if !defined(CONFIG_440EPX)
 #define CPR0_PERD_PERDV0_MASK		0x03000000
 #define CPR0_PERD_PERDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
 #define CPR0_PERD_PERDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
+#endif
 
 #define CPR0_MALD			0x100
 #define CPR0_MALD_MALDV0_MASK		0x03000000
