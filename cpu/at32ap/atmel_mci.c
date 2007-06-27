@@ -82,7 +82,9 @@ static void mci_set_mode(unsigned long hz, unsigned long blklen)
 
 	blklen &= 0xfffc;
 	mmci_writel(MR, (MMCI_BF(CLKDIV, clkdiv)
-			 | MMCI_BF(BLKLEN, blklen)));
+			 | MMCI_BF(BLKLEN, blklen)
+			 | MMCI_BIT(RDPROOF)
+			 | MMCI_BIT(WRPROOF)));
 }
 
 #define RESP_NO_CRC	1
@@ -225,7 +227,7 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 				*buffer++ = data;
 				wordcount++;
 			}
-		} while(wordcount < (512 / 4));
+		} while(wordcount < (mmc_blkdev.blksz / 4));
 
 		pr_debug("mmc: read %u words, waiting for BLKE\n", wordcount);
 
@@ -243,7 +245,7 @@ out:
 
 fail:
 	mmc_cmd(MMC_CMD_SEND_STATUS, mmc_rca << 16, &card_status, R1 | NCR);
-	printf("mmc: bread failed, card status = ", card_status);
+	printf("mmc: bread failed, card status = %08x\n", card_status);
 	goto out;
 }
 
@@ -409,6 +411,7 @@ int mmc_init(int verbose)
 {
 	struct mmc_cid cid;
 	struct mmc_csd csd;
+	unsigned int max_blksz;
 	int ret;
 
 	/* Initialize controller */
@@ -444,7 +447,17 @@ int mmc_init(int verbose)
 		sizeof(mmc_blkdev.product));
 	sprintf((char *)mmc_blkdev.revision, "%x %x",
 		cid.prv >> 4, cid.prv & 0x0f);
-	mmc_blkdev.blksz = 1 << csd.read_bl_len;
+
+	/*
+	 * If we can't use 512 byte blocks, refuse to deal with the
+	 * card. Tons of code elsewhere seems to depend on this.
+	 */
+	max_blksz = 1 << csd.read_bl_len;
+	if (max_blksz < 512 || (max_blksz > 512 && !csd.read_bl_partial)) {
+		printf("Card does not support 512 byte reads, aborting.\n");
+		return -ENODEV;
+	}
+	mmc_blkdev.blksz = 512;
 	mmc_blkdev.lba = (csd.c_size + 1) * (1 << (csd.c_size_mult + 2));
 
 	mci_set_mode(CFG_MMC_CLK_PP, mmc_blkdev.blksz);
