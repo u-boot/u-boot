@@ -56,6 +56,7 @@
 #define MMC_DEFAULT_RCA		1
 
 static unsigned int mmc_rca;
+static int mmc_card_is_sd;
 static block_dev_desc_t mmc_blkdev;
 
 block_dev_desc_t *mmc_get_dev(int dev)
@@ -373,6 +374,7 @@ static int sd_init_card(struct mmc_cid *cid, int verbose)
 	mmc_rca = resp[0] >> 16;
 	if (verbose)
 		printf("SD Card detected (RCA %u)\n", mmc_rca);
+	mmc_card_is_sd = 1;
 	return 0;
 }
 
@@ -407,6 +409,59 @@ static int mmc_init_card(struct mmc_cid *cid, int verbose)
 	return ret;
 }
 
+static void mci_set_data_timeout(struct mmc_csd *csd)
+{
+	static const unsigned int dtomul_to_shift[] = {
+		0, 4, 7, 8, 10, 12, 16, 20,
+	};
+	static const unsigned int taac_exp[] = {
+		1, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+	};
+	static const unsigned int taac_mant[] = {
+		0,  10, 12, 13, 15, 60, 25, 30,
+		35, 40, 45, 50, 55, 60, 70, 80,
+	};
+	unsigned int timeout_ns, timeout_clks;
+	unsigned int e, m;
+	unsigned int dtocyc, dtomul;
+	unsigned int shift;
+	u32 dtor;
+
+	e = csd->taac & 0x07;
+	m = (csd->taac >> 3) & 0x0f;
+
+	timeout_ns = (taac_exp[e] * taac_mant[m] + 9) / 10;
+	timeout_clks = csd->nsac * 100;
+
+	timeout_clks += (((timeout_ns + 9) / 10)
+			 * ((CFG_MMC_CLK_PP + 99999) / 100000) + 9999) / 10000;
+	if (!mmc_card_is_sd)
+		timeout_clks *= 10;
+	else
+		timeout_clks *= 100;
+
+	dtocyc = timeout_clks;
+	dtomul = 0;
+	while (dtocyc > 15 && dtomul < 8) {
+		dtomul++;
+		shift = dtomul_to_shift[dtomul];
+		dtocyc = (timeout_clks + (1 << shift) - 1) >> shift;
+	}
+
+	if (dtomul >= 8) {
+		dtomul = 7;
+		dtocyc = 15;
+		puts("Warning: Using maximum data timeout\n");
+	}
+
+	dtor = (MMCI_BF(DTOMUL, dtomul)
+		| MMCI_BF(DTOCYC, dtocyc));
+	mmci_writel(DTOR, dtor);
+
+	printf("mmc: Using %u cycles data timeout (DTOR=0x%x)\n",
+	       dtocyc << shift, dtor);
+}
+
 int mmc_init(int verbose)
 {
 	struct mmc_cid cid;
@@ -420,6 +475,8 @@ int mmc_init(int verbose)
 	mmci_writel(DTOR, 0x5f);
 	mmci_writel(IDR, ~0UL);
 	mci_set_mode(CFG_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
+
+	mmc_card_is_sd = 0;
 
 	ret = sd_init_card(&cid, verbose);
 	if (ret) {
@@ -435,6 +492,8 @@ int mmc_init(int verbose)
 		return ret;
 	if (verbose)
 		mmc_dump_csd(&csd);
+
+	mci_set_data_timeout(&csd);
 
 	/* Initialize the blockdev structure */
 	mmc_blkdev.if_type = IF_TYPE_MMC;
