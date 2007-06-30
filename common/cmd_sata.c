@@ -375,9 +375,9 @@ msleep (int count)
 }
 
 ulong
-sata_read (int device, lbaint_t blknr, ulong blkcnt, ulong * buffer)
+sata_read (int device, ulong blknr,lbaint_t blkcnt, void * buff)
 {
-	ulong n = 0;
+	ulong n = 0, *buffer = (ulong *)buff;
 	u8 dev = 0, num = 0, mask = 0, status = 0;
 
 #ifdef CONFIG_LBA48
@@ -482,9 +482,9 @@ sata_read (int device, lbaint_t blknr, ulong blkcnt, ulong * buffer)
 }
 
 ulong
-sata_write (int device, lbaint_t blknr, ulong blkcnt, ulong * buffer)
+sata_write (int device, ulong blknr,lbaint_t blkcnt, void * buff)
 {
-	ulong n = 0;
+	ulong n = 0, *buffer = (ulong *)buff;
 	unsigned char status = 0, num = 0, dev = 0, mask = 0;
 
 #ifdef CONFIG_LBA48

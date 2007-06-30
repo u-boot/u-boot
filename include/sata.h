@@ -28,8 +28,8 @@ struct sata_port {
 	struct sata_ioports ioaddr;	/* ATA cmd/ctl/dma reg blks	*/
 	unsigned char ctl_reg;
 	unsigned char last_ctl;
-	unsigned char port_state;	/* 1-port is present and	*/
-					   0-port is not available	*/
+	unsigned char port_state;	/* 1-port is available and	*/
+					/* 0-port is not available	*/
 	unsigned char dev_mask;
 };
 
@@ -74,18 +74,18 @@ int sata_devchk (struct sata_ioports *ioaddr, int dev);
 void dev_select (struct sata_ioports *ioaddr, int dev);
 u8 sata_busy_wait (struct sata_ioports *ioaddr, int bits, unsigned int max);
 u8 sata_chk_status (struct sata_ioports *ioaddr);
-ulong sata_read (int device, lbaint_t blknr, ulong blkcnt, ulong * buffer);
-ulong sata_write (int device, lbaint_t blknr, ulong blkcnt, ulong * buffer);
+ulong sata_read (int device, ulong blknr,lbaint_t blkcnt, void * buffer);
+ulong sata_write (int device,ulong blknr, lbaint_t blkcnt, void * buffer);
 void msleep (int count);
 #else
 extern int sata_bus_softreset (int num);
 extern void sata_identify (int num, int dev);
 extern void sata_port (struct sata_ioports *ioport);
 extern void set_Feature_cmd (int num, int dev);
-extern ulong sata_read (int device, lbaint_t blknr,
-			ulong blkcnt, ulong * buffer);
-extern ulong sata_write (int device, lbaint_t blknr,
-			 ulong blkcnt, ulong * buffer);
+extern ulong sata_read (int device, ulong blknr,
+			lbaint_t blkcnt, void * buffer);
+extern ulong sata_write (int device, ulong blknr,
+			lbaint_t blkcnt, void * buffer);
 extern void msleep (int count);
 #endif
 
