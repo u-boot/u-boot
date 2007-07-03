@@ -1,3 +1,407 @@
+commit 2f9c19e496acb6bb50d9299e1aab377625d48c38
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:44 2007 -0500
+
+    configs/ mpc86xx: Rewrite command line options using new CONFIG_CMD-* style.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 602ad3b33d9ceef83dbab46be68646d645d637ee
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:39 2007 -0500
+
+    README: Rewrite command line config to use CONFIG_CMD_* names.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72a074cec68e5bad60d63206c050974e08afd804
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:34 2007 -0500
+
+    include/ non-config: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5fcf543e0b6628c76ff48705b1b0566bfd11507b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:28 2007 -0500
+
+    tools/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9107ebe0d352420895ab69b715697bdebc8caf50
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:23 2007 -0500
+
+    board/[k-z]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5e378003d592ea828ec69d6defcd4de79096dd5c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:19 2007 -0500
+
+    board/[Ma-i]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 737184114ec9c9e0ab94d6713536126073bd2472
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:15 2007 -0500
+
+    cpu/ non-mpc*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f48070fe5fe440dfb5ee5268c920de70e48ea327
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:08 2007 -0500
+
+    cpu/mpc*/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0c505db0a0dc1f670b13ce3b4d3fbf1ec5b3cbd2
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:03 2007 -0500
+
+    lib_*/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 73f032021ec5f13cda8faa4e34b6de80960eb86f
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:58 2007 -0500
+
+    lib_ppc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 98b79003c21c2578206003256de4e781d6b36ca8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:53 2007 -0500
+
+    rtc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6e2115acb6a892d53a6881bf253ae41d3df39156
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:49 2007 -0500
+
+    net/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 45cdb9b72c94655c7308b464a2666057c0b286e0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:34 2007 -0500
+
+    disk/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4e109ae98294a5ca7ff848b7652c7bfd4023a94a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:20 2007 -0500
+
+    fs/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d5be43de93ff905c465e509d45a3164ef48d26e7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:10 2007 -0500
+
+    drivers/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b453960d4fdb87b3970d96119b90df2ed024fc4a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:05 2007 -0500
+
+    common/ non-cmd: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 65c450b47a62659d522cfa8f4fa1e4e5c60dccd0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:54 2007 -0500
+
+    common/cmd_[i-z]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a76adc8142c1d956385a109e0b70f9319ede4d66
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:43 2007 -0500
+
+    common/cmd_[a-f]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ec63b10b61fd68238d4c15c1cd04c0b38228e2c1
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:34 2007 -0500
+
+    Introduce initial versions of new Command Config files.
+
+    Derive three new files from cmd_confdefs.h:
+	config_bootp.h - Has BOOTP related config options, not commands
+	config_cmd_all.h - Has a CONFIG_CMD_* definition for every command
+	config_cmd_default.h - Has a CONFIG_CMD_* definition for default cmds.
+
+    For now, include "config_bootp.h" for compatability until all
+    users of it directly include it properly.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1f2a05898658900dc5717761e27abf2052e67e13
+Author: Mushtaq Khan <mushtaqk_921@yahoo.co.in>
+Date:	Sat Jun 30 18:50:48 2007 +0200
+
+    Fix S-ATA support.
+
+    Signed-off-by: mushtaq khan <mushtaqk_921@yahoo.co.in>
+
+commit a1bd6200eccd3a02040a955d5f43d3ee1fc9f93b
+Author: Niklaus Giger <niklaus.giger@nestal.com>
+Date:	Mon Jun 25 17:03:13 2007 +0200
+
+    ppc4xx: PPC440EPx Emit DDR0 registers on machine check interrupt
+
+    This patch prints the DDR status registers upon machine check
+    interrupt on the 440EPx/GRx. This can be useful especially when
+    ECC support is enabled.
+
+    I added some small changes to the original patch from Niklaus to
+    make it compile clean.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 807018fb7faceb429ce0cb47baa2073746b33a4e
+Author: Niklaus Giger <niklaus.giger@nestal.com>
+Date:	Mon Jun 25 16:50:55 2007 +0200
+
+    ppc4xx: Fix O=buildir builds
+
+    This patch fixes the problem to assemble cpu/ppc4xx/start.S
+    experienced last week where building failed having specified
+    O=../build.sequoia.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+
+commit 466fff1a7bb5fe764a06450626f6098219f446b8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jun 25 15:57:39 2007 +0200
+
+    ppc4xx: Add pci_pre_init() for 405 boards
+
+    This patch removes the CFG_PCI_PRE_INIT option completely, since
+    it's not needed anymore with the patch from Matthias Fuchs with
+    the "weak" pci_pre_init() implementation.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f35c53166213c24a5a0e2390ed861136ff73870
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Jun 24 17:41:21 2007 +0200
+
+    ppc4xx: Maintenance patch for esd's CPCI405 derivats
+
+    -add pci_pre_init() for pci interrupt fixup code
+    -disable phy sleep mode via reset_phy() function
+    -use correct io accessors
+    -cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 5a1c9ff0c44305b57cb4d8f9369bba90bcf0e1f8
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Jun 24 17:23:41 2007 +0200
+
+    ppc4xx: Add pci_pre_init() for 405 boards
+
+    This patch adds support for calling a plattform dependant
+    pci_pre_init() function for 405 boards. This can be used to
+    move the current pci_405gp_fixup_irq() function into the
+    board code.
+
+    This patch also makes the CFG_PCI_PRE_INIT define obsolete.
+    A default function with 'weak' attribute is used when
+    a board specific pci_pre_init() is not implemented.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 1636d1c8529c006d106287cfbc20cd0a246fe1cb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 22 23:59:00 2007 +0200
+
+    Coding stylke cleanup; rebuild CHANGELOG
+
 commit 2dc64451b4c08ffd619372abfdc2506a2e2363b9
 Author: Igor Lisitsin <igor@emcraft.com>
 Date:	Wed Apr 18 14:55:19 2007 +0400
@@ -21,6 +425,19 @@ Date:	Wed Mar 28 19:06:19 2007 +0400
 
     Signed-off-by: Igor Lisitsin <igor@emcraft.com>
     --
+
+commit 3a1f5c81b0b9557817a789bece839905581c2205
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 22 16:58:40 2007 +0200
+
+    ppc4xx: Fix problem with extended program_tlb() funtion
+
+    The recently extended program_tlb() function had a problem when
+    multiple TLB's had to be setup (for example with 512MB of SDRAM). The
+    virtual address was not incremented. This patch fixes this issue
+    and is tested on Katmai with 512MB SDRAM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 02032e8f14751a1a751b09240a4f1cf9f8a2077f
 Author: Rafal Jaworowski <raj@semihalf.com>
@@ -526,6 +943,14 @@ Date:	Thu May 24 08:22:09 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 822d55365bb557e084d0e33625a6dedcc866110b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed May 23 14:09:46 2007 -0500
+
+    Add LIST_86xx MAKEALL target for PowerPC builds.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit 9f0077abd69f7a7c756a915b961037302be3e6f2
 Author: Stefan Roese <sr@denx.de>
 Date:	Tue May 22 12:48:09 2007 +0200
@@ -574,6 +999,17 @@ Date:	Fri May 18 14:33:11 2007 +0100
 
     Makefile permissions
 
+commit 255a3577c848706441daee0174543efe205a77f8
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed May 16 16:52:19 2007 -0500
+
+    Reduce CONFIG_MPC8YXX_TSECx to CONFIG_TSECx
+
+    For all practical u-boot purposes, TSECs don't differ throughout the
+    mpc8[356]xx families; reduce CONFIG_MPC8YXX_TSECx to CONFIG_TSECx.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
 commit 70124c2602ae2d4c5d3dba05b482d91548242de8
 Author: Stefano Babic <sbabic@denx.de>
 Date:	Wed May 16 14:49:12 2007 +0200
@@ -614,6 +1050,109 @@ Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed May 16 00:13:33 2007 +0200
 
     Coding Style Cleanup, new CHANGELOG
+
+commit 3162eb836903c8b247fdc7470dd39bfa6996f495
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue May 15 23:38:05 2007 +0200
+
+    Minor coding style cleanup.
+
+commit 66d9dbec1cc27d6398ee6cf84639dbe14971251e
+Author: mushtaq khan <mushtaq_k@procsys.com>
+Date:	Fri Apr 20 14:23:02 2007 +0530
+
+    Add driver for S-ATA-controller on Intel processors with South
+    Bridge, ICH-5, ICH-6 and ICH-7.
+
+    Implementation:
+
+    1. Code is divided in to two files. All functions, which are
+       controller specific are kept in "drivers/ata_piix.c" file and
+       functions, which are not controller specific, are kept in
+       "common/cmd_sata.c" file.
+
+    2. Reading and Writing from the S-ATA drive is done using PIO method.
+
+    3. Driver can be configured for 48-bit addressing by defining macro
+       CONFIG_LBA48, if this macro is not defined driver uses the 28-bit
+       addressing.
+
+    4. S-ATA read function is hooked to the File system, commands like
+       ext2ls and ext2load file can be used. This has been tested.
+
+    5. U-Boot command "SATA_init" is added, which initializes the S-ATA
+       controller and identifies the S-ATA drives connected to it.
+
+    6. U-Boot command "sata" is added, which is used to read/write, print
+       partition table and get info about the drives present. This I have
+       implemented in same way as "ide" command is implemented in U-Boot.
+
+    7. This driver is for S-ATA in native mode.
+
+    8. This driver does not support the Native command queuing and
+       Hot-plugging.
+
+    Signed-off-by: Mushtaq Khan <mushtaq_k@procsys.com>
+
+commit 644e6fb4eb8be90ea04ba34b643a8bf019d680e0
+Author: mushtaq khan <mushtaq_k@procsys.com>
+Date:	Mon Apr 30 15:57:22 2007 +0530
+
+    Fixes bug clearing the bss section for i386
+
+    Hi,
+    There is a bug in the code of clearing the bss section for processor
+    i386.(File: cpu/i386/start.S)
+    In the code, bss_start addr (starting addr of bss section) is put into
+    the register %eax, but the code which clears the bss section refers to
+    the addr pointed by %edi.
+
+    This patch fixes this bug by putting bss_start into %edi register.
+
+    Signed-off-by: Mushtaq Khan <mushtaq_k@procsys.com>
+
+commit c3243cf7b490057277d61acffe4ad0946f9eb4a4
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Mon Apr 30 16:47:28 2007 -0500
+
+    Add support for BCM5464 Quad Phy
+
+    Added support for Broadcom's BCM5464 Quad Phy
+
+    Signed-off-by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+commit 1b305bdc754c8468e1d5d858f5dcf8a7a0a4bb7a
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Wed May 9 08:10:57 2007 +0800
+
+    Search the exception table with linear algorithm
+
+    Search the exception table with linear algorithm instead of
+    bisecting algorithm.
+    Because the exception table might be unsorted.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 5dfaa50eb819686bfba1927e8c5b8a70a4d65fd3
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Mon May 14 11:47:35 2007 +0800
+
+    Fix compilation issues on MACOSX
+
+    Singed-off-by: Marc Hoffman <Marc.Hoffman@analog.com>
+    Signed-off-by: Aubrey Li <aubrey.adi@gmail.com>
+
+commit 56fd7162985c412317bbf763a225fba23c64fd31
+Author: Stephen Williams <steve@icarus.com>
+Date:	Tue May 15 07:55:42 2007 -0700
+
+    Fix for compile of JSE target
+
+    The attached patch fixes the compile of the JSE board in the
+    denx git as of 14 may 2007. It is an extremely simple patch,
+    it just adds the missing define of CFG_SYSTEMACE_WIDTH.
+
+     Fix to compile JSE against 20070514 git of u-boot
 
 commit 61936667e86a250ae12fd2dc189d3588f0a59e0b
 Author: Stefan Roese <sr@denx.de>
@@ -819,7 +1358,7 @@ Date:	Sat May 5 08:12:30 2007 +0200
     5xxx: write MAC address to mac-address and local-mac-address
 
     Some device trees have a mac-address property, some have local-mac-address,
-    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    and some have both.	 To support all of these device trees, ftp_cpu_setup()
     should write the MAC address to mac-address and local-mac-address, if they
     exist.
 
@@ -954,6 +1493,20 @@ Date:	Sat May 5 08:29:01 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 2f550ab976405300f5b07bf2890800840d0aa05f
+Author: Timur Tabi <timur@freescale.com>
+Date:	Sat May 5 08:12:30 2007 +0200
+
+    5xxx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.	 To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
 commit a79886590593ba1d667c840caa4940c61639f18f
 Author: Thomas Knobloch <knobloch@siemens.com>
 Date:	Sat May 5 07:04:42 2007 +0200
@@ -1078,7 +1631,7 @@ Date:	Mon Apr 30 13:59:50 2007 -0500
     Fix memory initialization on MPC8349E-mITX
 
     Define CFG_DDR_SDRAM_CLK_CNTL for the MPC8349E-mITX and MPC8349E-mITX-GP.
-    This allows ddr->sdram_clk_cntl to be properly initialized.  This is necessary
+    This allows ddr->sdram_clk_cntl to be properly initialized.	 This is necessary
     on some ITX boards, notably those with a revision 3.1 CPU.
 
     Also change spd_sdram() in cpu/mpc83xx/spd_sdram.c to not write anything into
@@ -1117,11 +1670,34 @@ Date:	Sun Apr 29 14:13:01 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 864aa6a6a466fcb92bf32b1d7dba79cd709b52c9
+Author: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+Date:	Sun Apr 29 14:01:54 2007 +0200
+
+    [PATCH] Use PVR to distinguish MPC5200B from MPC5200 in boot message
+
+    MPC5200B systems are incorrectly reported as MPC5200 in U-Boot start-up
+    message. Use PVR to distinguish between the two variants, and print proper CPU
+    information.
+
+    Signed-off-by: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
 commit 5c5d3242935cf3543af01142627494434834cf98
 Author: Kim Phillips <kim.phillips@freescale.com>
 Date:	Wed Apr 25 12:34:38 2007 -0500
 
     mpc83xx: minor fixups for 8313rdb introduction
+
+commit ada4d40091f6ed4a4f0040e08d20db21967e4a67
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Apr 25 16:01:26 2007 +0200
+
+    [PATCH] simplify silent console
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Stefan Roese <sr@denx.de>
 
 commit 144876a380f5756f57412caf74c1d6dc201dd796
 Author: Michal Simek <monstr@monstr.eu>
@@ -1212,7 +1788,7 @@ Date:	Mon Feb 12 13:34:55 2007 -0600
     85xx: write MAC address to mac-address and local-mac-address
 
     Some device trees have a mac-address property, some have local-mac-address,
-    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    and some have both.	 To support all of these device trees, ftp_cpu_setup()
     should write the MAC address to mac-address and local-mac-address, if they
     exist.
 
@@ -1419,6 +1995,58 @@ Date:	Mon Apr 16 14:31:55 2007 -0500
 
     Signed-off-by: Scott Wood <scottwood@freescale.com>
 
+commit 7fc4c71a143be8666d70803fb25ae60379c95622
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 23 15:39:59 2007 +0200
+
+    Fix file mode
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 38257988abfe74d459ca2ad748b109ca04e4efe1
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Apr 23 15:30:39 2007 +0200
+
+    [PATCH] Avoid assigning PCI resources from zero address
+
+    If a PCI IDE card happens to get a zero address assigned to it, the Linux IDE
+    core complains and IDE drivers fails to work.  Also, assigning zero to a BAR
+    was illegal according to PCI 2.1 (the later revisions seem to have excluded the
+    sentence about "0" being considered an invalid address) -- so, use a reasonable
+    starting value of 0x1000 (that's what the most Linux archs are using).
+
+    Alternatively, one might have fixed the calls to pci_set_region() individually
+    (some code even seems to have taken care of this issue) but that would have
+    been a lot more work. :-)
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit afb903a2eb9436baa9270ccc0c27082d86497d89
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon Apr 23 14:00:11 2007 +0200
+
+    [patch] setenv(...) can delete environmentalvariables
+
+    update setenv() function so that entering a NULL value for the
+    variable's value will delete the environmental variable
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 36f104e5caa747d568eff26b369565af57c2ffa6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Apr 23 13:54:24 2007 +0200
+
+    [patch] use unsigned char in smc91111 driver for mac
+
+    the v_mac variable in the smc91111 driver is declared as a signed char ...
+    this causes problems when one of the bytes in the MAC is "signed" like 0xE0
+    because when it gets printed out, you get a display like:
+    0xFFFFFFE0 and that's no good
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
 commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Apr 23 12:00:22 2007 +0200
@@ -1469,7 +2097,7 @@ Date:	Fri Apr 20 14:12:26 2007 -0500
     mpc86xx; Write MAC address to mac-address and local-mac-address
 
     Some device trees have a mac-address property, some have local-mac-address,
-    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    and some have both.	 To support all of these device trees, ftp_cpu_setup()
     should write the MAC address to mac-address and local-mac-address, if they
     exist.
 
@@ -1522,7 +2150,7 @@ Date:	Thu Apr 19 23:14:39 2007 -0400
 
     What was suppose to be a stack variable was declared as a pointer,
       overwriting random memory.
-    Also moved the libfdt.a requirement into the main Makefile.  That is
+    Also moved the libfdt.a requirement into the main Makefile.	 That is
       The U-Boot Way.
 
 commit d21686263574e95cb3e9e9b0496f968b1b897fdb
@@ -2117,7 +2745,7 @@ Date:	Sat Mar 31 12:22:10 2007 -0400
     Add a flattened device tree (fdt) command (1 of 2)
 
     The fdt command uses David Gibson's libfdt library to manipulate as well
-    as print the flattened device tree.  This patch is the new command,
+    as print the flattened device tree.	 This patch is the new command,
     the second part is the modifications to the existing code.
 
 commit 3af0d587d93e0be5f96e1b30fa41e662f8b0803e
@@ -2818,7 +3446,7 @@ Date:	Tue Feb 13 10:41:42 2007 -0600
     mpc83xx: write MAC address to mac-address and local-mac-address
 
     Some device trees have a mac-address property, some have local-mac-address,
-    and some have both.  To support all of these device trees, this patch
+    and some have both.	 To support all of these device trees, this patch
     updates ftp_cpu_setup() to write the MAC address to mac-address if it exists.
     This function already updates local-mac-address.
 
@@ -3041,7 +3669,7 @@ Date:	Wed Dec 6 21:23:55 2006 -0500
 
     mpc83xx: Put the version (and magic) after the HRCW.
 
-    Put the version (and magic) after the HRCW.  This puts it in a fixed
+    Put the version (and magic) after the HRCW.	 This puts it in a fixed
     location in flash, not at the start of flash but as close as we can get.
 
     Signed-off-by: Jerry Van Baren <vanbaren@cideas.com>
@@ -3335,7 +3963,7 @@ Date:	Tue Feb 20 09:05:31 2007 +0100
 
     [PATCH 7_9] Replace ace_readw_ace_writeb functions with macros
 
-    Register read/write does not need to be wrapped in a full function.  The
+    Register read/write does not need to be wrapped in a full function.	 The
     patch replaces them with macros.
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
@@ -3638,7 +4266,7 @@ commit fdef388758506765d4d6a7155c8f1584c63ff581
 Author: roy zang <tie-fei.zang@freescale.com>
 Date:	Mon Jan 22 13:19:21 2007 +0800
 
-    use  CFG_WRITE_SWAPPED_DATA define instead of define CFG_FLASH_CFI_SWAP
+    use	 CFG_WRITE_SWAPPED_DATA define instead of define CFG_FLASH_CFI_SWAP
     The patch by Heiko Schocher <hs@pollux.denx.de> on Jan, 19, 2007
     fixes cfi_driver bug for mpc7448hpc2 board. The default cfi_driver can support
     mpc7448hpc2 board.
@@ -4326,7 +4954,7 @@ Date:	Mon Nov 27 17:04:06 2006 +0100
     [PATCH] Allow CONFIG_OF_FLAT_TREE to boot a non-arch/powerpc kernel
 
     This patch allows an arch/ppc kernel to be booted by just passing 1 or 2
-    arguments to bootm.  It removes the getenv("disable_of") test that used
+    arguments to bootm.	 It removes the getenv("disable_of") test that used
     to be used for this purpose.
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
@@ -4902,7 +5530,7 @@ Date:	Thu Nov 2 19:08:55 2006 +0800
     Gigabit Ethernet ports,E0 and E1.  It uses a single Management interface
     to manage the two physical connection devices (PHYs).  Each Ethernet port
     has its own statistics monitor that tracks and reports key interface
-    statistics.  Each port supports a 256-entry hash table for address
+    statistics.	 Each port supports a 256-entry hash table for address
     filtering.	In addition, each port is bridged to the Switch Fabric
     through a 2-Kbyte transmit FIFO and a 4-Kbyte Receive FIFO.
 
@@ -4948,7 +5576,7 @@ commit 87c4db09699c6b89176b31004afcb83eb1585d47
 Author: roy zang <tie-fei.zang@freescale.com>
 Date:	Thu Nov 2 18:59:15 2006 +0800
 
-    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    Add	 mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
     mpc7448hpc2 board support high level code:tsi108 init + mpc7448hpc2.
 
     Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
@@ -4958,7 +5586,7 @@ commit 27801b8ab11c61b577e45742a515bb3b23b80241
 Author: roy zang <tie-fei.zang@freescale.com>
 Date:	Thu Nov 2 18:57:21 2006 +0800
 
-    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    Add	 mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
     Make ,config.mk and link file for the mpc7448hpc2 board.
 
     Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
@@ -4968,7 +5596,7 @@ commit c6411c0c3bbc79f9ba8aef58296a42d8f9d8a0a6
 Author: roy zang <tie-fei.zang@freescale.com>
 Date:	Thu Nov 2 18:55:04 2006 +0800
 
-    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    Add	 mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
     The mpc7448hpc2 board support header file.
 
     Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
@@ -4978,7 +5606,7 @@ commit 625bb5ddb50b243f931262ca8c46956409471917
 Author: roy zang <tie-fei.zang@freescale.com>
 Date:	Thu Nov 2 18:52:21 2006 +0800
 
-    Add  mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
+    Add	 mpc7448hpc2  (mpc7448 + tsi108)  board associated code support.
     The mpc7448hpc2 board support low level assemble language init code.
 
     Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
@@ -5203,7 +5831,7 @@ Date:	Tue Oct 24 23:47:37 2006 -0500
 
     If a Multi-Image file contains a third image we try to use it as a
     device tree.  The device tree image is assumed to be uncompressed in the
-    image file.  We automatically allocate space for the device tree in memory
+    image file.	 We automatically allocate space for the device tree in memory
     and provide an 8k pad to allow more than a reasonable amount of growth.
 
     Additionally, a device tree that was contained in flash will now automatically

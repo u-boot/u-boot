@@ -54,8 +54,6 @@ const unsigned char fpgadata[] =
  * include common fpga code (for esd boards)
  */
 #include "../common/fpga.c"
-
-
 #include "../common/auto_update.h"
 
 #ifdef CONFIG_CPCI405AB
@@ -88,12 +86,10 @@ au_image_t au_image[] = {
 
 int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
-
 /* Prototypes */
 int cpci405_version(void);
 int gunzip(void *, int, unsigned char *, unsigned long *);
 void lxt971_no_sleep(void);
-
 
 int board_early_init_f (void)
 {
@@ -197,7 +193,6 @@ int board_early_init_f (void)
 	return 0;
 }
 
-
 /* ------------------------------------------------------------------------- */
 
 int ctermm2(void)
@@ -213,7 +208,6 @@ int ctermm2(void)
 #endif
 }
 
-
 int cpci405_host(void)
 {
 	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
@@ -221,7 +215,6 @@ int cpci405_host(void)
 	else
 		return 0;               /* no, board is cpci405 adapter */
 }
-
 
 int cpci405_version(void)
 {
@@ -262,12 +255,10 @@ int cpci405_version(void)
 	}
 }
 
-
 int misc_init_f (void)
 {
 	return 0;  /* dummy implementation */
 }
-
 
 int misc_init_r (void)
 {
@@ -432,7 +423,6 @@ int misc_init_r (void)
 	return (0);
 }
 
-
 /*
  * Check Board Identity:
  */
@@ -515,7 +505,6 @@ long int initdram (int board_type)
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
-
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -526,7 +515,6 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -549,7 +537,6 @@ void ide_set_reset(int on)
 
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CPCI405_VER2 */
-
 
 #if defined(CONFIG_PCI)
 void cpci405_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
@@ -585,7 +572,6 @@ int pci_pre_init(struct pci_controller *hose)
 #endif /* defined(CONFIG_PCI) */
 
 
-
 #ifdef CONFIG_CPCI405AB
 
 #define ONE_WIRE_CLEAR   (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
@@ -615,7 +601,6 @@ int OWTouchReset(void)
 	return result;
 }
 
-
 /*
  * Send 1 a 1-wire write bit.
  * Provide 10us recovery time.
@@ -641,7 +626,6 @@ void OWWriteBit(int bit)
 	}
 }
 
-
 /*
  * Read a bit from the 1-wire bus and return it.
  * Provide 10us recovery time.
@@ -661,7 +645,6 @@ int OWReadBit(void)
 	return result;
 }
 
-
 void OWWriteByte(int data)
 {
 	int loop;
@@ -671,7 +654,6 @@ void OWWriteByte(int data)
 		data >>= 1;
 	}
 }
-
 
 int OWReadByte(void)
 {
@@ -686,7 +668,6 @@ int OWReadByte(void)
 
 	return result;
 }
-
 
 int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -727,7 +708,6 @@ U_BOOT_CMD(
 	"onewire - Read 1-write ID\n",
 	NULL
 	);
-
 
 #define CFG_I2C_EEPROM_ADDR_2	0x51	/* EEPROM CAT28WC32		*/
 #define CFG_ENV_SIZE_2	0x800	/* 2048 bytes may be used for env vars*/
