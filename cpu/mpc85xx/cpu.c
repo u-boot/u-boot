@@ -280,7 +280,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
 
-#if defined(CONFIG_MPC85XX_TSEC1)
+#if defined(CONFIG_TSEC1)
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
 	if (p)
 		memcpy(p, bd->bi_enetaddr, 6);
