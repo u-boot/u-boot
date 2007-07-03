@@ -66,7 +66,6 @@ SECTIONS
     common/environment.o        (.ppcenv)
 
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)
