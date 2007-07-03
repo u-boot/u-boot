@@ -69,9 +69,10 @@ i2c_init(int speed, int slaveadd)
 	dev = (struct fsl_i2c *) (CFG_IMMR + CFG_I2C2_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
+	udelay(5);				/* let it shutdown in peace */
 	writeb(0x3F, &dev->fdr);		/* set bus speed */
 	writeb(0x3F, &dev->dfsrr);		/* set default filter */
-	writeb(slaveadd, &dev->adr);		/* write slave address */
+	writeb(slaveadd << 1, &dev->adr);	/* write slave address */
 	writeb(0x0, &dev->sr);			/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);		/* start I2C controller */
 #endif	/* CFG_I2C2_OFFSET */
