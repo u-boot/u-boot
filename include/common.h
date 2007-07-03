@@ -83,6 +83,7 @@ typedef volatile unsigned char	vu_char;
 #define CONFIG_MPC8260	1
 #endif
 #include <asm/immap_8260.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
