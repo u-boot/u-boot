@@ -620,7 +620,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
+
+#if defined(CONFIG_RELOC_FIXUP_WORKS)
+	gd->reloc_off = 0;
+#else
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+#endif
 
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
