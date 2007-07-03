@@ -52,7 +52,6 @@ SECTIONS
   {
     cpu/mpc83xx/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)
