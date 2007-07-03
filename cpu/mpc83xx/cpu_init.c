@@ -83,20 +83,30 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) | (CFG_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
 #endif
 
-#ifdef CONFIG_MPC834X
 #ifdef CFG_SCCR_TSEC1CM
 	/* TSEC1 clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) | (CFG_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
 #endif
+
 #ifdef CFG_SCCR_TSEC2CM
 	/* TSEC2 & I2C1 clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) | (CFG_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
 #endif
+
+#ifdef CFG_SCCR_TSEC1ON
+	/* TSEC1 clock switch */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1ON) | (CFG_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC2ON
+	/* TSEC2 clock switch */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2ON) | (CFG_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
+#endif
+
 #ifdef CFG_SCCR_USBMPHCM
 	/* USB MPH clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_USBMPHCM) | (CFG_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
 #endif
-#endif /* CONFIG_MPC834X */
 
 #ifdef CFG_SCCR_PCICM
 	/* PCI & DMA clock mode */
