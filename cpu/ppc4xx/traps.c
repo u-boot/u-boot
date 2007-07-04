@@ -145,6 +145,9 @@ void
 MachineCheckException(struct pt_regs *regs)
 {
 	unsigned long fixup, val;
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+	u32 value2;
+#endif
 
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
@@ -203,7 +206,89 @@ MachineCheckException(struct pt_regs *regs)
 		/* Clear MCSR */
 		mtspr(SPRN_MCSR, val);
 	}
-#endif
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+	mfsdram(DDR0_00, val) ;
+	printf("DDR0: DDR0_00 %p\n", val);
+	val = (val >> 16) & 0xff;
+	if (val & 0x80)
+		printf("DDR0: At least one interrupt active\n");
+	if (val & 0x40)
+		printf("DDR0: DRAM initialization complete.\n");
+	if (val & 0x20)
+		printf("DDR0: Multiple uncorrectable ECC events.\n");
+	if (val & 0x10)
+		printf("DDR0: Single uncorrectable ECC event.\n");
+	if (val & 0x08)
+		printf("DDR0: Multiple correctable ECC events.\n");
+	if (val & 0x04)
+		printf("DDR0: Single correctable ECC event.\n");
+	if (val & 0x02)
+		printf("Multiple accesses outside the defined"
+		       " physical memory space detected\n");
+	if (val & 0x01)
+		printf("DDR0: Single access outside the defined"
+		       " physical memory space detected.\n");
+
+	mfsdram(DDR0_01, val);
+	val = (val >> 8) & 0x7;
+	switch (val ) {
+	case 0:
+		printf("DDR0: Write Out-of-Range command\n");
+		break;
+	case 1:
+		printf("DDR0: Read Out-of-Range command\n");
+		break;
+	case 2:
+		printf("DDR0: Masked write Out-of-Range command\n");
+		break;
+	case 4:
+		printf("DDR0: Wrap write Out-of-Range command\n");
+		break;
+	case 5:
+		printf("DDR0: Wrap read Out-of-Range command\n");
+		break;
+	default:
+		mfsdram(DDR0_01, value2);
+		printf("DDR0: No DDR0 error know 0x%x %p\n", val, value2);
+	}
+	mfsdram(DDR0_23, val);
+	if ( (val >> 16) & 0xff)
+		printf("DDR0: Syndrome for correctable ECC event 0x%x\n",
+		       (val >> 16) & 0xff);
+	mfsdram(DDR0_23, val);
+	if ( (val >> 8) & 0xff)
+		printf("DDR0: Syndrome for uncorrectable ECC event 0x%x\n",
+		       (val >> 8) & 0xff);
+	mfsdram(DDR0_33, val);
+	if (val)
+		printf("DDR0: Address of command that caused an "
+		       "Out-of-Range interrupt %p\n", val);
+	mfsdram(DDR0_34, val);
+	if (val)
+		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
+	mfsdram(DDR0_35, val);
+	if (val)
+		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
+	mfsdram(DDR0_36, val);
+	if (val)
+		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
+	mfsdram(DDR0_37, val);
+	if (val)
+		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
+	mfsdram(DDR0_38, val);
+	if (val)
+		printf("DDR0: Address of correctable ECC event %p\n", val);
+	mfsdram(DDR0_39, val);
+	if (val)
+		printf("DDR0: Address of correctable ECC event %p\n", val);
+	mfsdram(DDR0_40, val);
+	if (val)
+		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
+	mfsdram(DDR0_41, val);
+	if (val)
+		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
+#endif /* CONFIG_440EPX */
+#endif /* CONFIG_440 */
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("machine check");

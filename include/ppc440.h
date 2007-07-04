@@ -112,7 +112,7 @@
 #define	 icdbtrh 0x39f	/* instruction cache debug tag register high */
 #define	 mmucr	0x3b2	/* mmu control register */
 #define	 ccr0	0x3b3	/* core configuration register 0 */
-#define  ccr1  	0x378	/* core configuration for 440x5 only */
+#define  ccr1	0x378	/* core configuration for 440x5 only */
 #define	 icdbdr 0x3d3	/* instruction cache debug data register */
 #define	 dbdr	0x3f3	/* debug data register */
 
@@ -136,7 +136,7 @@
 #define clk_opbd	0x00c0
 #define clk_perd	0x00e0
 #define clk_mald	0x0100
-#define clk_spcid   	0x0120
+#define clk_spcid	0x0120
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
@@ -282,6 +282,32 @@
 #define sdr_sdstp3	0x4003
 #endif	/* CONFIG_440GX */
 
+#ifdef CONFIG_440
+/*----------------------------------------------------------------------------+
+| Core Configuration/MMU configuration for 440 (CCR1 for 440x5 only).
++----------------------------------------------------------------------------*/
+#define CCR0_PRE		0x40000000
+#define CCR0_CRPE		0x08000000
+#define CCR0_DSTG		0x00200000
+#define CCR0_DAPUIB		0x00100000
+#define CCR0_DTB		0x00008000
+#define CCR0_GICBT		0x00004000
+#define CCR0_GDCBT		0x00002000
+#define CCR0_FLSTA		0x00000100
+#define CCR0_ICSLC_MASK		0x0000000C
+#define CCR0_ICSLT_MASK		0x00000003
+#define CCR1_TCS_MASK		0x00000080
+#define CCR1_TCS_INTCLK		0x00000000
+#define CCR1_TCS_EXTCLK		0x00000080
+#define MMUCR_SWOA		0x01000000
+#define MMUCR_U1TE		0x00400000
+#define MMUCR_U2SWOAE		0x00200000
+#define MMUCR_DULXE		0x00800000
+#define MMUCR_IULXE		0x00400000
+#define MMUCR_STS		0x00100000
+#define MMUCR_STID_MASK		0x000000FF
+#endif /* CONFIG_440 */
+
 #ifdef CONFIG_440SPE
 #undef sdr_sdstp2
 #define sdr_sdstp2	0x0022
@@ -306,30 +332,6 @@
 #define sdr_sdstp5	0x4003
 #define sdr_sdstp6	0x4005
 #define sdr_sdstp7	0x4007
-
-/*----------------------------------------------------------------------------+
-| Core Configuration/MMU configuration for 440 (CCR1 for 440x5 only).
-+----------------------------------------------------------------------------*/
-#define CCR0_PRE		0x40000000
-#define CCR0_CRPE		0x08000000
-#define CCR0_DSTG		0x00200000
-#define CCR0_DAPUIB		0x00100000
-#define CCR0_DTB		0x00008000
-#define CCR0_GICBT		0x00004000
-#define CCR0_GDCBT		0x00002000
-#define CCR0_FLSTA		0x00000100
-#define CCR0_ICSLC_MASK		0x0000000C
-#define CCR0_ICSLT_MASK		0x00000003
-#define CCR1_TCS_MASK		0x00000080
-#define CCR1_TCS_INTCLK		0x00000000
-#define CCR1_TCS_EXTCLK		0x00000080
-#define MMUCR_SEOA		0x01000000
-#define MMUCR_U1TE		0x00400000
-#define MMUCR_U2SWOAE		0x00200000
-#define MMUCR_DULXE		0x00800000
-#define MMUCR_IULXE		0x00400000
-#define MMUCR_STS		0x00100000
-#define MMUCR_STID_MASK		0x000000FF
 
 #define SDR0_CFGADDR		0x00E
 #define SDR0_CFGDATA		0x00F
@@ -684,8 +686,8 @@
 #define SDRAM_CODT_CKSE_SINGLE_END		0x00000008
 #define SDRAM_CODT_FEEBBACK_RCV_SINGLE_END	0x00000004
 #define SDRAM_CODT_FEEBBACK_DRV_SINGLE_END	0x00000002
-#define SDRAM_CODT_IO_HIZ  			0x00000000
-#define SDRAM_CODT_IO_NMODE  			0x00000001
+#define SDRAM_CODT_IO_HIZ			0x00000000
+#define SDRAM_CODT_IO_NMODE			0x00000001
 
 /*-----------------------------------------------------------------------------+
 |  SDRAM Mode Register

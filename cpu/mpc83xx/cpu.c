@@ -415,7 +415,7 @@ static const struct {
 		"clock-frequency",
 		fdt_set_busfreq
 	},
-#ifdef CONFIG_MPC83XX_TSEC1
+#ifdef CONFIG_TSEC1
 	{	"/" OF_SOC "/ethernet@24000,
 		"mac-address",
 		fdt_set_eth0
@@ -425,7 +425,7 @@ static const struct {
 		fdt_set_eth0
 	},
 #endif
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 	{	"/" OF_SOC "/ethernet@25000,
 		"mac-address",
 		fdt_set_eth1
@@ -525,7 +525,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	if (p != NULL)
 		*p = cpu_to_be32(clock);
 
-#ifdef CONFIG_MPC83XX_TSEC1
+#ifdef CONFIG_TSEC1
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
 	if (p != NULL)
 		memcpy(p, bd->bi_enetaddr, 6);
@@ -535,7 +535,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		memcpy(p, bd->bi_enetaddr, 6);
 #endif
 
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
 	if (p != NULL)
 		memcpy(p, bd->bi_enet1addr, 6);

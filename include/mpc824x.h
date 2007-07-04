@@ -88,7 +88,7 @@
 #define	PREP_PCI_MEMORY_BUS	0x80000000
 #define	PREP_PCI_MEMORY_SIZE	0x80000000
 #define MPC107_PCI_CMD		0x80000004	/* MPC107 PCI cmd reg */
-#define MPC107_PCI_STAT 	0x80000006	/* MPC107 PCI status reg */
+#define MPC107_PCI_STAT		0x80000006	/* MPC107 PCI status reg */
 #define PROC_INT1_ADR		0x800000a8	/* MPC107 Processor i/f cfg1 */
 #define PROC_INT2_ADR		0x800000ac	/* MPC107 Processor i/f cfg2 */
 #define MEM_CONT1_ADR		0x800000f0	/* MPC107 Memory control config. 1 */
@@ -98,8 +98,8 @@
 #define MEM_ERREN1_ADR		0x800000c0	/* MPC107 Memory error enable 1 */
 #define MEM_START1_ADR		0x80000080	/* MPC107 Memory starting addr */
 #define MEM_START2_ADR		0x80000084	/* MPC107 Memory starting addr-lo */
-#define XMEM_START1_ADR 	0x80000088	/* MPC107 Extended mem. start addr-hi*/
-#define XMEM_START2_ADR 	0x8000008c	/* MPC107 Extended mem. start addr-lo*/
+#define XMEM_START1_ADR		0x80000088	/* MPC107 Extended mem. start addr-hi*/
+#define XMEM_START2_ADR		0x8000008c	/* MPC107 Extended mem. start addr-lo*/
 #define MEM_END1_ADR		0x80000090	/* MPC107 Memory ending address */
 #define MEM_END2_ADR		0x80000094	/* MPC107 Memory ending addr-lo */
 #define XMEM_END1_ADR		0x80000098	/* MPC107 Extended mem. end addrs-hi */
@@ -141,6 +141,8 @@
 #define EXC_OFF_SMIE		0x1400	/* System Management Interrupt Exception */
 #define EXC_OFF_JMDDI		0x1600	/* Java Mode denorm detect Interr -- WTF??*/
 #define EXC_OFF_RMTE		0x2000	/* Run Mode or Trace Exception */
+
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 #define MAP_A_CONFIG_ADDR_HIGH	0x8000	/* Upper half of CONFIG_ADDR for Map A */
 #define MAP_A_CONFIG_ADDR_LOW	0x0CF8	/* Lower half of CONFIG_ADDR for Map A */

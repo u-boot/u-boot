@@ -274,7 +274,7 @@ label:							\
 #define CRIT_EXCEPTION(n, label, hdlr)				\
 	. = n;							\
 label:								\
-	EXCEPTION_PROLOG(csrr0, csrr1);				\
+	EXCEPTION_PROLOG(CSRR0, CSRR1);				\
 	lwz	r3,GOT(transfer_to_handler);			\
 	mtlr	r3;						\
 	addi	r3,r1,STACK_FRAME_OVERHEAD;			\

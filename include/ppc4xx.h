@@ -22,7 +22,8 @@
 #ifndef	__PPC4XX_H__
 #define __PPC4XX_H__
 
-#define _START_OFFSET 0x2100
+#define EXC_OFF_SYS_RESET	0x0100	/* System reset				*/
+#define _START_OFFSET		(EXC_OFF_SYS_RESET + 0x2000)
 
 #if defined(CONFIG_440)
 #include <ppc440.h>

@@ -60,7 +60,6 @@
  *  address and (s)dram will be positioned at address 0
  */
 #include <config.h>
-#include <mpc8xx.h>
 #include <ppc4xx.h>
 #include <version.h>
 

@@ -218,8 +218,8 @@
 #define CONFIG_EMAC_NR_START	2	/* start with EMAC 2 (skip 0&1)	*/
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_NET_MULTI	1
-#define CONFIG_PHY_ADDR	      	0xff	     /* no phy on EMAC0		*/
-#define CONFIG_PHY1_ADDR      	0xff	     /* no phy on EMAC1		*/
+#define CONFIG_PHY_ADDR		0xff	     /* no phy on EMAC0		*/
+#define CONFIG_PHY1_ADDR	0xff	     /* no phy on EMAC1		*/
 #define CONFIG_PHY2_ADDR	0x1
 #define CONFIG_PHY3_ADDR	0x3
 #define CONFIG_ET1011C_PHY	1
@@ -298,7 +298,6 @@
 #define CFG_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */
 
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */

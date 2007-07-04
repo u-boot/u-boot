@@ -153,7 +153,7 @@ cpu_init_f (void)
 	 */
 	asm volatile("	bl	0f"		::: "lr");
 	asm volatile("0:	mflr	3"		::: "r3");
-	asm volatile("	addi 	4, 0, 14"	::: "r4");
+	asm volatile("	addi	4, 0, 14"	::: "r4");
 	asm volatile("	mtctr	4"		::: "ctr");
 	asm volatile("1:	icbt	0, 3");
 	asm volatile("	addi	3, 3, 32"	::: "r3");
@@ -211,6 +211,8 @@ cpu_init_f (void)
 	val = mfspr(tcr);
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	val |= 0xb8000000;      /* generate system reset after 1.34 seconds */
+#elif defined(CONFIG_440EPX)
+	val |= 0xb0000000;      /* generate system reset after 1.34 seconds */
 #else
 	val |= 0xf0000000;      /* generate system reset after 2.684 seconds */
 #endif

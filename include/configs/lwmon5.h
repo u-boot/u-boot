@@ -117,7 +117,7 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
-#define CFG_ENV_SECT_SIZE	0x40000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -288,7 +288,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
@@ -360,7 +359,7 @@
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO13				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO14				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO15				*/	\
-{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO16 GMCTxD(4)   			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO16 GMCTxD(4)			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO17 GMCTxD(5)			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO18 GMCTxD(6)			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO19 GMCTxD(7)			*/	\

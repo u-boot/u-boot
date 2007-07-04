@@ -59,6 +59,7 @@
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_NAND_ADDR		0xd0000000      /* NAND Flash		*/
 #define CFG_OCM_BASE		0xe0010000      /* ocm			*/
+#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 #define CFG_PCI_BASE		0xe0000000      /* Internal PCI regs	*/
 #define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
 #define CFG_PCI_MEMBASE1	CFG_PCI_MEMBASE  + 0x10000000
@@ -81,7 +82,7 @@
 #define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -126,7 +127,7 @@
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -328,6 +329,18 @@
 			       CFG_CMD_SDRAM	|	\
 			       CMD_USB)
 
+/* POST support */
+#define CONFIG_POST		(CFG_POST_MEMORY   | \
+				 CFG_POST_CPU	   | \
+				 CFG_POST_UART	   | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_SPR)
+
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
+#define CONFIG_LOGBUFFER
+
+#define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
+
 #define CONFIG_SUPPORT_VFAT
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
@@ -371,7 +384,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 

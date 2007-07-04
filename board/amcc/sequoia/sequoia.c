@@ -426,23 +426,10 @@ int testdram(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long addr;
-#if 0
-	/*--------------------------------------------------------------------------+
-	 *	Cactus is always configured as the host & requires the
-	 *	PCI arbiter to be enabled ???
-	 *--------------------------------------------------------------------------*/
-	unsigned long strap;
-	mfsdr(sdr_sdstp1, strap);
-	if ((strap & SDR0_SDSTP1_PAE_MASK) == 0) {
-		printf("PCI: SDR0_STRP1[PAE] not set.\n");
-		printf("PCI: Configuration aborted.\n");
-		return 0;
-	}
-#endif
 
 	/*-------------------------------------------------------------------------+
 	  | Set priority for all PLB3 devices to 0.
@@ -480,7 +467,7 @@ int pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif /* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
@@ -586,3 +573,13 @@ int is_pci_host(struct pci_controller *hose)
 	return (1);
 }
 #endif				/* defined(CONFIG_PCI) */
+#if defined(CONFIG_POST)
+/*
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(void)
+{
+	return 0;	/* No hotkeys supported */
+}
+#endif /* CONFIG_POST */

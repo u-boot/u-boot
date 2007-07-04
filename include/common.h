@@ -38,7 +38,7 @@ typedef volatile unsigned char	vu_char;
 #include <linux/string.h>
 #include <asm/ptrace.h>
 #include <stdarg.h>
-#if defined(CONFIG_PCI) && defined(CONFIG_440)
+#if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
 #include <pci.h>
 #endif
 #if defined(CONFIG_8xx)
@@ -248,10 +248,11 @@ void	pci_init      (void);
 void	pci_init_board(void);
 void	pciinfo	      (int, int);
 
-#if defined(CONFIG_PCI) && defined(CONFIG_440)
-#   if defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
     int	   pci_pre_init	       (struct pci_controller * );
-#   endif
+#endif
+
+#if defined(CONFIG_PCI) && defined(CONFIG_440)
 #   if defined(CFG_PCI_TARGET_INIT)
 	void	pci_target_init	     (struct pci_controller *);
 #   endif

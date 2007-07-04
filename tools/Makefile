@@ -74,7 +74,7 @@ TOOLSUBDIRS =
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
 HOST_CFLAGS = -traditional-cpp -Wall
 HOST_LDFLAGS =-multiply_defined suppress
-HOST_ENVIRO_CFLAGS = -traditional-cpp
+HOST_ENVIRO_CFLAGS =
 
 else
 ifeq ($(HOSTOS)-$(HOSTARCH),netbsd-ppc)

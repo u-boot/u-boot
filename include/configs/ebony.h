@@ -122,7 +122,7 @@
 #define CFG_FLASH_WORD_SIZE     unsigned char
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
@@ -270,7 +270,6 @@
 #define CFG_PCI_TARGBASE    0x80000000  /* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT	            /* let board init pci target    */
 
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
