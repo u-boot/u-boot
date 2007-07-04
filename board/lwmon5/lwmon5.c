@@ -19,9 +19,10 @@
  */
 
 #include <common.h>
-#include <asm/processor.h>
 #include <ppc440.h>
+#include <asm/processor.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -220,6 +221,13 @@ int misc_init_r(void)
 	udelay(500);
 	gpio_write_bit(CFG_GPIO_LIME_RST, 1);
 
+	/* Lime memory clock adjusted to 133MHz */
+	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_133MHZ);
+	/* Wait untill time expired. Because of requirements in lime manual */
+	udelay(300);
+	/* Write lime controller memory parameters */
+	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
+
 	/*
 	 * Reset PHY's
 	 */
@@ -228,13 +236,6 @@ int misc_init_r(void)
 	udelay(100);
 	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
 	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
-
-	/*
-	 * Reset USB hub
-	 */
-	gpio_write_bit(CFG_GPIO_HUB_RST, 0);
-	udelay(100);
-	gpio_write_bit(CFG_GPIO_HUB_RST, 1);
 
 	return 0;
 }
