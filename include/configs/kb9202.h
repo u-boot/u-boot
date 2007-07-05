@@ -78,17 +78,20 @@
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_ENV_OVERWRITE	1
 
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL | \
-		        CFG_CMD_I2C | \
-			CFG_CMD_PING | \
-			CFG_CMD_DHCP ) & \
-		      ~(CFG_CMD_BDI | \
-			CFG_CMD_FPGA | \
-			CFG_CMD_MISC))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MISC
+
 
 #define CONFIG_NR_DRAM_BANKS 1
 #define PHYS_SDRAM 0x20000000
