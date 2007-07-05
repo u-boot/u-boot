@@ -73,10 +73,12 @@
 
 #define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL) /* | CFG_CMD_JFFS2)*/
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS    	"root=/dev/ram0 rootfstype=ext2 console=ttyAM0,115200"

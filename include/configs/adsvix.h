@@ -68,10 +68,19 @@
 
 #define CONFIG_DOS_PARTITION   1
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL & ~CFG_CMD_NET) | CFG_CMD_MMC | CFG_CMD_FAT | CFG_CMD_IDE | CFG_CMD_PCMCIA)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_PCMCIA
+
+#undef CONFIG_CMD_NET
+
 
 #undef CONFIG_SHOW_BOOT_PROGRESS
 
@@ -162,7 +171,7 @@
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 /* #define CONFIG_INITRD_TAG	 1 */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

@@ -66,18 +66,23 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_DHCP)
-#define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+
+
+#define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySA0,115200n8 root=/dev/nfs ip=bootp"
 #define CONFIG_BOOTCOMMAND	"bootp;tftp;bootm"
 #define CFG_AUTOLOAD            "n"	/* No autoload */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
