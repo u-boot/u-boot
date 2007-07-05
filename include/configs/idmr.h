@@ -78,18 +78,18 @@
 	"u-boot=/tftpboot/idmr/u-boot.bin\0"				\
 	""
 
-/*
- * Commands' definition
- */
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL		| \
-					CFG_CMD_PING		| \
-					CFG_CMD_JFFS2		| \
-					CFG_CMD_NET)		& \
-					~(CFG_CMD_LOADS		| \
-						CFG_CMD_LOADB))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
 
 
 /*
@@ -115,11 +115,11 @@
 #define CFG_PROMPT		"=> "
 #define CFG_LONGHELP				/* undef to save memory */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size */
-#else /* !(CONFIG_COMMANDS & CFG_CMD_KGDB) */
+#else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#endif /* (CONFIG_COMMANDS & CFG_CMD_KGDB) */
+#endif
 
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
@@ -206,8 +206,8 @@
 						"2m(rootfs),"	\
 						"-(user)";
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 #error MII commands don't work on iDMR board and sholud not be enabled.
-#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) */
+#endif
 
 #endif /* _IDMR_H */

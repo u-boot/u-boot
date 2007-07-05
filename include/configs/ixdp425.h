@@ -53,14 +53,19 @@
 
 #define CONFIG_BAUDRATE         115200
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_ELF | CFG_CMD_PCI)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_PCI
+
 
 #define CONFIG_PCI
 #define CONFIG_NET_MULTI
 #define CONFIG_EEPRO100
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-/* These are u-boot generic parameters */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY        3
 /*#define CONFIG_ETHADDR          08:00:3e:26:0a:5b*/
@@ -71,7 +76,7 @@
 #define CONFIG_BOOTARGS         "root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
 #define CONFIG_CMDLINE_TAG
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE    230400          /* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX   2               /* which serial port to use */
 #endif
