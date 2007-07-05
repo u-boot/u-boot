@@ -61,10 +61,12 @@
 
 #define CONFIG_BAUDRATE         115200
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #define CONFIG_BOOTDELAY        3
 #define CONFIG_BOOTARGS         "root=/dev/mtdblock2 console=ttyS0,115200"

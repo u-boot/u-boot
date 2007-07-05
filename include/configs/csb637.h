@@ -99,20 +99,23 @@
 #define CONFIG_BOOTDELAY      3
 /* #define CONFIG_ENV_OVERWRITE	1 */
 
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL | \
-			CFG_CMD_JFFS2 | \
-			CFG_CMD_DHCP | \
-			CFG_CMD_PING ) & \
-		      ~(CFG_CMD_BDI | \
-			CFG_CMD_IMI | \
-			CFG_CMD_AUTOSCRIPT | \
-			CFG_CMD_FPGA | \
-			CFG_CMD_MISC | \
-			CFG_CMD_LOADS ))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_IMI
+#undef CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MISC
+#undef CONFIG_CMD_LOADS
+
 
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512

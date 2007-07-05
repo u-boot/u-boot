@@ -104,35 +104,35 @@
 #define CFG_I2C_EEPROM_ADDR	0x50
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW
+#else
+#define CONFIG_TIMESTAMP
 #endif
 /* still about 20 kB free with this defined */
 #define CFG_LONGHELP
 
 #define CONFIG_BOOTDELAY      1
 
-#ifdef CONFIG_HARD_I2C
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP 	| \
-			CFG_CMD_EEPROM	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP  ) & \
-		      ~(CFG_CMD_FPGA | CFG_CMD_MISC) )
-#else
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP 	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP  ) & \
-		      ~(CFG_CMD_FPGA | CFG_CMD_MISC) )
-#define CONFIG_TIMESTAMP
-#endif
-#define CFG_LONGHELP
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MISC
+
+#if defined(CONFIG_HARD_I2C)
+    #define CONFIG_CMD_DATE
+    #define CONFIG_CMD_EEPROM
+    #define CONFIG_CMD_I2C
+#endif
+
+
+#define CFG_LONGHELP
 
 #define AT91_SMART_MEDIA_ALE	(1 << 22)	/* our ALE is AD22 */
 #define AT91_SMART_MEDIA_CLE	(1 << 21)	/* our CLE is AD21 */

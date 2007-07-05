@@ -88,10 +88,16 @@
 #define CONFIG_BAUDRATE		9600
 #endif
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL|CFG_CMD_KGDB)&~CFG_CMD_NET)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_KGDB
+
+#undef CONFIG_CMD_NET
+
 
 #ifdef DEBUG
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -102,7 +108,7 @@
 
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #undef	CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -124,7 +130,7 @@
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -256,7 +262,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value*/
 #endif
 
