@@ -282,7 +282,6 @@
 #define sdr_sdstp3	0x4003
 #endif	/* CONFIG_440GX */
 
-#ifdef CONFIG_440
 /*----------------------------------------------------------------------------+
 | Core Configuration/MMU configuration for 440 (CCR1 for 440x5 only).
 +----------------------------------------------------------------------------*/
@@ -306,7 +305,6 @@
 #define MMUCR_IULXE		0x00400000
 #define MMUCR_STS		0x00100000
 #define MMUCR_STID_MASK		0x000000FF
-#endif /* CONFIG_440 */
 
 #ifdef CONFIG_440SPE
 #undef sdr_sdstp2
