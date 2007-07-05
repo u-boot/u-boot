@@ -39,12 +39,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
-
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5   	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -69,30 +63,26 @@
 #define CONFIG_PCI_CFG_PHYS	CONFIG_PCI_CFG_BUS
 #define CONFIG_PCI_CFG_SIZE	0x01000000
 
+
 /*
- * Supported commands
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_BOOTD	| \
-				CFG_CMD_CACHE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_SNTP	| \
-				0)
+#include <config_cmd_default.h>
 
-/*			CFG_CMD_MII	| \ */
-/*			       CFG_CMD_USB	| \ */
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Default Environment
@@ -268,7 +258,7 @@
  */
 #define CFG_LONGHELP			    /* undef to save memory	*/
 #define CFG_PROMPT		"=> "	    /* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	    /* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256	    /* Console I/O Buffer Size	*/
@@ -283,6 +273,11 @@
 #define CFG_LOAD_ADDR		0x100000    /* default load address */
 
 #define CFG_HZ			1000	    /* decrementer freq: 1 ms ticks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5   	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings

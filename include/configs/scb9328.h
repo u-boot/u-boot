@@ -36,20 +36,18 @@
 
 
 /*
- * Definition of u-boot build in commands. Check out CONFIG_CMD_DFL if
- * neccessary in include/cmd_confdefs.h file. (Un)comment for getting
- * functionality or size of u-boot code.
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL		\
-				& ~CFG_CMD_LOADS	\
-				& ~CFG_CMD_CONSOLE	\
-				& ~CFG_CMD_AUTOSCRIPT	\
-				| CFG_CMD_NET		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_DHCP		\
-				)
+#include <config_cmd_default.h>
 
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_CONSOLE
+#undef CONFIG_CMD_AUTOSCRIPT
+
 
 /*
  * Boot options. Setting delay to -1 stops autostart count down.

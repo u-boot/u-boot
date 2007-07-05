@@ -502,31 +502,28 @@
  */
 #define CONFIG_VERSION_VARIABLE
 
-/* What U-Boot subsytems do you want enabled? */
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_PING
+
+#undef CONFIG_CMD_KGDB
+
 #ifdef CONFIG_ETHER_ON_FCC
-# define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
-				CFG_CMD_ELF	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_SPI	| \
-				CFG_CMD_SDRAM   | \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_IMMAP	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_MII	)
-#else
-# define CONFIG_COMMANDS	(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
-				CFG_CMD_ELF	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_SPI	| \
-				CFG_CMD_SDRAM   | \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_IMMAP	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_PING	)
-#endif /* CONFIG_ETHER_ON_FCC */
+#define CONFIG_CMD_MII
+#endif
+
 
 /* Where do the internal registers live? */
 #define CFG_IMMR		0xF0000000
@@ -543,10 +540,6 @@
 #define CONFIG_SBC8260		1	/* on an EST SBC8260 Board  */
 #define CONFIG_SACSng		1	/* munged for the SACSng */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 
 /*
  * Miscellaneous configurable options
@@ -589,7 +582,7 @@
 #define CFG_TFTP_TIMEOUT_COUNT 5        /* How many timeouts TFTP will allow */
 					/* before it gives up.               */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CBSIZE		1024	/* Console I/O Buffer Size	     */
 #else
 #  define CFG_CBSIZE		256	/* Console I/O Buffer Size	     */
@@ -732,7 +725,7 @@
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

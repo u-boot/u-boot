@@ -72,22 +72,17 @@
 
 #define CONFIG_BAUDRATE		115200
 
-/***********************************************************
- * Command definition
- ***********************************************************/
-#define CONFIG_COMMANDS \
-			(CONFIG_CMD_DFL	 | \
-			CFG_CMD_CACHE	 | \
-			/*CFG_CMD_NAND	 |*/ \
-			/*CFG_CMD_EEPROM |*/ \
-			/*CFG_CMD_I2C	 |*/ \
-			/*CFG_CMD_USB	 |*/ \
-			CFG_CMD_REGINFO  | \
-			CFG_CMD_DATE	 | \
-			CFG_CMD_ELF)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_ELF
+
 
 #define CONFIG_BOOTDELAY	3
 /*#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600" */
@@ -98,7 +93,7 @@
 /*#define CONFIG_BOOTFILE	"elinos-lart" */
 /*#define CONFIG_BOOTCOMMAND	"tftp; bootm" */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

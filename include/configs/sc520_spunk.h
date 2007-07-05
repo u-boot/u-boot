@@ -64,16 +64,25 @@
 
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2 | CFG_CMD_IDE | CFG_CMD_NET | CFG_CMD_PCMCIA | CFG_CMD_EEPROM)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_EEPROM
+
 
 #define CONFIG_BOOTDELAY	15
 #define CONFIG_BOOTARGS    	"root=/dev/mtdblock1 console=ttyS0,9600 mtdparts=phys:7936k(root),256k(uboot) "
 #define CONFIG_BOOTCOMMAND	"setenv bootargs root=/dev/nfs ip=autoconf console=ttyS0,9600 mtdparts=phys:7808k(root),128k(env),256k(uboot); bootp; bootm"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

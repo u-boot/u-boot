@@ -169,25 +169,27 @@
 #define CONFIG_MII 1			/* add 405GP MII PHY management		*/
 #define CONFIG_PHY_ADDR 1	/* the connected Phy defaults to address 1 */
 
-#define CONFIG_COMMANDS	  \
-	   (CONFIG_CMD_DFL	| \
-			CFG_CMD_AUTOSCRIPT	| \
-			CFG_CMD_PCI		| \
-			CFG_CMD_IRQ		| \
-			CFG_CMD_NET		| \
-			CFG_CMD_MII		| \
-			CFG_CMD_PING		| \
-			CFG_CMD_NAND		| \
-			CFG_CMD_JFFS2		| \
-			CFG_CMD_I2C		| \
-			CFG_CMD_IDE		| \
-			CFG_CMD_DATE		| \
-			CFG_CMD_DHCP		| \
-			CFG_CMD_CACHE		| \
-			CFG_CMD_ELF	)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_ELF
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -277,7 +279,7 @@
  * External peripheral base address
  *-----------------------------------------------------------------------
  */
-#if !(CONFIG_COMMANDS & CFG_CMD_IDE)
+#if !defined(CONFIG_CMD_IDE)
 
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #undef	CONFIG_IDE_RESET		/* no reset for ide supported	*/
@@ -286,7 +288,7 @@
  * IDE/ATA stuff
  *-----------------------------------------------------------------------
  */
-#else /* !(CONFIG_COMMANDS & CFG_CMD_IDE) */
+#else
 #define CONFIG_START_IDE	1	/* check, if use IDE */
 
 #undef	CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
@@ -346,7 +348,7 @@
 
 #endif /* IDE_USES_ISA_EMULATION */
 
-#endif /* !(CONFIG_COMMANDS & CFG_CMD_IDE) */
+#endif
 
 /*
 #define	CFG_KEY_REG_BASE_ADDR	0xF0100000
@@ -437,7 +439,7 @@ extern unsigned long offsetOfEnvironment;
 
 #define CFG_CACHELINE_SIZE 32
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
  #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
