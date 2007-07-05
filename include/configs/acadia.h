@@ -299,7 +299,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-
 /*
  * Command line configuration.
  */
@@ -330,8 +329,6 @@
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #endif
-
-
 
 #undef CONFIG_WATCHDOG					/* watchdog disabled		*/
 

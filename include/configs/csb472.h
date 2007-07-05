@@ -80,8 +80,6 @@
 				  CONFIG_BOOTP_DNS2		| \
 				  CONFIG_BOOTP_BOOTFILESIZE	)
 
-
-
 /*
  * Command line configuration.
  */
@@ -97,7 +95,6 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
 
 /*
  * Serial download configuration

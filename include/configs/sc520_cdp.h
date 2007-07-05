@@ -64,9 +64,7 @@
  */
 #define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
 
-
 #define CONFIG_BAUDRATE		9600
-
 
 /*
  * Command line configuration.
@@ -79,8 +77,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_EEPROM
 
-
-
 #define CONFIG_BOOTDELAY	15
 #define CONFIG_BOOTARGS    	"root=/dev/mtdblock0 console=ttyS0,9600"
 /* #define CONFIG_BOOTCOMMAND	"bootm 38000000" */
@@ -89,7 +85,6 @@
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
-
 
 /*
  * Miscellaneous configurable options
@@ -113,7 +108,6 @@
 						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
@@ -122,8 +116,6 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-
-
 #define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
 
@@ -134,10 +126,8 @@
 #define CONFIG_SPI_EEPROM      /* Support for SPI EEPROMs (AT25128) */
 #define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */
 
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-
 
 /* Environment in EEPROM */
 #define CFG_ENV_IS_IN_EEPROM   1
@@ -217,7 +207,6 @@
 #define CONFIG_VIDEO			/* To enable video controller support */
 #define CONFIG_I8042_KBD
 #define CFG_ISA_IO 0
-
 
 /************************************************************
  * RTC

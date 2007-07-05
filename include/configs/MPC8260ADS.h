@@ -246,8 +246,6 @@
 #endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
 
 
-
-
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm fff80000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2"

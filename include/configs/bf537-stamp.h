@@ -166,8 +166,6 @@
 #define CONFIG_NETCONSOLE	1
 #define CONFIG_NET_MULTI	1
 
-
-
 /*
  * Command line configuration.
  */
@@ -196,7 +194,6 @@
 
 #endif
 
-
 #if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT)
 
 #define CONFIG_CMD_DHCP
@@ -207,8 +204,6 @@
 #endif
 
 #endif
-
-
 
 
 #define CONFIG_BOOTARGS "root=/dev/mtdblock0 rw console=ttyBF0,57600"

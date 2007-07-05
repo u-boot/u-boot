@@ -99,7 +99,6 @@
 #define CONFIG_USB_STORAGE
 #endif
 
-
 /*
  * Command line configuration.
  */
@@ -117,8 +116,6 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_DATE
-
-
 
 #if (TEXT_BASE == 0xFF000000)	/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT		1

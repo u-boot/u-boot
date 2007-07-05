@@ -111,7 +111,6 @@
 #define CONFIG_BOOTP_MASK		(CONFIG_BOOTP_SUBNETMASK	\
 					 | CONFIG_BOOTP_GATEWAY)
 
-
 /*
  * Command line configuration.
  */
@@ -128,8 +127,6 @@
 #undef CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_SETGETDCR
 #undef CONFIG_CMD_XIMG
-
-
 
 #define CONFIG_ATMEL_USART		1
 #define CONFIG_MACB			1
