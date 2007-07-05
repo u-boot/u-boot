@@ -78,25 +78,23 @@
 
 #define CONFIG_BAUDRATE		115200
 
-/***********************************************************
- * Command definition
- ***********************************************************/
 
-#define CONFIG_COMMANDS \
-			(CONFIG_CMD_DFL	 | \
-			CFG_CMD_CACHE	 | \
-			CFG_CMD_REGINFO	 | \
-			CFG_CMD_ELF)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_ELF
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"root=/dev/msdk mem=48M"
 #define CONFIG_BOOTFILE		"mx1ads"
 #define CONFIG_BOOTCOMMAND	"tftp; bootm"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 						/* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */
