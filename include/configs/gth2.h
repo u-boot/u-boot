@@ -71,12 +71,28 @@
 /* Boot from Compact flash partition 2 as default */
 #define CONFIG_BOOTCOMMAND	"ide reset;disk 0x81000000 0:2;run addmisc;bootm"
 
-#define CONFIG_COMMANDS ((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP ) & \
- ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
-   CFG_CMD_MII | CFG_CMD_LOADS	| CFG_CMD_LOADB | CFG_CMD_ELF | \
-   CFG_CMD_BDI | CFG_CMD_BEDBUG | CFG_CMD_NFS | CFG_CMD_AUTOSCRIPT ))
 
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_AUTOSCRIPT
+
 
 /*
  * Miscellaneous configurable options
