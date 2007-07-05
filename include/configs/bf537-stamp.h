@@ -159,50 +159,57 @@
 
 #if defined(CONFIG_BFIN_CF_IDE) || defined(CONFIG_BFIN_HDD_IDE) || defined(CONFIG_BFIN_TRUE_IDE)
 # define CONFIG_BFIN_IDE	1
-# define ADD_IDE_CMD		CFG_CMD_IDE
-#else
-# define ADD_IDE_CMD		0
 #endif
 
 /*#define CONFIG_BF537_NAND */		/* Add nand flash support */
 
-#ifdef CONFIG_BF537_NAND
-# define ADD_NAND_CMD		CFG_CMD_NAND
-#else
-# define ADD_NAND_CMD		0
-#endif
-
 #define CONFIG_NETCONSOLE	1
 #define CONFIG_NET_MULTI	1
 
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT) || (BFIN_BOOT_MODE == BF537_SPI_MASTER_BOOT)
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_DATE
+
 #if (BFIN_CPU == ADSP_BF534)
-#define CONFIG_BFIN_CMD		(CONFIG_CMD_DFL & ~CFG_CMD_NET)
+#undef CONFIG_CMD_NET
 #else
-#define CONFIG_BFIN_CMD		(CONFIG_CMD_DFL | CFG_CMD_PING)
+#define CONFIG_CMD_PING
 #endif
 
-#if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT)
-#define CONFIG_COMMANDS		(CONFIG_BFIN_CMD| \
-				 CFG_CMD_ELF	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_CACHE  | \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_DHCP   | \
-				 ADD_IDE_CMD	| \
-				 ADD_NAND_CMD	| \
-				 CFG_CMD_POST_DIAG | \
-				 CFG_CMD_DATE)
-#elif (BFIN_BOOT_MODE == BF537_SPI_MASTER_BOOT)
-#define CONFIG_COMMANDS		(CONFIG_BFIN_CMD| \
-				 CFG_CMD_ELF	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_CACHE  | \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_EEPROM | \
-				 ADD_IDE_CMD	| \
-				 CFG_CMD_DATE)
+#if defined(CONFIG_BFIN_CF_IDE) \
+	|| defined(CONFIG_BFIN_HDD_IDE) \
+	|| defined(CONFIG_BFIN_TRUE_IDE)
+#define CONFIG_CMD_IDE
 #endif
+
+#endif
+
+
+#if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT)
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_POST_DIAG
+
+#ifdef CONFIG_BF537_NAND
+#define CONFIG_CMD_NAND
+#endif
+
+#endif
+
+
+
 
 #define CONFIG_BOOTARGS "root=/dev/mtdblock0 rw console=ttyBF0,57600"
 #define CONFIG_LOADADDR	0x1000000
@@ -256,9 +263,6 @@
 #endif
 #endif
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 #if (BFIN_BOOT_MODE == BF537_SPI_MASTER_BOOT)
 #if (BFIN_CPU == ADSP_BF534)
 #define	CFG_PROMPT		"serial_bf534> "	/* Monitor Command Prompt */
@@ -277,7 +281,7 @@
 #endif
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
 #define	CFG_CBSIZE		256	/* Console I/O Buffer Size */

@@ -78,14 +78,16 @@
 				 CONFIG_BOOTP_BOOTFILESIZE | \
 				 CONFIG_BOOTP_DNS)
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-				  CFG_CMD_ELF    | \
-				  CFG_CMD_I2C 	 | \
-				  CFG_CMD_EEPROM | \
-				  CFG_CMD_PCI    )
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_PCI
+
 
 #define CONFIG_HUSH_PARSER	1 /* use "hush" command parser */
 #define CONFIG_BOOTDELAY 	1
@@ -340,7 +342,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8240 CPU			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
