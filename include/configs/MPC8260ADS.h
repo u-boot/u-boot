@@ -198,59 +198,61 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_EXCLUDE		CFG_CMD_BEDBUG	| \
-				CFG_CMD_BMP	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DISPLAY | \
-				CFG_CMD_DOC	| \
-				CFG_CMD_DTT	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_EXT2	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_FDC	| \
-				CFG_CMD_FDOS	| \
-				CFG_CMD_HWFLOW	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_KGDB	| \
-				CFG_CMD_MMC	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_PCMCIA	| \
-				CFG_CMD_REISER	| \
-				CFG_CMD_SCSI	| \
-				CFG_CMD_SPI	| \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_UNIVERSE | \
-				CFG_CMD_USB	| \
-				CFG_CMD_VFD	| \
-				CFG_CMD_XIMG
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
+
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_BSP
+#undef CONFIG_CMD_DATE
+#undef CONFIG_CMD_DISPLAY
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_DTT
+#undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_EXT2
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_KGDB
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_REISER
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_SNTP
+#undef CONFIG_CMD_UNIVERSE
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_XIMG
 
 #if CONFIG_ADSTYPE == CFG_8272ADS
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-			         CFG_CMD_SDRAM	| \
-				 CFG_CMD_I2C	| \
-				 CFG_EXCLUDE	) )
+    #undef CONFIG_CMD_SDRAM
+    #undef CONFIG_CMD_I2C
+
 #elif CONFIG_ADSTYPE >= CFG_PQ2FADS
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_SDRAM	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_PCI	| \
-				 CFG_EXCLUDE	) )
+    #undef CONFIG_CMD_SDRAM
+    #undef CONFIG_CMD_I2C
+    #undef CONFIG_CMD_PCI
+
 #else
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CMD_CFG_PCI 	| \
-				 CFG_EXCLUDE 	) )
+    #undef CONFIG_CMD_PCI
+
 #endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+
 
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm fff80000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -268,7 +270,7 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG & CFG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
@@ -384,7 +386,7 @@
 #endif /* CFG_RAMBOOT */
 
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
