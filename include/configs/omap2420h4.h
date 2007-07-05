@@ -119,15 +119,27 @@
 #define CONFIG_BAUDRATE          115200
 #define CFG_BAUDRATE_TABLE       {9600, 19200, 38400, 57600, 115200}
 
-#ifdef CFG_NAND_BOOT
-#define CONFIG_COMMANDS          (CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_NAND | CFG_CMD_JFFS2)
-#else
-#define CONFIG_COMMANDS          ((CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_I2C | CFG_CMD_JFFS2) & ~CFG_CMD_AUTOSCRIPT)
-#endif
-#define CONFIG_BOOTP_MASK        CONFIG_BOOTP_DEFAULT
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#ifdef CFG_NAND_BOOT
+    #define CONFIG_CMD_DHCP
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_NAND
+    #define CONFIG_CMD_JFFS2
+#else
+    #define CONFIG_CMD_DHCP
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_JFFS2
+
+    #undef CONFIG_CMD_AUTOSCRIPT
+#endif
+
+
+#define CONFIG_BOOTP_MASK        CONFIG_BOOTP_DEFAULT
 
 /*
  *  Board NAND Info.

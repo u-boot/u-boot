@@ -86,11 +86,19 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_DHCP)
+#define CONFIG_COMMANDS		(CONFIG_CMD_DFL
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+
+
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 #include <configs/omap1510.h>
 
 #define CONFIG_BOOTDELAY	3
@@ -98,7 +106,7 @@
 #define CONFIG_BOOTCOMMAND	"bootp;tftp;bootm"
 #define CFG_AUTOLOAD		"n"		/* No autoload */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

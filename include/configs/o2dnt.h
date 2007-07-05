@@ -37,11 +37,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -82,20 +77,20 @@
 
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PING	| \
-				ADD_PCI_CMD	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_PCI_CMD
+
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT		1
@@ -246,7 +241,7 @@
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -261,6 +256,11 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings
