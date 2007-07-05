@@ -66,10 +66,12 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,115200"
@@ -80,7 +82,7 @@
 #define CONFIG_BOOTFILE		"dnp1110"
 #define CONFIG_BOOTCOMMAND	"tftp; bootm"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

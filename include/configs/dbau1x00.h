@@ -75,21 +75,48 @@
 #ifdef CONFIG_DBAU1550
 /* Boot from flash by default, revert to bootp */
 #define CONFIG_BOOTCOMMAND	"bootm 0xbfc20000; bootp; bootm"
-
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_FLASH | CFG_CMD_LOADB | CFG_CMD_NET) & \
-				 ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FPGA | CFG_CMD_IDE | \
-				   CFG_CMD_MII | CFG_CMD_RUN | CFG_CMD_BDI | CFG_CMD_BEDBUG | \
-				   CFG_CMD_NFS | CFG_CMD_ELF | CFG_CMD_PCMCIA | CFG_CMD_I2C))
 #else /* CONFIG_DBAU1550 */
 #define CONFIG_BOOTCOMMAND	"bootp;bootm"
-
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_IDE | CFG_CMD_DHCP | CFG_CMD_ELF) & \
-				 ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | \
-				   CFG_CMD_MII | CFG_CMD_LOADS | CFG_CMD_RUN | CFG_CMD_LOADB | \
-				   CFG_CMD_ELF | CFG_CMD_BDI | CFG_CMD_BEDBUG))
 #endif /* CONFIG_DBAU1550 */
 
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_RUN
+
+
+#ifdef CONFIG_DBAU1550
+
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_I2C
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_PCMCIA
+
+#else
+
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_LOADS
+
+#endif
+
 
 /*
  * Miscellaneous configurable options
