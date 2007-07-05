@@ -275,14 +275,20 @@
 /* Monitor Command Prompt */
 #define CFG_PROMPT		"=> "
 
-/* What U-Boot subsytems do you want enabled? */
-#define CONFIG_COMMANDS		(((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
-				CFG_CMD_ELF	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_MEMTEST | \
-				CFG_CMD_MII	| \
-				CFG_CMD_IMMAP)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_MEMTEST
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_IMMAP
+
+#undef CONFIG_CMD_KGDB
 
 
 /* Where do the internal registers live? */
@@ -298,13 +304,10 @@
 #define CONFIG_PPMC8260		1	/* on an Wind River PPMC8260 Board  */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CBSIZE		1024	/* Console I/O Buffer Size	     */
 #else
 #  define CFG_CBSIZE		256	/* Console I/O Buffer Size	     */
@@ -477,7 +480,7 @@
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

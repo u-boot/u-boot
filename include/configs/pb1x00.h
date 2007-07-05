@@ -132,11 +132,8 @@
 /*---USB -------------------------------------------*/
 #if 0
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
-#else
-#define ADD_USB_CMD             0
 #endif
 
 /*---ATA PCMCIA ------------------------------------*/
@@ -179,11 +176,27 @@
 #define CFG_ICACHE_SIZE		16384
 #define CFG_CACHELINE_SIZE	32
 
-#define CONFIG_COMMANDS	\
-  (((CONFIG_CMD_DFL | CFG_CMD_DHCP | CFG_CMD_ELF | CFG_CMD_MII | CFG_CMD_PING) & \
- ~(CFG_CMD_ENV | CFG_CMD_FAT | CFG_CMD_FLASH | CFG_CMD_FPGA | CFG_CMD_IDE | \
-   CFG_CMD_LOADS | CFG_CMD_RUN | CFG_CMD_LOADB | CFG_CMD_ELF | \
-   CFG_CMD_BDI | CFG_CMD_BEDBUG)) | ADD_USB_CMD)
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+
+#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_RUN
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_BEDBUG
 
 #endif	/* __CONFIG_H */

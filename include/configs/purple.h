@@ -81,8 +81,14 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL | CFG_CMD_ELF)
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+
 
 #define CFG_SDRAM_BASE		0x80000000
 
