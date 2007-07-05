@@ -143,7 +143,8 @@
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
-#if (defined(CONFIG_JFFS2_NAND) && ((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND))
+#if (defined(CONFIG_JFFS2_NAND) && \
+     ((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)) )
 #if defined(CFG_NAND_LEGACY)
 #include <linux/mtd/nand_legacy.h>
 #else
@@ -334,7 +335,8 @@ static inline void *get_node_mem(u32 off)
 		return get_node_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && ((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && \
+    (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_node_mem_nand(off);
 #endif
@@ -345,7 +347,8 @@ static inline void *get_node_mem(u32 off)
 
 static inline void put_fl_mem(void *buf)
 {
-#if defined(CONFIG_JFFS2_NAND) && ((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && \
+    (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
 	struct mtdids *id = current_part->dev->id;
 
 	if (id->type == MTD_DEV_TYPE_NAND)

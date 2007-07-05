@@ -250,7 +250,7 @@
 #define CONFIG_BOOTCOMMAND	"bootm fff80000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2"
 
-#if defined(CONFIG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB) || (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -268,7 +268,7 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
-#if defined(CONFIG & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB) || (CONFIG_COMMANDS & CFG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
