@@ -33,8 +33,7 @@
 #include <asm/processor.h>
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
-#endif
-#if defined(CONFIG_OF_LIBFDT)
+#elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #include <libfdt_env.h>
 #endif
@@ -490,7 +489,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	int  j;
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_path_offset(fdt, fixup_props[j].node);
+		nodeoffset = fdt_find_node_by_path(fdt, fixup_props[j].node);
 		if (nodeoffset >= 0) {
 			err = (*fixup_props[j].set_fn)(blob, nodeoffset, fixup_props[j].prop, bd);
 			if (err < 0)
@@ -501,9 +500,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		}
 	}
 }
-#endif
-
-#if defined(CONFIG_OF_FLAT_TREE)
+#elif defined(CONFIG_OF_FLAT_TREE)
 void
 ft_cpu_setup(void *blob, bd_t *bd)
 {

@@ -30,8 +30,7 @@
 #endif
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
-#endif
-#if defined(CONFIG_OF_LIBFDT)
+#elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #include <libfdt_env.h>
 #endif
@@ -683,7 +682,7 @@ ft_board_setup(void *blob, bd_t *bd)
 	int nodeoffset;
 	int tmp[2];
 
-	nodeoffset = fdt_path_offset (fdt, "/memory");
+	nodeoffset = fdt_find_node_by_path(fdt, "/memory");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(bd->bi_memstart);
 		tmp[1] = cpu_to_be32(bd->bi_memsize);
