@@ -102,7 +102,14 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~CFG_CMD_KGDB)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_KGDB
+
 
 /* Define this if you want to boot from 0x00000100. If you don't define
  * this, you will need to program the bootloader to 0xfff00000, and
@@ -112,15 +119,12 @@
  */
 #define CFG_RSD_BOOT_LOW 1
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOTARGS    	"devfs=mount root=ramfs"
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5a
 #define CONFIG_NETMASK          255.255.0.0
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
@@ -130,7 +134,7 @@
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
 #define	CFG_PROMPT		"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -287,7 +291,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
