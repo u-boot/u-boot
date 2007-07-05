@@ -47,11 +47,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Serial console configuration
  */
@@ -105,12 +100,6 @@
 #define CONFIG_NS8382X		1
 #endif	/* CONFIG_STK52XX */
 
-#ifdef CONFIG_PCI
-#define ADD_PCI_CMD		CFG_CMD_PCI
-#else
-#define ADD_PCI_CMD		0
-#endif
-
 /*
  * Video console
  */
@@ -133,11 +122,6 @@
 #define CFG_CONSOLE_IS_IN_ENV
 #endif /* #ifndef CONFIG_TQM5200S */
 
-#ifdef CONFIG_VIDEO
-#define ADD_BMP_CMD		CFG_CMD_BMP
-#else
-#define ADD_BMP_CMD		0
-#endif
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -147,10 +131,7 @@
 /* USB */
 #if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD		0
 #endif
 
 #ifndef CONFIG_CAM5200
@@ -168,37 +149,45 @@
 #define CFG_CMD_POST_DIAG 0
 #endif
 
-/* IDE */
-#if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX) || defined(CONFIG_FO300)
-#define ADD_IDE_CMD		(CFG_CMD_IDE | CFG_CMD_FAT | CFG_CMD_EXT2)
-#else
-#define ADD_IDE_CMD		0
-#endif
 
 /*
- * Supported commands
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				ADD_BMP_CMD	| \
-				ADD_IDE_CMD	| \
-				ADD_PCI_CMD	| \
-				ADD_USB_CMD	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_POST_DIAG | \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_BSP)
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_POST_DIAG
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_BSP
+
+#ifdef CONFIG_VIDEO
+    #define CONFIG_CMD_BMP
+#endif
+
+#ifdef CONFIG_PCI
+#define CONFIG_CMD_CMD_PCI
+#endif
+
+#if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
+    #define CONFIG_CMD_IDE
+    #define CONFIG_CMD_FAT
+    #define CONFIG_CMD_EXT2
+#endif
+
+#if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
+    #define CONFIG_CFG_USB
+    #define CONFIG_CFG_FAT
+#endif
+
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
@@ -566,7 +555,12 @@
 #define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CFG_PROMPT_HUSH_PS2	"> "
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
+
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */

@@ -274,18 +274,21 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_PING	| \
-				ADD_CMD_I2C	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SNTP
+
 
 /*
  * Miscellaneous configurable options
@@ -301,7 +304,7 @@
 #endif
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -392,7 +395,7 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #define CFG_NAND_CS_DIST		0x80
 #define CFG_NAND_UPM_WRITE_CMD_OFS	0x20
@@ -502,7 +505,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE      32      /* For MPC8260 CPU              */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

@@ -140,19 +140,22 @@
 
 #define	CONFIG_TIMESTAMP		/* but print image timestmps	*/
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING )
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+
 
 /*
  * Miscellaneous configurable options
@@ -166,7 +169,7 @@
 #define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
@@ -258,7 +261,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
@@ -478,7 +481,7 @@
 #define CONFIG_ETHER_ON_FEC1		/* ... for FEC1 */
 #define CONFIG_ETHER_ON_FEC2		/* ... for FEC2 */
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 #define CFG_DISCOVER_PHY
 #endif
 
