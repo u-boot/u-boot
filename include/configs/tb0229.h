@@ -87,13 +87,18 @@
 /*#define CONFIG_BOOTCOMMAND	"run flash_local" */
 #define CONFIG_BOOTCOMMAND	"run netboot"
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_DHCP	| \
-				 CFG_CMD_PING	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_ELF	)
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_ELF
+
 
 /*
  * Miscellaneous configurable options
