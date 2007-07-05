@@ -64,15 +64,20 @@
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
 
-#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL & ~CFG_CMD_DTT) | \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
+
+#undef CONFIG_CMD_DTT
+
 
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
 #define CONFIG_NETMASK		255.255.255.0
@@ -86,7 +91,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 	1
 #define CONFIG_INITRD_TAG		1
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200			/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	1			/* which serial port to use */
 #endif

@@ -96,14 +96,22 @@
 #define CFG_SERIAL0		0x101F1000
 #define CFG_SERIAL1		0x101F2000
 
-#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_MEMORY | CFG_CMD_FLASH | CFG_CMD_ENV)
 
-/*#define CONFIG_COMMANDS	(CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY) */
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_ENV
+
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS "root=/dev/nfs mem=128M ip=dhcp netdev=25,0,0xf1010000,0xf1010010,eth0"

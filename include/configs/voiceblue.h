@@ -131,31 +131,28 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#ifdef VOICEBLUE_SMALL_FLASH
-#define CONFIG_COMMANDS		(CFG_CMD_BDI    |	\
-				 CFG_CMD_LOADB  |	\
-				 CFG_CMD_IMI    |	\
-				 CFG_CMD_FLASH  |	\
-				 CFG_CMD_MEMORY |	\
-				 CFG_CMD_NET    |	\
-				 CFG_CMD_BOOTD  |	\
-				 CFG_CMD_DHCP   |	\
-				 CFG_CMD_PING   |	\
-				 CFG_CMD_RUN)
-#else
-#define CONFIG_COMMANDS		(CFG_CMD_BDI    |	\
-				 CFG_CMD_LOADB  |	\
-				 CFG_CMD_IMI    |	\
-				 CFG_CMD_FLASH  |	\
-				 CFG_CMD_MEMORY |	\
-				 CFG_CMD_NET    |	\
-				 CFG_CMD_ENV    |	\
-				 CFG_CMD_BOOTD  |	\
-				 CFG_CMD_DHCP   |	\
-				 CFG_CMD_PING   |	\
-				 CFG_CMD_RUN    |	\
-				 CFG_CMD_JFFS2)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+
+#if !defined(VOICEBLUE_SMALL_FLASH)
+    #define CONFIG_CMD_ENV
+    #define CONFIG_CMD_JFFS2
 #endif
+
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 #define CONFIG_LOOPW
@@ -220,8 +217,6 @@
 
 #endif	/* VOICEBLUE_SMALL_FLASH */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
