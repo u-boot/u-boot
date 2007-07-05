@@ -50,11 +50,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -88,26 +83,23 @@
 /* USB */
 #if 0
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD		0
 #endif
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				 CFG_CMD_EEPROM	| \
-				 CFG_CMD_FAT	| \
-				 CFG_CMD_EXT2	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_ELF)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_ELF
+
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT		1
@@ -258,7 +250,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -275,6 +267,11 @@
 #define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 #define CFG_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings
