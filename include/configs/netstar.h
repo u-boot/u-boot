@@ -140,42 +140,30 @@
 #define MTDIDS_DEFAULT		"nor0=omapflash.0,nand0=omapnand.0"
 #define MTDPARTS_DEFAULT	"mtdparts=omapflash.0:8k@16k(env),8k(r_env),448k@576k(u-boot);omapnand.0:48M(rootfs0),48M(rootfs1),-(data)"
 
-#if 0
-#define CONFIG_COMMANDS		(CFG_CMD_BDI    | \
-				 CFG_CMD_BOOTD  | \
-				 CFG_CMD_DHCP   | \
-				 CFG_CMD_ENV	| \
-				 CFG_CMD_FLASH  | \
-				 CFG_CMD_IMI    | \
-				 CFG_CMD_LOADB  | \
-				 CFG_CMD_NET    | \
-				 CFG_CMD_MEMORY | \
-				 CFG_CMD_PING   | \
-				 CFG_CMD_RUN)
 
-#else
-#define CONFIG_COMMANDS		(CFG_CMD_BDI    | \
-				 CFG_CMD_BOOTD  | \
-				 CFG_CMD_DHCP   | \
-				 CFG_CMD_ENV	| \
-				 CFG_CMD_FLASH  | \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_IMI    | \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_LOADB  | \
-				 CFG_CMD_NET    | \
-				 CFG_CMD_MEMORY | \
-				 CFG_CMD_PING   | \
-				 CFG_CMD_RUN)
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+
 
 #define CONFIG_JFFS2_NAND	1	/* jffs2 on nand support */
-#endif
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
 #define CONFIG_LOOPW
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
