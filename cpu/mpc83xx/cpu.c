@@ -339,7 +339,7 @@ static int fdt_set_eth0(void *fdt, int nodeoffset, const char *name, bd_t *bd)
 	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
 		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enetaddr, 6);
 	}
-	return -FDT_ERR_NOTFOUND;
+	return 0;
 }
 #ifdef CONFIG_HAS_ETH1
 /* second onboard ethernet port */
@@ -351,7 +351,7 @@ static int fdt_set_eth1(void *fdt, int nodeoffset, const char *name, bd_t *bd)
 	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
 		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet1addr, 6);
 	}
-	return -FDT_ERR_NOTFOUND;
+	return 0;
 }
 #endif
 #ifdef CONFIG_HAS_ETH2
@@ -364,7 +364,7 @@ static int fdt_set_eth2(void *fdt, int nodeoffset, const char *name, bd_t *bd)
 	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
 		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet2addr, 6);
 	}
-	return -FDT_ERR_NOTFOUND;
+	return 0;
 }
 #endif
 #ifdef CONFIG_HAS_ETH3
@@ -377,7 +377,7 @@ static int fdt_set_eth3(void *fdt, int nodeoffset, const char *name, bd_t *bd)
 	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
 		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet3addr, 6);
 	}
-	return -FDT_ERR_NOTFOUND;
+	return 0;
 }
 #endif
 
@@ -391,10 +391,19 @@ static int fdt_set_busfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd
 	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
 }
 
+static int fdt_set_tbfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+{
+	u32  tmp;
+	/*
+	 * Create or update the property.
+	 */
+	tmp = cpu_to_be32(OF_TBCLK);
+	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+}
+
+
 /*
- * Fixups to the fdt.  If "create" is TRUE, the node is created
- * unconditionally.  If "create" is FALSE, the node is updated
- * only if it already exists.
+ * Fixups to the fdt.
  */
 static const struct {
 	char *node;
@@ -402,83 +411,87 @@ static const struct {
 	int (*set_fn)(void *fdt, int nodeoffset, const char *name, bd_t *bd);
 } fixup_props[] = {
 	{	"/cpus/" OF_CPU,
-		 "bus-frequency",
-		fdt_set_busfreq
+		"timebase-frequency",
+		fdt_set_tbfreq
 	},
-	{	"/cpus/" OF_SOC,
+	{	"/cpus/" OF_CPU,
 		"bus-frequency",
 		fdt_set_busfreq
 	},
-	{	"/" OF_SOC "/serial@4500/",
+	{	"/cpus/" OF_CPU,
 		"clock-frequency",
 		fdt_set_busfreq
 	},
-	{	"/" OF_SOC "/serial@4600/",
+	{	"/" OF_SOC "/serial@4500",
+		"clock-frequency",
+		fdt_set_busfreq
+	},
+	{	"/" OF_SOC "/serial@4600",
 		"clock-frequency",
 		fdt_set_busfreq
 	},
 #ifdef CONFIG_TSEC1
-	{	"/" OF_SOC "/ethernet@24000,
+	{	"/" OF_SOC "/ethernet@24000",
 		"mac-address",
 		fdt_set_eth0
 	},
-	{	"/" OF_SOC "/ethernet@24000,
+	{	"/" OF_SOC "/ethernet@24000",
 		"local-mac-address",
 		fdt_set_eth0
 	},
 #endif
 #ifdef CONFIG_TSEC2
-	{	"/" OF_SOC "/ethernet@25000,
+	{	"/" OF_SOC "/ethernet@25000",
 		"mac-address",
 		fdt_set_eth1
 	},
-	{	"/" OF_SOC "/ethernet@25000,
+	{	"/" OF_SOC "/ethernet@25000",
 		"local-mac-address",
 		fdt_set_eth1
 	},
 #endif
 #ifdef CONFIG_UEC_ETH1
 #if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
-	{	"/" OF_QE "/ucc@2000/mac-address",
+	{	"/" OF_QE "/ucc@2000",
 		"mac-address",
 		fdt_set_eth0
 	},
-	{	"/" OF_QE "/ucc@2000/mac-address",
+	{	"/" OF_QE "/ucc@2000",
 		"local-mac-address",
 		fdt_set_eth0
 	},
 #elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
-	{	"/" OF_QE "/ucc@2200/mac-address",
+	{	"/" OF_QE "/ucc@2200",
 		"mac-address",
 		fdt_set_eth0
 	},
-	{	"/" OF_QE "/ucc@2200/mac-address",
+	{	"/" OF_QE "/ucc@2200",
 		"local-mac-address",
 		fdt_set_eth0
 	},
 #endif
-#endif
+#endif /* CONFIG_UEC_ETH1 */
 #ifdef CONFIG_UEC_ETH2
 #if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
-	{	"/" OF_QE "/ucc@3000/mac-address",
+	{	"/" OF_QE "/ucc@3000",
 		"mac-address",
 		fdt_set_eth1
 	},
-	{	"/" OF_QE "/ucc@3000/mac-address",
+	{	"/" OF_QE "/ucc@3000",
 		"local-mac-address",
 		fdt_set_eth1
 	},
 #elif CFG_UEC1_UCC_NUM == 3  /* UCC4 */
-	{	"/" OF_QE "/ucc@3200/mac-address",
+	{	"/" OF_QE "/ucc@3200",
 		"mac-address",
 		fdt_set_eth1
 	},
-	{	"/" OF_QE "/ucc@3200/mac-address",
+	{	"/" OF_QE "/ucc@3200",
 		"local-mac-address",
 		fdt_set_eth1
 	},
 #endif
-#endif
+#endif /* CONFIG_UEC_ETH2 */
 };
 
 void
@@ -491,12 +504,17 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
 		nodeoffset = fdt_find_node_by_path(fdt, fixup_props[j].node);
 		if (nodeoffset >= 0) {
-			err = (*fixup_props[j].set_fn)(blob, nodeoffset, fixup_props[j].prop, bd);
+			err = fixup_props[j].set_fn(blob, nodeoffset,
+						    fixup_props[j].prop, bd);
 			if (err < 0)
-				printf("set_fn/libfdt: %s %s returned %s\n",
+				debug("Problem setting %s = %s: %s\n",
 					fixup_props[j].node,
 					fixup_props[j].prop,
 					fdt_strerror(err));
+		} else {
+			debug("Couldn't find %s: %s\n",
+				fixup_props[j].node,
+				fdt_strerror(nodeoffset));
 		}
 	}
 }
