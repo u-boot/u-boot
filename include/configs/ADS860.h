@@ -37,13 +37,19 @@
 
 #define CONFIG_DRAM_50MHZ		1
 
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL   \
-			 | CFG_CMD_DHCP   \
-			 | CFG_CMD_IMMAP  \
-			 | CFG_CMD_PCMCIA \
-			 | CFG_CMD_PING   \
-			)
 
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_PING
+
+/* This is picked up again in fads.h */
+#define FADS_COMMANDS_ALREADY_DEFINED
 
 #include "fads.h"
 

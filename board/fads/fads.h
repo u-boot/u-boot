@@ -95,21 +95,23 @@
 #define CFG_DISCOVER_PHY
 #endif
 
-#ifndef CONFIG_COMMANDS
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
-			 | CFG_CMD_ASKENV \
-			 | CFG_CMD_DHCP   \
-			 | CFG_CMD_ECHO   \
-			 | CFG_CMD_IMMAP  \
-			 | CFG_CMD_JFFS2  \
-			 | CFG_CMD_MII    \
-			 | CFG_CMD_PCMCIA \
-			 | CFG_CMD_PING   \
-			)
-#endif /* !CONFIG_COMMANDS */
+#if !defined(FADS_COMMANDS_ALREADY_DEFINED)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_PING
+
+#endif
+
 
 /*
  * Miscellaneous configurable options

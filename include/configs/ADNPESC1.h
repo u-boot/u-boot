@@ -401,15 +401,8 @@
 #define	CONFIG_RTC_DS1306	1	/* Dallas 1306 real time clock	*/
 #define CFG_SPI_RTC_DEVID	0	/*        as 1st SPI device	*/
 
-#define	__SPI_CMD_OFF		0	/* allow default commands:	*/
-					/*	CFG_CMD_SPI		*/
-					/*	CFG_CMD_DATE		*/
-
 #else
 #undef	CONFIG_NIOS_SPI				/* NO SPI support	*/
-#define	__SPI_CMD_OFF	(	CFG_CMD_SPI	\
-			|	CFG_CMD_DATE	\
-			)
 #endif
 
 /*------------------------------------------------------------------------
@@ -570,45 +563,49 @@
 #define	CONFIG_POST			CFG_POST_RTC
 #define	CFG_NIOS_POST_WORD_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
-/*------------------------------------------------------------------------
- * COMMANDS
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_CACHE	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_FAT	| \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_NFS	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_MII	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_XIMG	| \
-				 __SPI_CMD_OFF	) )
 
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
 
-#include <cmd_confdefs.h>
+#undef CONFIG_CMD_ASKENV
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_CACHE
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_DTT
+#undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF   
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_I2C
+#undef CONFIG_CMD_JFFS2
+#undef CONFIG_CMD_KGDB
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_PCI
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_XIMG
+
+#if (CFG_NIOS_CPU_SPI_NUMS != 1)
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_DATE
+#endif
+
 
 /*------------------------------------------------------------------------
  * KGDB
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	9600
 #endif
 
