@@ -3,7 +3,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -28,8 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 
-#include <asm/m5329.h>
-#include <asm/immap_5329.h>
+#include <asm/immap.h>
 
 /*
  * Breath some life into the CPU...
@@ -121,6 +120,6 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
-	/*icache_enable(); */
+	icache_enable();
 	return (0);
 }
