@@ -29,8 +29,7 @@
 #include <watchdog.h>
 #include <command.h>
 
-#include <asm/immap_5329.h>
-#include <asm/m5329.h>
+#include <asm/immap.h>
 
 int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 {
@@ -117,18 +116,4 @@ int watchdog_init(void)
 
 	return (0);
 }
-#endif				/* #ifdef CONFIG_WATCHDOG */
-
-#ifdef CONFIG_MCFINTC
-int interrupt_init(void)
-{
-	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
-
-	/* Make sure all interrupts are disabled */
-	intp->imrh0 |= 0xFFFFFFFF;
-	intp->imrl0 |= 0xFFFFFFFF;
-
-	enable_interrupts();
-	return 0;
-}
-#endif				/* CONFIG_MCFINTC */
+#endif				/* CONFIG_WATCHDOG */
