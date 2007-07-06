@@ -2,6 +2,8 @@
  * (C) Copyright 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * Author: Igor Lisitsin <igor@emcraft.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -210,5 +212,4 @@ int uart_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_UART */
-
 #endif /* CONFIG_POST */

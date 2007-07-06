@@ -1,5 +1,8 @@
 /*
- *  Copyright (C) 2007 Wolfgang Denk <wd@denx.de>
+ * (C) Copyright 2007
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * Author: Sergei Poselenov <sposelenov@emcraft.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,7 +37,7 @@ int fpu_status(void)
 {
 	if (mfspr(ccr0) & CCR0_DAPUIB)
 		return 0; /* Disabled */
-	else
+	else 
 		return 1; /* Enabled */
 }
 
@@ -51,5 +54,6 @@ void fpu_enable(void)
 	mtspr(ccr0, mfspr(ccr0) & ~CCR0_DAPUIB);
 	mtmsr(mfmsr() | MSR_FP);
 }
+
 #endif
-#endif
+#endif /* CONFIG_POST */

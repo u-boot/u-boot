@@ -334,10 +334,14 @@
 				 CFG_POST_CPU	   | \
 				 CFG_POST_UART	   | \
 				 CFG_POST_I2C	   | \
+				 CFG_POST_CACHE	   | \
+				 CFG_POST_FPU	   | \
+				 CFG_POST_ETHER	   | \
 				 CFG_POST_SPR)
 
 #define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
 #define CONFIG_LOGBUFFER
+#define CFG_POST_CACHE_ADDR	0x10000000 /* free virtual address	*/
 
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
