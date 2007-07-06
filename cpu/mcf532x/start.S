@@ -31,7 +31,6 @@
 #define _START	_start
 #define _FAULT	_fault
 
-
 #define SAVE_ALL						\
 	move.w	#0x2700,%sr;		/* disable intrs */	\
 	subl	#60,%sp;		/* space for 15 regs */ \
@@ -42,7 +41,6 @@
 	addl	#60,%sp;		/* space for 15 regs */ \
 	rte;
 
-
 .text
 /*
  *	Vector table. This is used for initial platform startup.
@@ -50,35 +48,35 @@
  */
 _vectors:
 
-INITSP:     .long	0x00000000  /* Initial SP */
-INITPC:     .long   _START      /* Initial PC */
-vector02:	.long	_FAULT		/* Access Error			*/
-vector03:	.long	_FAULT		/* Address Error		*/
-vector04:	.long	_FAULT		/* Illegal Instruction	*/
-vector05:	.long	_FAULT		/* Reserved				*/
-vector06:	.long	_FAULT		/* Reserved				*/
-vector07:	.long	_FAULT		/* Reserved				*/
-vector08:	.long	_FAULT		/* Privilege Violation	*/
-vector09:	.long	_FAULT		/* Trace				*/
-vector0A:	.long	_FAULT		/* Unimplemented A-Line	*/
-vector0B:	.long	_FAULT		/* Unimplemented F-Line	*/
-vector0C:	.long	_FAULT		/* Debug Interrupt		*/
-vector0D:	.long	_FAULT		/* Reserved				*/
-vector0E:	.long	_FAULT		/* Format Error			*/
-vector0F:	.long	_FAULT		/* Unitialized Int.		*/
+INITSP:		.long	0x00000000	/* Initial SP	*/
+INITPC:		.long	_START	/* Initial PC 		*/
+vector02:	.long	_FAULT	/* Access Error		*/
+vector03:	.long	_FAULT	/* Address Error	*/
+vector04:	.long	_FAULT	/* Illegal Instruction	*/
+vector05:	.long	_FAULT	/* Reserved		*/
+vector06:	.long	_FAULT	/* Reserved		*/
+vector07:	.long	_FAULT	/* Reserved		*/
+vector08:	.long	_FAULT	/* Privilege Violation	*/
+vector09:	.long	_FAULT	/* Trace		*/
+vector0A:	.long	_FAULT	/* Unimplemented A-Line	*/
+vector0B:	.long	_FAULT	/* Unimplemented F-Line	*/
+vector0C:	.long	_FAULT	/* Debug Interrupt	*/
+vector0D:	.long	_FAULT	/* Reserved		*/
+vector0E:	.long	_FAULT	/* Format Error		*/
+vector0F:	.long	_FAULT	/* Unitialized Int.	*/
 
-/* Reserved	*/
+/* Reserved */
 vector10_17:
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 
-vector18:	.long	_FAULT		/* Spurious Interrupt	*/
-vector19:	.long	_FAULT		/* Autovector Level 1	*/
-vector1A:	.long	_FAULT		/* Autovector Level 2	*/
-vector1B:	.long	_FAULT		/* Autovector Level 3	*/
-vector1C:	.long	_FAULT		/* Autovector Level 4	*/
-vector1D:	.long	_FAULT		/* Autovector Level 5	*/
-vector1E:	.long	_FAULT		/* Autovector Level 6	*/
-vector1F:	.long	_FAULT		/* Autovector Level 7	*/
+vector18:	.long	_FAULT	/* Spurious Interrupt	*/
+vector19:	.long	_FAULT	/* Autovector Level 1	*/
+vector1A:	.long	_FAULT	/* Autovector Level 2	*/
+vector1B:	.long	_FAULT	/* Autovector Level 3	*/
+vector1C:	.long	_FAULT	/* Autovector Level 4	*/
+vector1D:	.long	_FAULT	/* Autovector Level 5	*/
+vector1E:	.long	_FAULT	/* Autovector Level 6	*/
+vector1F:	.long	_FAULT	/* Autovector Level 7	*/
 
 /* TRAP #0 - #15 */
 vector20_2F:
@@ -126,9 +124,9 @@ vector192_255:
 _start:
 	nop
 	nop
-	move.w #0x2700,%sr                  /* Mask off Interrupt */
+	move.w #0x2700,%sr	/* Mask off Interrupt */
 
-    /* Set vector base register at the beginning of the Flash */
+	/* Set vector base register at the beginning of the Flash */
 	move.l	#CFG_FLASH_BASE, %d0
 	movec	%d0, %VBR
 
@@ -149,14 +147,15 @@ _start:
 	move.l %d0, (%a1)
 	move.l %d0, (%a2)
 
-	/* set stackpointer to end of internal ram to get some stackspace for the first c-code */
+	/* set stackpointer to end of internal ram to get some stackspace for the
+	   first c-code */
 	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
 
-	move.l #__got_start, %a5		/* put relocation table address to a5 */
+	move.l #__got_start, %a5	/* put relocation table address to a5 */
 
-	bsr cpu_init_f				/* run low-level CPU init code (from flash) */
-	bsr board_init_f			/* run low-level board init code (from flash) */
+	bsr cpu_init_f			/* run low-level CPU init code (from flash) */
+	bsr board_init_f		/* run low-level board init code (from flash) */
 
 	/* board_init_f() does not return */
 
@@ -269,14 +268,14 @@ _int_handler:
 icache_enable:
 	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
 	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0		/* Setup cache mask */
+	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
 	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#(CFG_CS0_BASE + 0xc000), %d0		/* Setup cache mask */
+	move.l	#(CFG_CS0_BASE + 0x0000), %d0	/* Setup cache mask */
 	movec	%d0, %ACR1			/* Enable cache */
 
-	/*move.l	#0x81000100, %d0*/		/* Setup cache mask */
-	move.l	#0x81000100, %d0		/* Setup cache mask */
+	move.l	#0x80000200, %d0		/* Setup cache mask */
 	movec	%d0, %CACR			/* Enable cache */
+	nop
 
 	move.l #(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END-8), %a1
 	moveq	#1, %d0
@@ -304,7 +303,7 @@ icache_status:
 
 	.globl	icache_invalid
 icache_invalid:
-	move.l	#0x00000100, %d0		/* Setup cache mask */
+	move.l	#0x01000000, %d0		/* Setup cache mask */
 	movec	%d0, %CACR			/* Enable cache */
 	rts
 
