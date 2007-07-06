@@ -1,7 +1,7 @@
 /*
  * RealTime Clock
  *
- * (C) Copyright 2007
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
