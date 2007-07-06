@@ -46,8 +46,6 @@
 #undef CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
-#define CFG_NUM_IRQS	128
-
 #define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
 							  CFG_CMD_CACHE | \
 							  CFG_CMD_DATE | \
@@ -70,7 +68,6 @@
 #	define CFG_RX_ETH_BUFFER	8
 #	define CFG_FAULT_ECHO_LINK_DOWN
 
-#	define CFG_FEC0_IOBASE	0xFC030000
 #	define CFG_FEC0_PINMUX	0
 #	define CFG_FEC0_MIIBASE	CFG_FEC0_IOBASE
 #	define MCFFEC_TOUT_LOOP 50000
@@ -86,41 +83,14 @@
 #endif
 
 #define CONFIG_MCFUART
-#ifdef CONFIG_MCFUART
-#	define CFG_UART_PORT		(0)
-#	define CFG_UART_BASE		(0xFC060000)
-#endif
+#define CFG_UART_PORT		(0)
 
 #define CONFIG_MCFRTC
-#ifdef CONFIG_MCFRTC
-#	define CFG_MCFRTC_BASE		(0xFC0A8000)
-#	undef RTC_DEBUG
-#endif
+#undef RTC_DEBUG
 
 /* Timer */
 #define CONFIG_MCFTMR
-#ifdef CONFIG_MCFTMR
-#	define CFG_UDELAY_BASE	(0xFC070000)
-#	define CFG_TMR_BASE		(0xFC074000)
-#	define CFG_TMRINTR_NO	(33)
-#	define CFG_TMRINTR_MASK	(2)
-#	define CFG_TMRINTR_PRI	(6)
-#	define CFG_TIMER_PRESCALER	(((CFG_CLK / 1000000) - 1) << 8)
-#endif
-
 #undef CONFIG_MCFPIT
-#ifdef CONFIG_MCFPIT
-#	define CFG_UDELAY_BASE	(0xFC080000)
-#	define CFG_PIT_BASE		(0xFC084000)
-#	define CFG_PIT_PRESCALE	(6)
-#endif
-
-#define CONFIG_MCFINTC
-#ifdef CONFIG_MCFINTC
-#	define CFG_INTR_BASE	(0xFC048000)
-#	define CFG_NUM_IRQ0		64
-#	define CFG_NUM_IRQ1		64
-#endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -215,22 +185,18 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#undef CFG_FLASH_CFI
+#define CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI
 #	define CFG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
-#else
-#	define CFG_FLASH_UNLOCK_TOUT	1000
-#	define CFG_FLASH_WRITE_TOUT		1000
+#	define CFG_MAX_FLASH_BANKS		1	/* max number of memory banks */
+#	define CFG_MAX_FLASH_SECT		137	/* max number of sectors on one chip */
+#	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
 #define CFG_FLASH_BASE			0
 #define CFG_FLASH0_BASE			(CFG_CS0_BASE << 16)
-#define CFG_MAX_FLASH_BANKS		1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT		137	/* max number of sectors on one chip */
-#define CFG_FLASH_ERASE_TOUT	1000
-#define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
