@@ -268,6 +268,9 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_ATSTK1000)
 	atstk1000_eth_initialize(bis);
 #endif
+#if defined(CONFIG_MCFFEC)
+	mcffec_initialize(bis);
+#endif
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
