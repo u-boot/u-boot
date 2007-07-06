@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2007
- * Freescale Semiconductor Tsi-Chung.Liew@freescale.com
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,7 +25,8 @@
 #include <command.h>
 #include <rtc.h>
 
-#include <asm/mcfrtc.h>
+#include <asm/immap.h>
+#include <asm/rtc.h>
 
 #if defined(CONFIG_MCFRTC) && (CONFIG_COMMANDS & CFG_CMD_DATE)
 
