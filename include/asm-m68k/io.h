@@ -23,7 +23,7 @@
  * MA 02111-1307 USA
  */
 
- #ifndef __ASM_M68K_IO_H__
+#ifndef __ASM_M68K_IO_H__
 #define __ASM_M68K_IO_H__
 
 #include <asm/byteorder.h>
