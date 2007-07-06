@@ -476,14 +476,31 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
-	char *ep;
+	char *ep, *s;
 	ulong cnt;
 	image_header_t *hdr;
+	int jffs2 = 0;
+
+	s = strchr(cmd, '.');
+	if (s != NULL &&
+	    (!strcmp(s, ".jffs2") || !strcmp(s, ".e") || !strcmp(s, ".i")))
+		jffs2 = 1;
 
 	printf("\nLoading from %s, offset 0x%lx\n", nand->name, offset);
 
 	cnt = nand->oobblock;
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
+
 	if (r) {
 		puts("** Read error\n");
 		SHOW_BOOT_PROGRESS(-1);
@@ -501,8 +518,18 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	print_image_hdr(hdr);
 
 	cnt = (ntohl(hdr->ih_size) + sizeof (image_header_t));
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
 
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
 		SHOW_BOOT_PROGRESS(-1);
@@ -550,7 +577,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			if (argc > 3)
 				goto usage;
 			if (argc == 3)
-				addr = simple_strtoul(argv[2], NULL, 16);
+				addr = simple_strtoul(argv[1], NULL, 16);
 			else
 				addr = CFG_LOAD_ADDR;
 			return nand_load_image(cmdtp, &nand_info[dev->id->num],
@@ -605,7 +632,7 @@ usage:
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"nboot   - boot from NAND device\n",
-	"[partition] | [[[loadAddr] dev] offset]\n");
+	"[.jffs2] [partition] | [[[loadAddr] dev] offset]\n");
 
 #endif				/* (CONFIG_COMMANDS & CFG_CMD_NAND) */
 
