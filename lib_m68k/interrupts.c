@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007 Freescale Semiconductor Inc
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,8 +27,8 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/processor.h>
+#include <asm/immap.h>
 
-#ifdef CONFIG_MCFINTC
 #define	NR_IRQS		(CFG_NUM_IRQS)
 
 /*
@@ -115,4 +115,3 @@ void int_handler (struct pt_regs *fp)
 		printf ("\nBogus External Interrupt Vector %d\n", vec);
 	}
 }
-#endif	/* CONFIG_MCFINTC */
