@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -28,8 +28,7 @@
 #include <malloc.h>
 
 #include <asm/fec.h>
-#include <asm/m5329.h>
-#include <asm/immap_5329.h>
+#include <asm/immap.h>
 
 #include <command.h>
 #include <config.h>
@@ -41,17 +40,8 @@
 #undef	MII_DEBUG
 
 /* Ethernet Transmit and Receive Buffers */
-#define DBUF_LENGTH  1520
-
-#define TX_BUF_CNT 2
-
-/*
- NOTE: PKT_MAXBUF_SIZE must be larger or equal to PKT_MAXBLR_SIZE,
-	   see M54455 User Manual for MAX_FL of Receive Control Register for more
-	   description. If PKT_MAXBUF_SIZE set to 1518, the FEC bandwidth will
-	   reduce to about 20~40% of normal bandwidth. Changing PKT_MAXBLR_SIZE
-	   will not make any improvement on speed
-*/
+#define DBUF_LENGTH		1520
+#define TX_BUF_CNT		2
 #define PKT_MAXBUF_SIZE		1518
 #define PKT_MINBUF_SIZE		64
 #define PKT_MAXBLR_SIZE		1520
@@ -101,12 +91,6 @@ struct fec_info_s fec_info[] = {
 	 }
 #endif
 };
-
-/*
-  * FEC Ethernet Tx and Rx buffer descriptors allocated at the
-  *  immr->udata_bd address on Dual-Port RAM
-  * Provide for Double Buffering
-  */
 
 int fec_send(struct eth_device *dev, volatile void *packet, int length);
 int fec_recv(struct eth_device *dev);
@@ -166,15 +150,23 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	 * Wait for ready
 	 */
 	j = 0;
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+	icache_invalid();
+#endif
 	while ((info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_READY) &&
 	       (j < MCFFEC_TOUT_LOOP)) {
 		udelay(1);
 		j++;
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+		icache_invalid();
+#endif
 	}
 	if (j >= MCFFEC_TOUT_LOOP) {
 		printf("TX not ready\n");
 	}
-
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+	icache_invalid();
+#endif
 	info->txbd[info->txIdx].cbd_bufaddr = (uint) packet;
 	info->txbd[info->txIdx].cbd_datlen = length;
 	info->txbd[info->txIdx].cbd_sc |= BD_ENET_TX_RDY_LST;
@@ -183,10 +175,16 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	fecp->tdar = 0x01000000;	/* Descriptor polling active    */
 
 	j = 0;
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+	icache_invalid();
+#endif
 	while ((info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_READY) &&
 	       (j < MCFFEC_TOUT_LOOP)) {
 		udelay(1);
 		j++;
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+		icache_invalid();
+#endif
 	}
 	if (j >= MCFFEC_TOUT_LOOP) {
 		printf("TX timeout\n");
@@ -199,6 +197,9 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 #endif
 
 	/* return only status bits */ ;
+#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+	icache_invalid();
+#endif
 	rc = (info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_STATS);
 	info->txIdx = (info->txIdx + 1) % TX_BUF_CNT;
 
@@ -256,12 +257,6 @@ int fec_recv(struct eth_device *dev)
 
 	return length;
 }
-
-/**************************************************************
- *
- * FEC Ethernet Initialization Routine
- *
- *************************************************************/
 
 #ifdef ET_DEBUG
 void dbgFecRegs(struct eth_device *dev)
@@ -419,7 +414,7 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 	struct fec_info_s *info = dev->priv;
 	volatile fec_t *fecp = (fec_t *) (info->iobase);
 	int i;
-	u8 *ea;
+	u8 *ea = NULL;
 
 	fecpin_setclear(dev, 1);
 
@@ -549,7 +544,9 @@ int mcffec_initialize(bd_t * bis)
 
 	for (i = 0; i < sizeof(fec_info) / sizeof(fec_info[0]); i++) {
 
-		dev = (struct eth_device *)malloc(sizeof *dev);
+		dev =
+		    (struct eth_device *)memalign(CFG_CACHELINE_SIZE,
+						  sizeof *dev);
 		if (dev == NULL)
 			hang();
 
@@ -565,16 +562,19 @@ int mcffec_initialize(bd_t * bis)
 
 		/* setup Receive and Transmit buffer descriptor */
 		fec_info[i].rxbd =
-		    (cbd_t *) memalign(32, (PKTBUFSRX * sizeof(cbd_t) + 31));
+		    (cbd_t *) memalign(CFG_CACHELINE_SIZE,
+				       (PKTBUFSRX * sizeof(cbd_t)));
 		fec_info[i].txbd =
-		    (cbd_t *) memalign(32, (TX_BUF_CNT * sizeof(cbd_t) + 31));
-		fec_info[i].txbuf = (char *)memalign(32, DBUF_LENGTH + 31);
+		    (cbd_t *) memalign(CFG_CACHELINE_SIZE,
+				       (TX_BUF_CNT * sizeof(cbd_t)));
+		fec_info[i].txbuf =
+		    (char *)memalign(CFG_CACHELINE_SIZE, DBUF_LENGTH);
 #ifdef ET_DEBUG
 		printf("rxbd %x txbd %x\n",
 		       (int)fec_info[i].rxbd, (int)fec_info[i].txbd);
 #endif
 
-		fec_info[i].phy_name = (char *)malloc(32);
+		fec_info[i].phy_name = (char *)memalign(CFG_CACHELINE_SIZE, 32);
 
 		eth_register(dev);
 
