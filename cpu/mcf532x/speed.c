@@ -28,23 +28,22 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#include <asm/m5329.h>
-#include <asm/immap_5329.h>
+#include <asm/immap.h>
 
 /* PLL min/max specifications */
-#define MAX_FVCO            500000	/* KHz */
-#define MAX_FSYS            80000	/* KHz */
-#define MIN_FSYS            58333	/* KHz */
-#define FREF    	        16000	/* KHz */
-#define MAX_MFD             135	/* Multiplier */
-#define MIN_MFD             88	/* Multiplier */
-#define BUSDIV  	        6	/* Divider */
+#define MAX_FVCO	500000	/* KHz */
+#define MAX_FSYS	80000	/* KHz */
+#define MIN_FSYS	58333	/* KHz */
+#define FREF		16000	/* KHz */
+#define MAX_MFD		135	/* Multiplier */
+#define MIN_MFD		88	/* Multiplier */
+#define BUSDIV		6	/* Divider */
 /*
  * Low Power Divider specifications
  */
-#define MIN_LPD     (1 << 0)	/* Divider (not encoded) */
-#define MAX_LPD     (1 << 15)	/* Divider (not encoded) */
-#define DEFAULT_LPD (1 << 1)	/* Divider (not encoded) */
+#define MIN_LPD		(1 << 0)	/* Divider (not encoded) */
+#define MAX_LPD		(1 << 15)	/* Divider (not encoded) */
+#define DEFAULT_LPD	(1 << 1)	/* Divider (not encoded) */
 
 /*
  * Get the value of the current system clock
@@ -174,9 +173,6 @@ int clock_pll(int fsys, int flags)
 	 * If it has then the SDRAM needs to be put into self refresh
 	 * mode before reprogramming the PLL.
 	 */
-	/* Put SDRAM into self refresh mode */
-/*	if (MCF_SDRAMC_SDCR & MCF_SDRAMC_SDCR_REF)
-		MCF_SDRAMC_SDCR &= ~MCF_SDRAMC_SDCR_CKE;*/
 
 	/*
 	 * Initialize the PLL to generate the new system clock frequency.
@@ -197,12 +193,10 @@ int clock_pll(int fsys, int flags)
 	/*
 	 * Return the SDRAM to normal operation if it is in use.
 	 */
-	/* Exit self refresh mode */
-/*	if (MCF_SDRAMC_SDCR & MCF_SDRAMC_SDCR_REF)
-	MCF_SDRAMC_SDCR |= MCF_SDRAMC_SDCR_CKE;*/
 
 	/* software workaround for SDRAM opeartion after exiting LIMP mode errata */
 	*sdram_workaround = CFG_SDRAM_BASE;
+
 	/* wait for DQS logic to relock */
 	for (i = 0; i < 0x200; i++) ;
 
