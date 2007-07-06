@@ -26,6 +26,8 @@
 #include <common.h>
 
 #include <asm/mcftimer.h>
+#include <asm/timer.h>
+#include <asm/immap.h>
 
 #ifdef	CONFIG_M5271
 #include <asm/m5271.h>
@@ -71,8 +73,10 @@ void udelay(unsigned long usec)
 		timerp->timer_tmr = MCFTIMER_TMR_DISABLE;
 		timerp->timer_tcn = 0;
 		/* set period to 1 us */
-		timerp->timer_tmr = (((CFG_CLK / 1000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
-				     MCFTIMER_TMR_FREERUN | MCFTIMER_TMR_ENABLE;
+		timerp->timer_tmr =
+		    (((CFG_CLK / 1000000) -
+		      1) << 8) | MCFTIMER_TMR_CLK1 | MCFTIMER_TMR_FREERUN |
+		    MCFTIMER_TMR_ENABLE;
 
 		start = now = timerp->timer_tcn;
 		while (now < start + tmp)
@@ -80,7 +84,8 @@ void udelay(unsigned long usec)
 	}
 }
 
-void mcf_timer_interrupt (void * not_used){
+void mcf_timer_interrupt(void *not_used)
+{
 	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE4);
 	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
 
@@ -91,10 +96,11 @@ void mcf_timer_interrupt (void * not_used){
 
 	/* reset timer */
 	timerp->timer_ter = MCFTIMER_TER_CAP | MCFTIMER_TER_REF;
-	timestamp ++;
+	timestamp++;
 }
 
-void timer_init (void) {
+void timer_init(void)
+{
 	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE4);
 	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
 
@@ -104,27 +110,29 @@ void timer_init (void) {
 	timerp->timer_tmr = MCFTIMER_TMR_DISABLE;
 
 	/* initialize and enable timer 4 interrupt */
-	irq_install_handler (72, mcf_timer_interrupt, 0);
+	irq_install_handler(72, mcf_timer_interrupt, 0);
 	intp->int_icr1 |= 0x0000000d;
 
 	timerp->timer_tcn = 0;
 	timerp->timer_trr = 1000;	/* Interrupt every ms */
 	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
-	timerp->timer_tmr = (((CFG_CLK / 1000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
-		MCFTIMER_TMR_RESTART | MCFTIMER_TMR_ENORI | MCFTIMER_TMR_ENABLE;
+	timerp->timer_tmr =
+	    (((CFG_CLK / 1000000) -
+	      1) << 8) | MCFTIMER_TMR_CLK1 | MCFTIMER_TMR_RESTART |
+	    MCFTIMER_TMR_ENORI | MCFTIMER_TMR_ENABLE;
 }
 
-void reset_timer (void)
+void reset_timer(void)
 {
 	timestamp = 0;
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
 	return (timestamp - base);
 }
 
-void set_timer (ulong t)
+void set_timer(ulong t)
 {
 	timestamp = t;
 }
@@ -137,7 +145,7 @@ void udelay(unsigned long usec)
 	volatile unsigned short *timerp;
 	uint tmp;
 
-	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE3);
+	timerp = (volatile unsigned short *)(CFG_MBAR + MCFTIMER_BASE3);
 
 	while (usec > 0) {
 		if (usec > 65000)
@@ -152,21 +160,21 @@ void udelay(unsigned long usec)
 		/* set period to 1 us */
 		timerp[MCFTIMER_PCSR] =
 #ifdef CONFIG_M5271
-			(6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
-#else /* !CONFIG_M5271 */
-			(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
-#endif /* CONFIG_M5271 */
+		    (6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#else				/* !CONFIG_M5271 */
+		    (5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#endif				/* CONFIG_M5271 */
 
 		timerp[MCFTIMER_PMR] = tmp;
-		while (timerp[MCFTIMER_PCNTR] > 0);
+		while (timerp[MCFTIMER_PCNTR] > 0) ;
 	}
 }
 
-void timer_init (void)
+void timer_init(void)
 {
 	volatile unsigned short *timerp;
 
-	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	timerp = (volatile unsigned short *)(CFG_MBAR + MCFTIMER_BASE4);
 	timestamp = 0;
 
 	/* Set up TIMER 4 as poll clock */
@@ -174,27 +182,27 @@ void timer_init (void)
 	timerp[MCFTIMER_PMR] = lastinc = 0;
 	timerp[MCFTIMER_PCSR] =
 #ifdef CONFIG_M5271
-		(6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
-#else /* !CONFIG_M5271 */
-		(5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
-#endif /* CONFIG_M5271 */
+	    (6 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#else				/* !CONFIG_M5271 */
+	    (5 << 8) | MCFTIMER_PCSR_EN | MCFTIMER_PCSR_OVW;
+#endif				/* CONFIG_M5271 */
 }
 
-void set_timer (ulong t)
+void set_timer(ulong t)
 {
 	volatile unsigned short *timerp;
 
-	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	timerp = (volatile unsigned short *)(CFG_MBAR + MCFTIMER_BASE4);
 	timestamp = 0;
 	timerp[MCFTIMER_PMR] = lastinc = 0;
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
 	unsigned short now, diff;
 	volatile unsigned short *timerp;
 
-	timerp = (volatile unsigned short *) (CFG_MBAR + MCFTIMER_BASE4);
+	timerp = (volatile unsigned short *)(CFG_MBAR + MCFTIMER_BASE4);
 	now = timerp[MCFTIMER_PCNTR];
 	diff = -(now - lastinc);
 
@@ -203,13 +211,12 @@ ulong get_timer (ulong base)
 	return timestamp - base;
 }
 
-void wait_ticks (unsigned long ticks)
+void wait_ticks(unsigned long ticks)
 {
-	set_timer (0);
-	while (get_timer (0) < ticks);
+	set_timer(0);
+	while (get_timer(0) < ticks) ;
 }
 #endif
-
 
 #if defined(CONFIG_M5249)
 /*
@@ -232,8 +239,10 @@ void udelay(unsigned long usec)
 		timerp->timer_tcn = 0;
 		/* set period to 1 us */
 		/* on m5249 the system clock is (cpu_clk / 2) -> divide by 2000000 */
-		timerp->timer_tmr = (((CFG_CLK / 2000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
-				     MCFTIMER_TMR_FREERUN | MCFTIMER_TMR_ENABLE;
+		timerp->timer_tmr =
+		    (((CFG_CLK / 2000000) -
+		      1) << 8) | MCFTIMER_TMR_CLK1 | MCFTIMER_TMR_FREERUN |
+		    MCFTIMER_TMR_ENABLE;
 
 		start = now = timerp->timer_tcn;
 		while (now < start + tmp)
@@ -241,7 +250,8 @@ void udelay(unsigned long usec)
 	}
 }
 
-void mcf_timer_interrupt (void * not_used){
+void mcf_timer_interrupt(void *not_used)
+{
 	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE2);
 
 	/* check for timer 2 interrupts */
@@ -251,10 +261,11 @@ void mcf_timer_interrupt (void * not_used){
 
 	/* reset timer */
 	timerp->timer_ter = MCFTIMER_TER_CAP | MCFTIMER_TER_REF;
-	timestamp ++;
+	timestamp++;
 }
 
-void timer_init (void) {
+void timer_init(void)
+{
 	volatile timer_t *timerp = (timer_t *) (CFG_MBAR + MCFTIMER_BASE2);
 
 	timestamp = 0;
@@ -263,29 +274,33 @@ void timer_init (void) {
 	timerp->timer_tmr = MCFTIMER_TMR_DISABLE;
 
 	/* initialize and enable timer 2 interrupt */
-	irq_install_handler (31, mcf_timer_interrupt, 0);
+	irq_install_handler(31, mcf_timer_interrupt, 0);
 	mbar_writeLong(MCFSIM_IMR, mbar_readLong(MCFSIM_IMR) & ~0x00000400);
-	mbar_writeByte(MCFSIM_TIMER2ICR, MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL7 | MCFSIM_ICR_PRI3);
+	mbar_writeByte(MCFSIM_TIMER2ICR,
+		       MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL7 |
+		       MCFSIM_ICR_PRI3);
 
 	timerp->timer_tcn = 0;
 	timerp->timer_trr = 1000;	/* Interrupt every ms */
 	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
 	/* on m5249 the system clock is (cpu_clk / 2) -> divide by 2000000 */
-	timerp->timer_tmr = (((CFG_CLK / 2000000) - 1)	<< 8) | MCFTIMER_TMR_CLK1 |
-		MCFTIMER_TMR_RESTART | MCFTIMER_TMR_ENORI | MCFTIMER_TMR_ENABLE;
+	timerp->timer_tmr =
+	    (((CFG_CLK / 2000000) -
+	      1) << 8) | MCFTIMER_TMR_CLK1 | MCFTIMER_TMR_RESTART |
+	    MCFTIMER_TMR_ENORI | MCFTIMER_TMR_ENABLE;
 }
 
-void reset_timer (void)
+void reset_timer(void)
 {
 	timestamp = 0;
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
 	return (timestamp - base);
 }
 
-void set_timer (ulong t)
+void set_timer(ulong t)
 {
 	timestamp = t;
 }
@@ -299,12 +314,7 @@ void set_timer (ulong t)
 #if !defined(CFG_TMR_BASE) || !defined(CFG_INTR_BASE) || !defined(CFG_TMRINTR_NO) || !defined(CFG_TMRINTR_MASK)
 #	error	"TMR_BASE, INTR_BASE, TMRINTR_NO or TMRINTR_MASk not defined!"
 #endif
-
-#include <asm/immap_5329.h>
-
-extern void dtimer_interrupt(void *not_used);
-extern void dtimer_interrupt_setup(void);
-extern void dtimer_interrupt_enable(void);
+extern void dtimer_intr_setup(void);
 
 void udelay(unsigned long usec)
 {
@@ -323,8 +333,8 @@ void udelay(unsigned long usec)
 		timerp->tcn = 0;
 		/* set period to 1 us */
 		timerp->tmr =
-		    (((CFG_CLK / 1000000) -
-		      1) << 8) | DTIM_DTMR_CLK_DIV1 | DTIM_DTMR_FRR | DTIM_DTMR_RST_EN;
+		    CFG_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 | DTIM_DTMR_FRR |
+		    DTIM_DTMR_RST_EN;
 
 		start = now = timerp->tcn;
 		while (now < start + tmp)
@@ -348,7 +358,6 @@ void dtimer_interrupt(void *not_used)
 void timer_init(void)
 {
 	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
-	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
 
 	timestamp = 0;
 
@@ -358,14 +367,13 @@ void timer_init(void)
 	/* Set up TIMER 4 as clock */
 	timerp->tmr = DTIM_DTMR_RST_RST;
 
-	/* initialize and enable timer 4 interrupt */
+	/* initialize and enable timer interrupt */
 	irq_install_handler(CFG_TMRINTR_NO, dtimer_interrupt, 0);
-	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
 
 	timerp->tcn = 0;
 	timerp->trr = 1000;	/* Interrupt every ms */
 
-	intp->imrh0 &= ~CFG_TMRINTR_MASK;
+	dtimer_intr_setup();
 
 	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
 	timerp->tmr = CFG_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 |
@@ -470,7 +478,7 @@ unsigned long long get_ticks(void)
  * This function is derived from PowerPC code (timebase clock frequency).
  * On M68K it returns the number of timer ticks per second.
  */
-ulong get_tbclk (void)
+ulong get_tbclk(void)
 {
 	ulong tbclk;
 	tbclk = CFG_HZ;
