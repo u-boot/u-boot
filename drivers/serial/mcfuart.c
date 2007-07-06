@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004, Freescale, Inc
+ * (C) Copyright 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew, Tsi-Chung.Liew@freescale.com.
  *
  * See file CREDITS for list of people who contributed to this
@@ -28,7 +28,8 @@
  */
 
 #include <common.h>
-#include <asm/mcfuart.h>
+#include <asm/immap.h>
+#include <asm/uart.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

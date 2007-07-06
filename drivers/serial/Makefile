@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libserial.a
 
-COBJS 	:= mcfserial.o
+COBJS 	:= mcfuart.o
 
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
