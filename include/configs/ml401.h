@@ -145,8 +145,6 @@
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 #endif /* !FLASH */
 
-
-
 /*
  * Command line configuration.
  */
@@ -180,8 +178,6 @@
 		#define CONFIG_CMD_SAVES
 	#endif
 #endif
-
-
 
 #if defined(CONFIG_CMD_JFFS2)
 /* JFFS2 partitions */

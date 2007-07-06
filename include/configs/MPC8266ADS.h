@@ -141,10 +141,8 @@
  */
 #define SPD_EEPROM_ADDRESS	0x50
 
-
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #define CONFIG_BAUDRATE		115200
-
 
 /*
  * Command line configuration.
@@ -214,8 +212,6 @@
 				 CONFIG_BOOTP_BOOTFILESIZE | \
 				 CONFIG_BOOTP_DNS)
 
-
-
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #if defined(CONFIG_CMD_KGDB)
@@ -284,7 +280,6 @@
 #define CFG_SDRAM_SIZE 16
 
 #define SDRAM_SPD_ADDR 0x50
-
 
 /*-----------------------------------------------------------------------
  * BR2,BR3 - Base Register
@@ -383,7 +378,6 @@
 #error "INVALID SDRAM CONFIGURATION"
 #endif
 
-
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
 #define FETHIEN			0x08000008
@@ -394,7 +388,6 @@
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
-
 
 /* Use this HRCW for booting from address 0xfe00000 (JP3 in setting 1-2)  */
 /* 0x0EB2B645 */
@@ -452,12 +445,10 @@
 #  define CFG_ENV_SIZE		0x200
 #endif /* CFG_RAMBOOT */
 
-
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 #if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
 
 /*-----------------------------------------------------------------------
  * HIDx - Hardware Implementation-dependent Registers			 2-11

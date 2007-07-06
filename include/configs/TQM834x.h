@@ -281,7 +281,6 @@ extern int tqm834x_num_flash_banks;
 #define CFG_PCI1_IO_PHYS        CFG_PCI1_IO_BASE
 #define CFG_PCI1_IO_SIZE        0x1000000       /* 16M */
 
-
 #undef CONFIG_EEPRO100
 #define CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -316,7 +315,6 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE		1	/* allow baudrate change */
 
-
 /*
  * Command line configuration.
  */
@@ -338,10 +336,6 @@ extern int tqm834x_num_flash_banks;
     #undef CONFIG_CMD_ENV
     #undef CONFIG_CMD_LOADS
 #endif
-
-
-
-
 
 /*
  * Miscellaneous configurable options

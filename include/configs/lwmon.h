@@ -279,7 +279,7 @@
  */
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0x40000000
-#if defined(DEBUG) || defiend(CONFIG_CMD_IDE)
+#if defined(DEBUG) || defined(CONFIG_CMD_IDE)
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/

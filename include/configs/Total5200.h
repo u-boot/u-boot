@@ -115,7 +115,7 @@
  */
 #include <config_cmd_default.h>
 
-#if definded(CONFIG_MPC5200)
+#if defined(CONFIG_MPC5200)
     #define CONFIG_CMD_PCI
 #endif
 
