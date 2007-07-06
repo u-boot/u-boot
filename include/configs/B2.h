@@ -74,14 +74,17 @@
 
 #define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-								CFG_CMD_DATE | \
-								CFG_CMD_ELF	| \
-								CFG_CMD_EEPROM	| \
-								CFG_CMD_I2C	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ETHADDR	00:50:c2:1e:af:fb

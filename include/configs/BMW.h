@@ -64,27 +64,25 @@
 #define CFG_DOC_SUPPORT_2000    1
 #define CFG_DOC_SUPPORT_MILLENNIUM 1
 #define CFG_DOC_SHORT_TIMEOUT    1
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DOC	| \
-				CFG_CMD_ELF	| \
-				0 )
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DOC
+#define CONFIG_CMD_ELF
+
 
 /* CFG_CMD_DOC required legacy NAND support */
 #define CFG_NAND_LEGACY
 
 #if 0
-#define CONFIG_COMMANDS	        (CONFIG_CMD_DFL	| CFG_CMD_DHCP | \
-				 CFG_CMD_PCI | CFG_CMD_DOC | CFG_CMD_DATE)
-
 #define CONFIG_PCI		1
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
 #endif
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
- */
-#include <cmd_confdefs.h>
-
 
 /*
  * Miscellaneous configurable options
@@ -293,7 +291,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value   */
 #endif
 
