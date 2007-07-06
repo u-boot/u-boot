@@ -162,6 +162,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"hostname=lwmon5\0"						\
 	"netdev=eth0\0"							\
+	"unlock=yes\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
