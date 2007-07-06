@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2002-2006
+# (C) Copyright 2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,13 +21,12 @@
 # MA 02111-1307 USA
 #
 
-SUBDIRS = fpu
 
-LIB	= libpostppc.a
+LIB	= libpostppcfpu.a
 
-AOBJS	= asm.o
-COBJS	= cpu.o cmp.o cmpi.o two.o twox.o three.o threex.o
-COBJS   += threei.o andi.o srawi.o rlwnm.o rlwinm.o rlwimi.o
-COBJS	+= store.o load.o cr.o b.o multi.o string.o complex.o
+COBJS	+= fpu.o 20001122-1.o 20010114-2.o 20010226-1.o 980619-1.o
+COBJS	+= acc1.o compare-fp-1.o mul-subnormal-single-1.o
 
 include $(TOPDIR)/post/rules.mk
+
+CFLAGS += -mhard-float -fkeep-inline-functions

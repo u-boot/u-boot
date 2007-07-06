@@ -327,12 +327,24 @@
 #define CFG_EBC_CFG		0xb8400000
 
 /*-----------------------------------------------------------------------
+ * Graphics (Fujitsu Lime)
+ *----------------------------------------------------------------------*/
+/* SDRAM Clock frequency adjustment register */
+#define CFG_LIME_SDRAM_CLOCK	0xC1FC0000
+/* Lime Clock frequency is to set 133MHz */
+#define CFG_LIME_CLOCK_133MHZ	0x10000
+
+/* SDRAM Parameter register */
+#define CFG_LIME_MMR		0xC1FCFFFC
+/* SDRAM parameter value */
+#define CFG_LIME_MMR_VALUE	0x414FB7F2
+
+/*-----------------------------------------------------------------------
  * GPIO Setup
  *----------------------------------------------------------------------*/
 #define CFG_GPIO_PHY1_RST	12
 #define CFG_GPIO_FLASH_WP	14
 #define CFG_GPIO_PHY0_RST	22
-#define CFG_GPIO_HUB_RST	50
 #define CFG_GPIO_WATCHDOG	58
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
@@ -396,7 +408,7 @@
 {GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO47 UIC_IRQ(8)	DMA_ACK(0)	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO48 UIC_IRQ(9)	DMA_EOT/TC(0)	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO49  Unselect via TraceSelect Bit	*/	\
-{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO50  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL , GPIO_OUT_0}, /* GPIO50  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO51  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO52  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO53  Unselect via TraceSelect Bit	*/	\

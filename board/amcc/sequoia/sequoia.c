@@ -25,7 +25,6 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <ppc440.h>
-#include "sequoia.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -226,7 +225,7 @@ int misc_init_r(void)
 	if (act == NULL || strcmp(act, "hostdev") == 0)	{
 		/* SDR Setting */
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
-		mfsdr(SDR0_USB0, usb2d0cr);
+		mfsdr(SDR0_USB2D0CR, usb2d0cr);
 		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mfsdr(SDR0_USB2H0CR, usb2h0cr);
 
@@ -254,7 +253,7 @@ int misc_init_r(void)
 		sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_USB2D_SEL;		/*0*/
 
 		mtsdr(SDR0_PFC1, sdr0_pfc1);
-		mtsdr(SDR0_USB0, usb2d0cr);
+		mtsdr(SDR0_USB2D0CR, usb2d0cr);
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
@@ -298,7 +297,7 @@ int misc_init_r(void)
 		/* SDR Setting */
 		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mfsdr(SDR0_USB2H0CR, usb2h0cr);
-		mfsdr(SDR0_USB0, usb2d0cr);
+		mfsdr(SDR0_USB2D0CR, usb2d0cr);
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
 
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
@@ -323,7 +322,7 @@ int misc_init_r(void)
 
 		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
-		mtsdr(SDR0_USB0, usb2d0cr);
+		mtsdr(SDR0_USB2D0CR, usb2d0cr);
 		mtsdr(SDR0_PFC1, sdr0_pfc1);
 
 		/*clear resets*/
