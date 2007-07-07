@@ -375,18 +375,18 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE		/* In case CFG_CMD_MII is specified */
 
-#define CONFIG_MPC83XX_TSEC1
+#define CONFIG_TSEC1
 
-#ifdef CONFIG_MPC83XX_TSEC1
-#define CONFIG_MPC83XX_TSEC1_NAME  "TSEC0"
+#ifdef CONFIG_TSEC1
+#define CONFIG_TSEC1_NAME  "TSEC0"
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */
 #define TSEC1_PHYIDX		0
 #endif
 
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 #define CONFIG_HAS_ETH1
-#define CONFIG_MPC83XX_TSEC2_NAME  "TSEC1"
+#define CONFIG_TSEC2_NAME  "TSEC1"
 #define CFG_TSEC2_OFFSET	0x25000
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
 #define TSEC2_PHY_ADDR		4
@@ -637,11 +637,11 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_MPC83XX_TSEC1
+#ifdef CONFIG_TSEC1
 #define CONFIG_ETHADDR		00:E0:0C:00:8C:01
 #endif
 
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 

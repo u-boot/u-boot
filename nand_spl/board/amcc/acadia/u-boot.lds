@@ -24,7 +24,7 @@
 OUTPUT_ARCH(powerpc:common)
 SECTIONS
 {
-  .resetvec 0xF8003FFC :
+  .resetvec 0xf8004ffc :
   {
     *(.resetvec)
   } = 0xffff

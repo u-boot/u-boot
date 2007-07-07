@@ -214,6 +214,8 @@ LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
 	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)
+LIBS += $(shell if [ -d post/lib_$(ARCH)/fpu ]; then echo \
+	"post/lib_$(ARCH)/fpu/libpost$(ARCH)fpu.a"; fi)
 LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
 	"post/cpu/$(CPU)/libpost$(CPU).a"; fi)
 LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
@@ -1138,6 +1140,9 @@ katmai_config:	unconfig
 
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
+
+lwmon5_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx lwmon5
 
 METROBOX_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx metrobox sandburst

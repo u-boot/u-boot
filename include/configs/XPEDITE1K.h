@@ -238,7 +238,6 @@ extern void out32(unsigned int, unsigned long);
 #define CFG_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT		    /* let board init pci target    */
 
 #define CFG_PCI_SUBSYS_VENDORID 0x1014	/* IBM */

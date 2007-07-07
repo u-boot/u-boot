@@ -1,3 +1,201 @@
+commit 2dc64451b4c08ffd619372abfdc2506a2e2363b9
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Apr 18 14:55:19 2007 +0400
+
+    Adapt log buffer code to support Linux 2.6
+
+    A new environment variable, "logversion", selects the log buffer
+    behaviour. If it is not set or set to a value other than 2, then the
+    old, Linux 2.4.4, behaviour is selected.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit a11e06965ec91270c51853407ff1261d3c740386
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Mar 28 19:06:19 2007 +0400
+
+    Extend POST support for PPC440
+
+    Added memory, CPU, UART, I2C and SPR POST tests for PPC440.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit 02032e8f14751a1a751b09240a4f1cf9f8a2077f
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jun 22 14:58:04 2007 +0200
+
+    [ppc] Fix build breakage for all non-4xx PowerPC variants.
+
+    - adapt to the more generic EXCEPTION_PROLOG and CRIT_EXCEPTION macros
+    - minor 4xx cleanup
+
+commit 83b4cfa3d629dff0264366263c5e94d9a50ad80b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 20 18:14:24 2007 +0200
+
+    Coding style cleanup. Refresh CHANGELOG.
+
+commit b3f9ec86e388207fd03dcdf7b145b9ed080bf024
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 17:22:44 2007 +0200
+
+    ppc4xx: Add bootstrap command for AMCC Sequoia (440EPx) eval board
+
+    This patch adds a board command to configure the I2C bootstrap EEPROM
+    values. Right now 533 and 667MHz are supported for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 533 nor	;to configure the board for 533MHz NOR booting
+    => bootstrap 667 nand	;to configure the board for 667MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df8a24cdd30151505cf57bbee5289e91bf53bd1b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:42:31 2007 +0200
+
+    [ppc4xx] Fix problem with NAND booting on AMCC Acadia
+
+    The latest changes showed a problem with the location of the NAND-SPL
+    image in the OCM and the init-data area (incl. cache). This patch
+    fixes this problem.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 86ba99e34194394052d24c04dc40d1263d29a26f
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:40:58 2007 +0200
+
+    [ppc4xx] Change board/amcc/acadia/cpr.c to pll.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e73846b7cf1e29ae635bf9bb5570269663df2ee5
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 11:33:41 2007 +0200
+
+    [ppc4xx] Change lwmon5 port to work with recent 440 exception rework
+
+    Now CONFIG_440 has to be defined in all PPC440 board config files.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit efa35cf12d914d4caba942acd5a6c45f217de302
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Jun 15 11:19:28 2007 +0200
+
+    ppc4xx: Clean up 440 exceptions handling
+
+    - Introduced dedicated switches for building 440 and 405 images required
+      for 440-specific machine instructions like 'rfmci' etc.
+
+    - Exception vectors moved to the proper location (_start moved away from
+      the critical exception handler space, which it occupied)
+
+    - CriticalInput now serviced (with default handler)
+
+    - MachineCheck properly serviced (added a dedicated handler and return
+      subroutine)
+
+    - Overall cleanup of exceptions declared with STD_EXCEPTION macro (unused,
+      unhandled and those not relevant for 4xx were eliminated)
+
+    - Eliminated Linux leftovers, removed dead code
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b765ffb773f5a3cd5aa94ec76b6a05276b8cd5b2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 08:18:01 2007 +0200
+
+    [ppc4xx] Add initial lwmon5 board support
+
+    This patch adds initial support for the Liebherr lwmon5 board euqipped
+    with an AMCC 440EPx PowerPC.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 85f737376d5ff3d5f0d45a8b657686326d175307
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 07:39:43 2007 +0200
+
+    [ppc4xx] Extend 44x GPIO setup with default output state
+
+    The board config array CFG_440_GPIO_TABLE for the ppc440 GPIO setup
+    is extended with the default GPIO output state (level).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dbca208518e5e7f01a6420588d1cd6e60db74c2b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jun 14 11:14:32 2007 +0200
+
+    [ppc4xx] Extend program_tlb() with virtual & physical addresses
+
+    Now program_tlb() allows to program a TLB (or multiple) with
+    different virtual and physical addresses. With this change, now one
+    physical region (e.g. SDRAM) can be mapped 2 times, once with caches
+    diabled and once with caches enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9912121f7ed804ea58fd62f3f230b5dcfc357d88
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 19:02:41 2007 +0200
+
+    Change 'repeatable' attribute of some commands to sensible values.
+
+    Most prominently this changes 'erase' to be non-repeatable.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 5afb202093f6a001797db92cf695b93a70ea9ab4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 18:47:48 2007 +0200
+
+    Fix 'run' not to continue after interrupted command
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 8f8416fada9faf94b9a92f21fe6000643cb521d5
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Jun 8 14:52:22 2007 +0200
+
+    TQM5200: Add Flat Device Tree support, update default env. accordingly.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9045f33c023f698660a2e45d1b2194c0711abebc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 8 10:24:58 2007 +0200
+
+    Fix config problems on SC3 board; make ide_reset_timeout work.
+
+commit fba3fb0449b8a54542aed1e729de76e7f5a2ff1b
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Fri Jun 8 09:55:24 2007 +0200
+
+    [PATCH] fix gpio setting when using CFG_440_GPIO_TABLE
+
+    Set the correct value in GPIOx_TCR when configuring the gpio
+    with CFG_440_GPIO_TABLE.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 725671ccd2cd04c9ebc50c9e5a94dd8cbade66b7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 6 16:26:56 2007 +0200
+
+    Coding Style cleanup; generate new CHANGELOG file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit c440bfe6d6d92d66478a7e84402b31f48413617b
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Jun 6 11:42:13 2007 +0200

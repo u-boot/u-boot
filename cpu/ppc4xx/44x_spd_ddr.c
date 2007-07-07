@@ -262,7 +262,7 @@ typedef struct bank_param BANKPARMS;
 #ifdef CFG_SIMULATE_SPD_EEPROM
 extern unsigned char cfg_simulate_spd_eeprom[128];
 #endif
-void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
+void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
 static unsigned char spd_read(uchar chip, uint addr);
 static void get_spd_info(unsigned long *dimm_populated,
@@ -373,7 +373,7 @@ long int spd_sdram(void) {
 
 #ifdef CONFIG_PROG_SDRAM_TLB /* this define should eventually be removed */
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, total_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, total_size, MY_TLB_WORD2_I_ENABLE);
 #endif
 
 	/*
@@ -1340,14 +1340,14 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 			 */
 			cr |= SDRAM_BXCR_SDBE;
 
- 			for (i = 0; i < num_banks; i++) {
+			for (i = 0; i < num_banks; i++) {
 				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
 					(4 << 20) * bank_size_id;
 				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
 				debug("DIMM%d-bank %d (SDRAM0_B%dCR): bank_size_bytes=%d\n",
 				      dimm_num, i, ctrl_bank_num[dimm_num]+i,
 				      bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes);
- 			}
+			}
 		}
 	}
 
