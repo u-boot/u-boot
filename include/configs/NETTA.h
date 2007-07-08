@@ -111,25 +111,27 @@
 				 CFG_POST_CODEC	   | \
 				 CFG_POST_DSP	   )
 
-#define CONFIG_COMMANDS       ( CONFIG_CMD_DFL	| \
-				CFG_CMD_CDP	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG    | \
-				CFG_CMD_FAT	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_MII 	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCMCIA	| \
-				CFG_CMD_PING  	| \
-				0)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_CDP
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_BOARD_EARLY_INIT_F	1
 #define CONFIG_MISC_INIT_R
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
@@ -140,7 +142,7 @@
 #define CFG_HUSH_PARSER	1
 #define CFG_PROMPT_HUSH_PS2	"> "
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -223,7 +225,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

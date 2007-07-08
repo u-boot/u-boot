@@ -88,28 +88,29 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define CONFIG_COMMANDS_BASE  ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_PING )
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
 
 #if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-#define CONFIG_COMMANDS		(CONFIG_COMMANDS_BASE | CFG_CMD_NAND)
-#else
-#define CONFIG_COMMANDS		CONFIG_COMMANDS_BASE
+#define CONFIG_CMD_NAND
 #endif
+
 
 #define CONFIG_BOARD_EARLY_INIT_F 1
 #define CONFIG_MISC_INIT_R
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -192,7 +193,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
