@@ -35,7 +35,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_VFD) || defined(CONFIG_CMD_VFD)
+#if defined(CONFIG_CMD_VFD)
 
 #include <vfd_logo.h>
 #define VFD_TEST_LOGO_BMPNR 0

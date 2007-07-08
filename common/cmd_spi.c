@@ -29,7 +29,7 @@
 #include <command.h>
 #include <spi.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_SPI) || defined(CONFIG_CMD_SPI)
+#if defined(CONFIG_CMD_SPI)
 
 /*-----------------------------------------------------------------------
  * Definitions

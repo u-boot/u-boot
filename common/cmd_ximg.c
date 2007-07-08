@@ -24,7 +24,7 @@
  * MA 02111-1307 USA
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_XIMG) || defined(CONFIG_CMD_XIMG)
+#if defined(CONFIG_CMD_XIMG)
 
 /*
  * Multi Image extract
@@ -141,4 +141,4 @@ U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
 	   "addr part [dest]\n"
 	   "    - extract <part> from image at <addr> and copy to <dest>\n");
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_XIMG */
+#endif

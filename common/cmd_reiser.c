@@ -28,7 +28,7 @@
  */
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_REISER) || defined(CONFIG_CMD_REISER)
+#if defined(CONFIG_CMD_REISER)
 #include <config.h>
 #include <command.h>
 #include <image.h>
@@ -240,4 +240,4 @@ U_BOOT_CMD(
 	"      to address 'addr' from dos filesystem\n"
 );
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_REISER */
+#endif

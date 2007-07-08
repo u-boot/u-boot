@@ -38,7 +38,7 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCI) || defined(CONFIG_CMD_PCI)
+#if defined(CONFIG_CMD_PCI)
 
 extern int cmd_get_data_size(char* arg, int default_size);
 
@@ -565,6 +565,6 @@ U_BOOT_CMD(
 	"    - write to CFG address\n"
 );
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_PCI) */
+#endif
 
 #endif /* CONFIG_PCI */
