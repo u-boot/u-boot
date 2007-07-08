@@ -116,11 +116,8 @@
 				 CFG_POST_I2C)
 
 #ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
 /* preserve space for the post_word at end of on-chip SRAM */
 #define MPC5XXX_SRAM_POST_SIZE MPC5XXX_SRAM_SIZE-4
-#else
-#define CFG_CMD_POST_DIAG 0
 #endif
 
 
@@ -128,6 +125,18 @@
  * Command line configuration.
  */
 #include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX)
     #define CONFIG_CMD_IDE
@@ -148,18 +157,9 @@
     #define CONFIG_CMD_PCI
 #endif
 
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_POST
-#define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SNTP
+#ifdef CONFIG_POST
+#define CONFIG_CMD_DIAG
+#endif
 
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */

@@ -222,12 +222,6 @@
 								CFG_POST_UART		| \
 								CFG_POST_SPR )
 
-#ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
-#else
-#define CFG_CMD_POST_DIAG		0
-#endif
-
 
 /*
  * Command line configuration.
@@ -245,12 +239,14 @@
 #define CONFIG_CMD_FPGA
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_BEDBUG
-#define CONFIG_CMD_POST_DIAG
 
 #if !defined(CONFIG_SC)
     #define CONFIG_CMD_DOC
 #endif
 
+#ifdef CONFIG_POST
+u #define CONFIG_CMD_DIAG
+#endif
 
 /*
  * There is no IDE/PCMCIA hardware support on the board.

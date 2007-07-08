@@ -167,12 +167,6 @@
 #define CONFIG_POST		(CFG_POST_CPU	   | \
 				 CFG_POST_RTC	   | \
 				 CFG_POST_I2C)
-
-#ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
-#else
-#define CFG_CMD_POST_DIAG 0
-#endif
 #endif
 
 
@@ -187,10 +181,12 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_NFS
-#define CONFIG_CMD_POST_DIAG
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
 
+#ifdef CONFIG_POST
+    #define CONFIG_CMD_DIAG
+#endif
 
 /*
  * Miscellaneous configurable options

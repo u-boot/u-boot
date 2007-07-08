@@ -117,12 +117,6 @@
 				CFG_POST_SPR )
 #undef  CONFIG_POST
 
-#ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG       CFG_CMD_DIAG
-#else
-#define CFG_CMD_POST_DIAG	0
-#endif
-
 
 /*
  * Command line configuration.
@@ -140,8 +134,11 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_POST
 #define CONFIG_CMD_SNTP
+
+#ifdef CONFIG_POST
+#define CONFIG_CMD_DIAG
+#endif
 
 
 #define CONFIG_NETCONSOLE
