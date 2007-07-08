@@ -138,24 +138,25 @@
 
 #endif
 
-/* configure commands */
-#define CONFIG_COMMANDS		(	CFG_CMD_AUTOSCRIPT	| \
-					CFG_CMD_BDI		| \
-					CFG_CMD_CONSOLE		| \
-					CFG_CMD_ECHO		| \
-					CFG_CMD_ENV		| \
-					CFG_CMD_FLASH		| \
-					CFG_CMD_IMI		| \
-					CFG_CMD_IMLS		| \
-					CFG_CMD_LOADB		| \
-					CFG_CMD_MEMORY		| \
-					CFG_CMD_MISC		| \
-					CFG_CMD_NET		| \
-					CFG_CMD_PING		| \
-					CFG_CMD_RUN	)
+/*
+ * Command line configuration.
+ */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IMLS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+
 
 /*
  * boot options & environment
@@ -206,7 +207,7 @@
 #define	CFG_PROMPT			"=> "
 
 /* console i/o buffer size */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE			1024
 #else
 #define	CFG_CBSIZE			256
@@ -305,7 +306,7 @@
 
 /* cache configuration */
 #define CFG_CACHELINE_SIZE		32      /* for MPC8260 */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT		5	/* log base 2 of above */
 #endif
 

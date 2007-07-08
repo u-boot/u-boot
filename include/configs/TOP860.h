@@ -107,30 +107,28 @@
  */
 #define CFG_MATCH_PARTIAL_CMD
 
+
 /*
- * List of available monitor commands.  Use the system default list
- * plus add some of the "non-standard" commands back in.
- * See ./cmd_confdefs.h
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-								CFG_CMD_ASKENV	| \
-								CFG_CMD_DHCP	| \
-								CFG_CMD_I2C		| \
-								CFG_CMD_EEPROM	| \
-								CFG_CMD_REGINFO	| \
-								CFG_CMD_IMMAP	| \
-								CFG_CMD_ELF		| \
-								CFG_CMD_DATE	| \
-								CFG_CMD_MII 	| \
-								CFG_CMD_BEDBUG	\
-						      )
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_BEDBUG
+
 
 #define	CONFIG_AUTOSCRIPT		1
 #define	CFG_LOADS_BAUD_CHANGE	1
 #undef	CONFIG_LOADS_ECHO			/* NO echo on for serial download	*/
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
@@ -141,7 +139,7 @@
  #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
  #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
  #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -239,7 +237,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
