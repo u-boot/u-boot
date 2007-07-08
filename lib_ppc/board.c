@@ -139,10 +139,10 @@ static	ulong	mem_malloc_brk	 = 0;
  */
 static void mem_malloc_init (void)
 {
-	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
-
-	mem_malloc_end = dest_addr;
-	mem_malloc_start = dest_addr - TOTAL_MALLOC_LEN;
+#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+	mem_malloc_end = CFG_MONITOR_BASE + gd->reloc_off;
+#endif
+	mem_malloc_start = mem_malloc_end - TOTAL_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
 	memset ((void *) mem_malloc_start,
@@ -623,6 +623,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_RELOC_FIXUP_WORKS)
 	gd->reloc_off = 0;
+	mem_malloc_end = dest_addr;
 #else
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 #endif
