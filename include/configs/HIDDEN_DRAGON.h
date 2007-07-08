@@ -52,16 +52,18 @@
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_DRAM_SPEED	100		/* MHz				*/
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-				  CFG_CMD_EEPROM | \
-				  CFG_CMD_ELF	| \
-				  CFG_CMD_I2C	| \
-				  CFG_CMD_NET	| \
-				  CFG_CMD_PCI	| \
-				  CFG_CMD_PING	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
 
 /*
  * Miscellaneous configurable options
@@ -363,7 +365,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8240 CPU			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
