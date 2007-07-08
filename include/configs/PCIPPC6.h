@@ -59,25 +59,26 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_COMMANDS        (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DOC	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_SCSI	| \
-				CFG_CMD_SNTP	)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DOC
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_SCSI
+#define CONFIG_CMD_SNTP
 
 
 #define CONFIG_PCI		1
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
- */
-#include <cmd_confdefs.h>
 
 #define CFG_NAND_LEGACY
 
@@ -225,7 +226,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
