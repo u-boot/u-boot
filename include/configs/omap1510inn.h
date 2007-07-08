@@ -86,8 +86,6 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL
-
 
 /*
  * Command line configuration.
