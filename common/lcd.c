@@ -571,7 +571,7 @@ void bitmap_plot (int x, int y)
 #endif /* CONFIG_LCD_LOGO */
 
 /*----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
+#if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 /*
  * Display the BMP file located at address bmp_image.
  * Only uncompressed.
@@ -700,7 +700,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	return (0);
 }
-#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || CONFIG_SPLASH_SCREEN */
+#endif
 
 
 static void *lcd_logo (void)

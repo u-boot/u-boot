@@ -92,7 +92,7 @@
 #include <kgdb.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 
 #undef KGDB_DEBUG
 
