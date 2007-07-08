@@ -125,22 +125,24 @@
 
 #define CONFIG_BAUDRATE		38400
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL   \
-				| CFG_CMD_DHCP    \
-				| CFG_CMD_IMMAP   \
-				| CFG_CMD_JFFS2   \
-				| CFG_CMD_MII     \
-				| CFG_CMD_PING    \
-				)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm FE040000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2 rw mtdparts=phys:1M(ROM)ro,-(root)"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -158,7 +160,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -184,7 +186,7 @@
 
 #define	CFG_DIRECT_FLASH_TFTP
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 #define CFG_JFFS2_NUM_BANKS	CFG_MAX_FLASH_BANKS
 #define CFG_JFFS2_SORT_FRAGMENTS
 
@@ -256,7 +258,7 @@
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

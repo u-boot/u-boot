@@ -120,24 +120,23 @@
 #if 1	       /* Enable this stuff could make image enlarge about 25KB. Mask it if you
 		  don't want the advanced function */
 
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_DHCP
+
 #ifdef	CONFIG_SPLASH_SCREEN
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_BMP	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_DHCP	)
-#else
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_DHCP	)
-#endif	/* CONFIG_SPLASH_SCREEN */
+#define CONFIG_CMD_BMP
+#endif
+
 
 /* test-only */
 #define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
@@ -147,16 +146,13 @@
 
 #endif	/* 1 */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"u-boot>"	/* Monitor Command Prompt   */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -200,7 +196,7 @@
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xFF000000
 
-#if defined(DEBUG) || (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(DEBUG) || defined(CONFIG_CMD_IDE)
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor */
@@ -239,7 +235,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
