@@ -99,16 +99,18 @@
 
 #define CONFIG_RTC_MPC8xx	/* use internal RTC of MPC8xx */
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-	CFG_CMD_REGINFO	| \
-	CFG_CMD_IMMAP	| \
-	CFG_CMD_ASKENV	| \
-	CFG_CMD_NET	| \
-	CFG_CMD_DHCP	| \
-	CFG_CMD_DATE	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DATE
 
 
 /* TODO */
@@ -136,7 +138,7 @@ CONFIG_SPI
 #define CFG_HUSH_PARSER		1		/* use "hush" command parser */
 #define CFG_PROMPT_HUSH_PS2	"> "
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
@@ -210,7 +212,7 @@ CONFIG_SPI
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16		/* For all MPC8xx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4		/* log base 2 of the above value */
 #endif
 
