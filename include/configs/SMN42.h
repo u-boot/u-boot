@@ -101,21 +101,20 @@
 						  PUT32(IO0DIR, i2ctmp); }
 #endif /* CONFIG_SOFT_I2C */
 
+
 /*
- * Supported commands
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_FAT		| \
-				CFG_CMD_MMC		| \
-				CFG_CMD_NET		| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_PING)
+#include <config_cmd_default.h>
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	5
 

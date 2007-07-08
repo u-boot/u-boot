@@ -59,15 +59,21 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_COMMANDS \
-((CONFIG_CMD_DFL & ~(CFG_CMD_FLASH)) | CFG_CMD_IDE) /* no Flash, but IDE */
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_IDE
+
+#undef CONFIG_CMD_FLASH
+
+
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*----------------------------------------------------------------------*/
 #define CONFIG_ETHADDR		00:D0:93:00:01:CB
@@ -82,7 +88,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -160,7 +166,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

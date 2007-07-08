@@ -53,11 +53,13 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | CFG_CMD_PCI)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) 	*/
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_PCI
 
 
 /*
@@ -255,7 +257,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
