@@ -52,11 +52,11 @@
 
 #define CONFIG_BOOTDELAY	5
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) 	*/
-
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
 
 /*
@@ -280,7 +280,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

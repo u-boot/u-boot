@@ -76,15 +76,26 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY		60
 
-#define CONFIG_COMMANDS		( CFG_CMD_ASKENV | CFG_CMD_BOOTD | CFG_CMD_CACHE | CFG_CMD_DHCP	| \
-				  CFG_CMD_ECHO	 | CFG_CMD_ENV   | CFG_CMD_FLASH | CFG_CMD_IMI	| \
-				  CFG_CMD_IRQ	 | CFG_CMD_NET	 | CFG_CMD_PCI	 | CFG_CMD_RUN   )
+
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_RUN
 
 
 #define CONFIG_BOOTP_MASK   ( 0xffffffff )
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) 	*/
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
@@ -310,7 +321,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

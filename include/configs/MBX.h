@@ -71,13 +71,18 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_COMMANDS		( CFG_CMD_NET | CONFIG_CMD_DFL | CFG_CMD_SDRAM | \
-			      CFG_CMD_PCMCIA | CFG_CMD_IDE )
+
+/*
+ * Command line configuration.
+ */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DFL
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_IDE
+
 
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
@@ -88,7 +93,7 @@
 #ifdef	CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -187,7 +192,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

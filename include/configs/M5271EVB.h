@@ -65,15 +65,22 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-#define CONFIG_COMMANDS	 ((CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_NET ) & ~(CFG_CMD_LOADS | CFG_CMD_LOADB))
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
+
 
 #define CFG_PROMPT		"=> "
 #define CFG_LONGHELP				/* undef to save memory		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
