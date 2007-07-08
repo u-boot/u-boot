@@ -64,19 +64,29 @@
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS (CFG_CMD_BDI | CFG_CMD_IMI | CFG_CMD_CACHE | \
-		CFG_CMD_MEMORY | CFG_CMD_FLASH | CFG_CMD_LOADB | CFG_CMD_LOADS | \
-		CFG_CMD_ENV | CFG_CMD_REGINFO | CFG_CMD_IMMAP | CFG_CMD_NET)
+/*
+ * Command line configuration.
+ */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_NET
+
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"EEG> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -152,7 +162,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

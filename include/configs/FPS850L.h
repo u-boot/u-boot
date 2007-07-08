@@ -62,22 +62,25 @@
 
 #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_ALL
 
-#define CONFIG_COMMANDS	    ( CONFIG_CMD_DFL &		~( \
-					CFG_CMD_CONSOLE	| \
-					CFG_CMD_BDI	| \
-					CFG_CMD_LOADS	| \
-					CFG_CMD_LOADB	| \
-					CFG_CMD_CACHE	) )
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_CONSOLE
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_CACHE
+
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -160,7 +163,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

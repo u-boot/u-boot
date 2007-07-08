@@ -228,30 +228,29 @@
 #define CFG_CMD_POST_DIAG		0
 #endif
 
+
 /*
- * List of available monitor commands.  Use the system default list
- * plus add some of the "non-standard" commands back in.
- * See ./cmd_confdefs.h
+ * Command line configuration.
  */
-#define BASE_CONFIG_COMMANDS	( CONFIG_CMD_DFL	| \
-								CFG_CMD_ASKENV	| \
-								CFG_CMD_DHCP	| \
-								CFG_CMD_I2C		| \
-								CFG_CMD_EEPROM	| \
-								CFG_CMD_REGINFO	| \
-								CFG_CMD_IMMAP	| \
-								CFG_CMD_ELF		| \
-								CFG_CMD_DATE	| \
-								CFG_CMD_FPGA	| \
-								CFG_CMD_MII 	| \
-								CFG_CMD_BEDBUG	| \
-								CFG_CMD_POST_DIAG )
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_FPGA
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_POST_DIAG
 
 #if !defined(CONFIG_SC)
-#define	CONFIG_COMMANDS ( BASE_CONFIG_COMMANDS | CFG_CMD_DOC )
-#else
-#define CONFIG_COMMANDS	BASE_CONFIG_COMMANDS
+    #define CONFIG_CMD_DOC
 #endif
+
 
 /*
  * There is no IDE/PCMCIA hardware support on the board.
@@ -279,11 +278,6 @@
 #define CFG_FPGA_PROG_FEEDBACK
 
 
-/************************************************************************
- * This must be included AFTER the definition of any CONFIG_COMMANDS
- */
-#include <cmd_confdefs.h>
-
 #define CFG_NAND_LEGACY
 
 /*
@@ -306,7 +300,7 @@
 /*
  * Set buffer size for console I/O
  */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE			1024
 #else
 #define	CFG_CBSIZE			256
@@ -471,7 +465,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE		16	/* For all MPC8xx CPUs				*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT		4	/* log base 2 of above value		*/
 #endif
 
