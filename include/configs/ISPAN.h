@@ -106,17 +106,19 @@
 #define CONFIG_8260_CLKIN	65536000	/* in Hz */
 #define CONFIG_BAUDRATE		38400
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL  \
-				| CFG_CMD_ASKENV  \
-				| CFG_CMD_DHCP    \
-				| CFG_CMD_IMMAP   \
-				| CFG_CMD_MII     \
-				| CFG_CMD_PING    \
-				| CFG_CMD_REGINFO \
-				)
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+
 
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds	*/
 #define CONFIG_BOOTCOMMAND	"bootm fe010000"	/* autoboot command	*/

@@ -124,17 +124,18 @@
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 #endif /* CONFIG_SOFT_I2C */
 
-#define CONFIG_COMMANDS		CONFIG_CMD_DFL
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -149,7 +150,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -257,7 +258,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32     /* For MPC8260 CPU		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5      /* log base 2 of the above value */
 #endif
 
