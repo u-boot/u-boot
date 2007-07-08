@@ -86,7 +86,7 @@
 #include <i2c.h>
 #include <asm/byteorder.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 
 
 /* Display values from last command.
@@ -657,7 +657,7 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * The SDRAM command is separately configured because many
  * (most?) embedded boards don't use SDRAM DIMMs.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_SDRAM) || defined(CONFIG_CMD_SDRAM)
+#if defined(CONFIG_CMD_SDRAM)
 
 /*
  * Syntax:
@@ -938,7 +938,7 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return do_i2c_probe(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "lo", 2))
 		return do_i2c_loop(cmdtp, flag, --argc, ++argv);
-#if (CONFIG_COMMANDS & CFG_CMD_SDRAM) || defined(CONFIG_CMD_SDRAM)
+#if defined(CONFIG_CMD_SDRAM)
 	if (!strncmp(argv[1], "sd", 2))
 		return do_sdram(cmdtp, flag, --argc, ++argv);
 #endif	/* CFG_CMD_SDRAM */
@@ -965,7 +965,7 @@ U_BOOT_CMD(
 	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 	"i2c probe - show devices on the I2C bus\n"
 	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
-#if (CONFIG_COMMANDS & CFG_CMD_SDRAM) || defined(CONFIG_CMD_SDRAM)
+#if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
 #endif  /* CFG_CMD_SDRAM */
 );
@@ -1016,7 +1016,7 @@ U_BOOT_CMD(
 	"    - loop, reading a set of addresses\n"
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_SDRAM) || defined(CONFIG_CMD_SDRAM)
+#if defined(CONFIG_CMD_SDRAM)
 U_BOOT_CMD(
 	isdram,	2,	1,	do_sdram,
 	"isdram  - print SDRAM configuration information\n",

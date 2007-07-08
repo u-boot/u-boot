@@ -28,7 +28,7 @@
 #include <command.h>
 #include <net.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
@@ -68,7 +68,7 @@ U_BOOT_CMD(
 	"[loadAddress] [bootfilename]\n"
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP) || defined(CONFIG_CMD_DHCP)
+#if defined(CONFIG_CMD_DHCP)
 int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
@@ -81,7 +81,7 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_DHCP */
 
-#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS)
 int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common(NFS, cmdtp, argc, argv);
@@ -137,14 +137,14 @@ static void netboot_update_env (void)
 	if (NetOurNISDomain[0])
 		setenv ("domain", NetOurNISDomain);
 
-#if ((CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)) \
+#if defined(CONFIG_CMD_SNTP) \
     && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
 	if (NetTimeOffset) {
 		sprintf (tmp, "%d", NetTimeOffset);
 		setenv ("timeoffset", tmp);
 	}
 #endif
-#if ((CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)) \
+#if defined(CONFIG_CMD_SNTP) \
     && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
 	if (NetNtpServerIP) {
 		ip_to_string (NetNtpServerIP, tmp);
@@ -222,7 +222,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 	return rcode;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
+#if defined(CONFIG_CMD_PING)
 int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2)
@@ -251,7 +251,7 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_PING */
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
+#if defined(CONFIG_CMD_CDP)
 
 static void cdp_update_env(void)
 {
@@ -294,7 +294,7 @@ U_BOOT_CMD(
 );
 #endif	/* CFG_CMD_CDP */
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
+#if defined(CONFIG_CMD_SNTP)
 int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *toff;

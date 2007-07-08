@@ -30,7 +30,7 @@
 #include <config.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MFSL) || defined(CONFIG_CMD_MFSL)
+#if defined(CONFIG_CMD_MFSL)
 #include <asm/asm.h>
 
 int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])

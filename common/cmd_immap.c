@@ -28,7 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IMMAP) || defined(CONFIG_CMD_IMMAP)) && \
+#if defined(CONFIG_CMD_IMMAP) && \
     (defined(CONFIG_8xx) || defined(CONFIG_8260))
 
 #if defined(CONFIG_8xx)
