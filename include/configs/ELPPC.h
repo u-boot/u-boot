@@ -68,10 +68,15 @@
 
 #define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_JFFS2
+
 
 /*
  * Miscellaneous configurable options
@@ -84,7 +89,7 @@
  */
 #define CONFIG_CONS_INDEX       1
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE              1024        /* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE              256         /* Console I/O Buffer Size */
@@ -317,7 +322,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE        32    /* For all MPC74xx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT        5    /* log base 2 of the above value */
 #endif
 

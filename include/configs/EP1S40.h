@@ -154,25 +154,26 @@
 #define CONFIG_IPADDR		192.168.2.21
 #define CONFIG_SERVERIP		192.168.2.16
 
-/*------------------------------------------------------------------------
- * COMMANDS
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS		(CFG_CMD_BDI	| \
-				 CFG_CMD_DHCP	| \
-				 CFG_CMD_ECHO	| \
-				 CFG_CMD_ENV	| \
-				 CFG_CMD_FLASH	| \
-				 CFG_CMD_IMI	| \
-				 CFG_CMD_IRQ	| \
-				 CFG_CMD_LOADS	| \
-				 CFG_CMD_LOADB	| \
-				 CFG_CMD_MEMORY | \
-				 CFG_CMD_MISC	| \
-				 CFG_CMD_NET	| \
-				 CFG_CMD_PING	| \
-				 CFG_CMD_RUN	| \
-				 CFG_CMD_SAVES	)
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_SAVES
+
 
 /*------------------------------------------------------------------------
  * MISC

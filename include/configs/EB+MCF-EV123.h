@@ -68,17 +68,20 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-/*#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADS | CFG_CMD_LOADB) ) */
-#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADB))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_LOADB
+
 
 #define CONFIG_BOOTDELAY	5
 #define CFG_PROMPT		"\nEV123 U-Boot> "
 #define	CFG_LONGHELP				/* undef to save memory		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
