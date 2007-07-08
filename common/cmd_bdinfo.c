@@ -30,7 +30,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_BDI) || defined(CONFIG_CMD_BDI)
+#if defined(CONFIG_CMD_BDI)
 static void print_num(const char *, ulong);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */

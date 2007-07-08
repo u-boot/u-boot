@@ -35,14 +35,14 @@
 #include <common.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_EXT2) || defined(CONFIG_CMD_EXT2)
+#if defined(CONFIG_CMD_EXT2)
 #include <config.h>
 #include <command.h>
 #include <image.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <ext2fs.h>
-#if (((CONFIG_COMMANDS & CFG_CMD_USB)  || defined(CONFIG_CMD_USB)) && defined(CONFIG_USB_STORAGE))
+#if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
 #include <usb.h>
 #endif
 
@@ -260,4 +260,4 @@ U_BOOT_CMD(
 	"      to address 'addr' from ext2 filesystem\n"
 );
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_EXT2 */
+#endif

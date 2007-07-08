@@ -31,7 +31,7 @@
 #include <asm/byteorder.h>
 #include <malloc.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP)
+#if defined(CONFIG_CMD_BMP)
 
 static int bmp_info (ulong addr);
 static int bmp_display (ulong addr, int x, int y);
@@ -188,4 +188,4 @@ static int bmp_display(ulong addr, int x, int y)
 #endif
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_BMP) || defined(CONFIG_CMD_BMP) */
+#endif /* defined(CONFIG_CMD_BMP) */

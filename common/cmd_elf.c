@@ -23,7 +23,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_ELF) || defined(CONFIG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 
 #ifndef MAX
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -101,7 +101,7 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	else
 		addr = simple_strtoul (argv[1], NULL, 16);
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	/* Check to see if we need to tftp the image ourselves before starting */
 
 	if ((argc == 2) && (strcmp (argv[1], "tftp") == 0)) {

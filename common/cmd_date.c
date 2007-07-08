@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 const char *weekdays[] = {
 	"Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur",
