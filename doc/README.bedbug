@@ -31,9 +31,6 @@ can be easily implemented.
 	if it is an illegal instruction, privileged instruction or
 	a trap. Also added debug trap handler.
 
-./include/cmd_confdefs.h
-	Added definition of CFG_CMD_BEDBUG.
-
 ./include/config_WALNUT405.h
 	Added CFG_CMD_BEDBUG to the CONFIG_COMMANDS for the WALNUT.
 
