@@ -480,9 +480,9 @@
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	(0x0000)
 
-/* This addresses need to be shifted one place to the left
+/* These addresses need to be shifted one place to the left
  * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
- * This values are shifted 
+ * These values are shifted
  */
 #define CFG_ATA_PORT_ADDR(port) ((port) << 1)
 

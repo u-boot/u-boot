@@ -84,7 +84,7 @@ int main (int argc, char **argv)
 				cmdname, imagefile, strerror(errno));
 			exit (EXIT_FAILURE);
 		}
-	
+
 		/* create a copy, so we can blank out the sha1 sum */
 		data = malloc (len);
 		memcpy (data, ptr, len);
@@ -93,12 +93,11 @@ int main (int argc, char **argv)
 		for (i = 0; i < SHA1_SUM_LEN; i++) {
 			ptroff[i] = 0;
 		}
-	
+
 		sha1_csum ((unsigned char *) data, len, (unsigned char *)output);
 
 		printf ("U-Boot sum:\n");
-	        for (i = 0; i < 20 ; i++)
-	        {
+	        for (i = 0; i < 20 ; i++) {
 	            printf ("%02X ", output[i]);
 	        }
 	        printf ("\n");
@@ -109,7 +108,7 @@ int main (int argc, char **argv)
 				cmdname, imagefile, strerror(errno));
 			exit (EXIT_FAILURE);
 		}
-	
+
 		free (data);
 		(void) munmap((void *)ptr, len);
 		(void) close (ifd);

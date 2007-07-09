@@ -197,14 +197,13 @@ void load_sernum_ethaddr (void)
 		 * - The checksum, stored in the last 2 Bytes, is correct
 		 */
 		if ((strncmp (buf,"ATR",3) != 0) ||
-			((checksumcrc16 >> 8) != buf[EEPROM_LEN - 2]) ||
-			((checksumcrc16 & 0xff) != buf[EEPROM_LEN - 1])) 
-		{
+		    ((checksumcrc16 >> 8) != buf[EEPROM_LEN - 2]) ||
+		    ((checksumcrc16 & 0xff) != buf[EEPROM_LEN - 1])) {
 			/* EEprom is not programmed */
 			printf("%s: EEPROM Checksum not OK\n", __FUNCTION__);
 		} else {
 			/* get the MACs */
-			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x", 
+			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
 				buf[3],
 				buf[4],
 				buf[5],
@@ -212,7 +211,7 @@ void load_sernum_ethaddr (void)
 				buf[7],
 				buf[8]);
 			setenv ("ethaddr", (char *) mac);
-			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x", 
+			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
 				buf[9],
 				buf[10],
 				buf[11],
@@ -378,7 +377,7 @@ static int pcs440ep_sha1 (int docheck)
 		org[i] = ptroff[i];
 		ptroff[i] = 0;
 	}
-	
+
 	sha1_csum ((unsigned char *) data, len, (unsigned char *)output);
 
 	if (docheck == 2) {
@@ -796,7 +795,7 @@ int do_sha1 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		unsigned char output[20];
 		int	len;
 		int	i;
-		
+
 		data = (unsigned char *)simple_strtoul (argv[1], NULL, 16);
 		len = simple_strtoul (argv[2], NULL, 16);
 		sha1_csum (data, len, (unsigned char *)output);
@@ -823,7 +822,7 @@ int do_sha1 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		} else {
 			rcode = pcs440ep_sha1 (0);
 		}
-		return rcode;	
+		return rcode;
 	}
 	return rcode;
 }
@@ -861,4 +860,3 @@ void ide_set_reset (int idereset)
 	udelay (10000);
 }
 #endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
-

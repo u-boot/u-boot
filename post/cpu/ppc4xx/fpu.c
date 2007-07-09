@@ -37,7 +37,7 @@ int fpu_status(void)
 {
 	if (mfspr(ccr0) & CCR0_DAPUIB)
 		return 0; /* Disabled */
-	else 
+	else
 		return 1; /* Enabled */
 }
 
