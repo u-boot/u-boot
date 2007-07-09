@@ -44,7 +44,7 @@
 #error "must define CFG_HUSH_PARSER"
 #endif
 
-#if !((CONFIG_COMMANDS & CFG_CMD_FAT) || defined(CONFIG_CMD_FAT))
+#if !defined(CONFIG_CMD_FAT)
 #error "must define CFG_CMD_FAT"
 #endif
 

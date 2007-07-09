@@ -39,7 +39,7 @@ void get_backup_values(backup_t *buf);
 
 void show_stdio_dev(void);
 void check_env(void);
-#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 void doc_init (void);
 #endif
 

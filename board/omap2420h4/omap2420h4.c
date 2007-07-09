@@ -31,7 +31,7 @@
 #include <asm/arch/mem.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
@@ -847,7 +847,7 @@ void update_mux(u32 btype,u32 mtype)
 	}
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 void nand_init(void)
 {
     extern flash_info_t flash_info[];

@@ -132,7 +132,7 @@ int board_init(void)
 /*
  * NAND flash initialization.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 extern ulong
 nand_probe(ulong physadr);
 

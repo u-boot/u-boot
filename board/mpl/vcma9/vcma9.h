@@ -31,7 +31,7 @@ extern int  mem_test(unsigned long start, unsigned long ramsize,int mode);
 
 void print_vcma9_info(void);
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 typedef enum {
 	NFCE_LOW,
 	NFCE_HIGH
