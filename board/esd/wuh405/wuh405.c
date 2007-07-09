@@ -170,12 +170,6 @@ int misc_init_r (void)
 	udelay(1000); /* wait 1ms */
 
 	/*
-	 * Set NAND-FLASH GPIO signals to default
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
-
-	/*
 	 * Enable interrupts in exar duart mcr[3]
 	 */
 	*duart0_mcr = 0x08;
@@ -218,35 +212,8 @@ long int initdram (int board_type)
 	mtdcr(memcfga, mem_mb0cf);
 	val = mfdcr(memcfgd);
 
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
 /* ------------------------------------------------------------------------- */
 
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
-}
-
-/* ------------------------------------------------------------------------- */
-
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	nand_probe(CFG_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-}
-#endif
