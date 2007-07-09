@@ -1,7 +1,7 @@
 #include <common.h>
 #include <malloc.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 #include <command.h>
 #endif
 
@@ -166,7 +166,7 @@ void zuma_init_pbb (void)
 
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 static int last_cmd = 4;		/* write increment */
 static int last_size = 64;

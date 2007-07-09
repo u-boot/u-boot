@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 extern int do_autoscript (cmd_tbl_t *, int, int, char *[]);

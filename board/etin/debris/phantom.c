@@ -18,7 +18,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 #define RTC_BASE (CFG_NVRAM_BASE_ADDR + 0x7fff8)
 
