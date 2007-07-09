@@ -68,8 +68,7 @@
  * Define IDE_USES_ISA_EMULATION for slower IDE access in the ISA-IO address range
  * If undefined, IDE access uses a seperat emulation with higher access speed.
  * Consider to inform your Linux IDE driver about the different addresses!
- * IDE_USES_ISA_EMULATION is only used if your CONFIG_COMMANDS macro includes
- * the CFG_CMD_IDE macro!
+ * IDE_USES_ISA_EMULATION is only used if you define CONFIG_CMD_IDE!
  */
 #define IDE_USES_ISA_EMULATION
 

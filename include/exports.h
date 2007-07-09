@@ -23,7 +23,7 @@ void do_reset (void);
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
 char *getenv (char *name);
 void setenv (char *varname, char *varvalue);
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 int i2c_write (uchar, uint, int , uchar* , int);
 int i2c_read (uchar, uint, int , uchar* , int);
 #endif	/* CFG_CMD_I2C */

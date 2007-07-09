@@ -177,8 +177,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  *
  * (On TQM8272 either SCC1 or FCC2 may be chosen: SCC1 is hardwired to the
  * X.29 connector, and FCC2 is hardwired to the X.1 connector)

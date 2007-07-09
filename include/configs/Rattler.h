@@ -62,8 +62,8 @@
  * SCC, 1-3 for FCC)
  *
  * If CONFIG_ETHER_NONE is defined, then either the ethernet routines
- * must be defined elsewhere (as for the console), or CFG_CMD_NET must
- * be removed from CONFIG_COMMANDS to remove support for networking.
+ * must be defined elsewhere (as for the console), or CONFIG_CMD_NET
+ * must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* Ethernet is not on SCC */
 #define CONFIG_ETHER_ON_FCC		/* Ethernet is on FCC     */

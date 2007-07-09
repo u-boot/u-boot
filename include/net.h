@@ -341,17 +341,17 @@ typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING) || defined(CONFIG_CMD_PING)
+#if defined(CONFIG_CMD_PING)
 extern IPaddr_t	NetPingIP;			/* the ip address to ping 		*/
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP) || defined(CONFIG_CMD_CDP)
+#if defined(CONFIG_CMD_CDP)
 /* when CDP completes these hold the return values */
 extern ushort CDPNativeVLAN;
 extern ushort CDPApplianceVLAN;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) || defined(CONFIG_CMD_SNTP)
+#if defined(CONFIG_CMD_SNTP)
 extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP 	*/
 extern int NetTimeOffset;			/* offset time from UTC		*/
 #endif
