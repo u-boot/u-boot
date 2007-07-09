@@ -83,8 +83,6 @@
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 
-#define CFG_NAND_LEGACY
-
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
