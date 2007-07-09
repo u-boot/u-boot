@@ -29,7 +29,7 @@
 #include "rarp.h"
 #include "tftp.h"
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 #define TIMEOUT		5		/* Seconds before trying BOOTP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
@@ -59,7 +59,7 @@ RarpHandler(uchar * dummi0, unsigned dummi1, unsigned dummi2, unsigned dummi3)
 			 */
 			NetState = NETLOOP_SUCCESS;
 			return;
-#if (CONFIG_COMMANDS & CFG_CMD_NFS) || defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS)
 		} else if ((s != NULL) && !strcmp(s, "NFS")) {
 			NfsStart();
 			return;
