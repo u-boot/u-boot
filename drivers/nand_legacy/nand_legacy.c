@@ -22,7 +22,7 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 
 #include <linux/mtd/nand_legacy.h>
 #include <linux/mtd/nand_ids.h>
@@ -1616,4 +1616,4 @@ int read_jffs2_nand(size_t start, size_t len,
 }
 #endif /* CONFIG_JFFS2_NAND */
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY) */
+#endif

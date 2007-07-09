@@ -45,7 +45,7 @@
 #define PCNET_DEBUG2(fmt,args...)
 #endif
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET)  || defined(CONFIG_CMD_NET)) \
+#if defined(CONFIG_CMD_NET) \
 	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_PCNET)
 
 #if !defined(CONF_PCNET_79C973) && defined(CONF_PCNET_79C975)

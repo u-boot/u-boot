@@ -27,7 +27,7 @@
 
 #include <config.h>
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(CONFIG_NET_MULTI) \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) \
 	&& defined(CONFIG_TSI108_ETH)
 
 #if !defined(CONFIG_TSI108_ETH_NUM_PORTS) || (CONFIG_TSI108_ETH_NUM_PORTS > 2)

@@ -85,7 +85,7 @@ int pcmcia_on (void)
 	return rc;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 int pcmcia_off (void)
 {
 	return 0;

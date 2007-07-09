@@ -34,7 +34,7 @@
 
 #ifdef CONFIG_DRIVER_RTL8019
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 
 /* packet page register access functions */

@@ -28,7 +28,7 @@
 #ifdef CONFIG_TSI108_I2C
 #include <tsi108.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 
 #define I2C_DELAY	100000
 #undef  DEBUG_I2C
@@ -279,5 +279,5 @@ int i2c_probe (uchar chip)
 	return i2c_read (chip, 0, 1, (char *)&tmp, 1);
 }
 
-#endif	/* (CONFIG_COMMANDS & CFG_CMD_I2C) */
+#endif
 #endif /* CONFIG_TSI108_I2C */
