@@ -22,7 +22,7 @@
  */
 #include <config.h>
 
-#if defined(CONFIG_4xx) && ((CONFIG_COMMANDS & CFG_CMD_SETGETDCR) || defined(CONFIG_CMD_SETGETDCR))
+#if defined(CONFIG_4xx) && defined(CONFIG_CMD_SETGETDCR)
 
 #include <ppc4xx.h>
 

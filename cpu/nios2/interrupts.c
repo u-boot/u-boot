@@ -204,7 +204,7 @@ int interrupt_init (void)
 
 
 /*************************************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
@@ -228,4 +228,4 @@ int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (0);
 }
-#endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

@@ -27,7 +27,7 @@
 
 #ifdef CONFIG_DRIVER_ETHER
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /*
  * Name:
@@ -220,6 +220,6 @@ UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 	return FALSE;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 
 #endif	/* CONFIG_DRIVER_ETHER */

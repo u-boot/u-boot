@@ -173,7 +173,7 @@ void irq_install_handler (int vec, interrupt_handler_t *handler, void *arg)
 }
 
 /*************************************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int vec;
@@ -193,4 +193,4 @@ int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (0);
 }
-#endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

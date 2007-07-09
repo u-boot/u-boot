@@ -10,7 +10,7 @@
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
 
-#if ((CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)) && defined(CONFIG_4xx)
+#if defined(CONFIG_CMD_BEDBUG) && defined(CONFIG_4xx)
 
 #define MAX_BREAK_POINTS 4
 
