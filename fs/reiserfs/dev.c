@@ -19,7 +19,7 @@
 
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_REISER) || defined(CONFIG_CMD_REISER)
+#if defined(CONFIG_CMD_REISER)
 
 #include <config.h>
 #include <reiserfs.h>

@@ -25,7 +25,7 @@
 
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_EXT2) || defined(CONFIG_CMD_EXT2)
+#if defined(CONFIG_CMD_EXT2)
 
 #include <config.h>
 #include <ext2fs.h>

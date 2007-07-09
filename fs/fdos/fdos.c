@@ -25,7 +25,7 @@
 #include <common.h>
 #include <config.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDOS) || defined(CONFIG_CMD_FDOS)
+#if defined(CONFIG_CMD_FDOS)
 #include <malloc.h>
 #include "dos.h"
 #include "fdos.h"

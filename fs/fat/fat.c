@@ -31,7 +31,7 @@
 #include <asm/byteorder.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FAT) || defined(CONFIG_CMD_FAT)
+#if defined(CONFIG_CMD_FAT)
 
 /*
  * Convert a string to lowercase.
@@ -90,9 +90,9 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		part_offset=0;
 	}
 	else {
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| defined(CONFIG_CMD_IDE) || \
-     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| defined(CONFIG_CMD_SCSI) || \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	|| defined(CONFIG_CMD_USB) || \
+#if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SCSI) || \
+     defined(CONFIG_CMD_USB) || \
      (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
      defined(CONFIG_SYSTEMACE)          )
 		disk_partition_t info;
@@ -975,9 +975,9 @@ file_fat_detectfs(void)
 		printf("No current device\n");
 		return 1;
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE) || \
-    (CONFIG_COMMANDS & CFG_CMD_SCSI) || defined(CONFIG_CMD_SCSI) || \
-    (CONFIG_COMMANDS & CFG_CMD_USB) || defined(CONFIG_CMD_USB) || \
+#if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_SCSI) || \
+    defined(CONFIG_CMD_USB) || \
     (CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
@@ -1019,4 +1019,4 @@ file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 	return do_fat_read(filename, buffer, maxsize, LS_NO);
 }
 
-#endif /* #if (CONFIG_COMMANDS & CFG_CMD_FAT) */
+#endif

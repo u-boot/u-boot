@@ -1,6 +1,6 @@
 #include <common.h>
 
-#if !defined(CFG_NAND_LEGACY) && ((CONFIG_COMMANDS & CFG_CMD_JFFS2) || defined(CONFIG_CMD_JFFS2))
+#if !defined(CFG_NAND_LEGACY) && defined(CONFIG_CMD_JFFS2)
 
 #include <malloc.h>
 #include <linux/stat.h>
