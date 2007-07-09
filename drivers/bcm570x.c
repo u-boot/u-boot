@@ -6,7 +6,7 @@
 
 #include <common.h>
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) \
+#if defined(CONFIG_CMD_NET) \
 	&& (!defined(CONFIG_NET_MULTI)) && defined(CONFIG_BCM570x)
 
 #ifdef CONFIG_BMW

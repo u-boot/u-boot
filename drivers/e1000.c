@@ -44,7 +44,7 @@ tested on both gig copper and gig fiber boards
 
 #include "e1000.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET)  || defined(CONFIG_CMD_NET)) \
+#if defined(CONFIG_CMD_NET) \
 	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_E1000)
 
 #define TOUT_LOOP   100000

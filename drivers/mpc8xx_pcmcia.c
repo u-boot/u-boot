@@ -6,11 +6,11 @@
 
 #undef	CONFIG_PCMCIA
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 #define	CONFIG_PCMCIA
 #endif
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)) && defined(CONFIG_IDE_8xx_PCCARD)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
 #define	CONFIG_PCMCIA
 #endif
 
@@ -23,7 +23,7 @@ extern int check_ide_device (int slot);
 extern int pcmcia_hardware_enable (int slot);
 extern int pcmcia_voltage_set(int slot, int vcc, int vpp);
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 extern int pcmcia_hardware_disable(int slot);
 #endif
 
@@ -189,7 +189,7 @@ int pcmcia_on (void)
 	return rc;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 int pcmcia_off (void)
 {
 	int i;
