@@ -313,14 +313,13 @@ void start_i386boot (void)
 	misc_init_r();
 #endif
 
-#if ((CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA))
-	&& !((CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE))
+#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
 	WATCHDOG_RESET();
 	puts ("PCMCIA:");
 	pcmcia_init();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB) || defined(CONFIG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	WATCHDOG_RESET();
 	puts("KGDB:  ");
 	kgdb_init();
@@ -349,7 +348,7 @@ void start_i386boot (void)
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
@@ -357,25 +356,25 @@ void start_i386boot (void)
 
 	WATCHDOG_RESET();
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 	WATCHDOG_RESET();
 	puts("IDE:   ");
 	ide_init();
 #endif /* CFG_CMD_IDE */
 
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI) || defined(CONFIG_CMD_SCSI)
+#if defined(CONFIG_CMD_SCSI)
 	WATCHDOG_RESET();
 	puts("SCSI:  ");
 	scsi_init();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC) || defined(CONFIG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 	WATCHDOG_RESET();
 	puts("DOC:   ");
 	doc_init();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET();
 	puts("Net:   ");
@@ -383,7 +382,7 @@ void start_i386boot (void)
 	eth_initialize(gd->bd);
 #endif
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET)  || defined(CONFIG_CMD_NET)) && (0)
+#if ( defined(CONFIG_CMD_NET)) && (0)
 	WATCHDOG_RESET();
 # ifdef DEBUG
 	puts ("Reset Ethernet PHY\n");
