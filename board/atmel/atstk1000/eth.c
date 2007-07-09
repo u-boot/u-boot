@@ -27,7 +27,7 @@
 
 extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 
-#if defined(CONFIG_MACB) && ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET))
+#if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
 void atstk1000_eth_initialize(bd_t *bi)
 {
 	int id = 0;

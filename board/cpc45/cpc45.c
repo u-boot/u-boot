@@ -240,7 +240,7 @@ int sysControlDisplay (int digit,	/* number of digit 0..7 */
 	return (0);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 
 #ifdef CFG_PCMCIA_MEM_ADDR
 volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;

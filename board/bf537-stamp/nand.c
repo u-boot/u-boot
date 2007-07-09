@@ -23,7 +23,7 @@
 #include <common.h>
 #include <asm/io.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #include <nand.h>
 
@@ -103,4 +103,4 @@ void board_nand_init(struct nand_chip *nand)
 	nand->dev_ready = bfin_device_ready;
 	nand->chip_delay = 30;
 }
-#endif				/* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif

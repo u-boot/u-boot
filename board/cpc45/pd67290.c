@@ -772,7 +772,7 @@ exit:
 	return rc;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) || defined(CONFIG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 int pcmcia_off (void)
 {
 	printf ("Disable PCMCIA " PCMCIA_SLOT_MSG "\n");

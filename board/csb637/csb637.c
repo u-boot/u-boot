@@ -57,7 +57,7 @@ int dram_init (void)
 }
 
 #ifdef CONFIG_DRIVER_ETHER
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /*
  * Name:
@@ -77,5 +77,5 @@ void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
 	p_phyops->AutoNegotiate	 = bcm5221_AutoNegotiate;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 #endif	/* CONFIG_DRIVER_ETHER */

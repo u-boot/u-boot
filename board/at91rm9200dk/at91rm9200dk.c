@@ -62,7 +62,7 @@ int dram_init (void)
 }
 
 #ifdef CONFIG_DRIVER_ETHER
-#if (CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /*
  * Name:
@@ -82,14 +82,14 @@ void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
 	p_phyops->AutoNegotiate = dm9161_AutoNegotiate;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 #endif	/* CONFIG_DRIVER_ETHER */
 
 /*
  * Disk On Chip (NAND) Millenium initialization.
  * The NAND lives in the CS2* space
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) || defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 extern ulong nand_probe (ulong physadr);
 
 #define AT91_SMARTMEDIA_BASE 0x40000000	/* physical address to access memory on NCS3 */
