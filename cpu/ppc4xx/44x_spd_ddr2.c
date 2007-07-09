@@ -129,6 +129,16 @@
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
 #endif
 
+/*
+ * Board-specific Platform code can reimplement spd_ddr_init_hang () if needed
+ */
+void __spd_ddr_init_hang (void)
+{
+	hang ();
+}
+void spd_ddr_init_hang (void) __attribute__((weak, alias("__spd_ddr_init_hang")));
+
+
 /* Private Structure Definitions */
 
 /* enum only to ease code for cas latency setting */
@@ -582,7 +592,7 @@ static void get_spd_info(unsigned long *dimm_populated,
 
 	if (dimm_found == FALSE) {
 		printf("ERROR - No memory installed. Install a DDR-SDRAM DIMM.\n\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 }
 
@@ -629,42 +639,42 @@ static void check_mem_type(unsigned long *dimm_populated,
 				       "slot %d.\n", (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 2:
 				printf("ERROR: EDO DIMM detected in slot %d.\n",
 				       (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 3:
 				printf("ERROR: Pipelined Nibble DIMM detected in slot %d.\n",
 				       (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 4:
 				printf("ERROR: SDRAM DIMM detected in slot %d.\n",
 				       (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 5:
 				printf("ERROR: Multiplexed ROM DIMM detected in slot %d.\n",
 				       (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 6:
 				printf("ERROR: SGRAM DIMM detected in slot %d.\n",
 				       (unsigned int)dimm_num);
 				printf("Only DDR and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 7:
 				debug("DIMM slot %d: DDR1 SDRAM detected\n", dimm_num);
@@ -679,7 +689,7 @@ static void check_mem_type(unsigned long *dimm_populated,
 				       (unsigned int)dimm_num);
 				printf("Only DDR1 and DDR2 SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			}
 		}
@@ -689,7 +699,7 @@ static void check_mem_type(unsigned long *dimm_populated,
 		    && (dimm_populated[dimm_num]   != SDRAM_NONE)
 		    && (dimm_populated[dimm_num-1] != dimm_populated[dimm_num])) {
 			printf("ERROR: DIMM's DDR1 and DDR2 type can not be mixed.\n");
-			hang();
+			spd_ddr_init_hang ();
 		}
 	}
 }
@@ -764,7 +774,7 @@ static void check_frequency(unsigned long *dimm_populated,
 				       (unsigned int)(calc_cycle_time*10));
 				printf("Replace the DIMM, or change DDR frequency via "
 				       "strapping bits.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 			}
 		}
 	}
@@ -796,7 +806,7 @@ static void check_rank_number(unsigned long *dimm_populated,
 				       "slot %d is not supported.\n", dimm_rank, dimm_num);
 				printf("Only %d ranks are supported for all DIMM.\n", MAXRANKS);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 			} else
 				total_rank += dimm_rank;
 		}
@@ -805,7 +815,7 @@ static void check_rank_number(unsigned long *dimm_populated,
 			       "for all slots.\n", (unsigned int)total_rank);
 			printf("Only %d ranks are supported for all DIMM.\n", MAXRANKS);
 			printf("Remove one of the DIMM modules.\n\n");
-			hang();
+			spd_ddr_init_hang ();
 		}
 	}
 }
@@ -830,28 +840,28 @@ static void check_voltage_type(unsigned long *dimm_populated,
 				printf("This DIMM is 5.0 Volt/TTL.\n");
 				printf("Replace the DIMM module in slot %d with a supported DIMM.\n\n",
 				       (unsigned int)dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 0x01:
 				printf("ERROR: Only DIMMs DDR 2.5V or DDR2 1.8V are supported.\n");
 				printf("This DIMM is LVTTL.\n");
 				printf("Replace the DIMM module in slot %d with a supported DIMM.\n\n",
 				       (unsigned int)dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 0x02:
 				printf("ERROR: Only DIMMs DDR 2.5V or DDR2 1.8V are supported.\n");
 				printf("This DIMM is 1.5 Volt.\n");
 				printf("Replace the DIMM module in slot %d with a supported DIMM.\n\n",
 				       (unsigned int)dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 0x03:
 				printf("ERROR: Only DIMMs DDR 2.5V or DDR2 1.8V are supported.\n");
 				printf("This DIMM is 3.3 Volt/TTL.\n");
 				printf("Replace the DIMM module in slot %d with a supported DIMM.\n\n",
 				       (unsigned int)dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			case 0x04:
 				/* 2.5 Voltage only for DDR1 */
@@ -863,7 +873,7 @@ static void check_voltage_type(unsigned long *dimm_populated,
 				printf("ERROR: Only DIMMs DDR 2.5V or DDR2 1.8V are supported.\n");
 				printf("Replace the DIMM module in slot %d with a supported DIMM.\n\n",
 				       (unsigned int)dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			}
 		}
@@ -1006,13 +1016,13 @@ static void program_copt1(unsigned long *dimm_populated,
 	if ((dimm_populated[0] != SDRAM_NONE) && (dimm_populated[1] != SDRAM_NONE)) {
 		if (buf0 != buf1) {
 			printf("ERROR: DIMM's buffered/unbuffered, registered, clocking don't match.\n");
-			hang();
+			spd_ddr_init_hang ();
 		}
 	}
 
 	if ((dimm_64bit == TRUE) && (dimm_32bit == TRUE)) {
 		printf("ERROR: Cannot mix 32 bit and 64 bit DDR-SDRAM DIMMs together.\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 	else if ((dimm_64bit == TRUE) && (dimm_32bit == FALSE)) {
 		mcopt1 |= SDRAM_MCOPT1_DMWD_64;
@@ -1020,7 +1030,7 @@ static void program_copt1(unsigned long *dimm_populated,
 		mcopt1 |= SDRAM_MCOPT1_DMWD_32;
 	} else {
 		printf("ERROR: Please install only 32 or 64 bit DDR-SDRAM DIMMs.\n\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 
 	if (ecc_enabled == TRUE)
@@ -1209,7 +1219,7 @@ static void program_initplr(unsigned long *dimm_populated,
 			break;
 		default:
 			printf("ERROR: ucode error on selected_cas value %d", selected_cas);
-			hang();
+			spd_ddr_init_hang ();
 			break;
 		}
 
@@ -1241,7 +1251,7 @@ static void program_initplr(unsigned long *dimm_populated,
 			break;
 		default:
 			printf("ERROR: write recovery not support (%d)", write_recovery);
-			hang();
+			spd_ddr_init_hang ();
 			break;
 		}
 #else
@@ -1259,7 +1269,7 @@ static void program_initplr(unsigned long *dimm_populated,
 			ods = ODS_REDUCED;
 		} else {
 			printf("ERROR: Unsupported number of DIMM's (%d)", total_dimm);
-			hang();
+			spd_ddr_init_hang ();
 		}
 
 		mr = CMD_EMR | SELECT_MR | BURST_LEN_4 | wr | cas;
@@ -1284,7 +1294,7 @@ static void program_initplr(unsigned long *dimm_populated,
 		mtsdram(SDRAM_INITPLR13, 0x80800000 | emr);		/* EMR OCD Exit */
 	} else {
 		printf("ERROR: ucode error as unknown DDR type in program_initplr");
-		hang();
+		spd_ddr_init_hang ();
 	}
 }
 
@@ -1389,7 +1399,7 @@ static void program_mode(unsigned long *dimm_populated,
 					} else {
 						printf("ERROR: SPD reported Tcyc is incorrect for DIMM "
 						       "in slot %d\n", (unsigned int)dimm_num);
-						hang();
+						spd_ddr_init_hang ();
 					}
 				} else {
 					/* Convert from hex to decimal */
@@ -1526,7 +1536,7 @@ static void program_mode(unsigned long *dimm_populated,
 			printf("ERROR: Cannot find a supported CAS latency with the installed DIMMs.\n");
 			printf("Only DIMMs DDR1 with CAS latencies of 2.0, 2.5, and 3.0 are supported.\n");
 			printf("Make sure the PLB speed is within the supported range of the DIMMs.\n\n");
-			hang();
+			spd_ddr_init_hang ();
 		}
 	} else { /* DDR2 */
 		debug("cas_3_0_available=%d\n", cas_3_0_available);
@@ -1549,7 +1559,7 @@ static void program_mode(unsigned long *dimm_populated,
 			       cas_3_0_available, cas_4_0_available, cas_5_0_available);
 			printf("sdram_freq=%d cycle3=%d cycle4=%d cycle5=%d\n\n",
 			       sdram_freq, cycle_3_0_clk, cycle_4_0_clk, cycle_5_0_clk);
-			hang();
+			spd_ddr_init_hang ();
 		}
 	}
 
@@ -1658,7 +1668,7 @@ static void program_rtr(unsigned long *dimm_populated,
 				printf("ERROR: DIMM %d unsupported refresh rate/type.\n",
 				       (unsigned int)dimm_num);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			}
 
@@ -2066,7 +2076,7 @@ static void program_bxcf(unsigned long *dimm_populated,
 					printf("ERROR: Unsupported value for number of "
 					       "column addresses: %d.\n", (unsigned int)num_col_addr);
 					printf("Replace the DIMM module with a supported DIMM.\n\n");
-					hang();
+					spd_ddr_init_hang ();
 				}
 			}
 
@@ -2148,7 +2158,7 @@ static void program_memory_queue(unsigned long *dimm_populated,
 				printf("ERROR: Unsupported value for the banksize: %d.\n",
 				       (unsigned int)rank_size_id);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 			}
 
 			if ((dimm_populated[dimm_num] != SDRAM_NONE) && (dimm_num == 1))
@@ -2693,7 +2703,7 @@ calibration_loop:
 		printf("\nERROR: Cannot determine a common read delay for the "
 		       "DIMM(s) installed.\n");
 		debug("%s[%d] ERROR : \n", __FUNCTION__,__LINE__);
-		hang();
+		spd_ddr_init_hang ();
 	}
 
 	blank_string(strlen(str));
@@ -2849,7 +2859,7 @@ static void test(void)
 	if (window_found == FALSE) {
 		printf("ERROR: Cannot determine a common read delay for the "
 		       "DIMM(s) installed.\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 
 	/*------------------------------------------------------------------
