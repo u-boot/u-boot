@@ -49,7 +49,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_BFIN) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
+#if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
 
 #include <asm/blackfin.h>
 #include <asm/arch/bf5xx_rtc.h>

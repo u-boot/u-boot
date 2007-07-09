@@ -32,7 +32,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_DS1337) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
+#if defined(CONFIG_RTC_DS1337) && defined(CONFIG_CMD_DATE)
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC

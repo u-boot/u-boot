@@ -33,7 +33,7 @@
 #include <rtc.h>
 #include <config.h>
 
-#if defined(CONFIG_RTC_M48T35A) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
+#if defined(CONFIG_RTC_M48T35A) && defined(CONFIG_CMD_DATE)
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);

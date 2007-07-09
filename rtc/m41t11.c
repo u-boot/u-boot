@@ -43,7 +43,7 @@
 #endif
 */
 
-#if defined(CONFIG_RTC_M41T11) && defined(CFG_I2C_RTC_ADDR) && ((CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE))
+#if defined(CONFIG_RTC_M41T11) && defined(CFG_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
 
 static unsigned bcd2bin (uchar n)
 {

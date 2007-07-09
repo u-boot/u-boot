@@ -131,7 +131,7 @@ void nvram_write(short dest, const void *src, size_t count)
 		rtc_write(d++, *s++);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 /* ------------------------------------------------------------------------- */
 
@@ -233,5 +233,5 @@ void rtc_set_watchdog(short multi, short res)
 	rtc_write(RTC_WATCHDOG, wd_value);
 }
 
-#endif	/* (CONFIG_COMMANDS & CFG_CMD_DATE) */
+#endif
 #endif	/* CONFIG_RTC_MK48T59 */
