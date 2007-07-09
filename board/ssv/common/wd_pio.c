@@ -112,7 +112,7 @@ void hw_watchdog_reset(void)
 		enable_interrupts ();
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 int do_wd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	nios_pio_t *ena_piop	 = (nios_pio_t*)CONFIG_HW_WDENA_BASE;

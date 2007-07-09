@@ -148,7 +148,7 @@ static int rs485_receive_chars (char *data, int timeout);
 static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
 			     unsigned int icnt);
 
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 static int trab_eeprom_read (char **argv);
 static int trab_eeprom_write (char **argv);
 int i2c_write_multiple (uchar chip, uint addr, int alen, uchar *buffer,
@@ -959,7 +959,7 @@ static int touch_check_pressed (void)
 
 static int touch_write_clibration_values (int calib_point, int x, int y)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 	int x_verify = 0;
 	int y_verify = 0;
 
@@ -1105,7 +1105,7 @@ static int rs485_receive_chars (char *data, int timeout)
 
 int do_serial_number (char **argv)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 	unsigned int serial_number;
 
 	if (strcmp (argv[2], "read") == 0) {
@@ -1139,7 +1139,7 @@ int do_serial_number (char **argv)
 
 int do_crc16 (void)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 	int crc;
 	unsigned char buf[EEPROM_MAX_CRC_BUF];
 
@@ -1260,7 +1260,7 @@ int do_gain (char **argv)
 
 int do_eeprom (char **argv)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 	if (strcmp (argv[2], "read") == 0) {
 		return (trab_eeprom_read (argv));
 	}
@@ -1278,7 +1278,7 @@ int do_eeprom (char **argv)
 #endif /* CFG_CMD_I2C */
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_I2C) || defined(CONFIG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 static int trab_eeprom_read (char **argv)
 {
 	int i;

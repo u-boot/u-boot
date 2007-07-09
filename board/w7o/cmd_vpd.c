@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP) || defined(CONFIG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 #include "vpd.h"
 
@@ -63,4 +63,4 @@ U_BOOT_CMD(
 	  "        - Read VPD Data from default address, or device address 'dev_addr'.\n"
 );
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_BSP) */
+#endif
