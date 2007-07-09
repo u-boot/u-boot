@@ -585,7 +585,6 @@ int pci_pre_init(struct pci_controller *hose)
 #endif /* defined(CONFIG_PCI) */
 
 
-
 #ifdef CONFIG_CPCI405AB
 
 #define ONE_WIRE_CLEAR   (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
