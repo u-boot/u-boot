@@ -983,4 +983,4 @@ reiserfs_open (char *filename)
 	return filemax;
 }
 
-#endif /* CFG_CMD_REISER */
+#endif

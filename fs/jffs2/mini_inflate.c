@@ -393,4 +393,4 @@ long decompress_block(unsigned char *dest, unsigned char *source,
 	return stream.error ? -stream.error : stream.decoded;
 }
 
-#endif /* CFG_CMD_JFFS2 */
+#endif

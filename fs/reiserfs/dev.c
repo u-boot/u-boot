@@ -120,4 +120,4 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 	return 1;
 }
 
-#endif /* CFG_CMD_REISERFS */
+#endif

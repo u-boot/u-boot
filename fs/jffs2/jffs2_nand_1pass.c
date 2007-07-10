@@ -1033,4 +1033,4 @@ jffs2_1pass_info(struct part_info * part)
 	return 1;
 }
 
-#endif /* CFG_CMD_JFFS2 */
+#endif

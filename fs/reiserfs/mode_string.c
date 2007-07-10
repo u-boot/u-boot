@@ -139,4 +139,4 @@ const char *bb_mode_string(int mode)
 
 #endif
 
-#endif /* CFG_CMD_REISER */
+#endif

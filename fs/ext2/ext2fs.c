@@ -875,4 +875,4 @@ fail:
 	return (0);
 }
 
-#endif /* CFG_CMD_EXT2FS */
+#endif
