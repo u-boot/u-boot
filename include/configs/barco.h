@@ -92,6 +92,8 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_PCI
 
+#undef CONFIG_CMD_NET
+
 
 #define CONFIG_HUSH_PARSER	1 /* use "hush" command parser */
 #define CONFIG_BOOTDELAY 	1
@@ -116,7 +118,6 @@
  */
 #define CONFIG_PCI				/* include pci support		*/
 #undef CONFIG_PCI_PNP
-#undef CFG_CMD_NET
 
 #define PCI_ENET0_IOADDR	0x80000000
 #define PCI_ENET0_MEMADDR	0x80000000

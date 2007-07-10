@@ -125,6 +125,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -192,13 +201,13 @@
 #define CFG_JFFS2_LAST_SECTOR   62
 #define CFG_JFFS2_SORT_FRAGMENTS
 #define CFG_JFFS_CUSTOM_PART
-#endif /* CFG_CMD_JFFS2 */
+#endif
 
 #if defined(CONFIG_CMD_I2C)
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
 #define CFG_I2C_SPEED		100000	/* I2C speed			*/
 #define CFG_I2C_SLAVE		0x7F	/* I2C slave address		*/
-#endif /* CFG_CMD_I2C */
+#endif
 
 #define CFG_MONITOR_BASE	TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
