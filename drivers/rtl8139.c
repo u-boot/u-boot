@@ -535,4 +535,4 @@ static void rtl_disable(struct eth_device *dev)
 		udelay (100); /* wait 100us */
 	}
 }
-#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_RTL8139 */
+#endif

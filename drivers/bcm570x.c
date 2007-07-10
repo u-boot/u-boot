@@ -1688,4 +1688,4 @@ QQ_GetTail(
     return pQueue->Array[Idx];
 }
 
-#endif	/* CFG_CMD_NET, !CONFIG_NET_MULTI, CONFIG_BCM570x */
+#endif

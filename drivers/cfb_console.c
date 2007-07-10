@@ -63,7 +63,7 @@
 			       loop in VIDEO_TSTC_FCT (i8042)
  CFG_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
  CONFIG_CONSOLE_TIME	     - display time/date in upper right corner,
-			       needs CFG_CMD_DATE and CONFIG_CONSOLE_CURSOR
+			       needs CONFIG_CMD_DATE and CONFIG_CONSOLE_CURSOR
  CONFIG_VIDEO_LOGO	     - display Linux Logo in upper left corner
  CONFIG_VIDEO_BMP_LOGO	     - use bmp_logo instead of linux_logo
  CONFIG_CONSOLE_EXTRA_INFO   - display additional board information strings
@@ -175,9 +175,9 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #include <linux/types.h>
 #include <devices.h>
 #include <video_font.h>
-#ifdef CFG_CMD_DATE
-#include <rtc.h>
 
+#if defined(CONFIG_CMD_DATE)
+#include <rtc.h>
 #endif
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)

@@ -221,7 +221,7 @@ int pcmcia_off (void)
 	pcmcia_hardware_disable(_slot_);
 	return 0;
 }
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 
 static u_int m8xx_get_graycode(u_int size)

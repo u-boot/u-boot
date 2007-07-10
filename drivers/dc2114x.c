@@ -768,4 +768,4 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 }
 #endif	/* UPDATE_SROM */
 
-#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_TULIP */
+#endif
