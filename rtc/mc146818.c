@@ -175,4 +175,4 @@ static unsigned char bin2bcd (unsigned int n)
 	return (((n / 10) << 4) | (n % 10));
 }
 
-#endif	/* CONFIG_RTC_MC146818 && CFG_CMD_DATE */
+#endif

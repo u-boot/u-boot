@@ -306,7 +306,7 @@ typedef struct {
 #define CISTPL_IDE_HAS_INDEX	0x20
 #define CISTPL_IDE_IOIS16	0x40
 
-#endif	/* CFG_CMD_PCMCIA || CFG_CMD_IDE && (CONFIG_IDE_8xx_PCCARD || CONFIG_IDE_8xx_DIRECT) */
+#endif
 
 #ifdef	CONFIG_8xx
 extern u_int *pcmcia_pgcrx[];

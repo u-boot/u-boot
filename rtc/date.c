@@ -153,4 +153,4 @@ mktime (unsigned int year, unsigned int mon,
 	)*60 + sec; /* finally seconds */
 }
 
-#endif	/* CFG_CMD_DATE */
+#endif

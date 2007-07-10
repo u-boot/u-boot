@@ -175,6 +175,4 @@ void rtc_reset (void)
 	rtc->RTCCON &= ~(0x08|0x01);
 }
 
-/* ------------------------------------------------------------------------- */
-
-#endif	/* CONFIG_RTC_S3C24X0 && CFG_CMD_DATE */
+#endif

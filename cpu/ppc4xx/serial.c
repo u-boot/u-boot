@@ -949,7 +949,7 @@ void kgdb_interruptible (int yes)
 	return;
 }
 #endif	/* (CONFIG_KGDB_SER_INDEX & 2) */
-#endif	/* CFG_CMD_KGDB */
+#endif
 
 
 #if defined(CONFIG_SERIAL_MULTI)

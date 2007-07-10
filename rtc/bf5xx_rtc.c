@@ -140,4 +140,4 @@ void rtc_get(struct rtc_time *tmp)
 	    MIN_TO_SECS(tm_min) + HRS_TO_SECS(tm_hour) + DAYS_TO_SECS(tm_day);
 	to_tm(time_in_sec, tmp);
 }
-#endif				/* CONFIG_RTC_BFIN && CFG_CMD_DATE */
+#endif

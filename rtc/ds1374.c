@@ -250,4 +250,4 @@ static void rtc_write_raw (uchar reg, uchar val)
 {
 		i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
 }
-#endif /* (CONFIG_RTC_DS1374) && (CFG_COMMANDS & CFG_CMD_DATE) */
+#endif

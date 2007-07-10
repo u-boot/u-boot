@@ -70,6 +70,4 @@ void rtc_reset (void)
 	return;	/* nothing to do */
 }
 
-/* ------------------------------------------------------------------------- */
-
-#endif	/* CONFIG_RTC_MPC8xx && CFG_CMD_DATE */
+#endif

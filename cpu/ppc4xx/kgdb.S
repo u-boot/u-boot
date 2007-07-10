@@ -75,4 +75,4 @@ kgdb_flush_cache_range:
 	SYNC
 	blr
 
-#endif /* CFG_CMD_KGDB */
+#endif

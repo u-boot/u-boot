@@ -723,6 +723,6 @@ kgdb_interruptible (int yes)
 {
 	return;
 }
-#endif	/* CFG_CMD_KGDB	*/
+#endif
 
 #endif	/* CONFIG_8xx_CONS_NONE */

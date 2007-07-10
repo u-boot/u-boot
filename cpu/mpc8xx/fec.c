@@ -1022,4 +1022,4 @@ int fec8xx_miiphy_write(char *devname, unsigned char  addr,
 }
 #endif
 
-#endif	/* CFG_CMD_NET, FEC_ENET */
+#endif

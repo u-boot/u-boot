@@ -1187,4 +1187,4 @@ eth_loopback_test (void)
 
 #endif /* CONFIG_ETHER_LOOPBACK_TEST */
 
-#endif	/* CONFIG_ETHER_ON_FCC && CFG_CMD_NET && CONFIG_NET_MULTI */
+#endif

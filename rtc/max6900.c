@@ -128,4 +128,4 @@ void rtc_reset (void)
 {
 }
 
-#endif	/* CONFIG_RTC_MAX6900 && CFG_CMD_DATE */
+#endif

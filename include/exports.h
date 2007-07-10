@@ -26,7 +26,7 @@ void setenv (char *varname, char *varvalue);
 #if defined(CONFIG_CMD_I2C)
 int i2c_write (uchar, uint, int , uchar* , int);
 int i2c_read (uchar, uint, int , uchar* , int);
-#endif	/* CFG_CMD_I2C */
+#endif
 
 void app_startup(char **);
 

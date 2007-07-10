@@ -592,7 +592,7 @@ int mcf52x2_miiphy_write (char *devname, unsigned char addr,
 	return 0;
 }
 #endif
-#endif /* CFG_CMD_NET, FEC_ENET */
+#endif
 
 int mcf52x2_miiphy_initialize(bd_t *bis)
 {

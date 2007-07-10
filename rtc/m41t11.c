@@ -199,4 +199,4 @@ int rtc_recall(int addr, unsigned char* data, int size)
 	return i2c_read( CFG_I2C_RTC_ADDR, REG_CNT+addr, 1, data, size );
 }
 
-#endif /* CONFIG_RTC_M41T11 && CFG_I2C_RTC_ADDR && CFG_CMD_DATE */
+#endif

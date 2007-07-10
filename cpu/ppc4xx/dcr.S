@@ -195,4 +195,4 @@ set_dcr:
 		blr				/* Return to calling function */
 .Lfe4:		.size	set_dcr,.Lfe4-set_dcr
 /* end set_dcr() */
-#endif /* CONFIG_4xx & CFG_CMD_SETGETDCR */
+#endif

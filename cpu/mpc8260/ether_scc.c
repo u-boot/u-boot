@@ -353,4 +353,4 @@ void restart(void)
 }
 #endif
 
-#endif  /* CONFIG_ETHER_ON_SCC && CFG_CMD_NET */
+#endif

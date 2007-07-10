@@ -567,4 +567,4 @@ void restart (void)
 		(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 }
 #endif
-#endif	/* CFG_CMD_NET, SCC_ENET */
+#endif

@@ -468,6 +468,6 @@ int fec_initialize(bd_t *bis)
 	return 1;
 }
 
-#endif	/* CONFIG_ETHER_ON_FCC && CFG_CMD_NET && CONFIG_NET_MULTI */
+#endif
 
 #endif /* CONFIG_CPM2 */
