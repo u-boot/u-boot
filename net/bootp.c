@@ -81,7 +81,7 @@ extern u8 *dhcp_vendorex_prep (u8 *e); /*rtn new e after add own opts. */
 extern u8 *dhcp_vendorex_proc (u8 *e); /*rtn next e if mine,else NULL  */
 #endif
 
-#endif	/* CFG_CMD_DHCP */
+#endif
 
 static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
@@ -357,7 +357,7 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 	TftpStart();
 }
-#endif	/* !CFG_CMD_DHCP */
+#endif
 
 /*
  *	Timeout on BOOTP/DHCP request.
@@ -491,7 +491,7 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 	return e - start;
 }
 
-#else	/* CFG_CMD_DHCP */
+#else
 /*
  *	Warning: no field size check - change CONFIG_BOOTP_* at your own risk!
  */
@@ -513,7 +513,7 @@ static int BootpExtended (u8 * e)
 	*e++ = 2;
 	*e++ = (576 - 312 + OPT_SIZE) >> 16;
 	*e++ = (576 - 312 + OPT_SIZE) & 0xff;
-#endif /* CFG_CMD_DHCP */
+#endif
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
 	*e++ = 1;		/* Subnet mask request */
@@ -561,7 +561,7 @@ static int BootpExtended (u8 * e)
 
 	return e - start;
 }
-#endif	/* CFG_CMD_DHCP */
+#endif
 
 void
 BootpRequest (void)
@@ -682,7 +682,7 @@ BootpRequest (void)
 	ext_len = DhcpExtended((u8 *)bp->bp_vend, DHCP_DISCOVER, 0, 0);
 #else
 	ext_len = BootpExtended((u8 *)bp->bp_vend);
-#endif	/* CFG_CMD_DHCP */
+#endif
 
 	/*
 	 *	Bootp ID is the lower 4 bytes of our ethernet address
@@ -710,7 +710,7 @@ BootpRequest (void)
 	NetSetHandler(DhcpHandler);
 #else
 	NetSetHandler(BootpHandler);
-#endif	/* CFG_CMD_DHCP */
+#endif
 	NetSendPacket(NetTxPacket, pktlen);
 }
 
@@ -975,6 +975,6 @@ void DhcpRequest(void)
 {
 	BootpRequest();
 }
-#endif	/* CFG_CMD_DHCP */
+#endif
 
-#endif /* CFG_CMD_NET */
+#endif

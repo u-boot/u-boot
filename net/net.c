@@ -414,7 +414,7 @@ restart:
 			NetServerIP = getenv_IPaddr ("serverip");
 			DhcpRequest();		/* Basically same as BOOTP */
 			break;
-#endif /* CFG_CMD_DHCP */
+#endif
 
 		case BOOTP:
 			BootpTry = 0;
@@ -775,7 +775,7 @@ static void PingStart(void)
 
 	PingSend();
 }
-#endif	/* CFG_CMD_PING */
+#endif
 
 #if defined(CONFIG_CMD_CDP)
 
@@ -1128,7 +1128,7 @@ static void CDPStart(void)
 
 	CDPSendTrigger();
 }
-#endif	/* CFG_CMD_CDP */
+#endif
 
 
 void
@@ -1693,7 +1693,7 @@ void copy_filename (char *dst, char *src, int size)
 	*dst = '\0';
 }
 
-#endif /* CFG_CMD_NET */
+#endif
 
 void ip_to_string (IPaddr_t x, char *s)
 {

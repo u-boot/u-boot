@@ -119,4 +119,4 @@ RarpRequest (void)
 	NetSetHandler(RarpHandler);
 }
 
-#endif /* CFG_CMD_NET */
+#endif

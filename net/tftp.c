@@ -386,4 +386,4 @@ TftpStart (void)
 	TftpSend ();
 }
 
-#endif /* CFG_CMD_NET */
+#endif
