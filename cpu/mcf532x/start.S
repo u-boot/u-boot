@@ -270,8 +270,6 @@ icache_enable:
 	movec	%d0, %CACR			/* Invalidate cache */
 	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
 	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#(CFG_CS0_BASE + 0x0000), %d0	/* Setup cache mask */
-	movec	%d0, %ACR1			/* Enable cache */
 
 	move.l	#0x80000200, %d0		/* Setup cache mask */
 	movec	%d0, %CACR			/* Enable cache */
@@ -284,11 +282,11 @@ icache_enable:
 
 	.globl	icache_disable
 icache_disable:
-	move.l	#0x00000100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
+	move.l	#0x01000000, %d0		/* Setup cache mask */
+	movec	%d0, %CACR			/* Disable cache */
 	clr.l	%d0				/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-	movec	%d0, %ACR1			/* Enable cache */
+	movec	%d0, %ACR0
+	movec	%d0, %ACR1
 
 	move.l #(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END-8), %a1
 	moveq	#0, %d0
@@ -303,7 +301,7 @@ icache_status:
 
 	.globl	icache_invalid
 icache_invalid:
-	move.l	#0x01000000, %d0		/* Setup cache mask */
+	move.l	#0x81000200, %d0		/* Setup cache mask */
 	movec	%d0, %CACR			/* Enable cache */
 	rts
 

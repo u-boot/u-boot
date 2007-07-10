@@ -47,18 +47,20 @@
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 #define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-							  CFG_CMD_CACHE | \
-							  CFG_CMD_DATE | \
-							  CFG_CMD_ELF | \
-							  CFG_CMD_FLASH | \
-							  (CFG_CMD_LOADB | CFG_CMD_LOADS) | \
-							  CFG_CMD_MEMORY | \
-							  CFG_CMD_MISC | \
-							  CFG_CMD_MII | \
-							  CFG_CMD_NET | \
-							  CFG_CMD_PING | \
-							  CFG_CMD_REGINFO \
-							)
+				  CFG_CMD_CACHE | \
+				  CFG_CMD_DATE | \
+				  CFG_CMD_ELF | \
+				  CFG_CMD_FLASH | \
+				  (CFG_CMD_LOADB | CFG_CMD_LOADS) | \
+				  CFG_CMD_MEMORY | \
+				  CFG_CMD_MISC | \
+				  CFG_CMD_MII | \
+				  CFG_CMD_NET | \
+				  CFG_CMD_PING | \
+				  CFG_CMD_REGINFO \
+				)
+
+#define CFG_UNIFY_CACHE
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC

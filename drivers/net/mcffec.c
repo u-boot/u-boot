@@ -150,23 +150,15 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	 * Wait for ready
 	 */
 	j = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
-	icache_invalid();
-#endif
 	while ((info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_READY) &&
 	       (j < MCFFEC_TOUT_LOOP)) {
 		udelay(1);
 		j++;
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
-		icache_invalid();
-#endif
 	}
 	if (j >= MCFFEC_TOUT_LOOP) {
 		printf("TX not ready\n");
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
-	icache_invalid();
-#endif
+
 	info->txbd[info->txIdx].cbd_bufaddr = (uint) packet;
 	info->txbd[info->txIdx].cbd_datlen = length;
 	info->txbd[info->txIdx].cbd_sc |= BD_ENET_TX_RDY_LST;
@@ -174,21 +166,19 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	/* Activate transmit Buffer Descriptor polling */
 	fecp->tdar = 0x01000000;	/* Descriptor polling active    */
 
-	j = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+#ifdef CFG_UNIFY_CACHE
 	icache_invalid();
 #endif
+	j = 0;
 	while ((info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_READY) &&
 	       (j < MCFFEC_TOUT_LOOP)) {
 		udelay(1);
 		j++;
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
-		icache_invalid();
-#endif
 	}
 	if (j >= MCFFEC_TOUT_LOOP) {
 		printf("TX timeout\n");
 	}
+
 #ifdef ET_DEBUG
 	printf("%s[%d] %s: cycles: %d    status: %x  retry cnt: %d\n",
 	       __FILE__, __LINE__, __FUNCTION__, j,
@@ -196,10 +186,7 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	       (info->txbd[info->txIdx].cbd_sc & 0x003C) >> 2);
 #endif
 
-	/* return only status bits */ ;
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
-	icache_invalid();
-#endif
+	/* return only status bits */
 	rc = (info->txbd[info->txIdx].cbd_sc & BD_ENET_TX_STATS);
 	info->txIdx = (info->txIdx + 1) % TX_BUF_CNT;
 
@@ -213,6 +200,9 @@ int fec_recv(struct eth_device *dev)
 	int length;
 
 	for (;;) {
+#ifdef CFG_UNIFY_CACHE
+       		icache_invalid();
+#endif
 		/* section 16.9.23.2 */
 		if (info->rxbd[info->rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {
 			length = -1;

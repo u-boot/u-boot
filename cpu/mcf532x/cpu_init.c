@@ -113,6 +113,8 @@ void cpu_init_f(void)
 	fbcs->cscr5 = CFG_CS5_CTRL;
 	fbcs->csmr5 = CFG_CS5_MASK;
 #endif
+
+	icache_enable();
 }
 
 /*
@@ -120,6 +122,5 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
-	icache_enable();
 	return (0);
 }
