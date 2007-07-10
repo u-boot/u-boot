@@ -877,7 +877,7 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
-#endif	/* CFG_CMD_SDRAM */
+#endif
 
 #if defined(CONFIG_I2C_CMD_TREE)
 #if defined(CONFIG_I2C_MULTI_BUS)
@@ -941,7 +941,7 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_CMD_SDRAM)
 	if (!strncmp(argv[1], "sd", 2))
 		return do_sdram(cmdtp, flag, --argc, ++argv);
-#endif	/* CFG_CMD_SDRAM */
+#endif
 	else
 		printf ("Usage:\n%s\n", cmdtp->usage);
 	return 0;
@@ -967,7 +967,7 @@ U_BOOT_CMD(
 	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
-#endif  /* CFG_CMD_SDRAM */
+#endif
 );
 #endif /* CONFIG_I2C_CMD_TREE */
 U_BOOT_CMD(
@@ -1025,4 +1025,4 @@ U_BOOT_CMD(
 );
 #endif
 
-#endif	/* CFG_CMD_I2C */
+#endif

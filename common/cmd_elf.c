@@ -324,4 +324,4 @@ U_BOOT_CMD(
 	" [address] - load address of vxWorks ELF image.\n"
 );
 
-#endif	/* CFG_CMD_ELF */
+#endif

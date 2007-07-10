@@ -246,4 +246,4 @@ U_BOOT_CMD(
 	"adr_dcrn[.dat_dcrn] offset value - write offset to adr_dcrn, write value to dat_dcrn.\n"
 );
 
-#endif /* CONFIG_4xx & CFG_CMD_SETGETDCR */
+#endif

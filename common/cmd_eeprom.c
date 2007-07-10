@@ -110,7 +110,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	printf ("Usage:\n%s\n", cmdtp->usage);
 	return 1;
 }
-#endif	/* CFG_CMD_EEPROM */
+#endif
 
 /*-----------------------------------------------------------------------
  *
@@ -422,7 +422,8 @@ void eeprom_init  (void)
 }
 /*-----------------------------------------------------------------------
  */
-#endif	/* CFG_CMD_EEPROM */
+#endif
+
 /***************************************************/
 
 #if defined(CONFIG_CMD_EEPROM)
@@ -445,4 +446,4 @@ U_BOOT_CMD(
 );
 #endif /* CFG_I2C_MULTI_EEPROMS */
 
-#endif	/* CFG_CMD_EEPROM */
+#endif

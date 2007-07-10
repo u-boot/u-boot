@@ -591,4 +591,4 @@ U_BOOT_CMD(
 
 int kgdb_not_configured = 1;
 
-#endif /* CFG_CMD_KGDB */
+#endif

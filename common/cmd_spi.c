@@ -140,4 +140,4 @@ U_BOOT_CMD(
 	"<dout>    - Hexadecimal string that gets sent\n"
 );
 
-#endif	/* CFG_CMD_SPI */
+#endif

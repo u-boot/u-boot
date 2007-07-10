@@ -76,7 +76,7 @@ U_BOOT_CMD(
 	"    - echo args to console; \\c suppresses newline\n"
 );
 
-#endif	/*  CFG_CMD_ECHO */
+#endif
 
 #ifdef CFG_HUSH_PARSER
 

@@ -68,4 +68,4 @@ U_BOOT_CMD(
 	""
 );
 
-#endif /* CFG_CMD_CONSOLE */
+#endif

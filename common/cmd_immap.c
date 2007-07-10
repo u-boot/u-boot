@@ -720,4 +720,4 @@ U_BOOT_CMD(
 );
 
 
-#endif	/* CFG_CMD_IMMAP && (CONFIG_8xx || CONFIG_8260) */
+#endif

@@ -73,7 +73,7 @@ U_BOOT_CMD(
 	"vfd ADDR\n"
 	"    - load bitmap at address ADDR\n"
 );
-#endif	/* CFG_CMD_VFD */
+#endif
 
 #ifdef CONFIG_VFD
 int trab_vfd (ulong bitmap)

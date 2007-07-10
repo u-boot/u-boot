@@ -42,7 +42,7 @@
 #if defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)
 #define CMD_SAVEENV
 #elif defined(CFG_ENV_OFFSET_REDUND)
-#error Cannot use CFG_ENV_OFFSET_REDUND without CFG_CMD_ENV & CFG_CMD_NAND
+#error Cannot use CFG_ENV_OFFSET_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_NAND
 #endif
 
 #if defined(CFG_ENV_SIZE_REDUND) && (CFG_ENV_SIZE_REDUND != CFG_ENV_SIZE)

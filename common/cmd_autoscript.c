@@ -149,7 +149,8 @@ autoscript (ulong addr)
 	return rcode;
 }
 
-#endif	/* CONFIG_AUTOSCRIPT || CFG_CMD_AUTOSCRIPT */
+#endif
+
 /**************************************************/
 #if defined(CONFIG_CMD_AUTOSCRIPT)
 int
@@ -176,6 +177,6 @@ U_BOOT_CMD(
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
 );
-#endif /* CFG_CMD_AUTOSCRIPT */
+#endif
 
-#endif /* CFG_CMD_AUTOSCRIPT */
+#endif

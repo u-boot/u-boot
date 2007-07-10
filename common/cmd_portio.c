@@ -166,4 +166,4 @@ U_BOOT_CMD(
 	"    - read datum from IO port\n"
 );
 
-#endif	/* CFG_CMD_PORTIO */
+#endif

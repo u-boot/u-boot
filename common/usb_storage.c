@@ -1249,4 +1249,4 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 }
 
 #endif /* CONFIG_USB_STORAGE */
-#endif /* CFG_CMD_USB */
+#endif

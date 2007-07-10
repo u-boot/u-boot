@@ -372,7 +372,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 		copy_filename (BootFile, argv[2], sizeof(BootFile));
 		return 0;
 	}
-#endif	/* CFG_CMD_NET */
+#endif
 
 #ifdef CONFIG_AMIGAONEG3SE
 	if (strcmp(argv[1], "vga_fg_color") == 0 ||
@@ -483,7 +483,7 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Continue calling setenv code */
 	return _do_setenv (flag, len, local_args);
 }
-#endif	/* CFG_CMD_ASKENV */
+#endif
 
 /************************************************************************
  * Look up variable from environment,
@@ -603,7 +603,7 @@ U_BOOT_CMD(
 	NULL
 );
 
-#endif	/* CFG_CMD_ENV */
+#endif
 
 #if defined(CONFIG_CMD_ASKENV)
 
@@ -620,7 +620,7 @@ U_BOOT_CMD(
 	"    - display 'message' string and get environment variable 'name'"
 	"from stdin (max 'size' chars)\n"
 );
-#endif	/* CFG_CMD_ASKENV */
+#endif
 
 #if defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -630,4 +630,4 @@ U_BOOT_CMD(
 	"var [...]\n"
 	"    - run the commands in the environment variable(s) 'var'\n"
 );
-#endif  /* CFG_CMD_RUN */
+#endif

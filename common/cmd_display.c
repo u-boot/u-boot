@@ -79,4 +79,4 @@ U_BOOT_CMD(
 	"    - without arguments: clear dot matrix display\n"
 );
 
-#endif	/* CFG_CMD_DISPLAY */
+#endif

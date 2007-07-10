@@ -1325,7 +1325,7 @@ int run_command (const char *cmd, int flag)
 				flag |= CMD_FLAG_BOOTD;
 			}
 		}
-#endif	/* CFG_CMD_BOOTD */
+#endif
 
 		/* OK - call function to do the command */
 		if ((cmdtp->cmd) (cmdtp, flag, argc, argv) != 0) {
@@ -1372,4 +1372,4 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 	return 0;
 }
-#endif	/* CFG_CMD_RUN */
+#endif

@@ -1694,7 +1694,7 @@ static int run_pipe_real(struct pipe *pi)
 				else
 					flag |= CMD_FLAG_BOOTD;
 				}
-#endif	/* CFG_CMD_BOOTD */
+#endif
 				/* found - check max args */
 				if ((child->argc - i) > cmdtp->maxargs) {
 					printf ("Usage:\n%s\n", cmdtp->usage);

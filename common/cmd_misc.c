@@ -69,4 +69,4 @@ U_BOOT_CMD(
 	"    - delay execution for N seconds (N is _decimal_ !!!)\n"
 );
 
-#endif	/* CFG_CMD_MISC */
+#endif

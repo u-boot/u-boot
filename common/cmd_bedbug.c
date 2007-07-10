@@ -413,7 +413,7 @@ int do_bedbug_rdump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD (rdump, 1, 1, do_bedbug_rdump,
 	    "rdump   - Show registers.\n", " - Show registers.\n");
 /* ====================================================================== */
-#endif /* CFG_CMD_BEDBUG */
+#endif
 
 
 /*

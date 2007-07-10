@@ -79,7 +79,7 @@ U_BOOT_CMD(
 	"dhcp\t- invoke DHCP client to obtain IP/boot params\n",
 	"\n"
 );
-#endif	/* CFG_CMD_DHCP */
+#endif
 
 #if defined(CONFIG_CMD_NFS)
 int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -92,7 +92,7 @@ U_BOOT_CMD(
 	"nfs\t- boot image via network using NFS protocol\n",
 	"[loadAddress] [host ip addr:bootfilename]\n"
 );
-#endif	/* CFG_CMD_NFS */
+#endif
 
 static void netboot_update_env (void)
 {
@@ -249,7 +249,7 @@ U_BOOT_CMD(
 	"ping\t- send ICMP ECHO_REQUEST to network host\n",
 	"pingAddress\n"
 );
-#endif	/* CFG_CMD_PING */
+#endif
 
 #if defined(CONFIG_CMD_CDP)
 
@@ -292,7 +292,7 @@ U_BOOT_CMD(
 	cdp,	1,	1,	do_cdp,
 	"cdp\t- Perform CDP network configuration\n",
 );
-#endif	/* CFG_CMD_CDP */
+#endif
 
 #if defined(CONFIG_CMD_SNTP)
 int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -330,6 +330,6 @@ U_BOOT_CMD(
 	"sntp\t- synchronize RTC via network\n",
 	"[NTP server IP]\n"
 );
-#endif	/* CFG_CMD_SNTP */
+#endif
 
-#endif	/* CFG_CMD_NET */
+#endif

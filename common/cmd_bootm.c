@@ -138,7 +138,7 @@ static boot_os_Fcn do_bootm_vxworks;
 static boot_os_Fcn do_bootm_qnxelf;
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
-#endif /* CFG_CMD_ELF */
+#endif
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static boot_os_Fcn do_bootm_artos;
 #endif
@@ -449,7 +449,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_qnxelf (cmdtp, flag, argc, argv,
 			      addr, len_ptr, verify);
 	    break;
-#endif /* CFG_CMD_ELF */
+#endif
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
 	    do_bootm_artos  (cmdtp, flag, argc, argv,
@@ -1315,7 +1315,7 @@ U_BOOT_CMD(
 	"      image contents (magic number, header and payload checksums)\n"
 );
 
-#endif	/* CFG_CMD_IMI */
+#endif
 
 #if defined(CONFIG_CMD_IMLS)
 /*-----------------------------------------------------------------------
@@ -1373,7 +1373,7 @@ U_BOOT_CMD(
 	"    - Prints information about all images found at sector\n"
 	"      boundaries in flash.\n"
 );
-#endif	/* CFG_CMD_IMLS */
+#endif
 
 void
 print_image_hdr (image_header_t *hdr)
@@ -1389,7 +1389,7 @@ print_image_hdr (image_header_t *hdr)
 	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif	/* CFG_CMD_DATE, CONFIG_TIMESTAMP */
+#endif
 	puts ("   Image Type:   "); print_type(hdr);
 	printf ("\n   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
 	print_size (ntohl(hdr->ih_size), "\n");
@@ -1614,7 +1614,7 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);
 }
-#endif /* CFG_CMD_ELF */
+#endif
 
 #ifdef CONFIG_LYNXKDI
 static void

@@ -414,4 +414,4 @@ U_BOOT_CMD (rspr, 3, 1, do_rspr,
 		" 1 - EAR - Exception address register\n"
 		" 2 - ESR - Exception status register\n");
 
-#endif				/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */
+#endif

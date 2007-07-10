@@ -324,4 +324,4 @@ void hexdump (int cnt, unsigned char *data)
 }
 #endif	/* NOT_IMPLEMENTED_YET */
 
-#endif	/* CFG_CMD_FAT */
+#endif

@@ -732,4 +732,4 @@ U_BOOT_CMD(
 #undef	TMP_PROT_ON
 #undef	TMP_PROT_OFF
 
-#endif	/* CFG_CMD_FLASH */
+#endif

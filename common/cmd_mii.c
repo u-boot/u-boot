@@ -595,4 +595,4 @@ U_BOOT_CMD(
 
 #endif /* CONFIG_TERSE_MII */
 
-#endif /* CFG_CMD_MII */
+#endif

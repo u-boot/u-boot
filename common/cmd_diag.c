@@ -77,4 +77,4 @@ U_BOOT_CMD(
 	"         - run specified tests\n"
 );
 
-#endif /* CFG_CMD_DIAG */
+#endif

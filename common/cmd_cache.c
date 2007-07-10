@@ -109,4 +109,4 @@ U_BOOT_CMD(
 	"    - enable or disable data (writethrough) cache\n"
 );
 
-#endif	/* CFG_CMD_CACHE */
+#endif

@@ -211,4 +211,4 @@ U_BOOT_CMD(
 	"  - with 'reset' argument: reset the RTC\n"
 );
 
-#endif	/* CFG_CMD_DATE */
+#endif

@@ -43,10 +43,10 @@ static int read_record (char *buf, ulong len);
 # if defined(CONFIG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
 static int write_record (char *buf);
-# endif /* CFG_CMD_SAVES */
+#endif
 
 static int do_echo = 1;
-#endif /* CFG_CMD_LOADS */
+#endif
 
 /* -------------------------------------------------------------------- */
 
@@ -399,9 +399,9 @@ write_record (char *buf)
 	}
 	return (0);
 }
-# endif /* CFG_CMD_SAVES */
+# endif
 
-#endif	/* CFG_CMD_LOADS */
+#endif
 
 
 #if defined(CONFIG_CMD_LOADB)
@@ -1038,7 +1038,7 @@ static ulong load_serial_ymodem (ulong offset)
 	return offset;
 }
 
-#endif	/* CFG_CMD_LOADB */
+#endif
 
 /* -------------------------------------------------------------------- */
 
@@ -1084,8 +1084,8 @@ U_BOOT_CMD(
 	"    - save S-Record file over serial line with offset 'off' and size 'size'\n"
 );
 #endif	/* CFG_LOADS_BAUD_CHANGE */
-#endif	/* CFG_CMD_SAVES */
-#endif	/* CFG_CMD_LOADS */
+#endif
+#endif
 
 
 #if defined(CONFIG_CMD_LOADB)
@@ -1105,7 +1105,7 @@ U_BOOT_CMD(
 	" with offset 'off' and baudrate 'baud'\n"
 );
 
-#endif	/* CFG_CMD_LOADB */
+#endif
 
 /* -------------------------------------------------------------------- */
 
@@ -1135,4 +1135,4 @@ U_BOOT_CMD(
 	"[on|off]\n - change RTS/CTS hardware flow control over serial line\n"
 );
 
-#endif /* CFG_CMD_HWFLOW */
+#endif
