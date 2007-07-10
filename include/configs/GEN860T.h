@@ -132,9 +132,12 @@
 /*
  * BOOTP options
  */
-#define CONFIG_BOOTP_MASK				( CONFIG_BOOTP_DEFAULT		| \
-									  	  CONFIG_BOOTP_BOOTFILESIZE   \
-										)
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 /*
  * The GEN860T network interface uses the on-chip 10/100 FEC with

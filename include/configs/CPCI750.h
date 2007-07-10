@@ -133,8 +133,14 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #undef	CONFIG_ALTIVEC			/* undef to disable		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
 
 /*

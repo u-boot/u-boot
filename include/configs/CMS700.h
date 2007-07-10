@@ -60,10 +60,17 @@
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 #define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_DNS | \
-				 CONFIG_BOOTP_DNS2 | \
-				 CONFIG_BOOTP_SEND_HOSTNAME )
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+
 
 /*
  * Command line configuration.

@@ -165,7 +165,14 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
 
 /*
