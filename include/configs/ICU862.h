@@ -81,7 +81,15 @@
 
 #define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #undef	CONFIG_SCC1_ENET		/* disable SCC1 ethernet */
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
