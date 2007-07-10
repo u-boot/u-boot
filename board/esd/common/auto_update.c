@@ -40,7 +40,7 @@
 #ifdef CONFIG_AUTO_UPDATE
 
 #if !defined(CONFIG_CMD_FAT)
-#error "must define CFG_CMD_FAT"
+#error "must define CONFIG_CMD_FAT"
 #endif
 
 extern au_image_t au_image[];

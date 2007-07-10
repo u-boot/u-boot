@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <status_led.h>
 #endif
 
-#if defined(CFG_CMD_MII) && defined(CONFIG_MII)
+#if defined(CONFIG_CMD_MII) && defined(CONFIG_MII)
 #include <net.h>
 #endif
 

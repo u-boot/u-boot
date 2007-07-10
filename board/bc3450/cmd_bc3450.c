@@ -824,4 +824,4 @@ U_BOOT_CMD (test, 2, 1, cmd_test, "test    - unit test routines\n", "\n"
 	    "test unit-off\n"
 	    "     - turns off the BC3450 unit\n"
 	    "       WARNING: Unsaved environment variables will be lost!\n");
-#endif /* CFG_CMD_BSP */
+#endif

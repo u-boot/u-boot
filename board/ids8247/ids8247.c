@@ -315,4 +315,4 @@ nand_init (void)
 	printf ("%4lu MB\n", totlen >>20);
 }
 
-#endif	/* CFG_CMD_NAND */
+#endif

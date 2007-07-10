@@ -196,7 +196,7 @@ void pci_init_board(void) {
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined(CONFIG_CMD_IDE) && defined (CONFIG_IDE_RESET)
 
 void init_ide_reset(void)
 {
@@ -217,7 +217,7 @@ void ide_set_reset(int idereset)
 		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |= GPIO_PSC1_4;
 	}
 }
-#endif				/* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif
 
 #define MPC5XXX_SIMPLEIO_GPIO_ENABLE       (MPC5XXX_GPIO + 0x0004)
 #define MPC5XXX_SIMPLEIO_GPIO_DIR          (MPC5XXX_GPIO + 0x000C)

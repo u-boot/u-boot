@@ -804,4 +804,4 @@ gt6426x_eth_initialize(bd_t *bis)
 	}
 
 }
-#endif /* CFG_CMD_NET && CONFIG_NET_MULTI */
+#endif

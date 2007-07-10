@@ -104,4 +104,4 @@ void kgdb_interruptible (int yes)
 {
 	return;
 }
-#endif /* CFG_CMD_KGDB */
+#endif

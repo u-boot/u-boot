@@ -257,7 +257,7 @@ int pcmcia_init(void)
 	return rc;
 }
 
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 # ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)

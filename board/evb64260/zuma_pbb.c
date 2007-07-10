@@ -217,4 +217,4 @@ U_BOOT_CMD(
 	"    - init zuma mbox\n"
 );
 
-#endif /* CFG_CMD_BSP */
+#endif

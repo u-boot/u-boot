@@ -402,6 +402,4 @@ do_htest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#endif	/* CFG_CMD_BSP */
-
-/* ------------------------------------------------------------------------- */
+#endif

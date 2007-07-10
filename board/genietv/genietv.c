@@ -357,4 +357,4 @@ int pcmcia_init (void)
 
 	return 0;
 }
-#endif /* CFG_CMD_PCMCIA */
+#endif

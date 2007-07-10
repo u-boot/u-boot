@@ -542,4 +542,4 @@ int ether_post_test(int flags)
 	return 0;
 }
 #endif
-#endif				/* CFG_CMD_NET */
+#endif
