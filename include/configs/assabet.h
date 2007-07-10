@@ -75,7 +75,14 @@
 #define CONFIG_CMD_DHCP
 
 
-#define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySA0,115200n8 root=/dev/nfs ip=bootp"

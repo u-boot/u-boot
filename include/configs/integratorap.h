@@ -67,7 +67,6 @@
 #define CFG_SERIAL1		0x17000000
 
 /*#define CONFIG_NET_MULTI */
-/*#define CONFIG_BOOTP_MASK	  CONFIG_BOOTP_DEFAULT */
 
 
 /*

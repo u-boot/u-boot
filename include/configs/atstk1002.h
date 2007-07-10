@@ -108,8 +108,12 @@
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_NET_MULTI		1
 
-#define CONFIG_BOOTP_MASK		(CONFIG_BOOTP_SUBNETMASK	\
-					 | CONFIG_BOOTP_GATEWAY)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+
 
 /*
  * Command line configuration.

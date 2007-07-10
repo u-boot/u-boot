@@ -88,7 +88,14 @@
 #define CONFIG_CMD_DHCP
 
 
-#define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySA0,38400n8 mtdparts=sa1100-flash:1m@0(zImage),3m@1m(ramdisk.gz),12m@4m(userfs) root=/dev/nfs ip=bootp"

@@ -84,8 +84,6 @@
 #define CONFIG_CMD_PING
 
 
-/* #define CONFIG_BOOTP_MASK	CONFIG_BOOTP_DEFAULT */
-
 #if 0
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS	"root=/dev/nfs nfsroot=<IP address>:/<exported rootfs>  mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
