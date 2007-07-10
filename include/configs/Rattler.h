@@ -127,6 +127,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -207,7 +216,7 @@
 #define MTDIDS_DEFAULT		"nor0=rattler-0"
 #define MTDPARTS_DEFAULT	"mtdparts=rattler-0:-@1m(jffs2)"
 */
-#endif /* CFG_CMD_JFFS2 */
+#endif /* CONFIG_CMD_JFFS2 */
 
 #define CFG_MONITOR_BASE	TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)

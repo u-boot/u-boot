@@ -97,10 +97,6 @@
 /* enable I2C and select the hardware/software driver */
 #undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
-#define ADD_CMD_I2C		CFG_CMD_I2C	| \
-				CFG_CMD_DATE	|\
-				CFG_CMD_DTT	|\
-				CFG_CMD_EEPROM
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
@@ -140,7 +136,6 @@
 #else
 #undef CONFIG_HARD_I2C
 #undef CONFIG_SOFT_I2C
-#define ADD_CMD_I2C		0
 #endif
 
 /*
@@ -295,6 +290,13 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
 
+#if CONFIG_I2C
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_DATE
+    #define CONFIG_CMD_DTT
+    #define CONFIG_CMD_EEPROM
+#endif
+
 
 /*
  * Miscellaneous configurable options
@@ -439,7 +441,7 @@
 	WRITE_NAND(d, addr); \
 } while(0)
 
-#endif /* CFG_CMD_NAND */
+#endif /* CONFIG_CMD_NAND */
 
 #define	CONFIG_PCI
 #ifdef CONFIG_PCI

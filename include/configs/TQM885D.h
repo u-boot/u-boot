@@ -198,8 +198,7 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
- * Enable loopw commando. This has only effect, if CFG_CMD_MEM is defined,
- * which is normally part of the default commands (CFV_CMD_DFL)
+ * Enable loopw command.
  */
 #define CONFIG_LOOPW
 
