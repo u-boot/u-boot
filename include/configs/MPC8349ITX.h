@@ -372,7 +372,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_NET_MULTI
 #define CONFIG_MII
-#define CONFIG_PHY_GIGE		/* In case CFG_CMD_MII is specified */
+#define CONFIG_PHY_GIGE		/* In case CONFIG_CMD_MII is specified */
 
 #define CONFIG_TSEC1
 
@@ -415,6 +415,15 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_LOADS_ECHO	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	/* allow baudrate change */
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
 
 /*
  * Command line configuration.
