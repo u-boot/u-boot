@@ -342,6 +342,15 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>

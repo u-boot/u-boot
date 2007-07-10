@@ -95,6 +95,16 @@
 #define CFG_DISCOVER_PHY
 #endif
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
 #if !defined(FADS_COMMANDS_ALREADY_DEFINED)
 /*
  * Command line configuration.

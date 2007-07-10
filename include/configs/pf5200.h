@@ -85,13 +85,6 @@
 #define CFG_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
 #define CONFIG_NS8382X		1
 #endif
-
-#define ADD_PCI_CMD		CFG_CMD_PCI
-
-#else				/* MPC5100 */
-
-#define ADD_PCI_CMD		0	/* no CFG_CMD_PCI */
-
 #endif
 
 /* Partitions */
@@ -101,11 +94,17 @@
 /* USB */
 #if 0
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD		0
 #endif
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
 /*
@@ -114,12 +113,15 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_BSP
-#define CONFIG_PCI_CMD
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+
+#ifdef CONFIG_MPC5200
+#define CONFIG_CMD_PCI
+#endif
 
 
 #if (TEXT_BASE == 0xFF000000)	/* Boot low with 16 MB Flash */

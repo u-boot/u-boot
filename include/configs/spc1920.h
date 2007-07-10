@@ -82,6 +82,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -194,7 +203,7 @@
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 
-#ifdef CFG_CMD_DATE
+#ifdef CONFIG_CMD_DATE
 # define CONFIG_RTC_DS3231
 # define CFG_I2C_RTC_ADDR      0x68
 #endif
