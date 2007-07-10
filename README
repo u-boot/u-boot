@@ -1125,10 +1125,21 @@ The following options need to be configured:
 		BOOTP requests:		delay 0 ... 8 sec
 
 - DHCP Advanced Options:
-		CONFIG_BOOTP_MASK
+		You can fine tune the DHCP functionality by defining
+		CONFIG_BOOTP_* symbols:
 
-		You can fine tune the DHCP functionality by adding
-		these flags to the CONFIG_BOOTP_MASK define:
+		CONFIG_BOOTP_SUBNETMASK
+		CONFIG_BOOTP_GATEWAY
+		CONFIG_BOOTP_HOSTNAME
+		CONFIG_BOOTP_NISDOMAIN
+		CONFIG_BOOTP_BOOTPATH
+		CONFIG_BOOTP_BOOTFILESIZE
+		CONFIG_BOOTP_DNS
+		CONFIG_BOOTP_DNS2
+		CONFIG_BOOTP_SEND_HOSTNAME
+		CONFIG_BOOTP_NTPSERVER
+		CONFIG_BOOTP_TIMEOFFSET
+		CONFIG_BOOTP_VENDOREX
 
 		CONFIG_BOOTP_DNS2 - If a DHCP client requests the DNS
 		serverip from a DHCP server, it is possible that more
@@ -1137,15 +1148,14 @@ The following options need to be configured:
 		serverip will be stored in the additional environment
 		variable "dnsip2". The first DNS serverip is always
 		stored in the variable "dnsip", when CONFIG_BOOTP_DNS
-		is added to the CONFIG_BOOTP_MASK.
+		is defined.
 
 		CONFIG_BOOTP_SEND_HOSTNAME - Some DHCP servers are capable
 		to do a dynamic update of a DNS server. To do this, they
 		need the hostname of the DHCP requester.
-		If CONFIG_BOOP_SEND_HOSTNAME is added to the
-		CONFIG_BOOTP_MASK, the content of the "hostname"
-		environment variable is passed as option 12 to
-		the DHCP server.
+		If CONFIG_BOOP_SEND_HOSTNAME is defined, the content
+		of the "hostname" environment variable is passed as
+		option 12 to the DHCP server.
 
  - CDP Options:
 		CONFIG_CDP_DEVICE_ID

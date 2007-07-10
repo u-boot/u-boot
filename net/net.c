@@ -110,7 +110,7 @@ DECLARE_GLOBAL_DATA_PTR;
 IPaddr_t	NetOurSubnetMask=0;		/* Our subnet mask (0=unknown)	*/
 IPaddr_t	NetOurGatewayIP=0;		/* Our gateways IP address	*/
 IPaddr_t	NetOurDNSIP=0;			/* Our DNS IP address		*/
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+#if defined(CONFIG_BOOTP_DNS2)
 IPaddr_t	NetOurDNS2IP=0;			/* Our 2nd DNS IP address	*/
 #endif
 char		NetOurNISDomain[32]={0,};	/* Our NIS domain		*/

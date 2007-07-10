@@ -296,7 +296,7 @@ typedef struct icmphdr {
 extern IPaddr_t		NetOurGatewayIP;	/* Our gateway IP addresse	*/
 extern IPaddr_t		NetOurSubnetMask;	/* Our subnet mask (0 = unknown)*/
 extern IPaddr_t		NetOurDNSIP;	 /* Our Domain Name Server (0 = unknown)*/
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+#if defined(CONFIG_BOOTP_DNS2)
 extern IPaddr_t		NetOurDNS2IP;	 /* Our 2nd Domain Name Server (0 = unknown)*/
 #endif
 extern char		NetOurNISDomain[32];	/* Our NIS domain		*/
