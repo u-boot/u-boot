@@ -115,7 +115,15 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #undef	CONFIG_STATUS_LED		/* disturbs display. Status LED disabled. */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #if 1	       /* Enable this stuff could make image enlarge about 25KB. Mask it if you
 		  don't want the advanced function */
