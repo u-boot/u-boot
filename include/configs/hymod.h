@@ -174,6 +174,15 @@
 #define CONFIG_LAST_STAGE_INIT
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_all.h>

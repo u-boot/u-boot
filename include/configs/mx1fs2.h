@@ -36,6 +36,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -159,7 +168,7 @@
  * Right now there is no gain for user, but later on booting kernel might be
  * possible. Consider using XIP kernel running from flash to save RAM
  * footprint.
- * NOTE: Enable CFG_CMD_JFFS2 for JFFS2 support.
+ * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
 
 /*

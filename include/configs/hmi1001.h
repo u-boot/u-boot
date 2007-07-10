@@ -52,6 +52,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -242,8 +251,7 @@
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
- * Enable loopw commando. This has only affect, if CFG_CMD_MEM is defined,
- * which is normally part of the default commands (CFV_CMD_DFL)
+ * Enable loopw command.
  */
 #define CONFIG_LOOPW
 

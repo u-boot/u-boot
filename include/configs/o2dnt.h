@@ -68,14 +68,21 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#define ADD_PCI_CMD 		CFG_CMD_PCI
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
 /*
@@ -89,7 +96,7 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_PCI_CMD
+#define CONFIG_CMD_PCI
 
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */

@@ -66,7 +66,6 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
-#define ADD_PCI_CMD 		CFG_CMD_PCI
 #endif
 
 #define CFG_XLB_PIPELINING	1
@@ -84,12 +83,25 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
+
+#if defined(CONFIG_PCI)
+#define CODFIG_CMD_PCI
+#endif
 
 
 /*
