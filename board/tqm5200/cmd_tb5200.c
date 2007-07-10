@@ -101,4 +101,4 @@ U_BOOT_CMD(
 	);
 
 #endif /* CONFIG_STK52XX */
-#endif /* CFG_CMD_BSP */
+#endif

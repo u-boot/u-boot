@@ -77,7 +77,7 @@ int checkboard (void)
 
 #if defined(CONFIG_CMD_PCMCIA)
 #error "SXNI855T has no PCMCIA port"
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 /* ------------------------------------------------------------------------- */
 

@@ -156,5 +156,5 @@ U_BOOT_CMD(
 	"wd off  - switch watchdog off\n"
 	"wd      - print current status\n"
 );
-#endif	/* CFG_CMD_BSP */
+#endif
 #endif	/* CONFIG_HW_WATCHDOG */

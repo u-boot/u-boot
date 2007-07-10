@@ -241,5 +241,5 @@ U_BOOT_CMD(
 	"wd      - print current status\n"
 );
 
-#endif	/* CFG_CMD_BSP */
+#endif
 #endif	/* CONFIG_WATCHDOG */

@@ -1241,4 +1241,4 @@ U_BOOT_CMD(
 	"     - loopback plug(s) for X21/X22 required\n"
 );
 #endif
-#endif /* CFG_CMD_BSP */
+#endif

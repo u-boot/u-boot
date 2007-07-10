@@ -408,7 +408,7 @@ U_BOOT_CMD (puma, 4, 1, do_puma,
 	    "status - print PUMA status\n"
 	    "puma load addr len - load PUMA configuration data\n");
 
-#endif /* CFG_CMD_BSP */
+#endif
 
 /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 

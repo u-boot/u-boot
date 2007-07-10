@@ -299,7 +299,7 @@ void pci_init_board(void)
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
 
 void init_ide_reset (void)
 {
@@ -312,7 +312,7 @@ void ide_set_reset (int idereset)
 	debug ("ide_reset(%d)\n", idereset);
 
 }
-#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif
 
 #if defined(CONFIG_CMD_DOC)
 extern void doc_probe (ulong physadr);

@@ -893,4 +893,4 @@ U_BOOT_CMD(
 	"      For each measurment a timestamp is printeted\n"
 );
 
-#endif	/* CFG_CMD_BSP */
+#endif

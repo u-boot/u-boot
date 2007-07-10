@@ -873,7 +873,7 @@ spi_chipsel_type spi_chipsel[] = {
 };
 int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
 
-#endif /* CFG_CMD_SPI */
+#endif
 
 #endif /* CONFIG_MISC_INIT_R */
 

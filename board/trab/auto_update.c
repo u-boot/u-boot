@@ -47,7 +47,7 @@
 #endif
 
 #if !defined(CONFIG_CMD_FAT)
-#error "must define CFG_CMD_FAT"
+#error "must define CONFIG_CMD_FAT"
 #endif
 
 /*

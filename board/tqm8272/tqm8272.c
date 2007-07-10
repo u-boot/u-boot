@@ -1212,7 +1212,7 @@ int board_nand_init(struct nand_chip *nand)
 	return 0;
 }
 
-#endif	/* CFG_CMD_NAND */
+#endif
 
 #ifdef CONFIG_PCI
 struct pci_controller hose;

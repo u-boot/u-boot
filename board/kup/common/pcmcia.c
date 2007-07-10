@@ -144,7 +144,7 @@ int pcmcia_hardware_disable(int slot)
 
 	return (0);
 }
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
