@@ -982,7 +982,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif /* CFG_CMD_NET */
+#endif
 
 	WATCHDOG_RESET ();
 
@@ -1051,7 +1051,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #else
 	ide_init ();
 #endif
-#endif /* CFG_CMD_IDE */
+#endif
 
 #ifdef CONFIG_LAST_STAGE_INIT
 	WATCHDOG_RESET ();

@@ -427,4 +427,4 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 	return rcode;
 }
 
-#endif	/* CFG_CMD_FLASH */
+#endif

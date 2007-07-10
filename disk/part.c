@@ -174,7 +174,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		puts ("            Capacity: not available\n");
 	}
 }
-#endif	/* CFG_CMD_IDE || CFG_CMD_SCSI || CFG_CMD_USB || CONFIG_MMC */
+#endif
 
 #if (defined(CONFIG_CMD_IDE) || \
      defined(CONFIG_CMD_SCSI) || \

@@ -382,7 +382,7 @@ void start_armboot (void)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif	/* CFG_CMD_NET */
+#endif
 
 #ifdef BOARD_LATE_INIT
 	board_late_init ();

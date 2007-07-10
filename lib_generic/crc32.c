@@ -9,7 +9,7 @@
  */
 
 #ifndef USE_HOSTCC	/* Shut down "ANSI does not permit..." warnings */
-#include <common.h>	/* to get command definitions like CFG_CMD_JFFS2 */
+#include <common.h>
 #endif
 
 #include "zlib.h"
@@ -196,4 +196,4 @@ uLong ZEXPORT crc32_no_comp(uLong crc, const Bytef *buf, uInt len)
     return crc;
 }
 
-#endif	/* CFG_CMD_JFFS2 */
+#endif

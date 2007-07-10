@@ -403,7 +403,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif	/* CFG_CMD_NET */
+#endif
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */

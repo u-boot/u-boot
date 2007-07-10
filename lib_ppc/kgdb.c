@@ -323,4 +323,4 @@ kgdb_breakpoint(int argc, char *argv[])
 	    ");
 }
 
-#endif /* CFG_CMD_KGDB */
+#endif

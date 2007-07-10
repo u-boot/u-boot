@@ -352,7 +352,7 @@ void start_i386boot (void)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif /* CFG_CMD_NET */
+#endif
 
 	WATCHDOG_RESET();
 
@@ -360,7 +360,7 @@ void start_i386boot (void)
 	WATCHDOG_RESET();
 	puts("IDE:   ");
 	ide_init();
-#endif /* CFG_CMD_IDE */
+#endif
 
 #if defined(CONFIG_CMD_SCSI)
 	WATCHDOG_RESET();
