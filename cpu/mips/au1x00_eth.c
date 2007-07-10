@@ -63,7 +63,7 @@
 #include <asm/io.h>
 #include <asm/au1x00.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 #endif
 
@@ -241,7 +241,7 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	eth_register(dev);
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 	miiphy_register(dev->name,
 		au1x00_miiphy_read, au1x00_miiphy_write);
 #endif
@@ -249,7 +249,7 @@ int au1x00_enet_initialize(bd_t *bis){
 	return 1;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 int  au1x00_miiphy_read(char *devname, unsigned char addr,
 		unsigned char reg, unsigned short * value)
 {
@@ -306,6 +306,6 @@ int  au1x00_miiphy_write(char *devname, unsigned char addr,
 	*mii_control_reg = mii_control;
 	return 0;
 }
-#endif	/* CONFIG_COMMANDS & CFG_CMD_MII */
+#endif
 
 #endif /* CONFIG_AU1X00 */

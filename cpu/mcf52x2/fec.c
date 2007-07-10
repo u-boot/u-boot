@@ -53,7 +53,7 @@
 #undef	ET_DEBUG
 #undef	MII_DEBUG
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET)  || defined(CONFIG_CMD_NET)) && defined(FEC_ENET)
+#if defined(CONFIG_CMD_NET) && defined(FEC_ENET)
 
 #ifdef CFG_DISCOVER_PHY
 #include <miiphy.h>
@@ -363,7 +363,7 @@ void eth_halt (void)
 }
 
 
-#if defined(CFG_DISCOVER_PHY) || (CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)
+#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
 
 static int phyaddr = -1;	/* didn't find a PHY yet */
 static uint phytype;
@@ -419,7 +419,7 @@ static uint mii_send (uint mii_cmd)
 #endif
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif /* CFG_DISCOVER_PHY || (CONFIG_COMMANDS & CFG_CMD_MII) */
+#endif
 
 #if defined(CFG_DISCOVER_PHY)
 static void mii_discover_phy (void)
@@ -485,7 +485,7 @@ static void mii_discover_phy (void)
 }
 #endif /* CFG_DISCOVER_PHY */
 
-#if ((CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
 
 static int mii_init_done = 0;
 
@@ -591,13 +591,13 @@ int mcf52x2_miiphy_write (char *devname, unsigned char addr,
 
 	return 0;
 }
-#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) && !defined(CONFIG_BITBANGMII) */
+#endif
 #endif /* CFG_CMD_NET, FEC_ENET */
 
 int mcf52x2_miiphy_initialize(bd_t *bis)
 {
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(FEC_ENET)
-#if ((CONFIG_COMMANDS & CFG_CMD_MII) || defined(CONFIG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
+#if defined(CONFIG_CMD_NET) && defined(FEC_ENET)
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
 	miiphy_register("mcf52x2phy", mcf52x2_miiphy_read, mcf52x2_miiphy_write);
 #endif
 #endif

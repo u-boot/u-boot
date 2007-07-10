@@ -81,7 +81,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 }
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ) || defined(CONFIG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 
 /* ripped this out of ppc4xx/interrupts.c */
 
@@ -94,4 +94,4 @@ do_irqinfo(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 {
 }
 
-#endif		/* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

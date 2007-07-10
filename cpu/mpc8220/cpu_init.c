@@ -128,7 +128,7 @@ int cpu_init_r (void)
 	/* route critical ints to normal ints */
 	*(vu_long *) 0xf0000710 |= 0x00000001;
 
-#if ((CONFIG_COMMANDS & CFG_CMD_NET) || defined(CONFIG_CMD_NET)) && defined(CONFIG_MPC8220_FEC)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_MPC8220_FEC)
 	/* load FEC microcode */
 	loadtask (0, 2);
 #endif

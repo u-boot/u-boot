@@ -175,7 +175,7 @@ UnknownException(struct pt_regs *regs)
 	_exception(0, regs);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 extern void do_bedbug_breakpoint(struct pt_regs *);
 #endif
 
@@ -185,7 +185,7 @@ DebugException(struct pt_regs *regs)
 
   printf("Debugger trap at @ %lx\n", regs->nip );
   show_regs(regs);
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG) || defined(CONFIG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
   do_bedbug_breakpoint( regs );
 #endif
 }

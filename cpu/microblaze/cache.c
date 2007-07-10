@@ -25,7 +25,7 @@
 #include <common.h>
 #include <asm/asm.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE) || defined(CONFIG_CMD_CACHE)
+#if defined(CONFIG_CMD_CACHE)
 
 int dcache_status (void)
 {
