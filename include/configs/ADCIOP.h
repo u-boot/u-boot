@@ -59,6 +59,15 @@
 #define CONFIG_IPADDR		10.0.18.222
 #define CONFIG_SERVERIP		10.0.18.190
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
 /*
  * Command line configuration.
  */

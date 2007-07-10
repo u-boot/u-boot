@@ -46,7 +46,6 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
-/*Now included by CFG_CMD_PCMCIA */
 /*#define CONFIG_PCMCIA		1	/ * To enable PCMCIA support */
 
 /* Video related */

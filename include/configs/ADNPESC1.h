@@ -564,6 +564,15 @@
 #define	CFG_NIOS_POST_WORD_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
 /*
  * Command line configuration.
  */

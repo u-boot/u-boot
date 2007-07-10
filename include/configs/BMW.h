@@ -67,6 +67,15 @@
 
 
 /*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -76,7 +85,7 @@
 #define CONFIG_CMD_ELF
 
 
-/* CFG_CMD_DOC required legacy NAND support */
+/* CONFIG_CMD_DOC required legacy NAND support */
 #define CFG_NAND_LEGACY
 
 #if 0

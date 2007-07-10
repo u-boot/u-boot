@@ -303,7 +303,7 @@
 #define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)(adr + 0x0)) = (__u8)d; } while(0)
 #define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)(adr + 0x0)))
 
-#endif /* CFG_CMD_NAND */
+#endif /* CONFIG_CMD_NAND */
 
 /*-----------------------------------------------------------------------
  * Hard Reset Configuration Words

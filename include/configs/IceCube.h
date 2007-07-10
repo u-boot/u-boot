@@ -64,7 +64,6 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
-#define ADD_PCI_CMD 		CFG_CMD_PCI
 #endif
 
 #define CFG_XLB_PIPELINING	1
@@ -75,11 +74,8 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#else	/* MPC5100 */
-
+#else
 #define CONFIG_MII		1
-#define ADD_PCI_CMD		0  /* no CFG_CMD_PCI */
-
 #endif
 
 /* Partitions */
@@ -90,13 +86,19 @@
 /* USB */
 #if 1
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD             0
 #endif
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
 /*
@@ -110,8 +112,11 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
-#define CONFIG_PCI_CMD
-#define CONFIG_USB_CMD
+#define CONFIG_CMD_USB
+
+#if defined(CONFIG_PCI)
+#define CONFIG_CMD_PCI
+#endif
 
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */

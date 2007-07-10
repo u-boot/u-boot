@@ -98,10 +98,17 @@
 #define CONFIG_VIDEO_BMP_GZIP		/* gzip compressed bmp images	*/
 #define CFG_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* for decompressed img */
 
-#define ADD_BMP_CMD		CFG_CMD_BMP
-#else
-#define ADD_BMP_CMD		0
 #endif /* CONFIG_VIDEO */
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
 
 /*
  * Command line configuration.
@@ -120,9 +127,11 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_BMP_CMD
 #define CONFIG_CMD_EEPROM
 
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
