@@ -149,7 +149,7 @@ data_ok:
 .progress3:
 
 	/* clear bss section in ram, size must be 4-byte aligned  */
-	movl	$_i386boot_bss_start, %eax        /* BSS start */
+	movl	$_i386boot_bss_start, %edi        /* MK_CHG BSS start */
 	movl	$_i386boot_bss_size, %ecx         /* BSS size */
 	movl	%ecx, %eax
 	andl	$3, %eax

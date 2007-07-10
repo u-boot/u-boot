@@ -279,7 +279,7 @@ _start_of_vectors:
 /* Alignment exception. */
 	. = 0x600
 Alignment:
-	EXCEPTION_PROLOG
+	EXCEPTION_PROLOG(SRR0, SRR1)
 	mfspr	r4,DAR
 	stw	r4,_DAR(r21)
 	mfspr	r5,DSISR
@@ -298,7 +298,7 @@ Alignment:
 /* Program check exception */
 	. = 0x700
 ProgramCheck:
-	EXCEPTION_PROLOG
+	EXCEPTION_PROLOG(SRR0, SRR1)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
 	li	r20,MSR_KERNEL
 	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
@@ -676,13 +676,13 @@ init_debug:
 	bdnz	1b
 
 	/* Load the Instruction Address Breakpoint Register (IABR).	*/
-	/* 								*/
+	/*								*/
 	/* The address to load is stored in the first word of dual port	*/
 	/* ram and should be preserved while the power is on, so you	*/
 	/* can plug addresses into that location then reset the cpu and	*/
 	/* this code will load that address into the IABR after the	*/
 	/* reset.							*/
-	/* 								*/
+	/*								*/
 	/* When the program counter matches the contents of the IABR,	*/
 	/* an exception is generated (before the instruction at that	*/
 	/* location completes). The vector for this exception is 0x1300 */

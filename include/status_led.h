@@ -367,6 +367,13 @@ void status_led_set  (int led, int state);
 
 #define STATUS_LED_BOOT		0	/* LED 0 used for boot status */
 
+#elif defined(CONFIG_BOARD_SPECIFIC_LED)
+/* led_id_t is unsigned long mask */
+typedef unsigned long led_id_t;
+
+extern void __led_toggle (led_id_t mask);
+extern void __led_init (led_id_t mask, int state);
+extern void __led_set (led_id_t mask, int state);
 #else
 # error Status LED configuration missing
 #endif

@@ -359,14 +359,14 @@
 
 #define CONFIG_MII		1	/* MII PHY management */
 
-#define CONFIG_MPC86XX_TSEC1    1
-#define CONFIG_MPC86XX_TSEC1_NAME       "eTSEC1"
-#define CONFIG_MPC86XX_TSEC2    1
-#define CONFIG_MPC86XX_TSEC2_NAME       "eTSEC2"
-#define CONFIG_MPC86XX_TSEC3    1
-#define CONFIG_MPC86XX_TSEC3_NAME       "eTSEC3"
-#define CONFIG_MPC86XX_TSEC4    1
-#define CONFIG_MPC86XX_TSEC4_NAME       "eTSEC4"
+#define CONFIG_TSEC1    1
+#define CONFIG_TSEC1_NAME       "eTSEC1"
+#define CONFIG_TSEC2    1
+#define CONFIG_TSEC2_NAME       "eTSEC2"
+#define CONFIG_TSEC3    1
+#define CONFIG_TSEC3_NAME       "eTSEC3"
+#define CONFIG_TSEC4    1
+#define CONFIG_TSEC4_NAME       "eTSEC4"
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1

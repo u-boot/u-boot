@@ -70,6 +70,15 @@
 
 #define ONE_BILLION	1000000000
 
+/*
+ * Board-specific Platform code can reimplement spd_ddr_init_hang () if needed
+ */
+void __spd_ddr_init_hang (void)
+{
+	hang ();
+}
+void spd_ddr_init_hang (void) __attribute__((weak, alias("__spd_ddr_init_hang")));
+
 /*-----------------------------------------------------------------------------
   |  Memory Controller Options 0
   +-----------------------------------------------------------------------------*/
@@ -262,7 +271,7 @@ typedef struct bank_param BANKPARMS;
 #ifdef CFG_SIMULATE_SPD_EEPROM
 extern unsigned char cfg_simulate_spd_eeprom[128];
 #endif
-void program_tlb(u32 start, u32 size, u32 tlb_word2_i_value);
+void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
 static unsigned char spd_read(uchar chip, uint addr);
 static void get_spd_info(unsigned long *dimm_populated,
@@ -373,7 +382,7 @@ long int spd_sdram(void) {
 
 #ifdef CONFIG_PROG_SDRAM_TLB /* this define should eventually be removed */
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, total_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, total_size, MY_TLB_WORD2_I_ENABLE);
 #endif
 
 	/*
@@ -467,7 +476,7 @@ static void get_spd_info(unsigned long *dimm_populated,
 
 	if (dimm_found == FALSE) {
 		printf("ERROR - No memory installed. Install a DDR-SDRAM DIMM.\n\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 }
 
@@ -490,7 +499,7 @@ static void check_mem_type(unsigned long *dimm_populated,
 				       dimm_num);
 				printf("Only DDR SDRAM DIMMs are supported.\n");
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 				break;
 			}
 		}
@@ -510,7 +519,7 @@ static void check_volt_type(unsigned long *dimm_populated,
 			if (voltage_type != 0x04) {
 				printf("ERROR: DIMM %lu with unsupported voltage level.\n",
 				       dimm_num);
-				hang();
+				spd_ddr_init_hang ();
 			} else {
 				debug("DIMM %lu voltage level supported.\n", dimm_num);
 			}
@@ -581,7 +590,7 @@ static void program_cfg0(unsigned long *dimm_populated,
 				printf("WARNING: DIMM with datawidth of %lu bits.\n",
 				       data_width);
 				printf("Only DIMMs with 32 or 64 bit datawidths supported.\n");
-				hang();
+				spd_ddr_init_hang ();
 			}
 			break;
 		}
@@ -769,7 +778,7 @@ static void program_tr0(unsigned long *dimm_populated,
 				if ((tcyc_reg & 0x0F) >= 10) {
 					printf("ERROR: Tcyc incorrect for DIMM in slot %lu\n",
 					       dimm_num);
-					hang();
+					spd_ddr_init_hang ();
 				}
 
 				cycle_time_ns_x_10[cas_index] =
@@ -849,7 +858,7 @@ static void program_tr0(unsigned long *dimm_populated,
 		printf("ERROR: No supported CAS latency with the installed DIMMs.\n");
 		printf("Only CAS latencies of 2.0, 2.5, and 3.0 are supported.\n");
 		printf("Make sure the PLB speed is within the supported range.\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 
 	/*
@@ -1008,6 +1017,7 @@ static int short_mem_test(void)
 			 */
 			for (i = 0; i < NUMMEMTESTS; i++) {
 				for (j = 0; j < NUMMEMWORDS; j++) {
+//printf("bank enabled base:%x\n", &membase[j]);
 					membase[j] = test[i][j];
 					ppcDcbf((unsigned long)&(membase[j]));
 				}
@@ -1160,7 +1170,7 @@ static void program_tr1(void)
 	 */
 	if (window_found == FALSE) {
 		printf("ERROR: Cannot determine a common read delay.\n");
-		hang();
+		spd_ddr_init_hang ();
 	}
 
 	/*
@@ -1310,7 +1320,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				printf("ERROR: Unsupported value for the banksize: %d.\n",
 				       bank_size_id);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 			}
 
 			switch (num_col_addr) {
@@ -1332,7 +1342,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				printf("ERROR: Unsupported value for number of "
 				       "column addresses: %d.\n", num_col_addr);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
-				hang();
+				spd_ddr_init_hang ();
 			}
 
 			/*
@@ -1340,14 +1350,14 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 			 */
 			cr |= SDRAM_BXCR_SDBE;
 
- 			for (i = 0; i < num_banks; i++) {
+			for (i = 0; i < num_banks; i++) {
 				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
 					(4 << 20) * bank_size_id;
 				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
 				debug("DIMM%d-bank %d (SDRAM0_B%dCR): bank_size_bytes=%d\n",
 				      dimm_num, i, ctrl_bank_num[dimm_num]+i,
 				      bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes);
- 			}
+			}
 		}
 	}
 

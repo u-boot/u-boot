@@ -56,6 +56,10 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
+
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 

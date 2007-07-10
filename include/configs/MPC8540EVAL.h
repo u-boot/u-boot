@@ -212,10 +212,10 @@
 #elif defined(CONFIG_TSEC_ENET)
 #define CONFIG_NET_MULTI 	1
 #define CONFIG_MII		1	/* MII PHY management	*/
-#define CONFIG_MPC85XX_TSEC1    1
-#define CONFIG_MPC85XX_TSEC1_NAME      "TSEC0"
-#define CONFIG_MPC85XX_TSEC2	1
-#define CONFIG_MPC85XX_TSEC2_NAME      "TSEC1"
+#define CONFIG_TSEC1    1
+#define CONFIG_TSEC1_NAME      "TSEC0"
+#define CONFIG_TSEC2	1
+#define CONFIG_TSEC2_NAME      "TSEC1"
 #define CONFIG_MPC85XX_FEC      1
 #define CONFIG_MPC85XX_FEC_NAME                "FEC"
 #define TSEC1_PHY_ADDR          7

@@ -182,6 +182,15 @@
 #undef  CONFIG_IDE_RESET_ROUTINE	/* no special reset function */
 
 /************************************************************
+*SATA/Native Stuff
+************************************************************/
+#define CFG_SATA_SUPPORTED      1
+#define CFG_SATA_MAXBUS         2       /*Max Sata buses supported */
+#define CFG_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
+#define CFG_SATA_MAXDEVICES     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
+#define CFG_ATA_PIIX            1       /*Supports ata_piix driver */
+
+/************************************************************
  * ATAPI support (experimental)
  ************************************************************/
 #define CONFIG_ATAPI			/* enable ATAPI Support */

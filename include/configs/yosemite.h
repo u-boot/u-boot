@@ -38,6 +38,7 @@
 #define CONFIG_440GR		1	/* Specific PPC440GR support	*/
 #define CONFIG_HOSTNAME		yellowstone
 #endif
+#define CONFIG_440		1	/* ... PPC440 family		*/
 #define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	66666666    /* external freq to pll	*/
 
@@ -122,7 +123,7 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -311,7 +312,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 

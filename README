@@ -1704,28 +1704,69 @@ The following options need to be configured:
   -31	post/post.c		POST test failed, detected by post_output_backlog()
   -32	post/post.c		POST test failed, detected by post_run_single()
 
-   -1	common/cmd_doc.c	Bad usage of "doc" command
-   -1	common/cmd_doc.c	No boot device
-   -1	common/cmd_doc.c	Unknown Chip ID on boot device
-   -1	common/cmd_doc.c	Read Error on boot device
-   -1	common/cmd_doc.c	Image header has bad magic number
+   34	common/cmd_doc.c	before loading a Image from a DOC device
+  -35	common/cmd_doc.c	Bad usage of "doc" command
+   35	common/cmd_doc.c	correct usage of "doc" command
+  -36	common/cmd_doc.c	No boot device
+   36	common/cmd_doc.c	correct boot device
+  -37	common/cmd_doc.c	Unknown Chip ID on boot device
+   37	common/cmd_doc.c	correct chip ID found, device available
+  -38	common/cmd_doc.c	Read Error on boot device
+   38	common/cmd_doc.c	reading Image header from DOC device OK
+  -39	common/cmd_doc.c	Image header has bad magic number
+   39	common/cmd_doc.c	Image header has correct magic number
+  -40	common/cmd_doc.c	Error reading Image from DOC device
+   40	common/cmd_doc.c	Image header has correct magic number
+   41	common/cmd_ide.c	before loading a Image from a IDE device
+  -42	common/cmd_ide.c	Bad usage of "ide" command
+   42	common/cmd_ide.c	correct usage of "ide" command
+  -43	common/cmd_ide.c	No boot device
+   43	common/cmd_ide.c	boot device found
+  -44	common/cmd_ide.c	Device not available
+   44	common/cmd_ide.c	Device available
+  -45	common/cmd_ide.c	wrong partition selected
+   45	common/cmd_ide.c	partition selected
+  -46	common/cmd_ide.c	Unknown partition table
+   46	common/cmd_ide.c	valid partition table found
+  -47	common/cmd_ide.c	Invalid partition type
+   47	common/cmd_ide.c	correct partition type
+  -48	common/cmd_ide.c	Error reading Image Header on boot device
+   48	common/cmd_ide.c	reading Image Header from IDE device OK
+  -49	common/cmd_ide.c	Image header has bad magic number
+   49	common/cmd_ide.c	Image header has correct magic number
+  -50	common/cmd_ide.c	Image header has bad	 checksum
+   50	common/cmd_ide.c	Image header has correct checksum
+  -51	common/cmd_ide.c	Error reading Image from IDE device
+   51	common/cmd_ide.c	reading Image from IDE device OK
+   52	common/cmd_nand.c	before loading a Image from a NAND device
+  -53	common/cmd_nand.c	Bad usage of "nand" command
+   53	common/cmd_nand.c	correct usage of "nand" command
+  -54	common/cmd_nand.c	No boot device
+   54	common/cmd_nand.c	boot device found
+  -55	common/cmd_nand.c	Unknown Chip ID on boot device
+   55	common/cmd_nand.c	correct chip ID found, device available
+  -56	common/cmd_nand.c	Error reading Image Header on boot device
+   56	common/cmd_nand.c	reading Image Header from NAND device OK
+  -57	common/cmd_nand.c	Image header has bad magic number
+   57	common/cmd_nand.c	Image header has correct magic number
+  -58	common/cmd_nand.c	Error reading Image from NAND device
+   58	common/cmd_nand.c	reading Image from NAND device OK
 
-   -1	common/cmd_ide.c	Bad usage of "ide" command
-   -1	common/cmd_ide.c	No boot device
-   -1	common/cmd_ide.c	Unknown boot device
-   -1	common/cmd_ide.c	Unknown partition table
-   -1	common/cmd_ide.c	Invalid partition type
-   -1	common/cmd_ide.c	Read Error on boot device
-   -1	common/cmd_ide.c	Image header has bad magic number
+  -60	common/env_common.c	Environment has a bad CRC, using default
 
-   -1	common/cmd_nand.c	Bad usage of "nand" command
-   -1	common/cmd_nand.c	No boot device
-   -1	common/cmd_nand.c	Unknown Chip ID on boot device
-   -1	common/cmd_nand.c	Read Error on boot device
-   -1	common/cmd_nand.c	Image header has bad magic number
+   64	net/eth.c		starting with Ethernetconfiguration.
+  -64	net/eth.c		no Ethernet found.
+   65	net/eth.c		Ethernet found.
 
-   -1	common/env_common.c	Environment has a bad CRC, using default
-
+  -80	common/cmd_net.c	usage wrong
+   80	common/cmd_net.c	before calling NetLoop()
+  -81	common/cmd_net.c	some error in NetLoop() occured
+   81	common/cmd_net.c	NetLoop() back without error
+  -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
+   82	common/cmd_net.c	trying automatic boot
+   83	common/cmd_net.c	running autoscript
+  -83	common/cmd_net.c	some error in automatic boot or autoscript
+   84	common/cmd_net.c	end without errors
 
 Modem Support:
 --------------

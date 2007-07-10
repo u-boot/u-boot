@@ -83,15 +83,15 @@ LIST_4xx="	\
 	csb272		csb472		DASA_SIM	DP405		\
 	DU405		ebony		ERIC		EXBITGEN	\
 	G2000		HH405		HUB405		JSE		\
-	KAREF		katmai		luan		METROBOX	\
-	MIP405		MIP405T		ML2		ml300		\
-	ocotea		OCRTC		ORSG		p3p440		\
-	PCI405		pcs440ep	PIP405		PLU405		\
-	PMC405		PPChameleonEVB	sbc405		sc3		\
-	sequoia		sequoia_nand	taishan		VOH405		\
-	VOM405		W7OLMC		W7OLMG		walnut		\
-	WUH405		XPEDITE1K	yellowstone	yosemite	\
-	yucca								\
+	KAREF		katmai		luan		lwmon5		\
+	METROBOX	MIP405		MIP405T		ML2		\
+	ml300		ocotea		OCRTC		ORSG		\
+	p3p440		PCI405		pcs440ep	PIP405		\
+	PLU405		PMC405		PPChameleonEVB	sbc405		\
+	sc3		sequoia		sequoia_nand	taishan		\
+	VOH405		VOM405		W7OLMC		W7OLMG		\
+	walnut		WUH405		XPEDITE1K	yellowstone	\
+	yosemite	yucca						\
 "
 
 #########################################################################
@@ -151,6 +151,14 @@ LIST_85xx="	\
 "
 
 #########################################################################
+## MPC86xx Systems
+#########################################################################
+
+LIST_86xx="	\
+    MPC8641HPCN	\
+"
+
+#########################################################################
 ## 74xx/7xx Systems
 #########################################################################
 
@@ -170,6 +178,7 @@ LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
 	  ${LIST_8220} ${LIST_824x} ${LIST_8260} \
 	  ${LIST_83xx}				\
 	  ${LIST_85xx}				\
+	  ${LIST_86xx}				\
 	  ${LIST_4xx}				\
 	  ${LIST_74xx} ${LIST_7xx}"
 
@@ -356,7 +365,7 @@ do
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \
-	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
+	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
 	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do

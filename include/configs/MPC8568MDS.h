@@ -353,12 +353,12 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
-#define CONFIG_MPC85XX_TSEC1	1
-#define CONFIG_MPC85XX_TSEC1_NAME	"eTSEC0"
-#define CONFIG_MPC85XX_TSEC2	1
-#define CONFIG_MPC85XX_TSEC2_NAME	"eTSEC1"
-#undef  CONFIG_MPC85XX_TSEC3
-#undef  CONFIG_MPC85XX_TSEC4
+#define CONFIG_TSEC1	1
+#define CONFIG_TSEC1_NAME	"eTSEC0"
+#define CONFIG_TSEC2	1
+#define CONFIG_TSEC2_NAME	"eTSEC1"
+#undef  CONFIG_TSEC3
+#undef  CONFIG_TSEC4
 #undef  CONFIG_MPC85XX_FEC
 
 #define TSEC1_PHY_ADDR		2

@@ -25,6 +25,9 @@
 # PCS440EP board
 #
 
+# Check the U-Boot Image with a SHA1 checksum
+ALL += $(obj)u-boot.sha1
+
 #TEXT_BASE = 0x00001000
 
 ifeq ($(ramsym),1)

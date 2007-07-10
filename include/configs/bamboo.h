@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_BAMBOO		1	/* Board is BAMBOO              */
 #define CONFIG_440EP		1	/* Specific PPC440EP support    */
+#define CONFIG_440		1	/* ... PPC440 family	        */
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
@@ -73,9 +74,9 @@
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
 #define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
-#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
+#define CFG_INIT_RAM_ADDR	0x70000000	/* DCache       */
 #define CFG_INIT_RAM_END	(4 << 10)
-#define CFG_GBL_DATA_SIZE	256		    	/* num bytes initial data	*/
+#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data	*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -114,8 +115,8 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_MAX_FLASH_BANKS	3		    /* number of banks	    */
-#define CFG_MAX_FLASH_SECT	256		    /* sectors per device   */
+#define CFG_MAX_FLASH_BANKS	3	/* number of banks			*/
+#define CFG_MAX_FLASH_SECT	256	/* sectors per device			*/
 
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -125,11 +126,11 @@
 #define CFG_FLASH_ADDR1         0x2aa
 #define CFG_FLASH_WORD_SIZE     unsigned char
 
-#define CFG_FLASH_2ND_16BIT_DEV 1         /* bamboo has 8 and 16bit device      */
-#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device    */
+#define CFG_FLASH_2ND_16BIT_DEV 1	/* bamboo has 8 and 16bit device	*/
+#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device	*/
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -388,7 +389,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
