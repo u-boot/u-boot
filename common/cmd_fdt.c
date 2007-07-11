@@ -44,13 +44,6 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Function prototypes/declarations.
- */
-#ifdef CONFIG_OF_BOARD_SETUP
-void ft_board_setup(void *blob, bd_t *bd);
-#endif
-
 static int fdt_valid(void);
 static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 	char *data, int *len);
