@@ -18,7 +18,7 @@
 #include <common.h>
 
 #if defined(CONFIG_MACB) \
-	&& (defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_MII)))
+	&& (defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_MII))
 
 /*
  * The u-boot networking stack is a little weird.  It seems like the

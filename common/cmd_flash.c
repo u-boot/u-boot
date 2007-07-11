@@ -33,7 +33,7 @@
 
 #if defined(CONFIG_CMD_FLASH)
 
-#if (defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 #include <jffs2/jffs2.h>
 
 /* parition handling routines */
