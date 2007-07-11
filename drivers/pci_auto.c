@@ -331,6 +331,12 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
 	switch(class) {
+	case PCI_CLASS_PROCESSOR_POWERPC: /* an agent or end-point */
+		DEBUGF("PCI AutoConfig: Found PowerPC device\n");
+		pciauto_setup_device(hose, dev, 6, hose->pci_mem,
+				     hose->pci_prefetch, hose->pci_io);
+		break;
+
 	case PCI_CLASS_BRIDGE_PCI:
 		hose->current_busno++;
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem, hose->pci_prefetch, hose->pci_io);
