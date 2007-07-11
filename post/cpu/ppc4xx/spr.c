@@ -43,12 +43,11 @@
 
 #include <asm/processor.h>
 
-static struct
-{
-    int number;
-    char * name;
-    unsigned long mask;
-    unsigned long value;
+static struct {
+	int number;
+	char * name;
+	unsigned long mask;
+	unsigned long value;
 } spr_test_list [] = {
 	/* Standard Special-Purpose Registers */
 
@@ -65,7 +64,7 @@ static struct
 	{0x11f,	"PVR",		0x00000000,	0x00000000},
 
 	/* Additional Special-Purpose Registers.
-	 * The values must match the initialization 
+	 * The values must match the initialization
 	 * values from cpu/ppc4xx/start.S
 	 */
 	{0x30,	"PID",		0x00000000,	0x00000000},
