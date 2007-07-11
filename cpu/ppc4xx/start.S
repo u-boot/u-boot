@@ -1222,7 +1222,7 @@ mck_return:
  */
 #ifdef CONFIG_440
        .globl  dcache_disable
-       .globl  icache_disable	
+       .globl  icache_disable
        .globl  icache_enable
 dcache_disable:
 icache_disable:

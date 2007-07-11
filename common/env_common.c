@@ -232,7 +232,7 @@ void env_relocate (void)
 		puts ("Using default environment\n\n");
 #else
 		puts ("*** Warning - bad CRC, using default environment\n\n");
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-60);
 #endif
 
 		if (sizeof(default_environment) > ENV_SIZE)

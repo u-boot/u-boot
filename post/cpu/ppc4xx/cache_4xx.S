@@ -438,7 +438,7 @@ cache_post_test6_reloc:
 	blr
 
 /* Test instructions.
- */	
+ */
 cache_post_test_inst:
 	li	r3, 0
 	li	r3, -1
