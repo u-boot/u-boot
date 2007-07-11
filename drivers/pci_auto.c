@@ -65,7 +65,7 @@ int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned 
 
 	res->bus_lower = addr + size;
 
-	DEBUGF("address=0x%lx", addr);
+	DEBUGF("address=0x%lx bus_lower=%x", addr, res->bus_lower);
 
 	*bar = addr;
 	return 0;
@@ -154,7 +154,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
 }
 
-static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
+void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 					 pci_dev_t dev, int sub_bus)
 {
 	struct pci_region *pci_mem = hose->pci_mem;
@@ -211,7 +211,7 @@ static void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat | PCI_COMMAND_MASTER);
 }
 
-static void pciauto_postscan_setup_bridge(struct pci_controller *hose,
+void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 					  pci_dev_t dev, int sub_bus)
 {
 	struct pci_region *pci_mem = hose->pci_mem;
@@ -282,25 +282,36 @@ void pciauto_config_init(struct pci_controller *hose)
 	if (hose->pci_mem) {
 		pciauto_region_init(hose->pci_mem);
 
-		DEBUGF("PCI Autoconfig: Memory region: [%lx-%lx]\n",
+		DEBUGF("PCI Autoconfig: Bus Memory region: [%lx-%lx],\n"
+		       "\t\tPhysical Memory [%x-%x]\n",
 		    hose->pci_mem->bus_start,
-		    hose->pci_mem->bus_start + hose->pci_mem->size - 1);
+		    hose->pci_mem->bus_start + hose->pci_mem->size - 1,
+		    hose->pci_mem->phys_start,
+		    hose->pci_mem->phys_start + hose->pci_mem->size - 1);
 	}
 
 	if (hose->pci_prefetch) {
 		pciauto_region_init(hose->pci_prefetch);
 
-		DEBUGF("PCI Autoconfig: Prefetchable Memory region: [%lx-%lx]\n",
+		DEBUGF("PCI Autoconfig: Bus Prefetchable Mem: [%lx-%lx],\n"
+		       "\t\tPhysical Memory [%x-%x]\n",
 		    hose->pci_prefetch->bus_start,
-		    hose->pci_prefetch->bus_start + hose->pci_prefetch->size - 1);
+		    hose->pci_prefetch->bus_start + hose->pci_prefetch->size - 1,
+		    hose->pci_prefetch->phys_start,
+		    hose->pci_prefetch->phys_start +
+				hose->pci_prefetch->size - 1);
 	}
 
 	if (hose->pci_io) {
 		pciauto_region_init(hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: I/O region: [%lx-%lx]\n",
+		DEBUGF("PCI Autoconfig: Bus I/O region: [%lx-%lx],\n"
+		       "\t\tPhysical Memory: [%x-%x]\n",
 		    hose->pci_io->bus_start,
-		    hose->pci_io->bus_start + hose->pci_io->size - 1);
+		    hose->pci_io->bus_start + hose->pci_io->size - 1,
+		    hose->pci_io->phys_start,
+		    hose->pci_io->phys_start + hose->pci_io->size - 1);
+
 	}
 }
 
