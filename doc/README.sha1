@@ -34,11 +34,11 @@ a) cp the new Image on a position in RAM (here 0x300000)
 
 b) Initialize the SHA1 sum in the Image with 0x00
    The SHA1 sum is stored in Flash at:
-                           CFG_MONITOR_BASE + CFG_MONITOR_LEN + SHA1_SUM_POS
-   for the pcs440ep Flash:       0xfffa0000 +         0x60000 +        -0x20
-                            = 0xffffffe0
-   for the example in RAM:         0x300000 +         0x60000 +        -0x20
-                            = 0x35ffe0
+			   CFG_MONITOR_BASE + CFG_MONITOR_LEN + SHA1_SUM_POS
+   for the pcs440ep Flash:	 0xfffa0000 +	      0x60000 +        -0x20
+			    = 0xffffffe0
+   for the example in RAM:	   0x300000 +	      0x60000 +        -0x20
+			    = 0x35ffe0
 
    note: a SHA1 checksum is 20 bytes long.
 

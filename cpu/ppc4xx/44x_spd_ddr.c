@@ -1017,7 +1017,7 @@ static int short_mem_test(void)
 			 */
 			for (i = 0; i < NUMMEMTESTS; i++) {
 				for (j = 0; j < NUMMEMWORDS; j++) {
-//printf("bank enabled base:%x\n", &membase[j]);
+					/* printf("bank enabled base:%x\n", &membase[j]); */
 					membase[j] = test[i][j];
 					ppcDcbf((unsigned long)&(membase[j]));
 				}
