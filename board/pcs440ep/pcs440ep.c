@@ -85,8 +85,9 @@ static void status_led_blink (void)
 
 	/* set all LED which are on, to state BLINKING */
 	for (i = 0; i < 4; i++) {
-		if (val & 0x08) status_led_set (i, STATUS_LED_BLINKING);
-		val = val << 1;
+		if (val & 0x01) status_led_set (3 - i, STATUS_LED_BLINKING);
+		else status_led_set (3 - i, STATUS_LED_OFF);
+		val = val >> 1;
 	}
 }
 
@@ -113,12 +114,14 @@ void show_boot_progress (int val)
 			status_led_set (1, STATUS_LED_ON);
 			status_led_set (2, STATUS_LED_ON);
 			break;
+#if 0
 		case 64:
 			/* starting Ethernet configuration */
 			status_led_set (0, STATUS_LED_OFF);
 			status_led_set (1, STATUS_LED_OFF);
 			status_led_set (2, STATUS_LED_ON);
 			break;
+#endif
 		case 80:
 			/* loading Image */
 			status_led_set (0, STATUS_LED_ON);
@@ -404,6 +407,9 @@ static void pcs440ep_checksha1 (void)
 	int	ret;
 	char	*cs_test;
 
+	status_led_set (0, STATUS_LED_OFF);
+	status_led_set (1, STATUS_LED_OFF);
+	status_led_set (2, STATUS_LED_ON);
 	ret = pcs440ep_sha1 (1);
 	if (ret == 0) return;
 
@@ -751,28 +757,41 @@ void hw_watchdog_reset(void)
  ************************************************************************/
 int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int	rcode = 0;
+	int	rcode = 0, i;
 	ulong	pattern = 0;
 
-	pattern = simple_strtoul (argv[1], NULL, 10);
-	if (pattern > 200) {
+	pattern = simple_strtoul (argv[1], NULL, 16);
+	if (pattern > 0x400) {
+		int	val = GET_LEDS;
+		printf ("led: %x\n", val);
+		return rcode;
+	}
+	if (pattern > 0x200) {
 		status_led_blink ();
 		hang ();
 		return rcode;
 	}
-	if (pattern > 100) {
+	if (pattern > 0x100) {
 		status_led_blink ();
 		return rcode;
 	}
 	pattern &= 0x0f;
-	set_leds (pattern);
+	for (i = 0; i < 4; i++) {
+		if (pattern & 0x01) status_led_set (i, STATUS_LED_ON);
+		else status_led_set (i, STATUS_LED_OFF);
+		pattern = pattern >> 1;
+	}
 	return rcode;
 }
 
 U_BOOT_CMD(
  	led,	2,	1,	do_led,
- 	"led    - set the led\n",
-	NULL
+ 	"led [bitmask]   - set the DIAG-LED\n",
+	"[bitmask] 0x01 = DIAG 1 on\n"
+	"              0x02 = DIAG 2 on\n"
+	"              0x04 = DIAG 3 on\n"
+	"              0x08 = DIAG 4 on\n"
+	"              > 0x100 set the LED, who are on, to state blinking\n"
 );
 
 #if defined(CONFIG_SHA1_CHECK_UB_IMG)

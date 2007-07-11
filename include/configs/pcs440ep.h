@@ -197,16 +197,16 @@
 #define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 #define CONFIG_BOARD_SPECIFIC_LED	1
 
-#define STATUS_LED_BIT		0x08			/* LED 1 is on GPIO_PPC_1 */
+#define STATUS_LED_BIT		0x08			/* DIAG1 is on GPIO_PPC_1 */
 #define STATUS_LED_PERIOD	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE	STATUS_LED_OFF
-#define STATUS_LED_BIT1		0x04			/* LED 2 is on GPIO_PPC_2 */
+#define STATUS_LED_BIT1		0x04			/* DIAG2 is on GPIO_PPC_2 */
 #define STATUS_LED_PERIOD1	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE1	STATUS_LED_ON
-#define STATUS_LED_BIT2		0x02			/* LED 3 is on GPIO_PPC_3 */
+#define STATUS_LED_BIT2		0x02			/* DIAG3 is on GPIO_PPC_3 */
 #define STATUS_LED_PERIOD2	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE2	STATUS_LED_OFF
-#define STATUS_LED_BIT3		0x01			/* LED 4 is on GPIO_PPC_4 */
+#define STATUS_LED_BIT3		0x01			/* DIAG4 is on GPIO_PPC_4 */
 #define STATUS_LED_PERIOD3	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE3	STATUS_LED_OFF
 
