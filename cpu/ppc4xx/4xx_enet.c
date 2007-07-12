@@ -1415,10 +1415,8 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 			if ((MAL_RX_CTRL_EMPTY & hw_p->rx[i].ctrl)
 			    || (loop_count >= NUM_RX_BUFF))
 				break;
+
 			loop_count++;
-			hw_p->rx_slot++;
-			if (NUM_RX_BUFF == hw_p->rx_slot)
-				hw_p->rx_slot = 0;
 			handled++;
 			data_len = (unsigned long) hw_p->rx[i].data_len;	/* Get len */
 			if (data_len) {
@@ -1467,6 +1465,10 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 				hw_p->rx_i_index++;
 				if (NUM_RX_BUFF == hw_p->rx_i_index)
 					hw_p->rx_i_index = 0;
+
+				hw_p->rx_slot++;
+				if (NUM_RX_BUFF == hw_p->rx_slot)
+					hw_p->rx_slot = 0;
 
 				/*  AS.HARNOIS
 				 * free receive buffer only when
