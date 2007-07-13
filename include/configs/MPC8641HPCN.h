@@ -240,7 +240,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
+#define CFG_MALLOC_LEN	    	(1024 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
@@ -344,6 +344,26 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
     #define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
 #endif
 
+/*PCIE video card used*/
+#define VIDEO_IO_OFFSET		CFG_PCI2_IO_PHYS
+
+/*PCI video card used*/
+/*#define VIDEO_IO_OFFSET	CFG_PCI1_IO_PHYS*/
+
+/* video */
+#define CONFIG_VIDEO
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_BIOSEMU
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_ATI_RADEON_FB
+#define CONFIG_VIDEO_LOGO
+/*#define CONFIG_CONSOLE_CURSOR*/
+#define CFG_ISA_IO_BASE_ADDRESS CFG_PCI2_IO_PHYS
+#endif
+
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 #define CONFIG_DOS_PARTITION
@@ -356,6 +376,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_SCSI_MAX_DEVICE 	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
 #define CFG_SCSI_MAXDEVICE	CFG_SCSI_MAX_DEVICE
 #endif
+
+#define CONFIG_MPC86XX_PCI2
 
 #endif	/* CONFIG_PCI */
 
@@ -471,8 +493,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #ifndef CFG_RAMBOOT
     #define CFG_ENV_IS_IN_FLASH	1
-    #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-    #define CFG_ENV_SECT_SIZE		0x40000	/* 256K(one sector) for env */
+    #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x60000)
+    #define CFG_ENV_SECT_SIZE		0x10000	/* 64K(one sector) for env */
     #define CFG_ENV_SIZE		0x2000
 #else
     #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
