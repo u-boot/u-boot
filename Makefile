@@ -268,7 +268,7 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 		-d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
-		$(obj)./tools/ubsha1 $(obj)u-boot.bin
+		$(obj)tools/ubsha1 $(obj)u-boot.bin
 
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
