@@ -56,6 +56,7 @@ int  video_rows(void);
 int  video_cols(void);
 
 char *prompt_string = "=>";
+unsigned char video_get_attr(void);
 
 void video_set_color(unsigned char attr)
 {

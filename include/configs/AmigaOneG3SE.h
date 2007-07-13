@@ -95,6 +95,8 @@
 /* #define CONFIG_PCI_SCAN_SHOW 1 */
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
 
+#define atoi(x)		simple_strtoul(x,NULL,10)
+
 /*
  * Miscellaneous configurable options
  */
