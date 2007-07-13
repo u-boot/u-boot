@@ -626,9 +626,13 @@ int	fgetc(int file);
 
 int	pcmcia_init (void);
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-void	show_boot_progress (int status);
+#ifdef CONFIG_STATUS_LED
+# include <status_led.h>
 #endif
+/*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+void inline show_boot_progress (int val);
 
 #ifdef CONFIG_INIT_CRITICAL
 #error CONFIG_INIT_CRITICAL is deprecated!

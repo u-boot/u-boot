@@ -30,13 +30,6 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_AMIGAONEG3SE
@@ -232,7 +225,7 @@ void env_relocate (void)
 		puts ("Using default environment\n\n");
 #else
 		puts ("*** Warning - bad CRC, using default environment\n\n");
-		SHOW_BOOT_PROGRESS (-60);
+		show_boot_progress (-60);
 #endif
 
 		if (sizeof(default_environment) > ENV_SIZE)
