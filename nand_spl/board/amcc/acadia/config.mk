@@ -32,11 +32,11 @@
 # We will copy this SPL into internal SRAM in start.S. So we set
 # TEXT_BASE to starting address in internal SRAM here.
 #
-TEXT_BASE = 0xF8003000
+TEXT_BASE = 0xf8004000
 
 # PAD_TO used to generate a 16kByte binary needed for the combined image
 # -> PAD_TO = TEXT_BASE + 0x4000
-PAD_TO	= 0xF8007000
+PAD_TO	= 0xf8008000
 
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG

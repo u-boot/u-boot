@@ -65,33 +65,31 @@ struct tsec_info_struct {
  *   FEC_PHYIDX
  */
 static struct tsec_info_struct tsec_info[] = {
-#if defined(CONFIG_MPC85XX_TSEC1) || defined(CONFIG_MPC83XX_TSEC1)
-#if defined(CONFIG_MPC8544DS)
+#if defined(CONFIG_TSEC1)
+#if defined(CONFIG_MPC8544DS) || defined(CONFIG_MPC8641HPCN)
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
 #else
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
 #endif
-#elif defined(CONFIG_MPC86XX_TSEC1)
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
-#else
 	{0, 0, 0},
 #endif
-#if defined(CONFIG_MPC85XX_TSEC2) || defined(CONFIG_MPC83XX_TSEC2)
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
-#elif defined(CONFIG_MPC86XX_TSEC2)
+#if defined(CONFIG_TSEC2)
+#if defined(CONFIG_MPC8641HPCN)
 	{TSEC2_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC2_PHYIDX},
 #else
+	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
+#endif
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
 #else
-#if defined(CONFIG_MPC85XX_TSEC3) || defined(CONFIG_MPC83XX_TSEC3) || defined(CONFIG_MPC86XX_TSEC3)
+#if defined(CONFIG_TSEC3)
 	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4) || defined(CONFIG_MPC86XX_TSEC4)
+#if defined(CONFIG_TSEC4)
 	{TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
 #else
 	{0, 0, 0},
@@ -928,6 +926,33 @@ struct phy_info phy_info_BCM5461S = {
 	},
 };
 
+struct phy_info phy_info_BCM5464S = {
+	0x02060b1,	/* 5464 ID */
+	"Broadcom BCM5464S",
+	0, /* not clear to me what minor revisions we can shift away */
+	(struct phy_cmd[]) { /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_BCM54xx_AUXSTATUS, miim_read, &mii_parse_BCM54xx_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info phy_info_M88E1011S = {
 	0x01410c6,
 	"Marvell 88E1011S",
@@ -1292,6 +1317,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
 	&phy_info_BCM5461S,
+	&phy_info_BCM5464S,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,

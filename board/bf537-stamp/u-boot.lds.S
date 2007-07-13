@@ -33,7 +33,7 @@ SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib);
    __DYNAMIC = 0;    */
 MEMORY
  {
- ram : 	   ORIGIN = (CFG_MONITOR_BASE), LENGTH = (256 * 1024)
+ ram :	   ORIGIN = (CFG_MONITOR_BASE), LENGTH = (256 * 1024)
  l1_code : ORIGIN = 0xFFA00000, LENGTH = 0xC000
  l1_data : ORIGIN = 0xFF900000, LENGTH = 0x4000
  }
@@ -47,11 +47,11 @@ SECTIONS
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
   .rel.text      : { *(.rel.text)	}
-  .rela.text     : { *(.rela.text) 	}
+  .rela.text     : { *(.rela.text)	}
   .rel.data      : { *(.rel.data)	}
-  .rela.data     : { *(.rela.data) 	}
-  .rel.rodata    : { *(.rel.rodata) 	}
-  .rela.rodata   : { *(.rela.rodata) 	}
+  .rela.data     : { *(.rela.data)	}
+  .rel.rodata    : { *(.rel.rodata)	}
+  .rela.rodata   : { *(.rela.rodata)	}
   .rel.got       : { *(.rel.got)	}
   .rela.got      : { *(.rela.got)	}
   .rel.ctors     : { *(.rel.ctors)	}
@@ -68,7 +68,7 @@ SECTIONS
   .text      :
   {
     /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector before the environment sector. If it throws 	*/
+    /* the sector before the environment sector. If it throws	*/
     /* an error during compilation remove an object here to get	*/
     /* it linked after the configuration sector.		*/
 

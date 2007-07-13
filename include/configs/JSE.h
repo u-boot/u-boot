@@ -49,6 +49,7 @@
   /* Map the SystemACE chip (CS#1) here. (Must be a multiple of 1Meg) */
 #define CONFIG_SYSTEMACE 1
 #define CFG_SYSTEMACE_BASE 0xf0000000
+#define CFG_SYSTEMACE_WIDTH 8
 #define CONFIG_DOS_PARTITION 1
 
   /* Use the On-Chip-Memory (OCM) as a temporary stack for the startup code. */

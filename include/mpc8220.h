@@ -35,6 +35,7 @@
 
 /* Exception offsets (PowerPC standard) */
 #define EXC_OFF_SYS_RESET   0x0100
+#define _START_OFFSET	EXC_OFF_SYS_RESET
 
 /* Internal memory map */
 /* MPC8220 Internal Register MMAP */

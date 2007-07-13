@@ -9,7 +9,7 @@
 
 /* Application definitions */
 
-#define	NUM_SECTORS 	128	/* number of sectors */
+#define	NUM_SECTORS	128	/* number of sectors */
 #define SECTOR_SIZE	0x10000
 #define NOP_NUM		1000
 

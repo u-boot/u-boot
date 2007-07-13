@@ -8,7 +8,7 @@
 #define __MPC86xx_H__
 
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset	offset */
-
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 /*
  * platform register addresses

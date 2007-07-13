@@ -113,7 +113,7 @@ static __inline__ int abortboot(int bootdelay)
 	u_int i;
 
 #  ifdef CONFIG_AUTOBOOT_PROMPT
-	printf (CONFIG_AUTOBOOT_PROMPT, bootdelay);
+	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
 #  ifdef CONFIG_AUTOBOOT_DELAY_STR
@@ -187,7 +187,7 @@ static __inline__ int abortboot(int bootdelay)
 	}
 #  if DEBUG_BOOTKEYS
 	if (!abort)
-		puts ("key timeout\n");
+		puts("key timeout\n");
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -244,13 +244,13 @@ static __inline__ int abortboot(int bootdelay)
 # endif
 				break;
 			}
-			udelay (10000);
+			udelay(10000);
 		}
 
-		printf ("\b\b\b%2d ", bootdelay);
+		printf("\b\b\b%2d ", bootdelay);
 	}
 
-	putc ('\n');
+	putc('\n');
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (abort)
@@ -962,7 +962,7 @@ int readline (const char *const prompt)
 			n = 0;
 			continue;
 
-		case 0x17:				/* ^W - erase word 	*/
+		case 0x17:				/* ^W - erase word	*/
 			p=delete_char(console_buffer, p, &col, &n, plen);
 			while ((n > 0) && (*p != ' ')) {
 				p=delete_char(console_buffer, p, &col, &n, plen);

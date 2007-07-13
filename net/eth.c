@@ -28,6 +28,14 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
+#if defined(CONFIG_SHOW_BOOT_PROGRESS)
+# include <status_led.h>
+extern void show_ethcfg_progress (int arg);
+# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress (arg)
+#else
+# define SHOW_BOOT_PROGRESS(arg)
+#endif
+
 #ifdef CFG_GT_6426x
 extern int gt6426x_eth_initialize(bd_t *bis);
 #endif
@@ -142,6 +150,7 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
+	SHOW_BOOT_PROGRESS(64);
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
 	miiphy_init();
 #endif
@@ -173,28 +182,20 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_SK98)
 	skge_initialize(bis);
 #endif
-#if defined(CONFIG_MPC85XX_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_MPC85XX_TSEC1_NAME);
-#elif defined(CONFIG_MPC83XX_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_MPC83XX_TSEC1_NAME);
+#if defined(CONFIG_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
 #endif
-#if defined(CONFIG_MPC85XX_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_MPC85XX_TSEC2_NAME);
-#elif defined(CONFIG_MPC83XX_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_MPC83XX_TSEC2_NAME);
+#if defined(CONFIG_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
 #endif
 #if defined(CONFIG_MPC85XX_FEC)
 	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
 #else
-#    if defined(CONFIG_MPC85XX_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_MPC85XX_TSEC3_NAME);
-#    elif defined(CONFIG_MPC83XX_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_MPC83XX_TSEC3_NAME);
+#    if defined(CONFIG_TSEC3)
+	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
 #    endif
-#    if defined(CONFIG_MPC85XX_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_MPC85XX_TSEC4_NAME);
-#    elif defined(CONFIG_MPC83XX_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
+#    if defined(CONFIG_TSEC4)
+	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
 #    endif
 #endif
 #if defined(CONFIG_UEC_ETH1)
@@ -202,21 +203,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_UEC_ETH2)
 	uec_initialize(1);
-#endif
-#if defined(CONFIG_MPC86XX_TSEC1)
-       tsec_initialize(bis, 0, CONFIG_MPC86XX_TSEC1_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC2)
-       tsec_initialize(bis, 1, CONFIG_MPC86XX_TSEC2_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC3)
-       tsec_initialize(bis, 2, CONFIG_MPC86XX_TSEC3_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC4)
-       tsec_initialize(bis, 3, CONFIG_MPC86XX_TSEC4_NAME);
 #endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
@@ -270,10 +256,12 @@ int eth_initialize(bd_t *bis)
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
+		SHOW_BOOT_PROGRESS(-64);
 	} else {
 		struct eth_device *dev = eth_devices;
 		char *ethprime = getenv ("ethprime");
 
+		SHOW_BOOT_PROGRESS(65);
 		do {
 			if (eth_number)
 				puts (", ");

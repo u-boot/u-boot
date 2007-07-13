@@ -507,6 +507,7 @@ int dram_init(void)
 
 void show_boot_progress(int val)
 {
+	if (val < -32) val = -1;  /* let things compatible */
 	outb(val&0xff, 0x80);
 	outb((val&0xff00)>>8, 0x680);
 }

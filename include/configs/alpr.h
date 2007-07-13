@@ -29,6 +29,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_ALPR		1	    /* Board is ebony		*/
 #define CONFIG_440GX		1	    /* Specifc GX support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_pre_init	*/
 #define CONFIG_LAST_STAGE_INIT	1	    /* call last_stage_init()	*/
@@ -94,7 +95,7 @@
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
-#define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -256,7 +257,7 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC     	1       /* enable mdc/mwc commands      */
+#define CONFIG_MX_CYCLIC	1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
 
@@ -274,7 +275,6 @@
 #define CONFIG_PCI_BOOTDELAY	1       /* enable pci bootdelay variable*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */
 #define CFG_PCI_MASTER_INIT
 

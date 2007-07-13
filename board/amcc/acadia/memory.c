@@ -31,6 +31,8 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
+extern void board_pll_init_f(void);
+
 /*
  * sdram_init - Dummy implementation for start.S, spd_sdram used on this board!
  */
@@ -67,6 +69,15 @@ static void cram_bcr_write(u32 wr_val)
 
 long int initdram(int board_type)
 {
+#if defined(CONFIG_NAND_SPL)
+	u32 reg;
+
+	/* don't reinit PLL when booting via I2C bootstrap option */
+	mfsdr(SDR_PINSTP, reg);
+	if (reg != 0xf0000000)
+		board_pll_init_f();
+#endif
+
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	int i;
 	u32 val;

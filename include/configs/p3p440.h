@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_P3P440		1	    /* Board is P3P440		*/
 #define CONFIG_440GP		1	    /* Specifc GP support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	    /* Call misc_init_r		*/
@@ -226,7 +227,6 @@
 #define CFG_PCI_TARGBASE    0x80000000  /* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT	            /* let board init pci target    */
 
 #define CONFIG_DISABLE_PISE_TEST	/* disable PISE test (PCIX only)*/
@@ -285,7 +285,7 @@
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
