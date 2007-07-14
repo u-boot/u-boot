@@ -199,7 +199,7 @@ LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
+	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/romfs/libromfs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
@@ -316,14 +316,14 @@ depend dep:
 tags ctags:
 		ctags -w -o $(OBJTREE)/ctags `find $(SUBDIRS) include \
 				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
-				fs/cramfs fs/fat fs/fdos fs/jffs2 \
+				fs/cramfs fs/fat fs/fdos fs/jffs2 fs/romfs\
 				net disk rtc dtt drivers drivers/sk98lin common \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 
 etags:
 		etags -a -o $(OBJTREE)/etags `find $(SUBDIRS) include \
 				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
-				fs/cramfs fs/fat fs/fdos fs/jffs2 \
+				fs/cramfs fs/fat fs/fdos fs/jffs2 fs/romfs\
 				net disk rtc dtt drivers drivers/sk98lin common \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 

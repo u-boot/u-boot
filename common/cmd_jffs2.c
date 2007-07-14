@@ -28,7 +28,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -85,7 +85,7 @@
  */
 
 /*
- * JFFS2/CRAMFS support
+ * JFFS2/CRAMFS/ROMFS support
  */
 #include <common.h>
 #include <command.h>
@@ -110,7 +110,7 @@
 #define	DEBUG_JFFS
 #undef	DEBUG_JFFS
 
-#ifdef  DEBUG_JFFS
+#ifdef DEBUG_JFFS
 # define DEBUGF(fmt, args...)	printf(fmt ,##args)
 #else
 # define DEBUGF(fmt, args...)
@@ -175,6 +175,11 @@ extern int cramfs_load (char *loadoffset, struct part_info *info, char *filename
 extern int cramfs_ls (struct part_info *info, char *filename);
 extern int cramfs_info (struct part_info *info);
 
+extern int romfs_check (struct part_info *info);
+extern int romfs_load (char *loadoffset, struct part_info *info, char *filename);
+extern int romfs_ls (struct part_info *info, char *filename);
+extern int romfs_info (struct part_info *info);
+
 static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num);
 
 /* command line only routines */
@@ -184,10 +189,10 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
 static int device_del(struct mtd_device *dev);
 
 /**
- * Parses a string into a number.  The number stored at ptr is
+ * Parses a string into a number. The number stored at ptr is
  * potentially suffixed with K (for kilobytes, or 1024 bytes),
  * M (for megabytes, or 1048576 bytes), or G (for gigabytes, or
- * 1073741824).  If the number is suffixed with K, M, or G, then
+ * 1073741824). If the number is suffixed with K, M, or G, then
  * the return value is the number multiplied by one kilobyte, one
  * megabyte, or one gigabyte, respectively.
  *
@@ -676,7 +681,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 		return 1;
 	}
 
-	/*  allocate memory */
+	/* allocate memory */
 	part = (struct part_info *)malloc(sizeof(struct part_info) + name_len);
 	if (!part) {
 		printf("out of memory\n");
@@ -1832,9 +1837,9 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
 	return NULL;
 }
 
-/***************************************************/
-/* U-boot commands				   */
-/***************************************************/
+/*************************************************/
+/* U-boot commands				 */
+/*************************************************/
 
 /**
  * Routine implementing fsload u-boot command. This routine tries to load
@@ -1874,14 +1879,22 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if ((part = jffs2_part_info(current_dev, current_partnum))){
 
-		/* check partition type for cramfs */
-		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");
+		/* check partition type for JFFS2, cramfs, romfs */
+		if (cramfs_check(part)) {
+			fsname = "CRAMFS";
+		} else if (romfs_check(part)) {
+			fsname = "ROMFS";
+		} else {
+	 		fsname = "JFFS2";
+		}
 		printf("### %s loading '%s' to 0x%lx\n", fsname, filename, offset);
 
 		if (cramfs_check(part)) {
 			size = cramfs_load ((char *) offset, part, filename);
+		} else if (romfs_check(part)){
+			size = romfs_load ((char *) offset, part, filename);
 		} else {
-			/* if this is not cramfs assume jffs2 */
+			/* if this is not cramfs or romfs assume jffs2 */
 			size = jffs2_1pass_load((char *)offset, part, filename);
 		}
 
@@ -1928,8 +1941,10 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/* check partition type for cramfs */
 		if (cramfs_check(part)) {
 			ret = cramfs_ls (part, filename);
+		} else if (romfs_check(part)) {
+			ret = romfs_ls (part, filename);
 		} else {
-			/* if this is not cramfs assume jffs2 */
+			/* if this is not cramfs or romfs assume jffs2 */
 			ret = jffs2_1pass_ls(part, filename);
 		}
 
@@ -1951,7 +1966,6 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	struct part_info *part;
-	char *fsname;
 	int ret;
 
 	/* make sure we are in sync with env variables */
@@ -1961,13 +1975,17 @@ int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if ((part = jffs2_part_info(current_dev, current_partnum))){
 
 		/* check partition type for cramfs */
-		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");
-		printf("### filesystem type is %s\n", fsname);
+		puts("### filesystem type is ");
 
 		if (cramfs_check(part)) {
+			puts("CRAMFS\n");
 			ret = cramfs_info (part);
+		} else if (romfs_check(part)) {
+			puts("ROMFS\n");
+			ret = romfs_info (part);
 		} else {
-			/* if this is not cramfs assume jffs2 */
+			/* if this is not cramfs or romfs assume jffs2 */
+			puts("JFFS2\n");
 			ret = jffs2_1pass_info(part);
 		}
 
