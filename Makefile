@@ -143,7 +143,7 @@ ifeq ($(ARCH),m68k)
 CROSS_COMPILE = m68k-elf-
 endif
 ifeq ($(ARCH),microblaze)
-CROSS_COMPILE = mb-
+CROSS_COMPILE = microblaze-uclinux-
 endif
 ifeq ($(ARCH),blackfin)
 CROSS_COMPILE = bfin-uclinux-
@@ -207,6 +207,7 @@ LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/net/libnetdrv.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
