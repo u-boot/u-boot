@@ -94,4 +94,3 @@ void sync(void)
 	   coldfire does not have this instruction. Dummy function */
 }
 #endif				/* CFG_FLASH_CFI */
-

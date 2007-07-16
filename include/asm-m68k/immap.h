@@ -25,7 +25,7 @@
 
 #ifndef __IMMAP_H
 #define __IMMAP_H
-    
+
 #ifdef CONFIG_M5329
 #include <asm/immap_5329.h>
 #include <asm/m5329.h>
@@ -53,5 +53,5 @@
 #define CFG_INTR_BASE		(MMAP_INTC0)
 #define CFG_NUM_IRQS		(128)
 #endif				/* CONFIG_M5329 */
-    
+
 #endif				/* __IMMAP_H */
