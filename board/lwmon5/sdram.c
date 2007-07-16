@@ -54,7 +54,6 @@
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
 #endif
 
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 void dcbz_area(u32 start_address, u32 num_bytes);
 void dflush(void);
 
