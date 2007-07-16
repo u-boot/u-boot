@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,21 +23,24 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(ARCH).a
+# CFLAGS += -DET_DEBUG
 
-SOBJS	=
+LIB	= lib$(CPU).a
 
-COBJS	= cache.o traps.o time.o interrupts.o board.o m68k_linux.o
+START	=
+COBJS	= cpu.o speed.o cpu_init.o interrupts.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+START	:= $(addprefix $(obj),$(START))
 
-$(LIB):	$(obj).depend $(OBJS)
+all:	$(obj).depend $(START) $(LIB)
+
+$(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-# defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend

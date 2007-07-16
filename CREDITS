@@ -479,3 +479,9 @@ N: Michal Simek
 E: monstr@monstr.eu
 D: Support for Microblaze, ML401, XUPV2P board
 W: www.monstr.eu
+
+N: TsiChung Liew
+E: Tsi-Chung.Liew@freescale.com
+D: Support for ColdFire MCF532x
+W: www.freescale.com
+

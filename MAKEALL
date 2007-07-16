@@ -315,7 +315,7 @@ LIST_microblaze="	\
 LIST_coldfire="	\
 	cobra5272	EB+MCF-EV123	EB+MCF-EV123_internal		\
 	idmr		M5271EVB	M5272C3		M5282EVB	\
-	TASREG		r5200		M5271EVB			\
+	TASREG		r5200		M5271EVB 	M5329EVB	\
 "
 
 #########################################################################
