@@ -1,3 +1,62 @@
+commit 011595307731a7a67a7445d107c279d031e8ab97
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sat Jul 14 01:06:58 2007 +0200
+
+    [PCS440EP]	- fix compile error, if BUILD_DIR is used
+
+commit fad63407154f46246ce80d53a9c669a44362ac67
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 09:54:17 2007 +0200
+
+    make show_boot_progress () weak.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 907902472391b6ca1876ec300687562ecaf459b1
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 08:26:05 2007 +0200
+
+    [PCS440EP]	- The DIAG LEDs are now blinking, if an error occur
+		- fix compile error, if BUILD_DIR is used
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 239f05ee4dd4cfe0b50f251b533dcebe9e67c360
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 12 01:45:34 2007 +0200
+
+    Update CHANGELOG, minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit fa1df308926a6f70e3504c57514ef27ac31fd13a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Jul 11 20:11:07 2007 +0200
+
+    CM1.QP1: Support for the Schindler CM1.QP1 board.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 96e1d75be8193ca79e4215a368bf9d7f2362450f
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Wed Jul 11 18:39:11 2007 +0200
+
+    [PCS440EP]	- Show on the DIAG LEDs, if the SHA1 check failed
+		- now the Flash ST M29W040B is supported (not tested)
+		- fix the "led" command
+		- fix compile error, if BUILD_DIR is used
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 4ef218f6fdf8d747f4589da5252b004e7d2c2876
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 10 00:01:28 2007 +0200
+
+    Coding style cleanup; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f1152f8c28db4a22087c21c618a3f7baa48e9a4f
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Jul 6 02:50:19 2007 +0200

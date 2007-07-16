@@ -30,14 +30,6 @@
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-extern void show_boot_progress (int val);
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress (arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
 static int netboot_common (proto_t, cmd_tbl_t *, int , char *[]);
@@ -191,23 +183,23 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 		break;
 
 	default: printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS(-80);
+		show_boot_progress (-80);
 		return 1;
 	}
 
-	SHOW_BOOT_PROGRESS(80);
+	show_boot_progress (80);
 	if ((size = NetLoop(proto)) < 0) {
-		SHOW_BOOT_PROGRESS(-81);
+		show_boot_progress (-81);
 		return 1;
 	}
 
-	SHOW_BOOT_PROGRESS(81);
+	show_boot_progress (81);
 	/* NetLoop ok, update environment */
 	netboot_update_env();
 
 	/* done if no file was loaded (no errors though) */
 	if (size == 0) {
-		SHOW_BOOT_PROGRESS(-82);
+		show_boot_progress (-82);
 		return 0;
 	}
 
@@ -222,23 +214,21 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 
 		printf ("Automatic boot of image at addr 0x%08lX ...\n",
 			load_addr);
-		SHOW_BOOT_PROGRESS(82);
+		show_boot_progress (82);
 		rcode = do_bootm (cmdtp, 0, 1, local_args);
 	}
 
 #ifdef CONFIG_AUTOSCRIPT
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
 		printf("Running autoscript at addr 0x%08lX ...\n", load_addr);
-		SHOW_BOOT_PROGRESS(83);
+		show_boot_progress (83);
 		rcode = autoscript (load_addr);
 	}
 #endif
-#if defined(CONFIG_SHOW_BOOT_PROGRESS)
 	if (rcode < 0)
-		SHOW_BOOT_PROGRESS(-83);
+		show_boot_progress (-83);
 	else
-		SHOW_BOOT_PROGRESS(84);
-#endif
+		show_boot_progress (84);
 	return rcode;
 }
 

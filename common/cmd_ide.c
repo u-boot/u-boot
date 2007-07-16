@@ -59,13 +59,6 @@ unsigned long mips_io_port_base = 0;
 #endif
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 #ifdef CONFIG_IDE_8xx_DIRECT
 DECLARE_GLOBAL_DATA_PTR;
 #endif
@@ -385,7 +378,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	image_header_t *hdr;
 	int rcode = 0;
 
-	SHOW_BOOT_PROGRESS (41);
+	show_boot_progress (41);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -401,50 +394,50 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS (-42);
+		show_boot_progress (-42);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (42);
+	show_boot_progress (42);
 
 	if (!boot_device) {
 		puts ("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS (-43);
+		show_boot_progress (-43);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (43);
+	show_boot_progress (43);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if (ide_dev_desc[dev].type==DEV_TYPE_UNKNOWN) {
 		printf ("\n** Device %d not available\n", dev);
-		SHOW_BOOT_PROGRESS (-44);
+		show_boot_progress (-44);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (44);
+	show_boot_progress (44);
 
 	if (*ep) {
 		if (*ep != ':') {
 			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
-			SHOW_BOOT_PROGRESS (-45);
+			show_boot_progress (-45);
 			return 1;
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
-	SHOW_BOOT_PROGRESS (45);
+	show_boot_progress (45);
 	if (get_partition_info (&ide_dev_desc[dev], part, &info)) {
-		SHOW_BOOT_PROGRESS (-46);
+		show_boot_progress (-46);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (46);
+	show_boot_progress (46);
 	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) &&
 	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)) {
 		printf ("\n** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info.type);
-		SHOW_BOOT_PROGRESS (-47);
+		show_boot_progress (-47);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (47);
+	show_boot_progress (47);
 
 	printf ("\nLoading from IDE device %d, partition %d: "
 		"Name: %.32s  Type: %.32s\n",
@@ -455,29 +448,29 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (ide_dev_desc[dev].block_read (dev, info.start, 1, (ulong *)addr) != 1) {
 		printf ("** Read error on %d:%d\n", dev, part);
-		SHOW_BOOT_PROGRESS (-48);
+		show_boot_progress (-48);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (48);
+	show_boot_progress (48);
 
 	hdr = (image_header_t *)addr;
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 		printf("\n** Bad Magic Number **\n");
-		SHOW_BOOT_PROGRESS (-49);
+		show_boot_progress (-49);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (49);
+	show_boot_progress (49);
 
 	checksum = ntohl(hdr->ih_hcrc);
 	hdr->ih_hcrc = 0;
 
 	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
 		puts ("\n** Bad Header Checksum **\n");
-		SHOW_BOOT_PROGRESS (-50);
+		show_boot_progress (-50);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (50);
+	show_boot_progress (50);
 	hdr->ih_hcrc = htonl(checksum); /* restore checksum for later use */
 
 	print_image_hdr (hdr);
@@ -490,10 +483,10 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (ide_dev_desc[dev].block_read (dev, info.start+1, cnt,
 		      (ulong *)(addr+info.blksz)) != cnt) {
 		printf ("** Read error on %d:%d\n", dev, part);
-		SHOW_BOOT_PROGRESS (-51);
+		show_boot_progress (-51);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (51);
+	show_boot_progress (51);
 
 
 	/* Loading ok, update default load address */
