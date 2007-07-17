@@ -975,7 +975,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #endif
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	ft_board_setup(fdt, gd->bd);
+	ft_board_setup(of_flat_tree, gd->bd);
 #endif
 #endif /* CONFIG_OF_LIBFDT */
 #if defined(CONFIG_OF_FLAT_TREE)
