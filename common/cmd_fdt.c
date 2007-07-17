@@ -293,36 +293,28 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				return err;
 			}
 		}
-
+	}
 #ifdef CONFIG_OF_BOARD_SETUP
-	/********************************************************************
-	 * Call the board-specific fixup routine
-	 ********************************************************************/
-	} else if (argv[1][0] == 'b') {
+	/* Call the board-specific fixup routine */
+	else if (argv[1][0] == 'b')
 		ft_board_setup(fdt, gd->bd);
 #endif
-	/********************************************************************
-	 * Create a chosen node
-	 ********************************************************************/
-	} else if (argv[1][0] == 'c') {
+	/* Create a chosen node */
+	else if (argv[1][0] == 'c')
 		fdt_chosen(fdt, 0, 0, 1);
 
-	/********************************************************************
-	 * Create a u-boot-env node
-	 ********************************************************************/
-	} else if (argv[1][0] == 'e') {
+#ifdef CONFIG_OF_HAS_UBOOT_ENV
+	/* Create a u-boot-env node */
+	else if (argv[1][0] == 'e')
 		fdt_env(fdt);
-
-	/********************************************************************
-	 * Create a bd_t node
-	 ********************************************************************/
-	} else if (argv[1][0] == 'b') {
+#endif
+#ifdef CONFIG_OF_HAS_BD_T
+	/* Create a bd_t node */
+	else if (argv[1][0] == 'b')
 		fdt_bd_t(fdt);
-
-	/********************************************************************
-	 * Unrecognized command
-	 ********************************************************************/
-	} else {
+#endif
+	else {
+		/* Unrecognized command */
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
