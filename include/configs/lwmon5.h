@@ -74,11 +74,13 @@
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
 #define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
+#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 
 #define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
+#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -133,6 +135,10 @@
 #define CONFIG_DDR_DATA_EYE	1		/* use DDR2 optimization	*/
 #if 0 /* test-only: disable ECC for now */
 #define CONFIG_DDR_ECC		1		/* enable ECC			*/
+
+/* POST support */
+#define CONFIG_POST		(CFG_POST_ECC)
+
 #endif
 
 /*-----------------------------------------------------------------------

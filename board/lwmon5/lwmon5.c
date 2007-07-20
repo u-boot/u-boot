@@ -463,3 +463,14 @@ void hw_watchdog_reset(void)
 	val = gpio_read_out_bit(CFG_GPIO_WATCHDOG) == 0 ? 1 : 0;
 	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
 }
+
+#ifdef CONFIG_POST
+/*
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(void)
+{
+	return (ctrlc());
+}
+#endif
