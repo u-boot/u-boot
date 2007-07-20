@@ -628,6 +628,12 @@
 #define MAS6	SPRN_MAS6
 #define MAS7	SPRN_MAS7
 
+#if defined(CONFIG_4xx) || defined(CONFIG_44x) || defined(CONFIG_MPC85xx)
+#define DAR_DEAR DEAR
+#else
+#define DAR_DEAR DAR
+#endif
+
 /* Device Control Registers */
 
 #define DCRN_BEAR	0x090	/* Bus Error Address Register */

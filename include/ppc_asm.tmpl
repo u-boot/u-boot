@@ -235,7 +235,7 @@
 	stw	r22,_CTR(r21);	\
 	mfspr	r20,XER;	\
 	stw	r20,_XER(r21);	\
-	mfspr	r20,DEAR;	\
+	mfspr	r20, DAR_DEAR;	\
 	stw	r20,_DAR(r21);	\
 	mfspr	r22,reg1;	\
 	mfspr	r23,reg2;	\
