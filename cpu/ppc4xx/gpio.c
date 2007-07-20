@@ -193,12 +193,12 @@ void gpio_set_chip_configuration(void)
 						 * 0 -> low level
 						 * else -> don't touch
 						 */
-						reg = in32(GPIO0_OR);
+						reg = in32(GPIO1_OR);
 						if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
 							reg |= (0x80000000 >> (i));
 						else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
 							reg &= ~(0x80000000 >> (i));
-						out32(GPIO0_OR, reg);
+						out32(GPIO1_OR, reg);
 
 						reg = in32(GPIO1_TCR) | (0x80000000 >> (i));
 						out32(GPIO1_TCR, reg);
