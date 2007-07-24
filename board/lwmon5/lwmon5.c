@@ -45,16 +45,16 @@ int board_early_init_f(void)
 	mtdcr(uic0sr, 0xffffffff);  /* clear all. if write with 1 then the status is cleared  */
 	mtdcr(uic0er, 0x00000000);  /* disable all */
 	mtdcr(uic0cr, 0x00000000);  /* we have not critical interrupts at the moment */
-	mtdcr(uic0pr, 0xfffff7ff);  /* Adjustment of the polarity */
-	mtdcr(uic0tr, 0x00000810);  /* per ref-board manual */
+	mtdcr(uic0pr, 0xFFBFF1EF);  /* Adjustment of the polarity */
+	mtdcr(uic0tr, 0x00000900);  /* per ref-board manual */
 	mtdcr(uic0vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
 	mtdcr(uic0sr, 0xffffffff);  /* clear all */
 
 	mtdcr(uic1sr, 0xffffffff);  /* clear all */
 	mtdcr(uic1er, 0x00000000);  /* disable all */
 	mtdcr(uic1cr, 0x00000000);  /* all non-critical */
-	mtdcr(uic1pr, 0xFFFFC7AD);  /* Adjustment of the polarity */
-	mtdcr(uic1tr, 0x0600384A);  /* per ref-board manual */
+	mtdcr(uic1pr, 0xFFFFC6A5);  /* Adjustment of the polarity */
+	mtdcr(uic1tr, 0x60000040);  /* per ref-board manual */
 	mtdcr(uic1vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
 	mtdcr(uic1sr, 0xffffffff);  /* clear all */
 
@@ -62,9 +62,9 @@ int board_early_init_f(void)
 	mtdcr(uic2er, 0x00000000);  /* disable all */
 	mtdcr(uic2cr, 0x00000000);  /* all non-critical */
 	mtdcr(uic2pr, 0x27C00000);  /* Adjustment of the polarity */
-	mtdcr(uic2tr, 0xDFC00000);  /* per ref-board manual */
+	mtdcr(uic2tr, 0x3C000000);  /* per ref-board manual */
 	mtdcr(uic2vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
-	mtdcr(uic2sr, 0xffffffff);  /* clear all. Why this??? */
+	mtdcr(uic2sr, 0xffffffff);  /* clear all */
 
 	/* Trace Pins are disabled. SDR0_PFC0 Register */
 	mtsdr(SDR0_PFC0, 0x0);
