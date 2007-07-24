@@ -46,7 +46,7 @@
 
 #define CFG_BOOT_BASE_ADDR	0xf0000000
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CFG_FLASH_BASE		0xfc000000	/* start of FLASH	*/
+#define CFG_FLASH_BASE		0xf8000000	/* start of FLASH	*/
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_LIME_BASE_0         0xc0000000
 #define CFG_LIME_BASE_1         0xc1000000
@@ -105,9 +105,11 @@
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH0		0xFC000000
+#define CFG_FLASH1		0xF8000000
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH1, CFG_FLASH0 }
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -319,7 +321,7 @@
 
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x03050200
-#define CFG_EBC_PB0CR		(CFG_FLASH | 0xdc000)
+#define CFG_EBC_PB0CR		(CFG_FLASH | 0xfc000)
 
 /* Memory Bank 1 (Lime) initialization						*/
 #define CFG_EBC_PB1AP		0x01004380
