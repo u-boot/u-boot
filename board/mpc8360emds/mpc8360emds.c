@@ -682,11 +682,11 @@ ft_board_setup(void *blob, bd_t *bd)
 	int nodeoffset;
 	int tmp[2];
 
-	nodeoffset = fdt_find_node_by_path(fdt, "/memory");
+	nodeoffset = fdt_find_node_by_path(blob, "/memory");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(bd->bi_memstart);
 		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		fdt_setprop(fdt, nodeoffset, "reg", tmp, sizeof(tmp));
+		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
 	}
 #else
 	u32 *p;

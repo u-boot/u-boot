@@ -331,74 +331,74 @@ void watchdog_reset (void)
 /*
  * "Setter" functions used to add/modify FDT entries.
  */
-static int fdt_set_eth0(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_eth0(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	/*
 	 * Fix it up if it exists, don't create it if it doesn't exist.
 	 */
-	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
-		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enetaddr, 6);
+	if (fdt_get_property(blob, nodeoffset, name, 0)) {
+		return fdt_setprop(blob, nodeoffset, name, bd->bi_enetaddr, 6);
 	}
 	return 0;
 }
 #ifdef CONFIG_HAS_ETH1
 /* second onboard ethernet port */
-static int fdt_set_eth1(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_eth1(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	/*
 	 * Fix it up if it exists, don't create it if it doesn't exist.
 	 */
-	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
-		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet1addr, 6);
+	if (fdt_get_property(blob, nodeoffset, name, 0)) {
+		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet1addr, 6);
 	}
 	return 0;
 }
 #endif
 #ifdef CONFIG_HAS_ETH2
 /* third onboard ethernet port */
-static int fdt_set_eth2(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_eth2(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	/*
 	 * Fix it up if it exists, don't create it if it doesn't exist.
 	 */
-	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
-		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet2addr, 6);
+	if (fdt_get_property(blob, nodeoffset, name, 0)) {
+		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet2addr, 6);
 	}
 	return 0;
 }
 #endif
 #ifdef CONFIG_HAS_ETH3
 /* fourth onboard ethernet port */
-static int fdt_set_eth3(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_eth3(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	/*
 	 * Fix it up if it exists, don't create it if it doesn't exist.
 	 */
-	if (fdt_get_property(fdt, nodeoffset, name, 0)) {
-		return fdt_setprop(fdt, nodeoffset, name, bd->bi_enet3addr, 6);
+	if (fdt_get_property(blob, nodeoffset, name, 0)) {
+		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet3addr, 6);
 	}
 	return 0;
 }
 #endif
 
-static int fdt_set_busfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_busfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	u32  tmp;
 	/*
 	 * Create or update the property.
 	 */
 	tmp = cpu_to_be32(bd->bi_busfreq);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
 }
 
-static int fdt_set_tbfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd)
+static int fdt_set_tbfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	u32  tmp;
 	/*
 	 * Create or update the property.
 	 */
 	tmp = cpu_to_be32(OF_TBCLK);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
 }
 
 
@@ -408,7 +408,7 @@ static int fdt_set_tbfreq(void *fdt, int nodeoffset, const char *name, bd_t *bd)
 static const struct {
 	char *node;
 	char *prop;
-	int (*set_fn)(void *fdt, int nodeoffset, const char *name, bd_t *bd);
+	int (*set_fn)(void *blob, int nodeoffset, const char *name, bd_t *bd);
 } fixup_props[] = {
 	{	"/cpus/" OF_CPU,
 		"timebase-frequency",
@@ -502,7 +502,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	int  j;
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_find_node_by_path(fdt, fixup_props[j].node);
+		nodeoffset = fdt_find_node_by_path(blob, fixup_props[j].node);
 		if (nodeoffset >= 0) {
 			err = fixup_props[j].set_fn(blob, nodeoffset,
 						    fixup_props[j].prop, bd);

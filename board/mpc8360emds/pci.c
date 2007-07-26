@@ -310,11 +310,11 @@ ft_pci_setup(void *blob, bd_t *bd)
 	int err;
 	int tmp[2];
 
-	nodeoffset = fdt_find_node_by_path(fdt, "/" OF_SOC "/pci@8500");
+	nodeoffset = fdt_find_node_by_path(blob, "/" OF_SOC "/pci@8500");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(hose[0].first_busno);
 		tmp[1] = cpu_to_be32(hose[0].last_busno);
-		err = fdt_setprop(fdt, nodeoffset, "bus-range", tmp, sizeof(tmp));
+		err = fdt_setprop(blob, nodeoffset, "bus-range", tmp, sizeof(tmp));
 	}
 }
 #elif defined(CONFIG_OF_FLAT_TREE)
