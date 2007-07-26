@@ -1675,6 +1675,9 @@ MPC8313ERDB_66_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
 
+MPC8323ERDB_config:	unconfig
+	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
+
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
