@@ -88,10 +88,10 @@ LIST_4xx="	\
 	ml300		ocotea		OCRTC		ORSG		\
 	p3p440		PCI405		pcs440ep	PIP405		\
 	PLU405		PMC405		PPChameleonEVB	sbc405		\
-	sc3		sequoia		sequoia_nand	taishan		\
-	VOH405		VOM405		W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite	yucca						\
+	sc3		sequoia		sequoia_nand	taihu		\
+	taishan		VOH405		VOM405		W7OLMC		\
+	W7OLMG		walnut		WUH405		XPEDITE1K	\
+	yellowstone	yosemite	yucca				\
 "
 
 #########################################################################

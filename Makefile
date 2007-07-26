@@ -1254,6 +1254,9 @@ rainier_nand_config: unconfig
 sc3_config:unconfig
 	@./mkconfig $(@:_config=) ppc ppc4xx sc3
 
+taihu_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taihu amcc
+
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
 

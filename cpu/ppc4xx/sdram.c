@@ -209,8 +209,17 @@ void sdram_init(void)
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {
 			/*
-			 * OK, size detected -> all done
+			 * OK, size detected.  Enable second bank if
+			 * defined (assumes same type as bank 0)
 			 */
+#ifdef CONFIG_SDRAM_BANK1
+			u32 b1cr = mb0cf[i].size | mb0cf[i].reg;
+
+			mtsdram0(mem_mcopt1, 0x00000000);
+			mtsdram0(mem_mb1cf, b1cr); /* SDRAM0_B1CR */
+			mtsdram0(mem_mcopt1, 0x80800000);
+			udelay(10000);
+#endif
 			return;
 		}
 	}

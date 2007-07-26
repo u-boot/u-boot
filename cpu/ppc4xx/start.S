@@ -1869,6 +1869,11 @@ ppc405ep_init:
 	ori	r3,r3,CFG_EBC_PB4CR@l
 	mtdcr	ebccfgd,r3
 #endif
+#ifdef CONFIG_TAIHU
+	mfdcr	r4, CPC0_BOOT
+	andi.	r5, r4, CPC0_BOOT_SEP@l
+	bne	strap_0			/* serial eeprom present */
+#endif
 
 #ifndef CFG_CPC0_PCI
 	li	r3,CPC0_PCI_HOST_CFG_EN
@@ -1886,12 +1891,16 @@ ppc405ep_init:
 	beq	..pci_cfg_set		  /* if not set, then bypass reg write*/
 #endif
 	ori	r3,r3,CPC0_PCI_ARBIT_EN
+#ifdef CONFIG_TAIHU
+	ori	r3,r3,CPC0_PCI_SPE
+#endif
 #else /* CFG_CPC0_PCI */
 	li	r3,CFG_CPC0_PCI
 #endif /* CFG_CPC0_PCI */
 ..pci_cfg_set:
 	mtdcr	CPC0_PCI, r3		 /* Enable internal arbiter*/
 
+strap_0:
 	/*
 	!-----------------------------------------------------------------------
 	! Check to see if chip is in bypass mode.
@@ -1947,10 +1956,34 @@ ppc405ep_init:
 ..no_pllset:
 #endif /* CONFIG_BUBINGA */
 
+#ifdef CONFIG_TAIHU
+	mfdcr	r4, CPC0_BOOT
+	andi.	r5, r4, CPC0_BOOT_SEP@l
+	bne	strap_1			/* serial eeprom present */
+	addis	r5,0,CPLD_REG0_ADDR@h
+	ori	r5,r5,CPLD_REG0_ADDR@l
+	andi.	r5, r5, 0x10
+	bne	_pci_66mhz
+#endif /* CONFIG_TAIHU */
+
 	addis	r3,0,PLLMR0_DEFAULT@h	    /* PLLMR0 default value */
 	ori	r3,r3,PLLMR0_DEFAULT@l	   /* */
 	addis	r4,0,PLLMR1_DEFAULT@h	    /* PLLMR1 default value */
 	ori	r4,r4,PLLMR1_DEFAULT@l	   /* */
+
+#ifdef CONFIG_TAIHU
+	b	1f
+_pci_66mhz:
+	addis	r3,0,PLLMR0_DEFAULT_PCI66@h
+	ori	r3,r3,PLLMR0_DEFAULT_PCI66@l
+	addis	r4,0,PLLMR1_DEFAULT_PCI66@h
+	ori	r4,r4,PLLMR1_DEFAULT_PCI66@l
+	b	1f
+strap_1:
+	mfdcr	r3, CPC0_PLLMR0
+	mfdcr	r4, CPC0_PLLMR1
+1:
+#endif /* CONFIG_TAIHU */
 
 	b	pll_write		  /* Write the CPC0_PLLMR with new value */
 
