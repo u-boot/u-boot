@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -173,7 +173,6 @@ spd_sdram(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_ddr_t *ddr = &immap->im_ddr;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
 	unsigned int rank_density;
@@ -189,7 +188,7 @@ spd_sdram(void)
 	unsigned int max_data_rate, effective_data_rate;
 	unsigned int busfreq;
 	unsigned sdram_cfg;
-	unsigned int memsize;
+	unsigned int memsize = 0;
 	unsigned char caslat, caslat_ctrl;
 	unsigned int trfc, trfc_clk, trfc_low, trfc_high;
 	unsigned int trcd_clk;
@@ -204,6 +203,46 @@ spd_sdram(void)
 	unsigned int mode_caslat;
 	unsigned char sdram_type;
 	unsigned char d_init;
+	unsigned int bnds;
+
+	/*
+	 * Skip configuration if already configured.
+	 * memsize is determined from last configured chip select.
+	 */
+	if (ddr->cs0_config & 0x80000000) {
+		debug(" cs0 already configured, bnds=%x\n",ddr->cs0_bnds);
+		bnds = 0xfff & ddr->cs0_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+	if (ddr->cs1_config & 0x80000000) {
+		debug(" cs1 already configured, bnds=%x\n",ddr->cs1_bnds);
+		bnds = 0xfff & ddr->cs1_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4; /* assume ordered bnds */
+		}
+	}
+	if (ddr->cs2_config & 0x80000000) {
+		debug(" cs2 already configured, bnds=%x\n",ddr->cs2_bnds);
+		bnds = 0xfff & ddr->cs2_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+	if (ddr->cs3_config & 0x80000000) {
+		debug(" cs3 already configured, bnds=%x\n",ddr->cs3_bnds);
+		bnds = 0xfff & ddr->cs3_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+
+	if (memsize) {
+		printf("       Reusing current %dMB configuration\n",memsize);
+		memsize = setup_laws_and_tlbs(memsize);
+		return memsize << 20;
+	}
 
 	/*
 	 * Read SPD information.
@@ -262,6 +301,7 @@ spd_sdram(void)
 		return 0;
 	}
 
+#ifdef CONFIG_MPC8548
 	/*
 	 * Adjust DDR II IO voltage biasing.
 	 * Only 8548 rev 1 needs the fix
@@ -269,9 +309,11 @@ spd_sdram(void)
 	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
 			(SVR_MJREV(get_svr()) == 1) &&
 			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
+		volatile ccsr_gur_t *gur = &immap->im_gur;
 		gur->ddrioovcr = (0x80000000	/* Enable */
 				  | 0x10000000);/* VSEL to 1.8V */
 	}
+#endif
 
 	/*
 	 * Determine the size of each Rank in bytes.
