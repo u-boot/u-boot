@@ -40,6 +40,7 @@ extern int eth_3com_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int inca_switch_initialize(bd_t*);
 extern int mpc5xxx_fec_initialize(bd_t*);
+extern int mpc512x_fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
@@ -167,6 +168,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_MPC5xxx_FEC)
 	mpc5xxx_fec_initialize(bis);
+#endif
+#if defined(CONFIG_MPC512x_FEC)
+	mpc512x_fec_initialize (bis);
 #endif
 #if defined(CONFIG_MPC8220_FEC)
 	mpc8220_fec_initialize(bis);
