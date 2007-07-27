@@ -1,4 +1,6 @@
 /*
+ * Copyright 2007 Freescale Semiconductor.
+ *
  * (C) Copyright 2003 Motorola Inc.
  * Modified by Xianghua Xiao, X.Xiao@motorola.com
  *
@@ -133,15 +135,18 @@ void cpu_init_f (void)
 #endif
 
 	/* now restrict to preliminary range */
+	/* if cs1 is already set via debugger, leave cs0/cs1 alone */
+	if (! memctl->br1 & 1) {
 #if defined(CFG_BR0_PRELIM) && defined(CFG_OR0_PRELIM)
-	memctl->br0 = CFG_BR0_PRELIM;
-	memctl->or0 = CFG_OR0_PRELIM;
+		memctl->br0 = CFG_BR0_PRELIM;
+		memctl->or0 = CFG_OR0_PRELIM;
 #endif
 
 #if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
-	memctl->or1 = CFG_OR1_PRELIM;
-	memctl->br1 = CFG_BR1_PRELIM;
+		memctl->or1 = CFG_OR1_PRELIM;
+		memctl->br1 = CFG_BR1_PRELIM;
 #endif
+	}
 
 #if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
 	memctl->or2 = CFG_OR2_PRELIM;
@@ -185,16 +190,23 @@ void cpu_init_f (void)
  * The newer 8548, etc, parts have twice as much cache, but
  * use the same bit-encoding as the older 8555, etc, parts.
  *
- * FIXME: Use PVR_VER(pvr) == 1 test here instead of SVR_VER()?
  */
 
 int cpu_init_r(void)
 {
+	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
+
+#ifdef CONFIG_CLEAR_LAW0
+	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
+	ecm->lawar0 = 0;
+#endif
+
 #if defined(CONFIG_L2_CACHE)
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_l2cache_t *l2cache = &immap->im_l2cache;
 	volatile uint cache_ctl;
 	uint svr, ver;
+	uint l2srbar;
 
 	svr = get_svr();
 	ver = SVR_VER(svr);
@@ -204,30 +216,47 @@ int cpu_init_r(void)
 
 	switch (cache_ctl & 0x30000000) {
 	case 0x20000000:
-		if (ver == SVR_8548 || ver == SVR_8548_E) {
+		if (ver == SVR_8548 || ver == SVR_8548_E ||
+		    ver == SVR_8544) {
 			printf ("L2 cache 512KB:");
+			/* set L2E=1, L2I=1, & L2SRAM=0 */
+			cache_ctl = 0xc0000000;
 		} else {
 			printf ("L2 cache 256KB:");
+			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
+			cache_ctl = 0xc8000000;
 		}
 		break;
-	case 0x00000000:
 	case 0x10000000:
+		printf ("L2 cache 256KB:");
+		if (ver == SVR_8544 || ver == SVR_8544_E) {
+			cache_ctl = 0xc0000000; /* set L2E=1, L2I=1, & L2SRAM=0 */
+		}
+		break;
 	case 0x30000000:
+	case 0x00000000:
 	default:
 		printf ("L2 cache unknown size (0x%08x)\n", cache_ctl);
 		return -1;
 	}
 
-	asm("msync;isync");
-	l2cache->l2ctl = 0x68000000; /* invalidate */
-	cache_ctl = l2cache->l2ctl;
-	asm("msync;isync");
-
-	l2cache->l2ctl = 0xa8000000; /* enable 256KB L2 cache */
-	cache_ctl = l2cache->l2ctl;
-	asm("msync;isync");
-
-	printf(" enabled\n");
+	if (l2cache->l2ctl & 0x80000000) {
+		printf(" already enabled.");
+		l2srbar = l2cache->l2srbar0;
+#ifdef CFG_INIT_L2_ADDR
+		if (l2cache->l2ctl & 0x00010000 && l2srbar >= CFG_FLASH_BASE) {
+			l2srbar = CFG_INIT_L2_ADDR;
+			l2cache->l2srbar0 = l2srbar;
+			printf("  Moving to 0x%08x", CFG_INIT_L2_ADDR);
+		}
+#endif /* CFG_INIT_L2_ADDR */
+		puts("\n");
+	} else {
+		asm("msync;isync");
+		l2cache->l2ctl = cache_ctl; /* invalidate & enable */
+		asm("msync;isync");
+		printf(" enabled\n");
+	}
 #else
 	printf("L2 cache: disabled\n");
 #endif
