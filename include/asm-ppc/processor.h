@@ -58,7 +58,6 @@
 #else
 #define MSR_KERNEL	MSR_ME
 #endif
-#define MSR_USER	MSR_KERNEL|MSR_PR|MSR_EE
 
 /* Floating Point Status and Control Register (FPSCR) Fields */
 
