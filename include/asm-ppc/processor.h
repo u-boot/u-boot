@@ -532,7 +532,7 @@
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_MPC86xx)
-#define MSSCR0	SPRN_MSSCRO
+#define MSSCR0	SPRN_MSSCR0
 #endif
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define PIR	SPRN_PIR
