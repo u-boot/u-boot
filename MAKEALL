@@ -82,16 +82,16 @@ LIST_4xx="	\
 	CPCI405DT	CPCI440		CPCIISER4	CRAYL1		\
 	csb272		csb472		DASA_SIM	DP405		\
 	DU405		ebony		ERIC		EXBITGEN	\
-	G2000		HH405		HUB405		JSE		\
-	KAREF		katmai		luan		lwmon5		\
-	METROBOX	MIP405		MIP405T		ML2		\
-	ml300		ocotea		OCRTC		ORSG		\
-	p3p440		PCI405		pcs440ep	PIP405		\
-	PLU405		PMC405		PPChameleonEVB	sbc405		\
-	sc3		sequoia		sequoia_nand	taishan		\
-	VOH405		VOM405		W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite	yucca						\
+	G2000		HH405		hcu4            hcu5            \
+	HUB405          JSE             KAREF		katmai		\
+	luan            lwmon5          METROBOX	MIP405		\
+	MIP405T         ML2             ml300		ocotea		\
+	OCRTC           ORSG            p3p440		PCI405		\
+	pcs440ep        PIP405          PLU405		PMC405		\
+	PPChameleonEVB  sbc405          sc3		sequoia		\
+	sequoia_nand    taishan         VOH405		VOM405		\
+	W7OLMC          W7OLMG          walnut		WUH405		\
+	XPEDITE1K       yellowstone     yosemite	yucca						\
 "
 
 #########################################################################

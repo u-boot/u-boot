@@ -160,6 +160,11 @@ N: Thomas Frieden
 E: ThomasF@hyperion-entertainment.com
 D: Support for AmigaOne
 
+N: Niklaus Giger
+E: niklaus.giger@netstal.com
+D: Support for HCU(x) boards
+W: www.netstal.com
+
 N: Paul Gortmaker
 E: paul.gortmaker@windriver.com
 D: Support for WRS SBC8347/8349 boards
