@@ -1102,6 +1102,9 @@ The following options need to be configured:
 		CONFIG_BOOTP_TIMEOFFSET
 		CONFIG_BOOTP_VENDOREX
 
+		CONFIG_BOOTP_SERVERIP - TFTP server will be the serverip
+		environment variable, not the BOOTP server.
+
 		CONFIG_BOOTP_DNS2 - If a DHCP client requests the DNS
 		serverip from a DHCP server, it is possible that more
 		than one DNS serverip is offered to the client.
@@ -1114,7 +1117,7 @@ The following options need to be configured:
 		CONFIG_BOOTP_SEND_HOSTNAME - Some DHCP servers are capable
 		to do a dynamic update of a DNS server. To do this, they
 		need the hostname of the DHCP requester.
-		If CONFIG_BOOP_SEND_HOSTNAME is defined, the content
+		If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
 		of the "hostname" environment variable is passed as
 		option 12 to the DHCP server.
 
