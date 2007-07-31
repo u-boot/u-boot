@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006 - 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Copyright (c) 2005 Cisco Systems.  All rights reserved.
@@ -40,6 +40,34 @@ enum {
 	LNKW_X8			= 0x8
 };
 
+static inline int pcie_in_8(const volatile unsigned char __iomem *addr)
+{
+	int ret;
+
+	PCIE_IN(lbzx, ret, addr);
+
+	return ret;
+}
+
+static inline int pcie_in_le16(const volatile unsigned short __iomem *addr)
+{
+	int ret;
+
+	PCIE_IN(lhbrx, ret, addr)
+
+	return ret;
+}
+
+static inline unsigned pcie_in_le32(const volatile unsigned __iomem *addr)
+{
+	unsigned ret;
+
+	PCIE_IN(lwbrx, ret, addr);
+
+	return ret;
+}
+
+
 static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	int offset, int len, u32 *val) {
 
@@ -55,13 +83,13 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 
 	switch (len) {
 	case 1:
-		*val = in_8(hose->cfg_data + offset);
+		*val = pcie_in_8(hose->cfg_data + offset);
 		break;
 	case 2:
-		*val = in_le16((u16 *)(hose->cfg_data + offset));
+		*val = pcie_in_le16((u16 *)(hose->cfg_data + offset));
 		break;
 	default:
-		*val = in_le32((u32 *)(hose->cfg_data + offset));
+		*val = pcie_in_le32((u32*)(hose->cfg_data + offset));
 		break;
 	}
 	return 0;

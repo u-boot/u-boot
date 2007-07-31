@@ -151,12 +151,17 @@ MachineCheckException(struct pt_regs *regs)
 	int uncorr_ecc = 0;
 #endif
 
-	/* Probing PCI using config cycles cause this exception
-	 * when a device is not present.  Catch it and return to
-	 * the PCI exception handler.
+	/* Probing PCI(E) using config cycles may cause this exception
+	 * when a device is not present. To gracefully recover in such
+	 * scenarios config read/write routines need to be instrumented in
+	 * order to return via fixup handler. For examples refer to
+	 * pcie_in_8(), pcie_in_le16() and pcie_in_le32()
 	 */
 	if ((fixup = search_exception_table(regs->nip)) != 0) {
 		regs->nip = fixup;
+		val = mfspr(MCSR);
+		/* Clear MCSR */
+                mtspr(SPRN_MCSR, val);
 		return;
 	}
 
