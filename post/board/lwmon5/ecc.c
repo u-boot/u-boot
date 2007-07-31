@@ -236,7 +236,6 @@ int ecc_post_test (int flags)
 	mfsdram(DDR0_00, value);
 	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
 
-
 	/* enable full support of ECC */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
@@ -247,6 +246,17 @@ int ecc_post_test (int flags)
 		if (ret)
 			break;
 	}
+
+	/* clear error status */
+	mfsdram(DDR0_00, value);
+	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
+
+	/*
+	 * Clear possible errors resulting from ECC testing.
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	set_mcsr(get_mcsr());
 #endif
 
 	return ret;

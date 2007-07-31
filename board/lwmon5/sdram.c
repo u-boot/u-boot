@@ -473,7 +473,7 @@ static void program_ecc(u32 start_address,
 		blank_string(strlen(str));
 	} else {
 		/* ECC bit set method for cached memory */
-#if 1 /* test-only: will remove this define later, when ECC problems are solved! */
+#if 0 /* test-only: will remove this define later, when ECC problems are solved! */
 		/*
 		 * Some boards (like lwmon5) need to preserve the memory
 		 * content upon ECC generation (for the log-buffer).
@@ -486,6 +486,11 @@ static void program_ecc(u32 start_address,
 
 		current_address = start_address;
 		while (current_address < end_address) {
+			/*
+			 * TODO: Th following sequence doesn't work correctly.
+			 * Just invalidating and flushing the cache doesn't
+			 * seem to trigger the re-write of the memory.
+			 */
 			ppcDcbi(current_address);
 			ppcDcbf(current_address);
 			current_address += CFG_CACHELINE_SIZE;
@@ -514,19 +519,6 @@ static void program_ecc(u32 start_address,
 }
 #endif
 
-static __inline__ u32 get_mcsr(void)
-{
-	u32 val;
-
-	asm volatile("mfspr %0, 0x23c" : "=r" (val) :);
-	return val;
-}
-
-static __inline__ void set_mcsr(u32 val)
-{
-	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
-}
-
 /*************************************************************************
  *
  * initdram -- 440EPx's DDR controller is a DENALI Core
@@ -534,8 +526,6 @@ static __inline__ void set_mcsr(u32 val)
  ************************************************************************/
 long int initdram (int board_type)
 {
-	u32 val;
-
 #if 0 /* test-only: will remove this define later, when ECC problems are solved! */
 	/* CL=3 */
 	mtsdram(DDR0_02, 0x00000000);
@@ -640,14 +630,6 @@ long int initdram (int board_type)
 	 * Perform data eye search if requested.
 	 */
 	denali_core_search_data_eye(CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20);
-
-	/*
-	 * Clear possible errors resulting from data-eye-search.
-	 * If not done, then we could get an interrupt later on when
-	 * exceptions are enabled.
-	 */
-	val = get_mcsr();
-	set_mcsr(val);
 #endif
 
 #ifdef CONFIG_DDR_ECC
@@ -656,6 +638,13 @@ long int initdram (int board_type)
 	 */
 	program_ecc(CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
 #endif
+
+	/*
+	 * Clear possible errors resulting from data-eye-search.
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	set_mcsr(get_mcsr());
 
 	return (CFG_MBYTES_SDRAM << 20);
 }

@@ -29,8 +29,8 @@
 #if defined(CONFIG_440EP) || \
     defined(CONFIG_440EPX)
 
-#include <ppc4xx.h>
 #include <asm/processor.h>
+#include <ppc4xx.h>
 
 
 int fpu_status(void)
