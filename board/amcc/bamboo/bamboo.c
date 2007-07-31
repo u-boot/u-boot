@@ -32,9 +32,170 @@ void ext_bus_cntlr_init(void);
 void configure_ppc440ep_pins(void);
 int is_nand_selected(void);
 
-unsigned char cfg_simulate_spd_eeprom[128];
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
+/*************************************************************************
+ *
+ * Bamboo has one bank onboard sdram (plus DIMM)
+ *
+ * Fixed memory is composed of :
+ *	MT46V16M16TG-75 from Micron (x 2), 256Mb, 16 M x16, DDR266,
+ *	13 row add bits, 10 column add bits (but 12 row used only).
+ *	ECC device: MT46V16M8TG-75 from Micron (x 1), 128Mb, x8, DDR266,
+ *	12 row add bits, 10 column add bits.
+ *	Prepare a subset (only the used ones) of SPD data
+ *
+ *	Note : if the ECC is enabled (SDRAM_ECC_ENABLE) the size of
+ *	the corresponding bank is divided by 2 due to number of Row addresses
+ *	12 in the ECC module
+ *
+ *  Assumes:	64 MB, ECC, non-registered
+ *		PLB @ 133 MHz
+ *
+ ************************************************************************/
+const unsigned char cfg_simulate_spd_eeprom[128] = {
+	0x80,    /* number of SPD bytes used: 128 */
+	0x08,    /*  total number bytes in SPD device = 256 */
+	0x07,    /* DDR ram */
+#ifdef CONFIG_DDR_ECC
+	0x0C,    /* num Row Addr: 12 */
+#else
+	0x0D,    /* num Row Addr: 13 */
+#endif
+	0x09,    /* numColAddr: 9  */
+	0x01,    /* numBanks: 1 */
+	0x20,    /* Module data width: 32 bits */
+	0x00,    /* Module data width continued: +0 */
+	0x04,    /* 2.5 Volt */
+	0x75,    /* SDRAM Cycle Time (cas latency 2.5) = 7.5 ns */
+#ifdef CONFIG_DDR_ECC
+	0x02,    /* ECC ON : 02 OFF : 00 */
+#else
+	0x00,    /* ECC ON : 02 OFF : 00 */
+#endif
+	0x82,    /* refresh Rate Type: Normal (15.625us) + Self refresh */
+	0,
+	0,
+	0,
+	0x01,    /* wcsbc = 1 */
+	0,
+	0,
+	0x0C,    /* casBit (2,2.5) */
+	0,
+	0,
+	0x00,    /* not registered: 0  registered : 0x02*/
+	0,
+	0xA0,    /* SDRAM Cycle Time (cas latency 2) = 10 ns */
+	0,
+	0x00,    /* SDRAM Cycle Time (cas latency 1.5) = N.A */
+	0,
+	0x50,    /* tRpNs = 20 ns  */
+	0,
+	0x50,    /* tRcdNs = 20 ns */
+	45,      /* tRasNs */
+#ifdef CONFIG_DDR_ECC
+	0x08,    /* bankSizeID: 32MB */
+#else
+	0x10,    /* bankSizeID: 64MB */
+#endif
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+#endif
 
-gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 #if 0
 {	   /* GPIO   Alternate1	      Alternate2	Alternate3 */
     {
@@ -291,72 +452,11 @@ int checkboard(void)
 	return (0);
 }
 
-#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
-/*************************************************************************
- *
- * init_spd_array -- Bamboo has one bank onboard sdram (plus DIMM)
- *
- * Fixed memory is composed of :
- *	MT46V16M16TG-75 from Micron (x 2), 256Mb, 16 M x16, DDR266,
- *	13 row add bits, 10 column add bits (but 12 row used only).
- *	ECC device: MT46V16M8TG-75 from Micron (x 1), 128Mb, x8, DDR266,
- *	12 row add bits, 10 column add bits.
- *	Prepare a subset (only the used ones) of SPD data
- *
- *	Note : if the ECC is enabled (SDRAM_ECC_ENABLE) the size of
- *	the corresponding bank is divided by 2 due to number of Row addresses
- *	12 in the ECC module
- *
- *  Assumes:	64 MB, ECC, non-registered
- *		PLB @ 133 MHz
- *
- ************************************************************************/
-static void init_spd_array(void)
-{
-	cfg_simulate_spd_eeprom[8]     = 0x04;    /* 2.5 Volt */
-	cfg_simulate_spd_eeprom[2]     = 0x07;    /* DDR ram */
-
-#ifdef CONFIG_DDR_ECC
-	cfg_simulate_spd_eeprom[11]    = 0x02;    /* ECC ON : 02 OFF : 00 */
-	cfg_simulate_spd_eeprom[31]    = 0x08;    /* bankSizeID: 32MB */
-	cfg_simulate_spd_eeprom[3]     = 0x0C;    /* num Row Addr: 12 */
-#else
-	cfg_simulate_spd_eeprom[11]    = 0x00;    /* ECC ON : 02 OFF : 00 */
-	cfg_simulate_spd_eeprom[31]    = 0x10;    /* bankSizeID: 64MB */
-	cfg_simulate_spd_eeprom[3]     = 0x0D;    /* num Row Addr: 13 */
-#endif
-
-	cfg_simulate_spd_eeprom[4]     = 0x09;    /* numColAddr: 9  */
-	cfg_simulate_spd_eeprom[5]     = 0x01;    /* numBanks: 1 */
-	cfg_simulate_spd_eeprom[0]     = 0x80;    /* number of SPD bytes used: 128 */
-	cfg_simulate_spd_eeprom[1]     = 0x08;    /*  total number bytes in SPD device = 256 */
-	cfg_simulate_spd_eeprom[21]    = 0x00;    /* not registered: 0  registered : 0x02*/
-	cfg_simulate_spd_eeprom[6]     = 0x20;    /* Module data width: 32 bits */
-	cfg_simulate_spd_eeprom[7]     = 0x00;    /* Module data width continued: +0 */
-	cfg_simulate_spd_eeprom[15]    = 0x01;    /* wcsbc = 1 */
-	cfg_simulate_spd_eeprom[27]    = 0x50;    /* tRpNs = 20 ns  */
-	cfg_simulate_spd_eeprom[29]    = 0x50;    /* tRcdNs = 20 ns */
-
-	cfg_simulate_spd_eeprom[30]    = 45;      /* tRasNs */
-
-	cfg_simulate_spd_eeprom[18]    = 0x0C;    /* casBit (2,2.5) */
-
-	cfg_simulate_spd_eeprom[9]     = 0x75;    /* SDRAM Cycle Time (cas latency 2.5) = 7.5 ns */
-	cfg_simulate_spd_eeprom[23]    = 0xA0;    /* SDRAM Cycle Time (cas latency 2) = 10 ns */
-	cfg_simulate_spd_eeprom[25]    = 0x00;    /* SDRAM Cycle Time (cas latency 1.5) = N.A */
-	cfg_simulate_spd_eeprom[12]    = 0x82;    /* refresh Rate Type: Normal (15.625us) + Self refresh */
-}
-#endif
 
 long int initdram (int board_type)
 {
 #if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 	long dram_size;
-
-	/*
-	 * First write simulated values in eeprom array for onboard bank 0
-	 */
-	init_spd_array();
 
 	dram_size = spd_sdram();
 
@@ -371,11 +471,12 @@ int testdram(void)
 {
 	unsigned long *mem = (unsigned long *)0;
 	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n;
+	unsigned long k, n, *p32, ctr;
+	const unsigned long bend = CFG_MBYTES_SDRAM * 1024 * 1024;
 
 	mtmsr(0);
 
-	for (k = 0; k < CFG_KBYTES_SDRAM;
+	for (k = 0; k <	CFG_MBYTES_SDRAM*1024;
 	     ++k, mem += (1024 / sizeof(unsigned long))) {
 		if ((k & 1023) == 0) {
 			printf("%3d MB\r", k / 1024);
@@ -399,6 +500,34 @@ int testdram(void)
 			}
 		}
 	}
+
+	/*
+	 * Perform a sequence test to ensure that all
+	 * memory locations are uniquely addressable
+	 */
+	ctr = 0;
+	p32 = 0;
+	while ((unsigned long)p32 != bend) {
+		if (0 == ((unsigned long)p32 & ((1<<20)-1)))
+			printf("Writing	%3d MB\r", (unsigned long)p32 >> 20);
+		*p32++ = ctr++;
+	}
+
+	ctr = 0;
+	p32 = 0;
+	while ((unsigned long)p32 != bend) {
+		if (0 == ((unsigned long)p32 & ((1<<20)-1)))
+			printf("Verifying %3d MB\r", (unsigned long)p32 >> 20);
+
+		if (*p32 != ctr) {
+			printf("SDRAM test fails at: %08x\n", p32);
+			return 1;
+		}
+
+		ctr++;
+		p32++;
+	}
+
 	printf("SDRAM test passes\n");
 	return 0;
 }
@@ -1211,7 +1340,7 @@ void uart_selection_in_fpga(uart_config_nb_t uart_config)
 /*----------------------------------------------------------------------------+
   | init_default_gpio
   +----------------------------------------------------------------------------*/
-void init_default_gpio(void)
+void init_default_gpio(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	int i;
 
@@ -1281,7 +1410,7 @@ void init_default_gpio(void)
   |
   +----------------------------------------------------------------------------*/
 
-void update_uart_ios(uart_config_nb_t uart_config)
+void update_uart_ios(uart_config_nb_t uart_config, gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	switch (uart_config)
 	{
@@ -1409,7 +1538,7 @@ void update_uart_ios(uart_config_nb_t uart_config)
 /*----------------------------------------------------------------------------+
   | update_ndfc_ios(void).
   +----------------------------------------------------------------------------*/
-void update_ndfc_ios(void)
+void update_ndfc_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	/* Update GPIO Configuration Table */
 	gpio_tab[GPIO0][6].in_out = GPIO_OUT;	    /* EBC_CS_N(1) */
@@ -1427,7 +1556,7 @@ void update_ndfc_ios(void)
 /*----------------------------------------------------------------------------+
   | update_zii_ios(void).
   +----------------------------------------------------------------------------*/
-void update_zii_ios(void)
+void update_zii_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	/* Update GPIO Configuration Table */
 	gpio_tab[GPIO0][12].in_out = GPIO_IN;	    /* ZII_p0Rxd(0) */
@@ -1477,7 +1606,7 @@ void update_zii_ios(void)
 /*----------------------------------------------------------------------------+
   | update_uic_0_3_irq_ios().
   +----------------------------------------------------------------------------*/
-void update_uic_0_3_irq_ios(void)
+void update_uic_0_3_irq_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO1][8].in_out = GPIO_IN;	    /* UIC_IRQ(0) */
 	gpio_tab[GPIO1][8].alt_nb = GPIO_ALT1;
@@ -1495,7 +1624,7 @@ void update_uic_0_3_irq_ios(void)
 /*----------------------------------------------------------------------------+
   | update_uic_4_9_irq_ios().
   +----------------------------------------------------------------------------*/
-void update_uic_4_9_irq_ios(void)
+void update_uic_4_9_irq_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO1][12].in_out = GPIO_IN;	    /* UIC_IRQ(4) */
 	gpio_tab[GPIO1][12].alt_nb = GPIO_ALT1;
@@ -1516,7 +1645,7 @@ void update_uic_4_9_irq_ios(void)
 /*----------------------------------------------------------------------------+
   | update_dma_a_b_ios().
   +----------------------------------------------------------------------------*/
-void update_dma_a_b_ios(void)
+void update_dma_a_b_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO1][12].in_out = GPIO_OUT;	    /* DMA_ACK(1) */
 	gpio_tab[GPIO1][12].alt_nb = GPIO_ALT2;
@@ -1537,7 +1666,7 @@ void update_dma_a_b_ios(void)
 /*----------------------------------------------------------------------------+
   | update_dma_c_d_ios().
   +----------------------------------------------------------------------------*/
-void update_dma_c_d_ios(void)
+void update_dma_c_d_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO0][0].in_out = GPIO_IN;	    /* DMA_REQ(2) */
 	gpio_tab[GPIO0][0].alt_nb = GPIO_ALT2;
@@ -1562,7 +1691,7 @@ void update_dma_c_d_ios(void)
 /*----------------------------------------------------------------------------+
   | update_ebc_master_ios().
   +----------------------------------------------------------------------------*/
-void update_ebc_master_ios(void)
+void update_ebc_master_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO0][27].in_out = GPIO_IN;	    /* EXT_EBC_REQ */
 	gpio_tab[GPIO0][27].alt_nb = GPIO_ALT1;
@@ -1580,7 +1709,7 @@ void update_ebc_master_ios(void)
 /*----------------------------------------------------------------------------+
   | update_usb2_device_ios().
   +----------------------------------------------------------------------------*/
-void update_usb2_device_ios(void)
+void update_usb2_device_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO0][26].in_out = GPIO_IN;	    /* USB2D_RXVALID */
 	gpio_tab[GPIO0][26].alt_nb = GPIO_ALT2;
@@ -1611,20 +1740,21 @@ void update_usb2_device_ios(void)
 /*----------------------------------------------------------------------------+
   | update_pci_patch_ios().
   +----------------------------------------------------------------------------*/
-void update_pci_patch_ios(void)
+void update_pci_patch_ios(gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	gpio_tab[GPIO0][29].in_out = GPIO_OUT;	    /* EBC_EXT_HDLA */
 	gpio_tab[GPIO0][29].alt_nb = GPIO_ALT1;
 }
 
 /*----------------------------------------------------------------------------+
-  |   set_chip_gpio_configuration(unsigned char gpio_core)
+  |   set_chip_gpio_configuration(unsigned char gpio_core,
+  |                               gpio_param_s (*gpio_tab)[GPIO_MAX])
   |   Put the core impacted by clock modification and sharing in reset.
   |   Config the select registers to resolve the sharing depending of the config.
   |   Configure the GPIO registers.
   |
   +----------------------------------------------------------------------------*/
-void set_chip_gpio_configuration(unsigned char gpio_core)
+void set_chip_gpio_configuration(unsigned char gpio_core, gpio_param_s (*gpio_tab)[GPIO_MAX])
 {
 	unsigned char i=0, j=0, reg_offset = 0;
 	unsigned long gpio_reg, gpio_core_add;
@@ -1778,11 +1908,12 @@ void configure_ppc440ep_pins(void)
 			CORE_NOT_SELECTED	/* PCI_PATCH */
 		};
 
+	gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX];
 
 	/* Table Default Initialisation + FPGA Access */
-	init_default_gpio();
-	set_chip_gpio_configuration(GPIO0);
-	set_chip_gpio_configuration(GPIO1);
+	init_default_gpio(gpio_tab);
+	set_chip_gpio_configuration(GPIO0, gpio_tab);
+	set_chip_gpio_configuration(GPIO1, gpio_tab);
 
 	/* Update Table */
 	force_bup_core_selection(ppc440ep_core_selection, &config_val);
@@ -1817,7 +1948,7 @@ void configure_ppc440ep_pins(void)
 	/* UIC 0:3 Selection */
 	if (ppc440ep_core_selection[UIC_0_3] == CORE_SELECTED)
 	{
-		update_uic_0_3_irq_ios();
+		update_uic_0_3_irq_ios(gpio_tab);
 		dma_a_b_unselect_in_fpga();
 	}
 
@@ -1825,21 +1956,21 @@ void configure_ppc440ep_pins(void)
 	if (ppc440ep_core_selection[UIC_4_9] == CORE_SELECTED)
 	{
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_DIS_MASK) | SDR0_PFC1_DIS_UICIRQ5_SEL;
-		update_uic_4_9_irq_ios();
+		update_uic_4_9_irq_ios(gpio_tab);
 	}
 
 	/* DMA AB Selection */
 	if (ppc440ep_core_selection[DMA_CHANNEL_AB] == CORE_SELECTED)
 	{
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_DIS_MASK) | SDR0_PFC1_DIS_DMAR_SEL;
-		update_dma_a_b_ios();
+		update_dma_a_b_ios(gpio_tab);
 		dma_a_b_selection_in_fpga();
 	}
 
 	/* DMA CD Selection */
 	if (ppc440ep_core_selection[DMA_CHANNEL_CD] == CORE_SELECTED)
 	{
-		update_dma_c_d_ios();
+		update_dma_c_d_ios(gpio_tab);
 		dma_c_d_selection_in_fpga();
 	}
 
@@ -1848,14 +1979,14 @@ void configure_ppc440ep_pins(void)
 	{
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_ERE_MASK) | SDR0_PFC1_ERE_EXTR_SEL;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UES_MASK) | SDR0_PFC1_UES_EBCHR_SEL;
-		update_ebc_master_ios();
+		update_ebc_master_ios(gpio_tab);
 	}
 
 	/* PCI Patch Enable */
 	if (ppc440ep_core_selection[PCI_PATCH] == CORE_SELECTED)
 	{
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UES_MASK) | SDR0_PFC1_UES_EBCHR_SEL;
-		update_pci_patch_ios();
+		update_pci_patch_ios(gpio_tab);
 	}
 
 	/* USB2 Host Selection - Not Implemented in PowerPC 440EP Pass1 */
@@ -1871,7 +2002,7 @@ void configure_ppc440ep_pins(void)
 	/* USB2.0 Device Selection */
 	if (ppc440ep_core_selection[USB2_DEVICE] == CORE_SELECTED)
 	{
-		update_usb2_device_ios();
+		update_usb2_device_ios(gpio_tab);
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UES_MASK) | SDR0_PFC1_UES_USB2D_SEL;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UPR_MASK) | SDR0_PFC1_UPR_DISABLE;
 
@@ -1904,7 +2035,7 @@ void configure_ppc440ep_pins(void)
 	/* NAND Flash Selection */
 	if (ppc440ep_core_selection[NAND_FLASH] == CORE_SELECTED)
 	{
-		update_ndfc_ios();
+		update_ndfc_ios(gpio_tab);
 
 #if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
@@ -1933,7 +2064,7 @@ void configure_ppc440ep_pins(void)
 	/* MII Selection */
 	if (ppc440ep_core_selection[MII_SEL] == CORE_SELECTED)
 	{
-		update_zii_ios();
+		update_zii_ios(gpio_tab);
 		mfsdr(sdr_mfr, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_MII;
 		mtsdr(sdr_mfr, sdr0_mfr);
@@ -1944,7 +2075,7 @@ void configure_ppc440ep_pins(void)
 	/* RMII Selection */
 	if (ppc440ep_core_selection[RMII_SEL] == CORE_SELECTED)
 	{
-		update_zii_ios();
+		update_zii_ios(gpio_tab);
 		mfsdr(sdr_mfr, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_10M;
 		mtsdr(sdr_mfr, sdr0_mfr);
@@ -1955,7 +2086,7 @@ void configure_ppc440ep_pins(void)
 	/* SMII Selection */
 	if (ppc440ep_core_selection[SMII_SEL] == CORE_SELECTED)
 	{
-		update_zii_ios();
+		update_zii_ios(gpio_tab);
 		mfsdr(sdr_mfr, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_SMII;
 		mtsdr(sdr_mfr, sdr0_mfr);
@@ -1992,7 +2123,7 @@ void configure_ppc440ep_pins(void)
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U1ME_MASK) | SDR0_PFC1_U1ME_DSR_DTR;
 		break;
 	}
-	update_uart_ios(uart_configuration);
+	update_uart_ios(uart_configuration, gpio_tab);
 
 	/* UART Selection in all cases */
 	uart_selection_in_fpga(uart_configuration);
@@ -2014,8 +2145,8 @@ void configure_ppc440ep_pins(void)
 
 	/* Perform effective access to hardware */
 	mtsdr(sdr_pfc1, sdr0_pfc1);
-	set_chip_gpio_configuration(GPIO0);
-	set_chip_gpio_configuration(GPIO1);
+	set_chip_gpio_configuration(GPIO0, gpio_tab);
+	set_chip_gpio_configuration(GPIO1, gpio_tab);
 
 	/* USB2.0 Device Reset must be done after GPIO setting */
 	if (ppc440ep_core_selection[USB2_DEVICE] == CORE_SELECTED)

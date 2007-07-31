@@ -269,7 +269,7 @@ struct bank_param {
 typedef struct bank_param BANKPARMS;
 
 #ifdef CFG_SIMULATE_SPD_EEPROM
-extern unsigned char cfg_simulate_spd_eeprom[128];
+extern const unsigned char cfg_simulate_spd_eeprom[128];
 #endif
 
 static unsigned char spd_read(uchar chip, uint addr);
