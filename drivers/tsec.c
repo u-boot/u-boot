@@ -71,6 +71,7 @@ static struct tsec_info_struct tsec_info[] = {
 #else
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
 #endif
+#else
 	{0, 0, 0},
 #endif
 #if defined(CONFIG_TSEC2)
@@ -79,6 +80,7 @@ static struct tsec_info_struct tsec_info[] = {
 #else
 	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
 #endif
+#else
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
