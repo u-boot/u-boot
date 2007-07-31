@@ -783,9 +783,14 @@ void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	/*
 	 * Set bus numbers on our root port
 	 */
-	out_8((u8 *)mbase + PCI_PRIMARY_BUS, 0);
-	out_8((u8 *)mbase + PCI_SECONDARY_BUS, 1);
-	out_8((u8 *)mbase + PCI_SUBORDINATE_BUS, 1);
+	if (ppc440spe_revB()) {
+		out_8((u8 *)mbase + PCI_PRIMARY_BUS, 0);
+		out_8((u8 *)mbase + PCI_SECONDARY_BUS, 1);
+		out_8((u8 *)mbase + PCI_SUBORDINATE_BUS, 1);
+	} else {
+		out_8((u8 *)mbase + PCI_PRIMARY_BUS, 0);
+		out_8((u8 *)mbase + PCI_SECONDARY_BUS, 0);
+	}
 
 	/*
 	 * Set up outbound translation to hose->mem_space from PLB
