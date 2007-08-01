@@ -375,9 +375,9 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1/* Flash can be at one of two addresses */
+#define CFG_MAX_FLASH_BANKS	1		/* Flash can be at one of two addresses */
 #define FLASH_BANK_SIZE		0x01000000	/* 16 MB Total */
-#define CFG_FLASH_BANKS_LIST {CFG_FLASH_BASE, CFG_FLASH_BASE2}
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, /* CFG_FLASH_BASE2 */ }
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI

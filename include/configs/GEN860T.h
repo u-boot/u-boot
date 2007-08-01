@@ -248,7 +248,7 @@
 #endif
 
 #ifdef CONFIG_POST
-u #define CONFIG_CMD_DIAG
+#define CONFIG_CMD_DIAG
 #endif
 
 /*

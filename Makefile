@@ -1646,14 +1646,15 @@ r5200_config :		unconfig
 
 MPC8313ERDB_33_config \
 MPC8313ERDB_66_config: unconfig
-	@echo "" >include/config.h ; \
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo -n "...33M ..." ; \
-		echo "#define CFG_33MHZ" >>include/config.h ; \
+		echo "...33M ..." ; \
+		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo -n "...66M..." ; \
-		echo "#define CFG_66MHZ" >>include/config.h ; \
+		echo "...66M..." ; \
+		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
 
@@ -1661,23 +1662,24 @@ MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
 MPC832XEMDS_SLAVE_config:	unconfig
-	@echo "" >include/config.h ; \
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo -n "... PCI HOST " ; \
-		echo "#define CONFIG_PCI" >>include/config.h ; \
+		echo "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
 		echo "...PCI SLAVE 66M"  ; \
-		echo "#define CONFIG_PCI" >>include/config.h ; \
-		echo "#define CONFIG_PCISLAVE" >>include/config.h ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo -n "...33M ..." ; \
-		echo "#define PCI_33M" >>include/config.h ; \
+		echo "...33M ..." ; \
+		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo -n "...66M..." ; \
-		echo "#define PCI_66M" >>include/config.h ; \
+		echo "...66M..." ; \
+		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds
 
@@ -1702,23 +1704,24 @@ MPC8360EMDS_config \
 MPC8360EMDS_HOST_33_config \
 MPC8360EMDS_HOST_66_config \
 MPC8360EMDS_SLAVE_config:	unconfig
-	@echo "" >include/config.h ; \
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo -n "... PCI HOST " ; \
-		echo "#define CONFIG_PCI" >>include/config.h ; \
+		echo "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
 		echo "...PCI SLAVE 66M"  ; \
-		echo "#define CONFIG_PCI" >>include/config.h ; \
-		echo "#define CONFIG_PCISLAVE" >>include/config.h ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo -n "...33M ..." ; \
-		echo "#define PCI_33M" >>include/config.h ; \
+		echo "...33M ..." ; \
+		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo -n "...66M..." ; \
-		echo "#define PCI_66M" >>include/config.h ; \
+		echo "...66M..." ; \
+		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
 
@@ -1744,10 +1747,10 @@ MPC8540EVAL_66_slave_config:      unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo -n "... 33 MHz PCI" ; \
+		echo "... 33 MHz PCI" ; \
 	else \
 		echo "#define CONFIG_SYSCLK_66M" >>$(obj)include/config.h ; \
-		echo -n "... 66 MHz PCI" ; \
+		echo "... 66 MHz PCI" ; \
 	fi ; \
 	if [ "$(findstring _slave_,$@)" ] ; then \
 		echo "#define CONFIG_PCI_SLAVE" >>$(obj)include/config.h ; \
@@ -2008,13 +2011,13 @@ omap1610h2_cs3boot_config \
 omap1610h2_cs_autoboot_config:	unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
-		echo "#define CONFIG_CS0_BOOT" >> .$(obj)/include/config.h ; \
+		echo "#define CONFIG_CS0_BOOT" >> .$(obj)include/config.h ; \
 		echo "... configured for CS0 boot"; \
 	elif [ "$(findstring _cs_autoboot_, $@)" ] ; then \
-		echo "#define CONFIG_CS_AUTOBOOT" >> $(obj)./include/config.h ; \
+		echo "#define CONFIG_CS_AUTOBOOT" >> $(obj)include/config.h ; \
 		echo "... configured for CS_AUTO boot"; \
 	else \
-		echo "#define CONFIG_CS3_BOOT" >> $(obj)./include/config.h ; \
+		echo "#define CONFIG_CS3_BOOT" >> $(obj)include/config.h ; \
 		echo "... configured for CS3 boot"; \
 	fi;
 	@$(MKCONFIG) -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn NULL omap
@@ -2183,11 +2186,12 @@ logodl_config	:	unconfig
 
 pdnb3_config \
 scpu_config:    unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring scpu_,$@)" ] ; then \
-		echo "#define CONFIG_SCPU"      >>include/config.h ; \
+		echo "#define CONFIG_SCPU"      >>$(obj)include/config.h ; \
 		echo "... on SCPU board variant" ; \
 	else \
-		>include/config.h ; \
+		>$(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -a pdnb3 arm ixp pdnb3 prodrive
 
@@ -2409,13 +2413,15 @@ suzaku_config:	unconfig
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
 
 ml401_config:	unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_ML401 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@ >$(obj)include/config.h
+	@echo "#define CONFIG_ML401 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze ml401 xilinx
 
 xupv2p_config:	unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_XUPV2P 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@ >$(obj)include/config.h
+	@echo "#define CONFIG_XUPV2P 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
 
 #########################################################################

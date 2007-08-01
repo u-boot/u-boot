@@ -63,9 +63,10 @@ int checkboard(void)
 
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
+#ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC86xx_PORBMSR_HA) >> 17;
 	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
-
+#endif
 	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
 	     || io_sel == 6 || io_sel == 7 || io_sel == 0xF)
 	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {

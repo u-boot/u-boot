@@ -265,7 +265,7 @@
 #define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{{0,0x69}} /* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 

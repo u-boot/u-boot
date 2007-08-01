@@ -294,7 +294,7 @@
 #define CONFIG_BOOTP_BOOTPATH
 
 #define CONFIG_BOOTP_BOOTFILESIZE
-#definef CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS
 
 /* undef this to save memory */
 #define CFG_LONGHELP
