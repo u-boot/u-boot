@@ -464,7 +464,8 @@
 #define ESR_ST          0x00800000      /* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
-#define SPRN_MSSCRO	0x3f6
+#define SPRN_MSSCR0	0x3f6
+#define SPRN_MSSSR0	0x3f7
 #endif
 
 

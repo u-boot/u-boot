@@ -8,7 +8,7 @@
  * (C) Copyright 2003 Motorola Inc. (MPC85xx port)
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
- * (C) Copyright 2004 Freescale Semiconductor. (MPC86xx Port)
+ * (C) Copyright 2004, 2007 Freescale Semiconductor. (MPC86xx Port)
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -80,25 +80,10 @@ int interrupt_init(void)
 {
 	int ret;
 
-	/*
-	 * The IRQ0 on Rev 2 is pulled high (low in Rev 1.x) to
-	 * implement PEX10 errata.  As INT is active high, it
-	 * will cause core to take 0x500 interrupt.
-	 *
-	 * Due to the PIC's default pass through mode, as soon
-	 * as interrupts are enabled (MSR[EE] = 1), an interrupt
-	 * will be taken and u-boot will hang.  This is due to a
-	 * hardware change (per an errata fix) on new revisions
-	 * of the board with Rev 2.x parts.
-	 *
-	 * Setting the PIC to mixed mode prevents the hang.
-	 */
-	if ((get_svr() & 0xf0) == 0x20) {
-		volatile immap_t *immr = (immap_t *)CFG_IMMR;
-		immr->im_pic.gcr = MPC86xx_PICGCR_RST;
-		while (immr->im_pic.gcr & MPC86xx_PICGCR_RST);
-		immr->im_pic.gcr = MPC86xx_PICGCR_MODE;
-	}
+	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	immr->im_pic.gcr = MPC86xx_PICGCR_RST;
+	while (immr->im_pic.gcr & MPC86xx_PICGCR_RST);
+	immr->im_pic.gcr = MPC86xx_PICGCR_MODE;
 
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	ret = interrupt_init_cpu(&decrementer_count);
@@ -118,6 +103,30 @@ int interrupt_init(void)
 	debug("MSR = 0x%08lx, Decrementer reg = 0x%08lx\n",
 	      get_msr(),
 	      get_dec());
+
+#ifdef CONFIG_INTERRUPTS
+	volatile ccsr_pic_t *pic = &immr->im_pic;
+
+	pic->iivpr1 = 0x810001;	/* 50220 enable mcm interrupts */
+	debug("iivpr1@%x = %x\n", &pic->iivpr1, pic->iivpr1);
+
+	pic->iivpr2 = 0x810002;	/* 50240 enable ddr interrupts */
+	debug("iivpr2@%x = %x\n", &pic->iivpr2, pic->iivpr2);
+
+	pic->iivpr3 = 0x810003;	/* 50260 enable lbc interrupts */
+	debug("iivpr3@%x = %x\n", &pic->iivpr3, pic->iivpr3);
+
+#if defined(CONFIG_PCI1) || defined(CONFIG_PCIE1)
+	pic->iivpr8 = 0x810008;	/* enable pcie1 interrupts */
+	debug("iivpr8@%x = %x\n", &pic->iivpr8, pic->iivpr8);
+#endif
+#if defined(CONFIG_PCI2) || defined(CONFIG_PCIE2)
+	pic->iivpr9 = 0x810009;	/* enable pcie2 interrupts */
+	debug("iivpr9@%x = %x\n", &pic->iivpr9, pic->iivpr9);
+#endif
+
+	pic->ctpr = 0;	/* 40080 clear current task priority register */
+#endif
 
 	return 0;
 }
@@ -157,8 +166,6 @@ void timer_interrupt(struct pt_regs *regs)
 	timer_interrupt_cpu(regs);
 
 	timestamp++;
-
-	ppcDcbf((unsigned long)&timestamp);
 
 	/* Restore Decrementer Count */
 	set_dec(decrementer_count);
