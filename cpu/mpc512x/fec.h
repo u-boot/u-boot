@@ -28,7 +28,7 @@ typedef struct ethernet_register_set {
 	volatile uint32 RES0[1];		/* MBAR_ETH + 0x00C */
 	volatile uint32 r_des_active;		/* MBAR_ETH + 0x010 */
 	volatile uint32 x_des_active;		/* MBAR_ETH + 0x014 */
-	
+
 	volatile uint32 RES1[3];		/* MBAR_ETH + 0x018-020 */
 	volatile uint32 ecntrl;			/* MBAR_ETH + 0x024 */
 
@@ -42,10 +42,10 @@ typedef struct ethernet_register_set {
 	volatile uint32 RES4[7];		/* MBAR_ETH + 0x068-80 */
 	volatile uint32 r_cntrl;		/* MBAR_ETH + 0x084 */
 	volatile uint32 r_hash;			/* MBAR_ETH + 0x088 */
-	
+
 	volatile uint32 RES5[14];		/* MBAR_ETH + 0x08c-0C0 */
 	volatile uint32 x_cntrl;		/* MBAR_ETH + 0x0C4 */
-	
+
 	volatile uint32 RES6[7];		/* MBAR_ETH + 0x0C8-0E0 */
 	volatile uint32 paddr1;			/* MBAR_ETH + 0x0E4 */
 	volatile uint32 paddr2;			/* MBAR_ETH + 0x0E8 */
@@ -63,7 +63,7 @@ typedef struct ethernet_register_set {
 	volatile uint32 RES9[1];		/* MBAR_ETH + 0x148 */
 	volatile uint32 r_bound;		/* MBAR_ETH + 0x14C */
 	volatile uint32 r_fstart;		/* MBAR_ETH + 0x150 */
-	
+
 	volatile uint32 RES10[11];		/* MBAR_ETH + 0x154-17C */
 	volatile uint32 r_des_start;		/* MBAR_ETH + 0x180 */
 	volatile uint32 x_des_start;		/* MBAR_ETH + 0x184 */

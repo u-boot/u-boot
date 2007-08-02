@@ -76,7 +76,7 @@ void cpu_init_f (volatile immap_t * im)
 	 *
 	 * NOTICE: TB needs to be enabled as early as possible in order to
 	 * have udelay() working; if not enabled, usually leads to a hang, like
-	 * during FLASH chip identification etc. 
+	 * during FLASH chip identification etc.
 	 */
 	im->sysconf.spcr |= SPCR_TBEN;
 }

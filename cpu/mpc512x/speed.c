@@ -79,14 +79,14 @@ int get_clocks (void)
 
 	spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
 	spll = ref_clk * spmf_mult[spmf];
-	
+
 	sys_div = (im->clk.scfr[1] & SCFR2_SYS_DIV) >> SCFR2_SYS_DIV_SHIFT;
 	sys_clk = (spll * sys_dividors[sys_div][1]) / sys_dividors[sys_div][0];
 
 	csb_clk = sys_clk / 2;
 
-        cpmf = (im->clk.spmr & SPMR_CPMF) >> SPMR_CPMF_SHIFT;
-        core_clk = (csb_clk * cpmf_mult[cpmf][0]) / cpmf_mult[cpmf][1];
+	cpmf = (im->clk.spmr & SPMR_CPMF) >> SPMR_CPMF_SHIFT;
+	core_clk = (csb_clk * cpmf_mult[cpmf][0]) / cpmf_mult[cpmf][1];
 
 	ips_div = (im->clk.scfr[0] & SCFR1_IPS_DIV_MASK) >> SCFR1_IPS_DIV_SHIFT;
 	if (ips_div != 0) {

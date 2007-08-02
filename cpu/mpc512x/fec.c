@@ -77,20 +77,20 @@ static int mpc512x_fec_bd_init (mpc512x_fec_priv *fec)
 	 * Trasmit BDs init
 	 */
 	for (ix = 0; ix < FEC_TBD_NUM; ix++) {
-                fec->bdBase->tbd[ix].status = 0;
-        }
+		fec->bdBase->tbd[ix].status = 0;
+	}
 
-        /*
-         * Have the last TBD to close the ring
-         */
-        fec->bdBase->tbd[ix - 1].status |= FEC_TBD_WRAP;
+	/*
+	 * Have the last TBD to close the ring
+	 */
+	fec->bdBase->tbd[ix - 1].status |= FEC_TBD_WRAP;
 
-        /*
-         * Initialize some indices
-         */
-        fec->tbdIndex = 0;
-        fec->usedTbdIndex = 0;
-        fec->cleanTbdNum = FEC_TBD_NUM;
+	/*
+	 * Initialize some indices
+	 */
+	fec->tbdIndex = 0;
+	fec->usedTbdIndex = 0;
+	fec->cleanTbdNum = FEC_TBD_NUM;
 
 	return 0;
 }
@@ -238,7 +238,7 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 	fec->eth->r_cntrl = 0x05ee000c;
 
 	/* Half-duplex, heartbeat disabled */
-	fec->eth->x_cntrl = 0x00000000; 
+	fec->eth->x_cntrl = 0x00000000;
 
 	/* Enable MIB counters */
 	fec->eth->mib_control = 0x0;
@@ -260,7 +260,7 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 	/* Initilize addresses and status words of BDs */
 	mpc512x_fec_bd_init (fec);
 
-	 /* Descriptor polling active */	
+	 /* Descriptor polling active */
 	fec->eth->r_des_active = 0x01000000;
 
 #if (DEBUG & 0x1)
@@ -296,7 +296,7 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		fec->eth->mii_speed = (((gd->ipb_clk / 1000000) / 5) + 1) << 1;	
+		fec->eth->mii_speed = (((gd->ipb_clk / 1000000) / 5) + 1) << 1;
 
 		/*
 		 * Reset PHY, then delay 300ns
@@ -312,7 +312,7 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 			printf ("Forcing 10 Mbps ethernet link... ");
 #endif
 			miiphy_read (dev->name, phyAddr, 0x1, &phyStatus);
-			
+
 			miiphy_write (dev->name, phyAddr, 0x0, 0x0180);
 
 			timeout = 20;
@@ -346,7 +346,7 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 #if (DEBUG & 0x2)
 			printf ("done.\n");
 #endif
-		} else {        /* MII100 */
+		} else {	/* MII100 */
 			/*
 			 * Set the auto-negotiation advertisement register bits
 			 */
@@ -487,7 +487,7 @@ static int mpc512x_fec_send (struct eth_device *dev, volatile void *eth_data,
 	pTbd->dataPointer = (uint32)eth_data;
 	pTbd->status |= FEC_TBD_LAST | FEC_TBD_TC | FEC_TBD_READY;
 	fec->tbdIndex = (fec->tbdIndex + 1) % FEC_TBD_NUM;
-	
+
 	/* Activate transmit Buffer Descriptor polling */
 	fec->eth->x_des_active = 0x01000000;	/* Descriptor polling active	*/
 
@@ -529,7 +529,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 #if (DEBUG & 0x8)
 	printf( "-" );
 #endif
-	
+
 	/*
 	 * Check if any critical events have happened
 	 */
@@ -555,10 +555,10 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	}
 
 	if (!(pRbd->status & FEC_RBD_EMPTY)) {
-		if ((pRbd->status & FEC_RBD_LAST) && 
+		if ((pRbd->status & FEC_RBD_LAST) &&
 			!(pRbd->status & FEC_RBD_ERR) &&
 			((pRbd->dataLength - 4) > 14)) {
-			
+
 			/*
 			 * Get buffer size
 			 */
@@ -635,7 +635,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	 * Initialize I\O pins
 	 */
 	reg = (uint32 *) &(im->io_ctrl.regs[PSC0_0_IDX]);
-	
+
 	for (i = 0; i < 15; i++)
 		reg[i] = IOCTRL_MUX_FEC | 0x00000001;
 
@@ -645,13 +645,13 @@ int mpc512x_fec_initialize (bd_t * bis)
 
 	/* Clean up space FEC's MIB and FIFO RAM ...*/
 	memset ((void *) MPC512X_FEC + 0x200, 0x00, 0x400);
-	
-	/* 
+
+	/*
 	 * Malloc space for BDs  (must be quad word-aligned)
-	 * this pointer is lost, so cannot be freed 
+	 * this pointer is lost, so cannot be freed
 	 */
 	bd = malloc (sizeof(mpc512x_buff_descs) + 0x1f);
-	fec->bdBase = (mpc512x_buff_descs*)((uint32)bd & 0xfffffff0); 
+	fec->bdBase = (mpc512x_buff_descs*)((uint32)bd & 0xfffffff0);
 	memset ((void *) bd, 0x00, sizeof(mpc512x_buff_descs) + 0x1f);
 
 	/*

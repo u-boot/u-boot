@@ -65,48 +65,49 @@
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 
 /* DDR Controller Configuration
-
-SYS_CFG:
- 	[31:31]	MDDRC Soft Reset:	Diabled
-	[30:30]	DRAM CKE pin:		Enabled
-	[29:29]	DRAM CLK:		Enabled
-	[28:28]	Command Mode:		Enabled (For initialization only)    
-	[27:25]	DRAM Row Select:	dram_row[15:0] = magenta_address[25:10]
-	[24:21]	DRAM Bank Select:	dram_bank[1:0] = magenta_address[11:10]
-	[20:19]	Read Test:		DON'T USE
-	[18:18]	Self Refresh:		Enabled
-	[17:17]	16bit Mode:		Disabled
-	[16:13] Ready Delay:		2
-	[12:12]	Half DQS Delay:		Disabled
-	[11:11]	Quarter DQS Delay:	Disabled
-	[10:08]	Write Delay:		2
-	[07:07]	Early ODT:		Disabled
-	[06:06]	On DIE Termination:	Disabled
-	[05:05]	FIFO Overflow Clear:	DON'T USE here
-	[04:04]	FIFO Underflow Clear:	DON'T USE here
-	[03:03]	FIFO Overflow Pending:	DON'T USE here
-	[02:02]	FIFO Underlfow Pending:	DON'T USE here
-	[01:01]	FIFO Overlfow Enabled:	Enabled
-	[00:00]	FIFO Underflow Enabled:	Enabled
- TIME_CFG0
- 	[31:16]	DRAM Refresh Time:	0 CSB clocks	
-	[15:8]	DRAM Command Time:	0 CSB clocks
-	[07:00]	DRAM Precharge Time:	0 CSB clocks
- TIME_CFG1
- 	[31:26]	DRAM tRFC:
-	[25:21]	DRAM tWR1:
-	[20:17]	DRAM tWRT1:
-	[16:11]	DRAM tDRR:
-	[10:05]	DRAM tRC:
-	[04:00]	DRAM tRAS:
- TIME_CFG2
- 	[31:28]	DRAM tRCD:
-	[27:23]	DRAM tFAW:
-	[22:19]	DRAM tRTW1:
-	[18:15]	DRAM tCCD:
-	[14:10] DRAM tRTP:
-	[09:05]	DRAM tRP:
-	[04:00] DRAM tRPA */
+ *
+ * SYS_CFG:
+ *	[31:31]	MDDRC Soft Reset:	Diabled
+ *	[30:30]	DRAM CKE pin:		Enabled
+ *	[29:29]	DRAM CLK:		Enabled
+ *	[28:28]	Command Mode:		Enabled (For initialization only)
+ *	[27:25]	DRAM Row Select:	dram_row[15:0] = magenta_address[25:10]
+ *	[24:21]	DRAM Bank Select:	dram_bank[1:0] = magenta_address[11:10]
+ *	[20:19]	Read Test:		DON'T USE
+ *	[18:18]	Self Refresh:		Enabled
+ *	[17:17]	16bit Mode:		Disabled
+ *	[16:13] Ready Delay:		2
+ *	[12:12]	Half DQS Delay:		Disabled
+ *	[11:11]	Quarter DQS Delay:	Disabled
+ *	[10:08]	Write Delay:		2
+ *	[07:07]	Early ODT:		Disabled
+ *	[06:06]	On DIE Termination:	Disabled
+ *	[05:05]	FIFO Overflow Clear:	DON'T USE here
+ *	[04:04]	FIFO Underflow Clear:	DON'T USE here
+ *	[03:03]	FIFO Overflow Pending:	DON'T USE here
+ *	[02:02]	FIFO Underlfow Pending:	DON'T USE here
+ *	[01:01]	FIFO Overlfow Enabled:	Enabled
+ *	[00:00]	FIFO Underflow Enabled:	Enabled
+ * TIME_CFG0
+ *	[31:16]	DRAM Refresh Time:	0 CSB clocks
+ *	[15:8]	DRAM Command Time:	0 CSB clocks
+ *	[07:00]	DRAM Precharge Time:	0 CSB clocks
+ * TIME_CFG1
+ *	[31:26]	DRAM tRFC:
+ *	[25:21]	DRAM tWR1:
+ *	[20:17]	DRAM tWRT1:
+ *	[16:11]	DRAM tDRR:
+ *	[10:05]	DRAM tRC:
+ *	[04:00]	DRAM tRAS:
+ * TIME_CFG2
+ *	[31:28]	DRAM tRCD:
+ *	[27:23]	DRAM tFAW:
+ *	[22:19]	DRAM tRTW1:
+ *	[18:15]	DRAM tCCD:
+ *	[14:10] DRAM tRTP:
+ *	[09:05]	DRAM tRP:
+ *	[04:00] DRAM tRPA
+ */
 
 #define CFG_MDDRC_SYS_CFG	0xF8604200
 #define CFG_MDDRC_SYS_CFG_RUN	0xE8604200
@@ -276,7 +277,7 @@ SYS_CFG:
 #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
 				| CFG_CMD_NET		\
 				| CFG_CMD_PING		\
-          			| CFG_CMD_MII		\
+	  			| CFG_CMD_MII		\
 				| CFG_CMD_I2C)
 #endif
 
@@ -384,26 +385,26 @@ SYS_CFG:
 		"bootm\0"						\
 	"load=tftp 100000 /tftpboot/ads5121/u-boot.bin\0"		\
 	"update=protect off fff00000 fff3ffff; "			\
-		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0"	\
+		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0" \
 	"upd=run load;run update\0"					\
 	""
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
-   "setenv bootargs root=/dev/nfs rw "                                  \
-      "nfsroot=$serverip:$rootpath "                                    \
-      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr - $fdtaddr"
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv bootargs root=/dev/nfs rw "				\
+		"nfsroot=$serverip:$rootpath "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND						\
-   "setenv bootargs root=/dev/ram rw "                                  \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $ramdiskaddr $ramdiskfile;"                                    \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr $ramdiskaddr $fdtaddr"
+	"setenv bootargs root=/dev/ram rw "				\
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

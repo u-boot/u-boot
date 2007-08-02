@@ -60,7 +60,7 @@
 
 #define CS_CTRL			0x00020
 #define CS_CTRL_ME		0x01000000	/* CS Master Enable bit */
-#define CS_CTRL_IE		0x08000000	/* CS Interrupt Enable bit */ 
+#define CS_CTRL_IE		0x08000000	/* CS Interrupt Enable bit */
 
 /* SPRIDR - System Part and Revision ID Register
  */

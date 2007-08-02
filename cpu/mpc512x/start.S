@@ -208,8 +208,8 @@ boot_cold:
 	 */
 
 	/* Boot CS/CS0 window range */
-        lis     r3, CFG_IMMR@h
-        ori     r3, r3, CFG_IMMR@l
+	lis     r3, CFG_IMMR@h
+	ori     r3, r3, CFG_IMMR@l
 
 	lis	r4, START_REG(CFG_FLASH_BASE)
 	ori	r4, r4, STOP_REG(CFG_FLASH_BASE, CFG_FLASH_SIZE)
@@ -222,11 +222,11 @@ boot_cold:
 	lis 	r4, START_REG(CFG_SRAM_BASE) & 0xff00
 	stw	r4, SRAMBAR(r3)
 
-	/* 
+	/*
 	 * According to MPC5121e RM, configuring local access windows should
-         * be followed by a dummy read of the config register that was
+	 * be followed by a dummy read of the config register that was
 	 * modified last and an isync
-         */
+	 */
 	lwz	r4, SRAMBAR(r3)
 	isync
 
@@ -235,11 +235,11 @@ boot_cold:
 	 * config register so no params can be set for it
 	 */
 	lis     r3, (CFG_IMMR + LPC_OFFSET)@h
-        ori     r3, r3, (CFG_IMMR + LPC_OFFSET)@l
+	ori     r3, r3, (CFG_IMMR + LPC_OFFSET)@l
 
-        lis     r4, CFG_CS0_CFG@h
-        ori     r4, r4, CFG_CS0_CFG@l
-        stw     r4, CS0_CONFIG(r3)
+	lis     r4, CFG_CS0_CFG@h
+	ori     r4, r4, CFG_CS0_CFG@l
+	stw     r4, CS0_CONFIG(r3)
 
 	/* Master enable all CS's */
 	lis	r4, CS_CTRL_ME@h

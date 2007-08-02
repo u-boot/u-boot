@@ -114,7 +114,7 @@ long int fixed_sdram (void)
 	 * According to MPC5121e RM, configuring local access windows should
 	 * be followed by a dummy read of the config register that was
 	 * modified last and an isync
-         */
+	 */
 	i = im->sysconf.ddrlaw.ar;
 	__asm__ __volatile__ ("isync");
 
@@ -183,6 +183,6 @@ int checkboard (void)
 	uchar cpld_rev = *(vu_char *) (CFG_CPLD_BASE + 0x02);
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
-	        brd_rev, cpld_rev);
+		brd_rev, cpld_rev);
 	return 0;
 }
