@@ -161,7 +161,7 @@ MachineCheckException(struct pt_regs *regs)
 		regs->nip = fixup;
 		val = mfspr(MCSR);
 		/* Clear MCSR */
-                mtspr(SPRN_MCSR, val);
+		mtspr(SPRN_MCSR, val);
 		return;
 	}
 
