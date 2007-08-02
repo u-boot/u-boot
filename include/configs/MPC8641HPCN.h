@@ -46,8 +46,10 @@
 
 #define CFG_RESET_ADDRESS    0xfff00100
 
-/*#undef CONFIG_PCI*/
-#define CONFIG_PCI
+#define CONFIG_PCI		1	/* Enable PCI/PCIE */
+#define CONFIG_PCI1		1	/* PCIE controler 1 (ULI bridge) */
+#define CONFIG_PCI2		1	/* PCIE controler 2 (slot) */
+#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -76,6 +78,9 @@
 #define L2_ENABLE	(L2CR_L2E)
 
 #ifndef CONFIG_SYS_CLK_FREQ
+#ifndef __ASSEMBLY__
+extern unsigned long get_board_sys_clk(unsigned long dummy);
+#endif
 #define CONFIG_SYS_CLK_FREQ     get_board_sys_clk(0)
 #endif
 
@@ -92,6 +97,9 @@
 #define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
+
+#define CFG_PCI1_ADDR		(CFG_CCSRBAR+0x8000)
+#define CFG_PCI2_ADDR		(CFG_CCSRBAR+0x9000)
 
 /*
  * DDR Setup
@@ -296,9 +304,9 @@
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0xe2000000
-#define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI1_IO_BASE	0x00000000
+#define CFG_PCI1_IO_PHYS	0xe2000000
+#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 /* PCI view of System Memory */
 #define CFG_PCI_MEMORY_BUS      0x00000000
@@ -311,10 +319,10 @@
 
 #define CFG_PCI2_MEM_BASE	0xa0000000
 #define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
-#define CFG_PCI2_MEM_SIZE	0x10000000	/* 256M */
-#define CFG_PCI2_IO_BASE	0xe3000000
-#define CFG_PCI2_IO_PHYS	CFG_PCI2_IO_BASE
-#define CFG_PCI2_IO_SIZE	0x1000000	/* 16M */
+#define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
+#define CFG_PCI2_IO_BASE	0x00000000
+#define CFG_PCI2_IO_PHYS	0xe3000000
+#define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
 
 #if defined(CONFIG_PCI)
 
@@ -396,20 +404,20 @@
  * 0xa000_0000  512M   PCI-Express 2 Memory
  *	Changed it for operating from 0xd0000000
  */
-#define CFG_DBAT1L      ( CFG_PCI1_MEM_BASE | BATL_PP_RW \
+#define CFG_DBAT1L      ( CFG_PCI1_MEM_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT1U      (CFG_PCI1_MEM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_IBAT1L      (CFG_PCI1_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CFG_DBAT1U	(CFG_PCI1_MEM_PHYS | BATU_BL_1G | BATU_VS | BATU_VP)
+#define CFG_IBAT1L	(CFG_PCI1_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT1U      CFG_DBAT1U
 
 /*
  * BAT2         512M   Cache-inhibited, guarded
  * 0xc000_0000  512M   RapidIO Memory
  */
-#define CFG_DBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW \
+#define CFG_DBAT2L      (CFG_RIO_MEM_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT2U      (CFG_RIO_MEM_BASE | BATU_BL_512M | BATU_VS | BATU_VP)
-#define CFG_IBAT2L      (CFG_RIO_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CFG_DBAT2U	(CFG_RIO_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
+#define CFG_IBAT2L	(CFG_RIO_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT2U      CFG_DBAT2U
 
 /*
@@ -428,10 +436,10 @@
  * 0xe300_0000  16M    PCI-Express 2 I/0
  *    Note that this is at 0xe0000000
  */
-#define CFG_DBAT4L      ( CFG_PCI1_IO_BASE | BATL_PP_RW \
+#define CFG_DBAT4L      ( CFG_PCI1_IO_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT4U      (CFG_PCI1_IO_BASE | BATU_BL_32M | BATU_VS | BATU_VP)
-#define CFG_IBAT4L      (CFG_PCI1_IO_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CFG_DBAT4U	(CFG_PCI1_IO_PHYS | BATU_BL_32M | BATU_VS | BATU_VP)
+#define CFG_IBAT4L	(CFG_PCI1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT4U      CFG_DBAT4U
 
 /*

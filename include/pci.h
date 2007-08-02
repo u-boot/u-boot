@@ -302,6 +302,12 @@
 #define PCI_MAX_PCI_DEVICES	32
 #define PCI_MAX_PCI_FUNCTIONS	8
 
+#define PCI_DCR		0x54    /* PCIe Device Control Register */
+#define PCI_DSR		0x56    /* PCIe Device Status Register */
+#define PCI_LSR		0x5e    /* PCIe Link Status Register */
+#define PCI_LTSSM	0x404   /* PCIe Link Training, Status State Machine */
+#define  PCI_LTSSM_L0	0x16    /* L0 state */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
