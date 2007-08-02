@@ -1015,9 +1015,8 @@ acadia_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx acadia amcc
 
 acadia_nand_config:	unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)nand_spl
-	@mkdir -p $(obj)board/amcc/acadia
+	@mkdir -p $(obj)include $(obj)board/amcc/acadia
+	@mkdir -p $(obj)nand_spl/board/amcc/acadia
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a acadia ppc ppc4xx acadia amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/acadia/config.tmp
@@ -1045,9 +1044,8 @@ bamboo_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx bamboo amcc
 
 bamboo_nand_config:	unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)nand_spl
-	@mkdir -p $(obj)board/amcc/bamboo
+	@mkdir -p $(obj)include $(obj)board/amcc/bamboo
+	@mkdir -p $(obj)nand_spl/board/amcc/bamboo
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a bamboo ppc ppc4xx bamboo amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
@@ -1228,9 +1226,8 @@ rainier_config: unconfig
 
 sequoia_nand_config \
 rainier_nand_config: unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)nand_spl
-	@mkdir -p $(obj)board/amcc/sequoia
+	@mkdir -p $(obj)include $(obj)board/amcc/sequoia
+	@mkdir -p $(obj)nand_spl/board/amcc/sequoia
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
 		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
