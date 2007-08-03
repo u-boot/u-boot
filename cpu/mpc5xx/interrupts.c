@@ -178,7 +178,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 	return;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 /*******************************************************************************
  *
  * irqinfo - print information about IRQs
@@ -204,4 +204,4 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 
-#endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

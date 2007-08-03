@@ -31,7 +31,7 @@
 #undef ECC_DEBUG
 #undef PSYCHO_DEBUG
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 
 #include <linux/mtd/doc2000.h>
 
@@ -514,4 +514,4 @@ int doc_decode_ecc(unsigned char sector[SECTOR_SIZE], unsigned char ecc1[6])
     return nb_errors;
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_DOC) */
+#endif

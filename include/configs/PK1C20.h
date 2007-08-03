@@ -160,30 +160,41 @@
 #define CONFIG_IPADDR		192.168.2.21
 #define CONFIG_SERVERIP		192.168.2.16
 
-/*------------------------------------------------------------------------
- * COMMANDS
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS		(CFG_CMD_BDI	| \
-				 CFG_CMD_DHCP	| \
-				 CFG_CMD_ECHO	| \
-				 CFG_CMD_ENV	| \
-				 CFG_CMD_FLASH	| \
-				 CFG_CMD_IMI	| \
-				 CFG_CMD_IRQ	| \
-				 CFG_CMD_LOADS	| \
-				 CFG_CMD_LOADB	| \
-				 CFG_CMD_MEMORY | \
-				 CFG_CMD_MISC	| \
-				 CFG_CMD_NET	| \
-				 CFG_CMD_PING	| \
-				 CFG_CMD_RUN	| \
-				 CFG_CMD_SAVES	)
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_SAVES
+
 
 /*------------------------------------------------------------------------
  * COMPACT FLASH
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 #define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
 #define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
 #define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
@@ -201,12 +212,12 @@
 #define CFG_CF_POWER		0x00900890	/* CF Power FET PIO base*/
 #define CFG_CF_ATASEL		0x009008a0	/* CF ATASEL PIO base	*/
 
-#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */
+#endif
 
 /*------------------------------------------------------------------------
  * JFFS2
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 #define CFG_JFFS_CUSTOM_PART			/* board defined part	*/
 #endif
 

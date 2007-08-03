@@ -66,14 +66,30 @@
 #define CONFIG_LOADS_ECHO       0       /* echo off for serial download */
 #define CFG_LOADS_BAUD_CHANGE           /* allow baudrate changes */
 
-#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2 |\
-				 CFG_CMD_SCSI   | CFG_CMD_IDE | CFG_CMD_DATE  |\
-				 CFG_CMD_FDC    | CFG_CMD_ELF)
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_SCSI  
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_DATE 
+#define CONFIG_CMD_FDC   
+#define CONFIG_CMD_ELF
+
 
 /*
  * Miscellaneous configurable options
@@ -86,7 +102,7 @@
  */
 #define CONFIG_CONS_INDEX       1
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE              1024        /* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE              256         /* Console I/O Buffer Size */
@@ -436,7 +452,7 @@ extern  unsigned long           bab7xx_get_gclk_freq (void);
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE        32    /* For all MPC74xx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT        5    /* log base 2 of the above value */
 #endif
 

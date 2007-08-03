@@ -6,8 +6,8 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && (!defined(CONFIG_NET_MULTI)) && \
-	defined(CONFIG_BCM570x)
+#if defined(CONFIG_CMD_NET) \
+	&& (!defined(CONFIG_NET_MULTI)) && defined(CONFIG_BCM570x)
 
 #ifdef CONFIG_BMW
 #include <mpc824x.h>
@@ -1688,4 +1688,4 @@ QQ_GetTail(
     return pQueue->Array[Idx];
 }
 
-#endif	/* CFG_CMD_NET, !CONFIG_NET_MULTI, CONFIG_BCM570x */
+#endif

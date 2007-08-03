@@ -71,8 +71,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC	*/
 #undef	CONFIG_ETHER_ON_FCC		/* define if ether on FCC	*/
@@ -88,10 +87,25 @@
 #define CONFIG_BAUDRATE		9600
 #endif
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL|CFG_CMD_KGDB)&~CFG_CMD_NET)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_KGDB
+
+#undef CONFIG_CMD_NET
+
 
 #ifdef DEBUG
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -102,7 +116,7 @@
 
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #undef	CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -124,7 +138,7 @@
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -256,7 +270,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value*/
 #endif
 

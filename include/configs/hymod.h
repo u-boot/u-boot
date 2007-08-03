@@ -69,8 +69,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC	*/
 #define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC	*/
@@ -174,32 +173,43 @@
 
 #define CONFIG_LAST_STAGE_INIT
 
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-					CFG_CMD_BEDBUG	| \
-					CFG_CMD_BMP	| \
-					CFG_CMD_DISPLAY	| \
-					CFG_CMD_DOC	| \
-					CFG_CMD_EXT2	| \
-					CFG_CMD_FDC	| \
-					CFG_CMD_FDOS	| \
-					CFG_CMD_FPGA    | \
-					CFG_CMD_HWFLOW	| \
-					CFG_CMD_IDE	| \
-					CFG_CMD_JFFS2	| \
-					CFG_CMD_NAND	| \
-					CFG_CMD_MMC	| \
-					CFG_CMD_PCMCIA	| \
-					CFG_CMD_PCI	| \
-					CFG_CMD_USB	| \
-					CFG_CMD_REISER	| \
-					CFG_CMD_SCSI	| \
-					CFG_CMD_SPI	| \
-					CFG_CMD_UNIVERSE| \
-					CFG_CMD_VFD	| \
-					CFG_CMD_XIMG	) )
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
+
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_DISPLAY
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_EXT2
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_JFFS2
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_PCI
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_REISER
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_UNIVERSE
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_XIMG
+
 
 #ifdef DEBUG
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -218,7 +228,7 @@
 #define DEBUG_BOOTKEYS		0
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define	CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -247,7 +257,7 @@
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -400,7 +410,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value*/
 #endif
 

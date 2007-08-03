@@ -30,7 +30,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_PORTIO)
+#if defined(CONFIG_CMD_PORTIO)
 
 extern int cmd_get_data_size (char *arg, int default_size);
 
@@ -166,4 +166,4 @@ U_BOOT_CMD(
 	"    - read datum from IO port\n"
 );
 
-#endif	/* CFG_CMD_PORTIO */
+#endif

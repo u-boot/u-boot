@@ -74,64 +74,67 @@
 
 #define	CONFIG_STATUS_LED	1	/* Status LED enabled		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_CMD_MINIMAL	0
-#define CONFIG_CMD_TINY		(CFG_CMD_FLASH  | \
-				 CFG_CMD_MEMORY | \
-				 CFG_CMD_LOADS  | \
-				 CFG_CMD_LOADB)
-#define CONFIG_CMD_NORMAL	(CONFIG_CMD_DFL & ~CFG_CMD_BOOTD & ~CFG_CMD_REISER)
-#define CONFIG_CMD_GDB		(CONFIG_CMD_NORMAL | CFG_CMD_KGDB)
-#define CONFIG_CMD_FULL		(CFG_CMD_ALL & ~CFG_CMD_BEDBUG	\
-					     & ~CFG_CMD_BMP	\
-					     & ~CFG_CMD_BSP	\
-					     & ~CFG_CMD_DISPLAY	\
-					     & ~CFG_CMD_DOC	\
-					     & ~CFG_CMD_DTT	\
-					     & ~CFG_CMD_EEPROM	\
-					     & ~CFG_CMD_ELF	\
-					     & ~CFG_CMD_EXT2	\
-					     & ~CFG_CMD_FDC	\
-					     & ~CFG_CMD_FDOS	\
-					     & ~CFG_CMD_HWFLOW	\
-					     & ~CFG_CMD_I2C	\
-					     & ~CFG_CMD_IDE	\
-					     & ~CFG_CMD_IRQ	\
-					     & ~CFG_CMD_JFFS2	\
-					     & ~CFG_CMD_KGDB	\
-					     & ~CFG_CMD_MII	\
-					     & ~CFG_CMD_MMC	\
-					     & ~CFG_CMD_NAND	\
-					     & ~CFG_CMD_PCI	\
-					     & ~CFG_CMD_PCMCIA	\
-					     & ~CFG_CMD_REISER	\
-					     & ~CFG_CMD_SCSI	\
-					     & ~CFG_CMD_SPI	\
-					     & ~CFG_CMD_UNIVERSE\
-					     & ~CFG_CMD_USB	\
-					     & ~CFG_CMD_VFD	\
-					     & ~CFG_CMD_XIMG	)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
+
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_BSP
+#undef CONFIG_CMD_DISPLAY
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_DTT
+#undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_EXT2
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_I2C
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_IRQ
+#undef CONFIG_CMD_JFFS2
+#undef CONFIG_CMD_KGDB
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_PCI
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_REISER
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_UNIVERSE
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_XIMG
+
+#if !(CONFIG_LANTEC >= 2)
+    #undef CONFIG_CMD_DATE
+    #undef CONFIG_CMD_NET
+#endif
+
 
 #if CONFIG_LANTEC >= 2
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 #endif
-
-#if CONFIG_LANTEC >= 2
-# define CONFIG_COMMANDS	CONFIG_CMD_FULL
-#else
-# define CONFIG_COMMANDS	(CONFIG_CMD_FULL & ~CFG_CMD_DATE & ~CFG_CMD_NET)
-#endif
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -203,7 +206,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

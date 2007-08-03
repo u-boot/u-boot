@@ -60,7 +60,6 @@ SECTIONS
     lib_generic/crc32.o		(.text)
     lib_generic/zlib.o		(.text)
 
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)

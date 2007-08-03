@@ -144,10 +144,10 @@ LIST_83xx="	\
 
 LIST_85xx="	\
 	MPC8540ADS	MPC8540EVAL	MPC8541CDS	MPC8544DS	\
-	MPC8548CDS	MPC8555CDS	MPC8560ADS	PM854		\
-	PM856		sbc8540		sbc8560		stxgp3		\
-	stxssa		TQM8540		TQM8541		TQM8555		\
-	TQM8560								\
+	MPC8548CDS	MPC8555CDS	MPC8560ADS	MPC8568MDS	\
+	PM854		PM856		sbc8540		sbc8560		\
+	stxgp3		stxssa		TQM8540		TQM8541		\
+	TQM8555		TQM8560						\
 "
 
 #########################################################################

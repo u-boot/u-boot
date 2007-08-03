@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2003-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -53,10 +53,8 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc8260/start.o	(.text)
+    cpu/mpc5xxx/start.o	(.text)
     *(.text)
-    common/environment.o(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)

@@ -219,7 +219,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
     return 1;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
@@ -299,7 +299,7 @@ U_BOOT_CMD(
 	"fpga load [name] addr - load FPGA configuration data\n"
 );
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_BSP */
+#endif
 
 /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 

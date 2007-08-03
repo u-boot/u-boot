@@ -48,27 +48,33 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
 
-/***********************************************************
- * Command definition
- ***********************************************************/
-#define CONFIG_COMMANDS \
-			(CONFIG_CMD_DFL	 | \
-			CFG_CMD_CACHE	 | \
-			/*CFG_CMD_JFFS2	 |*/ \
-			/*CFG_CMD_NAND	 |*/ \
-			CFG_CMD_EEPROM	 | \
-			CFG_CMD_I2C	 | \
-			CFG_CMD_USB	 | \
-			CFG_CMD_REGINFO  | \
-			CFG_CMD_FAT	 | \
-			CFG_CMD_DATE	 | \
-			CFG_CMD_ELF	 | \
-			CFG_CMD_DHCP	 | \
-			CFG_CMD_PING	 | \
-			CFG_CMD_BSP)
 
-/* this must be included after the definiton of CONFIG_COMMANDS */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_BSP
+
 
 #define CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
@@ -145,7 +151,7 @@
 #define CONFIG_IPADDR		10.0.0.110
 #define CONFIG_SERVERIP		10.0.0.1
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */
@@ -246,7 +252,7 @@
 /*-----------------------------------------------------------------------
  * NAND flash settings
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #define CFG_NAND_LEGACY
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
@@ -280,6 +286,6 @@
 #define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_MTD_NAND_ECC_JFFS2	1
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NAND */
+#endif
 
 #endif	/* __CONFIG_H */

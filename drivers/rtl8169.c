@@ -55,7 +55,7 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8169)
 
 #undef DEBUG_RTL8169

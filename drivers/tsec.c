@@ -176,7 +176,7 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
 	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
 #endif
@@ -1442,7 +1442,7 @@ static void relocate_cmds(void)
 	relocated = 1;
 }
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 
 struct tsec_private *get_priv_for_phy(unsigned char phyaddr)
@@ -1501,7 +1501,6 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 	return 0;
 }
 
-#endif /* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
-		&& !defined(BITBANGMII) */
+#endif
 
 #endif /* CONFIG_TSEC_ENET */

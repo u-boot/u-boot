@@ -28,7 +28,7 @@
 #include "dos.h"
 #include "fdos.h"
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDOS)
+#if defined(CONFIG_CMD_FDOS)
 
 #define NB_HEADS        2
 #define NB_TRACKS       80

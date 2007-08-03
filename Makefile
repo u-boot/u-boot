@@ -429,7 +429,7 @@ jupiter_config:         unconfig
 	@$(MKCONFIG) jupiter ppc mpc5xxx jupiter
 
 v38b_config: unconfig
-	@./mkconfig -a v38b ppc mpc5xxx v38b
+	@$(MKCONFIG) -a v38b ppc mpc5xxx v38b
 
 inka4x0_config:	unconfig
 	@$(MKCONFIG) inka4x0 ppc mpc5xxx inka4x0
@@ -1032,7 +1032,7 @@ ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
 alpr_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx alpr prodrive
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx alpr prodrive
 
 AP1000_config:unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ap1000 amirix
@@ -1244,7 +1244,7 @@ rainier_nand_config: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 sc3_config:unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx sc3
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sc3
 
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
@@ -1410,7 +1410,7 @@ ep8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 ep8260
 
 ep82xxm_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc8260 ep82xxm
+	@$(MKCONFIG) $(@:_config=) ppc mpc8260 ep82xxm
 
 gw8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 gw8260
@@ -1846,7 +1846,7 @@ TQM8560_config:		unconfig
 #########################################################################
 
 MPC8641HPCN_config:    unconfig
-	@./mkconfig $(@:_config=) ppc mpc86xx mpc8641hpcn
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn
 
 
 #########################################################################
@@ -2416,12 +2416,12 @@ suzaku_config:	unconfig
 ml401_config:	unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_ML401 1" >> include/config.h
-	@./mkconfig -a $(@:_config=) microblaze microblaze ml401 xilinx
+	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze ml401 xilinx
 
 xupv2p_config:	unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_XUPV2P 1" >> include/config.h
-	@./mkconfig -a $(@:_config=) microblaze microblaze xupv2p xilinx
+	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
 
 #########################################################################
 ## Blackfin
@@ -2446,7 +2446,7 @@ bf561-ezkit_config:	unconfig
 #########################################################################
 
 atstk1002_config	:	unconfig
-	@./mkconfig $(@:_config=) avr32 at32ap atstk1000 atmel at32ap7000
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap7000
 
 #########################################################################
 #########################################################################

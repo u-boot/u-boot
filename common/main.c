@@ -1311,7 +1311,7 @@ int run_command (const char *cmd, int flag)
 			continue;
 		}
 
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if defined(CONFIG_CMD_BOOTD)
 		/* avoid "bootd" recursion */
 		if (cmdtp->cmd == do_bootd) {
 #ifdef DEBUG_PARSER
@@ -1325,7 +1325,7 @@ int run_command (const char *cmd, int flag)
 				flag |= CMD_FLAG_BOOTD;
 			}
 		}
-#endif	/* CFG_CMD_BOOTD */
+#endif
 
 		/* OK - call function to do the command */
 		if ((cmdtp->cmd) (cmdtp, flag, argc, argv) != 0) {
@@ -1344,7 +1344,7 @@ int run_command (const char *cmd, int flag)
 
 /****************************************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
@@ -1372,4 +1372,4 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 	return 0;
 }
-#endif	/* CFG_CMD_RUN */
+#endif

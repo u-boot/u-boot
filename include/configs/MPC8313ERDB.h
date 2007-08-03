@@ -341,26 +341,34 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CFG_BASE_COMMANDS	( CONFIG_CMD_DFL	\
-				| CFG_CMD_PING		\
-				| CFG_CMD_DHCP		\
-				| CFG_CMD_I2C		\
-				| CFG_CMD_MII		\
-				| CFG_CMD_DATE		\
-				| CFG_CMD_PCI)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_PCI
+
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#endif
 
 #define CONFIG_CMDLINE_EDITING 1
 
-#define CFG_RAMBOOT_COMMANDS	(CFG_BASE_COMMANDS & \
-				 ~(CFG_CMD_ENV | CFG_CMD_LOADS))
-
-#if defined(CFG_RAMBOOT)
-#define CONFIG_COMMANDS CFG_RAMBOOT_COMMANDS
-#else
-#define CONFIG_COMMANDS CFG_BASE_COMMANDS
-#endif
-
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options

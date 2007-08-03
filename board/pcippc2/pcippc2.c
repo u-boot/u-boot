@@ -202,7 +202,7 @@ void watchdog_reset (void)
 		enable_interrupts ();
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 int do_wd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	switch (argc) {
@@ -241,5 +241,5 @@ U_BOOT_CMD(
 	"wd      - print current status\n"
 );
 
-#endif	/* CFG_CMD_BSP */
+#endif
 #endif	/* CONFIG_WATCHDOG */

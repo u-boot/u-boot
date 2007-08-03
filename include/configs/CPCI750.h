@@ -133,29 +133,36 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #undef	CONFIG_ALTIVEC			/* undef to disable		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
 
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL	   \
-			 | CFG_CMD_ASKENV  \
-			 | CFG_CMD_I2C	   \
-			 | CFG_CMD_CACHE   \
-			 | CFG_CMD_EEPROM  \
-			 | CFG_CMD_PCI	   \
-			 | CFG_CMD_ELF	   \
-			 | CFG_CMD_DATE	   \
-			 | CFG_CMD_NET	   \
-			 | CFG_CMD_PING	   \
-			 | CFG_CMD_IDE	   \
-			 | CFG_CMD_FAT	   \
-			 | CFG_CMD_EXT2	   \
-					)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV 
+#define CONFIG_CMD_I2C	  
+#define CONFIG_CMD_CACHE  
+#define CONFIG_CMD_EEPROM 
+#define CONFIG_CMD_PCI	  
+#define CONFIG_CMD_ELF	  
+#define CONFIG_CMD_DATE	  
+#define CONFIG_CMD_NET	  
+#define CONFIG_CMD_PING	  
+#define CONFIG_CMD_IDE	  
+#define CONFIG_CMD_FAT	  
+#define CONFIG_CMD_EXT2	  
+
 
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_USE_CPCIDVI
 
@@ -179,7 +186,7 @@
 #define CFG_GT_DUAL_CPU			/* also for JTAG even with one cpu */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -585,7 +592,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For all MPC74xx CPUs		 */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

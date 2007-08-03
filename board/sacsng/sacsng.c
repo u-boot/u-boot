@@ -837,7 +837,7 @@ void show_boot_progress (int status)
 /*
  * The following are used to control the SPI chip selects for the SPI command.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_SPI)
+#if defined(CONFIG_CMD_SPI)
 
 #define SPI_ADC_CS_MASK	0x00000800
 #define SPI_DAC_CS_MASK	0x00001000
@@ -873,7 +873,7 @@ spi_chipsel_type spi_chipsel[] = {
 };
 int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
 
-#endif /* CFG_CMD_SPI */
+#endif
 
 #endif /* CONFIG_MISC_INIT_R */
 

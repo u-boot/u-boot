@@ -68,17 +68,29 @@
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_EEPROM	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_EEPROM
+
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -97,7 +109,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -244,7 +256,7 @@
  */
 #define CFG_DCACHE_SIZE		8192	/* For AMCC 405 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

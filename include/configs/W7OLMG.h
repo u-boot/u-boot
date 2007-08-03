@@ -75,14 +75,34 @@
 #define CFG_DTT_LOW_TEMP	-30
 #define CFG_DTT_HYSTERESIS	3
 
-#define CONFIG_COMMANDS		\
-	(CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_IRQ | CFG_CMD_ASKENV | \
-	 CFG_CMD_DHCP | CFG_CMD_BEDBUG | CFG_CMD_DATE | CFG_CMD_I2C | \
-	 CFG_CMD_EEPROM | CFG_CMD_ELF | CFG_CMD_BSP | CFG_CMD_REGINFO | \
-	 CFG_CMD_DTT)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_DTT
+
 
 #undef CONFIG_WATCHDOG				/* watchdog disabled		*/
 #define CONFIG_HW_WATCHDOG			/* HW Watchdog, board specific	*/
@@ -98,7 +118,7 @@
 #ifdef  CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2     "> "
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -278,7 +298,7 @@
  */
 #define CFG_DCACHE_SIZE		8192		/* For AMCC 405 CPUs			*/
 #define CFG_CACHELINE_SIZE	32		/* ...		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5		/* log base 2 of the above val. */
 #endif
 
@@ -310,7 +330,7 @@
 #define BOOTFLAG_COLD		0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02		/* Software reboot		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use	*/
 #endif

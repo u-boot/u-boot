@@ -53,29 +53,44 @@
 /*
  * Monitor configuration
  *
- * CONFIG_COMMANDS		- List of command sets to include in shell
+ * List of command sets to include in shell
  *
  * The following command sets have been tested and known to work:
  *
- * CFG_CMD_CACHE		- Cache control commands
- * CFG_CMD_MEMORY		- Memory display, change and test commands
- * CFG_CMD_FLASH		- Erase and program flash
- * CFG_CMD_ENV			- Environment commands
- * CFG_CMD_RUN			- Run commands stored in env vars
- * CFG_CMD_ELF			- Load ELF files
- * CFG_CMD_NET			- Networking/file download commands
- * CFG_CMD_PING			- ICMP Echo Request command
- * CFG_CMD_PCI			- PCI Bus scanning command
+ * CMD_CACHE		- Cache control commands
+ * CMD_MEMORY		- Memory display, change and test commands
+ * CMD_FLASH		- Erase and program flash
+ * CMD_ENV		- Environment commands
+ * CMD_RUN		- Run commands stored in env vars
+ * CMD_ELF		- Load ELF files
+ * CMD_NET		- Networking/file download commands
+ * CMD_PIN		- ICMP Echo Request command
+ * CMD_PCI		- PCI Bus scanning command
  */
 
-#define CONFIG_COMMANDS		( (CFG_CMD_DFL & ~(CFG_CMD_KGDB)) |	\
-						   CFG_CMD_FLASH |	\
-						   CFG_CMD_ENV |	\
-						   CFG_CMD_RUN |	\
-						   CFG_CMD_ELF |	\
-						   CFG_CMD_NET |	\
-						   CFG_CMD_PING |	\
-						   CFG_CMD_PCI)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_PCI
+
+#undef CONFIG_CMD_KGDB
 
 
 /*
@@ -147,9 +162,6 @@
  *
  *===================================================================
  */
-
-
-#include <cmd_confdefs.h>
 
 
 /*

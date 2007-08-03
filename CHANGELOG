@@ -1,8 +1,458 @@
+commit dca3b3d6d6396b67e5e84af53452164923c73443
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:46 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [v-z]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6c18eb9804b525f3e4f3bb3d014dd69a200d9fa7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:38 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various t* and u* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46da1e96b7db14f4fcd2c92544e7c0862024bc76
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:30 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various s* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 90cc3eb6d2be856d9ddd81436de9cf343bc6b5c8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:23 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various q* and r* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 26a34560d56a9df5bc2ae23525d9229736134757
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:17 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various p* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5cb23092a7d31490a33d4ec871468b63babfa3c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:13 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various o* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 929a2bfd142737003a8fc32e1b86e1f2c1850257
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various n* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5dc11a511960d490f7f01ffd746edfe6277f99b0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:01 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various m* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9bbb1c0820c1fbd3811ab6ee4ba0f6c6f76b27e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:57 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various l* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bc234c129fa04fb9fa33530930e5cbc6084cd47a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:51 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various j* and k* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1d2c6bc491969f8d8fb34c8e30e8bea7a2af9c31
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:32 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various i* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 48d5d102a2f2e619c92050b9aedbb69689185bc0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:25 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various h* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72eb0efaed7048afcc61fc6f0085c49394b5dc36
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:19 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various g* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1bec3d3002d3bbbae6f2468a0f7376db1120d33e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:10 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various e* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ab999ba1b31ebe78dd16374394a55d7c6e5aa6e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:03 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various d* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 37e4f24b87fa255ae456d193b7cd23c18dd1d56b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:56 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various c* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ba2351f9d1e841bd00ea6dad1e3c16d0259ad264
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:49 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various b* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0b361c916617aff79e647b40f0e43361e0bbaccf
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:42 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various a* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b730cda82e362df6a22f4c59c0a9b97e885b1014
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in mpc5xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d794cfefead5fc177cf4f41164e80382e9c9484a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:15 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various 5200 board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ef0df52ab49eea4a30c15087fd27d54c1d946f2c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in STx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 866e3089bfc826bb4dc74637f8aad87a3bab79fc
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:58 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in sbc* board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2694690e285acaa34922f55f4b5ae030da60c55a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:50 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in TQM board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1cc4c458329765b58e584a19821e796b3c10e976
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:28 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 82xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8ea5499afdaba0acf60923dd99001c399d4a7c8e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:06 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 83xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b24629fa377214d63bb40d1360e354b6d3e4af56
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:23:15 2007 -0500
+
+    mpc86xx: Remove old CFG_CMD_* references.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46175d9764da129bb4fd341cd2554dc7d55f5b2a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:54 2007 -0500
+
+    Add MPC8568MDS to MAKEALL 85xx target.
+
+    It was missing from the original port submission.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2835e518c969e5124ba1174eef3e8375e12fa7d5
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:08 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 85xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 56b304ac2091689506088a9ae67f63fd6300cf16
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:21:37 2007 -0500
+
+    Fix #if typo in CONFIG_CMD_* changes.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6810a34677dbc446334f5e451f1682426dd33b49
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 90b1b2d69b9396ff2f01165ebc16c9a594eb5926
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 057004f4a4863554d56cc56268bfa7c7d9738e27
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:49 2007 -0600
+
+    Correct fixup relocation for mpc83xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5af61b2f4b838a05f79be274f3e5a66edd2d9c96
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:44 2007 -0600
+
+    Correct fixup relocation for mpc8260
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f3a52fe05923935db86985daf9438e2f70ac39aa
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:39 2007 -0600
+
+    Correct fixup relocation for mpc824x
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a85dd254c0577fca13627c46e93fc2ad4c4f1f00
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:34 2007 -0600
+
+    Correct fixup relocation for mpc8220
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6f7576b20ecf0d040c3ac3b032b5cbc860e38a90
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:29 2007 -0600
+
+    Correct fixup relocation for MPC5xxx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 3649cd99ba815b6601868735765602f00ef3692b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:24 2007 -0600
+
+    Correct relocation fixup for mpc5xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f82b3b6304b620ef7e28bfaa1ea887a2ad2fa325
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:19 2007 -0600
+
+    Don't set gd->reloc_off if relocation of .fixup works correctly
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e1a6144c32dc7de73bcdd33995de0148cbd0bd28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:14 2007 -0600
+
+    Remove obsolete mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 17e32fc3908bf7089d3f16fc82a1c3ae674dd65b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:09 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit af7d38b393690d7eeaf418ac85a1e831a50d5fd0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:04 2007 -0600
+
+    Remove obsolete mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f94a3aecebc40ca0939c7d66d010009cf51be9e2
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:59 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (3 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a71c084f3ac7fedf144537db2b2da47323068833
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:53 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (2 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f670a15468d1365241d40022b9408e1004181f5e
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:48 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (1 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 09555bd45a04c0e54f172528d21bc18896550d28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:43 2007 -0600
+
+    Remove obsolete mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5efb992f046e51225c93d52f80fecbe433abd789
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:38 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (3 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 07c13dfef65b31647e69d8b61daa1eec598add1a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:33 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (2 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b4f67513a624ce85866c66c575bd2d9d7977d7f0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:28 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (1 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b7d8e05f8675249b5f208aa73babeed384a4519d
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:23 2007 -0600
+
+    Remove obsolete mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 416a0b6d40f6eba3a2fc547253c16bda28d922f7
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:18 2007 -0600
+
+    Consolidate mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5fc59175b92883ed5d2666a04e6bc49e70a4a365
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:13 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 737f9eb02d7335df2b3e4d7a4d3348784d1da207
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:08 2007 -0600
+
+    Consolidate mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 9c757b789a59a855db57b448dd825329c4e9c4a0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:03 2007 -0600
+
+    Consolidate mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit d181c9a15cd41863fe24840d17848429f27d3c8c
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:58 2007 -0600
+
+    Consolidate mpc5xxx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 287ac924adb7291bebe5086652a362a30ab28b13
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:53 2007 -0600
+
+    Consolidate mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
 commit f1152f8c28db4a22087c21c618a3f7baa48e9a4f
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Jul 6 02:50:19 2007 +0200
 
     Code cleanup and default config update for STC GP3 SSA board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 52b8704d0245e589f86d462e9ec25aeb7ecbbbdd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:43:53 2007 +0200
+
+    Fix a few file permission problems.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
@@ -14,6 +464,20 @@ Date:	Thu Jul 5 08:17:37 2007 +0200
 
     Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
 
+commit 78e0cf2de7be7f1eaeeb622eb61fd50e4d5e205c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:38:38 2007 +0200
+
+    Minor coding style cleanup. Rebuild CHANGELOG file.
+
+commit 2f9c19e496acb6bb50d9299e1aab377625d48c38
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:44 2007 -0500
+
+    configs/ mpc86xx: Rewrite command line options using new CONFIG_CMD-* style.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit f780b83316d9af1f61d71cc88b1917b387b9b995
 Author: Niklaus Giger <niklausgiger@gmx.ch>
 Date:	Wed Jun 27 18:11:38 2007 +0200
@@ -21,6 +485,14 @@ Date:	Wed Jun 27 18:11:38 2007 +0200
     resubmit: ppc4xx: Remove sequoia/sequioa.h. Cleanup ppc440.h for PPC440EPX
 
     Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+
+commit 602ad3b33d9ceef83dbab46be68646d645d637ee
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:39 2007 -0500
+
+    README: Rewrite command line config to use CONFIG_CMD_* names.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 04e6c38b766eaa2f3287561563c9e215e0c3a0d4
 Author: Stefan Roese <sr@denx.de>
@@ -35,6 +507,310 @@ Date:	Wed Jul 4 10:06:30 2007 +0200
     - Lime register setup added
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 72a074cec68e5bad60d63206c050974e08afd804
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:34 2007 -0500
+
+    include/ non-config: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5fcf543e0b6628c76ff48705b1b0566bfd11507b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:28 2007 -0500
+
+    tools/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9107ebe0d352420895ab69b715697bdebc8caf50
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:23 2007 -0500
+
+    board/[k-z]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5e378003d592ea828ec69d6defcd4de79096dd5c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:19 2007 -0500
+
+    board/[Ma-i]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 737184114ec9c9e0ab94d6713536126073bd2472
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:15 2007 -0500
+
+    cpu/ non-mpc*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f48070fe5fe440dfb5ee5268c920de70e48ea327
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:08 2007 -0500
+
+    cpu/mpc*/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0c505db0a0dc1f670b13ce3b4d3fbf1ec5b3cbd2
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:03 2007 -0500
+
+    lib_*/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 73f032021ec5f13cda8faa4e34b6de80960eb86f
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:58 2007 -0500
+
+    lib_ppc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 98b79003c21c2578206003256de4e781d6b36ca8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:53 2007 -0500
+
+    rtc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6e2115acb6a892d53a6881bf253ae41d3df39156
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:49 2007 -0500
+
+    net/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 45cdb9b72c94655c7308b464a2666057c0b286e0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:34 2007 -0500
+
+    disk/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4e109ae98294a5ca7ff848b7652c7bfd4023a94a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:20 2007 -0500
+
+    fs/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d5be43de93ff905c465e509d45a3164ef48d26e7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:10 2007 -0500
+
+    drivers/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b453960d4fdb87b3970d96119b90df2ed024fc4a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:05 2007 -0500
+
+    common/ non-cmd: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 65c450b47a62659d522cfa8f4fa1e4e5c60dccd0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:54 2007 -0500
+
+    common/cmd_[i-z]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a76adc8142c1d956385a109e0b70f9319ede4d66
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:43 2007 -0500
+
+    common/cmd_[a-f]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ec63b10b61fd68238d4c15c1cd04c0b38228e2c1
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:34 2007 -0500
+
+    Introduce initial versions of new Command Config files.
+
+    Derive three new files from cmd_confdefs.h:
+	config_bootp.h - Has BOOTP related config options, not commands
+	config_cmd_all.h - Has a CONFIG_CMD_* definition for every command
+	config_cmd_default.h - Has a CONFIG_CMD_* definition for default cmds.
+
+    For now, include "config_bootp.h" for compatability until all
+    users of it directly include it properly.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 1f2a05898658900dc5717761e27abf2052e67e13
 Author: Mushtaq Khan <mushtaqk_921@yahoo.co.in>

@@ -63,12 +63,23 @@
 
 #define CONFIG_BAUDRATE		38400
 
-#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL | CFG_CMD_JFFS2))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_JFFS2
+
 
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		192.168.30.2
@@ -81,7 +92,7 @@
 #define CONFIG_BOOTCOMMAND	"bootm 0x10020000 0x100a0000"
 #define CONFIG_BOOTARGS    	"console=ttyS0,38400 initrd=0x100a0040,530K root=/dev/ram keepinitrd"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

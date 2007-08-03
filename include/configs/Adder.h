@@ -52,15 +52,26 @@
 #define CFG_8xx_CPUCLK_MAX		133000000
 #endif /* CONFIG_MPC852T */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL  \
-				| CFG_CMD_DHCP   \
-				| CFG_CMD_IMMAP  \
-				| CFG_CMD_MII    \
-				| CFG_CMD_PING   \
-				)
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP  
+#define CONFIG_CMD_IMMAP 
+#define CONFIG_CMD_MII   
+#define CONFIG_CMD_PING  
+
 
 #define CONFIG_BOOTDELAY	5		/* Autoboot after 5 seconds	*/
 #define CONFIG_BOOTCOMMAND	"bootm fe040000"	/* Autoboot command	*/

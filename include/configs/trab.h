@@ -130,59 +130,49 @@
 /* Use s3c2400's RTC */
 #define CONFIG_RTC_S3C24X0	1
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
+
 #ifdef CONFIG_HWFLOW
-#define CONFIG_COMMANDS_ADD_HWFLOW	CFG_CMD_HWFLOW
-#else
-#define	CONFIG_COMMANDS_ADD_HWFLOW	0
+    #define CONFIG_CMD_HWFLOW
 #endif
 
 #ifdef	CONFIG_VFD
-#define CONFIG_COMMANDS_ADD_VFD		CFG_CMD_VFD
-#else
-#define CONFIG_COMMANDS_ADD_VFD		0
+    #define CONFIG_CMD_VFD
 #endif
 
 #ifdef CONFIG_DRIVER_S3C24X0_I2C
-#define CONFIG_COMMANDS_ADD_EEPROM	CFG_CMD_EEPROM
-#define CONFIG_COMMANDS_I2C		CFG_CMD_I2C
-#else
-#define CONFIG_COMMANDS_ADD_EEPROM	0
-#define CONFIG_COMMANDS_I2C		0
+    #define CONFIG_CMD_EEPROM
+    #define CONFIG_CMD_I2C
 #endif
 
 #ifndef USE_920T_MMU
-#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
-				CONFIG_COMMANDS_ADD_HWFLOW	| \
-				CONFIG_COMMANDS_ADD_VFD		| \
-				CONFIG_COMMANDS_ADD_EEPROM	| \
-				CONFIG_COMMANDS_I2C		| \
-				CFG_CMD_BSP			| \
-				CFG_CMD_DATE			| \
-				CFG_CMD_DHCP			| \
-				CFG_CMD_FAT			| \
-				CFG_CMD_NFS			| \
-				CFG_CMD_SNTP			| \
-				CFG_CMD_USB	)
-#else
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL			| \
-				CONFIG_COMMANDS_ADD_HWFLOW	| \
-				CONFIG_COMMANDS_ADD_VFD		| \
-				CONFIG_COMMANDS_ADD_EEPROM	| \
-				CONFIG_COMMANDS_I2C		| \
-				CFG_CMD_BSP			| \
-				CFG_CMD_DATE			| \
-				CFG_CMD_DHCP			| \
-				CFG_CMD_FAT			| \
-				CFG_CMD_NFS			| \
-				CFG_CMD_SNTP			| \
-				CFG_CMD_USB	)
+    #undef CONFIG_CMD_CACHE
 #endif
+
 
 /* moved up */
 #define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
@@ -296,7 +286,7 @@
 #define CONFIG_AUTOBOOT_DELAY_STR	"R"	/* 1st "password"	*/
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

@@ -39,14 +39,35 @@
 
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_COMMANDS		(CFG_CMD_MEMORY | CFG_CMD_LOADB | CFG_CMD_REGINFO | 		\
-				 CFG_CMD_FLASH | CFG_CMD_LOADS | CFG_CMD_ENV |  CFG_CMD_REGINFO	| 		\
-				 CFG_CMD_BDI | CFG_CMD_CONSOLE | CFG_CMD_RUN | CFG_CMD_BSP |	\
-				 CFG_CMD_IMI | CFG_CMD_EEPROM  | CFG_CMD_IRQ | CFG_CMD_MISC \
-)
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MISC
+
 
 #if 0
 #define CONFIG_BOOTDELAY	-1		/* autoboot disabled			*/
@@ -71,7 +92,7 @@
 
 #define	CFG_LONGHELP				/* undef to save memory		*/
 #define	CFG_PROMPT		"pati=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
