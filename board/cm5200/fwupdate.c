@@ -1,11 +1,11 @@
 /*
  * (C) Copyright 2007 Schindler Lift Inc.
- * (C) Copyright 2007 Semihalf
+ * (C) Copyright 2007 DENX Software Engineering
  *
  * Author: Michel Marti <mma@objectxp.com>
  * Adapted for U-Boot 1.2 by Piotr Kruszynski <ppk@semihalf.com>:
- * - code clean-up
- * - bugfix for overwriting bootargs by user
+ *   - code clean-up
+ *   - bugfix for overwriting bootargs by user
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -41,7 +41,7 @@ extern int do_fat_fsload(cmd_tbl_t *, int, int, char *[]);
 
 static int load_rescue_image(ulong);
 
-void cm1_fwupdate(void)
+void cm5200_fwupdate(void)
 {
 	cmd_tbl_t *bcmd;
 	char *rsargs;
@@ -144,6 +144,7 @@ static int load_rescue_image(ulong addr)
 				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
 					FW_DEBUG("No NX rescue image on "
 						"partition %d.\n", i);
+					partno = -2;
 				} else {
 					partno = i;
 					FW_DEBUG("Partition %d contains "
@@ -154,8 +155,20 @@ static int load_rescue_image(ulong addr)
 		}
 	}
 
-	if (partno == -1) {
-		printf(LOG_PREFIX "Error: No valid (FAT) partition detected\n");
+	if (partno < 0) {
+		switch (partno) {
+		case -1:
+			printf(LOG_PREFIX "Error: No valid (FAT) partition "
+				"detected\n");
+			break;
+		case -2:
+			printf(LOG_PREFIX "Error: No NX rescue image on FAT "
+				"partition\n");
+			break;
+		default:
+			printf(LOG_PREFIX "Error: Failed with code %d\n",
+				partno);
+		}
 		usb_stop();
 		return 1;
 	}
