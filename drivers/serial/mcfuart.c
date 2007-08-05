@@ -34,12 +34,16 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_MCFUART
+extern void uart_port_conf(void);
+
 int serial_init(void)
 {
 	volatile uart_t *uart;
 	u32 counter;
 
 	uart = (volatile uart_t *)(CFG_UART_BASE);
+
+	uart_port_conf();
 
 	/* write to SICR: SIM2 = uart mode,dcd does not affect rx */
 	uart->ucr = UART_UCR_RESET_RX;

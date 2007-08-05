@@ -60,20 +60,6 @@ void cpu_init_f(void)
 	scm2->pacrg = 0;
 	scm1->pacrh = 0;
 
-	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
-	case 0:
-		gpio->par_uart = (GPIO_PAR_UART_TXD0 | GPIO_PAR_UART_RXD0);
-		break;
-	case 1:
-		gpio->par_uart =
-		    (GPIO_PAR_UART_TXD1(3) | GPIO_PAR_UART_RXD1(3));
-		break;
-	case 2:
-		gpio->par_uart = (GPIO_PAR_TIN3_URXD2 | GPIO_PAR_TIN2_UTXD2);
-		break;
-	}
-
 	/* Port configuration */
 	gpio->par_cs = 0x3E;
 
@@ -124,3 +110,24 @@ int cpu_init_r(void)
 {
 	return (0);
 }
+
+void uart_port_conf(void)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	/* Setup Ports: */
+	switch (CFG_UART_PORT) {
+	case 0:
+		gpio->par_uart = (GPIO_PAR_UART_TXD0 | GPIO_PAR_UART_RXD0);
+		break;
+	case 1:
+		gpio->par_uart =
+		    (GPIO_PAR_UART_TXD1(3) | GPIO_PAR_UART_RXD1(3));
+		break;
+	case 2:
+		gpio->par_timer &= 0x0F;
+		gpio->par_timer |= (GPIO_PAR_TIN3_URXD2 | GPIO_PAR_TIN2_UTXD2);
+		break;
+	}
+}
+
