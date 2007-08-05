@@ -33,7 +33,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_MCFSERIAL
+#ifdef CONFIG_MCFUART
 int serial_init(void)
 {
 	volatile uart_t *uart;
@@ -124,4 +124,4 @@ void serial_setbrg(void)
 
 	uart->ucr = UART_UCR_RX_ENABLED | UART_UCR_TX_ENABLED;
 }
-#endif				/* CONFIG_MCFSERIAL */
+#endif				/* CONFIG_MCFUART */
