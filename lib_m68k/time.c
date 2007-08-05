@@ -48,6 +48,8 @@
 #include <asm/immap_5249.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static ulong timestamp;
 #if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 static unsigned short lastinc;

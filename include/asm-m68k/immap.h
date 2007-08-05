@@ -41,7 +41,7 @@
 #define CFG_TMRINTR_NO		(INT0_HI_DTMR1)
 #define CFG_TMRINTR_MASK	(INTC_IPRH_INT33)
 #define CFG_TMRINTR_PRI		(6)
-#define CFG_TIMER_PRESCALER	(((CFG_CLK / 1000000) - 1) << 8)
+#define CFG_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
 #endif
 
 #ifdef CONFIG_MCFPIT
