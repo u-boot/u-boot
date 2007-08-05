@@ -31,13 +31,33 @@
 #define	CONFIG_XUPV2P		1
 
 /* uart */
-#define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
-#define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
+#ifdef XILINX_UARTLITE_BASEADDR
+#define	CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
+#define	CONFIG_BAUDRATE		XILINX_UARTLITE_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
+#else
+#ifdef XILINX_UART16550_BASEADDR
+#define CFG_NS16550
+#define CFG_NS16550_SERIAL
+#define CFG_NS16550_REG_SIZE	4
+#define CONFIG_CONS_INDEX	1
+#define CFG_NS16550_COM1	XILINX_UART16550_BASEADDR
+#define CFG_NS16550_CLK		XILINX_UART16550_CLOCK_HZ
+
+#define	CONFIG_BAUDRATE		115200
+#define	CFG_BAUDRATE_TABLE	{ 9600, 115200 }
+#endif
+#endif
 
 /* ethernet */
-#define CONFIG_EMAC	1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_XEMAC_NUM_INSTANCES
+#ifdef XILINX_EMAC_BASEADDR
+#define XILINX_EMAC	1
+#else
+#ifdef XILINX_EMACLITE_BASEADDR
+#define XILINX_EMACLITE	1
+#endif
+#endif
+#undef ET_DEBUG
 
 /*
  * setting reset address
@@ -48,11 +68,13 @@
  * U-BOOT auto-relocate to TEXT_BASE. After RESET command Microblaze
  * jump to CFG_RESET_ADDRESS where is the original U-BOOT code.
  */
-#define	CFG_RESET_ADDRESS	0x36000000
+/* #define	CFG_RESET_ADDRESS	0x36000000 */
 
 /* gpio */
+#ifdef XILINX_GPIO_BASEADDR
 #define	CFG_GPIO_0		1
 #define	CFG_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+#endif
 
 /* interrupt controller */
 #define	CFG_INTC_0		1
@@ -118,6 +140,25 @@
 #define	CFG_ENV_IS_NOWHERE	1
 #define	CFG_ENV_SIZE		0x1000
 #define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
+#ifndef XILINX_SYSACE_BASEADDR
+#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
+			CFG_CMD_MEMORY |\
+			CFG_CMD_IRQ |\
+			CFG_CMD_BDI |\
+			CFG_CMD_NET |\
+			CFG_CMD_IMI |\
+			CFG_CMD_ECHO |\
+			CFG_CMD_CACHE |\
+			CFG_CMD_RUN |\
+			CFG_CMD_AUTOSCRIPT |\
+			CFG_CMD_ASKENV |\
+			CFG_CMD_LOADS |\
+			CFG_CMD_LOADB |\
+			CFG_CMD_MISC |\
+			CFG_CMD_MFSL |\
+			CFG_CMD_PING \
+			)
+#else
 #define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
 			CFG_CMD_MEMORY |\
 			CFG_CMD_IRQ |\
@@ -134,8 +175,10 @@
 			CFG_CMD_MISC |\
 			CFG_CMD_FAT |\
 			CFG_CMD_EXT2 |\
+			CFG_CMD_MFSL |\
 			CFG_CMD_PING \
 			)
+#endif
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
@@ -150,7 +193,7 @@
 
 #define	CONFIG_BOOTDELAY 	30
 #define	CONFIG_BOOTARGS		"root=romfs"
-#define	CONFIG_HOSTNAME		"ml401"
+#define	CONFIG_HOSTNAME		"xupv2p"
 #define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
 #define	CONFIG_SERVERIP 	192.168.0.5
@@ -166,11 +209,13 @@
 	"echo"
 
 /* system ace */
+#ifdef XILINX_SYSACE_BASEADDR
 #define	CONFIG_SYSTEMACE
 /* #define DEBUG_SYSTEMACE */
 #define	SYSTEMACE_CONFIG_FPGA
 #define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
 #define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
 #define	CONFIG_DOS_PARTITION
+#endif
 
 #endif	/* __CONFIG_H */
