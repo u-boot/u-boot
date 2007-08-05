@@ -238,7 +238,13 @@ void load_sernum_ethaddr (void)
 	}
 	/* Env doesnt exist -> hang */
 	status_led_blink ();
-	hang ();
+	/* here we do this "handy" because we have no interrupts
+	   at this time */
+	puts ("### EEPROM ERROR ### Please RESET the board ###\n");
+	for (;;) {
+		__led_toggle (12);
+		udelay (100000);
+	}
 	return;
 }
 
@@ -416,7 +422,13 @@ static void pcs440ep_checksha1 (void)
 	if ((cs_test = getenv ("cs_test")) == NULL) {
 		/* Env doesnt exist -> hang */
 		status_led_blink ();
-		hang ();
+		/* here we do this "handy" because we have no interrupts
+		   at this time */
+		puts ("### SHA1 ERROR ### Please RESET the board ###\n");
+		for (;;) {
+			__led_toggle (2);
+			udelay (100000);
+		}
 	}
 
 	if (strncmp (cs_test, "off", 3) == 0) {
@@ -517,7 +529,7 @@ void spd_ddr_init_hang (void)
 	status_led_set (1, STATUS_LED_ON);
 	/* we cannot use hang() because we are still running from
 	   Flash, and so the status_led driver is not initialized */
-	puts ("### ERROR ### Please RESET the board ###\n");
+	puts ("### SDRAM ERROR ### Please RESET the board ###\n");
 	for (;;) {
 		__led_toggle (4);
 		udelay (100000);

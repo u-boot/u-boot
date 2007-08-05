@@ -1,3 +1,80 @@
+commit 8993e54b6f397973794f3d6f47d3b3c0c98dd4f6
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jul 27 14:43:59 2007 +0200
+
+    [ADS5121] Support for the ADS5121 board
+
+    The following MPC5121e subsystems are supported:
+
+    - low-level CPU init
+    - NOR Boot Flash (common CFI driver)
+    - DDR SDRAM
+    - FEC
+    - I2C
+    - Watchdog
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+
+commit 1863cfb7b100ba0ee3401799457a01dc058745f8
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jul 27 14:22:04 2007 +0200
+
+    [PPC] Remove unused MSR_USER definition
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit cc3023b9f95d7ac959a764471a65001062aecf41
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Thu Jul 19 17:12:28 2007 +0200
+
+    Fix breakage of 8xx boards from recent commit.
+
+    This patch fixes the negative consequences for 8xx of the recent
+    "ppc4xx: Clean up 440 exceptions handling" commit.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 3a6cab844cf74f76639d795e0be8717e02c86af7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Jul 14 22:51:02 2007 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 011595307731a7a67a7445d107c279d031e8ab97
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sat Jul 14 01:06:58 2007 +0200
+
+    [PCS440EP]	- fix compile error, if BUILD_DIR is used
+
+commit fad63407154f46246ce80d53a9c669a44362ac67
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 09:54:17 2007 +0200
+
+    make show_boot_progress () weak.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 907902472391b6ca1876ec300687562ecaf459b1
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 08:26:05 2007 +0200
+
+    [PCS440EP]	- The DIAG LEDs are now blinking, if an error occur
+		- fix compile error, if BUILD_DIR is used
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 239f05ee4dd4cfe0b50f251b533dcebe9e67c360
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 12 01:45:34 2007 +0200
+
+    Update CHANGELOG, minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fa1df308926a6f70e3504c57514ef27ac31fd13a
 Author: Bartlomiej Sieka <tur@semihalf.com>
 Date:	Wed Jul 11 20:11:07 2007 +0200

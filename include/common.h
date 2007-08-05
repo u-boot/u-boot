@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -65,6 +65,9 @@ typedef volatile unsigned char	vu_char;
 #include <asm/5xx_immap.h>
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
+#elif defined(CONFIG_MPC512X)
+#include <mpc512x.h>
+#include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
 #elif defined(CONFIG_8260)
@@ -448,6 +451,9 @@ int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
+#if defined(CONFIG_MPC512x)
+int	prt_mpc512xxx_clks (void);
+#endif
 #if defined(CONFIG_MPC8220)
 int	prt_mpc8220_clks (void);
 #endif
@@ -626,9 +632,13 @@ int	fgetc(int file);
 
 int	pcmcia_init (void);
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-void	show_boot_progress (int status);
+#ifdef CONFIG_STATUS_LED
+# include <status_led.h>
 #endif
+/*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+void inline show_boot_progress (int val);
 
 #ifdef CONFIG_INIT_CRITICAL
 #error CONFIG_INIT_CRITICAL is deprecated!

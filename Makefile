@@ -269,7 +269,7 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 		-d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
-		$(obj)./tools/ubsha1 $(obj)u-boot.bin
+		$(obj)tools/ubsha1 $(obj)u-boot.bin
 
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
@@ -640,6 +640,13 @@ uc101_config:         unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
 motionpro_config:         unconfig
 	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
+
+
+#########################################################################
+## MPC512x Systems
+#########################################################################
+ads5121_config: unconfig
+	@$(MKCONFIG) ads5121 ppc mpc512x ads5121
 
 
 #########################################################################

@@ -56,13 +56,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <hush.h>
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 #ifdef CFG_INIT_RAM_LOCK
 #include <asm/cache.h>
 #endif
@@ -176,7 +169,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		addr = simple_strtoul(argv[1], NULL, 16);
 	}
 
-	SHOW_BOOT_PROGRESS (1);
+	show_boot_progress (1);
 	printf ("## Booting image at %08lx ...\n", addr);
 
 	/* Copy header so we can blank CRC field for re-calculation */
@@ -200,11 +193,11 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif	/* __I386__ */
 	    {
 		puts ("Bad Magic Number\n");
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-1);
 		return 1;
 	    }
 	}
-	SHOW_BOOT_PROGRESS (2);
+	show_boot_progress (2);
 
 	data = (ulong)&header;
 	len  = sizeof(image_header_t);
@@ -214,10 +207,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (crc32 (0, (uchar *)data, len) != checksum) {
 		puts ("Bad Header Checksum\n");
-		SHOW_BOOT_PROGRESS (-2);
+		show_boot_progress (-2);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (3);
+	show_boot_progress (3);
 
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr)){
@@ -238,12 +231,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		puts ("   Verifying Checksum ... ");
 		if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
 			printf ("Bad Data CRC\n");
-			SHOW_BOOT_PROGRESS (-3);
+			show_boot_progress (-3);
 			return 1;
 		}
 		puts ("OK\n");
 	}
-	SHOW_BOOT_PROGRESS (4);
+	show_boot_progress (4);
 
 	len_ptr = (ulong *)data;
 
@@ -272,10 +265,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	{
 		printf ("Unsupported Architecture 0x%x\n", hdr->ih_arch);
-		SHOW_BOOT_PROGRESS (-4);
+		show_boot_progress (-4);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (5);
+	show_boot_progress (5);
 
 	switch (hdr->ih_type) {
 	case IH_TYPE_STANDALONE:
@@ -297,10 +290,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			data += 4;
 		break;
 	default: printf ("Wrong Image Type for %s command\n", cmdtp->name);
-		SHOW_BOOT_PROGRESS (-5);
+		show_boot_progress (-5);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (6);
+	show_boot_progress (6);
 
 	/*
 	 * We have reached the point of no return: we are going to
@@ -351,7 +344,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (gunzip ((void *)ntohl(hdr->ih_load), unc_len,
 			    (uchar *)data, &len) != 0) {
 			puts ("GUNZIP ERROR - must RESET board to recover\n");
-			SHOW_BOOT_PROGRESS (-6);
+			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		break;
@@ -368,7 +361,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 						CFG_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
 			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
-			SHOW_BOOT_PROGRESS (-6);
+			show_boot_progress (-6);
 			udelay(100000);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -378,11 +371,11 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (iflag)
 			enable_interrupts();
 		printf ("Unimplemented compression type %d\n", hdr->ih_comp);
-		SHOW_BOOT_PROGRESS (-7);
+		show_boot_progress (-7);
 		return 1;
 	}
 	puts ("OK\n");
-	SHOW_BOOT_PROGRESS (7);
+	show_boot_progress (7);
 
 	switch (hdr->ih_type) {
 	case IH_TYPE_STANDALONE:
@@ -409,10 +402,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (iflag)
 			enable_interrupts();
 		printf ("Can't boot image type %d\n", hdr->ih_type);
-		SHOW_BOOT_PROGRESS (-8);
+		show_boot_progress (-8);
 		return 1;
 	}
-	SHOW_BOOT_PROGRESS (8);
+	show_boot_progress (8);
 
 	switch (hdr->ih_os) {
 	default:			/* handled by (original) Linux case */
@@ -458,7 +451,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	}
 
-	SHOW_BOOT_PROGRESS (-9);
+	show_boot_progress (-9);
 #ifdef DEBUG
 	puts ("\n## Control returned to monitor - resetting...\n");
 	do_reset (cmdtp, flag, argc, argv);
@@ -637,7 +630,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #endif
 	if (argc >= 3) {
 		debug ("Not skipping initrd\n");
-		SHOW_BOOT_PROGRESS (9);
+		show_boot_progress (9);
 
 		addr = simple_strtoul(argv[2], NULL, 16);
 
@@ -648,7 +641,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 		if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
 			puts ("Bad Magic Number\n");
-			SHOW_BOOT_PROGRESS (-10);
+			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
@@ -660,11 +653,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 		if (crc32 (0, (uchar *)data, len) != checksum) {
 			puts ("Bad Header Checksum\n");
-			SHOW_BOOT_PROGRESS (-11);
+			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		SHOW_BOOT_PROGRESS (10);
+		show_boot_progress (10);
 
 		print_image_hdr (hdr);
 
@@ -697,19 +690,19 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 			if (csum != ntohl(hdr->ih_dcrc)) {
 				puts ("Bad Data CRC\n");
-				SHOW_BOOT_PROGRESS (-12);
+				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			puts ("OK\n");
 		}
 
-		SHOW_BOOT_PROGRESS (11);
+		show_boot_progress (11);
 
 		if ((hdr->ih_os   != IH_OS_LINUX)	||
 		    (hdr->ih_arch != IH_CPU_PPC)	||
 		    (hdr->ih_type != IH_TYPE_RAMDISK)	) {
 			puts ("No Linux PPC Ramdisk Image\n");
-			SHOW_BOOT_PROGRESS (-13);
+			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
@@ -720,7 +713,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		u_long tail    = ntohl(len_ptr[0]) % 4;
 		int i;
 
-		SHOW_BOOT_PROGRESS (13);
+		show_boot_progress (13);
 
 		/* skip kernel length and terminator */
 		data = (ulong)(&len_ptr[2]);
@@ -739,7 +732,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		/*
 		 * no initrd image
 		 */
-		SHOW_BOOT_PROGRESS (14);
+		show_boot_progress (14);
 
 		len = data = 0;
 	}
@@ -890,7 +883,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				initrd_start = nsp;
 		}
 
-		SHOW_BOOT_PROGRESS (12);
+		show_boot_progress (12);
 
 		debug ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			data, data + len - 1, len, len);
@@ -926,7 +919,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
-	SHOW_BOOT_PROGRESS (15);
+	show_boot_progress (15);
 
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
@@ -1115,7 +1108,7 @@ do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 	printf ("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 		(ulong)loader);
 
-	SHOW_BOOT_PROGRESS (15);
+	show_boot_progress (15);
 
 	/*
 	 * NetBSD Stage-2 Loader Parameters:
@@ -1578,7 +1571,7 @@ do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	printf ("## Transferring control to RTEMS (at address %08lx) ...\n",
 		(ulong)entry_point);
 
-	SHOW_BOOT_PROGRESS (15);
+	show_boot_progress (15);
 
 	/*
 	 * RTEMS Parameters:

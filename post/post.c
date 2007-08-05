@@ -129,9 +129,7 @@ void post_output_backlog ( void )
 				post_log ("PASSED\n");
 			else {
 				post_log ("FAILED\n");
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-				show_boot_progress(-31);
-#endif
+				show_boot_progress (-31);
 			}
 		}
 	}
@@ -241,9 +239,7 @@ static int post_run_single (struct post_test *test,
 		} else {
 		if ((*test->test) (flags) != 0) {
 			post_log ("FAILED\n");
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-			show_boot_progress(-32);
-#endif
+			show_boot_progress (-32);
 		}
 		else
 			post_log ("PASSED\n");
