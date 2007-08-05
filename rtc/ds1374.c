@@ -35,7 +35,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if (defined(CONFIG_RTC_DS1374)) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if (defined(CONFIG_RTC_DS1374)) && defined(CONFIG_CMD_DATE)
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
@@ -250,4 +250,4 @@ static void rtc_write_raw (uchar reg, uchar val)
 {
 		i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
 }
-#endif /* (CONFIG_RTC_DS1374) && (CFG_COMMANDS & CFG_CMD_DATE) */
+#endif

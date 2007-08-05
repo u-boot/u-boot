@@ -1,3 +1,11 @@
+commit b1b54e352028ed370c3aa95d6fdeb9d64c5d2f86
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 21:27:46 2007 +0200
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 8993e54b6f397973794f3d6f47d3b3c0c98dd4f6
 Author: Rafal Jaworowski <raj@semihalf.com>
 Date:	Fri Jul 27 14:43:59 2007 +0200

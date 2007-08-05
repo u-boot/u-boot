@@ -58,10 +58,23 @@
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-#undef CONFIG_COMMANDS
-#define	CONFIG_COMMANDS		(CONFIG_CMD_DFL & ~(CFG_CMD_NONSTD | CFG_CMD_ENV))
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_ENV
+
 
 #define CONFIG_BOOTDELAY	0
 #define CONFIG_BOOTARGS		"mem=16M console=ttyAM0,115200"

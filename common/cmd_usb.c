@@ -30,7 +30,7 @@
 #include <asm/byteorder.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 
 #include <usb.h>
 
@@ -609,10 +609,10 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_USB) */
+#endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 
 #ifdef CONFIG_USB_STORAGE
 U_BOOT_CMD(

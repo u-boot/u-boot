@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 const char *weekdays[] = {
 	"Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur",
@@ -211,4 +211,4 @@ U_BOOT_CMD(
 	"  - with 'reset' argument: reset the RTC\n"
 );
 
-#endif	/* CFG_CMD_DATE */
+#endif

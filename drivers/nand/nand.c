@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
 
 #include <nand.h>
 

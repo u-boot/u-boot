@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,9 +22,6 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -53,20 +50,8 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within  */
-    /* the sector layout of our flash chips!    XXX FIXME XXX   */
-
-    cpu/mpc5xxx/start.o          (.text)
-    cpu/mpc5xxx/traps.o          (.text)
-    lib_generic/crc32.o         (.text)
-    lib_ppc/cache.o             (.text)
-    lib_ppc/time.o              (.text)
-
-    . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o        (.ppcenv)
-
+    cpu/mpc83xx/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)
@@ -134,3 +119,4 @@ SECTIONS
   _end = . ;
   PROVIDE (end = .);
 }
+ENTRY(_start)

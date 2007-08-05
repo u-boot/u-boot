@@ -31,7 +31,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_MPC8xx) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_MPC8xx) && defined(CONFIG_CMD_DATE)
 
 /* ------------------------------------------------------------------------- */
 
@@ -70,6 +70,4 @@ void rtc_reset (void)
 	return;	/* nothing to do */
 }
 
-/* ------------------------------------------------------------------------- */
-
-#endif	/* CONFIG_RTC_MPC8xx && CFG_CMD_DATE */
+#endif

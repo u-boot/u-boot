@@ -93,8 +93,8 @@ Commands:
 
 Configuration Options:
 
-   CFG_CMD_NAND
-      A good one to add to CONFIG_COMMANDS since it enables NAND support.
+   CONFIG_CMD_NAND
+      Enables NAND support and commmands.
 
    CONFIG_MTD_NAND_ECC_JFFS2
       Define this if you want the Error Correction Code information in

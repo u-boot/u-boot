@@ -368,7 +368,7 @@ void reset_phy (void)
 /*-----------------------------------------------------------------------
  * Board Special Commands: access functions for "PUMA" FPGA
  */
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 #define	PUMA_READ_MODE	0
 #define PUMA_LOAD_MODE	1
@@ -408,7 +408,7 @@ U_BOOT_CMD (puma, 4, 1, do_puma,
 	    "status - print PUMA status\n"
 	    "puma load addr len - load PUMA configuration data\n");
 
-#endif /* CFG_CMD_BSP */
+#endif
 
 /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 

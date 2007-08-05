@@ -18,10 +18,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* #define DEBUG	0x28 */
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_MPC5xxx_FEC)
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -924,7 +924,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	sprintf(dev->name, "FEC ETHERNET");
 	eth_register(dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register (dev->name,
 			fec5xxx_miiphy_read, fec5xxx_miiphy_write);
 #endif

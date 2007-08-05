@@ -57,7 +57,6 @@ SECTIONS
     cpu/mpc86xx/cpu_init.o (.text)
     cpu/mpc86xx/cpu.o (.text)
     cpu/mpc86xx/speed.o (.text)
-    cpu/mpc86xx/pci.o (.text)
     common/dlmalloc.o (.text)
     lib_generic/crc32.o (.text)
     lib_ppc/extable.o (.text)

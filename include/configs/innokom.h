@@ -54,10 +54,34 @@
 #define CONFIG_BAUDRATE		19200
 #define CONFIG_MISC_INIT_R	1	/* we have a misc_init_r() function */
 
-#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_I2C|CFG_CMD_DHCP|CFG_CMD_CACHE)
-/* CONFIG_CMD_DFL|CFG_CMD_I2C|CFG_CMD_EEPROM|CFG_CMD_NET|CFG_CMD_JFFS2|CFG_CMD_DHCP) */
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)   */
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_RUN
+
 
 #define CONFIG_BOOTDELAY	3
 /* #define CONFIG_BOOTARGS	"root=/dev/nfs ip=bootp console=ttyS0,19200" */

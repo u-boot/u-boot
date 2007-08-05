@@ -1,5 +1,6 @@
 /*
- * Copyright 2004 Freescale Semiconductor, Inc.
+ * (C) Copyright 2001	Wolfgang Denk, DENX Software Engineering, wd@denx.de
+ * (C) Copyright 2003	Martin Winistoerfer, martinwinistoerfer@gmx.ch
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,6 +22,9 @@
  */
 
 OUTPUT_ARCH(powerpc)
+SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
+/* Do we need any of these for elf?
+   __DYNAMIC = 0;    */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -49,11 +53,18 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc83xx/start.o	(.text)
+    /* WARNING - the following is hand-optimized to fit within	*/
+    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+
+    cpu/mpc5xx/start.o	(.text)
+
     *(.text)
-    *(.fixup)
     *(.got1)
-    . = ALIGN(16);
+  }
+  _etext = .;
+  PROVIDE (etext = .);
+  .rodata    :
+  {
     *(.rodata)
     *(.rodata1)
     *(.rodata.str1.4)
@@ -64,7 +75,7 @@ SECTIONS
   .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
-  . = (. + 0x0FFF) & 0xFFFFF000;
+  . = (. + 0x00FF) & 0xFFFFFF00;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -75,8 +86,8 @@ SECTIONS
     _FIXUP_TABLE_ = .;
     *(.fixup)
   }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
-  __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
+  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
+  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
   .data    :
   {
@@ -101,11 +112,11 @@ SECTIONS
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
-  . = ALIGN(4096);
+  . = ALIGN(256);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(4096);
+  . = ALIGN(256);
   __init_end = .;
 
   __bss_start = .;
@@ -116,7 +127,13 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+
   _end = . ;
   PROVIDE (end = .);
+/*   . = env_start;
+	.ppcenv	:
+	{
+		common/environment.o (.ppcenv)
+	}
+*/
 }
-ENTRY(_start)

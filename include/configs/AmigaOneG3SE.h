@@ -56,38 +56,44 @@
 
 #define CONFIG_BOOTARGS		"root=/dev/ram rw ramdisk=4096"
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_AMIGA_PARTITION
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DHCP	| \
-				 CFG_CMD_ELF	| \
-				 CFG_CMD_NET	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_CACHE	| \
-				 CFG_CMD_CONSOLE| \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_PCI	)
 
-/*				    CFG_CMD_MII	   | \ */
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_FDC
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_CONSOLE|
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_PCI
+
 
 #define CONFIG_PCI		1
 /* #define CONFIG_PCI_SCAN_SHOW 1 */
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
- */
-#include <cmd_confdefs.h>
-
 
 /*
  * Miscellaneous configurable options
@@ -247,7 +253,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -348,8 +354,6 @@
 
 #define CONFIG_3COM
 /* #define CONFIG_BOOTP_RANDOM_DELAY */
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE)
 
 /*
  * USB configuration

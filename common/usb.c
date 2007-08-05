@@ -49,7 +49,7 @@
 #include <asm/processor.h>
 #include <linux/ctype.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 
 #include <usb.h>
 #ifdef CONFIG_4xx
@@ -1247,6 +1247,6 @@ int usb_hub_probe(struct usb_device *dev, int ifnum)
 	return ret;
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_USB) */
+#endif
 
 /* EOF */

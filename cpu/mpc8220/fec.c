@@ -15,10 +15,10 @@
 #include "fec.h"
 
 #undef  DEBUG
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
     defined(CONFIG_MPC8220_FEC)
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -847,7 +847,7 @@ int mpc8220_fec_initialize (bd_t * bis)
 	sprintf (dev->name, "FEC ETHERNET");
 	eth_register (dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register (dev->name,
 			fec8220_miiphy_read, fec8220_miiphy_write);
 #endif

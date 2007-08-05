@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2003-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -53,10 +53,19 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc8260/start.o	(.text)
+    /* WARNING - the following is hand-optimized to fit within  */
+    /* the sector layout of our flash chips!    XXX FIXME XXX   */
+
+    cpu/mpc5xxx/start.o          (.text)
+    cpu/mpc5xxx/traps.o          (.text)
+    lib_generic/crc32.o         (.text)
+    lib_ppc/cache.o             (.text)
+    lib_ppc/time.o              (.text)
+
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/environment.o        (.ppcenv)
+
     *(.text)
-    common/environment.o(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)

@@ -31,7 +31,7 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 
  /*
  * cache flushing routines for kgdb
@@ -74,4 +74,4 @@ kgdb_flush_cache_range:
 	SYNC
 	blr
 
-#endif /* CFG_CMD_KGDB */
+#endif

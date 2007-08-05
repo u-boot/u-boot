@@ -176,7 +176,7 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
 	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
 #endif
@@ -898,6 +898,39 @@ static void tsec_halt(struct eth_device *dev)
 		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
+struct phy_info phy_info_M88E1149S = {
+	0x1410ca,
+	"Marvell 88E1149S",
+	4,
+	(struct phy_cmd[]){     /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read,
+		 &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* shutdown */
+		{miim_end,}
+	},
+};
+
 /* The 5411 id is 0x206070, the 5421 is 0x2060e0 */
 struct phy_info phy_info_BCM5461S = {
 	0x02060c1,	/* 5461 ID */
@@ -993,11 +1026,6 @@ struct phy_info phy_info_M88E1111S = {
 	(struct phy_cmd[]){	/* config */
 			   /* Reset and configure the PHY */
 			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {0x1d, 0x1f, NULL},
-			   {0x1e, 0x200c, NULL},
-			   {0x1d, 0x5, NULL},
-			   {0x1e, 0x0, NULL},
-			   {0x1e, 0x100, NULL},
 			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
@@ -1037,14 +1065,16 @@ static struct phy_info phy_info_M88E1145 = {
 	"Marvell 88E1145",
 	4,
 	(struct phy_cmd[]){	/* config */
+			   /* Reset the PHY */
+			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+
 			   /* Errata E0, E1 */
 			   {29, 0x001b, NULL},
 			   {30, 0x418f, NULL},
 			   {29, 0x0016, NULL},
 			   {30, 0xa2da, NULL},
 
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   /* Configure the PHY */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
 			   {MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO,
@@ -1321,6 +1351,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,
+	&phy_info_M88E1149S,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
@@ -1351,8 +1382,10 @@ struct phy_info *get_phy_info(struct eth_device *dev)
 	/* loop through all the known PHY types, and find one that */
 	/* matches the ID we read from the PHY. */
 	for (i = 0; phy_info[i]; i++) {
-		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift))
+		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift)) {
 			theInfo = phy_info[i];
+			break;
+		}
 	}
 
 	if (theInfo == NULL) {
@@ -1443,7 +1476,7 @@ static void relocate_cmds(void)
 	relocated = 1;
 }
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 
 struct tsec_private *get_priv_for_phy(unsigned char phyaddr)
@@ -1502,7 +1535,6 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 	return 0;
 }
 
-#endif /* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
-		&& !defined(BITBANGMII) */
+#endif
 
 #endif /* CONFIG_TSEC_ENET */

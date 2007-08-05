@@ -242,26 +242,33 @@
 #define CFG_RX_ETH_BUFFER     32	     /* #eth rx buff & descrs	*/
 
 
-/*-----------------------------------------------------------------------
- * Console/Commands/Parser
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_BEDBUG	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_FAT)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* tbs 09-March-2005 Removed to be able to use 2nd serial */
-/*				  CFG_CMD_KGDB	  | \ */
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_FAT
 
 
 /* Include NetConsole support */
@@ -271,10 +278,6 @@
 #define CONFIG_AUTO_COMPLETE 1
 #define CONFIG_AUTO_COMPLETE 1
 #define CFG_ALT_MEMTEST	     1	     /* use real memory test	 */
-
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CFG_LONGHELP			     /* undef to save memory	*/
 #define CFG_PROMPT	      "MetroBox=> "  /* Monitor Command Prompt	*/
@@ -286,7 +289,7 @@
 /*-----------------------------------------------------------------------
  * Console Buffer
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	      1024	     /* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE	      256	     /* Console I/O Buffer Size */
@@ -348,7 +351,7 @@
  */
 #define CFG_DCACHE_SIZE	      8192	     /* For AMCC 405 CPUs	*/
 #define CFG_CACHELINE_SIZE    32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT   5		     /* log base 2 of the above */
 #endif
 
@@ -360,7 +363,7 @@
 #define BOOTFLAG_COLD	      0x01	     /* Normal PowerOn: Boot from FLASH */
 #define BOOTFLAG_WARM	      0x02	     /* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE  230400	     /* kgdb serial port baud	*/
 #define CONFIG_KGDB_SER_INDEX 2		     /* kgdb serial port	*/
 #endif
