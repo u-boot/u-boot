@@ -52,6 +52,7 @@
 				  CFG_CMD_DATE | \
 				  CFG_CMD_ELF | \
 				  CFG_CMD_FLASH | \
+				  CFG_CMD_I2C | \
 				  (CFG_CMD_LOADB | CFG_CMD_LOADS) | \
 				  CFG_CMD_MEMORY | \
 				  CFG_CMD_MISC | \
@@ -65,15 +66,15 @@
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_NET_MULTI	1
+#	define CONFIG_NET_MULTI		1
 #	define CONFIG_MII		1
 #	define CFG_DISCOVER_PHY
 #	define CFG_RX_ETH_BUFFER	8
 #	define CFG_FAULT_ECHO_LINK_DOWN
 
-#	define CFG_FEC0_PINMUX	0
-#	define CFG_FEC0_MIIBASE	CFG_FEC0_IOBASE
-#	define MCFFEC_TOUT_LOOP 50000
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
 /* If CFG_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CFG_DISCOVER_PHY
 #		define FECDUPLEX	FULL
@@ -92,14 +93,23 @@
 #define CONFIG_MCFTMR
 #undef CONFIG_MCFPIT
 
+/* I2C */
+#define CONFIG_FSL_I2C
+#define CONFIG_HARD_I2C			/* I2C with hw support */
+#undef CONFIG_SOFT_I2C			/* I2C bit-banged */
+#define CFG_I2C_SPEED		80000
+#define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_OFFSET		0x58000
+#define CFG_IMMR		CFG_MBAR
+
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <cmd_confdefs.h>
 #define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
-#	define CONFIG_IPADDR		192.162.1.2
-#	define CONFIG_NETMASK		255.255.255.0
-#	define CONFIG_SERVERIP		192.162.1.1
+#	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
+#	define CONFIG_IPADDR	192.162.1.2
+#	define CONFIG_NETMASK	255.255.255.0
+#	define CONFIG_SERVERIP	192.162.1.1
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #	define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif				/* FEC_ENET */
@@ -117,26 +127,26 @@
 	"save\0"	\
 	""
 
-#define CONFIG_PRAM			512	/* 512 KB */
-#define CFG_PROMPT			"-> "
+#define CONFIG_PRAM		512	/* 512 KB */
+#define CFG_PROMPT		"-> "
 #define CFG_LONGHELP		/* undef to save memory */
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#	define CFG_CBSIZE			1024	/* Console I/O Buffer Size */
+#	define CFG_CBSIZE	1024	/* Console I/O Buffer Size */
 #else
-#	define CFG_CBSIZE			256	/* Console I/O Buffer Size */
+#	define CFG_CBSIZE	256	/* Console I/O Buffer Size */
 #endif
 
 #define CFG_PBSIZE			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS			16	/* max number of command args */
+#define CFG_MAXARGS		16	/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
 #define CFG_LOAD_ADDR		0x40010000
 
-#define CFG_HZ				1000
-#define CFG_CLK				80000000
-#define CFG_CPU_CLK			CFG_CLK * 3
+#define CFG_HZ			1000
+#define CFG_CLK			80000000
+#define CFG_CPU_CLK		CFG_CLK * 3
 
-#define CFG_MBAR			0xFC000000
+#define CFG_MBAR		0xFC000000
 
 /*
  * Low Level Configuration Settings
@@ -190,13 +200,13 @@
 #	define CFG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
-#	define CFG_MAX_FLASH_BANKS		1	/* max number of memory banks */
-#	define CFG_MAX_FLASH_SECT		137	/* max number of sectors on one chip */
+#	define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#	define CFG_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
-#define CFG_FLASH_BASE			0
-#define CFG_FLASH0_BASE			(CFG_CS0_BASE << 16)
+#define CFG_FLASH_BASE		0
+#define CFG_FLASH0_BASE		(CFG_CS0_BASE << 16)
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
