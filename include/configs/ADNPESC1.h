@@ -563,8 +563,6 @@
 #define	CONFIG_POST			CFG_POST_RTC
 #define	CFG_NIOS_POST_WORD_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
-
-
 /*
  * BOOTP options
  */
@@ -585,7 +583,7 @@
 #undef CONFIG_CMD_DOC
 #undef CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_ELF   
+#undef CONFIG_CMD_ELF
 #undef CONFIG_CMD_FAT
 #undef CONFIG_CMD_FDC
 #undef CONFIG_CMD_FDOS
@@ -609,7 +607,6 @@
 #undef CONFIG_CMD_SPI
 #undef CONFIG_CMD_DATE
 #endif
-
 
 /*------------------------------------------------------------------------
  * KGDB
@@ -656,7 +653,6 @@
 #else
 #undef	CFG_LOAD_ADDR		/* force error break */
 #endif
-
 
 /* MEM test area */
 #if	(CFG_SDRAM_SIZE != 0)

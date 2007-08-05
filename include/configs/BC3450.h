@@ -192,7 +192,7 @@
 #ifdef CONFIG_BC3450_USB
     #define CONFIG_CMD_USB
 #endif
-			
+
 #ifdef CONFIG_PCI
     #define CONFIG_CMD_PCI
 #endif

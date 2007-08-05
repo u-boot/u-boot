@@ -84,10 +84,10 @@
 
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_SCSI  
+#define CONFIG_CMD_SCSI
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_DATE 
-#define CONFIG_CMD_FDC   
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_FDC
 #define CONFIG_CMD_ELF
 
 

@@ -899,36 +899,36 @@ static void tsec_halt(struct eth_device *dev)
 }
 
 struct phy_info phy_info_M88E1149S = {
-       0x1410ca,
-       "Marvell 88E1149S",
-       4,
-       (struct phy_cmd[]){     /* config */
-               /* Reset and configure the PHY */
-               {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-               {0x1d, 0x1f, NULL},
-               {0x1e, 0x200c, NULL},
-               {0x1d, 0x5, NULL},
-               {0x1e, 0x0, NULL},
-               {0x1e, 0x100, NULL},
-               {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-               {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-               {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-               {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-               {miim_end,}
-       },
-       (struct phy_cmd[]){     /* startup */
-               /* Status is read once to clear old link state */
-               {MIIM_STATUS, miim_read, NULL},
-               /* Auto-negotiate */
-               {MIIM_STATUS, miim_read, &mii_parse_sr},
-               /* Read the status */
-               {MIIM_88E1011_PHY_STATUS, miim_read,
-                &mii_parse_88E1011_psr},
-               {miim_end,}
-       },
-       (struct phy_cmd[]){     /* shutdown */
-               {miim_end,}
-       },
+	0x1410ca,
+	"Marvell 88E1149S",
+	4,
+	(struct phy_cmd[]){     /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read,
+		 &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* shutdown */
+		{miim_end,}
+	},
 };
 
 /* The 5411 id is 0x206070, the 5421 is 0x2060e0 */
@@ -1351,7 +1351,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,
-        &phy_info_M88E1149S,
+	&phy_info_M88E1149S,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
 	&phy_info_VSC8244,

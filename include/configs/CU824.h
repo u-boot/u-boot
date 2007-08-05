@@ -73,7 +73,7 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_BEDBUG 
+#define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_NFS

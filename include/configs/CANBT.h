@@ -72,7 +72,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_EEPROM	   
+#define CONFIG_CMD_EEPROM
 
 #undef CONFIG_CMD_NET
 
