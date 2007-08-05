@@ -87,10 +87,3 @@ int testdram(void)
 	return (0);
 }
 
-#ifdef CFG_FLASH_CFI
-void sync(void)
-{
-	/* This sync function is PowerPC intruction,
-	   coldfire does not have this instruction. Dummy function */
-}
-#endif				/* CFG_FLASH_CFI */

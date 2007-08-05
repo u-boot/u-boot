@@ -211,4 +211,11 @@ extern inline void out_be32(volatile unsigned *addr, int val)
 	*addr = val;
 }
 
+static inline void sync(void)
+{
+	/* This sync function is for PowerPC or other architecture instruction
+	 * ColdFire does not have this instruction. Dummy function, added for
+	 * compatibility (CFI driver)
+	 */
+}
 #endif				/* __ASM_M68K_IO_H__ */
