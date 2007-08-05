@@ -101,7 +101,7 @@ void fec_reset(struct eth_device *dev);
 extern int fecpin_setclear(struct eth_device *dev, int setclear);
 
 #ifdef CFG_DISCOVER_PHY
-extern void mii_init(void);
+extern void __mii_init(void);
 extern uint mii_send(uint mii_cmd);
 extern int mii_discover_phy(struct eth_device *dev);
 extern int mcffec_miiphy_read(char *devname, unsigned char addr,

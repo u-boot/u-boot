@@ -203,7 +203,9 @@ int mii_discover_phy(struct eth_device *dev)
 }
 #endif				/* CFG_DISCOVER_PHY */
 
-void mii_init(void)
+int mii_init(void) __attribute__((weak,alias("__mii_init")));
+
+void __mii_init(void)
 {
 	volatile fec_t *fecp;
 	struct fec_info_s *info;
