@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2007
+ * Copyright (C) 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * Author: Sergei Poselenov <sposelenov@emcraft.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,38 +20,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+/*
+ * This file is originally a part of the GCC testsuite.
+ */
 
-#include <config.h>
+#include <common.h>
 
 #ifdef CONFIG_POST
-#if defined(CONFIG_440EP) || \
-    defined(CONFIG_440EPX)
 
-#include <ppc4xx.h>
-#include <asm/processor.h>
+#include <post.h>
 
+#if CONFIG_POST & CFG_POST_FPU
 
-int fpu_status(void)
+int fpu_post_test_math4 (void)
 {
-	if (mfspr(ccr0) & CCR0_DAPUIB)
-		return 0; /* Disabled */
-	else
-		return 1; /* Enabled */
+	volatile float reale = 1.0f;
+	volatile float oneplus;
+	int i;
+
+	if (sizeof (float) != 4)
+		return 0;
+
+	for (i = 0; ; i++)
+	{
+		oneplus = 1.0f + reale;
+		if (oneplus == 1.0f)
+			break;
+		reale = reale / 2.0f;
+	}
+	/* Assumes ieee754 accurate arithmetic above.  */
+	if (i != 24) {
+		post_log ("Error in FPU math4 test\n");
+		return -1;
+	}
+	return 0;
 }
 
-
-void fpu_disable(void)
-{
-	mtspr(ccr0, mfspr(ccr0) | CCR0_DAPUIB);
-	mtmsr(mfmsr() & ~MSR_FP);
-}
-
-
-void fpu_enable(void)
-{
-	mtspr(ccr0, mfspr(ccr0) & ~CCR0_DAPUIB);
-	mtmsr(mfmsr() | MSR_FP);
-}
-
-#endif
+#endif /* CONFIG_POST & CFG_POST_FPU */
 #endif /* CONFIG_POST */

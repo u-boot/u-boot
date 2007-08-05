@@ -2,6 +2,8 @@
  * (C) Copyright 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * Author: Igor Lisitsin <igor@emcraft.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -39,12 +41,13 @@
 
 #if CONFIG_POST & CFG_POST_SPR
 
-static struct
-{
-    int number;
-    char * name;
-    unsigned long mask;
-    unsigned long value;
+#include <asm/processor.h>
+
+static struct {
+	int number;
+	char * name;
+	unsigned long mask;
+	unsigned long value;
 } spr_test_list [] = {
 	/* Standard Special-Purpose Registers */
 
@@ -60,8 +63,10 @@ static struct
 	{0x113,	"SPRG3",	0x00000000,	0x00000000},
 	{0x11f,	"PVR",		0x00000000,	0x00000000},
 
-	/* Additional Special-Purpose Registers */
-
+	/* Additional Special-Purpose Registers.
+	 * The values must match the initialization
+	 * values from cpu/ppc4xx/start.S
+	 */
 	{0x30,	"PID",		0x00000000,	0x00000000},
 	{0x3a,	"CSRR0",	0x00000000,	0x00000000},
 	{0x3b,	"CSRR1",	0x00000000,	0x00000000},
@@ -90,22 +95,22 @@ static struct
 	{0x13f,	"DVC2",		0x00000000,	0x00000000},
 	{0x150,	"TSR",		0x00000000,	0x00000000},
 	{0x154,	"TCR",		0x00000000,	0x00000000},
-	{0x190,	"IVOR0",	0x00000000,	0x00000000},
-	{0x191,	"IVOR1",	0x00000000,	0x00000000},
-	{0x192,	"IVOR2",	0x00000000,	0x00000000},
-	{0x193,	"IVOR3",	0x00000000,	0x00000000},
-	{0x194,	"IVOR4",	0x00000000,	0x00000000},
-	{0x195,	"IVOR5",	0x00000000,	0x00000000},
-	{0x196,	"IVOR6",	0x00000000,	0x00000000},
-	{0x197,	"IVOR7",	0x00000000,	0x00000000},
-	{0x198,	"IVOR8",	0x00000000,	0x00000000},
+	{0x190,	"IVOR0",	0x0000fff0,	0x00000100},
+	{0x191,	"IVOR1",	0x0000fff0,	0x00000200},
+	{0x192,	"IVOR2",	0x0000fff0,	0x00000300},
+	{0x193,	"IVOR3",	0x0000fff0,	0x00000400},
+	{0x194,	"IVOR4",	0x0000fff0,	0x00000500},
+	{0x195,	"IVOR5",	0x0000fff0,	0x00000600},
+	{0x196,	"IVOR6",	0x0000fff0,	0x00000700},
+	{0x197,	"IVOR7",	0x0000fff0,	0x00000800},
+	{0x198,	"IVOR8",	0x0000fff0,	0x00000c00},
 	{0x199,	"IVOR9",	0x00000000,	0x00000000},
-	{0x19a,	"IVOR10",	0x00000000,	0x00000000},
+	{0x19a,	"IVOR10",	0x0000fff0,	0x00000900},
 	{0x19b,	"IVOR11",	0x00000000,	0x00000000},
 	{0x19c,	"IVOR12",	0x00000000,	0x00000000},
-	{0x19d,	"IVOR13",	0x00000000,	0x00000000},
-	{0x19e,	"IVOR14",	0x00000000,	0x00000000},
-	{0x19f,	"IVOR15",	0x00000000,	0x00000000},
+	{0x19d,	"IVOR13",	0x0000fff0,	0x00001300},
+	{0x19e,	"IVOR14",	0x0000fff0,	0x00001400},
+	{0x19f,	"IVOR15",	0x0000fff0,	0x00002000},
 	{0x23a,	"MCSRR0",	0x00000000,	0x00000000},
 	{0x23b,	"MCSRR1",	0x00000000,	0x00000000},
 	{0x23c,	"MCSR",		0x00000000,	0x00000000},
@@ -126,8 +131,8 @@ static struct
 	{0x395,	"DTV1",		0x00000000,	0x00000000},
 	{0x396,	"DTV2",		0x00000000,	0x00000000},
 	{0x397,	"DTV3",		0x00000000,	0x00000000},
-	{0x398,	"DVLIM",	0x00000000,	0x00000000},
-	{0x399,	"IVLIM",	0x00000000,	0x00000000},
+	{0x398,	"DVLIM",	0x0fc1f83f,	0x0001f800},
+	{0x399,	"IVLIM",	0x0fc1f83f,	0x0001f800},
 	{0x39b,	"RSTCFG",	0x00000000,	0x00000000},
 	{0x39c,	"DCDBTRL",	0x00000000,	0x00000000},
 	{0x39d,	"DCDBTRH",	0x00000000,	0x00000000},
@@ -172,5 +177,6 @@ int spr_post_test (int flags)
 
 	return ret;
 }
+
 #endif /* CONFIG_POST & CFG_POST_SPR */
 #endif /* CONFIG_POST */

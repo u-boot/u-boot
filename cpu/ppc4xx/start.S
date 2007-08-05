@@ -1217,15 +1217,23 @@ mck_return:
  * NOTE: currently the 440s run with dcache _disabled_ once relocated to DRAM,
  * although for some cache-ralated calls stubs have to be provided to satisfy
  * symbols resolution.
+ * Icache-related functions are used in POST framework.
  *
  */
 #ifdef CONFIG_440
        .globl  dcache_disable
+       .globl  icache_disable
+       .globl  icache_enable
 dcache_disable:
+icache_disable:
+icache_enable:
 	blr
 
 	.globl	dcache_status
+	.globl	icache_status
 dcache_status:
+icache_status:
+	mr	r3,  0
 	blr
 #else
 flush_dcache:

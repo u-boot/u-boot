@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2007
+ * Copyright (C) 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * Author: Sergei Poselenov <sposelenov@emcraft.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,38 +20,38 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+/*
+ * This file is originally a part of the GCC testsuite.
+ */
 
-#include <config.h>
+#include <common.h>
 
 #ifdef CONFIG_POST
-#if defined(CONFIG_440EP) || \
-    defined(CONFIG_440EPX)
 
-#include <ppc4xx.h>
-#include <asm/processor.h>
+#include <post.h>
 
+#if CONFIG_POST & CFG_POST_FPU
 
-int fpu_status(void)
+static double func (const double *array)
 {
-	if (mfspr(ccr0) & CCR0_DAPUIB)
-		return 0; /* Disabled */
+	double d = *array;
+
+	if (d == 0.0)
+		return d;
 	else
-		return 1; /* Enabled */
+		return d + func (array + 1);
 }
 
-
-void fpu_disable(void)
+int fpu_post_test_math5 (void)
 {
-	mtspr(ccr0, mfspr(ccr0) | CCR0_DAPUIB);
-	mtmsr(mfmsr() & ~MSR_FP);
+	double values[] = { 0.1e-100, 1.0, -1.0, 0.0 };
+
+	if (func (values) != 0.1e-100) {
+		post_log ("Error in FPU math5 test\n");
+		return -1;
+	}
+	return 0;
 }
 
-
-void fpu_enable(void)
-{
-	mtspr(ccr0, mfspr(ccr0) & ~CCR0_DAPUIB);
-	mtmsr(mfmsr() | MSR_FP);
-}
-
-#endif
+#endif /* CONFIG_POST & CFG_POST_FPU */
 #endif /* CONFIG_POST */

@@ -507,6 +507,7 @@ void show_boot_progress(int val)
 {
 	int version = read_mmcr_byte(SC520_SYSINFO);
 
+	if (val < -32) val = -1;  /* let things compatible */
 	if (version == 0) {
 		/* PIO31-PIO16 Data */
 		write_mmcr_word(SC520_PIODATA31_16,

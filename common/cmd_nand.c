@@ -486,17 +486,19 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	r = nand_read(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-56);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(56);
 
 	hdr = (image_header_t *) addr;
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 		printf("\n** Bad Magic Number 0x%x **\n", hdr->ih_magic);
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-57);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(57);
 
 	print_image_hdr(hdr);
 
@@ -505,9 +507,10 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	r = nand_read(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-58);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(58);
 
 	/* Loading ok, update default load address */
 
@@ -559,6 +562,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 #endif
 
+	SHOW_BOOT_PROGRESS(52);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -582,23 +586,26 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 usage:
 #endif
 		printf("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-53);
 		return 1;
 	}
 
+	SHOW_BOOT_PROGRESS(53);
 	if (!boot_device) {
 		puts("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-54);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(54);
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
 	if (idx < 0 || idx >= CFG_MAX_NAND_DEVICE || !nand_info[idx].name) {
 		printf("\n** Device %d not available\n", idx);
-		SHOW_BOOT_PROGRESS(-1);
+		SHOW_BOOT_PROGRESS(-55);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(55);
 
 	return nand_load_image(cmdtp, &nand_info[idx], offset, addr, argv[0]);
 }
@@ -887,6 +894,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong offset = 0;
 	image_header_t *hdr;
 	int rcode = 0;
+	SHOW_BOOT_PROGRESS(52);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -907,24 +915,27 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-53);
 		return 1;
 	}
 
+	SHOW_BOOT_PROGRESS(53);
 	if (!boot_device) {
 		puts ("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-54);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(54);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if ((dev >= CFG_MAX_NAND_DEVICE) ||
 	    (nand_dev_desc[dev].ChipID == NAND_ChipID_UNKNOWN)) {
 		printf ("\n** Device %d not available\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-55);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(55);
 
 	printf ("\nLoading from device %d: %s at 0x%lx (offset 0x%lx)\n",
 		dev, nand_dev_desc[dev].name, nand_dev_desc[dev].IO_ADDR,
@@ -933,9 +944,10 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ, offset,
 			SECTORSIZE, NULL, (u_char *)addr)) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-56);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(56);
 
 	hdr = (image_header_t *)addr;
 
@@ -947,17 +959,19 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		cnt -= SECTORSIZE;
 	} else {
 		printf ("\n** Bad Magic Number 0x%x **\n", ntohl(hdr->ih_magic));
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-57);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(57);
 
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ,
 			offset + SECTORSIZE, cnt, NULL,
 			(u_char *)(addr+SECTORSIZE))) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		SHOW_BOOT_PROGRESS (-58);
 		return 1;
 	}
+	SHOW_BOOT_PROGRESS(58);
 
 	/* Loading ok, update default load address */
 

@@ -24,6 +24,6 @@
 LIB	= libpostmpc8xx.a
 
 AOBJS	= cache_8xx.o
-COBJS	= ether.o spr.o uart.o usb.o watchdog.o
+COBJS	= cache.o ether.o spr.o uart.o usb.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

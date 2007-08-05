@@ -2,6 +2,8 @@
  * (C) Copyright 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * Author: Igor Lisitsin <igor@emcraft.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -36,17 +38,18 @@
 #ifdef CONFIG_POST
 
 #include <post.h>
-#include <watchdog.h>
 
 #if CONFIG_POST & CFG_POST_WATCHDOG
+
+#include <watchdog.h>
 
 int watchdog_post_test (int flags)
 {
 	if (flags & POST_REBOOT) {
 		/* Test passed */
-
 		return 0;
-	} else {
+	}
+	else {
 		/* 10-second delay */
 		int ints = disable_interrupts ();
 		ulong base = post_time_ms (0);

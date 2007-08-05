@@ -28,6 +28,14 @@
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
+#if defined(CONFIG_SHOW_BOOT_PROGRESS)
+# include <status_led.h>
+extern void show_ethcfg_progress (int arg);
+# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress (arg)
+#else
+# define SHOW_BOOT_PROGRESS(arg)
+#endif
+
 #ifdef CFG_GT_6426x
 extern int gt6426x_eth_initialize(bd_t *bis);
 #endif
@@ -247,10 +255,12 @@ int eth_initialize(bd_t *bis)
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
+		SHOW_BOOT_PROGRESS(-64);
 	} else {
 		struct eth_device *dev = eth_devices;
 		char *ethprime = getenv ("ethprime");
 
+		SHOW_BOOT_PROGRESS(65);
 		do {
 			if (eth_number)
 				puts (", ");

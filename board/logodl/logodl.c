@@ -107,6 +107,7 @@ void logodl_set_led(int led, int state)
 
 void show_boot_progress (int status)
 {
+	if (status < -32) status = -1;  /* let things compatible */
 	/*
 	  switch(status) {
 	  case  1: logodl_set_led(0,1); break;

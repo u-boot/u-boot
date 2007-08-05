@@ -902,7 +902,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
     defined(CONFIG_TQM8272) || \
-    defined(CONFIG_CCM) || defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X)
+    defined(CONFIG_CCM) || defined(CONFIG_KUP4K) || \
+    defined(CONFIG_KUP4X) || defined(CONFIG_PCS440EP)
 	load_sernum_ethaddr ();
 #endif
 	/* IP Address */
@@ -967,7 +968,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	serial_buffered_init();
 #endif
 
-#ifdef CONFIG_STATUS_LED
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif
 

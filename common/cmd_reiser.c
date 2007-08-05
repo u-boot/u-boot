@@ -90,7 +90,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (!reiserfs_mount(part_length)) {
-		printf ("** Bad Reisefs partition or disk - %s %d:%d **\n",  argv[1], dev, part);
+		printf ("** Bad Reiserfs partition or disk - %s %d:%d **\n",  argv[1], dev, part);
 		return 1;
 	}
 
@@ -183,7 +183,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		if (strncmp(info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) {
+		if (strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0) {
 			printf ("\n** Invalid partition type \"%.32s\""
 				" (expect \"" BOOT_PART_TYPE "\")\n",
 				info.type);
@@ -204,7 +204,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (!reiserfs_mount(part_length)) {
-		printf ("** Bad Reisefs partition or disk - %s %d:%d **\n",  argv[1], dev, part);
+		printf ("** Bad Reiserfs partition or disk - %s %d:%d **\n",  argv[1], dev, part);
 		return 1;
 	}
 

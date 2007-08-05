@@ -1,6 +1,5 @@
 #
-# Copyright 2007 Freescale Semiconductor, Inc.
-# (C) Copyright 2001-2006
+# (C) Copyright 2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,37 +21,12 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
+LIB	= libpostppcfpu.a
 
-LIB	= $(obj)lib$(BOARD).a
+COBJS	+= fpu.o 20001122-1.o 20010114-2.o 20010226-1.o 980619-1.o
+COBJS	+= acc1.o compare-fp-1.o mul-subnormal-single-1.o
 
-COBJS	:= $(BOARD).o \
-	   ../common/pixis.o
+include $(TOPDIR)/post/rules.mk
 
-SOBJS	:= init.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
-
-clean:
-	rm -f $(OBJS) $(SOBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+CFLAGS += -mhard-float -fkeep-inline-functions

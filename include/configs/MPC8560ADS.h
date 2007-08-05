@@ -43,9 +43,7 @@
 
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
-#undef CONFIG_TSEC_ENET 		/* tsec ethernet support */
-#undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
-#define  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
+#undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -349,13 +347,15 @@
 #endif	/* CONFIG_PCI */
 
 
-#if defined(CONFIG_TSEC_ENET)
+#ifdef CONFIG_TSEC_ENET
 
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI 	1
 #endif
 
+#ifndef CONFIG_MII
 #define CONFIG_MII		1	/* MII PHY management */
+#endif
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
@@ -369,9 +369,10 @@
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
 
-#elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
+#endif /* CONFIG_TSEC_ENET */
 
-#define CONFIG_ETHER_ON_FCC	/* define if ether on FCC   */
+#ifdef CONFIG_ETHER_ON_FCC	/* CPM FCC Ethernet */
+
 #undef  CONFIG_ETHER_NONE	/* define if ether on something else */
 #define CONFIG_ETHER_INDEX      2       /* which channel for ether */
 
@@ -392,7 +393,10 @@
   #define FETH3_RST		0x80
 #endif  				/* CONFIG_ETHER_INDEX */
 
-#define CONFIG_MII			/* MII PHY management */
+#ifndef CONFIG_MII
+#define CONFIG_MII		1	/* MII PHY management */
+#endif
+
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 
 /*
@@ -543,9 +547,11 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
-   "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"						\
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "consoledev=ttyCPM\0"						\
+   "ramdiskaddr=1000000\0"						\
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=mpc8560ads.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -553,14 +559,16 @@
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 

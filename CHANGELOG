@@ -440,6 +440,14 @@ Date:	Tue Jul 3 00:32:53 2007 -0600
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 
+commit f1152f8c28db4a22087c21c618a3f7baa48e9a4f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 6 02:50:19 2007 +0200
+
+    Code cleanup and default config update for STC GP3 SSA board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 52b8704d0245e589f86d462e9ec25aeb7ecbbbdd
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Jul 4 00:43:53 2007 +0200
@@ -447,6 +455,14 @@ Date:	Wed Jul 4 00:43:53 2007 +0200
     Fix a few file permission problems.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b44896215a09c60fa40cae906f7ed207bbc2c492
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Thu Jul 5 08:17:37 2007 +0200
+
+    Merged POST framework with the current TOT.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
 
 commit 78e0cf2de7be7f1eaeeb622eb61fd50e4d5e205c
 Author: Wolfgang Denk <wd@denx.de>
@@ -462,6 +478,14 @@ Date:	Mon Jun 11 19:03:44 2007 -0500
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
+commit f780b83316d9af1f61d71cc88b1917b387b9b995
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Wed Jun 27 18:11:38 2007 +0200
+
+    resubmit: ppc4xx: Remove sequoia/sequioa.h. Cleanup ppc440.h for PPC440EPX
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+
 commit 602ad3b33d9ceef83dbab46be68646d645d637ee
 Author: Jon Loeliger <jdl@jdl.com>
 Date:	Mon Jun 11 19:03:39 2007 -0500
@@ -469,6 +493,20 @@ Date:	Mon Jun 11 19:03:39 2007 -0500
     README: Rewrite command line config to use CONFIG_CMD_* names.
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 04e6c38b766eaa2f3287561563c9e215e0c3a0d4
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 4 10:06:30 2007 +0200
+
+    ppc4xx: Update lwmon5 board
+
+    - Add optional ECC generation routine to preserve existing
+      RAM values. This is needed for the Linux log-buffer support
+    - Add optional DDR2 setup with CL=4
+    - GPIO50 not used anymore
+    - Lime register setup added
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 72a074cec68e5bad60d63206c050974e08afd804
 Author: Jon Loeliger <jdl@jdl.com>
@@ -782,6 +820,14 @@ Date:	Sat Jun 30 18:50:48 2007 +0200
 
     Signed-off-by: mushtaq khan <mushtaqk_921@yahoo.co.in>
 
+commit a5d71e290f3673269be8eefb4ec44f53412f9461
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Mon Jun 25 19:11:37 2007 +0200
+
+    [PCS440EP]	get rid of CONFIG_PPC4xx_USE_SPD_DDR_INIT_HANG
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
 commit a1bd6200eccd3a02040a955d5f43d3ee1fc9f93b
 Author: Niklaus Giger <niklaus.giger@nestal.com>
 Date:	Mon Jun 25 17:03:13 2007 +0200
@@ -881,6 +927,21 @@ Date:	Wed Mar 28 19:06:19 2007 +0400
 
     Signed-off-by: Igor Lisitsin <igor@emcraft.com>
     --
+
+commit 566a494f592ae3b3c0785d90d4e1ba45574880c4
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jun 22 19:11:54 2007 +0200
+
+    [PCS440EP]	    upgrade the PCS440EP board:
+		    - Show on the Status LEDs, some States of the board.
+		    - Get the MAC addresses from the EEProm
+		    - use PREBOOT
+		    - use the CF on the board.
+		    - check the U-Boot image in the Flash with a SHA1
+		      checksum.
+		    - use dynamic TLB entries generation for the SDRAM
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
 
 commit 3a1f5c81b0b9557817a789bece839905581c2205
 Author: Stefan Roese <sr@denx.de>

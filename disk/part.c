@@ -180,7 +180,6 @@ void dev_print (block_dev_desc_t *dev_desc)
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC)		|| \
-     (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
      defined(CONFIG_SYSTEMACE)          )
 
 #if defined(CONFIG_MAC_PARTITION) || \
@@ -223,7 +222,7 @@ void init_part (block_dev_desc_t * dev_desc)
 int get_partition_info (block_dev_desc_t *dev_desc, int part
 					, disk_partition_t *info)
 {
-		switch (dev_desc->part_type) {
+	switch (dev_desc->part_type) {
 #ifdef CONFIG_MAC_PARTITION
 	case PART_TYPE_MAC:
 		if (get_partition_info_mac(dev_desc,part,info) == 0) {
