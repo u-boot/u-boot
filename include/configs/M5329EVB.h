@@ -47,7 +47,7 @@
 #undef CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
+#define DEFAULT_COMMANDS	( CONFIG_CMD_DFL | \
 				  CFG_CMD_CACHE | \
 				  CFG_CMD_DATE | \
 				  CFG_CMD_ELF | \
@@ -61,6 +61,12 @@
 				  CFG_CMD_PING | \
 				  CFG_CMD_REGINFO \
 				)
+
+#ifdef NANDFLASH_SIZE
+#      define CONFIG_COMMANDS  (DEFAULT_COMMANDS | CFG_CMD_NAND)
+#else
+#      define CONFIG_COMMANDS  (DEFAULT_COMMANDS)
+#endif
 
 #define CFG_UNIFY_CACHE
 
@@ -148,6 +154,8 @@
 
 #define CFG_MBAR		0xFC000000
 
+#define CFG_LATCH_ADDR         (CFG_CS1_BASE + 0x80000)
+
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
@@ -205,6 +213,19 @@
 #	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
+#ifdef NANDFLASH_SIZE
+#      define CFG_MAX_NAND_DEVICE      1
+#      define CFG_NAND_BASE            (CFG_CS2_BASE << 16)
+#      define CFG_NAND_SIZE            1
+#      define CFG_NAND_BASE_LIST       { CFG_NAND_BASE }
+#      define NAND_MAX_CHIPS           1
+#      define NAND_ALLOW_ERASE_ALL     1
+#      define CONFIG_JFFS2_NAND        1
+#      define CONFIG_JFFS2_DEV         "nand0"
+#      define CONFIG_JFFS2_PART_SIZE   (CFG_CS2_MASK & ~1)
+#      define CONFIG_JFFS2_PART_OFFSET 0x00000000
+#endif
+
 #define CFG_FLASH_BASE		0
 #define CFG_FLASH0_BASE		(CFG_CS0_BASE << 16)
 
@@ -241,8 +262,8 @@
 #define CFG_CS1_CTRL		0x002A3780
 
 #ifdef NANDFLASH_SIZE
-#define CFG_CS2_BASE		0x00800000
-#define CFG_CS2_MASK		0x00ff0001
+#define CFG_CS2_BASE		0x2000
+#define CFG_CS2_MASK		((NANDFLASH_SIZE << 20) | 1)
 #define CFG_CS2_CTRL		0x00001f60
 #endif
 
