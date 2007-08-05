@@ -61,7 +61,7 @@ void cpu_init_f(void)
 	scm1->pacrh = 0;
 
 	/* Port configuration */
-	gpio->par_cs = 0x3E;
+	gpio->par_cs = 0;
 
 #if (defined(CFG_CS0_BASE) && defined(CFG_CS0_MASK) && defined(CFG_CS0_CTRL))
 	fbcs->csar0 = CFG_CS0_BASE;
@@ -71,33 +71,42 @@ void cpu_init_f(void)
 
 #if (defined(CFG_CS1_BASE) && defined(CFG_CS1_MASK) && defined(CFG_CS1_CTRL))
 	/* Latch chipselect */
+        gpio->par_cs |= GPIO_PAR_CS1;
 	fbcs->csar1 = CFG_CS1_BASE;
 	fbcs->cscr1 = CFG_CS1_CTRL;
 	fbcs->csmr1 = CFG_CS1_MASK;
 #endif
 
 #if (defined(CFG_CS2_BASE) && defined(CFG_CS2_MASK) && defined(CFG_CS2_CTRL))
+        gpio->par_cs |= GPIO_PAR_CS2;
 	fbcs->csar2 = CFG_CS2_BASE;
 	fbcs->cscr2 = CFG_CS2_CTRL;
 	fbcs->csmr2 = CFG_CS2_MASK;
 #endif
 
 #if (defined(CFG_CS3_BASE) && defined(CFG_CS3_MASK) && defined(CFG_CS3_CTRL))
+        gpio->par_cs |= GPIO_PAR_CS3;
 	fbcs->csar3 = CFG_CS3_BASE;
 	fbcs->cscr3 = CFG_CS3_CTRL;
 	fbcs->csmr3 = CFG_CS3_MASK;
 #endif
 
 #if (defined(CFG_CS4_BASE) && defined(CFG_CS4_MASK) && defined(CFG_CS4_CTRL))
+        gpio->par_cs |= GPIO_PAR_CS4;
 	fbcs->csar4 = CFG_CS4_BASE;
 	fbcs->cscr4 = CFG_CS4_CTRL;
 	fbcs->csmr4 = CFG_CS4_MASK;
 #endif
 
 #if (defined(CFG_CS5_BASE) && defined(CFG_CS5_MASK) && defined(CFG_CS5_CTRL))
+        gpio->par_cs |= GPIO_PAR_CS5;
 	fbcs->csar5 = CFG_CS5_BASE;
 	fbcs->cscr5 = CFG_CS5_CTRL;
 	fbcs->csmr5 = CFG_CS5_MASK;
+#endif
+
+#ifdef CONFIG_FSL_I2C
+	gpio->par_feci2c = GPIO_PAR_FECI2C_SCL_SCL | GPIO_PAR_FECI2C_SDA_SDA;
 #endif
 
 	icache_enable();
