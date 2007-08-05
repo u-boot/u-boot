@@ -29,7 +29,7 @@
 
 #ifdef XILINX_EMACLITE_BASEADDR
 
-//#define DEBUG
+#undef DEBUG
 
 #define ENET_MAX_MTU		PKTSIZE
 #define ENET_MAX_MTU_ALIGNED	PKTSIZE_ALIGN
@@ -310,7 +310,7 @@ int eth_rx (void)
 	BaseAddress = EmacLite.BaseAddress + EmacLite.NextRxBufferToUse;
 	Register = in_be32 (BaseAddress + XEL_RSR_OFFSET);
 #ifdef DEBUG
-//	printf ("Testing data at address 0x%x\n", BaseAddress);
+	printf ("Testing data at address 0x%x\n", BaseAddress);
 #endif
 	if ((Register & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
 #ifdef XILINX_EMACLITE_RX_PING_PONG
@@ -319,7 +319,7 @@ int eth_rx (void)
 	} else {
 #ifndef XILINX_EMACLITE_RX_PING_PONG
 #ifdef DEBUG
-//		printf ("No data was available - address 0x%x\n", BaseAddress);
+		printf ("No data was available - address 0x%x\n", BaseAddress);
 #endif
 		return 0;
 #else
@@ -328,8 +328,8 @@ int eth_rx (void)
 		if ((Register & XEL_RSR_RECV_DONE_MASK) !=
 					XEL_RSR_RECV_DONE_MASK) {
 #ifdef DEBUG
-//			printf ("No data was available - address 0x%x\n",
-//					BaseAddress);
+			printf ("No data was available - address 0x%x\n",
+					BaseAddress);
 #endif
 			return 0;
 		}

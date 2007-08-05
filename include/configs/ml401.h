@@ -87,7 +87,7 @@
  * 0x11FB_F000	CFG_MONITOR_BASE
  *					MONITOR_CODE	256kB	Env
  * 0x13FF_F000	CFG_GBL_DATA_OFFSET
- * 					GLOBAL_DATA	4kB	bd, gd
+ *					GLOBAL_DATA	4kB	bd, gd
  * 0x1400_0000	CFG_SDRAM_BASE + CFG_SDRAM_SIZE
  */
 
@@ -100,7 +100,7 @@
 /* global pointer */
 #define	CFG_GBL_DATA_SIZE	0x1000	/* size of global data */
 /* start of global data */
-#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE)
+#define	CFG_GBL_DATA_OFFSET	(CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE)
 
 /* monitor code */
 #define	SIZE			0x40000
@@ -243,10 +243,10 @@
 #define	CONFIG_BOOTDELAY	30
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		"ml401"
-#define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
+#define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
-#define	CONFIG_SERVERIP 	192.168.0.5
-#define	CONFIG_GATEWAYIP 	192.168.0.1
+#define	CONFIG_SERVERIP		192.168.0.5
+#define	CONFIG_GATEWAYIP	192.168.0.1
 #define	CONFIG_ETHADDR		00:E0:0C:00:00:FD
 
 /* architecture dependent code */

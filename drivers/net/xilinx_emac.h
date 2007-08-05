@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Michal Simek
  *
- * Michal  SIMEK <monstr@monstr.eu>
+ * Michal SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -35,34 +35,33 @@ typedef struct {
 	u32 IsStarted;		/* Device is currently started 0-no, 1-yes */
 	XPacketFifoV100b RecvFifo;	/* FIFO used to receive frames */
 	XPacketFifoV100b SendFifo;	/* FIFO used to send frames */
-
 } XEmac;
 
-#define XIIF_V123B_IISR_OFFSET	   32UL /* IP interrupt status register */
+#define XIIF_V123B_IISR_OFFSET	32UL /* IP interrupt status register */
 #define XIIF_V123B_RESET_MASK		0xAUL
 #define XIIF_V123B_RESETR_OFFSET	64UL /* reset register */
 
 /* This constant is used with the Reset Register */
-#define XPF_RESET_FIFO_MASK             0x0000000A
-#define XPF_COUNT_STATUS_REG_OFFSET     4UL
+#define XPF_RESET_FIFO_MASK		0x0000000A
+#define XPF_COUNT_STATUS_REG_OFFSET	4UL
 
-/*  * These constants are used with the Occupancy/Vacancy Count Register. This
- * register also contains FIFO status  */
-#define XPF_COUNT_MASK                  0x0000FFFF
-#define XPF_DEADLOCK_MASK               0x20000000
+/* These constants are used with the Occupancy/Vacancy Count Register. This
+ * register also contains FIFO status */
+#define XPF_COUNT_MASK			0x0000FFFF
+#define XPF_DEADLOCK_MASK		0x20000000
 
 /* Offset of the MAC registers from the IPIF base address */
-#define XEM_REG_OFFSET	   0x1100UL
+#define XEM_REG_OFFSET		0x1100UL
 
 /*
  * Register offsets for the Ethernet MAC. Each register is 32 bits.
  */
-#define XEM_ECR_OFFSET	  (XEM_REG_OFFSET + 0x4)	/* MAC Control */
-#define XEM_SAH_OFFSET	  (XEM_REG_OFFSET + 0xC)	/* Station addr, high */
-#define XEM_SAL_OFFSET	  (XEM_REG_OFFSET + 0x10)	/* Station addr, low */
-#define XEM_RPLR_OFFSET	  (XEM_REG_OFFSET + 0x1C)	/* Rx packet length */
-#define XEM_TPLR_OFFSET	  (XEM_REG_OFFSET + 0x20)	/* Tx packet length */
-#define XEM_TSR_OFFSET	  (XEM_REG_OFFSET + 0x24)	/* Tx status */
+#define XEM_ECR_OFFSET	(XEM_REG_OFFSET + 0x4)	/* MAC Control */
+#define XEM_SAH_OFFSET	(XEM_REG_OFFSET + 0xC)	/* Station addr, high */
+#define XEM_SAL_OFFSET	(XEM_REG_OFFSET + 0x10)	/* Station addr, low */
+#define XEM_RPLR_OFFSET	(XEM_REG_OFFSET + 0x1C)	/* Rx packet length */
+#define XEM_TPLR_OFFSET	(XEM_REG_OFFSET + 0x20)	/* Tx packet length */
+#define XEM_TSR_OFFSET	(XEM_REG_OFFSET + 0x24)	/* Tx status */
 
 
 
@@ -78,31 +77,31 @@ typedef struct {
  * part of the IPIF IP Interrupt registers
  */
 /* A mask for all transmit interrupts, used in polled mode */
-#define XEM_EIR_XMIT_ALL_MASK	(XEM_EIR_XMIT_DONE_MASK |	    \
-				 XEM_EIR_XMIT_ERROR_MASK |	    \
-				 XEM_EIR_XMIT_SFIFO_EMPTY_MASK |    \
+#define XEM_EIR_XMIT_ALL_MASK	(XEM_EIR_XMIT_DONE_MASK |\
+				 XEM_EIR_XMIT_ERROR_MASK | \
+				 XEM_EIR_XMIT_SFIFO_EMPTY_MASK |\
 				 XEM_EIR_XMIT_LFIFO_FULL_MASK)
 
-#define XEM_EIR_XMIT_DONE_MASK	       0x00000001UL /* Xmit complete */
-#define XEM_EIR_RECV_DONE_MASK	       0x00000002UL /* Recv complete */
-#define XEM_EIR_XMIT_ERROR_MASK	       0x00000004UL /* Xmit error */
-#define XEM_EIR_RECV_ERROR_MASK	       0x00000008UL /* Recv error */
-#define XEM_EIR_XMIT_SFIFO_EMPTY_MASK  0x00000010UL /* Xmit status fifo empty */
-#define XEM_EIR_RECV_LFIFO_EMPTY_MASK  0x00000020UL /* Recv length fifo empty */
-#define XEM_EIR_XMIT_LFIFO_FULL_MASK   0x00000040UL /* Xmit length fifo full */
-#define XEM_EIR_RECV_LFIFO_OVER_MASK   0x00000080UL 	/* Recv length fifo
+#define XEM_EIR_XMIT_DONE_MASK		0x00000001UL /* Xmit complete */
+#define XEM_EIR_RECV_DONE_MASK		0x00000002UL /* Recv complete */
+#define XEM_EIR_XMIT_ERROR_MASK		0x00000004UL /* Xmit error */
+#define XEM_EIR_RECV_ERROR_MASK		0x00000008UL /* Recv error */
+#define XEM_EIR_XMIT_SFIFO_EMPTY_MASK	0x00000010UL /* Xmit status fifo empty */
+#define XEM_EIR_RECV_LFIFO_EMPTY_MASK	0x00000020UL /* Recv length fifo empty */
+#define XEM_EIR_XMIT_LFIFO_FULL_MASK	0x00000040UL /* Xmit length fifo full */
+#define XEM_EIR_RECV_LFIFO_OVER_MASK	0x00000080UL	/* Recv length fifo
 							 * overrun */
-#define XEM_EIR_RECV_LFIFO_UNDER_MASK  0x00000100UL 	/* Recv length fifo
+#define XEM_EIR_RECV_LFIFO_UNDER_MASK	0x00000100UL	/* Recv length fifo
 							 * underrun */
-#define XEM_EIR_XMIT_SFIFO_OVER_MASK   0x00000200UL 	/* Xmit status fifo
+#define XEM_EIR_XMIT_SFIFO_OVER_MASK	0x00000200UL	/* Xmit status fifo
 							 * overrun */
-#define XEM_EIR_XMIT_SFIFO_UNDER_MASK  0x00000400UL	/* Transmit status fifo
+#define XEM_EIR_XMIT_SFIFO_UNDER_MASK	0x00000400UL	/* Transmit status fifo
 							 * underrun */
-#define XEM_EIR_XMIT_LFIFO_OVER_MASK   0x00000800UL	/* Transmit length fifo
+#define XEM_EIR_XMIT_LFIFO_OVER_MASK	0x00000800UL	/* Transmit length fifo
 							 * overrun */
-#define XEM_EIR_XMIT_LFIFO_UNDER_MASK  0x00001000UL	/* Transmit length fifo
+#define XEM_EIR_XMIT_LFIFO_UNDER_MASK	0x00001000UL	/* Transmit length fifo
 							 * underrun */
-#define XEM_EIR_XMIT_PAUSE_MASK	       0x00002000UL	/* Transmit pause pkt
+#define XEM_EIR_XMIT_PAUSE_MASK		0x00002000UL	/* Transmit pause pkt
 							 * received */
 
 /*
@@ -124,5 +123,5 @@ typedef struct {
 							 * addr */
 
 /* Transmit Status Register (TSR) */
-#define XEM_TSR_EXCESS_DEFERRAL_MASK 0x80000000UL /* Transmit excess deferral */
-#define XEM_TSR_LATE_COLLISION_MASK  0x01000000UL /* Transmit late collision */
+#define XEM_TSR_EXCESS_DEFERRAL_MASK	0x80000000UL /* Transmit excess deferral */
+#define XEM_TSR_LATE_COLLISION_MASK	0x01000000UL /* Transmit late collision */
