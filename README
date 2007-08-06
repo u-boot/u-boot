@@ -1116,7 +1116,7 @@ The following options need to be configured:
 		boot, thus flooding the BOOTP server. Defining
 		CONFIG_BOOTP_RANDOM_DELAY causes a random delay to be
 		inserted before sending out BOOTP requests. The
-		following delays are insterted then:
+		following delays are inserted then:
 
 		1st BOOTP request:	delay 0 ... 1 sec
 		2nd BOOTP request:	delay 0 ... 2 sec
