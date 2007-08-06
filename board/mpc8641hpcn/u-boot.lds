@@ -61,6 +61,7 @@ SECTIONS
     lib_generic/crc32.o (.text)
     lib_ppc/extable.o (.text)
     lib_generic/zlib.o (.text)
+    drivers/bios_emulator/atibios.o (.text)
     *(.text)
     *(.fixup)
     *(.got1)
