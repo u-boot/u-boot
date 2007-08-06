@@ -5,7 +5,6 @@
  * Most of the definitions here are adapted right from XFree86 *
  ***************************************************************/
 
-
 /*
  * Chip families. Must fit in the low 16 bits of a long word
  */
@@ -38,13 +37,11 @@ enum radeon_family {
 				 ((rinfo)->family == CHIP_FAMILY_RV280)  || \
 				 ((rinfo)->family == CHIP_FAMILY_RS300))
 
-
 #define IS_R300_VARIANT(rinfo) (((rinfo)->family == CHIP_FAMILY_R300)  || \
 				((rinfo)->family == CHIP_FAMILY_RV350) || \
 				((rinfo)->family == CHIP_FAMILY_R350)  || \
 				((rinfo)->family == CHIP_FAMILY_RV380) || \
 				((rinfo)->family == CHIP_FAMILY_R420))
-
 
 struct radeonfb_info {
 	char name[20];
@@ -86,7 +83,6 @@ static inline void _OUTREGP(struct radeonfb_info *rinfo, u32 addr,
 
 #define OUTREGP(addr,val,mask)	_OUTREGP(rinfo, addr, val,mask)
 
-
 /*
  * 2D Engine helper routines
  */
@@ -106,7 +102,6 @@ static inline void radeon_engine_flush (struct radeonfb_info *rinfo)
 	printf("radeonfb: Flush Timeout !\n");
 }
 
-
 static inline void _radeon_fifo_wait(struct radeonfb_info *rinfo, int entries)
 {
 	int i;
@@ -118,7 +113,6 @@ static inline void _radeon_fifo_wait(struct radeonfb_info *rinfo, int entries)
 	}
 	printf("radeonfb: FIFO Timeout !\n");
 }
-
 
 static inline void _radeon_engine_idle(struct radeonfb_info *rinfo)
 {
@@ -136,7 +130,6 @@ static inline void _radeon_engine_idle(struct radeonfb_info *rinfo)
 	}
 	printf("radeonfb: Idle Timeout !\n");
 }
-
 
 #define radeon_engine_idle()		_radeon_engine_idle(rinfo)
 #define radeon_fifo_wait(entries)	_radeon_fifo_wait(rinfo,entries)
@@ -255,9 +248,9 @@ static inline u32 __INPLL(struct radeonfb_info *rinfo, u32 addr)
 	u32 data;
 
 	OUTREG8(CLOCK_CNTL_INDEX, addr & 0x0000003f);
-	//radeon_pll_errata_after_index(rinfo);
+	/* radeon_pll_errata_after_index(rinfo); */
 	data = INREG(CLOCK_CNTL_DATA);
-	//radeon_pll_errata_after_data(rinfo);
+	/* radeon_pll_errata_after_data(rinfo); */
 	return data;
 }
 
@@ -266,11 +259,10 @@ static inline void __OUTPLL(struct radeonfb_info *rinfo, unsigned int index,
 {
 
 	OUTREG8(CLOCK_CNTL_INDEX, (index & 0x0000003f) | 0x00000080);
-	//radeon_pll_errata_after_index(rinfo);
+	/* radeon_pll_errata_after_index(rinfo); */
 	OUTREG(CLOCK_CNTL_DATA, val);
-	//radeon_pll_errata_after_data(rinfo);
+	/* radeon_pll_errata_after_data(rinfo); */
 }
-
 
 static inline void __OUTPLLP(struct radeonfb_info *rinfo, unsigned int index,
 			     u32 val, u32 mask)
@@ -283,11 +275,8 @@ static inline void __OUTPLLP(struct radeonfb_info *rinfo, unsigned int index,
 	__OUTPLL(rinfo, index, tmp);
 }
 
-
 #define INPLL(addr)			__INPLL(rinfo, addr)
 #define OUTPLL(index, val)		__OUTPLL(rinfo, index, val)
 #define OUTPLLP(index, val, mask)	__OUTPLLP(rinfo, index, val, mask)
-
-
 
 #endif

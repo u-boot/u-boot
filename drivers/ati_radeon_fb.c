@@ -137,7 +137,7 @@ static void radeon_identify_vram(struct radeonfb_info *rinfo)
 		}
 	} else {
 		tmp = INREG(CONFIG_MEMSIZE);
-        }
+	}
 
 	/* mem size is bits [28:0], mask off the rest */
 	rinfo->video_ram = tmp & CONFIG_MEMSIZE_MASK;
@@ -209,13 +209,13 @@ static void radeon_write_pll_regs(struct radeonfb_info *rinfo, struct radeon_reg
 #if 0
 	/* Workaround from XFree */
 	if (rinfo->is_mobility) {
-	        /* A temporal workaround for the occational blanking on certain laptop
+		/* A temporal workaround for the occational blanking on certain laptop
 		 * panels. This appears to related to the PLL divider registers
 		 * (fail to lock?). It occurs even when all dividers are the same
 		 * with their old settings. In this case we really don't need to
 		 * fiddle with PLL registers. By doing this we can avoid the blanking
 		 * problem with some panels.
-	         */
+		 */
 		if ((mode->ppll_ref_div == (INPLL(PPLL_REF_DIV) & PPLL_REF_DIV_MASK)) &&
 		    (mode->ppll_div_3 == (INPLL(PPLL_DIV_3) &
 					  (PPLL_POST3_DIV_MASK | PPLL_FB3_DIV_MASK)))) {

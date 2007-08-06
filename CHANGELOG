@@ -1,3 +1,64 @@
+commit 221838cc7eb178370ff62aa05920a582e12ac322
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Tue Jul 10 09:03:22 2007 +0800
+
+    Remove the bios emulator from MAI board.
+
+    The bios emulator in the MAI board can not pass compile
+    and have a lot of crap in it. remove it and will have a
+    clean and small bios emulator in the drivers directory
+    which can be uesed for every board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5618332409bb96f4448d1712899369fc80c0b489
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 13 12:14:59 2007 +0800
+
+    Fix some compile issues for MAI board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 0f460a1ee148b648ee242c3157650287d4296260
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 13 12:14:58 2007 +0800
+
+    Configurations for ATI video card BIOS emulator
+
+    This patch add definition of the BIOS emulator and the ATI framebuffer
+    driver for MPC8641HPCN board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit ece92f85053b8df613edcf05b26a416cbc3d629c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 6 08:34:56 2007 +0800
+
+    This is a BIOS emulator, porting from SciTech for u-boot, mainly for
+    ATI video card BIOS. and can be used for x86 code emulation by some
+    modifications.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5072188acabde3178fac7f5a597150e6e74fd40c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 6 08:33:33 2007 +0800
+
+    This is a framebuffer driver for ATI video card, can work for PCI9200,
+    X300, X700, X800 ATI video cards.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5728be389e65fd47f34b33c2596271eb4db751ae
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 6 01:01:49 2007 +0200
+
+    Coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 8092fef4c29b395958bb649647da7e3775731517
 Author: Martin Krause <Martin.Krause@tqs.de>
 Date:	Tue Dec 12 14:26:01 2006 +0100

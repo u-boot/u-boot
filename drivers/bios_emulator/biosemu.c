@@ -1,12 +1,12 @@
 /****************************************************************************
 *
-*                        BIOS emulator and interface
-*                      to Realmode X86 Emulator Library
+*			 BIOS emulator and interface
+*		       to Realmode X86 Emulator Library
 *
 *  Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
 *  Jason Jin <Jason.jin@freescale.com>
 *
-*               Copyright (C) 1996-1999 SciTech Software, Inc.
+*		Copyright (C) 1996-1999 SciTech Software, Inc.
 *
 *  ========================================================================
 *
@@ -16,7 +16,7 @@
 *  both that copyright notice and this permission notice appear in
 *  supporting documentation, and that the name of the authors not be used
 *  in advertising or publicity pertaining to distribution of the software
-*  without specific, written prior permission.  The authors makes no
+*  without specific, written prior permission.	The authors makes no
 *  representations about the suitability of this software for any purpose.
 *  It is provided "as is" without express or implied warranty.
 *
@@ -30,18 +30,18 @@
 *
 *  ========================================================================
 *
-* Language:     ANSI C
-* Environment:  Any
-* Developer:    Kendall Bennett
+* Language:	ANSI C
+* Environment:	Any
+* Developer:	Kendall Bennett
 *
-* Description:  Module implementing the system specific functions. This
-*               module is always compiled and linked in the OS depedent
-*               libraries, and never in a binary portable driver.
+* Description:	Module implementing the system specific functions. This
+*		module is always compiled and linked in the OS depedent
+*		libraries, and never in a binary portable driver.
 *
-*               Jason ported this file to u-boot to run the ATI video card BIOS
-*               in u-boot. Made all the video memory be emulated during the
-*               BIOS runing process which may affect the VGA function but the
-*               frambuffer function can work after run the BIOS.
+*		Jason ported this file to u-boot to run the ATI video card BIOS
+*		in u-boot. Made all the video memory be emulated during the
+*		BIOS runing process which may affect the VGA function but the
+*		frambuffer function can work after run the BIOS.
 *
 ****************************************************************************/
 
@@ -67,14 +67,14 @@ static X86EMU_pioFuncs _BE_pio __attribute__((section(".got2"))) = {
 	BE_outl,
 	};
 
-#define OFF(addr)       (u16)(((addr) >> 0) & 0xffff)
-#define SEG(addr)       (u16)(((addr) >> 4) & 0xf000)
+#define OFF(addr)	(u16)(((addr) >> 0) & 0xffff)
+#define SEG(addr)	(u16)(((addr) >> 4) & 0xf000)
 
 /****************************************************************************
 PARAMETERS:
 debugFlags  - Flags to enable debugging options (debug builds only)
-memSize     - Amount of memory to allocate for real mode machine
-info        - Pointer to default VGA device information
+memSize	    - Amount of memory to allocate for real mode machine
+info	    - Pointer to default VGA device information
 
 REMARKS:
 This functions initialises the BElib, and uses the passed in
@@ -116,7 +116,7 @@ int X86API BE_init(u32 debugFlags, int memSize, BE_VGAInfo * info, int shared)
 
 /****************************************************************************
 PARAMETERS:
-info        - Pointer to VGA device information to make current
+info	    - Pointer to VGA device information to make current
 
 REMARKS:
 This function sets the VGA BIOS functions in the emulator to point to the
@@ -150,7 +150,7 @@ void X86API BE_setVGA(BE_VGAInfo * info)
 
 /****************************************************************************
 PARAMETERS:
-info        - Pointer to VGA device information to retrieve current
+info	    - Pointer to VGA device information to retrieve current
 
 REMARKS:
 This function returns the VGA BIOS functions currently active in the
@@ -172,16 +172,16 @@ void X86API BE_getVGA(BE_VGAInfo * info)
 
 /****************************************************************************
 PARAMETERS:
-r_seg   - Segment for pointer to convert
-r_off   - Offset for pointer to convert
+r_seg	- Segment for pointer to convert
+r_off	- Offset for pointer to convert
 
 REMARKS:
 This function maps a real mode pointer in the emulator memory to a protected
 mode pointer that can be used to directly access the memory.
 
-NOTE:   The memory is *always* in little endian format, son on non-x86
-        systems you will need to do endian translations to access this
-        memory.
+NOTE:	The memory is *always* in little endian format, son on non-x86
+	systems you will need to do endian translations to access this
+	memory.
 ****************************************************************************/
 void *X86API BE_mapRealPointer(uint r_seg, uint r_off)
 {
@@ -197,9 +197,9 @@ void *X86API BE_mapRealPointer(uint r_seg, uint r_off)
 
 /****************************************************************************
 PARAMETERS:
-len     - Return the length of the VESA buffer
-rseg    - Place to store VESA buffer segment
-roff    - Place to store VESA buffer offset
+len	- Return the length of the VESA buffer
+rseg	- Place to store VESA buffer segment
+roff	- Place to store VESA buffer offset
 
 REMARKS:
 This function returns the address of the VESA transfer buffer in real
@@ -207,9 +207,9 @@ _BE_piomode emulator memory. The VESA transfer buffer is always 1024 bytes long,
 and located at 15Kb into the start of the real mode memory (16Kb is where
 we put the real mode code we execute for issuing interrupts).
 
-NOTE:   The memory is *always* in little endian format, son on non-x86
-        systems you will need to do endian translations to access this
-        memory.
+NOTE:	The memory is *always* in little endian format, son on non-x86
+	systems you will need to do endian translations to access this
+	memory.
 ****************************************************************************/
 void *X86API BE_getVESABuf(uint * len, uint * rseg, uint * roff)
 {
@@ -231,10 +231,10 @@ void X86API BE_exit(void)
 
 /****************************************************************************
 PARAMETERS:
-seg     - Segment of code to call
-off     - Offset of code to call
-regs    - Real mode registers to load
-sregs   - Real mode segment registers to load
+seg	- Segment of code to call
+off	- Offset of code to call
+regs	- Real mode registers to load
+sregs	- Real mode segment registers to load
 
 REMARKS:
 This functions calls a real mode far function at the specified address,
@@ -284,9 +284,9 @@ void X86API BE_callRealMode(uint seg, uint off, RMREGS * regs, RMSREGS * sregs)
 
 /****************************************************************************
 PARAMETERS:
-intno   - Interrupt number to execute
-in      - Real mode registers to load
-out     - Place to store resulting real mode registers
+intno	- Interrupt number to execute
+in	- Real mode registers to load
+out	- Place to store resulting real mode registers
 
 REMARKS:
 This functions calls a real mode interrupt function at the specified address,
@@ -323,10 +323,10 @@ int X86API BE_int86(int intno, RMREGS * in, RMREGS * out)
 
 /****************************************************************************
 PARAMETERS:
-intno   - Interrupt number to execute
-in      - Real mode registers to load
-out     - Place to store resulting real mode registers
-sregs   - Real mode segment registers to load
+intno	- Interrupt number to execute
+in	- Real mode registers to load
+out	- Place to store resulting real mode registers
+sregs	- Real mode segment registers to load
 
 REMARKS:
 This functions calls a real mode interrupt function at the specified address,

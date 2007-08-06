@@ -1,10 +1,10 @@
 /****************************************************************************
 *
-*                       Realmode X86 Emulator Library
+*			Realmode X86 Emulator Library
 *
-*               Copyright (C) 1991-2004 SciTech Software, Inc.
-*                    Copyright (C) David Mosberger-Tang
-*                      Copyright (C) 1999 Egbert Eich
+*		Copyright (C) 1991-2004 SciTech Software, Inc.
+*		     Copyright (C) David Mosberger-Tang
+*		       Copyright (C) 1999 Egbert Eich
 *
 *  ========================================================================
 *
@@ -14,7 +14,7 @@
 *  both that copyright notice and this permission notice appear in
 *  supporting documentation, and that the name of the authors not be used
 *  in advertising or publicity pertaining to distribution of the software
-*  without specific, written prior permission.  The authors makes no
+*  without specific, written prior permission.	The authors makes no
 *  representations about the suitability of this software for any purpose.
 *  It is provided "as is" without express or implied warranty.
 *
@@ -28,11 +28,11 @@
 *
 *  ========================================================================
 *
-* Language:     ANSI C
-* Environment:  Any
-* Developer:    Kendall Bennett
+* Language:	ANSI C
+* Environment:	Any
+* Developer:	Kendall Bennett
 *
-* Description:  Header file for x86 register definitions.
+* Description:	Header file for x86 register definitions.
 *
 ****************************************************************************/
 
@@ -54,11 +54,11 @@
  * EAX & 0xff  === AL
  * EAX & 0xffff == AX
  *
- * etc.  The result is that alot of the calculations can then be
+ * etc.	 The result is that alot of the calculations can then be
  * done using the native instruction set fully.
  */
 
-#ifdef  __BIG_ENDIAN__
+#ifdef	__BIG_ENDIAN__
 
 typedef struct {
 	u32 e_reg;
@@ -178,7 +178,7 @@ struct i386_segment_regs {
 /* flag conditions   */
 #define FB_CF 0x0001		/* CARRY flag  */
 #define FB_PF 0x0004		/* PARITY flag */
-#define FB_AF 0x0010		/* AUX  flag   */
+#define FB_AF 0x0010		/* AUX	flag   */
 #define FB_ZF 0x0040		/* ZERO flag   */
 #define FB_SF 0x0080		/* SIGN flag   */
 #define FB_TF 0x0100		/* TRAP flag   */
@@ -199,7 +199,7 @@ struct i386_segment_regs {
 
 #define F_CF 0x0001		/* CARRY flag  */
 #define F_PF 0x0004		/* PARITY flag */
-#define F_AF 0x0010		/* AUX  flag   */
+#define F_AF 0x0010		/* AUX	flag   */
 #define F_ZF 0x0040		/* ZERO flag   */
 #define F_SF 0x0080		/* SIGN flag   */
 #define F_TF 0x0100		/* TRAP flag   */
@@ -207,60 +207,60 @@ struct i386_segment_regs {
 #define F_DF 0x0400		/* DIR flag    */
 #define F_OF 0x0800		/* OVERFLOW flag */
 
-#define TOGGLE_FLAG(flag)       (M.x86.R_FLG ^= (flag))
-#define SET_FLAG(flag)          (M.x86.R_FLG |= (flag))
-#define CLEAR_FLAG(flag)        (M.x86.R_FLG &= ~(flag))
-#define ACCESS_FLAG(flag)       (M.x86.R_FLG & (flag))
-#define CLEARALL_FLAG(m)        (M.x86.R_FLG = 0)
+#define TOGGLE_FLAG(flag)	(M.x86.R_FLG ^= (flag))
+#define SET_FLAG(flag)		(M.x86.R_FLG |= (flag))
+#define CLEAR_FLAG(flag)	(M.x86.R_FLG &= ~(flag))
+#define ACCESS_FLAG(flag)	(M.x86.R_FLG & (flag))
+#define CLEARALL_FLAG(m)	(M.x86.R_FLG = 0)
 
 #define CONDITIONAL_SET_FLAG(COND,FLAG) \
   if (COND) SET_FLAG(FLAG); else CLEAR_FLAG(FLAG)
 
-#define F_PF_CALC 0x010000	/* PARITY flag has been calced    */
-#define F_ZF_CALC 0x020000	/* ZERO flag has been calced      */
-#define F_SF_CALC 0x040000	/* SIGN flag has been calced      */
+#define F_PF_CALC 0x010000	/* PARITY flag has been calced	  */
+#define F_ZF_CALC 0x020000	/* ZERO flag has been calced	  */
+#define F_SF_CALC 0x040000	/* SIGN flag has been calced	  */
 
-#define F_ALL_CALC      0xff0000	/* All have been calced   */
+#define F_ALL_CALC	0xff0000	/* All have been calced	  */
 
 /*
  * Emulator machine state.
  * Segment usage control.
  */
-#define SYSMODE_SEG_DS_SS       0x00000001
-#define SYSMODE_SEGOVR_CS       0x00000002
-#define SYSMODE_SEGOVR_DS       0x00000004
-#define SYSMODE_SEGOVR_ES       0x00000008
-#define SYSMODE_SEGOVR_FS       0x00000010
-#define SYSMODE_SEGOVR_GS       0x00000020
-#define SYSMODE_SEGOVR_SS       0x00000040
-#define SYSMODE_PREFIX_REPE     0x00000080
-#define SYSMODE_PREFIX_REPNE    0x00000100
-#define SYSMODE_PREFIX_DATA     0x00000200
-#define SYSMODE_PREFIX_ADDR     0x00000400
-#define SYSMODE_INTR_PENDING    0x10000000
-#define SYSMODE_EXTRN_INTR      0x20000000
-#define SYSMODE_HALTED          0x40000000
+#define SYSMODE_SEG_DS_SS	0x00000001
+#define SYSMODE_SEGOVR_CS	0x00000002
+#define SYSMODE_SEGOVR_DS	0x00000004
+#define SYSMODE_SEGOVR_ES	0x00000008
+#define SYSMODE_SEGOVR_FS	0x00000010
+#define SYSMODE_SEGOVR_GS	0x00000020
+#define SYSMODE_SEGOVR_SS	0x00000040
+#define SYSMODE_PREFIX_REPE	0x00000080
+#define SYSMODE_PREFIX_REPNE	0x00000100
+#define SYSMODE_PREFIX_DATA	0x00000200
+#define SYSMODE_PREFIX_ADDR	0x00000400
+#define SYSMODE_INTR_PENDING	0x10000000
+#define SYSMODE_EXTRN_INTR	0x20000000
+#define SYSMODE_HALTED		0x40000000
 
-#define SYSMODE_SEGMASK (SYSMODE_SEG_DS_SS      | \
-                         SYSMODE_SEGOVR_CS      | \
-                         SYSMODE_SEGOVR_DS      | \
-                         SYSMODE_SEGOVR_ES      | \
-                         SYSMODE_SEGOVR_FS      | \
-                         SYSMODE_SEGOVR_GS      | \
-                         SYSMODE_SEGOVR_SS)
-#define SYSMODE_CLRMASK (SYSMODE_SEG_DS_SS      | \
-                         SYSMODE_SEGOVR_CS      | \
-                         SYSMODE_SEGOVR_DS      | \
-                         SYSMODE_SEGOVR_ES      | \
-                         SYSMODE_SEGOVR_FS      | \
-                         SYSMODE_SEGOVR_GS      | \
-                         SYSMODE_SEGOVR_SS      | \
-                         SYSMODE_PREFIX_DATA    | \
-                         SYSMODE_PREFIX_ADDR)
+#define SYSMODE_SEGMASK (SYSMODE_SEG_DS_SS	| \
+			 SYSMODE_SEGOVR_CS	| \
+			 SYSMODE_SEGOVR_DS	| \
+			 SYSMODE_SEGOVR_ES	| \
+			 SYSMODE_SEGOVR_FS	| \
+			 SYSMODE_SEGOVR_GS	| \
+			 SYSMODE_SEGOVR_SS)
+#define SYSMODE_CLRMASK (SYSMODE_SEG_DS_SS	| \
+			 SYSMODE_SEGOVR_CS	| \
+			 SYSMODE_SEGOVR_DS	| \
+			 SYSMODE_SEGOVR_ES	| \
+			 SYSMODE_SEGOVR_FS	| \
+			 SYSMODE_SEGOVR_GS	| \
+			 SYSMODE_SEGOVR_SS	| \
+			 SYSMODE_PREFIX_DATA	| \
+			 SYSMODE_PREFIX_ADDR)
 
-#define  INTR_SYNCH           0x1
-#define  INTR_ASYNCH          0x2
-#define  INTR_HALTED          0x4
+#define	 INTR_SYNCH	      0x1
+#define	 INTR_ASYNCH	      0x2
+#define	 INTR_HALTED	      0x4
 
 typedef struct {
 	struct i386_general_regs gen;
@@ -268,15 +268,15 @@ typedef struct {
 	struct i386_segment_regs seg;
 	/*
 	 * MODE contains information on:
-	 *  REPE prefix             2 bits  repe,repne
-	 *  SEGMENT overrides       5 bits  normal,DS,SS,CS,ES
-	 *  Delayed flag set        3 bits  (zero, signed, parity)
-	 *  reserved                6 bits
-	 *  interrupt #             8 bits  instruction raised interrupt
-	 *  BIOS video segregs      4 bits
-	 *  Interrupt Pending       1 bits
-	 *  Extern interrupt        1 bits
-	 *  Halted                  1 bits
+	 *  REPE prefix		    2 bits  repe,repne
+	 *  SEGMENT overrides	    5 bits  normal,DS,SS,CS,ES
+	 *  Delayed flag set	    3 bits  (zero, signed, parity)
+	 *  reserved		    6 bits
+	 *  interrupt #		    8 bits  instruction raised interrupt
+	 *  BIOS video segregs	    4 bits
+	 *  Interrupt Pending	    1 bits
+	 *  Extern interrupt	    1 bits
+	 *  Halted		    1 bits
 	 */
 	long mode;
 	u8 intno;
@@ -288,7 +288,7 @@ typedef struct {
 	u16 saved_cs;
 	int enc_pos;
 	int enc_str_pos;
-	char decode_buf[32];	/* encoded byte stream  */
+	char decode_buf[32];	/* encoded byte stream	*/
 	char decoded_buf[256];	/* disassembled strings */
 #endif
 } X86EMU_regs;
@@ -298,9 +298,9 @@ REMARKS:
 Structure maintaining the emulator machine state.
 
 MEMBERS:
-x86             - X86 registers
-mem_base        - Base real mode memory for the emulator
-mem_size        - Size of the real mode memory block for the emulator
+x86		- X86 registers
+mem_base	- Base real mode memory for the emulator
+mem_size	- Size of the real mode memory block for the emulator
 ****************************************************************************/
 #undef x86
 typedef struct {
@@ -314,7 +314,7 @@ typedef struct {
 
 /*----------------------------- Global Variables --------------------------*/
 
-#ifdef  __cplusplus
+#ifdef	__cplusplus
 extern "C" {			/* Use "C" linkage when in C++ mode */
 #endif
 
@@ -324,7 +324,7 @@ extern "C" {			/* Use "C" linkage when in C++ mode */
  */
 
 	extern X86EMU_sysEnv _X86EMU_env;
-#define   M             _X86EMU_env
+#define	  M		_X86EMU_env
 
 /*-------------------------- Function Prototypes --------------------------*/
 
@@ -334,7 +334,7 @@ extern "C" {			/* Use "C" linkage when in C++ mode */
 	void printk(const char *fmt, ...);
 #endif
 
-#ifdef  __cplusplus
-}				/* End of "C" linkage for C++       */
+#ifdef	__cplusplus
+}				/* End of "C" linkage for C++	    */
 #endif
 #endif				/* __X86EMU_REGS_H */

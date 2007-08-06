@@ -139,4 +139,3 @@ u32     pop_long (void);
 #endif
 
 #endif /* __X86EMU_PRIM_OPS_H */
-

@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-*                    Video BOOT Graphics Card POST Module
+*		     Video BOOT Graphics Card POST Module
 *
 *  ========================================================================
 *   Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
@@ -30,20 +30,20 @@
 *
 *  ========================================================================
 *
-* Language:     ANSI C
-* Environment:  Linux Kernel
-* Developer:    Kendall Bennett
+* Language:	ANSI C
+* Environment:	Linux Kernel
+* Developer:	Kendall Bennett
 *
-* Description:  Module to implement booting PCI/AGP controllers on the
-*               bus. We use the x86 real mode emulator to run the BIOS on
-*               graphics controllers to bring the cards up.
+* Description:	Module to implement booting PCI/AGP controllers on the
+*		bus. We use the x86 real mode emulator to run the BIOS on
+*		graphics controllers to bring the cards up.
 *
-*               Note that at present this module does *not* support
-*               multiple controllers.
+*		Note that at present this module does *not* support
+*		multiple controllers.
 *
-*               The orignal name of this file is warmboot.c.
-*               Jason ported this file to u-boot to run the ATI video card
-*               BIOS in u-boot.
+*		The orignal name of this file is warmboot.c.
+*		Jason ported this file to u-boot to run the ATI video card
+*		BIOS in u-boot.
 ****************************************************************************/
 #include <common.h>
 
@@ -53,11 +53,11 @@
 #include <malloc.h>
 
 /* Length of the BIOS image */
-#define MAX_BIOSLEN         (128 * 1024L)
+#define MAX_BIOSLEN	    (128 * 1024L)
 
 /* Define some useful types and macros */
-#define true                1
-#define false               0
+#define true		    1
+#define false		    0
 
 /* Place to save PCI BAR's that we change and later restore */
 static u32 saveROMBaseAddress;
@@ -68,7 +68,7 @@ static u32 saveBaseAddress20;
 
 /****************************************************************************
 PARAMETERS:
-pcidev  - PCI device info for the video card on the bus to boot
+pcidev	- PCI device info for the video card on the bus to boot
 VGAInfo - BIOS emulator VGA info structure
 
 REMARKS:
@@ -102,8 +102,8 @@ static void PCI_doBIOSPOST(pci_dev_t pcidev, BE_VGAInfo * VGAInfo)
 
 /****************************************************************************
 PARAMETERS:
-pcidev  - PCI device info for the video card on the bus
-bar     - Place to return the base address register offset to use
+pcidev	- PCI device info for the video card on the bus
+bar	- Place to return the base address register offset to use
 
 RETURNS:
 The address to use to map the secondary BIOS (AGP devices)
@@ -166,7 +166,7 @@ static void PCI_fixupIObase(pci_dev_t pcidev, int reg, u32 * base)
 
 /****************************************************************************
 PARAMETERS:
-pcidev  - PCI device info for the video card on the bus
+pcidev	- PCI device info for the video card on the bus
 
 RETURNS:
 Pointers to the mapped BIOS image
@@ -196,7 +196,7 @@ void *PCI_mapBIOSImage(pci_dev_t pcidev)
 	/* Some cards have problems that stop us from being able to read the
 	 BIOS image from the ROM BAR. To fix this we have to do some chipset
 	 specific programming for different cards to solve this problem.
-        */
+	*/
 
 	if ((BIOSImagePhys = PCI_findBIOSAddr(pcidev, &BIOSImageBAR)) == 0) {
 		printf("Find bios addr error\n");
@@ -223,7 +223,7 @@ void *PCI_mapBIOSImage(pci_dev_t pcidev)
 
 /****************************************************************************
 PARAMETERS:
-pcidev  - PCI device info for the video card on the bus
+pcidev	- PCI device info for the video card on the bus
 
 REMARKS:
 Unmaps the BIOS image for the device and restores framebuffer mappings
@@ -239,7 +239,7 @@ void PCI_unmapBIOSImage(pci_dev_t pcidev, void *BIOSImage)
 
 /****************************************************************************
 PARAMETERS:
-pcidev  - PCI device info for the video card on the bus to boot
+pcidev	- PCI device info for the video card on the bus to boot
 VGAInfo - BIOS emulator VGA info structure
 
 RETURNS:
@@ -294,9 +294,9 @@ static int PCI_postController(pci_dev_t pcidev, BE_VGAInfo * VGAInfo)
 
 /****************************************************************************
 PARAMETERS:
-pcidev      - PCI device info for the video card on the bus to boot
+pcidev	    - PCI device info for the video card on the bus to boot
 pVGAInfo    - Place to return VGA info structure is requested
-cleanUp     - True to clean up on exit, false to leave emulator active
+cleanUp	    - True to clean up on exit, false to leave emulator active
 
 REMARKS:
 Boots the PCI/AGP video card on the bus using the Video ROM BIOS image

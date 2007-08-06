@@ -251,71 +251,69 @@ hardware does not support mapping the VGA I/O and memory (such as some
 PowerPC systems), we emulate the VGA so that the BIOS will still be able to
 set NonVGA display modes such as on ATI hardware.
 ****************************************************************************/
-static u8 VGA_inpb(
-    const int port)
+static u8 VGA_inpb (const int port)
 {
-    u8 val = 0xff;
+	u8 val = 0xff;
 
-    switch (port) {
-        case 0x3C0:
-            /* 3C0 has funky characteristics because it can act as either
-               a data register or index register depending on the state
-               of an internal flip flop in the hardware. Hence we have
-               to emulate that functionality in here. */
-            if (_BE_env.flipFlop3C0 == 0) {
-                /* Access 3C0 as index register*/
-                val = _BE_env.emu3C0;
-                }
-            else {
-                /* Access 3C0 as data register*/
-                if (_BE_env.emu3C0 < ATT_C)
-                    val = _BE_env.emu3C1[_BE_env.emu3C0];
-                }
-            _BE_env.flipFlop3C0 ^= 1;
-            break;
-        case 0x3C1:
-            if (_BE_env.emu3C0 < ATT_C)
-                return _BE_env.emu3C1[_BE_env.emu3C0];
-            break;
-        case 0x3CC:
-            return _BE_env.emu3C2;
-        case 0x3C4:
-            return _BE_env.emu3C4;
-        case 0x3C5:
-            if (_BE_env.emu3C4 < ATT_C)
-                return _BE_env.emu3C5[_BE_env.emu3C4];
-            break;
-        case 0x3C6:
-            return _BE_env.emu3C6;
-        case 0x3C7:
-            return _BE_env.emu3C7;
-        case 0x3C8:
-            return _BE_env.emu3C8;
-        case 0x3C9:
-            if (_BE_env.emu3C7 < PAL_C)
-                return _BE_env.emu3C9[_BE_env.emu3C7++];
-            break;
-        case 0x3CE:
-            return _BE_env.emu3CE;
-        case 0x3CF:
-            if (_BE_env.emu3CE < GRA_C)
-                return _BE_env.emu3CF[_BE_env.emu3CE];
-            break;
-        case 0x3D4:
-            if (_BE_env.emu3C2 & 0x1)
-                return _BE_env.emu3D4;
-            break;
-        case 0x3D5:
-            if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
-                return _BE_env.emu3D5[_BE_env.emu3D4];
-            break;
-        case 0x3DA:
-            _BE_env.flipFlop3C0 = 0;
-            val = _BE_env.emu3DA;
-            _BE_env.emu3DA ^= 0x9;
-            break;
-        }
-    return val;
+	switch (port) {
+	case 0x3C0:
+		/* 3C0 has funky characteristics because it can act as either
+		   a data register or index register depending on the state
+		   of an internal flip flop in the hardware. Hence we have
+		   to emulate that functionality in here. */
+		if (_BE_env.flipFlop3C0 == 0) {
+			/* Access 3C0 as index register */
+			val = _BE_env.emu3C0;
+		} else {
+			/* Access 3C0 as data register */
+			if (_BE_env.emu3C0 < ATT_C)
+				val = _BE_env.emu3C1[_BE_env.emu3C0];
+		}
+		_BE_env.flipFlop3C0 ^= 1;
+		break;
+	case 0x3C1:
+		if (_BE_env.emu3C0 < ATT_C)
+			return _BE_env.emu3C1[_BE_env.emu3C0];
+		break;
+	case 0x3CC:
+		return _BE_env.emu3C2;
+	case 0x3C4:
+		return _BE_env.emu3C4;
+	case 0x3C5:
+		if (_BE_env.emu3C4 < ATT_C)
+			return _BE_env.emu3C5[_BE_env.emu3C4];
+		break;
+	case 0x3C6:
+		return _BE_env.emu3C6;
+	case 0x3C7:
+		return _BE_env.emu3C7;
+	case 0x3C8:
+		return _BE_env.emu3C8;
+	case 0x3C9:
+		if (_BE_env.emu3C7 < PAL_C)
+			return _BE_env.emu3C9[_BE_env.emu3C7++];
+		break;
+	case 0x3CE:
+		return _BE_env.emu3CE;
+	case 0x3CF:
+		if (_BE_env.emu3CE < GRA_C)
+			return _BE_env.emu3CF[_BE_env.emu3CE];
+		break;
+	case 0x3D4:
+		if (_BE_env.emu3C2 & 0x1)
+			return _BE_env.emu3D4;
+		break;
+	case 0x3D5:
+		if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
+			return _BE_env.emu3D5[_BE_env.emu3D4];
+		break;
+	case 0x3DA:
+		_BE_env.flipFlop3C0 = 0;
+		val = _BE_env.emu3DA;
+		_BE_env.emu3DA ^= 0x9;
+		break;
+	}
+	return val;
 }
 
 /****************************************************************************
@@ -328,66 +326,65 @@ Performs an emulated write to one of the 8253 timer registers. For now
 we only emulate timer 0 which is the only timer that the BIOS code appears
 to use.
 ****************************************************************************/
-static void VGA_outpb(
-    int port,
-    u8 val)
+static void VGA_outpb (int port, u8 val)
 {
-    switch (port) {
-        case 0x3C0:
-            /* 3C0 has funky characteristics because it can act as either
-             a data register or index register depending on the state
-             of an internal flip flop in the hardware. Hence we have
-             to emulate that functionality in here.*/
-            if (_BE_env.flipFlop3C0 == 0) {
-                /* Access 3C0 as index register*/
-                _BE_env.emu3C0 = val;
-                }
-            else {
-                /* Access 3C0 as data register*/
-                if (_BE_env.emu3C0 < ATT_C)
-                    _BE_env.emu3C1[_BE_env.emu3C0] = val;
-                }
-            _BE_env.flipFlop3C0 ^= 1;
-            break;
-        case 0x3C2:
-            _BE_env.emu3C2 = val;
-            break;
-        case 0x3C4:
-            _BE_env.emu3C4 = val;
-            break;
-        case 0x3C5:
-            if (_BE_env.emu3C4 < ATT_C)
-                _BE_env.emu3C5[_BE_env.emu3C4] = val;
-            break;
-        case 0x3C6:
-            _BE_env.emu3C6 = val;
-            break;
-        case 0x3C7:
-            _BE_env.emu3C7 = (int)val * 3;
-            break;
-        case 0x3C8:
-            _BE_env.emu3C8 = (int)val * 3;
-            break;
-        case 0x3C9:
-            if (_BE_env.emu3C8 < PAL_C)
-                _BE_env.emu3C9[_BE_env.emu3C8++] = val;
-            break;
-        case 0x3CE:
-            _BE_env.emu3CE = val;
-            break;
-        case 0x3CF:
-            if (_BE_env.emu3CE < GRA_C)
-                _BE_env.emu3CF[_BE_env.emu3CE] = val;
-            break;
-        case 0x3D4:
-            if (_BE_env.emu3C2 & 0x1)
-                _BE_env.emu3D4 = val;
-            break;
-        case 0x3D5:
-            if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
-                _BE_env.emu3D5[_BE_env.emu3D4] = val;
-            break;
-        }
+	switch (port) {
+	case 0x3C0:
+		/* 3C0 has funky characteristics because it can act as either
+		   a data register or index register depending on the state
+		   of an internal flip flop in the hardware. Hence we have
+		   to emulate that functionality in here. */
+		if (_BE_env.flipFlop3C0 == 0) {
+			/* Access 3C0 as index register */
+			_BE_env.emu3C0 = val;
+		} else {
+			/* Access 3C0 as data register */
+			if (_BE_env.emu3C0 < ATT_C)
+				_BE_env.emu3C1[_BE_env.emu3C0] = val;
+		}
+		_BE_env.flipFlop3C0 ^= 1;
+		break;
+	case 0x3C2:
+		_BE_env.emu3C2 = val;
+		break;
+	case 0x3C4:
+		_BE_env.emu3C4 = val;
+		break;
+	case 0x3C5:
+		if (_BE_env.emu3C4 < ATT_C)
+			_BE_env.emu3C5[_BE_env.emu3C4] = val;
+		break;
+	case 0x3C6:
+		_BE_env.emu3C6 = val;
+		break;
+	case 0x3C7:
+		_BE_env.emu3C7 = (int) val *3;
+
+		break;
+	case 0x3C8:
+		_BE_env.emu3C8 = (int) val *3;
+
+		break;
+	case 0x3C9:
+		if (_BE_env.emu3C8 < PAL_C)
+			_BE_env.emu3C9[_BE_env.emu3C8++] = val;
+		break;
+	case 0x3CE:
+		_BE_env.emu3CE = val;
+		break;
+	case 0x3CF:
+		if (_BE_env.emu3CE < GRA_C)
+			_BE_env.emu3CF[_BE_env.emu3CE] = val;
+		break;
+	case 0x3D4:
+		if (_BE_env.emu3C2 & 0x1)
+			_BE_env.emu3D4 = val;
+		break;
+	case 0x3D5:
+		if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
+			_BE_env.emu3D5[_BE_env.emu3D4] = val;
+		break;
+	}
 }
 
 /****************************************************************************

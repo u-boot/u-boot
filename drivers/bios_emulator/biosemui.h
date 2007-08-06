@@ -1,12 +1,12 @@
 /****************************************************************************
 *
-*                        BIOS emulator and interface
-*                      to Realmode X86 Emulator Library
+*			 BIOS emulator and interface
+*		       to Realmode X86 Emulator Library
 *
 *  Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
 *  Jason Jin <Jason.jin@freescale.com>
 *
-*               Copyright (C) 1996-1999 SciTech Software, Inc.
+*		Copyright (C) 1996-1999 SciTech Software, Inc.
 *
 *  ========================================================================
 *
@@ -16,7 +16,7 @@
 *  both that copyright notice and this permission notice appear in
 *  supporting documentation, and that the name of the authors not be used
 *  in advertising or publicity pertaining to distribution of the software
-*  without specific, written prior permission.  The authors makes no
+*  without specific, written prior permission.	The authors makes no
 *  representations about the suitability of this software for any purpose.
 *  It is provided "as is" without express or implied warranty.
 *
@@ -30,14 +30,14 @@
 *
 *  ========================================================================
 *
-* Language:     ANSI C
-* Environment:  Any
-* Developer:    Kendall Bennett
+* Language:	ANSI C
+* Environment:	Any
+* Developer:	Kendall Bennett
 *
-* Description:  Internal header file for the BIOS emulator library.
+* Description:	Internal header file for the BIOS emulator library.
 *
-* 		Jason ported this file to u-boot, Added some architecture
-* 		related Macro.
+*		Jason ported this file to u-boot, Added some architecture
+*		related Macro.
 *
 ****************************************************************************/
 
@@ -49,14 +49,14 @@
 /*---------------------- Macros and type definitions ----------------------*/
 
 #ifdef DEBUG
-#define DB(x)   x
+#define DB(x)	x
 #else
-#define DB(x)   do{}while(0);
+#define DB(x)	do{}while(0);
 #endif
 
-#define BIOS_SEG        0xfff0
+#define BIOS_SEG	0xfff0
 extern X86EMU_sysEnv _X86EMU_env;
-#define M               _X86EMU_env
+#define M		_X86EMU_env
 
 /* Macros to read and write values to x86 emulator memory. Memory is always
  * considered to be little endian, so we use macros to do endian swapping
@@ -64,21 +64,21 @@ extern X86EMU_sysEnv _X86EMU_env;
  */
 
 #ifdef __BIG_ENDIAN__
-#define readb_le(base)      *((u8*)(base))
-#define readw_le(base)      ((u16)readb_le(base) | ((u16)readb_le((base) + 1) << 8))
-#define readl_le(base)      ((u32)readb_le((base) + 0) | ((u32)readb_le((base) + 1) << 8) | \
-                            ((u32)readb_le((base) + 2) << 16) | ((u32)readb_le((base) + 3) << 24))
+#define readb_le(base)	    *((u8*)(base))
+#define readw_le(base)	    ((u16)readb_le(base) | ((u16)readb_le((base) + 1) << 8))
+#define readl_le(base)	    ((u32)readb_le((base) + 0) | ((u32)readb_le((base) + 1) << 8) | \
+			    ((u32)readb_le((base) + 2) << 16) | ((u32)readb_le((base) + 3) << 24))
 #define writeb_le(base, v)  *((u8*)(base)) = (v)
-#define writew_le(base, v)  writeb_le(base + 0, (v >> 0) & 0xff),       \
-                            writeb_le(base + 1, (v >> 8) & 0xff)
-#define writel_le(base, v)  writeb_le(base + 0, (v >> 0) & 0xff),       \
-                            writeb_le(base + 1, (v >> 8) & 0xff),       \
-                            writeb_le(base + 2, (v >> 16) & 0xff),      \
-                            writeb_le(base + 3, (v >> 24) & 0xff)
+#define writew_le(base, v)  writeb_le(base + 0, (v >> 0) & 0xff),	\
+			    writeb_le(base + 1, (v >> 8) & 0xff)
+#define writel_le(base, v)  writeb_le(base + 0, (v >> 0) & 0xff),	\
+			    writeb_le(base + 1, (v >> 8) & 0xff),	\
+			    writeb_le(base + 2, (v >> 16) & 0xff),	\
+			    writeb_le(base + 3, (v >> 24) & 0xff)
 #else
-#define readb_le(base)      *((u8*)(base))
-#define readw_le(base)      *((u16*)(base))
-#define readl_le(base)      *((u32*)(base))
+#define readb_le(base)	    *((u8*)(base))
+#define readw_le(base)	    *((u16*)(base))
+#define readl_le(base)	    *((u32*)(base))
 #define writeb_le(base, v)  *((u8*)(base)) = (v)
 #define writew_le(base, v)  *((u16*)(base)) = (v)
 #define writel_le(base, v)  *((u32*)(base)) = (v)
@@ -118,8 +118,8 @@ HEADER:
 biosemu.h
 
 MEMBERS:
-type        - Type of port access (1 = byte, 2 = word, 3 = dword)
-defVal      - Default power on value
+type	    - Type of port access (1 = byte, 2 = word, 3 = dword)
+defVal	    - Default power on value
 finalVal    - Final value
 ****************************************************************************/
 typedef struct {
