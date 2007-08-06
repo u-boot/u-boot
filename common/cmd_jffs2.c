@@ -28,7 +28,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -110,7 +110,7 @@
 #define	DEBUG_JFFS
 #undef	DEBUG_JFFS
 
-#ifdef DEBUG_JFFS
+#ifdef  DEBUG_JFFS
 # define DEBUGF(fmt, args...)	printf(fmt ,##args)
 #else
 # define DEBUGF(fmt, args...)
@@ -189,10 +189,10 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
 static int device_del(struct mtd_device *dev);
 
 /**
- * Parses a string into a number. The number stored at ptr is
+ * Parses a string into a number.  The number stored at ptr is
  * potentially suffixed with K (for kilobytes, or 1024 bytes),
  * M (for megabytes, or 1048576 bytes), or G (for gigabytes, or
- * 1073741824). If the number is suffixed with K, M, or G, then
+ * 1073741824).  If the number is suffixed with K, M, or G, then
  * the return value is the number multiplied by one kilobyte, one
  * megabyte, or one gigabyte, respectively.
  *
@@ -681,7 +681,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 		return 1;
 	}
 
-	/* allocate memory */
+	/*  allocate memory */
 	part = (struct part_info *)malloc(sizeof(struct part_info) + name_len);
 	if (!part) {
 		printf("out of memory\n");
@@ -1837,9 +1837,9 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
 	return NULL;
 }
 
-/*************************************************/
-/* U-boot commands				 */
-/*************************************************/
+/***************************************************/
+/* U-boot commands				   */
+/***************************************************/
 
 /**
  * Routine implementing fsload u-boot command. This routine tries to load

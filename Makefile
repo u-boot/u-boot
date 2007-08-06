@@ -198,8 +198,9 @@ ifeq ($(CPU),ixp)
 LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/romfs/libromfs.a
+LIBS += fs/cramfs/libcramfs.a fs/ext2/libext2fs.a fs/fat/libfat.a \
+	fs/fdos/libfdos.a fs/jffs2/libjffs2.a fs/reiserfs/libreiserfs.a \
+	fs/romfs/libromfs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
