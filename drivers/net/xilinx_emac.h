@@ -26,16 +26,16 @@
  */
 
 typedef struct {
-	u32 RegBaseAddress;	/* Base address of registers */
-	u32 DataBaseAddress;	/* Base address of data for FIFOs */
-} XPacketFifoV100b;
+	u32 regbaseaddress;	/* Base address of registers */
+	u32 databaseaddress;	/* Base address of data for FIFOs */
+} xpacketfifov100b;
 
 typedef struct {
-	u32 BaseAddress;	/* Base address (of IPIF) */
-	u32 IsStarted;		/* Device is currently started 0-no, 1-yes */
-	XPacketFifoV100b RecvFifo;	/* FIFO used to receive frames */
-	XPacketFifoV100b SendFifo;	/* FIFO used to send frames */
-} XEmac;
+	u32 baseaddress;	/* Base address (of IPIF) */
+	u32 isstarted;		/* Device is currently started 0-no, 1-yes */
+	xpacketfifov100b recvfifo;	/* FIFO used to receive frames */
+	xpacketfifov100b sendfifo;	/* FIFO used to send frames */
+} xemac;
 
 #define XIIF_V123B_IISR_OFFSET	32UL /* IP interrupt status register */
 #define XIIF_V123B_RESET_MASK		0xAUL
@@ -66,10 +66,14 @@ typedef struct {
 
 
 #define XEM_PFIFO_OFFSET	0x2000UL
-#define XEM_PFIFO_TXREG_OFFSET	(XEM_PFIFO_OFFSET + 0x0) /* Tx registers */
-#define XEM_PFIFO_RXREG_OFFSET	(XEM_PFIFO_OFFSET + 0x10) /* Rx registers */
-#define XEM_PFIFO_TXDATA_OFFSET	(XEM_PFIFO_OFFSET + 0x100) /* Tx keyhole */
-#define XEM_PFIFO_RXDATA_OFFSET	(XEM_PFIFO_OFFSET + 0x200) /* Rx keyhole */
+/* Tx registers */
+#define XEM_PFIFO_TXREG_OFFSET	(XEM_PFIFO_OFFSET + 0x0)
+/* Rx registers */
+#define XEM_PFIFO_RXREG_OFFSET	(XEM_PFIFO_OFFSET + 0x10)
+/* Tx keyhole */
+#define XEM_PFIFO_TXDATA_OFFSET	(XEM_PFIFO_OFFSET + 0x100)
+/* Rx keyhole */
+#define XEM_PFIFO_RXDATA_OFFSET	(XEM_PFIFO_OFFSET + 0x200)
 
 
 /*
@@ -82,46 +86,63 @@ typedef struct {
 				 XEM_EIR_XMIT_SFIFO_EMPTY_MASK |\
 				 XEM_EIR_XMIT_LFIFO_FULL_MASK)
 
-#define XEM_EIR_XMIT_DONE_MASK		0x00000001UL /* Xmit complete */
-#define XEM_EIR_RECV_DONE_MASK		0x00000002UL /* Recv complete */
-#define XEM_EIR_XMIT_ERROR_MASK		0x00000004UL /* Xmit error */
-#define XEM_EIR_RECV_ERROR_MASK		0x00000008UL /* Recv error */
-#define XEM_EIR_XMIT_SFIFO_EMPTY_MASK	0x00000010UL /* Xmit status fifo empty */
-#define XEM_EIR_RECV_LFIFO_EMPTY_MASK	0x00000020UL /* Recv length fifo empty */
-#define XEM_EIR_XMIT_LFIFO_FULL_MASK	0x00000040UL /* Xmit length fifo full */
-#define XEM_EIR_RECV_LFIFO_OVER_MASK	0x00000080UL	/* Recv length fifo
-							 * overrun */
-#define XEM_EIR_RECV_LFIFO_UNDER_MASK	0x00000100UL	/* Recv length fifo
-							 * underrun */
-#define XEM_EIR_XMIT_SFIFO_OVER_MASK	0x00000200UL	/* Xmit status fifo
-							 * overrun */
-#define XEM_EIR_XMIT_SFIFO_UNDER_MASK	0x00000400UL	/* Transmit status fifo
-							 * underrun */
-#define XEM_EIR_XMIT_LFIFO_OVER_MASK	0x00000800UL	/* Transmit length fifo
-							 * overrun */
-#define XEM_EIR_XMIT_LFIFO_UNDER_MASK	0x00001000UL	/* Transmit length fifo
-							 * underrun */
-#define XEM_EIR_XMIT_PAUSE_MASK		0x00002000UL	/* Transmit pause pkt
-							 * received */
+/* Xmit complete */
+#define XEM_EIR_XMIT_DONE_MASK		0x00000001UL
+/* Recv complete */
+#define XEM_EIR_RECV_DONE_MASK		0x00000002UL
+/* Xmit error */
+#define XEM_EIR_XMIT_ERROR_MASK		0x00000004UL
+/* Recv error */
+#define XEM_EIR_RECV_ERROR_MASK		0x00000008UL
+/* Xmit status fifo empty */
+#define XEM_EIR_XMIT_SFIFO_EMPTY_MASK	0x00000010UL
+/* Recv length fifo empty */
+#define XEM_EIR_RECV_LFIFO_EMPTY_MASK	0x00000020UL
+/* Xmit length fifo full */
+#define XEM_EIR_XMIT_LFIFO_FULL_MASK	0x00000040UL
+/* Recv length fifo overrun */
+#define XEM_EIR_RECV_LFIFO_OVER_MASK	0x00000080UL
+/* Recv length fifo underrun */
+#define XEM_EIR_RECV_LFIFO_UNDER_MASK	0x00000100UL
+/* Xmit status fifo overrun */
+#define XEM_EIR_XMIT_SFIFO_OVER_MASK	0x00000200UL
+/* Transmit status fifo underrun */
+#define XEM_EIR_XMIT_SFIFO_UNDER_MASK	0x00000400UL
+/* Transmit length fifo overrun */
+#define XEM_EIR_XMIT_LFIFO_OVER_MASK	0x00000800UL
+/* Transmit length fifo underrun */
+#define XEM_EIR_XMIT_LFIFO_UNDER_MASK	0x00001000UL
+/* Transmit pause pkt received */
+#define XEM_EIR_XMIT_PAUSE_MASK		0x00002000UL
 
 /*
  * EMAC Control Register (ECR)
  */
-#define XEM_ECR_FULL_DUPLEX_MASK	 0x80000000UL	/* Full duplex mode */
-#define XEM_ECR_XMIT_RESET_MASK		 0x40000000UL	/* Reset transmitter */
-#define XEM_ECR_XMIT_ENABLE_MASK	 0x20000000UL	/* Enable transmitter */
-#define XEM_ECR_RECV_RESET_MASK		 0x10000000UL	/* Reset receiver */
-#define XEM_ECR_RECV_ENABLE_MASK	 0x08000000UL	/* Enable receiver */
-#define XEM_ECR_PHY_ENABLE_MASK		 0x04000000UL	/* Enable PHY */
-#define XEM_ECR_XMIT_PAD_ENABLE_MASK	 0x02000000UL	/* Enable xmit pad
-							 * insert */
-#define XEM_ECR_XMIT_FCS_ENABLE_MASK	 0x01000000UL	/* Enable xmit FCS
-							 * insert */
-#define XEM_ECR_UNICAST_ENABLE_MASK	 0x00020000UL	/* Enable unicast
-							 * addr */
-#define XEM_ECR_BROAD_ENABLE_MASK	 0x00008000UL	/* Enable broadcast
-							 * addr */
+/* Full duplex mode */
+#define XEM_ECR_FULL_DUPLEX_MASK	 0x80000000UL
+/* Reset transmitter */
+#define XEM_ECR_XMIT_RESET_MASK		 0x40000000UL
+/* Enable transmitter */
+#define XEM_ECR_XMIT_ENABLE_MASK	 0x20000000UL
+/* Reset receiver */
+#define XEM_ECR_RECV_RESET_MASK		 0x10000000UL
+/* Enable receiver */
+#define XEM_ECR_RECV_ENABLE_MASK	 0x08000000UL
+/* Enable PHY */
+#define XEM_ECR_PHY_ENABLE_MASK		 0x04000000UL
+/* Enable xmit pad insert */
+#define XEM_ECR_XMIT_PAD_ENABLE_MASK	 0x02000000UL
+/* Enable xmit FCS insert */
+#define XEM_ECR_XMIT_FCS_ENABLE_MASK	 0x01000000UL
+/* Enable unicast addr */
+#define XEM_ECR_UNICAST_ENABLE_MASK	 0x00020000UL
+/* Enable broadcast addr */
+#define XEM_ECR_BROAD_ENABLE_MASK	 0x00008000UL
 
-/* Transmit Status Register (TSR) */
-#define XEM_TSR_EXCESS_DEFERRAL_MASK	0x80000000UL /* Transmit excess deferral */
-#define XEM_TSR_LATE_COLLISION_MASK	0x01000000UL /* Transmit late collision */
+/*
+ * Transmit Status Register (TSR)
+ */
+/* Transmit excess deferral */
+#define XEM_TSR_EXCESS_DEFERRAL_MASK	0x80000000UL
+/* Transmit late collision */
+#define XEM_TSR_LATE_COLLISION_MASK	0x01000000UL
