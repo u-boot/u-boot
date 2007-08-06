@@ -124,7 +124,8 @@ static int romfs_list_inode (struct part_info *info, unsigned long offset)
 	struct romfs_inode *hardlink = NULL;
 	char str[3], *data;
 
-/*	mapping		spec.info means
+/*
+ *	mapping		spec.info means
  * 0	hard link	link destination [file header]
  * 1	directory	first file's header
  * 2	regular file	unused, must be zero [MBZ]
@@ -134,40 +135,9 @@ static int romfs_list_inode (struct part_info *info, unsigned long offset)
  * 6	socket		unused, MBZ
  * 7	fifo		unused, MBZ
  */
-	switch (inode->next & 0x7) {
-	case 0:
-		str[0] = 'h';
-		break;
-	case 1:
-		str[0] = 'd';
-		break;
-	case 2:
-		str[0] = 'f';
-		break;
-	case 3:
-		str[0] = 'l';
-		break;
-	case 4:
-		str[0] = 'b';
-		break;
-	case 5:
-		str[0] = 'c';
-		break;
-	case 6:
-		str[0] = 's';
-		break;
-	case 7:
-		str[0] = 'p';
-		break;
-	default:
-		str[0] = '?';
-	}
-
-	if (inode->next & 0x8) {
-		str[1] = 'x';
-	} else {
-		str[1] = '-';
-	}
+	char attributes[] = "hdflbcsp";
+	str[0] = attributes[inode->next & 0x7];
+	str[1] = (inode->next & 0x8) ? 'x' : '-';
 	str[2] = '\0';
 
 	if ((str[0] == 'b') || (str[0] == 'c')) {
