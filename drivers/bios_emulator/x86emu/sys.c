@@ -41,6 +41,8 @@
 
 #include "x86emu/x86emui.h"
 
+#if defined(CONFIG_BIOSEMU)
+
 /*------------------------- Global Variables ------------------------------*/
 
 X86EMU_sysEnv _X86EMU_env;	/* Global emulator machine state */
@@ -320,3 +322,5 @@ void X86EMU_prepareForInt(int num)
 	M.x86.R_IP = mem_access_word(num * 4);
 	M.x86.intr = 0;
 }
+
+#endif
