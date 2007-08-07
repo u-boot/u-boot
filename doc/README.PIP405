@@ -32,10 +32,8 @@ Changed files:
 - include/cmd_bsp.h		added PIP405 commands definitions
 - include/cmd_condefs.h		added Floppy and SCSI support
 - include/cmd_disk.h		changed to work with block device description
-- include/config_LANTEC.h	excluded CFG_CMD_FDC and CFG_CMD_SCSI from
-				CONFIG_CMD_FULL
-- include/config_hymod.h	excluded CFG_CMD_FDC and CFG_CMD_SCSI from
-				CONFIG_CMD_FULL
+- include/config_LANTEC.h	excluded CONFIG_CMD_FDC and CONFIG_CMD_SCSI
+- include/config_hymod.h	excluded CONFIG_CMD_FDC and CONFIG_CMD_SCSI
 - include/flash.h		added INTEL_ID_28F320C3T  0x88C488C4
 - include/i2c.h			added "defined(CONFIG_PIP405)"
 - include/image.h		added IH_OS_U_BOOT, IH_TYPE_FIRMWARE
@@ -88,8 +86,8 @@ section "Changes".
 
 New Commands:
 -------------
-CFG_CMD_SCSI	SCSI Support
-CFG_CMF_FDC	Floppy disk support
+CONFIG_CMD_SCSI	SCSI Support
+CONFIG_CMF_FDC	Floppy disk support
 
 IDE additions:
 --------------
@@ -172,8 +170,8 @@ Added Devices:
 Floppy support:
 ---------------
 Support of a standard floppy disk controller at address CFG_ISA_IO_BASE_ADDRESS
-+ 0x3F0. Enabled with define CFG_CMD_FDC. Reads a unformated floppy disk with a
-image header (see: mkimage). No interrupts and no DMA are used for this.
++ 0x3F0. Enabled with define CONFIG_CMD_FDC. Reads a unformated floppy disk
+with a image header (see: mkimage). No interrupts and no DMA are used for this.
 Added files:
 - common/cmd_fdc.c
 - include/cmd_fdc.h

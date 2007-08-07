@@ -95,21 +95,33 @@
 #define CFG_DISCOVER_PHY
 #endif
 
-#ifndef CONFIG_COMMANDS
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
-			 | CFG_CMD_ASKENV \
-			 | CFG_CMD_DHCP   \
-			 | CFG_CMD_ECHO   \
-			 | CFG_CMD_IMMAP  \
-			 | CFG_CMD_JFFS2  \
-			 | CFG_CMD_MII    \
-			 | CFG_CMD_PCMCIA \
-			 | CFG_CMD_PING   \
-			)
-#endif /* !CONFIG_COMMANDS */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+#if !defined(FADS_COMMANDS_ALREADY_DEFINED)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PCMCIA
+#define CONFIG_CMD_PING
+
+#endif
+
 
 /*
  * Miscellaneous configurable options
@@ -118,7 +130,7 @@
 #define CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 #define	CFG_LONGHELP				/* #undef to save memory	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -217,7 +229,7 @@
 
 #define	CFG_DIRECT_FLASH_TFTP
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 
 /*
  * JFFS2 partitions
@@ -238,7 +250,7 @@
 */
 
 #define CFG_JFFS2_SORT_FRAGMENTS
-#endif /* CFG_CMD_JFFS2 */
+#endif
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -249,7 +261,7 @@
 /*-----------------------------------------------------------------------
  * I2C configuration
  */
-#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address defaults */
 #define CFG_I2C_SLAVE		0x7F
@@ -467,7 +479,7 @@
 #define CONFIG_ISO_PARTITION	1
 
 #undef	CONFIG_ATAPI
-#if 0	/* does not make sense when CFG_CMD_IDE is not enabled, too */
+#if 0	/* does not make sense when CONFIG_CMD_IDE is not enabled, too */
 #define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
 #endif
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/

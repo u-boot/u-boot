@@ -21,10 +21,10 @@
 # MA 02111-1307 USA
 #
 
-BIN_FILES	= img2srec$(SFX) mkimage$(SFX) envcrc$(SFX) gen_eth_addr$(SFX) bmp_logo$(SFX)
+BIN_FILES	= img2srec$(SFX) mkimage$(SFX) envcrc$(SFX) ubsha1$(SFX) gen_eth_addr$(SFX) bmp_logo$(SFX)
 
-OBJ_LINKS	= environment.o crc32.o
-OBJ_FILES	= img2srec.o mkimage.o envcrc.o gen_eth_addr.o bmp_logo.o
+OBJ_LINKS	= environment.o crc32.o sha1.o
+OBJ_FILES	= img2srec.o mkimage.o envcrc.o ubsha1.o gen_eth_addr.o bmp_logo.o
 
 ifeq ($(ARCH),mips)
 BIN_FILES	+= inca-swap-bytes$(SFX)
@@ -74,7 +74,7 @@ TOOLSUBDIRS =
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
 HOST_CFLAGS = -traditional-cpp -Wall
 HOST_LDFLAGS =-multiply_defined suppress
-HOST_ENVIRO_CFLAGS = -traditional-cpp
+HOST_ENVIRO_CFLAGS =
 
 else
 ifeq ($(HOSTOS)-$(HOSTARCH),netbsd-ppc)
@@ -126,14 +126,17 @@ MAKEDEPEND = makedepend
 
 all:	$(obj).depend $(BINS) $(LOGO_H) subdirs
 
-$(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)environment.o
+$(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)environment.o $(obj)sha1.o
+		$(CC) $(CFLAGS) -o $@ $^
+
+$(obj)ubsha1$(SFX):	$(obj)ubsha1.o $(obj)sha1.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 $(obj)img2srec$(SFX):	$(obj)img2srec.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
-$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o
+$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)sha1.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
@@ -160,7 +163,13 @@ $(obj)mpc86x_clk$(SFX):	$(obj)mpc86x_clk.o
 $(obj)envcrc.o:	$(src)envcrc.c
 		$(CC) -g $(CFLAGS) -c -o $@ $<
 
+$(obj)ubsha1.o:	$(src)ubsha1.c
+		$(CC) -g $(CFLAGS) -c -o $@ $<
+
 $(obj)crc32.o:	$(obj)crc32.c
+		$(CC) -g $(CFLAGS) -c -o $@ $<
+
+$(obj)sha1.o:	$(obj)sha1.c
 		$(CC) -g $(CFLAGS) -c -o $@ $<
 
 $(obj)mkimage.o:	$(src)mkimage.c
@@ -202,6 +211,10 @@ $(obj)environment.o:	$(obj)environment.c
 $(obj)crc32.c:
 		@rm -f $(obj)crc32.c
 		ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
+
+$(obj)sha1.c:
+		@rm -f $(obj)sha1.c
+		ln -s $(src)../lib_generic/sha1.c $(obj)sha1.c
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 		$(obj)./bmp_logo $(LOGO_BMP) >$@

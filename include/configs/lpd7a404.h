@@ -55,19 +55,32 @@
 
 #define	CONFIG_TIMESTAMP	1	/* Print timestamp info for images */
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 #ifndef USE_920T_MMU
-#define CONFIG_COMMANDS ((CONFIG_CMD_DFL | CFG_CMD_PING) & ~(CFG_CMD_CACHE))
+    #define CONFIG_CMD_PING)
+    #undef CONFIG_CMD_CACHE
 #else
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL | CFG_CMD_DATE)
+    #define CONFIG_CMD_DATE
 #endif
 
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 #define CONFIG_BOOTDELAY	3
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

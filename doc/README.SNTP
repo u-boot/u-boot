@@ -1,5 +1,5 @@
-To use SNTP support, add a define CFG_CMD_SNTP to CONFIG_COMMANDS in
-the configuration file of the board.
+To use SNTP support, add define CONFIG_CMD_SNTP to the
+configuration file of the board.
 
 The "sntp" command gets network time from NTP time server and
 syncronize RTC of the board. This command needs the command line

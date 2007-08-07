@@ -66,13 +66,6 @@ static void setup_videolfb_tag (gd_t *gd);
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 extern image_header_t header;	/* from cmd_bootm.c */
 
 
@@ -96,7 +89,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 * Check if there is an initrd image
 	 */
 	if (argc >= 3) {
-		SHOW_BOOT_PROGRESS (9);
+		show_boot_progress (9);
 
 		addr = simple_strtoul (argv[2], NULL, 16);
 
@@ -114,7 +107,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		if (ntohl (hdr->ih_magic) != IH_MAGIC) {
 			printf ("Bad Magic Number\n");
-			SHOW_BOOT_PROGRESS (-10);
+			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
@@ -126,11 +119,11 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		if (crc32 (0, (unsigned char *) data, len) != checksum) {
 			printf ("Bad Header Checksum\n");
-			SHOW_BOOT_PROGRESS (-11);
+			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		SHOW_BOOT_PROGRESS (10);
+		show_boot_progress (10);
 
 		print_image_hdr (hdr);
 
@@ -151,19 +144,19 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			csum = crc32 (0, (unsigned char *) data, len);
 			if (csum != ntohl (hdr->ih_dcrc)) {
 				printf ("Bad Data CRC\n");
-				SHOW_BOOT_PROGRESS (-12);
+				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			printf ("OK\n");
 		}
 
-		SHOW_BOOT_PROGRESS (11);
+		show_boot_progress (11);
 
 		if ((hdr->ih_os != IH_OS_LINUX) ||
 		    (hdr->ih_arch != IH_CPU_ARM) ||
 		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
 			printf ("No Linux ARM Ramdisk Image\n");
-			SHOW_BOOT_PROGRESS (-13);
+			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
@@ -182,7 +175,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong tail = ntohl (len_ptr[0]) % 4;
 		int i;
 
-		SHOW_BOOT_PROGRESS (13);
+		show_boot_progress (13);
 
 		/* skip kernel length and terminator */
 		data = (ulong) (&len_ptr[2]);
@@ -201,7 +194,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/*
 		 * no initrd image
 		 */
-		SHOW_BOOT_PROGRESS (14);
+		show_boot_progress (14);
 
 		len = data = 0;
 	}
@@ -220,7 +213,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		initrd_end = 0;
 	}
 
-	SHOW_BOOT_PROGRESS (15);
+	show_boot_progress (15);
 
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 	       (ulong) theKernel);

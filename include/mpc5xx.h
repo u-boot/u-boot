@@ -36,6 +36,7 @@
  * Exception offsets (PowerPC standard)
  */
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset				*/
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 /*-----------------------------------------------------------------------
  * ISB bit in IMMR to set internal memory map
@@ -75,10 +76,10 @@
 #define SIUMCR_DBPC01	0x00080000	/* - " -				*/
 #define SIUMCR_DBPC10	0x00100000	/* - " -				*/
 #define SIUMCR_DBPC11	0x00180000	/* - " -				*/
-#define SIUMCR_GPC00	0x00000000	/* General Pins Config 			*/
-#define SIUMCR_GPC01	0x00020000	/* General Pins Config 			*/
-#define SIUMCR_GPC10	0x00040000	/* General Pins Config 			*/
-#define SIUMCR_GPC11	0x00060000	/* General Pins Config 			*/
+#define SIUMCR_GPC00	0x00000000	/* General Pins Config			*/
+#define SIUMCR_GPC01	0x00020000	/* General Pins Config			*/
+#define SIUMCR_GPC10	0x00040000	/* General Pins Config			*/
+#define SIUMCR_GPC11	0x00060000	/* General Pins Config			*/
 #define SIUMCR_DLK	0x00010000	/* Debug Register Lock			*/
 #define SIUMCR_SC00	0x00000000	/* Multi Chip 32 bit			*/
 #define SIUMCR_SC01	0x00004000	/* Muilt Chip 16 bit			*/
@@ -89,7 +90,7 @@
 #define SIUMCR_MLRC01	0x00000400	/* - " -				*/
 #define SIUMCR_MLRC10	0x00000800	/* - " -				*/
 #define SIUMCR_MLRC11	0x00000c00	/* - " -				*/
-#define SIUMCR_MTSC	0x00000100	/* Memory transfer      		*/
+#define SIUMCR_MTSC	0x00000100	/* Memory transfer			*/
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control Register
@@ -122,13 +123,13 @@
  * SCCR - System Clock and reset Control Register
  */
 #define SCCR_DFNL_MSK	0x00000070	/* DFNL mask				*/
-#define SCCR_DFNH_MSK	0x00000007  	/* DFNH mask				*/
+#define SCCR_DFNH_MSK	0x00000007	/* DFNH mask				*/
 #define SCCR_DFNL_SHIFT 0x0000004	/* DFNL shift value			*/
 #define SCCR_RTSEL	0x00100000	/* RTC circuit input source select	*/
 #define SCCR_EBDF00	0x00000000	/* Division factor 1. CLKOUT is GCLK2   */
 #define SCCR_EBDF11	0x00060000	/* reserved				*/
 #define SCCR_TBS	0x02000000	/* Time Base Source			*/
-#define SCCR_RTDIV	0x01000000	/* RTC Clock Divide 			*/
+#define SCCR_RTDIV	0x01000000	/* RTC Clock Divide			*/
 #define SCCR_COM00	0x00000000	/* full strength CLKOUT output buffer	*/
 #define SCCR_COM01	0x20000000	/* half strength CLKOUT output buffer	*/
 #define SCCR_DFNL000	0x00000000	/* Division by 2 (default = minimum)	*/
@@ -137,11 +138,11 @@
 /*-----------------------------------------------------------------------
  * MC - Memory Controller
  */
-#define BR_V		0x00000001	/* Bank valid 				*/
-#define BR_BI		0x00000002	/* Burst inhibit 			*/
-#define BR_PS_8		0x00000400	/* 8 bit port size 			*/
-#define BR_PS_16	0x00000800	/* 16 bit port size 			*/
-#define BR_PS_32	0x00000000	/* 32 bit port size 			*/
+#define BR_V		0x00000001	/* Bank valid				*/
+#define BR_BI		0x00000002	/* Burst inhibit			*/
+#define BR_PS_8		0x00000400	/* 8 bit port size			*/
+#define BR_PS_16	0x00000800	/* 16 bit port size			*/
+#define BR_PS_32	0x00000000	/* 32 bit port size			*/
 #define BR_LBDIR	0x00000008	/* Late burst data in progess		*/
 #define BR_SETA		0x00000004	/* External Data Acknowledge		*/
 #define OR_SCY_3	0x00000030	/* 3 clock cycles wait states		*/
@@ -158,8 +159,8 @@
 /*-----------------------------------------------------------------------
  * UMCR - UIMB Module Configuration Register
  */
-#define UMCR_FSPEED 	0x00000000	/* Full speed. Opposit of UMCR_HSPEED	*/
-#define UMCR_HSPEED 	0x10000000	/* Half speed				*/
+#define UMCR_FSPEED	0x00000000	/* Full speed. Opposit of UMCR_HSPEED	*/
+#define UMCR_HSPEED	0x10000000	/* Half speed				*/
 
 /*-----------------------------------------------------------------------
  * ICTRL - I-Bus Support Control Register
@@ -173,16 +174,16 @@
  * SCI - Serial communication interface
  */
 
-#define SCI_TDRE	0x0100		/* Transmit data register empty 	*/
-#define SCI_TE		0x0008		/* Transmitter enabled 			*/
+#define SCI_TDRE	0x0100		/* Transmit data register empty		*/
+#define SCI_TE		0x0008		/* Transmitter enabled			*/
 #define SCI_RE		0x0004		/* Receiver enabled			*/
-#define SCI_RDRF	0x0040		/* Receive data register full 		*/
-#define SCI_PE		0x0400		/* Parity enable 			*/
-#define SCI_SCXBR_MK	0x1fff		/* Baudrate mask 			*/
-#define SCI_SCXDR_MK	0x00ff		/* Data register mask 			*/
+#define SCI_RDRF	0x0040		/* Receive data register full		*/
+#define SCI_PE		0x0400		/* Parity enable			*/
+#define SCI_SCXBR_MK	0x1fff		/* Baudrate mask			*/
+#define SCI_SCXDR_MK	0x00ff		/* Data register mask			*/
 #define SCI_M_11	0x0200		/* Frame size is 11 bit			*/
 #define SCI_M_10	0x0000		/* Frame size is 10 bit			*/
-#define SCI_PORT_1	((int)1)	/* Place this later somewhere better 	*/
+#define SCI_PORT_1	((int)1)	/* Place this later somewhere better	*/
 #define SCI_PORT_2	((int)2)
 
 #endif	/* __MPC5XX_H__ */

@@ -37,6 +37,7 @@
 #else
 #define CONFIG_440GRX		1		/* Specific PPC440GRx	*/
 #endif
+#define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 /* Detect Sequoia PLL input clock automatically via CPLD bit		*/
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
@@ -58,6 +59,7 @@
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_NAND_ADDR		0xd0000000      /* NAND Flash		*/
 #define CFG_OCM_BASE		0xe0010000      /* ocm			*/
+#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 #define CFG_PCI_BASE		0xe0000000      /* Internal PCI regs	*/
 #define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
 #define CFG_PCI_MEMBASE1	CFG_PCI_MEMBASE  + 0x10000000
@@ -80,7 +82,7 @@
 #define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -125,7 +127,7 @@
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -297,9 +299,6 @@
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
 
-#define CMD_USB			CFG_CMD_USB
-#else
-#define CMD_USB			0	/* no USB on 440GRx		*/
 #endif /* CONFIG_440EPX */
 
 /* Partitions */
@@ -307,37 +306,68 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#define CONFIG_COMMANDS       (CONFIG_CMD_DFL	|	\
-			       CFG_CMD_ASKENV	|	\
-			       CFG_CMD_DHCP	|	\
-			       CFG_CMD_DTT	|	\
-			       CFG_CMD_DIAG	|	\
-			       CFG_CMD_EEPROM	|	\
-			       CFG_CMD_ELF	|	\
-			       CFG_CMD_FAT	|	\
-			       CFG_CMD_I2C	|	\
-			       CFG_CMD_IRQ	|	\
-			       CFG_CMD_MII	|	\
-			       CFG_CMD_NAND	|	\
-			       CFG_CMD_NET	|	\
-			       CFG_CMD_NFS	|	\
-			       CFG_CMD_PCI	|	\
-			       CFG_CMD_PING	|	\
-			       CFG_CMD_REGINFO	|	\
-			       CFG_CMD_SDRAM	|	\
-			       CMD_USB)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SDRAM
+
+#ifdef CONFIG_440EPX
+#define CONFIG_CMD_USB
+#endif
+
+
+/* POST support */
+#define CONFIG_POST		(CFG_POST_MEMORY   | \
+				 CFG_POST_CPU	   | \
+				 CFG_POST_UART	   | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_CACHE	   | \
+				 CFG_POST_FPU	   | \
+				 CFG_POST_ETHER	   | \
+				 CFG_POST_SPR)
+
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
+#define CONFIG_LOGBUFFER
+#define CFG_POST_CACHE_ADDR	0x10000000 /* free virtual address	*/
+
+#define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 #define CONFIG_SUPPORT_VFAT
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
  *----------------------------------------------------------------------*/
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -370,7 +400,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
@@ -428,7 +457,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_DCACHE_SIZE		(32<<10)  /* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	      /* ...			            */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	      /* log base 2 of the above value	*/
 #endif
 
@@ -440,7 +469,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	    /* which serial port to use */
 #endif

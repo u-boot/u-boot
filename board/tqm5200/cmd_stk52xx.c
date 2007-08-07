@@ -29,7 +29,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 #if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define DEFAULT_VOL	45
@@ -1241,4 +1241,4 @@ U_BOOT_CMD(
 	"     - loopback plug(s) for X21/X22 required\n"
 );
 #endif
-#endif /* CFG_CMD_BSP */
+#endif

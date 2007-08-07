@@ -778,7 +778,7 @@ int checkboard (void)
 
 /* ========================================================================= */
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 
 #ifdef CFG_PCMCIA_MEM_ADDR
 volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;
@@ -921,7 +921,7 @@ int pcmcia_init(void)
 	return 0;
 }
 
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 /* ========================================================================= */
 

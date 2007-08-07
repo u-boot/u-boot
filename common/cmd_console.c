@@ -28,7 +28,7 @@
 #include <command.h>
 #include <devices.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_CONSOLE)
+#if defined(CONFIG_CMD_CONSOLE)
 
 extern void _do_coninfo (void);
 int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
@@ -68,4 +68,4 @@ U_BOOT_CMD(
 	""
 );
 
-#endif /* CFG_CMD_CONSOLE */
+#endif

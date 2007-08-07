@@ -5,11 +5,11 @@
 
 #undef	CONFIG_PCMCIA
 
-#if	(CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 #define	CONFIG_PCMCIA
 #endif
 
-#if	(CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
 #define	CONFIG_PCMCIA
 #endif
 
@@ -127,7 +127,7 @@ int pcmcia_hardware_enable(int slot)
 }
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 int pcmcia_hardware_disable(int slot)
 {
 	volatile immap_t	*immap;
@@ -166,7 +166,7 @@ int pcmcia_hardware_disable(int slot)
 
 	return (0);
 }
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)

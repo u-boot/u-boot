@@ -75,7 +75,7 @@
 #define CFG_TEMP_STACK_OCM	1		/* OCM as init ram	*/
 
 /* On Chip Memory location */
-#define CFG_OCM_DATA_ADDR	0xF8000000
+#define CFG_OCM_DATA_ADDR	0xf8000000
 #define CFG_OCM_DATA_SIZE	0x4000			/* 16K of onchip SRAM		*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of SRAM		*/
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of used area in RAM	*/
@@ -109,6 +109,7 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
 #define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 
@@ -122,6 +123,10 @@
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
+#else
+#define	CFG_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
+#endif
+
 #ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x40000 /* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
@@ -130,6 +135,63 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#endif
+
+/*
+ * IPL (Initial Program Loader, integrated inside CPU)
+ * Will load first 4k from NAND (SPL) into cache and execute it from there.
+ *
+ * SPL (Secondary Program Loader)
+ * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
+ * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
+ * controller and the NAND controller so that the special U-Boot image can be
+ * loaded from NAND to SDRAM.
+ *
+ * NUB (NAND U-Boot)
+ * This NAND U-Boot (NUB) is a special U-Boot version which can be started
+ * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
+ *
+ * On 440EPx the SPL is copied to SDRAM before the NAND controller is
+ * set up. While still running from cache, I experienced problems accessing
+ * the NAND controller.	sr - 2006-08-25
+ */
+#define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
+#define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
+#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_DATA_ADDR + (16 << 10)) /* Copy SPL here*/
+#define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
+#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
+#define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
+
+/*
+ * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
+ */
+#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
+#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
+
+/*
+ * Now the NAND chip has to be defined (no autodetection used!)
+ */
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
+#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
+#undef CFG_NAND_4_ADDR_CYCLE			/* No fourth addr used (<=32MB)	*/
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+
+#ifdef CFG_ENV_IS_IN_NAND
+/*
+ * For NAND booting the environment is embedded in the U-Boot image. Please take
+ * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
+ */
+#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -209,7 +271,11 @@
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
+	"nload=tftp 200000 acadia/u-boot-nand.bin\0"			\
+	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
+		"setenv filesize;saveenv\0"				\
+	"nupd=run nload nupdate\0"					\
 	"kozio=bootm ffc60000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
@@ -233,27 +299,45 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#define CONFIG_COMMANDS       (CONFIG_CMD_DFL	|	\
-			       CFG_CMD_ASKENV	|	\
-			       CFG_CMD_DHCP	|	\
-			       CFG_CMD_DTT	|	\
-			       CFG_CMD_DIAG	|	\
-			       CFG_CMD_EEPROM	|	\
-			       CFG_CMD_ELF	|	\
-			       CFG_CMD_FAT	|	\
-			       CFG_CMD_I2C	|	\
-			       CFG_CMD_IRQ	|	\
-			       CFG_CMD_MII	|	\
-			       CFG_CMD_NAND	|	\
-			       CFG_CMD_NET	|	\
-			       CFG_CMD_NFS	|	\
-			       CFG_CMD_PCI	|	\
-			       CFG_CMD_PING	|	\
-			       CFG_CMD_REGINFO	|	\
-			       CFG_CMD_USB)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_USB
+
+/*
+ * No NOR on Acadia when NAND-booting
+ */
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+#endif
 
 #undef CONFIG_WATCHDOG					/* watchdog disabled		*/
 
@@ -262,7 +346,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -305,18 +389,22 @@
  */
 #define CFG_DCACHE_SIZE		16384		/* For AMCC 405EZ CPU		*/
 #define CFG_CACHELINE_SIZE	32		/* ...				*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5		/* log base 2 of the above value*/
 #endif
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
-#define CFG_NAND_CS		3		/* NAND chip connected to CSx	*/
-
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#define CFG_NAND_CS		3
 /* Memory Bank 0 (Flash) initialization						*/
 #define CFG_EBC_PB0AP		0x03337200
 #define CFG_EBC_PB0CR		0xfe0bc000
+
+/* Memory Bank 3 (NAND-FLASH) initialization					*/
+#define CFG_EBC_PB3AP		0x018003c0
+#define CFG_EBC_PB3CR		(CFG_NAND_ADDR | 0x1c000)
 
 /* Just initial configuration for CRAM. Will be changed in memory.c to sync mode*/
 /* Memory Bank 1 (CRAM) initialization						*/
@@ -326,10 +414,24 @@
 /* Memory Bank 2 (CRAM) initialization						*/
 #define CFG_EBC_PB2AP		0x030400c0
 #define CFG_EBC_PB2CR		0x020bc000
+#else
+#define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
+/* Memory Bank 0 (NAND-FLASH) initialization					*/
+#define CFG_EBC_PB0AP		0x018003c0
+#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1c000)
 
-/* Memory Bank 3 (NAND-FLASH) initialization					*/
-#define CFG_EBC_PB3AP		0x018003c0
-#define CFG_EBC_PB3CR		(CFG_NAND_ADDR | 0x1c000)
+/*
+ * When NAND-booting the CRAM EBC setup must be done in sync mode, since the
+ * NAND-SPL already initialized the CRAM and EBC to sync mode.
+ */
+/* Memory Bank 1 (CRAM) initialization						*/
+#define CFG_EBC_PB1AP		0x9C0201C0
+#define CFG_EBC_PB1CR		0x000bc000
+
+/* Memory Bank 2 (CRAM) initialization						*/
+#define CFG_EBC_PB2AP		0x9C0201C0
+#define CFG_EBC_PB2CR		0x020bc000
+#endif
 
 /* Memory Bank 4 (CPLD) initialization						*/
 #define CFG_EBC_PB4AP		0x04006000
@@ -341,9 +443,9 @@
  * GPIO Setup
  *----------------------------------------------------------------------*/
 #define CFG_GPIO_CRAM_CLK	8
-#define CFG_GPIO_CRAM_WAIT	9
+#define CFG_GPIO_CRAM_WAIT	9		/* GPIO-In		*/
 #define CFG_GPIO_CRAM_ADV	10
-#define CFG_GPIO_CRAM_CRE	(32 + 21)
+#define CFG_GPIO_CRAM_CRE	(32 + 21)	/* GPIO-Out		*/
 
 /*-----------------------------------------------------------------------
  * Definitions for GPIO_0 setup (PPC405EZ specific)
@@ -365,10 +467,10 @@
  * GPIO0[28-30]	- Trace Outputs / PWM Inputs
  * GPIO0[31]	- PWM_8 I/O
  */
-#define CFG_GPIO0_TCR		0xC0000000
-#define CFG_GPIO0_OSRL		0x50000000
+#define CFG_GPIO0_TCR		0xC0A00000
+#define CFG_GPIO0_OSRL		0x50004400
 #define CFG_GPIO0_OSRH		0x02000055
-#define CFG_GPIO0_ISR1L		0x00000000
+#define CFG_GPIO0_ISR1L		0x00001000
 #define CFG_GPIO0_ISR1H		0x00000055
 #define CFG_GPIO0_TSRL		0x02000000
 #define CFG_GPIO0_TSRH		0x00000055
@@ -387,13 +489,13 @@
  * GPIO1[16]	- SPI_SS_1_N Output
  * GPIO1[17-20]	- Trace Output/External Interrupts IRQ0 - IRQ3 inputs
  */
-#define CFG_GPIO1_OSRH		0x55455555
+#define CFG_GPIO1_TCR		0xFFFF8414
 #define CFG_GPIO1_OSRL		0x40000110
-#define CFG_GPIO1_ISR1H		0x00000000
+#define CFG_GPIO1_OSRH		0x55455555
 #define CFG_GPIO1_ISR1L		0x15555445
-#define CFG_GPIO1_TSRH		0x00000000
+#define CFG_GPIO1_ISR1H		0x00000000
 #define CFG_GPIO1_TSRL		0x00000000
-#define CFG_GPIO1_TCR		0xFFFF8014
+#define CFG_GPIO1_TSRH		0x00000000
 
 /*
  * Internal Definitions
@@ -403,7 +505,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
   #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
   #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

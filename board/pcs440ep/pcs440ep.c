@@ -23,19 +23,114 @@
 
 #include <common.h>
 #include <ppc4xx.h>
+#include <malloc.h>
+#include <command.h>
+#include <crc.h>
 #include <asm/processor.h>
 #include <spd_sdram.h>
+#include <status_led.h>
+#include <sha1.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-static void set_leds(int val)
+unsigned char	sha1_checksum[SHA1_SUM_LEN];
+
+/* swap 4 Bits (Bit0 = Bit3, Bit1 = Bit2, Bit2 = Bit1 and Bit3 = Bit0) */
+unsigned char swapbits[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+			      0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
+
+static void set_leds (int val)
 {
-	unsigned char led[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-				 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
-	out32(GPIO0_OR, (in32(GPIO0_OR) & ~0x78000000) | (led[val] << 27));
+	out32(GPIO0_OR, (in32 (GPIO0_OR) & ~0x78000000) | (val << 27));
 }
+
+#define GET_LEDS ((in32 (GPIO0_OR) & 0x78000000) >> 27)
+
+void __led_init (led_id_t mask, int state)
+{
+	int	val = GET_LEDS;
+
+	if (state == STATUS_LED_ON)
+		val |= mask;
+	else
+		val &= ~mask;
+	set_leds (val);
+}
+
+void __led_set (led_id_t mask, int state)
+{
+	int	val = GET_LEDS;
+
+	if (state == STATUS_LED_ON)
+		val |= mask;
+	else if (state == STATUS_LED_OFF)
+		val &= ~mask;
+	set_leds (val);
+}
+
+void __led_toggle (led_id_t mask)
+{
+	int	val = GET_LEDS;
+
+	val ^= mask;
+	set_leds (val);
+}
+
+static void status_led_blink (void)
+{
+	int	i;
+	int	val = GET_LEDS;
+
+	/* set all LED which are on, to state BLINKING */
+	for (i = 0; i < 4; i++) {
+		if (val & 0x01) status_led_set (3 - i, STATUS_LED_BLINKING);
+		else status_led_set (3 - i, STATUS_LED_OFF);
+		val = val >> 1;
+	}
+}
+
+#if defined(CONFIG_SHOW_BOOT_PROGRESS)
+void show_boot_progress (int val)
+{
+	/* find all valid Codes for val in README */
+	if (val == -30) return;
+	if (val < 0) {
+		/* smthing goes wrong */
+		status_led_blink ();
+		return;
+	}
+	switch (val) {
+		case 1:
+			/* validating Image */
+			status_led_set (0, STATUS_LED_OFF);
+			status_led_set (1, STATUS_LED_ON);
+			status_led_set (2, STATUS_LED_ON);
+			break;
+		case 15:
+			/* booting */
+			status_led_set (0, STATUS_LED_ON);
+			status_led_set (1, STATUS_LED_ON);
+			status_led_set (2, STATUS_LED_ON);
+			break;
+#if 0
+		case 64:
+			/* starting Ethernet configuration */
+			status_led_set (0, STATUS_LED_OFF);
+			status_led_set (1, STATUS_LED_OFF);
+			status_led_set (2, STATUS_LED_ON);
+			break;
+#endif
+		case 80:
+			/* loading Image */
+			status_led_set (0, STATUS_LED_ON);
+			status_led_set (1, STATUS_LED_OFF);
+			status_led_set (2, STATUS_LED_ON);
+			break;
+	}
+}
+#endif
 
 int board_early_init_f(void)
 {
@@ -84,6 +179,266 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#define EEPROM_LEN	256
+void load_sernum_ethaddr (void)
+{
+	int	ret;
+	char	buf[EEPROM_LEN];
+	char	mac[32];
+	char	*use_eeprom;
+	u16	checksumcrc16 = 0;
+
+	/* read the MACs from EEprom */
+	status_led_set (0, STATUS_LED_ON);
+	status_led_set (1, STATUS_LED_ON);
+	ret = eeprom_read (CFG_I2C_EEPROM_ADDR, 0, (uchar *)buf, EEPROM_LEN);
+	if (ret == 0) {
+		checksumcrc16 = cyg_crc16 ((uchar *)buf, EEPROM_LEN - 2);
+		/* check, if the EEprom is programmed:
+		 * - The Prefix(Byte 0,1,2) is equal to "ATR"
+		 * - The checksum, stored in the last 2 Bytes, is correct
+		 */
+		if ((strncmp (buf,"ATR",3) != 0) ||
+		    ((checksumcrc16 >> 8) != buf[EEPROM_LEN - 2]) ||
+		    ((checksumcrc16 & 0xff) != buf[EEPROM_LEN - 1])) {
+			/* EEprom is not programmed */
+			printf("%s: EEPROM Checksum not OK\n", __FUNCTION__);
+		} else {
+			/* get the MACs */
+			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+				buf[3],
+				buf[4],
+				buf[5],
+				buf[6],
+				buf[7],
+				buf[8]);
+			setenv ("ethaddr", (char *) mac);
+			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+				buf[9],
+				buf[10],
+				buf[11],
+				buf[12],
+				buf[13],
+				buf[14]);
+			setenv ("eth1addr", (char *) mac);
+			return;
+		}
+	}
+
+	/* some error reading the EEprom */
+	if ((use_eeprom = getenv ("use_eeprom_ethaddr")) == NULL) {
+		/* dont use bootcmd */
+		setenv("bootdelay", "-1");
+		return;
+	}
+	/* == default ? use standard */
+	if (strncmp (use_eeprom, "default", 7) == 0) {
+		return;
+	}
+	/* Env doesnt exist -> hang */
+	status_led_blink ();
+	/* here we do this "handy" because we have no interrupts
+	   at this time */
+	puts ("### EEPROM ERROR ### Please RESET the board ###\n");
+	for (;;) {
+		__led_toggle (12);
+		udelay (100000);
+	}
+	return;
+}
+
+#ifdef CONFIG_PREBOOT
+
+static uchar kbd_magic_prefix[]		= "key_magic";
+static uchar kbd_command_prefix[]	= "key_cmd";
+
+struct kbd_data_t {
+	char s1;
+	char s2;
+};
+
+struct kbd_data_t* get_keys (struct kbd_data_t *kbd_data)
+{
+	char *val;
+	unsigned long tmp;
+
+	/* use the DIPs for some bootoptions */
+	val = getenv (ENV_NAME_DIP);
+	tmp = simple_strtoul (val, NULL, 16);
+
+	kbd_data->s2 = (tmp & 0x0f);
+	kbd_data->s1 = (tmp & 0xf0) >> 4;
+	return kbd_data;
+}
+
+static int compare_magic (const struct kbd_data_t *kbd_data, char *str)
+{
+	char s1 = str[0];
+
+	if (s1 >= '0' && s1 <= '9')
+		s1 -= '0';
+	else if (s1 >= 'a' && s1 <= 'f')
+		s1 = s1 - 'a' + 10;
+	else if (s1 >= 'A' && s1 <= 'F')
+		s1 = s1 - 'A' + 10;
+	else
+		return -1;
+
+	if (s1 != kbd_data->s1) return -1;
+
+	s1 = str[1];
+	if (s1 >= '0' && s1 <= '9')
+		s1 -= '0';
+	else if (s1 >= 'a' && s1 <= 'f')
+		s1 = s1 - 'a' + 10;
+	else if (s1 >= 'A' && s1 <= 'F')
+		s1 = s1 - 'A' + 10;
+	else
+		return -1;
+
+	if (s1 != kbd_data->s2) return -1;
+	return 0;
+}
+
+static char *key_match (const struct kbd_data_t *kbd_data)
+{
+	char magic[sizeof (kbd_magic_prefix) + 1];
+	char *suffix;
+	char *kbd_magic_keys;
+
+	/*
+	 * The following string defines the characters that can be appended
+	 * to "key_magic" to form the names of environment variables that
+	 * hold "magic" key codes, i. e. such key codes that can cause
+	 * pre-boot actions. If the string is empty (""), then only
+	 * "key_magic" is checked (old behaviour); the string "125" causes
+	 * checks for "key_magic1", "key_magic2" and "key_magic5", etc.
+	 */
+	if ((kbd_magic_keys = getenv ("magic_keys")) == NULL)
+		kbd_magic_keys = "";
+
+	/* loop over all magic keys;
+	 * use '\0' suffix in case of empty string
+	 */
+	for (suffix = kbd_magic_keys; *suffix ||
+		     suffix == kbd_magic_keys; ++suffix) {
+		sprintf (magic, "%s%c", kbd_magic_prefix, *suffix);
+		if (compare_magic (kbd_data, getenv (magic)) == 0) {
+			char cmd_name[sizeof (kbd_command_prefix) + 1];
+			char *cmd;
+
+			sprintf (cmd_name, "%s%c", kbd_command_prefix, *suffix);
+			cmd = getenv (cmd_name);
+
+			return (cmd);
+		}
+	}
+	return (NULL);
+}
+
+#endif /* CONFIG_PREBOOT */
+
+static int pcs440ep_readinputs (void)
+{
+	int	i;
+	char	value[20];
+
+	/* read the inputs and set the Envvars */
+	/* Revision Level Bit 26 - 29 */
+	i = ((in32 (GPIO0_IR) & 0x0000003c) >> 2);
+	i = swapbits[i];
+	sprintf (value, "%02x", i);
+	setenv (ENV_NAME_REVLEV, value);
+	/* Solder Switch Bit 30 - 33 */
+	i = (in32 (GPIO0_IR) & 0x00000003) << 2;
+	i += (in32 (GPIO1_IR) & 0xc0000000) >> 30;
+	i = swapbits[i];
+	sprintf (value, "%02x", i);
+	setenv (ENV_NAME_SOLDER, value);
+	/* DIP Switch Bit 49 - 56 */
+	i = ((in32 (GPIO1_IR) & 0x00007f80) >> 7);
+	i = (swapbits[i & 0x0f] << 4) + swapbits[(i & 0xf0) >> 4];
+	sprintf (value, "%02x", i);
+	setenv (ENV_NAME_DIP, value);
+	return 0;
+}
+
+
+#if defined(CONFIG_SHA1_CHECK_UB_IMG)
+/*************************************************************************
+ * calculate a SHA1 sum for the U-Boot image in Flash.
+ *
+ ************************************************************************/
+static int pcs440ep_sha1 (int docheck)
+{
+	unsigned char *data;
+	unsigned char *ptroff;
+	unsigned char output[20];
+	unsigned char org[20];
+	int	i, len = CONFIG_SHA1_LEN;
+
+	memcpy ((char *)CFG_LOAD_ADDR, (char *)CONFIG_SHA1_START, len);
+	data = (unsigned char *)CFG_LOAD_ADDR;
+	ptroff = &data[len + SHA1_SUM_POS];
+
+	for (i = 0; i < SHA1_SUM_LEN; i++) {
+		org[i] = ptroff[i];
+		ptroff[i] = 0;
+	}
+
+	sha1_csum ((unsigned char *) data, len, (unsigned char *)output);
+
+	if (docheck == 2) {
+		for (i = 0; i < 20 ; i++) {
+			printf("%02X ", output[i]);
+		}
+		printf("\n");
+	}
+	if (docheck == 1) {
+		for (i = 0; i < 20 ; i++) {
+			if (org[i] != output[i]) return 1;
+		}
+	}
+	return 0;
+}
+
+/*************************************************************************
+ * do some checks after the SHA1 checksum from the U-Boot Image was
+ * calculated.
+ *
+ ************************************************************************/
+static void pcs440ep_checksha1 (void)
+{
+	int	ret;
+	char	*cs_test;
+
+	status_led_set (0, STATUS_LED_OFF);
+	status_led_set (1, STATUS_LED_OFF);
+	status_led_set (2, STATUS_LED_ON);
+	ret = pcs440ep_sha1 (1);
+	if (ret == 0) return;
+
+	if ((cs_test = getenv ("cs_test")) == NULL) {
+		/* Env doesnt exist -> hang */
+		status_led_blink ();
+		/* here we do this "handy" because we have no interrupts
+		   at this time */
+		puts ("### SHA1 ERROR ### Please RESET the board ###\n");
+		for (;;) {
+			__led_toggle (2);
+			udelay (100000);
+		}
+	}
+
+	if (strncmp (cs_test, "off", 3) == 0) {
+		printf ("SHA1 U-Boot sum NOT ok!\n");
+		setenv ("bootdelay", "-1");
+	}
+}
+#else
+static __inline__ void pcs440ep_checksha1 (void) { do {} while (0);}
+#endif
 
 int misc_init_r (void)
 {
@@ -139,6 +494,18 @@ int misc_init_r (void)
 			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
 			    &flash_info[1]);
 
+	pcs440ep_readinputs ();
+	pcs440ep_checksha1 ();
+#ifdef CONFIG_PREBOOT
+	{
+		struct kbd_data_t kbd_data;
+		/* Decode keys */
+		char *str = strdup (key_match (get_keys (&kbd_data)));
+		/* Set or delete definition */
+		setenv ("preboot", str);
+		free (str);
+	}
+#endif /* CONFIG_PREBOOT */
 	return 0;
 }
 
@@ -156,13 +523,31 @@ int checkboard(void)
 	return (0);
 }
 
+void spd_ddr_init_hang (void)
+{
+	status_led_set (0, STATUS_LED_OFF);
+	status_led_set (1, STATUS_LED_ON);
+	/* we cannot use hang() because we are still running from
+	   Flash, and so the status_led driver is not initialized */
+	puts ("### SDRAM ERROR ### Please RESET the board ###\n");
+	for (;;) {
+		__led_toggle (4);
+		udelay (100000);
+	}
+}
+
 long int initdram (int board_type)
 {
 	long dram_size = 0;
 
-	set_leds(1);			/* display boot info counter */
+	status_led_set (0, STATUS_LED_ON);
+	status_led_set (1, STATUS_LED_OFF);
 	dram_size = spd_sdram();
-	set_leds(2);			/* display boot info counter */
+	status_led_set (0, STATUS_LED_OFF);
+	status_led_set (1, STATUS_LED_ON);
+	if (dram_size == 0) {
+		hang();
+	}
 
 	return dram_size;
 }
@@ -217,7 +602,7 @@ int testdram(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long addr;
@@ -258,7 +643,7 @@ int pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif	/* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
@@ -377,3 +762,132 @@ void hw_watchdog_reset(void)
 
 }
 #endif
+
+/*************************************************************************
+ * "led" Commando for the U-Boot shell
+ *
+ ************************************************************************/
+int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int	rcode = 0, i;
+	ulong	pattern = 0;
+
+	pattern = simple_strtoul (argv[1], NULL, 16);
+	if (pattern > 0x400) {
+		int	val = GET_LEDS;
+		printf ("led: %x\n", val);
+		return rcode;
+	}
+	if (pattern > 0x200) {
+		status_led_blink ();
+		hang ();
+		return rcode;
+	}
+	if (pattern > 0x100) {
+		status_led_blink ();
+		return rcode;
+	}
+	pattern &= 0x0f;
+	for (i = 0; i < 4; i++) {
+		if (pattern & 0x01) status_led_set (i, STATUS_LED_ON);
+		else status_led_set (i, STATUS_LED_OFF);
+		pattern = pattern >> 1;
+	}
+	return rcode;
+}
+
+U_BOOT_CMD(
+ 	led,	2,	1,	do_led,
+ 	"led [bitmask]   - set the DIAG-LED\n",
+	"[bitmask] 0x01 = DIAG 1 on\n"
+	"              0x02 = DIAG 2 on\n"
+	"              0x04 = DIAG 3 on\n"
+	"              0x08 = DIAG 4 on\n"
+	"              > 0x100 set the LED, who are on, to state blinking\n"
+);
+
+#if defined(CONFIG_SHA1_CHECK_UB_IMG)
+/*************************************************************************
+ * "sha1" Commando for the U-Boot shell
+ *
+ ************************************************************************/
+int do_sha1 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int	rcode = -1;
+
+	if (argc < 2) {
+  usage:
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if (argc >= 3) {
+		unsigned char *data;
+		unsigned char output[20];
+		int	len;
+		int	i;
+
+		data = (unsigned char *)simple_strtoul (argv[1], NULL, 16);
+		len = simple_strtoul (argv[2], NULL, 16);
+		sha1_csum (data, len, (unsigned char *)output);
+		printf ("U-Boot sum:\n");
+		for (i = 0; i < 20 ; i++) {
+			printf ("%02X ", output[i]);
+		}
+		printf ("\n");
+		if (argc == 4) {
+			data = (unsigned char *)simple_strtoul (argv[3], NULL, 16);
+			memcpy (data, output, 20);
+		}
+		return 0;
+	}
+	if (argc == 2) {
+		char *ptr = argv[1];
+		if (*ptr != '-') goto usage;
+		ptr++;
+		if ((*ptr == 'c') || (*ptr == 'C')) {
+			rcode = pcs440ep_sha1 (1);
+			printf ("SHA1 U-Boot sum %sok!\n", (rcode != 0) ? "not " : "");
+		} else if ((*ptr == 'p') || (*ptr == 'P')) {
+			rcode = pcs440ep_sha1 (2);
+		} else {
+			rcode = pcs440ep_sha1 (0);
+		}
+		return rcode;
+	}
+	return rcode;
+}
+
+U_BOOT_CMD(
+ 	sha1,	4,	1,	do_sha1,
+ 	"sha1    - calculate the SHA1 Sum\n",
+	"address len [addr]  calculate the SHA1 sum [save at addr]\n"
+	"     -p calculate the SHA1 sum from the U-Boot image in flash and print\n"
+	"     -c check the U-Boot image in flash\n"
+);
+#endif
+
+#ifdef CONFIG_IDE_PREINIT
+int ide_preinit (void)
+{
+	/* Set True IDE Mode */
+	out32 (GPIO0_OR, (in32 (GPIO0_OR) | 0x00100000));
+	out32 (GPIO0_OR, (in32 (GPIO0_OR) | 0x00200000));
+	out32 (GPIO1_OR, (in32 (GPIO1_OR) & ~0x00008040));
+	udelay (100000);
+	return 0;
+}
+#endif
+
+#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+void ide_set_reset (int idereset)
+{
+	debug ("ide_reset(%d)\n", idereset);
+	if (idereset == 0) {
+		out32 (GPIO0_OR, (in32 (GPIO0_OR) | 0x00200000));
+	} else {
+		out32 (GPIO0_OR, (in32 (GPIO0_OR) & ~0x00200000));
+	}
+	udelay (10000);
+}
+#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */

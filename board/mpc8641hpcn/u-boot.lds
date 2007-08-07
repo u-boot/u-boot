@@ -1,7 +1,5 @@
 /*
- * (C) Copyright 2004, Freescale, Inc.
- * (C) Copyright 2002,2003, Motorola,Inc.
- * Jeff Brown
+ * Copyright 2006, 2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,24 +21,11 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
+
 SECTIONS
 {
-  .resetvec 0xFFF00100 :
-  {
-    *(.resetvec)
-  } = 0xffff
-
-  .bootpg 0xFFF70000 :
-  {
-    cpu/mpc86xx/start.o	(.bootpg)
-    board/mpc8641hpcn/init.o (.bootpg)
-  } = 0xffff
 
   /* Read-only sections, merged into text segment: */
-  . = + 1024;
   .interp : { *(.interp) }
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
@@ -66,17 +51,17 @@ SECTIONS
   .text      :
   {
     cpu/mpc86xx/start.o	(.text)
-    board/mpc8641hpcn/init.o (.text)
+    board/mpc8641hpcn/init.o (.bootpg)
     cpu/mpc86xx/traps.o (.text)
     cpu/mpc86xx/interrupts.o (.text)
     cpu/mpc86xx/cpu_init.o (.text)
     cpu/mpc86xx/cpu.o (.text)
     cpu/mpc86xx/speed.o (.text)
-    cpu/mpc86xx/pci.o (.text)
     common/dlmalloc.o (.text)
     lib_generic/crc32.o (.text)
     lib_ppc/extable.o (.text)
     lib_generic/zlib.o (.text)
+    drivers/bios_emulator/atibios.o (.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -88,6 +73,7 @@ SECTIONS
     *(.rodata)
     *(.rodata1)
     *(.rodata.str1.4)
+    *(.eh_frame)
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }

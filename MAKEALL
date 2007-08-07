@@ -35,12 +35,20 @@ LIST_5xx="	\
 #########################################################################
 
 LIST_5xxx="	\
-	BC3450		cpci5200	EVAL5200	fo300		\
-	icecube_5100	icecube_5200	lite5200b	mcc200		\
-	mecp5200	motionpro	o2dnt		pf5200		\
-	PM520		TB5200		Total5100	Total5200	\
-	Total5200_Rev2	TQM5200		TQM5200_B	TQM5200S	\
-	v38b								\
+	BC3450		cm5200		cpci5200	EVAL5200	\
+	fo300		icecube_5100	icecube_5200	lite5200b	\
+	mcc200		mecp5200	motionpro	o2dnt		\
+	pf5200		PM520		TB5200		Total5100	\
+	Total5200	Total5200_Rev2	TQM5200		TQM5200_B	\
+	TQM5200S	v38b						\
+"
+
+#########################################################################
+## MPC512x Systems
+#########################################################################
+
+LIST_512x="	\
+	ads5121							\
 "
 
 #########################################################################
@@ -75,22 +83,23 @@ LIST_8xx="	\
 #########################################################################
 
 LIST_4xx="	\
-	acadia		ADCIOP		alpr		AP1000		\
-	AR405		ASH405		bamboo		bamboo_nand	\
-	bubinga		CANBT		CMS700		CPCI2DP		\
-	CPCI405		CPCI4052	CPCI405AB	CPCI405DT	\
-	CPCI440		CPCIISER4	CRAYL1		csb272		\
-	csb472		DASA_SIM	DP405		DU405		\
-	ebony		ERIC		EXBITGEN	G2000		\
-	HH405		HUB405		JSE		KAREF		\
-	katmai		luan		METROBOX	MIP405		\
-	MIP405T		ML2		ml300		ocotea		\
-	OCRTC		ORSG		p3p440		PCI405		\
-	pcs440ep	PIP405		PLU405		PMC405		\
-	PPChameleonEVB	sbc405		sc3		sequoia		\
-	sequoia_nand	taishan		VOH405		VOM405		\
-	W7OLMC		W7OLMG		walnut		WUH405		\
-	XPEDITE1K	yellowstone	yosemite	yucca		\
+	acadia		acadia_nand	ADCIOP		alpr		\
+	AP1000		AR405		ASH405		bamboo		\
+	bamboo_nand	bubinga		CANBT		CMS700		\
+	CPCI2DP		CPCI405		CPCI4052	CPCI405AB	\
+	CPCI405DT	CPCI440		CPCIISER4	CRAYL1		\
+	csb272		csb472		DASA_SIM	DP405		\
+	DU405		ebony		ERIC		EXBITGEN	\
+	G2000		HH405		HUB405		JSE		\
+	KAREF		katmai		luan		lwmon5		\
+	METROBOX	MIP405		MIP405T		ML2		\
+	ml300		ocotea		OCRTC		ORSG		\
+	p3p440		PCI405		pcs440ep	PIP405		\
+	PLU405		PMC405		PPChameleonEVB	sbc405		\
+	sc3		sequoia		sequoia_nand	taishan		\
+	VOH405		VOM405		W7OLMC		W7OLMG		\
+	walnut		WUH405		XPEDITE1K	yellowstone	\
+	yosemite	yucca						\
 "
 
 #########################################################################
@@ -132,8 +141,9 @@ LIST_8260="	\
 #########################################################################
 
 LIST_83xx="	\
-	MPC8313ERDB	MPC832XEMDS	MPC8349EMDS	MPC8349ITX	\
-	MPC8349ITXGP	MPC8360EMDS	sbc8349		TQM834x		\
+	MPC8313ERDB_33	MPC8313ERDB_66	MPC832XEMDS	MPC8349EMDS	\
+	MPC8349ITX	MPC8349ITXGP	MPC8360EMDS	sbc8349		\
+	TQM834x								\
 "
 
 
@@ -143,10 +153,18 @@ LIST_83xx="	\
 
 LIST_85xx="	\
 	MPC8540ADS	MPC8540EVAL	MPC8541CDS	MPC8544DS	\
-	MPC8548CDS	MPC8555CDS	MPC8560ADS	PM854		\
-	PM856		sbc8540		sbc8560		stxgp3		\
-	stxssa		TQM8540		TQM8541		TQM8555		\
-	TQM8560								\
+	MPC8548CDS	MPC8555CDS	MPC8560ADS	MPC8568MDS	\
+	PM854		PM856		sbc8540		sbc8560		\
+	stxgp3		stxssa		TQM8540		TQM8541		\
+	TQM8555		TQM8560						\
+"
+
+#########################################################################
+## MPC86xx Systems
+#########################################################################
+
+LIST_86xx="	\
+    MPC8641HPCN	\
 "
 
 #########################################################################
@@ -169,6 +187,7 @@ LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
 	  ${LIST_8220} ${LIST_824x} ${LIST_8260} \
 	  ${LIST_83xx}				\
 	  ${LIST_85xx}				\
+	  ${LIST_86xx}				\
 	  ${LIST_4xx}				\
 	  ${LIST_74xx} ${LIST_7xx}"
 
@@ -185,7 +204,7 @@ LIST_SA="assabet dnp1110 gcplus lart shannon"
 LIST_ARM7="	\
 	armadillo	B2		ep7312		evb4510		\
 	impa7		integratorap	ap7		ap720t		\
-	lpc2292sodimm	modnet50					\
+	lpc2292sodimm	modnet50	SMN42				\
 "
 
 #########################################################################
@@ -355,7 +374,7 @@ do
 	microblaze| \
 	mips|mips_el| \
 	nios|nios2| \
-	ppc|5xx|5xxx|8xx|8220|824x|8260|83xx|85xx|4xx|7xx|74xx| \
+	ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
 	x86|I486)
 			for target in `eval echo '$LIST_'${arg}`
 			do

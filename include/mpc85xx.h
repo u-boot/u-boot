@@ -8,6 +8,7 @@
 #define __MPC85xx_H__
 
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset	*/
+#define	_START_OFFSET		EXC_OFF_SYS_RESET
 
 #if defined(CONFIG_E500)
 #include <e500.h>

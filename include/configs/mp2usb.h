@@ -129,36 +129,52 @@
 
 #define CONFIG_BOOTDELAY      3
 
-#ifdef CONFIG_HARD_I2C
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP	| \
-			CFG_CMD_EEPROM	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP	| \
-			CFG_CMD_MISC))
-#else
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP	| \
-			CFG_CMD_USB      | \
-			CFG_CMD_CACHE)	& \
-		      ~(CFG_CMD_BDI | \
-			CFG_CMD_IMI | \
-			CFG_CMD_AUTOSCRIPT | \
-			CFG_CMD_FPGA | \
-			CFG_CMD_MISC | \
-			CFG_CMD_LOADS ))
+#if !defined(CONFIG_HARD_I2C)
 #define CONFIG_TIMESTAMP
 #endif
-#define CFG_LONGHELP
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
+#if defined(CONFIG_HARD_I2C)
+
+    #define CONFIG_CMD_DATE
+    #define CONFIG_CMD_EEPROM
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_MISC
+
+#else
+
+    #define CONFIG_CMD_USB
+    #define CONFIG_CMD_CACHE
+
+    #undef CONFIG_CMD_AUTOSCRIPT
+    #undef CONFIG_CMD_BDI
+    #undef CONFIG_CMD_FPGA
+    #undef CONFIG_CMD_IMI
+    #undef CONFIG_CMD_LOADS
+    #undef CONFIG_CMD_MISC
+
+#endif
+
+
+#define CFG_LONGHELP
 
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000

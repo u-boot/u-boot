@@ -68,7 +68,7 @@ int mac_show(void)
 	       mac_data.date[5],
 	       mac_data.date[6]);
 	for (i = 0; i < 8; i++) {
-		sprintf(ethaddr[i],
+		sprintf((char *)ethaddr[i],
 			"%02x:%02x:%02x:%02x:%02x:%02x",
 			mac_data.mac[i][0],
 			mac_data.mac[i][1],
@@ -79,10 +79,10 @@ int mac_show(void)
 		printf("MAC %d %s\n", i, ethaddr[i]);
 	}
 
-	setenv("ethaddr", ethaddr[0]);
-	setenv("eth1addr", ethaddr[1]);
-	setenv("eth2addr", ethaddr[2]);
-	setenv("eth3addr", ethaddr[3]);
+	setenv("ethaddr",  (char *)ethaddr[0]);
+	setenv("eth1addr", (char *)ethaddr[1]);
+	setenv("eth2addr", (char *)ethaddr[2]);
+	setenv("eth3addr", (char *)ethaddr[3]);
 
 	return 0;
 }
@@ -236,7 +236,7 @@ int mac_read_from_eeprom(void)
 	} else {
 		for (i = 0; i < 4; i++) {
 			if (memcmp(&mac_data.mac[i], "\0\0\0\0\0\0", 6)) {
-				sprintf(ethaddr[i],
+				sprintf((char *)ethaddr[i],
 					"%02x:%02x:%02x:%02x:%02x:%02x",
 					mac_data.mac[i][0],
 					mac_data.mac[i][1],
@@ -244,10 +244,10 @@ int mac_read_from_eeprom(void)
 					mac_data.mac[i][3],
 					mac_data.mac[i][4],
 					mac_data.mac[i][5]);
-				sprintf(enetvar,
+				sprintf((char *)enetvar,
 					i ? "eth%daddr" : "ethaddr",
 					i);
-				setenv(enetvar, ethaddr[i]);
+				setenv((char *)enetvar, (char *)ethaddr[i]);
 			}
 		}
 	}

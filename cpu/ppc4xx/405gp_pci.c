@@ -77,11 +77,21 @@
 #include <asm/processor.h>
 #include <pci.h>
 
+#ifdef CONFIG_PCI
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+/*
+ * Board-specific pci initialization
+ * Platform code can reimplement pci_pre_init() if needed
+ */
+int __pci_pre_init(struct pci_controller *hose)
+{
+	return 1;
+}
+int pci_pre_init(struct pci_controller *hose) __attribute__((weak, alias("__pci_pre_init")));
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
 #if defined(CONFIG_PMC405)
 ushort pmc405_pci_subsys_deviceid(void);
@@ -190,6 +200,13 @@ void pci_405gp_init(struct pci_controller *hose)
 
 	if (hose->pci_fb)
 		pciauto_region_init(hose->pci_fb);
+
+	/* Let board change/modify hose & do initial checks */
+	if (pci_pre_init (hose) == 0) {
+		printf("PCI: Board-specific initialization failed.\n");
+		printf("PCI: Configuration aborted.\n");
+		return;
+	}
 
 	pci_register_hose(hose);
 
@@ -380,7 +397,7 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
 }
 
-#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405)) && !(defined (CONFIG_SOLIDCARD3))
+#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405)) && !(defined (CONFIG_SC3))
 
 /*
  *As is these functs get called out of flash Not a horrible
@@ -416,14 +433,12 @@ void pci_init_board(void)
 
 #endif
 
-#endif /* CONFIG_PCI */
-
 #endif /* CONFIG_405GP */
 
 /*-----------------------------------------------------------------------------+
  * CONFIG_440
  *-----------------------------------------------------------------------------*/
-#if defined(CONFIG_440) && defined(CONFIG_PCI)
+#if defined(CONFIG_440)
 
 static struct pci_controller ppc440_hose = {0};
 
@@ -496,14 +511,12 @@ void pci_440_init (struct pci_controller *hose)
 
 	pci_setup_indirect(hose, PCIX0_CFGADR, PCIX0_CFGDATA);
 
-#if defined(CFG_PCI_PRE_INIT)
 	/* Let board change/modify hose & do initial checks */
 	if (pci_pre_init (hose) == 0) {
 		printf("PCI: Board-specific initialization failed.\n");
 		printf("PCI: Configuration aborted.\n");
 		return;
 	}
-#endif
 
 	pci_register_hose( hose );
 
@@ -575,4 +588,5 @@ void pci_init_board(void)
 #endif
 }
 
-#endif /* CONFIG_440 & CONFIG_PCI */
+#endif /* CONFIG_440 */
+#endif /* CONFIG_PCI */

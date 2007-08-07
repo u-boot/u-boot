@@ -33,6 +33,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_CPCI440		1	    /* Board is ebony		*/
 #define CONFIG_440GP		1	    /* Specifc GP support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
@@ -171,29 +172,27 @@
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
-#if 0 /* test-only */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_KGDB	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_BEDBUG	| \
-				CFG_CMD_ELF	)
-#else
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_EEPROM	)
-/* test-only: support fehlt bisher... */
-/*				CFG_CMD_IDE	| \*/
-/*				CFG_CMD_PCI	| \*/
-#endif
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -204,7 +203,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -268,7 +267,7 @@
  */
 #define CFG_DCACHE_SIZE		32768	/* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -290,7 +289,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

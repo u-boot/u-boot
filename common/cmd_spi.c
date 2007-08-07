@@ -29,7 +29,7 @@
 #include <command.h>
 #include <spi.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_SPI)
+#if defined(CONFIG_CMD_SPI)
 
 /*-----------------------------------------------------------------------
  * Definitions
@@ -140,4 +140,4 @@ U_BOOT_CMD(
 	"<dout>    - Hexadecimal string that gets sent\n"
 );
 
-#endif	/* CFG_CMD_SPI */
+#endif

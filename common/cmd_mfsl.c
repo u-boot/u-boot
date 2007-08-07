@@ -30,7 +30,7 @@
 #include <config.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MFSL)
+#if defined(CONFIG_CMD_MFSL)
 #include <asm/asm.h>
 
 int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -414,4 +414,4 @@ U_BOOT_CMD (rspr, 3, 1, do_rspr,
 		" 1 - EAR - Exception address register\n"
 		" 2 - ESR - Exception status register\n");
 
-#endif				/* CONFIG_MICROBLAZE & CFG_CMD_MFSL */
+#endif

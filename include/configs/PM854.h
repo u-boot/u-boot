@@ -262,10 +262,10 @@
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
-#define CONFIG_MPC85XX_TSEC1	1
-#define CONFIG_MPC85XX_TSEC1_NAME	"TSEC0"
-#define CONFIG_MPC85XX_TSEC2	1
-#define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
+#define CONFIG_TSEC1	1
+#define CONFIG_TSEC1_NAME	"TSEC0"
+#define CONFIG_TSEC2	1
+#define CONFIG_TSEC2_NAME	"TSEC1"
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
@@ -303,43 +303,36 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_PCI		\
-				 | CFG_CMD_I2C)		\
-				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_LOADS))
-  #else
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C)		\
-				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_LOADS))
-  #endif
-#else
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_EEPROM	\
-				| CFG_CMD_DATE		\
-				| CFG_CMD_MII		\
-				| CFG_CMD_PCI		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #else
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_EEPROM	\
-				| CFG_CMD_DATE		\
-				| CFG_CMD_MII		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #endif
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_EEPROM
+
+#if defined(CONFIG_PCI)
+    #define CONFIG_CMD_PCI
 #endif
 
-#include <cmd_confdefs.h>
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#endif
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -350,7 +343,7 @@
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
     #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
     #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -372,7 +365,7 @@
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -384,7 +377,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

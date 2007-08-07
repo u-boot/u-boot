@@ -31,9 +31,9 @@
 #include <dataflash.h>
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH)
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 #include <jffs2/jffs2.h>
 
 /* parition handling routines */
@@ -311,7 +311,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	ulong bank, addr_first, addr_last;
 	int n, sect_first, sect_last;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 dev_type, dev_num, pnum;
@@ -343,7 +343,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return rcode;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	/* erase <part-id> - erase partition */
 	if ((argc == 2) && (id_parse(argv[1], NULL, &dev_type, &dev_num) == 0)) {
 		mtdparts_init();
@@ -447,7 +447,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	ulong bank, addr_first, addr_last;
 	int i, p, n, sect_first, sect_last;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 dev_type, dev_num, pnum;
@@ -539,7 +539,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return rcode;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	/* protect on/off <part-id> */
 	if ((argc == 3) && (id_parse(argv[2], NULL, &dev_type, &dev_num) == 0)) {
 		mtdparts_init();
@@ -672,7 +672,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 
 /**************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 # define TMP_ERASE	"erase <part-id>\n    - erase partition\n"
 # define TMP_PROT_ON	"protect on <part-id>\n    - protect partition\n"
 # define TMP_PROT_OFF	"protect off <part-id>\n    - make partition writable\n"
@@ -690,7 +690,7 @@ U_BOOT_CMD(
 );
 
 U_BOOT_CMD(
-	erase,   3,   1,  do_flerase,
+	erase,   3,   0,  do_flerase,
 	"erase   - erase FLASH memory\n",
 	"start end\n"
 	"    - erase FLASH from addr 'start' to addr 'end'\n"
@@ -704,7 +704,7 @@ U_BOOT_CMD(
 );
 
 U_BOOT_CMD(
-	protect,  4,  1,   do_protect,
+	protect,  4,  0,   do_protect,
 	"protect - enable or disable FLASH write protection\n",
 	"on  start end\n"
 	"    - protect FLASH from addr 'start' to addr 'end'\n"
@@ -732,4 +732,4 @@ U_BOOT_CMD(
 #undef	TMP_PROT_ON
 #undef	TMP_PROT_OFF
 
-#endif	/* CFG_CMD_FLASH */
+#endif

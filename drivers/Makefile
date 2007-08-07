@@ -27,12 +27,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libdrivers.a
 
-COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
+COBJS	= 3c589.o 5701rls.o ali512x.o ata_piix.o atmel_usart.o \
 	  bcm570x.o bcm570x_autoneg.o cfb_console.o cfi_flash.o \
 	  cs8900.o ct69000.o dataflash.o dc2114x.o dm9000x.o \
-	  e1000.o eepro100.o \
+	  e1000.o eepro100.o enc28j60.o \
 	  i8042.o inca-ip_sw.o isp116x-hcd.o keyboard.o \
-	  lan91c96.o macb.o\
+	  lan91c96.o macb.o \
 	  natsemi.o ne2000.o netarm_eth.o netconsole.o \
 	  ns16550.o ns8382x.o ns87308.o ns7520_eth.o omap1510_i2c.o \
 	  omap24xx_i2c.o pci.o pci_auto.o pci_indirect.o \
@@ -54,7 +54,7 @@ COBJS	= 3c589.o 5701rls.o ali512x.o atmel_usart.o \
 	  ks8695eth.o \
 	  pxa_pcmcia.o mpc8xx_pcmcia.o tqm8xx_pcmcia.o	\
 	  rpx_pcmcia.o \
-	  fsl_i2c.o
+	  fsl_i2c.o fsl_pci_init.o ati_radeon_fb.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

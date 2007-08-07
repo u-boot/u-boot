@@ -71,7 +71,7 @@ static __inline__ void set_dec(unsigned long val)
 }
 
 /* interrupt is not supported yet */
-int interrupt_init_cpu(unsigned *decrementer_count)
+int interrupt_init_cpu(unsigned long *decrementer_count)
 {
 	return 0;
 }
@@ -107,7 +107,7 @@ int interrupt_init(void)
 		return ret;
 
 	decrementer_count = get_tbclk() / CFG_HZ;
-	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %d\n",
+	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %ld\n",
 	      (get_tbclk() / 1000000),
 	      decrementer_count);
 
@@ -158,7 +158,7 @@ void timer_interrupt(struct pt_regs *regs)
 
 	timestamp++;
 
-	ppcDcbf(&timestamp);
+	ppcDcbf((unsigned long)&timestamp);
 
 	/* Restore Decrementer Count */
 	set_dec(decrementer_count);

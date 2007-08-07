@@ -67,8 +67,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC   */
 #define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
@@ -95,7 +94,14 @@
 #define CONFIG_8260_CLKIN	66666666	/* in Hz */
 #define CONFIG_BAUDRATE		19200
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
  * select i2c support configuration
@@ -124,17 +130,18 @@
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 #endif /* CONFIG_SOFT_I2C */
 
-#define CONFIG_COMMANDS		CONFIG_CMD_DFL
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"bootm 100000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/ram rw"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -149,7 +156,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -257,7 +264,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32     /* For MPC8260 CPU		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5      /* log base 2 of the above value */
 #endif
 

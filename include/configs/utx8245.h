@@ -86,18 +86,36 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_COMMANDS		(CFG_CMD_DFL | CFG_CMD_BDI | CFG_CMD_PCI \
-								| CFG_CMD_FLASH | CFG_CMD_MEMORY \
-								| CFG_CMD_ENV | CFG_CMD_CONSOLE \
-								| CFG_CMD_LOADS | CFG_CMD_LOADB \
-								| CFG_CMD_IMI | CFG_CMD_CACHE \
-								| CFG_CMD_REGINFO | CFG_CMD_NET\
-								| CFG_CMD_DHCP | CFG_CMD_I2C \
-								| CFG_CMD_DATE)
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
+/*
+ * BOOTP options
  */
-#include <cmd_confdefs.h>
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DATE
 
 
 /*
@@ -403,7 +421,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

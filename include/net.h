@@ -296,7 +296,7 @@ typedef struct icmphdr {
 extern IPaddr_t		NetOurGatewayIP;	/* Our gateway IP addresse	*/
 extern IPaddr_t		NetOurSubnetMask;	/* Our subnet mask (0 = unknown)*/
 extern IPaddr_t		NetOurDNSIP;	 /* Our Domain Name Server (0 = unknown)*/
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+#if defined(CONFIG_BOOTP_DNS2)
 extern IPaddr_t		NetOurDNS2IP;	 /* Our 2nd Domain Name Server (0 = unknown)*/
 #endif
 extern char		NetOurNISDomain[32];	/* Our NIS domain		*/
@@ -341,17 +341,17 @@ typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if defined(CONFIG_CMD_PING)
 extern IPaddr_t	NetPingIP;			/* the ip address to ping 		*/
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if defined(CONFIG_CMD_CDP)
 /* when CDP completes these hold the return values */
 extern ushort CDPNativeVLAN;
 extern ushort CDPApplianceVLAN;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if defined(CONFIG_CMD_SNTP)
 extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP 	*/
 extern int NetTimeOffset;			/* offset time from UTC		*/
 #endif

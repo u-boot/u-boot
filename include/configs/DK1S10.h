@@ -454,47 +454,55 @@
 
 #endif	/* CFG_NIOS_CPU_PIO_NUMS */
 
-/*------------------------------------------------------------------------
- * COMMANDS
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_CACHE	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_FAT	| \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_IDE	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_NFS	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_MII	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_SPI	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_XIMG	) )
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
+
+#undef CONFIG_CMD_ASKENV
+#undef COND_CMD_BEDBUG
+#undef COND_CMD_BMP
+#undef COND_CMD_BSP
+#undef COND_CMD_CACHE
+#undef COND_CMD_DATE
+#undef COND_CMD_DOC
+#undef COND_CMD_DTT
+#undef COND_CMD_EEPROM
+#undef COND_CMD_ELF
+#undef COND_CMD_FAT
+#undef COND_CMD_FDC
+#undef COND_CMD_FDOS
+#undef COND_CMD_HWFLOW
+#undef COND_CMD_IDE
+#undef COND_CMD_I2C
+#undef COND_CMD_JFFS2
+#undef COND_CMD_KGDB
+#undef COND_CMD_NAND
+#undef COND_CMD_NFS
+#undef COND_CMD_MMC
+#undef COND_CMD_MII
+#undef COND_CMD_PCI
+#undef COND_CMD_PCMCIA
+#undef COND_CMD_SCSI
+#undef COND_CMD_SPI
+#undef COND_CMD_VFD
+#undef COND_CMD_USB
+#undef COND_CMD_XIMG
+
 
 /*------------------------------------------------------------------------
  * KGDB
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	9600
 #endif
 

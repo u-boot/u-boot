@@ -45,12 +45,14 @@ typedef enum gpio_driver { GPIO_DIS, GPIO_IN, GPIO_OUT, GPIO_BI } gpio_driver_t;
 typedef enum gpio_out	 { GPIO_OUT_0, GPIO_OUT_1, GPIO_OUT_NO_CHG } gpio_out_t;
 
 typedef struct {
-	unsigned long add;	/* gpio core base address	*/
-	gpio_driver_t in_out;	/* Driver Setting		*/
-	gpio_select_t alt_nb;	/* Selected Alternate		*/
+	unsigned long	add;	/* gpio core base address	*/
+	gpio_driver_t	in_out;	/* Driver Setting		*/
+	gpio_select_t	alt_nb;	/* Selected Alternate		*/
+	gpio_out_t	out_val;/* Default Output Value		*/
 } gpio_param_s;
 #endif
 
 void gpio_config(int pin, int in_out, int gpio_alt, int out_val);
 void gpio_write_bit(int pin, int val);
+int gpio_read_out_bit(int pin);
 void gpio_set_chip_configuration(void);
