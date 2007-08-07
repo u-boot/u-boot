@@ -25,7 +25,7 @@
 
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_EXT2)
+#if defined(CONFIG_CMD_EXT2)
 
 #include <config.h>
 #include <ext2fs.h>
@@ -123,4 +123,4 @@ int ext2fs_devread (int sector, int byte_offset, int byte_len, char *buf) {
 	}
 	return (1);
 }
-#endif /* CFG_CMD_EXT2FS */
+#endif

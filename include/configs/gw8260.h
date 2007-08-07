@@ -194,8 +194,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 
 #undef  CONFIG_ETHER_ON_SCC
@@ -286,13 +285,16 @@
 #undef  CONFIG_AUTOBOOT_DELAY_STR
 #define DEBUG_BOOTKEYS      0
 
-/* Add support for a few extra bootp options like:
- *  - File size
- *  - DNS
+/*
+ * BOOTP options
  */
-#define CONFIG_BOOTP_MASK   (CONFIG_BOOTP_DEFAULT | \
-			     CONFIG_BOOTP_BOOTFILESIZE | \
-			     CONFIG_BOOTP_DNS)
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_DNS
 
 /* undef this to save memory */
 #define CFG_LONGHELP
@@ -300,14 +302,21 @@
 /* Monitor Command Prompt */
 #define CFG_PROMPT      "=> "
 
-/* What U-Boot subsytems do you want enabled? */
-#define CONFIG_COMMANDS     (((CONFIG_CMD_DFL & ~(CFG_CMD_KGDB))) | \
-			       CFG_CMD_BEDBUG  | \
-			       CFG_CMD_ELF | \
-			       CFG_CMD_ASKENV  | \
-			       CFG_CMD_REGINFO | \
-			       CFG_CMD_IMMAP   | \
-			       CFG_CMD_MII)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_MII
+
+#undef CONFIG_CMD_KGDB
+
 
 /* Where do the internal registers live? */
 #define CFG_IMMR        0xf0000000
@@ -331,13 +340,10 @@
 #define CONFIG_GW8260       1   /* on an GW8260 Board  */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CBSIZE        1024    /* Console I/O Buffer Size       */
 #else
 #  define CFG_CBSIZE        256     /* Console I/O Buffer Size       */
@@ -473,7 +479,7 @@
  */
 #define CFG_CACHELINE_SIZE  32      /* For MPC8260 CPU */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT    5   /* log base 2 of the above value */
 #endif
 

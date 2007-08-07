@@ -117,7 +117,7 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
@@ -143,7 +143,8 @@
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if (defined(CONFIG_JFFS2_NAND) && \
+     defined(CONFIG_CMD_NAND) )
 #if defined(CFG_NAND_LEGACY)
 #include <linux/mtd/nand_legacy.h>
 #else
@@ -274,10 +275,10 @@ static void put_fl_mem_nand(void *buf)
 {
 	free(buf);
 }
-#endif /* #if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH)
 /*
  * Support for jffs2 on top of NOR-flash
  *
@@ -300,7 +301,7 @@ static inline void *get_node_mem_nor(u32 off)
 {
 	return (void*)get_fl_mem_nor(off);
 }
-#endif /* #if (CONFIG_COMMANDS & CFG_CMD_FLASH) */
+#endif
 
 
 /*
@@ -311,12 +312,12 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 {
 	struct mtdids *id = current_part->dev->id;
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH)
 	if (id->type == MTD_DEV_TYPE_NOR)
 		return get_fl_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_fl_mem_nand(off, size, ext_buf);
 #endif
@@ -329,12 +330,13 @@ static inline void *get_node_mem(u32 off)
 {
 	struct mtdids *id = current_part->dev->id;
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH)
 	if (id->type == MTD_DEV_TYPE_NOR)
 		return get_node_mem_nor(off);
 #endif
 
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && \
+    defined(CONFIG_CMD_NAND)
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return get_node_mem_nand(off);
 #endif
@@ -345,7 +347,8 @@ static inline void *get_node_mem(u32 off)
 
 static inline void put_fl_mem(void *buf)
 {
-#if defined(CONFIG_JFFS2_NAND) && (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_JFFS2_NAND) && \
+    defined(CONFIG_CMD_NAND)
 	struct mtdids *id = current_part->dev->id;
 
 	if (id->type == MTD_DEV_TYPE_NAND)
@@ -1394,4 +1397,4 @@ jffs2_1pass_info(struct part_info * part)
 	return 1;
 }
 
-#endif /* CFG_CMD_JFFS2 */
+#endif

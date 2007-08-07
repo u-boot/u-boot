@@ -38,7 +38,7 @@
 #include <net.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(SCC_ENET)
+#if defined(CONFIG_CMD_NET) && defined(SCC_ENET)
 
 /* Ethernet Transmit and Receive Buffers */
 #define DBUF_LENGTH  1520
@@ -567,4 +567,4 @@ void restart (void)
 		(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 }
 #endif
-#endif	/* CFG_CMD_NET, SCC_ENET */
+#endif

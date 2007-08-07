@@ -70,22 +70,30 @@
 
 #define CONFIG_BOOTARGS "mem=32M"
 
-/* Add support for a few extra bootp options like:
- *	- File size
- *	- DNS
+
+/*
+ * BOOTP options
  */
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE | \
-				 CONFIG_BOOTP_DNS)
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_DNS
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL | \
-				  CFG_CMD_ELF    | \
-				  CFG_CMD_I2C 	 | \
-				  CFG_CMD_EEPROM | \
-				  CFG_CMD_PCI    )
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_PCI
+
+#undef CONFIG_CMD_NET
+
 
 #define CONFIG_HUSH_PARSER	1 /* use "hush" command parser */
 #define CONFIG_BOOTDELAY 	1
@@ -110,7 +118,6 @@
  */
 #define CONFIG_PCI				/* include pci support		*/
 #undef CONFIG_PCI_PNP
-#undef CFG_CMD_NET
 
 #define PCI_ENET0_IOADDR	0x80000000
 #define PCI_ENET0_MEMADDR	0x80000000
@@ -340,7 +347,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8240 CPU			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

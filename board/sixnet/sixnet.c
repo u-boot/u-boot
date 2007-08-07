@@ -33,7 +33,7 @@
 # include <status_led.h>
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 #endif
@@ -75,9 +75,9 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 #error "SXNI855T has no PCMCIA port"
-#endif	/* CFG_CMD_PCMCIA */
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -327,7 +327,7 @@ int misc_init_r (void)
 	return (0);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 void nand_init(void)
 {
 	unsigned long totlen = nand_probe(CFG_DFLASH_BASE);

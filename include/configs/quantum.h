@@ -92,18 +92,28 @@
 #define CFG_NVRAM_SIZE 2048
 
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SNTP	)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #define CONFIG_AUTOBOOT_KEYED	/* Enable password protection */
 #define CONFIG_AUTOBOOT_PROMPT		"\nEnter password - autoboot in %d sec...\n"
@@ -113,7 +123,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -172,7 +182,7 @@
 #endif
 
 /*%%% #define CFG_FLASH_BASE		0xFFF00000 */
-#if defined(DEBUG) || (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(DEBUG) || defined(CONFIG_CMD_IDE)
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
@@ -222,7 +232,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

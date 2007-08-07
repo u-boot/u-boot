@@ -446,46 +446,55 @@
 #define CONFIG_NIOS_ASMI			   /* Enable ASMI	*/
 #define CFG_NIOS_ASMIBASE	CFG_NIOS_CPU_ASMI0 /* ASMI base address	*/
 
-/*------------------------------------------------------------------------
- * COMMANDS
- *----------------------------------------------------------------------*/
-#define CONFIG_COMMANDS		(CFG_CMD_ALL & ~( \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_BEDBUG | \
-				 CFG_CMD_BMP	| \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_CACHE	| \
-				 CFG_CMD_DATE	| \
-				 CFG_CMD_DOC	| \
-				 CFG_CMD_DTT	| \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_FDC	| \
-				 CFG_CMD_FDOS	| \
-				 CFG_CMD_HWFLOW	| \
-				 CFG_CMD_I2C	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_KGDB	| \
-				 CFG_CMD_NAND	| \
-				 CFG_CMD_NFS	| \
-				 CFG_CMD_MMC	| \
-				 CFG_CMD_MII	| \
-				 CFG_CMD_PCI	| \
-				 CFG_CMD_PCMCIA | \
-				 CFG_CMD_REISER	| \
-				 CFG_CMD_SCSI	| \
-				 CFG_CMD_SPI	| \
-				 CFG_CMD_VFD	| \
-				 CFG_CMD_USB	| \
-				 CFG_CMD_XIMG	) )
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
+
+#undef CONFIG_CMD_ASKENV
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_BSP
+#undef CONFIG_CMD_CACHE
+#undef CONFIG_CMD_DATE
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_DTT
+#undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_I2C
+#undef CONFIG_CMD_JFFS2
+#undef CONFIG_CMD_KGDB
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_PCI
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_REISER
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_XIMG
+
 
 /*------------------------------------------------------------------------
  * COMPACT FLASH
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 #define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
 #define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
 #define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
@@ -503,12 +512,12 @@
 #define CFG_CF_POWER		0x009209c0	/* CF Power FET PIO base*/
 #define CFG_CF_ATASEL		0x009209d0	/* CF ATASEL PIO base	*/
 
-#endif /* CONFIG_COMMANDS & CFG_CMD_IDE */
+#endif
 
 /*------------------------------------------------------------------------
  * KGDB
  *----------------------------------------------------------------------*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	9600
 #endif
 

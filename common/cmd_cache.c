@@ -27,7 +27,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+#if defined(CONFIG_CMD_CACHE)
 
 static int on_off (const char *);
 
@@ -109,4 +109,4 @@ U_BOOT_CMD(
 	"    - enable or disable data (writethrough) cache\n"
 );
 
-#endif	/* CFG_CMD_CACHE */
+#endif

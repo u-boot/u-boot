@@ -108,47 +108,29 @@
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_NET_MULTI		1
 
-#define CONFIG_BOOTP_MASK		(CONFIG_BOOTP_SUBNETMASK	\
-					 | CONFIG_BOOTP_GATEWAY)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
 
-#define CONFIG_COMMANDS			(CFG_CMD_BDI			\
-					 | CFG_CMD_LOADS		\
-					 | CFG_CMD_LOADB		\
-					 | CFG_CMD_IMI			\
-					 /* | CFG_CMD_CACHE */		\
-					 | CFG_CMD_FLASH		\
-					 | CFG_CMD_MEMORY		\
-					 | CFG_CMD_NET			\
-					 | CFG_CMD_ENV			\
-					 /* | CFG_CMD_IRQ */		\
-					 | CFG_CMD_BOOTD		\
-					 | CFG_CMD_CONSOLE		\
-					 /* | CFG_CMD_EEPROM */		\
-					 | CFG_CMD_ASKENV		\
-					 | CFG_CMD_RUN			\
-					 | CFG_CMD_ECHO			\
-					 /* | CFG_CMD_I2C */		\
-					 | CFG_CMD_REGINFO		\
-					 /* | CFG_CMD_DATE */		\
-					 | CFG_CMD_DHCP			\
-					 /* | CFG_CMD_AUTOSCRIPT */	\
-					 /* | CFG_CMD_MII */		\
-					 | CFG_CMD_MISC			\
-					 /* | CFG_CMD_SDRAM */		\
-					 /* | CFG_CMD_DIAG */		\
-					 /* | CFG_CMD_HWFLOW */		\
-					 /* | CFG_CMD_SAVES */		\
-					 /* | CFG_CMD_SPI */		\
-					 /* | CFG_CMD_PING */		\
-					 | CFG_CMD_MMC			\
-					 | CFG_CMD_FAT			\
-					 | CFG_CMD_IMLS			\
-					 /* | CFG_CMD_ITEST */		\
-					 | CFG_CMD_EXT2			\
-					 | CFG_CMD_JFFS2		\
-		)
 
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_REGINFO
+
+#undef CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_SETGETDCR
+#undef CONFIG_CMD_XIMG
 
 #define CONFIG_ATMEL_USART		1
 #define CONFIG_MACB			1

@@ -97,10 +97,6 @@
 /* enable I2C and select the hardware/software driver */
 #undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
-#define ADD_CMD_I2C		CFG_CMD_I2C	| \
-				CFG_CMD_DATE	|\
-				CFG_CMD_DTT	|\
-				CFG_CMD_EEPROM
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
@@ -140,7 +136,6 @@
 #else
 #undef CONFIG_HARD_I2C
 #undef CONFIG_SOFT_I2C
-#define ADD_CMD_I2C		0
 #endif
 
 /*
@@ -177,8 +172,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  *
  * (On TQM8272 either SCC1 or FCC2 may be chosen: SCC1 is hardwired to the
  * X.29 connector, and FCC2 is hardwired to the X.1 connector)
@@ -272,20 +266,37 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_PING	| \
-				ADD_CMD_I2C	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SNTP
+
+#if CONFIG_I2C
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_DATE
+    #define CONFIG_CMD_DTT
+    #define CONFIG_CMD_EEPROM
+#endif
+
 
 /*
  * Miscellaneous configurable options
@@ -301,7 +312,7 @@
 #endif
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -392,7 +403,7 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #define CFG_NAND_CS_DIST		0x80
 #define CFG_NAND_UPM_WRITE_CMD_OFS	0x20
@@ -430,7 +441,7 @@
 	WRITE_NAND(d, addr); \
 } while(0)
 
-#endif /* CFG_CMD_NAND */
+#endif /* CONFIG_CMD_NAND */
 
 #define	CONFIG_PCI
 #ifdef CONFIG_PCI
@@ -502,7 +513,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE      32      /* For MPC8260 CPU              */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

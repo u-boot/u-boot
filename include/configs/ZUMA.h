@@ -101,17 +101,29 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #undef	CONFIG_ALTIVEC			/* undef to disable		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
 #define CONFIG_MII		/* enable MII commands */
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				 CFG_CMD_ASKENV | \
-				 CFG_CMD_BSP	| \
-				 CFG_CMD_JFFS2	| \
-				 CFG_CMD_MII	| \
-				 CFG_CMD_DATE)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_DATE
+
 
 /*
  * JFFS2 partitions
@@ -131,15 +143,12 @@
 #define MTDPARTS_DEFAULT	"mtdparts=zuma-1:-(jffs2),zuma-2:-(user)"
 */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -349,7 +358,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For all MPC74xx CPUs		 */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

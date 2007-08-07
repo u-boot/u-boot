@@ -31,7 +31,7 @@ Skeleton NIC driver for Etherboot
 #include "eth.h"
 #include "eth_addrtbl.h"
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
 #define GT6426x_ETH_BUF_SIZE	1536
 
@@ -797,11 +797,11 @@ gt6426x_eth_initialize(bd_t *bis)
 
 
 		eth_register(dev);
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name,
 				gt6426x_miiphy_read, gt6426x_miiphy_write);
 #endif
 	}
 
 }
-#endif /* CFG_CMD_NET && CONFIG_NET_MULTI */
+#endif

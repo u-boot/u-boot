@@ -77,7 +77,7 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8139)
 
 #define TICKS_PER_SEC	CFG_HZ
@@ -535,4 +535,4 @@ static void rtl_disable(struct eth_device *dev)
 		udelay (100); /* wait 100us */
 	}
 }
-#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_RTL8139 */
+#endif

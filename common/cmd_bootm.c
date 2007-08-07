@@ -48,7 +48,7 @@ DECLARE_GLOBAL_DATA_PTR;
  /*cmd_boot.c*/
  extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
 
@@ -82,11 +82,11 @@ int  gunzip (void *, int, unsigned char *, unsigned long *);
 static void *zalloc(void *, unsigned, unsigned);
 static void zfree(void *, void *, unsigned);
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMI)
+#if defined(CONFIG_CMD_IMI)
 static int image_info (unsigned long addr);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+#if defined(CONFIG_CMD_IMLS)
 #include <flash.h>
 extern flash_info_t flash_info[]; /* info for FLASH chips */
 static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -126,12 +126,12 @@ static void fixup_silent_linux (void);
 #endif
 static boot_os_Fcn do_bootm_netbsd;
 static boot_os_Fcn do_bootm_rtems;
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 static boot_os_Fcn do_bootm_vxworks;
 static boot_os_Fcn do_bootm_qnxelf;
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
-#endif /* CFG_CMD_ELF */
+#endif
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static boot_os_Fcn do_bootm_artos;
 #endif
@@ -433,7 +433,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			     addr, len_ptr, verify);
 	    break;
 
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 	case IH_OS_VXWORKS:
 	    do_bootm_vxworks (cmdtp, flag, argc, argv,
 			      addr, len_ptr, verify);
@@ -442,7 +442,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_qnxelf (cmdtp, flag, argc, argv,
 			      addr, len_ptr, verify);
 	    break;
-#endif /* CFG_CMD_ELF */
+#endif
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
 	    do_bootm_artos  (cmdtp, flag, argc, argv,
@@ -1212,7 +1212,7 @@ do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 #endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if defined(CONFIG_CMD_BOOTD)
 int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rcode = 0;
@@ -1240,7 +1240,7 @@ U_BOOT_CMD(
 
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMI)
+#if defined(CONFIG_CMD_IMI)
 int do_iminfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int	arg;
@@ -1308,9 +1308,9 @@ U_BOOT_CMD(
 	"      image contents (magic number, header and payload checksums)\n"
 );
 
-#endif	/* CFG_CMD_IMI */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+#if defined(CONFIG_CMD_IMLS)
 /*-----------------------------------------------------------------------
  * List all images found in flash.
  */
@@ -1366,23 +1366,23 @@ U_BOOT_CMD(
 	"    - Prints information about all images found at sector\n"
 	"      boundaries in flash.\n"
 );
-#endif	/* CFG_CMD_IMLS */
+#endif
 
 void
 print_image_hdr (image_header_t *hdr)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 	time_t timestamp = (time_t)ntohl(hdr->ih_time);
 	struct rtc_time tm;
 #endif
 
 	printf ("   Image Name:   %.*s\n", IH_NMLEN, hdr->ih_name);
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 	to_tm (timestamp, &tm);
 	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif	/* CFG_CMD_DATE, CONFIG_TIMESTAMP */
+#endif
 	puts ("   Image Type:   "); print_type(hdr);
 	printf ("\n   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
 	print_size (ntohl(hdr->ih_size), "\n");
@@ -1581,7 +1581,7 @@ do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	(*entry_point ) ( gd->bd );
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 static void
 do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		  ulong addr, ulong *len_ptr, int verify)
@@ -1607,7 +1607,7 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);
 }
-#endif /* CFG_CMD_ELF */
+#endif
 
 #ifdef CONFIG_LYNXKDI
 static void

@@ -31,7 +31,7 @@
 #include <asm/byteorder.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FAT)
+#if defined(CONFIG_CMD_FAT)
 
 /*
  * Convert a string to lowercase.
@@ -85,39 +85,46 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		/* no signature found */
 		return -1;
 	}
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
-     (defined(CONFIG_MMC)) || \
-     defined(CONFIG_SYSTEMACE)          )
-	/* First we assume, there is a MBR */
-	if (!get_partition_info (dev_desc, part_no, &info)) {
-		part_offset = info.start;
-		cur_part = part_no;
-	} else if (!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET], "FAT", 3)) {
+	if(!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET],"FAT",3)) {
 		/* ok, we assume we are on a PBR only */
 		cur_part = 1;
-		part_offset = 0;
+		part_offset=0;
 	} else {
-		printf ("** Partition %d not valid on device %d **\n", part_no, dev_desc->dev);
-		return -1;
-	}
+#if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SCSI) || \
+     defined(CONFIG_CMD_USB) || \
+     (defined(CONFIG_MMC) && defined(CONFIG_LPC2292)) || \
+     defined(CONFIG_SYSTEMACE)          )
+		/* First we assume, there is a MBR */
+		if (!get_partition_info (dev_desc, part_no, &info)) {
+			part_offset = info.start;
+			cur_part = part_no;
+		} else if (!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET], "FAT", 3)) {
+			/* ok, we assume we are on a PBR only */
+			cur_part = 1;
+			part_offset = 0;
+		} else {
+			printf ("** Partition %d not valid on device %d **\n",
+				part_no, dev_desc->dev);
+			return -1;
+		}
 #else
-	if(!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET],"FAT",3)) {
- 		/* ok, we assume we are on a PBR only */
- 		cur_part = 1;
-		part_offset = 0;
-		info.start = part_offset;
-	} else {
-		/* FIXME we need to determine the start block of the
-		 * partition where the DOS FS resides. This can be done
-		 * by using the get_partition_info routine. For this
-		 * purpose the libpart must be included.
-		 */
-		part_offset = 32;
-		cur_part = 1;
-	}
+		if(!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET],"FAT",3)) {
+			/* ok, we assume we are on a PBR only */
+			cur_part = 1;
+			part_offset = 0;
+			info.start = part_offset;
+		} else {
+			/* FIXME we need to determine the start block of the
+			 * partition where the DOS FS resides. This can be done
+			 * by using the get_partition_info routine. For this
+			 * purpose the libpart must be included.
+			 */
+			part_offset = 32;
+			cur_part = 1;
+		}
 #endif
+	}
 	return 0;
 }
 
@@ -979,8 +986,10 @@ file_fat_detectfs(void)
 		printf("No current device\n");
 		return 1;
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI) || \
-    (CONFIG_COMMANDS & CFG_CMD_USB) || (CONFIG_MMC)
+#if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_SCSI) || \
+    defined(CONFIG_CMD_USB) || \
+    (CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
 		case IF_TYPE_IDE :	printf("IDE"); break;
@@ -1021,4 +1030,4 @@ file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 	return do_fat_read(filename, buffer, maxsize, LS_NO);
 }
 
-#endif /* #if (CONFIG_COMMANDS & CFG_CMD_FAT) */
+#endif

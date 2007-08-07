@@ -32,7 +32,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_MPC5200) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_MPC5200) && defined(CONFIG_CMD_DATE)
 
 /*****************************************************************************
  * this structure should be defined in mpc5200.h ...
@@ -137,4 +137,4 @@ void rtc_reset (void)
 	return;	/* nothing to do */
 }
 
-#endif	/* CONFIG_RTC_MPC5200 && CFG_CMD_DATE */
+#endif

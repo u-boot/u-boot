@@ -31,8 +31,8 @@
  * Allow configuration to select PCMCIA slot,
  * or try to generate a useful default
  */
-#if ( CONFIG_COMMANDS & CFG_CMD_PCMCIA) || \
-    ((CONFIG_COMMANDS & CFG_CMD_IDE) && \
+#if defined(CONFIG_CMD_PCMCIA) || \
+    (defined(CONFIG_CMD_IDE) && \
 	(defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_IDE_8xx_DIRECT) ) )
 
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
@@ -306,14 +306,14 @@ typedef struct {
 #define CISTPL_IDE_HAS_INDEX	0x20
 #define CISTPL_IDE_IOIS16	0x40
 
-#endif	/* CFG_CMD_PCMCIA || CFG_CMD_IDE && (CONFIG_IDE_8xx_PCCARD || CONFIG_IDE_8xx_DIRECT) */
+#endif
 
 #ifdef	CONFIG_8xx
 extern u_int *pcmcia_pgcrx[];
 #define	PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
 #endif
 
-#if	(CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD) \
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD) \
 	|| defined(CONFIG_PXA_PCMCIA)
 extern int check_ide_device(int slot);
 #endif

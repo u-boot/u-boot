@@ -122,7 +122,9 @@ const uint dsp_table_fast[] =
 #define TINY_AUTOINC_BASE_ADDR 0x0
 
 static int hpi_activate(void);
+#if 0
 static void hpi_inactivate(void);
+#endif
 static void dsp_reset(void);
 
 static int hpi_write_inc(u32 addr, u32 *data, u32 count);
@@ -133,7 +135,9 @@ static u32 hpi_read_noinc(u32 addr);
 int hpi_test(void);
 static int hpi_write_addr_test(u32 addr);
 static int hpi_read_write_test(u32 addr, u32 data);
+#ifdef DO_TINY_TEST
 static int hpi_tiny_autoinc_test(void);
+#endif /* DO_TINY_TEST */
 #endif /* CONFIG_SPC1920_HPI_TEST */
 
 
@@ -185,6 +189,7 @@ static int hpi_activate(void)
 	return 0;
 }
 
+#if 0
 /* turn off the host port interface */
 static void hpi_inactivate(void)
 {
@@ -200,6 +205,7 @@ static void hpi_inactivate(void)
 	/* currently always on TBD */
 
 }
+#endif
 
 /* reset the DSP */
 static void dsp_reset(void)
@@ -570,6 +576,7 @@ static int hpi_read_write_test(u32 addr, u32 data)
 	return 0;
 }
 
+#ifdef DO_TINY_TEST
 static int hpi_tiny_autoinc_test(void)
 {
 	int i;
@@ -599,5 +606,6 @@ static int hpi_tiny_autoinc_test(void)
 	}
 	return 0;
 }
+#endif /* DO_TINY_TEST */
 
 #endif /* CONFIG_SPC1920_HPI_TEST */

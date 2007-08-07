@@ -66,18 +66,28 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MVENV	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	\
-			       )
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MVENV
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled	    */
 
@@ -89,7 +99,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -188,7 +198,7 @@
  */
 #define CFG_DCACHE_SIZE		16384
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value    */
 #endif
 
@@ -228,7 +238,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

@@ -63,13 +63,19 @@ typedef volatile unsigned char	vu_char;
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC512X)
 #include <mpc512x.h>
 #include <asm/immap_512x.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
+#define CONFIG_RELOC_FIXUP_WORKS
+#elif defined(CONFIG_824X)
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
@@ -81,6 +87,7 @@ typedef volatile unsigned char	vu_char;
 #define CONFIG_MPC8260	1
 #endif
 #include <asm/immap_8260.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
@@ -93,6 +100,7 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_MPC83XX
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>

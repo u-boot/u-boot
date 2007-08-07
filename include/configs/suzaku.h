@@ -56,10 +56,21 @@
 #define MICROBLAZE_SYSREG_BASE_ADDR 0xFFFFA000
 #define MICROBLAZE_SYSREG_RECONFIGURE (1 << 0)
 
-#define CONFIG_COMMANDS		(CONFIG__CMD_DFL)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #define CFG_UART1_BASE		(0xFFFF2000)
 #define CONFIG_SERIAL_BASE	CFG_UART1_BASE

@@ -47,11 +47,11 @@
 #endif
 
 
-/*#if (CONFIG_COMMANDS & CFG_CMD_DATE) */
+/*#if defined(CONFIG_CMD_DATE) */
 /*#include <rtc.h> */
 /*#endif */
 
-#if ((CONFIG_COMMANDS & CFG_CMD_FDC) || (CONFIG_COMMANDS & CFG_CMD_FDOS))
+#if defined(CONFIG_CMD_FDC) || defined(CONFIG_CMD_FDOS)
 
 
 typedef struct {
@@ -707,9 +707,9 @@ int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 
 	return TRUE;
 }
-#endif /* ((CONFIG_COMMANDS & CFG_CMD_FDC)||(CONFIG_COMMANDS & CFG_CMD_FDOS))*/
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDOS)
+#if defined(CONFIG_CMD_FDOS)
 
 /* Low level functions for the Floppy-DOS layer                              */
 
@@ -772,9 +772,9 @@ int fdc_fdos_read (void *buffer, int len)
 
 	return (fdc_read_data (buffer, len, pCMD, pFG));
 }
-#endif  /* (CONFIG_COMMANDS & CFG_CMD_FDOS)                                  */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDC)
+#if defined(CONFIG_CMD_FDC)
 /****************************************************************************
  * main routine do_fdcboot
  */
@@ -880,13 +880,13 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 
-#endif /* CONFIG_COMMANDS & CFG_CMD_FDC */
+#endif
 
 
 /***************************************************/
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_FDC)
+#if defined(CONFIG_CMD_FDC)
 
 U_BOOT_CMD(
 	fdcboot,	3,	1,	do_fdcboot,

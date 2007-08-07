@@ -50,41 +50,43 @@
  ***********************************************************/
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll   */
 
-/***********************************************************
- * Command definitions
- ***********************************************************/
-#define MIP405_COMMON_CMDS \
-		       (CONFIG_CMD_DFL	| \
-			CFG_CMD_CACHE	| \
-			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP	| \
-			CFG_CMD_EEPROM	| \
-			CFG_CMD_ELF	| \
-			CFG_CMD_FAT	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_IDE	| \
-			CFG_CMD_IRQ	| \
-			CFG_CMD_JFFS2	| \
-			CFG_CMD_MII	| \
-			CFG_CMD_PCI	| \
-			CFG_CMD_PING	| \
-			CFG_CMD_REGINFO | \
-			CFG_CMD_SAVES	| \
-			CFG_CMD_BSP	)
 
-#if defined(CONFIG_MIP405T)
-#define CONFIG_COMMANDS		\
-			MIP405_COMMON_CMDS
-#else
-#define CONFIG_COMMANDS		\
-			(MIP405_COMMON_CMDS | \
-			CFG_CMD_USB	| \
-			CFG_CMD_DOC	)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SAVES
+#define CONFIG_CMD_BSP
+
+#if !defined(CONFIG_MIP405T)
+    #define CONFIG_CMD_USB
+    #define CONFIG_CMD_DOC
 #endif
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS  (if any) */
-#include <cmd_confdefs.h>
 
 #define CFG_NAND_LEGACY
 
@@ -165,7 +167,7 @@
  **********************************************************/
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -260,7 +262,7 @@
  */
 #define CFG_DCACHE_SIZE		0x4000	/* For AMCC 405GPr CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -426,7 +428,7 @@
 /************************************************************
  * Debug support
  ************************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

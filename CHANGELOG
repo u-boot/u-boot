@@ -1,3 +1,75 @@
+commit 5728be389e65fd47f34b33c2596271eb4db751ae
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 6 01:01:49 2007 +0200
+
+    Coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8092fef4c29b395958bb649647da7e3775731517
+Author: Martin Krause <Martin.Krause@tqs.de>
+Date:	Tue Dec 12 14:26:01 2006 +0100
+
+    Add functions to list of exported functions
+
+    Additionally export the following fuctions (to make trab_config build again):
+    - simple_strtol()
+    - strcmp()
+
+    Also bump the ABI version to reflect this change
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 63cec5814fab5d2b1c86982327433807a5ac0249
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Aug 2 14:09:49 2007 -0500
+
+    Make MPC8641's PCI/PCI-E driver a common driver for many FSL parts.
+
+    All of the PCI/PCI-Express driver and initialization code that
+    was in the MPC8641HPCN port has now been moved into the common
+    drivers/fsl_pci_init.c.  In a subsequent patch, this will be
+    utilized by the 85xx ports as well.
+
+    Common PCI-E IMMAP register blocks for FSL 85xx/86xx are added.
+
+    Also enable the second PCI-Express controller on 8641
+    by getting its BATS and CFG_ setup right.
+
+    Fixed a u16 vendor compiler warning in AHCI driver too.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c7e717ebc2b044d7a71062552c9dc0f54ea9b779
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Aug 3 04:05:25 2007 -0500
+
+    Add Marvell 1149 PHY support to the TSEC
+
+commit b1b54e352028ed370c3aa95d6fdeb9d64c5d2f86
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 21:27:46 2007 +0200
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 63e22764d2f8653f68888c667eb65b3996b52680
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 10:11:18 2007 +0200
+
+    Minor cleanup of <board>_nand build rules.
+
+commit cdd917a43da6fa7fc8f54a3cc9f420ce5ecf3197
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 00:48:45 2007 +0200
+
+    Fix build errors and warnings / code cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 8993e54b6f397973794f3d6f47d3b3c0c98dd4f6
 Author: Rafal Jaworowski <raj@semihalf.com>
 Date:	Fri Jul 27 14:43:59 2007 +0200
@@ -75,6 +147,154 @@ Date:	Thu Jul 12 01:45:34 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 5a56af3b522ba47fb33a3fee84d23bf1e5429654
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Jun 8 16:41:18 2007 -0500
+
+    Remove erroneous errata code from Marvel 88E1111S driver
+
+    The Marvel 88E1111S driver for the TSEC was copied from the
+    88E1101 driver, and included a fix for an erratum which does not
+    exist on that part.  Now it is removed
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 982efcf23fd03647e01e2fbe28a7a36239156cc0
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Jun 5 16:38:44 2007 -0500
+
+    From: eran liberty <eran.liberty@gmail.com>
+
+    adds the reset register to 85xx immap
+
+    Signed-off-by: Eran Liberty <eran.liberty@gmail.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit d3ec0d943a045bdb99e159e7bbc77430e09f11d7
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu May 10 17:50:01 2007 -0500
+
+    Polished the 85xx ADS config files
+
+    Made the boot commands use device trees by default.
+    Also moved the ramdisk to 1000000 (I think the previous address
+    was getting overridden during boot).
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit bfb37b32d1b0b03f18077dba49cc66a6e76fa038
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed May 9 11:03:32 2007 -0500
+
+    8544ds: Fix Makefile after moving pixis to board/freescale.
+
+    The OBJTREE != SRCTREE build scenario was broken.
+    This fixes it.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2a3cee43c3b71fa5b8d91db19f05067865290f3e
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed May 9 00:54:20 2007 -0500
+
+    tsec: Fix PHY code to match first driver
+
+    Jarrold Wen noticed that the generic PHY code always matches
+    under the current implementation.  Change it so the first match
+    wins, and *only* unknown PHYs trigger the generic driver
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit ccc091aac61a38cd998d575d92f7232e256d6312
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue May 8 17:27:43 2007 -0500
+
+    Add support for CPM device tree configuration to 8560 ADS
+
+    * Adds code to modify CPM frequencies
+    * Cleans up the config file to #define TSEC and (for now) #undef FCC
+    * Adds the MII command for all 8560 ADS configurations
+    * Updates config file to provide convenience commands for booting
+      with a device tree
+
+    Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7507d56ccaf7aae1c474342a9a5540165cd7e9d9
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue May 8 17:23:02 2007 -0500
+
+    Fix Marvell 88e1145 PHY init code
+
+    Fix a bug in the Marvell 88e1145 PHY init code in the TSEC driver
+    where the reset was being done after the errata code instead of
+    before.
+
+    Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 5dc210dec5bace98a50b6ba905347890091a9bb0
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:16 2007 -0500
+
+    Add simple agent/end-point configuration in PCI AutoConfig for PCI_CLASS_PROCESSOR_POWERPC.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit e8b85f3ba4cd8930e0a2fea2100c815d64201765
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:08 2007 -0500
+
+    pciauto setup bridge
+
+    The P2P bridge bus numbers programmed into the device are relative to
+    hose->first_busno.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 571f49fa717004ca4268b4e24057efc7bf9f987b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:01 2007 -0500
+
+    Support PCIe extended config registers
+
+    FSL PCIe block has extended cfg registers in the 100 and 400 range.
+    For example, to read the LTSSM register: pci display <busn>.0 404 1
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit ba5feb12581bb2912ce301e4866b71f846e9fc07
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:51:48 2007 -0500
+
+    Minor improvements to drivers/pci_auto.c
+
+    - Make pciauto_{pre,post}scan_setup_bridge non-static
+    - Added physical address display in debug messages.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 40e81addab7bb74d20ddf681ce9babc880a828ee
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:51:35 2007 -0500
+
+    Start pci hose scan from hose->current_busno.
+
+    Ensure hose->current_busno is not less than first_busno.  This fixes
+    broken board code which leaves current_busno=0 when first_busno is
+    greater than 0 for the cases with multiple controllers.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 3865b1fb7843a08ad49a6319a36415752276ff48
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 11 12:13:53 2007 +0200
+
+    Fix some compile problems introduced by the latest CFG_CMD_xxx cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit fa1df308926a6f70e3504c57514ef27ac31fd13a
 Author: Bartlomiej Sieka <tur@semihalf.com>
 Date:	Wed Jul 11 20:11:07 2007 +0200
@@ -95,6 +315,404 @@ Date:	Wed Jul 11 18:39:11 2007 +0200
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
 
+commit e9514751cfa5cce61ea699fa0d3eb37898a5eeb5
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Jul 8 13:44:27 2007 +0200
+
+    Fix malloc problem introduced with the relocation fixup for the PPC platform
+
+    The relocation fixup didn't handle the malloc pointer initialization
+    correctly. This patch fixes this problem. Tested successfully on 4xx.
+    The relocation fixup patches for 4xx will follow soon.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b3aff0cb9ecf236d7e8c93761dd1dadf6837a582
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:19:50 2007 -0500
+
+    disk/ doc/ lib_*/ and tools/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ddb5d86f0215bcb6c293510c50eb050e92883b7a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:13:21 2007 -0500
+
+    drivers/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f40a7f3e3888b42a43674b099e5470022c8c544c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:07:56 2007 -0500
+
+    fs/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 610f2e9c28a9c101e09fa1b78143cf5f00ed1593
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:05:02 2007 -0500
+
+    net/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 902531788376046da212afd1661cffb62f3daa1c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:02:44 2007 -0500
+
+    common/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d39b57415838c73fb0a37eca84de3c68ba990586
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:48:22 2007 -0500
+
+    board/[j-z]*: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 77a318545d57aefa844752465b94c7e09a3f26d0
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:39:10 2007 -0500
+
+    board/[A-Za-i]*: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 068b60a0eb7e73b243ca55399f2a7df76e2c3f3d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:27:39 2007 -0500
+
+    cpu/ rtc/ include/: Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 079a136c3588814784561d6e4856970ee82d6e2a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:12:10 2007 -0500
+
+    include/configs/[p-z]* + misc: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7f5c01577400c74cc5bac74f41dd0d3c79df623c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:38:02 2007 -0500
+
+    include/configs/[g-o]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 80ff4f99b84b64edca3fd10da365ec1493be1c95
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:29:01 2007 -0500
+
+    include/configs/[a-e]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a1aa0bb502e25fd598b5e0ccdfb2c174921d714a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:22:23 2007 -0500
+
+    include/configs/[P-Z]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 659e2f6736232a08acca8785c206e2b4d9cd07d7
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:10:49 2007 -0500
+
+    include/configs/[J-O]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 11799434c5ff15a612577bb1ad1f4ea1a0595e4b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:02:57 2007 -0500
+
+    include/configs/[A-I]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1fe80d79c5c4e52d3410a7ab4b8515da095cdab3
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 22:08:34 2007 -0500
+
+    Finally retire cmd_confdefs.h and CONFIG_BOOTP_MASK!
+
+    All of the choices for CONFIG_BOOTP_ are now documented in
+    the README file.  You must now individually select exactly
+    the set that you want using a series of
+	#define CONFIG_BOOTP_<x>
+    statements in the board port config files now.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d3b8c1a743dcd31625c99e6a44590f207eb00028
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:57:31 2007 -0500
+
+    include/configs/[m-z]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2fd90ce575b02d189cbf443c85309bcd001aa393
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:48:26 2007 -0500
+
+    include/configs/[a-m]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 37d4bb70586659dedef1658ce1bed071be098aec
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:38:02 2007 -0500
+
+    include/configs/[T-Z]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 18225e8dd1950bd6dbf35011e436db7f474c187d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:31:24 2007 -0500
+
+    include/configs/[P-S]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7be044e4ea644b0ef1c486dadc1a4c2665b4374d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:24:19 2007 -0500
+
+    include/configs/[H-N]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5d2ebe1b3ef0055c661bb1a0d252bf252380069f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:16:53 2007 -0500
+
+    include/configs/[A-G]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f55f7f8d83f36021ab1f0e3d738f5d8c8083a7e3
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:12:30 2007 -0500
+
+    Retire CONFIG_COMMANDS finally.
+    Strip old CFG_CMD_* symbols out.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b5501f7d720fed99ab0b42c83f5dea52868ce007
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:10:03 2007 -0500
+
+    Update README.* to reference new CONFIG_CMD_* names now.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4431283c7e6d54ae180d466e51bf2d97471a0ad9
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:06:00 2007 -0500
+
+    cpu/m*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3a1ed1e1f922c419bb71f7df4949d783ade369fa
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:57:22 2007 -0500
+
+    cpu/[7a-ln-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ab3abcbabd840928fb1eb5122118ca466b5e5013
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:45:16 2007 -0500
+
+    board/[q-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3fe00109a5f12de55b6e25b1f98dfc24bc9090c9
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:38:39 2007 -0500
+
+    board/[m-p]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c508a4cefd8a953fc64957650506a035e6e3d9d1
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:31:28 2007 -0500
+
+    board/[f-l]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b9307262f8a9f3b5c9e15a6067eadc17407146f6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:24:55 2007 -0500
+
+    board/[d-e]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fcec2eb93e126400009729328e797f12bc94f1fd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:19:09 2007 -0500
+
+    board/[A-Za-c]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a593814f2be0c9cdc3133cd550b167b8a988328f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:10:50 2007 -0500
+
+    rtc/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 67350568f9d46e66c21829f3513b3db0caeb948b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:05:38 2007 -0500
+
+    lib_{arm,avr32,blackfin,generic,i386}/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7def6b34f910f08d7ef0a14646da067719237ca2
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:02:11 2007 -0500
+
+    lib_{m68k,microblaze,mips,ppc}/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit dd60d1223b99a88a7216f3e041fe40634ad4c2bb
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:56:50 2007 -0500
+
+    fs/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c91898bbc505aff3e12a807af88e76da18efb7ee
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:46:09 2007 -0500
+
+    tools/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 643d1ab23960950b52e0a2803c2d3ea4c558fa01
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:45:14 2007 -0500
+
+    net/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cb51c0bf88f95a1bca68324b0126f8eed8b43273
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:39:42 2007 -0500
+
+    drivers/[n-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 07d38a17e964aec4c7827f0ee9a583bc8cc1ad6b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:30:01 2007 -0500
+
+    drivers/[a-m]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cde5c64d17cf4834aa7b5c373f288bc7dad27b29
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:22:37 2007 -0500
+
+    disk/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 639221c76c88215bd55af83ad174fc30d1940f8f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:15:49 2007 -0500
+
+    include/: Remove obsolete references to CONFIG_COMMANDS
+    Mostly removed from comments here.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit 4ef218f6fdf8d747f4589da5252b004e7d2c2876
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Jul 10 00:01:28 2007 +0200
@@ -102,6 +720,201 @@ Date:	Tue Jul 10 00:01:28 2007 +0200
     Coding style cleanup; update CHANGELOG.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c3517f919d0f61650cf3027fd4faf0f631142f6c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:10:08 2007 -0500
+
+    common/* non-cmd*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fd9bcaa35be64fe41a4223fdb6ecdbad52470b39
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:05:39 2007 -0500
+
+    common/cmd_[p-x]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c76fe47425afc7d5d670ff0539823c85d65d9c42
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:02:23 2007 -0500
+
+    common/cmd_[i-n]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit baa26db4113679b80970ff447d91cc10217742a6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 17:51:39 2007 -0500
+
+    common/cmd_[af]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit af075ee96e52dda7b6bca6c937588aeaaec5f2cd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 17:02:01 2007 -0500
+
+    Clear up confusion over the CMD_POST and POST_DIAG mess.
+
+    For some reason, CONFIG_POST permeated as CONFIG_CMD_POST_DIAG
+    when it really means just CONFIG_CMD_DIAG.	There is no CMD_POST.
+    Clear this mess up some.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b3631487105a57ab7cbadfc26efbaf9676275018
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:45:08 2007 -0500
+
+    Remove references to the old cmd_confdefs.h include file.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a22d4da95e20049b4daa1c2a022f61e8a72f2fb6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:42:59 2007 -0500
+
+    include/configs: Catch some CONFIG_CMD_* conversion stragglers.
+
+    Use new CONFIG_CMD_* in lwmon5.h board config file.
+    Fix CONFIG_CMD_* typo braindamage in omap1510inn.h
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5562901661bd428f7e5feb333f796372cb81019
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:31:57 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [TUVWZYZ]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fe7f782d5b8c64a0195c68c31a0a11d4f641355e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:02:44 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various S* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e9a0f8f15c11f337967aa0600ad6e8af33037f50
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:12:40 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various R* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 12aa9fd23d724bd6ab88e1baa0db35133a27303f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:55:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various Q* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit acf0269779422f3e147d2ddfb499c9f6ff10ad5e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:49:44 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various P* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e18a1061a8630cb67995fdf99afd3fb50d1b187d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:21:43 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [NO]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8353e139bfad9059c54f5b2421f1a3090e15a2e2
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:14:17 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various M* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 348f258f24253433e4a2302a0bbceb6740a67246
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 13:46:18 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [IJKL]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6c4f4da9bfc9f9403f54fce678ed0364b7c86a6a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 10:09:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various H* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 60a0876b5106b34220e459c208bbf648073306c0
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 21:04:26 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various F* and G* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit dcaa71562826a2466e894c868d132509dcda8444
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 20:56:05 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various E* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3c3227f3c737502311b25b72084573901cbbf17d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 20:40:43 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various D* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 49cf7e8ee7ef943fdfe866ce28410b0bfbf6a26c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:52:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various C* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit de8b2a6e33298dcdb10bdda48db25e53c3089eba
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:32:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various B* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 498ff9a228485bd4b9f23d066bada268f9add1dd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:13:52 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various A* named board config files.
+
+    Since ADS860.h includes "board/fads/fads.h" with ramifications
+    on the CONFIG_COMMAND treatment, it too has to be adjusted to
+    exclude already configured commands in this same commit.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6b0a174a1e6f55e1f5a1fbb223cdad7645a4646e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 6 09:45:47 2007 +0200
+
+    Fix problem with get/setdcr commands introduced by cfg patches
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit f1152f8c28db4a22087c21c618a3f7baa48e9a4f
 Author: Wolfgang Denk <wd@denx.de>
@@ -111,6 +924,220 @@ Date:	Fri Jul 6 02:50:19 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit e4dbe1b215f5c6c462e76909d240bd96472b84de
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 5 17:56:27 2007 +0200
+
+    Fixing some typos etc. introduced mainly by cfg patches.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b6b4684546809f89c8bac72863ca49b5fd8ac0cd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 5 11:12:16 2007 +0200
+
+    Minor coding style cleanup. Update CHANGELOG.
+
+commit dca3b3d6d6396b67e5e84af53452164923c73443
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:46 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [v-z]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6c18eb9804b525f3e4f3bb3d014dd69a200d9fa7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:38 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various t* and u* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46da1e96b7db14f4fcd2c92544e7c0862024bc76
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:30 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various s* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 90cc3eb6d2be856d9ddd81436de9cf343bc6b5c8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:23 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various q* and r* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 26a34560d56a9df5bc2ae23525d9229736134757
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:17 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various p* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5cb23092a7d31490a33d4ec871468b63babfa3c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:13 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various o* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 929a2bfd142737003a8fc32e1b86e1f2c1850257
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various n* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5dc11a511960d490f7f01ffd746edfe6277f99b0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:01 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various m* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9bbb1c0820c1fbd3811ab6ee4ba0f6c6f76b27e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:57 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various l* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bc234c129fa04fb9fa33530930e5cbc6084cd47a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:51 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various j* and k* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1d2c6bc491969f8d8fb34c8e30e8bea7a2af9c31
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:32 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various i* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 48d5d102a2f2e619c92050b9aedbb69689185bc0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:25 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various h* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72eb0efaed7048afcc61fc6f0085c49394b5dc36
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:19 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various g* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1bec3d3002d3bbbae6f2468a0f7376db1120d33e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:10 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various e* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ab999ba1b31ebe78dd16374394a55d7c6e5aa6e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:03 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various d* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 37e4f24b87fa255ae456d193b7cd23c18dd1d56b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:56 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various c* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ba2351f9d1e841bd00ea6dad1e3c16d0259ad264
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:49 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various b* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0b361c916617aff79e647b40f0e43361e0bbaccf
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:42 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various a* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b730cda82e362df6a22f4c59c0a9b97e885b1014
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in mpc5xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d794cfefead5fc177cf4f41164e80382e9c9484a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:15 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various 5200 board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ef0df52ab49eea4a30c15087fd27d54c1d946f2c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in STx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 866e3089bfc826bb4dc74637f8aad87a3bab79fc
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:58 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in sbc* board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2694690e285acaa34922f55f4b5ae030da60c55a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:50 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in TQM board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1cc4c458329765b58e584a19821e796b3c10e976
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:28 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 82xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8ea5499afdaba0acf60923dd99001c399d4a7c8e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:06 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 83xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit b44896215a09c60fa40cae906f7ed207bbc2c492
 Author: Sergei Poselenov <sposelenov@emcraft.com>
 Date:	Thu Jul 5 08:17:37 2007 +0200
@@ -118,6 +1145,40 @@ Date:	Thu Jul 5 08:17:37 2007 +0200
     Merged POST framework with the current TOT.
 
     Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+
+commit b24629fa377214d63bb40d1360e354b6d3e4af56
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:23:15 2007 -0500
+
+    mpc86xx: Remove old CFG_CMD_* references.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46175d9764da129bb4fd341cd2554dc7d55f5b2a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:54 2007 -0500
+
+    Add MPC8568MDS to MAKEALL 85xx target.
+
+    It was missing from the original port submission.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2835e518c969e5124ba1174eef3e8375e12fa7d5
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:08 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 85xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 56b304ac2091689506088a9ae67f63fd6300cf16
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:21:37 2007 -0500
+
+    Fix #if typo in CONFIG_CMD_* changes.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit f780b83316d9af1f61d71cc88b1917b387b9b995
 Author: Niklaus Giger <niklausgiger@gmx.ch>
@@ -140,6 +1201,548 @@ Date:	Wed Jul 4 10:06:30 2007 +0200
     - Lime register setup added
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6810a34677dbc446334f5e451f1682426dd33b49
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 90b1b2d69b9396ff2f01165ebc16c9a594eb5926
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 057004f4a4863554d56cc56268bfa7c7d9738e27
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:49 2007 -0600
+
+    Correct fixup relocation for mpc83xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5af61b2f4b838a05f79be274f3e5a66edd2d9c96
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:44 2007 -0600
+
+    Correct fixup relocation for mpc8260
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f3a52fe05923935db86985daf9438e2f70ac39aa
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:39 2007 -0600
+
+    Correct fixup relocation for mpc824x
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a85dd254c0577fca13627c46e93fc2ad4c4f1f00
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:34 2007 -0600
+
+    Correct fixup relocation for mpc8220
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6f7576b20ecf0d040c3ac3b032b5cbc860e38a90
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:29 2007 -0600
+
+    Correct fixup relocation for MPC5xxx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 3649cd99ba815b6601868735765602f00ef3692b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:24 2007 -0600
+
+    Correct relocation fixup for mpc5xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f82b3b6304b620ef7e28bfaa1ea887a2ad2fa325
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:19 2007 -0600
+
+    Don't set gd->reloc_off if relocation of .fixup works correctly
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e1a6144c32dc7de73bcdd33995de0148cbd0bd28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:14 2007 -0600
+
+    Remove obsolete mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 17e32fc3908bf7089d3f16fc82a1c3ae674dd65b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:09 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit af7d38b393690d7eeaf418ac85a1e831a50d5fd0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:04 2007 -0600
+
+    Remove obsolete mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f94a3aecebc40ca0939c7d66d010009cf51be9e2
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:59 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (3 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a71c084f3ac7fedf144537db2b2da47323068833
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:53 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (2 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f670a15468d1365241d40022b9408e1004181f5e
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:48 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (1 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 09555bd45a04c0e54f172528d21bc18896550d28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:43 2007 -0600
+
+    Remove obsolete mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5efb992f046e51225c93d52f80fecbe433abd789
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:38 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (3 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 07c13dfef65b31647e69d8b61daa1eec598add1a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:33 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (2 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b4f67513a624ce85866c66c575bd2d9d7977d7f0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:28 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (1 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b7d8e05f8675249b5f208aa73babeed384a4519d
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:23 2007 -0600
+
+    Remove obsolete mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 416a0b6d40f6eba3a2fc547253c16bda28d922f7
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:18 2007 -0600
+
+    Consolidate mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5fc59175b92883ed5d2666a04e6bc49e70a4a365
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:13 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 737f9eb02d7335df2b3e4d7a4d3348784d1da207
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:08 2007 -0600
+
+    Consolidate mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 9c757b789a59a855db57b448dd825329c4e9c4a0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:03 2007 -0600
+
+    Consolidate mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit d181c9a15cd41863fe24840d17848429f27d3c8c
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:58 2007 -0600
+
+    Consolidate mpc5xxx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 287ac924adb7291bebe5086652a362a30ab28b13
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:53 2007 -0600
+
+    Consolidate mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 52b8704d0245e589f86d462e9ec25aeb7ecbbbdd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:43:53 2007 +0200
+
+    Fix a few file permission problems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 78e0cf2de7be7f1eaeeb622eb61fd50e4d5e205c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:38:38 2007 +0200
+
+    Minor coding style cleanup. Rebuild CHANGELOG file.
+
+commit 2f9c19e496acb6bb50d9299e1aab377625d48c38
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:44 2007 -0500
+
+    configs/ mpc86xx: Rewrite command line options using new CONFIG_CMD-* style.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 602ad3b33d9ceef83dbab46be68646d645d637ee
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:39 2007 -0500
+
+    README: Rewrite command line config to use CONFIG_CMD_* names.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72a074cec68e5bad60d63206c050974e08afd804
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:34 2007 -0500
+
+    include/ non-config: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5fcf543e0b6628c76ff48705b1b0566bfd11507b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:28 2007 -0500
+
+    tools/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9107ebe0d352420895ab69b715697bdebc8caf50
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:23 2007 -0500
+
+    board/[k-z]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5e378003d592ea828ec69d6defcd4de79096dd5c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:19 2007 -0500
+
+    board/[Ma-i]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 737184114ec9c9e0ab94d6713536126073bd2472
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:15 2007 -0500
+
+    cpu/ non-mpc*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f48070fe5fe440dfb5ee5268c920de70e48ea327
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:08 2007 -0500
+
+    cpu/mpc*/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0c505db0a0dc1f670b13ce3b4d3fbf1ec5b3cbd2
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:03 2007 -0500
+
+    lib_*/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 73f032021ec5f13cda8faa4e34b6de80960eb86f
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:58 2007 -0500
+
+    lib_ppc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 98b79003c21c2578206003256de4e781d6b36ca8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:53 2007 -0500
+
+    rtc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6e2115acb6a892d53a6881bf253ae41d3df39156
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:49 2007 -0500
+
+    net/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 45cdb9b72c94655c7308b464a2666057c0b286e0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:34 2007 -0500
+
+    disk/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4e109ae98294a5ca7ff848b7652c7bfd4023a94a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:20 2007 -0500
+
+    fs/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d5be43de93ff905c465e509d45a3164ef48d26e7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:10 2007 -0500
+
+    drivers/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b453960d4fdb87b3970d96119b90df2ed024fc4a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:05 2007 -0500
+
+    common/ non-cmd: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 65c450b47a62659d522cfa8f4fa1e4e5c60dccd0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:54 2007 -0500
+
+    common/cmd_[i-z]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a76adc8142c1d956385a109e0b70f9319ede4d66
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:43 2007 -0500
+
+    common/cmd_[a-f]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ec63b10b61fd68238d4c15c1cd04c0b38228e2c1
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:34 2007 -0500
+
+    Introduce initial versions of new Command Config files.
+
+    Derive three new files from cmd_confdefs.h:
+	config_bootp.h - Has BOOTP related config options, not commands
+	config_cmd_all.h - Has a CONFIG_CMD_* definition for every command
+	config_cmd_default.h - Has a CONFIG_CMD_* definition for default cmds.
+
+    For now, include "config_bootp.h" for compatability until all
+    users of it directly include it properly.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 1f2a05898658900dc5717761e27abf2052e67e13
 Author: Mushtaq Khan <mushtaqk_921@yahoo.co.in>

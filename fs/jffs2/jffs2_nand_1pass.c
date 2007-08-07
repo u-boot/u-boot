@@ -1,6 +1,6 @@
 #include <common.h>
 
-#if !defined(CFG_NAND_LEGACY) && (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if !defined(CFG_NAND_LEGACY) && defined(CONFIG_CMD_JFFS2)
 
 #include <malloc.h>
 #include <linux/stat.h>
@@ -1033,4 +1033,4 @@ jffs2_1pass_info(struct part_info * part)
 	return 1;
 }
 
-#endif /* CFG_CMD_JFFS2 */
+#endif

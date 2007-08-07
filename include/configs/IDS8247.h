@@ -128,9 +128,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
- *
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC       */
 #define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC       */
@@ -159,24 +157,34 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_SNTP
+
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -234,7 +242,7 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #define CFG_NAND_LEGACY
 #define CFG_NAND0_BASE 0xE1000000
@@ -295,7 +303,7 @@
 #define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)(adr + 0x0)) = (__u8)d; } while(0)
 #define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)(adr + 0x0)))
 
-#endif /* CFG_CMD_NAND */
+#endif /* CONFIG_CMD_NAND */
 
 /*-----------------------------------------------------------------------
  * Hard Reset Configuration Words
@@ -355,7 +363,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE      32      /* For MPC8260 CPU              */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 # define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
@@ -474,7 +482,7 @@
 #define CFG_OR0_PRELIM  (MEG_TO_AM(CFG_FLASH_SIZE)      |\
 			 ORxG_SCY_6_CLK                 )
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 /* Bank 1 - NAND Flash
 */
 #define	CFG_NAND_BASE		CFG_NAND0_BASE

@@ -471,7 +471,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (strcmp(argv[1], "flash") == 0)
 	{
-#if (CONFIG_COMMANDS & CFG_CMD_FDC)
+#if defined(CONFIG_CMD_FDC)
 		if (strcmp(argv[2], "floppy") == 0) {
  			char *local_args[3];
 			extern int do_fdcboot (cmd_tbl_t *, int, int, char *[]);
@@ -491,7 +491,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			result=mpl_prg_image((uchar *)ld_addr);
 			return result;
 		}
-#endif /* (CONFIG_COMMANDS & CFG_CMD_FDC) */
+#endif
 		if (strcmp(argv[2], "mem") == 0) {
 	    		if(argc==4) {
 				ld_addr=simple_strtoul(argv[3], NULL, 16);
@@ -564,7 +564,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 extern void doc_probe(ulong physadr);
 void doc_init (void)
 {
