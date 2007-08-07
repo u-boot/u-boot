@@ -260,32 +260,6 @@ _start_e500:
 	mtspr	DBCR0,r0
 #endif
 
-	/* Jump out the last 4K page and continue to 'normal' start */
-	bl	3f
-	b	_start_cont
-
-3:	li	r0,0
-	mtspr	SRR1,r0		/* Keep things disabled for now */
-	mflr	r1
-	mtspr	SRR0,r1
-	rfi
-	isync
-
-
-	.text
-	.globl	_start
-_start:
-	.long	0x27051956		/* U-BOOT Magic Number */
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
-	.ascii CONFIG_IDENT_STRING, "\0"
-
-	.align	4
-	.globl	_start_cont
-_start_cont:
-
 /* L1 DCache is used for initial RAM */
 
 	/* Allocate Initial RAM in data cache.
@@ -301,18 +275,39 @@ _start_cont:
 	addi	r3,r3,32
 	bdnz	1b
 
-#ifndef CFG_RAMBOOT
+	/* Jump out the last 4K page and continue to 'normal' start */
+#ifdef CFG_RAMBOOT
+	bl	3f
+	b	_start_cont
+#else
 	/* Calculate absolute address in FLASH and jump there		*/
 	/*--------------------------------------------------------------*/
 	lis	r3,CFG_MONITOR_BASE@h
 	ori	r3,r3,CFG_MONITOR_BASE@l
-	addi	r3,r3,in_flash - _start + _START_OFFSET
+	addi	r3,r3,_start_cont - _start + _START_OFFSET
 	mtlr	r3
-	blr
-	.global	in_flash
-in_flash:
-#endif	/* CFG_RAMBOOT */
+#endif
 
+3:	li	r0,0
+	mtspr	SRR1,r0		/* Keep things disabled for now */
+	mflr	r1
+	mtspr	SRR0,r1
+	rfi
+	isync
+
+	.text
+	.globl	_start
+_start:
+	.long	0x27051956		/* U-BOOT Magic Number */
+	.globl	version_string
+version_string:
+	.ascii U_BOOT_VERSION
+	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii CONFIG_IDENT_STRING, "\0"
+
+	.align	4
+	.globl	_start_cont
+_start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
 	lis	r1,CFG_INIT_RAM_ADDR@h
 	ori	r1,r1,CFG_INIT_SP_OFFSET@l
