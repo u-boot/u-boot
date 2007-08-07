@@ -29,7 +29,7 @@
  */
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
-#define CONFIG_CM1_QP1		1	/* ... on CM1.QP1 module */
+#define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
 
 /*
@@ -63,6 +63,7 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		57600	/* ... at 57600 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
 
 
 /*
@@ -103,7 +104,6 @@
  */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"hostname=cm1_qp1\0"						\
 	"netmask=255.255.0.0\0"						\
 	"ipaddr=192.168.160.33\0"					\
 	"serverip=192.168.1.1\0"					\
@@ -116,13 +116,14 @@
 	"fdt_addr_flash=fc0a0000\0"					\
 	"ramdisk_addr=500000\0"						\
 	"rootpath=/opt/eldk-4.1/ppc_6xx\0"				\
-	"u-boot=/tftpboot/cm1_qp1/u-boot.bin\0"				\
-	"bootfile=/tftpboot/cm1_qp1/uImage\0"				\
-	"fdt_file=/tftpboot/cm1_qp1/cm1_qp1.dtb\0"			\
+	"u-boot=/tftpboot/cm5200/u-boot.bin\0"				\
+	"bootfile_fdt=/tftpboot/cm5200/uImage\0"			\
+	"fdt_file=/tftpboot/cm5200/cm5200.dtb\0"			\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
-	"update=prot off fc000000 fc05ffff; era fc000000 fc05ffff; "	\
+	"update=prot off fc000000 +${filesize}; "			\
+		"era fc000000 +${filesize}; "				\
 		"cp.b ${u-boot_addr} fc000000 ${filesize}; "		\
-		"prot on fc000000 fc05ffff\0"				\
+		"prot on fc000000 +${filesize}\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"flashargs=setenv bootargs root=/dev/mtdblock5 rw\0"		\
@@ -174,6 +175,8 @@
 
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_BOARD_TYPES	1	/* we use board_type */
+
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_BASE	TEXT_BASE
@@ -181,8 +184,21 @@
 #define CFG_MALLOC_LEN		(256 << 10)	/* 256 kB for malloc() */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
 
+/*
+ * Flash configuration
+ */
+#define CFG_FLASH_CFI		1
+#define CFG_FLASH_CFI_DRIVER	1
+#define CFG_FLASH_BASE		0xfc000000	
+/* we need these despite using CFI */
+#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
+#define CFG_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
+#define CFG_FLASH_SIZE		0x02000000 /* 32 MiB */
+
+
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT		1
+#undef CFG_LOWBOOT
 #endif
 
 
@@ -215,24 +231,13 @@
 #define SDRAM_CONFIG2	0x8EE70000
 
 
-/*
- * Flash configuration
- */
-#define CFG_FLASH_CFI		1
-#define CFG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_BASE		TEXT_BASE
-/* we need these despite using CFI */
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
-#define CFG_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
-#define CFG_FLASH_SIZE		0x02000000 /* 32 MiB */
-
 
 /*
  * MTD configuration
  */
 #define CONFIG_JFFS2_CMDLINE	1
-#define MTDIDS_DEFAULT		"nor0=cm1qp1-0"
-#define MTDPARTS_DEFAULT	"mtdparts=cm1qp1-0:"			\
+#define MTDIDS_DEFAULT		"nor0=cm5200-0"
+#define MTDPARTS_DEFAULT	"mtdparts=cm5200-0:"			\
 					"384k(uboot),128k(env),"	\
 					"128k(redund_env),128k(dtb),"	\
 					"2m(kernel),27904k(rootfs),"	\
@@ -347,9 +352,8 @@
 /*
  * Flat Device Tree support
  */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-#define OF_FLAT_TREE_MAX_SIZE	8192	/* max size of the flat tree (8K) */
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
