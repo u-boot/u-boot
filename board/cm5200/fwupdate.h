@@ -26,7 +26,7 @@
 #define __FW_UPDATE_H
 
 /* Default prefix for output messages */
-#define LOG_PREFIX	"CM1:   "
+#define LOG_PREFIX	"CM5200:"
 
 /* Extra debug macro */
 #ifdef CONFIG_FWUPDATE_DEBUG
@@ -42,6 +42,6 @@
 #define RS_BOOTARGS	"ramdisk=8192K"
 
 /* Main function for fwupdate */
-void cm1_fwupdate(void);
+void cm5200_fwupdate(void);
 
 #endif /* __FW_UPDATE_H */

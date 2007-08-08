@@ -533,13 +533,8 @@ PM520_ROMBOOT_DDR_config:	unconfig
 smmaco4_config: unconfig
 	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200
 
-cm1_qp1_config:	unconfig
-	@ >include/config.h
-	@[ -z "$(findstring cm1_qp1,$@)" ] || \
-		{  echo "... with 64 MByte SDRAM" ; \
-		  echo "... with 32 MByte Flash" ; \
-		}
-	@./mkconfig -a cm1_qp1 ppc mpc5xxx cm1_qp1
+cm5200_config:	unconfig
+	@./mkconfig -a cm5200 ppc mpc5xxx cm5200
 
 spieval_config:	unconfig
 	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200
