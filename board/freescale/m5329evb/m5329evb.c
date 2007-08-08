@@ -86,4 +86,3 @@ int testdram(void)
 
 	return (0);
 }
-
