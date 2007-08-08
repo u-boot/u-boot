@@ -49,6 +49,7 @@
 
 #include "biosemui.h"
 
+#if defined(CONFIG_BIOSEMU)
 /*------------------------- Global Variables ------------------------------*/
 
 #ifndef __i386__
@@ -717,3 +718,4 @@ void X86API BE_outl(X86EMU_pioAddr port, u32 val)
 #endif
 		LOG_outpd(port, val);
 }
+#endif

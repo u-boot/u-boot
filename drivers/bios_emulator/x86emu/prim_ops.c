@@ -100,6 +100,8 @@
 #define PRIM_OPS_NO_REDEFINE_ASM
 #include "x86emu/x86emui.h"
 
+#if defined(CONFIG_BIOSEMU)
+
 /*------------------------- Global Variables ------------------------------*/
 
 static u32 x86emu_parity_tab[8] =
@@ -2443,3 +2445,5 @@ DB( if (CHECK_SP_ACCESS())
     M.x86.R_SP += 4;
     return res;
 }
+
+#endif
