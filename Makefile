@@ -34,6 +34,7 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/arm.*/arm/ \
 	    -e s/sa110/arm/ \
 	    -e s/powerpc/ppc/ \
+	    -e s/ppc64/ppc/ \
 	    -e s/macppc/ppc/)
 
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
