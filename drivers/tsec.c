@@ -296,9 +296,9 @@ static int init_phy(struct eth_device *dev)
 	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
