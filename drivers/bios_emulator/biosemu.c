@@ -48,6 +48,8 @@
 #include "biosemui.h"
 #include <malloc.h>
 
+#if defined(CONFIG_BIOSEMU)
+
 BE_sysEnv _BE_env = {{0}};
 static X86EMU_memFuncs _BE_mem __attribute__((section(".got2"))) = {
 	BE_rdb,
@@ -368,3 +370,4 @@ int X86API BE_int86x(int intno, RMREGS * in, RMREGS * out, RMSREGS * sregs)
 	sregs->gs = M.x86.R_GS;
 	return out->x.ax;
 }
+#endif

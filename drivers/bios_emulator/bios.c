@@ -43,6 +43,7 @@
 
 #include "biosemui.h"
 
+#if defined(CONFIG_BIOSEMU)
 /*----------------------------- Implementation ----------------------------*/
 
 /****************************************************************************
@@ -319,3 +320,4 @@ void _BE_bios_init(u32 * intrTab)
 	bios_intr_tab[0x6D] = int10;
 	X86EMU_setupIntrFuncs(bios_intr_tab);
 }
+#endif
