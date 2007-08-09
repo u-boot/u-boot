@@ -129,7 +129,11 @@ static int usb_kbd_testc(void)
 static int usb_kbd_getc(void)
 {
 	char c;
-	while(usb_in_pointer==usb_out_pointer);
+	while(usb_in_pointer==usb_out_pointer) {
+#ifdef CFG_USB_EVENT_POLL
+		usb_event_poll();
+#endif
+	}
 	if((usb_out_pointer+1)==USB_KBD_BUFFER_LEN)
 		usb_out_pointer=0;
 	else

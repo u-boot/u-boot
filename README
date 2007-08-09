@@ -249,6 +249,7 @@ The following options need to be configured:
 		CONFIG_SA1110
 		CONFIG_ARM7
 		CONFIG_PXA250
+		CONFIG_PXA27X
 		CONFIG_CPU_MONAHANS
 
 		MicroBlaze based CPUs:
@@ -893,6 +894,71 @@ The following options need to be configured:
 			CONFIG_USB_CONFIG
 				for differential drivers: 0x00001000
 				for single ended drivers: 0x00005000
+			CFG_USB_EVENT_POLL
+				May be defined to allow interrupt polling
+				instead of using asynchronous interrupts
+
+- USB Device:
+		Define the below if you wish to use the USB console.
+		Once firmware is rebuilt from a serial console issue the
+		command "setenv stdin usbtty; setenv stdout usbtty" and
+		attach your usb cable. The Unix command "dmesg" should print
+		it has found a new device. The environment variable usbtty
+		can be set to gserial or cdc_acm to enable your device to
+		appear to a USB host as a Linux gserial device or a
+		Common Device Class Abstract Control Model serial device.
+		If you select usbtty = gserial you should be able to enumerate
+		a Linux host by
+		# modprobe usbserial vendor=0xVendorID product=0xProductID
+		else if using cdc_acm, simply setting the environment
+		variable usbtty to be cdc_acm should suffice. The following
+		might be defined in YourBoardName.h
+
+			CONFIG_USB_DEVICE
+			Define this to build a UDC device
+
+			CONFIG_USB_TTY
+			Define this to have a tty type of device available to
+			talk to the UDC device
+
+			CFG_CONSOLE_IS_IN_ENV
+			Define this if you want stdin, stdout &/or stderr to
+			be set to usbtty.
+
+			mpc8xx:
+				CFG_USB_EXTC_CLK 0xBLAH
+				Derive USB clock from external clock "blah"
+				- CFG_USB_EXTC_CLK 0x02
+
+				CFG_USB_BRG_CLK 0xBLAH
+				Derive USB clock from brgclk
+				- CFG_USB_BRG_CLK 0x04
+
+		If you have a USB-IF assigned VendorID then you may wish to
+		define your own vendor specific values either in BoardName.h
+		or directly in usbd_vendor_info.h. If you don't define
+		CONFIG_USBD_MANUFACTURER, CONFIG_USBD_PRODUCT_NAME,
+		CONFIG_USBD_VENDORID and CONFIG_USBD_PRODUCTID, then U-Boot
+		should pretend to be a Linux device to it's target host.
+
+			CONFIG_USBD_MANUFACTURER
+			Define this string as the name of your company for
+			- CONFIG_USBD_MANUFACTURER "my company"
+
+			CONFIG_USBD_PRODUCT_NAME
+			Define this string as the name of your product
+			- CONFIG_USBD_PRODUCT_NAME "acme usb device"
+
+			CONFIG_USBD_VENDORID
+			Define this as your assigned Vendor ID from the USB
+			Implementors Forum. This *must* be a genuine Vendor ID
+			to avoid polluting the USB namespace.
+			- CONFIG_USBD_VENDORID 0xFFFF
+
+			CONFIG_USBD_PRODUCTID
+			Define this as the unique Product ID
+			for your device
+			- CONFIG_USBD_PRODUCTID 0xFFFF
 
 
 - MMC Support:

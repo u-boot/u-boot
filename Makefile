@@ -122,7 +122,7 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE =
 else
 ifeq ($(ARCH),ppc)
-CROSS_COMPILE = powerpc-linux-
+CROSS_COMPILE = ppc_8xx-
 endif
 ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
@@ -656,6 +656,9 @@ AdderII_config  \
 	$(if $(findstring AdderII,$@), \
 	@echo "#define CONFIG_MPC852T" > $(obj)include/config.h)
 	@$(MKCONFIG) -a Adder ppc mpc8xx adder
+
+AdderUSB_config:	unconfig
+	@./mkconfig -a AdderUSB ppc mpc8xx adder
 
 ADS860_config     \
 FADS823_config    \
