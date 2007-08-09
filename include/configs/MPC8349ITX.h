@@ -289,6 +289,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
+#define CONFIG_CONSOLE		ttyS0
 #define CONFIG_BAUDRATE		115200
 
 #define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
@@ -408,6 +409,7 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
+  #undef  CFG_FLASH_CFI_DRIVER
   #define CFG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
   #define CFG_ENV_SIZE		0x2000
@@ -450,9 +452,7 @@ boards, we say we have two, but don't display a message if we find only one. */
     #define CONFIG_CMD_I2C
 #endif
 
-
 /* Watchdog */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*
@@ -673,9 +673,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" 	\
 		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
 		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \
-	" console=ttyS0," MK_STR(CONFIG_BAUDRATE)
+	" console=" MK_STR(CONFIG_CONSOLE) "," MK_STR(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"console=" MK_STR(CONFIG_CONSOLE) "\0" 				\
 	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
 	"tftpflash=tftpboot $loadaddr $uboot; " 			\
