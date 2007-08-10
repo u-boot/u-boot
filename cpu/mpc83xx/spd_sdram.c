@@ -576,7 +576,7 @@ long int spd_sdram()
 	if (spd.dataw_lsb == 0x20) {
 		if (spd.mem_type == SPD_MEMTYPE_DDR)
 			burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
-		if (spd.mem_type == SPD_MEMTYPE_DDR2)
+		else
 			burstlen = 0x02; /* 32 bit data bus, burst len is 4 */
 		printf("\n   DDR DIMM: data bus width is 32 bit");
 	} else {
