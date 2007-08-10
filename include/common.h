@@ -241,6 +241,9 @@ int	saveenv	     (void);
 void inline setenv   (char *, char *);
 #else
 void	setenv	     (char *, char *);
+#ifdef CONFIG_HAS_UID
+void	forceenv     (char *, char *);
+#endif
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>

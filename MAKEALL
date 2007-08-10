@@ -220,7 +220,8 @@ LIST_ARM9="	\
 	omap1610h2	omap1610inn	omap730p2	sbc2410x	\
 	scb9328		smdk2400	smdk2410	trab		\
 	VCMA9		versatile	versatileab	versatilepb	\
-	voiceblue							\
+	voiceblue	davinci_dvevm	davinci_schmoogie		\
+	davinci_sonata
 "
 
 #########################################################################

@@ -364,6 +364,13 @@ void start_armboot (void)
 	enable_interrupts ();
 
 	/* Perform network card initialisation if necessary */
+#ifdef CONFIG_DRIVER_TI_EMAC
+extern void dm644x_eth_set_mac_addr (const u_int8_t *addr);
+	if (getenv ("ethaddr")) {
+		dm644x_eth_set_mac_addr(gd->bd->bi_enetaddr);
+	}
+#endif
+
 #ifdef CONFIG_DRIVER_CS8900
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif
