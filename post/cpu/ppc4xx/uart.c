@@ -84,6 +84,49 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CFG_EXT_SERIAL_CLOCK)
+static void serial_divs (int baudrate, unsigned long *pudiv,
+			 unsigned short *pbdiv)
+{
+	sys_info_t sysinfo;
+	unsigned long div;		/* total divisor udiv * bdiv */
+	unsigned long umin;		/* minimum udiv */
+	unsigned short diff;		/* smallest diff */
+	unsigned long udiv;		/* best udiv */
+	unsigned short idiff;		/* current diff */
+	unsigned short ibdiv;		/* current bdiv */
+	unsigned long i;
+	unsigned long est;		/* current estimate */
+
+	get_sys_info(&sysinfo);
+
+	udiv = 32;			/* Assume lowest possible serial clk */
+	div = sysinfo.freqPLB / (16 * baudrate); /* total divisor */
+	umin = sysinfo.pllOpbDiv << 1;	/* 2 x OPB divisor */
+	diff = 32;			/* highest possible */
+
+	/* i is the test udiv value -- start with the largest
+	 * possible (32) to minimize serial clock and constrain
+	 * search to umin.
+	 */
+	for (i = 32; i > umin; i--) {
+		ibdiv = div / i;
+		est = i * ibdiv;
+		idiff = (est > div) ? (est-div) : (div-est);
+		if (idiff == 0) {
+			udiv = i;
+			break;	/* can't do better */
+		} else if (idiff < diff) {
+			udiv = i;	/* best so far */
+			diff = idiff;	/* update lowest diff*/
+		}
+	}
+
+	*pudiv = udiv;
+	*pbdiv = div / udiv;
+}
+#endif
+
 static int uart_post_init (unsigned long dev_base)
 {
 	unsigned long reg;
