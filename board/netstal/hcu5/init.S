@@ -55,7 +55,7 @@ tlbtab:
 	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for EBC (CFG_CPLD) */
-	// tlbentry( CFG_CPLD, SZ_1K, CFG_CPLD, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	/* tlbentry( CFG_CPLD, SZ_1K, CFG_CPLD, 1, AC_R|AC_W|AC_X|SA_G|SA_I ) */
 	/* 		CAN */
 	tlbentry( CFG_CS_1, SZ_16M, CFG_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 	 /* 		IMC + CPLD */
@@ -77,5 +77,3 @@ tlbtab:
 	/* TLB for SDRAM will be added by initdram (sdram.c) */
 
 	tlbtab_end
-
-

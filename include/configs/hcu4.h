@@ -312,8 +312,6 @@
 #define CONFIG_PORT_ADDR	0xF0000500
 
 
-
-
 /*-----------------------------------------------------------------------
  * Cache Configuration
  *----------------------------------------------------------------------*/
@@ -333,7 +331,7 @@
 
 #define CFG_HUSH_PARSER                 /* use "hush" command parser    */
 #ifdef  CFG_HUSH_PARSER
-        #define CFG_PROMPT_HUSH_PS2     "> "
+#define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_KGDB)

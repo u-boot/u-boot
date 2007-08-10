@@ -216,8 +216,9 @@ long int initdram (int board_type)
 {
 #define	HCU_HW_SDRAM_CONFIG_MASK 0x7
 #define INVALID_HW_CONFIG   "Invalid HW-Config"
-	uint16_t *hwVersReg    = (uint16_t *) HCU_HW_VERSION_REGISTER;
-	unsigned int dram_size=0;
+	u16 *hwVersReg = (u16 *) HCU_HW_VERSION_REGISTER;
+	unsigned int dram_size = 0;
+
 	mtsdram(DDR0_02, 0x00000000);
 
 	/* Values must be kept in sync with Excel-table <<A0001492.>> ! */
@@ -229,15 +230,15 @@ long int initdram (int board_type)
 	switch (*hwVersReg & HCU_HW_SDRAM_CONFIG_MASK) {
 	case 0:
 		dram_size = 128 * 1024 * 1024 ;
-		mtsdram(DDR0_06, 0x0102C80D);  // 128MB RAM
-		mtsdram(DDR0_11, 0x000FC800);  // 128MB RAM
-		mtsdram(DDR0_43, 0x030A0300);  // 128MB RAM
+		mtsdram(DDR0_06, 0x0102C80D);  /* 128MB RAM */
+		mtsdram(DDR0_11, 0x000FC800);  /* 128MB RAM */
+		mtsdram(DDR0_43, 0x030A0300);  /* 128MB RAM */
 		break;
 	case 1:
 		dram_size = 256 * 1024 * 1024 ;
-		mtsdram(DDR0_06, 0x0102C812);  // 256MB RAM
-		mtsdram(DDR0_11, 0x0014C800);  // 256MB RAM
-		mtsdram(DDR0_43, 0x030A0200);  // 256MB RAM
+		mtsdram(DDR0_06, 0x0102C812);  /* 256MB RAM */
+		mtsdram(DDR0_11, 0x0014C800);  /* 256MB RAM */
+		mtsdram(DDR0_43, 0x030A0200);  /* 256MB RAM */
 		break;
 	default:
 		sdram_panic(INVALID_HW_CONFIG);
@@ -245,8 +246,10 @@ long int initdram (int board_type)
 	}
 	dram_size -= 16 * 1024 * 1024;
 	mtsdram(DDR0_07, 0x00090100);
-	// TCPD=200 cycles of clock input is required to lock the DLL.
-	// CKE must be HIGH the entire time.mtsdram(DDR0_08, 0x02C80001);
+	/*
+	 * TCPD=200 cycles of clock input is required to lock the DLL.
+	 * CKE must be HIGH the entire time.mtsdram(DDR0_08, 0x02C80001);
+	 */
 	mtsdram(DDR0_08, 0x02C80001);
 	mtsdram(DDR0_09, 0x00011D5F);
 	mtsdram(DDR0_10, 0x00000100);

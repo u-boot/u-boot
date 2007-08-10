@@ -28,4 +28,3 @@ PLATFORM_CPPFLAGS += -DCONFIG_440=1
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG -g
 endif
-

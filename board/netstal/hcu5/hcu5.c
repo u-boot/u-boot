@@ -29,12 +29,34 @@ void sysLedSet(u32 value);
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
-#define mtcpr0(reg, data) do { mtdcr(CPR0_CFGADDR,reg); \
-				mtdcr(CPR0_CFGDATA,data); } while (0)
-#define mfcpr0(reg, data) do { mtdcr(CPR0_CFGADDR,reg); \
-				data = mfdcr(CPR0_CFGDATA); } while (0)
+#undef BOOTSTRAP_OPTION_A_ACTIVE
 
-#define SDR0_CP440			0x0180
+#define SDR0_CP440		0x0180
+
+#define SYSTEM_RESET		0x30000000
+#define CHIP_RESET		0x20000000
+
+#define SDR0_ECID0		0x0080
+#define SDR0_ECID1		0x0081
+#define SDR0_ECID2		0x0082
+#define SDR0_ECID3		0x0083
+
+#define SYS_IO_ADDRESS		0xcce00000
+
+#define DEFAULT_ETH_ADDR  "ethaddr"
+/* ethaddr for first or etha1ddr for second ethernet */
+
+enum {
+	/* HW_GENERATION_HCU1 is no longer supported */
+	HW_GENERATION_HCU2  = 0x10,
+	HW_GENERATION_HCU3  = 0x10,
+	HW_GENERATION_HCU4  = 0x20,
+	HW_GENERATION_HCU5  = 0x30,
+	HW_GENERATION_MCU   = 0x08,
+	HW_GENERATION_MCU20 = 0x0a,
+	HW_GENERATION_MCU25 = 0x09,
+};
+
 
 /*
  * This function is run very early, out of flash, and before devices are
@@ -50,7 +72,6 @@ int board_early_init_f(void)
 {
 	u32 reg;
 
-#undef BOOTSTRAP_OPTION_A_ACTIVE
 #ifdef BOOTSTRAP_OPTION_A_ACTIVE
 	/* Booting with Bootstrap Option A
 	 * First boot, with CPR0_ICFG_RLI_MASK == 0
@@ -64,27 +85,26 @@ int board_early_init_f(void)
 
 	u32 cpr0icfg;
 	u32 dbcr;
-	mfcpr0(CPR0_ICFG, cpr0icfg);
-	if ( ! (cpr0icfg & CPR0_ICFG_RLI_MASK ) ) {
-		mtcpr0(CPR0_MALD,   0x02000000);
-		mtcpr0(CPR0_OPBD,   0x02000000);
-	        mtcpr0(CPR0_PERD,   0x05000000);  /* 1:5 */
-		mtcpr0(CPR0_PLLC,   0x40000238);
-		mtcpr0(CPR0_PLLD,   0x01010414);
-		mtcpr0(CPR0_PRIMAD, 0x01000000);
-		mtcpr0(CPR0_PRIMBD, 0x01000000);
-		mtcpr0(CPR0_SPCID,  0x03000000);
-		mtsdr(SDR0_PFC0,    0x00003E00);  /* [CTE] = 0 */
-		mtsdr(SDR0_CP440,   0x0EAAEA02);  /* [Nto1] = 1*/
-		mtcpr0(CPR0_ICFG,   cpr0icfg | CPR0_ICFG_RLI_MASK);
+
+	mfcpr(CPR0_ICFG, cpr0icfg);
+	if (!(cpr0icfg & CPR0_ICFG_RLI_MASK)) {
+		mtcpr(CPR0_MALD,   0x02000000);
+		mtcpr(CPR0_OPBD,   0x02000000);
+	        mtcpr(CPR0_PERD,   0x05000000);  /* 1:5 */
+		mtcpr(CPR0_PLLC,   0x40000238);
+		mtcpr(CPR0_PLLD,   0x01010414);
+		mtcpr(CPR0_PRIMAD, 0x01000000);
+		mtcpr(CPR0_PRIMBD, 0x01000000);
+		mtcpr(CPR0_SPCID,  0x03000000);
+		mtsdr(SDR0_PFC0,   0x00003E00);  /* [CTE] = 0 */
+		mtsdr(SDR0_CP440,  0x0EAAEA02);  /* [Nto1] = 1*/
+		mtcpr(CPR0_ICFG,   cpr0icfg | CPR0_ICFG_RLI_MASK);
 
 		/*
 		 * Initiate system reset in debug control register DBCR
 		 */
 		dbcr = mfspr(dbcr0);
-		#define SYSTEM_RESET 0x30000000
-		#define CHIP_RESET   0x20000000
-		mtspr(dbcr0, dbcr | CHIP_RESET );
+		mtspr(dbcr0, dbcr | CHIP_RESET);
 	}
 	mtsdr(SDR0_CP440, 0x0EAAEA02);  /* [Nto1] = 1*/
 #endif
@@ -162,59 +182,41 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_PRE_INIT
-int board_pre_init (void)
+int board_pre_init(void)
 {
-	return board_early_init_f ();
+	return board_early_init_f();
 }
 
-#endif
-
-enum {
-	/* HW_GENERATION_HCU1 is no longer supported */
-	HW_GENERATION_HCU2  = 0x10,
-	HW_GENERATION_HCU3  = 0x10,
-	HW_GENERATION_HCU4  = 0x20,
-	HW_GENERATION_HCU5  = 0x30,
-	HW_GENERATION_MCU   = 0x08,
-	HW_GENERATION_MCU20 = 0x0a,
-	HW_GENERATION_MCU25 = 0x09,
-};
-
-int checkboard (void)
+int checkboard(void)
 {
-#define SDR0_ECID0			0x0080
-#define SDR0_ECID1			0x0081
-#define SDR0_ECID2			0x0082
-#define SDR0_ECID3			0x0083
-	unsigned j;
-	uint16_t *hwVersReg    = (uint16_t *) HCU_HW_VERSION_REGISTER;
-	uint16_t *boardVersReg = (uint16_t *) HCU_CPLD_VERSION_REGISTER;
-	uint16_t generation = *boardVersReg & 0xf0;
-	uint16_t index      = *boardVersReg & 0x0f;
-	ulong ecid0, ecid1, ecid2, ecid3;
-	printf ("Netstal Maschinen AG: ");
+	unsigned int j;
+	u16 *hwVersReg    = (u16 *) HCU_HW_VERSION_REGISTER;
+	u16 *boardVersReg = (u16 *) HCU_CPLD_VERSION_REGISTER;
+	u16 generation = *boardVersReg & 0xf0;
+	u16 index      = *boardVersReg & 0x0f;
+	u32 ecid0, ecid1, ecid2, ecid3;
+
+	printf("Netstal Maschinen AG: ");
 	if (generation == HW_GENERATION_HCU3)
-		printf ("HCU3: index %d", index);
+		printf("HCU3: index %d", index);
 	else if (generation == HW_GENERATION_HCU4)
-		printf ("HCU4: index %d", index);
+		printf("HCU4: index %d", index);
 	else if (generation == HW_GENERATION_HCU5)
-		printf ("HCU5: index %d", index);
-	printf (" HW 0x%02x\n", *hwVersReg & 0xff);
+		printf("HCU5: index %d", index);
+	printf(" HW 0x%02x\n", *hwVersReg & 0xff);
 	mfsdr(SDR0_ECID0, ecid0);
 	mfsdr(SDR0_ECID1, ecid1);
 	mfsdr(SDR0_ECID2, ecid2);
 	mfsdr(SDR0_ECID3, ecid3);
 
-	printf("Chip ID 0x%x 0x%x 0x%x 0x%x\n",  ecid0,  ecid1, ecid2, ecid3);
-	for (j=0; j < 6;j++) {
+	printf("Chip ID 0x%x 0x%x 0x%x 0x%x\n", ecid0, ecid1, ecid2, ecid3);
+	for (j = 0;j < 6; j++) {
 		sysLedSet(1 << j);
-		udelay(200*1000);
+		udelay(200 * 1000);
 	}
+
 	return 0;
 }
-
-#define SYS_IO_ADDRESS 0xcce00000
 
 u32 sysLedGet(void)
 {
@@ -232,9 +234,10 @@ void sysLedSet(u32 value /* value to place in LEDs */)
 static u32 getSerialNr(void)
 {
 	u32 *serial = (u32 *)CFG_FLASH_BASE;
-	if (*serial == 0xffffffff) {
+
+	if (*serial == 0xffffffff)
 		return get_ticks();
-	}
+
 	return *serial;
 }
 
@@ -242,45 +245,44 @@ static u32 getSerialNr(void)
 /*---------------------------------------------------------------------------+
  * misc_init_r.
  *---------------------------------------------------------------------------*/
-
-#define DEFAULT_ETH_ADDR  "ethaddr"
-/* ethaddr  for first or etha1ddr  for second ethernet */
-
 int misc_init_r(void)
 {
 	char *s = getenv(DEFAULT_ETH_ADDR);
 	char *e;
 	int i;
-	u32 serial =  getSerialNr();
+	u32 serial = getSerialNr();
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
 
 	for (i = 0; i < 6; ++i) {
-		gd->bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		gd->bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+
 	if (gd->bd->bi_enetaddr[3] == 0 &&
 	    gd->bd->bi_enetaddr[4] == 0 &&
 	    gd->bd->bi_enetaddr[5] == 0) {
 		char ethaddr[22];
+
 		/* Must be in sync with CONFIG_ETHADDR */
 		gd->bd->bi_enetaddr[0] = 0x00;
 		gd->bd->bi_enetaddr[1] = 0x60;
 		gd->bd->bi_enetaddr[2] = 0x13;
-		gd->bd->bi_enetaddr[3] = (serial          >> 16) & 0xff;
-		gd->bd->bi_enetaddr[4] = (serial          >>  8) & 0xff;
+		gd->bd->bi_enetaddr[3] = (serial >> 16) & 0xff;
+		gd->bd->bi_enetaddr[4] = (serial >>  8) & 0xff;
 		/* byte[5].bit 0 must be zero */
-		gd->bd->bi_enetaddr[5] = (serial          >>  0) & 0xfe;
-		sprintf (ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X\0",
-			 gd->bd->bi_enetaddr[0], gd->bd->bi_enetaddr[1],
-			 gd->bd->bi_enetaddr[2], gd->bd->bi_enetaddr[3],
-			 gd->bd->bi_enetaddr[4], gd->bd->bi_enetaddr[5]) ;
+		gd->bd->bi_enetaddr[5] = (serial >>  0) & 0xfe;
+		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X\0",
+			gd->bd->bi_enetaddr[0], gd->bd->bi_enetaddr[1],
+			gd->bd->bi_enetaddr[2], gd->bd->bi_enetaddr[3],
+			gd->bd->bi_enetaddr[4], gd->bd->bi_enetaddr[5]) ;
 		printf("%s: Setting eth %s serial 0x%x\n",  __FUNCTION__,
 		       ethaddr, serial);
-		setenv (DEFAULT_ETH_ADDR, ethaddr);
+		setenv(DEFAULT_ETH_ADDR, ethaddr);
 	}
+
 #ifdef CFG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
@@ -334,9 +336,9 @@ int misc_init_r(void)
 	mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
 	/*clear resets*/
-	udelay (1000);
+	udelay(1000);
 	mtsdr(SDR0_SRST1, 0x00000000);
-	udelay (1000);
+	udelay(1000);
 	mtsdr(SDR0_SRST0, 0x00000000);
 
 	printf("USB:   Host(int phy) Device(ext phy)\n");
@@ -356,7 +358,7 @@ int misc_init_r(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long addr;
@@ -374,7 +376,7 @@ int pci_pre_init(struct pci_controller *hose)
 	mfsdr(sdr_amp1, addr);
 	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
 	addr = mfdcr(plb3_acr);
-	// mtdcr(plb3_acr, addr & ~plb1_acr_wrp_mask);  /* ngngng */
+	/* mtdcr(plb3_acr, addr & ~plb1_acr_wrp_mask); */  /* ngngng */
 	mtdcr(plb3_acr, addr | 0x80000000); /* Sequoia */
 
 	/*-------------------------------------------------------------------+
@@ -383,7 +385,7 @@ int pci_pre_init(struct pci_controller *hose)
 	mfsdr(sdr_amp0, addr);
 	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
 	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
-//	mtdcr(plb4_acr, addr & ~plb1_acr_wrp_mask);  /* ngngng */
+	/* mtdcr(plb4_acr, addr & ~plb1_acr_wrp_mask); */  /* ngngng */
 	mtdcr(plb4_acr, addr);  /* Sequoia */
 
 	/*-------------------------------------------------------------------+
@@ -393,24 +395,23 @@ int pci_pre_init(struct pci_controller *hose)
 	addr = (mfdcr(plb0_acr) & ~plb0_acr_ppm_mask) | plb0_acr_ppm_fair;
 	addr = (addr & ~plb0_acr_hbu_mask) | plb0_acr_hbu_enabled;
 	addr = (addr & ~plb0_acr_rdp_mask) | plb0_acr_rdp_4deep;
-//	addr = (addr & ~plb0_acr_wrp_mask) ;  /* ngngng */
+	/* addr = (addr & ~plb0_acr_wrp_mask); */  /* ngngng */
 	addr = (addr & ~plb0_acr_wrp_mask) | plb0_acr_wrp_2deep; /* Sequoia */
 
-	// mtdcr(plb0_acr, addr); /* Sequoia */
-	mtdcr(plb0_acr, 0);  // PATCH HAB: WRITE PIPELINING OFF
-
+	/* mtdcr(plb0_acr, addr); */ /* Sequoia */
+	mtdcr(plb0_acr, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	/* Segment1 */
 	addr = (mfdcr(plb1_acr) & ~plb1_acr_ppm_mask) | plb1_acr_ppm_fair;
 	addr = (addr & ~plb1_acr_hbu_mask) | plb1_acr_hbu_enabled;
 	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
 	addr = (addr & ~plb1_acr_wrp_mask) ;
-	// mtdcr(plb1_acr, addr); /* Sequoia */
-	mtdcr(plb1_acr, 0);  // PATCH HAB: WRITE PIPELINING OFF
+	/* mtdcr(plb1_acr, addr); */ /* Sequoia */
+	mtdcr(plb1_acr, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	return 1;
 }
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif	/* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
@@ -476,7 +477,6 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_word(0, PCI_ERREN, 0);
 
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
-
 }
 #endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
 
@@ -523,4 +523,3 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 #endif				/* defined(CONFIG_PCI) */
-

@@ -91,7 +91,7 @@ LIST_4xx="	\
 	PPChameleonEVB  sbc405          sc3		sequoia		\
 	sequoia_nand    taishan         VOH405		VOM405		\
 	W7OLMC          W7OLMG          walnut		WUH405		\
-	XPEDITE1K       yellowstone     yosemite	yucca						\
+	XPEDITE1K       yellowstone     yosemite	yucca		\
 "
 
 #########################################################################

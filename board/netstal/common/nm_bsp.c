@@ -39,4 +39,3 @@ U_BOOT_CMD(
 	  "Help for Netstal Maschinen BSP specific command.\n"
 	  );
 #endif
-

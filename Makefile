@@ -1040,7 +1040,7 @@ ADCIOP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx adciop esd
 
 alpr_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx alpr prodrive
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx alpr prodrive
 
 AP1000_config:unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ap1000 amirix
@@ -1135,10 +1135,10 @@ G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
 hcu4_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx hcu4 netstal
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu4 netstal
 
 hcu5_config:	unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx hcu5 netstal
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu5 netstal
 
 HH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hh405 esd
@@ -1258,7 +1258,7 @@ rainier_nand_config: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 sc3_config:unconfig
-	@./mkconfig $(@:_config=) ppc ppc4xx sc3
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sc3
 
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc

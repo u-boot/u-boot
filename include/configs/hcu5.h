@@ -236,8 +236,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-//	CFG_CMD_FLASH	|
-
 #define CONFIG_COMMANDS (CONFIG_CMD_DFL	|	\
 			CFG_CMD_ASKENV	|	\
 			CFG_CMD_BSP     |	\
@@ -301,7 +299,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT		/* enable board pci_pre_init()	*/
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
@@ -389,4 +386,3 @@
 #define CONFIG_KGDB_SER_INDEX	2	    /* which serial port to use */
 #endif
 #endif	/* __CONFIG_H */
-

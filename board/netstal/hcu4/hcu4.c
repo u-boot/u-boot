@@ -27,10 +27,30 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define HCU_MACH_VERSIONS_REGISTER	(0x7C000000 + 0xF00000)
+
+#define mtsdram(reg, data)  { mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
+#define mfsdram(value, reg) { mtdcr(memcfga,reg); value = mfdcr(memcfgd); }
+
+#define SDRAM_LEN 32*1024*1024 /* 32 MB -RAM */
+
+#define DO_UGLY_SDRAM_WORKAROUND
+
+enum {
+	/* HW_GENERATION_HCU wird nicht mehr unterstuetzt */
+	HW_GENERATION_HCU2  = 0x10,
+	HW_GENERATION_HCU3  = 0x10,
+	HW_GENERATION_HCU4  = 0x20,
+	HW_GENERATION_MCU   = 0x08,
+	HW_GENERATION_MCU20 = 0x0a,
+	HW_GENERATION_MCU25 = 0x09,
+};
+
 void sysLedSet(u32 value);
-long int spd_sdram(int(read_spd)(uint addr))
+long int spd_sdram(int(read_spd)(uint addr));
+
 #ifdef CONFIG_SPD_EEPROM
-	#define DEBUG
+#define DEBUG
 #endif
 
 #if defined(DEBUG)
@@ -86,26 +106,15 @@ int board_pre_init (void)
 {
 	return board_early_init_f ();
 }
-
 #endif
-
-enum {
-	/* HW_GENERATION_HCU wird nicht mehr unterstuetzt */
-	HW_GENERATION_HCU2  = 0x10,
-	HW_GENERATION_HCU3  = 0x10,
-	HW_GENERATION_HCU4  = 0x20,
-	HW_GENERATION_MCU   = 0x08,
-	HW_GENERATION_MCU20 = 0x0a,
-	HW_GENERATION_MCU25 = 0x09,
-};
 
 int checkboard (void)
 {
-#define HCU_MACH_VERSIONS_REGISTER ( 0x7C000000 + 0xF00000 )
-	unsigned j;
-	uint16_t *boardVersReg = (uint16_t *) HCU_MACH_VERSIONS_REGISTER;
-	uint16_t generation = *boardVersReg & 0xf0;
-	uint16_t index      = *boardVersReg & 0x0f;
+	unsigned int j;
+	u16 *boardVersReg = (u16 *) HCU_MACH_VERSIONS_REGISTER;
+	u16 generation = *boardVersReg & 0xf0;
+	u16 index      = *boardVersReg & 0x0f;
+
 	/* Force /RTS to active. The board it not wired quite
 	   correctly to use cts/rtc flow control, so just force the
 	   /RST active and forget about it. */
@@ -117,24 +126,26 @@ int checkboard (void)
 		printf ("HCU4: index %d\n\n", index);
 	/* GPIO here noch nicht richtig initialisert !!! */
 	sysLedSet(0);
-	for (j=0; j < 7;j++) {
+	for (j = 0; j < 7; j++) {
 		sysLedSet(1 << j);
-		udelay(50*1000);
+		udelay(50 * 1000);
 	}
+
 	return 0;
 }
 
 u32 sysLedGet(void)
 {
-	return( ~( (*(u32 *)GPIO0_OR)) >> 23) & 0xff;
+	return (~((*(u32 *)GPIO0_OR)) >> 23) & 0xff;
 }
 
 void sysLedSet(u32 value /* value to place in LEDs */)
 {
 	u32   tmp = ~value;
 	u32   *ledReg;
-	tmp  = (tmp << 23) | 0x7FFFFF;
-	ledReg = (u32   *)GPIO0_OR;
+
+	tmp = (tmp << 23) | 0x7FFFFF;
+	ledReg = (u32 *)GPIO0_OR;
 	*ledReg = tmp;
 }
 
@@ -147,13 +158,11 @@ void sdram_init(void)
 	return;
 }
 
-#define mtsdram(reg, data)  { mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
-#define mfsdram(value, reg) { mtdcr(memcfga,reg); value = mfdcr(memcfgd); }
-
 #if defined(DEBUG)
 void show_sdram_registers(void)
 {
 	u32 value;
+
 	printf ("SDRAM Controller Registers --\n");
 	mfsdram(value, mem_mcopt1);
 	printf ("    SDRAM0_CFG   : 0x%08x\n", value);
@@ -169,8 +178,6 @@ void show_sdram_registers(void)
 	printf ("    SDRAM0_RTR   : 0x%08x\n", value);
 }
 #endif
-
-#define SDRAM_LEN 32*1024*1024 /* 32 MB -RAM */
 
 /*
  * this is even after checkboard. It returns the size of the SDRAM
@@ -244,9 +251,10 @@ long int fixed_hcu4_sdram (int board_type)
 static u32 getSerialNr(void)
 {
 	u32 *serial = (u32 *)CFG_FLASH_BASE;
-	if (*serial == 0xffffffff) {
+
+	if (*serial == 0xffffffff)
 		return get_ticks();
-	}
+
 	return *serial;
 }
 
@@ -260,12 +268,14 @@ int misc_init_r(void)
 	char *s = getenv("ethaddr");
 	char *e;
 	int i;
-	u32 serial =  getSerialNr();
+	u32 serial = getSerialNr();
+
 	for (i = 0; i < 6; ++i) {
 		gd->bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+
 	if (gd->bd->bi_enetaddr[3] == 0 &&
 	    gd->bd->bi_enetaddr[4] == 0 &&
 	    gd->bd->bi_enetaddr[5] == 0) {
@@ -288,13 +298,14 @@ int misc_init_r(void)
 	return 0;
 }
 
-#define DO_UGLY_SDRAM_WORKAROUND
 #ifdef  DO_UGLY_SDRAM_WORKAROUND
-	#include "i2c.h"
+#include "i2c.h"
+
 void set_spd_default_value(unsigned int spd_addr,uchar def_val)
 {
 	uchar value;
 	int res = i2c_read(SPD_EEPROM_ADDRESS, spd_addr, 1, &value, 1) ;
+
 	if (res == 0 && value == 0xff) {
 		res = i2c_write(SPD_EEPROM_ADDRESS,
 				spd_addr, 1, &def_val, 1) ;
@@ -387,7 +398,6 @@ long int initdram(int board_type)
 	bcu4_testdram(dram_size);
 	printf("%s %d MB of SDRAM\n", __FUNCTION__, dram_size/(1024*1024));
 #endif
+
 	return dram_size;
 }
-
-
