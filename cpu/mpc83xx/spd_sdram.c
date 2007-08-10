@@ -574,7 +574,10 @@ long int spd_sdram()
 
 	/* Check DIMM data bus width */
 	if (spd.dataw_lsb == 0x20) {
-		burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
+		if (spd.mem_type == SPD_MEMTYPE_DDR)
+			burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
+		if (spd.mem_type == SPD_MEMTYPE_DDR2)
+			burstlen = 0x02; /* 32 bit data bus, burst len is 4 */
 		printf("\n   DDR DIMM: data bus width is 32 bit");
 	} else {
 		burstlen = 0x02; /* Others act as 64 bit bus, burst len is 4 */
@@ -730,8 +733,12 @@ long int spd_sdram()
 		sdram_cfg |= 0x10000000;
 
 	/* The DIMM is 32bit width */
-	if (spd.dataw_lsb == 0x20)
-		sdram_cfg |= 0x000C0000;
+	if (spd.dataw_lsb == 0x20) {
+		if (spd.mem_type == SPD_MEMTYPE_DDR)
+			sdram_cfg |= 0x000C0000;
+		if (spd.mem_type == SPD_MEMTYPE_DDR2)
+			sdram_cfg |= 0x00080000;
+	}
 
 	ddrc_ecc_enable = 0;
 

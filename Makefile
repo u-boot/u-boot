@@ -1666,14 +1666,17 @@ MPC8313ERDB_66_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+
+MPC8323ERDB_config:	unconfig
+	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
 
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
@@ -1682,7 +1685,7 @@ MPC832XEMDS_SLAVE_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo "... PCI HOST " ; \
+		echo -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
@@ -1691,11 +1694,11 @@ MPC832XEMDS_SLAVE_config:	unconfig
 		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds
@@ -1724,7 +1727,7 @@ MPC8360EMDS_SLAVE_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo "... PCI HOST " ; \
+		echo -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
@@ -1733,11 +1736,11 @@ MPC8360EMDS_SLAVE_config:	unconfig
 		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds

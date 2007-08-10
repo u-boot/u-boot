@@ -529,6 +529,8 @@ void	cpu_init_f    (void);
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);
+#elif defined(CONFIG_MPC83XX)
+int	prt_83xx_rsr  (void);
 #endif
 
 /* $(CPU)/interrupts.c */
