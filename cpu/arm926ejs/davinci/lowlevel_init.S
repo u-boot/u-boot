@@ -545,7 +545,7 @@ VTP1Lock:
 	mov	r10, $0
 	str	r10, [r6]
 
-	/* 
+	/*
 	 * Call board-specific lowlevel init.
  	 * That MUST be present and THAT returns
 	 * back to arch calling code with "mov pc, lr."

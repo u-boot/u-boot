@@ -252,7 +252,6 @@ static int gen_auto_negotiate(int phy_addr)
 {
 	u_int16_t	tmp;
 
-
 	if (!dm644x_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
 
@@ -271,7 +270,6 @@ static int gen_auto_negotiate(int phy_addr)
 	return(gen_get_link_speed(phy_addr));
 }
 /* End of generic PHY functions */
-
 
 
 #if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
