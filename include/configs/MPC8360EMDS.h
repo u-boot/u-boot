@@ -351,10 +351,6 @@
 #define CONFIG_OF_HAS_BD_T	1
 #define CONFIG_OF_HAS_UBOOT_ENV	1
 
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8360@0"
 #define OF_SOC			"soc8360@e0000000"
 #define OF_QE			"qe@e0100000"
