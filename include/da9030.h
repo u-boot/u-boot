@@ -104,3 +104,15 @@
 #define SYS_CONTROL_A_HWRES_ENABLE		(1<<2)
 #define SYS_CONTROL_A_WDOG_ACTION		(1<<3)
 #define SYS_CONTROL_A_WATCHDOG			(1<<7)
+
+#define MISC_CONTROLB_USB_INT_RISING		(1<<2)
+#define MISC_CONTROLB_SESSION_VALID_EN		(1<<3)
+
+#define USB_PUMP_USBVE				(1<<0)
+#define USB_PUMP_USBVEP				(1<<1)
+#define USB_PUMP_SRP_DETECT			(1<<2)
+#define USB_PUMP_SESSION_VALID			(1<<3)
+#define USB_PUMP_VBUS_VALID_4_0			(1<<4)
+#define USB_PUMP_VBUS_VALID_4_4			(1<<5)
+#define USB_PUMP_EN_USBVE			(1<<6)
+#define USB_PUMP_EN_USBVEP			(1<<7)

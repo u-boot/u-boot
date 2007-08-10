@@ -241,6 +241,9 @@ int	saveenv	     (void);
 void inline setenv   (char *, char *);
 #else
 void	setenv	     (char *, char *);
+#ifdef CONFIG_HAS_UID
+void	forceenv     (char *, char *);
+#endif
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
@@ -526,6 +529,8 @@ void	cpu_init_f    (void);
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);
+#elif defined(CONFIG_MPC83XX)
+int	prt_83xx_rsr  (void);
 #endif
 
 /* $(CPU)/interrupts.c */

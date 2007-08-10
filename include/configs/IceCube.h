@@ -84,10 +84,15 @@
 #define CONFIG_ISO_PARTITION
 
 /* USB */
-#if 1
-#define CONFIG_USB_OHCI
+#define CONFIG_USB_OHCI_NEW
+#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
-#endif
+#define CFG_OHCI_BE_CONTROLLER
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	MPC5XXX_USB
+#define CFG_USB_OHCI_SLOT_NAME	"mpc5200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 

@@ -34,6 +34,7 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/arm.*/arm/ \
 	    -e s/sa110/arm/ \
 	    -e s/powerpc/ppc/ \
+	    -e s/ppc64/ppc/ \
 	    -e s/macppc/ppc/)
 
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
@@ -122,7 +123,7 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE =
 else
 ifeq ($(ARCH),ppc)
-CROSS_COMPILE = powerpc-linux-
+CROSS_COMPILE = ppc_8xx-
 endif
 ifeq ($(ARCH),arm)
 CROSS_COMPILE = arm-linux-
@@ -656,6 +657,9 @@ AdderII_config  \
 	$(if $(findstring AdderII,$@), \
 	@echo "#define CONFIG_MPC852T" > $(obj)include/config.h)
 	@$(MKCONFIG) -a Adder ppc mpc8xx adder
+
+AdderUSB_config:	unconfig
+	@./mkconfig -a AdderUSB ppc mpc8xx adder
 
 ADS860_config     \
 FADS823_config    \
@@ -1662,14 +1666,17 @@ MPC8313ERDB_66_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+
+MPC8323ERDB_config:	unconfig
+	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
 
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
@@ -1678,7 +1685,7 @@ MPC832XEMDS_SLAVE_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo "... PCI HOST " ; \
+		echo -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
@@ -1687,11 +1694,11 @@ MPC832XEMDS_SLAVE_config:	unconfig
 		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds
@@ -1720,7 +1727,7 @@ MPC8360EMDS_SLAVE_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
-		echo "... PCI HOST " ; \
+		echo -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _SLAVE_,$@)" ] ; then \
@@ -1729,11 +1736,11 @@ MPC8360EMDS_SLAVE_config:	unconfig
 		echo "#define CONFIG_PCISLAVE" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
-		echo "...33M ..." ; \
+		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
-		echo "...66M..." ; \
+		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
@@ -2013,6 +2020,15 @@ omap1510inn_config :	unconfig
 
 omap5912osk_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs omap5912osk NULL omap
+
+davinci_dvevm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dv-evm davinci davinci
+
+davinci_schmoogie_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
+
+davinci_sonata_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 
 omap1610inn_config \
 omap1610inn_cs0boot_config \

@@ -233,8 +233,15 @@
 
 #ifdef CONFIG_440EP
 /* USB */
-#define CONFIG_USB_OHCI
+#define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
+#define CFG_OHCI_BE_CONTROLLER
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	(CFG_PERIPHERAL_BASE | 0x1000)
+#define CFG_USB_OHCI_SLOT_NAME	"ppc440"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE

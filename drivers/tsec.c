@@ -71,6 +71,7 @@ static struct tsec_info_struct tsec_info[] = {
 #else
 	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
 #endif
+#else
 	{0, 0, 0},
 #endif
 #if defined(CONFIG_TSEC2)
@@ -79,6 +80,7 @@ static struct tsec_info_struct tsec_info[] = {
 #else
 	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
 #endif
+#else
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
@@ -296,9 +298,9 @@ static int init_phy(struct eth_device *dev)
 	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */

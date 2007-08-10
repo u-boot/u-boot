@@ -1,6 +1,6 @@
 include $(TOPDIR)/config.mk
 
-LIB := libatibiosemu.a
+LIB := $(obj)libatibiosemu.a
 
 X86DIR  = ./x86emu
 

@@ -338,6 +338,17 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
+/************************************************************
+ * USB support
+ ************************************************************/
+#define CONFIG_PCI_OHCI		1
+#define CONFIG_USB_OHCI_NEW		1
+#define CONFIG_USB_KEYBOARD	1
+#define CFG_DEVICE_DEREGISTER
+#define CFG_USB_EVENT_POLL	1
+#define CFG_USB_OHCI_SLOT_NAME 	"ohci_pci"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
     #define PCI_ENET0_MEMADDR	0xe0000000

@@ -228,113 +228,9 @@ build a config tool - later.
 
 The following options need to be configured:
 
-- CPU Type:	Define exactly one of
+- CPU Type:	Define exactly one, e.g. CONFIG_MPC85XX.
 
-		PowerPC based CPUs:
-		-------------------
-		CONFIG_MPC823,	CONFIG_MPC850,	CONFIG_MPC855,	CONFIG_MPC860
-	or	CONFIG_MPC5xx
-	or	CONFIG_MPC8220
-	or	CONFIG_MPC824X, CONFIG_MPC8260
-	or	CONFIG_MPC85xx
-	or	CONFIG_IOP480
-	or	CONFIG_405GP
-	or	CONFIG_405EP
-	or	CONFIG_440
-	or	CONFIG_MPC74xx
-	or	CONFIG_750FX
-
-		ARM based CPUs:
-		---------------
-		CONFIG_SA1110
-		CONFIG_ARM7
-		CONFIG_PXA250
-		CONFIG_CPU_MONAHANS
-
-		MicroBlaze based CPUs:
-		----------------------
-		CONFIG_MICROBLAZE
-
-		Nios-2 based CPUs:
-		----------------------
-		CONFIG_NIOS2
-
-		AVR32 based CPUs:
-		----------------------
-		CONFIG_AT32AP
-
-- Board Type:	Define exactly one of
-
-		PowerPC based boards:
-		---------------------
-
-		CONFIG_ADCIOP		CONFIG_FPS860L		CONFIG_OXC
-		CONFIG_ADS860		CONFIG_GEN860T		CONFIG_PCI405
-		CONFIG_AMX860		CONFIG_GENIETV		CONFIG_PCIPPC2
-		CONFIG_AP1000		CONFIG_GTH		CONFIG_PCIPPC6
-		CONFIG_AR405		CONFIG_gw8260		CONFIG_pcu_e
-		CONFIG_BAB7xx		CONFIG_hermes		CONFIG_PIP405
-		CONFIG_BC3450		CONFIG_hymod		CONFIG_PM826
-		CONFIG_c2mon		CONFIG_IAD210		CONFIG_ppmc8260
-		CONFIG_CANBT		CONFIG_ICU862		CONFIG_QS823
-		CONFIG_CCM		CONFIG_IP860		CONFIG_QS850
-		CONFIG_CMI		CONFIG_IPHASE4539	CONFIG_QS860T
-		CONFIG_cogent_mpc8260	CONFIG_IVML24		CONFIG_RBC823
-		CONFIG_cogent_mpc8xx	CONFIG_IVML24_128	CONFIG_RPXClassic
-		CONFIG_CPCI405		CONFIG_IVML24_256	CONFIG_RPXlite
-		CONFIG_CPCI4052		CONFIG_IVMS8		CONFIG_RPXsuper
-		CONFIG_CPCIISER4	CONFIG_IVMS8_128	CONFIG_rsdproto
-		CONFIG_CPU86		CONFIG_IVMS8_256	CONFIG_sacsng
-		CONFIG_CRAYL1		CONFIG_JSE		CONFIG_Sandpoint8240
-		CONFIG_CSB272		CONFIG_LANTEC		CONFIG_Sandpoint8245
-		CONFIG_CU824		CONFIG_LITE5200B	CONFIG_sbc8260
-		CONFIG_DASA_SIM		CONFIG_lwmon		CONFIG_sbc8560
-		CONFIG_DB64360		CONFIG_MBX		CONFIG_SM850
-		CONFIG_DB64460		CONFIG_MBX860T		CONFIG_SPD823TS
-		CONFIG_DU405		CONFIG_MHPC		CONFIG_STXGP3
-		CONFIG_DUET_ADS		CONFIG_MIP405		CONFIG_SXNI855T
-		CONFIG_EBONY		CONFIG_MOUSSE		CONFIG_TQM823L
-		CONFIG_ELPPC		CONFIG_MPC8260ADS	CONFIG_TQM8260
-		CONFIG_ELPT860		CONFIG_MPC8540ADS	CONFIG_TQM850L
-		CONFIG_ep8260		CONFIG_MPC8540EVAL	CONFIG_TQM855L
-		CONFIG_ERIC		CONFIG_MPC8560ADS	CONFIG_TQM860L
-		CONFIG_ESTEEM192E	CONFIG_MUSENKI		CONFIG_TTTech
-		CONFIG_ETX094		CONFIG_MVS1		CONFIG_UTX8245
-		CONFIG_EVB64260		CONFIG_NETPHONE		CONFIG_V37
-		CONFIG_FADS823		CONFIG_NETTA		CONFIG_W7OLMC
-		CONFIG_FADS850SAR	CONFIG_NETVIA		CONFIG_W7OLMG
-		CONFIG_FADS860T		CONFIG_NX823		CONFIG_WALNUT
-		CONFIG_FLAGADM		CONFIG_OCRTC		CONFIG_ZPC1900
-		CONFIG_FPS850L		CONFIG_ORSG		CONFIG_ZUMA
-
-		ARM based boards:
-		-----------------
-
-		CONFIG_ARMADILLO,	CONFIG_AT91RM9200DK,	CONFIG_CERF250,
-		CONFIG_CSB637,		CONFIG_DELTA,		CONFIG_DNP1110,
-		CONFIG_EP7312,		CONFIG_H2_OMAP1610,	CONFIG_HHP_CRADLE,
-		CONFIG_IMPA7,	    CONFIG_INNOVATOROMAP1510,	CONFIG_INNOVATOROMAP1610,
-		CONFIG_KB9202,		CONFIG_LART,		CONFIG_LPD7A400,
-		CONFIG_LUBBOCK,		CONFIG_OSK_OMAP5912,	CONFIG_OMAP2420H4,
-		CONFIG_PLEB2,		CONFIG_SHANNON,		CONFIG_P2_OMAP730,
-		CONFIG_SMDK2400,	CONFIG_SMDK2410,	CONFIG_TRAB,
-		CONFIG_VCMA9
-
-		MicroBlaze based boards:
-		------------------------
-
-		CONFIG_SUZAKU
-
-		Nios-2 based boards:
-		------------------------
-
-		CONFIG_PCI5441 CONFIG_PK1C20
-		CONFIG_EP1C20 CONFIG_EP1S10 CONFIG_EP1S40
-
-		AVR32 based boards:
-		-------------------
-
-		CONFIG_ATSTK1000
+- Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
 
 - CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
 		Define exactly one of
@@ -893,6 +789,71 @@ The following options need to be configured:
 			CONFIG_USB_CONFIG
 				for differential drivers: 0x00001000
 				for single ended drivers: 0x00005000
+			CFG_USB_EVENT_POLL
+				May be defined to allow interrupt polling
+				instead of using asynchronous interrupts
+
+- USB Device:
+		Define the below if you wish to use the USB console.
+		Once firmware is rebuilt from a serial console issue the
+		command "setenv stdin usbtty; setenv stdout usbtty" and
+		attach your usb cable. The Unix command "dmesg" should print
+		it has found a new device. The environment variable usbtty
+		can be set to gserial or cdc_acm to enable your device to
+		appear to a USB host as a Linux gserial device or a
+		Common Device Class Abstract Control Model serial device.
+		If you select usbtty = gserial you should be able to enumerate
+		a Linux host by
+		# modprobe usbserial vendor=0xVendorID product=0xProductID
+		else if using cdc_acm, simply setting the environment
+		variable usbtty to be cdc_acm should suffice. The following
+		might be defined in YourBoardName.h
+
+			CONFIG_USB_DEVICE
+			Define this to build a UDC device
+
+			CONFIG_USB_TTY
+			Define this to have a tty type of device available to
+			talk to the UDC device
+
+			CFG_CONSOLE_IS_IN_ENV
+			Define this if you want stdin, stdout &/or stderr to
+			be set to usbtty.
+
+			mpc8xx:
+				CFG_USB_EXTC_CLK 0xBLAH
+				Derive USB clock from external clock "blah"
+				- CFG_USB_EXTC_CLK 0x02
+
+				CFG_USB_BRG_CLK 0xBLAH
+				Derive USB clock from brgclk
+				- CFG_USB_BRG_CLK 0x04
+
+		If you have a USB-IF assigned VendorID then you may wish to
+		define your own vendor specific values either in BoardName.h
+		or directly in usbd_vendor_info.h. If you don't define
+		CONFIG_USBD_MANUFACTURER, CONFIG_USBD_PRODUCT_NAME,
+		CONFIG_USBD_VENDORID and CONFIG_USBD_PRODUCTID, then U-Boot
+		should pretend to be a Linux device to it's target host.
+
+			CONFIG_USBD_MANUFACTURER
+			Define this string as the name of your company for
+			- CONFIG_USBD_MANUFACTURER "my company"
+
+			CONFIG_USBD_PRODUCT_NAME
+			Define this string as the name of your product
+			- CONFIG_USBD_PRODUCT_NAME "acme usb device"
+
+			CONFIG_USBD_VENDORID
+			Define this as your assigned Vendor ID from the USB
+			Implementors Forum. This *must* be a genuine Vendor ID
+			to avoid polluting the USB namespace.
+			- CONFIG_USBD_VENDORID 0xFFFF
+
+			CONFIG_USBD_PRODUCTID
+			Define this as the unique Product ID
+			for your device
+			- CONFIG_USBD_PRODUCTID 0xFFFF
 
 
 - MMC Support:
@@ -2426,34 +2387,7 @@ is done by typing:
 	make NAME_config
 
 where "NAME_config" is the name of one of the existing
-configurations; the following names are supported:
-
-	ADCIOP_config		FPS860L_config		omap730p2_config
-	ADS860_config		GEN860T_config		pcu_e_config
-	Alaska8220_config
-	AR405_config		GENIETV_config		PIP405_config
-	at91rm9200dk_config	GTH_config		QS823_config
-	CANBT_config		hermes_config		QS850_config
-	cmi_mpc5xx_config	hymod_config		QS860T_config
-	cogent_common_config	IP860_config		RPXlite_config
-	cogent_mpc8260_config	IVML24_config		RPXlite_DW_config
-	cogent_mpc8xx_config	IVMS8_config		RPXsuper_config
-	CPCI405_config		JSE_config		rsdproto_config
-	CPCIISER4_config	LANTEC_config		Sandpoint8240_config
-	csb272_config		lwmon_config		sbc8260_config
-	CU824_config		MBX860T_config		sbc8560_33_config
-	DUET_ADS_config		MBX_config		sbc8560_66_config
-	EBONY_config		mpc7448hpc2_config	SM850_config
-	ELPT860_config		MPC8260ADS_config	SPD823TS_config
-	ESTEEM192E_config	MPC8540ADS_config	stxgp3_config
-	ETX094_config		MPC8540EVAL_config	SXNI855T_config
-	FADS823_config		NMPC8560ADS_config	TQM823L_config
-	FADS850SAR_config	NETVIA_config		TQM850L_config
-	FADS860T_config		omap1510inn_config	TQM855L_config
-	FPS850L_config		omap1610h2_config	TQM860L_config
-				omap1610inn_config	walnut_config
-				omap5912osk_config	Yukon8220_config
-				omap2420h4_config	ZPC1900_config
+configurations; see the main Makefile for supported names.
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for
