@@ -37,6 +37,10 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * fdt points to our working device tree.
+ */
+struct fdt_header *fdt;
 
 /********************************************************************/
 
@@ -45,13 +49,12 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	bd_t *bd = gd->bd;
 	int   nodeoffset;
 	int   err;
-	u32   tmp;			/* used to set 32 bit integer properties */
-	char  *str;			/* used to set string properties */
-	ulong clock;
+	u32   tmp;		/* used to set 32 bit integer properties */
+	char  *str;		/* used to set string properties */
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
-		printf("libfdt: %s\n", fdt_strerror(err));
+		printf("fdt_chosen: %s\n", fdt_strerror(err));
 		return err;
 	}
 
@@ -63,11 +66,12 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 
 		err = fdt_num_reservemap(fdt, &used, &total);
 		if (err < 0) {
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("fdt_chosen: %s\n", fdt_strerror(err));
 			return err;
 		}
 		if (used >= total) {
-			printf("fdt_chosen: no room in the reserved map (%d of %d)\n",
+			printf("WARNING: "
+				"no room in the reserved map (%d of %d)\n",
 				used, total);
 			return -1;
 		}
@@ -84,7 +88,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		err = fdt_replace_reservemap_entry(fdt, j,
 			initrd_start, initrd_end - initrd_start + 1);
 		if (err < 0) {
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("fdt_chosen: %s\n", fdt_strerror(err));
 			return err;
 		}
 	}
@@ -92,7 +96,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	/*
 	 * Find the "chosen" node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/chosen");
+	nodeoffset = fdt_find_node_by_path (fdt, "/chosen");
 
 	/*
 	 * If we have a "chosen" node already the "force the writing"
@@ -110,7 +114,8 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		 */
 		nodeoffset = fdt_add_subnode(fdt, 0, "chosen");
 		if (nodeoffset < 0) {
-			printf("libfdt: %s\n", fdt_strerror(nodeoffset));
+			printf("WARNING: could not create /chosen %s.\n",
+				fdt_strerror(nodeoffset));
 			return nodeoffset;
 		}
 	}
@@ -120,42 +125,35 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	 */
 	str = getenv("bootargs");
 	if (str != NULL) {
-		err = fdt_setprop(fdt, nodeoffset, "bootargs", str, strlen(str)+1);
+		err = fdt_setprop(fdt, nodeoffset,
+			"bootargs", str, strlen(str)+1);
 		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("WARNING: could not set bootargs %s.\n",
+				fdt_strerror(err));
 	}
 	if (initrd_start && initrd_end) {
 		tmp = __cpu_to_be32(initrd_start);
-		err = fdt_setprop(fdt, nodeoffset, "linux,initrd-start", &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			 "linux,initrd-start", &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("WARNING: "
+				"could not set linux,initrd-start %s.\n",
+				fdt_strerror(err));
 		tmp = __cpu_to_be32(initrd_end);
-		err = fdt_setprop(fdt, nodeoffset, "linux,initrd-end", &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,initrd-end", &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("WARNING: could not set linux,initrd-end %s.\n",
+				fdt_strerror(err));
 	}
 #ifdef OF_STDOUT_PATH
-	err = fdt_setprop(fdt, nodeoffset, "linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
+	err = fdt_setprop(fdt, nodeoffset,
+		"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
 	if (err < 0)
-		printf("libfdt: %s\n", fdt_strerror(err));
+		printf("WARNING: could not set linux,stdout-path %s.\n",
+			fdt_strerror(err));
 #endif
 
-	nodeoffset = fdt_path_offset (fdt, "/cpus");
-	if (nodeoffset >= 0) {
-		clock = cpu_to_be32(bd->bi_intfreq);
-		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
-		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
-	}
-#ifdef OF_TBCLK
-	nodeoffset = fdt_path_offset (fdt, "/cpus/" OF_CPU "/timebase-frequency");
-	if (nodeoffset >= 0) {
-		clock = cpu_to_be32(OF_TBCLK);
-		err = fdt_setprop(fdt, nodeoffset, "clock-frequency", &clock, 4);
-		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
-	}
-#endif
 	return err;
 }
 
@@ -177,7 +175,7 @@ int fdt_env(void *fdt)
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
-		printf("libfdt: %s\n", fdt_strerror(err));
+		printf("fdt_env: %s\n", fdt_strerror(err));
 		return err;
 	}
 
@@ -185,11 +183,11 @@ int fdt_env(void *fdt)
 	 * See if we already have a "u-boot-env" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/u-boot-env");
+	nodeoffset = fdt_find_node_by_path (fdt, "/u-boot-env");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("fdt_env: %s\n", fdt_strerror(err));
 			return err;
 		}
 	}
@@ -198,7 +196,8 @@ int fdt_env(void *fdt)
 	 */
 	nodeoffset = fdt_add_subnode(fdt, 0, "u-boot-env");
 	if (nodeoffset < 0) {
-		printf("libfdt: %s\n", fdt_strerror(nodeoffset));
+		printf("WARNING: could not create /u-boot-env %s.\n",
+			fdt_strerror(nodeoffset));
 		return nodeoffset;
 	}
 
@@ -226,7 +225,8 @@ int fdt_env(void *fdt)
 			continue;
 		err = fdt_setprop(fdt, nodeoffset, lval, rval, strlen(rval)+1);
 		if (err < 0) {
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("WARNING: could not set %s %s.\n",
+				lval, fdt_strerror(err));
 			return err;
 		}
 	}
@@ -292,12 +292,12 @@ int fdt_bd_t(void *fdt)
 	bd_t *bd = gd->bd;
 	int   nodeoffset;
 	int   err;
-	u32   tmp;			/* used to set 32 bit integer properties */
+	u32   tmp;		/* used to set 32 bit integer properties */
 	int i;
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
-		printf("libfdt: %s\n", fdt_strerror(err));
+		printf("fdt_bd_t: %s\n", fdt_strerror(err));
 		return err;
 	}
 
@@ -305,11 +305,11 @@ int fdt_bd_t(void *fdt)
 	 * See if we already have a "bd_t" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_path_offset (fdt, "/bd_t");
+	nodeoffset = fdt_find_node_by_path (fdt, "/bd_t");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("fdt_bd_t: %s\n", fdt_strerror(err));
 			return err;
 		}
 	}
@@ -318,7 +318,9 @@ int fdt_bd_t(void *fdt)
 	 */
 	nodeoffset = fdt_add_subnode(fdt, 0, "bd_t");
 	if (nodeoffset < 0) {
-		printf("libfdt: %s\n", fdt_strerror(nodeoffset));
+		printf("WARNING: could not create /bd_t %s.\n",
+			fdt_strerror(nodeoffset));
+		printf("fdt_bd_t: %s\n", fdt_strerror(nodeoffset));
 		return nodeoffset;
 	}
 	/*
@@ -326,20 +328,23 @@ int fdt_bd_t(void *fdt)
 	 */
 	for (i = 0; i < sizeof(bd_map)/sizeof(bd_map[0]); i++) {
 		tmp = cpu_to_be32(getenv("bootargs"));
-		err = fdt_setprop(fdt, nodeoffset, bd_map[i].name, &tmp, sizeof(tmp));
+		err = fdt_setprop(fdt, nodeoffset,
+			bd_map[i].name, &tmp, sizeof(tmp));
 		if (err < 0)
-			printf("libfdt: %s\n", fdt_strerror(err));
+			printf("WARNING: could not set %s %s.\n",
+				bd_map[i].name, fdt_strerror(err));
 	}
 	/*
 	 * Add a couple of oddball entries...
 	 */
 	err = fdt_setprop(fdt, nodeoffset, "enetaddr", &bd->bi_enetaddr, 6);
 	if (err < 0)
-		printf("libfdt: %s\n", fdt_strerror(err));
+		printf("WARNING: could not set enetaddr %s.\n",
+			fdt_strerror(err));
 	err = fdt_setprop(fdt, nodeoffset, "ethspeed", &bd->bi_ethspeed, 4);
 	if (err < 0)
-		printf("libfdt: %s\n", fdt_strerror(err));
-
+		printf("WARNING: could not set ethspeed %s.\n",
+			fdt_strerror(err));
 	return 0;
 }
 #endif /* ifdef CONFIG_OF_HAS_BD_T */

@@ -26,7 +26,7 @@
 #include <asm/byteorder.h>
 #include <linux/string.h>
 
-struct fdt_header *fdt;         /* Pointer to the working fdt */
+extern struct fdt_header *fdt;  /* Pointer to the working fdt */
 
 #define fdt32_to_cpu(x)		__be32_to_cpu(x)
 #define cpu_to_fdt32(x)		__cpu_to_be32(x)
