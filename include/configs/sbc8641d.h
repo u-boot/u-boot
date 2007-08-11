@@ -49,8 +49,10 @@
 
 #define CFG_RESET_ADDRESS    0xfff00100
 
-#undef CONFIG_PCI
-#define CONFIG_FSL_PCI_INIT	1
+#define CONFIG_PCI		1	/* Enable PCIE */
+#define CONFIG_PCI1		1	/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCI2		1	/* PCIE controler 2 (slot 2) */
+#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -94,6 +96,9 @@
 #define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
+
+#define CFG_PCI1_ADDR		(CFG_CCSRBAR+0x8000)
+#define CFG_PCI2_ADDR		(CFG_CCSRBAR+0x9000)
 
 /*
  * DDR Setup

@@ -33,6 +33,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
+#include <asm/immap_fsl_pci.h>
 #include <spd.h>
 
 #if defined(CONFIG_OF_FLAT_TREE)
@@ -59,36 +60,6 @@ int board_early_init_f (void)
 int checkboard (void)
 {
 	puts ("Board: Wind River SBC8641D\n");
-
-#ifdef CONFIG_PCI
-
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	volatile ccsr_pex_t *pex1 = &immap->im_pex1;
-
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
-	uint host1_agent = (gur->porbmsr & MPC86xx_PORBMSR_HA) >> 17;
-	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
-
-	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
-	     || io_sel == 6 || io_sel == 7 || io_sel == 0xF)
-	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
-		debug ("PCI-EXPRESS 1: %s \n", pex1_agent ? "Agent" : "Host");
-		debug ("0x%08x=0x%08x ", &pex1->pme_msg_det, pex1->pme_msg_det);
-		if (pex1->pme_msg_det) {
-			pex1->pme_msg_det = 0xffffffff;
-			debug (" with errors.  Clearing.  Now 0x%08x",
-			       pex1->pme_msg_det);
-		}
-		debug ("\n");
-	} else {
-		puts ("PCI-EXPRESS 1: Disabled in hardware\n");
-	}
-
-#else
-	puts ("PCI-EXPRESS1: Disabled in configuration\n");
-#endif
 
 	return 0;
 }
@@ -244,21 +215,130 @@ static struct pci_config_table pci_fsl86xxads_config_table[] = {
 };
 #endif
 
-static struct pci_controller hose = {
+static struct pci_controller pci1_hose = {
 #ifndef CONFIG_PCI_PNP
-      config_table:pci_mpc86xxcts_config_table,
+	config_table:pci_mpc86xxcts_config_table
 #endif
 };
+#endif /* CONFIG_PCI */
 
-#endif				/* CONFIG_PCI */
+#ifdef CONFIG_PCI2
+static struct pci_controller pci2_hose;
+#endif	/* CONFIG_PCI2 */
 
-void pci_init_board (void)
+int first_free_busno = 0;
+
+void pci_init_board(void)
 {
-#ifdef CONFIG_PCI
-	extern void pci_mpc86xx_init (struct pci_controller *hose);
+	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	uint devdisr = gur->devdisr;
+	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
 
-	pci_mpc86xx_init (&hose);
-#endif				/* CONFIG_PCI */
+#ifdef CONFIG_PCI1
+{
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
+	extern void fsl_pci_init(struct pci_controller *hose);
+	struct pci_controller *hose = &pci1_hose;
+#ifdef DEBUG
+	uint host1_agent = (gur->porbmsr & MPC86xx_PORBMSR_HA) >> 17;
+	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
+#endif
+	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
+	     || io_sel == 6 || io_sel == 7 || io_sel == 0xF)
+	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
+		debug("PCI-EXPRESS 1: %s \n", pex1_agent ? "Agent" : "Host");
+		debug("0x%08x=0x%08x ", &pci->pme_msg_det, pci->pme_msg_det);
+		if (pci->pme_msg_det) {
+			pci->pme_msg_det = 0xffffffff;
+			debug(" with errors.  Clearing.  Now 0x%08x",
+			      pci->pme_msg_det);
+		}
+		debug("\n");
+
+		/* inbound */
+		pci_set_region(hose->regions + 0,
+			       CFG_PCI_MEMORY_BUS,
+			       CFG_PCI_MEMORY_PHYS,
+			       CFG_PCI_MEMORY_SIZE,
+			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+		/* outbound memory */
+		pci_set_region(hose->regions + 1,
+			       CFG_PCI1_MEM_BASE,
+			       CFG_PCI1_MEM_PHYS,
+			       CFG_PCI1_MEM_SIZE,
+			       PCI_REGION_MEM);
+
+		/* outbound io */
+		pci_set_region(hose->regions + 2,
+			       CFG_PCI1_IO_BASE,
+			       CFG_PCI1_IO_PHYS,
+			       CFG_PCI1_IO_SIZE,
+			       PCI_REGION_IO);
+
+		hose->region_count = 3;
+
+		hose->first_busno=first_free_busno;
+		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
+
+		fsl_pci_init(hose);
+
+		first_free_busno=hose->last_busno+1;
+		printf ("    PCI-EXPRESS 1 on bus %02x - %02x\n",
+			hose->first_busno,hose->last_busno);
+
+	} else {
+		puts("PCI-EXPRESS 1: Disabled\n");
+	}
+}
+#else
+	puts("PCI-EXPRESS1: Disabled\n");
+#endif /* CONFIG_PCI1 */
+
+#ifdef CONFIG_PCI2
+{
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI2_ADDR;
+	extern void fsl_pci_init(struct pci_controller *hose);
+	struct pci_controller *hose = &pci2_hose;
+
+
+	/* inbound */
+	pci_set_region(hose->regions + 0,
+		       CFG_PCI_MEMORY_BUS,
+		       CFG_PCI_MEMORY_PHYS,
+		       CFG_PCI_MEMORY_SIZE,
+		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+	/* outbound memory */
+	pci_set_region(hose->regions + 1,
+		       CFG_PCI2_MEM_BASE,
+		       CFG_PCI2_MEM_PHYS,
+		       CFG_PCI2_MEM_SIZE,
+		       PCI_REGION_MEM);
+
+	/* outbound io */
+	pci_set_region(hose->regions + 2,
+		       CFG_PCI2_IO_BASE,
+		       CFG_PCI2_IO_PHYS,
+		       CFG_PCI2_IO_SIZE,
+		       PCI_REGION_IO);
+
+	hose->region_count = 3;
+
+	hose->first_busno=first_free_busno;
+	pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
+
+	fsl_pci_init(hose);
+
+	first_free_busno=hose->last_busno+1;
+	printf ("    PCI-EXPRESS 2 on bus %02x - %02x\n",
+		hose->first_busno,hose->last_busno);
+}
+#else
+	puts("PCI-EXPRESS 2: Disabled\n");
+#endif /* CONFIG_PCI2 */
+
 }
 
 #if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
