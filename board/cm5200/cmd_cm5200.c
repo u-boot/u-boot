@@ -27,7 +27,7 @@
 #include <i2c.h>
 #include <usb.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#ifdef CONFIG_CMD_BSB
 
 int do_i2c(char *argv[])
 {
@@ -445,4 +445,4 @@ U_BOOT_CMD(
 	"fkt usb\n"
 	"     - Test USB communication\n"
 );
-#endif /* CFG_CMD_BSP */
+#endif /* CONFIG_CMD_BSP */

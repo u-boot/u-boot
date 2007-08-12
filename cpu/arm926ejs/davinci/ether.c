@@ -272,7 +272,7 @@ static int gen_auto_negotiate(int phy_addr)
 /* End of generic PHY functions */
 
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static int dm644x_mii_phy_read(char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
 {
 	return(dm644x_eth_phy_read(addr, reg, value) ? 0 : 1);
