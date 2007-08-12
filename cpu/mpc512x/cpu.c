@@ -42,7 +42,7 @@ int checkcpu (void)
 	u32 spridr = immr->sysconf.spridr;
 	char buf[32];
 
-	puts("CPU:  ");
+	puts ("CPU:   ");
 
 	switch (spridr & 0xffff0000) {
 	case SPR_5121E:
