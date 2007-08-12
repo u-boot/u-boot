@@ -435,6 +435,29 @@ static inline void NetCopyLong(ulong *to, ulong *from)
 	memcpy((void*)to, (void*)from, sizeof(ulong));
 }
 
+/**
+ * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is all zeroes.
+ */
+static inline int is_zero_ether_addr(const u8 *addr)
+{
+	return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
+}
+
+/**
+ * is_multicast_ether_addr - Determine if the Ethernet address is a multicast.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is a multicast address.
+ * By definition the broadcast address is also a multicast address.
+ */
+static inline int is_multicast_ether_addr(const u8 *addr)
+{
+	return (0x01 & addr[0]);
+}
+
 /* Convert an IP address to a string */
 extern void	ip_to_string (IPaddr_t x, char *s);
 
