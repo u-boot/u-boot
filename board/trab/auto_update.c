@@ -450,7 +450,7 @@ do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
-	int i, res, bitmap_first, cnt, old_ctrlc, got_ctrlc;
+	int i, res = 0, bitmap_first, cnt, old_ctrlc, got_ctrlc;
 	char *env;
 	long start, end;
 
@@ -477,18 +477,21 @@ do_auto_update(void)
 	au_usb_stor_curr_dev = usb_stor_scan(0);
 	if (au_usb_stor_curr_dev == -1) {
 		debug ("No device found. Not initialized?\n");
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	/* check whether it has a partition table */
 	stor_dev = get_dev("usb", 0);
 	if (stor_dev == NULL) {
 		debug ("uknown device type\n");
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	if (fat_register_device(stor_dev, 1) != 0) {
 		debug ("Unable to use USB %d:%d for fatls\n",
 			au_usb_stor_curr_dev, 1);
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	if (file_fat_detectfs() != 0) {
 		debug ("file_fat_detectfs failed\n");
@@ -648,9 +651,10 @@ do_auto_update(void)
 			/* enable the power switch */
 			*CPLD_VFD_BK &= ~POWER_OFF;
 	}
-	usb_stop();
 	/* restore the old state */
 	disable_ctrlc(old_ctrlc);
-	return 0;
+xit:
+	usb_stop();
+	return res;
 }
 #endif /* CONFIG_AUTO_UPDATE */
