@@ -209,7 +209,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		}
 
 		if (!opts->quiet) {
-                        unsigned long long n =(unsigned long long)
+			unsigned long long n =(unsigned long long)
 				 (erase.addr+meminfo->erasesize-opts->offset)
 				 * 100;
 			int percent = (int)do_div(n, erase_length);
@@ -476,8 +476,8 @@ int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts)
 		imglen -= readlen;
 
 		if (!opts->quiet) {
-                        unsigned long long n = (unsigned long long)
-			         (opts->length-imglen) * 100;
+			unsigned long long n = (unsigned long long)
+				 (opts->length-imglen) * 100;
 			int percent = (int)do_div(n, opts->length);
 			/* output progress message only at whole percent
 			 * steps to reduce the number of messages printed
@@ -651,8 +651,8 @@ int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts)
 		}
 
 		if (!opts->quiet) {
-                        unsigned long long n = (unsigned long long)
-			         (opts->length-imglen) * 100;
+			unsigned long long n = (unsigned long long)
+				 (opts->length-imglen) * 100;
 			int percent = (int)do_div(n ,opts->length);
 			/* output progress message only at whole percent
 			 * steps to reduce the number of messages printed

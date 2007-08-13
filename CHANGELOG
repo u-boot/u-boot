@@ -1,3 +1,53 @@
+commit a08458303e7f9db67f296980036d3292c35cb45c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Jun 29 18:38:51 2007 +0200
+
+    atmel_mci: Fix data timeout value
+
+    Calculate the data timeout based on values from the CSD instead of
+    just using a hardcoded DTOR value. This is a backport of a similar fix
+    in BSP 2.0, with one additional fix: the DTOCYC value is rounded up
+    instead of down.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 0ba8eed28b575626b17e0a7882f923b83e0d7584
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Aug 13 17:22:31 2007 +0200
+
+    AVR32: Include <div64.h> instead of <asm/div64.h>
+
+    include/asm-avr32/div64.h was recently moved to include/div64.h, but
+    cpu/at32ap/interrupts.c wasn't properly updated (an earlier version of
+    the patch was merged perhaps?)
+
+    This patch updates cpu/at32ap/interrupts.c so that the avr32 port
+    compiles again.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit f0d1246ed7cb5a88522244c596d7ae7e6f161283
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed Jun 27 13:34:26 2007 +0200
+
+    atmel_mci: Use 512 byte blocksize if possible
+
+    Instead of always using the largest blocksize the card supports, check
+    if it can support smaller block sizes and use 512 bytes if possible.
+    Most cards do support this, and other parts of u-boot seem to have
+    trouble with block sizes different from 512 bytes.
+
+    Also enable underrun/overrun protection.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+    Acked-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+
+commit 9986bc3e40e899bea372a99a2bca4071bdf2e24b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 21:34:50 2007 +0200
+
+    Update CHANGELOG
+
 commit 77d19a8bf3b0b1e401cb9f23c81e2ef419705c1a
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Aug 12 21:34:34 2007 +0200
@@ -3927,6 +3977,30 @@ Date:	Fri Jan 5 09:15:34 2007 +0100
     Add support for STX GP3SSA (stxssa) Board
 
     Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit f2134f8e9eb006bdcd729e89f309c07b2fa45180
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed May 2 13:31:53 2007 +0200
+
+    macb: Don't restart autonegotiation if we already have link
+
+    Rework macb_phy_init so that it doesn't attempt to re-negotiate if the
+    link is already up.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 04fcb5d38bc90779cd9a710d60702075986f0e29
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed May 2 13:22:38 2007 +0200
+
+    macb: Introduce a few barriers when dealing with DMA descriptors
+
+    There were a few theoretical possibilities that the compiler might
+    optimize away DMA descriptor reads and/or writes and thus cause
+    synchronization problems with the hardware. Insert barriers where
+    we depend on reads/writes actually hitting memory.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit ffa621a0d12a1ccd81c936c567f8917a213787a8
 Author: Andy Fleming <afleming@freescale.com>

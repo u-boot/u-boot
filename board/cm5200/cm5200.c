@@ -122,7 +122,7 @@ long int initdram(int board_type)
 	mem_conf_t *mem_conf;
 
 	mem_conf = get_mem_config(board_type);
-	
+
 	/* configure SDRAM start/end for detection */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e; /* 2G at 0x0 */
 
@@ -303,7 +303,7 @@ int checkboard(void)
 	hw_id_t hw_id_tmp;
 	char module_name_tmp[MODULE_NAME_MAXLEN] = "";
 
-	/* 
+	/*
 	 * We need I2C to access HW ID data from EEPROM, so we call i2c_init()
 	 * here despite the fact that it will be called again later on. We
 	 * also use a little trick to silence I2C-related output.
@@ -321,7 +321,7 @@ int checkboard(void)
 	else
 		printf("Board: unrecognized cm5200 module (%s)\n",
 			module_name_tmp);
-	
+
 	return 0;
 }
 
