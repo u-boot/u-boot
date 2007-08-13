@@ -16,6 +16,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
+#include "config.h"
+#if CONFIG_OF_LIBFDT
+
 #include "libfdt_env.h"
 
 #include <fdt.h>
@@ -224,3 +227,5 @@ int fdt_finish(void *fdt)
 	fdt_set_header(fdt, magic, FDT_MAGIC);
 	return 0;
 }
+
+#endif /* CONFIG_OF_LIBFDT */

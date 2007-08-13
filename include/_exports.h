@@ -14,6 +14,9 @@ EXPORT_FUNC(vprintf)
 EXPORT_FUNC(do_reset)
 EXPORT_FUNC(getenv)
 EXPORT_FUNC(setenv)
+#ifdef CONFIG_HAS_UID
+EXPORT_FUNC(forceenv)
+#endif
 EXPORT_FUNC(simple_strtoul)
 EXPORT_FUNC(simple_strtol)
 EXPORT_FUNC(strcmp)

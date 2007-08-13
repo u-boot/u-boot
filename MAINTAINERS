@@ -448,6 +448,12 @@ Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
 
+Sergey Kubushyn <ksi@koi8.net>
+
+	DV-EVM			ARM926EJS
+	SONATA			ARM926EJS
+	SCHMOOGIE		ARM926EJS
+
 Prakash Kumar <prakash@embedx.com>
 
 	cerf250			xscale

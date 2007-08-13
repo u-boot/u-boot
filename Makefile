@@ -2023,6 +2023,15 @@ omap1510inn_config :	unconfig
 omap5912osk_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs omap5912osk NULL omap
 
+davinci_dvevm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dv-evm davinci davinci
+
+davinci_schmoogie_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
+
+davinci_sonata_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
+
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
