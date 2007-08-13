@@ -448,12 +448,17 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	unsigned long i;
 	unsigned long est;		/* current estimate */
 	unsigned long plloutb;
+	unsigned long cpr_pllc;
 	u32 reg;
+
+	/* check the pll feedback source */
+	mfcpr(cprpllc, cpr_pllc);
 
 	get_sys_info(&sysinfo);
 
-	plloutb = ((CONFIG_SYS_CLK_FREQ * sysinfo.pllFwdDiv * sysinfo.pllFbkDiv)
-		   / sysinfo.pllFwdDivB);
+	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ? 
+		sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) * sysinfo.pllFbkDiv) / 
+		sysinfo.pllFwdDivB);
 	udiv = 256;			/* Assume lowest possible serial clk */
 	div = plloutb / (16 * baudrate); /* total divisor */
 	umin = (plloutb / get_OPB_freq()) << 1;	/* 2 x OPB divisor */

@@ -617,6 +617,8 @@
 #define CPR_CLKUPD_ENDVCH_EN   0x20000000     /* Enable CPR Sys. Div. Changes */
 #define CPR_PERD0_SPIDV_MASK   0x000F0000     /* SPI Clock Divider */
 
+#define PLLC_SRC_MASK          0x20000000     /* PLL feedback source */
+
 #define PLLD_FBDV_MASK         0x1F000000     /* PLL feedback divider value */
 #define PLLD_FWDVA_MASK        0x000F0000     /* PLL forward divider A value */
 #define PLLD_FWDVB_MASK        0x00000700     /* PLL forward divider B value */
