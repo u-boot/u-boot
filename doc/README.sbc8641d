@@ -1,0 +1,28 @@
+Wind River SBC8641D reference board
+===========================
+
+Created 06/14/2007 Joe Hamman
+Copyright 2007, Embedded Specialties, Inc.
+Copyright 2007 Wind River Systemes, Inc.
+-----------------------------
+
+1. Building U-Boot
+------------------
+The SBC8641D code is known to build using ELDK 4.1.
+
+    $ make sbc8641d_config
+    Configuring for sbc8641d board...
+
+    $ make
+
+
+2. Switch and Jumper Settings
+-----------------------------
+All Jumpers & Switches are in their default positions.  Please refer to
+the board documentation for details.  Some settings control CPU voltages
+and settings may change with board revisions.
+
+3. Known limitations
+--------------------
+PCI:
+	The PCI command may hang if no boards are present in either slot.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor.
  * Srikanth Srinivasan <srikanth.srinivaan@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -44,11 +44,9 @@
 #define CONFIG_IDENT_STRING ""
 #endif
 
-/* We don't want the  MMU yet.
-*/
-#undef	MSR_KERNEL
-/* Machine Check and Recoverable Interr. */
-#define MSR_KERNEL ( MSR_ME | MSR_RI )
+/*
+ * Need MSR_DR | MSR_IR enabled to access I/O (printf) in exceptions
+ */
 
 /*
  * Set up GOT: Global Offset Table
@@ -195,17 +193,21 @@ boot_warm:
 	bl	secondary_cpu_setup
 #endif
 
+1:
+#ifdef CFG_RAMBOOT
 	/* disable everything */
-1:	li	r0, 0
+	li	r0, 0
 	mtspr	HID0, r0
 	sync
 	mtmsr	0
+#endif
+
 	bl	invalidate_bats
 	sync
 
 #ifdef CFG_L2
 	/* init the L2 cache */
-	addis	r3, r0, L2_INIT@h
+	lis	r3, L2_INIT@h
 	ori	r3, r3, L2_INIT@l
 	mtspr	l2cr, r3
 	/* invalidate the L2 cache */
@@ -241,69 +243,9 @@ in_flash:
 	bl	setup_ccsrbar
 #endif
 
-
-	/* -- MPC8641 Rev 1.0 MCM Errata fixups -- */
-
-	/* skip fixups if not Rev 1.0 */
-	mfspr	r4, SVR
-	rlwinm	r4,r4,0,24,31
-	cmpwi	r4,0x10
-	bne	1f
-
-	lis	r3,MCM_ABCR@ha
-	lwz	r4,MCM_ABCR@l(r3)	/* ABCR -> r4 */
-
-	/* set ABCR[A_STRM_CNT] = 0 */
-	rlwinm	r4,r4,0,0,29
-
-	/* set ABCR[ARB_POLICY] to 0x1 (round-robin) */
-	addi	r0,r0,1
-	rlwimi	r4,r0,12,18,19
-
-	stw	r4,MCM_ABCR@l(r3)	/* r4 -> ABCR */
-	sync
-
-	/* Set DBCR[ERD_DIS] */
-	lis	r3,MCM_DBCR@ha
-	lwz	r4,MCM_DBCR@l(r3)
-	oris	r4, r4, 0x4000
-	stw	r4,MCM_DBCR@l(r3)
-	sync
-1:
 	/* setup the law entries */
 	bl	law_entry
 	sync
-
-
-#if (EMULATOR_RUN == 1)
-	/* On the emulator we want to adjust these ASAP */
-	/* otherwise things are sloooow */
-	/* Setup OR0 (LALE FIX)*/
-	lis	r3, CFG_CCSRBAR@h
-	ori	r3, r3, 0x5004
-	li	r4, 0x0FF3
-	stw	r4, 0(r3)
-	sync
-
-	/* Setup LCRR */
-	lis	r3, CFG_CCSRBAR@h
-	ori	r3, r3, 0x50D4
-	lis	r4, 0x8000
-	ori	r4, r4, 0x0002
-	stw	r4, 0(r3)
-	sync
-#endif
-#if 1
-	/* make sure timer enabled in guts register too */
-	lis	r3, CFG_CCSRBAR@h
-	oris	r3,r3, 0xE
-	ori	r3,r3,0x0070
-	lwz	r4, 0(r3)
-	lis	r5,0xFFFC
-	ori	r5,r5,0x5FFF
-	and	r4,r4,r5
-	stw	r4,0(r3)
-#endif
 	/*
 	 * Cache must be enabled here for stack-in-cache trick.
 	 * This means we need to enable the BATS.
@@ -345,8 +287,6 @@ in_flash:
 	sync
 
 #ifdef	RUN_DIAG
-
-	/* Sri:	 Code to run the diagnostic automatically */
 
 	/* Load PX_AUX register address in r4 */
 	lis	r4, 0xf810
@@ -392,6 +332,7 @@ diag_done:
 	.globl	invalidate_bats
 invalidate_bats:
 
+	li	r0, 0
 	/* invalidate BATs */
 	mtspr	IBAT0U, r0
 	mtspr	IBAT1U, r0
@@ -1040,6 +981,7 @@ trap_init:
 	mfmsr	r7
 	li	r8,MSR_IP
 	andc	r7,r7,r8
+	ori	r7,r7,MSR_ME		/* Enable Machine Check */
 	mtmsr	r7
 
 	mtlr	r4			/* restore link register	*/
@@ -1224,8 +1166,9 @@ secondary_cpu_setup:
 	sync
 	isync
 
-	/*SYNCBE|ABE in HID1*/
+	/* MCP|SYNCBE|ABE in HID1 */
 	mfspr	r4, HID1
+	oris	r4, r4, 0x8000
 	ori	r4, r4, 0x0C00
 	mtspr	HID1, r4
 	sync

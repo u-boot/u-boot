@@ -464,7 +464,8 @@
 #define ESR_ST          0x00800000      /* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
-#define SPRN_MSSCRO	0x3f6
+#define SPRN_MSSCR0	0x3f6
+#define SPRN_MSSSR0	0x3f7
 #endif
 
 
@@ -531,7 +532,7 @@
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_MPC86xx)
-#define MSSCR0	SPRN_MSSCRO
+#define MSSCR0	SPRN_MSSCR0
 #endif
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define PIR	SPRN_PIR

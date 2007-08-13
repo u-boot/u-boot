@@ -94,7 +94,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) | PCI_COMMAND_MASTER;
 
-	for (bar = PCI_BASE_ADDRESS_0; bar <= PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
+	for (bar = PCI_BASE_ADDRESS_0; bar < PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
 		/* Tickle the BAR and get the response */
 		pci_hose_write_config_dword(hose, dev, bar, 0xffffffff);
 		pci_hose_read_config_dword(hose, dev, bar, &bar_response);
