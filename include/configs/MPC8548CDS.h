@@ -623,6 +623,7 @@ extern unsigned long get_clock_freq(void);
 #define ENET_ENV ""
 #endif
 
+#if 0
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
@@ -634,9 +635,9 @@ extern unsigned long get_clock_freq(void);
 	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS1\0"				\
  "ramdiskaddr=2000000\0"			\
- "ramdiskfile=mpc8548cds\ramdisk.uboot\0"	\
+ "ramdiskfile=ramdisk.uboot\0"			\
  "dtbaddr=c00000\0"				\
- "dtbfile=mpc8548cds\mpc8548cds.dtb\0"		\
+ "dtbfile=mpc8548cds.dtb\0"			\
  "eoi=mw e00400b0 0\0"				\
  "iack=md e00400a0 1\0"				\
  "ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4; md ${a}bf0 4;" \
@@ -658,6 +659,7 @@ extern unsigned long get_clock_freq(void);
  PCI_ENV1 \
  PCI_ENV2 \
  ENET_ENV
+#endif
 
 
 #define CONFIG_NFSBOOTCOMMAND						\

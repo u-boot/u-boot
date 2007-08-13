@@ -194,10 +194,12 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
+#if defined(CONFIG_CLEAR_LAW0) || defined(CONFIG_L2_CACHE)
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
+#endif
+#ifdef CONFIG_CLEAR_LAW0
 	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
 
-#ifdef CONFIG_CLEAR_LAW0
 	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
 	ecm->lawar0 = 0;
 #endif
