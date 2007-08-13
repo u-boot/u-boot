@@ -26,7 +26,7 @@
 
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_REISER)
+#if defined(CONFIG_CMD_REISER)
 #include <linux/stat.h>
 
 #if ( S_ISUID != 04000 ) || ( S_ISGID != 02000 ) || ( S_ISVTX != 01000 ) \
@@ -139,4 +139,4 @@ const char *bb_mode_string(int mode)
 
 #endif
 
-#endif /* CFG_CMD_REISER */
+#endif

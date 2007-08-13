@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_P3P440		1	    /* Board is P3P440		*/
 #define CONFIG_440GP		1	    /* Specifc GP support	*/
+#define CONFIG_440		1	    /* ... PPC440 family	*/
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	    /* Call misc_init_r		*/
@@ -167,25 +168,37 @@
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_SNTP
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -194,7 +207,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -226,7 +239,6 @@
 #define CFG_PCI_TARGBASE    0x80000000  /* PCIaddr mapped to CFG_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT	            /* let board init pci target    */
 
 #define CONFIG_DISABLE_PISE_TEST	/* disable PISE test (PCIX only)*/
@@ -285,7 +297,7 @@
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -304,7 +316,7 @@
  */
 #define CFG_DCACHE_SIZE		(32<<10)	/* For AMCC 405 CPUs		*/
 #define CFG_CACHELINE_SIZE	32	/* ...					*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -316,7 +328,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

@@ -46,7 +46,7 @@
 #include <serial.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 #include <net.h>
 #endif
 
@@ -193,7 +193,12 @@ int _do_setenv (int flag, int argc, char *argv[])
 		 * Ethernet Address and serial# can be set only once,
 		 * ver is readonly.
 		 */
+#ifdef CONFIG_HAS_UID
+		/* Allow serial# forced overwrite with 0xdeaf4add flag */
+		if ( ((strcmp (name, "serial#") == 0) && (flag != 0xdeaf4add)) ||
+#else
 		if ( (strcmp (name, "serial#") == 0) ||
+#endif
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
@@ -367,12 +372,12 @@ int _do_setenv (int flag, int argc, char *argv[])
 		load_addr = simple_strtoul(argv[2], NULL, 16);
 		return 0;
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	if (strcmp(argv[1],"bootfile") == 0) {
 		copy_filename (BootFile, argv[2], sizeof(BootFile));
 		return 0;
 	}
-#endif	/* CFG_CMD_NET */
+#endif
 
 #ifdef CONFIG_AMIGAONEG3SE
 	if (strcmp(argv[1], "vga_fg_color") == 0 ||
@@ -397,7 +402,15 @@ void setenv (char *varname, char *varvalue)
 		_do_setenv (0, 3, argv);
 }
 
-int do_setenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+#ifdef CONFIG_HAS_UID
+void forceenv (char *varname, char *varvalue)
+{
+	char *argv[4] = { "forceenv", varname, varvalue, NULL };
+	_do_setenv (0xdeaf4add, 3, argv);
+}
+#endif
+
+int do_setenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -411,7 +424,7 @@ int do_setenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * Prompt for environment variable
  */
 
-#if (CONFIG_COMMANDS & CFG_CMD_ASKENV)
+#if defined(CONFIG_CMD_ASKENV)
 int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char console_buffer[CFG_CBSIZE];
@@ -483,7 +496,7 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Continue calling setenv code */
 	return _do_setenv (flag, len, local_args);
 }
-#endif	/* CFG_CMD_ASKENV */
+#endif
 
 /************************************************************************
  * Look up variable from environment,
@@ -538,11 +551,9 @@ int getenv_r (char *name, char *buf, unsigned len)
 	return (-1);
 }
 
-#if defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) || \
-    ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == \
-      (CFG_CMD_ENV|CFG_CMD_FLASH)) || \
-    ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_NAND)) == \
-      (CFG_CMD_ENV|CFG_CMD_NAND))
+#if defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND))
 int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char * env_name_spec;
@@ -551,7 +562,6 @@ int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (saveenv() ? 1 : 0);
 }
-
 
 #endif
 
@@ -596,20 +606,18 @@ U_BOOT_CMD(
 	"    - delete environment variable 'name'\n"
 );
 
-#if defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) || \
-    ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_FLASH)) == \
-      (CFG_CMD_ENV|CFG_CMD_FLASH)) || \
-    ((CONFIG_COMMANDS & (CFG_CMD_ENV|CFG_CMD_NAND)) == \
-      (CFG_CMD_ENV|CFG_CMD_NAND))
+#if defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
+    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND))
 U_BOOT_CMD(
 	saveenv, 1, 0,	do_saveenv,
 	"saveenv - save environment variables to persistent storage\n",
 	NULL
 );
 
-#endif	/* CFG_CMD_ENV */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_ASKENV)
+#if defined(CONFIG_CMD_ASKENV)
 
 U_BOOT_CMD(
 	askenv,	CFG_MAXARGS,	1,	do_askenv,
@@ -624,9 +632,9 @@ U_BOOT_CMD(
 	"    - display 'message' string and get environment variable 'name'"
 	"from stdin (max 'size' chars)\n"
 );
-#endif	/* CFG_CMD_ASKENV */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 U_BOOT_CMD(
 	run,	CFG_MAXARGS,	1,	do_run,
@@ -634,4 +642,4 @@ U_BOOT_CMD(
 	"var [...]\n"
 	"    - run the commands in the environment variable(s) 'var'\n"
 );
-#endif  /* CFG_CMD_RUN */
+#endif

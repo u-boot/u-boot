@@ -65,6 +65,7 @@ SECTIONS
   {
     cpu/ppc4xx/start.o	(.text)
     board/pcs440ep/init.o	(.text)
+    lib_generic/sha1.o		(.text)
 
     *(.text)
     *(.fixup)

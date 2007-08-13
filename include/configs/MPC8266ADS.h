@@ -83,8 +83,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC   */
 #define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
@@ -141,40 +140,43 @@
  */
 #define SPD_EEPROM_ADDRESS	0x50
 
-
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #define CONFIG_BAUDRATE		115200
 
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_all.h>
 
-#define CONFIG_COMMANDS	      ( CFG_CMD_ALL & ~( \
-				CFG_CMD_BEDBUG	| \
-				CFG_CMD_BMP	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DISPLAY | \
-				CFG_CMD_DOC	| \
-				CFG_CMD_DTT	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_EXT2	| \
-				CFG_CMD_FDC	| \
-				CFG_CMD_FDOS	| \
-				CFG_CMD_HWFLOW	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_KGDB	| \
-				CFG_CMD_MMC	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_PCMCIA	| \
-				CFG_CMD_REISER	| \
-				CFG_CMD_SCSI	| \
-				CFG_CMD_SPI	| \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_VFD	| \
-				CFG_CMD_UNIVERSE | \
-				CFG_CMD_USB	| \
-				CFG_CMD_XIMG	) )
+#undef CONFIG_CMD_BEDBUG
+#undef CONFIG_CMD_BMP
+#undef CONFIG_CMD_BSP
+#undef CONFIG_CMD_DATE
+#undef CONFIG_CMD_DHCP
+#undef CONFIG_CMD_DISPLAY
+#undef CONFIG_CMD_DOC
+#undef CONFIG_CMD_DTT
+#undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_EXT2
+#undef CONFIG_CMD_FDC
+#undef CONFIG_CMD_FDOS
+#undef CONFIG_CMD_HWFLOW
+#undef CONFIG_CMD_IDE
+#undef CONFIG_CMD_JFFS2
+#undef CONFIG_CMD_KGDB
+#undef CONFIG_CMD_MFSL
+#undef CONFIG_CMD_MMC
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_PCMCIA
+#undef CONFIG_CMD_REISER
+#undef CONFIG_CMD_SCSI
+#undef CONFIG_CMD_SPI
+#undef CONFIG_CMD_SNTP
+#undef CONFIG_CMD_VFD
+#undef CONFIG_CMD_UNIVERSE
+#undef CONFIG_CMD_USB
+#undef CONFIG_CMD_XIMG
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
@@ -202,21 +204,19 @@
 	"bootm"
 #endif /* CONFIG_BOOT_ROOT_NFS */
 
-/* Add support for a few extra bootp options like:
- *	- File size
- *	- DNS
+/*
+ * BOOTP options
  */
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_BOOTFILESIZE | \
-				 CONFIG_BOOTP_DNS)
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_DNS
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -231,7 +231,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
@@ -282,7 +282,6 @@
 #define CFG_SDRAM_SIZE 16
 
 #define SDRAM_SPD_ADDR 0x50
-
 
 /*-----------------------------------------------------------------------
  * BR2,BR3 - Base Register
@@ -381,7 +380,6 @@
 #error "INVALID SDRAM CONFIGURATION"
 #endif
 
-
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
 #define FETHIEN			0x08000008
@@ -392,7 +390,6 @@
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
-
 
 /* Use this HRCW for booting from address 0xfe00000 (JP3 in setting 1-2)  */
 /* 0x0EB2B645 */
@@ -450,12 +447,10 @@
 #  define CFG_ENV_SIZE		0x200
 #endif /* CFG_RAMBOOT */
 
-
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
 
 /*-----------------------------------------------------------------------
  * HIDx - Hardware Implementation-dependent Registers			 2-11

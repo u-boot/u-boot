@@ -44,6 +44,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
+/*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+void inline __show_boot_progress (int val) {}
+void inline show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
+
 #if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* for do_reset() prototype */
 #endif
@@ -113,7 +119,7 @@ static __inline__ int abortboot(int bootdelay)
 	u_int i;
 
 #  ifdef CONFIG_AUTOBOOT_PROMPT
-	printf (CONFIG_AUTOBOOT_PROMPT, bootdelay);
+	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
 #  ifdef CONFIG_AUTOBOOT_DELAY_STR
@@ -187,7 +193,7 @@ static __inline__ int abortboot(int bootdelay)
 	}
 #  if DEBUG_BOOTKEYS
 	if (!abort)
-		puts ("key timeout\n");
+		puts("key timeout\n");
 #  endif
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -244,13 +250,13 @@ static __inline__ int abortboot(int bootdelay)
 # endif
 				break;
 			}
-			udelay (10000);
+			udelay(10000);
 		}
 
-		printf ("\b\b\b%2d ", bootdelay);
+		printf("\b\b\b%2d ", bootdelay);
 	}
 
-	putc ('\n');
+	putc('\n');
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (abort)
@@ -962,7 +968,7 @@ int readline (const char *const prompt)
 			n = 0;
 			continue;
 
-		case 0x17:				/* ^W - erase word 	*/
+		case 0x17:				/* ^W - erase word	*/
 			p=delete_char(console_buffer, p, &col, &n, plen);
 			while ((n > 0) && (*p != ' ')) {
 				p=delete_char(console_buffer, p, &col, &n, plen);
@@ -1311,7 +1317,7 @@ int run_command (const char *cmd, int flag)
 			continue;
 		}
 
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if defined(CONFIG_CMD_BOOTD)
 		/* avoid "bootd" recursion */
 		if (cmdtp->cmd == do_bootd) {
 #ifdef DEBUG_PARSER
@@ -1325,7 +1331,7 @@ int run_command (const char *cmd, int flag)
 				flag |= CMD_FLAG_BOOTD;
 			}
 		}
-#endif	/* CFG_CMD_BOOTD */
+#endif
 
 		/* OK - call function to do the command */
 		if ((cmdtp->cmd) (cmdtp, flag, argc, argv) != 0) {
@@ -1344,7 +1350,7 @@ int run_command (const char *cmd, int flag)
 
 /****************************************************************************/
 
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if defined(CONFIG_CMD_RUN)
 int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
@@ -1372,4 +1378,4 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 	return 0;
 }
-#endif	/* CFG_CMD_RUN */
+#endif

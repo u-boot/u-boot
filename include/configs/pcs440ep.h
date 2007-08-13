@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_PCS440EP		1	/* Board is PCS440EP            */
 #define CONFIG_440EP		1	/* Specific PPC440EP support    */
+#define CONFIG_440		1	/* ... PPC440 family	        */
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
@@ -103,14 +104,20 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+
+#define CONFIG_ENV_OVERWRITE	1
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif /* CFG_ENV_IS_IN_FLASH */
+
+#define ENV_NAME_REVLEV	"revision_level"
+#define ENV_NAME_SOLDER	"solder_switch"
+#define ENV_NAME_DIP	"dip"
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -118,6 +125,7 @@
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for setup             */
 #undef CONFIG_DDR_ECC			/* don't use ECC			*/
 #define SPD_EEPROM_ADDRESS      {0x50}
+#define	CONFIG_PROG_SDRAM_TLB	1
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -142,6 +150,8 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=pcs440ep\0"						\
+	"use_eeprom_ethaddr=default\0"					\
+	"cs_test=off\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -171,6 +181,36 @@
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
+
+#define CONFIG_PREBOOT	"echo;" \
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+/* check U-Boot image with SHA1 sum */
+#define CONFIG_SHA1_CHECK_UB_IMG	1
+#define CONFIG_SHA1_START		CFG_MONITOR_BASE
+#define CONFIG_SHA1_LEN			CFG_MONITOR_LEN
+
+/*-----------------------------------------------------------------------
+ * Definitions for status LED
+ */
+#define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
+#define CONFIG_BOARD_SPECIFIC_LED	1
+
+#define STATUS_LED_BIT		0x08			/* DIAG1 is on GPIO_PPC_1 */
+#define STATUS_LED_PERIOD	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE	STATUS_LED_OFF
+#define STATUS_LED_BIT1		0x04			/* DIAG2 is on GPIO_PPC_2 */
+#define STATUS_LED_PERIOD1	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE1	STATUS_LED_ON
+#define STATUS_LED_BIT2		0x02			/* DIAG3 is on GPIO_PPC_3 */
+#define STATUS_LED_PERIOD2	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE2	STATUS_LED_OFF
+#define STATUS_LED_BIT3		0x01			/* DIAG4 is on GPIO_PPC_4 */
+#define STATUS_LED_PERIOD3	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE3	STATUS_LED_OFF
+
+#define CONFIG_SHOW_BOOT_PROGRESS	1
 
 #define CONFIG_BAUDRATE		115200
 
@@ -207,37 +247,47 @@
 #define CONFIG_HW_WATCHDOG			/* watchdog */
 #endif
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_EXT2	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_USB	)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_USB
 
 
 #define CONFIG_SUPPORT_VFAT
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -266,7 +316,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
@@ -315,76 +364,76 @@
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
  */
-#define CFG_440_GPIO_TABLE { /*		GPIO	Alternate1	Alternate2	Alternate3 */ \
+#define CFG_440_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO1	EBC_ADDR(6)	DMA_ACK(2)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO2	EBC_ADDR(5)	DMA_EOT/TC(2)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO3	EBC_ADDR(4)	DMA_REQ(3)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO4	EBC_ADDR(3)	DMA_ACK(3)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO5	EBC_ADDR(2)	DMA_EOT/TC(3)	*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO6	EBC_CS_N(1)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO7	EBC_CS_N(2)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO8	EBC_CS_N(3)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO9	EBC_CS_N(4)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO10	EBC_CS_N(5)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_SEL },  /* GPIO11	EBC_BUS_ERR			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO12	ZII_p0Rxd(0)			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO13	ZII_p0Rxd(1)			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO14	ZII_p0Rxd(2)			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO15	ZII_p0Rxd(3)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO16	ZII_p0Txd(0)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO17	ZII_p0Txd(1)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO18	ZII_p0Txd(2)			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO19	ZII_p0Txd(3)			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO20	ZII_p0Rx_er			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO21	ZII_p0Rx_dv			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO22	ZII_p0RxCrs			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO23	ZII_p0Tx_er			*/	\
-{ GPIO0_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO24	ZII_p0Tx_en			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO25	ZII_p0Col			*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO26			USB2D_RXVALID	*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO27	EXT_EBC_REQ	USB2D_RXERROR	*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO28			USB2D_TXVALID	*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO29	EBC_EXT_HDLA	USB2D_PAD_SUSPNDM */	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO30	EBC_EXT_ACK	USB2D_XCVRSELECT*/	\
-{ GPIO0_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO31	EBC_EXR_BUSREQ	USB2D_TERMSELECT*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/ \
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO1	EBC_ADDR(6)	DMA_ACK(2)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO2	EBC_ADDR(5)	DMA_EOT/TC(2)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO3	EBC_ADDR(4)	DMA_REQ(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO4	EBC_ADDR(3)	DMA_ACK(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO5	EBC_ADDR(2)	DMA_EOT/TC(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO6	EBC_CS_N(1)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO7	EBC_CS_N(2)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO8	EBC_CS_N(3)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO9	EBC_CS_N(4)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO10	EBC_CS_N(5)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO11	EBC_BUS_ERR			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO12	ZII_p0Rxd(0)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO13	ZII_p0Rxd(1)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO14	ZII_p0Rxd(2)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO15	ZII_p0Rxd(3)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO16	ZII_p0Txd(0)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO17	ZII_p0Txd(1)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO18	ZII_p0Txd(2)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO19	ZII_p0Txd(3)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO20	ZII_p0Rx_er			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO21	ZII_p0Rx_dv			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO22	ZII_p0RxCrs			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO23	ZII_p0Tx_er			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO24	ZII_p0Tx_en			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO25	ZII_p0Col			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO26			USB2D_RXVALID	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO27	EXT_EBC_REQ	USB2D_RXERROR	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO28			USB2D_TXVALID	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO29	EBC_EXT_HDLA	USB2D_PAD_SUSPNDM */	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO30	EBC_EXT_ACK	USB2D_XCVRSELECT*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO31	EBC_EXR_BUSREQ	USB2D_TERMSELECT*/	\
 },											\
 {											\
 /* GPIO Core 1 */									\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO32	USB2D_OPMODE0			*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO33	USB2D_OPMODE1			*/	\
-{ GPIO1_BASE, GPIO_OUT, GPIO_ALT3 }, /* GPIO34	UART0_DCD_N	UART1_DSR_CTS_N	UART2_SOUT*/ \
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT3 }, /* GPIO35	UART0_8PIN_DSR_N UART1_RTS_DTR_N UART2_SIN*/ \
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO36	UART0_8PIN_CTS_N		UART3_SIN*/ \
-{ GPIO1_BASE, GPIO_OUT, GPIO_ALT1 }, /* GPIO37	UART0_RTS_N			*/	\
-{ GPIO1_BASE, GPIO_OUT, GPIO_ALT2 }, /* GPIO38	UART0_DTR_N	UART1_SOUT	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT2 }, /* GPIO39	UART0_RI_N	UART1_SIN	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO40	UIC_IRQ(0)			*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO41	UIC_IRQ(1)			*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO42	UIC_IRQ(2)			*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO43	UIC_IRQ(3)			*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_ALT1 }, /* GPIO44	UIC_IRQ(4)	DMA_ACK(1)	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO45	UIC_IRQ(6)	DMA_EOT/TC(1)	*/	\
-{ GPIO1_BASE, GPIO_BI,  GPIO_SEL },  /* GPIO46	UIC_IRQ(7)	DMA_REQ(0)	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO47	UIC_IRQ(8)	DMA_ACK(0)	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO48	UIC_IRQ(9)	DMA_EOT/TC(0)	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO49  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO50  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO51  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO52  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO53  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO54  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO55  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO56  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO57  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO58  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO59  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO60  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO61  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO62  Unselect via TraceSelect Bit	*/	\
-{ GPIO1_BASE, GPIO_IN,  GPIO_SEL },  /* GPIO63  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO32	USB2D_OPMODE0			*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO33	USB2D_OPMODE1			*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT3, GPIO_OUT_NO_CHG}, /* GPIO34	UART0_DCD_N	UART1_DSR_CTS_N	UART2_SOUT*/ \
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT3, GPIO_OUT_NO_CHG}, /* GPIO35	UART0_8PIN_DSR_N UART1_RTS_DTR_N UART2_SIN*/ \
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO36	UART0_8PIN_CTS_N		UART3_SIN*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO37	UART0_RTS_N			*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_NO_CHG}, /* GPIO38	UART0_DTR_N	UART1_SOUT	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT2, GPIO_OUT_NO_CHG}, /* GPIO39	UART0_RI_N	UART1_SIN	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO40	UIC_IRQ(0)			*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO41	UIC_IRQ(1)			*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO42	UIC_IRQ(2)			*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO43	UIC_IRQ(3)			*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_NO_CHG}, /* GPIO44	UIC_IRQ(4)	DMA_ACK(1)	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO45	UIC_IRQ(6)	DMA_EOT/TC(1)	*/	\
+{GPIO1_BASE, GPIO_BI,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO46	UIC_IRQ(7)	DMA_REQ(0)	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO47	UIC_IRQ(8)	DMA_ACK(0)	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO48	UIC_IRQ(9)	DMA_EOT/TC(0)	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO49  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO50  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO51  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO52  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO53  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO54  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO55  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO56  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO57  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO58  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO59  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO60  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO61  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO62  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO63  Unselect via TraceSelect Bit	*/	\
 }											\
 }
 
@@ -393,7 +442,7 @@
  */
 #define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -405,9 +454,44 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef  CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef  CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 2 drives per IDE bus	*/
+
+#define CONFIG_IDE_PREINIT	1
+#define CONFIG_IDE_RESET	1
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	CFG_CF1
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	0
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x0000)
+
+/* These addresses need to be shifted one place to the left
+ * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
+ * These values are shifted
+ */
+#define CFG_ATA_PORT_ADDR(port) ((port) << 1)
 
 #endif	/* __CONFIG_H */

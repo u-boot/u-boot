@@ -28,7 +28,7 @@
 #include <command.h>
 #include <flash.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH)
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
@@ -427,4 +427,4 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 	return rcode;
 }
 
-#endif	/* CFG_CMD_FLASH */
+#endif

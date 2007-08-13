@@ -52,30 +52,27 @@ search_one_table(const struct exception_table_entry *first,
 		 const struct exception_table_entry *last,
 		 unsigned long value)
 {
-	while (first <= last) {
-		const struct exception_table_entry *mid;
-		long diff;
-
-		mid = (last - first) / 2 + first;
-		if ((ulong) mid > CFG_MONITOR_BASE) {
-			/* exception occurs in FLASH, before u-boot relocation.
-			 * No relocation offset is needed.
-			 */
-			diff = mid->insn - value;
+	long diff;
+	if ((ulong) first > CFG_MONITOR_BASE) {
+		/* exception occurs in FLASH, before u-boot relocation.
+		 * No relocation offset is needed.
+		 */
+		while (first <= last) {
+			diff = first->insn - value;
 			if (diff == 0)
-				return mid->fixup;
-		} else {
-			/* exception occurs in RAM, after u-boot relocation.
-			 * A relocation offset should be added.
-			 */
-			diff = (mid->insn + gd->reloc_off) - value;
-			if (diff == 0)
-				return (mid->fixup + gd->reloc_off);
+				return first->fixup;
+			first++;
 		}
-		if (diff < 0)
-			first = mid + 1;
-		else
-			last = mid - 1;
+	} else {
+		/* exception occurs in RAM, after u-boot relocation.
+		 * A relocation offset should be added.
+		 */
+		while (first <= last) {
+			diff = (first->insn + gd->reloc_off) - value;
+			if (diff == 0)
+				return (first->fixup + gd->reloc_off);
+			first++;
+		}
 	}
 	return 0;
 }

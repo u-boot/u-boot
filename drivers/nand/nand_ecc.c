@@ -37,7 +37,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
 
 #include<linux/mtd/mtd.h>
 
@@ -197,4 +197,4 @@ int nand_correct_data(struct mtd_info *mtd, u_char *dat,
 	return -1;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NAND */
+#endif

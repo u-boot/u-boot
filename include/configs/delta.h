@@ -87,22 +87,49 @@
 
 #define CONFIG_BAUDRATE		115200
 
-/* #define CONFIG_COMMANDS       (CONFIG_CMD_DFL | CFG_CMD_MMC | CFG_CMD_FAT) */
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 #ifdef TURN_ON_ETHERNET
-# define CONFIG_COMMANDS        (CONFIG_CMD_DFL | CFG_CMD_PING)
+
+#define CONFIG_CMD_PING
+
 #else
-# define CONFIG_COMMANDS	((CONFIG_CMD_DFL \
-				  | CFG_CMD_ENV \
-				  | CFG_CMD_NAND \
-				  | CFG_CMD_I2C) \
-				 & ~(CFG_CMD_NET \
-				     | CFG_CMD_FLASH \
-				     | CFG_CMD_IMLS))
+
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_I2C
+
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+
 #endif
 
+/* USB */
+#define CONFIG_USB_OHCI_NEW	1
+#define CONFIG_USB_STORAGE      1
+#define CONFIG_DOS_PARTITION    1
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	OHCI_REGS_BASE
+#define CFG_USB_OHCI_SLOT_NAME	"delta"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	3
+
+#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
 #define CONFIG_BOOTDELAY	-1
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
@@ -114,7 +141,7 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_TIMESTAMP
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

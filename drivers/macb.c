@@ -17,7 +17,8 @@
  */
 #include <common.h>
 
-#if defined(CONFIG_MACB) && (CONFIG_COMMANDS & (CFG_CMD_NET | CFG_CMD_MII))
+#if defined(CONFIG_MACB) \
+	&& (defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_MII))
 
 /*
  * The u-boot networking stack is a little weird.  It seems like the
@@ -165,7 +166,7 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 	return MACB_BFEXT(DATA, frame);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 static int macb_send(struct eth_device *netdev, volatile void *packet,
 		     int length)
@@ -503,9 +504,9 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	return 0;
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NET) */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 
 int miiphy_read(unsigned char addr, unsigned char reg, unsigned short *value)
 {
@@ -581,6 +582,6 @@ int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
 	return 0;
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) */
+#endif
 
 #endif /* CONFIG_MACB */

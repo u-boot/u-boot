@@ -60,32 +60,44 @@
 
 #undef	CONFIG_WATCHDOG
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
 #define CONFIG_RTC_DS164x
 
-#define CONFIG_COMMANDS		( CONFIG_CMD_DFL	| \
-				  CFG_CMD_ASKENV	| \
-				  CFG_CMD_CACHE		| \
-				  CFG_CMD_DATE		| \
-				  CFG_CMD_DHCP		| \
-				  CFG_CMD_DIAG		| \
-				  CFG_CMD_EEPROM	| \
-				  CFG_CMD_ELF		| \
-				  CFG_CMD_I2C		| \
-				  CFG_CMD_JFFS2		| \
-				  CFG_CMD_NFS		| \
-				  CFG_CMD_PCI		| \
-				  CFG_CMD_PING		| \
-				  CFG_CMD_SDRAM		| \
-				  CFG_CMD_SNTP)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
+
 
 #define CONFIG_NETCONSOLE
-
-#include <cmd_confdefs.h>
 
 #define CFG_LONGHELP
 #define CFG_PROMPT		"=> "
@@ -178,7 +190,7 @@
 #define CONFIG_SYS_CLK_FREQ	33333333
 
 #define CFG_CACHELINE_SIZE	32
-#if CONFIG_COMMANDS & CFG_CMD_KGDB
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5
 #endif
 

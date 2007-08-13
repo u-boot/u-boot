@@ -27,6 +27,15 @@
 /*--------------------------------------------------------------------- */
 	#define  srr2  0x3de      /* save/restore register 2 */
 	#define  srr3  0x3df      /* save/restore register 3 */
+
+	/*
+	 * 405 does not really have CSRR0/1 but SRR2/3 are used during critical
+	 * exception for the exact same purposes - let's alias them and have a
+	 * common handling in crit_return() and CRIT_EXCEPTION
+	 */
+	#define  csrr0 srr2
+	#define  csrr1 srr3
+
 	#define  dbsr  0x3f0      /* debug status register */
 	#define  dbcr0 0x3f2      /* debug control register 0 */
 	#define  dbcr1 0x3bd      /* debug control register 1 */
@@ -134,12 +143,12 @@
 #define UIC_USBH1	0x00040000	/* USB Host 1			*/
 #define UIC_USBH2	0x00020000	/* USB Host 2			*/
 #define UIC_USBDEV	0x00010000	/* USB Device			*/
-#define UIC_ENET	0x00008000	/* Ethernet interrupt status 	*/
-#define UIC_ENET1	0x00008000	/* dummy define              	*/
+#define UIC_ENET	0x00008000	/* Ethernet interrupt status	*/
+#define UIC_ENET1	0x00008000	/* dummy define			*/
 #define UIC_EMAC_WAKE	0x00004000	/* EMAC wake up			*/
 
 #define UIC_MADMAL	0x00002000	/* Logical OR of following MadMAL int */
-#define UIC_MAL_SERR 	0x00002000	/*   MAL SERR			*/
+#define UIC_MAL_SERR	0x00002000	/*   MAL SERR			*/
 #define UIC_MAL_TXDE	0x00002000	/*   MAL TXDE			*/
 #define UIC_MAL_RXDE	0x00002000	/*   MAL RXDE			*/
 
@@ -877,7 +886,7 @@
 #define cntrl0  (CNTRL_DCR_BASE+0x1)  /* Control 0 register                  */
 #define cntrl1  (CNTRL_DCR_BASE+0x2)  /* Control 1 register		     */
 #define reset   (CNTRL_DCR_BASE+0x3)  /* reset register			     */
-#define strap   (CNTRL_DCR_BASE+0x4)  /* strap register		   	     */
+#define strap   (CNTRL_DCR_BASE+0x4)  /* strap register			     */
 
 #define ecr     (0xaa)                /* edge conditioner register (405gpr)  */
 
@@ -1110,13 +1119,13 @@
 | UART Register Offsets
 '----------------------------------------------------------------------------*/
 #define		DATA_REG	0x00
-#define		DL_LSB    	0x00
-#define		DL_MSB  	0x01
+#define		DL_LSB		0x00
+#define		DL_MSB		0x01
 #define		INT_ENABLE      0x01
 #define		FIFO_CONTROL    0x02
 #define		LINE_CONTROL    0x03
 #define		MODEM_CONTROL   0x04
-#define		LINE_STATUS  	0x05
+#define		LINE_STATUS	0x05
 #define		MODEM_STATUS    0x06
 #define		SCRATCH         0x07
 

@@ -117,7 +117,7 @@
 #define TREFMD	0x0	/* CBR(CAS before RAS)/auto refresh */
 #define Trp	0x0	/* 2 clk */
 #define Trc	0x3	/* 7 clk */
-#define Tchr	0x2 	/* 3 clk */
+#define Tchr	0x2	/* 3 clk */
 
 #define REFCNT	1113	/* period=15.6 us, HCLK=60Mhz, (2048+1-15.6*66) */
 

@@ -1252,7 +1252,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 /* sets up the GT properly with information passed in */
 int setup_sdram (AUX_MEM_DIMM_INFO * info)
 {
-	ulong tmp, check;
+	ulong tmp;
 	ulong tmp_sdram_mode = 0;	/* 0x141c */
 	ulong tmp_dunit_control_low = 0;	/* 0x1404 */
 	int i;

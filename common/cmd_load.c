@@ -33,24 +33,24 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)
+#if defined(CONFIG_CMD_LOADB)
 static ulong load_serial_ymodem (ulong offset);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if defined(CONFIG_CMD_LOADS)
 static ulong load_serial (ulong offset);
 static int read_record (char *buf, ulong len);
-# if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+# if defined(CONFIG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
 static int write_record (char *buf);
-# endif /* CFG_CMD_SAVES */
+#endif
 
 static int do_echo = 1;
-#endif /* CFG_CMD_LOADS */
+#endif
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if defined(CONFIG_CMD_LOADS)
 int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong offset = 0;
@@ -253,7 +253,7 @@ read_record (char *buf, ulong len)
 	return (p - buf);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+#if defined(CONFIG_CMD_SAVES)
 
 int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -399,13 +399,15 @@ write_record (char *buf)
 	}
 	return (0);
 }
-# endif /* CFG_CMD_SAVES */
+# endif
 
-#endif	/* CFG_CMD_LOADS */
+#endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)  /* loadb command (load binary) included */
-
+#if defined(CONFIG_CMD_LOADB)
+/*
+ * loadb command (load binary) included
+ */
 #define XON_CHAR        17
 #define XOFF_CHAR       19
 #define START_CHAR      0x01
@@ -1036,11 +1038,11 @@ static ulong load_serial_ymodem (ulong offset)
 	return offset;
 }
 
-#endif	/* CFG_CMD_LOADB */
+#endif
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADS)
+#if defined(CONFIG_CMD_LOADS)
 
 #ifdef	CFG_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
@@ -1065,7 +1067,7 @@ U_BOOT_CMD(
  */
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_SAVES)
+#if defined(CONFIG_CMD_SAVES)
 #ifdef	CFG_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	saves, 4, 0,	do_save_serial,
@@ -1082,11 +1084,11 @@ U_BOOT_CMD(
 	"    - save S-Record file over serial line with offset 'off' and size 'size'\n"
 );
 #endif	/* CFG_LOADS_BAUD_CHANGE */
-#endif	/* CFG_CMD_SAVES */
-#endif	/* CFG_CMD_LOADS */
+#endif
+#endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_LOADB)
+#if defined(CONFIG_CMD_LOADB)
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
 	"loadb   - load binary file over serial line (kermit mode)\n",
@@ -1103,11 +1105,11 @@ U_BOOT_CMD(
 	" with offset 'off' and baudrate 'baud'\n"
 );
 
-#endif	/* CFG_CMD_LOADB */
+#endif
 
 /* -------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_HWFLOW)
+#if defined(CONFIG_CMD_HWFLOW)
 int do_hwflow (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern int hwflow_onoff(int);
@@ -1133,4 +1135,4 @@ U_BOOT_CMD(
 	"[on|off]\n - change RTS/CTS hardware flow control over serial line\n"
 );
 
-#endif /* CFG_CMD_HWFLOW */
+#endif

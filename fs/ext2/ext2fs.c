@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_EXT2)
+#if defined(CONFIG_CMD_EXT2)
 #include <ext2fs.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
@@ -875,4 +875,4 @@ fail:
 	return (0);
 }
 
-#endif /* CFG_CMD_EXT2FS */
+#endif

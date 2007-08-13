@@ -12,14 +12,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>
@@ -216,6 +209,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	image_header_t *hdr;
 	int rcode = 0;
 
+	show_boot_progress (34);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -236,24 +230,27 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-35);
 		return 1;
 	}
 
+	show_boot_progress (35);
 	if (!boot_device) {
 		puts ("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-36);
 		return 1;
 	}
+	show_boot_progress (36);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if ((dev >= CFG_MAX_DOC_DEVICE) ||
 	    (doc_dev_desc[dev].ChipID == DOC_ChipID_UNKNOWN)) {
 		printf ("\n** Device %d not available\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-37);
 		return 1;
 	}
+	show_boot_progress (37);
 
 	printf ("\nLoading from device %d: %s at 0x%lX (offset 0x%lX)\n",
 		dev, doc_dev_desc[dev].name, doc_dev_desc[dev].physadr,
@@ -262,9 +259,10 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (doc_rw (doc_dev_desc + dev, 1, offset,
 		    SECTORSIZE, NULL, (u_char *)addr)) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-38);
 		return 1;
 	}
+	show_boot_progress (38);
 
 	hdr = (image_header_t *)addr;
 
@@ -276,16 +274,18 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		cnt -= SECTORSIZE;
 	} else {
 		puts ("\n** Bad Magic Number **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-39);
 		return 1;
 	}
+	show_boot_progress (39);
 
 	if (doc_rw (doc_dev_desc + dev, 1, offset + SECTORSIZE, cnt,
 		    NULL, (u_char *)(addr+SECTORSIZE))) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-40);
 		return 1;
 	}
+	show_boot_progress (40);
 
 	/* Loading ok, update default load address */
 
@@ -1608,4 +1608,4 @@ void doc_probe(unsigned long physadr)
 	}
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_DOC) */
+#endif

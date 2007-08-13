@@ -16,6 +16,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
+#include "config.h"
+#if CONFIG_OF_LIBFDT
+
 #include "libfdt_env.h"
 
 #include <fdt.h>
@@ -48,11 +51,150 @@ static int offset_streq(const void *fdt, int offset,
 }
 
 /*
+ * Checks if the property name matches.
+ */
+static int prop_name_eq(const void *fdt, int offset, const char *name,
+			struct fdt_property **prop, int *lenp)
+{
+	int namestroff, len;
+
+	*prop = fdt_offset_ptr_typed(fdt, offset, *prop);
+	if (! *prop)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	namestroff = fdt32_to_cpu((*prop)->nameoff);
+	if (streq(fdt_string(fdt, namestroff), name)) {
+		len = fdt32_to_cpu((*prop)->len);
+		*prop = fdt_offset_ptr(fdt, offset,
+				       sizeof(**prop) + len);
+		if (*prop) {
+			if (lenp)
+				*lenp = len;
+			return 1;
+		} else
+			return -FDT_ERR_BADSTRUCTURE;
+	}
+	return 0;
+}
+
+/*
  * Return a pointer to the string at the given string offset.
  */
 char *fdt_string(const void *fdt, int stroffset)
 {
 	return (char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+}
+
+/*
+ * Check if the specified node is compatible by comparing the tokens
+ * in its "compatible" property with the specified string:
+ *
+ *   nodeoffset - starting place of the node
+ *   compat     - the string to match to one of the tokens in the
+ *                "compatible" list.
+ */
+int fdt_node_is_compatible(const void *fdt, int nodeoffset,
+			   const char *compat)
+{
+	const char* cp;
+	int cplen, len;
+
+	cp = fdt_getprop(fdt, nodeoffset, "compatible", &cplen);
+	if (cp == NULL)
+		return 0;
+	while (cplen > 0) {
+		if (strncmp(cp, compat, strlen(compat)) == 0)
+			return 1;
+		len = strlen(cp) + 1;
+		cp += len;
+		cplen -= len;
+	}
+
+	return 0;
+}
+
+/*
+ * Find a node by its device type property. On success, the offset of that
+ * node is returned or an error code otherwise:
+ *
+ *   nodeoffset - the node to start searching from or 0, the node you pass
+ *                will not be searched, only the next one will; typically,
+ *                you pass 0 to start the search and then what the previous
+ *                call returned.
+ *   type       - the device type string to match against.
+ */
+int fdt_find_node_by_type(const void *fdt, int nodeoffset, const char *type)
+{
+	int offset, nextoffset;
+	struct fdt_property *prop;
+	uint32_t tag;
+	int len, ret;
+
+	CHECK_HEADER(fdt);
+
+	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, NULL);
+	if (tag != FDT_BEGIN_NODE)
+		return -FDT_ERR_BADOFFSET;
+	if (nodeoffset)
+		nodeoffset = 0;	/* start searching with next node */
+
+	while (1) {
+		offset = nextoffset;
+		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
+
+		switch (tag) {
+		case FDT_BEGIN_NODE:
+			nodeoffset = offset;
+			break;
+
+		case FDT_PROP:
+			if (nodeoffset == 0)
+				break;
+			ret = prop_name_eq(fdt, offset, "device_type",
+					   &prop, &len);
+			if (ret < 0)
+				return ret;
+			else if (ret > 0 &&
+				 strncmp(prop->data, type, len - 1) == 0)
+			    return nodeoffset;
+			break;
+
+		case FDT_END_NODE:
+		case FDT_NOP:
+			break;
+
+		case FDT_END:
+			return -FDT_ERR_NOTFOUND;
+
+		default:
+			return -FDT_ERR_BADSTRUCTURE;
+		}
+	}
+}
+
+/*
+ * Find a node based on its device type and one of the tokens in its its
+ * "compatible" property. On success, the offset of that node is returned
+ * or an error code otherwise:
+ *
+ *   nodeoffset - the node to start searching from or 0, the node you pass
+ *                will not be searched, only the next one will; typically,
+ *                you pass 0 to start the search and then what the previous
+ *                call returned.
+ *   type       - the device type string to match against.
+ *   compat     - the string to match to one of the tokens in the
+ *                "compatible" list.
+ */
+int fdt_find_compatible_node(const void *fdt, int nodeoffset,
+			     const char *type, const char *compat)
+{
+	int offset;
+
+	offset = fdt_find_node_by_type(fdt, nodeoffset, type);
+	if (offset < 0 || fdt_node_is_compatible(fdt, offset, compat))
+		return offset;
+
+	return -FDT_ERR_NOTFOUND;
 }
 
 /*
@@ -129,7 +271,7 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
  * Searches for the node corresponding to the given path and returns the
  * offset of that node.
  */
-int fdt_path_offset(const void *fdt, const char *path)
+int fdt_find_node_by_path(const void *fdt, const char *path)
 {
 	const char *end = path + strlen(path);
 	const char *p = path;
@@ -140,6 +282,10 @@ int fdt_path_offset(const void *fdt, const char *path)
 	/* Paths must be absolute */
 	if (*path != '/')
 		return -FDT_ERR_BADPATH;
+
+	/* Handle the root path: root offset is 0 */
+	if (strcmp(path, "/") == 0)
+		return 0;
 
 	while (*p) {
 		const char *q;
@@ -184,7 +330,6 @@ struct fdt_property *fdt_get_property(const void *fdt,
 	int level = 0;
 	uint32_t tag;
 	struct fdt_property *prop;
-	int namestroff;
 	int offset, nextoffset;
 	int err;
 
@@ -224,24 +369,11 @@ struct fdt_property *fdt_get_property(const void *fdt,
 			if (level != 0)
 				continue;
 
-			err = -FDT_ERR_BADSTRUCTURE;
-			prop = fdt_offset_ptr_typed(fdt, offset, prop);
-			if (! prop)
-				goto fail;
-			namestroff = fdt32_to_cpu(prop->nameoff);
-			if (streq(fdt_string(fdt, namestroff), name)) {
-				/* Found it! */
-				int len = fdt32_to_cpu(prop->len);
-				prop = fdt_offset_ptr(fdt, offset,
-						      sizeof(*prop)+len);
-				if (! prop)
-					goto fail;
-
-				if (lenp)
-					*lenp = len;
-
+			err = prop_name_eq(fdt, offset, name, &prop, lenp);
+			if (err > 0)
 				return prop;
-			}
+			else if (err < 0)
+				goto fail;
 			break;
 
 		case FDT_NOP:
@@ -400,3 +532,6 @@ int fdt_get_reservemap(void *fdt, int n, struct fdt_reserve_entry *re)
 	}
 	return 0;
 }
+
+#endif /* CONFIG_OF_LIBFDT */
+

@@ -67,7 +67,7 @@
 
 
 #include <config.h>
-#if ((CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_LZO_LZARI))
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_LZO_LZARI)
 
 #include <linux/stddef.h>
 #include <jffs2/jffs2.h>
@@ -402,4 +402,4 @@ int lzo_decompress(unsigned char *data_in, unsigned char *cpage_out,
 	return lzo1x_decompress (data_in, srclen, cpage_out, &outlen, NULL);
 }
 
-#endif /* ((CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_LZO_LZARI)) */
+#endif

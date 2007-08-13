@@ -26,6 +26,6 @@ SUBDIRS =
 
 LIB	= libpostdrivers.a
 
-COBJS	= cache.o i2c.o memory.o rtc.o
+COBJS	= i2c.o memory.o rtc.o
 
 include $(TOPDIR)/post/rules.mk

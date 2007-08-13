@@ -2,7 +2,7 @@ JFFS2 options and usage.
 -----------------------
 
 JFFS2 in U-Boot is a read only implementation of the file system in
-Linux with the same name. To use JFFS2 define CFG_CMD_JFFS2.
+Linux with the same name. To use JFFS2 define CONFIG_CMD_JFFS2.
 
 The module adds three new commands.
 fsload  - load binary file from a file system image

@@ -75,24 +75,33 @@
 
 #define CONFIG_BOOTDELAY	5
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_COMMANDS	( CONFIG_CMD_DFL | \
-				  CFG_CMD_BSP    | \
-				  CFG_CMD_DIAG   | \
-				  CFG_CMD_ELF    | \
-				  CFG_CMD_ENV    | \
-				  CFG_CMD_FLASH  | \
-				  CFG_CMD_PCI    | \
-				  CFG_CMD_PING   | \
-				  CFG_CMD_SDRAM  | \
-				  0 )
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
+/*
+ * Command line configuration.
  */
-#include <cmd_confdefs.h>
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SDRAM
+
 
 /*
  * Miscellaneous configurable options
@@ -340,7 +349,7 @@ typedef unsigned int led_id_t;
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

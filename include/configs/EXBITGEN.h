@@ -82,10 +82,21 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -94,7 +105,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -206,7 +217,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

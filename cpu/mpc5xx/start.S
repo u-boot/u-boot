@@ -155,7 +155,7 @@ in_flash:
 	/* Initialize some SPRs that are hard to access from C			*/
 	/*----------------------------------------------------------------------*/
 
-	lis     r3, CFG_IMMR@h          	/* Pass IMMR as arg1 to C routine */
+	lis     r3, CFG_IMMR@h			/* Pass IMMR as arg1 to C routine */
 	lis	r2, CFG_INIT_SP_ADDR@h
 	ori	r1, r2, CFG_INIT_SP_ADDR@l	/* Set up the stack in internal SRAM */
 	/* Note: R0 is still 0 here */
@@ -210,7 +210,7 @@ _start_of_vectors:
 /* Alignment exception. */
 	. = 0x600
 Alignment:
-	EXCEPTION_PROLOG
+	EXCEPTION_PROLOG(SRR0, SRR1)
 	mfspr	r4,DAR
 	stw	r4,_DAR(r21)
 	mfspr	r5,DSISR
@@ -228,7 +228,7 @@ Alignment:
 /* Program check exception */
 	. = 0x700
 ProgramCheck:
-	EXCEPTION_PROLOG
+	EXCEPTION_PROLOG(SRR0, SRR1)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
 	li	r20,MSR_KERNEL
 	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */

@@ -235,7 +235,7 @@ U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
 
 /* ------------------------------------------------------------------------- */
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 

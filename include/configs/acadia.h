@@ -75,7 +75,7 @@
 #define CFG_TEMP_STACK_OCM	1		/* OCM as init ram	*/
 
 /* On Chip Memory location */
-#define CFG_OCM_DATA_ADDR	0xF8000000
+#define CFG_OCM_DATA_ADDR	0xf8000000
 #define CFG_OCM_DATA_SIZE	0x4000			/* 16K of onchip SRAM		*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of SRAM		*/
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of used area in RAM	*/
@@ -123,10 +123,8 @@
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define	_CFG_CMD_INCLUDE	(CFG_CMD_ALL)
 #else
 #define	CFG_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
-#define	_CFG_CMD_INCLUDE	((CFG_CMD_ALL) & ~(CFG_CMD_FLASH | CFG_CMD_IMLS))
 #endif
 
 #ifdef CFG_ENV_IS_IN_FLASH
@@ -159,7 +157,7 @@
  */
 #define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
 #define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
-#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_DATA_ADDR + (12 << 10)) /* Copy SPL here*/
+#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_DATA_ADDR + (16 << 10)) /* Copy SPL here*/
 #define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
 #define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
 #define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
@@ -301,27 +299,45 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#define CONFIG_COMMANDS	((CONFIG_CMD_DFL & _CFG_CMD_INCLUDE)	|	\
-			 CFG_CMD_ASKENV	|				\
-			 CFG_CMD_DHCP	|				\
-			 CFG_CMD_DTT	|				\
-			 CFG_CMD_DIAG	|				\
-			 CFG_CMD_EEPROM	|				\
-			 CFG_CMD_ELF	|				\
-			 CFG_CMD_FAT	|				\
-			 CFG_CMD_I2C	|				\
-			 CFG_CMD_IRQ	|				\
-			 CFG_CMD_MII	|				\
-			 CFG_CMD_NAND	|				\
-			 CFG_CMD_NET	|				\
-			 CFG_CMD_NFS	|				\
-			 CFG_CMD_PCI	|				\
-			 CFG_CMD_PING	|				\
-			 CFG_CMD_REGINFO |				\
-			 CFG_CMD_USB)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_USB
+
+/*
+ * No NOR on Acadia when NAND-booting
+ */
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+#endif
 
 #undef CONFIG_WATCHDOG					/* watchdog disabled		*/
 
@@ -330,7 +346,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -373,7 +389,7 @@
  */
 #define CFG_DCACHE_SIZE		16384		/* For AMCC 405EZ CPU		*/
 #define CFG_CACHELINE_SIZE	32		/* ...				*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5		/* log base 2 of the above value*/
 #endif
 
@@ -489,7 +505,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
   #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
   #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

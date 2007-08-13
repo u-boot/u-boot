@@ -18,10 +18,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* #define DEBUG	0x28 */
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_MPC5xxx_FEC)
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -889,13 +889,20 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;
 	fec->rbdBase = (FEC_RBD *)(FEC_BD_BASE + FEC_TBD_NUM * sizeof(FEC_TBD));
-#if defined(CONFIG_CANMB)    || defined(CONFIG_HMI1001)	|| \
-    defined(CONFIG_ICECUBE)  || defined(CONFIG_INKA4X0)	|| \
-    defined(CONFIG_JUPITER)  || defined(CONFIG_MCC200)	|| \
-    defined(CONFIG_MOTIONPRO)|| defined(CONFIG_O2DNT)	|| \
-    defined(CONFIG_PM520)    || defined(CONFIG_TOP5200)	|| \
-    defined(CONFIG_TQM5200)  || defined(CONFIG_UC101)	|| \
-    defined(CONFIG_V38B)
+#if defined(CONFIG_CANMB)		|| \
+	defined(CONFIG_CM5200)		|| \
+	defined(CONFIG_HMI1001)		|| \
+	defined(CONFIG_ICECUBE)		|| \
+	defined(CONFIG_INKA4X0)		|| \
+	defined(CONFIG_JUPITER)		|| \
+	defined(CONFIG_MCC200)		|| \
+	defined(CONFIG_MOTIONPRO)	|| \
+	defined(CONFIG_O2DNT)		|| \
+	defined(CONFIG_PM520)		|| \
+	defined(CONFIG_TOP5200)		|| \
+	defined(CONFIG_TQM5200)		|| \
+	defined(CONFIG_UC101)		|| \
+	defined(CONFIG_V38B)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else
@@ -917,7 +924,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	sprintf(dev->name, "FEC ETHERNET");
 	eth_register(dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register (dev->name,
 			fec5xxx_miiphy_read, fec5xxx_miiphy_write);
 #endif

@@ -29,7 +29,7 @@
  */
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_REISER)
+#if defined(CONFIG_CMD_REISER)
 
 #include <malloc.h>
 #include <linux/ctype.h>
@@ -983,4 +983,4 @@ reiserfs_open (char *filename)
 	return filemax;
 }
 
-#endif /* CFG_CMD_REISER */
+#endif

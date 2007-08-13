@@ -44,9 +44,9 @@
 #define ERASE_SECT		6
 #define READ			7
 #define GET_SECTNUM		8
-#define FLASH_START_L 		0x0000
-#define FLASH_START_H 		0x2000
-#define FLASH_MAN_ST 		2
+#define FLASH_START_L		0x0000
+#define FLASH_START_H		0x2000
+#define FLASH_MAN_ST		2
 #define RESET_VAL		0xF0
 
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];

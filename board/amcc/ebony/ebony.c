@@ -207,14 +207,14 @@ long int fixed_sdram(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long strap;
 
 	/*--------------------------------------------------------------------------+
-     *	The ebony board is always configured as the host & requires the
-     *	PCI arbiter to be enabled.
+	 * The ebony board is always configured as the host & requires the
+	 * PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
 	strap = mfdcr(cpc0_strp1);
 	if ((strap & 0x00100000) == 0) {
@@ -224,7 +224,7 @@ int pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif	/* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init

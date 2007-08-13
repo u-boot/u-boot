@@ -26,7 +26,7 @@
 #include <net.h>
 #include <miiphy.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
 #ifdef CFG_GT_6426x
 extern int gt6426x_eth_initialize(bd_t *bis);
@@ -40,6 +40,7 @@ extern int eth_3com_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int inca_switch_initialize(bd_t*);
 extern int mpc5xxx_fec_initialize(bd_t*);
+extern int mpc512x_fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
@@ -142,7 +143,8 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+	show_boot_progress (64);
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
 
@@ -167,34 +169,29 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MPC5xxx_FEC)
 	mpc5xxx_fec_initialize(bis);
 #endif
+#if defined(CONFIG_MPC512x_FEC)
+	mpc512x_fec_initialize (bis);
+#endif
 #if defined(CONFIG_MPC8220_FEC)
 	mpc8220_fec_initialize(bis);
 #endif
 #if defined(CONFIG_SK98)
 	skge_initialize(bis);
 #endif
-#if defined(CONFIG_MPC85XX_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_MPC85XX_TSEC1_NAME);
-#elif defined(CONFIG_MPC83XX_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_MPC83XX_TSEC1_NAME);
+#if defined(CONFIG_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
 #endif
-#if defined(CONFIG_MPC85XX_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_MPC85XX_TSEC2_NAME);
-#elif defined(CONFIG_MPC83XX_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_MPC83XX_TSEC2_NAME);
+#if defined(CONFIG_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
 #endif
 #if defined(CONFIG_MPC85XX_FEC)
 	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
 #else
-#    if defined(CONFIG_MPC85XX_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_MPC85XX_TSEC3_NAME);
-#    elif defined(CONFIG_MPC83XX_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_MPC83XX_TSEC3_NAME);
+#    if defined(CONFIG_TSEC3)
+	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
 #    endif
-#    if defined(CONFIG_MPC85XX_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_MPC85XX_TSEC4_NAME);
-#    elif defined(CONFIG_MPC83XX_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_MPC83XX_TSEC4_NAME);
+#    if defined(CONFIG_TSEC4)
+	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
 #    endif
 #endif
 #if defined(CONFIG_UEC_ETH1)
@@ -202,21 +199,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_UEC_ETH2)
 	uec_initialize(1);
-#endif
-#if defined(CONFIG_MPC86XX_TSEC1)
-       tsec_initialize(bis, 0, CONFIG_MPC86XX_TSEC1_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC2)
-       tsec_initialize(bis, 1, CONFIG_MPC86XX_TSEC2_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC3)
-       tsec_initialize(bis, 2, CONFIG_MPC86XX_TSEC3_NAME);
-#endif
-
-#if defined(CONFIG_MPC86XX_TSEC4)
-       tsec_initialize(bis, 3, CONFIG_MPC86XX_TSEC4_NAME);
 #endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
@@ -270,10 +252,12 @@ int eth_initialize(bd_t *bis)
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
+		show_boot_progress (-64);
 	} else {
 		struct eth_device *dev = eth_devices;
 		char *ethprime = getenv ("ethprime");
 
+		show_boot_progress (65);
 		do {
 			if (eth_number)
 				puts (", ");
@@ -474,16 +458,18 @@ char *eth_get_name (void)
 {
 	return (eth_current ? eth_current->name : "unknown");
 }
-#elif (CONFIG_COMMANDS & CFG_CMD_NET) && !defined(CONFIG_NET_MULTI)
+#elif defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_MULTI)
 
 extern int at91rm9200_miiphy_initialize(bd_t *bis);
 extern int emac4xx_miiphy_initialize(bd_t *bis);
 extern int mcf52x2_miiphy_initialize(bd_t *bis);
 extern int ns7520_miiphy_initialize(bd_t *bis);
+extern int dm644x_eth_miiphy_initialize(bd_t *bis);
+
 
 int eth_initialize(bd_t *bis)
 {
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
 
@@ -499,6 +485,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_NETARM)
 	ns7520_miiphy_initialize(bis);
+#endif
+#if defined(CONFIG_DRIVER_TI_EMAC)
+	dm644x_eth_miiphy_initialize(bis);
 #endif
 	return 0;
 }

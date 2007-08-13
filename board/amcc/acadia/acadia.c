@@ -31,13 +31,13 @@ static void acadia_gpio_init(void)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
-       	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
-       	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
-       	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
-       	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
-       	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
-       	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
-       	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
+	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
+	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
+	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
+	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
+	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
+	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
+	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
 
 	/*
 	 * Ultra (405EZ) was nice enough to add another GPIO controller
@@ -55,10 +55,12 @@ int board_early_init_f(void)
 {
 	unsigned int reg;
 
+#if !defined(CONFIG_NAND_U_BOOT)
 	/* don't reinit PLL when booting via I2C bootstrap option */
 	mfsdr(SDR_PINSTP, reg);
 	if (reg != 0xf0000000)
 		board_pll_init_f();
+#endif
 
 	acadia_gpio_init();
 

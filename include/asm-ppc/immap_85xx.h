@@ -1548,7 +1548,9 @@ typedef struct ccsr_gur {
 	char	res9[12];
 	uint	pvr;		/* 0xe00a0 - Processor version register */
 	uint	svr;		/* 0xe00a4 - System version register */
-	char	res10[3416];
+	char	res10a[8];
+	uint	rstcr;		/* 0xe00b0 - Reset control register */
+	char	res10b[3404];
 	uint	clkocr;		/* 0xe0e00 - Clock out select register */
 	char	res11[12];
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */

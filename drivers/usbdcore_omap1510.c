@@ -1517,4 +1517,31 @@ void udc_startup_events (struct usb_device_instance *device)
 	udc_enable (device);
 }
 
+/**
+ * udc_irq - do pseudo interrupts
+ */
+void udc_irq(void)
+{
+	/* Loop while we have interrupts.
+	 * If we don't do this, the input chain
+	 * polling delay is likely to miss
+	 * host requests.
+	 */
+	while (inw (UDC_IRQ_SRC) & ~UDC_SOF_Flg) {
+		/* Handle any new IRQs */
+		omap1510_udc_irq ();
+		omap1510_udc_noniso_irq ();
+	}
+}
+
+/* Flow control */
+void udc_set_nak(int epid)
+{
+	/* TODO: implement this functionality in omap1510 */
+}
+
+void udc_unset_nak (int epid)
+{
+	/* TODO: implement this functionality in omap1510 */
+}
 #endif

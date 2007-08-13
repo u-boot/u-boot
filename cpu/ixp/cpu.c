@@ -85,7 +85,7 @@ int cpu_init (void)
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCI) || defined (CONFIG_PCI)
+#if defined(CONFIG_CMD_PCI) || defined (CONFIG_PCI)
 	pci_init();
 #endif
 	return 0;

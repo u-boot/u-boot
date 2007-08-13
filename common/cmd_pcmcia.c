@@ -61,7 +61,7 @@
 
 /* -------------------------------------------------------------------- */
 
-#if	(CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 
 extern int pcmcia_on (void);
 extern int pcmcia_off (void);
@@ -93,13 +93,13 @@ U_BOOT_CMD(
 			"pinit off - power off PCMCIA socket\n"
 	  );
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_PCMCIA */
+#endif
 
 /* -------------------------------------------------------------------- */
 
 #undef	CHECK_IDE_DEVICE
 
-#if	(CONFIG_COMMANDS & CFG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
 #define	CHECK_IDE_DEVICE
 #endif
 
