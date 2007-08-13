@@ -176,7 +176,7 @@ spd_sdram(void)
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
 	unsigned int rank_density;
-	unsigned int odt_rd_cfg, odt_wr_cfg;
+	unsigned int odt_rd_cfg, odt_wr_cfg, ba_bits;
 	unsigned int odt_cfg, mode_odt_enable;
 	unsigned int refresh_clk;
 #ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
@@ -341,9 +341,14 @@ spd_sdram(void)
 #endif
 	}
 
+	ba_bits = 0;
+	if (spd.nbanks == 0x8)
+		ba_bits = 1;
+
 	ddr->cs0_config = ( 1 << 31
 			    | (odt_rd_cfg << 20)
 			    | (odt_wr_cfg << 16)
+			    | (ba_bits << 14)
 			    | (spd.nrow_addr - 12) << 8
 			    | (spd.ncol_addr - 8) );
 	debug("\n");
