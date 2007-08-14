@@ -182,7 +182,7 @@ int misc_init_r (void)
 			tmp[0] &= buf[i];
 
 		if ((tmp[0] != 0xff) && (getenv("ethaddr") == NULL)) {
-			sprintf((char *)&tmp[0], "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+			sprintf((char *)&tmp[0], "%02x:%02x:%02x:%02x:%02x:%02x",
 				buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 			setenv("ethaddr", (char *)&tmp[0]);
 		}

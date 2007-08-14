@@ -228,7 +228,7 @@ int misc_init_r (void)
 		forceenv("serial#", "FAILED");
 	} else {
 		/* CRC OK, set "serial" env variable */
-		sprintf((char *)&tmp[0], "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
+		sprintf((char *)&tmp[0], "%02x%02x%02x%02x%02x%02x",
 			buf[6], buf[5], buf[4], buf[3], buf[2], buf[1]);
 		forceenv("serial#", (char *)&tmp[0]);
 	}
