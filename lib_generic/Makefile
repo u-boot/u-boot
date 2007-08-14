@@ -27,7 +27,7 @@ LIB	= $(obj)libgeneric.a
 
 COBJS	= bzlib.o bzlib_crctable.o bzlib_decompress.o \
 	  bzlib_randtable.o bzlib_huffman.o \
-	  crc32.o ctype.o display_options.o ldiv.o \
+	  crc32.o ctype.o display_options.o div64.o ldiv.o sha1.o \
 	  string.o vsprintf.o zlib.o
 
 SRCS 	:= $(COBJS:.o=.c)

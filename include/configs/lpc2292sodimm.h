@@ -1,12 +1,8 @@
 /*
- * (C) Copyright 2000
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * (C) Copyright 2007
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Configuation settings for the EP7312 board.
- *
- * Modified to work on Armadillo HT1070 ARM720T board
- * (C) Copyright 2005 Rowel Atienza rowel@diwalabs.com
+ * Configuation settings for the LPC2292SODIMM board from Embedded Artists.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -31,7 +27,7 @@
 #define __CONFIG_H
 
 /*
- * If we are developing, we might want to start armboot from ram
+ * If we are developing, we might want to start u-boot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 #undef CONFIG_INIT_CRITICAL		/* undef for developing */
@@ -46,7 +42,7 @@
 #define CONFIG_ARM7		1	/* This is a ARM7 CPU	*/
 #define CONFIG_ARM_THUMB	1	/* this is an ARM720TDMI */
 #define CONFIG_LPC2292
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef	CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #undef CONFIG_USE_IRQ			/* don't need them anymore */
 
@@ -70,23 +66,30 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_BOOTP_MASK       (CONFIG_BOOTP_DEFAULT|CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 /*
- * Supported commands
+ * Command line configuration.
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_MMC	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_PING)
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	5
 
@@ -103,11 +106,12 @@
 #define CFG_MEMTEST_START	0x40000000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x40000000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for armadillo: kernel img is here*/
+#define	CFG_LOAD_ADDR		0x00040000	/* default load address	for	*/
+						/* armadillo: kernel img is here*/
 
-#define CFG_SYS_CLK_FREQ        58982400        /* Hz */
+#define CFG_SYS_CLK_FREQ	58982400	/* Hz */
 #define	CFG_HZ			2048		/* decrementer freq in Hz */
 
 						/* valid baudrates */
@@ -154,5 +158,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_MMC 1
+/* we use this ethernet chip */
+#define CONFIG_ENC28J60
 
 #endif	/* __CONFIG_H */

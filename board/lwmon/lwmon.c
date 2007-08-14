@@ -761,7 +761,7 @@ static uchar *key_match (uchar *kbd_data)
 
 /*---------------Board Special Commands: PIC read/write ---------------*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 /***********************************************************************
 F* Function:     int do_pic (cmd_tbl_t *cmdtp, int flag,
 F*                           int argc, char *argv[]) P*A*Z*
@@ -960,7 +960,7 @@ U_BOOT_CMD(
 	"lsb     - print current setting\n"
 );
 
-#endif /* CFG_CMD_BSP */
+#endif
 
 /*----------------------------- Utilities -----------------------------*/
 /***********************************************************************

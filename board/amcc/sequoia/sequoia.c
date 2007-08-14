@@ -25,7 +25,6 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <ppc440.h>
-#include "sequoia.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -226,7 +225,7 @@ int misc_init_r(void)
 	if (act == NULL || strcmp(act, "hostdev") == 0)	{
 		/* SDR Setting */
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
-		mfsdr(SDR0_USB0, usb2d0cr);
+		mfsdr(SDR0_USB2D0CR, usb2d0cr);
 		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mfsdr(SDR0_USB2H0CR, usb2h0cr);
 
@@ -254,7 +253,7 @@ int misc_init_r(void)
 		sdr0_pfc1 = sdr0_pfc1 | SDR0_PFC1_UES_USB2D_SEL;		/*0*/
 
 		mtsdr(SDR0_PFC1, sdr0_pfc1);
-		mtsdr(SDR0_USB0, usb2d0cr);
+		mtsdr(SDR0_USB2D0CR, usb2d0cr);
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
@@ -298,7 +297,7 @@ int misc_init_r(void)
 		/* SDR Setting */
 		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mfsdr(SDR0_USB2H0CR, usb2h0cr);
-		mfsdr(SDR0_USB0, usb2d0cr);
+		mfsdr(SDR0_USB2D0CR, usb2d0cr);
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
 
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
@@ -323,7 +322,7 @@ int misc_init_r(void)
 
 		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
-		mtsdr(SDR0_USB0, usb2d0cr);
+		mtsdr(SDR0_USB2D0CR, usb2d0cr);
 		mtsdr(SDR0_PFC1, sdr0_pfc1);
 
 		/*clear resets*/
@@ -426,23 +425,10 @@ int testdram(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long addr;
-#if 0
-	/*--------------------------------------------------------------------------+
-	 *	Cactus is always configured as the host & requires the
-	 *	PCI arbiter to be enabled ???
-	 *--------------------------------------------------------------------------*/
-	unsigned long strap;
-	mfsdr(sdr_sdstp1, strap);
-	if ((strap & SDR0_SDSTP1_PAE_MASK) == 0) {
-		printf("PCI: SDR0_STRP1[PAE] not set.\n");
-		printf("PCI: Configuration aborted.\n");
-		return 0;
-	}
-#endif
 
 	/*-------------------------------------------------------------------------+
 	  | Set priority for all PLB3 devices to 0.
@@ -480,7 +466,7 @@ int pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif /* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
@@ -586,3 +572,13 @@ int is_pci_host(struct pci_controller *hose)
 	return (1);
 }
 #endif				/* defined(CONFIG_PCI) */
+#if defined(CONFIG_POST)
+/*
+ * Returns 1 if keys pressed to start the power-on long-running tests
+ * Called from board_init_f().
+ */
+int post_hotkeys_pressed(void)
+{
+	return 0;	/* No hotkeys supported */
+}
+#endif /* CONFIG_POST */

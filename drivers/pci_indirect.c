@@ -45,7 +45,7 @@ indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
 	return 0;    					 		 \
 }
-#elif defined(CONFIG_E500)
+#elif defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)                        \
 static int                                                               \
 indirect_##rw##_config_##size(struct pci_controller *hose,               \
@@ -55,7 +55,7 @@ indirect_##rw##_config_##size(struct pci_controller *hose,               \
 	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
 	b = b - hose->first_busno;					 \
 	dev = PCI_BDF(b, d, f);						 \
-	*(hose->cfg_addr) = dev | (offset & 0xfc) | 0x80000000;          \
+	*(hose->cfg_addr) = dev | (offset & 0xfc) | ((offset & 0xf00) << 16) | 0x80000000; \
 	sync();                                                          \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);       \
 	return 0;                                                        \

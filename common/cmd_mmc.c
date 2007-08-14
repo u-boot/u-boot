@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MMC)
+#if defined(CONFIG_CMD_MMC)
 
 #include <mmc.h>
 
@@ -43,4 +43,4 @@ U_BOOT_CMD(
 	NULL
 );
 
-#endif	/* CFG_CMD_MMC */
+#endif

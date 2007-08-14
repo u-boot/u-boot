@@ -64,7 +64,7 @@
 
 #include <pcmcia.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA) && defined(CONFIG_IDE_TI_CARDBUS)
+#if defined(CONFIG_CMD_PCMCIA) && defined(CONFIG_IDE_TI_CARDBUS)
 
 int pcmcia_on(int ide_base_bus);
 

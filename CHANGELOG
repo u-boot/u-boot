@@ -1,8 +1,3576 @@
+commit a08458303e7f9db67f296980036d3292c35cb45c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Jun 29 18:38:51 2007 +0200
+
+    atmel_mci: Fix data timeout value
+
+    Calculate the data timeout based on values from the CSD instead of
+    just using a hardcoded DTOR value. This is a backport of a similar fix
+    in BSP 2.0, with one additional fix: the DTOCYC value is rounded up
+    instead of down.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 0ba8eed28b575626b17e0a7882f923b83e0d7584
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Aug 13 17:22:31 2007 +0200
+
+    AVR32: Include <div64.h> instead of <asm/div64.h>
+
+    include/asm-avr32/div64.h was recently moved to include/div64.h, but
+    cpu/at32ap/interrupts.c wasn't properly updated (an earlier version of
+    the patch was merged perhaps?)
+
+    This patch updates cpu/at32ap/interrupts.c so that the avr32 port
+    compiles again.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit f0d1246ed7cb5a88522244c596d7ae7e6f161283
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed Jun 27 13:34:26 2007 +0200
+
+    atmel_mci: Use 512 byte blocksize if possible
+
+    Instead of always using the largest blocksize the card supports, check
+    if it can support smaller block sizes and use 512 bytes if possible.
+    Most cards do support this, and other parts of u-boot seem to have
+    trouble with block sizes different from 512 bytes.
+
+    Also enable underrun/overrun protection.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+    Acked-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+
+commit 9986bc3e40e899bea372a99a2bca4071bdf2e24b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 21:34:50 2007 +0200
+
+    Update CHANGELOG
+
+commit 77d19a8bf3b0b1e401cb9f23c81e2ef419705c1a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 21:34:34 2007 +0200
+
+    Minor alignment of output, 2nd try.
+    Also update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6b309f22a724fad8418e811751a0741b893419cf
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 20:35:49 2007 +0200
+
+    Minor alignment of output
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6f6d7b9c8559e241e8d232621542b8b59699b07b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 18:28:18 2007 +0200
+
+    Cleanup output on ADS5121 board
+
+    Signed-off-by: Wolfgang Denk
+
+commit a4d2636f2a859245ed3a401f26189da2dfda4ceb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 15:11:38 2007 +0200
+
+    Adapt board configuration and fix kernel crash on MCC200 board.
+
+    The update procedure was modified to turn off the USB subsystem
+    before exit for MCC200 and TRAB. This is necessary as otherwise the
+    USB controller continues to write periodically to system memory!
+
+    MCC200-specific notes:
+    - the patch disables the magic key check for MCC200
+    - the patch contains the configuration changes made
+      for the new revision of the board.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e27f3a6efb9db5a533223b05c629ff4ac8d921bf
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 14:47:54 2007 +0200
+
+    Adjust default configuration of ADS5121 board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit afaac86fe2948ac84cd9a12bbed883b3c683e7d9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 12 14:27:39 2007 +0200
+
+    Clean up some remaining CFG_CMD_ -> CONFIG_CMD_ issues.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5fe6be6208dda852c3564e384bd78d75784dea3e
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Tue Aug 7 21:14:22 2007 -0400
+
+    Improve error print messages.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 99dffca3b7590a16a00bc475c860b67b2a3f1462
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jul 17 13:57:04 2007 -0500
+
+    fdt: allow for builds that don't want env and bd_t nodes
+
+    protect fdt_env and fdt_bd_t invocations, fix codingstyle while in the
+    area.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 91148bf7aeba142d6f348805db7625db7da64d6f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jul 17 13:56:53 2007 -0500
+
+    fdt: do board setup based on fdt address specified on bootm line
+
+    The last fdt patch to bootm did board setup based on the address
+    specified by a prior fdt address command invocation.  The bootm
+    code, as its call to fdt_chosen does, should use the fdt specified
+    by the user on the bootm command.  Note this restores full
+    functionality for the 8360's existing default boot environment
+    values, e.g. 'run nfsboot' (i.e. no having to 'fdt addr $fdtaddr'
+    before booting a kernel).
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e125a2ffc209dd34794e326c7175658253beadf3
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Tue Jul 10 20:40:39 2007 -0400
+
+    Call ft_board_setup() from the bootm command.
+
+    In the patch titled "Create new fdt boardsetup command..." I removed the
+    call to ft_board_setup() from the routine fdt_chosen(), but I forgot
+    to add a direct call back into cmd_bootm.c
+
+    This fixes the oversight by adding the direct call to the bootm command.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit fd61e55dd8cb52ce3ff91b3917af26e24b6b0845
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Mon Jun 25 23:25:28 2007 -0400
+
+    Create new fdt boardsetup command, fix bug parsing [] form of set values.
+
+    Previously ft_board_setup() was called by fdt_chosen() which was not
+    really correctly structured.  This splits ft_board_setup() out by creating
+    a new fdt boardsetup command.
+
+    Fix a bug when parsing fdt set command values which have the square
+    bracket form [00 11 22 33] - the length was updated incorrectly in when
+    parsing that form.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 6f35ded9e85493595e0eb66a82b502a95326d049
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Mon Jun 25 20:55:58 2007 -0400
+
+    Tighten up the error messages.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit c45874b05aae897a6c29d1a97d4bb708fca2756c
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Mon Jun 25 19:52:23 2007 -0400
+
+    Asthetic improvements: error messages and line lengths.
+
+    Tighten up the error messages, split overlength lines.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 35ec398f16e17df600edc1b38c1e9e62c15c9aa1
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri May 25 22:08:57 2007 -0400
+
+    Fix fdt_chosen() to call ft_board_setup(), clean up long lines.
+
+    The fdt_chosen() function was adding/seting some properties ad-hoc
+      improperly and duplicated (poorly) what was done in ft_board_setup()
+
+    Clean up long lines (setting properties, printing errors).
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 06e19a07701c968f15d72c083b5872a1a11c7b01
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Mon May 21 23:27:16 2007 -0400
+
+    For fdt_find_node_by_path(), handle the root path properly.
+
+    Also removes the special case root path detection in cmd_fdt.c since it
+    is no longer necessary.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 9675ee7208ab965d13ea8d8262d77ac4160ef549
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Thu May 17 23:54:36 2007 -0400
+
+    Add fdt_find_node_by_type() and fdt_find_compatible_node() to LIBFDT
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 1a861169bc3758f9de3aead62b058736c6891246
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed Jun 6 22:47:58 2007 -0400
+
+    Replace fdt_node_offset() with fdt_find_node_by_path().
+
+    The new name matches more closely the kernel's name, which is also
+    a much better description.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit addd8ce83078c25f0eca5f23adbdfc64ca50a243
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed May 16 22:39:59 2007 -0400
+
+    Fix cmd_fdt line lengths, refactor code.
+
+    Break lines that were greater than 80 characters in length.
+    Move the fdt print and property parsing code to separate static functions
+      to reduce coding clutter in the fdt_cmd handling body.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 25114033ab21788810c48ba4df103b649da1223b
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat May 12 09:47:25 2007 -0400
+
+    FDT command improvements.
+
+    Fix "fdt set" so that it will create a non-existing property.
+    Add "fdt mknode" to create nodes.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 38eb508e8e811e2e57628f445de3a24a23c7d804
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat May 12 09:45:46 2007 -0400
+
+    Reorganize and fix problems (returns) in the bootm command.
+
+    Do *NOT* return after the "point of no return" has been passed.
+      If something goes wrong, the board must be reset after that point.
+    Move the "Transferring control to Linux" debug message back to where it
+      belongs: just before transferring control to linux.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 89c8757d8f213c47709bdc4efe0695263a6080a6
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Tue May 8 21:27:35 2007 -0400
+
+    Fix bugs in the CONFIG_OF_LIBFDT
+
+    Stupid coding mistakes (identified by Timur Tabi, thanks).
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 6be07cc1ca458278c85ecdbf1a0536cff4c701ec
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed Apr 25 22:47:15 2007 -0400
+
+    Improve fdt move length handling.
+
+    Make the length parameter optional: if not specified, do the move using
+    the current size unchanged.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit bb930e76fea6cf89ca2d98e2f7c7a6043d79327d
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed Apr 25 22:23:36 2007 -0400
+
+    Minor code clean up.
+
+    Declare the variable fdt properly as extern.
+    Call the "set_fn" function pointer the "short way" without the full
+      dereferencing syntax.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit ba24e2ac3bdb5c489f3c787e7542b6474c4d65c6
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed Apr 25 21:24:27 2007 -0400
+
+    Improve error messages, more informative.
+
+    Print more than the raw libfdt error message strings.  This is especially
+    useful for cluing in the user when the bootm command aborts due to
+    blob problems.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 8096b3b8f772c1894ddeda9dbceff6a8826473a4
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri Apr 20 22:46:53 2007 -0400
+
+    libfdt: Conditionally compile based on CONFIG_OF_LIBFDT
+
+    This is the way u-boot reduces configured-out code.  At Wolfgang
+    Grandegger and Wolfgang Denk's request, make libfdt conform.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 923efd286411ed052d9e074f59f8986d6081061c
+Author: Bruce Adler <bruce.adler@ccpu.com>
+Date:	Fri Aug 10 14:54:47 2007 -0700
+
+    add image size and descriptors for Spartan 3E FPGA chips
+
+    Spartan 3E image sizes taken from Table 1-4 in Xilinx UG332 (v1.1)
+
+    Signed-off by: Bruce Adler <bruce.adler@ccpu.com>
+
+commit fb56579ffe7ef3275b7036bb7b924e5a0d32bd70
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 10 15:34:48 2007 -0500
+
+    make MAKEALL more immune to merge conflicts
+
+    ..by placing board entries one per line, as suggested by jdl.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 2628114ec564f969f34b5f7105fbd168cb8c9c3f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 10 13:28:25 2007 -0500
+
+    README: Remove outdated cpu type, board type, and NAME_config lists
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 49bb59912d21aacb507eb81fd21fb7af650c706c
+Author: Dave Liu <r63238@freescale.com>
+Date:	Fri Aug 10 15:48:59 2007 +0800
+
+    mpc83xx: Suppress the warning 'burstlen'
+
+    suppress the warning 'burstlen' of spd_sdram.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit c2c0ab4aff86622b837a48a0e560351f9afafb95
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Aug 10 20:34:58 2007 +0200
+
+    Conding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c74b2108e31fe09bd1c5d291c3cf360510d4f13e
+Author: Sergey Kubushyn <ksi@koi8.net>
+Date:	Fri Aug 10 20:26:18 2007 +0200
+
+    [ARM] TI DaVinci support, hopefully final
+
+    Add support for the following DaVinci boards:
+    - DV_EVM
+    - SCHMOOGIE
+    - SONATA
+
+    Changes:
+
+    - Split into separate board directories
+    - Removed changes to MTD_DEBUG (or whatever it's called)
+    - New CONFIG_CMD party line followed
+    - Some cosmetic fixes, cleanup etc.
+    - Patches against the latest U-Boot tree as of now.
+    - Fixed CONFIG_CMD_NET in net files.
+    - Fixed CONFIG_CMD_EEPROM for schmoogie.
+    - Made sure it compiles and works (forceenv() link problem) on SCHMOOGIE and
+       DV_EVM. Can't check if it works on SONATA, don't have a board any more,
+       but it at least compiles.
+
+    Here is an excerpt from session log on SCHMOOGIE...
+
+    U-Boot 1.2.0-g6c33c785-dirty (Aug  7 2007 - 13:07:17)
+
+    DRAM:  128 MB
+    NAND:  128 MiB
+    In:    serial
+    Out:   serial
+    Err:   serial
+    ARM Clock : 297MHz
+    DDR Clock : 162MHz
+    ETH PHY   : DP83848 @ 0x01
+    U-Boot > iprobe
+    Valid chip addresses: 1B 38 3A 3D 3F 50 5D 6F
+    U-Boot > ping 192.168.253.10
+    host 192.168.253.10 is alive
+    U-Boot >
+
+    Signed-off-by: Sergey Kubushyn <ksi@koi8.net>
+    Acked-by: Dirk Behme <dirk.behme@gmail.com>
+    Acked-by: Zach Sadecki <Zach.Sadecki@ripcode.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 3a6d56c20989fe27360afe743bd2a7ad4d76e48f
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Aug 2 17:42:08 2007 +0200
+
+    Make use of generic 64bit division in nand_util.c
+
+    Use generic 64bit division in nand_util.c. This makes nand_util.c
+    independent of any toolchain 64bit division.
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit f7c086e94e8ce9aad7268af97f73aa6884686f27
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Aug 2 17:41:14 2007 +0200
+
+    Move 64bit division from avr32 to generic lib
+
+    Move the 64bit division from lib_avr32 to lib_generic. With this, all
+    boards can do_div/__div64_32 if needed, not only avr one. Code is put
+    to lib_generic, so no larger memory footprint if not used. No code
+    modifications. Thanks for proposal by Håvard Skinnemoen.
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit 99c2fdab91bc633e46fb41dbaa629f87ccf6e00f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Aug 6 18:18:34 2007 -0500
+
+    mpc83xx: fix ITX[GP] O=builddir builds
+
+    make: *** No rule to make target `/work/wd/tmp/board/mpc8349itx/u-boot.lds', needed by `/work/wd/tmp/u-boot'.  Stop.
+
+    Both the ITX and ITX-GP fail when you use "make O=<some dir> ..." or
+    "BUILD_DIR=<some dir> ./MAKEALL ..."
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 47e8bc846759e037b8af0e5f9c9f9cfa7a1050c3
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Aug 1 15:00:59 2007 +0800
+
+    mpc83xx: Correct the README for DDR ECC
+
+    Update the README for DDR ECC, change the name
+    to README.mpc83xx.ddrecc.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit daab8c67d2defef73dc26ab07f0c3afd1b05d019
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Aug 1 15:00:15 2007 +0800
+
+    mpc83xx: Consolidate the ECC support of 83xx
+
+    Remove the duplicated source code of ecc command on the <board>.c,
+    for reused, move these code to cpu/mpc83xx directory.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 036575c544cf1b69654d8fb334bda69c6ff3da36
+Author: Dave Liu <r63238@freescale.com>
+Date:	Sat Aug 4 13:37:39 2007 +0800
+
+    mpc83xx: Correct the burst length for DDR2 with 32 bits
+
+    The burst length should be 4 for DDR2 with 32 bits bus
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 1c274c4e05b6dc9b24edc8aa618b02f607ee6eed
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jul 25 19:25:33 2007 -0500
+
+    mpc83xx: add support for the MPC8323E RDB
+
+    MPC8323E based board with 64MB fixed SDRAM, 16MB flash,
+    five 10/100 ethernet ports connected via an ICPlus IP175C
+    switch, one PCI slot, and serial.  Features not supported
+    in this patch are SD card interface, 2 USB ports, and the
+    two phone ports.
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 343d91009d55fc5b3ff8cc940597af6c6aa1d359
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jul 25 19:25:28 2007 -0500
+
+    mpc83xx: fixup generic pci for libfdt
+
+    add libfdt support to the generic 83xx pci code
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f57ac7a7b37109245b69db80839ebee26179966a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jul 25 19:25:22 2007 -0500
+
+    mpc83xx: fix 8360 and cpu functions to update fdt being passed
+
+    ..and not the global fdt. Rename local fdt vars to blob so as not to
+    be confused with the global var with the same three-letter name.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8be404459a6b7395415a57bb35e8377e3b2b5acb
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Wed Jul 4 21:34:24 2007 -0400
+
+    mpc83xx: Fix errors when CONFIG_OF_LIBFDT is enabled
+
+    Several node strings were not correct (trailing slashes and properties
+      in the strings)
+    Added setting of the timebase-frequency.
+    Improved error messages and use debug() instead of printf().
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 26d02c9bbac1751c5e19294f000100b48d43a920
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Wed Jul 4 21:27:30 2007 -0400
+
+    mpc83xx: Replace fdt_node_offset() with fdt_find_node_by_path().
+
+    The new name matches more closely the kernel's name, which is also
+    a much better description.
+
+    These are the mpc83xx changes made necessary by the function name change.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 9be39a67c9f8fef7107f5df09d673005f04d0963
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon Jun 25 10:41:56 2007 +0800
+
+    mpc83xx: Add support for the display of reset status
+
+    83xx processor family has many reset sources, such as
+    power on reset, software hard reset, software soft reset,
+    JTAG, bus monitor, software watchdog, check stop reset,
+    external hard reset, external software reset.
+    sometimes, to figure out the fault of system, we need to
+    know the cause of reset early before the prompt of
+    u-boot present.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit ff9658d7049bf8c8e8e0a05dbe5e9f7e91aa5a5d
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon Jun 25 10:41:04 2007 +0800
+
+    mpc83xx: Fix the align bug of SDMA buffer
+
+    According to the latest user manual, the SDMA temporary
+    buffer base address must be 4KB aligned.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 66dc2c2dc51f8b88bb8e231bc80cd92eae1d6476
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon Jun 25 13:21:12 2007 +0800
+
+    mpc83xx: Revise the MPC8360EMDS readme doc
+
+    When the rev2.x silicon mount on the MPC8360EMDS baord,
+    and if you are using the u-boot version after the commit
+    3fc0bd159103b536e1c54c6f4457a09b3aba66ca.
+    to make the ethernet interface usable, we have to setup
+    the jumpers correctly.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e739bc95797aac4fefc4c75b55c7c78e59d3ea9c
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Jul 3 13:46:32 2007 -0500
+
+    FSL I2C driver programs the two I2C busses differently
+
+    The i2c_init() function in fsl_i2c.c programs the two I2C busses differently.
+    The second I2C bus has its slave address programmed incorrectly and is
+    missing a 5-us delay.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit df33f6b4d6d63693dd9200808b242de1b86cb8e8
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Jul 3 13:04:34 2007 -0500
+
+    Update SCCR programming in cpu_init_f() to support all 83xx processors
+
+    Update the cpu_init_f() function in cpu/mpc83xx/cpu_init.c to program the
+    bitfields for all 83xx processors.	The code to update some bitfields was
+    compiled only on some processors.  Now, the bitfields are programmed as long
+    as the corresponding CFG_SCCR option is defined in the board header file.
+    This means that the board header file should not define any CFG_SCCR macros
+    for bitfields that don't exist on that processor, otherwise the SCCR will be
+    programmed incorrectly.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 9546266999f0b9b51372636614211b88d90f0f25
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Fri Jun 22 13:04:22 2007 +0200
+
+    TQM834x: cleanup configuraton
+
+    Remove irritating #undef DEBUG
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5d497e6bf0f5bf63729b4a47b3fd786d3c77a1bc
+Author: david.saada <David.Saada@ecitele.com>
+Date:	Mon Jun 18 09:09:53 2007 -0700
+
+    MPC83xx: Fix makefile to generate config.h file in the build directory
+
+    MPC83xx: Fix the Makefile config sections to generate the include/config.h
+    file in the build directory instead of the source directory.
+
+    Signed-off-by: David Saada <david.saada@ecitele.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 1ded0242e437259366792d52b7e9d1e1931d8fa5
+Author: Lee Nipper <Lee.Nipper@freescale.com>
+Date:	Thu Jun 14 20:07:33 2007 -0500
+
+    mpc83xx: Add support for 8360 silicon revision 2.1
+
+    This change adds 8360 silicon revision 2.1 support to u-boot.
+
+    Signed-off-by: Lee Nipper <lee.nipper@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a22806469a8f2b69c829f4fd5361fdebd0cb01b4
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Aug 8 04:14:28 2007 -0500
+
+    Treat ppc64 host as ppc
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0dc4279b08ff82472bec2e2c90858602459febe8
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Wed Aug 8 09:01:46 2007 +0800
+
+    Minor fix for bios emulator makefile
+
+    Add $(obj) to LIB avoiding objects be built in the source dir
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit ce981dc857adfc8036ca2f6d5d5a06c2a8aa77d6
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Wed Aug 8 08:33:11 2007 +0800
+
+    Add CONFIG_BIOSEMU define to guard all the bios emulator code
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+    This patch fix the compile issue on the board that did not enable the bios emulator
+
+commit ed8106433522f2ea8933e9808346860d061d7731
+Author: Zach Sadecki <Zach.Sadecki@ripcode.com>
+Date:	Tue Jul 31 12:27:25 2007 -0500
+
+    tsec: fix multiple PHY support
+
+    The change entitled "Reduce CONFIG_MPC8YXX_TSECx to CONFIG_TSECx"
+    broke multiple PHY support in tsec.c.  This fixes it.
+
+    Signed-off-by: Zach Sadecki <Zach.Sadecki@ripcode.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit dcb84b7208ade0bbebbeb56bec9c2c64f8b2eede
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Thu Aug 9 09:08:18 2007 -0500
+
+    tsec: Allow Ten Bit Interface address to be configurable
+
+    Allow the address of the Ten Bit Interface (TBI) to be changed in the
+    event of a conflict with another device.
+
+    Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+commit 7c4c3722a38d40b0cf537ddae72b04f4088b190c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Tue Aug 7 16:17:06 2007 +0800
+
+    Add CONFIG_BIOSEMU define to guard all the bios emulator code
+
+    This patch fix the compile issue on the board that did not enable the bios emulator
+
+commit bf1060ea4f9eaa7e7d164a70a7d6f28939882053
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 7 16:02:13 2007 +0200
+
+    Fix missing brace error in fs/fat/fat.c
+    [pointed out by Roderik Wildenburg]
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6c33c78557ca6f8da68c01ce33e278695197d3f4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 6 23:21:05 2007 +0200
+
+    Fixed typo in README (pointed out by Martin Jost).
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 9c7e4b06214db61bb21f1bcbe57c97519669baae
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 6 02:17:36 2007 +0200
+
+    Coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 221838cc7eb178370ff62aa05920a582e12ac322
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Tue Jul 10 09:03:22 2007 +0800
+
+    Remove the bios emulator from MAI board.
+
+    The bios emulator in the MAI board can not pass compile
+    and have a lot of crap in it. remove it and will have a
+    clean and small bios emulator in the drivers directory
+    which can be uesed for every board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5618332409bb96f4448d1712899369fc80c0b489
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 13 12:14:59 2007 +0800
+
+    Fix some compile issues for MAI board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 0f460a1ee148b648ee242c3157650287d4296260
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 13 12:14:58 2007 +0800
+
+    Configurations for ATI video card BIOS emulator
+
+    This patch add definition of the BIOS emulator and the ATI framebuffer
+    driver for MPC8641HPCN board.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit ece92f85053b8df613edcf05b26a416cbc3d629c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 6 08:34:56 2007 +0800
+
+    This is a BIOS emulator, porting from SciTech for u-boot, mainly for
+    ATI video card BIOS. and can be used for x86 code emulation by some
+    modifications.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5072188acabde3178fac7f5a597150e6e74fd40c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Jul 6 08:33:33 2007 +0800
+
+    This is a framebuffer driver for ATI video card, can work for PCI9200,
+    X300, X700, X800 ATI video cards.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 5728be389e65fd47f34b33c2596271eb4db751ae
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 6 01:01:49 2007 +0200
+
+    Coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8092fef4c29b395958bb649647da7e3775731517
+Author: Martin Krause <Martin.Krause@tqs.de>
+Date:	Tue Dec 12 14:26:01 2006 +0100
+
+    Add functions to list of exported functions
+
+    Additionally export the following fuctions (to make trab_config build again):
+    - simple_strtol()
+    - strcmp()
+
+    Also bump the ABI version to reflect this change
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 63cec5814fab5d2b1c86982327433807a5ac0249
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Aug 2 14:09:49 2007 -0500
+
+    Make MPC8641's PCI/PCI-E driver a common driver for many FSL parts.
+
+    All of the PCI/PCI-Express driver and initialization code that
+    was in the MPC8641HPCN port has now been moved into the common
+    drivers/fsl_pci_init.c.  In a subsequent patch, this will be
+    utilized by the 85xx ports as well.
+
+    Common PCI-E IMMAP register blocks for FSL 85xx/86xx are added.
+
+    Also enable the second PCI-Express controller on 8641
+    by getting its BATS and CFG_ setup right.
+
+    Fixed a u16 vendor compiler warning in AHCI driver too.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 86b116b1b1e165ca4840daefed36d2e3b8460173
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Aug 3 12:08:16 2007 +0200
+
+    cm1_qp1 -> cm5200: single U-Boot image for modules from the cm5200 family.
+
+    Add the ability for modules from the Schindler cm5200 family to use a
+    single U-Boot image:
+    - rename cm1_qp1 to cm5200
+    - add run-time module detection
+    - parametrize SDRAM configuration according to the module we are running on
+
+    Few minor, board-specific fixes included in this patch:
+    - better MAC address handling
+    - updated default environment ('update' command uses +{filesize} now)
+    - improved error messages in the auto-update code
+    - allow booting U-Boot from RAM (CFG_RAMBOOT)
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c7e717ebc2b044d7a71062552c9dc0f54ea9b779
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Aug 3 04:05:25 2007 -0500
+
+    Add Marvell 1149 PHY support to the TSEC
+
+commit b1b54e352028ed370c3aa95d6fdeb9d64c5d2f86
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 21:27:46 2007 +0200
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 63e22764d2f8653f68888c667eb65b3996b52680
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 10:11:18 2007 +0200
+
+    Minor cleanup of <board>_nand build rules.
+
+commit cdd917a43da6fa7fc8f54a3cc9f420ce5ecf3197
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 2 00:48:45 2007 +0200
+
+    Fix build errors and warnings / code cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8993e54b6f397973794f3d6f47d3b3c0c98dd4f6
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jul 27 14:43:59 2007 +0200
+
+    [ADS5121] Support for the ADS5121 board
+
+    The following MPC5121e subsystems are supported:
+
+    - low-level CPU init
+    - NOR Boot Flash (common CFI driver)
+    - DDR SDRAM
+    - FEC
+    - I2C
+    - Watchdog
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+
+commit 1863cfb7b100ba0ee3401799457a01dc058745f8
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jul 27 14:22:04 2007 +0200
+
+    [PPC] Remove unused MSR_USER definition
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit cc3023b9f95d7ac959a764471a65001062aecf41
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Thu Jul 19 17:12:28 2007 +0200
+
+    Fix breakage of 8xx boards from recent commit.
+
+    This patch fixes the negative consequences for 8xx of the recent
+    "ppc4xx: Clean up 440 exceptions handling" commit.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 3a6cab844cf74f76639d795e0be8717e02c86af7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Jul 14 22:51:02 2007 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 011595307731a7a67a7445d107c279d031e8ab97
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Sat Jul 14 01:06:58 2007 +0200
+
+    [PCS440EP]	- fix compile error, if BUILD_DIR is used
+
+commit fad63407154f46246ce80d53a9c669a44362ac67
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 09:54:17 2007 +0200
+
+    make show_boot_progress () weak.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 907902472391b6ca1876ec300687562ecaf459b1
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jul 13 08:26:05 2007 +0200
+
+    [PCS440EP]	- The DIAG LEDs are now blinking, if an error occur
+		- fix compile error, if BUILD_DIR is used
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 239f05ee4dd4cfe0b50f251b533dcebe9e67c360
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 12 01:45:34 2007 +0200
+
+    Update CHANGELOG, minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5a56af3b522ba47fb33a3fee84d23bf1e5429654
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Jun 8 16:41:18 2007 -0500
+
+    Remove erroneous errata code from Marvel 88E1111S driver
+
+    The Marvel 88E1111S driver for the TSEC was copied from the
+    88E1101 driver, and included a fix for an erratum which does not
+    exist on that part.  Now it is removed
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 982efcf23fd03647e01e2fbe28a7a36239156cc0
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Jun 5 16:38:44 2007 -0500
+
+    From: eran liberty <eran.liberty@gmail.com>
+
+    adds the reset register to 85xx immap
+
+    Signed-off-by: Eran Liberty <eran.liberty@gmail.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit d3ec0d943a045bdb99e159e7bbc77430e09f11d7
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu May 10 17:50:01 2007 -0500
+
+    Polished the 85xx ADS config files
+
+    Made the boot commands use device trees by default.
+    Also moved the ramdisk to 1000000 (I think the previous address
+    was getting overridden during boot).
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit bfb37b32d1b0b03f18077dba49cc66a6e76fa038
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed May 9 11:03:32 2007 -0500
+
+    8544ds: Fix Makefile after moving pixis to board/freescale.
+
+    The OBJTREE != SRCTREE build scenario was broken.
+    This fixes it.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2a3cee43c3b71fa5b8d91db19f05067865290f3e
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed May 9 00:54:20 2007 -0500
+
+    tsec: Fix PHY code to match first driver
+
+    Jarrold Wen noticed that the generic PHY code always matches
+    under the current implementation.  Change it so the first match
+    wins, and *only* unknown PHYs trigger the generic driver
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit ccc091aac61a38cd998d575d92f7232e256d6312
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue May 8 17:27:43 2007 -0500
+
+    Add support for CPM device tree configuration to 8560 ADS
+
+    * Adds code to modify CPM frequencies
+    * Cleans up the config file to #define TSEC and (for now) #undef FCC
+    * Adds the MII command for all 8560 ADS configurations
+    * Updates config file to provide convenience commands for booting
+      with a device tree
+
+    Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7507d56ccaf7aae1c474342a9a5540165cd7e9d9
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue May 8 17:23:02 2007 -0500
+
+    Fix Marvell 88e1145 PHY init code
+
+    Fix a bug in the Marvell 88e1145 PHY init code in the TSEC driver
+    where the reset was being done after the errata code instead of
+    before.
+
+    Signed-off-by: Haiying Wang <haiying.wang@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 5dc210dec5bace98a50b6ba905347890091a9bb0
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:16 2007 -0500
+
+    Add simple agent/end-point configuration in PCI AutoConfig for PCI_CLASS_PROCESSOR_POWERPC.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit e8b85f3ba4cd8930e0a2fea2100c815d64201765
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:08 2007 -0500
+
+    pciauto setup bridge
+
+    The P2P bridge bus numbers programmed into the device are relative to
+    hose->first_busno.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 571f49fa717004ca4268b4e24057efc7bf9f987b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:52:01 2007 -0500
+
+    Support PCIe extended config registers
+
+    FSL PCIe block has extended cfg registers in the 100 and 400 range.
+    For example, to read the LTSSM register: pci display <busn>.0 404 1
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit ba5feb12581bb2912ce301e4866b71f846e9fc07
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:51:48 2007 -0500
+
+    Minor improvements to drivers/pci_auto.c
+
+    - Make pciauto_{pre,post}scan_setup_bridge non-static
+    - Added physical address display in debug messages.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 40e81addab7bb74d20ddf681ce9babc880a828ee
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Jul 11 14:51:35 2007 -0500
+
+    Start pci hose scan from hose->current_busno.
+
+    Ensure hose->current_busno is not less than first_busno.  This fixes
+    broken board code which leaves current_busno=0 when first_busno is
+    greater than 0 for the cases with multiple controllers.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 3865b1fb7843a08ad49a6319a36415752276ff48
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 11 12:13:53 2007 +0200
+
+    Fix some compile problems introduced by the latest CFG_CMD_xxx cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fa1df308926a6f70e3504c57514ef27ac31fd13a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Jul 11 20:11:07 2007 +0200
+
+    CM1.QP1: Support for the Schindler CM1.QP1 board.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 96e1d75be8193ca79e4215a368bf9d7f2362450f
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Wed Jul 11 18:39:11 2007 +0200
+
+    [PCS440EP]	- Show on the DIAG LEDs, if the SHA1 check failed
+		- now the Flash ST M29W040B is supported (not tested)
+		- fix the "led" command
+		- fix compile error, if BUILD_DIR is used
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit e9514751cfa5cce61ea699fa0d3eb37898a5eeb5
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Jul 8 13:44:27 2007 +0200
+
+    Fix malloc problem introduced with the relocation fixup for the PPC platform
+
+    The relocation fixup didn't handle the malloc pointer initialization
+    correctly. This patch fixes this problem. Tested successfully on 4xx.
+    The relocation fixup patches for 4xx will follow soon.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b3aff0cb9ecf236d7e8c93761dd1dadf6837a582
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:19:50 2007 -0500
+
+    disk/ doc/ lib_*/ and tools/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ddb5d86f0215bcb6c293510c50eb050e92883b7a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:13:21 2007 -0500
+
+    drivers/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f40a7f3e3888b42a43674b099e5470022c8c544c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:07:56 2007 -0500
+
+    fs/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 610f2e9c28a9c101e09fa1b78143cf5f00ed1593
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:05:02 2007 -0500
+
+    net/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 902531788376046da212afd1661cffb62f3daa1c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 11:02:44 2007 -0500
+
+    common/: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d39b57415838c73fb0a37eca84de3c68ba990586
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:48:22 2007 -0500
+
+    board/[j-z]*: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 77a318545d57aefa844752465b94c7e09a3f26d0
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:39:10 2007 -0500
+
+    board/[A-Za-i]*: Remove lingering references to CFG_CMD_* symbols.
+
+    Fixed some broken instances of "#ifdef CMD_CFG_IDE" too.
+    Those always evaluated TRUE, and thus were always compiled
+    even when IDE really wasn't defined/wanted.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 068b60a0eb7e73b243ca55399f2a7df76e2c3f3d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:27:39 2007 -0500
+
+    cpu/ rtc/ include/: Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 079a136c3588814784561d6e4856970ee82d6e2a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 10:12:10 2007 -0500
+
+    include/configs/[p-z]* + misc: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7f5c01577400c74cc5bac74f41dd0d3c79df623c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:38:02 2007 -0500
+
+    include/configs/[g-o]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 80ff4f99b84b64edca3fd10da365ec1493be1c95
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:29:01 2007 -0500
+
+    include/configs/[a-e]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a1aa0bb502e25fd598b5e0ccdfb2c174921d714a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:22:23 2007 -0500
+
+    include/configs/[P-Z]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 659e2f6736232a08acca8785c206e2b4d9cd07d7
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:10:49 2007 -0500
+
+    include/configs/[J-O]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 11799434c5ff15a612577bb1ad1f4ea1a0595e4b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Jul 10 09:02:57 2007 -0500
+
+    include/configs/[A-I]*: Cleanup BOOTP and lingering CFG_CMD_*.
+
+    Explicitly add in default CONFIG_BOOTP_* options where cmd_confdefs.h
+    used to be included but CONFIG_BOOTP_MASK was not defined.
+
+    Remove lingering references to CFG_CMD_* symbols.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1fe80d79c5c4e52d3410a7ab4b8515da095cdab3
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 22:08:34 2007 -0500
+
+    Finally retire cmd_confdefs.h and CONFIG_BOOTP_MASK!
+
+    All of the choices for CONFIG_BOOTP_ are now documented in
+    the README file.  You must now individually select exactly
+    the set that you want using a series of
+	#define CONFIG_BOOTP_<x>
+    statements in the board port config files now.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d3b8c1a743dcd31625c99e6a44590f207eb00028
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:57:31 2007 -0500
+
+    include/configs/[m-z]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2fd90ce575b02d189cbf443c85309bcd001aa393
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:48:26 2007 -0500
+
+    include/configs/[a-m]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 37d4bb70586659dedef1658ce1bed071be098aec
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:38:02 2007 -0500
+
+    include/configs/[T-Z]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 18225e8dd1950bd6dbf35011e436db7f474c187d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:31:24 2007 -0500
+
+    include/configs/[P-S]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7be044e4ea644b0ef1c486dadc1a4c2665b4374d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:24:19 2007 -0500
+
+    include/configs/[H-N]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5d2ebe1b3ef0055c661bb1a0d252bf252380069f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 21:16:53 2007 -0500
+
+    include/configs/[A-G]*: Directly use CONFIG_BOOTP_* symbols rather than CONFIG_BOOTP_MASK.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f55f7f8d83f36021ab1f0e3d738f5d8c8083a7e3
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:12:30 2007 -0500
+
+    Retire CONFIG_COMMANDS finally.
+    Strip old CFG_CMD_* symbols out.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b5501f7d720fed99ab0b42c83f5dea52868ce007
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:10:03 2007 -0500
+
+    Update README.* to reference new CONFIG_CMD_* names now.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4431283c7e6d54ae180d466e51bf2d97471a0ad9
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 19:06:00 2007 -0500
+
+    cpu/m*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3a1ed1e1f922c419bb71f7df4949d783ade369fa
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:57:22 2007 -0500
+
+    cpu/[7a-ln-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ab3abcbabd840928fb1eb5122118ca466b5e5013
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:45:16 2007 -0500
+
+    board/[q-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3fe00109a5f12de55b6e25b1f98dfc24bc9090c9
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:38:39 2007 -0500
+
+    board/[m-p]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c508a4cefd8a953fc64957650506a035e6e3d9d1
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:31:28 2007 -0500
+
+    board/[f-l]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b9307262f8a9f3b5c9e15a6067eadc17407146f6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:24:55 2007 -0500
+
+    board/[d-e]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fcec2eb93e126400009729328e797f12bc94f1fd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:19:09 2007 -0500
+
+    board/[A-Za-c]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a593814f2be0c9cdc3133cd550b167b8a988328f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:10:50 2007 -0500
+
+    rtc/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 67350568f9d46e66c21829f3513b3db0caeb948b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:05:38 2007 -0500
+
+    lib_{arm,avr32,blackfin,generic,i386}/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7def6b34f910f08d7ef0a14646da067719237ca2
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 18:02:11 2007 -0500
+
+    lib_{m68k,microblaze,mips,ppc}/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit dd60d1223b99a88a7216f3e041fe40634ad4c2bb
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:56:50 2007 -0500
+
+    fs/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c91898bbc505aff3e12a807af88e76da18efb7ee
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:46:09 2007 -0500
+
+    tools/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 643d1ab23960950b52e0a2803c2d3ea4c558fa01
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:45:14 2007 -0500
+
+    net/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cb51c0bf88f95a1bca68324b0126f8eed8b43273
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:39:42 2007 -0500
+
+    drivers/[n-z]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 07d38a17e964aec4c7827f0ee9a583bc8cc1ad6b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:30:01 2007 -0500
+
+    drivers/[a-m]*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cde5c64d17cf4834aa7b5c373f288bc7dad27b29
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:22:37 2007 -0500
+
+    disk/: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 639221c76c88215bd55af83ad174fc30d1940f8f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Jul 9 17:15:49 2007 -0500
+
+    include/: Remove obsolete references to CONFIG_COMMANDS
+    Mostly removed from comments here.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4ef218f6fdf8d747f4589da5252b004e7d2c2876
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 10 00:01:28 2007 +0200
+
+    Coding style cleanup; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c3517f919d0f61650cf3027fd4faf0f631142f6c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:10:08 2007 -0500
+
+    common/* non-cmd*: Remove obsolete references to CONFIG_COMMANDS
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fd9bcaa35be64fe41a4223fdb6ecdbad52470b39
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:05:39 2007 -0500
+
+    common/cmd_[p-x]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c76fe47425afc7d5d670ff0539823c85d65d9c42
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 18:02:23 2007 -0500
+
+    common/cmd_[i-n]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit baa26db4113679b80970ff447d91cc10217742a6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 17:51:39 2007 -0500
+
+    common/cmd_[af]*: Remove obsolete references to CONFIG_COMMANDS.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit af075ee96e52dda7b6bca6c937588aeaaec5f2cd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 17:02:01 2007 -0500
+
+    Clear up confusion over the CMD_POST and POST_DIAG mess.
+
+    For some reason, CONFIG_POST permeated as CONFIG_CMD_POST_DIAG
+    when it really means just CONFIG_CMD_DIAG.	There is no CMD_POST.
+    Clear this mess up some.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b3631487105a57ab7cbadfc26efbaf9676275018
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:45:08 2007 -0500
+
+    Remove references to the old cmd_confdefs.h include file.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a22d4da95e20049b4daa1c2a022f61e8a72f2fb6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:42:59 2007 -0500
+
+    include/configs: Catch some CONFIG_CMD_* conversion stragglers.
+
+    Use new CONFIG_CMD_* in lwmon5.h board config file.
+    Fix CONFIG_CMD_* typo braindamage in omap1510inn.h
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5562901661bd428f7e5feb333f796372cb81019
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:31:57 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [TUVWZYZ]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit fe7f782d5b8c64a0195c68c31a0a11d4f641355e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:02:44 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various S* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e9a0f8f15c11f337967aa0600ad6e8af33037f50
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 15:12:40 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various R* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 12aa9fd23d724bd6ab88e1baa0db35133a27303f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:55:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various Q* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit acf0269779422f3e147d2ddfb499c9f6ff10ad5e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:49:44 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various P* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e18a1061a8630cb67995fdf99afd3fb50d1b187d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:21:43 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [NO]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8353e139bfad9059c54f5b2421f1a3090e15a2e2
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 14:14:17 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various M* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 348f258f24253433e4a2302a0bbceb6740a67246
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 13:46:18 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [IJKL]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6c4f4da9bfc9f9403f54fce678ed0364b7c86a6a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sun Jul 8 10:09:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various H* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 60a0876b5106b34220e459c208bbf648073306c0
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 21:04:26 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various F* and G* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit dcaa71562826a2466e894c868d132509dcda8444
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 20:56:05 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various E* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3c3227f3c737502311b25b72084573901cbbf17d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Sat Jul 7 20:40:43 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various D* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 49cf7e8ee7ef943fdfe866ce28410b0bfbf6a26c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:52:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various C* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit de8b2a6e33298dcdb10bdda48db25e53c3089eba
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:32:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various B* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 498ff9a228485bd4b9f23d066bada268f9add1dd
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jul 5 19:13:52 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various A* named board config files.
+
+    Since ADS860.h includes "board/fads/fads.h" with ramifications
+    on the CONFIG_COMMAND treatment, it too has to be adjusted to
+    exclude already configured commands in this same commit.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6b0a174a1e6f55e1f5a1fbb223cdad7645a4646e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 6 09:45:47 2007 +0200
+
+    Fix problem with get/setdcr commands introduced by cfg patches
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f1152f8c28db4a22087c21c618a3f7baa48e9a4f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 6 02:50:19 2007 +0200
+
+    Code cleanup and default config update for STC GP3 SSA board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e4dbe1b215f5c6c462e76909d240bd96472b84de
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 5 17:56:27 2007 +0200
+
+    Fixing some typos etc. introduced mainly by cfg patches.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b6b4684546809f89c8bac72863ca49b5fd8ac0cd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 5 11:12:16 2007 +0200
+
+    Minor coding style cleanup. Update CHANGELOG.
+
+commit dca3b3d6d6396b67e5e84af53452164923c73443
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:46 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various [v-z]* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6c18eb9804b525f3e4f3bb3d014dd69a200d9fa7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:38 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various t* and u* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46da1e96b7db14f4fcd2c92544e7c0862024bc76
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:30 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various s* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 90cc3eb6d2be856d9ddd81436de9cf343bc6b5c8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:23 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various q* and r* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 26a34560d56a9df5bc2ae23525d9229736134757
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:17 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various p* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5cb23092a7d31490a33d4ec871468b63babfa3c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:13 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various o* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 929a2bfd142737003a8fc32e1b86e1f2c1850257
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various n* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5dc11a511960d490f7f01ffd746edfe6277f99b0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:33:01 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various m* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9bbb1c0820c1fbd3811ab6ee4ba0f6c6f76b27e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:57 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various l* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bc234c129fa04fb9fa33530930e5cbc6084cd47a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:51 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various j* and k* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1d2c6bc491969f8d8fb34c8e30e8bea7a2af9c31
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:32 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various i* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 48d5d102a2f2e619c92050b9aedbb69689185bc0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:25 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various h* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72eb0efaed7048afcc61fc6f0085c49394b5dc36
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:19 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various g* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1bec3d3002d3bbbae6f2468a0f7376db1120d33e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:10 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various e* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ab999ba1b31ebe78dd16374394a55d7c6e5aa6e4
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:32:03 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various d* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 37e4f24b87fa255ae456d193b7cd23c18dd1d56b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:56 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various c* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ba2351f9d1e841bd00ea6dad1e3c16d0259ad264
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:49 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various b* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0b361c916617aff79e647b40f0e43361e0bbaccf
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:42 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various a* named board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b730cda82e362df6a22f4c59c0a9b97e885b1014
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:35 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in mpc5xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d794cfefead5fc177cf4f41164e80382e9c9484a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:15 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in various 5200 board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ef0df52ab49eea4a30c15087fd27d54c1d946f2c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:31:07 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in STx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 866e3089bfc826bb4dc74637f8aad87a3bab79fc
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:58 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in sbc* board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2694690e285acaa34922f55f4b5ae030da60c55a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:50 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in TQM board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1cc4c458329765b58e584a19821e796b3c10e976
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:28 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 82xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8ea5499afdaba0acf60923dd99001c399d4a7c8e
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jul 4 22:30:06 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 83xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b44896215a09c60fa40cae906f7ed207bbc2c492
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Thu Jul 5 08:17:37 2007 +0200
+
+    Merged POST framework with the current TOT.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+
+commit b24629fa377214d63bb40d1360e354b6d3e4af56
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:23:15 2007 -0500
+
+    mpc86xx: Remove old CFG_CMD_* references.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 46175d9764da129bb4fd341cd2554dc7d55f5b2a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:54 2007 -0500
+
+    Add MPC8568MDS to MAKEALL 85xx target.
+
+    It was missing from the original port submission.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2835e518c969e5124ba1174eef3e8375e12fa7d5
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:22:08 2007 -0500
+
+    include/configs: Use new CONFIG_CMD_* in 85xx board config files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 56b304ac2091689506088a9ae67f63fd6300cf16
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Wed Jun 13 13:21:37 2007 -0500
+
+    Fix #if typo in CONFIG_CMD_* changes.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f780b83316d9af1f61d71cc88b1917b387b9b995
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Wed Jun 27 18:11:38 2007 +0200
+
+    resubmit: ppc4xx: Remove sequoia/sequioa.h. Cleanup ppc440.h for PPC440EPX
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+
+commit 04e6c38b766eaa2f3287561563c9e215e0c3a0d4
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 4 10:06:30 2007 +0200
+
+    ppc4xx: Update lwmon5 board
+
+    - Add optional ECC generation routine to preserve existing
+      RAM values. This is needed for the Linux log-buffer support
+    - Add optional DDR2 setup with CL=4
+    - GPIO50 not used anymore
+    - Lime register setup added
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6810a34677dbc446334f5e451f1682426dd33b49
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 90b1b2d69b9396ff2f01165ebc16c9a594eb5926
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:17:28 2007 -0600
+
+    Fix Makefile to use $(MKCONFIG) macro for all board ports
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 057004f4a4863554d56cc56268bfa7c7d9738e27
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:49 2007 -0600
+
+    Correct fixup relocation for mpc83xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5af61b2f4b838a05f79be274f3e5a66edd2d9c96
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:44 2007 -0600
+
+    Correct fixup relocation for mpc8260
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f3a52fe05923935db86985daf9438e2f70ac39aa
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:39 2007 -0600
+
+    Correct fixup relocation for mpc824x
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a85dd254c0577fca13627c46e93fc2ad4c4f1f00
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:34 2007 -0600
+
+    Correct fixup relocation for mpc8220
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6f7576b20ecf0d040c3ac3b032b5cbc860e38a90
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:29 2007 -0600
+
+    Correct fixup relocation for MPC5xxx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 3649cd99ba815b6601868735765602f00ef3692b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:24 2007 -0600
+
+    Correct relocation fixup for mpc5xx
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f82b3b6304b620ef7e28bfaa1ea887a2ad2fa325
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:19 2007 -0600
+
+    Don't set gd->reloc_off if relocation of .fixup works correctly
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e1a6144c32dc7de73bcdd33995de0148cbd0bd28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:14 2007 -0600
+
+    Remove obsolete mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 17e32fc3908bf7089d3f16fc82a1c3ae674dd65b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:09 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit af7d38b393690d7eeaf418ac85a1e831a50d5fd0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:34:04 2007 -0600
+
+    Remove obsolete mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f94a3aecebc40ca0939c7d66d010009cf51be9e2
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:59 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (3 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit a71c084f3ac7fedf144537db2b2da47323068833
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:53 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (2 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f670a15468d1365241d40022b9408e1004181f5e
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:48 2007 -0600
+
+    Remove obsolete mpc824x linker scripts (1 of 4)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 09555bd45a04c0e54f172528d21bc18896550d28
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:43 2007 -0600
+
+    Remove obsolete mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5efb992f046e51225c93d52f80fecbe433abd789
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:38 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (3 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 07c13dfef65b31647e69d8b61daa1eec598add1a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:33 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (2 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b4f67513a624ce85866c66c575bd2d9d7977d7f0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:28 2007 -0600
+
+    Remove obsolete mpc5xxx linker scripts (1 of 3)
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b7d8e05f8675249b5f208aa73babeed384a4519d
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:23 2007 -0600
+
+    Remove obsolete mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 416a0b6d40f6eba3a2fc547253c16bda28d922f7
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:18 2007 -0600
+
+    Consolidate mpc83xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5fc59175b92883ed5d2666a04e6bc49e70a4a365
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:13 2007 -0600
+
+    Consolidate mpc8260 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 737f9eb02d7335df2b3e4d7a4d3348784d1da207
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:08 2007 -0600
+
+    Consolidate mpc824x linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 9c757b789a59a855db57b448dd825329c4e9c4a0
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:33:03 2007 -0600
+
+    Consolidate mpc8220 linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit d181c9a15cd41863fe24840d17848429f27d3c8c
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:58 2007 -0600
+
+    Consolidate mpc5xxx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 287ac924adb7291bebe5086652a362a30ab28b13
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Jul 3 00:32:53 2007 -0600
+
+    Consolidate mpc5xx linker scripts
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 52b8704d0245e589f86d462e9ec25aeb7ecbbbdd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:43:53 2007 +0200
+
+    Fix a few file permission problems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 78e0cf2de7be7f1eaeeb622eb61fd50e4d5e205c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 4 00:38:38 2007 +0200
+
+    Minor coding style cleanup. Rebuild CHANGELOG file.
+
+commit 2f9c19e496acb6bb50d9299e1aab377625d48c38
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:44 2007 -0500
+
+    configs/ mpc86xx: Rewrite command line options using new CONFIG_CMD-* style.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 602ad3b33d9ceef83dbab46be68646d645d637ee
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:39 2007 -0500
+
+    README: Rewrite command line config to use CONFIG_CMD_* names.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 72a074cec68e5bad60d63206c050974e08afd804
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:34 2007 -0500
+
+    include/ non-config: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5fcf543e0b6628c76ff48705b1b0566bfd11507b
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:28 2007 -0500
+
+    tools/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9107ebe0d352420895ab69b715697bdebc8caf50
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:23 2007 -0500
+
+    board/[k-z]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5e378003d592ea828ec69d6defcd4de79096dd5c
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:19 2007 -0500
+
+    board/[Ma-i]*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 737184114ec9c9e0ab94d6713536126073bd2472
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:15 2007 -0500
+
+    cpu/ non-mpc*: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f48070fe5fe440dfb5ee5268c920de70e48ea327
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:08 2007 -0500
+
+    cpu/mpc*/ : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 0c505db0a0dc1f670b13ce3b4d3fbf1ec5b3cbd2
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:03:03 2007 -0500
+
+    lib_*/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 73f032021ec5f13cda8faa4e34b6de80960eb86f
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:58 2007 -0500
+
+    lib_ppc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 98b79003c21c2578206003256de4e781d6b36ca8
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:53 2007 -0500
+
+    rtc/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6e2115acb6a892d53a6881bf253ae41d3df39156
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:49 2007 -0500
+
+    net/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 45cdb9b72c94655c7308b464a2666057c0b286e0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:34 2007 -0500
+
+    disk/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4e109ae98294a5ca7ff848b7652c7bfd4023a94a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:20 2007 -0500
+
+    fs/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit d5be43de93ff905c465e509d45a3164ef48d26e7
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:10 2007 -0500
+
+    drivers/: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b453960d4fdb87b3970d96119b90df2ed024fc4a
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:02:05 2007 -0500
+
+    common/ non-cmd: Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 65c450b47a62659d522cfa8f4fa1e4e5c60dccd0
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:54 2007 -0500
+
+    common/cmd_[i-z]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a76adc8142c1d956385a109e0b70f9319ede4d66
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:43 2007 -0500
+
+    common/cmd_[a-f]* : Augment CONFIG_COMMANDS tests with defined(CONFIG_CMD_*).
+
+    This is a compatibility step that allows both the older form
+    and the new form to co-exist for a while until the older can
+    be removed entirely.
+
+    All transformations are of the form:
+    Before:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+    After:
+	#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ec63b10b61fd68238d4c15c1cd04c0b38228e2c1
+Author: Jon Loeliger <jdl@jdl.com>
+Date:	Mon Jun 11 19:01:34 2007 -0500
+
+    Introduce initial versions of new Command Config files.
+
+    Derive three new files from cmd_confdefs.h:
+	config_bootp.h - Has BOOTP related config options, not commands
+	config_cmd_all.h - Has a CONFIG_CMD_* definition for every command
+	config_cmd_default.h - Has a CONFIG_CMD_* definition for default cmds.
+
+    For now, include "config_bootp.h" for compatability until all
+    users of it directly include it properly.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1f2a05898658900dc5717761e27abf2052e67e13
+Author: Mushtaq Khan <mushtaqk_921@yahoo.co.in>
+Date:	Sat Jun 30 18:50:48 2007 +0200
+
+    Fix S-ATA support.
+
+    Signed-off-by: mushtaq khan <mushtaqk_921@yahoo.co.in>
+
+commit a5d71e290f3673269be8eefb4ec44f53412f9461
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Mon Jun 25 19:11:37 2007 +0200
+
+    [PCS440EP]	get rid of CONFIG_PPC4xx_USE_SPD_DDR_INIT_HANG
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit a1bd6200eccd3a02040a955d5f43d3ee1fc9f93b
+Author: Niklaus Giger <niklaus.giger@nestal.com>
+Date:	Mon Jun 25 17:03:13 2007 +0200
+
+    ppc4xx: PPC440EPx Emit DDR0 registers on machine check interrupt
+
+    This patch prints the DDR status registers upon machine check
+    interrupt on the 440EPx/GRx. This can be useful especially when
+    ECC support is enabled.
+
+    I added some small changes to the original patch from Niklaus to
+    make it compile clean.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 807018fb7faceb429ce0cb47baa2073746b33a4e
+Author: Niklaus Giger <niklaus.giger@nestal.com>
+Date:	Mon Jun 25 16:50:55 2007 +0200
+
+    ppc4xx: Fix O=buildir builds
+
+    This patch fixes the problem to assemble cpu/ppc4xx/start.S
+    experienced last week where building failed having specified
+    O=../build.sequoia.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@nestal.com>
+
+commit 466fff1a7bb5fe764a06450626f6098219f446b8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jun 25 15:57:39 2007 +0200
+
+    ppc4xx: Add pci_pre_init() for 405 boards
+
+    This patch removes the CFG_PCI_PRE_INIT option completely, since
+    it's not needed anymore with the patch from Matthias Fuchs with
+    the "weak" pci_pre_init() implementation.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f35c53166213c24a5a0e2390ed861136ff73870
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Jun 24 17:41:21 2007 +0200
+
+    ppc4xx: Maintenance patch for esd's CPCI405 derivats
+
+    -add pci_pre_init() for pci interrupt fixup code
+    -disable phy sleep mode via reset_phy() function
+    -use correct io accessors
+    -cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 5a1c9ff0c44305b57cb4d8f9369bba90bcf0e1f8
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Jun 24 17:23:41 2007 +0200
+
+    ppc4xx: Add pci_pre_init() for 405 boards
+
+    This patch adds support for calling a plattform dependant
+    pci_pre_init() function for 405 boards. This can be used to
+    move the current pci_405gp_fixup_irq() function into the
+    board code.
+
+    This patch also makes the CFG_PCI_PRE_INIT define obsolete.
+    A default function with 'weak' attribute is used when
+    a board specific pci_pre_init() is not implemented.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 1636d1c8529c006d106287cfbc20cd0a246fe1cb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 22 23:59:00 2007 +0200
+
+    Coding stylke cleanup; rebuild CHANGELOG
+
+commit 2dc64451b4c08ffd619372abfdc2506a2e2363b9
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Apr 18 14:55:19 2007 +0400
+
+    Adapt log buffer code to support Linux 2.6
+
+    A new environment variable, "logversion", selects the log buffer
+    behaviour. If it is not set or set to a value other than 2, then the
+    old, Linux 2.4.4, behaviour is selected.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit a11e06965ec91270c51853407ff1261d3c740386
+Author: Igor Lisitsin <igor@emcraft.com>
+Date:	Wed Mar 28 19:06:19 2007 +0400
+
+    Extend POST support for PPC440
+
+    Added memory, CPU, UART, I2C and SPR POST tests for PPC440.
+
+    Signed-off-by: Igor Lisitsin <igor@emcraft.com>
+    --
+
+commit 566a494f592ae3b3c0785d90d4e1ba45574880c4
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Fri Jun 22 19:11:54 2007 +0200
+
+    [PCS440EP]	    upgrade the PCS440EP board:
+		    - Show on the Status LEDs, some States of the board.
+		    - Get the MAC addresses from the EEProm
+		    - use PREBOOT
+		    - use the CF on the board.
+		    - check the U-Boot image in the Flash with a SHA1
+		      checksum.
+		    - use dynamic TLB entries generation for the SDRAM
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 3a1f5c81b0b9557817a789bece839905581c2205
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 22 16:58:40 2007 +0200
+
+    ppc4xx: Fix problem with extended program_tlb() funtion
+
+    The recently extended program_tlb() function had a problem when
+    multiple TLB's had to be setup (for example with 512MB of SDRAM). The
+    virtual address was not incremented. This patch fixes this issue
+    and is tested on Katmai with 512MB SDRAM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 02032e8f14751a1a751b09240a4f1cf9f8a2077f
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jun 22 14:58:04 2007 +0200
+
+    [ppc] Fix build breakage for all non-4xx PowerPC variants.
+
+    - adapt to the more generic EXCEPTION_PROLOG and CRIT_EXCEPTION macros
+    - minor 4xx cleanup
+
+commit 83b4cfa3d629dff0264366263c5e94d9a50ad80b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 20 18:14:24 2007 +0200
+
+    Coding style cleanup. Refresh CHANGELOG.
+
+commit b3f9ec86e388207fd03dcdf7b145b9ed080bf024
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 17:22:44 2007 +0200
+
+    ppc4xx: Add bootstrap command for AMCC Sequoia (440EPx) eval board
+
+    This patch adds a board command to configure the I2C bootstrap EEPROM
+    values. Right now 533 and 667MHz are supported for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 533 nor	;to configure the board for 533MHz NOR booting
+    => bootstrap 667 nand	;to configure the board for 667MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df8a24cdd30151505cf57bbee5289e91bf53bd1b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:42:31 2007 +0200
+
+    [ppc4xx] Fix problem with NAND booting on AMCC Acadia
+
+    The latest changes showed a problem with the location of the NAND-SPL
+    image in the OCM and the init-data area (incl. cache). This patch
+    fixes this problem.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 86ba99e34194394052d24c04dc40d1263d29a26f
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 19 16:40:58 2007 +0200
+
+    [ppc4xx] Change board/amcc/acadia/cpr.c to pll.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e73846b7cf1e29ae635bf9bb5570269663df2ee5
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 11:33:41 2007 +0200
+
+    [ppc4xx] Change lwmon5 port to work with recent 440 exception rework
+
+    Now CONFIG_440 has to be defined in all PPC440 board config files.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit efa35cf12d914d4caba942acd5a6c45f217de302
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Jun 15 11:19:28 2007 +0200
+
+    ppc4xx: Clean up 440 exceptions handling
+
+    - Introduced dedicated switches for building 440 and 405 images required
+      for 440-specific machine instructions like 'rfmci' etc.
+
+    - Exception vectors moved to the proper location (_start moved away from
+      the critical exception handler space, which it occupied)
+
+    - CriticalInput now serviced (with default handler)
+
+    - MachineCheck properly serviced (added a dedicated handler and return
+      subroutine)
+
+    - Overall cleanup of exceptions declared with STD_EXCEPTION macro (unused,
+      unhandled and those not relevant for 4xx were eliminated)
+
+    - Eliminated Linux leftovers, removed dead code
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b765ffb773f5a3cd5aa94ec76b6a05276b8cd5b2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 08:18:01 2007 +0200
+
+    [ppc4xx] Add initial lwmon5 board support
+
+    This patch adds initial support for the Liebherr lwmon5 board euqipped
+    with an AMCC 440EPx PowerPC.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 85f737376d5ff3d5f0d45a8b657686326d175307
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 15 07:39:43 2007 +0200
+
+    [ppc4xx] Extend 44x GPIO setup with default output state
+
+    The board config array CFG_440_GPIO_TABLE for the ppc440 GPIO setup
+    is extended with the default GPIO output state (level).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dbca208518e5e7f01a6420588d1cd6e60db74c2b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jun 14 11:14:32 2007 +0200
+
+    [ppc4xx] Extend program_tlb() with virtual & physical addresses
+
+    Now program_tlb() allows to program a TLB (or multiple) with
+    different virtual and physical addresses. With this change, now one
+    physical region (e.g. SDRAM) can be mapped 2 times, once with caches
+    diabled and once with caches enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9912121f7ed804ea58fd62f3f230b5dcfc357d88
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 19:02:41 2007 +0200
+
+    Change 'repeatable' attribute of some commands to sensible values.
+
+    Most prominently this changes 'erase' to be non-repeatable.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 5afb202093f6a001797db92cf695b93a70ea9ab4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 23 18:47:48 2007 +0200
+
+    Fix 'run' not to continue after interrupted command
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 9b7464a2c88614e1061f509c48930a3d240d1a35
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Mon Jun 11 15:14:24 2007 +0200
+
+    USB: This patch fix readl in ohci swap reg access.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 8f8416fada9faf94b9a92f21fe6000643cb521d5
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Jun 8 14:52:22 2007 +0200
+
+    TQM5200: Add Flat Device Tree support, update default env. accordingly.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9045f33c023f698660a2e45d1b2194c0711abebc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 8 10:24:58 2007 +0200
+
+    Fix config problems on SC3 board; make ide_reset_timeout work.
+
+commit fba3fb0449b8a54542aed1e729de76e7f5a2ff1b
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Fri Jun 8 09:55:24 2007 +0200
+
+    [PATCH] fix gpio setting when using CFG_440_GPIO_TABLE
+
+    Set the correct value in GPIOx_TCR when configuring the gpio
+    with CFG_440_GPIO_TABLE.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 725671ccd2cd04c9ebc50c9e5a94dd8cbade66b7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 6 16:26:56 2007 +0200
+
+    Coding Style cleanup; generate new CHANGELOG file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 19d763c35e0b5568eaf0b8adbf7a68ccfe7fa243
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Jun 6 11:49:44 2007 +0200
+
+    TRAB, USB: update trab board configuration for use of generic ohci driver
+
+commit dace45acd1c1357daa9322099d07c9a9e08b0024
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Jun 6 11:49:43 2007 +0200
+
+    USB: ohci fixes and cleanup for ppc4xx and yosemite board.
+
+commit 72657570b61635c74fa0c3f0e9e7d0671a9d08df
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Jun 6 11:49:43 2007 +0200
+
+    USB: ohci fixes and cleanup for mpc5xxx and IceCube board config
+
+commit fc43be478f2aa37ce38acd85355038866e4162af
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Jun 6 11:49:35 2007 +0200
+
+    USB/OHCI: endianness cleanup in the generic ohci driver
+
+commit c440bfe6d6d92d66478a7e84402b31f48413617b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jun 6 11:42:13 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Acadia (405EZ) eval board
+
+    This patch adds NAND booting support for the AMCC Acadia eval board.
+
+    Please make sure to configure jumper J7 to position 2-3 when booting
+    from NOR, and to position 1-2 when booting for NAND.
+
+    I also added a board command to configure the I2C bootstrap EEPROM
+    values. Right now only 267MHz is support for booting either via NOR
+    or NAND FLASH. Here the usage:
+
+    => bootstrap 267 nor	;to configure the board for 267MHz NOR booting
+    => bootstrap 267 nand	;to configure the board for 267MHz NNAND booting
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 18135125f909948b85d1d6881ab4ac0efb4a1c58
+Author: Rodolfo Giometti <giometti@linux.it>
+Date:	Wed Jun 6 10:08:14 2007 +0200
+
+    Files include/linux/byteorder/{big,little}_endian.h define
+    __BIG_ENDIAN and __LITTLE_ENDIAN.
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit a81d1c0b85b13e9d45f2d87de96a51a6e0ef0f82
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Wed Jun 6 10:08:14 2007 +0200
+
+    Add USB PCI-OHCI, USB keyboard and event poll support to the
+    MPC8641HPCN board config file.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit 4dae14ce8fbdf380017dc54f172218e7d2acc889
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Wed Jun 6 10:08:14 2007 +0200
+
+    USB PCI-OHCI, interrupt pipe and usb event poll support
+
+    This patch added USB PCI-OHCI chips support, interrupt pipe support
+    and usb event poll support. For supporting the USB interrupt pipe, the
+    globe urb_priv is moved to purb in ed struct. Now, we can process
+    several urbs at one time. The interrupt pipe support codes are ported
+    from Linux kernel 2.4.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit fdcfaa1b02268b2899e374b35adf936c911a47eb
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Wed Jun 6 10:08:13 2007 +0200
+
+    USB event poll support
+
+    This patch adds USB event poll support, which could be used in usbkbd
+    and other usb devices driver when the asynchronous interrupt
+    processing is supported.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com
+
+commit 9a1d00fa47c1e05e3fdb60b33213af4e18d4c18e
+Author: Rodolfo Giometti <giometti@linux.it>
+Date:	Wed Jun 6 10:08:12 2007 +0200
+
+    ISP116x: delay for crappy USB keys
+
+    Using some (very) slow USB keys cause the USB host controller buffers
+    are not ready to be read by the CPU so we need an extra delay before
+    reading the USB storage data.
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit 09444143670c9c2243cb7aba9f70b3713d33bed1
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Jun 6 10:08:12 2007 +0200
+
+    Change duplicate usb_cpu_init_fail to usb_board_init_fail
+
+    Thanks to Liew Tsi Chung <Tsi-chung.Liew@freescale.com> for pointing
+    this out.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 32922cdc470fdfd39bea0c1c4f582d3fb340421e
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Jun 5 12:30:52 2007 -0500
+
+    mpc8641 image size cleanup
+
+    e600 does not have a bootpg restriction.
+    Move the version string to beginning of image at fff00000.
+    Resetvec.S is not needed.
+    Update flash copy instructions.
+    Add tftpflash env variable
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit e3cbe1f93c5722f8ebbad468e30c069a2b511097
+Author: Benoît Monin <bmonin@adeneo.eu>
+Date:	Mon Jun 4 08:36:05 2007 +0200
+
+    [PATCH] Fix ppc4xx bootstrap letter displayed on startup
+
+    The attached patch is mainly cosmetic, allowing u-boot to
+    display the correct bootstrap option letter according to the
+    datasheets.
+
+    The original patch was extended with 405EZ support by Stefan
+    Roese.
+
+    Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5b1313fb2758ffce8b624457f777d8cc6709608d
+Author: Nikita V. Youshchenko <yoush@debian.org>
+Date:	Wed May 23 12:45:19 2007 +0400
+
+    fix compilation problem for mpc8349itx CFG_RAMBOOT
+
+    Current include/configs/MPC8349ITX.h does contain some support for building
+    image that will be started from memory (without putting in into flash).
+    It could be triggered by building with TEXT_BASE set to a low value.
+
+    However, this support is incomplete: using of low TEXT_BASE causes
+    defining configuration macros in inconsistent way, which later leads
+    to compilation errors. In particular. flash support is being disabled,
+    but then flash structures get referenced.
+
+    This patch fixes this, making it possible to build with low TEXT_BASE.
+
+    Signed-Off-By: Nikita Youshchenko <yoush@debian.org>
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8a364f0970de49949d635e60accf463c6443ef8c
+Author: Nikita V. Youshchenko <yoush@debian.org>
+Date:	Wed May 23 12:45:25 2007 +0400
+
+    add missing 'console' var to default mpc8349itx config
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 18d156eb37c90fadc8ec7a81a3b89176161f85b7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 16:18:17 2007 +0200
+
+    ppc4xx: Add missing file for Bamboo NAND booting support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 155a96478a0881e6da96cbbbcf34952d6a3b1b4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:58:19 2007 +0200
+
+    ppc4xx: Undo Sequoia patch for dynamic EBC speed support of 83MHz
+
+    This patch undoes the patch by Jeff Mann with commit-id ada4697d. As
+    suggested by AMCC it is not recommended to dynamically change the EBC
+    speed after bootup. So we undo this change to be on the safe side.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9d9096043e8f713d4bf1743d32e1459e6a11644b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:29:04 2007 +0200
+
+    ppc4xx: Update Sequoia NAND booting support with ECC
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cf959c7d6687567c308e366e9581e1a5aff5cc5b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:27:11 2007 +0200
+
+    ppc4xx: Add NAND booting support for AMCC Bamboo (440EP) eval board
+
+    This patch adds NAND booting support for the AMCC Bamboo eval board.
+    Since the NAND-SPL boot image is limited to 4kbytes, this version
+    only supports the onboard 64MBytes of DDR. The DIMM modules can't be
+    supported, since the setup code for I2C DIMM autodetection and
+    configuration is too big for this NAND bootloader.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42be56f53c8b107868e6125c8524ae84293e95a7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:23:04 2007 +0200
+
+    NAND: Add ECC support to NAND booting support in nand_spl/nand_boot.c
+
+    The U-Boot NAND booting support is now extended to support ECC
+    upon loading of the NAND U-Boot image.
+
+    Tested on AMCC Sequoia (440EPx) and Bamboo (440EP).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a471db07fbb65a841ffc9f4f112562b945230f98
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:19:29 2007 +0200
+
+    ppc4xx: Prepare Bamboo port for NAND booting support
+
+    This patch updates the "normal" Bamboo NOR booting port, so
+    that it is compatible with the coming soon NAND booting
+    Bamboo port.
+
+    It also enables the 2nd NAND flash on the Bamboo.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 53ad02103fb8be4138a9937a8ab91fcdff7b4987
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:16:58 2007 +0200
+
+    ppc4xx: Update in_be32() functions and friends to latest Linux version
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 91da09cfbce0c1de05d6d84aa8363d666fa7ea3c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:15:12 2007 +0200
+
+    NAND: Add hardware ECC support to the PPC4xx NAND driver ndfc.c
+
+    This patch adds hardware ECC support to the NDFC driver. It also
+    changes the register access from using the "simple" in32/out32
+    functions to the in_be32/out_be32 functions, which make sure
+    that the access is correctly synced. This is the only recommended
+    access to SoC registers in the current Linux kernel.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 17b5e862287cca76f19dcf8b741e61a7d06617f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:12:15 2007 +0200
+
+    NAND: Update nand_ecc.c to latest Linux version
+
+    This patch updates the nand_ecc code to the latest Linux version.
+    The main reason for this is the more compact code. This makes
+    it possible to include the ECC code into the NAND bootloader
+    image (NAND_SPL) for PPC4xx.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d2d432760d2199d0e8558fdd9d1789b8131abcf7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 15:09:50 2007 +0200
+
+    ppc4xx: 44x DDR driver code cleanup and small fix for Bamboo
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e4bbed2803a2ad0521c7362f5d3e065f99abaedc
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:24 2007 +0200
+
+    ppc4xx: Change Luan config file to support ECC
+
+    With the updated 44x DDR2 driver the Luan board now supports
+    ECC generation and checking.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7187db73491c8de0fb56efb5e5134ba5ec443089
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 1 13:45:00 2007 +0200
+
+    ppc4xx: Update 44x_spd_ddr2 code (440SP/440SPe)
+
+    Add config option for 180 degree advance clock control as needed
+    for the AMCC Luan eval board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ee1529838abbfaa35f14e3ffbeaaba693159475f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 31 17:20:09 2007 +0200
+
+    Add support for STX GP3SSA (stxssa) Board with 4 MiB flash.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7049288fb1f16f1b317140226cdebd07bd416395
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:26:46 2007 +0200
+
+    Motion-PRO: Code cleanup, fix of a typo in OF_STDOUT_PATH.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 4520fd4d2c450da49637216aa0e53739b61c60ac
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:06:36 2007 +0200
+
+    Motion-PRO: Add support for redundant environment.
+
+    Enable redundant environment, add a MTD partition for it; also add env.
+    variable command for passing MTD partitions to the kernel command line.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a26eabeec31746f06d309103690892805696e344
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:05:11 2007 +0200
+
+    Motion-PRO: Change maximum console buffer size from 256 to 1024 bytes.
+
+    Allow passing longer command line to the kernel - useful especially
+    for passing MTD partition layout.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9160b96f71483a116de81c68985e8ee306d36764
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:04:18 2007 +0200
+
+    Fix: Add missing NULL termination in strings expanded by macros parser.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 630ec84aef7228fc1dbfb38dec78541403a786cd
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 17:03:37 2007 +0200
+
+    Motion-PRO: Update EEPROM's page write bits and write delay.
+
+    Change EEPROM configuration according to the datasheet: "The 24C01A and 24C02A
+    have a page write capability of two bytes", and "This device offers fast (1ms)
+    byte write". Add 3ms of extra delay.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c00125e07c1ebc125bab40e1e18bceed8be0c162
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:58:45 2007 +0200
+
+    MPC5XXX, Motion-PRO: Fix PHY initialization problem.
+
+    After being reset in mpc5xxx_fec_init_phy(), PHY goes into FX mode, in which
+    networking does not function. This commit switches PHY to TX mode by clearing
+    the FX_SEL bit of Mode Control Register. It also reverses commit
+    008861a2f3ef2c062744d733787c7e530a1b8761, i.e., a temporary workaround.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 93b78f534a6e708b4cf1a4ffb4d8438c67a007db
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:57:15 2007 +0200
+
+    Motion-PRO: Add support for the temperature sensor.
+
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c75e639630cc132dc19cd1ecda5922c0db0bfbba
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:55:23 2007 +0200
+
+    Motion-PRO: Add displaying of CPLD revision information during boot.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c99512d6bd3973f01ca2fc4896d829b46e68f150
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:53:43 2007 +0200
+
+    MPC5xxx: Change names of defines related to IPB and PCI clocks.
+
+    Both CFG_PCISPEED_66 and CFG_IPBSPEED_133 are misnamed, as defining
+    them does not cause PCI or IPB clocks to run at the specified speed.
+    Instead, they configure divisors used to calculate said clocks. This
+    patch renames the defines according to their real function.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a11c0b85dc3664bb3c1e781137118730c8f619ab
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Sun May 27 16:51:48 2007 +0200
+
+    Motion-PRO: Add LED support.
+
+    Signed-off-by: Jan Wrobel <wrr@semihalf.com>
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit d756894722c888d09a9fa1df8323753772d3dcce
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 09:49:00 2007 +0200
+
+    ppc4xx: Fix small 405EZ OCM initilization bug in start.S
+
+    As pointed out by Bruce Adler <bruce.adler@acm.org> this patch
+    fixes a small bug in the 405EZ OCM initialization. Thanks for
+    spotting.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5d4a179013d59a76446462e1eb0a969fba63eb81
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 24 08:22:09 2007 +0200
+
+    ppc4xx: Update AMCC Acadia support for board revision 1.1
+
+    This patch updates the Acadia (405EZ) support for the new 1.1 board
+    revision. It also adds support for NAND FLASH via the 4xx NDFC.
+
+    Please note that the jumper J7 must be in position 2-3 for this
+    NAND support. Position 1-2 is for NAND booting only. NAND booting
+    support will follow later.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 822d55365bb557e084d0e33625a6dedcc866110b
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed May 23 14:09:46 2007 -0500
+
+    Add LIST_86xx MAKEALL target for PowerPC builds.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9f0077abd69f7a7c756a915b961037302be3e6f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:48:09 2007 +0200
+
+    ppc4xx: Use do { ... } while (0) for CPR & SDR access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f3dfc139a838b0841c151efe00ad47db2366e79
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 22 12:46:10 2007 +0200
+
+    ppc4xx: Add 405 support to 4xx NAND driver ndfc.c
+
+    This patch adds support for 405 PPC's to the 4xx NAND driver
+    ndfc.c. This is in preparation for the new AMCC 405EZ.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 10603d76767426be803dadd4fb688b97eb69481c
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 21 07:41:22 2007 +0200
+
+    ppc4xx: Fix problem in 405EZ OCM initialization
+
+    As spotted by Bruce Adler this patch fixes an initialization problem
+    for the 405EZ OCM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3e3b956906eba9e4ad7931581ecedaad10eccce8
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 16:47:03 2007 +0100
+
+    Reduce line lengths to 80 characters max.
+
+commit 93ef45c9ddfdd9fc17c4e74bd8e2f2456580eb72
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:34:07 2007 +0100
+
+    Makefile permissions
+
+commit 1443a31457d68f7e8f0b9403e9832ec1e79dc59d
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri May 18 14:33:11 2007 +0100
+
+    Makefile permissions
+
+commit 255a3577c848706441daee0174543efe205a77f8
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed May 16 16:52:19 2007 -0500
+
+    Reduce CONFIG_MPC8YXX_TSECx to CONFIG_TSECx
+
+    For all practical u-boot purposes, TSECs don't differ throughout the
+    mpc8[356]xx families; reduce CONFIG_MPC8YXX_TSECx to CONFIG_TSECx.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 70124c2602ae2d4c5d3dba05b482d91548242de8
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed May 16 14:49:12 2007 +0200
+
+    Fix compile problem cause my Microblaze merge
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit ada4697d0230d6da552867777f98a67ec3ba2579
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Wed May 16 13:23:10 2007 +0200
+
+    [PATCH] Run new sequoia boards with an EBC speed of 83MHz
+
+    Because the Sequoia board does not boot with an EBC faster than 66MHz,
+    the clock divider are changed after the initial boot process.
+
+    This allows for maximum clocking speeds  to be achieved on newer boards.
+    Sequoia boards with 666.66 MHz processors require that the EBC divider
+    be set to 3 in order to start the initial boot process at a slower EBC
+    speed. After the initial boot process, the divider can be set back to 2,
+    which will cause the boards to run at 83.333MHz. This is backward
+    compatible with boards with 533.33 MHz processors, as these boards will
+    already be set with an EBC divider of 2.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+
+commit a7676ea7732f3c596805079fed7e5c9fac652cfc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 16 01:16:53 2007 +0200
+
+    Minor Coding Style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit d62f64cc23a940eafe712c776b3249e4160753d1
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed May 16 00:13:33 2007 +0200
 
     Coding Style Cleanup, new CHANGELOG
+
+commit 3162eb836903c8b247fdc7470dd39bfa6996f495
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue May 15 23:38:05 2007 +0200
+
+    Minor coding style cleanup.
+
+commit 66d9dbec1cc27d6398ee6cf84639dbe14971251e
+Author: mushtaq khan <mushtaq_k@procsys.com>
+Date:	Fri Apr 20 14:23:02 2007 +0530
+
+    Add driver for S-ATA-controller on Intel processors with South
+    Bridge, ICH-5, ICH-6 and ICH-7.
+
+    Implementation:
+
+    1. Code is divided in to two files. All functions, which are
+       controller specific are kept in "drivers/ata_piix.c" file and
+       functions, which are not controller specific, are kept in
+       "common/cmd_sata.c" file.
+
+    2. Reading and Writing from the S-ATA drive is done using PIO method.
+
+    3. Driver can be configured for 48-bit addressing by defining macro
+       CONFIG_LBA48, if this macro is not defined driver uses the 28-bit
+       addressing.
+
+    4. S-ATA read function is hooked to the File system, commands like
+       ext2ls and ext2load file can be used. This has been tested.
+
+    5. U-Boot command "SATA_init" is added, which initializes the S-ATA
+       controller and identifies the S-ATA drives connected to it.
+
+    6. U-Boot command "sata" is added, which is used to read/write, print
+       partition table and get info about the drives present. This I have
+       implemented in same way as "ide" command is implemented in U-Boot.
+
+    7. This driver is for S-ATA in native mode.
+
+    8. This driver does not support the Native command queuing and
+       Hot-plugging.
+
+    Signed-off-by: Mushtaq Khan <mushtaq_k@procsys.com>
+
+commit 644e6fb4eb8be90ea04ba34b643a8bf019d680e0
+Author: mushtaq khan <mushtaq_k@procsys.com>
+Date:	Mon Apr 30 15:57:22 2007 +0530
+
+    Fixes bug clearing the bss section for i386
+
+    Hi,
+    There is a bug in the code of clearing the bss section for processor
+    i386.(File: cpu/i386/start.S)
+    In the code, bss_start addr (starting addr of bss section) is put into
+    the register %eax, but the code which clears the bss section refers to
+    the addr pointed by %edi.
+
+    This patch fixes this bug by putting bss_start into %edi register.
+
+    Signed-off-by: Mushtaq Khan <mushtaq_k@procsys.com>
+
+commit c3243cf7b490057277d61acffe4ad0946f9eb4a4
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Mon Apr 30 16:47:28 2007 -0500
+
+    Add support for BCM5464 Quad Phy
+
+    Added support for Broadcom's BCM5464 Quad Phy
+
+    Signed-off-by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+commit 1b305bdc754c8468e1d5d858f5dcf8a7a0a4bb7a
+Author: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Date:	Wed May 9 08:10:57 2007 +0800
+
+    Search the exception table with linear algorithm
+
+    Search the exception table with linear algorithm instead of
+    bisecting algorithm.
+    Because the exception table might be unsorted.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 5dfaa50eb819686bfba1927e8c5b8a70a4d65fd3
+Author: Aubrey.Li <aubrey.adi@gmail.com>
+Date:	Mon May 14 11:47:35 2007 +0800
+
+    Fix compilation issues on MACOSX
+
+    Singed-off-by: Marc Hoffman <Marc.Hoffman@analog.com>
+    Signed-off-by: Aubrey Li <aubrey.adi@gmail.com>
+
+commit 56fd7162985c412317bbf763a225fba23c64fd31
+Author: Stephen Williams <steve@icarus.com>
+Date:	Tue May 15 07:55:42 2007 -0700
+
+    Fix for compile of JSE target
+
+    The attached patch fixes the compile of the JSE board in the
+    denx git as of 14 may 2007. It is an extremely simple patch,
+    it just adds the missing define of CFG_SYSTEMACE_WIDTH.
+
+     Fix to compile JSE against 20070514 git of u-boot
+
+commit 61936667e86a250ae12fd2dc189d3588f0a59e0b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:49 2007 +0200
+
+    ppc4xx: Add mtcpr/mfcpr access macros
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 343c48bd84606c4025c8a7c7263fda465d6e284c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri May 11 12:01:06 2007 +0200
+
+    ppc4xx: Set bd->bi_pci_busfreq on 440EPx/GRx too
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 7d98ba770a7eaefa29ce927f31a0956df85bf650
 Author: Piotr Kruszynski <ppk@semihalf.com>
@@ -10,6 +3578,48 @@ Date:	Thu May 10 16:55:52 2007 +0200
 
     [Motion-PRO] Add MTD and JFFS2 support, also add default partition
     definition.
+
+commit 65fb6a676e821f9570a2a376dc204bf611ce5f81
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:42:44 2007 +0100
+
+    Add the board directory for SMN42
+
+commit 160131bf965785419626df6c388729fe0b597992
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:41:58 2007 +0100
+
+    Add the files for the SMN42 board
+
+commit 5c6d2b5a500f8c49670de8910150b78a41f781fc
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:40:34 2007 +0100
+
+    Remove the deleted files for the SMN42 patch
+
+commit b0d8f5bf0d215adc9424cb228b2484dbf07f7761
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 11:37:56 2007 +0100
+
+    New board SMN42 branch
+
+commit 29f3be0caf0799ca6b89dfd9824c15619a50000f
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed May 9 10:24:38 2007 +0100
+
+    Makefile permissions
+
+commit b84289b595731e8851df46e893845cc1322c9b9b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue May 8 14:17:07 2007 -0500
+
+    8641hpcn: Fix Makefile after moving pixis to board/freescale.
+
+    The OBJTREE != SRCTREE build scenario was broken.
+    This fixes it.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit e69f66c6ebe82bbbd1da766bc4eda40ec7ee5af1
 Author: Michal Simek <monstr@monstr.eu>
@@ -93,6 +3703,18 @@ Date:	Mon May 7 19:43:10 2007 +0200
 
     fix: read and write MSR - repair number of parameters
 
+commit 193b4a3bb3acaddf798da8de0da05d94ba8774ee
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon May 7 19:42:49 2007 +0200
+
+    [PATCH] ppc4xx: Fix CONFIG_SYS_CLK_FREQ definition in Sequoia config file
+
+    A '3' got cut off in the formatting of the last patch to automatically
+    change the clock speed of the system clock on sequoia board.
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 19bf1fbad7f19d5a120be9b1daf136e052fcab39
 Author: Michal Simek <monstr@monstr.eu>
 Date:	Mon May 7 19:33:51 2007 +0200
@@ -130,6 +3752,12 @@ Author: Michal Simek <monstr@monstr.eu>
 Date:	Mon May 7 17:11:09 2007 +0200
 
     new: add writing to msr register
+
+commit 3a619dd7bed03e8b4d22a3911f90fd12af5376c2
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon May 7 16:43:56 2007 +0200
+
+    Fix an ancient CHANGELOG conflict
 
 commit ac4cd59d59c9bf3f89cb7a344abf8184d678f562
 Author: Timur Tabi <timur@freescale.com>
@@ -273,6 +3901,20 @@ Date:	Sat May 5 08:29:01 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 2f550ab976405300f5b07bf2890800840d0aa05f
+Author: Timur Tabi <timur@freescale.com>
+Date:	Sat May 5 08:12:30 2007 +0200
+
+    5xxx: write MAC address to mac-address and local-mac-address
+
+    Some device trees have a mac-address property, some have local-mac-address,
+    and some have both.  To support all of these device trees, ftp_cpu_setup()
+    should write the MAC address to mac-address and local-mac-address, if they
+    exist.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
 commit a79886590593ba1d667c840caa4940c61639f18f
 Author: Thomas Knobloch <knobloch@siemens.com>
 Date:	Sat May 5 07:04:42 2007 +0200
@@ -335,6 +3977,30 @@ Date:	Fri Jan 5 09:15:34 2007 +0100
     Add support for STX GP3SSA (stxssa) Board
 
     Signed-off-by Dan Malek, <dan@embeddedalley.com>
+
+commit f2134f8e9eb006bdcd729e89f309c07b2fa45180
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed May 2 13:31:53 2007 +0200
+
+    macb: Don't restart autonegotiation if we already have link
+
+    Rework macb_phy_init so that it doesn't attempt to re-negotiate if the
+    link is already up.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 04fcb5d38bc90779cd9a710d60702075986f0e29
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed May 2 13:22:38 2007 +0200
+
+    macb: Introduce a few barriers when dealing with DMA descriptors
+
+    There were a few theoretical possibilities that the compiler might
+    optimize away DMA descriptor reads and/or writes and thus cause
+    synchronization problems with the hardware. Insert barriers where
+    we depend on reads/writes actually hitting memory.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit ffa621a0d12a1ccd81c936c567f8917a213787a8
 Author: Andy Fleming <afleming@freescale.com>
@@ -436,11 +4102,34 @@ Date:	Sun Apr 29 14:13:01 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 864aa6a6a466fcb92bf32b1d7dba79cd709b52c9
+Author: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+Date:	Sun Apr 29 14:01:54 2007 +0200
+
+    [PATCH] Use PVR to distinguish MPC5200B from MPC5200 in boot message
+
+    MPC5200B systems are incorrectly reported as MPC5200 in U-Boot start-up
+    message. Use PVR to distinguish between the two variants, and print proper CPU
+    information.
+
+    Signed-off-by: Grzegorz Wianecki <grzegorz.wianecki@gmail.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
 commit 5c5d3242935cf3543af01142627494434834cf98
 Author: Kim Phillips <kim.phillips@freescale.com>
 Date:	Wed Apr 25 12:34:38 2007 -0500
 
     mpc83xx: minor fixups for 8313rdb introduction
+
+commit ada4d40091f6ed4a4f0040e08d20db21967e4a67
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Apr 25 16:01:26 2007 +0200
+
+    [PATCH] simplify silent console
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Stefan Roese <sr@denx.de>
 
 commit 144876a380f5756f57412caf74c1d6dc201dd796
 Author: Michal Simek <monstr@monstr.eu>
@@ -737,6 +4426,69 @@ Date:	Mon Apr 16 14:31:55 2007 -0500
     mpc83xx: Add register definitions for MPC831x.
 
     Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 7fc4c71a143be8666d70803fb25ae60379c95622
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 23 15:39:59 2007 +0200
+
+    Fix file mode
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 38257988abfe74d459ca2ad748b109ca04e4efe1
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Apr 23 15:30:39 2007 +0200
+
+    [PATCH] Avoid assigning PCI resources from zero address
+
+    If a PCI IDE card happens to get a zero address assigned to it, the Linux IDE
+    core complains and IDE drivers fails to work.  Also, assigning zero to a BAR
+    was illegal according to PCI 2.1 (the later revisions seem to have excluded the
+    sentence about "0" being considered an invalid address) -- so, use a reasonable
+    starting value of 0x1000 (that's what the most Linux archs are using).
+
+    Alternatively, one might have fixed the calls to pci_set_region() individually
+    (some code even seems to have taken care of this issue) but that would have
+    been a lot more work. :-)
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit afb903a2eb9436baa9270ccc0c27082d86497d89
+Author: Jeffrey Mann <mannj@embeddedplanet.com>
+Date:	Mon Apr 23 14:00:11 2007 +0200
+
+    [patch] setenv(...) can delete environmentalvariables
+
+    update setenv() function so that entering a NULL value for the
+    variable's value will delete the environmental variable
+
+    Signed-off-by: Jeffrey Mann <mannj@embeddedplanet.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 36f104e5caa747d568eff26b369565af57c2ffa6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Apr 23 13:54:24 2007 +0200
+
+    [patch] use unsigned char in smc91111 driver for mac
+
+    the v_mac variable in the smc91111 driver is declared as a signed char ...
+    this causes problems when one of the bytes in the MAC is "signed" like 0xE0
+    because when it gets printed out, you get a display like:
+    0xFFFFFFE0 and that's no good
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d98c0885ad617fccf21e7c26ef8cb728fbfb2459
+Author: Rodolfo Giometti <giometti@enneenne.com>
+Date:	Mon Apr 23 13:10:52 2007 +0200
+
+    USB: (Another) delay for crappy USB keys.
+
+    Some USB keys are slow in giving back an answer when the Root HUB
+    enables power lines.
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
 
 commit 323bfa8f436dc3bc57187c9b1488bc3146ff1522
 Author: Stefan Roese <sr@denx.de>
@@ -1403,6 +5155,22 @@ Date:	Wed Apr 4 01:49:15 2007 +0200
 
     Minor cleanup.
 
+commit 822af351ad2babc7d99033361a5fcacd30f6bc78
+Author: Rodolfo Giometti <giometti@enneenne.com>
+Date:	Tue Apr 3 14:27:18 2007 +0200
+
+    Support for the Philips ISP116x HCD (Host Controller Driver)
+
+    Signed-off-by: Rodolfo Giometti <giometti@enneenne.com>
+
+commit edf5851be6c17c031d4f71dd5b0a12040b7c50c8
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue Apr 3 14:27:08 2007 +0200
+
+    USB: cleanup monahans usb support. Remove dead code.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
 commit a65c5768e5537530bd1780af3d3fddc3113a163c
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Apr 2 10:09:30 2007 +0200
@@ -1571,6 +5339,23 @@ Author: Michal Simek <monstr@monstr.eu>
 Date:	Tue Mar 27 00:32:16 2007 +0200
 
     PATCH: Resolve GPL license problem
+
+commit ae00bb4b2944dc64a485ed72a19754b11af7c223
+Author: Rodolfo Giometti <giometti@enneenne.com>
+Date:	Mon Mar 26 12:03:36 2007 +0200
+
+    PXA: pxa27x USB OHCI support
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit ae79f60677c208326535647dcbd5c3ec40dbcb0b
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon Mar 26 11:21:05 2007 +0200
+
+    USB: remove the S3C24X0_merge #define, which was introduced while
+    merging OHCI drivers.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
 
 commit 1798049522f594013aea29457d46794298c6ae15
 Author: Michal Simek <root@monstr.eu>
@@ -3697,6 +7482,34 @@ Date:	Mon Nov 27 14:12:17 2006 +0100
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 58b485776698c3d71ec5a215e392123b4c15afa3
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon Nov 27 11:51:21 2006 +0100
+
+    Add a small README with information on the generic ohci driver.
+
+commit ae3b770e4eae8e98b6e9e29662e18c47fdf0171f
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon Nov 27 11:46:46 2006 +0100
+
+    Fix some endianness issues related to the generic ohci driver
+
+commit 7b59b3c7a8ce2e4b567abf99c1cd667bf35b9418
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon Nov 27 11:44:58 2006 +0100
+
+    Introduced the configuration option CONFIG_USB_OHCI_NEW in order to be able
+    to choose between the old and the generic OHCI drivers.
+
+commit 53e336e9ffc51035bdc4e5867631b3378761b4df
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon Nov 27 11:43:09 2006 +0100
+
+    Modified the mpc5xxx and the ppc4xx cpu to use the generic OHCI driver
+    and adapted board configs TQM5200 and yosemite accordingly. This commit
+    also makes the maximum number of root hub ports configurable
+    (CFG_USB_OHCI_MAX_ROOT_PORTS).
+
 commit 78d620ebb5871d252270dedfad60c6568993b780
 Author: Wolfgang Denk <wd@atlas.denx.de>
 Date:	Thu Nov 23 22:58:58 2006 +0100
@@ -5454,6 +9267,12 @@ Date:	Tue Jun 27 18:11:54 2006 +0800
 
     Signed-off-by: Jason Jin <Jason.jin@freescale.com>
 
+commit 99d70e3a47affb9bae041a2caece7cd516e213b3
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Mon Jun 26 11:06:00 2006 +0200
+
+    More code cleanup
+
 commit 684623ce92c5fd32e7db2d6e016945a67c5ffaba
 Author: Jon Loeliger <jdl@freescale.com>
 Date:	Thu Jun 22 08:51:46 2006 -0500
@@ -5477,6 +9296,28 @@ Date:	Thu Jun 15 21:33:37 2006 -0500
     Do not set up BATs on secondary CPUs.  Let Linux do the nasty.
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 386eda022473394ad8f36b86f2bdc9b4cb816291
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Jun 14 18:14:56 2006 +0200
+
+    Code cleanup
+
+commit 16c8d5e76ae0f78f39a60608574adfe0feb9cc70
+Author: Wolfgang Denk <wd@pollux.denx.de>
+Date:	Wed Jun 14 17:45:53 2006 +0200
+
+    Various USB related patches
+    - Add support for mpc8xx USB device.
+    - Add support for Common Device Class - Abstract Control Model USB console.
+    - Add support for flow control in USB slave devices.
+    - Add support for switching between gserial and cdc_acm using environment.
+    - Minor changes to usbdcore_omap1510.c usbdcore_omap1510.h
+    - Update usbcore slightly to ease host enumeration.
+    - Fix non-portable endian problems in usbdcore and usbdcore_ep0.
+    - Add AdderUSB_config as a defconfig to enable usage of the USB console
+      by default with the Adder87x U-Boot port.
+    Patches by Bryan O'Donoghue <bodonoghue@codehermit.ie>, 29 May 2006
 
 commit 8ecc971618f56029ad99d3516f8b297a6ed58971
 Author: Jon Loeliger <jdl@jdl.com>
@@ -5556,6 +9397,12 @@ Date:	Tue May 30 17:47:00 2006 -0500
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
+commit ddf83a2fcef1a670c45fc585119dcc1fe062c4a9
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue May 30 16:56:14 2006 +0200
+
+    Support generic OHCI support for the s3c24x0 cpu.
+
 commit 38cee12dcfcc257371c901c7e13e58ecab0a35d8
 Author: Haiying Wang <Haiying.Wang@freescale.com>
 Date:	Tue May 30 09:10:32 2006 -0500
@@ -5604,6 +9451,29 @@ Date:	Fri May 26 10:01:16 2006 -0500
     Allow args on reset command.
 
     Signed-off-by: Jon Loeliger <jdl@jdl.com>
+
+commit 301f1aa384d0edcae6a22fd9adb933ad71695ecc
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue May 23 13:38:35 2006 +0200
+
+    Changed the mp2usb (at91rm9200) board to use the generic OHCI driver. Some
+    fixes to the latter.
+
+commit 24e37645e7378b20fa8f20e2996c8fb8e90c70c9
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Tue May 23 10:33:11 2006 +0200
+
+    More cleanup for the delta board and the generic usb_ohci driver. Added
+    CFG_USB_BOARD_INIT and CFG_USB_CPU_INIT for enabling board and cpu specific
+    initialization and cleanup hooks respectively.
+
+commit 3e326ece9eba8184f5d48aa4fb87760a8f6f0f10
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Mon May 22 16:33:54 2006 +0200
+
+    This patch adds USB storage support for the delta board. This is the first
+    board to make use of a generic OHCI driver, that calls hooks for board
+    dependant initialization.
 
 commit 14e37081ff3cac7ebe6e93836523429853b6b292
 Author: Jon Loeliger <jdl@jdl.com>

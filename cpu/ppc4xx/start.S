@@ -22,26 +22,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-/*------------------------------------------------------------------------------+ */
-/* */
-/*	 This source code has been made available to you by IBM on an AS-IS */
-/*	 basis.	 Anyone receiving this source is licensed under IBM */
-/*	 copyrights to use it in any way he or she deems fit, including */
-/*	 copying it, modifying it, compiling it, and redistributing it either */
-/*	 with or without modifications.	 No license under IBM patents or */
-/*	 patent applications is to be implied by the copyright license. */
-/* */
-/*	 Any user of this software should understand that IBM cannot provide */
-/*	 technical support for this software and will not be responsible for */
-/*	 any consequences resulting from the use of this software. */
-/* */
-/*	 Any person who transfers this source code or any derivative work */
-/*	 must include the IBM copyright notice, this paragraph, and the */
-/*	 preceding two paragraphs in the transferred software. */
-/* */
-/*	 COPYRIGHT   I B M   CORPORATION 1995 */
-/*	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M */
-/*------------------------------------------------------------------------------- */
+/*------------------------------------------------------------------------------+
+ *
+ *	 This source code has been made available to you by IBM on an AS-IS
+ *	 basis.	 Anyone receiving this source is licensed under IBM
+ *	 copyrights to use it in any way he or she deems fit, including
+ *	 copying it, modifying it, compiling it, and redistributing it either
+ *	 with or without modifications.	 No license under IBM patents or
+ *	 patent applications is to be implied by the copyright license.
+ *
+ *	 Any user of this software should understand that IBM cannot provide
+ *	 technical support for this software and will not be responsible for
+ *	 any consequences resulting from the use of this software.
+ *
+ *	 Any person who transfers this source code or any derivative work
+ *	 must include the IBM copyright notice, this paragraph, and the
+ *	 preceding two paragraphs in the transferred software.
+ *
+ *	 COPYRIGHT   I B M   CORPORATION 1995
+ *	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
+ *-------------------------------------------------------------------------------
+ */
 
 /*  U-Boot - Startup Code for AMCC 4xx PowerPC based Embedded Boards
  *
@@ -59,7 +60,6 @@
  *  address and (s)dram will be positioned at address 0
  */
 #include <config.h>
-#include <mpc8xx.h>
 #include <ppc4xx.h>
 #include <version.h>
 
@@ -110,11 +110,11 @@
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
-#define function_prolog(func_name)      .text; \
+#define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
 					func_name:
-#define function_epilog(func_name)      .type func_name,@function; \
+#define function_epilog(func_name)	.type func_name,@function; \
 					.size func_name,.-func_name
 
 /* We don't want the  MMU yet.
@@ -155,7 +155,9 @@
 	 * NAND U-Boot image is started from offset 0
 	 */
 	.text
+#if defined(CONFIG_440)
 	bl	reconfig_tlb0
+#endif
 	GET_GOT
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
@@ -292,11 +294,13 @@ skip_debug_init:
 	mtspr	ivor7,r1	/* Floating point unavailable */
 	li	r1,0x0c00
 	mtspr	ivor8,r1	/* System call */
-	li	r1,0x1000
-	mtspr	ivor10,r1	/* Decrementer (PIT for 440) */
-	li	r1,0x1400
-	mtspr	ivor13,r1	/* Data TLB error */
+	li	r1,0x0a00
+	mtspr	ivor9,r1	/* Auxiliary Processor unavailable */
+	li	r1,0x0900
+	mtspr	ivor10,r1	/* Decrementer */
 	li	r1,0x1300
+	mtspr	ivor13,r1	/* Data TLB error */
+	li	r1,0x1400
 	mtspr	ivor14,r1	/* Instr TLB error */
 	li	r1,0x2000
 	mtspr	ivor15,r1	/* Debug */
@@ -501,11 +505,81 @@ version_string:
 	.ascii " (", __DATE__, " - ", __TIME__, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
-/*
- * Maybe this should be moved somewhere else because the current
- * location (0x100) is where the CriticalInput Execption should be.
- */
 	. = EXC_OFF_SYS_RESET
+	.globl	_start_of_vectors
+_start_of_vectors:
+
+/* Critical input. */
+	CRIT_EXCEPTION(0x100, CritcalInput, UnknownException)
+
+#ifdef CONFIG_440
+/* Machine check */
+	MCK_EXCEPTION(0x200, MachineCheck, MachineCheckException)
+#else
+	CRIT_EXCEPTION(0x200, MachineCheck, MachineCheckException)
+#endif /* CONFIG_440 */
+
+/* Data Storage exception. */
+	STD_EXCEPTION(0x300, DataStorage, UnknownException)
+
+/* Instruction Storage exception. */
+	STD_EXCEPTION(0x400, InstStorage, UnknownException)
+
+/* External Interrupt exception. */
+	STD_EXCEPTION(0x500, ExtInterrupt, external_interrupt)
+
+/* Alignment exception. */
+	. = 0x600
+Alignment:
+	EXCEPTION_PROLOG(SRR0, SRR1)
+	mfspr	r4,DAR
+	stw	r4,_DAR(r21)
+	mfspr	r5,DSISR
+	stw	r5,_DSISR(r21)
+	addi	r3,r1,STACK_FRAME_OVERHEAD
+	li	r20,MSR_KERNEL
+	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
+	lwz	r6,GOT(transfer_to_handler)
+	mtlr	r6
+	blrl
+.L_Alignment:
+	.long	AlignmentException - _start + _START_OFFSET
+	.long	int_return - _start + _START_OFFSET
+
+/* Program check exception */
+	. = 0x700
+ProgramCheck:
+	EXCEPTION_PROLOG(SRR0, SRR1)
+	addi	r3,r1,STACK_FRAME_OVERHEAD
+	li	r20,MSR_KERNEL
+	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
+	lwz	r6,GOT(transfer_to_handler)
+	mtlr	r6
+	blrl
+.L_ProgramCheck:
+	.long	ProgramCheckException - _start + _START_OFFSET
+	.long	int_return - _start + _START_OFFSET
+
+#ifdef CONFIG_440
+	STD_EXCEPTION(0x800, FPUnavailable, UnknownException)
+	STD_EXCEPTION(0x900, Decrementer, DecrementerPITException)
+	STD_EXCEPTION(0xa00, APU, UnknownException)
+#endif
+	STD_EXCEPTION(0xc00, SystemCall, UnknownException)
+
+#ifdef CONFIG_440
+	STD_EXCEPTION(0x1300, DataTLBError, UnknownException)
+	STD_EXCEPTION(0x1400, InstructionTLBError, UnknownException)
+#else
+	STD_EXCEPTION(0x1000, PIT, DecrementerPITException)
+	STD_EXCEPTION(0x1100, InstructionTLBMiss, UnknownException)
+	STD_EXCEPTION(0x1200, DataTLBMiss, UnknownException)
+#endif
+	CRIT_EXCEPTION(0x2000, DebugBreakpoint, DebugException )
+
+	.globl	_end_of_vectors
+_end_of_vectors:
+	. = _START_OFFSET
 #endif
 	.globl	_start
 _start:
@@ -815,21 +889,21 @@ _start:
 	 */
 	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
-	ori	r3,r3,0x8270	/* 32K Offset, 16K for Bank 1, R/W/Enable */
+	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
 	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
 	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
-	ori	r3,r3,0x0270            /* 16K for Bank 1, R/W/Enable */
-	mtdcr	ocmdscr1, r3            /* Set Data Side */
-	mtdcr	ocmiscr1, r3            /* Set Instruction Side */
+	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
+	mtdcr	ocmdscr1, r3		/* Set Data Side */
+	mtdcr	ocmiscr1, r3		/* Set Instruction Side */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
-	mtdcr	ocmdscr2, r3            /* Set Data Side */
-	mtdcr	ocmiscr2, r3            /* Set Instruction Side */
-	addis	r3,0,0x0800             /* OCM Data Parity Disable - 1 Wait State */
+	mtdcr	ocmdscr2, r3		/* Set Data Side */
+	mtdcr	ocmiscr2, r3		/* Set Instruction Side */
+	addis	r3,0,0x0800		/* OCM Data Parity Disable - 1 Wait State */
 	mtdcr	ocmdsisdpc,r3
 
 	isync
@@ -848,7 +922,7 @@ _start:
 	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h  /* OCM location */
+	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CFG_OCM_DATA_ADDR@l
 	mtdcr	ocmdsarc, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
@@ -856,6 +930,38 @@ _start:
 	isync
 #endif /* CONFIG_405EZ */
 #endif
+
+#ifdef CONFIG_NAND_SPL
+	/*
+	 * Copy SPL from cache into internal SRAM
+	 */
+	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
+	mtctr	r4
+	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+spl_loop:
+	lwzu	r4,4(r2)
+	stwu	r4,4(r3)
+	bdnz	spl_loop
+
+	/*
+	 * Jump to code in RAM
+	 */
+	bl	00f
+00:	mflr	r10
+	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
+	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
+	sub	r10,r10,r3
+	addi	r10,r10,28
+	mtlr	r10
+	blr
+
+start_ram:
+	sync
+	isync
+#endif /* CONFIG_NAND_SPL */
 
 	/*----------------------------------------------------------------------- */
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
@@ -967,119 +1073,22 @@ _start:
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
+#ifdef CONFIG_NAND_SPL
+	bl	nand_boot		/* will not return */
+#else
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
 	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+#endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
 
 
 #ifndef CONFIG_NAND_SPL
-/*****************************************************************************/
-	.globl	_start_of_vectors
-_start_of_vectors:
-
-#if 0
-/*TODO Fixup _start above so we can do this*/
-/* Critical input. */
-	CRIT_EXCEPTION(0x100, CritcalInput, CritcalInputException)
-#endif
-
-/* Machine check */
-	CRIT_EXCEPTION(0x200, MachineCheck, MachineCheckException)
-
-/* Data Storage exception. */
-	STD_EXCEPTION(0x300, DataStorage, UnknownException)
-
-/* Instruction Storage exception. */
-	STD_EXCEPTION(0x400, InstStorage, UnknownException)
-
-/* External Interrupt exception. */
-	STD_EXCEPTION(0x500, ExtInterrupt, external_interrupt)
-
-/* Alignment exception. */
-	. = 0x600
-Alignment:
-	EXCEPTION_PROLOG
-	mfspr	r4,DAR
-	stw	r4,_DAR(r21)
-	mfspr	r5,DSISR
-	stw	r5,_DSISR(r21)
-	addi	r3,r1,STACK_FRAME_OVERHEAD
-	li	r20,MSR_KERNEL
-	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
-	lwz	r6,GOT(transfer_to_handler)
-	mtlr	r6
-	blrl
-.L_Alignment:
-	.long	AlignmentException - _start + EXC_OFF_SYS_RESET
-	.long	int_return - _start + EXC_OFF_SYS_RESET
-
-/* Program check exception */
-	. = 0x700
-ProgramCheck:
-	EXCEPTION_PROLOG
-	addi	r3,r1,STACK_FRAME_OVERHEAD
-	li	r20,MSR_KERNEL
-	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
-	lwz	r6,GOT(transfer_to_handler)
-	mtlr	r6
-	blrl
-.L_ProgramCheck:
-	.long	ProgramCheckException - _start + EXC_OFF_SYS_RESET
-	.long	int_return - _start + EXC_OFF_SYS_RESET
-
-	/* No FPU on MPC8xx.  This exception is not supposed to happen.
-	*/
-	STD_EXCEPTION(0x800, FPUnavailable, UnknownException)
-
-	/* I guess we could implement decrementer, and may have
-	 * to someday for timekeeping.
-	 */
-	STD_EXCEPTION(0x900, Decrementer, timer_interrupt)
-	STD_EXCEPTION(0xa00, Trap_0a, UnknownException)
-	STD_EXCEPTION(0xb00, Trap_0b, UnknownException)
-	STD_EXCEPTION(0xc00, SystemCall, UnknownException)
-	STD_EXCEPTION(0xd00, SingleStep, UnknownException)
-
-	STD_EXCEPTION(0xe00, Trap_0e, UnknownException)
-	STD_EXCEPTION(0xf00, Trap_0f, UnknownException)
-
-	/* On the MPC8xx, this is a software emulation interrupt.  It occurs
-	 * for all unimplemented and illegal instructions.
-	 */
-	STD_EXCEPTION(0x1000, PIT, PITException)
-
-	STD_EXCEPTION(0x1100, InstructionTLBMiss, UnknownException)
-	STD_EXCEPTION(0x1200, DataTLBMiss, UnknownException)
-	STD_EXCEPTION(0x1300, InstructionTLBError, UnknownException)
-	STD_EXCEPTION(0x1400, DataTLBError, UnknownException)
-
-	STD_EXCEPTION(0x1500, Reserved5, UnknownException)
-	STD_EXCEPTION(0x1600, Reserved6, UnknownException)
-	STD_EXCEPTION(0x1700, Reserved7, UnknownException)
-	STD_EXCEPTION(0x1800, Reserved8, UnknownException)
-	STD_EXCEPTION(0x1900, Reserved9, UnknownException)
-	STD_EXCEPTION(0x1a00, ReservedA, UnknownException)
-	STD_EXCEPTION(0x1b00, ReservedB, UnknownException)
-
-	STD_EXCEPTION(0x1c00, DataBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1d00, InstructionBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1e00, PeripheralBreakpoint, UnknownException)
-	STD_EXCEPTION(0x1f00, DevPortBreakpoint, UnknownException)
-
-	CRIT_EXCEPTION(0x2000, DebugBreakpoint, DebugException )
-
-	.globl	_end_of_vectors
-_end_of_vectors:
-
-
-	. = 0x2100
-
 /*
  * This code finishes saving the registers to the exception frame
  * and jumps to the appropriate handler for the exception.
@@ -1095,28 +1104,12 @@ transfer_to_handler:
 	SAVE_4GPRS(8, r21)
 	SAVE_8GPRS(12, r21)
 	SAVE_8GPRS(24, r21)
-#if 0
-	andi.	r23,r23,MSR_PR
-	mfspr	r23,SPRG3		/* if from user, fix up tss.regs */
-	beq	2f
-	addi	r24,r1,STACK_FRAME_OVERHEAD
-	stw	r24,PT_REGS(r23)
-2:	addi	r2,r23,-TSS		/* set r2 to current */
-	tovirt(r2,r2,r23)
-#endif
 	mflr	r23
 	andi.	r24,r23,0x3f00		/* get vector offset */
 	stw	r24,TRAP(r21)
 	li	r22,0
 	stw	r22,RESULT(r21)
 	mtspr	SPRG2,r22		/* r1 is now kernel sp */
-#if 0
-	addi	r24,r2,TASK_STRUCT_SIZE /* check for kernel stack overflow */
-	cmplw	0,r1,r2
-	cmplw	1,r1,r24
-	crand	1,1,4
-	bgt	stack_ovf		/* if r2 < r1 < r2+TASK_STRUCT_SIZE */
-#endif
 	lwz	r24,0(r23)		/* virtual address of handler */
 	lwz	r23,4(r23)		/* where to go when done */
 	mtspr	SRR0,r24
@@ -1177,33 +1170,72 @@ crit_return:
 	REST_GPR(31, r1)
 	lwz	r2,_NIP(r1)	/* Restore environment */
 	lwz	r0,_MSR(r1)
-	mtspr	990,r2		/* SRR2 */
-	mtspr	991,r0		/* SRR3 */
+	mtspr	csrr0,r2
+	mtspr	csrr1,r0
 	lwz	r0,GPR0(r1)
 	lwz	r2,GPR2(r1)
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfci
 
-/* Cache functions.
-*/
-invalidate_icache:
-	iccci	r0,r0			/* for 405, iccci invalidates the */
-	blr				/*   entire I cache */
+#ifdef CONFIG_440
+mck_return:
+	mfmsr	r28		/* Disable interrupts */
+	li	r4,0
+	ori	r4,r4,MSR_EE
+	andc	r28,r28,r4
+	SYNC			/* Some chip revs need this... */
+	mtmsr	r28
+	SYNC
+	lwz	r2,_CTR(r1)
+	lwz	r0,_LINK(r1)
+	mtctr	r2
+	mtlr	r0
+	lwz	r2,_XER(r1)
+	lwz	r0,_CCR(r1)
+	mtspr	XER,r2
+	mtcrf	0xFF,r0
+	REST_10GPRS(3, r1)
+	REST_10GPRS(13, r1)
+	REST_8GPRS(23, r1)
+	REST_GPR(31, r1)
+	lwz	r2,_NIP(r1)	/* Restore environment */
+	lwz	r0,_MSR(r1)
+	mtspr	mcsrr0,r2
+	mtspr	mcsrr1,r0
+	lwz	r0,GPR0(r1)
+	lwz	r2,GPR2(r1)
+	lwz	r1,GPR1(r1)
+	SYNC
+	rfmci
+#endif /* CONFIG_440 */
 
-invalidate_dcache:
-	addi	r6,0,0x0000		/* clear GPR 6 */
-	/* Do loop for # of dcache congruence classes. */
-	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
-	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
-					/* NOTE: dccci invalidates both */
-	mtctr	r7			/* ways in the D cache */
-..dcloop:
-	dccci	0,r6			/* invalidate line */
-	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
-	bdnz	..dcloop
+
+/*
+ * Cache functions.
+ *
+ * NOTE: currently the 440s run with dcache _disabled_ once relocated to DRAM,
+ * although for some cache-ralated calls stubs have to be provided to satisfy
+ * symbols resolution.
+ * Icache-related functions are used in POST framework.
+ *
+ */
+#ifdef CONFIG_440
+       .globl  dcache_disable
+       .globl  icache_disable
+       .globl  icache_enable
+dcache_disable:
+icache_disable:
+icache_enable:
 	blr
 
+	.globl	dcache_status
+	.globl	icache_status
+dcache_status:
+icache_status:
+	mr	r3,  0
+	blr
+#else
 flush_dcache:
 	addis	r9,r0,0x0002		/* set mask for EE and CE msr bits */
 	ori	r9,r9,0x8000
@@ -1282,22 +1314,11 @@ dcache_status:
 	mfdccr	r3
 	srwi	r3, r3, 31	/* >>31 => select bit 0 */
 	blr
+#endif
 
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
-	blr
-
-#if !defined(CONFIG_440)
-	.globl wr_pit
-wr_pit:
-	mtspr	pit, r3
-	blr
-#endif
-
-	.globl wr_tcr
-wr_tcr:
-	mtspr	tcr, r3
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1497,7 +1518,7 @@ relocate_code:
  * initialization, now running from RAM.
  */
 
-	addi	r0, r10, in_ram - _start + EXC_OFF_SYS_RESET
+	addi	r0, r10, in_ram - _start + _START_OFFSET
 	mtlr	r0
 	blr				/* NEVER RETURNS! */
 
@@ -1567,7 +1588,7 @@ clear_bss:
 	 */
 	.globl	trap_init
 trap_init:
-	lwz	r7, GOT(_start)
+	lwz	r7, GOT(_start_of_vectors)
 	lwz	r8, GOT(_end_of_vectors)
 
 	li	r9, 0x100		/* reset vector always at 0x100 */
@@ -1587,35 +1608,48 @@ trap_init:
 	/*
 	 * relocate `hdlr' and `int_return' entries
 	 */
-	li	r7, .L_MachineCheck - _start + EXC_OFF_SYS_RESET
-	li	r8, Alignment - _start + EXC_OFF_SYS_RESET
+	li	r7, .L_MachineCheck - _start + _START_OFFSET
+	li	r8, Alignment - _start + _START_OFFSET
 2:
 	bl	trap_reloc
-	addi	r7, r7, 0x100		/* next exception vector	*/
+	addi	r7, r7, 0x100		/* next exception vector */
 	cmplw	0, r7, r8
 	blt	2b
 
-	li	r7, .L_Alignment - _start + EXC_OFF_SYS_RESET
+	li	r7, .L_Alignment - _start + _START_OFFSET
 	bl	trap_reloc
 
-	li	r7, .L_ProgramCheck - _start + EXC_OFF_SYS_RESET
+	li	r7, .L_ProgramCheck - _start + _START_OFFSET
 	bl	trap_reloc
 
-	li	r7, .L_FPUnavailable - _start + EXC_OFF_SYS_RESET
-	li	r8, SystemCall - _start + EXC_OFF_SYS_RESET
-3:
+#ifdef CONFIG_440
+	li	r7, .L_FPUnavailable - _start + _START_OFFSET
 	bl	trap_reloc
-	addi	r7, r7, 0x100		/* next exception vector	*/
-	cmplw	0, r7, r8
-	blt	3b
 
-	li	r7, .L_SingleStep - _start + EXC_OFF_SYS_RESET
-	li	r8, _end_of_vectors - _start + EXC_OFF_SYS_RESET
-4:
+	li	r7, .L_Decrementer - _start + _START_OFFSET
 	bl	trap_reloc
-	addi	r7, r7, 0x100		/* next exception vector	*/
-	cmplw	0, r7, r8
-	blt	4b
+
+	li	r7, .L_APU - _start + _START_OFFSET
+	bl	trap_reloc
+
+	li	r7, .L_InstructionTLBError - _start + _START_OFFSET
+	bl	trap_reloc
+
+	li	r7, .L_DataTLBError - _start + _START_OFFSET
+	bl	trap_reloc
+#else /* CONFIG_440 */
+	li	r7, .L_PIT - _start + _START_OFFSET
+	bl	trap_reloc
+
+	li	r7, .L_InstructionTLBMiss - _start + _START_OFFSET
+	bl	trap_reloc
+
+	li	r7, .L_DataTLBMiss - _start + _START_OFFSET
+	bl	trap_reloc
+#endif /* CONFIG_440 */
+
+	li	r7, .L_DebugBreakpoint - _start + _START_OFFSET
+	bl	trap_reloc
 
 #if !defined(CONFIG_440)
 	addi	r7,r0,0x1000		/* set ME bit (Machine Exceptions) */
@@ -1658,13 +1692,13 @@ trap_reloc:
 +----------------------------------------------------------------------------*/
 	function_prolog(dcbz_area)
 	rlwinm. r5,r4,0,27,31
-	rlwinm  r5,r4,27,5,31
-	beq     ..d_ra2
-	addi    r5,r5,0x0001
-..d_ra2:mtctr   r5
-..d_ag2:dcbz    r0,r3
-	addi    r3,r3,32
-	bdnz    ..d_ag2
+	rlwinm	r5,r4,27,5,31
+	beq	..d_ra2
+	addi	r5,r5,0x0001
+..d_ra2:mtctr	r5
+..d_ag2:dcbz	r0,r3
+	addi	r3,r3,32
+	bdnz	..d_ag2
 	sync
 	blr
 	function_epilog(dcbz_area)
@@ -1673,26 +1707,26 @@ trap_reloc:
 | dflush.  Assume 32K at vector address is cachable.
 +----------------------------------------------------------------------------*/
 	function_prolog(dflush)
-	mfmsr   r9
-	rlwinm  r8,r9,0,15,13
-	rlwinm  r8,r8,0,17,15
-	mtmsr   r8
-	addi    r3,r0,0x0000
-	mtspr   dvlim,r3
-	mfspr   r3,ivpr
-	addi    r4,r0,1024
-	mtctr   r4
+	mfmsr	r9
+	rlwinm	r8,r9,0,15,13
+	rlwinm	r8,r8,0,17,15
+	mtmsr	r8
+	addi	r3,r0,0x0000
+	mtspr	dvlim,r3
+	mfspr	r3,ivpr
+	addi	r4,r0,1024
+	mtctr	r4
 ..dflush_loop:
-	lwz     r6,0x0(r3)
-	addi    r3,r3,32
-	bdnz    ..dflush_loop
-	addi    r3,r3,-32
-	mtctr   r4
-..ag:   dcbf    r0,r3
-	addi    r3,r3,-32
-	bdnz    ..ag
+	lwz	r6,0x0(r3)
+	addi	r3,r3,32
+	bdnz	..dflush_loop
+	addi	r3,r3,-32
+	mtctr	r4
+..ag:	dcbf	r0,r3
+	addi	r3,r3,-32
+	bdnz	..ag
 	sync
-	mtmsr   r9
+	mtmsr	r9
 	blr
 	function_epilog(dflush)
 #endif /* CONFIG_440 */
@@ -1732,6 +1766,23 @@ out32:
 	.globl	in32
 in32:
 	lwz	3,0x0000(3)
+	blr
+
+invalidate_icache:
+	iccci	r0,r0			/* for 405, iccci invalidates the */
+	blr				/*   entire I cache */
+
+invalidate_dcache:
+	addi	r6,0,0x0000		/* clear GPR 6 */
+	/* Do loop for # of dcache congruence classes. */
+	lis	r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@ha	/* TBS for large sized cache */
+	ori	r7, r7, (CFG_DCACHE_SIZE / CFG_CACHELINE_SIZE / 2)@l
+					/* NOTE: dccci invalidates both */
+	mtctr	r7			/* ways in the D cache */
+..dcloop:
+	dccci	0,r6			/* invalidate line */
+	addi	r6,r6, CFG_CACHELINE_SIZE /* bump to next line */
+	bdnz	..dcloop
 	blr
 
 /**************************************************************************/

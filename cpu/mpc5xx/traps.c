@@ -36,11 +36,11 @@
 #include <command.h>
 #include <asm/processor.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 extern void do_bedbug_breakpoint(struct pt_regs *);
 #endif
 
@@ -131,7 +131,7 @@ void MachineCheckException(struct pt_regs *regs)
 		return;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -165,7 +165,7 @@ void MachineCheckException(struct pt_regs *regs)
  */
 void AlignmentException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -179,7 +179,7 @@ void AlignmentException(struct pt_regs *regs)
  */
 void ProgramCheckException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -193,7 +193,7 @@ void ProgramCheckException(struct pt_regs *regs)
  */
 void SoftEmuException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -208,7 +208,7 @@ void SoftEmuException(struct pt_regs *regs)
  */
 void UnknownException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -224,7 +224,7 @@ void DebugException(struct pt_regs *regs)
 {
 	printf("Debugger trap at @ %lx\n", regs->nip );
   	show_regs(regs);
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
   	do_bedbug_breakpoint( regs );
 #endif
 }

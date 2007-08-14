@@ -64,23 +64,36 @@
  */
 #define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
 
-
 #define CONFIG_BAUDRATE		9600
 
-#define CONFIG_COMMANDS         (CONFIG_CMD_DFL | CFG_CMD_PCI | CFG_CMD_JFFS2 | CFG_CMD_IDE | CFG_CMD_NET | CFG_CMD_EEPROM)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_EEPROM
 
 #define CONFIG_BOOTDELAY	15
 #define CONFIG_BOOTARGS    	"root=/dev/mtdblock0 console=ttyS0,9600"
 /* #define CONFIG_BOOTCOMMAND	"bootm 38000000" */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
-
 
 /*
  * Miscellaneous configurable options
@@ -104,7 +117,6 @@
 						/* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
@@ -113,8 +125,6 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-
-
 #define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
 
@@ -125,10 +135,8 @@
 #define CONFIG_SPI_EEPROM      /* Support for SPI EEPROMs (AT25128) */
 #define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */
 
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-
 
 /* Environment in EEPROM */
 #define CFG_ENV_IS_IN_EEPROM   1
@@ -182,6 +190,15 @@
 #undef  CONFIG_IDE_RESET_ROUTINE	/* no special reset function */
 
 /************************************************************
+*SATA/Native Stuff
+************************************************************/
+#define CFG_SATA_SUPPORTED      1
+#define CFG_SATA_MAXBUS         2       /*Max Sata buses supported */
+#define CFG_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
+#define CFG_SATA_MAXDEVICES     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
+#define CFG_ATA_PIIX            1       /*Supports ata_piix driver */
+
+/************************************************************
  * ATAPI support (experimental)
  ************************************************************/
 #define CONFIG_ATAPI			/* enable ATAPI Support */
@@ -199,7 +216,6 @@
 #define CONFIG_VIDEO			/* To enable video controller support */
 #define CONFIG_I8042_KBD
 #define CFG_ISA_IO 0
-
 
 /************************************************************
  * RTC

@@ -42,13 +42,13 @@
 #define DEBUGF(fmt,args...)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 #define RXBUF_BASE_ADDR		0xFF900000
 #define TXBUF_BASE_ADDR		0xFF800000
 #define TX_BUF_CNT		1
 
-#define TOUT_LOOP 		1000000
+#define TOUT_LOOP		1000000
 
 ADI_ETHER_BUFFER *txbuf[TX_BUF_CNT];
 ADI_ETHER_BUFFER *rxbuf[PKTBUFSRX];
@@ -542,4 +542,4 @@ int ether_post_test(int flags)
 	return 0;
 }
 #endif
-#endif				/* CFG_CMD_NET */
+#endif

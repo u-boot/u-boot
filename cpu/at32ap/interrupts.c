@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <div64.h>
 
-#include <asm/div64.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/processor.h>

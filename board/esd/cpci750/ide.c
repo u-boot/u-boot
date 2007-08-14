@@ -25,7 +25,7 @@
 
 
 #include <common.h>
-#ifdef CFG_CMD_IDE
+#if defined(CONFIG_CMD_IDE)
 #include <ata.h>
 #include <ide.h>
 #include <pci.h>

@@ -97,19 +97,31 @@
 #define CONFIG_LOADS_ECHO	1
 
 
-#define CONFIG_COMMANDS			(CONFIG_CMD_DFL	| \
-					 CFG_CMD_PING	| \
-					 CFG_CMD_ELF	| \
-					 CFG_CMD_I2C	| \
-					 CFG_CMD_JFFS2	| \
-					 CFG_CMD_DATE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_DATE
+
+
 #define CONFIG_BOOTARGS "root=/dev/mtdblock0 ip=192.168.0.15:192.168.0.2:192.168.0.1:255.255.255.0:ezkit:eth0:off console=ttyBF0,57600"
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 #define	CFG_PROMPT		"ezkit> "	/* Monitor Command Prompt */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
 #define	CFG_CBSIZE		256	/* Console I/O Buffer Size */

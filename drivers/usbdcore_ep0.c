@@ -2,6 +2,9 @@
  * (C) Copyright 2003
  * Gerry Hamel, geh@ti.com, Texas Instruments
  *
+ * (C) Copyright 2006
+ * Bryan O'Donoghue, deckard@CodeHermit.ie
+ *
  * Based on
  * linux/drivers/usbd/ep0.c
  *
@@ -39,11 +42,17 @@
  * function driver. This may need to change.
  *
  * XXX
+ *
+ * As alluded to above, a simple callback cdc_recv_setup has been implemented
+ * in the usb_device data structure to facilicate passing
+ * Common Device Class packets to a function driver.
+ *
+ * XXX
  */
 
 #include <common.h>
 
-#if defined(CONFIG_OMAP1510) && defined(CONFIG_USB_DEVICE)
+#if defined(CONFIG_USB_DEVICE)
 #include "usbdcore.h"
 
 #if 0
@@ -69,7 +78,7 @@ static int ep0_get_status (struct usb_device_instance *device,
 	char *cp;
 
 	urb->actual_length = 2;
-	cp = urb->buffer;
+	cp = (char*)urb->buffer;
 	cp[0] = cp[1] = 0;
 
 	switch (requesttype) {
@@ -115,7 +124,7 @@ static int ep0_get_one (struct usb_device_instance *device, struct urb *urb,
  *
  * Copy configuration data to urb transfer buffer if there is room for it.
  */
-static void copy_config (struct urb *urb, void *data, int max_length,
+void copy_config (struct urb *urb, void *data, int max_length,
 			 int max_buf)
 {
 	int available;
@@ -128,10 +137,7 @@ static void copy_config (struct urb *urb, void *data, int max_length,
 		dbg_ep0 (1, "data is NULL");
 		return;
 	}
-	if (!(length = *(unsigned char *) data)) {
-		dbg_ep0 (1, "length is zero");
-		return;
-	}
+	length = max_length;
 
 	if (length > max_length) {
 		dbg_ep0 (1, "length: %d >= max_length: %d", length,
@@ -192,7 +198,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 
 	/* setup tx urb */
 	urb->actual_length = 0;
-	cp = urb->buffer;
+	cp = (char*)urb->buffer;
 
 	dbg_ep0 (2, "%s", USBD_DEVICE_DESCRIPTORS (descriptor_type));
 
@@ -200,7 +206,6 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 	case USB_DESCRIPTOR_TYPE_DEVICE:
 		{
 			struct usb_device_descriptor *device_descriptor;
-
 			if (!
 			    (device_descriptor =
 			     usbd_device_device_descriptor (device, port))) {
@@ -214,20 +219,16 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 			/* correct the correct control endpoint 0 max packet size into the descriptor */
 			device_descriptor =
 				(struct usb_device_descriptor *) urb->buffer;
-			device_descriptor->bMaxPacketSize0 =
-				urb->device->bus->maxpacketsize;
 
 		}
-		/*dbg_ep0(3, "copied device configuration, actual_length: %x", urb->actual_length); */
+		dbg_ep0(3, "copied device configuration, actual_length: 0x%x", urb->actual_length);
 		break;
 
 	case USB_DESCRIPTOR_TYPE_CONFIGURATION:
 		{
-			int bNumInterface;
 			struct usb_configuration_descriptor
 				*configuration_descriptor;
 			struct usb_device_descriptor *device_descriptor;
-
 			if (!
 			    (device_descriptor =
 			     usbd_device_device_descriptor (device, port))) {
@@ -251,130 +252,35 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 					 index);
 				return -1;
 			}
+			dbg_ep0(0, "attempt to copy %d bytes to urb\n",cpu_to_le16(configuration_descriptor->wTotalLength));
 			copy_config (urb, configuration_descriptor,
-				     sizeof (struct
-					     usb_configuration_descriptor),
+
+					cpu_to_le16(configuration_descriptor->wTotalLength),
 				     max);
-
-
-			/* iterate across interfaces for specified configuration */
-			dbg_ep0 (0, "bNumInterfaces: %d",
-				 configuration_descriptor->bNumInterfaces);
-			for (bNumInterface = 0;
-			     bNumInterface <
-			     configuration_descriptor->bNumInterfaces;
-			     bNumInterface++) {
-
-				int bAlternateSetting;
-				struct usb_interface_instance
-					*interface_instance;
-
-				dbg_ep0 (3, "[%d] bNumInterfaces: %d",
-					 bNumInterface,
-					 configuration_descriptor->bNumInterfaces);
-
-				if (! (interface_instance = usbd_device_interface_instance (device,
-								     port, index, bNumInterface)))
-				{
-					dbg_ep0 (3, "[%d] interface_instance NULL",
-						 bNumInterface);
-					return -1;
-				}
-				/* iterate across interface alternates */
-				for (bAlternateSetting = 0;
-				     bAlternateSetting < interface_instance->alternates;
-				     bAlternateSetting++) {
-					/*int class; */
-					int bNumEndpoint;
-					struct usb_interface_descriptor *interface_descriptor;
-
-					struct usb_alternate_instance *alternate_instance;
-
-					dbg_ep0 (3, "[%d:%d] alternates: %d",
-						 bNumInterface,
-						 bAlternateSetting,
-						 interface_instance->alternates);
-
-					if (! (alternate_instance = usbd_device_alternate_instance (device, port, index, bNumInterface, bAlternateSetting))) {
-						dbg_ep0 (3, "[%d] alternate_instance NULL",
-							 bNumInterface);
-						return -1;
-					}
-					/* copy descriptor for this interface */
-					copy_config (urb, alternate_instance->interface_descriptor,
-						     sizeof (struct usb_interface_descriptor),
-						     max);
-
-					/*dbg_ep0(3, "[%d:%d] classes: %d endpoints: %d", bNumInterface, bAlternateSetting, */
-					/*        alternate_instance->classes, alternate_instance->endpoints); */
-
-					/* iterate across classes for this alternate interface */
-#if 0
-					for (class = 0;
-					     class < alternate_instance->classes;
-					     class++) {
-						struct usb_class_descriptor *class_descriptor;
-						/*dbg_ep0(3, "[%d:%d:%d] classes: %d", bNumInterface, bAlternateSetting, */
-						/*        class, alternate_instance->classes); */
-						if (!(class_descriptor = usbd_device_class_descriptor_index (device, port, index, bNumInterface, bAlternateSetting, class))) {
-							dbg_ep0 (3, "[%d] class NULL",
-								 class);
-							return -1;
-						}
-						/* copy descriptor for this class */
-						copy_config (urb, class_descriptor,
-							sizeof (struct usb_class_descriptor),
-							max);
-					}
-#endif
-
-					/* iterate across endpoints for this alternate interface */
-					interface_descriptor = alternate_instance->interface_descriptor;
-					for (bNumEndpoint = 0;
-					     bNumEndpoint < alternate_instance->endpoints;
-					     bNumEndpoint++) {
-						struct usb_endpoint_descriptor *endpoint_descriptor;
-						dbg_ep0 (3, "[%d:%d:%d] endpoint: %d",
-							 bNumInterface,
-							 bAlternateSetting,
-							 bNumEndpoint,
-							 interface_descriptor->
-							 bNumEndpoints);
-						if (!(endpoint_descriptor = usbd_device_endpoint_descriptor_index (device, port, index, bNumInterface, bAlternateSetting, bNumEndpoint))) {
-							dbg_ep0 (3, "[%d] endpoint NULL",
-								 bNumEndpoint);
-							return -1;
-						}
-						/* copy descriptor for this endpoint */
-						copy_config (urb, endpoint_descriptor,
-							     sizeof (struct usb_endpoint_descriptor),
-							     max);
-					}
-				}
-			}
-			dbg_ep0 (3, "lengths: %d %d",
-				 le16_to_cpu (configuration_descriptor->wTotalLength),
-				 urb->actual_length);
 		}
+
 		break;
 
 	case USB_DESCRIPTOR_TYPE_STRING:
 		{
 			struct usb_string_descriptor *string_descriptor;
-
 			if (!(string_descriptor = usbd_get_string (index))) {
+				serial_printf("Invalid string index %d\n", index);
 				return -1;
 			}
-			/*dbg_ep0(3, "string_descriptor: %p", string_descriptor); */
+			dbg_ep0(3, "string_descriptor: %p length %d", string_descriptor, string_descriptor->bLength);
 			copy_config (urb, string_descriptor, string_descriptor->bLength, max);
 		}
 		break;
 	case USB_DESCRIPTOR_TYPE_INTERFACE:
+	serial_printf("USB_DESCRIPTOR_TYPE_INTERFACE - error not implemented\n");
 		return -1;
 	case USB_DESCRIPTOR_TYPE_ENDPOINT:
+		serial_printf("USB_DESCRIPTOR_TYPE_ENDPOINT - error not implemented\n");
 		return -1;
 	case USB_DESCRIPTOR_TYPE_HID:
 		{
+			serial_printf("USB_DESCRIPTOR_TYPE_HID - error not implemented\n");
 			return -1;	/* unsupported at this time */
 #if 0
 			int bNumInterface =
@@ -403,6 +309,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 		break;
 	case USB_DESCRIPTOR_TYPE_REPORT:
 		{
+			serial_printf("USB_DESCRIPTOR_TYPE_REPORT - error not implemented\n");
 			return -1;	/* unsupported at this time */
 #if 0
 			int bNumInterface =
@@ -434,12 +341,19 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 #endif
 		}
 		break;
+	case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
+		{
+			/* If a USB device supports both a full speed and low speed operation
+			 * we must send a Device_Qualifier descriptor here
+			 */
+			return -1;
+		}
 	default:
 		return -1;
 	}
 
 
-	dbg_ep0 (1, "urb: buffer: %p buffer_length: %2d actual_length: %2d packet size: %2d",
+	dbg_ep0 (1, "urb: buffer: %p buffer_length: %2d actual_length: %2d tx_packetSize: %2d",
 		 urb->buffer, urb->buffer_length, urb->actual_length,
 		 device->bus->endpoint_array[0].tx_packetSize);
 /*
@@ -495,6 +409,12 @@ int ep0_recv_setup (struct urb *urb)
 
 	/* handle USB Standard Request (c.f. USB Spec table 9-2) */
 	if ((request->bmRequestType & USB_REQ_TYPE_MASK) != 0) {
+		if(device->device_state <= STATE_CONFIGURED){
+			/*	Attempt to handle a CDC specific request if we are
+			 *	in the configured state.
+			 */
+			return device->cdc_recv_setup(request,urb);
+		}
 		dbg_ep0 (1, "non standard request: %x",
 			 request->bmRequestType & USB_REQ_TYPE_MASK);
 		return -1;	/* Stall here */
@@ -567,6 +487,7 @@ int ep0_recv_setup (struct urb *urb)
 						   le16_to_cpu (request->wValue) & 0xff);
 
 		case USB_REQ_GET_CONFIGURATION:
+			serial_printf("get config %d\n", device->configuration);
 			return ep0_get_one (device, urb,
 					    device->configuration);
 
@@ -642,7 +563,6 @@ int ep0_recv_setup (struct urb *urb)
 			/*dbg_ep0(2, "address: %d %d %d", */
 			/*        request->wValue, le16_to_cpu(request->wValue), device->address); */
 
-			serial_printf ("DEVICE_ADDRESS_ASSIGNED.. event?\n");
 			return 0;
 
 		case USB_REQ_SET_DESCRIPTOR:	/* XXX should we support this? */
@@ -653,9 +573,10 @@ int ep0_recv_setup (struct urb *urb)
 			/* c.f. 9.4.7 - the top half of wValue is reserved */
 			/* */
 			if ((device->configuration =
-			     le16_to_cpu (request->wValue) & 0x7f) != 0) {
+				le16_to_cpu (request->wValue) & 0xFF80) != 0) {
 				/* c.f. 9.4.7 - zero is the default or addressed state, in our case this */
 				/* is the same is configuration zero */
+				serial_printf("error setting dev->config to zero!\n");
 				device->configuration = 0;	/* TBR - ?????? */
 			}
 			/* reset interface and alternate settings */

@@ -75,38 +75,42 @@
 #define CONFIG_AUTOSCRIPT		1
 
 
-#define CONFIG_COMMANDS	 (\
-	CFG_CMD_BDI|\
-	CFG_CMD_IMI|\
-	CFG_CMD_FLASH|\
-	CFG_CMD_MEMORY|\
-	CFG_CMD_NET|\
-	CFG_CMD_ENV|\
-	CFG_CMD_CONSOLE|\
-	CFG_CMD_ASKENV|\
-	CFG_CMD_ECHO|\
-	CFG_CMD_IMMAP|\
-	CFG_CMD_REGINFO|\
-	CFG_CMD_DHCP|\
-	CFG_CMD_DATE|\
-	CFG_CMD_RUN|\
-	CFG_CMD_I2C|\
-	CFG_CMD_EEPROM|\
-	CFG_CMD_DIAG|\
-	CFG_CMD_AUTOSCRIPT|\
-	CFG_CMD_SETGETDCR)
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_SETGETDCR
+
 
 /*
- * optional BOOTP / DHCP fields
+ * BOOTP options
  */
-#define CONFIG_BOOTP_MASK (\
-	CONFIG_BOOTP_VENDOREX|\
-	CONFIG_BOOTP_SUBNETMASK|\
-	CONFIG_BOOTP_GATEWAY|\
-	CONFIG_BOOTP_DNS|\
-	CONFIG_BOOTP_HOSTNAME|\
-	CONFIG_BOOTP_BOOTFILESIZE|\
-	CONFIG_BOOTP_BOOTPATH)
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_VENDOREX
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 /*
  * how many time to fail & restart a net-TFTP before giving up & resetting
@@ -122,9 +126,6 @@
 #define CFG_BASE_BAUD       403225
 #define CFG_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options

@@ -44,13 +44,8 @@
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH 	*/
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*
  * Serial console configuration
@@ -105,12 +100,6 @@
 #define CONFIG_NS8382X		1
 #endif	/* CONFIG_STK52XX */
 
-#ifdef CONFIG_PCI
-#define ADD_PCI_CMD		CFG_CMD_PCI
-#else
-#define ADD_PCI_CMD		0
-#endif
-
 /*
  * Video console
  */
@@ -133,11 +122,6 @@
 #define CFG_CONSOLE_IS_IN_ENV
 #endif /* #ifndef CONFIG_TQM5200S */
 
-#ifdef CONFIG_VIDEO
-#define ADD_BMP_CMD		CFG_CMD_BMP
-#else
-#define ADD_BMP_CMD		0
-#endif
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -146,11 +130,17 @@
 
 /* USB */
 #if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
-#define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
+#define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD		0
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_USB
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT
+#define CFG_USB_OHCI_REGS_BASE	MPC5XXX_USB
+#define CFG_USB_OHCI_SLOT_NAME	"mpc5200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+
 #endif
 
 #ifndef CONFIG_CAM5200
@@ -161,44 +151,61 @@
 #endif
 
 #ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
 /* preserve space for the post_word at end of on-chip SRAM */
 #define MPC5XXX_SRAM_POST_SIZE MPC5XXX_SRAM_SIZE-4
-#else
-#define CFG_CMD_POST_DIAG 0
 #endif
 
-/* IDE */
-#if defined (CONFIG_MINIFAP) || defined (CONFIG_STK52XX) || defined(CONFIG_FO300)
-#define ADD_IDE_CMD		(CFG_CMD_IDE | CFG_CMD_FAT | CFG_CMD_EXT2)
-#else
-#define ADD_IDE_CMD		0
-#endif
 
 /*
- * Supported commands
+ * BOOTP options
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				ADD_BMP_CMD	| \
-				ADD_IDE_CMD	| \
-				ADD_PCI_CMD	| \
-				ADD_USB_CMD	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_POST_DIAG | \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_BSP)
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_BSP
+
+#ifdef CONFIG_VIDEO
+    #define CONFIG_CMD_BMP
+#endif
+
+#ifdef CONFIG_PCI
+#define CONFIG_CMD_CMD_PCI
+#endif
+
+#if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
+    #define CONFIG_CMD_IDE
+    #define CONFIG_CMD_FAT
+    #define CONFIG_CMD_EXT2
+#endif
+
+#if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
+    #define CONFIG_CFG_USB
+    #define CONFIG_CFG_FAT
+#endif
+
+#ifdef CONFIG_POST
+    #define CONFIG_CMD_DIAG
+#endif
+
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
@@ -234,15 +241,21 @@
 #ifndef CONFIG_CAM5200
 #define CUSTOM_ENV_SETTINGS						\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
+	"bootfile_fdt=/tftpboot/tqm5200/uImage_fdt\0"			\
+	"fdt_file=/tftpboot/tqm5200/tqm5200.dtb\0"			\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
 #else
-#define CUSTOM_ENV_SETTINGS 						\
+#define CUSTOM_ENV_SETTINGS						\
 	"bootfile=cam5200/uImage\0"					\
 	"u-boot=cam5200/u-boot.bin\0"					\
 	"setup=tftp 200000 cam5200/setup.img; autoscr 200000\0"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"console=ttyS0\0"						\
+	"kernel_addr=200000\0"						\
+	"fdt_addr=400000\0"						\
+	"hostname=tqm5200\0"						\
 	"netdev=eth0\0"							\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -252,13 +265,17 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
-		"console=ttyS0,${baudrate}\0"				\
+		"console=${console},${baudrate}\0"			\
 	"flash_self=run ramargs addip addcons;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addcons;"	\
-		"bootm\0"						\
+	"net_nfs=tftp ${kernel_addr} ${bootfile};"			\
+		"run nfsargs addip addcons;bootm\0"			\
+	"net_nfs_fdt=tftp ${kernel_addr} ${bootfile_fdt};"		\
+		"tftp ${fdt_addr} ${fdt_file};setenv console ttyPSC0;"	\
+		"run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	CUSTOM_ENV_SETTINGS						\
 	"load=tftp 200000 ${u-boot}\0"					\
 	ENV_UPDT							\
@@ -556,7 +573,12 @@
 #define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CFG_PROMPT_HUSH_PS2	"> "
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
+
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -576,8 +598,7 @@
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
- * Enable loopw commando. This has only affect, if CFG_CMD_MEM is defined,
- * which is normally part of the default commands (CFV_CMD_DFL)
+ * Enable loopw command.
  */
 #define CONFIG_LOOPW
 
@@ -675,5 +696,19 @@
 
 /* Interval between registers						     */
 #define CFG_ATA_STRIDE		4
+
+/*-----------------------------------------------------------------------
+ * Open firmware flat tree support
+ *-----------------------------------------------------------------------
+ */
+#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+/* maximum size of the flat tree (8K) */
+#define OF_FLAT_TREE_MAX_SIZE	8192
+#define OF_CPU			"PowerPC,5200@0"
+#define OF_SOC			"soc5200@f0000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
 
 #endif /* __CONFIG_H */

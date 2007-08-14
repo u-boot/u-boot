@@ -34,6 +34,7 @@
 /* void cpu_post_exec_02 (ulong *code, ulong op1, ulong op2); */
 	.global	cpu_post_exec_02
 cpu_post_exec_02:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 
@@ -56,6 +57,7 @@ cpu_post_exec_02:
 /* void cpu_post_exec_04 (ulong *code, ulong op1, ulong op2, ulong op3, ulong op4); */
 	.global	cpu_post_exec_04
 cpu_post_exec_04:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 
@@ -80,6 +82,7 @@ cpu_post_exec_04:
 /* void cpu_post_exec_12 (ulong *code, ulong *res, ulong op1, ulong op2); */
 	.global	cpu_post_exec_12
 cpu_post_exec_12:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -100,6 +103,7 @@ cpu_post_exec_12:
 /* void cpu_post_exec_11 (ulong *code, ulong *res, ulong op1); */
 	.global	cpu_post_exec_11
 cpu_post_exec_11:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -119,6 +123,7 @@ cpu_post_exec_11:
 /* void cpu_post_exec_21 (ulong *code, ulong *cr, ulong *res, ulong op1); */
 	.global	cpu_post_exec_21
 cpu_post_exec_21:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -148,6 +153,7 @@ cpu_post_exec_21:
     ulong op2); */
 	.global	cpu_post_exec_22
 cpu_post_exec_22:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -177,6 +183,7 @@ cpu_post_exec_22:
 /* void cpu_post_exec_12w (ulong *code, ulong *op1, ulong op2, ulong op3); */
 	.global	cpu_post_exec_12w
 cpu_post_exec_12w:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -198,6 +205,7 @@ cpu_post_exec_12w:
 /* void cpu_post_exec_11w (ulong *code, ulong *op1, ulong op2); */
 	.global	cpu_post_exec_11w
 cpu_post_exec_11w:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -218,6 +226,7 @@ cpu_post_exec_11w:
 /* void cpu_post_exec_22w (ulong *code, ulong *op1, ulong op2, ulong *op3); */
 	.global	cpu_post_exec_22w
 cpu_post_exec_22w:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -241,6 +250,7 @@ cpu_post_exec_22w:
 /* void cpu_post_exec_21w (ulong *code, ulong *op1, ulong *op2); */
 	.global	cpu_post_exec_21w
 cpu_post_exec_21w:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -263,6 +273,7 @@ cpu_post_exec_21w:
 /* void cpu_post_exec_21x (ulong *code, ulong *op1, ulong *op2, ulong op3); */
 	.global	cpu_post_exec_21x
 cpu_post_exec_21x:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)
@@ -286,6 +297,7 @@ cpu_post_exec_21x:
     ulong cr); */
 	.global	cpu_post_exec_31
 cpu_post_exec_31:
+	isync
 	mflr	r0
 	stwu	r0, -4(r1)
 	stwu	r4, -4(r1)

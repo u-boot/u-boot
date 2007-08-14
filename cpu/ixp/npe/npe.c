@@ -682,7 +682,7 @@ int npe_initialize(bd_t * bis)
 
 		eth_register(dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name, npe_miiphy_read, npe_miiphy_write);
 #endif
 

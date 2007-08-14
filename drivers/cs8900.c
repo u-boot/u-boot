@@ -43,7 +43,7 @@
 
 #ifdef CONFIG_DRIVER_CS8900
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 #undef DEBUG
 

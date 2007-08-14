@@ -88,15 +88,26 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+
 
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 
-#define CONFIG_COMMANDS	((CFG_CMD_ALL & ~CFG_CMD_NONSTD) | CFG_CMD_ELF)
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ELF
+
 
 /*
  * Miscellaneous configurable options
@@ -104,7 +115,7 @@
 #define CFG_RESET_ADDRESS	0x80000000
 #define	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -182,7 +193,7 @@
 #define	CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE	0xFF000000
 
-#if defined(DEBUG) || defined (CONFIG_VIDEO_SED13806) || (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(DEBUG) || defined (CONFIG_VIDEO_SED13806) || defined(CONFIG_CMD_IDE)
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
 #define	CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
@@ -222,7 +233,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

@@ -98,7 +98,7 @@ static void qe_sdma_init(void)
 	out_be32(&p->sdaqmr, 0);
 
 	/* Allocate 2KB temporary buffer for sdma */
-	sdma_buffer_base = qe_muram_alloc(2048, 64);
+	sdma_buffer_base = qe_muram_alloc(2048, 4096);
 	out_be32(&p->sdwbcr, sdma_buffer_base & QE_SDEBCR_BA_MASK);
 
 	/* Clear sdma status */

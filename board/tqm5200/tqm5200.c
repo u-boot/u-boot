@@ -32,6 +32,10 @@
 #include <pci.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
 #endif
@@ -332,7 +336,7 @@ void pci_init_board(void)
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
 
 #if defined (CONFIG_MINIFAP)
 #define SM501_POWER_MODE0_GATE		0x00000040UL
@@ -385,7 +389,7 @@ void ide_set_reset (int idereset)
 	}
 #endif
 }
-#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif
 
 #ifdef CONFIG_POST
 /*
@@ -775,3 +779,10 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */

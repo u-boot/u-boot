@@ -92,7 +92,7 @@
 #include <kgdb.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 
 #undef KGDB_DEBUG
 
@@ -591,4 +591,4 @@ U_BOOT_CMD(
 
 int kgdb_not_configured = 1;
 
-#endif /* CFG_CMD_KGDB */
+#endif

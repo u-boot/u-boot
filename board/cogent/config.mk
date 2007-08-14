@@ -29,3 +29,5 @@
 TEXT_BASE = 0xfff00000
 
 PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+
+LDSCRIPT := $(SRCTREE)/board/cogent/u-boot.lds

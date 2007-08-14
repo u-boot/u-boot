@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_BAMBOO		1	/* Board is BAMBOO              */
 #define CONFIG_440EP		1	/* Specific PPC440EP support    */
+#define CONFIG_440		1	/* ... PPC440 family	        */
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
@@ -73,9 +74,9 @@
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
 #define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
-#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
+#define CFG_INIT_RAM_ADDR	0x70000000	/* DCache       */
 #define CFG_INIT_RAM_END	(4 << 10)
-#define CFG_GBL_DATA_SIZE	256		    	/* num bytes initial data	*/
+#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data	*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -114,8 +115,8 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_MAX_FLASH_BANKS	3		    /* number of banks	    */
-#define CFG_MAX_FLASH_SECT	256		    /* sectors per device   */
+#define CFG_MAX_FLASH_BANKS	3	/* number of banks			*/
+#define CFG_MAX_FLASH_SECT	256	/* sectors per device			*/
 
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -125,11 +126,11 @@
 #define CFG_FLASH_ADDR1         0x2aa
 #define CFG_FLASH_WORD_SIZE     unsigned char
 
-#define CFG_FLASH_2ND_16BIT_DEV 1         /* bamboo has 8 and 16bit device      */
-#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device    */
+#define CFG_FLASH_2ND_16BIT_DEV 1	/* bamboo has 8 and 16bit device	*/
+#define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device	*/
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
@@ -315,45 +316,55 @@
 #define USB_2_0_DEVICE
 #endif /*CONFIG_440EP*/
 
-#ifdef CONFIG_BAMBOO_NAND
-#define _CFG_CMD_NAND CFG_CMD_NAND
-#else
-#define _CFG_CMD_NAND 0
-#endif /* CONFIG_BAMBOO_NAND */
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_USB	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_EXT2	| \
-				_CFG_CMD_NAND	| \
-				CFG_CMD_SNTP	)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_SNTP
+
+#ifdef CONFIG_BAMBOO_NAND
+#define CONFIG_CMD_NAND
+#endif
+
 
 #define CONFIG_SUPPORT_VFAT
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -388,7 +399,6 @@
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_PRE_INIT                /* enable board pci_pre_init()  */
 #define CFG_PCI_TARGET_INIT
 #define CFG_PCI_MASTER_INIT
 
@@ -407,7 +417,7 @@
  */
 #define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -419,7 +429,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

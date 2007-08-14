@@ -28,8 +28,7 @@
 #include <command.h>
 #include <net.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
-
+#if defined(CONFIG_CMD_NET)
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
@@ -68,7 +67,7 @@ U_BOOT_CMD(
 	"[loadAddress] [bootfilename]\n"
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_DHCP)
+#if defined(CONFIG_CMD_DHCP)
 int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
@@ -79,9 +78,9 @@ U_BOOT_CMD(
 	"dhcp\t- invoke DHCP client to obtain IP/boot params\n",
 	"\n"
 );
-#endif	/* CFG_CMD_DHCP */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS)
 int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return netboot_common(NFS, cmdtp, argc, argv);
@@ -92,7 +91,7 @@ U_BOOT_CMD(
 	"nfs\t- boot image via network using NFS protocol\n",
 	"[loadAddress] [host ip addr:bootfilename]\n"
 );
-#endif	/* CFG_CMD_NFS */
+#endif
 
 static void netboot_update_env (void)
 {
@@ -128,7 +127,7 @@ static void netboot_update_env (void)
 		ip_to_string (NetOurDNSIP, tmp);
 		setenv ("dnsip", tmp);
 	}
-#if (CONFIG_BOOTP_MASK & CONFIG_BOOTP_DNS2)
+#if defined(CONFIG_BOOTP_DNS2)
 	if (NetOurDNS2IP) {
 		ip_to_string (NetOurDNS2IP, tmp);
 		setenv ("dnsip2", tmp);
@@ -137,13 +136,15 @@ static void netboot_update_env (void)
 	if (NetOurNISDomain[0])
 		setenv ("domain", NetOurNISDomain);
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_TIMEOFFSET)
+#if defined(CONFIG_CMD_SNTP) \
+    && defined(CONFIG_BOOTP_TIMEOFFSET)
 	if (NetTimeOffset) {
 		sprintf (tmp, "%d", NetTimeOffset);
 		setenv ("timeoffset", tmp);
 	}
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP) && (CONFIG_BOOTP_MASK & CONFIG_BOOTP_NTPSERVER)
+#if defined(CONFIG_CMD_SNTP) \
+    && defined(CONFIG_BOOTP_NTPSERVER)
 	if (NetNtpServerIP) {
 		ip_to_string (NetNtpServerIP, tmp);
 		setenv ("ntpserverip", tmp);
@@ -184,18 +185,25 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 		break;
 
 	default: printf ("Usage:\n%s\n", cmdtp->usage);
+		show_boot_progress (-80);
 		return 1;
 	}
 
-	if ((size = NetLoop(proto)) < 0)
+	show_boot_progress (80);
+	if ((size = NetLoop(proto)) < 0) {
+		show_boot_progress (-81);
 		return 1;
+	}
 
+	show_boot_progress (81);
 	/* NetLoop ok, update environment */
 	netboot_update_env();
 
 	/* done if no file was loaded (no errors though) */
-	if (size == 0)
+	if (size == 0) {
+		show_boot_progress (-82);
 		return 0;
+	}
 
 	/* flush cache */
 	flush_cache(load_addr, size);
@@ -208,19 +216,25 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 
 		printf ("Automatic boot of image at addr 0x%08lX ...\n",
 			load_addr);
+		show_boot_progress (82);
 		rcode = do_bootm (cmdtp, 0, 1, local_args);
 	}
 
 #ifdef CONFIG_AUTOSCRIPT
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
 		printf("Running autoscript at addr 0x%08lX ...\n", load_addr);
+		show_boot_progress (83);
 		rcode = autoscript (load_addr);
 	}
 #endif
+	if (rcode < 0)
+		show_boot_progress (-83);
+	else
+		show_boot_progress (84);
 	return rcode;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PING)
+#if defined(CONFIG_CMD_PING)
 int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2)
@@ -247,9 +261,9 @@ U_BOOT_CMD(
 	"ping\t- send ICMP ECHO_REQUEST to network host\n",
 	"pingAddress\n"
 );
-#endif	/* CFG_CMD_PING */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_CDP)
+#if defined(CONFIG_CMD_CDP)
 
 static void cdp_update_env(void)
 {
@@ -290,9 +304,9 @@ U_BOOT_CMD(
 	cdp,	1,	1,	do_cdp,
 	"cdp\t- Perform CDP network configuration\n",
 );
-#endif	/* CFG_CMD_CDP */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_SNTP)
+#if defined(CONFIG_CMD_SNTP)
 int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *toff;
@@ -328,6 +342,6 @@ U_BOOT_CMD(
 	"sntp\t- synchronize RTC via network\n",
 	"[NTP server IP]\n"
 );
-#endif	/* CFG_CMD_SNTP */
+#endif
 
-#endif	/* CFG_CMD_NET */
+#endif
