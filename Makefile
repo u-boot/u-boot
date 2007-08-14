@@ -212,6 +212,9 @@ LIBS += drivers/nand_legacy/libnand_legacy.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
+ifeq ($(CPU),mpc85xx)
+LIBS += drivers/qe/qe.a
+endif
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
@@ -1783,17 +1786,38 @@ MPC8540EVAL_66_slave_config:      unconfig
 MPC8560ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads
 
+MPC8541CDS_legacy_config \
 MPC8541CDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8541cds cds
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _legacy_,$@)" ] ; then \
+		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
+		echo "... legacy" ; \
+	fi
+	@$(MKCONFIG) -a MPC8541CDS ppc mpc85xx mpc8541cds cds
 
 MPC8544DS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8544ds freescale
 
+MPC8548CDS_legacy_config \
 MPC8548CDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8548cds cds
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _legacy_,$@)" ] ; then \
+		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
+		echo "... legacy" ; \
+	fi
+	@$(MKCONFIG) -a MPC8548CDS ppc mpc85xx mpc8548cds cds
 
+MPC8555CDS_legacy_config \
 MPC8555CDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8555cds cds
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _legacy_,$@)" ] ; then \
+		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
+		echo "... legacy" ; \
+	fi
+	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds cds
 
 MPC8568MDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds

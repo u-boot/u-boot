@@ -350,6 +350,13 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI2_IO_PHYS	0xe2100000
 #define CFG_PCI2_IO_SIZE	0x100000	/* 1M */
 
+#ifdef CONFIG_LEGACY
+#define BRIDGE_ID 17
+#define VIA_ID 2
+#else
+#define BRIDGE_ID 28
+#define VIA_ID 4
+#endif
 
 #if defined(CONFIG_PCI)
 
