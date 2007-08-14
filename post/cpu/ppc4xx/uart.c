@@ -137,7 +137,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-<<<<<<< master
+#if defined(CONFIG_440)
 #if !defined(CFG_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
@@ -181,9 +181,6 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 }
 #endif
 
-=======
-#if defined(CONFIG_440)
->>>>>>> zeus
 static int uart_post_init (unsigned long dev_base)
 {
 	unsigned long reg;
