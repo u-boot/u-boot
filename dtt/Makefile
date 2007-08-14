@@ -30,7 +30,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libdtt.a
 
-COBJS	= lm75.o ds1621.o adm1021.o lm81.o
+COBJS	= lm75.o ds1621.o adm1021.o lm81.o ds1775.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

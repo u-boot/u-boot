@@ -1,3 +1,65 @@
+The 2 important dipswitches are configured as shown below:
+
+SW1 (for 33MHz SysClk)
+----------------------
+S1   S2   S3   S4   S5   S6   S7   S8
+OFF  OFF  OFF  OFF  OFF  OFF  OFF  ON
+
+SW7 (for Op-Code Flash and Boot Option H)
+-----------------------------------------
+S1   S2   S3   S4   S5   S6   S7   S8
+OFF  OFF  OFF  ON   OFF  OFF  OFF  OFF
+
+The EEPROM at location 0x52 is loaded with these 16 bytes:
+C47042A6 05D7A190 40082350 0d050000
+
+SDR0_SDSTP0[ENG]:	1		: PLL's VCO is the source for PLL forward divisors
+SDR0_SDSTP0[SRC]:	1		: Feedback originates from PLLOUTB
+SDR0_SDSTP0[SEL]:	0		: Feedback selection is PLL output
+SDR0_SDSTP0[TUNE]:	1000111000	: 10 <= M <= 22, 600MHz < VCO <= 900MHz
+SDR0_SDSTP0[FBDV]:	4		: PLL feedback divisor
+SDR0_SDSTP0[FBDVA]:	2		: PLL forward divisor A
+SDR0_SDSTP0[FBDVB]:	5		: PLL forward divisor B
+SDR0_SDSTP0[PRBDV0]:	1		: PLL primary divisor B
+SDR0_SDSTP0[OPBDV0]:	2		: OPB clock divisor
+SDR0_SDSTP0[LFBDV]:	1		: PLL local feedback divisor
+SDR0_SDSTP0[PERDV0]:	3		: Peripheral clock divisor 0
+SDR0_SDSTP0[MALDV0]:	2		: MAL clock divisor 0
+SDR0_SDSTP0[PCIDV0]:	2		: Sync PCI clock divisor 0
+SDR0_SDSTP0[PLLTIMER]:	7		: PLL locking timer
+SDR0_SDSTP0[RW]:	1		: EBC ROM width: 16-bit
+SDR0_SDSTP0[RL]:	0		: EBC ROM location: EBC
+SDR0_SDSTP0[PAE]:	0		: PCI internal arbiter: disabled
+SDR0_SDSTP0[PHCE]:	0		: PCI host configuration: disabled
+SDR0_SDSTP0[ZM]:	3		: ZMII mode: RMII mode 100
+SDR0_SDSTP0[CTE]:	0		: CPU trace: disabled
+SDR0_SDSTP0[Nto1]:	0		: CPU/PLB ratio N/P: not N to 1
+SDR0_SDSTP0[PAME]:	1		: PCI asynchronous mode: enabled
+SDR0_SDSTP0[MEM]:	1		: Multiplex: EMAC
+SDR0_SDSTP0[NE]:	0		: NDFC: disabled
+SDR0_SDSTP0[NBW]:	0		: NDFC boot width: 8-bit
+SDR0_SDSTP0[NBW]:	0		: NDFC boot page selection
+SDR0_SDSTP0[NBAC]:	0		: NDFC boot address selection cycle: 3 Addr. Cycles, 1 Col. + 2 Row (512 page size)
+SDR0_SDSTP0[NARE]:	0		: NDFC auto read : disabled
+SDR0_SDSTP0[NRB]:	0		: NDFC Ready/Busy : Ready
+SDR0_SDSTP0[NDRSC]:	33333		: NDFC device reset counter
+SDR0_SDSTP0[NCG0]:	0		: NDFC/EBC chip select gating CS0 : EBC
+SDR0_SDSTP0[NCG1]:	0		: NDFC/EBC chip select gating CS1 : EBC
+SDR0_SDSTP0[NCG2]:	0		: NDFC/EBC chip select gating CS2 : EBC
+SDR0_SDSTP0[NCG3]:	0		: NDFC/EBC chip select gating CS3 : EBC
+SDR0_SDSTP0[NCRDC]:	3333		: NDFC device read count
+
+PPC440EP Clocking Configuration
+
+SysClk is 33.0MHz, M is 20, VCO is 660.0MHz, CPU is 330.0MHz, PLB is 132.0MHz
+OPB is 66.0MHz, EBC is 44.0MHz, MAL is 66.0MHz, Sync PCI is 66.0MHz
+
+The above information is reported by Eugene O'Brien
+<Eugene.O'Brien@advantechamt.com>. Thanks a lot.
+
+2007-08-06, Stefan Roese <sr@denx.de>
+---------------------------------------------------------------------
+
 The configuration for the AMCC 440EP eval board "Bamboo" was changed
 to only use 384 kbytes of FLASH for the U-Boot image. This way the
 redundant environment can be saved in the remaining 2 sectors of the

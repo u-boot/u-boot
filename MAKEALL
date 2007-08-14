@@ -180,6 +180,8 @@ LIST_4xx="		\
 	ERIC		\
 	EXBITGEN	\
 	G2000		\
+	hcu4		\
+	hcu5		\
 	HH405		\
 	HUB405		\
 	JSE		\
@@ -206,6 +208,7 @@ LIST_4xx="		\
 	sc3		\
 	sequoia		\
 	sequoia_nand	\
+	taihu		\
 	taishan		\
 	VOH405		\
 	VOM405		\
@@ -217,6 +220,7 @@ LIST_4xx="		\
 	yellowstone	\
 	yosemite	\
 	yucca		\
+	zeus		\
 "
 
 #########################################################################

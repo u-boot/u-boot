@@ -20,10 +20,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-long int spd_sdram(void);
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
+
+long int spd_sdram(void);
 
 int board_early_init_f(void)
 {
@@ -33,6 +35,15 @@ int board_early_init_f(void)
 	mtdcr(uicpr, 0xFFFF7FF0);	/* set int polarities */
 	mtdcr(uictr, 0x00000010);	/* set int trigger levels */
 	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
+
+	/*
+	 * Configure CPC0_PCI to enable PerWE as output
+	 * and enable the internal PCI arbiter if selected
+	 */
+	if (in_8((void *)FPGA_REG1) & FPGA_REG1_PCI_INT_ARB)
+		mtdcr(cpc0_pci, CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
+	else
+		mtdcr(cpc0_pci, CPC0_PCI_HOST_CFG_EN);
 
 	return 0;
 }

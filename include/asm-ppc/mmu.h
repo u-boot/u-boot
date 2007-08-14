@@ -645,6 +645,9 @@ void mttlb3(unsigned long index, unsigned long value);
 unsigned long mftlb1(unsigned long index);
 unsigned long mftlb2(unsigned long index);
 unsigned long mftlb3(unsigned long index);
+
+void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
+void remove_tlb(u32 vaddr, u32 size);
 #endif /* __ASSEMBLY__ */
 
 #endif /* CONFIG_440 */

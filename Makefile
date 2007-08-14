@@ -1142,6 +1142,12 @@ EXBITGEN_config:	unconfig
 G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
+hcu4_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu4 netstal
+
+hcu5_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu5 netstal
+
 HH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hh405 esd
 
@@ -1261,6 +1267,9 @@ rainier_nand_config: unconfig
 sc3_config:unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sc3
 
+taihu_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taihu amcc
+
 taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
 
@@ -1297,6 +1306,9 @@ yellowstone_config: unconfig
 
 yucca_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yucca amcc
+
+zeus_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx zeus
 
 #########################################################################
 ## MPC8220 Systems

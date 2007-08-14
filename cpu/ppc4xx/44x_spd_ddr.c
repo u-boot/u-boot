@@ -269,9 +269,8 @@ struct bank_param {
 typedef struct bank_param BANKPARMS;
 
 #ifdef CFG_SIMULATE_SPD_EEPROM
-extern unsigned char cfg_simulate_spd_eeprom[128];
+extern const unsigned char cfg_simulate_spd_eeprom[128];
 #endif
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
 static unsigned char spd_read(uchar chip, uint addr);
 static void get_spd_info(unsigned long *dimm_populated,

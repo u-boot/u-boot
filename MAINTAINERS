@@ -160,6 +160,11 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	WUH405			PPC405EP
 	CMS700                  PPC405EP
 
+Niklaus Giger <niklaus.giger@netstal.com>
+
+        HCU4                    PPC405GPr
+        HCU5                    PPC440EPx
+
 Frank Gottschling <fgottschling@eltec.de>
 
 	MHPC			MPC8xx
@@ -252,6 +257,7 @@ Tolunay Orkun <torkun@nextio.com>
 John Otken <jotken@softadvances.com>
 
 	luan			PPC440SP
+	taihu			PPC405EP
 
 Keith Outwater <Keith_Outwater@mvis.com>
 
@@ -296,6 +302,7 @@ Stefan Roese <sr@denx.de>
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
+	zeus			PPC405EP
 
 	P3M750			PPC750FX/GX/GL
 
