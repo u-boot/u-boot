@@ -28,7 +28,7 @@
 #include <config.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_DS12887) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS12887) && defined(CONFIG_CMD_DATE)
 
 #define RTC_SECONDS			0x00
 #define RTC_SECONDS_ALARM		0x01
@@ -235,4 +235,4 @@ void rtc_reset (void)
 	rtc_write(RTC_CONTROL_B,ctrl_rg);
 }
 
-#endif  /* (CONFIG_RTC_DS12887) && (CONFIG_COMMANDS & CFG_CMD_DATE) */
+#endif

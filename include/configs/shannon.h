@@ -66,21 +66,28 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#if 0 /* XXX - cannot test IDE anyway, so disabled for now - wd */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				 CFG_CMD_PCMCIA	| \
-				 CFG_CMD_IDE)
-#endif /* 0 */
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,115200"
 #define CONFIG_NETMASK          255.255.0.0
 #define CONFIG_BOOTCOMMAND	"help"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

@@ -184,7 +184,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 void reset_phy (void)
 {
 	volatile ioport_t *iop;
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	int i;
 	unsigned short val;
 #endif
@@ -193,7 +193,7 @@ void reset_phy (void)
 
 	/* Reset the PHY */
 	iop->pdat &= 0xfff7ffff;	/* PA12 = |SWITCH_RESET */
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	udelay(20000);
 	iop->pdat |= 0x00080000;
 	for (i=0; i<100; i++) {

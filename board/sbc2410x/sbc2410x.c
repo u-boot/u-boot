@@ -31,7 +31,7 @@
 #include <common.h>
 #include <s3c2410.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand.h>
 #endif
 
@@ -136,7 +136,7 @@ int dram_init (void)
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 extern ulong nand_probe(ulong physadr);
 
 static inline void NF_Reset(void)
@@ -180,4 +180,4 @@ void nand_init(void)
 #endif
 	printf ("%4lu MB\n", nand_probe((ulong)nand) >> 20);
 }
-#endif /* CONFIG_COMMANDS & CFG_CMD_NAND */
+#endif

@@ -184,6 +184,10 @@ Howard Gray <mvsensor@matrix-vision.de>
 
 	MVS1			MPC823
 
+Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+	sbc8641d		MPC8641D
+
 Klaus Heydeck <heydeck@kieback-peter.de>
 
 	KUP4K			MPC855
@@ -450,6 +454,12 @@ Konstantin Kletschke <kletschke@synertronixx.de>
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
+
+Sergey Kubushyn <ksi@koi8.net>
+
+	DV-EVM			ARM926EJS
+	SONATA			ARM926EJS
+	SCHMOOGIE		ARM926EJS
 
 Prakash Kumar <prakash@embedx.com>
 

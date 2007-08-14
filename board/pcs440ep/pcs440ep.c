@@ -879,7 +879,7 @@ int ide_preinit (void)
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined (CONFIG_CMD_IDE) && defined (CONFIG_IDE_RESET)
 void ide_set_reset (int idereset)
 {
 	debug ("ide_reset(%d)\n", idereset);
@@ -890,4 +890,4 @@ void ide_set_reset (int idereset)
 	}
 	udelay (10000);
 }
-#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif /* defined (CONFIG_CMD_IDE) && defined (CONFIG_IDE_RESET) */

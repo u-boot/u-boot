@@ -21,7 +21,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#ifdef CONFIG_CMD_BSP
 /*
  * Command nm_bsp: Netstal Maschinen BSP specific command
  */

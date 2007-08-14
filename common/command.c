@@ -42,7 +42,7 @@ U_BOOT_CMD(
 	NULL
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_ECHO)
+#if defined(CONFIG_CMD_ECHO)
 
 int
 do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -76,7 +76,7 @@ U_BOOT_CMD(
 	"    - echo args to console; \\c suppresses newline\n"
 );
 
-#endif	/*  CFG_CMD_ECHO */
+#endif
 
 #ifdef CFG_HUSH_PARSER
 
@@ -409,7 +409,7 @@ void install_auto_complete(void)
 {
 	install_auto_complete_handler("printenv", var_complete);
 	install_auto_complete_handler("setenv", var_complete);
-#if (CONFIG_COMMANDS & CFG_CMD_RUN)
+#if defined(CONFIG_CMD_RUN)
 	install_auto_complete_handler("run", var_complete);
 #endif
 }

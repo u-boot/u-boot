@@ -29,9 +29,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define HCU_MACH_VERSIONS_REGISTER	(0x7C000000 + 0xF00000)
 
-#define mtsdram(reg, data)  { mtdcr(memcfga,reg);mtdcr(memcfgd,data); }
-#define mfsdram(value, reg) { mtdcr(memcfga,reg); value = mfdcr(memcfgd); }
-
 #define SDRAM_LEN 32*1024*1024 /* 32 MB -RAM */
 
 #define DO_UGLY_SDRAM_WORKAROUND
@@ -164,17 +161,17 @@ void show_sdram_registers(void)
 	u32 value;
 
 	printf ("SDRAM Controller Registers --\n");
-	mfsdram(value, mem_mcopt1);
+	mfsdram(mem_mcopt1, value);
 	printf ("    SDRAM0_CFG   : 0x%08x\n", value);
-	mfsdram(value, mem_status);
+	mfsdram(mem_status, value);
 	printf ("    SDRAM0_STATUS: 0x%08x\n", value);
-	mfsdram(value, mem_mb0cf);
+	mfsdram(mem_mb0cf, value);
 	printf ("    SDRAM0_B0CR  : 0x%08x\n", value);
-	mfsdram(value, mem_mb1cf);
+	mfsdram(mem_mb1cf, value);
 	printf ("    SDRAM0_B1CR  : 0x%08x\n", value);
-	mfsdram(value, mem_sdtr1);
+	mfsdram(mem_sdtr1, value);
 	printf ("    SDRAM0_TR    : 0x%08x\n", value);
-	mfsdram(value, mem_rtr);
+	mfsdram(mem_rtr, value);
 	printf ("    SDRAM0_RTR   : 0x%08x\n", value);
 }
 #endif

@@ -1,5 +1,5 @@
 #
-# Copyright 2004 Freescale Semiconductor.
+# Copyright 2004, 2007 Freescale Semiconductor.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,7 +23,9 @@
 #
 # mpc8548cds board
 #
+ifndef TEXT_BASE
 TEXT_BASE = 0xfff80000
+endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_E500=1
 PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx=1

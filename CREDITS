@@ -257,6 +257,10 @@ E: Raghu.Krishnaprasad@fci.com
 D: Support for Adder-II MPC852T evaluation board
 W: http://www.forcecomputers.com
 
+N: Sergey Kubushyn
+E: ksi@koi8.net
+D: Support for various TI DaVinci based boards.
+
 N: Bernhard Kuhn
 E: bkuhn@metrowerks.com
 D Support for Coldfire CPU; Support for Motorola M5272C3 and M5282EVB boards

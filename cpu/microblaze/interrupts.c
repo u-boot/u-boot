@@ -190,7 +190,7 @@ void interrupt_handler (void)
 }
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 #ifdef CFG_INTC_0
 int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -217,4 +217,4 @@ int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	puts ("Undefined interrupt controller\n");
 }
 #endif
-#endif				/* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

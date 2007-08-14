@@ -69,33 +69,28 @@
 
 #define CONFIG_BAUDRATE		38400
 
-/***********************************************************
- * Command definition
- ***********************************************************/
-#if 0 /* @TODO */
-#define CONFIG_COMMANDS \
-			(CONFIG_CMD_DFL	 | \
-			CFG_CMD_CACHE	 | \
-			/*CFG_CMD_NAND	 |*/ \
-			/*CFG_CMD_EEPROM |*/ \
-			/*CFG_CMD_I2C	 |*/ \
-			/*CFG_CMD_USB	 |*/ \
-			CFG_CMD_REGINFO  | \
-			CFG_CMD_DATE	 | \
-			CFG_CMD_ELF)
-#else
-#define CONFIG_COMMANDS \
-			(CONFIG_CMD_BDI | \
-			CFG_CMD_NET | \
-			CFG_CMD_PING	 | \
-			CFG_CMD_CONSOLE	 | \
-			CFG_CMD_LOADB	 | \
-			CFG_CMD_LOADS	 | \
-			CFG_CMD_MEMORY)
-#endif
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_BOOTDELAY	3
 /*#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600" */
@@ -108,7 +103,7 @@
 /*#define CONFIG_BOOTFILE	"elinos-lart" */
 /*#define CONFIG_BOOTCOMMAND	"tftp; bootm" */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

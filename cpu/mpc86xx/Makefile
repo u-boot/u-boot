@@ -1,4 +1,5 @@
 #
+# Copyright 2007 Freescale Semiconductor, Inc.
 # (C) Copyright 2002,2003 Motorola Inc.
 # Xianghua Xiao,X.Xiao@motorola.com
 #
@@ -30,7 +31,7 @@ LIB	= $(obj)lib$(CPU).a
 START	= start.o #resetvec.o
 SOBJS	= cache.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
-	  pci.o pcie_indirect.o spd_sdram.o
+	  spd_sdram.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

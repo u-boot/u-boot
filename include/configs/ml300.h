@@ -87,13 +87,28 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define REMOVE_COMMANDS	       (CFG_CMD_FLASH | CFG_CMD_LOADS | CFG_CMD_FAT | \
-				CFG_CMD_IMLS )
-#define CONFIG_COMMANDS	       ((CONFIG_CMD_DFL | CFG_CMD_NET) \
-				& ~REMOVE_COMMANDS)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_FAT
+#undef CONFIG_CMD_IMLS
+
 
 /* #define CONFIG_SYS_CLK_FREQ XPAR_CORE_CLOCK_FREQ_HZ */
 /* 300000000 */

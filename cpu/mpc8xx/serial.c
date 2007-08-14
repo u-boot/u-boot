@@ -666,7 +666,7 @@ void enable_putc(void)
 }
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 
 void
 kgdb_serial_init(void)
@@ -723,6 +723,6 @@ kgdb_interruptible (int yes)
 {
 	return;
 }
-#endif	/* CFG_CMD_KGDB	*/
+#endif
 
 #endif	/* CONFIG_8xx_CONS_NONE */
