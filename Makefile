@@ -212,6 +212,9 @@ LIBS += drivers/nand_legacy/libnand_legacy.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
+ifeq ($(CPU),mpc85xx)
+LIBS += drivers/qe/qe.a
+endif
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \

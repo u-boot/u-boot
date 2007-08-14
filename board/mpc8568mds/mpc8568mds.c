@@ -28,8 +28,64 @@
 #include <asm/immap_85xx.h>
 #include <spd.h>
 #include <i2c.h>
+#include <ioports.h>
 
 #include "bcsr.h"
+
+const qe_iop_conf_t qe_iop_conf_tab[] = {
+	/* GETH1 */
+	{4, 10, 1, 0, 2}, /* TxD0 */
+	{4,  9, 1, 0, 2}, /* TxD1 */
+	{4,  8, 1, 0, 2}, /* TxD2 */
+	{4,  7, 1, 0, 2}, /* TxD3 */
+	{4, 23, 1, 0, 2}, /* TxD4 */
+	{4, 22, 1, 0, 2}, /* TxD5 */
+	{4, 21, 1, 0, 2}, /* TxD6 */
+	{4, 20, 1, 0, 2}, /* TxD7 */
+	{4, 15, 2, 0, 2}, /* RxD0 */
+	{4, 14, 2, 0, 2}, /* RxD1 */
+	{4, 13, 2, 0, 2}, /* RxD2 */
+	{4, 12, 2, 0, 2}, /* RxD3 */
+	{4, 29, 2, 0, 2}, /* RxD4 */
+	{4, 28, 2, 0, 2}, /* RxD5 */
+	{4, 27, 2, 0, 2}, /* RxD6 */
+	{4, 26, 2, 0, 2}, /* RxD7 */
+	{4, 11, 1, 0, 2}, /* TX_EN */
+	{4, 24, 1, 0, 2}, /* TX_ER */
+	{4, 16, 2, 0, 2}, /* RX_DV */
+	{4, 30, 2, 0, 2}, /* RX_ER */
+	{4, 17, 2, 0, 2}, /* RX_CLK */
+	{4, 19, 1, 0, 2}, /* GTX_CLK */
+	{1, 31, 2, 0, 3}, /* GTX125 */
+
+	/* GETH2 */
+	{5, 10, 1, 0, 2}, /* TxD0 */
+	{5,  9, 1, 0, 2}, /* TxD1 */
+	{5,  8, 1, 0, 2}, /* TxD2 */
+	{5,  7, 1, 0, 2}, /* TxD3 */
+	{5, 23, 1, 0, 2}, /* TxD4 */
+	{5, 22, 1, 0, 2}, /* TxD5 */
+	{5, 21, 1, 0, 2}, /* TxD6 */
+	{5, 20, 1, 0, 2}, /* TxD7 */
+	{5, 15, 2, 0, 2}, /* RxD0 */
+	{5, 14, 2, 0, 2}, /* RxD1 */
+	{5, 13, 2, 0, 2}, /* RxD2 */
+	{5, 12, 2, 0, 2}, /* RxD3 */
+	{5, 29, 2, 0, 2}, /* RxD4 */
+	{5, 28, 2, 0, 2}, /* RxD5 */
+	{5, 27, 2, 0, 3}, /* RxD6 */
+	{5, 26, 2, 0, 2}, /* RxD7 */
+	{5, 11, 1, 0, 2}, /* TX_EN */
+	{5, 24, 1, 0, 2}, /* TX_ER */
+	{5, 16, 2, 0, 2}, /* RX_DV */
+	{5, 30, 2, 0, 2}, /* RX_ER */
+	{5, 17, 2, 0, 2}, /* RX_CLK */
+	{5, 19, 1, 0, 2}, /* GTX_CLK */
+	{1, 31, 2, 0, 3}, /* GTX125 */
+	{4,  6, 3, 0, 2}, /* MDIO */
+	{4,  5, 1, 0, 2}, /* MDC */
+	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
+};
 
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -50,6 +106,9 @@ int board_early_init_f (void)
 
 	enable_8568mds_duart();
 	enable_8568mds_flash_write();
+#if defined(CONFIG_QE) && !defined(CONFIG_eTSEC_MDIO_BUS)
+	enable_8568mds_qe_mdio();
+#endif
 
 #ifdef CFG_I2C2_OFFSET
 	/* Enable I2C2_SCL and I2C2_SDA */
@@ -335,6 +394,6 @@ pci_init_board(void)
 {
 #ifdef CONFIG_PCI
 	pib_init();
-	pci_mpc85xx_init(&hose);
+	pci_mpc85xx_init(hose);
 #endif
 }

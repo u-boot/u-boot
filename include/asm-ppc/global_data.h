@@ -71,16 +71,16 @@ typedef	struct	global_data {
 	u32 lclk_clk;
 	u32 ddr_clk;
 	u32 pci_clk;
+#if defined(CONFIG_MPC8360)
+	u32  ddr_sec_clk;
+#endif /* CONFIG_MPC8360 */
+#endif
 #if defined(CONFIG_QE)
 	u32 qe_clk;
 	u32 brg_clk;
 	uint mp_alloc_base;
 	uint mp_alloc_top;
 #endif /* CONFIG_QE */
-#if defined (CONFIG_MPC8360)
-	u32  ddr_sec_clk;
-#endif /* CONFIG_MPC8360 */
-#endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;
