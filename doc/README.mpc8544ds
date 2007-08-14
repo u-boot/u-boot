@@ -98,7 +98,7 @@ Likely, that .dts file will come from here;
 
     linux-2.6/arch/powerpc/boot/dts/mpc8544ds.dts
 
-After placing the DTB file in your TFTP disk area, 
+After placing the DTB file in your TFTP disk area,
 you can download that dtb file using a command like:
 
     tftp 900000 mpc8544ds.dtb

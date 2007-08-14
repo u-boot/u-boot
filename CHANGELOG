@@ -1,3 +1,231 @@
+commit 85eb5caf6b906f7ec5b54814e8c7c74f55986bb7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 14 09:47:27 2007 +0200
+
+    Coding style cleanup; rebuild CHANGELOG
+
+commit 7f3f2bd2dc08e0b05e185662ca2e2d283757104a
+Author: Randy Vinson <rvinson@linuxbox.(none)>
+Date:	Tue Feb 27 19:42:22 2007 -0700
+
+    85xxCDS: Add make targets for legacy systems.
+
+    The PCI ID select values on the Arcadia main board differ depending
+    on the version of the hardware. The standard configuration supports
+    Rev 3.1. The legacy target supports Rev 2.x.
+
+    Signed-off-by Randy Vinson <rvinson@mvista.com>
+
+commit e41094c7e38177c755fbd9b182018069614f080d
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Aug 14 01:50:09 2007 -0500
+
+    85xxCDS: Enable the VIA PCI-to-ISA bridge.
+
+    Author: Randy Vinson <rvinson@linuxbox.(none)>
+
+    Enable the PCI-to-ISA bridge in the VIA Southbridge located on the
+    Arcadia main board.
+
+    Signed-off-by: Randy Vinson <rvinson@mvista.com>
+    Signed-off-by: York Sun <yorksun@freescale.com>
+
+commit da9d4610d76e52c4d20a8f3d8433439a7fcf5b71
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Aug 14 00:14:25 2007 -0500
+
+    Add support for UEC to 8568
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit c59e4091ffe0148398b9e9ff14a019ea038b7432
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Tue Jun 19 14:18:34 2007 -0400
+
+    Add PCI support for MPC8568MDS board
+
+    This patch is against u-boot-mpc85xx.git of www.denx.com
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Ebony Zhu <ebony.zhu@freescale.com>
+
+commit d111d6382c99fdea08c2312eeeae8786945e189a
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Tue Jun 19 14:18:32 2007 -0400
+
+    Empirically set cpo and clk_adjust for mpc85xx DDR2 support
+
+    This patch is against u-boot-mpc85xx.git of www.denx.com
+
+    Setting cpo to 0x9 for frequencies higher than 333MHz is verified on
+    both MPC8548CDS board and MPC8568MDS board, especially for supporting
+    533MHz DDR2.
+
+    Setting clk_adjust to 0x6(3/4 late cycle) for MPC8568MDS board is for
+    DDR2 on all current board versions especially ver 1.92 or later to bring
+    up.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 3db0bef59eab1155801618cef5c481e97553b597
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Aug 7 18:07:27 2007 -0500
+
+    Use an absolute address when jumping out of 4k boot page
+
+    On e500 when we leave the 4k boot page we should use an absolute address since
+    we don't know where the board code may want us to be really running at.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 39980c610c9a4c381907c9e1d1b9c0e1c0dca57a
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Aug 13 14:49:59 2007 -0500
+
+    MPC85xx BA bits not set for 3-bit bank address DIMM
+
+    The current implementation does not set the number of bank address bits
+    (BA) in the processor. The default assumes 2 logical bank bits. This
+    works fine for a DIMM that uses devices with 4 internal banks (SPD
+    byte17 = 0x4) but needs to be set appropriately for a DIMM that uses
+    devices with 8 internal banks (SPD byte17 = 0x8).
+
+    Signed-off-by: Greg Davis <DavisG@embeddedplanet.com>
+
+commit 6c543597bb4b1ecf5d8589f7abb0f39929fb7fd1
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Aug 13 14:38:06 2007 -0500
+
+    Fix minor 85xx warnings
+
+    Some patches had inserted warnings into the build:
+    * mpc8560ads declared data without using it
+    * cpu_init declared ecm and immap without using it in all CONFIGs
+    * MPC8548CDS.h had its default filenames changed so that they contained
+      "\m" in the paths.  Made the defaults not Windows-specific (or
+      anything-specific)
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit f2cff6b104f82b993bef6086ce0c97159bbe1add
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:52 2007 -0500
+
+    8548cds PCIE support.
+
+    Make the early L1 cache stack region guarded to prevent speculative
+    fetches outside the locked range.
+
+    Use _PHYS defines, not _MEM for cpu-side PCI memory mapped regions.
+    init.S whitespace cleanup.
+
+    Allow TEXT_BASE value to be specified on command line.  This allows it
+    to be set to 0xfffc0000 which cuts the uboot binary in half.
+
+    Clear and enable lbc and ecm errors.
+
+    Update last_busno in device-tree for pci and pcie.
+
+    Remove load of obsolete cpu/mpc85xx/pci.0
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 837f1ba05cfb248aba5ab8e1fb1bfeefa07d5962
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:51 2007 -0500
+
+    8544ds PCIE support
+
+    PCI1 LAW mapping should use CFG_PCI1_MEM_PHY and not _BASE address.
+
+    Enable LBC and ECM errors and clear error registers.
+
+    Add tftpflash env var to get uboot from tftp server and flash it.
+
+    Add pci/pcie convenience env vars to display register space:
+      "run pcie3regs" to see all pcie3 ccsr registers
+      "run pcie3cfg" to see all cfg registers
+    Whitespace cleanup and MPC8544DS.h
+
+    Enable CONFIG_INTERRUPTS.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 61a21e980a7b9188424d04f1c265fdc5c21c7e85
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Aug 14 01:34:21 2007 -0500
+
+    85xx start.S cleanup and exception support
+
+    From: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+    Support external interrupts from platform to eliminate system hangs.
+    Define CONFIG_INTERRUPTS board configure option to enable.
+    Enable ecm, ddr, lbc, and pci/pcie error interrupts in PIC.
+
+    Remove extra cpu initialization redundant with hardware initialization.
+    Whitespace cleanup.
+
+    Define and use _START_OFFSET consistent with other processors using
+    ppc_asm.tmpl
+
+    Move additional code from .text to boot page to make room for
+    exception vectors at start of image.
+
+    Handle Machine Check, External and Critical exceptions.
+
+    Fix e500 machine check error determination in traps.c
+
+    TEXT_BASE can now be 0xfffc_0000 - which cuts binary image in half.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 7bd30fc4a6475b41d6679ae3aafc9fa505260c47
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Aug 14 01:33:18 2007 -0500
+
+    Add MPC8544DS README
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 40c7f9b0de4e300370adfc704128fa0f79a143b6
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:48 2007 -0500
+
+    85xx allow debugger to configure ddr.
+
+    Only check for mpc8548 rev 1 when compiled for 8548.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 29372ff38c5baab7d0e3a8c14fe11fa194a38704
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:47 2007 -0500
+
+    mpc85xx L2 cache reporting and SRAM relocation option.
+
+    Allow debugger to override flash cs0/cs1 settings to enable alternate
+    boot regions
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 41f0f8fb1ab92f0cba7d329de90070f822f8299f
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:46 2007 -0500
+
+    e500 needs ppc_asm.tmp MCK_EXCEPTION
+
+    Always define MCK_EXCEPTION macro - so e500 can use it too.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
 commit 53a5c424bf8655b7b4e2c305a441963259a26a81
 Author: David Updegraff <dave@cray.com>
 Date:	Mon Jun 11 10:41:07 2007 -0500
