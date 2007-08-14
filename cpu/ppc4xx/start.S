@@ -1870,28 +1870,6 @@ ppc405ep_init:
 	mtdcr	ebccfgd,r3
 #endif
 
-#ifndef CFG_CPC0_PCI
-	li	r3,CPC0_PCI_HOST_CFG_EN
-#ifdef CONFIG_BUBINGA
-	/*
-	!-----------------------------------------------------------------------
-	! Check FPGA for PCI internal/external arbitration
-	!   If board is set to internal arbitration, update cpc0_pci
-	!-----------------------------------------------------------------------
-	*/
-	addis	r5,r0,FPGA_REG1@h      /* set offset for FPGA_REG1 */
-	ori	r5,r5,FPGA_REG1@l
-	lbz	r5,0x0(r5)		/* read to get PCI arb selection */
-	andi.	r6,r5,FPGA_REG1_PCI_INT_ARB  /* using internal arbiter ?*/
-	beq	..pci_cfg_set		  /* if not set, then bypass reg write*/
-#endif
-	ori	r3,r3,CPC0_PCI_ARBIT_EN
-#else /* CFG_CPC0_PCI */
-	li	r3,CFG_CPC0_PCI
-#endif /* CFG_CPC0_PCI */
-..pci_cfg_set:
-	mtdcr	CPC0_PCI, r3		 /* Enable internal arbiter*/
-
 	/*
 	!-----------------------------------------------------------------------
 	! Check to see if chip is in bypass mode.
@@ -1947,11 +1925,50 @@ ppc405ep_init:
 ..no_pllset:
 #endif /* CONFIG_BUBINGA */
 
+#ifdef CONFIG_TAIHU
+	mfdcr	r4, CPC0_BOOT
+	andi.	r5, r4, CPC0_BOOT_SEP@l
+	bne	strap_1			/* serial eeprom present */
+	addis	r5,0,CPLD_REG0_ADDR@h
+	ori	r5,r5,CPLD_REG0_ADDR@l
+	andi.	r5, r5, 0x10
+	bne	_pci_66mhz
+#endif /* CONFIG_TAIHU */
+
+#if defined(CONFIG_ZEUS)
+	mfdcr	r4, CPC0_BOOT
+	andi.	r5, r4, CPC0_BOOT_SEP@l
+	bne	strap_1  	/* serial eeprom present */
+	lis	r3,0x0000
+	addi	r3,r3,0x3030
+	lis	r4,0x8042
+	addi	r4,r4,0x223e
+	b	1f
+strap_1:
+	mfdcr	r3, CPC0_PLLMR0
+	mfdcr	r4, CPC0_PLLMR1
+	b	1f
+#endif
+
 	addis	r3,0,PLLMR0_DEFAULT@h	    /* PLLMR0 default value */
 	ori	r3,r3,PLLMR0_DEFAULT@l	   /* */
 	addis	r4,0,PLLMR1_DEFAULT@h	    /* PLLMR1 default value */
 	ori	r4,r4,PLLMR1_DEFAULT@l	   /* */
 
+#ifdef CONFIG_TAIHU
+	b	1f
+_pci_66mhz:
+	addis	r3,0,PLLMR0_DEFAULT_PCI66@h
+	ori	r3,r3,PLLMR0_DEFAULT_PCI66@l
+	addis	r4,0,PLLMR1_DEFAULT_PCI66@h
+	ori	r4,r4,PLLMR1_DEFAULT_PCI66@l
+	b	1f
+strap_1:
+	mfdcr	r3, CPC0_PLLMR0
+	mfdcr	r4, CPC0_PLLMR1
+#endif /* CONFIG_TAIHU */
+
+1:
 	b	pll_write		  /* Write the CPC0_PLLMR with new value */
 
 pll_done:

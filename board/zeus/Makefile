@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2001
-# Erik Theisen, Wave 7 Optics, etheisen@mindspring.com.
+# (C) Copyright 2007
+# Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -26,19 +23,23 @@
 
 include $(TOPDIR)/config.mk
 
-#CFLAGS += -DDEBUG
+LIB	= $(obj)lib$(BOARD).a
 
-LIB	= $(obj)libdtt.a
+COBJS	= $(BOARD).o update.o
+SOBJS   =
 
-COBJS	= lm75.o ds1621.o adm1021.o lm81.o ds1775.o
-
-SRCS	:= $(COBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

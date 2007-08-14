@@ -186,6 +186,7 @@ void gpio_set_chip_configuration(void)
 						out32(GPIO0_TCR, reg);
 					}
 
+#ifdef GPIO1
 					if (gpio_core == GPIO1) {
 						/*
 						 * Setup output value
@@ -203,6 +204,7 @@ void gpio_set_chip_configuration(void)
 						reg = in32(GPIO1_TCR) | (0x80000000 >> (i));
 						out32(GPIO1_TCR, reg);
 					}
+#endif /* GPIO1 */
 
 					reg = in32(GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
