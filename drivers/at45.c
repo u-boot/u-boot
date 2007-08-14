@@ -547,4 +547,18 @@ int AT91F_DataFlashRead(
 	return DATAFLASH_OK;
 }
 
+/*---------------------------------------------------------------------------*/
+/* Function Name       : AT91F_DataflashProbe 				     */
+/* Object              : 						     */
+/* Input Parameters    : 						     */
+/* Return value	       : Dataflash status register			     */
+/*---------------------------------------------------------------------------*/ 
+int AT91F_DataflashProbe(int cs, AT91PS_DataflashDesc pDesc) {
+	AT91F_SpiEnable(cs);
+	AT91F_DataFlashGetStatus(pDesc);
+	return((pDesc->command[1] == 0xFF)? 0: pDesc->command[1] & 0x3C); 
+}
+
+#endif
+
 
