@@ -187,14 +187,14 @@ void sdram_init(void)
 		/*
 		 * Disable memory controller.
 		 */
-		mtsdram0(mem_mcopt1, 0x00000000);
+		mtsdram(mem_mcopt1, 0x00000000);
 
 		/*
 		 * Set MB0CF for bank 0.
 		 */
-		mtsdram0(mem_mb0cf, mb0cf[i].reg);
-		mtsdram0(mem_sdtr1, sdtr1);
-		mtsdram0(mem_rtr, compute_rtr(speed, mb0cf[i].rows, 64));
+		mtsdram(mem_mb0cf, mb0cf[i].reg);
+		mtsdram(mem_sdtr1, sdtr1);
+		mtsdram(mem_rtr, compute_rtr(speed, mb0cf[i].rows, 64));
 
 		udelay(200);
 
@@ -203,7 +203,7 @@ void sdram_init(void)
 		 * Set DC_EN to '1' and BRD_PRF to '01' for 16 byte PLB Burst
 		 * read/prefetch.
 		 */
-		mtsdram0(mem_mcopt1, 0x80800000);
+		mtsdram(mem_mcopt1, 0x80800000);
 
 		udelay(10000);
 
@@ -215,10 +215,21 @@ void sdram_init(void)
 #ifdef CONFIG_SDRAM_BANK1
 			u32 b1cr = mb0cf[i].size | mb0cf[i].reg;
 
-			mtsdram0(mem_mcopt1, 0x00000000);
-			mtsdram0(mem_mb1cf, b1cr); /* SDRAM0_B1CR */
-			mtsdram0(mem_mcopt1, 0x80800000);
+			mtsdram(mem_mcopt1, 0x00000000);
+			mtsdram(mem_mb1cf, b1cr); /* SDRAM0_B1CR */
+			mtsdram(mem_mcopt1, 0x80800000);
 			udelay(10000);
+
+			/*
+			 * Check if 2nd bank is really available.
+			 * If the size not equal to the size of the first
+			 * bank, then disable the 2nd bank completely.
+			 */
+			if (get_ram_size((long *)mb0cf[i].size, mb0cf[i].size) !=
+			    mb0cf[i].size) {
+				mtsdram(mem_mb1cf, 0);
+				mtsdram(mem_mcopt1, 0);
+			}
 #endif
 			return;
 		}

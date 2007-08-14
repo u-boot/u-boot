@@ -50,6 +50,12 @@ int board_early_init_f(void)
 	mtebc(pb3ap, CFG_EBC_PB3AP);	/* memory bank 3 (CPLD_LCM) initialization */
 	mtebc(pb3cr, CFG_EBC_PB3CR);
 
+	/*
+	 * Configure CPC0_PCI to enable PerWE as output
+	 * and enable the internal PCI arbiter
+	 */
+	mtdcr(cpc0_pci, CPC0_PCI_SPE | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
+
 	return 0;
 }
 

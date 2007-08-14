@@ -293,6 +293,7 @@ Stefan Roese <sr@denx.de>
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
+	zeus			PPC405EP
 
 	P3M750			PPC750FX/GX/GL
 

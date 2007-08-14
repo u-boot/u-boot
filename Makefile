@@ -1294,6 +1294,9 @@ yellowstone_config: unconfig
 yucca_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx yucca amcc
 
+zeus_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx zeus
+
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
