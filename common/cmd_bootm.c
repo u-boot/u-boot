@@ -924,6 +924,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
+#ifdef CFG_BOOTMAPSZ
+	/*
+	 * The blob must be within CFG_BOOTMAPSZ,
+	 * so we flag it to be copied if it is
+	 */
+	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
+		of_data = of_flat_tree;
+#endif
+
 #if defined(CONFIG_OF_LIBFDT)
 	/* move of_flat_tree if needed */
 	if (of_data) {
@@ -931,11 +940,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		ulong of_start, of_len;
 
 		of_len = be32_to_cpu(fdt_totalsize(of_data));
-		/* position on a 4K boundary before the initrd/kbd */
-		if (initrd_start)
-			of_start = initrd_start - of_len;
-		else
-			of_start  = (ulong)kbd - of_len;
+
+		/* position on a 4K boundary before the kbd */
+		of_start  = (ulong)kbd - of_len;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
@@ -983,11 +990,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if (of_data) {
 		ulong of_start, of_len;
 		of_len = ((struct boot_param_header *)of_data)->totalsize;
+
 		/* provide extra 8k pad */
-		if (initrd_start)
-			of_start = initrd_start - of_len - 8192;
-		else
-			of_start  = (ulong)kbd - of_len - 8192;
+		of_start  = (ulong)kbd - of_len - 8192;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
