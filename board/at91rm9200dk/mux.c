@@ -23,8 +23,8 @@ void AT91F_SelectMMC(void) {
 	AT91C_BASE_PIOB->PIO_PER = DATAFLASH_MMC_SELECT;	/* Set in PIO mode */
 	AT91C_BASE_PIOB->PIO_OER = DATAFLASH_MMC_SELECT;	/* Configure in output */
 	/* Set Output */
-	AT91C_BASE_PIOB->PIO_SODR = DATAFLASH_MMC_SELECT; 
-#endif 
+	AT91C_BASE_PIOB->PIO_SODR = DATAFLASH_MMC_SELECT;
+#endif
 }
 
 void AT91F_SelectSPI(void) {
@@ -32,8 +32,6 @@ void AT91F_SelectSPI(void) {
 	AT91C_BASE_PIOB->PIO_PER = DATAFLASH_MMC_SELECT;	/* Set in PIO mode */
 	AT91C_BASE_PIOB->PIO_OER = DATAFLASH_MMC_SELECT;	/* Configure in output */
 	/* Clear Output */
-	AT91C_BASE_PIOB->PIO_CODR = DATAFLASH_MMC_SELECT; 
-#endif 
+	AT91C_BASE_PIOB->PIO_CODR = DATAFLASH_MMC_SELECT;
+#endif
 }
-
-

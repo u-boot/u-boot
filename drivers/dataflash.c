@@ -63,7 +63,7 @@ dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
 #endif
 #elif defined(CONFIG_NEW_PARTITION)
 /*define the area offsets*/
-/* Invalid partitions should be defined with start > end */ 
+/* Invalid partitions should be defined with start > end */
 dataflash_protect_t area_list[NB_DATAFLASH_AREA*CFG_MAX_DATAFLASH_BANKS] = {
 	{0x00000000, 0x000083ff, FLAG_PROTECT_SET,	0,		"Bootstrap"},	/* ROM code */
 	{0x00008400, 0x00020fff, FLAG_PROTECT_SET,	0,		"U-Boot"},	/* u-boot code */
@@ -114,7 +114,7 @@ int AT91F_DataflashInit (void)
 		dataflash_info[i].Desc.state = IDLE;
 		dataflash_info[i].id = 0;
 		dataflash_info[i].Device.pages_number = 0;
-		dfcode = AT91F_DataflashProbe (cs[i][1], 
+		dfcode = AT91F_DataflashProbe (cs[i][1],
 				&dataflash_info[i].Desc);
 
 		switch (dfcode) {
@@ -179,26 +179,26 @@ int AT91F_DataflashInit (void)
 		/* set the area addresses */
 		for(j = 0; j<NB_DATAFLASH_AREA; j++) {
 			if(found[i]!=0) {
-				dataflash_info[i].Device.area_list[j].start = 
-					area_list[part].start + 
+				dataflash_info[i].Device.area_list[j].start =
+					area_list[part].start +
 					dataflash_info[i].logical_address;
 				if(area_list[part].end == 0xffffffff) {
-					dataflash_info[i].Device.area_list[j].end = 
-						dataflash_info[i].end_address + 
+					dataflash_info[i].Device.area_list[j].end =
+						dataflash_info[i].end_address +
 						dataflash_info	[i].logical_address;
 					last_part = 1;
 				} else {
-					dataflash_info[i].Device.area_list[j].end = 
-						area_list[part].end + 
+					dataflash_info[i].Device.area_list[j].end =
+						area_list[part].end +
 						dataflash_info[i].logical_address;
 				}
 				protected = area_list[part].protected;
 				/* Set the environment according to the label...*/
 				if(protected == FLAG_PROTECT_INVALID) {
-					dataflash_info[i].Device.area_list[j].protected = 
+					dataflash_info[i].Device.area_list[j].protected =
 						FLAG_PROTECT_INVALID;
 				} else {
-					dataflash_info[i].Device.area_list[j].protected = 
+					dataflash_info[i].Device.area_list[j].protected =
 						protected;
 				}
 				strcpy((char*)(dataflash_info[i].Device.area_list[j].label),
@@ -223,7 +223,7 @@ int AT91F_DataflashSetEnv (void)
 			env = area_list[part].setenv;
 			/* Set the environment according to the label...*/
 			if((env & FLAG_SETENV) == FLAG_SETENV) {
-				start = 
+				start =
 				dataflash_info[i].Device.area_list[j].start;
 				sprintf(s,"%X",start);
 				setenv(area_list[part].label,s);
@@ -296,7 +296,7 @@ void dataflash_print_info (void)
 /* Function Name       : AT91F_DataflashSelect 				     */
 /* Object              : Select the correct device			     */
 /*---------------------------------------------------------------------------*/
-AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash, 
+AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash,
 				unsigned long *addr)
 {
 	char addr_valid = 0;
@@ -342,7 +342,7 @@ int addr_dataflash (unsigned long addr)
 /* Function Name       : size_dataflash 				     */
 /* Object              : Test if address is valid regarding the size	     */
 /*---------------------------------------------------------------------------*/
-int size_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr, 
+int size_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr,
 			unsigned long size)
 {
 	/* is outside the dataflash */
@@ -350,7 +350,7 @@ int size_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr,
 		pdataFlash->pDevice->pages_number)) return 0;
 	/* is too large for the dataflash */
 	if (size > ((pdataFlash->pDevice->pages_size *
-		pdataFlash->pDevice->pages_number) - 
+		pdataFlash->pDevice->pages_number) -
 		((int)addr & 0x0FFFFFFF))) return 0;
 
 	return 1;
@@ -368,13 +368,13 @@ int area;
 			(addr < pdataFlash->pDevice->area_list[area].end))
 			break;
 	}
-	if (area == NB_DATAFLASH_AREA) 
+	if (area == NB_DATAFLASH_AREA)
 		return -1;
 
 	/*test protection value*/
-	if (pdataFlash->pDevice->area_list[area].protected == FLAG_PROTECT_SET) 
+	if (pdataFlash->pDevice->area_list[area].protected == FLAG_PROTECT_SET)
 		return 0;
-	if (pdataFlash->pDevice->area_list[area].protected == FLAG_PROTECT_INVALID) 
+	if (pdataFlash->pDevice->area_list[area].protected == FLAG_PROTECT_INVALID)
 		return 0;
 
 	return 1;
@@ -383,7 +383,7 @@ int area;
 /* Function Name       : dataflash_real_protect				    */
 /* Object              : protect/unprotect area				    */
 /*--------------------------------------------------------------------------*/
-int dataflash_real_protect (int flag, unsigned long start_addr, 
+int dataflash_real_protect (int flag, unsigned long start_addr,
 				unsigned long end_addr)
 {
 int i,j, area1, area2, addr_valid = 0;
@@ -400,27 +400,27 @@ int i,j, area1, area2, addr_valid = 0;
 	}
 	/* find start area */
 	for (area1=0; area1 < NB_DATAFLASH_AREA; area1++) {
-		if (start_addr == dataflash_info[i].Device.area_list[area1].start) 
+		if (start_addr == dataflash_info[i].Device.area_list[area1].start)
 			break;
 	}
 	if (area1 == NB_DATAFLASH_AREA) return -1;
 	/* find end area */
 	for (area2=0; area2 < NB_DATAFLASH_AREA; area2++) {
-		if (end_addr == dataflash_info[i].Device.area_list[area2].end) 
+		if (end_addr == dataflash_info[i].Device.area_list[area2].end)
 			break;
 	}
-	if (area2 == NB_DATAFLASH_AREA) 
+	if (area2 == NB_DATAFLASH_AREA)
 		return -1;
 
 	/*set protection value*/
 	for(j = area1; j < area2+1 ; j++)
-		if(dataflash_info[i].Device.area_list[j].protected 
+		if(dataflash_info[i].Device.area_list[j].protected
 				!= FLAG_PROTECT_INVALID) {
 			if (flag == 0) {
-				dataflash_info[i].Device.area_list[j].protected 
+				dataflash_info[i].Device.area_list[j].protected
 					= FLAG_PROTECT_CLEAR;
 			} else {
-				dataflash_info[i].Device.area_list[j].protected 
+				dataflash_info[i].Device.area_list[j].protected
 					= FLAG_PROTECT_SET;
 			}
 		}
@@ -473,7 +473,7 @@ int write_dataflash (unsigned long addr_dest, unsigned long addr_src,
 	if (AddrToWrite == -1)
 		return -1;
 
-	return AT91F_DataFlashWrite (pFlash, (uchar *)addr_src, 
+	return AT91F_DataFlashWrite (pFlash, (uchar *)addr_src,
 						AddrToWrite, size);
 }
 

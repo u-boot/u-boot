@@ -148,6 +148,4 @@ unsigned int AT91F_SpiWrite ( AT91PS_DataflashDesc pDesc )
 
 	return DATAFLASH_OK;
 }
-
 #endif
-

@@ -78,7 +78,7 @@ typedef struct {
 	unsigned long end;
 	unsigned char protected;
 	unsigned char setenv;
-	unsigned char label[20];	
+	unsigned char label[20];
 } dataflash_protect_t;
 
 typedef unsigned int AT91S_DataFlashStatus;

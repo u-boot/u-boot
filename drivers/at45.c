@@ -36,7 +36,7 @@ extern void 		AT91F_SpiEnable(int cs);
 /*----------------------------------------------------------------------*/
 /* \fn    AT91F_DataFlashSendCommand					*/
 /* \brief Generic function to send a command to the dataflash		*/
-/*----------------------------------------------------------------------*/ 
+/*----------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_DataFlashSendCommand(
 	AT91PS_DataFlash pDataFlash,
 	unsigned char OpCode,
@@ -49,27 +49,27 @@ AT91S_DataFlashStatus AT91F_DataFlashSendCommand(
 		return DATAFLASH_BUSY;
 
 	/* process the address to obtain page address and byte address */
-	adr = ((DataflashAddress / (pDataFlash->pDevice->pages_size)) << 
-		pDataFlash->pDevice->page_offset) + (DataflashAddress % 
+	adr = ((DataflashAddress / (pDataFlash->pDevice->pages_size)) <<
+		pDataFlash->pDevice->page_offset) + (DataflashAddress %
 		(pDataFlash->pDevice->pages_size));
 
 	/* fill the  command  buffer */
 	pDataFlash->pDataFlashDesc->command[0] = OpCode;
 	if (pDataFlash->pDevice->pages_number >= 16384) {
-		pDataFlash->pDataFlashDesc->command[1] = 
+		pDataFlash->pDataFlashDesc->command[1] =
 			(unsigned char)((adr & 0x0F000000) >> 24);
-		pDataFlash->pDataFlashDesc->command[2] = 
+		pDataFlash->pDataFlashDesc->command[2] =
 			(unsigned char)((adr & 0x00FF0000) >> 16);
-		pDataFlash->pDataFlashDesc->command[3] = 
+		pDataFlash->pDataFlashDesc->command[3] =
 			(unsigned char)((adr & 0x0000FF00) >> 8);
-		pDataFlash->pDataFlashDesc->command[4] = 
+		pDataFlash->pDataFlashDesc->command[4] =
 			(unsigned char)(adr & 0x000000FF);
 	} else {
-		pDataFlash->pDataFlashDesc->command[1] = 
+		pDataFlash->pDataFlashDesc->command[1] =
 			(unsigned char)((adr & 0x00FF0000) >> 16);
-		pDataFlash->pDataFlashDesc->command[2] = 
+		pDataFlash->pDataFlashDesc->command[2] =
 			(unsigned char)((adr & 0x0000FF00) >> 8);
-		pDataFlash->pDataFlashDesc->command[3] = 
+		pDataFlash->pDataFlashDesc->command[3] =
 			(unsigned char)(adr & 0x000000FF);
 		pDataFlash->pDataFlashDesc->command[4] = 0;
 	}
@@ -78,10 +78,10 @@ AT91S_DataFlashStatus AT91F_DataFlashSendCommand(
 	pDataFlash->pDataFlashDesc->command[7] = 0;
 
 	/* Initialize the SpiData structure for the spi write fuction */
-	pDataFlash->pDataFlashDesc->tx_cmd_pt   =  
+	pDataFlash->pDataFlashDesc->tx_cmd_pt   =
 		pDataFlash->pDataFlashDesc->command;
 	pDataFlash->pDataFlashDesc->tx_cmd_size =  CmdSize;
-	pDataFlash->pDataFlashDesc->rx_cmd_pt   =  
+	pDataFlash->pDataFlashDesc->rx_cmd_pt   =
 		pDataFlash->pDataFlashDesc->command;
 	pDataFlash->pDataFlashDesc->rx_cmd_size =  CmdSize;
 
@@ -92,8 +92,8 @@ AT91S_DataFlashStatus AT91F_DataFlashSendCommand(
 /*----------------------------------------------------------------------*/
 /* \fn    AT91F_DataFlashGetStatus					*/
 /* \brief Read the status register of the dataflash			*/
-/*----------------------------------------------------------------------*/ 
-AT91S_DataFlashStatus AT91F_DataFlashGetStatus(AT91PS_DataflashDesc pDesc) 
+/*----------------------------------------------------------------------*/
+AT91S_DataFlashStatus AT91F_DataFlashGetStatus(AT91PS_DataflashDesc pDesc)
 {
 	AT91S_DataFlashStatus status;
 
@@ -123,16 +123,16 @@ AT91S_DataFlashStatus AT91F_DataFlashGetStatus(AT91PS_DataflashDesc pDesc)
 /*----------------------------------------------------------------------*/
 /* \fn    AT91F_DataFlashWaitReady					*/
 /* \brief wait for dataflash ready (bit7 of the status register == 1)	*/
-/*----------------------------------------------------------------------*/ 
-AT91S_DataFlashStatus AT91F_DataFlashWaitReady(AT91PS_DataflashDesc 
-pDataFlashDesc, unsigned int timeout) 
+/*----------------------------------------------------------------------*/
+AT91S_DataFlashStatus AT91F_DataFlashWaitReady(AT91PS_DataflashDesc
+pDataFlashDesc, unsigned int timeout)
 {
 	pDataFlashDesc->DataFlash_state = IDLE;
 
 	do {
 		AT91F_DataFlashGetStatus(pDataFlashDesc);
 		timeout--;
-	} while( ((pDataFlashDesc->DataFlash_state & 0x80) != 0x80) && 
+	} while( ((pDataFlashDesc->DataFlash_state & 0x80) != 0x80) &&
 			(timeout > 0) );
 
 	if((pDataFlashDesc->DataFlash_state & 0x80) != 0x80)
@@ -150,7 +150,7 @@ pDataFlashDesc, unsigned int timeout)
 /*                     : <*dataBuffer> = data buffer pointer		    */
 /*                     : <sizeToRead> = data buffer size		    */
 /* Return value		: State of the dataflash			    */
-/*--------------------------------------------------------------------------*/ 
+/*--------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_DataFlashContinuousRead (
 	AT91PS_DataFlash pDataFlash,
 	int src,
@@ -159,8 +159,8 @@ AT91S_DataFlashStatus AT91F_DataFlashContinuousRead (
 {
 	AT91S_DataFlashStatus status;
 	/* Test the size to read in the device */
-	if ( (src + sizeToRead) > 
-		(pDataFlash->pDevice->pages_size * 
+	if ( (src + sizeToRead) >
+		(pDataFlash->pDevice->pages_size *
 		(pDataFlash->pDevice->pages_number)))
 		return DATAFLASH_MEMORY_OVERFLOW;
 
@@ -169,7 +169,7 @@ AT91S_DataFlashStatus AT91F_DataFlashContinuousRead (
 	pDataFlash->pDataFlashDesc->tx_data_pt = dataBuffer;
 	pDataFlash->pDataFlashDesc->tx_data_size = sizeToRead;
 
-	status = AT91F_DataFlashSendCommand 
+	status = AT91F_DataFlashSendCommand
 			(pDataFlash, DB_CONTINUOUS_ARRAY_READ, 8, src);
 	/* Send the command to the dataflash */
 	return(status);
@@ -184,7 +184,7 @@ AT91S_DataFlashStatus AT91F_DataFlashContinuousRead (
 /*                     : <dest> = dataflash destination address		     */
 /*                     : <SizeToWrite> = data buffer size		     */
 /* Return value		: State of the dataflash			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_DataFlashPagePgmBuf(
 	AT91PS_DataFlash pDataFlash,
 	unsigned char *src,
@@ -201,7 +201,7 @@ AT91S_DataFlashStatus AT91F_DataFlashPagePgmBuf(
 	/* Send the command to the dataflash */
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
-	return(AT91F_DataFlashSendCommand (pDataFlash, DB_PAGE_PGM_BUF1, 
+	return(AT91F_DataFlashSendCommand (pDataFlash, DB_PAGE_PGM_BUF1,
 cmdsize, dest)); }
 
 
@@ -212,7 +212,7 @@ cmdsize, dest)); }
 /*                     : Page concerned					     */
 /*                     : 						     */
 /* Return value		: State of the dataflash			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_MainMemoryToBufferTransfert(
 	AT91PS_DataFlash pDataFlash,
 	unsigned char BufferCommand,
@@ -220,7 +220,7 @@ AT91S_DataFlashStatus AT91F_MainMemoryToBufferTransfert(
 {
 	int cmdsize;
 	/* Test if the buffer command is legal */
-	if ((BufferCommand != DB_PAGE_2_BUF1_TRF) 
+	if ((BufferCommand != DB_PAGE_2_BUF1_TRF)
 		&& (BufferCommand != DB_PAGE_2_BUF2_TRF))
 		return DATAFLASH_BAD_COMMAND;
 
@@ -229,7 +229,7 @@ AT91S_DataFlashStatus AT91F_MainMemoryToBufferTransfert(
 	cmdsize = 4;
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
-	return(AT91F_DataFlashSendCommand (pDataFlash, BufferCommand, cmdsize, 
+	return(AT91F_DataFlashSendCommand (pDataFlash, BufferCommand, cmdsize,
 page*pDataFlash->pDevice->pages_size));
 }
 
@@ -253,7 +253,7 @@ AT91S_DataFlashStatus AT91F_DataFlashWriteBuffer (
 {
 	int cmdsize;
 	/* Test if the buffer command is legal */
-	if ((BufferCommand != DB_BUF1_WRITE) 
+	if ((BufferCommand != DB_BUF1_WRITE)
 		&& (BufferCommand != DB_BUF2_WRITE))
 		return DATAFLASH_BAD_COMMAND;
 
@@ -269,26 +269,26 @@ AT91S_DataFlashStatus AT91F_DataFlashWriteBuffer (
 	pDataFlash->pDataFlashDesc->command[1] = 0;
 	if (pDataFlash->pDevice->pages_number >= 16384) {
 	    	pDataFlash->pDataFlashDesc->command[2] = 0;
-	    	pDataFlash->pDataFlashDesc->command[3] = 
-			(unsigned char)(((unsigned int)(bufferAddress &  
+	    	pDataFlash->pDataFlashDesc->command[3] =
+			(unsigned char)(((unsigned int)(bufferAddress &
 				pDataFlash->pDevice->byte_mask)) >> 8);
-	    	pDataFlash->pDataFlashDesc->command[4] = 
+	    	pDataFlash->pDataFlashDesc->command[4] =
 			(unsigned char)((unsigned int)bufferAddress  & 0x00FF);
 		cmdsize = 5;
 	} else {
-	    	pDataFlash->pDataFlashDesc->command[2] = 
-			(unsigned char)(((unsigned int)(bufferAddress & 
+	    	pDataFlash->pDataFlashDesc->command[2] =
+			(unsigned char)(((unsigned int)(bufferAddress &
 				pDataFlash->pDevice->byte_mask)) >> 8);
-	    	pDataFlash->pDataFlashDesc->command[3] = 
+	    	pDataFlash->pDataFlashDesc->command[3] =
 			(unsigned char)((unsigned int)bufferAddress  & 0x00FF);
 	    	pDataFlash->pDataFlashDesc->command[4] = 0;
 		cmdsize = 4;
 	}
 
-	pDataFlash->pDataFlashDesc->tx_cmd_pt 	 = 
+	pDataFlash->pDataFlashDesc->tx_cmd_pt 	 =
 		pDataFlash->pDataFlashDesc->command;
 	pDataFlash->pDataFlashDesc->tx_cmd_size = cmdsize;
-	pDataFlash->pDataFlashDesc->rx_cmd_pt 	 = 
+	pDataFlash->pDataFlashDesc->rx_cmd_pt 	 =
 		pDataFlash->pDataFlashDesc->command;
 	pDataFlash->pDataFlashDesc->rx_cmd_size = cmdsize;
 
@@ -320,7 +320,7 @@ AT91S_DataFlashStatus AT91F_PageErase(
 	cmdsize = 4;
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
-	return(AT91F_DataFlashSendCommand (pDataFlash, DB_PAGE_ERASE, cmdsize, 
+	return(AT91F_DataFlashSendCommand (pDataFlash, DB_PAGE_ERASE, cmdsize,
 page*pDataFlash->pDevice->pages_size));
 }
 
@@ -332,7 +332,7 @@ page*pDataFlash->pDevice->pages_size));
 /*                     : Page concerned					     */
 /*                     : 						     */
 /* Return value		: State of the dataflash			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_BlockErase(
 	AT91PS_DataFlash pDataFlash,
 	unsigned int block)
@@ -344,7 +344,7 @@ AT91S_DataFlashStatus AT91F_BlockErase(
 	cmdsize = 4;
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
-	return(AT91F_DataFlashSendCommand (pDataFlash, DB_BLOCK_ERASE,cmdsize, 
+	return(AT91F_DataFlashSendCommand (pDataFlash, DB_BLOCK_ERASE,cmdsize,
 block*8*pDataFlash->pDevice->pages_size));
 }
 
@@ -355,7 +355,7 @@ block*8*pDataFlash->pDevice->pages_size));
 /*		: <BufferCommand> = command to send to buffer1 or buffer2    */
 /*                     : <dest> = main memory address			     */
 /* Return value		: State of the dataflash			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_WriteBufferToMain (
 	AT91PS_DataFlash pDataFlash,
 	unsigned char BufferCommand,
@@ -386,7 +386,7 @@ AT91S_DataFlashStatus AT91F_WriteBufferToMain (
 /* Input Parameters    : <page> = page number				     */
 /*			: <AdrInpage> = adr to begin the fading		     */
 /*                     : <length> = Number of bytes to erase		     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_PartialPageWrite (
 	AT91PS_DataFlash pDataFlash,
 	unsigned char *src,
@@ -400,27 +400,27 @@ AT91S_DataFlashStatus AT91F_PartialPageWrite (
 	AdrInPage = dest % (pDataFlash->pDevice->pages_size);
 
 	/* Read the contents of the page in the Sram Buffer */
-	AT91F_MainMemoryToBufferTransfert(pDataFlash, 
+	AT91F_MainMemoryToBufferTransfert(pDataFlash,
 						DB_PAGE_2_BUF1_TRF, page);
-	AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+	AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 	/*Update the SRAM buffer */
-	AT91F_DataFlashWriteBuffer(pDataFlash, DB_BUF1_WRITE, src, 
+	AT91F_DataFlashWriteBuffer(pDataFlash, DB_BUF1_WRITE, src,
 					AdrInPage, size);
 
-	AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+	AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 					AT91C_TIMEOUT_WRDY);
 
 	/* Erase page if a 128 Mbits device */
 	if (pDataFlash->pDevice->pages_number >= 16384) {
 		AT91F_PageErase(pDataFlash, page);
 		/* Rewrite the modified Sram Buffer in the main memory */
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 	}
 
 	/* Rewrite the modified Sram Buffer in the main memory */
-	return(AT91F_WriteBufferToMain(pDataFlash, DB_BUF1_PAGE_ERASE_PGM, 
+	return(AT91F_WriteBufferToMain(pDataFlash, DB_BUF1_PAGE_ERASE_PGM,
 				(page*pDataFlash->pDevice->pages_size)));
 }
 
@@ -430,7 +430,7 @@ AT91S_DataFlashStatus AT91F_PartialPageWrite (
 /* Input Parameters    : <*src> = Source buffer				     */
 /*                     : <dest> = dataflash adress			     */
 /*                     : <size> = data buffer size			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_DataFlashWrite(
 	AT91PS_DataFlash pDataFlash,
 	unsigned char *src,
@@ -443,15 +443,15 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(
 
 	AT91F_SpiEnable(pDataFlash->pDevice->cs);
 
-	if ( (dest + size) > (pDataFlash->pDevice->pages_size * 
+	if ( (dest + size) > (pDataFlash->pDevice->pages_size *
 					(pDataFlash->pDevice->pages_number)))
 		return DATAFLASH_MEMORY_OVERFLOW;
 
 	/* If destination does not fit a page start address */
-	if ((dest % ((unsigned int)(pDataFlash->pDevice->pages_size)))  != 0 ) 
+	if ((dest % ((unsigned int)(pDataFlash->pDevice->pages_size)))  != 0 )
 	{
-		length = pDataFlash->pDevice->pages_size - 
-				(dest % 
+		length = pDataFlash->pDevice->pages_size -
+				(dest %
 				((unsigned int)
 				(pDataFlash->pDevice->pages_size)));
 
@@ -461,7 +461,7 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(
 		if(!AT91F_PartialPageWrite(pDataFlash,src, dest, length))
 			return DATAFLASH_ERROR;
 
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 			AT91C_TIMEOUT_WRDY);
 
 		/* Update size, source and destination pointers */
@@ -474,24 +474,24 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(
 		/* program dataflash page */
 		page = (unsigned int)dest / (pDataFlash->pDevice->pages_size);
 
-		status = AT91F_DataFlashWriteBuffer(pDataFlash, 
-				DB_BUF1_WRITE, src, 0, 
+		status = AT91F_DataFlashWriteBuffer(pDataFlash,
+				DB_BUF1_WRITE, src, 0,
 				pDataFlash->pDevice->pages_size);
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 
 		status = AT91F_PageErase(pDataFlash, page);
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 		if (!status)
 			return DATAFLASH_ERROR;
 
-		status = AT91F_WriteBufferToMain (pDataFlash, 
+		status = AT91F_WriteBufferToMain (pDataFlash,
 						DB_BUF1_PAGE_PGM, dest);
 		if(!status)
 			return DATAFLASH_ERROR;
 
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 
 		/* Update size, source and destination pointers */
@@ -506,7 +506,7 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(
 		if(!AT91F_PartialPageWrite(pDataFlash, src, dest, size) )
 			return DATAFLASH_ERROR;
 
-		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 						AT91C_TIMEOUT_WRDY);
 	}
 	return DATAFLASH_OK;
@@ -529,18 +529,18 @@ int AT91F_DataFlashRead(
 
 	AT91F_SpiEnable(pDataFlash->pDevice->cs);
 
-	if(AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+	if(AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 					AT91C_TIMEOUT_WRDY) != DATAFLASH_OK)
 		return -1;
 
 	while (size) {
 		SizeToRead = (size < 0x8000)? size:0x8000;
 
-		if (AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc, 
+		if (AT91F_DataFlashWaitReady(pDataFlash->pDataFlashDesc,
 					AT91C_TIMEOUT_WRDY) != DATAFLASH_OK)
 			return -1;
 
-		if (AT91F_DataFlashContinuousRead (pDataFlash, addr, 
+		if (AT91F_DataFlashContinuousRead (pDataFlash, addr,
 				(uchar *) buffer, SizeToRead) != DATAFLASH_OK)
 			return -1;
 
@@ -557,13 +557,10 @@ int AT91F_DataFlashRead(
 /* Object              : 						     */
 /* Input Parameters    : 						     */
 /* Return value	       : Dataflash status register			     */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 int AT91F_DataflashProbe(int cs, AT91PS_DataflashDesc pDesc) {
 	AT91F_SpiEnable(cs);
 	AT91F_DataFlashGetStatus(pDesc);
-	return((pDesc->command[1] == 0xFF)? 0: pDesc->command[1] & 0x3C); 
+	return((pDesc->command[1] == 0xFF)? 0: pDesc->command[1] & 0x3C);
 }
-
 #endif
-
-

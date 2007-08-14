@@ -22,7 +22,7 @@
  * MA 02111-1307 USA
  */
 
- #ifndef __LED_H
+#ifndef __LED_H
 #define __LED_H
 
 #ifndef	__ASSEMBLY__
@@ -43,4 +43,3 @@ extern void	yellow_LED_off(void);
 	.extern green_LED_off
 #endif
 #endif
-

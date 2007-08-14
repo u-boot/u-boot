@@ -17,7 +17,7 @@ extern	AT91S_DataFlashStatus AT91F_DataFlashSendCommand(
 extern	AT91S_DataFlashStatus AT91F_DataFlashGetStatus (
 	AT91PS_DataflashDesc pDesc);
 extern	AT91S_DataFlashStatus AT91F_DataFlashWaitReady (
-	AT91PS_DataflashDesc pDataFlashDesc, 
+	AT91PS_DataflashDesc pDataFlashDesc,
 	unsigned int timeout);
 extern	AT91S_DataFlashStatus AT91F_DataFlashContinuousRead (
 	AT91PS_DataFlash pDataFlash,

@@ -1,3 +1,71 @@
+commit 073e1b509980cefe6f53c2d7fbbcd135df1e3924
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Aug 14 10:32:59 2007 -0500
+
+    Fix initrd/dtb interaction
+
+    The original code would wrongly relocate the blob to be right before
+    the initrd if it existed.  The blob *must* be within CFG_BOOTMAPSZ,
+    if it is defined.  So we make two changes:
+
+    1) flag the blob for relocation whenever its address is above BOOTMAPSZ
+
+    2) If the blob is being relocated, relocate it before kbd, not initrd
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit e54b970173769307a116bd34028b6d0c2eea2a4e
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 15:40:00 2007 +0100
+
+    Supply spi interface in at45.c
+
+commit 0c42f36f15074bd9808a7dbd7ef611fad9bf537c
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 10:46:32 2007 +0100
+
+    Replace lost end of at45.c.
+
+commit 65d7ada64557e76094b4fd3bad30a0f18f5fb2b2
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 10:30:06 2007 +0100
+
+    Update Makefiles for merged and split at45.c.
+
+commit 3454cece2db57cb9eb7087995f7e73066a163f71
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 10:21:06 2007 +0100
+
+    Delete the merged files.
+
+commit dcbfd2e5649f97aa04fbbc6ea2b008aa4486e225
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 10:14:05 2007 +0100
+
+    Add the files.
+
+commit d4fc6012fd0a5c211b825691f44b06f8032c0551
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Aug 14 10:10:52 2007 +0100
+
+    Add MACH_TYPE records for several AT91 boards.
+    Merge to two at45.c files into a common file, split to at45.c and spi.c
+    Fix spelling error in DM9161 PHY Support.
+    Initialize at91rm9200 board (and set LED).
+    Add PIO control for at91rm9200dk LEDs and Mux.
+    Change dataflash partition boundaries to be compatible with Linux 2.6.
+
+    Signed-off-by:	Peter Pearse <peter.pearse@arm.com>
+    Signed-off-by:	Ulf Samuelsson <ulf@atmel.com>
+
+commit 4ef35e53c693556c54b0c22d6f873de87bade253
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 14 09:54:46 2007 +0200
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 85eb5caf6b906f7ec5b54814e8c7c74f55986bb7
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Aug 14 09:47:27 2007 +0200
