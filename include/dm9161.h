@@ -43,9 +43,9 @@
 #define DM9161_COLLISION_TEST    (1 << 7)
 
 /*--Bit definitions: DM9161_BMSR */
-#define DM9161_100BASE_T4        (1 << 15)
+#define DM9161_100BASE_TX        (1 << 15)
 #define DM9161_100BASE_TX_FD     (1 << 14)
-#define DM9161_100BASE_T4_HD     (1 << 13)
+#define DM9161_100BASE_TX_HD     (1 << 13)
 #define DM9161_10BASE_T_FD       (1 << 12)
 #define DM9161_10BASE_T_HD       (1 << 11)
 #define DM9161_MF_PREAMB_SUPPR   (1 << 6)

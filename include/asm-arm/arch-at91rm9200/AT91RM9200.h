@@ -27,9 +27,9 @@
 
 typedef volatile unsigned int AT91_REG;		/* Hardware register definition */
 
-/******************************************************************************/
-/*        SOFTWARE API DEFINITION  FOR Timer Counter Channel Interface        */
-/******************************************************************************/
+/*****************************************************************************/
+/*        SOFTWARE API DEFINITION  FOR Timer Counter Channel Interface       */
+/*****************************************************************************/
 typedef struct _AT91S_TC
 {
 	AT91_REG	 TC_CCR; 	/* Channel Control Register */
@@ -45,24 +45,24 @@ typedef struct _AT91S_TC
 	AT91_REG	 TC_IMR; 	/* Interrupt Mask Register */
 } AT91S_TC, *AT91PS_TC;
 
-#define AT91C_TC_TIMER_DIV1_CLOCK	((unsigned int) 0x0 <<  0) /* (TC) MCK/2 */
-#define AT91C_TC_TIMER_DIV2_CLOCK	((unsigned int) 0x1 <<  0) /* (TC) MCK/8 */
-#define AT91C_TC_TIMER_DIV3_CLOCK	((unsigned int) 0x2 <<  0) /* (TC) MCK/32 */
-#define AT91C_TC_TIMER_DIV4_CLOCK	((unsigned int) 0x3 <<  0) /* (TC) MCK/128 */
-#define AT91C_TC_SLOW_CLOCK		((unsigned int) 0x4 <<  0) /* (TC) SLOW CLK */
-#define AT91C_TC_XC0_CLOCK		((unsigned int) 0x5 <<  0) /* (TC) XC0 */
-#define AT91C_TC_XC1_CLOCK		((unsigned int) 0x6 <<  0) /* (TC) XC1 */
-#define AT91C_TC_XC2_CLOCK		((unsigned int) 0x7 <<  0) /* (TC) XC2 */
-#define AT91C_TCB_TC0XC0S_NONE		((unsigned int) 0x1)       /* (TCB) None signal connected to XC0 */
-#define AT91C_TCB_TC1XC1S_NONE		((unsigned int) 0x1 <<  2) /* (TCB) None signal connected to XC1 */
-#define AT91C_TCB_TC2XC2S_NONE		((unsigned int) 0x1 <<  4) /* (TCB) None signal connected to XC2 */
-#define AT91C_TC_CLKDIS			((unsigned int) 0x1 <<  1) /* (TC) Counter Clock Disable Command */
-#define AT91C_TC_SWTRG			((unsigned int) 0x1 <<  2) /* (TC) Software Trigger Command */
-#define AT91C_TC_CLKEN			((unsigned int) 0x1 <<  0) /* (TC) Counter Clock Enable Command */
+#define AT91C_TC_TIMER_DIV1_CLOCK ((unsigned int) 0x0 <<  0) /* (TC) MCK/2 */
+#define AT91C_TC_TIMER_DIV2_CLOCK ((unsigned int) 0x1 <<  0) /* (TC) MCK/8 */
+#define AT91C_TC_TIMER_DIV3_CLOCK ((unsigned int) 0x2 <<  0) /* (TC) MCK/32 */
+#define AT91C_TC_TIMER_DIV4_CLOCK ((unsigned int) 0x3 <<  0) /* (TC) MCK/128 */
+#define AT91C_TC_SLOW_CLOCK	  ((unsigned int) 0x4 <<  0) /* (TC) SLOW CLK*/
+#define AT91C_TC_XC0_CLOCK	  ((unsigned int) 0x5 <<  0) /* (TC) XC0 */
+#define AT91C_TC_XC1_CLOCK	  ((unsigned int) 0x6 <<  0) /* (TC) XC1 */
+#define AT91C_TC_XC2_CLOCK	  ((unsigned int) 0x7 <<  0) /* (TC) XC2 */
+#define AT91C_TCB_TC0XC0S_NONE	  ((unsigned int) 0x1)       /* (TCB) None signal connected to XC0 */
+#define AT91C_TCB_TC1XC1S_NONE	  ((unsigned int) 0x1 <<  2) /* (TCB) None signal connected to XC1 */
+#define AT91C_TCB_TC2XC2S_NONE	  ((unsigned int) 0x1 <<  4) /* (TCB) None signal connected to XC2 */
+#define AT91C_TC_CLKDIS		  ((unsigned int) 0x1 <<  1) /* (TC) Counter Clock Disable Command */
+#define AT91C_TC_SWTRG		  ((unsigned int) 0x1 <<  2) /* (TC) Software Trigger Command */
+#define AT91C_TC_CLKEN		  ((unsigned int) 0x1 <<  0) /* (TC) Counter Clock Enable Command */
 
-/******************************************************************************/
-/*                  SOFTWARE API DEFINITION  FOR Usart                        */
-/******************************************************************************/
+/*****************************************************************************/
+/*                  SOFTWARE API DEFINITION  FOR Usart                       */
+/*****************************************************************************/
 typedef struct _AT91S_USART
 {
 	AT91_REG	 US_CR; 	/* Control Register */
@@ -94,9 +94,9 @@ typedef struct _AT91S_USART
 	AT91_REG	 US_PTSR; 	/* PDC Transfer Status Register */
 } AT91S_USART, *AT91PS_USART;
 
-/******************************************************************************/
-/*          SOFTWARE API DEFINITION  FOR Clock Generator Controler            */
-/******************************************************************************/
+/*****************************************************************************/
+/*          SOFTWARE API DEFINITION  FOR Clock Generator Controler           */
+/*****************************************************************************/
 typedef struct _AT91S_CKGR
 {
 	AT91_REG	 CKGR_MOR; 	/* Main Oscillator Register */
@@ -141,9 +141,9 @@ typedef struct _AT91S_CKGR
 #define AT91C_CKGR_USB_96M	((unsigned int) 0x1   << 28)	/* (CKGR) Divider for USB Ports */
 #define AT91C_CKGR_USB_PLL	((unsigned int) 0x1   << 29)	/* (CKGR) PLL Use */
 
-/******************************************************************************/
-/*        SOFTWARE API DEFINITION  FOR Parallel Input Output Controler        */
-/******************************************************************************/
+/*****************************************************************************/
+/*        SOFTWARE API DEFINITION  FOR Parallel Input Output Controler       */
+/*****************************************************************************/
 typedef struct _AT91S_PIO
 {
 	AT91_REG	 PIO_PER; 	/* PIO Enable Register */
@@ -184,9 +184,9 @@ typedef struct _AT91S_PIO
 } AT91S_PIO, *AT91PS_PIO;
 
 
-/******************************************************************************/
-/*              SOFTWARE API DEFINITION  FOR Debug Unit                       */
-/******************************************************************************/
+/*****************************************************************************/
+/*              SOFTWARE API DEFINITION  FOR Debug Unit                      */
+/*****************************************************************************/
 typedef struct _AT91S_DBGU
 {
 	AT91_REG	 DBGU_CR; 	/* Control Register */
@@ -242,9 +242,9 @@ typedef struct _AT91S_DBGU
 #define AT91C_US_PAR_NONE	((unsigned int) 0x4 <<  9) /* (DBGU) No Parity */
 #define AT91C_US_NBSTOP_1_BIT	((unsigned int) 0x0 << 12) /* (USART) 1 stop bit */
 
-/******************************************************************************/
-/*      SOFTWARE API DEFINITION  FOR Static Memory Controller 2 Interface     */
-/******************************************************************************/
+/*****************************************************************************/
+/*      SOFTWARE API DEFINITION  FOR Static Memory Controller 2 Interface    */
+/*****************************************************************************/
 typedef struct _AT91S_SMC2
 {
 	AT91_REG	 SMC2_CSR[8]; 	/* SMC2 Chip Select Register */
@@ -267,9 +267,9 @@ typedef struct _AT91S_SMC2
 #define AT91C_SMC2_RWSETUP		((unsigned int) 0x7 << 24) /* (SMC2) Read and Write Signal Setup Time */
 #define AT91C_SMC2_RWHOLD		((unsigned int) 0x7 << 29) /* (SMC2) Read and Write Signal Hold Time */
 
-/******************************************************************************/
-/*           SOFTWARE API DEFINITION  FOR Power Management Controler          */
-/******************************************************************************/
+/*****************************************************************************/
+/*           SOFTWARE API DEFINITION  FOR Power Management Controler         */
+/*****************************************************************************/
 typedef struct _AT91S_PMC
 {
 	AT91_REG	 PMC_SCER; 	/* System Clock Enable Register */
@@ -341,9 +341,9 @@ typedef struct _AT91S_PMC
 /*-------- PMC_SR : (PMC Offset: 0x68) PMC Status Register --------*/
 /*-------- PMC_IMR : (PMC Offset: 0x6c) PMC Interrupt Mask Register --------*/
 
-/******************************************************************************/
-/*              SOFTWARE API DEFINITION  FOR Ethernet MAC                     */
-/******************************************************************************/
+/*****************************************************************************/
+/*              SOFTWARE API DEFINITION  FOR Ethernet MAC                    */
+/*****************************************************************************/
 typedef struct _AT91S_EMAC
 {
 	AT91_REG	 EMAC_CTL; 	/* Network Control Register */
@@ -424,11 +424,11 @@ typedef struct _AT91S_EMAC
 #define AT91C_EMAC_MDIO		((unsigned int) 0x1 <<  1) /* (EMAC) */
 #define AT91C_EMAC_IDLE		((unsigned int) 0x1 <<  2) /* (EMAC) */
 
-/* -------- EMAC_TCR : (EMAC Offset: 0x10) Transmit Control Register -------- */
+/* -------- EMAC_TCR : (EMAC Offset: 0x10) Transmit Control Register ------- */
 #define AT91C_EMAC_LEN		((unsigned int) 0x7FF <<  0) /* (EMAC) */
 #define AT91C_EMAC_NCRC		((unsigned int) 0x1 << 15) /* (EMAC) */
 
-/* -------- EMAC_TSR : (EMAC Offset: 0x14) Transmit Control Register -------- */
+/* -------- EMAC_TSR : (EMAC Offset: 0x14) Transmit Control Register ------- */
 #define AT91C_EMAC_OVR		((unsigned int) 0x1 <<  0) /* (EMAC) */
 #define AT91C_EMAC_COL		((unsigned int) 0x1 <<  1) /* (EMAC) */
 #define AT91C_EMAC_RLE		((unsigned int) 0x1 <<  2) /* (EMAC) */
@@ -442,7 +442,7 @@ typedef struct _AT91S_EMAC
 #define AT91C_EMAC_REC		((unsigned int) 0x1 <<  1) /* (EMAC) */
 #define AT91C_EMAC_RSR_OVR	((unsigned int) 0x1 <<  2) /* (EMAC) */
 
-/* -------- EMAC_ISR : (EMAC Offset: 0x24) Interrupt Status Register -------- */
+/* -------- EMAC_ISR : (EMAC Offset: 0x24) Interrupt Status Register ------- */
 #define AT91C_EMAC_DONE		((unsigned int) 0x1 <<  0) /* (EMAC) */
 #define AT91C_EMAC_RCOM		((unsigned int) 0x1 <<  1) /* (EMAC) */
 #define AT91C_EMAC_RBNA		((unsigned int) 0x1 <<  2) /* (EMAC) */
@@ -456,8 +456,8 @@ typedef struct _AT91S_EMAC
 #define AT91C_EMAC_ROVR		((unsigned int) 0x1 << 10) /* (EMAC) */
 #define AT91C_EMAC_HRESP	((unsigned int) 0x1 << 11) /* (EMAC) */
 
-/* -------- EMAC_IER : (EMAC Offset: 0x28) Interrupt Enable Register -------- */
-/* -------- EMAC_IDR : (EMAC Offset: 0x2c) Interrupt Disable Register -------- */
+/* -------- EMAC_IER : (EMAC Offset: 0x28) Interrupt Enable Register ------- */
+/* -------- EMAC_IDR : (EMAC Offset: 0x2c) Interrupt Disable Register ------ */
 /* -------- EMAC_IMR : (EMAC Offset: 0x30) Interrupt Mask Register -------- */
 /* -------- EMAC_MAN : (EMAC Offset: 0x34) PHY Maintenance Register -------- */
 #define AT91C_EMAC_DATA		((unsigned int) 0xFFFF <<  0) /* (EMAC) */
@@ -471,9 +471,9 @@ typedef struct _AT91S_EMAC
 #define AT91C_EMAC_HIGH		((unsigned int) 0x1  << 30) /* (EMAC) */
 #define AT91C_EMAC_LOW		((unsigned int) 0x1  << 31) /* (EMAC) */
 
-/******************************************************************************/
-/*           SOFTWARE API DEFINITION  FOR Serial Parallel Interface           */
-/******************************************************************************/
+/*****************************************************************************/
+/*           SOFTWARE API DEFINITION  FOR Serial Parallel Interface          */
+/*****************************************************************************/
 typedef struct _AT91S_SPI
 {
 	AT91_REG	 SPI_CR; 	/* Control Register */
@@ -536,7 +536,7 @@ typedef struct _AT91S_SPI
 #define AT91C_SPI_SPIENS	((unsigned int) 0x1 << 16) /* (SPI) Enable Status */
 
 /* -------- SPI_IER : (SPI Offset: 0x14) Interrupt Enable Register -------- */
-/* -------- SPI_IDR : (SPI Offset: 0x18) Interrupt Disable Register -------- */
+/* -------- SPI_IDR : (SPI Offset: 0x18) Interrupt Disable Register ------- */
 /* -------- SPI_IMR : (SPI Offset: 0x1c) Interrupt Mask Register -------- */
 /* -------- SPI_CSR : (SPI Offset: 0x30) Chip Select Register -------- */
 #define AT91C_SPI_CPOL		((unsigned int) 0x1  <<  0) /* (SPI) Clock Polarity */
@@ -555,9 +555,9 @@ typedef struct _AT91S_SPI
 #define AT91C_SPI_DLYBS		((unsigned int) 0xFF << 16) /* (SPI) Serial Clock Baud Rate */
 #define AT91C_SPI_DLYBCT	((unsigned int) 0xFF << 24) /* (SPI) Delay Between Consecutive Transfers */
 
-/******************************************************************************/
-/*           SOFTWARE API DEFINITION  FOR Peripheral Data Controller          */
-/******************************************************************************/
+/*****************************************************************************/
+/*           SOFTWARE API DEFINITION  FOR Peripheral Data Controller         */
+/*****************************************************************************/
 typedef struct _AT91S_PDC
 {
 	AT91_REG	 PDC_RPR; 	/* Receive Pointer Register */
@@ -692,11 +692,15 @@ typedef struct _AT91S_PDC
 #define AT91C_PIO_PA7		((unsigned int) 1 <<  7)	/* Pin Controlled by PA7 */
 #define AT91C_PA7_ETXCK_EREFCK	((unsigned int) AT91C_PIO_PA7)	/* Ethernet MAC Transmit Clock/Reference Clock */
 
+#define AT91C_PIO_PB0		((unsigned int) 1 <<  0)	/* Pin Controlled by PB3 */
+#define AT91C_PIO_PB1		((unsigned int) 1 <<  1)	/* Pin Controlled by PB3 */
+#define AT91C_PIO_PB2		((unsigned int) 1 <<  2)	/* Pin Controlled by PB3 */
 #define AT91C_PIO_PB3		((unsigned int) 1 <<  3)	/* Pin Controlled by PB3 */
 #define AT91C_PIO_PB4		((unsigned int) 1 <<  4)	/* Pin Controlled by PB4 */
 #define AT91C_PIO_PB5		((unsigned int) 1 <<  5)	/* Pin Controlled by PB5 */
 #define AT91C_PIO_PB6		((unsigned int) 1 <<  6)	/* Pin Controlled by PB6 */
 #define AT91C_PIO_PB7		((unsigned int) 1 <<  7)	/* Pin Controlled by PB7 */
+#define AT91C_PIO_PB22		((unsigned int) 1 << 22) 	/* Pin Controlled by PB22 */
 #define AT91C_PIO_PB25		((unsigned int) 1 << 25)	/* Pin Controlled by PB25 */
 #define AT91C_PB25_DSR1		((unsigned int) AT91C_PIO_PB25)	/* USART 1 Data Set ready */
 #define AT91C_PB25_EF100	((unsigned int) AT91C_PIO_PB25)	/* Ethernet MAC Force 100 Mbits */
@@ -737,19 +741,36 @@ typedef struct _AT91S_PDC
 #define AT91C_PIOC_CODR		((AT91_REG *)	0xFFFFF834) /* (PIOC) Clear Output Data Register */
 #define AT91C_PIOC_PDSR		((AT91_REG *)	0xFFFFF83C) /* (PIOC) Pin Data Status Register */
 
-#define AT91C_BASE_SPI		((AT91PS_SPI)	0xFFFE0000) /* (SPI) Base Address */
-#define AT91C_BASE_EMAC		((AT91PS_EMAC)	0xFFFBC000) /* (EMAC) Base Address */
-#define AT91C_BASE_PMC		((AT91PS_PMC)	0xFFFFFC00) /* (PMC) Base Address */
-#define AT91C_BASE_TC0		((AT91PS_TC)	0xFFFA0000) /* (TC0) Base Address */
+#define AT91C_BASE_AIC		((AT91PS_AIC)	0xFFFFF000) /* (AIC) Base Address */
 #define AT91C_BASE_DBGU		((AT91PS_DBGU)	0xFFFFF200) /* (DBGU) Base Address */
-#define AT91C_BASE_CKGR		((AT91PS_CKGR)	0xFFFFFC20) /* (CKGR) Base Address */
-#define AT91C_BASE_PIOC		((AT91PS_PIO)	0xFFFFF800) /* (PIOC) Base Address */
-#define AT91C_BASE_PIOB		((AT91PS_PIO)	0xFFFFF600) /* (PIOB) Base Address */
 #define AT91C_BASE_PIOA		((AT91PS_PIO)	0xFFFFF400) /* (PIOA) Base Address */
-#define AT91C_EBI_CSA		((AT91_REG *)	0xFFFFFF60) /* (EBI) Chip Select Assignment Register */
-#define AT91C_BASE_SMC2		((AT91PS_SMC2)	0xFFFFFF70) /* (SMC2) Base Address */
+#define AT91C_BASE_PIOB		((AT91PS_PIO)	0xFFFFF600) /* (PIOB) Base Address */
+#define AT91C_BASE_PIOC		((AT91PS_PIO)	0xFFFFF800) /* (PIOC) Base Address */
+#define AT91C_BASE_PIOD		((AT91PS_PIO)	0xFFFFFA00) /* (PIOC) Base Address */
+#define AT91C_BASE_PMC		((AT91PS_PMC)	0xFFFFFC00) /* (PMC) Base Address */
+#if	0
+#define AT91C_BASE_ST		((AT91PS_ST)	0xFFFFFD00) /* (PMC) Base Address */
+#define AT91C_BASE_RTC		((AT91PS_RTC)	0xFFFFFE00) /* (PMC) Base Address */
+#define AT91C_BASE_MC		((AT91PS_MC)	0xFFFFFF00) /* (PMC) Base Address */
+#endif
+
+#define AT91C_BASE_TC0		((AT91PS_TC)	0xFFFA0000) /* (TC0) Base Address */
+#define AT91C_BASE_TC1		((AT91PS_TC)	0xFFFA4000) /* (TC0) Base Address */
+#if	0
+#define AT91C_BASE_UDP		((AT91PS_UDP)	0xFFFB0000) /* (TC0) Base Address */
+#define AT91C_BASE_MCI		((AT91PS_MCI)	0xFFFB4000) /* (TC0) Base Address */
+#define AT91C_BASE_TWI		((AT91PS_TWI)	0xFFFB8000) /* (TC0) Base Address */
+#endif
+#define AT91C_BASE_EMAC		((AT91PS_EMAC)	0xFFFBC000) /* (EMAC) Base Address */
 #define AT91C_BASE_US0		((AT91PS_USART)	0xFFFC0000) /* (US0) Base Address */
 #define AT91C_BASE_US1		((AT91PS_USART) 0xFFFC4000) /* (US1) Base Address */
+#define AT91C_BASE_US2		((AT91PS_USART) 0xFFFC8000) /* (US1) Base Address */
+#define AT91C_BASE_US3		((AT91PS_USART) 0xFFFCC000) /* (US1) Base Address */
+#define AT91C_BASE_SPI		((AT91PS_SPI)	0xFFFE0000) /* (SPI) Base Address */
+
+#define AT91C_BASE_CKGR		((AT91PS_CKGR)	0xFFFFFC20) /* (CKGR) Base Address */
+#define AT91C_EBI_CSA		((AT91_REG *)	0xFFFFFF60) /* (EBI) Chip Select Assignment Register */
+#define AT91C_BASE_SMC2		((AT91PS_SMC2)	0xFFFFFF70) /* (SMC2) Base Address */
 #define AT91C_TCB0_BMR		((AT91_REG *)	0xFFFA00C4) /* (TCB0) TC Block Mode Register */
 #define AT91C_TCB0_BCR		((AT91_REG *)	0xFFFA00C0) /* (TCB0) TC Block Control Register */
 #define AT91C_PIOC_PDR		((AT91_REG *)	0xFFFFF804) /* (PIOC) PIO Disable Register */
