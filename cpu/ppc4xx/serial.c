@@ -456,8 +456,8 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 
 	get_sys_info(&sysinfo);
 
-	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ? 
-		sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) * sysinfo.pllFbkDiv) / 
+	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ?
+		sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) * sysinfo.pllFbkDiv) /
 		sysinfo.pllFwdDivB);
 	udiv = 256;			/* Assume lowest possible serial clk */
 	div = plloutb / (16 * baudrate); /* total divisor */
