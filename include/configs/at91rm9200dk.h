@@ -163,6 +163,11 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91C_USE_RMII
 
+/* AC Characteristics */
+/* DLYBS = tCSS = 250ns min and DLYBCT = tCSH = 250ns */
+#define DATAFLASH_TCSS	(0xC << 16)
+#define DATAFLASH_TCHS	(0x1 << 24)
+
 #define CONFIG_HAS_DATAFLASH		1
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS 	2
