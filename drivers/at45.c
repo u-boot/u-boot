@@ -24,6 +24,11 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 
+/*
+ * spi.c API
+ */
+extern unsigned int	AT91F_SpiWrite (AT91PS_DataflashDesc pDesc);
+extern void 		AT91F_SpiEnable(int cs);
 
 #define AT91C_TIMEOUT_WRDY			200000
 
