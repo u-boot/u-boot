@@ -194,8 +194,10 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 static int rtl_poll(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
 #ifdef CONFIG_MCAST_TFTP/*  This driver already accepts all b/mcast */
-static int rtl_bcast_addr (struct eth_device *dev, u8 bcast_mac, u8 set) 
- { return (0); }
+static int rtl_bcast_addr (struct eth_device *dev, u8 bcast_mac, u8 set)
+{
+	return (0);
+}
 #endif
 
 static struct pci_device_id supported[] = {

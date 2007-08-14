@@ -1,3 +1,56 @@
+commit 53a5c424bf8655b7b4e2c305a441963259a26a81
+Author: David Updegraff <dave@cray.com>
+Date:	Mon Jun 11 10:41:07 2007 -0500
+
+    multicast tftp: RFC2090
+
+    Implemented IETF RFC2090, Multicast TFTP.  Initial implementation
+    on Realtek RTL8139 and Freescale TSEC.
+
+    Signed-off-by: David Updegraff <dave@cray.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 5d110f0aa69f065ee386ec1840dfee1e8cc46bc1
+Author: Wilson Callan <wcallan@savantav.com>
+Date:	Sat Jul 28 10:56:13 2007 -0400
+
+    New CONFIG_BOOTP_SERVERIP option
+
+    Added CONFIG_BOOTP_SERVERIP to allow the tftp server to be different
+    from the bootp server
+
+    Signed-off-by: Wilson Callan <wcallan@savantav.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 50cca8b976ec74069860208c36e64ce8f4d5e4c1
+Author: Mike Rapoport <mike@compulab.co.il>
+Date:	Sun Aug 12 08:48:27 2007 +0300
+
+    Add ability to take MAC address from the environment to DM9000 driver
+
+    Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit be5d72d10d47609326226225181e301fb9a33b58
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 13 21:57:53 2007 +0200
+
+    Minor coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cca34967cbd13ff6bd352be29e3f1cc88ab24c05
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Sat Aug 11 06:54:58 2007 -0500
+
+    Modify SBC8641D to use new Freescale PCI routines
+
+    PCI-Express sockets 1 and 2 verified working with Intel Pro/1000 PT
+    adapter.
+
+    Signed-off-by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+    Signde-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit a08458303e7f9db67f296980036d3292c35cb45c
 Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
 Date:	Fri Jun 29 18:38:51 2007 +0200
@@ -365,6 +418,30 @@ Date:	Fri Aug 10 15:48:59 2007 +0800
 
     Signed-off-by: Dave Liu <daveliu@freescale.com>
 
+commit c646bba6465a45c60746d4cc1602cd06c1960f2d
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Thu Aug 9 15:11:03 2007 -0500
+
+    Add support for SBC8641D. Config files.
+
+    Add support for Wind River's SBC8641D reference board.
+
+    Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8ac273271d57321f90505c7a51cdb1ef2113b628
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Thu Aug 9 15:10:53 2007 -0500
+
+    Add support for SBC8641D.  Board files.
+
+    Add support for Wind River's SBC8641D reference board.
+
+    Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
 commit c2c0ab4aff86622b837a48a0e560351f9afafb95
 Author: Stefan Roese <sr@denx.de>
 Date:	Fri Aug 10 20:34:58 2007 +0200
@@ -419,6 +496,62 @@ Date:	Fri Aug 10 20:26:18 2007 +0200
     Acked-by: Dirk Behme <dirk.behme@gmail.com>
     Acked-by: Zach Sadecki <Zach.Sadecki@ripcode.com>
     Acked-by: Stefan Roese <sr@denx.de>
+
+commit 2e4d94f1e3c2961428967a33b6ff2520568391b3
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:45 2007 -0500
+
+    fsl_pci_init cleanup.
+
+    Do not enable normal errors created during probe (master abort, perr,
+    and pcie Invalid Configuration access).
+
+    Add CONFIG_PCI_NOSCAN board option to prevent bus scan.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 936b3e69b667c3eb9a61ece4e78647d3fce9fc2a
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Jul 27 01:50:44 2007 -0500
+
+    pciauto_setup_device bars_num fix
+
+    Passing bars_num=0 to pciauto_setup_device should assign no bars.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit cf0b185e58ca0aec8ae2b2a8804ec0ef58ee21d4
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Aug 6 17:39:44 2007 -0500
+
+    8641hpcn: Do correct sized pointer math.
+
+    When I rebased Ed's patch and cleaned up a few compilation
+    problems, I apparently rebased my brain on crack first.
+    Fix that by doing (char *) sized pointer math as needed.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cfc7a7f5bb3273c9951173c788001d45118f141f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Aug 2 14:42:20 2007 -0500
+
+    cpu/86xx fixes.
+
+    Remove rev 1 fixes.
+    Always set PICGCR_MODE.
+    Enable machine check and provide board config option
+    to set and handle SoC error interrupts.
+
+    Include MSSSR0 in error message.
+
+    Isolate a RAMBOOT bit of code with #ifdef CFG_RAMBOOT.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 3a6d56c20989fe27360afe743bd2a7ad4d76e48f
 Author: Dirk Behme <dirk.behme@googlemail.com>
@@ -2886,6 +3019,26 @@ Date:	Fri Jun 8 09:55:24 2007 +0200
 
     Signed-off-by: Benoit Monin <bmonin@adeneo.eu>
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f539edc076cfe52bff919dd512ba8d7af0e22092
+Author: Vadim Bendebury <vbendeb@google.com>
+Date:	Thu May 24 15:52:25 2007 -0700
+
+    cosmetic changes to bcm570x driver
+
+    This is a cosmetic only changes submission.
+    It affects files relevant to bcm570x driver.
+    the commands used to generate this change was
+
+    cd drivers
+    Lindent -pcs -l80  bcm570x.c   bcm570x_lm.h   bcm570x_mm.h	tigon3.c  tigon3.h
+
+    The BMW target (the only one using this chip so far) builds cleanly, the
+    `before and after' generated object files for drivers/bcm570x.c and
+    drivers/tigon3.o are identical as reported by objdump -d
+
+    Signed-off-by: Vadim Bendebury <vbendeb@google.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
 
 commit 725671ccd2cd04c9ebc50c9e5a94dd8cbade66b7
 Author: Wolfgang Denk <wd@denx.de>

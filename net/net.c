@@ -1391,7 +1391,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		tmp = NetReadIP(&ip->ip_dst);
 		if (NetOurIP && tmp != NetOurIP && tmp != 0xFFFFFFFF) {
 #ifdef CONFIG_MCAST_TFTP
-			if (Mcast_addr != tmp) 
+			if (Mcast_addr != tmp)
 #endif
 			return;
 		}

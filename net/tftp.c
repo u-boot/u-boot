@@ -61,8 +61,8 @@ static char *tftp_filename;
 extern flash_info_t flash_info[];
 #endif
 
-/* 512 is poor choice for ethernet, MTU is typically 1500. 
- * Minus eth.hdrs thats 1468.  Can get 2x better throughput with 
+/* 512 is poor choice for ethernet, MTU is typically 1500.
+ * Minus eth.hdrs thats 1468.  Can get 2x better throughput with
  * almost-MTU block sizes.  At least try... fall back to 512 if need be.
  */
 #define TFTP_MTU_BLOCKSIZE 1468
@@ -145,11 +145,11 @@ TftpSend (void)
 	int			len = 0;
 	volatile ushort *s;
 
-#ifdef CONFIG_MCAST_TFTP	
+#ifdef CONFIG_MCAST_TFTP
 	/* Multicast TFTP.. non-MasterClients do not ACK data. */
-	if (Multicast 
-	 && (TftpState == STATE_DATA) 
-	 && (MasterClient == 0)) 
+	if (Multicast
+	 && (TftpState == STATE_DATA)
+	 && (MasterClient == 0))
 		return;
 #endif
 	/*
@@ -179,10 +179,10 @@ TftpSend (void)
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt,"blksize%c%d%c",
 				0,htons(TftpBlkSizeOption),0);
-#ifdef CONFIG_MCAST_TFTP	
+#ifdef CONFIG_MCAST_TFTP
 		/* Check all preconditions before even trying the option */
-		if (!ProhibitMcast 
-		 && (Bitmap=malloc(Mapsize)) 
+		if (!ProhibitMcast
+		 && (Bitmap=malloc(Mapsize))
 		 && eth_get_dev()->mcast) {
 			free(Bitmap);
 			Bitmap=NULL;
@@ -244,7 +244,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 	if (dest != TftpOurPort) {
 #ifdef CONFIG_MCAST_TFTP
-		if (Multicast 
+		if (Multicast
 		 && (!Mcast_port || (dest != Mcast_port)))
 #endif
 		return;
@@ -290,7 +290,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 #ifdef CONFIG_MCAST_TFTP
 		parse_multicast_oack((char *)pkt,len-1);
-		if ((Multicast) && (!MasterClient)) 
+		if ((Multicast) && (!MasterClient))
 			TftpState = STATE_DATA;	/* passive.. */
 		else
 #endif
@@ -366,14 +366,14 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		 *	the server for the next one.
 		 */
 #ifdef CONFIG_MCAST_TFTP
-		/* if I am the MasterClient, actively calculate what my next 
-		 * needed block is; else I'm passive; not ACKING 
+		/* if I am the MasterClient, actively calculate what my next
+		 * needed block is; else I'm passive; not ACKING
  		 */
 		if (Multicast) {
 			if (len < TftpBlkSize)  {
 				TftpEndingBlock = TftpBlock;
 			} else if (MasterClient) {
-				TftpBlock = PrevBitmapHole = 
+				TftpBlock = PrevBitmapHole =
 					ext2_find_next_zero_bit(
 						Bitmap,
 						(Mapsize*8),
@@ -398,7 +398,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 				puts ("\nMulticast tftp done\n");
 				mcast_cleanup();
 				NetState = NETLOOP_SUCCESS;
-			} 
+			}
 		}
 		else
 #endif
@@ -555,7 +555,7 @@ static void parse_multicast_oack(char *pkt, int len)
 			break;
 	if (i >= (len-14)) /* non-Multicast OACK, ign. */
 		return;
-	
+
 	i+=10; /* strlen multicast */
 	mc_adr = pkt+i;
 	for (;i<len;i++) {
@@ -584,8 +584,8 @@ static void parse_multicast_oack(char *pkt, int len)
 			return ;
 		}
 		/* I malloc instead of pre-declare; so that if the file ends
-		 * up being too big for this bitmap I can retry 
-		 */ 
+		 * up being too big for this bitmap I can retry
+		 */
 		if (!(Bitmap = malloc (Mapsize))) {
 			printf ("No Bitmap, no multicast. Sorry.\n");
 			ProhibitMcast=1;

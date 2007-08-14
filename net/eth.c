@@ -356,12 +356,12 @@ void eth_set_enetaddr(int num, char *addr) {
 #ifdef CONFIG_MCAST_TFTP
 /* Multicast.
  * mcast_addr: multicast ipaddr from which multicast Mac is made
- * join: 1=join, 0=leave.  
+ * join: 1=join, 0=leave.
  */
 int eth_mcast_join( IPaddr_t mcast_ip, u8 join)
 {
  u8 mcast_mac[6];
-	if (!eth_current || !eth_current->mcast) 
+	if (!eth_current || !eth_current->mcast)
 		return -1;
 	mcast_mac[5] = htonl(mcast_ip) & 0xff;
 	mcast_mac[4] = (htonl(mcast_ip)>>8) & 0xff;
@@ -372,8 +372,8 @@ int eth_mcast_join( IPaddr_t mcast_ip, u8 join)
 	return eth_current->mcast(eth_current, mcast_mac, join);
 }
 
-/* the 'way' for ethernet-CRC-32. Spliced in from Linux lib/crc32.c 
- * and this is the ethernet-crc method needed for TSEC -- and perhaps 
+/* the 'way' for ethernet-CRC-32. Spliced in from Linux lib/crc32.c
+ * and this is the ethernet-crc method needed for TSEC -- and perhaps
  * some other adapter -- hash tables
  */
 #define CRCPOLY_LE 0xedb88320
