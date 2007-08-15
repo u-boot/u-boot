@@ -71,7 +71,10 @@
 #undef CONFIG_BOOTARGS
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+
+#if !defined(CONFIG_MPC885ADS)
 #define CONFIG_BZIP2	 /* include support for bzip2 compressed images */
+#endif
 
 /*
  * New MPC86xADS and MPC885ADS provide two Ethernet connectivity options:
