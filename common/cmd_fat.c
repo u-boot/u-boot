@@ -31,7 +31,7 @@
 #include <ata.h>
 #include <part.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_FAT)
+#if defined(CONFIG_CMD_FAT)
 
 #undef	DEBUG
 
@@ -324,4 +324,4 @@ void hexdump (int cnt, unsigned char *data)
 }
 #endif	/* NOT_IMPLEMENTED_YET */
 
-#endif	/* CFG_CMD_FAT */
+#endif

@@ -58,14 +58,31 @@
 #endif
 #define CONFIG_BOOTARGS      "console=ttyS0 root=/dev/nfs rw nfsroot=209.128.93.133:/boot nfsaddrs=209.128.93.133:209.128.93.138"
 #define CONFIG_BOOTDELAY     3
-#define CONFIG_COMMANDS      (CONFIG_CMD_DFL|CFG_CMD_ASKENV|CFG_CMD_DATE)
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+
+
 #define CONFIG_ENV_OVERWRITE 1
 #define CONFIG_ETH_ADDR      "00:10:18:10:00:06"
 
 #define CONFIG_DOS_PARTITION  1 /* MSDOS bootable partitiion support */
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any)
- */
-#include <cmd_confdefs.h>
+
 #include "../board/mousse/mousse.h"
 
 /*

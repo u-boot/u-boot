@@ -94,9 +94,9 @@
  * network support enabled.
  * Remark: CONFIG_405 describes Xilinx PPC405 FPGA without EMAC controller!
  */
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && !defined(CONFIG_405) && !defined(CONFIG_IOP480)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_405) && !defined(CONFIG_IOP480)
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -1415,10 +1415,8 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 			if ((MAL_RX_CTRL_EMPTY & hw_p->rx[i].ctrl)
 			    || (loop_count >= NUM_RX_BUFF))
 				break;
+
 			loop_count++;
-			hw_p->rx_slot++;
-			if (NUM_RX_BUFF == hw_p->rx_slot)
-				hw_p->rx_slot = 0;
 			handled++;
 			data_len = (unsigned long) hw_p->rx[i].data_len;	/* Get len */
 			if (data_len) {
@@ -1467,6 +1465,10 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 				hw_p->rx_i_index++;
 				if (NUM_RX_BUFF == hw_p->rx_i_index)
 					hw_p->rx_i_index = 0;
+
+				hw_p->rx_slot++;
+				if (NUM_RX_BUFF == hw_p->rx_slot)
+					hw_p->rx_slot = 0;
 
 				/*  AS.HARNOIS
 				 * free receive buffer only when
@@ -1683,7 +1685,7 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #endif
 
 #if defined(CONFIG_NET_MULTI)
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register (dev->name,
 				 emac4xx_miiphy_read, emac4xx_miiphy_write);
 #endif
@@ -1724,7 +1726,7 @@ int eth_rx(void)
 
 int emac4xx_miiphy_initialize (bd_t * bis)
 {
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register ("ppc_4xx_eth0",
 			 emac4xx_miiphy_read, emac4xx_miiphy_write);
 #endif
@@ -1733,4 +1735,4 @@ int emac4xx_miiphy_initialize (bd_t * bis)
 }
 #endif /* !defined(CONFIG_NET_MULTI) */
 
-#endif /* #if (CONFIG_COMMANDS & CFG_CMD_NET) */
+#endif

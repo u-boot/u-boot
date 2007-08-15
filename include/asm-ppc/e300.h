@@ -9,6 +9,7 @@
 #define PVR_E300C1	0x80830000
 #define PVR_E300C2	0x80840000
 #define PVR_E300C3	0x80850000
+#define PVR_E300C4	0x80860000
 
 /*
  * Hardware Implementation-Dependent Register 0 (HID0)

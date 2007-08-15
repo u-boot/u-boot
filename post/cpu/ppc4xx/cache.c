@@ -53,14 +53,25 @@ int cache_post_test6 (int tlb, void *p, int size);
 
 static int tlb = -1;		/* index to the victim TLB entry */
 
+#ifdef CONFIG_440
 static unsigned char testarea[CACHE_POST_SIZE]
 __attribute__((__aligned__(CACHE_POST_SIZE)));
+#endif
 
 int cache_post_test (int flags)
 {
 	void* virt = (void*)CFG_POST_CACHE_ADDR;
-	int ints, i, res = 0;
-	u32 word0;
+	int ints;
+	int res = 0;
+
+	/*
+	 * All 44x variants deal with cache management differently
+	 * because they have the address translation always enabled.
+	 * The 40x ppc's don't use address translation in U-Boot at all,
+	 * so we have to distinguish here between 40x and 44x.
+	 */
+#ifdef CONFIG_440
+	int word0, i;
 
 	if (tlb < 0) {
 		/*
@@ -83,6 +94,7 @@ int cache_post_test (int flags)
 			}
 		}
 	}
+#endif
 	ints = disable_interrupts ();
 
 	WATCHDOG_RESET ();

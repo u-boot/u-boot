@@ -416,7 +416,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #include <linux/mtd/nand_legacy.h>
 

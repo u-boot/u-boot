@@ -1257,9 +1257,12 @@ typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
 #define MPC86xx_PORBMSR_HA      0x00060000
+#define MPC85xx_PORBMSR_HA		0x00070000
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
 	uint	pordevsr;	/* 0xe000c - POR I/O device status regsiter */
-#define MPC86xx_PORDEVSR_IO_SEL 0x000F0000
+#define MPC86xx_PORDEVSR_IO_SEL		0x000F0000
+#define MPC85xx_PORDEVSR_IO_SEL		0x00380000 /* 85xx platform type */
+#define MPC86xx_PORDEVSR_CORE1TE	0x00000080 /* ASMP (Core1 addr trans) */
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
 	char	res1[12];
 	uint	gpporcr;	/* 0xe0020 - General-purpose POR configuration register */
@@ -1273,8 +1276,11 @@ typedef struct ccsr_gur {
 	uint	pmuxcr;		/* 0xe0060 - Alternate function signal multiplex control */
 	char	res6[12];
 	uint	devdisr;	/* 0xe0070 - Device disable control */
-#define MPC86xx_DEVDISR_PCIEX1  0x80000000
-#define MPC86xx_DEVDISR_PCIEX2  0x40000000
+#define MPC86xx_DEVDISR_PCIEX1	0x80000000
+#define MPC86xx_DEVDISR_PCIEX2	0x40000000
+#define MPC86xx_DEVDISR_PCI1	0x80000000
+#define MPC86xx_DEVDISR_PCIE1	0x40000000
+#define MPC86xx_DEVDISR_PCIE2	0x20000000
 	char	res7[12];
 	uint	powmgtcsr;	/* 0xe0080 - Power management status and control register */
 	char	res8[12];
@@ -1282,7 +1288,9 @@ typedef struct ccsr_gur {
 	char	res9[12];
 	uint	pvr;		/* 0xe00a0 - Processor version register */
 	uint	svr;		/* 0xe00a4 - System version register */
-	char	res10[3416];
+	char	res10a[1880];
+	uint	clkdvdr;	/* 0xe0800 - Clock Divide register */
+	char	res10b[1532];
 	uint	clkocr;		/* 0xe0e00 - Clock out select register */
 	char	res11[12];
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */

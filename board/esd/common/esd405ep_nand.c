@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <asm/io.h>
 #include <nand.h>
 
@@ -84,4 +84,4 @@ int board_nand_init(struct nand_chip *nand)
 	nand->options = NAND_SAMSUNG_LP_OPTIONS;
 	return 0;
 }
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif

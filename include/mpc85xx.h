@@ -1,14 +1,14 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor.
  * Copyright(c) 2003 Motorola Inc.
- * Xianghua Xiao (x.xiao@motorola.com)
  */
 
 #ifndef	__MPC85xx_H__
 #define __MPC85xx_H__
 
-#define EXC_OFF_SYS_RESET	0x0100	/* System reset	*/
-#define	_START_OFFSET		EXC_OFF_SYS_RESET
+/* define for common ppc_asm.tmpl */
+#define EXC_OFF_SYS_RESET	0x100	/* System reset */
+#define _START_OFFSET		0
 
 #if defined(CONFIG_E500)
 #include <e500.h>

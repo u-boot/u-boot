@@ -240,23 +240,6 @@
 
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 rw console=ttyBF0,57600"
 
-#if (CONFIG_DRIVER_SMC91111)
-#define CONFIG_COMMANDS1	(CONFIG_CMD_DFL | \
-				 CFG_CMD_PING   | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_CACHE  | \
-				 CFG_CMD_JFFS2  | \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_DATE)
-
-#else
-#define CONFIG_COMMANDS1	(CONFIG_CMD_DFL | \
-				 CFG_CMD_ELF    | \
-				 CFG_CMD_CACHE  | \
-				 CFG_CMD_JFFS2  | \
-				 CFG_CMD_EEPROM | \
-				 CFG_CMD_DATE)
-#endif
 
 #if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
 #if (CONFIG_DRIVER_SMC91111)
@@ -305,20 +288,39 @@
 #endif
 #endif
 
-#if (CONFIG_SOFT_I2C)
-#define CONFIG_COMMANDS2   CFG_CMD_I2C
-#else
-#define CONFIG_COMMANDS2 0
-#endif /* CONFIG_SOFT_I2C */
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
-#define CONFIG_COMMANDS  ( CONFIG_COMMANDS1 | CONFIG_COMMANDS2 | CFG_CMD_DHCP)
-#elif (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#define CONFIG_COMMANDS  ( CONFIG_COMMANDS1 | CONFIG_COMMANDS2)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_DATE
+
+#if (CONFIG_DRIVER_SMC91111)
+#define CONFIG_CMD_PING
 #endif
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#if (CONFIG_SOFT_I2C)
+#define CONFIG_CMD_I2C
+#endif
+
+#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
+#define CONFIG_CMD_DHCP
+#endif
+
 
 /*
  * Console settings
@@ -345,7 +347,7 @@
 #endif
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -395,7 +397,7 @@
 /* Enabled below option for CF support */
 /* #define CONFIG_STAMP_CF	1 */
 
-#if defined(CONFIG_STAMP_CF) && (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_STAMP_CF) && defined(CONFIG_CMD_IDE)
 
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_DOS_PARTITION	1

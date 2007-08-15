@@ -106,12 +106,18 @@
 #ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+
+#define CONFIG_ENV_OVERWRITE	1
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif /* CFG_ENV_IS_IN_FLASH */
+
+#define ENV_NAME_REVLEV	"revision_level"
+#define ENV_NAME_SOLDER	"solder_switch"
+#define ENV_NAME_DIP	"dip"
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -119,6 +125,7 @@
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for setup             */
 #undef CONFIG_DDR_ECC			/* don't use ECC			*/
 #define SPD_EEPROM_ADDRESS      {0x50}
+#define	CONFIG_PROG_SDRAM_TLB	1
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -143,6 +150,8 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=pcs440ep\0"						\
+	"use_eeprom_ethaddr=default\0"					\
+	"cs_test=off\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -172,6 +181,36 @@
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
+
+#define CONFIG_PREBOOT	"echo;" \
+	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo"
+
+/* check U-Boot image with SHA1 sum */
+#define CONFIG_SHA1_CHECK_UB_IMG	1
+#define CONFIG_SHA1_START		CFG_MONITOR_BASE
+#define CONFIG_SHA1_LEN			CFG_MONITOR_LEN
+
+/*-----------------------------------------------------------------------
+ * Definitions for status LED
+ */
+#define CONFIG_STATUS_LED	1	/* Status LED enabled		*/
+#define CONFIG_BOARD_SPECIFIC_LED	1
+
+#define STATUS_LED_BIT		0x08			/* DIAG1 is on GPIO_PPC_1 */
+#define STATUS_LED_PERIOD	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE	STATUS_LED_OFF
+#define STATUS_LED_BIT1		0x04			/* DIAG2 is on GPIO_PPC_2 */
+#define STATUS_LED_PERIOD1	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE1	STATUS_LED_ON
+#define STATUS_LED_BIT2		0x02			/* DIAG3 is on GPIO_PPC_3 */
+#define STATUS_LED_PERIOD2	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE2	STATUS_LED_OFF
+#define STATUS_LED_BIT3		0x01			/* DIAG4 is on GPIO_PPC_4 */
+#define STATUS_LED_PERIOD3	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_STATE3	STATUS_LED_OFF
+
+#define CONFIG_SHOW_BOOT_PROGRESS	1
 
 #define CONFIG_BAUDRATE		115200
 
@@ -208,37 +247,47 @@
 #define CONFIG_HW_WATCHDOG			/* watchdog */
 #endif
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_EXT2	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_USB	)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_USB
 
 
 #define CONFIG_SUPPORT_VFAT
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
@@ -393,7 +442,7 @@
  */
 #define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
@@ -405,9 +454,44 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff Supports IDE harddisk
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+
+#undef  CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef  CONFIG_IDE_LED			/* LED   for ide not supported	*/
+
+#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 2 drives per IDE bus	*/
+
+#define CONFIG_IDE_PREINIT	1
+#define CONFIG_IDE_RESET	1
+
+#define CFG_ATA_IDE0_OFFSET	0x0000
+
+#define CFG_ATA_BASE_ADDR	CFG_CF1
+
+/* Offset for data I/O			*/
+#define CFG_ATA_DATA_OFFSET	0
+
+/* Offset for normal register accesses	*/
+#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	*/
+#define CFG_ATA_ALT_OFFSET	(0x0000)
+
+/* These addresses need to be shifted one place to the left
+ * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
+ * These values are shifted
+ */
+#define CFG_ATA_PORT_ADDR(port) ((port) << 1)
 
 #endif	/* __CONFIG_H */

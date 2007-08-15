@@ -34,20 +34,20 @@
 #include <asm/immap_5272.h>
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if defined(CONFIG_CMD_SCSI)
 #include <scsi.h>
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
 #endif
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
 #include <net.h>
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 #include <cmd_bedbug.h>
 #endif
 #ifdef CFG_ALLOC_DPRAM
@@ -584,7 +584,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	misc_init_r ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	WATCHDOG_RESET ();
 	puts ("KGDB:  ");
 	kgdb_init ();
@@ -620,27 +620,27 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif /* CFG_CMD_NET */
+#endif
 
 	WATCHDOG_RESET ();
 
-#if (CONFIG_COMMANDS & CFG_CMD_DOC)
+#if defined(CONFIG_CMD_DOC)
 	WATCHDOG_RESET ();
 	puts ("DOC:   ");
 	doc_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 	WATCHDOG_RESET ();
 	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(FEC_ENET)
+#if defined(CONFIG_CMD_NET) && defined(FEC_ENET)
 	WATCHDOG_RESET();
 	eth_init(bd);
 #endif
@@ -659,7 +659,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	last_stage_init ();
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 	WATCHDOG_RESET ();
 	bedbug_init ();
 #endif

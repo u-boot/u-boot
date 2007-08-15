@@ -1,7 +1,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 
 #include <kgdb.h>
 #include <asm/signal.h>
@@ -323,4 +323,4 @@ kgdb_breakpoint(int argc, char *argv[])
 	    ");
 }
 
-#endif /* CFG_CMD_KGDB */
+#endif

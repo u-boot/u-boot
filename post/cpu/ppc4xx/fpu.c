@@ -29,15 +29,15 @@
 #if defined(CONFIG_440EP) || \
     defined(CONFIG_440EPX)
 
-#include <ppc4xx.h>
 #include <asm/processor.h>
+#include <ppc4xx.h>
 
 
 int fpu_status(void)
 {
 	if (mfspr(ccr0) & CCR0_DAPUIB)
 		return 0; /* Disabled */
-	else 
+	else
 		return 1; /* Enabled */
 }
 

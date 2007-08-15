@@ -55,8 +55,8 @@
  * SCC, 1-3 for FCC)
  *
  * If CONFIG_ETHER_NONE is defined, then either the ethernet routines
- * must be defined elsewhere (as for the console), or CFG_CMD_NET must
- * be removed from CONFIG_COMMANDS to remove support for networking.
+ * must be defined elsewhere (as for the console), or CONFIG_CMD_NET
+ * must be unset.
  */
 #undef	CONFIG_ETHER_ON_SCC		/* Ethernet is not on SCC */
 #define CONFIG_ETHER_ON_FCC		/* Ethernet is on FCC     */
@@ -106,22 +106,33 @@
 
 #define CONFIG_BAUDRATE		38400
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL   \
-				| CFG_CMD_ASKENV  \
-				| CFG_CMD_DHCP    \
-				| CFG_CMD_IMMAP   \
-				| CFG_CMD_MII     \
-				| CFG_CMD_PING    \
-				)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_BOOTCOMMAND	"dhcp;bootm"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/nfs rw ip=:::::eth0:dhcp"
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
 #define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
 #undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
@@ -139,7 +150,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -223,7 +234,7 @@
 #endif
 
 #define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
@@ -248,18 +259,18 @@
 #define CFG_LSRT		0x0F
 #define CFG_MPTPR		0x4000
 
-#define CFG_PSDRAM_BR		CFG_SDRAM_BASE | 0x00000041
+#define CFG_PSDRAM_BR		(CFG_SDRAM_BASE | 0x00000041)
 #define CFG_PSDRAM_OR		0xFC0028C0
-#define CFG_LSDRAM_BR		CFG_LSDRAM_BASE | 0x00001861
+#define CFG_LSDRAM_BR		(CFG_LSDRAM_BASE | 0x00001861)
 #define CFG_LSDRAM_OR		0xFF803480
 
-#define CFG_BR0_PRELIM		CFG_FLASH_BASE | 0x00000801
+#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | 0x00000801)
 #define CFG_OR0_PRELIM		0xFFE00856
-#define CFG_BR5_PRELIM		CFG_EEPROM | 0x00000801
+#define CFG_BR5_PRELIM		(CFG_EEPROM | 0x00000801)
 #define CFG_OR5_PRELIM		0xFFFF03F6
-#define CFG_BR6_PRELIM		CFG_FLSIMM_BASE | 0x00001801
+#define CFG_BR6_PRELIM		(CFG_FLSIMM_BASE | 0x00001801)
 #define CFG_OR6_PRELIM		0xFF000856
-#define CFG_BR7_PRELIM		CFG_BCSR | 0x00000801
+#define CFG_BR7_PRELIM		(CFG_BCSR | 0x00000801)
 #define CFG_OR7_PRELIM		0xFFFF83F6
 
 #define CFG_RESET_ADDRESS	0xC0000000

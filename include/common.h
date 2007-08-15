@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -63,10 +63,19 @@ typedef volatile unsigned char	vu_char;
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
+#define CONFIG_RELOC_FIXUP_WORKS
+#elif defined(CONFIG_MPC512X)
+#include <mpc512x.h>
+#include <asm/immap_512x.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
+#define CONFIG_RELOC_FIXUP_WORKS
+#elif defined(CONFIG_824X)
+#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
@@ -78,6 +87,7 @@ typedef volatile unsigned char	vu_char;
 #define CONFIG_MPC8260	1
 #endif
 #include <asm/immap_8260.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
@@ -90,6 +100,7 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_MPC83XX
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
+#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>
@@ -230,6 +241,9 @@ int	saveenv	     (void);
 void inline setenv   (char *, char *);
 #else
 void	setenv	     (char *, char *);
+#ifdef CONFIG_HAS_UID
+void	forceenv     (char *, char *);
+#endif
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
@@ -448,6 +462,9 @@ int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
+#if defined(CONFIG_MPC512x)
+int	prt_mpc512xxx_clks (void);
+#endif
 #if defined(CONFIG_MPC8220)
 int	prt_mpc8220_clks (void);
 #endif
@@ -512,6 +529,8 @@ void	cpu_init_f    (void);
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);
+#elif defined(CONFIG_MPC83XX)
+int	prt_83xx_rsr  (void);
 #endif
 
 /* $(CPU)/interrupts.c */
@@ -626,9 +645,13 @@ int	fgetc(int file);
 
 int	pcmcia_init (void);
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-void	show_boot_progress (int status);
+#ifdef CONFIG_STATUS_LED
+# include <status_led.h>
 #endif
+/*
+ * Board-specific Platform code can reimplement show_boot_progress () if needed
+ */
+void inline show_boot_progress (int val);
 
 #ifdef CONFIG_INIT_CRITICAL
 #error CONFIG_INIT_CRITICAL is deprecated!

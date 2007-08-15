@@ -27,7 +27,7 @@
  */
 #include <common.h>
 #include <command.h>
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 #include <net.h>
 #endif
 #include <fpga.h>
@@ -43,7 +43,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined (CONFIG_FPGA) && ( CONFIG_COMMANDS & CFG_CMD_FPGA )
+#if defined (CONFIG_FPGA) && defined(CONFIG_CMD_FPGA)
 
 /* Local functions */
 static void fpga_usage (cmd_tbl_t * cmdtp);
@@ -321,4 +321,4 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
 	    "\tloadmk\tLoad device generated with mkimage\n"
 	    "\tdump\tLoad device to memory buffer\n");
-#endif /* CONFIG_FPGA && CONFIG_COMMANDS & CFG_CMD_FPGA */
+#endif

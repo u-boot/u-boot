@@ -34,7 +34,7 @@
 #include <command.h>
 #include <asm/processor.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
 
@@ -122,7 +122,7 @@ MachineCheckException(struct pt_regs *regs)
 		return;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
@@ -130,8 +130,11 @@ MachineCheckException(struct pt_regs *regs)
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
 	printf("regs %p ", regs);
-	switch (regs->msr & 0x000F0000) {
-	case (0x80000000 >> 12):
+	switch ( regs->msr & 0x001F0000) {
+	case (0x80000000>>11):
+		printf("MSS error. MSSSR0: %08x\n", mfspr(SPRN_MSSSR0));
+		break;
+	case (0x80000000>>12):
 		printf("Machine check signal - probably due to mm fault\n"
 		       "with mmu off\n");
 		break;
@@ -155,7 +158,7 @@ MachineCheckException(struct pt_regs *regs)
 void
 AlignmentException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
@@ -170,7 +173,7 @@ ProgramCheckException(struct pt_regs *regs)
 	unsigned char *p = regs ? (unsigned char *)(regs->nip) : NULL;
 	int i, j;
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
@@ -193,7 +196,7 @@ ProgramCheckException(struct pt_regs *regs)
 void
 SoftEmuException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
@@ -205,10 +208,11 @@ SoftEmuException(struct pt_regs *regs)
 void
 UnknownException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
+	printf("UnknownException regs@%x\n", regs);
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);

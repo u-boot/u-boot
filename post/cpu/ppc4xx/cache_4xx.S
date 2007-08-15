@@ -37,6 +37,13 @@
 
 	.text
 
+	/*
+	 * All 44x variants deal with cache management differently
+	 * because they have the address translation always enabled.
+	 * The 40x ppc's don't use address translation in U-Boot at all,
+	 * so we have to distinguish here between 40x and 44x.
+	 */
+#ifdef CONFIG_440
 /* void cache_post_disable (int tlb)
  */
 cache_post_disable:
@@ -68,6 +75,43 @@ cache_post_wb:
 	sync
 	isync
 	blr
+#else
+/* void cache_post_disable (int tlb)
+ */
+cache_post_disable:
+	lis	r0, 0x0000
+	ori	r0, r0, 0x0000
+	mtdccr	r0
+	sync
+	isync
+	blr
+
+/* void cache_post_wt (int tlb)
+ */
+cache_post_wt:
+	lis	r0, 0x8000
+	ori	r0, r0, 0x0000
+	mtdccr	r0
+	lis	r0, 0x8000
+	ori	r0, r0, 0x0000
+	mtdcwr	r0
+	sync
+	isync
+	blr
+
+/* void cache_post_wb (int tlb)
+ */
+cache_post_wb:
+	lis	r0, 0x8000
+	ori	r0, r0, 0x0000
+	mtdccr	r0
+	lis	r0, 0x0000
+	ori	r0, r0, 0x0000
+	mtdcwr	r0
+	sync
+	isync
+	blr
+#endif
 
 /* void cache_post_dinvalidate (void *p, int size)
  */
@@ -438,7 +482,7 @@ cache_post_test6_reloc:
 	blr
 
 /* Test instructions.
- */	
+ */
 cache_post_test_inst:
 	li	r3, 0
 	li	r3, -1

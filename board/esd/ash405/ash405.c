@@ -222,7 +222,6 @@ long int initdram (int board_type)
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
-
 	/*
 	 * Disable sleep mode in LXT971
 	 */

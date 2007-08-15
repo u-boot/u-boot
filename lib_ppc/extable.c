@@ -89,7 +89,7 @@ search_exception_table(unsigned long addr)
 	/* if the serial port does not hang in exception, printf can be used */
 #if !defined(CFG_SERIAL_HANG_IN_EXCEPTION)
 	if (ex_tab_message)
-		printf("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
+		debug("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
 #endif
 	if (ret) return ret;
 

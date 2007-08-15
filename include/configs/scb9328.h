@@ -36,20 +36,27 @@
 
 
 /*
- * Definition of u-boot build in commands. Check out CONFIG_CMD_DFL if
- * neccessary in include/cmd_confdefs.h file. (Un)comment for getting
- * functionality or size of u-boot code.
+ * BOOTP options
  */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL		\
-				& ~CFG_CMD_LOADS	\
-				& ~CFG_CMD_CONSOLE	\
-				& ~CFG_CMD_AUTOSCRIPT	\
-				| CFG_CMD_NET		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_DHCP		\
-				)
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_CONSOLE
+#undef CONFIG_CMD_AUTOSCRIPT
+
 
 /*
  * Boot options. Setting delay to -1 stops autostart count down.
@@ -182,7 +189,7 @@
  * Right now there is no gain for user, but later on booting kernel might be
  * possible. Consider using XIP kernel running from flash to save RAM
  * footprint.
- * NOTE: Enable CFG_CMD_JFFS2 for JFFS2 support.
+ * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
 #define CFG_JFFS2_FIRST_BANK		0
 #define CFG_JFFS2_FIRST_SECTOR		5

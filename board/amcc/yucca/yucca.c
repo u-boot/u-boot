@@ -562,6 +562,40 @@ int checkboard (void)
 	return 0;
 }
 
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+static int ppc440spe_rev_a(void)
+{
+	if ((get_pvr() == PVR_440SPe_6_RA) || (get_pvr() == PVR_440SPe_RA))
+		return 1;
+	else
+		return 0;
+}
+
+u32 ddr_wrdtr(u32 default_val) {
+	/*
+	 * Yucca boards with 440SPe rev. A need a slightly different setup
+	 * for the MCIF0_WRDTR register.
+	 */
+	if (ppc440spe_rev_a())
+		return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_270_DEG_ADV);
+
+	return default_val;
+}
+
+u32 ddr_clktr(u32 default_val) {
+	/*
+	 * Yucca boards with 440SPe rev. A need a slightly different setup
+	 * for the MCIF0_CLKTR register.
+	 */
+	if (ppc440spe_rev_a())
+		return (SDRAM_CLKTR_CLKP_180_DEG_ADV);
+
+	return default_val;
+}
+
 #if defined(CFG_DRAM_TEST)
 int testdram (void)
 {

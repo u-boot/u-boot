@@ -82,7 +82,9 @@ void flash_print_info(flash_info_t *info)
 	case FLASH_MAN_AMD:	printf ("AMD ");		break;
 	case FLASH_MAN_FUJ:	printf ("FUJITSU ");		break;
 	case FLASH_MAN_SST:	printf ("SST ");		break;
+	case FLASH_MAN_STM:	printf ("ST Micro");		break;
 	case FLASH_MAN_EXCEL:	printf ("Excel Semiconductor "); break;
+	case FLASH_MAN_MX:	printf ("MXIC "); break;
 	default:		printf ("Unknown Vendor ");	break;
 	}
 
@@ -116,6 +118,8 @@ void flash_print_info(flash_info_t *info)
 	case FLASH_SST020:	printf ("SST39LF/VF020 (2 Mbit, uniform sector size)\n");
 		break;
 	case FLASH_SST040:	printf ("SST39LF/VF040 (4 Mbit, uniform sector size)\n");
+		break;
+	case STM_ID_M29W040B:	printf ("ST Micro M29W040B (4 Mbit, uniform sector size)\n");
 		break;
 	default:		printf ("Unknown Chip Type\n");
 		break;
@@ -192,8 +196,14 @@ static ulong flash_get_size(vu_long *addr, flash_info_t *info)
 	case (CFG_FLASH_WORD_SIZE)SST_MANUFACT:
 		info->flash_id = FLASH_MAN_SST;
 		break;
+	case (CFG_FLASH_WORD_SIZE)STM_MANUFACT:
+		info->flash_id = FLASH_MAN_STM;
+		break;
 	case (CFG_FLASH_WORD_SIZE)EXCEL_MANUFACT:
 		info->flash_id = FLASH_MAN_EXCEL;
+		break;
+	case (CFG_FLASH_WORD_SIZE)MX_MANUFACT:
+		info->flash_id = FLASH_MAN_MX;
 		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -221,6 +231,11 @@ static ulong flash_get_size(vu_long *addr, flash_info_t *info)
 		info->flash_id += FLASH_AM040;
 		info->sector_count = 8;
 		info->size = 0x0080000;		/* => 0.5 MB	*/
+		break;
+	case (CFG_FLASH_WORD_SIZE)STM_ID_M29W040B:
+		info->flash_id += FLASH_AM040;
+		info->sector_count = 8;
+		info->size = 0x0080000; /* => 0,5 MB */
 		break;
 
 	case (CFG_FLASH_WORD_SIZE)AMD_ID_LV800T:

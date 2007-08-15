@@ -60,26 +60,35 @@
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 #define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				 CONFIG_BOOTP_DNS | \
-				 CONFIG_BOOTP_DNS2 | \
-				 CONFIG_BOOTP_SEND_HOSTNAME )
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_PCI	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_EEPROM	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_EEPROM
+
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -98,7 +107,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -268,7 +277,7 @@
 #define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
 					/* have only 8kB, 16kB is save here	*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

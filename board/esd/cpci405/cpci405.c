@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);       /*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);	/*cmd_boot.c*/
 #if 0
 #define FPGA_DEBUG
 #endif
@@ -54,8 +54,6 @@ const unsigned char fpgadata[] =
  * include common fpga code (for esd boards)
  */
 #include "../common/fpga.c"
-
-
 #include "../common/auto_update.h"
 
 #ifdef CONFIG_CPCI405AB
@@ -88,12 +86,10 @@ au_image_t au_image[] = {
 
 int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
-
 /* Prototypes */
 int cpci405_version(void);
 int gunzip(void *, int, unsigned char *, unsigned long *);
 void lxt971_no_sleep(void);
-
 
 int board_early_init_f (void)
 {
@@ -113,10 +109,10 @@ int board_early_init_f (void)
 	/*
 	 * First pull fpga-prg pin low, to disable fpga logic (on version 2 board)
 	 */
-	out32(GPIO0_ODR, 0x00000000);        /* no open drain pins      */
-	out32(GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output        */
+	out32(GPIO0_ODR, 0x00000000);	     /* no open drain pins	*/
+	out32(GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output	*/
 	out32(GPIO0_OR,  CFG_FPGA_PRG);      /* set output pins to high */
-	out32(GPIO0_OR, 0);                  /* pull prg low            */
+	out32(GPIO0_OR, 0);		     /* pull prg low		*/
 
 	/*
 	 * Boot onboard FPGA
@@ -178,50 +174,47 @@ int board_early_init_f (void)
 	 * IRQ 30 (EXT IRQ 5) PCI SLOT 3; active low; level sensitive
 	 * IRQ 31 (EXT IRQ 6) COMPACT FLASH; active high; level sensitive
 	 */
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
-	mtdcr(uicer, 0x00000000);       /* disable all ints */
-	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
+	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(uicer, 0x00000000);	/* disable all ints */
+	mtdcr(uiccr, 0x00000000);	/* set all to be non-critical*/
 #ifdef CONFIG_CPCI405_6U
 	if (cpci405_version() == 3) {
-		mtdcr(uicpr, 0xFFFFFF99);       /* set int polarities */
+		mtdcr(uicpr, 0xFFFFFF99);	/* set int polarities */
 	} else {
-		mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+		mtdcr(uicpr, 0xFFFFFF81);	/* set int polarities */
 	}
 #else
-	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
+	mtdcr(uicpr, 0xFFFFFF81);	/* set int polarities */
 #endif
-	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(uictr, 0x10000000);	/* set int trigger levels */
+	mtdcr(uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority*/
+	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
 
 	return 0;
 }
-
 
 /* ------------------------------------------------------------------------- */
 
 int ctermm2(void)
 {
 #ifdef CONFIG_CPCI405_VER2
-	return 0;                       /* no, board is cpci405 */
+	return 0;			/* no, board is cpci405 */
 #else
 	if ((*(unsigned char *)0xf0000400 == 0x00) &&
 	    (*(unsigned char *)0xf0000401 == 0x01))
-		return 0;               /* no, board is cpci405 */
+		return 0;		/* no, board is cpci405 */
 	else
-		return -1;              /* yes, board is cterm-m2 */
+		return -1;		/* yes, board is cterm-m2 */
 #endif
 }
-
 
 int cpci405_host(void)
 {
 	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
-		return -1;              /* yes, board is cpci405 host */
+		return -1;		/* yes, board is cpci405 host */
 	else
-		return 0;               /* no, board is cpci405 adapter */
+		return 0;		/* no, board is cpci405 adapter */
 }
-
 
 int cpci405_version(void)
 {
@@ -235,8 +228,8 @@ int cpci405_version(void)
 	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
 	out_be32((void*)GPIO0_ODR, in_be32((void*)GPIO0_ODR) & ~0x00180000);
 	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) & ~0x00180000);
-	udelay(1000);                   /* wait some time before reading input */
-	value = in_be32((void*)GPIO0_IR) & 0x00180000;       /* get config bits */
+	udelay(1000);			/* wait some time before reading input */
+	value = in_be32((void*)GPIO0_IR) & 0x00180000;	     /* get config bits */
 
 	/*
 	 * Restore GPIO settings
@@ -262,12 +255,10 @@ int cpci405_version(void)
 	}
 }
 
-
 int misc_init_f (void)
 {
 	return 0;  /* dummy implementation */
 }
-
 
 int misc_init_r (void)
 {
@@ -432,7 +423,6 @@ int misc_init_r (void)
 	return (0);
 }
 
-
 /*
  * Check Board Identity:
  */
@@ -488,7 +478,7 @@ int checkboard (void)
 	}
 
 #ifndef CONFIG_CPCI405_VER2
-	puts ("\nFPGA:  ");
+	puts ("\nFPGA:	");
 
 	/* display infos on fpgaimage */
 	index = 15;
@@ -515,7 +505,6 @@ long int initdram (int board_type)
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
-
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -526,7 +515,6 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -549,7 +537,6 @@ void ide_set_reset(int on)
 
 #endif /* CONFIG_IDE_RESET */
 #endif /* CONFIG_CPCI405_VER2 */
-
 
 #if defined(CONFIG_PCI)
 void cpci405_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
@@ -587,11 +574,11 @@ int pci_pre_init(struct pci_controller *hose)
 
 #ifdef CONFIG_CPCI405AB
 
-#define ONE_WIRE_CLEAR   (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
+#define ONE_WIRE_CLEAR	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
 			  |= CFG_FPGA_MODE_1WIRE_DIR)
-#define ONE_WIRE_SET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
+#define ONE_WIRE_SET	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
 			  &= ~CFG_FPGA_MODE_1WIRE_DIR)
-#define ONE_WIRE_GET     (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_STATUS) \
+#define ONE_WIRE_GET	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_STATUS) \
 			  & CFG_FPGA_MODE_1WIRE)
 
 /*
@@ -613,7 +600,6 @@ int OWTouchReset(void)
 	udelay(410);
 	return result;
 }
-
 
 /*
  * Send 1 a 1-wire write bit.
@@ -640,7 +626,6 @@ void OWWriteBit(int bit)
 	}
 }
 
-
 /*
  * Read a bit from the 1-wire bus and return it.
  * Provide 10us recovery time.
@@ -660,7 +645,6 @@ int OWReadBit(void)
 	return result;
 }
 
-
 void OWWriteByte(int data)
 {
 	int loop;
@@ -670,7 +654,6 @@ void OWWriteByte(int data)
 		data >>= 1;
 	}
 }
-
 
 int OWReadByte(void)
 {
@@ -685,7 +668,6 @@ int OWReadByte(void)
 
 	return result;
 }
-
 
 int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -726,7 +708,6 @@ U_BOOT_CMD(
 	"onewire - Read 1-write ID\n",
 	NULL
 	);
-
 
 #define CFG_I2C_EEPROM_ADDR_2	0x51	/* EEPROM CAT28WC32		*/
 #define CFG_ENV_SIZE_2	0x800	/* 2048 bytes may be used for env vars*/

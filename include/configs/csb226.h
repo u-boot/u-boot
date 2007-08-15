@@ -57,10 +57,34 @@
 #define CONFIG_BAUDRATE		19200
 #undef  CONFIG_MISC_INIT_R		/* not used yet                     */
 
-#define CONFIG_COMMANDS (CFG_CMD_BDI|CFG_CMD_LOADB|CFG_CMD_IMI|CFG_CMD_FLASH|CFG_CMD_MEMORY|CFG_CMD_NET|CFG_CMD_ENV|CFG_CMD_RUN|CFG_CMD_ASKENV|CFG_CMD_ECHO|CFG_CMD_DHCP|CFG_CMD_CACHE)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_CACHE
+
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttyS0,19200 ip=192.168.1.10,192.168.1.5,,255,255,255,0,csb root=/dev/nfs, ether=0,0x08000000,eth0"
@@ -73,7 +97,7 @@
 
 #define CONFIG_CMDLINE_TAG	1
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	19200		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

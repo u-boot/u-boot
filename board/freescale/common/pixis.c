@@ -321,10 +321,10 @@ static ulong strfractoint(uchar *strptr)
 		mulconst = 1;
 		for (i = 0; i < decarr_len; i++)
 			mulconst *= 10;
-		decval = simple_strtoul(decarr, NULL, 10);
+		decval = simple_strtoul((char *)decarr, NULL, 10);
 	}
 
-	intval = simple_strtoul(intarr, NULL, 10);
+	intval = simple_strtoul((char *)intarr, NULL, 10);
 	intval = intval * mulconst;
 
 	retval = intval + decval;
@@ -362,7 +362,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		val = set_px_sysclk(simple_strtoul(argv[2], NULL, 10));
 
-		corepll = strfractoint(argv[3]);
+		corepll = strfractoint((uchar *)argv[3]);
 		val = val + set_px_corepll(corepll);
 		val = val + set_px_mpxpll(simple_strtoul(argv[4], NULL, 10));
 		if (val == 3) {
@@ -410,7 +410,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			read_from_px_regs(0);
 			read_from_px_regs_altbank(0);
 			val = set_px_sysclk(simple_strtoul(argv[3], NULL, 10));
-			corepll = strfractoint(argv[4]);
+			corepll = strfractoint((uchar *)argv[4]);
 			val = val + set_px_corepll(corepll);
 			val = val + set_px_mpxpll(simple_strtoul(argv[5],
 								 NULL, 10));

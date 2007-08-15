@@ -21,6 +21,9 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing
+PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing -mrelocatable
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC824X -ffixed-r2 -ffixed-r29 -mstring -mcpu=603e -msoft-float
+
+# Use default linker script.  Board port can override in board/*/config.mk
+LDSCRIPT := $(SRCTREE)/cpu/mpc824x/u-boot.lds

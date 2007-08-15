@@ -490,10 +490,16 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 int pci_hose_scan(struct pci_controller *hose)
 {
+	/* Start scan at current_busno.
+	 * PCIe will start scan at first_busno+1.
+	 */
+	/* For legacy support, ensure current>=first */
+	if (hose->first_busno > hose->current_busno)
+		hose->current_busno = hose->first_busno;
 #ifdef CONFIG_PCI_PNP
 	pciauto_config_init(hose);
 #endif
-	return pci_hose_scan_bus(hose, hose->first_busno);
+	return pci_hose_scan_bus(hose, hose->current_busno);
 }
 
 void pci_init(void)

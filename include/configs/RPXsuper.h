@@ -91,8 +91,7 @@
  * for FCC)
  *
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
- * defined elsewhere (as for the console), or CFG_CMD_NET must be removed
- * from CONFIG_COMMANDS to remove support for networking.
+ * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 #undef  CONFIG_ETHER_ON_SCC           /* define if ethernet on SCC    */
 #define CONFIG_ETHER_ON_FCC           /* define if ethernet on FCC    */
@@ -150,13 +149,28 @@
 /* Monitor Command Prompt       */
 #define CFG_PROMPT              "=> "
 
-/* What U-Boot subsytems do you want enabled? */
-#define CONFIG_COMMANDS         ( CONFIG_CMD_DFL | \
-				  CFG_CMD_IMMAP  | \
-				  CFG_CMD_ASKENV | \
-				  CFG_CMD_I2C    | \
-				  CFG_CMD_REGINFO & \
-				 ~CFG_CMD_KGDB )
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_REGINFO
+
+#undef CONFIG_CMD_KGDB
+
 
 /* Where do the internal registers live? */
 #define CFG_IMMR               0xF0000000
@@ -176,13 +190,10 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CBSIZE              1024       /* Console I/O Buffer Size      */
 #else
 #  define CFG_CBSIZE              256        /* Console I/O Buffer Size      */
@@ -310,7 +321,7 @@
  */
 #define CFG_CACHELINE_SIZE      32      /* For MPC8260 CPU */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT     5     /* log base 2 of the above value */
 #endif
 

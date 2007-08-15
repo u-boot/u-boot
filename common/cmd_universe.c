@@ -28,7 +28,7 @@
 
 #include <universe.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_UNIVERSE)
+#if defined(CONFIG_CMD_UNIVERSE)
 
 #define PCI_VENDOR PCI_VENDOR_ID_TUNDRA
 #define PCI_DEVICE PCI_DEVICE_ID_TUNDRA_CA91C042
@@ -387,4 +387,4 @@ U_BOOT_CMD(
 	"                                      03 -> D32 Data Width\n"
 );
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_UNIVERSE) */
+#endif

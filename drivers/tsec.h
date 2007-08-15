@@ -70,7 +70,9 @@
 #define miim_end -2
 #define miim_read -1
 
-#define TBIPA_VALUE		0x1f
+#ifndef CFG_TBIPA_VALUE
+    #define CFG_TBIPA_VALUE	0x1f
+#endif
 #define MIIMCFG_INIT_VALUE	0x00000003
 #define MIIMCFG_RESET		0x80000000
 

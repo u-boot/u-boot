@@ -36,13 +36,6 @@
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-#include <status_led.h>
-#define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-#define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 #define CMD_LINE_ADDR 0xFF900000	/* L1 scratchpad */
 
 #ifdef SHARED_RESOURCES

@@ -1682,7 +1682,7 @@ static int run_pipe_real(struct pipe *pi)
 				return -1;	/* give up after bad command */
 			} else {
 				int rcode;
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if defined(CONFIG_CMD_BOOTD)
 	    extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 				/* avoid "bootd" recursion */
@@ -1694,7 +1694,7 @@ static int run_pipe_real(struct pipe *pi)
 				else
 					flag |= CMD_FLAG_BOOTD;
 				}
-#endif	/* CFG_CMD_BOOTD */
+#endif
 				/* found - check max args */
 				if ((child->argc - i) > cmdtp->maxargs) {
 					printf ("Usage:\n%s\n", cmdtp->usage);

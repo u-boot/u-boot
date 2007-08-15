@@ -28,20 +28,21 @@
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
-#define CONFIG_E500			1	/* BOOKE e500 family */
+#define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48/68 */
 #define CONFIG_MPC8568		1	/* MPC8568 specific */
 #define CONFIG_MPC8568MDS	1	/* MPC8568MDS board specific */
 
-#undef CONFIG_PCI
+#define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#undef CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
 /*#define CONFIG_DDR_2T_TIMING		 Sets the 2T timing bit */
 
 /*#define CONFIG_DDR_ECC*/			/* only for ECC DDR module */
-/*#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER*/	/* 	 DDR controller or DMA? */
+/*#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER*/	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
 
@@ -297,6 +298,7 @@ extern unsigned long get_clock_freq(void);
 
 #define OF_CPU			"PowerPC,8568@0"
 #define OF_SOC			"soc8568@e0000000"
+#define OF_QE			"qe@e0080000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
 #define OF_STDOUT_PATH		"/soc8568@e0000000/serial@4600"
 
@@ -306,11 +308,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_EEPROM_ADDR	0x57
+#define CFG_I2C_EEPROM_ADDR	0x52
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES        {{0,0x69}}	/* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
+#define CFG_I2C2_OFFSET		0x3100
 
 /*
  * General PCI
@@ -318,7 +323,7 @@ extern unsigned long get_clock_freq(void);
  */
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-#define CFG_PCI1_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe2000000
 #define CFG_PCI1_IO_SIZE	0x00800000	/* 8M */
@@ -337,6 +342,44 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
 
+#ifdef CONFIG_QE
+/*
+ * QE UEC ethernet configuration
+ */
+#define CONFIG_UEC_ETH
+#ifndef CONFIG_TSEC_ENET
+#define CONFIG_ETHPRIME         "Freescale GETH"
+#endif
+#define CONFIG_PHY_MODE_NEED_CHANGE
+#define CONFIG_eTSEC_MDIO_BUS
+
+#ifdef CONFIG_eTSEC_MDIO_BUS
+#define CONFIG_MIIM_ADDRESS 	0xE0024520
+#endif
+
+#define CONFIG_UEC_ETH1         /* GETH1 */
+
+#ifdef CONFIG_UEC_ETH1
+#define CFG_UEC1_UCC_NUM        0       /* UCC1 */
+#define CFG_UEC1_RX_CLK         QE_CLK_NONE
+#define CFG_UEC1_TX_CLK         QE_CLK16
+#define CFG_UEC1_ETH_TYPE       GIGA_ETH
+#define CFG_UEC1_PHY_ADDR       7
+#define CFG_UEC1_INTERFACE_MODE ENET_1000_GMII
+#endif
+
+#define CONFIG_UEC_ETH2         /* GETH2 */
+
+#ifdef CONFIG_UEC_ETH2
+#define CFG_UEC2_UCC_NUM        1       /* UCC2 */
+#define CFG_UEC2_RX_CLK         QE_CLK_NONE
+#define CFG_UEC2_TX_CLK         QE_CLK16
+#define CFG_UEC2_ETH_TYPE       GIGA_ETH
+#define CFG_UEC2_PHY_ADDR       1
+#define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
+#endif
+#endif /* CONFIG_QE */
+
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
@@ -345,12 +388,11 @@ extern unsigned long get_clock_freq(void);
 
 #endif	/* CONFIG_PCI */
 
-
-#if defined(CONFIG_TSEC_ENET)
-
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI 	1
 #endif
+
+#if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
@@ -383,19 +425,29 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+
 #if defined(CONFIG_PCI)
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PCI \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII)
-#else
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII)
+    #define CONFIG_CMD_PCI
 #endif
-#include <cmd_confdefs.h>
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -405,7 +457,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_LONGHELP			/* undef to save memory	*/
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE	256			/* Console I/O Buffer Size */
@@ -425,7 +477,7 @@ extern unsigned long get_clock_freq(void);
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE	32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -437,7 +489,7 @@ extern unsigned long get_clock_freq(void);
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -447,12 +499,15 @@ extern unsigned long get_clock_freq(void);
  */
 
 /* The mac addresses for all ethernet interface */
-#if defined(CONFIG_TSEC_ENET)
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_UEC_ETH)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR   00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
+#define CONFIG_HAS_ETH3
+#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253

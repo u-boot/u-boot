@@ -37,11 +37,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -69,7 +64,6 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
-#define ADD_PCI_CMD 		CFG_CMD_PCI
 #endif
 
 #define CFG_XLB_PIPELINING	1
@@ -80,11 +74,8 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#else	/* MPC5100 */
-
+#else
 #define CONFIG_MII		1
-#define ADD_PCI_CMD		0  /* no CFG_CMD_PCI */
-
 #endif
 
 /* Partitions */
@@ -93,31 +84,44 @@
 #define CONFIG_ISO_PARTITION
 
 /* USB */
-#if 1
-#define CONFIG_USB_OHCI
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
+#define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
-#else
-#define ADD_USB_CMD             0
-#endif
+#define CFG_OHCI_BE_CONTROLLER
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	MPC5XXX_USB
+#define CFG_USB_OHCI_SLOT_NAME	"mpc5200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP	| \
-				ADD_PCI_CMD	| \
-				ADD_USB_CMD	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
+
+#if defined(CONFIG_PCI)
+#define CONFIG_CMD_PCI
+#endif
+
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT	        1
@@ -312,7 +316,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -327,6 +331,11 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings
