@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Czech Technical University.
  *
- * Michal SIMEK <monstr@seznam.cz>
+ * Michal SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -160,21 +160,13 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_AUTOSCRIPT
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_IMI
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MFSL
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_RUN
+
 
 #if defined(FLASH)
 	#define CONFIG_CMD_ECHO

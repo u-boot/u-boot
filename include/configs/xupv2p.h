@@ -155,21 +155,14 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_MISC
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
+#define CONFIG_CMD_PING
 
 #ifdef XILINX_SYSACE_BASEADDR
 #define CONFIG_CMD_EXT2
