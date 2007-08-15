@@ -33,7 +33,7 @@
 extern void ft_cpu_setup(void *blob, bd_t *bd);
 #endif
 
-#include "../freescale/common/pixis.h"
+#include "../common/pixis.h"
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
