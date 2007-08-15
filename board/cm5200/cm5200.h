@@ -138,7 +138,7 @@ static char **hw_id_list[] = {
 	cmu1_qa_hw_id,
 };
 
-/* indices to the above list - keep in sync */ 
+/* indices to the above list - keep in sync */
 enum {
 	CM1_QA,
 	CM11_QA,

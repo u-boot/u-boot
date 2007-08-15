@@ -736,7 +736,11 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_LN2410SBC            725
 #define MACH_TYPE_CB3RUFC              726
 #define MACH_TYPE_MP2USB               727
+#define MACH_TYPE_AT91SAM9261EK        848
 #define MACH_TYPE_PDNB3               1002
+#define MACH_TYPE_AT91SAM9260EK       1099
+#define MACH_TYPE_AT91RM9200DF        1119
+#define MACH_TYPE_AT91SAM9263EK       1202
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -9400,6 +9404,71 @@ extern unsigned int __machine_arch_type;
 # define machine_is_mp2usb()	(machine_arch_type == MACH_TYPE_MP2USB)
 #else
 # define machine_is_mp2usb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM9261EK
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM9261EK
+# endif
+# define machine_is_at91sam9261ek()	\
+		(machine_arch_type == MACH_TYPE_AT91SAM9261EK)
+#else
+# define machine_is_at91sam9261ek()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM9260EK
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM9260EK
+# endif
+# define machine_is_at91sam9260ek()	\
+		(machine_arch_type == MACH_TYPE_AT91SAM9260EK)
+#else
+# define machine_is_at91sam9260ek()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM9263EK
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM9263EK
+# endif
+# define machine_is_at91sam9263ek()	\
+	(machine_arch_type == MACH_TYPE_AT91SAM9263EK)
+#else
+# define machine_is_at91sam9263ek()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91RM9200DF
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91RM9200DF
+# endif
+# define machine_is_at91rm9200df()	\
+	(machine_arch_type == MACH_TYPE_AT91RM9200DF)
+#else
+# define machine_is_at91rm9200df()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM9263EK
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM9263EK
+# endif
+# define machine_is_at91sam9263ek()	\
+	(machine_arch_type == MACH_TYPE_AT91SAM9263EK)
+#else
+# define machine_is_at91sam9263ek()	(0)
 #endif
 
 /*

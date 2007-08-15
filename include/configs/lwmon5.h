@@ -46,7 +46,7 @@
 
 #define CFG_BOOT_BASE_ADDR	0xf0000000
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CFG_FLASH_BASE		0xfc000000	/* start of FLASH	*/
+#define CFG_FLASH_BASE		0xf8000000	/* start of FLASH	*/
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_LIME_BASE_0         0xc0000000
 #define CFG_LIME_BASE_1         0xc1000000
@@ -74,11 +74,13 @@
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
 #define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
+#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 
 #define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
+#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -103,9 +105,11 @@
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH0		0xFC000000
+#define CFG_FLASH1		0xF8000000
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH1, CFG_FLASH0 }
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
@@ -133,7 +137,25 @@
 #define CONFIG_DDR_DATA_EYE	1		/* use DDR2 optimization	*/
 #if 0 /* test-only: disable ECC for now */
 #define CONFIG_DDR_ECC		1		/* enable ECC			*/
+#define CFG_POST_ECC_ON		CFG_POST_ECC
+#else
+#define CFG_POST_ECC_ON		0
 #endif
+
+/* POST support */
+#define CONFIG_POST		(CFG_POST_MEMORY   | \
+				 CFG_POST_ECC_ON   | \
+				 CFG_POST_CPU	   | \
+				 CFG_POST_UART	   | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_CACHE	   | \
+				 CFG_POST_FPU	   | \
+				 CFG_POST_ETHER	   | \
+				 CFG_POST_SPR)
+
+#define CFG_POST_CACHE_ADDR	0x10000000	/* free virtual address		*/
+#define CONFIG_LOGBUFFER
+#define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -162,6 +184,8 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"hostname=lwmon5\0"						\
 	"netdev=eth0\0"							\
+	"unlock=yes\0"							\
+	"logversion=2\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -183,6 +207,8 @@
 	"update=protect off FFF80000 FFFFFFFF;era FFF80000 FFFFFFFF;"	\
 		"cp.b 200000 FFF80000 80000\0"			        \
 	"upd=run load;run update\0"					\
+	"lwe_env=tftp 200000 /tftpboot.dev/lwmon5/env_uboot.bin;"	\
+		"autoscr 200000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -223,7 +249,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-
 /*
  * BOOTP options
  */
@@ -231,7 +256,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -247,6 +271,7 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
+#define CONFIG_CMD_LOG
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
@@ -258,7 +283,6 @@
 #ifdef CONFIG_440EPX
 #define CONFIG_CMD_USB
 #endif
-
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
@@ -322,7 +346,7 @@
 
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x03050200
-#define CFG_EBC_PB0CR		(CFG_FLASH | 0xdc000)
+#define CFG_EBC_PB0CR		(CFG_FLASH | 0xfc000)
 
 /* Memory Bank 1 (Lime) initialization						*/
 #define CFG_EBC_PB1AP		0x01004380
@@ -342,14 +366,24 @@
  * Graphics (Fujitsu Lime)
  *----------------------------------------------------------------------*/
 /* SDRAM Clock frequency adjustment register */
-#define CFG_LIME_SDRAM_CLOCK	0xC1FC0000
-/* Lime Clock frequency is to set 133MHz */
+#define CFG_LIME_SDRAM_CLOCK	0xC1FC0038
+/* Lime Clock frequency is to set 100MHz */
+#define CFG_LIME_CLOCK_100MHZ	0x00000
+#if 0
+/* Lime Clock frequency for 133MHz */
 #define CFG_LIME_CLOCK_133MHZ	0x10000
+#endif
 
 /* SDRAM Parameter register */
 #define CFG_LIME_MMR		0xC1FCFFFC
-/* SDRAM parameter value */
+/* SDRAM parameter value; was 0x414FB7F2, caused several vertical bars
+   and pixel flare on display when 133MHz was configured. According to
+   SDRAM chip datasheet CAS Latency is 3 for 133MHz and -75 Speed Grade */
+#ifdef CFG_LIME_CLOCK_133MHZ
+#define CFG_LIME_MMR_VALUE	0x414FB7F3
+#else
 #define CFG_LIME_MMR_VALUE	0x414FB7F2
+#endif
 
 /*-----------------------------------------------------------------------
  * GPIO Setup

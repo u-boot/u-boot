@@ -268,8 +268,8 @@ void pci_init_board(void)
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
-		in_be32((unsigned *) CFG_PCI1_MEM_BASE
-			+ CFG_PCI1_MEM_SIZE - 0x1000000);
+		in_be32((unsigned *) ((char *)(CFG_PCI1_MEM_BASE
+				       + CFG_PCI1_MEM_SIZE - 0x1000000)));
 
 	} else {
 		puts("PCI-EXPRESS 1: Disabled\n");

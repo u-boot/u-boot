@@ -1,6 +1,7 @@
 /*
  * linux/arch/ppc/kernel/traps.c
  *
+ * Copyright 2007 Freescale Semiconductor.
  * Copyright (C) 2003 Motorola
  * Modified by Xianghua Xiao(x.xiao@motorola.com)
  *
@@ -145,10 +146,13 @@ CritcalInputException(struct pt_regs *regs)
 	panic("Critical Input Exception");
 }
 
+int machinecheck_count = 0;
+int machinecheck_error = 0;
 void
 MachineCheckException(struct pt_regs *regs)
 {
 	unsigned long fixup;
+	unsigned int mcsr, mcsrr0, mcsrr1, mcar;
 
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
@@ -159,34 +163,62 @@ MachineCheckException(struct pt_regs *regs)
 		return;
 	}
 
+	mcsrr0 = mfspr(SPRN_MCSRR0);
+	mcsrr1 = mfspr(SPRN_MCSRR1);
+	mcsr = mfspr(SPRN_MCSR);
+	mcar = mfspr(SPRN_MCAR);
+
+	machinecheck_count++;
+	machinecheck_error=1;
+
 #if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
 
 	printf("Machine check in kernel mode.\n");
-	printf("Caused by (from msr): ");
-	printf("regs %p ",regs);
-	switch( regs->msr & 0x000F0000) {
-	case (0x80000000>>12):
-		printf("Machine check signal - probably due to mm fault\n"
-		       "with mmu off\n");
-		break;
-	case (0x80000000>>13):
-		printf("Transfer error ack signal\n");
-		break;
-	case (0x80000000>>14):
-		printf("Data parity signal\n");
-		break;
-	case (0x80000000>>15):
-		printf("Address parity signal\n");
-		break;
-	default:
-		printf("Unknown values in msr\n");
-	}
+	printf("Caused by (from mcsr): ");
+	printf("mcsr = 0x%08x\n", mcsr);
+	if (mcsr & 0x80000000)
+		printf("Machine check input pin\n");
+	if (mcsr & 0x40000000)
+		printf("Instruction cache parity error\n");
+	if (mcsr & 0x20000000)
+		printf("Data cache push parity error\n");
+	if (mcsr & 0x10000000)
+		printf("Data cache parity error\n");
+	if (mcsr & 0x00000080)
+		printf("Bus instruction address error\n");
+	if (mcsr & 0x00000040)
+		printf("Bus Read address error\n");
+	if (mcsr & 0x00000020)
+		printf("Bus Write address error\n");
+	if (mcsr & 0x00000010)
+		printf("Bus Instruction data bus error\n");
+	if (mcsr & 0x00000008)
+		printf("Bus Read data bus error\n");
+	if (mcsr & 0x00000004)
+		printf("Bus Write bus error\n");
+	if (mcsr & 0x00000002)
+		printf("Bus Instruction parity error\n");
+	if (mcsr & 0x00000001)
+		printf("Bus Read parity error\n");
+
 	show_regs(regs);
+	printf("MCSR=0x%08x \tMCSRR0=0x%08x \nMCSRR1=0x%08x \tMCAR=0x%08x\n",
+	       mcsr, mcsrr0, mcsrr1, mcar);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	panic("machine check");
+	if (machinecheck_count > 10) {
+		panic("machine check count too high\n");
+	}
+
+	if (machinecheck_count > 1) {
+		regs->nip += 4; /* skip offending instruction */
+		printf("Skipping current instr, Returning to 0x%08x\n",
+		       regs->nip);
+	} else {
+		printf("Returning back to 0x%08x\n",regs->nip);
+	}
 }
 
 void
@@ -252,6 +284,33 @@ UnknownException(struct pt_regs *regs)
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);
+}
+void
+ExtIntException(struct pt_regs *regs)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_pic_t *pic = &immap->im_pic;
+	uint vect;
+
+#if defined(CONFIG_CMD_KGDB)
+	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+		return;
+#endif
+
+	printf("External Interrupt Exception at PC: %lx, SR: %lx, vector=%lx",
+	       regs->nip, regs->msr, regs->trap);
+	vect = pic->iack0;
+	printf(" irq IACK0@%05x=%d\n",&pic->iack0,vect);
+	show_regs(regs);
+	print_backtrace((unsigned long *)regs->gpr[1]);
+	machinecheck_count++;
+#ifdef EXTINT_NOSKIP
+	printf("Returning back to 0x%08x\n",regs->nip);
+#else
+	regs->nip += 4; /* skip offending instruction */
+	printf("Skipping current instr, Returning to 0x%08x\n",regs->nip);
+#endif
+
 }
 
 void

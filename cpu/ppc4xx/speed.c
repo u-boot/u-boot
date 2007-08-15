@@ -771,6 +771,7 @@ ulong get_PCI_freq (void)
 void get_sys_info (PPC405_SYS_INFO * sysInfo)
 {
 	unsigned long cpr_plld;
+	unsigned long cpr_pllc;
 	unsigned long cpr_primad;
 	unsigned long sysClkPeriodPs = ONE_BILLION / (CONFIG_SYS_CLK_FREQ/1000);
 	unsigned long primad_cpudv;
@@ -780,6 +781,7 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	 * Read PLL Mode registers
 	 */
 	mfcpr(cprplld, cpr_plld);
+	mfcpr(cprpllc, cpr_pllc);
 
 	/*
 	 * Determine forward divider A
@@ -787,20 +789,18 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	sysInfo->pllFwdDiv = ((cpr_plld & PLLD_FWDVA_MASK) >> 16);
 
 	/*
-	 * Determine forward divider B (should be equal to A)
+	 * Determine forward divider B
 	 */
 	sysInfo->pllFwdDivB = ((cpr_plld & PLLD_FWDVB_MASK) >> 8);
-	if (sysInfo->pllFwdDivB == 0) {
+	if (sysInfo->pllFwdDivB == 0)
 		sysInfo->pllFwdDivB = 8;
-	}
 
 	/*
 	 * Determine FBK_DIV.
 	 */
 	sysInfo->pllFbkDiv = ((cpr_plld & PLLD_FBDV_MASK) >> 24);
-	if (sysInfo->pllFbkDiv == 0) {
+	if (sysInfo->pllFbkDiv == 0)
 		sysInfo->pllFbkDiv = 256;
-	}
 
 	/*
 	 * Read CPR_PRIMAD register
@@ -810,30 +810,30 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	 * Determine PLB_DIV.
 	 */
 	sysInfo->pllPlbDiv = ((cpr_primad & PRIMAD_PLBDV_MASK) >> 16);
-	if (sysInfo->pllPlbDiv == 0) {
+	if (sysInfo->pllPlbDiv == 0)
 		sysInfo->pllPlbDiv = 16;
-	}
 
 	/*
 	 * Determine EXTBUS_DIV.
 	 */
 	sysInfo->pllExtBusDiv = (cpr_primad & PRIMAD_EBCDV_MASK);
-	if (sysInfo->pllExtBusDiv == 0) {
+	if (sysInfo->pllExtBusDiv == 0)
 		sysInfo->pllExtBusDiv = 16;
-	}
 
 	/*
 	 * Determine OPB_DIV.
 	 */
 	sysInfo->pllOpbDiv = ((cpr_primad & PRIMAD_OPBDV_MASK) >> 8);
-	if (sysInfo->pllOpbDiv == 0) {
+	if (sysInfo->pllOpbDiv == 0)
 		sysInfo->pllOpbDiv = 16;
-	}
 
 	/*
 	 * Determine the M factor
 	 */
-	m = sysInfo->pllFbkDiv * sysInfo->pllFwdDivB;
+	if (cpr_pllc & PLLC_SRC_MASK)
+		m = sysInfo->pllFbkDiv * sysInfo->pllFwdDivB;
+	else
+		m = sysInfo->pllFbkDiv * sysInfo->pllFwdDiv;
 
 	/*
 	 * Determine VCO clock frequency
@@ -845,16 +845,17 @@ void get_sys_info (PPC405_SYS_INFO * sysInfo)
 	 * Determine CPU clock frequency
 	 */
 	primad_cpudv = ((cpr_primad & PRIMAD_CPUDV_MASK) >> 24);
-	if (primad_cpudv == 0) {
+	if (primad_cpudv == 0)
 		primad_cpudv = 16;
-	}
 
-	sysInfo->freqProcessor = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) / primad_cpudv;
+	sysInfo->freqProcessor = (CONFIG_SYS_CLK_FREQ * m) /
+		sysInfo->pllFwdDiv / primad_cpudv;
 
 	/*
 	 * Determine PLB clock frequency
 	 */
-	sysInfo->freqPLB = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) / sysInfo->pllPlbDiv;
+	sysInfo->freqPLB = (CONFIG_SYS_CLK_FREQ * m) /
+		sysInfo->pllFwdDiv / sysInfo->pllPlbDiv;
 }
 
 /********************************************

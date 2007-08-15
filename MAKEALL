@@ -26,124 +26,285 @@ LIST=""
 ## MPC5xx Systems
 #########################################################################
 
-LIST_5xx="	\
-	cmi_mpc5xx							\
+LIST_5xx="		\
+	cmi_mpc5xx	\
 "
 
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
 
-LIST_5xxx="	\
-	BC3450		cm5200		cpci5200	EVAL5200	\
-	fo300		icecube_5100	icecube_5200	lite5200b	\
-	mcc200		mecp5200	motionpro	o2dnt		\
-	pf5200		PM520		TB5200		Total5100	\
-	Total5200	Total5200_Rev2	TQM5200		TQM5200_B	\
-	TQM5200S	v38b						\
+LIST_5xxx="		\
+	BC3450		\
+	cm5200		\
+	cpci5200	\
+	EVAL5200	\
+	fo300		\
+	icecube_5100	\
+	icecube_5200	\
+	lite5200b	\
+	mcc200		\
+	mecp5200	\
+	motionpro	\
+	o2dnt		\
+	pf5200		\
+	PM520		\
+	TB5200		\
+	Total5100	\
+	Total5200	\
+	Total5200_Rev2	\
+	TQM5200		\
+	TQM5200_B	\
+	TQM5200S	\
+	v38b		\
 "
 
 #########################################################################
 ## MPC512x Systems
 #########################################################################
 
-LIST_512x="	\
-	ads5121							\
+LIST_512x="		\
+	ads5121		\
 "
 
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
-LIST_8xx="	\
-	Adder87x	GENIETV		MBX860T		R360MPI		\
-	AdderII		GTH		MHPC		RBC823		\
-	ADS860		hermes		MPC86xADS	rmu		\
-	AMX860		IAD210		MPC885ADS	RPXClassic	\
-	c2mon		ICU862_100MHz	MVS1		RPXlite		\
-	CCM		IP860		NETPHONE	RPXlite_DW	\
-	cogent_mpc8xx	IVML24		NETTA		RRvision	\
-	ELPT860		IVML24_128	NETTA2		SM850		\
-	EP88x		IVML24_256	NETTA_ISDN	spc1920		\
-	ESTEEM192E	IVMS8		NETVIA		SPD823TS	\
-	ETX094		IVMS8_128	NETVIA_V2	svm_sc8xx	\
-	FADS823		IVMS8_256	NX823		SXNI855T	\
-	FADS850SAR	KUP4K		pcu_e		TOP860		\
-	FADS860T	KUP4X		QS823		TQM823L		\
-	FLAGADM		LANTEC		QS850		TQM823L_LCD	\
-	FPS850L		lwmon		QS860T		TQM850L		\
-	GEN860T		MBX		quantum		TQM855L		\
-	GEN860T_SC					TQM860L		\
-							TQM885D		\
-							uc100		\
-							v37		\
+LIST_8xx="		\
+	Adder87x	\
+	AdderII		\
+	ADS860		\
+	AMX860		\
+	c2mon		\
+	CCM		\
+	cogent_mpc8xx	\
+	ELPT860		\
+	EP88x		\
+	ESTEEM192E	\
+	ETX094		\
+	FADS823		\
+	FADS850SAR	\
+	FADS860T	\
+	FLAGADM		\
+	FPS850L		\
+	GEN860T		\
+	GEN860T_SC	\
+	GENIETV		\
+	GTH		\
+	hermes		\
+	IAD210		\
+	ICU862_100MHz	\
+	IP860		\
+	IVML24		\
+	IVML24_128	\
+	IVML24_256	\
+	IVMS8		\
+	IVMS8_128	\
+	IVMS8_256	\
+	KUP4K		\
+	KUP4X		\
+	LANTEC		\
+	lwmon		\
+	MBX		\
+	MBX860T		\
+	MHPC		\
+	MPC86xADS	\
+	MPC885ADS	\
+	MVS1		\
+	NETPHONE	\
+	NETTA		\
+	NETTA2		\
+	NETTA_ISDN	\
+	NETVIA		\
+	NETVIA_V2	\
+	NX823		\
+	pcu_e		\
+	QS823		\
+	QS850		\
+	QS860T		\
+	quantum		\
+	R360MPI		\
+	RBC823		\
+	rmu		\
+	RPXClassic	\
+	RPXlite		\
+	RPXlite_DW	\
+	RRvision	\
+	SM850		\
+	spc1920		\
+	SPD823TS	\
+	svm_sc8xx	\
+	SXNI855T	\
+	TOP860		\
+	TQM823L		\
+	TQM823L_LCD	\
+	TQM850L		\
+	TQM855L		\
+	TQM860L		\
+	TQM885D		\
+	uc100		\
+	v37		\
 "
 
 #########################################################################
 ## PPC4xx Systems
 #########################################################################
 
-LIST_4xx="	\
-	acadia		acadia_nand	ADCIOP		alpr		\
-	AP1000		AR405		ASH405		bamboo		\
-	bamboo_nand	bubinga		CANBT		CMS700		\
-	CPCI2DP		CPCI405		CPCI4052	CPCI405AB	\
-	CPCI405DT	CPCI440		CPCIISER4	CRAYL1		\
-	csb272		csb472		DASA_SIM	DP405		\
-	DU405		ebony		ERIC		EXBITGEN	\
-	G2000		HH405		HUB405		JSE		\
-	KAREF		katmai		luan		lwmon5		\
-	METROBOX	MIP405		MIP405T		ML2		\
-	ml300		ocotea		OCRTC		ORSG		\
-	p3p440		PCI405		pcs440ep	PIP405		\
-	PLU405		PMC405		PPChameleonEVB	sbc405		\
-	sc3		sequoia		sequoia_nand	taishan		\
-	VOH405		VOM405		W7OLMC		W7OLMG		\
-	walnut		WUH405		XPEDITE1K	yellowstone	\
-	yosemite	yucca						\
+LIST_4xx="		\
+	acadia		\
+	acadia_nand	\
+	ADCIOP		\
+	alpr		\
+	AP1000		\
+	AR405		\
+	ASH405		\
+	bamboo		\
+	bamboo_nand	\
+	bubinga		\
+	CANBT		\
+	CMS700		\
+	CPCI2DP		\
+	CPCI405		\
+	CPCI4052	\
+	CPCI405AB	\
+	CPCI405DT	\
+	CPCI440		\
+	CPCIISER4	\
+	CRAYL1		\
+	csb272		\
+	csb472		\
+	DASA_SIM	\
+	DP405		\
+	DU405		\
+	ebony		\
+	ERIC		\
+	EXBITGEN	\
+	G2000		\
+	hcu4		\
+	hcu5		\
+	HH405		\
+	HUB405		\
+	JSE		\
+	KAREF		\
+	katmai		\
+	luan		\
+	lwmon5		\
+	METROBOX	\
+	MIP405		\
+	MIP405T		\
+	ML2		\
+	ml300		\
+	ocotea		\
+	OCRTC		\
+	ORSG		\
+	p3p440		\
+	PCI405		\
+	pcs440ep	\
+	PIP405		\
+	PLU405		\
+	PMC405		\
+	PPChameleonEVB	\
+	sbc405		\
+	sc3		\
+	sequoia		\
+	sequoia_nand	\
+	taihu		\
+	taishan		\
+	VOH405		\
+	VOM405		\
+	W7OLMC		\
+	W7OLMG		\
+	walnut		\
+	WUH405		\
+	XPEDITE1K	\
+	yellowstone	\
+	yosemite	\
+	yucca		\
+	zeus		\
 "
 
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
 
-LIST_8220="	\
-	Alaska8220	Yukon8220					\
+LIST_8220="		\
+	Alaska8220	\
+	Yukon8220	\
 "
 
 #########################################################################
 ## MPC824x Systems
 #########################################################################
 
-LIST_824x="	\
-	A3000		barco		BMW		CPC45		\
-	CU824		debris		eXalion		HIDDEN_DRAGON	\
-			MOUSSE		MUSENKI		MVBLUE		\
-	OXC		PN62		Sandpoint8240	Sandpoint8245	\
-	sbc8240		SL8245		utx8245				\
+LIST_824x="		\
+	A3000		\
+	barco		\
+	BMW		\
+	CPC45		\
+	CU824		\
+	debris		\
+	eXalion		\
+	HIDDEN_DRAGON	\
+	MOUSSE		\
+	MUSENKI		\
+	MVBLUE		\
+	OXC		\
+	PN62		\
+	Sandpoint8240	\
+	Sandpoint8245	\
+	sbc8240		\
+	SL8245		\
+	utx8245		\
 "
 
 #########################################################################
 ## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
-LIST_8260="	\
-	atc		cogent_mpc8260	CPU86		CPU87		\
-	ep8248		ep8260		ep82xxm		gw8260		\
-	hymod		IPHASE4539	ISPAN		MPC8260ADS	\
-	MPC8266ADS	MPC8272ADS	PM826		PM828		\
-	ppmc8260	Rattler8248	RPXsuper	rsdproto	\
-	sacsng		sbc8260		SCM		TQM8260_AC	\
-	TQM8260_AD	TQM8260_AE	ZPC1900				\
+LIST_8260="		\
+	atc		\
+	cogent_mpc8260	\
+	CPU86		\
+	CPU87		\
+	ep8248		\
+	ep8260		\
+	ep82xxm		\
+	gw8260		\
+	hymod		\
+	IPHASE4539	\
+	ISPAN		\
+	MPC8260ADS	\
+	MPC8266ADS	\
+	MPC8272ADS	\
+	PM826		\
+	PM828		\
+	ppmc8260	\
+	Rattler8248	\
+	RPXsuper	\
+	rsdproto	\
+	sacsng		\
+	sbc8260		\
+	SCM		\
+	TQM8260_AC	\
+	TQM8260_AD	\
+	TQM8260_AE	\
+	ZPC1900		\
 "
 
 #########################################################################
 ## MPC83xx Systems (includes 8349, etc.)
 #########################################################################
 
-LIST_83xx="	\
-	MPC8313ERDB_33	MPC8313ERDB_66	MPC832XEMDS	MPC8349EMDS	\
-	MPC8349ITX	MPC8349ITXGP	MPC8360EMDS	sbc8349		\
-	TQM834x								\
+LIST_83xx="		\
+	MPC8313ERDB_33	\
+	MPC8313ERDB_66	\
+	MPC832XEMDS	\
+	MPC8349EMDS	\
+	MPC8349ITX	\
+	MPC8349ITXGP	\
+	MPC8360EMDS	\
+	sbc8349		\
+	TQM834x		\
 "
 
 
@@ -151,123 +312,227 @@ LIST_83xx="	\
 ## MPC85xx Systems (includes 8540, 8560 etc.)
 #########################################################################
 
-LIST_85xx="	\
-	MPC8540ADS	MPC8540EVAL	MPC8541CDS	MPC8544DS	\
-	MPC8548CDS	MPC8555CDS	MPC8560ADS	MPC8568MDS	\
-	PM854		PM856		sbc8540		sbc8560		\
-	stxgp3		stxssa		TQM8540		TQM8541		\
-	TQM8555		TQM8560						\
+LIST_85xx="		\
+	MPC8540ADS	\
+	MPC8540EVAL	\
+	MPC8541CDS	\
+	MPC8544DS	\
+	MPC8548CDS	\
+	MPC8555CDS	\
+	MPC8560ADS	\
+	MPC8568MDS	\
+	PM854		\
+	PM856		\
+	sbc8540		\
+	sbc8560		\
+	stxgp3		\
+	stxssa		\
+	TQM8540		\
+	TQM8541		\
+	TQM8555		\
+	TQM8560		\
 "
 
 #########################################################################
 ## MPC86xx Systems
 #########################################################################
 
-LIST_86xx="	\
-    MPC8641HPCN	\
+LIST_86xx="		\
+	MPC8641HPCN	\
+	SBC8641D	\
 "
 
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################
 
-LIST_74xx="	\
-	DB64360		DB64460		EVB64260	P3G4		\
-	p3m7448		PCIPPC2		PCIPPC6		ZUMA		\
-	mpc7448hpc2
+LIST_74xx="		\
+	DB64360		\
+	DB64460		\
+	EVB64260	\
+	mpc7448hpc2	\
+	P3G4		\
+	p3m7448		\
+	PCIPPC2		\
+	PCIPPC6		\
+	ZUMA		\
 "
 
-LIST_7xx="	\
-	BAB7xx		CPCI750		ELPPC		p3m750		\
-	ppmc7xx								\
+LIST_7xx="		\
+	BAB7xx		\
+	CPCI750		\
+	ELPPC		\
+	p3m750		\
+	ppmc7xx		\
 "
 
-LIST_ppc="${LIST_5xx}  ${LIST_5xxx}		\
-	  ${LIST_8xx}				\
-	  ${LIST_8220} ${LIST_824x} ${LIST_8260} \
-	  ${LIST_83xx}				\
-	  ${LIST_85xx}				\
-	  ${LIST_86xx}				\
-	  ${LIST_4xx}				\
-	  ${LIST_74xx} ${LIST_7xx}"
+LIST_ppc="		\
+	${LIST_5xx}	\
+	${LIST_5xxx}	\
+	${LIST_8xx}	\
+	${LIST_8220}	\
+	${LIST_824x}	\
+	${LIST_8260}	\
+	${LIST_83xx}	\
+	${LIST_85xx}	\
+	${LIST_86xx}	\
+	${LIST_4xx}	\
+	${LIST_74xx}	\
+	${LIST_7xx}	\
+"
 
 #########################################################################
 ## StrongARM Systems
 #########################################################################
 
-LIST_SA="assabet dnp1110 gcplus lart shannon"
+LIST_SA="		\
+	assabet		\
+	dnp1110		\
+	gcplus		\
+	lart		\
+	shannon		\
+"
 
 #########################################################################
 ## ARM7 Systems
 #########################################################################
 
-LIST_ARM7="	\
-	armadillo	B2		ep7312		evb4510		\
-	impa7		integratorap	ap7		ap720t		\
-	lpc2292sodimm	modnet50	SMN42				\
+LIST_ARM7="		\
+	ap7		\
+	ap720t		\
+	armadillo	\
+	B2		\
+	ep7312		\
+	evb4510		\
+	impa7		\
+	integratorap	\
+	lpc2292sodimm	\
+	modnet50	\
+	SMN42		\
 "
 
 #########################################################################
 ## ARM9 Systems
 #########################################################################
 
-LIST_ARM9="	\
-	at91rm9200dk	cmc_pu2						\
-	ap920t		ap922_XA10	ap926ejs	ap946es		\
-	ap966		cp920t		cp922_XA10	cp926ejs	\
-	cp946es		cp966		lpd7a400	mp2usb		\
-	mx1ads		mx1fs2		netstar		omap1510inn	\
-	omap1610h2	omap1610inn	omap730p2	sbc2410x	\
-	scb9328		smdk2400	smdk2410	trab		\
-	VCMA9		versatile	versatileab	versatilepb	\
-	voiceblue							\
+LIST_ARM9="			\
+	at91rm9200dk		\
+	cmc_pu2			\
+	ap920t			\
+	ap922_XA10		\
+	ap926ejs		\
+	ap946es			\
+	ap966			\
+	cp920t			\
+	cp922_XA10		\
+	cp926ejs		\
+	cp946es			\
+	cp966			\
+	lpd7a400		\
+	mp2usb			\
+	mx1ads			\
+	mx1fs2			\
+	netstar			\
+	omap1510inn		\
+	omap1610h2		\
+	omap1610inn		\
+	omap730p2		\
+	sbc2410x		\
+	scb9328			\
+	smdk2400		\
+	smdk2410		\
+	trab			\
+	VCMA9			\
+	versatile		\
+	versatileab		\
+	versatilepb		\
+	voiceblue		\
+	davinci_dvevm		\
+	davinci_schmoogie	\
+	davinci_sonata		\
 "
 
 #########################################################################
 ## ARM10 Systems
 #########################################################################
-LIST_ARM10="	\
-	integratorcp	cp1026						\
+LIST_ARM10="		\
+	integratorcp	\
+	cp1026		\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="	\
-	cp1136		omap2420h4					\
+LIST_ARM11="		\
+	cp1136		\
+	omap2420h4	\
 "
 
 #########################################################################
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="	\
-	adsvix		cerf250		cradle		csb226		\
-	delta		innokom		lubbock		pleb2		\
-	pxa255_idp	wepep250	xaeniax		xm250		\
-	xsengine	zylonite					\
+LIST_pxa="		\
+	adsvix		\
+	cerf250		\
+	cradle		\
+	csb226		\
+	delta		\
+	innokom		\
+	lubbock		\
+	pleb2		\
+	pxa255_idp	\
+	wepep250	\
+	xaeniax		\
+	xm250		\
+	xsengine	\
+	zylonite	\
 "
 
-LIST_ixp="ixdp425	ixdpg425	pdnb3		scpu"
+LIST_ixp="		\
+	ixdp425		\
+	ixdpg425	\
+	pdnb3		\
+	scpu		\
+"
 
 
-LIST_arm="	\
-	${LIST_SA}							\
-	${LIST_ARM7} ${LIST_ARM9} ${LIST_ARM10} ${LIST_ARM11}		\
-	${LIST_pxa} ${LIST_ixp}						\
+LIST_arm="		\
+	${LIST_SA}	\
+	${LIST_ARM7}	\
+	${LIST_ARM9}	\
+	${LIST_ARM10}	\
+	${LIST_ARM11}	\
+	${LIST_pxa}	\
+	${LIST_ixp}	\
 "
 
 #########################################################################
 ## MIPS Systems		(default = big endian)
 #########################################################################
 
-LIST_mips4kc="incaip"
+LIST_mips4kc="		\
+	incaip		\
+"
 
-LIST_mips5kc="purple"
+LIST_mips5kc="		\
+	purple		\
+"
 
-LIST_au1xx0="dbau1000 dbau1100 dbau1500 dbau1550 dbau1550_el gth2"
+LIST_au1xx0="		\
+	dbau1000	\
+	dbau1100	\
+	dbau1500	\
+	dbau1550	\
+	dbau1550_el	\
+	gth2		\
+"
 
-LIST_mips="${LIST_mips4kc} ${LIST_mips5kc} ${LIST_au1xx0}"
+LIST_mips="		\
+	${LIST_mips4kc}	\
+	${LIST_mips5kc}	\
+	${LIST_au1xx0}	\
+"
 
 #########################################################################
 ## MIPS Systems		(little endian)
@@ -277,36 +542,55 @@ LIST_mips4kc_el=""
 
 LIST_mips5kc_el=""
 
-LIST_au1xx0_el="dbau1550_el"
+LIST_au1xx0_el="	\
+	dbau1550_el	\
+"
 
-LIST_mips_el="${LIST_mips4kc_el} ${LIST_mips5kc_el} ${LIST_au1xx0_el}"
+LIST_mips_el="			\
+	${LIST_mips4kc_el}	\
+	${LIST_mips5kc_el}	\
+	${LIST_au1xx0_el}	\
+"
 
 #########################################################################
 ## i386 Systems
 #########################################################################
 
-LIST_I486="sc520_cdp sc520_spunk sc520_spunk_rel"
+LIST_I486="		\
+	sc520_cdp	\
+	sc520_spunk	\
+	sc520_spunk_rel	\
+"
 
-LIST_x86="${LIST_I486}"
+LIST_x86="		\
+	${LIST_I486}	\
+"
 
 #########################################################################
 ## NIOS Systems
 #########################################################################
 
-LIST_nios="	\
-	ADNPESC1		ADNPESC1_base_32			\
-	ADNPESC1_DNPEVA2_base_32					\
-	DK1C20			DK1C20_standard_32			\
-	DK1S10			DK1S10_standard_32 DK1S10_mtx_ldk_20	\
+LIST_nios="			\
+	ADNPESC1		\
+	ADNPESC1_base_32	\
+	ADNPESC1_DNPEVA2_base_32\
+	DK1C20			\
+	DK1C20_standard_32	\
+	DK1S10			\
+	DK1S10_standard_32	\
+	DK1S10_mtx_ldk_20	\
 "
 
 #########################################################################
 ## Nios-II Systems
 #########################################################################
 
-LIST_nios2="	\
-	EP1C20		EP1S10		EP1S40				\
-	PCI5441		PK1C20						\
+LIST_nios2="		\
+	EP1C20		\
+	EP1S10		\
+	EP1S40		\
+	PCI5441		\
+	PK1C20		\
 "
 
 #########################################################################
@@ -314,31 +598,44 @@ LIST_nios2="	\
 #########################################################################
 
 LIST_microblaze="	\
-	suzaku		ml401		xupv2p
+	suzaku		\
+	ml401		\
+	xupv2p		\
 "
 
 #########################################################################
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="	\
-	cobra5272	EB+MCF-EV123	EB+MCF-EV123_internal		\
-	idmr		M5271EVB	M5272C3		M5282EVB	\
-	TASREG		r5200		M5271EVB			\
+LIST_coldfire="			\
+	cobra5272		\
+	EB+MCF-EV123		\
+	EB+MCF-EV123_internal	\
+	idmr			\
+	M5271EVB		\
+	M5272C3			\
+	M5282EVB		\
+	TASREG			\
+	r5200			\
 "
 
 #########################################################################
 ## AVR32 Systems
 #########################################################################
 
-LIST_avr32="atstk1002"
+LIST_avr32="		\
+	atstk1002	\
+"
 
 #########################################################################
 ## Blackfin Systems
 #########################################################################
 
-LIST_blackfin=" \
-	bf533-ezkit	bf533-stamp	bf537-stamp	bf561-ezkit	\
+LIST_blackfin="		\
+	bf533-ezkit	\
+	bf533-stamp	\
+	bf537-stamp	\
+	bf561-ezkit	\
 "
 
 #-----------------------------------------------------------------------

@@ -136,7 +136,6 @@
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x53, 0x52}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
-#define CFG_44x_DDR2_CKTR_180	1	/* use 180 deg advance		*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -213,7 +212,6 @@
 #define CONFIG_HW_WATCHDOG			/* watchdog */
 #endif
 
-
 /*
  * BOOTP options
  */
@@ -222,7 +220,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -230,7 +227,6 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
@@ -241,7 +237,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
-
 
 /*
  * Miscellaneous configurable options

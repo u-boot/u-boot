@@ -160,6 +160,11 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	WUH405			PPC405EP
 	CMS700                  PPC405EP
 
+Niklaus Giger <niklaus.giger@netstal.com>
+
+        HCU4                    PPC405GPr
+        HCU5                    PPC440EPx
+
 Frank Gottschling <fgottschling@eltec.de>
 
 	MHPC			MPC8xx
@@ -178,6 +183,10 @@ Wolfgang Grandegger <wg@denx.de>
 Howard Gray <mvsensor@matrix-vision.de>
 
 	MVS1			MPC823
+
+Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+	sbc8641d		MPC8641D
 
 Klaus Heydeck <heydeck@kieback-peter.de>
 
@@ -248,6 +257,7 @@ Tolunay Orkun <torkun@nextio.com>
 John Otken <jotken@softadvances.com>
 
 	luan			PPC440SP
+	taihu			PPC405EP
 
 Keith Outwater <Keith_Outwater@mvis.com>
 
@@ -292,6 +302,7 @@ Stefan Roese <sr@denx.de>
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
+	zeus			PPC405EP
 
 	P3M750			PPC750FX/GX/GL
 
@@ -443,6 +454,12 @@ Konstantin Kletschke <kletschke@synertronixx.de>
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
+
+Sergey Kubushyn <ksi@koi8.net>
+
+	DV-EVM			ARM926EJS
+	SONATA			ARM926EJS
+	SCHMOOGIE		ARM926EJS
 
 Prakash Kumar <prakash@embedx.com>
 
