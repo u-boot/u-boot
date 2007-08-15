@@ -268,7 +268,7 @@ _int_handler:
 icache_enable:
 	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
 	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
+	move.l	#(CFG_SDRAM_BASE + 0xc000 + ((CFG_SDRAM_SIZE & 0x1fe0) << 11)), %d0
 	movec	%d0, %ACR0			/* Enable cache */
 
 	move.l	#0x80000200, %d0		/* Setup cache mask */
