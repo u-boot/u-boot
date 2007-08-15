@@ -1682,7 +1682,7 @@ M5329BFEE_config :	unconfig
 	esac; \
 	>include/config.h ; \
 	if [ "$${NAND}" != "0" ] ; then \
-		echo "#define NANDFLASH_SIZE	$${NAND}" >> include/config.h ; \
+		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
 

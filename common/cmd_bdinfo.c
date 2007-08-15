@@ -225,7 +225,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CFG_MBAR)
 	print_num ("mbar",	    bd->bi_mbar_base	);
 #endif
-#if defined(CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
@@ -239,22 +239,22 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_HAS_ETH2)
-       puts ("\neth2addr    =");
-       for (i=0; i<6; ++i) {
+	puts ("\neth2addr    =");
+	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
 	}
 #endif
 
 #if defined(CONFIG_HAS_ETH3)
-       puts ("\neth3addr    =");
-       for (i=0; i<6; ++i) {
+	puts ("\neth3addr    =");
+	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet3addr[i]);
 	}
 #endif
 
 	puts ("\nip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
-#endif	/* CFG_CMD_NET */
+#endif	/* CONFIG_CMD_NET */
 	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;

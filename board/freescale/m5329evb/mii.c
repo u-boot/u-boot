@@ -30,7 +30,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 #undef MII_DEBUG
 #undef ET_DEBUG
 
@@ -50,7 +50,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	return 0;
 }
 
-#if defined(CFG_DISCOVER_PHY) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 /* Make MII read/write commands for the FEC. */
@@ -134,7 +134,7 @@ uint mii_send(uint mii_cmd)
 
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif				/* CFG_DISCOVER_PHY || (CONFIG_COMMANDS & CFG_CMD_MII) */
+#endif				/* CFG_DISCOVER_PHY || CONFIG_CMD_MII */
 
 #if defined(CFG_DISCOVER_PHY)
 int mii_discover_phy(struct eth_device *dev)
@@ -303,4 +303,4 @@ int mcffec_miiphy_write(char *devname, unsigned char addr, unsigned char reg,
 	return 0;
 }
 
-#endif				/* CFG_CMD_NET, FEC_ENET & NET_MULTI */
+#endif				/* CONFIG_CMD_NET, FEC_ENET & NET_MULTI */

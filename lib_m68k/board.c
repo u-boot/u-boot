@@ -692,7 +692,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 #if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
-        eth_initialize (bd);
+	eth_initialize (bd);
 #endif
 #endif
 

@@ -38,8 +38,10 @@
 #ifdef CONFIG_MCFTMR
 #define CFG_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_TMR_BASE		(MMAP_DTMR1)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprh0)
 #define CFG_TMRINTR_NO		(INT0_HI_DTMR1)
 #define CFG_TMRINTR_MASK	(INTC_IPRH_INT33)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
 #define CFG_TMRINTR_PRI		(6)
 #define CFG_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
 #endif

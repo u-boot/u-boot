@@ -51,7 +51,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
 struct fec_info_s fec_info[] = {
 #ifdef CFG_FEC0_IOBASE
@@ -410,7 +410,7 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 
 	fec_reset(dev);
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII) || defined (CONFIG_MII) || \
+#if defined(CONFIG_CMD_MII) || defined (CONFIG_MII) || \
 	defined (CFG_DISCOVER_PHY)
 
 	mii_init();
@@ -420,7 +420,7 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 #ifndef CFG_DISCOVER_PHY
 	setFecDuplexSpeed(fecp, bd, (FECDUPLEX << 16) | FECSPEED);
 #endif				/* ifndef CFG_DISCOVER_PHY */
-#endif				/* CFG_CMD_MII || CONFIG_MII */
+#endif				/* CONFIG_CMD_MII || CONFIG_MII */
 
 	/* We use strictly polling mode only */
 	fecp->eimr = 0;
@@ -568,7 +568,7 @@ int mcffec_initialize(bd_t * bis)
 
 		eth_register(dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name,
 				mcffec_miiphy_read, mcffec_miiphy_write);
 #endif
@@ -580,5 +580,5 @@ int mcffec_initialize(bd_t * bis)
 	return 1;
 }
 
-#endif				/* CFG_CMD_NET, FEC_ENET & NET_MULTI */
+#endif				/* CONFIG_CMD_NET, FEC_ENET & NET_MULTI */
 #endif				/* CONFIG_MCFFEC */

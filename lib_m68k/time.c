@@ -347,10 +347,9 @@ void udelay(unsigned long usec)
 void dtimer_interrupt(void *not_used)
 {
 	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
-	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
 
 	/* check for timer interrupt asserted */
-	if ((intp->iprh0 & CFG_TMRINTR_MASK) == CFG_TMRINTR_MASK) {
+	if ((CFG_TMRPND_REG & CFG_TMRINTR_MASK) == CFG_TMRINTR_PEND) {
 		timerp->ter = (DTIM_DTER_CAP | DTIM_DTER_REF);
 		timestamp++;
 		return;

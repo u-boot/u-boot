@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <nand.h>
 #include <linux/mtd/mtd.h>
 

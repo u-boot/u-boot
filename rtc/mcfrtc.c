@@ -28,7 +28,7 @@
 #include <asm/immap.h>
 #include <asm/rtc.h>
 
-#if defined(CONFIG_MCFRTC) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_MCFRTC) && defined(CONFIG_CMD_DATE)
 
 #undef RTC_DEBUG
 
@@ -118,4 +118,4 @@ void rtc_reset(void)
 	rtc->cr |= RTC_CR_SWR;
 }
 
-#endif				/* CONFIG_MCFRTC && CFG_CMD_DATE */
+#endif				/* CONFIG_MCFRTC && CONFIG_CMD_DATE */

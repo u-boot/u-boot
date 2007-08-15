@@ -28,18 +28,18 @@
 
 #include <asm/byteorder.h>
 
-#define readb(addr) in_8((volatile u8 *)(addr))
-#define writeb(b,addr) out_8((volatile u8 *)(addr), (b))
+#define readb(addr)		in_8((volatile u8 *)(addr))
+#define writeb(b,addr)		out_8((volatile u8 *)(addr), (b))
 #if !defined(__BIG_ENDIAN)
-#define readw(addr) (*(volatile u16 *) (addr))
-#define readl(addr) (*(volatile u32 *) (addr))
-#define writew(b,addr) ((*(volatile u16 *) (addr)) = (b))
-#define writel(b,addr) ((*(volatile u32 *) (addr)) = (b))
+#define readw(addr)		(*(volatile u16 *) (addr))
+#define readl(addr)		(*(volatile u32 *) (addr))
+#define writew(b,addr)		((*(volatile u16 *) (addr)) = (b))
+#define writel(b,addr)		((*(volatile u32 *) (addr)) = (b))
 #else
-#define readw(addr) in_le16((volatile u16 *)(addr))
-#define readl(addr) in_le32((volatile u32 *)(addr))
-#define writew(b,addr) out_le16((volatile u16 *)(addr),(b))
-#define writel(b,addr) out_le32((volatile u32 *)(addr),(b))
+#define readw(addr)		in_le16((volatile u16 *)(addr))
+#define readl(addr)		in_le32((volatile u32 *)(addr))
+#define writew(b,addr)		out_le16((volatile u16 *)(addr),(b))
+#define writel(b,addr)		out_le32((volatile u32 *)(addr),(b))
 #endif
 
 /*
@@ -48,25 +48,25 @@
  * are arrays of bytes, and byte-swapping is not appropriate in
  * that case.  - paulus
  */
-#define insb(port, buf, ns) _insb((u8 *)((port)+_IO_BASE), (buf), (ns))
-#define outsb(port, buf, ns)    _outsb((u8 *)((port)+_IO_BASE), (buf), (ns))
-#define insw(port, buf, ns) _insw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
-#define outsw(port, buf, ns)    _outsw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
-#define insl(port, buf, nl) _insl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
-#define outsl(port, buf, nl)    _outsl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
+#define insb(port, buf, ns)	_insb((u8 *)((port)+_IO_BASE), (buf), (ns))
+#define outsb(port, buf, ns)	_outsb((u8 *)((port)+_IO_BASE), (buf), (ns))
+#define insw(port, buf, ns)	_insw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
+#define outsw(port, buf, ns)	_outsw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
+#define insl(port, buf, nl)	_insl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
+#define outsl(port, buf, nl)	_outsl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
 
-#define inb(port)       in_8((u8 *)((port)+_IO_BASE))
-#define outb(val, port)     out_8((u8 *)((port)+_IO_BASE), (val))
+#define inb(port)		in_8((u8 *)((port)+_IO_BASE))
+#define outb(val, port)		out_8((u8 *)((port)+_IO_BASE), (val))
 #if !defined(__BIG_ENDIAN)
-#define inw(port)       in_be16((u16 *)((port)+_IO_BASE))
-#define outw(val, port)     out_be16((u16 *)((port)+_IO_BASE), (val))
-#define inl(port)       in_be32((u32 *)((port)+_IO_BASE))
-#define outl(val, port)     out_be32((u32 *)((port)+_IO_BASE), (val))
+#define inw(port)		in_be16((u16 *)((port)+_IO_BASE))
+#define outw(val, port)		out_be16((u16 *)((port)+_IO_BASE), (val))
+#define inl(port)		in_be32((u32 *)((port)+_IO_BASE))
+#define outl(val, port)		out_be32((u32 *)((port)+_IO_BASE), (val))
 #else
-#define inw(port)       in_le16((u16 *)((port)+_IO_BASE))
-#define outw(val, port)     out_le16((u16 *)((port)+_IO_BASE), (val))
-#define inl(port)       in_le32((u32 *)((port)+_IO_BASE))
-#define outl(val, port)     out_le32((u32 *)((port)+_IO_BASE), (val))
+#define inw(port)		in_le16((u16 *)((port)+_IO_BASE))
+#define outw(val, port)		out_le16((u16 *)((port)+_IO_BASE), (val))
+#define inl(port)		in_le32((u32 *)((port)+_IO_BASE))
+#define outl(val, port)		out_le32((u32 *)((port)+_IO_BASE), (val))
 #endif
 
 extern inline void _insb(volatile u8 * port, void *buf, int ns)
@@ -151,10 +151,10 @@ extern inline void _outsl_ns(volatile u32 * port, const void *buf, int nl)
  * Neither do the standard versions now, these are just here
  * for older code.
  */
-#define insw_ns(port, buf, ns)  _insw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
-#define outsw_ns(port, buf, ns) _outsw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
-#define insl_ns(port, buf, nl)  _insl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
-#define outsl_ns(port, buf, nl) _outsl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
+#define insw_ns(port, buf, ns)	_insw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
+#define outsw_ns(port, buf, ns)	_outsw_ns((u16 *)((port)+_IO_BASE), (buf), (ns))
+#define insl_ns(port, buf, nl)	_insl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
+#define outsl_ns(port, buf, nl)	_outsl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
 
 #define IO_SPACE_LIMIT ~0
 

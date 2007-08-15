@@ -33,12 +33,26 @@
 /****************************************************************************/
 /* DMA Timer module registers */
 typedef struct dtimer_ctrl {
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	u16 tmr;		/* 0x00 Mode register */
+	u16 res1;		/* 0x02 */
+	u16 trr;		/* 0x04 Reference register */
+	u16 res2;		/* 0x06 */
+	u16 tcr;		/* 0x08 Capture register */
+	u16 res3;		/* 0x0A */
+	u16 tcn;		/* 0x0C Counter register */
+	u16 res4;		/* 0x0E */
+	u8 res6;		/* 0x10 */
+	u8 ter;			/* 0x11 Event register */
+	u16 res7;		/* 0x12 */
+#else
+ 	u16 tmr;		/* 0x00 Mode register */
 	u8 txmr;		/* 0x02 Extended Mode register */
 	u8 ter;			/* 0x03 Event register */
 	u32 trr;		/* 0x04 Reference register */
 	u32 tcr;		/* 0x08 Capture register */
 	u32 tcn;		/* 0x0C Counter register */
+#endif
 } dtmr_t;
 
 /*Programmable Interrupt Timer */
