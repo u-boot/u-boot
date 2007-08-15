@@ -51,12 +51,11 @@ tlbtab:
 	tlbentry(CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 0, AC_R|AC_W|AC_X|SA_G)
 #else
 	tlbentry(CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 0, AC_R|AC_W|AC_X|SA_G)
+	tlbentry(CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
 #endif
 
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
 	tlbentry(CFG_INIT_RAM_ADDR, SZ_4K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G)
-
-	tlbentry(CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
 
 	/* PCI base & peripherals */
 	tlbentry(CFG_PCI_BASE, SZ_256M, CFG_PCI_BASE, 0, AC_R|AC_W|SA_G|SA_I)

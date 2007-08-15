@@ -541,6 +541,18 @@
 #define PLLMR1_266_66_33_33 (PLL_FBKDIV_8  |  \
 			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
 			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_LOW)
+#define PLLMR0_333_111_55_37 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |  \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_3)
+#define PLLMR1_333_111_55_37 (PLL_FBKDIV_10  |  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
+#define PLLMR0_333_111_55_111 (PLL_CPUDIV_1 | PLL_PLBDIV_3 |  \
+			      PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
+			      PLL_MALDIV_1 | PLL_PCIDIV_1)
+#define PLLMR1_333_111_55_111 (PLL_FBKDIV_10  |  \
+			      PLL_FWDDIVA_3 | PLL_FWDDIVB_3 |  \
+			      PLL_TUNE_15_M_40 | PLL_TUNE_VCO_HI)
 
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions
@@ -616,6 +628,8 @@
 #define CPR_CLKUPD_ENPLLCH_EN  0x40000000     /* Enable CPR PLL Changes */
 #define CPR_CLKUPD_ENDVCH_EN   0x20000000     /* Enable CPR Sys. Div. Changes */
 #define CPR_PERD0_SPIDV_MASK   0x000F0000     /* SPI Clock Divider */
+
+#define PLLC_SRC_MASK          0x20000000     /* PLL feedback source */
 
 #define PLLD_FBDV_MASK         0x1F000000     /* PLL feedback divider value */
 #define PLLD_FWDVA_MASK        0x000F0000     /* PLL forward divider A value */
@@ -1226,6 +1240,8 @@
 #define mtebc(reg, data)  mtdcr(ebccfga,reg);mtdcr(ebccfgd,data)
 #define mfebc(reg, data)  mtdcr(ebccfga,reg);data = mfdcr(ebccfgd)
 
+#define mtsdram(reg, data)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,data); } while (0)
+#define mfsdram(reg, data)	do { mtdcr(memcfga,reg);data = mfdcr(memcfgd); } while (0)
 
 #ifndef __ASSEMBLY__
 

@@ -73,8 +73,8 @@ Storage USB Commands:
 
 Config Switches:
 ----------------
-CFG_CMD_USB	    enables basic USB support and the usb command
-CONFIG_USB_UHCI	    defines the lowlevel part.A lowlevel part must be defined if
-		    using CFG_CMD_USB
+CONFIG_CMD_USB	    enables basic USB support and the usb command
+CONFIG_USB_UHCI	    defines the lowlevel part.A lowlevel part must be defined
+		    if using CONFIG_CMD_USB
 CONFIG_USB_KEYBOARD enables the USB Keyboard
 CONFIG_USB_STORAGE  enables the USB storage devices

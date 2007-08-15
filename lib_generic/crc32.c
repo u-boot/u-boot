@@ -9,7 +9,7 @@
  */
 
 #ifndef USE_HOSTCC	/* Shut down "ANSI does not permit..." warnings */
-#include <common.h>	/* to get command definitions like CFG_CMD_JFFS2 */
+#include <common.h>
 #endif
 
 #include "zlib.h"
@@ -171,8 +171,9 @@ uLong ZEXPORT crc32(crc, buf, len)
     return crc ^ 0xffffffffL;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) || \
-	((CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY))
+#if defined(CONFIG_CMD_JFFS2) || \
+	(defined(CONFIG_CMD_NAND) \
+	&& !defined(CFG_NAND_LEGACY))
 
 /* No ones complement version. JFFS2 (and other things ?)
  * don't use ones compliment in their CRC calculations.
@@ -195,4 +196,4 @@ uLong ZEXPORT crc32_no_comp(uLong crc, const Bytef *buf, uInt len)
     return crc;
 }
 
-#endif	/* CFG_CMD_JFFS2 */
+#endif

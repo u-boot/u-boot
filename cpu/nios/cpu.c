@@ -34,7 +34,7 @@ int checkcpu (void)
 
 	/* Get cpu version info */
 	val = rdctl (CTL_CPU_ID);
-	printf ("CPU: ");
+	puts ("CPU:   ");
 	printf ("%s", (val & 0x00008000) ? "Nios-16 " : "Nios-32 ");
 	rev_major = (val>>12) & 0x07;
 	rev_minor = (val>>4) & 0x0ff;

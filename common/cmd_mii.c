@@ -28,7 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 #ifdef CONFIG_TERSE_MII
@@ -595,4 +595,4 @@ U_BOOT_CMD(
 
 #endif /* CONFIG_TERSE_MII */
 
-#endif /* CFG_CMD_MII */
+#endif

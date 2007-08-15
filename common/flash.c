@@ -47,15 +47,15 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 	short s_end = info->sector_count - 1;	/* index of last sector */
 	int i;
 
-	debug ("flash_protect %s: from 0x%08lX to 0x%08lX\n",
-		(flag & FLAG_PROTECT_SET) ? "ON" :
-			(flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
-		from, to);
-
 	/* Do nothing if input data is bad. */
 	if (info->sector_count == 0 || info->size == 0 || to < from) {
 		return;
 	}
+
+	debug ("flash_protect %s: from 0x%08lX to 0x%08lX\n",
+		(flag & FLAG_PROTECT_SET) ? "ON" :
+			(flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
+		from, to);
 
 	/* There is nothing to do if we have no data about the flash
 	 * or the protect range and flash range don't overlap.

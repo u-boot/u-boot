@@ -267,7 +267,7 @@ static long int dram_size (long int mbmr_value, long int *base,
 	return (size);
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 
 #ifdef	CFG_PCMCIA_MEM_ADDR
 volatile unsigned char *pcmcia_mem = (unsigned char *) CFG_PCMCIA_MEM_ADDR;
@@ -357,4 +357,4 @@ int pcmcia_init (void)
 
 	return 0;
 }
-#endif /* CFG_CMD_PCMCIA */
+#endif

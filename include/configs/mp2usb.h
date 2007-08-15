@@ -101,11 +101,17 @@
 
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
-#define CONFIG_USB_OHCI		1
+#define CONFIG_USB_OHCI_NEW	1
 #define CONFIG_USB_KEYBOARD	1
 #define CONFIG_USB_STORAGE	1
 #define CONFIG_DOS_PARTITION	1
 #define CONFIG_AT91C_PQFP_UHPBUG 1
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT		1
+#define CFG_USB_OHCI_REGS_BASE		AT91_USB_HOST_BASE
+#define CFG_USB_OHCI_SLOT_NAME		"at91rm9200"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
 #undef CONFIG_HARD_I2C
 
@@ -123,40 +129,56 @@
 
 #define CONFIG_BOOTDELAY      3
 
-#ifdef CONFIG_HARD_I2C
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DATE	| \
-			CFG_CMD_DHCP 	| \
-			CFG_CMD_EEPROM	| \
-			CFG_CMD_I2C	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP	| \
-			CFG_CMD_MISC))
-#else
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL	| \
-			CFG_CMD_DHCP 	| \
-			CFG_CMD_NFS	| \
-			CFG_CMD_SNTP	| \
-			CFG_CMD_USB      | \
-			CFG_CMD_CACHE)	& \
-		      ~(CFG_CMD_BDI | \
-			CFG_CMD_IMI | \
-			CFG_CMD_AUTOSCRIPT | \
-			CFG_CMD_FPGA | \
-			CFG_CMD_MISC | \
-			CFG_CMD_LOADS ))
+#if !defined(CONFIG_HARD_I2C)
 #define CONFIG_TIMESTAMP
 #endif
-#define CFG_LONGHELP
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
+#if defined(CONFIG_HARD_I2C)
+
+    #define CONFIG_CMD_DATE
+    #define CONFIG_CMD_EEPROM
+    #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_MISC
+
+#else
+
+    #define CONFIG_CMD_USB
+    #define CONFIG_CMD_CACHE
+
+    #undef CONFIG_CMD_AUTOSCRIPT
+    #undef CONFIG_CMD_BDI
+    #undef CONFIG_CMD_FPGA
+    #undef CONFIG_CMD_IMI
+    #undef CONFIG_CMD_LOADS
+    #undef CONFIG_CMD_MISC
+
+#endif
+
+
+#define CFG_LONGHELP
 
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000
-#define PHYS_SDRAM_SIZE		0x08000000 	/* 128 megs */
+#define PHYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
 #define CFG_MEMTEST_START	PHYS_SDRAM
 #define CFG_MEMTEST_END		CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144

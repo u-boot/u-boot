@@ -30,7 +30,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_BDI)
+#if defined(CONFIG_CMD_BDI)
 static void print_num(const char *, ulong);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */
@@ -167,7 +167,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("sram size",		(ulong)bd->bi_sramsize);
 #endif
 
-#if defined(CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
@@ -195,7 +195,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("sram start     ",	(ulong)bd->bi_sramstart);
 	print_num ("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
-#if defined(CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
@@ -338,4 +338,4 @@ U_BOOT_CMD(
 	"bdinfo  - print Board Info structure\n",
 	NULL
 );
-#endif	/* CFG_CMD_BDI */
+#endif

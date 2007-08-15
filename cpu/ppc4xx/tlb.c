@@ -25,7 +25,6 @@
 
 #if defined(CONFIG_440)
 
-#include <ppc4xx.h>
 #include <ppc440.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
@@ -35,6 +34,67 @@ typedef struct region {
 	unsigned long size;
 	unsigned long tlb_word2_i_value;
 } region_t;
+
+void remove_tlb(u32 vaddr, u32 size)
+{
+	int i;
+	u32 tlb_word0_value;
+	u32 tlb_vaddr;
+	u32 tlb_size = 0;
+
+	/* First, find the index of a TLB entry not being used */
+	for (i=0; i<PPC4XX_TLB_SIZE; i++) {
+		tlb_word0_value = mftlb1(i);
+		tlb_vaddr = TLB_WORD0_EPN_DECODE(tlb_word0_value);
+		if (((tlb_word0_value & TLB_WORD0_V_MASK) == TLB_WORD0_V_ENABLE) &&
+		    (tlb_vaddr >= vaddr)) {
+			/*
+			 * TLB is enabled and start address is lower or equal
+			 * than the area we are looking for. Now we only have
+			 * to check the size/end address for a match.
+			 */
+			switch (tlb_word0_value & TLB_WORD0_SIZE_MASK) {
+			case TLB_WORD0_SIZE_1KB:
+				tlb_size = 1 << 10;
+				break;
+			case TLB_WORD0_SIZE_4KB:
+				tlb_size = 4 << 10;
+				break;
+			case TLB_WORD0_SIZE_16KB:
+				tlb_size = 16 << 10;
+				break;
+			case TLB_WORD0_SIZE_64KB:
+				tlb_size = 64 << 10;
+				break;
+			case TLB_WORD0_SIZE_256KB:
+				tlb_size = 256 << 10;
+				break;
+			case TLB_WORD0_SIZE_1MB:
+				tlb_size = 1 << 20;
+				break;
+			case TLB_WORD0_SIZE_16MB:
+				tlb_size = 16 << 20;
+				break;
+			case TLB_WORD0_SIZE_256MB:
+				tlb_size = 256 << 20;
+				break;
+			}
+
+			/*
+			 * Now check the end-address if it's in the range
+			 */
+			if ((tlb_vaddr + tlb_size - 1) <= (vaddr + size - 1))
+				/*
+				 * Found a TLB in the range.
+				 * Disable it by writing 0 to tlb0 word.
+				 */
+				mttlb1(i, 0);
+		}
+	}
+
+	/* Execute an ISYNC instruction so that the new TLB entry takes effect */
+	asm("isync");
+}
 
 static int add_tlb_entry(unsigned long phys_addr,
 			 unsigned long virt_addr,

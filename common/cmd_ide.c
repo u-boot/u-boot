@@ -71,7 +71,7 @@ DECLARE_GLOBAL_DATA_PTR;
 # define SYNC		/* nothing */
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 
 #ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
@@ -2105,4 +2105,4 @@ U_BOOT_CMD(
 	"loadAddr dev:part\n"
 );
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_IDE */
+#endif

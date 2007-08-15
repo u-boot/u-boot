@@ -65,7 +65,7 @@ long int initdram (int board_type)
 /*
  * The following are used to control the SPI chip selects for the SPI command.
  */
-#if (CONFIG_COMMANDS & CFG_CMD_SPI) && CONFIG_NIOS_SPI
+#if defined(CONFIG_CMD_SPI) && CONFIG_NIOS_SPI
 
 #define	SPI_RTC_CS_MASK	0x00000001
 
@@ -89,7 +89,7 @@ spi_chipsel_type spi_chipsel[] = {
 };
 int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
 
-#endif /* CFG_CMD_SPI */
+#endif
 
 #if	defined(CONFIG_POST)
 /*

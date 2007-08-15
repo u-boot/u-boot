@@ -281,6 +281,17 @@ typedef struct ucc_slow {
 	u8 res4[0x200 - 0x091];
 } __attribute__ ((packed)) ucc_slow_t;
 
+typedef struct ucc_mii_mng {
+	u32 miimcfg;		/* MII management configuration reg    */
+	u32 miimcom;		/* MII management command reg          */
+	u32 miimadd;		/* MII management address reg          */
+	u32 miimcon;		/* MII management control reg          */
+	u32 miimstat;		/* MII management status reg           */
+	u32 miimind;		/* MII management indication reg       */
+	u32 ifctl;		/* interface control reg               */
+	u32 ifstat;		/* interface statux reg                */
+} __attribute__ ((packed))uec_mii_t;
+
 typedef struct ucc_ethernet {
 	u32 maccfg1;		/* mac configuration reg. 1            */
 	u32 maccfg2;		/* mac configuration reg. 2            */
@@ -540,14 +551,21 @@ typedef struct qe_immap {
 	u8 res14[0x300];
 	u8 res15[0x3A00];
 	u8 res16[0x8000];	/* 0x108000 -  0x110000 */
+#if defined(CONFIG_MPC8568)
+	u8 muram[0x10000];	/* 0x1_0000 -  0x2_0000 Multi-user RAM */
+	u8 res17[0x20000];	/* 0x2_0000 -  0x4_0000 */
+#else
 	u8 muram[0xC000];	/* 0x110000 -  0x11C000 Multi-user RAM */
 	u8 res17[0x24000];	/* 0x11C000 -  0x140000 */
 	u8 res18[0xC0000];	/* 0x140000 -  0x200000 */
+#endif
 } __attribute__ ((packed)) qe_map_t;
 
 extern qe_map_t *qe_immr;
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_MPC8568)
+#define QE_MURAM_SIZE		0x10000UL
+#elif defined(CONFIG_MPC8360)
 #define QE_MURAM_SIZE		0xc000UL
 #elif defined(CONFIG_MPC832X)
 #define QE_MURAM_SIZE		0x4000UL

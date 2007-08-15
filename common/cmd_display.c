@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_DISPLAY)
+#if defined(CONFIG_CMD_DISPLAY)
 
 #undef DEBUG_DISP
 
@@ -79,4 +79,4 @@ U_BOOT_CMD(
 	"    - without arguments: clear dot matrix display\n"
 );
 
-#endif	/* CFG_CMD_DISPLAY */
+#endif

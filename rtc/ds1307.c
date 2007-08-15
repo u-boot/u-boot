@@ -36,7 +36,7 @@
 #include <i2c.h>
 
 #if (defined(CONFIG_RTC_DS1307) || defined(CONFIG_RTC_DS1338) ) && \
-    (CONFIG_COMMANDS & CFG_CMD_DATE)
+    defined(CONFIG_CMD_DATE)
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
@@ -201,4 +201,4 @@ static unsigned char bin2bcd (unsigned int n)
 	return (((n / 10) << 4) | (n % 10));
 }
 
-#endif /* (CONFIG_RTC_DS1307 || CONFIG_RTC_DS1338) && (CFG_COMMANDS & CFG_CMD_DATE) */
+#endif

@@ -45,10 +45,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
- /*cmd_boot.c*/
- extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+/*cmd_boot.c*/
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
 
@@ -82,11 +82,11 @@ int  gunzip (void *, int, unsigned char *, unsigned long *);
 static void *zalloc(void *, unsigned, unsigned);
 static void zfree(void *, void *, unsigned);
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMI)
+#if defined(CONFIG_CMD_IMI)
 static int image_info (unsigned long addr);
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+#if defined(CONFIG_CMD_IMLS)
 #include <flash.h>
 extern flash_info_t flash_info[]; /* info for FLASH chips */
 static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -126,12 +126,12 @@ static void fixup_silent_linux (void);
 #endif
 static boot_os_Fcn do_bootm_netbsd;
 static boot_os_Fcn do_bootm_rtems;
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 static boot_os_Fcn do_bootm_vxworks;
 static boot_os_Fcn do_bootm_qnxelf;
 int do_bootvx ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] );
-#endif /* CFG_CMD_ELF */
+#endif
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static boot_os_Fcn do_bootm_artos;
 #endif
@@ -362,7 +362,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (i != BZ_OK) {
 			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
 			show_boot_progress (-6);
-			udelay(100000);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		break;
@@ -433,7 +432,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			     addr, len_ptr, verify);
 	    break;
 
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 	case IH_OS_VXWORKS:
 	    do_bootm_vxworks (cmdtp, flag, argc, argv,
 			      addr, len_ptr, verify);
@@ -442,7 +441,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    do_bootm_qnxelf (cmdtp, flag, argc, argv,
 			      addr, len_ptr, verify);
 	    break;
-#endif /* CFG_CMD_ELF */
+#endif
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
 	    do_bootm_artos  (cmdtp, flag, argc, argv,
@@ -741,59 +740,65 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
-#if defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header(of_flat_tree) == 0) {
+#if defined(CONFIG_OF_FLAT_TREE)
+		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #else
-		if (*(ulong *)of_flat_tree == OF_DT_HEADER) {
+		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
 #endif
 		} else if (ntohl(hdr->ih_magic) == IH_MAGIC) {
-			printf("## Flat Device Tree Image at %08lX\n", hdr);
+			printf("## Flat Device Tree at %08lX\n", hdr);
 			print_image_hdr(hdr);
 
 			if ((ntohl(hdr->ih_load) <  ((unsigned long)hdr + ntohl(hdr->ih_size) + sizeof(hdr))) &&
 			   ((ntohl(hdr->ih_load) + ntohl(hdr->ih_size)) > (unsigned long)hdr)) {
-				printf ("ERROR: Load address overwrites Flat Device Tree uImage\n");
-				return;
+				puts ("ERROR: fdt overwritten - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			printf("   Verifying Checksum ... ");
+			puts ("   Verifying Checksum ... ");
 			memmove (&header, (char *)hdr, sizeof(image_header_t));
 			checksum = ntohl(header.ih_hcrc);
 			header.ih_hcrc = 0;
 
 			if(checksum != crc32(0, (uchar *)&header, sizeof(image_header_t))) {
-				printf("ERROR: Flat Device Tree header checksum is invalid\n");
-				return;
+				puts ("ERROR: fdt header checksum invalid - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			checksum = ntohl(hdr->ih_dcrc);
 			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
 
 			if(checksum != crc32(0, (uchar *)addr, ntohl(hdr->ih_size))) {
-				printf("ERROR: Flat Device Tree checksum is invalid\n");
-				return;
+				puts ("ERROR: fdt checksum invalid - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
-			printf("OK\n");
+			puts ("OK\n");
 
 			if (ntohl(hdr->ih_type) != IH_TYPE_FLATDT) {
-				printf ("ERROR: uImage not Flat Device Tree type\n");
-				return;
+				puts ("ERROR: uImage is not a fdt - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
 			if (ntohl(hdr->ih_comp) != IH_COMP_NONE) {
-				printf("ERROR: uImage is not uncompressed\n");
-				return;
+				puts ("ERROR: uImage is compressed - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
-#if defined(CONFIG_OF_LIBFDT)
-			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) == 0) {
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+#else
+			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
-				printf ("ERROR: uImage data is not a flat device tree\n");
-				return;
+				puts ("ERROR: uImage data is not a fdt - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			memmove((void *)ntohl(hdr->ih_load),
@@ -801,10 +806,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				ntohl(hdr->ih_size));
 			of_flat_tree = (char *)ntohl(hdr->ih_load);
 		} else {
-			printf ("Did not find a flat flat device tree at address %08lX\n", of_flat_tree);
-			return;
+			puts ("Did not find a flat Flat Device Tree.\n"
+				"Must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
 		}
-		printf ("   Booting using flat device tree at 0x%x\n",
+		printf ("   Booting using the fdt at 0x%x\n",
 				of_flat_tree);
 	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
 		u_long tail    = ntohl(len_ptr[0]) % 4;
@@ -828,22 +834,24 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_data += 4 - tail;
 		}
 
-#if defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header((void *)of_data) != 0) {
+#if defined(CONFIG_OF_FLAT_TREE)
+		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
 #else
-		if (((struct boot_param_header *)of_data)->magic != OF_DT_HEADER) {
+		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
 #endif
-			printf ("ERROR: image is not a flat device tree\n");
-			return;
+			puts ("ERROR: image is not a fdt - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
 		}
 
-#if defined(CONFIG_OF_LIBFDT)
-		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+#else
+		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
 #endif
-			printf ("ERROR: flat device tree size does not agree with image\n");
-			return;
+			puts ("ERROR: fdt size != image size - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
 		}
 	}
 #endif
@@ -916,13 +924,13 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
-	debug ("## Transferring control to Linux (at address %08lx) ...\n",
-		(ulong)kernel);
-
-	show_boot_progress (15);
-
-#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
-	unlock_ram_in_cache();
+#ifdef CFG_BOOTMAPSZ
+	/*
+	 * The blob must be within CFG_BOOTMAPSZ,
+	 * so we flag it to be copied if it is
+	 */
+	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
+		of_data = of_flat_tree;
 #endif
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -932,11 +940,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		ulong of_start, of_len;
 
 		of_len = be32_to_cpu(fdt_totalsize(of_data));
-		/* position on a 4K boundary before the initrd/kbd */
-		if (initrd_start)
-			of_start = initrd_start - of_len;
-		else
-			of_start  = (ulong)kbd - of_len;
+
+		/* position on a 4K boundary before the kbd */
+		of_start  = (ulong)kbd - of_len;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
@@ -944,42 +950,49 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		of_flat_tree = (char *)of_start;
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
-		err = fdt_open_into((void *)of_start, (void *)of_data, of_len);
+		err = fdt_open_into((void *)of_data, (void *)of_start, of_len);
 		if (err != 0) {
-			printf ("libfdt: %s " __FILE__ " %d\n", fdt_strerror(err), __LINE__);
+			puts ("ERROR: fdt move failed - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
 		}
-		/*
-		 * Add the chosen node if it doesn't exist, add the env and bd_t
-		 * if the user wants it (the logic is in the subroutines).
-		 */
-		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-				printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
-				return;
-		}
+	}
+	/*
+	 * Add the chosen node if it doesn't exist, add the env and bd_t
+	 * if the user wants it (the logic is in the subroutines).
+	 */
+	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+		puts ("ERROR: /chosen node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
-		if (fdt_env(of_flat_tree) < 0) {
-				printf("Failed creating the /u-boot-env node, aborting.\n");
-				return;
-		}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-		if (fdt_bd_t(of_flat_tree) < 0) {
-				printf("Failed creating the /bd_t node, aborting.\n");
-				return;
-		}
-#endif
+	if (fdt_env(of_flat_tree) < 0) {
+		puts ("ERROR: /u-boot-env node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
 	}
 #endif
+#ifdef CONFIG_OF_HAS_BD_T
+	if (fdt_bd_t(of_flat_tree) < 0) {
+		puts ("ERROR: /bd_t node create failed - "
+			"must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+#endif
+#ifdef CONFIG_OF_BOARD_SETUP
+	/* Call the board-specific fixup routine */
+	ft_board_setup(of_flat_tree, gd->bd);
+#endif
+#endif /* CONFIG_OF_LIBFDT */
 #if defined(CONFIG_OF_FLAT_TREE)
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		ulong of_start, of_len;
 		of_len = ((struct boot_param_header *)of_data)->totalsize;
+
 		/* provide extra 8k pad */
-		if (initrd_start)
-			of_start = initrd_start - of_len - 8192;
-		else
-			of_start  = (ulong)kbd - of_len - 8192;
+		of_start  = (ulong)kbd - of_len - 8192;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
@@ -989,8 +1002,36 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_start, of_start + of_len - 1);
 		memmove ((void *)of_start, (void *)of_data, of_len);
 	}
+	/*
+	 * Create the /chosen node and modify the blob with board specific
+	 * values as needed.
+	 */
+	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
+	/* ft_dump_blob(of_flat_tree); */
+#endif
+	debug ("## Transferring control to Linux (at address %08lx) ...\n",
+		(ulong)kernel);
+
+	show_boot_progress (15);
+
+#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
+	unlock_ram_in_cache();
 #endif
 
+#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+	if (of_flat_tree) {	/* device tree; boot new style */
+		/*
+		 * Linux Kernel Parameters (passing device tree):
+		 *   r3: pointer to the fdt, followed by the board info data
+		 *   r4: physical pointer to the kernel itself
+		 *   r5: NULL
+		 *   r6: NULL
+		 *   r7: NULL
+		 */
+		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
+		/* does not return */
+	}
+#endif
 	/*
 	 * Linux Kernel Parameters (passing board info data):
 	 *   r3: ptr to board info data
@@ -999,46 +1040,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: Start of command line string
 	 *   r7: End   of command line string
 	 */
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
-	if (!of_flat_tree)	/* no device tree; boot old style */
-#endif
-		(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
-		/* does not return */
-
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
-	/*
-	 * Linux Kernel Parameters (passing device tree):
-	 *   r3: ptr to OF flat tree, followed by the board info data
-	 *   r4: physical pointer to the kernel itself
-	 *   r5: NULL
-	 *   r6: NULL
-	 *   r7: NULL
-	 */
-#if defined(CONFIG_OF_FLAT_TREE)
-	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
-	/* ft_dump_blob(of_flat_tree); */
-#endif
-#if defined(CONFIG_OF_LIBFDT)
-	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-		printf("Failed creating the /chosen node (0x%08X), aborting.\n", of_flat_tree);
-		return;
-	}
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-	if (fdt_env(of_flat_tree) < 0) {
-		printf("Failed creating the /u-boot-env node, aborting.\n");
-		return;
-	}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-	if (fdt_bd_t(of_flat_tree) < 0) {
-		printf("Failed creating the /bd_t node, aborting.\n");
-		return;
-	}
-#endif
-#endif /* if defined(CONFIG_OF_LIBFDT) */
-
-	(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
-#endif
+	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
+	/* does not return */
 }
 #endif /* CONFIG_PPC */
 
@@ -1212,7 +1215,7 @@ do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 #endif
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_BOOTD)
+#if defined(CONFIG_CMD_BOOTD)
 int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rcode = 0;
@@ -1240,7 +1243,7 @@ U_BOOT_CMD(
 
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMI)
+#if defined(CONFIG_CMD_IMI)
 int do_iminfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int	arg;
@@ -1308,9 +1311,9 @@ U_BOOT_CMD(
 	"      image contents (magic number, header and payload checksums)\n"
 );
 
-#endif	/* CFG_CMD_IMI */
+#endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_IMLS)
+#if defined(CONFIG_CMD_IMLS)
 /*-----------------------------------------------------------------------
  * List all images found in flash.
  */
@@ -1366,23 +1369,23 @@ U_BOOT_CMD(
 	"    - Prints information about all images found at sector\n"
 	"      boundaries in flash.\n"
 );
-#endif	/* CFG_CMD_IMLS */
+#endif
 
 void
 print_image_hdr (image_header_t *hdr)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 	time_t timestamp = (time_t)ntohl(hdr->ih_time);
 	struct rtc_time tm;
 #endif
 
 	printf ("   Image Name:   %.*s\n", IH_NMLEN, hdr->ih_name);
-#if (CONFIG_COMMANDS & CFG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 	to_tm (timestamp, &tm);
 	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif	/* CFG_CMD_DATE, CONFIG_TIMESTAMP */
+#endif
 	puts ("   Image Type:   "); print_type(hdr);
 	printf ("\n   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
 	print_size (ntohl(hdr->ih_size), "\n");
@@ -1581,7 +1584,7 @@ do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	(*entry_point ) ( gd->bd );
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
+#if defined(CONFIG_CMD_ELF)
 static void
 do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		  ulong addr, ulong *len_ptr, int verify)
@@ -1607,7 +1610,7 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);
 }
-#endif /* CFG_CMD_ELF */
+#endif
 
 #ifdef CONFIG_LYNXKDI
 static void

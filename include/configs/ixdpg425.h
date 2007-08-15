@@ -75,16 +75,27 @@
 #define CONFIG_BAUDRATE         115200
 #define CFG_IXP425_CONSOLE	IXP425_UART1   /* we use UART1 for console */
 
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PING)
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-/* These are u-boot generic parameters */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/

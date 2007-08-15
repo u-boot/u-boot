@@ -19,7 +19,7 @@
 
 
 #include <common.h>
-#if (CONFIG_COMMANDS & CFG_CMD_REISER)
+#if defined(CONFIG_CMD_REISER)
 
 #include <config.h>
 #include <reiserfs.h>
@@ -120,4 +120,4 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 	return 1;
 }
 
-#endif /* CFG_CMD_REISERFS */
+#endif

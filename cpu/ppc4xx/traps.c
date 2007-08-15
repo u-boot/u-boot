@@ -38,7 +38,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
 
@@ -78,7 +78,7 @@ static __inline__ unsigned long get_esr(void)
 #define ESR_DIZ 0x00400000
 #define ESR_U0F 0x00008000
 
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 extern void do_bedbug_breakpoint(struct pt_regs *);
 #endif
 
@@ -147,18 +147,25 @@ MachineCheckException(struct pt_regs *regs)
 	unsigned long fixup, val;
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	u32 value2;
+	int corr_ecc = 0;
+	int uncorr_ecc = 0;
 #endif
 
-	/* Probing PCI using config cycles cause this exception
-	 * when a device is not present.  Catch it and return to
-	 * the PCI exception handler.
+	/* Probing PCI(E) using config cycles may cause this exception
+	 * when a device is not present. To gracefully recover in such
+	 * scenarios config read/write routines need to be instrumented in
+	 * order to return via fixup handler. For examples refer to
+	 * pcie_in_8(), pcie_in_le16() and pcie_in_le32()
 	 */
 	if ((fixup = search_exception_table(regs->nip)) != 0) {
 		regs->nip = fixup;
+		val = mfspr(MCSR);
+		/* Clear MCSR */
+		mtspr(SPRN_MCSR, val);
 		return;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -214,14 +221,22 @@ MachineCheckException(struct pt_regs *regs)
 		printf("DDR0: At least one interrupt active\n");
 	if (val & 0x40)
 		printf("DDR0: DRAM initialization complete.\n");
-	if (val & 0x20)
+	if (val & 0x20) {
 		printf("DDR0: Multiple uncorrectable ECC events.\n");
-	if (val & 0x10)
+		uncorr_ecc = 1;
+	}
+	if (val & 0x10) {
 		printf("DDR0: Single uncorrectable ECC event.\n");
-	if (val & 0x08)
+		uncorr_ecc = 1;
+	}
+	if (val & 0x08) {
 		printf("DDR0: Multiple correctable ECC events.\n");
-	if (val & 0x04)
+		corr_ecc = 1;
+	}
+	if (val & 0x04) {
 		printf("DDR0: Single correctable ECC event.\n");
+		corr_ecc = 1;
+	}
 	if (val & 0x02)
 		printf("Multiple accesses outside the defined"
 		       " physical memory space detected\n");
@@ -252,11 +267,11 @@ MachineCheckException(struct pt_regs *regs)
 		printf("DDR0: No DDR0 error know 0x%x %p\n", val, value2);
 	}
 	mfsdram(DDR0_23, val);
-	if ( (val >> 16) & 0xff)
+	if (((val >> 16) & 0xff) && corr_ecc)
 		printf("DDR0: Syndrome for correctable ECC event 0x%x\n",
 		       (val >> 16) & 0xff);
 	mfsdram(DDR0_23, val);
-	if ( (val >> 8) & 0xff)
+	if (((val >> 8) & 0xff) && uncorr_ecc)
 		printf("DDR0: Syndrome for uncorrectable ECC event 0x%x\n",
 		       (val >> 8) & 0xff);
 	mfsdram(DDR0_33, val);
@@ -264,28 +279,28 @@ MachineCheckException(struct pt_regs *regs)
 		printf("DDR0: Address of command that caused an "
 		       "Out-of-Range interrupt %p\n", val);
 	mfsdram(DDR0_34, val);
-	if (val)
+	if (val && uncorr_ecc)
 		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
 	mfsdram(DDR0_35, val);
-	if (val)
+	if (val && uncorr_ecc)
 		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
 	mfsdram(DDR0_36, val);
-	if (val)
+	if (val && uncorr_ecc)
 		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
 	mfsdram(DDR0_37, val);
-	if (val)
+	if (val && uncorr_ecc)
 		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
 	mfsdram(DDR0_38, val);
-	if (val)
+	if (val && corr_ecc)
 		printf("DDR0: Address of correctable ECC event %p\n", val);
 	mfsdram(DDR0_39, val);
-	if (val)
+	if (val && corr_ecc)
 		printf("DDR0: Address of correctable ECC event %p\n", val);
 	mfsdram(DDR0_40, val);
-	if (val)
+	if (val && corr_ecc)
 		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
 	mfsdram(DDR0_41, val);
-	if (val)
+	if (val && corr_ecc)
 		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
 #endif /* CONFIG_440EPX */
 #endif /* CONFIG_440 */
@@ -297,7 +312,7 @@ MachineCheckException(struct pt_regs *regs)
 void
 AlignmentException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -312,7 +327,7 @@ ProgramCheckException(struct pt_regs *regs)
 {
 	long esr_val;
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -349,7 +364,7 @@ DecrementerPITException(struct pt_regs *regs)
 void
 UnknownException(struct pt_regs *regs)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
 		return;
 #endif
@@ -364,7 +379,7 @@ DebugException(struct pt_regs *regs)
 {
 	printf("Debugger trap at @ %lx\n", regs->nip );
 	show_regs(regs);
-#if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
+#if defined(CONFIG_CMD_BEDBUG)
 	do_bedbug_breakpoint( regs );
 #endif
 }

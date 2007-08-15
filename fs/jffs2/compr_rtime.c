@@ -46,7 +46,7 @@
  */
 
 #include <config.h>
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 
 #include <jffs2/jffs2.h>
 
@@ -88,4 +88,4 @@ void rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
 	}
 }
 
-#endif /* CFG_CMD_JFFS2 */
+#endif

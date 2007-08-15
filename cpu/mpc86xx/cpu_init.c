@@ -104,8 +104,8 @@ void cpu_init_f(void)
 	/* enable the timebase bit in HID0 */
 	set_hid0(get_hid0() | 0x4000000);
 
-	/* enable SYNCBE | ABE bits in  HID1 */
-	set_hid1(get_hid1() | 0x00000C00);
+	/* enable EMCP, SYNCBE | ABE bits in HID1 */
+	set_hid1(get_hid1() | 0x80000C00);
 }
 
 /*

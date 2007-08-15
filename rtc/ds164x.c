@@ -37,7 +37,7 @@
 #include <rtc.h>
 
 
-#if defined(CONFIG_RTC_DS164x) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_DS164x) && defined(CONFIG_CMD_DATE)
 
 static uchar    rtc_read(unsigned int addr );
 static void     rtc_write(unsigned int addr, uchar val);
@@ -197,4 +197,4 @@ static unsigned char bin2bcd (unsigned int n)
 	return (((n / 10) << 4) | (n % 10));
 }
 
-#endif	/* CONFIG_RTC_DS164x && CFG_CMD_DATE */
+#endif

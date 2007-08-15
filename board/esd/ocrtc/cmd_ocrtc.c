@@ -28,7 +28,7 @@
 #include <405gp_pci.h>
 
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 
 /*
  * Set device number on pci board

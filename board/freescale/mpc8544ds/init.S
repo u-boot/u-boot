@@ -52,8 +52,8 @@
  */
 
 #define	entry_start \
-	mflr	r1 	;	\
-	bl	0f 	;
+	mflr	r1	;	\
+	bl	0f	;
 
 #define	entry_end \
 0:	mflr	r0	;	\
@@ -214,7 +214,7 @@ law_entry:
 	.long	0
 	.long	(LAWAR_TRGT_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN
 
-	.long	(CFG_PCI1_MEM_BASE>>12) & 0xfffff
+	.long	(CFG_PCI1_MEM_PHYS>>12) & 0xfffff
 	.long	LAWAR_EN | LAWAR_TRGT_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M)
 
 	.long	(CFG_PCI1_IO_PHYS>>12) & 0xfffff

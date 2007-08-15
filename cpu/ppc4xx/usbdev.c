@@ -3,7 +3,7 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#if (defined(CONFIG_440EP) || defined(CONFIG_440EPX)) && (CONFIG_COMMANDS & CFG_CMD_USB)
+#if (defined(CONFIG_440EP) || defined(CONFIG_440EPX)) && defined(CONFIG_CMD_USB)
 
 #include <usb.h>
 #include "usbdev.h"

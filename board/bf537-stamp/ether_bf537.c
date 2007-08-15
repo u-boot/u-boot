@@ -42,7 +42,7 @@
 #define DEBUGF(fmt,args...)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 #define RXBUF_BASE_ADDR		0xFF900000
 #define TXBUF_BASE_ADDR		0xFF800000
@@ -542,4 +542,4 @@ int ether_post_test(int flags)
 	return 0;
 }
 #endif
-#endif				/* CFG_CMD_NET */
+#endif

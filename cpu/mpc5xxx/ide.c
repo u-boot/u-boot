@@ -24,7 +24,7 @@
  */
 #include <common.h>
 
-#ifdef CFG_CMD_IDE
+#if defined(CONFIG_CMD_IDE)
 #include <mpc5xxx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -85,4 +85,4 @@ int ide_preinit (void)
 
 	return (0);
 }
-#endif /* CFG_CMD_IDE */
+#endif

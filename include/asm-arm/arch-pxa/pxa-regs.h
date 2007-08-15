@@ -592,9 +592,11 @@ typedef void		(*ExcpHndlr) (void) ;
 #define PMC_REG_BASE	__REG(0x40500400)  /* Primary Modem Codec */
 #define SMC_REG_BASE	__REG(0x40500500)  /* Secondary Modem Codec */
 
+
 /*
  * USB Device Controller
  */
+#ifndef CONFIG_CPU_MONAHANS
 #define UDC_RES1	__REG(0x40600004)  /* UDC Undocumented - Reserved1 */
 #define UDC_RES2	__REG(0x40600008)  /* UDC Undocumented - Reserved2 */
 #define UDC_RES3	__REG(0x4060000C)  /* UDC Undocumented - Reserved3 */
@@ -749,11 +751,28 @@ typedef void		(*ExcpHndlr) (void) ;
 #define USIR1_IR13	(1 << 5)	/* Interrup request ep 13 */
 #define USIR1_IR14	(1 << 6)	/* Interrup request ep 14 */
 #define USIR1_IR15	(1 << 7)	/* Interrup request ep 15 */
+#endif /* ! CONFIG_CPU_MONAHANS */
 
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+
+/*
+ * USB Client Controller (incomplete)
+ */
+#define UDCCR		__REG(0x40600000)
+#define UDCICR0		__REG(0x40600004)
+#define UDCCIR0		__REG(0x40600008)
+#define UDCISR0		__REG(0x4060000c)
+#define UDCSIR1		__REG(0x40600010)
+#define UDCFNR		__REG(0x40600014)
+#define UDCOTGICR	__REG(0x40600018)
+#define UDCOTGISR	__REG(0x4060001c)
+#define UP2OCR		__REG(0x40600020)
+#define UP3OCR		__REG(0x40600024)
+
 /*
  * USB Host Controller
  */
+#define OHCI_REGS_BASE	0x4C000000	/* required for ohci driver */
 #define UHCREV		__REG(0x4C000000)
 #define UHCHCON		__REG(0x4C000004)
 #define UHCCOMS		__REG(0x4C000008)

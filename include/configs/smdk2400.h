@@ -86,24 +86,32 @@
 /* Use s3c2400's RTC */
 #define CONFIG_RTC_S3C24X0	1
 
-#ifndef USE_920T_MMU
-#define CONFIG_COMMANDS_tmp    ((CONFIG_CMD_DFL & ~CFG_CMD_CACHE) | \
-				CFG_CMD_DATE	| \
-				CFG_CMD_SNTP	)
-#else
-#define CONFIG_COMMANDS_tmp    (CONFIG_CMD_DFL	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_SNTP	)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_SNTP
+
+#if defined(CONFIG_HWFLOW)
+    #define CONFIG_CONFIG_HWFLOW
 #endif
 
-#ifdef CONFIG_HWFLOW
-#define CONFIG_COMMANDS		(CONFIG_COMMANDS_tmp | CFG_CMD_HWFLOW)
-#else
-#define CONFIG_COMMANDS		CONFIG_COMMANDS_tmp
+#if !defined(USE_920T_MMU)
+    #undef CONFIG_CMD_CACHE
 #endif
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
 #if 0
@@ -118,7 +126,7 @@
 #define CONFIG_BOOTCOMMAND	"tftp; bootm"
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 /* what's this ? it's not used anywhere */
 #define CONFIG_KGDB_SER_INDEX	1		/* which serial port to use */

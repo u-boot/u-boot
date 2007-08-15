@@ -104,6 +104,13 @@ int checkboard(void)
 	return  0;
 }
 
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+u32 ddr_clktr(u32 default_val) {
+	return (SDRAM_CLKTR_CLKP_180_DEG_ADV);
+}
 
 /*************************************************************************
  *  int testdram()
