@@ -51,7 +51,7 @@ SECTIONS
   .text      :
   {
     cpu/mpc86xx/start.o	(.text)
-    board/mpc8641hpcn/init.o (.bootpg)
+    board/freescale/mpc8641hpcn/init.o (.bootpg)
     cpu/mpc86xx/traps.o (.text)
     cpu/mpc86xx/interrupts.o (.text)
     cpu/mpc86xx/cpu_init.o (.text)
