@@ -26,7 +26,7 @@
 #include <malloc.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 
 #include <asm/byteorder.h>
 #include <linux/stat.h>
