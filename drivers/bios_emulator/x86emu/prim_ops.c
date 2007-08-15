@@ -98,9 +98,10 @@
 ****************************************************************************/
 
 #define PRIM_OPS_NO_REDEFINE_ASM
-#include "x86emu/x86emui.h"
 
 #if defined(CONFIG_BIOSEMU)
+
+#include "x86emu/x86emui.h"
 
 /*------------------------- Global Variables ------------------------------*/
 

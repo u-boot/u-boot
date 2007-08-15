@@ -37,10 +37,11 @@
 *
 ****************************************************************************/
 
-#include "x86emu/x86emui.h"
 #include <stdarg.h>
 
 #if defined(CONFIG_BIOSEMU)
+
+#include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
 

@@ -47,9 +47,10 @@
 *
 ****************************************************************************/
 
+#if defined(CONFIG_BIOSEMU)
+
 #include "biosemui.h"
 
-#if defined(CONFIG_BIOSEMU)
 /*------------------------- Global Variables ------------------------------*/
 
 #ifndef __i386__
