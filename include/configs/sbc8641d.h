@@ -546,6 +546,7 @@
 #define CONFIG_ETH3ADDR  02:E0:0C:00:03:FD
 #endif
 
+#define CONFIG_HAS_ETH0		1
 #define CONFIG_HAS_ETH1		1
 #define CONFIG_HAS_ETH2		1
 #define CONFIG_HAS_ETH3		1

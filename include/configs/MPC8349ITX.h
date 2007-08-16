@@ -378,6 +378,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME  "TSEC0"
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */

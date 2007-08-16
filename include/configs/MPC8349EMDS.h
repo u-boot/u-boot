@@ -701,6 +701,7 @@
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_ETHADDR		00:04:9f:ef:23:33
 #define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETH1ADDR		00:E0:0C:00:7E:21
 #endif
 

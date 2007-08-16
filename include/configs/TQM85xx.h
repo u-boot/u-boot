@@ -271,6 +271,7 @@
 #define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
 #define FEC_FLAGS		0
+#define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
 
