@@ -26,140 +26,12 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/processor.h>
-
-#ifdef	CONFIG_M5271
-#include <asm/m5271.h>
-#include <asm/immap_5271.h>
-#endif
+#include <asm/immap.h>
 
 #ifdef	CONFIG_M5272
-#include <asm/m5272.h>
-#include <asm/immap_5272.h>
-#endif
-
-#ifdef	CONFIG_M5282
-#include <asm/m5282.h>
-#include <asm/immap_5282.h>
-#endif
-
-#ifdef	CONFIG_M5249
-#include <asm/m5249.h>
-#endif
-
-
-#define	NR_IRQS		31
-
-/*
- * Interrupt vector functions.
- */
-struct interrupt_action {
-	interrupt_handler_t *handler;
-	void *arg;
-};
-
-static struct interrupt_action irq_vecs[NR_IRQS];
-
-static __inline__ unsigned short get_sr (void)
+int interrupt_init(void)
 {
-	unsigned short sr;
-
-	asm volatile ("move.w %%sr,%0":"=r" (sr):);
-
-	return sr;
-}
-
-static __inline__ void set_sr (unsigned short sr)
-{
-	asm volatile ("move.w %0,%%sr"::"r" (sr));
-}
-
-/************************************************************************/
-/*
- * Install and free an interrupt handler
- */
-void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
-{
-#ifdef	CONFIG_M5272
-	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
-#endif
-	int vec_base = 0;
-
-#ifdef	CONFIG_M5272
-	vec_base = intp->int_pivr & 0xe0;
-#endif
-
-	if ((vec < vec_base) || (vec > vec_base + NR_IRQS)) {
-		printf ("irq_install_handler: wrong interrupt vector %d\n",
-			vec);
-		return;
-	}
-
-	irq_vecs[vec - vec_base].handler = handler;
-	irq_vecs[vec - vec_base].arg = arg;
-}
-
-void irq_free_handler (int vec)
-{
-#ifdef	CONFIG_M5272
-	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
-#endif
-	int vec_base = 0;
-
-#ifdef	CONFIG_M5272
-	vec_base = intp->int_pivr & 0xe0;
-#endif
-
-	if ((vec < vec_base) || (vec > vec_base + NR_IRQS)) {
-		return;
-	}
-
-	irq_vecs[vec - vec_base].handler = NULL;
-	irq_vecs[vec - vec_base].arg = NULL;
-}
-
-void enable_interrupts (void)
-{
-	unsigned short sr;
-
-	sr = get_sr ();
-	set_sr (sr & ~0x0700);
-}
-
-int disable_interrupts (void)
-{
-	unsigned short sr;
-
-	sr = get_sr ();
-	set_sr (sr | 0x0700);
-
-	return ((sr & 0x0700) == 0);	/* return TRUE, if interrupts were enabled before */
-}
-
-void int_handler (struct pt_regs *fp)
-{
-#ifdef	CONFIG_M5272
-	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
-#endif
-	int vec, vec_base = 0;
-
-	vec = (fp->vector >> 2) & 0xff;
-#ifdef	CONFIG_M5272
-	vec_base = intp->int_pivr & 0xe0;
-#endif
-
-	if (irq_vecs[vec - vec_base].handler != NULL) {
-		irq_vecs[vec -
-			 vec_base].handler (irq_vecs[vec - vec_base].arg);
-	} else {
-		printf ("\nBogus External Interrupt Vector %d\n", vec);
-	}
-}
-
-
-#ifdef	CONFIG_M5272
-int interrupt_init (void)
-{
-	volatile intctrl_t *intp = (intctrl_t *) (CFG_MBAR + MCFSIM_ICR1);
+	volatile intctrl_t *intp = (intctrl_t *) (MMAP_INTC);
 
 	/* disable all external interrupts */
 	intp->int_icr1 = 0x88888888;
@@ -170,24 +42,61 @@ int interrupt_init (void)
 	/* initialize vector register */
 	intp->int_pivr = 0x40;
 
-	enable_interrupts ();
+	enable_interrupts();
 
 	return 0;
 }
-#endif
+
+#if defined(CONFIG_MCFTMR)
+void dtimer_intr_setup(void)
+{
+	volatile intctrl_t *intp = (intctrl_t *) (CFG_INTR_BASE);
+
+	intp->int_icr1 &= ~INT_ICR1_TMR3MASK;
+	intp->int_icr1 |= CFG_TMRINTR_PRI;
+}
+#endif				/* CONFIG_MCFTMR */
+#endif				/* CONFIG_M5272 */
 
 #if defined(CONFIG_M5282) || defined(CONFIG_M5271)
-int interrupt_init (void)
+int interrupt_init(void)
 {
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+
+	/* Make sure all interrupts are disabled */
+	intp->imrl0 |= 0x1;
+
+	enable_interrupts();
 	return 0;
 }
-#endif
+
+#if defined(CONFIG_MCFTMR)
+void dtimer_intr_setup(void)
+{
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+
+	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
+	intp->imrl0 &= ~0xFFFFFFFE;
+	intp->imrl0 &= ~CFG_TMRINTR_MASK;
+}
+#endif				/* CONFIG_MCFTMR */
+#endif				/* CONFIG_M5282 | CONFIG_M5271 */
 
 #ifdef	CONFIG_M5249
-int interrupt_init (void)
+int interrupt_init(void)
 {
-	enable_interrupts ();
+	enable_interrupts();
 
 	return 0;
 }
-#endif
+
+#if defined(CONFIG_MCFTMR)
+void dtimer_intr_setup(void)
+{
+	mbar_writeLong(MCFSIM_IMR, mbar_readLong(MCFSIM_IMR) & ~0x00000400);
+	mbar_writeByte(MCFSIM_TIMER2ICR,
+		       MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL7 |
+		       MCFSIM_ICR_PRI3);
+}
+#endif				/* CONFIG_MCFTMR */
+#endif				/* CONFIG_M5249 */
