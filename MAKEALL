@@ -358,6 +358,12 @@ LIST_74xx="		\
 	ZUMA		\
 "
 
+LIST_TSEC="		\
+	${LIST_85xx}	\
+	${LIST_86xx}	\
+	${LIST_83xx}	\
+"
+
 LIST_7xx="		\
 	BAB7xx		\
 	CPCI750		\
@@ -672,7 +678,7 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
-	x86|I486)
+	x86|I486|TSEC)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}
