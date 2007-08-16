@@ -1639,6 +1639,9 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M5249EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5249evb freescale
+
 cobra5272_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 cobra5272
 
