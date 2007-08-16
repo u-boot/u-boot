@@ -1596,7 +1596,7 @@ typedef struct ccsr_gur {
 	uint	svr;		/* 0xe00a4 - System version register */
 	char	res10a[8];
 	uint	rstcr;		/* 0xe00b0 - Reset control register */
-#ifdef MPC8568
+#ifdef CONFIG_MPC8568
 	char	res10b[76];
 	par_io_t qe_par_io[7];  /* 0xe0100 - 0xe01bf */
 	char	res10c[3136];
