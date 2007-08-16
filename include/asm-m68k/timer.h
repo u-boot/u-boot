@@ -46,7 +46,7 @@ typedef struct dtimer_ctrl {
 	u8 ter;			/* 0x11 Event register */
 	u16 res7;		/* 0x12 */
 #else
- 	u16 tmr;		/* 0x00 Mode register */
+	u16 tmr;		/* 0x00 Mode register */
 	u8 txmr;		/* 0x02 Extended Mode register */
 	u8 ter;			/* 0x03 Event register */
 	u32 trr;		/* 0x04 Reference register */

@@ -121,6 +121,41 @@ struct fec_info_s {
 
 /* Register read/write struct */
 typedef struct fec {
+#ifdef CONFIG_M5272
+	u32 ecr;		/* 0x00 */
+	u32 eir;		/* 0x04 */
+	u32 eimr;		/* 0x08 */
+	u32 ivsr;		/* 0x0C */
+	u32 rdar;		/* 0x10 */
+	u32 tdar;		/* 0x14 */
+	u8 resv1[0x28];		/* 0x18 */
+	u32 mmfr;		/* 0x40 */
+	u32 mscr;		/* 0x44 */
+	u8 resv2[0x44];		/* 0x48 */
+	u32 frbr;		/* 0x8C */
+	u32 frsr;		/* 0x90 */
+	u8 resv3[0x10];		/* 0x94 */
+	u32 tfwr;		/* 0xA4 */
+	u32 res4;		/* 0xA8 */
+	u32 tfsr;		/* 0xAC */
+	u8 resv4[0x50];		/* 0xB0 */
+	u32 opd;		/* 0x100 - dummy  */
+	u32 rcr;		/* 0x104 */
+	u32 mibc;		/* 0x108 */
+	u8 resv5[0x38];		/* 0x10C */
+	u32 tcr;		/* 0x144 */
+	u8 resv6[0x270];	/* 0x148 */
+	u32 iaur;		/* 0x3B8 - dummy */
+	u32 ialr;		/* 0x3BC - dummy  */
+	u32 palr;		/* 0x3C0 */
+	u32 paur;		/* 0x3C4 */
+	u32 gaur;		/* 0x3C8 */
+	u32 galr;		/* 0x3CC */
+	u32 erdsr;		/* 0x3D0 */
+	u32 etdsr;		/* 0x3D4 */
+	u32 emrbr;		/* 0x3D8 */
+	u8 resv12[0x74];	/* 0x18C */
+#else
 	u8 resv0[0x4];
 	u32 eir;
 	u32 eimr;
@@ -157,6 +192,7 @@ typedef struct fec {
 	u32 etdsr;
 	u32 emrbr;
 	u8 resv12[0x74];
+#endif
 
 	u32 rmon_t_drop;
 	u32 rmon_t_packets;
@@ -304,16 +340,16 @@ typedef struct fec {
 #define FEC_FRSR_R_FSTART(x)	(((x)&0xFF)<<2)
 
 /* Bit definitions and macros for FEC_ERDSR */
-#define FEC_ERDSR_R_DES_START(x)(((x)&0x3FFFFFFF)<<2)
+#define FEC_ERDSR_R_DES_START(x)	(((x)&0x3FFFFFFF)<<2)
 
 /* Bit definitions and macros for FEC_ETDSR */
-#define FEC_ETDSR_X_DES_START(x)(((x)&0x3FFFFFFF)<<2)
+#define FEC_ETDSR_X_DES_START(x)	(((x)&0x3FFFFFFF)<<2)
 
 /* Bit definitions and macros for FEC_EMRBR */
-#define FEC_EMRBR_R_BUF_SIZE(x)	(((x)&0x7F)<<4)
+#define FEC_EMRBR_R_BUF_SIZE(x)		(((x)&0x7F)<<4)
 
 #define	FEC_RESET_DELAY		100
-#define FEC_RX_TOUT			100
+#define FEC_RX_TOUT		100
 
 #endif				/* CONFIG_MCFFEC */
 #endif				/* fec_h */
