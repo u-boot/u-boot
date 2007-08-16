@@ -29,7 +29,6 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
@@ -287,38 +286,10 @@ void sdram_init(void)
 
 #if (defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)) \
      && defined(CONFIG_OF_BOARD_SETUP)
-
-/*
- * Prototypes of functions that we use.
- */
-void ft_cpu_setup(void *blob, bd_t *bd);
-
-#ifdef CONFIG_PCI
-void ft_pci_setup(void *blob, bd_t *bd);
-#endif
-
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-#if defined(CONFIG_OF_LIBFDT)
-	int nodeoffset;
-	int tmp[2];
-
-	nodeoffset = fdt_find_node_by_path(blob, "/memory");
-	if (nodeoffset < 0) {
-		nodeoffset = fdt_add_subnode(blob, 0, "memory");
-		if (nodeoffset < 0)
-			printf("WARNING: failed to add /memory node: %s\n",
-				fdt_strerror(nodeoffset));
-	}
-	if (nodeoffset >= 0) {
-		fdt_setprop(blob, nodeoffset, "device_type",
-			    "memory", sizeof("memory"));
-		tmp[0] = cpu_to_be32(bd->bi_memstart);
-		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
-	}
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
 	int len;
 

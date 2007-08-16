@@ -523,9 +523,10 @@ static const struct {
 void
 ft_cpu_setup(void *blob, bd_t *bd)
 {
-	int  nodeoffset;
-	int  err;
-	int  j;
+	int nodeoffset;
+	int err;
+	int j;
+	int tmp[2];
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
 		nodeoffset = fdt_find_node_by_path(blob, fixup_props[j].node);
@@ -534,14 +535,28 @@ ft_cpu_setup(void *blob, bd_t *bd)
 						    fixup_props[j].prop, bd);
 			if (err < 0)
 				debug("Problem setting %s = %s: %s\n",
-					fixup_props[j].node,
-					fixup_props[j].prop,
-					fdt_strerror(err));
+				      fixup_props[j].node, fixup_props[j].prop,
+				      fdt_strerror(err));
 		} else {
 			debug("Couldn't find %s: %s\n",
-				fixup_props[j].node,
-				fdt_strerror(nodeoffset));
+			      fixup_props[j].node, fdt_strerror(nodeoffset));
 		}
+	}
+
+	/* update, or add and update /memory node */
+	nodeoffset = fdt_find_node_by_path(blob, "/memory");
+	if (nodeoffset < 0) {
+		nodeoffset = fdt_add_subnode(blob, 0, "memory");
+		if (nodeoffset < 0)
+			debug("failed to add /memory node: %s\n",
+			      fdt_strerror(nodeoffset));
+	}
+	if (nodeoffset >= 0) {
+		fdt_setprop(blob, nodeoffset, "device_type",
+			    "memory", sizeof("memory"));
+		tmp[0] = cpu_to_be32(bd->bi_memstart);
+		tmp[1] = cpu_to_be32(bd->bi_memsize);
+		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
 	}
 }
 #elif defined(CONFIG_OF_FLAT_TREE)
