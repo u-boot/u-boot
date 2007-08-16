@@ -22,8 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/m5271.h>
-#include <asm/immap_5271.h>
+#include <asm/immap.h>
 
 int checkboard (void) {
 	puts ("Board: iDMR\n");
