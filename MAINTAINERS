@@ -296,6 +296,7 @@ Stefan Roese <sr@denx.de>
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
+	rainier			PPC440GRx
 	sequoia			PPC440EPx
 	sycamore		PPC405GPr
 	taishan			PPC440GX

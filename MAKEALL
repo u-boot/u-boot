@@ -204,6 +204,7 @@ LIST_4xx="		\
 	PLU405		\
 	PMC405		\
 	PPChameleonEVB	\
+	rainier		\
 	sbc405		\
 	sc3		\
 	sequoia		\
