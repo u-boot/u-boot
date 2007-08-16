@@ -614,4 +614,4 @@ static void parse_multicast_oack(char *pkt, int len)
 
 #endif /* Multicast TFTP */
 
-#endif /* CFG_CMD_NET */
+#endif

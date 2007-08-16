@@ -24,13 +24,14 @@
 include $(TOPDIR)/config.mk
 
 ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../freescale/common)
+$(shell mkdir -p $(obj)../common)
 endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o sys_eeprom.o \
-		../freescale/common/pixis.o
+COBJS	:= $(BOARD).o \
+		../common/sys_eeprom.o \
+		../common/pixis.o
 
 SOBJS	:= init.o
 

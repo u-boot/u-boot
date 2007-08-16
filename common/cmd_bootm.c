@@ -924,16 +924,17 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		initrd_end = 0;
 	}
 
+#if defined(CONFIG_OF_LIBFDT)
+
 #ifdef CFG_BOOTMAPSZ
 	/*
 	 * The blob must be within CFG_BOOTMAPSZ,
-	 * so we flag it to be copied if it is
+	 * so we flag it to be copied if it is not.
 	 */
 	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
 		of_data = of_flat_tree;
 #endif
 
-#if defined(CONFIG_OF_LIBFDT)
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		int err;

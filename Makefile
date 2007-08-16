@@ -1900,7 +1900,7 @@ TQM8560_config:		unconfig
 #########################################################################
 
 MPC8641HPCN_config:    unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn freescale
 
 sbc8641d_config:	unconfig
 	@./mkconfig $(@:_config=) ppc mpc86xx sbc8641d
