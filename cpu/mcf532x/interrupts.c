@@ -1,4 +1,8 @@
 /*
+ *
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -18,42 +22,28 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _M68K_PTRACE_H
-#define _M68K_PTRACE_H
+/* CPU specific interrupt routine */
+#include <common.h>
+#include <asm/immap.h>
 
-/*
- * This struct defines the way the registers are stored on the
- * kernel stack during an exception.
- */
-#ifndef __ASSEMBLY__
+int interrupt_init(void)
+{
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
 
-struct pt_regs {
-	ulong d0;
-	ulong d1;
-	ulong d2;
-	ulong d3;
-	ulong d4;
-	ulong d5;
-	ulong d6;
-	ulong d7;
-	ulong a0;
-	ulong a1;
-	ulong a2;
-	ulong a3;
-	ulong a4;
-	ulong a5;
-	ulong a6;
-#if defined(__M68K__)
-	unsigned format:4;	/* frame format specifier */
-	unsigned vector:12;	/* vector offset */
-	unsigned short sr;
-	unsigned long pc;
-#else
-	unsigned short sr;
-	unsigned long pc;
+	/* Make sure all interrupts are disabled */
+	intp->imrh0 |= 0xFFFFFFFF;
+	intp->imrl0 |= 0xFFFFFFFF;
+
+	enable_interrupts();
+	return 0;
+}
+
+#if defined(CONFIG_MCFTMR)
+void dtimer_intr_setup(void)
+{
+	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+
+	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
+	intp->imrh0 &= ~CFG_TMRINTR_MASK;
+}
 #endif
-};
-
-#endif				/* #ifndef __ASSEMBLY__ */
-
-#endif				/* #ifndef _M68K_PTRACE_H */

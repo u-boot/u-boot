@@ -221,6 +221,7 @@ static int init_func_i2c (void)
  */
 
 init_fnc_t *init_sequence[] = {
+	get_clocks,
 	env_init,
 	init_baudrate,
 	serial_init,
@@ -371,6 +372,10 @@ board_init_f (ulong bootflag)
 	 */
 	bd->bi_memstart  = CFG_SDRAM_BASE;	/* start of  DRAM memory      */
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
+#ifdef CFG_INIT_RAM_ADDR
+	bd->bi_sramstart = CFG_INIT_RAM_ADDR;	/* start of  SRAM memory	*/
+	bd->bi_sramsize  = CFG_INIT_RAM_END;	/* size  of  SRAM memory	*/
+#endif
 	bd->bi_mbar_base = CFG_MBAR;		/* base of internal registers */
 
 	bd->bi_bootflags = bootflag;		/* boot / reboot flag (for LynxOS)    */
@@ -429,6 +434,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
+
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
@@ -489,7 +498,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/*
 	 * Setup trap handlers
 	 */
-	trap_init (0);
+	trap_init (CFG_SDRAM_BASE);
 
 #if !defined(CFG_NO_FLASH)
 	puts ("FLASH: ");
@@ -562,12 +571,48 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+#ifdef CONFIG_HAS_ETH1
+	/* handle the 2nd ethernet address */
+
+	s = getenv ("eth1addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet1addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
+#ifdef CONFIG_HAS_ETH2
+	/* handle the 3rd ethernet address */
+
+	s = getenv ("eth2addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH3
+	/* handle 4th ethernet address */
+	s = getenv("eth3addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
 
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	WATCHDOG_RESET ();
 
+#if defined(CONFIG_PCI)
+	/*
+	 * Do pci configuration
+	 */
+	pci_init ();
+#endif
 
 	/** leave this here (after malloc(), environment and PCI are working) **/
 	/* Initialize devices */
@@ -640,13 +685,32 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
-#if defined(CONFIG_CMD_NET) && defined(FEC_ENET)
+#if defined(CONFIG_CMD_NET)
 	WATCHDOG_RESET();
+#if defined(FEC_ENET)
 	eth_init(bd);
+#endif
+#if defined(CONFIG_NET_MULTI)
+	puts ("Net:   ");
+        eth_initialize (bd);
+#endif
 #endif
 
 #ifdef CONFIG_POST
 	post_run (NULL, POST_RAM | post_bootmode_get(0));
+#endif
+
+#if defined(CONFIG_CMD_PCMCIA) \
+    && !defined(CONFIG_CMD_IDE)
+	WATCHDOG_RESET ();
+	puts ("PCMCIA:");
+	pcmcia_init ();
+#endif
+
+#if defined(CONFIG_CMD_IDE)
+	WATCHDOG_RESET ();
+	puts ("IDE:   ");
+	ide_init ();
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT

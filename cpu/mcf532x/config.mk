@@ -1,5 +1,7 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
+#
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,25 +23,5 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(ARCH).a
-
-SOBJS	=
-
-COBJS	= cache.o traps.o time.o interrupts.o board.o m68k_linux.o
-
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
+PLATFORM_CPPFLAGS += -m5307 -fPIC

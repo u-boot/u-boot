@@ -558,7 +558,7 @@ ulong	bootcount_load (void);
 #define BOOTCOUNT_MAGIC		0xB001C041
 
 /* $(CPU)/.../<eth> */
-void mii_init (void);
+/*void mii_init (void);*/
 
 /* $(CPU)/.../lcd.c */
 ulong	lcd_setmem (ulong);
