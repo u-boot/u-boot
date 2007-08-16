@@ -1692,6 +1692,34 @@ M5329BFEE_config :	unconfig
 	fi
 	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
 
+M54455EVB_config \
+M54455EVB_atmel_config \
+M54455EVB_intel_config \
+M54455EVB_a33_config \
+M54455EVB_a66_config \
+M54455EVB_i33_config \
+M54455EVB_i66_config :	unconfig
+	@case "$@" in \
+	M54455EVB_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_atmel_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_intel_config)		FLASH=INTEL; FREQ=33333333;; \
+	M54455EVB_a33_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_a66_config)		FLASH=ATMEL; FREQ=66666666;; \
+	M54455EVB_i33_config)		FLASH=INTEL; FREQ=33333333;; \
+	M54455EVB_i66_config)		FLASH=INTEL; FREQ=66666666;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${FLASH}" == "INTEL" ] ; then \
+		echo "#undef CFG_ATMEL_BOOT" >> include/config.h ; \
+		echo "... with INTEL boot..." ; \
+	else \
+		echo "#define CFG_ATMEL_BOOT"	>> include/config.h ; \
+		echo "... with ATMEL boot..." ; \
+	fi; \
+	echo "#define CFG_INPUT_CLKSRC $${FREQ}"	>>include/config.h ; \
+	echo "... with $${FREQ}Hz input clock"
+	@$(MKCONFIG) -a M54455EVB m68k mcf5445x m54455evb freescale
+
 #########################################################################
 ## MPC83xx Systems
 #########################################################################

@@ -624,6 +624,7 @@ LIST_coldfire="			\
 	M5272C3			\
 	M5282EVB		\
 	M5329EVB		\
+	M54455EVB		\
 	r5200			\
 	TASREG			\
 "

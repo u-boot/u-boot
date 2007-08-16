@@ -30,9 +30,7 @@
 #include <malloc.h>
 #include <devices.h>
 
-#ifdef	CONFIG_M5272
-#include <asm/immap_5272.h>
-#endif
+#include <asm/immap.h>
 
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
@@ -139,19 +137,19 @@ void *sbrk (ptrdiff_t increment)
 
 char *strmhz(char *buf, long hz)
 {
-    long l, n;
-    long m;
+	long l, n;
+	long m;
 
-    n = hz / 1000000L;
+	n = hz / 1000000L;
 
-    l = sprintf (buf, "%ld", n);
+	l = sprintf (buf, "%ld", n);
 
-    m = (hz % 1000000L) / 1000L;
+	m = (hz % 1000000L) / 1000L;
 
-    if (m != 0)
-	sprintf (buf+l, ".%03ld", m);
+	if (m != 0)
+		sprintf (buf+l, ".%03ld", m);
 
-    return (buf);
+	return (buf);
 }
 
 /*
@@ -169,7 +167,7 @@ char *strmhz(char *buf, long hz)
 typedef int (init_fnc_t) (void);
 
 /************************************************************************
- * Init Utilities							*
+ * Init Utilities
  ************************************************************************
  * Some of this code should be moved into the core functions,
  * but let's get it working (again) first...
@@ -383,6 +381,14 @@ board_init_f (ulong bootflag)
 	WATCHDOG_RESET ();
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
+#ifdef CONFIG_PCI
+	bd->bi_pcifreq = gd->pci_clk;		/* PCI Freq in Hz */
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	bd->bi_inpfreq = gd->inp_clk;		/* input Freq in Hz */
+	bd->bi_vcofreq = gd->vco_clk;		/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->flb_clk;		/* flexbus Freq in Hz */
+#endif
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CFG_EXTBDINFO

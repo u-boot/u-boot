@@ -430,19 +430,32 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 
 	/* Set station address   */
 	if ((u32) fecp == CFG_FEC0_IOBASE) {
+#ifdef CFG_FEC1_IOBASE
+		volatile fec_t *fecp1 = (fec_t *) (CFG_FEC1_IOBASE);
+		ea = &bd->bi_enet1addr[0];
+		fecp1->palr =
+		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
+		fecp1->paur = (ea[4] << 24) | (ea[5] << 16);
+#endif
 		ea = &bd->bi_enetaddr[0];
+		fecp->palr =
+		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
+		fecp->paur = (ea[4] << 24) | (ea[5] << 16);
 	} else {
+#ifdef CFG_FEC0_IOBASE
+		volatile fec_t *fecp0 = (fec_t *) (CFG_FEC0_IOBASE);
+		ea = &bd->bi_enetaddr[0];
+		fecp0->palr =
+		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
+		fecp0->paur = (ea[4] << 24) | (ea[5] << 16);
+#endif
 #ifdef CFG_FEC1_IOBASE
 		ea = &bd->bi_enet1addr[0];
+		fecp->palr =
+		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
+		fecp->paur = (ea[4] << 24) | (ea[5] << 16);
 #endif
 	}
-
-	fecp->palr = (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
-	fecp->paur = (ea[4] << 24) | (ea[5] << 16);
-#ifdef ET_DEBUG
-	printf("Eth Addrs: %02x:%02x:%02x:%02x:%02x:%02x\n",
-	       ea[0], ea[1], ea[2], ea[3], ea[4], ea[5]);
-#endif
 
 	/* Clear unicast address hash table */
 	fecp->iaur = 0;

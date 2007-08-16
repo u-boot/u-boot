@@ -35,9 +35,10 @@ typedef struct rtc_ctrl {
 	u32 cr;			/* 0x10 Control Register */
 	u32 isr;		/* 0x14 Interrupt Status Register */
 	u32 ier;		/* 0x18 Interrupt Enable Register */
-	u32 stpwach;		/* 0x1C Stopwatch Minutes Register */
+	u32 stpwatch;		/* 0x1C Stopwatch Minutes Register */
 	u32 days;		/* 0x20 Days Counter Register */
 	u32 alrm_day;		/* 0x24 Days Alarm Register */
+	void *extended;
 } rtc_t;
 
 /* Bit definitions and macros for HOURMIN */

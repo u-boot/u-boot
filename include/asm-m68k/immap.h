@@ -170,4 +170,44 @@
 #define CFG_NUM_IRQS		(128)
 #endif				/* CONFIG_M5329 */
 
+#ifdef CONFIG_M54455
+#include <asm/immap_5445x.h>
+#include <asm/m5445x.h>
+
+#define CFG_FEC0_IOBASE		(MMAP_FEC0)
+#define CFG_FEC1_IOBASE		(MMAP_FEC1)
+
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x4000))
+
+#define CFG_MCFRTC_BASE		(MMAP_RTC)
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CFG_UDELAY_BASE		(MMAP_DTMR0)
+#define CFG_TMR_BASE		(MMAP_DTMR1)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprh0)
+#define CFG_TMRINTR_NO		(INT0_HI_DTMR1)
+#define CFG_TMRINTR_MASK	(INTC_IPRH_INT33)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(6)
+#define CFG_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
+#endif
+
+#ifdef CONFIG_MCFPIT
+#define CFG_UDELAY_BASE		(MMAP_PIT0)
+#define CFG_PIT_BASE		(MMAP_PIT1)
+#define CFG_PIT_PRESCALE	(6)
+#endif
+
+#define CFG_INTR_BASE		(MMAP_INTC0)
+#define CFG_NUM_IRQS		(128)
+
+#ifdef CONFIG_PCI
+#define CFG_PCI_BAR0		CFG_SDRAM_BASE
+#define CFG_PCI_BAR4		CFG_SDRAM_BASE
+#define CFG_PCI_TBATR0		(CFG_SDRAM_BASE)
+#define CFG_PCI_TBATR4		(CFG_SDRAM_BASE)
+#endif
+#endif				/* CONFIG_M54455 */
+
 #endif				/* __IMMAP_H */

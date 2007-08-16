@@ -52,6 +52,14 @@ typedef struct bd_info {
 	unsigned short bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long bi_busfreq;	/* Bus Freq, in MHz */
+#ifdef CONFIG_PCI
+	unsigned long bi_pcifreq;	/* pci Freq in MHz */
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	unsigned long bi_inpfreq;	/* input Freq in MHz */
+	unsigned long bi_vcofreq;	/* vco Freq in MHz */
+	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
+#endif
 	unsigned long bi_baudrate;	/* Console Baudrate */
 
 #ifdef CONFIG_HAS_ETH1

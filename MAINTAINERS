@@ -606,6 +606,15 @@ Zachary P. Landau <zachary.landau@labxtechnologies.com>
 
 	r5200			mcf52x2
 
+TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+	M5329EVB		mcf532x
+	M54455EVB		mcf5445x
+
+Hayden Fraser <Hayden.Fraser@freescale.com>
+
+	M5253EVBE		mcf52x2
+
 #########################################################################
 # AVR32 Systems:							#
 #									#
