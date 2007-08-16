@@ -284,10 +284,8 @@ void sdram_init(void)
 }
 #endif
 
-#if (defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)) \
-     && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
 {
 #if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
@@ -299,10 +297,9 @@ ft_board_setup(void *blob, bd_t *bd)
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
 #endif
-
+	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
-	ft_cpu_setup(blob, bd);
 }
-#endif /* CONFIG_OF_x */
+#endif
