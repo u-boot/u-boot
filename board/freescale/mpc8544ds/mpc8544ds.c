@@ -540,12 +540,5 @@ ft_board_setup(void *blob, bd_t *bd)
 		debug("PCI@b000 first_busno=%d last_busno=%d\n",p[0],p[1]);
 	}
 #endif
-	ft_cpu_setup(blob, bd);
-
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
 }
 #endif
