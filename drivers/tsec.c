@@ -65,38 +65,30 @@ struct tsec_info_struct {
  *   FEC_PHYIDX
  */
 static struct tsec_info_struct tsec_info[] = {
-#if defined(CONFIG_TSEC1)
-#if defined(CONFIG_MPC8544DS) || defined(CONFIG_MPC8641HPCN)
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
-#else
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
-#endif
+#ifdef CONFIG_TSEC1
+	{TSEC1_PHY_ADDR, TSEC1_FLAGS, TSEC1_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#if defined(CONFIG_TSEC2)
-#if defined(CONFIG_MPC8641HPCN)
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC2_PHYIDX},
-#else
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
-#endif
+#ifdef CONFIG_TSEC2
+	{TSEC2_PHY_ADDR, TSEC2_FLAGS, TSEC2_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
-	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
+	{FEC_PHY_ADDR, FEC_FLAGS, FEC_PHYIDX},
 #else
-#if defined(CONFIG_TSEC3)
-	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#if defined(CONFIG_TSEC4)
-	{TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
+#ifdef CONFIG_TSEC3
+	{TSEC3_PHY_ADDR, TSEC3_FLAGS, TSEC3_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#endif
+#ifdef CONFIG_TSEC4
+	{TSEC4_PHY_ADDR, TSEC4_FLAGS, TSEC4_PHYIDX},
+#else
+	{0, 0, 0},
+#endif	/* CONFIG_TSEC4 */
+#endif	/* CONFIG_MPC85XX_FEC */
 };
 
 #define MAXCONTROLLERS	(4)

@@ -380,6 +380,10 @@
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define TSEC3_FLAGS		TSEC_GIGABIT
+#define TSEC4_FLAGS		TSEC_GIGABIT
 
 #define CFG_TBIPA_VALUE	0x1e	/* Set TBI address not to conflict with TSEC1_PHY_ADDR */
 

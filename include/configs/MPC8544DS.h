@@ -364,14 +364,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
-#undef CONFIG_MPC85XX_FEC
-
-#define CONFIG_TSEC_TBI		1	/* enable internal TBI phy */
-#define CONFIG_SGMII_RISER
-#define TSEC1_SGMII_PHY_ADDR_OFFSET	0x1c	/* sgmii phy base */
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC3_PHY_ADDR		1
+
+#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define TSEC1_PHYIDX		0
 #define TSEC3_PHYIDX		0
