@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 
@@ -30,6 +31,8 @@
 #if 0
 #define FPGA_DEBUG
 #endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 extern void lxt971_no_sleep(void);
@@ -114,6 +117,10 @@ int misc_init_r (void)
 	int index;
 	int i;
 
+	/* adjust flash start and offset */
+	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	gd->bd->bi_flashoffset = 0;
+
 	dst = malloc(CFG_FPGA_MAX_SIZE);
 	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
@@ -177,16 +184,10 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_DUART_RST);
 	udelay(10); /* wait 10us */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_DUART_RST);
 	udelay(1000); /* wait 1ms */
-
-	/*
-	 * Set NAND-FLASH GPIO signals to default
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
@@ -226,21 +227,7 @@ long int initdram (int board_type)
 	mtdcr(memcfga, mem_mb0cf);
 	val = mfdcr(memcfgd);
 
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
 	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
 }
 
 
@@ -261,31 +248,6 @@ void ide_set_reset(int on)
 }
 #endif /* CONFIG_IDE_RESET */
 
-
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	nand_probe(CFG_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-}
-#endif
-
-
-#ifdef CONFIG_AUTO_UPDATE_SHOW
-void board_auto_update_show(int au_active)
-{
-	if (au_active) {
-		printf("\n Dies ist die board-funktion: Updating!!!\n");
-	} else {
-		printf("\n Dies ist die board-funktion: Updating done!!!\n");
-	}
-}
-#endif
 
 void reset_phy(void)
 {

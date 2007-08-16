@@ -158,12 +158,12 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	VOH405			PPC405EP
 	VOM405			PPC405EP
 	WUH405			PPC405EP
-	CMS700                  PPC405EP
+	CMS700			PPC405EP
 
 Niklaus Giger <niklaus.giger@netstal.com>
 
-        HCU4                    PPC405GPr
-        HCU5                    PPC440EPx
+	HCU4			PPC405GPr
+	HCU5			PPC440EPx
 
 Frank Gottschling <fgottschling@eltec.de>
 
