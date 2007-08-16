@@ -24,10 +24,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-#warning CFG_NAND_LEGACY not defined in a file using the legacy NAND support!
-#endif
-
 #include <command.h>
 #include <image.h>
 #include <asm/byteorder.h>
