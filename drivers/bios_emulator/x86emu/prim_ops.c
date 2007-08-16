@@ -97,6 +97,8 @@
 *
 ****************************************************************************/
 
+#include <common.h>
+
 #define PRIM_OPS_NO_REDEFINE_ASM
 
 #if defined(CONFIG_BIOSEMU)

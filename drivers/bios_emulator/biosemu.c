@@ -46,6 +46,7 @@
 ****************************************************************************/
 
 #include <malloc.h>
+#include <common.h>
 
 #if defined(CONFIG_BIOSEMU)
 

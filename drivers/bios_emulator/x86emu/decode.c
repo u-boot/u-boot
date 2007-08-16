@@ -36,6 +36,7 @@
 *		instruction decoding and accessess of immediate data via IP.  etc.
 *
 ****************************************************************************/
+#include <common.h>
 
 #if defined(CONFIG_BIOSEMU)
 

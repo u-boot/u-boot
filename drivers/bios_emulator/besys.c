@@ -47,6 +47,8 @@
 *
 ****************************************************************************/
 
+#include <common.h>
+
 #if defined(CONFIG_BIOSEMU)
 
 #include "biosemui.h"
