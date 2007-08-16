@@ -481,7 +481,7 @@ static const struct {
 		"local-mac-address",
 		fdt_set_eth1
 	},
-#elif CFG_UEC1_UCC_NUM == 3  /* UCC4 */
+#elif CFG_UEC2_UCC_NUM == 3  /* UCC4 */
 	{	"/" OF_QE "/ucc@3200",
 		"mac-address",
 		fdt_set_eth1
