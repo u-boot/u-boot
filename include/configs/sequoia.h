@@ -343,6 +343,11 @@
 #define CONFIG_CMD_USB
 #endif
 
+#ifndef CONFIG_RAINIER
+#define CFG_POST_FPU_ON		CFG_POST_FPU
+#else
+#define CFG_POST_FPU_ON		0
+#endif
 
 /* POST support */
 #define CONFIG_POST		(CFG_POST_MEMORY   | \
@@ -350,7 +355,7 @@
 				 CFG_POST_UART	   | \
 				 CFG_POST_I2C	   | \
 				 CFG_POST_CACHE	   | \
-				 CFG_POST_FPU	   | \
+				 CFG_POST_FPU_ON   | \
 				 CFG_POST_ETHER	   | \
 				 CFG_POST_SPR)
 
