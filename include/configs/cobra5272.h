@@ -65,8 +65,10 @@
  * Enable use of Ethernet
  * ---
  */
+#define CONFIG_MCFFEC
 
-#define FEC_ENET
+/* Enable Dma Timer */
+#define CONFIG_MCFTMR
 
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
@@ -76,6 +78,8 @@
  * ---
  */
 
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
 #define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
@@ -151,6 +155,26 @@
 #undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_MII
 
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
+#	define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
 
 /*
  *-----------------------------------------------------------------------------
