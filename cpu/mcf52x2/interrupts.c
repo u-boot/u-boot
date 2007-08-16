@@ -1,8 +1,9 @@
 /*
- * (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
- *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -82,7 +83,7 @@ void dtimer_intr_setup(void)
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5282 | CONFIG_M5271 */
 
-#ifdef	CONFIG_M5249
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 int interrupt_init(void)
 {
 	enable_interrupts();
@@ -94,9 +95,7 @@ int interrupt_init(void)
 void dtimer_intr_setup(void)
 {
 	mbar_writeLong(MCFSIM_IMR, mbar_readLong(MCFSIM_IMR) & ~0x00000400);
-	mbar_writeByte(MCFSIM_TIMER2ICR,
-		       MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL7 |
-		       MCFSIM_ICR_PRI3);
+	mbar_writeByte(MCFSIM_TIMER2ICR, CFG_TMRINTR_PRI);
 }
 #endif				/* CONFIG_MCFTMR */
-#endif				/* CONFIG_M5249 */
+#endif				/* CONFIG_M5249 || CONFIG_M5253 */

@@ -121,7 +121,7 @@ _start:
 	nop
 	move.w #0x2700,%sr
 
-#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	move.l	#(CFG_MBAR + 1), %d0		/* set MBAR address + valid flag */
 	move.c	%d0, %MBAR
 
@@ -133,7 +133,7 @@ _start:
 
 	move.l	#(CFG_INIT_RAM_ADDR + 1), %d0
 	movec	%d0, %RAMBAR0
-#endif /* #if defined(CONFIG_M5272) || defined(CONFIG_M5249) */
+#endif /* CONFIG_M5272 || CONFIG_M5249 || CONFIG_M5253 */
 
 #if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 	/* Initialize IPSBAR */
@@ -407,7 +407,7 @@ icache_state_access_1:
 	rts
 #endif
 
-#ifdef CONFIG_M5249
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	.globl	icache_enable
 icache_enable:
 	/*

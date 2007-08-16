@@ -205,7 +205,7 @@ int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 };
 #endif
 
-#ifdef CONFIG_M5249		/* test-only: todo... */
+#ifdef CONFIG_M5249
 int checkcpu(void)
 {
 	char buf[32];
@@ -219,6 +219,36 @@ int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 {
 	/* enable watchdog, set timeout to 0 and wait */
 	mbar_writeByte(MCFSIM_SYPCR, 0xc0);
+	while (1) ;
+
+	/* we don't return! */
+	return 0;
+};
+#endif
+
+#ifdef CONFIG_M5253
+int checkcpu(void)
+{
+	char buf[32];
+
+	unsigned char resetsource = mbar_readLong(SIM_RSR);
+	printf("CPU:   Freescale Coldfire MCF5253 at %s MHz\n",
+	       strmhz(buf, CFG_CLK));
+
+	if ((resetsource & SIM_RSR_HRST) || (resetsource & SIM_RSR_SWTR)) {
+		printf("Reset:%s%s\n",
+		       (resetsource & SIM_RSR_HRST) ? " Hardware/ System Reset"
+		       : "",
+		       (resetsource & SIM_RSR_SWTR) ? " Software Watchdog" :
+		       "");
+	}
+	return 0;
+}
+
+int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
+{
+	/* enable watchdog, set timeout to 0 and wait */
+	mbar_writeByte(SIM_SYPCR, 0xc0);
 	while (1) ;
 
 	/* we don't return! */

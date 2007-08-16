@@ -106,8 +106,6 @@ void int_handler (struct pt_regs *fp)
 	vec = (fp->vector >> 2) & 0xff;
 	if (vec > 0x40)
 		vec -= 0x40;
-	else
-		return;
 
 	if (irq_vecs[vec].handler != NULL) {
 		irq_vecs[vec].handler (irq_vecs[vec].arg);

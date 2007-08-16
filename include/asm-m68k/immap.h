@@ -43,10 +43,33 @@
 #define CFG_TMRINTR_NO		(31)
 #define CFG_TMRINTR_MASK	(0x00000400)
 #define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
-#define CFG_TMRINTR_PRI		(0)		/* Level must include inorder to work */
+#define CFG_TMRINTR_PRI		(MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL7 | MCFSIM_ICR_PRI3)
 #define CFG_TIMER_PRESCALER	(((gd->bus_clk / 2000000) - 1) << 8)
 #endif
 #endif				/* CONFIG_M5249 */
+
+#ifdef CONFIG_M5253
+#include <asm/immap_5253.h>
+#include <asm/m5249.h>
+#include <asm/m5253.h>
+
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x40))
+
+#define CFG_INTR_BASE		(MMAP_INTC)
+#define CFG_NUM_IRQS		(64)
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CFG_UDELAY_BASE		(MMAP_DTMR0)
+#define CFG_TMR_BASE		(MMAP_DTMR1)
+#define CFG_TMRPND_REG		(mbar_readLong(MCFSIM_IPR))
+#define CFG_TMRINTR_NO		(27)
+#define CFG_TMRINTR_MASK	(0x00000400)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(MCFSIM_ICR_AUTOVEC | MCFSIM_ICR_LEVEL3 | MCFSIM_ICR_PRI3)
+#define CFG_TIMER_PRESCALER	(((gd->bus_clk / 2000000) - 1) << 8)
+#endif
+#endif				/* CONFIG_M5253 */
 
 #ifdef CONFIG_M5271
 #include <asm/immap_5271.h>

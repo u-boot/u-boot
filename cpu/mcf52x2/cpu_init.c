@@ -6,6 +6,10 @@
  * (C) Copyright 2005
  * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
  *
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
+ * Hayden Fraser (Hayden.Fraser@freescale.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,6 +32,74 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/immap.h>
+
+#if defined(CONFIG_M5253)
+/*
+ * Breath some life into the CPU...
+ *
+ * Set up the memory map,
+ * initialize a bunch of registers,
+ * initialize the UPM's
+ */
+void cpu_init_f(void)
+{
+	mbar_writeByte(MCFSIM_MPARK, 0x40);	/* 5249 Internal Core takes priority over DMA */
+	mbar_writeByte(MCFSIM_SYPCR, 0x00);
+	mbar_writeByte(MCFSIM_SWIVR, 0x0f);
+	mbar_writeByte(MCFSIM_SWSR, 0x00);
+	mbar_writeByte(MCFSIM_SWDICR, 0x00);
+	mbar_writeByte(MCFSIM_TIMER1ICR, 0x00);
+	mbar_writeByte(MCFSIM_TIMER2ICR, 0x88);
+	mbar_writeByte(MCFSIM_I2CICR, 0x00);
+	mbar_writeByte(MCFSIM_UART1ICR, 0x00);
+	mbar_writeByte(MCFSIM_UART2ICR, 0x00);
+	mbar_writeByte(MCFSIM_ICR6, 0x00);
+	mbar_writeByte(MCFSIM_ICR7, 0x00);
+	mbar_writeByte(MCFSIM_ICR8, 0x00);
+	mbar_writeByte(MCFSIM_ICR9, 0x00);
+	mbar_writeByte(MCFSIM_QSPIICR, 0x00);
+
+	mbar2_writeLong(MCFSIM_GPIO_INT_EN, 0x00000080);
+	mbar2_writeByte(MCFSIM_INTBASE, 0x40);	/* Base interrupts at 64 */
+	mbar2_writeByte(MCFSIM_SPURVEC, 0x00);
+
+	/*mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020); *//* Enable a 1 cycle pre-drive cycle on CS1 */
+
+	/*
+	 *  Setup chip selects...
+	 */
+
+	mbar_writeShort(MCFSIM_CSAR1, CFG_CSAR1);
+	mbar_writeShort(MCFSIM_CSCR1, CFG_CSCR1);
+	mbar_writeLong(MCFSIM_CSMR1, CFG_CSMR1);
+
+	mbar_writeShort(MCFSIM_CSAR0, CFG_CSAR0);
+	mbar_writeShort(MCFSIM_CSCR0, CFG_CSCR0);
+	mbar_writeLong(MCFSIM_CSMR0, CFG_CSMR0);
+
+	/* enable instruction cache now */
+	icache_enable();
+}
+
+/*initialize higher level parts of CPU like timers */
+int cpu_init_r(void)
+{
+	return (0);
+}
+
+void uart_port_conf(void)
+{
+	/* Setup Ports: */
+	switch (CFG_UART_PORT) {
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	}
+}
+#endif				/* #if defined(CONFIG_M5253) */
 
 #if defined(CONFIG_M5271)
 void cpu_init_f(void)
@@ -394,26 +466,6 @@ void uart_port_conf(void)
  */
 void cpu_init_f(void)
 {
-#ifndef CFG_PLL_BYPASS
-	/*
-	 *  Setup the PLL to run at the specified speed
-	 *
-	 */
-	volatile unsigned long cpll = mbar2_readLong(MCFSIM_PLLCR);
-	unsigned long pllcr;
-#ifdef CFG_FAST_CLK
-	pllcr = 0x925a3100;	/* ~140MHz clock (PLL bypass = 0) */
-#else
-	pllcr = 0x135a4140;	/* ~72MHz clock (PLL bypass = 0) */
-#endif
-	cpll = cpll & 0xfffffffe;	/* Set PLL bypass mode = 0 (PSTCLK = crystal) */
-	mbar2_writeLong(MCFSIM_PLLCR, cpll);	/* Set the PLL to bypass mode (PSTCLK = crystal) */
-	mbar2_writeLong(MCFSIM_PLLCR, pllcr);	/* set the clock speed */
-	pllcr ^= 0x00000001;	/* Set pll bypass to 1 */
-	mbar2_writeLong(MCFSIM_PLLCR, pllcr);	/* Start locking (pll bypass = 1) */
-	udelay(0x20);		/* Wait for a lock ... */
-#endif				/* #ifndef CFG_PLL_BYPASS */
-
 	/*
 	 *  NOTE: by setting the GPIO_FUNCTION registers, we ensure that the UART pins
 	 *        (UART0: gpio 30,27, UART1: gpio 31, 28) will be used as UART pins

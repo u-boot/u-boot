@@ -618,6 +618,8 @@ LIST_coldfire="			\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
 	idmr			\
+	M5249EVB		\
+	M5253EVB		\
 	M5271EVB		\
 	M5272C3			\
 	M5282EVB		\
