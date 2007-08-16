@@ -35,11 +35,9 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
-
 
 int checkcpu(void)
 {
@@ -333,9 +331,7 @@ void watchdog_reset (void)
  */
 static int fdt_set_eth0(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
-	/*
-	 * Fix it up if it exists, don't create it if it doesn't exist.
-	 */
+	/* Fix it up if it exists, don't create it if it doesn't exist */
 	if (fdt_get_property(blob, nodeoffset, name, 0)) {
 		return fdt_setprop(blob, nodeoffset, name, bd->bi_enetaddr, 6);
 	}
@@ -345,9 +341,7 @@ static int fdt_set_eth0(void *blob, int nodeoffset, const char *name, bd_t *bd)
 /* second onboard ethernet port */
 static int fdt_set_eth1(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
-	/*
-	 * Fix it up if it exists, don't create it if it doesn't exist.
-	 */
+	/* Fix it up if it exists, don't create it if it doesn't exist */
 	if (fdt_get_property(blob, nodeoffset, name, 0)) {
 		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet1addr, 6);
 	}
@@ -358,9 +352,7 @@ static int fdt_set_eth1(void *blob, int nodeoffset, const char *name, bd_t *bd)
 /* third onboard ethernet port */
 static int fdt_set_eth2(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
-	/*
-	 * Fix it up if it exists, don't create it if it doesn't exist.
-	 */
+	/* Fix it up if it exists, don't create it if it doesn't exist */
 	if (fdt_get_property(blob, nodeoffset, name, 0)) {
 		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet2addr, 6);
 	}
@@ -371,9 +363,7 @@ static int fdt_set_eth2(void *blob, int nodeoffset, const char *name, bd_t *bd)
 /* fourth onboard ethernet port */
 static int fdt_set_eth3(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
-	/*
-	 * Fix it up if it exists, don't create it if it doesn't exist.
-	 */
+	/* Fix it up if it exists, don't create it if it doesn't exist */
 	if (fdt_get_property(blob, nodeoffset, name, 0)) {
 		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet3addr, 6);
 	}
@@ -384,9 +374,7 @@ static int fdt_set_eth3(void *blob, int nodeoffset, const char *name, bd_t *bd)
 static int fdt_set_busfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	u32  tmp;
-	/*
-	 * Create or update the property.
-	 */
+	/* Create or update the property */
 	tmp = cpu_to_be32(bd->bi_busfreq);
 	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
 }
@@ -394,13 +382,37 @@ static int fdt_set_busfreq(void *blob, int nodeoffset, const char *name, bd_t *b
 static int fdt_set_tbfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
 {
 	u32  tmp;
-	/*
-	 * Create or update the property.
-	 */
+	/* Create or update the property */
 	tmp = cpu_to_be32(OF_TBCLK);
 	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
 }
 
+
+static int fdt_set_clockfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
+{
+	u32  tmp;
+	/* Create or update the property */
+	tmp = cpu_to_be32(gd->core_clk);
+	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
+}
+
+#ifdef CONFIG_QE
+static int fdt_set_qe_busfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
+{
+	u32  tmp;
+	/* Create or update the property */
+	tmp = cpu_to_be32(gd->qe_clk);
+	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
+}
+
+static int fdt_set_qe_brgfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
+{
+	u32  tmp;
+	/* Create or update the property */
+	tmp = cpu_to_be32(gd->brg_clk);
+	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
+}
+#endif
 
 /*
  * Fixups to the fdt.
@@ -420,6 +432,10 @@ static const struct {
 	},
 	{	"/cpus/" OF_CPU,
 		"clock-frequency",
+		fdt_set_clockfreq
+	},
+	{	"/" OF_SOC,
+		"bus-frequency",
 		fdt_set_busfreq
 	},
 	{	"/" OF_SOC "/serial@4500",
@@ -450,6 +466,15 @@ static const struct {
 		fdt_set_eth1
 	},
 #endif
+#ifdef CONFIG_QE
+	{	"/" OF_QE,
+		"brg-frequency",
+		fdt_set_qe_brgfreq
+	},
+	{	"/" OF_QE,
+		"bus-frequency",
+		fdt_set_qe_busfreq
+	},
 #ifdef CONFIG_UEC_ETH1
 #if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
 	{	"/" OF_QE "/ucc@2000",
@@ -492,6 +517,7 @@ static const struct {
 	},
 #endif
 #endif /* CONFIG_UEC_ETH2 */
+#endif /* CONFIG_QE */
 };
 
 void

@@ -305,7 +305,15 @@ ft_board_setup(void *blob, bd_t *bd)
 	int tmp[2];
 
 	nodeoffset = fdt_find_node_by_path(blob, "/memory");
+	if (nodeoffset < 0) {
+		nodeoffset = fdt_add_subnode(blob, 0, "memory");
+		if (nodeoffset < 0)
+			printf("WARNING: failed to add /memory node: %s\n",
+				fdt_strerror(nodeoffset));
+	}
 	if (nodeoffset >= 0) {
+		fdt_setprop(blob, nodeoffset, "device_type",
+			    "memory", sizeof("memory"));
 		tmp[0] = cpu_to_be32(bd->bi_memstart);
 		tmp[1] = cpu_to_be32(bd->bi_memsize);
 		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
