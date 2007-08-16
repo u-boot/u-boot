@@ -29,7 +29,6 @@
 #include <common.h>
 #include <net.h>
 #include <asm/io.h>
-#include <asm/asm.h>
 #include "xilinx_emac.h"
 
 #ifdef XILINX_EMAC
