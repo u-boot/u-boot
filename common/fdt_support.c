@@ -46,7 +46,6 @@ struct fdt_header *fdt;
 
 int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 {
-	bd_t *bd = gd->bd;
 	int   nodeoffset;
 	int   err;
 	u32   tmp;		/* used to set 32 bit integer properties */

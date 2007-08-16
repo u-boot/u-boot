@@ -384,13 +384,12 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"TSEC1"
-#undef CONFIG_MPC85XX_FEC
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
-#define FEC_PHY_ADDR		3
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
-#define FEC_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"

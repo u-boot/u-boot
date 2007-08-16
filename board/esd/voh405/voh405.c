@@ -195,12 +195,6 @@ int misc_init_r (void)
 	udelay(1000); /* wait 1ms */
 
 	/*
-	 * Set NAND-FLASH GPIO signals to default
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
-
-	/*
 	 * Enable interrupts in exar duart mcr[3]
 	 */
 	*duart0_mcr = 0x08;
@@ -340,17 +334,3 @@ void ide_set_reset(int on)
 	}
 }
 #endif /* CONFIG_IDE_RESET */
-
-
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	nand_probe(CFG_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-}
-#endif

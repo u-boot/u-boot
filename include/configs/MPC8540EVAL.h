@@ -224,6 +224,10 @@
 #define TSEC1_PHYIDX            0
 #define TSEC2_PHYIDX            0
 #define FEC_PHYIDX              0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define FEC_FLAGS		0
+
 /* Options are: TSEC[0-1], FEC */
 #define CONFIG_ETHPRIME                "TSEC0"
 

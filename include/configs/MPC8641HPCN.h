@@ -417,6 +417,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
+#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC2_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 

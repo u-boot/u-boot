@@ -35,7 +35,7 @@
 
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
-#undef CONFIG_QE			/* Enable QE */
+#define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -348,7 +348,7 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_UEC_ETH
 #ifndef CONFIG_TSEC_ENET
-#define CONFIG_ETHPRIME         "Freescale GETH"
+#define CONFIG_ETHPRIME         "FSL UEC0"
 #endif
 #define CONFIG_PHY_MODE_NEED_CHANGE
 #define CONFIG_eTSEC_MDIO_BUS
@@ -399,9 +399,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"eTSEC1"
-#undef  CONFIG_TSEC3
-#undef  CONFIG_TSEC4
-#undef  CONFIG_MPC85XX_FEC
 
 #define TSEC1_PHY_ADDR		2
 #define TSEC2_PHY_ADDR		3
@@ -409,7 +406,10 @@ extern unsigned long get_clock_freq(void);
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
 
-/* Options are: eTSEC[0-3] */
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+
+/* Options are: eTSEC[0-1] */
 #define CONFIG_ETHPRIME		"eTSEC0"
 
 #endif	/* CONFIG_TSEC_ENET */

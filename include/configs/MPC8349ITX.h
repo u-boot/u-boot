@@ -382,6 +382,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */
 #define TSEC1_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
 #endif
 
 #ifdef CONFIG_TSEC2
@@ -391,6 +392,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
 #define TSEC2_PHY_ADDR		4
 #define TSEC2_PHYIDX		0
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #endif
 
 #define CONFIG_ETHPRIME		"Freescale TSEC"

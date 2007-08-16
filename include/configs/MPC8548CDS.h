@@ -447,6 +447,10 @@ extern unsigned long get_clock_freq(void);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"

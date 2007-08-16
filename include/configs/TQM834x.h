@@ -253,6 +253,8 @@ extern int tqm834x_num_flash_banks;
 #define TSEC2_PHY_ADDR			1
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC0"

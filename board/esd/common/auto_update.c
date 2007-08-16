@@ -27,7 +27,9 @@
 #include <command.h>
 #include <image.h>
 #include <asm/byteorder.h>
+#if defined(CFG_NAND_LEGACY)
 #include <linux/mtd/nand_legacy.h>
+#endif
 #include <fat.h>
 #include <part.h>
 
@@ -290,6 +292,8 @@ int au_do_update(int i, long sz)
 			rc = nand_legacy_rw(nand_dev_desc, NANDRW_WRITE | NANDRW_JFFS2,
 				     start, nbytes, (size_t *)&total, (uchar *)addr);
 			debug ("nand_legacy_rw: ret=%x total=%d nbytes=%d\n", rc, total, nbytes);
+#else
+			rc = -1;
 #endif
 		}
 		if (rc != 0) {

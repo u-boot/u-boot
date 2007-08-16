@@ -45,10 +45,12 @@
 *
 ****************************************************************************/
 
-#include "biosemui.h"
 #include <malloc.h>
+#include <common.h>
 
 #if defined(CONFIG_BIOSEMU)
+
+#include "biosemui.h"
 
 BE_sysEnv _BE_env = {{0}};
 static X86EMU_memFuncs _BE_mem __attribute__((section(".got2"))) = {

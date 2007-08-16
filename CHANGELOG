@@ -1,3 +1,91 @@
+commit 2d78074d2e806edc380c1464eb9e5df335ece65e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jun 22 17:32:28 2007 +0200
+
+    ppc7xx: Update CPCI750 board
+
+    This small CPCI750 update extends the board specific command
+    "show_config" to display the Marvell strapping registers and
+    extends the PCI IDE controller.
+
+    Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 30b52df9e906bf0e465916c2c6bb5192b438e0b8
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Aug 15 11:55:35 2007 -0500
+
+    86xx: Fix lingering CFG_CMD_* references in sbc8641d.h
+
+    Remove a leftover in net/tftp.c while we're at it.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4ce917742b1e48faa9bf9a9757545e56fb4cfe44
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Aug 15 12:20:40 2007 -0500
+
+    Move the MPC8641HPCN board under board/freescale.
+
+    Minor path corrections needed to ensure buildability.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8662577fe36fdb6a44b55b998d9daac6392a736a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Aug 15 11:46:22 2007 -0500
+
+    86xx: Fix lingering CFG_CMD_* references in sbc8641d.h
+
+    Remove a leftover in net/tftp.c while we're at it.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 210f463c71917b7a4495c2103c228b9c179ae64d
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Wed Aug 15 11:13:15 2007 -0400
+
+    Fix where the #ifdef CFG_BOOTMAPSZ is placed.
+
+    Commit 073e1b509980cefe6f53c2d7fbbcd135df1e3924 "Fix initrd/dtb
+    interaction" put the new code outside of the #if defined(CONFIG_OF_LIBFDT)
+    when it should have gone inside of the conditional.  As a result, it
+    broke non-LIBFDT board builds.
+
+    Also added a missing "not." to the comment.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 594e79838ce5078a90d0c27abb2b2d61d5f8e8a7
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Aug 14 14:06:45 2007 -0500
+
+    Fix malloc size error in ahci_init_one.
+
+    Typically this causes scsi init to corrupt the
+    devlist and break the coninfo command.
+    Fix a compiler size warning.
+
+    Signed-off-by: Jason Jin <jason.jin@freescale.com>
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit b361acd64fd2525c081b9b288b0804efe209c0e9
+Author: ksi@koi8.net <ksi@koi8.net>
+Date:	Tue Aug 14 10:02:16 2007 -0700
+
+    TI DaVinci - fix unsupported %hhx format
+
+    Signed-off-by: Sergey Kubushyn <ksi@koi8.net>
+
+commit f01dbb5424a81453c81190dd30e945891466f621
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 14 18:42:36 2007 +0200
+
+    Coding style cleanup. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 073e1b509980cefe6f53c2d7fbbcd135df1e3924
 Author: Andy Fleming <afleming@freescale.com>
 Date:	Tue Aug 14 10:32:59 2007 -0500
@@ -19,6 +107,50 @@ Author: Peter Pearse <peter.pearse@arm.com>
 Date:	Tue Aug 14 15:40:00 2007 +0100
 
     Supply spi interface in at45.c
+
+commit 4ce846ec59f36b85d6644a769690ad3feb667575
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 14 15:12:01 2007 +0200
+
+    POST: Fix merge problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 429d9571f60631ae8a2fe12b11be4c75b0c2b37c
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 14 15:03:17 2007 +0200
+
+    Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 779e975117a75e91fcebe226a63104dbfb924ab1
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 14 14:44:41 2007 +0200
+
+    ppc4xx: Add initial Zeus (PPC405EP) board support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c5a172a5fd636c12467429e3f7910e53773979c6
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 14 14:41:55 2007 +0200
+
+    POST: Add option for external ethernet loopback test
+
+    When CFG_POST_ETHER_EXT_LOOPBACK is defined, the ethernet POST
+    is not done using an internal loopback connection, but by assuming
+    that an external loopback connector is plugged into the board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit eb2b4010ae426245172988804ee8d9193fb41038
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 14 14:39:44 2007 +0200
+
+    POST: Add ppc405 support to cache and UART POST
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 0c42f36f15074bd9808a7dbd7ef611fad9bf537c
 Author: Peter Pearse <peter.pearse@arm.com>
@@ -390,6 +522,17 @@ Date:	Wed Jun 27 13:34:26 2007 +0200
 
     Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
     Acked-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+
+commit 273db7e1bdd1937e32f1d4507321bb721ebd3118
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Aug 13 09:05:33 2007 +0200
+
+    ppc4xx: Fix problem in PLL clock calculation
+
+    This patch was originall provided by David Mitchell <dmitchell@amcc.com>
+    and fixes a bug in the PLL clock calculation.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 9986bc3e40e899bea372a99a2bca4071bdf2e24b
 Author: Wolfgang Denk <wd@denx.de>
@@ -849,6 +992,14 @@ Date:	Thu Aug 2 14:42:20 2007 -0500
     Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
+commit 35d22f957a85a22bb3cd1ad084fa5404620d1c42
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Aug 10 10:42:25 2007 +0200
+
+    Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 3a6d56c20989fe27360afe743bd2a7ad4d76e48f
 Author: Dirk Behme <dirk.behme@googlemail.com>
 Date:	Thu Aug 2 17:42:08 2007 +0200
@@ -872,6 +1023,105 @@ Date:	Thu Aug 2 17:41:14 2007 +0200
     modifications. Thanks for proposal by Håvard Skinnemoen.
 
     Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit 157cda4d0c3d592ccbb19bbfc07d9251894f0894
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:31:22 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: HCU5 files
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 6e5de26c6e7580faf16e87745cd488b92b492d0c
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:30:33 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: HCU4 files
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit e8397fc78c9394d71de233a4d810fbc9047e4c76
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:38:26 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: common files
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit ac982ea5a4f2f993efcf52dca122f5a59df047d8
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:28:44 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: make related
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 137fdd9f474ecb853efdace5200576308c67f18d
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:28:03 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: HCU5 config
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 714bc55b35b6f6a65cc8740a3842a543e88cdef2
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:27:15 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: HCU4 config
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 1894dd381124bdbfbdae7cf3a6ca52a8eb1f4421
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:25:31 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: READMEs
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 641cca9569ce351ddb287fd3343d8b1dcb591db4
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Jul 27 11:37:40 2007 +0200
+
+    Add PPC4xx-HCU4 and HCU5 boards: Infrastructure
+
+    This series of patches adds support for 2 boards from Netstal Maschinen.
+
+    The HCU4 has a PPC405Gpr and
+    the HCU5 has a PPC440EPX.
+
+    The HCU4 has a somehow complicated flash setup, as the booteprom is
+    only 8 bits and the CFI 16 bits wide, which makes it impossible to use a more
+    elegant solution.
+
+    The HCU5 has only a booteprom as the whole code will be downloaded from a
+    different board which has HD, CD-ROM, etc and where all code is stored.
+
+    This is my third try. I incorporated all suggestions made by Wolfgang and Stefan.
+    Thanks them a lot.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 3e4c90c6233618fc1806e63fde68df5f3d6a0171
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Aug 10 08:42:55 2007 +0200
+
+    ppc4xx: Update lwmon5 POST configuration
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 29cb25da56afe18cf5e7072a92a9d98ea8af1fd4
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Fri Aug 10 08:25:22 2007 +0200
+
+    POST: Add ppc4xx UART POST support without external uart clock (lwmon5)
+
+    The patch adds support for UART POST on ppc44x-based boards with no
+    external serial clocks installed.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+    Acked-by: Stefan Roese <sr@denx.de>
 
 commit 99c2fdab91bc633e46fb41dbaa629f87ccf6e00f
 Author: Kim Phillips <kim.phillips@freescale.com>
@@ -1169,6 +1419,17 @@ Date:	Mon Aug 6 23:21:05 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 537223afa61f64480df31ce440a9cb386df4a814
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Aug 6 21:10:17 2007 +0200
+
+    ppc4xx: Update AMCC Bamboo README doc/README.bamboo
+
+    As suggested by Eugene O'Brien <Eugene.O'Brien@advantechamt.com>,
+    here an updated Bamboo README.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 9c7e4b06214db61bb21f1bcbe57c97519669baae
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Aug 6 02:17:36 2007 +0200
@@ -1316,6 +1577,42 @@ Date:	Thu Aug 2 10:11:18 2007 +0200
 
     Minor cleanup of <board>_nand build rules.
 
+commit 9ca8d79de096c65b9b9c867259b3ff4685f775ef
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 2 08:33:56 2007 +0200
+
+    ppc4xx: Code cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c92409812206ac67a7fa7aae298539a9c3804a46
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Jul 31 18:51:48 2007 +0200
+
+    [ppc440SPe] Graceful recovery from machine check during PCIe configuration
+
+    During config transactions on the PCIe bus an attempt to scan for a
+    non-existent device can lead to a machine check exception with certain
+    peripheral devices. In order to avoid crashing in such scenarios the
+    instrumented versions of the config cycle read routines are introduced, so
+    the exceptions fixups framework can gracefully recover.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+    Acked-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit dec99558b9ea75a37940d07f41a3565a50b54ad1
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Tue Jul 31 18:19:54 2007 +0200
+
+    [ppc4xx] Separate settings for PCIe bus numbering on 440SPe rev.A
+
+    This brings back separate settings for PCIe bus numbers depending on chip
+    revision, which got eliminated in 2b393b0f0af8402ef43b25c1968bfd29714ddffa
+    commit. 440SPe rev. A does NOT work properly with the same settings as for
+    the rev. B (no devices are seen on the bus during enumeration).
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
 commit cdd917a43da6fa7fc8f54a3cc9f420ce5ecf3197
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu Aug 2 00:48:45 2007 +0200
@@ -1323,6 +1620,55 @@ Date:	Thu Aug 2 00:48:45 2007 +0200
     Fix build errors and warnings / code cleanup.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d2f68006627eda6cb6c7f364bddf621dbfd2fc68
+Author: Eugene OBrien <eugene.obrien@advantechamt.com>
+Date:	Tue Jul 31 10:24:56 2007 +0200
+
+    ppc4xx: Update AMCC Bamboo 440EP support
+
+    Changed storage type of cfg_simulate_spd_eeprom to const
+    Changed storage type of gpio_tab to stack storage
+    (Cannot access global data declarations in .bss until afer code relocation)
+
+    Improved SDRAM tests to catch problems where data is not uniquely addressable
+    (e.g. incorrectly programmed SDRAM row or columns)
+
+    Added CONFIG_PROG_SDRAM_TLB to support Bamboo SIMM/DIMM modules
+    Fixed AM29LV320DT (OpCode Flash) sector map
+
+    Signed-off-by: Eugene OBrien <eugene.obrien@advantechamt.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ea9f6bce383cc9fbcdee28b5836109b1a6dba574
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 31 08:37:01 2007 +0200
+
+    ppc4xx: Update 440EPx lwmon5 board support
+
+    - Clear ECC status regs after ECC POST test
+    - Set dcbz for ECC generation with caches enabled as default
+    - Code cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 27a528fb41433c4c1e2b5d6bd3fd8d78606fc724
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 30 11:04:57 2007 +0200
+
+    ppc4xx: Only print ECC related info when the error bis are set
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e36220a4baf1f188ba60f17e9d0f043069b1362a
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jul 27 16:44:31 2007 +0200
+
+    new FPGA image for PLU405 board
+
+    new FPGA image for PLU405 board with improved CompactFlash timing
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 commit 8993e54b6f397973794f3d6f47d3b3c0c98dd4f6
 Author: Rafal Jaworowski <raj@semihalf.com>
@@ -1351,6 +1697,73 @@ Date:	Fri Jul 27 14:22:04 2007 +0200
 
     Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
 
+commit d4024bb72dd81695ec099b2199eda0d27c623e62
+Author: John Otken <john@softadvances.com>
+Date:	Thu Jul 26 17:49:11 2007 +0200
+
+    ppc4xx: Add support for AMCC 405EP Taihu board
+
+    Signed-off-by: John Otken <john@softadvances.com>
+
+commit b66091de6c7390620312c2501db23d8391e7cabb
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Jul 26 15:08:01 2007 +0200
+
+    ppc4xx: lwmon5: Update Lime initialization
+
+    Change Lime SDRAM initialization to now support 100MHz and
+    133MHz (if enabled). Also the framebuffer is initialized to
+    display a blue rectangle with a white border.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9f24a808f17fc0f37b7fb4805f734741335caecc
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 24 09:52:52 2007 +0200
+
+    ppc4xx: lwmon5: Support for 128 MByte NOR FLASH added
+
+    The used Intel NOR FLASH chips have internally two dies, and are now
+    treated as two seperate chips.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit aedf5bde179ecfbd0a96130d18996a96518b785f
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 24 07:20:09 2007 +0200
+
+    ppc4xx: Fix lwmon5 interrupt controller setup (polarity, trigger...)
+
+    As suggested by Hakan Eryigit, here an updated setup for the lwmon5
+    interrupt controller.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a71d96eac8130b53a91f93cd10c70fca0db18d52
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 20 15:03:44 2007 +0200
+
+    ppc4xx: Fix bug with default GPIO output value
+
+    As spotted by Matthias Fuchs, the default output values for all GPIO1
+    outputs were not setup correctly. This patch fixes this issue.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 531e3e8b831f357056448fa573137d5fb37000fd
+Author: Pavel Kolesnikov <concord@emcraft.com>
+Date:	Fri Jul 20 15:03:03 2007 +0200
+
+    POST: Add ECC POST for the lwmon5 board
+
+    This patch adds ECC Post test for the Lwmon5 board based
+    on PPC440EPx to U-Boot.
+
+    Signed-off-by: Pavel Kolesnikov <concord@emcraft.com>
+    Acked-by: Yuri Tikhonov <yur@emcraft.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
 commit cc3023b9f95d7ac959a764471a65001062aecf41
 Author: Rafal Jaworowski <raj@semihalf.com>
 Date:	Thu Jul 19 17:12:28 2007 +0200
@@ -1361,6 +1774,58 @@ Date:	Thu Jul 19 17:12:28 2007 +0200
     "ppc4xx: Clean up 440 exceptions handling" commit.
 
     Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 8848ec858f74ed6dab06fb6d5ddc933e0a1328bf
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 10:02:12 2007 +0200
+
+    ppc4xx: Code cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2a49fc17d09020e7ebd9536694d99d20e419fcb8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 10:01:38 2007 +0200
+
+    ppc4xx: AMCC Luan uses the new boardspecific DDR2 controller setup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df3f17422aeb03fb81a7ac8c78d2b05d05aa4cf9
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 10:00:43 2007 +0200
+
+    ppc4xx: Support for Yucca board with 440SPe Rev A added to 44x_spd_ddr2.c
+
+    The new boardspecific DDR2 controller configuration is used for the Yucca
+    board. Now the Yucca board with 440SPe Rev. A chips is also supported.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6ed14addf97c8cd8f531e9ae7b2d3e222fffd53e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 09:57:00 2007 +0200
+
+    ppc4xx: Add new weak functions to support boardspecific DDR2 configuration
+
+    The new "weak" functions ddr_wrdtr() and ddr_clktr() are added to better
+    support non default, boardspecific DDR(2) controller configuration.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5743a9207a370b90f09b20ebd61167c806b937f3
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 08:53:51 2007 +0200
+
+    ppc4xx: Add remove_tlb() function to remove a mem area from TLB setup
+
+    The new function remove_tlb() can be used to remove the TLB's used to
+    map a specific memory region. This is especially useful for the DDR(2)
+    setup routines which configure the SDRAM area temporarily as a cached
+    area (for speedup on auto-calibration and ECC generation) and later
+    need this area uncached for normal usage.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 3a6cab844cf74f76639d795e0be8717e02c86af7
 Author: Wolfgang Denk <wd@denx.de>
@@ -1392,6 +1857,17 @@ Date:	Fri Jul 13 08:26:05 2007 +0200
 		- fix compile error, if BUILD_DIR is used
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit a2e1c7098cf9574386b0c96841dfc8ea5cc93578
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 12 16:32:08 2007 +0200
+
+    ppc4xx: Change receive buffer handling in the 4xx emac driver
+
+    This change fixes a bug in the receive buffer handling, that
+    could lead to problems upon high network traffic (broadcasts...).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 239f05ee4dd4cfe0b50f251b533dcebe9e67c360
 Author: Wolfgang Denk <wd@denx.de>
@@ -1975,6 +2451,50 @@ Date:	Tue Jul 10 00:01:28 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit c8603cfbd4573379a6076c9c208545ba2bbf019a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 9 11:00:24 2007 +0200
+
+    Small coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0f92c7e7c9a62755b1457d3c46f93c8c1f6c19fc
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Jul 9 10:10:08 2007 +0200
+
+    Migrate esd 405EP boards to new NAND subsystem
+
+    Remove unused CFG_NAND_LEGACY define
+
+    These boards to not have NAND.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit bd84ee4c2020c3a6861f4bb2e7ea0fb49f82e803
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Jul 9 10:10:06 2007 +0200
+
+    Migrate esd 405EP boards to new NAND subsystem
+
+    Migrate esd 405EP boards to new NAND subsystem
+
+    -cleanup
+    -use correct io accessors (in/out_be32())
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit e09f7ab5749c345f924da272bea0521a73af5b11
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Jul 9 10:10:04 2007 +0200
+
+    Migrate esd 405EP boards to new NAND subsystem
+
+    This patch prepares the migration from the legacy NAND driver
+    to U-Boot's new NAND subsystem for esd boards.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
 commit c3517f919d0f61650cf3027fd4faf0f631142f6c
 Author: Jon Loeliger <jdl@freescale.com>
 Date:	Sun Jul 8 18:10:08 2007 -0500
@@ -2161,6 +2681,41 @@ Date:	Thu Jul 5 19:13:52 2007 -0500
     exclude already configured commands in this same commit.
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 10e038932f22ee80ebd53de312531e70e6590a2f
+Author: Thomas Knobloch <knobloch@siemens.com>
+Date:	Fri Jul 6 14:58:39 2007 +0200
+
+    [NAND] Bad block skipping for command nboot
+
+    The old implementation of command nboot does not support reading the image from
+    NAND flash with skipping of bad blocks. The patch implements a new version of
+    the nboot command: by calling nboot.jffs2 from the u-boot command line the
+    command will load the image from NAND flash with respect to bad blocks (by using
+    nand_read_opts()). This is similar to e.g. the NAND read command: "nand
+    read.jffs2 ...".
+
+    Signed-off-by: Thomas Knobloch <knobloch@siemens.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 334043f601a90ac53e5ecc846fbb73a1ef38cb1f
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 6 12:26:51 2007 +0200
+
+    ppc4xx: Update lwmon5 default environment
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5d187430a055d62f17ca84d75e7245439d1f7e75
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 6 11:48:24 2007 +0200
+
+    ppc4xx: Update lwmon5 board
+
+    Add unlock=yes environment variable to default variables to unlock
+    the CFI flash by default.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 6b0a174a1e6f55e1f5a1fbb223cdad7645a4646e
 Author: Stefan Roese <sr@denx.de>
@@ -3151,6 +3706,18 @@ Date:	Fri Jun 22 14:58:04 2007 +0200
     - adapt to the more generic EXCEPTION_PROLOG and CRIT_EXCEPTION macros
     - minor 4xx cleanup
 
+commit d677b32855f577ae2690dcd64a172cdd706e0ffc
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Jun 22 10:34:12 2007 +0200
+
+    [patch] add nand_init() prototype to nand.h
+
+    since nand_init() is expected to be called by other parts of u-boot, there
+    should be a prototype for it in nand.h
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 83b4cfa3d629dff0264366263c5e94d9a50ad80b
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Jun 20 18:14:24 2007 +0200
@@ -3766,6 +4333,16 @@ Date:	Sun May 27 16:51:48 2007 +0200
     Signed-off-by: Jan Wrobel <wrr@semihalf.com>
     Signed-off-by: Marian Balakowicz <m8@semihalf.com>
     Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 7ebb4479b07ff294eb4d76e420753a0349f7c93b
+Author: Ulf Samuelsson <ulf@atmel.com>
+Date:	Thu May 24 12:12:47 2007 +0200
+
+    [PATCH][NAND] Define the Vendor Id for Micron NAND Flash
+
+    Signed-off-by: Ulf Samuelsson <ulf@atmel.com>
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit d756894722c888d09a9fa1df8323753772d3dcce
 Author: Stefan Roese <sr@denx.de>
