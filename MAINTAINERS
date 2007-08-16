@@ -42,6 +42,10 @@ Yuli Barcohen <yuli@arabellasw.com>
 	Rattler			MPC8248
 	ZPC1900			MPC8265
 
+Michael Barkowski <michael.barkowski@freescale.com>
+
+	MPC8323ERDB		MPC8323
+
 Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 
 	sacsng			MPC8260
@@ -217,6 +221,10 @@ The LEOX team <team@leox.org>
 
 	ELPT860			MPC860T
 
+Dave Liu <daveliu@freescale.com>
+
+	MPC8360EMDS		MPC8360
+
 Nye Liu <nyet@zumanetworks.com>
 
 	ZUMA			MPC7xx_74xx
@@ -273,6 +281,10 @@ Denis Peter <d.peter@mpl.ch>
 	MIP405			PPC4xx
 	PIP405			PPC4xx
 
+Kim Phillips <kim.phillips@freescale.com>
+
+	MPC8349EMDS		MPC8349
+
 Daniel Poirot <dan.poirot@windriver.com>
 
 	sbc8240			MPC8240
@@ -320,6 +332,11 @@ Peter De Schrijver <p2@mind.be>
 
 	ML2			PPC4xx
 
+Timur Tabi <timur@freescale.com>
+
+	MPC8349E-mITX		MPC8349
+	MPC8349E-mITX-GP	MPC8349
+
 Erik Theisen <etheisen@mindspring.com>
 
 	W7OLMC			PPC4xx
@@ -351,19 +368,6 @@ Stephen Williams <steve@icarus.com>
 John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
-
-Timur Tabi <timur@freescale.com>
-
-	MPC8349E-mITX		MPC8349
-	MPC8349E-mITX-GP	MPC8349
-
-Kim Phillips <kim.phillips@freescale.com>
-
-	MPC8349EMDS		MPC8349
-
-Dave Liu <daveliu@freescale.com>
-
-	MPC8360EMDS		MPC8360
 
 -------------------------------------------------------------------------
 
