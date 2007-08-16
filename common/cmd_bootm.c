@@ -932,7 +932,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 * so we flag it to be copied if it is not.
 	 */
 	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
-		of_data = of_flat_tree;
+		of_data = (ulong)of_flat_tree;
 #endif
 
 	/* move of_flat_tree if needed */
@@ -993,7 +993,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 * so we flag it to be copied if it is not.
 	 */
 	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
-		of_data = of_flat_tree;
+		of_data = (ulong)of_flat_tree;
 #endif
 
 	/* move of_flat_tree if needed */
