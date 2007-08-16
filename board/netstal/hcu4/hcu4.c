@@ -43,7 +43,7 @@ enum {
 	HW_GENERATION_MCU25 = 0x09,
 };
 
-void sysLedSet(u32 value);
+void hcu_led_set(u32 value);
 long int spd_sdram(int(read_spd)(uint addr));
 
 #ifdef CONFIG_SPD_EEPROM
@@ -121,22 +121,24 @@ int checkboard (void)
 		printf ("HCU3: index %d\n\n", index);
 	else if (generation == HW_GENERATION_HCU4)
 		printf ("HCU4: index %d\n\n", index);
-	/* GPIO here noch nicht richtig initialisert !!! */
-	sysLedSet(0);
+	hcu_led_set(0);
 	for (j = 0; j < 7; j++) {
-		sysLedSet(1 << j);
+		hcu_led_set(1 << j);
 		udelay(50 * 1000);
 	}
 
 	return 0;
 }
 
-u32 sysLedGet(void)
+u32 hcu_led_get(void)
 {
 	return (~((*(u32 *)GPIO0_OR)) >> 23) & 0xff;
 }
 
-void sysLedSet(u32 value /* value to place in LEDs */)
+/*---------------------------------------------------------------------------+
+ * hcu_led_set  value to be placed into the LEDs (max 6 bit)
+ *---------------------------------------------------------------------------*/
+void hcu_led_set(u32 value)
 {
 	u32   tmp = ~value;
 	u32   *ledReg;
@@ -243,9 +245,9 @@ long int fixed_hcu4_sdram (int board_type)
 }
 
 /*---------------------------------------------------------------------------+
- * getSerialNr
+ * hcu_serial_number
  *---------------------------------------------------------------------------*/
-static u32 getSerialNr(void)
+static u32 hcu_serial_number(void)
 {
 	u32 *serial = (u32 *)CFG_FLASH_BASE;
 
@@ -265,7 +267,7 @@ int misc_init_r(void)
 	char *s = getenv("ethaddr");
 	char *e;
 	int i;
-	u32 serial = getSerialNr();
+	u32 serial = hcu_serial_number();
 
 	for (i = 0; i < 6; ++i) {
 		gd->bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
