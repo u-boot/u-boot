@@ -1688,7 +1688,7 @@ MPC8313ERDB_66_config: unconfig
 		echo -n "...66M..." ; \
 		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
 	fi ;
-	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb
+	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
 
 MPC8323ERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
@@ -1716,10 +1716,10 @@ MPC832XEMDS_SLAVE_config:	unconfig
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
-	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds
+	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds freescale
 
 MPC8349EMDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349emds
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mpc8349emds freescale
 
 MPC8349ITX_config \
 MPC8349ITX_LOWBOOT_config \
@@ -1733,7 +1733,7 @@ MPC8349ITXGP_config:	unconfig
 	@if [ "$(findstring LOWBOOT,$@)" ] ; then \
 		echo "TEXT_BASE = 0xFE000000" >$(obj)board/mpc8349itx/config.tmp ; \
 	fi
-	@$(MKCONFIG) -a -n $(@:_config=) MPC8349ITX ppc mpc83xx mpc8349itx
+	@$(MKCONFIG) -a -n $(@:_config=) MPC8349ITX ppc mpc83xx mpc8349itx freescale
 
 MPC8360EMDS_config \
 MPC8360EMDS_HOST_33_config \
@@ -1758,7 +1758,7 @@ MPC8360EMDS_SLAVE_config:	unconfig
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
 	fi ;
-	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds
+	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349

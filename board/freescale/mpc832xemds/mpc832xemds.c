@@ -33,7 +33,7 @@
 #include <libfdt.h>
 #endif
 #if defined(CONFIG_PQ_MDS_PIB)
-#include "../freescale/common/pq-mds-pib.h"
+#include "../common/pq-mds-pib.h"
 #endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
