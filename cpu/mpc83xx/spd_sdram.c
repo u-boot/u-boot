@@ -744,7 +744,7 @@ long int spd_sdram()
 	if (spd.mem_type == SPD_MEMTYPE_DDR)
 		sdram_type = SDRAM_CFG_SDRAM_TYPE_DDR1;
 	else
-		sdram_type = SDRAM_CFG_SDRAM_TYPE_DDR1;
+		sdram_type = SDRAM_CFG_SDRAM_TYPE_DDR2;
 
 	sdram_cfg = (0
 		     | SDRAM_CFG_MEM_EN		/* DDR enable */
