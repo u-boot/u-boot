@@ -26,6 +26,35 @@
 #ifndef __IMMAP_H
 #define __IMMAP_H
 
+#ifdef CONFIG_M5235
+#include <asm/immap_5235.h>
+#include <asm/m5235.h>
+
+#define CFG_FEC0_IOBASE		(MMAP_FEC)
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x40))
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CFG_UDELAY_BASE		(MMAP_DTMR0)
+#define CFG_TMR_BASE		(MMAP_DTMR3)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprl0)
+#define CFG_TMRINTR_NO		(INT0_LO_DTMR3)
+#define CFG_TMRINTR_MASK	(INTC_IPRL_INT22)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(0x1E)		/* Level must include inorder to work */
+#define CFG_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
+#endif
+
+#ifdef CONFIG_MCFPIT
+#define CFG_UDELAY_BASE		(MMAP_PIT0)
+#define CFG_PIT_BASE		(MMAP_PIT1)
+#define CFG_PIT_PRESCALE	(6)
+#endif
+
+#define CFG_INTR_BASE		(MMAP_INTC0)
+#define CFG_NUM_IRQS		(128)
+#endif				/* CONFIG_M5235 */
+
 #ifdef CONFIG_M5249
 #include <asm/immap_5249.h>
 #include <asm/m5249.h>

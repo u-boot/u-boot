@@ -1639,6 +1639,25 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M5235EVB_config \
+M5235EVB_Flash16_config \
+M5235EVB_Flash32_config:	unconfig
+	@case "$@" in \
+	M5235EVB_config)		FLASH=16;; \
+	M5235EVB_Flash16_config)	FLASH=16;; \
+	M5235EVB_Flash32_config)	FLASH=32;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${FLASH}" != "16" ] ; then \
+		echo "#define NORFLASH_PS32BIT	1" >> include/config.h ; \
+		echo "TEXT_BASE = 0xFFC00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		cp $(obj)board/freescale/m5235evb/u-boot.32 $(obj)board/freescale/m5235evb/u-boot.lds ; \
+	else \
+		echo "TEXT_BASE = 0xFFE00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		cp $(obj)board/freescale/m5235evb/u-boot.16 $(obj)board/freescale/m5235evb/u-boot.lds ; \
+	fi
+	@$(MKCONFIG) -a M5235EVB m68k mcf523x m5235evb freescale
+
 M5249EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5249evb freescale
 
@@ -1710,13 +1729,13 @@ M54455EVB_i66_config :	unconfig
 	esac; \
 	>include/config.h ; \
 	if [ "$${FLASH}" == "INTEL" ] ; then \
-		echo "#undef CFG_ATMEL_BOOT" >> include/config.h ; \
+		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
 		echo "... with INTEL boot..." ; \
 	else \
-		echo "#define CFG_ATMEL_BOOT"	>> include/config.h ; \
+		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
 		echo "... with ATMEL boot..." ; \
 	fi; \
-	echo "#define CFG_INPUT_CLKSRC $${FREQ}"	>>include/config.h ; \
+	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	echo "... with $${FREQ}Hz input clock"
 	@$(MKCONFIG) -a M54455EVB m68k mcf5445x m54455evb freescale
 
