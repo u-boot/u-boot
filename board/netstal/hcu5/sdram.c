@@ -70,7 +70,6 @@ void dflush(void);
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
-#ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
 	PPC440_SYS_INFO board_cfg;
@@ -99,7 +98,6 @@ void board_add_ram_info(int use_default)
 	val = DDR0_03_CASLAT_DECODE(val);
 	printf(", CL%d)", val);
 }
-#endif
 
 /*--------------------------------------------------------------------
  * wait_for_dlllock.

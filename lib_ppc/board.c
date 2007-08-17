@@ -209,9 +209,12 @@ static int init_baudrate (void)
 
 /***********************************************************************/
 
-#ifdef CONFIG_ADD_RAM_INFO
-void board_add_ram_info(int);
-#endif
+void __board_add_ram_info(int use_default)
+{
+	/* please define platform specific board_add_ram_info() */
+}
+void board_add_ram_info(int) __attribute__((weak, alias("__board_add_ram_info")));
+
 
 static int init_func_ram (void)
 {
@@ -224,9 +227,7 @@ static int init_func_ram (void)
 
 	if ((gd->ram_size = initdram (board_type)) > 0) {
 		print_size (gd->ram_size, "");
-#ifdef CONFIG_ADD_RAM_INFO
 		board_add_ram_info(0);
-#endif
 		putc('\n');
 		return (0);
 	}

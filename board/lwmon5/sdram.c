@@ -57,7 +57,6 @@
 void dcbz_area(u32 start_address, u32 num_bytes);
 void dflush(void);
 
-#ifdef CONFIG_ADD_RAM_INFO
 static u32 is_ecc_enabled(void)
 {
 	u32 val;
@@ -87,7 +86,6 @@ void board_add_ram_info(int use_default)
 	val = DDR0_03_CASLAT_DECODE(val);
 	printf(", CL%d)", val);
 }
-#endif
 
 static int wait_for_dlllock(void)
 {

@@ -94,7 +94,6 @@
  */
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
-#define CONFIG_ADD_RAM_INFO	1		/* print additional info*/
 
 #if defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560)
 /* TQM8540 & 8560 need DLL-override */

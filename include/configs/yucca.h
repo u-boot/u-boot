@@ -46,7 +46,6 @@
 #define EXTCLK_83		83333333
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
-#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 #undef  CONFIG_STRESS
 

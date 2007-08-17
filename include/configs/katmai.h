@@ -42,7 +42,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
-#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /*-----------------------------------------------------------------------
