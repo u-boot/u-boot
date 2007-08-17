@@ -32,6 +32,8 @@
 #define CONFIG_MPC83XX		1 /* MPC83XX family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_MPC8360EMDS	1 /* MPC8360EMDS board specific */
+#undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
+#undef CONFIG_PQ_MDS_PIB_ATM /* QOC3 ATM card */
 
 /*
  * System Clock Setup
@@ -88,6 +90,7 @@
 #define CFG_SICRL		0x40000000
 
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * IMMR new address
@@ -309,13 +312,13 @@
 /*
  * CS4 on Local Bus, to PIB
  */
-#define CFG_BR4_PRELIM	0xf8008801 /* CS4 base address at 0xf8008000 */
+#define CFG_BR4_PRELIM	0xf8010801 /* CS4 base address at 0xf8010000 */
 #define CFG_OR4_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*
  * CS5 on Local Bus, to PIB
  */
-#define CFG_BR5_PRELIM	0xf8010801 /* CS5 base address at 0xf8010000 */
+#define CFG_BR5_PRELIM	0xf8008801 /* CS5 base address at 0xf8008000 */
 #define CFG_OR5_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*

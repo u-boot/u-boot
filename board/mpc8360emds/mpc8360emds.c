@@ -30,6 +30,9 @@
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
+#if defined(CONFIG_PQ_MDS_PIB)
+#include "../freescale/common/pq-mds-pib.h"
+#endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GETH1 */
@@ -103,6 +106,14 @@ int board_early_init_f(void)
 	    immr->sysconf.spridr == SPR_8360E_REV21)
 		bcsr[0xe] = 0x30;
 
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+#ifdef CONFIG_PQ_MDS_PIB
+	pib_init();
+#endif
 	return 0;
 }
 
