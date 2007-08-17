@@ -82,8 +82,10 @@ int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
 {									\
 	u32 val32;							\
 									\
-	if (pci_hose_read_config_dword(hose, dev, offset & 0xfc, &val32) < 0)\
+	if (pci_hose_read_config_dword(hose, dev, offset & 0xfc, &val32) < 0) {	\
+		*val = -1;						\
 		return -1;						\
+	}								\
 									\
 	*val = (val32 >> ((offset & (int)off_mask) * 8));		\
 									\
