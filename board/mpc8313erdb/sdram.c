@@ -112,8 +112,6 @@ long int initdram(int board_type)
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
-	puts("Initializing\n");
-
 	/* DDR SDRAM - Main SODIMM */
 	msize = fixed_sdram();
 
@@ -127,7 +125,6 @@ long int initdram(int board_type)
 		resume_from_sleep();
 #endif
 
-	puts("   DDR RAM: ");
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return msize;
 }

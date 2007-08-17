@@ -91,8 +91,6 @@ long int initdram(int board_type)
 
 	msize = fixed_sdram();
 
-	puts("\n   DDR RAM: ");
-
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
 }

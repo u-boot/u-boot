@@ -70,8 +70,6 @@ long int initdram (int board_type)
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
-	puts("Initializing\n");
-
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
@@ -90,7 +88,7 @@ long int initdram (int board_type)
 	 */
 	ddr_enable_ecc(msize * 1024 * 1024);
 #endif
-	puts("   DDR RAM: ");
+
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
 }
@@ -191,9 +189,6 @@ void sdram_init(void)
 	volatile lbus83xx_t *lbc= &immap->lbus;
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 
-	puts("\n   SDRAM on Local Bus: ");
-	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
-
 	/*
 	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
 	 */
@@ -255,7 +250,6 @@ void sdram_init(void)
 #else
 void sdram_init(void)
 {
-	puts("   SDRAM on Local Bus is NOT available!\n");
 }
 #endif
 

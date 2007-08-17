@@ -76,7 +76,7 @@ int fixed_sdram(void)
 
 	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
 	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;/* Was "2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT" */
-	im->ddr.sdram_cfg = SDRAM_CFG_SREN | SDRAM_CFG_SDRAM_TYPE_DDR;
+	im->ddr.sdram_cfg = SDRAM_CFG_SREN | SDRAM_CFG_SDRAM_TYPE_DDR1;
 	im->ddr.sdram_mode =
 	    (0x0000 << SDRAM_MODE_ESD_SHIFT) | (0x0032 << SDRAM_MODE_SD_SHIFT);
 	im->ddr.sdram_interval =
@@ -162,7 +162,6 @@ long int initdram(int board_type)
 		ddr_enable_ecc(msize * 1048576);
 #endif
 
-	puts("   DDR RAM: ");
 	/* return total bus RAM size(bytes) */
 	return msize * 1024 * 1024;
 }
