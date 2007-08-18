@@ -296,7 +296,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP
 
 /* maximum size of the flat tree (8K) */

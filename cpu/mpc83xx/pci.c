@@ -28,7 +28,6 @@
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #elif defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
@@ -184,7 +183,12 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
 		tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range", tmp, sizeof(tmp));
+		err = fdt_setprop(blob, nodeoffset, "bus-range",
+				  tmp, sizeof(tmp));
+
+		tmp[0] = cpu_to_be32(gd->pci_clk);
+		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
+				  tmp, sizeof(tmp[0]));
 	}
 
 	if (pci_num_buses < 2)
@@ -194,7 +198,12 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
 		tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range", tmp, sizeof(tmp));
+		err = fdt_setprop(blob, nodeoffset, "bus-range",
+				  tmp, sizeof(tmp));
+
+		tmp[0] = cpu_to_be32(gd->pci_clk);
+		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
+				  tmp, sizeof(tmp[0]));
 	}
 }
 #elif CONFIG_OF_FLAT_TREE

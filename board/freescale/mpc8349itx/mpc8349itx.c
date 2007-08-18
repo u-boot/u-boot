@@ -39,6 +39,8 @@
 #endif
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
+#elif defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
 #endif
 
 #ifndef CONFIG_SPD_EEPROM
@@ -74,7 +76,7 @@ int fixed_sdram(void)
 
 	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
 	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;/* Was "2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT" */
-	im->ddr.sdram_cfg = SDRAM_CFG_SREN | SDRAM_CFG_SDRAM_TYPE_DDR;
+	im->ddr.sdram_cfg = SDRAM_CFG_SREN | SDRAM_CFG_SDRAM_TYPE_DDR1;
 	im->ddr.sdram_mode =
 	    (0x0000 << SDRAM_MODE_ESD_SHIFT) | (0x0032 << SDRAM_MODE_SD_SHIFT);
 	im->ddr.sdram_interval =
@@ -160,7 +162,6 @@ long int initdram(int board_type)
 		ddr_enable_ecc(msize * 1048576);
 #endif
 
-	puts("   DDR RAM: ");
 	/* return total bus RAM size(bytes) */
 	return msize * 1024 * 1024;
 }
@@ -385,22 +386,22 @@ int misc_init_r(void)
 	return rc;
 }
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
 {
+#if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
 	int len;
-
-#ifdef CONFIG_PCI
-	ft_pci_setup(blob, bd);
-#endif
-	ft_cpu_setup(blob, bd);
 
 	p = ft_get_prop(blob, "/memory/reg", &len);
 	if (p != NULL) {
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
+#endif
+	ft_cpu_setup(blob, bd);
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
 }
 #endif

@@ -113,12 +113,12 @@
 				/* 0x03200064 */
 #if defined(CONFIG_DDR_2T_TIMING)
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_2T_EN \
 				| SDRAM_CFG_DBW_32 )
 #else
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_32_BE )
 				/* 0x43080000 */
 #endif
@@ -228,7 +228,7 @@
 #define CFG_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 /* maximum size of the flat tree (8K) */

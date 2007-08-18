@@ -29,6 +29,11 @@
 #endif
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
+#elif defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#endif
+#if defined(CONFIG_PQ_MDS_PIB)
+#include "../common/pq-mds-pib.h"
 #endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
@@ -86,6 +91,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int board_early_init_r(void)
+{
+#ifdef CONFIG_PQ_MDS_PIB
+	pib_init();
+#endif
+	return 0;
+}
+
 int fixed_sdram(void);
 
 long int initdram(int board_type)
@@ -100,8 +113,6 @@ long int initdram(int board_type)
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 
 	msize = fixed_sdram();
-
-	puts("\n   DDR RAM: ");
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
@@ -155,22 +166,22 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
 {
+#if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
 	int len;
-
-#ifdef CONFIG_PCI
-	ft_pci_setup(blob, bd);
-#endif
-	ft_cpu_setup(blob, bd);
 
 	p = ft_get_prop(blob, "/memory/reg", &len);
 	if (p != NULL) {
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
+#endif
+	ft_cpu_setup(blob, bd);
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
 }
 #endif

@@ -29,7 +29,9 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
+#endif
+#if defined(CONFIG_PQ_MDS_PIB)
+#include "../common/pq-mds-pib.h"
 #endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
@@ -107,6 +109,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int board_early_init_r(void)
+{
+#ifdef CONFIG_PQ_MDS_PIB
+	pib_init();
+#endif
+	return 0;
+}
+
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
@@ -139,7 +149,7 @@ long int initdram(int board_type)
 	 * Initialize SDRAM if it is on local bus.
 	 */
 	sdram_init();
-	puts("   DDR RAM: ");
+
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
 }
@@ -224,8 +234,6 @@ void sdram_init(void)
 	volatile lbus83xx_t *lbc = &immap->lbus;
 	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
 
-	puts("\n   SDRAM on Local Bus: ");
-	print_size(CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
 	/*
 	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
 	 */
@@ -281,36 +289,13 @@ void sdram_init(void)
 #else
 void sdram_init(void)
 {
-	puts("SDRAM on Local Bus is NOT available!\n");
 }
 #endif
 
-#if (defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)) \
-     && defined(CONFIG_OF_BOARD_SETUP)
-
-/*
- * Prototypes of functions that we use.
- */
-void ft_cpu_setup(void *blob, bd_t *bd);
-
-#ifdef CONFIG_PCI
-void ft_pci_setup(void *blob, bd_t *bd);
-#endif
-
-void
-ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
 {
-#if defined(CONFIG_OF_LIBFDT)
-	int nodeoffset;
-	int tmp[2];
-
-	nodeoffset = fdt_find_node_by_path(blob, "/memory");
-	if (nodeoffset >= 0) {
-		tmp[0] = cpu_to_be32(bd->bi_memstart);
-		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
-	}
-#else
+#if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
 	int len;
 
@@ -320,10 +305,9 @@ ft_board_setup(void *blob, bd_t *bd)
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
 #endif
-
+	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
-	ft_cpu_setup(blob, bd);
 }
-#endif /* CONFIG_OF_x */
+#endif

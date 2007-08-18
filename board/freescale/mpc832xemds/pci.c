@@ -22,7 +22,6 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #endif
 
 #include <asm/fsl_i2c.h>
@@ -39,21 +38,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifndef CONFIG_PCI_PNP
 static struct pci_config_table pci_mpc83xxemds_config_table[] = {
 	{
-	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 pci_cfgfunc_config_device,
-	 {PCI_ENET0_IOADDR,
-	  PCI_ENET0_MEMADDR,
-	  PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
-	 },
+		PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+		pci_cfgfunc_config_device,
+		{PCI_ENET0_IOADDR,
+		PCI_ENET0_MEMADDR,
+		PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
+	},
 	{}
 }
 #endif
 static struct pci_controller hose[] = {
 	{
 #ifndef CONFIG_PCI_PNP
-	      config_table:pci_mpc83xxemds_config_table,
+		config_table:pci_mpc83xxemds_config_table,
 #endif
-	 },
+	},
 };
 
 /**********************************************************************
@@ -132,7 +131,6 @@ void pci_init_board(void)
 	volatile pcictrl83xx_t *pci_ctrl;
 	volatile pciconf83xx_t *pci_conf;
 
-	u8 val8, orig_i2c_bus;
 	u16 reg16;
 	u32 val32;
 	u32 dev;
@@ -201,43 +199,6 @@ void pci_init_board(void)
 	    PIWAR_IWS_2G;
 
 	/*
-	 * Assign PIB PMC slot to desired PCI bus
-	 */
-
-	/* Switch temporarily to I2C bus #2 */
-	orig_i2c_bus = i2c_get_bus_num();
-	i2c_set_bus_num(1);
-
-	val8 = 0;
-	i2c_write(0x23, 0x6, 1, &val8, 1);
-	i2c_write(0x23, 0x7, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x23, 0x2, 1, &val8, 1);
-	i2c_write(0x23, 0x3, 1, &val8, 1);
-
-	val8 = 0;
-	i2c_write(0x26, 0x6, 1, &val8, 1);
-	val8 = 0x34;
-	i2c_write(0x26, 0x7, 1, &val8, 1);
-
-	val8 = 0xf3;		/*PMC1, PMC2, PMC3 slot to PCI bus */
-	i2c_write(0x26, 0x2, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x26, 0x3, 1, &val8, 1);
-
-	val8 = 0;
-	i2c_write(0x27, 0x6, 1, &val8, 1);
-	i2c_write(0x27, 0x7, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x27, 0x2, 1, &val8, 1);
-	val8 = 0xef;
-	i2c_write(0x27, 0x3, 1, &val8, 1);
-	asm("eieio");
-
-	/* Reset to original I2C bus */
-	i2c_set_bus_num(orig_i2c_bus);
-
-	/*
 	 * Release PCI RST Output signal
 	 */
 	udelay(2000);
@@ -293,8 +254,6 @@ void pci_init_board(void)
 	pci_hose_write_config_byte(&hose[0], dev, PCI_LATENCY_TIMER, 0x80);
 	pci_hose_write_config_byte(&hose[0], dev, PCI_CACHE_LINE_SIZE, 0x08);
 
-	printf("PCI 32bit bus on PMC1 & PMC2 & PMC3\n");
-
 	/*
 	 * Hose scan.
 	 */
@@ -314,7 +273,12 @@ ft_pci_setup(void *blob, bd_t *bd)
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(hose[0].first_busno);
 		tmp[1] = cpu_to_be32(hose[0].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range", tmp, sizeof(tmp));
+		err = fdt_setprop(blob, nodeoffset, "bus-range",
+				  tmp, sizeof(tmp));
+
+		tmp[0] = cpu_to_be32(gd->pci_clk);
+		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
+				  tmp, sizeof(tmp[0]));
 	}
 }
 #elif defined(CONFIG_OF_FLAT_TREE)
