@@ -407,6 +407,7 @@
 
 /*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	 00:e0:0c:07:9b:8a
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:e0:0c:07:9b:8b

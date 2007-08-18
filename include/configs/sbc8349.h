@@ -662,6 +662,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:a0:1e:a0:13:8d
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:a0:1e:a0:13:8e

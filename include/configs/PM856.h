@@ -392,6 +392,7 @@
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR   00:40:42:01:00:00
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:40:42:01:00:01

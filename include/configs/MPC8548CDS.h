@@ -542,6 +542,7 @@ extern unsigned long get_clock_freq(void);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	 00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	 00:E0:0C:00:01:FD

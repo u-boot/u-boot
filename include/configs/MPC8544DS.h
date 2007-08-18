@@ -282,7 +282,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe1000000
-#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCI1_IO_SIZE	0x00010000	/* 64k */
 
 /* PCI view of System Memory */
 #define CFG_PCI_MEMORY_BUS	0x00000000
@@ -294,26 +294,23 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCIE2_MEM_PHYS	CFG_PCIE2_MEM_BASE
 #define CFG_PCIE2_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCIE2_IO_BASE	0x00000000
-#define CFG_PCIE2_IO_PHYS	0xe2000000
-#define CFG_PCIE2_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE2_IO_PHYS	0xe1010000
+#define CFG_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 2,tgtid 2, Base address a000 */
 #define CFG_PCIE1_MEM_BASE	0xa0000000
 #define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
-#define CFG_PCIE1_MEM_SIZE	0x08000000	/* 128M */
-#define CFG_PCIE1_MEM_BASE2	0xa8000000
-#define CFG_PCIE1_MEM_PHYS2	CFG_PCIE1_MEM_BASE2
-#define CFG_PCIE1_MEM_SIZE2	0x04000000	/* 64M */
-#define CFG_PCIE1_IO_BASE	0x00000000	/* reuse mem LAW */
-#define CFG_PCIE1_IO_PHYS	0xaf000000
-#define CFG_PCIE1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE1_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE1_IO_BASE	0x00000000
+#define CFG_PCIE1_IO_PHYS	0xe1020000
+#define CFG_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address b000 */
 #define CFG_PCIE3_MEM_BASE	0xb0000000
 #define CFG_PCIE3_MEM_PHYS	CFG_PCIE3_MEM_BASE
-#define CFG_PCIE3_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE3_MEM_SIZE	0x00100000	/* 1M */
 #define CFG_PCIE3_IO_BASE	0x00000000
-#define CFG_PCIE3_IO_PHYS	0xe3000000
+#define CFG_PCIE3_IO_PHYS	0xb0100000	/* reuse mem LAW */
 #define CFG_PCIE3_IO_SIZE	0x00100000	/* 1M */
 
 #if defined(CONFIG_PCI)
@@ -472,6 +469,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
