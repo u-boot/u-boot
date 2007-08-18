@@ -235,8 +235,8 @@
 						"2m(rootfs),"	\
 						"-(user)";
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
-#error MII commands don't work on iDMR board and sholud not be enabled.
-#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) */
+#if defined(CONFIG_CMD_MII)
+#error "MII commands don't work on iDMR board and should not be enabled."
+#endif
 
 #endif /* _IDMR_H */

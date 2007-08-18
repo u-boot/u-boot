@@ -237,7 +237,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("inpfreq",		strmhz(buf, bd->bi_inpfreq));
 	print_str ("vcofreq",		strmhz(buf, bd->bi_vcofreq));
 #endif
-#if defined(CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
@@ -266,7 +266,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	puts ("\nip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
-#endif	/* CONFIG_CMD_NET */
+#endif
 	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;

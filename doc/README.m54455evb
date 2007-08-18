@@ -78,7 +78,7 @@ CONFIG_MCFRTC		-- define to use common CF RTC driver
 CFG_MCFRTC_BASE		-- provide base address for RTC in immap.h
 CFG_RTC_OSCILLATOR	-- define RTC clock frequency
 RTC_DEBUG		-- define to show RTC debug message
-CFG_CMD_DATE		-- enable to use date feature in u-boot
+CONFIG_CMD_DATE		-- enable to use date feature in u-boot
 
 CONFIG_MCFFEC		-- define to use common CF FEC driver
 CONFIG_NET_MULTI	-- define to use multi FEC in u-boot
