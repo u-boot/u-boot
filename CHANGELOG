@@ -1,3 +1,432 @@
+commit 79f240f7ecc0506b43ac50d1ea405ff6540d4d57
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Aug 16 22:52:39 2007 -0500
+
+    lib_ppc: make board_add_ram_info weak
+
+    platforms wishing to display RAM diagnostics in addition to size,
+    can do so, on one line, in their own board_add_ram_info()
+    implementation.
+
+    this consequently eliminates CONFIG_ADD_RAM_INFO.
+
+    Thanks to Stefan for the hint.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 815b5bd5b18569917c3e04b9757511e6ed23b9f6
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Fri Aug 17 12:43:44 2007 +0900
+
+    PCI_READ_VIA_DWORD_OP: Fix *val uninitialized bug
+
+    This patch has been sent on:
+    - 6 Jun 2007
+
+    Many users of PCI config read routines tend to ignore the function
+    ret value, and are only concerned about the contents of *val. Based
+    on this, pci_hose_read_config_{byte,word}_via_dword should initialize
+    the *val on dword read error.
+
+    Without this fix, for example, we'll go on scanning bus with vendor or
+    header_type uninitialized. This brings many unnecessary config trials.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 26667b7fa05a8bf2fc65fb9f3230b02b1a10c367
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Aug 18 14:37:52 2007 +0200
+
+    ColdFire: Fix some remaining problems with CFG_CMD_
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8280f6a1c43247616b68224675188e5ccd124650
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Aug 18 14:33:02 2007 +0200
+
+    Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4a442d3186b31893b4f77c6e82f63c4517a5224b
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Aug 16 19:23:50 2007 -0500
+
+    ColdFire: Add M5235EVB Platform for MCF523x
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 4cc1cd5941827a04cf5c51a07fcc42e8945894aa
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 17 09:30:00 2007 -0500
+
+    mpc83xx: fix typo in DDR2 programming
+
+    introduced in the implement board_add_ram_info patch as I was cleaning out the
+    magic numbers.  sorry.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e58fe95784d2514fc9c21028dc59f2b319a35d80
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Aug 16 22:53:09 2007 -0500
+
+    mpc83xx: move freescale boards to boards/freescale
+
+    includes build fixes.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5aa4ad8d8e7e9468219990c7875d5fdc9e962f47
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Aug 16 22:52:59 2007 -0500
+
+    mpc83xx: suppress unused variable 'val8' warning
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit bbea46f76f767b919070b4829bf34c86bd223248
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Aug 16 22:52:48 2007 -0500
+
+    mpc83xx: implement board_add_ram_info
+
+    add board_add_ram_info, to make memory diagnostic output more
+    consistent. u-boot banner output now looks like:
+
+    DRAM:  256 MB (DDR1, 64-bit, ECC on)
+
+    and for boards with SDRAM on the local bus, a line such as this is
+    added:
+
+    SDRAM: 64 MB (local bus)
+
+    also replaced some magic numbers with their equivalent define names.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 14778585d1389d86d5846efec29e5fce892680ce
+Author: Tony Li <tony.li@freescale.com>
+Date:	Fri Aug 17 10:35:59 2007 +0800
+
+    mpc83xx: Split PIB init code from pci.c and add Qoc3 ATM card support
+
+    The patch split the PIB init code from pci.c to a single file board/freescale/common/pq-mds-pib.c
+    And add Qoc3 ATM card support for MPC8360EMDS and MPC832XEMDS board.
+
+    Signed-off-by Tony Li <tony.li@freescale.com>
+
+commit 8ae158cd87a4a25722b27835261b6ff0fa2aa6a7
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Aug 16 15:05:11 2007 -0500
+
+    ColdFire: Add M54455EVB for MCF5445x
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit a1436a842654a8d3927d082a8ae9ee0a10da62d7
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Aug 16 13:20:50 2007 -0500
+
+    ColdFire: Add M5253EVBE platform for MCF52x2
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit a605aacd8324094199402816cc6d9124aba57b8d
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Aug 16 05:04:31 2007 -0500
+
+    ColdFire: Add M5249EVB platform for MCF52x2
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit f28e1bd9daa6de5eb33ae4822bda6b008ccb4e9e
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 20:32:06 2007 -0500
+
+    ColdFire: Update Freescale MCF52x2 platforms
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 870470dbf6f4bb9864e0d97aeedbc17c167c6d1c
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:55:10 2007 -0500
+
+    ColdFire: Update EB+MCF-EV123 platform
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit aa93d859d9b1fcd8eea52d51b06e86c38f72111b
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:46:38 2007 -0500
+
+    ColdFire: update TASREG platform for MCF52x2
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit a9505510bf56a9b5558248dd8b73ec9d9a1556a2
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:45:51 2007 -0500
+
+    ColdFire: update r5200 platform for MCF52x2
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 6cfd3c7bc813fb317ab7c0781f0d1874b1c0877c
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:43:20 2007 -0500
+
+    ColdFire: idmr platform MCF52x2 update
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 6706424d0bb851fb52af00cd1c3301e91ee7f2b0
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:41:06 2007 -0500
+
+    ColdFire: cobra5272 platform for MCF52x2 update
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 56115665b4a64c10c01440c57749b265e0908fa4
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:38:15 2007 -0500
+
+    ColdFire: MCF52x2 Header files update
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 83ec20bc4380eebddfde45da6e3a69a92d4db21d
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 19:21:21 2007 -0500
+
+    ColdFire: MCF52x2 update
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit f52e78304dcc0ac459c0ea1fa5be275c7d1642cf
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 18:46:11 2007 -0500
+
+    ColdFire: MCF5329 update cache
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 7171977fb8fd77cfb6676953fa9a05789c450513
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 15:40:20 2007 -0500
+
+    ColdFire: MCF5329 header file clean up
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit ab77bc547ba561c25ea34457ed17aa0b2f7c2723
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 15 15:39:17 2007 -0500
+
+    ColdFire: MCF5329 Update and cleanup
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 10327dc5541f947c0cf7e31fef86c4706169607a
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Aug 16 16:35:02 2007 -0500
+
+    Add CONFIG_HAS_ETH0 to all boards with TSEC
+
+    The 85xx code now relies on CONFIG_HAS_ETH0 to determine whether
+    to update TSEC1's device-tree node, so we need to add it
+    to all the boards with TSECs.  Do this for 83xx and 86xx, too,
+    since they will eventually do something similar.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit d64ee908a1b525e5bb2b4cbeb5c449ad6a469666
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Aug 16 15:05:04 2007 -0500
+
+    Update MPC8544 DS PCI memory map
+
+    The PCIe bus that the ULI M1575 is connected to has no possible way of
+    needing more than the fixed amount of IO & Memory space needed by the ULI.
+
+    So make it use far less IO & memory space and have it use the shared LAW.  This
+    free's up a LAW for PCIe1 IO space.  Also reduce the amount of IO space needed
+    by each bus.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ea5877e31ed63ade948fd1293895ec23fe01472e
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Aug 16 11:01:21 2007 -0500
+
+    Fix up some fdt issues on 8544DS
+
+    It looks like we had a merge issue that duplicated a bit of code
+    in ft_board_setup.	Also, we need to set CONFIG_HAS_ETH0 to get
+    the MAC address properly set in the device tree on boot for TSEC1
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 07bc20560cb9d3d186cca268c05c82762e8c55ad
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Thu Aug 16 15:16:03 2007 +0200
+
+    PPC4xx:HCU4/5 cleanup
+
+    Minor cleanups to confirm to the u-boot coding style.
+    Some german expressions -> english.
+    HCU5 enforces a unique IP adress for a given slot in the rack.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 1e6b07c64967c1eb2cd84faa4c32bf2a769bc8eb
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Thu Aug 16 15:16:02 2007 +0200
+
+    PPC4xx:HCU4/5 cleanup ecc/sdram init
+
+    Make ecc initialisation robust, as DDR2-ECC errors may be generated
+    while zeroing the RAM.
+
+    Return 16 bytes (a cacheline) less than the available memory, as the
+    board and/or PPC440EPx might have problems accessing the last bytes.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit d35b508a55508535b6e8445b718585d27df733d3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:29:56 2007 -0500
+
+    fdt: suppress unused variable 'bd' warning
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 82bd9ee77490588d4da785d75829ca63d0176baf
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 20:06:50 2007 -0500
+
+    Fix warnings from of_data copy fix
+
+    Forgot to cast of_flat_tree to ulong.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7613afda77d5eec0f47d303025b0c661b70e4c73
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 20:03:44 2007 -0500
+
+    Don't wait for disconnected TSECs
+
+    The TSEC driver's PHY code waits a long time for autonegotiation to
+    complete, even if the link is down.  The PHY knows the link is
+    down or up before autonegotiation completes, so we can short-circuit
+    the process if the link is down.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit b96c83d4ae475a70ef2635cd0e748174c44c8601
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 20:03:34 2007 -0500
+
+    Fix numerous bugs in the 8568 UEC support
+
+    Actually, fixed a large bug in the UEC for *all* platforms.
+    How did this ever work?
+
+    uec_init() did not follow the spec for eth_init(), and returned
+    0 on success.  Switch it to return the link like tsec_init()
+    (and 0 on error)
+
+    The immap for the 8568 was defined based on MPC8568, rather than
+    CONFIG_MPC8568
+
+    CONFIG_QE was off
+
+    CONFIG_ETHPRIME was set to "Freescale GETH".  Now is "FSL UEC0"
+
+    Fixed a comment about the ranges for CONFIG_ETHPRIME if TSEC_ENET is
+    enabled
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 3a79013e2adda53332dfd0b511066a805e929a9d
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 20:03:25 2007 -0500
+
+    Define tsec flag values in config files
+
+    The tsec_info structure and array has a "flags" field for each
+    ethernet controller.  This field is the only reason there are
+    settings.  Switch to defining TSECn_FLAGS for each controller
+    in the config header, and we can greatly simplify the array, and
+    also simplify the addition of future boards.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit ec7238229507e7f47533a611ea8c53319d234cf3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 20:03:13 2007 -0500
+
+    Add support for building all boards with a TSEC
+
+    Changes to the TSEC driver affect almost all 83xx, 85xx, and 86xx boards.
+    Now we can do a MAKEALL test on all of them!
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 10aaf716cb0dc6614df54ef78bed5144afd23ef8
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Aug 15 17:30:56 2007 -0500
+
+    Fix of_data copying for CONFIG_OF_FLAT_TREE-using boards
+
+    The fix, "Fix where the #ifdef CFG_BOOTMAPSZ is placed"
+    neglected to *also* put the code inside the similar #ifdef
+    for CONFIG_OF_FLAT_TREE.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 78f9fef7f406078c8bf7191e665a73f795157746
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 15 15:46:46 2007 -0500
+
+    mpc885ads: Don't define CONFIG_BZIP2.
+
+    bzip2 requires a significant chunk of malloc space, and there isn't
+    enough room on mpc885ads (with only 8MB RAM) for both bzip2's malloc area
+    and a downloaded image at 0x400000.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 002275a3ed8b114885f6702d6d544d0780dfe689
+Author: Michal Simek <Monstr@seznam.cz>
+Date:	Thu Aug 16 08:54:10 2007 +0200
+
+    Bios emulator - fix microblaze toolchain problem
+
+    microblaze CPU have problem with bios_emulator code.
+    Microblaze toolchain doesn't support PRAGMA PACK.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit a5a38f4fd7e5366d706ff6a985f9b6715ddbc98b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 16 11:51:04 2007 +0200
+
+    Minor Coding Style fix; Update CHANGELOG file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8fb6e80c06849e3013ac5c9350d8ed9e52967991
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 16 11:21:49 2007 +0200
+
+    ppc4xx: Remove #warning in esd auto_update.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 2d78074d2e806edc380c1464eb9e5df335ece65e
 Author: Stefan Roese <sr@denx.de>
 Date:	Fri Jun 22 17:32:28 2007 +0200
@@ -10,6 +439,101 @@ Date:	Fri Jun 22 17:32:28 2007 +0200
 
     Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9de469bd960cc1870bb40d6672ed42726b8b50d7
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 16 10:18:33 2007 +0200
+
+    ppc4xx: Only enable POST FPU test on Sequoia and not Rainier
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6da0c5bd4a53e40eb4f7eb72a4c051ecabad783c
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 16 09:54:51 2007 +0200
+
+    Add missing rainier (PPC440GRx) target to MAKEALL and MAINTAINERs files
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 02ba7022f62bb75908296c58c63866e1d294b69a
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 16 09:52:29 2007 +0200
+
+    ppc4xx: Update Sequoia/Rainier bootstrap command
+
+    As suggested by David Mitchell, here an update for the Sequoia/Rainier
+    bootstrap command.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 35cc4e4823668e8745854899cfaedd4489beb0ef
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:39 2007 -0500
+
+    mpc83xx: enable libfdt by default on freescale boards
+
+    this enables libfdt code by default for the
+    freescale mpc8313erdb, mpc832xemds, mpc8349emds,
+    mpc8349itx and gp boards.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3fde9e8b22cfbd7af489214758f9839a206576cb
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:33 2007 -0500
+
+    mpc83xx: migrate remaining freescale boards to libfdt
+
+    this adds libfdt support code for the freescale
+    mpc8313erdb, mpc832xemds, mpc8349emds, mpc8349itx,
+    and gp boards.
+
+    Boards remain compatible with OF_FLAT_TREE.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6a16e0dfcc4119b46adb1dce2d6c8fb3c5d108e1
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:26 2007 -0500
+
+    mpc83xx: move common /memory node update mechanism to cpu.c
+
+    also adds common prototypes to include/common.h.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8f9e0e9f339aee4ce31a338d5f27356eb5457f85
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:19 2007 -0500
+
+    mpc83xx: remaining 8360 libfdt fixes
+
+    PCI clocks and QE frequencies weren't being updated, and the core clock
+    was being updated incorrectly.  This patch also adds a /memory node if
+    it doesn't already exist prior to update.
+
+    plus some cosmetic trimming to single line comments.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f4b2ac5ed9aaff9920d487bff8a59696c083a524
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:12 2007 -0500
+
+    mpc83xx: fix UEC2->1 typo in libfdt setup code
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 19fa1c35368484d4ed10ddce8a7793c21862e3a3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 15 22:30:05 2007 -0500
+
+    mpc83xx: add MAINTAINER and MAKEALL entries for the mpc8323erdb
+
+    and reorder the existing 83xx maintainers alpha.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit 30b52df9e906bf0e465916c2c6bb5192b438e0b8
 Author: Jon Loeliger <jdl@freescale.com>
@@ -55,6 +579,14 @@ Date:	Wed Aug 15 11:13:15 2007 -0400
     Also added a missing "not." to the comment.
 
     Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 0e19209767194a97cec6d93dba9e64d1da8d548e
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Wed Aug 15 12:14:23 2007 +0200
+
+    PPC4xx:HCU4/5-Board fix compile warning
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
 
 commit 594e79838ce5078a90d0c27abb2b2d61d5f8e8a7
 Author: Ed Swarthout <Ed.Swarthout@freescale.com>
@@ -1394,6 +1926,78 @@ Date:	Thu Aug 9 09:08:18 2007 -0500
 
     Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
 
+commit 3ba4c2d68f6541db4677b4aea12071f56e6ff6e6
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 8 09:54:26 2007 +0200
+
+    Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a41de1f0d373e09c782dea558385a06247111ba5
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 05:15:18 2007 -0500
+
+    Port enabled for I2C signals and chipselects port configuration.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 1a33ce65a4c51a69190dd8c408f9e1c62a66e94f
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 04:31:18 2007 -0500
+
+    Added NAND support
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit eaf9e447beb3e498818ef8ad0b8c1597cd506149
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 04:11:20 2007 -0500
+
+    Added I2C support
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 99c03c175d2689093176facf17c58ce2cb320001
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 03:58:52 2007 -0500
+
+    Changed CFG_CLK to gd->bus_clk for CFG_TIMER_PRESCALER. Added DECLARE_GLOBAL_DATA_PTR for time.c
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 8d1d66af54d305de29d0bbf4aa8c9e6375f7f731
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 03:55:21 2007 -0500
+
+    Added uart_gpio_conf() in serial_init(), seperated uart port configuration from cpu_init() to uart_gpio_conf()
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 6fde84a44b7e575ea80fe0e2d5be3b6f73d1e630
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 03:43:30 2007 -0500
+
+    Moved sync() from board file to include/asm-m68k/io.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 9e737d8476e7d6a596d16caaf6a3853a9a1190a2
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 03:30:44 2007 -0500
+
+    Declared attributes of void __mii_init(void) as an alias for int mii_init(void)
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 9998bd37ead85e93953559720710d3b0685c81e6
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Aug 5 03:19:10 2007 -0500
+
+    Renamed CONFIG_MCFSERIAL to CONFIG_MCFUART
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
 commit 7c4c3722a38d40b0cf537ddae72b04f4088b190c
 Author: Jason Jin <Jason.jin@freescale.com>
 Date:	Tue Aug 7 16:17:06 2007 +0800
@@ -1775,6 +2379,14 @@ Date:	Thu Jul 19 17:12:28 2007 +0200
 
     Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
 
+commit c883f6ea32dce91f07670b3aafecf6c99b1e5341
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 16 13:11:12 2007 +0200
+
+    Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 8848ec858f74ed6dab06fb6d5ddc933e0a1328bf
 Author: Stefan Roese <sr@denx.de>
 Date:	Mon Jul 16 10:02:12 2007 +0200
@@ -2056,6 +2668,252 @@ Date:	Sun Jul 8 13:44:27 2007 +0200
     The relocation fixup patches for 4xx will follow soon.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0dca874db62718e41253659e60f3a1de7eb418ce
+Author: TsiChung <tcliew@Goku.(none)>
+Date:	Tue Jul 10 15:45:43 2007 -0500
+
+    Cache update and added CFG_UNIFY_CACHE
+
+    Enabled cache in cpu_init_f() for faster flash to mem allocation. Updated cache handling in start.S. Applied cache invalidate in fec_send() and fec_recv(). Added CFG_UNIFY_CACHE for CF V3 only.
+
+    Signed-off-by: TsiChung <tcliew@Goku.(none)>
+
+commit 52b017604a8f4d4a795880ef6e7861d7f2f1b005
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:36:16 2007 -0500
+
+    Update header file. Include dtimer_intr_setup(). Changed timer divider to global define.
+
+    Include immap.h and timer.h. Moved dtimer interrupt setup to dtimer_intr_setup() from cpu/mcf532x/interrupts.c. Changed (CFG_CLK /1000000) -1 << 8 to CFG_TIMER_PRESCALER
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 5cdc07c7ef8f08ea55d3c47ed9221d91aa6d5fac
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:31:25 2007 -0500
+
+    Update header files
+
+    Include immap.h and renamed mcfrtc.h to rtc.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2870e98ac8e5553e9187b12a47e5f46babb53990
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:29:21 2007 -0500
+
+    Add mcffec_initialize()
+
+    Added mcffec_initialize() in eth_initialize()
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 45a25bfd0c52f8a3fa137216bc94d32f90bedc5d
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:27:40 2007 -0500
+
+    Update header file and clean up
+
+    Include immap.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 0cee9c66318602c856a899ae5fa7579ccba6443a
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:23:15 2007 -0500
+
+    New uart structure and defines
+
+    Seperated from mcfuart.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit a90e79de8d99e9c9d69d60bfff9f24c337165900
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:22:31 2007 -0500
+
+    New timer structure and defines
+
+    Seperated from mcftimer.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit e04acb2eba4782489417240eff76e20e176aec10
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:21:09 2007 -0500
+
+    Rename mcfrtc to rtc
+
+    Since it is already in m68k folder, un-necessary to pad mcf. Replaced immap_5329.h and m5329.h to immap.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2bd806fe4fc23958b8f78778199e7a6e3f8f6ad5
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:17:36 2007 -0500
+
+    Rename mcfserial.c. Update include header
+
+    Renamed mcfserial.c to mcfuart.c. Modified Makefile for mcfuart.o from mcfserial.o. Replace immap_5329.h and m5329.h to immap.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit f2208fbc2eb9de3f4285bfaa021c6ebae16c9b0e
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:13:58 2007 -0500
+
+    Header file update, clean up and cache handling
+
+    Replaced immap_5329.h and m5329.h with immap.h. Included cache_invalid.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2e3f25ae9082daa9f5d181db45dfbc2e52ce0f97
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:10:40 2007 -0500
+
+    Create interrupts.c and modify Makefile
+
+    interrupt_init() and dtimer_intr_setup() are placed in interrupts.c. Added interrupts.o to Makefile
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit ddd104f1ed655eda50c06ba636237a83ed943f34
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:06:55 2007 -0500
+
+    Enable Icache
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit b9bf3de377b2bae70c983c9b97feae914999e735
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:05:31 2007 -0500
+
+    Update header file and some clean up
+
+    Replaced immap_5329.h and m5329.h with immap.h. Removed whitespaces.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 84a015b52ec820a5ae173717d78516de731c89c2
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:03:28 2007 -0500
+
+    Update header file and enable icache
+
+    Replaced immap_5329.h and m5329.h with immap.h. Enabled icache_enable() in cpu_init_r().
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 7a17e759c7a8b58e910daf54df611e94fc8ca074
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 23:01:22 2007 -0500
+
+    Update header file and removed interrupt_init()
+
+    Replace immap_5329.h and m5329.h with immap.h. Removed interrupt_init() and placed it in interrupts.c
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 3b635492c95bd0d6e08f93f699821cba1f602a64
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:57:46 2007 -0500
+
+    Update for flash.o and mii.o
+
+    Removed flash.o and added mii.o
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit c5ded275d839e4ff79f41718d50a835d989f57bc
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:56:19 2007 -0500
+
+    MII functions calls.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 427c814104560e29bda14955c67703245aaaa5b4
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:54:42 2007 -0500
+
+    Removed MII functions and replaced immap_5329.h and m5329.h with immap.h.
+
+    The removed MII routines will be placed in mii.c.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 01a793fda09c63df5a496f09dc1c7cb26e6751a2
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:51:05 2007 -0500
+
+    Duplicate code
+
+    There is a Common Flash Interface Driver existed. To use the CFI driver, define CFG_FLASH_CFI in configuration file.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2744354a8437b8f78db178e30660215688bff570
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:46:38 2007 -0500
+
+    Seperate old structure defines and new structure defines
+
+    Removed new uart structure and defines to uart.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2bd58608dbcff8890ca9a0c59e861ac24f8bb230
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:45:01 2007 -0500
+
+    Seperate old structure defines and new structure defines
+
+    New timer structure and defines will move to new timer.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 8cd5cd6de4ff92e03978338ed7aeb3ce7b7b9784
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:42:23 2007 -0500
+
+    Clean up
+
+    Removed whitespace
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 514871f565dd8bd1121e4a3ac1665a790e20b8f2
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:41:24 2007 -0500
+
+    Clean up
+
+    Replaced whitespace with tabs
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 48dbfeabc7afffe30609a4489f10c22cb67ef7dd
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:39:07 2007 -0500
+
+    Create new header file and move peripherals base address from configs file to new header file.
+
+    Create new header file to include immap_5xxx.h and m5xxx.h and to share among drivers without update in driver file each processor is added. Moved peripherals base address and defines from configs file to immap.h.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit be296e31c4411f96d9cb3d2afc8fcb006867abfa
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 5 22:24:58 2007 -0500
+
+    Revert file mode
+
+    Changed MAKEALL file mode to executable, removed executable file mode from Makefile
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
 
 commit b3aff0cb9ecf236d7e8c93761dd1dadf6837a582
 Author: Jon Loeliger <jdl@freescale.com>
@@ -3758,6 +4616,26 @@ Date:	Tue Jun 19 16:40:58 2007 +0200
     [ppc4xx] Change board/amcc/acadia/cpr.c to pll.c
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8e585f02f82c17cc66cd229dbf0fd3066bbbf658
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Jun 18 13:50:13 2007 -0500
+
+    Added M5329AFEE and M5329BFEE Platforms
+
+    Added board/freescale/m5329evb, cpu/mcf532x, drivers/net,
+    drivers/serial,  immap_5329.h, m5329.h, mcfrtc.h,
+    include/configs/M5329EVB.h, lib_m68k/interrupts.c, and
+    rtc/mcfrtc.c
+
+    Modified CREDITS, MAKEFILE, Makefile, README, common/cmd_bdinfo.c,
+    common/cmd_mii.c, include/asm-m68k/byteorder.h, include/asm-m68k/fec.h,
+    include/asm-m68k/io.h, include/asm-m68k/mcftimer.h,
+    include/asm-m68k/mcfuart.h, include/asm-m68k/ptrace.h,
+    include/asm-m68k/u-boot.h, lib_m68k/Makefile, lib_m68k/board.c,
+    lib_m68k/time.c, net/eth.c and rtc/Makefile
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 
 commit e73846b7cf1e29ae635bf9bb5570269663df2ee5
 Author: Stefan Roese <sr@denx.de>
