@@ -121,7 +121,7 @@ _start:
 	nop
 	move.w #0x2700,%sr
 
-#if defined(CONFIG_M5272) || defined(CONFIG_M5249)
+#if defined(CONFIG_M5272) || defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	move.l	#(CFG_MBAR + 1), %d0		/* set MBAR address + valid flag */
 	move.c	%d0, %MBAR
 
@@ -133,7 +133,7 @@ _start:
 
 	move.l	#(CFG_INIT_RAM_ADDR + 1), %d0
 	movec	%d0, %RAMBAR0
-#endif /* #if defined(CONFIG_M5272) || defined(CONFIG_M5249) */
+#endif /* CONFIG_M5272 || CONFIG_M5249 || CONFIG_M5253 */
 
 #if defined(CONFIG_M5282) || defined(CONFIG_M5271)
 	/* Initialize IPSBAR */
@@ -159,7 +159,7 @@ _copy_flash:
 
 _flashbar_setup:
 	/* Initialize FLASHBAR: locate internal Flash and validate it */
-	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
+	move.l	#(CFG_INT_FLASH_BASE + CFG_INT_FLASH_ENABLE), %d0
 	movec	%d0, %RAMBAR0
 	jmp _after_flashbar_copy.L	/* Force jump to absolute address */
 _flashbar_setup_end:
@@ -167,7 +167,7 @@ _flashbar_setup_end:
 _after_flashbar_copy:
 #else
 	/* Setup code to initialize FLASHBAR, if start from external Memory */
-	move.l	#(CFG_INT_FLASH_BASE + 0x21), %d0
+	move.l	#(CFG_INT_FLASH_BASE + CFG_INT_FLASH_ENABLE), %d0
 	movec	%d0, %RAMBAR0
 #endif /* (TEXT_BASE == CFG_INT_FLASH_BASE) */
 
@@ -326,10 +326,10 @@ clear_bss:
 	/* set parameters for board_init_r */
 	move.l %a0,-(%sp)		/* dest_addr */
 	move.l %d0,-(%sp)		/* gd */
-	#if defined(DEBUG) && (TEXT_BASE != CFG_INT_FLASH_BASE) && \
-	    defined(CFG_HALT_BEFOR_RAM_JUMP)
- 		halt
-	#endif
+#if defined(DEBUG) && (TEXT_BASE != CFG_INT_FLASH_BASE) && \
+    defined(CFG_HALT_BEFOR_RAM_JUMP)
+	halt
+#endif
 	jsr	(%a1)
 
 /*------------------------------------------------------------------------------*/
@@ -356,6 +356,24 @@ _int_handler:
 
 /*------------------------------------------------------------------------------*/
 /* cache functions */
+#ifdef	CONFIG_M5271
+	.globl	icache_enable
+icache_enable:
+	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
+	movec	%d0, %CACR			/* Invalidate cache */
+	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
+	movec	%d0, %ACR0			/* Enable cache */
+
+	move.l	#0x80000200, %d0		/* Setup cache mask */
+	movec	%d0, %CACR			/* Enable cache */
+	nop
+
+	move.l #(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END-8), %a1
+	moveq	#1, %d0
+	move.l	%d0, (%a1)
+	rts
+#endif
+
 #ifdef	CONFIG_M5272
 	.globl	icache_enable
 icache_enable:
@@ -389,7 +407,7 @@ icache_state_access_1:
 	rts
 #endif
 
-#ifdef CONFIG_M5249
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	.globl	icache_enable
 icache_enable:
 	/*
@@ -426,12 +444,28 @@ icache_state_access_2:
 	.globl	icache_status
 icache_status:
 icache_state_access_3:
-	move.l	icache_state, %d0
+	move.l	#(icache_state), %a0
+	move.l	(%a0), %d0
 	rts
 
 	.data
 icache_state:
 	.long	0	/* cache is diabled on inirialization */
+
+	.globl	dcache_enable
+dcache_enable:
+	/* dummy function */
+	rts
+
+	.globl	dcache_disable
+dcache_disable:
+	/* dummy function */
+	rts
+
+	.globl	dcache_status
+dcache_status:
+	/* dummy function */
+	rts
 
 /*------------------------------------------------------------------------------*/
 

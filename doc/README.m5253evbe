@@ -1,0 +1,103 @@
+Freescale Amadeus Plus M5253EVBE board
+======================================
+
+Hayden Fraser(Hayden.Fraser@freescale.com)
+Created 06/05/2007
+===========================================
+
+
+1. SWITCH SETTINGS
+==================
+1.1 N/A
+
+
+2. MEMORY MAP UNDER U-BOOT AND LINUX KERNEL
+===========================================
+2.1. For the initial bringup, we adopted a consistent memory scheme between u-boot and
+	linux kernel, you can customize it based on your system requirements:
+	SDR:	0x00000000-0x00ffffff
+	SRAM0:	0x20010000-0x20017fff
+	SRAM1:	0x20000000-0x2000ffff
+	MBAR1:	0x10000000-0x4fffffff
+	MBAR2:	0x80000000-0xCfffffff
+	Flash:	0xffe00000-0xffffffff
+
+3. DEFINITIONS AND COMPILATION
+==============================
+3.1 Explanation on NEW definitions in include/configs/M5253EVBE.h
+	CONFIG_MCF52x2		Processor family
+	CONFIG_MCF5253		MCF5253 specific
+	CONFIG_M5253EVBE	Amadeus Plus board specific
+	CFG_CLK			Define Amadeus Plus CPU Clock
+	CFG_MBAR		MBAR base address
+	CFG_MBAR2		MBAR2 base address
+
+3.2 Compilation
+	export CROSS_COMPILE=/usr/local/freescale-coldfire-4.1-elf/bin/m68k-elf-
+	cd u-boot-1-2-x
+	make distclean
+	make M5253EVBE_config
+	make
+
+
+4. SCREEN DUMP
+==============
+4.1 U-Boot 1.2.0 (Jun 18 2007 - 18:20:00)
+
+CPU:   Freescale Coldfire MCF5253 at 62 MHz
+Board: Freescale MCF5253 EVBE
+DRAM:  16 MB
+FLASH:  2 MB
+In:    serial
+Out:   serial
+Err:   serial
+=> flinfo
+
+Bank # 1: CFI conformant FLASH (16 x 16)  Size: 2 MB in 35 Sectors
+  AMD Standard command set, Manufacturer ID: 0x01, Device ID: 0x49
+  Erase timeout: 16384 ms, write timeout: 1 ms
+
+  Sector Start Addresses:
+  FFE00000   RO   FFE04000   RO   FFE06000   RO   FFE08000   RO   FFE10000   RO
+  FFE20000        FFE30000        FFE40000        FFE50000        FFE60000
+  FFE70000        FFE80000        FFE90000        FFEA0000        FFEB0000
+  FFEC0000        FFED0000        FFEE0000        FFEF0000        FFF00000
+  FFF10000        FFF20000        FFF30000        FFF40000        FFF50000
+  FFF60000        FFF70000        FFF80000        FFF90000        FFFA0000
+  FFFB0000        FFFC0000        FFFD0000        FFFE0000        FFFF0000
+
+=> bdinfo
+boot_params = 0x00F62F90
+memstart    = 0x00000000
+memsize     = 0x01000000
+flashstart  = 0xFFE00000
+flashsize   = 0x00200000
+flashoffset = 0x00000000
+baudrate    = 19200 bps
+
+=> printenv
+bootdelay=5
+baudrate=19200
+stdin=serial
+stdout=serial
+stderr=serial
+
+Environment size: 134/8188 bytes
+=> saveenv
+Saving Environment to Flash...
+Un-Protected 1 sectors
+Erasing Flash...
+. done
+Erased 1 sectors
+Writing to Flash... done
+Protected 1 sectors
+=>
+
+5. COMPILER
+-----------
+To create U-Boot the CodeSourcery's version of the GNU Toolchain for the ColdFire architecture
+compiler set (freescale-coldfire-4.1-elf) from www.codesourcery.com was used.
+You can download it from:http://www.codesourcery.com/gnu_toolchains/coldfire/download.html
+
+compiler that you used - for example, codesourcery_elf requires -MQ in rules.mk, old M68K 2.95.3 just -M
+codesourcery_elf requires -MQ in rules.mk, old M68K 2.95.3 just -M

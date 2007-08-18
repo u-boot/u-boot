@@ -136,6 +136,8 @@ Directory Hierarchy:
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
+  - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
+  - mcf5445x	Files specific to Freescale ColdFire MCF5445x CPUs
   - mips	Files specific to MIPS CPUs
   - mpc5xx	Files specific to Freescale MPC5xx  CPUs
   - mpc5xxx	Files specific to Freescale MPC5xxx CPUs

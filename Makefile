@@ -209,12 +209,14 @@ LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/net/libnet.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 endif
+LIBS += drivers/serial/libserial.a
 LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
@@ -1637,6 +1639,31 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M5235EVB_config \
+M5235EVB_Flash16_config \
+M5235EVB_Flash32_config:	unconfig
+	@case "$@" in \
+	M5235EVB_config)		FLASH=16;; \
+	M5235EVB_Flash16_config)	FLASH=16;; \
+	M5235EVB_Flash32_config)	FLASH=32;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${FLASH}" != "16" ] ; then \
+		echo "#define NORFLASH_PS32BIT	1" >> include/config.h ; \
+		echo "TEXT_BASE = 0xFFC00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		cp $(obj)board/freescale/m5235evb/u-boot.32 $(obj)board/freescale/m5235evb/u-boot.lds ; \
+	else \
+		echo "TEXT_BASE = 0xFFE00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		cp $(obj)board/freescale/m5235evb/u-boot.16 $(obj)board/freescale/m5235evb/u-boot.lds ; \
+	fi
+	@$(MKCONFIG) -a M5235EVB m68k mcf523x m5235evb freescale
+
+M5249EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5249evb freescale
+
+M5253EVBE_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5253evbe freescale
+
 cobra5272_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 cobra5272
 
@@ -1671,6 +1698,46 @@ TASREG_config :		unconfig
 
 r5200_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 r5200
+
+M5329AFEE_config \
+M5329BFEE_config :	unconfig
+	@case "$@" in \
+	M5329AFEE_config)	NAND=0;; \
+	M5329BFEE_config)	NAND=16;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${NAND}" != "0" ] ; then \
+		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
+
+M54455EVB_config \
+M54455EVB_atmel_config \
+M54455EVB_intel_config \
+M54455EVB_a33_config \
+M54455EVB_a66_config \
+M54455EVB_i33_config \
+M54455EVB_i66_config :	unconfig
+	@case "$@" in \
+	M54455EVB_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_atmel_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_intel_config)		FLASH=INTEL; FREQ=33333333;; \
+	M54455EVB_a33_config)		FLASH=ATMEL; FREQ=33333333;; \
+	M54455EVB_a66_config)		FLASH=ATMEL; FREQ=66666666;; \
+	M54455EVB_i33_config)		FLASH=INTEL; FREQ=33333333;; \
+	M54455EVB_i66_config)		FLASH=INTEL; FREQ=66666666;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${FLASH}" == "INTEL" ] ; then \
+		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
+		echo "... with INTEL boot..." ; \
+	else \
+		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
+		echo "... with ATMEL boot..." ; \
+	fi; \
+	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
+	echo "... with $${FREQ}Hz input clock"
+	@$(MKCONFIG) -a M54455EVB m68k mcf5445x m54455evb freescale
 
 #########################################################################
 ## MPC83xx Systems

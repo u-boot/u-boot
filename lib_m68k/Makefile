@@ -27,7 +27,7 @@ LIB	= $(obj)lib$(ARCH).a
 
 SOBJS	=
 
-COBJS	= cache.o traps.o time.o board.o m68k_linux.o
+COBJS	= cache.o traps.o time.o interrupts.o board.o m68k_linux.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
