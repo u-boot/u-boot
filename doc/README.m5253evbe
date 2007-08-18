@@ -18,14 +18,14 @@ Created 06/05/2007
 	SDR:	0x00000000-0x00ffffff
 	SRAM0:	0x20010000-0x20017fff
 	SRAM1:	0x20000000-0x2000ffff
-	MBAR1:	0x10000000-0x4fffffff 
+	MBAR1:	0x10000000-0x4fffffff
 	MBAR2:	0x80000000-0xCfffffff
-	Flash:	0xffe00000-0xffffffff 
+	Flash:	0xffe00000-0xffffffff
 
 3. DEFINITIONS AND COMPILATION
 ==============================
 3.1 Explanation on NEW definitions in include/configs/M5253EVBE.h
-	CONFIG_MCF52x2		Processor family 
+	CONFIG_MCF52x2		Processor family
 	CONFIG_MCF5253		MCF5253 specific
 	CONFIG_M5253EVBE	Amadeus Plus board specific
 	CFG_CLK			Define Amadeus Plus CPU Clock

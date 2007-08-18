@@ -210,4 +210,3 @@
 #define CFG_GPIO1_LED		0x00400000	/* user led */
 
 #endif				/* _M5253EVB_H */
-

@@ -162,4 +162,3 @@ void pci_init_board(void)
 	pci_mcf5445x_init(&hose);
 }
 #endif				/* CONFIG_PCI */
-

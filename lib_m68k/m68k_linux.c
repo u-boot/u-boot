@@ -92,7 +92,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	 */
 	asm("movel %%a7, %%d0\n"
 	    "movel %%d0, %0\n": "=d"(sp): :"%d0");
-	debug("## Current stack ends at 0x%08lX ", sp);
+
+	debug("## Current stack ends at 0x%08lX ", sp);
 
 	sp -= 2048;		/* just to be sure */
 	if (sp > CFG_BOOTMAPSZ)
@@ -269,7 +270,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 				 */
 				asm("movel %%a7, %%d0\n"
 				    "movel %%d0, %0\n": "=d"(nsp): :"%d0");
-								nsp -= 2048;	/* just to be sure */
+
+				nsp -= 2048;	/* just to be sure */
 				nsp &= ~0xF;
 
 				if (nsp > initrd_high)	/* limit as specified */

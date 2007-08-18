@@ -130,4 +130,3 @@ void ide_set_reset(int idereset)
 	}
 }
 #endif				/* CONFIG_CMD_IDE */
-

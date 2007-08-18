@@ -41,8 +41,9 @@ int get_clocks(void)
 	pll->syncr = PLL_SYNCR_MFD(1);
 
 	while (!(pll->synsr & PLL_SYNSR_LOCK));
-	
+
 	gd->bus_clk = CFG_CLK;
 	gd->cpu_clk = (gd->bus_clk * 2);
+
 	return (0);
 }

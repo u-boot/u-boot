@@ -127,19 +127,19 @@ int cpu_init_r(void)
 
 void uart_port_conf(void)
 {
-        volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
-        /* Setup Ports: */
-        switch (CFG_UART_PORT) {
-        case 0:
-                gpio->par_uart = (GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
-                break;
-        case 1:
-                gpio->par_uart =
-                    (GPIO_PAR_UART_U1RXD_U1RXD | GPIO_PAR_UART_U1TXD_U1TXD);
-                break;
-        case 2:
-                gpio->par_timer = (GPIO_PAR_UART_U2RXD | GPIO_PAR_UART_U2TXD);
-                break;
-        }
+	/* Setup Ports: */
+	switch (CFG_UART_PORT) {
+	case 0:
+		gpio->par_uart = (GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
+		break;
+	case 1:
+		gpio->par_uart =
+			(GPIO_PAR_UART_U1RXD_U1RXD | GPIO_PAR_UART_U1TXD_U1TXD);
+		break;
+	case 2:
+		gpio->par_timer = (GPIO_PAR_UART_U2RXD | GPIO_PAR_UART_U2TXD);
+		break;
+	}
 }

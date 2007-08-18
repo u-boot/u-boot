@@ -63,7 +63,7 @@ void cpu_init_f(void)
 	mbar2_writeByte(MCFSIM_INTBASE, 0x40);	/* Base interrupts at 64 */
 	mbar2_writeByte(MCFSIM_SPURVEC, 0x00);
 
-	/*mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020); *//* Enable a 1 cycle pre-drive cycle on CS1 */
+	/*mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020); */ /* Enable a 1 cycle pre-drive cycle on CS1 */
 
 	/*
 	 *  Setup chip selects...
