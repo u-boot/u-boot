@@ -27,15 +27,15 @@
 #include <common.h>
 #include <malloc.h>
 
+#ifdef CONFIG_MCFFEC
+
 #include <asm/fec.h>
 #include <asm/immap.h>
 
 #include <command.h>
-#include <config.h>
 #include <net.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_MCFFEC
 #undef	ET_DEBUG
 #undef	MII_DEBUG
 

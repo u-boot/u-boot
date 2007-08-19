@@ -28,12 +28,14 @@
  */
 
 #include <common.h>
+
+#ifdef CONFIG_MCFUART
+
 #include <asm/immap.h>
 #include <asm/uart.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_MCFUART
 extern void uart_port_conf(void);
 
 int serial_init(void)

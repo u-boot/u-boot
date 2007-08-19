@@ -22,13 +22,13 @@
  */
 
 #include <common.h>
-#include <command.h>
-#include <rtc.h>
-
-#include <asm/immap.h>
-#include <asm/rtc.h>
 
 #if defined(CONFIG_MCFRTC) && defined(CONFIG_CMD_DATE)
+
+#include <command.h>
+#include <rtc.h>
+#include <asm/immap.h>
+#include <asm/rtc.h>
 
 #undef RTC_DEBUG
 
