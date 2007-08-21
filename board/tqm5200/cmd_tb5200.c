@@ -29,7 +29,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_BSP)
+#if defined(CONFIG_CMD_BSP)
 #if defined (CONFIG_TB5200)
 
 #define SM501_PANEL_DISPLAY_CONTROL	0x00080000UL
@@ -101,4 +101,4 @@ U_BOOT_CMD(
 	);
 
 #endif /* CONFIG_STK52XX */
-#endif /* CFG_CMD_BSP */
+#endif

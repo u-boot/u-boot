@@ -19,7 +19,7 @@
  */
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #include <command.h>
 #include <watchdog.h>
@@ -28,7 +28,7 @@
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 
 /* parition handling routines */
 int mtdparts_init(void);
@@ -96,7 +96,7 @@ static int
 arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 {
 	int idx = nand_curr_device;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -144,7 +144,7 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 		*size = nand->size - *off;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if  defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 out:
 #endif
 	printf("device %d ", idx);
@@ -468,14 +468,31 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
-	char *ep;
+	char *ep, *s;
 	ulong cnt;
 	image_header_t *hdr;
+	int jffs2 = 0;
+
+	s = strchr(cmd, '.');
+	if (s != NULL &&
+	    (!strcmp(s, ".jffs2") || !strcmp(s, ".e") || !strcmp(s, ".i")))
+		jffs2 = 1;
 
 	printf("\nLoading from %s, offset 0x%lx\n", nand->name, offset);
 
 	cnt = nand->oobblock;
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
+
 	if (r) {
 		puts("** Read error\n");
 		show_boot_progress (-56);
@@ -495,8 +512,18 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	print_image_hdr(hdr);
 
 	cnt = (ntohl(hdr->ih_size) + sizeof (image_header_t));
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
 
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
 		show_boot_progress (-58);
@@ -529,7 +556,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	int idx;
 	ulong addr, offset = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -545,7 +572,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			if (argc > 3)
 				goto usage;
 			if (argc == 3)
-				addr = simple_strtoul(argv[2], NULL, 16);
+				addr = simple_strtoul(argv[1], NULL, 16);
 			else
 				addr = CFG_LOAD_ADDR;
 			return nand_load_image(cmdtp, &nand_info[dev->id->num],
@@ -574,7 +601,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		offset = simple_strtoul(argv[3], NULL, 16);
 		break;
 	default:
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 usage:
 #endif
 		printf("Usage:\n%s\n", cmdtp->usage);
@@ -604,9 +631,9 @@ usage:
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"nboot   - boot from NAND device\n",
-	"[partition] | [[[loadAddr] dev] offset]\n");
+	"[.jffs2] [partition] | [[[loadAddr] dev] offset]\n");
 
-#endif				/* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif
 
 #else /* CFG_NAND_LEGACY */
 /*
@@ -626,7 +653,7 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 # define show_boot_progress(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 #if 0
 #include <linux/mtd/nand_ids.h>
@@ -991,6 +1018,6 @@ U_BOOT_CMD(
 	"loadAddr dev\n"
 );
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif
 
 #endif /* CFG_NAND_LEGACY */

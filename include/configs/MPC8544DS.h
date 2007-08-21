@@ -34,14 +34,14 @@
 #define CONFIG_MPC8544		1
 #define CONFIG_MPC8544DS	1
 
-#undef CONFIG_PCI			/* Enable PCI/PCIE */
-#undef CONFIG_PCI1			/* PCI controller 1 */
-#undef CONFIG_PCIE1			/* PCIE controler 1 (slot 1) */
-#undef CONFIG_PCIE2			/* PCIE controler 2 (slot 2) */
-#undef CONFIG_PCIE3			/* PCIE controler 3 (ULI bridge) */
-#undef CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
+#define CONFIG_PCI		1	/* Enable PCI/PCIE */
+#define CONFIG_PCI1		1	/* PCI controller 1 */
+#define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
+#define CONFIG_PCIE3		1	/* PCIE controler 3 (ULI bridge) */
+#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #undef CONFIG_DDR_DLL
@@ -52,6 +52,7 @@
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
 #define CONFIG_DDR_ECC_CMD
+#define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 /*
  * When initializing flash, if we cannot find the manufacturer ID,
@@ -70,7 +71,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
-#define CONFIG_L2_CACHE			/* toggle L2 cache 	*/
+#define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 #define CONFIG_CLEAR_LAW0		/* Clear LAW0 in cpu_init_r */
@@ -86,13 +87,13 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_MEMTEST_START	0x00200000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00400000
 #define CFG_ALT_MEMTEST
-#define CONFIG_PANIC_HANG 	/* do not reset board on panic */
+#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
+#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
 
@@ -281,7 +282,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe1000000
-#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCI1_IO_SIZE	0x00010000	/* 64k */
 
 /* PCI view of System Memory */
 #define CFG_PCI_MEMORY_BUS	0x00000000
@@ -293,26 +294,23 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCIE2_MEM_PHYS	CFG_PCIE2_MEM_BASE
 #define CFG_PCIE2_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCIE2_IO_BASE	0x00000000
-#define CFG_PCIE2_IO_PHYS	0xe2000000
-#define CFG_PCIE2_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE2_IO_PHYS	0xe1010000
+#define CFG_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 2,tgtid 2, Base address a000 */
 #define CFG_PCIE1_MEM_BASE	0xa0000000
 #define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
-#define CFG_PCIE1_MEM_SIZE	0x08000000	/* 128M */
-#define CFG_PCIE1_MEM_BASE2	0xa8000000
-#define CFG_PCIE1_MEM_PHYS2	CFG_PCIE1_MEM_BASE2
-#define CFG_PCIE1_MEM_SIZE2	0x04000000	/* 64M */
-#define CFG_PCIE1_IO_BASE	0x00000000	/* reuse mem LAW */
-#define CFG_PCIE1_IO_PHYS	0xaf000000
-#define CFG_PCIE1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE1_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE1_IO_BASE	0x00000000
+#define CFG_PCIE1_IO_PHYS	0xe1020000
+#define CFG_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address b000 */
 #define CFG_PCIE3_MEM_BASE	0xb0000000
 #define CFG_PCIE3_MEM_PHYS	CFG_PCIE3_MEM_BASE
-#define CFG_PCIE3_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE3_MEM_SIZE	0x00100000	/* 1M */
 #define CFG_PCIE3_IO_BASE	0x00000000
-#define CFG_PCIE3_IO_PHYS	0xe3000000
+#define CFG_PCIE3_IO_PHYS	0xb0100000	/* reuse mem LAW */
 #define CFG_PCIE3_IO_SIZE	0x00100000	/* 1M */
 
 #if defined(CONFIG_PCI)
@@ -344,7 +342,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SATA_ULI5288
 #define CFG_SCSI_MAX_SCSI_ID	4
 #define CFG_SCSI_MAX_LUN	1
-#define CFG_SCSI_MAX_DEVICE 	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
+#define CFG_SCSI_MAX_DEVICE	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
 #define CFG_SCSI_MAXDEVICE	CFG_SCSI_MAX_DEVICE
 #endif /* SCSCI */
 
@@ -354,7 +352,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
+#define CONFIG_NET_MULTI	1
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
@@ -363,10 +361,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
-#undef CONFIG_MPC85XX_FEC
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC3_PHY_ADDR		1
+
+#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define TSEC1_PHYIDX		0
 #define TSEC3_PHYIDX		0
@@ -374,7 +374,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
@@ -392,21 +391,32 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+
 #if defined(CONFIG_PCI)
-#define	CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PCI \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII \
-				| CFG_CMD_BEDBUG \
-				| CFG_CMD_NET)
-#else
-#define	CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII)
+    #define CONFIG_CMD_PCI
+    #define CONFIG_CMD_BEDBUG
+    #define CONFIG_CMD_NET
+    #define CONFIG_CMD_SCSI
+    #define CONFIG_CMD_EXT2
 #endif
-#include <cmd_confdefs.h>
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -416,7 +426,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_LONGHELP			/* undef to save memory	*/
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -431,12 +441,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ	(8 << 20) 	/* Initial Memory map for Linux*/
+#define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
 /* Cache Configuration */
-#define CFG_DCACHE_SIZE	32768
+#define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -448,7 +458,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -459,6 +469,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
@@ -472,7 +483,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_HOSTNAME	8544ds_unknown
 #define CONFIG_ROOTPATH	/nfs/mpc85xx
-#define CONFIG_BOOTFILE	8544ds_tmt/uImage.uboot
+#define CONFIG_BOOTFILE	8544ds/uImage.uboot
+#define CONFIG_UBOOTPATH	8544ds/u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	192.168.0.1
 #define CONFIG_GATEWAYIP 192.168.0.1
@@ -481,7 +493,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
 
 #define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
-#undef	CONFIG_BOOTARGS	/* the boot command will set bootargs*/
+#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs*/
 
 #define CONFIG_BAUDRATE	115200
 
@@ -489,10 +501,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PCIE_ENV \
  "pciereg=md ${a}000 6; md ${a}020 4; md ${a}bf8 2; echo o;md ${a}c00 25;" \
 	"echo i; md ${a}da0 15; echo e;md ${a}e00 e; echo d; md ${a}f00 c\0" \
- "pcie1regs=setenv a e000a; run pciereg\0"	\
- "pcie2regs=setenv a e0009; run pciereg\0"	\
- "pcie3regs=setenv a e000b; run pciereg\0"	\
- "pcieerr=md ${a}020 1; md ${a}e00;"		\
+ "pcieerr=md ${a}020 1; md ${a}e00 e;"		\
 	"pci d.b $b.0 7 1; pci d.w $b.0 1e 1;"	\
 	"pci d.w $b.0 56 1;"			\
 	"pci d $b.0 104 1;pci d $b.0 110 1;pci d $b.0 130 1\0" \
@@ -501,12 +510,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"pci w $b.0 104 ffffffff; pci w $b.0 110 ffffffff;" \
 	"pci w $b.0 130 ffffffff\0" \
  "pciecfg=pci d $b.0 0 20; pci d $b.0 100 e; pci d $b.0 400 69\0"	\
- "pcie1err=setenv a e000a; run pcieerr\0"	\
- "pcie2err=setenv a e0009; run pcieerr\0"	\
- "pcie3err=setenv a e000b; run pcieerr\0"	\
- "pcie1errc=setenv a e000a; run pcieerrc\0"	\
- "pcie2errc=setenv a e0009; run pcieerrc\0"	\
- "pcie3errc=setenv a e000b; run pcieerrc\0"
+ "pcie1regs=setenv a e000a; run pciereg\0"	\
+ "pcie2regs=setenv a e0009; run pciereg\0"	\
+ "pcie3regs=setenv a e000b; run pciereg\0"	\
+ "pcie1cfg=setenv b 3; run pciecfg\0" \
+ "pcie2cfg=setenv b 5; run pciecfg\0" \
+ "pcie3cfg=setenv b 0; run pciecfg\0" \
+ "pcie1err=setenv a e000a; setenv b 3; run pcieerr\0"	\
+ "pcie2err=setenv a e0009; setenv b 5; run pcieerr\0"	\
+ "pcie3err=setenv a e000b; setenv b 0; run pcieerr\0"	\
+ "pcie1errc=setenv a e000a; setenv b 3; run pcieerrc\0"	\
+ "pcie2errc=setenv a e0009; setenv b 5; run pcieerrc\0"	\
+ "pcie3errc=setenv a e000b; setenv b 0; run pcieerrc\0"
 #else
 #define	PCIE_ENV ""
 #endif
@@ -514,14 +529,14 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if defined(CONFIG_PCI1)
 #define PCI_ENV \
  "pcireg=md ${a}000 3; echo o;md ${a}c00 25; echo i; md ${a}da0 15;" \
-	"echo e;md ${a}e00 9\0" 		\
+	"echo e;md ${a}e00 9\0"			\
  "pci1regs=setenv a e0008; run pcireg\0"	\
  "pcierr=md ${a}e00 8; pci d.b $b.0 7 1; pci d.w $b.0 1e 1;" \
 	"pci d.w $b.0 56 1\0"			\
- "pcierrc=mw ${a}e00 ffffffff; pci w.b $b.0 7 ff; pci w.w $b.0 1e ffff;" \
-	"pci w.w $b.0 56 ffff\0"		\
- "pci1err=setenv a e0008; run pcierr\0"		\
- "pci1errc=setenv a e0008; run pcierrc\0"
+ "pcierrc=mw ${a}e00 ffffffff; mw ${a}e0c 0; pci w.b $b.0 7 ff;" \
+	"pci w.w $b.0 1e ffff; pci w.w $b.0 56 ffff\0"		\
+ "pci1err=setenv a e0008; setenv b 7; run pcierr\0"		\
+ "pci1errc=setenv a e0008; setenv b 7; run pcierrc\0"
 #else
 #define	PCI_ENV ""
 #endif
@@ -541,25 +556,39 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define ENET_ENV ""
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
- "netdev=eth0\0"				\
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
+ "netdev=eth0\0"						\
+ "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
+ "tftpflash=tftpboot $loadaddr $uboot; "			\
+	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
- "ramdiskfile=8544ds_tmt/ramdisk.uboot\0"	\
- "fdtaddr=400000\0"				\
- "fdtfile=8544ds_tmt/mpc8544ds.dtb\0"		\
- "eoi=mw e00400b0 0\0" 				\
- "iack=md e00400a0 1\0" 			\
+ "ramdiskfile=8544ds/ramdisk.uboot\0"		\
+ "dtbaddr=c00000\0"				\
+ "dtbfile=8544ds/mpc8544ds.dtb\0"		\
+ "bdev=sda3\0"					\
+ "eoi=mw e00400b0 0\0"				\
+ "iack=md e00400a0 1\0"				\
  "ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4; md ${a}bf0 4;" \
 	"md ${a}e00 3; md ${a}e20 3; md ${a}e40 7; md ${a}f00 5\0" \
- "ddrregs=setenv a e0002; run ddrreg\0" 	\
+ "ddrregs=setenv a e0002; run ddrreg\0"		\
  "gureg=md ${a}000 2c; md ${a}0b0 1; md ${a}0c0 1; md ${a}b20 3;" \
-	"md ${a}e00 1; md ${a}e60 1; md ${a}ef0 15\0" 	\
- "guregs=setenv a e00e0; run gureg\0" 		\
+	"md ${a}e00 1; md ${a}e60 1; md ${a}ef0 15\0"	\
+ "guregs=setenv a e00e0; run gureg\0"		\
  "ecmreg=md ${a}000 1; md ${a}010 1; md ${a}bf8 2; md ${a}e00 6\0" \
- "ecmregs=setenv a e0001; run ecmreg\0" 	\
- PCIE_ENV 	\
- PCI_ENV 	\
+ "ecmregs=setenv a e0001; run ecmreg\0"		\
+ "lawregs=md e0000c08 4b\0" \
+ "lbcregs=md e0005000 36\0" \
+ "dma0regs=md e0021100 12\0" \
+ "dma1regs=md e0021180 12\0" \
+ "dma2regs=md e0021200 12\0" \
+ "dma3regs=md e0021280 12\0" \
+ PCIE_ENV	\
+ PCI_ENV	\
  ENET_ENV
 
 
@@ -569,23 +598,23 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
  "console=$consoledev,$baudrate $othbootargs;"	\
  "tftp $loadaddr $bootfile;"		\
- "tftp $fdtaddr $fdtfile;"		\
- "bootm $loadaddr - $fdtaddr"
+ "tftp $dtbaddr $dtbfile;"		\
+ "bootm $loadaddr - $dtbaddr"
 
 
-#define CONFIG_RAMBOOTCOMMAND 		\
+#define CONFIG_RAMBOOTCOMMAND		\
  "setenv bootargs root=/dev/ram rw "	\
  "console=$consoledev,$baudrate $othbootargs;"	\
  "tftp $ramdiskaddr $ramdiskfile;"	\
  "tftp $loadaddr $bootfile;"		\
- "tftp $fdtaddr $fdtfile;"		\
- "bootm $loadaddr $ramdiskaddr $fdtaddr"
+ "tftp $dtbaddr $dtbfile;"		\
+ "bootm $loadaddr $ramdiskaddr $dtbaddr"
 
-#define CONFIG_BOOTCOMMAND 		\
- "setenv bootargs root=/dev/sda3 rw "	\
+#define CONFIG_BOOTCOMMAND		\
+ "setenv bootargs root=/dev/$bdev rw "	\
  "console=$consoledev,$baudrate $othbootargs;"	\
  "tftp $loadaddr $bootfile;"		\
- "tftp $fdtaddr $fdtfile;"		\
- "bootm $loadaddr - $fdtaddr"
+ "tftp $dtbaddr $dtbfile;"		\
+ "bootm $loadaddr - $dtbaddr"
 
 #endif	/* __CONFIG_H */

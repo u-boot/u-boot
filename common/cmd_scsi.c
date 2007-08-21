@@ -34,7 +34,7 @@
 #include <image.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if defined(CONFIG_CMD_SCSI)
 
 #ifdef CONFIG_SCSI_SYM53C8XX
 #define SCSI_VEND_ID	0x1000
@@ -609,4 +609,4 @@ U_BOOT_CMD(
 	"loadAddr dev:part\n"
 );
 
-#endif /* #if (CONFIG_COMMANDS & CFG_CMD_SCSI) */
+#endif

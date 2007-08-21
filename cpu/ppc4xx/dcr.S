@@ -22,7 +22,7 @@
  */
 #include <config.h>
 
-#if defined(CONFIG_4xx) && defined(CFG_CMD_SETGETDCR)
+#if defined(CONFIG_4xx) && defined(CONFIG_CMD_SETGETDCR)
 
 #include <ppc4xx.h>
 
@@ -195,4 +195,4 @@ set_dcr:
 		blr				/* Return to calling function */
 .Lfe4:		.size	set_dcr,.Lfe4-set_dcr
 /* end set_dcr() */
-#endif /* CONFIG_4xx & CFG_CMD_SETGETDCR */
+#endif

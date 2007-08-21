@@ -119,6 +119,11 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
  */
 #define FLAG_PROTECT_SET	0x01
 #define FLAG_PROTECT_CLEAR	0x02
+#define	FLAG_PROTECT_INVALID	0x03
+/*-----------------------------------------------------------------------
+ * Set Environment according to label:
+ */
+#define	FLAG_SETENV		0x80
 
 /*-----------------------------------------------------------------------
  * Device IDs

@@ -90,14 +90,24 @@
 #define CONFIG_BAUDRATE		   115200
 #define CFG_BAUDRATE_TABLE	   { 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_COMMANDS		   (CONFIG_CMD_DFL | CFG_CMD_DHCP)
-#define CONFIG_BOOTP_MASK	   CONFIG_BOOTP_DEFAULT
 
 /*
- * This must be included AFTER the definition of CONFIG_COMMANDS (if any)
+ * Command line configuration.
  */
+#include <config_cmd_default.h>
 
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_DHCP
+
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+
+
 #include <configs/omap730.h>
 #include <configs/h2_p2_dbg_board.h>
 
@@ -112,7 +122,7 @@
 #define CONFIG_SERVERIP		   192.150.0.100
 #define CONFIG_BOOTFILE		   "uImage"  /* File to load */
 
-#if defined (CONFIG_COMMANDS) && defined (CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	   115200    /* Speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	   1	     /* Which serial port to use */
 #endif

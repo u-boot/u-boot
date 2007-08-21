@@ -97,18 +97,31 @@
 #define CONFIG_BOOTDELAY      3
 /* #define CONFIG_ENV_OVERWRITE	1 */
 
-#define CONFIG_COMMANDS		\
-		       ((CONFIG_CMD_DFL | CFG_CMD_MII |\
-			CFG_CMD_DHCP ) & \
-		      ~(CFG_CMD_BDI | \
-			CFG_CMD_IMI | \
-			CFG_CMD_AUTOSCRIPT | \
-			CFG_CMD_FPGA | \
-			CFG_CMD_MISC | \
-			CFG_CMD_LOADS ))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_DHCP
+
+#undef CONFIG_CMD_BDI
+#undef CONFIG_CMD_IMI
+#undef CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_MISC
+#undef CONFIG_CMD_LOADS
+
 
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
@@ -149,6 +162,11 @@
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91C_USE_RMII
+
+/* AC Characteristics */
+/* DLYBS = tCSS = 250ns min and DLYBCT = tCSH = 250ns */
+#define DATAFLASH_TCSS	(0xC << 16)
+#define DATAFLASH_TCHS	(0x1 << 24)
 
 #define CONFIG_HAS_DATAFLASH		1
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)

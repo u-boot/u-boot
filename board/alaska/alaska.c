@@ -138,7 +138,7 @@ long int initdram (int board_type)
 	size = dramSetup ();
 
 /* if iCache ad dCache is defined */
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+#if defined(CONFIG_CMD_CACHE)
 /*    setupBat(size);*/
 #endif
 

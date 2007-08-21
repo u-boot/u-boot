@@ -145,82 +145,50 @@
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 #endif /* !FLASH */
 
-#ifdef	FLASH
-	#ifdef	RAMENV
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_FAT |\
-				CFG_CMD_EXT2 |\
-				CFG_CMD_JFFS2 |\
-				CFG_CMD_ECHO |\
-				CFG_CMD_IMLS |\
-				CFG_CMD_FLASH |\
-				CFG_CMD_MFSL |\
-				CFG_CMD_PING \
-				)
-	#else	/* !RAMENV */
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_IMLS |\
-				CFG_CMD_FLASH |\
-				CFG_CMD_PING |\
-				CFG_CMD_ENV |\
-				CFG_CMD_FAT |\
-				CFG_CMD_EXT2 |\
-				CFG_CMD_JFFS2 |\
-				CFG_CMD_ECHO |\
-				CFG_CMD_MFSL |\
-				CFG_CMD_SAVES \
-				)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_MFSL
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+
+#if defined(FLASH)
+	#define CONFIG_CMD_ECHO
+	#define CONFIG_CMD_FLASH
+	#define CONFIG_CMD_IMLS
+	#define CONFIG_CMD_JFFS2
+
+	#if !defined(RAMENV)
+		#define CONFIG_CMD_ENV
+		#define CONFIG_CMD_SAVES
 	#endif
+#endif
 
-#else	/* !FLASH */
-	#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-				CFG_CMD_MEMORY |\
-				CFG_CMD_MISC |\
-				CFG_CMD_AUTOSCRIPT |\
-				CFG_CMD_IRQ |\
-				CFG_CMD_ASKENV |\
-				CFG_CMD_BDI |\
-				CFG_CMD_RUN |\
-				CFG_CMD_LOADS |\
-				CFG_CMD_FAT |\
-				CFG_CMD_EXT2 |\
-				CFG_CMD_LOADB |\
-				CFG_CMD_IMI |\
-				CFG_CMD_NET |\
-				CFG_CMD_CACHE |\
-				CFG_CMD_MFSL |\
-				CFG_CMD_PING \
-				)
-#endif	/* !FLASH */
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2)
+#if defined(CONFIG_CMD_JFFS2)
 /* JFFS2 partitions */
 #define CONFIG_JFFS2_CMDLINE	/* mtdparts command line support */
 #define MTDIDS_DEFAULT		"nor0=ml401-0"

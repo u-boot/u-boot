@@ -58,17 +58,27 @@
 
 						    /*#define CONFIG_DRAM_SPEED	      66   */ /* MHz			     */
 
-#define CONFIG_COMMANDS		(   CONFIG_CMD_DFL  | \
-				    CFG_CMD_FLASH   | \
-				    CFG_CMD_SDRAM   | \
-				    CFG_CMD_I2C	    | \
-				    CFG_CMD_IDE	    | \
-				    CFG_CMD_FAT	    | \
-				    CFG_CMD_ENV	    | \
-				    CFG_CMD_PCI )
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_PCI
 
 
 /*-----------------------------------------------------------------------
@@ -398,7 +408,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

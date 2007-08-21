@@ -555,7 +555,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 
 #include <linux/mtd/nand_legacy.h>
 
@@ -570,7 +570,7 @@ void nand_init(void)
 }
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#if defined(CONFIG_CMD_PCMCIA)
 
 int pcmcia_init(void)
 {

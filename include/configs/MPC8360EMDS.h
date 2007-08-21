@@ -32,6 +32,8 @@
 #define CONFIG_MPC83XX		1 /* MPC83XX family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_MPC8360EMDS	1 /* MPC8360EMDS board specific */
+#undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
+#undef CONFIG_PQ_MDS_PIB_ATM /* QOC3 ATM card */
 
 /*
  * System Clock Setup
@@ -88,6 +90,7 @@
 #define CFG_SICRL		0x40000000
 
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * IMMR new address
@@ -309,13 +312,13 @@
 /*
  * CS4 on Local Bus, to PIB
  */
-#define CFG_BR4_PRELIM	0xf8008801 /* CS4 base address at 0xf8008000 */
+#define CFG_BR4_PRELIM	0xf8010801 /* CS4 base address at 0xf8010000 */
 #define CFG_OR4_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*
  * CS5 on Local Bus, to PIB
  */
-#define CFG_BR5_PRELIM	0xf8010801 /* CS5 base address at 0xf8010000 */
+#define CFG_BR5_PRELIM	0xf8008801 /* CS5 base address at 0xf8008000 */
 #define CFG_OR5_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*
@@ -457,41 +460,33 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#if defined(CFG_RAMBOOT)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_ASKENV
+
 #if defined(CONFIG_PCI)
-#define	 CONFIG_COMMANDS	((CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_ASKENV \
-				| CFG_CMD_PCI \
-				| CFG_CMD_I2C) \
-				& \
-				~(CFG_CMD_ENV \
-				| CFG_CMD_LOADS))
-#else
-#define	 CONFIG_COMMANDS	((CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_ASKENV \
-				| CFG_CMD_I2C) \
-				& \
-				~(CFG_CMD_ENV \
-				| CFG_CMD_LOADS))
-#endif
-#else
-#if defined(CONFIG_PCI)
-#define	 CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PCI \
-				| CFG_CMD_PING \
-				| CFG_CMD_ASKENV \
-				| CFG_CMD_I2C)
-#else
-#define	 CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_ASKENV \
-				| CFG_CMD_I2C  )
-#endif
+    #define CONFIG_CMD_PCI
 #endif
 
-#include <cmd_confdefs.h>
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#endif
+
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -502,7 +497,7 @@
 #define CFG_LOAD_ADDR		0x2000000 /* default load address */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 	#define CFG_CBSIZE	1024 /* Console I/O Buffer Size */
 #else
 	#define CFG_CBSIZE	256 /* Console I/O Buffer Size */
@@ -532,7 +527,7 @@
  */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5 /*log base 2 of the above value */
 #endif
 
@@ -610,7 +605,7 @@
 #define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02 /* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif

@@ -675,6 +675,7 @@ typedef struct uec_private {
 	ucc_fast_private_t		*uccf;
 	struct eth_device		*dev;
 	uec_t				*uec_regs;
+	uec_mii_t			*uec_mii_regs;
 	/* enet init command parameter */
 	uec_init_cmd_pram_t		*p_init_enet_param;
 	u32				init_enet_param_offset;

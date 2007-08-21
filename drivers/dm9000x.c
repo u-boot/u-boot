@@ -302,6 +302,21 @@ eth_init(bd_t * bd)
 	/* Set Node address */
 	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
+
+	if (!is_zero_ether_addr(bd->bi_enetaddr) &&
+	    !is_mutlicast_ether_addr(bd->bi_enetaddr)) {
+		/* try reading from environment */
+		u8 i;
+		char *s, *e;
+		s = getenv ("ethaddr");
+		for (i = 0; i < 6; ++i) {
+			bd->bi_enetaddr[i] = s ?
+				simple_strtoul (s, &e, 16) : 0;
+			if (s)
+				s = (*e) ? e + 1 : e;
+		}
+	}
+
 	printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", bd->bi_enetaddr[0],
 	       bd->bi_enetaddr[1], bd->bi_enetaddr[2], bd->bi_enetaddr[3],
 	       bd->bi_enetaddr[4], bd->bi_enetaddr[5]);

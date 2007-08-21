@@ -43,9 +43,7 @@
 
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
-#undef CONFIG_TSEC_ENET 		/* tsec ethernet support */
-#undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
-#define  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
+#undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -349,29 +347,33 @@
 #endif	/* CONFIG_PCI */
 
 
-#if defined(CONFIG_TSEC_ENET)
+#ifdef CONFIG_TSEC_ENET
 
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI 	1
 #endif
 
+#ifndef CONFIG_MII
 #define CONFIG_MII		1	/* MII PHY management */
+#endif
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"TSEC1"
-#undef CONFIG_MPC85XX_FEC
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
 
-#elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
+#endif /* CONFIG_TSEC_ENET */
 
-#define CONFIG_ETHER_ON_FCC	/* define if ether on FCC   */
+#ifdef CONFIG_ETHER_ON_FCC	/* CPM FCC Ethernet */
+
 #undef  CONFIG_ETHER_NONE	/* define if ether on something else */
 #define CONFIG_ETHER_INDEX      2       /* which channel for ether */
 
@@ -392,7 +394,10 @@
   #define FETH3_RST		0x80
 #endif  				/* CONFIG_ETHER_INDEX */
 
-#define CONFIG_MII			/* MII PHY management */
+#ifndef CONFIG_MII
+#define CONFIG_MII		1	/* MII PHY management */
+#endif
+
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 
 /*
@@ -432,46 +437,36 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#if defined(CFG_RAMBOOT)
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_PCI		\
-				 | CFG_CMD_I2C)		\
-				&			\
-				 ~(CFG_CMD_ENV		\
-				  | CFG_CMD_LOADS))
-  #elif defined(CONFIG_TSEC_ENET)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)		\
-				& ~(CFG_CMD_ENV))
-  #elif defined(CONFIG_ETHER_ON_FCC)
-    #define  CONFIG_COMMANDS	((CONFIG_CMD_DFL	\
-				 | CFG_CMD_MII		\
-				 | CFG_CMD_PING		\
-				 | CFG_CMD_I2C)		\
-				& ~(CFG_CMD_ENV))
-  #endif
-#else
-  #if defined(CONFIG_PCI)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_PCI		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #elif defined(CONFIG_TSEC_ENET)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #elif defined(CONFIG_ETHER_ON_FCC)
-    #define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_MII		\
-				| CFG_CMD_PING		\
-				| CFG_CMD_I2C)
-  #endif
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+
+#if defined(CONFIG_PCI)
+    #define CONFIG_CMD_PCI
 #endif
 
-#include <cmd_confdefs.h>
+#if defined(CONFIG_ETHER_ON_FCC)
+    #define CONFIG_CMD_MII
+#endif
+
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#endif
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -482,7 +477,7 @@
 #define CFG_LOAD_ADDR	0x1000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
     #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
     #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -503,7 +498,7 @@
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -515,7 +510,7 @@
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -527,6 +522,7 @@
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR   00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
@@ -553,9 +549,11 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
-   "consoledev=ttyS0\0"                                                 \
-   "ramdiskaddr=400000\0"						\
-   "ramdiskfile=your.ramdisk.u-boot\0"
+   "consoledev=ttyCPM\0"						\
+   "ramdiskaddr=1000000\0"						\
+   "ramdiskfile=your.ramdisk.u-boot\0"					\
+   "fdtaddr=400000\0"							\
+   "fdtfile=mpc8560ads.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
@@ -563,14 +561,16 @@
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 

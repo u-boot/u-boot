@@ -65,7 +65,7 @@
 
 #ifdef CONFIG_DRIVER_LAN91C96
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /*------------------------------------------------------------------------
  *

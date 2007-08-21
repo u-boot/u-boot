@@ -20,8 +20,8 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) \
-	&& defined(CONFIG_TULIP)
+#if defined(CONFIG_CMD_NET) \
+	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_TULIP)
 
 #include <malloc.h>
 #include <net.h>
@@ -768,4 +768,4 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 }
 #endif	/* UPDATE_SROM */
 
-#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_TULIP */
+#endif

@@ -95,5 +95,6 @@
 void enable_8568mds_duart(void);
 void enable_8568mds_flash_write(void);
 void disable_8568mds_flash_write(void);
+void enable_8568mds_qe_mdio(void);
 
 #endif	/* __BCSR_H_ */

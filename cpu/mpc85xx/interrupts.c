@@ -89,6 +89,39 @@ int interrupt_init (void)
 	mtspr(SPRN_TCR, TCR_PIE);
 	set_dec (decrementer_count);
 	set_msr (get_msr () | MSR_EE);
+
+#ifdef CONFIG_INTERRUPTS
+	volatile ccsr_pic_t *pic = &immr->im_pic;
+
+	pic->iivpr1 = 0x810002;	/* 50220 enable ecm interrupts */
+	debug("iivpr1@%x = %x\n",&pic->iivpr1, pic->iivpr1);
+
+	pic->iivpr2 = 0x810002;	/* 50240 enable ddr interrupts */
+	debug("iivpr2@%x = %x\n",&pic->iivpr2, pic->iivpr2);
+
+	pic->iivpr3 = 0x810003;	/* 50260 enable lbc interrupts */
+	debug("iivpr3@%x = %x\n",&pic->iivpr3, pic->iivpr3);
+
+#ifdef CONFIG_PCI1
+	pic->iivpr8 = 0x810008;	/* enable pci1 interrupts */
+	debug("iivpr8@%x = %x\n",&pic->iivpr8, pic->iivpr8);
+#endif
+#if defined(CONFIG_PCI2) || defined(CONFIG_PCIE2)
+	pic->iivpr9 = 0x810009;	/* enable pci1 interrupts */
+	debug("iivpr9@%x = %x\n",&pic->iivpr9, pic->iivpr9);
+#endif
+#ifdef CONFIG_PCIE1
+	pic->iivpr10 = 0x81000a;	/* enable pcie1 interrupts */
+	debug("iivpr10@%x = %x\n",&pic->iivpr10, pic->iivpr10);
+#endif
+#ifdef CONFIG_PCIE3
+	pic->iivpr11 = 0x81000b;	/* enable pcie3 interrupts */
+	debug("iivpr11@%x = %x\n",&pic->iivpr11, pic->iivpr11);
+#endif
+
+	pic->ctpr=0;		/* 40080 clear current task priority register */
+#endif
+
 	return (0);
 }
 
@@ -144,7 +177,7 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_IRQ)
+#if defined(CONFIG_CMD_IRQ)
 
 /*******************************************************************************
  *
@@ -159,4 +192,4 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#endif  /* CONFIG_COMMANDS & CFG_CMD_IRQ */
+#endif

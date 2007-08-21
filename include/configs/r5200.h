@@ -39,13 +39,10 @@
 #define CONFIG_M5271			/* define processor type */
 #define CONFIG_R5200			/* define board type */
 
-#define FEC_ENET
-#define CONFIG_NET_RETRY_COUNT 5
+#define CONFIG_MCFTMR
 
-#define CONFIG_IPADDR 192.168.0.172
-#define CONFIG_SERVERIP 192.168.0.148
-#define CONFIG_ETHADDR 00:06:3b:00:44:55
-
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
 #define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
@@ -66,10 +63,48 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-#define CONFIG_COMMANDS	 ((CONFIG_CMD_DFL | CFG_CMD_PING | CFG_CMD_NET ) & ~(CFG_CMD_LOADS | CFG_CMD_LOADB))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
+
+#define CONFIG_MCFFEC
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
+#	define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
 
 /* Note: We only copy one sectors worth of application code from location
  * 10200000 for speed purposes.  Increase the size if necessary */
@@ -79,7 +114,7 @@
 #define CFG_PROMPT		"u-boot> "
 #define CFG_LONGHELP				/* undef to save memory		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/

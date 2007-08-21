@@ -42,6 +42,10 @@ Yuli Barcohen <yuli@arabellasw.com>
 	Rattler			MPC8248
 	ZPC1900			MPC8265
 
+Michael Barkowski <michael.barkowski@freescale.com>
+
+	MPC8323ERDB		MPC8323
+
 Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 
 	sacsng			MPC8260
@@ -158,7 +162,12 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	VOH405			PPC405EP
 	VOM405			PPC405EP
 	WUH405			PPC405EP
-	CMS700                  PPC405EP
+	CMS700			PPC405EP
+
+Niklaus Giger <niklaus.giger@netstal.com>
+
+	HCU4			PPC405GPr
+	HCU5			PPC440EPx
 
 Frank Gottschling <fgottschling@eltec.de>
 
@@ -178,6 +187,10 @@ Wolfgang Grandegger <wg@denx.de>
 Howard Gray <mvsensor@matrix-vision.de>
 
 	MVS1			MPC823
+
+Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+	sbc8641d		MPC8641D
 
 Klaus Heydeck <heydeck@kieback-peter.de>
 
@@ -207,6 +220,10 @@ Thomas Lange <thomas@corelatus.se>
 The LEOX team <team@leox.org>
 
 	ELPT860			MPC860T
+
+Dave Liu <daveliu@freescale.com>
+
+	MPC8360EMDS		MPC8360
 
 Nye Liu <nyet@zumanetworks.com>
 
@@ -248,6 +265,7 @@ Tolunay Orkun <torkun@nextio.com>
 John Otken <jotken@softadvances.com>
 
 	luan			PPC440SP
+	taihu			PPC405EP
 
 Keith Outwater <Keith_Outwater@mvis.com>
 
@@ -262,6 +280,10 @@ Denis Peter <d.peter@mpl.ch>
 
 	MIP405			PPC4xx
 	PIP405			PPC4xx
+
+Kim Phillips <kim.phillips@freescale.com>
+
+	MPC8349EMDS		MPC8349
 
 Daniel Poirot <dan.poirot@windriver.com>
 
@@ -286,12 +308,14 @@ Stefan Roese <sr@denx.de>
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
+	rainier			PPC440GRx
 	sequoia			PPC440EPx
 	sycamore		PPC405GPr
 	taishan			PPC440GX
 	walnut			PPC405GP
 	yellowstone		PPC440GR
 	yosemite		PPC440EP
+	zeus			PPC405EP
 
 	P3M750			PPC750FX/GX/GL
 
@@ -308,6 +332,11 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 Peter De Schrijver <p2@mind.be>
 
 	ML2			PPC4xx
+
+Timur Tabi <timur@freescale.com>
+
+	MPC8349E-mITX		MPC8349
+	MPC8349E-mITX-GP	MPC8349
 
 Erik Theisen <etheisen@mindspring.com>
 
@@ -340,19 +369,6 @@ Stephen Williams <steve@icarus.com>
 John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
-
-Timur Tabi <timur@freescale.com>
-
-	MPC8349E-mITX		MPC8349
-	MPC8349E-mITX-GP	MPC8349
-
-Kim Phillips <kim.phillips@freescale.com>
-
-	MPC8349EMDS		MPC8349
-
-Dave Liu <daveliu@freescale.com>
-
-	MPC8360EMDS		MPC8360
 
 -------------------------------------------------------------------------
 
@@ -443,6 +459,12 @@ Konstantin Kletschke <kletschke@synertronixx.de>
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2		ARM926EJS
+
+Sergey Kubushyn <ksi@koi8.net>
+
+	DV-EVM			ARM926EJS
+	SONATA			ARM926EJS
+	SCHMOOGIE		ARM926EJS
 
 Prakash Kumar <prakash@embedx.com>
 
@@ -588,6 +610,16 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 Zachary P. Landau <zachary.landau@labxtechnologies.com>
 
 	r5200			mcf52x2
+
+TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+	M5235EVB		mcf52x2
+	M5329EVB		mcf532x
+	M54455EVB		mcf5445x
+
+Hayden Fraser <Hayden.Fraser@freescale.com>
+
+	M5253EVBE		mcf52x2
 
 #########################################################################
 # AVR32 Systems:							#

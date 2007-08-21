@@ -66,15 +66,26 @@
 #define CFG_SERIAL0		0x16000000
 #define CFG_SERIAL1		0x17000000
 
-/*#define CONFIG_COMMANDS	(CFG_CMD_DHCP | CFG_CMD_IMI | CFG_CMD_NET | CFG_CMD_PING | CFG_CMD_BDI | CFG_CMD_PCI) */
 /*#define CONFIG_NET_MULTI */
-/*#define CONFIG_BOOTP_MASK	  CONFIG_BOOTP_DEFAULT */
-
-#define CONFIG_COMMANDS (CFG_CMD_IMI | CFG_CMD_BDI | CFG_CMD_MEMORY)
 
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_MEMORY
+
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 mem=32M console=ttyAM0 console=tty"

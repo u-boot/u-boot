@@ -113,12 +113,12 @@
 				/* 0x03200064 */
 #if defined(CONFIG_DDR_2T_TIMING)
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_2T_EN \
 				| SDRAM_CFG_DBW_32 )
 #else
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_32_BE )
 				/* 0x43080000 */
 #endif
@@ -228,7 +228,7 @@
 #define CFG_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 /* maximum size of the flat tree (8K) */
@@ -265,7 +265,7 @@
 #define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0x69}	/* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{{0,0x69}} /* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 
@@ -310,6 +310,8 @@
 #define CONFIG_TSEC2_NAME	"TSEC1"
 #define TSEC1_PHY_ADDR			0x1c
 #define TSEC2_PHY_ADDR			4
+#define TSEC1_FLAGS			TSEC_GIGABIT
+#define TSEC2_FLAGS			TSEC_GIGABIT
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
 
@@ -341,26 +343,34 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CFG_BASE_COMMANDS	( CONFIG_CMD_DFL	\
-				| CFG_CMD_PING		\
-				| CFG_CMD_DHCP		\
-				| CFG_CMD_I2C		\
-				| CFG_CMD_MII		\
-				| CFG_CMD_DATE		\
-				| CFG_CMD_PCI)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_PCI
+
+#if defined(CFG_RAMBOOT)
+    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_LOADS
+#endif
 
 #define CONFIG_CMDLINE_EDITING 1
 
-#define CFG_RAMBOOT_COMMANDS	(CFG_BASE_COMMANDS & \
-				 ~(CFG_CMD_ENV | CFG_CMD_LOADS))
-
-#if defined(CFG_RAMBOOT)
-#define CONFIG_COMMANDS CFG_RAMBOOT_COMMANDS
-#else
-#define CONFIG_COMMANDS CFG_BASE_COMMANDS
-#endif
-
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
@@ -499,6 +509,7 @@
 
 #define CONFIG_ETHADDR		00:E0:0C:00:95:01
 #define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
 
 #define CONFIG_IPADDR		10.0.0.2

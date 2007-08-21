@@ -39,3 +39,4 @@ TEXT_BASE = 0xFFE00000
 endif
 
 PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
+LDSCRIPT := $(SRCTREE)/cpu/mpc5xxx/u-boot-customlayout.lds

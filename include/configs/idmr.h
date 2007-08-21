@@ -44,6 +44,8 @@
  */
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 #define CONFIG_BOOTDELAY	5
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
 #define CFG_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 #define CONFIG_ETHADDR		00:06:3b:01:41:55
@@ -57,6 +59,8 @@
 #define CONFIG_BOOTFILE		/tftpboot/idmr/uImage
 #define CONFIG_PREBOOT		"echo;echo Type \"run flash_nfs\" to mount root " \
 				"filesystem over NFS; echo"
+
+#define CONFIG_MCFTMR
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -78,18 +82,27 @@
 	"u-boot=/tftpboot/idmr/u-boot.bin\0"				\
 	""
 
-/*
- * Commands' definition
- */
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL		| \
-					CFG_CMD_PING		| \
-					CFG_CMD_JFFS2		| \
-					CFG_CMD_NET)		& \
-					~(CFG_CMD_LOADS		| \
-						CFG_CMD_LOADB))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NET
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
 
 
 /*
@@ -115,11 +128,11 @@
 #define CFG_PROMPT		"=> "
 #define CFG_LONGHELP				/* undef to save memory */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size */
-#else /* !(CONFIG_COMMANDS & CFG_CMD_KGDB) */
+#else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#endif /* (CONFIG_COMMANDS & CFG_CMD_KGDB) */
+#endif
 
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
@@ -138,11 +151,27 @@
 /*
  * Ethernet
  */
-#define FEC_ENET
-#define CONFIG_NET_RETRY_COUNT	5
-#define CFG_ENET_BD_BASE	0x480000
-#define CFG_DISCOVER_PHY	1
+#define CONFIG_MCFFEC
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
 #define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
 
 /*
  * Definitions for initial stack pointer and data area (in DPRAM)
@@ -177,7 +206,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CFG_BOOTMAPSZ		(CFG_SDRAM_BASE + (CFG_SDRAM_SIZE << 20))
 
 /* FLASH organization */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
@@ -206,8 +235,8 @@
 						"2m(rootfs),"	\
 						"-(user)";
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
-#error MII commands don't work on iDMR board and sholud not be enabled.
-#endif /* (CONFIG_COMMANDS & CFG_CMD_MII) */
+#if defined(CONFIG_CMD_MII)
+#error "MII commands don't work on iDMR board and should not be enabled."
+#endif
 
 #endif /* _IDMR_H */

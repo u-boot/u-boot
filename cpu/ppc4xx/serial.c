@@ -448,12 +448,17 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	unsigned long i;
 	unsigned long est;		/* current estimate */
 	unsigned long plloutb;
+	unsigned long cpr_pllc;
 	u32 reg;
+
+	/* check the pll feedback source */
+	mfcpr(cprpllc, cpr_pllc);
 
 	get_sys_info(&sysinfo);
 
-	plloutb = ((CONFIG_SYS_CLK_FREQ * sysinfo.pllFwdDiv * sysinfo.pllFbkDiv)
-		   / sysinfo.pllFwdDivB);
+	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ?
+		sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) * sysinfo.pllFbkDiv) /
+		sysinfo.pllFwdDivB);
 	udiv = 256;			/* Assume lowest possible serial clk */
 	div = plloutb / (16 * baudrate); /* total divisor */
 	umin = (plloutb / get_OPB_freq()) << 1;	/* 2 x OPB divisor */
@@ -843,7 +848,7 @@ int serial_buffered_tstc (void)
 
 #endif	/* CONFIG_SERIAL_SOFTWARE_FIFO */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 /*
   AS HARNOIS : according to CONFIG_KGDB_SER_INDEX kgdb uses serial port
   number 0 or number 1
@@ -949,7 +954,7 @@ void kgdb_interruptible (int yes)
 	return;
 }
 #endif	/* (CONFIG_KGDB_SER_INDEX & 2) */
-#endif	/* CFG_CMD_KGDB */
+#endif
 
 
 #if defined(CONFIG_SERIAL_MULTI)

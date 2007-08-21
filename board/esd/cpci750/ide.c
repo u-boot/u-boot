@@ -25,7 +25,7 @@
 
 
 #include <common.h>
-#ifdef CFG_CMD_IDE
+#if defined(CONFIG_CMD_IDE)
 #include <ata.h>
 #include <ide.h>
 #include <pci.h>
@@ -43,6 +43,8 @@ int ide_preinit (void)
 		ide_bus_offset[l] = -ATA_STATUS;
 	}
 	devbusfn = pci_find_device (0x1103, 0x0004, 0);
+	if (devbusfn == -1)
+	        devbusfn = pci_find_device (0x1095, 0x3114, 0);
 	if (devbusfn != -1) {
 		status = 0;
 

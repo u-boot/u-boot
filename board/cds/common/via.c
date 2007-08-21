@@ -28,11 +28,16 @@ void mpc85xx_config_via(struct pci_controller *hose,
 			pci_dev_t dev, struct pci_config_table *tab)
 {
 	pci_dev_t bridge;
+	unsigned int cmdstat;
 
 	/* Enable USB and IDE functions */
 	pci_hose_write_config_byte(hose, dev, 0x48, 0x08);
 
-	pciauto_config_device(hose, dev);
+	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
+	cmdstat |= PCI_COMMAND_IO | PCI_COMMAND_MEMORY| PCI_COMMAND_MASTER;
+	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
+	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE, 0x08);
+	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
 
 	/*
 	 * Force the backplane P2P bridge to have a window
@@ -40,7 +45,7 @@ void mpc85xx_config_via(struct pci_controller *hose,
 	 * This allows legacy I/O (i8259, etc) on the VIA
 	 * southbridge to be accessed.
 	 */
-	bridge = PCI_BDF(0,17,0);
+	bridge = PCI_BDF(0,BRIDGE_ID,0);
 	pci_hose_write_config_byte(hose, bridge, PCI_IO_BASE, 0);
 	pci_hose_write_config_word(hose, bridge, PCI_IO_BASE_UPPER16, 0);
 	pci_hose_write_config_byte(hose, bridge, PCI_IO_LIMIT, 0x10);

@@ -621,7 +621,6 @@ static void get_spd_info(unsigned long *dimm_populated,
 	}
 }
 
-#ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
 	PPC440_SYS_INFO board_cfg;
@@ -642,7 +641,6 @@ void board_add_ram_info(int use_default)
 	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
 	printf(", CL%d)", val);
 }
-#endif
 
 /*------------------------------------------------------------------
  * For the memory DIMMs installed, this routine verifies that they

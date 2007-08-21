@@ -32,11 +32,12 @@
 
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
 
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
+#include <div64.h>
 
 #include <nand.h>
 #include <jffs2/jffs2.h>
@@ -208,10 +209,10 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		}
 
 		if (!opts->quiet) {
-			int percent = (int)
-				((unsigned long long)
+			unsigned long long n =(unsigned long long)
 				 (erase.addr+meminfo->erasesize-opts->offset)
-				 * 100 / erase_length);
+				 * 100;
+			int percent = (int)do_div(n, erase_length);
 
 			/* output progress message only at whole percent
 			 * steps to reduce the number of messages printed
@@ -475,10 +476,9 @@ int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts)
 		imglen -= readlen;
 
 		if (!opts->quiet) {
-			int percent = (int)
-				((unsigned long long)
-				 (opts->length-imglen) * 100
-				 / opts->length);
+			unsigned long long n = (unsigned long long)
+				 (opts->length-imglen) * 100;
+			int percent = (int)do_div(n, opts->length);
 			/* output progress message only at whole percent
 			 * steps to reduce the number of messages printed
 			 * on (slow) serial consoles
@@ -651,10 +651,9 @@ int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts)
 		}
 
 		if (!opts->quiet) {
-			int percent = (int)
-				((unsigned long long)
-				 (opts->length-imglen) * 100
-				 / opts->length);
+			unsigned long long n = (unsigned long long)
+				 (opts->length-imglen) * 100;
+			int percent = (int)do_div(n ,opts->length);
 			/* output progress message only at whole percent
 			 * steps to reduce the number of messages printed
 			 * on (slow) serial consoles
@@ -859,4 +858,4 @@ int nand_unlock(nand_info_t *meminfo, ulong start, ulong length)
 	return ret;
 }
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) && !defined(CFG_NAND_LEGACY) */
+#endif
