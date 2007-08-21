@@ -303,8 +303,8 @@ eth_init(bd_t * bd)
 	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
 
-	if (!is_zero_ether_addr(bd->bi_enetaddr) &&
-	    !is_mutlicast_ether_addr(bd->bi_enetaddr)) {
+	if (is_zero_ether_addr(bd->bi_enetaddr) ||
+	    is_multicast_ether_addr(bd->bi_enetaddr)) {
 		/* try reading from environment */
 		u8 i;
 		char *s, *e;
@@ -542,7 +542,7 @@ read_srom_word(int offset)
 {
 	DM9000_iow(DM9000_EPAR, offset);
 	DM9000_iow(DM9000_EPCR, 0x4);
-	udelay(200);
+	udelay(8000);
 	DM9000_iow(DM9000_EPCR, 0x0);
 	return (DM9000_ior(DM9000_EPDRL) + (DM9000_ior(DM9000_EPDRH) << 8));
 }
