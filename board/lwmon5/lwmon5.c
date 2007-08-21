@@ -28,7 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-ulong flash_get_size (ulong base, int banknum);
+ulong flash_get_size(ulong base, int banknum);
+int misc_init_r_kbd(void);
 
 int board_early_init_f(void)
 {
@@ -295,6 +296,11 @@ int misc_init_r(void)
 	out_be32((void *)0xc4000024, 0x64);
 	out_be32((void *)0xc4000020, 0x701);
 
+	/*
+	 * Init matrix keyboard
+	 */
+	misc_init_r_kbd();
+
 	return 0;
 }
 
@@ -521,14 +527,3 @@ void hw_watchdog_reset(void)
 	val = gpio_read_out_bit(CFG_GPIO_WATCHDOG) == 0 ? 1 : 0;
 	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
 }
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return (ctrlc());
-}
-#endif

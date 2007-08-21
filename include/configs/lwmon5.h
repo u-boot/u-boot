@@ -34,6 +34,7 @@
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
+#define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 #define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 
@@ -159,10 +160,16 @@
 
 #define CONFIG_RTC_PCF8563	1		/* enable Philips PCF8563 RTC	*/
 #define CFG_I2C_RTC_ADDR	0x51		/* Philips PCF8563 RTC address	*/
+#define CFG_I2C_KEYBD_ADDR	0x56		/* PIC LWE keyboard		*/
 
-#define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
-	"echo"
+#define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
+#if 0
+#define	CONFIG_AUTOBOOT_KEYED		/* Enable "password" protection	*/
+#define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"  "	/* "password"	*/
+#endif
+
+#define	CONFIG_PREBOOT		"setenv bootdelay 15"
 
 #undef	CONFIG_BOOTARGS
 
@@ -210,6 +217,7 @@
 #define CONFIG_PHY_ADDR		3	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup         */
+#define CONFIG_PHY_RESET_DELAY	300
 
 #define CONFIG_HAS_ETH0
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
