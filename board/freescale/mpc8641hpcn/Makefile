@@ -23,15 +23,9 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o \
-		../common/sys_eeprom.o \
-		../common/pixis.o
+COBJS	:= $(BOARD).o
 
 SOBJS	:= init.o
 

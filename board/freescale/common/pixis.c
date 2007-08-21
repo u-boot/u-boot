@@ -27,6 +27,8 @@
 #include <watchdog.h>
 #include <asm/cache.h>
 
+#ifdef CONFIG_FSL_PIXIS
+
 #include "pixis.h"
 
 
@@ -470,3 +472,4 @@ U_BOOT_CMD(
 	"    pixis_reset altbank cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
 	"    pixis_reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
 	);
+#endif /* CONFIG_FSL_PIXIS */

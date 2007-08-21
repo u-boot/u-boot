@@ -1,6 +1,5 @@
 #
-# Copyright 2007 Freescale Semiconductor, Inc.
-# (C) Copyright 2001-2006
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,21 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)board/$(VENDOR)/common)
+endif
 
-COBJS	:= $(BOARD).o
+LIB	= $(obj)lib$(VENDOR).a
 
-SOBJS	:= init.o
+COBJS	:= sys_eeprom.o	\
+	   pixis.o	\
+	   pq-mds-pib.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
-	rm -f $(OBJS) $(SOBJS)
+	rm -f $(SOBJS) $(OBJS)
 
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
