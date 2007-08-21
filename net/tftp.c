@@ -178,7 +178,7 @@ TftpSend (void)
 		pkt += strlen((char *)pkt) + 1;
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt,"blksize%c%d%c",
-				0,htons(TftpBlkSizeOption),0);
+				0,TftpBlkSizeOption,0);
 #ifdef CONFIG_MCAST_TFTP
 		/* Check all preconditions before even trying the option */
 		if (!ProhibitMcast
