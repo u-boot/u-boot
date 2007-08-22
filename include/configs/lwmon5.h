@@ -72,7 +72,6 @@
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
 #define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 
