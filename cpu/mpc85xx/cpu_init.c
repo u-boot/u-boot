@@ -247,7 +247,7 @@ int cpu_init_r(void)
 	switch (cache_ctl & 0x30000000) {
 	case 0x20000000:
 		if (ver == SVR_8548 || ver == SVR_8548_E ||
-		    ver == SVR_8544) {
+		    ver == SVR_8544 || ver == SVR_8568_E) {
 			printf ("L2 cache 512KB:");
 			/* set L2E=1, L2I=1, & L2SRAM=0 */
 			cache_ctl = 0xc0000000;
