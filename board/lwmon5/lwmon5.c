@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <ppc440.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
@@ -527,3 +528,29 @@ void hw_watchdog_reset(void)
 	val = gpio_read_out_bit(CFG_GPIO_WATCHDOG) == 0 ? 1 : 0;
 	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
 }
+
+int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	if (argc < 2) {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if ((strcmp(argv[1], "on") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 1);
+	} else if ((strcmp(argv[1], "off") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 0);
+	} else {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	eepromwp,	2,	0,	do_eeprom_wp,
+	"eepromwp- eeprom write protect off/on\n",
+	"<on|off> - enable (on) or disable (off) I2C EEPROM write protect\n"
+);

@@ -161,15 +161,16 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
-#define CFG_I2C_SPEED		400000		/* I2C speed and slave address	*/
+#define CFG_I2C_SPEED		100000		/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_I2C_EEPROM_ADDR	0x53	/* EEPROM AT24C128		*/
+#define CFG_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address		*/
+#define CFG_EEPROM_PAGE_WRITE_BITS 6	/* The Atmel AT24C128 has	*/
+					/* 64 byte page write mode using*/
+					/* last 6 bits of the address	*/
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CONFIG_RTC_PCF8563	1		/* enable Philips PCF8563 RTC	*/
 #define CFG_I2C_RTC_ADDR	0x51		/* Philips PCF8563 RTC address	*/
@@ -397,6 +398,8 @@
 #define CFG_GPIO_PHY1_RST	12
 #define CFG_GPIO_FLASH_WP	14
 #define CFG_GPIO_PHY0_RST	22
+#define CFG_GPIO_EEPROM_EXT_WP	55
+#define CFG_GPIO_EEPROM_INT_WP	57
 #define CFG_GPIO_WATCHDOG	58
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
