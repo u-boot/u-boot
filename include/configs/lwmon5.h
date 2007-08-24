@@ -400,9 +400,9 @@
 #define CFG_GPIO_PHY0_RST	22
 #define CFG_GPIO_EEPROM_EXT_WP	55
 #define CFG_GPIO_EEPROM_INT_WP	57
-#define CFG_GPIO_WATCHDOG	58
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
+#define CFG_GPIO_WATCHDOG	63
 
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
