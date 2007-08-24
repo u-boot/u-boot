@@ -142,15 +142,16 @@
 #endif
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_MEMORY   | \
-				 CFG_POST_ECC_ON   | \
+#define CONFIG_POST		(CFG_POST_CACHE    | \
 				 CFG_POST_CPU	   | \
-				 CFG_POST_UART	   | \
-				 CFG_POST_I2C	   | \
-				 CFG_POST_CACHE	   | \
-				 CFG_POST_FPU	   | \
+				 CFG_POST_ECC_ON   | \
 				 CFG_POST_ETHER	   | \
-				 CFG_POST_SPR)
+				 CFG_POST_FPU	   | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_MEMORY   | \
+				 CFG_POST_RTC      | \
+				 CFG_POST_SPR      | \
+				 CFG_POST_UART)
 
 #define CFG_POST_CACHE_ADDR	0x10000000	/* free virtual address		*/
 #define CONFIG_LOGBUFFER
