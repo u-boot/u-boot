@@ -180,9 +180,17 @@ int checkboard (void)
 {
 	ushort brd_rev = *(vu_short *) (CFG_CPLD_BASE + 0x00);
 	uchar cpld_rev = *(vu_char *) (CFG_CPLD_BASE + 0x02);
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile unsigned long *reg;
+	int i;
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
+
+	/* change the slew rate on all pata pins to max */
+	reg = (unsigned long *) &(im->io_ctrl.regs[PATA_CE1_IDX]);
+	for (i = 0; i < 9; i++)
+		reg[i] |= 0x00000003;
 	return 0;
 }
 
