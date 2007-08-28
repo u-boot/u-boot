@@ -34,6 +34,7 @@
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
+#define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
 /*-----------------------------------------------------------------------
@@ -71,7 +72,6 @@
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
 #define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 
@@ -142,15 +142,16 @@
 #endif
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_MEMORY   | \
-				 CFG_POST_ECC_ON   | \
+#define CONFIG_POST		(CFG_POST_CACHE    | \
 				 CFG_POST_CPU	   | \
-				 CFG_POST_UART	   | \
-				 CFG_POST_I2C	   | \
-				 CFG_POST_CACHE	   | \
-				 CFG_POST_FPU	   | \
+				 CFG_POST_ECC_ON   | \
 				 CFG_POST_ETHER	   | \
-				 CFG_POST_SPR)
+				 CFG_POST_FPU	   | \
+				 CFG_POST_I2C	   | \
+				 CFG_POST_MEMORY   | \
+				 CFG_POST_RTC      | \
+				 CFG_POST_SPR      | \
+				 CFG_POST_UART)
 
 #define CFG_POST_CACHE_ADDR	0x10000000	/* free virtual address		*/
 #define CONFIG_LOGBUFFER
@@ -161,22 +162,29 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
-#define CFG_I2C_SPEED		400000		/* I2C speed and slave address	*/
+#define CFG_I2C_SPEED		100000		/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_I2C_EEPROM_ADDR	0x53	/* EEPROM AT24C128		*/
+#define CFG_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address		*/
+#define CFG_EEPROM_PAGE_WRITE_BITS 6	/* The Atmel AT24C128 has	*/
+					/* 64 byte page write mode using*/
+					/* last 6 bits of the address	*/
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CONFIG_RTC_PCF8563	1		/* enable Philips PCF8563 RTC	*/
 #define CFG_I2C_RTC_ADDR	0x51		/* Philips PCF8563 RTC address	*/
+#define CFG_I2C_KEYBD_ADDR	0x56		/* PIC LWE keyboard		*/
 
-#define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
-	"echo"
+#define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
+#if 0
+#define	CONFIG_AUTOBOOT_KEYED		/* Enable "password" protection	*/
+#define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"  "	/* "password"	*/
+#endif
+
+#define	CONFIG_PREBOOT		"setenv bootdelay 15"
 
 #undef	CONFIG_BOOTARGS
 
@@ -225,6 +233,7 @@
 #define CONFIG_PHY_ADDR		3	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup         */
+#define CONFIG_PHY_RESET_DELAY	300
 
 #define CONFIG_HAS_ETH0
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
@@ -390,9 +399,11 @@
 #define CFG_GPIO_PHY1_RST	12
 #define CFG_GPIO_FLASH_WP	14
 #define CFG_GPIO_PHY0_RST	22
-#define CFG_GPIO_WATCHDOG	58
+#define CFG_GPIO_EEPROM_EXT_WP	55
+#define CFG_GPIO_EEPROM_INT_WP	57
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
+#define CFG_GPIO_WATCHDOG	63
 
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration

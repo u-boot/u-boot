@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <ppc440.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
@@ -28,7 +29,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-ulong flash_get_size (ulong base, int banknum);
+ulong flash_get_size(ulong base, int banknum);
+int misc_init_r_kbd(void);
 
 int board_early_init_f(void)
 {
@@ -295,6 +297,11 @@ int misc_init_r(void)
 	out_be32((void *)0xc4000024, 0x64);
 	out_be32((void *)0xc4000020, 0x701);
 
+	/*
+	 * Init matrix keyboard
+	 */
+	misc_init_r_kbd();
+
 	return 0;
 }
 
@@ -522,13 +529,28 @@ void hw_watchdog_reset(void)
 	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
 }
 
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
+int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	return (ctrlc());
+	if (argc < 2) {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if ((strcmp(argv[1], "on") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 1);
+	} else if ((strcmp(argv[1], "off") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 0);
+	} else {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+
+	return 0;
 }
-#endif
+
+U_BOOT_CMD(
+	eepromwp,	2,	0,	do_eeprom_wp,
+	"eepromwp- eeprom write protect off/on\n",
+	"<on|off> - enable (on) or disable (off) I2C EEPROM write protect\n"
+);

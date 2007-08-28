@@ -133,7 +133,7 @@ typedef	struct	global_data {
 	unsigned long do_mdm_init;
 	unsigned long be_quiet;
 #endif
-#ifdef CONFIG_LWMON
+#if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
 	unsigned long kbd_status;
 #endif
 	void		**jt;		/* jump table */
