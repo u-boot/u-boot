@@ -56,7 +56,7 @@ int ide_preinit (void)
 
 #if defined(CONFIG_UC101)
 	/* Configure and reset host */
-	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG = 
+	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG =
 		MPC5xxx_ATA_HOSTCONF_SMR | MPC5xxx_ATA_HOSTCONF_FR;
 	udelay (10);
 	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG = 0;
