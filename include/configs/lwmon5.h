@@ -200,12 +200,13 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
+	"addmisc=setenv bootargs ${bootargs} rtc-pcf8563.probe=0,0x51\0"\
+	"flash_nfs=run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_self=run ramargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addtty addmisc;bootm\0"		\
 	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
 	"bootfile=/tftpboot/lwmon5/uImage\0"				\
 	"kernel_addr=FC000000\0"					\
