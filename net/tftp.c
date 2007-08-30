@@ -238,9 +238,9 @@ TftpSend (void)
 static void
 TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 {
-	char * blksize;
 	ushort proto;
 	ushort *s;
+	int i;
 
 	if (dest != TftpOurPort) {
 #ifdef CONFIG_MCAST_TFTP
@@ -272,22 +272,22 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 	case TFTP_OACK:
 #ifdef ET_DEBUG
-		printf("Got OACK:\n");
-		print_buffer (0, pkt, 1, len, 16);
+		printf("Got OACK: %s %s\n", pkt, pkt+strlen(pkt)+1);
 #endif
 		TftpState = STATE_OACK;
 		TftpServerPort = src;
-
 		/* Check for 'blksize' option */
-		pkt[len] = 0; /* NULL terminate so string ops work */
-		blksize = strstr((char*)pkt, "blksize");
-		if ((blksize) && (blksize + 8 < (char*)pkt + len)) {
-			TftpBlkSize = simple_strtoul(blksize + 8, NULL, 10);
+		for (i=0;i<len-8;i++) {
+			if (strcmp ((char*)pkt+i,"blksize") == 0) {
+				TftpBlkSize = (unsigned short)
+					simple_strtoul((char*)pkt+i+8,NULL,10);
 #ifdef ET_DEBUG
-			printf("Blocksize ack: %d\n", TftpBlkSize);
+				printf ("Blocksize ack: %s, %d\n",
+					(char*)pkt+i+8,TftpBlkSize);
 #endif
+				break;
+			}
 		}
-
 #ifdef CONFIG_MCAST_TFTP
 		parse_multicast_oack((char *)pkt,len-1);
 		if ((Multicast) && (!MasterClient))
