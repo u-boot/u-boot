@@ -103,8 +103,8 @@
  * generated and assigned to the environment variables "ethaddr" and
  * "eth1addr".
  */
-#define CONFIG_ETHADDR			"6a:87:71:14:cd:cb"
-#define CONFIG_ETH1ADDR			"ca:f8:15:e6:3e:e6"
+#define CONFIG_ETHADDR			6a:87:71:14:cd:cb
+#define CONFIG_ETH1ADDR			ca:f8:15:e6:3e:e6
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_NET_MULTI		1
 
