@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <asm/io.h>
 #include <spd.h>
 #include <miiphy.h>
 
@@ -222,6 +223,11 @@ pci_init_board(void)
 		printf ("    PCIE3 on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
 
+		/*
+		 * Activate ULI1575 legacy chip by performing a fake
+		 * memory access.  Needed to make ULI RTC work.
+		 */
+		in_be32(CFG_PCIE3_MEM_BASE);
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}
