@@ -314,6 +314,10 @@ void start_armboot (void)
 	drv_vfd_init();
 #endif /* CONFIG_VFD */
 
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
+
 	/* IP Address */
 	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
