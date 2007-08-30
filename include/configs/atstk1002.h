@@ -87,7 +87,7 @@
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
  * data on the serial line may interrupt the boot sequence.
  */
-#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTDELAY		1
 #define CONFIG_AUTOBOOT			1
 #define CONFIG_AUTOBOOT_KEYED		1
 #define CONFIG_AUTOBOOT_PROMPT				\
