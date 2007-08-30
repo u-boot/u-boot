@@ -54,7 +54,6 @@ fsl_pci_init(struct pci_controller *hose)
 	u8 temp8;
 	int r;
 	int bridge;
-	unsigned long bus_lower_temp;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) hose->cfg_addr;
 	pci_dev_t dev = PCI_BDF(busno,0,0);
 
@@ -135,10 +134,9 @@ fsl_pci_init(struct pci_controller *hose)
 	 * but do not allocate any windows since any BAR found (such
 	 * as PCSRBAR) is not in this cpu's memory space.
 	 */
-	bus_lower_temp = hose->pci_mem->bus_lower;
+
 	pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			     hose->pci_prefetch, hose->pci_io);
-	hose->pci_mem->bus_lower = bus_lower_temp;
 
 #ifndef CONFIG_PCI_NOSCAN
 	printf ("               Scanning PCI bus %02x\n", hose->current_busno);
