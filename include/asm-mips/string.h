@@ -1,18 +1,26 @@
-/* $Id: string.h,v 1.13 2000/02/19 14:12:14 harald Exp $
- *
+/*
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
- * Copyright (c) 1994, 1995, 1996, 1997, 1998 by Ralf Baechle
+ * Copyright (c) 1994, 95, 96, 97, 98, 2000, 01 Ralf Baechle
+ * Copyright (c) 2000 by Silicon Graphics, Inc.
+ * Copyright (c) 2001 MIPS Technologies, Inc.
  */
-#ifndef __ASM_MIPS_STRING_H
-#define __ASM_MIPS_STRING_H
+#ifndef _ASM_STRING_H
+#define _ASM_STRING_H
 
-#include <linux/config.h>
+
+/*
+ * Most of the inline functions are rather naive implementations so I just
+ * didn't bother updating them for 64-bit ...
+ */
+#ifdef CONFIG_32BIT
+
+#ifndef IN_STRING_C
 
 #define __HAVE_ARCH_STRCPY
-extern __inline__ char *strcpy(char *__dest, __const__ char *__src)
+static __inline__ char *strcpy(char *__dest, __const__ char *__src)
 {
   char *__xdest = __dest;
 
@@ -28,13 +36,13 @@ extern __inline__ char *strcpy(char *__dest, __const__ char *__src)
 	".set\treorder"
 	: "=r" (__dest), "=r" (__src)
 	: "0" (__dest), "1" (__src)
-	: "$1","memory");
+	: "memory");
 
   return __xdest;
 }
 
 #define __HAVE_ARCH_STRNCPY
-extern __inline__ char *strncpy(char *__dest, __const__ char *__src, size_t __n)
+static __inline__ char *strncpy(char *__dest, __const__ char *__src, size_t __n)
 {
   char *__xdest = __dest;
 
@@ -56,13 +64,13 @@ extern __inline__ char *strncpy(char *__dest, __const__ char *__src, size_t __n)
 	".set\treorder"
 	: "=r" (__dest), "=r" (__src), "=r" (__n)
 	: "0" (__dest), "1" (__src), "2" (__n)
-	: "$1","memory");
+	: "memory");
 
-  return __dest;
+  return __xdest;
 }
 
 #define __HAVE_ARCH_STRCMP
-extern __inline__ int strcmp(__const__ char *__cs, __const__ char *__ct)
+static __inline__ int strcmp(__const__ char *__cs, __const__ char *__ct)
 {
   int __res;
 
@@ -84,14 +92,15 @@ extern __inline__ int strcmp(__const__ char *__cs, __const__ char *__ct)
 	"3:\t.set\tat\n\t"
 	".set\treorder"
 	: "=r" (__cs), "=r" (__ct), "=r" (__res)
-	: "0" (__cs), "1" (__ct)
-	: "$1");
+	: "0" (__cs), "1" (__ct));
 
   return __res;
 }
 
+#endif /* !defined(IN_STRING_C) */
+
 #define __HAVE_ARCH_STRNCMP
-extern __inline__ int
+static __inline__ int
 strncmp(__const__ char *__cs, __const__ char *__ct, size_t __count)
 {
 	int __res;
@@ -116,11 +125,11 @@ strncmp(__const__ char *__cs, __const__ char *__ct, size_t __count)
 	".set\tat\n\t"
 	".set\treorder"
 	: "=r" (__cs), "=r" (__ct), "=r" (__count), "=r" (__res)
-	: "0" (__cs), "1" (__ct), "2" (__count)
-	: "$1");
+	: "0" (__cs), "1" (__ct), "2" (__count));
 
 	return __res;
 }
+#endif /* CONFIG_32BIT */
 
 #undef __HAVE_ARCH_MEMSET
 extern void *memset(void *__s, int __c, size_t __count);
@@ -131,27 +140,4 @@ extern void *memcpy(void *__to, __const__ void *__from, size_t __n);
 #undef __HAVE_ARCH_MEMMOVE
 extern void *memmove(void *__dest, __const__ void *__src, size_t __n);
 
-/* Don't build bcopy at all ...  */
-#define __HAVE_ARCH_BCOPY
-
-#define __HAVE_ARCH_MEMSCAN
-extern __inline__ void *memscan(void *__addr, int __c, size_t __size)
-{
-	char *__end = (char *)__addr + __size;
-
-	__asm__(".set\tpush\n\t"
-		".set\tnoat\n\t"
-		".set\treorder\n\t"
-		"1:\tbeq\t%0,%1,2f\n\t"
-		"addiu\t%0,1\n\t"
-		"lb\t$1,-1(%0)\n\t"
-		"bne\t$1,%4,1b\n"
-		"2:\t.set\tpop"
-		: "=r" (__addr), "=r" (__end)
-		: "0" (__addr), "1" (__end), "r" (__c)
-		: "$1");
-
-	return __addr;
-}
-
-#endif /* __ASM_MIPS_STRING_H */
+#endif /* _ASM_STRING_H */
