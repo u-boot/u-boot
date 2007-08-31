@@ -126,6 +126,9 @@ tlbtab:
 	/* TLB-entry for peripherals */
 	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
 
+	/* TLB-entry PCI IO Space - from sr@denx.de */
+	tlbentry(0xE8000000, SZ_64K, 0xE8000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+
 	tlbtab_end
 
 #if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
