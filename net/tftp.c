@@ -276,8 +276,12 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 #endif
 		TftpState = STATE_OACK;
 		TftpServerPort = src;
-		/* Check for 'blksize' option */
-		for (i=0;i<len-8;i++) {
+		/*
+		 * Check for 'blksize' option.
+		 * Careful: "i" is signed, "len" is unsigned, thus
+		 * something like "len-8" may give a *huge* number
+		 */
+		for (i=0; i+8<len; i++) {
 			if (strcmp ((char*)pkt+i,"blksize") == 0) {
 				TftpBlkSize = (unsigned short)
 					simple_strtoul((char*)pkt+i+8,NULL,10);
