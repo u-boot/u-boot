@@ -63,9 +63,9 @@ extern unsigned long get_clock_freq(void);
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
-/*#define CONFIG_L2_CACHE*/		    	    /* toggle L2 cache 	*/
-#define CONFIG_BTB						/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		    /* toggle addr streaming   */
+#define CONFIG_L2_CACHE				/* toggle L2 cache 	*/
+#define CONFIG_BTB				/* toggle branch predition */
+#define CONFIG_ADDR_STREAMING			/* toggle addr streaming   */
 
 /*
  * Only possible on E500 Version 2 or newer cores.
@@ -292,9 +292,6 @@ extern unsigned long get_clock_freq(void);
 /* pass open firmware flat tree */
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8568@0"
 #define OF_SOC			"soc8568@e0000000"

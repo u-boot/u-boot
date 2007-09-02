@@ -185,6 +185,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
 
 
+#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xf8100000      /* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
@@ -267,9 +268,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU		"PowerPC,8641@0"
 #define OF_SOC		"soc8641@f8000000"

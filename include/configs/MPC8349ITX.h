@@ -299,9 +299,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

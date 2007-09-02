@@ -669,7 +669,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 				ed_p = &(((ed_t *)ed_p)->hwNextED))
 					inter = ep_rev (6, ((ed_t *)ed_p)->int_interval);
 			ed->hwNextED = *ed_p;
-			*ed_p = m32_swap(ed);
+			*ed_p = m32_swap((unsigned long)ed);
 		}
 		break;
 	}
@@ -687,11 +687,11 @@ static void periodic_unlink ( struct ohci *ohci, volatile struct ed *ed,
 
 		/* ED might have been unlinked through another path */
 		while (*ed_p != 0) {
-			if (((struct ed *)m32_swap (ed_p)) == ed) {
+			if (((struct ed *)m32_swap ((unsigned long)ed_p)) == ed) {
 				*ed_p = ed->hwNextED;
 				break;
 			}
-			ed_p = & (((struct ed *)m32_swap (ed_p))->hwNextED);
+			ed_p = & (((struct ed *)m32_swap ((unsigned long)ed_p))->hwNextED);
 		}
 	}
 }

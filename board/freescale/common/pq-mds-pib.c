@@ -12,6 +12,8 @@
 #include <i2c.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_PQ_MDS_PIB
+
 #include "pq-mds-pib.h"
 
 int pib_init(void)
@@ -100,3 +102,4 @@ int pib_init(void)
 	i2c_set_bus_num(orig_i2c_bus);
 	return 0;
 }
+#endif /* CONFIG_PQ_MDS_PIB */

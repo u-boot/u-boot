@@ -26,6 +26,8 @@
 
 #define	IDE_BUS(dev)	(dev >> 1)
 
+#define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
+
 #ifdef CONFIG_IDE_LED
 
 /*

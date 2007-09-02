@@ -130,9 +130,14 @@ fsl_pci_init(struct pci_controller *hose)
 
 	}
 
-	/* Call setup to allocate PCSRBAR window */
-	pciauto_setup_device(hose, dev, 1, hose->pci_mem,
+	/* Use generic setup_device to initialize standard pci regs,
+	 * but do not allocate any windows since any BAR found (such
+	 * as PCSRBAR) is not in this cpu's memory space.
+	 */
+
+	pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			     hose->pci_prefetch, hose->pci_io);
+
 #ifndef CONFIG_PCI_NOSCAN
 	printf ("               Scanning PCI bus %02x\n", hose->current_busno);
 	hose->last_busno = pci_hose_scan_bus(hose,hose->current_busno);
