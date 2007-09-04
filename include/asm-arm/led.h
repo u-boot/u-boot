@@ -26,7 +26,7 @@
 #define __LED_H
 
 #ifndef	__ASSEMBLY__
-extern void	LED_init (void);
+extern void	coloured_LED_init (void);
 extern void	red_LED_on(void);
 extern void	red_LED_off(void);
 extern void	green_LED_on(void);

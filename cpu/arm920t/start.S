@@ -27,9 +27,7 @@
 
 #include <config.h>
 #include <version.h>
-#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
-#include	<led.h>
-#endif
+#include <asm/led.h>
 
 /*
  *************************************************************************
@@ -117,13 +115,13 @@ reset:
 	bic	r0,r0,#0x1f
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
-
-#if	CONFIG_AT91RM9200
-#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
-	bl LED_init
+	/* 
+	 * if board has a red led use it to show U-Boot is running
+	 */
+	bl coloured_LED_init
 	bl red_LED_on
-#endif
 
+#ifdef CONFIG_AT91RM9200
 #ifdef CONFIG_BOOTBINFUNC
 /* code based on entry.S from ATMEL */
 #define AT91C_BASE_CKGR 0xFFFFFC20
