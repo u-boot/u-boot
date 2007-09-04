@@ -817,27 +817,32 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		int i;
 
 		/* skip kernel length, initrd length, and terminator */
-		of_data = (ulong)(&len_ptr[3]);
+		of_flat_tree = (char *)(&len_ptr[3]);
 		/* skip any additional image length fields */
 		for (i=2; len_ptr[i]; ++i)
-			of_data += 4;
+			of_flat_tree += 4;
 		/* add kernel length, and align */
-		of_data += ntohl(len_ptr[0]);
+		of_flat_tree += ntohl(len_ptr[0]);
 		if (tail) {
-			of_data += 4 - tail;
+			of_flat_tree += 4 - tail;
 		}
 
 		/* add initrd length, and align */
 		tail = ntohl(len_ptr[1]) % 4;
-		of_data += ntohl(len_ptr[1]);
+		of_flat_tree += ntohl(len_ptr[1]);
 		if (tail) {
-			of_data += 4 - tail;
+			of_flat_tree += 4 - tail;
 		}
 
+		/* move the blob if it is in flash (set of_data to !null) */
+		if (addr2info ((ulong)of_flat_tree) != NULL)
+			of_data = (ulong)of_flat_tree;
+
+
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+		if (*((ulong *)(of_flat_tree)) != OF_DT_HEADER) {
 #else
-		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
+		if (fdt_check_header (of_flat_tree) != 0) {
 #endif
 			puts ("ERROR: image is not a fdt - "
 				"must RESET the board to recover.\n");
@@ -845,9 +850,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (((struct boot_param_header *)of_data)->totalsize != ntohl(len_ptr[2])) {
+		if (((struct boot_param_header *)of_flat_tree)->totalsize !=
+			ntohl (len_ptr[2])) {
 #else
-		if (be32_to_cpu(fdt_totalsize(of_data)) !=  ntohl(len_ptr[2])) {
+		if (be32_to_cpu (fdt_totalsize (of_flat_tree)) !=
+			ntohl(len_ptr[2])) {
 #endif
 			puts ("ERROR: fdt size != image size - "
 				"must RESET the board to recover.\n");
@@ -957,6 +964,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				"must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
+		puts ("OK\n");
 	}
 	/*
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
@@ -1013,6 +1021,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
 		memmove ((void *)of_start, (void *)of_data, of_len);
+		puts ("OK\n");
 	}
 	/*
 	 * Create the /chosen node and modify the blob with board specific
