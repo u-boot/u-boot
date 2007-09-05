@@ -27,7 +27,7 @@
 
 #include <config.h>
 #include <version.h>
-#include <asm/led.h>
+#include <asm/coloured_led.h>
 
 /*
  *************************************************************************
@@ -39,7 +39,7 @@
 
 
 .globl _start
-_start:	b       reset
+_start:	b       start_code
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -62,7 +62,7 @@ _fiq:			.word fiq
 /*
  *************************************************************************
  *
- * Startup Code (reset vector)
+ * Startup Code (called from the ARM reset exception vector)
  *
  * do important init only if we don't start from memory!
  * relocate armboot to ram
@@ -104,10 +104,10 @@ FIQ_STACK_START:
 
 
 /*
- * the actual reset code
+ * the actual start code
  */
 
-reset:
+start_code:
 	/*
 	 * set the cpu to SVC32 mode
 	 */
@@ -115,59 +115,13 @@ reset:
 	bic	r0,r0,#0x1f
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
-	/* 
-	 * if board has a red led use it to show U-Boot is running
-	 */
+
 	bl coloured_LED_init
 	bl red_LED_on
 
-#ifdef CONFIG_AT91RM9200
-#ifdef CONFIG_BOOTBINFUNC
-/* code based on entry.S from ATMEL */
-#define AT91C_BASE_CKGR 0xFFFFFC20
-#define CKGR_MOR 0
-	/* Get the CKGR Base Address */
-	ldr     r1, =AT91C_BASE_CKGR
-
-/* Main oscillator Enable register	APMC_MOR : Enable main oscillator , OSCOUNT = 0xFF */
-/*	ldr 	r0, = AT91C_CKGR_MOSCEN:OR:AT91C_CKGR_OSCOUNT */
-	ldr 	r0, =0x0000FF01
-	str     r0, [r1, #CKGR_MOR]
-	/* Add loop to compensate Main Oscillator startup time */
-	ldr 	r0, =0x00000010
-LoopOsc:
-	subs    r0, r0, #1
-	bhi     LoopOsc
-	/* scratch stack */
-	ldr 	r1, =0x00204000
-	/* Insure word alignment */
-	bic     r1, r1, #3
-	/* Init stack SYS	 */
-	mov     sp, r1
+#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
 	/*
-	 * This does a lot more than just set up the memory, which
-	 * is why it's called lowlevelinit
-	 */
-	bl	lowlevelinit /* in memsetup.S */
-	bl	icache_enable;
-	/* ------------------------------------
-	 * Read/modify/write CP15 control register
-	 * -------------------------------------
-	 * read cp15 control register (cp15 r1) in r0
-	 * ------------------------------------
-	 */
-	mrc     p15, 0, r0, c1, c0, 0
-	/* Reset bit :Little Endian end fast bus mode */
-	ldr     r3, =0xC0000080
-	/* Set bit :Asynchronous clock mode, Not Fast Bus */
-	ldr     r4, =0xC0000000
-	bic     r0, r0, r3
-	orr     r0, r0, r4
-	/* write r0 in cp15 control register (cp15 r1) */
-	mcr     p15, 0, r0, c1, c0, 0
-#endif /* CONFIG_BOOTBINFUNC */
-	/*
-	 * relocate exeception table
+	 * relocate exception table
 	 */
 	ldr	r0, =_start
 	ldr	r1, =0x0
@@ -179,19 +133,20 @@ copyex:
 	bne	copyex
 #endif
 
-/* turn off the watchdog */
-#if defined(CONFIG_S3C2400)
-# define pWTCON		0x15300000
-# define INTMSK		0x14400008	/* Interupt-Controller base addresses */
-# define CLKDIVN	0x14800014	/* clock divisor register */
-#elif defined(CONFIG_S3C2410)
-# define pWTCON		0x53000000
-# define INTMSK		0x4A000008	/* Interupt-Controller base addresses */
-# define INTSUBMSK	0x4A00001C
-# define CLKDIVN	0x4C000014	/* clock divisor register */
-#endif
-
 #if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
+	/* turn off the watchdog */
+
+# if defined(CONFIG_S3C2400)
+#  define pWTCON		0x15300000
+#  define INTMSK		0x14400008	/* Interupt-Controller base addresses */
+#  define CLKDIVN	0x14800014	/* clock divisor register */
+#else
+#  define pWTCON		0x53000000
+#  define INTMSK		0x4A000008	/* Interupt-Controller base addresses */
+#  define INTSUBMSK	0x4A00001C
+#  define CLKDIVN	0x4C000014	/* clock divisor register */
+# endif
+
 	ldr     r0, =pWTCON
 	mov     r1, #0x0
 	str     r1, [r0]
@@ -224,25 +179,7 @@ copyex:
 #endif
 
 #ifdef	CONFIG_AT91RM9200
-#ifdef CONFIG_BOOTBINFUNC
-relocate:				/* relocate U-Boot to RAM	    */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp     r0, r1                  /* don't reloc during debug         */
-	beq     stack_setup
 
-	ldr	r2, _armboot_start
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
-
-copy_loop:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end addreee [r2]    */
-	ble	copy_loop
-#endif /* CONFIG_BOOTBINFUNC */
-#else
 #ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
@@ -281,27 +218,6 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	ble	clbss_l
-
-#if 0
-	/* try doing this stuff after the relocation */
-	ldr     r0, =pWTCON
-	mov     r1, #0x0
-	str     r1, [r0]
-
-	/*
-	 * mask all IRQs by setting all bits in the INTMR - default
-	 */
-	mov	r1, #0xffffffff
-	ldr	r0, =INTMR
-	str	r1, [r0]
-
-	/* FCLK:HCLK:PCLK = 1:2:4 */
-	/* default FCLK is 120 MHz ! */
-	ldr	r0, =CLKDIVN
-	mov	r1, #3
-	str	r1, [r0]
-	/* END stuff after relocation */
-#endif
 
 	ldr	pc, _start_armboot
 
