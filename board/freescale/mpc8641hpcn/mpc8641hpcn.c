@@ -338,6 +338,22 @@ ft_board_setup(void *blob, bd_t *bd)
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
+#ifdef CONFIG_PCI1
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@8000/bus-range", &len);
+	if (p != NULL) {
+		p[0] = 0;
+		p[1] = pci1_hose.last_busno - pci1_hose.first_busno;
+		debug("PCI@8000 first_busno=%d last_busno=%d\n",p[0],p[1]);
+	}
+#endif
+#ifdef CONFIG_PCI2
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@9000/bus-range", &len);
+	if (p != NULL) {
+		p[0] = 0;
+		p[1] = pci2_hose.last_busno - pci2_hose.first_busno;
+		debug("PCI@9000 first_busno=%d last_busno=%d\n",p[0],p[1]);
+	}
+#endif
 }
 #endif
 

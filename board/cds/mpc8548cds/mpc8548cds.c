@@ -542,7 +542,7 @@ ft_pci_setup(void *blob, bd_t *bd)
 #endif
 
 #ifdef CONFIG_PCIE1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@a000/bus-range", &len);
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@a000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = 0;
 		p[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
