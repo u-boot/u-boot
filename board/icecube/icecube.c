@@ -28,10 +28,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <asm/processor.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
+#include <libfdt.h>
 
 #if defined(CONFIG_LITE5200B)
 #include "mt46v32m16.h"
@@ -386,7 +383,7 @@ void ide_set_reset (int idereset)
 }
 #endif
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
