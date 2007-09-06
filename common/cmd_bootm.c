@@ -962,29 +962,31 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
 	 * if the user wants it (the logic is in the subroutines).
 	 */
-	if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-		puts ("ERROR: /chosen node create failed - "
-			"must RESET the board to recover.\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
+	if (of_flat_tree) {
+		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+			puts ("ERROR: /chosen node create failed - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
+		}
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
-	if (fdt_env(of_flat_tree) < 0) {
-		puts ("ERROR: /u-boot-env node create failed - "
-			"must RESET the board to recover.\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
+		if (fdt_env(of_flat_tree) < 0) {
+			puts ("ERROR: /u-boot-env node create failed - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
+		}
 #endif
 #ifdef CONFIG_OF_HAS_BD_T
-	if (fdt_bd_t(of_flat_tree) < 0) {
-		puts ("ERROR: /bd_t node create failed - "
-			"must RESET the board to recover.\n");
-		do_reset (cmdtp, flag, argc, argv);
-	}
+		if (fdt_bd_t(of_flat_tree) < 0) {
+			puts ("ERROR: /bd_t node create failed - "
+				"must RESET the board to recover.\n");
+			do_reset (cmdtp, flag, argc, argv);
+		}
 #endif
 #ifdef CONFIG_OF_BOARD_SETUP
-	/* Call the board-specific fixup routine */
-	ft_board_setup(of_flat_tree, gd->bd);
+		/* Call the board-specific fixup routine */
+		ft_board_setup(of_flat_tree, gd->bd);
 #endif
+	}
 #endif /* CONFIG_OF_LIBFDT */
 #if defined(CONFIG_OF_FLAT_TREE)
 #ifdef CFG_BOOTMAPSZ
