@@ -846,7 +846,7 @@ void yucca_setup_pcie_fpga_endpoint(int port)
 
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
 
-void pcie_setup_hoses(void)
+void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
@@ -855,7 +855,7 @@ void pcie_setup_hoses(void)
 	 * assume we're called after the PCIX hose is initialized, which takes
 	 * bus ID 0 and therefore start numbering PCIe's from 1.
 	 */
-	bus = 1;
+	bus = busno;
 	for (i = 0; i <= 2; i++) {
 		/* Check for yucca card presence */
 		if (!yucca_pcie_card_present(i))
@@ -874,8 +874,8 @@ void pcie_setup_hoses(void)
 
 		hose = &pcie_hose[i];
 		hose->first_busno = bus;
-		hose->last_busno  = bus;
-		bus++;
+		hose->last_busno = bus;
+		hose->current_busno = bus;
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
@@ -899,6 +899,7 @@ void pcie_setup_hoses(void)
 		 * Config access can only go down stream
 		 */
 		hose->last_busno = pci_hose_scan(hose);
+		bus = hose->last_busno + 1;
 #endif
 	}
 }

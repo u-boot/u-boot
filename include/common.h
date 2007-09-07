@@ -275,7 +275,7 @@ void	pciinfo	      (int, int);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
 #if defined(CONFIG_440SPE)
-   void pcie_setup_hoses(void);
+   void pcie_setup_hoses(int busno);
 #endif
 #endif
 
