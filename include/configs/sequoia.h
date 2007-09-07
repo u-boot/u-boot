@@ -400,7 +400,8 @@
  *----------------------------------------------------------------------*/
 /* General PCI */
 #define CONFIG_PCI			/* include pci support	        */
-#undef CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play   */
+#define CFG_PCI_CACHE_LINE_SIZE	0 /* to avoid problems with PNP */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup  */
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 

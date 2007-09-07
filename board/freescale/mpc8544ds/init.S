@@ -237,6 +237,6 @@ law_entry:
 
 	/* contains both PCIE3 MEM & IO space */
 	.long	(CFG_PCIE3_MEM_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_PCIE3 | (LAWAR_SIZE & LAWAR_SIZE_2M)
+	.long	LAWAR_EN | LAWAR_TRGT_PCIE3 | (LAWAR_SIZE & LAWAR_SIZE_4M)
 4:
 	entry_end

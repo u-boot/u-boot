@@ -2334,6 +2334,9 @@ scpu_config:    unconfig
 pxa255_idp_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa pxa255_idp
 
+trizepsiv_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm pxa trizepsiv
+
 wepep250_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa wepep250
 

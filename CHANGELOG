@@ -1,3 +1,542 @@
+commit 5e5803e119de3bebd76fc9a57baac0b5aeccc8a3
+Author: stefano babic <sbabic@denx.de>
+Date:	Thu Aug 30 23:01:49 2007 +0200
+
+    PXA270: Added support for TrizepsIV board.
+
+    This patch add support for the Trizeps IV module (520Mhz).
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 80172c6181c912fbb34ea3ba0c22b232b419b47f
+Author: stefano babic <sbabic@denx.de>
+Date:	Thu Aug 30 22:57:04 2007 +0200
+
+    PXA270: Add support for multiple serial ports.
+
+    This patch adds support for multiple serial ports to the PXA target.
+    FFUART, BTUART and STUART are supported.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 28bb3f72c687ac6b2eb076b01dd21a5fd657d45e
+Author: stefano babic <sbabic@denx.de>
+Date:	Thu Aug 30 22:48:47 2007 +0200
+
+    PXA270: fix compile issue (invalid lvalue)
+
+    Code is broken for PXA270 due to "invalid lvalue in assignment".
+
+    This patch fix it in pxa-regs.h
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 1d2ca446e1a731df420206d04fe278c27ea6b8e8
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Thu Aug 30 18:19:05 2007 +0800
+
+    Add BUILD_DIR support for bios emulator.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit b4d8a55145442f136982634862341a3e02002bda
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Fri Aug 31 14:41:51 2007 +0900
+
+    [MIPS] Remove inline asm string functions
+
+    Stop using inline string functions on MIPS as other ARCHs do so,
+    since the optimized inline asm versions are not small.
+
+    This change is triggered by a following MIPS build error:
+    common/libcommon.a(exports.o)(.text+0xdc): In function `jumptable_init':
+    common/exports.c:32: undefined reference to `strcmp'
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 8ea2c4e54833deaebc24c3ca6b7f21353c25b0f5
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Fri Aug 31 14:41:45 2007 +0900
+
+    [MIPS] Update asm string header
+
+    This patches contains several bugfixes and cleanups in the latest upstream:
+
+     - Don't include linux/config.h
+     - Remove buggy inline version of memscan.
+     - Merge with Linux 2.6.11-rc3.
+     - Fix undefined reference to strcpy in binfmt_misc caused by gcc 3.4.
+     - Goodbye mips64.	31704 lines of code bite the dust.
+     - Replace extern inline with static inline.
+     - Fix return value of strncpy.
+     - Remove a bunch more "$1" clobbers.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 5b729fb3bd98f49855d6bfc657c3fbae95f2adc2
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Sep 4 17:31:22 2007 +0200
+
+    Fix do_bootm_linux() so that multi-file images with FDT blob boot.
+
+    Fix incorrect blob address calculation in do_bootm_linux() that prevents
+    booting the kernel from a multi-file image (kernel + initrd + blob).
+
+    Also, make minor updates to the U-Boot's output and to the coding style.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 041a2554ad619e80dce520c1a33210affcb6a3f2
+Author: Gary Jennejohn <gary.jennejohn@freenet.de>
+Date:	Fri Aug 31 14:29:04 2007 +0200
+
+    Add support for Sil680 IDE controller.
+
+    o add drivers/sil680.c to support the Sil680 IDE-controller.
+    o drivers/Makefile: add sil680.o.
+
+    Signed-off-by: Gary Jennejohn <garyj@denx.de>
+
+commit e79021223bc339df655e360645a52c457a74b067
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Sep 6 09:47:40 2007 -0600
+
+    bootm/fdt: Only process the fdt if an fdt address was provided
+
+    Boards with CONFIG_OF_LIBFDT enabled are not able to boot old-style
+    kernels using the board info structure (instead of passing a device tree)
+    This change allows the old style booting to be used if the fdt argument
+    was not passed to 'bootm'.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit cf2817a84c2e9bea2c5dfc084bce2f2d2563ac43
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Sep 6 09:46:23 2007 -0600
+
+    Migrate 5xxx boards from CONFIG_OF_FLAT_TREE to CONFIG_OF_LIBFDT
+
+    Affects boards: icecube (lite5200), jupiter, motionpro, tqm5200
+
+    Tested on: lite5200b
+
+    Note: the fixup functions have not been moved to a common place.  This
+    patch is targeted for immediate merging as in solves a build issue, but
+    the final name/location of the fixups is still subject to debate.  I
+    propose to merge this now, and move the fixups in the next merge window
+    to be usable by all targets.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 41bb76e941929f54a73206fb132f7a4c275543a3
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Sep 6 09:46:17 2007 -0600
+
+    libfdt: add convenience function fdt_find_and_setprop()
+
+    Given the path to a node, fdt_find_and_setprop() allows a property value
+    to be set directly.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 56a9270521baaa00e12639a978302a67f61ef060
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Aug 30 16:18:18 2007 -0500
+
+    Fix ULI RTC support on MPC8544 DS
+
+    The RTC on the M1575 ULI chipset requires a dummy read before
+    we are able to talk to the RTC.  We accomplish this by adding a
+    second memory region to the PHB the ULI is on and read from it.
+
+    The second region is added to maintain compatiabilty with Linux's
+    view of the PCI memory map.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f75e89e9b5714db2b0e80074071dfbdd6f59488a
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Aug 30 01:58:48 2007 -0500
+
+    ft_board_setup update 85xx/86xx of pci/pcie bus-range property.
+
+    pcie is now differentiated from pci.  Add 8641 bus-range updates.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 81b73dec16fd1227369a191e725e10044a9d56b8
+Author: Gary Jennejohn <garyj@denx.de>
+Date:	Fri Aug 31 15:21:46 2007 +0200
+
+    ppc4xx: (Re-)Enable CONFIG_PCI_PNP on AMCC 440EPx Sequoia
+
+    The 440EPx has a problem when the PCI_CACHE_LINE_SIZE register is
+    set to non-zero, because it doesn't support MRM (memory-read-
+    multiple) correctly. We now added the possibility to configure
+    this register in the board config file, so that the default value
+    of 8 can be overridden.
+
+    Here the details of this patch:
+
+    o drivers_pci_auto.c: introduce CFG_PCI_CACHE_LINE_SIZE to allow
+      board-specific settings. As an example the sequoia board requires 0.
+      Idea from Stefan Roese <sr@denx.de>.
+    o board/amcc/sequoia/init.S: add a TLB mapping at 0xE8000000 for the
+      PCI IO-space. Obtained from Stefan Roese <sr@denx.de>.
+    o include/configs/sequoia.h: turn CONFIG_PCI_PNP back on and set
+      CFG_PCI_CACHE_LINE_SIZE to 0.
+
+    Signed-off-by: Gary Jennejohn <garyj@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 60174746c668b309378a91488dded898e9553eae
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Aug 31 10:01:51 2007 +0200
+
+    Fix TFTP OACK code for short packets.
+
+    The old code had a loop limit overflow bug which caused a semi-
+    infinite loop for small packets, because in "i<len-8", "i" was signed,
+    but "len" was unsigned, and "len-8" became a huge number for small
+    values of "len".
+
+    This is a workaround which replaces broken commit 8f1bc284.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ff13ac8c7bbebb238e339592de765c546dba1073
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 30 14:42:15 2007 +0200
+
+    Backout commit 8f1bc284 as it causes TFTP to fail.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1900fbf255acba8b94fb442a16408ea85a1d46a6
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Aug 30 02:26:17 2007 -0500
+
+    Revert "Fix MPC8544DS PCIe3 scsi."
+
+    This reverts commit 9468e680.
+    Commit 16e23c3f5da removing allocation of PCSRBAR is sufficient.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 8f1bc28408ded213418d9bc0780c7d8fb8a03774
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Wed Aug 29 18:26:24 2007 -0600
+
+    tftp: don't implicity trust the format of recevied packets
+
+    The TFTP OACK code trusts that the incoming packet is formated as
+    ASCII text and can be processed by string functions. It also has a
+    loop limit overflow bug where if the packet length is less than 8, it
+    ends up looping over *all* of memory to find the 'blksize' string.
+
+    This patch solves the problem by forcing the packet to be null
+    terminated and using strstr() to search for the sub string.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 2602a5c40ae37ab965a4e240854fdaffb51328a4
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 29 09:06:05 2007 -0500
+
+    sbc8641: remove unused OF_FLAT_TREE_MAX_SIZE
+
+    this had slipped through the cracks, since the sbc board was added
+    after I wrote the original patch to remove all these symbols, and
+    before it was merged.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c5bded3c88e48ae648a75d357dc81a8255fa81f1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Aug 29 14:05:30 2007 +0200
+
+    Add mii_init() prototype
+
+    to get rid of a *lot* of compiler warnings.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2d1f23aa1e74e4a8f8ffa67f246eb98c522dfd7f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Aug 29 13:35:03 2007 +0200
+
+    Disable network support on cmi_mpc5xx board
+
+    ..because it caused compiler errors and there seems to be no
+    board maintainer to take care of this.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 9468e6804b7e25b0f6f52e53f47bce3175400a16
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Aug 20 09:44:00 2007 -0500
+
+    Fix MPC8544DS PCIe3 scsi.
+
+    <ed.swarthout@freescale.com>
+
+    The problem is pciauto_setup_device() getting called from fsl_pci_init.c
+    is allocating memory space it doesn't need.
+
+    Signed-off-by: Ed Swarthout <ed.swarthout@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 4bf4abb8a4e9955556b120a1aafa30c03e74032a
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Aug 21 09:38:59 2007 -0500
+
+    8548cds fixes
+
+    Restore CONFIG_EXTRA_ENV_SETTINGS definition which contains the
+    correct consoledev needed for linux boot.
+    Standardize on fdt{file,addr} var to hold dtb file name.
+
+    Set PCI inbound memory region from CFG_MEMORY_{BUS,PHYS}.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 7a1ac419fa0d2d23ddd08bd61d16896a9f33c933
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Thu Aug 23 15:20:54 2007 -0400
+
+    Enable L2 cache for MPC8568MDS board
+
+    The L2 cache size is 512KB for 8568, print out the correct informaiton.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 94c47fdaf14cb29fa3fb4d4da2efdd96c803b46b
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Wed Aug 22 17:54:49 2007 +0800
+
+    Remove the bios emulator binary files from MAI board
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 7608d75f9c87c9eb5b3a43219d0506d3e979a13f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Aug 21 17:00:17 2007 -0500
+
+    support board vendor-common makefiles
+
+    if a board/$(VENDOR)/common/Makefile exists, build it.
+
+    also add the first such case, board/freescale/common/Makefile, to
+    handle building board-shared EEPROM, PIXIS, and MDS-PIB code, as
+    dictated by board configuration.
+
+    thusly get rid of alternate build dir errors such as:
+
+    FATAL: can't create /work/wd/tmp/u-boot-ppc/board/freescale/mpc8360emds/../common/pq-mds-pib.o: No such file or directory
+
+    by putting the common/ mkdir command in its proper place (the common
+    Makefile). Common bits from existing individual board Makefiles have
+    been removed.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit ef8f20752712dc1cdbd86f47e3bd6e35f81c83fd
+Author: stefano babic <sbabic@denx.de>
+Date:	Tue Aug 21 15:52:33 2007 +0200
+
+    Fix: TFTP is not working on little endian systems
+
+    TFTP does not work anymore after multicast tftp
+    patch was applied on little endian systems.
+    This patch fix it.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 5f470948570526e9186f053a3003da7719604e90
+Author: stefano babic <sbabic@denx.de>
+Date:	Tue Aug 21 15:50:33 2007 +0200
+
+    Fix MAC address setting in DM9000 driver.
+
+    The logic to check if there is a correct MAC address in the DM9000
+    EEPROM, added in the last patch, is wrong. Now the MAC address is
+    always taken from the environment, even if a suitable MAC is present
+    in the EEPROM.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 4a8527ef086ec7c89f40674ef024ae6f988a614a
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Tue Aug 21 12:40:34 2007 +0200
+
+    MPC5xxx: fix some compiler warnings in USB code
+
+    Fix the following warnings:
+    - usb.c:xx: warning: function declaration isn't a prototype
+    - usb_ohci.c:xxx: warning: passing argument 1 of '__fswab32' makes integer
+      from pointer wihtout a cast
+
+    Signed-off-by: Martin Krause <martin.krase@tqs.de>
+
+commit 16e23c3f5dab6937f5109365416808c7f15c122b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Mon Aug 20 23:55:33 2007 -0500
+
+    fsl_pci_init - Remove self PCSRBAR allocation
+
+    CPU physical address space was being wasted by allocating a
+    PCSRBAR PCI inbound region to it's memory space.
+
+    As a rule, PCSRBAR should be left alone since it does not affect
+    transactions from self and other masters may have changed it.
+
+    Signed-off-by: Ed Swarthout <ed.swarthout@freescale.com>
+
+commit 0e700ce03a23bb1921149bc77008ace7103d5289
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Aug 20 13:56:47 2007 +0200
+
+    Fix compiler warning in include/s3c2410.h
+
+    This patch fixes the "type qualifiers ignored on fuction return tpye"
+    warning for include/s3c2410.h
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 9bb8b209ed2058a5756ecbeb544c067e44a42aea
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Mon Aug 20 07:09:05 2007 +0200
+
+    Fix compilation error for omap2420h4_config.
+
+    omap2420h4 switched to cfi, so remove old (already disabled) flash.c
+    and flash_probe() calls in env_flash.c.
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit 3bb342fc85d79dbb6b8c2039e7cdcddc82b8d90f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 10 14:34:14 2007 -0500
+
+    fdt: remove unused OF_FLAT_TREE_MAX_SIZE references
+
+    and make some minor corrections to the FDT part of the README.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6af2eeb1e99c2dcc584d4c5ab7fcae30a325f4de
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Aug 29 01:32:05 2007 +0200
+
+    Minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a861558c65f65f1cf1302f3a35e9db7686b9e1a3
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Tue Aug 28 17:40:33 2007 +0200
+
+    [UC101] Fix: if no CF in the board, U-Boot resets sometimes.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit f98984cb194bb34dbe1db9429d3b51133af30d07
+Author: Heiko Schocher <hs@pollux.denx.de>
+Date:	Tue Aug 28 17:39:14 2007 +0200
+
+    IDE:	- make ide_inb () and ide_outb () "weak", so boards can
+	      define there own I/O functions.
+	      (Needed for the pcs440ep board).
+	    - The default I/O Functions are again 8 Bit accesses.
+	    - Added CONFIG_CMD_IDE for the pcs440ep Board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 9c02defc29b57945b600714cf61ddfd02b02fb14
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Sat Aug 25 05:07:16 2007 +0200
+
+    POST: limit memory test area to not touch global data anymore
+
+    As experienced on lwmon5, on some boards the POST memory test can
+    corrupt the global data buffer (bd). This patch fixes this issue
+    by checking and limiting this area.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 75e1a84d483e36be10e206e539b028c4889e1158
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Aug 24 15:41:42 2007 +0200
+
+    ppc4xx: Add RTC POST test to lwmon5 board configuration
+
+    Since this RTC POST test is taking quite a while to complete
+    it's only initiated upon special keypress same as the complete
+    memory POST.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d7bfa620037a6d2210159387571bdf93aa32c162
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Aug 24 15:19:10 2007 +0200
+
+    ppc4xx: Change GPIO signal for watchdog triggering on lwmon5
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c25dd8fc25e9ca3695db996a257d9ba4dab414db
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 23 11:02:37 2007 +0200
+
+    ppc4xx: Add support for 2nd I2C EEPROM on lwmon5 board
+
+    This patch adds support for the 2nd EEPROM (AT24C128) on the lwmon5
+    board. Now the "eeprom" command can be used to read/write from/to this
+    device. Additionally a new command was added "eepromwp" to en-/disable
+    the write-protect of this 2nd EEPROM.
+
+    The 1st EEPROM is not affected by this write-protect command.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c64fb30e4c5976007d56fc1789c7a0666082b536
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 22 08:56:09 2007 +0200
+
+    ppc4xx: Remove unused option CFG_INIT_RAM_OCM
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3ad63878737a5a2b1e60825bf0a7d601d7a695e7
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 21 16:27:57 2007 +0200
+
+    ppc4xx: Add matrix kbd support to lwmon5 board (440EPx based)
+
+    This patch adds support for the matrix keyboard on the lwmon5 board.
+    Since the implementation in the dsPCI is kind of compatible with the
+    "old" lwmon board, most of the code is copied from the lwmon
+    board directory.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3e66c078003607a7d1d214c15a5f262bc1b4032f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 19 10:27:34 2007 +0200
+
+    Fix some build errors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 05675735ef77dc23b5e0eb782bad1ff477b55e86
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Aug 18 22:00:38 2007 +0200
+
+    Update CHANGELOG.
+
 commit 79f240f7ecc0506b43ac50d1ea405ff6540d4d57
 Author: Kim Phillips <kim.phillips@freescale.com>
 Date:	Thu Aug 16 22:52:39 2007 -0500

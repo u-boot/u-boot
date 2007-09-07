@@ -31,10 +31,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <asm/processor.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
+#include <libfdt.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -780,9 +777,9 @@ int board_get_height (void)
 
 #endif /* CONFIG_VIDEO_SM501 */
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 }
-#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

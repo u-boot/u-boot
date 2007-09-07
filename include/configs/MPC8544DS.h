@@ -310,6 +310,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCIE3_IO_BASE	0x00000000
 #define CFG_PCIE3_IO_PHYS	0xb0100000	/* reuse mem LAW */
 #define CFG_PCIE3_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE3_MEM_BASE2	0xb0200000
+#define CFG_PCIE3_MEM_PHYS2	CFG_PCIE3_MEM_BASE2
+#define CFG_PCIE3_MEM_SIZE2	0x00200000	/* 1M */
 
 #if defined(CONFIG_PCI)
 
