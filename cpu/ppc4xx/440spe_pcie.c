@@ -40,31 +40,24 @@ enum {
 	LNKW_X8			= 0x8
 };
 
-static inline int pcie_in_8(const volatile unsigned char __iomem *addr)
+static void pcie_dmer_disable(void)
 {
-	int ret;
-
-	PCIE_IN(lbzx, ret, addr);
-
-	return ret;
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) | GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) | GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) | GPL_DMER_MASK_DISA);
 }
 
-static inline int pcie_in_le16(const volatile unsigned short __iomem *addr)
+static void pcie_dmer_enable(void)
 {
-	int ret;
-
-	PCIE_IN(lhbrx, ret, addr)
-
-	return ret;
-}
-
-static inline unsigned pcie_in_le32(const volatile unsigned __iomem *addr)
-{
-	unsigned ret;
-
-	PCIE_IN(lwbrx, ret, addr);
-
-	return ret;
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE0_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) & ~GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE1_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) & ~GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE2_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) & ~GPL_DMER_MASK_DISA);
 }
 
 
@@ -81,17 +74,27 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	devfn = PCI_BDF(0,0,0);
 	offset += devfn << 4;
 
+	/*
+	 * Reading from configuration space of non-existing device can
+	 * generate transaction errors. For the read duration we suppress
+	 * assertion of machine check exceptions to avoid those.
+	 */
+	pcie_dmer_disable ();
+
 	switch (len) {
 	case 1:
-		*val = pcie_in_8(hose->cfg_data + offset);
+		*val = in_8(hose->cfg_data + offset);
 		break;
 	case 2:
-		*val = pcie_in_le16((u16 *)(hose->cfg_data + offset));
+		*val = in_le16((u16 *)(hose->cfg_data + offset));
 		break;
 	default:
-		*val = pcie_in_le32((u32*)(hose->cfg_data + offset));
+		*val = in_le32((u32*)(hose->cfg_data + offset));
 		break;
 	}
+
+	pcie_dmer_enable ();
+
 	return 0;
 }
 
@@ -107,6 +110,11 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 	devfn = PCI_BDF(0,0,0);
 	offset += devfn << 4;
 
+	/*
+	 * Suppress MCK exceptions, similar to pcie_read_config()
+	 */
+	pcie_dmer_disable ();
+
 	switch (len) {
 	case 1:
 		out_8(hose->cfg_data + offset, val);
@@ -118,6 +126,9 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 		out_le32((u32 *)(hose->cfg_data + offset), val);
 		break;
 	}
+
+	pcie_dmer_enable ();
+
 	return 0;
 }
 
