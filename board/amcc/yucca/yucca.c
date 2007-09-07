@@ -850,6 +850,8 @@ void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	char *env;
+	unsigned int delay;
 
 	/*
 	 * assume we're called after the PCIX hose is initialized, which takes
@@ -895,6 +897,16 @@ void pcie_setup_hoses(int busno)
 		 */
 #else
 		ppc440spe_setup_pcie_rootpoint(hose, i);
+
+		env = getenv ("pciscandelay");
+		if (env != NULL) {
+			delay = simple_strtoul (env, NULL, 10);
+			if (delay > 5)
+				printf ("Warning, expect noticable delay before PCIe"
+					"scan due to 'pciscandelay' value!\n");
+			mdelay (delay * 1000);
+		}
+
 		/*
 		 * Config access can only go down stream
 		 */

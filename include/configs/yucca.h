@@ -182,6 +182,7 @@
 		"cp.b ${fileaddr} FFFB0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
+	"pciconfighost=1\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -297,7 +298,7 @@
 #define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
-#undef CONFIG_PCI_CONFIG_HOST_BRIDGE
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /* Board-specific PCI */
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */
