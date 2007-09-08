@@ -51,7 +51,6 @@ SECTIONS
   {
     cpu/mpc512x/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)
