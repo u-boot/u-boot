@@ -443,7 +443,7 @@ void pci_init_board(void)
 static struct pci_controller ppc440_hose = {0};
 
 
-void pci_440_init (struct pci_controller *hose)
+int pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;
 
@@ -459,7 +459,7 @@ void pci_440_init (struct pci_controller *hose)
 	if ((strap & SDR0_SDSTP1_PISE_MASK) == 0) {
 		printf("PCI: SDR0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
 #elif defined(CONFIG_440GP)
 	unsigned long strap;
@@ -468,7 +468,7 @@ void pci_440_init (struct pci_controller *hose)
 	if ((strap & CPC0_STRP1_PISE_MASK) == 0) {
 		printf("PCI: CPC0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
 #endif
 #endif /* CONFIG_DISABLE_PISE_TEST */
@@ -477,7 +477,7 @@ void pci_440_init (struct pci_controller *hose)
 	 * PCI controller init
 	 *--------------------------------------------------------------------------*/
 	hose->first_busno = 0;
-	hose->last_busno = 0xff;
+	hose->last_busno = 0;
 
 	/* PCI I/O space */
 	pci_set_region(hose->regions + reg_num++,
@@ -515,7 +515,7 @@ void pci_440_init (struct pci_controller *hose)
 	if (pci_pre_init (hose) == 0) {
 		printf("PCI: Board-specific initialization failed.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
 
 	pci_register_hose( hose );
@@ -578,13 +578,16 @@ void pci_440_init (struct pci_controller *hose)
 #endif
 		hose->last_busno = pci_hose_scan(hose);
 	}
+	return hose->last_busno;
 }
 
 void pci_init_board(void)
 {
-	pci_440_init (&ppc440_hose);
+	int busno;
+
+	busno = pci_440_init (&ppc440_hose);
 #if defined(CONFIG_440SPE)
-	pcie_setup_hoses();
+	pcie_setup_hoses(busno + 1);
 #endif
 }
 
