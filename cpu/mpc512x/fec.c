@@ -32,7 +32,7 @@ int fec512x_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * re
 int fec512x_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
-static uchar rx_buff[FEC_MAX_PKT_SIZE];
+static uchar rx_buff[FEC_BUFFER_SIZE];
 static int rx_buff_idx = 0;
 
 /********************************************************************/
@@ -237,8 +237,8 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 	/* Set Opcode/Pause Duration Register */
 	fec->eth->op_pause = 0x00010020;
 
-	/* Frame length=1518; MII mode */
-	fec->eth->r_cntrl = 0x05ee0024;
+	/* Frame length=1522; MII mode */
+	fec->eth->r_cntrl = (FEC_MAX_FRAME_LEN << 16) | 0x24;
 
 	/* Half-duplex, heartbeat disabled */
 	fec->eth->x_cntrl = 0x00000000;
@@ -248,7 +248,7 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 
 	/* Setup recv fifo start and buff size */
 	fec->eth->r_fstart = 0x500;
-	fec->eth->r_buff_size = 0x5e0;
+	fec->eth->r_buff_size = FEC_BUFFER_SIZE;
 
 	/* Setup BD base addresses */
 	fec->eth->r_des_start = (uint32)fec->bdBase->rbd;
