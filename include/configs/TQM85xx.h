@@ -94,7 +94,6 @@
  */
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
-#define CONFIG_ADD_RAM_INFO	1		/* print additional info*/
 
 #if defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560)
 /* TQM8540 & 8560 need DLL-override */
@@ -266,8 +265,12 @@
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
+#define FEC_FLAGS		0
+#define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
 

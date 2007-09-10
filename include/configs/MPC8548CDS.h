@@ -336,9 +336,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8548@0"
 #define OF_SOC			"soc8548@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
@@ -447,6 +444,10 @@ extern unsigned long get_clock_freq(void);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
@@ -538,6 +539,7 @@ extern unsigned long get_clock_freq(void);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	 00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	 00:E0:0C:00:01:FD
@@ -631,7 +633,6 @@ extern unsigned long get_clock_freq(void);
 #define ENET_ENV ""
 #endif
 
-#if 0
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
@@ -644,8 +645,8 @@ extern unsigned long get_clock_freq(void);
  "consoledev=ttyS1\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=ramdisk.uboot\0"			\
- "dtbaddr=c00000\0"				\
- "dtbfile=mpc8548cds.dtb\0"			\
+ "fdtaddr=c00000\0"				\
+ "fdtfile=mpc8548cds.dtb\0"			\
  "eoi=mw e00400b0 0\0"				\
  "iack=md e00400a0 1\0"				\
  "ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4; md ${a}bf0 4;" \
@@ -667,8 +668,6 @@ extern unsigned long get_clock_freq(void);
  PCI_ENV1 \
  PCI_ENV2 \
  ENET_ENV
-#endif
-
 
 #define CONFIG_NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\
@@ -676,8 +675,8 @@ extern unsigned long get_clock_freq(void);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"			\
    "tftp $loadaddr $bootfile;"						\
-   "tftp $dtbaddr $dtbfile;"						\
-   "bootm $loadaddr - $dtbaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr - $fdtaddr"
 
 
 #define CONFIG_RAMBOOTCOMMAND \
@@ -685,8 +684,8 @@ extern unsigned long get_clock_freq(void);
       "console=$consoledev,$baudrate $othbootargs;"			\
    "tftp $ramdiskaddr $ramdiskfile;"					\
    "tftp $loadaddr $bootfile;"						\
-   "tftp $dtbaddr $dtbfile;"						\
-   "bootm $loadaddr $ramdiskaddr $dtbaddr"
+   "tftp $fdtaddr $fdtfile;"						\
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND	CONFIG_NFSBOOTCOMMAND
 

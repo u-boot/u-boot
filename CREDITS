@@ -147,6 +147,11 @@ N: Daniel Engström
 E: daniel@omicron.se
 D: x86 port, Support for sc520_cdp board
 
+N: Hayden Fraser
+E: Hayden.Fraser@freescale.com
+D: Support for ColdFire MCF5253
+W: www.freescale.com
+
 N: Dr. Wolfgang Grandegger
 E: wg@denx.de
 D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards
@@ -283,6 +288,11 @@ E: team@leox.org
 D: Support for LEOX boards, DS164x RTC
 W: http://www.leox.org
 
+N: TsiChung Liew
+E: Tsi-Chung.Liew@freescale.com
+D: Support for ColdFire MCF523x, MCF532x, MCF5445x
+W: www.freescale.com
+
 N: Leif Lindholm
 E: leif.lindholm@i3micro.com
 D: Support for AMD dbau1550 board.
@@ -296,6 +306,11 @@ W: http://www.li-pro.net
 N: Raymond Lo
 E: lo@routefree.com
 D: Support for DOS partitions
+
+N: James MacAulay
+E: james.macaulay@amirix.com
+D: Suppport for Amirix AP1000
+W: www.amirix.com
 
 N: Dan Malek
 E: dan@embeddedalley.com
@@ -372,8 +387,9 @@ D: Support for the Wind River sbc405, sbc8240 board
 W: http://www.windriver.com
 
 N: Stefan Roese
-E: stefan.roese@esd-electronics.com
-D: AMCC PPC401/403/405GP Support; Windows environment support
+E: sr@denx.de
+D: AMCC PPC4xx Support
+W: http://www.denx.de
 
 N: Erwin Rol
 E: erwin@muffin.org
@@ -407,6 +423,11 @@ N: Art Shipkowski
 E: art@videon-central.com
 D: Support for NetSilicon NS7520
 
+N: Michal Simek
+E: monstr@monstr.eu
+D: Support for Microblaze, ML401, XUPV2P board
+W: www.monstr.eu
+
 N: Yasushi Shoji
 E: yashi@atmark-techno.com
 D: Support for Xilinx MicroBlaze, for Atmark Techno SUZAKU FPGA board
@@ -419,6 +440,11 @@ N: Andrea Scian
 E: andrea.scian@dave-tech.it
 D: Port to B2 board
 W: www.dave-tech.it
+
+N: Timur Tabi
+E: timur@freescale.com
+D: Support for MPC8349E-mITX
+W: www.freescale.com
 
 N: Rob Taylor
 E: robt@flyingpig.com
@@ -473,18 +499,3 @@ N: Alex Zuepke
 E: azu@sysgo.de
 D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
 W: www.elinos.com
-
-N: James MacAulay
-E: james.macaulay@amirix.com
-D: Suppport for Amirix AP1000
-W: www.amirix.com
-
-N: Timur Tabi
-E: timur@freescale.com
-D: Support for MPC8349E-mITX
-W: www.freescale.com
-
-N: Michal Simek
-E: monstr@monstr.eu
-D: Support for Microblaze, ML401, XUPV2P board
-W: www.monstr.eu

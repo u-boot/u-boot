@@ -31,6 +31,7 @@
 #include <command.h>
 #include <image.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_IDE_8xx_DIRECT) || defined(CONFIG_IDE_PCMCIA)
 # include <pcmcia.h>
@@ -128,8 +129,6 @@ ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
 };
 
 
-#define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
-
 #ifndef CONFIG_AMIGAONEG3SE
 static int ide_bus_ok[CFG_IDE_MAXBUS];
 #else
@@ -172,8 +171,8 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-static void __inline__ ide_outb(int dev, int port, unsigned char val);
-static unsigned char __inline__ ide_inb(int dev, int port);
+void inline ide_outb(int dev, int port, unsigned char val);
+unsigned char inline ide_inb(int dev, int port);
 static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
@@ -805,45 +804,27 @@ set_pcmcia_timing (int pmode)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
-static void __inline__
-ide_outb(int dev, int port, unsigned char val)
+void inline
+__ide_outb(int dev, int port, unsigned char val)
 {
 	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-		dev, port, val, (ATA_CURR_BASE(dev)+port));
-
-	/* Ensure I/O operations complete */
-	EIEIO;
-	*((u16 *)(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port))) = val;
+		dev, port, val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+	outb(val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
 }
-#else	/* ! __PPC__ */
-static void __inline__
-ide_outb(int dev, int port, unsigned char val)
-{
-	outb(val, ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port));
-}
-#endif	/* __PPC__ */
+void inline ide_outb (int dev, int port, unsigned char val)
+		__attribute__((weak, alias("__ide_outb")));
 
-
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
-static unsigned char __inline__
-ide_inb(int dev, int port)
+unsigned char inline
+__ide_inb(int dev, int port)
 {
 	uchar val;
-	/* Ensure I/O operations complete */
-	EIEIO;
-	val = *((u16 *)(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+	val = inb((ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
 	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-		dev, port, (ATA_CURR_BASE(dev)+port), val);
-	return (val);
+		dev, port, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)), val);
+	return val;
 }
-#else	/* ! __PPC__ */
-static unsigned char __inline__
-ide_inb(int dev, int port)
-{
-  return inb(ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port));
-}
-#endif	/* __PPC__ */
+unsigned char inline ide_inb(int dev, int port)
+			__attribute__((weak, alias("__ide_inb")));
 
 #ifdef __PPC__
 # ifdef CONFIG_AMIGAONEG3SE

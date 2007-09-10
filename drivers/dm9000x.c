@@ -99,7 +99,7 @@ void eth_halt(void);
 static int dm9000_probe(void);
 static u16 phy_read(int);
 static void phy_write(int, u16);
-static u16 read_srom_word(int);
+u16 read_srom_word(int);
 static u8 DM9000_ior(int);
 static void DM9000_iow(int reg, u8 value);
 
@@ -303,8 +303,8 @@ eth_init(bd_t * bd)
 	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
 
-	if (!is_zero_ether_addr(bd->bi_enetaddr) &&
-	    !is_mutlicast_ether_addr(bd->bi_enetaddr)) {
+	if (is_zero_ether_addr(bd->bi_enetaddr) ||
+	    is_multicast_ether_addr(bd->bi_enetaddr)) {
 		/* try reading from environment */
 		u8 i;
 		char *s, *e;
@@ -537,15 +537,27 @@ eth_rx(void)
 /*
   Read a word data from SROM
 */
-static u16
+u16
 read_srom_word(int offset)
 {
 	DM9000_iow(DM9000_EPAR, offset);
 	DM9000_iow(DM9000_EPCR, 0x4);
-	udelay(200);
+	udelay(8000);
 	DM9000_iow(DM9000_EPCR, 0x0);
 	return (DM9000_ior(DM9000_EPDRL) + (DM9000_ior(DM9000_EPDRH) << 8));
 }
+
+void
+write_srom_word(int offset, u16 val)
+{
+	DM9000_iow(DM9000_EPAR, offset);
+	DM9000_iow(DM9000_EPDRH, ((val >> 8) & 0xff));
+	DM9000_iow(DM9000_EPDRL, (val & 0xff));
+	DM9000_iow(DM9000_EPCR, 0x12);
+	udelay(8000);
+	DM9000_iow(DM9000_EPCR, 0);
+}
+
 
 /*
    Read a byte from I/O port

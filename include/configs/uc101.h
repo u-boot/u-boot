@@ -332,7 +332,6 @@
 #define CFG_IDE_MAXDEVICE	2	/* max. 2 drives per IDE bus	*/
 
 #define CONFIG_IDE_PREINIT	1
-/* #define CONFIG_IDE_RESET	1 beispile siehe tqm5200.c */
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
 

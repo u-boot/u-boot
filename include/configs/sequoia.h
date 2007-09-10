@@ -343,6 +343,11 @@
 #define CONFIG_CMD_USB
 #endif
 
+#ifndef CONFIG_RAINIER
+#define CFG_POST_FPU_ON		CFG_POST_FPU
+#else
+#define CFG_POST_FPU_ON		0
+#endif
 
 /* POST support */
 #define CONFIG_POST		(CFG_POST_MEMORY   | \
@@ -350,7 +355,7 @@
 				 CFG_POST_UART	   | \
 				 CFG_POST_I2C	   | \
 				 CFG_POST_CACHE	   | \
-				 CFG_POST_FPU	   | \
+				 CFG_POST_FPU_ON   | \
 				 CFG_POST_ETHER	   | \
 				 CFG_POST_SPR)
 
@@ -395,7 +400,8 @@
  *----------------------------------------------------------------------*/
 /* General PCI */
 #define CONFIG_PCI			/* include pci support	        */
-#undef CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play   */
+#define CFG_PCI_CACHE_LINE_SIZE	0 /* to avoid problems with PNP */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup  */
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 

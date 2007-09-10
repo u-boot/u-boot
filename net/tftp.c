@@ -178,7 +178,7 @@ TftpSend (void)
 		pkt += strlen((char *)pkt) + 1;
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt,"blksize%c%d%c",
-				0,htons(TftpBlkSizeOption),0);
+				0,TftpBlkSizeOption,0);
 #ifdef CONFIG_MCAST_TFTP
 		/* Check all preconditions before even trying the option */
 		if (!ProhibitMcast
@@ -276,8 +276,12 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 #endif
 		TftpState = STATE_OACK;
 		TftpServerPort = src;
-		/* Check for 'blksize' option */
-		for (i=0;i<len-8;i++) {
+		/*
+		 * Check for 'blksize' option.
+		 * Careful: "i" is signed, "len" is unsigned, thus
+		 * something like "len-8" may give a *huge* number
+		 */
+		for (i=0; i+8<len; i++) {
 			if (strcmp ((char*)pkt+i,"blksize") == 0) {
 				TftpBlkSize = (unsigned short)
 					simple_strtoul((char*)pkt+i+8,NULL,10);
@@ -614,4 +618,4 @@ static void parse_multicast_oack(char *pkt, int len)
 
 #endif /* Multicast TFTP */
 
-#endif /* CFG_CMD_NET */
+#endif

@@ -266,7 +266,10 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
@@ -274,11 +277,9 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_REISER
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_USB
-
 
 #define CONFIG_SUPPORT_VFAT
 
@@ -487,11 +488,5 @@
 
 /* Offset for alternate registers	*/
 #define CFG_ATA_ALT_OFFSET	(0x0000)
-
-/* These addresses need to be shifted one place to the left
- * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
- * These values are shifted
- */
-#define CFG_ATA_PORT_ADDR(port) ((port) << 1)
 
 #endif	/* __CONFIG_H */

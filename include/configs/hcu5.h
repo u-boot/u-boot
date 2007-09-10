@@ -43,7 +43,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
-#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -74,7 +73,6 @@
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_OCM	1		/* OCM as init ram	*/
 #define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
 
 #define CFG_INIT_RAM_END	(4 << 10)

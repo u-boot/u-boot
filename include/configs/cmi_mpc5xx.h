@@ -59,6 +59,8 @@
  */
 #include <config_cmd_default.h>
 
+#undef	CONFIG_CMD_NET		/* disabeled - causes compile errors */
+
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMD_REGINFO

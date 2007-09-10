@@ -296,11 +296,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
@@ -378,10 +375,12 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME  "TSEC0"
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */
 #define TSEC1_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
 #endif
 
 #ifdef CONFIG_TSEC2
@@ -391,6 +390,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
 #define TSEC2_PHY_ADDR		4
 #define TSEC2_PHYIDX		0
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #endif
 
 #define CONFIG_ETHPRIME		"Freescale TSEC"

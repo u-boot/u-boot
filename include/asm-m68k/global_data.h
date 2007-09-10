@@ -39,6 +39,14 @@ typedef	struct	global_data {
 	unsigned long	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
+#ifdef CONFIG_PCI
+	unsigned long	pci_clk;
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	unsigned long	inp_clk;
+	unsigned long	vco_clk;
+	unsigned long	flb_clk;
+#endif
 	unsigned long	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/

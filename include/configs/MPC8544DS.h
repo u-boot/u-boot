@@ -181,6 +181,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_BR3_PRELIM		0xf8100801	/* port size 8bit */
 #define CFG_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
 
+#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xf8100000	/* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
@@ -252,9 +253,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8544@0"
 #define OF_SOC			"soc8544@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
@@ -282,7 +280,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCI1_IO_BASE	0x00000000
 #define CFG_PCI1_IO_PHYS	0xe1000000
-#define CFG_PCI1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCI1_IO_SIZE	0x00010000	/* 64k */
 
 /* PCI view of System Memory */
 #define CFG_PCI_MEMORY_BUS	0x00000000
@@ -294,27 +292,27 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCIE2_MEM_PHYS	CFG_PCIE2_MEM_BASE
 #define CFG_PCIE2_MEM_SIZE	0x20000000	/* 512M */
 #define CFG_PCIE2_IO_BASE	0x00000000
-#define CFG_PCIE2_IO_PHYS	0xe2000000
-#define CFG_PCIE2_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE2_IO_PHYS	0xe1010000
+#define CFG_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 2,tgtid 2, Base address a000 */
 #define CFG_PCIE1_MEM_BASE	0xa0000000
 #define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
-#define CFG_PCIE1_MEM_SIZE	0x08000000	/* 128M */
-#define CFG_PCIE1_MEM_BASE2	0xa8000000
-#define CFG_PCIE1_MEM_PHYS2	CFG_PCIE1_MEM_BASE2
-#define CFG_PCIE1_MEM_SIZE2	0x04000000	/* 64M */
-#define CFG_PCIE1_IO_BASE	0x00000000	/* reuse mem LAW */
-#define CFG_PCIE1_IO_PHYS	0xaf000000
-#define CFG_PCIE1_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE1_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE1_IO_BASE	0x00000000
+#define CFG_PCIE1_IO_PHYS	0xe1020000
+#define CFG_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address b000 */
 #define CFG_PCIE3_MEM_BASE	0xb0000000
 #define CFG_PCIE3_MEM_PHYS	CFG_PCIE3_MEM_BASE
-#define CFG_PCIE3_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCIE3_MEM_SIZE	0x00100000	/* 1M */
 #define CFG_PCIE3_IO_BASE	0x00000000
-#define CFG_PCIE3_IO_PHYS	0xe3000000
+#define CFG_PCIE3_IO_PHYS	0xb0100000	/* reuse mem LAW */
 #define CFG_PCIE3_IO_SIZE	0x00100000	/* 1M */
+#define CFG_PCIE3_MEM_BASE2	0xb0200000
+#define CFG_PCIE3_MEM_PHYS2	CFG_PCIE3_MEM_BASE2
+#define CFG_PCIE3_MEM_SIZE2	0x00200000	/* 1M */
 
 #if defined(CONFIG_PCI)
 
@@ -364,14 +362,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
-#undef CONFIG_MPC85XX_FEC
-
-#define CONFIG_TSEC_TBI		1	/* enable internal TBI phy */
-#define CONFIG_SGMII_RISER
-#define TSEC1_SGMII_PHY_ADDR_OFFSET	0x1c	/* sgmii phy base */
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC3_PHY_ADDR		1
+
+#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define TSEC1_PHYIDX		0
 #define TSEC3_PHYIDX		0
@@ -474,6 +470,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD

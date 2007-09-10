@@ -28,32 +28,32 @@
 #ifndef __ASSEMBLY__
 
 struct pt_regs {
-	ulong     d0;
-	ulong     d1;
-	ulong     d2;
-	ulong     d3;
-	ulong     d4;
-	ulong     d5;
-	ulong     d6;
-	ulong     d7;
-	ulong     a0;
-	ulong     a1;
-	ulong     a2;
-	ulong     a3;
-	ulong     a4;
-	ulong     a5;
-	ulong     a6;
-#if defined(CONFIG_M5272) || defined(CONFIG_M5282) || defined(CONFIG_M5249) || defined(CONFIG_M5271)
-	unsigned format :  4; /* frame format specifier */
-	unsigned vector : 12; /* vector offset */
+	ulong d0;
+	ulong d1;
+	ulong d2;
+	ulong d3;
+	ulong d4;
+	ulong d5;
+	ulong d6;
+	ulong d7;
+	ulong a0;
+	ulong a1;
+	ulong a2;
+	ulong a3;
+	ulong a4;
+	ulong a5;
+	ulong a6;
+#if defined(__M68K__)
+	unsigned format:4;	/* frame format specifier */
+	unsigned vector:12;	/* vector offset */
 	unsigned short sr;
-	unsigned long  pc;
+	unsigned long pc;
 #else
 	unsigned short sr;
-	unsigned long  pc;
+	unsigned long pc;
 #endif
 };
 
-#endif	/* #ifndef __ASSEMBLY__ */
+#endif				/* #ifndef __ASSEMBLY__ */
 
-#endif	/* #ifndef _M68K_PTRACE_H */
+#endif				/* #ifndef _M68K_PTRACE_H */

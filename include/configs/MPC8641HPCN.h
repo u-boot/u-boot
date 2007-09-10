@@ -185,6 +185,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
 
 
+#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xf8100000      /* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
@@ -267,9 +268,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU		"PowerPC,8641@0"
 #define OF_SOC		"soc8641@f8000000"
@@ -417,6 +415,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 #define TSEC4_PHYIDX		0
+#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC2_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
@@ -604,6 +606,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
+#define CONFIG_HAS_ETH0		1
 #define CONFIG_HAS_ETH1		1
 #define CONFIG_HAS_ETH2		1
 #define CONFIG_HAS_ETH3		1

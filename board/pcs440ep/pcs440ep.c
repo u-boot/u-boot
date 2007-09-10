@@ -30,6 +30,7 @@
 #include <spd_sdram.h>
 #include <status_led.h>
 #include <sha1.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -865,6 +866,29 @@ U_BOOT_CMD(
 	"     -p calculate the SHA1 sum from the U-Boot image in flash and print\n"
 	"     -c check the U-Boot image in flash\n"
 );
+#endif
+
+#if defined (CONFIG_CMD_IDE)
+/* These addresses need to be shifted one place to the left
+ * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
+ * These values are shifted
+ */
+extern ulong *ide_bus_offset;
+void inline ide_outb(int dev, int port, unsigned char val)
+{
+	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
+		dev, port, val, (ATA_CURR_BASE(dev)+port));
+
+	out_be16((u16 *)(ATA_CURR_BASE(dev)+(port << 1)), val);
+}
+unsigned char inline ide_inb(int dev, int port)
+{
+	uchar val;
+	val = in_be16((u16 *)(ATA_CURR_BASE(dev)+(port << 1)));
+	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
+		dev, port, (ATA_CURR_BASE(dev)+port), val);
+	return (val);
+}
 #endif
 
 #ifdef CONFIG_IDE_PREINIT

@@ -23,9 +23,8 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnetdrv.a
-
-COBJS 	:= xilinx_emaclite.o xilinx_emac.o
+LIB 	:= $(obj)libnet.a
+COBJS 	:= mcffec.o xilinx_emac.o xilinx_emaclite.o
 
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))

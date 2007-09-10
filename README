@@ -136,6 +136,8 @@ Directory Hierarchy:
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
+  - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
+  - mcf5445x	Files specific to Freescale ColdFire MCF5445x CPUs
   - mips	Files specific to MIPS CPUs
   - mpc5xx	Files specific to Freescale MPC5xx  CPUs
   - mpc5xxx	Files specific to Freescale MPC5xxx CPUs
@@ -336,7 +338,7 @@ The following options need to be configured:
 		CONFIG_OF_LIBFDT
 		 * New libfdt-based support
 		 * Adds the "fdt" command
-		 * The bootm command does _not_ modify the fdt
+		 * The bootm command automatically updates the fdt
 
 		CONFIG_OF_FLAT_TREE
 		 * Deprecated, see CONFIG_OF_LIBFDT
@@ -345,14 +347,12 @@ The following options need to be configured:
 		 * The environment variable "disable_of", when set,
 		     disables this functionality.
 
-		CONFIG_OF_FLAT_TREE_MAX_SIZE
-
-		The maximum size of the constructed OF tree.
-
 		OF_CPU - The proper name of the cpus node.
 		OF_SOC - The proper name of the soc node.
 		OF_TBCLK - The timebase frequency.
 		OF_STDOUT_PATH - The path to the console device
+
+		boards with QUICC Engines require OF_QE to set UCC mac addresses
 
 		CONFIG_OF_HAS_BD_T
 
@@ -363,7 +363,7 @@ The following options need to be configured:
 
 		CONFIG_OF_HAS_UBOOT_ENV
 
-		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
+		 * CONFIG_OF_LIBFDT - enables the "fdt env" command
 		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
 		     will have a copy of u-boot's environment variables
 

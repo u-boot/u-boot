@@ -275,7 +275,7 @@ void	pciinfo	      (int, int);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
 #if defined(CONFIG_440SPE)
-   void pcie_setup_hoses(void);
+   void pcie_setup_hoses(int busno);
 #endif
 #endif
 
@@ -434,6 +434,13 @@ int	checkdcache   (void);
 void	upmconfig     (unsigned int, unsigned int *, unsigned int);
 ulong	get_tbclk     (void);
 void	reset_cpu     (ulong addr);
+#if defined (CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
+void ft_cpu_setup(void *blob, bd_t *bd);
+#ifdef CONFIG_PCI
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
+#endif
+
 
 /* $(CPU)/serial.c */
 int	serial_init   (void);

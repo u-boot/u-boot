@@ -22,10 +22,11 @@
 #include <asm/processor.h>
 #include <ppc440.h>
 #include <asm/mmu.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void sysLedSet(u32 value);
+void hcu_led_set(u32 value);
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
@@ -41,7 +42,8 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define SDR0_ECID2		0x0082
 #define SDR0_ECID3		0x0083
 
-#define SYS_IO_ADDRESS		0xcce00000
+#define SYS_IO_ADDRESS		(CFG_CS_2 + 0x00e00000)
+#define SYS_SLOT_ADDRESS		(CFG_CPLD + 0x00400000)
 
 #define DEFAULT_ETH_ADDR  "ethaddr"
 /* ethaddr for first or etha1ddr for second ethernet */
@@ -182,10 +184,13 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_PRE_INIT
 int board_pre_init(void)
 {
 	return board_early_init_f();
 }
+
+#endif
 
 int checkboard(void)
 {
@@ -211,34 +216,47 @@ int checkboard(void)
 
 	printf("Chip ID 0x%x 0x%x 0x%x 0x%x\n", ecid0, ecid1, ecid2, ecid3);
 	for (j = 0;j < 6; j++) {
-		sysLedSet(1 << j);
+		hcu_led_set(1 << j);
 		udelay(200 * 1000);
 	}
 
 	return 0;
 }
 
-u32 sysLedGet(void)
+u32 hcu_led_get(void)
 {
 	return in16(SYS_IO_ADDRESS) & 0x3f;
 }
 
-void sysLedSet(u32 value /* value to place in LEDs */)
+/*---------------------------------------------------------------------------+
+ * hcu_led_set  value to be placed into the LEDs (max 6 bit)
+ *---------------------------------------------------------------------------*/
+void hcu_led_set(u32 value)
 {
 	out16(SYS_IO_ADDRESS, value);
 }
 
 /*---------------------------------------------------------------------------+
- * getSerialNr
+ * get_serial_number
  *---------------------------------------------------------------------------*/
-static u32 getSerialNr(void)
+static u32 get_serial_number(void)
 {
 	u32 *serial = (u32 *)CFG_FLASH_BASE;
 
 	if (*serial == 0xffffffff)
-		return get_ticks();
+		return 0;
 
 	return *serial;
+}
+
+
+/*---------------------------------------------------------------------------+
+ * hcu_get_slot
+ *---------------------------------------------------------------------------*/
+u32 hcu_get_slot(void)
+{
+	u16 *slot = (u16 *)SYS_SLOT_ADDRESS;
+	return (*slot) & 0x7f;
 }
 
 
@@ -250,7 +268,7 @@ int misc_init_r(void)
 	char *s = getenv(DEFAULT_ETH_ADDR);
 	char *e;
 	int i;
-	u32 serial = getSerialNr();
+	u32 serial = get_serial_number();
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
@@ -272,8 +290,7 @@ int misc_init_r(void)
 		gd->bd->bi_enetaddr[2] = 0x13;
 		gd->bd->bi_enetaddr[3] = (serial >> 16) & 0xff;
 		gd->bd->bi_enetaddr[4] = (serial >>  8) & 0xff;
-		/* byte[5].bit 0 must be zero */
-		gd->bd->bi_enetaddr[5] = (serial >>  0) & 0xfe;
+		gd->bd->bi_enetaddr[5] = hcu_get_slot();
 		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X\0",
 			gd->bd->bi_enetaddr[0], gd->bd->bi_enetaddr[1],
 			gd->bd->bi_enetaddr[2], gd->bd->bi_enetaddr[3],
@@ -283,6 +300,25 @@ int misc_init_r(void)
 		setenv(DEFAULT_ETH_ADDR, ethaddr);
 	}
 
+	/* IP-Adress update */
+	{
+		IPaddr_t ipaddr;
+		char *ipstring;
+
+		ipstring = getenv("ipaddr");
+		if (ipstring == 0)
+			ipaddr = string_to_ip("172.25.1.99");
+		else
+			ipaddr = string_to_ip(ipstring);
+		if ((ipaddr & 0xff) != (32 + hcu_get_slot())) {
+			char tmp[22];
+
+			ipaddr = (ipaddr & 0xffffff00) + 32 + hcu_get_slot();
+			ip_to_string (ipaddr, tmp);
+			printf("%s: enforce %s\n",  __FUNCTION__, tmp);
+			setenv("ipaddr", tmp);
+		}
+	}
 #ifdef CFG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
@@ -346,6 +382,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#if defined(CONFIG_PCI)
 /*************************************************************************
  *  pci_pre_init
  *
@@ -358,7 +395,6 @@ int misc_init_r(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller *hose)
 {
 	unsigned long addr;
@@ -411,7 +447,6 @@ int pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-#endif	/* defined(CONFIG_PCI) */
 
 /*************************************************************************
  *  pci_target_init
@@ -421,7 +456,6 @@ int pci_pre_init(struct pci_controller *hose)
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*-------------------------------------------------------------+
@@ -478,13 +512,11 @@ void pci_target_init(struct pci_controller *hose)
 
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 }
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  pci_master_init
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -499,8 +531,6 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-#endif
-/* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
 
 /*************************************************************************
  *  is_pci_host
@@ -517,9 +547,8 @@ void pci_master_init(struct pci_controller *hose)
  *
  *
  ************************************************************************/
-#if defined(CONFIG_PCI)
 int is_pci_host(struct pci_controller *hose)
 {
 	return 1;
 }
-#endif				/* defined(CONFIG_PCI) */
+#endif	 /* defined(CONFIG_PCI) */

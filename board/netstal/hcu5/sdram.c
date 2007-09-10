@@ -36,7 +36,7 @@
 #include <asm/mmu.h>
 #include <ppc440.h>
 
-void sysLedSet(u32 value);
+void hcu_led_set(u32 value);
 void dcbz_area(u32 start_address, u32 num_bytes);
 void dflush(void);
 
@@ -70,7 +70,6 @@ void dflush(void);
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
-#ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
 	PPC440_SYS_INFO board_cfg;
@@ -99,7 +98,6 @@ void board_add_ram_info(int use_default)
 	val = DDR0_03_CASLAT_DECODE(val);
 	printf(", CL%d)", val);
 }
-#endif
 
 /*--------------------------------------------------------------------
  * wait_for_dlllock.
@@ -138,7 +136,7 @@ static int wait_for_dlllock(void)
 void sdram_panic(const char *reason)
 {
 	printf("\n%s: reason %s",  __FUNCTION__,  reason);
-	sysLedSet(0xff);
+	hcu_led_set(0xff);
 	while (1) {
 	}
 	/* Never return */
@@ -197,6 +195,13 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes,
 	mfsdram(DDR0_00, val);
 	mtsdram(DDR0_00, val | DDR0_00_INT_ACK_ALL);
 
+	/*
+	 * Clear possible errors
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	mtspr(mcsr, mfspr(mcsr));
+
 	/* Set 'int_mask' parameter to functionnal value */
 	mfsdram(DDR0_01, val);
 	mtsdram(DDR0_01, ((val &~ DDR0_01_INT_MASK_MASK) |
@@ -244,7 +249,6 @@ long int initdram (int board_type)
 		sdram_panic(INVALID_HW_CONFIG);
 		break;
 	}
-	dram_size -= 16 * 1024 * 1024;
 	mtsdram(DDR0_07, 0x00090100);
 	/*
 	 * TCPD=200 cycles of clock input is required to lock the DLL.
@@ -283,6 +287,7 @@ long int initdram (int board_type)
 	/*
 	 * Program tlb entries for this size (dynamic)
 	 */
+	remove_tlb(CFG_SDRAM_BASE, 256 << 20);
 	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
 	/*
@@ -291,6 +296,8 @@ long int initdram (int board_type)
 	 */
 	program_tlb(0, CFG_DDR_CACHED_ADDR, dram_size, 0);
 
+	/* Diminish RAM to initialize */
+	dram_size = dram_size - 32 ;
 #ifdef CONFIG_DDR_ECC
 	/*
 	 * If ECC is enabled, initialize the parity bits.

@@ -65,38 +65,30 @@ struct tsec_info_struct {
  *   FEC_PHYIDX
  */
 static struct tsec_info_struct tsec_info[] = {
-#if defined(CONFIG_TSEC1)
-#if defined(CONFIG_MPC8544DS) || defined(CONFIG_MPC8641HPCN)
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
-#else
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
-#endif
+#ifdef CONFIG_TSEC1
+	{TSEC1_PHY_ADDR, TSEC1_FLAGS, TSEC1_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#if defined(CONFIG_TSEC2)
-#if defined(CONFIG_MPC8641HPCN)
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC2_PHYIDX},
-#else
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
-#endif
+#ifdef CONFIG_TSEC2
+	{TSEC2_PHY_ADDR, TSEC2_FLAGS, TSEC2_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
-	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
+	{FEC_PHY_ADDR, FEC_FLAGS, FEC_PHYIDX},
 #else
-#if defined(CONFIG_TSEC3)
-	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#if defined(CONFIG_TSEC4)
-	{TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
+#ifdef CONFIG_TSEC3
+	{TSEC3_PHY_ADDR, TSEC3_FLAGS, TSEC3_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#endif
+#ifdef CONFIG_TSEC4
+	{TSEC4_PHY_ADDR, TSEC4_FLAGS, TSEC4_PHYIDX},
+#else
+	{0, 0, 0},
+#endif	/* CONFIG_TSEC4 */
+#endif	/* CONFIG_MPC85XX_FEC */
 };
 
 #define MAXCONTROLLERS	(4)
@@ -355,17 +347,16 @@ uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
 uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 {
 	/*
-	 * Wait if PHY is capable of autonegotiation and autonegotiation
-	 * is not complete.
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
 	 */
 	mii_reg = read_phy_reg(priv, MIIM_STATUS);
-	if ((mii_reg & PHY_BMSR_AUTN_ABLE)
+	if ((mii_reg & MIIM_STATUS_LINK) && (mii_reg & PHY_BMSR_AUTN_ABLE)
 	    && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
-		while (!((mii_reg & PHY_BMSR_AUTN_COMP)
-			 && (mii_reg & MIIM_STATUS_LINK))) {
+		while (!(mii_reg & PHY_BMSR_AUTN_COMP)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -385,7 +376,10 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 		priv->link = 1;
 		udelay(500000);	/* another 500 ms (results in faster booting) */
 	} else {
-		priv->link = 1;
+		if (mii_reg & MIIM_STATUS_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
 	}
 
 	return 0;
@@ -525,16 +519,13 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 
 	mii_reg = read_phy_reg(priv, MIIM_88E1011_PHY_STATUS);
 
-	if (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
-	      (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
+	if ((mii_reg & MIIM_88E1011_PHYSTAT_LINK) &&
+		!(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
 		int i = 0;
 
 		puts("Waiting for PHY realtime link");
-		while (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
-			 (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
-			/*
-			 * Timeout reached ?
-			 */
+		while (!(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
+			/* Timeout reached ? */
 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts(" TIMEOUT !\n");
 				priv->link = 0;
@@ -549,6 +540,11 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 		}
 		puts(" done\n");
 		udelay(500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		if (mii_reg & MIIM_88E1011_PHYSTAT_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
 	}
 
 	if (mii_reg & MIIM_88E1011_PHYSTAT_DUPLEX)

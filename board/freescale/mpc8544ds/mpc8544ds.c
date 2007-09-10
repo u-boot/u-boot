@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <asm/io.h>
 #include <spd.h>
 #include <miiphy.h>
 
@@ -222,6 +223,11 @@ pci_init_board(void)
 		printf ("    PCIE3 on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
 
+		/*
+		 * Activate ULI1575 legacy chip by performing a fake
+		 * memory access.  Needed to make ULI RTC work.
+		 */
+		in_be32(CFG_PCIE3_MEM_BASE);
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}
@@ -516,8 +522,16 @@ ft_board_setup(void *blob, bd_t *bd)
 		*p++ = cpu_to_be32(bd->bi_memstart);
 		*p = cpu_to_be32(bd->bi_memsize);
 	}
+#ifdef CONFIG_PCI1
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8000/bus-range", &len);
+	if (p != NULL) {
+		p[0] = 0;
+		p[1] = pci1_hose.last_busno - pci1_hose.first_busno;
+		debug("PCI@8000 first_busno=%d last_busno=%d\n",p[0],p[1]);
+	}
+#endif
 #ifdef CONFIG_PCIE1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@a000/bus-range", &len);
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@a000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = 0;
 		p[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
@@ -525,7 +539,7 @@ ft_board_setup(void *blob, bd_t *bd)
 	}
 #endif
 #ifdef CONFIG_PCIE2
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@9000/bus-range", &len);
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@9000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = 0;
 		p[1] = pcie2_hose.last_busno - pcie2_hose.first_busno;
@@ -533,19 +547,12 @@ ft_board_setup(void *blob, bd_t *bd)
 	}
 #endif
 #ifdef CONFIG_PCIE3
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@b000/bus-range", &len);
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@b000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = 0;
 		p[1] = pcie3_hose.last_busno - pcie3_hose.first_busno;;
 		debug("PCI@b000 first_busno=%d last_busno=%d\n",p[0],p[1]);
 	}
 #endif
-	ft_cpu_setup(blob, bd);
-
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
 }
 #endif

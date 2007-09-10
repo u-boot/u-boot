@@ -17,7 +17,6 @@
 #include <miiphy.h>
 #include <command.h>
 #include <libfdt.h>
-#include <libfdt_env.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
@@ -91,8 +90,6 @@ long int initdram(int board_type)
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 
 	msize = fixed_sdram();
-
-	puts("\n   DDR RAM: ");
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
@@ -185,33 +182,21 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-
-/*
- * Prototypes of functions that we use.
- */
-void ft_cpu_setup(void *blob, bd_t *bd);
-
-#ifdef CONFIG_PCI
-void ft_pci_setup(void *blob, bd_t *bd);
-#endif
-
-void
-ft_board_setup(void *blob, bd_t *bd)
+void ft_board_setup(void *blob, bd_t *bd)
 {
-	int nodeoffset;
-	int tmp[2];
+#if defined(CONFIG_OF_FLAT_TREE)
+	u32 *p;
+	int len;
 
-	nodeoffset = fdt_find_node_by_path(blob, "/memory");
-	if (nodeoffset >= 0) {
-		tmp[0] = cpu_to_be32(bd->bi_memstart);
-		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
+	p = ft_get_prop(blob, "/memory/reg", &len);
+	if (p != NULL) {
+		*p++ = cpu_to_be32(bd->bi_memstart);
+		*p = cpu_to_be32(bd->bi_memsize);
 	}
-
+#endif
 	ft_cpu_setup(blob, bd);
-
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
 }
-#endif /* CONFIG_OF_BOARD_SETUP */
+#endif

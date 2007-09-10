@@ -22,16 +22,20 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-vpath flash.c ../common
-COBJS	= $(BOARD).o flash.o
+vpath hcu_flash.c ../common
+
+# NOBJS : Netstal common objects
+NOBJS	= hcu_flash.o
+COBJS	= $(BOARD).o
 SOBJS	=
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) ../common/$(NOBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
+NOBJS	:= $(addprefix $(obj),$(NOBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+$(LIB):	$(OBJS) $(SOBJS) $(NOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS) $(NOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

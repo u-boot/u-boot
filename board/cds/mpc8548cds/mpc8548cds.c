@@ -362,20 +362,28 @@ pci_init_board(void)
 			);
 
 
-		/* outbound memory */
+		/* inbound */
 		pci_set_region(hose->regions + 0,
+			       CFG_PCI_MEMORY_BUS,
+			       CFG_PCI_MEMORY_PHYS,
+			       CFG_PCI_MEMORY_SIZE,
+			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+
+		/* outbound memory */
+		pci_set_region(hose->regions + 1,
 			       CFG_PCI1_MEM_BASE,
 			       CFG_PCI1_MEM_PHYS,
 			       CFG_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 1,
+		pci_set_region(hose->regions + 2,
 			       CFG_PCI1_IO_BASE,
 			       CFG_PCI1_IO_PHYS,
 			       CFG_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
-		hose->region_count = 2;
+		hose->region_count = 3;
 
 		/* relocate config table pointers */
 		hose->config_table = \
@@ -534,7 +542,7 @@ ft_pci_setup(void *blob, bd_t *bd)
 #endif
 
 #ifdef CONFIG_PCIE1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@a000/bus-range", &len);
+	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@a000/bus-range", &len);
 	if (p != NULL) {
 		p[0] = 0;
 		p[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
