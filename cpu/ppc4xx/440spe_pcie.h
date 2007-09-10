@@ -38,6 +38,7 @@
 #define DCRN_PEGPL_REGBAL(base)		(base + 0x13)
 #define DCRN_PEGPL_REGMSK(base)		(base + 0x14)
 #define DCRN_PEGPL_SPECIAL(base)	(base + 0x15)
+#define DCRN_PEGPL_CFG(base)		(base + 0x16)
 
 /*
  * System DCRs (SDRs)
@@ -161,20 +162,7 @@
 	mtdcr(DCRN_SDR0_CFGADDR, offset); \
 	mtdcr(DCRN_SDR0_CFGDATA,data);})
 
-#define PCIE_IN(opcode, ret, addr) \
-	__asm__ __volatile__(			\
-		"sync\n"			\
-		#opcode " %0,0,%1\n"		\
-		"1: twi 0,%0,0\n"		\
-		"isync\n"			\
-		"b 3f\n"			\
-		"2: li %0,-1\n"			\
-		"3:\n"				\
-		".section __ex_table,\"a\"\n"	\
-		".balign 4\n"			\
-		".long 1b,2b\n"			\
-		".previous\n"			\
-		: "=r" (ret) : "r" (addr), "m" (*addr));
+#define GPL_DMER_MASK_DISA	0x02000000
 
 int ppc440spe_init_pcie(void);
 int ppc440spe_init_pcie_rootport(int port);

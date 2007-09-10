@@ -834,9 +834,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_flat_tree += 4 - tail;
 		}
 
+#ifndef CFG_NO_FLASH
 		/* move the blob if it is in flash (set of_data to !null) */
 		if (addr2info ((ulong)of_flat_tree) != NULL)
 			of_data = (ulong)of_flat_tree;
+#endif
 
 
 #if defined(CONFIG_OF_FLAT_TREE)
