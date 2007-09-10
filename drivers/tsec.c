@@ -1262,10 +1262,10 @@ uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 		case MIIM_LXT971_SR2_100HDX:
 			priv->speed = 100;
 			priv->duplexity = 0;
+			break;
 		default:
 			priv->speed = 100;
 			priv->duplexity = 1;
-			break;
 		}
 	} else {
 		priv->speed = 0;
