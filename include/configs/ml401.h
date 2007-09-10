@@ -146,6 +146,16 @@
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 #endif /* !FLASH */
 
+/* system ace */
+#ifdef XILINX_SYSACE_BASEADDR
+	#define	CONFIG_SYSTEMACE
+	/* #define DEBUG_SYSTEMACE */
+	#define	SYSTEMACE_CONFIG_FPGA
+	#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
+	#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
+	#define	CONFIG_DOS_PARTITION
+#endif
+
 /*
  * BOOTP options
  */
@@ -161,12 +171,14 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 #define CONFIG_CMD_PING
 
+#if defined(CONFIG_SYSTEMACE)
+	#define CONFIG_CMD_EXT2
+	#define CONFIG_CMD_FAT
+#endif
 
 #if defined(FLASH)
 	#define CONFIG_CMD_ECHO
@@ -178,6 +190,8 @@
 		#define CONFIG_CMD_ENV
 		#define CONFIG_CMD_SAVES
 	#endif
+#else
+	#undef CONFIG_CMD_FLASH
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
@@ -211,14 +225,6 @@
 /* architecture dependent code */
 #define	CFG_USR_EXCEP	/* user exception */
 #define CFG_HZ	1000
-
-/* system ace */
-#define	CONFIG_SYSTEMACE
-/* #define DEBUG_SYSTEMACE */
-#define	SYSTEMACE_CONFIG_FPGA
-#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-#define	CONFIG_DOS_PARTITION
 
 #define	CONFIG_PREBOOT		"echo U-BOOT for ML401;setenv preboot;echo"
 
