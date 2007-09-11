@@ -456,7 +456,7 @@ U_BOOT_CMD(nand, 5, 1, do_nand,
 	"info                  - show available NAND devices\n"
 	"nand device [dev]     - show or set current device\n"
 	"nand read[.jffs2]     - addr off|partition size\n"
-	"nand write[.jffs2]    - addr off|partiton size - read/write `size' bytes starting\n"
+	"nand write[.jffs2]    - addr off|partition size - read/write `size' bytes starting\n"
 	"    at offset `off' to/from memory address `addr'\n"
 	"nand erase [clean] [off size] - erase `size' bytes from\n"
 	"    offset `off' (entire device if not specified)\n"
