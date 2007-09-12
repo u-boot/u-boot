@@ -39,8 +39,10 @@
 #define CFG_HZ				1000
 
 /*
- * Set up the PLL to run at 199.5 MHz, the CPU to run at 1/2 the PLL
- * frequency and the peripherals to run at 1/4 the PLL frequency.
+ * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
+ * frequency, the HSB and PBB at 1/2, and the PBA to run at 1/4 the
+ * PLL frequency.
+ * (CFG_OSC0_HZ * CFG_PLL0_MUL) / CFG_PLL0_DIV = PLL MHz
  */
 #define CONFIG_PLL			1
 #define CFG_POWER_MANAGER		1
@@ -48,9 +50,25 @@
 #define CFG_PLL0_DIV			1
 #define CFG_PLL0_MUL			7
 #define CFG_PLL0_SUPPRESS_CYCLES	16
+/*
+ * Set the CPU running at:
+ * PLL / (2^CFG_CLKDIV_CPU) = CPU MHz
+ */
 #define CFG_CLKDIV_CPU			0
+/*
+ * Set the HSB running at:
+ * PLL / (2^CFG_CLKDIV_HSB) = HSB MHz
+ */
 #define CFG_CLKDIV_HSB			1
+/*
+ * Set the PBA running at:
+ * PLL / (2^CFG_CLKDIV_PBA) = PBA MHz
+ */
 #define CFG_CLKDIV_PBA			2
+/*
+ * Set the PBB running at:
+ * PLL / (2^CFG_CLKDIV_PBB) = PBB MHz
+ */
 #define CFG_CLKDIV_PBB			1
 
 /*
