@@ -161,7 +161,11 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr, off, size;
 	char *cmd, *s;
 	nand_info_t *nand;
+#ifdef CFG_NAND_QUIET
+	int quiet = CFG_NAND_QUIET;
+#else
 	int quiet = 0;
+#endif
 	const char *quiet_str = getenv("quiet");
 
 	/* at least two arguments please */
