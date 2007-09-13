@@ -312,16 +312,16 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 #define CONFIG_NET_MULTI
+#define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
-
-#if 0 /* TODO */
-/* enable onboard uli network support */
-#endif
 
 #define CONFIG_RTL8139
 #define CONFIG_SK98
 #define CONFIG_EEPRO100
 #define CONFIG_TULIP
+#ifdef CONFIG_TULIP
+#define CONFIG_ETHADDR   00:E0:0C:00:00:01
+#endif
 
 /************************************************************
  * USB support
