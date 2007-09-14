@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Czech Technical University.
  *
- * Michal SIMEK <monstr@monstr.eu>
+ * Michal SIMEK <monstr@seznam.cz>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,7 +32,6 @@
 #define	CONFIG_ML401		1	/* ML401 Board */
 
 /* uart */
-#define	XILINX_UARTLITE
 #define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
 #define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
@@ -87,7 +86,7 @@
  * 0x11FB_F000	CFG_MONITOR_BASE
  *					MONITOR_CODE	256kB	Env
  * 0x13FF_F000	CFG_GBL_DATA_OFFSET
- *					GLOBAL_DATA	4kB	bd, gd
+ * 					GLOBAL_DATA	4kB	bd, gd
  * 0x1400_0000	CFG_SDRAM_BASE + CFG_SDRAM_SIZE
  */
 
@@ -100,7 +99,7 @@
 /* global pointer */
 #define	CFG_GBL_DATA_SIZE	0x1000	/* size of global data */
 /* start of global data */
-#define	CFG_GBL_DATA_OFFSET	(CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE)
+#define	CFG_GBL_DATA_OFFSET     (CFG_SDRAM_BASE + CFG_SDRAM_SIZE - CFG_GBL_DATA_SIZE)
 
 /* monitor code */
 #define	SIZE			0x40000
@@ -146,16 +145,6 @@
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 #endif /* !FLASH */
 
-/* system ace */
-#ifdef XILINX_SYSACE_BASEADDR
-	#define	CONFIG_SYSTEMACE
-	/* #define DEBUG_SYSTEMACE */
-	#define	SYSTEMACE_CONFIG_FPGA
-	#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
-	#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
-	#define	CONFIG_DOS_PARTITION
-#endif
-
 /*
  * BOOTP options
  */
@@ -164,21 +153,28 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
+
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_BDI
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_IMI
 #define CONFIG_CMD_IRQ
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MFSL
+#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-
-#if defined(CONFIG_SYSTEMACE)
-	#define CONFIG_CMD_EXT2
-	#define CONFIG_CMD_FAT
-#endif
+#define CONFIG_CMD_RUN
 
 #if defined(FLASH)
 	#define CONFIG_CMD_ECHO
@@ -190,8 +186,6 @@
 		#define CONFIG_CMD_ENV
 		#define CONFIG_CMD_SAVES
 	#endif
-#else
-	#undef CONFIG_CMD_FLASH
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
@@ -216,15 +210,23 @@
 #define	CONFIG_BOOTDELAY	30
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		"ml401"
-#define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
+#define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
-#define	CONFIG_SERVERIP		192.168.0.5
-#define	CONFIG_GATEWAYIP	192.168.0.1
+#define	CONFIG_SERVERIP 	192.168.0.5
+#define	CONFIG_GATEWAYIP 	192.168.0.1
 #define	CONFIG_ETHADDR		00:E0:0C:00:00:FD
 
 /* architecture dependent code */
 #define	CFG_USR_EXCEP	/* user exception */
 #define CFG_HZ	1000
+
+/* system ace */
+#define	CONFIG_SYSTEMACE
+/* #define DEBUG_SYSTEMACE */
+#define	SYSTEMACE_CONFIG_FPGA
+#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
+#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
+#define	CONFIG_DOS_PARTITION
 
 #define	CONFIG_PREBOOT		"echo U-BOOT for ML401;setenv preboot;echo"
 
