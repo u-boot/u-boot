@@ -1794,13 +1794,13 @@ MPC8349ITX_config \
 MPC8349ITX_LOWBOOT_config \
 MPC8349ITXGP_config:	unconfig
 	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/mpc8349itx
+	@mkdir -p $(obj)board/freescale/mpc8349itx
 	@echo "#define CONFIG_$(subst _LOWBOOT,,$(@:_config=))" >> $(obj)include/config.h
 	@if [ "$(findstring GP,$@)" ] ; then \
-		echo "TEXT_BASE = 0xFE000000" >$(obj)board/mpc8349itx/config.tmp ; \
+		echo "TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
 	fi
 	@if [ "$(findstring LOWBOOT,$@)" ] ; then \
-		echo "TEXT_BASE = 0xFE000000" >$(obj)board/mpc8349itx/config.tmp ; \
+		echo "TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
 	fi
 	@$(MKCONFIG) -a -n $(@:_config=) MPC8349ITX ppc mpc83xx mpc8349itx freescale
 
