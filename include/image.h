@@ -77,6 +77,7 @@
 #define IH_CPU_NIOS2		15	/* Nios-II	*/
 #define IH_CPU_BLACKFIN		16	/* Blackfin	*/
 #define IH_CPU_AVR32		17	/* AVR32	*/
+#define IH_CPU_ST200	        18	/* STMicroelectronics ST200  */
 
 /*
  * Image Types
