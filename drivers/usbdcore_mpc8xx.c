@@ -64,6 +64,8 @@
 #include "usbdcore_mpc8xx.h"
 #include "usbdcore_ep0.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define ERR(fmt, args...)\
 	serial_printf("ERROR : [%s] %s:%d: "fmt,\
 				__FILE__,__FUNCTION__,__LINE__, ##args)
@@ -1216,7 +1218,6 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 #elif defined(CFG_USB_BRGCLK)
 
 	/* This has been tested with brgclk == 50MHz */
-	DECLARE_GLOBAL_DATA_PTR;
 	int divisor = 0;
 
 	if (gd->cpu_clk < 48000000L) {

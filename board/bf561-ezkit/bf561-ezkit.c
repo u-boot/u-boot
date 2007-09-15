@@ -29,6 +29,8 @@
 #include <common.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard(void)
 {
 	printf("CPU:   ADSP BF561\n");
@@ -39,7 +41,6 @@ int checkboard(void)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	int brate;
 	char *tmp = getenv("baudrate");

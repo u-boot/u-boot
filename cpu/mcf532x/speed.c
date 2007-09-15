@@ -30,6 +30,8 @@
 
 #include <asm/immap.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* PLL min/max specifications */
 #define MAX_FVCO	500000	/* KHz */
 #define MAX_FSYS	80000	/* KHz */
@@ -208,8 +210,6 @@ int clock_pll(int fsys, int flags)
  */
 int get_clocks(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bus_clk = clock_pll(CFG_CLK / 1000, 0) * 1000;
 	gd->cpu_clk = (gd->bus_clk * 3);
 	return (0);

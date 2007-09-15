@@ -30,6 +30,8 @@
 #include <asm/io.h>
 #include "bf533-stamp.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define STATUS_LED_OFF 0
 #define STATUS_LED_ON  1
 
@@ -55,7 +57,6 @@ int checkboard(void)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	printf("SDRAM attributes:\n");
 	printf
