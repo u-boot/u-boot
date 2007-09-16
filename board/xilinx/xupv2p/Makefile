@@ -22,17 +22,32 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+$(shell mkdir -p $(obj)../xilinx_enet)
+endif
+
+INCS		:= -I../common -I../xilinx_enet
+CFLAGS		+= $(INCS)
+HOST_CFLAGS	+= $(INCS)
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o
+COBJS	= $(BOARD).o \
+	  ../xilinx_enet/emac_adapter.o  ../xilinx_enet/xemac.o \
+	  ../xilinx_enet/xemac_options.o ../xilinx_enet/xemac_polled.o \
+	  ../xilinx_enet/xemac_intr.o ../xilinx_enet/xemac_g.o \
+	  ../xilinx_enet/xemac_intr_dma.o ../common/xipif_v1_23_b.o \
+	  ../common/xbasic_types.o ../common/xdma_channel.o \
+	  ../common/xdma_channel_sg.o ../common/xpacket_fifo_v1_00_b.o \
+	  ../common/xversion.o \
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $^
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

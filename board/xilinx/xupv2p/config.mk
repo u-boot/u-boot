@@ -25,8 +25,8 @@
 # Version: Xilinx EDK 8.2.02 EDK_Im_Sp2.4
 #
 
-TEXT_BASE = 0x30000000
+TEXT_BASE = 0x38000000
 
-PLATFORM_CPPFLAGS += -mxl-pattern-compare
 PLATFORM_CPPFLAGS += -mno-xl-soft-mul
-PLATFORM_CPPFLAGS += -mcpu=v5.00.c
+PLATFORM_CPPFLAGS += -mno-xl-soft-div
+PLATFORM_CPPFLAGS += -mxl-barrel-shift

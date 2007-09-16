@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Michal Simek
  *
- * Michal SIMEK <monstr@monstr.eu>
+ * Michal SIMEK <moonstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
