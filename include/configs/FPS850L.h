@@ -39,27 +39,43 @@
 #undef	CONFIG_8xx_CONS_SMC1
 #define	CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		19200
-#if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
-#else
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#endif
-#define CONFIG_BOOTCOMMAND	"bootm 40020000" /* autoboot command	*/
+#define CONFIG_BAUDRATE		115200
 
-#define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
+#define	CONFIG_BOOTCOUNT_LIMIT
+
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
-#define CONFIG_BOOTARGS		"root=/dev/nfs rw "			\
-				"nfsroot=10.0.0.2:/opt/eldk/ppc_8xx "	\
-				"nfsaddrs=10.0.0.99:10.0.0.2"
+#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+
+#undef	CONFIG_BOOTARGS
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"flash_nfs=run nfsargs addip;"					\
+		"bootm ${kernel_addr}\0"				\
+	"flash_self=run ramargs addip;"					\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
+	"rootpath=/opt/eldk/ppc_8xx\0"					\
+	"bootfile=/tftpboot/fps850L/uImage\0"				\
+	"fdt_addr=40040000\0"						\
+	"kernel_addr=40060000\0"					\
+	"ramdisk_addr=40200000\0"					\
+	""
+#define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-
 
 /*
  * BOOTP options
@@ -80,24 +96,32 @@
 #define CONFIG_BOOTP_NTPSERVER
 #define CONFIG_BOOTP_TIMEOFFSET
 
+#define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
-#undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_CACHE
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
 
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define	CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
+
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CFG_HUSH_PARSER
+#define	CFG_PROMPT_HUSH_PS2	"> "
+#endif
+
 #if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else

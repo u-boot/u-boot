@@ -81,8 +81,9 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
 	"bootfile=/tftpboot/TQM866M/uImage\0"				\
-	"kernel_addr=40080000\0"					\
-	"ramdisk_addr=40180000\0"					\
+	"fdt_addr=40080000\0"						\
+	"kernel_addr=400A0000\0"					\
+	"ramdisk_addr=40280000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
