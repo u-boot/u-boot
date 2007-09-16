@@ -171,8 +171,9 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 
 #ifdef	CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x00020000		/* Environment starts at this adress 	*/
-#define	CFG_ENV_SIZE		0x00010000		/* Set whole sector as env 		*/
+#define CFG_ENV_OFFSET		0x00020000	/* Environment starts at this adress 	*/
+#define	CFG_ENV_SIZE		0x00010000	/* Set whole sector as env 		*/
+#define	CFG_USE_PPCENV				/* Environment embedded in sect .ppcenv */
 #endif
 
 /*-----------------------------------------------------------------------

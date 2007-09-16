@@ -242,6 +242,8 @@
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 /*-----------------------------------------------------------------------
  * Hardware Information Block
  */
