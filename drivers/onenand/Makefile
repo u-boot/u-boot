@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2005-2007 Samsung Electronics. 
-# Kyungmin Park <kyungmin.park@samsung.com> 
+# Copyright (C) 2005-2007 Samsung Electronics.
+# Kyungmin Park <kyungmin.park@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
