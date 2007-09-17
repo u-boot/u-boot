@@ -313,9 +313,6 @@
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
@@ -410,6 +407,8 @@
 #define TSEC2_PHY_ADDR		0x1a
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
@@ -660,6 +659,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:a0:1e:a0:13:8d
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:a0:1e:a0:13:8e

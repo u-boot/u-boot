@@ -84,6 +84,12 @@ $(obj)nand_ecc.c:
 	@rm -f $(obj)nand_ecc.c
 	ln -s $(SRCTREE)/drivers/nand/nand_ecc.c $(obj)nand_ecc.c
 
+ifneq ($(OBJTREE), $(SRCTREE))
+$(obj)sdram.c:
+	@rm -f $(obj)sdram.c
+	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/sdram.c $(obj)sdram.c
+endif
+
 #########################################################################
 
 $(obj)%.o:	$(obj)%.S

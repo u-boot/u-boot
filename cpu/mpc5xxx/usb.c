@@ -27,7 +27,7 @@
 
 #include <mpc5xxx.h>
 
-int usb_cpu_init()
+int usb_cpu_init(void)
 {
 	/* Set the USB Clock						     */
 	*(vu_long *)MPC5XXX_CDM_48_FDC = CONFIG_USB_CLOCK;
@@ -41,12 +41,12 @@ int usb_cpu_init()
 	return 0;
 }
 
-int usb_cpu_stop()
+int usb_cpu_stop(void)
 {
 	return 0;
 }
 
-int usb_cpu_init_fail()
+int usb_cpu_init_fail(void)
 {
 	return 0;
 }

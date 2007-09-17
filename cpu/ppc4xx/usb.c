@@ -27,7 +27,7 @@
 
 #include "usbdev.h"
 
-int usb_cpu_init()
+int usb_cpu_init(void)
 {
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX)
@@ -37,12 +37,12 @@ int usb_cpu_init()
 	return 0;
 }
 
-int usb_cpu_stop()
+int usb_cpu_stop(void)
 {
 	return 0;
 }
 
-int usb_cpu_init_fail()
+int usb_cpu_init_fail(void)
 {
 	return 0;
 }

@@ -30,6 +30,8 @@
 qe_map_t		*qe_immr = NULL;
 static qe_snum_t	snums[QE_NUM_OF_SNUM];
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 {
 	u32           cecr;
@@ -51,8 +53,6 @@ void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 
 uint qe_muram_alloc(uint size, uint align)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	uint	retloc;
 	uint	align_mask, off;
 	uint	savebase;
@@ -98,7 +98,7 @@ static void qe_sdma_init(void)
 	out_be32(&p->sdaqmr, 0);
 
 	/* Allocate 2KB temporary buffer for sdma */
-	sdma_buffer_base = qe_muram_alloc(2048, 64);
+	sdma_buffer_base = qe_muram_alloc(2048, 4096);
 	out_be32(&p->sdwbcr, sdma_buffer_base & QE_SDEBCR_BA_MASK);
 
 	/* Clear sdma status */
@@ -158,8 +158,6 @@ void qe_put_snum(u8 snum)
 
 void qe_init(uint qe_base)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* Init the QE IMMR base */
 	qe_immr = (qe_map_t *)qe_base;
 
@@ -204,7 +202,6 @@ void qe_assign_page(uint snum, uint para_ram_base)
 
 int qe_set_brg(uint brg, uint rate)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile uint	*bp;
 	u32		divisor;
 	int		div16 = 0;

@@ -69,8 +69,9 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
 	"bootfile=/tftpboot/TQM860M/uImage\0"				\
-	"kernel_addr=40080000\0"					\
-	"ramdisk_addr=40180000\0"					\
+	"fdt_addr=40080000\0"						\
+	"kernel_addr=400A0000\0"					\
+	"ramdisk_addr=40280000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -197,6 +198,8 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block

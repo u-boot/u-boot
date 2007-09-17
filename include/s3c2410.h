@@ -69,75 +69,75 @@ typedef enum {
 #include <s3c24x0.h>
 
 
-static inline S3C24X0_MEMCTL * const S3C24X0_GetBase_MEMCTL(void)
+static inline S3C24X0_MEMCTL * S3C24X0_GetBase_MEMCTL(void)
 {
 	return (S3C24X0_MEMCTL * const)S3C24X0_MEMCTL_BASE;
 }
-static inline S3C24X0_USB_HOST * const S3C24X0_GetBase_USB_HOST(void)
+static inline S3C24X0_USB_HOST * S3C24X0_GetBase_USB_HOST(void)
 {
 	return (S3C24X0_USB_HOST * const)S3C24X0_USB_HOST_BASE;
 }
-static inline S3C24X0_INTERRUPT * const S3C24X0_GetBase_INTERRUPT(void)
+static inline S3C24X0_INTERRUPT * S3C24X0_GetBase_INTERRUPT(void)
 {
 	return (S3C24X0_INTERRUPT * const)S3C24X0_INTERRUPT_BASE;
 }
-static inline S3C24X0_DMAS * const S3C24X0_GetBase_DMAS(void)
+static inline S3C24X0_DMAS * S3C24X0_GetBase_DMAS(void)
 {
 	return (S3C24X0_DMAS * const)S3C24X0_DMA_BASE;
 }
-static inline S3C24X0_CLOCK_POWER * const S3C24X0_GetBase_CLOCK_POWER(void)
+static inline S3C24X0_CLOCK_POWER * S3C24X0_GetBase_CLOCK_POWER(void)
 {
 	return (S3C24X0_CLOCK_POWER * const)S3C24X0_CLOCK_POWER_BASE;
 }
-static inline S3C24X0_LCD * const S3C24X0_GetBase_LCD(void)
+static inline S3C24X0_LCD * S3C24X0_GetBase_LCD(void)
 {
 	return (S3C24X0_LCD * const)S3C24X0_LCD_BASE;
 }
-static inline S3C2410_NAND * const S3C2410_GetBase_NAND(void)
+static inline S3C2410_NAND * S3C2410_GetBase_NAND(void)
 {
 	return (S3C2410_NAND * const)S3C2410_NAND_BASE;
 }
-static inline S3C24X0_UART * const S3C24X0_GetBase_UART(S3C24X0_UARTS_NR nr)
+static inline S3C24X0_UART * S3C24X0_GetBase_UART(S3C24X0_UARTS_NR nr)
 {
 	return (S3C24X0_UART * const)(S3C24X0_UART_BASE + (nr * 0x4000));
 }
-static inline S3C24X0_TIMERS * const S3C24X0_GetBase_TIMERS(void)
+static inline S3C24X0_TIMERS * S3C24X0_GetBase_TIMERS(void)
 {
 	return (S3C24X0_TIMERS * const)S3C24X0_TIMER_BASE;
 }
-static inline S3C24X0_USB_DEVICE * const S3C24X0_GetBase_USB_DEVICE(void)
+static inline S3C24X0_USB_DEVICE * S3C24X0_GetBase_USB_DEVICE(void)
 {
 	return (S3C24X0_USB_DEVICE * const)S3C24X0_USB_DEVICE_BASE;
 }
-static inline S3C24X0_WATCHDOG * const S3C24X0_GetBase_WATCHDOG(void)
+static inline S3C24X0_WATCHDOG * S3C24X0_GetBase_WATCHDOG(void)
 {
 	return (S3C24X0_WATCHDOG * const)S3C24X0_WATCHDOG_BASE;
 }
-static inline S3C24X0_I2C * const S3C24X0_GetBase_I2C(void)
+static inline S3C24X0_I2C * S3C24X0_GetBase_I2C(void)
 {
 	return (S3C24X0_I2C * const)S3C24X0_I2C_BASE;
 }
-static inline S3C24X0_I2S * const S3C24X0_GetBase_I2S(void)
+static inline S3C24X0_I2S * S3C24X0_GetBase_I2S(void)
 {
 	return (S3C24X0_I2S * const)S3C24X0_I2S_BASE;
 }
-static inline S3C24X0_GPIO * const S3C24X0_GetBase_GPIO(void)
+static inline S3C24X0_GPIO * S3C24X0_GetBase_GPIO(void)
 {
 	return (S3C24X0_GPIO * const)S3C24X0_GPIO_BASE;
 }
-static inline S3C24X0_RTC * const S3C24X0_GetBase_RTC(void)
+static inline S3C24X0_RTC * S3C24X0_GetBase_RTC(void)
 {
 	return (S3C24X0_RTC * const)S3C24X0_RTC_BASE;
 }
-static inline S3C2410_ADC * const S3C2410_GetBase_ADC(void)
+static inline S3C2410_ADC * S3C2410_GetBase_ADC(void)
 {
 	return (S3C2410_ADC * const)S3C2410_ADC_BASE;
 }
-static inline S3C24X0_SPI * const S3C24X0_GetBase_SPI(void)
+static inline S3C24X0_SPI * S3C24X0_GetBase_SPI(void)
 {
 	return (S3C24X0_SPI * const)S3C24X0_SPI_BASE;
 }
-static inline S3C2410_SDI * const S3C2410_GetBase_SDI(void)
+static inline S3C2410_SDI * S3C2410_GetBase_SDI(void)
 {
 	return (S3C2410_SDI * const)S3C2410_SDI_BASE;
 }

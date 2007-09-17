@@ -143,54 +143,42 @@ tlb1_entry:
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLBe 2:	256M	Non-cacheable, guarded
-	 * 0x80000000	256M	PCI1 MEM
+	 * TLBe 2:	1G	Non-cacheable, guarded
+	 * 0x80000000	512M	PCI1 MEM
+	 * 0xa0000000 	512M	PCIe MEM
 	 */
 	.long TLB1_MAS0(1, 2, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1G)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLBe 3:	256M	Non-cacheable, guarded
-	 * 0xa0000000	256M	PCIe Mem
-	 */
-	.long TLB1_MAS0(1, 3, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PEX_MEM_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PEX_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
-
-	/*
-	 * TLBe 4:	Reserved for future usage
-	 */
-
-	/*
-	 * TLBe 5:	64M	Non-cacheable, guarded
+	 * TLBe 3:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR
 	 * 0xe200_0000	8M	PCI1 IO
 	 * 0xe280_0000	8M	PCIe IO
 	 */
-	.long TLB1_MAS0(1, 5, 0)
+	.long TLB1_MAS0(1, 3, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_CCSRBAR), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_CCSRBAR), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLBe 6:	64M	Cacheable, non-guarded
+	 * TLBe 4:	64M	Cacheable, non-guarded
 	 * 0xf000_0000	64M	LBC SDRAM
 	 */
-	.long TLB1_MAS0(1, 6, 0)
+	.long TLB1_MAS0(1, 4, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_LBC_SDRAM_BASE), 0,0,0,0,0,0,0,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_LBC_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
 
 	/*
-	 * TLBe 7:	256K	Non-cacheable, guarded
+	 * TLBe 5:	256K	Non-cacheable, guarded
 	 * 0xf8000000	32K BCSR
 	 * 0xf8008000	32K PIB (CS4)
 	 * 0xf8010000	32K PIB (CS5)
 	 */
-	.long TLB1_MAS0(1, 7, 0)
+	.long TLB1_MAS0(1, 5, 0)
 	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256K)
 	.long TLB1_MAS2(E500_TLB_EPN(CFG_BCSR_BASE), 0,0,0,0,1,0,1,0)
 	.long TLB1_MAS3(E500_TLB_RPN(CFG_BCSR_BASE), 0,0,0,0,0,1,0,1,0,1)
@@ -202,12 +190,12 @@ tlb1_entry:
  * LAW(Local Access Window) configuration:
  *
  *0)   0x0000_0000   0x7fff_ffff     DDR                     2G
- *1)   0x8000_0000   0x9fff_ffff     PCI1 MEM                256MB
- *2)   0xa000_0000   0xbfff_ffff     PCIe MEM                256MB
- *5)   0xc000_0000   0xdfff_ffff     SRIO                    256MB
+ *1)   0x8000_0000   0x9fff_ffff     PCI1 MEM                512MB
+ *2)   0xa000_0000   0xbfff_ffff     PCIe MEM                512MB
  *-)   0xe000_0000   0xe00f_ffff     CCSR                    1M
  *3)   0xe200_0000   0xe27f_ffff     PCI1 I/O                8M
- *4)   0xe280_0000   0xe2ff_ffff     PCIe I/0                8M
+ *4)   0xe280_0000   0xe2ff_ffff     PCIe I/O                8M
+ *5)   0xc000_0000   0xdfff_ffff     SRIO                    512MB
  *6.a) 0xf000_0000   0xf3ff_ffff     SDRAM                   64MB
  *6.b) 0xf800_0000   0xf800_7fff     BCSR                    32KB
  *6.c) 0xf800_8000   0xf800_ffff     PIB (CS4)		     32KB
@@ -226,20 +214,20 @@ tlb1_entry:
 #define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
 
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
-#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR2 ((CFG_PEX_MEM_BASE>>12) & 0xfffff)
-#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR3 ((CFG_PCI1_IO_PHYS>>12) & 0xfffff)
 #define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
 #define LAWBAR4 ((CFG_PEX_IO_PHYS>>12) & 0xfffff)
-#define LAWAR4  (LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_16M))
+#define LAWAR4  (LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
 
 #define LAWBAR5 ((CFG_SRIO_MEM_BASE>>12) & 0xfffff)
-#define LAWAR5	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWAR5	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 /* LBC window - maps 256M.  That's SDRAM, BCSR, PIBs, and Flash */
 #define LAWBAR6 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)

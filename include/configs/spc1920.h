@@ -31,14 +31,9 @@
 #undef	CONFIG_8xx_CONS_NONE
 
 #define CONFIG_MII
-/* #define MII_DEBUG */
-/* #define CONFIG_FEC_ENET */
 #undef CONFIG_ETHER_ON_FEC1
 #define CONFIG_ETHER_ON_FEC2
 #define FEC_ENET
-/* #define CONFIG_FEC2_PHY_NORXERR */
-/* #define CFG_DISCOVER_PHY */
-/* #define CONFIG_PHY_ADDR		0x1 */
 #define CONFIG_FEC2_PHY		1
 
 #define CONFIG_BAUDRATE		19200
@@ -100,13 +95,11 @@
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-
-#undef CONFIG_CMD_NET
-
 
 /*
  * Miscellaneous configurable options

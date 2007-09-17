@@ -351,6 +351,7 @@ int get_clocks(void)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
+	gd->pci_clk = pci_sync_in;
 	gd->cpu_clk = gd->core_clk;
 	gd->bus_clk = gd->csb_clk;
 	return 0;

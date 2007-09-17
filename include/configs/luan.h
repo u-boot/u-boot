@@ -39,7 +39,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
-#define CONFIG_ADD_RAM_INFO	1	/* Print additional info	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -136,7 +135,6 @@
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x53, 0x52}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
-#define CFG_44x_DDR2_CKTR_180	1	/* use 180 deg advance		*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -213,7 +211,6 @@
 #define CONFIG_HW_WATCHDOG			/* watchdog */
 #endif
 
-
 /*
  * BOOTP options
  */
@@ -222,7 +219,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -230,7 +226,6 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
@@ -241,7 +236,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
-
 
 /*
  * Miscellaneous configurable options

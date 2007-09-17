@@ -45,7 +45,7 @@ extern int MM_Packet_Desc_Size;
 
 #define MM_PACKET_DESC_SIZE MM_Packet_Desc_Size
 
-DECLARE_QUEUE_TYPE(UM_RX_PACKET_Q, MAX_RX_PACKET_DESC_COUNT+1);
+DECLARE_QUEUE_TYPE (UM_RX_PACKET_Q, MAX_RX_PACKET_DESC_COUNT + 1);
 
 #define MAX_MEM 16
 
@@ -65,50 +65,49 @@ typedef struct _UM_DEVICE_BLOCK {
 	int mtu;
 	int index;
 	int opened;
-	int delayed_link_ind; /* Delay link status during initial load */
-	int adapter_just_inited; /* the first few seconds after init. */
-	int spurious_int;            /* new -- unsupported */
+	int delayed_link_ind;	/* Delay link status during initial load */
+	int adapter_just_inited;	/* the first few seconds after init. */
+	int spurious_int;	/* new -- unsupported */
 	int timer_interval;
 	int adaptive_expiry;
-	int crc_counter_expiry;         /* new -- unsupported */
-	int poll_tib_expiry;         /* new -- unsupported */
+	int crc_counter_expiry;	/* new -- unsupported */
+	int poll_tib_expiry;	/* new -- unsupported */
 	int tx_full;
 	int tx_queued;
 	int line_speed;		/* in Mbps, 0 if link is down */
 	UM_RX_PACKET_Q rx_out_of_buf_q;
 	int rx_out_of_buf;
-	int rx_low_buf_thresh; /* changed to rx_buf_repl_thresh */
+	int rx_low_buf_thresh;	/* changed to rx_buf_repl_thresh */
 	int rx_buf_repl_panic_thresh;
-	int rx_buf_align;            /* new -- unsupported */
+	int rx_buf_align;	/* new -- unsupported */
 	int do_global_lock;
 	mutex_t global_lock;
 	mutex_t undi_lock;
 	long undi_flags;
 	volatile int interrupt;
 	int tasklet_pending;
-	int tasklet_busy;	     /* new -- unsupported */
+	int tasklet_busy;	/* new -- unsupported */
 	int rx_pkt;
 	int tx_pkt;
-#ifdef NICE_SUPPORT   /* unsupported, this is a linux ioctl */
-	void (*nice_rx)(void*, void* );
-	void* nice_ctx;
-#endif /* NICE_SUPPORT */
+#ifdef NICE_SUPPORT		/* unsupported, this is a linux ioctl */
+	void (*nice_rx) (void *, void *);
+	void *nice_ctx;
+#endif				/* NICE_SUPPORT */
 	int rx_adaptive_coalesce;
 	unsigned int rx_last_cnt;
 	unsigned int tx_last_cnt;
 	unsigned int rx_curr_coalesce_frames;
 	unsigned int rx_curr_coalesce_ticks;
-	unsigned int tx_curr_coalesce_frames;  /* new -- unsupported */
-#if TIGON3_DEBUG          /* new -- unsupported */
+	unsigned int tx_curr_coalesce_frames;	/* new -- unsupported */
+#if TIGON3_DEBUG		/* new -- unsupported */
 	uint tx_zc_count;
 	uint tx_chksum_count;
 	uint tx_himem_count;
 	uint rx_good_chksum_count;
 #endif
-	unsigned int rx_bad_chksum_count;   /* new -- unsupported */
-	unsigned int rx_misc_errors;        /* new -- unsupported */
+	unsigned int rx_bad_chksum_count;	/* new -- unsupported */
+	unsigned int rx_misc_errors;	/* new -- unsupported */
 } UM_DEVICE_BLOCK, *PUM_DEVICE_BLOCK;
-
 
 /* Physical/PCI DMA address */
 typedef union {
@@ -117,9 +116,9 @@ typedef union {
 
 /* Packet */
 typedef struct
-_UM_PACKET {
-    LM_PACKET lm_packet;
-    void* skbuff;      /* Address of packet buffer */
+    _UM_PACKET {
+	LM_PACKET lm_packet;
+	void *skbuff;		/* Address of packet buffer */
 } UM_PACKET, *PUM_PACKET;
 
 #define MM_ACQUIRE_UNDI_LOCK(_pDevice)
@@ -137,15 +136,14 @@ _UM_PACKET {
 
 #define MEM_TO_PCI_PHYS(addr) (addr)
 
-extern void MM_SetAddr (LM_PHYSICAL_ADDRESS *paddr, dma_addr_t addr);
-extern void MM_SetT3Addr(T3_64BIT_HOST_ADDR *paddr, dma_addr_t addr);
+extern void MM_SetAddr (LM_PHYSICAL_ADDRESS * paddr, dma_addr_t addr);
+extern void MM_SetT3Addr (T3_64BIT_HOST_ADDR * paddr, dma_addr_t addr);
 extern void MM_MapTxDma (PLM_DEVICE_BLOCK pDevice,
-			 struct _LM_PACKET *pPacket, T3_64BIT_HOST_ADDR *paddr,
-			 LM_UINT32 *len, int frag);
-extern void MM_MapRxDma ( PLM_DEVICE_BLOCK pDevice,
-			  struct _LM_PACKET *pPacket,
-			  T3_64BIT_HOST_ADDR *paddr);
-
+			 struct _LM_PACKET *pPacket, T3_64BIT_HOST_ADDR * paddr,
+			 LM_UINT32 * len, int frag);
+extern void MM_MapRxDma (PLM_DEVICE_BLOCK pDevice,
+			 struct _LM_PACKET *pPacket,
+			 T3_64BIT_HOST_ADDR * paddr);
 
 /* BSP needs to provide sysUsecDelay and sysSerialPrintString */
 extern void sysSerialPrintString (char *s);
@@ -157,4 +155,4 @@ extern void sysSerialPrintString (char *s);
 #if 0
 #define cpu_to_le32(val) LONGSWAP(val)
 #endif
-#endif /* MM_H */
+#endif				/* MM_H */

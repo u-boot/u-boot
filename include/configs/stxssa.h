@@ -230,7 +230,7 @@
 #define CFG_PCI2_IO_SIZE	0x01000000	/* 16M */
 
 #if defined(CONFIG_PCI) 		/* PCI Ethernet card */
-
+#define CONFIG_MPC85XX_PCI2	1
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
@@ -260,12 +260,13 @@
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"TSEC1"
-#define CONFIG_MPS85XX_FEC
 
 #define TSEC1_PHY_ADDR		2
 #define TSEC2_PHY_ADDR		4
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #define CONFIG_ETHPRIME		"TSEC0"
 
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
@@ -406,6 +407,7 @@
 
 /*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	 00:e0:0c:07:9b:8a
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:e0:0c:07:9b:8b

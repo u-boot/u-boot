@@ -129,8 +129,6 @@ serial_puts (const char *s)
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned short divisor = 0;
 
 	switch (gd->baudrate) {

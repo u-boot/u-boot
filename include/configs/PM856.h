@@ -262,11 +262,12 @@
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"TSEC1"
-#undef CONFIG_MPC85XX_FEC
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 #endif  /* CONFIG_TSEC_ENET */
 
@@ -391,6 +392,7 @@
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR   00:40:42:01:00:00
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:40:42:01:00:01

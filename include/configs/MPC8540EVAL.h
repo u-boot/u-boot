@@ -213,10 +213,13 @@
 #define CONFIG_NET_MULTI 	1
 #define CONFIG_MII		1	/* MII PHY management	*/
 #define CONFIG_TSEC1    1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME      "TSEC0"
 #define CONFIG_TSEC2	1
+#define CONFIG_HAS_ETH1
 #define CONFIG_TSEC2_NAME      "TSEC1"
 #define CONFIG_MPC85XX_FEC      1
+#define CONFIG_HAS_ETH2
 #define CONFIG_MPC85XX_FEC_NAME                "FEC"
 #define TSEC1_PHY_ADDR          7
 #define	TSEC2_PHY_ADDR		4
@@ -224,6 +227,10 @@
 #define TSEC1_PHYIDX            0
 #define TSEC2_PHYIDX            0
 #define FEC_PHYIDX              0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define FEC_FLAGS		0
+
 /* Options are: TSEC[0-1], FEC */
 #define CONFIG_ETHPRIME                "TSEC0"
 

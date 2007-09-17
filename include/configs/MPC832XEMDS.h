@@ -30,6 +30,8 @@
 #define CONFIG_MPC83XX		1	/* MPC83xx family */
 #define CONFIG_MPC832X		1	/* MPC832x CPU specific */
 #define CONFIG_MPC832XEMDS	1	/* MPC832XEMDS board specific */
+#undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
+#undef CONFIG_PQ_MDS_PIB_ATM	/* QOC3 ATM card */
 
 /*
  * System Clock Setup
@@ -87,6 +89,7 @@
 #define CFG_SICRL		0x00000000
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * IMMR new address
@@ -315,11 +318,8 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8323@0"
 #define OF_SOC			"soc8323@e0000000"

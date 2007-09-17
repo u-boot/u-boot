@@ -36,6 +36,9 @@
 *		instruction decoding and accessess of immediate data via IP.  etc.
 *
 ****************************************************************************/
+#include <common.h>
+
+#if defined(CONFIG_BIOSEMU)
 
 #include "x86emu/x86emui.h"
 
@@ -1142,3 +1145,5 @@ unsigned decode_rmXX_address(int mod, int rm)
     return decode_rm01_address(rm);
   return decode_rm10_address(rm);
 }
+
+#endif

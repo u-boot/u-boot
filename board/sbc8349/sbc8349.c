@@ -64,8 +64,6 @@ long int initdram (int board_type)
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
-	puts("Initializing\n");
-
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
@@ -84,7 +82,6 @@ long int initdram (int board_type)
 	 */
 	ddr_enable_ecc(msize * 1024 * 1024);
 #endif
-	puts("   DDR RAM: ");
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
 }
@@ -130,7 +127,7 @@ int fixed_sdram(void)
 #if defined(CONFIG_DDR_2T_TIMING)
 		| SDRAM_CFG_2T_EN
 #endif
-		| 2 << SDRAM_CFG_SDRAM_TYPE_SHIFT;
+		| SDRAM_CFG_SDRAM_TYPE_DDR1;
 #if defined (CONFIG_DDR_32BIT)
 	/* for 32-bit mode burst length is 8 */
 	im->ddr.sdram_cfg |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);

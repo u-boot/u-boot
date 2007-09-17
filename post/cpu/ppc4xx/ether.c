@@ -68,10 +68,10 @@ static char *rx_buf;
 static void ether_post_init (int devnum, int hw_addr)
 {
 	int i;
-	unsigned mode_reg;
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+	unsigned mode_reg;
 	sys_info_t sysinfo;
 #endif
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || defined(CONFIG_440SPE)
@@ -185,10 +185,17 @@ static void ether_post_init (int devnum, int hw_addr)
 	mtdcr (malrxcasr, (MAL_TXRX_CASR >> devnum));
 
 	/* set internal loopback mode */
+#ifdef CFG_POST_ETHER_EXT_LOOPBACK
+	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | 0 |
+	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
+	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
+	       in32 (EMAC_M1));
+#else
 	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | EMAC_M1_ILE |
 	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
 	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
 	       in32 (EMAC_M1));
+#endif
 
 	/* set transmit enable & receive enable */
 	out32 (EMAC_M0 + hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);

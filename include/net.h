@@ -99,10 +99,12 @@ struct eth_device {
 	int state;
 
 	int  (*init) (struct eth_device*, bd_t*);
-	int  (*send) (struct eth_device*, volatile void* pachet, int length);
+	int  (*send) (struct eth_device*, volatile void* packet, int length);
 	int  (*recv) (struct eth_device*);
 	void (*halt) (struct eth_device*);
-
+#ifdef CONFIG_MCAST_TFTP
+	int (*mcast) (struct eth_device*, u32 ip, u8 set);
+#endif
 	struct eth_device *next;
 	void *priv;
 };
@@ -123,6 +125,11 @@ extern int eth_send(volatile void *packet, int length);	   /* Send a packet	*/
 extern int eth_rx(void);			/* Check for received packets	*/
 extern void eth_halt(void);			/* stop SCC			*/
 extern char *eth_get_name(void);		/* get name of current device	*/
+
+#ifdef CONFIG_MCAST_TFTP
+int eth_mcast_join( IPaddr_t mcast_addr, u8 join);
+u32 ether_crc (size_t len, unsigned char const *p);
+#endif
 
 
 /**********************************************************************/
@@ -433,6 +440,29 @@ static inline void NetCopyIP(void *to, void *from)
 static inline void NetCopyLong(ulong *to, ulong *from)
 {
 	memcpy((void*)to, (void*)from, sizeof(ulong));
+}
+
+/**
+ * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is all zeroes.
+ */
+static inline int is_zero_ether_addr(const u8 *addr)
+{
+	return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
+}
+
+/**
+ * is_multicast_ether_addr - Determine if the Ethernet address is a multicast.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is a multicast address.
+ * By definition the broadcast address is also a multicast address.
+ */
+static inline int is_multicast_ether_addr(const u8 *addr)
+{
+	return (0x01 & addr[0]);
 }
 
 /* Convert an IP address to a string */

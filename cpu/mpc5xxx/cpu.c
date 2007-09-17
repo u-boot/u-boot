@@ -29,10 +29,12 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc5xxx.h>
+#include <asm/io.h>
 #include <asm/processor.h>
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <libfdt_env.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -111,29 +113,43 @@ unsigned long get_tbclk (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_cpu_setup(void *blob, bd_t *bd)
+#ifdef CONFIG_OF_LIBFDT
+static void do_fixup(void *fdt, const char *node, const char *prop,
+		     const void *val, int len, int create)
 {
-	u32 *p;
-	int len;
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	int rc = fdt_find_and_setprop(fdt, node, prop, val, len, create);
+	if (rc)
+		printf("Unable to update property %s:%s, err=%s\n",
+		       node, prop, fdt_strerror(rc));
+}
 
-	/* Core XLB bus frequency */
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(bd->bi_busfreq);
+static void do_fixup_u32(void *fdt, const char *node, const char *prop,
+			 u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup(fdt, node, prop, &val, sizeof(val), create);
+}
 
-	/* SOC peripherals use the IPB bus frequency */
-	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(bd->bi_ipbfreq);
+void ft_cpu_setup(void *blob, bd_t *bd)
+{
+	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
+	char * cpu_path = "/cpus/" OF_CPU;
+	char * eth_path = "/" OF_SOC "/ethernet@3000";
 
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@3000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
+	do_fixup_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
+	do_fixup_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipbfreq, 1);
+	do_fixup_u32(blob, "/" OF_SOC, "system-frequency",
+			bd->bi_busfreq*div, 1);
+	do_fixup(blob, eth_path, "mac-address", bd->bi_enetaddr, 6, 0);
+	do_fixup(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
 }
 #endif

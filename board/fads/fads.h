@@ -71,7 +71,10 @@
 #undef CONFIG_BOOTARGS
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
+
+#if !defined(CONFIG_MPC885ADS)
 #define CONFIG_BZIP2	 /* include support for bzip2 compressed images */
+#endif
 
 /*
  * New MPC86xADS and MPC885ADS provide two Ethernet connectivity options:
@@ -226,6 +229,7 @@
 #define CFG_ENV_SECT_SIZE	0x40000	/* see README - env sector total size	*/
 #define CFG_ENV_OFFSET		CFG_ENV_SECT_SIZE
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment		*/
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 #define	CFG_DIRECT_FLASH_TFTP
 

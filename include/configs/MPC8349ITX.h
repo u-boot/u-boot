@@ -289,17 +289,15 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
+#define CONFIG_CONSOLE		ttyS0
 #define CONFIG_BAUDRATE		115200
 
 #define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
@@ -377,10 +375,12 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME  "TSEC0"
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */
 #define TSEC1_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
 #endif
 
 #ifdef CONFIG_TSEC2
@@ -390,6 +390,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
 #define TSEC2_PHY_ADDR		4
 #define TSEC2_PHYIDX		0
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #endif
 
 #define CONFIG_ETHPRIME		"Freescale TSEC"
@@ -408,6 +409,7 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
+  #undef  CFG_FLASH_CFI_DRIVER
   #define CFG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
   #define CFG_ENV_SIZE		0x2000
@@ -450,9 +452,7 @@ boards, we say we have two, but don't display a message if we find only one. */
     #define CONFIG_CMD_I2C
 #endif
 
-
 /* Watchdog */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*
@@ -673,9 +673,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" 	\
 		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
 		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \
-	" console=ttyS0," MK_STR(CONFIG_BAUDRATE)
+	" console=" MK_STR(CONFIG_CONSOLE) "," MK_STR(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"console=" MK_STR(CONFIG_CONSOLE) "\0" 				\
 	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
 	"tftpflash=tftpboot $loadaddr $uboot; " 			\

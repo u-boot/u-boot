@@ -28,9 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG
-#undef DEBUG
-
 /*
  * High Level Configuration Options
  */
@@ -256,6 +253,8 @@ extern int tqm834x_num_flash_banks;
 #define TSEC2_PHY_ADDR			1
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC0"
@@ -502,6 +501,7 @@ extern int tqm834x_num_flash_banks;
  */
 
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		D2:DA:5E:44:BC:29
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		1E:F3:40:21:92:53

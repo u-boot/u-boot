@@ -100,9 +100,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#define CFG_NAND_LEGACY
-
-
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/

@@ -1,10 +1,12 @@
 include $(TOPDIR)/config.mk
 
-LIB := libatibiosemu.a
+LIB := $(obj)libatibiosemu.a
 
-X86DIR  = ./x86emu
+X86DIR  = x86emu
 
-OBJS	= atibios.o biosemu.o besys.o bios.o  \
+$(shell mkdir -p $(obj)$(X86DIR))
+
+COBJS	= atibios.o biosemu.o besys.o bios.o \
 	$(X86DIR)/decode.o \
 	$(X86DIR)/ops2.o \
 	$(X86DIR)/ops.o \
@@ -12,19 +14,24 @@ OBJS	= atibios.o biosemu.o besys.o bios.o  \
 	$(X86DIR)/sys.o \
 	$(X86DIR)/debug.o
 
-CFLAGS += -I. -I./include  -I$(X86DIR) -I$(TOPDIR)/include \
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
+EXTRA_CFLAGS += -I. -I./include -I$(TOPDIR)/include \
 	-D__PPC__  -D__BIG_ENDIAN__
+
+CFLAGS += $(EXTRA_CFLAGS)
+HOST_CFLAGS += $(EXTRA_CFLAGS)
 
 all:	$(LIB)
 
-$(LIB): $(OBJS)
-	$(AR) crv $@ $(OBJS)
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
-.depend:	Makefile $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(OBJS:.o=.c) > $@
+include $(SRCTREE)/rules.mk
 
-sinclude .depend
+sinclude $(obj).depend
 
 #########################################################################

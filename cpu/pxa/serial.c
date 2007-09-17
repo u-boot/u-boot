@@ -30,11 +30,28 @@
 
 #include <common.h>
 #include <watchdog.h>
+#include <serial.h>
 #include <asm/arch/pxa-regs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void serial_setbrg (void)
+#define FFUART	0
+#define BTUART	1
+#define STUART	2
+
+#ifndef CONFIG_SERIAL_MULTI
+#if defined (CONFIG_FFUART)
+#define UART_INDEX	FFUART
+#elif defined (CONFIG_BTUART)
+#define UART_INDEX	BTUART
+#elif defined (CONFIG_STUART)
+#define UART_INDEX	STUART
+#else
+#error "Bad: you didn't configure serial ..."
+#endif
+#endif
+
+void pxa_setbrg_dev (unsigned int uart_index)
 {
 	unsigned int quot = 0;
 
@@ -53,63 +70,68 @@ void serial_setbrg (void)
 	else
 		hang ();
 
-#ifdef CONFIG_FFUART
+	switch (uart_index) {
+		case FFUART:
 #ifdef CONFIG_CPU_MONAHANS
-	CKENA |= CKENA_22_FFUART;
+			CKENA |= CKENA_22_FFUART;
 #else
-	CKEN |= CKEN6_FFUART;
+			CKEN |= CKEN6_FFUART;
 #endif /* CONFIG_CPU_MONAHANS */
 
-	FFIER = 0;					/* Disable for now */
-	FFFCR = 0;					/* No fifos enabled */
+			FFIER = 0;	/* Disable for now */
+			FFFCR = 0;	/* No fifos enabled */
 
-	/* set baud rate */
-	FFLCR = LCR_WLS0 | LCR_WLS1 | LCR_DLAB;
-	FFDLL = quot & 0xff;
-	FFDLH = quot >> 8;
-	FFLCR = LCR_WLS0 | LCR_WLS1;
+			/* set baud rate */
+			FFLCR = LCR_WLS0 | LCR_WLS1 | LCR_DLAB;
+			FFDLL = quot & 0xff;
+			FFDLH = quot >> 8;
+			FFLCR = LCR_WLS0 | LCR_WLS1;
 
-	FFIER = IER_UUE;			/* Enable FFUART */
+			FFIER = IER_UUE;	/* Enable FFUART */
+		break;
 
-#elif defined(CONFIG_BTUART)
+		case BTUART:
 #ifdef CONFIG_CPU_MONAHANS
-	CKENA |= CKENA_21_BTUART;
+			CKENA |= CKENA_21_BTUART;
 #else
-	CKEN |= CKEN7_BTUART;
+			CKEN |= CKEN7_BTUART;
 #endif /*  CONFIG_CPU_MONAHANS */
 
-	BTIER = 0;
-	BTFCR = 0;
+			BTIER = 0;
+			BTFCR = 0;
 
-	/* set baud rate */
-	BTLCR = LCR_DLAB;
-	BTDLL = quot & 0xff;
-	BTDLH = quot >> 8;
-	BTLCR = LCR_WLS0 | LCR_WLS1;
+			/* set baud rate */
+			BTLCR = LCR_DLAB;
+			BTDLL = quot & 0xff;
+			BTDLH = quot >> 8;
+			BTLCR = LCR_WLS0 | LCR_WLS1;
 
-	BTIER = IER_UUE;			/* Enable BFUART */
+			BTIER = IER_UUE;	/* Enable BFUART */
 
-#elif defined(CONFIG_STUART)
+		break;
+
+		case STUART:
 #ifdef CONFIG_CPU_MONAHANS
-	CKENA |= CKENA_23_STUART;
+			CKENA |= CKENA_23_STUART;
 #else
-	CKEN |= CKEN5_STUART;
+			CKEN |= CKEN5_STUART;
 #endif /* CONFIG_CPU_MONAHANS */
 
-	STIER = 0;
-	STFCR = 0;
+			STIER = 0;
+			STFCR = 0;
 
-	/* set baud rate */
-	STLCR = LCR_DLAB;
-	STDLL = quot & 0xff;
-	STDLH = quot >> 8;
-	STLCR = LCR_WLS0 | LCR_WLS1;
+			/* set baud rate */
+			STLCR = LCR_DLAB;
+			STDLL = quot & 0xff;
+			STDLH = quot >> 8;
+			STLCR = LCR_WLS0 | LCR_WLS1;
 
-	STIER = IER_UUE;			/* Enable STUART */
+			STIER = IER_UUE;			/* Enable STUART */
+			break;
 
-#else
-#error "Bad: you didn't configure serial ..."
-#endif
+		default:
+			hang();
+	}
 }
 
 
@@ -118,9 +140,9 @@ void serial_setbrg (void)
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+int pxa_init_dev (unsigned int uart_index)
 {
-	serial_setbrg ();
+	pxa_setbrg_dev (uart_index);
 
 	return (0);
 }
@@ -129,26 +151,32 @@ int serial_init (void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+void pxa_putc_dev (unsigned int uart_index,const char c)
 {
-#ifdef CONFIG_FFUART
-	/* wait for room in the tx FIFO on FFUART */
-	while ((FFLSR & LSR_TEMT) == 0)
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	FFTHR = c;
-#elif defined(CONFIG_BTUART)
-	while ((BTLSR & LSR_TEMT ) == 0 )
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	BTTHR = c;
-#elif defined(CONFIG_STUART)
-	while ((STLSR & LSR_TEMT ) == 0 )
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	STTHR = c;
-#endif
+	switch (uart_index) {
+		case FFUART:
+		/* wait for room in the tx FIFO on FFUART */
+			while ((FFLSR & LSR_TEMT) == 0)
+				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			FFTHR = c;
+			break;
+
+		case BTUART:
+			while ((BTLSR & LSR_TEMT ) == 0 )
+				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			BTTHR = c;
+			break;
+
+		case STUART:
+			while ((STLSR & LSR_TEMT ) == 0 )
+				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			STTHR = c;
+			break;
+	}
 
 	/* If \n, also do \r */
 	if (c == '\n')
-		serial_putc ('\r');
+		pxa_putc_dev (uart_index,'\r');
 }
 
 /*
@@ -156,15 +184,17 @@ void serial_putc (const char c)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_tstc (void)
+int pxa_tstc_dev (unsigned int uart_index)
 {
-#ifdef CONFIG_FFUART
-	return FFLSR & LSR_DR;
-#elif defined(CONFIG_BTUART)
-	return BTLSR & LSR_DR;
-#elif defined(CONFIG_STUART)
-	return STLSR & LSR_DR;
-#endif
+	switch (uart_index) {
+		case FFUART:
+			return FFLSR & LSR_DR;
+		case BTUART:
+			return BTLSR & LSR_DR;
+		case STUART:
+			return STLSR & LSR_DR;
+	}
+	return -1;
 }
 
 /*
@@ -172,27 +202,184 @@ int serial_tstc (void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc (void)
+int pxa_getc_dev (unsigned int uart_index)
 {
-#ifdef CONFIG_FFUART
-	while (!(FFLSR & LSR_DR))
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	return (char) FFRBR & 0xff;
-#elif defined(CONFIG_BTUART)
-	while (!(BTLSR & LSR_DR))
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	return (char) BTRBR & 0xff;
-#elif defined(CONFIG_STUART)
-	while (!(STLSR & LSR_DR))
-		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-	return (char) STRBR & 0xff;
-#endif
+	switch (uart_index) {
+		case FFUART:
+			while (!(FFLSR & LSR_DR))
+			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			return (char) FFRBR & 0xff;
+
+		case BTUART:
+			while (!(BTLSR & LSR_DR))
+			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			return (char) BTRBR & 0xff;
+		case STUART:
+			while (!(STLSR & LSR_DR))
+			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
+			return (char) STRBR & 0xff;
+	}
+	return -1;
 }
 
 void
-serial_puts (const char *s)
+pxa_puts_dev (unsigned int uart_index,const char *s)
 {
 	while (*s) {
-		serial_putc (*s++);
+		pxa_putc_dev (uart_index,*s++);
 	}
 }
+
+#if defined (CONFIG_FFUART)
+static int ffuart_init(void)
+{
+	return pxa_init_dev(FFUART);
+}
+
+static void ffuart_setbrg(void)
+{
+	return pxa_setbrg_dev(FFUART);
+}
+
+static void ffuart_putc(const char c)
+{
+	return pxa_putc_dev(FFUART,c);
+}
+
+static void ffuart_puts(const char *s)
+{
+	return pxa_puts_dev(FFUART,s);
+}
+
+static int ffuart_getc(void)
+{
+	return pxa_getc_dev(FFUART);
+}
+
+static int ffuart_tstc(void)
+{
+	return pxa_tstc_dev(FFUART);
+}
+
+struct serial_device serial_ffuart_device =
+{
+	"serial_ffuart",
+	"PXA",
+	ffuart_init,
+	ffuart_setbrg,
+	ffuart_getc,
+	ffuart_tstc,
+	ffuart_putc,
+	ffuart_puts,
+};
+#endif
+
+#if defined (CONFIG_BTUART)
+static int btuart_init(void)
+{
+	return pxa_init_dev(BTUART);
+}
+
+static void btuart_setbrg(void)
+{
+	return pxa_setbrg_dev(BTUART);
+}
+
+static void btuart_putc(const char c)
+{
+	return pxa_putc_dev(BTUART,c);
+}
+
+static void btuart_puts(const char *s)
+{
+	return pxa_puts_dev(BTUART,s);
+}
+
+static int btuart_getc(void)
+{
+	return pxa_getc_dev(BTUART);
+}
+
+static int btuart_tstc(void)
+{
+	return pxa_tstc_dev(BTUART);
+}
+
+struct serial_device serial_btuart_device =
+{
+	"serial_btuart",
+	"PXA",
+	btuart_init,
+	btuart_setbrg,
+	btuart_getc,
+	btuart_tstc,
+	btuart_putc,
+	btuart_puts,
+};
+#endif
+
+#if defined (CONFIG_STUART)
+static int stuart_init(void)
+{
+	return pxa_init_dev(STUART);
+}
+
+static void stuart_setbrg(void)
+{
+	return pxa_setbrg_dev(STUART);
+}
+
+static void stuart_putc(const char c)
+{
+	return pxa_putc_dev(STUART,c);
+}
+
+static void stuart_puts(const char *s)
+{
+	return pxa_puts_dev(STUART,s);
+}
+
+static int stuart_getc(void)
+{
+	return pxa_getc_dev(STUART);
+}
+
+static int stuart_tstc(void)
+{
+	return pxa_tstc_dev(STUART);
+}
+
+struct serial_device serial_stuart_device =
+{
+	"serial_stuart",
+	"PXA",
+	stuart_init,
+	stuart_setbrg,
+	stuart_getc,
+	stuart_tstc,
+	stuart_putc,
+	stuart_puts,
+};
+#endif
+
+
+#ifndef CONFIG_SERIAL_MULTI
+inline int serial_init(void) {
+	return (pxa_init_dev(UART_INDEX));
+}
+void serial_setbrg(void) {
+	pxa_setbrg_dev(UART_INDEX);
+}
+int serial_getc(void) {
+	return(pxa_getc_dev(UART_INDEX));
+}
+int serial_tstc(void) {
+	return(pxa_tstc_dev(UART_INDEX));
+}
+void serial_putc(const char c) {
+	pxa_putc_dev(UART_INDEX,c);
+}
+void serial_puts(const char *s) {
+	pxa_puts_dev(UART_INDEX,s);
+}
+#endif	/* CONFIG_SERIAL_MULTI */

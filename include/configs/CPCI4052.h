@@ -114,8 +114,6 @@
 #define CONFIG_AUTO_UPDATE      1       /* autoupdate via compactflash  */
 #endif
 
-#define CFG_NAND_LEGACY
-
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/

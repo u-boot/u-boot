@@ -241,7 +241,6 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		0x1
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_ETHADDR		00:e0:5e:00:e5:14
 
 #if 0
 /*
@@ -267,21 +266,19 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#if defined(CONFIG_PCI)
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_PCI		\
-				| CFG_CMD_NET		\
-				| CFG_CMD_PING		\
-				)
-#else
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL		\
-				| CFG_CMD_NET		\
-				| CFG_CMD_PING		\
-	  			| CFG_CMD_MII		\
-				| CFG_CMD_I2C)
-#endif
+#include <config_cmd_default.h>
 
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+
+#if defined(CONFIG_PCI)
+#define CONFIG_CMD_PCI
+#endif
 
 /*
  * Watchdog timeout = CFG_WATCHDOG_VALUE * 65536 / IPS clock.
@@ -299,7 +296,7 @@
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 	#define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
 	#define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -321,7 +318,7 @@
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -337,7 +334,7 @@
 #define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02	/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -348,18 +345,11 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HOSTNAME		ads5121
-#define CONFIG_ROOTPATH		/nfsroot/rootfs
 #define CONFIG_BOOTFILE		uImage
-
-#define CONFIG_IPADDR		192.168.160.77
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.0.0
 
 #define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
 
-//#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
-#define CONFIG_BOOTDELAY	-1
+#define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE		115200
@@ -383,9 +373,9 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"	\
 		"bootm\0"						\
-	"load=tftp 100000 /tftpboot/ads5121/u-boot.bin\0"		\
-	"update=protect off fff00000 fff3ffff; "			\
-		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0" \
+	"load=tftp 200000 /tftpboot/ads5121/u-boot.bin\0"		\
+	"update=protect off FFF00000 +${filesize};"			\
+		"era FFF00000 +${filesize};cp.b 200000 FFF00000 ${filesize}\0" \
 	"upd=run load;run update\0"					\
 	""
 

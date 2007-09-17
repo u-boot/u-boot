@@ -1,6 +1,8 @@
 /*
  * MPC85xx Internal Memory Map
  *
+ * Copyright 2007 Freescale Semiconductor.
+ *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
  *
@@ -1520,14 +1522,39 @@ typedef struct ccsr_rio {
 	char	res58[60176];
 } ccsr_rio_t;
 
+/* Quick Engine Block Pin Muxing Registers (0xe_0100 - 0xe_01bf) */
+typedef struct par_io {
+	uint	cpodr;		/* 0x100 */
+	uint	cpdat;		/* 0x104 */
+	uint	cpdir1;		/* 0x108 */
+	uint	cpdir2;		/* 0x10c */
+	uint	cppar1;		/* 0x110 */
+	uint	cppar2;		/* 0x114 */
+	char	res[8];
+}par_io_t;
+
 /*
  * Global Utilities Register Block(0xe_0000-0xf_ffff)
  */
 typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
+#define MPC85xx_PORBMSR_HA 		0x00070000
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
 	uint	pordevsr;	/* 0xe000c - POR I/O device status regsiter */
+#define MPC85xx_PORDEVSR_SGMII1_DIS	0x20000000
+#define MPC85xx_PORDEVSR_SGMII2_DIS	0x10000000
+#define MPC85xx_PORDEVSR_SGMII3_DIS	0x08000000
+#define MPC85xx_PORDEVSR_SGMII4_DIS	0x04000000
+#define MPC85xx_PORDEVSR_IO_SEL		0x00380000
+#define MPC85xx_PORDEVSR_PCI2_ARB 	0x00040000
+#define MPC85xx_PORDEVSR_PCI1_ARB 	0x00020000
+#define MPC85xx_PORDEVSR_PCI1_PCI32 	0x00010000
+#define MPC85xx_PORDEVSR_PCI1_SPD 	0x00008000
+#define MPC85xx_PORDEVSR_PCI2_SPD 	0x00004000
+#define MPC85xx_PORDEVSR_DRAM_RTYPE	0x00000060
+#define MPC85xx_PORDEVSR_RIO_CTLS 	0x00000008
+#define MPC85xx_PORDEVSR_RIO_DEV_ID	0x00000007
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
 	char	res1[12];
 	uint	gpporcr;	/* 0xe0020 - General-purpose POR configuration register */
@@ -1541,6 +1568,25 @@ typedef struct ccsr_gur {
 	uint	pmuxcr;		/* 0xe0060 - Alternate function signal multiplex control */
 	char	res6[12];
 	uint	devdisr;	/* 0xe0070 - Device disable control */
+#define MPC85xx_DEVDISR_PCI1		0x80000000
+#define MPC85xx_DEVDISR_PCI2		0x40000000
+#define MPC85xx_DEVDISR_PCIE		0x20000000
+#define MPC85xx_DEVDISR_LBC		0x08000000
+#define MPC85xx_DEVDISR_PCIE2		0x04000000
+#define MPC85xx_DEVDISR_PCIE3		0x02000000
+#define MPC85xx_DEVDISR_SEC		0x01000000
+#define MPC85xx_DEVDISR_SRIO		0x00080000
+#define MPC85xx_DEVDISR_RMSG		0x00040000
+#define MPC85xx_DEVDISR_DDR 		0x00010000
+#define MPC85xx_DEVDISR_CPU 		0x00008000
+#define MPC85xx_DEVDISR_TB 		0x00004000
+#define MPC85xx_DEVDISR_DMA		0x00000400
+#define MPC85xx_DEVDISR_TSEC1		0x00000080
+#define MPC85xx_DEVDISR_TSEC2		0x00000040
+#define MPC85xx_DEVDISR_TSEC3		0x00000020
+#define MPC85xx_DEVDISR_TSEC4		0x00000010
+#define MPC85xx_DEVDISR_I2C		0x00000004
+#define MPC85xx_DEVDISR_DUART		0x00000002
 	char	res7[12];
 	uint	powmgtcsr;	/* 0xe0080 - Power management status and control register */
 	char	res8[12];
@@ -1550,7 +1596,13 @@ typedef struct ccsr_gur {
 	uint	svr;		/* 0xe00a4 - System version register */
 	char	res10a[8];
 	uint	rstcr;		/* 0xe00b0 - Reset control register */
+#ifdef CONFIG_MPC8568
+	char	res10b[76];
+	par_io_t qe_par_io[7];  /* 0xe0100 - 0xe01bf */
+	char	res10c[3136];
+#else
 	char	res10b[3404];
+#endif
 	uint	clkocr;		/* 0xe0e00 - Clock out select register */
 	char	res11[12];
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */
@@ -1562,7 +1614,7 @@ typedef struct ccsr_gur {
 	uint	ddrioovcr;	/* 0xe0f24 - DDR IO Override Control */
 	uint	res14;		/* 0xe0f28 */
 	uint	tsec34ioovcr;	/* 0xe0f2c - eTSEC 3/4 IO override control */
-	char	res15[61651];
+	char	res15[61648];	/* 0xe0f30 to 0xefffff */
 } ccsr_gur_t;
 
 #define PORDEVSR_PCI	(0x00800000)	/* PCI Mode */

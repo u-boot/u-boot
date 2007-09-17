@@ -113,12 +113,12 @@
 				/* 0x03200064 */
 #if defined(CONFIG_DDR_2T_TIMING)
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_2T_EN \
 				| SDRAM_CFG_DBW_32 )
 #else
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
-				| 3 << SDRAM_CFG_SDRAM_TYPE_SHIFT \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
 				| SDRAM_CFG_32_BE )
 				/* 0x43080000 */
 #endif
@@ -228,11 +228,8 @@
 #define CFG_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8313@0"
 #define OF_SOC			"soc8313@e0000000"
@@ -310,6 +307,8 @@
 #define CONFIG_TSEC2_NAME	"TSEC1"
 #define TSEC1_PHY_ADDR			0x1c
 #define TSEC2_PHY_ADDR			4
+#define TSEC1_FLAGS			TSEC_GIGABIT
+#define TSEC2_FLAGS			TSEC_GIGABIT
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
 
@@ -507,6 +506,7 @@
 
 #define CONFIG_ETHADDR		00:E0:0C:00:95:01
 #define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
 
 #define CONFIG_IPADDR		10.0.0.2

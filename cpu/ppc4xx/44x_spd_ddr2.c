@@ -109,7 +109,7 @@
 /* Defines for the Read Cycle Delay test */
 #define NUMMEMTESTS	8
 #define NUMMEMWORDS	8
-#define NUMLOOPS	256		/* memory test loops */
+#define NUMLOOPS	64		/* memory test loops */
 
 #undef CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
 
@@ -138,6 +138,26 @@ void __spd_ddr_init_hang (void)
 }
 void spd_ddr_init_hang (void) __attribute__((weak, alias("__spd_ddr_init_hang")));
 
+/*
+ * To provide an interface for board specific config values in this common
+ * DDR setup code, we implement he "weak" default functions here. They return
+ * the default value back to the caller.
+ *
+ * Please see include/configs/yucca.h for an example fora board specific
+ * implementation.
+ */
+u32 __ddr_wrdtr(u32 default_val)
+{
+	return default_val;
+}
+u32 ddr_wrdtr(u32) __attribute__((weak, alias("__ddr_wrdtr")));
+
+u32 __ddr_clktr(u32 default_val)
+{
+	return default_val;
+}
+u32 ddr_clktr(u32) __attribute__((weak, alias("__ddr_clktr")));
+
 
 /* Private Structure Definitions */
 
@@ -154,7 +174,6 @@ typedef enum ddr_cas_id {
  * Prototypes
  *-----------------------------------------------------------------------------*/
 static unsigned long sdram_memsize(void);
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -216,9 +235,7 @@ static void	test(void);
 #else
 static void	DQS_calibration_process(void);
 #endif
-#if defined(DEBUG)
 static void ppc440sp_sdram_register_dump(void);
-#endif
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 void dcbz_area(u32 start_address, u32 num_bytes);
 void dflush(void);
@@ -469,17 +486,14 @@ long int initdram(int board_type)
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_WRDTR, val);
 	mtsdram(SDRAM_WRDTR, (val & ~(SDRAM_WRDTR_LLWP_MASK | SDRAM_WRDTR_WTR_MASK)) |
-		(SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_90_DEG_ADV));
+		ddr_wrdtr(SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_90_DEG_ADV));
 
 	/*------------------------------------------------------------------
 	 * Set the SDRAM Clock Timing Register
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_CLKTR, val);
-#ifdef CFG_44x_DDR2_CKTR_180
-	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_180_DEG_ADV);
-#else
-	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) | SDRAM_CLKTR_CLKP_0_DEG);
-#endif
+	mtsdram(SDRAM_CLKTR, (val & ~SDRAM_CLKTR_CLKP_MASK) |
+		ddr_clktr(SDRAM_CLKTR_CLKP_0_DEG));
 
 	/*------------------------------------------------------------------
 	 * Program the BxCF registers.
@@ -538,7 +552,12 @@ long int initdram(int board_type)
 	dram_size = sdram_memsize();
 
 	/* and program tlb entries for this size (dynamic) */
-	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
+
+	/*
+	 * Program TLB entries with caches enabled, for best performace
+	 * while auto-calibrating and ECC generation
+	 */
+	program_tlb(0, 0, dram_size, 0);
 
 	/*------------------------------------------------------------------
 	 * DQS calibration.
@@ -549,12 +568,18 @@ long int initdram(int board_type)
 	/*------------------------------------------------------------------
 	 * If ecc is enabled, initialize the parity bits.
 	 *-----------------------------------------------------------------*/
-	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks, MY_TLB_WORD2_I_ENABLE);
+	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks, 0);
 #endif
 
-#ifdef DEBUG
+	/*
+	 * Now after initialization (auto-calibration and ECC generation)
+	 * remove the TLB entries with caches enabled and program again with
+	 * desired cache functionality
+	 */
+	remove_tlb(0, dram_size);
+	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
+
 	ppc440sp_sdram_register_dump();
-#endif
 
 	return dram_size;
 }
@@ -596,7 +621,6 @@ static void get_spd_info(unsigned long *dimm_populated,
 	}
 }
 
-#ifdef CONFIG_ADD_RAM_INFO
 void board_add_ram_info(int use_default)
 {
 	PPC440_SYS_INFO board_cfg;
@@ -617,7 +641,6 @@ void board_add_ram_info(int use_default)
 	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
 	printf(", CL%d)", val);
 }
-#endif
 
 /*------------------------------------------------------------------
  * For the memory DIMMs installed, this routine verifies that they
@@ -2703,6 +2726,7 @@ calibration_loop:
 		printf("\nERROR: Cannot determine a common read delay for the "
 		       "DIMM(s) installed.\n");
 		debug("%s[%d] ERROR : \n", __FUNCTION__,__LINE__);
+		ppc440sp_sdram_register_dump();
 		spd_ddr_init_hang ();
 	}
 
@@ -3027,6 +3051,10 @@ static void ppc440sp_sdram_register_dump(void)
 	printf("        MQ2_B0BAS       = 0x%08X", dcr_data);
 	dcr_data = mfdcr(SDRAM_R3BAS);
 	printf("        MQ3_B0BAS       = 0x%08X\n", dcr_data);
+}
+#else
+static void ppc440sp_sdram_register_dump(void)
+{
 }
 #endif
 #endif /* CONFIG_SPD_EEPROM */

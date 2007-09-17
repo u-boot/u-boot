@@ -37,8 +37,12 @@
 *
 ****************************************************************************/
 
-#include "x86emu/x86emui.h"
 #include <stdarg.h>
+#include <common.h>
+
+#if defined(CONFIG_BIOSEMU)
+
+#include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
 
@@ -459,3 +463,5 @@ void x86emu_dump_xregs(void)
 		printk("NC ");
 	printk("\n");
 }
+
+#endif

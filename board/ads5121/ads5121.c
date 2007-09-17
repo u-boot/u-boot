@@ -85,9 +85,7 @@ long int initdram (int board_type)
 {
 	u32 msize = 0;
 
-	puts ("Initializing\n");
 	msize = fixed_sdram ();
-	puts ("   DDR RAM: ");
 
 	return msize;
 }

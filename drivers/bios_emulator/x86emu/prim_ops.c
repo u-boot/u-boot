@@ -97,7 +97,12 @@
 *
 ****************************************************************************/
 
+#include <common.h>
+
 #define PRIM_OPS_NO_REDEFINE_ASM
+
+#if defined(CONFIG_BIOSEMU)
+
 #include "x86emu/x86emui.h"
 
 /*------------------------- Global Variables ------------------------------*/
@@ -2443,3 +2448,5 @@ DB( if (CHECK_SP_ACCESS())
     M.x86.R_SP += 4;
     return res;
 }
+
+#endif

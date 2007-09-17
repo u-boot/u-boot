@@ -330,6 +330,8 @@ int do_auto_update(void)
 	int i, res = 0, bitmap_first, cnt, old_ctrlc, got_ctrlc;
 	char *env;
 	long start, end;
+
+#if 0 /* disable key-press detection to speed up boot-up time */
 	uchar keypad_status1[2] = {0,0}, keypad_status2[2] = {0,0};
 
 	/*
@@ -347,6 +349,7 @@ int do_auto_update(void)
 		return 0;
 	}
 
+#endif
 	au_usb_stor_curr_dev = -1;
 	/* start USB */
 	if (usb_stop() < 0) {
@@ -364,18 +367,21 @@ int do_auto_update(void)
 	au_usb_stor_curr_dev = usb_stor_scan(0);
 	if (au_usb_stor_curr_dev == -1) {
 		debug ("No device found. Not initialized?\n");
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	/* check whether it has a partition table */
 	stor_dev = get_dev("usb", 0);
 	if (stor_dev == NULL) {
 		debug ("uknown device type\n");
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	if (fat_register_device(stor_dev, 1) != 0) {
 		debug ("Unable to use USB %d:%d for fatls\n",
 			au_usb_stor_curr_dev, 1);
-		return -1;
+		res = -1;
+		goto xit;
 	}
 	if (file_fat_detectfs() != 0) {
 		debug ("file_fat_detectfs failed\n");
@@ -504,7 +510,7 @@ int do_auto_update(void)
 		} while (res < 0);
 #endif
 	}
-	usb_stop();
+
 	/* restore the old state */
 	disable_ctrlc(old_ctrlc);
 #ifdef CONFIG_PROGRESSBAR
@@ -517,6 +523,8 @@ int do_auto_update(void)
 		lcd_enable();
 	}
 #endif
-	return 0;
+ xit:
+	usb_stop();
+	return res;
 }
 #endif /* CONFIG_AUTO_UPDATE */

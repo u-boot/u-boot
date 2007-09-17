@@ -85,7 +85,6 @@
 
 /* USB */
 #define CONFIG_USB_OHCI_NEW
-#define ADD_USB_CMD             CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #define CFG_OHCI_BE_CONTROLLER
 #undef CFG_USB_OHCI_BOARD_INIT
@@ -179,11 +178,8 @@
 #endif /* CONFIG_MPC5200 */
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"

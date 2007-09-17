@@ -133,8 +133,6 @@ int got_rhsc;
 /* device which was disconnected */
 struct usb_device *devgone;
 
-
-
 /*-------------------------------------------------------------------------*/
 
 /* AMD-756 (D2 rev) reports corrupt register contents in some cases.
@@ -157,7 +155,6 @@ static inline u32 roothub_status (struct ohci *hc)
 	{ return readl (&hc->regs->roothub.status); }
 static u32 roothub_portstatus (struct ohci *hc, int i)
 	{ return read_roothub (hc, portstatus [i], 0xffe0fce0); }
-
 
 /* forward declaration */
 static int hc_interrupt (void);
@@ -413,8 +410,6 @@ static void ohci_dump (ohci_t *controller, int verbose)
 		ep_print_int_eds (controller, "hcca");
 	dbg ("hcca frame #%04x", controller->hcca->frame_no);
 	ohci_dump_roothub (controller, 1);
-}
-
 
 #endif /* DEBUG */
 
@@ -675,7 +670,7 @@ static int ep_link (ohci_t *ohci, ed_t *edi)
 				ed_p = &(((ed_t *)ed_p)->hwNextED))
 					inter = ep_rev (6, ((ed_t *)ed_p)->int_interval);
 			ed->hwNextED = *ed_p;
-			*ed_p = m32_swap(ed);
+			*ed_p = m32_swap((unsigned long)ed);
 		}
 		break;
 	}
@@ -693,15 +688,14 @@ static void periodic_unlink ( struct ohci *ohci, volatile struct ed *ed,
 
 		/* ED might have been unlinked through another path */
 		while (*ed_p != 0) {
-			if (((struct ed *)m32_swap (ed_p)) == ed) {
+			if (((struct ed *)m32_swap ((unsigned long)ed_p)) == ed) {
 				*ed_p = ed->hwNextED;
 				break;
 			}
-			ed_p = & (((struct ed *)m32_swap (ed_p))->hwNextED);
+			ed_p = & (((struct ed *)m32_swap ((unsigned long)ed_p))->hwNextED);
 		}
 	}
 }
-
 
 /* unlink an ed from one of the HC chains.
  * just the link to the ed is unlinked.
@@ -759,7 +753,6 @@ static int ep_unlink (ohci_t *ohci, ed_t *edi)
 	ed->state = ED_UNLINK;
 	return 0;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -940,7 +933,6 @@ static void td_submit_job (struct usb_device *dev, unsigned long pipe, void *buf
  * Done List handling functions
  *-------------------------------------------------------------------------*/
 
-
 /* calculate the transfer length and update the urb */
 
 static void dl_transfer_length(td_t * td)
@@ -951,7 +943,6 @@ static void dl_transfer_length(td_t * td)
 	tdINFO = m32_swap (td->hwINFO);
 	tdBE   = m32_swap (td->hwBE);
 	tdCBP  = m32_swap (td->hwCBP);
-
 
 	if (!(usb_pipetype (lurb_priv->pipe) == PIPE_CONTROL &&
 	    ((td->index == 0) || (td->index == lurb_priv->length - 1)))) {
@@ -1095,7 +1086,6 @@ static __u8 root_hub_dev_des[] =
 	0x01	    /*	__u8  bNumConfigurations; */
 };
 
-
 /* Configuration descriptor */
 static __u8 root_hub_config_des[] =
 {
@@ -1172,7 +1162,6 @@ static unsigned char root_hub_str_index1[] =
 };
 
 /* Hub class-specific descriptor is constructed dynamically */
-
 
 /*-------------------------------------------------------------------------*/
 

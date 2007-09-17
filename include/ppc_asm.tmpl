@@ -285,7 +285,6 @@ label:								\
 	.long	hdlr - _start + _START_OFFSET;			\
 	.long	crit_return - _start + _START_OFFSET
 
-#ifdef CONFIG_440
 #define MCK_EXCEPTION(n, label, hdlr)				\
 	. = n;							\
 label:								\
@@ -299,6 +298,5 @@ label:								\
 .L_ ## label :							\
 	.long	hdlr - _start + _START_OFFSET;			\
 	.long	mck_return - _start + _START_OFFSET
-#endif /* CONFIG_440  */
 
 #endif	/* __PPC_ASM_TMPL__ */

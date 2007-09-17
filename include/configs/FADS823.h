@@ -206,6 +206,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x00040000	/* Offset of Environment Sector */
 #define	CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

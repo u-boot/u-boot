@@ -13,6 +13,9 @@
 #define SIO_CONFIG_RA   0x398
 #define SIO_CONFIG_RD   0x399
 
+#ifndef _IO_BASE
+#define _IO_BASE 0
+#endif
 
 #define readb(addr) in_8((volatile u8 *)(addr))
 #define writeb(b,addr) out_8((volatile u8 *)(addr), (b))

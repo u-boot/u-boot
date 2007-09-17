@@ -17,10 +17,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DEBUG 0
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_MPC512x_FEC)
 
-#if !(defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII))
+#if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
 
@@ -31,6 +31,9 @@ static uint32 local_crc32(char *string, unsigned int crc_value, int len);
 int fec512x_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
 int fec512x_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
+
+static uchar rx_buff[FEC_BUFFER_SIZE];
+static int rx_buff_idx = 0;
 
 /********************************************************************/
 #if (DEBUG & 0x2)
@@ -234,8 +237,8 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 	/* Set Opcode/Pause Duration Register */
 	fec->eth->op_pause = 0x00010020;
 
-	/* Frame length=1518; MII mode */
-	fec->eth->r_cntrl = 0x05ee000c;
+	/* Frame length=1522; MII mode */
+	fec->eth->r_cntrl = (FEC_MAX_FRAME_LEN << 16) | 0x24;
 
 	/* Half-duplex, heartbeat disabled */
 	fec->eth->x_cntrl = 0x00000000;
@@ -245,7 +248,7 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 
 	/* Setup recv fifo start and buff size */
 	fec->eth->r_fstart = 0x500;
-	fec->eth->r_buff_size = 0x5e0;
+	fec->eth->r_buff_size = FEC_BUFFER_SIZE;
 
 	/* Setup BD base addresses */
 	fec->eth->r_des_start = (uint32)fec->bdBase->rbd;
@@ -520,8 +523,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	mpc512x_fec_priv *fec = (mpc512x_fec_priv *)dev->priv;
 	volatile FEC_RBD *pRbd = &fec->bdBase->rbd[fec->rbdIndex];
 	unsigned long ievent;
-	int frame_length, len = 0;
-	uchar buff[FEC_MAX_PKT_SIZE];
+	int frame_length = 0;
 
 #if (DEBUG & 0x1)
 	printf ("mpc512x_fec_recv %d Start...\n", fec->rbdIndex);
@@ -555,31 +557,37 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	}
 
 	if (!(pRbd->status & FEC_RBD_EMPTY)) {
-		if ((pRbd->status & FEC_RBD_LAST) &&
-			!(pRbd->status & FEC_RBD_ERR) &&
+		if (!(pRbd->status & FEC_RBD_ERR) &&
 			((pRbd->dataLength - 4) > 14)) {
 
 			/*
 			 * Get buffer size
 			 */
-			frame_length = pRbd->dataLength - 4;
-
+			if (pRbd->status & FEC_RBD_LAST)
+				frame_length = pRbd->dataLength - 4;
+			else
+				frame_length = pRbd->dataLength;
 #if (DEBUG & 0x20)
 			{
 				int i;
-				printf ("recv data hdr:");
+				printf ("recv data length 0x%08x data hdr: ",
+					pRbd->dataLength);
 				for (i = 0; i < 14; i++)
 					printf ("%x ", *((uint8*)pRbd->dataPointer + i));
 				printf("\n");
 			}
 #endif
-
 			/*
 			 *  Fill the buffer and pass it to upper layers
 			 */
-			memcpy (buff, (void*)pRbd->dataPointer, frame_length);
-			NetReceive ((uchar*)buff, frame_length);
-			len = frame_length;
+			memcpy (&rx_buff[rx_buff_idx], (void*)pRbd->dataPointer,
+				frame_length - rx_buff_idx);
+			rx_buff_idx = frame_length;
+
+			if (pRbd->status & FEC_RBD_LAST) {
+				NetReceive ((uchar*)rx_buff, frame_length);
+				rx_buff_idx = 0;
+			}
 		}
 
 		/*
@@ -590,7 +598,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 
 	/* Try to fill Buffer Descriptors */
 	fec->eth->r_des_active = 0x01000000;	/* Descriptor polling active */
-	return len;
+	return frame_length;
 }
 
 /********************************************************************/
@@ -626,7 +634,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	sprintf (dev->name, "FEC ETHERNET");
 	eth_register (dev);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register (dev->name,
 			fec512x_miiphy_read, fec512x_miiphy_write);
 #endif

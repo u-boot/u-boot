@@ -44,6 +44,10 @@
 *
 ****************************************************************************/
 
+#include <common.h>
+
+#if defined(CONFIG_BIOSEMU)
+
 #include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
@@ -1768,3 +1772,5 @@ void (*x86emu_optab2[256])(u8) __attribute__((section(".got2"))) =
 /*  0xfe */ x86emuOp2_illegal_op,
 /*  0xff */ x86emuOp2_illegal_op,
 };
+
+#endif

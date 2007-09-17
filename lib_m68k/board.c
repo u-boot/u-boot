@@ -30,9 +30,7 @@
 #include <malloc.h>
 #include <devices.h>
 
-#ifdef	CONFIG_M5272
-#include <asm/immap_5272.h>
-#endif
+#include <asm/immap.h>
 
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
@@ -139,19 +137,19 @@ void *sbrk (ptrdiff_t increment)
 
 char *strmhz(char *buf, long hz)
 {
-    long l, n;
-    long m;
+	long l, n;
+	long m;
 
-    n = hz / 1000000L;
+	n = hz / 1000000L;
 
-    l = sprintf (buf, "%ld", n);
+	l = sprintf (buf, "%ld", n);
 
-    m = (hz % 1000000L) / 1000L;
+	m = (hz % 1000000L) / 1000L;
 
-    if (m != 0)
-	sprintf (buf+l, ".%03ld", m);
+	if (m != 0)
+		sprintf (buf+l, ".%03ld", m);
 
-    return (buf);
+	return (buf);
 }
 
 /*
@@ -169,7 +167,7 @@ char *strmhz(char *buf, long hz)
 typedef int (init_fnc_t) (void);
 
 /************************************************************************
- * Init Utilities							*
+ * Init Utilities
  ************************************************************************
  * Some of this code should be moved into the core functions,
  * but let's get it working (again) first...
@@ -221,6 +219,7 @@ static int init_func_i2c (void)
  */
 
 init_fnc_t *init_sequence[] = {
+	get_clocks,
 	env_init,
 	init_baudrate,
 	serial_init,
@@ -371,6 +370,10 @@ board_init_f (ulong bootflag)
 	 */
 	bd->bi_memstart  = CFG_SDRAM_BASE;	/* start of  DRAM memory      */
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
+#ifdef CFG_INIT_RAM_ADDR
+	bd->bi_sramstart = CFG_INIT_RAM_ADDR;	/* start of  SRAM memory	*/
+	bd->bi_sramsize  = CFG_INIT_RAM_END;	/* size  of  SRAM memory	*/
+#endif
 	bd->bi_mbar_base = CFG_MBAR;		/* base of internal registers */
 
 	bd->bi_bootflags = bootflag;		/* boot / reboot flag (for LynxOS)    */
@@ -378,6 +381,14 @@ board_init_f (ulong bootflag)
 	WATCHDOG_RESET ();
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
+#ifdef CONFIG_PCI
+	bd->bi_pcifreq = gd->pci_clk;		/* PCI Freq in Hz */
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	bd->bi_inpfreq = gd->inp_clk;		/* input Freq in Hz */
+	bd->bi_vcofreq = gd->vco_clk;		/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->flb_clk;		/* flexbus Freq in Hz */
+#endif
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CFG_EXTBDINFO
@@ -429,6 +440,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
+
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
@@ -489,7 +504,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/*
 	 * Setup trap handlers
 	 */
-	trap_init (0);
+	trap_init (CFG_SDRAM_BASE);
 
 #if !defined(CFG_NO_FLASH)
 	puts ("FLASH: ");
@@ -562,12 +577,48 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
+#ifdef CONFIG_HAS_ETH1
+	/* handle the 2nd ethernet address */
+
+	s = getenv ("eth1addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet1addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
+#ifdef CONFIG_HAS_ETH2
+	/* handle the 3rd ethernet address */
+
+	s = getenv ("eth2addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH3
+	/* handle 4th ethernet address */
+	s = getenv("eth3addr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+#endif
 
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	WATCHDOG_RESET ();
 
+#if defined(CONFIG_PCI)
+	/*
+	 * Do pci configuration
+	 */
+	pci_init ();
+#endif
 
 	/** leave this here (after malloc(), environment and PCI are working) **/
 	/* Initialize devices */
@@ -640,13 +691,32 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
-#if defined(CONFIG_CMD_NET) && defined(FEC_ENET)
+#if defined(CONFIG_CMD_NET)
 	WATCHDOG_RESET();
+#if defined(FEC_ENET)
 	eth_init(bd);
+#endif
+#if defined(CONFIG_NET_MULTI)
+	puts ("Net:   ");
+	eth_initialize (bd);
+#endif
 #endif
 
 #ifdef CONFIG_POST
 	post_run (NULL, POST_RAM | post_bootmode_get(0));
+#endif
+
+#if defined(CONFIG_CMD_PCMCIA) \
+    && !defined(CONFIG_CMD_IDE)
+	WATCHDOG_RESET ();
+	puts ("PCMCIA:");
+	pcmcia_init ();
+#endif
+
+#if defined(CONFIG_CMD_IDE)
+	WATCHDOG_RESET ();
+	puts ("IDE:   ");
+	ide_init ();
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT

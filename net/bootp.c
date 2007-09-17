@@ -120,10 +120,12 @@ static void BootpCopyNetParams(Bootp_t *bp)
 	IPaddr_t tmp_ip;
 
 	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
+#if !defined(CONFIG_BOOTP_SERVERIP)
 	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
 	if (tmp_ip != 0)
 		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
 	memcpy (NetServerEther, ((Ethernet_t *)NetRxPkt)->et_src, 6);
+#endif
 	if (strlen(bp->bp_file) > 0)
 		copy_filename (BootFile, bp->bp_file, sizeof(BootFile));
 

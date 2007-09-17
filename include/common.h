@@ -241,6 +241,9 @@ int	saveenv	     (void);
 void inline setenv   (char *, char *);
 #else
 void	setenv	     (char *, char *);
+#ifdef CONFIG_HAS_UID
+void	forceenv     (char *, char *);
+#endif
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
@@ -272,7 +275,7 @@ void	pciinfo	      (int, int);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
 #if defined(CONFIG_440SPE)
-   void pcie_setup_hoses(void);
+   void pcie_setup_hoses(int busno);
 #endif
 #endif
 
@@ -431,6 +434,13 @@ int	checkdcache   (void);
 void	upmconfig     (unsigned int, unsigned int *, unsigned int);
 ulong	get_tbclk     (void);
 void	reset_cpu     (ulong addr);
+#if defined (CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
+void ft_cpu_setup(void *blob, bd_t *bd);
+#ifdef CONFIG_PCI
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
+#endif
+
 
 /* $(CPU)/serial.c */
 int	serial_init   (void);
@@ -526,6 +536,8 @@ void	cpu_init_f    (void);
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);
+#elif defined(CONFIG_MPC83XX)
+int	prt_83xx_rsr  (void);
 #endif
 
 /* $(CPU)/interrupts.c */

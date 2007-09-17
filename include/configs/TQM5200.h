@@ -131,8 +131,9 @@
 /* USB */
 #if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define CONFIG_USB_OHCI_NEW
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_USB
 
 #undef CFG_USB_OHCI_BOARD_INIT
 #define CFG_USB_OHCI_CPU_INIT
@@ -140,8 +141,6 @@
 #define CFG_USB_OHCI_SLOT_NAME	"mpc5200"
 #define CFG_USB_OHCI_MAX_ROOT_PORTS	15
 
-#else
-#define ADD_USB_CMD		0
 #endif
 
 #ifndef CONFIG_CAM5200
@@ -702,11 +701,9 @@
  * Open firmware flat tree support
  *-----------------------------------------------------------------------
  */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)

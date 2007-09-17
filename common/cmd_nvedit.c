@@ -193,7 +193,12 @@ int _do_setenv (int flag, int argc, char *argv[])
 		 * Ethernet Address and serial# can be set only once,
 		 * ver is readonly.
 		 */
+#ifdef CONFIG_HAS_UID
+		/* Allow serial# forced overwrite with 0xdeaf4add flag */
+		if ( ((strcmp (name, "serial#") == 0) && (flag != 0xdeaf4add)) ||
+#else
 		if ( (strcmp (name, "serial#") == 0) ||
+#endif
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
@@ -397,7 +402,15 @@ void setenv (char *varname, char *varvalue)
 		_do_setenv (0, 3, argv);
 }
 
-int do_setenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+#ifdef CONFIG_HAS_UID
+void forceenv (char *varname, char *varvalue)
+{
+	char *argv[4] = { "forceenv", varname, varvalue, NULL };
+	_do_setenv (0xdeaf4add, 3, argv);
+}
+#endif
+
+int do_setenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);

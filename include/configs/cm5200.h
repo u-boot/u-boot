@@ -31,31 +31,25 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
-
 /*
  * Supported commands
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_ECHO	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_FLASH	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_DIAG	| \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_USB	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_JFFS2)
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
 
 /*
  * Serial console configuration
@@ -64,7 +58,6 @@
 #define CONFIG_BAUDRATE		57600	/* ... at 57600 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 #define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
-
 
 /*
  * Ethernet configuration
@@ -76,7 +69,6 @@
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_MAC_OFFSET	0x35	/* MAC address offset in I2C EEPROM */
 
-
 /*
  * POST support
  */
@@ -85,10 +77,8 @@
 /* List of I2C addresses to be verified by POST */
 #define I2C_ADDR_LIST		{ CFG_I2C_SLAVE, CFG_I2C_IO, CFG_I2C_EEPROM }
 
-
 /* display image timestamps */
 #define CONFIG_TIMESTAMP	1
-
 
 /*
  * Autobooting
@@ -142,18 +132,15 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_flash"
 
-
 /*
  * Low level configuration
  */
-
 
 /*
  * Clock configuration
  */
 #define CFG_MPC5XXX_CLKIN	33000000	/* SYS_XTAL_IN = 33MHz */
 #define CFG_IPBCLK_EQUALS_XLBCLK	1	/* IPB = 133MHz */
-
 
 /*
  * Memory map
@@ -189,7 +176,7 @@
  */
 #define CFG_FLASH_CFI		1
 #define CFG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_BASE		0xfc000000	
+#define CFG_FLASH_BASE		0xfc000000
 /* we need these despite using CFI */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
 #define CFG_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
@@ -220,7 +207,6 @@
 #define CFG_CS_BURST		0x00000000
 #define CFG_CS_DEADCYCLE	0x00000001
 
-
 /*
  * SDRAM configuration
  * settings for k4s561632E-xx75, assuming XLB = 132 MHz
@@ -229,8 +215,6 @@
 #define SDRAM_CONTROL	0x514F0000
 #define SDRAM_CONFIG1	0xE2333900
 #define SDRAM_CONFIG2	0x8EE70000
-
-
 
 /*
  * MTD configuration
@@ -243,7 +227,6 @@
 					"2m(kernel),27904k(rootfs),"	\
 					"-(config)"
 
-
 /*
  * I2C configuration
  */
@@ -254,12 +237,10 @@
 #define CFG_I2C_IO		0x38	/* PCA9554AD I2C I/O port address */
 #define CFG_I2C_EEPROM		0x53	/* I2C EEPROM device address */
 
-
 /*
  * RTC configuration
  */
 #define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
-
 
 /*
  * USB configuration
@@ -289,7 +270,6 @@
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
-
 /*
  * Pin multiplexing configuration
  */
@@ -306,7 +286,6 @@
  * PSC1: UART
  */
 #define CFG_GPS_PORT_CONFIG	0x10559C44
-
 
 /*
  * Miscellaneous configurable options
@@ -327,7 +306,6 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-
 /*
  * Various low-level settings
  */
@@ -339,15 +317,13 @@
 
 #define CFG_XLB_PIPELINING	1	/* enable transaction pipeling */
 
-
 /*
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
 
 /*
  * Flat Device Tree support

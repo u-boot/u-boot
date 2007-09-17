@@ -41,7 +41,7 @@ mpc5xxx. For these the config option
 
 	CFG_OHCI_BE_CONTROLLER
 
-needs to be defined. 
+needs to be defined.
 
 
 PCI Controllers
@@ -55,6 +55,3 @@ PCI Controllers need to do byte swapping on register accesses, so they
 should to define:
 
 	CFG_OHCI_SWAP_REG_ACCESS
-
-
-

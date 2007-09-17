@@ -32,6 +32,8 @@
 void show_reset_reg(void);
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int lcd_init(void);
 
 int board_early_init_f (void)
@@ -266,8 +268,6 @@ int pci_pre_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/

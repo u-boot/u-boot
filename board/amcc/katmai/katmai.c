@@ -34,6 +34,8 @@
 #undef PCIE_ENDPOINT
 /* #define PCIE_ENDPOINT 1 */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int ppc440spe_init_pcie_rootport(int port);
 void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
 
@@ -322,8 +324,6 @@ int pci_pre_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*-------------------------------------------------------------------+
 	 * Disable everything
 	 *-------------------------------------------------------------------*/
@@ -392,16 +392,18 @@ int katmai_pcie_card_present(int port)
 
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
 
-void pcie_setup_hoses(void)
+void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	char *env;
+	unsigned int delay;
 
 	/*
 	 * assume we're called after the PCIX hose is initialized, which takes
 	 * bus ID 0 and therefore start numbering PCIe's from 1.
 	 */
-	bus = 1;
+	bus = busno;
 	for (i = 0; i <= 2; i++) {
 		/* Check for katmai card presence */
 		if (!katmai_pcie_card_present(i))
@@ -418,8 +420,8 @@ void pcie_setup_hoses(void)
 
 		hose = &pcie_hose[i];
 		hose->first_busno = bus;
-		hose->last_busno  = bus;
-		bus++;
+		hose->last_busno = bus;
+		hose->current_busno = bus;
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
@@ -439,10 +441,21 @@ void pcie_setup_hoses(void)
 		 */
 #else
 		ppc440spe_setup_pcie_rootpoint(hose, i);
+
+		env = getenv ("pciscandelay");
+		if (env != NULL) {
+			delay = simple_strtoul (env, NULL, 10);
+			if (delay > 5)
+				printf ("Warning, expect noticable delay before PCIe"
+					"scan due to 'pciscandelay' value!\n");
+			mdelay (delay * 1000);
+		}
+
 		/*
 		 * Config access can only go down stream
 		 */
 		hose->last_busno = pci_hose_scan(hose);
+		bus = hose->last_busno + 1;
 #endif
 	}
 }
