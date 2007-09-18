@@ -1961,7 +1961,7 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_TQM$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h; \
-	echo "#define CFG_BOOTFILE \"bootfile=/tftpboot/tqm$${CTYPE}/uImage\0\"">>$(obj)include/config.h
+	echo "#define CFG_BOOTFILE_PATH \"/tftpboot/tqm$${CTYPE}/uImage\"">>$(obj)include/config.h
 	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx
 
 #########################################################################
