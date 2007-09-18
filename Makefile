@@ -319,7 +319,7 @@ updater:
 env:
 		$(MAKE) -C tools/env all || exit 1
 
-depend dep:
+depend dep:	version
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
 
 tags ctags:
