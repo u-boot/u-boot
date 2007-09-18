@@ -96,7 +96,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2 fbmem=600k"
+	"console=ttyS0 root=/dev/mmcblk0p1 fbmem=600k rootwait=1"
 
 #define CONFIG_BOOTCOMMAND						\
 	"fsload; bootm $(fileaddr)"
