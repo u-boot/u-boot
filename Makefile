@@ -1922,6 +1922,16 @@ MPC8360EMDS_ATM_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
+MPC837XEMDS_config \
+MPC837XEMDS_HOST_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _HOST_,$@)" ] ; then \
+		echo -n "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC837XEMDS ppc mpc83xx mpc837xemds freescale
+
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
