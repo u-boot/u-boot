@@ -153,6 +153,18 @@ int checkcpu(void)
 	case SPR_8313E_REV10:
 		puts("MPC8313E, ");
 		break;
+	case SPR_8315E_REV10:
+		puts("MPC8315E, ");
+		break;
+	case SPR_8315_REV10:
+		puts("MPC8315, ");
+		break;
+	case SPR_8314E_REV10:
+		puts("MPC8314E, ");
+		break;
+	case SPR_8314_REV10:
+		puts("MPC8314, ");
+		break;
 	case SPR_8379E_REV10:
 		puts("MPC8379E, ");
 		break;
