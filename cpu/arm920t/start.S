@@ -27,7 +27,7 @@
 
 #include <config.h>
 #include <version.h>
-#include <asm/coloured_led.h>
+#include <status_led.h>
 
 /*
  *************************************************************************
