@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -100,7 +100,7 @@ int get_clocks(void)
 	u32 lcrr;
 
 	u32 csb_clk;
-#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
@@ -112,6 +112,9 @@ int get_clocks(void)
 	u32 i2c1_clk;
 #if !defined(CONFIG_MPC832X)
 	u32 i2c2_clk;
+#endif
+#if defined(CONFIG_MPC837X)
+	u32 sdhc_clk;
 #endif
 	u32 enc_clk;
 	u32 lbiu_clk;
@@ -125,6 +128,11 @@ int get_clocks(void)
 	u32 qepdf;
 	u32 qe_clk;
 	u32 brg_clk;
+#endif
+#if defined(CONFIG_MPC837X)
+	u32 pciexp1_clk;
+	u32 pciexp2_clk;
+	u32 sata_clk;
 #endif
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
@@ -151,7 +159,7 @@ int get_clocks(void)
 
 	sccr = im->clk.sccr;
 
-#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
 		tsec1_clk = 0;
@@ -167,7 +175,7 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown SCCR_TSEC1CM value */
-		return -4;
+		return -2;
 	}
 
 	switch ((sccr & SCCR_USBDRCM) >> SCCR_USBDRCM_SHIFT) {
@@ -185,11 +193,11 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown SCCR_USBDRCM value */
-		return -8;
+		return -3;
 	}
 #endif
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC837X)
 	switch ((sccr & SCCR_TSEC2CM) >> SCCR_TSEC2CM_SHIFT) {
 	case 0:
 		tsec2_clk = 0;
@@ -205,11 +213,18 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown SCCR_TSEC2CM value */
-		return -5;
+		return -4;
 	}
+#elif defined(CONFIG_MPC831X)
+	tsec2_clk = tsec1_clk;
 
-	i2c1_clk = tsec2_clk;
+	if (!(sccr & SCCR_TSEC1ON))
+		tsec1_clk = 0;
+	if (!(sccr & SCCR_TSEC2ON))
+		tsec2_clk = 0;
+#endif
 
+#if defined(CONFIG_MPC834X)
 	switch ((sccr & SCCR_USBMPHCM) >> SCCR_USBMPHCM_SHIFT) {
 	case 0:
 		usbmph_clk = 0;
@@ -225,7 +240,7 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown SCCR_USBMPHCM value */
-		return -7;
+		return -5;
 	}
 
 	if (usbmph_clk != 0 && usbdr_clk != 0 && usbmph_clk != usbdr_clk) {
@@ -233,24 +248,9 @@ int get_clocks(void)
 		 * USB DR clock is not disabled then
 		 * USB MPH & USB DR must have the same rate
 		 */
-		return -9;
+		return -6;
 	}
-#elif defined(CONFIG_MPC831X)
-	tsec2_clk = tsec1_clk;
-
-	if (!(sccr & SCCR_TSEC1ON))
-		tsec1_clk = 0;
-	if (!(sccr & SCCR_TSEC2ON))
-		tsec2_clk = 0;
 #endif
-
-#if !defined(CONFIG_MPC834X)
-	i2c1_clk = csb_clk;
-#endif
-#if !defined(CONFIG_MPC832X)
-	i2c2_clk = csb_clk;	/* i2c-2 clk is equal to csb clk */
-#endif
-
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
 		enc_clk = 0;
@@ -266,8 +266,101 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown SCCR_ENCCM value */
-		return -6;
+		return -7;
 	}
+
+#if defined(CONFIG_MPC837X)
+	switch ((sccr & SCCR_SDHCCM) >> SCCR_SDHCCM_SHIFT) {
+	case 0:
+		sdhc_clk = 0;
+		break;
+	case 1:
+		sdhc_clk = csb_clk;
+		break;
+	case 2:
+		sdhc_clk = csb_clk / 2;
+		break;
+	case 3:
+		sdhc_clk = csb_clk / 3;
+		break;
+	default:
+		/* unkown SCCR_SDHCCM value */
+		return -8;
+	}
+#endif
+
+#if defined(CONFIG_MPC834X)
+	i2c1_clk = tsec2_clk;
+#elif defined(CONFIG_MPC8360)
+	i2c1_clk = csb_clk;
+#elif defined(CONFIG_MPC832X)
+	i2c1_clk = enc_clk;
+#elif defined(CONFIG_MPC831X)
+	i2c1_clk = enc_clk;
+#elif defined(CONFIG_MPC837X)
+	i2c1_clk = sdhc_clk;
+#endif
+#if !defined(CONFIG_MPC832X)
+	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
+#endif
+
+#if defined(CONFIG_MPC837X)
+	switch ((sccr & SCCR_PCIEXP1CM) >> SCCR_PCIEXP1CM_SHIFT) {
+	case 0:
+		pciexp1_clk = 0;
+		break;
+	case 1:
+		pciexp1_clk = csb_clk;
+		break;
+	case 2:
+		pciexp1_clk = csb_clk / 2;
+		break;
+	case 3:
+		pciexp1_clk = csb_clk / 3;
+		break;
+	default:
+		/* unkown SCCR_PCIEXP1CM value */
+		return -9;
+	}
+
+	switch ((sccr & SCCR_PCIEXP2CM) >> SCCR_PCIEXP2CM_SHIFT) {
+	case 0:
+		pciexp2_clk = 0;
+		break;
+	case 1:
+		pciexp2_clk = csb_clk;
+		break;
+	case 2:
+		pciexp2_clk = csb_clk / 2;
+		break;
+	case 3:
+		pciexp2_clk = csb_clk / 3;
+		break;
+	default:
+		/* unkown SCCR_PCIEXP2CM value */
+		return -10;
+	}
+#endif
+
+#if defined(CONFIG_MPC837X)
+	switch ((sccr & SCCR_SATA1CM) >> SCCR_SATA1CM_SHIFT) {
+	case 0:
+		sata_clk = 0;
+		break;
+	case 1:
+		sata_clk = csb_clk;
+		break;
+	case 2:
+		sata_clk = csb_clk / 2;
+		break;
+	case 3:
+		sata_clk = csb_clk / 3;
+		break;
+	default:
+		/* unkown SCCR_SATA1CM value */
+		return -11;
+	}
+#endif
 
 	lbiu_clk = csb_clk *
 	           (1 + ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
@@ -280,7 +373,7 @@ int get_clocks(void)
 		break;
 	default:
 		/* unknown lcrr */
-		return -10;
+		return -12;
 	}
 
 	ddr_clk = csb_clk *
@@ -316,7 +409,7 @@ int get_clocks(void)
 		break;
 	default:
 		/* unkown core to csb ratio */
-		return -12;
+		return -13;
 	}
 
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
@@ -327,13 +420,16 @@ int get_clocks(void)
 #endif
 
 	gd->csb_clk = csb_clk;
-#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 	gd->tsec1_clk = tsec1_clk;
 	gd->tsec2_clk = tsec2_clk;
 	gd->usbdr_clk = usbdr_clk;
 #endif
 #if defined(CONFIG_MPC834X)
 	gd->usbmph_clk = usbmph_clk;
+#endif
+#if defined(CONFIG_MPC837X)
+	gd->sdhc_clk = sdhc_clk;
 #endif
 	gd->core_clk = core_clk;
 	gd->i2c1_clk = i2c1_clk;
@@ -350,6 +446,11 @@ int get_clocks(void)
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
+#endif
+#if defined(CONFIG_MPC837X)
+	gd->pciexp1_clk = pciexp1_clk;
+	gd->pciexp2_clk = pciexp2_clk;
+	gd->sata_clk = sata_clk;
 #endif
 	gd->pci_clk = pci_sync_in;
 	gd->cpu_clk = gd->core_clk;
@@ -387,13 +488,21 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if !defined(CONFIG_MPC832X)
 	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
 #endif
-#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC837X)
+	printf("  SDHC:                %4d MHz\n", gd->sdhc_clk / 1000000);
+#endif
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
 	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
 	printf("  USB DR:              %4d MHz\n", gd->usbdr_clk / 1000000);
 #endif
 #if defined(CONFIG_MPC834X)
 	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);
+#endif
+#if defined(CONFIG_MPC837X)
+	printf("  PCIEXP1:             %4d MHz\n", gd->pciexp1_clk / 1000000);
+	printf("  PCIEXP2:             %4d MHz\n", gd->pciexp2_clk / 1000000);
+	printf("  SATA:                %4d MHz\n", gd->sata_clk / 1000000);
 #endif
 	return 0;
 }

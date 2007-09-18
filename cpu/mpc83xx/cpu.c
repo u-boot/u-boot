@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -63,6 +63,10 @@ int checkcpu(void)
 
 		case PVR_E300C3:
 			printf("e300c3, ");
+			break;
+
+		case PVR_E300C4:
+			printf("e300c4, ");
 			break;
 
 		default:
@@ -148,6 +152,24 @@ int checkcpu(void)
 		break;
 	case SPR_8313E_REV10:
 		puts("MPC8313E, ");
+		break;
+	case SPR_8379E_REV10:
+		puts("MPC8379E, ");
+		break;
+	case SPR_8379_REV10:
+		puts("MPC8379, ");
+		break;
+	case SPR_8378E_REV10:
+		puts("MPC8378E, ");
+		break;
+	case SPR_8378_REV10:
+		puts("MPC8378, ");
+		break;
+	case SPR_8377E_REV10:
+		puts("MPC8377E, ");
+		break;
+	case SPR_8377_REV10:
+		puts("MPC8377, ");
 		break;
 	default:
 		printf("Rev: Unknown revision number:%08x\n"
