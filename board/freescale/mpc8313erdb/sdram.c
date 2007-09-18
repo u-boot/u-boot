@@ -33,10 +33,11 @@
 
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CFG_8313ERDB_BROKEN_PMC
 static void resume_from_sleep(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	u32 magic = *(u32 *)0;
 
 	typedef void (*func_t)(void);

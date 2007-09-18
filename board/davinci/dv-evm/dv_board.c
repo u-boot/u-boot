@@ -31,6 +31,8 @@
 
 #define MACH_TYPE_DAVINCI_EVM		901
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void	i2c_init(int speed, int slaveaddr);
 extern void	timer_init(void);
 extern int	eth_hw_init(void);
@@ -115,8 +117,6 @@ void dsp_on(void)
 
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* arch number of the board */
 	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_EVM;
 
@@ -202,8 +202,6 @@ int misc_init_r (void)
 
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

@@ -30,6 +30,8 @@
 #include "psd4256.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int checkboard(void)
 {
 #if (BFIN_CPU == ADSP_BF531)
@@ -46,7 +48,6 @@ int checkboard(void)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	int brate;
 	char *tmp = getenv("baudrate");

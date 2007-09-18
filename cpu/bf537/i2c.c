@@ -22,6 +22,8 @@
 #include <i2c.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define bfin_read16(addr) ({ unsigned __v; \
 			__asm__ __volatile__ (\
 			"%0 = w[%1] (z);\n\t"\
@@ -68,7 +70,6 @@
 
 #ifdef DEBUG_I2C
 #define PRINTD(fmt,args...)	do {	\
-	DECLARE_GLOBAL_DATA_PTR;	\
 	if (gd->have_console)		\
 		printf(fmt ,##args);	\
 	} while (0)

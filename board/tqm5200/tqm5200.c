@@ -43,6 +43,8 @@
 #include "mt48lc16m16a2-75.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_PS2MULT
 void ps2mult_early_init(void);
 #endif
@@ -477,8 +479,6 @@ int silent_boot (void)
 
 int board_early_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (silent_boot())
 		gd->flags |= GD_FLG_SILENT;
 

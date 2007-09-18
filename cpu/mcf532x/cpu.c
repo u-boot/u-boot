@@ -31,6 +31,8 @@
 
 #include <asm/immap.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 {
 	volatile wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
@@ -48,8 +50,6 @@ int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 
 int checkcpu(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	volatile ccm_t *ccm = (ccm_t *) MMAP_CCM;
 	u16 msk;
 	u16 id = 0;

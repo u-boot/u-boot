@@ -381,9 +381,11 @@ static struct pci_config_table pci_stxgp3_config_table[] = {
 static struct pci_controller hose[] = {
 #ifndef CONFIG_PCI_PNP
 	{ config_table: pci_stxgp3_config_table,},
-#ifdef CONFIG_MPC85XX_PCI2
+#else
 	{},
 #endif
+#ifdef CONFIG_MPC85XX_PCI2
+	{},
 #endif
 };
 
