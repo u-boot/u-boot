@@ -29,18 +29,11 @@
 #define CACHE_OC_WAY_SHIFT	14
 #define CACHE_OC_NUM_ENTRIES	512
 #define CACHE_OC_ENTRY_SHIFT	5
-//#define CACHE_OC_NUM_WAYS	1
 
 #if defined (CONFIG_CPU_SH7750)
 #include <asm/cpu_sh7750.h>
-//#ifdef CONFIG_CPU_TYPE_R
-//#define CCR_CACHE_INIT   0x8000090d     /* EMODE,ICI,ICE(16k),OCI,P1-wb,OCE(32k) */
-//#else
-//#define CCR_CACHE_INIT   0x0000090b
-//#endif
 #elif defined (CONFIG_CPU_SH7722)
 #include <asm/cpu_sh7722.h>
-//#define CCR_CACHE_INIT   0x0000090d
 #else
 #error "Unknown SH4 variant"
 #endif
