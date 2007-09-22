@@ -38,11 +38,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /*
@@ -52,21 +47,30 @@
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_IMMAP	| \
-				CFG_CMD_MII 	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_REGINFO	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
+
 
 /*
  * MUST be low boot - HIGHBOOT is not supported anymore
@@ -111,7 +115,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK   		/* define for 133MHz speed */
 
 /*
  * Flash configuration, expect one 16 Megabyte Bank at most
@@ -181,7 +185,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #  define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -198,6 +202,11 @@
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings

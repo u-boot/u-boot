@@ -146,12 +146,13 @@ that maps in a single PCI I/O space and PCI memory space. The I/O
 space begins at PCI I/O address 0 and the PCI memory space is
 256 MB starting at PCI address CFG_PCI_TARGBASE. After the
 pci_controller structure is initialized, the cpu-specific code will
-call the routine pci_pre_init() if the CFG_PCI_PRE_INIT flag is
-defined. This routine is implemented by board-specific code & is where
-the board can over-ride/extend the default pci_controller structure
-settings and do other pre-initialization tasks. If pci_pre_init()
-returns a value of zero, PCI initialization is aborted; otherwise the
-controller structure is registered and initialization continues.
+call the routine pci_pre_init(). This routine is implemented by
+board-specific code & is where the board can over-ride/extend the
+default pci_controller structure settings and exspecially provide
+a routine to map the PCI interrupts and do other pre-initialization
+tasks. If pci_pre_init() returns a value of zero, PCI initialization
+is aborted; otherwise the controller structure is registered and
+initialization continues.
 
 The default 440GP PCI target configuration is minimal -- it assumes that
 the strapping registers are set as necessary. Since the strapping bits

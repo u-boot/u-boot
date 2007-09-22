@@ -118,25 +118,39 @@
 #define	CFG_ENV_IS_NOWHERE	1
 #define	CFG_ENV_SIZE		0x1000
 #define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
-#define	CONFIG_COMMANDS	(CONFIG__CMD_DFL |\
-			CFG_CMD_MEMORY |\
-			CFG_CMD_IRQ |\
-			CFG_CMD_BDI |\
-			CFG_CMD_NET |\
-			CFG_CMD_IMI |\
-			CFG_CMD_ECHO |\
-			CFG_CMD_CACHE |\
-			CFG_CMD_RUN |\
-			CFG_CMD_AUTOSCRIPT |\
-			CFG_CMD_ASKENV |\
-			CFG_CMD_LOADS |\
-			CFG_CMD_LOADB |\
-			CFG_CMD_MISC |\
-			CFG_CMD_PING \
-			)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_BDI
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_PING
+
 
 /* Miscellaneous configurable options */
 #define	CFG_PROMPT	"U-Boot-mONStR> "
@@ -163,12 +177,12 @@
 	"base 0;" \
 	"echo"
 
-
 /* system ace */
-/*#define	CONFIG_SYSTEMACE
-#define	DEBUG_SYSTEMACE
-#define	CFG_SYSTEMACE_BASE	0xCF000000
-#define	CFG_SYSTEMACE_WIDTH	16
-#define	CONFIG_DOS_PARTITION*/
+#define	CONFIG_SYSTEMACE
+/* #define DEBUG_SYSTEMACE */
+#define	SYSTEMACE_CONFIG_FPGA
+#define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
+#define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
+#define	CONFIG_DOS_PARTITION
 
 #endif	/* __CONFIG_H */

@@ -236,7 +236,7 @@ U_BOOT_CMD(
 	"address size\n    - boot FPGA with gzipped image at <address>\n"
 );
 
-#if (CONFIG_COMMANDS & CFG_CMD_PCI) || defined(CONFIG_PCI)
+#if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 extern struct pci_controller hose;
 extern void pci_ixp_init(struct pci_controller * hose);
 

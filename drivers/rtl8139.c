@@ -77,7 +77,7 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8139)
 
 #define TICKS_PER_SEC	CFG_HZ
@@ -193,6 +193,12 @@ static void rtl_reset(struct eth_device *dev);
 static int rtl_transmit(struct eth_device *dev, volatile void *packet, int length);
 static int rtl_poll(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
+#ifdef CONFIG_MCAST_TFTP/*  This driver already accepts all b/mcast */
+static int rtl_bcast_addr (struct eth_device *dev, u8 bcast_mac, u8 set)
+{
+	return (0);
+}
+#endif
 
 static struct pci_device_id supported[] = {
        {PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139},
@@ -228,6 +234,9 @@ int rtl8139_initialize(bd_t *bis)
 		dev->halt = rtl_disable;
 		dev->send = rtl_transmit;
 		dev->recv = rtl_poll;
+#ifdef CONFIG_MCAST_TFTP
+		dev->mcast = rtl_bcast_addr;
+#endif
 
 		eth_register (dev);
 
@@ -535,4 +544,4 @@ static void rtl_disable(struct eth_device *dev)
 		udelay (100); /* wait 100us */
 	}
 }
-#endif	/* CFG_CMD_NET && CONFIG_NET_MULTI && CONFIG_RTL8139 */
+#endif

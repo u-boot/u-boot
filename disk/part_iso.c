@@ -25,9 +25,9 @@
 #include <command.h>
 #include "part_iso.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+#if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SCSI) || \
+     defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
      defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_ISO_PARTITION)
 
@@ -257,4 +257,4 @@ int test_part_iso (block_dev_desc_t *dev_desc)
 	return(get_partition_info_iso_verb(dev_desc,0,&info,0));
 }
 
-#endif /* ((CONFIG_COMMANDS & CFG_CMD_IDE) || (CONFIG_COMMANDS & CFG_CMD_SCSI)) && defined(CONFIG_ISO_PARTITION) */
+#endif

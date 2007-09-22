@@ -87,27 +87,32 @@
     .globl tlbtab
 
 tlbtab:
-    tlbtab_start
+	tlbtab_start
 
-    /*
-     * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
-     * speed up boot process. It is patched after relocation to enable SA_I
-     */
-    tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 0, AC_R|AC_W|AC_X|SA_G/*|SA_I*/)
+	/*
+	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
+	 * speed up boot process. It is patched after relocation to enable SA_I
+	 */
+	tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 0, AC_R|AC_W|AC_X|SA_G/*|SA_I*/)
 
-    /* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
-    tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
+	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
+	tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
 
-    tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
-    tlbentry( CFG_PCI_BASE, SZ_256M, CFG_PCI_BASE, 0, AC_R|AC_W|SA_G|SA_I )
+	/*
+	 * TLB entries for SDRAM are not needed on this platform.
+	 * They are dynamically generated in the SPD DDR detection
+	 * routine.
+	 */
 
-    /* PCI */
-    tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 0, AC_R|AC_W|SA_G|SA_I )
-    tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 0, AC_R|AC_W|SA_G|SA_I )
-    tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 0, AC_R|AC_W|SA_G|SA_I )
-    tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 0, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CFG_PCI_BASE, SZ_256M, CFG_PCI_BASE, 0, AC_R|AC_W|SA_G|SA_I )
 
-    /* USB 2.0 Device */
-    tlbentry( CFG_USB_DEVICE, SZ_1K, 0x50000000, 0, AC_R|AC_W|SA_G|SA_I )
+	/* PCI */
+	tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 0, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 0, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 0, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 0, AC_R|AC_W|SA_G|SA_I )
 
-    tlbtab_end
+	/* USB 2.0 Device */
+	tlbentry( CFG_USB_DEVICE, SZ_1K, 0x50000000, 0, AC_R|AC_W|SA_G|SA_I )
+
+	tlbtab_end

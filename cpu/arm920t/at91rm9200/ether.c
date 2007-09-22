@@ -50,7 +50,7 @@ typedef struct {
 
 #ifdef CONFIG_DRIVER_ETHER
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /* alignment as per Errata #11 (64 bytes) is insufficient! */
 rbf_t rbfdt[RBF_FRAMEMAX] __attribute((aligned(512)));
@@ -265,7 +265,7 @@ void eth_halt (void)
 {
 };
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 int  at91rm9200_miiphy_read(char *devname, unsigned char addr,
 		unsigned char reg, unsigned short * value)
 {
@@ -284,16 +284,16 @@ int  at91rm9200_miiphy_write(char *devname, unsigned char addr,
 	return 0;
 }
 
-#endif	/* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) */
+#endif
 
 int at91rm9200_miiphy_initialize(bd_t *bis)
 {
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register("at91rm9200phy", at91rm9200_miiphy_read, at91rm9200_miiphy_write);
 #endif
 	return 0;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 
 #endif	/* CONFIG_DRIVER_ETHER */

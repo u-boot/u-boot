@@ -19,24 +19,16 @@
  */
 #include <common.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
-
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 
 /* parition handling routines */
 int mtdparts_init(void);
@@ -104,7 +96,7 @@ static int
 arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 {
 	int idx = nand_curr_device;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -152,7 +144,7 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 		*size = nand->size - *off;
 	}
 
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if  defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 out:
 #endif
 	printf("device %d ", idx);
@@ -169,7 +161,11 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr, off, size;
 	char *cmd, *s;
 	nand_info_t *nand;
+#ifdef CFG_NAND_QUIET
+	int quiet = CFG_NAND_QUIET;
+#else
 	int quiet = 0;
+#endif
 	const char *quiet_str = getenv("quiet");
 
 	/* at least two arguments please */
@@ -460,7 +456,7 @@ U_BOOT_CMD(nand, 5, 1, do_nand,
 	"info                  - show available NAND devices\n"
 	"nand device [dev]     - show or set current device\n"
 	"nand read[.jffs2]     - addr off|partition size\n"
-	"nand write[.jffs2]    - addr off|partiton size - read/write `size' bytes starting\n"
+	"nand write[.jffs2]    - addr off|partition size - read/write `size' bytes starting\n"
 	"    at offset `off' to/from memory address `addr'\n"
 	"nand erase [clean] [off size] - erase `size' bytes from\n"
 	"    offset `off' (entire device if not specified)\n"
@@ -476,38 +472,68 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
-	char *ep;
+	char *ep, *s;
 	ulong cnt;
 	image_header_t *hdr;
+	int jffs2 = 0;
+
+	s = strchr(cmd, '.');
+	if (s != NULL &&
+	    (!strcmp(s, ".jffs2") || !strcmp(s, ".e") || !strcmp(s, ".i")))
+		jffs2 = 1;
 
 	printf("\nLoading from %s, offset 0x%lx\n", nand->name, offset);
 
 	cnt = nand->oobblock;
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
+
 	if (r) {
 		puts("** Read error\n");
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress (-56);
 		return 1;
 	}
+	show_boot_progress (56);
 
 	hdr = (image_header_t *) addr;
 
 	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
 		printf("\n** Bad Magic Number 0x%x **\n", hdr->ih_magic);
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress (-57);
 		return 1;
 	}
+	show_boot_progress (57);
 
 	print_image_hdr(hdr);
 
 	cnt = (ntohl(hdr->ih_size) + sizeof (image_header_t));
+	if (jffs2) {
+		nand_read_options_t opts;
+		memset(&opts, 0, sizeof(opts));
+		opts.buffer	= (u_char*) addr;
+		opts.length	= cnt;
+		opts.offset	= offset;
+		opts.quiet      = 1;
+		r = nand_read_opts(nand, &opts);
+	} else {
+		r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	}
 
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress (-58);
 		return 1;
 	}
+	show_boot_progress (58);
 
 	/* Loading ok, update default load address */
 
@@ -534,7 +560,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	int idx;
 	ulong addr, offset = 0;
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -550,7 +576,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			if (argc > 3)
 				goto usage;
 			if (argc == 3)
-				addr = simple_strtoul(argv[2], NULL, 16);
+				addr = simple_strtoul(argv[1], NULL, 16);
 			else
 				addr = CFG_LOAD_ADDR;
 			return nand_load_image(cmdtp, &nand_info[dev->id->num],
@@ -559,6 +585,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 #endif
 
+	show_boot_progress(52);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -578,36 +605,39 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		offset = simple_strtoul(argv[3], NULL, 16);
 		break;
 	default:
-#if (CONFIG_COMMANDS & CFG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 usage:
 #endif
 		printf("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress(-53);
 		return 1;
 	}
 
+	show_boot_progress(53);
 	if (!boot_device) {
 		puts("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress(-54);
 		return 1;
 	}
+	show_boot_progress(54);
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
 	if (idx < 0 || idx >= CFG_MAX_NAND_DEVICE || !nand_info[idx].name) {
 		printf("\n** Device %d not available\n", idx);
-		SHOW_BOOT_PROGRESS(-1);
+		show_boot_progress(-55);
 		return 1;
 	}
+	show_boot_progress(55);
 
 	return nand_load_image(cmdtp, &nand_info[idx], offset, addr, argv[0]);
 }
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"nboot   - boot from NAND device\n",
-	"[partition] | [[[loadAddr] dev] offset]\n");
+	"[.jffs2] [partition] | [[[loadAddr] dev] offset]\n");
 
-#endif				/* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif
 
 #else /* CFG_NAND_LEGACY */
 /*
@@ -620,14 +650,14 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 #include <asm/io.h>
 #include <watchdog.h>
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#ifdef CONFIG_show_boot_progress
 # include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
+# define show_boot_progress(arg)	show_boot_progress(arg)
 #else
-# define SHOW_BOOT_PROGRESS(arg)
+# define show_boot_progress(arg)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
 #if 0
 #include <linux/mtd/nand_ids.h>
@@ -887,6 +917,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong offset = 0;
 	image_header_t *hdr;
 	int rcode = 0;
+	show_boot_progress (52);
 	switch (argc) {
 	case 1:
 		addr = CFG_LOAD_ADDR;
@@ -907,24 +938,27 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	default:
 		printf ("Usage:\n%s\n", cmdtp->usage);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-53);
 		return 1;
 	}
 
+	show_boot_progress (53);
 	if (!boot_device) {
 		puts ("\n** No boot device **\n");
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-54);
 		return 1;
 	}
+	show_boot_progress (54);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if ((dev >= CFG_MAX_NAND_DEVICE) ||
 	    (nand_dev_desc[dev].ChipID == NAND_ChipID_UNKNOWN)) {
 		printf ("\n** Device %d not available\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-55);
 		return 1;
 	}
+	show_boot_progress (55);
 
 	printf ("\nLoading from device %d: %s at 0x%lx (offset 0x%lx)\n",
 		dev, nand_dev_desc[dev].name, nand_dev_desc[dev].IO_ADDR,
@@ -933,9 +967,10 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ, offset,
 			SECTORSIZE, NULL, (u_char *)addr)) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-56);
 		return 1;
 	}
+	show_boot_progress (56);
 
 	hdr = (image_header_t *)addr;
 
@@ -947,17 +982,19 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		cnt -= SECTORSIZE;
 	} else {
 		printf ("\n** Bad Magic Number 0x%x **\n", ntohl(hdr->ih_magic));
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-57);
 		return 1;
 	}
+	show_boot_progress (57);
 
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ,
 			offset + SECTORSIZE, cnt, NULL,
 			(u_char *)(addr+SECTORSIZE))) {
 		printf ("** Read error on %d\n", dev);
-		SHOW_BOOT_PROGRESS (-1);
+		show_boot_progress (-58);
 		return 1;
 	}
+	show_boot_progress (58);
 
 	/* Loading ok, update default load address */
 
@@ -985,6 +1022,6 @@ U_BOOT_CMD(
 	"loadAddr dev\n"
 );
 
-#endif /* (CONFIG_COMMANDS & CFG_CMD_NAND) */
+#endif
 
 #endif /* CFG_NAND_LEGACY */

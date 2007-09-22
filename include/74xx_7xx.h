@@ -34,6 +34,7 @@
  * Exception offsets (PowerPC standard)
  */
 #define EXC_OFF_SYS_RESET        0x0100      /* default system reset offset */
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 /*----------------------------------------------------------------
  * l2cr values

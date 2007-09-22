@@ -592,9 +592,11 @@ typedef void		(*ExcpHndlr) (void) ;
 #define PMC_REG_BASE	__REG(0x40500400)  /* Primary Modem Codec */
 #define SMC_REG_BASE	__REG(0x40500500)  /* Secondary Modem Codec */
 
+
 /*
  * USB Device Controller
  */
+#ifndef CONFIG_CPU_MONAHANS
 #define UDC_RES1	__REG(0x40600004)  /* UDC Undocumented - Reserved1 */
 #define UDC_RES2	__REG(0x40600008)  /* UDC Undocumented - Reserved2 */
 #define UDC_RES3	__REG(0x4060000C)  /* UDC Undocumented - Reserved3 */
@@ -749,11 +751,28 @@ typedef void		(*ExcpHndlr) (void) ;
 #define USIR1_IR13	(1 << 5)	/* Interrup request ep 13 */
 #define USIR1_IR14	(1 << 6)	/* Interrup request ep 14 */
 #define USIR1_IR15	(1 << 7)	/* Interrup request ep 15 */
+#endif /* ! CONFIG_CPU_MONAHANS */
 
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+
+/*
+ * USB Client Controller (incomplete)
+ */
+#define UDCCR		__REG(0x40600000)
+#define UDCICR0		__REG(0x40600004)
+#define UDCCIR0		__REG(0x40600008)
+#define UDCISR0		__REG(0x4060000c)
+#define UDCSIR1		__REG(0x40600010)
+#define UDCFNR		__REG(0x40600014)
+#define UDCOTGICR	__REG(0x40600018)
+#define UDCOTGISR	__REG(0x4060001c)
+#define UP2OCR		__REG(0x40600020)
+#define UP3OCR		__REG(0x40600024)
+
 /*
  * USB Host Controller
  */
+#define OHCI_REGS_BASE	0x4C000000	/* required for ohci driver */
 #define UHCREV		__REG(0x4C000000)
 #define UHCHCON		__REG(0x4C000004)
 #define UHCCOMS		__REG(0x4C000008)
@@ -1269,15 +1288,15 @@ typedef void		(*ExcpHndlr) (void) ;
 #define _GEDR(x)	__REG2(0x40E00048, ((x) & 0x60) >> 3)
 #define _GAFR(x)	__REG2(0x40E00054, ((x) & 0x70) >> 2)
 
-#define GPLR(x)		((((x) & 0x7f) < 96) ? _GPLR(x) : GPLR3)
-#define GPDR(x)		((((x) & 0x7f) < 96) ? _GPDR(x) : GPDR3)
-#define GPSR(x)		((((x) & 0x7f) < 96) ? _GPSR(x) : GPSR3)
-#define GPCR(x)		((((x) & 0x7f) < 96) ? _GPCR(x) : GPCR3)
-#define GRER(x)		((((x) & 0x7f) < 96) ? _GRER(x) : GRER3)
-#define GFER(x)		((((x) & 0x7f) < 96) ? _GFER(x) : GFER3)
-#define GEDR(x)		((((x) & 0x7f) < 96) ? _GEDR(x) : GEDR3)
-#define GAFR(x)		((((x) & 0x7f) < 96) ? _GAFR(x) : \
-			 ((((x) & 0x7f) < 112) ? GAFR3_L : GAFR3_U))
+#define GPLR(x)		__REG2(0x40E00000 + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GPDR(x)		__REG2(0x40E0000C + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GPSR(x)		__REG2(0x40E00018 + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GPCR(x)		__REG2(0x40E00024 + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GRER(x)		__REG2(0x40E00030 + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GFER(x)		__REG2(0x40E0003C + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GEDR(x)		__REG2(0x40E00048 + (((x) & 0x7f) < 96) ?  0:0x100, ((x) & 0x60) >> 3)
+#define GAFR(x)		__REG2((((x) & 0x7f) < 96) ?  0x40E00054 : \
+			 ((((x) & 0x7f) < 112) ? 0x40E0006C : 0x40E00070),((x) & 0x60) >> 3)
 #else
 
 #define GPLR(x)		__REG2(0x40E00000, ((x) & 0x60) >> 3)

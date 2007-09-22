@@ -46,7 +46,6 @@
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
-/*Now included by CFG_CMD_PCMCIA */
 /*#define CONFIG_PCMCIA		1	/ * To enable PCMCIA support */
 
 /* Video related */
@@ -105,17 +104,39 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
-#define CONFIG_BOOTP_MASK	CONFIG_BOOTP_ALL
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_NISDOMAIN
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_NTPSERVER
+#define CONFIG_BOOTP_TIMEOFFSET
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
 #define	CFG_PROMPT		":>"		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -185,12 +206,13 @@
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x00040000	/* Offset of Environment Sector */
 #define	CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

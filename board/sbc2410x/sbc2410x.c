@@ -31,11 +31,11 @@
 #include <common.h>
 #include <s3c2410.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand.h>
 #endif
 
-/* ------------------------------------------------------------------------- */
+DECLARE_GLOBAL_DATA_PTR;
 
 #define FCLK_SPEED 1
 
@@ -74,7 +74,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 
@@ -128,15 +127,13 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	return 0;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 extern ulong nand_probe(ulong physadr);
 
 static inline void NF_Reset(void)
@@ -180,4 +177,4 @@ void nand_init(void)
 #endif
 	printf ("%4lu MB\n", nand_probe((ulong)nand) >> 20);
 }
-#endif /* CONFIG_COMMANDS & CFG_CMD_NAND */
+#endif

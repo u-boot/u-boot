@@ -31,13 +31,13 @@ static void acadia_gpio_init(void)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
-       	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
-       	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
-       	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
-       	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
-       	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
-       	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
-       	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
+	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
+	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select */
+	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
+	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select */
+	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
+	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select */
+	out32(GPIO0_TCR, CFG_GPIO0_TCR);  /* enable output driver for outputs */
 
 	/*
 	 * Ultra (405EZ) was nice enough to add another GPIO controller
@@ -55,12 +55,24 @@ int board_early_init_f(void)
 {
 	unsigned int reg;
 
+#if !defined(CONFIG_NAND_U_BOOT)
 	/* don't reinit PLL when booting via I2C bootstrap option */
 	mfsdr(SDR_PINSTP, reg);
 	if (reg != 0xf0000000)
 		board_pll_init_f();
+#endif
 
 	acadia_gpio_init();
+
+	/* Configure 405EZ for NAND usage */
+	mtsdr(sdrnand0, SDR_NAND0_NDEN | SDR_NAND0_NDAREN | SDR_NAND0_NDRBEN);
+	mfsdr(sdrultra0, reg);
+	reg &= ~SDR_ULTRA0_CSN_MASK;
+	reg |= (SDR_ULTRA0_CSNSEL0 >> CFG_NAND_CS) |
+		SDR_ULTRA0_NDGPIOBP |
+		SDR_ULTRA0_EBCRDYEN |
+		SDR_ULTRA0_NFSRSTEN;
+	mtsdr(sdrultra0, reg);
 
 	/* USB Host core needs this bit set */
 	mfsdr(sdrultra1, reg);
@@ -91,8 +103,11 @@ int misc_init_f(void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	u8 rev;
 
-	printf("Board: Acadia - AMCC PPC405EZ Evaluation Board");
+	rev = in8(CFG_CPLD_BASE + 0);
+	printf("Board: Acadia - AMCC PPC405EZ Evaluation Board, Rev. %X", rev);
+
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);

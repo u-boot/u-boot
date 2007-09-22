@@ -31,14 +31,9 @@
 #undef	CONFIG_8xx_CONS_NONE
 
 #define CONFIG_MII
-/* #define MII_DEBUG */
-/* #define CONFIG_FEC_ENET */
 #undef CONFIG_ETHER_ON_FEC1
 #define CONFIG_ETHER_ON_FEC2
 #define FEC_ENET
-/* #define CONFIG_FEC2_PHY_NORXERR */
-/* #define CFG_DISCOVER_PHY */
-/* #define CONFIG_PHY_ADDR		0x1 */
 #define CONFIG_FEC2_PHY		1
 
 #define CONFIG_BAUDRATE		19200
@@ -80,24 +75,31 @@
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #define CONFIG_BZIP2	 /* include support for bzip2 compressed images */
 
-#ifndef CONFIG_COMMANDS
-#define CONFIG_COMMANDS	(CONFIG_CMD_DFL   \
-			 | CFG_CMD_ASKENV \
-			 | CFG_CMD_DATE \
-			 | CFG_CMD_ECHO   \
-			 | CFG_CMD_IMMAP  \
-			 | CFG_CMD_JFFS2 \
-			 | CFG_CMD_PING \
-			 | CFG_CMD_DHCP \
-			 | CFG_CMD_I2C \
-			 | CFG_CMD_MII)
-			/* & ~( CFG_CMD_NET)) */
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 
-#endif /* !CONFIG_COMMANDS */
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
 
 /*
  * Miscellaneous configurable options
@@ -107,7 +109,7 @@
 #define CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2	"> "
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -194,7 +196,7 @@
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 
-#ifdef CFG_CMD_DATE
+#ifdef CONFIG_CMD_DATE
 # define CONFIG_RTC_DS3231
 # define CFG_I2C_RTC_ADDR      0x68
 #endif
@@ -202,7 +204,7 @@
 /*-----------------------------------------------------------------------
  * I2C configuration
  */
-#if (CONFIG_COMMANDS & CFG_CMD_I2C)
+#if defined(CONFIG_CMD_I2C)
 /* enable I2C and select the hardware/software driver */
 #undef CONFIG_HARD_I2C                 /* I2C with hardware support    */
 #define CONFIG_SOFT_I2C                1       /* I2C bit-banged               */

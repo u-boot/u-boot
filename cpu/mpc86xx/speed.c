@@ -29,6 +29,7 @@
 #include <mpc86xx.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info(sys_info_t *sysInfo)
 {
@@ -96,7 +97,6 @@ void get_sys_info(sys_info_t *sysInfo)
 
 int get_clocks(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);

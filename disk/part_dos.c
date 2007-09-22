@@ -35,9 +35,9 @@
 #include <ide.h>
 #include "part_dos.h"
 
-#if ((CONFIG_COMMANDS & CFG_CMD_IDE)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_SCSI)	|| \
-     (CONFIG_COMMANDS & CFG_CMD_USB)	|| \
+#if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SCSI) || \
+     defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
      defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_DOS_PARTITION)
 
@@ -248,4 +248,4 @@ int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition
 }
 
 
-#endif	/* (CONFIG_COMMANDS & CFG_CMD_IDE) && CONFIG_DOS_PARTITION */
+#endif

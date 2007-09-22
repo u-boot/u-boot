@@ -84,12 +84,6 @@ typedef	void 	command_t (cmd_tbl_t *, int, int, char *[]);
 #define CMD_FLAG_REPEAT		0x0001	/* repeat last command		*/
 #define CMD_FLAG_BOOTD		0x0002	/* command is from bootd	*/
 
-/*
- * Configurable monitor commands definitions have been moved
- * to include/cmd_confdefs.h
- */
-
-
 #define Struct_Section  __attribute__ ((unused,section (".u_boot_cmd")))
 
 #ifdef  CFG_LONGHELP

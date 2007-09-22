@@ -249,10 +249,10 @@ struct phy_info {
 	void (*close) (struct uec_mii_info * mii_info);
 };
 
-struct phy_info *get_phy_info (struct uec_mii_info *mii_info);
-void write_phy_reg (struct eth_device *dev, int mii_id, int regnum,
+struct phy_info *uec_get_phy_info (struct uec_mii_info *mii_info);
+void uec_write_phy_reg (struct eth_device *dev, int mii_id, int regnum,
 		    int value);
-int read_phy_reg (struct eth_device *dev, int mii_id, int regnum);
+int uec_read_phy_reg (struct eth_device *dev, int mii_id, int regnum);
 void mii_clear_phy_interrupt (struct uec_mii_info *mii_info);
 void mii_configure_phy_interrupt (struct uec_mii_info *mii_info,
 				  u32 interrupts);

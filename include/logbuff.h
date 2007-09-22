@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2007
  * Detlev Zundel, dzu@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,12 +25,36 @@
 
 #ifdef CONFIG_LOGBUFFER
 
+#define LOGBUFF_MAGIC	0xc0de4ced	/* Forced by code, eh!	*/
 #define LOGBUFF_LEN	(16384)	/* Must be 16k right now */
 #define LOGBUFF_MASK	(LOGBUFF_LEN-1)
 #define LOGBUFF_OVERHEAD (4096) /* Logbuffer overhead for extra info */
 #define LOGBUFF_RESERVE (LOGBUFF_LEN+LOGBUFF_OVERHEAD)
 
 #define LOGBUFF_INITIALIZED	(1<<31)
+
+/* The mapping used here has to be the same as in setup_ext_logbuff ()
+   in linux/kernel/printk */
+
+typedef struct {
+	union {
+		struct {
+			unsigned long	tag;
+			unsigned long	start;
+			unsigned long	con;
+			unsigned long	end;
+			unsigned long	chars;
+		} v2;
+		struct {
+			unsigned long	dummy;
+			unsigned long	tag;
+			unsigned long	start;
+			unsigned long	size;
+			unsigned long	chars;
+		} v1;
+	};
+	unsigned char	buf[0];
+} logbuff_t;
 
 int drv_logbuff_init (void);
 void logbuff_init_ptrs (void);

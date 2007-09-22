@@ -51,7 +51,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
+#if defined(CONFIG_CMD_SCSI) && defined(CONFIG_SCSI_SYM53C8XX)
 
 #undef SCSI_SINGLE_STEP
 /*
@@ -787,7 +787,7 @@ void scsi_chip_init(void)
 	scsi_write_byte(DMODE,0x00);
 #endif
 }
-#endif /* (CONFIG_COMMANDS & CFG_CMD_SCSI) */
+#endif
 
 
 #endif /* CONFIG_SCSI_SYM53C8XX */

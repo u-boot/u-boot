@@ -57,32 +57,35 @@
 #define CONFIG_IPADDR		10.0.18.222
 #define CONFIG_SERVERIP		10.0.18.190
 
-#if 0
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_BSP	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_ELF	)
-#else
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_BSP	)
-#endif
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BSP
+
 
 #if 0 /* Does not appear to be used?!  If it is used, needs to be fixed */
 #define CONFIG_SOFT_I2C			/* Software I2C support enabled */
 #endif
 #define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
-
 /*
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -184,7 +187,7 @@
  */
 #define CFG_DCACHE_SIZE		2048	/* For PLX IOP480			*/
 #define CFG_CACHELINE_SIZE	16	/* For AMCC 401/403 CPUs		*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

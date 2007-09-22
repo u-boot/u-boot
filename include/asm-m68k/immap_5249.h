@@ -25,19 +25,11 @@
 #ifndef __IMMAP_5249__
 #define __IMMAP_5249__
 
-/* Timer module registers
- */
-typedef struct timer_ctrl {
-	ushort	timer_tmr;
-	ushort	res1;
-	ushort	timer_trr;
-	ushort	res2;
-	ushort	timer_tcap;
-	ushort	res3;
-	ushort	timer_tcn;
-	ushort	res4;
-	ushort	timer_ter;
-	uchar	res5[14];
-} timer_t;
+#define MMAP_INTC		(CFG_MBAR + 0x00000040)
+#define MMAP_DTMR0		(CFG_MBAR + 0x00000140)
+#define MMAP_DTMR1		(CFG_MBAR + 0x00000180)
+#define MMAP_UART0		(CFG_MBAR + 0x000001C0)
+#define MMAP_UART1		(CFG_MBAR + 0x00000200)
+#define MMAP_QSPI		(CFG_MBAR + 0x00000400)
 
-#endif /* __IMMAP_5249__ */
+#endif				/* __IMMAP_5249__ */

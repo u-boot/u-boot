@@ -119,23 +119,35 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP	)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -155,7 +167,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -387,6 +399,8 @@
 #define CFG_ENV_ADDR_REDUND	0xFFFFA000
 #define CFG_ENV_SIZE_REDUND	0x2000
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
 
@@ -413,7 +427,7 @@
 #define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
 					/* have only 8kB, 16kB is save here	*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

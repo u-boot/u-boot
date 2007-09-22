@@ -104,6 +104,13 @@ int checkboard(void)
 	return  0;
 }
 
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+u32 ddr_clktr(u32 default_val) {
+	return (SDRAM_CLKTR_CLKP_180_DEG_ADV);
+}
 
 /*************************************************************************
  *  int testdram()
@@ -161,7 +168,7 @@ int testdram(void)
  *	certain pre-initialization actions.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT)
+#if defined(CONFIG_PCI)
 int pci_pre_init( struct pci_controller *hose )
 {
 	unsigned long strap;
@@ -179,7 +186,7 @@ int pci_pre_init( struct pci_controller *hose )
 
 	return  1;
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_PRE_INIT) */
+#endif /* defined(CONFIG_PCI) */
 
 
 /*************************************************************************

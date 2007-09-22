@@ -27,7 +27,7 @@
 
 #ifdef CONFIG_DRIVER_ETHER
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 
 /*
  * Name:
@@ -95,7 +95,7 @@ UCHAR dm9161_GetLinkSpeed (AT91PS_EMAC p_mac)
 		return TRUE;
 	}
 
-	if ((stat1 & DM9161_100BASE_T4_HD) && (stat2 & DM9161_100HDX)) {
+	if ((stat1 & DM9161_100BASE_TX_HD) && (stat2 & DM9161_100HDX)) {
 		/*set MII for 100BaseTX and Half Duplex  */
 		p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
 				~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
@@ -140,7 +140,7 @@ UCHAR dm9161_InitPhy (AT91PS_EMAC p_mac)
 	at91rm9200_EmacReadPhy (p_mac, DM9161_MDINTR, &IntValue);
 	/* set FDX, SPD, Link, INTR masks */
 	IntValue |= (DM9161_FDX_MASK | DM9161_SPD_MASK |
-		     DM9161_LINK_MASK | DM9161_INTR_MASK);
+			DM9161_LINK_MASK | DM9161_INTR_MASK);
 	at91rm9200_EmacWritePhy (p_mac, DM9161_MDINTR, &IntValue);
 	at91rm9200_EmacDisableMDIO (p_mac);
 
@@ -174,10 +174,11 @@ UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_BMCR, &value))
 		return FALSE;
 
-	/* Set the Auto_negotiation Advertisement Register */
-	/* MII advertising for Next page, 100BaseTxFD and HD, 10BaseTFD and HD, IEEE 802.3 */
+	/* Set the Auto_negotiation Advertisement Register	*/
+	/* MII advertising for Next page, 100BaseTxFD and HD,	*/
+	/* 10BaseTFD and HD, IEEE 802.3 */
 	PhyAnar = DM9161_NP | DM9161_TX_FDX | DM9161_TX_HDX |
-		  DM9161_10_FDX | DM9161_10_HDX | DM9161_AN_IEEE_802_3;
+			DM9161_10_FDX | DM9161_10_HDX | DM9161_AN_IEEE_802_3;
 	if (!at91rm9200_EmacWritePhy (p_mac, DM9161_ANAR, &PhyAnar))
 		return FALSE;
 
@@ -220,6 +221,6 @@ UCHAR dm9161_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 	return FALSE;
 }
 
-#endif	/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 
 #endif	/* CONFIG_DRIVER_ETHER */

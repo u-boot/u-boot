@@ -47,8 +47,7 @@
 #include <hush.h>
 #endif
 
-#if defined(CONFIG_AUTOSCRIPT) || \
-	 (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT )
+#if defined(CONFIG_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
 
 extern image_header_t header;		/* from cmd_bootm.c */
 int
@@ -150,9 +149,10 @@ autoscript (ulong addr)
 	return rcode;
 }
 
-#endif	/* CONFIG_AUTOSCRIPT || CFG_CMD_AUTOSCRIPT */
+#endif
+
 /**************************************************/
-#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+#if defined(CONFIG_CMD_AUTOSCRIPT)
 int
 do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -170,13 +170,13 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return rcode;
 }
 
-#if (CONFIG_COMMANDS & CFG_CMD_AUTOSCRIPT)
+#if defined(CONFIG_CMD_AUTOSCRIPT)
 U_BOOT_CMD(
 	autoscr, 2, 0,	do_autoscript,
 	"autoscr - run script from memory\n",
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
 );
-#endif /* CFG_CMD_AUTOSCRIPT */
+#endif
 
-#endif /* CONFIG_AUTOSCRIPT || CFG_CMD_AUTOSCRIPT */
+#endif

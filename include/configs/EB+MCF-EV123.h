@@ -40,9 +40,8 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define FEC_ENET
-#define CONFIG_ETHADDR 00:CF:52:82:EB:01
-
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE 9600
 #define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
@@ -68,17 +67,61 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-/*#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADS | CFG_CMD_LOADB) ) */
-#define CONFIG_COMMANDS  ( CONFIG_CMD_DFL & ~(CFG_CMD_LOADB))
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_LOADB
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+
+#define CONFIG_MCFFEC
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
+#	define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
+
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_ETHADDR	00:CF:52:82:EB:01
+#	define CONFIG_IPADDR	192.162.1.2
+#	define CONFIG_NETMASK	255.255.255.0
+#	define CONFIG_SERVERIP	192.162.1.1
+#	define CONFIG_GATEWAYIP	192.162.1.1
+#	define CONFIG_OVERWRITE_ETHADDR_ONCE
+#endif				/* CONFIG_MCFFEC */
 
 #define CONFIG_BOOTDELAY	5
 #define CFG_PROMPT		"\nEV123 U-Boot> "
 #define	CFG_LONGHELP				/* undef to save memory		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -110,9 +153,6 @@
  */
 #define	CFG_MBAR		0x40000000
 
-#define	CFG_DISCOVER_PHY
-/* #define	CFG_ENET_BD_BASE	0x380000 */
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
@@ -139,6 +179,7 @@
 
 #define CFG_FLASH_BASE		0xFFE00000
 #define	CFG_INT_FLASH_BASE	0xF0000000
+#define CFG_INT_FLASH_ENABLE	0x21
 
 /* If M5282 port is fully implemented the monitor base will be behind
  * the vector table. */

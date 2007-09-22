@@ -53,25 +53,41 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
+
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
-#define CONFIG_COMMANDS	      ( CONFIG_CMD_DFL	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_IRQ	| \
-				CFG_CMD_ELF	| \
-				CFG_CMD_NAND	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_EEPROM	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_EEPROM
+
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -91,7 +107,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -132,40 +148,18 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
+#define CFG_NAND_BASE_LIST	{ CFG_NAND_BASE }
+#define NAND_MAX_CHIPS          1
+#define CFG_MAX_NAND_DEVICE	1         /* Max number of NAND devices */
+#define NAND_BIG_DELAY_US	25
 
-#define CFG_NAND_LEGACY
+#define CFG_NAND_CE             (0x80000000 >> 1)   /* our CE is GPIO1  */
+#define CFG_NAND_RDY            (0x80000000 >> 4)   /* our RDY is GPIO4 */
+#define CFG_NAND_CLE            (0x80000000 >> 2)   /* our CLE is GPIO2 */
+#define CFG_NAND_ALE            (0x80000000 >> 3)   /* our ALE is GPIO3 */
 
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
-
-#define CFG_NAND_CE  (0x80000000 >> 1)	/* our CE is GPIO1 */
-#define CFG_NAND_CLE (0x80000000 >> 2)	/* our CLE is GPIO2 */
-#define CFG_NAND_ALE (0x80000000 >> 3)	/* our ALE is GPIO3 */
-#define CFG_NAND_RDY (0x80000000 >> 4)	/* our RDY is GPIO4 */
-
-#define NAND_DISABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);} while(0)
-#define NAND_ENABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_CE);} while(0)
-#define NAND_CTL_CLRALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_ALE);} while(0)
-#define NAND_CTL_SETALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_ALE);} while(0)
-#define NAND_CTL_CLRCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_NAND_CLE);} while(0)
-#define NAND_CTL_SETCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CLE);} while(0)
-#define NAND_WAIT_READY(nand) while (!(in32(GPIO0_IR) & CFG_NAND_RDY))
-
-#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
-#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
-#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
-
-#define CONFIG_MTD_NAND_VERIFY_WRITE 1  /* verify all writes!!!         */
-#define CFG_NAND_SKIP_BAD_DOT_I      1  /* ".i" read skips bad blocks   */
+#define CFG_NAND_SKIP_BAD_DOT_I 1       /* ".i" read skips bad blocks   */
+#define CFG_NAND_QUIET          1
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -270,7 +264,7 @@
 #define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
 					/* have only 8kB, 16kB is save here	*/
 #define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 

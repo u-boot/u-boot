@@ -60,14 +60,14 @@ void phy_write (struct uec_mii_info *mii_info, u16 regnum, u16 val);
 /* Write value to the PHY for this device to the register at regnum, */
 /* waiting until the write is done before it returns.  All PHY */
 /* configuration has to be done through the TSEC1 MIIM regs */
-void write_phy_reg (struct eth_device *dev, int mii_id, int regnum, int value)
+void uec_write_phy_reg (struct eth_device *dev, int mii_id, int regnum, int value)
 {
 	uec_private_t *ugeth = (uec_private_t *) dev->priv;
-	uec_t *ug_regs;
+	uec_mii_t *ug_regs;
 	enet_tbi_mii_reg_e mii_reg = (enet_tbi_mii_reg_e) regnum;
 	u32 tmp_reg;
 
-	ug_regs = ugeth->uec_regs;
+	ug_regs = ugeth->uec_mii_regs;
 
 	/* Stop the MII management read cycle */
 	out_be32 (&ug_regs->miimcom, 0);
@@ -87,15 +87,15 @@ void write_phy_reg (struct eth_device *dev, int mii_id, int regnum, int value)
 /* Reads from register regnum in the PHY for device dev, */
 /* returning the value.  Clears miimcom first.  All PHY */
 /* configuration has to be done through the TSEC1 MIIM regs */
-int read_phy_reg (struct eth_device *dev, int mii_id, int regnum)
+int uec_read_phy_reg (struct eth_device *dev, int mii_id, int regnum)
 {
 	uec_private_t *ugeth = (uec_private_t *) dev->priv;
-	uec_t *ug_regs;
+	uec_mii_t *ug_regs;
 	enet_tbi_mii_reg_e mii_reg = (enet_tbi_mii_reg_e) regnum;
 	u32 tmp_reg;
 	u16 value;
 
-	ug_regs = ugeth->uec_regs;
+	ug_regs = ugeth->uec_mii_regs;
 
 	/* Setting up the MII Mangement Address Register */
 	tmp_reg = ((u32) mii_id << MIIMADD_PHY_ADDRESS_SHIFT) | mii_reg;
@@ -521,7 +521,7 @@ void phy_write (struct uec_mii_info *mii_info, u16 regnum, u16 val)
 /* Use the PHY ID registers to determine what type of PHY is attached
  * to device dev.  return a struct phy_info structure describing that PHY
  */
-struct phy_info *get_phy_info (struct uec_mii_info *mii_info)
+struct phy_info *uec_get_phy_info (struct uec_mii_info *mii_info)
 {
 	u16 phy_reg;
 	u32 phy_ID;

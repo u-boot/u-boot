@@ -80,9 +80,6 @@
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,7448@0"
 #define OF_TSI			"tsi108@c0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
@@ -146,25 +143,34 @@
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
-#define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAULT | \
-				CONFIG_BOOTP_BOOTFILESIZE)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL \
-		| CFG_CMD_ASKENV \
-		| CFG_CMD_CACHE \
-		| CFG_CMD_PCI \
-		| CFG_CMD_I2C \
-		| CFG_CMD_SDRAM \
-		| CFG_CMD_EEPROM \
-		| CFG_CMD_FLASH \
-		| CFG_CMD_ENV \
-		| CFG_CMD_BSP \
-		| CFG_CMD_DHCP \
-		| CFG_CMD_PING \
-		| CFG_CMD_DATE)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DATE
+
 
 /*set date in u-boot*/
 #define CONFIG_RTC_M48T35A
@@ -182,7 +188,7 @@
 #define CFG_LONGHELP		/* undef to save memory */
 #define CFG_PROMPT	"=> "	/* Monitor Command Prompt */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port at */
 #else
@@ -366,9 +372,9 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1/* Flash can be at one of two addresses */
+#define CFG_MAX_FLASH_BANKS	1		/* Flash can be at one of two addresses */
 #define FLASH_BANK_SIZE		0x01000000	/* 16 MB Total */
-#define CFG_FLASH_BANKS_LIST {CFG_FLASH_BASE, CFG_FLASH_BASE2}
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, /* CFG_FLASH_BASE2 */ }
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
@@ -387,7 +393,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For all MPC74xx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

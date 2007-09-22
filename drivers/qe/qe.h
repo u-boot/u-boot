@@ -29,7 +29,7 @@
 #define QE_NUM_OF_BRGS	16
 #define UCC_MAX_NUM	8
 
-#define QE_DATAONLY_BASE	(uint)(128)
+#define QE_DATAONLY_BASE	0
 #define QE_DATAONLY_SIZE	(QE_MURAM_SIZE - QE_DATAONLY_BASE)
 
 /* QE threads SNUM

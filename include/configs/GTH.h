@@ -97,18 +97,32 @@
 #error Both CONFIG_SCC1_ENET and CONFIG_FEC_ENET configured
 #endif
 
-#define CONFIG_COMMANDS               (CONFIG_CMD_DFL | CFG_CMD_IDE)
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_IDE
+
+
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
 
 /*
  * Miscellaneous configurable options
  */
 #define	CFG_PROMPT		"=>"	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
 #define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
@@ -190,7 +204,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 

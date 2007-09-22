@@ -82,8 +82,10 @@ int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
 {									\
 	u32 val32;							\
 									\
-	if (pci_hose_read_config_dword(hose, dev, offset & 0xfc, &val32) < 0)\
+	if (pci_hose_read_config_dword(hose, dev, offset & 0xfc, &val32) < 0) {	\
+		*val = -1;						\
 		return -1;						\
+	}								\
 									\
 	*val = (val32 >> ((offset & (int)off_mask) * 8));		\
 									\
@@ -490,10 +492,16 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 int pci_hose_scan(struct pci_controller *hose)
 {
+	/* Start scan at current_busno.
+	 * PCIe will start scan at first_busno+1.
+	 */
+	/* For legacy support, ensure current>=first */
+	if (hose->first_busno > hose->current_busno)
+		hose->current_busno = hose->first_busno;
 #ifdef CONFIG_PCI_PNP
 	pciauto_config_init(hose);
 #endif
-	return pci_hose_scan_bus(hose, hose->first_busno);
+	return pci_hose_scan_bus(hose, hose->current_busno);
 }
 
 void pci_init(void)

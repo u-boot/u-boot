@@ -38,6 +38,7 @@
 #define DCRN_PEGPL_REGBAL(base)		(base + 0x13)
 #define DCRN_PEGPL_REGMSK(base)		(base + 0x14)
 #define DCRN_PEGPL_SPECIAL(base)	(base + 0x15)
+#define DCRN_PEGPL_CFG(base)		(base + 0x16)
 
 /*
  * System DCRs (SDRs)
@@ -145,8 +146,8 @@
 #define PECFG_PIMEN		0x33c
 #define PECFG_PIM0LAL		0x340
 #define PECFG_PIM0LAH		0x344
-#define PECFG_PIM1LAL     	0x348
-#define PECFG_PIM1LAH     	0x34c
+#define PECFG_PIM1LAL		0x348
+#define PECFG_PIM1LAH		0x34c
 #define PECFG_PIM01SAL		0x350
 #define PECFG_PIM01SAH		0x354
 
@@ -160,6 +161,8 @@
 #define SDR_WRITE(offset, data) ({\
 	mtdcr(DCRN_SDR0_CFGADDR, offset); \
 	mtdcr(DCRN_SDR0_CFGDATA,data);})
+
+#define GPL_DMER_MASK_DISA	0x02000000
 
 int ppc440spe_init_pcie(void);
 int ppc440spe_init_pcie_rootport(int port);

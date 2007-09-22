@@ -39,6 +39,7 @@
 
 /* Exception offsets (PowerPC standard) */
 #define EXC_OFF_SYS_RESET	0x0100
+#define _START_OFFSET		EXC_OFF_SYS_RESET
 
 /* useful macros for manipulating CSx_START/STOP */
 #if defined(CONFIG_MGT5100)

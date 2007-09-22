@@ -38,11 +38,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /*
@@ -55,25 +50,34 @@
 /* Partitions */
 #define CONFIG_DOS_PARTITION
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DISPLAY	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_DTT	| \
-				CFG_CMD_IDE	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_SNTP	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DISPLAY
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_SNTP
+
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
@@ -114,7 +118,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133		/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
 /*
  * I2C configuration
@@ -245,7 +249,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -264,9 +268,13 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
+#endif
+
 /*
- * Enable loopw commando. This has only affect, if CFG_CMD_MEM is defined,
- * which is normally part of the default commands (CFV_CMD_DFL)
+ * Enable loopw command.
  */
 #define CONFIG_LOOPW
 
@@ -324,7 +332,6 @@
 #define CFG_IDE_MAXDEVICE	2	/* max. 2 drives per IDE bus	*/
 
 #define CONFIG_IDE_PREINIT	1
-/* #define CONFIG_IDE_RESET	1 beispile siehe tqm5200.c */
 
 #define CFG_ATA_IDE0_OFFSET	0x0000
 

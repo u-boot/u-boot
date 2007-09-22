@@ -29,7 +29,7 @@ LIB	= $(obj)lib$(ARCH).a
 
 SOBJS	= memset.o
 
-COBJS	= board.o interrupts.o avr32_linux.o div64.o
+COBJS	= board.o interrupts.o avr32_linux.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

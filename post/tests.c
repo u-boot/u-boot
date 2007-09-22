@@ -37,6 +37,7 @@ extern int i2c_post_test (int flags);
 extern int rtc_post_test (int flags);
 extern int memory_post_test (int flags);
 extern int cpu_post_test (int flags);
+extern int fpu_post_test (int flags);
 extern int uart_post_test (int flags);
 extern int ether_post_test (int flags);
 extern int spi_post_test (int flags);
@@ -45,6 +46,7 @@ extern int spr_post_test (int flags);
 extern int sysmon_post_test (int flags);
 extern int dsp_post_test (int flags);
 extern int codec_post_test (int flags);
+extern int ecc_post_test (int flags);
 
 extern int sysmon_init_f (void);
 
@@ -124,6 +126,19 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CFG_POST_CPU
+    },
+#endif
+#if CONFIG_POST & CFG_POST_FPU
+    {
+	"FPU test",
+	"fpu",
+	"This test verifies the arithmetic logic unit of"
+	" FPU.",
+	POST_RAM | POST_ALWAYS,
+	&fpu_post_test,
+	NULL,
+	NULL,
+	CFG_POST_FPU
     },
 #endif
 #if CONFIG_POST & CFG_POST_UART
@@ -220,6 +235,18 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CFG_POST_CODEC
+    },
+#endif
+#if CONFIG_POST & CFG_POST_ECC
+    {
+	"ECC test",
+	"ecc",
+	"This test checks ECC facility of memory.",
+	POST_ROM | POST_ALWAYS,
+	&ecc_post_test,
+	NULL,
+	NULL,
+	CFG_POST_ECC
     },
 #endif
 };

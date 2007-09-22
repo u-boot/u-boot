@@ -33,7 +33,10 @@ CPLD    = ../common/xilinx_jtag/lenval.o \
 	  ../common/xilinx_jtag/micro.o \
 	  ../common/xilinx_jtag/ports.o
 
-COBJS	= $(BOARD).o flash.o ../common/misc.o $(CPLD)
+COBJS	= $(BOARD).o flash.o \
+	../common/misc.o \
+	$(CPLD) \
+	../common/esd405ep_nand.o \
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

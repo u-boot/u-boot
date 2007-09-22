@@ -312,9 +312,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,8555@0"
 #define OF_SOC			"soc8555@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
@@ -350,6 +347,13 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI2_IO_PHYS	0xe2100000
 #define CFG_PCI2_IO_SIZE	0x00100000	/* 1M */
 
+#ifdef CONFIG_LEGACY
+#define BRIDGE_ID 17
+#define VIA_ID 2
+#else
+#define BRIDGE_ID 28
+#define VIA_ID 4
+#endif
 
 #if defined(CONFIG_PCI)
 
@@ -373,17 +377,16 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */
-#define CONFIG_MPC85XX_TSEC1	1
-#define CONFIG_MPC85XX_TSEC1_NAME	"TSEC0"
-#define CONFIG_MPC85XX_TSEC2	1
-#define CONFIG_MPC85XX_TSEC2_NAME	"TSEC1"
-#undef CONFIG_MPC85XX_FEC
+#define CONFIG_TSEC1	1
+#define CONFIG_TSEC1_NAME	"TSEC0"
+#define CONFIG_TSEC2	1
+#define CONFIG_TSEC2_NAME	"TSEC1"
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
-#define FEC_PHY_ADDR		3
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
-#define FEC_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
@@ -401,19 +404,28 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MII
+
 #if defined(CONFIG_PCI)
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PCI \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII)
-#else
-#define  CONFIG_COMMANDS	(CONFIG_CMD_DFL \
-				| CFG_CMD_PING \
-				| CFG_CMD_I2C \
-				| CFG_CMD_MII)
+    #define CONFIG_CMD_PCI
 #endif
-#include <cmd_confdefs.h>
+
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -423,7 +435,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_LONGHELP			/* undef to save memory	*/
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
 #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -443,7 +455,7 @@ extern unsigned long get_clock_freq(void);
 /* Cache Configuration */
 #define CFG_DCACHE_SIZE	32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
 
@@ -455,7 +467,7 @@ extern unsigned long get_clock_freq(void);
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -466,6 +478,7 @@ extern unsigned long get_clock_freq(void);
 
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR   00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD

@@ -28,7 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_RTC_S3C24X0) && (CONFIG_COMMANDS & CFG_CMD_DATE)
+#if defined(CONFIG_RTC_S3C24X0) && (defined(CONFIG_CMD_DATE))
 
 #if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
@@ -175,6 +175,4 @@ void rtc_reset (void)
 	rtc->RTCCON &= ~(0x08|0x01);
 }
 
-/* ------------------------------------------------------------------------- */
-
-#endif	/* CONFIG_RTC_S3C24X0 && CFG_CMD_DATE */
+#endif

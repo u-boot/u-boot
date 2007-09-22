@@ -28,7 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_MII)
+#if defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 #ifdef CONFIG_TERSE_MII
@@ -438,7 +438,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	int		rcode = 0;
 	char		*devname;
 
-#ifdef CONFIG_8xx
+#if defined(CONFIG_8xx) || defined(CONFIG_MCF532x)
 	mii_init ();
 #endif
 
@@ -595,4 +595,4 @@ U_BOOT_CMD(
 
 #endif /* CONFIG_TERSE_MII */
 
-#endif /* CFG_CMD_MII */
+#endif

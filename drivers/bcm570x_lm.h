@@ -19,29 +19,28 @@
 #include "bcm570x_queue.h"
 #include "bcm570x_bits.h"
 
-
 /******************************************************************************/
 /* Basic types. */
 /******************************************************************************/
 
-typedef char           LM_CHAR,    *PLM_CHAR;
-typedef unsigned int   LM_UINT,    *PLM_UINT;
-typedef unsigned char  LM_UINT8,   *PLM_UINT8;
-typedef unsigned short LM_UINT16,  *PLM_UINT16;
-typedef unsigned int   LM_UINT32,  *PLM_UINT32;
-typedef unsigned int   LM_COUNTER, *PLM_COUNTER;
-typedef void           LM_VOID,    *PLM_VOID;
-typedef char           LM_BOOL,    *PLM_BOOL;
+typedef char LM_CHAR, *PLM_CHAR;
+typedef unsigned int LM_UINT, *PLM_UINT;
+typedef unsigned char LM_UINT8, *PLM_UINT8;
+typedef unsigned short LM_UINT16, *PLM_UINT16;
+typedef unsigned int LM_UINT32, *PLM_UINT32;
+typedef unsigned int LM_COUNTER, *PLM_COUNTER;
+typedef void LM_VOID, *PLM_VOID;
+typedef char LM_BOOL, *PLM_BOOL;
 
 /* 64bit value. */
 typedef struct {
 #ifdef BIG_ENDIAN_HOST
-    LM_UINT32 High;
-    LM_UINT32 Low;
-#else /* BIG_ENDIAN_HOST */
-    LM_UINT32 Low;
-    LM_UINT32 High;
-#endif /* !BIG_ENDIAN_HOST */
+	LM_UINT32 High;
+	LM_UINT32 Low;
+#else				/* BIG_ENDIAN_HOST */
+	LM_UINT32 Low;
+	LM_UINT32 High;
+#endif				/* !BIG_ENDIAN_HOST */
 } LM_UINT64, *PLM_UINT64;
 
 typedef LM_UINT64 LM_PHYSICAL_ADDRESS, *PLM_PHYSICAL_ADDRESS;
@@ -58,15 +57,13 @@ typedef LM_UINT64 LM_PHYSICAL_ADDRESS, *PLM_PHYSICAL_ADDRESS;
 	}                                                   \
     }
 
-
 #ifndef NULL
 #define NULL                ((void *) 0)
-#endif /* NULL */
+#endif				/* NULL */
 
 #ifndef OFFSETOF
 #define OFFSETOF(_s, _m)    (MM_UINT_PTR(&(((_s *) 0)->_m)))
-#endif /* OFFSETOF */
-
+#endif				/* OFFSETOF */
 
 /******************************************************************************/
 /* Simple macros. */
@@ -100,25 +97,23 @@ typedef LM_UINT64 LM_PHYSICAL_ADDRESS, *PLM_PHYSICAL_ADDRESS;
     ((unsigned char *) (_Dst))[4] = ((unsigned char *) (_Src))[4];          \
     ((unsigned char *) (_Dst))[5] = ((unsigned char *) (_Src))[5];
 
-
 /******************************************************************************/
 /* Constants. */
 /******************************************************************************/
 
 #define ETHERNET_ADDRESS_SIZE           6
 #define ETHERNET_PACKET_HEADER_SIZE     14
-#define MIN_ETHERNET_PACKET_SIZE        64      /* with 4 byte crc. */
-#define MAX_ETHERNET_PACKET_SIZE        1518    /* with 4 byte crc. */
+#define MIN_ETHERNET_PACKET_SIZE        64	/* with 4 byte crc. */
+#define MAX_ETHERNET_PACKET_SIZE        1518	/* with 4 byte crc. */
 #define MIN_ETHERNET_PACKET_SIZE_NO_CRC 60
 #define MAX_ETHERNET_PACKET_SIZE_NO_CRC 1514
-#define MAX_ETHERNET_PACKET_BUFFER_SIZE 1536    /* A nice even number. */
+#define MAX_ETHERNET_PACKET_BUFFER_SIZE 1536	/* A nice even number. */
 
 #ifndef LM_MAX_MC_TABLE_SIZE
 #define LM_MAX_MC_TABLE_SIZE            32
-#endif /* LM_MAX_MC_TABLE_SIZE */
+#endif				/* LM_MAX_MC_TABLE_SIZE */
 #define LM_MC_ENTRY_SIZE                (ETHERNET_ADDRESS_SIZE+1)
 #define LM_MC_INSTANCE_COUNT_INDEX      (LM_MC_ENTRY_SIZE-1)
-
 
 /* Receive filter masks. */
 #define LM_ACCEPT_UNICAST               0x0001
@@ -128,7 +123,6 @@ typedef LM_UINT64 LM_PHYSICAL_ADDRESS, *PLM_PHYSICAL_ADDRESS;
 #define LM_ACCEPT_ERROR_PACKET          0x0010
 
 #define LM_PROMISCUOUS_MODE             0x10000
-
 
 /******************************************************************************/
 /* PCI registers. */
@@ -169,20 +163,20 @@ typedef LM_UINT64 LM_PHYSICAL_ADDRESS, *PLM_PHYSICAL_ADDRESS;
 /******************************************************************************/
 
 typedef struct {
-    LM_UINT32 FragSize;
-    LM_PHYSICAL_ADDRESS FragBuf;
+	LM_UINT32 FragSize;
+	LM_PHYSICAL_ADDRESS FragBuf;
 } LM_FRAG, *PLM_FRAG;
 
 typedef struct {
-    /* FragCount is initialized for the caller to the maximum array size, on */
-    /* return FragCount is the number of the actual fragments in the array. */
-    LM_UINT32 FragCount;
+	/* FragCount is initialized for the caller to the maximum array size, on */
+	/* return FragCount is the number of the actual fragments in the array. */
+	LM_UINT32 FragCount;
 
-    /* Total buffer size. */
-    LM_UINT32 TotalSize;
+	/* Total buffer size. */
+	LM_UINT32 TotalSize;
 
-    /* Fragment array buffer. */
-    LM_FRAG Fragments[1];
+	/* Fragment array buffer. */
+	LM_FRAG Fragments[1];
 } LM_FRAG_LIST, *PLM_FRAG_LIST;
 
 #define DECLARE_FRAG_LIST_BUFFER_TYPE(_FRAG_LIST_TYPE_NAME, _MAX_FRAG_COUNT) \
@@ -190,7 +184,6 @@ typedef struct {
 	LM_FRAG_LIST FragList;                                               \
 	LM_FRAG FragListBuffer[_MAX_FRAG_COUNT-1];                           \
     } _FRAG_LIST_TYPE_NAME, *P##_FRAG_LIST_TYPE_NAME
-
 
 /******************************************************************************/
 /* Status codes. */
@@ -217,7 +210,6 @@ typedef struct {
 
 typedef LM_UINT LM_STATUS, *PLM_STATUS;
 
-
 /******************************************************************************/
 /* Requested media type. */
 /******************************************************************************/
@@ -240,7 +232,6 @@ typedef LM_UINT LM_STATUS, *PLM_STATUS;
 
 typedef LM_UINT32 LM_REQUESTED_MEDIA_TYPE, *PLM_REQUESTED_MEDIA_TYPE;
 
-
 /******************************************************************************/
 /* Media type. */
 /******************************************************************************/
@@ -254,7 +245,6 @@ typedef LM_UINT32 LM_REQUESTED_MEDIA_TYPE, *PLM_REQUESTED_MEDIA_TYPE;
 
 typedef LM_UINT32 LM_MEDIA_TYPE, *PLM_MEDIA_TYPE;
 
-
 /******************************************************************************/
 /* Line speed. */
 /******************************************************************************/
@@ -266,7 +256,6 @@ typedef LM_UINT32 LM_MEDIA_TYPE, *PLM_MEDIA_TYPE;
 
 typedef LM_UINT32 LM_LINE_SPEED, *PLM_LINE_SPEED;
 
-
 /******************************************************************************/
 /* Duplex mode. */
 /******************************************************************************/
@@ -276,7 +265,6 @@ typedef LM_UINT32 LM_LINE_SPEED, *PLM_LINE_SPEED;
 #define LM_DUPLEX_MODE_FULL                                     2
 
 typedef LM_UINT32 LM_DUPLEX_MODE, *PLM_DUPLEX_MODE;
-
 
 /******************************************************************************/
 /* Power state. */
@@ -288,7 +276,6 @@ typedef LM_UINT32 LM_DUPLEX_MODE, *PLM_DUPLEX_MODE;
 #define LM_POWER_STATE_D3       3
 
 typedef LM_UINT32 LM_POWER_STATE, *PLM_POWER_STATE;
-
 
 /******************************************************************************/
 /* Task offloading. */
@@ -304,7 +291,6 @@ typedef LM_UINT32 LM_POWER_STATE, *PLM_POWER_STATE;
 #define LM_TASK_OFFLOAD_TCP_SEGMENTATION        0x0040
 
 typedef LM_UINT32 LM_TASK_OFFLOAD, *PLM_TASK_OFFLOAD;
-
 
 /******************************************************************************/
 /* Flow control. */
@@ -324,7 +310,6 @@ typedef LM_UINT32 LM_TASK_OFFLOAD, *PLM_TASK_OFFLOAD;
 
 typedef LM_UINT32 LM_FLOW_CONTROL, *PLM_FLOW_CONTROL;
 
-
 /******************************************************************************/
 /* Wake up mode. */
 /******************************************************************************/
@@ -335,7 +320,6 @@ typedef LM_UINT32 LM_FLOW_CONTROL, *PLM_FLOW_CONTROL;
 #define LM_WAKE_UP_MODE_LINK_CHANGE             4
 
 typedef LM_UINT32 LM_WAKE_UP_MODE, *PLM_WAKE_UP_MODE;
-
 
 /******************************************************************************/
 /* Counters. */
@@ -362,7 +346,6 @@ typedef LM_UINT32 LM_WAKE_UP_MODE, *PLM_WAKE_UP_MODE;
 
 typedef LM_UINT32 LM_COUNTER_TYPE, *PLM_COUNTER_TYPE;
 
-
 /******************************************************************************/
 /* Forward definition. */
 /******************************************************************************/
@@ -370,82 +353,82 @@ typedef LM_UINT32 LM_COUNTER_TYPE, *PLM_COUNTER_TYPE;
 typedef struct _LM_DEVICE_BLOCK *PLM_DEVICE_BLOCK;
 typedef struct _LM_PACKET *PLM_PACKET;
 
-
 /******************************************************************************/
 /* Function prototypes. */
 /******************************************************************************/
 
-LM_STATUS LM_GetAdapterInfo(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_InitializeAdapter(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_ResetAdapter(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_DisableInterrupt(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_EnableInterrupt(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_SendPacket(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
-LM_STATUS LM_ServiceInterrupts(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_QueueRxPackets(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_SetReceiveMask(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Mask);
-LM_STATUS LM_Halt(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_Abort(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_MulticastAdd(PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
-LM_STATUS LM_MulticastDel(PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
-LM_STATUS LM_MulticastClear(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_SetMacAddress(PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMacAddress);
-LM_STATUS LM_LoopbackAddress(PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pAddress);
+LM_STATUS LM_GetAdapterInfo (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_InitializeAdapter (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_ResetAdapter (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_DisableInterrupt (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_EnableInterrupt (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_SendPacket (PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
+LM_STATUS LM_ServiceInterrupts (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_QueueRxPackets (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_SetReceiveMask (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Mask);
+LM_STATUS LM_Halt (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_Abort (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_MulticastAdd (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
+LM_STATUS LM_MulticastDel (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
+LM_STATUS LM_MulticastClear (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_SetMacAddress (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMacAddress);
+LM_STATUS LM_LoopbackAddress (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pAddress);
 
-LM_UINT32 LM_GetCrcCounter(PLM_DEVICE_BLOCK pDevice);
+LM_UINT32 LM_GetCrcCounter (PLM_DEVICE_BLOCK pDevice);
 
-LM_WAKE_UP_MODE LM_PMCapabilities(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_NwufAdd(PLM_DEVICE_BLOCK pDevice, LM_UINT32 ByteMaskSize,
-    LM_UINT8 *pByteMask, LM_UINT8 *pPattern);
-LM_STATUS LM_NwufRemove(PLM_DEVICE_BLOCK pDevice, LM_UINT32 ByteMaskSize,
-    LM_UINT8 *pByteMask, LM_UINT8 *pPattern);
-LM_STATUS LM_SetPowerState(PLM_DEVICE_BLOCK pDevice, LM_POWER_STATE PowerLevel);
+LM_WAKE_UP_MODE LM_PMCapabilities (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_NwufAdd (PLM_DEVICE_BLOCK pDevice, LM_UINT32 ByteMaskSize,
+		      LM_UINT8 * pByteMask, LM_UINT8 * pPattern);
+LM_STATUS LM_NwufRemove (PLM_DEVICE_BLOCK pDevice, LM_UINT32 ByteMaskSize,
+			 LM_UINT8 * pByteMask, LM_UINT8 * pPattern);
+LM_STATUS LM_SetPowerState (PLM_DEVICE_BLOCK pDevice,
+			    LM_POWER_STATE PowerLevel);
 
-LM_VOID LM_ReadPhy(PLM_DEVICE_BLOCK pDevice, LM_UINT32 PhyReg,
-    PLM_UINT32 pData32);
-LM_VOID LM_WritePhy(PLM_DEVICE_BLOCK pDevice, LM_UINT32 PhyReg,
-    LM_UINT32 Data32);
+LM_VOID LM_ReadPhy (PLM_DEVICE_BLOCK pDevice, LM_UINT32 PhyReg,
+		    PLM_UINT32 pData32);
+LM_VOID LM_WritePhy (PLM_DEVICE_BLOCK pDevice, LM_UINT32 PhyReg,
+		     LM_UINT32 Data32);
 
-LM_STATUS LM_ControlLoopBack(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Control);
-LM_STATUS LM_SetupPhy(PLM_DEVICE_BLOCK pDevice);
-int LM_BlinkLED(PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlinkDuration);
-
+LM_STATUS LM_ControlLoopBack (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Control);
+LM_STATUS LM_SetupPhy (PLM_DEVICE_BLOCK pDevice);
+int LM_BlinkLED (PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlinkDuration);
 
 /******************************************************************************/
 /* These are the OS specific functions called by LMAC. */
 /******************************************************************************/
 
-LM_STATUS MM_ReadConfig16(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
-    LM_UINT16 *pValue16);
-LM_STATUS MM_WriteConfig16(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
-    LM_UINT16 Value16);
-LM_STATUS MM_ReadConfig32(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
-    LM_UINT32 *pValue32);
-LM_STATUS MM_WriteConfig32(PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
-    LM_UINT32 Value32);
-LM_STATUS MM_MapMemBase(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_MapIoBase(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_IndicateRxPackets(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_IndicateTxPackets(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_StartTxDma(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
-LM_STATUS MM_CompleteTxDma(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
-LM_STATUS MM_AllocateMemory(PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlockSize,
-    PLM_VOID *pMemoryBlockVirt);
-LM_STATUS MM_AllocateSharedMemory(PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlockSize,
-    PLM_VOID *pMemoryBlockVirt, PLM_PHYSICAL_ADDRESS pMemoryBlockPhy,
-    LM_BOOL Cached);
-LM_STATUS MM_GetConfig(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_IndicateStatus(PLM_DEVICE_BLOCK pDevice, LM_STATUS Status);
-LM_STATUS MM_InitializeUmPackets(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS MM_FreeRxBuffer(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
-LM_STATUS MM_CoalesceTxBuffer(PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
-LM_STATUS LM_MbufWorkAround(PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_SetLinkSpeed(PLM_DEVICE_BLOCK pDevice,
-			  LM_REQUESTED_MEDIA_TYPE RequestedMediaType);
+LM_STATUS MM_ReadConfig16 (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
+			   LM_UINT16 * pValue16);
+LM_STATUS MM_WriteConfig16 (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
+			    LM_UINT16 Value16);
+LM_STATUS MM_ReadConfig32 (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
+			   LM_UINT32 * pValue32);
+LM_STATUS MM_WriteConfig32 (PLM_DEVICE_BLOCK pDevice, LM_UINT32 Offset,
+			    LM_UINT32 Value32);
+LM_STATUS MM_MapMemBase (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_MapIoBase (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_IndicateRxPackets (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_IndicateTxPackets (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_StartTxDma (PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
+LM_STATUS MM_CompleteTxDma (PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
+LM_STATUS MM_AllocateMemory (PLM_DEVICE_BLOCK pDevice, LM_UINT32 BlockSize,
+			     PLM_VOID * pMemoryBlockVirt);
+LM_STATUS MM_AllocateSharedMemory (PLM_DEVICE_BLOCK pDevice,
+				   LM_UINT32 BlockSize,
+				   PLM_VOID * pMemoryBlockVirt,
+				   PLM_PHYSICAL_ADDRESS pMemoryBlockPhy,
+				   LM_BOOL Cached);
+LM_STATUS MM_GetConfig (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_IndicateStatus (PLM_DEVICE_BLOCK pDevice, LM_STATUS Status);
+LM_STATUS MM_InitializeUmPackets (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS MM_FreeRxBuffer (PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
+LM_STATUS MM_CoalesceTxBuffer (PLM_DEVICE_BLOCK pDevice, PLM_PACKET pPacket);
+LM_STATUS LM_MbufWorkAround (PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_SetLinkSpeed (PLM_DEVICE_BLOCK pDevice,
+			   LM_REQUESTED_MEDIA_TYPE RequestedMediaType);
 
 #if INCLUDE_5703_A0_FIX
-LM_STATUS LM_Load5703DmaWFirmware(PLM_DEVICE_BLOCK pDevice);
+LM_STATUS LM_Load5703DmaWFirmware (PLM_DEVICE_BLOCK pDevice);
 #endif
 
-
-#endif /* LM_H */
+#endif				/* LM_H */

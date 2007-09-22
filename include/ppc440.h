@@ -82,10 +82,7 @@
 #define	 ivor13 0x19d	/* interrupt vector offset register 13 */
 #define	 ivor14 0x19e	/* interrupt vector offset register 14 */
 #define	 ivor15 0x19f	/* interrupt vector offset register 15 */
-#if defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440)
 #define	 mcsrr0 0x23a	/* machine check save/restore register 0 */
 #define	 mcsrr1 0x23b	/* mahcine check save/restore register 1 */
 #define	 mcsr	0x23c	/* machine check status register */
@@ -115,7 +112,7 @@
 #define	 icdbtrh 0x39f	/* instruction cache debug tag register high */
 #define	 mmucr	0x3b2	/* mmu control register */
 #define	 ccr0	0x3b3	/* core configuration register 0 */
-#define  ccr1  	0x378	/* core configuration for 440x5 only */
+#define  ccr1	0x378	/* core configuration for 440x5 only */
 #define	 icdbdr 0x3d3	/* instruction cache debug data register */
 #define	 dbdr	0x3f3	/* debug data register */
 
@@ -139,7 +136,7 @@
 #define clk_opbd	0x00c0
 #define clk_perd	0x00e0
 #define clk_mald	0x0100
-#define clk_spcid   	0x0120
+#define clk_spcid	0x0120
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
@@ -285,6 +282,30 @@
 #define sdr_sdstp3	0x4003
 #endif	/* CONFIG_440GX */
 
+/*----------------------------------------------------------------------------+
+| Core Configuration/MMU configuration for 440 (CCR1 for 440x5 only).
++----------------------------------------------------------------------------*/
+#define CCR0_PRE		0x40000000
+#define CCR0_CRPE		0x08000000
+#define CCR0_DSTG		0x00200000
+#define CCR0_DAPUIB		0x00100000
+#define CCR0_DTB		0x00008000
+#define CCR0_GICBT		0x00004000
+#define CCR0_GDCBT		0x00002000
+#define CCR0_FLSTA		0x00000100
+#define CCR0_ICSLC_MASK		0x0000000C
+#define CCR0_ICSLT_MASK		0x00000003
+#define CCR1_TCS_MASK		0x00000080
+#define CCR1_TCS_INTCLK		0x00000000
+#define CCR1_TCS_EXTCLK		0x00000080
+#define MMUCR_SWOA		0x01000000
+#define MMUCR_U1TE		0x00400000
+#define MMUCR_U2SWOAE		0x00200000
+#define MMUCR_DULXE		0x00800000
+#define MMUCR_IULXE		0x00400000
+#define MMUCR_STS		0x00100000
+#define MMUCR_STID_MASK		0x000000FF
+
 #ifdef CONFIG_440SPE
 #undef sdr_sdstp2
 #define sdr_sdstp2	0x0022
@@ -309,30 +330,6 @@
 #define sdr_sdstp5	0x4003
 #define sdr_sdstp6	0x4005
 #define sdr_sdstp7	0x4007
-
-/*----------------------------------------------------------------------------+
-| Core Configuration/MMU configuration for 440 (CCR1 for 440x5 only).
-+----------------------------------------------------------------------------*/
-#define CCR0_PRE		0x40000000
-#define CCR0_CRPE		0x08000000
-#define CCR0_DSTG		0x00200000
-#define CCR0_DAPUIB		0x00100000
-#define CCR0_DTB		0x00008000
-#define CCR0_GICBT		0x00004000
-#define CCR0_GDCBT		0x00002000
-#define CCR0_FLSTA		0x00000100
-#define CCR0_ICSLC_MASK		0x0000000C
-#define CCR0_ICSLT_MASK		0x00000003
-#define CCR1_TCS_MASK		0x00000080
-#define CCR1_TCS_INTCLK		0x00000000
-#define CCR1_TCS_EXTCLK		0x00000080
-#define MMUCR_SEOA		0x01000000
-#define MMUCR_U1TE		0x00400000
-#define MMUCR_U2SWOAE		0x00200000
-#define MMUCR_DULXE		0x00800000
-#define MMUCR_IULXE		0x00400000
-#define MMUCR_STS		0x00100000
-#define MMUCR_STID_MASK		0x000000FF
 
 #define SDR0_CFGADDR		0x00E
 #define SDR0_CFGDATA		0x00F
@@ -687,8 +684,8 @@
 #define SDRAM_CODT_CKSE_SINGLE_END		0x00000008
 #define SDRAM_CODT_FEEBBACK_RCV_SINGLE_END	0x00000004
 #define SDRAM_CODT_FEEBBACK_DRV_SINGLE_END	0x00000002
-#define SDRAM_CODT_IO_HIZ  			0x00000000
-#define SDRAM_CODT_IO_NMODE  			0x00000001
+#define SDRAM_CODT_IO_HIZ			0x00000000
+#define SDRAM_CODT_IO_NMODE			0x00000001
 
 /*-----------------------------------------------------------------------------+
 |  SDRAM Mode Register
@@ -956,7 +953,8 @@
 #define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
 #define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 /* Pin Function Control Register 1 */
 #define SDR0_PFC1                    0x4101
 #define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
@@ -1025,7 +1023,7 @@
 #endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define SDR_USB2D0CR                 0x0320
+#define SDR0_USB2D0CR                 0x0320
 #define   SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK   0x00000004    /* USB 2.0 Device/EBC Master Selection */
 #define   SDR0_USB2D0CR_USB2DEV_SELECTION      0x00000004    /* USB 2.0 Device Selection */
 #define   SDR0_USB2D0CR_EBC_SELECTION          0x00000000    /* EBC Selection */
@@ -1102,6 +1100,8 @@
 #define   SDR0_PFC2_SELECT_CONFIG_4            0xA0000000   /* 2xRGMII using RGMII bridge */
 #define   SDR0_PFC2_SELECT_CONFIG_5            0xC0000000   /* 2xRTBI  using RGMII bridge */
 #define   SDR0_PFC2_SELECT_CONFIG_6            0x40000000   /* 2xSMII  using  ZMII bridge */
+
+#define SDR0_PFC4		0x4104
 
 /* USB2PHY0 Control Register */
 #define SDR0_USB2PHY0CR               0x4103
@@ -1421,13 +1421,10 @@
 #define uicvr  uic0vr
 #define uicvcr uic0vcr
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX)
 /*----------------------------------------------------------------------------+
 | Clock / Power-on-reset DCR's.
 +----------------------------------------------------------------------------*/
-#define CPR0_CFGADDR			0x00C
-#define CPR0_CFGDATA			0x00D
-
 #define CPR0_CLKUPD			0x20
 #define CPR0_CLKUPD_BSY_MASK		0x80000000
 #define CPR0_CLKUPD_BSY_COMPLETED	0x00000000
@@ -1493,9 +1490,11 @@
 #define CPR0_OPBD_OPBDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
 
 #define CPR0_PERD			0xE0
+#if !defined(CONFIG_440EPX)
 #define CPR0_PERD_PERDV0_MASK		0x03000000
 #define CPR0_PERD_PERDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
 #define CPR0_PERD_PERDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
+#endif
 
 #define CPR0_MALD			0x100
 #define CPR0_MALD_MALDV0_MASK		0x03000000
@@ -3314,6 +3313,23 @@
 #define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
 #define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
 
+/*
+ * All 44x except 440GP have CPR registers (indirect DCR)
+ */
+#if !defined(CONFIG_440GP)
+#define CPR0_CFGADDR		0x00C
+#define CPR0_CFGDATA		0x00D
+
+#define mtcpr(reg, data)	do { \
+		mtdcr(CPR0_CFGADDR, reg); \
+		mtdcr(CPR0_CFGDATA, data); \
+	} while (0)
+
+#define mfcpr(reg, data)	do { \
+		mtdcr(CPR0_CFGADDR, reg); \
+		data = mfdcr(CPR0_CFGDATA); \
+	} while (0)
+#endif
 
 #ifndef __ASSEMBLY__
 
@@ -3337,6 +3353,19 @@ typedef struct {
 	unsigned long pciIntArbEn;            /* Internal PCI arbiter is enabled */
 	unsigned long pciClkSync;             /* PCI clock is synchronous        */
 } PPC440_SYS_INFO;
+
+static inline u32 get_mcsr(void)
+{
+	u32 val;
+
+	asm volatile("mfspr %0, 0x23c" : "=r" (val) :);
+	return val;
+}
+
+static inline void set_mcsr(u32 val)
+{
+	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
+}
 
 #endif	/* _ASMLANGUAGE */
 

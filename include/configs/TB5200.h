@@ -42,11 +42,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -72,12 +67,6 @@
 #define CFG_CONSOLE_IS_IN_ENV
 #endif
 
-#ifdef CONFIG_VIDEO
-#define ADD_BMP_CMD		CFG_CMD_BMP
-#else
-#define ADD_BMP_CMD		0
-#endif
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -85,7 +74,6 @@
 
 /* USB */
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 
 /* POST support */
@@ -94,41 +82,51 @@
 				 CFG_POST_I2C)
 
 #ifdef CONFIG_POST
-#define CFG_CMD_POST_DIAG CFG_CMD_DIAG
 /* preserve space for the post_word at end of on-chip SRAM */
 #define MPC5XXX_SRAM_POST_SIZE MPC5XXX_SRAM_SIZE-4
-#else
-#define CFG_CMD_POST_DIAG 0
 #endif
 
-/* IDE */
-#define ADD_IDE_CMD		(CFG_CMD_IDE | CFG_CMD_FAT | CFG_CMD_EXT2)
 
 /*
- * Supported commands
+ * BOOTP options
  */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				ADD_BMP_CMD	| \
-				ADD_IDE_CMD	| \
-				ADD_PCI_CMD	| \
-				ADD_USB_CMD	| \
-				CFG_CMD_ASKENV	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_DHCP	| \
-				CFG_CMD_ECHO	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_JFFS2	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_PING	| \
-				CFG_CMD_POST_DIAG | \
-				CFG_CMD_REGINFO | \
-				CFG_CMD_SNTP	| \
-				CFG_CMD_BSP)
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_USB
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
+
+#ifdef CONFIG_POST
+#define CONFIG__CMD_DIAG
+#endif
+
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
@@ -200,17 +198,17 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133		/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
-#if defined(CFG_IPBSPEED_133)
+#if defined(CFG_IPBCLK_EQUALS_XLBCLK)
 /*
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet hasn't
- * been tested with a IPB Bus Clock of 66 MHz.
+ * CFG_IPBCLK_EQUALS_XLBCLK is defined. This is because a PCI Clock
+ * of 66 MHz yet hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
-#define CFG_PCISPEED_66			/* define for 66MHz speed */
+#define CFG_PCICLK_EQUALS_IPBCLK_DIV2		/* define for 66MHz speed */
 #endif
 
 /*
@@ -394,7 +392,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -402,6 +400,11 @@
 #define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define CFG_MAXARGS		16	/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /* Enable an alternate, more extensive memory test */
 #define CFG_ALT_MEMTEST
@@ -414,8 +417,7 @@
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
- * Enable loopw commando. This has only affect, if CFG_CMD_MEM is defined,
- * which is normally part of the default commands (CFV_CMD_DFL)
+ * Enable loopw command.
  */
 #define CONFIG_LOOPW
 
@@ -432,7 +434,7 @@
 
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#ifdef CFG_PCISPEED_66
+#ifdef CFG_PCICLK_EQUALS_IPBCLK_DIV2
 #define CFG_BOOTCS_CFG		0x0008DF30 /* for pci_clk  = 66 MHz */
 #else
 #define CFG_BOOTCS_CFG		0x0004DF30 /* for pci_clk = 33 MHz */

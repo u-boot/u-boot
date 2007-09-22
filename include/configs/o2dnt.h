@@ -37,11 +37,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -73,8 +68,6 @@
 #define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#define ADD_PCI_CMD 		CFG_CMD_PCI
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -82,20 +75,29 @@
 
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL	| \
-				CFG_CMD_EEPROM	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_I2C	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_MII	| \
-				CFG_CMD_PING	| \
-				ADD_PCI_CMD	)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_PCI
+
 
 #if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CFG_LOWBOOT		1
@@ -137,17 +139,17 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133		/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
-#if defined(CFG_IPBSPEED_133)
+#if defined(CFG_IPBCLK_EQUALS_XLBCLK)
 /*
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet hasn't
- * been tested with a IPB Bus Clock of 66 MHz.
+ * CFG_IPBCLK_EQUALS_XLBCLK is defined. This is because a PCI Clock
+ *  of 66 MHz yet hasn't been tested with a IPB Bus Clock of 66 MHz.
  */
-#define CFG_PCISPEED_66			/* define for 66MHz speed */
+#define CFG_PCICLK_EQUALS_IPBCLK_DIV2	/* define for 66MHz speed */
 #endif
 #endif
 
@@ -246,7 +248,7 @@
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -262,6 +264,11 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
 
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
+
 /*
  * Various low-level settings
  */
@@ -276,7 +283,7 @@
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
 
-#ifdef CFG_PCISPEED_66
+#ifdef CFG_PCICLK_EQUALS_IPBCLK_DIV2
 /*
  * For 66 MHz PCI clock additional Wait State is needed for CS0 (flash).
  */

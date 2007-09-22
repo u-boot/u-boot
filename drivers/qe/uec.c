@@ -391,17 +391,17 @@ static int uec_set_mac_if_mode(uec_private_t *uec, enet_interface_e if_mode)
 	return 0;
 }
 
-static int init_mii_management_configuration(uec_t *uec_regs)
+static int init_mii_management_configuration(uec_mii_t *uec_mii_regs)
 {
 	uint		timeout = 0x1000;
 	u32		miimcfg = 0;
 
-	miimcfg = in_be32(&uec_regs->miimcfg);
+	miimcfg = in_be32(&uec_mii_regs->miimcfg);
 	miimcfg |= MIIMCFG_MNGMNT_CLC_DIV_INIT_VALUE;
-	out_be32(&uec_regs->miimcfg, miimcfg);
+	out_be32(&uec_mii_regs->miimcfg, miimcfg);
 
 	/* Wait until the bus is free */
-	while ((in_be32(&uec_regs->miimcfg) & MIIMIND_BUSY) && timeout--);
+	while ((in_be32(&uec_mii_regs->miimcfg) & MIIMIND_BUSY) && timeout--);
 	if (timeout <= 0) {
 		printf("%s: The MII Bus is stuck!", __FUNCTION__);
 		return -ETIMEDOUT;
@@ -413,13 +413,13 @@ static int init_mii_management_configuration(uec_t *uec_regs)
 static int init_phy(struct eth_device *dev)
 {
 	uec_private_t		*uec;
-	uec_t			*uec_regs;
+	uec_mii_t		*umii_regs;
 	struct uec_mii_info	*mii_info;
 	struct phy_info		*curphy;
 	int			err;
 
 	uec = (uec_private_t *)dev->priv;
-	uec_regs = uec->uec_regs;
+	umii_regs = uec->uec_mii_regs;
 
 	uec->oldlink = 0;
 	uec->oldspeed = 0;
@@ -451,19 +451,19 @@ static int init_phy(struct eth_device *dev)
 	mii_info->mii_id = uec->uec_info->phy_address;
 	mii_info->dev = dev;
 
-	mii_info->mdio_read = &read_phy_reg;
-	mii_info->mdio_write = &write_phy_reg;
+	mii_info->mdio_read = &uec_read_phy_reg;
+	mii_info->mdio_write = &uec_write_phy_reg;
 
 	uec->mii_info = mii_info;
 
-	if (init_mii_management_configuration(uec_regs)) {
+	if (init_mii_management_configuration(umii_regs)) {
 		printf("%s: The MII Bus is stuck!", dev->name);
 		err = -1;
 		goto bus_fail;
 	}
 
 	/* get info for this PHY */
-	curphy = get_phy_info(uec->mii_info);
+	curphy = uec_get_phy_info(uec->mii_info);
 	if (!curphy) {
 		printf("%s: No PHY found", dev->name);
 		err = -1;
@@ -989,6 +989,13 @@ static int uec_startup(uec_private_t *uec)
 	/* Setup MAC interface mode */
 	uec_set_mac_if_mode(uec, uec_info->enet_interface);
 
+	/* Setup MII management base */
+#ifndef CONFIG_eTSEC_MDIO_BUS
+	uec->uec_mii_regs = (uec_mii_t *)(&uec_regs->miimcfg);
+#else
+	uec->uec_mii_regs = (uec_mii_t *) CONFIG_MIIM_ADDRESS;
+#endif
+
 	/* Setup MII master clock source */
 	qe_set_mii_clk_src(uec_info->uf_info.ucc_num);
 
@@ -1103,7 +1110,7 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 		if (dev->enetaddr[0] & 0x01) {
 			printf("%s: MacAddress is multcast address\n",
 				 __FUNCTION__);
-			return -EINVAL;
+			return 0;
 		}
 		uec_set_mac_address(uec, dev->enetaddr);
 		uec->the_first_run = 1;
@@ -1112,10 +1119,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 	err = uec_open(uec, COMM_DIR_RX_AND_TX);
 	if (err) {
 		printf("%s: cannot enable UEC device\n", dev->name);
-		return err;
+		return 0;
 	}
 
-	return 0;
+	return uec->mii_info->link;
 }
 
 static void uec_halt(struct eth_device* dev)

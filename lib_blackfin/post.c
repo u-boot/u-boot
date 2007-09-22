@@ -32,14 +32,14 @@
 
 #ifdef CONFIG_POST
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define POST_MAX_NUMBER		32
 
 #define BOOTMODE_MAGIC	0xDEAD0000
 
 int post_init_f(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int res = 0;
 	unsigned int i;
 
@@ -62,7 +62,6 @@ int post_init_f(void)
 
 void post_bootmode_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get(0);
 	int newword;
 
@@ -109,20 +108,17 @@ int post_bootmode_get(unsigned int *last_test)
 /* POST tests run before relocation only mark status bits .... */
 static void post_log_mark_start(unsigned long testid)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->post_log_word |= (testid) << 16;
 }
 
 static void post_log_mark_succ(unsigned long testid)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->post_log_word |= testid;
 }
 
 /* ... and the messages are output once we are relocated */
 void post_output_backlog(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int j;
 
 	for (j = 0; j < post_list_size; j++) {
@@ -132,9 +128,7 @@ void post_output_backlog(void)
 				post_log("PASSED\n");
 			else {
 				post_log("FAILED\n");
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-				show_boot_progress(-31);
-#endif
+				show_boot_progress (-31);
 			}
 		}
 	}
@@ -245,9 +239,7 @@ static int post_run_single(struct post_test *test,
 		} else {
 			if ((*test->test) (flags) != 0) {
 				post_log("FAILED\n");
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-				show_boot_progress(-32);
-#endif
+				show_boot_progress (-32);
 			} else
 				post_log("PASSED\n");
 		}
@@ -376,8 +368,6 @@ int post_log(char *format, ...)
 
 void post_reloc(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int i;
 
 	/*

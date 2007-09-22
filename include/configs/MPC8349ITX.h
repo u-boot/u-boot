@@ -154,6 +154,9 @@
 #define CFG_MEMTEST_START	0x1000		/* memtest region */
 #define CFG_MEMTEST_END		0x2000
 
+#define CFG_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
+				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
+
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 #endif
@@ -286,17 +289,15 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
+#define CONFIG_CONSOLE		ttyS0
 #define CONFIG_BAUDRATE		115200
 
 #define CFG_NS16550_COM1	(CFG_IMMR + 0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR + 0x4600)
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
@@ -369,24 +370,27 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_NET_MULTI
 #define CONFIG_MII
-#define CONFIG_PHY_GIGE		/* In case CFG_CMD_MII is specified */
+#define CONFIG_PHY_GIGE		/* In case CONFIG_CMD_MII is specified */
 
-#define CONFIG_MPC83XX_TSEC1
+#define CONFIG_TSEC1
 
-#ifdef CONFIG_MPC83XX_TSEC1
-#define CONFIG_MPC83XX_TSEC1_NAME  "TSEC0"
+#ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
+#define CONFIG_TSEC1_NAME  "TSEC0"
 #define CFG_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR		0x1c	/* VSC8201 uses address 0x1c */
 #define TSEC1_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
 #endif
 
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 #define CONFIG_HAS_ETH1
-#define CONFIG_MPC83XX_TSEC2_NAME  "TSEC1"
+#define CONFIG_TSEC2_NAME  "TSEC1"
 #define CFG_TSEC2_OFFSET	0x25000
 #define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
 #define TSEC2_PHY_ADDR		4
 #define TSEC2_PHYIDX		0
+#define TSEC2_FLAGS		TSEC_GIGABIT
 #endif
 
 #define CONFIG_ETHPRIME		"Freescale TSEC"
@@ -405,6 +409,7 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
+  #undef  CFG_FLASH_CFI_DRIVER
   #define CFG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
   #define CFG_ENV_SIZE		0x2000
@@ -413,40 +418,41 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_LOADS_ECHO	/* echo on for serial download */
 #define CFG_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
-/* CONFIG_COMMANDS */
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SDRAM
 
 #ifdef CONFIG_COMPACT_FLASH
-#define CONFIG_COMMANDS_CF	(CFG_CMD_IDE | CFG_CMD_FAT)
-#else
-#define CONFIG_COMMANDS_CF	0
+    #define CONFIG_CMD_IDE
+    #define CONFIG_CMD_FAT
 #endif
 
 #ifdef CONFIG_PCI
-#define CONFIG_COMMANDS_PCI	CFG_CMD_PCI
-#else
-#define CONFIG_COMMANDS_PCI	0
+    #define CONFIG_CMD_PCI
 #endif
 
 #ifdef CONFIG_HARD_I2C
-#define CONFIG_COMMANDS_I2C	CFG_CMD_I2C
-#else
-#define CONFIG_COMMANDS_I2C	0
+    #define CONFIG_CMD_I2C
 #endif
 
-#define CONFIG_COMMANDS		(CONFIG_CMD_DFL | \
-				CONFIG_COMMANDS_CF	| \
-				CFG_CMD_NET	| \
-				CFG_CMD_PING	| \
-				CONFIG_COMMANDS_I2C	| \
-				CONFIG_COMMANDS_PCI	| \
-				CFG_CMD_SDRAM	| \
-				CFG_CMD_DATE	| \
-				CFG_CMD_CACHE	| \
-				CFG_CMD_IRQ)
-#include <cmd_confdefs.h>
-
 /* Watchdog */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*
@@ -466,7 +472,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_PROMPT	"MPC8349E-mITX-GP> "	/* Monitor Command Prompt */
 #endif
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
     #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
     #define CFG_CBSIZE	256		/* Console I/O Buffer Size */
@@ -489,7 +495,7 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CFG_DCACHE_SIZE		32768
 #define CFG_CACHELINE_SIZE	32
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CACHELINE_SHIFT	5	/* log2 of the above value */
 #endif
 
@@ -614,7 +620,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02	/* Software reboot */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
@@ -625,11 +631,11 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_MPC83XX_TSEC1
+#ifdef CONFIG_TSEC1
 #define CONFIG_ETHADDR		00:E0:0C:00:8C:01
 #endif
 
-#ifdef CONFIG_MPC83XX_TSEC2
+#ifdef CONFIG_TSEC2
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 
@@ -667,9 +673,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":" 	\
 		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
 		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \
-	" console=ttyS0," MK_STR(CONFIG_BAUDRATE)
+	" console=" MK_STR(CONFIG_CONSOLE) "," MK_STR(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"console=" MK_STR(CONFIG_CONSOLE) "\0" 				\
 	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
 	"tftpflash=tftpboot $loadaddr $uboot; " 			\

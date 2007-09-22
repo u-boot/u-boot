@@ -576,6 +576,9 @@ struct usb_device_instance {
 
 	void (*event) (struct usb_device_instance *device, usb_device_event_t event, int data);
 
+	/* Do cdc device specific control requests */
+	int (*cdc_recv_setup)(struct usb_device_request *request, struct urb *urb);
+
 	/* bus interface */
 	struct usb_bus_instance *bus;	/* which bus interface driver */
 

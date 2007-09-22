@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006 - 2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Copyright (c) 2005 Cisco Systems.  All rights reserved.
@@ -40,18 +40,80 @@ enum {
 	LNKW_X8			= 0x8
 };
 
+static u8* pcie_get_base(struct pci_controller *hose, unsigned int devfn)
+{
+	u8 *base = (u8*)hose->cfg_data;
+
+	/* use local configuration space for the first bus */
+	if (PCI_BUS(devfn) == 0) {
+		if (hose->cfg_data == (u8*)CFG_PCIE0_CFGBASE)
+			base = (u8*)CFG_PCIE0_XCFGBASE;
+		if (hose->cfg_data == (u8*)CFG_PCIE1_CFGBASE)
+			base = (u8*)CFG_PCIE1_XCFGBASE;
+		if (hose->cfg_data == (u8*)CFG_PCIE2_CFGBASE)
+			base = (u8*)CFG_PCIE2_XCFGBASE;
+	}
+
+	return base;
+}
+
+static void pcie_dmer_disable(void)
+{
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) | GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) | GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) | GPL_DMER_MASK_DISA);
+}
+
+static void pcie_dmer_enable(void)
+{
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE0_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) & ~GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE1_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) & ~GPL_DMER_MASK_DISA);
+	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE2_BASE),
+		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) & ~GPL_DMER_MASK_DISA);
+}
+
 static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	int offset, int len, u32 *val) {
 
+	u8 *address;
 	*val = 0;
+
 	/*
-	 * 440SPE implements only one function per port
+	 * Bus numbers are relative to hose->first_busno
 	 */
-	if (!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 1)))
+	devfn -= PCI_BDF(hose->first_busno, 0, 0);
+
+	/*
+	 * NOTICE: configuration space ranges are currenlty mapped only for
+	 * the first 16 buses, so such limit must be imposed. In case more
+	 * buses are required the TLB settings in board/amcc/<board>/init.S
+	 * need to be altered accordingly (one bus takes 1 MB of memory space).
+	 */
+	if (PCI_BUS(devfn) >= 16)
 		return 0;
 
-	devfn = PCI_BDF(0,0,0);
+	/*
+	 * Only single device/single function is supported for the primary and
+	 * secondary buses of the 440SPe host bridge.
+	 */
+	if ((!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 0))) &&
+		((PCI_BUS(devfn) == 0) || (PCI_BUS(devfn) == 1)))
+		return 0;
+		
+	address = pcie_get_base(hose, devfn);
 	offset += devfn << 4;
+
+	/*
+	 * Reading from configuration space of non-existing device can
+	 * generate transaction errors. For the read duration we suppress
+	 * assertion of machine check exceptions to avoid those.
+	 */
+	pcie_dmer_disable ();
 
 	switch (len) {
 	case 1:
@@ -61,23 +123,42 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 		*val = in_le16((u16 *)(hose->cfg_data + offset));
 		break;
 	default:
-		*val = in_le32((u32 *)(hose->cfg_data + offset));
+		*val = in_le32((u32*)(hose->cfg_data + offset));
 		break;
 	}
+
+	pcie_dmer_enable ();
+
 	return 0;
 }
 
 static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 	int offset, int len, u32 val) {
 
+	u8 *address;
+	
 	/*
-	 * 440SPE implements only one function per port
+	 * Bus numbers are relative to hose->first_busno
 	 */
-	if (!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 1)))
+	devfn -= PCI_BDF(hose->first_busno, 0, 0);
+	
+	/*
+	 * Same constraints as in pcie_read_config().
+	 */
+	if (PCI_BUS(devfn) >= 16)
 		return 0;
 
-	devfn = PCI_BDF(0,0,0);
+	if ((!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 0))) &&
+		((PCI_BUS(devfn) == 0) || (PCI_BUS(devfn) == 1)))
+		return 0;
+	
+	address = pcie_get_base(hose, devfn);
 	offset += devfn << 4;
+
+	/*
+	 * Suppress MCK exceptions, similar to pcie_read_config()
+	 */
+	pcie_dmer_disable ();
 
 	switch (len) {
 	case 1:
@@ -90,6 +171,9 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 		out_le32((u32 *)(hose->cfg_data + offset), val);
 		break;
 	}
+
+	pcie_dmer_enable ();
+
 	return 0;
 }
 
@@ -98,7 +182,7 @@ int pcie_read_config_byte(struct pci_controller *hose,pci_dev_t dev,int offset,u
 	u32 v;
 	int rv;
 
-	rv =  pcie_read_config(hose, dev, offset, 1, &v);
+	rv = pcie_read_config(hose, dev, offset, 1, &v);
 	*val = (u8)v;
 	return rv;
 }
@@ -755,12 +839,12 @@ void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	volatile void *rmbase = NULL;
 
 	pci_set_ops(hose,
-		    pcie_read_config_byte,
-		    pcie_read_config_word,
-		    pcie_read_config_dword,
-		    pcie_write_config_byte,
-		    pcie_write_config_word,
-		    pcie_write_config_dword);
+		pcie_read_config_byte,
+		pcie_read_config_word,
+		pcie_read_config_dword,
+		pcie_write_config_byte,
+		pcie_write_config_word,
+		pcie_write_config_dword);
 
 	switch (port) {
 	case 0:
@@ -842,6 +926,29 @@ void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 	printf("PCIE:%d successfully set as rootpoint\n",port);
+	
+	/* Set Device and Vendor Id */
+	switch (port) {
+	case 0:
+		out_le16(mbase + 0x200, 0xaaa0);
+		out_le16(mbase + 0x202, 0xbed0);
+		break;
+	case 1:
+		out_le16(mbase + 0x200, 0xaaa1);
+		out_le16(mbase + 0x202, 0xbed1);
+		break;
+	case 2:
+		out_le16(mbase + 0x200, 0xaaa2);
+		out_le16(mbase + 0x202, 0xbed2);
+		break;
+	default:
+		out_le16(mbase + 0x200, 0xaaa3);
+		out_le16(mbase + 0x202, 0xbed3);
+	}
+
+	/* Set Class Code to PCI-PCI bridge and Revision Id to 1 */
+	out_le32(mbase + 0x208, 0x06040001);
+
 }
 
 int ppc440spe_setup_pcie_endpoint(struct pci_controller *hose, int port)
@@ -919,8 +1026,8 @@ int ppc440spe_setup_pcie_endpoint(struct pci_controller *hose, int port)
 
 	/* Enable I/O, Mem, and Busmaster cycles */
 	out_le16((u16 *)(mbase + PCI_COMMAND),
-		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
-		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+		in_le16((u16 *)(mbase + PCI_COMMAND)) |
+		PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 	out_le16(mbase + 0x200,0xcaad);			/* Setting vendor ID */
 	out_le16(mbase + 0x202,0xfeed);			/* Setting device ID */
 	attempts = 10;

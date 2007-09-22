@@ -34,6 +34,30 @@
 #include <asm/mmu.h>
 #include <spd_sdram.h>
 
+void board_add_ram_info(int use_default)
+{
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile ddr83xx_t *ddr = &immap->ddr;
+
+	printf(" (DDR%d", ((ddr->sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK)
+			   >> SDRAM_CFG_SDRAM_TYPE_SHIFT) - 1);
+
+	if (ddr->sdram_cfg & SDRAM_CFG_32_BE)
+		puts(", 32-bit");
+	else
+		puts(", 64-bit");
+
+	if (ddr->sdram_cfg & SDRAM_CFG_ECC_EN)
+		puts(", ECC on)");
+	else
+		puts(", ECC off)");
+
+#if defined(CFG_LB_SDRAM) && defined(CFG_LBC_SDRAM_SIZE)
+	puts("\nSDRAM: ");
+	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, " (local bus)");
+#endif
+}
+
 #ifdef CONFIG_SPD_EEPROM
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -58,8 +82,8 @@ picos_to_clk(int picos)
 	int clks;
 
 	ddr_bus_clk = gd->ddr_clk >> 1;
-	clks = picos / ((1000000000 / ddr_bus_clk) * 1000);
-	if (picos % ((1000000000 / ddr_bus_clk) * 1000) != 0)
+	clks = picos / (1000000000 / (ddr_bus_clk / 1000));
+	if (picos % (1000000000 / (ddr_bus_clk / 1000)) != 0)
 		clks++;
 
 	return clks;
@@ -109,7 +133,7 @@ long int spd_sdram()
 	unsigned int n_ranks;
 	unsigned int odt_rd_cfg, odt_wr_cfg;
 	unsigned char twr_clk, twtr_clk;
-	unsigned char sdram_type;
+	unsigned int sdram_type;
 	unsigned int memsize;
 	unsigned int law_size;
 	unsigned char caslat, caslat_ctrl;
@@ -137,7 +161,7 @@ long int spd_sdram()
 #endif
 	/* Check the memory type */
 	if (spd.mem_type != SPD_MEMTYPE_DDR && spd.mem_type != SPD_MEMTYPE_DDR2) {
-		printf("DDR: Module mem type is %02X\n", spd.mem_type);
+		debug("DDR: Module mem type is %02X\n", spd.mem_type);
 		return 0;
 	}
 
@@ -574,18 +598,21 @@ long int spd_sdram()
 
 	/* Check DIMM data bus width */
 	if (spd.dataw_lsb == 0x20) {
-		burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
-		printf("\n   DDR DIMM: data bus width is 32 bit");
+		if (spd.mem_type == SPD_MEMTYPE_DDR)
+			burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
+		else
+			burstlen = 0x02; /* 32 bit data bus, burst len is 4 */
+		debug("\n   DDR DIMM: data bus width is 32 bit");
 	} else {
 		burstlen = 0x02; /* Others act as 64 bit bus, burst len is 4 */
-		printf("\n   DDR DIMM: data bus width is 64 bit");
+		debug("\n   DDR DIMM: data bus width is 64 bit");
 	}
 
 	/* Is this an ECC DDR chip? */
 	if (spd.config == 0x02)
-		printf(" with ECC\n");
+		debug(" with ECC\n");
 	else
-		printf(" without ECC\n");
+		debug(" without ECC\n");
 
 	/* Burst length is always 4 for 64 bit data bus, 8 for 32 bit data bus,
 	   Burst type is sequential
@@ -624,7 +651,7 @@ long int spd_sdram()
 			 | (1 << (16 + 10))             /* DQS Differential disable */
 			 | (add_lat << (16 + 3))        /* Additive Latency in EMRS1 */
 			 | (mode_odt_enable << 16)      /* ODT Enable in EMRS1 */
-			 | ((twr_clk >> 1) << 9)        /* Write Recovery Autopre */
+			 | ((twr_clk - 1) << 9)         /* Write Recovery Autopre */
 			 | (caslat << 4)                /* caslat */
 			 | (burstlen << 0)              /* Burst length */
 			);
@@ -693,11 +720,6 @@ long int spd_sdram()
 
 #ifdef CFG_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
 	ddr->sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
-#else
-	/* SS_EN = 0, source synchronous disable
-	 * CLK_ADJST = 0, MCK/MCK# is launched aligned with addr/cmd
-	 */
-	ddr->sdram_clk_cntl = 0x00000000;
 #endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
@@ -720,23 +742,27 @@ long int spd_sdram()
 	 * sdram_cfg[13] = 0 (8_BE =0, 4-beat bursts)
 	 */
 	if (spd.mem_type == SPD_MEMTYPE_DDR)
-		sdram_type = 2;
+		sdram_type = SDRAM_CFG_SDRAM_TYPE_DDR1;
 	else
-		sdram_type = 3;
+		sdram_type = SDRAM_CFG_SDRAM_TYPE_DDR2;
 
 	sdram_cfg = (0
-		     | (1 << 31)			/* DDR enable */
-		     | (1 << 30)			/* Self refresh */
-		     | (sdram_type << 24)		/* SDRAM type */
+		     | SDRAM_CFG_MEM_EN		/* DDR enable */
+		     | SDRAM_CFG_SREN		/* Self refresh */
+		     | sdram_type		/* SDRAM type */
 		     );
 
 	/* sdram_cfg[3] = RD_EN - registered DIMM enable */
 	if (spd.mod_attr & 0x02)
-		sdram_cfg |= 0x10000000;
+		sdram_cfg |= SDRAM_CFG_RD_EN;
 
 	/* The DIMM is 32bit width */
-	if (spd.dataw_lsb == 0x20)
-		sdram_cfg |= 0x000C0000;
+	if (spd.dataw_lsb == 0x20) {
+		if (spd.mem_type == SPD_MEMTYPE_DDR)
+			sdram_cfg |= SDRAM_CFG_32_BE | SDRAM_CFG_8_BE;
+		if (spd.mem_type == SPD_MEMTYPE_DDR2)
+			sdram_cfg |= SDRAM_CFG_32_BE;
+	}
 
 	ddrc_ecc_enable = 0;
 
@@ -756,7 +782,7 @@ long int spd_sdram()
 	debug("DDR:err_disable=0x%08x\n", ddr->err_disable);
 	debug("DDR:err_sbe=0x%08x\n", ddr->err_sbe);
 #endif
-	printf("   DDRC ECC mode: %s\n", ddrc_ecc_enable ? "ON":"OFF");
+	debug("   DDRC ECC mode: %s\n", ddrc_ecc_enable ? "ON":"OFF");
 
 #if defined(CONFIG_DDR_2T_TIMING)
 	/*

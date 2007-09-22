@@ -23,7 +23,99 @@
 /****************************************************************************/
 #ifndef	m5282_h
 #define	m5282_h
-/****************************************************************************/
+
+/*********************************************************************
+* PLL Clock Module
+*********************************************************************/
+/* Bit definitions and macros for PLL_SYNCR */
+#define PLL_SYNCR_LOLRE			(0x8000)
+#define PLL_SYNCR_MFD2			(0x4000)
+#define PLL_SYNCR_MFD1			(0x2000)
+#define PLL_SYNCR_MFD0			(0x1000)
+#define PLL_SYNCR_LOCRE			(0x0800)
+#define PLL_SYNCR_RFC2			(0x0400)
+#define PLL_SYNCR_RFC1			(0x0200)
+#define PLL_SYNCR_RFC0			(0x0100)
+#define PLL_SYNCR_LOCEN			(0x0080)
+#define PLL_SYNCR_DISCLK		(0x0040)
+#define PLL_SYNCR_FWKUP			(0x0020)
+#define PLL_SYNCR_STPMD1		(0x0008)
+#define PLL_SYNCR_STPMD0		(0x0004)
+
+/* Bit definitions and macros for PLL_SYNSR */
+#define PLL_SYNSR_MODE			(0x0080)
+#define PLL_SYNSR_PLLSEL		(0x0040)
+#define PLL_SYNSR_PLLREF		(0x0020)
+#define PLL_SYNSR_LOCKS			(0x0010)
+#define PLL_SYNSR_LOCK			(0x0008)
+#define PLL_SYNSR_LOCS			(0x0004)
+
+/*********************************************************************
+* Interrupt Controller (INTC)
+*********************************************************************/
+#define INT0_LO_RSVD0			(0)
+#define INT0_LO_EPORT1			(1)
+#define INT0_LO_EPORT2			(2)
+#define INT0_LO_EPORT3			(3)
+#define INT0_LO_EPORT4			(4)
+#define INT0_LO_EPORT5			(5)
+#define INT0_LO_EPORT6			(6)
+#define INT0_LO_EPORT7			(7)
+#define INT0_LO_SCM_SWT1		(8)
+#define INT0_LO_DMA_00			(9)
+#define INT0_LO_DMA_01			(10)
+#define INT0_LO_DMA_02			(11)
+#define INT0_LO_DMA_03			(12)
+#define INT0_LO_UART0			(13)
+#define INT0_LO_UART1			(14)
+#define INT0_LO_UART2			(15)
+#define INT0_LO_RSVD1			(16)
+#define INT0_LO_I2C			(17)
+#define INT0_LO_QSPI			(18)
+#define INT0_LO_DTMR0			(19)
+#define INT0_LO_DTMR1			(20)
+#define INT0_LO_DTMR2			(21)
+#define INT0_LO_DTMR3			(22)
+#define INT0_LO_FEC_TXF			(23)
+#define INT0_LO_FEC_TXB			(24)
+#define INT0_LO_FEC_UN			(25)
+#define INT0_LO_FEC_RL			(26)
+#define INT0_LO_FEC_RXF			(27)
+#define INT0_LO_FEC_RXB			(28)
+#define INT0_LO_FEC_MII			(29)
+#define INT0_LO_FEC_LC			(30)
+#define INT0_LO_FEC_HBERR		(31)
+#define INT0_HI_FEC_GRA			(32)
+#define INT0_HI_FEC_EBERR		(33)
+#define INT0_HI_FEC_BABT		(34)
+#define INT0_HI_FEC_BABR		(35)
+#define INT0_HI_PMM_LVDF		(36)
+#define INT0_HI_QADC_CF1		(37)
+#define INT0_HI_QADC_CF2		(38)
+#define INT0_HI_QADC_PF1		(39)
+#define INT0_HI_QADC_PF2		(40)
+#define INT0_HI_GPTA_TOF		(41)
+#define INT0_HI_GPTA_PAIF		(42)
+#define INT0_HI_GPTA_PAOVF		(43)
+#define INT0_HI_GPTA_C0F		(44)
+#define INT0_HI_GPTA_C1F		(45)
+#define INT0_HI_GPTA_C2F		(46)
+#define INT0_HI_GPTA_C3F		(47)
+#define INT0_HI_GPTB_TOF		(48)
+#define INT0_HI_GPTB_PAIF		(49)
+#define INT0_HI_GPTB_PAOVF		(50)
+#define INT0_HI_GPTB_C0F		(51)
+#define INT0_HI_GPTB_C1F		(52)
+#define INT0_HI_GPTB_C2F		(53)
+#define INT0_HI_GPTB_C3F		(54)
+#define INT0_HI_PIT0			(55)
+#define INT0_HI_PIT1			(56)
+#define INT0_HI_PIT2			(57)
+#define INT0_HI_PIT3			(58)
+#define INT0_HI_CFM_CBEIF		(59)
+#define INT0_HI_CFM_CCIF		(60)
+#define INT0_HI_CFM_PVIF		(61)
+#define INT0_HI_CFM_AEIF		(62)
 
 /*
  * Size of internal RAM
@@ -96,49 +188,49 @@
 #define MCFGPIO_SETD		(*(vu_char *) (CFG_MBAR+0x10002B))
 #define MCFGPIO_SETE		(*(vu_char *) (CFG_MBAR+0x10002C))
 #define MCFGPIO_SETF		(*(vu_char *) (CFG_MBAR+0x10002D))
-#define MCFGPIO_SETG   		(*(vu_char *) (CFG_MBAR+0x10002E))
-#define MCFGPIO_SETH   		(*(vu_char *) (CFG_MBAR+0x10002F))
-#define MCFGPIO_SETJ   		(*(vu_char *) (CFG_MBAR+0x100030))
-#define MCFGPIO_SETDD  		(*(vu_char *) (CFG_MBAR+0x100031))
-#define MCFGPIO_SETEH  		(*(vu_char *) (CFG_MBAR+0x100032))
-#define MCFGPIO_SETEL  		(*(vu_char *) (CFG_MBAR+0x100033))
-#define MCFGPIO_SETAS  		(*(vu_char *) (CFG_MBAR+0x100034))
-#define MCFGPIO_SETQS  		(*(vu_char *) (CFG_MBAR+0x100035))
-#define MCFGPIO_SETSD  		(*(vu_char *) (CFG_MBAR+0x100036))
-#define MCFGPIO_SETTC  		(*(vu_char *) (CFG_MBAR+0x100037))
-#define MCFGPIO_SETTD  		(*(vu_char *) (CFG_MBAR+0x100038))
-#define MCFGPIO_SETUA  		(*(vu_char *) (CFG_MBAR+0x100039))
+#define MCFGPIO_SETG		(*(vu_char *) (CFG_MBAR+0x10002E))
+#define MCFGPIO_SETH		(*(vu_char *) (CFG_MBAR+0x10002F))
+#define MCFGPIO_SETJ		(*(vu_char *) (CFG_MBAR+0x100030))
+#define MCFGPIO_SETDD		(*(vu_char *) (CFG_MBAR+0x100031))
+#define MCFGPIO_SETEH		(*(vu_char *) (CFG_MBAR+0x100032))
+#define MCFGPIO_SETEL		(*(vu_char *) (CFG_MBAR+0x100033))
+#define MCFGPIO_SETAS		(*(vu_char *) (CFG_MBAR+0x100034))
+#define MCFGPIO_SETQS		(*(vu_char *) (CFG_MBAR+0x100035))
+#define MCFGPIO_SETSD		(*(vu_char *) (CFG_MBAR+0x100036))
+#define MCFGPIO_SETTC		(*(vu_char *) (CFG_MBAR+0x100037))
+#define MCFGPIO_SETTD		(*(vu_char *) (CFG_MBAR+0x100038))
+#define MCFGPIO_SETUA		(*(vu_char *) (CFG_MBAR+0x100039))
 
-#define MCFGPIO_CLRA  		(*(vu_char *) (CFG_MBAR+0x10003C))
-#define MCFGPIO_CLRB  		(*(vu_char *) (CFG_MBAR+0x10003D))
-#define MCFGPIO_CLRC  		(*(vu_char *) (CFG_MBAR+0x10003E))
-#define MCFGPIO_CLRD  		(*(vu_char *) (CFG_MBAR+0x10003F))
-#define MCFGPIO_CLRE  		(*(vu_char *) (CFG_MBAR+0x100040))
-#define MCFGPIO_CLRF  		(*(vu_char *) (CFG_MBAR+0x100041))
-#define MCFGPIO_CLRG  		(*(vu_char *) (CFG_MBAR+0x100042))
-#define MCFGPIO_CLRH  		(*(vu_char *) (CFG_MBAR+0x100043))
-#define MCFGPIO_CLRJ  		(*(vu_char *) (CFG_MBAR+0x100044))
-#define MCFGPIO_CLRDD  		(*(vu_char *) (CFG_MBAR+0x100045))
-#define MCFGPIO_CLREH  		(*(vu_char *) (CFG_MBAR+0x100046))
-#define MCFGPIO_CLREL  		(*(vu_char *) (CFG_MBAR+0x100047))
-#define MCFGPIO_CLRAS  		(*(vu_char *) (CFG_MBAR+0x100048))
-#define MCFGPIO_CLRQS  		(*(vu_char *) (CFG_MBAR+0x100049))
-#define MCFGPIO_CLRSD  		(*(vu_char *) (CFG_MBAR+0x10004A))
-#define MCFGPIO_CLRTC  		(*(vu_char *) (CFG_MBAR+0x10004B))
-#define MCFGPIO_CLRTD  		(*(vu_char *) (CFG_MBAR+0x10004C))
-#define MCFGPIO_CLRUA  		(*(vu_char *) (CFG_MBAR+0x10004D))
+#define MCFGPIO_CLRA		(*(vu_char *) (CFG_MBAR+0x10003C))
+#define MCFGPIO_CLRB		(*(vu_char *) (CFG_MBAR+0x10003D))
+#define MCFGPIO_CLRC		(*(vu_char *) (CFG_MBAR+0x10003E))
+#define MCFGPIO_CLRD		(*(vu_char *) (CFG_MBAR+0x10003F))
+#define MCFGPIO_CLRE		(*(vu_char *) (CFG_MBAR+0x100040))
+#define MCFGPIO_CLRF		(*(vu_char *) (CFG_MBAR+0x100041))
+#define MCFGPIO_CLRG		(*(vu_char *) (CFG_MBAR+0x100042))
+#define MCFGPIO_CLRH		(*(vu_char *) (CFG_MBAR+0x100043))
+#define MCFGPIO_CLRJ		(*(vu_char *) (CFG_MBAR+0x100044))
+#define MCFGPIO_CLRDD		(*(vu_char *) (CFG_MBAR+0x100045))
+#define MCFGPIO_CLREH		(*(vu_char *) (CFG_MBAR+0x100046))
+#define MCFGPIO_CLREL		(*(vu_char *) (CFG_MBAR+0x100047))
+#define MCFGPIO_CLRAS		(*(vu_char *) (CFG_MBAR+0x100048))
+#define MCFGPIO_CLRQS		(*(vu_char *) (CFG_MBAR+0x100049))
+#define MCFGPIO_CLRSD		(*(vu_char *) (CFG_MBAR+0x10004A))
+#define MCFGPIO_CLRTC		(*(vu_char *) (CFG_MBAR+0x10004B))
+#define MCFGPIO_CLRTD		(*(vu_char *) (CFG_MBAR+0x10004C))
+#define MCFGPIO_CLRUA		(*(vu_char *) (CFG_MBAR+0x10004D))
 
-#define MCFGPIO_PBCDPAR  	(*(vu_char *) (CFG_MBAR+0x100050))
-#define MCFGPIO_PFPAR  		(*(vu_char *) (CFG_MBAR+0x100051))
-#define MCFGPIO_PEPAR  		(*(vu_short *)(CFG_MBAR+0x100052))
-#define MCFGPIO_PJPAR  		(*(vu_char *) (CFG_MBAR+0x100054))
-#define MCFGPIO_PSDPAR  	(*(vu_char *) (CFG_MBAR+0x100055))
-#define MCFGPIO_PASPAR  	(*(vu_short *)(CFG_MBAR+0x100056))
-#define MCFGPIO_PEHLPAR  	(*(vu_char *) (CFG_MBAR+0x100058))
-#define MCFGPIO_PQSPAR  	(*(vu_char *) (CFG_MBAR+0x100059))
-#define MCFGPIO_PTCPAR  	(*(vu_char *) (CFG_MBAR+0x10005A))
-#define MCFGPIO_PTDPAR  	(*(vu_char *) (CFG_MBAR+0x10005B))
-#define MCFGPIO_PUAPAR  	(*(vu_char *) (CFG_MBAR+0x10005C))
+#define MCFGPIO_PBCDPAR	(*(vu_char *) (CFG_MBAR+0x100050))
+#define MCFGPIO_PFPAR		(*(vu_char *) (CFG_MBAR+0x100051))
+#define MCFGPIO_PEPAR		(*(vu_short *)(CFG_MBAR+0x100052))
+#define MCFGPIO_PJPAR		(*(vu_char *) (CFG_MBAR+0x100054))
+#define MCFGPIO_PSDPAR		(*(vu_char *) (CFG_MBAR+0x100055))
+#define MCFGPIO_PASPAR		(*(vu_short *)(CFG_MBAR+0x100056))
+#define MCFGPIO_PEHLPAR		(*(vu_char *) (CFG_MBAR+0x100058))
+#define MCFGPIO_PQSPAR		(*(vu_char *) (CFG_MBAR+0x100059))
+#define MCFGPIO_PTCPAR		(*(vu_char *) (CFG_MBAR+0x10005A))
+#define MCFGPIO_PTDPAR		(*(vu_char *) (CFG_MBAR+0x10005B))
+#define MCFGPIO_PUAPAR		(*(vu_char *) (CFG_MBAR+0x10005C))
 
 /* Bit level definitions and macros */
 #define MCFGPIO_PORT7			(0x80)
@@ -170,7 +262,6 @@
 #define MCFGPIO_Px1			(0x02)
 #define MCFGPIO_Px0			(0x01)
 #define MCFGPIO_Px(x)			(0x01<<x)
-
 
 #define MCFGPIO_PBCDPAR_PBPA		(0x80)
 #define MCFGPIO_PBCDPAR_PCDPA		(0x40)
@@ -236,7 +327,7 @@
 
 /* System Conrol Module SCM */
 
-#define MCFSCM_RAMBAR           (*(vu_long *) (CFG_MBAR+0x00000008))
+#define MCFSCM_RAMBAR		(*(vu_long *) (CFG_MBAR+0x00000008))
 #define MCFSCM_CRSR		(*(vu_char *) (CFG_MBAR+0x00000010))
 #define MCFSCM_CWCR		(*(vu_char *) (CFG_MBAR+0x00000011))
 #define MCFSCM_LPICR		(*(vu_char *) (CFG_MBAR+0x00000012))
@@ -256,34 +347,33 @@
 #define MCFSCM_GPACR0		(*(vu_char *) (CFG_MBAR+0x00000030))
 #define MCFSCM_GPACR1		(*(vu_char *) (CFG_MBAR+0x00000031))
 
-
 #define MCFSCM_CRSR_EXT		(0x80)
 #define MCFSCM_CRSR_CWDR	(0x20)
-#define MCFSCM_RAMBAR_BA(x)     ((x)&0xFFFF0000)
-#define MCFSCM_RAMBAR_BDE       (0x00000200)
+#define MCFSCM_RAMBAR_BA(x)	((x)&0xFFFF0000)
+#define MCFSCM_RAMBAR_BDE	(0x00000200)
 
 /* Reset Controller Module RCM */
 
 #define MCFRESET_RCR		(*(vu_char *) (CFG_MBAR+0x00110000))
 #define MCFRESET_RSR		(*(vu_char *) (CFG_MBAR+0x00110001))
 
-#define MCFRESET_RCR_SOFTRST    (0x80)
-#define MCFRESET_RCR_FRCRSTOUT  (0x40)
-#define MCFRESET_RCR_LVDF       (0x10)
-#define MCFRESET_RCR_LVDIE      (0x08)
-#define MCFRESET_RCR_LVDRE      (0x04)
-#define MCFRESET_RCR_LVDE       (0x01)
+#define MCFRESET_RCR_SOFTRST	(0x80)
+#define MCFRESET_RCR_FRCRSTOUT	(0x40)
+#define MCFRESET_RCR_LVDF	(0x10)
+#define MCFRESET_RCR_LVDIE	(0x08)
+#define MCFRESET_RCR_LVDRE	(0x04)
+#define MCFRESET_RCR_LVDE	(0x01)
 
-#define MCFRESET_RSR_LVD        (0x40)
-#define MCFRESET_RSR_SOFT       (0x20)
-#define MCFRESET_RSR_WDR        (0x10)
-#define MCFRESET_RSR_POR        (0x08)
-#define MCFRESET_RSR_EXT        (0x04)
-#define MCFRESET_RSR_LOC        (0x02)
-#define MCFRESET_RSR_LOL        (0x01)
-#define MCFRESET_RSR_ALL        (0x7F)
-#define MCFRESET_RCR_SOFTRST    (0x80)
-#define MCFRESET_RCR_FRCRSTOUT  (0x40)
+#define MCFRESET_RSR_LVD	(0x40)
+#define MCFRESET_RSR_SOFT	(0x20)
+#define MCFRESET_RSR_WDR	(0x10)
+#define MCFRESET_RSR_POR	(0x08)
+#define MCFRESET_RSR_EXT	(0x04)
+#define MCFRESET_RSR_LOC	(0x02)
+#define MCFRESET_RSR_LOL	(0x01)
+#define MCFRESET_RSR_ALL	(0x7F)
+#define MCFRESET_RCR_SOFTRST	(0x80)
+#define MCFRESET_RCR_FRCRSTOUT	(0x40)
 
 /* Chip Configuration Module CCM */
 
@@ -291,26 +381,25 @@
 #define MCFCCM_RCON		(*(vu_short *)(CFG_MBAR+0x00110008))
 #define MCFCCM_CIR		(*(vu_short *)(CFG_MBAR+0x0011000A))
 
-
 /* Bit level definitions and macros */
 #define MCFCCM_CCR_LOAD			(0x8000)
 #define MCFCCM_CCR_MODE(x) 		(((x)&0x0007)<<8)
-#define MCFCCM_CCR_SZEN    		(0x0040)
-#define MCFCCM_CCR_PSTEN   		(0x0020)
+#define MCFCCM_CCR_SZEN  		(0x0040)
+#define MCFCCM_CCR_PSTEN 		(0x0020)
 #define MCFCCM_CCR_BME			(0x0008)
-#define MCFCCM_CCR_BMT(x)  		(((x)&0x0007))
+#define MCFCCM_CCR_BMT(x)		(((x)&0x0007))
 
 #define MCFCCM_CIR_PIN_MASK		(0xFF00)
 #define MCFCCM_CIR_PRN_MASK		(0x00FF)
 
 /* Clock Module */
 
-#define MCFCLOCK_SYNCR          (*(vu_short *)(CFG_MBAR+0x120000))
-#define MCFCLOCK_SYNSR          (*(vu_char *) (CFG_MBAR+0x120002))
+#define MCFCLOCK_SYNCR		(*(vu_short *)(CFG_MBAR+0x120000))
+#define MCFCLOCK_SYNSR		(*(vu_char *) (CFG_MBAR+0x120002))
 
-#define MCFCLOCK_SYNCR_MFD(x)   (((x)&0x0007)<<12)
-#define MCFCLOCK_SYNCR_RFD(x)   (((x)&0x0007)<<8)
-#define MCFCLOCK_SYNSR_LOCK     0x08
+#define MCFCLOCK_SYNCR_MFD(x)	(((x)&0x0007)<<12)
+#define MCFCLOCK_SYNCR_RFD(x)	(((x)&0x0007)<<8)
+#define MCFCLOCK_SYNSR_LOCK	0x08
 
 #define MCFSDRAMC_DCR		(*(vu_short *)(CFG_MBAR+0x00000040))
 #define MCFSDRAMC_DACR0		(*(vu_long *) (CFG_MBAR+0x00000048))
@@ -337,19 +426,19 @@
 #define MCFSDRAMC_DACR_IMRS	(0x00000040)
 
 #define MCFSDRAMC_DMR_BAM_16M	(0x00FC0000)
-#define MCFSDRAMC_DMR_WP        (0x00000100)
-#define MCFSDRAMC_DMR_CI        (0x00000040)
-#define MCFSDRAMC_DMR_AM        (0x00000020)
-#define MCFSDRAMC_DMR_SC        (0x00000010)
-#define MCFSDRAMC_DMR_SD        (0x00000008)
-#define MCFSDRAMC_DMR_UC        (0x00000004)
-#define MCFSDRAMC_DMR_UD        (0x00000002)
-#define MCFSDRAMC_DMR_V         (0x00000001)
+#define MCFSDRAMC_DMR_WP	(0x00000100)
+#define MCFSDRAMC_DMR_CI	(0x00000040)
+#define MCFSDRAMC_DMR_AM	(0x00000020)
+#define MCFSDRAMC_DMR_SC	(0x00000010)
+#define MCFSDRAMC_DMR_SD	(0x00000008)
+#define MCFSDRAMC_DMR_UC	(0x00000004)
+#define MCFSDRAMC_DMR_UD	(0x00000002)
+#define MCFSDRAMC_DMR_V		(0x00000001)
 
-#define MCFWTM_WCR              (*(vu_short *)(CFG_MBAR+0x00140000))
-#define MCFWTM_WMR              (*(vu_short *)(CFG_MBAR+0x00140002))
-#define MCFWTM_WCNTR            (*(vu_short *)(CFG_MBAR+0x00140004))
-#define MCFWTM_WSR              (*(vu_short *)(CFG_MBAR+0x00140006))
+#define MCFWTM_WCR		(*(vu_short *)(CFG_MBAR+0x00140000))
+#define MCFWTM_WMR		(*(vu_short *)(CFG_MBAR+0x00140002))
+#define MCFWTM_WCNTR		(*(vu_short *)(CFG_MBAR+0x00140004))
+#define MCFWTM_WSR		(*(vu_short *)(CFG_MBAR+0x00140006))
 
 /*  Chip SELECT Module CSM */
 #define MCFCSM_CSAR0		(*(vu_short *)(CFG_MBAR+0x00000080))
@@ -375,9 +464,7 @@
 #define MCFCSM_CSCR_PS_16	(0x0080)
 
 /*********************************************************************
-*
 * General Purpose Timer (GPT) Module
-*
 *********************************************************************/
 
 #define MCFGPTA_GPTIOS		(*(vu_char *)(CFG_MBAR+0x1A0000))
@@ -402,7 +489,6 @@
 #define MCFGPTA_GPTPACNT	(*(vu_short *)(CFG_MBAR+0x1A001A))
 #define MCFGPTA_GPTPORT		(*(vu_char *)(CFG_MBAR+0x1A001D))
 #define MCFGPTA_GPTDDR		(*(vu_char *)(CFG_MBAR+0x1A001E))
-
 
 #define MCFGPTB_GPTIOS		(*(vu_char *)(CFG_MBAR+0x1B0000))
 #define MCFGPTB_GPTCFORC	(*(vu_char *)(CFG_MBAR+0x1B0001))
@@ -542,4 +628,4 @@
 #define MCFCFM_CMD_MASERS		0x41
 
 /****************************************************************************/
-#endif	/* m5282_h */
+#endif				/* m5282_h */

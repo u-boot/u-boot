@@ -55,11 +55,13 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC83XX)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-#if defined (CONFIG_MPC834X)
+#if defined (CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
-	u32 usbmph_clk;
 	u32 usbdr_clk;
+#endif
+#if defined (CONFIG_MPC834X)
+	u32 usbmph_clk;
 #endif /* CONFIG_MPC834X */
 	u32 core_clk;
 	u32 i2c1_clk;
@@ -69,20 +71,24 @@ typedef	struct	global_data {
 	u32 lclk_clk;
 	u32 ddr_clk;
 	u32 pci_clk;
+#if defined(CONFIG_MPC8360)
+	u32  ddr_sec_clk;
+#endif /* CONFIG_MPC8360 */
+#endif
 #if defined(CONFIG_QE)
 	u32 qe_clk;
 	u32 brg_clk;
 	uint mp_alloc_base;
 	uint mp_alloc_top;
 #endif /* CONFIG_QE */
-#if defined (CONFIG_MPC8360)
-	u32  ddr_sec_clk;
-#endif /* CONFIG_MPC8360 */
-#endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;
 #endif
+#if defined(CONFIG_MPC512X)
+	u32 ipb_clk;
+	u32 csb_clk;
+#endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC8220)
 	unsigned long   bExtUart;
 	unsigned long   inp_clk;
@@ -127,7 +133,7 @@ typedef	struct	global_data {
 	unsigned long do_mdm_init;
 	unsigned long be_quiet;
 #endif
-#ifdef CONFIG_LWMON
+#if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
 	unsigned long kbd_status;
 #endif
 	void		**jt;		/* jump table */

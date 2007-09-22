@@ -745,19 +745,27 @@ static ulong flash_get_size_2(vu_long * addr, flash_info_t * info)
 		if (info->flash_id & FLASH_BTYPE) {
 			/* set sector offsets for bottom boot block type */
 			info->start[0] = base + 0x00000000;
-			info->start[1] = base + 0x00004000;
-			info->start[2] = base + 0x00006000;
-			info->start[3] = base + 0x00008000;
-			for (i = 4; i < info->sector_count; i++) {
+			info->start[1] = base + 0x00002000;
+			info->start[2] = base + 0x00004000;
+			info->start[3] = base + 0x00006000;
+			info->start[4] = base + 0x00008000;
+			info->start[5] = base + 0x0000a000;
+			info->start[6] = base + 0x0000c000;
+			info->start[7] = base + 0x0000e000;
+			for (i = 8; i < info->sector_count; i++) {
 				info->start[i] =
-				    base + (i * 0x00010000) - 0x00030000;
+				    base + ((i-7) * 0x00010000);
 			}
 		} else {
 			/* set sector offsets for top boot block type */
 			i = info->sector_count - 1;
+			info->start[i--] = base + info->size - 0x00002000;
 			info->start[i--] = base + info->size - 0x00004000;
 			info->start[i--] = base + info->size - 0x00006000;
 			info->start[i--] = base + info->size - 0x00008000;
+			info->start[i--] = base + info->size - 0x0000a000;
+			info->start[i--] = base + info->size - 0x0000c000;
+			info->start[i--] = base + info->size - 0x0000e000;
 			for (; i >= 0; i--) {
 				info->start[i] = base + i * 0x00010000;
 			}

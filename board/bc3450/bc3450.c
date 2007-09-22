@@ -294,7 +294,7 @@ void pci_init_board(void)
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
 
 void init_ide_reset (void)
 {
@@ -315,7 +315,7 @@ void ide_set_reset (int idereset)
 		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 }
-#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif
 
 #ifdef CONFIG_POST
 /*

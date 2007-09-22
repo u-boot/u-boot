@@ -40,11 +40,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Serial console configuration
  *
@@ -92,27 +87,37 @@
 
 /* USB */
 #define CONFIG_USB_OHCI
-#define ADD_USB_CMD		CFG_CMD_USB | CFG_CMD_FAT
 #define CONFIG_USB_STORAGE
 /* automatic software updates (see board/mcc200/auto_update.c) */
 #define CONFIG_AUTO_UPDATE 1
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				ADD_USB_CMD	| \
-				CFG_CMD_BEDBUG	| \
-				CFG_CMD_FAT	| \
-				CFG_CMD_I2C)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_USB
+
+#undef	CONFIG_CMD_NET
+
 
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second */
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
@@ -128,20 +133,30 @@
 # define CFG__LINUX_CONSOLE	"ttyS0"
 #else
 # define CFG__BOARDNAME		"mcc200"
-# define CFG__LINUX_CONSOLE	"ttyEU7"
+# define CFG__LINUX_CONSOLE	"ttyEU5"
 #endif
 
+/* Network */
+#define CONFIG_ETHADDR	00:17:17:ff:00:00
+#define CONFIG_IPADDR	10.76.9.29
+#define CONFIG_SERVERIP	10.76.9.1
+
+#include <version.h> /* For U-Boot version */
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"ubootver=" U_BOOT_VERSION "\0"					\
 	"netdev=eth0\0"							\
 	"hostname=" CFG__BOARDNAME "\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"ramargs=setenv bootargs root=/dev/mtdblock2 "			\
+		"rootfstype=cramfs\0"					\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
-		"console=${console},${baudrate}\0"			\
+		"console=${console},${baudrate} "		\
+		"ubootver=${ubootver} board=${board}\0"	\
 	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addcons;"				\
@@ -153,6 +168,7 @@
 	"bootfile=/tftpboot/" CFG__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CFG__BOARDNAME "/u-boot.bin\0"	\
 	"text_base=" MK_STR(TEXT_BASE) "\0"				\
+	"kernel_addr=0xFC0C0000\0"					\
 	"update=protect off ${text_base} +${filesize};"			\
 		"era ${text_base} +${filesize};"			\
 		"cp.b 200000 ${text_base} ${filesize}\0"		\
@@ -169,7 +185,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define CFG_IPBSPEED_133		/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
 /*
  * I2C configuration
@@ -253,7 +269,7 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_MPC5xxx_FEC	1
+/*#define CONFIG_MPC5xxx_FEC	1*/
 /*
  * Define CONFIG_FEC_10MBIT to force FEC at 10Mb
  */
@@ -291,7 +307,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory		*/
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
@@ -306,6 +322,11 @@
 #define CFG_LOAD_ADDR		0x100000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs			*/
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
+#endif
 
 /*
  * Various low-level settings
@@ -328,6 +349,13 @@
 #define CFG_CS1_START		0x80010000
 #define CFG_CS1_SIZE		0x00001000
 #define CFG_CS1_CFG		0x1d300
+
+/* Leica - build revision resistors */
+/*
+#define CFG_CS3_START		0x80020000
+#define CFG_CS3_SIZE		0x00000004
+#define CFG_CS3_CFG		0x1d300
+*/
 
 /*
  *  Select one of quarts as a default
@@ -383,5 +411,9 @@
  */
 #define CONFIG_USB_CLOCK	0x0001BBBB
 #define CONFIG_USB_CONFIG	0x00005000
+
+#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot	*/
+#define CONFIG_AUTOBOOT_STOP_STR	"432"
+#define CONFIG_SILENT_CONSOLE	1
 
 #endif /* __CONFIG_H */

@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <mpc83xx.h>
+#include <command.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -99,11 +100,13 @@ int get_clocks(void)
 	u32 lcrr;
 
 	u32 csb_clk;
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
-	u32 usbmph_clk;
 	u32 usbdr_clk;
+#endif
+#ifdef CONFIG_MPC834X
+	u32 usbmph_clk;
 #endif
 	u32 core_clk;
 	u32 i2c1_clk;
@@ -148,7 +151,7 @@ int get_clocks(void)
 
 	sccr = im->clk.sccr;
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
 		tsec1_clk = 0;
@@ -167,6 +170,26 @@ int get_clocks(void)
 		return -4;
 	}
 
+	switch ((sccr & SCCR_USBDRCM) >> SCCR_USBDRCM_SHIFT) {
+	case 0:
+		usbdr_clk = 0;
+		break;
+	case 1:
+		usbdr_clk = csb_clk;
+		break;
+	case 2:
+		usbdr_clk = csb_clk / 2;
+		break;
+	case 3:
+		usbdr_clk = csb_clk / 3;
+		break;
+	default:
+		/* unkown SCCR_USBDRCM value */
+		return -8;
+	}
+#endif
+
+#if defined(CONFIG_MPC834X)
 	switch ((sccr & SCCR_TSEC2CM) >> SCCR_TSEC2CM_SHIFT) {
 	case 0:
 		tsec2_clk = 0;
@@ -205,24 +228,6 @@ int get_clocks(void)
 		return -7;
 	}
 
-	switch ((sccr & SCCR_USBDRCM) >> SCCR_USBDRCM_SHIFT) {
-	case 0:
-		usbdr_clk = 0;
-		break;
-	case 1:
-		usbdr_clk = csb_clk;
-		break;
-	case 2:
-		usbdr_clk = csb_clk / 2;
-		break;
-	case 3:
-		usbdr_clk = csb_clk / 3;
-		break;
-	default:
-		/* unkown SCCR_USBDRCM value */
-		return -8;
-	}
-
 	if (usbmph_clk != 0 && usbdr_clk != 0 && usbmph_clk != usbdr_clk) {
 		/* if USB MPH clock is not disabled and
 		 * USB DR clock is not disabled then
@@ -230,8 +235,16 @@ int get_clocks(void)
 		 */
 		return -9;
 	}
+#elif defined(CONFIG_MPC831X)
+	tsec2_clk = tsec1_clk;
+
+	if (!(sccr & SCCR_TSEC1ON))
+		tsec1_clk = 0;
+	if (!(sccr & SCCR_TSEC2ON))
+		tsec2_clk = 0;
 #endif
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
+
+#if !defined(CONFIG_MPC834X)
 	i2c1_clk = csb_clk;
 #endif
 #if !defined(CONFIG_MPC832X)
@@ -314,11 +327,13 @@ int get_clocks(void)
 #endif
 
 	gd->csb_clk = csb_clk;
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	gd->tsec1_clk = tsec1_clk;
 	gd->tsec2_clk = tsec2_clk;
-	gd->usbmph_clk = usbmph_clk;
 	gd->usbdr_clk = usbdr_clk;
+#endif
+#if defined(CONFIG_MPC834X)
+	gd->usbmph_clk = usbmph_clk;
 #endif
 	gd->core_clk = core_clk;
 	gd->i2c1_clk = i2c1_clk;
@@ -336,6 +351,7 @@ int get_clocks(void)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
+	gd->pci_clk = pci_sync_in;
 	gd->cpu_clk = gd->core_clk;
 	gd->bus_clk = gd->csb_clk;
 	return 0;
@@ -351,11 +367,11 @@ ulong get_bus_freq(ulong dummy)
 	return gd->csb_clk;
 }
 
-int print_clock_conf(void)
+int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	printf("Clock configuration:\n");
-	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 	printf("  Core:                %4d MHz\n", gd->core_clk / 1000000);
+	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	printf("  QE:                  %4d MHz\n", gd->qe_clk / 1000000);
 	printf("  BRG:                 %4d MHz\n", gd->brg_clk / 1000000);
@@ -371,11 +387,18 @@ int print_clock_conf(void)
 #if !defined(CONFIG_MPC832X)
 	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
 #endif
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X)
 	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
 	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
-	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);
 	printf("  USB DR:              %4d MHz\n", gd->usbdr_clk / 1000000);
+#endif
+#if defined(CONFIG_MPC834X)
+	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);
 #endif
 	return 0;
 }
+
+U_BOOT_CMD(clocks, 1, 0, do_clocks,
+	"clocks  - print clock configuration\n",
+	"    clocks\n"
+);

@@ -65,8 +65,10 @@
  * Enable use of Ethernet
  * ---
  */
+#define CONFIG_MCFFEC
 
-#define FEC_ENET
+/* Enable Dma Timer */
+#define CONFIG_MCFTMR
 
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
@@ -76,6 +78,8 @@
  * ---
  */
 
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
 #define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
@@ -130,16 +134,47 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
 
-/* ---
- * Define which commmands should be available at u-boot command prompt
- * ---
+
+/*
+ * BOOTP options
  */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_COMMANDS	 ( CONFIG_CMD_DFL | CFG_CMD_PING & ~(CFG_CMD_LOADS | \
-CFG_CMD_LOADB) | CFG_CMD_MII)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PING
+
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_MII
+
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
+#	define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
 
 /*
  *-----------------------------------------------------------------------------
@@ -184,7 +219,7 @@ from which user programs will be started */
 
 #define CFG_LONGHELP				/* undef to save memory		*/
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/

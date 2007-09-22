@@ -38,5 +38,11 @@ int fdt_env(void *fdt);
 int fdt_bd_t(void *fdt);
 #endif
 
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd);
+void ft_cpu_setup(void *blob, bd_t *bd);
+void ft_pci_setup(void *blob, bd_t *bd);
+#endif
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */

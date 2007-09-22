@@ -23,8 +23,9 @@
  */
 
 #include <common.h>
+#include <asm/asm.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_CACHE)
+#if defined(CONFIG_CMD_CACHE)
 
 int dcache_status (void)
 {
@@ -44,5 +45,21 @@ int icache_status (void)
 	/* i&=0x20 */
 	__asm__ __volatile__ ("and %0,%0,%1"::"r" (i), "r" (mask):"memory");
 	return i;
+}
+
+void	icache_enable (void) {
+	MSRSET(0x20);
+}
+
+void	icache_disable(void) {
+	MSRCLR(0x20);
+}
+
+void	dcache_enable (void) {
+	MSRSET(0x80);
+}
+
+void	dcache_disable(void) {
+	MSRCLR(0x80);
 }
 #endif

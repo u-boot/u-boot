@@ -77,11 +77,21 @@
 #include <asm/processor.h>
 #include <pci.h>
 
+#ifdef CONFIG_PCI
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+/*
+ * Board-specific pci initialization
+ * Platform code can reimplement pci_pre_init() if needed
+ */
+int __pci_pre_init(struct pci_controller *hose)
+{
+	return 1;
+}
+int pci_pre_init(struct pci_controller *hose) __attribute__((weak, alias("__pci_pre_init")));
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
 #if defined(CONFIG_PMC405)
 ushort pmc405_pci_subsys_deviceid(void);
@@ -190,6 +200,13 @@ void pci_405gp_init(struct pci_controller *hose)
 
 	if (hose->pci_fb)
 		pciauto_region_init(hose->pci_fb);
+
+	/* Let board change/modify hose & do initial checks */
+	if (pci_pre_init (hose) == 0) {
+		printf("PCI: Board-specific initialization failed.\n");
+		printf("PCI: Configuration aborted.\n");
+		return;
+	}
 
 	pci_register_hose(hose);
 
@@ -380,7 +397,7 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
 }
 
-#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405)) && !(defined (CONFIG_SOLIDCARD3))
+#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405)) && !(defined (CONFIG_SC3))
 
 /*
  *As is these functs get called out of flash Not a horrible
@@ -416,19 +433,17 @@ void pci_init_board(void)
 
 #endif
 
-#endif /* CONFIG_PCI */
-
 #endif /* CONFIG_405GP */
 
 /*-----------------------------------------------------------------------------+
  * CONFIG_440
  *-----------------------------------------------------------------------------*/
-#if defined(CONFIG_440) && defined(CONFIG_PCI)
+#if defined(CONFIG_440)
 
 static struct pci_controller ppc440_hose = {0};
 
 
-void pci_440_init (struct pci_controller *hose)
+int pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;
 
@@ -444,7 +459,7 @@ void pci_440_init (struct pci_controller *hose)
 	if ((strap & SDR0_SDSTP1_PISE_MASK) == 0) {
 		printf("PCI: SDR0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
 #elif defined(CONFIG_440GP)
 	unsigned long strap;
@@ -453,7 +468,7 @@ void pci_440_init (struct pci_controller *hose)
 	if ((strap & CPC0_STRP1_PISE_MASK) == 0) {
 		printf("PCI: CPC0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
 #endif
 #endif /* CONFIG_DISABLE_PISE_TEST */
@@ -462,7 +477,7 @@ void pci_440_init (struct pci_controller *hose)
 	 * PCI controller init
 	 *--------------------------------------------------------------------------*/
 	hose->first_busno = 0;
-	hose->last_busno = 0xff;
+	hose->last_busno = 0;
 
 	/* PCI I/O space */
 	pci_set_region(hose->regions + reg_num++,
@@ -496,14 +511,12 @@ void pci_440_init (struct pci_controller *hose)
 
 	pci_setup_indirect(hose, PCIX0_CFGADR, PCIX0_CFGDATA);
 
-#if defined(CFG_PCI_PRE_INIT)
 	/* Let board change/modify hose & do initial checks */
 	if (pci_pre_init (hose) == 0) {
 		printf("PCI: Board-specific initialization failed.\n");
 		printf("PCI: Configuration aborted.\n");
-		return;
+		return -1;
 	}
-#endif
 
 	pci_register_hose( hose );
 
@@ -565,14 +578,18 @@ void pci_440_init (struct pci_controller *hose)
 #endif
 		hose->last_busno = pci_hose_scan(hose);
 	}
+	return hose->last_busno;
 }
 
 void pci_init_board(void)
 {
-	pci_440_init (&ppc440_hose);
+	int busno;
+
+	busno = pci_440_init (&ppc440_hose);
 #if defined(CONFIG_440SPE)
-	pcie_setup_hoses();
+	pcie_setup_hoses(busno + 1);
 #endif
 }
 
-#endif /* CONFIG_440 & CONFIG_PCI */
+#endif /* CONFIG_440 */
+#endif /* CONFIG_PCI */

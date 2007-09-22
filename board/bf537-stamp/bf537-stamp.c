@@ -32,6 +32,8 @@
 #include <asm/io.h>
 #include "ether_bf537.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define POST_WORD_ADDR 0xFF903FFC
 
 /*
@@ -132,7 +134,6 @@ void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	int brate;
 	char *tmp = getenv("baudrate");
@@ -159,7 +160,7 @@ int misc_init_r(void)
 	unsigned char *pMACaddr = (unsigned char *)0x203F0000;
 	u8 SrcAddr[6] = { 0x02, 0x80, 0xAD, 0x20, 0x31, 0xB8 };
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
+#if defined(CONFIG_CMD_NET)
 	/* The 0xFF check here is to make sure we don't use the address
 	 * in flash if it's simply been erased (aka all 0xFF values) */
 	if (getenv("ethaddr") == NULL && is_valid_ether_addr(pMACaddr)) {
@@ -171,7 +172,7 @@ int misc_init_r(void)
 	if (getenv("ethaddr")) {
 		SetupMacAddr(SrcAddr);
 	}
-#endif				/* CONFIG_COMMANDS & CFG_CMD_NET */
+#endif
 #endif				/* BFIN_BOOT_MODE == BF537_BYPASS_BOOT */
 
 #if defined(CONFIG_BFIN_IDE)

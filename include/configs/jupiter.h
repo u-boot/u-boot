@@ -41,11 +41,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
-
 /*
  * Serial console configuration
  */
@@ -71,7 +66,6 @@
 #define CONFIG_PCI_IO_BUS	0x50000000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
-#define ADD_PCI_CMD 		CFG_CMD_PCI
 #endif
 
 #define CFG_XLB_PIPELINING	1
@@ -87,15 +81,28 @@
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-/*
- * Supported commands
- */
-#define CONFIG_COMMANDS	       (CONFIG_CMD_DFL	| \
-				CFG_CMD_NFS	| \
-				CFG_CMD_SNTP)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <cmd_confdefs.h>
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
+#if defined(CONFIG_PCI)
+#define CODFIG_CMD_PCI
+#endif
+
 
 /*
  * Autobooting
@@ -138,11 +145,8 @@
 
 #if 0
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,5200@0"
 #define OF_SOC			"soc5200@f0000000"
@@ -254,7 +258,7 @@
 #ifdef	CFG_HUSH_PARSER
 #define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
 #define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
@@ -270,6 +274,11 @@
 #define CFG_LOAD_ADDR		0x200000	/* default load address */
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+
+#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#if defined(CONFIG_CMD_KGDB)
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#endif
 
 /*
  * Various low-level settings

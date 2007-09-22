@@ -28,11 +28,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <asm/processor.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
+#include <libfdt.h>
 
 #define SDRAM_DDR	0
 #if 1
@@ -281,7 +277,7 @@ void pci_init_board(void)
 }
 #endif
 
-#if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
 
 void init_ide_reset (void)
 {
@@ -306,9 +302,9 @@ void ide_set_reset (int idereset)
 		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 }
-#endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+#endif
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {

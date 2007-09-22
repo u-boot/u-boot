@@ -65,38 +65,30 @@ struct tsec_info_struct {
  *   FEC_PHYIDX
  */
 static struct tsec_info_struct tsec_info[] = {
-#if defined(CONFIG_MPC85XX_TSEC1) || defined(CONFIG_MPC83XX_TSEC1)
-#if defined(CONFIG_MPC8544DS)
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
-#else
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT, TSEC1_PHYIDX},
-#endif
-#elif defined(CONFIG_MPC86XX_TSEC1)
-	{TSEC1_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC1_PHYIDX},
+#ifdef CONFIG_TSEC1
+	{TSEC1_PHY_ADDR, TSEC1_FLAGS, TSEC1_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#if defined(CONFIG_MPC85XX_TSEC2) || defined(CONFIG_MPC83XX_TSEC2)
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT, TSEC2_PHYIDX},
-#elif defined(CONFIG_MPC86XX_TSEC2)
-	{TSEC2_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC2_PHYIDX},
+#ifdef CONFIG_TSEC2
+	{TSEC2_PHY_ADDR, TSEC2_FLAGS, TSEC2_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
 #ifdef CONFIG_MPC85XX_FEC
-	{FEC_PHY_ADDR, 0, FEC_PHYIDX},
+	{FEC_PHY_ADDR, FEC_FLAGS, FEC_PHYIDX},
 #else
-#if defined(CONFIG_MPC85XX_TSEC3) || defined(CONFIG_MPC83XX_TSEC3) || defined(CONFIG_MPC86XX_TSEC3)
-	{TSEC3_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC3_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#if defined(CONFIG_MPC85XX_TSEC4) || defined(CONFIG_MPC83XX_TSEC4) || defined(CONFIG_MPC86XX_TSEC4)
-	{TSEC4_PHY_ADDR, TSEC_GIGABIT | TSEC_REDUCED, TSEC4_PHYIDX},
+#ifdef CONFIG_TSEC3
+	{TSEC3_PHY_ADDR, TSEC3_FLAGS, TSEC3_PHYIDX},
 #else
 	{0, 0, 0},
 #endif
-#endif
+#ifdef CONFIG_TSEC4
+	{TSEC4_PHY_ADDR, TSEC4_FLAGS, TSEC4_PHYIDX},
+#else
+	{0, 0, 0},
+#endif	/* CONFIG_TSEC4 */
+#endif	/* CONFIG_MPC85XX_FEC */
 };
 
 #define MAXCONTROLLERS	(4)
@@ -129,6 +121,9 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value);
 static int tsec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value);
+#ifdef CONFIG_MCAST_TFTP
+static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
+#endif
 
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
@@ -167,6 +162,9 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	dev->halt = tsec_halt;
 	dev->send = tsec_send;
 	dev->recv = tsec_recv;
+#ifdef CONFIG_MCAST_TFTP
+	dev->mcast = tsec_mcast_addr;
+#endif
 
 	/* Tell u-boot to get the addr from the env */
 	for (i = 0; i < 6; i++)
@@ -178,7 +176,7 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
 	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
 #endif
@@ -298,9 +296,9 @@ static int init_phy(struct eth_device *dev)
 	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
-	regs->tbipa = TBIPA_VALUE;
+	regs->tbipa = CFG_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -349,17 +347,16 @@ uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
 uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 {
 	/*
-	 * Wait if PHY is capable of autonegotiation and autonegotiation
-	 * is not complete.
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
 	 */
 	mii_reg = read_phy_reg(priv, MIIM_STATUS);
-	if ((mii_reg & PHY_BMSR_AUTN_ABLE)
+	if ((mii_reg & MIIM_STATUS_LINK) && (mii_reg & PHY_BMSR_AUTN_ABLE)
 	    && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
-		while (!((mii_reg & PHY_BMSR_AUTN_COMP)
-			 && (mii_reg & MIIM_STATUS_LINK))) {
+		while (!(mii_reg & PHY_BMSR_AUTN_COMP)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -379,7 +376,10 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 		priv->link = 1;
 		udelay(500000);	/* another 500 ms (results in faster booting) */
 	} else {
-		priv->link = 1;
+		if (mii_reg & MIIM_STATUS_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
 	}
 
 	return 0;
@@ -519,16 +519,13 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 
 	mii_reg = read_phy_reg(priv, MIIM_88E1011_PHY_STATUS);
 
-	if (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
-	      (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
+	if ((mii_reg & MIIM_88E1011_PHYSTAT_LINK) &&
+		!(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
 		int i = 0;
 
 		puts("Waiting for PHY realtime link");
-		while (!((mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE) &&
-			 (mii_reg & MIIM_88E1011_PHYSTAT_LINK))) {
-			/*
-			 * Timeout reached ?
-			 */
+		while (!(mii_reg & MIIM_88E1011_PHYSTAT_SPDDONE)) {
+			/* Timeout reached ? */
 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
 				puts(" TIMEOUT !\n");
 				priv->link = 0;
@@ -543,6 +540,11 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 		}
 		puts(" done\n");
 		udelay(500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		if (mii_reg & MIIM_88E1011_PHYSTAT_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
 	}
 
 	if (mii_reg & MIIM_88E1011_PHYSTAT_DUPLEX)
@@ -900,10 +902,70 @@ static void tsec_halt(struct eth_device *dev)
 		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
+struct phy_info phy_info_M88E1149S = {
+	0x1410ca,
+	"Marvell 88E1149S",
+	4,
+	(struct phy_cmd[]){     /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read,
+		 &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){     /* shutdown */
+		{miim_end,}
+	},
+};
+
 /* The 5411 id is 0x206070, the 5421 is 0x2060e0 */
 struct phy_info phy_info_BCM5461S = {
 	0x02060c1,	/* 5461 ID */
 	"Broadcom BCM5461S",
+	0, /* not clear to me what minor revisions we can shift away */
+	(struct phy_cmd[]) { /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_BCM54xx_AUXSTATUS, miim_read, &mii_parse_BCM54xx_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
+struct phy_info phy_info_BCM5464S = {
+	0x02060b1,	/* 5464 ID */
+	"Broadcom BCM5464S",
 	0, /* not clear to me what minor revisions we can shift away */
 	(struct phy_cmd[]) { /* config */
 		/* Reset and configure the PHY */
@@ -968,11 +1030,6 @@ struct phy_info phy_info_M88E1111S = {
 	(struct phy_cmd[]){	/* config */
 			   /* Reset and configure the PHY */
 			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {0x1d, 0x1f, NULL},
-			   {0x1e, 0x200c, NULL},
-			   {0x1d, 0x5, NULL},
-			   {0x1e, 0x0, NULL},
-			   {0x1e, 0x100, NULL},
 			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
@@ -1012,14 +1069,16 @@ static struct phy_info phy_info_M88E1145 = {
 	"Marvell 88E1145",
 	4,
 	(struct phy_cmd[]){	/* config */
+			   /* Reset the PHY */
+			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+
 			   /* Errata E0, E1 */
 			   {29, 0x001b, NULL},
 			   {30, 0x418f, NULL},
 			   {29, 0x0016, NULL},
 			   {30, 0xa2da, NULL},
 
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   /* Configure the PHY */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
 			   {MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO,
@@ -1203,10 +1262,10 @@ uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 		case MIIM_LXT971_SR2_100HDX:
 			priv->speed = 100;
 			priv->duplexity = 0;
+			break;
 		default:
 			priv->speed = 100;
 			priv->duplexity = 1;
-			break;
 		}
 	} else {
 		priv->speed = 0;
@@ -1292,9 +1351,11 @@ struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
 	&phy_info_BCM5461S,
+	&phy_info_BCM5464S,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1145,
+	&phy_info_M88E1149S,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
@@ -1325,8 +1386,10 @@ struct phy_info *get_phy_info(struct eth_device *dev)
 	/* loop through all the known PHY types, and find one that */
 	/* matches the ID we read from the PHY. */
 	for (i = 0; phy_info[i]; i++) {
-		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift))
+		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift)) {
 			theInfo = phy_info[i];
+			break;
+		}
 	}
 
 	if (theInfo == NULL) {
@@ -1417,7 +1480,7 @@ static void relocate_cmds(void)
 	relocated = 1;
 }
 
-#if defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII) \
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 
 struct tsec_private *get_priv_for_phy(unsigned char phyaddr)
@@ -1476,7 +1539,48 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 	return 0;
 }
 
-#endif /* defined(CONFIG_MII) || (CONFIG_COMMANDS & CFG_CMD_MII)
-		&& !defined(BITBANGMII) */
+#endif
+
+#ifdef CONFIG_MCAST_TFTP
+
+/* CREDITS: linux gianfar driver, slightly adjusted... thanx. */
+
+/* Set the appropriate hash bit for the given addr */
+
+/* The algorithm works like so:
+ * 1) Take the Destination Address (ie the multicast address), and
+ * do a CRC on it (little endian), and reverse the bits of the
+ * result.
+ * 2) Use the 8 most significant bits as a hash into a 256-entry
+ * table.  The table is controlled through 8 32-bit registers:
+ * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is
+ * gaddr7.  This means that the 3 most significant bits in the
+ * hash index which gaddr register to use, and the 5 other bits
+ * indicate which bit (assuming an IBM numbering scheme, which
+ * for PowerPC (tm) is usually the case) in the tregister holds
+ * the entry. */
+static int
+tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
+{
+ struct tsec_private *priv = privlist[1];
+ volatile tsec_t *regs = priv->regs;
+ volatile u32  *reg_array, value;
+ u8 result, whichbit, whichreg;
+
+	result = (u8)((ether_crc(MAC_ADDR_LEN,mcast_mac) >> 24) & 0xff);
+	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
+	whichreg = result >> 5;		/* the 3 MSB = which reg to set it in */
+	value = (1 << (31-whichbit));
+
+	reg_array = &(regs->hash.gaddr0);
+
+	if (set) {
+		reg_array[whichreg] |= value;
+	} else {
+		reg_array[whichreg] &= ~value;
+	}
+	return 0;
+}
+#endif /* Multicast TFTP ? */
 
 #endif /* CONFIG_TSEC_ENET */

@@ -31,12 +31,6 @@ can be easily implemented.
 	if it is an illegal instruction, privileged instruction or
 	a trap. Also added debug trap handler.
 
-./include/cmd_confdefs.h
-	Added definition of CFG_CMD_BEDBUG.
-
-./include/config_WALNUT405.h
-	Added CFG_CMD_BEDBUG to the CONFIG_COMMANDS for the WALNUT.
-
 ./include/ppc_asm.tmpl
 	Added code to handle critical exceptions
 
@@ -77,10 +71,6 @@ Changes:
 
 	cpu/mpc8xx/traps.c
 		Added new routine DebugException()
-
-	include/config_MBX.h
-		Added CFG_CMD_BEDBUG to CONFIG_COMMANDS define
-
 
 New Files:
 

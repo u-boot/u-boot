@@ -42,15 +42,29 @@
 #define CONFIG_CONS_INDEX	1
 
 
-#define REMOVE_COMMANDS         ( CFG_CMD_AUTOSCRIPT	| \
- 				  CFG_CMD_LOADS		| \
- 				  CFG_CMD_ENV		| \
- 				  CFG_CMD_FLASH		| \
-				  CFG_CMD_IMLS		)
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_COMMANDS		( (CONFIG_CMD_DFL & ~REMOVE_COMMANDS) |\
-				  CFG_CMD_PCI |\
-				  CFG_CMD_BSP)
+
+/*
+ * Command line configuration.
+ */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_BSP
+
+#undef CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+
 
 #define CONFIG_BAUDRATE		19200	/* console baudrate		*/
 
@@ -81,10 +95,6 @@
 			"ip=${ipaddr}:${serverip}::${netmask}:pn62:eth0:off;" \
 			"loadp 200000; bootm"
 #endif
-
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any)	*/
-#include <cmd_confdefs.h>
-
 
 /*
  * Miscellaneous configurable options
@@ -287,7 +297,7 @@
  * Cache Configuration
  */
 #define CFG_CACHELINE_SIZE	32	/* For MPC8240 CPU			*/
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

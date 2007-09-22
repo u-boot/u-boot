@@ -22,18 +22,17 @@
  */
 
 #include <common.h>
-#include <asm/m5272.h>
-#include <asm/immap_5272.h>
+#include <asm/immap.h>
 
 
 int checkboard (void) {
 	puts ("Board: ");
-	puts("MOTOROLA MCF5272C3 EVB\n");
+	puts ("Freescale MCF5272C3 EVB\n");
 	return 0;
 	};
 
 long int initdram (int board_type) {
-	volatile sdramctrl_t * sdp = (sdramctrl_t *)(CFG_MBAR + MCFSIM_SDCR);
+	volatile sdramctrl_t * sdp = (sdramctrl_t *)(MMAP_SDRAM);
 
 	sdp->sdram_sdtr = 0xf539;
 	sdp->sdram_sdcr = 0x4211;

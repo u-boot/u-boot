@@ -142,7 +142,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 		u8 header_type;
 
 		pci_hose_read_config_byte(hose,
-					  PCI_BDF(0,17,0),
+					  PCI_BDF(0,BRIDGE_ID,0),
 					  PCI_HEADER_TYPE,
 					  &header_type);
 	}
