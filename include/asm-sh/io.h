@@ -91,23 +91,21 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
  *
  * The {in,out}[bwl] macros are for emulating x86-style PCI/ISA IO space.
  */
-#ifdef __io
-#define outb(v,p)			__raw_writeb(v,__io(p))
-#define outw(v,p)			__raw_writew(cpu_to_le16(v),__io(p))
-#define outl(v,p)			__raw_writel(cpu_to_le32(v),__io(p))
+#define outb(v,p)               __raw_writeb(v, p)
+#define outw(v,p)               __raw_writew(cpu_to_le16(v),p)
+#define outl(v,p)               __raw_writel(cpu_to_le32(v),p)
 
-#define inb(p)	({ unsigned int __v = __raw_readb(__io(p)); __v; })
-#define inw(p)	({ unsigned int __v = le16_to_cpu(__raw_readw(__io(p))); __v; })
-#define inl(p)	({ unsigned int __v = le32_to_cpu(__raw_readl(__io(p))); __v; })
+#define inb(p)  ({ unsigned int __v = __raw_readb(p); __v; })
+#define inw(p)  ({ unsigned int __v = __le16_to_cpu(__raw_readw(p)); __v; })
+#define inl(p)  ({ unsigned int __v = __le32_to_cpu(__raw_readl(p)); __v; })
 
-#define outsb(p,d,l)			__raw_writesb(__io(p),d,l)
-#define outsw(p,d,l)			__raw_writesw(__io(p),d,l)
-#define outsl(p,d,l)			__raw_writesl(__io(p),d,l)
+#define outsb(p,d,l)			__raw_writesb(p,d,l)
+#define outsw(p,d,l)			__raw_writesw(p,d,l)
+#define outsl(p,d,l)			__raw_writesl(p,d,l)
 
-#define insb(p,d,l)			__raw_readsb(__io(p),d,l)
-#define insw(p,d,l)			__raw_readsw(__io(p),d,l)
-#define insl(p,d,l)			__raw_readsl(__io(p),d,l)
-#endif
+#define insb(p,d,l)			__raw_readsb(p,d,l)
+#define insw(p,d,l)			__raw_readsw(p,d,l)
+#define insl(p,d,l)			__raw_readsl(p,d,l)
 
 #define outb_p(val,port)		outb((val),(port))
 #define outw_p(val,port)		outw((val),(port))
@@ -174,8 +172,6 @@ extern void _memcpy_fromio(void *, unsigned long, size_t);
 extern void _memcpy_toio(unsigned long, const void *, size_t);
 extern void _memset_io(unsigned long, int, size_t);
 
-extern void __readwrite_bug(const char *fn);
-
 /*
  * If this architecture has PCI memory IO, then define the read/write
  * macros.  These should only be used with the cookie passed from
@@ -217,76 +213,19 @@ out:
 
 #elif !defined(readb)
 
-#define readb(addr)			(__readwrite_bug("readb"),0)
-#define readw(addr)			(__readwrite_bug("readw"),0)
-#define readl(addr)			(__readwrite_bug("readl"),0)
-#define writeb(v,addr)			__readwrite_bug("writeb")
-#define writew(v,addr)			__readwrite_bug("writew")
-#define writel(v,addr)			__readwrite_bug("writel")
-
-#define eth_io_copy_and_sum(a,b,c,d)	__readwrite_bug("eth_io_copy_and_sum")
+#define readb(addr)	__raw_readb(addr)
+#define readw(addr)	__raw_readw(addr)
+#define readl(addr)	__raw_readl(addr)
+#define writeb(v,addr)	__raw_writeb(v, addr)
+#define writew(v,addr)	__raw_writew(v, addr)
+#define writel(v,addr)	__raw_writel(v, addr)
 
 #define check_signature(io,sig,len)	(0)
 
 #endif	/* __mem_pci */
 
-/*
- * If this architecture has ISA IO, then define the isa_read/isa_write
- * macros.
- */
-#ifdef __mem_isa
-
-#define isa_readb(addr)			__raw_readb(__mem_isa(addr))
-#define isa_readw(addr)			__raw_readw(__mem_isa(addr))
-#define isa_readl(addr)			__raw_readl(__mem_isa(addr))
-#define isa_writeb(val,addr)		__raw_writeb(val,__mem_isa(addr))
-#define isa_writew(val,addr)		__raw_writew(val,__mem_isa(addr))
-#define isa_writel(val,addr)		__raw_writel(val,__mem_isa(addr))
-#define isa_memset_io(a,b,c)		_memset_io(__mem_isa(a),(b),(c))
-#define isa_memcpy_fromio(a,b,c)	_memcpy_fromio((a),__mem_isa(b),(c))
-#define isa_memcpy_toio(a,b,c)		_memcpy_toio(__mem_isa((a)),(b),(c))
-
-#define isa_eth_io_copy_and_sum(a,b,c,d) \
-				eth_copy_and_sum((a),__mem_isa(b),(c),(d))
-
-static inline int
-isa_check_signature(unsigned long io_addr, const unsigned char *signature,
-		    int length)
-{
-	int retval = 0;
-	do {
-		if (isa_readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
-
-#else	/* __mem_isa */
-
-#define isa_readb(addr)			(__readwrite_bug("isa_readb"),0)
-#define isa_readw(addr)			(__readwrite_bug("isa_readw"),0)
-#define isa_readl(addr)			(__readwrite_bug("isa_readl"),0)
-#define isa_writeb(val,addr)		__readwrite_bug("isa_writeb")
-#define isa_writew(val,addr)		__readwrite_bug("isa_writew")
-#define isa_writel(val,addr)		__readwrite_bug("isa_writel")
-#define isa_memset_io(a,b,c)		__readwrite_bug("isa_memset_io")
-#define isa_memcpy_fromio(a,b,c)	__readwrite_bug("isa_memcpy_fromio")
-#define isa_memcpy_toio(a,b,c)		__readwrite_bug("isa_memcpy_toio")
-
-#define isa_eth_io_copy_and_sum(a,b,c,d) \
-				__readwrite_bug("isa_eth_io_copy_and_sum")
-
-#define isa_check_signature(io,sig,len)	(0)
-
 static inline void sync(void)
 {
 }
-
-#endif	/* __mem_isa */
 #endif	/* __KERNEL__ */
 #endif	/* __ASM_SH_IO_H */

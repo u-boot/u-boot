@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2007
+ * Nobobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ *
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -31,7 +34,15 @@ static void tmu_timer_start (unsigned int timer)
 	if (timer > 2)
 		return;
 
-	*((volatile unsigned char *) TSTR0) |= (1 << timer);
+	*((volatile unsigned char *) TSTR) |= (1 << timer);
+}
+
+static void tmu_timer_stop (unsigned int timer)
+{
+	u8 val = *((volatile u8 *)TSTR);
+	if (timer > 2)
+		return;
+	*((volatile unsigned char *)TSTR) = val &~(1 << timer);
 }
 
 int timer_init (void)
@@ -39,7 +50,8 @@ int timer_init (void)
 	/* Divide clock by 4 */
 	*(volatile u16 *)TCR0 = 0;
 
-	tmu_timer_start (0);
+	tmu_timer_stop(0);
+	tmu_timer_start(0);
 	return 0;
 }
 
@@ -51,15 +63,12 @@ int timer_init (void)
 */
 unsigned long long get_ticks (void)
 {
-	return (0 - *((volatile unsigned int *) TCNT0));
+	return (0 - *((volatile u32 *) TCNT0));
 }
 
 unsigned long get_timer (unsigned long base)
 {
-	unsigned long n = 
-		*((volatile unsigned int *)TCNT0) ;
-	
-	return ((int)n - base ) < 0 ? ( TMU_MAX_COUNTER - ( base -n )):(n - base );
+	return ((0 - *((volatile u32 *) TCNT0)) - base);
 }
 
 void set_timer (unsigned long t)
@@ -69,19 +78,15 @@ void set_timer (unsigned long t)
 
 void reset_timer (void)
 {
+	tmu_timer_stop(0);
 	set_timer (0);
+	tmu_timer_start(0);
 }
 
 void udelay (unsigned long usec)
 {
 	unsigned int start = get_timer (0);
-	unsigned int end = 0;
-	if (usec > 1000000)
-		end = ((usec/100000) * CFG_HZ) / 10;
-	else if (usec > 1000)
-		end = ((usec/100) * CFG_HZ) / 10000;
-	else
-		end = (usec * CFG_HZ) / 1000000;
+	unsigned int end = start + (usec * ((CFG_HZ + 500000) / 1000000));
 
 	while (get_timer (0) < end)
 		continue;
@@ -91,4 +96,3 @@ unsigned long get_tbclk (void)
 {
 	return CFG_HZ;
 }
-

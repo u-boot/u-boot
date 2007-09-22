@@ -73,4 +73,3 @@ unsigned long get_tbclk (void)
 {
 	return CFG_HZ;
 }
-

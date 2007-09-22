@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2007
-# Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -24,23 +21,4 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(CPU).a
-
-START	= start.o
-OBJS	= cpu.o interrupts.o watchdog.o time.o cache.o
-
-all:	.depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
-
-#########################################################################
-
-.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
-
-sinclude .depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DCONFIG_SH -D__SH__

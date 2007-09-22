@@ -65,6 +65,61 @@ void *sbrk (ptrdiff_t increment)
 	return (void *) old;
 }
 
+static int sh_flash_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	gd->bd->bi_flashsize = flash_init();
+	printf("FLASH: %dMB\n", gd->bd->bi_flashsize / (1024*1024));
+
+	return 0;
+}
+
+#if defined(CONFIG_CMD_NAND)
+void nand_init (void);
+static int sh_nand_init(void)
+{
+	printf("NAND: ");
+	nand_init();	/* go init the NAND */
+	return 0;
+}
+#endif /* CONFIG_CMD_NAND */
+
+#if defined(CONFIG_CMD_IDE)
+#include <ide.h>
+static int sh_marubun_init(void)
+{
+	puts ("IDE:   ");
+	ide_init();
+	return 0;
+}
+#endif /* (CONFIG_CMD_IDE) */
+
+static int sh_mem_env_init(void)
+{
+	mem_malloc_init();
+	malloc_bin_reloc();
+	env_relocate();
+	jumptable_init();
+	return 0;
+}
+
+static int sh_net_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	char *s, *e;
+	int i;
+
+	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
+	s = getenv("ethaddr");
+	for (i = 0; i < 6; ++i) {
+		gd->bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
+		if (s) s = (*e) ? e + 1 : e;
+	}
+
+	return 0;
+}
+
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] =
@@ -74,12 +129,27 @@ init_fnc_t *init_sequence[] =
 	interrupt_init,		/* set up exceptions */
 	env_init,		/* event init */
 	serial_init,		/* SCIF init */
-	watchdog_init,
+	watchdog_init,		/* watchdog init */
 	console_init_f,
 	display_options,
 	checkcpu,
-	checkboard,
+	checkboard,		/* Check support board */
 	dram_init,		/* SDRAM init */
+	timer_init,		/* SuperH Timer (TCNT0 only) init */
+	sh_flash_init,		/* Flash memory(NOR) init*/
+	sh_mem_env_init,
+#if defined(CONFIG_CMD_NAND)
+	sh_nand_init,		/* Flash memory (NAND) init */
+#endif
+	devices_init,
+	console_init_r,
+	interrupt_init,
+#ifdef BOARD_LATE_INIT
+	board_late_init,
+#endif
+#if defined(CONFIG_CMD_NET)
+	sh_net_init,		/* SH specific eth init */
+#endif
 	NULL			/* Terminate this list */
 };
 
@@ -89,14 +159,14 @@ void sh_generic_init (void)
 
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	char *s, *e;
+	char *s;
 	int i;
 
 	memset (gd, 0, CFG_GBL_DATA_SIZE);
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-	gd->bd = (bd_t *) (gd + 1);		/* At end of global data */
+	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;
 
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
@@ -111,53 +181,30 @@ void sh_generic_init (void)
 #endif
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 
-	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
+	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr , i++) {
 		if ((*init_fnc_ptr) () != 0) {
 			hang();
 		}
 	}
-	
-	timer_init();
-	
-	/* flash_init need timer_init().(TMU) */
-	bd->bi_flashsize = flash_init();
-	printf("FLASH: %dMB\n", bd->bi_flashsize / (1024*1024));
 
-	mem_malloc_init();
-	malloc_bin_reloc();
-	env_relocate();
-
-#if  (CONFIG_COMMANDS & CFG_CMD_NET)
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-	s = getenv ("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s) s = (*e) ? e + 1 : e;
-	}
-#endif
-	devices_init();
-	jumptable_init();
-	console_init_r();
-	interrupt_init();
-#ifdef BOARD_LATE_INIT
-	board_late_init ();
-#endif
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET)
 	puts ("Net:   ");
-#endif
 	eth_initialize(gd->bd);
-#endif
+
+        if ((s = getenv ("bootfile")) != NULL) {
+		copy_filename (BootFile, s, sizeof (BootFile));
+	}
+#endif /* CONFIG_CMD_NET */
+
 	while (1) {
 		main_loop();
 	}
 }
 
-
 /***********************************************************************/
 
 void hang (void)
 {
-	puts ("Board ERROR \n");
+	puts ("Board ERROR\n");
 	for (;;);
 }

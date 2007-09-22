@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/processor.h>
 
 int checkcpu(void)
 {
@@ -48,20 +49,35 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-void flush_cache (unsigned long addr, unsigned long size){}
+void flush_cache (unsigned long addr, unsigned long size)
+{
+
+}
 
 void icache_enable (void)
 {
-
+	cache_control(0);
 }
 
 void icache_disable (void)
 {
-
+	cache_control(1);
 }
-
 
 int icache_status (void)
 {
 	return 0; 
+}
+
+void dcache_enable (void)
+{
+}
+
+void dcache_disable (void)
+{
+}
+
+int dcache_status (void)
+{
+	return 0;
 }
