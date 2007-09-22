@@ -26,7 +26,7 @@
 
 int checkboard(void)
 {
-	puts("BOARD: SH7750 Solution Engine\n");
+	puts("BOARD: SH7750/SH7750S/SH7750R Solution Engine\n");
 	return 0;
 }
 
