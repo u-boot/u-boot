@@ -2603,6 +2603,11 @@ ms7750se_config: unconfig
 	@echo "#define CONFIG_MS7750SE 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 ms7750se
 
+ms7722se_config :       unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MS7722SE 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 ms7722se
+
 #########################################################################
 #########################################################################
 #########################################################################
