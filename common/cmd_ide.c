@@ -892,7 +892,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA) || defined(CONFIG_SH)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
@@ -944,7 +944,7 @@ output_data(int dev, ulong *sect_buf, int words)
 }
 #endif	/* __PPC__ */
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
+#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA) || defined(CONFIG_SH)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
