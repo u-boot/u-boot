@@ -48,6 +48,7 @@
 #define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 #define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - (1024 * 1024))
 
+#define CONFIG_XILINX_UARTLITE
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 115200 }
 
