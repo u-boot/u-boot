@@ -204,7 +204,7 @@ int mii_discover_phy(struct eth_device *dev)
 }
 #endif				/* CFG_DISCOVER_PHY */
 
-int mii_init(void) __attribute__((weak,alias("__mii_init")));
+void mii_init(void) __attribute__((weak,alias("__mii_init")));
 
 void __mii_init(void)
 {

@@ -234,6 +234,7 @@
 
 #define CFG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment sector	*/
 #define	CFG_ENV_SIZE		0x4000	/* Used Size of Environment Sector	*/
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

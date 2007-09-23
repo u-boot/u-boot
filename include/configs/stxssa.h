@@ -230,7 +230,7 @@
 #define CFG_PCI2_IO_SIZE	0x01000000	/* 16M */
 
 #if defined(CONFIG_PCI) 		/* PCI Ethernet card */
-
+#define CONFIG_MPC85XX_PCI2	1
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 

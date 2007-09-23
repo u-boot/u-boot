@@ -25,10 +25,9 @@
 #include <common.h>
 #include <command.h>
 #include <watchdog.h>
-#include <asm/cache.h>
 
 #ifdef CONFIG_FSL_PIXIS
-
+#include <asm/cache.h>
 #include "pixis.h"
 
 

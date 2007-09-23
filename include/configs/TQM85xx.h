@@ -449,7 +449,7 @@
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	CFG_BOOTFILE							\
+	"bootfile="CFG_BOOTFILE_PATH"\0"				\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
