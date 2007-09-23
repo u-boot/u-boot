@@ -1,7 +1,7 @@
 /*
- * (C) Copyright 2007 Czech Technical University.
+ * (C) Copyright 2007 Michal Simek
  *
- * Michal SIMEK <monstr@seznam.cz>
+ * Michal SIMEK <monstr@monstr.eu>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

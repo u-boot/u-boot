@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Czech Technical University.
+ * (C) Copyright 2007 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
