@@ -85,7 +85,7 @@
  */
 
 /*
- * JFFS2/CRAMFS/ROMFS support
+ * JFFS2/CRAMFS support
  */
 #include <common.h>
 #include <command.h>
@@ -174,11 +174,6 @@ extern int cramfs_check (struct part_info *info);
 extern int cramfs_load (char *loadoffset, struct part_info *info, char *filename);
 extern int cramfs_ls (struct part_info *info, char *filename);
 extern int cramfs_info (struct part_info *info);
-
-extern int romfs_check (struct part_info *info);
-extern int romfs_load (char *loadoffset, struct part_info *info, char *filename);
-extern int romfs_ls (struct part_info *info, char *filename);
-extern int romfs_info (struct part_info *info);
 
 static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num);
 
@@ -1879,22 +1874,14 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if ((part = jffs2_part_info(current_dev, current_partnum))){
 
-		/* check partition type for JFFS2, cramfs, romfs */
-		if (cramfs_check(part)) {
-			fsname = "CRAMFS";
-		} else if (romfs_check(part)) {
-			fsname = "ROMFS";
-		} else {
-	 		fsname = "JFFS2";
-		}
+		/* check partition type for cramfs */
+		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");
 		printf("### %s loading '%s' to 0x%lx\n", fsname, filename, offset);
 
 		if (cramfs_check(part)) {
 			size = cramfs_load ((char *) offset, part, filename);
-		} else if (romfs_check(part)){
-			size = romfs_load ((char *) offset, part, filename);
 		} else {
-			/* if this is not cramfs or romfs assume jffs2 */
+			/* if this is not cramfs assume jffs2 */
 			size = jffs2_1pass_load((char *)offset, part, filename);
 		}
 
@@ -1941,10 +1928,8 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/* check partition type for cramfs */
 		if (cramfs_check(part)) {
 			ret = cramfs_ls (part, filename);
-		} else if (romfs_check(part)) {
-			ret = romfs_ls (part, filename);
 		} else {
-			/* if this is not cramfs or romfs assume jffs2 */
+			/* if this is not cramfs assume jffs2 */
 			ret = jffs2_1pass_ls(part, filename);
 		}
 
@@ -1966,6 +1951,7 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	struct part_info *part;
+	char *fsname;
 	int ret;
 
 	/* make sure we are in sync with env variables */
@@ -1975,17 +1961,13 @@ int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if ((part = jffs2_part_info(current_dev, current_partnum))){
 
 		/* check partition type for cramfs */
-		puts("### filesystem type is ");
+		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");
+		printf("### filesystem type is %s\n", fsname);
 
 		if (cramfs_check(part)) {
-			puts("CRAMFS\n");
 			ret = cramfs_info (part);
-		} else if (romfs_check(part)) {
-			puts("ROMFS\n");
-			ret = romfs_info (part);
 		} else {
-			/* if this is not cramfs or romfs assume jffs2 */
-			puts("JFFS2\n");
+			/* if this is not cramfs assume jffs2 */
 			ret = jffs2_1pass_info(part);
 		}
 

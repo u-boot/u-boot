@@ -48,7 +48,6 @@
 #define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 #define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - (1024 * 1024))
 
-#define XILINX_UARTLITE
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 115200 }
 
@@ -56,16 +55,21 @@
 #define MICROBLAZE_SYSREG_BASE_ADDR 0xFFFFA000
 #define MICROBLAZE_SYSREG_RECONFIGURE (1 << 0)
 
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_ENV
-#undef CONFIG_CMD_MEMORY
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_MISC
 
 #define CFG_UART1_BASE		(0xFFFF2000)
 #define CONFIG_SERIAL_BASE	CFG_UART1_BASE
@@ -103,7 +107,5 @@
 #define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
-
-#define XILINX_CLOCK_FREQ	50000000
 
 #endif	/* __CONFIG_H */
