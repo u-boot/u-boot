@@ -28,8 +28,6 @@
 #include <command.h>
 #include <post.h>
 
-#if defined(CONFIG_CMD_DIAG) && defined(CONFIG_POST)
-
 int do_diag (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned int i;
@@ -76,5 +74,3 @@ U_BOOT_CMD(
 	"diag run [test1 [test2]]\n"
 	"         - run specified tests\n"
 );
-
-#endif

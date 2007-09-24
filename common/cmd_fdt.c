@@ -28,9 +28,6 @@
 #include <command.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
-
-#ifdef CONFIG_OF_LIBFDT
-
 #include <asm/global_data.h>
 #include <fdt.h>
 #include <libfdt.h>
@@ -692,5 +689,3 @@ U_BOOT_CMD(
 	"          fdt print /cpus \"#address-cells\"\n"
 	"          fdt set   /cpus \"#address-cells\" \"[00 00 00 01]\"\n"
 );
-
-#endif /* CONFIG_OF_LIBFDT */

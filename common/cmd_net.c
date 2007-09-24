@@ -28,8 +28,6 @@
 #include <command.h>
 #include <net.h>
 
-#if defined(CONFIG_CMD_NET)
-
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
 static int netboot_common (proto_t, cmd_tbl_t *, int , char *[]);
@@ -342,6 +340,4 @@ U_BOOT_CMD(
 	"sntp\t- synchronize RTC via network\n",
 	"[NTP server IP]\n"
 );
-#endif
-
 #endif
