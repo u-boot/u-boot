@@ -29,19 +29,8 @@ LIB	= $(obj)libdrivers.a
 
 COBJS-y += ali512x.o
 COBJS-y += ds1722.o
-COBJS-y += fsl_pci_init.o
-COBJS-y += mpc8xx_pcmcia.o
 COBJS-y += ns87308.o
-COBJS-y += pci.o
-COBJS-y += pci_auto.o
-COBJS-y += pci_indirect.o
-COBJS-y += pxa_pcmcia.o
-COBJS-y += rpx_pcmcia.o
 COBJS-y += status_led.o
-COBJS-y += ti_pci1410a.o
-COBJS-y += tqm8xx_pcmcia.o
-COBJS-y += tsi108_pci.o
-COBJS-y += w83c553f.o
 
 #
 # Block and Flash Drivers
@@ -121,6 +110,21 @@ COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
 
 #
+# PCI/PCMCIA device drivers
+#
+COBJS-y += fsl_pci_init.o
+COBJS-y += mpc8xx_pcmcia.o
+COBJS-y += pci.o
+COBJS-y += pci_auto.o
+COBJS-y += pci_indirect.o
+COBJS-y += pxa_pcmcia.o
+COBJS-y += rpx_pcmcia.o
+COBJS-y += ti_pci1410a.o
+COBJS-y += tqm8xx_pcmcia.o
+COBJS-y += tsi108_pci.o
+COBJS-y += w83c553f.o
+
+#
 # USB Drivers
 #
 COBJS-y += isp116x-hcd.o
@@ -130,6 +134,13 @@ COBJS-y += usbdcore.o
 COBJS-y += usbdcore_ep0.o
 COBJS-y += usbdcore_mpc8xx.o
 COBJS-y += usbdcore_omap1510.o
+
+#
+# Miscellaneous Drivers
+#
+COBJS-y += ali512x.o
+COBJS-y += ns87308.o
+COBJS-y += status_led.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
