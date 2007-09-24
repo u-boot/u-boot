@@ -931,7 +931,7 @@ static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int pa
 			for (i = 0; i < eccbytes; i++, eccidx++)
 				oob_buf[oob_config[eccidx]] = ecc_code[i];
 			/* If the hardware ecc provides syndromes then
-			 * the ecc code must be written immidiately after
+			 * the ecc code must be written immediately after
 			 * the data bytes (words) */
 			if (this->options & NAND_HWECC_SYNDROME)
 				this->write_buf(mtd, ecc_code, eccbytes);
@@ -1299,7 +1299,7 @@ static int nand_read_ecc (struct mtd_info *mtd, loff_t from, size_t len,
 				for (i = 0, j = 0; j < mtd->oobavail; i++) {
 					int from = oobsel->oobfree[i][0];
 					int num = oobsel->oobfree[i][1];
-					memcpy(&oob_buf[oob], &oob_data[from], num);
+					memcpy(&oob_buf[oob+j], &oob_data[from], num);
 					j+= num;
 				}
 				oob += mtd->oobavail;
@@ -1644,8 +1644,10 @@ static int nand_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
 	this->select_chip(mtd, chipnr);
 
 	/* Check, if it is write protected */
-	if (nand_check_wp(mtd))
+	if (nand_check_wp(mtd)) {
+		printk (KERN_NOTICE "nand_write_ecc: Device is write protected\n");
 		goto out;
+	}
 
 	/* if oobsel is NULL, use chip defaults */
 	if (oobsel == NULL)
@@ -2486,12 +2488,9 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 
 	/* The number of bytes available for the filesystem to place fs dependend
 	 * oob data */
-	if (this->options & NAND_BUSWIDTH_16) {
-		mtd->oobavail = mtd->oobsize - (this->autooob->eccbytes + 2);
-		if (this->autooob->eccbytes & 0x01)
-			mtd->oobavail--;
-	} else
-		mtd->oobavail = mtd->oobsize - (this->autooob->eccbytes + 1);
+	mtd->oobavail = 0;
+	for (i=0; this->autooob->oobfree[i][1]; i++)
+		mtd->oobavail += this->autooob->oobfree[i][1];
 
 	/*
 	 * check ECC mode, default to software
