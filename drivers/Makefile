@@ -34,7 +34,6 @@ COBJS-y += cfi_flash.o
 COBJS-y += dataflash.o
 COBJS-y += ds1722.o
 COBJS-y += fsl_pci_init.o
-COBJS-y += isp116x-hcd.o
 COBJS-y += mpc8xx_pcmcia.o
 COBJS-y += mw_eeprom.o
 COBJS-y += ns87308.o
@@ -44,7 +43,6 @@ COBJS-y += pci_indirect.o
 COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
 COBJS-y += sil680.o
-COBJS-y += sl811_usb.o
 COBJS-y += status_led.o
 COBJS-y += sym53c8xx.o
 COBJS-y += systemace.o
@@ -52,11 +50,6 @@ COBJS-y += ahci.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
 COBJS-y += tsi108_pci.o
-COBJS-y += usb_ohci.o
-COBJS-y += usbdcore.o
-COBJS-y += usbdcore_ep0.o
-COBJS-y += usbdcore_mpc8xx.o
-COBJS-y += usbdcore_omap1510.o
 COBJS-y += w83c553f.o
 
 #
@@ -122,6 +115,17 @@ COBJS-y += smc91111.o
 COBJS-y += tigon3.o
 COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
+
+#
+# USB Drivers
+#
+COBJS-y += isp116x-hcd.o
+COBJS-y += sl811_usb.o
+COBJS-y += usb_ohci.o
+COBJS-y += usbdcore.o
+COBJS-y += usbdcore_ep0.o
+COBJS-y += usbdcore_mpc8xx.o
+COBJS-y += usbdcore_omap1510.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
