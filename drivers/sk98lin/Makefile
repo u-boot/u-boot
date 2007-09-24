@@ -29,12 +29,26 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libsk98lin.a
 
-COBJS	:= skge.o skaddr.o skgehwt.o skgeinit.o skgepnmi.o skgesirq.o \
-		ski2c.o sklm80.o skqueue.o skrlmt.o sktimer.o skvpd.o \
-		skxmac2.o skcsum.o #skproc.o
+COBJS-y += skge.o
+COBJS-y += skaddr.o
+COBJS-y += skgehwt.o
+COBJS-y += skgeinit.o
+COBJS-y += skgepnmi.o
+COBJS-y += skgesirq.o
+COBJS-y += ski2c.o
+COBJS-y += sklm80.o
+COBJS-y += skqueue.o
+COBJS-y += skrlmt.o
+COBJS-y += sktimer.o
+COBJS-y += skvpd.o
+COBJS-y += skxmac2.o
+COBJS-y += skcsum.o
+#COBJS-y += skproc.o
 
-COBJS	+= uboot_skb.o uboot_drv.o
+COBJS-y += uboot_skb.o
+COBJS-y += uboot_drv.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

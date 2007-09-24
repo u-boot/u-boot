@@ -25,8 +25,14 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libnand.a
 
-COBJS 	:= nand.o nand_base.o nand_ids.o nand_ecc.o nand_bbt.o nand_util.o
+COBJS-y += nand.o
+COBJS-y += nand_base.o
+COBJS-y += nand_ids.o
+COBJS-y += nand_ecc.o
+COBJS-y += nand_bbt.o
+COBJS-y += nand_util.o
 
+COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
 
