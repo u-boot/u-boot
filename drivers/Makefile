@@ -33,14 +33,11 @@ COBJS-y += ata_piix.o
 COBJS-y += cfi_flash.o
 COBJS-y += dataflash.o
 COBJS-y += ds1722.o
-COBJS-y += fsl_i2c.o
 COBJS-y += fsl_pci_init.o
 COBJS-y += isp116x-hcd.o
 COBJS-y += mpc8xx_pcmcia.o
 COBJS-y += mw_eeprom.o
 COBJS-y += ns87308.o
-COBJS-y += omap1510_i2c.o
-COBJS-y += omap24xx_i2c.o
 COBJS-y += pci.o
 COBJS-y += pci_auto.o
 COBJS-y += pci_indirect.o
@@ -54,7 +51,6 @@ COBJS-y += systemace.o
 COBJS-y += ahci.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
-COBJS-y += tsi108_i2c.o
 COBJS-y += tsi108_pci.o
 COBJS-y += usb_ohci.o
 COBJS-y += usbdcore.o
@@ -87,6 +83,14 @@ COBJS-y += sm501.o
 COBJS-y += smiLynxEM.o
 COBJS-y += usbtty.o
 COBJS-y += videomodes.o
+
+#
+# I2C Drivers
+#
+COBJS-y += omap1510_i2c.o
+COBJS-y += omap24xx_i2c.o
+COBJS-y += tsi108_i2c.o
+COBJS-y += fsl_i2c.o
 
 #
 # Network Drivers
