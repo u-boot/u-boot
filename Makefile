@@ -342,6 +342,21 @@ $(obj)System.map:	$(obj)u-boot
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
 		sort > $(obj)System.map
 
+#
+# Auto-generate the autoconf.mk file (which is included by all makefiles)
+#
+# This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
+# the dep file is only include in this top level makefile to determine when
+# to regenerate the autoconf.mk file.
+$(OBJTREE)/include/autoconf.mk: $(obj)include/config.h
+	@echo Generating include/autoconf.mk
+	@# Generate the dependancies
+	@$(CC) -M $(HOST_CFLAGS) $(CPPFLAGS) -MQ $@ include/common.h > $@.dep
+	@# Extract the config macros
+	@$(CPP) $(CFLAGS) -dM include/common.h | sed -n -f tools/scripts/define2mk.sed >> $@
+
+sinclude $(OBJTREE)/include/autoconf.mk.dep
+
 #########################################################################
 else
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
@@ -361,7 +376,8 @@ CHANGELOG:
 
 unconfig:
 	@rm -f $(obj)include/config.h $(obj)include/config.mk \
-		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp
+		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp \
+		$(obj)include/autoconf.mk $(obj)include/autoconf.mk.dep
 
 #========================================================================
 # PowerPC
