@@ -28,29 +28,33 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libdrivers.a
 
 COBJS-y += ali512x.o
-COBJS-y += at45.o
-COBJS-y += ata_piix.o
-COBJS-y += cfi_flash.o
-COBJS-y += dataflash.o
 COBJS-y += ds1722.o
 COBJS-y += fsl_pci_init.o
 COBJS-y += mpc8xx_pcmcia.o
-COBJS-y += mw_eeprom.o
 COBJS-y += ns87308.o
 COBJS-y += pci.o
 COBJS-y += pci_auto.o
 COBJS-y += pci_indirect.o
 COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
-COBJS-y += sil680.o
 COBJS-y += status_led.o
-COBJS-y += sym53c8xx.o
-COBJS-y += systemace.o
-COBJS-y += ahci.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
 COBJS-y += tsi108_pci.o
 COBJS-y += w83c553f.o
+
+#
+# Block and Flash Drivers
+#
+COBJS-y += ahci.o
+COBJS-y += at45.o
+COBJS-y += ata_piix.o
+COBJS-y += cfi_flash.o
+COBJS-y += dataflash.o
+COBJS-y += mw_eeprom.o
+COBJS-y += sil680.o
+COBJS-y += sym53c8xx.o
+COBJS-y += systemace.o
 
 #
 # Console Drivers
