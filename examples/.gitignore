@@ -1,0 +1,5 @@
+/hello_world
+/interrupt
+/sched
+*.bin
+*.srec

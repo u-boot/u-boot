@@ -1,0 +1,13 @@
+*.orig
+*.a
+*.o
+*.depend
+System.map
+/u-boot
+/u-boot.map
+/u-boot.bin
+/u-boot.srec
+/LOG
+/errlog
+/reloc_off
+
