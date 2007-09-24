@@ -30,43 +30,24 @@ LIB	= $(obj)libdrivers.a
 COBJS-y += ali512x.o
 COBJS-y += at45.o
 COBJS-y += ata_piix.o
-COBJS-y += ati_radeon_fb.o
-COBJS-y += atmel_usart.o
-COBJS-y += cfb_console.o
 COBJS-y += cfi_flash.o
-COBJS-y += ct69000.o
 COBJS-y += dataflash.o
 COBJS-y += ds1722.o
 COBJS-y += fsl_i2c.o
 COBJS-y += fsl_pci_init.o
-COBJS-y += i8042.o
 COBJS-y += isp116x-hcd.o
-COBJS-y += keyboard.o
 COBJS-y += mpc8xx_pcmcia.o
 COBJS-y += mw_eeprom.o
-COBJS-y += netconsole.o
-COBJS-y += ns16550.o
 COBJS-y += ns87308.o
 COBJS-y += omap1510_i2c.o
 COBJS-y += omap24xx_i2c.o
-COBJS-y += pc_keyb.o
 COBJS-y += pci.o
 COBJS-y += pci_auto.o
 COBJS-y += pci_indirect.o
-COBJS-y += ps2ser.o
-COBJS-y += ps2mult.o
 COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
-COBJS-y += s3c4510b_uart.o
-COBJS-y += sed13806.o
-COBJS-y += sed156x.o
-COBJS-y += serial.o
-COBJS-y += serial_max3100.o
-COBJS-y += serial_xuartlite.o
 COBJS-y += sil680.o
 COBJS-y += sl811_usb.o
-COBJS-y += sm501.o
-COBJS-y += smiLynxEM.o
 COBJS-y += status_led.o
 COBJS-y += sym53c8xx.o
 COBJS-y += systemace.o
@@ -80,9 +61,32 @@ COBJS-y += usbdcore.o
 COBJS-y += usbdcore_ep0.o
 COBJS-y += usbdcore_mpc8xx.o
 COBJS-y += usbdcore_omap1510.o
+COBJS-y += w83c553f.o
+
+#
+# Console Drivers
+#
+COBJS-y += ati_radeon_fb.o
+COBJS-y += atmel_usart.o
+COBJS-y += cfb_console.o
+COBJS-y += ct69000.o
+COBJS-y += i8042.o
+COBJS-y += keyboard.o
+COBJS-y += netconsole.o
+COBJS-y += ns16550.o
+COBJS-y += pc_keyb.o
+COBJS-y += ps2ser.o
+COBJS-y += ps2mult.o
+COBJS-y += s3c4510b_uart.o
+COBJS-y += sed13806.o
+COBJS-y += sed156x.o
+COBJS-y += serial.o
+COBJS-y += serial_max3100.o
+COBJS-y += serial_xuartlite.o
+COBJS-y += sm501.o
+COBJS-y += smiLynxEM.o
 COBJS-y += usbtty.o
 COBJS-y += videomodes.o
-COBJS-y += w83c553f.o
 
 #
 # Network Drivers
