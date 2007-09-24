@@ -218,6 +218,8 @@ _start_e500:
 	bdnz	0b
 
 	/* Clear and set up some registers. */
+	li      r0,0
+	mtmsr   r0
 	li	r0,0x0000
 	lis	r1,0xffff
 	mtspr	DEC,r0			/* prevent dec exceptions */
@@ -277,7 +279,6 @@ _start_e500:
 
 	/* Jump out the last 4K page and continue to 'normal' start */
 #ifdef CFG_RAMBOOT
-	bl	3f
 	b	_start_cont
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
@@ -286,14 +287,8 @@ _start_e500:
 	ori	r3,r3,CFG_MONITOR_BASE@l
 	addi	r3,r3,_start_cont - _start + _START_OFFSET
 	mtlr	r3
+	blr
 #endif
-
-3:	li	r0,0
-	mtspr	SRR1,r0		/* Keep things disabled for now */
-	mflr	r1
-	mtspr	SRR0,r1
-	rfi
-	isync
 
 	.text
 	.globl	_start
