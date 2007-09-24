@@ -29,6 +29,8 @@
 #include <common.h>
 #include <mpc86xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Breathe some life into the CPU...
  *
@@ -38,7 +40,6 @@
 
 void cpu_init_f(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 

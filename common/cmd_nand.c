@@ -161,7 +161,11 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr, off, size;
 	char *cmd, *s;
 	nand_info_t *nand;
+#ifdef CFG_NAND_QUIET
+	int quiet = CFG_NAND_QUIET;
+#else
 	int quiet = 0;
+#endif
 	const char *quiet_str = getenv("quiet");
 
 	/* at least two arguments please */
@@ -452,7 +456,7 @@ U_BOOT_CMD(nand, 5, 1, do_nand,
 	"info                  - show available NAND devices\n"
 	"nand device [dev]     - show or set current device\n"
 	"nand read[.jffs2]     - addr off|partition size\n"
-	"nand write[.jffs2]    - addr off|partiton size - read/write `size' bytes starting\n"
+	"nand write[.jffs2]    - addr off|partition size - read/write `size' bytes starting\n"
 	"    at offset `off' to/from memory address `addr'\n"
 	"nand erase [clean] [off size] - erase `size' bytes from\n"
 	"    offset `off' (entire device if not specified)\n"

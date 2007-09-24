@@ -125,6 +125,8 @@
 #define CFG_ENV_IS_IN_FLASH
 #endif /* !CONFIG_MONITOR_IS_IN_RAM */
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 #define CFG_PROMPT		"=> "
 #define CFG_LONGHELP				/* undef to save memory */
 
