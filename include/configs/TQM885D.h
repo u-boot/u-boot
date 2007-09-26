@@ -76,9 +76,15 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/TQM866M/uImage\0"				\
-	"kernel_addr=40080000\0"					\
-	"ramdisk_addr=40180000\0"					\
+	"bootfile=/tftpboot/TQM885D/uImage\0"				\
+	"fdt_addr=400C0000\0"						\
+	"kernel_addr=40100000\0"					\
+	"ramdisk_addr=40280000\0"					\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"update=protect off 40000000 +${filesize};"			\
+		"erase 40000000 +${filesize};"				\
+		"cp.b 200000 40000000 ${filesize};"			\
+		"protect on 40000000 +${filesize}\0"			\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -137,7 +143,7 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 
-#undef CONFIG_RTC_MPC8xx		/* MPC866 does not support RTC	*/
+#undef CONFIG_RTC_MPC8xx		/* MPC885 does not support RTC	*/
 
 #define	CONFIG_TIMESTAMP		/* but print image timestmps	*/
 
@@ -223,7 +229,7 @@
 #define CFG_FLASH_BASE		0x40000000
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -243,8 +249,8 @@
 
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x40000 /*   Offset   of Environment Sector	*/
-#define CFG_ENV_SIZE		0x08000 /* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector	*/
+#define CFG_ENV_SIZE		0x08000 /* Total Size of Environment		*/
+#define CFG_ENV_SECT_SIZE	0x40000 /* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)

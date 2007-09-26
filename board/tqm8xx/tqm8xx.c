@@ -184,7 +184,7 @@ long int initdram (int board_type)
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
 	    (board_type != 'M') &&
-	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'D') ) {	/* only one SDRAM bank on L, M and D modules */
 		memctl->memc_or3 = CFG_OR3_PRELIM;
 		memctl->memc_br3 = CFG_BR3_PRELIM;
 	}
@@ -260,7 +260,7 @@ long int initdram (int board_type)
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
 	    (board_type != 'M') &&
-	    (board_type != 'D') ) {	/* "L" and "M" type boards have only one bank SDRAM */
+	    (board_type != 'D') ) {	/* only one SDRAM bank on L, M and D modules */
 		/*
 		 * Check Bank 1 Memory Size
 		 * use current column settings
