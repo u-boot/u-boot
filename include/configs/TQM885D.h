@@ -46,13 +46,6 @@
 						/* (it will be used if there is no	*/
 						/* 'cpuclk' variable with valid value)	*/
 
-#define CFG_MEASURE_CPUCLK			/* Measure real cpu clock	*/
-						/* (function measure_gclk()	*/
-						/* will be called)		*/
-#ifdef CFG_MEASURE_CPUCLK
-#define CFG_8XX_XIN		10000000	/* measure_gclk() needs this	*/
-#endif
-
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
