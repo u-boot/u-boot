@@ -42,7 +42,7 @@
 #define CONFIG_8xx_OSCLK		10000000	/*  10 MHz - PLL input clock	*/
 #define CFG_8xx_CPUCLK_MIN		15000000	/*  15 MHz - CPU minimum clock	*/
 #define CFG_8xx_CPUCLK_MAX		133000000	/* 133 MHz - CPU maximum clock	*/
-#define CONFIG_8xx_CPUCLK_DEFAULT	66000000	/*  50 MHz - CPU default clock	*/
+#define CONFIG_8xx_CPUCLK_DEFAULT	66000000	/*  66 MHz - CPU default clock	*/
 						/* (it will be used if there is no	*/
 						/* 'cpuclk' variable with valid value)	*/
 
