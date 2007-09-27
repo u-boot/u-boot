@@ -426,26 +426,30 @@
 #define CFG_PTA_PER_CLK	((4096 * 64 * 1000) / (4 * 64))
 
 /*
- * Memory Periodic Timer Prescaler
- * Periodic timer for refresh, start with refresh rate for 40 MHz clock
- * (CFG_8xx_CPUCLK_MIN / CFG_PTA_PER_CLK)
+ * Periodic timer (MAMR[PTx]) for 4 * 7.8 us refresh (= 31.2 us per quad)
+ *
+ *                        CPUclock(MHz) * 31.2
+ * CFG_MAMR_PTA = -----------------------------------     with DFBRG = 0
+ *                2^(2*SCCR[DFBRG]) * MPTPR_PTP_DIV16
+ *
+ * CPU clock =  15 MHz:  CFG_MAMR_PTA =  29   ->  4 * 7.73 us
+ * CPU clock =  50 MHz:  CFG_MAMR_PTA =  97   ->  4 * 7.76 us
+ * CPU clock =  66 MHz:  CFG_MAMR_PTA = 128   ->  4 * 7.75 us
+ * CPU clock = 133 MHz:  CFG_MAMR_PTA = 255   ->  4 * 7.67 us
+ *
+ * Value 97 is for 4 * 7.8 us at 50 MHz. So the refresh cycle requirement will
+ * be met also in the default configuration, i.e. if environment variable
+ * 'cpuclk' is not set.
  */
-#define CFG_MAMR_PTA		39
+#define CFG_MAMR_PTA		97
 
 /*
- * For 16 MBit, refresh rates could be 31.3 us
- * (= 64 ms / 2K = 125 / quad bursts).
- * For a simpler initialization, 15.6 us is used instead.
- *
- * #define CFG_MPTPR_2BK_2K	MPTPR_PTP_DIV32		for 2 banks
- * #define CFG_MPTPR_1BK_2K	MPTPR_PTP_DIV64		for 1 bank
+ * Memory Periodic Timer Prescaler Register (MPTPR) values.
  */
-#define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
-#define CFG_MPTPR_1BK_4K	MPTPR_PTP_DIV32		/* setting for 1 bank	*/
-
-/* refresh rate 7.8 us (= 64 ms / 8K = 31.2 / quad bursts) for 256 MBit		*/
-#define CFG_MPTPR_2BK_8K	MPTPR_PTP_DIV8		/* setting for 2 banks	*/
-#define CFG_MPTPR_1BK_8K	MPTPR_PTP_DIV16		/* setting for 1 bank	*/
+/* 4 * 7.8 us refresh (= 31.2 us per quad) at 50 MHz and PTA = 97 */
+#define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16
+/* 4 * 3.9 us refresh (= 15.6 us per quad) at 50 MHz and PTA = 97 */
+#define CFG_MPTPR_2BK_8K	MPTPR_PTP_DIV8
 
 /*
  * MAMR settings for SDRAM
