@@ -410,7 +410,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 #endif
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-	defined(CONFIG_440SPE) || defined(CONFIG_440SP)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long mfr;
 #endif
 
@@ -502,8 +502,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	__asm__ volatile ("eieio");
 
 	/* reset emac so we have access to the phy */
-#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-	defined(CONFIG_440SP)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/* provide clocks for EMAC internal loopback  */
 	mfsdr (sdr_mfr, mfr);
 	mfr |= SDR0_MFR_ETH_CLK_SEL_V(devnum);
@@ -521,8 +521,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	if (failsafe <= 0)
 		printf("\nProblem resetting EMAC!\n");
 
-#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-	defined(CONFIG_440SP)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	/* remove clocks for EMAC internal loopback  */
 	mfsdr (sdr_mfr, mfr);
 	mfr &= ~SDR0_MFR_ETH_CLK_SEL_V(devnum);
@@ -924,8 +924,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* set speed */
 	if (speed == _1000BASET) {
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 		unsigned long pfc1;
 
 		mfsdr (sdr_pfc1, pfc1);

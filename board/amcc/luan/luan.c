@@ -81,7 +81,7 @@ int misc_init_r(void)
 		EPLD2_ETH_MODE_1000 | EPLD2_ETH_DUPLEX_MODE;
 	/* clear ETHERNET_AUTO_NEGO bit to turn on autonegotiation */
 	x->ethuart &= ~EPLD2_ETH_AUTO_NEGO;
-	
+
 	/* put Ethernet+PHY in reset */
 	x->ethuart &= ~EPLD2_RESET_ETH_N;
 	udelay(10000);
