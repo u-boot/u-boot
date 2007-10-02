@@ -266,13 +266,13 @@ _start_e500:
 	 */
 	lis	r3,CFG_INIT_RAM_ADDR@h
 	ori	r3,r3,CFG_INIT_RAM_ADDR@l
-	li	r2,512 /* 512*32=16K */
+	li	r2,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE)) 
 	mtctr	r2
 	li	r0,0
 1:
 	dcbz	r0,r3
 	dcbtls	0,r0,r3
-	addi	r3,r3,32
+	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
 
 	/* Jump out the last 4K page and continue to 'normal' start */
@@ -1066,11 +1066,11 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3,(CFG_INIT_RAM_ADDR & ~31)@h
 	ori	r3,r3,(CFG_INIT_RAM_ADDR & ~31)@l
-	li	r4,512
+	li	r4,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE)) 
 	mtctr	r4
 1:	icbi	r0,r3
 	dcbi	r0,r3
-	addi	r3,r3,32
+	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
 	sync			/* Wait for all icbi to complete on bus */
 	isync
