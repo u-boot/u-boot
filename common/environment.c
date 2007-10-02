@@ -51,18 +51,7 @@
  * a seperate section.  Note that ENV_CRC is only defined when building
  * U-Boot itself.
  */
-#if (defined(CONFIG_CMI)	|| \
-     defined(CONFIG_FADS)	|| \
-     defined(CONFIG_HYMOD)	|| \
-     defined(CONFIG_ICU862)	|| \
-     defined(CONFIG_R360MPI)	|| \
-     defined(CONFIG_TQM8xxL)	|| \
-     defined(CONFIG_RRVISION)	|| \
-     defined(CONFIG_TRAB)   	|| \
-     defined(CONFIG_PPCHAMELEONEVB) || \
-     defined(CONFIG_M5271EVB)	|| \
-     defined(CONFIG_IDMR)	|| \
-     defined(CONFIG_NAND_U_BOOT))	&& \
+#if (defined(CFG_USE_PPCENV) || defined(CONFIG_NAND_U_BOOT)) && \
      defined(ENV_CRC) /* Environment embedded in U-Boot .ppcenv section */
 /* XXX - This only works with GNU C */
 #  define __PPCENV__ __attribute__ ((section(".ppcenv")))

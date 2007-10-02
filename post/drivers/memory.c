@@ -461,6 +461,9 @@ int memory_post_test (int flags)
 	unsigned long memsize = (bd->bi_memsize >= 256 << 20 ?
 				 256 << 20 : bd->bi_memsize) - (1 << 20);
 
+	/* Limit area to be tested with the board info struct */
+	if (CFG_SDRAM_BASE + memsize > (ulong)bd)
+		memsize = (ulong)bd - CFG_SDRAM_BASE;
 
 	if (flags & POST_SLOWTEST) {
 		ret = memory_post_tests (CFG_SDRAM_BASE, memsize);

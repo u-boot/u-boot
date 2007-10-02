@@ -378,9 +378,14 @@ static struct pci_config_table pci_stxgp3_config_table[] = {
 #endif
 
 
-static struct pci_controller hose = {
+static struct pci_controller hose[] = {
 #ifndef CONFIG_PCI_PNP
-	config_table: pci_stxgp3_config_table,
+	{ config_table: pci_stxgp3_config_table,},
+#else
+	{},
+#endif
+#ifdef CONFIG_MPC85XX_PCI2
+	{},
 #endif
 };
 
@@ -393,6 +398,6 @@ pci_init_board(void)
 #ifdef CONFIG_PCI
 	extern void pci_mpc85xx_init(struct pci_controller *hose);
 
-	pci_mpc85xx_init(&hose);
+	pci_mpc85xx_init(hose);
 #endif /* CONFIG_PCI */
 }

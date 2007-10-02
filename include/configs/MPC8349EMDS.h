@@ -339,11 +339,8 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
 
 #define OF_CPU			"PowerPC,8349@0"
 #define OF_SOC			"soc8349@e0000000"
@@ -440,6 +437,8 @@
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
@@ -699,6 +698,7 @@
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_ETHADDR		00:04:9f:ef:23:33
 #define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETH1ADDR		00:E0:0C:00:7E:21
 #endif
 

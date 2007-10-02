@@ -120,10 +120,12 @@ static void BootpCopyNetParams(Bootp_t *bp)
 	IPaddr_t tmp_ip;
 
 	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
+#if !defined(CONFIG_BOOTP_SERVERIP)
 	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
 	if (tmp_ip != 0)
 		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
 	memcpy (NetServerEther, ((Ethernet_t *)NetRxPkt)->et_src, 6);
+#endif
 	if (strlen(bp->bp_file) > 0)
 		copy_filename (BootFile, bp->bp_file, sizeof(BootFile));
 
@@ -728,7 +730,7 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
-			NetCopyLong (&NetTimeOffset, (ulong *) (popt + 2));
+			NetCopyLong ((ulong *)&NetTimeOffset, (ulong *) (popt + 2));
 			NetTimeOffset = ntohl (NetTimeOffset);
 			break;
 #endif

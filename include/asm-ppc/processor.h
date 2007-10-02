@@ -217,12 +217,14 @@
 #define   HID0_DPM	(1<<20)
 #define   HID0_ICE	(1<<HID0_ICE_SHIFT)	/* Instruction Cache Enable */
 #define   HID0_DCE	(1<<HID0_DCE_SHIFT)	/* Data Cache Enable */
+#define   HID0_TBEN	(1<<14)		/* Time Base Enable */
 #define   HID0_ILOCK	(1<<13)		/* Instruction Cache Lock */
 #define   HID0_DLOCK	(1<<HID0_DLOCK_SHIFT)	/* Data Cache Lock */
 #define   HID0_ICFI	(1<<11)		/* Instr. Cache Flash Invalidate */
 #define   HID0_DCFI	(1<<10)		/* Data Cache Flash Invalidate */
 #define   HID0_DCI	HID0_DCFI
 #define   HID0_SPD	(1<<9)		/* Speculative disable */
+#define   HID0_ENMAS7	(1<<7)		/* Enable MAS7 Update for 36-bit phys */
 #define   HID0_SGE	(1<<7)		/* Store Gathering Enable */
 #define   HID0_SIED	HID_SGE		/* Serial Instr. Execution [Disable] */
 #define   HID0_DCFA	(1<<6)		/* Data Cache Flush Assist */
@@ -450,6 +452,7 @@
 #define SPRN_PID1       0x279   /* Process ID Register 1 */
 #define SPRN_PID2       0x27a   /* Process ID Register 2 */
 #define SPRN_MCSR	0x23c	/* Machine Check Syndrome register */
+#define SPRN_MCAR	0x23d	/* Machine Check Address register */
 #ifdef CONFIG_440
 #define MCSR_MCS	0x80000000	/* Machine Check Summary */
 #define MCSR_IB		0x40000000	/* Instruction PLB Error */
@@ -464,7 +467,8 @@
 #define ESR_ST          0x00800000      /* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
-#define SPRN_MSSCRO	0x3f6
+#define SPRN_MSSCR0	0x3f6
+#define SPRN_MSSSR0	0x3f7
 #endif
 
 
@@ -531,7 +535,7 @@
 #define LR	SPRN_LR
 #define MBAR    SPRN_MBAR       /* System memory base address */
 #if defined(CONFIG_MPC86xx)
-#define MSSCR0	SPRN_MSSCRO
+#define MSSCR0	SPRN_MSSCR0
 #endif
 #if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define PIR	SPRN_PIR

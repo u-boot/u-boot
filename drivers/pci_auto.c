@@ -28,6 +28,11 @@
 
 #define	PCIAUTO_IDE_MODE_MASK		0x05
 
+/* the user can define CFG_PCI_CACHE_LINE_SIZE to avoid problems */
+#ifndef CFG_PCI_CACHE_LINE_SIZE
+#define CFG_PCI_CACHE_LINE_SIZE	8
+#endif
+
 /*
  *
  */
@@ -94,7 +99,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) | PCI_COMMAND_MASTER;
 
-	for (bar = PCI_BASE_ADDRESS_0; bar <= PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
+	for (bar = PCI_BASE_ADDRESS_0; bar < PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
 		/* Tickle the BAR and get the response */
 		pci_hose_write_config_dword(hose, dev, bar, 0xffffffff);
 		pci_hose_read_config_dword(hose, dev, bar, &bar_response);
@@ -150,7 +155,8 @@ void pciauto_setup_device(struct pci_controller *hose,
 	}
 
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
-	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE, 0x08);
+	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
+		CFG_PCI_CACHE_LINE_SIZE);
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
 }
 

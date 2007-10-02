@@ -79,7 +79,9 @@ void spi_init (void)
  */
 int  spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 {
+#ifdef CFG_IMMR
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+#endif
 	uchar tmpdin  = 0;
 	uchar tmpdout = 0;
 	int   j;

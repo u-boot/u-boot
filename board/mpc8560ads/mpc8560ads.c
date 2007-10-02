@@ -554,7 +554,6 @@ ft_soc_setup(void *blob, bd_t *bd)
 {
 	u32 *p;
 	int len;
-	ulong data;
 
 	p = ft_get_prop(blob, "/" OF_SOC "/cpm@e0000000/brg-frequency", &len);
 

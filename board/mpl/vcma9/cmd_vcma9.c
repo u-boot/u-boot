@@ -40,6 +40,8 @@ static uchar cs8900_chksum(ushort data)
 
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void print_vcma9_info(void);
 extern int vcma9_cantest(int);
 extern int vcma9_nandtest(void);
@@ -53,8 +55,6 @@ extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	if (strcmp(argv[1], "info") == 0)
 	{
 		print_vcma9_info();

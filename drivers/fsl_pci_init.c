@@ -15,7 +15,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#define DEBUG
+
 #include <common.h>
 
 #ifdef CONFIG_FSL_PCI_INIT
@@ -93,7 +93,11 @@ fsl_pci_init(struct pci_controller *hose)
 	hose->current_busno = hose->first_busno;
 
 	pci->pedr = 0xffffffff;		/* Clear any errors */
-	pci->peer = 0xffffffff;		/* Enable Error Interupts */
+	pci->peer = ~0x20140;		/* Enable All Error Interupts except
+					 * - Master abort (pci)
+					 * - Master PERR (pci)
+					 * - ICCA (PCIe)
+					 */
 	pci_hose_read_config_dword (hose, dev, PCI_DCR, &temp32);
 	temp32 |= 0xf000e;		/* set URR, FER, NFER (but not CER) */
 	pci_hose_write_config_dword(hose, dev, PCI_DCR, temp32);
@@ -108,7 +112,7 @@ fsl_pci_init(struct pci_controller *hose)
 
 		if (!enabled) {
 			debug("....PCIE link error.  Skipping scan."
-			      "LTSSM=0x%02x\n", temp16);
+			      "LTSSM=0x%02x\n", ltssm);
 			hose->last_busno = hose->first_busno;
 			return;
 		}
@@ -118,61 +122,46 @@ fsl_pci_init(struct pci_controller *hose)
 #ifdef DEBUG
 		pci_hose_read_config_word(hose, dev, PCI_LSR, &temp16);
 		neg_link_w = (temp16 & 0x3f0 ) >> 4;
-		debug("...PCIE LTSSM=0x%x, Negotiated link width=%d\n",
+		printf("...PCIE LTSSM=0x%x, Negotiated link width=%d\n",
 		      ltssm, neg_link_w);
 #endif
 		hose->current_busno++; /* Start scan with secondary */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 
-	} else {
-#if 0
-/* done in pci_hose_config_device() */
-		pci_hose_read_config_word(hose, dev, PCI_COMMAND, &temp16);
-		temp16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER |
-			PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
-		pci_hose_write_config_word(hose, dev, PCI_COMMAND, temp16);
-		pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
-		pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
-#endif
 	}
 
-	/* Call setup to allocate PCSRBAR window */
-	pciauto_setup_device(hose, dev, 1, hose->pci_mem,
+	/* Use generic setup_device to initialize standard pci regs,
+	 * but do not allocate any windows since any BAR found (such
+	 * as PCSRBAR) is not in this cpu's memory space.
+	 */
+
+	pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			     hose->pci_prefetch, hose->pci_io);
 
+#ifndef CONFIG_PCI_NOSCAN
 	printf ("               Scanning PCI bus %02x\n", hose->current_busno);
 	hose->last_busno = pci_hose_scan_bus(hose,hose->current_busno);
 
 	if ( bridge ) { /* update limit regs and subordinate busno */
 		pciauto_postscan_setup_bridge(hose, dev, hose->last_busno);
 	}
+#else
+	hose->last_busno = hose->current_busno;
+#endif
 
 	/* Clear all error indications */
 
-	if (pci->pme_msg_det && pci->pme_msg_det != 0xffffffff) {
-		debug("pci_fsl_init: pme_msg_det@%x=%x.  Clearing\n",
-			&pci->pme_msg_det, pci->pme_msg_det);
-		pci->pme_msg_det = 0xffffffff;
-	}
-
-	if (pci->pedr) {
-		debug("pci_fsl_init: pedr@%x=%x.  Clearing\n",
-			&pci->pedr, pci->pedr);
-		pci->pedr = 0xffffffff;
-	}
+	pci->pme_msg_det = 0xffffffff;
+	pci->pedr = 0xffffffff;
 
 	pci_hose_read_config_word (hose, dev, PCI_DSR, &temp16);
 	if (temp16) {
-		debug("pci_fsl_init: PCI_DSR@%x=%x.  Clearing\n",
-			PCI_DSR, temp16);
 		pci_hose_write_config_word(hose, dev,
-					   PCI_DSR, 0xffff);
+					PCI_DSR, 0xffff);
 	}
 
 	pci_hose_read_config_word (hose, dev, PCI_SEC_STATUS, &temp16);
 	if (temp16) {
-		debug("pci_fsl_init: PCI_SEC_STATUS@%x=%x.  Clearing\n",
-			PCI_SEC_STATUS, temp16);
 		pci_hose_write_config_word(hose, dev, PCI_SEC_STATUS, 0xffff);
 	}
 }

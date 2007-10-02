@@ -140,6 +140,8 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 	})
 #define fdt_setprop_string(fdt, nodeoffset, name, str) \
 	fdt_setprop((fdt), (nodeoffset), (name), (str), strlen(str)+1)
+int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
+			 const void *val, int len, int create);
 int fdt_delprop(void *fdt, int nodeoffset, const char *name);
 int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 			    const char *name, int namelen);

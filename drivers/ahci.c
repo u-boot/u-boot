@@ -259,8 +259,8 @@ static int ahci_init_one(pci_dev_t pdev)
 
 	memset((void *)ataid, 0, sizeof(hd_driveid_t *) * AHCI_MAX_PORTS);
 
-	probe_ent = malloc(sizeof(probe_ent));
-	memset(probe_ent, 0, sizeof(probe_ent));
+	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
 	probe_ent->dev = pdev;
 
 	pci_read_config_dword(pdev, AHCI_PCI_BAR, &iobase);

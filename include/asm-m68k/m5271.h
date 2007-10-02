@@ -25,7 +25,6 @@
  * MA 02111-1307 USA
  */
 
-
 #ifndef	_MCF5271_H_
 #define	_MCF5271_H_
 
@@ -91,7 +90,7 @@
 #define MCF_GPIO_PAR_UART_U1RXD_UART1		0x0C00
 #define MCF_GPIO_PAR_UART_U1TXD_UART1		0x0300
 
-#define MCF_GPIO_PAR_SDRAM_PAR_CSSDCS(x)        (((x)&0x03)<<6)
+#define MCF_GPIO_PAR_SDRAM_PAR_CSSDCS(x)	(((x)&0x03)<<6)
 
 #define MCF_SDRAMC_DCR				0x000040
 #define MCF_SDRAMC_DACR0			0x000048
@@ -117,4 +116,104 @@
 
 #define MCFSIM_ICR1				0x000C41
 
-#endif	/* _MCF5271_H_ */
+/*********************************************************************
+* Interrupt Controller (INTC)
+*********************************************************************/
+#define INT0_LO_RSVD0			(0)
+#define INT0_LO_EPORT1			(1)
+#define INT0_LO_EPORT2			(2)
+#define INT0_LO_EPORT3			(3)
+#define INT0_LO_EPORT4			(4)
+#define INT0_LO_EPORT5			(5)
+#define INT0_LO_EPORT6			(6)
+#define INT0_LO_EPORT7			(7)
+#define INT0_LO_SCM			(8)
+#define INT0_LO_DMA0			(9)
+#define INT0_LO_DMA1			(10)
+#define INT0_LO_DMA2			(11)
+#define INT0_LO_DMA3			(12)
+#define INT0_LO_UART0			(13)
+#define INT0_LO_UART1			(14)
+#define INT0_LO_UART2			(15)
+#define INT0_LO_RSVD1			(16)
+#define INT0_LO_I2C			(17)
+#define INT0_LO_QSPI			(18)
+#define INT0_LO_DTMR0			(19)
+#define INT0_LO_DTMR1			(20)
+#define INT0_LO_DTMR2			(21)
+#define INT0_LO_DTMR3			(22)
+#define INT0_LO_FEC_TXF			(23)
+#define INT0_LO_FEC_TXB			(24)
+#define INT0_LO_FEC_UN			(25)
+#define INT0_LO_FEC_RL			(26)
+#define INT0_LO_FEC_RXF			(27)
+#define INT0_LO_FEC_RXB			(28)
+#define INT0_LO_FEC_MII			(29)
+#define INT0_LO_FEC_LC			(30)
+#define INT0_LO_FEC_HBERR		(31)
+#define INT0_HI_FEC_GRA			(32)
+#define INT0_HI_FEC_EBERR		(33)
+#define INT0_HI_FEC_BABT		(34)
+#define INT0_HI_FEC_BABR		(35)
+#define INT0_HI_PIT0			(36)
+#define INT0_HI_PIT1			(37)
+#define INT0_HI_PIT2			(38)
+#define INT0_HI_PIT3			(39)
+#define INT0_HI_RNG			(40)
+#define INT0_HI_SKHA			(41)
+#define INT0_HI_MDHA			(42)
+#define INT0_HI_CAN1_BUF0I		(43)
+#define INT0_HI_CAN1_BUF1I		(44)
+#define INT0_HI_CAN1_BUF2I		(45)
+#define INT0_HI_CAN1_BUF3I		(46)
+#define INT0_HI_CAN1_BUF4I		(47)
+#define INT0_HI_CAN1_BUF5I		(48)
+#define INT0_HI_CAN1_BUF6I		(49)
+#define INT0_HI_CAN1_BUF7I		(50)
+#define INT0_HI_CAN1_BUF8I		(51)
+#define INT0_HI_CAN1_BUF9I		(52)
+#define INT0_HI_CAN1_BUF10I		(53)
+#define INT0_HI_CAN1_BUF11I		(54)
+#define INT0_HI_CAN1_BUF12I		(55)
+#define INT0_HI_CAN1_BUF13I		(56)
+#define INT0_HI_CAN1_BUF14I		(57)
+#define INT0_HI_CAN1_BUF15I		(58)
+#define INT0_HI_CAN1_ERRINT		(59)
+#define INT0_HI_CAN1_BOFFINT		(60)
+/* 60-63 Reserved */
+
+/* Bit definitions and macros for INTC_IPRL */
+#define INTC_IPRL_INT31			(0x80000000)
+#define INTC_IPRL_INT30			(0x40000000)
+#define INTC_IPRL_INT29			(0x20000000)
+#define INTC_IPRL_INT28			(0x10000000)
+#define INTC_IPRL_INT27			(0x08000000)
+#define INTC_IPRL_INT26			(0x04000000)
+#define INTC_IPRL_INT25			(0x02000000)
+#define INTC_IPRL_INT24			(0x01000000)
+#define INTC_IPRL_INT23			(0x00800000)
+#define INTC_IPRL_INT22			(0x00400000)
+#define INTC_IPRL_INT21			(0x00200000)
+#define INTC_IPRL_INT20			(0x00100000)
+#define INTC_IPRL_INT19			(0x00080000)
+#define INTC_IPRL_INT18			(0x00040000)
+#define INTC_IPRL_INT17			(0x00020000)
+#define INTC_IPRL_INT16			(0x00010000)
+#define INTC_IPRL_INT15			(0x00008000)
+#define INTC_IPRL_INT14			(0x00004000)
+#define INTC_IPRL_INT13			(0x00002000)
+#define INTC_IPRL_INT12			(0x00001000)
+#define INTC_IPRL_INT11			(0x00000800)
+#define INTC_IPRL_INT10			(0x00000400)
+#define INTC_IPRL_INT9			(0x00000200)
+#define INTC_IPRL_INT8			(0x00000100)
+#define INTC_IPRL_INT7			(0x00000080)
+#define INTC_IPRL_INT6			(0x00000040)
+#define INTC_IPRL_INT5			(0x00000020)
+#define INTC_IPRL_INT4			(0x00000010)
+#define INTC_IPRL_INT3			(0x00000008)
+#define INTC_IPRL_INT2			(0x00000004)
+#define INTC_IPRL_INT1			(0x00000002)
+#define INTC_IPRL_INT0			(0x00000001)
+
+#endif				/* _MCF5271_H_ */

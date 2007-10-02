@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007 Freescale Semiconductor.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -173,11 +173,10 @@ spd_sdram(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_ddr_t *ddr = &immap->im_ddr;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
 	unsigned int rank_density;
-	unsigned int odt_rd_cfg, odt_wr_cfg;
+	unsigned int odt_rd_cfg, odt_wr_cfg, ba_bits;
 	unsigned int odt_cfg, mode_odt_enable;
 	unsigned int refresh_clk;
 #ifdef MPC85xx_DDR_SDRAM_CLK_CNTL
@@ -189,7 +188,7 @@ spd_sdram(void)
 	unsigned int max_data_rate, effective_data_rate;
 	unsigned int busfreq;
 	unsigned sdram_cfg;
-	unsigned int memsize;
+	unsigned int memsize = 0;
 	unsigned char caslat, caslat_ctrl;
 	unsigned int trfc, trfc_clk, trfc_low, trfc_high;
 	unsigned int trcd_clk;
@@ -204,6 +203,46 @@ spd_sdram(void)
 	unsigned int mode_caslat;
 	unsigned char sdram_type;
 	unsigned char d_init;
+	unsigned int bnds;
+
+	/*
+	 * Skip configuration if already configured.
+	 * memsize is determined from last configured chip select.
+	 */
+	if (ddr->cs0_config & 0x80000000) {
+		debug(" cs0 already configured, bnds=%x\n",ddr->cs0_bnds);
+		bnds = 0xfff & ddr->cs0_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+	if (ddr->cs1_config & 0x80000000) {
+		debug(" cs1 already configured, bnds=%x\n",ddr->cs1_bnds);
+		bnds = 0xfff & ddr->cs1_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4; /* assume ordered bnds */
+		}
+	}
+	if (ddr->cs2_config & 0x80000000) {
+		debug(" cs2 already configured, bnds=%x\n",ddr->cs2_bnds);
+		bnds = 0xfff & ddr->cs2_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+	if (ddr->cs3_config & 0x80000000) {
+		debug(" cs3 already configured, bnds=%x\n",ddr->cs3_bnds);
+		bnds = 0xfff & ddr->cs3_bnds;
+		if (bnds < 0xff) { /* do not add if at top of 4G */
+			memsize = (bnds + 1) << 4;
+		}
+	}
+
+	if (memsize) {
+		printf("       Reusing current %dMB configuration\n",memsize);
+		memsize = setup_laws_and_tlbs(memsize);
+		return memsize << 20;
+	}
 
 	/*
 	 * Read SPD information.
@@ -262,6 +301,7 @@ spd_sdram(void)
 		return 0;
 	}
 
+#ifdef CONFIG_MPC8548
 	/*
 	 * Adjust DDR II IO voltage biasing.
 	 * Only 8548 rev 1 needs the fix
@@ -269,9 +309,11 @@ spd_sdram(void)
 	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
 			(SVR_MJREV(get_svr()) == 1) &&
 			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
+		volatile ccsr_gur_t *gur = &immap->im_gur;
 		gur->ddrioovcr = (0x80000000	/* Enable */
 				  | 0x10000000);/* VSEL to 1.8V */
 	}
+#endif
 
 	/*
 	 * Determine the size of each Rank in bytes.
@@ -299,9 +341,14 @@ spd_sdram(void)
 #endif
 	}
 
+	ba_bits = 0;
+	if (spd.nbanks == 0x8)
+		ba_bits = 1;
+
 	ddr->cs0_config = ( 1 << 31
 			    | (odt_rd_cfg << 20)
 			    | (odt_wr_cfg << 16)
+			    | (ba_bits << 14)
 			    | (spd.nrow_addr - 12) << 8
 			    | (spd.ncol_addr - 8) );
 	debug("\n");
@@ -645,13 +692,10 @@ spd_sdram(void)
 	 */
 	cpo = 0;
 	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		if (effective_data_rate == 266 || effective_data_rate == 333) {
+		if (effective_data_rate <= 333) {
 			cpo = 0x7;		/* READ_LAT + 5/4 */
-		} else if (effective_data_rate == 400) {
-			cpo = 0x9;		/* READ_LAT + 7/4 */
 		} else {
-			/* Pure speculation */
-			cpo = 0xb;
+			cpo = 0x9;		/* READ_LAT + 7/4 */
 		}
 	}
 
@@ -858,7 +902,12 @@ spd_sdram(void)
 	if (spd.mem_type == SPD_MEMTYPE_DDR)
 		clk_adjust = 0x6;
 	else
+#ifdef CONFIG_MPC8568
+		/* Empirally setting clk_adjust */
+		clk_adjust = 0x6;
+#else
 		clk_adjust = 0x7;
+#endif
 
 	ddr->sdram_clk_cntl = (0
 			       | 0x80000000

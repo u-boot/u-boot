@@ -3354,6 +3354,19 @@ typedef struct {
 	unsigned long pciClkSync;             /* PCI clock is synchronous        */
 } PPC440_SYS_INFO;
 
+static inline u32 get_mcsr(void)
+{
+	u32 val;
+
+	asm volatile("mfspr %0, 0x23c" : "=r" (val) :);
+	return val;
+}
+
+static inline void set_mcsr(u32 val)
+{
+	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
+}
+
 #endif	/* _ASMLANGUAGE */
 
 #define RESET_VECTOR		0xfffffffc

@@ -180,6 +180,8 @@ LIST_4xx="		\
 	ERIC		\
 	EXBITGEN	\
 	G2000		\
+	hcu4		\
+	hcu5		\
 	HH405		\
 	HUB405		\
 	JSE		\
@@ -202,10 +204,12 @@ LIST_4xx="		\
 	PLU405		\
 	PMC405		\
 	PPChameleonEVB	\
+	rainier		\
 	sbc405		\
 	sc3		\
 	sequoia		\
 	sequoia_nand	\
+	taihu		\
 	taishan		\
 	VOH405		\
 	VOM405		\
@@ -217,6 +221,7 @@ LIST_4xx="		\
 	yellowstone	\
 	yosemite	\
 	yucca		\
+	zeus		\
 "
 
 #########################################################################
@@ -294,6 +299,7 @@ LIST_8260="		\
 LIST_83xx="		\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_66	\
+	MPC8323ERDB	\
 	MPC832XEMDS	\
 	MPC8349EMDS	\
 	MPC8349ITX	\
@@ -335,6 +341,7 @@ LIST_85xx="		\
 
 LIST_86xx="		\
 	MPC8641HPCN	\
+	sbc8641d	\
 "
 
 #########################################################################
@@ -351,6 +358,12 @@ LIST_74xx="		\
 	PCIPPC2		\
 	PCIPPC6		\
 	ZUMA		\
+"
+
+LIST_TSEC="		\
+	${LIST_85xx}	\
+	${LIST_86xx}	\
+	${LIST_83xx}	\
 "
 
 LIST_7xx="		\
@@ -607,11 +620,16 @@ LIST_coldfire="			\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
 	idmr			\
+	M5235EVB		\
+	M5249EVB		\
+	M5253EVB		\
 	M5271EVB		\
 	M5272C3			\
 	M5282EVB		\
-	TASREG			\
+	M5329EVB		\
+	M54455EVB		\
 	r5200			\
+	TASREG			\
 "
 
 #########################################################################
@@ -667,7 +685,7 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
-	x86|I486)
+	x86|I486|TSEC)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

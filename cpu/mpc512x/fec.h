@@ -164,10 +164,13 @@ typedef enum {
 #define FEC_RBD_NUM		32	/* The user can adjust this value */
 
 /* packet size limit */
-#define FEC_MAX_PKT_SIZE	1536
+#define FEC_MAX_FRAME_LEN	1522	/* recommended default value */
+
+/* Buffer size must be evenly divisible by 16 */
+#define FEC_BUFFER_SIZE		((FEC_MAX_FRAME_LEN + 0x10) & (~0xf))
 
 typedef struct {
-	uint8 frame[FEC_MAX_PKT_SIZE];
+	uint8 frame[FEC_BUFFER_SIZE];
 } mpc512x_frame;
 
 typedef struct {

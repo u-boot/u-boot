@@ -201,10 +201,9 @@
 #define CFG_LONGHELP			1
 
 #define CFG_MEMTEST_START						\
-	({ DECLARE_GLOBAL_DATA_PTR; gd->bd->bi_dram[0].start; })
+	({ gd->bd->bi_dram[0].start; })
 #define CFG_MEMTEST_END							\
 	({								\
-		DECLARE_GLOBAL_DATA_PTR;				\
 		gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;	\
 	})
 #define CFG_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }

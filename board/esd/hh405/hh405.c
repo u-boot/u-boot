@@ -5,7 +5,7 @@
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Matthias Fuchs, esd GmbH, matthias.fuchs@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -477,12 +477,6 @@ int misc_init_r (void)
 	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
 
 	/*
-	 * Set NAND-FLASH GPIO signals to default
-	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
-
-	/*
 	 * Reset touch-screen controller
 	 */
 	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_TOUCH_RST);
@@ -688,20 +682,6 @@ void ide_set_reset(int on)
 	}
 }
 #endif /* CONFIG_IDE_RESET */
-
-
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	nand_probe(CFG_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-}
-#endif
 
 
 #if defined(CFG_EEPROM_WREN)

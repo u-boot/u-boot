@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <ppc440.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
@@ -28,7 +29,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-ulong flash_get_size (ulong base, int banknum);
+ulong flash_get_size(ulong base, int banknum);
+int misc_init_r_kbd(void);
 
 int board_early_init_f(void)
 {
@@ -45,16 +47,16 @@ int board_early_init_f(void)
 	mtdcr(uic0sr, 0xffffffff);  /* clear all. if write with 1 then the status is cleared  */
 	mtdcr(uic0er, 0x00000000);  /* disable all */
 	mtdcr(uic0cr, 0x00000000);  /* we have not critical interrupts at the moment */
-	mtdcr(uic0pr, 0xfffff7ff);  /* Adjustment of the polarity */
-	mtdcr(uic0tr, 0x00000810);  /* per ref-board manual */
+	mtdcr(uic0pr, 0xFFBFF1EF);  /* Adjustment of the polarity */
+	mtdcr(uic0tr, 0x00000900);  /* per ref-board manual */
 	mtdcr(uic0vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
 	mtdcr(uic0sr, 0xffffffff);  /* clear all */
 
 	mtdcr(uic1sr, 0xffffffff);  /* clear all */
 	mtdcr(uic1er, 0x00000000);  /* disable all */
 	mtdcr(uic1cr, 0x00000000);  /* all non-critical */
-	mtdcr(uic1pr, 0xFFFFC7AD);  /* Adjustment of the polarity */
-	mtdcr(uic1tr, 0x0600384A);  /* per ref-board manual */
+	mtdcr(uic1pr, 0xFFFFC6A5);  /* Adjustment of the polarity */
+	mtdcr(uic1tr, 0x60000040);  /* per ref-board manual */
 	mtdcr(uic1vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
 	mtdcr(uic1sr, 0xffffffff);  /* clear all */
 
@@ -62,9 +64,9 @@ int board_early_init_f(void)
 	mtdcr(uic2er, 0x00000000);  /* disable all */
 	mtdcr(uic2cr, 0x00000000);  /* all non-critical */
 	mtdcr(uic2pr, 0x27C00000);  /* Adjustment of the polarity */
-	mtdcr(uic2tr, 0xDFC00000);  /* per ref-board manual */
+	mtdcr(uic2tr, 0x3C000000);  /* per ref-board manual */
 	mtdcr(uic2vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
-	mtdcr(uic2sr, 0xffffffff);  /* clear all. Why this??? */
+	mtdcr(uic2sr, 0xffffffff);  /* clear all */
 
 	/* Trace Pins are disabled. SDR0_PFC0 Register */
 	mtsdr(SDR0_PFC0, 0x0);
@@ -158,13 +160,13 @@ int misc_init_r(void)
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    -CFG_MONITOR_LEN,
 			    0xffffffff,
-			    &flash_info[0]);
+			    &flash_info[1]);
 
 	/* Env protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    CFG_ENV_ADDR_REDUND,
 			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
-			    &flash_info[0]);
+			    &flash_info[1]);
 
 	/*
 	 * USB suff...
@@ -221,8 +223,8 @@ int misc_init_r(void)
 	udelay(500);
 	gpio_write_bit(CFG_GPIO_LIME_RST, 1);
 
-	/* Lime memory clock adjusted to 133MHz */
-	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_133MHZ);
+	/* Lime memory clock adjusted to 100MHz */
+	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_100MHZ);
 	/* Wait untill time expired. Because of requirements in lime manual */
 	udelay(300);
 	/* Write lime controller memory parameters */
@@ -236,6 +238,69 @@ int misc_init_r(void)
 	udelay(100);
 	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
 	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
+
+	/*
+	 * Init display controller
+	 */
+	/* Setup dot clock (internal PLL, division rate 1/16) */
+	out_be32((void *)0xc1fd0100, 0x00000f00);
+
+	/* Lime L0 init (16 bpp, 640x480) */
+	out_be32((void *)0xc1fd0020, 0x801401df);
+	out_be32((void *)0xc1fd0024, 0x0);
+	out_be32((void *)0xc1fd0028, 0x0);
+	out_be32((void *)0xc1fd002c, 0x0);
+	out_be32((void *)0xc1fd0110, 0x0);
+	out_be32((void *)0xc1fd0114, 0x0);
+	out_be32((void *)0xc1fd0118, 0x01df0280);
+
+	/* Display timing init */
+	out_be32((void *)0xc1fd0004, 0x031f0000);
+	out_be32((void *)0xc1fd0008, 0x027f027f);
+	out_be32((void *)0xc1fd000c, 0x015f028f);
+	out_be32((void *)0xc1fd0010, 0x020c0000);
+	out_be32((void *)0xc1fd0014, 0x01df01ea);
+	out_be32((void *)0xc1fd0018, 0x0);
+	out_be32((void *)0xc1fd001c, 0x01e00280);
+
+#if 1
+	/*
+	 * Clear framebuffer using Lime's drawing engine
+	 * (draw blue rect. with white border around it)
+	 */
+	/* Setup mode and fbbase, xres, fg, bg */
+	out_be32((void *)0xc1ff0420, 0x8300);
+	out_be32((void *)0xc1ff0440, 0x0000);
+	out_be32((void *)0xc1ff0444, 0x0280);
+	out_be32((void *)0xc1ff0480, 0x7fff);
+	out_be32((void *)0xc1ff0484, 0x0000);
+	/* Reset clipping rectangle */
+	out_be32((void *)0xc1ff0454, 0x0000);
+	out_be32((void *)0xc1ff0458, 0x0280);
+	out_be32((void *)0xc1ff045c, 0x0000);
+	out_be32((void *)0xc1ff0460, 0x01e0);
+	/* Draw white rect. */
+	out_be32((void *)0xc1ff04a0, 0x09410000);
+	out_be32((void *)0xc1ff04a0, 0x00000000);
+	out_be32((void *)0xc1ff04a0, 0x01e00280);
+	udelay(2000);
+	/* Draw blue rect. */
+	out_be32((void *)0xc1ff0480, 0x001f);
+	out_be32((void *)0xc1ff04a0, 0x09410000);
+	out_be32((void *)0xc1ff04a0, 0x00010001);
+	out_be32((void *)0xc1ff04a0, 0x01de027e);
+#endif
+	/* Display enable, L0 layer */
+	out_be32((void *)0xc1fd0100, 0x80010f00);
+
+	/* TFT-LCD enable - PWM duty, lamp on */
+	out_be32((void *)0xc4000024, 0x64);
+	out_be32((void *)0xc4000020, 0x701);
+
+	/*
+	 * Init matrix keyboard
+	 */
+	misc_init_r_kbd();
 
 	return 0;
 }
@@ -463,3 +528,29 @@ void hw_watchdog_reset(void)
 	val = gpio_read_out_bit(CFG_GPIO_WATCHDOG) == 0 ? 1 : 0;
 	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
 }
+
+int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	if (argc < 2) {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if ((strcmp(argv[1], "on") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 1);
+	} else if ((strcmp(argv[1], "off") == 0)) {
+		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 0);
+	} else {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	eepromwp,	2,	0,	do_eeprom_wp,
+	"eepromwp- eeprom write protect off/on\n",
+	"<on|off> - enable (on) or disable (off) I2C EEPROM write protect\n"
+);

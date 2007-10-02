@@ -125,12 +125,12 @@ serial_puts (const char *s)
 
 #elif defined(CONFIG_LPC2292)
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #include <asm/arch/hardware.h>
 
 void serial_setbrg (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned short divisor = 0;
 
 	switch (gd->baudrate) {

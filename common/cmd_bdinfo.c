@@ -207,6 +207,71 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_M68K) /* M68K */
+static void print_str(const char *, const char *);
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int i;
+	bd_t *bd = gd->bd;
+	char buf[32];
+
+	print_num ("memstart",		(ulong)bd->bi_memstart);
+	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_num ("flashstart",	(ulong)bd->bi_flashstart);
+	print_num ("flashsize",		(ulong)bd->bi_flashsize);
+	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
+#if defined(CFG_INIT_RAM_ADDR)
+	print_num ("sramstart",		(ulong)bd->bi_sramstart);
+	print_num ("sramsize",		(ulong)bd->bi_sramsize);
+#endif
+#if defined(CFG_MBAR)
+	print_num ("mbar",		bd->bi_mbar_base);
+#endif
+	print_str ("busfreq",		strmhz(buf, bd->bi_busfreq));
+#ifdef CONFIG_PCI
+	print_str ("pcifreq",		strmhz(buf, bd->bi_pcifreq));
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	print_str ("flbfreq",		strmhz(buf, bd->bi_flbfreq));
+	print_str ("inpfreq",		strmhz(buf, bd->bi_inpfreq));
+	print_str ("vcofreq",		strmhz(buf, bd->bi_vcofreq));
+#endif
+#if defined(CONFIG_CMD_NET)
+	puts ("ethaddr     =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
+	}
+
+#if defined(CONFIG_HAS_ETH1)
+	puts ("\neth1addr    =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);
+	}
+#endif
+
+#if defined(CONFIG_HAS_ETH2)
+	puts ("\neth2addr    =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
+	}
+#endif
+
+#if defined(CONFIG_HAS_ETH3)
+	puts ("\neth3addr    =");
+	for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet3addr[i]);
+	}
+#endif
+
+	puts ("\nip_addr     = ");
+	print_IPaddr (bd->bi_ip_addr);
+#endif
+	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
 #else /* ! PPC, which leaves MIPS */
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -270,7 +335,7 @@ static void print_num(const char *name, ulong value)
 	printf ("%-12s= 0x%08lX\n", name, value);
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static void print_str(const char *name, const char *str)
 {
 	printf ("%-12s= %6s MHz\n", name, str);

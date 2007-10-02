@@ -114,7 +114,7 @@ long int initdram (int board_type)
 	/* enable DDR controller */
 	im->ddr.sdram_cfg = (SDRAM_CFG_MEM_EN |
 		SDRAM_CFG_SREN |
-		SDRAM_CFG_SDRAM_TYPE_DDR);
+		SDRAM_CFG_SDRAM_TYPE_DDR1);
 	SYNC;
 
 	/* size detection */
@@ -388,7 +388,7 @@ static void set_ddr_config(void) {
 	/* don't enable DDR controller yet */
 	im->ddr.sdram_cfg =
 		SDRAM_CFG_SREN |
-		SDRAM_CFG_SDRAM_TYPE_DDR;
+		SDRAM_CFG_SDRAM_TYPE_DDR1;
 	SYNC;
 
 	/* Set SDRAM mode */

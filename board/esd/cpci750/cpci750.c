@@ -55,6 +55,71 @@
 #define DP(x)
 #endif
 
+static char show_config_tab[][15] = {{"PCI0DLL_2     "},  /* 31 */
+				     {"PCI0DLL_1     "},  /* 30 */
+				     {"PCI0DLL_0     "},  /* 29 */
+				     {"PCI1DLL_2     "},  /* 28 */
+				     {"PCI1DLL_1     "},  /* 27 */
+				     {"PCI1DLL_0     "},  /* 26 */
+				     {"BbEP2En       "},  /* 25 */
+				     {"SDRAMRdDataDel"},  /* 24 */
+				     {"SDRAMRdDel    "},  /* 23 */
+				     {"SDRAMSync     "},  /* 22 */
+				     {"SDRAMPipeSel_1"},  /* 21 */
+				     {"SDRAMPipeSel_0"},  /* 20 */
+				     {"SDRAMAddDel   "},  /* 19 */
+				     {"SDRAMClkSel   "},  /* 18 */
+				     {"Reserved(1!)  "},  /* 17 */
+				     {"PCIRty        "},  /* 16 */
+				     {"BootCSWidth_1 "},  /* 15 */
+				     {"BootCSWidth_0 "},  /* 14 */
+				     {"PCI1PadsCal   "},  /* 13 */
+				     {"PCI0PadsCal   "},  /* 12 */
+				     {"MultiMVId_1   "},  /* 11 */
+				     {"MultiMVId_0   "},  /* 10 */
+				     {"MultiGTEn     "},  /* 09 */
+				     {"Int60xArb     "},  /* 08 */
+				     {"CPUBusConfig_1"},  /* 07 */
+				     {"CPUBusConfig_0"},  /* 06 */
+				     {"DefIntSpc     "},  /* 05 */
+				     {0               },  /* 04 */
+				     {"SROMAdd_1     "},  /* 03 */
+				     {"SROMAdd_0     "},  /* 02 */
+				     {"DRAMPadCal    "},  /* 01 */
+				     {"SInitEn       "},  /* 00 */
+				     {0               },  /* 31 */
+				     {0               },  /* 30 */
+				     {0               },  /* 29 */
+				     {0               },  /* 28 */
+				     {0               },  /* 27 */
+				     {0               },  /* 26 */
+				     {0               },  /* 25 */
+				     {0               },  /* 24 */
+				     {0               },  /* 23 */
+				     {0               },  /* 22 */
+				     {"JTAGCalBy     "},  /* 21 */
+				     {"GB2Sel        "},  /* 20 */
+				     {"GB1Sel        "},  /* 19 */
+				     {"DRAMPLL_MDiv_5"},  /* 18 */
+				     {"DRAMPLL_MDiv_4"},  /* 17 */
+				     {"DRAMPLL_MDiv_3"},  /* 16 */
+				     {"DRAMPLL_MDiv_2"},  /* 15 */
+				     {"DRAMPLL_MDiv_1"},  /* 14 */
+				     {"DRAMPLL_MDiv_0"},  /* 13 */
+				     {"GB0Sel        "},  /* 12 */
+				     {"DRAMPLLPU     "},  /* 11 */
+				     {"DRAMPLL_HIKVCO"},  /* 10 */
+				     {"DRAMPLLNP     "},  /* 09 */
+				     {"DRAMPLL_NDiv_7"},  /* 08 */
+				     {"DRAMPLL_NDiv_6"},  /* 07 */
+				     {"CPUPadCal     "},  /* 06 */
+				     {"DRAMPLL_NDiv_5"},  /* 05 */
+				     {"DRAMPLL_NDiv_4"},  /* 04 */
+				     {"DRAMPLL_NDiv_3"},  /* 03 */
+				     {"DRAMPLL_NDiv_2"},  /* 02 */
+				     {"DRAMPLL_NDiv_1"},  /* 01 */
+				     {"DRAMPLL_NDiv_0"}}; /* 00 */
+
 extern void flush_data_cache (void);
 extern void invalidate_l1_instruction_cache (void);
 extern flash_info_t flash_info[];
@@ -901,21 +966,37 @@ void board_prebootm_init ()
 	dcache_disable ();
 }
 
-
-int do_show_cfg(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_show_config(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned int reset_sample_low;
 	unsigned int reset_sample_high;
+	unsigned int l, l1, l2;
 
 	GT_REG_READ(0x3c4, &reset_sample_low);
 	GT_REG_READ(0x3d4, &reset_sample_high);
 	printf("Reset configuration 0x%08x 0x%08x\n", reset_sample_low, reset_sample_high);
 
+	l2 = 0;
+	for (l=0; l<63; l++) {
+		if (show_config_tab[l][0] != 0) {
+			printf("%14s:%1x ", show_config_tab[l],
+			       ((reset_sample_low >> (31 - (l & 0x1f)))) & 0x01);
+			l2++;
+			if ((l2 % 4) == 0)
+				printf("\n");
+		} else {
+			l1++;
+		}
+		if (l == 32)
+			reset_sample_low = reset_sample_high;
+	}
+	printf("\n");
+
 	return(0);
 }
 
 U_BOOT_CMD(
-	show_cfg,	1,	1,	do_show_cfg,
-	"show_cfg- Show Marvell strapping register\n",
+	show_config,	1,	1,	do_show_config,
+	"show_config - Show Marvell strapping register\n",
 	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)\n"
 	);

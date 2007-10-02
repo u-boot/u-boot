@@ -118,6 +118,10 @@ char		NetOurHostName[32]={0,};	/* Our hostname			*/
 char		NetOurRootPath[64]={0,};	/* Our bootpath			*/
 ushort		NetBootFileSize=0;		/* Our bootfile size in blocks	*/
 
+#ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
+IPaddr_t Mcast_addr;
+#endif
+
 /** END OF BOOTP EXTENTIONS **/
 
 ulong		NetBootFileXferSize;	/* The actual transferred size of the bootfile (in bytes) */
@@ -537,11 +541,11 @@ restart:
 
 		case NETLOOP_SUCCESS:
 			if (NetBootFileXferSize > 0) {
-				char buf[10];
+				char buf[20];
 				printf("Bytes transferred = %ld (%lx hex)\n",
 					NetBootFileXferSize,
 					NetBootFileXferSize);
-				sprintf(buf, "%lx", NetBootFileXferSize);
+				sprintf(buf, "%lX", NetBootFileXferSize);
 				setenv("filesize", buf);
 
 				sprintf(buf, "%lX", (unsigned long)load_addr);
@@ -1386,6 +1390,9 @@ NetReceive(volatile uchar * inpkt, int len)
 		}
 		tmp = NetReadIP(&ip->ip_dst);
 		if (NetOurIP && tmp != NetOurIP && tmp != 0xFFFFFFFF) {
+#ifdef CONFIG_MCAST_TFTP
+			if (Mcast_addr != tmp)
+#endif
 			return;
 		}
 		/*
@@ -1491,6 +1498,7 @@ NetReceive(volatile uchar * inpkt, int len)
 			}
 		}
 #endif
+
 
 #ifdef CONFIG_NETCONSOLE
 		nc_input_packet((uchar *)ip +IP_HDR_SIZE,

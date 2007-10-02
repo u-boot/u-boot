@@ -80,9 +80,6 @@
 #define CONFIG_OF_FLAT_TREE	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,7448@0"
 #define OF_TSI			"tsi108@c0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)

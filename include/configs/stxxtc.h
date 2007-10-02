@@ -592,9 +592,6 @@ typedef unsigned int led_id_t;
 /* pass open firmware flat tree */
 #define CONFIG_OF_FLAT_TREE	1
 
-/* maximum size of the flat tree (8K) */
-#define OF_FLAT_TREE_MAX_SIZE	8192
-
 #define OF_CPU			"PowerPC,MPC870@0"
 #define OF_TBCLK		(MPC8XX_HZ / 16)
 #define CONFIG_OF_HAS_BD_T	1

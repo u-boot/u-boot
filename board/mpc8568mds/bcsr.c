@@ -47,3 +47,10 @@ void disable_8568mds_flash_write()
 
 	bcsr[9] &= ~(0x01);
 }
+
+void enable_8568mds_qe_mdio()
+{
+	u8 *bcsr = (u8 *)(CFG_BCSR);
+
+	bcsr[7] |= 0x01;
+}

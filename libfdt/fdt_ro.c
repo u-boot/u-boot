@@ -534,4 +534,3 @@ int fdt_get_reservemap(void *fdt, int n, struct fdt_reserve_entry *re)
 }
 
 #endif /* CONFIG_OF_LIBFDT */
-

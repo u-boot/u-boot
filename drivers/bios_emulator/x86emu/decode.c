@@ -36,10 +36,11 @@
 *		instruction decoding and accessess of immediate data via IP.  etc.
 *
 ****************************************************************************/
-
-#include "x86emu/x86emui.h"
+#include <common.h>
 
 #if defined(CONFIG_BIOSEMU)
+
+#include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
 

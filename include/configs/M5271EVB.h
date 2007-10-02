@@ -31,7 +31,6 @@
 #ifndef _M5271EVB_H
 #define _M5271EVB_H
 
-#define DEBUG
 #undef DEBUG
 
 /*
@@ -41,29 +40,26 @@
 #define CONFIG_M5271		/* define processor type */
 #define CONFIG_M5271EVB		/* define board type */
 
-#define CONFIG_IPADDR		192.168.30.1
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_ETHADDR		00:06:3b:01:41:55
+#define CONFIG_MCFTMR
 
+#define CONFIG_MCFUART
+#define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
 #define CFG_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 
 #undef CONFIG_WATCHDOG		/* disable watchdog */
-
-#define CONFIG_BOOTDELAY	5
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
 #define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
 #else
 #define CFG_ENV_ADDR		0xffe04000
+#endif
 #define CFG_ENV_SECT_SIZE	0x2000
 #define CFG_ENV_IS_IN_FLASH	1
-#endif
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*
  * BOOTP options
@@ -73,7 +69,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -81,22 +76,83 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
 
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_LOADB
 
+#define CONFIG_MCFFEC
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_MULTI		1
+#	define CONFIG_MII		1
+#	define CFG_DISCOVER_PHY
+#	define CFG_RX_ETH_BUFFER	8
+#	define CFG_FAULT_ECHO_LINK_DOWN
+
+#	define CFG_FEC0_PINMUX		0
+#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define MCFFEC_TOUT_LOOP 	50000
+/* If CFG_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CFG_DISCOVER_PHY
+#		define FECDUPLEX	FULL
+#		define FECSPEED		_100BASET
+#	else
+#		ifndef CFG_FAULT_ECHO_LINK_DOWN
+#			define CFG_FAULT_ECHO_LINK_DOWN
+#		endif
+#	endif			/* CFG_DISCOVER_PHY */
+#endif
+
+/* I2C */
+#define CONFIG_FSL_I2C
+#define CONFIG_HARD_I2C		/* I2C with hw support */
+#undef CONFIG_SOFT_I2C		/* I2C bit-banged */
+#define CFG_I2C_SPEED		80000
+#define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_OFFSET		0x00000300
+#define CFG_IMMR		CFG_MBAR
+
+#define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
+#define CONFIG_BOOTFILE		"u-boot.bin"
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_RETRY_COUNT	5
+#	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
+#	define CONFIG_IPADDR	192.162.1.2
+#	define CONFIG_NETMASK	255.255.255.0
+#	define CONFIG_SERVERIP	192.162.1.1
+#	define CONFIG_GATEWAYIP	192.162.1.1
+#	define CONFIG_OVERWRITE_ETHADDR_ONCE
+#endif				/* FEC_ENET */
+
+#define CONFIG_HOSTNAME		M5235EVB
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"netdev=eth0\0"				\
+	"loadaddr=10000\0"			\
+	"u-boot=u-boot.bin\0"			\
+	"load=tftp ${loadaddr) ${u-boot}\0"	\
+	"upd=run load; run prog\0"		\
+	"prog=prot off ffe00000 ffe2ffff;"		\
+	"era ffe00000 ffe2ffff;"				\
+	"cp.b ${loadaddr} 0 ${filesize};"	\
+	"save\0"				\
+	""
 
 #define CFG_PROMPT		"=> "
-#define CFG_LONGHELP				/* undef to save memory		*/
+#define CFG_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE		1024	/* Console I/O Buffer Size      */
 #else
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE		256	/* Console I/O Buffer Size      */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
+#define CFG_MAXARGS		16	/* max number of command args   */
+#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
 
 #define CFG_LOAD_ADDR		0x00100000
 
@@ -114,16 +170,11 @@
 
 #define CFG_MBAR		0x40000000	/* Register Base Addrs */
 
-/* Enable FEC ethernet */
-#define FEC_ENET
-#define CONFIG_NET_RETRY_COUNT	5
-#define CFG_ENET_BD_BASE	0x480000
-
 /*
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CFG_INIT_RAM_ADDR	0x20000000
-#define CFG_INIT_RAM_END	0x1000	/* End of used area in internal SRAM	*/
+#define CFG_INIT_RAM_END	0x1000	/* End of used area in internal SRAM    */
 #define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
@@ -134,7 +185,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		16		/* SDRAM size in MB */
+#define CFG_SDRAM_SIZE		16	/* SDRAM size in MB */
 #define CFG_FLASH_BASE		0xffe00000
 
 #ifdef	CONFIG_MONITOR_IS_IN_RAM
@@ -152,11 +203,11 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CFG_BOOTMAPSZ		(CFG_SDRAM_BASE + (CFG_SDRAM_SIZE << 20))
 
 /* FLASH organization */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks           */
+#define CFG_MAX_FLASH_SECT	11	/* max number of sectors on one chip    */
 #define CFG_FLASH_ERASE_TOUT	1000
 
 #define CFG_FLASH_CFI		1
@@ -169,4 +220,4 @@
 /* Port configuration */
 #define CFG_FECI2C		0xF0
 
-#endif	/* _M5271EVB_H */
+#endif				/* _M5271EVB_H */

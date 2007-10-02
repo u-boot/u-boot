@@ -34,6 +34,8 @@
 #include "yucca.h"
 #include "../cpu/ppc4xx/440spe_pcie.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #undef PCIE_ENDPOINT
 /* #define PCIE_ENDPOINT 1 */
 
@@ -562,6 +564,40 @@ int checkboard (void)
 	return 0;
 }
 
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+static int ppc440spe_rev_a(void)
+{
+	if ((get_pvr() == PVR_440SPe_6_RA) || (get_pvr() == PVR_440SPe_RA))
+		return 1;
+	else
+		return 0;
+}
+
+u32 ddr_wrdtr(u32 default_val) {
+	/*
+	 * Yucca boards with 440SPe rev. A need a slightly different setup
+	 * for the MCIF0_WRDTR register.
+	 */
+	if (ppc440spe_rev_a())
+		return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_270_DEG_ADV);
+
+	return default_val;
+}
+
+u32 ddr_clktr(u32 default_val) {
+	/*
+	 * Yucca boards with 440SPe rev. A need a slightly different setup
+	 * for the MCIF0_CLKTR register.
+	 */
+	if (ppc440spe_rev_a())
+		return (SDRAM_CLKTR_CLKP_180_DEG_ADV);
+
+	return default_val;
+}
+
 #if defined(CFG_DRAM_TEST)
 int testdram (void)
 {
@@ -634,8 +670,6 @@ int pci_pre_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/*-------------------------------------------------------------------+
 	 * Disable everything
 	 *-------------------------------------------------------------------*/
@@ -812,16 +846,18 @@ void yucca_setup_pcie_fpga_endpoint(int port)
 
 static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
 
-void pcie_setup_hoses(void)
+void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	char *env;
+	unsigned int delay;
 
 	/*
 	 * assume we're called after the PCIX hose is initialized, which takes
 	 * bus ID 0 and therefore start numbering PCIe's from 1.
 	 */
-	bus = 1;
+	bus = busno;
 	for (i = 0; i <= 2; i++) {
 		/* Check for yucca card presence */
 		if (!yucca_pcie_card_present(i))
@@ -840,8 +876,8 @@ void pcie_setup_hoses(void)
 
 		hose = &pcie_hose[i];
 		hose->first_busno = bus;
-		hose->last_busno  = bus;
-		bus++;
+		hose->last_busno = bus;
+		hose->current_busno = bus;
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
@@ -861,10 +897,21 @@ void pcie_setup_hoses(void)
 		 */
 #else
 		ppc440spe_setup_pcie_rootpoint(hose, i);
+
+		env = getenv ("pciscandelay");
+		if (env != NULL) {
+			delay = simple_strtoul (env, NULL, 10);
+			if (delay > 5)
+				printf ("Warning, expect noticable delay before PCIe"
+					"scan due to 'pciscandelay' value!\n");
+			mdelay (delay * 1000);
+		}
+
 		/*
 		 * Config access can only go down stream
 		 */
 		hose->last_busno = pci_hose_scan(hose);
+		bus = hose->last_busno + 1;
 #endif
 	}
 }

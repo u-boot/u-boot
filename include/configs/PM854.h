@@ -270,15 +270,19 @@
 #define TSEC2_PHY_ADDR		1
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
 
 #define CONFIG_MPC85XX_FEC	1
 #define CONFIG_MPC85XX_FEC_NAME		"FEC"
 #define FEC_PHY_ADDR		3
 #define FEC_PHYIDX		0
+#define FEC_FLAGS		0
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
 
+#define CONFIG_HAS_ETH0
 #define	CONFIG_HAS_ETH1		1
 #define	CONFIG_HAS_ETH2		1
 

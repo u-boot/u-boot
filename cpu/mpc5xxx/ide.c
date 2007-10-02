@@ -54,11 +54,19 @@ int ide_preinit (void)
 	/* All sample codes do that... */
 	*(vu_long *) MPC5XXX_ATA_SHARE_COUNT = 0;
 
+#if defined(CONFIG_UC101)
+	/* Configure and reset host */
+	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG =
+		MPC5xxx_ATA_HOSTCONF_SMR | MPC5xxx_ATA_HOSTCONF_FR;
+	udelay (10);
+	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG = 0;
+#else
 	/* Configure and reset host */
 	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG = MPC5xxx_ATA_HOSTCONF_IORDY |
 		MPC5xxx_ATA_HOSTCONF_SMR | MPC5xxx_ATA_HOSTCONF_FR;
 	udelay (10);
 	*(vu_long *) MPC5XXX_ATA_HOST_CONFIG = MPC5xxx_ATA_HOSTCONF_IORDY;
+#endif
 
 	/* Disable prefetch on Commbus */
 	psdma->PtdCntrl |= 1;

@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Markus Kappeler <markus.kappeler@objectxp.com>
  *
- * Adapted for U-Boot 1.2 by Piotr Kruszynski <ppk@semihalf.com> 
+ * Adapted for U-Boot 1.2 by Piotr Kruszynski <ppk@semihalf.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,7 +27,7 @@
 #include <i2c.h>
 #include <usb.h>
 
-#ifdef CONFIG_CMD_BSB
+#ifdef CONFIG_CMD_BSP
 
 int do_i2c(char *argv[])
 {

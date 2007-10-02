@@ -29,8 +29,6 @@
 
 #include <config.h>
 
-#define mtsdram0(reg, data)  mtdcr(memcfga,reg);mtdcr(memcfgd,data)
-
 #define ONE_BILLION	1000000000
 
 struct sdram_conf_s {

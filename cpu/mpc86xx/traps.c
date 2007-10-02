@@ -34,6 +34,8 @@
 #include <command.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CMD_KGDB)
 int (*debugger_exception_handler)(struct pt_regs *) = 0;
 #endif
@@ -50,8 +52,6 @@ extern unsigned long search_exception_table(unsigned long);
 void
 print_backtrace(unsigned long *sp)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int cnt = 0;
 	unsigned long i;
 
@@ -130,8 +130,11 @@ MachineCheckException(struct pt_regs *regs)
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
 	printf("regs %p ", regs);
-	switch (regs->msr & 0x000F0000) {
-	case (0x80000000 >> 12):
+	switch ( regs->msr & 0x001F0000) {
+	case (0x80000000>>11):
+		printf("MSS error. MSSSR0: %08x\n", mfspr(SPRN_MSSSR0));
+		break;
+	case (0x80000000>>12):
 		printf("Machine check signal - probably due to mm fault\n"
 		       "with mmu off\n");
 		break;
@@ -209,6 +212,7 @@ UnknownException(struct pt_regs *regs)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
+	printf("UnknownException regs@%x\n", regs);
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);

@@ -37,24 +37,44 @@
 #ifndef __ASSEMBLY__
 
 typedef struct bd_info {
-	unsigned long	bi_memstart;	/* start of DRAM memory */
-	unsigned long	bi_memsize;	/* size	 of DRAM memory in bytes */
-	unsigned long	bi_flashstart;	/* start of FLASH memory */
-	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
-	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
-	unsigned long	bi_sramstart;	/* start of SRAM memory */
-	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
-	unsigned long	bi_mbar_base;	/* base of internal registers */
-	unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
-	unsigned long   bi_boot_params; /* where this board expects params */
-	unsigned long	bi_ip_addr;	/* IP Address */
-	unsigned char	bi_enetaddr[6];	/* Ethernet adress */
-	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
-	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
-	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
-	unsigned long	bi_baudrate;	/* Console Baudrate */
+	unsigned long bi_memstart;	/* start of DRAM memory */
+	unsigned long bi_memsize;	/* size  of DRAM memory in bytes */
+	unsigned long bi_flashstart;	/* start of FLASH memory */
+	unsigned long bi_flashsize;	/* size  of FLASH memory */
+	unsigned long bi_flashoffset;	/* reserved area for startup monitor */
+	unsigned long bi_sramstart;	/* start of SRAM memory */
+	unsigned long bi_sramsize;	/* size  of SRAM memory */
+	unsigned long bi_mbar_base;	/* base of internal registers */
+	unsigned long bi_bootflags;	/* boot / reboot flag (for LynxOS) */
+	unsigned long bi_boot_params;	/* where this board expects params */
+	unsigned long bi_ip_addr;	/* IP Address */
+	unsigned char bi_enetaddr[6];	/* Ethernet adress */
+	unsigned short bi_ethspeed;	/* Ethernet speed in Mbps */
+	unsigned long bi_intfreq;	/* Internal Freq, in MHz */
+	unsigned long bi_busfreq;	/* Bus Freq, in MHz */
+#ifdef CONFIG_PCI
+	unsigned long bi_pcifreq;	/* pci Freq in MHz */
+#endif
+#ifdef CONFIG_EXTRA_CLOCK
+	unsigned long bi_inpfreq;	/* input Freq in MHz */
+	unsigned long bi_vcofreq;	/* vco Freq in MHz */
+	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
+#endif
+	unsigned long bi_baudrate;	/* Console Baudrate */
+
+#ifdef CONFIG_HAS_ETH1
+	/* second onboard ethernet port */
+	unsigned char bi_enet1addr[6];
+#endif
+#ifdef CONFIG_HAS_ETH2
+	/* third onboard ethernet port */
+	unsigned char bi_enet2addr[6];
+#endif
+#ifdef CONFIG_HAS_ETH3
+	unsigned char bi_enet3addr[6];
+#endif
 } bd_t;
 
-#endif /* __ASSEMBLY__ */
+#endif				/* __ASSEMBLY__ */
 
-#endif	/* __U_BOOT_H__ */
+#endif				/* __U_BOOT_H__ */
