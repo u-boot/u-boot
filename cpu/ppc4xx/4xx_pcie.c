@@ -368,11 +368,167 @@ int ppc4xx_init_pcie(void)
 }
 
 /*
- *  Yucca board as End point and root point setup
+ * Board-specific pcie initialization
+ * Platform code can reimplement ppc4xx_init_pcie_port_hw() if needed
+ */
+
+/*
+ * Initialize various parts of the PCI Express core for our port:
+ *
+ * - Set as a root port and enable max width
+ *   (PXIE0 -> X8, PCIE1 and PCIE2 -> X4).
+ * - Set up UTL configuration.
+ * - Increase SERDES drive strength to levels suggested by AMCC.
+ * - De-assert RSTPYN, RSTDL and RSTGU.
+ *
+ * NOTICE for 440SPE revB chip: PESDRn_UTLSET2 is not set - we leave it
+ * with default setting 0x11310000. The register has new fields,
+ * PESDRn_UTLSET2[LKINE] in particular: clearing it leads to PCIE core
+ * hang.
+ */
+#if defined(CONFIG_440SPE)
+int __ppc4xx_init_pcie_port_hw(int port, int rootport)
+{
+	u32 val = 1 << 24;
+	u32 utlset1;
+
+	if (rootport) {
+		val = PTYPE_ROOT_PORT << 20;
+		utlset1 = 0x21222222;
+	} else {
+		val = PTYPE_LEGACY_ENDPOINT << 20;
+		utlset1 = 0x20222222;
+	}
+
+	if (port == 0)
+		val |= LNKW_X8 << 12;
+	else
+		val |= LNKW_X4 << 12;
+
+	SDR_WRITE(SDRN_PESDR_DLPSET(port), val);
+	SDR_WRITE(SDRN_PESDR_UTLSET1(port), utlset1);
+	if (!ppc440spe_revB())
+		SDR_WRITE(SDRN_PESDR_UTLSET2(port), 0x11000000);
+	SDR_WRITE(SDRN_PESDR_HSSL0SET1(port), 0x35000000);
+	SDR_WRITE(SDRN_PESDR_HSSL1SET1(port), 0x35000000);
+	SDR_WRITE(SDRN_PESDR_HSSL2SET1(port), 0x35000000);
+	SDR_WRITE(SDRN_PESDR_HSSL3SET1(port), 0x35000000);
+	if (port == 0) {
+		SDR_WRITE(PESDR0_HSSL4SET1, 0x35000000);
+		SDR_WRITE(PESDR0_HSSL5SET1, 0x35000000);
+		SDR_WRITE(PESDR0_HSSL6SET1, 0x35000000);
+		SDR_WRITE(PESDR0_HSSL7SET1, 0x35000000);
+	}
+	SDR_WRITE(SDRN_PESDR_RCSSET(port), (SDR_READ(SDRN_PESDR_RCSSET(port)) &
+					    ~(1 << 24 | 1 << 16)) | 1 << 12);
+
+	return 0;
+}
+#endif /* CONFIG_440SPE */
+
+#if defined(CONFIG_405EX)
+int __ppc4xx_init_pcie_port_hw(int port, int rootport)
+{
+	u32 val;
+
+	if (rootport)
+		val = 0x00401000;
+	else
+		val = 0x00101000;
+
+	SDR_WRITE(SDRN_PESDR_DLPSET(port), val);
+	SDR_WRITE(SDRN_PESDR_UTLSET1(port), 0x20222222);
+	SDR_WRITE(SDRN_PESDR_UTLSET2(port), 0x01110000);
+	SDR_WRITE(SDRN_PESDR_PHYSET1(port), 0x720F0000);
+	SDR_WRITE(SDRN_PESDR_PHYSET2(port), 0x70600003);
+
+	/* Assert the PE0_PHY reset */
+	SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x01010000);
+	udelay(1000);
+
+	/* deassert the PE0_hotreset */
+	SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x01101000);
+
+	/* poll for phy !reset */
+	while (!(SDR_READ(SDRN_PESDR_PHYSTA(port)) & 0x00001000))
+		;
+
+	/* deassert the PE0_gpl_utl_reset */
+	SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x00101000);
+
+	if (port == 0)
+		mtdcr(DCRN_PEGPL_CFG(PCIE0), 0x10000000);  /* guarded on */
+	else
+		mtdcr(DCRN_PEGPL_CFG(PCIE1), 0x10000000);  /* guarded on */
+
+	return 0;
+}
+#endif /* CONFIG_405EX */
+
+int ppc4xx_init_pcie_port_hw(int port, int rootport)
+	__attribute__((weak, alias("__ppc4xx_init_pcie_port_hw")));
+
+/*
+ * We map PCI Express configuration access into the 512MB regions
+ *
+ * NOTICE: revB is very strict about PLB real addressess and ranges to
+ * be mapped for config space; it seems to only work with d_nnnn_nnnn
+ * range (hangs the core upon config transaction attempts when set
+ * otherwise) while revA uses c_nnnn_nnnn.
+ *
+ * For revA:
+ *     PCIE0: 0xc_4000_0000
+ *     PCIE1: 0xc_8000_0000
+ *     PCIE2: 0xc_c000_0000
+ *
+ * For revB:
+ *     PCIE0: 0xd_0000_0000
+ *     PCIE1: 0xd_2000_0000
+ *     PCIE2: 0xd_4000_0000
+ *
+ * For 405EX:
+ *     PCIE0: 0xa000_0000
+ *     PCIE1: 0xc000_0000
+ */
+static inline u64 ppc4xx_get_cfgaddr(int port)
+{
+#if defined(CONFIG_405EX)
+	if (port == 0)
+		return (u64)CFG_PCIE0_CFGBASE;
+	else
+		return (u64)CFG_PCIE1_CFGBASE;
+#endif
+#if defined(CONFIG_440SPE)
+	if (ppc440spe_revB()) {
+		switch (port) {
+		default:	/* to satisfy compiler */
+		case 0:
+			return 0x0000000d00000000ULL;
+		case 1:
+			return 0x0000000d20000000ULL;
+		case 2:
+			return 0x0000000d40000000ULL;
+		}
+	} else {
+		switch (port) {
+		default:	/* to satisfy compiler */
+		case 0:
+			return 0x0000000c40000000ULL;
+		case 1:
+			return 0x0000000c80000000ULL;
+		case 2:
+			return 0x0000000cc0000000ULL;
+		}
+	}
+#endif
+}
+
+/*
+ *  4xx boards as end point and root point setup
  *                    and
  *    testing inbound and out bound windows
  *
- *  YUCCA board can be plugged into another yucca board or you can get PCI-E
+ *  4xx boards can be plugged into another 4xx boards or you can get PCI-E
  *  cable which can be used to setup loop back from one port to another port.
  *  Please rememeber that unless there is a endpoint plugged in to root port it
  *  will not initialize. It is the same in case of endpoint , unless there is
@@ -386,26 +542,28 @@ int ppc4xx_init_pcie(void)
  *  /proc/bus/pci/devices. Where you can see the configuration registers
  *  of end point device attached to the port.
  *
- *  Enpoint cofiguration can be verified by connecting Yucca board to any
- *  host or another yucca board. Then try to scan the device. In case of
+ *  Enpoint cofiguration can be verified by connecting 4xx board to any
+ *  host or another 4xx board. Then try to scan the device. In case of
  *  linux use "lspci" or appripriate os command.
  *
- *  How do I verify the inbound and out bound windows ?(yucca to yucca)
+ *  How do I verify the inbound and out bound windows ? (4xx to 4xx)
  *  in this configuration inbound and outbound windows are setup to access
  *  sram memroy area. SRAM is at 0x4 0000 0000 , on PLB bus. This address
  *  is mapped at 0x90000000. From u-boot prompt write data 0xb000 0000,
  *  This is waere your POM(PLB out bound memory window) mapped. then
- *  read the data from other yucca board's u-boot prompt at address
+ *  read the data from other 4xx board's u-boot prompt at address
  *  0x9000 0000(SRAM). Data should match.
  *  In case of inbound , write data to u-boot command prompt at 0xb000 0000
  *  which is mapped to 0x4 0000 0000. Now on rootpoint yucca u-boot prompt check
  *  data at 0x9000 0000(SRAM).Data should match.
  */
-int ppc4xx_init_pcie_rootport(int port)
+int ppc4xx_init_pcie_port(int port, int rootport)
 {
 	static int core_init;
 	volatile u32 val = 0;
 	int attempts;
+	u64 addr;
+	u32 low, high;
 
 	if (!core_init) {
 		++core_init;
@@ -414,82 +572,17 @@ int ppc4xx_init_pcie_rootport(int port)
 	}
 
 	/*
-	 * Initialize various parts of the PCI Express core for our port:
-	 *
-	 * - Set as a root port and enable max width
-	 *   (PXIE0 -> X8, PCIE1 and PCIE2 -> X4).
-	 * - Set up UTL configuration.
-	 * - Increase SERDES drive strength to levels suggested by AMCC.
-	 * - De-assert RSTPYN, RSTDL and RSTGU.
-	 *
-	 * NOTICE for revB chip: PESDRn_UTLSET2 is not set - we leave it with
-	 * default setting 0x11310000. The register has new fields,
-	 * PESDRn_UTLSET2[LKINE] in particular: clearing it leads to PCIE core
-	 * hang.
+	 * Initialize various parts of the PCI Express core for our port
 	 */
-	switch (port) {
-	case 0:
-		SDR_WRITE(PESDR0_DLPSET,  1 << 24 | PTYPE_ROOT_PORT << 20 | LNKW_X8 << 12);
+	ppc4xx_init_pcie_port_hw(port, rootport);
 
-		SDR_WRITE(PESDR0_UTLSET1, 0x21222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR0_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR0_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL4SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL5SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL6SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL7SET1, 0x35000000);
-		SDR_WRITE(PESDR0_RCSSET,
-			  (SDR_READ(PESDR0_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-
-	case 1:
-		SDR_WRITE(PESDR1_DLPSET, 1 << 24 | PTYPE_ROOT_PORT << 20 | LNKW_X4 << 12);
-		SDR_WRITE(PESDR1_UTLSET1, 0x21222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR1_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR1_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR1_RCSSET,
-			  (SDR_READ(PESDR1_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-
-	case 2:
-		SDR_WRITE(PESDR2_DLPSET, 1 << 24 | PTYPE_ROOT_PORT << 20 | LNKW_X4 << 12);
-		SDR_WRITE(PESDR2_UTLSET1, 0x21222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR2_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR2_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR2_RCSSET,
-			  (SDR_READ(PESDR2_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-	}
 	/*
 	 * Notice: the following delay has critical impact on device
 	 * initialization - if too short (<50ms) the link doesn't get up.
 	 */
 	mdelay(100);
 
-	switch (port) {
-	case 0:
-		val = SDR_READ(PESDR0_RCSSTS);
-		break;
-	case 1:
-		val = SDR_READ(PESDR1_RCSSTS);
-		break;
-	case 2:
-		val = SDR_READ(PESDR2_RCSSTS);
-		break;
-	}
-
+	val = SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port)));
 	if (val & (1 << 20)) {
 		printf("PCIE%d: PGRST failed %08x\n", port, val);
 		return -1;
@@ -498,18 +591,7 @@ int ppc4xx_init_pcie_rootport(int port)
 	/*
 	 * Verify link is up
 	 */
-	val = 0;
-	switch (port) {
-	case 0:
-		val = SDR_READ(PESDR0_LOOP);
-		break;
-	case 1:
-		val = SDR_READ(PESDR1_LOOP);
-		break;
-	case 2:
-		val = SDR_READ(PESDR2_LOOP);
-		break;
-	}
+	val = SDR_READ(SDRN_PESDR_LOOP(sdr_base(port)));
 	if (!(val & 0x00001000)) {
 		printf("PCIE%d: link is not up.\n", port);
 		return -1;
@@ -524,55 +606,25 @@ int ppc4xx_init_pcie_rootport(int port)
 
 	/*
 	 * We map PCI Express configuration access into the 512MB regions
-	 *
-	 * NOTICE: revB is very strict about PLB real addressess and ranges to
-	 * be mapped for config space; it seems to only work with d_nnnn_nnnn
-	 * range (hangs the core upon config transaction attempts when set
-	 * otherwise) while revA uses c_nnnn_nnnn.
-	 *
-	 * For revA:
-	 *     PCIE0: 0xc_4000_0000
-	 *     PCIE1: 0xc_8000_0000
-	 *     PCIE2: 0xc_c000_0000
-	 *
-	 * For revB:
-	 *     PCIE0: 0xd_0000_0000
-	 *     PCIE1: 0xd_2000_0000
-	 *     PCIE2: 0xd_4000_0000
 	 */
+	addr = ppc4xx_get_cfgaddr(port);
+	low = (u32)(addr & 0x00000000ffffffff);
+	high = (u32)(addr >> 32);
 
 	switch (port) {
 	case 0:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE0), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE0), 0x00000000);
-		} else {
-			/* revA */
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE0), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE0), 0x40000000);
-		}
+		mtdcr(DCRN_PEGPL_CFGBAH(PCIE0), high);
+		mtdcr(DCRN_PEGPL_CFGBAL(PCIE0), low);
 		mtdcr(DCRN_PEGPL_CFGMSK(PCIE0), 0xe0000001); /* 512MB region, valid */
 		break;
-
 	case 1:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE1), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), 0x20000000);
-		} else {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE1), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), 0x80000000);
-		}
+		mtdcr(DCRN_PEGPL_CFGBAH(PCIE1), high);
+		mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), low);
 		mtdcr(DCRN_PEGPL_CFGMSK(PCIE1), 0xe0000001); /* 512MB region, valid */
 		break;
-
 	case 2:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), 0x40000000);
-		} else {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), 0xc0000000);
-		}
+		mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), high);
+		mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), low);
 		mtdcr(DCRN_PEGPL_CFGMSK(PCIE2), 0xe0000001); /* 512MB region, valid */
 		break;
 	}
@@ -581,256 +633,28 @@ int ppc4xx_init_pcie_rootport(int port)
 	 * Check for VC0 active and assert RDY.
 	 */
 	attempts = 10;
-	switch (port) {
-	case 0:
-		while(!(SDR_READ(PESDR0_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE0: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
+	while(!(SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port))) & (1 << 16))) {
+		if (!(attempts--)) {
+			printf("PCIE%d: VC0 not active\n", port);
+			return -1;
 		}
-		SDR_WRITE(PESDR0_RCSSET, SDR_READ(PESDR0_RCSSET) | 1 << 20);
-		break;
-	case 1:
-		while(!(SDR_READ(PESDR1_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE1: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-
-		SDR_WRITE(PESDR1_RCSSET, SDR_READ(PESDR1_RCSSET) | 1 << 20);
-		break;
-	case 2:
-		while(!(SDR_READ(PESDR2_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE2: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-
-		SDR_WRITE(PESDR2_RCSSET, SDR_READ(PESDR2_RCSSET) | 1 << 20);
-		break;
+		mdelay(1000);
 	}
+	SDR_WRITE(SDRN_PESDR_RCSSET(sdr_base(port)),
+		  SDR_READ(SDRN_PESDR_RCSSET(sdr_base(port))) | 1 << 20);
 	mdelay(100);
 
 	return 0;
 }
 
+int ppc4xx_init_pcie_rootport(int port)
+{
+	return ppc4xx_init_pcie_port(port, 1);
+}
+
 int ppc4xx_init_pcie_endport(int port)
 {
-	static int core_init;
-	volatile u32 val = 0;
-	int attempts;
-
-	if (!core_init) {
-		++core_init;
-		if (ppc4xx_init_pcie())
-			return -1;
-	}
-
-	/*
-	 * Initialize various parts of the PCI Express core for our port:
-	 *
-	 * - Set as a end port and enable max width
-	 *   (PXIE0 -> X8, PCIE1 and PCIE2 -> X4).
-	 * - Set up UTL configuration.
-	 * - Increase SERDES drive strength to levels suggested by AMCC.
-	 * - De-assert RSTPYN, RSTDL and RSTGU.
-	 *
-	 * NOTICE for revB chip: PESDRn_UTLSET2 is not set - we leave it with
-	 * default setting 0x11310000. The register has new fields,
-	 * PESDRn_UTLSET2[LKINE] in particular: clearing it leads to PCIE core
-	 * hang.
-	 */
-	switch (port) {
-	case 0:
-		SDR_WRITE(PESDR0_DLPSET,  1 << 24 | PTYPE_LEGACY_ENDPOINT << 20 | LNKW_X8 << 12);
-
-		SDR_WRITE(PESDR0_UTLSET1, 0x20222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR0_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR0_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL4SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL5SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL6SET1, 0x35000000);
-		SDR_WRITE(PESDR0_HSSL7SET1, 0x35000000);
-		SDR_WRITE(PESDR0_RCSSET,
-			(SDR_READ(PESDR0_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-
-	case 1:
-		SDR_WRITE(PESDR1_DLPSET, 1 << 24 | PTYPE_LEGACY_ENDPOINT << 20 | LNKW_X4 << 12);
-		SDR_WRITE(PESDR1_UTLSET1, 0x20222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR1_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR1_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR1_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR1_RCSSET,
-			(SDR_READ(PESDR1_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-
-	case 2:
-		SDR_WRITE(PESDR2_DLPSET, 1 << 24 | PTYPE_LEGACY_ENDPOINT << 20 | LNKW_X4 << 12);
-		SDR_WRITE(PESDR2_UTLSET1, 0x20222222);
-		if (!ppc440spe_revB())
-			SDR_WRITE(PESDR2_UTLSET2, 0x11000000);
-		SDR_WRITE(PESDR2_HSSL0SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL1SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL2SET1, 0x35000000);
-		SDR_WRITE(PESDR2_HSSL3SET1, 0x35000000);
-		SDR_WRITE(PESDR2_RCSSET,
-			(SDR_READ(PESDR2_RCSSET) & ~(1 << 24 | 1 << 16)) | 1 << 12);
-		break;
-	}
-	/*
-	 * Notice: the following delay has critical impact on device
-	 * initialization - if too short (<50ms) the link doesn't get up.
-	 */
-	mdelay(100);
-
-	switch (port) {
-	case 0: val = SDR_READ(PESDR0_RCSSTS); break;
-	case 1: val = SDR_READ(PESDR1_RCSSTS); break;
-	case 2: val = SDR_READ(PESDR2_RCSSTS); break;
-	}
-
-	if (val & (1 << 20)) {
-		printf("PCIE%d: PGRST failed %08x\n", port, val);
-		return -1;
-	}
-
-	/*
-	 * Verify link is up
-	 */
-	val = 0;
-	switch (port)
-	{
-		case 0:
-			val = SDR_READ(PESDR0_LOOP);
-			break;
-		case 1:
-			val = SDR_READ(PESDR1_LOOP);
-			break;
-		case 2:
-			val = SDR_READ(PESDR2_LOOP);
-			break;
-	}
-	if (!(val & 0x00001000)) {
-		printf("PCIE%d: link is not up.\n", port);
-		return -1;
-	}
-
-	/*
-	 * Setup UTL registers - but only on revA!
-	 * We use default settings for revB chip.
-	 */
-	if (!ppc440spe_revB())
-		ppc4xx_setup_utl(port);
-
-	/*
-	 * We map PCI Express configuration access into the 512MB regions
-	 *
-	 * NOTICE: revB is very strict about PLB real addressess and ranges to
-	 * be mapped for config space; it seems to only work with d_nnnn_nnnn
-	 * range (hangs the core upon config transaction attempts when set
-	 * otherwise) while revA uses c_nnnn_nnnn.
-	 *
-	 * For revA:
-	 *     PCIE0: 0xc_4000_0000
-	 *     PCIE1: 0xc_8000_0000
-	 *     PCIE2: 0xc_c000_0000
-	 *
-	 * For revB:
-	 *     PCIE0: 0xd_0000_0000
-	 *     PCIE1: 0xd_2000_0000
-	 *     PCIE2: 0xd_4000_0000
-	 */
-	switch (port) {
-	case 0:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE0), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE0), 0x00000000);
-		} else {
-			/* revA */
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE0), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE0), 0x40000000);
-		}
-		mtdcr(DCRN_PEGPL_CFGMSK(PCIE0), 0xe0000001); /* 512MB region, valid */
-		break;
-
-	case 1:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE1), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), 0x20000000);
-		} else {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE1), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), 0x80000000);
-		}
-		mtdcr(DCRN_PEGPL_CFGMSK(PCIE1), 0xe0000001); /* 512MB region, valid */
-		break;
-
-	case 2:
-		if (ppc440spe_revB()) {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), 0x0000000d);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), 0x40000000);
-		} else {
-			mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), 0x0000000c);
-			mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), 0xc0000000);
-		}
-		mtdcr(DCRN_PEGPL_CFGMSK(PCIE2), 0xe0000001); /* 512MB region, valid */
-		break;
-	}
-
-	/*
-	 * Check for VC0 active and assert RDY.
-	 */
-	attempts = 10;
-	switch (port) {
-	case 0:
-		while(!(SDR_READ(PESDR0_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE0: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-		SDR_WRITE(PESDR0_RCSSET, SDR_READ(PESDR0_RCSSET) | 1 << 20);
-		break;
-	case 1:
-		while(!(SDR_READ(PESDR1_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE1: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-
-		SDR_WRITE(PESDR1_RCSSET, SDR_READ(PESDR1_RCSSET) | 1 << 20);
-		break;
-	case 2:
-		while(!(SDR_READ(PESDR2_RCSSTS) & (1 << 16))) {
-			if (!(attempts--)) {
-				printf("PCIE2: VC0 not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-
-		SDR_WRITE(PESDR2_RCSSET, SDR_READ(PESDR2_RCSSET) | 1 << 20);
-		break;
-	}
-	mdelay(100);
-
-	return 0;
+	return ppc4xx_init_pcie_port(port, 0);
 }
 
 void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
@@ -839,12 +663,12 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	volatile void *rmbase = NULL;
 
 	pci_set_ops(hose,
-		pcie_read_config_byte,
-		pcie_read_config_word,
-		pcie_read_config_dword,
-		pcie_write_config_byte,
-		pcie_write_config_word,
-		pcie_write_config_dword);
+		    pcie_read_config_byte,
+		    pcie_read_config_word,
+		    pcie_read_config_dword,
+		    pcie_write_config_byte,
+		    pcie_write_config_word,
+		    pcie_write_config_dword);
 
 	switch (port) {
 	case 0:
@@ -884,26 +708,26 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	case 0:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0),  0x0000000d);
 		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0),  CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE);
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE0), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE0),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	case 1:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  (CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE));
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  CFG_PCIE_MEMBASE +
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE1), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE1),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	case 2:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  (CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE));
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  CFG_PCIE_MEMBASE +
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE2), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE2),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	}
 
@@ -925,7 +749,6 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	out_le16((u16 *)(mbase + PCI_COMMAND),
 		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-	printf("PCIE:%d successfully set as rootpoint\n",port);
 
 	/* Set Device and Vendor Id */
 	switch (port) {
@@ -949,6 +772,7 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	/* Set Class Code to PCI-PCI bridge and Revision Id to 1 */
 	out_le32(mbase + 0x208, 0x06040001);
 
+	printf("PCIE:%d successfully set as rootpoint\n", port);
 }
 
 int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
@@ -992,26 +816,26 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 	case 0:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0),  0x0000000d);
 		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0),  CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE);
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE0), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE0),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	case 1:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  (CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE));
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  CFG_PCIE_MEMBASE +
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE1), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE1),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	case 2:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  (CFG_PCIE_MEMBASE +
-			port * CFG_PCIE_MEMSIZE));
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  CFG_PCIE_MEMBASE +
+		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE2), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE2),
-			~(CFG_PCIE_MEMSIZE - 1) | 3);
+		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	}
 
@@ -1026,40 +850,20 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 
 	/* Enable I/O, Mem, and Busmaster cycles */
 	out_le16((u16 *)(mbase + PCI_COMMAND),
-		in_le16((u16 *)(mbase + PCI_COMMAND)) |
-		PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
+		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 	out_le16(mbase + 0x200,0xcaad);			/* Setting vendor ID */
 	out_le16(mbase + 0x202,0xfeed);			/* Setting device ID */
+
 	attempts = 10;
-	switch (port) {
-	case 0:
-		while (!(SDR_READ(PESDR0_RCSSTS) & (1 << 8))) {
-			if (!(attempts--)) {
-				printf("PCIE0: BMEN is  not active\n");
-				return -1;
-			}
-			mdelay(1000);
+	while(!(SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port))) & (1 << 8))) {
+		if (!(attempts--)) {
+			printf("PCIE%d: BME not active\n", port);
+			return -1;
 		}
-		break;
-	case 1:
-		while (!(SDR_READ(PESDR1_RCSSTS) & (1 << 8))) {
-			if (!(attempts--)) {
-				printf("PCIE1: BMEN is not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-		break;
-	case 2:
-		while (!(SDR_READ(PESDR2_RCSSTS) & (1 << 8))) {
-			if (!(attempts--)) {
-				printf("PCIE2: BMEN is  not active\n");
-				return -1;
-			}
-			mdelay(1000);
-		}
-		break;
+		mdelay(1000);
 	}
+
 	printf("PCIE:%d successfully set as endpoint\n",port);
 
 	return 0;

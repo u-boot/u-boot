@@ -12,14 +12,20 @@
 #ifndef __4XX_PCIE_H
 #define __4XX_PCIE_H
 
-#define mdelay(n) ({unsigned long __ms=(n); while (__ms--) udelay(1000);})
-
 #define DCRN_SDR0_CFGADDR	0x00e
 #define DCRN_SDR0_CFGDATA	0x00f
 
+#if defined(CONFIG_440SPE)
 #define DCRN_PCIE0_BASE		0x100
 #define DCRN_PCIE1_BASE		0x120
 #define DCRN_PCIE2_BASE		0x140
+#endif
+
+#if defined(CONFIG_405EX)
+#define	DCRN_PCIE0_BASE		0x040
+#define	DCRN_PCIE1_BASE		0x060
+#endif
+
 #define PCIE0			DCRN_PCIE0_BASE
 #define PCIE1			DCRN_PCIE1_BASE
 #define PCIE2			DCRN_PCIE2_BASE
@@ -46,6 +52,39 @@
 #define PESDR0_PLLLCT1		0x03a0
 #define PESDR0_PLLLCT2		0x03a1
 #define PESDR0_PLLLCT3		0x03a2
+
+#if defined(CONFIG_440SPE)
+#define PCIE0_SDR		0x300
+#define PCIE1_SDR		0x340
+#define PCIE2_SDR		0x370
+#endif
+
+#if defined(CONFIG_405EX)
+#define PCIE0_SDR		0x400
+#define PCIE1_SDR		0x440
+#endif
+
+/* common regs, at least for 405EX and 440SPe */
+#define SDRN_PESDR_UTLSET1(n)		(sdr_base(n) + 0x00)
+#define SDRN_PESDR_UTLSET2(n)		(sdr_base(n) + 0x01)
+#define SDRN_PESDR_DLPSET(n)		(sdr_base(n) + 0x02)
+#define SDRN_PESDR_LOOP(n)		(sdr_base(n) + 0x03)
+#define SDRN_PESDR_RCSSET(n)		(sdr_base(n) + 0x04)
+#define SDRN_PESDR_RCSSTS(n)		(sdr_base(n) + 0x05)
+
+#if defined(CONFIG_440SPE)
+#define SDRN_PESDR_HSSL0SET1(n)		(sdr_base(n) + 0x06)
+#define SDRN_PESDR_HSSL0SET2(n)		(sdr_base(n) + 0x07)
+#define SDRN_PESDR_HSSL0STS(n)		(sdr_base(n) + 0x08)
+#define SDRN_PESDR_HSSL1SET1(n)		(sdr_base(n) + 0x09)
+#define SDRN_PESDR_HSSL1SET2(n)		(sdr_base(n) + 0x0a)
+#define SDRN_PESDR_HSSL1STS(n)		(sdr_base(n) + 0x0b)
+#define SDRN_PESDR_HSSL2SET1(n)		(sdr_base(n) + 0x0c)
+#define SDRN_PESDR_HSSL2SET2(n)		(sdr_base(n) + 0x0d)
+#define SDRN_PESDR_HSSL2STS(n)		(sdr_base(n) + 0x0e)
+#define SDRN_PESDR_HSSL3SET1(n)		(sdr_base(n) + 0x0f)
+#define SDRN_PESDR_HSSL3SET2(n)		(sdr_base(n) + 0x10)
+#define SDRN_PESDR_HSSL3STS(n)		(sdr_base(n) + 0x11)
 
 #define PESDR0_UTLSET1		0x0300
 #define PESDR0_UTLSET2		0x0301
@@ -123,6 +162,40 @@
 #define PESDR2_HSSCTLSET	0x0382
 #define PESDR2_LANE_ABCD	0x0383
 
+#elif defined(CONFIG_405EX)
+
+#define SDRN_PESDR_PHYSET1(n)		(sdr_base(n) + 0x06)
+#define SDRN_PESDR_PHYSET2(n)		(sdr_base(n) + 0x07)
+#define SDRN_PESDR_BIST(n)		(sdr_base(n) + 0x08)
+#define SDRN_PESDR_LPB(n)		(sdr_base(n) + 0x0b)
+#define SDRN_PESDR_PHYSTA(n)		(sdr_base(n) + 0x0c)
+
+#define PESDR0_UTLSET1		0x0400
+#define PESDR0_UTLSET2		0x0401
+#define PESDR0_DLPSET		0x0402
+#define PESDR0_LOOP		0x0403
+#define PESDR0_RCSSET		0x0404
+#define PESDR0_RCSSTS		0x0405
+#define PESDR0_PHYSET1		0x0406
+#define PESDR0_PHYSET2		0x0407
+#define PESDR0_BIST		0x0408
+#define PESDR0_LPB		0x040B
+#define PESDR0_PHYSTA		0x040C
+
+#define PESDR1_UTLSET1		0x0440
+#define PESDR1_UTLSET2		0x0441
+#define PESDR1_DLPSET		0x0442
+#define PESDR1_LOOP		0x0443
+#define PESDR1_RCSSET		0x0444
+#define PESDR1_RCSSTS		0x0445
+#define PESDR1_PHYSET1		0x0446
+#define PESDR1_PHYSET2		0x0447
+#define PESDR1_BIST		0x0448
+#define PESDR1_LPB		0x044B
+#define PESDR1_PHYSTA		0x044C
+
+#endif
+
 /*
  * UTL register offsets
  */
@@ -166,8 +239,32 @@
 
 int ppc4xx_init_pcie(void);
 int ppc4xx_init_pcie_rootport(int port);
+int ppc4xx_init_pcie_endport(int port);
 void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port);
 int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port);
 int pcie_hose_scan(struct pci_controller *hose, int bus);
+
+static inline void mdelay(int n)
+{
+	u32 ms = n;
+
+	while (ms--)
+		udelay(1000);
+}
+
+static inline u32 sdr_base(int port)
+{
+	switch (port) {
+	default:	/* to satisfy compiler */
+	case 0:
+		return PCIE0_SDR;
+	case 1:
+		return PCIE1_SDR;
+#if defined(PCIE2_SDR)
+	case 2:
+		return PCIE2_SDR;
+#endif
+	}
+}
 
 #endif /* __4XX_PCIE_H */
