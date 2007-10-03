@@ -431,6 +431,12 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 {
 	u32 val;
 
+	/*
+	 * test-only:
+	 * This needs some testing and perhaps changes for
+	 * endpoint configuration. Probably no PHY reset at all, etc.
+	 * sr, 2007-10-03
+	 */
 	if (rootport)
 		val = 0x00401000;
 	else
