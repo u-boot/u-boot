@@ -28,7 +28,7 @@
 
 #if defined(CONFIG_440SPE) && defined(CONFIG_PCI)
 
-#include "440spe_pcie.h"
+#include <asm/4xx_pcie.h>
 
 enum {
 	PTYPE_ENDPOINT		= 0x0,

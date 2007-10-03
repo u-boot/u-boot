@@ -24,12 +24,11 @@
 
 #include <common.h>
 #include <ppc4xx.h>
-#include <asm/processor.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
-#include <asm-ppc/gpio.h>
-
-#include "../cpu/ppc4xx/440spe_pcie.h"
+#include <asm/processor.h>
+#include <asm/io.h>
+#include <asm/gpio.h>
+#include <asm/4xx_pcie.h>
 
 #undef PCIE_ENDPOINT
 /* #define PCIE_ENDPOINT 1 */

@@ -27,12 +27,12 @@
 
 #include <common.h>
 #include <ppc4xx.h>
-#include <asm/processor.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
+#include <asm/processor.h>
+#include <asm/io.h>
+#include <asm/4xx_pcie.h>
 
 #include "yucca.h"
-#include "../cpu/ppc4xx/440spe_pcie.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
