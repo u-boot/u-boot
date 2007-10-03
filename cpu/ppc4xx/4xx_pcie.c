@@ -588,7 +588,7 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 	 */
 	mdelay(100);
 
-	val = SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port)));
+	val = SDR_READ(SDRN_PESDR_RCSSTS(port));
 	if (val & (1 << 20)) {
 		printf("PCIE%d: PGRST failed %08x\n", port, val);
 		return -1;
@@ -597,7 +597,7 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 	/*
 	 * Verify link is up
 	 */
-	val = SDR_READ(SDRN_PESDR_LOOP(sdr_base(port)));
+	val = SDR_READ(SDRN_PESDR_LOOP(port));
 	if (!(val & 0x00001000)) {
 		printf("PCIE%d: link is not up.\n", port);
 		return -1;
@@ -639,15 +639,15 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 	 * Check for VC0 active and assert RDY.
 	 */
 	attempts = 10;
-	while(!(SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port))) & (1 << 16))) {
+	while(!(SDR_READ(SDRN_PESDR_RCSSTS(port)) & (1 << 16))) {
 		if (!(attempts--)) {
 			printf("PCIE%d: VC0 not active\n", port);
 			return -1;
 		}
 		mdelay(1000);
 	}
-	SDR_WRITE(SDRN_PESDR_RCSSET(sdr_base(port)),
-		  SDR_READ(SDRN_PESDR_RCSSET(sdr_base(port))) | 1 << 20);
+	SDR_WRITE(SDRN_PESDR_RCSSET(port),
+		  SDR_READ(SDRN_PESDR_RCSSET(port)) | 1 << 20);
 	mdelay(100);
 
 	return 0;
@@ -862,7 +862,7 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 	out_le16(mbase + 0x202,0xfeed);			/* Setting device ID */
 
 	attempts = 10;
-	while(!(SDR_READ(SDRN_PESDR_RCSSTS(sdr_base(port))) & (1 << 8))) {
+	while(!(SDR_READ(SDRN_PESDR_RCSSTS(port)) & (1 << 8))) {
 		if (!(attempts--)) {
 			printf("PCIE%d: BME not active\n", port);
 			return -1;
