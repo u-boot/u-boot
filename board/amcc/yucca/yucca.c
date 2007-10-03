@@ -47,9 +47,6 @@ char *remove_l_w_space(char *in_str );
 char *remove_t_w_space(char *in_str );
 int get_console_port(void);
 
-int ppc440spe_init_pcie_rootport(int port);
-void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
-
 #define DEBUG_ENV
 #ifdef DEBUG_ENV
 #define DEBUGF(fmt,args...) printf(fmt ,##args)
@@ -865,10 +862,10 @@ void pcie_setup_hoses(int busno)
 
 #ifdef PCIE_ENDPOINT
  		yucca_setup_pcie_fpga_endpoint(i);
- 		if (ppc440spe_init_pcie_endport(i)) {
+ 		if (ppc4xx_init_pcie_endport(i)) {
 #else
 		yucca_setup_pcie_fpga_rootpoint(i);
-		if (ppc440spe_init_pcie_rootport(i)) {
+		if (ppc4xx_init_pcie_rootport(i)) {
 #endif
 			printf("PCIE%d: initialization failed\n", i);
 			continue;
@@ -890,13 +887,13 @@ void pcie_setup_hoses(int busno)
 		pci_register_hose(hose);
 
 #ifdef PCIE_ENDPOINT
-		ppc440spe_setup_pcie_endpoint(hose, i);
+		ppc4xx_setup_pcie_endpoint(hose, i);
 		/*
 		 * Reson for no scanning is endpoint can not generate
 		 * upstream configuration accesses.
 		 */
 #else
-		ppc440spe_setup_pcie_rootpoint(hose, i);
+		ppc4xx_setup_pcie_rootpoint(hose, i);
 
 		env = getenv ("pciscandelay");
 		if (env != NULL) {

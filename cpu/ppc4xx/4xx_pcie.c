@@ -222,7 +222,7 @@ int pcie_write_config_dword(struct pci_controller *hose,pci_dev_t dev,int offset
 	return pcie_write_config(hose,(u32)dev,offset,3,(u32 )val);
 }
 
-static void ppc440spe_setup_utl(u32 port) {
+static void ppc4xx_setup_utl(u32 port) {
 
 	volatile void *utl_base = NULL;
 
@@ -333,7 +333,7 @@ static int check_error(void)
 /*
  * Initialize PCI Express core
  */
-int ppc440spe_init_pcie(void)
+int ppc4xx_init_pcie(void)
 {
 	int time_out = 20;
 
@@ -401,7 +401,7 @@ int ppc440spe_init_pcie(void)
  *  which is mapped to 0x4 0000 0000. Now on rootpoint yucca u-boot prompt check
  *  data at 0x9000 0000(SRAM).Data should match.
  */
-int ppc440spe_init_pcie_rootport(int port)
+int ppc4xx_init_pcie_rootport(int port)
 {
 	static int core_init;
 	volatile u32 val = 0;
@@ -409,7 +409,7 @@ int ppc440spe_init_pcie_rootport(int port)
 
 	if (!core_init) {
 		++core_init;
-		if (ppc440spe_init_pcie())
+		if (ppc4xx_init_pcie())
 			return -1;
 	}
 
@@ -520,7 +520,7 @@ int ppc440spe_init_pcie_rootport(int port)
 	 * We use default settings for revB chip.
 	 */
 	if (!ppc440spe_revB())
-		ppc440spe_setup_utl(port);
+		ppc4xx_setup_utl(port);
 
 	/*
 	 * We map PCI Express configuration access into the 512MB regions
@@ -620,7 +620,7 @@ int ppc440spe_init_pcie_rootport(int port)
 	return 0;
 }
 
-int ppc440spe_init_pcie_endport(int port)
+int ppc4xx_init_pcie_endport(int port)
 {
 	static int core_init;
 	volatile u32 val = 0;
@@ -628,7 +628,7 @@ int ppc440spe_init_pcie_endport(int port)
 
 	if (!core_init) {
 		++core_init;
-		if (ppc440spe_init_pcie())
+		if (ppc4xx_init_pcie())
 			return -1;
 	}
 
@@ -734,7 +734,7 @@ int ppc440spe_init_pcie_endport(int port)
 	 * We use default settings for revB chip.
 	 */
 	if (!ppc440spe_revB())
-		ppc440spe_setup_utl(port);
+		ppc4xx_setup_utl(port);
 
 	/*
 	 * We map PCI Express configuration access into the 512MB regions
@@ -833,7 +833,7 @@ int ppc440spe_init_pcie_endport(int port)
 	return 0;
 }
 
-void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
+void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 {
 	volatile void *mbase = NULL;
 	volatile void *rmbase = NULL;
@@ -951,7 +951,7 @@ void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 
 }
 
-int ppc440spe_setup_pcie_endpoint(struct pci_controller *hose, int port)
+int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 {
 	volatile void *mbase = NULL;
 	int attempts = 0;

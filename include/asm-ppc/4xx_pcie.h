@@ -9,8 +9,8 @@
  */
 
 #include <ppc4xx.h>
-#ifndef __440SPE_PCIE_H
-#define __440SPE_PCIE_H
+#ifndef __4XX_PCIE_H
+#define __4XX_PCIE_H
 
 #define mdelay(n) ({unsigned long __ms=(n); while (__ms--) udelay(1000);})
 
@@ -164,11 +164,10 @@
 
 #define GPL_DMER_MASK_DISA	0x02000000
 
-int ppc440spe_init_pcie(void);
-int ppc440spe_init_pcie_rootport(int port);
-void yucca_setup_pcie_fpga_rootpoint(int port);
-void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port);
-int ppc440spe_setup_pcie_endpoint(struct pci_controller *hose, int port);
-int yucca_pcie_card_present(int port);
+int ppc4xx_init_pcie(void);
+int ppc4xx_init_pcie_rootport(int port);
+void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port);
+int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port);
 int pcie_hose_scan(struct pci_controller *hose, int bus);
-#endif /* __440SPE_PCIE_H */
+
+#endif /* __4XX_PCIE_H */

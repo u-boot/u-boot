@@ -35,9 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int ppc440spe_init_pcie_rootport(int port);
-void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
-
 int board_early_init_f (void)
 {
 	unsigned long mfr;
@@ -409,9 +406,9 @@ void pcie_setup_hoses(int busno)
 			continue;
 
 #ifdef PCIE_ENDPOINT
- 		if (ppc440spe_init_pcie_endport(i)) {
+ 		if (ppc4xx_init_pcie_endport(i)) {
 #else
-		if (ppc440spe_init_pcie_rootport(i)) {
+		if (ppc4xx_init_pcie_rootport(i)) {
 #endif
 			printf("PCIE%d: initialization failed\n", i);
 			continue;
@@ -433,13 +430,13 @@ void pcie_setup_hoses(int busno)
 		pci_register_hose(hose);
 
 #ifdef PCIE_ENDPOINT
-		ppc440spe_setup_pcie_endpoint(hose, i);
+		ppc4xx_setup_pcie_endpoint(hose, i);
 		/*
 		 * Reson for no scanning is endpoint can not generate
 		 * upstream configuration accesses.
 		 */
 #else
-		ppc440spe_setup_pcie_rootpoint(hose, i);
+		ppc4xx_setup_pcie_rootpoint(hose, i);
 
 		env = getenv ("pciscandelay");
 		if (env != NULL) {
