@@ -72,7 +72,7 @@
 #include <common.h>
 #include <command.h>
 #if !defined(CONFIG_440)
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #endif
 #include <asm/processor.h>
 #include <pci.h>
