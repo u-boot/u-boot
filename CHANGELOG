@@ -1,3 +1,369 @@
+commit 135e19bc2773ebca487e9a8371f67e1ba202313a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Sep 18 21:36:35 2007 +0200
+
+    Avoid compiler warning.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8a783a65851bc7421ab69f442261215e21b8891a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Sep 18 12:24:57 2007 -0600
+
+    Bugfix: remove embedded null (\0) from CFG_BOOTFILE macro in TQM8540_config
+
+    /bin/bash and /bin/dash (which /bin/sh is linked to on ubuntu) handle embedded
+    nulls in a string differently.  For example, the following statement:
+	echo "this is a string\0" > afile
+    Will produce the following with /bin/bash:
+	"this is a string\0"
+    But with /bin/dash, will produce:
+	"this is a string
+
+    Bug fixed by moving the embedded null out of the makefile and into the
+    config header.  Also renamed the macro to avoid usage colision with the same
+    macro used by other board ports.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f8d3ca7b6fa322ac57e8e831f07dbeea039a9f35
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Sep 18 17:40:27 2007 +0200
+
+    MCC200: fix build warning
+
+    The MCC200 board config file includes version.h for some customer-
+    specific setting, which causes warnings with "make depend"; build
+    version.h before depend.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 67c31036acaaaa992fc346cc89db0909a7e733c4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Sep 16 17:10:04 2007 +0200
+
+    TQM8xx[LM]: Fix broken environment alignment.
+
+    With recent toolchains, the environment sectors were no longer aligned to
+    sector boundaries. The reason was a combination of two bugs:
+
+    1) common/environment.c assumed that CONFIG_TQM8xxL would be defined
+       for all TQM8xxL and TQM8xxM boards. But "include/common.h", where
+       this gets defined, is not included here (and cannot be included
+       without causing lots of problems).
+
+       Added a new #define CFG_USE_PPCENV for all boards which really
+       want to put the environment is a ".ppcenv" section.
+
+    2) The linker scripts just include environment.o, silently assuming
+       that the objects in that file are really in the order in which
+       they are coded in the C file, i. e. "environment" first, then
+       "redundand_environment", and "env_size" last. However, current
+       toolchains (GCC-4.x) reorder the objects, causing the environment
+       data not to start on a flash sector boundary:
+
+       Instead of:					we got:
+
+	40008000 T environment			40008000 T env_size
+	4000c000 T redundand_environment	40008004 T redundand_environment
+	40010000 T env_size			4000c004 T environment
+
+       Note: this patch fixes just the first part, and cures the alignment
+       problem by making sure that "env_size" gets placed correctly. However,
+       we still have a potential issue because primary and redundant
+       environment sectors are actually swapped, i. e. we have now:
+
+	40008000 T redundand_environment
+	4000c000 T environment
+	40010000 T env_size
+
+       This shall be fixed in the next version.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit eb6da8050797c204c9d010548424186c7ce32fc1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Sep 16 02:39:35 2007 +0200
+
+    TQM8xx/FPS8xx: adjust flash partitions for 2.6 ARCH=powerpc kernels
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cd2d1602c54cc6957bdef3872272a4b264893960
+Author: urwithsughosh@gmail.com <urwithsughosh@gmail.com>
+Date:	Mon Sep 10 14:54:56 2007 -0400
+
+    Typo fix in tsec.c
+
+    Fixup for the break statement in wrong place.
+
+    [Patch by urwithsughosh@gmail.com]
+    Acked-by: Andy Fleming <afleming@freescale.com>
+    Signed-off-by:	Wolfgang Denk <wd@denx.de>
+
+commit 5bd7fe9aeb76906371f40b8fd07613f10922e3e7
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Sep 11 17:04:00 2007 +0200
+
+    Fix do_div() usage in nand process output
+
+    Fix usage of do_div() in nand erase|read|write process output.
+
+    The last patch to nand_util.c introduced do_div() instead of libgcc's
+    implementation. But do_div() returns the quotient in its first
+    macro parameter and not as result.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit c750d2e6692a000a82f29de7bf24e3dc21239161
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Sep 12 12:36:53 2007 +0200
+
+    NAND: Add CFG_NAND_QUIET option
+
+    This config option sets the default for the progress information
+    output behavior that can also be configured through the 'quiet'
+    environment variable.
+
+    The legacy NAND code does not print the current progress info
+    on the console. So this option is for backward compatibility for
+    units that are in the field and where setting the quiet variable
+    is not an option. With CFG_NAND_QUIET set to '1' the console
+    progress info is turned off. This can still be overwritten
+    through the environment variable.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit dcb88630290d2bcd803386dd4c2be73142994c4f
+Author: Liew Tsi Chung-r5aahp <Tsi-chung.Liew@freescale.com>
+Date:	Thu Sep 13 16:06:05 2007 -0700
+
+    ColdFire: fix build error becasue of bad type of mii_init()
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 314d5b6ce52a4ed19dd295d1364e246c5e605017
+Author: Liew Tsi Chung-r5aahp <Tsi-chung.Liew@freescale.com>
+Date:	Thu Sep 13 16:04:05 2007 -0700
+
+    ColdFire: Fix build error caused by pixis.c
+
+    Moved the #include <asm/cache.h> inside the #ifdef CONFIG_FSL_PIXIS.
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit e21659e30660a1377c42af135a6114efe39801d9
+Author: Sam Sparks <SSparks@twacs.com>
+Date:	Fri Sep 14 11:14:42 2007 -0600
+
+    Update MPC8349ITX*_config to place config.tmp in right place.
+
+    MPC834ITX*_config does not store config.tmp at the correct locatation,
+    causing MPC8349ITXGP to have the wrong TEXT_BASE.
+
+    Signed-off-by: Sam Sparks <SSparks@twacs.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 1218abf1b5817a39a82399b4b928b00750575bda
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Sep 15 20:48:41 2007 +0200
+
+    Fix cases where DECLARE_GLOBAL_DATA_PTR was not declared as global
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 66b3f24d665be678a9dbb125b1e84185400f63b5
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Sep 15 11:55:42 2007 +0200
+
+    Make DECLARE_GLOBAL_DATA_PTR global for DaVinci
+
+    As discussed in [1], DECLARE_GLOBAL_DATA_PTR has to be global and not
+    function local.
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+    [1] http://article.gmane.org/gmane.comp.boot-loaders.u-boot/31805
+
+commit 6e7b7b6ea1b6d04dbe96242eb6a0c1c664c98e8c
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Sep 13 18:21:48 2007 +0200
+
+    cm5200: Fix a typo introduced by afaac86fe2948ac84cd9a12bbed883b3c683e7d9
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit f34024d4a328e6edd906456da98d2c537155c4f7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Sep 12 00:48:57 2007 +0200
+
+    Fix memory corruption problem on STX GP3 SSA Board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 38ad82da0c1180ecdeb212a8f4245e945bcc546e
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Sep 11 15:42:11 2007 +0200
+
+    [GP3SSA] Add define CONFIG_MPC85XX_PCI2 in config file to allow u-boot to
+    scan on second pci bus.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 6c2f4f388e8181655ea8b69343ea00b68aa6e8d0
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Sep 11 12:57:52 2007 +0200
+
+    [ppc4xx] Individual handling of sdram.c for bamboo_nand build
+
+    Bamboo has a file sdram.c which needs special treatment when building in
+    separate directory. It has to be linked to build directory otherwise it is
+    not seen.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 38c1ef728d19950414a8ab1ccfc53767848fa346
+Author: Sean MCGOOGAN <sean.mcgoogan@st.com>
+Date:	Mon Sep 10 16:55:59 2007 +0100
+
+    Allocate CPU Architecture Code for STMicroelectronics' ST200.
+
+    Signed-off-by: Sean McGoogan <Sean.McGoogan@st.com>
+    ---------------------------------------------------
+
+commit 754bac48156f8958d8f6a53a51eda88ab5758929
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Sep 10 20:42:31 2007 +0200
+
+    Update version to match current state.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7a888d6b3c32a126dbb504ef146bb4c26574ca7b
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Mon Sep 10 17:39:08 2007 +0200
+
+    [MPC512x] Streamline frame handling in the FEC driver
+
+    - convert frame size settings to be derived from a single base
+    - set frame size to the recommended default value
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit e251e00d0db4b36d1d2b7e38fec43a7296b529a2
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Sep 10 11:34:00 2007 +0900
+
+    Remove compiler warning: target CPU does not support interworking
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 1d9e31e04911a6bb7cc66dd91132c699101c32e2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Sep 9 21:21:33 2007 +0200
+
+    Fix compile error in spc1920 config.
+
+    Signed-off-by: Markus Klotzbücher <mk@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a7d7eca791a37f452c9da10fef4b31dd7aa9a622
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Fri Sep 7 09:25:07 2007 -0600
+
+    Bugfix: make bootm+libfdt compile on boards with no flash
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 6efc1fc0b63e55f94c5bc61d8dd23c918e3bc778
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Sep 7 18:35:37 2007 +0200
+
+    [PPC440SPe] PCIe environment settings for Katmai and Yucca
+
+    - 'pciconfighost' is set by default in order to be able to scan bridges
+    behind the primary host/PCIe
+
+    - 'pciscandelay' env variable is recognized to allow for user-controlled
+    delay before the PCIe bus enumeration; some peripheral devices require a
+    significant delay before they can be scanned (e.g. LSI8408E); without the
+    delay they are not detected
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 7f1913938984ef6c6a46cb53e003719196d9c5de
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Sep 7 18:20:23 2007 +0200
+
+    [PPC440SPe] Improve PCIe configuration space access
+
+    - correct configuration space mapping
+    - correct bus numbering
+    - better access to config space
+
+    Prior to this patch, the 440SPe host/PCIe bridge was able to configure only the
+    first device on the first bus. We now allow to configure up to 16 buses;
+    also, scanning for devices behind the PCIe-PCIe bridge is supported, so
+    peripheral devices farther in hierarchy can be identified.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 15ee4734e4e08003d73d9ead3ca80e2a0672e427
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Sep 7 17:46:18 2007 +0200
+
+    [PPC440SPe] Convert machine check exceptions handling
+
+    Convert using fixup mechanism to suppressing MCK for the duration of config
+    read/write transaction: while fixups work fine with the case of a precise
+    exception, we identified a major drawback with this approach when there's
+    an imprecise case. In this scenario there is the following race condition:
+    the fixup is (by design) set to catch the instruction following the one
+    actually causing the exception; if an interrupt (e.g. decrementer) happens
+    between those two instructions, the ISR code is executed before the fixup
+    handler the machine check is no longer protected by the fixup handler as it
+    appears as within the ISR code. In consequence the fixup approach is being
+    phased out and replaced with explicit suppressing of MCK during a PCIe
+    config read/write cycle.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit ff7640c9ead8806b5d827f2b29f9cb2632add729
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Sep 7 17:43:36 2007 +0200
+
+    Fix typo in MAKEALL script.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 08e2e5fcd2e06670b62e1680a3934c0e55c72810
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Fri Sep 7 17:09:21 2007 +0200
+
+    [MPC512x] Proper handling of larger frames in the FEC driver
+
+    When frame larger than local RX buffer is received, it is split and handled
+    by two buffer descriptors. Prior to this patch the FEC driver discarded
+    contents of a buffer descriptor without the 'LAST' bit set, so the first
+    part of the frame was lost in case of larger frames. This fix allows to
+    safely combine the two pieces into the whole frame.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 8d17979d0359492a822a0a409d26e3a3549b4cd4
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Sep 7 17:05:36 2007 +0200
+
+    [MPC512x] Correct fixup relocation
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit a89cbbd27a60e6740772000fd0688ffba1c2576a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Sep 7 01:21:25 2007 +0200
+
+    Update CHANGELOG, minor coding style cleanup.
+
 commit 5e5803e119de3bebd76fc9a57baac0b5aeccc8a3
 Author: stefano babic <sbabic@denx.de>
 Date:	Thu Aug 30 23:01:49 2007 +0200

@@ -104,7 +104,7 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	if ((!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 0))) &&
 		((PCI_BUS(devfn) == 0) || (PCI_BUS(devfn) == 1)))
 		return 0;
-		
+
 	address = pcie_get_base(hose, devfn);
 	offset += devfn << 4;
 
@@ -136,12 +136,12 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 	int offset, int len, u32 val) {
 
 	u8 *address;
-	
+
 	/*
 	 * Bus numbers are relative to hose->first_busno
 	 */
 	devfn -= PCI_BDF(hose->first_busno, 0, 0);
-	
+
 	/*
 	 * Same constraints as in pcie_read_config().
 	 */
@@ -151,7 +151,7 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 	if ((!((PCI_FUNC(devfn) == 0) && (PCI_DEV(devfn) == 0))) &&
 		((PCI_BUS(devfn) == 0) || (PCI_BUS(devfn) == 1)))
 		return 0;
-	
+
 	address = pcie_get_base(hose, devfn);
 	offset += devfn << 4;
 
@@ -926,7 +926,7 @@ void ppc440spe_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 	printf("PCIE:%d successfully set as rootpoint\n",port);
-	
+
 	/* Set Device and Vendor Id */
 	switch (port) {
 	case 0:
