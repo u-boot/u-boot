@@ -755,7 +755,7 @@ static void pcnet_reset_8390(void)
 #endif
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 
-	n2k_outb(n2k_inb(nic_base + PCNET_RESET), PCNET_RESET);
+	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
 
 	for (i = 0; i < 100; i++) {
 		if ((r = (n2k_inb(EN0_ISR) & ENISR_RESET)) != 0)
@@ -833,6 +833,7 @@ static int plen[NB];
 static int nrx = 0;
 
 static int pkey = -1;
+static int initialized=0;
 
 void uboot_push_packet_len(int len) {
 	PRINTK("pushed len = %d, nrx = %d\n", len, nrx);
@@ -846,7 +847,12 @@ void uboot_push_packet_len(int len) {
 	}
 	plen[nrx] = len;
 	dp83902a_recv(&pbuf[nrx*2000], len);
+/*Just pass it to the upper layer*/
+	NetReceive(&pbuf[nrx*2000], plen[nrx]);
+/*eth_rx() was gutted, so this is not needed anymore*/
+#if 0
 	nrx++;
+#endif
 }
 
 void uboot_push_tx_done(int key, int val) {
@@ -903,37 +909,21 @@ int eth_init(bd_t *bd) {
 	if (dp83902a_init() == false)
 		return -1;
 	dp83902a_start(dev_addr);
+	initialized=1;
 	return 0;
 }
 
 void eth_halt() {
 
 	PRINTK("### eth_halt\n");
-
-	dp83902a_stop();
+	if(initialized)
+		dp83902a_stop();
+	initialized=0;
 }
 
 int eth_rx() {
-	int j, tmo;
-
-	PRINTK("### eth_rx\n");
-
-	tmo = get_timer (0) + TOUT * CFG_HZ;
-	while(1) {
-		dp83902a_poll();
-		if (nrx > 0) {
-			for(j=0; j<nrx; j++) {
-				NetReceive(&pbuf[j*2000], plen[j]);
-			}
-			nrx = 0;
-			return 1;
-		}
-		if (get_timer (0) >= tmo) {
-			printf("timeout during rx\n");
-			return 0;
-		}
-	}
-	return 0;
+dp83902a_poll();
+return 1;
 }
 
 int eth_send(volatile void *packet, int length) {
