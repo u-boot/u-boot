@@ -1168,6 +1168,9 @@ KAREF_config: unconfig
 katmai_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx katmai amcc
 
+kilauea_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx kilauea amcc
+
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 

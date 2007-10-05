@@ -304,6 +304,7 @@ Stefan Roese <sr@denx.de>
 	bunbinga		PPC405EP
 	ebony			PPC440GP
 	katmai			PPC440SPe
+	kilauea			PPC405EX
 	lwmon5			PPC440EPx
 	ocotea			PPC440GX
 	p3p440			PPC440GP
