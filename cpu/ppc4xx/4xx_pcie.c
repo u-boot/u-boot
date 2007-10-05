@@ -21,7 +21,7 @@
  */
 
 /* define DEBUG for debugging output (obviously ;-)) */
-#if 1
+#if 0
 #define DEBUG
 #endif
 
