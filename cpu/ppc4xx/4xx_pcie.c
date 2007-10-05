@@ -812,7 +812,7 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	/* Set Class Code to PCI-PCI bridge and Revision Id to 1 */
 	out_le32(mbase + 0x208, 0x06040001);
 
-	printf("PCIE:%d successfully set as rootpoint\n", port);
+	printf("PCIE%d: successfully set as root-complex\n", port);
 }
 
 int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
@@ -908,7 +908,7 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 		mdelay(1000);
 	}
 
-	printf("PCIE:%d successfully set as endpoint\n", port);
+	printf("PCIE%d: successfully set as endpoint\n", port);
 
 	return 0;
 }
