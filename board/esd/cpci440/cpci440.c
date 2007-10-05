@@ -79,7 +79,7 @@ int checkboard (void)
 	printf("\tCPU: %lu MHz\n", sysinfo.freqProcessor/1000000);
 	printf("\tPLB: %lu MHz\n", sysinfo.freqPLB/1000000);
 	printf("\tOPB: %lu MHz\n", sysinfo.freqOPB/1000000);
-	printf("\tEPB: %lu MHz\n", sysinfo.freqEPB/1000000);
+	printf("\tEBC: %lu MHz\n", sysinfo.freqEBC/1000000);
 
 	/*
 	 * Disable sleep mode in LXT971
