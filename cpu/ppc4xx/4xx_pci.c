@@ -592,4 +592,15 @@ void pci_init_board(void)
 }
 
 #endif /* CONFIG_440 */
+
+#if defined(CONFIG_405EX)
+void pci_init_board(void)
+{
+#ifdef CONFIG_PCI_SCAN_SHOW
+	printf("PCI:   Bus Dev VenId DevId Class Int\n");
+#endif
+	pcie_setup_hoses(0);
+}
+#endif /* CONFIG_405EX */
+
 #endif /* CONFIG_PCI */
