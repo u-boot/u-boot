@@ -244,6 +244,7 @@ unsigned char spi_read(void);
 /* standard dtt sensor configuration */
 #define CONFIG_DTT_DS1775	1
 #define CONFIG_DTT_SENSORS	{ 0 }
+#define CFG_I2C_DTT_ADDR	0x49
 
 /*-----------------------------------------------------------------------
  * PCI stuff
