@@ -800,7 +800,7 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* Enable two 128MB cachable regions. */
 	/*----------------------------------------------------------------------- */
-	addis	r1,r0,0x8000
+	addis	r1,r0,0xc000
 	addi	r1,r1,0x0001
 	mticcr	r1			/* instruction cache */
 
@@ -823,12 +823,23 @@ _start:
 /*****************************************************************************/
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
-    defined(CONFIG_405)
+    defined(CONFIG_405EX) || defined(CONFIG_405)
 	/*----------------------------------------------------------------------- */
 	/* Clear and set up some registers. */
 	/*----------------------------------------------------------------------- */
 	addi	r4,r0,0x0000
+#if !defined(CONFIG_405EX)
 	mtspr	sgr,r4
+#else
+	/*
+	 * On 405EX, completely clearing the SGR leads to PPC hangup
+	 * upon PCIe configuration access. The PCIe memory regions
+	 * need to be guarded!
+	 */
+	lis	r3,0x0000
+	ori	r3,r3,0x7FFC
+	mtspr	sgr,r3
+#endif
 	mtspr	dcwr,r4
 	mtesr	r4			/* clear Exception Syndrome Reg */
 	mttcr	r4			/* clear Timer Control Reg */
@@ -851,7 +862,7 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* Enable two 128MB cachable regions. */
 	/*----------------------------------------------------------------------- */
-	lis	r4,0x8000
+	lis	r4,0xc000
 	ori	r4,r4,0x0001
 	mticcr	r4			/* instruction cache */
 	isync
@@ -860,12 +871,34 @@ _start:
 	ori	r4,r4,0x0000
 	mtdccr	r4			/* data cache */
 
-#if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
+#if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR)) || defined(CONFIG_405EX)
 	/*----------------------------------------------------------------------- */
 	/* Tune the speed and size for flash CS0  */
 	/*----------------------------------------------------------------------- */
 	bl	ext_bus_cntlr_init
 #endif
+#if !(defined(CFG_INIT_DCACHE_CS) || defined(CFG_TEMP_STACK_OCM))
+	/*
+	 * Boards like the Kilauea (405EX) don't have OCM and can't use
+	 * DCache for init-ram. So setup stack here directly after the
+	 * SDRAM is initialized.
+	 */
+	lis	r1, CFG_INIT_RAM_ADDR@h
+	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack in SDRAM */
+
+	li	r0, 0			/* Make room for stack frame header and */
+	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
+	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
+	/*
+	 * Set up a dummy frame to store reset vector as return address.
+	 * this causes stack underflow to reset board.
+	 */
+	stwu	r1, -8(r1)		/* Save back chain and move SP */
+	lis	r0, RESET_VECTOR@h	/* Address of reset vector */
+	ori	r0, r0, RESET_VECTOR@l
+	stwu	r1, -8(r1)		/* Save back chain and move SP */
+	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
+#endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
 #if defined(CONFIG_405EP)
 	/*----------------------------------------------------------------------- */
@@ -983,7 +1016,7 @@ start_ram:
 	ori	r4,r4,0xa000
 	mtdcr	ebccfgd,r4
 
-	/* turn on data chache for this region */
+	/* turn on data cache for this region */
 	lis	r4,0x0080
 	mtdccr	r4
 
@@ -1048,30 +1081,6 @@ start_ram:
 	/* Initialize SDRAM Controller	*/
 	/*----------------------------------------------------------------------- */
 	bl	sdram_init
-
-	/*
-	 * Setup temporary stack pointer only for boards
-	 * that do not use SDRAM SPD I2C stuff since it
-	 * is already initialized to use DCACHE or OCM
-	 * stacks.
-	 */
-#if !(defined(CFG_INIT_DCACHE_CS) || defined(CFG_TEMP_STACK_OCM))
-	lis	r1, CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack in SDRAM */
-
-	li	r0, 0			/* Make room for stack frame header and */
-	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
-	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
-	/*
-	 * Set up a dummy frame to store reset vector as return address.
-	 * this causes stack underflow to reset board.
-	 */
-	stwu	r1, -8(r1)		/* Save back chain and move SP */
-	lis	r0, RESET_VECTOR@h	/* Address of reset vector */
-	ori	r0, r0, RESET_VECTOR@l
-	stwu	r1, -8(r1)		/* Save back chain and move SP */
-	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
-#endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
 
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot		/* will not return */
@@ -1273,7 +1282,7 @@ icache_enable:
 	bl	invalidate_icache
 	mtlr	r8
 	isync
-	addis	r3,r0, 0x8000	      /* set bit 0 */
+	addis	r3,r0, 0xc000	      /* set bit 0 */
 	mticcr	r3
 	blr
 

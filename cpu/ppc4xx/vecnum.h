@@ -270,6 +270,110 @@
 #define VECNUM_EIR3		30	/* External interrupt 3		*/
 #define VECNUM_EIR4		31	/* External interrupt 4		*/
 
+#elif defined(CONFIG_405EX)
+
+/* UIC 0 */
+#define VECNUM_U0		00
+#define VECNUM_U1		01
+#define VECNUM_IIC0		02
+#define VECNUM_PKA		03
+#define VECNUM_TRNG		04
+#define VECNUM_EBM		05
+#define VECNUM_BGI		06
+#define VECNUM_IIC1		07
+#define VECNUM_SPI		08
+#define VECNUM_EIR0		09
+#define VECNUM_MTE		10	/* MAL Tx EOB */
+#define VECNUM_MRE		11	/* MAL Rx EOB */
+#define VECNUM_DMA0		12
+#define VECNUM_DMA1		13
+#define VECNUM_DMA2		14
+#define VECNUM_DMA3		15
+#define VECNUM_PCIE0AL		16
+#define VECNUM_PCIE0VPD		17
+#define VECNUM_RPCIE0HRST	18
+#define VECNUM_FPCIE0HRST	19
+#define VECNUM_PCIE0TCR		20
+#define VECNUM_PCIEMSI0		21
+#define VECNUM_PCIEMSI1		22
+#define VECNUM_SECURITY		23
+#define VECNUM_ETH0		24
+#define VECNUM_ETH1		25
+#define VECNUM_PCIEMSI2		26
+#define VECNUM_EIR4		27
+#define VECNUM_UIC2NC		28
+#define VECNUM_UIC2C		29
+#define VECNUM_UIC1NC		30
+#define VECNUM_UIC1C		31
+
+/* UIC 1 */
+#define VECNUM_MS		(32 + 00)	/* MAL SERR */
+#define VECNUM_TXDE		(32 + 01)	/* MAL TXDE */
+#define VECNUM_RXDE		(32 + 02)	/* MAL RXDE */
+#define VECNUM_PCIE0BMVC0	(32 + 03)
+#define VECNUM_PCIE0DCRERR	(32 + 04)
+#define VECNUM_EBC		(32 + 05)
+#define VECNUM_NDFC		(32 + 06)
+#define VECNUM_PCEI1DCRERR	(32 + 07)
+#define VECNUM_CT8		(32 + 08)
+#define VECNUM_CT9		(32 + 09)
+#define VECNUM_PCIE1AL		(32 + 10)
+#define VECNUM_PCIE1VPD		(32 + 11)
+#define VECNUM_RPCE1HRST	(32 + 12)
+#define VECNUM_FPCE1HRST	(32 + 13)
+#define VECNUM_PCIE1TCR		(32 + 14)
+#define VECNUM_PCIE1VC0		(32 + 15)
+#define VECNUM_CT3		(32 + 16)
+#define VECNUM_CT4		(32 + 17)
+#define VECNUM_EIR7		(32 + 18)
+#define VECNUM_EIR8		(32 + 19)
+#define VECNUM_EIR9		(32 + 20)
+#define VECNUM_CT5		(32 + 21)
+#define VECNUM_CT6		(32 + 22)
+#define VECNUM_CT7		(32 + 23)
+#define VECNUM_SROM		(32 + 24)	/* SERIAL ROM */
+#define VECNUM_GPTDECPULS	(32 + 25)	/* GPT Decrement pulse */
+#define VECNUM_EIR2		(32 + 26)
+#define VECNUM_EIR5		(32 + 27)
+#define VECNUM_EIR6		(32 + 28)
+#define VECNUM_EMAC0WAKE	(32 + 29)
+#define VECNUM_EIR1		(32 + 30)
+#define VECNUM_EMAC1WAKE	(32 + 31)
+
+/* UIC 2 */
+#define VECNUM_PCIE0INTA	(64 + 00)	/* PCIE0 INTA */
+#define VECNUM_PCIE0INTB	(64 + 01)	/* PCIE0 INTB */
+#define VECNUM_PCIE0INTC	(64 + 02)	/* PCIE0 INTC */
+#define VECNUM_PCIE0INTD	(64 + 03)	/* PCIE0 INTD */
+#define VECNUM_EIR3		(64 + 04)	/* External IRQ 3 */
+#define VECNUM_DDRMCUE		(64 + 05)
+#define VECNUM_DDRMCCE		(64 + 06)
+#define VECNUM_MALINTCOATX0	(64 + 07)	/* Interrupt coalecence TX0 */
+#define VECNUM_MALINTCOATX1	(64 + 08)	/* Interrupt coalecence TX1 */
+#define VECNUM_MALINTCOARX0	(64 + 09)	/* Interrupt coalecence RX0 */
+#define VECNUM_MALINTCOARX1	(64 + 10)	/* Interrupt coalecence RX1 */
+#define VECNUM_PCIE1INTA	(64 + 11)	/* PCIE0 INTA */
+#define VECNUM_PCIE1INTB	(64 + 12)	/* PCIE0 INTB */
+#define VECNUM_PCIE1INTC	(64 + 13)	/* PCIE0 INTC */
+#define VECNUM_PCIE1INTD	(64 + 14)	/* PCIE0 INTD */
+#define VECNUM_RPCIEMSI2	(64 + 15)	/* MSI level 2 */
+#define VECNUM_PCIEMSI3		(64 + 16)	/* MSI level 2 */
+#define VECNUM_PCIEMSI4		(64 + 17)	/* MSI level 2 */
+#define VECNUM_PCIEMSI5		(64 + 18)	/* MSI level 2 */
+#define VECNUM_PCIEMSI6		(64 + 19)	/* MSI level 2 */
+#define VECNUM_PCIEMSI7		(64 + 20)	/* MSI level 2 */
+#define VECNUM_PCIEMSI8		(64 + 21)	/* MSI level 2 */
+#define VECNUM_PCIEMSI9		(64 + 22)	/* MSI level 2 */
+#define VECNUM_PCIEMSI10	(64 + 23)	/* MSI level 2 */
+#define VECNUM_PCIEMSI11	(64 + 24)	/* MSI level 2 */
+#define VECNUM_PCIEMSI12	(64 + 25)	/* MSI level 2 */
+#define VECNUM_PCIEMSI13	(64 + 26)	/* MSI level 2 */
+#define VECNUM_PCIEMSI14	(64 + 27)	/* MSI level 2 */
+#define VECNUM_PCIEMSI15	(64 + 28)	/* MSI level 2 */
+#define VECNUM_PLB4XAHB		(64 + 29)	/* PLBxAHB bridge */
+#define VECNUM_USBWAKE		(64 + 30)	/* USB wakup */
+#define VECNUM_USBOTG		(64 + 31)	/* USB OTG */
+
 #else	/* !CONFIG_405EZ */
 
 #define VECNUM_U0           0           /* UART0                        */

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -45,15 +45,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void board_reset(void);
 #endif
 
-#if defined(CONFIG_440)
-#define FREQ_EBC		(sys_info.freqEPB)
-#elif defined(CONFIG_405EZ)
-#define FREQ_EBC		((CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / \
-				 sys_info.pllExtBusDiv)
-#else
-#define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
-#endif
-
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
@@ -76,7 +67,8 @@ int pci_async_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && !defined(CONFIG_405)
+#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
+    !defined(CONFIG_405) && !defined(CONFIG_405EX)
 int pci_arbiter_enabled(void)
 {
 #if defined(CONFIG_405GP)
@@ -110,7 +102,8 @@ int pci_arbiter_enabled(void)
 #if defined(CONFIG_405EP) || defined(CONFIG_440GX) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_405EX)
 
 #define I2C_BOOTROM
 
@@ -207,6 +200,21 @@ static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', \
 				 'I', 'x', 'K', 'L', 'M', 'N', 'O', 'P' };
 #endif
 
+#if defined(CONFIG_405EX)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"EBC (16 bits)",
+	"EBC (16 bits)",
+	"NAND (8 bits)",
+	"NAND (8 bits)",
+	"I2C (Addr 0x54)",
+	"EBC (8 bits)",
+	"I2C (Addr 0x52)",
+};
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
+#endif
+
 #if defined(SDR0_PINSTP_SHIFT)
 static int bootstrap_option(void)
 {
@@ -241,7 +249,8 @@ int checkcpu (void)
 	puts("AMCC PowerPC 4");
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
-    defined(CONFIG_405EP) || defined(CONFIG_405EZ)
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
+    defined(CONFIG_405EX)
 	puts("05");
 #endif
 #if defined(CONFIG_440)
@@ -291,6 +300,26 @@ int checkcpu (void)
 
 	case PVR_405EZ_RA:
 		puts("EZ Rev. A");
+		break;
+
+	case PVR_405EX1_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EX2_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_405EXR1_RA:
+		puts("EXr Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EXR2_RA:
+		puts("EXr Rev. A");
+		strcpy(addstr, "No Security support");
 		break;
 
 #if defined(CONFIG_440)
@@ -424,7 +453,7 @@ int checkcpu (void)
 	printf (" at %s MHz (PLB=%lu, OPB=%lu, EBC=%lu MHz)\n", strmhz(buf, clock),
 		sys_info.freqPLB / 1000000,
 		get_OPB_freq() / 1000000,
-		FREQ_EBC / 1000000);
+		sys_info.freqEBC / 1000000);
 
 	if (addstr[0] != 0)
 		printf("       %s\n", addstr);
@@ -437,7 +466,7 @@ int checkcpu (void)
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
 #endif	/* SDR0_PINSTP_SHIFT */
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_405EX)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
 #endif
 
@@ -450,11 +479,11 @@ int checkcpu (void)
 	}
 #endif
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_405EX)
 	putc('\n');
 #endif
 
-#if defined(CONFIG_405EP) || defined(CONFIG_405EZ)
+#if defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX)
 	printf ("       16 kB I-Cache 16 kB D-Cache");
 #elif defined(CONFIG_440)
 	printf ("       32 kB I-Cache 32 kB D-Cache");

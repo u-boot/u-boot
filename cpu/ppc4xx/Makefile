@@ -30,7 +30,7 @@ SOBJS	= dcr.o
 COBJS	= 40x_spd_sdram.o 44x_spd_ddr.o 44x_spd_ddr2.o \
 	  4xx_pci.o 4xx_pcie.o 4xx_enet.o \
 	  bedbug_405.o commproc.o \
-	  cpu.o cpu_init.o gpio.o i2c.o interrupts.o \
+	  cpu.o cpu_init.o fdt.o gpio.o i2c.o interrupts.o \
 	  miiphy.o ndfc.o sdram.o serial.o speed.o \
 	  tlb.o traps.o usb_ohci.o usb.o usbdev.o
 

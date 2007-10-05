@@ -3345,7 +3345,7 @@ typedef struct {
 	unsigned long freqTmrClk;
 	unsigned long freqPLB;
 	unsigned long freqOPB;
-	unsigned long freqEPB;
+	unsigned long freqEBC;
 	unsigned long freqPCI;
 #ifdef CONFIG_440SPE
 	unsigned long freqDDR;

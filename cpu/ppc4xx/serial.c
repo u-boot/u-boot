@@ -266,7 +266,7 @@ int serial_tstc ()
 /*****************************************************************************/
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
-    defined(CONFIG_440)
+    defined(CONFIG_405EX) || defined(CONFIG_440)
 
 #if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
@@ -318,6 +318,15 @@ int serial_tstc ()
 #define UCR0_UDIV_POS   0
 #define UCR1_UDIV_POS   8
 #define UDIV_MAX        127
+#elif defined(CONFIG_405EX)
+#define UART0_BASE	0xef600200
+#define UART1_BASE	0xef600300
+#define CR0_MASK	0x000000ff
+#define CR0_EXTCLK_ENA	0x00800000
+#define CR0_UDIV_POS	0
+#define UDIV_SUBTRACT	0
+#define UART0_SDR	sdr_uart0
+#define UART1_SDR	sdr_uart1
 #else /* CONFIG_405GP || CONFIG_405CR */
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
@@ -391,7 +400,8 @@ typedef struct {
 volatile static serial_buffer_t buf_info;
 #endif
 
-#if defined(CONFIG_440) && !defined(CFG_EXT_SERIAL_CLOCK)
+#if (defined(CONFIG_440) || defined(CONFIG_405EX)) &&  \
+	!defined(CFG_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
 {
@@ -572,7 +582,31 @@ int serial_init (void)
 	unsigned short bdiv;
 	volatile char val;
 
-#if defined(CONFIG_405EZ)
+#ifdef CONFIG_405EX
+	clk = tmp = 0;
+	mfsdr(UART0_SDR, reg);
+	reg &= ~CR0_MASK;
+#ifdef CFG_EXT_SERIAL_CLOCK
+	reg |= CR0_EXTCLK_ENA;
+	udiv = 1;
+	tmp  = gd->baudrate * 16;
+	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
+#else
+	serial_divs(gd->baudrate, &udiv, &bdiv);
+#endif
+	reg |= (udiv - UDIV_SUBTRACT) << CR0_UDIV_POS;  /* set the UART divisor */
+
+	/*
+	 * Configure input clock to baudrate generator for all
+	 * available serial ports here
+	 */
+	mtsdr(UART0_SDR, reg);
+
+#if defined(UART1_SDR)
+	mtsdr(UART1_SDR, reg);
+#endif
+
+#elif defined(CONFIG_405EZ)
 	serial_divs(gd->baudrate, &udiv, &bdiv);
 	clk = tmp = reg = 0;
 #else
@@ -608,7 +642,7 @@ int serial_init (void)
 #endif /* CONFIG_405EP */
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
-#endif /* CONFIG_405EZ */
+#endif /* CONFIG_405EX */
 
 	out8(UART_BASE + UART_LCR, 0x80);	/* set DLAB bit */
 	out8(UART_BASE + UART_DLL, bdiv);	/* set baudrate divisor */

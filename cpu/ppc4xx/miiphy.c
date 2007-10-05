@@ -141,6 +141,16 @@ unsigned int miiphy_getemac_offset (void)
 
 	return (eoffset);
 #else
+
+#if defined(CONFIG_NET_MULTI) && defined(CONFIG_405EX)
+	unsigned long rgmii;
+	int devnum = 1;
+
+	rgmii = in32(RGMII_FER);
+	if (rgmii & (1 << (19 - devnum)))
+		return 0x100;
+#endif
+
 	return 0;
 #endif
 }
@@ -174,7 +184,8 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_405EX)
 #if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
 		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_READ;
 #else
@@ -186,7 +197,8 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 
 #if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && \
     !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
-    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
+    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) && \
+    !defined(CONFIG_405EX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;
 #endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
@@ -248,7 +260,8 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	sta_reg = reg;		/* reg address */
 	/* set clock (50Mhz) and read flags */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_405EX)
 #if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
 		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_WRITE;
 #else
@@ -260,7 +273,8 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 
 #if defined(CONFIG_PHY_CLK_FREQ) && !defined(CONFIG_440GX) && \
     !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
-    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
+    !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) && \
+    !defined(CONFIG_405EX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;	/* Set clock frequency (PLB freq. dependend) */
 #endif
 	sta_reg = sta_reg | ((unsigned long) addr << 5);/* Phy address */
