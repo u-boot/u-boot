@@ -20,6 +20,11 @@
  *
  */
 
+/* define DEBUG for debugging output (obviously ;-)) */
+#if 1
+#define DEBUG
+#endif
+
 #include <asm/processor.h>
 #include <asm-ppc/io.h>
 #include <ppc4xx.h>
@@ -708,7 +713,10 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	 * subregions and to enable the outbound translation.
 	 */
 	out_le32(mbase + PECFG_POM0LAH, 0x00000000);
-	out_le32(mbase + PECFG_POM0LAL, 0x00000000);
+	out_le32(mbase + PECFG_POM0LAL, CFG_PCIE_MEMBASE +
+		 port * CFG_PCIE_MEMSIZE);
+	debug("PECFG_POM0LA=%08x.%08x\n", in_le32(mbase + PECFG_POM0LAH),
+	      in_le32(mbase + PECFG_POM0LAL));
 
 	switch (port) {
 	case 0:
@@ -718,6 +726,11 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE0), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE0),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
+		debug("0:PEGPL_OMR1BA=%08x.%08x MSK=%08x.%08x\n",
+		      mfdcr(DCRN_PEGPL_OMR1BAH(PCIE0)),
+		      mfdcr(DCRN_PEGPL_OMR1BAL(PCIE0)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKH(PCIE0)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE0)));
 		break;
 	case 1:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1),  0x0000000d);
@@ -726,6 +739,11 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE1), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE1),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
+		debug("1:PEGPL_OMR1BA=%08x.%08x MSK=%08x.%08x\n",
+		      mfdcr(DCRN_PEGPL_OMR1BAH(PCIE1)),
+		      mfdcr(DCRN_PEGPL_OMR1BAL(PCIE1)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKH(PCIE1)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE1)));
 		break;
 	case 2:
 		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2),  0x0000000d);
@@ -734,6 +752,11 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE2), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE2),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
+		debug("2:PEGPL_OMR1BA=%08x.%08x MSK=%08x.%08x\n",
+		      mfdcr(DCRN_PEGPL_OMR1BAH(PCIE2)),
+		      mfdcr(DCRN_PEGPL_OMR1BAL(PCIE2)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKH(PCIE2)),
+		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE2)));
 		break;
 	}
 

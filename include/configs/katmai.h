@@ -62,7 +62,7 @@
 #define CFG_PCI_TARGBASE	CFG_PCI_MEMBASE
 
 #define CFG_PCIE_MEMBASE	0xb0000000	/* mapped PCIe memory	*/
-#define CFG_PCIE_MEMSIZE	0x01000000
+#define CFG_PCIE_MEMSIZE	0x08000000	/* smallest incr for PCIe port */
 #define CFG_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
 
 #define CFG_PCIE0_CFGBASE	0xc0000000
