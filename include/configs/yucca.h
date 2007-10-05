@@ -74,6 +74,9 @@
 #define CFG_PCIE1_XCFGBASE	0xc3001000
 #define CFG_PCIE2_XCFGBASE	0xc3002000
 
+/* base address of inbound PCIe window */
+#define CFG_PCIE_INBOUND_BASE	0x0000000400000000ULL
+
 /* System RAM mapped to PCI space */
 #define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
 #define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE

@@ -31,7 +31,8 @@
 #include <common.h>
 #include <pci.h>
 
-#if defined(CONFIG_440SPE) && defined(CONFIG_PCI)
+#if (defined(CONFIG_440SPE) || defined(CONFIG_405EX)) && \
+    defined(CONFIG_PCI)
 
 #include <asm/4xx_pcie.h>
 
@@ -55,8 +56,10 @@ static u8* pcie_get_base(struct pci_controller *hose, unsigned int devfn)
 			base = (u8*)CFG_PCIE0_XCFGBASE;
 		if (hose->cfg_data == (u8*)CFG_PCIE1_CFGBASE)
 			base = (u8*)CFG_PCIE1_XCFGBASE;
+#if CFG_PCIE_NR_PORTS > 2
 		if (hose->cfg_data == (u8*)CFG_PCIE2_CFGBASE)
 			base = (u8*)CFG_PCIE2_XCFGBASE;
+#endif
 	}
 
 	return base;
@@ -68,8 +71,10 @@ static void pcie_dmer_disable(void)
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) | GPL_DMER_MASK_DISA);
 	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE),
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) | GPL_DMER_MASK_DISA);
+#if CFG_PCIE_NR_PORTS > 2
 	mtdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE),
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) | GPL_DMER_MASK_DISA);
+#endif
 }
 
 static void pcie_dmer_enable(void)
@@ -78,8 +83,10 @@ static void pcie_dmer_enable(void)
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE0_BASE)) & ~GPL_DMER_MASK_DISA);
 	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE1_BASE),
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE1_BASE)) & ~GPL_DMER_MASK_DISA);
+#if CFG_PCIE_NR_PORTS > 2
 	mtdcr (DCRN_PEGPL_CFG (DCRN_PCIE2_BASE),
 		mfdcr (DCRN_PEGPL_CFG(DCRN_PCIE2_BASE)) & ~GPL_DMER_MASK_DISA);
+#endif
 }
 
 static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
@@ -120,6 +127,7 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	 */
 	pcie_dmer_disable ();
 
+	debug("%s: cfg_data=%08x offset=%08x\n", __func__, hose->cfg_data, offset);
 	switch (len) {
 	case 1:
 		*val = in_8(hose->cfg_data + offset);
@@ -227,6 +235,7 @@ int pcie_write_config_dword(struct pci_controller *hose,pci_dev_t dev,int offset
 	return pcie_write_config(hose,(u32)dev,offset,3,(u32 )val);
 }
 
+#if defined(CONFIG_440SPE)
 static void ppc4xx_setup_utl(u32 port) {
 
 	volatile void *utl_base = NULL;
@@ -371,6 +380,15 @@ int ppc4xx_init_pcie(void)
 	}
 	return 0;
 }
+#else
+int ppc4xx_init_pcie(void)
+{
+	/*
+	 * Nothing to do on 405EX
+	 */
+	return 0;
+}
+#endif
 
 /*
  * Board-specific pcie initialization
@@ -608,19 +626,21 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 		return -1;
 	}
 
+#if defined(CONFIG_440SPE)
 	/*
 	 * Setup UTL registers - but only on revA!
 	 * We use default settings for revB chip.
 	 */
 	if (!ppc440spe_revB())
 		ppc4xx_setup_utl(port);
+#endif
 
 	/*
 	 * We map PCI Express configuration access into the 512MB regions
 	 */
 	addr = ppc4xx_get_cfgaddr(port);
-	low = (u32)(addr & 0x00000000ffffffff);
-	high = (u32)(addr >> 32);
+	low = U64_TO_U32_LOW(addr);
+	high = U64_TO_U32_HIGH(addr);
 
 	switch (port) {
 	case 0:
@@ -633,11 +653,13 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 		mtdcr(DCRN_PEGPL_CFGBAL(PCIE1), low);
 		mtdcr(DCRN_PEGPL_CFGMSK(PCIE1), 0xe0000001); /* 512MB region, valid */
 		break;
+#if CFG_PCIE_NR_PORTS > 2
 	case 2:
 		mtdcr(DCRN_PEGPL_CFGBAH(PCIE2), high);
 		mtdcr(DCRN_PEGPL_CFGBAL(PCIE2), low);
 		mtdcr(DCRN_PEGPL_CFGMSK(PCIE2), 0xe0000001); /* 512MB region, valid */
 		break;
+#endif
 	}
 
 	/*
@@ -692,11 +714,13 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		rmbase = (u32 *)CFG_PCIE1_CFGBASE;
 		hose->cfg_data = (u8 *)CFG_PCIE1_CFGBASE;
 		break;
+#if CFG_PCIE_NR_PORTS > 2
 	case 2:
 		mbase = (u32 *)CFG_PCIE2_XCFGBASE;
 		rmbase = (u32 *)CFG_PCIE2_CFGBASE;
 		hose->cfg_data = (u8 *)CFG_PCIE2_CFGBASE;
 		break;
+#endif
 	}
 
 	/*
@@ -720,8 +744,8 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 
 	switch (port) {
 	case 0:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE0), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE0),
@@ -733,8 +757,8 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE0)));
 		break;
 	case 1:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE1), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE1),
@@ -745,9 +769,10 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		      mfdcr(DCRN_PEGPL_OMR1MSKH(PCIE1)),
 		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE1)));
 		break;
+#if CFG_PCIE_NR_PORTS > 2
 	case 2:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE2), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE2),
@@ -758,6 +783,7 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		      mfdcr(DCRN_PEGPL_OMR1MSKH(PCIE2)),
 		      mfdcr(DCRN_PEGPL_OMR1MSKL(PCIE2)));
 		break;
+#endif
 	}
 
 	/* Set up 16GB inbound memory window at 0 */
@@ -770,8 +796,8 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 	out_le32(mbase + PECFG_PIM01SAL, 0x00000000);
 	out_le32(mbase + PECFG_PIM0LAL, 0);
 	out_le32(mbase + PECFG_PIM0LAH, 0);
-	out_le32(mbase + PECFG_PIM1LAL,  0x00000000);
-	out_le32(mbase + PECFG_PIM1LAH,  0x00000004);
+	out_le32(mbase + PECFG_PIM1LAL, 0x00000000);
+	out_le32(mbase + PECFG_PIM1LAH, 0x00000004);
 	out_le32(mbase + PECFG_PIMEN, 0x1);
 
 	/* Enable I/O, Mem, and Busmaster cycles */
@@ -780,23 +806,8 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 	/* Set Device and Vendor Id */
-	switch (port) {
-	case 0:
-		out_le16(mbase + 0x200, 0xaaa0);
-		out_le16(mbase + 0x202, 0xbed0);
-		break;
-	case 1:
-		out_le16(mbase + 0x200, 0xaaa1);
-		out_le16(mbase + 0x202, 0xbed1);
-		break;
-	case 2:
-		out_le16(mbase + 0x200, 0xaaa2);
-		out_le16(mbase + 0x202, 0xbed2);
-		break;
-	default:
-		out_le16(mbase + 0x200, 0xaaa3);
-		out_le16(mbase + 0x202, 0xbed3);
-	}
+	out_le16(mbase + 0x200, 0xaaa0 + port);
+	out_le16(mbase + 0x202, 0xbed0 + port);
 
 	/* Set Class Code to PCI-PCI bridge and Revision Id to 1 */
 	out_le32(mbase + 0x208, 0x06040001);
@@ -826,10 +837,12 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 		mbase = (u32 *)CFG_PCIE1_XCFGBASE;
 		hose->cfg_data = (u8 *)CFG_PCIE1_CFGBASE;
 		break;
+#if defined(CFG_PCIE2_CFGBASE)
 	case 2:
 		mbase = (u32 *)CFG_PCIE2_XCFGBASE;
 		hose->cfg_data = (u8 *)CFG_PCIE2_CFGBASE;
 		break;
+#endif
 	}
 
 	/*
@@ -843,29 +856,31 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 
 	switch (port) {
 	case 0:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE0), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE0), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE0), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE0),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
 	case 1:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE1), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE1), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE1), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE1),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
+#if CFG_PCIE_NR_PORTS > 2
 	case 2:
-		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2),  0x0000000d);
-		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2),  CFG_PCIE_MEMBASE +
+		mtdcr(DCRN_PEGPL_OMR1BAH(PCIE2), CFG_PCIE_ADDR_HIGH);
+		mtdcr(DCRN_PEGPL_OMR1BAL(PCIE2), CFG_PCIE_MEMBASE +
 		      port * CFG_PCIE_MEMSIZE);
 		mtdcr(DCRN_PEGPL_OMR1MSKH(PCIE2), 0x7fffffff);
 		mtdcr(DCRN_PEGPL_OMR1MSKL(PCIE2),
 		      ~(CFG_PCIE_MEMSIZE - 1) | 3);
 		break;
+#endif
 	}
 
 	/* Set up 16GB inbound memory window at 0 */
@@ -873,16 +888,16 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 	out_le32(mbase + PCI_BASE_ADDRESS_1, 0);
 	out_le32(mbase + PECFG_BAR0HMPA, 0x7fffffc);
 	out_le32(mbase + PECFG_BAR0LMPA, 0);
-	out_le32(mbase + PECFG_PIM0LAL, 0x00000000);
-	out_le32(mbase + PECFG_PIM0LAH, 0x00000004);	/* pointing to SRAM */
+	out_le32(mbase + PECFG_PIM0LAL, U64_TO_U32_LOW(CFG_PCIE_INBOUND_BASE));
+	out_le32(mbase + PECFG_PIM0LAH, U64_TO_U32_HIGH(CFG_PCIE_INBOUND_BASE));
 	out_le32(mbase + PECFG_PIMEN, 0x1);
 
 	/* Enable I/O, Mem, and Busmaster cycles */
 	out_le16((u16 *)(mbase + PCI_COMMAND),
 		 in_le16((u16 *)(mbase + PCI_COMMAND)) |
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-	out_le16(mbase + 0x200,0xcaad);			/* Setting vendor ID */
-	out_le16(mbase + 0x202,0xfeed);			/* Setting device ID */
+	out_le16(mbase + 0x200, 0xcaad);		/* Setting vendor ID */
+	out_le16(mbase + 0x202, 0xfeed);		/* Setting device ID */
 
 	attempts = 10;
 	while(!(SDR_READ(SDRN_PESDR_RCSSTS(port)) & (1 << 8))) {
@@ -893,7 +908,7 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 		mdelay(1000);
 	}
 
-	printf("PCIE:%d successfully set as endpoint\n",port);
+	printf("PCIE:%d successfully set as endpoint\n", port);
 
 	return 0;
 }

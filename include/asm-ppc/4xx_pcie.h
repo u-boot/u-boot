@@ -16,14 +16,29 @@
 #define DCRN_SDR0_CFGDATA	0x00f
 
 #if defined(CONFIG_440SPE)
+#define CFG_PCIE_NR_PORTS	3
+
+#define CFG_PCIE_ADDR_HIGH	0x0000000d
+
 #define DCRN_PCIE0_BASE		0x100
 #define DCRN_PCIE1_BASE		0x120
 #define DCRN_PCIE2_BASE		0x140
+
+#define PCIE0_SDR		0x300
+#define PCIE1_SDR		0x340
+#define PCIE2_SDR		0x370
 #endif
 
 #if defined(CONFIG_405EX)
+#define CFG_PCIE_NR_PORTS	2
+
+#define CFG_PCIE_ADDR_HIGH	0x00000000
+
 #define	DCRN_PCIE0_BASE		0x040
 #define	DCRN_PCIE1_BASE		0x060
+
+#define PCIE0_SDR		0x400
+#define PCIE1_SDR		0x440
 #endif
 
 #define PCIE0			DCRN_PCIE0_BASE
@@ -52,17 +67,6 @@
 #define PESDR0_PLLLCT1		0x03a0
 #define PESDR0_PLLLCT2		0x03a1
 #define PESDR0_PLLLCT3		0x03a2
-
-#if defined(CONFIG_440SPE)
-#define PCIE0_SDR		0x300
-#define PCIE1_SDR		0x340
-#define PCIE2_SDR		0x370
-#endif
-
-#if defined(CONFIG_405EX)
-#define PCIE0_SDR		0x400
-#define PCIE1_SDR		0x440
-#endif
 
 /* common regs, at least for 405EX and 440SPe */
 #define SDRN_PESDR_UTLSET1(n)		(sdr_base(n) + 0x00)
@@ -237,6 +241,9 @@
 
 #define GPL_DMER_MASK_DISA	0x02000000
 
+#define U64_TO_U32_LOW(val)	((u32)((val) & 0x00000000ffffffffULL))
+#define U64_TO_U32_HIGH(val)	((u32)((val) >> 32))
+
 int ppc4xx_init_pcie(void);
 int ppc4xx_init_pcie_rootport(int port);
 int ppc4xx_init_pcie_endport(int port);
@@ -260,7 +267,7 @@ static inline u32 sdr_base(int port)
 		return PCIE0_SDR;
 	case 1:
 		return PCIE1_SDR;
-#if defined(PCIE2_SDR)
+#if CFG_PCIE_NR_PORTS > 2
 	case 2:
 		return PCIE2_SDR;
 #endif
