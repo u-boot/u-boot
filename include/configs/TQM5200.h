@@ -188,7 +188,7 @@
 #endif
 
 #ifdef CONFIG_PCI
-#define CONFIG_CMD_CMD_PCI
+#define CONFIG_CMD_PCI
 #endif
 
 #if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
