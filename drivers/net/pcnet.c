@@ -260,6 +260,9 @@ static int pcnet_probe(struct eth_device* dev, bd_t *bis, int dev_nr)
        return -1;
     chip_version = (chip_version >> 12) & 0xffff;
     switch (chip_version) {
+    case 0x2621:
+	chipname = "PCnet/PCI II 79C970A"; /* PCI */
+	break;
 #ifdef CONFIG_PCNET_79C973
     case 0x2625:
 	chipname = "PCnet/FAST III 79C973"; /* PCI */
