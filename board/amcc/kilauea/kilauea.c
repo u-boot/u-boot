@@ -381,6 +381,20 @@ int post_hotkeys_pressed(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
+	u32 val[4];
+	int rc;
+
 	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 0;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

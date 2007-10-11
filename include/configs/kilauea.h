@@ -166,12 +166,6 @@
 
 #undef	CONFIG_BOOTARGS
 
-#undef USE_LIBFDT
-#ifdef USE_LIBFDT
-/*
- * LIBFDT support is disabled for now since first Linux port is still
- * arch/ppc.
- */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"logversion=2\0"						\
 	"netdev=eth0\0"							\
@@ -184,6 +178,9 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
 	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addtty;"				\
+		"bootm 200000\0"					\
+	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
 		"tftp ${fdt_addr} ${fdt_file};"				\
 		"run nfsargs addip addtty;"				\
 		"bootm 200000 - ${fdt_addr}\0"				\
@@ -207,43 +204,8 @@
 	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
 		"setenv filesize;saveenv\0"				\
 	"nupd=run nload nupdate\0"					\
-	""
-#else
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"logversion=2\0"						\
-	"netdev=eth0\0"							\
-	"hostname=kilauea\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"net_nfs=tftp 200000 ${bootfile};"				\
-		"run nfsargs addip addtty;"				\
-		"bootm 200000\0"					\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=kilauea/uImage\0"					\
-	"kernel_addr=fc000000\0"					\
-	"ramdisk_addr=fc200000\0"					\
-	"initrd_high=30000000\0"					\
-	"load=tftp 200000 kilauea/u-boot.bin\0"				\
-	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
-		"cp.b ${fileaddr} fffa0000 ${filesize};"		\
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
-	"nload=tftp 200000 kilauea/u-boot-nand.bin\0"			\
-	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
-		"setenv filesize;saveenv\0"				\
-	"nupd=run nload nupdate\0"					\
 	"pciconfighost=1\0"						\
 	""
-#endif
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
@@ -477,10 +439,8 @@
 
 #endif	/* __CONFIG_H */
 
-#ifdef USE_LIBFDT
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,405EX@0"
-#endif
