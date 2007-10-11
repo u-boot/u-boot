@@ -123,6 +123,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		tmp[0] = cpu_to_fdt32(bd->bi_memstart);
 		tmp[1] = cpu_to_fdt32(bd->bi_memsize);
 		fdt_setprop(blob, offset, "reg", tmp, sizeof(tmp));
+		debug("Updating /memory node to %d:%d\n",
+		      bd->bi_memstart, bd->bi_memsize);
 	}
 
 	/*
