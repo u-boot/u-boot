@@ -1,3 +1,98 @@
+commit e1893815b0999410d7a327589611c7b38e95299e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Oct 12 15:49:39 2007 +0200
+
+    GP3 SSA: enable RTC
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8002012041f1ff9f997a5727abe5015f70cd2e46
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Oct 9 13:58:24 2007 +0200
+
+    [ads5121] EEPROM support added.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 2b2a587d6d3076387d22ac740f44044bf46e2cb8
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Oct 5 10:40:54 2007 +0200
+
+    tqm5200: Fix CONFIG_CMD_PCI typo in board config file.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 92869195ef8210758d2176230c0a36897afd50ed
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Oct 5 09:46:06 2007 +0200
+
+    CM5200: Fix missing null-termination in hostname manipulation code
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 738815c0cc44aa329097f868dc1efc49ede9c5ba
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 2 11:44:46 2007 +0200
+
+    ppc4xx: Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 87c1833a39e944db66385286fd5e28f9b3fcdd50
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 2 11:44:19 2007 +0200
+
+    ppc4xx: lwmon5: Remove watchdog for now, since not fully tested yet
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2db64784061bfc34f4ba70ef1d2fbe7133b55670
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Mon Oct 1 09:51:50 2007 +0200
+
+    Program EPLD to force full duplex mode for PHY.
+
+    EPLD forces modes of PHY operation. By default full duplex is turned off.
+    This fix turns it on.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 86ec86c04326c3913178a7679aa910de071da75d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Sep 27 23:27:47 2007 +0200
+
+    Fix missing DECLARE_GLOBAL_DATA_PTR on CONFIG_LPC2292 in serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 3e954beb614b5b190d7f4f4c3b641437a0132e35
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Sep 11 14:12:55 2007 +0200
+
+    ppc4xx: lwmon5: Change GPIO 58 to default to low (watchdog test)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0d38effc6e359e6b1b0c78d66e8bc1a4dc15a2ae
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Sep 25 15:48:05 2007 -0600
+
+    Fpga: fix incorrect test of CFG_FPGA_XILINX macro
+
+    CFG_FPGA_XILINX is a bit value used to test against the value in
+    CONFIG_FPGA.  Testing for a value will always return TRUE.	I don't
+    think that is the intention in this code.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 66dcad3a9a53e0766d90e0084123bd8529522fb0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Sep 20 00:04:14 2007 +0200
+
+    v1.3.0-rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 135e19bc2773ebca487e9a8371f67e1ba202313a
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Sep 18 21:36:35 2007 +0200
@@ -37,6 +132,21 @@ Date:	Tue Sep 18 17:40:27 2007 +0200
     version.h before depend.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit bd86220f58b99d6896198c385fda132f0c980915
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 18 13:07:54 2007 +0100
+
+    Move coloured led API to status_led.h
+    Improve indentation in drivers/at45.c
+
+commit 97213f32416ead885deafea86774e912ffd60ad0
+Author: David Saada <David.Saada@ecitele.com>
+Date:	Mon Sep 17 17:04:47 2007 +0200
+
+    Description: Add NEC's PCI OHCI module ID to the USB OHCI driver
+
+    Signed-off-by: David Saada <david.saada@ecitele.com>
 
 commit 67c31036acaaaa992fc346cc89db0909a7e733c4
 Author: Wolfgang Denk <wd@denx.de>
@@ -193,6 +303,18 @@ Date:	Thu Sep 13 18:21:48 2007 +0200
 
     Signed-off-by: Marian Balakowicz <m8@semihalf.com>
 
+commit e1f601b572db5de9aa81a0b77c68a86994fe24c4
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Sep 13 16:33:59 2007 +0200
+
+    tqm5200: Restore customary env. variable boot commands for powerpc kernels
+
+    - update default definitions of kernel_addr and fdt_addr env. variables
+    - make arch/powerpc booting the default scenario
+    - update MTD partition layout to match the above
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
 commit f34024d4a328e6edd906456da98d2c537155c4f7
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Sep 12 00:48:57 2007 +0200
@@ -200,6 +322,12 @@ Date:	Wed Sep 12 00:48:57 2007 +0200
     Fix memory corruption problem on STX GP3 SSA Board.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d94c79e47011af5e8dd10ed6163c09b4cfc743cc
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 11 15:35:01 2007 +0100
+
+    Final tidy
 
 commit 38ad82da0c1180ecdeb212a8f4245e945bcc546e
 Author: Grzegorz Bernacki <gjb@semihalf.com>
@@ -507,6 +635,14 @@ Date:	Thu Sep 6 09:46:17 2007 -0600
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 
+commit 80767a6cead9990d9e77e62be947843c2c72f469
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Wed Sep 5 16:04:41 2007 +0100
+
+    Changed API name to coloured_led.h
+    Removed code using deprecated ifdef CONFIG_BOOTBINFUNC
+    Tidied other cpu/arm920t/start.S code
+
 commit 56a9270521baaa00e12639a978302a67f61ef060
 Author: Kumar Gala <galak@kernel.crashing.org>
 Date:	Thu Aug 30 16:18:18 2007 -0500
@@ -531,6 +667,31 @@ Date:	Thu Aug 30 01:58:48 2007 -0500
     pcie is now differentiated from pci.  Add 8641 bus-range updates.
 
     Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 9f5c3d3720e777a572dcdc8af2008b44c7243885
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 4 16:18:38 2007 +0100
+
+    Add coloured led interface for ARM boards.
+    Use it in cpu/arm920t/start.S to indicate U-Boot code has been entered.
+
+commit 7462fe0d5a9d40cde083fb1a3cd73911996b5ecb
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 4 14:49:28 2007 +0100
+
+    Move include/led.h to board/at91rm9200dk
+
+commit 6e4bf9b24e57c15abc6542e685d06380bc64af27
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 4 14:25:51 2007 +0100
+
+    Ran Lindent on drivers/at45.c
+
+commit 557ab89d294f08dd532f21d19861b40093200a33
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Sep 4 14:23:50 2007 +0100
+
+    Rename CONFIG_CMD_MUX to CONFIG_CMD_AT91_SPIMUX
 
 commit 81b73dec16fd1227369a191e725e10044a9d56b8
 Author: Gary Jennejohn <garyj@denx.de>
@@ -606,6 +767,20 @@ Date:	Wed Aug 29 18:26:24 2007 -0600
     terminated and using strstr() to search for the sub string.
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 04625764cc93ce8a61625ac19d7fe2a2ceee8143
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 29 16:31:18 2007 +0200
+
+    ppc4xx: Change lwmon5 default environment to support Linux RTC
+
+    The Linux PCF8563 RTC driver doesn't do autoprobing, so we need
+    to supply the RTC I2C address as bootline parameter. This patch
+    adds support for this rtc probing parameter to the bootargs:
+
+    "rtc-pcf8563.probe=0,0x51"
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 2602a5c40ae37ab965a4e240854fdaffb51328a4
 Author: Kim Phillips <kim.phillips@freescale.com>

@@ -48,7 +48,7 @@ AT91S_DataFlashStatus AT91F_DataFlashSendCommand(AT91PS_DataFlash pDataFlash,
 
 	/* process the address to obtain page address and byte address */
 	adr = ((DataflashAddress / (pDataFlash->pDevice->pages_size)) <<
-		pDataFlash->pDevice->page_offset) + 
+		pDataFlash->pDevice->page_offset) +
 			(DataflashAddress % (pDataFlash->pDevice->pages_size));
 
 	/* fill the command buffer */
@@ -217,9 +217,10 @@ AT91S_DataFlashStatus AT91F_MainMemoryToBufferTransfert(
 {
 	int cmdsize;
 	/* Test if the buffer command is legal */
-	if ((BufferCommand != DB_PAGE_2_BUF1_TRF)&& 
-			(BufferCommand != DB_PAGE_2_BUF2_TRF))
+	if ((BufferCommand != DB_PAGE_2_BUF1_TRF) &&
+			(BufferCommand != DB_PAGE_2_BUF2_TRF)) {
 		return DATAFLASH_BAD_COMMAND;
+	}
 
 	/* no data to transmit or receive */
 	pDataFlash->pDataFlashDesc->tx_data_size = 0;
@@ -250,9 +251,10 @@ AT91S_DataFlashStatus AT91F_DataFlashWriteBuffer(
 {
 	int cmdsize;
 	/* Test if the buffer command is legal */
-	if ((BufferCommand != DB_BUF1_WRITE) && 
-			(BufferCommand != DB_BUF2_WRITE))
+	if ((BufferCommand != DB_BUF1_WRITE) &&
+			(BufferCommand != DB_BUF2_WRITE)) {
 		return DATAFLASH_BAD_COMMAND;
+	}
 
 	/* buffer address must be lower than page size */
 	if (bufferAddress > pDataFlash->pDevice->pages_size)
@@ -319,7 +321,7 @@ AT91S_DataFlashStatus AT91F_PageErase(
 	cmdsize = 4;
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
-	return (AT91F_DataFlashSendCommand(pDataFlash, 
+	return (AT91F_DataFlashSendCommand(pDataFlash,
 				DB_PAGE_ERASE, cmdsize,
 				page * pDataFlash->pDevice->pages_size));
 }
@@ -375,7 +377,7 @@ AT91S_DataFlashStatus AT91F_WriteBufferToMain(AT91PS_DataFlash pDataFlash,
 	if (pDataFlash->pDevice->pages_number >= 16384)
 		cmdsize = 5;
 	/* Send the command to the dataflash */
-	return (AT91F_DataFlashSendCommand(pDataFlash, BufferCommand, 
+	return (AT91F_DataFlashSendCommand(pDataFlash, BufferCommand,
 						cmdsize, dest));
 }
 
@@ -445,7 +447,7 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(AT91PS_DataFlash pDataFlash,
 
 	/* If destination does not fit a page start address */
 	if ((dest % ((unsigned int)(pDataFlash->pDevice->pages_size))) != 0) {
-		length = 
+		length =
 			pDataFlash->pDevice->pages_size -
 			(dest % ((unsigned int)(pDataFlash->pDevice->pages_size)));
 

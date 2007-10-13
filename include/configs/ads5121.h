@@ -239,7 +239,7 @@
  */
 #define CFG_I2C_EEPROM_ADDR_LEN		2	/* 16-bit EEPROM address */
 #define CFG_I2C_EEPROM_ADDR		0x50	/* Atmel: AT24C32A-10TQ-2.7 */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* 10ms of delay */ 
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* 10ms of delay */
 #define CFG_EEPROM_PAGE_WRITE_BITS	5	/* 32-Byte Page Write Mode */
 
 /*

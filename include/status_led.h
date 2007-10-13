@@ -383,9 +383,9 @@ extern void __led_set (led_id_t mask, int state);
 # include <asm/status_led.h>
 #endif
 
-/* 
+/*
  * Coloured LEDs API
- */ 
+ */
 #ifndef	__ASSEMBLY__
 extern void	coloured_LED_init (void);
 extern void	red_LED_on(void);
