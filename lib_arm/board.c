@@ -58,6 +58,10 @@ DECLARE_GLOBAL_DATA_PTR;
 void nand_init (void);
 #endif
 
+#if defined(CONFIG_CMD_ONENAND)
+void onenand_init(void);
+#endif
+
 ulong monitor_flash_len;
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -318,6 +322,10 @@ void start_armboot (void)
 #if defined(CONFIG_CMD_NAND)
 	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
+#endif
+
+#if defined(CONFIG_CMD_ONENAND)
+	onenand_init();
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH

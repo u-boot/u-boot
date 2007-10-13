@@ -211,6 +211,7 @@ LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/onenand/libonenand.a
 LIBS += drivers/net/libnet.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
