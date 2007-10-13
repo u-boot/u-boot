@@ -1,3 +1,28 @@
+commit 68f14f77ca5fe5f9cc025c8cae101671f628309f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Sep 29 13:41:37 2007 +0200
+
+    Fix warning differ in signedness in cpu/pxa/mmc.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit fc19e36f741e8bc727c0a330170b3b5db90399ef
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Oct 13 23:51:14 2007 +0200
+
+    Fix warning differ in signedness in board/mpl/vcma9/vcma9.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit de74b9eeacccaf0a42e5ecc9ae79a88f7a311296
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Oct 13 21:15:39 2007 +0200
+
+    Coding Style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e1893815b0999410d7a327589611c7b38e95299e
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Oct 12 15:49:39 2007 +0200
@@ -14,6 +39,21 @@ Date:	Tue Oct 9 13:58:24 2007 +0200
 
     Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
 
+commit 7b624ad254b97e5a25dca2304a398b64aeedaffe
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Oct 6 18:55:35 2007 +0200
+
+    AVR32: Initialize bi_flash* in board_init_r
+
+    The ATSTK1000-specific flash driver intializes bi_flashstart,
+    bi_flashsize and bi_flashoffset, but other flash drivers, like the CFI
+    driver, don't.
+
+    Initialize these in board_init_r instead so that things will still be
+    set up correctly when we switch to the CFI driver.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
 commit 2b2a587d6d3076387d22ac740f44044bf46e2cb8
 Author: Marian Balakowicz <m8@semihalf.com>
 Date:	Fri Oct 5 10:40:54 2007 +0200
@@ -29,6 +69,18 @@ Date:	Fri Oct 5 09:46:06 2007 +0200
     CM5200: Fix missing null-termination in hostname manipulation code
 
     Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 9add9884b1fddc34ca186e00a2f868ccd5d02d87
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Tue Oct 2 19:09:01 2007 +0200
+
+    Fix memtest breakage
+
+    CFG_MEMTEST_START uses weird magic involving gd, which fails to
+    compile. Use hardcoded values instead (we actually know how much RAM
+    we have on board.)
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit 738815c0cc44aa329097f868dc1efc49ede9c5ba
 Author: Stefan Roese <sr@denx.de>
@@ -85,6 +137,66 @@ Date:	Tue Sep 25 15:48:05 2007 -0600
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 
+commit 853643d8cf2ca80cb2e25c53ad5dc580abafe166
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:41:30 2007 +0200
+
+    [FIX] change command handling and removing code violation
+
+commit f240356507038e5ce55e8a24cb2607e9eae6d10c
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:36:06 2007 +0200
+
+    [FIX] change sets of commands
+    because changing of command handling brings
+    compilation problems
+
+commit cb1bc63b75a232571eb69aa2c8aa919321655845
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:30:42 2007 +0200
+
+    [FIX] Email reparation & Copyright
+    Both codes are written by myself without any
+    support from CTU
+
+commit 0731cbae6c2feab93b244d83fd6a43f5cc9bf852
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:25:11 2007 +0200
+
+    [PATCH] Change macro name for UartLite
+    because PowerPC 405 can use UartLite as console
+
+commit 1c1100d2fcf46b9d11dcf78d6e5aea75e2e8b716
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:21:19 2007 +0200
+
+    [PATCH] Add support for design without interrupt controller
+    Polling timer
+
+commit 0731933ec8ec45d02ba89b52df673d526873cdde
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:19:48 2007 +0200
+
+    [FIX] resolve problem with cpu without barrel shifter
+
+commit db14d77995ce515b728b178b63f82babe60e3d56
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:18:46 2007 +0200
+
+    [FIX] repair email address
+
+commit 481d4328618804add1f818a6c96296121cd0528e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:17:42 2007 +0200
+
+    [FIX] repair MFSL commands
+
+commit b90c045f035c3cc9b5d2edaed6048dfb74e40763
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Sep 24 00:08:37 2007 +0200
+
+    synchronizition with mainline
+
 commit 66dcad3a9a53e0766d90e0084123bd8529522fb0
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu Sep 20 00:04:14 2007 +0200
@@ -140,6 +252,33 @@ Date:	Tue Sep 18 13:07:54 2007 +0100
     Move coloured led API to status_led.h
     Improve indentation in drivers/at45.c
 
+commit e80e585b00fbbab7ad1bf71619741f2c5b029ab7
+Author: Eirik Aanonsen <eaa@wprmedical.com>
+Date:	Tue Sep 18 08:47:20 2007 +0200
+
+    Update atstk1002 bootargs.
+
+    Updates to atstk1002 U-Boot header file:
+    - Changed bootargs:
+	* Set the bootargs for at1002 to point to the SD-card partition instead
+	* ... of the boot flash.
+	* Removing the rootfstype since that argument are not needed.
+
+    Signed-off-by: Eirik Aanonsen <eaa@wprmedical.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit a4f3aab6dfbed6c29367c688bfb8a47eef62c225
+Author: Eirik Aanonsen <eaa@wprmedical.com>
+Date:	Wed Sep 12 13:32:37 2007 +0200
+
+    Add some comments to clocks in atstk1002.h
+
+    This patch applies some clarifying comments to how the different
+    clocks are setup according to atstk1002.h Some of the previous
+    comments where stating wrongful information.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
 commit 97213f32416ead885deafea86774e912ffd60ad0
 Author: David Saada <David.Saada@ecitele.com>
 Date:	Mon Sep 17 17:04:47 2007 +0200
@@ -147,6 +286,50 @@ Date:	Mon Sep 17 17:04:47 2007 +0200
     Description: Add NEC's PCI OHCI module ID to the USB OHCI driver
 
     Signed-off-by: David Saada <david.saada@ecitele.com>
+
+commit 30363e98fa470fbecea5e8bc0f1443352754f303
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Sep 17 08:20:47 2007 +0200
+
+    Small whitespace cleanup of OneNAND patch
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d7e8ce101a4a45ed6ed45739fc2de5f87b13f7f1
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Sep 10 17:15:14 2007 +0900
+
+    OneNAND support (take #2)
+
+    [PATCH 3/3] OneNAND support (take #2)
+
+    OneNAND support at U-Boot
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 17aa2800457df0c06b41516f46f126712c196219
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Sep 10 17:14:34 2007 +0900
+
+    OneNAND support (take #2)
+
+    [PATCH 2/3] OneNAND support (take #2)
+
+    OneNAND support at U-Boot
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 916527f4809a7bcd811f1f1daf34af184e31dd8c
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Sep 10 17:13:49 2007 +0900
+
+    OneNAND support (take #2)
+
+    [PATCH 1/3] OneNAND support (take #2)
+
+    OneNAND support at U-Boot
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 
 commit 67c31036acaaaa992fc346cc89db0909a7e733c4
 Author: Wolfgang Denk <wd@denx.de>
@@ -349,6 +532,12 @@ Date:	Tue Sep 11 12:57:52 2007 +0200
     not seen.
 
     Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit d45963854eff39d575124d859419bb4953ce2c87
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Sep 11 00:37:04 2007 +0200
+
+    [FIX] Microblaze ML401 - repare FLASH handling
 
 commit 38c1ef728d19950414a8ab1ccfc53767848fa346
 Author: Sean MCGOOGAN <sean.mcgoogan@st.com>
@@ -733,6 +922,24 @@ Date:	Fri Aug 31 10:01:51 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 696dd1307cd8e73a10e9bb3c51731bfd6f837bee
+Author: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Date:	Thu Aug 30 15:03:05 2007 +0200
+
+    Reduce BOOTDELAY variable to 1 second by default for STK1002
+
+    Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit c88b6e1cbf9a8ae2a34fb602f78a1bf4e6692b6a
+Author: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Date:	Thu Aug 30 15:03:04 2007 +0200
+
+    Remove double quotation marks around MAC address for STK1002
+
+    Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
 commit ff13ac8c7bbebb238e339592de765c546dba1073
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu Aug 30 14:42:15 2007 +0200
@@ -994,6 +1201,15 @@ Date:	Tue Aug 28 17:39:14 2007 +0200
 	    - Added CONFIG_CMD_IDE for the pcs440ep Board.
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2c05fd125744981e5f2828d24e66ccc20a77d25d
+Author: Semih Hazar <semih.hazar@indefia.com>
+Date:	Mon Aug 20 19:00:01 2007 +0300
+
+    AVR32: Change prototype of memset
+
+    Signed-off-by: Semih Hazar <semih.hazar@indefia.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit 9c02defc29b57945b600714cf61ddfd02b02fb14
 Author: Yuri Tikhonov <yur@emcraft.com>
@@ -1520,6 +1736,18 @@ Date:	Fri Jun 22 17:32:28 2007 +0200
     Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 78cff50edba6b1508eb15c2f53ce966ac891eb9e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Thu Aug 16 10:46:28 2007 +0200
+
+    [FIX] Changes for bios_emulator code for others architecture
+
+commit 6e0e2253f039344f8ebd2787285fdba90e6714e8
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Thu Aug 16 10:45:09 2007 +0200
+
+    [FIX] Remove unused include file
+
 commit 9de469bd960cc1870bb40d6672ed42726b8b50d7
 Author: Stefan Roese <sr@denx.de>
 Date:	Thu Aug 16 10:18:33 2007 +0200
@@ -1614,6 +1842,25 @@ Date:	Wed Aug 15 22:30:05 2007 -0500
     and reorder the existing 83xx maintainers alpha.
 
     Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5b4de9309d7a03aa1db2e5391ab696363391f460
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Wed Aug 15 21:15:05 2007 +0200
+
+    [FIX] Resolve problem with warnings
+    microblaze toolchain don't support PRAGMA PACK.
+
+commit d1ed28cf36ab6b1d4c479809de7252bf53d2f2d4
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Wed Aug 15 21:05:07 2007 +0200
+
+    [FIX] Correction command setting for Microblaze boards
+
+commit 7aa63d8cd30ab20ac2fd1ab86e60471de8b1f1e5
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Wed Aug 15 21:03:41 2007 +0200
+
+    [FIX] Correction command definition
 
 commit 30b52df9e906bf0e465916c2c6bb5192b438e0b8
 Author: Jon Loeliger <jdl@freescale.com>
@@ -3095,6 +3342,24 @@ Date:	Tue Aug 7 16:02:13 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 706714d97a0d08d59eda4de2268c39f504688329
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Aug 6 23:41:53 2007 +0200
+
+    [FIX] remove cute code
+
+commit f500d9fdeb576288656dac427052ad2c5ca0ad1a
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Aug 6 23:35:26 2007 +0200
+
+    [FIX] Fix romfs code
+
+commit ab4b956d3143f8f8174089053f5dfabbb04762b0
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Aug 6 23:31:49 2007 +0200
+
+    [FIX] Coding style cleanup - Wolfgang's suggestions
+
 commit 6c33c78557ca6f8da68c01ce33e278695197d3f4
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Aug 6 23:21:05 2007 +0200
@@ -3218,6 +3483,32 @@ Date:	Thu Aug 2 14:09:49 2007 -0500
     Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
     Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a274ca4f6d68830e7c916f897561cff8c4101c38
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Aug 5 22:33:05 2007 +0200
+
+    [FIX] Coding style cleanup
+
+commit af8377d4eb3a0ac5a831830d5ce63fbf65fecb7f
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Aug 5 16:13:31 2007 +0200
+
+    [FIX] Xilinx Uartlite driver
+    Because PPC405 can use UARTLITE serial interface and
+    Microblaze can use Uart16550 serial interface not only Uartlite.
+
+commit 98889edd50aadf862071eb5664747ad0d568a20e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Aug 5 15:54:53 2007 +0200
+
+    [FIX] Change configuration for XUPV2P Microblaze board
+
+commit 537091b4eed9302865d03fef3f7212b4fe5cf28f
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Aug 5 15:53:50 2007 +0200
+
+    [PATCH] Added support for Xilinx Emac community driver
 
 commit 86b116b1b1e165ca4840daefed36d2e3b8460173
 Author: Bartlomiej Sieka <tur@semihalf.com>
@@ -3519,6 +3810,12 @@ Date:	Mon Jul 16 08:53:51 2007 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 0c0a9cda1bde37106520476ed486bd67eb8d30ae
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Jul 16 00:31:07 2007 +0200
+
+    [PATCH] Support for Xilinx EmacLite controller
+
 commit 3a6cab844cf74f76639d795e0be8717e02c86af7
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sat Jul 14 22:51:02 2007 +0200
@@ -3527,11 +3824,41 @@ Date:	Sat Jul 14 22:51:02 2007 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 5280f352c8da33b1d7fbf448768717d9e16ff9a1
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Jul 14 13:11:28 2007 +0200
+
+    [FIX] support for simply measuring time
+
+commit 91bb4ca665d2e0cf7f60c4b5b370990250ec0c43
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Jul 14 12:41:23 2007 +0200
+
+    [FS] Added support for ROMFS
+
 commit 011595307731a7a67a7445d107c279d031e8ab97
 Author: Heiko Schocher <hs@pollux.denx.de>
 Date:	Sat Jul 14 01:06:58 2007 +0200
 
     [PCS440EP]	- fix compile error, if BUILD_DIR is used
+
+commit 5a2f1098d81ad58b309e5e558d0492643166a799
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Jul 14 00:18:48 2007 +0200
+
+    [PATCH] Support time without timer
+
+commit a476ca2ac2217ddd05a2bf0c514075814b10a3c0
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 13 21:43:55 2007 +0200
+
+    [PATCH] Remove problem with disabled BARREL SHIFTER
+
+commit 55e26ad62107d2f14f757de3ae0b14b9aa7aed94
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 13 21:41:44 2007 +0200
+
+    [FIX] correct help for rspr
 
 commit fad63407154f46246ce80d53a9c669a44362ac67
 Author: Heiko Schocher <hs@pollux.denx.de>
@@ -5716,6 +6043,18 @@ Date:	Mon Jun 18 13:50:13 2007 -0500
     lib_m68k/time.c, net/eth.c and rtc/Makefile
 
     Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 093172f08d6afb3f34d8a2f26ee0ee874261cf27
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Jun 17 19:04:11 2007 +0200
+
+    [fix] email reparation
+
+commit 3666afffe7baf859c6ae0ce2bebbc8ab7e512ddc
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Jun 17 19:03:21 2007 +0200
+
+    [FIX] fix microblaze file permitission
 
 commit e73846b7cf1e29ae635bf9bb5570269663df2ee5
 Author: Stefan Roese <sr@denx.de>
