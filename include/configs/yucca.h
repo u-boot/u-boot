@@ -186,6 +186,7 @@
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	"pciconfighost=1\0"						\
+	"pcie_mode=RP:EP:EP\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

@@ -299,35 +299,29 @@ void pci_target_init(struct pci_controller * hose )
 #endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
 
 #ifdef CONFIG_PCI
-static int pcie_port_is_rootpoint(int port)
-{
-	return 1;
-}
-
 static struct pci_controller pcie_hose[2] = {{0},{0}};
 
 void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	int ret = 0;
 	bus = busno;
 	char *env;
 	unsigned int delay;
 
 	for (i = 0; i < 2; i++) {
 
-		if (pcie_port_is_rootpoint(i)) {
-			printf("PORT%d will be configured as root-complex\n", i);
-			if (ppc4xx_init_pcie_rootport(i)) {
-				printf("PCIE%d: initialization failed\n", i);
-				continue;
-			}
+		if (is_end_point(i)) {
+			printf("PCIE%d: will be configured as endpoint\n", i);
+			ret = ppc4xx_init_pcie_endport(i);
 		} else {
-			printf("PORT%d will be configured as endpoint\n", i);
-			if (ppc4xx_init_pcie_endport(i)) {
-				printf("PCIE%d: initialization failed\n", i);
-				continue;
-			}
+			printf("PCIE%d: will be configured as root-complex\n", i);
+			ret = ppc4xx_init_pcie_rootport(i);
+		}
+		if (ret) {
+			printf("PCIE%d: initialization failed\n", i);
+			continue;
 		}
 
 		hose = &pcie_hose[i];
@@ -344,25 +338,29 @@ void pcie_setup_hoses(int busno)
 		hose->region_count = 1;
 		pci_register_hose(hose);
 
-		if (pcie_port_is_rootpoint(i))
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-		else
-			ppc4xx_setup_pcie_endpoint(hose, i);
+		if (is_end_point(i)) {
+		    	ppc4xx_setup_pcie_endpoint(hose, i);
+			/*
+			 * Reson for no scanning is endpoint can not generate
+			 * upstream configuration accesses.
+		    	 */
+		} else {
+		    	ppc4xx_setup_pcie_rootpoint(hose, i);
+			env = getenv ("pciscandelay");
+		    	if (env != NULL) {
+			    	delay = simple_strtoul(env, NULL, 10);
+				if (delay > 5)
+				    	printf("Warning, expect noticable delay before "
+					       "PCIe scan due to 'pciscandelay' value!\n");
+				mdelay(delay * 1000);
+			}
 
-		env = getenv("pciscandelay");
-		if (env != NULL) {
-			delay = simple_strtoul(env, NULL, 10);
-			if (delay > 5)
-				printf("Warning, expect noticable delay before PCIe"
-				       "scan due to 'pciscandelay' value!\n");
-			mdelay(delay * 1000);
+		    	/*
+		     	 * Config access can only go down stream
+		     	 */
+		    	hose->last_busno = pci_hose_scan(hose);
+		    	bus = hose->last_busno + 1;
 		}
-
-		/*
-		 * Config access can only go down stream
-		 */
-		hose->last_busno = pci_hose_scan(hose);
-		bus = hose->last_busno + 1;
 	}
 }
 #endif

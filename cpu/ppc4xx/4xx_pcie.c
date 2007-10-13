@@ -46,6 +46,20 @@ enum {
 	LNKW_X8			= 0x8
 };
 
+static int validate_endpoint(struct pci_controller *hose)
+{
+	if (hose->cfg_data == (u8 *)CFG_PCIE0_CFGBASE)
+		return (is_end_point(0));
+	else if (hose->cfg_data == (u8 *)CFG_PCIE1_CFGBASE)
+		return (is_end_point(1));
+#if CFG_PCIE_NR_PORTS > 2
+	else if (hose->cfg_data == (u8 *)CFG_PCIE2_CFGBASE)
+		return (is_end_point(2));
+#endif
+
+	return 0;
+}
+
 static u8* pcie_get_base(struct pci_controller *hose, unsigned int devfn)
 {
 	u8 *base = (u8*)hose->cfg_data;
@@ -94,6 +108,9 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 
 	u8 *address;
 	*val = 0;
+
+	if (validate_endpoint(hose))
+		return 0;		/* No upstream config access */
 
 	/*
 	 * Bus numbers are relative to hose->first_busno
@@ -149,6 +166,9 @@ static int pcie_write_config(struct pci_controller *hose, unsigned int devfn,
 	int offset, int len, u32 val) {
 
 	u8 *address;
+
+	if (validate_endpoint(hose))
+		return 0;		/* No upstream config access */
 
 	/*
 	 * Bus numbers are relative to hose->first_busno
@@ -595,9 +615,9 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 	u32 low, high;
 
 	if (!core_init) {
-		++core_init;
 		if (ppc4xx_init_pcie())
 			return -1;
+		++core_init;
 	}
 
 	/*

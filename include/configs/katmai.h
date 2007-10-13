@@ -205,6 +205,7 @@
 	"upd=run load;run update\0"					\
 	"kozio=bootm ffc60000\0"					\
 	"pciconfighost=1\0"						\
+	"pcie_mode=RP:RP:RP\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
