@@ -288,7 +288,7 @@ int dram_init(void)
 
 int checkboard(void)
 {
-	unsigned char s[50];
+	char s[50];
 	int i;
 	backup_t *b = (backup_t *) s;
 
@@ -337,7 +337,7 @@ int overwrite_console(void)
 ************************************************************************/
 void print_vcma9_info(void)
 {
-	unsigned char s[50];
+	char s[50];
 	int i;
 
 	if ((i = getenv_r("serial#", s, 32)) < 0) {
