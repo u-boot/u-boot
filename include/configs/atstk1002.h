@@ -39,8 +39,10 @@
 #define CFG_HZ				1000
 
 /*
- * Set up the PLL to run at 199.5 MHz, the CPU to run at 1/2 the PLL
- * frequency and the peripherals to run at 1/4 the PLL frequency.
+ * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
+ * frequency, the HSB and PBB at 1/2, and the PBA to run at 1/4 the
+ * PLL frequency.
+ * (CFG_OSC0_HZ * CFG_PLL0_MUL) / CFG_PLL0_DIV = PLL MHz
  */
 #define CONFIG_PLL			1
 #define CFG_POWER_MANAGER		1
@@ -48,9 +50,25 @@
 #define CFG_PLL0_DIV			1
 #define CFG_PLL0_MUL			7
 #define CFG_PLL0_SUPPRESS_CYCLES	16
+/*
+ * Set the CPU running at:
+ * PLL / (2^CFG_CLKDIV_CPU) = CPU MHz
+ */
 #define CFG_CLKDIV_CPU			0
+/*
+ * Set the HSB running at:
+ * PLL / (2^CFG_CLKDIV_HSB) = HSB MHz
+ */
 #define CFG_CLKDIV_HSB			1
+/*
+ * Set the PBA running at:
+ * PLL / (2^CFG_CLKDIV_PBA) = PBA MHz
+ */
 #define CFG_CLKDIV_PBA			2
+/*
+ * Set the PBB running at:
+ * PLL / (2^CFG_CLKDIV_PBB) = PBB MHz
+ */
 #define CFG_CLKDIV_PBB			1
 
 /*
@@ -78,7 +96,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2 fbmem=600k"
+	"console=ttyS0 root=/dev/mmcblk0p1 fbmem=600k rootwait=1"
 
 #define CONFIG_BOOTCOMMAND						\
 	"fsload; bootm $(fileaddr)"
@@ -87,7 +105,7 @@
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
  * data on the serial line may interrupt the boot sequence.
  */
-#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTDELAY		1
 #define CONFIG_AUTOBOOT			1
 #define CONFIG_AUTOBOOT_KEYED		1
 #define CONFIG_AUTOBOOT_PROMPT				\
@@ -103,8 +121,8 @@
  * generated and assigned to the environment variables "ethaddr" and
  * "eth1addr".
  */
-#define CONFIG_ETHADDR			"6a:87:71:14:cd:cb"
-#define CONFIG_ETH1ADDR			"ca:f8:15:e6:3e:e6"
+#define CONFIG_ETHADDR			6a:87:71:14:cd:cb
+#define CONFIG_ETH1ADDR			ca:f8:15:e6:3e:e6
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_NET_MULTI		1
 
@@ -182,12 +200,8 @@
 #define CFG_PBSIZE			(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
 #define CFG_LONGHELP			1
 
-#define CFG_MEMTEST_START						\
-	({ gd->bd->bi_dram[0].start; })
-#define CFG_MEMTEST_END							\
-	({								\
-		gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;	\
-	})
+#define CFG_MEMTEST_START		CFG_SDRAM_BASE
+#define CFG_MEMTEST_END			(CFG_MEMTEST_START + 0x700000)
 #define CFG_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }
 
 #endif /* __CONFIG_H */
