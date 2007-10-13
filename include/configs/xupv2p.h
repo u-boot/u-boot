@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Czech Technical University.
+ * (C) Copyright 2007 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
@@ -31,6 +31,7 @@
 #define	CONFIG_XUPV2P		1
 
 /* uart */
+#define CONFIG_XILINX_UARTLITE
 #define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
 #define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
