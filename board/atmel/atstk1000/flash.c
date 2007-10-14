@@ -55,10 +55,6 @@ unsigned long flash_init(void)
 	unsigned long addr;
 	unsigned int i;
 
-	gd->bd->bi_flashstart = CFG_FLASH_BASE;
-	gd->bd->bi_flashsize = CFG_FLASH_SIZE;
-	gd->bd->bi_flashoffset = _edata - _text;
-
 	flash_info[0].size = CFG_FLASH_SIZE;
 	flash_info[0].sector_count = 135;
 

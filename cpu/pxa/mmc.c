@@ -438,11 +438,11 @@ mmc_init(int verbose)
 		/* FIXME fill in the correct size (is set to 32MByte) */
 		mmc_dev.blksz = 512;
 		mmc_dev.lba = 0x10000;
-		sprintf(mmc_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x",
+		sprintf((char*)mmc_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x",
 				cid->id[0], cid->id[1], cid->id[2],
 				cid->sn[0], cid->sn[1], cid->sn[2]);
-		sprintf(mmc_dev.product,"%s",cid->name);
-		sprintf(mmc_dev.revision,"%x %x",cid->hwrev, cid->fwrev);
+		sprintf((char*)mmc_dev.product,"%s",cid->name);
+		sprintf((char*)mmc_dev.revision,"%x %x",cid->hwrev, cid->fwrev);
 		mmc_dev.removable = 0;
 		mmc_dev.block_read = mmc_bread;
 
