@@ -31,7 +31,7 @@
 #define	CONFIG_XUPV2P		1
 
 /* uart */
-#define CONFIG_XILINX_UARTLITE
+#define	CONFIG_XILINX_UARTLITE
 #define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
 #define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
@@ -49,11 +49,13 @@
  * U-BOOT auto-relocate to TEXT_BASE. After RESET command Microblaze
  * jump to CFG_RESET_ADDRESS where is the original U-BOOT code.
  */
-#define	CFG_RESET_ADDRESS	0x36000000
+/* #define	CFG_RESET_ADDRESS	0x36000000 */
 
 /* gpio */
+#ifdef XILINX_GPIO_BASEADDR
 #define	CFG_GPIO_0		1
 #define	CFG_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+#endif
 
 /* interrupt controller */
 #define	CFG_INTC_0		1
@@ -66,6 +68,7 @@
 #define	CFG_TIMER_0_IRQ		XILINX_TIMER_IRQ
 #define	FREQUENCE		XILINX_CLOCK_FREQ
 #define	CFG_TIMER_0_PRELOAD	( FREQUENCE/1000 )
+#define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
 
 /*
  * memory layout - Example
@@ -120,7 +123,6 @@
 #define	CFG_ENV_SIZE		0x1000
 #define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
 
-
 /*
  * BOOTP options
  */
@@ -129,29 +131,23 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_MISC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 
+#ifdef XILINX_SYSACE_BASEADDR
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#endif
 
 /* Miscellaneous configurable options */
 #define	CFG_PROMPT	"U-Boot-mONStR> "
@@ -163,7 +159,7 @@
 
 #define	CONFIG_BOOTDELAY 	30
 #define	CONFIG_BOOTARGS		"root=romfs"
-#define	CONFIG_HOSTNAME		"ml401"
+#define	CONFIG_HOSTNAME		"xupv2p"
 #define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
 #define	CONFIG_SERVERIP 	192.168.0.5
@@ -179,11 +175,13 @@
 	"echo"
 
 /* system ace */
+#ifdef XILINX_SYSACE_BASEADDR
 #define	CONFIG_SYSTEMACE
 /* #define DEBUG_SYSTEMACE */
 #define	SYSTEMACE_CONFIG_FPGA
 #define	CFG_SYSTEMACE_BASE	XILINX_SYSACE_BASEADDR
 #define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
 #define	CONFIG_DOS_PARTITION
+#endif
 
 #endif	/* __CONFIG_H */
