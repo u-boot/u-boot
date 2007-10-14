@@ -31,8 +31,7 @@
 #include <common.h>
 #include <clps7111.h>
 
-/* ------------------------------------------------------------------------- */
-
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Miscellaneous platform dependent initialisations
@@ -40,8 +39,6 @@
 
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	/* arch number MACH_TYPE_ARMADILLO - not official*/
 	gd->bd->bi_arch_number = 83;
 
@@ -53,8 +50,6 @@ int board_init (void)
 
 int dram_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 

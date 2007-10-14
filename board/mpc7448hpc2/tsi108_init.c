@@ -33,6 +33,8 @@
 #include <asm/processor.h>
 #include <tsi108.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void mpicInit (int verbose);
 
 /*
@@ -141,7 +143,6 @@ unsigned long get_board_bus_clk (void)
 
 int board_early_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong i;
 
 	gd->mem_clk = 0;
@@ -583,7 +584,6 @@ unsigned long get_l2cr (void)
 
 int misc_init_r (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef CFG_CLK_SPREAD	/* Initialize Spread-Spectrum Clock generation */
 	ulong i;
 

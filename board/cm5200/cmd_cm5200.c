@@ -27,7 +27,7 @@
 #include <i2c.h>
 #include <usb.h>
 
-#ifdef CONFIG_CMD_BSB
+#ifdef CONFIG_CMD_BSP
 
 int do_i2c(char *argv[])
 {

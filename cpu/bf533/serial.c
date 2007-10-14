@@ -76,7 +76,6 @@ void calc_baud(void)
 void serial_setbrg(void)
 {
 	int i;
-	DECLARE_GLOBAL_DATA_PTR;
 
 	calc_baud();
 

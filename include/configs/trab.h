@@ -419,6 +419,8 @@
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_ADDR+CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 /* Initial value of the on-board touch screen brightness */
 #define CFG_BRIGHTNESS 0x20
 
