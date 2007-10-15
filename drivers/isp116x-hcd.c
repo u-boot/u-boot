@@ -113,9 +113,9 @@ static const char hcd_name[] = "isp116x-hcd";
 
 struct isp116x isp116x_dev;
 struct isp116x_platform_data isp116x_board;
-int got_rhsc = 0;		/* root hub status change */
+static int got_rhsc;		/* root hub status change */
 struct usb_device *devgone;	/* device which was disconnected */
-int rh_devnum = 0;		/* address of Root Hub endpoint */
+static int rh_devnum;		/* address of Root Hub endpoint */
 
 /* ------------------------------------------------------------------------- */
 
@@ -522,11 +522,13 @@ static int unpack_fifo(struct isp116x *isp116x, struct usb_device *dev,
 		done += PTD_GET_LEN(&ptd[i]);
 
 		cc = PTD_GET_CC(&ptd[i]);
-		if (cc == TD_DATAUNDERRUN) {	/* underrun is no error... */
-			DBG("allowed data underrun");
-			cc = TD_CC_NOERROR;
-		}
-		if (cc != TD_CC_NOERROR && ret == TD_CC_NOERROR)
+
+		/* Data underrun means basically that we had more buffer space than
+		 * the function had data. It is perfectly normal but upper levels have
+		 * to know how much we actually transferred.
+		 */
+		if (cc == TD_NOTACCESSED ||
+				(cc != TD_CC_NOERROR && (ret == TD_CC_NOERROR || ret == TD_DATAUNDERRUN)))
 			ret = cc;
 	}
 
@@ -592,11 +594,19 @@ static int isp116x_interrupt(struct isp116x *isp116x)
 	return ret;
 }
 
-#define PTD_NUM			64	/* it should be enougth... */
-struct ptd ptd[PTD_NUM];
+/* With one PTD we can transfer almost 1K in one go;
+ * HC does the splitting into endpoint digestible transactions
+ */
+struct ptd ptd[1];
+
 static inline int max_transfer_len(struct usb_device *dev, unsigned long pipe)
 {
-	return min(PTD_NUM * usb_maxpacket(dev, pipe), PTD_NUM * 16);
+	unsigned mpck = usb_maxpacket(dev, pipe);
+
+	/* One PTD can transfer 1023 bytes but try to always
+	 * transfer multiples of endpoint buffer size
+	 */
+	return 1023 / mpck * mpck;
 }
 
 /* Do an USB transfer
@@ -610,12 +620,20 @@ static int isp116x_submit_job(struct usb_device *dev, unsigned long pipe,
 	int max = usb_maxpacket(dev, pipe);
 	int dir_out = usb_pipeout(pipe);
 	int speed_low = usb_pipeslow(pipe);
-	int i, done, stat, timeout, cc;
-	int retries = 10;
+	int i, done = 0, stat, timeout, cc;
+
+	/* 500 frames or 0.5s timeout when function is busy and NAKs transactions for a while */
+	int retries = 500;
 
 	DBG("------------------------------------------------");
 	dump_msg(dev, pipe, buffer, len, "SUBMIT");
 	DBG("------------------------------------------------");
+
+	if (len >= 1024) {
+		ERR("Too big job");
+		dev->status = USB_ST_CRC_ERR;
+		return -1;
+	}
 
 	if (isp116x->disabled) {
 		ERR("EPIPE");
@@ -653,29 +671,15 @@ static int isp116x_submit_job(struct usb_device *dev, unsigned long pipe,
 	isp116x_write_reg32(isp116x, HCINTSTAT, 0xff);
 
 	/* Prepare the PTD data */
-	done = 0;
-	i = 0;
-	do {
-		ptd[i].count = PTD_CC_MSK | PTD_ACTIVE_MSK |
-		    PTD_TOGGLE(usb_gettoggle(dev, epnum, dir_out));
-		ptd[i].mps = PTD_MPS(max) | PTD_SPD(speed_low) | PTD_EP(epnum);
-		ptd[i].len = PTD_LEN(max > len - done ? len - done : max) |
-		    PTD_DIR(dir);
-		ptd[i].faddr = PTD_FA(usb_pipedevice(pipe));
+	ptd->count = PTD_CC_MSK | PTD_ACTIVE_MSK |
+		PTD_TOGGLE(usb_gettoggle(dev, epnum, dir_out));
+	ptd->mps = PTD_MPS(max) | PTD_SPD(speed_low) | PTD_EP(epnum) | PTD_LAST_MSK;
+	ptd->len = PTD_LEN(len) | PTD_DIR(dir);
+	ptd->faddr = PTD_FA(usb_pipedevice(pipe));
 
-		usb_dotoggle(dev, epnum, dir_out);
-		done += PTD_GET_LEN(&ptd[i]);
-		i++;
-		if (i >= PTD_NUM) {
-			ERR("****** Cannot pack buffer! ******");
-			dev->status = USB_ST_BUF_ERR;
-			return -1;
-		}
-	} while (done < len);
-	ptd[i - 1].mps |= PTD_LAST_MSK;
-
+retry_same:
 	/* Pack data into FIFO ram */
-	pack_fifo(isp116x, dev, pipe, ptd, i, buffer, len);
+	pack_fifo(isp116x, dev, pipe, ptd, 1, buffer, len);
 #ifdef EXTRA_DELAY
 	wait_ms(EXTRA_DELAY);
 #endif
@@ -738,17 +742,42 @@ static int isp116x_submit_job(struct usb_device *dev, unsigned long pipe,
 	}
 
 	/* Unpack data from FIFO ram */
-	cc = unpack_fifo(isp116x, dev, pipe, ptd, i, buffer, len);
+	cc = unpack_fifo(isp116x, dev, pipe, ptd, 1, buffer, len);
 
-	/* Mmm... sometime we get 0x0f as cc which is a non sense!
-	 * Just retry the transfer...
+	i = PTD_GET_COUNT(ptd);
+	done += i;
+	buffer += i;
+	len -= i;
+
+	/* There was some kind of real problem; Prepare the PTD again
+	 * and retry from the failed transaction on
 	 */
-	if (cc == 0x0f && retries-- > 0) {
-		usb_dotoggle(dev, epnum, dir_out);
-		goto retry;
+	if (cc && cc != TD_NOTACCESSED && cc != TD_DATAUNDERRUN) {
+		if (retries >= 100) {
+			retries -= 100;
+			/* The chip will have toggled the toggle bit for the failed
+			 * transaction too. We have to toggle it back.
+			 */
+			usb_settoggle(dev, epnum, dir_out, !PTD_GET_TOGGLE(ptd));
+			goto retry;
+		}
+	}
+	/* "Normal" errors; TD_NOTACCESSED would mean in effect that the function have NAKed
+	 * the transactions from the first on for the whole frame. It may be busy and we retry
+	 * with the same PTD. PTD_ACTIVE (and not TD_NOTACCESSED) would mean that some of the
+	 * PTD didn't make it because the function was busy or the frame ended before the PTD
+	 * finished. We prepare the rest of the data and try again.
+	 */
+	else if (cc == TD_NOTACCESSED || PTD_GET_ACTIVE(ptd) || (cc != TD_DATAUNDERRUN && PTD_GET_COUNT(ptd) < PTD_GET_LEN(ptd))) {
+		if (retries) {
+			--retries;
+			if (cc == TD_NOTACCESSED && PTD_GET_ACTIVE(ptd) && !PTD_GET_COUNT(ptd)) goto retry_same;
+			usb_settoggle(dev, epnum, dir_out, PTD_GET_TOGGLE(ptd));
+			goto retry;
+		}
 	}
 
-	if (cc != TD_CC_NOERROR) {
+	if (cc != TD_CC_NOERROR && cc != TD_DATAUNDERRUN) {
 		DBG("****** completition code error %x ******", cc);
 		switch (cc) {
 		case TD_CC_BITSTUFFING:
@@ -766,6 +795,7 @@ static int isp116x_submit_job(struct usb_device *dev, unsigned long pipe,
 		}
 		return -cc;
 	}
+	else usb_settoggle(dev, epnum, dir_out, PTD_GET_TOGGLE(ptd));
 
 	dump_msg(dev, pipe, buffer, len, "SUBMIT(ret)");
 
@@ -1368,6 +1398,8 @@ int usb_lowlevel_init(void)
 	struct isp116x *isp116x = &isp116x_dev;
 
 	DBG("");
+
+	got_rhsc = rh_devnum = 0;
 
 	/* Init device registers addr */
 	isp116x->addr_reg = (u16 *) ISP116X_HCD_ADDR;
