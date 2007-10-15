@@ -25,6 +25,7 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>
+#include <asm/io.h>
 
 /*
  * There are 2 versions of production Sequoia & Rainier platforms.
@@ -200,8 +201,12 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/* check CPLD register +5 for PCI 66MHz flag */
-	if (in8(CFG_BCSR_BASE + 5) & 0x01)
-		buf[5] += 0x10;
+	if ((in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN) == 0)
+		/*
+		 * PLB-to-PCI divisor = 3 for 33MHz sync PCI
+		 * instead of 2 for 66MHz systems
+		 */
+		buf[5] |= 0x08;
 
 	if (i2c_write(I2C_EEPROM_ADDR, 0, 1, buf, 16) != 0)
 		printf("Error writing to EEPROM at address 0x%x\n", I2C_EEPROM_ADDR);
