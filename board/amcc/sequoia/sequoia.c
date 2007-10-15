@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <ppc440.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -362,8 +363,8 @@ int checkboard(void)
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
 
-	rev = in8(CFG_BCSR_BASE + 0);
-	val = in8(CFG_BCSR_BASE + 5) & 0x01;
+	rev = in_8((void *)(CFG_BCSR_BASE + 0));
+	val = in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {
