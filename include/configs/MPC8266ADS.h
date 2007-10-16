@@ -168,6 +168,7 @@
 #undef CONFIG_CMD_MFSL
 #undef CONFIG_CMD_MMC
 #undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_ONENAND
 #undef CONFIG_CMD_PCMCIA
 #undef CONFIG_CMD_REISER
 #undef CONFIG_CMD_SCSI
@@ -177,6 +178,7 @@
 #undef CONFIG_CMD_UNIVERSE
 #undef CONFIG_CMD_USB
 #undef CONFIG_CMD_XIMG
+#undef CONFIG_CMD_AT91_SPIMUX
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
