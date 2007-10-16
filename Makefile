@@ -1969,6 +1969,9 @@ TQM8560_config:		unconfig
 ## MPC86xx Systems
 #########################################################################
 
+MPC8610HPCD_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8610hpcd freescale
+
 MPC8641HPCN_config:    unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn freescale
 
