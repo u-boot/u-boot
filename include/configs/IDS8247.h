@@ -120,6 +120,17 @@
 
 #define CFG_NS16550_COM1        (CFG_UART_BASE + 0x8000)
 
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+#define OF_CPU	"PowerPC,8247@0"
+#define OF_SOC	"soc@f0000000"
+#define OF_TBCLK	(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH	"/soc@f0000000/serial8250@e0008000"
+
+
 /*
  * select ethernet configuration
  *
@@ -133,16 +144,18 @@
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC       */
 #define	CONFIG_ETHER_ON_FCC		/* define if ether on FCC       */
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
-#define	CONFIG_ETHER_INDEX    2		/* which SCC/FCC channel for ethernet */
+#define	CONFIG_ETHER_INDEX	1	/* which SCC/FCC channel for ethernet */
+#define CONFIG_ETHER_ON_FCC1
+#define FCC_ENET
 
 /*
- * - Rx-CLK is CLK13
- * - Tx-CLK is CLK14
+ * - Rx-CLK is CLK10
+ * - Tx-CLK is CLK9
  * - RAM for BD/Buffers is on the 60x Bus (see 28-13)
  * - Enable Full Duplex in FSMR
  */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
+# define CFG_CMXFCR_MASK	(CMXFCR_FC1|CMXFCR_RF1CS_MSK|CMXFCR_TF1CS_MSK)
+# define CFG_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK10|CMXFCR_TF1CS_CLK9)
 # define CFG_CPMFCR_RAMTYPE	0
 # define CFG_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
@@ -166,6 +179,8 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
+#define CONFIG_RTC_PCF8563
+#define CFG_I2C_RTC_ADDR		0x51
 
 /*
  * Command line configuration.
@@ -211,7 +226,10 @@
  */
 #define CFG_BOOTMAPSZ        (8 << 20)       /* Initial Memory map for Linux */
 
-
+#define CFG_FLASH_CFI				/* The flash is CFI compatible  */
+#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver        */
+#define CFG_FLASH_BANKS_LIST	{ 0xFF800000 }
+#define CFG_MAX_FLASH_BANKS_DETECT	1
 /* What should the base address of the main FLASH be and how big is
  * it (in MBytes)? This must contain TEXT_BASE from board/ids8247/config.mk
  * The main FLASH is whichever is connected to *CS0.
@@ -227,7 +245,7 @@
  * FLASH organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
-#define CFG_MAX_FLASH_SECT	64	/* max num of sects on one chip */
+#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
@@ -511,12 +529,12 @@
 */
 #define CFG_OR2    ((~(CFG_GLOBAL_SDRAM_LIMIT-1) & ORxS_SDAM_MSK) |\
 			 ORxS_BPD_4                     |\
-			 ORxS_ROWST_PBI0_A10             |\
+			 ORxS_ROWST_PBI0_A9		|\
 			 ORxS_NUMR_12)
 
-#define CFG_PSDMR  (PSDMR_SDAM_A13_IS_A5 |\
+#define CFG_PSDMR  (PSDMR_SDAM_A14_IS_A5 |\
 			 PSDMR_BSMA_A15_A17           |\
-			 PSDMR_SDA10_PBI0_A11         |\
+			 PSDMR_SDA10_PBI0_A10		|\
 			 PSDMR_RFRC_5_CLK               |\
 			 PSDMR_PRETOACT_2W              |\
 			 PSDMR_ACTTORW_2W               |\
