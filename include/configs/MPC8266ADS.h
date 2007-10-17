@@ -146,39 +146,26 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_all.h>
+#include <config_cmd_default.h>
 
-#undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_BMP
-#undef CONFIG_CMD_BSP
-#undef CONFIG_CMD_DATE
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_DISPLAY
-#undef CONFIG_CMD_DOC
-#undef CONFIG_CMD_DTT
-#undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_ELF
-#undef CONFIG_CMD_EXT2
-#undef CONFIG_CMD_FDC
-#undef CONFIG_CMD_FDOS
-#undef CONFIG_CMD_HWFLOW
-#undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_KGDB
-#undef CONFIG_CMD_MFSL
-#undef CONFIG_CMD_MMC
-#undef CONFIG_CMD_NAND
-#undef CONFIG_CMD_ONENAND
-#undef CONFIG_CMD_PCMCIA
-#undef CONFIG_CMD_REISER
-#undef CONFIG_CMD_SCSI
-#undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_SNTP
-#undef CONFIG_CMD_VFD
-#undef CONFIG_CMD_UNIVERSE
-#undef CONFIG_CMD_USB
-#undef CONFIG_CMD_XIMG
-#undef CONFIG_CMD_AT91_SPIMUX
+/* Commands we want, that are not part of default set */
+#define CONFIG_CMD_ASKENV	/* ask for env variable		*/
+#define CONFIG_CMD_CACHE	/* icache, dcache		*/
+#define CONFIG_CMD_DHCP		/* DHCP Support			*/
+#define CONFIG_CMD_DIAG		/* Diagnostics			*/
+#define CONFIG_CMD_IMMAP	/* IMMR dump support		*/
+#define CONFIG_CMD_IRQ		/* irqinfo			*/
+#define CONFIG_CMD_MII		/* MII support			*/
+#define CONFIG_CMD_PCI		/* pciinfo			*/
+#define CONFIG_CMD_PING		/* ping support			*/
+#define CONFIG_CMD_PORTIO	/* Port I/O			*/
+#define CONFIG_CMD_REGINFO	/* Register dump		*/
+#define CONFIG_CMD_SAVES	/* save S record dump		*/
+#define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
+
+/* Commands from default set we don't need */
+#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+#undef CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
 
 /* Define a command string that is automatically executed when no character
  * is read on the console interface withing "Boot Delay" after reset.
