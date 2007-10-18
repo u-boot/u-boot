@@ -24,7 +24,7 @@
 
 #include <config.h>
 
-#ifdef	CONFIG_MICROBLAZE
+#ifdef	CONFIG_XILINX_UARTLITE
 
 #include <asm/serial_xuartlite.h>
 
