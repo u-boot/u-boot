@@ -40,7 +40,7 @@
  * All Sequoias & Rainiers select from two possible EEPROMs in Boot
  * Config F. One for 33MHz PCI, one for 66MHz PCI. The following
  * values are for the 33MHz PCI configuration. Byte 5 (0 base) is
- * the only  value affected for a 66MHz PCI and simply needs a +0x10.
+ * the only value affected for a 33MHz PCI and simply needs a | 0x08.
  */
 
 #define NAND_COMPATIBLE	0x01
@@ -57,6 +57,7 @@ static char *config_labels[] = {
 	"CPU: 416 PLB: 166 OPB: 83 EBC: 55",
 	"CPU: 500 PLB: 166 OPB: 83 EBC: 55",
 	"CPU: 533 PLB: 133 OPB: 66 EBC: 66",
+	"CPU: 667 PLB: 133 OPB: 66 EBC: 66",
 	"CPU: 667 PLB: 166 OPB: 83 EBC: 55",
 	NULL
 };
@@ -95,6 +96,11 @@ static u8 boot_configs[][17] = {
 	{
 		(NOR_COMPATIBLE),
 		0x87, 0x78, 0x82, 0x52, 0x09, 0x57, 0xa0, 0x30, 0x40,
+		0x08, 0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
+	},
+	{
+		(NOR_COMPATIBLE),
+		0x87, 0x78, 0xa2, 0x56, 0x09, 0x57, 0xa0, 0x30, 0x40,
 		0x08, 0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
 	},
 	{
