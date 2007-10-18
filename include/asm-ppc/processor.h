@@ -91,6 +91,11 @@
 
 /* Special Purpose Registers (SPRNs)*/
 
+/* PPC440 Architecture is BOOK-E */
+#ifdef CONFIG_440
+#define CONFIG_BOOKE
+#endif
+
 #define SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
 #define SPRN_CTR	0x009	/* Count Register */
 #define SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
