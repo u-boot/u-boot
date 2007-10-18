@@ -1766,7 +1766,8 @@ MPC8323ERDB_config:	unconfig
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
-MPC832XEMDS_SLAVE_config:	unconfig
+MPC832XEMDS_SLAVE_config \
+MPC832XEMDS_ATM_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
@@ -1781,11 +1782,18 @@ MPC832XEMDS_SLAVE_config:	unconfig
 	if [ "$(findstring _33_,$@)" ] ; then \
 		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
-	fi ;
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _ATM_,$@)" ] ; then \
+		echo -n "...ATM..." ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
+        fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds freescale
 
 MPC8349EMDS_config:	unconfig
@@ -1808,7 +1816,8 @@ MPC8349ITXGP_config:	unconfig
 MPC8360EMDS_config \
 MPC8360EMDS_HOST_33_config \
 MPC8360EMDS_HOST_66_config \
-MPC8360EMDS_SLAVE_config:	unconfig
+MPC8360EMDS_SLAVE_config \
+MPC8360EMDS_ATM_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
@@ -1823,10 +1832,17 @@ MPC8360EMDS_SLAVE_config:	unconfig
 	if [ "$(findstring _33_,$@)" ] ; then \
 		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _ATM_,$@)" ] ; then \
+		echo -n "...ATM..." ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
