@@ -166,12 +166,16 @@ _start_armboot: .word start_armboot
 /*									    */
 /****************************************************************************/
 /* mk@tbd: Fix this! */
-#ifdef CONFIG_CPU_MONAHANS
+#if defined(CONFIG_PXA250) || defined(CONFIG_CPU_MONAHANS)
 #undef ICMR
 #undef OSMR3
 #undef OSCR
 #undef OWER
 #undef OIER
+#endif
+#ifdef CONFIG_PXA250
+#undef RCSR
+#undef CCCR
 #endif
 
 /* Interrupt-Controller base address					    */
