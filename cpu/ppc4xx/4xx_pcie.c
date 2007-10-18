@@ -474,12 +474,6 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 {
 	u32 val;
 
-	/*
-	 * test-only:
-	 * This needs some testing and perhaps changes for
-	 * endpoint configuration. Probably no PHY reset at all, etc.
-	 * sr, 2007-10-03
-	 */
 	if (rootport)
 		val = 0x00401000;
 	else
@@ -496,7 +490,10 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 	udelay(1000);
 
 	/* deassert the PE0_hotreset */
-	SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x01101000);
+	if (is_end_point(port))
+		SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x01111000);
+	else
+		SDR_WRITE(SDRN_PESDR_RCSSET(port), 0x01101000);
 
 	/* poll for phy !reset */
 	while (!(SDR_READ(SDRN_PESDR_PHYSTA(port)) & 0x00001000))
@@ -903,11 +900,22 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 #endif
 	}
 
-	/* Set up 16GB inbound memory window at 0 */
+	/* Set up 64MB inbound memory window at 0 */
 	out_le32(mbase + PCI_BASE_ADDRESS_0, 0);
 	out_le32(mbase + PCI_BASE_ADDRESS_1, 0);
-	out_le32(mbase + PECFG_BAR0HMPA, 0x7fffffc);
-	out_le32(mbase + PECFG_BAR0LMPA, 0);
+
+	out_le32(mbase + PECFG_PIM01SAH, 0xffffffff);
+	out_le32(mbase + PECFG_PIM01SAL, 0xfc000000);
+
+	/* Setup BAR0 */
+	out_le32(mbase + PECFG_BAR0HMPA, 0x7fffffff);
+	out_le32(mbase + PECFG_BAR0LMPA, 0xfc000000 | PCI_BASE_ADDRESS_MEM_TYPE_64);
+
+	/* Disable BAR1 & BAR2 */
+	out_le32(mbase + PECFG_BAR1MPA, 0);
+	out_le32(mbase + PECFG_BAR2HMPA, 0);
+	out_le32(mbase + PECFG_BAR2LMPA, 0);
+
 	out_le32(mbase + PECFG_PIM0LAL, U64_TO_U32_LOW(CFG_PCIE_INBOUND_BASE));
 	out_le32(mbase + PECFG_PIM0LAH, U64_TO_U32_HIGH(CFG_PCIE_INBOUND_BASE));
 	out_le32(mbase + PECFG_PIMEN, 0x1);
@@ -918,6 +926,9 @@ int ppc4xx_setup_pcie_endpoint(struct pci_controller *hose, int port)
 		 PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 	out_le16(mbase + 0x200, 0xcaad);		/* Setting vendor ID */
 	out_le16(mbase + 0x202, 0xfeed);		/* Setting device ID */
+
+	/* Set Class Code to Processor/PPC */
+	out_le32(mbase + 0x208, 0x0b200001);
 
 	attempts = 10;
 	while(!(SDR_READ(SDRN_PESDR_RCSSTS(port)) & (1 << 8))) {

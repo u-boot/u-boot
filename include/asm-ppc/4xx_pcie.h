@@ -218,7 +218,8 @@
 #define PECFG_BAR0LMPA		0x210
 #define PECFG_BAR0HMPA		0x214
 #define PECFG_BAR1MPA		0x218
-#define PECFG_BAR2MPA		0x220
+#define PECFG_BAR2LMPA		0x220
+#define PECFG_BAR2HMPA		0x224
 
 #define PECFG_PIMEN		0x33c
 #define PECFG_PIM0LAL		0x340
@@ -259,9 +260,13 @@ int pcie_hose_scan(struct pci_controller *hose, int bus);
  */
 static inline int is_end_point(int port)
 {
-	static char s[10], *tk;
+	char s[10], *tk;
+	char *pcie_mode = getenv("pcie_mode");
 
-	strcpy(s, getenv("pcie_mode"));
+	if (pcie_mode == NULL)
+		return 0;
+
+	strcpy(s, pcie_mode);
 	tk = strtok(s, ":");
 
 	switch (port) {
