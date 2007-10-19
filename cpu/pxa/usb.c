@@ -27,6 +27,7 @@
 # if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 
 #include <asm/arch/pxa-regs.h>
+#include <usb.h>
 
 int usb_cpu_init(void)
 {
