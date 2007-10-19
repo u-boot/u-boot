@@ -948,19 +948,25 @@ unsigned int enable_ddr(unsigned int ddr_num)
 	 * Read both dimm slots and decide whether
 	 * or not to enable this controller.
 	 */
-	memset((void *)&spd1,0,sizeof(spd1));
-	memset((void *)&spd2,0,sizeof(spd2));
+	memset((void *)&spd1, 0, sizeof(spd1));
+	memset((void *)&spd2, 0, sizeof(spd2));
 
 	if (ddr_num == 1) {
 		CFG_READ_SPD(SPD_EEPROM_ADDRESS1,
 			     0, 1, (uchar *) &spd1, sizeof(spd1));
+#if defined(SPD_EEPROM_ADDRESS2)
 		CFG_READ_SPD(SPD_EEPROM_ADDRESS2,
 			     0, 1, (uchar *) &spd2, sizeof(spd2));
+#endif
 	} else {
+#if defined(SPD_EEPROM_ADDRESS3)
 		CFG_READ_SPD(SPD_EEPROM_ADDRESS3,
 			     0, 1, (uchar *) &spd1, sizeof(spd1));
+#endif
+#if defined(SPD_EEPROM_ADDRESS4)
 		CFG_READ_SPD(SPD_EEPROM_ADDRESS4,
 			     0, 1, (uchar *) &spd2, sizeof(spd2));
+#endif
 	}
 
 	/*
@@ -1105,21 +1111,25 @@ spd_sdram(void)
 {
 	int memsize_ddr1_dimm1 = 0;
 	int memsize_ddr1_dimm2 = 0;
+	int memsize_ddr1 = 0;
+	unsigned int law_size_ddr1;
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
+	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+
+#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	int memsize_ddr2_dimm1 = 0;
 	int memsize_ddr2_dimm2 = 0;
-	int memsize_total = 0;
-	int memsize_ddr1 = 0;
 	int memsize_ddr2 = 0;
+	unsigned int law_size_ddr2;
+#endif
+
 	unsigned int ddr1_enabled = 0;
 	unsigned int ddr2_enabled = 0;
-	unsigned int law_size_ddr1;
-	unsigned int law_size_ddr2;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+	int memsize_total = 0;
 
 #ifdef CONFIG_DDR_INTERLEAVE
 	unsigned int law_size_interleaved;
-	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
 	volatile ccsr_ddr_t *ddr2 = &immap->im_ddr2;
 
 	memsize_ddr1_dimm1 = spd_init(SPD_EEPROM_ADDRESS1,
@@ -1194,9 +1204,11 @@ spd_sdram(void)
 				      (unsigned int)memsize_total * 1024*1024);
 	memsize_total += memsize_ddr1_dimm1;
 
+#if defined(SPD_EEPROM_ADDRESS2)
 	memsize_ddr1_dimm2 = spd_init(SPD_EEPROM_ADDRESS2,
 				      1, 2,
 				      (unsigned int)memsize_total * 1024*1024);
+#endif
 	memsize_total += memsize_ddr1_dimm2;
 
 	/*

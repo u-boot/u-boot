@@ -189,19 +189,20 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
-/* I2C */
+/*
+ * I2C
+ */
 #define CONFIG_FSL_I2C			/* Use FSL common I2C driver */
 #define  CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
-#if 0
-#define CFG_I2C_NOPROBES	{0x00}	/* Don't probe these addrs */
-#else
-/* I did the 'if 0' so we could keep the syntax above if ever needed. */
 #undef CFG_I2C_NOPROBES
-#endif
 #define CFG_I2C_OFFSET		0x3000
+
+/* I2C RTC */
+#define CONFIG_RTC_DS1337		/* This is really a DS1339 RTC	*/
+#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68		*/
 
 /* I2C EEPROM.	AT24C32, we keep our environment in here.
 */
@@ -230,7 +231,7 @@
 #define CFG_PCI2_IO_SIZE	0x01000000	/* 16M */
 
 #if defined(CONFIG_PCI) 		/* PCI Ethernet card */
-
+#define CONFIG_MPC85XX_PCI2	1
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
@@ -341,8 +342,13 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

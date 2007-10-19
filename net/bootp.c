@@ -730,7 +730,7 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
-			NetCopyLong (&NetTimeOffset, (ulong *) (popt + 2));
+			NetCopyLong ((ulong *)&NetTimeOffset, (ulong *) (popt + 2));
 			NetTimeOffset = ntohl (NetTimeOffset);
 			break;
 #endif

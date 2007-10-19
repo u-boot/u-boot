@@ -399,6 +399,8 @@
 #define CFG_ENV_ADDR_REDUND	0xFFFFA000
 #define CFG_ENV_SIZE_REDUND	0x2000
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
 

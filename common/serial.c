@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct serial_device *serial_devices = NULL;
 static struct serial_device *serial_current = NULL;
 
-#ifndef CONFIG_LWMON
+#if !defined(CONFIG_LWMON) && !defined(CONFIG_PXA27X)
 struct serial_device *default_serial_console (void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
@@ -65,7 +65,7 @@ struct serial_device *default_serial_console (void)
 }
 #endif
 
-static int serial_register (struct serial_device *dev)
+int serial_register (struct serial_device *dev)
 {
 	dev->init += gd->reloc_off;
 	dev->setbrg += gd->reloc_off;
@@ -110,6 +110,15 @@ void serial_initialize (void)
 	serial_register(&eserial4_device);
 #endif
 #endif /* CFG_NS16550_SERIAL */
+#if defined (CONFIG_FFUART)
+	serial_register(&serial_ffuart_device);
+#endif
+#if defined (CONFIG_BTUART)
+	serial_register(&serial_btuart_device);
+#endif
+#if defined (CONFIG_STUART)
+	serial_register(&serial_stuart_device);
+#endif
 	serial_assign (default_serial_console ()->name);
 }
 

@@ -400,7 +400,8 @@
  *----------------------------------------------------------------------*/
 /* General PCI */
 #define CONFIG_PCI			/* include pci support	        */
-#undef CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play   */
+#define CFG_PCI_CACHE_LINE_SIZE	0 /* to avoid problems with PNP */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup  */
 #define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
 
@@ -448,6 +449,8 @@
 /* Memory Bank 2 (CPLD) initialization						*/
 #define CFG_EBC_PB2AP		0x24814580
 #define CFG_EBC_PB2CR		(CFG_BCSR_BASE | 0x38000)
+
+#define CFG_BCSR5_PCI66EN	0x80
 
 /*-----------------------------------------------------------------------
  * NAND FLASH

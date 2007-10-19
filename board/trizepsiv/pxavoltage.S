@@ -1,7 +1,6 @@
 /*
- * (C) Copyright 2006
- * Atmel Nordic AB <www.atmel.com>
- * Ulf Samuelsson <ulf@atmel.com>
+ * (C) Copyright 2007
+ * Stefano Babic, DENX Gmbh, sbabic@denx.de
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,24 +21,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __LED_H
-#define __LED_H
+#include <asm/arch/pxa-regs.h>
 
-#ifndef	__ASSEMBLY__
-extern void	LED_init (void);
-extern void	red_LED_on(void);
-extern void	red_LED_off(void);
-extern void	green_LED_on(void);
-extern void	green_LED_off(void);
-extern void	yellow_LED_on(void);
-extern void	yellow_LED_off(void);
-#else
-	.extern LED_init
-	.extern red_LED_on
-	.extern red_LED_off
-	.extern yellow_LED_on
-	.extern yellow_LED_off
-	.extern green_LED_on
-	.extern green_LED_off
-#endif
-#endif
+		.global	initPXAvoltage
+
+initPXAvoltage:
+		mov	pc, lr

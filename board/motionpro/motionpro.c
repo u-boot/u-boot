@@ -29,9 +29,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <miiphy.h>
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
+#include <libfdt.h>
 
 #if defined(CONFIG_STATUS_LED)
 #include <status_led.h>
@@ -196,12 +194,12 @@ int checkboard(void)
 }
 
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 }
-#endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
 
 #if defined(CONFIG_STATUS_LED)

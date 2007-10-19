@@ -301,10 +301,12 @@ LIST_83xx="		\
 	MPC8313ERDB_66	\
 	MPC8323ERDB	\
 	MPC832XEMDS	\
+	MPC832XEMDS_ATM	\
 	MPC8349EMDS	\
 	MPC8349ITX	\
 	MPC8349ITXGP	\
 	MPC8360EMDS	\
+	MPC8360EMDS_ATM	\
 	sbc8349		\
 	TQM834x		\
 "
@@ -341,7 +343,7 @@ LIST_85xx="		\
 
 LIST_86xx="		\
 	MPC8641HPCN	\
-	SBC8641D	\
+	sbc8641d	\
 "
 
 #########################################################################

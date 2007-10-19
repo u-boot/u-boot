@@ -429,6 +429,8 @@
 #define CFG_ENV_ADDR_REDUND	0xFFFFA000
 #define CFG_ENV_SIZE_REDUND	0x2000
 
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
 #endif	/* ENVIRONMENT_IN_EEPROM */
 
 

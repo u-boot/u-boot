@@ -217,7 +217,8 @@
 #define CFG_NAND_CLE            (0x80000000 >> 2)   /* our CLE is GPIO2 */
 #define CFG_NAND_ALE            (0x80000000 >> 3)   /* our ALE is GPIO3 */
 
-#define CFG_NAND_SKIP_BAD_DOT_I      1  /* ".i" read skips bad blocks   */
+#define CFG_NAND_SKIP_BAD_DOT_I 1       /* ".i" read skips bad blocks   */
+#define CFG_NAND_QUIET          1
 
 /*-----------------------------------------------------------------------
  * PCI stuff

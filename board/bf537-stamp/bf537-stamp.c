@@ -32,6 +32,8 @@
 #include <asm/io.h>
 #include "ether_bf537.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define POST_WORD_ADDR 0xFF903FFC
 
 /*
@@ -132,7 +134,6 @@ void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
 
 long int initdram(int board_type)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 #ifdef DEBUG
 	int brate;
 	char *tmp = getenv("baudrate");

@@ -33,15 +33,13 @@ _start:
 	addi	r1, r0, CFG_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
-	addi	r6, r0, 0xb000	/* hex b000 opcode imm */
-	bslli	r6, r6, 16	/* shift */
+	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
 	swi	r6, r0, 0x0	/* reset address */
 	swi	r6, r0, 0x8	/* user vector exception */
 	swi	r6, r0, 0x10	/* interrupt */
 	swi	r6, r0, 0x20	/* hardware exception */
 
-	addi	r6, r0, 0xb808	/* hew b808 opcode brai*/
-	bslli	r6, r6, 16
+	addi	r6, r0, 0xb8080000	/* hew b808 opcode brai*/
 	swi	r6, r0, 0x4	/* reset address */
 	swi	r6, r0, 0xC	/* user vector exception */
 	swi	r6, r0, 0x14	/* interrupt */

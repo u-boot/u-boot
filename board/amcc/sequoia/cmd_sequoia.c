@@ -25,6 +25,7 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>
+#include <asm/io.h>
 
 /*
  * There are 2 versions of production Sequoia & Rainier platforms.
@@ -39,7 +40,7 @@
  * All Sequoias & Rainiers select from two possible EEPROMs in Boot
  * Config F. One for 33MHz PCI, one for 66MHz PCI. The following
  * values are for the 33MHz PCI configuration. Byte 5 (0 base) is
- * the only  value affected for a 66MHz PCI and simply needs a +0x10.
+ * the only value affected for a 33MHz PCI and simply needs a | 0x08.
  */
 
 #define NAND_COMPATIBLE	0x01
@@ -56,6 +57,7 @@ static char *config_labels[] = {
 	"CPU: 416 PLB: 166 OPB: 83 EBC: 55",
 	"CPU: 500 PLB: 166 OPB: 83 EBC: 55",
 	"CPU: 533 PLB: 133 OPB: 66 EBC: 66",
+	"CPU: 667 PLB: 133 OPB: 66 EBC: 66",
 	"CPU: 667 PLB: 166 OPB: 83 EBC: 55",
 	NULL
 };
@@ -94,6 +96,11 @@ static u8 boot_configs[][17] = {
 	{
 		(NOR_COMPATIBLE),
 		0x87, 0x78, 0x82, 0x52, 0x09, 0x57, 0xa0, 0x30, 0x40,
+		0x08, 0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
+	},
+	{
+		(NOR_COMPATIBLE),
+		0x87, 0x78, 0xa2, 0x56, 0x09, 0x57, 0xa0, 0x30, 0x40,
 		0x08, 0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
 	},
 	{
@@ -200,8 +207,12 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/* check CPLD register +5 for PCI 66MHz flag */
-	if (in8(CFG_BCSR_BASE + 5) & 0x01)
-		buf[5] += 0x10;
+	if ((in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN) == 0)
+		/*
+		 * PLB-to-PCI divisor = 3 for 33MHz sync PCI
+		 * instead of 2 for 66MHz systems
+		 */
+		buf[5] |= 0x08;
 
 	if (i2c_write(I2C_EEPROM_ADDR, 0, 1, buf, 16) != 0)
 		printf("Error writing to EEPROM at address 0x%x\n", I2C_EEPROM_ADDR);

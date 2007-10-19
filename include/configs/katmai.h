@@ -66,11 +66,11 @@
 #define CFG_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
 
 #define CFG_PCIE0_CFGBASE	0xc0000000
-#define CFG_PCIE0_XCFGBASE	0xc0000400
-#define CFG_PCIE1_CFGBASE	0xc0001000
-#define CFG_PCIE1_XCFGBASE	0xc0001400
-#define CFG_PCIE2_CFGBASE	0xc0002000
-#define CFG_PCIE2_XCFGBASE	0xc0002400
+#define CFG_PCIE1_CFGBASE	0xc1000000
+#define CFG_PCIE2_CFGBASE	0xc2000000
+#define CFG_PCIE0_XCFGBASE	0xc3000000
+#define CFG_PCIE1_XCFGBASE	0xc3001000
+#define CFG_PCIE2_XCFGBASE	0xc3002000
 
 /* System RAM mapped to PCI space */
 #define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
@@ -201,6 +201,7 @@
 		"setenv filesize;saveenv\0"				\
 	"upd=run load;run update\0"					\
 	"kozio=bootm ffc60000\0"					\
+	"pciconfighost=1\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -322,7 +323,7 @@
 #define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_PNP		1	/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup	*/
-#undef CONFIG_PCI_CONFIG_HOST_BRIDGE
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /* Board-specific PCI */
 #define CFG_PCI_TARGET_INIT		/* let board init pci target    */

@@ -310,10 +310,20 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	malloc_bin_reloc();
 	dma_alloc_init();
 	board_init_info();
-	flash_init();
+
+	bd->bi_flashstart = 0;
+	bd->bi_flashsize = 0;
+	bd->bi_flashoffset = 0;
+
+#ifndef CFG_NO_FLASH
+	bd->bi_flashstart = CFG_FLASH_BASE;
+	bd->bi_flashsize = flash_init();
+	bd->bi_flashoffset = (unsigned long)_edata - (unsigned long)_text;
 
 	if (bd->bi_flashsize)
 		display_flash_config();
+#endif
+
 	if (bd->bi_dram[0].size)
 		display_dram_config();
 

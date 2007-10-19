@@ -541,11 +541,11 @@ restart:
 
 		case NETLOOP_SUCCESS:
 			if (NetBootFileXferSize > 0) {
-				char buf[10];
+				char buf[20];
 				printf("Bytes transferred = %ld (%lx hex)\n",
 					NetBootFileXferSize,
 					NetBootFileXferSize);
-				sprintf(buf, "%lx", NetBootFileXferSize);
+				sprintf(buf, "%lX", NetBootFileXferSize);
 				setenv("filesize", buf);
 
 				sprintf(buf, "%lX", (unsigned long)load_addr);
