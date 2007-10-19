@@ -32,6 +32,7 @@
 #define CONFIG_PXA250			1		/* This is an PXA250 CPU    */
 #define CONFIG_XSENGINE			1
 #define CONFIG_MMC			1
+#define CONFIG_DOS_PARTITION		1
 #define BOARD_POST_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
 #define CFG_HZ				3686400		/* incrementer freq: 3.6864 MHz */

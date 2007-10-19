@@ -46,11 +46,11 @@ unsigned long flash_init (void)
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
-			flash_get_size ((long *) PHYS_FLASH_1, &flash_info[i]);
+			flash_get_size ((vu_long *) PHYS_FLASH_1, &flash_info[i]);
 			flash_get_offsets (PHYS_FLASH_1, &flash_info[i]);
 			break;
 		case 1:
-			flash_get_size ((long *) PHYS_FLASH_2, &flash_info[i]);
+			flash_get_size ((vu_long *) PHYS_FLASH_2, &flash_info[i]);
 			flash_get_offsets (PHYS_FLASH_2, &flash_info[i]);
 			break;
 		default:
