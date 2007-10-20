@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2006-2007
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,6 +24,7 @@
 #include <common.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <spd_sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -181,8 +184,8 @@ int checkboard(void)
 	printf("Board: Yellowstone - AMCC PPC440GR Evaluation Board");
 #endif
 
-	rev = *(u8 *)(CFG_CPLD + 0);
-	val = *(u8 *)(CFG_CPLD + 5) & 0x01;
+	rev = in_8((void *)(CFG_BCSR_BASE + 0));
+	val = in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {
