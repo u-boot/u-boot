@@ -745,14 +745,12 @@ static void pcnet_reset_8390(void)
 
 	PRINTK("nic base is %lx\n", nic_base);
 
-#if 1
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
-#endif
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 
 	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
@@ -847,12 +845,9 @@ void uboot_push_packet_len(int len) {
 	}
 	plen[nrx] = len;
 	dp83902a_recv(&pbuf[nrx*2000], len);
-/*Just pass it to the upper layer*/
+
+	/*Just pass it to the upper layer*/
 	NetReceive(&pbuf[nrx*2000], plen[nrx]);
-/*eth_rx() was gutted, so this is not needed anymore*/
-#if 0
-	nrx++;
-#endif
 }
 
 void uboot_push_tx_done(int key, int val) {
@@ -949,5 +944,4 @@ int eth_send(volatile void *packet, int length) {
 	}
 	return 0;
 }
-
 #endif

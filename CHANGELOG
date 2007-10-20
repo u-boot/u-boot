@@ -1,3 +1,206 @@
+commit ff285ca07eda1ea4a8909848cc1cc604ec8fec9c
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Thu Oct 4 20:47:10 2007 +0300
+
+    Fix NE2000 driver:
+
+    Fixed typo in ne2000.h, thinko re n2k_inb() usage, don't try
+    to do anything in eth_stop() if eth_init() was not called.
+    Simplified RX path in order to avoid timeouts on really really
+    fast NE2000 cards (read: qemu with internal tftp), NetLoop() is
+    clever enough to cope with 1 packet per eth_rx().
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit 5441f61a3d8b7034f19fc1361183e936198e6dbb
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Oct 19 16:47:26 2007 +0200
+
+    Fix two typos.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 281df457c1aa50d2752165d0c5c3282d4027b974
+Author: Tony Li <tony.li@freescale.com>
+Date:	Thu Oct 18 17:47:19 2007 +0800
+
+    mpc83xx: Add configure entry for MPC83xx ATM support
+
+    Add MPC8360EMDS_ATM_config and MPC832XEMDS_ATM_config into
+    Makfile and MAKEALL
+
+    Signed-off-by: Tony Li <tony.li@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit d2646554f529a9577515eceb0ec5eceee18244ba
+Author: Tony Li <tony.li@freescale.com>
+Date:	Thu Oct 18 17:44:38 2007 +0800
+
+    mpc83xx: pq-mds-pib.c typo error
+
+    Correct to val8 from val.
+
+    Signed-off-by: Tony Li <tony.li@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3e11ae80fec1ee12194940955431186abf6009c2
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 17 15:40:19 2007 +0200
+
+    ppc4xx: Add 667/133 (CPU/PLB) frequency setup to Sequoia bootstrap command
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7ee6ba1a056e4061ab4cfde30127e332e7957afd
+Author: runet@innovsys.com <runet@innovsys.com>
+Date:	Tue Oct 16 14:50:40 2007 -0500
+
+    Make MPC8266ADS board compile again.
+
+    Signed-off-by: Runet Torgersen <runet@innovsys.com>
+
+commit 2491167c245d8ebe6f2dbd8c4287aaa0d14fe93a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Aug 27 12:41:03 2007 -0500
+
+    86xx: Allow for fewer DDR slots per memory controller.
+
+    As a direct correlation exists between DDR DIMM slots
+    and SPD EEPROM addresses used to configure them, use
+    the individually defined SPD_EEPROM_ADDRESS* values to
+    determine if a DDR DIMM slot should have its SPD
+    configuration read or not.
+
+    Effectively, this now allows for 1 or 2 DIMM slots
+    per memory controller.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4d4a945e189a2f384c66432316da2788a0ac1607
+Author: Rodolfo Giometti <giometti@enneenne.com>
+Date:	Mon Oct 15 11:59:17 2007 +0200
+
+    PXA USB OHCI: "usb stop" implementation.
+
+    Some USB keys need to be switched off before loading the kernel
+    otherwise they can remain in an undefined status which prevents them
+    to be correctly recognized by the kernel.
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit e2e93442e558cf1500e92861f99713b2f045ea22
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 15 11:39:00 2007 +0200
+
+    ppc4xx: Fix bug in I2C bootstrap values for Sequoia/Rainier
+
+    The I2C bootstrap values that can be setup via the "bootstrap" command,
+    were setup incorrect regarding the generation of the internal sync PCI
+    clock. The values for PLB clock == 133MHz were slighly incorrect and the
+    values for PLB clock == 166MHz were totally incorrect. This could
+    lead to a hangup upon booting while PCI configuration scan.
+
+    This patch fixes this issue and configures valid PCI divisor values
+    for the sync PCI clock, with respect to the provided external async
+    PCI frequency.
+
+    Here the values of the formula in the chapter 14.2 "PCI clocking"
+    from the 440EPx users manual:
+
+    AsyncPCICLK - 1MHz <= SyncPCIClk <= (2 * AsyncPCIClk) - 1MHz
+
+    33MHz async PCI frequency:
+    PLB = 133:
+    =>	    32 <= 44.3 <= 65	    (div = 3)
+
+    PLB = 166:
+    =>	    32 <= 55.3 <= 65	    (div = 3)
+
+    66MHz async PCI frequency:
+    PLB = 133:
+    =>	    65 <= 66.5 <= 132	    (div = 2)
+
+    PLB = 166:
+    =>	    65 <= 83 <= 132	    (div = 2)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5a5958b7de70ae99f0e7cbd5c97ec1346e051587
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 15 11:29:33 2007 +0200
+
+    ppc4xx: Fix incorrect 33/66MHz PCI clock log-message on Sequoia & Yosemite
+
+    The BCSR status bit for the 66MHz PCI operation was correctly
+    addressed (MSB/LSB problem). Now the correct currently setup
+    PCI frequency is displayed upon bootup.
+
+    This patch also fixes this problem on Rainier & Yellowstone, since these
+    boards use the same souce code as Sequoia & Yosemite do.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit da3aad55cbde80ab6e301aafa82a2c411aa53eff
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Sep 26 17:55:56 2007 +0200
+
+    TQM860M: adjust for doubled flash sector size.
+
+    Adjust flash map to support the new S29GLxxN (N-Type) Flashes with
+    doubled sector size.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 9d29250e2e62f4bf20c7a20b4173d84c48f11f5d
+Author: Jens Gehrlein <jens.gehrlein@tqs.de>
+Date:	Wed Sep 26 17:55:54 2007 +0200
+
+    TQM8xx: Fix CAN timing.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit d43e489baf02afae49077791fb22332d240d8656
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Thu Sep 27 14:54:36 2007 +0200
+
+    TQM866M: fix SDRAM refresh
+
+    At 133 MHz the current SDRAM refresh rate is too fast
+    (measured 4 * 1.17 us).
+    CFG_MAMR_PTA changes from 39 to 97. This result
+    in a refresh rate of 4 * 7.8 us at the default clock
+    50 MHz. At 133 MHz the value will be then 4 * 2.9 us.
+    This is a compromise until a new method is found to
+    adjust the refresh rate.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 9ef57bbee1c67cc01da2026c242c4692db32be36
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Sep 26 17:55:55 2007 +0200
+
+    TQM866M: adjust for doubled flash sector size.
+
+    Adjust flash map to support the new S29GLxxN (N-Type) Flashes with
+    doubled sector size.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit f8bf90461d9bad2e6fed31fcebaf235f60dd6763
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Oct 14 16:12:29 2007 +0200
+
+    [FIX] XUPV2P change command handling
+    and remove code violation
+
+commit 636400198228d96983c06657b17f760f5989958e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Oct 14 00:13:19 2007 +0200
+
+    Prepare for 1.3.0-rc3 release
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 68f14f77ca5fe5f9cc025c8cae101671f628309f
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Sep 29 13:41:37 2007 +0200
@@ -108,6 +311,26 @@ Date:	Mon Oct 1 09:51:50 2007 +0200
     This fix turns it on.
 
     Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 785c13477b77dcd2e6c5128fffcdb4e1943f4818
+Author: Timo Ketola <timo.ketola@exertus.fi>
+Date:	Mon Sep 24 14:50:32 2007 +0300
+
+    Bugfix: Use only one PTD for one endpoint
+
+    Original isp116x-hcd code prepared multiple PTDs for longer than 16
+    byte transfers for one endpoint. That is unnecessary because the
+    ISP116x is able to split long data from one PTD into multiple
+    transactions based on the buffer size of the endpoint. It also caused
+    serious problems if the endpoint NAKed some of the transactions. In
+    that case ISP116x wouldn't notice that the other PTDs were for the same
+    endpoint and would try the other PTDs possibly out of order. That would
+    break the whole transfer.
+
+    This patch makes isp116x_submit_job to use one PTD for one transfer.
+
+    Signed-off-by: Timo Ketola <timo.ketola@exertus.fi>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
 
 commit 86ec86c04326c3913178a7679aa910de071da75d
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
@@ -331,6 +554,12 @@ Date:	Mon Sep 10 17:13:49 2007 +0900
 
     Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 
+commit b49c90df6e7cfcfb8b862b8bbf8448dff5eed9a5
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun Sep 16 20:51:57 2007 +0200
+
+    [FIX] remove files form repository
+
 commit 67c31036acaaaa992fc346cc89db0909a7e733c4
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Sep 16 17:10:04 2007 +0200
@@ -477,6 +706,25 @@ Date:	Sat Sep 15 11:55:42 2007 +0200
     Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
 
     [1] http://article.gmane.org/gmane.comp.boot-loaders.u-boot/31805
+
+commit 991b089d1ce5ad945725e3657a8f106dfa02a38e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sat Sep 15 00:03:35 2007 +0200
+
+    Synchronize with U-BOOT mainline
+
+commit d7fee32b7e61fe11c64e371cde79faa4768e8350
+Author: Sam Sparks <SSparks@twacs.com>
+Date:	Fri Sep 14 11:14:42 2007 -0600
+
+    Update MPC8349ITX*_config to place config.tmp in right place.
+
+    MPC834ITX*_config does not store config.tmp at the correct locatation,
+    causing MPC8349ITXGP to have the wrong TEXT_BASE.
+
+    Signed-off-by: Sam Sparks <SSparks@twacs.com>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit 6e7b7b6ea1b6d04dbe96242eb6a0c1c664c98e8c
 Author: Bartlomiej Sieka <tur@semihalf.com>

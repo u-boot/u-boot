@@ -393,7 +393,7 @@ BC3450_config:	unconfig
 cpci5200_config:  unconfig
 	@$(MKCONFIG) -a cpci5200  ppc mpc5xxx cpci5200 esd
 
-hmi1001_config:         unconfig
+hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001
 
 Lite5200_config				\
@@ -435,7 +435,7 @@ icecube_5100_config:			unconfig
 		}
 	@$(MKCONFIG) -a IceCube ppc mpc5xxx icecube
 
-jupiter_config:         unconfig
+jupiter_config:	unconfig
 	@$(MKCONFIG) jupiter ppc mpc5xxx jupiter
 
 v38b_config: unconfig
@@ -640,9 +640,9 @@ TQM5200_STK100_config:	unconfig
 		{ echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp ; \
 		}
 	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
-uc101_config:         unconfig
+uc101_config:		unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
-motionpro_config:         unconfig
+motionpro_config:	unconfig
 	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
 
 
@@ -930,7 +930,7 @@ RPXlite_DW_NVRAM_config		\
 RPXlite_DW_NVRAM_64_config      \
 RPXlite_DW_NVRAM_LCD_config	\
 RPXlite_DW_NVRAM_64_LCD_config  \
-RPXlite_DW_config:         unconfig
+RPXlite_DW_config:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@[ -z "$(findstring _64,$@)" ] || \
@@ -1793,7 +1793,7 @@ MPC832XEMDS_ATM_config:	unconfig
 		echo -n "...ATM..." ; \
 		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
 		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
-        fi ;
+	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds freescale
 
 MPC8349EMDS_config:	unconfig
@@ -2001,13 +2001,13 @@ AmigaOneG3SE_config:	unconfig
 BAB7xx_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx bab7xx eltec
 
-CPCI750_config:        unconfig
+CPCI750_config:	unconfig
 	@$(MKCONFIG) CPCI750 ppc 74xx_7xx cpci750 esd
 
-DB64360_config:  unconfig
+DB64360_config:	unconfig
 	@$(MKCONFIG) DB64360 ppc 74xx_7xx db64360 Marvell
 
-DB64460_config:  unconfig
+DB64460_config:	unconfig
 	@$(MKCONFIG) DB64460 ppc 74xx_7xx db64460 Marvell
 
 ELPPC_config: unconfig
