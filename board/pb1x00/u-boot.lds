@@ -45,9 +45,11 @@ SECTIONS
 
 	_gp = ALIGN(16);
 
-	__got_start = .;
-	.got  : { *(.got) }
-	__got_end = .;
+	.got : {
+	  __got_start = .;
+	  *(.got)
+	  __got_end = .;
+	}
 
 	.sdata  : { *(.sdata) }
 
