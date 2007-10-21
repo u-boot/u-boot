@@ -438,10 +438,10 @@
 #define CFG_FPGA_USER_LED0		0x00000200
 #define CFG_FPGA_USER_LED1		0x00000100
 
-#endif	/* __CONFIG_H */
-
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,405EX@0"
+
+#endif	/* __CONFIG_H */
