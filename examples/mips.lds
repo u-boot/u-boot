@@ -39,9 +39,6 @@ SECTIONS
 	. = ALIGN(4);
 	.data  : { *(.data) }
 
-	. = ALIGN(4);
-	.sdata  : { *(.sdata) }
-
 	_gp = ALIGN(16);
 
 	__got_start = .;
