@@ -51,8 +51,8 @@ ext_bus_cntlr_init:
 
 	/* Step 3 */
 
-	/* SET SDRAM_MB0CF  base addr 00000000 - 128MB */
-	mtsdram_as(SDRAM_MB0CF, 0x00007701);		/* 8 -- 7*/
+	/* base=00000000, size=256MByte (6), mode=7 (n*10*8) */
+	mtsdram_as(SDRAM_MB0CF, 0x00006701);
 
 	/* SET SDRAM_MB1CF - Not enabled */
 	mtsdram_as(SDRAM_MB1CF, 0x00000000);
@@ -64,48 +64,48 @@ ext_bus_cntlr_init:
 	mtsdram_as(SDRAM_MB3CF, 0x00000000);
 
 	/* SDRAM_CLKTR: Adv Addr clock by 90 deg */
-	mtsdram_as(SDRAM_CLKTR,0x80000000);
+	mtsdram_as(SDRAM_CLKTR, 0x80000000);
 
 	/* Refresh Time register (0x30) Refresh every 7.8125uS */
 	mtsdram_as(SDRAM_RTR, 0x06180000);
 
 	/* SDRAM_SDTR1 */
-	mtsdram_as(SDRAM_SDTR1,0x80201000);
+	mtsdram_as(SDRAM_SDTR1, 0x80201000);
 
 	/* SDRAM_SDTR2	*/
-	mtsdram_as(SDRAM_SDTR2,0x32204232);
+	mtsdram_as(SDRAM_SDTR2, 0x32204232);
 
 	/* SDRAM_SDTR3	*/
-	mtsdram_as(SDRAM_SDTR3,0x080b0d1a);
+	mtsdram_as(SDRAM_SDTR3, 0x080b0d1a);
 
-	mtsdram_as(SDRAM_MMODE,    0x00000442);
-	mtsdram_as(SDRAM_MEMODE,   0x00000404);
+	mtsdram_as(SDRAM_MMODE, 0x00000442);
+	mtsdram_as(SDRAM_MEMODE, 0x00000404);
 
 	/* SDRAM0_MCOPT1 (0X20) No ECC Gen */
-	mtsdram_as(SDRAM_MCOPT1,   0x04322000);
+	mtsdram_as(SDRAM_MCOPT1, 0x04322000);
 
 	/* NOP */
-	mtsdram_as(SDRAM_INITPLR0,  0xa8380000);
+	mtsdram_as(SDRAM_INITPLR0, 0xa8380000);
 	/* precharge 3 DDR clock cycle */
-	mtsdram_as(SDRAM_INITPLR1,  0x81900400);
+	mtsdram_as(SDRAM_INITPLR1, 0x81900400);
 	/* EMR2 twr = 2tck */
-	mtsdram_as(SDRAM_INITPLR2,  0x81020000);
+	mtsdram_as(SDRAM_INITPLR2, 0x81020000);
 	/* EMR3  twr = 2tck */
-	mtsdram_as(SDRAM_INITPLR3,  0x81030000);
+	mtsdram_as(SDRAM_INITPLR3, 0x81030000);
 	/* EMR DLL ENABLE twr = 2tck */
-	mtsdram_as(SDRAM_INITPLR4,  0x81010404);
+	mtsdram_as(SDRAM_INITPLR4, 0x81010404);
 	/* MR w/ DLL reset
 	 * Note: 5 is CL.  May need to be changed
 	 */
-	mtsdram_as(SDRAM_INITPLR5,  0x81000542);
+	mtsdram_as(SDRAM_INITPLR5, 0x81000542);
 	/* precharge 3 DDR clock cycle */
-	mtsdram_as(SDRAM_INITPLR6,  0x81900400);
+	mtsdram_as(SDRAM_INITPLR6, 0x81900400);
 	/* Auto-refresh trfc = 26tck */
-	mtsdram_as(SDRAM_INITPLR7,  0x8D080000);
+	mtsdram_as(SDRAM_INITPLR7, 0x8D080000);
 	/* Auto-refresh trfc = 26tck */
-	mtsdram_as(SDRAM_INITPLR8,  0x8D080000);
+	mtsdram_as(SDRAM_INITPLR8, 0x8D080000);
 	/* Auto-refresh */
-	mtsdram_as(SDRAM_INITPLR9,  0x8D080000);
+	mtsdram_as(SDRAM_INITPLR9, 0x8D080000);
 	/* Auto-refresh */
 	mtsdram_as(SDRAM_INITPLR10, 0x8D080000);
 	/* MRS - normal operation; wait 2 cycle (set wait to tMRD) */
@@ -116,9 +116,9 @@ ext_bus_cntlr_init:
 	mtsdram_as(SDRAM_INITPLR15, 0x00000000);
 
 	/* SET MCIF0_CODT   Die Termination On */
-	mtsdram_as(SDRAM_CODT,      0x0080f837);
-	mtsdram_as(SDRAM_MODT0,     0x01800000);
-	mtsdram_as(SDRAM_MODT1,     0x00000000);
+	mtsdram_as(SDRAM_CODT, 0x0080f837);
+	mtsdram_as(SDRAM_MODT0, 0x01800000);
+	mtsdram_as(SDRAM_MODT1, 0x00000000);
 
 	mtsdram_as(SDRAM_WRDTR, 0x00000000);
 
@@ -135,16 +135,16 @@ pll_wait:
 	/* Step 6 */
 
 	/* SDRAM_DLCR */
-	mtsdram_as(SDRAM_DLCR,0x030000a5);
+	mtsdram_as(SDRAM_DLCR, 0x030000a5);
 
 	/* SDRAM_RDCC */
-	mtsdram_as(SDRAM_RDCC,0x40000000);
+	mtsdram_as(SDRAM_RDCC, 0x40000000);
 
 	/* SDRAM_RQDC */
-	mtsdram_as(SDRAM_RQDC,0x80000038);
+	mtsdram_as(SDRAM_RQDC, 0x80000038);
 
 	/* SDRAM_RFDC */
-	mtsdram_as(SDRAM_RFDC,0x00000209);
+	mtsdram_as(SDRAM_RFDC, 0x00000209);
 
 	/* Enable memory controller */
 	mtsdram_as(SDRAM_MCOPT2, 0x28000000);
