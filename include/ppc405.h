@@ -344,9 +344,6 @@
 /******************************************************************************
  * SDRAM Controller
  ******************************************************************************/
-#define SDRAM_DCR_BASE 0x10
-#define memcfga  (SDRAM_DCR_BASE+0x0)   /* Memory configuration address reg  */
-#define memcfgd  (SDRAM_DCR_BASE+0x1)   /* Memory configuration data    reg  */
   /* values for memcfga register - indirect addressing of these regs */
 #ifndef CONFIG_405EP
   #define mem_besra   0x00    /* bus error syndrome reg a	     */
@@ -412,9 +409,6 @@
 /******************************************************************************
  * Extrnal Bus Controller
  ******************************************************************************/
-#define EBC_DCR_BASE 0x12
-#define ebccfga (EBC_DCR_BASE+0x0)   /* External bus controller addr reg     */
-#define ebccfgd (EBC_DCR_BASE+0x1)   /* External bus controller data reg     */
   /* values for ebccfga register - indirect addressing of these regs */
   #define pb0cr       0x00    /* periph bank 0 config reg            */
   #define pb1cr       0x01    /* periph bank 1 config reg            */
@@ -1573,57 +1567,5 @@
 #define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
 #define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
 #endif
-
-/******************************************************************************
- * SDR Registers
- ******************************************************************************/
-#define SDR_DCR_BASE	0x0E
-#define sdrcfga		(SDR_DCR_BASE+0x0)
-#define sdrcfgd		(SDR_DCR_BASE+0x1)
-
-#define CPR0_DCR_BASE	0x0C
-#define cprcfga		(CPR0_DCR_BASE+0x0)
-#define cprcfgd		(CPR0_DCR_BASE+0x1)
-
-#define mtcpr(reg, d)	do { mtdcr(cprcfga,reg);mtdcr(cprcfgd,d); } while (0)
-#define mfcpr(reg, d)	do { mtdcr(cprcfga,reg);d = mfdcr(cprcfgd); } while (0)
-
-#define mtsdr(reg, d)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,d); } while (0)
-#define mfsdr(reg, d)	do { mtdcr(sdrcfga,reg);d = mfdcr(sdrcfgd); } while (0)
-
-#define mtebc(reg, d)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,d); } while (0)
-#define mfebc(reg, d)	do { mtdcr(ebccfga,reg);d = mfdcr(ebccfgd); } while (0)
-
-#define mtsdram(reg, d)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,d); } while (0)
-#define mfsdram(reg, d)	do { mtdcr(memcfga,reg);d = mfdcr(memcfgd); } while (0)
-
-#ifndef __ASSEMBLY__
-
-typedef struct
-{
-	unsigned long pllFwdDiv;
-	unsigned long pllFwdDivB;
-	unsigned long pllFbkDiv;
-	unsigned long pllPlbDiv;
-	unsigned long pllPciDiv;
-	unsigned long pllExtBusDiv;
-	unsigned long pllOpbDiv;
-	unsigned long freqVCOMhz;	/* in MHz                          */
-	unsigned long freqProcessor;
-	unsigned long freqPLB;
-	unsigned long freqPCI;
-	unsigned long pciIntArbEn;	/* Internal PCI arbiter is enabled */
-	unsigned long pciClkSync;	/* PCI clock is synchronous        */
-	unsigned long freqVCOHz;
-	unsigned long freqOPB;
-	unsigned long freqEBC;
-	unsigned long freqDDR;
-} PPC405_SYS_INFO;
-
-#endif  /* _ASMLANGUAGE */
-
-#define RESET_VECTOR	0xfffffffc
-#define CACHELINE_MASK	(CFG_CACHELINE_SIZE - 1) /* Address mask for cache
-						     line aligned data. */
 
 #endif	/* __PPC405_H__ */

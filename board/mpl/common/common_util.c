@@ -587,7 +587,7 @@ extern int get_boot_mode(void);
 void video_get_info_str (int line_number, char *info)
 {
 	/* init video info strings for graphic console */
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 	char rev;
 	int i,boot;
 	unsigned long pvr;

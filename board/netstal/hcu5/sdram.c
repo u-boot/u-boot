@@ -72,7 +72,7 @@ void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
 void board_add_ram_info(int use_default)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	u32 val;
 	mfsdram(DDR0_22, val);
 	val &= DDR0_22_CTRL_RAW_MASK;

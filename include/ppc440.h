@@ -123,10 +123,6 @@
 /*-----------------------------------------------------------------------------
  | Clocking Controller
  +----------------------------------------------------------------------------*/
-#define CLOCKING_DCR_BASE 0x0c
-#define clkcfga	 (CLOCKING_DCR_BASE+0x0)
-#define clkcfgd	 (CLOCKING_DCR_BASE+0x1)
-
 /* values for clkcfga register - indirect addressing of these regs */
 #define clk_clkukpd	0x0020
 #define clk_pllc	0x0040
@@ -140,9 +136,6 @@
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
-#define SDR_DCR_BASE	0x0e
-#define sdrcfga		(SDR_DCR_BASE+0x0)
-#define sdrcfgd		(SDR_DCR_BASE+0x1)
 #define sdr_sdstp0	0x0020	    /* */
 #define sdr_sdstp1	0x0021	    /* */
 #define SDR_PINSTP	0x0040
@@ -242,10 +235,6 @@
 /*-----------------------------------------------------------------------------
  | SDRAM Controller
  +----------------------------------------------------------------------------*/
-#define SDRAM_DCR_BASE 0x10
-#define memcfga	 (SDRAM_DCR_BASE+0x0)	/* Memory configuration address reg */
-#define memcfgd	 (SDRAM_DCR_BASE+0x1)	/* Memory configuration data reg    */
-
 /* values for memcfga register - indirect addressing of these regs	    */
 #define mem_besr0_clr	0x0000	/* bus error status reg 0 (clr)		    */
 #define mem_besr0_set	0x0004	/* bus error status reg 0 (set)		    */
@@ -330,9 +319,6 @@
 #define sdr_sdstp5	0x4003
 #define sdr_sdstp6	0x4005
 #define sdr_sdstp7	0x4007
-
-#define SDR0_CFGADDR		0x00E
-#define SDR0_CFGDATA		0x00F
 
 /******************************************************************************
  * PCI express defines
@@ -480,10 +466,6 @@
 /*----------------------------------------------------------------------------+
 | Memory controller defines
 +----------------------------------------------------------------------------*/
-#define SDRAMC_DCR_BASE	0x010
-#define SDRAMC_CFGADDR	(SDRAMC_DCR_BASE+0x0)   /* Memory configuration add  */
-#define SDRAMC_CFGDATA	(SDRAMC_DCR_BASE+0x1)   /* Memory configuration data */
-
 /* A REVOIR versus specs 4 bank  - SG*/
 #define SDRAM_MCSTAT	0x14	/* memory controller status                  */
 #define SDRAM_MCOPT1	0x20	/* memory controller options 1               */
@@ -834,9 +816,6 @@
 /*-----------------------------------------------------------------------------
  | External Bus Controller
  +----------------------------------------------------------------------------*/
-#define EBC_DCR_BASE 0x12
-#define ebccfga (EBC_DCR_BASE+0x0)   /* External bus controller addr reg     */
-#define ebccfgd (EBC_DCR_BASE+0x1)   /* External bus controller data reg     */
 /* values for ebccfga register - indirect addressing of these regs */
 #define pb0cr		0x00	/* periph bank 0 config reg		*/
 #define pb1cr		0x01	/* periph bank 1 config reg		*/
@@ -2207,9 +2186,6 @@
 #define SDR0_CP440_NTO1_NTO1		0x00000002
 #define SDR0_CP440_NTO1_ENCODE(n)	((((unsigned long)(n))&0x01)<<1)
 #define SDR0_CP440_NTO1_DECODE(n)	((((unsigned long)(n))>>1)&0x01)
-#define SDR0_CFGADDR			0x00E	/*already defined line 277 */
-#define SDR0_CFGDATA			0x00F
-
 
 #define SDR0_SDSTP0			0x0020
 #define SDR0_SDSTP0_ENG_MASK		0x80000000
@@ -3289,70 +3265,7 @@
 #define GPIO1_ISR3H            (GPIO1_BASE+0x44)
 #endif
 
-/*
- * Macros for accessing the indirect EBC registers
- */
-#define mtebc(reg, data)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); } while (0)
-#define mfebc(reg, data)	do { mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); } while (0)
-
-/*
- * Macros for accessing the indirect SDRAM controller registers
- */
-#define mtsdram(reg, data)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,data); } while (0)
-#define mfsdram(reg, data)	do { mtdcr(memcfga,reg);data = mfdcr(memcfgd); } while (0)
-
-/*
- * Macros for accessing the indirect clocking controller registers
- */
-#define mtclk(reg, data)	do { mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); } while (0)
-#define mfclk(reg, data)	do { mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); } while (0)
-
-/*
- * Macros for accessing the sdr controller registers
- */
-#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
-#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
-
-/*
- * All 44x except 440GP have CPR registers (indirect DCR)
- */
-#if !defined(CONFIG_440GP)
-#define CPR0_CFGADDR		0x00C
-#define CPR0_CFGDATA		0x00D
-
-#define mtcpr(reg, data)	do { \
-		mtdcr(CPR0_CFGADDR, reg); \
-		mtdcr(CPR0_CFGDATA, data); \
-	} while (0)
-
-#define mfcpr(reg, data)	do { \
-		mtdcr(CPR0_CFGADDR, reg); \
-		data = mfdcr(CPR0_CFGDATA); \
-	} while (0)
-#endif
-
 #ifndef __ASSEMBLY__
-
-typedef struct {
-	unsigned long pllFwdDivA;
-	unsigned long pllFwdDivB;
-	unsigned long pllFbkDiv;
-	unsigned long pllOpbDiv;
-	unsigned long pllPciDiv;
-	unsigned long pllExtBusDiv;
-	unsigned long freqVCOMhz;	/* in MHz			   */
-	unsigned long freqProcessor;
-	unsigned long freqTmrClk;
-	unsigned long freqPLB;
-	unsigned long freqOPB;
-	unsigned long freqEBC;
-	unsigned long freqPCI;
-#ifdef CONFIG_440SPE
-	unsigned long freqDDR;
-#endif
-	unsigned long pciIntArbEn;            /* Internal PCI arbiter is enabled */
-	unsigned long pciClkSync;             /* PCI clock is synchronous        */
-} PPC440_SYS_INFO;
 
 static inline u32 get_mcsr(void)
 {

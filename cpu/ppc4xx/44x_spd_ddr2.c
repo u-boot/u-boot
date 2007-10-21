@@ -623,7 +623,7 @@ static void get_spd_info(unsigned long *dimm_populated,
 
 void board_add_ram_info(int use_default)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	u32 val;
 
 	if (is_ecc_enabled())
@@ -741,7 +741,7 @@ static void check_frequency(unsigned long *dimm_populated,
 	unsigned long calc_cycle_time;
 	unsigned long sdram_freq;
 	unsigned long sdr_ddrpll;
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 
 	/*------------------------------------------------------------------
 	 * Get the board configuration info.
@@ -1353,7 +1353,7 @@ static void program_mode(unsigned long *dimm_populated,
 	unsigned long max_4_0_tcyc_ns_x_100;
 	unsigned long max_5_0_tcyc_ns_x_100;
 	unsigned long cycle_time_ns_x_100[3];
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	unsigned char cas_2_0_available;
 	unsigned char cas_2_5_available;
 	unsigned char cas_3_0_available;
@@ -1640,7 +1640,7 @@ static void program_rtr(unsigned long *dimm_populated,
 			unsigned char *iic0_dimm_addr,
 			unsigned long num_dimm_banks)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	unsigned long max_refresh_rate;
 	unsigned long dimm_num;
 	unsigned long refresh_rate_type;
@@ -1737,7 +1737,7 @@ static void program_tr(unsigned long *dimm_populated,
 	unsigned long sdram_freq;
 	unsigned long sdr_ddrpll;
 
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 
 	/*------------------------------------------------------------------
 	 * Get the board configuration info.
@@ -2048,14 +2048,10 @@ static void program_bxcf(unsigned long *dimm_populated,
 	/*------------------------------------------------------------------
 	 * Set the BxCF regs.  First, wipe out the bank config registers.
 	 *-----------------------------------------------------------------*/
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB0CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB1CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB2CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB3CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
+	mtsdram(SDRAM_MB0CF, 0x00000000);
+	mtsdram(SDRAM_MB1CF, 0x00000000);
+	mtsdram(SDRAM_MB2CF, 0x00000000);
+	mtsdram(SDRAM_MB3CF, 0x00000000);
 
 	mode = SDRAM_BXCF_M_BE_ENABLE;
 
@@ -2107,8 +2103,9 @@ static void program_bxcf(unsigned long *dimm_populated,
 				bank_0_populated = 1;
 
 			for (ind_rank = 0; ind_rank < num_ranks; ind_rank++) {
-				mtdcr(SDRAMC_CFGADDR, SDRAM_MB0CF + ((dimm_num + bank_0_populated + ind_rank) << 2));
-				mtdcr(SDRAMC_CFGDATA, mode);
+				mtsdram(SDRAM_MB0CF +
+					((dimm_num + bank_0_populated + ind_rank) << 2),
+					mode);
 			}
 		}
 	}

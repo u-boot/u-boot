@@ -148,7 +148,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	int t_rc;
 	int min_cas;
 
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 	unsigned long bus_period_x_10;
 
 	/*

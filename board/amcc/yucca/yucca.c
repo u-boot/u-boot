@@ -36,13 +36,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-
 void fpga_init (void);
-void get_sys_info(PPC440_SYS_INFO *board_cfg );
-int compare_to_true(char *str );
-char *remove_l_w_space(char *in_str );
-char *remove_t_w_space(char *in_str );
-int get_console_port(void);
 
 #define DEBUG_ENV
 #ifdef DEBUG_ENV

@@ -645,7 +645,7 @@ static void program_rtr(unsigned long *dimm_populated,
 	unsigned char refresh_rate_type;
 	unsigned long refresh_interval;
 	unsigned long sdram_rtr;
-	PPC440_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	/*
 	 * get the board info
@@ -721,7 +721,7 @@ static void program_tr0(unsigned long *dimm_populated,
 	unsigned long tcyc_2_0_ns_x_10;
 	unsigned long tcyc_reg;
 	unsigned long bus_period_x_10;
-	PPC440_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 	unsigned long residue;
 
 	/*
@@ -1065,7 +1065,7 @@ static void program_tr1(void)
 	unsigned char window_found;
 	unsigned char fail_found;
 	unsigned char pass_found;
-	PPC440_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	/*
 	 * get the board info

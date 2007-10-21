@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR)
 
-void get_sys_info (PPC405_SYS_INFO * sysInfo)
+void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 {
 	unsigned long pllmr;
 	unsigned long sysClkPeriodPs = ONE_BILLION / (CONFIG_SYS_CLK_FREQ / 1000);
@@ -173,7 +173,7 @@ ulong get_OPB_freq (void)
 {
 	ulong val = 0;
 
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB / sys_info.pllOpbDiv;
@@ -189,7 +189,7 @@ ulong get_OPB_freq (void)
 ulong get_PCI_freq (void)
 {
 	ulong val;
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB / sys_info.pllPciDiv;
@@ -216,7 +216,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	*/
 
 	/* Decode CPR0_PLLD0 for divisors */
-	mfclk(clk_plld, reg);
+	mfcpr(clk_plld, reg);
 	temp = (reg & PLLD_FWDVA_MASK) >> 16;
 	sysInfo->pllFwdDivA = temp ? temp : 16;
 	temp = (reg & PLLD_FWDVB_MASK) >> 8;
@@ -225,19 +225,19 @@ void get_sys_info (sys_info_t *sysInfo)
 	sysInfo->pllFbkDiv = temp ? temp : 32;
 	lfdiv = reg & PLLD_LFBDV_MASK;
 
-	mfclk(clk_opbd, reg);
+	mfcpr(clk_opbd, reg);
 	temp = (reg & OPBDDV_MASK) >> 24;
 	sysInfo->pllOpbDiv = temp ? temp : 4;
 
-	mfclk(clk_perd, reg);
+	mfcpr(clk_perd, reg);
 	temp = (reg & PERDV_MASK) >> 24;
 	sysInfo->pllExtBusDiv = temp ? temp : 8;
 
-	mfclk(clk_primbd, reg);
+	mfcpr(clk_primbd, reg);
 	temp = (reg & PRBDV_MASK) >> 24;
 	prbdv0 = temp ? temp : 8;
 
-	mfclk(clk_spcid, reg);
+	mfcpr(clk_spcid, reg);
 	temp = (reg & SPCID_MASK) >> 24;
 	sysInfo->pllPciDiv = temp ? temp : 4;
 
@@ -246,7 +246,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	temp = (reg & PLLSYS0_SEL_MASK) >> 27;
 	if (temp == 0) { /* PLL output */
 		/* Figure which pll to use */
-		mfclk(clk_pllc, reg);
+		mfcpr(clk_pllc, reg);
 		temp = (reg & PLLC_SRC_MASK) >> 29;
 		if (!temp) /* PLLOUTA */
 			m = sysInfo->pllFbkDiv * lfdiv * sysInfo->pllFwdDivA;
@@ -650,7 +650,7 @@ void get_sys_info (sys_info_t * sysInfo) {
 }
 
 #elif defined(CONFIG_405EP)
-void get_sys_info (PPC405_SYS_INFO * sysInfo)
+void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 {
 	unsigned long pllmr0;
 	unsigned long pllmr1;
@@ -746,7 +746,7 @@ ulong get_OPB_freq (void)
 {
 	ulong val = 0;
 
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB / sys_info.pllOpbDiv;
@@ -762,7 +762,7 @@ ulong get_OPB_freq (void)
 ulong get_PCI_freq (void)
 {
 	ulong val;
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB / sys_info.pllPciDiv;
@@ -770,7 +770,7 @@ ulong get_PCI_freq (void)
 }
 
 #elif defined(CONFIG_405EZ)
-void get_sys_info (PPC405_SYS_INFO * sysInfo)
+void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 {
 	unsigned long cpr_plld;
 	unsigned long cpr_pllc;
@@ -871,7 +871,7 @@ ulong get_OPB_freq (void)
 {
 	ulong val = 0;
 
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = (CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / sys_info.pllOpbDiv;
@@ -1032,7 +1032,7 @@ ulong get_OPB_freq (void)
 {
 	ulong val = 0;
 
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB / sys_info.pllOpbDiv;

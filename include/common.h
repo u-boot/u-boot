@@ -513,15 +513,13 @@ void   get_sys_info  ( sys_info_t * );
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
-    typedef PPC440_SYS_INFO sys_info_t;
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
 	 int ppc440spe_revB(void);
 #	endif
-#  else
-    typedef PPC405_SYS_INFO sys_info_t;
 #  endif
+typedef PPC4xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
 #endif
 
