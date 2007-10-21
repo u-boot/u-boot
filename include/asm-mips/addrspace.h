@@ -49,7 +49,7 @@
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
 #else	/* !CONFIG_AU1X00 */
-#define UNCACHED_SDRAM(a) PHYSADDR(a)
+#define UNCACHED_SDRAM(a) KSEG1ADDR(a)
 #endif	/* CONFIG_AU1X00 */
 #endif	/* __ASSEMBLY__ */
 /*
