@@ -39,7 +39,8 @@ SECTIONS
 	. = ALIGN(4);
 	.data  : { *(.data) }
 
-	_gp = ALIGN(16);
+	. = .;
+	_gp = ALIGN(16) + 0x7ff0;
 
 	.got : {
 	  __got_start = .;
