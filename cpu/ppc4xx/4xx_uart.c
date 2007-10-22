@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-/*------------------------------------------------------------------------------+ */
+
 /*
  * This source code has been made available to you by IBM on an AS-IS
  * basis.  Anyone receiving this source is licensed under IBM
@@ -40,14 +40,11 @@
  * COPYRIGHT   I B M   CORPORATION 1995
  * LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
  */
-/*------------------------------------------------------------------------------- */
-/*
- * Travis Sawyer 15 September 2004
- *    Added CONFIG_SERIAL_MULTI support
- */
+
 #include <common.h>
 #include <commproc.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <watchdog.h>
 #include "vecnum.h"
 
@@ -142,12 +139,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ACTING_UART1_BASE	UART1_BASE
 #endif
 
-#if defined(CONFIG_SERIAL_MULTI)
-#define UART_BASE	dev_base
-#else
-#define UART_BASE	ACTING_UART0_BASE
-#endif
-
 #if defined(CONFIG_405EP) && defined(CFG_EXT_SERIAL_CLOCK)
 #error "External serial clock not supported on AMCC PPC405EP!"
 #endif
@@ -168,7 +159,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*-----------------------------------------------------------------------------+
   | Line Status Register.
   +-----------------------------------------------------------------------------*/
-/*#define asyncLSRport1           ACTING_UART0_BASE+0x05 */
 #define asyncLSRDataReady1            0x01
 #define asyncLSROverrunError1         0x02
 #define asyncLSRParityError1          0x04
@@ -177,12 +167,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define asyncLSRTxHoldEmpty1          0x20
 #define asyncLSRTxShiftEmpty1         0x40
 #define asyncLSRRxFifoError1          0x80
-
-/*-----------------------------------------------------------------------------+
-  | Miscellanies defines.
-  +-----------------------------------------------------------------------------*/
-/*#define asyncTxBufferport1      ACTING_UART0_BASE+0x00 */
-/*#define asyncRxBufferport1      ACTING_UART0_BASE+0x00 */
 
 #ifdef CONFIG_SERIAL_SOFTWARE_FIFO
 /*-----------------------------------------------------------------------------+
@@ -197,8 +181,36 @@ typedef struct {
 volatile static serial_buffer_t buf_info;
 #endif
 
-#if (defined(CONFIG_440) || defined(CONFIG_405EX)) &&  \
-	!defined(CFG_EXT_SERIAL_CLOCK)
+static void serial_init_common(u32 base, u32 udiv, u16 bdiv)
+{
+	PPC4xx_SYS_INFO sys_info;
+	u8 val;
+
+	get_sys_info(&sys_info);
+
+	/* Correct UART frequency in bd-info struct now that
+	 * the UART divisor is available
+	 */
+#ifdef CFG_EXT_SERIAL_CLOCK
+	sys_info.freqUART = CFG_EXT_SERIAL_CLOCK;
+#else
+	sys_info.freqUART = sys_info.freqUART / udiv;
+#endif
+
+	out_8((u8 *)base + UART_LCR, 0x80);	/* set DLAB bit */
+	out_8((u8 *)base + UART_DLL, bdiv);	/* set baudrate divisor */
+	out_8((u8 *)base + UART_DLM, bdiv >> 8); /* set baudrate divisor */
+	out_8((u8 *)base + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
+	out_8((u8 *)base + UART_FCR, 0x00);	/* disable FIFO */
+	out_8((u8 *)base + UART_MCR, 0x00);	/* no modem control DTR RTS */
+	val = in_8((u8 *)base + UART_LSR);	/* clear line status */
+	val = in_8((u8 *)base + UART_RBR);	/* read receive buffer */
+	out_8((u8 *)base + UART_SCR, 0x00);	/* set scratchpad */
+	out_8((u8 *)base + UART_IER, 0x00);	/* set interrupt enable reg */
+}
+
+#if (defined(CONFIG_440) || defined(CONFIG_405EX)) &&	\
+    !defined(CFG_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
 {
@@ -264,8 +276,8 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	get_sys_info(&sysinfo);
 
 	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ?
-		sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) * sysinfo.pllFbkDiv) /
-		sysinfo.pllFwdDivB);
+					   sysinfo.pllFwdDivB : sysinfo.pllFwdDiv) *
+		    sysinfo.pllFbkDiv) / sysinfo.pllFwdDivB);
 	udiv = 256;			/* Assume lowest possible serial clk */
 	div = plloutb / (16 * baudrate); /* total divisor */
 	umin = (plloutb / get_OPB_freq()) << 1;	/* 2 x OPB divisor */
@@ -303,16 +315,11 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
  */
 
 #if defined(CONFIG_440)
-#if defined(CONFIG_SERIAL_MULTI)
-int serial_init_dev (unsigned long dev_base)
-#else
-int serial_init(void)
-#endif
+int serial_init_dev(unsigned long base)
 {
 	unsigned long reg;
 	unsigned long udiv;
 	unsigned short bdiv;
-	volatile char val;
 #ifdef CFG_EXT_SERIAL_CLOCK
 	unsigned long tmp;
 #endif
@@ -325,18 +332,12 @@ int serial_init(void)
 	udiv = 1;
 	tmp  = gd->baudrate * 16;
 	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
-	gd->freqUART = CFG_EXT_SERIAL_CLOCK;
 #else
 	/* For 440, the cpu clock is on divider chain A, UART on divider
 	 * chain B ... so cpu clock is irrelevant. Get the "optimized"
 	 * values that are subject to the 1/2 opb clock constraint
 	 */
 	serial_divs (gd->baudrate, &udiv, &bdiv);
-
-	/* Correct UART frequency in bd-info struct now that
-	 * the UART divisor is available
-	 */
-	gd->freqUART = gd->freqUART / udiv;
 #endif
 
 	reg |= (udiv - UDIV_SUBTRACT) << CR0_UDIV_POS;	/* set the UART divisor */
@@ -356,34 +357,20 @@ int serial_init(void)
 	MTREG(UART3_SDR, reg);
 #endif
 
-	out8(UART_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8(UART_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8(UART_BASE + UART_DLM, bdiv >> 8);	/* set baudrate divisor */
-	out8(UART_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8(UART_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8(UART_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8(UART_BASE + UART_LSR);	/* clear line status */
-	val = in8(UART_BASE + UART_RBR);	/* read receive buffer */
-	out8(UART_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8(UART_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	serial_init_common(base, udiv, bdiv);
 
 	return (0);
 }
 
 #else /* !defined(CONFIG_440) */
 
-#if defined(CONFIG_SERIAL_MULTI)
-int serial_init_dev (unsigned long dev_base)
-#else
-int serial_init (void)
-#endif
+int serial_init_dev (unsigned long base)
 {
 	unsigned long reg;
 	unsigned long tmp;
 	unsigned long clk;
 	unsigned long udiv;
 	unsigned short bdiv;
-	volatile char val;
 
 #ifdef CONFIG_405EX
 	clk = tmp = 0;
@@ -447,88 +434,42 @@ int serial_init (void)
 	bdiv = (clk + tmp / 2) / tmp;
 #endif /* CONFIG_405EX */
 
-	/* Correct UART frequency in bd-info struct now that
-	 * the UART divisor is available
-	 */
-#ifdef CFG_EXT_SERIAL_CLOCK
-	gd->freqUART = CFG_EXT_SERIAL_CLOCK;
-#else
-	gd->freqUART = gd->freqUART / udiv;
-#endif
-
-	out8(UART_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8(UART_BASE + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8(UART_BASE + UART_DLM, bdiv >> 8);	/* set baudrate divisor */
-	out8(UART_BASE + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8(UART_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8(UART_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8(UART_BASE + UART_LSR);	/* clear line status */
-	val = in8(UART_BASE + UART_RBR);	/* read receive buffer */
-	out8(UART_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8(UART_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	serial_init_common(base, udiv, bdiv);
 
 	return (0);
 }
 
 #endif /* if defined(CONFIG_440) */
 
-#if defined(CONFIG_SERIAL_MULTI)
-void serial_setbrg_dev (unsigned long dev_base)
-#else
-void serial_setbrg (void)
-#endif
+void serial_setbrg_dev(unsigned long base)
 {
-#if defined(CONFIG_SERIAL_MULTI)
-	serial_init_dev(dev_base);
-#else
-	serial_init();
-#endif
+	serial_init_dev(base);
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
-void serial_putc_dev (unsigned long dev_base, const char c)
-#else
-void serial_putc (const char c)
-#endif
+void serial_putc_dev(unsigned long base, const char c)
 {
 	int i;
 
 	if (c == '\n')
-#if defined(CONFIG_SERIAL_MULTI)
-		serial_putc_dev (dev_base, '\r');
-#else
-		serial_putc ('\r');
-#endif
+		serial_putc_dev(base, '\r');
 
 	/* check THRE bit, wait for transmiter available */
 	for (i = 1; i < 3500; i++) {
-		if ((in8 (UART_BASE + UART_LSR) & 0x20) == 0x20)
+		if ((in_8((u8 *)base + UART_LSR) & 0x20) == 0x20)
 			break;
 		udelay (100);
 	}
-	out8 (UART_BASE + UART_THR, c);	/* put character out */
+
+	out_8((u8 *)base + UART_THR, c);	/* put character out */
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
-void serial_puts_dev (unsigned long dev_base, const char *s)
-#else
-void serial_puts (const char *s)
-#endif
+void serial_puts_dev (unsigned long base, const char *s)
 {
-	while (*s) {
-#if defined(CONFIG_SERIAL_MULTI)
-		serial_putc_dev (dev_base, *s++);
-#else
-		serial_putc (*s++);
-#endif
-	}
+	while (*s)
+		serial_putc_dev (base, *s++);
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
-int serial_getc_dev (unsigned long dev_base)
-#else
-int serial_getc (void)
-#endif
+int serial_getc_dev (unsigned long base)
 {
 	unsigned char status = 0;
 
@@ -536,46 +477,45 @@ int serial_getc (void)
 #if defined(CONFIG_HW_WATCHDOG)
 		WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 #endif	/* CONFIG_HW_WATCHDOG */
-		status = in8 (UART_BASE + UART_LSR);
-		if ((status & asyncLSRDataReady1) != 0x0) {
+
+		status = in_8((u8 *)base + UART_LSR);
+		if ((status & asyncLSRDataReady1) != 0x0)
 			break;
-		}
+
 		if ((status & ( asyncLSRFramingError1 |
 				asyncLSROverrunError1 |
 				asyncLSRParityError1  |
 				asyncLSRBreakInterrupt1 )) != 0) {
-			out8 (UART_BASE + UART_LSR,
+			out_8((u8 *)base + UART_LSR,
 			      asyncLSRFramingError1 |
 			      asyncLSROverrunError1 |
 			      asyncLSRParityError1  |
 			      asyncLSRBreakInterrupt1);
 		}
 	}
-	return (0x000000ff & (int) in8 (UART_BASE));
+
+	return (0x000000ff & (int) in_8((u8 *)base));
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
-int serial_tstc_dev (unsigned long dev_base)
-#else
-int serial_tstc (void)
-#endif
+int serial_tstc_dev (unsigned long base)
 {
 	unsigned char status;
 
-	status = in8 (UART_BASE + UART_LSR);
-	if ((status & asyncLSRDataReady1) != 0x0) {
+	status = in_8((u8 *)base + UART_LSR);
+	if ((status & asyncLSRDataReady1) != 0x0)
 		return (1);
-	}
+
 	if ((status & ( asyncLSRFramingError1 |
 			asyncLSROverrunError1 |
 			asyncLSRParityError1  |
 			asyncLSRBreakInterrupt1 )) != 0) {
-		out8 (UART_BASE + UART_LSR,
+		out_8((u8 *)base + UART_LSR,
 		      asyncLSRFramingError1 |
 		      asyncLSROverrunError1 |
 		      asyncLSRParityError1  |
 		      asyncLSRBreakInterrupt1);
 	}
+
 	return 0;
 }
 
@@ -588,11 +528,11 @@ void serial_isr (void *arg)
 	const int rx_get = buf_info.rx_get;
 	int rx_put = buf_info.rx_put;
 
-	if (rx_get <= rx_put) {
+	if (rx_get <= rx_put)
 		space = CONFIG_SERIAL_SOFTWARE_FIFO - (rx_put - rx_get);
-	} else {
+	else
 		space = rx_get - rx_put;
-	}
+
 	while (serial_tstc_dev (ACTING_UART0_BASE)) {
 		c = serial_getc_dev (ACTING_UART0_BASE);
 		if (space) {
@@ -603,8 +543,9 @@ void serial_isr (void *arg)
 			rx_put = 0;
 		if (space < CONFIG_SERIAL_SOFTWARE_FIFO / 4) {
 			/* Stop flow by setting RTS inactive */
-			out8 (ACTING_UART0_BASE + UART_MCR,
-			      in8 (ACTING_UART0_BASE + UART_MCR) & (0xFF ^ 0x02));
+			out_8((u8 *)ACTING_UART0_BASE + UART_MCR,
+			      in_8((u8 *)ACTING_UART0_BASE + UART_MCR) &
+			      (0xFF ^ 0x02));
 		}
 	}
 	buf_info.rx_put = rx_put;
@@ -617,35 +558,35 @@ void serial_buffered_init (void)
 	buf_info.rx_put = 0;
 	buf_info.rx_get = 0;
 
-	if (in8 (ACTING_UART0_BASE + UART_MSR) & 0x10) {
+	if (in_8((u8 *)ACTING_UART0_BASE + UART_MSR) & 0x10)
 		serial_puts ("Check CTS signal present on serial port: OK.\n");
-	} else {
+	else
 		serial_puts ("WARNING: CTS signal not present on serial port.\n");
-	}
 
 	irq_install_handler ( VECNUM_U0 /*UART0 */ /*int vec */ ,
 			      serial_isr /*interrupt_handler_t *handler */ ,
 			      (void *) &buf_info /*void *arg */ );
 
 	/* Enable "RX Data Available" Interrupt on UART */
-	/* out8(ACTING_UART0_BASE + UART_IER, in8(ACTING_UART0_BASE + UART_IER) |0x01); */
-	out8 (ACTING_UART0_BASE + UART_IER, 0x01);
+	out_8(ACTING_UART0_BASE + UART_IER, 0x01);
 	/* Set DTR active */
-	out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x01);
+	out_8(ACTING_UART0_BASE + UART_MCR,
+	      in_8((u8 *)ACTING_UART0_BASE + UART_MCR) | 0x01);
 	/* Start flow by setting RTS active */
-	out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x02);
+	out_8(ACTING_UART0_BASE + UART_MCR,
+	      in_8((u8 *)ACTING_UART0_BASE + UART_MCR) | 0x02);
 	/* Setup UART FIFO: RX trigger level: 4 byte, Enable FIFO */
-	out8 (ACTING_UART0_BASE + UART_FCR, (1 << 6) | 1);
+	out_8(ACTING_UART0_BASE + UART_FCR, (1 << 6) | 1);
 }
 
 void serial_buffered_putc (const char c)
 {
 	/* Wait for CTS */
 #if defined(CONFIG_HW_WATCHDOG)
-	while (!(in8 (ACTING_UART0_BASE + UART_MSR) & 0x10))
+	while (!(in_8((u8 *)ACTING_UART0_BASE + UART_MSR) & 0x10))
 		WATCHDOG_RESET ();
 #else
-	while (!(in8 (ACTING_UART0_BASE + UART_MSR) & 0x10));
+	while (!(in_8((u8 *)ACTING_UART0_BASE + UART_MSR) & 0x10));
 #endif
 	serial_putc (c);
 }
@@ -674,14 +615,15 @@ int serial_buffered_getc (void)
 	buf_info.rx_get = rx_get;
 
 	rx_put = buf_info.rx_put;
-	if (rx_get <= rx_put) {
+	if (rx_get <= rx_put)
 		space = CONFIG_SERIAL_SOFTWARE_FIFO - (rx_put - rx_get);
-	} else {
+	else
 		space = rx_get - rx_put;
-	}
+
 	if (space > CONFIG_SERIAL_SOFTWARE_FIFO / 2) {
 		/* Start flow by setting RTS active */
-		out8 (ACTING_UART0_BASE + UART_MCR, in8 (ACTING_UART0_BASE + UART_MCR) | 0x02);
+		out_8(ACTING_UART0_BASE + UART_MCR,
+		      in_8((u8 *)ACTING_UART0_BASE + UART_MCR) | 0x02);
 	}
 
 	return c;
@@ -706,8 +648,8 @@ int serial_buffered_tstc (void)
 #if (CONFIG_KGDB_SER_INDEX & 2)
 void kgdb_serial_init (void)
 {
-	volatile char val;
-	unsigned short br_reg;
+	u8 val;
+	u16 br_reg;
 
 	get_clocks ();
 	br_reg = (((((gd->cpu_clk / 16) / 18) * 10) / CONFIG_KGDB_BAUDRATE) +
@@ -715,16 +657,16 @@ void kgdb_serial_init (void)
 	/*
 	 * Init onboard 16550 UART
 	 */
-	out8 (ACTING_UART1_BASE + UART_LCR, 0x80);	/* set DLAB bit */
-	out8 (ACTING_UART1_BASE + UART_DLL, (br_reg & 0x00ff));	/* set divisor for 9600 baud */
-	out8 (ACTING_UART1_BASE + UART_DLM, ((br_reg & 0xff00) >> 8));	/* set divisor for 9600 baud */
-	out8 (ACTING_UART1_BASE + UART_LCR, 0x03);	/* line control 8 bits no parity */
-	out8 (ACTING_UART1_BASE + UART_FCR, 0x00);	/* disable FIFO */
-	out8 (ACTING_UART1_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
-	val = in8 (ACTING_UART1_BASE + UART_LSR);	/* clear line status */
-	val = in8 (ACTING_UART1_BASE + UART_RBR);	/* read receive buffer */
-	out8 (ACTING_UART1_BASE + UART_SCR, 0x00);	/* set scratchpad */
-	out8 (ACTING_UART1_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
+	out_8((u8 *)ACTING_UART1_BASE + UART_LCR, 0x80);	/* set DLAB bit */
+	out_8((u8 *)ACTING_UART1_BASE + UART_DLL, (br_reg & 0x00ff)); /* set divisor for 9600 baud */
+	out_8((u8 *)ACTING_UART1_BASE + UART_DLM, ((br_reg & 0xff00) >> 8)); /* set divisor for 9600 baud */
+	out_8((u8 *)ACTING_UART1_BASE + UART_LCR, 0x03);	/* line control 8 bits no parity */
+	out_8((u8 *)ACTING_UART1_BASE + UART_FCR, 0x00);	/* disable FIFO */
+	out_8((u8 *)ACTING_UART1_BASE + UART_MCR, 0x00);	/* no modem control DTR RTS */
+	val = in_8((u8 *)ACTING_UART1_BASE + UART_LSR);		/* clear line status */
+	val = in_8((u8 *)ACTING_UART1_BASE + UART_RBR);		/* read receive buffer */
+	out_8((u8 *)ACTING_UART1_BASE + UART_SCR, 0x00);	/* set scratchpad */
+	out_8((u8 *)ACTING_UART1_BASE + UART_IER, 0x00);	/* set interrupt enable reg */
 }
 
 void putDebugChar (const char c)
@@ -732,17 +674,16 @@ void putDebugChar (const char c)
 	if (c == '\n')
 		serial_putc ('\r');
 
-	out8 (ACTING_UART1_BASE + UART_THR, c);	/* put character out */
+	out_8((u8 *)ACTING_UART1_BASE + UART_THR, c);	/* put character out */
 
 	/* check THRE bit, wait for transfer done */
-	while ((in8 (ACTING_UART1_BASE + UART_LSR) & 0x20) != 0x20);
+	while ((in_8((u8 *)ACTING_UART1_BASE + UART_LSR) & 0x20) != 0x20);
 }
 
 void putDebugStr (const char *s)
 {
-	while (*s) {
+	while (*s)
 		serial_putc (*s++);
-	}
 }
 
 int getDebugChar (void)
@@ -750,22 +691,23 @@ int getDebugChar (void)
 	unsigned char status = 0;
 
 	while (1) {
-		status = in8 (ACTING_UART1_BASE + UART_LSR);
-		if ((status & asyncLSRDataReady1) != 0x0) {
+		status = in_8((u8 *)ACTING_UART1_BASE + UART_LSR);
+		if ((status & asyncLSRDataReady1) != 0x0)
 			break;
-		}
-		if ((status & ( asyncLSRFramingError1 |
-				asyncLSROverrunError1 |
-				asyncLSRParityError1  |
-				asyncLSRBreakInterrupt1 )) != 0) {
-			out8 (ACTING_UART1_BASE + UART_LSR,
+
+		if ((status & (asyncLSRFramingError1 |
+			       asyncLSROverrunError1 |
+			       asyncLSRParityError1  |
+			       asyncLSRBreakInterrupt1 )) != 0) {
+			out_8((u8 *)ACTING_UART1_BASE + UART_LSR,
 			      asyncLSRFramingError1 |
 			      asyncLSROverrunError1 |
 			      asyncLSRParityError1  |
 			      asyncLSRBreakInterrupt1);
 		}
 	}
-	return (0x000000ff & (int) in8 (ACTING_UART1_BASE));
+
+	return (0x000000ff & (int) in_8((u8 *)ACTING_UART1_BASE));
 }
 
 void kgdb_interruptible (int yes)
@@ -813,10 +755,12 @@ int serial1_init(void)
 {
 	return (serial_init_dev(UART1_BASE));
 }
+
 void serial0_setbrg (void)
 {
 	serial_setbrg_dev(UART0_BASE);
 }
+
 void serial1_setbrg (void)
 {
 	serial_setbrg_dev(UART1_BASE);
@@ -831,6 +775,7 @@ void serial1_putc(const char c)
 {
 	serial_putc_dev(UART1_BASE, c);
 }
+
 void serial0_puts(const char *s)
 {
 	serial_puts_dev(UART0_BASE, s);
@@ -850,6 +795,7 @@ int serial1_getc(void)
 {
 	return(serial_getc_dev(UART1_BASE));
 }
+
 int serial0_tstc(void)
 {
 	return (serial_tstc_dev(UART0_BASE));
@@ -883,6 +829,39 @@ struct serial_device serial1_device =
 	serial1_putc,
 	serial1_puts,
 };
+#else
+/*
+ * Wrapper functions
+ */
+int serial_init(void)
+{
+	return serial_init_dev(ACTING_UART0_BASE);
+}
+
+void serial_setbrg(void)
+{
+	serial_setbrg_dev(ACTING_UART0_BASE);
+}
+
+void serial_putc(const char c)
+{
+	serial_putc_dev(ACTING_UART0_BASE, c);
+}
+
+void serial_puts(const char *s)
+{
+	serial_puts_dev(ACTING_UART0_BASE, s);
+}
+
+int serial_getc(void)
+{
+	return serial_getc_dev(ACTING_UART0_BASE);
+}
+
+int serial_tstc(void)
+{
+	return serial_tstc_dev(ACTING_UART0_BASE);
+}
 #endif /* CONFIG_SERIAL_MULTI */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR */
