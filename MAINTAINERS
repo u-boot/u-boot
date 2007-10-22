@@ -306,6 +306,7 @@ Stefan Roese <sr@denx.de>
 	katmai			PPC440SPe
 	kilauea			PPC405EX
 	lwmon5			PPC440EPx
+	makalu			PPC405EX
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
