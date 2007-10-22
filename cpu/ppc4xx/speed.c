@@ -162,6 +162,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 			sysInfo->freqProcessor = sysInfo->freqPLB * sysInfo->pllPlbDiv;
 		}
 	}
+
+	sysInfo->freqUART = sysInfo->freqProcessor;
 }
 
 
@@ -265,6 +267,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEBC = sysInfo->freqPLB/sysInfo->pllExtBusDiv;
 	sysInfo->freqPCI = sysInfo->freqPLB/sysInfo->pllPciDiv;
+	sysInfo->freqUART = sysInfo->freqPLB;
 
 	/* Figure which timer source to use */
 	if (mfspr(ccr1) & 0x0080) { /* External Clock, assume same as SYS_CLK */
@@ -277,6 +280,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	else  /* Internal clock */
 		sysInfo->freqTmrClk = sysInfo->freqProcessor;
 }
+
 /********************************************
  * get_PCI_freq
  * return PCI bus freq in Hz
@@ -318,7 +322,7 @@ void get_sys_info (sys_info_t * sysInfo)
 		sysInfo->freqPLB >>= 1;
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqEBC = sysInfo->freqOPB/sysInfo->pllExtBusDiv;
-
+	sysInfo->freqUART = sysInfo->freqPLB;
 }
 #else
 void get_sys_info (sys_info_t * sysInfo)
@@ -403,7 +407,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqDDR = ((sysInfo->freqPLB) * SDR0_DDR0_DDRM_DECODE(sdr_ddrpll));
 #endif
 
-
+	sysInfo->freqUART = sysInfo->freqPLB;
 }
 
 #endif
@@ -632,7 +636,8 @@ extern void get_sys_info (sys_info_t * sysInfo);
 extern ulong get_PCI_freq (void);
 
 #elif defined(CONFIG_AP1000)
-void get_sys_info (sys_info_t * sysInfo) {
+void get_sys_info (sys_info_t * sysInfo)
+{
 	sysInfo->freqProcessor = 240 * 1000 * 1000;
 	sysInfo->freqPLB = 80 * 1000 * 1000;
 	sysInfo->freqPCI = 33 * 1000 * 1000;
@@ -640,13 +645,12 @@ void get_sys_info (sys_info_t * sysInfo) {
 
 #elif defined(CONFIG_405)
 
-void get_sys_info (sys_info_t * sysInfo) {
-
+void get_sys_info (sys_info_t * sysInfo)
+{
 	sysInfo->freqVCOMhz=3125000;
 	sysInfo->freqProcessor=12*1000*1000;
 	sysInfo->freqPLB=50*1000*1000;
 	sysInfo->freqPCI=66*1000*1000;
-
 }
 
 #elif defined(CONFIG_405EP)
@@ -678,9 +682,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	 * Determine FBK_DIV.
 	 */
 	sysInfo->pllFbkDiv = ((pllmr1 & PLLMR1_FBMUL_MASK) >> 20);
-	if (sysInfo->pllFbkDiv == 0) {
+	if (sysInfo->pllFbkDiv == 0)
 		sysInfo->pllFbkDiv = 16;
-	}
 
 	/*
 	 * Determine PLB_DIV.
@@ -735,6 +738,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	sysInfo->freqPLB = sysInfo->freqProcessor / sysInfo->pllPlbDiv;
 
 	sysInfo->freqEBC = sysInfo->freqPLB / sysInfo->pllExtBusDiv;
+
+	sysInfo->freqUART = sysInfo->freqProcessor * pllmr0_ccdv;
 }
 
 
@@ -808,6 +813,7 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	 * Read CPR_PRIMAD register
 	 */
 	mfcpr(cprprimad, cpr_primad);
+
 	/*
 	 * Determine PLB_DIV.
 	 */
@@ -861,6 +867,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 
 	sysInfo->freqEBC = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) /
 		sysInfo->pllExtBusDiv;
+
+	sysInfo->freqUART = sysInfo->freqVCOHz;
 }
 
 /********************************************
@@ -1022,6 +1030,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqOPB = sysInfo->freqPLB/sysInfo->pllOpbDiv;
 	sysInfo->freqDDR = sysInfo->freqPLB;
 	sysInfo->freqEBC = sysInfo->freqOPB / sysInfo->pllExtBusDiv;
+	sysInfo->freqUART = sysInfo->freqPLB;
 }
 
 /********************************************
