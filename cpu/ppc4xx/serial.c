@@ -528,12 +528,18 @@ int serial_init(void)
 	udiv = 1;
 	tmp  = gd->baudrate * 16;
 	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
+	gd->freqUART = CFG_EXT_SERIAL_CLOCK;
 #else
 	/* For 440, the cpu clock is on divider chain A, UART on divider
 	 * chain B ... so cpu clock is irrelevant. Get the "optimized"
 	 * values that are subject to the 1/2 opb clock constraint
 	 */
 	serial_divs (gd->baudrate, &udiv, &bdiv);
+
+	/* Correct UART frequency in bd-info struct now that
+	 * the UART divisor is available
+	 */
+	gd->freqUART = gd->freqUART / udiv;
 #endif
 
 	reg |= (udiv - UDIV_SUBTRACT) << CR0_UDIV_POS;	/* set the UART divisor */
@@ -643,6 +649,15 @@ int serial_init (void)
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;
 #endif /* CONFIG_405EX */
+
+	/* Correct UART frequency in bd-info struct now that
+	 * the UART divisor is available
+	 */
+#ifdef CFG_EXT_SERIAL_CLOCK
+	gd->freqUART = CFG_EXT_SERIAL_CLOCK;
+#else
+	gd->freqUART = gd->freqUART / udiv;
+#endif
 
 	out8(UART_BASE + UART_LCR, 0x80);	/* set DLAB bit */
 	out8(UART_BASE + UART_DLL, bdiv);	/* set baudrate divisor */

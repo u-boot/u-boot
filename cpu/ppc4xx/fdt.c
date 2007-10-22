@@ -85,11 +85,7 @@ static void do_fixup_uart(void *fdt, int offset, int i, bd_t *bd)
 
 	debug("Updating node UART%d\n", i);
 
-#if defined(CFG_EXT_SERIAL_CLOCK)
-	val = cpu_to_fdt32(CFG_EXT_SERIAL_CLOCK);
-#else
 	val = cpu_to_fdt32(sys_info.freqUART);
-#endif
 	rc = fdt_setprop(fdt, offset, "clock-frequency", &val, 4);
 	if (rc)
 		printf("Unable to update node UART, err=%s\n", fdt_strerror(rc));
