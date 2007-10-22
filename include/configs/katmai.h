@@ -247,7 +247,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
-
+#define CONFIG_CMD_SNTP
 
 #define	CONFIG_IBM_EMAC4_V4	1	/* 440SPe has this EMAC version	*/
 #define CONFIG_MII		1	/* MII PHY management		*/

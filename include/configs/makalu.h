@@ -234,6 +234,7 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
 
 /* POST support */
 #define CONFIG_POST		(CFG_POST_MEMORY	| \
