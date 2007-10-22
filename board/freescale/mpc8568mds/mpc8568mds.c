@@ -109,6 +109,9 @@ int board_early_init_f (void)
 
 	enable_8568mds_duart();
 	enable_8568mds_flash_write();
+#if defined(CONFIG_UEC_ETH1) || defined(CONFIG_UEC_ETH2)
+	reset_8568mds_uccs();
+#endif
 #if defined(CONFIG_QE) && !defined(CONFIG_eTSEC_MDIO_BUS)
 	enable_8568mds_qe_mdio();
 #endif
