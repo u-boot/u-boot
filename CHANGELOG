@@ -1,3 +1,64 @@
+commit 58b74b05c621e2835ecf4e2d3243042cf4186777
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 00:09:05 2007 +0200
+
+    Fix missing drivers makefile entries ds1722.c mw_eeprom.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 96455bfebc9887837095c9051d216f53c61b5f10
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 00:07:39 2007 +0200
+
+    Fix warning differ in signedness in board/innokom/innokom.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2a4741d9a14ec475f50e9856d2c0a67e8b4271bd
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Fri Oct 19 00:25:33 2007 +0200
+
+    fix pxa255_idp board
+
+    The pxa255_idp being an old unmaintained board showed several issues:
+    1. CONFIG_INIT_CRITICAL was still defined.
+    2. Neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION was defined.
+    3. Symbol flash_addr was undeclared.
+    4. The boards lowlevel_init function was still called memsetup.
+    5. The TEXT_BASE was still 0xa3000000 rather than 0xa3080000.
+    6. Using -march=armv5 instead of -march=armv5te resulted in lots of
+    'target CPU does not support interworking' warnings on recent compilers.
+    7. The PXA's serial driver redefined FFUART, BTUART and STUART used as
+    indexes rather than the register definitions from the pxa-regs header
+    file. Renamed them to FFUART_INDEX, BTUART_INDEX and STUART_INDEX to
+    avoid any ambiguities.
+    8. There were several redefinition warnings concerning ICMR, OSMR3,
+    OSCR, OWER, OIER, RCSR and CCCR in the PXA's assembly start file.
+    9. The board configuration file was rather outdated.
+    10. The part header file defined the vendor, product and revision arrays
+    as unsigned chars instead of just chars in the block_dev_desc_t
+    structure.
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+
+commit 298cd4cafe81ff8a6c87be8fbc440a20720d3ed6
+Author: Rune Torgersen <runet@innovsys.com>
+Date:	Wed Oct 17 11:56:31 2007 -0500
+
+    Make MPC8266ADS command selection more robust
+
+    Fix MPC8266 command line definition so it won't break when new commands
+    are added to u-boot.
+    Signed-off-by Rune Torgersen <runet@innovsys.com>
+
+commit 05bf4919c1ce49cdedadacd564d0786a8ed796a1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Oct 21 01:01:17 2007 +0200
+
+    Minor coding style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit ff285ca07eda1ea4a8909848cc1cc604ec8fec9c
 Author: Vlad Lungu <vlad@comsys.ro>
 Date:	Thu Oct 4 20:47:10 2007 +0300
