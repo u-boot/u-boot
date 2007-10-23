@@ -359,6 +359,8 @@
 #define CFG_EBC_PB2AP		0x04814500
 #define CFG_EBC_PB2CR		(CFG_CPLD | 0x18000)
 
+#define CFG_BCSR5_PCI66EN	0x80
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
