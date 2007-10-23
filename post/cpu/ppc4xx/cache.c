@@ -119,6 +119,8 @@ int cache_post_test (int flags)
 	if (ints)
 		enable_interrupts ();
 
+	remove_tlb(virt, CACHE_POST_SIZE);
+
 	return res;
 }
 
