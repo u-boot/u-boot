@@ -26,7 +26,7 @@
 #include <ppc405.h>
 #include <libfdt.h>
 #include <asm/processor.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_PCI)
 #include <pci.h>
@@ -225,11 +225,41 @@ int misc_init_r(void)
 	return 0;
 }
 
+int board_emac_count(void)
+{
+	u32 pvr = get_pvr();
+
+	/*
+	 * 405EXr only has one EMAC interface, 405EX has two
+	 */
+	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+		return 1;
+	else
+		return 2;
+}
+
+static int board_pcie_count(void)
+{
+	u32 pvr = get_pvr();
+
+	/*
+	 * 405EXr only has one EMAC interface, 405EX has two
+	 */
+	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+		return 1;
+	else
+		return 2;
+}
+
 int checkboard (void)
 {
 	char *s = getenv("serial#");
+	u32 pvr = get_pvr();
 
-	printf("Board: Kilauea - AMCC PPC405EX Evaluation Board");
+	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+		printf("Board: Haleakala - AMCC PPC405EXr Evaluation Board");
+	else
+		printf("Board: Kilauea - AMCC PPC405EX Evaluation Board");
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -310,7 +340,7 @@ void pcie_setup_hoses(int busno)
 	char *env;
 	unsigned int delay;
 
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < board_pcie_count(); i++) {
 
 		if (is_end_point(i)) {
 			printf("PCIE%d: will be configured as endpoint\n", i);

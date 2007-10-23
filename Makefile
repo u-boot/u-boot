@@ -1168,8 +1168,10 @@ KAREF_config: unconfig
 katmai_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx katmai amcc
 
-kilauea_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx kilauea amcc
+# Kilauea & Haleakala images are identical (recognized via PVR)
+kilauea_config \
+haleakala_config: unconfig
+	@$(MKCONFIG) -n $@ -a kilauea ppc ppc4xx kilauea amcc
 
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc

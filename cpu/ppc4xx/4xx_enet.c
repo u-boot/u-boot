@@ -158,7 +158,14 @@ struct eth_device *emac0_dev = NULL;
 /*
  * Get count of EMAC devices (doesn't have to be the max. possible number
  * supported by the cpu)
+ *
+ * CONFIG_BOARD_EMAC_COUNT added so now a "dynamic" way to configure the
+ * EMAC count is possible. As it is needed for the Kilauea/Haleakala
+ * 405EX/405EXr eval board, using the same binary.
  */
+#if defined(CONFIG_BOARD_EMAC_COUNT)
+#define LAST_EMAC_NUM	board_emac_count()
+#else /* CONFIG_BOARD_EMAC_COUNT */
 #if defined(CONFIG_HAS_ETH3)
 #define LAST_EMAC_NUM	4
 #elif defined(CONFIG_HAS_ETH2)
@@ -168,6 +175,7 @@ struct eth_device *emac0_dev = NULL;
 #else
 #define LAST_EMAC_NUM	1
 #endif
+#endif /* CONFIG_BOARD_EMAC_COUNT */
 
 /* normal boards start with EMAC0 */
 #if !defined(CONFIG_EMAC_NR_START)
@@ -196,6 +204,8 @@ extern int emac4xx_miiphy_read (char *devname, unsigned char addr,
 		unsigned char reg, unsigned short *value);
 extern int emac4xx_miiphy_write (char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value);
+
+int board_emac_count(void);
 
 /*-----------------------------------------------------------------------------+
 | ppc_4xx_eth_halt
