@@ -36,6 +36,8 @@
 #include <libfdt.h>
 #include <libfdt_env.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void do_fixup(void *fdt, const char *node, const char *prop,
 		     const void *val, int len, int create)
 {
@@ -44,7 +46,7 @@ static void do_fixup(void *fdt, const char *node, const char *prop,
 	debug("Updating property '%s/%s' = ", node, prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
-	debug("\n");
+	debug("(%d)\n", *(u32 *)val);
 #endif
 	int rc = fdt_find_and_setprop(fdt, node, prop, val, len, create);
 	if (rc)
@@ -83,9 +85,9 @@ static void do_fixup_uart(void *fdt, int offset, int i, bd_t *bd)
 
 	get_sys_info(&sys_info);
 
-	debug("Updating node UART%d\n", i);
+	debug("Updating node UART%d: clock-frequency=%d\n", i, gd->uart_clk);
 
-	val = cpu_to_fdt32(sys_info.freqUART);
+	val = cpu_to_fdt32(gd->uart_clk);
 	rc = fdt_setprop(fdt, offset, "clock-frequency", &val, 4);
 	if (rc)
 		printf("Unable to update node UART, err=%s\n", fdt_strerror(rc));

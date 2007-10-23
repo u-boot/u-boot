@@ -192,9 +192,9 @@ static void serial_init_common(u32 base, u32 udiv, u16 bdiv)
 	 * the UART divisor is available
 	 */
 #ifdef CFG_EXT_SERIAL_CLOCK
-	sys_info.freqUART = CFG_EXT_SERIAL_CLOCK;
+	gd->uart_clk = CFG_EXT_SERIAL_CLOCK;
 #else
-	sys_info.freqUART = sys_info.freqUART / udiv;
+	gd->uart_clk = sys_info.freqUART / udiv;
 #endif
 
 	out_8((u8 *)base + UART_LCR, 0x80);	/* set DLAB bit */
