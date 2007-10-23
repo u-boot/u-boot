@@ -81,6 +81,7 @@
 #include <common.h>
 #include <net.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <commproc.h>
 #include <ppc4xx.h>
 #include <ppc4xx_enet.h>
@@ -221,7 +222,7 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	unsigned long mfr;
 #endif
 
-	out32 (EMAC_IER + hw_p->hw_addr, 0x00000000);	/* disable emac interrupts */
+	out_be32((void *)EMAC_IER + hw_p->hw_addr, 0x00000000);	/* disable emac interrupts */
 
 	/* 1st reset MAL channel */
 	/* Note: writing a 0 to a channel has no effect */
@@ -250,7 +251,7 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	mtsdr(sdr_mfr, mfr);
 #endif
 
-	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
+	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 
 #if defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -353,8 +354,8 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	/* Ensure we setup mdio for this devnum and ONLY this devnum */
 	zmiifer |= (ZMII_FER_MDI) << ZMII_FER_V(devnum);
 
-	out32 (ZMII_FER, zmiifer);
-	out32 (RGMII_FER, rmiifer);
+	out_be32(ZMII_FER, zmiifer);
+	out_be32(RGMII_FER, rmiifer);
 
 	return ((int)pfc1);
 }
@@ -372,31 +373,31 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	switch (pfc1) {
 	case SDR0_PFC1_SELECT_CONFIG_2:
 		/* 1 x GMII port */
-		out32 (ZMII_FER, 0x00);
-		out32 (RGMII_FER, 0x00000037);
+		out_be32((void *)ZMII_FER, 0x00);
+		out_be32((void *)RGMII_FER, 0x00000037);
 		bis->bi_phymode[0] = BI_PHYMODE_GMII;
 		bis->bi_phymode[1] = BI_PHYMODE_NONE;
 		break;
 	case SDR0_PFC1_SELECT_CONFIG_4:
 		/* 2 x RGMII ports */
-		out32 (ZMII_FER, 0x00);
-		out32 (RGMII_FER, 0x00000055);
+		out_be32((void *)ZMII_FER, 0x00);
+		out_be32((void *)RGMII_FER, 0x00000055);
 		bis->bi_phymode[0] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
 		break;
 	case SDR0_PFC1_SELECT_CONFIG_6:
 		/* 2 x SMII ports */
-		out32 (ZMII_FER,
-		       ((ZMII_FER_SMII) << ZMII_FER_V(0)) |
-		       ((ZMII_FER_SMII) << ZMII_FER_V(1)));
-		out32 (RGMII_FER, 0x00000000);
+		out_be32((void *)ZMII_FER,
+			 ((ZMII_FER_SMII) << ZMII_FER_V(0)) |
+			 ((ZMII_FER_SMII) << ZMII_FER_V(1)));
+		out_be32((void *)RGMII_FER, 0x00000000);
 		bis->bi_phymode[0] = BI_PHYMODE_SMII;
 		bis->bi_phymode[1] = BI_PHYMODE_SMII;
 		break;
 	case SDR0_PFC1_SELECT_CONFIG_1_2:
 		/* only 1 x MII supported */
-		out32 (ZMII_FER, (ZMII_FER_MII) << ZMII_FER_V(0));
-		out32 (RGMII_FER, 0x00000000);
+		out_be32((void *)ZMII_FER, (ZMII_FER_MII) << ZMII_FER_V(0));
+		out_be32((void *)RGMII_FER, 0x00000000);
 		bis->bi_phymode[0] = BI_PHYMODE_MII;
 		bis->bi_phymode[1] = BI_PHYMODE_NONE;
 		break;
@@ -405,9 +406,9 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	}
 
 	/* Ensure we setup mdio for this devnum and ONLY this devnum */
-	zmiifer = in32 (ZMII_FER);
+	zmiifer = in_be32((void *)ZMII_FER);
 	zmiifer |= (ZMII_FER_MDI) << ZMII_FER_V(devnum);
-	out32 (ZMII_FER, zmiifer);
+	out_be32((void *)ZMII_FER, zmiifer);
 
 	return ((int)0x0);
 }
@@ -425,7 +426,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	switch (1) {
 	case 1:
 		/* 2 x RGMII ports */
-		out32 (RGMII_FER, 0x00000055);
+		out_be32((void *)RGMII_FER, 0x00000055);
 		bis->bi_phymode[0] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
 		break;
@@ -437,9 +438,9 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	}
 
 	/* Ensure we setup mdio for this devnum and ONLY this devnum */
-	gmiifer = in32(RGMII_FER);
+	gmiifer = in_be32((void *)RGMII_FER);
 	gmiifer |= (1 << (19-devnum));
-	out32 (RGMII_FER, gmiifer);
+	out_be32((void *)RGMII_FER, gmiifer);
 
 	return ((int)0x0);
 }
@@ -535,27 +536,27 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* NOTE: Therefore, disable all other EMACS, since we handle */
 	/* NOTE: only one emac at a time */
 	reg = 0;
-	out32 (ZMII_FER, 0);
+	out_be32((void *)ZMII_FER, 0);
 	udelay (100);
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	out32 (ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
+	out_be32((void *)ZMII_FER, (ZMII_FER_RMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
 #elif defined(CONFIG_440GX) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	ethgroup = ppc_4xx_eth_setup_bridge(devnum, bis);
 #elif defined(CONFIG_440GP)
 	/* set RMII mode */
-	out32 (ZMII_FER, ZMII_RMII | ZMII_MDI0);
+	out_be32((void *)ZMII_FER, ZMII_RMII | ZMII_MDI0);
 #else
 	if ((devnum == 0) || (devnum == 1)) {
-		out32 (ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
+		out_be32((void *)ZMII_FER, (ZMII_FER_SMII | ZMII_FER_MDI) << ZMII_FER_V (devnum));
 	} else { /* ((devnum == 2) || (devnum == 3)) */
-		out32 (ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
-		out32 (RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
-				   (RGMII_FER_RGMII << RGMII_FER_V (3))));
+		out_be32((void *)ZMII_FER, ZMII_FER_MDI << ZMII_FER_V (devnum));
+		out_be32((void *)RGMII_FER, ((RGMII_FER_RGMII << RGMII_FER_V (2)) |
+					     (RGMII_FER_RGMII << RGMII_FER_V (3))));
 	}
 #endif
 
-	out32 (ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
+	out_be32((void *)ZMII_SSR, ZMII_SSR_SP << ZMII_SSR_V(devnum));
 #endif /* defined(CONFIG_440) && !defined(CONFIG_440SP) */
 #if defined(CONFIG_405EX)
 	ethgroup = ppc_4xx_eth_setup_bridge(devnum, bis);
@@ -573,11 +574,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	mtsdr(sdr_mfr, mfr);
 #endif
 
-	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
-	__asm__ volatile ("eieio");
+	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_SRST);
 
 	failsafe = 1000;
-	while ((in32 (EMAC_M0 + hw_p->hw_addr) & (EMAC_M0_SRST)) && failsafe) {
+	while ((in_be32((void *)EMAC_M0 + hw_p->hw_addr) & (EMAC_M0_SRST)) && failsafe) {
 		udelay (1000);
 		failsafe--;
 	}
@@ -610,7 +610,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	else
 		mode_reg |= EMAC_M1_OBCI_GT100;
 
-	out32 (EMAC_M1 + hw_p->hw_addr, mode_reg);
+	out_be32((void *)EMAC_M1 + hw_p->hw_addr, mode_reg);
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
 
 	/* wait for PHY to complete auto negotiation */
@@ -768,11 +768,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 
 	/* Set ZMII/RGMII speed according to the phy link speed */
-	reg = in32 (ZMII_SSR);
+	reg = in_be32(ZMII_SSR);
 	if ( (speed == 100) || (speed == 1000) )
-		out32 (ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
+		out_be32(ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
 	else
-		out32 (ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
+		out_be32(ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
 
 	if ((devnum == 2) || (devnum == 3)) {
 		if (speed == 1000)
@@ -785,7 +785,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			printf("Error in RGMII Speed\n");
 			return -1;
 		}
-		out32 (RGMII_SSR, reg);
+		out_be32(RGMII_SSR, reg);
 	}
 #endif /* defined(CONFIG_440) && !defined(CONFIG_440SP) */
 
@@ -801,7 +801,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		printf("Error in RGMII Speed\n");
 		return -1;
 	}
-	out32 (RGMII_SSR, reg);
+	out_be32((void *)RGMII_SSR, reg);
 #endif
 
 	/* set the Mal configuration reg */
@@ -912,7 +912,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	reg = reg << 8;
 	reg |= dev->enetaddr[1];
 
-	out32 (EMAC_IAH + hw_p->hw_addr, reg);
+	out_be32((void *)EMAC_IAH + hw_p->hw_addr, reg);
 
 	reg = 0x00000000;
 	reg |= dev->enetaddr[2];	/* set low address  */
@@ -923,7 +923,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	reg = reg << 8;
 	reg |= dev->enetaddr[5];
 
-	out32 (EMAC_IAL + hw_p->hw_addr, reg);
+	out_be32((void *)EMAC_IAL + hw_p->hw_addr, reg);
 
 	switch (devnum) {
 	case 1:
@@ -984,10 +984,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	mtdcr (malrxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
 
 	/* set transmit enable & receive enable */
-	out32 (EMAC_M0 + hw_p->hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
+	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
 
 	/* set receive fifo to 4k and tx fifo to 2k */
-	mode_reg = in32 (EMAC_M1 + hw_p->hw_addr);
+	mode_reg = in_be32((void *)EMAC_M1 + hw_p->hw_addr);
 	mode_reg |= EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K;
 
 	/* set speed */
@@ -1008,39 +1008,39 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	if (duplex == FULL)
 		mode_reg = mode_reg | 0x80000000 | EMAC_M1_IST;
 
-	out32 (EMAC_M1 + hw_p->hw_addr, mode_reg);
+	out_be32((void *)EMAC_M1 + hw_p->hw_addr, mode_reg);
 
 	/* Enable broadcast and indvidual address */
 	/* TBS: enabling runts as some misbehaved nics will send runts */
-	out32 (EMAC_RXM + hw_p->hw_addr, EMAC_RMR_BAE | EMAC_RMR_IAE);
+	out_be32((void *)EMAC_RXM + hw_p->hw_addr, EMAC_RMR_BAE | EMAC_RMR_IAE);
 
 	/* we probably need to set the tx mode1 reg? maybe at tx time */
 
 	/* set transmit request threshold register */
-	out32 (EMAC_TRTR + hw_p->hw_addr, 0x18000000);	/* 256 byte threshold */
+	out_be32((void *)EMAC_TRTR + hw_p->hw_addr, 0x18000000);	/* 256 byte threshold */
 
 	/* set receive	low/high water mark register */
 #if defined(CONFIG_440)
 	/* 440s has a 64 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x80009000);
+	out_be32((void *)EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x80009000);
 #else
 	/* 405s have a 16 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x0f002000);
+	out_be32((void *)EMAC_RX_HI_LO_WMARK + hw_p->hw_addr, 0x0f002000);
 #endif /* defined(CONFIG_440) */
-	out32 (EMAC_TXM1 + hw_p->hw_addr, 0xf8640000);
+	out_be32((void *)EMAC_TXM1 + hw_p->hw_addr, 0xf8640000);
 
 	/* Set fifo limit entry in tx mode 0 */
-	out32 (EMAC_TXM0 + hw_p->hw_addr, 0x00000003);
+	out_be32((void *)EMAC_TXM0 + hw_p->hw_addr, 0x00000003);
 	/* Frame gap set */
-	out32 (EMAC_I_FRAME_GAP_REG + hw_p->hw_addr, 0x00000008);
+	out_be32((void *)EMAC_I_FRAME_GAP_REG + hw_p->hw_addr, 0x00000008);
 
 	/* Set EMAC IER */
 	hw_p->emac_ier = EMAC_ISR_PTLE | EMAC_ISR_BFCS | EMAC_ISR_ORE | EMAC_ISR_IRE;
 	if (speed == _100BASET)
 		hw_p->emac_ier = hw_p->emac_ier | EMAC_ISR_SYE;
 
-	out32 (EMAC_ISR + hw_p->hw_addr, 0xffffffff);	/* clear pending interrupts */
-	out32 (EMAC_IER + hw_p->hw_addr, hw_p->emac_ier);
+	out_be32((void *)EMAC_ISR + hw_p->hw_addr, 0xffffffff);	/* clear pending interrupts */
+	out_be32((void *)EMAC_IER + hw_p->hw_addr, hw_p->emac_ier);
 
 	if (hw_p->first_init == 0) {
 		/*
@@ -1098,8 +1098,8 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 
 	__asm__ volatile ("eieio");
 
-	out32 (EMAC_TXM0 + hw_p->hw_addr,
-	       in32 (EMAC_TXM0 + hw_p->hw_addr) | EMAC_TXM0_GNP0);
+	out_be32((void *)EMAC_TXM0 + hw_p->hw_addr,
+		 in_be32((void *)EMAC_TXM0 + hw_p->hw_addr) | EMAC_TXM0_GNP0);
 #ifdef INFO_4XX_ENET
 	hw_p->stats.pkts_tx++;
 #endif
@@ -1109,7 +1109,7 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 	 *-----------------------------------------------------------------------*/
 	time_start = get_timer (0);
 	while (1) {
-		temp_txm0 = in32 (EMAC_TXM0 + hw_p->hw_addr);
+		temp_txm0 = in_be32((void *)EMAC_TXM0 + hw_p->hw_addr);
 		/* loop until either TINT turns on or 3 seconds elapse */
 		if ((temp_txm0 & EMAC_TXM0_GNP0) != 0) {
 			/* transmit is done, so now check for errors
@@ -1218,7 +1218,7 @@ int enetInt (struct eth_device *dev)
 		/* port by port dispatch of emac interrupts */
 		if (hw_p->devnum == 0) {
 			if (UIC_ETH0 & my_uicmsr_ethx) {	/* look for EMAC errors */
-				emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
+				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
 				if ((hw_p->emac_ier & emac_isr) != 0) {
 					emac_err (dev, emac_isr);
 					serviced = 1;
@@ -1237,7 +1237,7 @@ int enetInt (struct eth_device *dev)
 #if !defined(CONFIG_440SP)
 		if (hw_p->devnum == 1) {
 			if (UIC_ETH1 & my_uicmsr_ethx) {	/* look for EMAC errors */
-				emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
+				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
 				if ((hw_p->emac_ier & emac_isr) != 0) {
 					emac_err (dev, emac_isr);
 					serviced = 1;
@@ -1255,7 +1255,7 @@ int enetInt (struct eth_device *dev)
 #if defined (CONFIG_440GX)
 		if (hw_p->devnum == 2) {
 			if (UIC_ETH2 & my_uic2msr) {	/* look for EMAC errors */
-				emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
+				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
 				if ((hw_p->emac_ier & emac_isr) != 0) {
 					emac_err (dev, emac_isr);
 					serviced = 1;
@@ -1273,7 +1273,7 @@ int enetInt (struct eth_device *dev)
 
 		if (hw_p->devnum == 3) {
 			if (UIC_ETH3 & my_uic2msr) {	/* look for EMAC errors */
-				emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
+				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
 				if ((hw_p->emac_ier & emac_isr) != 0) {
 					emac_err (dev, emac_isr);
 					serviced = 1;
@@ -1385,7 +1385,7 @@ int enetInt (struct eth_device *dev)
 		/* port by port dispatch of emac interrupts */
 
 		if ((SEL_UIC_DEF(hw_p->devnum) & my_uicmsr) != 0) {	/* look for EMAC errors */
-			emac_isr = in32 (EMAC_ISR + hw_p->hw_addr);
+			emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
 			if ((hw_p->emac_ier & emac_isr) != 0) {
 				emac_err (dev, emac_isr);
 				serviced = 1;
@@ -1459,7 +1459,7 @@ static void emac_err (struct eth_device *dev, unsigned long isr)
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
 	printf ("EMAC%d error occured.... ISR = %lx\n", hw_p->devnum, isr);
-	out32 (EMAC_ISR + hw_p->hw_addr, isr);
+	out_be32((void *)EMAC_ISR + hw_p->hw_addr, isr);
 }
 
 /*-----------------------------------------------------------------------------+

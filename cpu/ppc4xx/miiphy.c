@@ -44,6 +44,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <ppc_asm.tmpl>
 #include <commproc.h>
 #include <ppc4xx_enet.h>
@@ -113,7 +114,7 @@ unsigned int miiphy_getemac_offset (void)
 	unsigned long eoffset;
 
 	/* Need to find out which mdi port we're using */
-	zmii = in32 (ZMII_FER);
+	zmii = in_be32((void *)ZMII_FER);
 
 	if (zmii & (ZMII_FER_MDI << ZMII_FER_V (0))) {
 		/* using port 0 */
@@ -131,12 +132,12 @@ unsigned int miiphy_getemac_offset (void)
 		/* None of the mdi ports are enabled! */
 		/* enable port 0 */
 		zmii |= ZMII_FER_MDI << ZMII_FER_V (0);
-		out32 (ZMII_FER, zmii);
+		out_be32((void *)ZMII_FER, zmii);
 		eoffset = 0;
 		/* need to soft reset port 0 */
-		zmii = in32 (EMAC_M0);
+		zmii = in_be32((void *)EMAC_M0);
 		zmii |= EMAC_M0_SRST;
-		out32 (EMAC_M0, zmii);
+		out_be32((void *)EMAC_M0, zmii);
 	}
 
 	return (eoffset);
@@ -146,7 +147,7 @@ unsigned int miiphy_getemac_offset (void)
 	unsigned long rgmii;
 	int devnum = 1;
 
-	rgmii = in32(RGMII_FER);
+	rgmii = in_be32((void *)RGMII_FER);
 	if (rgmii & (1 << (19 - devnum)))
 		return 0x100;
 #endif
@@ -169,11 +170,11 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 	i = 0;
 
 	/* see if it is ready for  sec */
-	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
+	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5) {
 #ifdef ET_DEBUG
-			sta_reg = in32 (EMAC_STACR + emac_reg);
+			sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 			printf ("read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 			printf ("read err 1\n");
 #endif
@@ -203,12 +204,12 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 #endif
 	sta_reg = sta_reg | (addr << 5);	/* Phy address */
 	sta_reg = sta_reg | EMAC_STACR_OC_MASK;	/* new IBM emac v4 */
-	out32 (EMAC_STACR + emac_reg, sta_reg);
+	out_be32((void *)EMAC_STACR + emac_reg, sta_reg);
 #ifdef ET_DEBUG
 	printf ("a2: write: EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 
-	sta_reg = in32 (EMAC_STACR + emac_reg);
+	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
 		printf ("a21: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
@@ -219,7 +220,7 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 			return -1;
 		}
 		i++;
-		sta_reg = in32 (EMAC_STACR + emac_reg);
+		sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
 		printf ("a22: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
@@ -250,7 +251,7 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	/* see if it is ready for 1000 nsec */
 	i = 0;
 
-	while ((in32 (EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
+	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		if (i > 5)
 			return -1;
 		udelay (7);
@@ -281,11 +282,11 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	sta_reg = sta_reg | EMAC_STACR_OC_MASK;		/* new IBM emac v4 */
 	memcpy (&sta_reg, &value, 2);	/* put in data */
 
-	out32 (EMAC_STACR + emac_reg, sta_reg);
+	out_be32((void *)EMAC_STACR + emac_reg, sta_reg);
 
 	/* wait for completion */
 	i = 0;
-	sta_reg = in32 (EMAC_STACR + emac_reg);
+	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
 		printf ("a31: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
@@ -294,7 +295,7 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 		if (i > 5)
 			return -1;
 		i++;
-		sta_reg = in32 (EMAC_STACR + emac_reg);
+		sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
 		printf ("a32: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
