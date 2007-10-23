@@ -106,7 +106,7 @@
 #endif
 
 #define EMAC_RESET_TIMEOUT 1000 /* 1000 ms reset timeout */
-#define PHY_AUTONEGOTIATE_TIMEOUT 4000	/* 4000 ms autonegotiate timeout */
+#define PHY_AUTONEGOTIATE_TIMEOUT 5000	/* 5000 ms autonegotiate timeout */
 
 /* Ethernet Transmit and Receive Buffers */
 /* AS.HARNOIS
