@@ -543,6 +543,7 @@ int last_stage_init (void)
 		__asm__ volatile ("sync");
 	}
 
+#ifndef CONFIG_TQM5200S	/* The TQM5200S has no SM501 grafic controller */
 	/*
 	 * Check for Grafic Controller
 	 */
@@ -586,6 +587,7 @@ int last_stage_init (void)
 #endif
 
 	return 0;
+#endif /* !CONFIG_TQM5200S */
 }
 
 #ifdef CONFIG_VIDEO_SM501
