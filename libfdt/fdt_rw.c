@@ -185,32 +185,6 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 	return 0;
 }
 
-/**
- * fdt_find_and_setprop: Find a node and set it's property
- *
- * @fdt: ptr to device tree
- * @node: path of node
- * @prop: property name
- * @val: ptr to new value
- * @len: length of new property value
- * @create: flag to create the property if it doesn't exist
- *
- * Convenience function to directly set a property given the path to the node.
- */
-int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
-			 const void *val, int len, int create)
-{
-	int nodeoff = fdt_find_node_by_path(fdt, node);
-
-	if (nodeoff < 0)
-		return nodeoff;
-
-	if ((!create) && (fdt_get_property(fdt, nodeoff, prop, 0) == NULL))
-		return 0; /* create flag not set; so exit quietly */
-
-	return fdt_setprop(fdt, nodeoff, prop, val, len);
-}
-
 int fdt_delprop(void *fdt, int nodeoffset, const char *name)
 {
 	struct fdt_property *prop;
