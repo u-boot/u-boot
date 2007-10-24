@@ -547,7 +547,7 @@
 #  if defined (CONFIG_TQM5200_REV100)
 #   error TQM5200 REV100 not supported on STK52XX REV200 or above
 #  else/* TQM5200 REV200 and above */
-#   define CFG_GPS_PORT_CONFIG	0x91500004
+#   define CFG_GPS_PORT_CONFIG	0x91500404
 #  endif
 # endif
 #elif defined (CONFIG_FO300)
