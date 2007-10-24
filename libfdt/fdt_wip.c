@@ -2,19 +2,51 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
+ * libfdt is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public
+ *     License along with this library; if not, write to the Free
+ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ *     MA 02110-1301 USA
+ *
+ * Alternatively,
+ *
+ *  b) Redistribution and use in source and binary forms, with or
+ *     without modification, are permitted provided that the following
+ *     conditions are met:
+ *
+ *     1. Redistributions of source code must retain the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer.
+ *     2. Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *
+ *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *     CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ *     CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "libfdt_env.h"
 
@@ -29,7 +61,7 @@ int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
 	void *propval;
 	int proplen;
 
-	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
+	propval = fdt_getprop_w(fdt, nodeoffset, name, &proplen);
 	if (! propval)
 		return proplen;
 
@@ -53,7 +85,7 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
 	struct fdt_property *prop;
 	int len;
 
-	prop = fdt_get_property(fdt, nodeoffset, name, &len);
+	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
 	if (! prop)
 		return len;
 
@@ -68,12 +100,12 @@ int _fdt_node_end_offset(void *fdt, int nodeoffset)
 	uint32_t tag;
 	int offset, nextoffset;
 
-	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, NULL);
+	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
 	if (tag != FDT_BEGIN_NODE)
 		return -FDT_ERR_BADOFFSET;
 	do {
 		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset, NULL);
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
 		case FDT_END:
@@ -107,31 +139,6 @@ int fdt_nop_node(void *fdt, int nodeoffset)
 	if (endoffset < 0)
 		return endoffset;
 
-	nop_region(fdt_offset_ptr(fdt, nodeoffset, 0), endoffset - nodeoffset);
-	return 0;
-}
-
-/*
- * Replace a reserve map entry in the nth slot.
- */
-int fdt_replace_reservemap_entry(void *fdt, int n, uint64_t addr, uint64_t size)
-{
-	struct fdt_reserve_entry *re;
-	int  used;
-	int  total;
-	int  err;
-
-	err = fdt_num_reservemap(fdt, &used, &total);
-	if (err != 0)
-		return err;
-
-	if (n >= total)
-		return -FDT_ERR_NOSPACE;
-	re = (struct fdt_reserve_entry *)
-		(fdt + fdt_off_mem_rsvmap(fdt) +
-		 (n * sizeof(struct fdt_reserve_entry)));
-	re->address = cpu_to_fdt64(addr);
-	re->size    = cpu_to_fdt64(size);
-
+	nop_region(fdt_offset_ptr_w(fdt, nodeoffset, 0), endoffset - nodeoffset);
 	return 0;
 }

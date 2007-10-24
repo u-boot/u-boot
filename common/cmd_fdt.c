@@ -162,12 +162,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		pathp = argv[2];
 		nodep = argv[3];
 
-		nodeoffset = fdt_find_node_by_path (fdt, pathp);
+		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -202,12 +202,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		prop   = argv[3];
 		newval = argv[4];
 
-		nodeoffset = fdt_find_node_by_path (fdt, pathp);
+		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -266,12 +266,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the path.  The root node is an oddball, the offset
 		 * is zero and has no name.
 		 */
-		nodeoffset = fdt_find_node_by_path (fdt, argv[2]);
+		nodeoffset = fdt_path_offset (fdt, argv[2]);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -567,13 +567,14 @@ static int fdt_print(char *pathp, char *prop, int depth)
 	uint32_t tag;		/* tag */
 	int  len;		/* length of the property */
 	int  level = 0;		/* keep track of nesting level */
+	const struct fdt_property *prop1;
 
-	nodeoffset = fdt_find_node_by_path (fdt, pathp);
+	nodeoffset = fdt_path_offset (fdt, pathp);
 	if (nodeoffset < 0) {
 		/*
 		 * Not found or something else bad happened.
 		 */
-		printf ("libfdt fdt_find_node_by_path() returned %s\n",
+		printf ("libfdt fdt_path_offset() returned %s\n",
 			fdt_strerror(nodeoffset));
 		return 1;
 	}
@@ -606,9 +607,10 @@ static int fdt_print(char *pathp, char *prop, int depth)
 	offstack[0] = nodeoffset;
 
 	while(level >= 0) {
-		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, &pathp);
+		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
 		switch(tag) {
 		case FDT_BEGIN_NODE:
+			pathp = fdt_offset_ptr(fdt, nodeoffset, 1);
 			if(level <= depth)
 				printf("%s%s {\n",
 					&tabs[MAX_LEVEL - level], pathp);
@@ -629,6 +631,8 @@ static int fdt_print(char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_PROP:
+			prop1 = fdt_offset_ptr(fdt, nodeoffset, sizeof(*prop1));
+			pathp = fdt_string(fdt, fdt32_to_cpu(prop1->nameoff));
 			nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
 			if (len < 0) {
 				printf ("libfdt fdt_getprop(): %s\n",

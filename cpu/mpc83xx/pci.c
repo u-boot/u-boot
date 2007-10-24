@@ -179,7 +179,7 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	if (pci_num_buses < 1)
 		return;
 
-	nodeoffset = fdt_find_node_by_path(blob, "/" OF_SOC "/pci@8500");
+	nodeoffset = fdt_path_offset(blob, "/" OF_SOC "/pci@8500");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
 		tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
@@ -194,7 +194,7 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	if (pci_num_buses < 2)
 		return;
 
-	nodeoffset = fdt_find_node_by_path(blob, "/" OF_SOC "/pci@8600");
+	nodeoffset = fdt_path_offset(blob, "/" OF_SOC "/pci@8600");
 	if (nodeoffset >= 0) {
 		tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
 		tmp[1] = cpu_to_be32(pci_hose[0].last_busno);

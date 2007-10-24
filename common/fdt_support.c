@@ -59,7 +59,7 @@ struct fdt_header *fdt;
 int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create)
 {
-	int nodeoff = fdt_find_node_by_path(fdt, node);
+	int nodeoff = fdt_path_offset(fdt, node);
 
 	if (nodeoff < 0)
 		return nodeoff;
@@ -84,34 +84,23 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	}
 
 	if (initrd_start && initrd_end) {
-		struct fdt_reserve_entry re;
-		int  used;
-		int  total;
+		uint64_t addr, size;
+		int  total = fdt_num_mem_rsv(fdt);
 		int  j;
 
-		err = fdt_num_reservemap(fdt, &used, &total);
-		if (err < 0) {
-			printf("fdt_chosen: %s\n", fdt_strerror(err));
-			return err;
-		}
-		if (used >= total) {
-			printf("WARNING: "
-				"no room in the reserved map (%d of %d)\n",
-				used, total);
-			return -1;
-		}
 		/*
 		 * Look for an existing entry and update it.  If we don't find
 		 * the entry, we will j be the next available slot.
 		 */
-		for (j = 0; j < used; j++) {
-			err = fdt_get_reservemap(fdt, j, &re);
-			if (re.address == initrd_start) {
+		for (j = 0; j < total; j++) {
+			err = fdt_get_mem_rsv(fdt, j, &addr, &size);
+			if (addr == initrd_start) {
+				fdt_del_mem_rsv(fdt, j);
 				break;
 			}
 		}
-		err = fdt_replace_reservemap_entry(fdt, j,
-			initrd_start, initrd_end - initrd_start + 1);
+
+		err = fdt_add_mem_rsv(fdt, initrd_start, initrd_end - initrd_start + 1);
 		if (err < 0) {
 			printf("fdt_chosen: %s\n", fdt_strerror(err));
 			return err;
@@ -121,7 +110,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	/*
 	 * Find the "chosen" node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/chosen");
+	nodeoffset = fdt_path_offset (fdt, "/chosen");
 
 	/*
 	 * If we have a "chosen" node already the "force the writing"
@@ -208,7 +197,7 @@ int fdt_env(void *fdt)
 	 * See if we already have a "u-boot-env" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/u-boot-env");
+	nodeoffset = fdt_path_offset (fdt, "/u-boot-env");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
@@ -330,7 +319,7 @@ int fdt_bd_t(void *fdt)
 	 * See if we already have a "bd_t" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/bd_t");
+	nodeoffset = fdt_path_offset (fdt, "/bd_t");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {

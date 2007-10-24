@@ -276,7 +276,7 @@ static void ft_blob_update(void *blob, bd_t *bd)
 	memory_data[0] = cpu_to_be32(bd->bi_memstart);
 	memory_data[1] = cpu_to_be32(bd->bi_memsize);
 
-	nodeoffset = fdt_find_node_by_path (blob, "/memory");
+	nodeoffset = fdt_path_offset (blob, "/memory");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
 					sizeof(memory_data));
