@@ -257,8 +257,8 @@
 	"fdt_addr=FC0A0000\0"						\
 	"kernel_addr=FC0C0000\0"					\
 	"ramdisk_addr=FC300000\0"					\
-	"kernel_addr_r=200000\0"					\
-	"fdt_addr_r=400000\0"						\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=600000\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
