@@ -52,6 +52,28 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Get count of EMAC devices (doesn't have to be the max. possible number
+ * supported by the cpu)
+ *
+ * CONFIG_BOARD_EMAC_COUNT added so now a "dynamic" way to configure the
+ * EMAC count is possible. As it is needed for the Kilauea/Haleakala
+ * 405EX/405EXr eval board, using the same binary.
+ */
+#if defined(CONFIG_BOARD_EMAC_COUNT)
+#define LAST_EMAC_NUM	board_emac_count()
+#else /* CONFIG_BOARD_EMAC_COUNT */
+#if defined(CONFIG_HAS_ETH3)
+#define LAST_EMAC_NUM	4
+#elif defined(CONFIG_HAS_ETH2)
+#define LAST_EMAC_NUM	3
+#elif defined(CONFIG_HAS_ETH1)
+#define LAST_EMAC_NUM	2
+#else
+#define LAST_EMAC_NUM	1
+#endif
+#endif /* CONFIG_BOARD_EMAC_COUNT */
+
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_MFR_ETH_CLK_SEL_V(n)	((0x01<<27) / (n+1))
 #endif
@@ -64,6 +86,8 @@ static volatile mal_desc_t tx __cacheline_aligned;
 static volatile mal_desc_t rx __cacheline_aligned;
 static char *tx_buf;
 static char *rx_buf;
+
+int board_emac_count(void);
 
 static void ether_post_init (int devnum, int hw_addr)
 {
@@ -372,6 +396,7 @@ Done:
 int ether_post_test (int flags)
 {
 	int res = 0;
+	int i;
 
 	/* Allocate tx & rx packet buffers */
 	tx_buf = malloc (PKTSIZE_ALIGN + CFG_CACHELINE_SIZE);
@@ -383,13 +408,10 @@ int ether_post_test (int flags)
 		goto out_free;
 	}
 
-	/* EMAC0 */
-	if (test_ctlr (0, 0))
-		res = -1;
-
-	/* EMAC1 */
-	if (test_ctlr (1, 0x100))
-		res = -1;
+	for (i = 0; i < LAST_EMAC_NUM; i++) {
+		if (test_ctlr (i, i*0x100))
+			res = -1;
+	}
 
 out_free:
 	free (tx_buf);
