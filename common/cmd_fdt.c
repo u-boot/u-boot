@@ -229,6 +229,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		char *pathp;		/* path */
 		char *prop;		/* property */
 		int  ret;		/* return value */
+		static char root[2] = "/";
 
 		/*
 		 * list is an alias for print, but limited to 1 level
@@ -241,7 +242,10 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the starting path.  The root node is an oddball,
 		 * the offset is zero and has no name.
 		 */
-		pathp = argv[2];
+		if (argc == 2)
+			pathp = root;
+		else
+			pathp = argv[2];
 		if (argc > 3)
 			prop = argv[3];
 		else
