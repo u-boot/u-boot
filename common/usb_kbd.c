@@ -257,7 +257,7 @@ static int usb_kbd_translate(unsigned char scancode,unsigned char modifier,int p
 		repeat_delay=REPEAT_DELAY;
 	}
 	keycode=0;
-	if((scancode>3) && (scancode<0x1d)) { /* alpha numeric values */
+	if((scancode>3) && (scancode<=0x1d)) { /* alpha numeric values */
 		keycode=scancode-4 + 0x61;
 		if(caps_lock)
 			keycode&=~CAPITAL_MASK; /* switch to capital Letters */
