@@ -131,7 +131,7 @@ checkcpu(void)
 static inline void
 soft_restart(unsigned long addr)
 {
-#ifndef CONFIG_MPC8641HPCN
+#if !defined(CONFIG_MPC8641HPCN) && !defined(CONFIG_MPC8610HPCD)
 
 	/*
 	 * SRR0 has system reset vector, SRR1 has default MSR value
@@ -159,7 +159,7 @@ soft_restart(unsigned long addr)
 void
 do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#ifndef CONFIG_MPC8641HPCN
+#if !defined(CONFIG_MPC8641HPCN) && !defined(CONFIG_MPC8610HPCD)
 
 #ifdef CFG_RESET_ADDRESS
 	ulong addr = CFG_RESET_ADDRESS;
