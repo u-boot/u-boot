@@ -54,6 +54,7 @@ fsl_pci_init(struct pci_controller *hose)
 	u8 temp8;
 	int r;
 	int bridge;
+	int inbound = 0;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) hose->cfg_addr;
 	pci_dev_t dev = PCI_BDF(busno,0,0);
 
@@ -74,6 +75,7 @@ fsl_pci_init(struct pci_controller *hose)
 				PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP |
 				(__ilog2(hose->regions[r].size) - 1);
 			pi++;
+			inbound = hose->regions[r].size > 0;
 		} else { /* Outbound */
 			po->powbar = (hose->regions[r].phys_start >> 12) & 0x000fffff;
 			po->potar = (hose->regions[r].bus_start >> 12) & 0x000fffff;
@@ -137,6 +139,12 @@ fsl_pci_init(struct pci_controller *hose)
 
 	pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			     hose->pci_prefetch, hose->pci_io);
+
+	if (inbound) {
+		pci_hose_read_config_word(hose, dev, PCI_COMMAND, &temp16);
+		pci_hose_write_config_word(hose, dev, PCI_COMMAND,
+					   temp16 | PCI_COMMAND_MEMORY);
+	}
 
 #ifndef CONFIG_PCI_NOSCAN
 	printf ("               Scanning PCI bus %02x\n", hose->current_busno);

@@ -561,7 +561,7 @@ void led_init(void)
 	gpt->gpt6.emsr |=  0x00000024;
 	gpt->gpt7.emsr |=  0x00000024;
 
-
+#ifndef CONFIG_TQM5200S
 	/* enable SM501 GPIO control (in both power modes) */
 	*(vu_long *) (SM501_MMIO_BASE+SM501_POWER_MODE0_GATE) |=
 		POWER_MODE_GATE_GPIO_PWM_I2C;
@@ -574,6 +574,7 @@ void led_init(void)
 
 	/* configure SM501 gpio pins 48-51 as output */
 	*(vu_long *) (SM501_MMIO_BASE+SM501_GPIO_DATA_DIR_HIGH) |= (0xF << 16);
+#endif /* !CONFIG_TQM5200S */
 }
 
 /*
@@ -650,7 +651,7 @@ int do_led(char *argv[])
 			gpt->gpt7.emsr &=  ~(1 << 4);
 		}
 		break;
-
+#ifndef CONFIG_TQM5200S
 	case 24:
 		if (strcmp (argv[3], "on") == 0) {
 			*(vu_long *) (SM501_MMIO_BASE+SM501_GPIO_DATA_LOW) |=
@@ -730,7 +731,7 @@ int do_led(char *argv[])
 				~(0x1 << 19);
 		}
 		break;
-
+#endif /* !CONFIG_TQM5200S */
 	default:
 		printf ("%s: invalid led number %s\n", __FUNCTION__, argv[2]);
 		return 1;
@@ -1110,7 +1111,7 @@ int do_rs232(char *argv[])
 	return error_status;
 }
 
-#ifndef CONFIG_FO300
+#if !defined(CONFIG_FO300) && !defined(CONFIG_TQM5200S)
 static void sm501_backlight (unsigned int state)
 {
 	if (state == BL_ON) {
@@ -1120,7 +1121,7 @@ static void sm501_backlight (unsigned int state)
 		*(vu_long *)(SM501_MMIO_BASE+SM501_PANEL_DISPLAY_CONTROL) &=
 			~((1 << 26) | (1 << 27));
 }
-#endif
+#endif /* !CONFIG_FO300 & !CONFIG_TQM5200S */
 
 int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -1160,7 +1161,7 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			else
 				printf ("Error\n");
 			return rcode;
-#ifndef CONFIG_FO300
+#if !defined(CONFIG_FO300) && !defined(CONFIG_TQM5200S)
 		} else if (strncmp (argv[1], "backlight", 4) == 0) {
 			if (strncmp (argv[2], "on", 2) == 0) {
 				sm501_backlight (BL_ON);
@@ -1170,7 +1171,7 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				sm501_backlight (BL_OFF);
 				return 0;
 			}
-#endif
+#endif /* !CONFIG_FO300 & !CONFIG_TQM5200S */
 		}
 		break;
 
@@ -1228,8 +1229,10 @@ U_BOOT_CMD(
 	"     - loopback plug for X83 required\n"
 	"fkt rs232 number\n"
 	"     - loopback plug(s) for X2 required\n"
+#ifndef CONFIG_TQM5200S
 	"fkt backlight on/off\n"
 	"     - switch backlight on or off\n"
+#endif /* !CONFIG_TQM5200S */
 );
 #elif defined(CONFIG_FO300)
 U_BOOT_CMD(

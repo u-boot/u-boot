@@ -28,7 +28,7 @@
 
 #include <asm/arch/hardware.h>
 
-int usb_cpu_init()
+int usb_cpu_init(void)
 {
 	/* Enable USB host clock. */
 	*AT91C_PMC_SCER = AT91C_PMC_UHP;	/* 48MHz clock enabled for UHP */
@@ -36,7 +36,7 @@ int usb_cpu_init()
 	return 0;
 }
 
-int usb_cpu_stop()
+int usb_cpu_stop(void)
 {
 	/* Initialization failed */
 	*AT91C_PMC_PCDR = 1 << AT91C_ID_UHP;	/* Peripheral Clock Disable Register */
@@ -44,9 +44,9 @@ int usb_cpu_stop()
 	return 0;
 }
 
-int usb_cpu_init_fail()
+int usb_cpu_init_fail(void)
 {
-	usb_cpu_stop();
+	return usb_cpu_stop();
 }
 
 # endif /* CONFIG_AT91RM9200 */

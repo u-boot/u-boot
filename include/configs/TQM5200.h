@@ -257,8 +257,8 @@
 	"fdt_addr=FC0A0000\0"						\
 	"kernel_addr=FC0C0000\0"					\
 	"ramdisk_addr=FC300000\0"					\
-	"kernel_addr_r=200000\0"					\
-	"fdt_addr_r=400000\0"						\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=600000\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -547,7 +547,7 @@
 #  if defined (CONFIG_TQM5200_REV100)
 #   error TQM5200 REV100 not supported on STK52XX REV200 or above
 #  else/* TQM5200 REV200 and above */
-#   define CFG_GPS_PORT_CONFIG	0x91500004
+#   define CFG_GPS_PORT_CONFIG	0x91500404
 #  endif
 # endif
 #elif defined (CONFIG_FO300)

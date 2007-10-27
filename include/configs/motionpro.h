@@ -163,9 +163,9 @@
 
 
 /*
- * Clock configuration: SYS_XTALIN = 25MHz
+ * Clock configuration: SYS_XTALIN = 33MHz
  */
-#define CFG_MPC5XXX_CLKIN	25000000
+#define CFG_MPC5XXX_CLKIN	33000000
 
 
 /*
@@ -211,7 +211,7 @@
 #endif
 
 #define CFG_MONITOR_LEN		(256 << 10)	/* 256 kB for Monitor */
-#define CFG_MALLOC_LEN		(128 << 10)	/* 128 kB for malloc() */
+#define CFG_MALLOC_LEN		(1024 << 10)	/* 1 MiB for malloc() */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
 
 
@@ -221,7 +221,7 @@
 /* Boot Chipselect */
 #define CFG_BOOTCS_START	CFG_FLASH_BASE
 #define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#define CFG_BOOTCS_CFG		0x03035D00
+#define CFG_BOOTCS_CFG		0x00045D00
 
 /* Flash memory addressing */
 #define CFG_CS0_START		CFG_FLASH_BASE
@@ -251,11 +251,11 @@
 /*
  * SDRAM configuration
  */
-/* 2 x MT48LC16M16A2BG-75 IT:D, CASL 2, 32 bit data bus */
-#define SDRAM_CONFIG1		0x52222600
-#define SDRAM_CONFIG2		0x88b70000
-#define SDRAM_CONTROL		0x50570000
-#define SDRAM_MODE		0x008d0000
+/* 2 x MT48LC16M16A2BG-75 IT:D, CASL 3, 32 bit data bus */
+#define SDRAM_CONFIG1		0x62322900
+#define SDRAM_CONFIG2		0x88c70000
+#define SDRAM_CONTROL		0x504f0000
+#define SDRAM_MODE		0x00cd0000
 
 
 /*
@@ -267,7 +267,7 @@
 #define CFG_FLASH_SIZE		0x01000000
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks */
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
-#define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
+#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 #define CONFIG_FLASH_16BIT		/* Flash is 16-bit */
 
 /*
@@ -277,8 +277,8 @@
 #define MTDIDS_DEFAULT		"nor0=motionpro-0"
 #define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
 					"13m(fs),2m(kernel),256k(uboot)," \
-					"64k(env),64k(redund_env),64k(dtb)," \
-					"-(user_data)"
+					"128k(env),128k(redund_env),"	  \
+					"128k(dtb),-(user_data)"
 
 /*
  * IDE/ATA configuration
@@ -356,7 +356,7 @@ extern void __led_set(led_id_t id, int state);
 /* This has to be a multiple of the Flash sector size */
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #define CFG_ENV_SIZE		0x1000
-#define CFG_ENV_SECT_SIZE	0x10000
+#define CFG_ENV_SECT_SIZE	0x20000
 
 /* Configuration of redundant environment */
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
@@ -394,7 +394,8 @@ extern void __led_set(led_id_t id, int state);
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x03f00000	/* 1 ... 64 MiB in DRAM */
+#define CFG_MEMTEST_END		0x03e00000	/* 1 ... 62 MiB in DRAM */
+#define CFG_ALT_MEMTEST
 
 #define CFG_LOAD_ADDR		0x200000	/* default kernel load addr */
 
