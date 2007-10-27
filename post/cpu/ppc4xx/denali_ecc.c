@@ -31,7 +31,7 @@
 #include <common.h>
 #include <watchdog.h>
 
-#ifdef CONFIG_POST
+#if defined(CONFIG_POST) && (defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
 
 #include <post.h>
 
@@ -46,8 +46,6 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <ppc440.h>
-
-#include "../../../board/lwmon5/sdram.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -65,9 +63,9 @@ const static unsigned char syndrome_codes[] = {
 
 #define ECC_START_ADDR		0x10
 #define ECC_STOP_ADDR		0x2000
-#define ECC_PATTERN		0x0101010101010101ull
-#define ECC_PATTERN_CORR	0x0101010101010100ull
-#define ECC_PATTERN_UNCORR	0x010101010101010Full
+#define ECC_PATTERN		0x01010101
+#define ECC_PATTERN_CORR	0x11010101
+#define ECC_PATTERN_UNCORR	0xF1010101
 
 static int test_ecc_error(void)
 {
@@ -152,68 +150,78 @@ static int test_ecc_error(void)
 
 static int test_ecc(unsigned long ecc_addr)
 {
-	volatile unsigned long long *ecc_mem;
 	unsigned long value;
-	unsigned long ecc_data;
-	volatile unsigned long *lecc_mem;
-	int pret, ret = 0;
+	volatile unsigned *const ecc_mem = (volatile unsigned *) ecc_addr;
+	int pret;
+	int ret = 0;
 
 	sync();
 	eieio();
 	WATCHDOG_RESET();
 
-	ecc_mem = (unsigned long long *)ecc_addr;
-	lecc_mem = (ulong *)ecc_addr;
-	*ecc_mem = ECC_PATTERN;
+	debug("Entering test_ecc(0x%08lX)\n", ecc_addr);
+	out_be32(ecc_mem, ECC_PATTERN);
+	out_be32(ecc_mem + 1, ECC_PATTERN);
+	in_be32(ecc_mem);
 	pret = test_ecc_error();
-	if (pret != 0)
+	if (pret != 0) {
+		debug("pret: expected 0, got %d\n", pret);
 		ret = 1;
-
-	/* disconnect ecc */
+	}
+	/* test for correctable error */
+	/* disconnect from ecc storage */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_DISABLE);
 
-	/* injecting error */
-	*ecc_mem = ECC_PATTERN_CORR;
+	/* creating (correctable) single-bit error */
+	out_be32(ecc_mem, ECC_PATTERN_CORR);
 
 	/* enable ecc */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_ENABLE);
+	sync();
+	eieio();
 
-	ecc_data = *lecc_mem;
+	in_be32(ecc_mem);
 	pret = test_ecc_error();
 	/* if read data ok, 1 correctable error must be fixed */
-	if (pret != 3)
+	if (pret != 3) {
+		debug("pret: expected 3, got %d\n", pret);
 		ret = 1;
-
+	}
 	/* test for uncorrectable error */
 	/* disconnect from ecc storage */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_NO_ECC_RAM);
 
-	/* injecting multiply bit error */
-
-	*ecc_mem = ECC_PATTERN_UNCORR;
+	/* creating (uncorrectable) multiple-bit error */
+	out_be32(ecc_mem, ECC_PATTERN_UNCORR);
 
 	/* enable ecc */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_ENABLE);
-
-	ecc_data = *lecc_mem;
-	/* what the data should be read? */
-
-	pret = test_ecc_error();
-	/* info about uncorrectable error must appear */
-	if (pret != 5)
-		ret = 1;
-
 	sync();
 	eieio();
 
+	in_be32(ecc_mem);
+	pret = test_ecc_error();
+	/* info about uncorrectable error must appear */
+	if (pret != 5) {
+		debug("pret: expected 5, got %d\n", pret);
+		ret = 1;
+	}
+	/* remove error from SDRAM */
+	out_be32(ecc_mem, ECC_PATTERN);
+	/* clear error caused by read-modify-write */
+	mfsdram(DDR0_00, value);
+	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
+
+	sync();
+	eieio();
 	return ret;
 }
 
@@ -223,9 +231,14 @@ int ecc_post_test (int flags)
 	unsigned long value;
 	unsigned long iaddr;
 
-#if CONFIG_DDR_ECC
 	sync();
 	eieio();
+
+	mfsdram(DDR0_22, value);
+	if (0x3 != DDR0_22_CTRL_RAW_DECODE(value)) {
+		debug("SDRAM ECC not enabled, skipping ECC POST.\n");
+		return 0;
+	}
 
 	/* mask all int */
 	mfsdram(DDR0_01, value);
@@ -236,32 +249,19 @@ int ecc_post_test (int flags)
 	mfsdram(DDR0_00, value);
 	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
 
-	/* enable full support of ECC */
-	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
-		| DDR0_22_CTRL_RAW_ECC_ENABLE);
-
-	for (iaddr = ECC_START_ADDR; iaddr < ECC_STOP_ADDR; iaddr += iaddr) {
+	for (iaddr = ECC_START_ADDR; iaddr <= ECC_STOP_ADDR; iaddr += iaddr) {
 		ret = test_ecc(iaddr);
 		if (ret)
 			break;
 	}
-
-	/* clear error status */
-	mfsdram(DDR0_00, value);
-	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
-
 	/*
 	 * Clear possible errors resulting from ECC testing.
 	 * If not done, then we could get an interrupt later on when
 	 * exceptions are enabled.
 	 */
 	set_mcsr(get_mcsr());
-#endif
-
 	return ret;
 
 }
-
 #endif /* CONFIG_POST & CFG_POST_ECC */
-#endif /* CONFIG_POST */
+#endif /* defined(CONFIG_POST) && ... */
