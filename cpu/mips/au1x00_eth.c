@@ -136,7 +136,7 @@ int  au1x00_miiphy_write(char *devname, unsigned char addr,
 		udelay(1000);
 		if (--timedout == 0) {
 			printf("au1x00_eth: miiphy_write busy timeout!!\n");
-			return;
+			return -1;
 		}
 	}
 
