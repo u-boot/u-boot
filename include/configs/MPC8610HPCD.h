@@ -587,7 +587,7 @@
  "dma3=mw ${d}284 ffffffff;mw ${d}290 50000;mw ${d}294 $sad3;mw ${d}298 50000;"\
 	"mw ${d}2a0 $bc3;mw ${d}280 f03c404; mw ${d}29c $dad3; md ${d}280 9\0"
 
-
+#ifdef ENV_DEBUG
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
@@ -632,6 +632,17 @@
  PCI_ENV \
  PCIE_ENV \
  DMA_ENV
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS                               \
+ "netdev=eth0\0"                                                \
+ "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"                         \
+ "consoledev=ttyS0\0"                                           \
+ "ramdiskaddr=2000000\0"                                        \
+ "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
+ "dtbaddr=c00000\0"                                             \
+ "dtbfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
+ "bdev=sda3\0"
+#endif
 
 #define CONFIG_NFSBOOTCOMMAND					\
  "setenv bootargs root=/dev/nfs rw "				\
