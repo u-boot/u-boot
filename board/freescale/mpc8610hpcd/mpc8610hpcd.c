@@ -54,7 +54,47 @@ int board_early_init_f(void)
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
-	gur->gpiocr |= 0x888a5500; /* DIU16, IR1, UART0, UART2 */
+	gur->gpiocr |= 0x88aa5500; /* DIU16, IR1, UART0, UART2 */
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	u8 tmp_val, version;
+
+	/*Do not use 8259PIC*/
+	tmp_val = in8(PIXIS_BASE + PIXIS_BRDCFG0);
+	out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val | 0x80);
+
+	/*For FPGA V7 or higher, set the IRQMAPSEL to 0 to use MAP0 interrupt*/
+	version = in8(PIXIS_BASE + PIXIS_PVER);
+	if(version >= 0x07) {
+		tmp_val = in8(PIXIS_BASE + PIXIS_BRDCFG0);
+		out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val & 0xbf);
+	}
+
+	/* Using this for DIU init before the driver in linux takes over
+	 *  Enable the TFP410 Encoder (I2C address 0x38)
+	 */
+
+	tmp_val = 0xBF;
+	i2c_write(0x38, 0x08, 1, &tmp_val, sizeof(tmp_val));
+	/* Verify if enabled */
+	tmp_val = 0;
+	i2c_read(0x38, 0x08, 1, &tmp_val, sizeof(tmp_val));
+	debug("DVI Encoder Read: 0x%02lx\n",tmp_val);
+
+	tmp_val = 0x10;
+	i2c_write(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
+	/* Verify if enabled */
+	tmp_val = 0;
+	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
+	debug("DVI Encoder Read: 0x%02lx\n",tmp_val);
+
+#ifdef CONFIG_FSL_DIU_FB
+	mpc8610hpcd_diu_init();
+#endif
 
 	return 0;
 }
@@ -62,7 +102,6 @@ int board_early_init_f(void)
 int checkboard(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
 	puts("Board: MPC8610HPCD\n");
@@ -468,7 +507,7 @@ ft_board_setup(void *blob, bd_t *bd)
 unsigned long
 get_board_sys_clk(ulong dummy)
 {
-	u8 i, go_bit, rd_clks;
+	u8 i;
 	ulong val = 0;
 	ulong a;
 

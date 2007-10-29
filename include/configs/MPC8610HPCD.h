@@ -21,6 +21,7 @@
 #define CONFIG_NUM_CPUS		1	/* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
+#define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR		0xff800000
 #endif
@@ -38,7 +39,7 @@
 #define CONFIG_SPD_EEPROM		/* Use SPD for DDR */
 #undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
+#undef  CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 #define CONFIG_NUM_DDR_CONTROLLERS	1
@@ -51,13 +52,14 @@
  */
 #define CFG_L2
 #define L2_INIT		0
-#define L2_ENABLE	(L2CR_L2E)
+#define L2_ENABLE	(L2CR_L2E |0x00100000 )
 
 #ifndef CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+#define CONFIG_MISC_INIT_R		1
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
@@ -159,6 +161,7 @@
 #define PIXIS_RST		0x4	/* PIXIS Reset Control register */
 #define PIXIS_AUX		0x6	/* PIXIS Auxiliary register; Scratch */
 #define PIXIS_SPD		0x7	/* Register for SYSCLK speed */
+#define PIXIS_BRDCFG0		0x8	/* PIXIS Board Configuration Register0*/
 #define PIXIS_VCTL		0x10	/* VELA Control Register */
 #define PIXIS_VCFGEN0		0x12	/* VELA Config Enable 0 */
 #define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
@@ -208,7 +211,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 KB for Mon */
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CFG_MALLOC_LEN		(6 * 1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1
@@ -474,6 +477,9 @@
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
+/*DIU Configuration*/
+#define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/
+
 /*
  * Miscellaneous configurable options
  */
@@ -621,7 +627,8 @@
  "diuregs=md e002c000 1d\0" \
  "dium=mw e002c01c\0" \
  "diuerr=md e002c014 1\0" \
- "othbootargs=debug\0" \
+ "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 debug\0" \
+ "monitor=0-DVI\0" \
  "pmregs=md e00e1000 2b\0" \
  "lawregs=md e0000c08 4b\0" \
  "lbcregs=md e0005000 36\0" \
@@ -641,7 +648,9 @@
  "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
  "dtbaddr=c00000\0"                                             \
  "dtbfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
- "bdev=sda3\0"
+ "bdev=sda3\0"							\
+ "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0\0"\
+ "monitor=0-DVI\0"
 #endif
 
 #define CONFIG_NFSBOOTCOMMAND					\

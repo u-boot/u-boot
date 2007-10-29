@@ -29,7 +29,9 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= $(BOARD).o \
 	../common/sys_eeprom.o \
-	../common/pixis.o
+	../common/pixis.o \
+	mpc8610hpcd_diu.o \
+	../common/fsl_diu_fb.o
 
 SOBJS	:= init.o
 

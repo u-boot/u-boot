@@ -31,7 +31,9 @@ LIB	= $(obj)lib$(VENDOR).a
 
 COBJS	:= sys_eeprom.o	\
 	   pixis.o	\
-	   pq-mds-pib.o
+	   pq-mds-pib.o \
+	   fsl_logo_bmp.o \
+	   fsl_diu_fb.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
