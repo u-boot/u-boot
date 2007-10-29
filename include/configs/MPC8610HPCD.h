@@ -151,6 +151,7 @@
 #define CFG_OR3_PRELIM		0xfff06ff7 /* 1MB PIXIS area*/
 
 
+#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xe8000000	/* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
@@ -166,6 +167,7 @@
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
+#define CFG_PIXIS_VBOOT_MASK	0x0C    /* Reset altbank mask*/
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks */
 #define CFG_MAX_FLASH_SECT	1024		/* sectors per device */
