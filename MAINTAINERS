@@ -630,7 +630,10 @@ Hayden Fraser <Hayden.Fraser@freescale.com>
 
 Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-	ATSTK1000		AT32AP7000
+	ATSTK1000		AT32AP7xxx
+	ATSTK1002		AT32AP7000
+	ATSTK1003		AT32AP7001
+	ATSTK1004		AT32AP7002
 
 #########################################################################
 # End of MAINTAINERS list						#
