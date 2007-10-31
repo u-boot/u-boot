@@ -26,56 +26,48 @@
 |
 |  Author:	Mark Wisner
 |
-|  Change Activity-
-|
-|  Date	       Description of Change					BY
-|  ---------   ---------------------					---
-|  04-May-99   Created							MKW
-|  07-Jul-99   Added full duplex support				MKW
-|  08-Sep-01   Tweaks							gvb
-|
 +----------------------------------------------------------------------------*/
 #ifndef _miiphy_h_
 #define _miiphy_h_
 
 #include <net.h>
 
-int  miiphy_read(char *devname, unsigned char addr, unsigned char reg,
-		unsigned short *value);
-int  miiphy_write(char *devname, unsigned char addr, unsigned char reg,
-		unsigned short value);
-int  miiphy_info(char *devname, unsigned char addr, unsigned int  *oui,
-		unsigned char *model, unsigned char *rev);
-int  miiphy_reset(char *devname, unsigned char addr);
-int  miiphy_speed(char *devname, unsigned char addr);
-int  miiphy_duplex(char *devname, unsigned char addr);
+int miiphy_read (char *devname, unsigned char addr, unsigned char reg,
+		 unsigned short *value);
+int miiphy_write (char *devname, unsigned char addr, unsigned char reg,
+		  unsigned short value);
+int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
+		 unsigned char *model, unsigned char *rev);
+int miiphy_reset (char *devname, unsigned char addr);
+int miiphy_speed (char *devname, unsigned char addr);
+int miiphy_duplex (char *devname, unsigned char addr);
 #ifdef CFG_FAULT_ECHO_LINK_DOWN
-int  miiphy_link(char *devname, unsigned char addr);
+int miiphy_link (char *devname, unsigned char addr);
 #endif
 
-void miiphy_init(void);
+void miiphy_init (void);
 
-void miiphy_register(char *devname,
-	int (* read)(char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value),
-	int (* write)(char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value));
+void miiphy_register (char *devname,
+		      int (*read) (char *devname, unsigned char addr,
+				   unsigned char reg, unsigned short *value),
+		      int (*write) (char *devname, unsigned char addr,
+				    unsigned char reg, unsigned short value));
 
-int miiphy_set_current_dev(char *devname);
-char *miiphy_get_current_dev(void);
+int miiphy_set_current_dev (char *devname);
+char *miiphy_get_current_dev (void);
 
-void miiphy_listdev(void);
+void miiphy_listdev (void);
 
 #define BB_MII_DEVNAME	"bbmii"
 
 int bb_miiphy_read (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value);
+		    unsigned char reg, unsigned short *value);
 int bb_miiphy_write (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value);
+		     unsigned char reg, unsigned short value);
 
 /* phy seed setup */
 #define AUTO			99
-#define _1000BASET              1000
+#define _1000BASET		1000
 #define _100BASET		100
 #define _10BASET		10
 #define HALF			22
@@ -90,9 +82,9 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_ANLPAR		0x05
 #define PHY_ANER		0x06
 #define PHY_ANNPTR		0x07
-#define PHY_ANLPNP              0x08
-#define PHY_1000BTCR            0x09
-#define PHY_1000BTSR            0x0A
+#define PHY_ANLPNP		0x08
+#define PHY_1000BTCR		0x09
+#define PHY_1000BTSR		0x0A
 #define PHY_PHYSTS		0x10
 #define PHY_MIPSCR		0x11
 #define PHY_MIPGSR		0x12
@@ -115,10 +107,10 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_BMCR_DPLX		0x0100
 #define PHY_BMCR_COL_TST	0x0080
 
-#define PHY_BMCR_SPEED_MASK     0x2040
-#define PHY_BMCR_1000_MBPS      0x0040
-#define PHY_BMCR_100_MBPS       0x2000
-#define PHY_BMCR_10_MBPS        0x0000
+#define PHY_BMCR_SPEED_MASK	0x2040
+#define PHY_BMCR_1000_MBPS	0x0040
+#define PHY_BMCR_100_MBPS	0x2000
+#define PHY_BMCR_10_MBPS	0x0000
 
 /* phy BMSR */
 #define PHY_BMSR_100T4		0x8000
@@ -143,18 +135,18 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_ANLPAR_TX		0x0080
 #define PHY_ANLPAR_10FD		0x0040
 #define PHY_ANLPAR_10		0x0020
-#define PHY_ANLPAR_100		0x0380	    /* we can run at 100 */
+#define PHY_ANLPAR_100		0x0380	/* we can run at 100 */
 
-#define PHY_ANLPAR_PSB_MASK     0x001f
-#define PHY_ANLPAR_PSB_802_3    0x0001
-#define PHY_ANLPAR_PSB_802_9    0x0002
+#define PHY_ANLPAR_PSB_MASK	0x001f
+#define PHY_ANLPAR_PSB_802_3	0x0001
+#define PHY_ANLPAR_PSB_802_9	0x0002
 
-/* PHY_1000BTSR */
-#define PHY_1000BTSR_MSCF       0x8000
-#define PHY_1000BTSR_MSCR       0x4000
-#define PHY_1000BTSR_LRS        0x2000
-#define PHY_1000BTSR_RRS        0x1000
-#define PHY_1000BTSR_1000FD     0x0800
-#define PHY_1000BTSR_1000HD     0x0400
+/* phy 1000BTSR */
+#define PHY_1000BTSR_MSCF	0x8000
+#define PHY_1000BTSR_MSCR	0x4000
+#define PHY_1000BTSR_LRS	0x2000
+#define PHY_1000BTSR_RRS	0x1000
+#define PHY_1000BTSR_1000FD	0x0800
+#define PHY_1000BTSR_1000HD	0x0400
 
 #endif
