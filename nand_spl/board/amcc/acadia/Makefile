@@ -29,7 +29,7 @@ LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
-SOBJS	= start.o resetvec.o
+SOBJS	= start.o resetvec.o cache.o
 COBJS	= gpio.o nand_boot.o nand_ecc.o memory.o ndfc.o pll.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -63,6 +63,10 @@ $(nandobj)System.map:	$(nandobj)u-boot-spl
 # create symbolic links for common files
 
 # from cpu directory
+$(obj)cache.S:
+	@rm -f $(obj)cache.S
+	ln -s $(SRCTREE)/cpu/ppc4xx/cache.S $(obj)cache.S
+
 $(obj)gpio.c:
 	@rm -f $(obj)gpio.c
 	ln -s $(SRCTREE)/cpu/ppc4xx/gpio.c $(obj)gpio.c
