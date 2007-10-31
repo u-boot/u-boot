@@ -364,13 +364,6 @@
 #define HCU_CPLD_VERSION_REGISTER ( CFG_CPLD + 0x0F00000 )
 #define HCU_HW_VERSION_REGISTER   ( CFG_CPLD + 0x1400000 )
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- *----------------------------------------------------------------------*/
-#define CFG_DCACHE_SIZE		(32<<10)  /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	      /* ...			            */
-#define CFG_CACHELINE_SHIFT	5	      /* log base 2 of the above value	*/
-
 /*
  * Internal Definitions
  *

@@ -43,6 +43,14 @@
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
 				33333333 : 33000000)
 
+#if 0
+/*
+ * 44x dcache supported is working now on sequoia, but we don't enable
+ * it yet since it needs further testing
+ */
+#define CONFIG_4xx_DCACHE			/* enable dcache	*/
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
 
@@ -459,15 +467,6 @@
 #define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
 #define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- *----------------------------------------------------------------------*/
-#define CFG_DCACHE_SIZE		(32<<10)  /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	      /* ...			            */
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	      /* log base 2 of the above value	*/
-#endif
 
 /*
  * Internal Definitions

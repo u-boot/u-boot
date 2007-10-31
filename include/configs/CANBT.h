@@ -181,15 +181,6 @@
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		8192	/* For AMCC 405 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Init Memory Controller:
  *

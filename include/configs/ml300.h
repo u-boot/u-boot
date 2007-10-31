@@ -160,12 +160,6 @@
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs	*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-
-/*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 

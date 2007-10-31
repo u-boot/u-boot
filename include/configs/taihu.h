@@ -366,13 +366,6 @@ unsigned char spi_read(void);
 }												\
 }
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For IBM 405EP CPU */
-#define CFG_CACHELINE_SIZE	32
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-
 /*
  * Init Memory Controller:
  *
