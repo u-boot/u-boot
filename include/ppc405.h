@@ -22,6 +22,12 @@
 #ifndef	__PPC405_H__
 #define __PPC405_H__
 
+#ifndef CONFIG_IOP480
+#define CFG_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
+#else
+#define CFG_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480 (403)	*/
+#endif
+
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
 /*--------------------------------------------------------------------- */

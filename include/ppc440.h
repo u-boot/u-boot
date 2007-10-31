@@ -22,6 +22,8 @@
 #ifndef __PPC440_H__
 #define __PPC440_H__
 
+#define CFG_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
+
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
 /*--------------------------------------------------------------------- */
@@ -3281,9 +3283,5 @@ static inline void set_mcsr(u32 val)
 }
 
 #endif	/* _ASMLANGUAGE */
-
-#define RESET_VECTOR		0xfffffffc
-#define CACHELINE_MASK		(CFG_CACHELINE_SIZE - 1) /* Address mask for		*/
-							 /* cache line aligned data.	*/
 
 #endif	/* __PPC440_H__ */

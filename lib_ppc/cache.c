@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-
+#include <asm/cache.h>
 
 void flush_cache (ulong start_addr, ulong size)
 {
