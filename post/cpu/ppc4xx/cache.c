@@ -119,7 +119,9 @@ int cache_post_test (int flags)
 	if (ints)
 		enable_interrupts ();
 
+#ifdef CONFIG_440
 	remove_tlb((u32)virt, CACHE_POST_SIZE);
+#endif
 
 	return res;
 }
