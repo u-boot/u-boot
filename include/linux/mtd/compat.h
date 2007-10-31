@@ -18,7 +18,12 @@
 #define KERN_DEBUG
 
 #define kmalloc(size, flags)	malloc(size)
-#define kfree(ptr)		free(ptr)
+#define kzalloc(size, flags)    calloc(size, 1)
+#define vmalloc(size)			malloc(size)
+#define kfree(ptr)		        free(ptr)
+#define vfree(ptr)              free(ptr)
+
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 /*
  * ..and if you can't take the strict

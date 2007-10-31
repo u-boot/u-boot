@@ -14,6 +14,7 @@
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>
 
+#if 0
 #ifdef CFG_DOC_SUPPORT_2000
 #define DoC_is_2000(doc) (doc->ChipID == DOC_ChipID_Doc2k)
 #else
@@ -1629,3 +1630,6 @@ void doc_probe(unsigned long physadr)
 		puts ("No DiskOnChip found\n");
 	}
 }
+#else
+void doc_probe(unsigned long physadr) {}
+#endif

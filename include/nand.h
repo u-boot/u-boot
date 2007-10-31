@@ -84,6 +84,7 @@ struct nand_write_options {
 };
 
 typedef struct nand_write_options nand_write_options_t;
+typedef struct mtd_oob_ops mtd_oob_ops_t;
 
 struct nand_read_options {
 	u_char *buffer;		/* memory block in which read image is written*/
@@ -107,7 +108,7 @@ struct nand_erase_options {
 
 typedef struct nand_erase_options nand_erase_options_t;
 
-int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts);
+int nand_write_opts(nand_info_t *mtd, loff_t to, mtd_oob_ops_t *ops);
 
 int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);

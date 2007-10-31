@@ -46,38 +46,22 @@
 
 static u8 hwctl = 0;
 
-static void ndfc_hwcontrol(struct mtd_info *mtdinfo, int cmd)
+static void ndfc_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		hwctl |= 0x1;
-		break;
+    struct nand_chip *this = mtd->priv;
 
-	case NAND_CTL_CLRCLE:
-		hwctl &= ~0x1;
-		break;
-
-	case NAND_CTL_SETALE:
-		hwctl |= 0x2;
-		break;
-
-	case NAND_CTL_CLRALE:
-		hwctl &= ~0x2;
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			hwctl |= 0x1;
+		else
+			hwctl &= ~0x1;
+		if ( ctrl & NAND_ALE )
+			hwctl |= 0x2;
+		else
+			hwctl &= ~0x2;
 	}
-}
-
-static void ndfc_write_byte(struct mtd_info *mtdinfo, u_char byte)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) this->IO_ADDR_W & 0xfffffffc;
-
-	if (hwctl & 0x1)
-		out_8((u8 *)(base + NDFC_CMD), byte);
-	else if (hwctl & 0x2)
-		out_8((u8 *)(base + NDFC_ALE), byte);
-	else
-		out_8((u8 *)(base + NDFC_DATA), byte);
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static u_char ndfc_read_byte(struct mtd_info *mtdinfo)
@@ -194,16 +178,17 @@ int board_nand_init(struct nand_chip *nand)
 	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
 	ulong base = (ulong)nand->IO_ADDR_W & 0xfffffffc;
 
-	nand->hwcontrol  = ndfc_hwcontrol;
+	nand->cmd_ctrl  = ndfc_hwcontrol;
 	nand->read_byte  = ndfc_read_byte;
 	nand->read_buf   = ndfc_read_buf;
-	nand->write_byte = ndfc_write_byte;
 	nand->dev_ready  = ndfc_dev_ready;
 
-	nand->eccmode = NAND_ECC_HW3_256;
-	nand->enable_hwecc = ndfc_enable_hwecc;
-	nand->calculate_ecc = ndfc_calculate_ecc;
-	nand->correct_data = nand_correct_data;
+    nand->ecc.correct = nand_correct_data;
+    nand->ecc.hwctl = ndfc_enable_hwecc;
+    nand->ecc.calculate = ndfc_calculate_ecc;
+    nand->ecc.mode = NAND_ECC_HW;
+    nand->ecc.size = 256;
+    nand->ecc.bytes = 3;
 
 #ifndef CONFIG_NAND_SPL
 	nand->write_buf  = ndfc_write_buf;
