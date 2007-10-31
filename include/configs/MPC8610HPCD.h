@@ -22,6 +22,15 @@
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
+
+/* video */
+#undef CONFIG_VIDEO
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#endif
+
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR		0xff800000
 #endif
@@ -314,15 +323,17 @@
 #define CONFIG_EEPRO100
 #define CONFIG_TULIP
 
-#if 0 /* TODO */
 /************************************************************
  * USB support
  ************************************************************/
-#define CONFIG_USB_OHCI		1
+#define CONFIG_PCI_OHCI		1
+#define CONFIG_USB_OHCI_NEW		1
 #define CONFIG_USB_KEYBOARD	1
 #define CFG_DEVICE_DEREGISTER
-#define CFG_USB_INTERRUPT_POLL	1
-#endif
+#define CFG_USB_EVENT_POLL	1
+#define CFG_USB_OHCI_SLOT_NAME 	"ohci_pci"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#define CFG_OHCI_SWAP_REG_ACCESS	1
 
 #if !defined(CONFIG_PCI_PNP)
 #define PCI_ENET0_IOADDR	0xe0000000
@@ -472,6 +483,7 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_USB
 #endif
 
 
