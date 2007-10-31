@@ -120,10 +120,10 @@
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
  * everything correctly.
  */
-#ifdef CFG_ENABLE_SDRAM_CACHE
+#ifdef CONFIG_4xx_DCACHE
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */

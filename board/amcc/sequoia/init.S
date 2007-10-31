@@ -98,7 +98,11 @@ tlbtab:
 #endif
 
 	/* TLB-entry for DDR SDRAM (Up to 2GB) */
+#ifdef CONFIG_4xx_DCACHE
+	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
+#else
 	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+#endif
 
 #ifdef CFG_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */

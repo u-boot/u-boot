@@ -251,10 +251,10 @@ void spd_ddr_init_hang (void) __attribute__((weak, alias("__spd_ddr_init_hang"))
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
  * everything correctly.
  */
-#ifdef CFG_ENABLE_SDRAM_CACHE
+#ifdef CONFIG_4xx_DCACHE
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
@@ -345,7 +345,7 @@ long int spd_sdram(void) {
 	 */
 	check_volt_type(dimm_populated, iic0_dimm_addr, num_dimm_banks);
 
-#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	/*
 	 * Soft-reset SDRAM controller.
 	 */
@@ -1197,9 +1197,6 @@ static void program_tr1(void)
 	}
 
 	rdclt_average = ((max_start + max_end) >> 1);
-	if (rdclt_average >= 0x60)
-		while (1)
-			;
 
 	if (rdclt_average < 0) {
 		rdclt_average = 0;
