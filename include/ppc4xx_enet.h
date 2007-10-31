@@ -102,6 +102,8 @@ typedef struct emac_4xx_hw_st {
     uint32_t		emac_ier;
     volatile mal_desc_t *tx;
     volatile mal_desc_t *rx;
+    u32			tx_phys;
+    u32			rx_phys;
     bd_t		*bis;	/* for eth_init upon mal error */
     mal_desc_t		*alloc_tx_buf;
     mal_desc_t		*alloc_rx_buf;

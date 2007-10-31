@@ -82,6 +82,8 @@
 #include <net.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/cache.h>
+#include <asm/mmu.h>
 #include <commproc.h>
 #include <ppc4xx.h>
 #include <ppc4xx_enet.h>
@@ -188,6 +190,10 @@ struct eth_device *emac0_dev = NULL;
 #else
 #define ETH_IRQ_NUM(dev)	(VECNUM_ETH0 + ((dev) * 2))
 #endif
+
+#define MAL_RX_DESC_SIZE	2048
+#define MAL_TX_DESC_SIZE	2048
+#define MAL_ALLOC_SIZE		(MAL_TX_DESC_SIZE + MAL_RX_DESC_SIZE)
 
 /*-----------------------------------------------------------------------------+
  * Prototypes and externals.
@@ -354,8 +360,8 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	/* Ensure we setup mdio for this devnum and ONLY this devnum */
 	zmiifer |= (ZMII_FER_MDI) << ZMII_FER_V(devnum);
 
-	out_be32(ZMII_FER, zmiifer);
-	out_be32(RGMII_FER, rmiifer);
+	out_be32((void *)ZMII_FER, zmiifer);
+	out_be32((void *)RGMII_FER, rmiifer);
 
 	return ((int)pfc1);
 }
@@ -446,9 +452,15 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 }
 #endif  /* CONFIG_405EX */
 
+static inline void *malloc_aligned(u32 size, u32 align)
+{
+	return (void *)(((u32)malloc(size + align) + align - 1) &
+			~(align - 1));
+}
+
 static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 {
-	int i, j;
+	int i;
 	unsigned long reg = 0;
 	unsigned long msr;
 	unsigned long speed;
@@ -473,6 +485,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
     defined(CONFIG_405EX)
 	unsigned long mfr;
 #endif
+	u32 bd_cached;
+	u32 bd_uncached = 0;
 
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
@@ -768,11 +782,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 
 	/* Set ZMII/RGMII speed according to the phy link speed */
-	reg = in_be32(ZMII_SSR);
+	reg = in_be32((void *)ZMII_SSR);
 	if ( (speed == 100) || (speed == 1000) )
-		out_be32(ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
+		out_be32((void *)ZMII_SSR, reg | (ZMII_SSR_SP << ZMII_SSR_V (devnum)));
 	else
-		out_be32(ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
+		out_be32((void *)ZMII_SSR, reg & (~(ZMII_SSR_SP << ZMII_SSR_V (devnum))));
 
 	if ((devnum == 2) || (devnum == 3)) {
 		if (speed == 1000)
@@ -785,7 +799,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			printf("Error in RGMII Speed\n");
 			return -1;
 		}
-		out_be32(RGMII_SSR, reg);
+		out_be32((void *)RGMII_SSR, reg);
 	}
 #endif /* defined(CONFIG_440) && !defined(CONFIG_440SP) */
 
@@ -819,91 +833,60 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 #endif
 
-	/* Free "old" buffers */
-	if (hw_p->alloc_tx_buf)
-		free (hw_p->alloc_tx_buf);
-	if (hw_p->alloc_rx_buf)
-		free (hw_p->alloc_rx_buf);
-
 	/*
 	 * Malloc MAL buffer desciptors, make sure they are
 	 * aligned on cache line boundary size
 	 * (401/403/IOP480 = 16, 405 = 32)
 	 * and doesn't cross cache block boundaries.
 	 */
-	hw_p->alloc_tx_buf =
-		(mal_desc_t *) malloc ((sizeof (mal_desc_t) * NUM_TX_BUFF) +
-				       ((2 * CFG_CACHELINE_SIZE) - 2));
-	if (NULL == hw_p->alloc_tx_buf)
-		return -1;
-	if (((int) hw_p->alloc_tx_buf & CACHELINE_MASK) != 0) {
-		hw_p->tx =
-			(mal_desc_t *) ((int) hw_p->alloc_tx_buf +
-					CFG_CACHELINE_SIZE -
-					((int) hw_p->
-					 alloc_tx_buf & CACHELINE_MASK));
-	} else {
-		hw_p->tx = hw_p->alloc_tx_buf;
-	}
+	if (hw_p->first_init == 0) {
+		debug("*** Allocating descriptor memory ***\n");
 
-	hw_p->alloc_rx_buf =
-		(mal_desc_t *) malloc ((sizeof (mal_desc_t) * NUM_RX_BUFF) +
-				       ((2 * CFG_CACHELINE_SIZE) - 2));
-	if (NULL == hw_p->alloc_rx_buf) {
-		free(hw_p->alloc_tx_buf);
-		hw_p->alloc_tx_buf = NULL;
-		return -1;
-	}
+		bd_cached = (u32)malloc_aligned(MAL_ALLOC_SIZE, 4096);
+		if (!bd_cached) {
+			printf("%s: Error allocating MAL descriptor buffers!\n");
+			return -1;
+		}
 
-	if (((int) hw_p->alloc_rx_buf & CACHELINE_MASK) != 0) {
-		hw_p->rx =
-			(mal_desc_t *) ((int) hw_p->alloc_rx_buf +
-					CFG_CACHELINE_SIZE -
-					((int) hw_p->
-					 alloc_rx_buf & CACHELINE_MASK));
-	} else {
-		hw_p->rx = hw_p->alloc_rx_buf;
+#ifdef CONFIG_4xx_DCACHE
+		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
+		hw_p->tx_phys = bd_cached;
+		hw_p->rx_phys = bd_cached + MAL_TX_DESC_SIZE;
+		bd_uncached = bis->bi_memsize;
+		program_tlb(bd_cached, bd_uncached, MAL_ALLOC_SIZE,
+			    TLB_WORD2_I_ENABLE);
+#else
+		bd_uncached = bd_cached;
+#endif
+		hw_p->tx_phys = bd_cached;
+		hw_p->rx_phys = bd_cached + MAL_TX_DESC_SIZE;
+		hw_p->tx = (mal_desc_t *)(bd_uncached);
+		hw_p->rx = (mal_desc_t *)(bd_uncached + MAL_TX_DESC_SIZE);
+		debug("hw_p->tx=%08x, hw_p->rx=%08x\n", hw_p->tx, hw_p->rx);
 	}
 
 	for (i = 0; i < NUM_TX_BUFF; i++) {
 		hw_p->tx[i].ctrl = 0;
 		hw_p->tx[i].data_len = 0;
-		if (hw_p->first_init == 0) {
-			hw_p->txbuf_ptr =
-				(char *) malloc (ENET_MAX_MTU_ALIGNED);
-			if (NULL == hw_p->txbuf_ptr) {
-				free(hw_p->alloc_rx_buf);
-				free(hw_p->alloc_tx_buf);
-				hw_p->alloc_rx_buf = NULL;
-				hw_p->alloc_tx_buf = NULL;
-				for(j = 0; j < i; j++) {
-					free(hw_p->tx[i].data_ptr);
-					hw_p->tx[i].data_ptr = NULL;
-				}
-			}
-		}
+		if (hw_p->first_init == 0)
+			hw_p->txbuf_ptr = malloc_aligned(MAL_ALLOC_SIZE,
+							 L1_CACHE_BYTES);
 		hw_p->tx[i].data_ptr = hw_p->txbuf_ptr;
 		if ((NUM_TX_BUFF - 1) == i)
 			hw_p->tx[i].ctrl |= MAL_TX_CTRL_WRAP;
 		hw_p->tx_run[i] = -1;
-#if 0
-		printf ("TX_BUFF %d @ 0x%08lx\n", i,
-			(ulong) hw_p->tx[i].data_ptr);
-#endif
+		debug("TX_BUFF %d @ 0x%08lx\n", i, (u32)hw_p->tx[i].data_ptr);
 	}
 
 	for (i = 0; i < NUM_RX_BUFF; i++) {
 		hw_p->rx[i].ctrl = 0;
 		hw_p->rx[i].data_len = 0;
-		/*	 rx[i].data_ptr = (char *) &rx_buff[i]; */
-		hw_p->rx[i].data_ptr = (char *) NetRxPackets[i];
+		hw_p->rx[i].data_ptr = (char *)NetRxPackets[i];
 		if ((NUM_RX_BUFF - 1) == i)
 			hw_p->rx[i].ctrl |= MAL_RX_CTRL_WRAP;
 		hw_p->rx[i].ctrl |= MAL_RX_CTRL_EMPTY | MAL_RX_CTRL_INTR;
 		hw_p->rx_ready[i] = -1;
-#if 0
-		printf ("RX_BUFF %d @ 0x%08lx\n", i, (ulong) hw_p->rx[i].data_ptr);
-#endif
+		debug("RX_BUFF %d @ 0x%08lx\n", i, (u32)hw_p->rx[i].data_ptr);
 	}
 
 	reg = 0x00000000;
@@ -929,15 +912,15 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	case 1:
 		/* setup MAL tx & rx channel pointers */
 #if defined (CONFIG_405EP) || defined (CONFIG_440EP) || defined (CONFIG_440GR)
-		mtdcr (maltxctp2r, hw_p->tx);
+		mtdcr (maltxctp2r, hw_p->tx_phys);
 #else
-		mtdcr (maltxctp1r, hw_p->tx);
+		mtdcr (maltxctp1r, hw_p->tx_phys);
 #endif
 #if defined(CONFIG_440)
 		mtdcr (maltxbattr, 0x0);
 		mtdcr (malrxbattr, 0x0);
 #endif
-		mtdcr (malrxctp1r, hw_p->rx);
+		mtdcr (malrxctp1r, hw_p->rx_phys);
 		/* set RX buffer size */
 		mtdcr (malrcbs1, ENET_MAX_MTU_ALIGNED / 16);
 		break;
@@ -946,17 +929,17 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		/* setup MAL tx & rx channel pointers */
 		mtdcr (maltxbattr, 0x0);
 		mtdcr (malrxbattr, 0x0);
-		mtdcr (maltxctp2r, hw_p->tx);
-		mtdcr (malrxctp2r, hw_p->rx);
+		mtdcr (maltxctp2r, hw_p->tx_phys);
+		mtdcr (malrxctp2r, hw_p->rx_phys);
 		/* set RX buffer size */
 		mtdcr (malrcbs2, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 	case 3:
 		/* setup MAL tx & rx channel pointers */
 		mtdcr (maltxbattr, 0x0);
-		mtdcr (maltxctp3r, hw_p->tx);
+		mtdcr (maltxctp3r, hw_p->tx_phys);
 		mtdcr (malrxbattr, 0x0);
-		mtdcr (malrxctp3r, hw_p->rx);
+		mtdcr (malrxctp3r, hw_p->rx_phys);
 		/* set RX buffer size */
 		mtdcr (malrcbs3, ENET_MAX_MTU_ALIGNED / 16);
 		break;
@@ -968,8 +951,8 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		mtdcr (maltxbattr, 0x0);
 		mtdcr (malrxbattr, 0x0);
 #endif
-		mtdcr (maltxctp0r, hw_p->tx);
-		mtdcr (malrxctp0r, hw_p->rx);
+		mtdcr (maltxctp0r, hw_p->tx_phys);
+		mtdcr (malrxctp0r, hw_p->rx_phys);
 		/* set RX buffer size */
 		mtdcr (malrcbs0, ENET_MAX_MTU_ALIGNED / 16);
 		break;
@@ -1083,6 +1066,7 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 
 	/*   memcpy ((void *) &tx_buff[tx_slot], (const void *) ptr, len); */
 	memcpy ((void *) hw_p->txbuf_ptr, (const void *) ptr, len);
+	flush_dcache_range((u32)hw_p->txbuf_ptr, (u32)hw_p->txbuf_ptr + len);
 
 	/*-----------------------------------------------------------------------+
 	 * set TX Buffer busy, and send it
@@ -1582,6 +1566,9 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 		/* Pass the packet up to the protocol layers. */
 		/*	 NetReceive(NetRxPackets[rxIdx], length - 4); */
 		/*	 NetReceive(NetRxPackets[i], length); */
+		invalidate_dcache_range((u32)hw_p->rx[user_index].data_ptr,
+					(u32)hw_p->rx[user_index].data_ptr +
+					length - 4);
 		NetReceive (NetRxPackets[user_index], length - 4);
 		/* Free Recv Buffer */
 		hw_p->rx[user_index].ctrl |= MAL_RX_CTRL_EMPTY;
