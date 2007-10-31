@@ -169,6 +169,8 @@ static void ether_post_init (int devnum, int hw_addr)
 	rx.ctrl = MAL_TX_CTRL_WRAP | MAL_RX_CTRL_EMPTY;
 	rx.data_len = 0;
 	rx.data_ptr = (char*)L1_CACHE_ALIGN((u32)rx_buf);
+	flush_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
+	flush_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
 
 	switch (devnum) {
 	case 1:
@@ -290,11 +292,14 @@ static void ether_post_send (int devnum, int hw_addr, void *packet, int length)
 			return;
 		}
 		udelay (1000);
+		invalidate_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
 	}
 	tx.ctrl = MAL_TX_CTRL_READY | MAL_TX_CTRL_WRAP | MAL_TX_CTRL_LAST |
 		EMAC_TX_CTRL_GFCS | EMAC_TX_CTRL_GP;
 	tx.data_len = length;
 	memcpy (tx.data_ptr, packet, length);
+	flush_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
+	flush_dcache_range((u32)tx.data_ptr, (u32)tx.data_ptr + length);
 	sync ();
 
 	out32 (EMAC_TXM0 + hw_addr, in32 (EMAC_TXM0 + hw_addr) | EMAC_TXM0_GNP0);
@@ -312,13 +317,17 @@ static int ether_post_recv (int devnum, int hw_addr, void *packet, int max_lengt
 			return 0;
 		}
 		udelay (1000);
+		invalidate_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
 	}
 	length = rx.data_len - 4;
-	if (length <= max_length)
+	if (length <= max_length) {
+		invalidate_dcache_range((u32)rx.data_ptr, (u32)rx.data_ptr + length);
 		memcpy(packet, rx.data_ptr, length);
+	}
 	sync ();
 
 	rx.ctrl |= MAL_RX_CTRL_EMPTY;
+	flush_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
 	sync ();
 
 	return length;
