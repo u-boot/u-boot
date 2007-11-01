@@ -43,14 +43,14 @@ SECTIONS
 	. = ALIGN(4);
 	.data  : { *(.data) }
 
-	. = ALIGN(4);
-	.sdata  : { *(.sdata) }
+	. = .;
+	_gp = ALIGN(16) + 0x7ff0;
 
-	_gp = ALIGN(16);
-
-	__got_start = .;
-	.got  : { *(.got) }
-	__got_end = .;
+	.got : {
+	  __got_start = .;
+	  *(.got)
+	  __got_end = .;
+	}
 
 	.sdata  : { *(.sdata) }
 
