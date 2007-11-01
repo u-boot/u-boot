@@ -22,3 +22,28 @@
 #
 
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
+
+#
+# From Linux arch/mips/Makefile
+#
+# GCC uses -G 0 -mabicalls -fpic as default.  We don't want PIC in the kernel
+# code since it only slows down the whole thing.  At some point we might make
+# use of global pointer optimizations but their use of $28 conflicts with
+# the current pointer optimization.
+#
+# The DECStation requires an ECOFF kernel for remote booting, other MIPS
+# machines may also.  Since BFD is incredibly buggy with respect to
+# crossformat linking we rely on the elf2ecoff tool for format conversion.
+#
+# cflags-y			+= -G 0 -mno-abicalls -fno-pic -pipe
+# cflags-y			+= -msoft-float
+# LDFLAGS_vmlinux		+= -G 0 -static -n -nostdlib
+# MODFLAGS			+= -mlong-calls
+#
+
+#
+# Meanwhile, U-Boot rely on PIC. We add proper switches explicitly.
+#
+PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic -pipe
+PLATFORM_CPPFLAGS		+= -msoft-float
+PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
