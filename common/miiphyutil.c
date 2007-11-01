@@ -344,101 +344,136 @@ int miiphy_reset (char *devname, unsigned char addr)
 
 /*****************************************************************************
  *
- * Determine the ethernet speed (10/100).
+ * Determine the ethernet speed (10/100/1000).  Return 10 on error.
  */
 int miiphy_speed (char *devname, unsigned char addr)
 {
-	unsigned short reg;
+	u16 bmcr, anlpar;
 
 #if defined(CONFIG_PHY_GIGE)
-	if (miiphy_read (devname, addr, PHY_1000BTSR, &reg)) {
-		printf ("PHY 1000BT Status read failed\n");
-	} else {
-		if (reg != 0xFFFF) {
-			if ((reg & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD))
-			    != 0) {
-				return (_1000BASET);
-			}
-		}
+	u16 btsr;
+
+	/*
+	 * Check for 1000BASE-X.  If it is supported, then assume that the speed
+	 * is 1000.
+	 */
+	if (miiphy_is_1000base_x (devname, addr)) {
+		return _1000BASET;
+	}
+	/*
+	 * No 1000BASE-X, so assume 1000BASE-T/100BASE-TX/10BASE-T register set.
+	 */
+	/* Check for 1000BASE-T. */
+	if (miiphy_read (devname, addr, PHY_1000BTSR, &btsr)) {
+		printf ("PHY 1000BT status");
+		goto miiphy_read_failed;
+	}
+	if (btsr != 0xFFFF &&
+	    (btsr & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD))) {
+		return _1000BASET;
 	}
 #endif /* CONFIG_PHY_GIGE */
 
 	/* Check Basic Management Control Register first. */
-	if (miiphy_read (devname, addr, PHY_BMCR, &reg)) {
-		puts ("PHY speed read failed, assuming 10bT\n");
-		return (_10BASET);
+	if (miiphy_read (devname, addr, PHY_BMCR, &bmcr)) {
+		printf ("PHY speed");
+		goto miiphy_read_failed;
 	}
 	/* Check if auto-negotiation is on. */
-	if ((reg & PHY_BMCR_AUTON) != 0) {
+	if (bmcr & PHY_BMCR_AUTON) {
 		/* Get auto-negotiation results. */
-		if (miiphy_read (devname, addr, PHY_ANLPAR, &reg)) {
-			puts ("PHY AN speed read failed, assuming 10bT\n");
-			return (_10BASET);
+		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+			printf ("PHY AN speed");
+			goto miiphy_read_failed;
 		}
-		if ((reg & PHY_ANLPAR_100) != 0) {
-			return (_100BASET);
-		} else {
-			return (_10BASET);
-		}
+		return (anlpar & PHY_ANLPAR_100) ? _100BASET : _10BASET;
 	}
 	/* Get speed from basic control settings. */
-	else if (reg & PHY_BMCR_100MB) {
-		return (_100BASET);
-	} else {
-		return (_10BASET);
-	}
+	return (bmcr & PHY_BMCR_100MB) ? _100BASET : _10BASET;
 
+      miiphy_read_failed:
+	printf (" read failed, assuming 10BASE-T\n");
+	return _10BASET;
 }
 
 /*****************************************************************************
  *
- * Determine full/half duplex.
+ * Determine full/half duplex.  Return half on error.
  */
 int miiphy_duplex (char *devname, unsigned char addr)
 {
-	unsigned short reg;
+	u16 bmcr, anlpar;
 
 #if defined(CONFIG_PHY_GIGE)
-	if (miiphy_read (devname, addr, PHY_1000BTSR, &reg)) {
-		printf ("PHY 1000BT Status read failed\n");
-	} else {
-		if ((reg != 0xFFFF) &&
-		    (reg & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD))) {
-			if ((reg & PHY_1000BTSR_1000FD) != 0) {
-				return (FULL);
-			} else {
-				return (HALF);
-			}
+	u16 btsr;
+
+	/* Check for 1000BASE-X. */
+	if (miiphy_is_1000base_x (devname, addr)) {
+		/* 1000BASE-X */
+		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+			printf ("1000BASE-X PHY AN duplex");
+			goto miiphy_read_failed;
+		}
+	}
+	/*
+	 * No 1000BASE-X, so assume 1000BASE-T/100BASE-TX/10BASE-T register set.
+	 */
+	/* Check for 1000BASE-T. */
+	if (miiphy_read (devname, addr, PHY_1000BTSR, &btsr)) {
+		printf ("PHY 1000BT status");
+		goto miiphy_read_failed;
+	}
+	if (btsr != 0xFFFF) {
+		if (btsr & PHY_1000BTSR_1000FD) {
+			return FULL;
+		} else if (btsr & PHY_1000BTSR_1000HD) {
+			return HALF;
 		}
 	}
 #endif /* CONFIG_PHY_GIGE */
 
 	/* Check Basic Management Control Register first. */
-	if (miiphy_read (devname, addr, PHY_BMCR, &reg)) {
-		puts ("PHY duplex read failed, assuming half duplex\n");
-		return (HALF);
+	if (miiphy_read (devname, addr, PHY_BMCR, &bmcr)) {
+		puts ("PHY duplex");
+		goto miiphy_read_failed;
 	}
 	/* Check if auto-negotiation is on. */
-	if ((reg & PHY_BMCR_AUTON) != 0) {
+	if (bmcr & PHY_BMCR_AUTON) {
 		/* Get auto-negotiation results. */
-		if (miiphy_read (devname, addr, PHY_ANLPAR, &reg)) {
-			puts ("PHY AN duplex read failed, assuming half duplex\n");
-			return (HALF);
+		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+			puts ("PHY AN duplex");
+			goto miiphy_read_failed;
 		}
-
-		if ((reg & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD)) != 0) {
-			return (FULL);
-		} else {
-			return (HALF);
-		}
+		return (anlpar & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD)) ?
+		    FULL : HALF;
 	}
 	/* Get speed from basic control settings. */
-	else if (reg & PHY_BMCR_DPLX) {
-		return (FULL);
-	} else {
-		return (HALF);
-	}
+	return (bmcr & PHY_BMCR_DPLX) ? FULL : HALF;
 
+      miiphy_read_failed:
+	printf (" read failed, assuming half duplex\n");
+	return HALF;
+}
+
+/*****************************************************************************
+ *
+ * Return 1 if PHY supports 1000BASE-X, 0 if PHY supports 10BASE-T/100BASE-TX/
+ * 1000BASE-T, or on error.
+ */
+int miiphy_is_1000base_x (char *devname, unsigned char addr)
+{
+#if defined(CONFIG_PHY_GIGE)
+	u16 exsr;
+
+	if (miiphy_read (devname, addr, PHY_EXSR, &exsr)) {
+		printf ("PHY extended status read failed, assuming no "
+			"1000BASE-X\n");
+		return 0;
+	}
+	return 0 != (exsr & (PHY_EXSR_1000XF | PHY_EXSR_1000XH));
+#else
+	return 0;
+#endif
 }
 
 #ifdef CFG_FAULT_ECHO_LINK_DOWN

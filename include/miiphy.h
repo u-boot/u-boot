@@ -41,6 +41,7 @@ int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
 int miiphy_reset (char *devname, unsigned char addr);
 int miiphy_speed (char *devname, unsigned char addr);
 int miiphy_duplex (char *devname, unsigned char addr);
+int miiphy_is_1000base_x (char *devname, unsigned char addr);
 #ifdef CFG_FAULT_ECHO_LINK_DOWN
 int miiphy_link (char *devname, unsigned char addr);
 #endif
@@ -85,6 +86,7 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_ANLPNP		0x08
 #define PHY_1000BTCR		0x09
 #define PHY_1000BTSR		0x0A
+#define PHY_EXSR		0x0F
 #define PHY_PHYSTS		0x10
 #define PHY_MIPSCR		0x11
 #define PHY_MIPGSR		0x12
@@ -118,6 +120,7 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_BMSR_100TXH		0x2000
 #define PHY_BMSR_10TF		0x1000
 #define PHY_BMSR_10TH		0x0800
+#define PHY_BMSR_EXT_STAT	0x0100
 #define PHY_BMSR_PRE_SUP	0x0040
 #define PHY_BMSR_AUTN_COMP	0x0020
 #define PHY_BMSR_RF		0x0010
@@ -130,16 +133,29 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_ANLPAR_NP		0x8000
 #define PHY_ANLPAR_ACK		0x4000
 #define PHY_ANLPAR_RF		0x2000
+#define PHY_ANLPAR_ASYMP	0x0800
+#define PHY_ANLPAR_PAUSE	0x0400
 #define PHY_ANLPAR_T4		0x0200
 #define PHY_ANLPAR_TXFD		0x0100
 #define PHY_ANLPAR_TX		0x0080
 #define PHY_ANLPAR_10FD		0x0040
 #define PHY_ANLPAR_10		0x0020
 #define PHY_ANLPAR_100		0x0380	/* we can run at 100 */
+/* phy ANLPAR 1000BASE-X */
+#define PHY_X_ANLPAR_NP		0x8000
+#define PHY_X_ANLPAR_ACK	0x4000
+#define PHY_X_ANLPAR_RF_MASK	0x3000
+#define PHY_X_ANLPAR_PAUSE_MASK	0x0180
+#define PHY_X_ANLPAR_HD		0x0040
+#define PHY_X_ANLPAR_FD		0x0020
 
 #define PHY_ANLPAR_PSB_MASK	0x001f
 #define PHY_ANLPAR_PSB_802_3	0x0001
 #define PHY_ANLPAR_PSB_802_9	0x0002
+
+/* phy 1000BTCR */
+#define PHY_1000BTCR_1000FD	0x0200
+#define PHY_1000BTCR_1000HD	0x0100
 
 /* phy 1000BTSR */
 #define PHY_1000BTSR_MSCF	0x8000
@@ -148,5 +164,11 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 #define PHY_1000BTSR_RRS	0x1000
 #define PHY_1000BTSR_1000FD	0x0800
 #define PHY_1000BTSR_1000HD	0x0400
+
+/* phy EXSR */
+#define PHY_EXSR_1000XF		0x8000
+#define PHY_EXSR_1000XH		0x4000
+#define PHY_EXSR_1000TF		0x2000
+#define PHY_EXSR_1000TH		0x1000
 
 #endif
