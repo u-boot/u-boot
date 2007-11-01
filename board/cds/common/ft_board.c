@@ -37,17 +37,24 @@ static void cds_pci_fixup(void *blob)
 
 	map = ft_get_prop(blob, "/" OF_SOC "/pci@8000/interrupt-map", &len);
 
-	len /= sizeof(u32);
+	if (!map)
+		map = ft_get_prop(blob, "/" OF_PCI "/interrupt-map", &len);
 
-	slot = get_pci_slot();
+	if (map) {
+		len /= sizeof(u32);
 
-	for (i=0;i<len;i+=7) {
-		/* We rotate the interrupt pins so that the mapping
-		 * changes depending on the slot the carrier card is in.
-		 */
-		map[3] = ((map[3] + slot - 2) % 4) + 1;
+		slot = get_pci_slot();
 
-		map+=7;
+		for (i=0;i<len;i+=7) {
+			/* We rotate the interrupt pins so that the mapping
+			 * changes depending on the slot the carrier card is in.
+			 */
+			map[3] = ((map[3] + slot - 2) % 4) + 1;
+
+			map+=7;
+		}
+	} else {
+		printf("*** Warning - No PCI node found\n");
 	}
 }
 #endif
