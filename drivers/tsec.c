@@ -803,6 +803,7 @@ static void startup_tsec(struct eth_device *dev)
 	/* Tell the DMA it is clear to go */
 	regs->dmactrl |= DMACTRL_INIT_SETTINGS;
 	regs->tstat = TSTAT_CLEAR_THALT;
+	regs->rstat = RSTAT_CLEAR_RHALT;
 	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
 }
 
