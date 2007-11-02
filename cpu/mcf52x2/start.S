@@ -58,7 +58,7 @@ _vectors:
 .long	0x00000000		/* Flash offset is 0 until we setup CS0 */
 #if defined(CONFIG_R5200)
 .long	0x400
-#elif defined(CONFIG_M5282)
+#elif defined(CONFIG_M5282) && (TEXT_BASE == CFG_INT_FLASH_BASE)
 .long	_start - TEXT_BASE
 #else
 .long	_START
@@ -177,7 +177,11 @@ _after_flashbar_copy:
 	 * therefore no VBR to set
 	 */
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
+#if defined(CONFIG_M5282) && (TEXT_BASE == CFG_INT_FLASH_BASE)
+	move.l	#CFG_INT_FLASH_BASE, %d0
+#else
 	move.l	#CFG_FLASH_BASE, %d0
+#endif
 	movec	%d0, %VBR
 #endif
 

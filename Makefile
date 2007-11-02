@@ -1733,9 +1733,13 @@ M54455EVB_i66_config :	unconfig
 	>include/config.h ; \
 	if [ "$${FLASH}" == "INTEL" ] ; then \
 		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		echo "... with INTEL boot..." ; \
 	else \
 		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		echo "... with ATMEL boot..." ; \
 	fi; \
 	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
