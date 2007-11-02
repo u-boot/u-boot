@@ -146,7 +146,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		16	/* SDRAM size in MB */
+#define CFG_SDRAM_SIZE		8	/* SDRAM size in MB */
 
 #ifdef CONFIG_MONITOR_IS_IN_RAM
 #define CFG_MONITOR_BASE	0x20000

@@ -89,4 +89,5 @@ long int initdram (int board_type)
 		/* Write to the SDRAM Mode Register */
 		*(u32 *)(CFG_SDRAM_BASE + 0x400) = 0xA5A59696;
 	}
+	return dramsize;
 }
