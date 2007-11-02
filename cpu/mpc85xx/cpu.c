@@ -163,7 +163,12 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	 * Initiate hard reset in debug control register DBCR0
 	 * Make sure MSR[DE] = 1
 	 */
-		unsigned long val;
+		unsigned long val, msr;
+
+		msr = mfmsr ();
+		msr |= MSR_DE;
+		mtmsr (msr);
+
 		val = mfspr(DBCR0);
 		val |= 0x70000000;
 		mtspr(DBCR0,val);

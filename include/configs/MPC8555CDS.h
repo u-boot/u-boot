@@ -316,6 +316,7 @@ extern unsigned long get_clock_freq(void);
 #define OF_SOC			"soc8555@e0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
 #define OF_STDOUT_PATH		"/soc8555@e0000000/serial@4600"
+#define OF_PCI			"pci@e0008000"
 
 /*
  * I2C

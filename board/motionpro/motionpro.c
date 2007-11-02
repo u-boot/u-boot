@@ -138,6 +138,12 @@ long int initdram(int board_type)
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
 
+	/* According to AN3221 (MPC5200B SDRAM Initialization and
+	 * Configuration), the SDelay register must be written a value of
+	 * 0x00000004 as the first step of the SDRAM contorller configuration.
+	 */
+	*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
+
 	/* configure SDRAM start/end for detection */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001e; /* 2G at 0x0 */
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000; /* disabled */

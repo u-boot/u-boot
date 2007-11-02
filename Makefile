@@ -393,7 +393,7 @@ BC3450_config:	unconfig
 cpci5200_config:  unconfig
 	@$(MKCONFIG) -a cpci5200  ppc mpc5xxx cpci5200 esd
 
-hmi1001_config:         unconfig
+hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001
 
 Lite5200_config				\
@@ -435,7 +435,7 @@ icecube_5100_config:			unconfig
 		}
 	@$(MKCONFIG) -a IceCube ppc mpc5xxx icecube
 
-jupiter_config:         unconfig
+jupiter_config:	unconfig
 	@$(MKCONFIG) jupiter ppc mpc5xxx jupiter
 
 v38b_config: unconfig
@@ -640,9 +640,9 @@ TQM5200_STK100_config:	unconfig
 		{ echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp ; \
 		}
 	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
-uc101_config:         unconfig
+uc101_config:		unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
-motionpro_config:         unconfig
+motionpro_config:	unconfig
 	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
 
 
@@ -930,7 +930,7 @@ RPXlite_DW_NVRAM_config		\
 RPXlite_DW_NVRAM_64_config      \
 RPXlite_DW_NVRAM_LCD_config	\
 RPXlite_DW_NVRAM_64_LCD_config  \
-RPXlite_DW_config:         unconfig
+RPXlite_DW_config:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
 	@[ -z "$(findstring _64,$@)" ] || \
@@ -1733,9 +1733,13 @@ M54455EVB_i66_config :	unconfig
 	>include/config.h ; \
 	if [ "$${FLASH}" == "INTEL" ] ; then \
 		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		echo "... with INTEL boot..." ; \
 	else \
 		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		echo "... with ATMEL boot..." ; \
 	fi; \
 	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
@@ -1766,7 +1770,8 @@ MPC8323ERDB_config:	unconfig
 MPC832XEMDS_config \
 MPC832XEMDS_HOST_33_config \
 MPC832XEMDS_HOST_66_config \
-MPC832XEMDS_SLAVE_config:	unconfig
+MPC832XEMDS_SLAVE_config \
+MPC832XEMDS_ATM_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
@@ -1781,10 +1786,17 @@ MPC832XEMDS_SLAVE_config:	unconfig
 	if [ "$(findstring _33_,$@)" ] ; then \
 		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _ATM_,$@)" ] ; then \
+		echo -n "...ATM..." ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds freescale
 
@@ -1808,7 +1820,8 @@ MPC8349ITXGP_config:	unconfig
 MPC8360EMDS_config \
 MPC8360EMDS_HOST_33_config \
 MPC8360EMDS_HOST_66_config \
-MPC8360EMDS_SLAVE_config:	unconfig
+MPC8360EMDS_SLAVE_config \
+MPC8360EMDS_ATM_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _HOST_,$@)" ] ; then \
@@ -1823,10 +1836,17 @@ MPC8360EMDS_SLAVE_config:	unconfig
 	if [ "$(findstring _33_,$@)" ] ; then \
 		echo -n "...33M ..." ; \
 		echo "#define PCI_33M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
 		echo -n "...66M..." ; \
 		echo "#define PCI_66M" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _ATM_,$@)" ] ; then \
+		echo -n "...ATM..." ; \
+		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
@@ -1988,13 +2008,13 @@ AmigaOneG3SE_config:	unconfig
 BAB7xx_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx bab7xx eltec
 
-CPCI750_config:        unconfig
+CPCI750_config:	unconfig
 	@$(MKCONFIG) CPCI750 ppc 74xx_7xx cpci750 esd
 
-DB64360_config:  unconfig
+DB64360_config:	unconfig
 	@$(MKCONFIG) DB64360 ppc 74xx_7xx db64360 Marvell
 
-DB64460_config:  unconfig
+DB64460_config:	unconfig
 	@$(MKCONFIG) DB64460 ppc 74xx_7xx db64460 Marvell
 
 ELPPC_config: unconfig

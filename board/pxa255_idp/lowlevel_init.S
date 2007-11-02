@@ -3,7 +3,7 @@
  *
  * NOTE: I haven't clean this up considerably, just enough to get it
  * running. See hal_platform_setup.h for the source. See
- * board/cradle/memsetup.S for another PXA250 setup that is
+ * board/cradle/lowlevel_init.S for another PXA250 setup that is
  * much cleaner.
  *
  * See file CREDITS for list of people who contributed to this
@@ -41,8 +41,8 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 /*
  * 	Memory setup
  */
-.globl memsetup
-memsetup:
+.globl lowlevel_init
+lowlevel_init:
 
 	mov      r10, lr
 
@@ -395,7 +395,7 @@ initclks:
 
 	/* Save SDRAM size */
 	ldr     r1, =DRAM_SIZE
-	 str	   r8, [r1]
+	str     r8, [r1]
 
 	/* Interrupt init: Mask all interrupts                              */
 	ldr	r0, =ICMR /* enable no sources */
@@ -426,7 +426,7 @@ initclks:
 	bl 	blink
 #endif
 
-endmemsetup:
+endlowlevel_init:
 
 	mov     pc, r10
 

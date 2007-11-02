@@ -27,8 +27,8 @@
  * board/config.h - configuration options, board specific
  */
 
-#ifndef _JAMICA54455_H
-#define _JAMICA54455_H
+#ifndef _M54455EVB_H
+#define _M54455EVB_H
 
 /*
  * High Level Configuration Options
@@ -75,7 +75,7 @@
 #define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_PCI
+#undef CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
@@ -129,8 +129,8 @@
 	"u-boot=u-boot.bin\0"			\
 	"load=tftp ${loadaddr) ${u-boot}\0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off 0 2ffff;"		\
-	"era 0 2ffff;"				\
+	"prog=prot off 4000000 402ffff;"		\
+	"era 4000000 402ffff;"				\
 	"cp.b ${loadaddr} 0 ${filesize};"	\
 	"save\0"				\
 	""
@@ -174,6 +174,7 @@
 #define CFG_IMMR		CFG_MBAR
 
 /* PCI */
+#ifdef CONFIG_CMD_PCI
 #define CONFIG_PCI		1
 
 #define CFG_PCI_MEM_BUS		0xA0000000
@@ -187,6 +188,7 @@
 #define CFG_PCI_CFG_BUS		0xB0000000
 #define CFG_PCI_CFG_PHYS	CFG_PCI_CFG_BUS
 #define CFG_PCI_CFG_SIZE	0x01000000
+#endif
 
 /* FPGA - Spartan 2 */
 /* experiment
@@ -268,8 +270,6 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_SECT_SIZE	0x2000
 #define CFG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OVERWRITE	1
 #undef CFG_ENV_IS_EMBEDDED
@@ -278,13 +278,17 @@
  * FLASH organization
  */
 #ifdef CFG_ATMEL_BOOT
-#	define CFG_FLASH_BASE		0
+#	define CFG_FLASH_BASE		CFG_CS0_BASE	
 #	define CFG_FLASH0_BASE		CFG_CS0_BASE
 #	define CFG_FLASH1_BASE		CFG_CS1_BASE
+#	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
+#	define CFG_ENV_SECT_SIZE	0x2000
 #else
 #	define CFG_FLASH_BASE		CFG_FLASH0_BASE
 #	define CFG_FLASH0_BASE		CFG_CS1_BASE
 #	define CFG_FLASH1_BASE		CFG_CS0_BASE
+#	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#	define CFG_ENV_SECT_SIZE	0x20000
 #endif
 
 /* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
@@ -328,9 +332,9 @@
  * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
 #ifdef CFG_ATMEL_BOOT
-#	define CONFIG_JFFS2_DEV		"nor0"
+#	define CONFIG_JFFS2_DEV		"nor1"
 #	define CONFIG_JFFS2_PART_SIZE	0x01000000
-#	define CONFIG_JFFS2_PART_OFFSET	CFG_FLASH1_BASE
+#	define CONFIG_JFFS2_PART_OFFSET	(CFG_FLASH1_BASE + 0x500000)
 #else
 #	define CONFIG_JFFS2_DEV		"nor0"
 #	define CONFIG_JFFS2_PART_SIZE	(0x01000000 - 0x500000)
@@ -356,20 +360,20 @@
 
 #ifdef CFG_ATMEL_BOOT
  /* Atmel Flash */
-#define CFG_CS0_BASE		0
+#define CFG_CS0_BASE		0x04000000
 #define CFG_CS0_MASK		0x00070001
 #define CFG_CS0_CTRL		0x00001140
 /* Intel Flash */
-#define CFG_CS1_BASE		0x04000000
+#define CFG_CS1_BASE		0x00000000
 #define CFG_CS1_MASK		0x01FF0001
-#define CFG_CS1_CTRL		0x003F3D60
+#define CFG_CS1_CTRL		0x00000D60
 
 #define CFG_ATMEL_BASE		CFG_CS0_BASE
 #else
 /* Intel Flash */
-#define CFG_CS0_BASE		0
+#define CFG_CS0_BASE		0x00000000
 #define CFG_CS0_MASK		0x01FF0001
-#define CFG_CS0_CTRL		0x003F3D60
+#define CFG_CS0_CTRL		0x00000D60
  /* Atmel Flash */
 #define CFG_CS1_BASE		0x04000000
 #define CFG_CS1_MASK		0x00070001
@@ -388,4 +392,4 @@
 #define CFG_CS3_MASK		0x00070001
 #define CFG_CS3_CTRL		0x00000020
 
-#endif				/* _JAMICA54455_H */
+#endif				/* _M54455EVB_H */
