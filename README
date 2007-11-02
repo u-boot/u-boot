@@ -2123,7 +2123,7 @@ to save the current settings.
 	to be a good choice since it makes it far enough from the
 	start of the data area as well as from the stack pointer.
 
-Please note that the environment is read-only as long as the monitor
+Please note that the environment is read-only until the monitor
 has been relocated to RAM and a RAM copy of the environment has been
 created; also, when using EEPROM you will have to use getenv_r()
 until then to read environment variables.
