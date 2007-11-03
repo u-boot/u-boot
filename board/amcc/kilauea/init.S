@@ -38,6 +38,7 @@
 
 	.globl  ext_bus_cntlr_init
 ext_bus_cntlr_init:
+#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 
 	/*
 	 * DDR2 setup
@@ -148,5 +149,6 @@ pll_wait:
 
 	/* Enable memory controller */
 	mtsdram_as(SDRAM_MCOPT2, 0x28000000);
+#endif /* #ifndef CONFIG_NAND_U_BOOT */
 
 	blr

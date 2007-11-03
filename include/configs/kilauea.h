@@ -50,7 +50,7 @@
 #define CFG_FPGA_BASE		0xF0000000
 #define CFG_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
 #define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc()	*/
 #define CFG_MONITOR_BASE	(TEXT_BASE)
 
 /*-----------------------------------------------------------------------
@@ -116,6 +116,71 @@
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif /* CFG_ENV_IS_IN_FLASH */
+
+/*
+ * IPL (Initial Program Loader, integrated inside CPU)
+ * Will load first 4k from NAND (SPL) into cache and execute it from there.
+ *
+ * SPL (Secondary Program Loader)
+ * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
+ * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
+ * controller and the NAND controller so that the special U-Boot image can be
+ * loaded from NAND to SDRAM.
+ *
+ * NUB (NAND U-Boot)
+ * This NAND U-Boot (NUB) is a special U-Boot version which can be started
+ * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
+ *
+ * On 440EPx the SPL is copied to SDRAM before the NAND controller is
+ * set up. While still running from cache, I experienced problems accessing
+ * the NAND controller.	sr - 2006-08-25
+ */
+#define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
+#define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
+#define CFG_NAND_BOOT_SPL_DST	0x00800000	/* Copy SPL here		*/
+#define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
+#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
+#define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
+
+/*
+ * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
+ */
+#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
+#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
+
+/*
+ * Now the NAND chip has to be defined (no autodetection used!)
+ */
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
+#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
+#define CFG_NAND_4_ADDR_CYCLE	1		/* Fourth addr used (>32MB)	*/
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+
+#ifdef CFG_ENV_IS_IN_NAND
+/*
+ * For NAND booting the environment is embedded in the U-Boot image. Please take
+ * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
+ */
+#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#endif
+
+/*-----------------------------------------------------------------------
+ * NAND FLASH
+ *----------------------------------------------------------------------*/
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
+#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -332,6 +397,18 @@
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+/* booting from NAND, so NAND chips select has to be on CS 0 */
+#define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
+
+/* Memory Bank 1 (NOR-FLASH) initialization					*/
+#define CFG_EBC_PB1AP		0x05806500
+#define CFG_EBC_PB1CR           0xFC0DA000  /* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit*/
+
+/* Memory Bank 0 (NAND-FLASH) initialization					*/
+#define CFG_EBC_PB0AP		0x018003c0
+#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1e000)
+#else
 #define CFG_NAND_CS		1		/* NAND chip connected to CSx	*/
 
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
@@ -341,20 +418,13 @@
 /* Memory Bank 1 (NAND-FLASH) initialization					*/
 #define CFG_EBC_PB1AP		0x018003c0
 #define CFG_EBC_PB1CR		(CFG_NAND_ADDR | 0x1e000)
+#endif
 
 /* Memory Bank 2 (FPGA) initialization						*/
 #define CFG_EBC_PB2AP           0x9400C800
 #define CFG_EBC_PB2CR           0xF0018000 /*  BAS=0x800,BS=1MB,BU=R/W,BW=8bit	*/
 
 #define CFG_EBC_CFG		0x7FC00000 /*  EBC0_CFG */
-
-/*-----------------------------------------------------------------------
- * NAND FLASH
- *----------------------------------------------------------------------*/
-#define CFG_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
-#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
-#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
 /*-----------------------------------------------------------------------
  * GPIO Setup

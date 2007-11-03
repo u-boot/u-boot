@@ -1173,6 +1173,15 @@ kilauea_config \
 haleakala_config: unconfig
 	@$(MKCONFIG) -n $@ -a kilauea ppc ppc4xx kilauea amcc
 
+kilauea_nand_config \
+haleakala_nand_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/amcc/kilauea
+	@mkdir -p $(obj)nand_spl/board/amcc/kilauea
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a kilauea ppc ppc4xx kilauea amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/kilauea/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 

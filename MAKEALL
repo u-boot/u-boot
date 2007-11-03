@@ -181,6 +181,7 @@ LIST_4xx="		\
 	EXBITGEN	\
 	G2000		\
 	haleakala	\
+	haleakala_nand	\
 	hcu4		\
 	hcu5		\
 	HH405		\
@@ -189,6 +190,7 @@ LIST_4xx="		\
 	KAREF		\
 	katmai		\
 	kilauea		\
+	kilauea_nand	\
 	luan		\
 	lwmon5		\
 	makalu		\
