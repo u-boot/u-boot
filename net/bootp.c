@@ -979,7 +979,6 @@ void DhcpRequest(void)
 {
 	BootpRequest();
 }
-#endif
+#endif	/* CONFIG_CMD_DHCP */
 
-#endif
-
+#endif	/* CONFIG_CMD_NET */
