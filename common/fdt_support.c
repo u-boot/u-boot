@@ -374,4 +374,27 @@ int fdt_bd_t(void *fdt)
 }
 #endif /* ifdef CONFIG_OF_HAS_BD_T */
 
+void do_fixup_by_path(void *fdt, const char *path, const char *prop,
+		      const void *val, int len, int create)
+{
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	int rc = fdt_find_and_setprop(fdt, path, prop, val, len, create);
+	if (rc)
+		printf("Unable to update property %s:%s, err=%s\n",
+			path, prop, fdt_strerror(rc));
+}
+
+void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
+			  u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_path(fdt, path, prop, &val, sizeof(val), create);
+}
+
 #endif /* CONFIG_OF_LIBFDT */
