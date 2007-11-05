@@ -41,7 +41,7 @@ COBJS	= 3c589.o 5701rls.o ali512x.o at45.o ata_piix.o \
 	  omap24xx_i2c.o pc_keyb.o \
 	  pci.o pci_auto.o pci_indirect.o \
 	  pcnet.o plb2800_eth.o ps2ser.o ps2mult.o pxa_pcmcia.o \
-	  rpx_pcmcia.o rtl8019.o rtl8139.o rtl8169.o \
+	  rpx_pcmcia.o rtl8019.o rtl8139.o rtl8169.o uli526x.o\
 	  s3c4510b_eth.o s3c4510b_uart.o \
 	  sed13806.o sed156x.o \
 	  serial.o serial_max3100.o \
