@@ -853,18 +853,17 @@ void pcie_setup_hoses(int busno)
 			continue;
 
 		if (is_end_point(i)) {
-			printf("PCIE%d: will be configured as endpoint\n",i);
 			yucca_setup_pcie_fpga_endpoint(i);
 			ret = ppc4xx_init_pcie_endport(i);
 		} else {
-			printf("PCIE%d: will be configured as root-complex\n",i);
 			yucca_setup_pcie_fpga_rootpoint(i);
 			ret = ppc4xx_init_pcie_rootport(i);
 		}
 		if (ret) {
- 			printf("PCIE%d: initialization failed\n", i);
- 			continue;
- 		}
+			printf("PCIE%d: initialization as %s failed\n", i,
+			       is_end_point(i) ? "endpoint" : "root-complex");
+			continue;
+		}
 
 		hose = &pcie_hose[i];
 		hose->first_busno = bus;
