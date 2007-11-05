@@ -145,6 +145,7 @@
 #undef  CFG_RAMBOOT
 #endif
 
+/* CFG_MONITOR_LEN must be a multiple of CFG_ENV_SECT_SIZE */
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
@@ -410,8 +411,8 @@
  */
 #ifndef CFG_RAMBOOT
 	#define CFG_ENV_IS_IN_FLASH	1
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-	#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	#define CFG_ENV_SECT_SIZE	0x20000
 	#define CFG_ENV_SIZE		0x2000
 #else
 	#define CFG_NO_FLASH		1	/* Flash is not usable now */
