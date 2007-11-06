@@ -405,7 +405,6 @@ rpc_lookup_reply (int prog, uchar *pkt, unsigned len)
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
-	    rpc_pkt.u.reply.astatus  ||
 	    rpc_pkt.u.reply.astatus) {
 		return -1;
 	}
