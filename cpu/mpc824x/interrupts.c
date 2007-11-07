@@ -86,7 +86,7 @@ void irq_free_handler (int vec)
  vga?
  */
 
-void timer_interrupt_cpu (struct pt_regs *regs, ulong timestamp)
+void timer_interrupt_cpu (struct pt_regs *regs)
 {
 	/* nothing to do here */
 	return;
