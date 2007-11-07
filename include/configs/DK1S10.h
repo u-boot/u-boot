@@ -466,38 +466,25 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_all.h>
+#include <config_cmd_default.h>
 
-#undef CONFIG_CMD_ASKENV
-#undef COND_CMD_BEDBUG
-#undef COND_CMD_BMP
-#undef COND_CMD_BSP
-#undef COND_CMD_CACHE
-#undef COND_CMD_DATE
-#undef COND_CMD_DOC
-#undef COND_CMD_DTT
-#undef COND_CMD_EEPROM
-#undef COND_CMD_ELF
-#undef COND_CMD_FAT
-#undef COND_CMD_FDC
-#undef COND_CMD_FDOS
-#undef COND_CMD_HWFLOW
-#undef COND_CMD_IDE
-#undef COND_CMD_I2C
-#undef COND_CMD_JFFS2
-#undef COND_CMD_KGDB
-#undef COND_CMD_NAND
-#undef COND_CMD_NFS
-#undef COND_CMD_MMC
-#undef COND_CMD_MII
-#undef COND_CMD_PCI
-#undef COND_CMD_PCMCIA
-#undef COND_CMD_SCSI
-#undef COND_CMD_SPI
-#undef COND_CMD_VFD
-#undef COND_CMD_USB
-#undef COND_CMD_XIMG
+#define CONFIG_CMD_CDP
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_DISPLAY
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_PORTIO
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_REISER
+#define CONFIG_CMD_SAVES
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
 
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_XIMG
 
 /*------------------------------------------------------------------------
  * KGDB

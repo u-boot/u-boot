@@ -1,3 +1,328 @@
+commit e881cb563e32f45832b7b6db77bdcd017adcbb41
+Author: Bruce Adler <bruce.adler@ccpu.com>
+Date:	Fri Nov 2 13:15:42 2007 -0700
+
+    fix wording in README
+
+    Changed the wording to properly describe the shadowing
+    of the environment from ROM to RAM
+
+    Signed-off-by: Bruce Adler <bruce.adler@acm.org>
+
+commit ad845beef06245426c57b53dcdc01b7dc70e0d45
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Wed Oct 31 02:18:15 2007 +0900
+
+    blackfin: Move `-D__BLACKFIN__' to $(ARCH)_config.mk
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit ec22755799466c8a103664bb3a5e647bf9c238f4
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Thu Oct 25 16:08:14 2007 +0300
+
+    Trimmed some variables in ne2000.c
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit eb6f214d3644b2a77968c176ed36dcf858cfe7e0
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Thu Oct 25 17:51:27 2007 +0800
+
+    Fix the issue of usb_kbd driver missing the scan code of key 'z'.
+
+    The scan code of the key 'z' is 0x1d, which should be handled.
+
+    The change has be tested on NOVATEK USB keyboard and ULI PCI OHCI
+    controller.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit bbf4796f6498fbade56d56eff3a0a49b299d93e5
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Thu Oct 25 17:30:04 2007 +0800
+
+    Fix USB support issue for MPC8641HPCN board.
+
+    The configuration file has already enabled USB, but it
+    missed definition of CFG_OHCI_SWAP_REG_ACCESS, the USB
+    on MPC8641HPCN can not work because of the wrong USB
+    register endian.
+
+    And add the USB command to U-Boot commands list.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit 4e62041023dc3de9d98d977bb080235bc6d035e0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Oct 24 18:16:01 2007 +0200
+
+    Use config_cmd_default.h instead of config_cmd_all.h
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 56622f87857439b1c221e9deef11a9d5bb5d4308
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Oct 24 01:37:36 2007 +0200
+
+    TQM5200: Call usb_cpu_init() during board init
+
+    usb_cpu_init() configures GPS USB pins, clocks, etc. and
+    is required for proper operation of kernel USB subsystem.
+    This setup was previously done in the kernel by the fixup
+    code which is being removed, thus low level init must be
+    done by U-boot now.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 29c29c0267fe857e72014ce90c5d35b2ef6302bd
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Oct 23 16:25:50 2007 +0200
+
+    Fix typo in nfs.c
+
+    An obvious typo. Originally fixed in linkstation u-boot port.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 59543fe00a4ce720ef9f5aa7fb387c6daf1c7d78
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Oct 23 14:35:05 2007 +0200
+
+    Fix a typo in cpu/mpc824x/interrupts.c
+
+    Since December 2003 the timer_interrupt_cpu() function in
+    cpu/mpc824x/interrupts.c contains what seems to be a superfluous
+    parameter. Remove it.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit c9e7b9b9a1700fe009678d1f9b41e6364ac5df2d
+Author: Sergej Stepanov <Sergej.Stepanov@ids.de>
+Date:	Wed Oct 17 11:13:51 2007 +0200
+
+    add ft_cpu_setup(..) on mpc8260
+
+    Add ft_cpu_setup(..)-function to adapt it for use with libfdt
+    based on code from mpc5xxx
+
+    Sigend-off-by: Sergej Stepanov <Sergej.Stepanov@ids.de>
+    --
+
+commit 6abd82e19ae93c0b4d104e50165e235915ec0875
+Author: Sergej Stepanov <Sergej.Stepanov@ids.de>
+Date:	Wed Oct 17 11:18:42 2007 +0200
+
+    changes for IDS8247 board support
+
+    To get the IDS8247 board working following are done:
+     - FCC2 is deactivated
+     - FCC1 is activated
+     - I2C is activated
+     - CFI driver is activated
+     - Adapted for use with LIBFDT
+
+    Signed-off-by: Sergej Stepanov <Sergej.Stepanov@ids.de>
+    --
+
+commit 8b6684a698500be9c142ec2c9f46cfc348e17f0c
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Wed Oct 24 15:48:37 2007 +0200
+
+    ATSTK1002: Remove default ethernet addresses
+
+    Wolfgang is right: It's not a good idea to set up default initial
+    ethernet addresses for a board, even though they belong to the local
+    range.
+
+    This will change the failure mode from "IT manager screams at you for
+    using duplicate ethernet addresses" to a nice error message explaining
+    that the ethernet address hasn't been set properly.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit e5c794e491a57d829b6d8733e2ed8368a2269abf
+Author: Justin Flammia <jflammia@savantav.com>
+Date:	Mon Oct 29 17:40:35 2007 -0400
+
+    DHCP Client Fix
+
+    This is a multi-part message in MIME format.
+
+    commit e6e505eae94ed721e123e177489291fc4544b7b8
+    Author: Justin Flammia <jflammia@savantav.com>
+    Date:   Mon Oct 29 17:19:03 2007 -0400
+
+	Found a bug in the way the DHCP Request packet is built, where the IP address
+	that is offered by the server is bound to prematurely. This patch is a fix of
+	that bug where the IP address offered by the DHCP server is not used until
+	after the DHCP ACK from the server is received.
+
+    Signed-off-by: Justin Flammia <jflammia@savantav.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit e8ee8f3ade2a06c1893dd5e68f223070d650c7ed
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Oct 25 17:16:22 2007 -0500
+
+    ColdFire 54455: Fix correct boot location for atmel and intel
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 688e8eb414ac111cca7ce60bdf30e805ab9a7bcb
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Oct 25 17:14:00 2007 -0500
+
+    ColdFire: Fix build error when CONFIG_WATCHDOG is defined
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit c67e12e705b204cfe914e3e3e693d69a445dcabf
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Oct 25 17:12:36 2007 -0500
+
+    ColdFire 5329: Assign correct SDRAM size and fix cache
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 95e9f2c212a65610b2e59a5c00d0113383a4da0b
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Oct 25 17:10:23 2007 -0500
+
+    ColdFire 5253: Assign correct SDRAM size
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 2acefa72ee0026f862ab65597ca687428f63a973
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Oct 25 17:09:17 2007 -0500
+
+    ColdFire 5282: Fix external flash boot and return dramsize
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit d78791ae914d4e7c5edca1cdad73b3dc81a4eb82
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Oct 25 17:20:01 2007 +0200
+
+    TQM5200: increase kernel_addr_r and fdt_addr_r (hinted by Wolfgang Denk).
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 1a0ce20aa4cb4e3068da04e7290ee9986fd0b834
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Oct 24 08:42:25 2007 +0200
+
+    TQM5200: fix spurious characters on second serial interface
+
+    With this patch PSC3 is configured as UART. This is done, because if
+    the pins of PSC3 are not configured at all (-> all pins are GPI),
+    due to crosstalk, spurious characters may be send over the RX232_2_TXD
+    signal line.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit be4a87f11e297a5cededbf7dd71c0248f3874acd
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Oct 24 08:41:27 2007 +0200
+
+    TQM5200S: fix commands for STK52xx base board because of missing SM501 grafic controller
+
+    Some commands for the STK52xx base board try to access the SM501 grafic
+    controller. But the TQM5200S has no grafic controller (only the TQM5200
+    and the TQM5200B have). This patch deactivates the commands accessing
+    the SM501 for the TQM5200S.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit b31f64343ead9482cd439b1adbe4c34026a641b1
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Oct 22 16:45:53 2007 +0200
+
+    TQM5200: fix spurious characters on second serial interface
+
+    With this patch PSC3 is configured as UART. This is done, because if
+    the pins of PSC3 are not configured at all (-> all pins are GPI),
+    due to crosstalk, spurious characters may be send over the RX232_2_TXD
+    signal line.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 0fc0f91b20ffa802f5a66534ca5c2844910583f6
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Oct 22 16:40:06 2007 +0200
+
+    TQM5200S: fix commands for STK52xx base board because of missing SM501 grafic controller
+
+    Some commands for the STK52xx base board try to access the SM501 grafic
+    controller. But the TQM5200S has no grafic controller (only the TQM5200
+    and the TQM5200B have). This patch deactivates the commands accessing
+    the SM501 for the TQM5200S.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 7b0a42219f30277f71f4405cbaf8a269f6d2d227
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Oct 21 09:14:28 2007 +0200
+
+    Mips: Fix string functions differ prototype declaration
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit cb8250fe4b3c4ed549b270e8a20bc22060e7e1d2
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Oct 19 17:51:40 2007 -0500
+
+    fsl_pci_init enable COMMAND_MEMORY if inbound window
+
+    Patch 16e23c3f removed PCSRBAR allocation.	But passing zero windows
+    to pciauto_setup_device has the side effect of not getting
+    COMMAND_MEMORY set.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit e9d0d527992566ebef9826962ff1745b2f082b92
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 10:55:24 2007 +0200
+
+    delta: Fix OHCI_REGS_BASE undeclared and wait_ms implicit declaration
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9c4884f54da982ce990c7d1760ac81b0704d3c64
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 08:10:15 2007 +0200
+
+    fix warning: no return statement in function returning non-void
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e78220f6e514206757acfe247297fc9a328a881f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 06:33:45 2007 +0200
+
+    xsengine: Fix no partition type specified, use DOS as default
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 10cdb8dbd67a818823ab9ec88b68fc348903db59
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Oct 19 00:24:59 2007 +0200
+
+    lubbock: Fix no partition type specified, use DOS as default
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 41b4d282d38fa7231c315c5f6cfff5bdd24e0191
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Oct 23 16:50:03 2007 +0200
+
+    Coding style: keep lists sorted; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 58b74b05c621e2835ecf4e2d3243042cf4186777
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Fri Oct 19 00:09:05 2007 +0200
@@ -51,6 +376,112 @@ Date:	Wed Oct 17 11:56:31 2007 -0500
     are added to u-boot.
     Signed-off-by Rune Torgersen <runet@innovsys.com>
 
+commit d3afa1ee19345a31fd1eaad3e98b97d13ca47315
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Oct 23 13:14:10 2007 +0200
+
+    Motion-PRO: Update configuration to accomodate next generation board.
+
+    New board has faster oscillator and a different Flash chip. This affects:
+    - CFG_MPC5XXX_CLKIN
+    - SDRAM timings
+    - Flash CS configuration (timings)
+    - Flash sector size, and thus MTD partition layout
+    - malloc() arena size (due to bigger Flash sectors)
+    - smaller memory test range (due to bigger malloc() arena)
+
+    This patch also enables more extensive memory testing via "mtest".
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit eff501904df2bf1724a750062628ba2c51dbb1f8
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Oct 23 11:36:07 2007 +0200
+
+    Motion-PRO: Add setting of SDelay reg. to SDRAM controller configuration.
+
+    Per AN3221 (MPC5200B SDRAM Initialization and Configuration), the SDelay
+    register must be written a value of 0x00000004 as the first step of the
+    SDRAM contorller configuration.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 7a9348728ebda63cdbaacffd83099aa71d9d4c54
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Tue Oct 23 10:22:16 2007 +0100
+
+    Move PL01* serial drivers to drivers/serial and adjust Makefiles.
+
+commit de9a738faa7c2f47286119c3bfebc3dfbfe7d86d
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Sun Oct 21 22:10:10 2007 +0900
+
+    [MIPS] Fix UNCACHED_SDRAM
+
+    PHYSADDR is for physical address, KSEG1ADDR is for uncached.
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 00101dd7a32d12f698150123e47e4b3420279f86
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Sun Oct 21 21:30:42 2007 +0900
+
+    [MIPS] Add PIC-related switches to PLATFORM_{CPP,LD}FLAGS and cleanup
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit eb700636db017d310edaeb559b13d82588560674
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Sun Oct 21 10:55:37 2007 +0900
+
+    [MIPS] u-boot.lds: Define _gp in a standard manner
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 22069215eb7adf5a3888bf7c7784ea9d70a72cd0
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Sun Oct 21 10:55:36 2007 +0900
+
+    [MIPS] Fix $gp usage
+
+    Now we load $gp with _GLOBAL_OFFSET_TABLE_, but this is incorrect use.
+    As a general principle, we should use _gp for $gp.
+
+    Thanks to linker script's help we fortunately have _gp which equals to
+    _GLOBAL_OFFSET_TABLE_. But once _gp gets out of alignment, we will not
+    be able to access to GOT entires, global variables and procedure entry
+    points. The right thing to do is to use _gp.
+
+    This patch also introduce a new symbol `.gpword _GLOBAL_OFFSET_TABLE_'
+    which holds the offset from _gp. When updating GOT entries, we use this
+    offset and _gp to calculate the final _GLOBAL_OFFSET_TABLE_.
+
+    This patch is originally submitted by Vlad Lungu <vlad@comsys.ro>, then
+    I made some change to leave over num_got_entries.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+    Cc: Vlad Lungu <vlad@comsys.ro>
+
+commit cbf2323b5b8285ea01acba7bbb905a3162d9b021
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Sun Oct 21 10:55:36 2007 +0900
+
+    [MIPS] u-boot.lds: Fix __got_start and __got_end
+
+    Ensure that __got_start points to top of the `.got', and __got_end points
+    to bottom as well, so that we never fail to count num_got_entries.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit e5f325fec5b48ae705c89522923ba5a2e37cd5c7
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Sun Oct 21 10:55:36 2007 +0900
+
+    [MIPS] u-boot.lds: Remove duplicated .sdata section
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
 commit 05bf4919c1ce49cdedadacd564d0786a8ed796a1
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Oct 21 01:01:17 2007 +0200
@@ -72,6 +503,84 @@ Date:	Thu Oct 4 20:47:10 2007 +0300
     clever enough to cope with 1 packet per eth_rx().
 
     Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit df90968b48fb34fa9072fab150db2ac89678f537
+Author: urwithsughosh@gmail.com <urwithsughosh@gmail.com>
+Date:	Mon Sep 24 13:32:13 2007 -0400
+
+    Setting MSR[DE] in do_reset
+
+    Hello,
+       This patch ensures the soft reset of the board for the 85xx boards
+       by setting the MSR[DE] in the do_reset function.
+
+    Signed-off-by: Sughosh Ganu <urwithsughosh@gmail.com>
+
+commit 1e701e701304b3c3a3768ca83dd2ab7b9e88c77d
+Author: urwithsughosh@gmail.com <urwithsughosh@gmail.com>
+Date:	Mon Sep 24 13:36:01 2007 -0400
+
+    MSR overwrite fix
+
+    Hello,
+      This patch fixes the MSR overwrite in the start.S when moving out of
+      the last 4K page.
+
+    Signed-off-by: Sughosh Ganu <urwithsughosh@gmail.com>
+
+commit 5c7ea64bb74a850a2b2303f853a8270695ad8602
+Author: Dan Wilson <dwilson@fulcrummicro.com>
+Date:	Fri Oct 19 11:33:48 2007 -0500
+
+    tsec driver should clear RHALT on startup
+
+    This was causing problems for some people.
+
+    Signed-off-by: Alain Gravel <agravel@fulcrummicro.com>
+    Signed-off-by: Dan Wilson <dwilson@fulcrummicro.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7600d47b8f6a10019e537dc9a62aa1498df58d25
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 11 00:29:18 2007 -0500
+
+    Improve handling of PCI interrupt device tree fixup on MPC85xx CDS
+
+    On the MPC85xx CDS we have two issues:
+
+    1. The device tree fixup code did not check to see if the property we are
+    trying to update is actually found.  Its possible that it would update
+    random memory starting at 0.
+
+    2. Newer Linux kernel's have moved the location of the PCI nodes to be
+    sibilings of the soc node and not children.  The explicit PATH to the PCI
+    node would not be found for these device trees.  Add the ability to handle
+    both paths.  In the future we shouldn't handle such fixups by explicit path.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a3063eec775719b7e91023bbec3f64b3118791df
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 11 00:18:48 2007 -0500
+
+    Set OF_STDOUT_PATH to match the default console on MPC8568 MDS
+
+    On the MPC8568 MDS we use ttyS0, UART0, etc. as the standard configured
+    console.  Make it so we match that config what we tell Linux as the early
+    STDOUT console.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e1ce3cb617bb06f91f82f98915391175addf3e82
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Oct 2 11:12:27 2007 -0500
+
+    Remove magic numbers from cache related operations for mpc85xx
+
+    The mpc85xx start code uses some magic numbers that we actually
+    have #defines for in <config.h> so use those instead.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
 commit 5441f61a3d8b7034f19fc1361183e936198e6dbb
 Author: Detlev Zundel <dzu@denx.de>
@@ -408,6 +917,16 @@ Date:	Tue Sep 11 14:12:55 2007 +0200
     ppc4xx: lwmon5: Change GPIO 58 to default to low (watchdog test)
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1487adbdcf9594bb2eb686325a6f9540dad1b70a
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Sep 26 16:35:54 2007 -0500
+
+    85xx io out functions need sync after write.
+
+    This fixes the mc146818 rtc_read/write functions for 85xx.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
 
 commit 0d38effc6e359e6b1b0c78d66e8bc1a4dc15a2ae
 Author: Grant Likely <grant.likely@secretlab.ca>
