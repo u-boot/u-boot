@@ -246,6 +246,21 @@
 #define CSCR_BSTW			(0x00000008)
 
 /*********************************************************************
+* Reset Controller Module (RCM)
+*********************************************************************/
+
+/* Bit definitions and macros for RCR */
+#define RCM_RCR_FRCRSTOUT		(0x40)
+#define RCM_RCR_SOFTRST			(0x80)
+
+/* Bit definitions and macros for RSR */
+#define RCM_RSR_LOL			(0x01)
+#define RCM_RSR_WDR_CORE		(0x02)
+#define RCM_RSR_EXT			(0x04)
+#define RCM_RSR_POR			(0x08)
+#define RCM_RSR_SOFT			(0x20)
+
+/*********************************************************************
 * FlexCAN Module (CAN)
 *********************************************************************/
 /* Bit definitions and macros for CAN_CANMCR */
