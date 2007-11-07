@@ -21,6 +21,16 @@
 #define CONFIG_NUM_CPUS		1	/* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
+#define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
+
+/* video */
+#undef CONFIG_VIDEO
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#endif
+
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR		0xff800000
 #endif
@@ -38,7 +48,7 @@
 #define CONFIG_SPD_EEPROM		/* Use SPD for DDR */
 #undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
+#undef  CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 #define CONFIG_NUM_DDR_CONTROLLERS	1
@@ -51,13 +61,14 @@
  */
 #define CFG_L2
 #define L2_INIT		0
-#define L2_ENABLE	(L2CR_L2E)
+#define L2_ENABLE	(L2CR_L2E |0x00100000 )
 
 #ifndef CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+#define CONFIG_MISC_INIT_R		1
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
@@ -151,6 +162,7 @@
 #define CFG_OR3_PRELIM		0xfff06ff7 /* 1MB PIXIS area*/
 
 
+#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xe8000000	/* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
@@ -158,6 +170,7 @@
 #define PIXIS_RST		0x4	/* PIXIS Reset Control register */
 #define PIXIS_AUX		0x6	/* PIXIS Auxiliary register; Scratch */
 #define PIXIS_SPD		0x7	/* Register for SYSCLK speed */
+#define PIXIS_BRDCFG0		0x8	/* PIXIS Board Configuration Register0*/
 #define PIXIS_VCTL		0x10	/* VELA Control Register */
 #define PIXIS_VCFGEN0		0x12	/* VELA Config Enable 0 */
 #define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
@@ -166,6 +179,7 @@
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
+#define CFG_PIXIS_VBOOT_MASK	0x0C    /* Reset altbank mask*/
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks */
 #define CFG_MAX_FLASH_SECT	1024		/* sectors per device */
@@ -206,7 +220,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 KB for Mon */
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CFG_MALLOC_LEN		(6 * 1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1
@@ -309,15 +323,17 @@
 #define CONFIG_EEPRO100
 #define CONFIG_TULIP
 
-#if 0 /* TODO */
 /************************************************************
  * USB support
  ************************************************************/
-#define CONFIG_USB_OHCI		1
+#define CONFIG_PCI_OHCI		1
+#define CONFIG_USB_OHCI_NEW		1
 #define CONFIG_USB_KEYBOARD	1
 #define CFG_DEVICE_DEREGISTER
-#define CFG_USB_INTERRUPT_POLL	1
-#endif
+#define CFG_USB_EVENT_POLL	1
+#define CFG_USB_OHCI_SLOT_NAME 	"ohci_pci"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#define CFG_OHCI_SWAP_REG_ACCESS	1
 
 #if !defined(CONFIG_PCI_PNP)
 #define PCI_ENET0_IOADDR	0xe0000000
@@ -361,28 +377,26 @@
 #define CFG_IBAT1U	CFG_DBAT1U
 
 /*
- * BAT2		32M	Cache-inhibited, guarded
+ * BAT2		16M	Cache-inhibited, guarded
  * 0xe100_0000	1M	PCI-1 I/O
- * 0xe200_0000	1M	PCI-Express 2 I/O
- *
  */
 
 #define CFG_DBAT2L	(CFG_PCI1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT \
 			| BATL_GUARDEDSTORAGE)
-#define CFG_DBAT2U	(CFG_PCI1_IO_PHYS | BATU_BL_32M | BATU_VS | BATU_VP)
+#define CFG_DBAT2U	(CFG_PCI1_IO_PHYS | BATU_BL_16M | BATU_VS | BATU_VP)
 #define CFG_IBAT2L	(CFG_PCI1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT2U	CFG_DBAT2U
 
 /*
- * BAT3		1M	Cache-inhibited, guarded
+ * BAT3		32M	Cache-inhibited, guarded
+ * 0xe200_0000	1M	PCI-Express 2 I/O
  * 0xe300_0000	1M	PCI-Express 1 I/O
- *
  */
 
-#define CFG_DBAT3L	(CFG_PCIE1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT \
+#define CFG_DBAT3L	(CFG_PCIE2_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT \
 			| BATL_GUARDEDSTORAGE)
-#define CFG_DBAT3U	(CFG_PCIE1_IO_PHYS | BATU_BL_1M | BATU_VS | BATU_VP)
-#define CFG_IBAT3L	(CFG_PCIE1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CFG_DBAT3U	(CFG_PCIE2_IO_PHYS | BATU_BL_32M | BATU_VS | BATU_VP)
+#define CFG_IBAT3L	(CFG_PCIE2_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CFG_IBAT3U	CFG_DBAT3U
 
 /*
@@ -469,10 +483,14 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_USB
 #endif
 
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
+
+/*DIU Configuration*/
+#define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/
 
 /*
  * Miscellaneous configurable options
@@ -587,7 +605,7 @@
  "dma3=mw ${d}284 ffffffff;mw ${d}290 50000;mw ${d}294 $sad3;mw ${d}298 50000;"\
 	"mw ${d}2a0 $bc3;mw ${d}280 f03c404; mw ${d}29c $dad3; md ${d}280 9\0"
 
-
+#ifdef ENV_DEBUG
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
@@ -621,7 +639,8 @@
  "diuregs=md e002c000 1d\0" \
  "dium=mw e002c01c\0" \
  "diuerr=md e002c014 1\0" \
- "othbootargs=debug\0" \
+ "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 debug\0" \
+ "monitor=0-DVI\0" \
  "pmregs=md e00e1000 2b\0" \
  "lawregs=md e0000c08 4b\0" \
  "lbcregs=md e0005000 36\0" \
@@ -632,6 +651,19 @@
  PCI_ENV \
  PCIE_ENV \
  DMA_ENV
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS                               \
+ "netdev=eth0\0"                                                \
+ "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"                         \
+ "consoledev=ttyS0\0"                                           \
+ "ramdiskaddr=2000000\0"                                        \
+ "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
+ "dtbaddr=c00000\0"                                             \
+ "dtbfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
+ "bdev=sda3\0"							\
+ "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0\0"\
+ "monitor=0-DVI\0"
+#endif
 
 #define CONFIG_NFSBOOTCOMMAND					\
  "setenv bootargs root=/dev/nfs rw "				\
