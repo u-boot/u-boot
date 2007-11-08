@@ -480,18 +480,15 @@ typedef struct wdog_ctrl {
 
 /*Chip configuration module registers */
 typedef struct ccm_ctrl {
-	u8 rstctrl;		/* 0x00 Reset Controller register */
-	u8 rststat;		/* 0x01 Reset Status register */
-	u16 res1;		/* 0x02 - 0x03 */
-	u16 ccr;		/* 0x04 Chip configuration register */
-	u16 res2;		/* 0x06 */
-	u16 rcon;		/* 0x08 Rreset configuration register */
-	u16 cir;		/* 0x0A Chip identification register */
-	u32 res3;		/* 0x0C */
-	u16 misccr;		/* 0x10 Miscellaneous control register */
-	u16 cdr;		/* 0x12 Clock divider register */
-	u16 uhcsr;		/* 0x14 USB Host controller status register */
-	u16 uocsr;		/* 0x16 USB On-the-Go Controller Status Register */
+	u16 ccr;		/* 0x00 Chip configuration register */
+	u16 res2;		/* 0x02 */
+	u16 rcon;		/* 0x04 Rreset configuration register */
+	u16 cir;		/* 0x06 Chip identification register */
+	u32 res3;		/* 0x08 */
+	u16 misccr;		/* 0x0A Miscellaneous control register */
+	u16 cdr;		/* 0x0C Clock divider register */
+	u16 uhcsr;		/* 0x10 USB Host controller status register */
+	u16 uocsr;		/* 0x12 USB On-the-Go Controller Status Reg */
 } ccm_t;
 
 typedef struct rcm {
