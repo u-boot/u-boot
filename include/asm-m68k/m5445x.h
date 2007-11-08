@@ -792,8 +792,8 @@
 #define GPIO_PAR_FEC_FEC0_MASK		(0xF8)
 #define GPIO_PAR_FEC_FEC0_MII		(0x07)
 #define GPIO_PAR_FEC_FEC0_RMII_GPIO	(0x03)
-#define GPIO_PAR_FEC_FEC0_RMII_ATA	(0x02)
-#define GPIO_PAR_FEC_FEC0_ATA		(0x01)
+#define GPIO_PAR_FEC_FEC0_RMII_ULPI	(0x02)
+#define GPIO_PAR_FEC_FEC0_ULPI		(0x01)
 #define GPIO_PAR_FEC_FEC0_GPIO		(0x00)
 
 /* Bit definitions and macros for PAR_DMA */
