@@ -494,6 +494,11 @@ typedef struct ccm_ctrl {
 	u16 uocsr;		/* 0x16 USB On-the-Go Controller Status Register */
 } ccm_t;
 
+typedef struct rcm {
+	u8 rcr;
+	u8 rsr;
+} rcm_t;
+
 /* GPIO port registers */
 typedef struct gpio_ctrl {
 	/* Port Output Data Registers */
