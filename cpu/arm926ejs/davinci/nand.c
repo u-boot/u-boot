@@ -376,7 +376,7 @@ int board_nand_init(struct nand_chip *nand)
 //	nand->autooob	  = &davinci_nand_oobinfo;
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
-	nand->ecc.hwctl  = nand_davinci_enable_hwecc;	
+	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
 #else
 	nand->ecc.mode     = NAND_ECC_SOFT;
 #endif

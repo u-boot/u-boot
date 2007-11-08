@@ -57,7 +57,7 @@ static struct alpr_ndfc_regs *alpr_ndfc = NULL;
  * There are 2 NAND devices on the board, a Hynix HY27US08561A (1 GByte).
  */
 static void alpr_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
-{	
+{
     struct nand_chip *this = mtd->priv;
 
 	if (ctrl & NAND_CTRL_CHANGE) {

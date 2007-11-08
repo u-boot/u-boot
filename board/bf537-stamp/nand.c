@@ -50,7 +50,7 @@ static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		if( ctrl & NAND_ALE )
 			IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_ALE;
 		else
-			IO_ADDR_W = CFG_NAND_BASE;			
+			IO_ADDR_W = CFG_NAND_BASE;
 		this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 	}
 	this->IO_ADDR_R = this->IO_ADDR_W;
@@ -59,7 +59,7 @@ static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	SSYNC();
 
 	if (cmd != NAND_CMD_NONE)
-		writeb(cmd, this->IO_ADDR_W);	
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 int bfin_device_ready(struct mtd_info *mtd)

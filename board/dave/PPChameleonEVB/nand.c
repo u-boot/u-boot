@@ -52,7 +52,7 @@ static void ppchameleonevb_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int
 	}
 
     if (cmd != NAND_CMD_NONE)
-		writeb(cmd, this->IO_ADDR_W);	
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 

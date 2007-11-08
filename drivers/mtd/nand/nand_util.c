@@ -128,7 +128,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	for (;
 	     erase.addr < opts->offset + erase_length;
 	     erase.addr += meminfo->erasesize) {
-		
+
 		WATCHDOG_RESET ();
 
 		if (!opts->scrub && bbtest) {
@@ -163,7 +163,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			chip->ops.datbuf = NULL;
 			chip->ops.oobbuf = buf;
 			chip->ops.ooboffs = chip->badblockpos & ~0x01;
-			
+
 			result = meminfo->write_oob(meminfo,
 							erase.addr + meminfo->oobsize,
 							&chip->ops);
@@ -254,7 +254,7 @@ static struct nand_ecclayout autoplace_ecclayout = {
  * @chip:	nand chip structure
  * @oob:	oob data buffer
  * @ops:	oob ops structure
- * 
+ *
  * Copied from nand_base.c
  */
 static uint8_t *nand_fill_oob(struct nand_chip *chip, uint8_t *oob,
@@ -314,13 +314,13 @@ int nand_write_opts(nand_info_t *mtd, loff_t to, mtd_oob_ops_t *ops)
 	uint8_t *oob = ops->oobbuf;
 	uint8_t *buf = ops->datbuf;
 	int ret, subpage;
-	
+
 	ops->retlen = 0;
 	if (!writelen)
 		return 0;
 
 	printk("nand_write_opts: to: 0x%08x, ops->len: 0x%08x\n", to, ops->len);
-	
+
 	/* reject writes, which are not page aligned */
 	if (NOTALIGNED(to) || NOTALIGNED(ops->len)) {
 		printk(KERN_NOTICE "nand_write: "

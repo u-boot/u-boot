@@ -2080,7 +2080,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 
 	/* Calculate pages in each block */
 	pages_per_block = 1 << (chip->phys_erase_shift - chip->page_shift);
-	
+
 	/* Select the NAND device */
 	chip->select_chip(mtd, chipnr);
 
@@ -2748,7 +2748,7 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
 		BUG();
 	}
 #endif
-	
+
 	ret = nand_scan_ident(mtd, maxchips);
 	if (!ret)
 		ret = nand_scan_tail(mtd);
