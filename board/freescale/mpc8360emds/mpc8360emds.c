@@ -303,6 +303,7 @@ void sdram_init(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
+	const immap_t *immr = (immap_t *)CFG_IMMR;
 #if defined(CONFIG_OF_FLAT_TREE)
 	u32 *p;
 	int len;
@@ -317,5 +318,35 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
+	/*
+	 * mpc8360ea pb mds errata 2: RGMII timing
+	 * if on mpc8360ea rev. 2.1,
+	 * change both ucc phy-connection-types from rgmii-id to rgmii-rxid
+	 */
+	if (immr->sysconf.spridr == SPR_8360_REV21 ||
+	    immr->sysconf.spridr == SPR_8360E_REV21) {
+		int nodeoffset;
+		void *prop;
+
+		/* fixup UCC 1 if using rgmii-id mode */
+		nodeoffset = fdt_find_node_by_path(blob, "/" OF_QE "/ucc@2000");
+		if (nodeoffset >= 0) {
+			prop = fdt_getprop(blob, nodeoffset,
+					        "phy-connection-type", 0);
+			if (prop && (strcmp(prop, "rgmii-id") == 0))
+				fdt_setprop(blob, nodeoffset, "phy-connection-type",
+					    "rgmii-rxid", sizeof("rgmii-rxid"));
+		}
+
+		/* fixup UCC 2 if using rgmii-id mode */
+		nodeoffset = fdt_find_node_by_path(blob, "/" OF_QE "/ucc@3000");
+		if (nodeoffset >= 0) {
+			prop = fdt_getprop(blob, nodeoffset,
+					        "phy-connection-type", 0);
+			if (prop && (strcmp(prop, "rgmii-id") == 0))
+				fdt_setprop(blob, nodeoffset, "phy-connection-type",
+					    "rgmii-rxid", sizeof("rgmii-rxid"));
+		}
+	}
 }
 #endif
