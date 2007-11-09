@@ -1,0 +1,608 @@
+/*
+ * (C) Copyright 2005-2007
+ * Samsung Electronics.
+ * Kyungmin Park <kyungmin.park@samsung.com>
+ *
+ * Derived from omap2420
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+#include <common.h>
+#include <asm/arch/omap2420.h>
+#include <asm/io.h>
+#include <asm/arch/bits.h>
+#include <asm/arch/mux.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/arch/sys_info.h>
+#include <asm/arch/mem.h>
+#include <i2c.h>
+#include <asm/mach-types.h>
+
+void wait_for_command_complete(unsigned int wd_base);
+
+/*******************************************************
+ * Routine: delay
+ * Description: spinning delay to use before udelay works
+******************************************************/
+static inline void delay(unsigned long loops) {
+	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
+			  "bne 1b":"=r" (loops):"0"(loops)); }
+
+/*****************************************
+ * Routine: board_init
+ * Description: Early hardware init.
+ *****************************************/
+int board_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+
+	gpmc_init();		/* in SRAM or SDRM, finish GPMC */
+
+	gd->bd->bi_arch_number = 919;
+	/* adress of boot parameters */
+	gd->bd->bi_boot_params = (OMAP2420_SDRC_CS0 + 0x100);
+
+	return 0;
+}
+
+/**********************************************************
+ * Routine: s_init
+ * Description: Does early system init of muxing and clocks.
+ * - Called path is with sram stack.
+ **********************************************************/
+void s_init(void)
+{
+
+	watchdog_init();
+	set_muxconf_regs();
+	delay(100);
+
+	peripheral_enable();
+	icache_enable();
+}
+
+/*******************************************************
+ * Routine: misc_init_r
+ * Description: Init ethernet (done here so udelay works)
+********************************************************/
+int misc_init_r(void)
+{
+	ether_init();		/* better done here so timers are init'ed */
+	return (0);
+}
+
+/****************************************
+ * Routine: watchdog_init
+ * Description: Shut down watch dogs
+ *****************************************/
+void watchdog_init(void)
+{
+	/* There are 4 watch dogs.  1 secure, and 3 general purpose.
+	 * The ROM takes care of the secure one. Of the 3 GP ones,
+	 * 1 can reset us directly, the other 2 only generate MPU interrupts.
+	 */
+	__raw_writel(WD_UNLOCK1, WD2_BASE + WSPR);
+	wait_for_command_complete(WD2_BASE);
+	__raw_writel(WD_UNLOCK2, WD2_BASE + WSPR);
+
+#define MPU_WD_CLOCKED 1
+#if MPU_WD_CLOCKED		/* value 0x10 stick on aptix, BIT4 polarity seems oppsite */
+	__raw_writel(WD_UNLOCK1, WD3_BASE + WSPR);
+	wait_for_command_complete(WD3_BASE);
+	__raw_writel(WD_UNLOCK2, WD3_BASE + WSPR);
+
+	__raw_writel(WD_UNLOCK1, WD4_BASE + WSPR);
+	wait_for_command_complete(WD4_BASE);
+	__raw_writel(WD_UNLOCK2, WD4_BASE + WSPR); 
+#endif 
+}
+
+/******************************************************
+ * Routine: wait_for_command_complete
+ * Description: Wait for posting to finish on watchdog
+******************************************************/
+void wait_for_command_complete(unsigned int wd_base) {
+	int pending = 1;
+	do {
+		pending = __raw_readl(wd_base + WWPS);
+	} while (pending);
+}
+
+/*******************************************************************
+ * Routine:ether_init
+ * Description: take the Ethernet controller out of reset and wait
+ *  		   for the EEPROM load to complete.
+ ******************************************************************/
+void ether_init(void)
+{
+#ifdef CONFIG_DRIVER_LAN91C96
+	int cnt = 20;
+
+	__raw_writeb(0x03, OMAP2420_CTRL_BASE + 0x0f2);	/*protect->gpio74 */
+
+	__raw_writew(0x0, LAN_RESET_REGISTER);
+	do {
+		__raw_writew(0x1, LAN_RESET_REGISTER);
+		udelay(100);
+		if (cnt == 0) {
+			printf("1. eth reset err\n");
+			goto eth_reset_err_out;
+		}
+		--cnt;
+	} while (__raw_readw(LAN_RESET_REGISTER) != 0x1);
+
+	cnt = 20;
+
+	do {
+		__raw_writew(0x0, LAN_RESET_REGISTER);
+		udelay(100);
+		if (cnt == 0) {
+			printf("2. eth reset err\n");
+			goto eth_reset_err_out;
+		}
+		--cnt;
+	} while (__raw_readw(LAN_RESET_REGISTER) != 0x0000);
+	udelay(1000);
+
+	*((volatile unsigned char *)ETH_CONTROL_REG) &= ~0x01;
+	udelay(1000);
+
+eth_reset_err_out:
+	return;
+#endif
+}
+
+/**********************************************
+ * Routine: dram_init
+ * Description: sets uboots idea of sdram size
+**********************************************/
+int dram_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	unsigned int size0 = 0, size1 = 0;
+	u32 mtype, btype, rev = 0, cpu = 0;
+#define NOT_EARLY 0
+
+	btype = get_board_type();
+	mtype = get_mem_type();
+	rev = get_cpu_rev();
+	cpu = get_cpu_type();
+
+	display_board_info(btype);
+
+	if ((mtype == DDR_COMBO) || (mtype == DDR_STACKED)) {
+		printf("ddr combo\n");
+		do_sdrc_init(SDRC_CS1_OSET, NOT_EARLY);	/* init other chip select */
+	}
+
+	size0 = get_sdr_cs_size(SDRC_CS0_OSET);
+	size1 = get_sdr_cs_size(SDRC_CS1_OSET);
+
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = size0;
+#if CONFIG_NR_DRAM_BANKS > 1
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + size0;
+	gd->bd->bi_dram[1].size = size1;
+#endif
+
+	return 0;
+}
+
+/**********************************************************
+ * Routine: set_muxconf_regs
+ * Description: Setting up the configuration Mux registers
+ *              specific to the hardware
+ *********************************************************/
+void set_muxconf_regs(void)
+{
+	muxSetupSDRC();
+	muxSetupGPMC();
+	muxSetupUsb0();		/* USB Device */
+	muxSetupUsbHost();	/* USB Host */
+	muxSetupUART1();
+	muxSetupLCD();
+	muxSetupMMCSD();
+	muxSetupTouchScreen();
+}
+
+/*****************************************************************
+ * Routine: peripheral_enable
+ * Description: Enable the clks & power for perifs (GPT2, UART1,...)
+******************************************************************/
+void peripheral_enable(void)
+{
+	unsigned int v, if_clks = 0, func_clks = 0;
+
+	/* Enable GP2 timer. */
+	if_clks |= BIT4 | BIT3;
+	func_clks |= BIT4 | BIT3;
+	v = __raw_readl(CM_CLKSEL2_CORE) | 0x4 | 0x2;	/* Sys_clk input OMAP2420_GPT2 */
+	__raw_writel(v, CM_CLKSEL2_CORE);
+	__raw_writel(0x1, CM_CLKSEL_WKUP);
+
+#ifdef CFG_NS16550
+	/* Enable UART1 clock */
+	func_clks |= BIT21;
+	if_clks |= BIT21;
+#endif
+	v = __raw_readl(CM_ICLKEN1_CORE) | if_clks;	/* Interface clocks on */
+	__raw_writel(v, CM_ICLKEN1_CORE);
+	v = __raw_readl(CM_FCLKEN1_CORE) | func_clks;	/* Functional Clocks on */
+	__raw_writel(v, CM_FCLKEN1_CORE);
+	delay(1000);
+
+#ifndef KERNEL_UPDATED
+	{
+#define V1 0xffffffff
+#define V2 0x00000007
+
+		__raw_writel(V1, CM_FCLKEN1_CORE);
+		__raw_writel(V2, CM_FCLKEN2_CORE);
+		__raw_writel(V1, CM_ICLKEN1_CORE);
+		__raw_writel(V1, CM_ICLKEN2_CORE);
+	}
+#endif
+}
+
+/****************************************
+ * Routine: muxSetupUsb0 (ostboot)
+ * Description: Setup usb muxing
+ *****************************************/
+void muxSetupUsb0(void)
+{
+	volatile uint8 *MuxConfigReg;
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_PUEN;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_VP;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_VM;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_RCV;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_TXEN;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_SE0;
+	*MuxConfigReg &= (uint8) (~0x1F);
+
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB0_DAT;
+	*MuxConfigReg &= (uint8) (~0x1F);
+}
+
+#define CONTROL_PADCONF_USB1_RCV	((volatile uint8 *)0x480000EB)
+#define CONTROL_PADCONF_USB1_TXEN	((volatile uint8 *)0x480000EC)
+#define CONTROL_PADCONF_GPIO69		((volatile uint8 *)0x480000ED)
+#define CONTROL_PADCONF_GPIO70		((volatile uint8 *)0x480000EE)
+
+#define CONTROL_PADCONF_GPIO102		((volatile uint8 *)0x48000116)
+#define CONTROL_PADCONF_GPIO103		((volatile uint8 *)0x48000117)
+#define CONTROL_PADCONF_GPIO104		((volatile uint8 *)0x48000118)
+#define CONTROL_PADCONF_GPIO105		((volatile uint8 *)0x48000119)
+/****************************************
+ * Routine: muxSetupUSBHost (ostboot)
+ * Description: Setup USB Host muxing
+ *****************************************/
+void muxSetupUsbHost(void)
+{
+	volatile uint8 *MuxConfigReg;
+
+	/* V19 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB1_RCV;
+	*MuxConfigReg = 1;
+	/* W20 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_USB1_TXEN;
+	*MuxConfigReg = 1;
+	/* N14 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO69;
+	*MuxConfigReg = 3;
+	/* P15 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO70;
+	*MuxConfigReg = 3;
+
+	/* L18 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO102;
+	*MuxConfigReg = 3;
+	/* L19 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO103;
+	*MuxConfigReg = 3;
+	/* K15 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO104;
+	*MuxConfigReg = 3;
+	/* K14 */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPIO105;
+	*MuxConfigReg = 3;
+}
+
+/****************************************
+ * Routine: muxSetupUART1 (ostboot)
+ * Description: Set up uart1 muxing
+ *****************************************/
+void muxSetupUART1(void)
+{
+	volatile unsigned char *MuxConfigReg;
+
+	/* UART1_CTS pin configuration, PIN = D21 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_UART1_CTS;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* UART1_RTS pin configuration, PIN = H21 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_UART1_RTS;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* UART1_TX pin configuration, PIN = L20 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_UART1_TX;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* UART1_RX pin configuration, PIN = T21 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_UART1_RX;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+}
+
+/****************************************
+ * Routine: muxSetupLCD (ostboot)
+ * Description: Setup lcd muxing
+ *****************************************/
+void muxSetupLCD(void)
+{
+	volatile unsigned char *MuxConfigReg;
+
+	/* LCD_D0 pin configuration, PIN = Y7 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D0;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D1 pin configuration, PIN = P10 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D1;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D2 pin configuration, PIN = V8 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D2;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D3 pin configuration, PIN = Y8 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D3;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D4 pin configuration, PIN = W8 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D4;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D5 pin configuration, PIN = R10 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D5;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D6 pin configuration, PIN = Y9 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D6;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D7 pin configuration, PIN = V9 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D7;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D8 pin configuration, PIN = W9 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D8;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D9 pin configuration, PIN = P11 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D9;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D10 pin configuration, PIN = V10 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D10;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D11 pin configuration, PIN = Y10 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D11;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D12 pin configuration, PIN = W10 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D12;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D13 pin configuration, PIN = R11 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D13;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D14 pin configuration, PIN = V11 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D14;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D15 pin configuration, PIN = W11 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D15;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D16 pin configuration, PIN = P12 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D16;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_D17 pin configuration, PIN = R12 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_D17;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_PCLK pin configuration, PIN = W6 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_PCLK;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_VSYNC pin configuration, PIN = V7 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_VSYNC;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_HSYNC pin configuration, PIN = Y6 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_HSYNC;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* LCD_ACBIAS pin configuration, PIN = W7 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_DSS_ACBIAS;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+}
+
+/****************************************
+ * Routine: muxSetupMMCSD (ostboot)
+ * Description: set up MMC muxing
+ *****************************************/
+void muxSetupMMCSD(void)
+{
+	volatile unsigned char *MuxConfigReg;
+
+	/* SDMMC_CLKI pin configuration, PIN = H15 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CLKI;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_CLKO pin configuration, PIN = G19 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CLKO;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_CMD pin configuration, PIN = H18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CMD;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
+
+	/* SDMMC_DAT0 pin configuration, PIN = F20 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT0;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
+
+	/* SDMMC_DAT1 pin configuration, PIN = H14 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT1;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
+
+	/* SDMMC_DAT2 pin configuration, PIN = E19 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT2;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
+
+	/* SDMMC_DAT3 pin configuration, PIN = D19 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT3;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+	/* External pull-ups are present. */
+	/* *MuxConfigReg |= 0x18 ; #/ PullUDEnable=Enabled, PullTypeSel=PU */
+
+	/* SDMMC_DDIR0 pin configuration, PIN = F19 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR0;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_DDIR1 pin configuration, PIN = E20 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR1;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_DDIR2 pin configuration, PIN = F18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR2;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_DDIR3 pin configuration, PIN = E18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_DAT_DIR3;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SDMMC_CDIR pin configuration, PIN = G18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_MMC_CMD_DIR;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+}
+
+/******************************************
+ * Routine: muxSetupTouchScreen (ostboot)
+ * Description: Set up touch screen muxing
+*******************************************/
+void muxSetupTouchScreen(void)
+{
+	volatile unsigned char *MuxConfigReg;
+
+	/* SPI1_CLK pin configuration, PIN = U18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_CLK;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SPI1_MOSI pin configuration, PIN = V20 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_SIMO;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SPI1_MISO pin configuration, PIN = T18 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_SOMI;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+	/* SPI1_nCS0 pin configuration, PIN = U19 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_SPI1_NCS0;
+	*MuxConfigReg = 0x00;	/* Mode = 0, PUPD=Disabled */
+
+#define CONTROL_PADCONF_GPIO85	CONTROL_PADCONF_SPI1_NCS1
+
+	/* PEN_IRQ pin configuration, PIN = N15 */
+	MuxConfigReg = (volatile unsigned char *)CONTROL_PADCONF_GPIO85;
+	*MuxConfigReg = 0x03;	/* Mode = 3, PUPD=Disabled */
+}
+
+/***************************************************************
+ * Routine: muxSetupGPMC (ostboot)
+ * Description: Configures balls which cam up in protected mode
+***************************************************************/
+void muxSetupGPMC(void)
+{
+	volatile uint8 *MuxConfigReg;
+	volatile unsigned int *MCR = (volatile unsigned int *)0x4800008C;
+
+	/* gpmc_io_dir */
+	*MCR = 0x19000000;
+
+	/* NOR FLASH CS0 */
+	/* signal - Gpmc_clk;
+		pin - J4; offset - 0x0088; mode - 0; Byte-3  Pull/up - N/A */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPMC_D2_BYTE3;
+	*MuxConfigReg = 0x00;
+
+	/* MPDB(Multi Port Debug Port) CS1 */
+	/* signal - gpmc_ncs1;
+		pin - N8; offset - 0x008C; mode - 0; Byte-1 Pull/up - N/A */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPMC_NCS0_BYTE1;
+	*MuxConfigReg = 0x00;
+
+	/* signal - Gpmc_ncs2;
+		pin - E2; offset - 0x008C; mode - 0; Byte-2 Pull/up - N/A */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPMC_NCS0_BYTE2;
+	*MuxConfigReg = 0x00;
+
+	/* signal - Gpmc_ncs3;
+		pin - N2; offset - 0x008C; mode - 0; Byte-3 Pull/up - N/A */
+	MuxConfigReg = (volatile uint8 *)CONTROL_PADCONF_GPMC_NCS0_BYTE3;
+	*MuxConfigReg = 0x00;
+
+	MuxConfigReg = (volatile uint8 *)((volatile unsigned char *)0x48000090);
+	*MuxConfigReg = 0x00;
+	MuxConfigReg = (volatile uint8 *)((volatile unsigned char *)0x48000091);
+	*MuxConfigReg = 0x00;
+	MuxConfigReg = (volatile uint8 *)((volatile unsigned char *)0x48000092);
+	*MuxConfigReg = 0x00;
+	MuxConfigReg = (volatile uint8 *)((volatile unsigned char *)0x48000093);
+	*MuxConfigReg = 0x00;
+}
+
+/****************************************************************
+ * Routine: muxSetupSDRC (ostboot)
+ * Description: Configures balls which come up in protected mode
+****************************************************************/
+void muxSetupSDRC(void)
+{
+	/* It's set by IPL */
+}

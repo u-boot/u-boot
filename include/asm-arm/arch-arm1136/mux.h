@@ -28,6 +28,7 @@ typedef  unsigned int uint32;
 void muxSetupSDRC(void);
 void muxSetupGPMC(void);
 void muxSetupUsb0(void);
+void muxSetupUsbHost(void);
 void muxSetupUart3(void);
 void muxSetupI2C1(void);
 void muxSetupUART1(void);
@@ -70,6 +71,7 @@ void muxSetupHDQ(void);
 #define CONTROL_PADCONF_SPI1_SIMO       ((volatile unsigned char *)0x48000100)
 #define CONTROL_PADCONF_SPI1_SOMI       ((volatile unsigned char *)0x48000101)
 #define CONTROL_PADCONF_SPI1_NCS0       ((volatile unsigned char *)0x48000102)
+#define CONTROL_PADCONF_SPI1_NCS1       ((volatile unsigned char *)0x48000103)
 
 #define CONTROL_PADCONF_MCBSP1_FSR      ((volatile unsigned char *)0x4800010B)
 

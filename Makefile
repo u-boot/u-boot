@@ -2376,8 +2376,11 @@ zylonite_config :
 #########################################################################
 ## ARM1136 Systems
 #########################################################################
-omap2420h4_config :    unconfig
+omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
+
+apollon_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
 
 #========================================================================
 # i386
