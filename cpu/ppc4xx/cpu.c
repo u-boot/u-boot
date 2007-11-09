@@ -37,13 +37,9 @@
 #include <asm/cache.h>
 #include <ppc4xx.h>
 
-#if !defined(CONFIG_405)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
-#if defined(CONFIG_BOARD_RESET)
 void board_reset(void);
-#endif
 
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
@@ -51,7 +47,7 @@ void board_reset(void);
 
 #define PCI_ASYNC
 
-int pci_async_enabled(void)
+static int pci_async_enabled(void)
 {
 #if defined(CONFIG_405GP)
 	return (mfdcr(strap) & PSR_PCI_ASYNC_EN);
@@ -69,7 +65,7 @@ int pci_async_enabled(void)
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
     !defined(CONFIG_405) && !defined(CONFIG_405EX)
-int pci_arbiter_enabled(void)
+static int pci_arbiter_enabled(void)
 {
 #if defined(CONFIG_405GP)
 	return (mfdcr(strap) & PSR_PCI_ARBIT_EN);
@@ -99,15 +95,10 @@ int pci_arbiter_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_405EP) || defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_405EX)
-
+#if defined(CONFIG_405EP)
 #define I2C_BOOTROM
 
-int i2c_bootrom_enabled(void)
+static int i2c_bootrom_enabled(void)
 {
 #if defined(CONFIG_405EP)
 	return (mfdcr(cpc0_boot) & CPC0_BOOT_SEP);
@@ -227,7 +218,19 @@ static int bootstrap_option(void)
 
 
 #if defined(CONFIG_440)
-static int do_chip_reset(unsigned long sys0, unsigned long sys1);
+static int do_chip_reset (unsigned long sys0, unsigned long sys1)
+{
+	/* Changes to cpc0_sys0 and cpc0_sys1 require chip
+	 * reset.
+	 */
+	mtdcr (cntrl0, mfdcr (cntrl0) | 0x80000000);	/* Set SWE */
+	mtdcr (cpc0_sys0, sys0);
+	mtdcr (cpc0_sys1, sys1);
+	mtdcr (cntrl0, mfdcr (cntrl0) & ~0x80000000);	/* Clr SWE */
+	mtspr (dbcr0, 0x20000000);	/* Reset the chip */
+
+	return 1;
+}
 #endif
 
 
@@ -539,22 +542,6 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-#if defined(CONFIG_440)
-static int do_chip_reset (unsigned long sys0, unsigned long sys1)
-{
-	/* Changes to cpc0_sys0 and cpc0_sys1 require chip
-	 * reset.
-	 */
-	mtdcr (cntrl0, mfdcr (cntrl0) | 0x80000000);	/* Set SWE */
-	mtdcr (cpc0_sys0, sys0);
-	mtdcr (cpc0_sys1, sys1);
-	mtdcr (cntrl0, mfdcr (cntrl0) & ~0x80000000);	/* Clr SWE */
-	mtspr (dbcr0, 0x20000000);	/* Reset the chip */
-
-	return 1;
-}
-#endif
-
 
 /*
  * Get timebase clock frequency
@@ -574,16 +561,14 @@ unsigned long get_tbclk (void)
 
 
 #if defined(CONFIG_WATCHDOG)
-void
-watchdog_reset(void)
+void watchdog_reset(void)
 {
 	int re_enable = disable_interrupts();
 	reset_4xx_watchdog();
 	if (re_enable) enable_interrupts();
 }
 
-void
-reset_4xx_watchdog(void)
+void reset_4xx_watchdog(void)
 {
 	/*
 	 * Clear TSR(WIS) bit
