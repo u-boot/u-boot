@@ -40,7 +40,7 @@
 static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	register struct nand_chip *this = mtd->priv;
-    u32 IO_ADDR_W = (u32) this->IO_ADDR_W;
+	u32 IO_ADDR_W = (u32) this->IO_ADDR_W;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if( ctrl & NAND_CLE )

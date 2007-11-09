@@ -2557,7 +2557,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 		default:
 			printk(KERN_WARNING "No oob scheme defined for "
 			       "oobsize %d\n", mtd->oobsize);
-//			BUG();
+/*			BUG(); */
 		}
 	}
 

@@ -68,7 +68,7 @@ static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int c
 		this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 
@@ -363,22 +363,22 @@ int board_nand_init(struct nand_chip *nand)
 #endif
 #ifdef CFG_NAND_HW_ECC
 #ifdef CFG_NAND_LARGEPAGE
-	nand->ecc.mode     = NAND_ECC_HW;
-    nand->ecc.size = 2048;
-    nand->ecc.bytes = 12;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = 2048;
+	nand->ecc.bytes = 12;
 #elif defined(CFG_NAND_SMALLPAGE)
-	nand->ecc.mode     = NAND_ECC_HW;
-    nand->ecc.size = 512;
-    nand->ecc.bytes = 3;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = 512;
+	nand->ecc.bytes = 3;
 #else
 #error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
 #endif
-//	nand->autooob	  = &davinci_nand_oobinfo;
+/*	nand->autooob	  = &davinci_nand_oobinfo; */
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
 #else
-	nand->ecc.mode     = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 #endif
 
 	/* Set address of hardware control function */

@@ -47,7 +47,7 @@ static void netstar_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int c
 	}
 	this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 

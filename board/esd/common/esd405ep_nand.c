@@ -32,8 +32,8 @@
  */
 static void esd405ep_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-    struct nand_chip *this = mtd->priv;
-    if (ctrl & NAND_CTRL_CHANGE) {
+	struct nand_chip *this = mtd->priv;
+	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
 			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_CLE);
 		else
@@ -48,7 +48,7 @@ static void esd405ep_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int 
 			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_CE);
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 

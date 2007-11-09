@@ -549,7 +549,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->write_buf = dfc_write_buf;
 
 	nand->cmdfunc = dfc_cmdfunc;
-//	nand->autooob = &delta_oob;
+/*	nand->autooob = &delta_oob; */
 	nand->badblock_pattern = &delta_bbt_descr;
 	return 0;
 }

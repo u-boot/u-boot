@@ -36,7 +36,7 @@ static void ppchameleonevb_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int
 	struct nand_chip *this = mtd->priv;
 	ulong base = (ulong) this->IO_ADDR_W;
 
-    if (ctrl & NAND_CTRL_CHANGE) {
+	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
 			MACRO_NAND_CTL_SETCLE((unsigned long)base);
 		else
@@ -51,7 +51,7 @@ static void ppchameleonevb_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int
 			MACRO_NAND_DISABLE_CE((unsigned long)base);
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 

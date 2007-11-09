@@ -236,11 +236,12 @@ struct nand_chip;
  *                      used instead of the per chip wait queue when a hw controller is available
  */
 struct nand_hw_control {
+/* XXX U-BOOT XXX */
 #if 0
-    spinlock_t	 lock;
-    wait_queue_head_t wq;
+	spinlock_t	 lock;
+	wait_queue_head_t wq;
 #endif
-    struct nand_chip *active;
+	struct nand_chip *active;
 };
 
 /**

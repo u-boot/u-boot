@@ -35,7 +35,7 @@
 int mtdparts_init(void);
 int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
-        u8 *part_num, struct part_info **part);
+                      u8 *part_num, struct part_info **part);
 #endif
 
 static int nand_dump_oob(nand_info_t *nand, ulong off)
@@ -340,7 +340,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				opts.length = size;
 				opts.offset = off;
 				opts.quiet = quiet;
-//				ret = nand_read_opts(nand, &opts);
+/*				ret = nand_read_opts(nand, &opts); */
 			} else {
 				/* write */
 				mtd_oob_ops_t opts;
@@ -406,44 +406,48 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		if (status) {
-//			ulong block_start = 0;
 			ulong off;
-//			int last_status = -1;
-
+/*			ulong block_start = 0;
+			int last_status = -1;
+*/
 			struct nand_chip *nand_chip = nand->priv;
 			/* check the WP bit */
 			nand_chip->cmdfunc (nand, NAND_CMD_STATUS, -1, -1);
 			printf("device is %swrite protected\n",
 			       (nand_chip->read_byte(nand) & 0x80 ?
-			       "NOT " : "" ) );
+			       "NOT " : ""));
 
 			for (off = 0; off < nand->size; off += nand->writesize) {
-//				int s = nand_get_lock_status(nand, off);
-//
-//				/* print message only if status has changed
-//				 * or at end of chip
-//				 */
-//				if (off == nand->size - nand->writesize
-//				    || (s != last_status && off != 0))	{
-//
-//					printf("%08lx - %08lx: %8d pages %s%s%s\n",
-//					       block_start,
-//					       off-1,
-//					       (off-block_start)/nand->writesize,
-//					       ((last_status & NAND_LOCK_STATUS_TIGHT) ? "TIGHT " : ""),
-//					       ((last_status & NAND_LOCK_STATUS_LOCK) ? "LOCK " : ""),
-//					       ((last_status & NAND_LOCK_STATUS_UNLOCK) ? "UNLOCK " : ""));
-//				}
-//
-//				last_status = s;
+#if 0  /* must be fixed */
+				int s = nand_get_lock_status(nand, off);
+
+				/* print message only if status has changed
+				 * or at end of chip
+				 */
+				if (off == nand->size - nand->writesize
+					|| (s != last_status && off != 0))	{
+
+					printf("%08lx - %08lx: %8d pages %s%s%s\n",
+						   block_start,
+						   off-1,
+						   (off-block_start)/nand->writesize,
+						   ((last_status & NAND_LOCK_STATUS_TIGHT) ? "TIGHT " : ""),
+						   ((last_status & NAND_LOCK_STATUS_LOCK) ? "LOCK " : ""),
+						   ((last_status & NAND_LOCK_STATUS_UNLOCK) ? "UNLOCK " : ""));
+				}
+
+				last_status = s;
+#endif
 			}
 		} else {
-//			if (!nand_lock(nand, tight)) {
-//				puts("NAND flash successfully locked\n");
-//			} else {
-//				puts("Error locking NAND flash\n");
-//				return 1;
-//			}
+#if 0  /* must be fixed */
+			if (!nand_lock(nand, tight)) {
+				puts("NAND flash successfully locked\n");
+			} else {
+				puts("Error locking NAND flash\n");
+				return 1;
+			}
+#endif
 		}
 		return 0;
 	}
@@ -452,13 +456,15 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if (arg_off_size(argc - 2, argv + 2, nand, &off, &size) < 0)
 			return 1;
 
-//		if (!nand_unlock(nand, off, size)) {
-//			puts("NAND flash successfully unlocked\n");
-//		} else {
-//			puts("Error unlocking NAND flash, "
-//			     "write and erase will probably fail\n");
-//			return 1;
-//		}
+#if 0  /* must be fixed */
+		if (!nand_unlock(nand, off, size)) {
+			puts("NAND flash successfully unlocked\n");
+		} else {
+			puts("Error unlocking NAND flash, "
+				 "write and erase will probably fail\n");
+			return 1;
+		}
+#endif
 		return 0;
 	}
 
@@ -691,7 +697,7 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 void archflashwp(void *archdata, int wp);
 #endif
 
-#define ROUND_DOWN(value,boundary)      ((value) & (~((boundary)-1)))
+#define ROUND_DOWN(value,boundary)	  ((value) & (~((boundary)-1)))
 
 #undef  NAND_DEBUG
 #undef  PSYCHO_DEBUG
@@ -715,9 +721,9 @@ void archflashwp(void *archdata, int wp);
 #define CONFIG_MTD_NAND_ECC_JFFS2
 
 /* bits for nand_legacy_rw() `cmd'; or together as needed */
-#define NANDRW_READ 0x01
-#define NANDRW_WRITE    0x00
-#define NANDRW_JFFS2    0x02
+#define NANDRW_READ         0x01
+#define NANDRW_WRITE        0x00
+#define NANDRW_JFFS2	    0x02
 #define NANDRW_JFFS2_SKIP   0x04
 
 /*
@@ -726,15 +732,15 @@ void archflashwp(void *archdata, int wp);
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 extern int curr_device;
 extern int nand_legacy_erase(struct nand_chip *nand, size_t ofs,
-                size_t len, int clean);
+				size_t len, int clean);
 extern int nand_legacy_rw(struct nand_chip *nand, int cmd, size_t start,
-             size_t len, size_t *retlen, u_char *buf);
+			 size_t len, size_t *retlen, u_char *buf);
 extern void nand_print(struct nand_chip *nand);
 extern void nand_print_bad(struct nand_chip *nand);
 extern int nand_read_oob(struct nand_chip *nand, size_t ofs,
-                   size_t len, size_t *retlen, u_char *buf);
+				   size_t len, size_t *retlen, u_char *buf);
 extern int nand_write_oob(struct nand_chip *nand, size_t ofs,
-                size_t len, size_t *retlen, const u_char *buf);
+				size_t len, size_t *retlen, const u_char *buf);
 
 
 int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -828,11 +834,11 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 		if (strncmp (argv[1], "read", 4) == 0 ||
 		    strncmp (argv[1], "write", 5) == 0) {
-			ulong	addr = simple_strtoul (argv[2], NULL, 16);
-			off_t	off  = simple_strtoul (argv[3], NULL, 16);
-			size_t	size = simple_strtoul (argv[4], NULL, 16);
-			int	cmd = (strncmp (argv[1], "read", 4) == 0) ?
-					NANDRW_READ : NANDRW_WRITE;
+			ulong addr = simple_strtoul (argv[2], NULL, 16);
+			off_t off = simple_strtoul (argv[3], NULL, 16);
+			size_t size = simple_strtoul (argv[4], NULL, 16);
+			int cmd = (strncmp (argv[1], "read", 4) == 0) ?
+			          NANDRW_READ : NANDRW_WRITE;
 			size_t total;
 			int ret;
 			char *cmdtail = strchr (argv[1], '.');
@@ -923,9 +929,9 @@ U_BOOT_CMD(
 	"nand device [dev] - show or set current device\n"
 	"nand read[.jffs2[s]]  addr off size\n"
 	"nand write[.jffs2] addr off size - read/write `size' bytes starting\n"
-	"    at offset `off' to/from memory address `addr'\n"
+	"	at offset `off' to/from memory address `addr'\n"
 	"nand erase [clean] [off size] - erase `size' bytes from\n"
-	"    offset `off' (entire device if not specified)\n"
+	"	offset `off' (entire device if not specified)\n"
 	"nand bad - show bad blocks\n"
 	"nand read.oob addr off size - read out-of-band data\n"
 	"nand write.oob addr off size - read out-of-band data\n"

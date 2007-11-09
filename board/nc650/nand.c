@@ -36,7 +36,7 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd->priv;
 
-    if (ctrl & NAND_CTRL_CHANGE) {
+	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
 			this->IO_ADDR_W += 2;
 		else
@@ -47,7 +47,7 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 			this->IO_ADDR_W -= 1;
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 #elif defined(CONFIG_IDS852_REV2)
@@ -58,7 +58,7 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd->priv;
 
-    if (ctrl & NAND_CTRL_CHANGE) {
+	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
 			writeb(0, (volatile __u8 *) this->IO_ADDR_W + 0xa);
 		else
@@ -73,7 +73,7 @@ static void nc650_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 			writeb(0, (volatile __u8 *) this->IO_ADDR_W) + 0xc);
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 #else

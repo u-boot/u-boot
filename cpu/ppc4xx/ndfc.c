@@ -48,7 +48,7 @@ static u8 hwctl = 0;
 
 static void ndfc_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-    struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd->priv;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
@@ -183,12 +183,12 @@ int board_nand_init(struct nand_chip *nand)
 	nand->read_buf   = ndfc_read_buf;
 	nand->dev_ready  = ndfc_dev_ready;
 
-    nand->ecc.correct = nand_correct_data;
-    nand->ecc.hwctl = ndfc_enable_hwecc;
-    nand->ecc.calculate = ndfc_calculate_ecc;
-    nand->ecc.mode = NAND_ECC_HW;
-    nand->ecc.size = 256;
-    nand->ecc.bytes = 3;
+	nand->ecc.correct = nand_correct_data;
+	nand->ecc.hwctl = ndfc_enable_hwecc;
+	nand->ecc.calculate = ndfc_calculate_ecc;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = 256;
+	nand->ecc.bytes = 3;
 
 #ifndef CONFIG_NAND_SPL
 	nand->write_buf  = ndfc_write_buf;

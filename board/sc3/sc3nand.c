@@ -41,8 +41,8 @@ static void *sc3_control_base = (void *)0xEF600700;
 
 static void sc3_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-    struct nand_chip *this = mtd->priv;
-    if (ctrl & NAND_CTRL_CHANGE) {
+	struct nand_chip *this = mtd->priv;
+	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
 			set_bit (SC3_NAND_CLE, sc3_control_base);
 		else
@@ -57,7 +57,7 @@ static void sc3_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 			clear_bit (SC3_NAND_CE, sc3_control_base);
 	}
 
-    if (cmd != NAND_CMD_NONE)
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
 }
 

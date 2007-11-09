@@ -500,11 +500,11 @@ static u_char doc2001_read_byte(struct mtd_info *mtd)
 	struct doc_priv *doc = this->priv;
 	void __iomem *docptr = doc->virtadr;
 
-	//ReadDOC(docptr, CDSNSlowIO);
+	/*ReadDOC(docptr, CDSNSlowIO); */
 	/* 11.4.5 -- delay twice to allow extended length cycle */
 	DoC_Delay(doc, 2);
 	ReadDOC(docptr, ReadPipeInit);
-	//return ReadDOC(docptr, Mil_CDSN_IO);
+	/*return ReadDOC(docptr, Mil_CDSN_IO); */
 	return ReadDOC(docptr, LastDataRead);
 }
 
@@ -1051,7 +1051,7 @@ static int doc200x_correct_data(struct mtd_info *mtd, u_char *dat,
 	return ret;
 }
 
-//u_char mydatabuf[528];
+/*u_char mydatabuf[528]; */
 
 /* The strange out-of-order .oobfree list below is a (possibly unneeded)
  * attempt to retain compatibility.  It used to read:
@@ -1623,11 +1623,11 @@ static int __init doc_probe(unsigned long physadr)
 		if (ChipID == DOC_ChipID_DocMilPlus16) {
 			WriteDOC(~newval, virtadr, Mplus_AliasResolution);
 			oldval = ReadDOC(doc->virtadr, Mplus_AliasResolution);
-			WriteDOC(newval, virtadr, Mplus_AliasResolution);	// restore it
+			WriteDOC(newval, virtadr, Mplus_AliasResolution);	/* restore it */
 		} else {
 			WriteDOC(~newval, virtadr, AliasResolution);
 			oldval = ReadDOC(doc->virtadr, AliasResolution);
-			WriteDOC(newval, virtadr, AliasResolution);	// restore it
+			WriteDOC(newval, virtadr, AliasResolution);	/* restore it */
 		}
 		newval = ~newval;
 		if (oldval == newval) {

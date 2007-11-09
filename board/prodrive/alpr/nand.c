@@ -58,7 +58,7 @@ static struct alpr_ndfc_regs *alpr_ndfc = NULL;
  */
 static void alpr_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-    struct nand_chip *this = mtd->priv;
+	struct nand_chip *this = mtd->priv;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
