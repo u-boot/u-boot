@@ -358,6 +358,7 @@
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
+#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
