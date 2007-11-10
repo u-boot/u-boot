@@ -134,8 +134,8 @@ typedef struct
 static IxNpeDlImageMgrStats ixNpeDlImageMgrStats;
 
 /* default image */
-#ifdef IX_NPEDL_READ_MICROCODE_FROM_FILE
-static UINT32 *IxNpeMicroCodeImageLibrary = NULL;  /* Gets set to proper value at runtime */
+#ifdef CONFIG_IXP4XX_NPE_EXT_UCODE_BASE
+static UINT32 *IxNpeMicroCodeImageLibrary = (UINT32 *)CONFIG_IXP4XX_NPE_EXT_UCODE_BASE;
 #else
 static UINT32 *IxNpeMicroCodeImageLibrary = (UINT32 *)IxNpeMicrocode_array;
 #endif
@@ -158,6 +158,7 @@ PRIVATE BOOL
 ixNpeDlImageMgrNpeFunctionIdCompare (IxNpeDlImageId *imageIdA,
     				       IxNpeDlImageId *imageIdB);
 
+#if 0
 PRIVATE IX_STATUS
 ixNpeDlImageMgrImageFind_legacy (UINT32 *imageLibrary,
                                  UINT32 imageId,
@@ -195,7 +196,7 @@ ixNpeDlImageMgrMicrocodeImageLibraryOverride (
 		     status);
     return status;
 }
-
+#endif
 
 /*
  * Function definition: ixNpeDlImageMgrImageListExtract
@@ -527,6 +528,7 @@ ixNpeDlImageMgrStatsReset (void)
 }
 
 
+#if 0
 /*
  * Function definition: ixNpeDlImageMgrImageFind_legacy
  *
@@ -600,7 +602,7 @@ ixNpeDlImageMgrImageFind_legacy (
 		     "Exiting ixNpeDlImageMgrImageFind: status = %d\n", status);
     return status;
 }
-
+#endif
 
 /*
  * Function definition: ixNpeDlImageMgrImageFind
@@ -635,6 +637,7 @@ ixNpeDlImageMgrImageFind (
 #endif /* IX_NPEDL_READ_MICROCODE_FROM_FILE */
     }
 
+#if 0
     /* For backward's compatibility with previous image format */
     if (ixNpeDlImageMgrSignatureCheck(imageLibrary))
     {
@@ -643,6 +646,7 @@ ixNpeDlImageMgrImageFind (
                                                imagePtr,
                                                imageSize);
     }
+#endif
 
     while (*(imageLibrary+offset) == NPE_IMAGE_MARKER)
     {
