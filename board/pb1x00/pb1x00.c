@@ -25,6 +25,7 @@
 #include <command.h>
 #include <asm/au1x00.h>
 #include <asm/mipsregs.h>
+#include <asm/io.h>
 
 long int initdram(int board_type)
 {
@@ -69,6 +70,9 @@ int checkboard (void)
 	default:
 		printf ("Unsupported cpu %d, proc_id=0x%x\n", proc_id >> 24, proc_id);
 	}
+
+	set_io_port_base(0);
+
 #if defined(CONFIG_IDE_PCMCIA) && 0
 	/* Enable 3.3 V on slot 0 ( VCC )
 	   No 5V */

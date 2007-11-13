@@ -54,10 +54,6 @@
 
 #ifndef __PPC__
 #include <asm/io.h>
-#ifdef __MIPS__
-/* Macros depend on this variable */
-unsigned long mips_io_port_base = 0;
-#endif
 #endif
 
 #ifdef CONFIG_IDE_8xx_DIRECT
