@@ -218,6 +218,8 @@ _start_e500:
 	bdnz	0b
 
 	/* Clear and set up some registers. */
+	li      r0,0
+	mtmsr   r0
 	li	r0,0x0000
 	lis	r1,0xffff
 	mtspr	DEC,r0			/* prevent dec exceptions */
@@ -266,18 +268,17 @@ _start_e500:
 	 */
 	lis	r3,CFG_INIT_RAM_ADDR@h
 	ori	r3,r3,CFG_INIT_RAM_ADDR@l
-	li	r2,512 /* 512*32=16K */
+	li	r2,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE))
 	mtctr	r2
 	li	r0,0
 1:
 	dcbz	r0,r3
 	dcbtls	0,r0,r3
-	addi	r3,r3,32
+	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
 
 	/* Jump out the last 4K page and continue to 'normal' start */
 #ifdef CFG_RAMBOOT
-	bl	3f
 	b	_start_cont
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
@@ -286,14 +287,8 @@ _start_e500:
 	ori	r3,r3,CFG_MONITOR_BASE@l
 	addi	r3,r3,_start_cont - _start + _START_OFFSET
 	mtlr	r3
+	blr
 #endif
-
-3:	li	r0,0
-	mtspr	SRR1,r0		/* Keep things disabled for now */
-	mflr	r1
-	mtspr	SRR0,r1
-	rfi
-	isync
 
 	.text
 	.globl	_start
@@ -701,6 +696,7 @@ in8:
 	.globl	out8
 out8:
 	stb	r4,0x0000(r3)
+	sync
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -710,6 +706,7 @@ out8:
 	.globl	out16
 out16:
 	sth	r4,0x0000(r3)
+	sync
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -719,6 +716,7 @@ out16:
 	.globl	out16r
 out16r:
 	sthbrx	r4,r0,r3
+	sync
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -728,6 +726,7 @@ out16r:
 	.globl	out32
 out32:
 	stw	r4,0x0000(r3)
+	sync
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -737,6 +736,7 @@ out32:
 	.globl	out32r
 out32r:
 	stwbrx	r4,r0,r3
+	sync
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1061,11 +1061,11 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3,(CFG_INIT_RAM_ADDR & ~31)@h
 	ori	r3,r3,(CFG_INIT_RAM_ADDR & ~31)@l
-	li	r4,512
+	li	r4,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE))
 	mtctr	r4
 1:	icbi	r0,r3
 	dcbi	r0,r3
-	addi	r3,r3,32
+	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
 	sync			/* Wait for all icbi to complete on bus */
 	isync

@@ -723,7 +723,8 @@ static hw_info_t hw_info[] = {
 	{ /* SuperSocket RE450T */ 0x0110, 0x00, 0xe0, 0x98, 0 },
 	{ /* Volktek NPL-402CT */ 0x0060, 0x00, 0x40, 0x05, 0 },
 	{ /* NEC PC-9801N-J12 */ 0x0ff0, 0x00, 0x00, 0x4c, 0 },
-	{ /* PCMCIA Technology OEM */ 0x01c8, 0x00, 0xa0, 0x0c, 0 }
+	{ /* PCMCIA Technology OEM */ 0x01c8, 0x00, 0xa0, 0x0c, 0 },
+	{ /* Qemu */ 0x0, 0x52, 0x54, 0x00, 0 }
 };
 
 #define NR_INFO		(sizeof(hw_info)/sizeof(hw_info_t))
@@ -824,30 +825,22 @@ static hw_info_t * get_prom(void ) {
 
 /* U-boot specific routines */
 
-#define NB 5
 
 static unsigned char *pbuf = NULL;
-static int plen[NB];
-static int nrx = 0;
 
 static int pkey = -1;
 static int initialized=0;
 
 void uboot_push_packet_len(int len) {
-	PRINTK("pushed len = %d, nrx = %d\n", len, nrx);
+	PRINTK("pushed len = %d\n", len);
 	if (len>=2000) {
 		printf("NE2000: packet too big\n");
 		return;
 	}
-	if (nrx >= NB) {
-		printf("losing packets in rx\n");
-		return;
-	}
-	plen[nrx] = len;
-	dp83902a_recv(&pbuf[nrx*2000], len);
+	dp83902a_recv(&pbuf[0], len);
 
 	/*Just pass it to the upper layer*/
-	NetReceive(&pbuf[nrx*2000], plen[nrx]);
+	NetReceive(&pbuf[0], len);
 }
 
 void uboot_push_tx_done(int key, int val) {
@@ -862,9 +855,9 @@ int eth_init(bd_t *bd) {
 	PRINTK("### eth_init\n");
 
 	if (!pbuf) {
-		pbuf = malloc(NB*2000);
+		pbuf = malloc(2000);
 		if (!pbuf) {
-			printf("Cannot allocate rx buffers\n");
+			printf("Cannot allocate rx buffer\n");
 			return -1;
 		}
 	}
