@@ -33,7 +33,10 @@
 #define CONFIG_MPC8568		1	/* MPC8568 specific */
 #define CONFIG_MPC8568MDS	1	/* MPC8568MDS board specific */
 
-#define CONFIG_PCI
+#define CONFIG_PCI		1	/* Enable PCI/PCIE */
+#define CONFIG_PCI1		1	/* PCI controller */
+#define CONFIG_PCIE1		1	/* PCIE controller */
+#define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
@@ -86,6 +89,9 @@ extern unsigned long get_clock_freq(void);
 #define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
+
+#define CFG_PCI1_ADDR           (CFG_CCSRBAR+0x8000)
+#define CFG_PCIE1_ADDR          (CFG_CCSRBAR+0xa000)
 
 /*
  * DDR Setup
@@ -325,12 +331,12 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI1_IO_PHYS	0xe2000000
 #define CFG_PCI1_IO_SIZE	0x00800000	/* 8M */
 
-#define CFG_PEX_MEM_BASE	0xa0000000
-#define CFG_PEX_MEM_PHYS	CFG_PEX_MEM_BASE
-#define CFG_PEX_MEM_SIZE	0x10000000	/* 256M */
-#define CFG_PEX_IO_BASE		0x00000000
-#define CFG_PEX_IO_PHYS		0xe2800000
-#define CFG_PEX_IO_SIZE		0x00800000	/* 8M */
+#define CFG_PCIE1_MEM_BASE	0xa0000000
+#define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
+#define CFG_PCIE1_MEM_SIZE	0x20000000	/* 512M */
+#define CFG_PCIE1_IO_BASE	0x00000000
+#define CFG_PCIE1_IO_PHYS	0xe2800000
+#define CFG_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
 #define CFG_SRIO_MEM_BASE	0xc0000000
 
@@ -382,6 +388,11 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
+
+/* PCI view of System Memory */
+#define CFG_PCI_MEMORY_BUS      0x00000000
+#define CFG_PCI_MEMORY_PHYS     0x00000000
+#define CFG_PCI_MEMORY_SIZE     0x80000000
 
 #endif	/* CONFIG_PCI */
 

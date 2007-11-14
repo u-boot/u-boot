@@ -29,9 +29,7 @@ endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o \
-	bcsr.o \
-	ft_board.o
+COBJS	:= $(BOARD).o bcsr.o
 
 SOBJS	:= init.o
 
