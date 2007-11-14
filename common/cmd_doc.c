@@ -14,6 +14,11 @@
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>
 
+/*
+ * ! BROKEN !
+ *
+ * TODO: must be implemented and tested by someone with HW
+ */
 #if 0
 #ifdef CFG_DOC_SUPPORT_2000
 #define DoC_is_2000(doc) (doc->ChipID == DOC_ChipID_Doc2k)
