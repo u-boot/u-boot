@@ -87,6 +87,11 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  1, 3, 0, 2}, /* MDIO */
 	{0,  2, 1, 0, 1}, /* MDC */
 
+	{5,  0, 1, 0, 2}, /* UART2_SOUT */
+	{5,  1, 2, 0, 3}, /* UART2_CTS */
+	{5,  2, 1, 0, 1}, /* UART2_RTS */
+	{5,  3, 2, 0, 2}, /* UART2_SIN */
+
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
@@ -105,6 +110,9 @@ int board_early_init_f(void)
 	    immr->sysconf.spridr == SPR_8360_REV21 ||
 	    immr->sysconf.spridr == SPR_8360E_REV21)
 		bcsr[0xe] = 0x30;
+
+	/* Enable second UART */
+	bcsr[0x9] &= ~0x01;
 
 	return 0;
 }
