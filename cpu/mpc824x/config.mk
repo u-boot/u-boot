@@ -21,7 +21,7 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing -mrelocatable
+PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC824X -ffixed-r2 -ffixed-r29 -mstring -mcpu=603e -msoft-float
 
