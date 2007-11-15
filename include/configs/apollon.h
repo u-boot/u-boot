@@ -148,15 +148,15 @@
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"Image=tftp 0x80008000 Image\; go 0x80008000\0"			\
-	"zImage=tftp 0x80180000 zImage\; go 0x80180000\0"		\
-	"uImage=tftp 0x80180000 uImage\; bootm 0x80180000\0"		\
-	"uboot=tftp 0x80008000 u-boot.bin\; go 0x80008000\0"		\
-	"xloader=tftp 0x80180000 x-load.bin\; cp.w 0x80180000 0x00000400 0x1000\; go 0x00000400\0"	\
-	"syncmode50=mw.w 0x1e442 0xc0c4\; mw 0x6800a060 0xe30d1201\0"	\
-	"syncmode=mw.w 0x1e442 0xe0f4\; mw 0x6800a060 0xe30d1201\0"	\
-	"norboot=cp32 0x18040000 0x80008000 0x200000\; go 0x80008000\0"	\
-	"oneboot=onenand read 0x80008000 0x40000 0x200000\; go 0x80008000\0"\
+	"Image=tftp 0x80008000 Image; go 0x80008000\0"			\
+	"zImage=tftp 0x80180000 zImage; go 0x80180000\0"		\
+	"uImage=tftp 0x80180000 uImage; bootm 0x80180000\0"		\
+	"uboot=tftp 0x80008000 u-boot.bin; go 0x80008000\0"		\
+	"xloader=tftp 0x80180000 x-load.bin; cp.w 0x80180000 0x00000400 0x1000; go 0x00000400\0"	\
+	"syncmode50=mw.w 0x1e442 0xc0c4; mw 0x6800a060 0xe30d1201\0"	\
+	"syncmode=mw.w 0x1e442 0xe0f4; mw 0x6800a060 0xe30d1201\0"	\
+	"norboot=cp32 0x18040000 0x80008000 0x200000; go 0x80008000\0"	\
+	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0"\
 	"onesyncboot=run syncmode oneboot\0"				\
 	"bootcmd=run uboot\0"
 
