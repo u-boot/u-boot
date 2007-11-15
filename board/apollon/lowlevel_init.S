@@ -34,13 +34,13 @@
 #define APOLLON_CS0_BASE        0x00000000
 
 #ifdef PRCM_CONFIG_I
-# define SDRC_ACTIM_CTRLA_0_VAL  0x7BA35907
-# define SDRC_ACTIM_CTRLB_0_VAL  0x00000013
-# define SDRC_RFR_CTRL_0_VAL     0x00044C01
+#define SDRC_ACTIM_CTRLA_0_VAL  0x7BA35907
+#define SDRC_ACTIM_CTRLB_0_VAL  0x00000013
+#define SDRC_RFR_CTRL_0_VAL     0x00044C01
 #elif defined(PRCM_CONFIG_II)
-# define SDRC_ACTIM_CTRLA_0_VAL  0x4A59B485
-# define SDRC_ACTIM_CTRLB_0_VAL  0x0000000C
-# define SDRC_RFR_CTRL_0_VAL     0x00030001
+#define SDRC_ACTIM_CTRLA_0_VAL  0x4A59B485
+#define SDRC_ACTIM_CTRLB_0_VAL  0x0000000C
+#define SDRC_RFR_CTRL_0_VAL     0x00030001
 #endif
 
 #define SDRAM_BASE_ADDRESS	0x80008000
@@ -56,7 +56,7 @@ lowlevel_init:
 	mov	r0, pc, lsr #28
 	cmp	r0, #8
 	beq	prcm_setup
-	
+
 flash_setup:
 	/* In Flash */
 	ldr	r0, =WD2_BASE
@@ -203,7 +203,7 @@ prcm_setup:
 
 	ldr	r1, =0x00000002
 	str	r1, [r0, #0x340]
-	
+
         ldr     r1, =CM_CLKSEL1_CORE
 #ifdef PRCM_CONFIG_I
 	ldr     r2, =0x08300C44
@@ -211,7 +211,7 @@ prcm_setup:
 	ldr     r2, =0x04600C26
 #endif
         str     r2, [r1]
-	
+
         ldr     r0, =OMAP2420_CM_BASE
         ldr     r1, [r0, #0x084]
         and     r1, r1, #0x01

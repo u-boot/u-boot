@@ -39,20 +39,19 @@
  *  is necessary until timers are accessible.
  *
  *  not inline to increase chances its in cache when called
-*************************************************************/
+ *************************************************************/
 void sdelay(unsigned long loops)
 {
-	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
-			  "bne 1b":"=r" (loops):"0"(loops));
+	__asm__("1:\n" "subs %0, %1, #1\n"
+		  "bne 1b":"=r" (loops):"0"(loops));
 }
 
-/*****************************************************************************
+/********************************************************************
  * prcm_init() - inits clocks for PRCM as defined in clocks.h
- * (config II default). Called from SRAM, or Flash (using temp SRAM stack).
- *****************************************************************************/
-void prcm_init(void)
-{
-}
+ * (config II default).
+ *   -- called from SRAM, or Flash (using temp SRAM stack).
+ ********************************************************************/
+void prcm_init(void) { }
 
 /**************************************************************************
  * make_cs1_contiguous() - for es2 and above remap cs1 behind cs0 to allow
@@ -69,6 +68,7 @@ void make_cs1_contiguous(void)
 	a_add_high = (size & 3) << 8;	/* set up low field */
 	a_add_low = (size & 0x3C) >> 2;	/* set up high field */
 	__raw_writel((a_add_high | a_add_low), SDRC_CS_CFG);
+
 }
 
 /********************************************************
@@ -81,13 +81,18 @@ u32 mem_ok(void)
 	u32 val1, val2;
 	u32 pattern = 0x12345678;
 
-	__raw_writel(0x0, OMAP2420_SDRC_CS0 + 0x400);	/* clear pos A */
-	__raw_writel(pattern, OMAP2420_SDRC_CS0);	/* pattern to pos B */
-	__raw_writel(0x0, OMAP2420_SDRC_CS0 + 4);	/* remove pattern off the bus */
-	val1 = __raw_readl(OMAP2420_SDRC_CS0 + 0x400);	/* get pos A value */
+	/* clear pos A */
+	__raw_writel(0x0, OMAP2420_SDRC_CS0 + 0x400);
+	/* pattern to pos B */
+	__raw_writel(pattern, OMAP2420_SDRC_CS0);
+	/* remove pattern off the bus */
+	__raw_writel(0x0, OMAP2420_SDRC_CS0 + 4);
+	/* get pos A value */
+	val1 = __raw_readl(OMAP2420_SDRC_CS0 + 0x400);
 	val2 = __raw_readl(OMAP2420_SDRC_CS0);	/* get val2 */
 
-	if ((val1 != 0) || (val2 != pattern))	/* see if pos A value changed */
+	/* see if pos A value changed */
+	if ((val1 != 0) || (val2 != pattern))
 		return (0);
 	else
 		return (1);
@@ -142,9 +147,11 @@ void gpmc_init(void)
 	__raw_writel(0x0, GPMC_IRQENABLE);	/* isr's sources masked */
 	__raw_writel(tval, GPMC_TIMEOUT_CONTROL);	/* timeout disable */
 #ifdef CFG_NAND_BOOT
-	__raw_writel(0x001, GPMC_CONFIG);	/* set nWP, disable limited addr */
+	/* set nWP, disable limited addr */
+	__raw_writel(0x001, GPMC_CONFIG);
 #else
-	__raw_writel(0x111, GPMC_CONFIG);	/* set nWP, disable limited addr */
+	/* set nWP, disable limited addr */
+	__raw_writel(0x111, GPMC_CONFIG);
 #endif
 
 	/* discover bus connection from sysboot */
@@ -164,7 +171,8 @@ void gpmc_init(void)
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG4_3, GPMC_CONFIG4_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG5_3, GPMC_CONFIG5_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG6_3, GPMC_CONFIG6_0);
-	__raw_writel(APOLLON_24XX_GPMC_CONFIG7_3, GPMC_CONFIG7_0); #else
+	__raw_writel(APOLLON_24XX_GPMC_CONFIG7_3, GPMC_CONFIG7_0);
+#else
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG1_0 | mux | mtype | mwidth,
 		     GPMC_CONFIG1_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG2_0, GPMC_CONFIG2_0);
@@ -172,7 +180,6 @@ void gpmc_init(void)
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG4_0, GPMC_CONFIG4_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG6_0, GPMC_CONFIG6_0);
-	/* enable new mapping */
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG7_0, GPMC_CONFIG7_0);
 #endif
 	sdelay(2000);

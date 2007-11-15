@@ -39,6 +39,7 @@ static u32 get_prod_id(void)
 	p = __raw_readl(PRODUCTION_ID);	/* get production ID */
 	return ((p & CPU_242X_PID_MASK) >> 16);
 }
+
 /**************************************************************************
  * get_cpu_type() - low level get cpu type
  * - no C globals yet.
@@ -68,7 +69,8 @@ u32 get_cpu_type(void)
 
 	v = __raw_readl(TAP_IDCODE_REG);
 	v &= CPU_24XX_ID_MASK;
-	if (v == CPU_2420_CHIPID) {	/* currently 2420 and 2422 have same id */
+	/* currently 2420 and 2422 have same id */
+	if (v == CPU_2420_CHIPID) {
 		if (is_gpmc_muxed() == GPMC_MUXED)	/* if mux'ed */
 			return (CPU_2420);
 		else
@@ -127,8 +129,7 @@ u32 get_mem_type(void)
 		return (DDR_DISCRETE);	/* origional SDP */
 }
 
-/**********************************************************************
- *
+/***********************************************************************
  * get_cs0_size() - get size of chip select 0/1
  ************************************************************************/
 u32 get_sdr_cs_size(u32 offset)
@@ -140,8 +141,7 @@ u32 get_sdr_cs_size(u32 offset)
 	return (size);
 }
 
-/**********************************************************************
- *
+/***********************************************************************
  * get_board_type() - get board type based on current production stats.
  *  --- NOTE: 2 I2C EEPROMs will someday be populated with proper info.
  *      when they are available we can get info from there.  This should
@@ -149,17 +149,12 @@ u32 get_sdr_cs_size(u32 offset)
  ************************************************************************/
 u32 get_board_type(void)
 {
-#if 0
-	if (i2c_probe(I2C_MENELAUS) == 0)
-		return (BOARD_H4_MENELAUS);
-	else
-#endif
-		return (BOARD_H4_SDP);
+	return (BOARD_H4_SDP);
 }
 
 /******************************************************************
  * get_sysboot_value() - get init word settings (dip switch on h4)
-******************************************************************/
+ ******************************************************************/
 inline u32 get_sysboot_value(void)
 {
 	return (0x00000FFF & __raw_readl(CONTROL_STATUS));
@@ -175,7 +170,7 @@ inline u32 get_sysboot_value(void)
  *       -- 4 to flash
  *       -- 8 to enent
  *       -- c to wifi
- ***************************************************************************/
+ ****************************************************************************/
 u32 get_gpmc0_base(void)
 {
 	u32 b;
@@ -231,8 +226,8 @@ u32 get_gpmc0_width(void)
  * wait_on_value() - common routine to allow waiting for changes in
  *   volatile regs.
  *********************************************************************/
-u32 wait_on_value(u32 read_bit_mask, u32 match_value, u32 read_addr,
-u32 bound) {
+u32 wait_on_value(u32 read_bit_mask, u32 match_value, u32 read_addr, u32 bound)
+{
 	u32 i = 0, val;
 	do {
 		++i;
@@ -304,7 +299,8 @@ void display_board_info(u32 btype)
 	}
 
 	printf("OMAP%s-%s revision %d\n", cpu_s, sec_s, rev - 1);
-	printf("Samsung Apollon SDP Base Board + %s \n", mem_s); }
+	printf("Samsung Apollon SDP Base Board + %s \n", mem_s);
+}
 
 /*************************************************************************
  * get_board_rev() - setup to pass kernel board revision information
@@ -316,9 +312,8 @@ u32 get_board_rev(void)
 	u32 rev = 0;
 	u32 btype = get_board_type();
 
-	if (btype == BOARD_H4_MENELAUS) {
+	if (btype == BOARD_H4_MENELAUS)
 		rev = 1;
-	}
 	return (rev);
 }
 

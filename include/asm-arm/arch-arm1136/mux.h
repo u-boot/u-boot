@@ -54,6 +54,10 @@ void muxSetupHDQ(void);
 #define CONTROL_PADCONF_GPMC_NCS0_BYTE1	((volatile unsigned char *)0x4800008D)
 #define CONTROL_PADCONF_GPMC_NCS0_BYTE2	((volatile unsigned char *)0x4800008E)
 #define CONTROL_PADCONF_GPMC_NCS0_BYTE3	((volatile unsigned char *)0x4800008F)
+#define CONTROL_PADCONF_GPMC_NCS0_BYTE4	(0x48000090)
+#define CONTROL_PADCONF_GPMC_NCS0_BYTE5	(0x48000091)
+#define CONTROL_PADCONF_GPMC_NCS0_BYTE6	(0x48000092)
+#define CONTROL_PADCONF_GPMC_NCS0_BYTE7	(0x48000093)
 
 /* Pin Muxing registers used for SDRC */
 #define CONTROL_PADCONF_SDRC_NCS0_BYTE0 ((volatile unsigned char *)0x480000A0)
@@ -71,7 +75,7 @@ void muxSetupHDQ(void);
 #define CONTROL_PADCONF_SPI1_SIMO       ((volatile unsigned char *)0x48000100)
 #define CONTROL_PADCONF_SPI1_SOMI       ((volatile unsigned char *)0x48000101)
 #define CONTROL_PADCONF_SPI1_NCS0       ((volatile unsigned char *)0x48000102)
-#define CONTROL_PADCONF_SPI1_NCS1       ((volatile unsigned char *)0x48000103)
+#define CONTROL_PADCONF_SPI1_NCS1       (0x48000103)
 
 #define CONTROL_PADCONF_MCBSP1_FSR      ((volatile unsigned char *)0x4800010B)
 
@@ -153,8 +157,20 @@ void muxSetupHDQ(void);
 #define CONTROL_PADCONF_USB0_SE0		((volatile uint8 *)0x48000122)
 #define CONTROL_PADCONF_USB0_DAT		((volatile uint8 *)0x48000123)
 
+/* Pin Muxing registres used for USB1. */
+#define CONTROL_PADCONF_USB1_RCV	(0x480000EB)
+#define CONTROL_PADCONF_USB1_TXEN	(0x480000EC)
+
 /* Pin Muxing registers used for UART3/IRDA */
 #define CONTROL_PADCONF_UART3_TX_IRTX	((volatile uint8 *)0x48000118)
 #define CONTROL_PADCONF_UART3_RX_IRRX	((volatile uint8 *)0x48000119)
+
+/* Pin Muxing registers used for GPIO */
+#define CONTROL_PADCONF_GPIO69		(0x480000ED)
+#define CONTROL_PADCONF_GPIO70		(0x480000EE)
+#define CONTROL_PADCONF_GPIO102		(0x48000116)
+#define CONTROL_PADCONF_GPIO103		(0x48000117)
+#define CONTROL_PADCONF_GPIO104		(0x48000118)
+#define CONTROL_PADCONF_GPIO105		(0x48000119)
 
 #endif

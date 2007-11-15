@@ -36,7 +36,7 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text	 :
+	.text	:
 	{
 		cpu/arm1136/start.o	(.text)
 		*(.text)
@@ -61,4 +61,3 @@ SECTIONS
 	.bss : { *(.bss) }
 	_end = .;
 }
-
