@@ -74,8 +74,8 @@ void gpio_enable_usart2(void)
 
 void gpio_enable_usart3(void)
 {
+	gpio_select_periph_B(GPIO_PIN_PB17, 0);
 	gpio_select_periph_B(GPIO_PIN_PB18, 0);
-	gpio_select_periph_B(GPIO_PIN_PB19, 0);
 }
 #endif
 
