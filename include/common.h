@@ -72,7 +72,6 @@ typedef volatile unsigned char	vu_char;
 #include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
