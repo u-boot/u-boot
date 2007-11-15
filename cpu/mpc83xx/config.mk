@@ -20,7 +20,7 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -mrelocatable
+PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC83XX -DCONFIG_E300 \
 			-ffixed-r2 -ffixed-r29 -msoft-float

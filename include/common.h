@@ -99,7 +99,6 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_MPC83XX
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>
