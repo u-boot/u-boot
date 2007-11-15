@@ -142,7 +142,7 @@
 		"cp.l 100000 f0000b28 1\0"				\
 	"ideargs=setenv bootargs root=/dev/hda1 rw\0"			\
 	"ide_boot=ext2load ide 0:1 200000 uImage;"			\
-		"run ideargs addip addcons enable_disp;bootm"		\
+		"run ideargs addip addcons enable_disp;bootm\0"		\
 	"brightness=255\0"						\
 	""
 
@@ -174,6 +174,7 @@
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE	0x2000
 #define CONFIG_ENV_OVERWRITE	1
+#define CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*
  * Memory map
@@ -203,7 +204,7 @@
 #   define CFG_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
