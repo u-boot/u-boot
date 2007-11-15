@@ -11,6 +11,9 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 #include "yaffs_packedtags2.h"
 #include "yportenv.h"
 #include "yaffs_tagsvalidity.h"

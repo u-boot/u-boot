@@ -11,12 +11,17 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_guts_c_version =
     "$Id: yaffs_guts.c,v 1.52 2007/10/16 00:45:05 charles Exp $";
 
 #include "yportenv.h"
+#include "linux/stat.h"
 
 #include "yaffsinterface.h"
+#include "yaffsfs.h"
 #include "yaffs_guts.h"
 #include "yaffs_tagsvalidity.h"
 
@@ -31,6 +36,7 @@ const char *yaffs_guts_c_version =
 #include "yaffs_nand.h"
 #include "yaffs_packedtags2.h"
 
+#include "malloc.h"
 
 #ifdef CONFIG_YAFFS_WINCE
 void yfsd_LockYAFFS(BOOL fsLockOnly);
@@ -597,7 +603,6 @@ static int yaffs_VerifyTnodeWorker(yaffs_Object * obj, yaffs_Tnode * tn,
 	int i;
 	yaffs_Device *dev = obj->myDev;
 	int ok = 1;
-	int nTnodeBytes = (dev->tnodeWidth * YAFFS_NTNODES_LEVEL0)/8;
 
 	if (tn) {
 		if (level > 0) {
@@ -646,7 +651,6 @@ static void yaffs_VerifyFile(yaffs_Object *obj)
 	__u32 lastChunk;
 	__u32 x;
 	__u32 i;
-	int ok;
 	yaffs_Device *dev;
 	yaffs_ExtendedTags tags;
 	yaffs_Tnode *tn;
@@ -854,7 +858,10 @@ static void yaffs_VerifyObjects(yaffs_Device *dev)
  
 static Y_INLINE int yaffs_HashFunction(int n)
 {
-	n = abs(n);
+/* XXX U-BOOT XXX */
+	/*n = abs(n); */
+	if (n < 0)
+		n = -n;
 	return (n % YAFFS_NOBJECT_BUCKETS);
 }
 
@@ -1954,6 +1961,8 @@ static void yaffs_FreeObject(yaffs_Object * tn)
 
 	yaffs_Device *dev = tn->myDev;
 
+/* XXX U-BOOT XXX */
+#if 0
 #ifdef  __KERNEL__
 	if (tn->myInode) {
 		/* We're still hooked up to a cached inode.
@@ -1963,7 +1972,7 @@ static void yaffs_FreeObject(yaffs_Object * tn)
 		return;
 	}
 #endif
-
+#endif
 	yaffs_UnhashObject(tn);
 
 	/* Link into the free list. */
@@ -1972,6 +1981,8 @@ static void yaffs_FreeObject(yaffs_Object * tn)
 	dev->nFreeObjects++;
 }
 
+/* XXX U-BOOT XXX */
+#if 0
 #ifdef __KERNEL__
 
 void yaffs_HandleDeferedFree(yaffs_Object * obj)
@@ -1981,6 +1992,7 @@ void yaffs_HandleDeferedFree(yaffs_Object * obj)
 	}
 }
 
+#endif
 #endif
 
 static void yaffs_DeinitialiseObjects(yaffs_Device * dev)
@@ -2107,12 +2119,14 @@ yaffs_Object *yaffs_FindObjectByNumber(yaffs_Device * dev, __u32 number)
 		if (i) {
 			in = list_entry(i, yaffs_Object, hashLink);
 			if (in->objectId == number) {
+/* XXX U-BOOT XXX */
+#if 0
 #ifdef __KERNEL__
 				/* Don't tell the VFS about this one if it is defered free */
 				if (in->deferedFree)
 					return NULL;
 #endif
-
+#endif
 				return in;
 			}
 		}
@@ -5085,11 +5099,14 @@ static int yaffs_UnlinkFile(yaffs_Object * in)
 	int immediateDeletion = 0;
 
 	if (1) {
+/* XXX U-BOOT XXX */
+#if 0
 #ifdef __KERNEL__
 		if (!in->myInode) {
 			immediateDeletion = 1;
 
 		}
+#endif
 #else
 		if (in->inUse <= 0) {
 			immediateDeletion = 1;

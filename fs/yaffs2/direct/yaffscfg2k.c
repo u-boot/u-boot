@@ -18,6 +18,9 @@
  * There is no need to redistribute this file.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 #include "yaffscfg.h"
 #include "yaffsfs.h"
 #include "yaffs_fileem2k.h"
@@ -226,4 +229,3 @@ void SetCheckpointReservedBlocks(int n)
 {
 	flashDev.nCheckpointReservedBlocks = n;
 }
-

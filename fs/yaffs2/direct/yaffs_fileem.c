@@ -16,6 +16,9 @@
  * This is only intended as test code to test persistence etc.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_flashif_c_version = "$Id: yaffs_fileem.c,v 1.3 2007/02/14 01:09:06 wookey Exp $";
 
 
@@ -214,5 +217,3 @@ int yflash_InitialiseNAND(yaffs_Device *dev)
 	
 	return YAFFS_OK;
 }
-
-

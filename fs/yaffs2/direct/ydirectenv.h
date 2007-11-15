@@ -24,13 +24,19 @@
 
 #include "devextras.h"
 
+/* XXX U-BOOT XXX */
+#if 0
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "assert.h"
+#endif
 #include "yaffs_malloc.h"
 
-#include "assert.h"
+/* XXX U-BOOT XXX */
+#if 0
 #define YBUG() assert(1)
+#endif
 
 #define YCHAR char
 #define YUCHAR unsigned char

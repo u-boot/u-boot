@@ -15,6 +15,8 @@
 * Test code for the "direct" interface. 
 */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
 
 #include <stdio.h>
 #include <string.h>

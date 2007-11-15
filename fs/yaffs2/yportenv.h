@@ -17,11 +17,17 @@
 #ifndef __YPORTENV_H__
 #define __YPORTENV_H__
 
+/* XXX U-BOOT XXX */
+#ifndef CONFIG_YAFFS_DIRECT
+#define CONFIG_YAFFS_DIRECT
+#endif
+
 #if defined CONFIG_YAFFS_WINCE
 
 #include "ywinceenv.h"
 
-#elif  defined __KERNEL__
+/* XXX U-BOOT XXX */
+#elif  0 /* defined __KERNEL__ */
 
 #include "moduleconfig.h"
 

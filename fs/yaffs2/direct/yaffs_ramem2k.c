@@ -15,6 +15,8 @@
  * yaffs_ramem2k.c: RAM emulation in-kernel for 2K pages (YAFFS2)
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
 
 const char *yaffs_ramem2k_c_version = "$Id: yaffs_ramem2k.c,v 1.3 2007/02/14 01:09:06 wookey Exp $";
 
@@ -360,4 +362,3 @@ int nandemul2k_GetNumberOfBlocks(void) {return nandemul2k_CalcNBlocks();}
 
 
 #endif //YAFFS_RAM_ENABLED
-

@@ -11,6 +11,8 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
 
 const char *yaffs_flashif_c_version = "$Id: yaffs_flashif.c,v 1.3 2007/02/14 01:09:06 wookey Exp $";
 
@@ -226,4 +228,3 @@ int yflash_InitialiseNAND(yaffs_Device *dev)
 {
 	return YAFFS_OK;
 }
-

@@ -11,6 +11,9 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_mtdif_c_version =
     "$Id: yaffs_mtdif.c,v 1.19 2007/02/14 01:09:06 wookey Exp $";
 
@@ -224,7 +227,10 @@ int nandmtd_EraseBlockInNAND(yaffs_Device * dev, int blockNumber)
 
 	/* Todo finish off the ei if required */
 
+/* XXX U-BOOT XXX */
+#if 0
 	sema_init(&dev->sem, 0);
+#endif
 
 	retval = mtd->erase(mtd, &ei);
 
@@ -238,4 +244,3 @@ int nandmtd_InitialiseNAND(yaffs_Device * dev)
 {
 	return YAFFS_OK;
 }
-

@@ -16,6 +16,9 @@
  * This is only intended as test code to test persistence etc.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_flashif_c_version = "$Id: yaffs_fileem2k.c,v 1.12 2007/02/14 01:09:06 wookey Exp $";
 
 
@@ -438,4 +441,3 @@ int yflash_QueryNANDBlock(struct yaffs_DeviceStruct *dev, int blockNo, yaffs_Blo
 	}
 	return YAFFS_OK;
 }
-

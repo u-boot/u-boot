@@ -27,6 +27,9 @@
  * SUCH DAMAGE.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 #include "yportenv.h"
 //#include <linux/string.h>
 

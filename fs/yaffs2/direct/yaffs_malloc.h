@@ -14,8 +14,11 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
  
+/* XXX U-BOOT XXX */
+#if 0
 #include <stdlib.h>
- 
+#endif 
+
 void *yaffs_malloc(size_t size); 
 void yaffs_free(void *ptr);
  

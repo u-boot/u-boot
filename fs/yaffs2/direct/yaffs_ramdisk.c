@@ -18,6 +18,9 @@
  * Use this with dev->useNANDECC enabled, then ECC overheads are not required.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_ramdisk_c_version = "$Id: yaffs_ramdisk.c,v 1.4 2007/02/14 01:09:06 wookey Exp $";
 
 
@@ -230,5 +233,3 @@ int yramdisk_InitialiseNAND(yaffs_Device *dev)
 	
 	return YAFFS_OK;
 }
-
-

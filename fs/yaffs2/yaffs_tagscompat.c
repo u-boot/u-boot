@@ -11,6 +11,9 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 #include "yaffs_guts.h"
 #include "yaffs_tagscompat.h"
 #include "yaffs_ecc.h"

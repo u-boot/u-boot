@@ -11,11 +11,19 @@
  * published by the Free Software Foundation.
  */
  
+/* XXX U-BOOT XXX */
+#include <common.h>
+#include <malloc.h>
+
 #include "yaffsfs.h"
 #include "yaffs_guts.h"
 #include "yaffscfg.h"
-#include <string.h> // for memset
 #include "yportenv.h"
+
+/* XXX U-BOOT XXX */
+#if 0
+#include <string.h> // for memset
+#endif
 
 #define YAFFSFS_MAX_SYMLINK_DEREFERENCES 5
 
@@ -925,7 +933,7 @@ int yaffs_fstat(int fd, struct yaffs_stat *buf)
 
 static int yaffsfs_DoChMod(yaffs_Object *obj,mode_t mode)
 {
-	int result;
+	int result = YAFFS_FAIL;
 
 	if(obj)
 	{
@@ -1158,8 +1166,6 @@ void yaffs_initialise(yaffsfs_DeviceConfiguration *cfgList)
 		cfg->dev->removeObjectCallback = yaffsfs_RemoveObjectCallback;
 		cfg++;
 	}
-	
-	
 }
 
 
@@ -1502,4 +1508,3 @@ int yaffs_DumpDevStruct(const char *path)
 	}
 	return 0;
 }
-

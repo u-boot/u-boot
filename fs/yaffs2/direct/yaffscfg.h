@@ -40,6 +40,7 @@ void yaffsfs_Unlock(void);
 __u32 yaffsfs_CurrentTime(void);
 
 void yaffsfs_SetError(int err);
+int yaffsfs_GetError(void);
 
 #endif
 

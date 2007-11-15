@@ -11,6 +11,9 @@
  * published by the Free Software Foundation.
  */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 #include "yaffs_tagsvalidity.h"
 
 void yaffs_InitialiseTags(yaffs_ExtendedTags * tags)

@@ -210,7 +210,7 @@ LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
+	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/direct/libyaffs2.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
@@ -378,6 +378,7 @@ TAG_SUBDIRS += fs/cramfs
 TAG_SUBDIRS += fs/fat
 TAG_SUBDIRS += fs/fdos
 TAG_SUBDIRS += fs/jffs2
+TAG_SUBDIRS += fs/yaffs2/direct
 TAG_SUBDIRS += net
 TAG_SUBDIRS += disk
 TAG_SUBDIRS += common

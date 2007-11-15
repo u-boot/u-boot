@@ -11,6 +11,9 @@
  * published by the Free Software Foundation.
  */
  
+/* XXX U-BOOT XXX */
+#include <common.h>
+
 const char *yaffs_nand_c_version =
     "$Id: yaffs_nand.c,v 1.7 2007/02/14 01:09:06 wookey Exp $";
 
@@ -129,6 +132,3 @@ int yaffs_InitialiseNAND(struct yaffs_DeviceStruct *dev)
 {
 	return dev->initialiseNAND(dev);
 }
-
-
- 

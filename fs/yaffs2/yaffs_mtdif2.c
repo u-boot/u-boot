@@ -13,6 +13,10 @@
 
 /* mtd interface for YAFFS2 */
 
+/* XXX U-BOOT XXX */
+#include <common.h>
+#include "asm/errno.h"
+
 const char *yaffs_mtdif2_c_version =
     "$Id: yaffs_mtdif2.c,v 1.17 2007/02/14 01:09:06 wookey Exp $";
 
@@ -229,4 +233,3 @@ int nandmtd2_QueryNANDBlock(struct yaffs_DeviceStruct *dev, int blockNo,
 	else
 		return YAFFS_FAIL;
 }
-

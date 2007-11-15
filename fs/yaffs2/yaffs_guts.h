@@ -446,9 +446,10 @@ struct yaffs_ObjectStruct {
 	YCHAR shortName[YAFFS_SHORT_NAME_LENGTH + 1];
 #endif
 
-#ifndef __KERNEL__
+/* XXX U-BOOT XXX */
+/* #ifndef __KERNEL__ */
 	__u32 inUse;
-#endif
+/* #endif */
 
 #ifdef CONFIG_YAFFS_WINCE
 	__u32 win_ctime[2];
@@ -464,10 +465,10 @@ struct yaffs_ObjectStruct {
 
 	__u32 yst_rdev;
 
-#ifdef __KERNEL__
+/* XXX U-BOOT XXX */
+/* #ifndef __KERNEL__ */
 	struct inode *myInode;
-
-#endif
+/* #endif */
 
 	yaffs_ObjectType variantType;
 
@@ -626,15 +627,18 @@ struct yaffs_DeviceStruct {
 	__u32 chunkMask;
 	
 
-#ifdef __KERNEL__
+/* XXX U-BOOT XXX */
+#if 0
+#ifndef __KERNEL__
 
 	struct semaphore sem;	/* Semaphore for waiting on erasure.*/
 	struct semaphore grossLock;	/* Gross locking semaphore */
+	void (*putSuperFunc) (struct super_block * sb);
+#endif
+#endif
 	__u8 *spareBuffer;	/* For mtdif2 use. Don't know the size of the buffer 
 				 * at compile time so we have to allocate it.
 				 */
-	void (*putSuperFunc) (struct super_block * sb);
-#endif
 
 	int isMounted;
 	
@@ -883,9 +887,11 @@ yaffs_Object *yaffs_LostNFound(yaffs_Device * dev);
 void yfsd_WinFileTimeNow(__u32 target[2]);
 #endif
 
-#ifdef __KERNEL__
-
+/* XXX U-BOOT XXX */
+#if 0
+#ifndef __KERNEL__
 void yaffs_HandleDeferedFree(yaffs_Object * obj);
+#endif
 #endif
 
 /* Debug dump  */

@@ -28,13 +28,19 @@
 #define new newHack
 #endif
 
-#if !(defined __KERNEL__) || (defined WIN32)
+/* XXX U-BOOT XXX */
+#if 1 /* !(defined __KERNEL__) || (defined WIN32) */
 
 /* User space defines */
 
+/* XXX U-BOOT XXX */
+#if 0
 typedef unsigned char __u8;
 typedef unsigned short __u16;
 typedef unsigned __u32;
+#endif
+
+#include <asm/types.h>
 
 /*
  * Simple doubly linked list implementation.
@@ -213,7 +219,12 @@ static __inline__ void list_splice(struct list_head *list,
 #define DT_WHT		14
 
 #ifndef WIN32
+/* XXX U-BOOT XXX */
+#if 0
 #include <sys/stat.h>
+#else
+#include "common.h"
+#endif
 #endif
 
 /*
