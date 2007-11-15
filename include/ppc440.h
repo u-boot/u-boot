@@ -3187,9 +3187,6 @@
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
-#define GPIO0			0
-#define GPIO1			1
-
 #if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
@@ -3204,31 +3201,6 @@
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
-
-/* Offsets */
-#define GPIOx_OR    0x00	/* GPIO Output Register */
-#define GPIOx_TCR   0x04	/* GPIO Three-State Control Register */
-#define GPIOx_OSL   0x08	/* GPIO Output Select Register (Bits 0-31) */
-#define GPIOx_OSH   0x0C	/* GPIO Ouput Select Register (Bits 32-63) */
-#define GPIOx_TSL   0x10	/* GPIO Three-State Select Register (Bits 0-31) */
-#define GPIOx_TSH   0x14	/* GPIO Three-State Select Register  (Bits 32-63) */
-#define GPIOx_ODR   0x18	/* GPIO Open drain Register */
-#define GPIOx_IR    0x1C	/* GPIO Input Register */
-#define GPIOx_RR1   0x20	/* GPIO Receive Register 1 */
-#define GPIOx_RR2   0x24	/* GPIO Receive Register 2 */
-#define GPIOx_RR3   0x28	/* GPIO Receive Register 3 */
-#define GPIOx_IS1L  0x30	/* GPIO Input Select Register 1 (Bits 0-31) */
-#define GPIOx_IS1H  0x34	/* GPIO Input Select Register 1 (Bits 32-63) */
-#define GPIOx_IS2L  0x38	/* GPIO Input Select Register 2 (Bits 0-31) */
-#define GPIOx_IS2H  0x3C	/* GPIO Input Select Register 2 (Bits 32-63) */
-#define GPIOx_IS3L  0x40	/* GPIO Input Select Register 3 (Bits 0-31) */
-#define GPIOx_IS3H  0x44	/* GPIO Input Select Register 3 (Bits 32-63) */
-
-#define GPIO_OS(x)	(x+GPIOx_OSL)	/* GPIO Output Register High or Low */
-#define GPIO_TS(x)	(x+GPIOx_TSL)	/* GPIO Three-state Control Reg High or Low */
-#define GPIO_IS1(x)	(x+GPIOx_IS1L)	/* GPIO Input register1 High or Low */
-#define GPIO_IS2(x)	(x+GPIOx_IS2L)	/* GPIO Input register2 High or Low */
-#define GPIO_IS3(x)	(x+GPIOx_IS3L)	/* GPIO Input register3 High or Low */
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)

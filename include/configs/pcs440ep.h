@@ -365,7 +365,7 @@
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
  */
-#define CFG_440_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
+#define CFG_4xx_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/ \

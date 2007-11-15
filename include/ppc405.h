@@ -1135,6 +1135,8 @@
 
 #endif /* CONFIG_405EZ */
 
+#define GPIO0_BASE		GPIO_BASE
+
 #if defined(CONFIG_405EX)
 #define SDR0_SRST		0x0200
 

@@ -112,7 +112,7 @@ cpu_init_f (void)
 	unsigned long val;
 #endif
 
-#if defined(CONFIG_405EP) || defined (CONFIG_405EX)
+#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CFG_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
@@ -144,9 +144,9 @@ cpu_init_f (void)
 #endif /* CONFIG_405EP */
 #endif /* CONFIG_405EP */
 
-#if defined(CFG_440_GPIO_TABLE)
+#if defined(CFG_4xx_GPIO_TABLE)
 	gpio_set_chip_configuration();
-#endif /* CFG_440_GPIO_TABLE */
+#endif /* CFG_4xx_GPIO_TABLE */
 
 	/*
 	 * External Bus Controller (EBC) Setup
