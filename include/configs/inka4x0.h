@@ -156,21 +156,20 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		0xFFE00000
-
-#define CFG_FLASH_SIZE		0x00200000 /* 2 MByte */
-#define CFG_MAX_FLASH_SECT	35	/* max num of sects on one chip */
-
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000) /* second sector */
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
-					   (= chip selects) */
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1
+#define CFG_FLASH_BASE		0xffe00000
+#define CFG_FLASH_SIZE		0x00200000
+#define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster) */
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE	0x2000
 #define CONFIG_ENV_OVERWRITE	1
