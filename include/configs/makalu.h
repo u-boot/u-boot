@@ -44,11 +44,11 @@
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFE000000
+#define CFG_FLASH_BASE		0xFC000000
 #define CFG_FPGA_BASE		0xF0000000
 #define CFG_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
 #define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc()	*/
 #define CFG_MONITOR_BASE	(TEXT_BASE)
 
 /*-----------------------------------------------------------------------
@@ -113,7 +113,7 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CFG_MBYTES_SDRAM        128
+#define CFG_MBYTES_SDRAM	256
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -150,7 +150,7 @@
 
 #define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"   */
-#define CONFIG_PHY1_ADDR	2
+#define CONFIG_PHY1_ADDR	0
 
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
@@ -187,8 +187,8 @@
 	"bootfile=makalu/uImage\0"					\
 	"fdt_file=makalu/makalu.dtb\0"					\
 	"fdt_addr=400000\0"						\
-	"kernel_addr=fe000000\0"					\
-	"ramdisk_addr=fe200000\0"					\
+	"kernel_addr=fc000000\0"					\
+	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 makalu/u-boot.bin\0"				\
 	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
@@ -282,6 +282,7 @@
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
+#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -323,7 +324,7 @@
  *----------------------------------------------------------------------*/
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x04011000
-#define CFG_EBC_PB0CR           0xFE0BA000  /* BAS=0xFE0,BS=32MB,BU=R/W,BW=16bit*/
+#define CFG_EBC_PB0CR		(CFG_FLASH_BASE | 0xda000)
 
 /* Memory Bank 2 (CPLD) initialization						*/
 #define CFG_EBC_PB2AP           0x9400C800
@@ -334,28 +335,47 @@
 /*-----------------------------------------------------------------------
  * GPIO Setup
  *----------------------------------------------------------------------*/
-/*-----------------------------------------------------------------------
- * Definitions for GPIO setup (PPC405EX specific)
- *
- * GPIO0[0-3]      - EBC data 0-3	inputs/outputs
- * GPIO0[4-7]      - USB data 4-7	inputs/outputs
- * GPIO0[8-11]     - NFCE# 1-3 inputs/outputs, GPIO11: IRQ6 inputs
- * GPIO0[12-15]    - USB data 0-3	inputs/outputs
- * GPIO0[16-21]    - UART0 control signal inputs/outputs
- *
- * GPIO0[22-25,27] - EBC control signal inputs/outputs
- * GPIO0[26]	   - Instruction trace outputs
- * GPIO0[28]	   - Float, N/C
- * GPIO0[29-31]    - DMA control signal inputs/outputs
- */
-#define CFG_GPIO0_OSRL		0x00AA54AA
-#define CFG_GPIO0_OSRH		0x55500000
-#define CFG_GPIO0_TSRL		0x00AA54AA
-#define CFG_GPIO0_TSRH		0x55500000
-#define CFG_GPIO0_ISR1L		0x00005400
-#define CFG_GPIO0_ISR1H		0x55500000
-#define CFG_GPIO0_ISR2L		0x00550055
-#define CFG_GPIO0_ISR2H		0x00000000
+#define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
+{											\
+/* GPIO Core 0 */									\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO0	EBC_DATA_PAR(0)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO1	EBC_DATA_PAR(1)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO2	EBC_DATA_PAR(2)			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO3	EBC_DATA_PAR(3)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO4	EBC_DATA(20)	USB2_DATA(4)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO5	EBC_DATA(21)	USB2_DATA(5)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO6	EBC_DATA(22)	USB2_DATA(6)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO7	EBC_DATA(23)	USB2_DATA(7)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO8	EBC_CS(1)	NFCE(1)		IRQ(7) */ \
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO9	EBC_CS(2)	NFCE(2)		IRQ(8) */ \
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO10 EBC_CS(3)	NFCE(3)		IRQ(9) */ \
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO11 IRQ(6)				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO12 EBC_DATA(16)	USB2_DATA(0)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_0}, /* GPIO13 EBC_DATA(17)	USB2_DATA(1)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_1}, /* GPIO14 EBC_DATA(18)	USB2_DATA(2)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_1}, /* GPIO15 EBC_DATA(19)	USB2_DATA(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO16 UART0_DCD	UART1_CTS	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO17 UART0_DSR	UART1_RTS	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_ALT1, GPIO_OUT_0}, /* GPIO18 UART0_CTS			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO19 UART0_RTS			*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO20 UART0_DTR	UART1_TX	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO21 UART0_RI	UART1_RX	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO22 EBC_HOLD_REQ	DMA_ACK2	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL,  GPIO_OUT_0}, /* GPIO23 EBC_HOLD_ACK	DMA_REQ2	*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO24 EBC_EXT_REQ	DMA_EOT2	IRQ(4) */ \
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO25 EBC_EXT_ACK	DMA_ACK3	IRQ(3) */ \
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO26 EBC_ADDR(5)	DMA_EOT0	TS(3) */ \
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL , GPIO_OUT_0}, /* GPIO27 EBC_BUS_REQ	DMA_EOT3	IRQ(5) */ \
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL , GPIO_OUT_0}, /* GPIO28				*/	\
+{GPIO0_BASE, GPIO_IN,  GPIO_SEL , GPIO_OUT_0}, /* GPIO29 IRQ(2)		DMA_EOT1	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO30 IRQ(1)		DMA_REQ1	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO31 IRQ(0)		DMA_ACK1	*/	\
+}												\
+}
+
+#define CFG_GPIO_PCIE_RST	23
+#define CFG_GPIO_PCIE_CLKREQ	27
+#define CFG_GPIO_PCIE_WAKE	28
 
 /*
  * Internal Definitions

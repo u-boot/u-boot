@@ -26,7 +26,8 @@
 #include <ppc405.h>
 #include <libfdt.h>
 #include <asm/processor.h>
-#include <asm-ppc/io.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_PCI)
 #include <pci.h>
@@ -189,6 +190,11 @@ int board_early_init_f (void)
 	 */
 	mtsdr(SDR0_SRST, 0);
 
+	/* Reset PCIe slots */
+	gpio_write_bit(CFG_GPIO_PCIE_RST, 0);
+	udelay(100);
+	gpio_write_bit(CFG_GPIO_PCIE_RST, 1);
+
 	return 0;
 }
 
@@ -239,45 +245,6 @@ int pci_pre_init(struct pci_controller * hose )
 }
 #endif  /* defined(CONFIG_PCI) */
 
-/*************************************************************************
- *  pci_target_init
- *
- *      The bootstrap configuration provides default settings for the pci
- *      inbound map (PIM). But the bootstrap config choices are limited and
- *      may not be sufficient for a given board.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*-------------------------------------------------------------------+
-	 * Disable everything
-	 *-------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0SA, 0 ); /* disable */
-	out32r( PCIX0_PIM1SA, 0 ); /* disable */
-	out32r( PCIX0_PIM2SA, 0 ); /* disable */
-	out32r( PCIX0_EROMBA, 0 ); /* disable expansion rom */
-
-	/*-------------------------------------------------------------------+
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 *-------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
-	out32r( PCIX0_PIM0LAH, 0 );
-	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
-
-	out32r( PCIX0_BAR0, 0 );
-
-	/*-------------------------------------------------------------------+
-	 * Program the board's subsystem id/vendor id
-	 *-------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
-
-	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
-}
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
-
 #ifdef CONFIG_PCI
 static struct pci_controller pcie_hose[2] = {{0},{0}};
 
@@ -292,15 +259,13 @@ void pcie_setup_hoses(int busno)
 
 	for (i = 0; i < 2; i++) {
 
-		if (is_end_point(i)) {
-			printf("PCIE%d: will be configured as endpoint\n", i);
+		if (is_end_point(i))
 			ret = ppc4xx_init_pcie_endport(i);
-		} else {
-			printf("PCIE%d: will be configured as root-complex\n", i);
+		else
 			ret = ppc4xx_init_pcie_rootport(i);
-		}
 		if (ret) {
-			printf("PCIE%d: initialization failed\n", i);
+			printf("PCIE%d: initialization as %s failed\n", i,
+			       is_end_point(i) ? "endpoint" : "root-complex");
 			continue;
 		}
 

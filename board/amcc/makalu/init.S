@@ -54,14 +54,8 @@ ext_bus_cntlr_init:
 	/* base=00000000, size=128MByte (5), mode=2 (n*10*4) */
 	mtsdram_as(SDRAM_MB0CF, 0x00005201);
 
-	/* SET SDRAM_MB1CF - Not enabled */
-	mtsdram_as(SDRAM_MB1CF, 0x00000000);
-
-	/* SET SDRAM_MB2CF  - Not enabled */
-	mtsdram_as(SDRAM_MB2CF, 0x00000000);
-
-	/* SET SDRAM_MB3CF  - Not enabled */
-	mtsdram_as(SDRAM_MB3CF, 0x00000000);
+	/* base=08000000, size=128MByte (5), mode=2 (n*10*4) */
+	mtsdram_as(SDRAM_MB1CF, (0x08000000 >> 3) | 0x5201);
 
 	/* SDRAM_CLKTR: Adv Addr clock by 90 deg */
 	mtsdram_as(SDRAM_CLKTR,0x80000000);
