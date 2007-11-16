@@ -1,0 +1,1 @@
+../yaffs_ecc.c
