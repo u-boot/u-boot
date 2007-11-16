@@ -516,10 +516,10 @@ void   get_sys_info  ( sys_info_t * );
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
-	 int ppc440spe_revB(void);
 #	endif
 #  endif
 typedef PPC4xx_SYS_INFO sys_info_t;
+int	ppc440spe_revB(void);
 void	get_sys_info  ( sys_info_t * );
 #endif
 

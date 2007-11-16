@@ -203,6 +203,7 @@
 /*
  * UTL register offsets
  */
+#define	PEUTL_PBCTL		0x00
 #define PEUTL_PBBSZ		0x20
 #define PEUTL_OPDBSZ		0x68
 #define PEUTL_IPHBSZ		0x70
@@ -210,6 +211,7 @@
 #define PEUTL_OUTTR		0x90
 #define PEUTL_INTR		0x98
 #define PEUTL_PCTL		0xa0
+#define	PEUTL_RCSTA		0xb0
 #define PEUTL_RCIRQEN		0xb8
 
 /*

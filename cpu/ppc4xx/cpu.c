@@ -510,7 +510,6 @@ int checkcpu (void)
 	return 0;
 }
 
-#if defined (CONFIG_440SPE)
 int ppc440spe_revB() {
 	unsigned int pvr;
 
@@ -520,7 +519,6 @@ int ppc440spe_revB() {
 	else
 		return 0;
 }
-#endif
 
 /* ------------------------------------------------------------------------- */
 

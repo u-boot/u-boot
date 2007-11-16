@@ -401,6 +401,48 @@ int ppc4xx_init_pcie(void)
 	return 0;
 }
 #else
+static void ppc4xx_setup_utl(u32 port)
+{
+	u32 utl_base;
+
+	/*
+	 * Map UTL registers at 0xef4f_n000 (4K 0xfff mask) PEGPLn_REGMSK
+	 */
+	switch (port) {
+	case 0:
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE0), 0x00000000);
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE0), CFG_PCIE0_UTLBASE);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0xfffffc01); /* 4k region, valid */
+		mtdcr(DCRN_PEGPL_SPECIAL(PCIE0), 0);
+		break;
+
+	case 1:
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE1), 0x00000000);
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE1), CFG_PCIE1_UTLBASE);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0xfffffc01); /* 4k region, valid */
+		mtdcr(DCRN_PEGPL_SPECIAL(PCIE1), 0);
+
+		break;
+	}
+	utl_base = (port==0) ? CFG_PCIE0_UTLBASE : CFG_PCIE1_UTLBASE;
+
+	/*
+	 * Set buffer allocations and then assert VRB and TXE.
+	 */
+	out_be32((u32 *)(utl_base + PEUTL_OUTTR),   0x02000000);
+	out_be32((u32 *)(utl_base + PEUTL_INTR),    0x02000000);
+	out_be32((u32 *)(utl_base + PEUTL_OPDBSZ),  0x04000000);
+	out_be32((u32 *)(utl_base + PEUTL_PBBSZ),   0x21000000);
+	out_be32((u32 *)(utl_base + PEUTL_IPHBSZ),  0x02000000);
+	out_be32((u32 *)(utl_base + PEUTL_IPDBSZ),  0x04000000);
+	out_be32((u32 *)(utl_base + PEUTL_RCIRQEN), 0x00f00000);
+	out_be32((u32 *)(utl_base + PEUTL_PCTL),    0x80800066);
+
+	out_be32((u32 *)(utl_base + PEUTL_PBCTL),   0x0800000c);
+	out_be32((u32 *)(utl_base + PEUTL_RCSTA),
+		 in_be32((u32 *)(utl_base + PEUTL_RCSTA)) | 0x000040000);
+}
+
 int ppc4xx_init_pcie(void)
 {
 	/*
@@ -643,14 +685,12 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 		return -1;
 	}
 
-#if defined(CONFIG_440SPE)
 	/*
 	 * Setup UTL registers - but only on revA!
 	 * We use default settings for revB chip.
 	 */
 	if (!ppc440spe_revB())
 		ppc4xx_setup_utl(port);
-#endif
 
 	/*
 	 * We map PCI Express configuration access into the 512MB regions
