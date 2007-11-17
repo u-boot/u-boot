@@ -129,9 +129,12 @@ void scsi_scan(int mode)
 			if((modi&0x80)==0x80) /* drive is removable */
 				scsi_dev_desc[scsi_max_devs].removable=TRUE;
 			/* get info for this device */
-			scsi_ident_cpy(&scsi_dev_desc[scsi_max_devs].vendor[0],&tempbuff[8],8);
-			scsi_ident_cpy(&scsi_dev_desc[scsi_max_devs].product[0],&tempbuff[16],16);
-			scsi_ident_cpy(&scsi_dev_desc[scsi_max_devs].revision[0],&tempbuff[32],4);
+			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].vendor[0],
+				       &tempbuff[8], 8);
+			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].product[0],
+				       &tempbuff[16], 16);
+			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].revision[0],
+				       &tempbuff[32], 4);
 			scsi_dev_desc[scsi_max_devs].target=pccb->target;
 			scsi_dev_desc[scsi_max_devs].lun=pccb->lun;
 
