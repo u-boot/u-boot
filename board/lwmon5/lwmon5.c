@@ -96,6 +96,23 @@ int board_early_init_f(void)
 
 	gpio_write_bit(CFG_GPIO_FLASH_WP, 1);
 
+	/*
+	 * Reset PHY's:
+	 * The PHY's need a 2nd reset pulse, since the MDIO address is latched
+	 * upon reset, and with the first reset upon powerup, the addresses are
+	 * not latched reliable, since the IRQ line is multiplexed with an
+	 * MDIO address. A 2nd reset at this time will make sure, that the
+	 * correct address is latched.
+	 */
+	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
+	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
+	udelay(1000);
+	gpio_write_bit(CFG_GPIO_PHY0_RST, 0);
+	gpio_write_bit(CFG_GPIO_PHY1_RST, 0);
+	udelay(1000);
+	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
+	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
+
 	return 0;
 }
 
@@ -229,15 +246,6 @@ int misc_init_r(void)
 	udelay(300);
 	/* Write lime controller memory parameters */
 	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
-
-	/*
-	 * Reset PHY's
-	 */
-	gpio_write_bit(CFG_GPIO_PHY0_RST, 0);
-	gpio_write_bit(CFG_GPIO_PHY1_RST, 0);
-	udelay(100);
-	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
-	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
 
 	/*
 	 * Init display controller
