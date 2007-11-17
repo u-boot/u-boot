@@ -108,6 +108,7 @@ COBJS-y += smc91111.o
 COBJS-y += tigon3.o
 COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
+COBJS-y += uli526x.o
 
 #
 # PCI/PCMCIA device drivers

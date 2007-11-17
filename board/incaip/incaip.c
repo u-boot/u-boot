@@ -25,7 +25,7 @@
 #include <command.h>
 #include <asm/addrspace.h>
 #include <asm/inca-ip.h>
-
+#include <asm/io.h>
 
 extern uint incaip_get_cpuclk(void);
 
@@ -85,7 +85,6 @@ long int initdram(int board_type)
 
 int checkboard (void)
 {
-
 	unsigned long chipid = *INCA_IP_WDT_CHIPID;
 	int part_num;
 
@@ -106,6 +105,8 @@ int checkboard (void)
 	printf ("Chip V1.%ld, ", (chipid >> 28));
 
 	printf("CPU Speed %d MHz\n", incaip_get_cpuclk()/1000000);
+
+	set_io_port_base(0);
 
 	return 0;
 }

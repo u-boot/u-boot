@@ -1270,10 +1270,12 @@ spd_sdram(void)
 		debug("\nDDR: LAWBAR8=0x%08x\n", mcm->lawbar8);
 		debug("DDR: LAWAR8=0x%08x\n", mcm->lawar8);
 	}
+
+	debug("\nMemory size of DDR2 = 0x%08lx\n", memsize_ddr2);
+
 #endif /* CONFIG_NUM_DDR_CONTROLLERS > 1 */
 
-	debug("\nMemory sizes are DDR1 = 0x%08lx, DDR2 = 0x%08lx\n",
-	      memsize_ddr1, memsize_ddr2);
+	debug("\nMemory size of DDR1 = 0x%08lx\n", memsize_ddr1);
 
 	/*
 	 * If neither DDR controller is enabled return 0.

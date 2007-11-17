@@ -136,7 +136,7 @@ _start:
 	movec	%d0, %VBR
 
 	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_RAM_CTRL), %d0
-	movec	%d0, %RAMBAR0
+	movec	%d0, %RAMBAR1
 
 	/* initialize general use internal ram */
 	move.l #0, %d0
