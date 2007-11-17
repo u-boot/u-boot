@@ -24,4 +24,33 @@
 #
 
 PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
+
+cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+is5249=$(shell grep CONFIG_M5249 $(TOPDIR)/include/$(cfg))
+is5253=$(shell grep CONFIG_M5253 $(TOPDIR)/include/$(cfg))
+is5271=$(shell grep CONFIG_M5271 $(TOPDIR)/include/$(cfg))
+is5272=$(shell grep CONFIG_M5272 $(TOPDIR)/include/$(cfg))
+is5282=$(shell grep CONFIG_M5282 $(TOPDIR)/include/$(cfg))
+
+
+ifeq ($(findstring 4.2,$(shell $(CC) --version)),4.2)
+
+ifneq (,$(findstring CONFIG_M5249,$(is5249)))
+PLATFORM_CPPFLAGS += -mcpu=5249
+endif
+ifneq (,$(findstring CONFIG_M5253,$(is5253)))
+PLATFORM_CPPFLAGS += -mcpu=5253
+endif
+ifneq (,$(findstring CONFIG_M5271,$(is5271)))
+PLATFORM_CPPFLAGS += -mcpu=5271
+endif
+ifneq (,$(findstring CONFIG_M5272,$(is5272)))
+PLATFORM_CPPFLAGS += -mcpu=5272
+endif
+ifneq (,$(findstring CONFIG_M5282,$(is5282)))
+PLATFORM_CPPFLAGS += -mcpu=5282
+endif
+
+else
 PLATFORM_CPPFLAGS += -m5307
+endif

@@ -35,14 +35,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 {
-	volatile wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
+	volatile rcm_t *rcm = (rcm_t *) (MMAP_RCM);
 
-	wdp->cr = 0;
 	udelay(1000);
-
-	/* enable watchdog, set timeout to 0 and wait */
-	wdp->cr = WTM_WCR_EN;
-	while (1) ;
+	rcm->rcr |= RCM_RCR_SOFTRST;
 
 	/* we don't return! */
 	return 0;
