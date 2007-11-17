@@ -1,3 +1,297 @@
+commit fd329e6f05bbdfe6bd71b0e09f0c76d3b0a025a5
+Author: Luotao Fu <l.fu@pengutronix.de>
+Date:	Wed Nov 14 18:58:33 2007 +0100
+
+    Fix the i2c frequency and default address in rsdproto board
+
+    rsdproto board support has wrong I2C frequency and wrong return value
+    handling.
+
+    Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+
+commit 429c180edad038f91c989cb14b478228092e7054
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 01:45:38 2007 +0100
+
+    powerpc: Backout relocation changes for MPC5121, too.
+
+    Apply Grant Likely's backout to MPC5121 code, too.
+
+    Pointed out by Rafal Jaworowski <raj@semihalf.com>
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1c3dd43338a077165e7e0309cb3994e65d2bdbf8
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Nov 13 22:18:33 2007 -0700
+
+    powerpc: Backout relocation changes.
+
+    Ugh.  I *hate* to back this change out, but these compiler flags don't
+    work for relocation on all versions of GCC.  I've not been able to
+    reproduce the environment in my setup (and hence, not been able to
+    find a combination that *does* work), so I've got no choice but to go
+    back to the old gcc flags and linker script.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5c15010efad980ad5498cc565fc1ed70df2f52b4
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 13 09:11:05 2007 +0100
+
+    Fixed mips_io_port_base build errors.
+
+    This patch has been sent on:
+    - 29 Sep 2007
+
+    Although mips_io_port_base is currently a part of IDE command, it is quite
+    fundamental for MIPS I/O port access such as in[bwl] and out[bwl]. So move
+    it to MIPS general part, and introduce `set_io_port_base()' from Linux.
+
+    This patch is triggered by multiple definition of `mips_io_port_base' build
+    error on gth2 (and tb0229 also needs this fix.)
+
+    board/gth2/libgth2.a(gth2.o): In function `log_serial_char':
+    /home/skuribay/devel/u-boot.git/board/gth2/gth2.c:47: multiple definition of `mips_io_port_base'
+    common/libcommon.a(cmd_ide.o):/home/skuribay/devel/u-boot.git/common/cmd_ide.c:712: first defined here
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6ecbb7a3fa9b0940ed33e490d195d4b6830b2422
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 01:30:40 2007 +0100
+
+    Fix a bug in the slave serial programming mode for the Xilinx
+    Spartan2/3 FPGAs. The old code used "< 0" on a "char" type to test if
+    the most significant bit was set, which did not work on any
+    architecture where "char" defaulted to be an unsigned type.
+
+    Based on a patch by Angelos Manousaridis <amanous@inaccessnetworks.com>
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d08b7233bc252faad8339e7ca0ddfd62fa79903c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Nov 1 12:23:29 2007 -0500
+
+    86xx: Fix broken variable reference when #def DEBUGing.
+
+    Sometimes you can't reference the DDR2 controller variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f9d9164d9c6b5a7f0393fd8d7e246b8a0326bc19
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Oct 26 18:32:00 2007 +0800
+
+    make 8610 board use pixis reset
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit db74b3c1c9481a6bffbf8cd445e5bcbf6908e836
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Mon Oct 29 19:26:21 2007 +0800
+
+    Unify pixis_reset altbank across board families
+
+    Basically, refactor the CFG_PIXIS_VBOOT_MASK values
+    into the separate board config files.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 64bf555465c7926be13e1046ac0d0f05ac72829c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 7 08:19:21 2007 +0100
+
+    Fix warning: pointer targets in assignment differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7a60ee7c6248a958c5757d3660a1702723a2786d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 7 08:19:19 2007 +0100
+
+    Fix warning differ in signedness in common/cmd_ide.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 955413f35f054a82e40042f1dbcf501c6a05719b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:27:52 2007 -0700
+
+    Revert "Correct relocation fixup for mpc5xx"
+
+    This reverts commit 3649cd99ba815b6601868735765602f00ef3692b.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e15633888a058aacb31a62d2cf1278e1e4c236ab
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:24:32 2007 -0700
+
+    Revert "Correct fixup relocation for MPC5xxx"
+
+    This reverts commit 6f7576b20ecf0d040c3ac3b032b5cbc860e38a90.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 139365fbe566d0fc619a1ed04452ec5388f0cef8
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:21:04 2007 -0700
+
+    Revert "Correct fixup relocation for mpc8220"
+
+    This reverts commit a85dd254c0577fca13627c46e93fc2ad4c4f1f00.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 70922342369e5e39b286fe21e768a239ca07a514
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:57 2007 -0700
+
+    Revert "Correct fixup relocation for mpc824x"
+
+    This reverts commit f3a52fe05923935db86985daf9438e2f70ac39aa.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 96279ab4cad60cb5972aa934fbe4845ac02cc75a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:50 2007 -0700
+
+    Revert "Correct fixup relocation for mpc8260"
+
+    This reverts commit 5af61b2f4b838a05f79be274f3e5a66edd2d9c96.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 928fe33b24cdf382a8dc8687fed24b1961cdb5d6
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:43 2007 -0700
+
+    Revert "Correct fixup relocation for mpc83xx"
+
+    This reverts commit 057004f4a4863554d56cc56268bfa7c7d9738e27.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit c93945e8f9e300860d2bf73a2549ce5794f8bd00
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:25 2007 -0700
+
+    Revert "[MPC512x] Correct fixup relocation"
+
+    This reverts commit 8d17979d0359492a822a0a409d26e3a3549b4cd4.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 54fd6c93c28a0a45352fff5dd92673401ff563f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 13 08:18:20 2007 +0100
+
+    ppc4xx: lwmon5: Change PHY reset sequence for PHY MDIO address latching
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1ce55151c85d068f70317a8d65c61058b891afb4
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Nov 13 07:50:29 2007 +0100
+
+    [UC101] SRAM now with 2 MB working.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 8d737a28152ec12873f8544cca1fb39a49e5e693
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:50:18 2007 -0600
+
+    ColdFire: MCF5329 - Remove reset registers from CCM
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 7d7cdea769a60b0a6e4c18bef7f9d648fd14b8d7
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:31:11 2007 -0600
+
+    ColdFire: MCF5329 - Add Reset structure to immap_5329.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 09b26cf00d76d75fdf7fdc4b13e4dd929743bc21
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:19:01 2007 -0600
+
+    ColdFire: MCF5329 - revert include/asm-m68k/m5329.h file mode
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 225a24b5e062ad94627424508ae814f51dbe1a34
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 18:00:54 2007 -0600
+
+    ColdFire: MCF5445x - Update correct RAMBAR and missing linker files
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 248c7c14835f34d5d910b45e5600050e58ca6cab
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 17:56:15 2007 -0600
+
+    ColdFire: MCF532x - Update do_reset() using core reset
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit d9240a5f827eb3b476a6ba2938d01f1a9e7688f4
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 17:51:00 2007 -0600
+
+    ColdFire: Update cpu flag for 4.2-xx compiler
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 1f103105a3746ab12279b63b8c1d372c0ce2cc58
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Mon Nov 5 17:39:24 2007 +0800
+
+    Implement general ULi 526x Ethernet driver support in U-boot
+
+    This patch implements general ULi 526x Ethernet driver.
+    Until now, it is the only native Ethernet port on
+    MPC8610HPCD board, but it could be used on other boards
+    with ULi 526x Ethernet port as well.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 71bc6e6474fea8ef481b9b45d1edd7ad1f6dfbbd
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Nov 1 08:46:50 2007 -0500
+
+    NET: Add Ethernet 1000BASE-X support for PPC4xx
+
+    This patch adds support for 1000BASE-X to functions "miiphy_speed ()" and
+    "miiphy_duplex()".	It also adds function "miiphy_is_1000base_x ()", which
+    returns non-zero iff the PHY registers are configured for 1000BASE-X.  The
+    "mii info" command is modified to distinguish between 1000BASE-T and -X.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 298035df4948b113d29ac0e694717d34b95bc5dc
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Wed Oct 31 11:21:29 2007 -0500
+
+    NET: Cosmetic changes
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 992742a5b09d9040adbd156fb90756af66ade310
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 3 23:09:27 2007 +0100
+
+    Cleanup coding style; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e881cb563e32f45832b7b6db77bdcd017adcbb41
 Author: Bruce Adler <bruce.adler@ccpu.com>
 Date:	Fri Nov 2 13:15:42 2007 -0700
@@ -142,6 +436,26 @@ Date:	Wed Oct 24 15:48:37 2007 +0200
     Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit e5c794e491a57d829b6d8733e2ed8368a2269abf
+Author: Justin Flammia <jflammia@savantav.com>
+Date:	Mon Oct 29 17:40:35 2007 -0400
+
+    DHCP Client Fix
+
+    This is a multi-part message in MIME format.
+
+    commit e6e505eae94ed721e123e177489291fc4544b7b8
+    Author: Justin Flammia <jflammia@savantav.com>
+    Date:   Mon Oct 29 17:19:03 2007 -0400
+
+	Found a bug in the way the DHCP Request packet is built, where the IP address
+	that is offered by the server is bound to prematurely. This patch is a fix of
+	that bug where the IP address offered by the DHCP server is not used until
+	after the DHCP ACK from the server is received.
+
+    Signed-off-by: Justin Flammia <jflammia@savantav.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 31548249decf18a6b877a18436b6139dd483fe4a
 Author: Justin Flammia <jflammia@savantav.com>
 Date:	Mon Oct 29 17:40:35 2007 -0400
 
@@ -411,6 +725,14 @@ Author: Peter Pearse <peter.pearse@arm.com>
 Date:	Tue Oct 23 10:22:16 2007 +0100
 
     Move PL01* serial drivers to drivers/serial and adjust Makefiles.
+
+commit 20d500d531a6b971ce6cc1bf191cb0092cdc0afc
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 10:17:42 2007 +0200
+
+    ppc4xx: lwmon5: Some further GPIO config changes
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit de9a738faa7c2f47286119c3bfebc3dfbfe7d86d
 Author: Vlad Lungu <vlad@comsys.ro>
