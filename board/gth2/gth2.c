@@ -431,7 +431,7 @@ int misc_init_r(void){
 	    (Rx[8] != ':') | (Rx[11] != ':') | (Rx[14] != ':')) {
 		printf ("*** ethernet addr invalid, using default ***\n");
 	} else {
-		setenv ("ethaddr", Rx);
+		setenv ("ethaddr", (char *)Rx);
 	}
 	return (0);
 }
