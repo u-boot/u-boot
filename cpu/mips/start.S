@@ -238,9 +238,7 @@ reset:
 	nop
 	.word	_gp
 1:
-	move	gp, ra
-	lw	t1, 0(ra)
-	move	gp, t1
+	lw	gp, 0(ra)
 
 #ifdef CONFIG_INCA_IP
 	/* Disable INCA-IP Watchdog.
