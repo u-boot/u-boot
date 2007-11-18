@@ -412,14 +412,14 @@ static void ppc4xx_setup_utl(u32 port)
 	case 0:
 		mtdcr(DCRN_PEGPL_REGBAH(PCIE0), 0x00000000);
 		mtdcr(DCRN_PEGPL_REGBAL(PCIE0), CFG_PCIE0_UTLBASE);
-		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0xfffffc01); /* 4k region, valid */
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0x00007001); /* 4k region, valid */
 		mtdcr(DCRN_PEGPL_SPECIAL(PCIE0), 0);
 		break;
 
 	case 1:
 		mtdcr(DCRN_PEGPL_REGBAH(PCIE1), 0x00000000);
 		mtdcr(DCRN_PEGPL_REGBAL(PCIE1), CFG_PCIE1_UTLBASE);
-		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0xfffffc01); /* 4k region, valid */
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0x00007001); /* 4k region, valid */
 		mtdcr(DCRN_PEGPL_SPECIAL(PCIE1), 0);
 
 		break;
@@ -554,7 +554,7 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 #endif /* CONFIG_405EX */
 
 int ppc4xx_init_pcie_port_hw(int port, int rootport)
-	__attribute__((weak, alias("__ppc4xx_init_pcie_port_hw")));
+__attribute__((weak, alias("__ppc4xx_init_pcie_port_hw")));
 
 /*
  * We map PCI Express configuration access into the 512MB regions
