@@ -15,8 +15,8 @@
 	.set noreorder
 	.set mips32
 
-	.globl	memsetup
-memsetup:
+	.globl	lowlevel_init
+lowlevel_init:
 	/*
 	 * Step 1) Establish CPU endian mode.
 	 * NOTE: A fair amount of code is necessary on the Pb1000 to
