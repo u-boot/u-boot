@@ -1114,8 +1114,10 @@ spd_sdram(void)
 	int memsize_ddr1 = 0;
 	unsigned int law_size_ddr1;
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+#ifdef CONFIG_DDR_INTERLEAVE
+	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
+#endif
 
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	int memsize_ddr2_dimm1 = 0;

@@ -33,6 +33,9 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <tsi108.h>
+#ifdef CONFIG_OF_FLAT_TREE
+#include <ft_build.h>
+#endif
 
 struct pci_controller local_hose;
 
