@@ -1,3 +1,70 @@
+commit f30ad49b16bf998b03c1a5228b6c86369d61c258
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Mon Nov 19 10:02:13 2007 -0500
+
+    Move CONFIG_QE out of CONFIG_PCI wrap for MPC8568MDS
+
+    CONFIG_QE shouldn't be in the wrap of CONFIG_PCI, fix it.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit f8c320609366176b31104d9bf5e295232e1c7f1d
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Mon Nov 19 11:14:16 2007 +0900
+
+    [MIPS] board/gth2/lowlevel_init.S: Fix a build warning
+
+    lowlevel_init.S: Assembler messages:
+    lowlevel_init.S:413: Warning: Pretending global symbol used as branch target is local.
+
+    Looking at codes, the `memtest' and `clearmem' are intentional mixed
+    use of `global symbols' and `label' for debugging purpose. To make it
+    build, just disable global-symbols-use for now. As a result `memtest'
+    still remains as unused, but leave it be...
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit e8da58f2bc092891e8cc92b927ed5c4bd0cb0cab
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 19 12:59:14 2007 +0100
+
+    Fix build problems with mp2usb board
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6bf4c686afca1e86e1c384d59218f914605713bf
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 18:36:11 2007 +0100
+
+    s3c24x0: Fix usb_ohci.c missing in Makefile
+    and usb_ohci.c warning differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6073f61e078da5ddb521b56256bcc36508589883
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 12:55:02 2007 +0100
+
+    pb1x00 board: Fix u16 status declaration when PCMCIA is defined
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8412d814ce8bf5570a2b747f1e7fd321097fe987
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 17:11:09 2007 +0100
+
+    Fix compiler warnings for ARM systems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 409ecdc0bb47dd28b0af6c25ffd658d22cc36b37
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 16:36:27 2007 +0100
+
+    Fix compiler warnings for PPC systems. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 079c2c4fa71c0d1ebef394508df9088df8a308d3
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Nov 17 11:31:10 2007 +0100
