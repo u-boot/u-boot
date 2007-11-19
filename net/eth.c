@@ -149,7 +149,8 @@ int eth_register(struct eth_device* dev)
 
 int eth_initialize(bd_t *bis)
 {
-	char enetvar[32], env_enetaddr[6];
+	char enetvar[32];
+	unsigned char env_enetaddr[6];
 	int i, eth_number = 0;
 	char *tmp, *end;
 
