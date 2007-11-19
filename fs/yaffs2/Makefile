@@ -30,14 +30,8 @@ COBJS-$(CONFIG_YAFFS2) := \
 SRCS    := $(COBJS-y:.o=.c)
 OBJS    := $(addprefix $(obj),$(COBJS-y))
 
-SYMLINKS = devextras.h yaffs_ecc.c yaffs_ecc.h yaffs_guts.c yaffs_guts.h yaffsinterface.h yportenv.h yaffs_tagscompat.c yaffs_tagscompat.h \
-          yaffs_packedtags1.c yaffs_packedtags1.h yaffs_packedtags2.c yaffs_packedtags2.h  yaffs_nandemul2k.h \
-          yaffs_nand.c yaffs_nand.h yaffs_mtdif.c yaffs_mtdif.h \
-          yaffs_tagsvalidity.c yaffs_tagsvalidity.h yaffs_checkptrw.h yaffs_checkptrw.c \
-          yaffs_qsort.c yaffs_qsort.h yaffs_mtdif2.c yaffs_mtdif2.h
-
 # -DCONFIG_YAFFS_NO_YAFFS1
-CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DNO_Y_INLINE -DLINUX_VERSION_CODE=0x20616 
+CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DNO_Y_INLINE -DLINUX_VERSION_CODE=0x20622 
 
 all:  $(LIB)
 

@@ -1,1 +1,0 @@
-../yaffs_mtdif2.c
