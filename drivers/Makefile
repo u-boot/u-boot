@@ -103,15 +103,6 @@ COBJS-y += tsi108_eth.o
 COBJS-y += uli526x.o
 
 #
-# PCI/PCMCIA device drivers
-#
-COBJS-y += mpc8xx_pcmcia.o
-COBJS-y += pxa_pcmcia.o
-COBJS-y += rpx_pcmcia.o
-COBJS-y += ti_pci1410a.o
-COBJS-y += tqm8xx_pcmcia.o
-
-#
 # USB Drivers
 #
 COBJS-y += isp116x-hcd.o
