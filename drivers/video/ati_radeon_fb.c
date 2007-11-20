@@ -350,7 +350,7 @@ void radeon_setmode(void)
 	radeon_write_pll_regs(rinfo, mode);
 }
 
-#include "bios_emulator/include/biosemu.h"
+#include "../bios_emulator/include/biosemu.h"
 extern int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp);
 
 int radeon_probe(struct radeonfb_info *rinfo)

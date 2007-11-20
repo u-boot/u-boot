@@ -48,10 +48,7 @@ COBJS-y += systemace.o
 #
 # Console Drivers
 #
-COBJS-y += ati_radeon_fb.o
 COBJS-y += atmel_usart.o
-COBJS-y += cfb_console.o
-COBJS-y += ct69000.o
 COBJS-y += i8042.o
 COBJS-y += keyboard.o
 COBJS-y += netconsole.o
@@ -60,15 +57,10 @@ COBJS-y += pc_keyb.o
 COBJS-y += ps2ser.o
 COBJS-y += ps2mult.o
 COBJS-y += s3c4510b_uart.o
-COBJS-y += sed13806.o
-COBJS-y += sed156x.o
 COBJS-y += serial.o
 COBJS-y += serial_max3100.o
 COBJS-y += serial_xuartlite.o
-COBJS-y += sm501.o
-COBJS-y += smiLynxEM.o
 COBJS-y += usbtty.o
-COBJS-y += videomodes.o
 
 #
 # Network Drivers
