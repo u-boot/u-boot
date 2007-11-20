@@ -71,14 +71,6 @@ COBJS-y += usbtty.o
 COBJS-y += videomodes.o
 
 #
-# I2C Drivers
-#
-COBJS-y += omap1510_i2c.o
-COBJS-y += omap24xx_i2c.o
-COBJS-y += tsi108_i2c.o
-COBJS-y += fsl_i2c.o
-
-#
 # Network Drivers
 #
 COBJS-y += 3c589.o
