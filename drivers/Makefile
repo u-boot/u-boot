@@ -105,17 +105,11 @@ COBJS-y += uli526x.o
 #
 # PCI/PCMCIA device drivers
 #
-COBJS-y += fsl_pci_init.o
 COBJS-y += mpc8xx_pcmcia.o
-COBJS-y += pci.o
-COBJS-y += pci_auto.o
-COBJS-y += pci_indirect.o
 COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
-COBJS-y += tsi108_pci.o
-COBJS-y += w83c553f.o
 
 #
 # USB Drivers

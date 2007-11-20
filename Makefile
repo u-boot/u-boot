@@ -208,6 +208,7 @@ LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
 LIBS += dtt/libdtt.a
 LIBS += drivers/i2c/libi2c.a
+LIBS += drivers/pci/libpci.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/nand/libnand.a
