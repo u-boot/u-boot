@@ -42,7 +42,9 @@ void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
 int checkboard (void)
 {
+#if defined(CONFIG_IDE_PCMCIA) && 0
 	u16 status;
+#endif
 	/* volatile u32 *pcmcia_bcsr = (u32*)(DB1000_BCSR_ADDR+0x10); */
 	volatile u32 *sys_counter = (volatile u32*)SYS_COUNTER_CNTRL;
 	u32 proc_id;

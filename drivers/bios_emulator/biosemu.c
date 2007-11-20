@@ -96,7 +96,7 @@ int X86API BE_init(u32 debugFlags, int memSize, BE_VGAInfo * info, int shared)
 		return 0;
 	}
 
-	M.mem_base = (unsigned long)malloc(memSize);
+	M.mem_base = malloc(memSize);
 
 	if (M.mem_base == NULL){
 		printf("Biosemu:Out of memory!");
@@ -106,7 +106,7 @@ int X86API BE_init(u32 debugFlags, int memSize, BE_VGAInfo * info, int shared)
 
 	_BE_env.emulateVGA = 0;
 	_BE_env.busmem_base = (unsigned long)malloc(128 * 1024);
-	if (_BE_env.busmem_base == NULL){
+	if ((void *)_BE_env.busmem_base == NULL){
 		printf("Biosemu:Out of memory!");
 		return 0;
 	}
@@ -230,7 +230,7 @@ Cleans up and exits the emulator.
 void X86API BE_exit(void)
 {
 	free(M.mem_base);
-	free(_BE_env.busmem_base);
+	free((void *)_BE_env.busmem_base);
 }
 
 /****************************************************************************

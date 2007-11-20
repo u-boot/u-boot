@@ -117,10 +117,13 @@ struct phy_info *get_phy_info(struct eth_device *dev);
 void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
 static void adjust_link(struct eth_device *dev);
 static void relocate_cmds(void);
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
+	&& !defined(BITBANGMII)
 static int tsec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value);
 static int tsec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value);
+#endif
 #ifdef CONFIG_MCAST_TFTP
 static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
 #endif

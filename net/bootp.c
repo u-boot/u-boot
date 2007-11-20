@@ -33,7 +33,7 @@
 
 #if defined(CONFIG_CMD_NET)
 
-#define TIMEOUT		5		/* Seconds before trying BOOTP again	*/
+#define TIMEOUT		5UL		/* Seconds before trying BOOTP again	*/
 #ifndef CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
 #else

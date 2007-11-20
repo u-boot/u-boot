@@ -1,3 +1,230 @@
+commit f30ad49b16bf998b03c1a5228b6c86369d61c258
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Mon Nov 19 10:02:13 2007 -0500
+
+    Move CONFIG_QE out of CONFIG_PCI wrap for MPC8568MDS
+
+    CONFIG_QE shouldn't be in the wrap of CONFIG_PCI, fix it.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit f8c320609366176b31104d9bf5e295232e1c7f1d
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Mon Nov 19 11:14:16 2007 +0900
+
+    [MIPS] board/gth2/lowlevel_init.S: Fix a build warning
+
+    lowlevel_init.S: Assembler messages:
+    lowlevel_init.S:413: Warning: Pretending global symbol used as branch target is local.
+
+    Looking at codes, the `memtest' and `clearmem' are intentional mixed
+    use of `global symbols' and `label' for debugging purpose. To make it
+    build, just disable global-symbols-use for now. As a result `memtest'
+    still remains as unused, but leave it be...
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit e8da58f2bc092891e8cc92b927ed5c4bd0cb0cab
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 19 12:59:14 2007 +0100
+
+    Fix build problems with mp2usb board
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6bf4c686afca1e86e1c384d59218f914605713bf
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 18:36:11 2007 +0100
+
+    s3c24x0: Fix usb_ohci.c missing in Makefile
+    and usb_ohci.c warning differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6073f61e078da5ddb521b56256bcc36508589883
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 12:55:02 2007 +0100
+
+    pb1x00 board: Fix u16 status declaration when PCMCIA is defined
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8412d814ce8bf5570a2b747f1e7fd321097fe987
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 17:11:09 2007 +0100
+
+    Fix compiler warnings for ARM systems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 409ecdc0bb47dd28b0af6c25ffd658d22cc36b37
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 16:36:27 2007 +0100
+
+    Fix compiler warnings for PPC systems. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 079c2c4fa71c0d1ebef394508df9088df8a308d3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 17 11:31:10 2007 +0100
+
+    Fix warning differ in signedness in net/net.c and net/nfs.c
+
+commit 7e14fc65368cbd2861b1207453da55a4fc7b3f81
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:42:45 2007 +0900
+
+    gth2.c: Fix a warning on gth2 build.
+
+    gth2.c: In function 'misc_init_r':
+    gth2.c:434: warning: pointer targets in passing argument 2 of 'setenv' differ in signedness
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2309c130aa4c84b91bd874a41269c923eb61b555
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Nov 17 07:58:25 2007 +0100
+
+    Fix warning differ in signedness in common/cmd_scsi.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7e1d884b7cb602007329c517ec1c453e3a6a5d9c
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:26 2007 +0900
+
+    [MIPS] cpu/mips/config.mk: Fix GNU assembler minor version picker
+
+    Current trick to pick up GNU assembler minor version does not work with the
+    latest binutils (2007-03-01 or later) due to ${PKGVERSION} now default to
+    "(GNU Binutils) ".
+
+      $ sde-as --version |grep "GNU assembler"
+      GNU assembler 2.15.94 mipssde-6.02.02-20050602
+      $ sde-as --version |grep "GNU assembler" |awk '{print $3}'
+      2.15.94
+      $ sde-as --version |grep "GNU assembler" |awk '{print $3}' |awk -F. '{print $2}'
+      15
+      $
+
+      $ mips-linux-as --version |grep "GNU assembler"
+      GNU assembler (GNU Binutils) 2.18
+      $ mips-linux-as --version |grep "GNU assembler" |awk '{print $3}'
+      (GNU
+      $ mips-linux-as --version |grep "GNU assembler" |awk '{print $3}' |awk -F. '{print $2}'
+      (no output)
+      $
+
+    As a result of above, you'll see many noises with such binutils:
+
+      make -C cpu/mips/
+      /bin/sh: line 0: [: : integer expression expected
+      /bin/sh: line 0: [: : integer expression expected
+      make[1]: Entering directory `/home/skuribay/devel/u-boot.git/cpu/mips'
+      mips-linux-gcc  -D__ASSEMBLY__ -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -c -o incaip_wdt.o incaip_wdt.S
+      /bin/sh: line 0: [: : integer expression expected
+      mips-linux-gcc  -D__ASSEMBLY__ -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -c -o cache.o cache.S
+      /bin/sh: line 0: [: : integer expression expected
+      mips-linux-gcc -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -Wall -Wstrict-prototypes -c -o asc_serial.o asc_serial.c
+      /bin/sh: line 0: [: : integer expression expected
+
+    This patch simplifies the trick and makes it work with both versions of gas.
+    I also replace an expensive `awk (or gawk)' with `cut'.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 16664f72850846e645616da1c0fa5afcd6d15f15
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:26 2007 +0900
+
+    [MIPS] Remove useless instructions for initializing $gp.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 03c031d5660ea946c39af6e2e16267da857c609f
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:27:06 2007 +0900
+
+    [MIPS] MIPS 4K core: Coding style cleanups
+
+    No logical changes.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit f5e429d3860bba4c6ae8bead8f78349fa24491b2
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:20 2007 +0900
+
+    [MIPS] gth2.c: Fix a warning on gth2 build.
+
+    gth2.c: In function 'misc_init_r':
+    gth2.c:434: warning: pointer targets in passing argument 2 of 'setenv' differ in signedness
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 4fbd0741b2b6441da10be93e10267122581b7079
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:22:33 2007 +0900
+
+    [MIPS] au1x00_eth.c: Fixed a warning on pb1000 build.
+
+    au1x00_eth.c: In function 'au1x00_miiphy_write':
+    au1x00_eth.c:139: warning: 'return' with no value, in function returning non-void
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit f01320459736f156707425cf8112f98606301aa4
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:25 2007 +0900
+
+    [MIPS] au1x00_eth.c: Fix au1x00_miiphy_{read,write} build error
+
+    au1x00_eth.c: In function 'au1x00_enet_initialize':
+    au1x00_eth.c:246: error: 'au1x00_miiphy_read' undeclared (first use in this function)
+    au1x00_eth.c:246: error: (Each undeclared identifier is reported only once
+    au1x00_eth.c:246: error: for each function it appears in.)
+    au1x00_eth.c:246: error: 'au1x00_miiphy_write' undeclared (first use in this function)
+    au1x00_eth.c: In function 'au1x00_miiphy_write':
+    au1x00_eth.c:298: warning: 'return' with no value, in function returning non-void
+    make[1]: *** [au1x00_eth.o] Error 1
+
+    Fixed by moving these two functions forward.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit b09258c5393edd1087c5f39ae68338f16b49f8b3
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:25 2007 +0900
+
+    MAKEALL: Added missing pb1000 board
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2e4a6e3667a1e39c0e6e99498686b15d2718b369
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:24 2007 +0900
+
+    [MIPS] pb1000: Replace obsolete memsetup.S with lowlevel_init.S
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 662e5cb397249c3ea88a4c3255e9ccfc40b98d82
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:24 2007 +0900
+
+    [MIPS] u-boot.lds: Cleanup __u_boot_cmd_{start,end}
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 5947f6999aafa7c54c1390983d264a8463dfea8e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 02:34:38 2007 +0100
+
+    Update CHANGELOIG, prepare for -rc4
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fd329e6f05bbdfe6bd71b0e09f0c76d3b0a025a5
 Author: Luotao Fu <l.fu@pengutronix.de>
 Date:	Wed Nov 14 18:58:33 2007 +0100
