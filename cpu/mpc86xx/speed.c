@@ -31,6 +31,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* used in some defintiions of CONFIG_SYS_CLK_FREQ */
+extern unsigned long get_board_sys_clk(unsigned long dummy);
+
 void get_sys_info(sys_info_t *sysInfo)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;

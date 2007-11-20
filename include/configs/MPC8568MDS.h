@@ -334,11 +334,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CFG_SRIO_MEM_BASE	0xc0000000
 
-#if defined(CONFIG_PCI)
-
-#define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
-
 #ifdef CONFIG_QE
 /*
  * QE UEC ethernet configuration
@@ -376,6 +371,11 @@ extern unsigned long get_clock_freq(void);
 #define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
 #endif
 #endif /* CONFIG_QE */
+
+#if defined(CONFIG_PCI)
+
+#define CONFIG_NET_MULTI
+#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP

@@ -276,7 +276,7 @@ int i2c_probe (uchar chip)
 	 * The Tsi108 HW doesn't support sending just the chip address
 	 * and checkong for an <ACK> back.
 	 */
-	return i2c_read (chip, 0, 1, (char *)&tmp, 1);
+	return i2c_read (chip, 0, 1, (uchar *)&tmp, 1);
 }
 
 #endif

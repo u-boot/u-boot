@@ -175,7 +175,7 @@ s32 eth_send(volatile void *packet, s32 length)
 	}
 
 	/* copy user data into frame data pointer */
-	memcpy((void *)(eth->m_curTX_FD->m_frameDataPtr.bf.dataPtr),
+	memcpy((void *)((u32)(eth->m_curTX_FD->m_frameDataPtr.bf.dataPtr)),
 	       (void *)packet,
 	       length);
 

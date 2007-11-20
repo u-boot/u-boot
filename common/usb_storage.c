@@ -1195,7 +1195,7 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	dev_desc->product[16] = 0;
 	dev_desc->revision[4] = 0;
 #ifdef CONFIG_USB_BIN_FIXUP
-	usb_bin_fixup(dev->descriptor, dev_desc->vendor, dev_desc->product);
+	usb_bin_fixup(dev->descriptor, (uchar *)dev_desc->vendor, (uchar *)dev_desc->product);
 #endif /* CONFIG_USB_BIN_FIXUP */
 	USB_STOR_PRINTF("ISO Vers %X, Response Data %X\n",usb_stor_buf[2],usb_stor_buf[3]);
 	if(usb_test_unit_ready(pccb,ss)) {

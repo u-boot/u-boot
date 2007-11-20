@@ -555,6 +555,7 @@ LIST_mips5kc_el=""
 
 LIST_au1xx0_el="	\
 	dbau1550_el	\
+	pb1000		\
 "
 
 LIST_mips_el="			\
