@@ -54,14 +54,17 @@
 #define MMC_SPI_CRC_ON	  		(0x01UL << 1)
 
 /* MMC_CMDAT */
+#define MMC_CMDAT_SD_4DAT		(0x0001UL << 8)
 #define MMC_CMDAT_MMC_DMA_EN		(0x0001UL << 7)
 #define MMC_CMDAT_INIT	  		(0x0001UL << 6)
 #define MMC_CMDAT_BUSY	  		(0x0001UL << 5)
+#define MMC_CMDAT_BCR	  		(0x0003UL << 5)
 #define MMC_CMDAT_STREAM		(0x0001UL << 4)
 #define MMC_CMDAT_BLOCK	 		(0x0000UL << 4)
 #define MMC_CMDAT_WRITE	 		(0x0001UL << 3)
 #define MMC_CMDAT_READ	  		(0x0000UL << 3)
 #define MMC_CMDAT_DATA_EN       	(0x0001UL << 2)
+#define MMC_CMDAT_R0	    		(0)
 #define MMC_CMDAT_R1	    		(0x0001UL)
 #define MMC_CMDAT_R2	    		(0x0002UL)
 #define MMC_CMDAT_R3	    		(0x0003UL)
@@ -111,6 +114,7 @@
 #define MMC_CMD_SEND_OP_COND		1
 #define MMC_CMD_ALL_SEND_CID 		2
 #define MMC_CMD_SET_RCA			3
+#define MMC_CMD_SELECT_CARD		7
 #define MMC_CMD_SEND_CSD 		9
 #define MMC_CMD_SEND_CID 		10
 #define MMC_CMD_SEND_STATUS		13
@@ -118,6 +122,10 @@
 #define MMC_CMD_READ_BLOCK		17
 #define MMC_CMD_RD_BLK_MULTI		18
 #define MMC_CMD_WRITE_BLOCK		24
+#define MMC_CMD_APP_CMD			55
+
+#define SD_CMD_APP_SET_BUS_WIDTH	6
+#define SD_CMD_APP_OP_COND		41
 
 #define MMC_MAX_BLOCK_SIZE		512
 
@@ -158,42 +166,41 @@ typedef struct mmc_cid
 
 typedef struct mmc_csd
 {
-	uchar	ecc:2,
-		file_format:2,
-		tmp_write_protect:1,
-		perm_write_protect:1,
-		copy:1,
-		file_format_grp:1;
-	uint64_t content_prot_app:1,
-		rsvd3:4,
-		write_bl_partial:1,
-		write_bl_len:4,
-		r2w_factor:3,
-		default_ecc:2,
-		wp_grp_enable:1,
-		wp_grp_size:5,
-		erase_grp_mult:5,
-		erase_grp_size:5,
-		c_size_mult1:3,
-		vdd_w_curr_max:3,
-		vdd_w_curr_min:3,
-		vdd_r_curr_max:3,
-		vdd_r_curr_min:3,
-		c_size:12,
-		rsvd2:2,
-		dsr_imp:1,
-		read_blk_misalign:1,
-		write_blk_misalign:1,
-		read_bl_partial:1;
-
-	ushort	read_bl_len:4,
-		ccc:12;
-	uchar	tran_speed;
-	uchar	nsac;
-	uchar	taac;
-	uchar	rsvd1:2,
-  		spec_vers:4,
-		csd_structure:2;
+	uint8_t		csd_structure:2,
+			spec_ver:4,
+			rsvd1:2;
+	uint8_t		taac;
+	uint8_t		nsac;
+	uint8_t		tran_speed;
+	uint16_t	ccc:12,
+			read_bl_len:4;
+	uint64_t	read_bl_partial:1,
+			write_blk_misalign:1,
+			read_blk_misalign:1,
+			dsr_imp:1,
+			rsvd2:2,
+			c_size:12,
+			vdd_r_curr_min:3,
+			vdd_r_curr_max:3,
+			vdd_w_curr_min:3,
+			vdd_w_curr_max:3,
+			c_size_mult:3,
+			erase_blk_en:1,
+			sector_size:7,
+			wp_grp_size:7,
+			wp_grp_enable:1,
+			default_ecc:2,
+			r2w_factor:3,
+			write_bl_len:4,
+			write_bl_partial:1,
+			rsvd3:4,
+			content_prot_app:1;
+	uint8_t		file_format_grp:1,
+			copy:1,
+			perm_write_protect:1,
+			tmp_write_protect:1,
+			file_format:2,
+			ecc:2;
 } mmc_csd_t;
 
 
