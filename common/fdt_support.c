@@ -386,6 +386,61 @@ void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
 	do_fixup_by_path(fdt, path, prop, &val, sizeof(val), create);
 }
 
+void do_fixup_by_prop(void *fdt,
+		      const char *pname, const void *pval, int plen,
+		      const char *prop, const void *val, int len,
+		      int create)
+{
+	int off;
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	off = fdt_node_offset_by_prop_value(fdt, -1, pname, pval, plen);
+	while (off != -FDT_ERR_NOTFOUND) {
+		if (create || (fdt_get_property(fdt, off, prop, 0) != NULL))
+			fdt_setprop(fdt, off, prop, val, len);
+		off = fdt_node_offset_by_prop_value(fdt, off, pname, pval, plen);
+	}
+}
+
+void do_fixup_by_prop_u32(void *fdt,
+			  const char *pname, const void *pval, int plen,
+			  const char *prop, u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_prop(fdt, pname, pval, plen, prop, &val, 4, create);
+}
+
+void do_fixup_by_compat(void *fdt, const char *compat,
+			const char *prop, const void *val, int len, int create)
+{
+	int off = -1;
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	off = fdt_node_offset_by_compatible(fdt, -1, compat);
+	while (off != -FDT_ERR_NOTFOUND) {
+		if (create || (fdt_get_property(fdt, off, prop, 0) != NULL))
+			fdt_setprop(fdt, off, prop, val, len);
+		off = fdt_node_offset_by_compatible(fdt, off, compat);
+	}
+}
+
+void do_fixup_by_compat_u32(void *fdt, const char *compat,
+			    const char *prop, u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_compat(fdt, compat, prop, &val, 4, create);
+}
+
 void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 {
 	int node;
