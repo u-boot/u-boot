@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int fdt_valid(void);
 static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 	char *data, int *len);
-static int fdt_print(char *pathp, char *prop, int depth);
+static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
@@ -555,13 +555,13 @@ static void print_data(const void *data, int len)
  * Recursively print (a portion of) the fdt.  The depth parameter
  * determines how deeply nested the fdt is printed.
  */
-static int fdt_print(char *pathp, char *prop, int depth)
+static int fdt_print(const char *pathp, char *prop, int depth)
 {
 	static int offstack[MAX_LEVEL];
 	static char tabs[MAX_LEVEL+1] =
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-	void *nodep;		/* property node pointer */
+	const void *nodep;	/* property node pointer */
 	int  nodeoffset;	/* node offset from libfdt */
 	int  nextoffset;	/* next node offset from libfdt */
 	uint32_t tag;		/* tag */
