@@ -26,7 +26,7 @@
 
 #include <common.h>
 #include <exports.h>
-#include "../drivers/smc91111.h"
+#include "../drivers/net/smc91111.h"
 
 #define SMC_BASE_ADDRESS CONFIG_SMC91111_BASE
 

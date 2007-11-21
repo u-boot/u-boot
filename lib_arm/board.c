@@ -46,10 +46,10 @@
 #include <net.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/smc91111.h"
+#include "../drivers/net/smc91111.h"
 #endif
 #ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/lan91c96.h"
+#include "../drivers/net/lan91c96.h"
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;

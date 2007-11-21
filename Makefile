@@ -207,16 +207,17 @@ LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += rtc/librtc.a
 LIBS += dtt/libdtt.a
+LIBS += drivers/libdrivers.a
+LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/i2c/libi2c.a
+LIBS += drivers/nand/libnand.a
+LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/net/libnet.a
+LIBS += drivers/net/sk98lin/libsk98lin.a
+LIBS += drivers/onenand/libonenand.a
 LIBS += drivers/pci/libpci.a
 LIBS += drivers/pcmcia/libpcmcia.a
 LIBS += drivers/video/libvideo.a
-LIBS += drivers/libdrivers.a
-LIBS += drivers/bios_emulator/libatibiosemu.a
-LIBS += drivers/nand/libnand.a
-LIBS += drivers/nand_legacy/libnand_legacy.a
-LIBS += drivers/onenand/libonenand.a
-LIBS += drivers/net/libnet.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
@@ -224,7 +225,6 @@ ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 endif
 LIBS += drivers/serial/libserial.a
-LIBS += drivers/sk98lin/libsk98lin.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
 	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)
