@@ -33,6 +33,7 @@ void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
 void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
 			  u32 val, int create);
+void fdt_fixup_ethernet(void *fdt, bd_t *bd);
 
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
 int fdt_env(void *fdt);

@@ -386,4 +386,50 @@ void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
 	do_fixup_by_path(fdt, path, prop, &val, sizeof(val), create);
 }
 
+void fdt_fixup_ethernet(void *fdt, bd_t *bd)
+{
+	int node;
+	const char *path;
+
+	node = fdt_path_offset(fdt, "/aliases");
+	if (node >= 0) {
+#if defined(CONFIG_HAS_ETH0)
+		path = fdt_getprop(fdt, node, "ethernet0", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enetaddr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enetaddr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH1)
+		path = fdt_getprop(fdt, node, "ethernet1", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet1addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet1addr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH2)
+		path = fdt_getprop(fdt, node, "ethernet2", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet2addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet2addr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH3)
+		path = fdt_getprop(fdt, node, "ethernet3", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet3addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet3addr, 6, 1);
+		}
+#endif
+	}
+}
+
 #endif /* CONFIG_OF_LIBFDT */
