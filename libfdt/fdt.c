@@ -2,23 +2,52 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
+ * libfdt is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public
+ *     License along with this library; if not, write to the Free
+ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ *     MA 02110-1301 USA
+ *
+ * Alternatively,
+ *
+ *  b) Redistribution and use in source and binary forms, with or
+ *     without modification, are permitted provided that the following
+ *     conditions are met:
+ *
+ *     1. Redistributions of source code must retain the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer.
+ *     2. Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *
+ *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *     CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ *     CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "config.h"
-#if CONFIG_OF_LIBFDT
-
 #include "libfdt_env.h"
 
 #include <fdt.h>
@@ -45,9 +74,9 @@ int fdt_check_header(const void *fdt)
 	return 0;
 }
 
-void *fdt_offset_ptr(const void *fdt, int offset, int len)
+const void *fdt_offset_ptr(const void *fdt, int offset, int len)
 {
-	void *p;
+	const void *p;
 
 	if (fdt_version(fdt) >= 0x11)
 		if (((offset + len) < offset)
@@ -59,6 +88,45 @@ void *fdt_offset_ptr(const void *fdt, int offset, int len)
 	if (p + len < p)
 		return NULL;
 	return p;
+}
+
+uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset)
+{
+	const uint32_t *tagp, *lenp;
+	uint32_t tag;
+	const char *p;
+
+	if (offset % FDT_TAGSIZE)
+		return -1;
+
+	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
+	if (! tagp)
+		return FDT_END; /* premature end */
+	tag = fdt32_to_cpu(*tagp);
+	offset += FDT_TAGSIZE;
+
+	switch (tag) {
+	case FDT_BEGIN_NODE:
+		/* skip name */
+		do {
+			p = fdt_offset_ptr(fdt, offset++, 1);
+		} while (p && (*p != '\0'));
+		if (! p)
+			return FDT_END;
+		break;
+	case FDT_PROP:
+		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
+		if (! lenp)
+			return FDT_END;
+		/* skip name offset, length and value */
+		offset += 2*FDT_TAGSIZE + fdt32_to_cpu(*lenp);
+		break;
+	}
+
+	if (nextoffset)
+		*nextoffset = ALIGN(offset, FDT_TAGSIZE);
+
+	return tag;
 }
 
 const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
@@ -86,5 +154,3 @@ int fdt_move(const void *fdt, void *buf, int bufsize)
 	memmove(buf, fdt, fdt_totalsize(fdt));
 	return 0;
 }
-
-#endif /* CONFIG_OF_LIBFDT */

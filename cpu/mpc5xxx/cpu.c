@@ -35,6 +35,7 @@
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #include <libfdt_env.h>
+#include <fdt_support.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -114,42 +115,19 @@ unsigned long get_tbclk (void)
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_OF_LIBFDT
-static void do_fixup(void *fdt, const char *node, const char *prop,
-		     const void *val, int len, int create)
-{
-#if defined(DEBUG)
-	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
-	for (i = 0; i < len; i++)
-		debug(" %.2x", *(u8*)(val+i));
-	debug("\n");
-#endif
-	int rc = fdt_find_and_setprop(fdt, node, prop, val, len, create);
-	if (rc)
-		printf("Unable to update property %s:%s, err=%s\n",
-		       node, prop, fdt_strerror(rc));
-}
-
-static void do_fixup_u32(void *fdt, const char *node, const char *prop,
-			 u32 val, int create)
-{
-	val = cpu_to_fdt32(val);
-	do_fixup(fdt, node, prop, &val, sizeof(val), create);
-}
-
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
 	char * cpu_path = "/cpus/" OF_CPU;
 	char * eth_path = "/" OF_SOC "/ethernet@3000";
 
-	do_fixup_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
-	do_fixup_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
-	do_fixup_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipbfreq, 1);
-	do_fixup_u32(blob, "/" OF_SOC, "system-frequency",
-			bd->bi_busfreq*div, 1);
-	do_fixup(blob, eth_path, "mac-address", bd->bi_enetaddr, 6, 0);
-	do_fixup(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
+	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
+	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_by_path_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipbfreq, 1);
+	do_fixup_by_path_u32(blob, "/" OF_SOC, "system-frequency",
+				bd->bi_busfreq*div, 1);
+	do_fixup_by_path(blob, eth_path, "mac-address", bd->bi_enetaddr, 6, 0);
+	do_fixup_by_path(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
 }
 #endif
