@@ -29,6 +29,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_ATSTK1006
+/* Dual MT48LC16M16A2-7E on daughterboard */
+static const struct sdram_info sdram = {
+	.phys_addr	= CFG_SDRAM_BASE,
+	.row_bits	= 13,
+	.col_bits	= 9,
+	.bank_bits	= 2,
+	.cas		= 2,
+	.twr		= 2,
+	.trc		= 7,
+	.trp		= 2,
+	.trcd		= 2,
+	.tras		= 4,
+	.txsr		= 7,
+	/* 7.81 us */
+	.refresh_period	= (781 * (SDRAMC_BUS_HZ / 1000)) / 100000,
+};
+#else
+/* MT48LC2M32B2-5 on motherboard */
 static const struct sdram_info sdram = {
 	.phys_addr	= CFG_SDRAM_BASE,
 	.row_bits	= 11,
@@ -44,6 +63,7 @@ static const struct sdram_info sdram = {
 	/* 15.6 us */
 	.refresh_period	= (156 * (SDRAMC_BUS_HZ / 1000)) / 10000,
 };
+#endif
 
 int board_early_init_f(void)
 {
