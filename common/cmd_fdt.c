@@ -75,7 +75,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			/*
 			 * Optional new length
 			 */
-			len =  simple_strtoul(argv[3], NULL, 16);
+			len = simple_strtoul(argv[3], NULL, 16);
 			if (len < fdt_totalsize(fdt)) {
 				printf ("New length %d < existing length %d, "
 					"ignoring.\n",
@@ -522,21 +522,21 @@ static void print_data(const void *data, int len)
 
 	switch (len) {
 	case 1:	 /* byte */
-		printf("<%02x>", (*(u8 *) data) & 0xff);
+		printf("<0x%02x>", (*(u8 *) data) & 0xff);
 		break;
 	case 2:	 /* half-word */
-		printf("<%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
+		printf("<0x%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
 		break;
 	case 4:	 /* word */
-		printf("<%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("<0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 		break;
 	case 8:	 /* double-word */
 #if __WORDSIZE == 64
-		printf("<%016llx>", be64_to_cpu(*(uint64_t *) data));
+		printf("<0x%016llx>", be64_to_cpu(*(uint64_t *) data));
 #else
-		printf("<%08x ", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("<0x%08x ", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 		data += 4;
-		printf("%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 #endif
 		break;
 	default:		/* anything else... hexdump */
@@ -557,7 +557,6 @@ static void print_data(const void *data, int len)
  */
 static int fdt_print(const char *pathp, char *prop, int depth)
 {
-	static int offstack[MAX_LEVEL];
 	static char tabs[MAX_LEVEL+1] =
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
@@ -567,7 +566,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 	uint32_t tag;		/* tag */
 	int  len;		/* length of the property */
 	int  level = 0;		/* keep track of nesting level */
-	const struct fdt_property *prop1;
+	const struct fdt_property *fdt_prop;
 
 	nodeoffset = fdt_path_offset (fdt, pathp);
 	if (nodeoffset < 0) {
@@ -604,48 +603,52 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 	 * The user passed in a node path and no property,
 	 * print the node and all subnodes.
 	 */
-	offstack[0] = nodeoffset;
-
 	while(level >= 0) {
 		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
 		switch(tag) {
 		case FDT_BEGIN_NODE:
-			pathp = fdt_offset_ptr(fdt, nodeoffset, 1);
-			if(level <= depth)
+			pathp = fdt_get_name(fdt, nodeoffset, NULL);
+			if (level <= depth) {
+				if (pathp == NULL)
+					pathp = "/* NULL pointer error */";
+				if (*pathp == '\0')
+					pathp = "/";	/* root is nameless */
 				printf("%s%s {\n",
 					&tabs[MAX_LEVEL - level], pathp);
+			}
 			level++;
-			offstack[level] = nodeoffset;
 			if (level >= MAX_LEVEL) {
-				printf("Aaaiii <splat> nested too deep. "
-					"Aborting.\n");
+				printf("Nested too deep, aborting.\n");
 				return 1;
 			}
 			break;
 		case FDT_END_NODE:
 			level--;
-			if(level <= depth)
+			if (level <= depth)
 				printf("%s};\n", &tabs[MAX_LEVEL - level]);
 			if (level == 0) {
 				level = -1;		/* exit the loop */
 			}
 			break;
 		case FDT_PROP:
-			prop1 = fdt_offset_ptr(fdt, nodeoffset, sizeof(*prop1));
-			pathp = fdt_string(fdt, fdt32_to_cpu(prop1->nameoff));
-			nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
+			fdt_prop = fdt_offset_ptr(fdt, nodeoffset,
+					sizeof(*fdt_prop));
+			pathp    = fdt_string(fdt,
+					fdt32_to_cpu(fdt_prop->nameoff));
+			len      = fdt32_to_cpu(fdt_prop->len);
+			nodep    = fdt_prop->data;
 			if (len < 0) {
 				printf ("libfdt fdt_getprop(): %s\n",
 					fdt_strerror(len));
 				return 1;
 			} else if (len == 0) {
 				/* the property has no value */
-				if(level <= depth)
+				if (level <= depth)
 					printf("%s%s;\n",
 						&tabs[MAX_LEVEL - level],
 						pathp);
 			} else {
-				if(level <= depth) {
+				if (level <= depth) {
 					printf("%s%s=",
 						&tabs[MAX_LEVEL - level],
 						pathp);
@@ -655,11 +658,12 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_NOP:
+			printf("/* NOP */\n", &tabs[MAX_LEVEL - level]);
 			break;
 		case FDT_END:
 			return 1;
 		default:
-			if(level <= depth)
+			if (level <= depth)
 				printf("Unknown tag 0x%08X\n", tag);
 			return 1;
 		}
