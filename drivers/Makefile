@@ -65,6 +65,7 @@ COBJS-y += sed156x.o
 COBJS-y += serial.o
 COBJS-y += serial_max3100.o
 COBJS-y += serial_xuartlite.o
+COBJS-y += serial_sh.o
 COBJS-y += sm501.o
 COBJS-y += smiLynxEM.o
 COBJS-y += usbtty.o
