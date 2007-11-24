@@ -210,6 +210,7 @@ LIBS += dtt/libdtt.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/i2c/libi2c.a
+LIBS += drivers/input/libinput.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
 LIBS += drivers/net/libnet.a
