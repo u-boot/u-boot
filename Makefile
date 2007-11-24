@@ -205,30 +205,30 @@ LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
-LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/block/libblock.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
 LIBS += drivers/misc/libmisc.a
-LIBS += drivers/nand/libnand.a
-LIBS += drivers/nand_legacy/libnand_legacy.a
+LIBS += drivers/mtd/libmtd.a
+LIBS += drivers/mtd/nand/libnand.a
+LIBS += drivers/mtd/nand_legacy/libnand_legacy.a
+LIBS += drivers/mtd/onenand/libonenand.a
 LIBS += drivers/net/libnet.a
 LIBS += drivers/net/sk98lin/libsk98lin.a
-LIBS += drivers/onenand/libonenand.a
 LIBS += drivers/pci/libpci.a
 LIBS += drivers/pcmcia/libpcmcia.a
-LIBS += drivers/rtc/librtc.a
-LIBS += drivers/serial/libserial.a
-LIBS += drivers/usb/libusb.a
-LIBS += drivers/video/libvideo.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 endif
+LIBS += drivers/rtc/librtc.a
+LIBS += drivers/serial/libserial.a
+LIBS += drivers/usb/libusb.a
+LIBS += drivers/video/libvideo.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
 	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)

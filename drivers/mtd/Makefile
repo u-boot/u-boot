@@ -23,25 +23,20 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+LIB 	:= $(obj)libmtd.a
 
-LIB	= $(obj)libdrivers.a
-
-#
-# Block and Flash Drivers
-#
 COBJS-y += at45.o
 COBJS-y += cfi_flash.o
 COBJS-y += dataflash.o
 COBJS-y += mw_eeprom.o
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
-$(LIB): $(obj).depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
