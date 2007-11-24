@@ -225,6 +225,7 @@ ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 endif
 LIBS += drivers/serial/libserial.a
+LIBS += drivers/usb/libusb.a
 LIBS += post/libpost.a post/drivers/libpostdrivers.a
 LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
 	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)
