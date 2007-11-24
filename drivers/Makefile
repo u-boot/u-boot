@@ -48,18 +48,11 @@ COBJS-y += systemace.o
 #
 # Console Drivers
 #
-COBJS-y += atmel_usart.o
 COBJS-y += i8042.o
 COBJS-y += keyboard.o
-COBJS-y += ns16550.o
 COBJS-y += pc_keyb.o
 COBJS-y += ps2ser.o
 COBJS-y += ps2mult.o
-COBJS-y += s3c4510b_uart.o
-COBJS-y += serial.o
-COBJS-y += serial_max3100.o
-COBJS-y += serial_xuartlite.o
-COBJS-y += usbtty.o
 
 #
 # USB Drivers
