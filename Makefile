@@ -207,6 +207,7 @@ LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += drivers/libdrivers.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
+LIBS += drivers/block/libblock.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a

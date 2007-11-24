@@ -23,36 +23,21 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+LIB 	:= $(obj)libblock.a
 
-LIB	= $(obj)libdrivers.a
-
-COBJS-y += ali512x.o
-COBJS-y += ns87308.o
-COBJS-y += status_led.o
-
-#
-# Block and Flash Drivers
-#
-COBJS-y += at45.o
-COBJS-y += cfi_flash.o
-COBJS-y += dataflash.o
-COBJS-y += mw_eeprom.o
-
-#
-# Miscellaneous Drivers
-#
-COBJS-y += ali512x.o
-COBJS-y += ns87308.o
-COBJS-y += status_led.o
+COBJS-y += ahci.o
+COBJS-y += ata_piix.o
+COBJS-y += sil680.o
+COBJS-y += sym53c8xx.o
+COBJS-y += systemace.o
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
-$(LIB): $(obj).depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
