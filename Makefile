@@ -211,6 +211,7 @@ LIBS += drivers/block/libblock.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
+LIBS += drivers/misc/libmisc.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
 LIBS += drivers/net/libnet.a
