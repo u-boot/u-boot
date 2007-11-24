@@ -28,7 +28,6 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libdrivers.a
 
 COBJS-y += ali512x.o
-COBJS-y += ds1722.o
 COBJS-y += ns87308.o
 COBJS-y += status_led.o
 
