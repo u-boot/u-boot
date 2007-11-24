@@ -125,6 +125,7 @@ COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
 COBJS-y += tsi108_pci.o
 COBJS-y += w83c553f.o
+COBJS-y += marubun_pcmcia.o
 
 #
 # USB Drivers
