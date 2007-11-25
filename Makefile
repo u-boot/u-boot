@@ -335,14 +335,26 @@ tags ctags:
 		ctags -w -o $(OBJTREE)/ctags `find $(SUBDIRS) include \
 				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
 				fs/cramfs fs/fat fs/fdos fs/jffs2 \
-				net disk rtc dtt drivers drivers/sk98lin common \
+				net disk common drivers/bios_emulator \
+				drivers/block drivers/hwmon drivers/i2c \
+				drivers/input drivers/misc drivers/mtd \
+				drivers/mtd/nand drivers/mtd/nand_legacy \
+				drivers/mtd/onenand drivers/net drivers/net/sk98lin \
+				drivers/pci drivers/pcmcia drivers/qe drivers/rtc \
+				drivers/serial drivers/usb drivers/video \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 
 etags:
 		etags -a -o $(OBJTREE)/etags `find $(SUBDIRS) include \
 				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
 				fs/cramfs fs/fat fs/fdos fs/jffs2 \
-				net disk rtc dtt drivers drivers/sk98lin common \
+				net disk common drivers/bios_emulator \
+				drivers/block drivers/hwmon drivers/i2c \
+				drivers/input drivers/misc drivers/mtd \
+				drivers/mtd/nand drivers/mtd/nand_legacy \
+				drivers/mtd/onenand drivers/net drivers/net/sk98lin \
+				drivers/pci drivers/pcmcia drivers/qe drivers/rtc \
+				drivers/serial drivers/usb drivers/video \
 			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
 
 $(obj)System.map:	$(obj)u-boot
