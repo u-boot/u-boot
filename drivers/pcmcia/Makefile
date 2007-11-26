@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,39 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnet.a
+LIB 	:= $(obj)libpcmcia.a
 
-COBJS-y += 3c589.o
-COBJS-y += bcm570x.o bcm570x_autoneg.o 5701rls.o
-COBJS-y += cs8900.o
-COBJS-y += dc2114x.o
-COBJS-y += dm9000x.o
-COBJS-y += e1000.o
-COBJS-y += eepro100.o
-COBJS-y += enc28j60.o
-COBJS-y += inca-ip_sw.o
-COBJS-y += ks8695eth.o
-COBJS-y += lan91c96.o
-COBJS-y += macb.o
-COBJS-y += mcffec.o
-COBJS-y += natsemi.o
-COBJS-y += ne2000.o
-COBJS-y += netarm_eth.o
-COBJS-y += netconsole.o
-COBJS-y += ns7520_eth.o
-COBJS-y += ns8382x.o
-COBJS-y += ns9750_eth.o
-COBJS-y += pcnet.o
-COBJS-y += plb2800_eth.o
-COBJS-y += rtl8019.o
-COBJS-y += rtl8139.o
-COBJS-y += rtl8169.o
-COBJS-y += s3c4510b_eth.o
-COBJS-y += smc91111.o
-COBJS-y += tigon3.o
-COBJS-y += tsec.o
-COBJS-y += tsi108_eth.o
-COBJS-y += uli526x.o
+COBJS-y += mpc8xx_pcmcia.o
+COBJS-y += pxa_pcmcia.o
+COBJS-y += rpx_pcmcia.o
+COBJS-y += ti_pci1410a.o
+COBJS-y += tqm8xx_pcmcia.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
