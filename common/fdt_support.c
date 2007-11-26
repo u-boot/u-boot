@@ -28,6 +28,7 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <exports.h>
 
 /*
  * Global data (for the gd->bd)
@@ -66,6 +67,43 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 
 	return fdt_setprop(fdt, nodeoff, prop, val, len);
 }
+
+#ifdef CONFIG_OF_STDOUT_VIA_ALIAS
+static int fdt_fixup_stdout(void *fdt, int choosenoff)
+{
+	int err = 0;
+#ifdef CONFIG_CONS_INDEX
+	int node;
+	char sername[9] = { 0 };
+	const char *path;
+
+	sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
+
+	err = node = fdt_path_offset(fdt, "/aliases");
+	if (node >= 0) {
+		int len;
+		path = fdt_getprop(fdt, node, sername, &len);
+		if (path) {
+			char *p = malloc(len);
+			err = -FDT_ERR_NOSPACE;
+			if (p) {
+				memcpy(p, path, len);
+				err = fdt_setprop(fdt, choosenoff,
+					"linux,stdout-path", p, len);
+				free(p);
+			}
+		} else {
+			err = len;
+		}
+	}
+#endif
+	if (err < 0)
+		printf("WARNING: could not set linux,stdout-path %s.\n",
+				fdt_strerror(err));
+
+	return err;
+}
+#endif
 
 int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 {
@@ -157,6 +195,11 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 			printf("WARNING: could not set linux,initrd-end %s.\n",
 				fdt_strerror(err));
 	}
+
+#ifdef CONFIG_OF_STDOUT_VIA_ALIAS
+	err = fdt_fixup_stdout(fdt, nodeoffset);
+#endif
+
 #ifdef OF_STDOUT_PATH
 	err = fdt_setprop(fdt, nodeoffset,
 		"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
