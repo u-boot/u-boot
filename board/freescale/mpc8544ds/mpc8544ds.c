@@ -29,13 +29,10 @@
 #include <asm/io.h>
 #include <spd.h>
 #include <miiphy.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #include "../common/pixis.h"
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-extern void ft_cpu_setup(void *blob, bd_t *bd);
-#endif
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -508,51 +505,47 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_BOARD_SETUP)
+
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	int len;
+	int node, tmp[2];
+	const char *path;
 
 	ft_cpu_setup(blob, bd);
 
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
 #ifdef CONFIG_PCI1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-		debug("PCI@8000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
-#endif
-#ifdef CONFIG_PCIE1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@a000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
-		debug("PCI@a000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
 #endif
 #ifdef CONFIG_PCIE2
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@9000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pcie2_hose.last_busno - pcie2_hose.first_busno;
-		debug("PCI@9000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
+		path = fdt_getprop(blob, node, "pci1", NULL);
+		if (path) {
+			tmp[1] = pcie2_hose.last_busno - pcie2_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+#ifdef CONFIG_PCIE1
+		path = fdt_getprop(blob, node, "pci2", NULL);
+		if (path) {
+			tmp[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
 #endif
 #ifdef CONFIG_PCIE3
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@b000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pcie3_hose.last_busno - pcie3_hose.first_busno;;
-		debug("PCI@b000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
+		path = fdt_getprop(blob, node, "pci3", NULL);
+		if (path) {
+			tmp[1] = pcie3_hose.last_busno - pcie3_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
 #endif
+	}
 }
 #endif
