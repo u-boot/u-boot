@@ -1,3 +1,287 @@
+commit 87ddedd6ad804427ce125ceaa076d7a4f74e9d5d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 18:45:47 2007 +0100
+
+    Makefile : fix tags ctags etags with new drivers organization
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 59829cc189378c142c13d2aa8d9a897d8bef3961
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:26:56 2007 +0100
+
+    drivers/mtd : move mtd drivers to drivers/mtd
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 318c0b90431f2648552e5ade78833f42652ce859
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:17:55 2007 +0100
+
+    drivers/misc : move misc drivers to drivers/misc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 33daf5b7858807cb4ce4158c2c56524671c14c08
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:13:59 2007 +0100
+
+    drivers/block : move block drivers to drivers/block
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0c698dcaa70275eb8814f665b545547cee013892
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 20:59:50 2007 +0100
+
+    drivers/rtc : move rtc drivers to drivers/rtc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f868cc5a50757d94f36c312395481cb0f187d9e6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 20:14:44 2007 +0100
+
+    drivers/hwmon : move hardware monitor drviers to drivers/hwmon
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 16b195c82a18cbfd164800f17a1ef9db2e48331a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:46:45 2007 +0100
+
+    drivers/input : move input drivers to drivers/input
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e4558666293364fc3af1c1d9381ca933fa0f1275
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:40:11 2007 +0100
+
+    drivers/usb : move usb drivers to drivers/usb
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1378df792a7ff3abd1bf54a63f5475784f5b083c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:33:38 2007 +0100
+
+    drivers/serial : move serial drivers to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2439e4bfa111babf4bc07ba20efbf3e36036813e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 21 21:19:24 2007 +0100
+
+    drivers/net : move net drivers to drivers/net
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 352d259130b349fe9593b8dada641bd78a9659e5
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:41:48 2007 +0100
+
+    drivers/video : move video drivers to drivers/video
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 73646217186aa17afc8e305c5f06f06dd335eaad
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:33:09 2007 +0100
+
+    drivers/pcmcia : move pcmcia drivers to drivers/pcmcia
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 93a686ee9c5ddc6fa368c32cfbfde6f6724599fc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:28:09 2007 +0100
+
+    drivers/pci : move pci drivers to drivers/pci
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9162352817579840d7802da6d85872b3ca003c97
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Thu Nov 22 17:23:23 2007 -0500
+
+    Fix fdt printing for updated libfdt
+
+    Also improve printing (adopt dtc v1 "c style" hex format), whitespace cleanup.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 9eb77cea1fa12d5969eb26a1d1d81da381bd6b1c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 13:30:15 2007 -0600
+
+    Add additional fdt fixup helper functions
+
+    Added the following fdt fixup helpers:
+     * do_fixup_by_prop{_u32} - Find matching nodes by property name/value
+     * do_fixup_by_compat{_u32} - Find matching nodes by compat
+
+    The _u32 variants work the same only the property they are setting
+    is know to be a 32-bit integer instead of a byte buffer.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ab544633abdd14f4dd5d92e500b73eb59ef57e67
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 11:11:03 2007 -0600
+
+    Add fdt_fixup_ethernet helper to set mac addresses
+
+    Added a fixup helper that uses aliases to set mac addresses
+    in the device tree based on the bd_t
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit dbaf07ce620aab249e3502b20a986234a6af1d3a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 14:07:46 2007 -0600
+
+    Fix warnings from import of libfdt
+
+    cmd_fdt.c: In function fdt_print:
+    cmd_fdt.c:586: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:613: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:635: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:636: warning: assignment discards qualifiers from pointer target type
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8d04f02f6224e6983f4812ea4da704950ec8539c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 24 11:04:22 2007 -0500
+
+    Update libfdt from device tree compiler (dtc)
+
+    Update libfdt to commit 8eaf5e358366017aa2e846c5038d1aa19958314e from
+    the device tree compiler (dtc) project.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e93becf80d732b64aef81b23e8b6ece02c40533d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Sat Nov 3 19:46:28 2007 -0500
+
+    Move do_fixup* for libfdt into common code
+
+    Moved the generic fixup handling code out of cpu/mpc5xxx and cpu/mpc8260
+    into common/fdt_support.c and renamed:
+
+    do_fixup()	-> do_fixup_by_path()
+    do_fixup_u32()	-> do_fixup_by_path_u32()
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f738b4a75998f42a7408defadc9baac7a31c92db
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 25 16:15:07 2007 -0500
+
+    Make no options to fdt print default to '/'
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a3c2933e02503fe36ade2c1b65af46f2b7a168e7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 24 10:21:57 2007 -0500
+
+    Removed some nonused fdt functions and moved fdt_find_and_setprop out of libfdt
+
+    Removed:
+	fdt_node_is_compatible
+	fdt_find_node_by_type
+	fdt_find_compatible_node
+
+    To ease merge of newer libfdt as we aren't using them anywhere at this time.
+
+    Also moved fdt_find_and_setprop out of libfdt into fdt_support.c for the same
+    reason.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 98e2867cc85409b919f862e6c16026461ec955df
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Wed Nov 21 09:19:37 2007 -0700
+
+    [BUILD] Remove libraries when updating autoconf.mk
+
+    Fix library problems caused by conditional compilation.  Using
+    autoconf.mk to decide which files to compile has caused a problem when
+    changing configuration from one board to another without clearing out
+    the library (*.a) files.
+
+    It used to be that the linker was always passed the same list of .o
+    files when building the .a files.  However, that is not longer true
+    with conditional compilation.  Now, a different board config will have
+    a different file list passed to the linker.  The problem occurs when
+    a library has already been built and the board config is changed.
+
+    Since the linker will update instead of replace a preexisting library,
+    then if the file list changes to remove some object files the old
+    objects will still exist in the library.
+
+    The solution is to remove all old library files when autoconf.mk is
+    made.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit ed1353d74b9ce8a7fcd660570b848a184d614b5f
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 08:49:50 2007 -0600
+
+    [BUILD] conditionally compile libfdt/*.c in libfdt/Makefile
+
+    Modify libfdt/Makefile to conditionally compile the *.c files based
+    on the board config.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4a43719a7738712811d822ca8125427b27a55cdc
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    [BUILD] conditionally compile common/cmd_*.c in common/Makefile
+
+    Modify common/Makefile to conditionally compile the cmd_*.c files based
+    on the board config.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 2f155f6c0a1f5e9a306a3f1f4fbe067db7ced3b1
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    [BUILD] Generate include/autoconf.mk from board config files
+
+    Use cpp and sed to postprocess config.h and import the defined values
+    into include/autoconf.mk.  autoconf.mk is then included by config.mk to
+    give 'make' access to the board configuration.
+
+    Doing this enables conditional compilation at the Makefile level instead
+    of by wrapping every .c file with #ifdef/#endif wrappers.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 080c646dbf474a109c3f85718fb01ce042a38c45
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:14:18 2007 +0100
+
+    drivers/i2c : move i2c drivers to drivers/i2c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9a337ddc154a10a26f117fd147b009abcdeba75a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 19 22:20:24 2007 +0100
+
+    Prepare for 1.3.0 release.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f30ad49b16bf998b03c1a5228b6c86369d61c258
 Author: Haiying Wang <Haiying.Wang@freescale.com>
 Date:	Mon Nov 19 10:02:13 2007 -0500
@@ -344,6 +628,76 @@ Date:	Wed Nov 7 08:19:19 2007 +0100
     Fix warning differ in signedness in common/cmd_ide.c
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4d4faae65e115e327425cd514c1a35146a85166b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group PCI and PCMCIA drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5798f87dc10a496d79d3177b9f5a76488987fd35
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group block/flash drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit df58c81551700f058b44cacf55a7997fa63bfe0a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group USB drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5dbb6ed622e539b0c8493ef7e578d3a533181d29
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group i2c drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit ec00c76de0e5971273905998d62d6bb119324218
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group console drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 754f230aa01b8c789fc31f8013c2487954073300
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group network drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f0037c56b0d12cd46215124667b9f83d60ef9391
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Build: split COBJS value into multiple lines
+
+    This change is in preparation for condtitionial compile support in the
+    build system.  By spliting them all into seperate lines now, subsequent
+    patches that change 'COBJS-y += ' into 'COBJS-$(CONFIG_<blah>) += ' will
+    be less invasive and easier to review
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 1b4aaffe4fb2a5e95d9111a5d94fd1f89215dce4
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Add .gitignore files
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit 955413f35f054a82e40042f1dbcf501c6a05719b
 Author: Grant Likely <grant.likely@secretlab.ca>
