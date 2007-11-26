@@ -323,7 +323,7 @@
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
-#define CFG_EBC_PB0AP		0x04011000
+#define CFG_EBC_PB0AP		0x08033700
 #define CFG_EBC_PB0CR		(CFG_FLASH_BASE | 0xda000)
 
 /* Memory Bank 2 (CPLD) initialization						*/
