@@ -438,6 +438,84 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 	do_fixup_by_compat(fdt, compat, prop, &val, 4, create);
 }
 
+int fdt_fixup_memory(void *blob, u64 start, u64 size)
+{
+	int err, nodeoffset, len = 0;
+	u8 tmp[16];
+	const u32 *addrcell, *sizecell;
+
+	err = fdt_check_header(blob);
+	if (err < 0) {
+		printf("%s: %s\n", __FUNCTION__, fdt_strerror(err));
+		return err;
+	}
+
+	/* update, or add and update /memory node */
+	nodeoffset = fdt_path_offset(blob, "/memory");
+	if (nodeoffset < 0) {
+		nodeoffset = fdt_add_subnode(blob, 0, "memory");
+		if (nodeoffset < 0)
+			printf("WARNING: could not create /memory: %s.\n",
+					fdt_strerror(nodeoffset));
+		return nodeoffset;
+	}
+	err = fdt_setprop(blob, nodeoffset, "device_type", "memory",
+			sizeof("memory"));
+	if (err < 0) {
+		printf("WARNING: could not set %s %s.\n", "device_type",
+				fdt_strerror(err));
+		return err;
+	}
+
+	addrcell = fdt_getprop(blob, 0, "#address-cells", NULL);
+	/* use shifts and mask to ensure endianness */
+	if ((addrcell) && (*addrcell == 2)) {
+		tmp[0] = (start >> 56) & 0xff;
+		tmp[1] = (start >> 48) & 0xff;
+		tmp[2] = (start >> 40) & 0xff;
+		tmp[3] = (start >> 32) & 0xff;
+		tmp[4] = (start >> 24) & 0xff;
+		tmp[5] = (start >> 16) & 0xff;
+		tmp[6] = (start >>  8) & 0xff;
+		tmp[7] = (start      ) & 0xff;
+		len = 8;
+	} else {
+		tmp[0] = (start >> 24) & 0xff;
+		tmp[1] = (start >> 16) & 0xff;
+		tmp[2] = (start >>  8) & 0xff;
+		tmp[3] = (start      ) & 0xff;
+		len = 4;
+	}
+
+	sizecell = fdt_getprop(blob, 0, "#size-cells", NULL);
+	/* use shifts and mask to ensure endianness */
+	if ((sizecell) && (*sizecell == 2)) {
+		tmp[0+len] = (size >> 56) & 0xff;
+		tmp[1+len] = (size >> 48) & 0xff;
+		tmp[2+len] = (size >> 40) & 0xff;
+		tmp[3+len] = (size >> 32) & 0xff;
+		tmp[4+len] = (size >> 24) & 0xff;
+		tmp[5+len] = (size >> 16) & 0xff;
+		tmp[6+len] = (size >>  8) & 0xff;
+		tmp[7+len] = (size      ) & 0xff;
+		len += 8;
+	} else {
+		tmp[0+len] = (size >> 24) & 0xff;
+		tmp[1+len] = (size >> 16) & 0xff;
+		tmp[2+len] = (size >>  8) & 0xff;
+		tmp[3+len] = (size      ) & 0xff;
+		len += 4;
+	}
+
+	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
+	if (err < 0) {
+		printf("WARNING: could not set %s %s.\n",
+				"reg", fdt_strerror(err));
+		return err;
+	}
+	return 0;
+}
+
 void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 {
 	int node;
