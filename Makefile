@@ -331,31 +331,44 @@ env:
 depend dep:	version
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
 
+TAG_SUBDIRS += include
+TAG_SUBDIRS += lib_generic board/$(BOARDDIR)
+TAG_SUBDIRS += cpu/$(CPU)
+TAG_SUBDIRS += lib_$(ARCH)
+TAG_SUBDIRS += fs/cramfs
+TAG_SUBDIRS += fs/fat
+TAG_SUBDIRS += fs/fdos
+TAG_SUBDIRS += fs/jffs2
+TAG_SUBDIRS += net
+TAG_SUBDIRS += disk
+TAG_SUBDIRS += common
+TAG_SUBDIRS += drivers/bios_emulator
+TAG_SUBDIRS += drivers/block
+TAG_SUBDIRS += drivers/hwmon
+TAG_SUBDIRS += drivers/i2c
+TAG_SUBDIRS += drivers/input
+TAG_SUBDIRS += drivers/misc
+TAG_SUBDIRS += drivers/mtd
+TAG_SUBDIRS += drivers/mtd/nand
+TAG_SUBDIRS += drivers/mtd/nand_legacy
+TAG_SUBDIRS += drivers/mtd/onenand
+TAG_SUBDIRS += drivers/net
+TAG_SUBDIRS += drivers/net/sk98lin
+TAG_SUBDIRS += drivers/pci
+TAG_SUBDIRS += drivers/pcmcia
+TAG_SUBDIRS += drivers/qe
+TAG_SUBDIRS += drivers/rtc
+TAG_SUBDIRS += drivers/serial
+TAG_SUBDIRS += drivers/usb
+TAG_SUBDIRS += drivers/video
+
 tags ctags:
-		ctags -w -o $(OBJTREE)/ctags `find $(SUBDIRS) include \
-				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
-				fs/cramfs fs/fat fs/fdos fs/jffs2 \
-				net disk common drivers/bios_emulator \
-				drivers/block drivers/hwmon drivers/i2c \
-				drivers/input drivers/misc drivers/mtd \
-				drivers/mtd/nand drivers/mtd/nand_legacy \
-				drivers/mtd/onenand drivers/net drivers/net/sk98lin \
-				drivers/pci drivers/pcmcia drivers/qe drivers/rtc \
-				drivers/serial drivers/usb drivers/video \
-			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
+		ctags -w -o $(OBJTREE)/ctags `find $(SUBDIRS) $(TAG_SUBDIRS) \
+						-name '*.[ch]' -print`
 
 etags:
-		etags -a -o $(OBJTREE)/etags `find $(SUBDIRS) include \
-				lib_generic board/$(BOARDDIR) cpu/$(CPU) lib_$(ARCH) \
-				fs/cramfs fs/fat fs/fdos fs/jffs2 \
-				net disk common drivers/bios_emulator \
-				drivers/block drivers/hwmon drivers/i2c \
-				drivers/input drivers/misc drivers/mtd \
-				drivers/mtd/nand drivers/mtd/nand_legacy \
-				drivers/mtd/onenand drivers/net drivers/net/sk98lin \
-				drivers/pci drivers/pcmcia drivers/qe drivers/rtc \
-				drivers/serial drivers/usb drivers/video \
-			\( -name CVS -prune \) -o \( -name '*.[ch]' -print \)`
+		etags -a -o $(OBJTREE)/etags `find $(SUBDIRS) $(TAG_SUBDIRS) \
+						-name '*.[ch]' -print`
 
 $(obj)System.map:	$(obj)u-boot
 		@$(NM) $< | \
