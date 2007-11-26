@@ -24,9 +24,6 @@
 #include <common.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
-
-#ifdef CONFIG_OF_LIBFDT
-
 #include <asm/global_data.h>
 #include <fdt.h>
 #include <libfdt.h>
@@ -486,5 +483,3 @@ void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 #endif
 	}
 }
-
-#endif /* CONFIG_OF_LIBFDT */
