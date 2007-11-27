@@ -329,7 +329,7 @@ updater:
 		$(MAKE) -C tools/updater all || exit 1
 
 env:
-		$(MAKE) -C tools/env all || exit 1
+		$(MAKE) -C tools/env all MTD_VERSION=${MTD_VERSION} || exit 1
 
 depend dep:	version
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
