@@ -329,7 +329,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		void *prop;
 
 		/* fixup UCC 1 if using rgmii-id mode */
-		nodeoffset = fdt_find_node_by_path(blob, "/" OF_QE "/ucc@2000");
+		nodeoffset = fdt_path_offset(blob, "/" OF_QE "/ucc@2000");
 		if (nodeoffset >= 0) {
 			prop = fdt_getprop(blob, nodeoffset,
 					        "phy-connection-type", 0);
@@ -339,7 +339,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		}
 
 		/* fixup UCC 2 if using rgmii-id mode */
-		nodeoffset = fdt_find_node_by_path(blob, "/" OF_QE "/ucc@3000");
+		nodeoffset = fdt_path_offset(blob, "/" OF_QE "/ucc@3000");
 		if (nodeoffset >= 0) {
 			prop = fdt_getprop(blob, nodeoffset,
 					        "phy-connection-type", 0);
