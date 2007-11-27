@@ -47,8 +47,8 @@
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
 	"bootm"
 
-extern		void  fw_printenv(int argc, char *argv[]);
-extern unsigned char *fw_getenv  (unsigned char *name);
-extern		int   fw_setenv  (int argc, char *argv[]);
+extern void  fw_printenv(int argc, char *argv[]);
+extern char *fw_getenv  (char *name);
+extern int fw_setenv  (int argc, char *argv[]);
 
 extern unsigned	long  crc32	 (unsigned long, const unsigned char *, unsigned);

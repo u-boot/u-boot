@@ -31,16 +31,20 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <linux/mtd/mtd.h>
-#include "fw_env.h"
 
-typedef unsigned char uchar;
+#ifdef MTD_OLD
+# include <linux/mtd/mtd.h>
+#else
+# include <mtd/mtd-user.h>
+#endif
+
+#include "fw_env.h"
 
 #define	CMD_GETENV	"fw_printenv"
 #define	CMD_SETENV	"fw_setenv"
 
 typedef struct envdev_s {
-	uchar devname[16];		/* Device name */
+	char devname[16];		/* Device name */
 	ulong devoff;			/* Device offset */
 	ulong env_size;			/* environment size */
 	ulong erase_size;		/* device erase size */
@@ -60,22 +64,22 @@ static int curdev;
 
 typedef struct environment_s {
 	ulong crc;			/* CRC32 over data bytes    */
-	uchar flags;			/* active or obsolete */
-	uchar *data;
+	unsigned char flags;		/* active or obsolete */
+	char *data;
 } env_t;
 
 static env_t environment;
 
 static int HaveRedundEnv = 0;
 
-static uchar active_flag = 1;
-static uchar obsolete_flag = 0;
+static unsigned char active_flag = 1;
+static unsigned char obsolete_flag = 0;
 
 
 #define XMK_STR(x)	#x
 #define MK_STR(x)	XMK_STR(x)
 
-static uchar default_environment[] = {
+static char default_environment[] = {
 #if defined(CONFIG_BOOTARGS)
 	"bootargs=" CONFIG_BOOTARGS "\0"
 #endif
@@ -155,7 +159,7 @@ static uchar default_environment[] = {
 };
 
 static int flash_io (int mode);
-static uchar *envmatch (uchar * s1, uchar * s2);
+static char *envmatch (char * s1, char * s2);
 static int env_init (void);
 static int parse_config (void);
 
@@ -175,15 +179,15 @@ static inline ulong getenvsize (void)
  * Search the environment for a variable.
  * Return the value, if found, or NULL, if not found.
  */
-unsigned char *fw_getenv (unsigned char *name)
+char *fw_getenv (char *name)
 {
-	uchar *env, *nxt;
+	char *env, *nxt;
 
 	if (env_init ())
 		return (NULL);
 
 	for (env = environment.data; *env; env = nxt + 1) {
-		uchar *val;
+		char *val;
 
 		for (nxt = env; *nxt; ++nxt) {
 			if (nxt >= &environment.data[ENV_SIZE]) {
@@ -206,7 +210,7 @@ unsigned char *fw_getenv (unsigned char *name)
  */
 void fw_printenv (int argc, char *argv[])
 {
-	uchar *env, *nxt;
+	char *env, *nxt;
 	int i, n_flag;
 
 	if (env_init ())
@@ -241,8 +245,8 @@ void fw_printenv (int argc, char *argv[])
 	}
 
 	for (i = 1; i < argc; ++i) {	/* print single env variables   */
-		uchar *name = argv[i];
-		uchar *val = NULL;
+		char *name = argv[i];
+		char *val = NULL;
 
 		for (env = environment.data; *env; env = nxt + 1) {
 
@@ -279,9 +283,9 @@ void fw_printenv (int argc, char *argv[])
 int fw_setenv (int argc, char *argv[])
 {
 	int i, len;
-	uchar *env, *nxt;
-	uchar *oldval = NULL;
-	uchar *name;
+	char *env, *nxt;
+	char *oldval = NULL;
+	char *name;
 
 	if (argc < 2) {
 		return (EINVAL);
@@ -361,7 +365,7 @@ int fw_setenv (int argc, char *argv[])
 	while ((*env = *name++) != '\0')
 		env++;
 	for (i = 2; i < argc; ++i) {
-		uchar *val = argv[i];
+		char *val = argv[i];
 
 		*env = (i == 2) ? '=' : ' ';
 		while ((*++env = *val++) != '\0');
@@ -373,7 +377,7 @@ int fw_setenv (int argc, char *argv[])
   WRITE_FLASH:
 
 	/* Update CRC */
-	environment.crc = crc32 (0, environment.data, ENV_SIZE);
+	environment.crc = crc32 (0, (uint8_t*) environment.data, ENV_SIZE);
 
 	/* write environment back to flash */
 	if (flash_io (O_RDWR)) {
@@ -569,7 +573,7 @@ static int flash_io (int mode)
  * If the names match, return the value of s2, else NULL.
  */
 
-static uchar *envmatch (uchar * s1, uchar * s2)
+static char *envmatch (char * s1, char * s2)
 {
 
 	while (*s1 == *s2++)
@@ -586,10 +590,10 @@ static uchar *envmatch (uchar * s1, uchar * s2)
 static int env_init (void)
 {
 	int crc1, crc1_ok;
-	uchar *addr1;
+	char *addr1;
 
 	int crc2, crc2_ok;
-	uchar flag1, flag2, *addr2;
+	char flag1, flag2, *addr2;
 
 	if (parse_config ())		/* should fill envdevices */
 		return 1;
@@ -608,7 +612,7 @@ static int env_init (void)
 		return (errno);
 	}
 
-	crc1_ok = ((crc1 = crc32 (0, environment.data, ENV_SIZE))
+	crc1_ok = ((crc1 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE))
 			   == environment.crc);
 	if (!HaveRedundEnv) {
 		if (!crc1_ok) {
@@ -632,7 +636,7 @@ static int env_init (void)
 			return (errno);
 		}
 
-		crc2_ok = ((crc2 = crc32 (0, environment.data, ENV_SIZE))
+		crc2_ok = ((crc2 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE))
 				   == environment.crc);
 		flag2 = environment.flags;
 

@@ -28,6 +28,10 @@ HEADERS	:= fw_env.h
 
 CPPFLAGS := -Wall -DUSE_HOSTCC
 
+ifeq ($(MTD_VERSION),old)
+CPPFLAGS += -DMTD_OLD
+endif
+
 all:	$(obj)fw_printenv
 
 $(obj)fw_printenv:	$(SRCS) $(HEADERS)
