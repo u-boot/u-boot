@@ -631,6 +631,18 @@ Hayden Fraser <Hayden.Fraser@freescale.com>
 Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 	ATSTK1000		AT32AP7000
+ 
+#########################################################################
+# SuperH Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Nobuhiro Iwmaatsu <iwamatsu@nigauri.org>
+
+	MS7750SE		SH7750
+	MS7722SE		SH7722
 
 #########################################################################
 # End of MAINTAINERS list						#
