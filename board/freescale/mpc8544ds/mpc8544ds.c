@@ -50,7 +50,7 @@ int board_early_init_f (void)
 int checkboard (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
 
@@ -146,8 +146,7 @@ int first_free_busno=0;
 void
 pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;

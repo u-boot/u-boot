@@ -309,7 +309,7 @@ spd_sdram(void)
 	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
 			(SVR_MJREV(get_svr()) == 1) &&
 			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
-		volatile ccsr_gur_t *gur = &immap->im_gur;
+		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 		gur->ddrioovcr = (0x80000000	/* Enable */
 				  | 0x10000000);/* VSEL to 1.8V */
 	}

@@ -1617,6 +1617,9 @@ typedef struct ccsr_gur {
 	char	res15[61648];	/* 0xe0f30 to 0xefffff */
 } ccsr_gur_t;
 
+#define CFG_MPC85xx_GUTS_OFFSET	(0xE0000)
+#define CFG_MPC85xx_GUTS_ADDR	(CFG_IMMR + CFG_MPC85xx_GUTS_OFFSET)
+
 #define PORDEVSR_PCI	(0x00800000)	/* PCI Mode */
 
 typedef struct immap {
@@ -1634,8 +1637,6 @@ typedef struct immap {
 	ccsr_tsec_t		im_tsec2;
 	ccsr_pic_t		im_pic;
 	ccsr_cpm_t		im_cpm;
-	ccsr_rio_t		im_rio;
-	ccsr_gur_t		im_gur;
 } immap_t;
 
 extern immap_t  *immr;

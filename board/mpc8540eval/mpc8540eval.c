@@ -75,7 +75,7 @@ long int initdram (int board_type)
 	uint temp_lbcdll = 0;
 #endif
 #if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur= &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 #endif
 
 #if defined(CONFIG_DDR_DLL)

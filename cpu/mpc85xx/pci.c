@@ -48,7 +48,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 #ifdef CONFIG_MPC85XX_PCI2
 	volatile ccsr_pcix_t *pcix2 = &immap->im_pcix2;
 #endif
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	struct pci_controller * hose;
 
 	pci_hose = board_hose;

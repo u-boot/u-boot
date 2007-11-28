@@ -232,13 +232,12 @@ initdram(int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 	puts("Initializing\n");
 
 #if defined(CONFIG_DDR_DLL)
 	{
-	    volatile ccsr_gur_t *gur= &immap->im_gur;
+	    volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	    int i,x;
 
 	    x = 10;
@@ -288,7 +287,7 @@ void
 local_bus_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
 	uint clkdiv;

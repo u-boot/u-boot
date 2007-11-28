@@ -56,7 +56,7 @@ int board_early_init_f (void)
 int checkboard (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
@@ -96,7 +96,6 @@ long int
 initdram(int board_type)
 {
 	long dram_size = 0;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 	puts("Initializing\n");
 
@@ -109,7 +108,7 @@ initdram(int board_type)
 		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
 		 */
 
-		volatile ccsr_gur_t *gur= &immap->im_gur;
+		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 		gur->ddrdllcr = 0x81000000;
 		asm("sync;isync;msync");
@@ -140,7 +139,7 @@ void
 local_bus_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
 	uint clkdiv;
@@ -330,8 +329,7 @@ int first_free_busno=0;
 void
 pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 

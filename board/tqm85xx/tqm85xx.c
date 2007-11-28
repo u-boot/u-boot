@@ -325,7 +325,7 @@ int misc_init_r (void)
 void local_bus_init (void)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
 	uint clkdiv;

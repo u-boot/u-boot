@@ -133,7 +133,6 @@ long int
 initdram(int board_type)
 {
 	long dram_size = 0;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 	puts("Initializing\n");
 
@@ -146,7 +145,7 @@ initdram(int board_type)
 		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
 		 */
 
-		volatile ccsr_gur_t *gur= &immap->im_gur;
+		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 		gur->ddrdllcr = 0x81000000;
 		asm("sync;isync;msync");
@@ -177,7 +176,7 @@ void
 local_bus_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
 	uint clkdiv;

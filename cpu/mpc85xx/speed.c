@@ -35,8 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info (sys_info_t * sysInfo)
 {
-	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;

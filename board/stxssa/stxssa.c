@@ -302,8 +302,7 @@ initdram (int board_type)
 
 #if defined(CONFIG_DDR_DLL)
 	{
-		volatile immap_t *immap = (immap_t *)CFG_IMMR;
-		volatile ccsr_gur_t *gur= &immap->im_gur;
+		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 		uint temp_ddrdll = 0;
 
 		/* Work around to stabilize DDR DLL */
