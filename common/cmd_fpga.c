@@ -60,6 +60,7 @@ static int fpga_get_op (char *opstr);
 /* Convert bitstream data and load into the fpga */
 int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 {
+#if (CONFIG_FPGA & CFG_FPGA_XILINX)
 	unsigned int length;
 	unsigned char* swapdata;
 	unsigned int swapsize;
@@ -72,7 +73,6 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 
 	dataptr = (unsigned char *)fpgadata;
 
-#if CFG_FPGA_XILINX
 	/* skip the first bytes of the bitsteam, their meaning is unknown */
 	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;

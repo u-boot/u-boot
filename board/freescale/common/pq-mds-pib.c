@@ -79,19 +79,19 @@ int pib_init(void)
 
 	printf("QOC3 ATM card on PMC0\n");
 #elif defined(CONFIG_MPC832XEMDS)
-	val = 0;
-	i2c_write(0x26, 0x7, 1, &val, 1);
-	val = 0xf7;
-	i2c_write(0x26, 0x3, 1, &val, 1);
+	val8 = 0;
+	i2c_write(0x26, 0x7, 1, &val8, 1);
+	val8 = 0xf7;
+	i2c_write(0x26, 0x3, 1, &val8, 1);
 
-	val = 0;
-	i2c_write(0x21, 0x6, 1, &val, 1);
-	i2c_write(0x21, 0x7, 1, &val, 1);
+	val8 = 0;
+	i2c_write(0x21, 0x6, 1, &val8, 1);
+	i2c_write(0x21, 0x7, 1, &val8, 1);
 
-	val = 0xdf;
-	i2c_write(0x21, 0x2, 1, &val, 1);
-	val = 0xef;
-	i2c_write(0x21, 0x3, 1, &val, 1);
+	val8 = 0xdf;
+	i2c_write(0x21, 0x2, 1, &val8, 1);
+	val8 = 0xef;
+	i2c_write(0x21, 0x3, 1, &val8, 1);
 
 	eieio();
 

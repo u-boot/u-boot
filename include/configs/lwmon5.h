@@ -200,12 +200,13 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
+	"addmisc=setenv bootargs ${bootargs} rtc-pcf8563.probe=0,0x51\0"\
+	"flash_nfs=run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_self=run ramargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addtty addmisc;bootm\0"		\
 	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
 	"bootfile=/tftpboot/lwmon5/uImage\0"				\
 	"kernel_addr=FC000000\0"					\
@@ -338,7 +339,12 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC				*/
 #define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever			*/
 
+#if 0
+/*
+ * ToDo: Watchdog is not test fully, so exclude it for now
+ */
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
+#endif
 
 /*
  * For booting Linux, the board info and command line data
@@ -426,7 +432,7 @@
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO12				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO13				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO14				*/	\
-{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO15				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO15				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO16 GMCTxD(4)			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO17 GMCTxD(5)			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO18 GMCTxD(6)			*/	\
@@ -467,12 +473,12 @@
 {GPIO1_BASE, GPIO_IN,  GPIO_SEL , GPIO_OUT_0}, /* GPIO50  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO51  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO52  Unselect via TraceSelect Bit	*/	\
-{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO53  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO53  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO54  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO55  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO56  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO57  Unselect via TraceSelect Bit	*/	\
-{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO58  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO58  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO59  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO60  Unselect via TraceSelect Bit	*/	\
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO61  Unselect via TraceSelect Bit	*/	\

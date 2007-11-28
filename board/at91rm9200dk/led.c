@@ -66,7 +66,7 @@ void	red_LED_off(void)
 }
 
 
-void LED_init (void)
+void coloured_LED_init (void)
 {
 	AT91PS_PIO	PIOB	= AT91C_BASE_PIOB;
 	AT91PS_PMC	PMC	= AT91C_BASE_PMC;

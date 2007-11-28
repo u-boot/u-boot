@@ -57,7 +57,7 @@ int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	  dtt,	1,	1,	do_dtt,
-	  "dtt     - Digital Thermometer and Themostat\n",
+	  "dtt     - Digital Thermometer and Thermostat\n",
 	  "        - Read temperature from digital thermometer and thermostat.\n"
 );
 

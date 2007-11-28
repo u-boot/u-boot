@@ -201,6 +201,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
+#define CFG_PIXIS_VBOOT_MASK	0x40    /* Reset altbank mask*/
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks */
 #define CFG_MAX_FLASH_SECT	128		/* sectors per device */
@@ -346,6 +347,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_USB_EVENT_POLL	1
 #define CFG_USB_OHCI_SLOT_NAME 	"ohci_pci"
 #define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#define CFG_OHCI_SWAP_REG_ACCESS	1
 
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
@@ -544,6 +546,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
     #define CONFIG_CMD_PCI
     #define CONFIG_CMD_SCSI
     #define CONFIG_CMD_EXT2
+    #define CONFIG_CMD_USB
 #endif
 
 

@@ -27,9 +27,9 @@ LIB	= $(obj)libfdt.a
 
 SOBJS	=
 
-COBJS	= fdt.o  fdt_ro.o  fdt_rw.o  fdt_strerror.o  fdt_sw.o  fdt_wip.o
+COBJS-y += fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_sw.o fdt_wip.o
 
-
+COBJS	:= $(COBJS-y)
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 

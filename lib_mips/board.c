@@ -62,6 +62,11 @@ static ulong mem_malloc_start;
 static ulong mem_malloc_end;
 static ulong mem_malloc_brk;
 
+/*
+ * mips_io_port_base is the begin of the address space to which x86 style
+ * I/O ports are mapped.
+ */
+unsigned long mips_io_port_base = -1;
 
 /*
  * The Malloc area is immediately below the monitor copy in DRAM

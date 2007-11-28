@@ -96,7 +96,7 @@ static u8 *BE_memaddr(u32 addr)
 	else if (addr >= 0xFFFF5 && addr < 0xFFFFE) {
 		/* Return a faked BIOS date string for non-x86 machines */
 		DB(printf("BE_memaddr - Returning BIOS date\n");)
-		return BE_biosDate + addr - 0xFFFF5;
+		return (u8 *)(BE_biosDate + addr - 0xFFFF5);
 	} else if (addr == 0xFFFFE) {
 		/* Return system model identifier for non-x86 machines */
 		DB(printf("BE_memaddr - Returning model\n");)

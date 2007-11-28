@@ -27,13 +27,31 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)librtc.a
 
-COBJS	= date.o   \
-	  bf5xx_rtc.o ds12887.o ds1302.o ds1306.o ds1307.o \
-	  ds1337.o ds1374.o ds1556.o ds164x.o ds174x.o ds3231.o \
-	  m41t11.o max6900.o m48t35ax.o mc146818.o mk48t59.o \
-	  mpc5xxx.o mpc8xx.o pcf8563.o s3c24x0_rtc.o rs5c372.o \
-	  mcfrtc.o
+COBJS-y += date.o
+COBJS-y += bf5xx_rtc.o
+COBJS-y += ds12887.o
+COBJS-y += ds1302.o
+COBJS-y += ds1306.o
+COBJS-y += ds1307.o
+COBJS-y += ds1337.o
+COBJS-y += ds1374.o
+COBJS-y += ds1556.o
+COBJS-y += ds164x.o
+COBJS-y += ds174x.o
+COBJS-y += ds3231.o
+COBJS-y += m41t11.o
+COBJS-y += max6900.o
+COBJS-y += m48t35ax.o
+COBJS-y += mc146818.o
+COBJS-y += mk48t59.o
+COBJS-y += mpc5xxx.o
+COBJS-y += mpc8xx.o
+COBJS-y += pcf8563.o
+COBJS-y += s3c24x0_rtc.o
+COBJS-y += rs5c372.o
+COBJS-y += mcfrtc.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

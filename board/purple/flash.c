@@ -299,7 +299,7 @@ void flash_print_info (flash_info_t *info)
 	int i;
 	uchar *boottype;
 	uchar *bootletter;
-	uchar *fmt;
+	char *fmt;
 	uchar botbootletter[] = "B";
 	uchar topbootletter[] = "T";
 	uchar botboottype[] = "bottom boot sector";

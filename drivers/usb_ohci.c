@@ -59,6 +59,10 @@
 #include <usb.h>
 #include "usb_ohci.h"
 
+#ifdef CONFIG_AT91RM9200
+#include <asm/arch/hardware.h>	/* needed for AT91_USB_HOST_BASE */
+#endif
+
 #if defined(CONFIG_ARM920T) || \
     defined(CONFIG_S3C2400) || \
     defined(CONFIG_S3C2410) || \
@@ -93,6 +97,7 @@
 #ifdef CONFIG_PCI_OHCI
 static struct pci_device_id ohci_pci_ids[] = {
 	{0x10b9, 0x5237},	/* ULI1575 PCI OHCI module ids */
+	{0x1033, 0x0035},	/* NEC PCI OHCI module ids */
 	/* Please add supported PCI OHCI controller ids here */
 	{0, 0}
 };

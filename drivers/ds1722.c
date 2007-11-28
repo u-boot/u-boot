@@ -1,9 +1,9 @@
 
 #include <common.h>
 
-#include <ssi.h>
-
 #ifdef CONFIG_DS1722
+
+#include <ssi.h>
 
 static void ds1722_select(int dev)
 {

@@ -468,7 +468,7 @@ U_BOOT_CMD(
  	"\t'arg' can be the address of an initrd image\n"
 #if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
-	"\ta third argument is required which is the address of the of the\n"
+	"\ta third argument is required which is the address of the\n"
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
 	"\tuse a '-' for the second argument. If you do not pass a third\n"
 	"\ta bd_info struct will be passed instead\n"

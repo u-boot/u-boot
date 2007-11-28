@@ -27,8 +27,9 @@
 # if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 
 #include <asm/arch/pxa-regs.h>
+#include <usb.h>
 
-int usb_cpu_init()
+int usb_cpu_init(void)
 {
 #if defined(CONFIG_CPU_MONAHANS)
 	/* Enable USB host clock. */
@@ -65,12 +66,28 @@ int usb_cpu_init()
 	return 0;
 }
 
-int usb_cpu_stop()
+int usb_cpu_stop(void)
 {
+	UHCHR |= UHCHR_FHR;
+	udelay(11);
+	UHCHR &= ~UHCHR_FHR;
+
+	UHCCOMS |= 1;
+	udelay(10);
+
+#if defined(CONFIG_CPU_MONAHANS)
+	UHCHR |= UHCHR_SSEP0;
+#endif
+#if defined(CONFIG_PXA27X)
+	UHCHR |= UHCHR_SSEP2;
+#endif
+	UHCHR |= UHCHR_SSEP1;
+	UHCHR |= UHCHR_SSE;
+
 	return 0;
 }
 
-int usb_cpu_init_fail()
+int usb_cpu_init_fail(void)
 {
 	return 0;
 }

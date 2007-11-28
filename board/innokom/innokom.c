@@ -72,7 +72,7 @@ int i2c_init_board(void)
 
 int misc_init_r(void)
 {
-	uchar *str;
+	char *str;
 
 	/* determine if the software update key is pressed during startup   */
 	if (GPLR0 & 0x00000800) {

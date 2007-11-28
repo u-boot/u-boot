@@ -297,7 +297,7 @@ extern unsigned long get_clock_freq(void);
 #define OF_SOC			"soc8568@e0000000"
 #define OF_QE			"qe@e0080000"
 #define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8568@e0000000/serial@4600"
+#define OF_STDOUT_PATH		"/soc8568@e0000000/serial@4500"
 
 /*
  * I2C
@@ -333,11 +333,6 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PEX_IO_SIZE		0x00800000	/* 8M */
 
 #define CFG_SRIO_MEM_BASE	0xc0000000
-
-#if defined(CONFIG_PCI)
-
-#define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
 
 #ifdef CONFIG_QE
 /*
@@ -376,6 +371,11 @@ extern unsigned long get_clock_freq(void);
 #define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
 #endif
 #endif /* CONFIG_QE */
+
+#if defined(CONFIG_PCI)
+
+#define CONFIG_NET_MULTI
+#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP

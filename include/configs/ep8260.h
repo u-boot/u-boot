@@ -303,37 +303,28 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_all.h>
+#include <config_cmd_default.h>
 
-#undef CONFIG_CMD_BMP
-#undef CONFIG_CMD_BSP
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_CDP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_PORTIO
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SAVES
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
+
 #undef CONFIG_CMD_DCR
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_DISPLAY
-#undef CONFIG_CMD_DOC
-#undef CONFIG_CMD_DTT
-#undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_EXT2
-#undef CONFIG_CMD_FDC
-#undef CONFIG_CMD_FDOS
-#undef CONFIG_CMD_HWFLOW
-#undef CONFIG_CMD_IDE
-#undef CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_KGDB
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_MFSL
-#undef CONFIG_CMD_MMC
-#undef CONFIG_CMD_NAND
-#undef CONFIG_CMD_PCI
-#undef CONFIG_CMD_PCMCIA
-#undef CONFIG_CMD_REISER
-#undef CONFIG_CMD_SCSI
-#undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_UNIVERSE
-#undef CONFIG_CMD_USB
-#undef CONFIG_CMD_VFD
 #undef CONFIG_CMD_XIMG
-
 
 /* Where do the internal registers live? */
 #define CFG_IMMR               0xF0000000

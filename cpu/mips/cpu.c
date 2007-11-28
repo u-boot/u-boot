@@ -39,12 +39,12 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-void flush_cache (ulong start_addr, ulong size)
+void flush_cache(ulong start_addr, ulong size)
 {
-
 }
 
-void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 ){
+void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
+{
 	write_32bit_cp0_register(CP0_ENTRYLO0, low0);
 	write_32bit_cp0_register(CP0_PAGEMASK, pagemask);
 	write_32bit_cp0_register(CP0_ENTRYLO1, low1);

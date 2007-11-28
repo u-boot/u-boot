@@ -188,7 +188,7 @@
 #endif
 
 #ifdef CONFIG_PCI
-#define CONFIG_CMD_CMD_PCI
+#define CONFIG_CMD_PCI
 #endif
 
 #if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
@@ -238,13 +238,13 @@
 		"protect on FC000000 +${filesize}\0"
 #endif
 
-#ifndef CONFIG_CAM5200
+#if defined(CONFIG_TQM5200)
 #define CUSTOM_ENV_SETTINGS						\
+	"hostname=tqm5200\0"						\
 	"bootfile=/tftpboot/tqm5200/uImage\0"				\
-	"bootfile_fdt=/tftpboot/tqm5200/uImage_fdt\0"			\
 	"fdt_file=/tftpboot/tqm5200/tqm5200.dtb\0"			\
 	"u-boot=/tftpboot/tqm5200/u-boot.bin\0"
-#else
+#elif defined(CONFIG_CAM5200)
 #define CUSTOM_ENV_SETTINGS						\
 	"bootfile=cam5200/uImage\0"					\
 	"u-boot=cam5200/u-boot.bin\0"					\
@@ -252,11 +252,13 @@
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"console=ttyS0\0"						\
-	"kernel_addr=200000\0"						\
-	"fdt_addr=400000\0"						\
-	"hostname=tqm5200\0"						\
 	"netdev=eth0\0"							\
+	"console=ttyPSC0\0"						\
+	"fdt_addr=FC0A0000\0"						\
+	"kernel_addr=FC0C0000\0"					\
+	"ramdisk_addr=FC300000\0"					\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=600000\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -266,16 +268,20 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
 		"console=${console},${baudrate}\0"			\
-	"flash_self=run ramargs addip addcons;"				\
+	"flash_self_old=sete console ttyS0; run ramargs addip addcons;"	\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_nfs=run nfsargs addip addcons;"				\
+	"flash_self=run ramargs addip addcons;"				\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"flash_nfs_old=sete console ttyS0; run nfsargs addip addcons;"	\
 		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp ${kernel_addr} ${bootfile};"			\
-		"run nfsargs addip addcons;bootm\0"			\
-	"net_nfs_fdt=tftp ${kernel_addr} ${bootfile_fdt};"		\
-		"tftp ${fdt_addr} ${fdt_file};setenv console ttyPSC0;"	\
-		"run nfsargs addip addcons;"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
+		"sete console ttyS0; run nfsargs addip addcons;bootm\0"	\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addcons; "				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	CUSTOM_ENV_SETTINGS						\
 	"load=tftp 200000 ${u-boot}\0"					\
 	ENV_UPDT							\
@@ -408,11 +414,12 @@
 #  endif /* CFG_LOWBOOT */
 # else	/* !CONFIG_TQM5200_B */
 #   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
-						"1408k(kernel),"	\
+						"128k(dtb),"		\
+						"2304k(kernel),"	\
 						"2m(initrd),"		\
 						"4m(small-fs),"		\
 						"8m(misc),"		\
-						"16m(big-fs)"
+						"15m(big-fs)"
 # endif /* CONFIG_TQM5200_B */
 #elif defined (CONFIG_CAM5200)
 #   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
@@ -540,7 +547,7 @@
 #  if defined (CONFIG_TQM5200_REV100)
 #   error TQM5200 REV100 not supported on STK52XX REV200 or above
 #  else/* TQM5200 REV200 and above */
-#   define CFG_GPS_PORT_CONFIG	0x91500004
+#   define CFG_GPS_PORT_CONFIG	0x91500404
 #  endif
 # endif
 #elif defined (CONFIG_FO300)

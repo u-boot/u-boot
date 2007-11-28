@@ -24,8 +24,6 @@
 
 #ifndef __ASSEMBLY__
 #include "AT91RM9200.h"
-#else
-#include "AT91RM9200_inc.h"
 #endif
 
 /* Virtual and Physical base address for system peripherals */

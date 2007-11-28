@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -mrelocatable
+PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC512X -DCONFIG_E300 \
 			-ffixed-r2 -ffixed-r29 -msoft-float -mcpu=603e

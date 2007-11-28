@@ -397,6 +397,7 @@ int misc_init_r(void)
 					"operational\n");
 
 	/* set the hostname appropriate to the module we're running on */
+	hostname[0] = 0x00;
 	compose_hostname(hw_id, hostname);
 	setenv("hostname", hostname);
 

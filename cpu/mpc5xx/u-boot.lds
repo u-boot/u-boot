@@ -59,6 +59,7 @@ SECTIONS
     cpu/mpc5xx/start.o	(.text)
 
     *(.text)
+    *(.fixup)
     *(.got1)
   }
   _etext = .;

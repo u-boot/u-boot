@@ -163,7 +163,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define	CFG_SDRAM_SIZE		8	/* SDRAM size in MB */
+#define	CFG_SDRAM_SIZE		16	/* SDRAM size in MB */
 #define CFG_FLASH_BASE		0xffe00000
 #define	CFG_INT_FLASH_BASE	0xf0000000
 #define CFG_INT_FLASH_ENABLE	0x21

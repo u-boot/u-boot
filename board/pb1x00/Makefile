@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o flash.o
-SOBJS	= memsetup.o
+SOBJS	= lowlevel_init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

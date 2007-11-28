@@ -35,17 +35,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define FFUART	0
-#define BTUART	1
-#define STUART	2
+#define FFUART_INDEX	0
+#define BTUART_INDEX	1
+#define STUART_INDEX	2
 
 #ifndef CONFIG_SERIAL_MULTI
 #if defined (CONFIG_FFUART)
-#define UART_INDEX	FFUART
+#define UART_INDEX	FFUART_INDEX
 #elif defined (CONFIG_BTUART)
-#define UART_INDEX	BTUART
+#define UART_INDEX	BTUART_INDEX
 #elif defined (CONFIG_STUART)
-#define UART_INDEX	STUART
+#define UART_INDEX	STUART_INDEX
 #else
 #error "Bad: you didn't configure serial ..."
 #endif
@@ -71,7 +71,7 @@ void pxa_setbrg_dev (unsigned int uart_index)
 		hang ();
 
 	switch (uart_index) {
-		case FFUART:
+		case FFUART_INDEX:
 #ifdef CONFIG_CPU_MONAHANS
 			CKENA |= CKENA_22_FFUART;
 #else
@@ -90,7 +90,7 @@ void pxa_setbrg_dev (unsigned int uart_index)
 			FFIER = IER_UUE;	/* Enable FFUART */
 		break;
 
-		case BTUART:
+		case BTUART_INDEX:
 #ifdef CONFIG_CPU_MONAHANS
 			CKENA |= CKENA_21_BTUART;
 #else
@@ -110,7 +110,7 @@ void pxa_setbrg_dev (unsigned int uart_index)
 
 		break;
 
-		case STUART:
+		case STUART_INDEX:
 #ifdef CONFIG_CPU_MONAHANS
 			CKENA |= CKENA_23_STUART;
 #else
@@ -154,20 +154,20 @@ int pxa_init_dev (unsigned int uart_index)
 void pxa_putc_dev (unsigned int uart_index,const char c)
 {
 	switch (uart_index) {
-		case FFUART:
+		case FFUART_INDEX:
 		/* wait for room in the tx FIFO on FFUART */
 			while ((FFLSR & LSR_TEMT) == 0)
 				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			FFTHR = c;
 			break;
 
-		case BTUART:
+		case BTUART_INDEX:
 			while ((BTLSR & LSR_TEMT ) == 0 )
 				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			BTTHR = c;
 			break;
 
-		case STUART:
+		case STUART_INDEX:
 			while ((STLSR & LSR_TEMT ) == 0 )
 				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			STTHR = c;
@@ -187,11 +187,11 @@ void pxa_putc_dev (unsigned int uart_index,const char c)
 int pxa_tstc_dev (unsigned int uart_index)
 {
 	switch (uart_index) {
-		case FFUART:
+		case FFUART_INDEX:
 			return FFLSR & LSR_DR;
-		case BTUART:
+		case BTUART_INDEX:
 			return BTLSR & LSR_DR;
-		case STUART:
+		case STUART_INDEX:
 			return STLSR & LSR_DR;
 	}
 	return -1;
@@ -205,16 +205,16 @@ int pxa_tstc_dev (unsigned int uart_index)
 int pxa_getc_dev (unsigned int uart_index)
 {
 	switch (uart_index) {
-		case FFUART:
+		case FFUART_INDEX:
 			while (!(FFLSR & LSR_DR))
 			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			return (char) FFRBR & 0xff;
 
-		case BTUART:
+		case BTUART_INDEX:
 			while (!(BTLSR & LSR_DR))
 			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			return (char) BTRBR & 0xff;
-		case STUART:
+		case STUART_INDEX:
 			while (!(STLSR & LSR_DR))
 			WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
 			return (char) STRBR & 0xff;
@@ -233,32 +233,32 @@ pxa_puts_dev (unsigned int uart_index,const char *s)
 #if defined (CONFIG_FFUART)
 static int ffuart_init(void)
 {
-	return pxa_init_dev(FFUART);
+	return pxa_init_dev(FFUART_INDEX);
 }
 
 static void ffuart_setbrg(void)
 {
-	return pxa_setbrg_dev(FFUART);
+	return pxa_setbrg_dev(FFUART_INDEX);
 }
 
 static void ffuart_putc(const char c)
 {
-	return pxa_putc_dev(FFUART,c);
+	return pxa_putc_dev(FFUART_INDEX,c);
 }
 
 static void ffuart_puts(const char *s)
 {
-	return pxa_puts_dev(FFUART,s);
+	return pxa_puts_dev(FFUART_INDEX,s);
 }
 
 static int ffuart_getc(void)
 {
-	return pxa_getc_dev(FFUART);
+	return pxa_getc_dev(FFUART_INDEX);
 }
 
 static int ffuart_tstc(void)
 {
-	return pxa_tstc_dev(FFUART);
+	return pxa_tstc_dev(FFUART_INDEX);
 }
 
 struct serial_device serial_ffuart_device =
@@ -277,32 +277,32 @@ struct serial_device serial_ffuart_device =
 #if defined (CONFIG_BTUART)
 static int btuart_init(void)
 {
-	return pxa_init_dev(BTUART);
+	return pxa_init_dev(BTUART_INDEX);
 }
 
 static void btuart_setbrg(void)
 {
-	return pxa_setbrg_dev(BTUART);
+	return pxa_setbrg_dev(BTUART_INDEX);
 }
 
 static void btuart_putc(const char c)
 {
-	return pxa_putc_dev(BTUART,c);
+	return pxa_putc_dev(BTUART_INDEX,c);
 }
 
 static void btuart_puts(const char *s)
 {
-	return pxa_puts_dev(BTUART,s);
+	return pxa_puts_dev(BTUART_INDEX,s);
 }
 
 static int btuart_getc(void)
 {
-	return pxa_getc_dev(BTUART);
+	return pxa_getc_dev(BTUART_INDEX);
 }
 
 static int btuart_tstc(void)
 {
-	return pxa_tstc_dev(BTUART);
+	return pxa_tstc_dev(BTUART_INDEX);
 }
 
 struct serial_device serial_btuart_device =
@@ -321,32 +321,32 @@ struct serial_device serial_btuart_device =
 #if defined (CONFIG_STUART)
 static int stuart_init(void)
 {
-	return pxa_init_dev(STUART);
+	return pxa_init_dev(STUART_INDEX);
 }
 
 static void stuart_setbrg(void)
 {
-	return pxa_setbrg_dev(STUART);
+	return pxa_setbrg_dev(STUART_INDEX);
 }
 
 static void stuart_putc(const char c)
 {
-	return pxa_putc_dev(STUART,c);
+	return pxa_putc_dev(STUART_INDEX,c);
 }
 
 static void stuart_puts(const char *s)
 {
-	return pxa_puts_dev(STUART,s);
+	return pxa_puts_dev(STUART_INDEX,s);
 }
 
 static int stuart_getc(void)
 {
-	return pxa_getc_dev(STUART);
+	return pxa_getc_dev(STUART_INDEX);
 }
 
 static int stuart_tstc(void)
 {
-	return pxa_tstc_dev(STUART);
+	return pxa_tstc_dev(STUART_INDEX);
 }
 
 struct serial_device serial_stuart_device =

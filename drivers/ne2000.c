@@ -723,7 +723,8 @@ static hw_info_t hw_info[] = {
 	{ /* SuperSocket RE450T */ 0x0110, 0x00, 0xe0, 0x98, 0 },
 	{ /* Volktek NPL-402CT */ 0x0060, 0x00, 0x40, 0x05, 0 },
 	{ /* NEC PC-9801N-J12 */ 0x0ff0, 0x00, 0x00, 0x4c, 0 },
-	{ /* PCMCIA Technology OEM */ 0x01c8, 0x00, 0xa0, 0x0c, 0 }
+	{ /* PCMCIA Technology OEM */ 0x01c8, 0x00, 0xa0, 0x0c, 0 },
+	{ /* Qemu */ 0x0, 0x52, 0x54, 0x00, 0 }
 };
 
 #define NR_INFO		(sizeof(hw_info)/sizeof(hw_info_t))
@@ -745,17 +746,15 @@ static void pcnet_reset_8390(void)
 
 	PRINTK("nic base is %lx\n", nic_base);
 
-#if 1
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
-#endif
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 
-	n2k_outb(n2k_inb(nic_base + PCNET_RESET), PCNET_RESET);
+	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
 
 	for (i = 0; i < 100; i++) {
 		if ((r = (n2k_inb(EN0_ISR) & ENISR_RESET)) != 0)
@@ -826,27 +825,22 @@ static hw_info_t * get_prom(void ) {
 
 /* U-boot specific routines */
 
-#define NB 5
 
 static unsigned char *pbuf = NULL;
-static int plen[NB];
-static int nrx = 0;
 
 static int pkey = -1;
+static int initialized=0;
 
 void uboot_push_packet_len(int len) {
-	PRINTK("pushed len = %d, nrx = %d\n", len, nrx);
+	PRINTK("pushed len = %d\n", len);
 	if (len>=2000) {
 		printf("NE2000: packet too big\n");
 		return;
 	}
-	if (nrx >= NB) {
-		printf("losing packets in rx\n");
-		return;
-	}
-	plen[nrx] = len;
-	dp83902a_recv(&pbuf[nrx*2000], len);
-	nrx++;
+	dp83902a_recv(&pbuf[0], len);
+
+	/*Just pass it to the upper layer*/
+	NetReceive(&pbuf[0], len);
 }
 
 void uboot_push_tx_done(int key, int val) {
@@ -861,9 +855,9 @@ int eth_init(bd_t *bd) {
 	PRINTK("### eth_init\n");
 
 	if (!pbuf) {
-		pbuf = malloc(NB*2000);
+		pbuf = malloc(2000);
 		if (!pbuf) {
-			printf("Cannot allocate rx buffers\n");
+			printf("Cannot allocate rx buffer\n");
 			return -1;
 		}
 	}
@@ -903,37 +897,21 @@ int eth_init(bd_t *bd) {
 	if (dp83902a_init() == false)
 		return -1;
 	dp83902a_start(dev_addr);
+	initialized=1;
 	return 0;
 }
 
 void eth_halt() {
 
 	PRINTK("### eth_halt\n");
-
-	dp83902a_stop();
+	if(initialized)
+		dp83902a_stop();
+	initialized=0;
 }
 
 int eth_rx() {
-	int j, tmo;
-
-	PRINTK("### eth_rx\n");
-
-	tmo = get_timer (0) + TOUT * CFG_HZ;
-	while(1) {
-		dp83902a_poll();
-		if (nrx > 0) {
-			for(j=0; j<nrx; j++) {
-				NetReceive(&pbuf[j*2000], plen[j]);
-			}
-			nrx = 0;
-			return 1;
-		}
-		if (get_timer (0) >= tmo) {
-			printf("timeout during rx\n");
-			return 0;
-		}
-	}
-	return 0;
+dp83902a_poll();
+return 1;
 }
 
 int eth_send(volatile void *packet, int length) {
@@ -959,5 +937,4 @@ int eth_send(volatile void *packet, int length) {
 	}
 	return 0;
 }
-
 #endif

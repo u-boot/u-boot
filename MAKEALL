@@ -301,10 +301,12 @@ LIST_83xx="		\
 	MPC8313ERDB_66	\
 	MPC8323ERDB	\
 	MPC832XEMDS	\
+	MPC832XEMDS_ATM	\
 	MPC8349EMDS	\
 	MPC8349ITX	\
 	MPC8349ITXGP	\
 	MPC8360EMDS	\
+	MPC8360EMDS_ATM	\
 	sbc8349		\
 	TQM834x		\
 "
@@ -552,6 +554,7 @@ LIST_mips5kc_el=""
 
 LIST_au1xx0_el="	\
 	dbau1550_el	\
+	pb1000		\
 "
 
 LIST_mips_el="			\

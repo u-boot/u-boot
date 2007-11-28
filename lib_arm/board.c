@@ -58,6 +58,10 @@ DECLARE_GLOBAL_DATA_PTR;
 void nand_init (void);
 #endif
 
+#if defined(CONFIG_CMD_ONENAND)
+void onenand_init(void);
+#endif
+
 ulong monitor_flash_len;
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -110,6 +114,26 @@ void *sbrk (ptrdiff_t increment)
 
 	return ((void *) old);
 }
+
+/************************************************************************
+ * Coloured LED functionality
+ ************************************************************************
+ * May be supplied by boards if desired
+ */
+void inline __coloured_LED_init (void) {}
+void inline coloured_LED_init (void) __attribute__((weak, alias("__coloured_LED_init")));
+void inline __red_LED_on (void) {}
+void inline red_LED_on (void) __attribute__((weak, alias("__red_LED_on")));
+void inline __red_LED_off(void) {}
+void inline red_LED_off(void)	     __attribute__((weak, alias("__red_LED_off")));
+void inline __green_LED_on(void) {}
+void inline green_LED_on(void) __attribute__((weak, alias("__green_LED_on")));
+void inline __green_LED_off(void) {}
+void inline green_LED_off(void)__attribute__((weak, alias("__green_LED_off")));
+void inline __yellow_LED_on(void) {}
+void inline yellow_LED_on(void)__attribute__((weak, alias("__yellow_LED_on")));
+void inline __yellow_LED_off(void) {}
+void inline yellow_LED_off(void)__attribute__((weak, alias("__yellow_LED_off")));
 
 /************************************************************************
  * Init Utilities							*
@@ -184,7 +208,6 @@ static void display_flash_config (ulong size)
 	print_size (size, "\n");
 }
 #endif /* CFG_NO_FLASH */
-
 
 /*
  * Breathe some life into the board...
@@ -299,6 +322,10 @@ void start_armboot (void)
 #if defined(CONFIG_CMD_NAND)
 	puts ("NAND:  ");
 	nand_init();		/* go init the NAND */
+#endif
+
+#if defined(CONFIG_CMD_ONENAND)
+	onenand_init();
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH

@@ -39,8 +39,6 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
  ************************************************************************/
 int board_early_init_f(void)
 {
-	volatile epld_t *x = (epld_t *) CFG_EPLD_BASE;
-
 	mtebc( pb0ap,  0x03800000 );	/* set chip selects */
 	mtebc( pb0cr,  0xffc58000 );	/* ebc0_b0cr, 4MB at 0xffc00000 CS0 */
 	mtebc( pb1ap,  0x03800000 );
@@ -66,8 +64,6 @@ int board_early_init_f(void)
 	mtdcr( uic0sr, 0x00000000 );	/* clear all interrupts */
 	mtdcr( uic0sr, 0xffffffff );
 
-	x->ethuart &= ~EPLD2_RESET_ETH_N; /* put Ethernet+PHY in reset */
-
 	return  0;
 }
 
@@ -79,7 +75,18 @@ int board_early_init_f(void)
 int misc_init_r(void)
 {
 	volatile epld_t *x = (epld_t *) CFG_EPLD_BASE;
-	x->ethuart |= EPLD2_RESET_ETH_N; /* take Ethernet+PHY out of reset */
+
+	/* set modes of operation */
+	x->ethuart |= EPLD2_ETH_MODE_10 | EPLD2_ETH_MODE_100 |
+		EPLD2_ETH_MODE_1000 | EPLD2_ETH_DUPLEX_MODE;
+	/* clear ETHERNET_AUTO_NEGO bit to turn on autonegotiation */
+	x->ethuart &= ~EPLD2_ETH_AUTO_NEGO;
+
+	/* put Ethernet+PHY in reset */
+	x->ethuart &= ~EPLD2_RESET_ETH_N;
+	udelay(10000);
+	/* take Ethernet+PHY out of reset */
+	x->ethuart |= EPLD2_RESET_ETH_N;
 
 	return  0;
 }
