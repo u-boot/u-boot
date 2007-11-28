@@ -230,8 +230,8 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 {
     struct ether_fcc_info_s * info = dev->priv;
     int i;
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    volatile ccsr_cpm_cp_t *cp = &(immr->im_cpm.im_cpm_cp);
+    volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+    volatile ccsr_cpm_cp_t *cp = &(cpm->im_cpm_cp);
     fcc_enet_t *pram_ptr;
     unsigned long mem_addr;
 
@@ -242,35 +242,35 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     /* 28.9 - (1-2): ioports have been set up already */
 
     /* 28.9 - (3): connect FCC's tx and rx clocks */
-    immr->im_cpm.im_cpm_mux.cmxuar = 0; /* ATM */
-    immr->im_cpm.im_cpm_mux.cmxfcr = (immr->im_cpm.im_cpm_mux.cmxfcr & ~info->cmxfcr_mask) |
+    cpm->im_cpm_mux.cmxuar = 0; /* ATM */
+    cpm->im_cpm_mux.cmxfcr = (cpm->im_cpm_mux.cmxfcr & ~info->cmxfcr_mask) |
 							info->cmxfcr_value;
 
     /* 28.9 - (4): GFMR: disable tx/rx, CCITT CRC, set Mode Ethernet */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
+	cpm->im_cpm_fcc1.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
     } else if (info->ether_index == 1) {
-	immr->im_cpm.im_cpm_fcc2.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
+	cpm->im_cpm_fcc2.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
     } else if (info->ether_index == 2) {
-	immr->im_cpm.im_cpm_fcc3.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
+	cpm->im_cpm_fcc3.gfmr = FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
     }
 
     /* 28.9 - (5): FPSMR: enable full duplex, select CCITT CRC for Ethernet,MII */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
+	cpm->im_cpm_fcc1.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
     } else if (info->ether_index == 1){
-	immr->im_cpm.im_cpm_fcc2.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
+	cpm->im_cpm_fcc2.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
     } else if (info->ether_index == 2){
-	immr->im_cpm.im_cpm_fcc3.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
+	cpm->im_cpm_fcc3.fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
     }
 
     /* 28.9 - (6): FDSR: Ethernet Syn */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.fdsr = 0xD555;
+	cpm->im_cpm_fcc1.fdsr = 0xD555;
     } else if (info->ether_index == 1) {
-	immr->im_cpm.im_cpm_fcc2.fdsr = 0xD555;
+	cpm->im_cpm_fcc2.fdsr = 0xD555;
     } else if (info->ether_index == 2) {
-	immr->im_cpm.im_cpm_fcc3.fdsr = 0xD555;
+	cpm->im_cpm_fcc3.fdsr = 0xD555;
     }
 
     /* reset indeces to current rx/tx bd (see eth_send()/eth_rx()) */
@@ -296,7 +296,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     rtx.txbd[TX_BUF_CNT - 1].cbd_sc |= BD_ENET_TX_WRAP;
 
     /* 28.9 - (7): initialize parameter ram */
-    pram_ptr = (fcc_enet_t *)&(immr->im_cpm.im_dprambase[info->proff_enet]);
+    pram_ptr = (fcc_enet_t *)&(cpm->im_dprambase[info->proff_enet]);
 
     /* clear whole structure to make sure all reserved fields are zero */
     memset((void*)pram_ptr, 0, sizeof(fcc_enet_t));
@@ -385,14 +385,14 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     /* 28.9 - (8)(9): clear out events in FCCE */
     /* 28.9 - (9): FCCM: mask all events */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.fcce = ~0x0;
-	immr->im_cpm.im_cpm_fcc1.fccm = 0;
+	cpm->im_cpm_fcc1.fcce = ~0x0;
+	cpm->im_cpm_fcc1.fccm = 0;
     } else if (info->ether_index == 1) {
-	immr->im_cpm.im_cpm_fcc2.fcce = ~0x0;
-	immr->im_cpm.im_cpm_fcc2.fccm = 0;
+	cpm->im_cpm_fcc2.fcce = ~0x0;
+	cpm->im_cpm_fcc2.fccm = 0;
     } else if (info->ether_index == 2) {
-	immr->im_cpm.im_cpm_fcc3.fcce = ~0x0;
-	immr->im_cpm.im_cpm_fcc3.fccm = 0;
+	cpm->im_cpm_fcc3.fcce = ~0x0;
+	cpm->im_cpm_fcc3.fccm = 0;
     }
 
     /* 28.9 - (10-12): we don't use ethernet interrupts */
@@ -413,11 +413,11 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 
     /* 28.9 - (14): enable tx/rx in gfmr */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
+	cpm->im_cpm_fcc1.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
     } else if (info->ether_index == 1) {
-	immr->im_cpm.im_cpm_fcc2.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
+	cpm->im_cpm_fcc2.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
     } else if (info->ether_index == 2) {
-	immr->im_cpm.im_cpm_fcc3.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
+	cpm->im_cpm_fcc3.gfmr |= FCC_GFMR_ENT | FCC_GFMR_ENR;
     }
 
     return 1;
@@ -426,15 +426,15 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 static void fec_halt(struct eth_device* dev)
 {
     struct ether_fcc_info_s * info = dev->priv;
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 
     /* write GFMR: disable tx/rx */
     if(info->ether_index == 0) {
-	immr->im_cpm.im_cpm_fcc1.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
+	cpm->im_cpm_fcc1.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
     } else if(info->ether_index == 1) {
-	immr->im_cpm.im_cpm_fcc2.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
+	cpm->im_cpm_fcc2.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
     } else if(info->ether_index == 2) {
-	immr->im_cpm.im_cpm_fcc3.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
+	cpm->im_cpm_fcc3.gfmr &= ~(FCC_GFMR_ENT | FCC_GFMR_ENR);
     }
 }
 

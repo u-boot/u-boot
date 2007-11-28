@@ -1636,8 +1636,10 @@ typedef struct immap {
 	ccsr_tsec_t		im_tsec1;
 	ccsr_tsec_t		im_tsec2;
 	ccsr_pic_t		im_pic;
-	ccsr_cpm_t		im_cpm;
 } immap_t;
+
+#define CFG_MPC85xx_CPM_OFFSET	(0x80000)
+#define CFG_MPC85xx_CPM_ADDR	(CFG_IMMR + CFG_MPC85xx_CPM_OFFSET)
 
 extern immap_t  *immr;
 

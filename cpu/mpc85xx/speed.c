@@ -55,12 +55,12 @@ int get_clocks (void)
 {
 	sys_info_t sys_info;
 #if defined(CONFIG_CPM2)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	uint sccr, dfbrg;
 
 	/* set VCO = 4 * BRG */
-	immap->im_cpm.im_cpm_intctl.sccr &= 0xfffffffc;
-	sccr = immap->im_cpm.im_cpm_intctl.sccr;
+	cpm->im_cpm_intctl.sccr &= 0xfffffffc;
+	sccr = cpm->im_cpm_intctl.sccr;
 	dfbrg = (sccr & SCCR_DFBRG_MSK) >> SCCR_DFBRG_SHIFT;
 #endif
 	get_sys_info (&sys_info);

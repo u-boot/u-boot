@@ -59,7 +59,7 @@ static void config_qe_ioports(void)
 #endif
 
 #ifdef CONFIG_CPM2
-static void config_8560_ioports (volatile immap_t * immr)
+void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 {
 	int portnum;
 
@@ -99,7 +99,7 @@ static void config_8560_ioports (volatile immap_t * immr)
 		}
 
 		if (pmsk != 0) {
-			volatile ioport_t *iop = ioport_addr (immr, portnum);
+			volatile ioport_t *iop = ioport_addr (cpm, portnum);
 			uint tpmsk = ~pmsk;
 
 			/*
@@ -143,7 +143,7 @@ void cpu_init_f (void)
 
 
 #ifdef CONFIG_CPM2
-	config_8560_ioports(immap);
+	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
 #endif
 
 	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
