@@ -29,10 +29,6 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
 #if defined(CONFIG_PCI)
 
 static struct pci_controller *pci_hose;
@@ -216,27 +212,4 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	hose->last_busno = pci_hose_scan(hose);
 #endif
 }
-
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_pci_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	int len;
-
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = pci_hose[0].first_busno;
-		p[1] = pci_hose[0].last_busno;
-	}
-
-#ifdef CONFIG_MPC85XX_PCI2
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@9000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = pci_hose[1].first_busno;
-		p[1] = pci_hose[1].last_busno;
-	}
-#endif
-}
-#endif /* CONFIG_OF_FLAT_TREE */
 #endif /* CONFIG_PCI */

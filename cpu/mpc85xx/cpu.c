@@ -30,11 +30,6 @@
 #include <command.h>
 #include <asm/cache.h>
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
-
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
@@ -256,96 +251,5 @@ int dma_xfer(void *dest, uint count, void *src) {
 	dma->mr0 = 0xf000005;
 	asm("sync;isync;msync");
 	return dma_check();
-}
-#endif
-
-
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_cpu_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	ulong clock;
-	int len;
-
-	clock = bd->bi_busfreq;
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/qe@e0080000/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-#if defined(CONFIG_HAS_ETH0)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enetaddr, 6);
-#endif
-
-#if defined(CONFIG_HAS_ETH1)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet1addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet1addr, 6);
-#endif
-
-#if defined(CONFIG_HAS_ETH2)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-#ifdef CONFIG_UEC_ETH
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-#endif
-#endif
-
-#if defined(CONFIG_HAS_ETH3)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-#ifdef CONFIG_UEC_ETH
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-#endif
-#endif
-
 }
 #endif
