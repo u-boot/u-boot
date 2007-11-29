@@ -39,10 +39,9 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	u16 reg16;
 	u32 dev;
 
-	volatile immap_t    *immap = (immap_t *)CFG_CCSRBAR;
-	volatile ccsr_pcix_t *pcix = &immap->im_pcix;
+	volatile ccsr_pcix_t *pcix = (void *)(CFG_MPC85xx_PCIX_ADDR);
 #ifdef CONFIG_MPC85XX_PCI2
-	volatile ccsr_pcix_t *pcix2 = &immap->im_pcix2;
+	volatile ccsr_pcix_t *pcix2 = (void *)(CFG_MPC85xx_PCIX2_ADDR);
 #endif
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	struct pci_controller * hose;

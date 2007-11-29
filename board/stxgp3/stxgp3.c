@@ -203,8 +203,7 @@ int
 board_early_init_f(void)
 {
 #if defined(CONFIG_PCI)
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
-    volatile ccsr_pcix_t *pci = &immr->im_pcix;
+    volatile ccsr_pcix_t *pci = (void *)(CFG_MPC85xx_PCIX_ADDR);
 
     pci->peer &= 0xfffffffdf; /* disable master abort */
 #endif

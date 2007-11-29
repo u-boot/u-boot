@@ -49,10 +49,9 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
-	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 
 	if ((uint)&gur->porpllsr != 0xe00e0000) {
 		printf("immap size error %x\n",&gur->porpllsr);

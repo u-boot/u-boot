@@ -171,8 +171,7 @@ unsigned int determine_refresh_rate(unsigned int spd_refresh)
 long int
 spd_sdram(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr = &immap->im_ddr;
+	volatile ccsr_ddr_t *ddr = (void *)(CFG_MPC85xx_DDR_ADDR);
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
 	unsigned int rank_density;
@@ -1023,8 +1022,7 @@ spd_sdram(void)
 static unsigned int
 setup_laws_and_tlbs(unsigned int memsize)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 	unsigned int tlb_size;
 	unsigned int law_size;
 	unsigned int ram_tlb_index;
@@ -1130,8 +1128,7 @@ ddr_enable_ecc(unsigned int dram_size)
 {
 	uint *p = 0;
 	uint i = 0;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 
 	dma_init();
 

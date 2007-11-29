@@ -108,8 +108,7 @@ int checkcpu (void)
 	lcrr = CFG_LBC_LCRR;
 #else
 	{
-	    volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	    volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	    volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	    lcrr = lbc->lcrr;
 	}
@@ -209,8 +208,7 @@ reset_85xx_watchdog(void)
 
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 
 	dma->satr0 = 0x02c40000;
 	dma->datr0 = 0x02c40000;
@@ -220,8 +218,7 @@ void dma_init(void) {
 }
 
 uint dma_check(void) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 	volatile uint status = dma->sr0;
 
 	/* While the channel is busy, spin */
@@ -240,8 +237,7 @@ uint dma_check(void) {
 }
 
 int dma_xfer(void *dest, uint count, void *src) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 
 	dma->dar0 = (uint) dest;
 	dma->sar0 = (uint) src;

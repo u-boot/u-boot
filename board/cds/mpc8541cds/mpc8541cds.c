@@ -293,9 +293,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -344,8 +343,7 @@ sdram_init(void)
 #if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
 
 	uint idx;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 	uint cpu_board_rev;
 	uint lsdmr_common;

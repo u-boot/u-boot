@@ -131,8 +131,7 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 
 void cpu_init_f (void)
 {
-	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
+	volatile ccsr_lbc_t *memctl = (void *)(CFG_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
 
 	/* Pointer is writable since we allocated a register for it */
@@ -222,18 +221,15 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
-#if defined(CONFIG_CLEAR_LAW0) || defined(CONFIG_L2_CACHE)
-	volatile immap_t    *immap = (immap_t *)CFG_IMMR;
-#endif
 #ifdef CONFIG_CLEAR_LAW0
-	volatile ccsr_local_ecm_t *ecm = &immap->im_local_ecm;
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 
 	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
 	ecm->lawar0 = 0;
 #endif
 
 #if defined(CONFIG_L2_CACHE)
-	volatile ccsr_l2cache_t *l2cache = &immap->im_l2cache;
+	volatile ccsr_l2cache_t *l2cache = (void *)CFG_MPC85xx_L2_ADDR;
 	volatile uint cache_ctl;
 	uint svr, ver;
 	uint l2srbar;

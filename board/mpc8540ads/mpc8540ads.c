@@ -121,9 +121,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -182,8 +181,7 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 
 	puts("    SDRAM: ");
@@ -278,8 +276,7 @@ int testdram (void)
 long int fixed_sdram (void)
 {
   #ifndef CFG_RAMBOOT
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 
 	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
 	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
