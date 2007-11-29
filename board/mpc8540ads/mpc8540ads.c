@@ -30,11 +30,8 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <spd.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -330,22 +327,25 @@ pci_init_board(void)
 }
 
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	int len;
+	int node, tmp[2];
+	const char *path;
 
-#ifdef CONFIG_PCI
-	ft_pci_setup(blob, bd);
-#endif
 	ft_cpu_setup(blob, bd);
 
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose.last_busno - hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
 	}
 }
 #endif

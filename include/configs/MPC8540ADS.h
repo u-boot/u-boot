@@ -298,13 +298,9 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8540@0"
-#define OF_SOC			"soc8540@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8540@e0000000/serial@4500"
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 #define CFG_64BIT_VSPRINTF	1
 #define CFG_64BIT_STRTOUL	1
