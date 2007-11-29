@@ -1911,7 +1911,7 @@ TQM834x_config:	unconfig
 #########################################################################
 
 MPC8540ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
 
 MPC8540EVAL_config \
 MPC8540EVAL_33_config \
