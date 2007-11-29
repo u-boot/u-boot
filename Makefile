@@ -1935,7 +1935,7 @@ MPC8540EVAL_66_slave_config:      unconfig
 	@$(MKCONFIG) -a MPC8540EVAL ppc mpc85xx mpc8540eval
 
 MPC8560ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads freescale
 
 MPC8541CDS_legacy_config \
 MPC8541CDS_config:	unconfig
