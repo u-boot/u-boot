@@ -559,6 +559,9 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 	return 0;
 }
 
+#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
+    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
+
 void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 {
 	int node;
@@ -604,3 +607,4 @@ void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 #endif
 	}
 }
+#endif
