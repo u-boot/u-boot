@@ -28,6 +28,8 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <spd.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
@@ -504,3 +506,31 @@ pci_init_board(void)
 	pci_mpc85xx_init(hose);
 #endif
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+	int node, tmp[2];
+	const char *path;
+
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI1
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose[0].last_busno - hose[0].first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+#ifdef CONFIG_MPC85XX_PCI2
+		path = fdt_getprop(blob, node, "pci1", NULL);
+		if (path) {
+			tmp[1] = hose[1].last_busno - hose[1].first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+	}
+}
+#endif

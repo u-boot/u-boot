@@ -333,14 +333,9 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8548@0"
-#define OF_SOC			"soc8548@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8548@e0000000/serial@4600"
-#define OF_PCI			"pci@e0008000"
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C

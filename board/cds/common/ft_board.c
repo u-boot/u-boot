@@ -21,24 +21,29 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 #include "cadmus.h"
 
-extern void ft_cpu_setup(void *blob, bd_t *bd);
-
+#if defined(CONFIG_OF_BOARD_SETUP)
 static void cds_pci_fixup(void *blob)
 {
-	int len;
-	u32 *map;
-	int slot;
-	int i;
+	int node, tmp[2];
+	const char *path;
+	int len, slot, i;
+	u32 *map = NULL;
 
-	map = ft_get_prop(blob, "/" OF_SOC "/pci@8000/interrupt-map", &len);
-
-	if (!map)
-		map = ft_get_prop(blob, "/" OF_PCI "/interrupt-map", &len);
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			node = fdt_path_offset(blob, path);
+			if (node >= 0) {
+				map = fdt_getprop_w(blob, node, "interrupt-map", &len);
+			}
+		}
+	}
 
 	if (map) {
 		len /= sizeof(u32);
@@ -50,33 +55,18 @@ static void cds_pci_fixup(void *blob)
 			 * changes depending on the slot the carrier card is in.
 			 */
 			map[3] = ((map[3] + slot - 2) % 4) + 1;
-
 			map+=7;
 		}
-	} else {
-		printf("*** Warning - No PCI node found\n");
 	}
 }
-#endif
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	int len;
-
+	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
-#endif
-	ft_cpu_setup(blob, bd);
-
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
-
 	cds_pci_fixup(blob);
+#endif
 }
 #endif
