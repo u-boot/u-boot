@@ -424,23 +424,23 @@ int eth_init(bd_t *bis)
 	struct eth_device* old_current;
 
 	if (!eth_current)
-		return 0;
+		return -1;
 
 	old_current = eth_current;
 	do {
 		debug ("Trying %s\n", eth_current->name);
 
-		if (eth_current->init(eth_current, bis)) {
+		if (!eth_current->init(eth_current,bis)) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
-			return 1;
+			return 0;
 		}
 		debug  ("FAIL\n");
 
 		eth_try_another(0);
 	} while (old_current != eth_current);
 
-	return 0;
+	return -1;
 }
 
 void eth_halt(void)
