@@ -1971,7 +1971,7 @@ MPC8555CDS_config:	unconfig
 	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds cds
 
 MPC8568MDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
