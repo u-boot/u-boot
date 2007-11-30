@@ -1356,7 +1356,11 @@ relocate_code:
 	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
 	isync
-	addi	r1,r0,0x0000		/* TLB entry #0 */
+#ifdef CFG_TLB_FOR_BOOT_FLASH
+	addi	r1,r0,CFG_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
+#else
+	addi	r1,r0,0x0000		/* Default TLB entry is #0 */
+#endif
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
