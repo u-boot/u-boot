@@ -37,14 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-void fpga_init(void)
-{
-	/*
-	 * Set FPGA regs
-	 */
-	out32(CFG_FPGA_BASE, 0xff570cc0);
-}
-
 /*
  * Board early initialization function
  */
@@ -199,7 +191,12 @@ int board_early_init_f (void)
 	 */
 	mtsdr(SDR0_SRST, 0);
 
-	fpga_init();
+	/*
+	 * Configure FPGA register with PCIe reset
+	 */
+	out_be32((void *)CFG_FPGA_BASE, 0xff570cc0);	/* assert PCIe reset */
+	mdelay(50);
+	out_be32((void *)CFG_FPGA_BASE, 0xff570cc3);	/* deassert PCIe reset */
 
 	/* Configure 405EX for NAND usage */
 	val = SDR0_CUST0_MUX_NDFC_SEL |
