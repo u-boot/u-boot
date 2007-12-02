@@ -1,3 +1,27 @@
+commit a5f601fd1b1278deae5aa9fc27a232b0d1c1c788
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 26 19:18:21 2007 +0100
+
+    Cleanup coding style; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3deca9d44767efd1b83f4b701f0dbf21a7595f7b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 22:39:25 2007 +0100
+
+    MAKEALL: add missing 512x boards in ppc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a340c325e668ca7386c2276387681720be9c3757
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 18:45:47 2007 +0100
+
+    Makefile : fix tags ctags etags with new drivers organization
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
 commit 87ddedd6ad804427ce125ceaa076d7a4f74e9d5d
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sun Nov 25 18:45:47 2007 +0100
