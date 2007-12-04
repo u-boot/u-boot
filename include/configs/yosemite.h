@@ -160,6 +160,14 @@
 #define CFG_ENV_OFFSET		0x0
 #endif /* CFG_ENV_IS_IN_EEPROM */
 
+/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
+#define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
+#define CONFIG_DTT_AD7414	1		/* use AD7414		*/
+#define CONFIG_DTT_SENSORS	{0}		/* Sensor addresses	*/
+#define CFG_DTT_MAX_TEMP	70
+#define CFG_DTT_LOW_TEMP	-30
+#define CFG_DTT_HYSTERESIS	3
+
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
@@ -273,6 +281,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
+#define CONFIG_CMD_DTT
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
