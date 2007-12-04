@@ -38,7 +38,6 @@
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_NUM_CPUS         2       /* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
-#undef DEBUG
 
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR        0xff800000
