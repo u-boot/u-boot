@@ -520,6 +520,15 @@ static const struct {
 		"local-mac-address",
 		fdt_set_eth0
 	},
+#elif CFG_UEC1_UCC_NUM == 1  /* UCC2 */
+	{	"/" OF_QE "/ucc@3000",
+		"mac-address",
+		fdt_set_eth0
+	},
+	{	"/" OF_QE "/ucc@3000",
+		"local-mac-address",
+		fdt_set_eth0
+	},
 #elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
 	{	"/" OF_QE "/ucc@2200",
 		"mac-address",
@@ -529,15 +538,42 @@ static const struct {
 		"local-mac-address",
 		fdt_set_eth0
 	},
+#elif CFG_UEC1_UCC_NUM == 3  /* UCC4 */
+	{	"/" OF_QE "/ucc@3200",
+		"mac-address",
+		fdt_set_eth0
+	},
+	{	"/" OF_QE "/ucc@3200",
+		"local-mac-address",
+		fdt_set_eth0
+	},
 #endif
 #endif /* CONFIG_UEC_ETH1 */
 #ifdef CONFIG_UEC_ETH2
-#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
+#if CFG_UEC2_UCC_NUM == 0  /* UCC1 */
+	{	"/" OF_QE "/ucc@2000",
+		"mac-address",
+		fdt_set_eth1
+	},
+	{	"/" OF_QE "/ucc@2000",
+		"local-mac-address",
+		fdt_set_eth1
+	},
+#elif CFG_UEC2_UCC_NUM == 1  /* UCC2 */
 	{	"/" OF_QE "/ucc@3000",
 		"mac-address",
 		fdt_set_eth1
 	},
 	{	"/" OF_QE "/ucc@3000",
+		"local-mac-address",
+		fdt_set_eth1
+	},
+#elif CFG_UEC2_UCC_NUM == 2  /* UCC3 */
+	{	"/" OF_QE "/ucc@2200",
+		"mac-address",
+		fdt_set_eth1
+	},
+	{	"/" OF_QE "/ucc@2200",
 		"local-mac-address",
 		fdt_set_eth1
 	},
@@ -552,6 +588,84 @@ static const struct {
 	},
 #endif
 #endif /* CONFIG_UEC_ETH2 */
+#ifdef CONFIG_UEC_ETH3
+#if CFG_UEC3_UCC_NUM == 0  /* UCC1 */
+	{	"/" OF_QE "/ucc@2000",
+		"mac-address",
+		fdt_set_eth2
+	},
+	{	"/" OF_QE "/ucc@2000",
+		"local-mac-address",
+		fdt_set_eth2
+	},
+#elif CFG_UEC3_UCC_NUM == 1  /* UCC2 */
+	{	"/" OF_QE "/ucc@3000",
+		"mac-address",
+		fdt_set_eth2
+	},
+	{	"/" OF_QE "/ucc@3000",
+		"local-mac-address",
+		fdt_set_eth2
+	},
+#elif CFG_UEC3_UCC_NUM == 2  /* UCC3 */
+	{	"/" OF_QE "/ucc@2200",
+		"mac-address",
+		fdt_set_eth2
+	},
+	{	"/" OF_QE "/ucc@2200",
+		"local-mac-address",
+		fdt_set_eth2
+	},
+#elif CFG_UEC3_UCC_NUM == 3  /* UCC4 */
+	{	"/" OF_QE "/ucc@3200",
+		"mac-address",
+		fdt_set_eth2
+	},
+	{	"/" OF_QE "/ucc@3200",
+		"local-mac-address",
+		fdt_set_eth2
+	},
+#endif
+#endif /* CONFIG_UEC_ETH3 */
+#ifdef CONFIG_UEC_ETH4
+#if CFG_UEC4_UCC_NUM == 0  /* UCC1 */
+	{	"/" OF_QE "/ucc@2000",
+		"mac-address",
+		fdt_set_eth3
+	},
+	{	"/" OF_QE "/ucc@2000",
+		"local-mac-address",
+		fdt_set_eth3
+	},
+#elif CFG_UEC4_UCC_NUM == 1  /* UCC2 */
+	{	"/" OF_QE "/ucc@3000",
+		"mac-address",
+		fdt_set_eth3
+	},
+	{	"/" OF_QE "/ucc@3000",
+		"local-mac-address",
+		fdt_set_eth3
+	},
+#elif CFG_UEC4_UCC_NUM == 2  /* UCC3 */
+	{	"/" OF_QE "/ucc@2200",
+		"mac-address",
+		fdt_set_eth3
+	},
+	{	"/" OF_QE "/ucc@2200",
+		"local-mac-address",
+		fdt_set_eth3
+	},
+#elif CFG_UEC4_UCC_NUM == 3  /* UCC4 */
+	{	"/" OF_QE "/ucc@3200",
+		"mac-address",
+		fdt_set_eth3
+	},
+	{	"/" OF_QE "/ucc@3200",
+		"local-mac-address",
+		fdt_set_eth3
+	},
+#endif
+#endif /* CONFIG_UEC_ETH4 */
 #endif /* CONFIG_QE */
 };
 
