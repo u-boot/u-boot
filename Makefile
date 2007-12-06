@@ -2467,20 +2467,8 @@ versatileab_config	\
 versatilepb_config :	unconfig
 	@board/versatile/split_by_variant.sh $@
 
-voiceblue_smallflash_config	\
 voiceblue_config:	unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/voiceblue
-	@if [ "$(findstring _smallflash_,$@)" ] ; then \
-		$(XECHO) "... boot from lower flash bank" ; \
-		echo "#define VOICEBLUE_SMALL_FLASH" >>$(obj)include/config.h ; \
-		echo "VOICEBLUE_SMALL_FLASH=y" >$(obj)board/voiceblue/config.tmp ; \
-	else \
-		$(XECHO) "... boot from upper flash bank" ; \
-		>$(obj)include/config.h ; \
-		echo "VOICEBLUE_SMALL_FLASH=n" >$(obj)board/voiceblue/config.tmp ; \
-	fi
-	@$(MKCONFIG) -a voiceblue arm arm925t voiceblue
+	@$(MKCONFIG) $(@:_config=) arm arm925t voiceblue
 
 cm4008_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cm4008 NULL ks8695
