@@ -170,8 +170,8 @@
 
 #define CONFIG_HAS_DATAFLASH		1
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
-#define CFG_MAX_DATAFLASH_BANKS 	2
-#define CFG_MAX_DATAFLASH_PAGES 	16384
+#define CFG_MAX_DATAFLASH_BANKS		2
+#define CFG_MAX_DATAFLASH_PAGES		16384
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
 #define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
@@ -213,35 +213,16 @@
 #define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
-#define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
+#define CFG_BAUDRATE_TABLE	{ 115200, 19200, 38400, 57600, 9600 }
 
 #define CFG_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 
-#ifndef __ASSEMBLY__
-/*-----------------------------------------------------------------------
- * Board specific extension for bd_info
- *
- * This structure is embedded in the global bd_info (bd_t) structure
- * and can be used by the board specific code (eg board/...)
- */
-
-struct bd_info_ext {
-	/* helper variable for board environment handling
-	 *
-	 * env_crc_valid == 0    =>   uninitialised
-	 * env_crc_valid  > 0    =>   environment crc in flash is valid
-	 * env_crc_valid  < 0    =>   environment crc in flash is invalid
-	 */
-	int env_crc_valid;
-};
-#endif
-
 #define CFG_HZ 1000
 #define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
-					/* AT91C_TC_TIMER_DIV1_CLOCK */
+						/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
