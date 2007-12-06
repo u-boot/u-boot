@@ -39,6 +39,8 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
  ************************************************************************/
 int board_early_init_f(void)
 {
+	u32 mfr;
+
 	mtebc( pb0ap,  0x03800000 );	/* set chip selects */
 	mtebc( pb0cr,  0xffc58000 );	/* ebc0_b0cr, 4MB at 0xffc00000 CS0 */
 	mtebc( pb1ap,  0x03800000 );
@@ -63,6 +65,10 @@ int board_early_init_f(void)
 	mtdcr( uic0vr, 0x00000001 );	/* Set Vect base=0,INT31 Highest priority */
 	mtdcr( uic0sr, 0x00000000 );	/* clear all interrupts */
 	mtdcr( uic0sr, 0xffffffff );
+
+	mfsdr(sdr_mfr, mfr);
+	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
+	mtsdr(sdr_mfr, mfr);
 
 	return  0;
 }

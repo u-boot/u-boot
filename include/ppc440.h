@@ -813,6 +813,8 @@
 #define SDRAM_BXCF_M_BE_MASK		0x00000001	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_DISABLE		0x00000000	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_ENABLE		0x00000001	/* Memory Bank Enable	*/
+
+#define SDR0_MFR_FIXD			0x10000000	/* Workaround for PCI/DMA */
 #endif /* CONFIG_440SPE */
 
 /*-----------------------------------------------------------------------------

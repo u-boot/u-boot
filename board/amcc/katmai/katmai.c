@@ -217,10 +217,9 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts*/
 	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts*/
 
-/* SDR0_MFR should be part of Ethernet init */
-	mfsdr (sdr_mfr, mfr);
-	mfr &= ~SDR0_MFR_ECS_MASK;
-/*	mtsdr(sdr_mfr, mfr); */
+	mfsdr(sdr_mfr, mfr);
+	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
+	mtsdr(sdr_mfr, mfr);
 
 	mtsdr(SDR0_PFC0, CFG_PFC0);
 
