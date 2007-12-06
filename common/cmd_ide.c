@@ -68,8 +68,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # define SYNC		/* nothing */
 #endif
 
-#if defined(CONFIG_CMD_IDE)
-
 #ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
  *
@@ -2081,5 +2079,3 @@ U_BOOT_CMD(
 	"diskboot- boot from IDE device\n",
 	"loadAddr dev:part\n"
 );
-
-#endif

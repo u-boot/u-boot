@@ -31,8 +31,6 @@
 #include <command.h>
 #include <fdc.h>
 
-#if defined(CONFIG_CMD_FDOS)
-
 /*-----------------------------------------------------------------------------
  * do_fdosboot --
  *-----------------------------------------------------------------------------
@@ -153,5 +151,3 @@ U_BOOT_CMD(
 	"fdosls  - list files in a directory\n",
 	"[directory]\n"
 );
-
-#endif

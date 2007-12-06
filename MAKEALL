@@ -379,6 +379,7 @@ LIST_7xx="		\
 
 LIST_ppc="		\
 	${LIST_5xx}	\
+	${LIST_512x}	\
 	${LIST_5xxx}	\
 	${LIST_8xx}	\
 	${LIST_8220}	\

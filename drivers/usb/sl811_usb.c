@@ -41,7 +41,7 @@
 #include <usb.h>
 #include "sl811.h"
 
-#include "../board/kup/common/kup.h"
+#include "../../board/kup/common/kup.h"
 
 #ifdef __PPC__
 # define EIEIO		__asm__ volatile ("eieio")

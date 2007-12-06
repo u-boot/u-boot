@@ -33,53 +33,61 @@ COBJS-y += altera.o
 COBJS-y += bedbug.o
 COBJS-y += circbuf.o
 COBJS-y += cmd_autoscript.o
-COBJS-y += cmd_bdinfo.o
-COBJS-y += cmd_bedbug.o
-COBJS-y += cmd_bmp.o
+COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
+COBJS-$(CONFIG_CMD_BEDBUG) += cmd_bedbug.o
+COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
 COBJS-y += cmd_boot.o
 COBJS-y += cmd_bootm.o
-COBJS-y += cmd_cache.o
-COBJS-y += cmd_console.o
-COBJS-y += cmd_date.o
-COBJS-y += cmd_dcr.o
-COBJS-y += cmd_diag.o
-COBJS-y += cmd_display.o
-COBJS-y += cmd_doc.o
-COBJS-y += cmd_dtt.o
+COBJS-$(CONFIG_CMD_CACHE) += cmd_cache.o
+COBJS-$(CONFIG_CMD_CONSOLE) += cmd_console.o
+COBJS-$(CONFIG_CMD_DATE) += cmd_date.o
+ifdef CONFIG_4xx
+COBJS-$(CONFIG_CMD_SETGETDCR) += cmd_dcr.o
+endif
+ifdef CONFIG_POST
+COBJS-$(CONFIG_CMD_DIAG) += cmd_diag.o
+endif
+COBJS-$(CONFIG_CMD_DISPLAY) += cmd_display.o
+COBJS-$(CONFIG_CMD_DOC) += cmd_doc.o
+COBJS-$(CONFIG_CMD_DTT) += cmd_dtt.o
 COBJS-y += cmd_eeprom.o
-COBJS-y += cmd_elf.o
-COBJS-y += cmd_ext2.o
-COBJS-y += cmd_fat.o
+COBJS-$(CONFIG_CMD_ELF) += cmd_elf.o
+COBJS-$(CONFIG_CMD_EXT2) += cmd_ext2.o
+COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
 COBJS-y += cmd_fdc.o
-COBJS-y += cmd_fdt.o
-COBJS-y += cmd_fdos.o
-COBJS-y += cmd_flash.o
-COBJS-y += cmd_fpga.o
-COBJS-y += cmd_i2c.o
-COBJS-y += cmd_ide.o
-COBJS-y += cmd_immap.o
-COBJS-y += cmd_itest.o
-COBJS-y += cmd_jffs2.o
+COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o
+COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
+COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
+ifdef CONFIG_FPGA
+COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
+endif
+COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
+COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
+COBJS-$(CONFIG_CMD_IMMAP) += cmd_immap.o
+COBJS-$(CONFIG_CMD_ITEST) += cmd_itest.o
+COBJS-$(CONFIG_CMD_JFFS2) += cmd_jffs2.o
 COBJS-y += cmd_load.o
-COBJS-y += cmd_log.o
+COBJS-$(CONFIG_LOGBUFFER) += cmd_log.o
 COBJS-y += cmd_mem.o
-COBJS-y += cmd_mii.o
-COBJS-y += cmd_misc.o
-COBJS-y += cmd_mmc.o
+COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
+COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
+COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
 COBJS-y += cmd_nand.o
-COBJS-y += cmd_net.o
+COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_onenand.o
-COBJS-y += cmd_pci.o
+ifdef CONFIG_PCI
+COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
+endif
 COBJS-y += cmd_pcmcia.o
-COBJS-y += cmd_portio.o
-COBJS-y += cmd_reginfo.o
-COBJS-y += cmd_reiser.o
+COBJS-$(CONFIG_CMD_PORTIO) += cmd_portio.o
+COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
+COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
 COBJS-y += cmd_sata.o
-COBJS-y += cmd_scsi.o
-COBJS-y += cmd_spi.o
-COBJS-y += cmd_universe.o
-COBJS-y += cmd_usb.o
+COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
+COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
+COBJS-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
+COBJS-$(CONFIG_CMD_USB) += cmd_usb.o
 COBJS-y += cmd_vfd.o
 COBJS-y += command.o
 COBJS-y += console.o
@@ -123,7 +131,7 @@ COBJS-y += xilinx.o
 COBJS-y += crc16.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_mac.o
-COBJS-y += cmd_mfsl.o
+COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)

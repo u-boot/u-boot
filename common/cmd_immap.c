@@ -28,8 +28,7 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_IMMAP) && \
-    (defined(CONFIG_8xx) || defined(CONFIG_8260))
+#if defined(CONFIG_8xx) || defined(CONFIG_8260)
 
 #if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
@@ -41,9 +40,7 @@
 #include <asm/iopin_8260.h>
 #endif
 
-#if defined(CONFIG_8xx) || defined(CONFIG_8260)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 static void
 unimplemented ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

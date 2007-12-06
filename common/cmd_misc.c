@@ -27,8 +27,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_MISC)
-
 int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong start = get_timer(0);
@@ -68,5 +66,3 @@ U_BOOT_CMD(
 	"N\n"
 	"    - delay execution for N seconds (N is _decimal_ !!!)\n"
 );
-
-#endif

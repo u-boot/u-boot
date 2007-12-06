@@ -25,8 +25,6 @@
 #include <config.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_DTT)
-
 #include <dtt.h>
 #include <i2c.h>
 
@@ -60,5 +58,3 @@ U_BOOT_CMD(
 	  "dtt     - Digital Thermometer and Thermostat\n",
 	  "        - Read temperature from digital thermometer and thermostat.\n"
 );
-
-#endif

@@ -29,8 +29,6 @@
 #include <command.h>
 #include <spi.h>
 
-#if defined(CONFIG_CMD_SPI)
-
 /*-----------------------------------------------------------------------
  * Definitions
  */
@@ -139,5 +137,3 @@ U_BOOT_CMD(
 	"<bit_len> - Number of bits to send (base 10)\n"
 	"<dout>    - Hexadecimal string that gets sent\n"
 );
-
-#endif

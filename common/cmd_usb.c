@@ -29,9 +29,6 @@
 #include <command.h>
 #include <asm/byteorder.h>
 #include <part.h>
-
-#if defined(CONFIG_CMD_USB)
-
 #include <usb.h>
 
 #ifdef CONFIG_USB_STORAGE
@@ -608,12 +605,6 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-
-#endif
-
-
-#if defined(CONFIG_CMD_USB)
-
 #ifdef CONFIG_USB_STORAGE
 U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
@@ -644,5 +635,4 @@ U_BOOT_CMD(
 	"usb  tree  - show USB device tree\n"
 	"usb  info [dev] - show available USB devices\n"
 );
-#endif
 #endif

@@ -33,8 +33,6 @@
 #include <mpc5xxx.h>
 #endif
 
-#if defined(CONFIG_CMD_REGINFO)
-
 int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 #if defined(CONFIG_8xx)
@@ -334,9 +332,6 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif /* CONFIG_MPC5200 */
 	return 0;
 }
-
-#endif
-
 
  /**************************************************/
 
