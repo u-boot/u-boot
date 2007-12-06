@@ -192,11 +192,11 @@
 #else
 #define CFG_ENV_IS_IN_FLASH		1
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
-#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
-#else
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
+#else
+#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
+#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 #endif	/* CFG_ENV_IS_IN_DATAFLASH */
 
@@ -204,13 +204,13 @@
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
-#define CFG_U_BOOT_BASE		PHYS_FLASH_1
-#define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
-#else
 #define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
 #define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
 #define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
+#else
+#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
+#define CFG_U_BOOT_BASE		PHYS_FLASH_1
+#define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 #define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
