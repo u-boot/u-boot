@@ -231,7 +231,7 @@
 #define CFG_I2C_SPEED		100000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 #if 0
-#define CFG_I2C_NOPROBES	{{0,0x69}}	* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{{0,0x69}}	/* Don't probe these addrs */
 #endif
 
 /*
