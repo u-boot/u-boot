@@ -44,6 +44,32 @@ struct fdt_header *fdt;
 
 /********************************************************************/
 
+/**
+ * fdt_find_and_setprop: Find a node and set it's property
+ *
+ * @fdt: ptr to device tree
+ * @node: path of node
+ * @prop: property name
+ * @val: ptr to new value
+ * @len: length of new property value
+ * @create: flag to create the property if it doesn't exist
+ *
+ * Convenience function to directly set a property given the path to the node.
+ */
+int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
+			 const void *val, int len, int create)
+{
+	int nodeoff = fdt_path_offset(fdt, node);
+
+	if (nodeoff < 0)
+		return nodeoff;
+
+	if ((!create) && (fdt_get_property(fdt, nodeoff, prop, 0) == NULL))
+		return 0; /* create flag not set; so exit quietly */
+
+	return fdt_setprop(fdt, nodeoff, prop, val, len);
+}
+
 int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 {
 	int   nodeoffset;
@@ -58,34 +84,23 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	}
 
 	if (initrd_start && initrd_end) {
-		struct fdt_reserve_entry re;
-		int  used;
-		int  total;
+		uint64_t addr, size;
+		int  total = fdt_num_mem_rsv(fdt);
 		int  j;
 
-		err = fdt_num_reservemap(fdt, &used, &total);
-		if (err < 0) {
-			printf("fdt_chosen: %s\n", fdt_strerror(err));
-			return err;
-		}
-		if (used >= total) {
-			printf("WARNING: "
-				"no room in the reserved map (%d of %d)\n",
-				used, total);
-			return -1;
-		}
 		/*
 		 * Look for an existing entry and update it.  If we don't find
 		 * the entry, we will j be the next available slot.
 		 */
-		for (j = 0; j < used; j++) {
-			err = fdt_get_reservemap(fdt, j, &re);
-			if (re.address == initrd_start) {
+		for (j = 0; j < total; j++) {
+			err = fdt_get_mem_rsv(fdt, j, &addr, &size);
+			if (addr == initrd_start) {
+				fdt_del_mem_rsv(fdt, j);
 				break;
 			}
 		}
-		err = fdt_replace_reservemap_entry(fdt, j,
-			initrd_start, initrd_end - initrd_start + 1);
+
+		err = fdt_add_mem_rsv(fdt, initrd_start, initrd_end - initrd_start + 1);
 		if (err < 0) {
 			printf("fdt_chosen: %s\n", fdt_strerror(err));
 			return err;
@@ -95,7 +110,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	/*
 	 * Find the "chosen" node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/chosen");
+	nodeoffset = fdt_path_offset (fdt, "/chosen");
 
 	/*
 	 * If we have a "chosen" node already the "force the writing"
@@ -182,7 +197,7 @@ int fdt_env(void *fdt)
 	 * See if we already have a "u-boot-env" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/u-boot-env");
+	nodeoffset = fdt_path_offset (fdt, "/u-boot-env");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
@@ -304,7 +319,7 @@ int fdt_bd_t(void *fdt)
 	 * See if we already have a "bd_t" node, delete it if so.
 	 * Then create a new empty node.
 	 */
-	nodeoffset = fdt_find_node_by_path (fdt, "/bd_t");
+	nodeoffset = fdt_path_offset (fdt, "/bd_t");
 	if (nodeoffset >= 0) {
 		err = fdt_del_node(fdt, nodeoffset);
 		if (err < 0) {
@@ -347,5 +362,129 @@ int fdt_bd_t(void *fdt)
 	return 0;
 }
 #endif /* ifdef CONFIG_OF_HAS_BD_T */
+
+void do_fixup_by_path(void *fdt, const char *path, const char *prop,
+		      const void *val, int len, int create)
+{
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	int rc = fdt_find_and_setprop(fdt, path, prop, val, len, create);
+	if (rc)
+		printf("Unable to update property %s:%s, err=%s\n",
+			path, prop, fdt_strerror(rc));
+}
+
+void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
+			  u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_path(fdt, path, prop, &val, sizeof(val), create);
+}
+
+void do_fixup_by_prop(void *fdt,
+		      const char *pname, const void *pval, int plen,
+		      const char *prop, const void *val, int len,
+		      int create)
+{
+	int off;
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	off = fdt_node_offset_by_prop_value(fdt, -1, pname, pval, plen);
+	while (off != -FDT_ERR_NOTFOUND) {
+		if (create || (fdt_get_property(fdt, off, prop, 0) != NULL))
+			fdt_setprop(fdt, off, prop, val, len);
+		off = fdt_node_offset_by_prop_value(fdt, off, pname, pval, plen);
+	}
+}
+
+void do_fixup_by_prop_u32(void *fdt,
+			  const char *pname, const void *pval, int plen,
+			  const char *prop, u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_prop(fdt, pname, pval, plen, prop, &val, 4, create);
+}
+
+void do_fixup_by_compat(void *fdt, const char *compat,
+			const char *prop, const void *val, int len, int create)
+{
+	int off = -1;
+#if defined(DEBUG)
+	int i;
+	debug("Updating property '%s/%s' = ", node, prop);
+	for (i = 0; i < len; i++)
+		debug(" %.2x", *(u8*)(val+i));
+	debug("\n");
+#endif
+	off = fdt_node_offset_by_compatible(fdt, -1, compat);
+	while (off != -FDT_ERR_NOTFOUND) {
+		if (create || (fdt_get_property(fdt, off, prop, 0) != NULL))
+			fdt_setprop(fdt, off, prop, val, len);
+		off = fdt_node_offset_by_compatible(fdt, off, compat);
+	}
+}
+
+void do_fixup_by_compat_u32(void *fdt, const char *compat,
+			    const char *prop, u32 val, int create)
+{
+	val = cpu_to_fdt32(val);
+	do_fixup_by_compat(fdt, compat, prop, &val, 4, create);
+}
+
+void fdt_fixup_ethernet(void *fdt, bd_t *bd)
+{
+	int node;
+	const char *path;
+
+	node = fdt_path_offset(fdt, "/aliases");
+	if (node >= 0) {
+#if defined(CONFIG_HAS_ETH0)
+		path = fdt_getprop(fdt, node, "ethernet0", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enetaddr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enetaddr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH1)
+		path = fdt_getprop(fdt, node, "ethernet1", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet1addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet1addr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH2)
+		path = fdt_getprop(fdt, node, "ethernet2", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet2addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet2addr, 6, 1);
+		}
+#endif
+#if defined(CONFIG_HAS_ETH3)
+		path = fdt_getprop(fdt, node, "ethernet3", NULL);
+		if (path) {
+			do_fixup_by_path(fdt, path, "mac-address",
+				bd->bi_enet3addr, 6, 0);
+			do_fixup_by_path(fdt, path, "local-mac-address",
+				bd->bi_enet3addr, 6, 1);
+		}
+#endif
+	}
+}
 
 #endif /* CONFIG_OF_LIBFDT */

@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2001
-# Erik Theisen, Wave 7 Optics, etheisen@mindspring.com.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -15,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -26,19 +23,16 @@
 
 include $(TOPDIR)/config.mk
 
-#CFLAGS += -DDEBUG
+LIB 	:= $(obj)libi2c.a
 
-LIB	= $(obj)libdtt.a
-
-COBJS-y += lm75.o
-COBJS-y += ds1621.o
-COBJS-y += adm1021.o
-COBJS-y += lm81.o
-COBJS-y += ds1775.o
+COBJS-y += fsl_i2c.o
+COBJS-y += omap1510_i2c.o
+COBJS-y += omap24xx_i2c.o
+COBJS-y += tsi108_i2c.o
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

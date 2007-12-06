@@ -30,11 +30,6 @@
 #include <net.h>
 #include <ata.h>
 #include <part.h>
-
-#if defined(CONFIG_CMD_FAT)
-
-#undef	DEBUG
-
 #include <fat.h>
 
 
@@ -323,5 +318,3 @@ void hexdump (int cnt, unsigned char *data)
 	}
 }
 #endif	/* NOT_IMPLEMENTED_YET */
-
-#endif

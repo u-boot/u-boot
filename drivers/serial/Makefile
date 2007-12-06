@@ -25,8 +25,19 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libserial.a
 
-COBJS 	:= mcfuart.o serial_pl010.o serial_pl011.o
+COBJS-y += atmel_usart.o
+COBJS-y += mcfuart.o
+COBJS-y += ns9750_serial.o
+COBJS-y += ns16550.o
+COBJS-y += s3c4510b_uart.o
+COBJS-y += serial.o
+COBJS-y += serial_max3100.o
+COBJS-y += serial_pl010.o
+COBJS-y += serial_pl011.o
+COBJS-y += serial_xuartlite.o
+COBJS-y += usbtty.o
 
+COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
 

@@ -23,9 +23,6 @@
 
 #include <common.h>
 #include <command.h>
-
-#if defined(CONFIG_CMD_MMC)
-
 #include <mmc.h>
 
 int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -42,5 +39,3 @@ U_BOOT_CMD(
 	"mmcinit - init mmc card\n",
 	NULL
 );
-
-#endif

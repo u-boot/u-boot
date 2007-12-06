@@ -31,8 +31,6 @@
 #include <dataflash.h>
 #endif
 
-#if defined(CONFIG_CMD_FLASH)
-
 #if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 #include <jffs2/jffs2.h>
 
@@ -731,5 +729,3 @@ U_BOOT_CMD(
 #undef	TMP_ERASE
 #undef	TMP_PROT_ON
 #undef	TMP_PROT_OFF
-
-#endif

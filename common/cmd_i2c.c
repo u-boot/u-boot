@@ -86,9 +86,6 @@
 #include <i2c.h>
 #include <asm/byteorder.h>
 
-#if defined(CONFIG_CMD_I2C)
-
-
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */
@@ -1023,6 +1020,4 @@ U_BOOT_CMD(
 	"chip\n    - print SDRAM configuration information\n"
 	"      (valid chip values 50..57)\n"
 );
-#endif
-
 #endif

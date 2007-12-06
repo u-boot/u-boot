@@ -31,8 +31,6 @@
 #include <asm/byteorder.h>
 #include <malloc.h>
 
-#if defined(CONFIG_CMD_BMP)
-
 static int bmp_info (ulong addr);
 static int bmp_display (ulong addr, int x, int y);
 
@@ -187,5 +185,3 @@ static int bmp_display(ulong addr, int x, int y)
 # error bmp_display() requires CONFIG_LCD or CONFIG_VIDEO
 #endif
 }
-
-#endif /* defined(CONFIG_CMD_BMP) */

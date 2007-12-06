@@ -24,8 +24,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_DISPLAY)
-
 #undef DEBUG_DISP
 
 #define DISP_SIZE	8
@@ -78,5 +76,3 @@ U_BOOT_CMD(
 	"    - with <string> argument: display <string> on dot matrix display\n"
 	"    - without arguments: clear dot matrix display\n"
 );
-
-#endif

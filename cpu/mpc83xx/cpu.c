@@ -529,7 +529,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	int tmp[2];
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_find_node_by_path(blob, fixup_props[j].node);
+		nodeoffset = fdt_path_offset(blob, fixup_props[j].node);
 		if (nodeoffset >= 0) {
 			err = fixup_props[j].set_fn(blob, nodeoffset,
 						    fixup_props[j].prop, bd);
@@ -544,7 +544,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	}
 
 	/* update, or add and update /memory node */
-	nodeoffset = fdt_find_node_by_path(blob, "/memory");
+	nodeoffset = fdt_path_offset(blob, "/memory");
 	if (nodeoffset < 0) {
 		nodeoffset = fdt_add_subnode(blob, 0, "memory");
 		if (nodeoffset < 0)
