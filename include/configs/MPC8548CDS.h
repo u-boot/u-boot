@@ -42,6 +42,7 @@
 #undef CONFIG_RIO
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
