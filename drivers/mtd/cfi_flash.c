@@ -98,10 +98,6 @@
 #define AMD_STATUS_TOGGLE		0x40
 #define AMD_STATUS_ERROR		0x20
 
-#define AMD_ADDR_ERASE_START	((info->portwidth == FLASH_CFI_8BIT) ? 0xAAA : 0x555)
-#define AMD_ADDR_START		((info->portwidth == FLASH_CFI_8BIT) ? 0xAAA : 0x555)
-#define AMD_ADDR_ACK		((info->portwidth == FLASH_CFI_8BIT) ? 0x555 : 0x2AA)
-
 #define FLASH_OFFSET_MANUFACTURER_ID	0x00
 #define FLASH_OFFSET_DEVICE_ID		0x01
 #define FLASH_OFFSET_DEVICE_ID2		0x0E
@@ -331,6 +327,62 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
 }
 
 
+#ifdef CONFIG_FLASH_CFI_LEGACY
+/*-----------------------------------------------------------------------
+ * Call board code to request info about non-CFI flash.
+ * board_flash_get_legacy needs to fill in at least:
+ * info->portwidth, info->chipwidth and info->interface for Jedec probing.
+ */
+int flash_detect_legacy(ulong base, int banknum)
+{
+	flash_info_t *info = &flash_info[banknum];
+	if (board_flash_get_legacy(base, banknum, info)) {
+		/* board code may have filled info completely. If not, we
+		   use JEDEC ID probing. */
+		if (!info->vendor) {
+			int modes[] = { CFI_CMDSET_AMD_STANDARD, CFI_CMDSET_INTEL_STANDARD };
+			int i;
+
+			for(i=0; i<sizeof(modes)/sizeof(modes[0]); i++) {
+				info->vendor = modes[i];
+				info->start[0] = base;
+				if (info->portwidth == FLASH_CFI_8BIT && info->interface == FLASH_CFI_X8X16) {
+					info->addr_unlock1 = 0x2AAA;
+					info->addr_unlock2 = 0x5555;
+				} else {
+					info->addr_unlock1 = 0x5555;
+					info->addr_unlock2 = 0x2AAA;
+				}
+				flash_read_jedec_ids(info);
+				debug("JEDEC PROBE: ID %x %x %x\n", info->manufacturer_id, info->device_id, info->device_id2);
+				if (jedec_flash_match(info, base))
+					break;
+			}
+		}
+		switch(info->vendor) {
+		case CFI_CMDSET_INTEL_STANDARD:
+		case CFI_CMDSET_INTEL_EXTENDED:
+			info->cmd_reset = FLASH_CMD_RESET;
+			break;
+		case CFI_CMDSET_AMD_STANDARD:
+		case CFI_CMDSET_AMD_EXTENDED:
+		case CFI_CMDSET_AMD_LEGACY:
+			info->cmd_reset = AMD_CMD_RESET;
+			break;
+		}
+		info->flash_id = FLASH_MAN_CFI;
+		return 1;
+	}
+	return 0; /* use CFI */
+}
+#else
+int inline flash_detect_legacy(ulong base, int banknum)
+{
+	return 0; /* use CFI */
+}
+#endif
+
+
 /*-----------------------------------------------------------------------
  */
 unsigned long flash_init (void)
@@ -345,7 +397,10 @@ unsigned long flash_init (void)
 	/* Init: no FLASHes known */
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
-		size += flash_info[i].size = flash_get_size (bank_base[i], i);
+
+		if (!flash_detect_legacy (bank_base[i], i))
+			flash_get_size (bank_base[i], i);
+		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CFG_FLASH_QUIET_TEST
 			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n",
@@ -483,11 +538,18 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			case CFI_CMDSET_AMD_STANDARD:
 			case CFI_CMDSET_AMD_EXTENDED:
 				flash_unlock_seq (info, sect);
-				flash_write_cmd (info, sect, AMD_ADDR_ERASE_START,
-							AMD_CMD_ERASE_START);
+				flash_write_cmd (info, sect, info->addr_unlock1, AMD_CMD_ERASE_START);
 				flash_unlock_seq (info, sect);
 				flash_write_cmd (info, sect, 0, AMD_CMD_ERASE_SECTOR);
 				break;
+#ifdef CONFIG_FLASH_CFI_LEGACY
+			case CFI_CMDSET_AMD_LEGACY:
+				flash_unlock_seq (info, 0);
+				flash_write_cmd  (info, 0, info->addr_unlock1, AMD_CMD_ERASE_START);
+				flash_unlock_seq (info, 0);
+				flash_write_cmd  (info, sect, 0, AMD_CMD_ERASE_SECTOR);
+				break;
+#endif
 			default:
 				debug ("Unkown flash vendor %d\n",
 				       info->vendor);
@@ -516,8 +578,13 @@ void flash_print_info (flash_info_t * info)
 		return;
 	}
 
-	printf ("CFI conformant FLASH (%d x %d)",
+	printf ("%s FLASH (%d x %d)",
+		info->name,
 		(info->portwidth << 3), (info->chipwidth << 3));
+	if (info->size < 1024*1024)
+		printf ("  Size: %ld kB in %d Sectors\n",
+			info->size >> 10, info->sector_count);
+	else
 	printf ("  Size: %ld MB in %d Sectors\n",
 		info->size >> 20, info->sector_count);
 	printf ("  ");
@@ -534,6 +601,11 @@ void flash_print_info (flash_info_t * info)
 		case CFI_CMDSET_AMD_EXTENDED:
 			printf ("AMD Extended");
 			break;
+#ifdef CONFIG_FLASH_CFI_LEGACY
+		case CFI_CMDSET_AMD_LEGACY:
+			printf ("AMD Legacy");
+			break;
+#endif
 		default:
 			printf ("Unknown (%d)", info->vendor);
 			break;
@@ -777,6 +849,9 @@ static int flash_is_busy (flash_info_t * info, flash_sect_t sect)
 		break;
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
+#ifdef CONFIG_FLASH_CFI_LEGACY
+	case CFI_CMDSET_AMD_LEGACY:
+#endif
 		retval = flash_toggle (info, sect, 0, AMD_STATUS_TOGGLE);
 		break;
 	default:
@@ -967,8 +1042,8 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect, uint offset
 
 static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect)
 {
-	flash_write_cmd (info, sect, AMD_ADDR_START, AMD_CMD_UNLOCK_START);
-	flash_write_cmd (info, sect, AMD_ADDR_ACK, AMD_CMD_UNLOCK_ACK);
+	flash_write_cmd (info, sect, info->addr_unlock1, AMD_CMD_UNLOCK_START);
+	flash_write_cmd (info, sect, info->addr_unlock2, AMD_CMD_UNLOCK_ACK);
 }
 
 /*-----------------------------------------------------------------------
@@ -1105,7 +1180,7 @@ static void flash_read_jedec_ids (flash_info_t * info)
 	case CFI_CMDSET_AMD_EXTENDED:
 		flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 		flash_unlock_seq(info, 0);
-		flash_write_cmd(info, 0, AMD_ADDR_START, FLASH_CMD_READ_ID);
+		flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
 		udelay(1000); /* some flash are slow to respond */
 		info->manufacturer_id = flash_read_uchar (info,
 						FLASH_OFFSET_MANUFACTURER_ID);
@@ -1156,6 +1231,10 @@ static int flash_detect_cfi (flash_info_t * info)
 					debug ("port %d bits chip %d bits\n",
 						info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 						info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+					/* this probably only works if info->interface == FLASH_CFI_X8X16 */
+					info->addr_unlock1 = (info->portwidth == FLASH_CFI_8BIT) ? 0xAAA : 0x555;
+					info->addr_unlock2 = (info->portwidth == FLASH_CFI_8BIT) ? 0x555 : 0x2AA;
+					info->name = "CFI conformant";
 					return 1;
 				}
 			}
@@ -1282,6 +1361,10 @@ ulong flash_get_size (ulong base, int banknum)
 			debug ("erase_region_count = %d erase_region_size = %d\n",
 				erase_region_count, erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
+				if (sect_cnt >= CFG_MAX_FLASH_SECT) {
+					printf("ERROR: too many flash sectors\n");
+					break;
+				}
 				info->start[sect_cnt] = sector;
 				sector += (erase_region_size * size_ratio);
 
@@ -1384,8 +1467,11 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		break;
 	case CFI_CMDSET_AMD_EXTENDED:
 	case CFI_CMDSET_AMD_STANDARD:
+#ifdef CONFIG_FLASH_CFI_LEGACY
+	case CFI_CMDSET_AMD_LEGACY:
+#endif
 		flash_unlock_seq (info, 0);
-		flash_write_cmd (info, 0, AMD_ADDR_START, AMD_CMD_WRITE);
+		flash_write_cmd (info, 0, info->addr_unlock1, AMD_CMD_WRITE);
 		break;
 	}
 

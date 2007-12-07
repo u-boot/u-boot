@@ -29,6 +29,7 @@ COBJS-y += at45.o
 COBJS-y += cfi_flash.o
 COBJS-y += dataflash.o
 COBJS-y += mw_eeprom.o
+COBJS-$(CONFIG_FLASH_CFI_LEGACY) += jedec_flash.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)

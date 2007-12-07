@@ -52,6 +52,9 @@ typedef struct {
 	ushort	ext_addr;		/* extended query table address		*/
 	ushort	cfi_version;		/* cfi version				*/
 	ushort	cfi_offset;		/* offset for cfi query 		*/
+	ulong   addr_unlock1;		/* unlock address 1 for AMD flash roms  */
+	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
+	const char *name;		/* human-readable name 	                */
 #endif
 } flash_info_t;
 
@@ -100,6 +103,13 @@ extern int flash_real_protect(flash_info_t *info, long sector, int prot);
 extern void flash_read_user_serial(flash_info_t * info, void * buffer, int offset, int len);
 extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int offset, int len);
 #endif	/* CFG_FLASH_PROTECTION */
+
+#ifdef CONFIG_FLASH_CFI_LEGACY
+extern ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info);
+extern int jedec_flash_match(flash_info_t *info, ulong base);
+#define CFI_CMDSET_AMD_LEGACY		0xFFF0
+#endif
+
 
 /*-----------------------------------------------------------------------
  * return codes from flash_write():
