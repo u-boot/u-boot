@@ -48,6 +48,15 @@ void get_sys_info (sys_info_t * sysInfo)
 	 * overflow for processor speeds above 2GHz */
 	half_freqSystemBus = sysInfo->freqSystemBus/2;
 	sysInfo->freqProcessor = e500_ratio*half_freqSystemBus;
+	sysInfo->freqDDRBus = sysInfo->freqSystemBus;
+
+#ifdef CONFIG_DDR_CLK_FREQ
+	{
+		u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+		if (ddr_ratio != 0x7)
+			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
+	}
+#endif
 }
 
 
@@ -90,6 +99,22 @@ ulong get_bus_freq (ulong dummy)
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqSystemBus;
+
+	return val;
+}
+
+/********************************************
+ * get_ddr_freq
+ * return ddr bus freq in Hz
+ *********************************************/
+ulong get_ddr_freq (ulong dummy)
+{
+	ulong val;
+
+	sys_info_t sys_info;
+
+	get_sys_info (&sys_info);
+	val = sys_info.freqDDRBus;
 
 	return val;
 }

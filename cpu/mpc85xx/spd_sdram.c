@@ -53,8 +53,8 @@ picos_to_clk(int picos)
 {
 	int clks;
 
-	clks = picos / (2000000000 / (get_bus_freq(0) / 1000));
-	if (picos % (2000000000 / (get_bus_freq(0) / 1000)) != 0) {
+	clks = picos / (2000000000 / (get_ddr_freq(0) / 1000));
+	if (picos % (2000000000 / (get_ddr_freq(0) / 1000)) != 0) {
 		clks++;
 	}
 
@@ -421,7 +421,7 @@ spd_sdram(void)
 	 * Adjust the CAS Latency to allow for bus speeds that
 	 * are slower than the DDR module.
 	 */
-	busfreq = get_bus_freq(0) / 1000000;	/* MHz */
+	busfreq = get_ddr_freq(0) / 1000000;	/* MHz */
 
 	effective_data_rate = max_data_rate;
 	if (busfreq < 90) {

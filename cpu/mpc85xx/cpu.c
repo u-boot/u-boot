@@ -39,6 +39,8 @@ int checkcpu (void)
 	uint fam;
 	uint ver;
 	uint major, minor;
+	u32 ddr_ratio;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 	svr = get_svr();
 	ver = SVR_VER(svr);
@@ -102,7 +104,19 @@ int checkcpu (void)
 	puts("Clock Configuration:\n");
 	printf("       CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
 	printf("CCB:%4lu MHz,\n", sysinfo.freqSystemBus / 1000000);
-	printf("       DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
+
+	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+	switch (ddr_ratio) {
+	case 0x0:
+		printf("       DDR:%4lu MHz, ", sysinfo.freqDDRBus / 2000000);
+		break;
+	case 0x7:
+		printf("       DDR:%4lu MHz (Synchronous), ", sysinfo.freqDDRBus / 2000000);
+		break;
+	default:
+		printf("       DDR:%4lu MHz (Asynchronous), ", sysinfo.freqDDRBus / 2000000);
+		break;
+	}
 
 #if defined(CFG_LBC_LCRR)
 	lcrr = CFG_LBC_LCRR;
