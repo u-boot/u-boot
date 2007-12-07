@@ -446,6 +446,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_ELF
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

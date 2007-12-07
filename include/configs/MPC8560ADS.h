@@ -446,6 +446,7 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_ELF
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
