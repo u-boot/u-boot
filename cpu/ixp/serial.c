@@ -31,25 +31,22 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
+/*
+ *               14.7456 MHz
+ * Baud Rate = --------------
+ *              16 x Divisor
+ */
+#define SERIAL_CLOCK 921600 
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void serial_setbrg (void)
 {
 	unsigned int quot = 0;
 	int uart = CFG_IXP425_CONSOLE;
-
-	if (gd->baudrate == 1200)
-		quot = 192;
-	else if (gd->baudrate == 9600)
-		quot = 96;
-	else if (gd->baudrate == 19200)
-		quot = 48;
-	else if (gd->baudrate == 38400)
-		quot = 24;
-	else if (gd->baudrate == 57600)
-		quot = 16;
-	else if (gd->baudrate == 115200)
-		quot = 8;
+	
+	if ((gd->baudrate <= SERIAL_CLOCK) && (SERIAL_CLOCK % gd->baudrate == 0))
+		quot = SERIAL_CLOCK / gd->baudrate;
 	else
 		hang ();
 
@@ -64,7 +61,6 @@ void serial_setbrg (void)
 
 	IER(uart) = IER_UUE;
 }
-
 
 /*
  * Initialise the serial port with the given baudrate. The settings
