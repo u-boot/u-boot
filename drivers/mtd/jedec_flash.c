@@ -175,7 +175,7 @@ static const struct amd_flash_info jedec_table[] = {
 		.mfr_id		= MANUFACTURER_SST,
 		.dev_id		= SST39LF020,
 		.name		= "SST 39LF020",
- 		.uaddr		= {
+		.uaddr		= {
 			[0] = MTD_UADDR_0x5555_0x2AAA /* x8 */
 		},
 		.DevSize	= SIZE_256KiB,
@@ -184,7 +184,7 @@ static const struct amd_flash_info jedec_table[] = {
 		.regions	= {
 			ERASEINFO(0x01000,64),
 		}
-        },
+	},
 #endif
 #ifdef CFG_FLASH_LEGACY_512Kx8
 	{
@@ -205,7 +205,7 @@ static const struct amd_flash_info jedec_table[] = {
 		.mfr_id		= MANUFACTURER_SST,
 		.dev_id		= SST39LF040,
 		.name		= "SST 39LF040",
- 		.uaddr		= {
+		.uaddr		= {
 			[0] = MTD_UADDR_0x5555_0x2AAA /* x8 */
 		},
 		.DevSize	= SIZE_512KiB,
@@ -214,7 +214,7 @@ static const struct amd_flash_info jedec_table[] = {
 		.regions	= {
 			ERASEINFO(0x01000,128),
 		}
-        },
+	},
 #endif
 };
 
@@ -309,4 +309,3 @@ int jedec_flash_match(flash_info_t *info, ulong base)
 	}
 	return ret;
 }
-
