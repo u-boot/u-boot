@@ -206,6 +206,13 @@ int board_early_init_f (void)
 		(0x80000000 >> (28 + CFG_NAND_CS));
 	mtsdr(SDR0_CUST0, val);
 
+	/*
+	 * Configure PFC (Pin Function Control) registers
+	 * -> Enable USB
+	 */
+	val = SDR0_PFC1_USBEN | SDR0_PFC1_USBBIGEN | SDR0_PFC1_GPT_FREQ;
+	mtsdr(SDR0_PFC1, val);
+
 	return 0;
 }
 

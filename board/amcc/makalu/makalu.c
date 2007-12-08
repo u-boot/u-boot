@@ -43,6 +43,8 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
  */
 int board_early_init_f (void)
 {
+	u32 val;
+
 	/*--------------------------------------------------------------------+
 	 | Interrupt controller setup for the AMCC 405EX(r) PINE evaluation board.
 	 +--------------------------------------------------------------------+
@@ -194,6 +196,13 @@ int board_early_init_f (void)
 	gpio_write_bit(CFG_GPIO_PCIE_RST, 0);
 	udelay(100);
 	gpio_write_bit(CFG_GPIO_PCIE_RST, 1);
+
+	/*
+	 * Configure PFC (Pin Function Control) registers
+	 * -> Enable USB
+	 */
+	val = SDR0_PFC1_USBEN | SDR0_PFC1_USBBIGEN | SDR0_PFC1_GPT_FREQ;
+	mtsdr(SDR0_PFC1, val);
 
 	return 0;
 }

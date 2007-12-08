@@ -1574,6 +1574,19 @@
 #define   SDR0_CUST0_CHIPSELGAT_EN1   0x00000004       /* Chip Select1 Gating Enable */
 #define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
 #define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
+
+#define SDR0_PFC0		0x4100
+#define SDR0_PFC1		0x4101
+#define SDR0_PFC1_U1ME		0x02000000
+#define SDR0_PFC1_U0ME		0x00080000
+#define SDR0_PFC1_U0IM		0x00040000
+#define SDR0_PFC1_SIS		0x00020000
+#define SDR0_PFC1_DMAAEN	0x00010000
+#define SDR0_PFC1_DMADEN	0x00008000
+#define SDR0_PFC1_USBEN		0x00004000
+#define SDR0_PFC1_AHBSWAP	0x00000020
+#define SDR0_PFC1_USBBIGEN	0x00000010
+#define SDR0_PFC1_GPT_FREQ	0x0000000f
 #endif
 
 #endif	/* __PPC405_H__ */
