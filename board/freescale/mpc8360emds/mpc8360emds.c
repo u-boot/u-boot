@@ -326,7 +326,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	if (immr->sysconf.spridr == SPR_8360_REV21 ||
 	    immr->sysconf.spridr == SPR_8360E_REV21) {
 		int nodeoffset;
-		void *prop;
+		const char *prop;
 
 		/* fixup UCC 1 if using rgmii-id mode */
 		nodeoffset = fdt_path_offset(blob, "/" OF_QE "/ucc@2000");
