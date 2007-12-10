@@ -30,7 +30,24 @@
 #include <command.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>
+#include <net.h>
 #include "ether_bf537.h"
+
+/**
+ * is_valid_ether_addr - Determine if the given Ethernet address is valid
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Check that the Ethernet address (MAC) is not 00:00:00:00:00:00, is not
+ * a multicast address, and is not FF:FF:FF:FF:FF:FF.
+ *
+ * Return true if the address is valid.
+ */
+static inline int is_valid_ether_addr(const u8 * addr)
+{
+	/* FF:FF:FF:FF:FF:FF is a multicast address so we don't need to
+	 * explicitly check for it here. */
+	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
+}
 
 DECLARE_GLOBAL_DATA_PTR;
 
