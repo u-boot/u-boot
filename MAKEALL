@@ -383,6 +383,7 @@ LIST_7xx="		\
 
 LIST_ppc="		\
 	${LIST_5xx}	\
+	${LIST_512x}	\
 	${LIST_5xxx}	\
 	${LIST_8xx}	\
 	${LIST_8220}	\
@@ -559,6 +560,7 @@ LIST_mips5kc_el=""
 
 LIST_au1xx0_el="	\
 	dbau1550_el	\
+	pb1000		\
 "
 
 LIST_mips_el="			\

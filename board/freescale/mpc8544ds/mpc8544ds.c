@@ -227,7 +227,7 @@ pci_init_board(void)
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
-		in_be32(CFG_PCIE3_MEM_BASE);
+		in_be32((u32 *)CFG_PCIE3_MEM_BASE);
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}

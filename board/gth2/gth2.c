@@ -26,13 +26,12 @@
 #include <asm/au1x00.h>
 #include <asm/addrspace.h>
 #include <asm/mipsregs.h>
+#include <asm/io.h>
 #include <watchdog.h>
 
 #include "ee_access.h"
 
 static int wdi_status = 0;
-
-unsigned long mips_io_port_base = 0;
 
 #define SDRAM_SIZE ((64*1024*1024)-(12*4096))
 
@@ -147,6 +146,9 @@ int checkboard (void)
 	default:
 		printf ("Unsupported cpu %d, proc_id=0x%x\n", proc_id >> 24, proc_id);
 	}
+
+	set_io_port_base(0);
+
 #ifdef CONFIG_IDE_PCMCIA
 	/* PCMCIA is on a 36 bit physical address.
 	   We need to map it into a 32 bit addresses */
@@ -429,7 +431,7 @@ int misc_init_r(void){
 	    (Rx[8] != ':') | (Rx[11] != ':') | (Rx[14] != ':')) {
 		printf ("*** ethernet addr invalid, using default ***\n");
 	} else {
-		setenv ("ethaddr", Rx);
+		setenv ("ethaddr", (char *)Rx);
 	}
 	return (0);
 }

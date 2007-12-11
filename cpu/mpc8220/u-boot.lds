@@ -55,6 +55,7 @@ SECTIONS
   {
     cpu/mpc8220/start.o	(.text)
     *(.text)
+    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)

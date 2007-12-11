@@ -59,6 +59,10 @@
 #include <usb.h>
 #include "usb_ohci.h"
 
+#ifdef CONFIG_AT91RM9200
+#include <asm/arch/hardware.h>	/* needed for AT91_USB_HOST_BASE */
+#endif
+
 #if defined(CONFIG_ARM920T) || \
     defined(CONFIG_S3C2400) || \
     defined(CONFIG_S3C2410) || \

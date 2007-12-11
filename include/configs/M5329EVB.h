@@ -175,7 +175,7 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x40000000
-#define CFG_SDRAM_SIZE		16	/* SDRAM size in MB */
+#define CFG_SDRAM_SIZE		32	/* SDRAM size in MB */
 #define CFG_SDRAM_CFG1		0x53722730
 #define CFG_SDRAM_CFG2		0x56670000
 #define CFG_SDRAM_CTRL		0xE1092000

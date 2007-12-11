@@ -26,6 +26,7 @@
 #include <asm/inca-ip.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
+#include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
@@ -144,6 +145,8 @@ int checkboard (void)
 	printf ("Board: Purple PLB 2800 chip version %ld, ", chipid & 0xF);
 
 	printf("CPU Speed %d MHz\n", CPU_CLOCK_RATE/1000000);
+
+	set_io_port_base(0);
 
 	return 0;
 }

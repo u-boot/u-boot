@@ -54,10 +54,6 @@
 
 #ifndef __PPC__
 #include <asm/io.h>
-#ifdef __MIPS__
-/* Macros depend on this variable */
-unsigned long mips_io_port_base = 0;
-#endif
 #endif
 
 #ifdef CONFIG_IDE_8xx_DIRECT
@@ -71,8 +67,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # define EIEIO		/* nothing */
 # define SYNC		/* nothing */
 #endif
-
-#if defined(CONFIG_CMD_IDE)
 
 #ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
@@ -1136,9 +1130,9 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 	input_swap_data (device, iobuf, ATA_SECTORWORDS);
 
-	ident_cpy (dev_desc->revision, iop->fw_rev, sizeof(dev_desc->revision));
-	ident_cpy (dev_desc->vendor, iop->model, sizeof(dev_desc->vendor));
-	ident_cpy (dev_desc->product, iop->serial_no, sizeof(dev_desc->product));
+	ident_cpy ((unsigned char*)dev_desc->revision, iop->fw_rev, sizeof(dev_desc->revision));
+	ident_cpy ((unsigned char*)dev_desc->vendor, iop->model, sizeof(dev_desc->vendor));
+	ident_cpy ((unsigned char*)dev_desc->product, iop->serial_no, sizeof(dev_desc->product));
 #ifdef __LITTLE_ENDIAN
 	/*
 	 * firmware revision and model number have Big Endian Byte
@@ -1953,9 +1947,9 @@ static void	atapi_inquiry(block_dev_desc_t * dev_desc)
 		return;
 
 	/* copy device ident strings */
-	ident_cpy(dev_desc->vendor,&iobuf[8],8);
-	ident_cpy(dev_desc->product,&iobuf[16],16);
-	ident_cpy(dev_desc->revision,&iobuf[32],5);
+	ident_cpy((unsigned char*)dev_desc->vendor,&iobuf[8],8);
+	ident_cpy((unsigned char*)dev_desc->product,&iobuf[16],16);
+	ident_cpy((unsigned char*)dev_desc->revision,&iobuf[32],5);
 
 	dev_desc->lun=0;
 	dev_desc->lba=0;
@@ -2085,5 +2079,3 @@ U_BOOT_CMD(
 	"diskboot- boot from IDE device\n",
 	"loadAddr dev:part\n"
 );
-
-#endif

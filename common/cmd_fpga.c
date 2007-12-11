@@ -43,8 +43,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined (CONFIG_FPGA) && defined(CONFIG_CMD_FPGA)
-
 /* Local functions */
 static void fpga_usage (cmd_tbl_t * cmdtp);
 static int fpga_get_op (char *opstr);
@@ -321,4 +319,3 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
 	    "\tloadmk\tLoad device generated with mkimage\n"
 	    "\tdump\tLoad device to memory buffer\n");
-#endif

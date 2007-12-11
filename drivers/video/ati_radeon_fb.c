@@ -300,7 +300,7 @@ typedef struct {
 	u32 val;
 } reg_val;
 
-
+#if 0	/* unused ? -> scheduled for removal */
 /* these common regs are cleared before mode setting so they do not
  * interfere with anything
  */
@@ -316,11 +316,10 @@ static reg_val common_regs[] = {
 	{ CAP0_TRIG_CNTL, 0 },
 	{ CAP1_TRIG_CNTL, 0 },
 };
-
+#endif /* 0 */
 
 void radeon_setmode(void)
 {
-	int i;
 	struct radeon_regs *mode = malloc(sizeof(struct radeon_regs));
 
 	mode->crtc_gen_cntl = 0x03000200;
@@ -350,6 +349,9 @@ void radeon_setmode(void)
 
 	radeon_write_pll_regs(rinfo, mode);
 }
+
+#include "../bios_emulator/include/biosemu.h"
+extern int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp);
 
 int radeon_probe(struct radeonfb_info *rinfo)
 {

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,10 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnand.a
+LIB 	:= $(obj)libvideo.a
 
-COBJS 	:= nand.o nand_base.o nand_ids.o nand_ecc.o nand_bbt.o nand_util.o
+COBJS-y += ati_radeon_fb.o
+COBJS-y += cfb_console.o
+COBJS-y += ct69000.o
+COBJS-y += sed13806.o
+COBJS-y += sed156x.o
+COBJS-y += sm501.o
+COBJS-y += smiLynxEM.o
+COBJS-y += videomodes.o
 
+COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
 

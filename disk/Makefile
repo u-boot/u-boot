@@ -27,8 +27,13 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libdisk.a
 
-COBJS	= part.o part_mac.o part_dos.o part_iso.o part_amiga.o
+COBJS-y += part.o
+COBJS-y += part_mac.o
+COBJS-y += part_dos.o
+COBJS-y += part_iso.o
+COBJS-y += part_amiga.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

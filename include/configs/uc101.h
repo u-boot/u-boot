@@ -297,7 +297,7 @@
 
 /* 8Mbit SRAM @0x80100000 */
 #define CFG_CS1_START		CFG_SRAM_BASE
-#define CFG_CS1_SIZE		0x00100000
+#define CFG_CS1_SIZE		0x00200000
 #define CFG_CS1_CFG		0x21D00
 
 /* Display H1, Status Inputs, EPLD @0x80600000 8 Bit */

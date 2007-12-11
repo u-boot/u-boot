@@ -26,9 +26,15 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libjffs2.a
 
 AOBJS	=
-COBJS	= jffs2_1pass.o compr_rtime.o compr_rubin.o compr_zlib.o mini_inflate.o
-COBJS	+= compr_lzo.o compr_lzari.o
+COBJS-y += jffs2_1pass.o
+COBJS-y += compr_rtime.o
+COBJS-y += compr_rubin.o
+COBJS-y += compr_zlib.o
+COBJS-y += mini_inflate.o
+COBJS-y += compr_lzo.o
+COBJS-y += compr_lzari.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 

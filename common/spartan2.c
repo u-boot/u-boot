@@ -516,7 +516,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				(*fn->clk) (FALSE, TRUE, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Write data */
-				(*fn->wr) ((val < 0), TRUE, cookie);
+				(*fn->wr) ((val & 0x80), TRUE, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Assert the clock */
 				(*fn->clk) (TRUE, TRUE, cookie);

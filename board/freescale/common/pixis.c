@@ -207,13 +207,16 @@ void read_from_px_regs_altbank(int set)
 	out8(PIXIS_BASE + PIXIS_VCFGEN1, tmp);
 }
 
+#ifndef CFG_PIXIS_VBOOT_MASK
+#define CFG_PIXIS_VBOOT_MASK	0x40
+#endif
 
 void set_altbank(void)
 {
 	u8 tmp;
 
 	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
-	tmp ^= 0x40;
+	tmp ^= CFG_PIXIS_VBOOT_MASK;
 
 	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
 }

@@ -23,8 +23,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#if defined(CONFIG_CMD_ELF)
-
 #ifndef MAX
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
@@ -323,5 +321,3 @@ U_BOOT_CMD(
 	"bootvx  - Boot vxWorks from an ELF image\n",
 	" [address] - load address of vxWorks ELF image.\n"
 );
-
-#endif

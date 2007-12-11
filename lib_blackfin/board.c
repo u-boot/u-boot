@@ -35,7 +35,7 @@
 #include <i2c.h>
 #include "blackfin_board.h"
 #include <asm/cplb.h>
-#include "../drivers/smc91111.h"
+#include "../drivers/net/smc91111.h"
 
 #if defined(CONFIG_BF537)&&defined(CONFIG_POST)
 #include <post.h>

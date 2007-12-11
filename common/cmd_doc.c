@@ -11,9 +11,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <asm/io.h>
-
-#if defined(CONFIG_CMD_DOC)
-
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>
 
@@ -1607,5 +1604,3 @@ void doc_probe(unsigned long physadr)
 		puts ("No DiskOnChip found\n");
 	}
 }
-
-#endif

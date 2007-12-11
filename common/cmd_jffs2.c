@@ -93,9 +93,6 @@
 #include <jffs2/jffs2.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
-
-#if defined(CONFIG_CMD_JFFS2)
-
 #include <cramfs/cramfs_fs.h>
 
 #if defined(CONFIG_CMD_NAND)
@@ -2191,5 +2188,3 @@ U_BOOT_CMD(
 #endif /* #ifdef CONFIG_JFFS2_CMDLINE */
 
 /***************************************************/
-
-#endif

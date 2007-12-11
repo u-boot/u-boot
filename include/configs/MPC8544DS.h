@@ -198,6 +198,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
+#define CFG_PIXIS_VBOOT_MASK	0x40    /* Reset altbank mask*/
 
 
 /* define to use L1 as initial stack */

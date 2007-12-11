@@ -27,32 +27,113 @@ LIB	= $(obj)libcommon.a
 
 AOBJS	=
 
-COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o cmd_autoscript.o \
-	  cmd_bdinfo.o cmd_bedbug.o cmd_bmp.o cmd_boot.o cmd_bootm.o \
-	  cmd_cache.o cmd_console.o \
-	  cmd_date.o cmd_dcr.o cmd_diag.o cmd_display.o cmd_doc.o cmd_dtt.o \
-	  cmd_eeprom.o cmd_elf.o cmd_ext2.o \
-	  cmd_fat.o cmd_fdc.o cmd_fdt.o cmd_fdos.o cmd_flash.o cmd_fpga.o \
-	  cmd_i2c.o cmd_ide.o cmd_immap.o cmd_itest.o cmd_jffs2.o \
-	  cmd_load.o cmd_log.o \
-	  cmd_mem.o cmd_mii.o cmd_misc.o cmd_mmc.o \
-	  cmd_nand.o cmd_net.o cmd_nvedit.o \
-	  cmd_onenand.o \
-	  cmd_pci.o cmd_pcmcia.o cmd_portio.o \
-	  cmd_reginfo.o cmd_reiser.o cmd_sata.o cmd_scsi.o cmd_spi.o \
-	  cmd_universe.o cmd_usb.o cmd_vfd.o \
-	  command.o console.o cyclon2.o devices.o dlmalloc.o docecc.o \
-	  environment.o env_common.o \
-	  env_nand.o env_dataflash.o env_flash.o env_eeprom.o \
-	  env_onenand.o env_nvram.o env_nowhere.o \
-	  exports.o \
-	  fdt_support.o flash.o fpga.o ft_build.o \
-	  hush.o kgdb.o lcd.o lists.o lynxkdi.o \
-	  memsize.o miiphybb.o miiphyutil.o \
-	  s_record.o serial.o soft_i2c.o soft_spi.o spartan2.o spartan3.o \
-	  usb.o usb_kbd.o usb_storage.o \
-	  virtex2.o xilinx.o crc16.o xyzModem.o cmd_mac.o cmd_mfsl.o
+COBJS-y += main.o
+COBJS-y += ACEX1K.o
+COBJS-y += altera.o
+COBJS-y += bedbug.o
+COBJS-y += circbuf.o
+COBJS-y += cmd_autoscript.o
+COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
+COBJS-$(CONFIG_CMD_BEDBUG) += cmd_bedbug.o
+COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
+COBJS-y += cmd_boot.o
+COBJS-y += cmd_bootm.o
+COBJS-$(CONFIG_CMD_CACHE) += cmd_cache.o
+COBJS-$(CONFIG_CMD_CONSOLE) += cmd_console.o
+COBJS-$(CONFIG_CMD_DATE) += cmd_date.o
+ifdef CONFIG_4xx
+COBJS-$(CONFIG_CMD_SETGETDCR) += cmd_dcr.o
+endif
+ifdef CONFIG_POST
+COBJS-$(CONFIG_CMD_DIAG) += cmd_diag.o
+endif
+COBJS-$(CONFIG_CMD_DISPLAY) += cmd_display.o
+COBJS-$(CONFIG_CMD_DOC) += cmd_doc.o
+COBJS-$(CONFIG_CMD_DTT) += cmd_dtt.o
+COBJS-y += cmd_eeprom.o
+COBJS-$(CONFIG_CMD_ELF) += cmd_elf.o
+COBJS-$(CONFIG_CMD_EXT2) += cmd_ext2.o
+COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
+COBJS-y += cmd_fdc.o
+COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o
+COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
+COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
+ifdef CONFIG_FPGA
+COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
+endif
+COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
+COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
+COBJS-$(CONFIG_CMD_IMMAP) += cmd_immap.o
+COBJS-$(CONFIG_CMD_ITEST) += cmd_itest.o
+COBJS-$(CONFIG_CMD_JFFS2) += cmd_jffs2.o
+COBJS-y += cmd_load.o
+COBJS-$(CONFIG_LOGBUFFER) += cmd_log.o
+COBJS-y += cmd_mem.o
+COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
+COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
+COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
+COBJS-y += cmd_nand.o
+COBJS-$(CONFIG_CMD_NET) += cmd_net.o
+COBJS-y += cmd_nvedit.o
+COBJS-y += cmd_onenand.o
+ifdef CONFIG_PCI
+COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
+endif
+COBJS-y += cmd_pcmcia.o
+COBJS-$(CONFIG_CMD_PORTIO) += cmd_portio.o
+COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
+COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
+COBJS-y += cmd_sata.o
+COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
+COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
+COBJS-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
+COBJS-$(CONFIG_CMD_USB) += cmd_usb.o
+COBJS-y += cmd_vfd.o
+COBJS-y += command.o
+COBJS-y += console.o
+COBJS-y += cyclon2.o
+COBJS-y += devices.o
+COBJS-y += dlmalloc.o
+COBJS-y += docecc.o
+COBJS-y += environment.o
+COBJS-y += env_common.o
+COBJS-y += env_nand.o
+COBJS-y += env_dataflash.o
+COBJS-y += env_flash.o
+COBJS-y += env_eeprom.o
+COBJS-y += env_onenand.o
+COBJS-y += env_nvram.o
+COBJS-y += env_nowhere.o
+COBJS-y += exports.o
+COBJS-y += fdt_support.o
+COBJS-y += flash.o
+COBJS-y += fpga.o
+COBJS-y += ft_build.o
+COBJS-y += hush.o
+COBJS-y += kgdb.o
+COBJS-y += lcd.o
+COBJS-y += lists.o
+COBJS-y += lynxkdi.o
+COBJS-y += memsize.o
+COBJS-y += miiphybb.o
+COBJS-y += miiphyutil.o
+COBJS-y += s_record.o
+COBJS-y += serial.o
+COBJS-y += soft_i2c.o
+COBJS-y += soft_spi.o
+COBJS-y += spartan2.o
+COBJS-y += spartan3.o
+COBJS-y += usb.o
+COBJS-y += usb_kbd.o
+COBJS-y += usb_storage.o
+COBJS-y += virtex2.o
+COBJS-y += xilinx.o
+COBJS-y += crc16.o
+COBJS-y += xyzModem.o
+COBJS-y += cmd_mac.o
+COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 
