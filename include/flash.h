@@ -80,6 +80,7 @@ typedef struct {
 #define FLASH_CFI_X8		0x00
 #define FLASH_CFI_X16		0x01
 #define FLASH_CFI_X8X16		0x02
+#define FLASH_CFI_X16X32	0x05
 
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3

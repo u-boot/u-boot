@@ -1231,9 +1231,26 @@ static int flash_detect_cfi (flash_info_t * info)
 					debug ("port %d bits chip %d bits\n",
 						info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 						info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-					/* this probably only works if info->interface == FLASH_CFI_X8X16 */
-					info->addr_unlock1 = (info->portwidth == FLASH_CFI_8BIT) ? 0xAAA : 0x555;
-					info->addr_unlock2 = (info->portwidth == FLASH_CFI_8BIT) ? 0x555 : 0x2AA;
+
+					/* calculate command offsets as in the Linux driver */
+					info->addr_unlock1 = 0x555;
+					info->addr_unlock2 = 0x2aa;
+
+					/*
+					 * modify the unlock address if we are
+					 * in compatibility mode
+					 */
+					if (	/* x8/x16 in x8 mode */
+						((info->chipwidth == FLASH_CFI_BY8) &&
+							(info->interface == FLASH_CFI_X8X16)) ||
+						/* x16/x32 in x16 mode */
+						((info->chipwidth == FLASH_CFI_BY16) &&
+							(info->interface == FLASH_CFI_X16X32)))
+					{
+						info->addr_unlock1 = 0xaaa;
+						info->addr_unlock2 = 0x555;
+					}
+
 					info->name = "CFI conformant";
 					return 1;
 				}
