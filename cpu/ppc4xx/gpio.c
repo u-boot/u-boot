@@ -47,7 +47,7 @@ void gpio_config(int pin, int in_out, int gpio_alt, int out_val)
 	}
 
 	if (pin >= GPIO_MAX/2) {
-		offs2 = 0x100;
+		offs2 = 0x4;
 		pin2 = (pin - GPIO_MAX/2) << 1;
 	}
 
