@@ -33,6 +33,14 @@ extern unsigned char inb (unsigned char *port);
 extern unsigned short inw (unsigned short *port);
 extern unsigned inl (unsigned port);
 
+#define __raw_writeb(v,a)       (*(volatile unsigned char  *)(a) = (v))
+#define __raw_writew(v,a)       (*(volatile unsigned short *)(a) = (v))
+#define __raw_writel(v,a)       (*(volatile unsigned int   *)(a) = (v))
+
+#define __raw_readb(a)          (*(volatile unsigned char  *)(a))
+#define __raw_readw(a)          (*(volatile unsigned short *)(a))
+#define __raw_readl(a)          (*(volatile unsigned int   *)(a))
+
 #define readb(addr)\
 	({unsigned char val;\
 	 asm volatile( "ldbio %0, 0(%1)" :"=r"(val) : "r" (addr)); val;})
