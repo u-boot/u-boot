@@ -232,13 +232,33 @@ static flash_info_t *flash_get_info(ulong base)
 }
 #endif
 
+unsigned long flash_sector_size(flash_info_t *info, flash_sect_t sect)
+{
+	if (sect != (info->sector_count - 1))
+		return info->start[sect + 1] - info->start[sect];
+	else
+		return info->start[0] + info->size - info->start[sect];
+}
+
 /*-----------------------------------------------------------------------
  * create an address based on the offset and the port width
  */
-static inline uchar *
-flash_make_addr (flash_info_t * info, flash_sect_t sect, uint offset)
+static inline void *
+flash_map (flash_info_t * info, flash_sect_t sect, uint offset)
 {
-	return ((uchar *) (info->start[sect] + (offset * info->portwidth)));
+	unsigned int byte_offset = offset * info->portwidth;
+
+	return map_physmem(info->start[sect] + byte_offset,
+			flash_sector_size(info, sect) - byte_offset,
+			MAP_NOCACHE);
+}
+
+static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
+		unsigned int offset, void *addr)
+{
+	unsigned int byte_offset = offset * info->portwidth;
+
+	unmap_physmem(addr, flash_sector_size(info, sect) - byte_offset);
 }
 
 /*-----------------------------------------------------------------------
@@ -277,8 +297,7 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 	int x, y;
 
 	for (x = 0; x < 0x40; x += 16U / info->portwidth) {
-		addr = flash_make_addr (info, sect,
-					x + FLASH_OFFSET_CFI_RESP);
+		addr = flash_map(info, sect, x + FLASH_OFFSET_CFI_RESP);
 		debug ("%p : ", addr);
 		for (y = 0; y < 16; y++) {
 			debug ("%2.2x ", flash_read8(addr + y));
@@ -293,6 +312,7 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 			}
 		}
 		debug ("\n");
+		flash_unmap(info, sect, x + FLASH_OFFSET_CFI_RESP, addr);
 	}
 }
 #endif
@@ -304,13 +324,16 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 static inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 {
 	uchar *cp;
+	uchar retval;
 
-	cp = flash_make_addr (info, 0, offset);
+	cp = flash_map (info, 0, offset);
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	return (cp[0]);
+	retval = flash_read8(cp);
 #else
-	return (cp[info->portwidth - 1]);
+	retval = flash_read8(cp + info->portwidth - 1);
 #endif
+	flash_unmap (info, 0, offset, cp);
+	return retval;
 }
 
 /*-----------------------------------------------------------------------
@@ -325,23 +348,26 @@ static ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect,
 #ifdef DEBUG
 	int x;
 #endif
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 
 #ifdef DEBUG
 	debug ("ushort addr is at %p info->portwidth = %d\n", addr,
 	       info->portwidth);
 	for (x = 0; x < 2 * info->portwidth; x++) {
-		debug ("addr[%x] = 0x%x\n", x, addr[x]);
+		debug ("addr[%x] = 0x%x\n", x, flash_read8(addr + x));
 	}
 #endif
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	retval = ((addr[(info->portwidth)] << 8) | addr[0]);
+	retval = ((flash_read8(addr + info->portwidth) << 8) |
+		  flash_read8(addr));
 #else
-	retval = ((addr[(2 * info->portwidth) - 1] << 8) |
-		  addr[info->portwidth - 1]);
+	retval = ((flash_read8(addr + 2 * info->portwidth - 1) << 8) |
+		  flash_read8(addr + info->portwidth - 1));
 #endif
 
 	debug ("retval = 0x%x\n", retval);
+	flash_unmap (info, sect, offset, addr);
+
 	return retval;
 }
 
@@ -358,25 +384,28 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
 #ifdef DEBUG
 	int x;
 #endif
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 
 #ifdef DEBUG
 	debug ("long addr is at %p info->portwidth = %d\n", addr,
 	       info->portwidth);
 	for (x = 0; x < 4 * info->portwidth; x++) {
-		debug ("addr[%x] = 0x%x\n", x, addr[x]);
+		debug ("addr[%x] = 0x%x\n", x, flash_read8(addr + x));
 	}
 #endif
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	retval = (addr[0] << 16) | (addr[(info->portwidth)] << 24) |
-		(addr[(2 * info->portwidth)]) |
-		(addr[(3 * info->portwidth)] << 8);
+	retval = ((flash_read8(addr) << 16) |
+		  (flash_read8(addr + info->portwidth) << 24) |
+		  (flash_read8(addr + 2 * info->portwidth)) |
+		  (flash_read8(addr + 3 * info->portwidth) << 8));
 #else
-	retval = (addr[(2 * info->portwidth) - 1] << 24) |
-		(addr[(info->portwidth) - 1] << 16) |
-		(addr[(4 * info->portwidth) - 1] << 8) |
-		addr[(3 * info->portwidth) - 1];
+	retval = ((flash_read8(addr + 2 * info->portwidth - 1) << 24) |
+		  (flash_read8(addr + info->portwidth - 1) << 16) |
+		  (flash_read8(addr + 4 * info->portwidth - 1) << 8) |
+		  (flash_read8(addr + 3 * info->portwidth - 1)));
 #endif
+	flash_unmap(info, sect, offset, addr);
+
 	return retval;
 }
 
@@ -390,7 +419,7 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 	void *addr;
 	cfiword_t cword;
 
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -428,6 +457,8 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 
 	/* Ensure all the instructions are fully finished */
 	sync();
+
+	flash_unmap(info, sect, offset, addr);
 }
 
 static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect)
@@ -445,7 +476,7 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 	cfiword_t cword;
 	int retval;
 
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 
 	debug ("is= cmd %x(%c) addr %p ", cmd, cmd, addr);
@@ -479,6 +510,8 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 		retval = 0;
 		break;
 	}
+	flash_unmap(info, sect, offset, addr);
+
 	return retval;
 }
 
@@ -491,7 +524,7 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect,
 	cfiword_t cword;
 	int retval;
 
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -510,6 +543,8 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect,
 		retval = 0;
 		break;
 	}
+	flash_unmap(info, sect, offset, addr);
+
 	return retval;
 }
 
@@ -522,7 +557,7 @@ static int flash_toggle (flash_info_t * info, flash_sect_t sect,
 	cfiword_t cword;
 	int retval;
 
-	addr = flash_make_addr (info, sect, offset);
+	addr = flash_map (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -545,6 +580,8 @@ static int flash_toggle (flash_info_t * info, flash_sect_t sect,
 		retval = 0;
 		break;
 	}
+	flash_unmap(info, sect, offset, addr);
+
 	return retval;
 }
 
@@ -714,12 +751,10 @@ static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 static int flash_write_cfiword (flash_info_t * info, ulong dest,
 				cfiword_t cword)
 {
-	void *ctladdr;
 	void *dstaddr;
 	int flag;
 
-	ctladdr = flash_make_addr (info, 0, 0);
-	dstaddr = (uchar *)dest;
+	dstaddr = map_physmem(dest, info->portwidth, MAP_NOCACHE);
 
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
@@ -736,10 +771,13 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		flag = ((flash_read64(dstaddr) & cword.ll) == cword.ll);
 		break;
 	default:
+		flag = 0;
+		break;
+	}
+	if (!flag) {
+		unmap_physmem(dstaddr, info->portwidth);
 		return 2;
 	}
-	if (!flag)
-		return 2;
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -779,6 +817,8 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	if (flag)
 		enable_interrupts ();
 
+	unmap_physmem(dstaddr, info->portwidth);
+
 	return flash_full_status_check (info, find_sector (info, dest),
 					info->write_tout, "write");
 }
@@ -792,7 +832,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int cnt;
 	int retcode;
 	void *src = cp;
-	void *dst = (void *)dest;
+	void *dst = map_physmem(dest, len, MAP_NOCACHE);
 
 	sector = find_sector (info, dest);
 
@@ -821,8 +861,8 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 				cnt = len >> 3;
 				break;
 			default:
-				return ERR_INVAL;
-				break;
+				retcode = ERR_INVAL;
+				goto out_unmap;
 			}
 			flash_write_cmd (info, sector, 0, (uchar) cnt - 1);
 			while (cnt-- > 0) {
@@ -844,8 +884,8 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 					src += 8, dst += 8;
 					break;
 				default:
-					return ERR_INVAL;
-					break;
+					retcode = ERR_INVAL;
+					goto out_unmap;
 				}
 			}
 			flash_write_cmd (info, sector, 0,
@@ -854,7 +894,8 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 				info, sector, info->buffer_write_tout,
 				"buffer write");
 		}
-		return retcode;
+
+		break;
 
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
@@ -895,19 +936,25 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 			}
 			break;
 		default:
-			return ERR_INVAL;
+			retcode = ERR_INVAL;
+			goto out_unmap;
 		}
 
 		flash_write_cmd (info, sector, 0, AMD_CMD_WRITE_BUFFER_CONFIRM);
 		retcode = flash_full_status_check (info, sector,
 						   info->buffer_write_tout,
 						   "buffer write");
-		return retcode;
+		break;
 
 	default:
 		debug ("Unknown Command Set\n");
-		return ERR_INVAL;
+		retcode = ERR_INVAL;
+		break;
 	}
+
+out_unmap:
+	unmap_physmem(dst, len);
+	return retcode;
 }
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
 
@@ -1063,10 +1110,7 @@ void flash_print_info (flash_info_t * info)
 		/*
 		 * Check if whole sector is erased
 		 */
-		if (i != (info->sector_count - 1))
-			size = info->start[i + 1] - info->start[i];
-		else
-			size = info->start[0] + info->size - info->start[i];
+		size = flash_sector_size(info, i);
 		erased = 1;
 		flash = (volatile unsigned long *) info->start[i];
 		size = size >> 2;	/* divide by 4 for longword access */
@@ -1101,7 +1145,7 @@ void flash_print_info (flash_info_t * info)
 int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 	ulong wp;
-	ulong cp;
+	uchar *p;
 	int aln;
 	cfiword_t cword;
 	int i, rc;
@@ -1110,26 +1154,28 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	int buffered_size;
 #endif
 	/* get lower aligned address */
-	/* get lower aligned address */
 	wp = (addr & ~(info->portwidth - 1));
 
 	/* handle unaligned start */
 	if ((aln = addr - wp) != 0) {
 		cword.l = 0;
-		cp = wp;
-		for (i = 0; i < aln; ++i, ++cp)
-			flash_add_byte (info, &cword, (*(uchar *) cp));
+		p = map_physmem(wp, info->portwidth, MAP_NOCACHE);
+		for (i = 0; i < aln; ++i)
+			flash_add_byte (info, &cword, flash_read8(p + i));
 
 		for (; (i < info->portwidth) && (cnt > 0); i++) {
 			flash_add_byte (info, &cword, *src++);
 			cnt--;
-			cp++;
 		}
-		for (; (cnt == 0) && (i < info->portwidth); ++i, ++cp)
-			flash_add_byte (info, &cword, (*(uchar *) cp));
-		if ((rc = flash_write_cfiword (info, wp, cword)) != 0)
+		for (; (cnt == 0) && (i < info->portwidth); ++i)
+			flash_add_byte (info, &cword, flash_read8(p + i));
+
+		rc = flash_write_cfiword (info, wp, cword);
+		unmap_physmem(p, info->portwidth);
+		if (rc != 0)
 			return rc;
-		wp = cp;
+
+		wp += i;
 	}
 
 	/* handle the aligned part */
@@ -1180,13 +1226,14 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	 * handle unaligned tail bytes
 	 */
 	cword.l = 0;
-	for (i = 0, cp = wp; (i < info->portwidth) && (cnt > 0); ++i, ++cp) {
+	p = map_physmem(wp, info->portwidth, MAP_NOCACHE);
+	for (i = 0; (i < info->portwidth) && (cnt > 0); ++i) {
 		flash_add_byte (info, &cword, *src++);
 		--cnt;
 	}
-	for (; i < info->portwidth; ++i, ++cp) {
-		flash_add_byte (info, &cword, (*(uchar *) cp));
-	}
+	for (; i < info->portwidth; ++i)
+		flash_add_byte (info, &cword, flash_read8(p + i));
+	unmap_physmem(p, info->portwidth);
 
 	return flash_write_cfiword (info, wp, cword);
 }
@@ -1238,10 +1285,11 @@ void flash_read_user_serial (flash_info_t * info, void *buffer, int offset,
 	uchar *dst;
 
 	dst = buffer;
-	src = flash_make_addr (info, 0, FLASH_OFFSET_USER_PROTECTION);
+	src = flash_map (info, 0, FLASH_OFFSET_USER_PROTECTION);
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (dst, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	flash_unmap(info, 0, FLASH_OFFSET_USER_PROTECTION, src);
 }
 
 /*
@@ -1252,10 +1300,11 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 {
 	uchar *src;
 
-	src = flash_make_addr (info, 0, FLASH_OFFSET_INTEL_PROTECTION);
+	src = flash_map (info, 0, FLASH_OFFSET_INTEL_PROTECTION);
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (buffer, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	flash_unmap(info, 0, FLASH_OFFSET_INTEL_PROTECTION, src);
 }
 
 #endif /* CFG_FLASH_PROTECTION */
