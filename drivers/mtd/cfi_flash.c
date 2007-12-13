@@ -212,7 +212,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest,
 /*-----------------------------------------------------------------------
  * create an address based on the offset and the port width
  */
-inline uchar *
+static inline uchar *
 flash_make_addr (flash_info_t * info, flash_sect_t sect, uint offset)
 {
 	return ((uchar *) (info->start[sect] + (offset * info->portwidth)));
@@ -222,7 +222,7 @@ flash_make_addr (flash_info_t * info, flash_sect_t sect, uint offset)
 /*-----------------------------------------------------------------------
  * Debug support
  */
-void print_longlong (char *str, unsigned long long data)
+static void print_longlong (char *str, unsigned long long data)
 {
 	int i;
 	char *cp;
@@ -261,7 +261,7 @@ static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 /*-----------------------------------------------------------------------
  * read a character at a port width address
  */
-inline uchar flash_read_uchar (flash_info_t * info, uint offset)
+static inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 {
 	uchar *cp;
 
@@ -276,7 +276,8 @@ inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 /*-----------------------------------------------------------------------
  * read a short word by swapping for ppc format.
  */
-ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
+static ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect,
+				 uint offset)
 {
 	uchar *addr;
 	ushort retval;
@@ -308,7 +309,8 @@ ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect, uint offset)
  * read a long word by picking the least significant byte of each maximum
  * port size word. Swap for ppc format.
  */
-ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
+static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
+			      uint offset)
 {
 	uchar *addr;
 	ulong retval;
@@ -345,7 +347,7 @@ ulong flash_read_long (flash_info_t * info, flash_sect_t sect, uint offset)
  * board_flash_get_legacy needs to fill in at least:
  * info->portwidth, info->chipwidth and info->interface for Jedec probing.
  */
-int flash_detect_legacy(ulong base, int banknum)
+static int flash_detect_legacy(ulong base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
 
@@ -397,7 +399,7 @@ int flash_detect_legacy(ulong base, int banknum)
 	return 0; /* use CFI */
 }
 #else
-int inline flash_detect_legacy(ulong base, int banknum)
+static inline int flash_detect_legacy(ulong base, int banknum)
 {
 	return 0; /* use CFI */
 }
