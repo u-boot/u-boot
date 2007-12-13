@@ -588,7 +588,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			printf("%s %s\n", pathp, prop);
 			return 0;
 		} else if (len > 0) {
-			printf("%s=", prop);
+			printf("%s = ", prop);
 			print_data (nodep, len);
 			printf("\n");
 			return 0;
@@ -649,7 +649,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 						pathp);
 			} else {
 				if (level <= depth) {
-					printf("%s%s=",
+					printf("%s%s = ",
 						&tabs[MAX_LEVEL - level],
 						pathp);
 					print_data (nodep, len);
