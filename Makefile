@@ -2025,6 +2025,9 @@ sbc8540_66_config:	unconfig
 	fi
 	@$(MKCONFIG) -a SBC8540 ppc mpc85xx sbc8560
 
+sbc8548_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx sbc8548
+
 sbc8560_config \
 sbc8560_33_config \
 sbc8560_66_config:      unconfig

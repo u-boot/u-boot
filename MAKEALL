@@ -335,6 +335,7 @@ LIST_85xx="		\
 	PM854		\
 	PM856		\
 	sbc8540		\
+	sbc8548		\
 	sbc8560		\
 	stxgp3		\
 	stxssa		\
