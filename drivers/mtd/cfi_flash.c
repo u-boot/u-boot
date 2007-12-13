@@ -149,13 +149,6 @@ typedef union {
 	unsigned long long ll;
 } cfiword_t;
 
-typedef union {
-	volatile unsigned char *cp;
-	volatile unsigned short *wp;
-	volatile unsigned long *lp;
-	volatile unsigned long long *llp;
-} cfiptr_t;
-
 #define NUM_ERASE_REGIONS	4 /* max. number of erase regions */
 
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
@@ -177,6 +170,48 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];		/* FLASH chips info */
 #endif
 
 typedef unsigned long flash_sect_t;
+
+static void flash_write8(u8 value, void *addr)
+{
+	__raw_writeb(value, addr);
+}
+
+static void flash_write16(u16 value, void *addr)
+{
+	__raw_writew(value, addr);
+}
+
+static void flash_write32(u32 value, void *addr)
+{
+	__raw_writel(value, addr);
+}
+
+static void flash_write64(u64 value, void *addr)
+{
+	/* No architectures currently implement __raw_writeq() */
+	*(volatile u64 *)addr = value;
+}
+
+static u8 flash_read8(void *addr)
+{
+	return __raw_readb(addr);
+}
+
+static u16 flash_read16(void *addr)
+{
+	return __raw_readw(addr);
+}
+
+static u32 flash_read32(void *addr)
+{
+	return __raw_readl(addr);
+}
+
+static u64 flash_read64(void *addr)
+{
+	/* No architectures currently implement __raw_readq() */
+	return *(volatile u64 *)addr;
+}
 
 /*-----------------------------------------------------------------------
  */
@@ -238,21 +273,21 @@ static void print_longlong (char *str, unsigned long long data)
 
 static void flash_printqry (flash_info_t * info, flash_sect_t sect)
 {
-	cfiptr_t cptr;
+	void *addr;
 	int x, y;
 
 	for (x = 0; x < 0x40; x += 16U / info->portwidth) {
-		cptr.cp =
-			flash_make_addr (info, sect,
-					 x + FLASH_OFFSET_CFI_RESP);
-		debug ("%p : ", cptr.cp);
+		addr = flash_make_addr (info, sect,
+					x + FLASH_OFFSET_CFI_RESP);
+		debug ("%p : ", addr);
 		for (y = 0; y < 16; y++) {
-			debug ("%2.2x ", cptr.cp[y]);
+			debug ("%2.2x ", flash_read8(addr + y));
 		}
 		debug (" ");
 		for (y = 0; y < 16; y++) {
-			if (cptr.cp[y] >= 0x20 && cptr.cp[y] <= 0x7e) {
-				debug ("%c", cptr.cp[y]);
+			unsigned char c = flash_read8(addr + y);
+			if (c >= 0x20 && c <= 0x7e) {
+				debug ("%c", c);
 			} else {
 				debug (".");
 			}
@@ -352,28 +387,28 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 			     uint offset, uchar cmd)
 {
 
-	volatile cfiptr_t addr;
+	void *addr;
 	cfiword_t cword;
 
-	addr.cp = flash_make_addr (info, sect, offset);
+	addr = flash_make_addr (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		debug ("fwc addr %p cmd %x %x 8bit x %d bit\n", addr.cp, cmd,
+		debug ("fwc addr %p cmd %x %x 8bit x %d bit\n", addr, cmd,
 		       cword.c, info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		*addr.cp = cword.c;
+		flash_write8(cword.c, addr);
 		break;
 	case FLASH_CFI_16BIT:
-		debug ("fwc addr %p cmd %x %4.4x 16bit x %d bit\n", addr.wp,
+		debug ("fwc addr %p cmd %x %4.4x 16bit x %d bit\n", addr,
 		       cmd, cword.w,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		*addr.wp = cword.w;
+		flash_write16(cword.w, addr);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n", addr.lp,
+		debug ("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n", addr,
 		       cmd, cword.l,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
-		*addr.lp = cword.l;
+		flash_write32(cword.l, addr);
 		break;
 	case FLASH_CFI_64BIT:
 #ifdef DEBUG
@@ -383,11 +418,11 @@ static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 			print_longlong (str, cword.ll);
 
 			debug ("fwrite addr %p cmd %x %s 64 bit x %d bit\n",
-			       addr.llp, cmd, str,
+			       addr, cmd, str,
 			       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		}
 #endif
-		*addr.llp = cword.ll;
+		flash_write64(cword.ll, addr);
 		break;
 	}
 
@@ -406,26 +441,26 @@ static void flash_unlock_seq (flash_info_t * info, flash_sect_t sect)
 static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 			  uint offset, uchar cmd)
 {
-	cfiptr_t cptr;
+	void *addr;
 	cfiword_t cword;
 	int retval;
 
-	cptr.cp = flash_make_addr (info, sect, offset);
+	addr = flash_make_addr (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 
-	debug ("is= cmd %x(%c) addr %p ", cmd, cmd, cptr.cp);
+	debug ("is= cmd %x(%c) addr %p ", cmd, cmd, addr);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		debug ("is= %x %x\n", cptr.cp[0], cword.c);
-		retval = (cptr.cp[0] == cword.c);
+		debug ("is= %x %x\n", flash_read8(addr), cword.c);
+		retval = (flash_read8(addr) == cword.c);
 		break;
 	case FLASH_CFI_16BIT:
-		debug ("is= %4.4x %4.4x\n", cptr.wp[0], cword.w);
-		retval = (cptr.wp[0] == cword.w);
+		debug ("is= %4.4x %4.4x\n", flash_read16(addr), cword.w);
+		retval = (flash_read16(addr) == cword.w);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("is= %8.8lx %8.8lx\n", cptr.lp[0], cword.l);
-		retval = (cptr.lp[0] == cword.l);
+		debug ("is= %8.8lx %8.8lx\n", flash_read32(addr), cword.l);
+		retval = (flash_read32(addr) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
 #ifdef DEBUG
@@ -433,12 +468,12 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 			char str1[20];
 			char str2[20];
 
-			print_longlong (str1, cptr.llp[0]);
+			print_longlong (str1, flash_read64(addr));
 			print_longlong (str2, cword.ll);
 			debug ("is= %s %s\n", str1, str2);
 		}
 #endif
-		retval = (cptr.llp[0] == cword.ll);
+		retval = (flash_read64(addr) == cword.ll);
 		break;
 	default:
 		retval = 0;
@@ -452,24 +487,24 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 static int flash_isset (flash_info_t * info, flash_sect_t sect,
 			uint offset, uchar cmd)
 {
-	cfiptr_t cptr;
+	void *addr;
 	cfiword_t cword;
 	int retval;
 
-	cptr.cp = flash_make_addr (info, sect, offset);
+	addr = flash_make_addr (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		retval = ((cptr.cp[0] & cword.c) == cword.c);
+		retval = ((flash_read8(addr) & cword.c) == cword.c);
 		break;
 	case FLASH_CFI_16BIT:
-		retval = ((cptr.wp[0] & cword.w) == cword.w);
+		retval = ((flash_read16(addr) & cword.w) == cword.w);
 		break;
 	case FLASH_CFI_32BIT:
-		retval = ((cptr.lp[0] & cword.l) == cword.l);
+		retval = ((flash_read16(addr) & cword.l) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
-		retval = ((cptr.llp[0] & cword.ll) == cword.ll);
+		retval = ((flash_read64(addr) & cword.ll) == cword.ll);
 		break;
 	default:
 		retval = 0;
@@ -483,25 +518,28 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect,
 static int flash_toggle (flash_info_t * info, flash_sect_t sect,
 			 uint offset, uchar cmd)
 {
-	cfiptr_t cptr;
+	void *addr;
 	cfiword_t cword;
 	int retval;
 
-	cptr.cp = flash_make_addr (info, sect, offset);
+	addr = flash_make_addr (info, sect, offset);
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		retval = ((cptr.cp[0] & cword.c) != (cptr.cp[0] & cword.c));
+		retval = ((flash_read8(addr) & cword.c) !=
+			  (flash_read8(addr) & cword.c));
 		break;
 	case FLASH_CFI_16BIT:
-		retval = ((cptr.wp[0] & cword.w) != (cptr.wp[0] & cword.w));
+		retval = ((flash_read16(addr) & cword.w) !=
+			  (flash_read16(addr) & cword.w));
 		break;
 	case FLASH_CFI_32BIT:
-		retval = ((cptr.lp[0] & cword.l) != (cptr.lp[0] & cword.l));
+		retval = ((flash_read32(addr) & cword.l) !=
+			  (flash_read32(addr) & cword.l));
 		break;
 	case FLASH_CFI_64BIT:
-		retval = ((cptr.llp[0] & cword.ll) !=
-			  (cptr.llp[0] & cword.ll));
+		retval = ((flash_read64(addr) & cword.ll) !=
+			  (flash_read64(addr) & cword.ll));
 		break;
 	default:
 		retval = 0;
@@ -676,26 +714,26 @@ static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 static int flash_write_cfiword (flash_info_t * info, ulong dest,
 				cfiword_t cword)
 {
-	cfiptr_t ctladdr;
-	cfiptr_t cptr;
+	void *ctladdr;
+	void *dstaddr;
 	int flag;
 
-	ctladdr.cp = flash_make_addr (info, 0, 0);
-	cptr.cp = (uchar *) dest;
+	ctladdr = flash_make_addr (info, 0, 0);
+	dstaddr = (uchar *)dest;
 
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		flag = ((cptr.cp[0] & cword.c) == cword.c);
+		flag = ((flash_read8(dstaddr) & cword.c) == cword.c);
 		break;
 	case FLASH_CFI_16BIT:
-		flag = ((cptr.wp[0] & cword.w) == cword.w);
+		flag = ((flash_read16(dstaddr) & cword.w) == cword.w);
 		break;
 	case FLASH_CFI_32BIT:
-		flag = ((cptr.lp[0] & cword.l) == cword.l);
+		flag = ((flash_read32(dstaddr) & cword.l) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
-		flag = ((cptr.llp[0] & cword.ll) == cword.ll);
+		flag = ((flash_read64(dstaddr) & cword.ll) == cword.ll);
 		break;
 	default:
 		return 2;
@@ -724,16 +762,16 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		cptr.cp[0] = cword.c;
+		flash_write8(cword.c, dstaddr);
 		break;
 	case FLASH_CFI_16BIT:
-		cptr.wp[0] = cword.w;
+		flash_write16(cword.w, dstaddr);
 		break;
 	case FLASH_CFI_32BIT:
-		cptr.lp[0] = cword.l;
+		flash_write32(cword.l, dstaddr);
 		break;
 	case FLASH_CFI_64BIT:
-		cptr.llp[0] = cword.ll;
+		flash_write64(cword.ll, dstaddr);
 		break;
 	}
 
@@ -753,15 +791,14 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	flash_sect_t sector;
 	int cnt;
 	int retcode;
-	volatile cfiptr_t src;
-	volatile cfiptr_t dst;
+	void *src = cp;
+	void *dst = (void *)dest;
+
+	sector = find_sector (info, dest);
 
 	switch (info->vendor) {
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
-		src.cp = cp;
-		dst.cp = (uchar *) dest;
-		sector = find_sector (info, dest);
 		flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 		flash_write_cmd (info, sector, 0, FLASH_CMD_WRITE_TO_BUFFER);
 		retcode = flash_status_check (info, sector,
@@ -791,16 +828,20 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 			while (cnt-- > 0) {
 				switch (info->portwidth) {
 				case FLASH_CFI_8BIT:
-					*dst.cp++ = *src.cp++;
+					flash_write8(flash_read8(src), dst);
+					src += 1, dst += 1;
 					break;
 				case FLASH_CFI_16BIT:
-					*dst.wp++ = *src.wp++;
+					flash_write16(flash_read16(src), dst);
+					src += 2, dst += 2;
 					break;
 				case FLASH_CFI_32BIT:
-					*dst.lp++ = *src.lp++;
+					flash_write32(flash_read32(src), dst);
+					src += 4, dst += 4;
 					break;
 				case FLASH_CFI_64BIT:
-					*dst.llp++ = *src.llp++;
+					flash_write64(flash_read64(src), dst);
+					src += 8, dst += 8;
 					break;
 				default:
 					return ERR_INVAL;
@@ -817,10 +858,6 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
-		src.cp = cp;
-		dst.cp = (uchar *) dest;
-		sector = find_sector (info, dest);
-
 		flash_unlock_seq(info,0);
 		flash_write_cmd (info, sector, 0, AMD_CMD_WRITE_TO_BUFFER);
 
@@ -828,22 +865,34 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 		case FLASH_CFI_8BIT:
 			cnt = len;
 			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
-			while (cnt-- > 0) *dst.cp++ = *src.cp++;
+			while (cnt-- > 0) {
+				flash_write8(flash_read8(src), dst);
+				src += 1, dst += 1;
+			}
 			break;
 		case FLASH_CFI_16BIT:
 			cnt = len >> 1;
 			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
-			while (cnt-- > 0) *dst.wp++ = *src.wp++;
+			while (cnt-- > 0) {
+				flash_write16(flash_read16(src), dst);
+				src += 2, dst += 2;
+			}
 			break;
 		case FLASH_CFI_32BIT:
 			cnt = len >> 2;
 			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
-			while (cnt-- > 0) *dst.lp++ = *src.lp++;
+			while (cnt-- > 0) {
+				flash_write32(flash_read32(src), dst);
+				src += 4, dst += 4;
+			}
 			break;
 		case FLASH_CFI_64BIT:
 			cnt = len >> 3;
 			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
-			while (cnt-- > 0) *dst.llp++ = *src.llp++;
+			while (cnt-- > 0) {
+				flash_write64(flash_read64(src), dst);
+				src += 8, dst += 8;
+			}
 			break;
 		default:
 			return ERR_INVAL;
