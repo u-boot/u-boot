@@ -1302,13 +1302,105 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 
 #endif /* CFG_FLASH_PROTECTION */
 
+/*-----------------------------------------------------------------------
+ * Reverse the order of the erase regions in the CFI QRY structure.
+ * This is needed for chips that are either a) correctly detected as
+ * top-boot, or b) buggy.
+ */
+static void cfi_reverse_geometry(struct cfi_qry *qry)
+{
+	unsigned int i, j;
+	u32 tmp;
+
+	for (i = 0, j = qry->num_erase_regions - 1; i < j; i++, j--) {
+		tmp = qry->erase_region_info[i];
+		qry->erase_region_info[i] = qry->erase_region_info[j];
+		qry->erase_region_info[j] = tmp;
+	}
+}
 
 /*-----------------------------------------------------------------------
  * read jedec ids from device and set corresponding fields in info struct
  *
  * Note: assume cfi->vendor, cfi->portwidth and cfi->chipwidth are correct
  *
-*/
+ */
+static void cmdset_intel_read_jedec_ids(flash_info_t *info)
+{
+	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+	flash_write_cmd(info, 0, 0, FLASH_CMD_READ_ID);
+	udelay(1000); /* some flash are slow to respond */
+	info->manufacturer_id = flash_read_uchar (info,
+					FLASH_OFFSET_MANUFACTURER_ID);
+	info->device_id = flash_read_uchar (info,
+					FLASH_OFFSET_DEVICE_ID);
+	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+}
+
+static int cmdset_intel_init(flash_info_t *info, struct cfi_qry *qry)
+{
+	info->cmd_reset = FLASH_CMD_RESET;
+
+	cmdset_intel_read_jedec_ids(info);
+	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
+
+#ifdef CFG_FLASH_PROTECTION
+	/* read legacy lock/unlock bit from intel flash */
+	if (info->ext_addr) {
+		info->legacy_unlock = flash_read_uchar (info,
+				info->ext_addr + 5) & 0x08;
+	}
+#endif
+
+	return 0;
+}
+
+static void cmdset_amd_read_jedec_ids(flash_info_t *info)
+{
+	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	flash_unlock_seq(info, 0);
+	flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
+	udelay(1000); /* some flash are slow to respond */
+	info->manufacturer_id = flash_read_uchar (info,
+					FLASH_OFFSET_MANUFACTURER_ID);
+	info->device_id = flash_read_uchar (info,
+					FLASH_OFFSET_DEVICE_ID);
+	if (info->device_id == 0x7E) {
+		/* AMD 3-byte (expanded) device ids */
+		info->device_id2 = flash_read_uchar (info,
+					FLASH_OFFSET_DEVICE_ID2);
+		info->device_id2 <<= 8;
+		info->device_id2 |= flash_read_uchar (info,
+					FLASH_OFFSET_DEVICE_ID3);
+	}
+	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+}
+
+static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
+{
+	info->cmd_reset = AMD_CMD_RESET;
+
+	cmdset_amd_read_jedec_ids(info);
+	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
+
+	/* check if flash geometry needs reversal */
+	if (qry->num_erase_regions > 1) {
+		/* reverse geometry if top boot part */
+		if (info->cfi_version < 0x3131) {
+			/* CFI < 1.1, try to guess from device id */
+			if ((info->device_id & 0x80) != 0)
+				cfi_reverse_geometry(qry);
+		} else if (flash_read_uchar(info, info->ext_addr + 0xf) == 3) {
+			/* CFI >= 1.1, deduct from top/bottom flag */
+			/* note: ext_addr is valid since cfi_version > 0 */
+			cfi_reverse_geometry(qry);
+		}
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_FLASH_CFI_LEGACY
 static void flash_read_jedec_ids (flash_info_t * info)
 {
 	info->manufacturer_id = 0;
@@ -1318,41 +1410,17 @@ static void flash_read_jedec_ids (flash_info_t * info)
 	switch (info->vendor) {
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
-		flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
-		flash_write_cmd(info, 0, 0, FLASH_CMD_READ_ID);
-		udelay(1000); /* some flash are slow to respond */
-		info->manufacturer_id = flash_read_uchar (info,
-						FLASH_OFFSET_MANUFACTURER_ID);
-		info->device_id = flash_read_uchar (info,
-						FLASH_OFFSET_DEVICE_ID);
-		flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+		flash_read_jedec_ids_intel(info);
 		break;
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
-		flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
-		flash_unlock_seq(info, 0);
-		flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
-		udelay(1000); /* some flash are slow to respond */
-		info->manufacturer_id = flash_read_uchar (info,
-						FLASH_OFFSET_MANUFACTURER_ID);
-		info->device_id = flash_read_uchar (info,
-						FLASH_OFFSET_DEVICE_ID);
-		if (info->device_id == 0x7E) {
-			/* AMD 3-byte (expanded) device ids */
-			info->device_id2 = flash_read_uchar (info,
-						FLASH_OFFSET_DEVICE_ID2);
-			info->device_id2 <<= 8;
-			info->device_id2 |= flash_read_uchar (info,
-						FLASH_OFFSET_DEVICE_ID3);
-		}
-		flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+		flash_read_jedec_ids_amd(info);
 		break;
 	default:
 		break;
 	}
 }
 
-#ifdef CONFIG_FLASH_CFI_LEGACY
 /*-----------------------------------------------------------------------
  * Call board code to request info about non-CFI flash.
  * board_flash_get_legacy needs to fill in at least:
@@ -1514,7 +1582,6 @@ ulong flash_get_size (ulong base, int banknum)
 	uchar num_erase_regions;
 	int erase_region_size;
 	int erase_region_count;
-	int geometry_reversed = 0;
 	struct cfi_qry qry;
 
 	info->ext_addr = 0;
@@ -1530,51 +1597,36 @@ ulong flash_get_size (ulong base, int banknum)
 		info->ext_addr = le16_to_cpu(qry.p_adr);
 		num_erase_regions = qry.num_erase_regions;
 
-		flash_read_jedec_ids (info);
-		flash_write_cmd (info, 0, info->cfi_offset, FLASH_CMD_CFI);
-
 		if (info->ext_addr) {
 			info->cfi_version = (ushort) flash_read_uchar (info,
 						info->ext_addr + 3) << 8;
 			info->cfi_version |= (ushort) flash_read_uchar (info,
 						info->ext_addr + 4);
 		}
+
 #ifdef DEBUG
 		flash_printqry (&qry);
 #endif
+
 		switch (info->vendor) {
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
-		default:
-			info->cmd_reset = FLASH_CMD_RESET;
-#ifdef CFG_FLASH_PROTECTION
-			/* read legacy lock/unlock bit from intel flash */
-			if (info->ext_addr) {
-				info->legacy_unlock = flash_read_uchar (info,
-						info->ext_addr + 5) & 0x08;
-			}
-#endif
+			cmdset_intel_init(info, &qry);
 			break;
 		case CFI_CMDSET_AMD_STANDARD:
 		case CFI_CMDSET_AMD_EXTENDED:
-			info->cmd_reset = AMD_CMD_RESET;
-			/* check if flash geometry needs reversal */
-			if (num_erase_regions <= 1)
-				break;
-			/* reverse geometry if top boot part */
-			if (info->cfi_version < 0x3131) {
-				/* CFI < 1.1, try to guess from device id */
-				if ((info->device_id & 0x80) != 0) {
-					geometry_reversed = 1;
-				}
-				break;
-			}
-			/* CFI >= 1.1, deduct from top/bottom flag */
-			/* note: ext_addr is valid since cfi_version > 0 */
-			if (flash_read_uchar(info, info->ext_addr + 0xf) == 3) {
-				geometry_reversed = 1;
-			}
+			cmdset_amd_init(info, &qry);
 			break;
+		default:
+			printf("CFI: Unknown command set 0x%x\n",
+					info->vendor);
+			/*
+			 * Unfortunately, this means we don't know how
+			 * to get the chip back to Read mode. Might
+			 * as well try an Intel-style reset...
+			 */
+			flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+			return 0;
 		}
 
 		debug ("manufacturer is %d\n", info->vendor);
@@ -1596,18 +1648,14 @@ ulong flash_get_size (ulong base, int banknum)
 		sect_cnt = 0;
 		sector = base;
 		for (i = 0; i < num_erase_regions; i++) {
-			unsigned int region = i;
-
 			if (i > NUM_ERASE_REGIONS) {
 				printf ("%d erase regions found, only %d used\n",
 					num_erase_regions, NUM_ERASE_REGIONS);
 				break;
 			}
-			if (geometry_reversed)
-				region = num_erase_regions - 1 - i;
 
-			tmp = le32_to_cpu(qry.erase_region_info[region]);
-			debug("erase region %u: 0x%08lx\n", region, tmp);
+			tmp = le32_to_cpu(qry.erase_region_info[i]);
+			debug("erase region %u: 0x%08lx\n", i, tmp);
 
 			erase_region_count = (tmp & 0xffff) + 1;
 			tmp >>= 16;
