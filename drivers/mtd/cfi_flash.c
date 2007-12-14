@@ -171,6 +171,38 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];		/* FLASH chips info */
 
 typedef unsigned long flash_sect_t;
 
+/* CFI standard query structure */
+struct cfi_qry {
+	u8	qry[3];
+	u16	p_id;
+	u16	p_adr;
+	u16	a_id;
+	u16	a_adr;
+	u8	vcc_min;
+	u8	vcc_max;
+	u8	vpp_min;
+	u8	vpp_max;
+	u8	word_write_timeout_typ;
+	u8	buf_write_timeout_typ;
+	u8	block_erase_timeout_typ;
+	u8	chip_erase_timeout_typ;
+	u8	word_write_timeout_max;
+	u8	buf_write_timeout_max;
+	u8	block_erase_timeout_max;
+	u8	chip_erase_timeout_max;
+	u8	dev_size;
+	u16	interface_desc;
+	u16	max_buf_write_size;
+	u8	num_erase_regions;
+	u32	erase_region_info[NUM_ERASE_REGIONS];
+} __attribute__((packed));
+
+struct cfi_pri_hdr {
+	u8	pri[3];
+	u8	major_version;
+	u8	minor_version;
+} __attribute__((packed));
+
 static void flash_write8(u8 value, void *addr)
 {
 	__raw_writeb(value, addr);
@@ -291,28 +323,24 @@ static void print_longlong (char *str, unsigned long long data)
 		sprintf (&str[i * 2], "%2.2x", *cp++);
 }
 
-static void flash_printqry (flash_info_t * info, flash_sect_t sect)
+static void flash_printqry (struct cfi_qry *qry)
 {
-	void *addr;
+	u8 *p = (u8 *)qry;
 	int x, y;
 
-	for (x = 0; x < 0x40; x += 16U / info->portwidth) {
-		addr = flash_map(info, sect, x + FLASH_OFFSET_CFI_RESP);
-		debug ("%p : ", addr);
+	for (x = 0; x < sizeof(struct cfi_qry); x += 16) {
+		debug("%02x : ", x);
+		for (y = 0; y < 16; y++)
+			debug("%2.2x ", p[x + y]);
+		debug(" ");
 		for (y = 0; y < 16; y++) {
-			debug ("%2.2x ", flash_read8(addr + y));
+			unsigned char c = p[x + y];
+			if (c >= 0x20 && c <= 0x7e)
+				debug("%c", c);
+			else
+				debug(".");
 		}
-		debug (" ");
-		for (y = 0; y < 16; y++) {
-			unsigned char c = flash_read8(addr + y);
-			if (c >= 0x20 && c <= 0x7e) {
-				debug ("%c", c);
-			} else {
-				debug (".");
-			}
-		}
-		debug ("\n");
-		flash_unmap(info, sect, x + FLASH_OFFSET_CFI_RESP, addr);
+		debug("\n");
 	}
 }
 #endif
@@ -333,41 +361,6 @@ static inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 	retval = flash_read8(cp + info->portwidth - 1);
 #endif
 	flash_unmap (info, 0, offset, cp);
-	return retval;
-}
-
-/*-----------------------------------------------------------------------
- * read a short word by swapping for ppc format.
- */
-static ushort flash_read_ushort (flash_info_t * info, flash_sect_t sect,
-				 uint offset)
-{
-	uchar *addr;
-	ushort retval;
-
-#ifdef DEBUG
-	int x;
-#endif
-	addr = flash_map (info, sect, offset);
-
-#ifdef DEBUG
-	debug ("ushort addr is at %p info->portwidth = %d\n", addr,
-	       info->portwidth);
-	for (x = 0; x < 2 * info->portwidth; x++) {
-		debug ("addr[%x] = 0x%x\n", x, flash_read8(addr + x));
-	}
-#endif
-#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	retval = ((flash_read8(addr + info->portwidth) << 8) |
-		  flash_read8(addr));
-#else
-	retval = ((flash_read8(addr + 2 * info->portwidth - 1) << 8) |
-		  flash_read8(addr + info->portwidth - 1));
-#endif
-
-	debug ("retval = 0x%x\n", retval);
-	flash_unmap (info, sect, offset, addr);
-
 	return retval;
 }
 
@@ -1427,7 +1420,17 @@ static inline int flash_detect_legacy(ulong base, int banknum)
  * detect if flash is compatible with the Common Flash Interface (CFI)
  * http://www.jedec.org/download/search/jesd68.pdf
  */
-static int __flash_detect_cfi (flash_info_t * info)
+static void flash_read_cfi (flash_info_t *info, void *buf,
+		unsigned int start, size_t len)
+{
+	u8 *p = buf;
+	unsigned int i;
+
+	for (i = 0; i < len; i++)
+		p[i] = flash_read_uchar(info, start + i);
+}
+
+static int __flash_detect_cfi (flash_info_t * info, struct cfi_qry *qry)
 {
 	int cfi_offset;
 
@@ -1440,8 +1443,10 @@ static int __flash_detect_cfi (flash_info_t * info)
 		if (flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
 		    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
 		    && flash_isequal (info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
-			info->interface	= flash_read_ushort (info, 0,
-						FLASH_OFFSET_INTERFACE);
+			flash_read_cfi(info, qry, FLASH_OFFSET_CFI_RESP,
+					sizeof(struct cfi_qry));
+			info->interface	= le16_to_cpu(qry->interface_desc);
+
 			info->cfi_offset = flash_offset_cfi[cfi_offset];
 			debug ("device interface is %d\n",
 			       info->interface);
@@ -1478,7 +1483,7 @@ static int __flash_detect_cfi (flash_info_t * info)
 	return 0;
 }
 
-static int flash_detect_cfi (flash_info_t * info)
+static int flash_detect_cfi (flash_info_t * info, struct cfi_qry *qry)
 {
 	debug ("flash detect cfi\n");
 
@@ -1487,7 +1492,7 @@ static int flash_detect_cfi (flash_info_t * info)
 		for (info->chipwidth = FLASH_CFI_BY8;
 		     info->chipwidth <= info->portwidth;
 		     info->chipwidth <<= 1)
-			if (__flash_detect_cfi(info))
+			if (__flash_detect_cfi(info, qry))
 				return 1;
 	}
 	debug ("not found\n");
@@ -1510,6 +1515,7 @@ ulong flash_get_size (ulong base, int banknum)
 	int erase_region_size;
 	int erase_region_count;
 	int geometry_reversed = 0;
+	struct cfi_qry qry;
 
 	info->ext_addr = 0;
 	info->cfi_version = 0;
@@ -1519,15 +1525,14 @@ ulong flash_get_size (ulong base, int banknum)
 
 	info->start[0] = base;
 
-	if (flash_detect_cfi (info)) {
-		info->vendor = flash_read_ushort (info, 0,
-					FLASH_OFFSET_PRIMARY_VENDOR);
+	if (flash_detect_cfi (info, &qry)) {
+		info->vendor = le16_to_cpu(qry.p_id);
+		info->ext_addr = le16_to_cpu(qry.p_adr);
+		num_erase_regions = qry.num_erase_regions;
+
 		flash_read_jedec_ids (info);
 		flash_write_cmd (info, 0, info->cfi_offset, FLASH_CMD_CFI);
-		num_erase_regions = flash_read_uchar (info,
-					FLASH_OFFSET_NUM_ERASE_REGIONS);
-		info->ext_addr = flash_read_ushort (info, 0,
-					FLASH_OFFSET_EXT_QUERY_T_P_ADDR);
+
 		if (info->ext_addr) {
 			info->cfi_version = (ushort) flash_read_uchar (info,
 						info->ext_addr + 3) << 8;
@@ -1535,7 +1540,7 @@ ulong flash_get_size (ulong base, int banknum)
 						info->ext_addr + 4);
 		}
 #ifdef DEBUG
-		flash_printqry (info, 0);
+		flash_printqry (&qry);
 #endif
 		switch (info->vendor) {
 		case CFI_CMDSET_INTEL_STANDARD:
@@ -1591,23 +1596,23 @@ ulong flash_get_size (ulong base, int banknum)
 		sect_cnt = 0;
 		sector = base;
 		for (i = 0; i < num_erase_regions; i++) {
+			unsigned int region = i;
+
 			if (i > NUM_ERASE_REGIONS) {
 				printf ("%d erase regions found, only %d used\n",
 					num_erase_regions, NUM_ERASE_REGIONS);
 				break;
 			}
 			if (geometry_reversed)
-				tmp = flash_read_long (info, 0,
-					       FLASH_OFFSET_ERASE_REGIONS +
-					       (num_erase_regions - 1 - i) * 4);
-			else
-				tmp = flash_read_long (info, 0,
-					       FLASH_OFFSET_ERASE_REGIONS +
-					       i * 4);
+				region = num_erase_regions - 1 - i;
+
+			tmp = le32_to_cpu(qry.erase_region_info[region]);
+			debug("erase region %u: 0x%08lx\n", region, tmp);
+
+			erase_region_count = (tmp & 0xffff) + 1;
+			tmp >>= 16;
 			erase_region_size =
 				(tmp & 0xffff) ? ((tmp & 0xffff) * 256) : 128;
-			tmp >>= 16;
-			erase_region_count = (tmp & 0xffff) + 1;
 			debug ("erase_region_count = %d erase_region_size = %d\n",
 				erase_region_count, erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
@@ -1640,23 +1645,22 @@ ulong flash_get_size (ulong base, int banknum)
 		}
 
 		info->sector_count = sect_cnt;
-		info->size = 1 << flash_read_uchar (info, FLASH_OFFSET_SIZE);
+		info->size = 1 << qry.dev_size;
 		/* multiply the size by the number of chips */
 		info->size *= size_ratio;
-		info->buffer_size = 1 << flash_read_ushort (info, 0,
-						FLASH_OFFSET_BUFFER_SIZE);
-		tmp = 1 << flash_read_uchar (info, FLASH_OFFSET_ETOUT);
+		info->buffer_size = 1 << le16_to_cpu(qry.max_buf_write_size);
+		tmp = 1 << qry.block_erase_timeout_typ;
 		info->erase_blk_tout = tmp *
-			(1 << flash_read_uchar (
-				 info, FLASH_OFFSET_EMAX_TOUT));
-		tmp = (1 << flash_read_uchar (info, FLASH_OFFSET_WBTOUT)) *
-			(1 << flash_read_uchar (info, FLASH_OFFSET_WBMAX_TOUT));
+			(1 << qry.block_erase_timeout_max);
+		tmp = (1 << qry.buf_write_timeout_typ) *
+			(1 << qry.buf_write_timeout_max);
+
 		/* round up when converting to ms */
-		info->buffer_write_tout = tmp / 1000 + (tmp % 1000 ? 1 : 0);
-		tmp = (1 << flash_read_uchar (info, FLASH_OFFSET_WTOUT)) *
-		      (1 << flash_read_uchar (info, FLASH_OFFSET_WMAX_TOUT));
+		info->buffer_write_tout = (tmp + 999) / 1000;
+		tmp = (1 << qry.word_write_timeout_typ) *
+			(1 << qry.word_write_timeout_max);
 		/* round up when converting to ms */
-		info->write_tout = tmp / 1000 + (tmp % 1000 ? 1 : 0);
+		info->write_tout = (tmp + 999) / 1000;
 		info->flash_id = FLASH_MAN_CFI;
 		if ((info->interface == FLASH_CFI_X8X16) &&
 		    (info->chipwidth == FLASH_CFI_BY8)) {
