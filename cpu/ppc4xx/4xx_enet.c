@@ -849,7 +849,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		}
 
 #ifdef CONFIG_4xx_DCACHE
-		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE - 1);
+		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
 		bd_uncached = bis->bi_memsize;
 		program_tlb(bd_cached, bd_uncached, MAL_ALLOC_SIZE,
 			    TLB_WORD2_I_ENABLE);
@@ -1064,7 +1064,7 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 
 	/*   memcpy ((void *) &tx_buff[tx_slot], (const void *) ptr, len); */
 	memcpy ((void *) hw_p->txbuf_ptr, (const void *) ptr, len);
-	flush_dcache_range((u32)hw_p->txbuf_ptr, (u32)hw_p->txbuf_ptr + len - 1);
+	flush_dcache_range((u32)hw_p->txbuf_ptr, (u32)hw_p->txbuf_ptr + len);
 
 	/*-----------------------------------------------------------------------+
 	 * set TX Buffer busy, and send it
@@ -1566,7 +1566,7 @@ static int ppc_4xx_eth_rx (struct eth_device *dev)
 		/*	 NetReceive(NetRxPackets[i], length); */
 		invalidate_dcache_range((u32)hw_p->rx[user_index].data_ptr,
 					(u32)hw_p->rx[user_index].data_ptr +
-					length - 4 - 1);
+					length - 4);
 		NetReceive (NetRxPackets[user_index], length - 4);
 		/* Free Recv Buffer */
 		hw_p->rx[user_index].ctrl |= MAL_RX_CTRL_EMPTY;
