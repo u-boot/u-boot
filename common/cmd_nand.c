@@ -38,37 +38,44 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
                       u8 *part_num, struct part_info **part);
 #endif
 
-static int nand_dump_oob(nand_info_t *nand, ulong off)
-{
-	return 0;
-}
-
-static int nand_dump(nand_info_t *nand, ulong off)
+static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
 {
 	int i;
-	u_char *buf, *p;
+	u_char *datbuf, *oobbuf, *p;
 
-	buf = malloc(nand->writesize + nand->oobsize);
-	if (!buf) {
+	datbuf = malloc(nand->writesize + nand->oobsize);
+	oobbuf = malloc(nand->oobsize);
+	if (!datbuf || !oobbuf) {
 		puts("No memory for page buffer\n");
 		return 1;
 	}
 	off &= ~(nand->writesize - 1);
 	size_t dummy;
 	loff_t addr = (loff_t) off;
-	i = nand->read(nand, addr, nand->writesize, &dummy, buf);
+	struct mtd_oob_ops ops;
+	memset(&ops, 0, sizeof(ops));
+	ops.datbuf = datbuf;
+	ops.oobbuf = oobbuf; /* must exist, but oob data will be appended to ops.datbuf */
+	ops.len = nand->writesize;
+	ops.ooblen = nand->oobsize;
+	ops.mode = MTD_OOB_RAW;
+	i = nand->read_oob(nand, addr, &ops);
 	if (i < 0) {
 		printf("Error (%d) reading page %08lx\n", i, off);
-		free(buf);
+		free(datbuf);
+		free(oobbuf);
 		return 1;
 	}
 	printf("Page %08lx dump:\n", off);
-	i = nand->writesize >> 4; p = buf;
+	i = nand->writesize >> 4;
+	p = datbuf;
+		
 	while (i--) {
-		printf("\t%02x %02x %02x %02x %02x %02x %02x %02x"
-		       "  %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7],
-		       p[8], p[9], p[10], p[11], p[12], p[13], p[14], p[15]);
+		if (!only_oob)
+			printf("\t%02x %02x %02x %02x %02x %02x %02x %02x"
+			       "  %02x %02x %02x %02x %02x %02x %02x %02x\n",
+			       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7],
+			       p[8], p[9], p[10], p[11], p[12], p[13], p[14], p[15]);
 		p += 16;
 	}
 	puts("OOB:\n");
@@ -78,7 +85,8 @@ static int nand_dump(nand_info_t *nand, ulong off)
 		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
 		p += 8;
 	}
-	free(buf);
+	free(datbuf);
+	free(oobbuf);
 
 	return 0;
 }
@@ -302,9 +310,9 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		off = (int)simple_strtoul(argv[2], NULL, 16);
 
 		if (s != NULL && strcmp(s, ".oob") == 0)
-			ret = nand_dump_oob(nand, off);
+			ret = nand_dump(nand, off, 1);
 		else
-			ret = nand_dump(nand, off);
+			ret = nand_dump(nand, off, 0);
 
 		return ret == 0 ? 1 : 0;
 
