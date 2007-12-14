@@ -97,6 +97,7 @@ endif
 #
 ifeq ($(HOSTOS),cygwin)
 SFX = .exe
+HOST_CFLAGS += -ansi
 else
 SFX =
 endif
