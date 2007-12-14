@@ -1383,20 +1383,6 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 	cmdset_amd_read_jedec_ids(info);
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
 
-	/* check if flash geometry needs reversal */
-	if (qry->num_erase_regions > 1) {
-		/* reverse geometry if top boot part */
-		if (info->cfi_version < 0x3131) {
-			/* CFI < 1.1, try to guess from device id */
-			if ((info->device_id & 0x80) != 0)
-				cfi_reverse_geometry(qry);
-		} else if (flash_read_uchar(info, info->ext_addr + 0xf) == 3) {
-			/* CFI >= 1.1, deduct from top/bottom flag */
-			/* note: ext_addr is valid since cfi_version > 0 */
-			cfi_reverse_geometry(qry);
-		}
-	}
-
 	return 0;
 }
 
@@ -1568,6 +1554,49 @@ static int flash_detect_cfi (flash_info_t * info, struct cfi_qry *qry)
 }
 
 /*
+ * Manufacturer-specific quirks. Add workarounds for geometry
+ * reversal, etc. here.
+ */
+static void flash_fixup_amd(flash_info_t *info, struct cfi_qry *qry)
+{
+	/* check if flash geometry needs reversal */
+	if (qry->num_erase_regions > 1) {
+		/* reverse geometry if top boot part */
+		if (info->cfi_version < 0x3131) {
+			/* CFI < 1.1, try to guess from device id */
+			if ((info->device_id & 0x80) != 0)
+				cfi_reverse_geometry(qry);
+		} else if (flash_read_uchar(info, info->ext_addr + 0xf) == 3) {
+			/* CFI >= 1.1, deduct from top/bottom flag */
+			/* note: ext_addr is valid since cfi_version > 0 */
+			cfi_reverse_geometry(qry);
+		}
+	}
+}
+
+static void flash_fixup_atmel(flash_info_t *info, struct cfi_qry *qry)
+{
+	int reverse_geometry = 0;
+
+	/* Check the "top boot" bit in the PRI */
+	if (info->ext_addr && !(flash_read_uchar(info, info->ext_addr + 6) & 1))
+		reverse_geometry = 1;
+
+	/* AT49BV6416(T) list the erase regions in the wrong order.
+	 * However, the device ID is identical with the non-broken
+	 * AT49BV642D since u-boot only reads the low byte (they
+	 * differ in the high byte.) So leave out this fixup for now.
+	 */
+#if 0
+	if (info->device_id == 0xd6 || info->device_id == 0xd2)
+		reverse_geometry = !reverse_geometry;
+#endif
+
+	if (reverse_geometry)
+		cfi_reverse_geometry(qry);
+}
+
+/*
  * The following code cannot be run from FLASH!
  *
  */
@@ -1627,6 +1656,16 @@ ulong flash_get_size (ulong base, int banknum)
 			 */
 			flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 			return 0;
+		}
+
+		/* Do manufacturer-specific fixups */
+		switch (info->manufacturer_id) {
+		case 0x0001:
+			flash_fixup_amd(info, &qry);
+			break;
+		case 0x001f:
+			flash_fixup_atmel(info, &qry);
+			break;
 		}
 
 		debug ("manufacturer is %d\n", info->vendor);
