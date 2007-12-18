@@ -36,13 +36,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	char *cpu_path = "/cpus/" OF_CPU;
 	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);
 
-	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", bd->bi_intfreq, 1);
-	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4, "timebase-frequency",
+			     bd->bi_intfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4, "clock-frequency",
+			     bd->bi_intfreq, 1);
 	do_fixup_by_path_u32(blob, "/plb", "clock-frequency", sys_info.freqPLB, 1);
 	do_fixup_by_path_u32(blob, "/plb/opb", "clock-frequency", sys_info.freqOPB, 1);
 	do_fixup_by_path_u32(blob, "/plb/opb/ebc", "clock-frequency",
