@@ -60,6 +60,16 @@ struct serial_device *__default_serial_console (void)
 #else
 		return &serial0_device;
 #endif
+#elif defined(CONFIG_S3C2410)
+#if defined(CONFIG_SERIAL1)
+	return &s3c24xx_serial0_device;
+#elif defined(CONFIG_SERIAL2)
+	return &s3c24xx_serial1_device;
+#elif defined(CONFIG_SERIAL3)
+	return &s3c24xx_serial2_device;
+#else
+#error "CONFIG_SERIAL? missing."
+#endif
 #else
 #error No default console
 #endif
@@ -122,6 +132,11 @@ void serial_initialize (void)
 #endif
 #if defined (CONFIG_STUART)
 	serial_register(&serial_stuart_device);
+#endif
+#if defined(CONFIG_S3C2410)
+	serial_register(&s3c24xx_serial0_device);
+	serial_register(&s3c24xx_serial1_device);
+	serial_register(&s3c24xx_serial2_device);
 #endif
 	serial_assign (default_serial_console ()->name);
 }
