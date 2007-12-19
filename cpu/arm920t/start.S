@@ -329,12 +329,12 @@ cpu_init_crit:
 	.macro	irq_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
-	add     r8, sp, #S_PC
-	stmdb   r8, {sp, lr}^                   @ Calling SP, LR
-	str     lr, [r8, #0]                    @ Save calling PC
+	add     r7, sp, #S_PC
+	stmdb   r7, {sp, lr}^                   @ Calling SP, LR
+	str     lr, [r7, #0]                    @ Save calling PC
 	mrs     r6, spsr
-	str     r6, [r8, #4]                    @ Save CPSR
-	str     r0, [r8, #8]                    @ Save OLD_R0
+	str     r6, [r7, #4]                    @ Save CPSR
+	str     r0, [r7, #8]                    @ Save OLD_R0
 	mov	r0, sp
 	.endm
 
