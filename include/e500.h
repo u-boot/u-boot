@@ -50,10 +50,7 @@ typedef struct
  * nv(Next victim):0,1
  */
 #define TLB1_MAS0(tlbsel,esel,nv) \
-			((((tlbsel) << 28) & MAS0_TLBSEL)       |\
-			(((esel) << 16) & MAS0_ESEL )           |\
-			(nv) )
-
+			(MAS0_TLBSEL(tlbsel) | MAS0_ESEL(esel) | MAS0_NV(nv))
 
 /* MAS1
  * v(TLB valid bit):0,1
@@ -65,10 +62,9 @@ typedef struct
 #define TLB1_MAS1(v,iprot,tid,ts,tsize) \
 			((((v) << 31) & MAS1_VALID)             |\
 			(((iprot) << 30) & MAS1_IPROT)          |\
-			(((tid) << 16) & MAS1_TID)              |\
+			(MAS1_TID(tid))				|\
 			(((ts) << 12) & MAS1_TS)                |\
-			(((tsize) << 8) & MAS1_TSIZE) )
-
+			(MAS1_TSIZE(tsize)))
 
 /* MAS2
  * epn(effective page number):20bits
@@ -79,7 +75,6 @@ typedef struct
  */
 #define TLB1_MAS2(epn,sharen,x0,x1,w,i,m,g,e) \
 			((((epn) << 12) & MAS2_EPN)             |\
-			(((sharen) << 9) & MAS2_SHAREN)         |\
 			(((x0) << 6) & MAS2_X0)                 |\
 			(((x1) << 5) & MAS2_X1)                 |\
 			(((w) << 4) & MAS2_W)                   |\
@@ -87,7 +82,6 @@ typedef struct
 			(((m) << 2) & MAS2_M)                   |\
 			(((g) << 1) & MAS2_G)                   |\
 			(e) )
-
 
 /* MAS3
  * rpn(real page number):20bits
