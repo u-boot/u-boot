@@ -388,6 +388,19 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 
 #define MAS7_RPN	0xFFFFFFFF
 
+#define FSL_BOOKE_MAS0(tlbsel,esel,nv) \
+		(MAS0_TLBSEL(tlbsel) | MAS0_ESEL(esel) | MAS0_NV(nv))
+#define FSL_BOOKE_MAS1(v,iprot,tid,ts,tsize) \
+		((((v) << 31) & MAS1_VALID)             |\
+		(((iprot) << 30) & MAS1_IPROT)          |\
+		(MAS1_TID(tid))				|\
+		(((ts) << 12) & MAS1_TS)                |\
+		(MAS1_TSIZE(tsize)))
+#define FSL_BOOKE_MAS2(epn, wimge) \
+		(((epn) & MAS3_RPN) | (wimge))
+#define FSL_BOOKE_MAS3(rpn, user, perms) \
+		(((rpn) & MAS3_RPN) | (user) | (perms))
+
 #define BOOKE_PAGESZ_1K         0
 #define BOOKE_PAGESZ_4K         1
 #define BOOKE_PAGESZ_16K        2
