@@ -347,6 +347,14 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				opts.quiet      = quiet;
 				ret = nand_write_opts(nand, &opts);
 			}
+		} else if (s != NULL && !strcmp(s, ".oob")) {
+			/* read out-of-band data */
+			if (read)
+				ret = nand->read_oob(nand, off, size, &size,
+						     (u_char *) addr);
+			else
+				ret = nand->write_oob(nand, off, size, &size,
+						      (u_char *) addr);
 		} else {
 			if (read)
 				ret = nand_read(nand, off, &size, (u_char *)addr);
