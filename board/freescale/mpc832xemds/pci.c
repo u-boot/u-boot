@@ -269,9 +269,6 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	int tmp[2];
 	const char *path;
 
-	if (pci_num_buses < 1)
-		return;
-
 	nodeoffset = fdt_path_offset(blob, "/aliases");
 	if (nodeoffset >= 0) {
 		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
