@@ -310,7 +310,7 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,8349@0"
@@ -458,7 +458,7 @@
 #define CONFIG_CMD_PING
 
 #if defined(CONFIG_PCI)
-    #define CONFG_CMD_PCI
+    #define CONFIG_CMD_PCI
 #endif
 
 #if defined(CFG_RAMBOOT)
