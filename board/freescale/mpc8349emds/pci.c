@@ -29,6 +29,7 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
+#include <fdt_support.h>
 #endif
 
 
@@ -389,37 +390,39 @@ pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT)
-void
-ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 	int nodeoffset;
-	int err;
 	int tmp[2];
+	const char *path;
 
-	nodeoffset = fdt_path_offset(blob, "/" OF_SOC "/pci@8500");
+	nodeoffset = fdt_path_offset(blob, "/aliases");
 	if (nodeoffset >= 0) {
-		tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
-		tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range",
-				  tmp, sizeof(tmp));
+		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
+			tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
 
-		tmp[0] = cpu_to_be32(gd->pci_clk);
-		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
-				  tmp, sizeof(tmp[0]));
-	}
+			tmp[0] = cpu_to_be32(gd->pci_clk);
+			do_fixup_by_path(blob, path, "clock-frequency",
+				&tmp, sizeof(tmp[0]), 1);
+		}
 #ifdef CONFIG_MPC83XX_PCI2
-	nodeoffset = fdt_path_offset(blob, "/" OF_SOC "/pci@8600");
-	if (nodeoffset >= 0) {
-		tmp[0] = cpu_to_be32(pci_hose[1].first_busno);
-		tmp[1] = cpu_to_be32(pci_hose[1].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range",
-				  tmp, sizeof(tmp));
+		path = fdt_getprop(blob, nodeoffset, "pci1", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
+			tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
 
-		tmp[0] = cpu_to_be32(gd->pci_clk);
-		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
-				  tmp, sizeof(tmp[0]));
-	}
+			tmp[0] = cpu_to_be32(gd->pci_clk);
+			do_fixup_by_path(blob, path, "clock-frequency",
+				&tmp, sizeof(tmp[0]), 1);
+		}
 #endif
+	}
 }
 #elif defined(CONFIG_OF_FLAT_TREE)
 void

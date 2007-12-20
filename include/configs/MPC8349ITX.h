@@ -298,12 +298,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP
-
-#define OF_CPU			"PowerPC,8349@0"
-#define OF_SOC			"soc8349@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
+#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * PCI
