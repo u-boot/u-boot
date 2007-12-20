@@ -297,8 +297,6 @@
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-#define CONFIG_OF_HAS_BD_T	1
-#define CONFIG_OF_HAS_UBOOT_ENV	1
 
 #define OF_CPU			"PowerPC,837x@0"
 #define OF_SOC			"soc837x@e0000000"
