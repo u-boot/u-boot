@@ -394,6 +394,4 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-#define OF_CPU			"PowerPC,405EX@0"
-
 #endif	/* __CONFIG_H */
