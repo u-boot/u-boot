@@ -1943,6 +1943,9 @@ TQM834x_config:	unconfig
 ## MPC85xx Systems
 #########################################################################
 
+ATUM8548_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx atum8548
+
 MPC8540ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
 
