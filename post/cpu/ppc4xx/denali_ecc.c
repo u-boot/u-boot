@@ -50,7 +50,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 const static unsigned char syndrome_codes[] = {
-	0xF4, 0XF1, 0XEC ,0XEA, 0XE9, 0XE6, 0XE5, 0XE3,
+	0xF4, 0XF1, 0XEC, 0XEA, 0XE9, 0XE6, 0XE5, 0XE3,
 	0XDC, 0XDA, 0XD9, 0XD6, 0XD5, 0XD3, 0XCE, 0XCB,
 	0xB5, 0XB0, 0XAD, 0XAB, 0XA8, 0XA7, 0XA4, 0XA2,
 	0X9D, 0X9B, 0X98, 0X97, 0X94, 0X92, 0X8F, 0X8A,
@@ -171,7 +171,7 @@ static int test_ecc(unsigned long ecc_addr)
 	/* test for correctable error */
 	/* disconnect from ecc storage */
 	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
+	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_DISABLE);
 
 	/* creating (correctable) single-bit error */
@@ -179,7 +179,7 @@ static int test_ecc(unsigned long ecc_addr)
 
 	/* enable ecc */
 	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
+	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_ENABLE);
 	sync();
 	eieio();
@@ -194,7 +194,7 @@ static int test_ecc(unsigned long ecc_addr)
 	/* test for uncorrectable error */
 	/* disconnect from ecc storage */
 	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
+	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_NO_ECC_RAM);
 
 	/* creating (uncorrectable) multiple-bit error */
@@ -202,7 +202,7 @@ static int test_ecc(unsigned long ecc_addr)
 
 	/* enable ecc */
 	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value &~ DDR0_22_CTRL_RAW_MASK)
+	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_ENABLE);
 	sync();
 	eieio();
@@ -242,7 +242,7 @@ int ecc_post_test (int flags)
 
 	/* mask all int */
 	mfsdram(DDR0_01, value);
-	mtsdram(DDR0_01, (value &~ DDR0_01_INT_MASK_MASK)
+	mtsdram(DDR0_01, (value & ~DDR0_01_INT_MASK_MASK)
 		| DDR0_01_INT_MASK_ALL_OFF);
 
 	/* clear error status */
