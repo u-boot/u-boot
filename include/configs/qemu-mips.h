@@ -112,6 +112,11 @@
 
 #define	CFG_PROMPT		"qemu-mips # "	/* Monitor Command Prompt    */
 
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+#define CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2	"> "
+
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args*/
