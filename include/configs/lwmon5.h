@@ -153,7 +153,7 @@
 				 CFG_POST_SPR      | \
 				 CFG_POST_UART)
 
-#define CFG_POST_CACHE_ADDR	0x10000000	/* free virtual address		*/
+#define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_LOGBUFFER
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
