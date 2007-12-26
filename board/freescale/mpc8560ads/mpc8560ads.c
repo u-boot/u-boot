@@ -32,10 +32,8 @@
 #include <ioports.h>
 #include <spd.h>
 #include <miiphy.h>
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -278,13 +276,12 @@ initdram(int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 	puts("Initializing\n");
 
 #if defined(CONFIG_DDR_DLL)
 	{
-	    volatile ccsr_gur_t *gur= &immap->im_gur;
+	    volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	    uint temp_ddrdll = 0;
 
 	    /*
@@ -326,9 +323,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -387,8 +383,7 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 
 	puts("    SDRAM: ");
@@ -483,8 +478,7 @@ int testdram (void)
 long int fixed_sdram (void)
 {
   #ifndef CFG_RAMBOOT
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 
 	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
 	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
@@ -548,35 +542,25 @@ pci_init_board(void)
 }
 
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_soc_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	int len;
-
-	p = ft_get_prop(blob, "/" OF_SOC "/cpm@e0000000/brg-frequency", &len);
-
-	if (p != NULL)
-		*p = cpu_to_be32(bd->bi_brgfreq);
-
-	p = ft_get_prop(blob,
-			"/" OF_SOC "/cpm@e0000000/scc@91a00/current-speed",
-			&len);
-	if (p != NULL)
-		*p = cpu_to_be32(bd->bi_baudrate);
-
-	p = ft_get_prop(blob,
-			"/" OF_SOC "/cpm@e0000000/scc@91a20/current-speed",
-			&len);
-	if (p != NULL)
-		*p = cpu_to_be32(bd->bi_baudrate);
-}
-
+#if defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
+	int node, tmp[2];
+	const char *path;
+
 	ft_cpu_setup(blob, bd);
-	ft_soc_setup(blob, bd);
+
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose.last_busno - hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+	}
 }
 #endif

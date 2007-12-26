@@ -1911,7 +1911,7 @@ TQM834x_config:	unconfig
 #########################################################################
 
 MPC8540ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
 
 MPC8540EVAL_config \
 MPC8540EVAL_33_config \
@@ -1935,7 +1935,7 @@ MPC8540EVAL_66_slave_config:      unconfig
 	@$(MKCONFIG) -a MPC8540EVAL ppc mpc85xx mpc8540eval
 
 MPC8560ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads freescale
 
 MPC8541CDS_legacy_config \
 MPC8541CDS_config:	unconfig
@@ -1945,7 +1945,7 @@ MPC8541CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8541CDS ppc mpc85xx mpc8541cds cds
+	@$(MKCONFIG) -a MPC8541CDS ppc mpc85xx mpc8541cds freescale
 
 MPC8544DS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8544ds freescale
@@ -1958,7 +1958,7 @@ MPC8548CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8548CDS ppc mpc85xx mpc8548cds cds
+	@$(MKCONFIG) -a MPC8548CDS ppc mpc85xx mpc8548cds freescale
 
 MPC8555CDS_legacy_config \
 MPC8555CDS_config:	unconfig
@@ -1968,10 +1968,10 @@ MPC8555CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds cds
+	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds freescale
 
 MPC8568MDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854

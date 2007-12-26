@@ -1,8 +1,6 @@
 /*
  * Copyright 2004 Freescale Semiconductor.
  *
- * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
- *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,6 +26,8 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <spd.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
@@ -203,8 +203,7 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -250,7 +249,6 @@ long int
 initdram(int board_type)
 {
 	long dram_size = 0;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 
 	puts("Initializing\n");
 
@@ -263,7 +261,7 @@ initdram(int board_type)
 		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
 		 */
 
-		volatile ccsr_gur_t *gur= &immap->im_gur;
+		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 		gur->ddrdllcr = 0x81000000;
 		asm("sync;isync;msync");
@@ -293,9 +291,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -344,8 +341,7 @@ sdram_init(void)
 #if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
 
 	uint idx;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
 	uint cpu_board_rev;
 	uint lsdmr_common;
@@ -365,7 +361,6 @@ sdram_init(void)
 
 	lbc->lbcr = CFG_LBC_LBCR;
 	asm("msync");
-
 
 	lbc->lsrt = CFG_LBC_LSRT;
 	lbc->mrtpr = CFG_LBC_MRTPR;
@@ -468,9 +463,9 @@ testdram(void)
 }
 #endif
 
-#if defined(CONFIG_PCI)
+#ifdef CONFIG_PCI
 /* For some reason the Tundra PCI bridge shows up on itself as a
- * different device.  Work around that by refusing to configure it.
+ * different device.  Work around that by refusing to configure it
  */
 void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab) { }
 
@@ -490,14 +485,17 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 	{},
 };
 
+
 static struct pci_controller hose[] = {
-	{ config_table: pci_mpc85xxcds_config_table,},
+	{
+	config_table: pci_mpc85xxcds_config_table,
+	},
 #ifdef CONFIG_MPC85XX_PCI2
 	{},
 #endif
 };
 
-#endif	/* CONFIG_PCI */
+#endif
 
 void
 pci_init_board(void)
@@ -506,3 +504,31 @@ pci_init_board(void)
 	pci_mpc85xx_init(hose);
 #endif
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_pci_setup(void *blob, bd_t *bd)
+{
+	int node, tmp[2];
+	const char *path;
+
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI1
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose[0].last_busno - hose[0].first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+#ifdef CONFIG_MPC85XX_PCI2
+		path = fdt_getprop(blob, node, "pci1", NULL);
+		if (path) {
+			tmp[1] = hose[1].last_busno - hose[1].first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+	}
+}
+#endif

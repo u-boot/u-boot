@@ -1,5 +1,6 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * (C) Copyright 2002,2003, Motorola,Inc.
+ * Xianghua Xiao, X.Xiao@motorola.com.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,7 +35,7 @@ SECTIONS
   .bootpg 0xFFFFF000 :
   {
     cpu/mpc85xx/start.o	(.bootpg)
-    board/cds/mpc8541cds/init.o (.bootpg)
+    board/freescale/mpc8540ads/init.o (.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */
@@ -64,12 +65,11 @@ SECTIONS
   .text      :
   {
     cpu/mpc85xx/start.o	(.text)
-    board/cds/mpc8541cds/init.o (.text)
+    board/freescale/mpc8540ads/init.o (.text)
     cpu/mpc85xx/traps.o (.text)
     cpu/mpc85xx/interrupts.o (.text)
     cpu/mpc85xx/cpu_init.o (.text)
     cpu/mpc85xx/cpu.o (.text)
-    drivers/net/tsec.o (.text)
     cpu/mpc85xx/speed.o (.text)
     cpu/mpc85xx/pci.o (.text)
     common/dlmalloc.o (.text)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2007 Freescale Semiconductor.
+ * Copyright 2004 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,20 +24,17 @@ OUTPUT_ARCH(powerpc)
 SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
-
 SECTIONS
 {
- /* ELIOR - From RAM:  From FLASH: 0xFFFFFFFC*/
-  .resetvec 0xFFFFFFFC:
+  .resetvec 0xFFFFFFFC :
   {
     *(.resetvec)
   } = 0xffff
 
-  /*(ELIOR - From RAM:  From FLASH: 0xFFFFF000*/
-  .bootpg 0xFFFFF000:
+  .bootpg 0xFFFFF000 :
   {
-	cpu/mpc85xx/start.o	(.bootpg)
-	board/mpc8568mds/init.o (.bootpg)
+    cpu/mpc85xx/start.o	(.bootpg)
+    board/freescale/mpc8541cds/init.o (.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */
@@ -67,11 +64,12 @@ SECTIONS
   .text      :
   {
     cpu/mpc85xx/start.o	(.text)
-    board/mpc8568mds/init.o (.text)
+    board/freescale/mpc8541cds/init.o (.text)
     cpu/mpc85xx/traps.o (.text)
     cpu/mpc85xx/interrupts.o (.text)
     cpu/mpc85xx/cpu_init.o (.text)
     cpu/mpc85xx/cpu.o (.text)
+    drivers/net/tsec.o (.text)
     cpu/mpc85xx/speed.o (.text)
     cpu/mpc85xx/pci.o (.text)
     common/dlmalloc.o (.text)

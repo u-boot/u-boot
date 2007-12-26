@@ -309,14 +309,9 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8541@0"
-#define OF_SOC			"soc8541@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8541@e0000000/serial@4600"
-#define OF_PCI			"pci@e0008000"
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
@@ -422,6 +417,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_ELF
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -434,6 +430,7 @@ extern unsigned long get_clock_freq(void);
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory	*/
+#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)

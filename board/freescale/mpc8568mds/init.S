@@ -28,7 +28,6 @@
 #include <config.h>
 #include <mpc85xx.h>
 
-
 /*
  * TLB0 and TLB1 Entries
  *
@@ -216,15 +215,14 @@ tlb1_entry:
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
 #define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
-#define LAWBAR2 ((CFG_PEX_MEM_BASE>>12) & 0xfffff)
-#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWBAR2 ((CFG_PCIE1_MEM_BASE>>12) & 0xfffff)
+#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_PCIE1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
 #define LAWBAR3 ((CFG_PCI1_IO_PHYS>>12) & 0xfffff)
 #define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
-#define LAWBAR4 ((CFG_PEX_IO_PHYS>>12) & 0xfffff)
-#define LAWAR4  (LAWAR_EN | LAWAR_TRGT_IF_PEX | (LAWAR_SIZE & LAWAR_SIZE_8M))
-
+#define LAWBAR4 ((CFG_PCIE1_IO_PHYS>>12) & 0xfffff)
+#define LAWAR4  (LAWAR_EN | LAWAR_TRGT_IF_PCIE1 | (LAWAR_SIZE & LAWAR_SIZE_8M))
 
 #define LAWBAR5 ((CFG_SRIO_MEM_BASE>>12) & 0xfffff)
 #define LAWAR5	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))

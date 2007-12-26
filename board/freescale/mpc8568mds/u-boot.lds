@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2002,2003,Motorola,Inc.
- * Xianghua Xiao, X.Xiao@motorola.com.
+ * Copyright 2004-2007 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,17 +24,20 @@ OUTPUT_ARCH(powerpc)
 SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
+
 SECTIONS
 {
-  .resetvec 0xFFFFFFFC :
+ /* ELIOR - From RAM:  From FLASH: 0xFFFFFFFC*/
+  .resetvec 0xFFFFFFFC:
   {
     *(.resetvec)
   } = 0xffff
 
-  .bootpg 0xFFFFF000 :
+  /*(ELIOR - From RAM:  From FLASH: 0xFFFFF000*/
+  .bootpg 0xFFFFF000:
   {
-    cpu/mpc85xx/start.o	(.bootpg)
-    board/mpc8560ads/init.o (.bootpg)
+	cpu/mpc85xx/start.o	(.bootpg)
+	board/freescale/mpc8568mds/init.o (.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */
@@ -65,16 +67,13 @@ SECTIONS
   .text      :
   {
     cpu/mpc85xx/start.o	(.text)
-    board/mpc8560ads/init.o (.text)
-    cpu/mpc85xx/commproc.o (.text)
+    board/freescale/mpc8568mds/init.o (.text)
     cpu/mpc85xx/traps.o (.text)
     cpu/mpc85xx/interrupts.o (.text)
-    cpu/mpc85xx/serial_scc.o (.text)
-    cpu/mpc85xx/ether_fcc.o (.text)
     cpu/mpc85xx/cpu_init.o (.text)
     cpu/mpc85xx/cpu.o (.text)
     cpu/mpc85xx/speed.o (.text)
-    cpu/mpc85xx/spd_sdram.o (.text)
+    cpu/mpc85xx/pci.o (.text)
     common/dlmalloc.o (.text)
     lib_generic/crc32.o (.text)
     lib_ppc/extable.o (.text)

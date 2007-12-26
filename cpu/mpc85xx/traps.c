@@ -288,8 +288,8 @@ UnknownException(struct pt_regs *regs)
 void
 ExtIntException(struct pt_regs *regs)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_pic_t *pic = &immap->im_pic;
+	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
+
 	uint vect;
 
 #if defined(CONFIG_CMD_KGDB)

@@ -112,6 +112,29 @@ fsl_pci_init(struct pci_controller *hose)
 		pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm);
 		enabled = ltssm >= PCI_LTSSM_L0;
 
+#ifdef CONFIG_FSL_PCIE_RESET
+		if (ltssm == 1) {
+			int i;
+			debug("....PCIe link error. "
+			      "LTSSM=0x%02x.", ltssm);
+			pci->pdb_stat |= 0x08000000; /* assert PCIe reset */
+			temp32 = pci->pdb_stat;
+			udelay(100);
+			debug("  Asserting PCIe reset @%x = %x\n",
+			      &pci->pdb_stat, pci->pdb_stat);
+			pci->pdb_stat &= ~0x08000000; /* clear reset */
+			asm("sync;isync");
+			for (i=0; i<100 && ltssm < PCI_LTSSM_L0; i++) {
+				pci_hose_read_config_word(hose, dev, PCI_LTSSM,
+							&ltssm);
+				udelay(1000);
+				debug("....PCIe link error. "
+				      "LTSSM=0x%02x.\n", ltssm);
+			}
+			enabled = ltssm >= PCI_LTSSM_L0;
+		}
+#endif
+
 		if (!enabled) {
 			debug("....PCIE link error.  Skipping scan."
 			      "LTSSM=0x%02x\n", ltssm);
