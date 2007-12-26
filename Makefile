@@ -2656,7 +2656,13 @@ bf561-ezkit_config:	unconfig
 #########################################################################
 
 atstk1002_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap7000
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+atstk1003_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+atstk1004_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
 #########################################################################
 #########################################################################

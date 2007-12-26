@@ -21,6 +21,7 @@
  */
 #include <common.h>
 
+#include <asm/arch/chip-features.h>
 #include <asm/arch/gpio.h>
 
 /*
@@ -52,6 +53,7 @@ void gpio_enable_ebi(void)
 #endif
 }
 
+#ifdef AT32AP700x_CHIP_HAS_USART
 void gpio_enable_usart0(void)
 {
 	gpio_select_periph_B(GPIO_PIN_PA8, 0);
@@ -72,10 +74,12 @@ void gpio_enable_usart2(void)
 
 void gpio_enable_usart3(void)
 {
+	gpio_select_periph_B(GPIO_PIN_PB17, 0);
 	gpio_select_periph_B(GPIO_PIN_PB18, 0);
-	gpio_select_periph_B(GPIO_PIN_PB19, 0);
 }
+#endif
 
+#ifdef AT32AP700x_CHIP_HAS_MACB
 void gpio_enable_macb0(void)
 {
 	gpio_select_periph_A(GPIO_PIN_PC3,  0);	/* TXD0	*/
@@ -125,7 +129,9 @@ void gpio_enable_macb1(void)
 	gpio_select_periph_B(GPIO_PIN_PD15, 0);	/* SPD	*/
 #endif
 }
+#endif
 
+#ifdef AT32AP700x_CHIP_HAS_MMCI
 void gpio_enable_mmci(void)
 {
 	gpio_select_periph_A(GPIO_PIN_PA10, 0);	/* CLK	 */
@@ -135,3 +141,4 @@ void gpio_enable_mmci(void)
 	gpio_select_periph_A(GPIO_PIN_PA14, 0);	/* DATA2 */
 	gpio_select_periph_A(GPIO_PIN_PA15, 0);	/* DATA3 */
 }
+#endif
