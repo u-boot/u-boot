@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * Copyright (C) 2007 Atmel Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,21 +19,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <common.h>
+#ifndef __ASM_AVR32_ARCH_CHIP_FEATURES_H__
+#define __ASM_AVR32_ARCH_CHIP_FEATURES_H__
 
-#include <asm/sysreg.h>
+/* Currently, all the AP700x chips have these */
+#define AT32AP700x_CHIP_HAS_USART
+#define AT32AP700x_CHIP_HAS_MMCI
 
-void enable_interrupts(void)
-{
-	asm volatile("csrf	%0" : : "n"(SYSREG_GM_OFFSET));
-}
+/* Only AP7000 has ethernet interface */
+#ifdef CONFIG_AT32AP7000
+#define AT32AP700x_CHIP_HAS_MACB
+#endif
 
-int disable_interrupts(void)
-{
-	unsigned long sr;
-
-	sr = sysreg_read(SR);
-	asm volatile("ssrf	%0" : : "n"(SYSREG_GM_OFFSET));
-
-	return !SYSREG_BFEXT(GM, sr);
-}
+#endif /* __ASM_AVR32_ARCH_CHIP_FEATURES_H__ */

@@ -22,6 +22,7 @@
 #ifndef __ASM_AVR32_ARCH_GPIO_H__
 #define __ASM_AVR32_ARCH_GPIO_H__
 
+#include <asm/arch/chip-features.h>
 #include <asm/arch/memory-map.h>
 
 #define NR_GPIO_CONTROLLERS	5
@@ -201,12 +202,19 @@ void gpio_select_periph_A(unsigned int pin, int use_pullup);
 void gpio_select_periph_B(unsigned int pin, int use_pullup);
 
 void gpio_enable_ebi(void);
+
+#ifdef AT32AP700x_CHIP_HAS_USART
 void gpio_enable_usart0(void);
 void gpio_enable_usart1(void);
 void gpio_enable_usart2(void);
 void gpio_enable_usart3(void);
+#endif
+#ifdef AT32AP700x_CHIP_HAS_MACB
 void gpio_enable_macb0(void);
 void gpio_enable_macb1(void);
+#endif
+#ifdef AT32AP700x_CHIP_HAS_MMCI
 void gpio_enable_mmci(void);
+#endif
 
 #endif /* __ASM_AVR32_ARCH_GPIO_H__ */
