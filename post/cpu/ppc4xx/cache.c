@@ -61,6 +61,7 @@ int cache_post_test (int flags)
 	void *virt = (void *)CFG_POST_CACHE_ADDR;
 	int ints;
 	int res = 0;
+	int tlb = -1;		/* index to the victim TLB entry */
 
 	/*
 	 * All 44x variants deal with cache management differently
@@ -70,7 +71,6 @@ int cache_post_test (int flags)
 	 */
 #ifdef CONFIG_440
 	int word0, i;
-	int tlb;		/* index to the victim TLB entry */
 
 	/*
 	 * Allocate a new TLB entry, since we are going to modify
