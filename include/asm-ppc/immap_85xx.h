@@ -720,11 +720,10 @@ typedef struct ccsr_tsec {
 } ccsr_tsec_t;
 
 /*
- * PIC Registers(0x2_6000-0x4_0000-0x8_0000)
+ * PIC Registers(0x4_0000-0x8_0000)
  */
 typedef struct ccsr_pic {
-	char 	res0[106496];	/* 0x26000-0x40000 */
-	char	res1[64];
+	char	res1[64];	/* 0x40000 */
 	uint	ipidr0;		/* 0x40040 - Interprocessor Interrupt Dispatch Register 0 */
 	char	res2[12];
 	uint	ipidr1;		/* 0x40050 - Interprocessor Interrupt Dispatch Register 1 */
@@ -1619,25 +1618,25 @@ typedef struct ccsr_gur {
 
 #define PORDEVSR_PCI	(0x00800000)	/* PCI Mode */
 
-typedef struct immap {
-	ccsr_local_ecm_t	im_local_ecm;
-	ccsr_ddr_t		im_ddr;
-	ccsr_i2c_t		im_i2c;
-	ccsr_duart_t		im_duart;
-	ccsr_lbc_t		im_lbc;
-	ccsr_pcix_t		im_pcix;
-	ccsr_pcix_t		im_pcix2;
-	char			reserved[90112];
-	ccsr_l2cache_t		im_l2cache;
-	ccsr_dma_t		im_dma;
-	ccsr_tsec_t		im_tsec1;
-	ccsr_tsec_t		im_tsec2;
-	ccsr_pic_t		im_pic;
-	ccsr_cpm_t		im_cpm;
-	ccsr_rio_t		im_rio;
-	ccsr_gur_t		im_gur;
-} immap_t;
-
-extern immap_t  *immr;
+#define CFG_MPC85xx_GUTS_OFFSET	(0xE0000)
+#define CFG_MPC85xx_GUTS_ADDR	(CFG_IMMR + CFG_MPC85xx_GUTS_OFFSET)
+#define CFG_MPC85xx_ECM_OFFSET	(0x0000)
+#define CFG_MPC85xx_ECM_ADDR	(CFG_IMMR + CFG_MPC85xx_ECM_OFFSET)
+#define CFG_MPC85xx_DDR_OFFSET	(0x2000)
+#define CFG_MPC85xx_DDR_ADDR	(CFG_IMMR + CFG_MPC85xx_DDR_OFFSET)
+#define CFG_MPC85xx_LBC_OFFSET	(0x5000)
+#define CFG_MPC85xx_LBC_ADDR	(CFG_IMMR + CFG_MPC85xx_LBC_OFFSET)
+#define CFG_MPC85xx_PCIX_OFFSET	(0x8000)
+#define CFG_MPC85xx_PCIX_ADDR	(CFG_IMMR + CFG_MPC85xx_PCIX_OFFSET)
+#define CFG_MPC85xx_PCIX2_OFFSET	(0x9000)
+#define CFG_MPC85xx_PCIX2_ADDR	(CFG_IMMR + CFG_MPC85xx_PCIX2_OFFSET)
+#define CFG_MPC85xx_L2_OFFSET	(0x20000)
+#define CFG_MPC85xx_L2_ADDR	(CFG_IMMR + CFG_MPC85xx_L2_OFFSET)
+#define CFG_MPC85xx_DMA_OFFSET	(0x21000)
+#define CFG_MPC85xx_DMA_ADDR	(CFG_IMMR + CFG_MPC85xx_DMA_OFFSET)
+#define CFG_MPC85xx_PIC_OFFSET	(0x40000)
+#define CFG_MPC85xx_PIC_ADDR	(CFG_IMMR + CFG_MPC85xx_PIC_OFFSET)
+#define CFG_MPC85xx_CPM_OFFSET	(0x80000)
+#define CFG_MPC85xx_CPM_ADDR	(CFG_IMMR + CFG_MPC85xx_CPM_OFFSET)
 
 #endif /*__IMMAP_85xx__*/

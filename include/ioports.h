@@ -26,7 +26,7 @@ typedef struct {
  * a 0x20 byte boundary
  */
 #ifdef CONFIG_MPC85xx
-#define ioport_addr(im, idx) (ioport_t *)((uint)&((im)->im_cpm.im_cpm_iop) + ((idx)*0x20))
+#define ioport_addr(im, idx) (ioport_t *)((uint)&(im->im_cpm_iop) + ((idx)*0x20))
 #else
 #define ioport_addr(im, idx) (ioport_t *)((uint)&(im)->im_ioport + ((idx)*0x20))
 #endif

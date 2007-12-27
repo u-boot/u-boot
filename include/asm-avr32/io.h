@@ -93,4 +93,36 @@ static inline void sync(void)
 {
 }
 
+/*
+ * Given a physical address and a length, return a virtual address
+ * that can be used to access the memory range with the caching
+ * properties specified by "flags".
+ *
+ * This implementation works for memory below 512MiB (flash, etc.) as
+ * well as above 3.5GiB (internal peripherals.)
+ */
+typedef unsigned long phys_addr_t;
+
+#define MAP_NOCACHE	(0)
+#define MAP_WRCOMBINE	(1 << 7)
+#define MAP_WRBACK	(MAP_WRCOMBINE | (1 << 9))
+#define MAP_WRTHROUGH	(MAP_WRBACK | (1 << 0))
+
+static inline void *
+map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
+{
+	if (flags == MAP_WRBACK)
+		return (void *)P1SEGADDR(paddr);
+	else
+		return (void *)P2SEGADDR(paddr);
+}
+
+/*
+ * Take down a mapping set up by map_physmem().
+ */
+static inline void unmap_physmem(void *vaddr, unsigned long len)
+{
+
+}
+
 #endif /* __ASM_AVR32_IO_H */

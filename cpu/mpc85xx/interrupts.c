@@ -80,19 +80,17 @@ int disable_interrupts (void)
 
 int interrupt_init (void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
 
-	immr->im_pic.gcr = MPC85xx_PICGCR_RST;
-	while (immr->im_pic.gcr & MPC85xx_PICGCR_RST);
-	immr->im_pic.gcr = MPC85xx_PICGCR_M;
+	pic->gcr = MPC85xx_PICGCR_RST;
+	while (pic->gcr & MPC85xx_PICGCR_RST);
+	pic->gcr = MPC85xx_PICGCR_M;
 	decrementer_count = get_tbclk() / CFG_HZ;
 	mtspr(SPRN_TCR, TCR_PIE);
 	set_dec (decrementer_count);
 	set_msr (get_msr () | MSR_EE);
 
 #ifdef CONFIG_INTERRUPTS
-	volatile ccsr_pic_t *pic = &immr->im_pic;
-
 	pic->iivpr1 = 0x810002;	/* 50220 enable ecm interrupts */
 	debug("iivpr1@%x = %x\n",&pic->iivpr1, pic->iivpr1);
 

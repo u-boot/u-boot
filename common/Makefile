@@ -55,7 +55,7 @@ COBJS-$(CONFIG_CMD_ELF) += cmd_elf.o
 COBJS-$(CONFIG_CMD_EXT2) += cmd_ext2.o
 COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
 COBJS-y += cmd_fdc.o
-COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o
+COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
 COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
 COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
@@ -105,7 +105,6 @@ COBJS-y += env_onenand.o
 COBJS-y += env_nvram.o
 COBJS-y += env_nowhere.o
 COBJS-y += exports.o
-COBJS-y += fdt_support.o
 COBJS-y += flash.o
 COBJS-y += fpga.o
 COBJS-y += ft_build.o

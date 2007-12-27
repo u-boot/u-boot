@@ -259,11 +259,8 @@ int get_clocks_866 (void)
 	 */
 	sccr_reg = immr->im_clkrst.car_sccr;
 	sccr_reg &= ~SCCR_EBDF11;
-#if defined(CONFIG_TQM885D)
-	if (gd->cpu_clk <= 80000000) {
-#else
+
 	if (gd->cpu_clk <= 66000000) {
-#endif
 		sccr_reg |= SCCR_EBDF00;	/* bus division factor = 1 */
 		gd->bus_clk = gd->cpu_clk;
 	} else {
