@@ -137,6 +137,9 @@ uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6] =
 			{ 0, 0, 0, 0, 0, 0 };
+#ifdef CONFIG_API
+void		(*push_packet)(volatile void *, int len) = 0;
+#endif
 #if defined(CONFIG_CMD_CDP)
 uchar		NetCDPAddr[6] =		/* Ethernet bcast address		*/
 			{ 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
@@ -1160,6 +1163,13 @@ NetReceive(volatile uchar * inpkt, int len)
 	/* too small packet? */
 	if (len < ETHER_HDR_SIZE)
 		return;
+
+#ifdef CONFIG_API
+	if (push_packet) {
+		(*push_packet)(inpkt, len);
+		return;
+	}
+#endif
 
 #if defined(CONFIG_CMD_CDP)
 	/* keep track if packet is CDP */

@@ -62,6 +62,17 @@ extern int bfin_EMAC_initialize(bd_t *);
 extern int atstk1000_eth_initialize(bd_t *);
 extern int mcffec_initialize(bd_t*);
 
+#ifdef CONFIG_API
+extern void (*push_packet)(volatile void *, int);
+
+static struct {
+	uchar data[PKTSIZE];
+	int length;
+} eth_rcv_bufs[PKTBUFSRX];
+
+static unsigned int eth_rcv_current = 0, eth_rcv_last = 0;
+#endif
+
 static struct eth_device *eth_devices, *eth_current;
 
 struct eth_device *eth_get_dev(void)
@@ -456,6 +467,53 @@ int eth_rx(void)
 
 	return eth_current->recv(eth_current);
 }
+
+#ifdef CONFIG_API
+static void eth_save_packet(volatile void *packet, int length)
+{
+	volatile char *p = packet;
+	int i;
+
+	if ((eth_rcv_last+1) % PKTBUFSRX == eth_rcv_current)
+		return;
+
+	if (PKTSIZE < length)
+		return;
+
+	for (i = 0; i < length; i++)
+		eth_rcv_bufs[eth_rcv_last].data[i] = p[i];
+
+	eth_rcv_bufs[eth_rcv_last].length = length;
+	eth_rcv_last = (eth_rcv_last + 1) % PKTBUFSRX;
+}
+
+int eth_receive(volatile void *packet, int length)
+{
+	volatile char *p = packet;
+	void *pp = push_packet;
+	int i;
+
+	if (eth_rcv_current == eth_rcv_last) {
+		push_packet = eth_save_packet;
+		eth_rx();
+		push_packet = pp;
+
+		if (eth_rcv_current == eth_rcv_last)
+			return -1;
+	}
+
+	if (length < eth_rcv_bufs[eth_rcv_current].length)
+		return -1;
+
+	length = eth_rcv_bufs[eth_rcv_current].length;
+
+	for (i = 0; i < length; i++)
+		p[i] = eth_rcv_bufs[eth_rcv_current].data[i];
+
+	eth_rcv_current = (eth_rcv_current + 1) % PKTBUFSRX;
+	return length;
+}
+#endif /* CONFIG_API */
 
 void eth_try_another(int first_restart)
 {
