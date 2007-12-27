@@ -446,7 +446,7 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan3_Slave_Serial_fns *fn = desc->iface_fns;
 	int i;
-	char  val;
+	unsigned char val;
 
 	PRINTF ("%s: start with interface functions @ 0x%p\n",
 			__FUNCTION__, fn);
