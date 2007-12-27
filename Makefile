@@ -152,6 +152,9 @@ endif
 ifeq ($(ARCH),avr32)
 CROSS_COMPILE = avr32-linux-
 endif
+ifeq ($(ARCH),sh)
+CROSS_COMPILE = sh4-linux-
+endif
 endif
 endif
 
@@ -2663,6 +2666,23 @@ atstk1003_config	:	unconfig
 
 atstk1004_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+#########################################################################
+#########################################################################
+#########################################################################
+
+#########################################################################
+## sh4 (Renesas SuperH)
+#########################################################################
+ms7750se_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MS7750SE 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 ms7750se
+
+ms7722se_config :       unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MS7722SE 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 ms7722se
 
 #########################################################################
 #########################################################################
