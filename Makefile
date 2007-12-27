@@ -1160,9 +1160,6 @@ CPCI405AB_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
 	@echo "BOARD_REVISION = $(@:_config=)"	>> $(obj)include/config.mk
 
-CPCI440_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci440 esd
-
 CPCIISER4_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpciiser4 esd
 
