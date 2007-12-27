@@ -1231,6 +1231,9 @@ haleakala_nand_config: unconfig
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/kilauea/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
+korat_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx korat
+
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 

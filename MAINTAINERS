@@ -204,6 +204,10 @@ Murray Jensen <Murray.Jensen@csiro.au>
 	cogent_mpc8260		MPC8260
 	hymod			MPC8260
 
+Larry Johnson <lrj@acm.org>
+
+	korat			PPC440EPx
+
 Brad Kemp <Brad.Kemp@seranoa.com>
 
 	ppmc8260		MPC8260
