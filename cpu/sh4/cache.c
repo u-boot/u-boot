@@ -30,36 +30,36 @@
  * Jump to P2 area.
  * When handling TLB or caches, we need to do it from P2 area.
  */
-#define jump_to_P2()                    \
-  do {                                    \
+#define jump_to_P2()			\
+  do {					\
     unsigned long __dummy;		\
-    __asm__ __volatile__(			\
-                "mov.l  1f, %0\n\t"     \
-                "or     %1, %0\n\t"     \
-                "jmp    @%0\n\t"        \
-                " nop\n\t"              \
-                ".balign 4\n"           \
-                "1:     .long 2f\n"     \
-                "2:"                    \
-                : "=&r" (__dummy)       \
-                : "r" (0x20000000));    \
+    __asm__ __volatile__(		\
+		"mov.l	1f, %0\n\t"	\
+		"or	%1, %0\n\t"	\
+		"jmp	@%0\n\t"	\
+		" nop\n\t"		\
+		".balign 4\n"		\
+		"1:	.long 2f\n"	\
+		"2:"			\
+		: "=&r" (__dummy)	\
+		: "r" (0x20000000));	\
   } while (0)
 
 /*
  * Back to P1 area.
  */
-#define back_to_P1()                                    \
-  do {                                                    \
-    unsigned long __dummy;                          \
-    __asm__ __volatile__(                           \
-                "nop;nop;nop;nop;nop;nop;nop\n\t"       \
-                "mov.l  1f, %0\n\t"                     \
-                "jmp    @%0\n\t"                        \
-                " nop\n\t"                              \
-                ".balign 4\n"                           \
-                "1:     .long 2f\n"                     \
-                "2:"                                    \
-                : "=&r" (__dummy));                     \
+#define back_to_P1()					\
+  do {							\
+    unsigned long __dummy;				\
+    __asm__ __volatile__(				\
+		"nop;nop;nop;nop;nop;nop;nop\n\t"	\
+		"mov.l	1f, %0\n\t"			\
+		"jmp	@%0\n\t"			\
+		" nop\n\t"				\
+		".balign 4\n"				\
+		"1:	.long 2f\n"			\
+		"2:"					\
+		: "=&r" (__dummy));			\
   } while (0)
 
 #define CACHE_VALID       1

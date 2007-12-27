@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
- * SH7750/SH7750S/SH7750R/SH7751/SH7751R 
+ * SH7750/SH7750S/SH7750R/SH7751/SH7751R
  *  Internal I/O register
  *
  * This program is free software; you can redistribute it and/or

@@ -32,19 +32,19 @@ SECTIONS
 	   Although size of SDRAM can be either 16 or 32 MBytes,
 	   we assume 16 MBytes (ie ignore upper half if the full
 	   32 MBytes is present).
-	   
+
 	   NOTE: This address must match with the definition of
 	   TEXT_BASE in config.mk (in this directory).
-	   
+
 	*/
 	. = 0x8C000000 + (64*1024*1024) - (256*1024);
-	
+
 	PROVIDE (reloc_dst = .);
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);
 	PROVIDE (_start = .);
-	
+
 	.text :
 	{
 		cpu/sh4/start.o		(.text)
@@ -89,7 +89,7 @@ SECTIONS
 	}
 	PROVIDE (__u_boot_cmd_end = .);
 
-	PROVIDE (reloc_dst_end = .); 
+	PROVIDE (reloc_dst_end = .);
 	/* _reloc_dst_end = .; */
 
 	PROVIDE (bss_start = .);
@@ -103,4 +103,3 @@ SECTIONS
 
 	PROVIDE (_end = .);
 }
-

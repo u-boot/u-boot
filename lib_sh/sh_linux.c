@@ -28,7 +28,7 @@
 extern image_header_t header;	/* common/cmd_bootm.c */
 
 /* The SH kernel reads arguments from the empty zero page at location
- * 0 at the start of SDRAM. The following are copied from 
+ * 0 at the start of SDRAM. The following are copied from
  * arch/sh/kernel/setup.c and may require tweaking if the kernel sources
  * change.
  */
@@ -72,4 +72,3 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	kernel();
 }
-

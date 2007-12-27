@@ -4,7 +4,7 @@
 #
 # (C) Copyright 2007
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-#   
+#
 # See file CREDITS for list of people who contributed to this
 # project.
 #

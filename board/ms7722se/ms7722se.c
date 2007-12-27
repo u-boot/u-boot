@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2007
  * Kenati Technologies, Inc.
- * 
+ *
  * board/ms7722se/ms7722se.c
  *
  * This program is free software; you can redistribute it and/or
@@ -57,4 +57,3 @@ void led_set_state (unsigned short value)
 {
 	*((volatile unsigned short *) LED_BASE) = (value & 0xFF);
 }
-

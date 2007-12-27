@@ -66,7 +66,7 @@ void icache_disable (void)
 
 int icache_status (void)
 {
-	return 0; 
+	return 0;
 }
 
 void dcache_enable (void)

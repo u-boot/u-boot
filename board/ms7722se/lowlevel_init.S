@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *    
+ *
  * Copyright (C) 2007
  * Kenati Technologies, Inc.
  *
@@ -52,19 +52,19 @@ lowlevel_init:
 	mov.l	r0, @r1
 
 	mov.l	MSTPCR0_A, r1	! Address of Power Control Register 0
-	mov.l	MSTPCR0_D, r0	! 
+	mov.l	MSTPCR0_D, r0	!
 	mov.l	r0, @r1
 
 	mov.l	MSTPCR2_A, r1	! Address of Power Control Register 2
-	mov.l	MSTPCR2_D, r0	! 
+	mov.l	MSTPCR2_D, r0	!
 	mov.l	r0, @r1
 
-	mov.l	SBSCR_A, r1	! 
-	mov.w	SBSCR_D, r0	! 
+	mov.l	SBSCR_A, r1	!
+	mov.w	SBSCR_D, r0	!
 	mov.w	r0, @r1
 
-	mov.l	PSCR_A, r1	! 
-	mov.w	PSCR_D, r0	! 
+	mov.l	PSCR_A, r1	!
+	mov.w	PSCR_D, r0	!
 	mov.w	r0, @r1
 
 !	mov.l	RWTCSR_A, r1	! 0xA4520004 (Watchdog Control / Status Register)
@@ -80,7 +80,7 @@ lowlevel_init:
 	mov.w	r0, @r1
 
 	mov.l	FRQCR_A, r1		! 0xA4150000 Frequency control register
-	mov.l	FRQCR_D, r0	! 
+	mov.l	FRQCR_D, r0	!
 	mov.l	r0, @r1
 
 	mov.l	CCR_A, r1		! Address of Cache Control Register
@@ -200,11 +200,9 @@ bsc_init:
 	rts
 	mov	#0, r0
 
-
-
 	.align	2
 
-CCR_A:		.long	CCR			
+CCR_A:		.long	CCR
 MMUCR_A:	.long	MMUCR
 MSTPCR0_A:	.long	MSTPCR0
 MSTPCR2_A:	.long	MSTPCR2
@@ -223,7 +221,7 @@ FRQCR_D:	.long	0x07022538
 
 PSELA_A:	.long   0xa405014E
 PSELA_D:	.word   0x0A10
-        .align 2
+	.align 2
 
 DRVCR_A:	.long   0xa405018A
 DRVCR_D:	.word   0x0554

@@ -25,7 +25,6 @@
 #ifndef __ASM_SH_U_BOOT_H_
 #define __ASM_SH_U_BOOT_H_
 
-
 typedef struct bd_info {
 	unsigned long   bi_memstart;    /* start of DRAM memory */
 	unsigned long   bi_memsize;     /* size  of DRAM memory in bytes */
@@ -41,4 +40,3 @@ typedef struct bd_info {
 } bd_t;
 
 #endif
-

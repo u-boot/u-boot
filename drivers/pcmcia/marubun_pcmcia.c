@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *              
- */ 
+ *
+ */
 
 #include <common.h>
 #include <config.h>
@@ -34,7 +34,7 @@
 #endif
 
 #if	defined(CONFIG_PCMCIA)  \
-	        && (defined(CONFIG_MARUBUN_PCCARD)) 
+	        && (defined(CONFIG_MARUBUN_PCCARD))
 
 /* MR-SHPC-01 register */
 #define MRSHPC_MODE   	(CFG_MARUBUN_MRSHPC + 4)
@@ -79,14 +79,14 @@ int pcmcia_on (void)
 		outw(0x0b00,MRSHPC_MW0CR2); /* common mode & bus width 16bit SWAP = 1 */
 	else
 		outw(0x0300,MRSHPC_MW0CR2); /* common mode & bus width 16bit SWAP = 0 */
-	
+
 	/* attribute window open */
 	outw(0x8a85,MRSHPC_MW1CR1); /* window 0xb8500000 */
 	if ((inw(MRSHPC_CSR) & 0x4000) != 0)
 		outw(0x0a00,MRSHPC_MW1CR2); /* attribute mode & bus width 16bit SWAP = 1 */
 	else
 		outw(0x0200,MRSHPC_MW1CR2); /* attribute mode & bus width 16bit SWAP = 0 */
-	
+
 	/* I/O window open */
 	outw(0x8a86,MRSHPC_IOWCR1); /* I/O window 0xb8600000 */
 	outw(0x0008,MRSHPC_CDCR);   /* I/O card mode */
@@ -94,7 +94,7 @@ int pcmcia_on (void)
 		outw(0x0a00,MRSHPC_IOWCR2); /* bus width 16bit SWAP = 1 */
 	else
 		outw(0x0200,MRSHPC_IOWCR2); /* bus width 16bit SWAP = 0 */
-	
+
 	outw(0x0000,MRSHPC_ISR);
 	outw(0x2000,MRSHPC_ICR);
 	outb(0x00,(CFG_MARUBUN_MW2 + 0x206));

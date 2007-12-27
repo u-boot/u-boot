@@ -1,5 +1,5 @@
 
-U-Boot for Renesas SuperH 
+U-Boot for Renesas SuperH
 	Last update 08/10/2007 by Nobuhiro Iwamatsu
 
 ================================================================================
@@ -9,10 +9,10 @@ U-Boot for Renesas SuperH
 
 ================================================================================
 1. Overview
-	SuperH has an original boot loader. However, source code is dirty, and 
+	SuperH has an original boot loader. However, source code is dirty, and
 	maintenance is not done.
-	To improve sharing and the maintenance of the code, Nobuhiro Iwamatsu 
-	started the porting to u-boot in 2007. 
+	To improve sharing and the maintenance of the code, Nobuhiro Iwamatsu
+	started the porting to u-boot in 2007.
 
 ================================================================================
 2. Supported CPUs
@@ -33,13 +33,13 @@ U-Boot for Renesas SuperH
 
 	** README **
 		In SuperH, S-record and binary of made u-boot work on the memory.
-		When u-boot is written in the flash, it is necessary to change the 
-		address by using 'objcopy'.  
+		When u-boot is written in the flash, it is necessary to change the
+		address by using 'objcopy'.
 		ex) shX-linux-objcopy -Ibinary -Osrec u-boot.bin u-boot.flash.srec
-	
+
 ================================================================================
 4. Compiler
-	You can use the following of u-boot to compile. 
+	You can use the following of u-boot to compile.
 		- SuperH Linux Open site
 			http://www.superh-linux.org/
 		- KPIT GNU tools
@@ -52,11 +52,10 @@ U-Boot for Renesas SuperH
 			- SH7710/SH7712 (SH3)
 			- SH7780(SH4)
 			- SH7785(SH4)
-		
+
 		5.2. Boards
 			- Many boards ;-)
 
 ================================================================================
 Copyright (c) 2007
     Nobuhiro Iwamatsu <iwamatsu@nigaur.org>
-

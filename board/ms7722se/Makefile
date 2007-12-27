@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2007
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-#     
+#
 # Copyright (C) 2007
 # Kenati Technologies, Inc.
 #

@@ -33,21 +33,21 @@ _start:
 	bsr	1f
 	nop
 1:	sts	pr, r5
-	mov.l	._reloc_dst, r4	
-	add	#(_start-1b), r5	
-	mov.l	._reloc_dst_end, r6	
+	mov.l	._reloc_dst, r4
+	add	#(_start-1b), r5
+	mov.l	._reloc_dst_end, r6
 
 2:	mov.l	@r5+, r1
 	mov.l	r1, @r4
 	add	#4, r4
 	cmp/hs	r6, r4
 	bf	2b
-	
-	mov.l	._bss_start, r4	
-	mov.l	._bss_end, r5		
+
+	mov.l	._bss_start, r4
+	mov.l	._bss_end, r5
 	mov	#0, r1
 
-3:	mov.l	r1, @r4			/* bss clear */	
+3:	mov.l	r1, @r4			/* bss clear */
 	add	#4, r4
 	cmp/hs	r5, r4
 	bf	3b
@@ -56,8 +56,8 @@ _start:
 	mov.l	._stack_init, r15	/* stack */
 
 	mov.l	._sh_generic_init, r0
-	jsr	@r0			
-	nop				
+	jsr	@r0
+	nop
 
 loop:
 	bra	loop
@@ -72,4 +72,3 @@ loop:
 ._gd_init:		.long	(_start - CFG_GBL_DATA_SIZE)
 ._stack_init:		.long	(_start - CFG_GBL_DATA_SIZE - CFG_MALLOC_LEN - 16)
 ._sh_generic_init:	.long	sh_generic_init
-

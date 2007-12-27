@@ -37,7 +37,7 @@
 /*
  * Command line configuration.
  */
-//#include <config_cmd_default.h>
+/*#include <config_cmd_default.h>*/
 
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_FLASH
@@ -56,7 +56,7 @@
 #define CFG_SDRAM_BASE		(0x8C000000)
 #define CFG_SDRAM_SIZE		(64 * 1024 * 1024)
 
-#define CFG_LONGHELP		
+#define CFG_LONGHELP
 #define CFG_PROMPT		"=> "
 #define CFG_CBSIZE		256
 #define CFG_PBSIZE		256
@@ -71,7 +71,7 @@
 /* NOR Flash */
 /* #define CFG_FLASH_BASE		(0xA1000000)*/
 #define CFG_FLASH_BASE		(0xA0000000)
-#define CFG_MAX_FLASH_BANKS	(1)	/* Max number of 
+#define CFG_MAX_FLASH_BANKS	(1)	/* Max number of
 				 	 * Flash memory banks
 				 	 */
 #define CFG_MAX_FLASH_SECT	142

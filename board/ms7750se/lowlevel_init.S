@@ -2,8 +2,8 @@
  modified from SH-IPL+g
  Renesaso SuperH / Solution Enginge MS775xSE01 BSC setting.
 
- Support CPU : SH7750/SH7750S/SH7750R/SH7751/SH7751R 
- 
+ Support CPU : SH7750/SH7750S/SH7750R/SH7751/SH7751R
+
  Coyright (c) 2007 Nobuhiro Iwamatsu <iwmatsu@nigauri.org>
 
  * See file CREDITS for list of people who contributed to this
@@ -102,7 +102,7 @@ init_bsc:
 	mov	#0,r0
 	mov.b	r0,@r1
 
-	! Do you need PCMCIA setting?	
+	! Do you need PCMCIA setting?
 	! If so, please add the lines here...
 
 	mov.l	RTCNT_A,r1	/* RTCNT Address */
@@ -165,7 +165,7 @@ WCR2_A:		.long	WCR2
 WCR2_D:		.long	WCR2_D_VALUE	/* Per-area access and burst wait states */
 WCR3_A:		.long	WCR3
 WCR3_D:		.long	WCR3_D_VALUE	/* Address setup and data hold cycles */
-RTCSR_A:	.long	RTCSR	
+RTCSR_A:	.long	RTCSR
 RTCSR_D:	.long	0xA518		/* RTCSR Write Code A5h Data 18h */
 RTCNT_A:	.long	RTCNT
 RTCNT_D:	.long	0xA500		/* RTCNT Write Code A5h Data 00h */
@@ -177,4 +177,3 @@ MCR_D1:		.long	MCR_D1_VALUE
 MCR_D2:		.long	MCR_D2_VALUE
 RFCR_A:		.long	RFCR
 RFCR_D:		.long	0xA400		/* RFCR Write Code A4h Data 00h */
-

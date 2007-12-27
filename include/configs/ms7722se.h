@@ -25,7 +25,7 @@
 #ifndef __MS7722SE_H
 #define __MS7722SE_H
 
-#undef DEBUG 
+#undef DEBUG
 #define CONFIG_SH		1
 #define CONFIG_SH4		1
 #define CONFIG_CPU_SH7722	1
@@ -56,7 +56,6 @@
 /* MEMORY */
 #define MS7722SE_SDRAM_BASE	(0x8C000000)
 #define MS7722SE_FLASH_BASE_1	(0xA0000000)
-//#define MS7722SE_FLASH_BASE_1	(0xA1000000)
 #define MS7722SE_FLASH_BANK_SIZE	(8*1024 * 1024)
 
 #define CFG_LONGHELP				/* undef to save memory	*/
@@ -87,12 +86,12 @@
 
 #define CFG_LOAD_ADDR	(CFG_SDRAM_BASE + 4 * 1024 * 1024)	/* default load address for scripts ?!? */
 
-#define CFG_MONITOR_BASE	(MS7722SE_FLASH_BASE_1)	/* Address of u-boot image 
+#define CFG_MONITOR_BASE	(MS7722SE_FLASH_BASE_1)	/* Address of u-boot image
 						   	in Flash (NOT run time address in SDRAM) ?!? */
 #define CFG_MONITOR_LEN	(128 * 1024)		/* */
 #define CFG_MALLOC_LEN	(256 * 1024)		/* Size of DRAM reserved for malloc() use */
 #define CFG_GBL_DATA_SIZE	(256)		/* size in bytes reserved for initial data */
-#define CFG_BOOTMAPSZ	(8 * 1024 * 1024)	
+#define CFG_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */
 #define CFG_FLASH_CFI
@@ -102,7 +101,7 @@
 
 #define CFG_FLASH_BASE		(MS7722SE_FLASH_BASE_1)	/* Physical start address of Flash memory */
 
-#define CFG_MAX_FLASH_SECT	150		/* Max number of sectors on each 
+#define CFG_MAX_FLASH_SECT	150		/* Max number of sectors on each
 				   			Flash chip */
 
 /* if you use all NOR Flash , you change dip-switch. Please see MS7722SE01 Manual. */
@@ -131,7 +130,7 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
-#define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */		
+#define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 #define CFG_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
 
 #endif	/* __MS7722SE_H */

@@ -1,7 +1,7 @@
 /*
  * SuperH SCIF device driver.
  * Copyright (c) 2007 Nobuhiro Iwamatsu
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -31,7 +31,7 @@
 #endif
 
 #define SCSMR 	(vu_short *)(SCIF_BASE + 0x0)
-#define SCBRR 	(vu_char  *)(SCIF_BASE + 0x4) 
+#define SCBRR 	(vu_char  *)(SCIF_BASE + 0x4)
 #define SCSCR 	(vu_short *)(SCIF_BASE + 0x8)
 #define SCFTDR 	(vu_char  *)(SCIF_BASE + 0xC)
 #define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
@@ -51,7 +51,7 @@
 #endif
 
 #define SCR_RE 		(1 << 4)
-#define SCR_TE 		(1 << 5) 
+#define SCR_TE 		(1 << 5)
 #define FCR_RFRST	(1 << 1) /* RFCL */
 #define FCR_TFRST	(1 << 2) /* TFCL */
 #define FSR_DR   	(1 << 0)
@@ -69,7 +69,7 @@ void serial_setbrg (void)
 	DECLARE_GLOBAL_DATA_PTR;
 	int divisor = gd->baudrate * 32;
 
-	*SCBRR = (CONFIG_SYS_CLK_FREQ + (divisor / 2)) / 
+	*SCBRR = (CONFIG_SYS_CLK_FREQ + (divisor / 2)) /
 						(gd->baudrate * 32) - 1;
 }
 

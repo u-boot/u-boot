@@ -32,12 +32,12 @@ static void cnt_write (unsigned char value){
 	while (csr_read() & (1 << 5)) {
 		/* delay */
 	}
-	*((volatile unsigned short *)(WDT_BASE + 0x00)) 
+	*((volatile unsigned short *)(WDT_BASE + 0x00))
 		= ((unsigned short) value) | 0x5A00;
 }
 
 static void csr_write (unsigned char value){
-	*((volatile unsigned short *)(WDT_BASE + 0x04)) 
+	*((volatile unsigned short *)(WDT_BASE + 0x04))
 		= ((unsigned short) value) | 0xA500;
 }
 
@@ -48,5 +48,3 @@ void reset_cpu (unsigned long ignored)
 {
 	while(1);
 }
-
-

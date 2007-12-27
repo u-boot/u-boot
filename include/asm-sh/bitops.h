@@ -2,7 +2,6 @@
 #define __ASM_SH_BITOPS_H
 
 #ifdef __KERNEL__
-//#include <asm/system.h>
 #include <asm/irqflags.h>
 /* For __swab32 */
 #include <asm/byteorder.h>
@@ -99,8 +98,6 @@ static inline int test_and_change_bit(int nr, volatile void * addr)
 	return retval;
 }
 
-//#include <asm-generic/bitops/non-atomic.h>
-
 static inline unsigned long ffz(unsigned long word)
 {
 	unsigned long result;
@@ -121,46 +118,34 @@ static inline unsigned long ffz(unsigned long word)
  *
  * Undefined if no bit exists, so code should check against 0 first.
  */
-static inline int ffs(int x)
+static inline int ffs (int x)
 {
-  int r = 1;
+	int r = 1;
 
-  if (!x)
-    return 0;
-  if (!(x & 0xffff)) {
-    x >>= 16;
-    r += 16;
-  }
-  if (!(x & 0xff)) {
-    x >>= 8;
-    r += 8;
-  }
-  if (!(x & 0xf)) {
-    x >>= 4;
-    r += 4;
-  }
-  if (!(x & 3)) {
-    x >>= 2;
-    r += 2;
-  }
-  if (!(x & 1)) {
-    x >>= 1;
-    r += 1;
-  }
-  return r;
+	if (!x)
+		return 0;
+	if (!(x & 0xffff)) {
+		x >>= 16;
+		r += 16;
+	}
+	if (!(x & 0xff)) {
+		x >>= 8;
+		r += 8;
+	}
+	if (!(x & 0xf)) {
+		x >>= 4;
+		r += 4;
+	}
+	if (!(x & 3)) {
+		x >>= 2;
+		r += 2;
+	}
+	if (!(x & 1)) {
+		x >>= 1;
+		r += 1;
+	}
+	return r;
 }
-
-#if 0
-#include <asm-generic/bitops/find.h>
-#include <asm-generic/bitops/ffs.h>
-#include <asm-generic/bitops/hweight.h>
-#include <asm-generic/bitops/sched.h>
-#include <asm-generic/bitops/ext2-non-atomic.h>
-#include <asm-generic/bitops/ext2-atomic.h>
-#include <asm-generic/bitops/minix.h>
-#include <asm-generic/bitops/fls.h>
-#include <asm-generic/bitops/fls64.h>
-#endif
 #endif /* __KERNEL__ */
 
 #endif /* __ASM_SH_BITOPS_H */

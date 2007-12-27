@@ -22,7 +22,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= 
+SOBJS	=
 
 COBJS	= board.o sh_linux.o # time.o
 

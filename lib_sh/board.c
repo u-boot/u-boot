@@ -47,7 +47,7 @@ static void mem_malloc_init (void)
 	mem_malloc_start = (TEXT_BASE - CFG_GBL_DATA_SIZE - CFG_MALLOC_LEN);
 	mem_malloc_end = (mem_malloc_start + CFG_MALLOC_LEN - 16);
 	mem_malloc_brk = mem_malloc_start;
-	memset ((void *) mem_malloc_start, 0, 
+	memset ((void *) mem_malloc_start, 0,
 		(mem_malloc_end - mem_malloc_start));
 }
 
@@ -191,7 +191,7 @@ void sh_generic_init (void)
 	puts ("Net:   ");
 	eth_initialize(gd->bd);
 
-        if ((s = getenv ("bootfile")) != NULL) {
+	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
 #endif /* CONFIG_CMD_NET */

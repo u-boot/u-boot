@@ -31,13 +31,13 @@
 #define INTEVT		0xFF000028
 
 /*	MMU	*/
-#define PTEH		0xFF000000 
-#define PTEL		0xFF000004 
-#define TTB		0xFF000008 
-#define TEA		0xFF00000C 
-#define MMUCR		0xFF000010 
-#define PASCR		0xFF000070 
-#define IRMCR		0xFF000078 
+#define PTEH		0xFF000000
+#define PTEL		0xFF000004
+#define TTB		0xFF000008
+#define TEA		0xFF00000C
+#define MMUCR		0xFF000010
+#define PASCR		0xFF000070
+#define IRMCR		0xFF000078
 
 /*	CACHE	*/
 #define CCR		0xFF00001C
@@ -325,7 +325,7 @@
 #define SPICR1      0xA4420030
 
 /*	SCIF	*/
-/* 
+/*
 #define SCSMR       0xFFE00000
 #define SCBRR       0xFFE00004
 #define SCSCR       0xFFE00008
@@ -1334,4 +1334,4 @@
 #define SDDRL       0xFC11000A
 #define SDINT       0xFC110018
 
-#endif /* _ASM_CPU_SH7722_H_ */ 
+#endif /* _ASM_CPU_SH7722_H_ */
