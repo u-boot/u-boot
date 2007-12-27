@@ -657,6 +657,23 @@ LIST_blackfin="		\
 	bf561-ezkit	\
 "
 
+#########################################################################
+## SH Systems
+#########################################################################
+
+LIST_sh4="		\
+	ms7750se	\
+	ms7722se	\
+"
+
+LIST_sh3=""
+
+
+LIST_sh="		\
+	${LIST_sh3}	\
+	${LIST_sh4}	\
+"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -691,7 +708,9 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
-	x86|I486|TSEC)
+	x86|I486|TSEC| \
+	sh|sh4|sh3 \
+	)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

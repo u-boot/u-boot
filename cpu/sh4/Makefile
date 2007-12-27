@@ -1,6 +1,9 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# (C) Copyright 2007
+# Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +15,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,29 +26,21 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libpcmcia.a
+LIB	= $(obj)lib$(CPU).a
 
-COBJS-y += mpc8xx_pcmcia.o
-COBJS-y += pxa_pcmcia.o
-COBJS-y += rpx_pcmcia.o
-COBJS-y += ti_pci1410a.o
-COBJS-y += tqm8xx_pcmcia.o
-COBJS-y += marubun_pcmcia.o
+START	= start.o
+OBJS	= cpu.o interrupts.o watchdog.o time.o cache.o
 
-COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+all:	.depend $(START) $(LIB)
 
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+$(LIB):	$(OBJS)
+	$(AR) crv $@ $(OBJS)
 
 #########################################################################
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+.depend:	Makefile $(START:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CFLAGS) $(START:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude $(obj).depend
+sinclude .depend
 
 #########################################################################
