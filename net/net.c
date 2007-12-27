@@ -596,7 +596,9 @@ void NetStartAgain (void)
 	NetSetHandler (startAgainHandler);
 #else	/* !CONFIG_NET_MULTI*/
 	eth_halt ();
+#if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
 	eth_try_another (!NetRestarted);
+#endif
 	eth_init (gd->bd);
 	if (NetRestartWrap) {
 		NetRestartWrap = 0;
