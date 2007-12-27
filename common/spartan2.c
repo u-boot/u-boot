@@ -25,7 +25,7 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <spartan2.h>		/* Spartan-II device family */
 
-#if (CONFIG_FPGA & (CFG_XILINX | CFG_SPARTAN2))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_SPARTAN2)
 
 /* Define FPGA_DEBUG to get debug printf's */
 #ifdef	FPGA_DEBUG

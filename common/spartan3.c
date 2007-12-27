@@ -30,7 +30,7 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <spartan3.h>		/* Spartan-II device family */
 
-#if (CONFIG_FPGA & (CFG_XILINX | CFG_SPARTAN3))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_SPARTAN3)
 
 /* Define FPGA_DEBUG to get debug printf's */
 #ifdef	FPGA_DEBUG

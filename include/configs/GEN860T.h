@@ -273,7 +273,9 @@
  * Virtex2 FPGA configuration support
  */
 #define CONFIG_FPGA_COUNT		1
-#define CONFIG_FPGA				CFG_XILINX_VIRTEX2
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_VIRTEX2
 #define CFG_FPGA_PROG_FEEDBACK
 
 

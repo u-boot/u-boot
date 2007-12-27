@@ -1377,14 +1377,23 @@ The following options need to be configured:
 		SPI configuration items (port pins to use, etc). For
 		an example, see include/configs/sacsng.h.
 
-- FPGA Support: CONFIG_FPGA_COUNT
+- FPGA Support: CONFIG_FPGA
+
+		Enables FPGA subsystem.
+
+		CONFIG_FPGA_<vendor>
+
+		Enables support for specific chip vendors.
+		(ALTERA, XILINX)
+
+		CONFIG_FPGA_<family>
+
+		Enables support for FPGA family.
+		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
+
+		CONFIG_FPGA_COUNT
 
 		Specify the number of FPGA devices to support.
-
-		CONFIG_FPGA
-
-		Used to specify the types of FPGA devices.  For example,
-		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 
 		CFG_FPGA_PROG_FEEDBACK
 

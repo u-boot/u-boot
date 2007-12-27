@@ -192,7 +192,9 @@
 
 /* FPGA - Spartan 2 */
 /* experiment
-#define CONFIG_FPGA		CFG_SPARTAN3
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 #define CFG_FPGA_PROG_FEEDBACK
 #define CFG_FPGA_CHECK_CTRLC
