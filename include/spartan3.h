@@ -58,6 +58,7 @@ typedef struct {
 	Xilinx_init_fn	init;
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
+	Xilinx_post_fn	post;
 	int           	relocated;
 } Xilinx_Spartan3_Slave_Serial_fns;
 

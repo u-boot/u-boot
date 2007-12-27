@@ -566,6 +566,13 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		}
 		putc ('\n');			/* terminate the dotted line */
 
+		/*
+		 * Run the post configuration function if there is one.
+		 */
+		if (*fn->post) {
+			(*fn->post) (cookie);
+		}
+
 #ifdef CFG_FPGA_PROG_FEEDBACK
 		if (ret_val == FPGA_SUCCESS) {
 			puts ("Done.\n");
@@ -620,8 +627,10 @@ static int Spartan3_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 			PRINTF ("%s: Relocating descriptor at 0x%p\n", __FUNCTION__,
 					desc);
 
-			addr = (ulong) (fn->pre) + reloc_offset;
-			fn_r->pre = (Xilinx_pre_fn) addr;
+			if (fn->pre) {
+				addr = (ulong) (fn->pre) + reloc_offset;
+				fn_r->pre = (Xilinx_pre_fn) addr;
+			}
 
 			addr = (ulong) (fn->pgm) + reloc_offset;
 			fn_r->pgm = (Xilinx_pgm_fn) addr;
@@ -637,6 +646,11 @@ static int Spartan3_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 
 			addr = (ulong) (fn->wr) + reloc_offset;
 			fn_r->wr = (Xilinx_wr_fn) addr;
+
+			if (fn->post) {
+				addr = (ulong) (fn->post) + reloc_offset;
+				fn_r->post = (Xilinx_post_fn) addr;
+			}
 
 			fn_r->relocated = TRUE;
 
