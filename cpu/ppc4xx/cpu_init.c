@@ -136,7 +136,7 @@ cpu_init_f (void)
 	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
 #endif
 
-#if defined (CONFIG_450EP)
+#if defined (CONFIG_405EP)
 	/*
 	 * Set EMAC noise filter bits
 	 */
