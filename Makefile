@@ -1286,6 +1286,9 @@ PLU405_config:	unconfig
 PMC405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc405 esd
 
+PMC440_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc440 esd
+
 PPChameleonEVB_config		\
 PPChameleonEVB_BA_25_config	\
 PPChameleonEVB_ME_25_config	\

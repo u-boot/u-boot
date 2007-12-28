@@ -208,6 +208,7 @@ LIST_4xx="		\
 	PIP405		\
 	PLU405		\
 	PMC405		\
+	PMC440		\
 	PPChameleonEVB	\
 	rainier		\
 	sbc405		\
