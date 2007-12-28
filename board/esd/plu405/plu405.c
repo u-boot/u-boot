@@ -109,8 +109,8 @@ int misc_init_f (void)
 
 int misc_init_r (void)
 {
-	volatile unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
-	volatile unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
+	unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
+	unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	unsigned char *dst;
 	ulong len = sizeof(fpgadata);
 	int status;
@@ -184,16 +184,28 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_DUART_RST);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
 	udelay(10); /* wait 10us */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_DUART_RST);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
 	udelay(1000); /* wait 1ms */
+
+	/*
+	 * Set NAND-FLASH GPIO signals to default
+	 */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_NAND_CE);
+
+	/*
+	 * Setup EEPROM write protection
+	 */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
+	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CFG_EEPROM_WP);
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
 	 */
-	*duart0_mcr = 0x08;
-	*duart1_mcr = 0x08;
+	out_8(duart0_mcr, 0x08);
+	out_8(duart1_mcr, 0x08);
 
 	return (0);
 }
@@ -259,3 +271,74 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
+
+
+#if defined(CFG_EEPROM_WREN)
+/* Input: <dev_addr>  I2C address of EEPROM device to enable.
+ *         <state>     -1: deliver current state
+ *	               0: disable write
+ *		       1: enable write
+ *  Returns:           -1: wrong device address
+ *                      0: dis-/en- able done
+ *		     0/1: current state if <state> was -1.
+ */
+int eeprom_write_enable (unsigned dev_addr, int state)
+{
+	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+		return -1;
+	} else {
+		switch (state) {
+		case 1:
+			/* Enable write access, clear bit GPIO0. */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_EEPROM_WP);
+			state = 0;
+			break;
+		case 0:
+			/* Disable write access, set bit GPIO0. */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
+			state = 0;
+			break;
+		default:
+			/* Read current status back. */
+			state = (0 == (in_be32((void*)GPIO0_OR) & CFG_EEPROM_WP));
+			break;
+		}
+	}
+	return state;
+}
+
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int query = argc == 1;
+	int state = 0;
+
+	if (query) {
+		/* Query write access state. */
+		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		if (state < 0) {
+			puts ("Query of write access state failed.\n");
+		} else {
+			printf ("Write access for device 0x%0x is %sabled.\n",
+				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			state = 0;
+		}
+	} else {
+		if ('0' == argv[1][0]) {
+			/* Disable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+		} else {
+			/* Enable write access. */
+			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+		}
+		if (state < 0) {
+			puts ("Setup of write access state failed.\n");
+		}
+	}
+
+	return state;
+}
+
+U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
+	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   NULL);
+#endif /* #if defined(CFG_EEPROM_WREN) */
