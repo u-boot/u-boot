@@ -46,11 +46,10 @@ void lcd_setup(int lcd, int config)
 		 */
 		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD0_RST); /* set reset to low */
 		udelay(10); /* wait 10us */
-		if (config == 1) {
+		if (config == 1)
 			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
-		} else {
+		else
 			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
-		}
 		udelay(10); /* wait 10us */
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD0_RST); /* set reset to high */
 	} else {
@@ -59,11 +58,10 @@ void lcd_setup(int lcd, int config)
 		 */
 		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD1_RST); /* set reset to low */
 		udelay(10); /* wait 10us */
-		if (config == 1) {
+		if (config == 1)
 			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
-		} else {
+		else
 			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
-		}
 		udelay(10); /* wait 10us */
 		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD1_RST); /* set reset to high */
 	}
@@ -105,12 +103,10 @@ void lcd_bmp(uchar *logo_bmp)
 			printf("Error: malloc in gunzip failed!\n");
 			return;
 		}
-		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0) {
+		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0)
 			return;
-		}
-		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+		if (len == CFG_VIDEO_LOGO_MAX_SIZE)
 			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
-		}
 
 		/*
 		 * Check for bmp mark 'BM'
@@ -153,9 +149,8 @@ void lcd_bmp(uchar *logo_bmp)
 		break;
 	default:
 		printf("LCD: Unknown bpp (%d) im image!\n", bpp);
-		if ((dst != NULL) && (dst != (uchar *)logo_bmp)) {
+		if ((dst != NULL) && (dst != (uchar *)logo_bmp))
 			free(dst);
-		}
 		return;
 	}
 	printf(" (%d*%d, %dbpp)\n", width, height, bpp);
@@ -213,9 +208,8 @@ void lcd_bmp(uchar *logo_bmp)
 		}
 	}
 
-	if ((dst != NULL) && (dst != (uchar *)logo_bmp)) {
+	if ((dst != NULL) && (dst != (uchar *)logo_bmp))
 		free(dst);
-	}
 }
 
 
@@ -233,7 +227,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	out_8(&lcd_reg[0], 0x00);
 	out_8(&lcd_reg[1], 0x00);
 
-	      if (in_8(&lcd_reg[0]) == 0x1c) {
+	if (in_8(&lcd_reg[0]) == 0x1c) {
 		/*
 		 * Big epson detected
 		 */
@@ -242,7 +236,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		palette_value = 0x1e4;
 		lcd_depth = 16;
 		puts("LCD:   S1D13806");
-	      } else if (in_8(&lcd_reg[1]) == 0x1c) {
+	} else if (in_8(&lcd_reg[1]) == 0x1c) {
 		/*
 		 * Big epson detected (with register swap bug)
 		 */
@@ -251,7 +245,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		palette_value = 0x1e5;
 		lcd_depth = 16;
 		puts("LCD:   S1D13806S");
-	      } else if (in_8(&lcd_reg[0]) == 0x18) {
+	} else if (in_8(&lcd_reg[0]) == 0x18) {
 		/*
 		 * Small epson detected (704)
 		 */
