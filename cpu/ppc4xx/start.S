@@ -1356,7 +1356,11 @@ relocate_code:
 	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
 	isync
-	addi	r1,r0,0x0000		/* TLB entry #0 */
+#ifdef CFG_TLB_FOR_BOOT_FLASH
+	addi	r1,r0,CFG_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
+#else
+	addi	r1,r0,0x0000		/* Default TLB entry is #0 */
+#endif
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
@@ -1490,16 +1494,25 @@ clear_bss:
 	lwz	r4,GOT(_end)
 
 	cmplw	0, r3, r4
-	beq	6f
+	beq	7f
 
 	li	r0, 0
-5:
+
+	andi.	r5, r4, 3
+	beq	6f
+	sub	r4, r4, r5
+	mtctr	r5
+	mr	r5, r4
+5:	stb	r0, 0(r5)
+	addi	r5, r5, 1
+	bdnz	5b
+6:
 	stw	r0, 0(r3)
 	addi	r3, r3, 4
 	cmplw	0, r3, r4
-	bne	5b
-6:
+	bne	6b
 
+7:
 	mr	r3, r9		/* Init Data pointer		*/
 	mr	r4, r10		/* Destination Address		*/
 	bl	board_init_r

@@ -88,17 +88,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	volatile ccsr_cpm_scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
-	volatile ccsr_cpm_cp_t *cp = &(im->im_cpm.im_cpm_cp);
+	volatile ccsr_cpm_cp_t *cp = &(cpm->im_cpm_cp);
 	uint	dpaddr;
 
 	/* initialize pointers to SCC */
 
-	sp = (ccsr_cpm_scc_t *) &(im->im_cpm.im_cpm_scc[SCC_INDEX]);
-	up = (scc_uart_t *)&(im->im_cpm.im_dprambase[PROFF_SCC]);
+	sp = (ccsr_cpm_scc_t *) &(cpm->im_cpm_scc[SCC_INDEX]);
+	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
 
 	/* Disable transmitter/receiver.
 	*/
@@ -107,8 +107,8 @@ int serial_init (void)
 	/* put the SCC channel into NMSI (non multiplexd serial interface)
 	 * mode and wire the selected SCC Tx and Rx clocks to BRGx (15-15).
 	 */
-	im->im_cpm.im_cpm_mux.cmxscr = \
-		(im->im_cpm.im_cpm_mux.cmxscr&~CMXSCR_MASK)|CMXSCR_VALUE;
+	cpm->im_cpm_mux.cmxscr = \
+		(cpm->im_cpm_mux.cmxscr&~CMXSCR_MASK)|CMXSCR_VALUE;
 
 	/* Set up the baud rate generator.
 	*/
@@ -123,7 +123,7 @@ int serial_init (void)
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */
-	rbdf = (cbd_t *)&(im->im_cpm.im_dprambase[dpaddr]);
+	rbdf = (cbd_t *)&(cpm->im_dprambase[dpaddr]);
 	rbdf->cbd_bufaddr = (uint) (rbdf+2);
 	rbdf->cbd_sc = BD_SC_EMPTY | BD_SC_WRAP;
 	tbdf = rbdf + 1;
@@ -201,14 +201,13 @@ serial_putc(const char c)
 {
 	volatile scc_uart_t	*up;
 	volatile cbd_t		*tbdf;
-	volatile immap_t	*im;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 
 	if (c == '\n')
 		serial_putc ('\r');
 
-	im = (immap_t *)CFG_IMMR;
-	up = (scc_uart_t *)&(im->im_cpm.im_dprambase[PROFF_SCC]);
-	tbdf = (cbd_t *)&(im->im_cpm.im_dprambase[up->scc_genscc.scc_tbase]);
+	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
+	tbdf = (cbd_t *)&(cpm->im_dprambase[up->scc_genscc.scc_tbase]);
 
 	/* Wait for last character to go.
 	 */
@@ -235,12 +234,11 @@ serial_getc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-	volatile immap_t	*im;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	unsigned char		c;
 
-	im = (immap_t *)CFG_IMMR;
-	up = (scc_uart_t *)&(im->im_cpm.im_dprambase[PROFF_SCC]);
-	rbdf = (cbd_t *)&(im->im_cpm.im_dprambase[up->scc_genscc.scc_rbase]);
+	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
+	rbdf = (cbd_t *)&(cpm->im_dprambase[up->scc_genscc.scc_rbase]);
 
 	/* Wait for character to show up.
 	 */
@@ -260,11 +258,10 @@ serial_tstc()
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-	volatile immap_t	*im;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 
-	im = (immap_t *)CFG_IMMR;
-	up = (scc_uart_t *)&(im->im_cpm.im_dprambase[PROFF_SCC]);
-	rbdf = (cbd_t *)&(im->im_cpm.im_dprambase[up->scc_genscc.scc_rbase]);
+	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
+	rbdf = (cbd_t *)&(cpm->im_dprambase[up->scc_genscc.scc_rbase]);
 
 	return ((rbdf->cbd_sc & BD_SC_EMPTY) == 0);
 }

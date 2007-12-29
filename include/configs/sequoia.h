@@ -329,6 +329,7 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_SUBNETMASK
 
 
 /*
@@ -376,7 +377,7 @@
 
 #define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
 #define CONFIG_LOGBUFFER
-#define CFG_POST_CACHE_ADDR	0x10000000 /* free virtual address	*/
+#define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
@@ -491,6 +492,5 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-#define OF_CPU			"cpu@0"
 
 #endif	/* __CONFIG_H */

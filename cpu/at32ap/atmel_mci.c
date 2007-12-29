@@ -198,11 +198,11 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 
 	/* Put the device into Transfer state */
 	ret = mmc_cmd(MMC_CMD_SELECT_CARD, mmc_rca << 16, resp, R1 | NCR);
-	if (ret) goto fail;
+	if (ret) goto out;
 
 	/* Set block length */
 	ret = mmc_cmd(MMC_CMD_SET_BLOCKLEN, mmc_blkdev.blksz, resp, R1 | NCR);
-	if (ret) goto fail;
+	if (ret) goto out;
 
 	pr_debug("MCI_DTOR = %08lx\n", mmci_readl(DTOR));
 
@@ -211,7 +211,7 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 			      start * mmc_blkdev.blksz, resp,
 			      (R1 | NCR | TRCMD_START | TRDIR_READ
 			       | TRTYP_BLOCK));
-		if (ret) goto fail;
+		if (ret) goto out;
 
 		ret = -EIO;
 		wordcount = 0;
@@ -219,7 +219,7 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 			do {
 				status = mmci_readl(SR);
 				if (status & (ERROR_FLAGS | MMCI_BIT(OVRE)))
-					goto fail;
+					goto read_error;
 			} while (!(status & MMCI_BIT(RXRDY)));
 
 			if (status & MMCI_BIT(RXRDY)) {
@@ -244,9 +244,10 @@ out:
 	mmc_cmd(MMC_CMD_SELECT_CARD, 0, resp, NCR);
 	return i;
 
-fail:
+read_error:
 	mmc_cmd(MMC_CMD_SEND_STATUS, mmc_rca << 16, &card_status, R1 | NCR);
-	printf("mmc: bread failed, card status = %08x\n", card_status);
+	printf("mmc: bread failed, status = %08x, card status = %08x\n",
+	       status, card_status);
 	goto out;
 }
 

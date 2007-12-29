@@ -235,9 +235,7 @@ The following options need to be configured:
 - Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
 
 - CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
-		Define exactly one of
-		CONFIG_ATSTK1002
-
+		Define exactly one, e.g. CONFIG_ATSTK1002
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
 		Define exactly one of

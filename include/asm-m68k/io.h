@@ -28,6 +28,20 @@
 
 #include <asm/byteorder.h>
 
+/* ++roman: The assignments to temp. vars avoid that gcc sometimes generates
+ * two accesses to memory, which may be undesirable for some devices.
+ */
+#define __raw_readb(addr) \
+    ({ u8 __v = (*(volatile u8 *) (addr)); __v; })
+#define __raw_readw(addr) \
+    ({ u16 __v = (*(volatile u16 *) (addr)); __v; })
+#define __raw_readl(addr) \
+    ({ u32 __v = (*(volatile u32 *) (addr)); __v; })
+
+#define __raw_writeb(addr,b) (void)((*(volatile u8 *) (addr)) = (b))
+#define __raw_writew(addr,w) (void)((*(volatile u16 *) (addr)) = (w))
+#define __raw_writel(addr,l) (void)((*(volatile u32 *) (addr)) = (l))
+
 #define readb(addr)		in_8((volatile u8 *)(addr))
 #define writeb(b,addr)		out_8((volatile u8 *)(addr), (b))
 #if !defined(__BIG_ENDIAN)
@@ -218,4 +232,31 @@ static inline void sync(void)
 	 * compatibility (CFI driver)
 	 */
 }
+
+/*
+ * Given a physical address and a length, return a virtual address
+ * that can be used to access the memory range with the caching
+ * properties specified by "flags".
+ */
+typedef unsigned long phys_addr_t;
+
+#define MAP_NOCACHE	(0)
+#define MAP_WRCOMBINE	(0)
+#define MAP_WRBACK	(0)
+#define MAP_WRTHROUGH	(0)
+
+static inline void *
+map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
+{
+	return (void *)paddr;
+}
+
+/*
+ * Take down a mapping set up by map_physmem().
+ */
+static inline void unmap_physmem(void *vaddr, unsigned long flags)
+{
+
+}
+
 #endif				/* __ASM_M68K_IO_H__ */

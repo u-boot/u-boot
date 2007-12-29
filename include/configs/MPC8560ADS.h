@@ -289,13 +289,9 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8560@0"
-#define OF_SOC			"soc8560@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8560@e0000000/serial@4500"
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
@@ -450,6 +446,7 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_ELF
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -471,6 +468,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory	*/
+#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CFG_LOAD_ADDR	0x1000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
@@ -525,6 +523,8 @@
 #define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
 #define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
+#define CONFIG_HAS_ETH3
+#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253

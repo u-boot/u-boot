@@ -335,7 +335,7 @@
 #else
 #define CFG_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
 #endif /* CONFIG_TQM5200_B */
-#define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
+#define CFG_MALLOC_LEN		(1024 << 10)	/* Reserve 1024 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
@@ -392,6 +392,7 @@
  */
 #define CFG_LONGHELP			/* undef to save memory	    */
 #define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else

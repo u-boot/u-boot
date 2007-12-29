@@ -121,13 +121,43 @@ static inline void isync(void)
 #define iobarrier_w()  eieio()
 
 /*
+ * Non ordered and non-swapping "raw" accessors
+ */
+#define __iomem
+#define PCI_FIX_ADDR(addr)	(addr)
+
+static inline unsigned char __raw_readb(const volatile void __iomem *addr)
+{
+	return *(volatile unsigned char *)PCI_FIX_ADDR(addr);
+}
+static inline unsigned short __raw_readw(const volatile void __iomem *addr)
+{
+	return *(volatile unsigned short *)PCI_FIX_ADDR(addr);
+}
+static inline unsigned int __raw_readl(const volatile void __iomem *addr)
+{
+	return *(volatile unsigned int *)PCI_FIX_ADDR(addr);
+}
+static inline void __raw_writeb(unsigned char v, volatile void __iomem *addr)
+{
+	*(volatile unsigned char *)PCI_FIX_ADDR(addr) = v;
+}
+static inline void __raw_writew(unsigned short v, volatile void __iomem *addr)
+{
+	*(volatile unsigned short *)PCI_FIX_ADDR(addr) = v;
+}
+static inline void __raw_writel(unsigned int v, volatile void __iomem *addr)
+{
+	*(volatile unsigned int *)PCI_FIX_ADDR(addr) = v;
+}
+
+/*
  * 8, 16 and 32 bit, big and little endian I/O operations, with barrier.
  *
  * Read operations have additional twi & isync to make sure the read
  * is actually performed (i.e. the data has come back) before we start
  * executing any following instructions.
  */
-#define __iomem
 extern inline int in_8(const volatile unsigned char __iomem *addr)
 {
 	int ret;
@@ -206,6 +236,32 @@ extern inline void out_le32(volatile unsigned __iomem *addr, int val)
 extern inline void out_be32(volatile unsigned __iomem *addr, int val)
 {
 	__asm__ __volatile__("sync; stw%U0%X0 %1,%0" : "=m" (*addr) : "r" (val));
+}
+
+/*
+ * Given a physical address and a length, return a virtual address
+ * that can be used to access the memory range with the caching
+ * properties specified by "flags".
+ */
+typedef unsigned long phys_addr_t;
+
+#define MAP_NOCACHE	(0)
+#define MAP_WRCOMBINE	(0)
+#define MAP_WRBACK	(0)
+#define MAP_WRTHROUGH	(0)
+
+static inline void *
+map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
+{
+	return (void *)paddr;
+}
+
+/*
+ * Take down a mapping set up by map_physmem().
+ */
+static inline void unmap_physmem(void *vaddr, unsigned long flags)
+{
+
 }
 
 #endif

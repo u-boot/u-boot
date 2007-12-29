@@ -144,7 +144,9 @@ typedef struct ccsr_pci {
 	u32	perr_cap1;	/* 0xe2c - PCIE Error Capture Register 1 */
 	u32	perr_cap2;	/* 0xe30 - PCIE Error Capture Register 2 */
 	u32	perr_cap3;	/* 0xe34 - PCIE Error Capture Register 3 */
-	char	res23[456];	/*     (- #x1000 #xe38) 456 */
+	char	res23[200];
+	u32	pdb_stat;	/* 0xf00 - PCIE Debug Status */
+	char	res24[252];
 } ccsr_fsl_pci_t;
 
 #endif /*__IMMAP_fsl_pci__*/

@@ -42,6 +42,7 @@
 #undef CONFIG_RIO
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -333,14 +334,9 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8548@0"
-#define OF_SOC			"soc8548@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 8)
-#define OF_STDOUT_PATH		"/soc8548@e0000000/serial@4600"
-#define OF_PCI			"pci@e0008000"
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
@@ -483,6 +479,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_ELF
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -495,6 +492,7 @@ extern unsigned long get_clock_freq(void);
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory	*/
+#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
@@ -568,72 +566,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_BAUDRATE	115200
 
-#if defined(CONFIG_PCIE1)
-#define PCIE_ENV \
- "pciereg=md ${a}000 6; md ${a}020 4; md ${a}bf8 2; echo o;md ${a}c00 25;" \
-	"echo i; md ${a}da0 15; echo e;md ${a}e00 e; echo d; md ${a}f00 c\0" \
- "pcieerr=md ${a}020 1; md ${a}e00 e; pci d.b $b.0 7 1; pci d.w $b.0 1e 1;" \
-	"pci d.w $b.0 56 1; pci d $b.0 104 1; pci d $b.0 110 1;" \
-	"pci d $b.0 130 1\0" \
- "pcieerrc=mw ${a}020 ffffffff; mw ${a}e00 ffffffff; pci w.b $b.0 7 ff;" \
-	"pci w.w $b.0 1e ffff; pci w.w $b.0 56 ffff; pci w $b.0 104 ffffffff;"\
-	"pci w $b.0 110 ffffffff; pci w $b.0 130 ffffffff\0" \
- "pciecfg=pci d $b.0 0 20; pci d $b.0 100 e; pci d $b.0 400 69\0" \
- "pcie1regs=setenv a e000a; run pciereg\0" \
- "pcie1cfg=setenv b 3; run pciecfg\0" \
- "pcie1err=setenv a e000a; setenv b 3; run pcieerr\0" \
- "pcie1errc=setenv a e000a; setenv b 3; run pcieerrc\0"
-#else
-#define	PCIE_ENV ""
-#endif
-
-#if defined(CONFIG_PCI1) || defined(CONFIG_PCI2)
-#define PCI_ENV \
- "pcireg=md ${a}000 3; echo o;md ${a}c00 25; echo i; md ${a}da0 15;" \
-	"echo e;md ${a}e00 9\0" \
- "pcierr=md ${a}e00 8; pci d.b $b.0 7 1;pci d.w $b.0 1e 1;" \
-	"pci d.w $b.0 56 1\0" \
- "pcierrc=mw ${a}e00 ffffffff; mw ${a}e0c 0; pci w.b $b.0 7 ff;" \
-	"pci w.w $b.0 1e ffff; pci w.w $b.0 56 ffff\0"
-#else
-#define	PCI_ENV ""
-#endif
-
-#if defined(CONFIG_PCI1)
-#define PCI_ENV1 \
- "pci1regs=setenv a e0008; run pcireg\0" \
- "pci1err=setenv a e0008; setenv b 0; run pcierr\0" \
- "pci1errc=setenv a e0008; setenv b 0; run pcierrc\0"
-#else
-#define	PCI_ENV1 ""
-#endif
-
-#if defined(CONFIG_PCI2)
-#define PCI_ENV2 \
- "pci2regs=setenv a e0009; run pcireg\0" \
- "pci2err=setenv a e0009; setenv b 123; run pcierr\0"	\
- "pci2errc=setenv a e0009; setenv b 123; run pcierrc\0"
-#else
-#define	PCI_ENV2 ""
-#endif
-
-#if defined(CONFIG_TSEC_ENET)
-#define ENET_ENV \
- "enetreg1=md ${a}000 2; md ${a}010 9; md ${a}050 4; md ${a}08c 1;" \
-	"md ${a}098 2\0" \
- "enetregt=echo t;md ${a}100 6; md ${a}140 2; md ${a}180 10; md ${a}200 10\0" \
- "enetregr=echo r;md ${a}300 6; md ${a}330 5; md ${a}380 10; md ${a}400 10\0" \
- "enetregm=echo mac;md ${a}500 5; md ${a}520 28;echo fifo;md ${a}a00 1;" \
-	"echo mib;md ${a}680 31\0" \
- "enetreg=run enetreg1; run enetregm; run enetregt; run enetregr\0" \
- "enet1regs=setenv a e0024; run enetreg\0" \
- "enet2regs=setenv a e0025; run enetreg\0" \
- "enet3regs=setenv a e0026; run enetreg\0" \
- "enet4regs=setenv a e0027; run enetreg\0"
-#else
-#define ENET_ENV ""
-#endif
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
@@ -647,28 +579,7 @@ extern unsigned long get_clock_freq(void);
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=ramdisk.uboot\0"			\
  "fdtaddr=c00000\0"				\
- "fdtfile=mpc8548cds.dtb\0"			\
- "eoi=mw e00400b0 0\0"				\
- "iack=md e00400a0 1\0"				\
- "ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4; md ${a}bf0 4;" \
-	"md ${a}e00 3; md ${a}e20 3; md ${a}e40 7; md ${a}f00 5\0" \
- "ddrregs=setenv a e0002; run ddrreg\0"		\
- "gureg=md ${a}000 2c; md ${a}0b0 1; md ${a}0c0 1; md ${a}b20 3;" \
-	"md ${a}e00 1; md ${a}e60 1; md ${a}ef0 15\0"	\
- "guregs=setenv a e00e0; run gureg\0"		\
- "ecmreg=md ${a}000 1; md ${a}010 1; md ${a}bf8 2; md ${a}e00 6\0" \
- "ecmregs=setenv a e0001; run ecmreg\0" \
- "lawregs=md e0000c08 4b\0" \
- "lbcregs=md e0005000 36\0" \
- "dma0regs=md e0021100 12\0" \
- "dma1regs=md e0021180 12\0" \
- "dma2regs=md e0021200 12\0" \
- "dma3regs=md e0021280 12\0" \
- PCIE_ENV \
- PCI_ENV \
- PCI_ENV1 \
- PCI_ENV2 \
- ENET_ENV
+ "fdtfile=mpc8548cds.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\

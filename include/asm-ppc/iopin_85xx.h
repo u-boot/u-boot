@@ -23,121 +23,121 @@ typedef struct {
 
 extern __inline__ void iopin_set_high (iopin_t * iopin)
 {
-	volatile uint *datp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdata;
+	volatile uint *datp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdata;
 	datp[iopin->port * 8] |= (1 << (31 - iopin->pin));
 }
 
 extern __inline__ void iopin_set_low (iopin_t * iopin)
 {
-	volatile uint *datp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdata;
+	volatile uint *datp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdata;
 	datp[iopin->port * 8] &= ~(1 << (31 - iopin->pin));
 }
 
 extern __inline__ uint iopin_is_high (iopin_t * iopin)
 {
-	volatile uint *datp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdata;
+	volatile uint *datp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdata;
 	return (datp[iopin->port * 8] >> (31 - iopin->pin)) & 1;
 }
 
 extern __inline__ uint iopin_is_low (iopin_t * iopin)
 {
-	volatile uint *datp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdata;
+	volatile uint *datp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdata;
 	return ((datp[iopin->port * 8] >> (31 - iopin->pin)) & 1) ^ 1;
 }
 
 extern __inline__ void iopin_set_out (iopin_t * iopin)
 {
-	volatile uint *dirp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdira;
+	volatile uint *dirp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdira;
 	dirp[iopin->port * 8] |= (1 << (31 - iopin->pin));
 }
 
 extern __inline__ void iopin_set_in (iopin_t * iopin)
 {
-	volatile uint *dirp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdira;
+	volatile uint *dirp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdira;
 	dirp[iopin->port * 8] &= ~(1 << (31 - iopin->pin));
 }
 
 extern __inline__ uint iopin_is_out (iopin_t * iopin)
 {
-	volatile uint *dirp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdira;
+	volatile uint *dirp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdira;
 	return (dirp[iopin->port * 8] >> (31 - iopin->pin)) & 1;
 }
 
 extern __inline__ uint iopin_is_in (iopin_t * iopin)
 {
-	volatile uint *dirp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.pdira;
+	volatile uint *dirp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.pdira;
 	return ((dirp[iopin->port * 8] >> (31 - iopin->pin)) & 1) ^ 1;
 }
 
 extern __inline__ void iopin_set_odr (iopin_t * iopin)
 {
-	volatile uint *odrp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.podra;
+	volatile uint *odrp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.podra;
 	odrp[iopin->port * 8] |= (1 << (31 - iopin->pin));
 }
 
 extern __inline__ void iopin_set_act (iopin_t * iopin)
 {
-	volatile uint *odrp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.podra;
+	volatile uint *odrp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.podra;
 	odrp[iopin->port * 8] &= ~(1 << (31 - iopin->pin));
 }
 
 extern __inline__ uint iopin_is_odr (iopin_t * iopin)
 {
-	volatile uint *odrp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.podra;
+	volatile uint *odrp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.podra;
 	return (odrp[iopin->port * 8] >> (31 - iopin->pin)) & 1;
 }
 
 extern __inline__ uint iopin_is_act (iopin_t * iopin)
 {
-	volatile uint *odrp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.podra;
+	volatile uint *odrp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.podra;
 	return ((odrp[iopin->port * 8] >> (31 - iopin->pin)) & 1) ^ 1;
 }
 
 extern __inline__ void iopin_set_ded (iopin_t * iopin)
 {
-	volatile uint *parp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.ppara;
+	volatile uint *parp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.ppara;
 	parp[iopin->port * 8] |= (1 << (31 - iopin->pin));
 }
 
 extern __inline__ void iopin_set_gen (iopin_t * iopin)
 {
-	volatile uint *parp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.ppara;
+	volatile uint *parp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.ppara;
 	parp[iopin->port * 8] &= ~(1 << (31 - iopin->pin));
 }
 
 extern __inline__ uint iopin_is_ded (iopin_t * iopin)
 {
-	volatile uint *parp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.ppara;
+	volatile uint *parp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.ppara;
 	return (parp[iopin->port * 8] >> (31 - iopin->pin)) & 1;
 }
 
 extern __inline__ uint iopin_is_gen (iopin_t * iopin)
 {
-	volatile uint *parp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.ppara;
+	volatile uint *parp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.ppara;
 	return ((parp[iopin->port * 8] >> (31 - iopin->pin)) & 1) ^ 1;
 }
 
 extern __inline__ void iopin_set_opt2 (iopin_t * iopin)
 {
-	volatile uint *sorp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.psora;
+	volatile uint *sorp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.psora;
 	sorp[iopin->port * 8] |= (1 << (31 - iopin->pin));
 }
 
 extern __inline__ void iopin_set_opt1 (iopin_t * iopin)
 {
-	volatile uint *sorp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.psora;
+	volatile uint *sorp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.psora;
 	sorp[iopin->port * 8] &= ~(1 << (31 - iopin->pin));
 }
 
 extern __inline__ uint iopin_is_opt2 (iopin_t * iopin)
 {
-	volatile uint *sorp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.psora;
+	volatile uint *sorp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.psora;
 	return (sorp[iopin->port * 8] >> (31 - iopin->pin)) & 1;
 }
 
 extern __inline__ uint iopin_is_opt1 (iopin_t * iopin)
 {
-	volatile uint *sorp = &((immap_t *) CFG_IMMR)->im_cpm.im_cpm_iop.psora;
+	volatile uint *sorp = &((ccsr_cpm_t *) CFG_MPC85xx_CPM_ADDR)->im_cpm_iop.psora;
 	return ((sorp[iopin->port * 8] >> (31 - iopin->pin)) & 1) ^ 1;
 }
 

@@ -35,8 +35,7 @@ long int fixed_sdram (void);
 int board_pre_init (void)
 {
 #if defined(CONFIG_PCI)
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-	volatile ccsr_pcix_t *pci = &immr->im_pcix;
+	volatile ccsr_pcix_t *pci = (void *)(CFG_MPC85xx_PCIX_ADDR);
 
 	pci->peer &= 0xffffffdf; /* disable master abort */
 #endif
@@ -68,14 +67,13 @@ long int initdram (int board_type)
 {
 	long dram_size = 0;
 	extern long spd_sdram (void);
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 #if !defined(CONFIG_RAM_AS_FLASH)
-	volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	sys_info_t sysinfo;
 	uint temp_lbcdll = 0;
 #endif
 #if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur= &immap->im_gur;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 #endif
 
 #if defined(CONFIG_DDR_DLL)
@@ -138,8 +136,7 @@ long int initdram (int board_type)
 		 * enable errors */
 		uint *p = 0;
 		uint i = 0;
-		volatile immap_t *immap = (immap_t *)CFG_IMMR;
-		volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+		volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 		dma_init();
 		for (*p = 0; p < (uint *)(8 * 1024); p++) {
 			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
@@ -222,8 +219,7 @@ int testdram (void)
 long int fixed_sdram (void)
 {
 #ifndef CFG_RAMBOOT
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
+	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 
 	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
 	ddr->cs0_config = CFG_DDR_CS0_CONFIG;

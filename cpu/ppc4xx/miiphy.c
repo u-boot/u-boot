@@ -27,19 +27,6 @@
   |
   |  Author:	 Mark Wisner
   |
-  |  Change Activity-
-  |
-  |  Date	 Description of Change					     BY
-  |  ---------	 ---------------------					     ---
-  |  05-May-99	 Created						     MKW
-  |  01-Jul-99	 Changed clock setting of sta_reg from 66Mhz to 50Mhz to
-  |		 better match OPB speed. Also modified delay times.	     JWB
-  |  29-Jul-99	 Added Full duplex support				     MKW
-  |  24-Aug-99	 Removed printf from dp83843_duplex()			     JWB
-  |  19-Jul-00	 Ported to esd cpci405					     sr
-  |  23-Dec-03	 Ported from miiphy.c to 440GX Travis Sawyer		     TBS
-  |		 <travis.sawyer@sandburst.com>
-  |
   +-----------------------------------------------------------------------------*/
 
 #include <common.h>
@@ -61,7 +48,6 @@ void miiphy_dump (char *devname, unsigned char addr)
 	unsigned long i;
 	unsigned short data;
 
-
 	for (i = 0; i < 0x1A; i++) {
 		if (miiphy_read (devname, addr, i, &data)) {
 			printf ("read error for reg %lx\n", i);
@@ -76,15 +62,86 @@ void miiphy_dump (char *devname, unsigned char addr)
 	}			/* end for loop */
 }				/* end dump */
 
-
 /***********************************************************/
 /* (Re)start autonegotiation				   */
 /***********************************************************/
 int phy_setup_aneg (char *devname, unsigned char addr)
 {
-	unsigned short ctl, adv;
+	u16 bmcr;
 
-	/* Setup standard advertise */
+#if defined(CONFIG_PHY_DYNAMIC_ANEG)
+	/*
+	 * Set up advertisement based on capablilities reported by the PHY.
+	 * This should work for both copper and fiber.
+	 */
+	u16 bmsr;
+#if defined(CONFIG_PHY_GIGE)
+	u16 exsr = 0x0000;
+#endif
+
+	miiphy_read (devname, addr, PHY_BMSR, &bmsr);
+
+#if defined(CONFIG_PHY_GIGE)
+	if (bmsr & PHY_BMSR_EXT_STAT)
+		miiphy_read (devname, addr, PHY_EXSR, &exsr);
+
+	if (exsr & (PHY_EXSR_1000XF | PHY_EXSR_1000XH)) {
+		/* 1000BASE-X */
+		u16 anar = 0x0000;
+
+		if (exsr & PHY_EXSR_1000XF)
+			anar |= PHY_X_ANLPAR_FD;
+
+		if (exsr & PHY_EXSR_1000XH)
+			anar |= PHY_X_ANLPAR_HD;
+
+		miiphy_write (devname, addr, PHY_ANAR, anar);
+	} else
+#endif
+	{
+		u16 anar, btcr;
+
+		miiphy_read (devname, addr, PHY_ANAR, &anar);
+		anar &= ~(0x5000 | PHY_ANLPAR_T4 | PHY_ANLPAR_TXFD |
+			  PHY_ANLPAR_TX | PHY_ANLPAR_10FD | PHY_ANLPAR_10);
+
+		miiphy_read (devname, addr, PHY_1000BTCR, &btcr);
+		btcr &= ~(0x00FF | PHY_1000BTCR_1000FD | PHY_1000BTCR_1000HD);
+
+		if (bmsr & PHY_BMSR_100T4)
+			anar |= PHY_ANLPAR_T4;
+
+		if (bmsr & PHY_BMSR_100TXF)
+			anar |= PHY_ANLPAR_TXFD;
+
+		if (bmsr & PHY_BMSR_100TXH)
+			anar |= PHY_ANLPAR_TX;
+
+		if (bmsr & PHY_BMSR_10TF)
+			anar |= PHY_ANLPAR_10FD;
+
+		if (bmsr & PHY_BMSR_10TH)
+			anar |= PHY_ANLPAR_10;
+
+		miiphy_write (devname, addr, PHY_ANAR, anar);
+
+#if defined(CONFIG_PHY_GIGE)
+		if (exsr & PHY_EXSR_1000TF)
+			btcr |= PHY_1000BTCR_1000FD;
+
+		if (exsr & PHY_EXSR_1000TH)
+			btcr |= PHY_1000BTCR_1000HD;
+
+		miiphy_write (devname, addr, PHY_1000BTCR, btcr);
+#endif
+	}
+
+#else /* defined(CONFIG_PHY_DYNAMIC_ANEG) */
+	/*
+	 * Set up standard advertisement
+	 */
+	u16 adv;
+
 	miiphy_read (devname, addr, PHY_ANAR, &adv);
 	adv |= (PHY_ANLPAR_ACK | PHY_ANLPAR_RF | PHY_ANLPAR_T4 |
 		PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
@@ -95,14 +152,15 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 	adv |= (0x0300);
 	miiphy_write (devname, addr, PHY_1000BTCR, adv);
 
+#endif /* defined(CONFIG_PHY_DYNAMIC_ANEG) */
+
 	/* Start/Restart aneg */
-	miiphy_read (devname, addr, PHY_BMCR, &ctl);
-	ctl |= (PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
-	miiphy_write (devname, addr, PHY_BMCR, ctl);
+	miiphy_read (devname, addr, PHY_BMCR, &bmcr);
+	bmcr |= (PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	miiphy_write (devname, addr, PHY_BMCR, bmcr);
 
 	return 0;
 }
-
 
 /***********************************************************/
 /* read a phy reg and return the value with a rc	   */
@@ -116,19 +174,23 @@ unsigned int miiphy_getemac_offset (void)
 	/* Need to find out which mdi port we're using */
 	zmii = in_be32((void *)ZMII_FER);
 
-	if (zmii & (ZMII_FER_MDI << ZMII_FER_V (0))) {
+	if (zmii & (ZMII_FER_MDI << ZMII_FER_V (0)))
 		/* using port 0 */
 		eoffset = 0;
-	} else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (1))) {
+
+	else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (1)))
 		/* using port 1 */
 		eoffset = 0x100;
-	} else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (2))) {
+
+	else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (2)))
 		/* using port 2 */
 		eoffset = 0x400;
-	} else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (3))) {
+
+	else if (zmii & (ZMII_FER_MDI << ZMII_FER_V (3)))
 		/* using port 3 */
 		eoffset = 0x600;
-	} else {
+
+	else {
 		/* None of the mdi ports are enabled! */
 		/* enable port 0 */
 		zmii |= ZMII_FER_MDI << ZMII_FER_V (0);
@@ -156,21 +218,20 @@ unsigned int miiphy_getemac_offset (void)
 #endif
 }
 
-
-int emac4xx_miiphy_read (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value)
+int emac4xx_miiphy_read (char *devname, unsigned char addr, unsigned char reg,
+			 unsigned short *value)
 {
 	unsigned long sta_reg;	/* STA scratch area */
 	unsigned long i;
 	unsigned long emac_reg;
-
 
 	emac_reg = miiphy_getemac_offset ();
 	/* see if it is ready for 1000 nsec */
 	i = 0;
 
 	/* see if it is ready for  sec */
-	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
+	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) ==
+	       EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5) {
 #ifdef ET_DEBUG
@@ -187,10 +248,10 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_405EX)
-#if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
-		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_READ;
+#if defined(CONFIG_IBM_EMAC4_V4)	/* EMAC4 V4 changed bit setting */
+	sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_READ;
 #else
-		sta_reg |= EMAC_STACR_READ;
+	sta_reg |= EMAC_STACR_READ;
 #endif
 #else
 	sta_reg = (sta_reg | EMAC_STACR_READ) & ~EMAC_STACR_CLK_100MHZ;
@@ -211,37 +272,34 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr,
 
 	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
-		printf ("a21: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+	printf ("a21: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 	i = 0;
 	while ((sta_reg & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
-		if (i > 5) {
+		if (i > 5)
 			return -1;
-		}
+
 		i++;
 		sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
 		printf ("a22: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 	}
-	if ((sta_reg & EMAC_STACR_PHYE) != 0) {
+	if ((sta_reg & EMAC_STACR_PHYE) != 0)
 		return -1;
-	}
 
-	*value = *(short *) (&sta_reg);
+	*value = *(short *)(&sta_reg);
 	return 0;
 
-
 }				/* phy_read */
-
 
 /***********************************************************/
 /* write a phy reg and return the value with a rc	    */
 /***********************************************************/
 
-int emac4xx_miiphy_write (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value)
+int emac4xx_miiphy_write (char *devname, unsigned char addr, unsigned char reg,
+			  unsigned short value)
 {
 	unsigned long sta_reg;	/* STA scratch area */
 	unsigned long i;
@@ -251,9 +309,11 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	/* see if it is ready for 1000 nsec */
 	i = 0;
 
-	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
+	while ((in_be32((void *)EMAC_STACR + emac_reg) & EMAC_STACR_OC) ==
+	       EMAC_STACR_OC_MASK) {
 		if (i > 5)
 			return -1;
+
 		udelay (7);
 		i++;
 	}
@@ -263,10 +323,10 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_405EX)
-#if defined(CONFIG_IBM_EMAC4_V4)      /* EMAC4 V4 changed bit setting */
-		sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_WRITE;
+#if defined(CONFIG_IBM_EMAC4_V4)	/* EMAC4 V4 changed bit setting */
+	sta_reg = (sta_reg & ~EMAC_STACR_OP_MASK) | EMAC_STACR_WRITE;
 #else
-		sta_reg |= EMAC_STACR_WRITE;
+	sta_reg |= EMAC_STACR_WRITE;
 #endif
 #else
 	sta_reg = (sta_reg | EMAC_STACR_WRITE) & ~EMAC_STACR_CLK_100MHZ;
@@ -278,8 +338,8 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
     !defined(CONFIG_405EX)
 	sta_reg = sta_reg | CONFIG_PHY_CLK_FREQ;	/* Set clock frequency (PLB freq. dependend) */
 #endif
-	sta_reg = sta_reg | ((unsigned long) addr << 5);/* Phy address */
-	sta_reg = sta_reg | EMAC_STACR_OC_MASK;		/* new IBM emac v4 */
+	sta_reg = sta_reg | ((unsigned long)addr << 5);	/* Phy address */
+	sta_reg = sta_reg | EMAC_STACR_OC_MASK;	/* new IBM emac v4 */
 	memcpy (&sta_reg, &value, 2);	/* put in data */
 
 	out_be32((void *)EMAC_STACR + emac_reg, sta_reg);
@@ -288,12 +348,13 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 	i = 0;
 	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
-		printf ("a31: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
+	printf ("a31: read : EMAC_STACR=0x%0x\n", sta_reg);	/* test-only */
 #endif
 	while ((sta_reg & EMAC_STACR_OC) == EMAC_STACR_OC_MASK) {
 		udelay (7);
 		if (i > 5)
 			return -1;
+
 		i++;
 		sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
 #ifdef ET_DEBUG
@@ -303,6 +364,7 @@ int emac4xx_miiphy_write (char *devname, unsigned char addr,
 
 	if ((sta_reg & EMAC_STACR_PHYE) != 0)
 		return -1;
+
 	return 0;
 
-}				/* phy_write */
+} /* phy_write */

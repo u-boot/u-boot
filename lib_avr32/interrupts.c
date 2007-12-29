@@ -35,5 +35,5 @@ int disable_interrupts(void)
 	sr = sysreg_read(SR);
 	asm volatile("ssrf	%0" : : "n"(SYSREG_GM_OFFSET));
 
-	return SYSREG_BFEXT(GM, sr);
+	return !SYSREG_BFEXT(GM, sr);
 }

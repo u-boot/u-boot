@@ -48,31 +48,31 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 *-------------------------------------------------------------------*/
 	/* test-only: take GPIO init from pcs440ep ???? in config file */
-	out32(GPIO0_OR, 0x00000000);
-	out32(GPIO0_TCR, 0x0000000f);
-	out32(GPIO0_OSRL, 0x50015400);
-	out32(GPIO0_OSRH, 0x550050aa);
-	out32(GPIO0_TSRL, 0x50015400);
-	out32(GPIO0_TSRH, 0x55005000);
-	out32(GPIO0_ISR1L, 0x50000000);
-	out32(GPIO0_ISR1H, 0x00000000);
-	out32(GPIO0_ISR2L, 0x00000000);
-	out32(GPIO0_ISR2H, 0x00000100);
-	out32(GPIO0_ISR3L, 0x00000000);
-	out32(GPIO0_ISR3H, 0x00000000);
+	out_be32((u32 *) GPIO0_OR, 0x00000000);
+	out_be32((u32 *) GPIO0_TCR, 0x0000000f);
+	out_be32((u32 *) GPIO0_OSRL, 0x50015400);
+	out_be32((u32 *) GPIO0_OSRH, 0x550050aa);
+	out_be32((u32 *) GPIO0_TSRL, 0x50015400);
+	out_be32((u32 *) GPIO0_TSRH, 0x55005000);
+	out_be32((u32 *) GPIO0_ISR1L, 0x50000000);
+	out_be32((u32 *) GPIO0_ISR1H, 0x00000000);
+	out_be32((u32 *) GPIO0_ISR2L, 0x00000000);
+	out_be32((u32 *) GPIO0_ISR2H, 0x00000100);
+	out_be32((u32 *) GPIO0_ISR3L, 0x00000000);
+	out_be32((u32 *) GPIO0_ISR3H, 0x00000000);
 
-	out32(GPIO1_OR, 0x00000000);
-	out32(GPIO1_TCR, 0xc2000000);
-	out32(GPIO1_OSRL, 0x5c280000);
-	out32(GPIO1_OSRH, 0x00000000);
-	out32(GPIO1_TSRL, 0x0c000000);
-	out32(GPIO1_TSRH, 0x00000000);
-	out32(GPIO1_ISR1L, 0x00005550);
-	out32(GPIO1_ISR1H, 0x00000000);
-	out32(GPIO1_ISR2L, 0x00050000);
-	out32(GPIO1_ISR2H, 0x00000000);
-	out32(GPIO1_ISR3L, 0x01400000);
-	out32(GPIO1_ISR3H, 0x00000000);
+	out_be32((u32 *) GPIO1_OR, 0x00000000);
+	out_be32((u32 *) GPIO1_TCR, 0xc2000000);
+	out_be32((u32 *) GPIO1_OSRL, 0x5c280000);
+	out_be32((u32 *) GPIO1_OSRH, 0x00000000);
+	out_be32((u32 *) GPIO1_TSRL, 0x0c000000);
+	out_be32((u32 *) GPIO1_TSRH, 0x00000000);
+	out_be32((u32 *) GPIO1_ISR1L, 0x00005550);
+	out_be32((u32 *) GPIO1_ISR1H, 0x00000000);
+	out_be32((u32 *) GPIO1_ISR2L, 0x00050000);
+	out_be32((u32 *) GPIO1_ISR2H, 0x00000000);
+	out_be32((u32 *) GPIO1_ISR3L, 0x01400000);
+	out_be32((u32 *) GPIO1_ISR3H, 0x00000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -102,16 +102,16 @@ int board_early_init_f(void)
 	mtdcr(uic2sr, 0xffffffff);	/* clear all */
 
 	/* 50MHz tmrclk */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x04) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x04, 0x00);
 
 	/* clear write protects */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x07, 0x00);
 
 	/* enable Ethernet */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x08) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x08, 0x00);
 
 	/* enable USB device */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x09) = 0x20;
+	out_8((u8 *) CFG_BCSR_BASE + 0x09, 0x20);
 
 	/* select Ethernet pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);

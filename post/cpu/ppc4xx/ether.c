@@ -117,11 +117,11 @@ static void ether_post_init (int devnum, int hw_addr)
 	sync ();
 #endif
 	/* reset emac */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_SRST);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_SRST);
 	sync ();
 
 	for (i = 0;; i++) {
-		if (!(in32 (EMAC_M0 + hw_addr) & EMAC_M0_SRST))
+		if (!(in_be32 ((void*)(EMAC_M0 + hw_addr)) & EMAC_M0_SRST))
 			break;
 		if (i >= 1000) {
 			printf ("Timeout resetting EMAC\n");
@@ -144,7 +144,7 @@ static void ether_post_init (int devnum, int hw_addr)
 	else
 		mode_reg |= EMAC_M1_OBCI_GT100;
 
-	out32 (EMAC_M1 + hw_addr, mode_reg);
+	out_be32 ((void*)(EMAC_M1 + hw_addr), mode_reg);
 
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
 
@@ -212,40 +212,40 @@ static void ether_post_init (int devnum, int hw_addr)
 
 	/* set internal loopback mode */
 #ifdef CFG_POST_ETHER_EXT_LOOPBACK
-	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | 0 |
-	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
-	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
-	       in32 (EMAC_M1));
+	out_be32 ((void*)(EMAC_M1 + hw_addr), EMAC_M1_FDE | 0 |
+		  EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
+		  EMAC_M1_MF_100MBPS | EMAC_M1_IST |
+		  in_be32 ((void*)(EMAC_M1 + hw_addr)));
 #else
-	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | EMAC_M1_ILE |
-	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
-	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
-	       in32 (EMAC_M1));
+	out_be32 ((void*)(EMAC_M1 + hw_addr), EMAC_M1_FDE | EMAC_M1_ILE |
+		  EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
+		  EMAC_M1_MF_100MBPS | EMAC_M1_IST |
+		  in_be32 ((void*)(EMAC_M1 + hw_addr)));
 #endif
 
 	/* set transmit enable & receive enable */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_TXE | EMAC_M0_RXE);
 
 	/* enable broadcast address */
-	out32 (EMAC_RXM + hw_addr, EMAC_RMR_BAE);
+	out_be32 ((void*)(EMAC_RXM + hw_addr), EMAC_RMR_BAE);
 
 	/* set transmit request threshold register */
-	out32 (EMAC_TRTR + hw_addr, 0x18000000);	/* 256 byte threshold */
+	out_be32 ((void*)(EMAC_TRTR + hw_addr), 0x18000000);	/* 256 byte threshold */
 
 	/* set receive	low/high water mark register */
 #if defined(CONFIG_440)
 	/* 440s has a 64 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_addr, 0x80009000);
+	out_be32 ((void*)(EMAC_RX_HI_LO_WMARK + hw_addr), 0x80009000);
 #else
 	/* 405s have a 16 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_addr, 0x0f002000);
+	out_be32 ((void*)(EMAC_RX_HI_LO_WMARK + hw_addr), 0x0f002000);
 #endif /* defined(CONFIG_440) */
-	out32 (EMAC_TXM1 + hw_addr, 0xf8640000);
+	out_be32 ((void*)(EMAC_TXM1 + hw_addr), 0xf8640000);
 
 	/* Set fifo limit entry in tx mode 0 */
-	out32 (EMAC_TXM0 + hw_addr, 0x00000003);
+	out_be32 ((void*)(EMAC_TXM0 + hw_addr), 0x00000003);
 	/* Frame gap set */
-	out32 (EMAC_I_FRAME_GAP_REG + hw_addr, 0x00000008);
+	out_be32 ((void*)(EMAC_I_FRAME_GAP_REG + hw_addr), 0x00000008);
 	sync ();
 }
 
@@ -272,7 +272,7 @@ static void ether_post_halt (int devnum, int hw_addr)
 		udelay (1000);
 	}
 	/* emac reset */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_SRST);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_SRST);
 
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	/* remove clocks for EMAC internal loopback  */
@@ -302,7 +302,7 @@ static void ether_post_send (int devnum, int hw_addr, void *packet, int length)
 	flush_dcache_range((u32)tx.data_ptr, (u32)tx.data_ptr + length);
 	sync ();
 
-	out32 (EMAC_TXM0 + hw_addr, in32 (EMAC_TXM0 + hw_addr) | EMAC_TXM0_GNP0);
+	out_be32 ((void*)(EMAC_TXM0 + hw_addr), in_be32 ((void*)(EMAC_TXM0 + hw_addr)) | EMAC_TXM0_GNP0);
 	sync ();
 }
 

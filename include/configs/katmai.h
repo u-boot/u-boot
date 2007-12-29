@@ -193,8 +193,14 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"				\
+	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
+		"tftp ${fdt_addr} ${fdt_file};"				\
+		"run nfsargs addip addtty;"				\
+		"bootm 200000 - ${fdt_addr}\0"				\
+	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=katmai/uImage\0"					\
+	"fdt_file=katmai/katmai.dtb\0"					\
+	"fdt_addr=400000\0"						\
 	"kernel_addr=fff10000\0"					\
 	"ramdisk_addr=fff20000\0"					\
 	"initrd_high=30000000\0"					\
@@ -444,5 +450,9 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

@@ -136,11 +136,16 @@ cpu_init_f (void)
 	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
 #endif
 
-#if defined (CONFIG_450EP)
+#if defined (CONFIG_405EP)
 	/*
 	 * Set EMAC noise filter bits
 	 */
 	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+
+	/*
+	 * Enable the internal PCI arbiter
+	 */
+	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
 #endif /* CONFIG_405EP */
 #endif /* CONFIG_405EP */
 

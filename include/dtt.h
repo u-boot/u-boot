@@ -31,7 +31,8 @@
     defined(CONFIG_DTT_DS1621) || \
     defined(CONFIG_DTT_DS1775) || \
     defined(CONFIG_DTT_LM81) || \
-    defined(CONFIG_DTT_ADM1021)
+    defined(CONFIG_DTT_ADM1021) || \
+    defined(CONFIG_DTT_LM73)
 
 #define CONFIG_DTT				/* We have a DTT */
 
@@ -117,6 +118,15 @@ extern int dtt_get_temp(int sensor);
 #define DTT_CONFIG_STANDBY	0x40	/* 0=Run, 1=Standby */
 
 #define DTT_ADM1021_DEVID	0x41
+#endif
+
+#if defined(CONFIG_DTT_LM73)
+#define DTT_READ_TEMP		0x0
+#define DTT_CONFIG		0x1
+#define DTT_TEMP_HIGH		0x2
+#define DTT_TEMP_LOW		0x3
+#define DTT_CONTROL		0x4
+#define DTT_ID			0x7
 #endif
 
 #endif /* _DTT_H_ */
