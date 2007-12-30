@@ -339,7 +339,7 @@ void pci_405gp_init(struct pci_controller *hose)
 }
 
 /*
- * drivers/pci.c skips every host bridge but the 405GP since it could
+ * drivers/pci/pci.c skips every host bridge but the 405GP since it could
  * be set as an Adapter.
  *
  * I (Andrew May) don't know what we should do here, but I don't want

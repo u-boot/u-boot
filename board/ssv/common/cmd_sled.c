@@ -32,8 +32,8 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !!!!!						 !!!!!
  * !!!!! Next type definition was coming from original	 !!!!!
- * !!!!! status LED driver drivers/status_led.c and	 !!!!!
- * !!!!! should exported for using here.		 !!!!!
+ * !!!!! status LED driver drivers/misc/status_led.c	 !!!!!
+ * !!!!! and should be exported for using it here.	 !!!!!
  * !!!!!						 !!!!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 

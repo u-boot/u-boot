@@ -192,7 +192,7 @@
 
 #define CFG_LBC_MRTPR	0x20000000  /*TODO */ 	/* LB refresh timer prescal, 266MHz/32 */
 
-/* drivers/nand/nand.c */
+/* drivers/mtd/nand/nand.c */
 #define CFG_NAND_BASE		0xE2800000	/* 0xF0000000 */
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1

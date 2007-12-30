@@ -179,7 +179,7 @@
  * FLASH driver setup
  */
 #define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
-#define CFG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use drivers/mtd/cfi_flash.c */
 #define CFG_FLASH_USE_BUFFER_WRITE	1	/* Use buffered writes (~10x faster) */
 #define CFG_FLASH_PROTECTION	1	/* Use hardware sector protection */
 

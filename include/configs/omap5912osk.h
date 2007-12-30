@@ -174,7 +174,7 @@
  * FLASH driver setup
  */
 #define CFG_FLASH_CFI          1       /* Flash memory is CFI compliant */
-#define CFG_FLASH_CFI_DRIVER   1       /* Use drivers/cfi_flash.c */
+#define CFG_FLASH_CFI_DRIVER   1       /* Use drivers/mtd/cfi_flash.c */
 
 #define CFG_FLASH_BANKS_LIST { PHYS_FLASH_1, PHYS_FLASH_2 }
 
