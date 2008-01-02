@@ -1682,14 +1682,14 @@ TQM8265_AA_config:  unconfig
 	fi; \
 	echo "#define CONFIG_$${CFREQ}MHz"	>>$(obj)include/config.h ; \
 	echo "... with $${CFREQ}MHz system clock" ; \
-	if [ "$${CACHE}" == "yes" ] ; then \
+	if [ "$${CACHE}" = "yes" ] ; then \
 		echo "#define CONFIG_L2_CACHE"	>>$(obj)include/config.h ; \
 		echo "... with L2 Cache support" ; \
 	else \
 		echo "#undef CONFIG_L2_CACHE"	>>$(obj)include/config.h ; \
 		echo "... without L2 Cache support" ; \
 	fi; \
-	if [ "$${BMODE}" == "60x" ] ; then \
+	if [ "$${BMODE}" = "60x" ] ; then \
 		echo "#define CONFIG_BUSMODE_60x" >>$(obj)include/config.h ; \
 		echo "... with 60x Bus Mode" ; \
 	else \
@@ -1803,7 +1803,7 @@ M54455EVB_i66_config :	unconfig
 	M54455EVB_i66_config)		FLASH=INTEL; FREQ=66666666;; \
 	esac; \
 	>include/config.h ; \
-	if [ "$${FLASH}" == "INTEL" ] ; then \
+	if [ "$${FLASH}" = "INTEL" ] ; then \
 		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \

@@ -8,7 +8,7 @@
 
 mkdir -p ${obj}include
 variant=PB926EJ-S
-if [ "$1" == "" ]
+if [ "$1" = "" ]
 then
 	echo "$0:: No parameters - using versatilepb_config"
 	echo "#define CONFIG_ARCH_VERSATILE_PB" > ${obj}include/config.h
