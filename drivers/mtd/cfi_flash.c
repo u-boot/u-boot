@@ -527,7 +527,7 @@ static int flash_isset (flash_info_t * info, flash_sect_t sect,
 		retval = ((flash_read16(addr) & cword.w) == cword.w);
 		break;
 	case FLASH_CFI_32BIT:
-		retval = ((flash_read16(addr) & cword.l) == cword.l);
+		retval = ((flash_read32(addr) & cword.l) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
 		retval = ((flash_read64(addr) & cword.ll) == cword.ll);
