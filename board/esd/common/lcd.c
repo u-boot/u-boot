@@ -37,41 +37,41 @@ int lcd_depth;
 unsigned char *glob_lcd_reg;
 unsigned char *glob_lcd_mem;
 
-#ifdef CFG_LCD_ENDIAN
+#if defined(CFG_LCD_ENDIAN)
 void lcd_setup(int lcd, int config)
 {
 	if (lcd == 0) {
 		/*
 		 * Set endianess and reset lcd controller 0 (small)
 		 */
-		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD0_RST); /* set reset to low */
+		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD0_RST); /* set reset to low */
 		udelay(10); /* wait 10us */
 		if (config == 1)
-			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
 		else
-			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
 		udelay(10); /* wait 10us */
-		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD0_RST); /* set reset to high */
+		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD0_RST); /* set reset to high */
 	} else {
 		/*
 		 * Set endianess and reset lcd controller 1 (big)
 		 */
-		out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD1_RST); /* set reset to low */
+		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD1_RST); /* set reset to low */
 		udelay(10); /* wait 10us */
 		if (config == 1)
-			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
 		else
-			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
 		udelay(10); /* wait 10us */
-		out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD1_RST); /* set reset to high */
+		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD1_RST); /* set reset to high */
 	}
 
 	/*
 	 * CFG_LCD_ENDIAN may also be FPGA_RESET, so set inactive
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_LCD_ENDIAN); /* set reset high again */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* set reset high again */
 }
-#endif /* #ifdef CFG_LCD_ENDIAN */
+#endif /* CFG_LCD_ENDIAN */
 
 
 void lcd_bmp(uchar *logo_bmp)
@@ -93,7 +93,6 @@ void lcd_bmp(uchar *logo_bmp)
 	 * Check for bmp mark 'BM'
 	 */
 	if (*(ushort *)logo_bmp != 0x424d) {
-
 		/*
 		 * Decompress bmp image
 		 */
@@ -160,7 +159,7 @@ void lcd_bmp(uchar *logo_bmp)
 	 */
 	if ((colors <= 256) && (lcd_depth <= 8)) {
 		ptr = (unsigned char *)(dst + 14 + 40);
-		for (i=0; i<colors; i++) {
+		for (i = 0; i < colors; i++) {
 			b = *ptr++;
 			g = *ptr++;
 			r = *ptr++;
@@ -175,11 +174,11 @@ void lcd_bmp(uchar *logo_bmp)
 	ptr = glob_lcd_mem;
 	ptr2 = (ushort *)glob_lcd_mem;
 	header_size = 14 + 40 + 4*colors;          /* skip bmp header */
-	for (y=0; y<height; y++) {
+	for (y = 0; y < height; y++) {
 		bmp = &dst[(height-1-y)*line_size + header_size];
 		if (lcd_depth == 16) {
 			if (bpp == 24) {
-				for (x=0; x<width; x++) {
+				for (x = 0; x < width; x++) {
 					/*
 					 * Generate epson 16bpp fb-format from 24bpp image
 					 */
@@ -190,7 +189,7 @@ void lcd_bmp(uchar *logo_bmp)
 					*ptr2++ = val;
 				}
 			} else if (bpp == 8) {
-				for (x=0; x<line_size; x++) {
+				for (x = 0; x < line_size; x++) {
 					/* query rgb value from palette */
 					ptr = (unsigned char *)(dst + 14 + 40) ;
 					ptr += (*bmp++) << 2;
@@ -202,9 +201,8 @@ void lcd_bmp(uchar *logo_bmp)
 				}
 			}
 		} else {
-			for (x=0; x<line_size; x++) {
+			for (x = 0; x < line_size; x++)
 				*ptr++ = *bmp++;
-			}
 		}
 	}
 
@@ -254,7 +252,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		palette_value = 0x17;
 		lcd_depth = 8;
 		puts("LCD:   S1D13704");
-	      } else if (in_8(&lcd_reg[0x10000]) == 0x24) {
+	} else if (in_8(&lcd_reg[0x10000]) == 0x24) {
 		/*
 		 * Small epson detected (705)
 		 */
@@ -296,7 +294,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	lcd_bmp(logo_bmp);
 }
 
-#ifdef CONFIG_VIDEO_SM501
+#if defined(CONFIG_VIDEO_SM501)
 int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
