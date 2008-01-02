@@ -769,7 +769,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	}
 	if (!flag) {
 		unmap_physmem(dstaddr, info->portwidth);
-		return 2;
+		return ERR_NOT_ERASED;
 	}
 
 	/* Disable interrupts which might cause a timeout here */
@@ -826,7 +826,57 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int retcode;
 	void *src = cp;
 	void *dst = map_physmem(dest, len, MAP_NOCACHE);
+	void *dst2 = dst;
+	int flag = 0;
 
+	switch (info->portwidth) {
+	case FLASH_CFI_8BIT:
+		cnt = len;
+		break;
+	case FLASH_CFI_16BIT:
+		cnt = len >> 1;
+		break;
+	case FLASH_CFI_32BIT:
+		cnt = len >> 2;
+		break;
+	case FLASH_CFI_64BIT:
+		cnt = len >> 3;
+		break;
+	default:
+		retcode = ERR_INVAL;
+		goto out_unmap;
+	}
+
+	while ((cnt-- > 0) && (flag == 0)) {
+		switch (info->portwidth) {
+		case FLASH_CFI_8BIT:
+			flag = ((flash_read8(dst2) & flash_read8(src)) ==
+				flash_read8(src));
+			src += 1, dst2 += 1;
+			break;
+		case FLASH_CFI_16BIT:
+			flag = ((flash_read16(dst2) & flash_read16(src)) ==
+				flash_read16(src));
+			src += 2, dst2 += 2;
+			break;
+		case FLASH_CFI_32BIT:
+			flag = ((flash_read32(dst2) & flash_read32(src)) ==
+				flash_read32(src));
+			src += 4, dst2 += 4;
+			break;
+		case FLASH_CFI_64BIT:
+			flag = ((flash_read64(dst2) & flash_read64(src)) ==
+				flash_read64(src));
+			src += 8, dst2 += 8;
+			break;
+		}
+	}
+	if (!flag) {
+		retcode = ERR_NOT_ERASED;
+		goto out_unmap;
+	}
+
+	src = cp;
 	sector = find_sector (info, dest);
 
 	switch (info->vendor) {
