@@ -84,6 +84,7 @@ int repeat_delay;
 static unsigned char num_lock = 0;
 static unsigned char caps_lock = 0;
 static unsigned char scroll_lock = 0;
+static unsigned char ctrl = 0;
 
 static unsigned char leds __attribute__ ((aligned (0x4)));
 
@@ -120,6 +121,9 @@ static void usb_kbd_put_queue(char data)
 /* test if a character is in the queue */
 static int usb_kbd_testc(void)
 {
+#ifdef CFG_USB_EVENT_POLL
+	usb_event_poll();
+#endif
 	if(usb_in_pointer==usb_out_pointer)
 		return(0); /* no data */
 	else
@@ -274,6 +278,10 @@ static int usb_kbd_translate(unsigned char scancode,unsigned char modifier,int p
 		else /* non shifted */
 			keycode=usb_kbd_numkey[scancode-0x1e];
 	}
+
+	if (ctrl)
+		keycode = scancode - 0x3;
+
 	if(pressed==1) {
 		if(scancode==NUM_LOCK) {
 			num_lock=~num_lock;
@@ -306,6 +314,17 @@ static int usb_kbd_irq(struct usb_device *dev)
 		return 1;
 	}
 	res=0;
+
+	switch (new[0]) {
+	case 0x0:	/* No combo key pressed */
+		ctrl = 0;
+		break;
+	case 0x01:	/* Left Ctrl pressed */
+	case 0x10:	/* Right Ctrl pressed */
+		ctrl = 1;
+		break;
+	}
+
 	for (i = 2; i < 8; i++) {
 		if (old[i] > 3 && memscan(&new[2], old[i], 6) == &new[8]) {
 			res|=usb_kbd_translate(old[i],new[0],0);
