@@ -88,6 +88,7 @@ typedef struct {
 void gpio_config(int pin, int in_out, int gpio_alt, int out_val);
 void gpio_write_bit(int pin, int val);
 int gpio_read_out_bit(int pin);
+int gpio_read_in_bit(int pin);
 void gpio_set_chip_configuration(void);
 
 #endif /* __ASM_PPC_GPIO_H */
