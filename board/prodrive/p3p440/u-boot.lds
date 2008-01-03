@@ -68,19 +68,6 @@ SECTIONS
 
     cpu/ppc4xx/start.o	(.text)
     board/prodrive/p3p440/init.o	(.text)
-    cpu/ppc4xx/kgdb.o	(.text)
-    cpu/ppc4xx/traps.o	(.text)
-    cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/serial.o	(.text)
-    cpu/ppc4xx/cpu_init.o	(.text)
-    cpu/ppc4xx/speed.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_ppc/extable.o	(.text)
-    lib_generic/zlib.o		(.text)
-
-/*    . = env_offset;*/
-/*    common/environment.o(.text)*/
 
     *(.text)
     *(.fixup)

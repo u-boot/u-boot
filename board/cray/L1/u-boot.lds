@@ -66,7 +66,7 @@ SECTIONS
     board/cray/L1/init.o	(.text)
     cpu/ppc4xx/traps.o	(.text)
     cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/serial.o	(.text)
+    cpu/ppc4xx/4xx_uart.o	(.text)
     cpu/ppc4xx/cpu_init.o	(.text)
     cpu/ppc4xx/speed.o	(.text)
     cpu/ppc4xx/4xx_enet.o	(.text)

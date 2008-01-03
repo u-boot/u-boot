@@ -191,15 +191,6 @@
 #define CFG_ETH_DEV_FN	     0x0000
 #define CFG_ETH_IOBASE	     0x0fff0000
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		2048	/* For PLX IOP480			*/
-#define CFG_CACHELINE_SIZE	16	/* For AMCC 401/403 CPUs		*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Init Memory Controller:
  *

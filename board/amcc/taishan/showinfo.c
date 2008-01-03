@@ -33,25 +33,25 @@ void show_reset_reg(void)
 
 	/* read clock regsiter */
 	printf("===== Display reset and initialize register Start =========\n");
-	mfclk(clk_pllc,reg);
+	mfcpr(clk_pllc,reg);
 	printf("cpr_pllc   = %#010x\n",reg);
 
-	mfclk(clk_plld,reg);
+	mfcpr(clk_plld,reg);
 	printf("cpr_plld   = %#010x\n",reg);
 
-	mfclk(clk_primad,reg);
+	mfcpr(clk_primad,reg);
 	printf("cpr_primad = %#010x\n",reg);
 
-	mfclk(clk_primbd,reg);
+	mfcpr(clk_primbd,reg);
 	printf("cpr_primbd = %#010x\n",reg);
 
-	mfclk(clk_opbd,reg);
+	mfcpr(clk_opbd,reg);
 	printf("cpr_opbd   = %#010x\n",reg);
 
-	mfclk(clk_perd,reg);
+	mfcpr(clk_perd,reg);
 	printf("cpr_perd   = %#010x\n",reg);
 
-	mfclk(clk_mald,reg);
+	mfcpr(clk_mald,reg);
 	printf("cpr_mald   = %#010x\n",reg);
 
 	/* read sdr register */

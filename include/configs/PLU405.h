@@ -288,6 +288,7 @@
 #define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT24WC08		*/
+#define CFG_EEPROM_WREN         1
 
 /* CAT24WC08/16... */
 #define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
@@ -298,16 +299,6 @@
 					/* last 4 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
-					/* have only 8kB, 16kB is save here	*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -389,15 +380,16 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
  */
-#define CFG_GPIO0_OSRH		0x40000550
+#define CFG_GPIO0_OSRH		0x00000550
 #define CFG_GPIO0_OSRL		0x00000110
 #define CFG_GPIO0_ISR1H		0x00000000
 #define CFG_GPIO0_ISR1L		0x15555445
 #define CFG_GPIO0_TSRH		0x00000000
 #define CFG_GPIO0_TSRL		0x00000000
-#define CFG_GPIO0_TCR		0xF7FE0014
+#define CFG_GPIO0_TCR		0x77FE0014
 
 #define CFG_DUART_RST		(0x80000000 >> 14)
+#define CFG_EEPROM_WP		(0x80000000 >> 0)
 
 /*
  * Internal Definitions

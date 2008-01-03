@@ -24,6 +24,6 @@
 LIB	= libpostppc4xx.a
 
 AOBJS   = cache_4xx.o
-COBJS	= cache.o ether.o fpu.o spr.o uart.o watchdog.o
+COBJS	= cache.o denali_ecc.o ether.o fpu.o spr.o uart.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

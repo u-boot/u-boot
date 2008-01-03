@@ -146,7 +146,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	CPCI4052		PPC405GP
 	CPCI405AB		PPC405GP
 	CPCI405DT		PPC405GP
-	CPCI440			PPC440GP
 	CPCIISER4		PPC405GP
 	DASA_SIM		IOP480 (PPC401)
 	DP405			PPC405EP
@@ -159,6 +158,7 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	PCI405			PPC405GP
 	PLU405			PPC405EP
 	PMC405			PPC405GP
+	PMC440			PPC440EPx
 	VOH405			PPC405EP
 	VOM405			PPC405EP
 	WUH405			PPC405EP
@@ -203,6 +203,10 @@ Murray Jensen <Murray.Jensen@csiro.au>
 
 	cogent_mpc8260		MPC8260
 	hymod			MPC8260
+
+Larry Johnson <lrj@acm.org>
+
+	korat			PPC440EPx
 
 Brad Kemp <Brad.Kemp@seranoa.com>
 
@@ -303,8 +307,11 @@ Stefan Roese <sr@denx.de>
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
 	ebony			PPC440GP
+	haleakala		PPC405EXr
 	katmai			PPC440SPe
+	kilauea			PPC405EX
 	lwmon5			PPC440EPx
+	makalu			PPC405EX
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
@@ -630,7 +637,22 @@ Hayden Fraser <Hayden.Fraser@freescale.com>
 
 Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-	ATSTK1000		AT32AP7000
+	ATSTK1000		AT32AP7xxx
+	ATSTK1002		AT32AP7000
+	ATSTK1003		AT32AP7001
+	ATSTK1004		AT32AP7002
+
+#########################################################################
+# SuperH Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Nobuhiro Iwmaatsu <iwamatsu@nigauri.org>
+
+	MS7750SE		SH7750
+	MS7722SE		SH7722
 
 #########################################################################
 # End of MAINTAINERS list						#

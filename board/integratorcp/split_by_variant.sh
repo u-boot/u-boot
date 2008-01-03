@@ -12,7 +12,7 @@ echo     " 1 /* Integrator/CP   */"  		>> tmp.fil
 cpu="arm_intcm"
 variant="unknown core module"
 
-if [ "$1" == "" ]
+if [ "$1" = "" ]
 then
 	echo "$0:: No parameters - using arm_intcm"
 else
@@ -79,7 +79,7 @@ else
 
 fi
 
-if [ "$cpu" == "arm_intcm" ]
+if [ "$cpu" = "arm_intcm" ]
 then
 	echo "/* Core module undefined/not ported */"	>> tmp.fil
 	echo "#define CONFIG_ARM_INTCM 1"  		>> tmp.fil

@@ -205,10 +205,6 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-/* Cache configuration */
-#define CFG_DCACHE_SIZE		8192
-#define CFG_CACHELINE_SIZE	32
-
 /*
  * Internal Definitions
  *

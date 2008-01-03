@@ -26,8 +26,8 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
-#if defined(CFG_440_GPIO_TABLE)
-gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_440_GPIO_TABLE;
+#if defined(CFG_4xx_GPIO_TABLE)
+gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_4xx_GPIO_TABLE;
 #endif
 
 #if defined(GPIO0_OSRL)
@@ -47,7 +47,7 @@ void gpio_config(int pin, int in_out, int gpio_alt, int out_val)
 	}
 
 	if (pin >= GPIO_MAX/2) {
-		offs2 = 0x100;
+		offs2 = 0x4;
 		pin2 = (pin - GPIO_MAX/2) << 1;
 	}
 
@@ -55,10 +55,10 @@ void gpio_config(int pin, int in_out, int gpio_alt, int out_val)
 	mask2 = 0xc0000000 >> (pin2 << 1);
 
 	/* first set TCR to 0 */
-	out32(GPIO0_TCR + offs, in32(GPIO0_TCR + offs) & ~mask);
+	out_be32((void *)GPIO0_TCR + offs, in_be32((void *)GPIO0_TCR + offs) & ~mask);
 
 	if (in_out == GPIO_OUT) {
-		val = in32(GPIO0_OSRL + offs + offs2) & ~mask2;
+		val = in_be32((void *)GPIO0_OSRL + offs + offs2) & ~mask2;
 		switch (gpio_alt) {
 		case GPIO_ALT1:
 			val |= GPIO_ALT1_SEL >> pin2;
@@ -70,20 +70,23 @@ void gpio_config(int pin, int in_out, int gpio_alt, int out_val)
 			val |= GPIO_ALT3_SEL >> pin2;
 			break;
 		}
-		out32(GPIO0_OSRL + offs + offs2, val);
+		out_be32((void *)GPIO0_OSRL + offs + offs2, val);
 
 		/* setup requested output value */
 		if (out_val == GPIO_OUT_0)
-			out32(GPIO0_OR + offs, in32(GPIO0_OR + offs) & ~mask);
+			out_be32((void *)GPIO0_OR + offs,
+				 in_be32((void *)GPIO0_OR + offs) & ~mask);
 		else if (out_val == GPIO_OUT_1)
-			out32(GPIO0_OR + offs, in32(GPIO0_OR + offs) | mask);
+			out_be32((void *)GPIO0_OR + offs,
+				 in_be32((void *)GPIO0_OR + offs) | mask);
 
 		/* now configure TCR to drive output if selected */
-		out32(GPIO0_TCR + offs, in32(GPIO0_TCR + offs) | mask);
+		out_be32((void *)GPIO0_TCR + offs,
+			 in_be32((void *)GPIO0_TCR + offs) | mask);
 	} else {
-		val = in32(GPIO0_ISR1L + offs + offs2) & ~mask2;
+		val = in_be32((void *)GPIO0_ISR1L + offs + offs2) & ~mask2;
 		val |= GPIO_IN_SEL >> pin2;
-		out32(GPIO0_ISR1L + offs + offs2, val);
+		out_be32((void *)GPIO0_ISR1L + offs + offs2, val);
 	}
 }
 #endif /* GPIO_OSRL */
@@ -98,9 +101,11 @@ void gpio_write_bit(int pin, int val)
 	}
 
 	if (val)
-		out32(GPIO0_OR + offs, in32(GPIO0_OR + offs) | GPIO_VAL(pin));
+		out_be32((void *)GPIO0_OR + offs,
+			 in_be32((void *)GPIO0_OR + offs) | GPIO_VAL(pin));
 	else
-		out32(GPIO0_OR + offs, in32(GPIO0_OR + offs) & ~GPIO_VAL(pin));
+		out_be32((void *)GPIO0_OR + offs,
+			 in_be32((void *)GPIO0_OR + offs) & ~GPIO_VAL(pin));
 }
 
 int gpio_read_out_bit(int pin)
@@ -112,10 +117,10 @@ int gpio_read_out_bit(int pin)
 		pin -= GPIO_MAX;
 	}
 
-	return (in32(GPIO0_OR + offs) & GPIO_VAL(pin) ? 1 : 0);
+	return (in_be32((void *)GPIO0_OR + offs) & GPIO_VAL(pin) ? 1 : 0);
 }
 
-#if defined(CFG_440_GPIO_TABLE)
+#if defined(CFG_4xx_GPIO_TABLE)
 void gpio_set_chip_configuration(void)
 {
 	unsigned char i=0, j=0, offs=0, gpio_core;
@@ -141,24 +146,24 @@ void gpio_set_chip_configuration(void)
 					break;
 
 				case GPIO_ALT1:
-					reg = in32(GPIO_IS1(core_add+offs))
+					reg = in_be32((void *)GPIO_IS1(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_IN_SEL >> (j*2));
-					out32(GPIO_IS1(core_add+offs), reg);
+					out_be32((void *)GPIO_IS1(core_add+offs), reg);
 					break;
 
 				case GPIO_ALT2:
-					reg = in32(GPIO_IS2(core_add+offs))
+					reg = in_be32((void *)GPIO_IS2(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_IN_SEL >> (j*2));
-					out32(GPIO_IS2(core_add+offs), reg);
+					out_be32((void *)GPIO_IS2(core_add+offs), reg);
 					break;
 
 				case GPIO_ALT3:
-					reg = in32(GPIO_IS3(core_add+offs))
+					reg = in_be32((void *)GPIO_IS3(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_IN_SEL >> (j*2));
-					out32(GPIO_IS3(core_add+offs), reg);
+					out_be32((void *)GPIO_IS3(core_add+offs), reg);
 					break;
 				}
 			}
@@ -168,87 +173,66 @@ void gpio_set_chip_configuration(void)
 
 				switch (gpio_tab[gpio_core][i].alt_nb) {
 				case GPIO_SEL:
-					if (gpio_core == GPIO0) {
-						/*
-						 * Setup output value
-						 * 1 -> high level
-						 * 0 -> low level
-						 * else -> don't touch
-						 */
-						reg = in32(GPIO0_OR);
-						if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
-							reg |= (0x80000000 >> (i));
-						else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
-							reg &= ~(0x80000000 >> (i));
-						out32(GPIO0_OR, reg);
+					/*
+					 * Setup output value
+					 * 1 -> high level
+					 * 0 -> low level
+					 * else -> don't touch
+					 */
+					reg = in_be32((void *)GPIO_OR(core_add));
+					if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
+						reg |= (0x80000000 >> (i));
+					else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
+						reg &= ~(0x80000000 >> (i));
+					out_be32((void *)GPIO_OR(core_add), reg);
 
-						reg = in32(GPIO0_TCR) | (0x80000000 >> (i));
-						out32(GPIO0_TCR, reg);
-					}
+					reg = in_be32((void *)GPIO_TCR(core_add)) |
+						(0x80000000 >> (i));
+					out_be32((void *)GPIO_TCR(core_add), reg);
 
-#ifdef GPIO1
-					if (gpio_core == GPIO1) {
-						/*
-						 * Setup output value
-						 * 1 -> high level
-						 * 0 -> low level
-						 * else -> don't touch
-						 */
-						reg = in32(GPIO1_OR);
-						if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1)
-							reg |= (0x80000000 >> (i));
-						else if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_0)
-							reg &= ~(0x80000000 >> (i));
-						out32(GPIO1_OR, reg);
-
-						reg = in32(GPIO1_TCR) | (0x80000000 >> (i));
-						out32(GPIO1_TCR, reg);
-					}
-#endif /* GPIO1 */
-
-					reg = in32(GPIO_OS(core_add+offs))
+					reg = in_be32((void *)GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
-					out32(GPIO_OS(core_add+offs), reg);
-					reg = in32(GPIO_TS(core_add+offs))
+					out_be32((void *)GPIO_OS(core_add+offs), reg);
+					reg = in_be32((void *)GPIO_TS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
-					out32(GPIO_TS(core_add+offs), reg);
+					out_be32((void *)GPIO_TS(core_add+offs), reg);
 					break;
 
 				case GPIO_ALT1:
-					reg = in32(GPIO_OS(core_add+offs))
+					reg = in_be32((void *)GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT1_SEL >> (j*2));
-					out32(GPIO_OS(core_add+offs), reg);
-					reg = in32(GPIO_TS(core_add+offs))
+					out_be32((void *)GPIO_OS(core_add+offs), reg);
+					reg = in_be32((void *)GPIO_TS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT1_SEL >> (j*2));
-					out32(GPIO_TS(core_add+offs), reg);
+					out_be32((void *)GPIO_TS(core_add+offs), reg);
 					break;
 
 				case GPIO_ALT2:
-					reg = in32(GPIO_OS(core_add+offs))
+					reg = in_be32((void *)GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT2_SEL >> (j*2));
-					out32(GPIO_OS(core_add+offs), reg);
-					reg = in32(GPIO_TS(core_add+offs))
+					out_be32((void *)GPIO_OS(core_add+offs), reg);
+					reg = in_be32((void *)GPIO_TS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT2_SEL >> (j*2));
-					out32(GPIO_TS(core_add+offs), reg);
+					out_be32((void *)GPIO_TS(core_add+offs), reg);
 					break;
 
 				case GPIO_ALT3:
-					reg = in32(GPIO_OS(core_add+offs))
+					reg = in_be32((void *)GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT3_SEL >> (j*2));
-					out32(GPIO_OS(core_add+offs), reg);
-					reg = in32(GPIO_TS(core_add+offs))
+					out_be32((void *)GPIO_OS(core_add+offs), reg);
+					reg = in_be32((void *)GPIO_TS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
 					reg = reg | (GPIO_ALT3_SEL >> (j*2));
-					out32(GPIO_TS(core_add+offs), reg);
+					out_be32((void *)GPIO_TS(core_add+offs), reg);
 					break;
 				}
 			}
 		}
 	}
 }
-#endif /* CFG_440_GPIO_TABLE */
+#endif /* CFG_4xx_GPIO_TABLE */

@@ -40,6 +40,7 @@ COBJS-y += ds164x.o
 COBJS-y += ds174x.o
 COBJS-y += ds3231.o
 COBJS-y += m41t11.o
+COBJS-y += m41t60.o
 COBJS-y += max6900.o
 COBJS-y += m48t35ax.o
 COBJS-y += mc146818.o
@@ -50,6 +51,7 @@ COBJS-y += pcf8563.o
 COBJS-y += s3c24x0_rtc.o
 COBJS-y += rs5c372.o
 COBJS-y += mcfrtc.o
+COBJS-y += x1205.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

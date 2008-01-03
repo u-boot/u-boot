@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -112,7 +112,7 @@ cpu_init_f (void)
 	unsigned long val;
 #endif
 
-#if defined(CONFIG_405EP)
+#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CFG_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
@@ -128,17 +128,30 @@ cpu_init_f (void)
 	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
 	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select			*/
 	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
+#if defined(CFG_GPIO0_ISR2H)
+	out32(GPIO0_ISR2H, CFG_GPIO0_ISR2H);
+	out32(GPIO0_ISR2L, CFG_GPIO0_ISR2L);
+#endif
+#if defined (CFG_GPIO0_TCR)
 	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
+#endif
 
+#if defined (CONFIG_405EP)
 	/*
 	 * Set EMAC noise filter bits
 	 */
 	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+
+	/*
+	 * Enable the internal PCI arbiter
+	 */
+	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
+#endif /* CONFIG_405EP */
 #endif /* CONFIG_405EP */
 
-#if defined(CFG_440_GPIO_TABLE)
+#if defined(CFG_4xx_GPIO_TABLE)
 	gpio_set_chip_configuration();
-#endif /* CFG_440_GPIO_TABLE */
+#endif /* CFG_4xx_GPIO_TABLE */
 
 	/*
 	 * External Bus Controller (EBC) Setup
@@ -146,7 +159,7 @@ cpu_init_f (void)
 #if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
 #if (defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
      defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
-     defined(CONFIG_405))
+     defined(CONFIG_405EX) || defined(CONFIG_405))
 	/*
 	 * Move the next instructions into icache, since these modify the flash
 	 * we are running from!

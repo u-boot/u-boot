@@ -52,9 +52,13 @@
 
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
+
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
@@ -204,8 +208,6 @@
 #define CFG_IDE_MAXBUS		2		/* max. 2 IDE busses	*/
 #define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
 
-#define CONFIG_ATAPI		1	/* ATAPI for Travelstar		*/
-
 #define CFG_ATA_BASE_ADDR	0xF0100000
 #define CFG_ATA_IDE0_OFFSET	0x0000
 #define CFG_ATA_IDE1_OFFSET	0x0010
@@ -244,11 +246,6 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#if 0 /* test-only */
-#define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS	1	    /* ! second bank contains U-Boot */
-#endif
-
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
@@ -281,19 +278,12 @@
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CFG_I2C_SPEED		100000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT24WC08		*/
-#if 0 /* test-only */
-/* CAT24WC08/16... */
-#define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
-/* mask of address bits that overflow into the "EEPROM chip address"	*/
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
-					/* 16 byte page write mode using*/
-					/* last 4 bits of the address	*/
-#else
+#define CFG_EEPROM_WREN         1
+
 /* CAT24WC32/64... */
 #define CFG_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
@@ -301,19 +291,8 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 5	/* The Catalyst CAT24WC32 has	*/
 					/* 32 byte page write mode using*/
 					/* last 5 bits of the address	*/
-#endif
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
-					/* have only 8kB, 16kB is save here	*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -410,18 +389,20 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs -> GPIO
  */
-#define CFG_GPIO0_OSRH		0x40000550
+#define CFG_GPIO0_OSRH		0x00000550
 #define CFG_GPIO0_OSRL		0x00000110
 #define CFG_GPIO0_ISR1H		0x00000000
 #define CFG_GPIO0_ISR1L		0x15555440
 #define CFG_GPIO0_TSRH		0x00000000
 #define CFG_GPIO0_TSRL		0x00000000
-#define CFG_GPIO0_TCR		0xF7FE0017
+#define CFG_GPIO0_TCR		0x777E0017
 
 #define CFG_DUART_RST		(0x80000000 >> 14)
 #define CFG_LCD_ENDIAN		(0x80000000 >> 7)
+#define CFG_IIC_ON		(0x80000000 >> 8)
 #define CFG_LCD0_RST		(0x80000000 >> 30)
 #define CFG_LCD1_RST		(0x80000000 >> 31)
+#define CFG_EEPROM_WP		(0x80000000 >> 0)
 
 /*
  * Internal Definitions

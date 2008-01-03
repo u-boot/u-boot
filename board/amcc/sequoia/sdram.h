@@ -395,8 +395,8 @@
 #define DDR0_26_TRAS_MAX_ENCODE(n)          ((((unsigned long)(n))&0xFFFF)<<16)
 #define DDR0_26_TRAS_MAX_DECODE(n)          ((((unsigned long)(n))>>16)&0xFFFF)
 #define DDR0_26_TREF_MASK                 0x00003FFF
-#define DDR0_26_TREF_ENCODE(n)              ((((unsigned long)(n))&0x3FF)<<0)
-#define DDR0_26_TREF_DECODE(n)              ((((unsigned long)(n))>>0)&0x3FF)
+#define DDR0_26_TREF_ENCODE(n)              ((((unsigned long)(n))&0x3FFF)<<0)
+#define DDR0_26_TREF_DECODE(n)              ((((unsigned long)(n))>>0)&0x3FFF)
 
 #define DDR0_27                         0x1B
 #define DDR0_27_EMRS_DATA_MASK            0x3FFF0000

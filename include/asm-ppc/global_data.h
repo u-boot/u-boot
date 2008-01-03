@@ -107,6 +107,9 @@ typedef	struct	global_data {
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
 #endif
+#if defined(CONFIG_4xx)
+	u32  uart_clk;
+#endif /* CONFIG_4xx */
 #if defined(CFG_GT_6426x)
 	unsigned int	mirror_hack[16];
 #endif

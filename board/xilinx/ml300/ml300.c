@@ -108,7 +108,7 @@ ulong
 get_PCI_freq(void)
 {
 	ulong val;
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 
 	get_sys_info(&sys_info);
 	val = sys_info.freqPCI;

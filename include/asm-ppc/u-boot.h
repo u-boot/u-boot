@@ -84,6 +84,7 @@ typedef struct bd_info {
     defined(CONFIG_405CR) || \
     defined(CONFIG_405EP) || \
     defined(CONFIG_405EZ) || \
+    defined(CONFIG_405EX) || \
     defined(CONFIG_440)
 	unsigned char	bi_s_version[4];	/* Version of this structure */
 	unsigned char	bi_r_version[32];	/* Version of the ROM (AMCC) */

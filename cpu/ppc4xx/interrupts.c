@@ -52,7 +52,7 @@ struct	irq_action {
 static struct irq_action irq_vecs[32];
 void uic0_interrupt( void * parms); /* UIC0 handler */
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 static struct irq_action irq_vecs1[32]; /* For UIC1 */
 
 void uic1_interrupt( void * parms); /* UIC1 handler */
@@ -116,7 +116,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 		irq_vecs[vec].handler = NULL;
 		irq_vecs[vec].arg = NULL;
 		irq_vecs[vec].count = 0;
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 		irq_vecs1[vec].handler = NULL;
 		irq_vecs1[vec].arg = NULL;
 		irq_vecs1[vec].count = 0;
@@ -172,7 +172,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	 */
 	set_evpr(0x00000000);
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if !defined(CONFIG_440GX)
 	/* Install the UIC1 handlers */
 	irq_install_handler(VECNUM_UIC1NC, uic1_interrupt, 0);
@@ -378,7 +378,7 @@ void uic0_interrupt( void * parms)
 
 #endif /* CONFIG_440GX */
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 /* Handler for UIC1 interrupt */
 void uic1_interrupt( void * parms)
 {
@@ -525,7 +525,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 	struct irq_action *irqa = irq_vecs;
 	int i = vec;
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	if ((vec > 31) && (vec < 64)) {
@@ -553,7 +553,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 	irqa[i].handler = handler;
 	irqa[i].arg = arg;
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	if ((vec > 31) && (vec < 64))
@@ -577,7 +577,7 @@ void irq_free_handler (int vec)
 	struct irq_action *irqa = irq_vecs;
 	int i = vec;
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	if ((vec > 31) && (vec < 64)) {
@@ -599,7 +599,7 @@ void irq_free_handler (int vec)
 		vec, irq_vecs[vec].handler);
 #endif
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	if ((vec > 31) && (vec < 64))
@@ -641,7 +641,7 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int vec;
 
 	printf ("\nInterrupt-Information:\n");
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 	printf ("\nUIC 0\n");
 #endif
 	printf ("Nr  Routine   Arg       Count\n");
@@ -656,7 +656,7 @@ do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 	printf ("\nUIC 1\n");
 	printf ("Nr  Routine   Arg       Count\n");
 

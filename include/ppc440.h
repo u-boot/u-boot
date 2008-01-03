@@ -19,8 +19,34 @@
 |	LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
 +----------------------------------------------------------------------------*/
 
+/*
+ * (C) Copyright 2006
+ * Sylvie Gohl,             AMCC/IBM, gohl.sylvie@fr.ibm.com
+ * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
+ * Thierry Roman,           AMCC/IBM, thierry_roman@fr.ibm.com
+ * Alain Saurel,            AMCC/IBM, alain.saurel@fr.ibm.com
+ * Robert Snyder,           AMCC/IBM, rob.snyder@fr.ibm.com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
 #ifndef __PPC440_H__
 #define __PPC440_H__
+
+#define CFG_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
 
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
@@ -123,10 +149,6 @@
 /*-----------------------------------------------------------------------------
  | Clocking Controller
  +----------------------------------------------------------------------------*/
-#define CLOCKING_DCR_BASE 0x0c
-#define clkcfga	 (CLOCKING_DCR_BASE+0x0)
-#define clkcfgd	 (CLOCKING_DCR_BASE+0x1)
-
 /* values for clkcfga register - indirect addressing of these regs */
 #define clk_clkukpd	0x0020
 #define clk_pllc	0x0040
@@ -140,9 +162,6 @@
 #define clk_icfg	0x0140
 
 /* 440gx sdr register definations */
-#define SDR_DCR_BASE	0x0e
-#define sdrcfga		(SDR_DCR_BASE+0x0)
-#define sdrcfgd		(SDR_DCR_BASE+0x1)
 #define sdr_sdstp0	0x0020	    /* */
 #define sdr_sdstp1	0x0021	    /* */
 #define SDR_PINSTP	0x0040
@@ -191,61 +210,9 @@
 #define sdr_plbtr	0x4200
 #define sdr_mfr		0x4300	/* SDR0_MFR reg */
 
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) /* test-only!!!! */
-#define DDR0_00	0x00
-#define DDR0_01	0x01
-#define DDR0_02	0x02
-#define DDR0_03	0x03
-#define DDR0_04	0x04
-#define DDR0_05	0x05
-#define DDR0_06	0x06
-#define DDR0_07	0x07
-#define DDR0_08	0x08
-#define DDR0_09	0x09
-#define DDR0_10	0x0A
-#define DDR0_11	0x0B
-#define DDR0_12	0x0C
-#define DDR0_13	0x0D
-#define DDR0_14	0x0E
-#define DDR0_15	0x0F
-#define DDR0_16	0x10
-#define DDR0_17	0x11
-#define DDR0_18	0x12
-#define DDR0_19	0x13
-#define DDR0_20	0x14
-#define DDR0_21	0x15
-#define DDR0_22	0x16
-#define DDR0_23	0x17
-#define DDR0_24	0x18
-#define DDR0_25	0x19
-#define DDR0_26	0x1A
-#define DDR0_27	0x1B
-#define DDR0_28	0x1C
-#define DDR0_29	0x1D
-#define DDR0_30	0x1E
-#define DDR0_31	0x1F
-#define DDR0_32	0x20
-#define DDR0_33	0x21
-#define DDR0_34	0x22
-#define DDR0_35	0x23
-#define DDR0_36	0x24
-#define DDR0_37	0x25
-#define DDR0_38	0x26
-#define DDR0_39	0x27
-#define DDR0_40	0x28
-#define DDR0_41	0x29
-#define DDR0_42	0x2A
-#define DDR0_43	0x2B
-#define DDR0_44	0x2C
-#endif /*CONFIG_440EPX*/
-
 /*-----------------------------------------------------------------------------
  | SDRAM Controller
  +----------------------------------------------------------------------------*/
-#define SDRAM_DCR_BASE 0x10
-#define memcfga	 (SDRAM_DCR_BASE+0x0)	/* Memory configuration address reg */
-#define memcfgd	 (SDRAM_DCR_BASE+0x1)	/* Memory configuration data reg    */
-
 /* values for memcfga register - indirect addressing of these regs	    */
 #define mem_besr0_clr	0x0000	/* bus error status reg 0 (clr)		    */
 #define mem_besr0_set	0x0004	/* bus error status reg 0 (set)		    */
@@ -330,9 +297,6 @@
 #define sdr_sdstp5	0x4003
 #define sdr_sdstp6	0x4005
 #define sdr_sdstp7	0x4007
-
-#define SDR0_CFGADDR		0x00E
-#define SDR0_CFGDATA		0x00F
 
 /******************************************************************************
  * PCI express defines
@@ -480,10 +444,6 @@
 /*----------------------------------------------------------------------------+
 | Memory controller defines
 +----------------------------------------------------------------------------*/
-#define SDRAMC_DCR_BASE	0x010
-#define SDRAMC_CFGADDR	(SDRAMC_DCR_BASE+0x0)   /* Memory configuration add  */
-#define SDRAMC_CFGDATA	(SDRAMC_DCR_BASE+0x1)   /* Memory configuration data */
-
 /* A REVOIR versus specs 4 bank  - SG*/
 #define SDRAM_MCSTAT	0x14	/* memory controller status                  */
 #define SDRAM_MCOPT1	0x20	/* memory controller options 1               */
@@ -829,14 +789,455 @@
 #define SDRAM_BXCF_M_BE_MASK		0x00000001	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_DISABLE		0x00000000	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_ENABLE		0x00000001	/* Memory Bank Enable	*/
+
+#define SDR0_MFR_FIXD			0x10000000	/* Workaround for PCI/DMA */
 #endif /* CONFIG_440SPE */
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+/*-----------------------------------------------------------------------------
+ | SDRAM Controller
+ +----------------------------------------------------------------------------*/
+#define DDR0_00				0x00
+#define DDR0_00_INT_ACK_MASK              0x7F000000	/* Write only */
+#define DDR0_00_INT_ACK_ALL               0x7F000000
+#define DDR0_00_INT_ACK_ENCODE(n)           ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_00_INT_ACK_DECODE(n)           ((((unsigned long)(n))>>24)&0x7F)
+/* Status */
+#define DDR0_00_INT_STATUS_MASK           0x00FF0000	/* Read only */
+/* Bit0. A single access outside the defined PHYSICAL memory space detected. */
+#define DDR0_00_INT_STATUS_BIT0           0x00010000
+/* Bit1. Multiple accesses outside the defined PHYSICAL memory space detected. */
+#define DDR0_00_INT_STATUS_BIT1           0x00020000
+/* Bit2. Single correctable ECC event detected */
+#define DDR0_00_INT_STATUS_BIT2           0x00040000
+/* Bit3. Multiple correctable ECC events detected. */
+#define DDR0_00_INT_STATUS_BIT3           0x00080000
+/* Bit4. Single uncorrectable ECC event detected. */
+#define DDR0_00_INT_STATUS_BIT4           0x00100000
+/* Bit5. Multiple uncorrectable ECC events detected. */
+#define DDR0_00_INT_STATUS_BIT5           0x00200000
+/* Bit6. DRAM initialization complete. */
+#define DDR0_00_INT_STATUS_BIT6           0x00400000
+/* Bit7. Logical OR of all lower bits. */
+#define DDR0_00_INT_STATUS_BIT7           0x00800000
+
+#define DDR0_00_INT_STATUS_ENCODE(n)        ((((unsigned long)(n))&0xFF)<<16)
+#define DDR0_00_INT_STATUS_DECODE(n)        ((((unsigned long)(n))>>16)&0xFF)
+#define DDR0_00_DLL_INCREMENT_MASK        0x00007F00
+#define DDR0_00_DLL_INCREMENT_ENCODE(n)     ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_00_DLL_INCREMENT_DECODE(n)     ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_00_DLL_START_POINT_MASK      0x0000007F
+#define DDR0_00_DLL_START_POINT_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_00_DLL_START_POINT_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_01				0x01
+#define DDR0_01_PLB0_DB_CS_LOWER_MASK     0x1F000000
+#define DDR0_01_PLB0_DB_CS_LOWER_ENCODE(n)  ((((unsigned long)(n))&0x1F)<<24)
+#define DDR0_01_PLB0_DB_CS_LOWER_DECODE(n)  ((((unsigned long)(n))>>24)&0x1F)
+#define DDR0_01_PLB0_DB_CS_UPPER_MASK     0x001F0000
+#define DDR0_01_PLB0_DB_CS_UPPER_ENCODE(n)  ((((unsigned long)(n))&0x1F)<<16)
+#define DDR0_01_PLB0_DB_CS_UPPER_DECODE(n)  ((((unsigned long)(n))>>16)&0x1F)
+#define DDR0_01_OUT_OF_RANGE_TYPE_MASK    0x00000700	/* Read only */
+#define DDR0_01_OUT_OF_RANGE_TYPE_ENCODE(n)               ((((unsigned long)(n))&0x7)<<8)
+#define DDR0_01_OUT_OF_RANGE_TYPE_DECODE(n)               ((((unsigned long)(n))>>8)&0x7)
+#define DDR0_01_INT_MASK_MASK             0x000000FF
+#define DDR0_01_INT_MASK_ENCODE(n)          ((((unsigned long)(n))&0xFF)<<0)
+#define DDR0_01_INT_MASK_DECODE(n)          ((((unsigned long)(n))>>0)&0xFF)
+#define DDR0_01_INT_MASK_ALL_ON           0x000000FF
+#define DDR0_01_INT_MASK_ALL_OFF          0x00000000
+
+#define DDR0_02				0x02
+#define DDR0_02_MAX_CS_REG_MASK           0x02000000	/* Read only */
+#define DDR0_02_MAX_CS_REG_ENCODE(n)        ((((unsigned long)(n))&0x2)<<24)
+#define DDR0_02_MAX_CS_REG_DECODE(n)        ((((unsigned long)(n))>>24)&0x2)
+#define DDR0_02_MAX_COL_REG_MASK          0x000F0000	/* Read only */
+#define DDR0_02_MAX_COL_REG_ENCODE(n)       ((((unsigned long)(n))&0xF)<<16)
+#define DDR0_02_MAX_COL_REG_DECODE(n)       ((((unsigned long)(n))>>16)&0xF)
+#define DDR0_02_MAX_ROW_REG_MASK          0x00000F00	/* Read only */
+#define DDR0_02_MAX_ROW_REG_ENCODE(n)       ((((unsigned long)(n))&0xF)<<8)
+#define DDR0_02_MAX_ROW_REG_DECODE(n)       ((((unsigned long)(n))>>8)&0xF)
+#define DDR0_02_START_MASK                0x00000001
+#define DDR0_02_START_ENCODE(n)             ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_02_START_DECODE(n)             ((((unsigned long)(n))>>0)&0x1)
+#define DDR0_02_START_OFF                 0x00000000
+#define DDR0_02_START_ON                  0x00000001
+
+#define DDR0_03				0x03
+#define DDR0_03_BSTLEN_MASK               0x07000000
+#define DDR0_03_BSTLEN_ENCODE(n)            ((((unsigned long)(n))&0x7)<<24)
+#define DDR0_03_BSTLEN_DECODE(n)            ((((unsigned long)(n))>>24)&0x7)
+#define DDR0_03_CASLAT_MASK               0x00070000
+#define DDR0_03_CASLAT_ENCODE(n)            ((((unsigned long)(n))&0x7)<<16)
+#define DDR0_03_CASLAT_DECODE(n)            ((((unsigned long)(n))>>16)&0x7)
+#define DDR0_03_CASLAT_LIN_MASK           0x00000F00
+#define DDR0_03_CASLAT_LIN_ENCODE(n)        ((((unsigned long)(n))&0xF)<<8)
+#define DDR0_03_CASLAT_LIN_DECODE(n)        ((((unsigned long)(n))>>8)&0xF)
+#define DDR0_03_INITAREF_MASK             0x0000000F
+#define DDR0_03_INITAREF_ENCODE(n)          ((((unsigned long)(n))&0xF)<<0)
+#define DDR0_03_INITAREF_DECODE(n)          ((((unsigned long)(n))>>0)&0xF)
+
+#define DDR0_04				0x04
+#define DDR0_04_TRC_MASK                  0x1F000000
+#define DDR0_04_TRC_ENCODE(n)               ((((unsigned long)(n))&0x1F)<<24)
+#define DDR0_04_TRC_DECODE(n)               ((((unsigned long)(n))>>24)&0x1F)
+#define DDR0_04_TRRD_MASK                 0x00070000
+#define DDR0_04_TRRD_ENCODE(n)              ((((unsigned long)(n))&0x7)<<16)
+#define DDR0_04_TRRD_DECODE(n)              ((((unsigned long)(n))>>16)&0x7)
+#define DDR0_04_TRTP_MASK                 0x00000700
+#define DDR0_04_TRTP_ENCODE(n)              ((((unsigned long)(n))&0x7)<<8)
+#define DDR0_04_TRTP_DECODE(n)              ((((unsigned long)(n))>>8)&0x7)
+
+#define DDR0_05				0x05
+#define DDR0_05_TMRD_MASK                 0x1F000000
+#define DDR0_05_TMRD_ENCODE(n)              ((((unsigned long)(n))&0x1F)<<24)
+#define DDR0_05_TMRD_DECODE(n)              ((((unsigned long)(n))>>24)&0x1F)
+#define DDR0_05_TEMRS_MASK                0x00070000
+#define DDR0_05_TEMRS_ENCODE(n)             ((((unsigned long)(n))&0x7)<<16)
+#define DDR0_05_TEMRS_DECODE(n)             ((((unsigned long)(n))>>16)&0x7)
+#define DDR0_05_TRP_MASK                  0x00000F00
+#define DDR0_05_TRP_ENCODE(n)               ((((unsigned long)(n))&0xF)<<8)
+#define DDR0_05_TRP_DECODE(n)               ((((unsigned long)(n))>>8)&0xF)
+#define DDR0_05_TRAS_MIN_MASK             0x000000FF
+#define DDR0_05_TRAS_MIN_ENCODE(n)          ((((unsigned long)(n))&0xFF)<<0)
+#define DDR0_05_TRAS_MIN_DECODE(n)          ((((unsigned long)(n))>>0)&0xFF)
+
+#define DDR0_06				0x06
+#define DDR0_06_WRITEINTERP_MASK          0x01000000
+#define DDR0_06_WRITEINTERP_ENCODE(n)       ((((unsigned long)(n))&0x1)<<24)
+#define DDR0_06_WRITEINTERP_DECODE(n)       ((((unsigned long)(n))>>24)&0x1)
+#define DDR0_06_TWTR_MASK                 0x00070000
+#define DDR0_06_TWTR_ENCODE(n)              ((((unsigned long)(n))&0x7)<<16)
+#define DDR0_06_TWTR_DECODE(n)              ((((unsigned long)(n))>>16)&0x7)
+#define DDR0_06_TDLL_MASK                 0x0000FF00
+#define DDR0_06_TDLL_ENCODE(n)              ((((unsigned long)(n))&0xFF)<<8)
+#define DDR0_06_TDLL_DECODE(n)              ((((unsigned long)(n))>>8)&0xFF)
+#define DDR0_06_TRFC_MASK                 0x0000007F
+#define DDR0_06_TRFC_ENCODE(n)              ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_06_TRFC_DECODE(n)              ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_07				0x07
+#define DDR0_07_NO_CMD_INIT_MASK          0x01000000
+#define DDR0_07_NO_CMD_INIT_ENCODE(n)       ((((unsigned long)(n))&0x1)<<24)
+#define DDR0_07_NO_CMD_INIT_DECODE(n)       ((((unsigned long)(n))>>24)&0x1)
+#define DDR0_07_TFAW_MASK                 0x001F0000
+#define DDR0_07_TFAW_ENCODE(n)              ((((unsigned long)(n))&0x1F)<<16)
+#define DDR0_07_TFAW_DECODE(n)              ((((unsigned long)(n))>>16)&0x1F)
+#define DDR0_07_AUTO_REFRESH_MODE_MASK    0x00000100
+#define DDR0_07_AUTO_REFRESH_MODE_ENCODE(n) ((((unsigned long)(n))&0x1)<<8)
+#define DDR0_07_AUTO_REFRESH_MODE_DECODE(n) ((((unsigned long)(n))>>8)&0x1)
+#define DDR0_07_AREFRESH_MASK             0x00000001
+#define DDR0_07_AREFRESH_ENCODE(n)          ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_07_AREFRESH_DECODE(n)          ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_08				0x08
+#define DDR0_08_WRLAT_MASK                0x07000000
+#define DDR0_08_WRLAT_ENCODE(n)             ((((unsigned long)(n))&0x7)<<24)
+#define DDR0_08_WRLAT_DECODE(n)             ((((unsigned long)(n))>>24)&0x7)
+#define DDR0_08_TCPD_MASK                 0x00FF0000
+#define DDR0_08_TCPD_ENCODE(n)              ((((unsigned long)(n))&0xFF)<<16)
+#define DDR0_08_TCPD_DECODE(n)              ((((unsigned long)(n))>>16)&0xFF)
+#define DDR0_08_DQS_N_EN_MASK             0x00000100
+#define DDR0_08_DQS_N_EN_ENCODE(n)          ((((unsigned long)(n))&0x1)<<8)
+#define DDR0_08_DQS_N_EN_DECODE(n)          ((((unsigned long)(n))>>8)&0x1)
+#define DDR0_08_DDRII_SDRAM_MODE_MASK     0x00000001
+#define DDR0_08_DDRII_ENCODE(n)             ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_08_DDRII_DECODE(n)             ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_09				0x09
+#define DDR0_09_OCD_ADJUST_PDN_CS_0_MASK  0x1F000000
+#define DDR0_09_OCD_ADJUST_PDN_CS_0_ENCODE(n) ((((unsigned long)(n))&0x1F)<<24)
+#define DDR0_09_OCD_ADJUST_PDN_CS_0_DECODE(n) ((((unsigned long)(n))>>24)&0x1F)
+#define DDR0_09_RTT_0_MASK                0x00030000
+#define DDR0_09_RTT_0_ENCODE(n)             ((((unsigned long)(n))&0x3)<<16)
+#define DDR0_09_RTT_0_DECODE(n)             ((((unsigned long)(n))>>16)&0x3)
+#define DDR0_09_WR_DQS_SHIFT_BYPASS_MASK  0x00007F00
+#define DDR0_09_WR_DQS_SHIFT_BYPASS_ENCODE(n) ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_09_WR_DQS_SHIFT_BYPASS_DECODE(n) ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_09_WR_DQS_SHIFT_MASK         0x0000007F
+#define DDR0_09_WR_DQS_SHIFT_ENCODE(n)      ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_09_WR_DQS_SHIFT_DECODE(n)      ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_10				0x0A
+#define DDR0_10_WRITE_MODEREG_MASK        0x00010000	/* Write only */
+#define DDR0_10_WRITE_MODEREG_ENCODE(n)     ((((unsigned long)(n))&0x1)<<16)
+#define DDR0_10_WRITE_MODEREG_DECODE(n)     ((((unsigned long)(n))>>16)&0x1)
+#define DDR0_10_CS_MAP_MASK               0x00000300
+#define DDR0_10_CS_MAP_NO_MEM             0x00000000
+#define DDR0_10_CS_MAP_RANK0_INSTALLED    0x00000100
+#define DDR0_10_CS_MAP_RANK1_INSTALLED    0x00000200
+#define DDR0_10_CS_MAP_ENCODE(n)            ((((unsigned long)(n))&0x3)<<8)
+#define DDR0_10_CS_MAP_DECODE(n)            ((((unsigned long)(n))>>8)&0x3)
+#define DDR0_10_OCD_ADJUST_PUP_CS_0_MASK  0x0000001F
+#define DDR0_10_OCD_ADJUST_PUP_CS_0_ENCODE(n) ((((unsigned long)(n))&0x1F)<<0)
+#define DDR0_10_OCD_ADJUST_PUP_CS_0_DECODE(n) ((((unsigned long)(n))>>0)&0x1F)
+
+#define DDR0_11				0x0B
+#define DDR0_11_SREFRESH_MASK             0x01000000
+#define DDR0_11_SREFRESH_ENCODE(n)          ((((unsigned long)(n))&0x1)<<24)
+#define DDR0_11_SREFRESH_DECODE(n)          ((((unsigned long)(n))>>24)&0x1F)
+#define DDR0_11_TXSNR_MASK                0x00FF0000
+#define DDR0_11_TXSNR_ENCODE(n)             ((((unsigned long)(n))&0xFF)<<16)
+#define DDR0_11_TXSNR_DECODE(n)             ((((unsigned long)(n))>>16)&0xFF)
+#define DDR0_11_TXSR_MASK                 0x0000FF00
+#define DDR0_11_TXSR_ENCODE(n)              ((((unsigned long)(n))&0xFF)<<8)
+#define DDR0_11_TXSR_DECODE(n)              ((((unsigned long)(n))>>8)&0xFF)
+
+#define DDR0_12				0x0C
+#define DDR0_12_TCKE_MASK                 0x0000007
+#define DDR0_12_TCKE_ENCODE(n)              ((((unsigned long)(n))&0x7)<<0)
+#define DDR0_12_TCKE_DECODE(n)              ((((unsigned long)(n))>>0)&0x7)
+
+#define DDR0_14				0x0E
+#define DDR0_14_DLL_BYPASS_MODE_MASK      0x01000000
+#define DDR0_14_DLL_BYPASS_MODE_ENCODE(n)   ((((unsigned long)(n))&0x1)<<24)
+#define DDR0_14_DLL_BYPASS_MODE_DECODE(n)   ((((unsigned long)(n))>>24)&0x1)
+#define DDR0_14_REDUC_MASK                0x00010000
+#define DDR0_14_REDUC_64BITS              0x00000000
+#define DDR0_14_REDUC_32BITS              0x00010000
+#define DDR0_14_REDUC_ENCODE(n)             ((((unsigned long)(n))&0x1)<<16)
+#define DDR0_14_REDUC_DECODE(n)             ((((unsigned long)(n))>>16)&0x1)
+#define DDR0_14_REG_DIMM_ENABLE_MASK      0x00000100
+#define DDR0_14_REG_DIMM_ENABLE_ENCODE(n)   ((((unsigned long)(n))&0x1)<<8)
+#define DDR0_14_REG_DIMM_ENABLE_DECODE(n)   ((((unsigned long)(n))>>8)&0x1)
+
+#define DDR0_17				0x11
+#define DDR0_17_DLL_DQS_DELAY_0_MASK      0x7F000000
+#define DDR0_17_DLL_DQS_DELAY_0_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_17_DLL_DQS_DELAY_0_DECODE(n)   ((((unsigned long)(n))>>24)&0x7F)
+#define DDR0_17_DLLLOCKREG_MASK           0x00010000	/* Read only */
+#define DDR0_17_DLLLOCKREG_LOCKED         0x00010000
+#define DDR0_17_DLLLOCKREG_UNLOCKED       0x00000000
+#define DDR0_17_DLLLOCKREG_ENCODE(n)        ((((unsigned long)(n))&0x1)<<16)
+#define DDR0_17_DLLLOCKREG_DECODE(n)        ((((unsigned long)(n))>>16)&0x1)
+#define DDR0_17_DLL_LOCK_MASK             0x00007F00	/* Read only */
+#define DDR0_17_DLL_LOCK_ENCODE(n)          ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_17_DLL_LOCK_DECODE(n)          ((((unsigned long)(n))>>8)&0x7F)
+
+#define DDR0_18				0x12
+#define DDR0_18_DLL_DQS_DELAY_X_MASK      0x7F7F7F7F
+#define DDR0_18_DLL_DQS_DELAY_4_MASK      0x7F000000
+#define DDR0_18_DLL_DQS_DELAY_4_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_18_DLL_DQS_DELAY_4_DECODE(n)   ((((unsigned long)(n))>>24)&0x7F)
+#define DDR0_18_DLL_DQS_DELAY_3_MASK      0x007F0000
+#define DDR0_18_DLL_DQS_DELAY_3_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<16)
+#define DDR0_18_DLL_DQS_DELAY_3_DECODE(n)   ((((unsigned long)(n))>>16)&0x7F)
+#define DDR0_18_DLL_DQS_DELAY_2_MASK      0x00007F00
+#define DDR0_18_DLL_DQS_DELAY_2_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_18_DLL_DQS_DELAY_2_DECODE(n)   ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_18_DLL_DQS_DELAY_1_MASK      0x0000007F
+#define DDR0_18_DLL_DQS_DELAY_1_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_18_DLL_DQS_DELAY_1_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_19				0x13
+#define DDR0_19_DLL_DQS_DELAY_X_MASK      0x7F7F7F7F
+#define DDR0_19_DLL_DQS_DELAY_8_MASK      0x7F000000
+#define DDR0_19_DLL_DQS_DELAY_8_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_19_DLL_DQS_DELAY_8_DECODE(n)   ((((unsigned long)(n))>>24)&0x7F)
+#define DDR0_19_DLL_DQS_DELAY_7_MASK      0x007F0000
+#define DDR0_19_DLL_DQS_DELAY_7_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<16)
+#define DDR0_19_DLL_DQS_DELAY_7_DECODE(n)   ((((unsigned long)(n))>>16)&0x7F)
+#define DDR0_19_DLL_DQS_DELAY_6_MASK      0x00007F00
+#define DDR0_19_DLL_DQS_DELAY_6_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_19_DLL_DQS_DELAY_6_DECODE(n)   ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_19_DLL_DQS_DELAY_5_MASK      0x0000007F
+#define DDR0_19_DLL_DQS_DELAY_5_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_19_DLL_DQS_DELAY_5_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_20				0x14
+#define DDR0_20_DLL_DQS_BYPASS_3_MASK      0x7F000000
+#define DDR0_20_DLL_DQS_BYPASS_3_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_20_DLL_DQS_BYPASS_3_DECODE(n)   ((((unsigned long)(n))>>24)&0x7F)
+#define DDR0_20_DLL_DQS_BYPASS_2_MASK      0x007F0000
+#define DDR0_20_DLL_DQS_BYPASS_2_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<16)
+#define DDR0_20_DLL_DQS_BYPASS_2_DECODE(n)   ((((unsigned long)(n))>>16)&0x7F)
+#define DDR0_20_DLL_DQS_BYPASS_1_MASK      0x00007F00
+#define DDR0_20_DLL_DQS_BYPASS_1_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_20_DLL_DQS_BYPASS_1_DECODE(n)   ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_20_DLL_DQS_BYPASS_0_MASK      0x0000007F
+#define DDR0_20_DLL_DQS_BYPASS_0_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_20_DLL_DQS_BYPASS_0_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_21				0x15
+#define DDR0_21_DLL_DQS_BYPASS_7_MASK      0x7F000000
+#define DDR0_21_DLL_DQS_BYPASS_7_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<24)
+#define DDR0_21_DLL_DQS_BYPASS_7_DECODE(n)   ((((unsigned long)(n))>>24)&0x7F)
+#define DDR0_21_DLL_DQS_BYPASS_6_MASK      0x007F0000
+#define DDR0_21_DLL_DQS_BYPASS_6_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<16)
+#define DDR0_21_DLL_DQS_BYPASS_6_DECODE(n)   ((((unsigned long)(n))>>16)&0x7F)
+#define DDR0_21_DLL_DQS_BYPASS_5_MASK      0x00007F00
+#define DDR0_21_DLL_DQS_BYPASS_5_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_21_DLL_DQS_BYPASS_5_DECODE(n)   ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_21_DLL_DQS_BYPASS_4_MASK      0x0000007F
+#define DDR0_21_DLL_DQS_BYPASS_4_ENCODE(n)   ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_21_DLL_DQS_BYPASS_4_DECODE(n)   ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_22				0x16
+#define DDR0_22_CTRL_RAW_MASK             0x03000000
+#define DDR0_22_CTRL_RAW_ECC_DISABLE      0x00000000	/* ECC not being used */
+#define DDR0_22_CTRL_RAW_ECC_CHECK_ONLY   0x01000000	/* ECC checking is on, but no attempts to correct */
+#define DDR0_22_CTRL_RAW_NO_ECC_RAM       0x02000000	/* No ECC RAM storage available */
+#define DDR0_22_CTRL_RAW_ECC_ENABLE       0x03000000	/* ECC checking and correcting on */
+#define DDR0_22_CTRL_RAW_ENCODE(n)          ((((unsigned long)(n))&0x3)<<24)
+#define DDR0_22_CTRL_RAW_DECODE(n)          ((((unsigned long)(n))>>24)&0x3)
+#define DDR0_22_DQS_OUT_SHIFT_BYPASS_MASK 0x007F0000
+#define DDR0_22_DQS_OUT_SHIFT_BYPASS_ENCODE(n) ((((unsigned long)(n))&0x7F)<<16)
+#define DDR0_22_DQS_OUT_SHIFT_BYPASS_DECODE(n) ((((unsigned long)(n))>>16)&0x7F)
+#define DDR0_22_DQS_OUT_SHIFT_MASK        0x00007F00
+#define DDR0_22_DQS_OUT_SHIFT_ENCODE(n)     ((((unsigned long)(n))&0x7F)<<8)
+#define DDR0_22_DQS_OUT_SHIFT_DECODE(n)     ((((unsigned long)(n))>>8)&0x7F)
+#define DDR0_22_DLL_DQS_BYPASS_8_MASK     0x0000007F
+#define DDR0_22_DLL_DQS_BYPASS_8_ENCODE(n)  ((((unsigned long)(n))&0x7F)<<0)
+#define DDR0_22_DLL_DQS_BYPASS_8_DECODE(n)  ((((unsigned long)(n))>>0)&0x7F)
+
+#define DDR0_23				0x17
+#define DDR0_23_ODT_RD_MAP_CS0_MASK       0x03000000
+#define DDR0_23_ODT_RD_MAP_CS0_ENCODE(n)   ((((unsigned long)(n))&0x3)<<24)
+#define DDR0_23_ODT_RD_MAP_CS0_DECODE(n)   ((((unsigned long)(n))>>24)&0x3)
+#define DDR0_23_ECC_C_SYND_MASK           0x00FF0000	/* Read only */
+#define DDR0_23_ECC_C_SYND_ENCODE(n)        ((((unsigned long)(n))&0xFF)<<16)
+#define DDR0_23_ECC_C_SYND_DECODE(n)        ((((unsigned long)(n))>>16)&0xFF)
+#define DDR0_23_ECC_U_SYND_MASK           0x0000FF00	/* Read only */
+#define DDR0_23_ECC_U_SYND_ENCODE(n)        ((((unsigned long)(n))&0xFF)<<8)
+#define DDR0_23_ECC_U_SYND_DECODE(n)        ((((unsigned long)(n))>>8)&0xFF)
+#define DDR0_23_FWC_MASK                  0x00000001	/* Write only */
+#define DDR0_23_FWC_ENCODE(n)               ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_23_FWC_DECODE(n)               ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_24				0x18
+#define DDR0_24_RTT_PAD_TERMINATION_MASK  0x03000000
+#define DDR0_24_RTT_PAD_TERMINATION_ENCODE(n) ((((unsigned long)(n))&0x3)<<24)
+#define DDR0_24_RTT_PAD_TERMINATION_DECODE(n) ((((unsigned long)(n))>>24)&0x3)
+#define DDR0_24_ODT_WR_MAP_CS1_MASK       0x00030000
+#define DDR0_24_ODT_WR_MAP_CS1_ENCODE(n)    ((((unsigned long)(n))&0x3)<<16)
+#define DDR0_24_ODT_WR_MAP_CS1_DECODE(n)    ((((unsigned long)(n))>>16)&0x3)
+#define DDR0_24_ODT_RD_MAP_CS1_MASK       0x00000300
+#define DDR0_24_ODT_RD_MAP_CS1_ENCODE(n)    ((((unsigned long)(n))&0x3)<<8)
+#define DDR0_24_ODT_RD_MAP_CS1_DECODE(n)    ((((unsigned long)(n))>>8)&0x3)
+#define DDR0_24_ODT_WR_MAP_CS0_MASK       0x00000003
+#define DDR0_24_ODT_WR_MAP_CS0_ENCODE(n)    ((((unsigned long)(n))&0x3)<<0)
+#define DDR0_24_ODT_WR_MAP_CS0_DECODE(n)    ((((unsigned long)(n))>>0)&0x3)
+
+#define DDR0_25				0x19
+#define DDR0_25_VERSION_MASK              0xFFFF0000	/* Read only */
+#define DDR0_25_VERSION_ENCODE(n)           ((((unsigned long)(n))&0xFFFF)<<16)
+#define DDR0_25_VERSION_DECODE(n)           ((((unsigned long)(n))>>16)&0xFFFF)
+#define DDR0_25_OUT_OF_RANGE_LENGTH_MASK  0x000003FF	/* Read only */
+#define DDR0_25_OUT_OF_RANGE_LENGTH_ENCODE(n) ((((unsigned long)(n))&0x3FF)<<0)
+#define DDR0_25_OUT_OF_RANGE_LENGTH_DECODE(n) ((((unsigned long)(n))>>0)&0x3FF)
+
+#define DDR0_26				0x1A
+#define DDR0_26_TRAS_MAX_MASK             0xFFFF0000
+#define DDR0_26_TRAS_MAX_ENCODE(n)          ((((unsigned long)(n))&0xFFFF)<<16)
+#define DDR0_26_TRAS_MAX_DECODE(n)          ((((unsigned long)(n))>>16)&0xFFFF)
+#define DDR0_26_TREF_MASK                 0x00003FFF
+#define DDR0_26_TREF_ENCODE(n)              ((((unsigned long)(n))&0x3FFF)<<0)
+#define DDR0_26_TREF_DECODE(n)              ((((unsigned long)(n))>>0)&0x3FFF)
+
+#define DDR0_27				0x1B
+#define DDR0_27_EMRS_DATA_MASK            0x3FFF0000
+#define DDR0_27_EMRS_DATA_ENCODE(n)         ((((unsigned long)(n))&0x3FFF)<<16)
+#define DDR0_27_EMRS_DATA_DECODE(n)         ((((unsigned long)(n))>>16)&0x3FFF)
+#define DDR0_27_TINIT_MASK                0x0000FFFF
+#define DDR0_27_TINIT_ENCODE(n)             ((((unsigned long)(n))&0xFFFF)<<0)
+#define DDR0_27_TINIT_DECODE(n)             ((((unsigned long)(n))>>0)&0xFFFF)
+
+#define DDR0_28				0x1C
+#define DDR0_28_EMRS3_DATA_MASK           0x3FFF0000
+#define DDR0_28_EMRS3_DATA_ENCODE(n)        ((((unsigned long)(n))&0x3FFF)<<16)
+#define DDR0_28_EMRS3_DATA_DECODE(n)        ((((unsigned long)(n))>>16)&0x3FFF)
+#define DDR0_28_EMRS2_DATA_MASK           0x00003FFF
+#define DDR0_28_EMRS2_DATA_ENCODE(n)        ((((unsigned long)(n))&0x3FFF)<<0)
+#define DDR0_28_EMRS2_DATA_DECODE(n)        ((((unsigned long)(n))>>0)&0x3FFF)
+
+#define DDR0_31				0x1F
+#define DDR0_31_XOR_CHECK_BITS_MASK       0x0000FFFF
+#define DDR0_31_XOR_CHECK_BITS_ENCODE(n)    ((((unsigned long)(n))&0xFFFF)<<0)
+#define DDR0_31_XOR_CHECK_BITS_DECODE(n)    ((((unsigned long)(n))>>0)&0xFFFF)
+
+#define DDR0_32				0x20
+#define DDR0_32_OUT_OF_RANGE_ADDR_MASK    0xFFFFFFFF	/* Read only */
+#define DDR0_32_OUT_OF_RANGE_ADDR_ENCODE(n) ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_32_OUT_OF_RANGE_ADDR_DECODE(n) ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_33				0x21
+#define DDR0_33_OUT_OF_RANGE_ADDR_MASK    0x00000001	/* Read only */
+#define DDR0_33_OUT_OF_RANGE_ADDR_ENCODE(n) ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_33_OUT_OF_RANGE_ADDR_DECODE(n)               ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_34				0x22
+#define DDR0_34_ECC_U_ADDR_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_34_ECC_U_ADDR_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_34_ECC_U_ADDR_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_35				0x23
+#define DDR0_35_ECC_U_ADDR_MASK           0x00000001	/* Read only */
+#define DDR0_35_ECC_U_ADDR_ENCODE(n)        ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_35_ECC_U_ADDR_DECODE(n)        ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_36				0x24
+#define DDR0_36_ECC_U_DATA_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_36_ECC_U_DATA_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_36_ECC_U_DATA_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_37				0x25
+#define DDR0_37_ECC_U_DATA_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_37_ECC_U_DATA_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_37_ECC_U_DATA_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_38				0x26
+#define DDR0_38_ECC_C_ADDR_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_38_ECC_C_ADDR_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_38_ECC_C_ADDR_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_39				0x27
+#define DDR0_39_ECC_C_ADDR_MASK           0x00000001	/* Read only */
+#define DDR0_39_ECC_C_ADDR_ENCODE(n)        ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_39_ECC_C_ADDR_DECODE(n)        ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_40				0x28
+#define DDR0_40_ECC_C_DATA_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_40_ECC_C_DATA_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_40_ECC_C_DATA_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_41				0x29
+#define DDR0_41_ECC_C_DATA_MASK           0xFFFFFFFF	/* Read only */
+#define DDR0_41_ECC_C_DATA_ENCODE(n)        ((((unsigned long)(n))&0xFFFFFFFF)<<0)
+#define DDR0_41_ECC_C_DATA_DECODE(n)        ((((unsigned long)(n))>>0)&0xFFFFFFFF)
+
+#define DDR0_42				0x2A
+#define DDR0_42_ADDR_PINS_MASK            0x07000000
+#define DDR0_42_ADDR_PINS_ENCODE(n)         ((((unsigned long)(n))&0x7)<<24)
+#define DDR0_42_ADDR_PINS_DECODE(n)         ((((unsigned long)(n))>>24)&0x7)
+#define DDR0_42_CASLAT_LIN_GATE_MASK      0x0000000F
+#define DDR0_42_CASLAT_LIN_GATE_ENCODE(n)   ((((unsigned long)(n))&0xF)<<0)
+#define DDR0_42_CASLAT_LIN_GATE_DECODE(n)   ((((unsigned long)(n))>>0)&0xF)
+
+#define DDR0_43				0x2B
+#define DDR0_43_TWR_MASK                  0x07000000
+#define DDR0_43_TWR_ENCODE(n)               ((((unsigned long)(n))&0x7)<<24)
+#define DDR0_43_TWR_DECODE(n)               ((((unsigned long)(n))>>24)&0x7)
+#define DDR0_43_APREBIT_MASK              0x000F0000
+#define DDR0_43_APREBIT_ENCODE(n)           ((((unsigned long)(n))&0xF)<<16)
+#define DDR0_43_APREBIT_DECODE(n)           ((((unsigned long)(n))>>16)&0xF)
+#define DDR0_43_COLUMN_SIZE_MASK          0x00000700
+#define DDR0_43_COLUMN_SIZE_ENCODE(n)       ((((unsigned long)(n))&0x7)<<8)
+#define DDR0_43_COLUMN_SIZE_DECODE(n)       ((((unsigned long)(n))>>8)&0x7)
+#define DDR0_43_EIGHT_BANK_MODE_MASK      0x00000001
+#define DDR0_43_EIGHT_BANK_MODE_8_BANKS     0x00000001
+#define DDR0_43_EIGHT_BANK_MODE_4_BANKS     0x00000000
+#define DDR0_43_EIGHT_BANK_MODE_ENCODE(n)   ((((unsigned long)(n))&0x1)<<0)
+#define DDR0_43_EIGHT_BANK_MODE_DECODE(n)   ((((unsigned long)(n))>>0)&0x1)
+
+#define DDR0_44				0x2C
+#define DDR0_44_TRCD_MASK                 0x000000FF
+#define DDR0_44_TRCD_ENCODE(n)              ((((unsigned long)(n))&0xFF)<<0)
+#define DDR0_44_TRCD_DECODE(n)              ((((unsigned long)(n))>>0)&0xFF)
+
+#endif /* CONFIG_440EPX */
 
 /*-----------------------------------------------------------------------------
  | External Bus Controller
  +----------------------------------------------------------------------------*/
-#define EBC_DCR_BASE 0x12
-#define ebccfga (EBC_DCR_BASE+0x0)   /* External bus controller addr reg     */
-#define ebccfgd (EBC_DCR_BASE+0x1)   /* External bus controller data reg     */
 /* values for ebccfga register - indirect addressing of these regs */
 #define pb0cr		0x00	/* periph bank 0 config reg		*/
 #define pb1cr		0x01	/* periph bank 1 config reg		*/
@@ -2207,9 +2608,6 @@
 #define SDR0_CP440_NTO1_NTO1		0x00000002
 #define SDR0_CP440_NTO1_ENCODE(n)	((((unsigned long)(n))&0x01)<<1)
 #define SDR0_CP440_NTO1_DECODE(n)	((((unsigned long)(n))>>1)&0x01)
-#define SDR0_CFGADDR			0x00E	/*already defined line 277 */
-#define SDR0_CFGDATA			0x00F
-
 
 #define SDR0_SDSTP0			0x0020
 #define SDR0_SDSTP0_ENG_MASK		0x80000000
@@ -3209,9 +3607,6 @@
 /******************************************************************************
  * GPIO macro register defines
  ******************************************************************************/
-#define GPIO0			0
-#define GPIO1			1
-
 #if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
@@ -3226,31 +3621,6 @@
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
-
-/* Offsets */
-#define GPIOx_OR    0x00	/* GPIO Output Register */
-#define GPIOx_TCR   0x04	/* GPIO Three-State Control Register */
-#define GPIOx_OSL   0x08	/* GPIO Output Select Register (Bits 0-31) */
-#define GPIOx_OSH   0x0C	/* GPIO Ouput Select Register (Bits 32-63) */
-#define GPIOx_TSL   0x10	/* GPIO Three-State Select Register (Bits 0-31) */
-#define GPIOx_TSH   0x14	/* GPIO Three-State Select Register  (Bits 32-63) */
-#define GPIOx_ODR   0x18	/* GPIO Open drain Register */
-#define GPIOx_IR    0x1C	/* GPIO Input Register */
-#define GPIOx_RR1   0x20	/* GPIO Receive Register 1 */
-#define GPIOx_RR2   0x24	/* GPIO Receive Register 2 */
-#define GPIOx_RR3   0x28	/* GPIO Receive Register 3 */
-#define GPIOx_IS1L  0x30	/* GPIO Input Select Register 1 (Bits 0-31) */
-#define GPIOx_IS1H  0x34	/* GPIO Input Select Register 1 (Bits 32-63) */
-#define GPIOx_IS2L  0x38	/* GPIO Input Select Register 2 (Bits 0-31) */
-#define GPIOx_IS2H  0x3C	/* GPIO Input Select Register 2 (Bits 32-63) */
-#define GPIOx_IS3L  0x40	/* GPIO Input Select Register 3 (Bits 0-31) */
-#define GPIOx_IS3H  0x44	/* GPIO Input Select Register 3 (Bits 32-63) */
-
-#define GPIO_OS(x)	(x+GPIOx_OSL)	/* GPIO Output Register High or Low */
-#define GPIO_TS(x)	(x+GPIOx_TSL)	/* GPIO Three-state Control Reg High or Low */
-#define GPIO_IS1(x)	(x+GPIOx_IS1L)	/* GPIO Input register1 High or Low */
-#define GPIO_IS2(x)	(x+GPIOx_IS2L)	/* GPIO Input register2 High or Low */
-#define GPIO_IS3(x)	(x+GPIOx_IS3L)	/* GPIO Input register3 High or Low */
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)
@@ -3289,70 +3659,7 @@
 #define GPIO1_ISR3H            (GPIO1_BASE+0x44)
 #endif
 
-/*
- * Macros for accessing the indirect EBC registers
- */
-#define mtebc(reg, data)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,data); } while (0)
-#define mfebc(reg, data)	do { mtdcr(ebccfga,reg);data = mfdcr(ebccfgd); } while (0)
-
-/*
- * Macros for accessing the indirect SDRAM controller registers
- */
-#define mtsdram(reg, data)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,data); } while (0)
-#define mfsdram(reg, data)	do { mtdcr(memcfga,reg);data = mfdcr(memcfgd); } while (0)
-
-/*
- * Macros for accessing the indirect clocking controller registers
- */
-#define mtclk(reg, data)	do { mtdcr(clkcfga,reg);mtdcr(clkcfgd,data); } while (0)
-#define mfclk(reg, data)	do { mtdcr(clkcfga,reg);data = mfdcr(clkcfgd); } while (0)
-
-/*
- * Macros for accessing the sdr controller registers
- */
-#define mtsdr(reg, data)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,data); } while (0)
-#define mfsdr(reg, data)	do { mtdcr(sdrcfga,reg);data = mfdcr(sdrcfgd); } while (0)
-
-/*
- * All 44x except 440GP have CPR registers (indirect DCR)
- */
-#if !defined(CONFIG_440GP)
-#define CPR0_CFGADDR		0x00C
-#define CPR0_CFGDATA		0x00D
-
-#define mtcpr(reg, data)	do { \
-		mtdcr(CPR0_CFGADDR, reg); \
-		mtdcr(CPR0_CFGDATA, data); \
-	} while (0)
-
-#define mfcpr(reg, data)	do { \
-		mtdcr(CPR0_CFGADDR, reg); \
-		data = mfdcr(CPR0_CFGDATA); \
-	} while (0)
-#endif
-
 #ifndef __ASSEMBLY__
-
-typedef struct {
-	unsigned long pllFwdDivA;
-	unsigned long pllFwdDivB;
-	unsigned long pllFbkDiv;
-	unsigned long pllOpbDiv;
-	unsigned long pllPciDiv;
-	unsigned long pllExtBusDiv;
-	unsigned long freqVCOMhz;	/* in MHz			   */
-	unsigned long freqProcessor;
-	unsigned long freqTmrClk;
-	unsigned long freqPLB;
-	unsigned long freqOPB;
-	unsigned long freqEPB;
-	unsigned long freqPCI;
-#ifdef CONFIG_440SPE
-	unsigned long freqDDR;
-#endif
-	unsigned long pciIntArbEn;            /* Internal PCI arbiter is enabled */
-	unsigned long pciClkSync;             /* PCI clock is synchronous        */
-} PPC440_SYS_INFO;
 
 static inline u32 get_mcsr(void)
 {
@@ -3368,9 +3675,5 @@ static inline void set_mcsr(u32 val)
 }
 
 #endif	/* _ASMLANGUAGE */
-
-#define RESET_VECTOR		0xfffffffc
-#define CACHELINE_MASK		(CFG_CACHELINE_SIZE - 1) /* Address mask for		*/
-							 /* cache line aligned data.	*/
 
 #endif	/* __PPC440_H__ */

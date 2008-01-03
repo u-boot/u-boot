@@ -43,7 +43,7 @@
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define I2C_BASE_ADDR	(CFG_PERIPHERAL_BASE + 0x00000700 + I2C_BUS_OFFS)
-#elif defined(CONFIG_440)
+#elif defined(CONFIG_440) || defined(CONFIG_405EX)
 /* all remaining 440 variants */
 #define I2C_BASE_ADDR	(CFG_PERIPHERAL_BASE + 0x00000400 + I2C_BUS_OFFS)
 #else

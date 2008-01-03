@@ -168,7 +168,6 @@ LIST_4xx="		\
 	CPCI4052	\
 	CPCI405AB	\
 	CPCI405DT	\
-	CPCI440		\
 	CPCIISER4	\
 	CRAYL1		\
 	csb272		\
@@ -180,6 +179,8 @@ LIST_4xx="		\
 	ERIC		\
 	EXBITGEN	\
 	G2000		\
+	haleakala	\
+	haleakala_nand	\
 	hcu4		\
 	hcu5		\
 	HH405		\
@@ -187,8 +188,12 @@ LIST_4xx="		\
 	JSE		\
 	KAREF		\
 	katmai		\
+	kilauea		\
+	kilauea_nand	\
+	korat		\
 	luan		\
 	lwmon5		\
+	makalu		\
 	METROBOX	\
 	MIP405		\
 	MIP405T		\
@@ -203,6 +208,7 @@ LIST_4xx="		\
 	PIP405		\
 	PLU405		\
 	PMC405		\
+	PMC440		\
 	PPChameleonEVB	\
 	rainier		\
 	sbc405		\
@@ -643,6 +649,8 @@ LIST_coldfire="			\
 
 LIST_avr32="		\
 	atstk1002	\
+	atstk1003	\
+	atstk1004	\
 "
 
 #########################################################################
@@ -654,6 +662,23 @@ LIST_blackfin="		\
 	bf533-stamp	\
 	bf537-stamp	\
 	bf561-ezkit	\
+"
+
+#########################################################################
+## SH Systems
+#########################################################################
+
+LIST_sh4="		\
+	ms7750se	\
+	ms7722se	\
+"
+
+LIST_sh3=""
+
+
+LIST_sh="		\
+	${LIST_sh3}	\
+	${LIST_sh4}	\
 "
 
 #-----------------------------------------------------------------------
@@ -690,7 +715,9 @@ do
 	mips|mips_el| \
 	nios|nios2| \
 	ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx| \
-	x86|I486|TSEC)
+	x86|I486|TSEC| \
+	sh|sh4|sh3 \
+	)
 			for target in `eval echo '$LIST_'${arg}`
 			do
 				build_target ${target}

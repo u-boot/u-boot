@@ -152,6 +152,9 @@ endif
 ifeq ($(ARCH),avr32)
 CROSS_COMPILE = avr32-linux-
 endif
+ifeq ($(ARCH),sh)
+CROSS_COMPILE = sh4-linux-
+endif
 endif
 endif
 
@@ -1160,9 +1163,6 @@ CPCI405AB_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
 	@echo "BOARD_REVISION = $(@:_config=)"	>> $(obj)include/config.mk
 
-CPCI440_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci440 esd
-
 CPCIISER4_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpciiser4 esd
 
@@ -1217,11 +1217,31 @@ KAREF_config: unconfig
 katmai_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx katmai amcc
 
+# Kilauea & Haleakala images are identical (recognized via PVR)
+kilauea_config \
+haleakala_config: unconfig
+	@$(MKCONFIG) -n $@ -a kilauea ppc ppc4xx kilauea amcc
+
+kilauea_nand_config \
+haleakala_nand_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/amcc/kilauea
+	@mkdir -p $(obj)nand_spl/board/amcc/kilauea
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a kilauea ppc ppc4xx kilauea amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/kilauea/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
+korat_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx korat
+
 luan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx luan amcc
 
 lwmon5_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx lwmon5
+
+makalu_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx makalu amcc
 
 METROBOX_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx metrobox sandburst
@@ -1265,6 +1285,9 @@ PLU405_config:	unconfig
 
 PMC405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc405 esd
+
+PMC440_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc440 esd
 
 PPChameleonEVB_config		\
 PPChameleonEVB_BA_25_config	\
@@ -1659,14 +1682,14 @@ TQM8265_AA_config:  unconfig
 	fi; \
 	echo "#define CONFIG_$${CFREQ}MHz"	>>$(obj)include/config.h ; \
 	echo "... with $${CFREQ}MHz system clock" ; \
-	if [ "$${CACHE}" == "yes" ] ; then \
+	if [ "$${CACHE}" = "yes" ] ; then \
 		echo "#define CONFIG_L2_CACHE"	>>$(obj)include/config.h ; \
 		echo "... with L2 Cache support" ; \
 	else \
 		echo "#undef CONFIG_L2_CACHE"	>>$(obj)include/config.h ; \
 		echo "... without L2 Cache support" ; \
 	fi; \
-	if [ "$${BMODE}" == "60x" ] ; then \
+	if [ "$${BMODE}" = "60x" ] ; then \
 		echo "#define CONFIG_BUSMODE_60x" >>$(obj)include/config.h ; \
 		echo "... with 60x Bus Mode" ; \
 	else \
@@ -1780,7 +1803,7 @@ M54455EVB_i66_config :	unconfig
 	M54455EVB_i66_config)		FLASH=INTEL; FREQ=66666666;; \
 	esac; \
 	>include/config.h ; \
-	if [ "$${FLASH}" == "INTEL" ] ; then \
+	if [ "$${FLASH}" = "INTEL" ] ; then \
 		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
@@ -1911,7 +1934,7 @@ TQM834x_config:	unconfig
 #########################################################################
 
 MPC8540ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
 
 MPC8540EVAL_config \
 MPC8540EVAL_33_config \
@@ -1935,7 +1958,7 @@ MPC8540EVAL_66_slave_config:      unconfig
 	@$(MKCONFIG) -a MPC8540EVAL ppc mpc85xx mpc8540eval
 
 MPC8560ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8560ads freescale
 
 MPC8541CDS_legacy_config \
 MPC8541CDS_config:	unconfig
@@ -1945,7 +1968,7 @@ MPC8541CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8541CDS ppc mpc85xx mpc8541cds cds
+	@$(MKCONFIG) -a MPC8541CDS ppc mpc85xx mpc8541cds freescale
 
 MPC8544DS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8544ds freescale
@@ -1958,7 +1981,7 @@ MPC8548CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8548CDS ppc mpc85xx mpc8548cds cds
+	@$(MKCONFIG) -a MPC8548CDS ppc mpc85xx mpc8548cds freescale
 
 MPC8555CDS_legacy_config \
 MPC8555CDS_config:	unconfig
@@ -1968,10 +1991,10 @@ MPC8555CDS_config:	unconfig
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		echo "... legacy" ; \
 	fi
-	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds cds
+	@$(MKCONFIG) -a MPC8555CDS ppc mpc85xx mpc8555cds freescale
 
 MPC8568MDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
@@ -2659,7 +2682,30 @@ bf561-ezkit_config:	unconfig
 #########################################################################
 
 atstk1002_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap7000
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+atstk1003_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+atstk1004_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+#########################################################################
+#########################################################################
+#########################################################################
+
+#########################################################################
+## sh4 (Renesas SuperH)
+#########################################################################
+ms7750se_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MS7750SE 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 ms7750se
+
+ms7722se_config :       unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MS7722SE 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 ms7722se
 
 #########################################################################
 #########################################################################

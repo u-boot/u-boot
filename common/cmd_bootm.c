@@ -260,6 +260,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (hdr->ih_arch != IH_CPU_NIOS2)
 #elif defined(__PPC__)
 	if (hdr->ih_arch != IH_CPU_PPC)
+#elif defined(__sh__)
+	if (hdr->ih_arch != IH_CPU_SH)
 #else
 # error Unknown CPU type
 #endif

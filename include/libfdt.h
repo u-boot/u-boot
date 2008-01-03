@@ -544,7 +544,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	offset = fdt_node_offset_by_prop_value(fdt, -1, propname,
  *					       propval, proplen);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		// other code here
+ *		... other code here ...
  *		offset = fdt_node_offset_by_prop_value(fdt, offset, propname,
  *						       propval, proplen);
  *	}
@@ -629,7 +629,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  * idiom can be used:
  *	offset = fdt_node_offset_by_compatible(fdt, -1, compatible);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		// other code here
+ *		... other code here ...
  *		offset = fdt_node_offset_by_compatible(fdt, offset, compatible);
  *	}
  *

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,22 +37,9 @@
 #include <asm/cache.h>
 #include <ppc4xx.h>
 
-#if !defined(CONFIG_405)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
-#if defined(CONFIG_BOARD_RESET)
 void board_reset(void);
-#endif
-
-#if defined(CONFIG_440)
-#define FREQ_EBC		(sys_info.freqEPB)
-#elif defined(CONFIG_405EZ)
-#define FREQ_EBC		((CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / \
-				 sys_info.pllExtBusDiv)
-#else
-#define FREQ_EBC		(sys_info.freqPLB / sys_info.pllExtBusDiv)
-#endif
 
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
@@ -60,7 +47,7 @@ void board_reset(void);
 
 #define PCI_ASYNC
 
-int pci_async_enabled(void)
+static int pci_async_enabled(void)
 {
 #if defined(CONFIG_405GP)
 	return (mfdcr(strap) & PSR_PCI_ASYNC_EN);
@@ -76,8 +63,9 @@ int pci_async_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && !defined(CONFIG_405)
-int pci_arbiter_enabled(void)
+#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
+    !defined(CONFIG_405) && !defined(CONFIG_405EX)
+static int pci_arbiter_enabled(void)
 {
 #if defined(CONFIG_405GP)
 	return (mfdcr(strap) & PSR_PCI_ARBIT_EN);
@@ -107,14 +95,10 @@ int pci_arbiter_enabled(void)
 }
 #endif
 
-#if defined(CONFIG_405EP) || defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-
+#if defined(CONFIG_405EP)
 #define I2C_BOOTROM
 
-int i2c_bootrom_enabled(void)
+static int i2c_bootrom_enabled(void)
 {
 #if defined(CONFIG_405EP)
 	return (mfdcr(cpc0_boot) & CPC0_BOOT_SEP);
@@ -207,6 +191,21 @@ static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', \
 				 'I', 'x', 'K', 'L', 'M', 'N', 'O', 'P' };
 #endif
 
+#if defined(CONFIG_405EX)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"EBC (16 bits)",
+	"EBC (16 bits)",
+	"NAND (8 bits)",
+	"NAND (8 bits)",
+	"I2C (Addr 0x54)",
+	"EBC (8 bits)",
+	"I2C (Addr 0x52)",
+};
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
+#endif
+
 #if defined(SDR0_PINSTP_SHIFT)
 static int bootstrap_option(void)
 {
@@ -219,7 +218,19 @@ static int bootstrap_option(void)
 
 
 #if defined(CONFIG_440)
-static int do_chip_reset(unsigned long sys0, unsigned long sys1);
+static int do_chip_reset (unsigned long sys0, unsigned long sys1)
+{
+	/* Changes to cpc0_sys0 and cpc0_sys1 require chip
+	 * reset.
+	 */
+	mtdcr (cntrl0, mfdcr (cntrl0) | 0x80000000);	/* Set SWE */
+	mtdcr (cpc0_sys0, sys0);
+	mtdcr (cpc0_sys1, sys1);
+	mtdcr (cntrl0, mfdcr (cntrl0) & ~0x80000000);	/* Clr SWE */
+	mtspr (dbcr0, 0x20000000);	/* Reset the chip */
+
+	return 1;
+}
 #endif
 
 
@@ -241,7 +252,8 @@ int checkcpu (void)
 	puts("AMCC PowerPC 4");
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
-    defined(CONFIG_405EP) || defined(CONFIG_405EZ)
+    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
+    defined(CONFIG_405EX)
 	puts("05");
 #endif
 #if defined(CONFIG_440)
@@ -291,6 +303,26 @@ int checkcpu (void)
 
 	case PVR_405EZ_RA:
 		puts("EZ Rev. A");
+		break;
+
+	case PVR_405EX1_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EX2_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_405EXR1_RA:
+		puts("EXr Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EXR2_RA:
+		puts("EXr Rev. A");
+		strcpy(addstr, "No Security support");
 		break;
 
 #if defined(CONFIG_440)
@@ -424,7 +456,7 @@ int checkcpu (void)
 	printf (" at %s MHz (PLB=%lu, OPB=%lu, EBC=%lu MHz)\n", strmhz(buf, clock),
 		sys_info.freqPLB / 1000000,
 		get_OPB_freq() / 1000000,
-		FREQ_EBC / 1000000);
+		sys_info.freqEBC / 1000000);
 
 	if (addstr[0] != 0)
 		printf("       %s\n", addstr);
@@ -437,7 +469,7 @@ int checkcpu (void)
 	printf ("Boot ROM Location %s\n", bootstrap_str[bootstrap_option()]);
 #endif	/* SDR0_PINSTP_SHIFT */
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_405EX)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
 #endif
 
@@ -450,11 +482,11 @@ int checkcpu (void)
 	}
 #endif
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_405EX)
 	putc('\n');
 #endif
 
-#if defined(CONFIG_405EP) || defined(CONFIG_405EZ)
+#if defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX)
 	printf ("       16 kB I-Cache 16 kB D-Cache");
 #elif defined(CONFIG_440)
 	printf ("       32 kB I-Cache 32 kB D-Cache");
@@ -478,7 +510,6 @@ int checkcpu (void)
 	return 0;
 }
 
-#if defined (CONFIG_440SPE)
 int ppc440spe_revB() {
 	unsigned int pvr;
 
@@ -488,7 +519,6 @@ int ppc440spe_revB() {
 	else
 		return 0;
 }
-#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -510,22 +540,6 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-#if defined(CONFIG_440)
-static int do_chip_reset (unsigned long sys0, unsigned long sys1)
-{
-	/* Changes to cpc0_sys0 and cpc0_sys1 require chip
-	 * reset.
-	 */
-	mtdcr (cntrl0, mfdcr (cntrl0) | 0x80000000);	/* Set SWE */
-	mtdcr (cpc0_sys0, sys0);
-	mtdcr (cpc0_sys1, sys1);
-	mtdcr (cntrl0, mfdcr (cntrl0) & ~0x80000000);	/* Clr SWE */
-	mtspr (dbcr0, 0x20000000);	/* Reset the chip */
-
-	return 1;
-}
-#endif
-
 
 /*
  * Get timebase clock frequency
@@ -545,16 +559,14 @@ unsigned long get_tbclk (void)
 
 
 #if defined(CONFIG_WATCHDOG)
-void
-watchdog_reset(void)
+void watchdog_reset(void)
 {
 	int re_enable = disable_interrupts();
 	reset_4xx_watchdog();
 	if (re_enable) enable_interrupts();
 }
 
-void
-reset_4xx_watchdog(void)
+void reset_4xx_watchdog(void)
 {
 	/*
 	 * Clear TSR(WIS) bit
