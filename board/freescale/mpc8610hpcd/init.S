@@ -9,11 +9,11 @@
  * Version 2 as published by the Free Software Foundation.
  */
 
+#include <config.h>
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
-#include <config.h>
 #include <mpc86xx.h>
 
 #define LAWAR_TRGT_PCI1		0x00000000
