@@ -99,14 +99,7 @@ static int wait_for_dram_init_complete(void)
 /*-----------------------------------------------------------------------------+
  * denali_core_search_data_eye.
  +----------------------------------------------------------------------------*/
-/*
- * Avoid conflict with implementations of denali_core_search_data_eye in board-
- * specific code.
- */
 void denali_core_search_data_eye(void)
-    __attribute__ ((weak, alias("__denali_core_search_data_eye")));
-
-void __denali_core_search_data_eye(void)
 {
 	int k, j;
 	u32 val;
