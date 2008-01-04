@@ -19,13 +19,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#define DEBUG
+
 #include <common.h>
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <i2c.h>
 #include <spd.h>
 #include <asm/io.h>
 
@@ -47,6 +48,8 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 void sdram_init(void);
 long int fixed_sdram(void);
+void mpc8610hpcd_diu_init(void);
+
 
 /* called before any console output */
 int board_early_init_f(void)
