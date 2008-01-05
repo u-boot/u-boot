@@ -184,23 +184,28 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	} else if (argv[1][0] == 's') {
 		char *pathp;		/* path */
 		char *prop;		/* property */
-		char *newval;		/* value from the user (as a string) */
 		int  nodeoffset;	/* node offset from libfdt */
 		static char data[SCRATCHPAD];	/* storage for the property */
 		int  len;		/* new length of the property */
 		int  ret;		/* return value */
 
 		/*
-		 * Parameters: Node path, property, value.
+		 * Parameters: Node path, property, optional value.
 		 */
-		if (argc < 5) {
+		if (argc < 4) {
 			printf ("Usage:\n%s\n", cmdtp->usage);
 			return 1;
 		}
 
 		pathp  = argv[2];
 		prop   = argv[3];
-		newval = argv[4];
+		if (argc == 4) {
+			len = 0;
+		} else {
+			ret = fdt_parse_prop(pathp, prop, argv[4], data, &len);
+			if (ret != 0)
+				return ret;
+		}
 
 		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
@@ -211,9 +216,6 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
-		ret = fdt_parse_prop(pathp, prop, newval, data, &len);
-		if (ret != 0)
-			return ret;
 
 		ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
 		if (ret < 0) {
