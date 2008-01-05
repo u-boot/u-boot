@@ -111,6 +111,7 @@
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x51, 0x52}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
+#define CONFIG_DDR_RQDC_FIXED	0x80000038 /* optimal value found by GDA*/
 #undef  CONFIG_STRESS
 
 /*-----------------------------------------------------------------------

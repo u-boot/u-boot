@@ -492,6 +492,7 @@
 #define SDRAM_ECCCR	0x98	/* ECC error status                          */
 #define SDRAM_CID	0xA4	/* core ID                                   */
 #define SDRAM_RID	0xA8	/* revision ID                               */
+#define SDRAM_RTSR	0xB1	/* run time status tracking                  */
 
 /*-----------------------------------------------------------------------------+
 |  Memory Controller Status
@@ -605,8 +606,8 @@
 #define SDRAM_RFDC_ARSE_ENABLE		0x00000000
 #define SDRAM_RFDC_RFOS_MASK		0x007F0000
 #define SDRAM_RFDC_RFOS_ENCODE(n)	((((unsigned long)(n))&0x7F)<<16)
-#define SDRAM_RFDC_RFFD_MASK		0x000003FF
-#define SDRAM_RFDC_RFFD_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<0)
+#define SDRAM_RFDC_RFFD_MASK		0x000007FF
+#define SDRAM_RFDC_RFFD_ENCODE(n)	((((unsigned long)(n))&0x7FF)<<0)
 
 #define SDRAM_RFDC_RFFD_MAX		0x7FF
 
@@ -690,6 +691,7 @@
 #define SDRAM_CLKTR_CLKP_MASK		0xC0000000
 #define SDRAM_CLKTR_CLKP_0_DEG		0x00000000
 #define SDRAM_CLKTR_CLKP_180_DEG_ADV	0x80000000
+#define SDRAM_CLKTR_CLKP_90_DEG_ADV	0x40000000
 
 /*-----------------------------------------------------------------------------+
 |  SDRAM Write Timing Register
@@ -789,6 +791,12 @@
 #define SDRAM_BXCF_M_BE_MASK		0x00000001	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_DISABLE		0x00000000	/* Memory Bank Enable	*/
 #define SDRAM_BXCF_M_BE_ENABLE		0x00000001	/* Memory Bank Enable	*/
+
+#define SDRAM_RTSR_TRK1SM_MASK		0xC0000000	/* Tracking State Mach 1*/
+#define SDRAM_RTSR_TRK1SM_ATBASE	0x00000000	/* atbase state		*/
+#define SDRAM_RTSR_TRK1SM_MISSED	0x40000000	/* missed state		*/
+#define SDRAM_RTSR_TRK1SM_ATPLS1	0x80000000	/* atpls1 state		*/
+#define SDRAM_RTSR_TRK1SM_RESET		0xC0000000	/* reset  state		*/
 
 #define SDR0_MFR_FIXD			0x10000000	/* Workaround for PCI/DMA */
 #endif /* CONFIG_440SPE */
