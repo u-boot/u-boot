@@ -50,7 +50,6 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
 		return 1;
 	}
 	off &= ~(nand->writesize - 1);
-	size_t dummy;
 	loff_t addr = (loff_t) off;
 	struct mtd_oob_ops ops;
 	memset(&ops, 0, sizeof(ops));
@@ -415,7 +414,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 /*
  * ! BROKEN !
- * 
+ *
  * TODO: must be implemented and tested by someone with HW
  */
 #if 0
@@ -469,7 +468,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 /*
  * ! BROKEN !
- * 
+ *
  * TODO: must be implemented and tested by someone with HW
  */
 #if 0
