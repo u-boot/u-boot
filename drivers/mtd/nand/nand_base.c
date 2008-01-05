@@ -489,7 +489,16 @@ EXPORT_SYMBOL_GPL(nand_wait_ready);
 void nand_wait_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
-	nand_wait(mtd, chip);
+	u32 timeo = (CFG_HZ * 20) / 1000;
+
+	reset_timer();
+
+	/* wait until command is processed or timeout occures */
+	while (get_timer(0) < timeo) {
+		if (chip->dev_ready)
+			if (chip->dev_ready(mtd))
+				break;
+	}
 }
 #endif
 
