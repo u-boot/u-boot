@@ -111,8 +111,6 @@
 #define NUMMEMWORDS	8
 #define NUMLOOPS	64		/* memory test loops */
 
-#undef CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
-
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
  * region. Right now the cache should still be disabled in U-Boot because of the
@@ -2268,39 +2266,6 @@ static void program_ecc(unsigned long *dimm_populated,
 	return;
 }
 
-#ifdef CONFIG_ECC_ERROR_RESET
-/*
- * Check for ECC errors and reset board upon any error here
- *
- * On the Katmai 440SPe eval board, from time to time, the first
- * lword write access after DDR2 initializazion with ECC checking
- * enabled, leads to an ECC error. I couldn't find a configuration
- * without this happening. On my board with the current setup it
- * happens about 1 from 10 times.
- *
- * The ECC modules used for testing are:
- * - Kingston ValueRAM KVR667D2E5/512 (tested with 1 and 2 DIMM's)
- *
- * This has to get fixed for the Katmai and tested for the other
- * board (440SP/440SPe) that will eventually use this code in the
- * future.
- *
- * 2007-03-01, sr
- */
-static void check_ecc(void)
-{
-	u32 val;
-
-	mfsdram(SDRAM_ECCCR, val);
-	if (val != 0) {
-		printf("\nECC error: MCIF0_ECCES=%08lx MQ0_ESL=%08lx address=%08lx\n",
-		       val, mfdcr(0x4c), mfdcr(0x4e));
-		printf("ECC error occured, resetting board...\n");
-		do_reset(NULL, 0, 0, NULL);
-	}
-}
-#endif
-
 static void wait_ddr_idle(void)
 {
 	u32 val;
@@ -2375,15 +2340,6 @@ static void program_ecc_addr(unsigned long start_address,
 		sync();
 		eieio();
 		wait_ddr_idle();
-
-#ifdef CONFIG_ECC_ERROR_RESET
-		/*
-		 * One write to 0 is enough to trigger this ECC error
-		 * (see description above)
-		 */
-		out_be32(0, 0x12345678);
-		check_ecc();
-#endif
 	}
 }
 #endif
