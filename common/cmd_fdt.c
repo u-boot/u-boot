@@ -683,7 +683,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
-	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr>\n"
+	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
@@ -696,10 +696,6 @@ U_BOOT_CMD(
 #ifdef CONFIG_OF_HAS_BD_T
 	"fdt bd_t   - Add/replace the /bd_t branch in the tree\n"
 #endif
-	"Hints:\n"
-	" If the property you are setting/printing has a '#' character or spaces,\n"
-	"     you MUST escape it with a \\ character or quote it with \".\n"
-	"Examples: fdt print /               # print the whole tree\n"
-	"          fdt print /cpus \"#address-cells\"\n"
-	"          fdt set   /cpus \"#address-cells\" \"[00 00 00 01]\"\n"
+	"NOTE: If the path or property you are setting/printing has a '#' character\n"
+	"     or spaces, you MUST escape it with a \\ character or quote it with \".\n"
 );
