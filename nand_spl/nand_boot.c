@@ -20,6 +20,7 @@
 
 #include <common.h>
 #include <nand.h>
+#include <asm/io.h>
 
 #define CFG_NAND_READ_DELAY \
 	{ volatile int dummy; int i; for (i=0; i<10000; i++) dummy = i; }
@@ -36,34 +37,37 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 {
 	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
+	int ctrl = NAND_CTRL_CLE | NAND_CTRL_CHANGE;
 
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
 	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, cmd);
+	this->cmd_ctrl(mtd, cmd, ctrl);
 	/* Set ALE and clear CLE to start address cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
-	this->hwcontrol(mtd, NAND_CTL_SETALE);
+	ctrl = NAND_CTRL_ALE | NAND_CTRL_CHANGE;
 	/* Column address */
-	this->write_byte(mtd, offs);					/* A[7:0] */
-	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[16:9] */
-	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[24:17] */
+	this->cmd_ctrl(mtd, offs, ctrl);
+	ctrl &= ~NAND_CTRL_CHANGE;
+	this->cmd_ctrl(mtd, (u8)(page_addr & 0xff), ctrl);	/* A[16:9] */
+	ctrl &= ~NAND_CTRL_CHANGE;
+	this->cmd_ctrl(mtd, (u8)((page_addr >> 8) & 0xff), ctrl); /* A[24:17] */
 #ifdef CFG_NAND_4_ADDR_CYCLE
 	/* One more address cycle for devices > 32MiB */
-	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:25] */
+	this->cmd_ctrl(mtd, (u8)((page_addr >> 16) & 0x0f), ctrl); /* A[xx:25] */
 #endif
 	/* Latch in address */
-	this->hwcontrol(mtd, NAND_CTL_CLRALE);
+	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
 	 * Wait a while for the data to be ready
 	 */
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
@@ -137,7 +141,7 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 	/*
 	 * Read one byte
 	 */
-	if (this->read_byte(mtd) != 0xff)
+	if (in_8(this->IO_ADDR_R) != 0xff)
 		return 1;
 
 	return 0;
@@ -166,9 +170,9 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	oob_data = ecc_calc + 0x200;
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-		this->enable_hwecc(mtd, NAND_ECC_READ);
+		this->ecc.hwctl(mtd, NAND_ECC_READ);
 		this->read_buf(mtd, p, eccsize);
-		this->calculate_ecc(mtd, p, &ecc_calc[i]);
+		this->ecc.calculate(mtd, p, &ecc_calc[i]);
 	}
 	this->read_buf(mtd, oob_data, CFG_NAND_OOBSIZE);
 
@@ -184,7 +188,7 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 		 * from correct_data(). We just hope that all possible errors
 		 * are corrected by this routine.
 		 */
-		stat = this->correct_data(mtd, p, &ecc_code[i], &ecc_calc[i]);
+		stat = this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 	}
 
 	return 0;
