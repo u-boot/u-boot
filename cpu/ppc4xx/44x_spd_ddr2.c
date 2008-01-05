@@ -3,7 +3,7 @@
  * This SPD SDRAM detection code supports AMCC PPC44x cpu's with a
  * DDR2 controller (non Denali Core). Those are 440SP/SPe.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * COPYRIGHT   AMCC   CORPORATION 2004
@@ -110,8 +110,6 @@
 #define NUMMEMTESTS	8
 #define NUMMEMWORDS	8
 #define NUMLOOPS	64		/* memory test loops */
-
-#undef CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
 
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
@@ -2268,39 +2266,6 @@ static void program_ecc(unsigned long *dimm_populated,
 	return;
 }
 
-#ifdef CONFIG_ECC_ERROR_RESET
-/*
- * Check for ECC errors and reset board upon any error here
- *
- * On the Katmai 440SPe eval board, from time to time, the first
- * lword write access after DDR2 initializazion with ECC checking
- * enabled, leads to an ECC error. I couldn't find a configuration
- * without this happening. On my board with the current setup it
- * happens about 1 from 10 times.
- *
- * The ECC modules used for testing are:
- * - Kingston ValueRAM KVR667D2E5/512 (tested with 1 and 2 DIMM's)
- *
- * This has to get fixed for the Katmai and tested for the other
- * board (440SP/440SPe) that will eventually use this code in the
- * future.
- *
- * 2007-03-01, sr
- */
-static void check_ecc(void)
-{
-	u32 val;
-
-	mfsdram(SDRAM_ECCCR, val);
-	if (val != 0) {
-		printf("\nECC error: MCIF0_ECCES=%08lx MQ0_ESL=%08lx address=%08lx\n",
-		       val, mfdcr(0x4c), mfdcr(0x4e));
-		printf("ECC error occured, resetting board...\n");
-		do_reset(NULL, 0, 0, NULL);
-	}
-}
-#endif
-
 static void wait_ddr_idle(void)
 {
 	u32 val;
@@ -2375,15 +2340,6 @@ static void program_ecc_addr(unsigned long start_address,
 		sync();
 		eieio();
 		wait_ddr_idle();
-
-#ifdef CONFIG_ECC_ERROR_RESET
-		/*
-		 * One write to 0 is enough to trigger this ECC error
-		 * (see description above)
-		 */
-		out_be32(0, 0x12345678);
-		check_ecc();
-#endif
 	}
 }
 #endif
@@ -2409,17 +2365,10 @@ static void program_DQS_calibration(unsigned long *dimm_populated,
 	 * Read sample cycle auto-update enable
 	 *-----------------------------------------------------------------*/
 
-	/*
-	 * Modified for the Katmai platform:  with some DIMMs, the DDR2
-	 * controller automatically selects the T2 read cycle, but this
-	 * proves unreliable.  Go ahead and force the DDR2 controller
-	 * to use the T4 sample and disable the automatic update of the
-	 * RDSS field.
-	 */
 	mfsdram(SDRAM_RDCC, val);
 	mtsdram(SDRAM_RDCC,
 		(val & ~(SDRAM_RDCC_RDSS_MASK | SDRAM_RDCC_RSAE_MASK))
-		| (SDRAM_RDCC_RDSS_T4 | SDRAM_RDCC_RSAE_DISABLE));
+		| SDRAM_RDCC_RSAE_ENABLE);
 
 	/*------------------------------------------------------------------
 	 * Program RQDC register
@@ -2512,10 +2461,7 @@ static void DQS_calibration_process(void)
 {
 	unsigned long rfdc_reg;
 	unsigned long rffd;
-	unsigned long rqdc_reg;
-	unsigned long rqfd;
 	unsigned long val;
-	long rqfd_average;
 	long rffd_average;
 	long max_start;
 	long min_end;
@@ -2533,10 +2479,14 @@ static void DQS_calibration_process(void)
 	long max_end;
 	unsigned char fail_found;
 	unsigned char pass_found;
+#if !defined(CONFIG_DDR_RQDC_FIXED)
+	u32 rqdc_reg;
+	u32 rqfd;
 	u32 rqfd_start;
+	u32 rqfd_average;
+	int loopi = 0;
 	char str[] = "Auto calibration -";
 	char slash[] = "\\|/-\\|/-";
-	int loopi = 0;
 
 	/*------------------------------------------------------------------
 	 * Test to determine the best read clock delay tuning bits.
@@ -2571,6 +2521,16 @@ calibration_loop:
 	mfsdram(SDRAM_RQDC, rqdc_reg);
 	mtsdram(SDRAM_RQDC, (rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |
 		SDRAM_RQDC_RQFD_ENCODE(rqfd_start));
+#else /* CONFIG_DDR_RQDC_FIXED */
+	/*
+	 * On Katmai the complete auto-calibration somehow doesn't seem to
+	 * produce the best results, meaning optimal values for RQFD/RFFD.
+	 * This was discovered by GDA using a high bandwidth scope,
+	 * analyzing the DDR2 signals. GDA provided a fixed value for RQFD,
+	 * so now on Katmai "only" RFFD is auto-calibrated.
+	 */
+	mtsdram(SDRAM_RQDC, CONFIG_DDR_RQDC_FIXED);
+#endif /* CONFIG_DDR_RQDC_FIXED */
 
 	max_start = 0;
 	min_end = 0;
@@ -2655,6 +2615,7 @@ calibration_loop:
 	/* now fix RFDC[RFFD] found and find RQDC[RQFD] */
 	mtsdram(SDRAM_RFDC, rfdc_reg | SDRAM_RFDC_RFFD_ENCODE(rffd_average));
 
+#if !defined(CONFIG_DDR_RQDC_FIXED)
 	max_pass_length = 0;
 	max_start = 0;
 	max_end = 0;
@@ -2727,8 +2688,6 @@ calibration_loop:
 		spd_ddr_init_hang ();
 	}
 
-	blank_string(strlen(str));
-
 	if (rqfd_average < 0)
 		rqfd_average = 0;
 
@@ -2739,12 +2698,31 @@ calibration_loop:
 		(rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |
 		SDRAM_RQDC_RQFD_ENCODE(rqfd_average));
 
+	blank_string(strlen(str));
+#endif /* CONFIG_DDR_RQDC_FIXED */
+
+	/*
+	 * Now complete RDSS configuration as mentioned on page 7 of the AMCC
+	 * PowerPC440SP/SPe DDR2 application note:
+	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+	 */
+	mfsdram(SDRAM_RTSR, val);
+	if ((val & SDRAM_RTSR_TRK1SM_MASK) == SDRAM_RTSR_TRK1SM_ATPLS1) {
+		mfsdram(SDRAM_RDCC, val);
+		if ((val & SDRAM_RDCC_RDSS_MASK) != SDRAM_RDCC_RDSS_T4) {
+			val += 0x40000000;
+			mtsdram(SDRAM_RDCC, val);
+		}
+	}
+
 	mfsdram(SDRAM_DLCR, val);
 	debug("%s[%d] DLCR: 0x%08X\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RQDC, val);
 	debug("%s[%d] RQDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RFDC, val);
 	debug("%s[%d] RFDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	mfsdram(SDRAM_RDCC, val);
+	debug("%s[%d] RDCC: 0x%08X\n", __FUNCTION__, __LINE__, val);
 }
 #else /* calibration test with hardvalues */
 /*-----------------------------------------------------------------------------+
