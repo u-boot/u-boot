@@ -27,7 +27,7 @@
 #include <net.h>
 #include <asm/io.h>
 #include <pci.h>
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #include <asm/processor.h>
 
 #include "pci405.h"

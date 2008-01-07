@@ -365,7 +365,7 @@
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
  */
-#define CFG_440_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
+#define CFG_4xx_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/ \
@@ -437,15 +437,6 @@
 {GPIO1_BASE, GPIO_IN,  GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO63  Unselect via TraceSelect Bit	*/	\
 }											\
 }
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*
  * Internal Definitions

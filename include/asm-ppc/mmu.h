@@ -413,7 +413,9 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define LAWAR_TRGT_IF_PCI1	0x00000000
 #define LAWAR_TRGT_IF_PCIX	0x00000000
 #define LAWAR_TRGT_IF_PCI2	0x00100000
-#define LAWAR_TRGT_IF_PEX	0x00200000
+#define LAWAR_TRGT_IF_PCIE1	0x00200000
+#define LAWAR_TRGT_IF_PCIE2	0x00100000
+#define LAWAR_TRGT_IF_PCIE3	0x00300000
 #define LAWAR_TRGT_IF_LBC	0x00400000
 #define LAWAR_TRGT_IF_CCSR	0x00800000
 #define LAWAR_TRGT_IF_DDR_INTERLEAVED 0x00B00000
@@ -648,6 +650,7 @@ unsigned long mftlb3(unsigned long index);
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 void remove_tlb(u32 vaddr, u32 size);
+void change_tlb(u32 vaddr, u32 size, u32 tlb_word2_i_value);
 #endif /* __ASSEMBLY__ */
 
 #endif /* CONFIG_440 */

@@ -71,7 +71,21 @@
  * instruction, so the lower 16 bits must be zero.  Should be true on
  * on any sane architecture; generic code does not use this assumption.
  */
-extern unsigned long mips_io_port_base;
+extern const unsigned long mips_io_port_base;
+
+/*
+ * Gcc will generate code to load the value of mips_io_port_base after each
+ * function call which may be fairly wasteful in some cases.  So we don't
+ * play quite by the book.  We tell gcc mips_io_port_base is a long variable
+ * which solves the code generation issue.  Now we need to violate the
+ * aliasing rules a little to make initialization possible and finally we
+ * will need the barrier() to fight side effects of the aliasing chat.
+ * This trickery will eventually collapse under gcc's optimizer.  Oh well.
+ */
+static inline void set_io_port_base(unsigned long base)
+{
+	* (unsigned long *) &mips_io_port_base = base;
+}
 
 /*
  * Thanks to James van Artsdalen for a better timing-fix than
@@ -449,6 +463,32 @@ extern void (*_dma_cache_inv)(unsigned long start, unsigned long size);
 
 static inline void sync(void)
 {
+}
+
+/*
+ * Given a physical address and a length, return a virtual address
+ * that can be used to access the memory range with the caching
+ * properties specified by "flags".
+ */
+typedef unsigned long phys_addr_t;
+
+#define MAP_NOCACHE	(0)
+#define MAP_WRCOMBINE	(0)
+#define MAP_WRBACK	(0)
+#define MAP_WRTHROUGH	(0)
+
+static inline void *
+map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
+{
+	return (void *)paddr;
+}
+
+/*
+ * Take down a mapping set up by map_physmem().
+ */
+static inline void unmap_physmem(void *vaddr, unsigned long flags)
+{
+
 }
 
 #endif /* _ASM_IO_H */

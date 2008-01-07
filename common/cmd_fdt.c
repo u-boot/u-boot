@@ -28,9 +28,6 @@
 #include <command.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
-
-#ifdef CONFIG_OF_LIBFDT
-
 #include <asm/global_data.h>
 #include <fdt.h>
 #include <libfdt.h>
@@ -47,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int fdt_valid(void);
 static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 	char *data, int *len);
-static int fdt_print(char *pathp, char *prop, int depth);
+static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
@@ -78,7 +75,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			/*
 			 * Optional new length
 			 */
-			len =  simple_strtoul(argv[3], NULL, 16);
+			len = simple_strtoul(argv[3], NULL, 16);
 			if (len < fdt_totalsize(fdt)) {
 				printf ("New length %d < existing length %d, "
 					"ignoring.\n",
@@ -165,12 +162,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		pathp = argv[2];
 		nodep = argv[3];
 
-		nodeoffset = fdt_find_node_by_path (fdt, pathp);
+		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -205,12 +202,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		prop   = argv[3];
 		newval = argv[4];
 
-		nodeoffset = fdt_find_node_by_path (fdt, pathp);
+		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -232,6 +229,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		char *pathp;		/* path */
 		char *prop;		/* property */
 		int  ret;		/* return value */
+		static char root[2] = "/";
 
 		/*
 		 * list is an alias for print, but limited to 1 level
@@ -244,7 +242,10 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the starting path.  The root node is an oddball,
 		 * the offset is zero and has no name.
 		 */
-		pathp = argv[2];
+		if (argc == 2)
+			pathp = root;
+		else
+			pathp = argv[2];
 		if (argc > 3)
 			prop = argv[3];
 		else
@@ -265,12 +266,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the path.  The root node is an oddball, the offset
 		 * is zero and has no name.
 		 */
-		nodeoffset = fdt_find_node_by_path (fdt, argv[2]);
+		nodeoffset = fdt_path_offset (fdt, argv[2]);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
 			 */
-			printf ("libfdt fdt_find_node_by_path() returned %s\n",
+			printf ("libfdt fdt_path_offset() returned %s\n",
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
@@ -521,21 +522,21 @@ static void print_data(const void *data, int len)
 
 	switch (len) {
 	case 1:	 /* byte */
-		printf("<%02x>", (*(u8 *) data) & 0xff);
+		printf("<0x%02x>", (*(u8 *) data) & 0xff);
 		break;
 	case 2:	 /* half-word */
-		printf("<%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
+		printf("<0x%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
 		break;
 	case 4:	 /* word */
-		printf("<%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("<0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 		break;
 	case 8:	 /* double-word */
 #if __WORDSIZE == 64
-		printf("<%016llx>", be64_to_cpu(*(uint64_t *) data));
+		printf("<0x%016llx>", be64_to_cpu(*(uint64_t *) data));
 #else
-		printf("<%08x ", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("<0x%08x ", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 		data += 4;
-		printf("%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
+		printf("0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
 #endif
 		break;
 	default:		/* anything else... hexdump */
@@ -554,25 +555,25 @@ static void print_data(const void *data, int len)
  * Recursively print (a portion of) the fdt.  The depth parameter
  * determines how deeply nested the fdt is printed.
  */
-static int fdt_print(char *pathp, char *prop, int depth)
+static int fdt_print(const char *pathp, char *prop, int depth)
 {
-	static int offstack[MAX_LEVEL];
 	static char tabs[MAX_LEVEL+1] =
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-	void *nodep;		/* property node pointer */
+	const void *nodep;	/* property node pointer */
 	int  nodeoffset;	/* node offset from libfdt */
 	int  nextoffset;	/* next node offset from libfdt */
 	uint32_t tag;		/* tag */
 	int  len;		/* length of the property */
 	int  level = 0;		/* keep track of nesting level */
+	const struct fdt_property *fdt_prop;
 
-	nodeoffset = fdt_find_node_by_path (fdt, pathp);
+	nodeoffset = fdt_path_offset (fdt, pathp);
 	if (nodeoffset < 0) {
 		/*
 		 * Not found or something else bad happened.
 		 */
-		printf ("libfdt fdt_find_node_by_path() returned %s\n",
+		printf ("libfdt fdt_path_offset() returned %s\n",
 			fdt_strerror(nodeoffset));
 		return 1;
 	}
@@ -587,7 +588,7 @@ static int fdt_print(char *pathp, char *prop, int depth)
 			printf("%s %s\n", pathp, prop);
 			return 0;
 		} else if (len > 0) {
-			printf("%s=", prop);
+			printf("%s = ", prop);
 			print_data (nodep, len);
 			printf("\n");
 			return 0;
@@ -602,46 +603,53 @@ static int fdt_print(char *pathp, char *prop, int depth)
 	 * The user passed in a node path and no property,
 	 * print the node and all subnodes.
 	 */
-	offstack[0] = nodeoffset;
-
 	while(level >= 0) {
-		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset, &pathp);
+		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
 		switch(tag) {
 		case FDT_BEGIN_NODE:
-			if(level <= depth)
+			pathp = fdt_get_name(fdt, nodeoffset, NULL);
+			if (level <= depth) {
+				if (pathp == NULL)
+					pathp = "/* NULL pointer error */";
+				if (*pathp == '\0')
+					pathp = "/";	/* root is nameless */
 				printf("%s%s {\n",
 					&tabs[MAX_LEVEL - level], pathp);
+			}
 			level++;
-			offstack[level] = nodeoffset;
 			if (level >= MAX_LEVEL) {
-				printf("Aaaiii <splat> nested too deep. "
-					"Aborting.\n");
+				printf("Nested too deep, aborting.\n");
 				return 1;
 			}
 			break;
 		case FDT_END_NODE:
 			level--;
-			if(level <= depth)
+			if (level <= depth)
 				printf("%s};\n", &tabs[MAX_LEVEL - level]);
 			if (level == 0) {
 				level = -1;		/* exit the loop */
 			}
 			break;
 		case FDT_PROP:
-			nodep = fdt_getprop (fdt, offstack[level], pathp, &len);
+			fdt_prop = fdt_offset_ptr(fdt, nodeoffset,
+					sizeof(*fdt_prop));
+			pathp    = fdt_string(fdt,
+					fdt32_to_cpu(fdt_prop->nameoff));
+			len      = fdt32_to_cpu(fdt_prop->len);
+			nodep    = fdt_prop->data;
 			if (len < 0) {
 				printf ("libfdt fdt_getprop(): %s\n",
 					fdt_strerror(len));
 				return 1;
 			} else if (len == 0) {
 				/* the property has no value */
-				if(level <= depth)
+				if (level <= depth)
 					printf("%s%s;\n",
 						&tabs[MAX_LEVEL - level],
 						pathp);
 			} else {
-				if(level <= depth) {
-					printf("%s%s=",
+				if (level <= depth) {
+					printf("%s%s = ",
 						&tabs[MAX_LEVEL - level],
 						pathp);
 					print_data (nodep, len);
@@ -650,11 +658,12 @@ static int fdt_print(char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_NOP:
+			printf("/* NOP */\n", &tabs[MAX_LEVEL - level]);
 			break;
 		case FDT_END:
 			return 1;
 		default:
-			if(level <= depth)
+			if (level <= depth)
 				printf("Unknown tag 0x%08X\n", tag);
 			return 1;
 		}
@@ -692,5 +701,3 @@ U_BOOT_CMD(
 	"          fdt print /cpus \"#address-cells\"\n"
 	"          fdt set   /cpus \"#address-cells\" \"[00 00 00 01]\"\n"
 );
-
-#endif /* CONFIG_OF_LIBFDT */

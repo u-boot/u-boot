@@ -91,6 +91,11 @@
 
 /* Special Purpose Registers (SPRNs)*/
 
+/* PPC440 Architecture is BOOK-E */
+#ifdef CONFIG_440
+#define CONFIG_BOOKE
+#endif
+
 #define SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
 #define SPRN_CTR	0x009	/* Count Register */
 #define SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
@@ -765,6 +770,10 @@
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
 #define PVR_405EZ_RA	0x41511460
+#define PVR_405EXR1_RA	0x12911473 /* 405EXr rev A with Security */
+#define PVR_405EXR2_RA	0x12911471 /* 405EXr rev A without Security */
+#define PVR_405EX1_RA	0x12911477 /* 405EX rev A with Security */
+#define PVR_405EX2_RA	0x12911475 /* 405EX rev A without Security */
 #define PVR_440GP_RB	0x40120440
 #define PVR_440GP_RC	0x40120481
 #define PVR_440EP_RA	0x42221850
@@ -875,6 +884,7 @@
 #define SVR_8544_E	0x803C
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
+#define SVR_8610	0x80A0
 #define SVR_8641	0x8090
 #define SVR_8568_E	0x807D
 

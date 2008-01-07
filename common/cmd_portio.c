@@ -30,8 +30,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_PORTIO)
-
 extern int cmd_get_data_size (char *arg, int default_size);
 
 /* Display values from last command.
@@ -165,5 +163,3 @@ U_BOOT_CMD(
 	"[.b, .w, .l] port\n"
 	"    - read datum from IO port\n"
 );
-
-#endif

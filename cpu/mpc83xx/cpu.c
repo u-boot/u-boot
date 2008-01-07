@@ -35,6 +35,7 @@
 #include <ft_build.h>
 #elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
+#include <fdt_support.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -526,10 +527,9 @@ ft_cpu_setup(void *blob, bd_t *bd)
 	int nodeoffset;
 	int err;
 	int j;
-	int tmp[2];
 
 	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_find_node_by_path(blob, fixup_props[j].node);
+		nodeoffset = fdt_path_offset(blob, fixup_props[j].node);
 		if (nodeoffset >= 0) {
 			err = fixup_props[j].set_fn(blob, nodeoffset,
 						    fixup_props[j].prop, bd);
@@ -543,21 +543,7 @@ ft_cpu_setup(void *blob, bd_t *bd)
 		}
 	}
 
-	/* update, or add and update /memory node */
-	nodeoffset = fdt_find_node_by_path(blob, "/memory");
-	if (nodeoffset < 0) {
-		nodeoffset = fdt_add_subnode(blob, 0, "memory");
-		if (nodeoffset < 0)
-			debug("failed to add /memory node: %s\n",
-			      fdt_strerror(nodeoffset));
-	}
-	if (nodeoffset >= 0) {
-		fdt_setprop(blob, nodeoffset, "device_type",
-			    "memory", sizeof("memory"));
-		tmp[0] = cpu_to_be32(bd->bi_memstart);
-		tmp[1] = cpu_to_be32(bd->bi_memsize);
-		fdt_setprop(blob, nodeoffset, "reg", tmp, sizeof(tmp));
-	}
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #elif defined(CONFIG_OF_FLAT_TREE)
 void

@@ -27,8 +27,6 @@
  * Reiserfs support
  */
 #include <common.h>
-
-#if defined(CONFIG_CMD_REISER)
 #include <config.h>
 #include <command.h>
 #include <image.h>
@@ -239,5 +237,3 @@ U_BOOT_CMD(
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from dos filesystem\n"
 );
-
-#endif

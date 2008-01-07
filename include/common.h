@@ -63,19 +63,13 @@ typedef volatile unsigned char	vu_char;
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC512X)
 #include <mpc512x.h>
 #include <asm/immap_512x.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
-#define CONFIG_RELOC_FIXUP_WORKS
-#elif defined(CONFIG_824X)
-#define CONFIG_RELOC_FIXUP_WORKS
 #elif defined(CONFIG_8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
@@ -87,7 +81,6 @@ typedef volatile unsigned char	vu_char;
 #define CONFIG_MPC8260	1
 #endif
 #include <asm/immap_8260.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
@@ -100,7 +93,6 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_MPC83XX
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
-#define CONFIG_RELOC_FIXUP_WORKS
 #endif
 #ifdef	CONFIG_4xx
 #include <ppc4xx.h>
@@ -137,20 +129,21 @@ typedef void (interrupt_handler_t)(void *);
 
 /*
  * enable common handling for all TQM8xxL/M boards:
- * - CONFIG_TQM8xxM will be defined for all TQM8xxM and TQM885D boards
+ * - CONFIG_TQM8xxM will be defined for all TQM8xxM boards
  * - CONFIG_TQM8xxL will be defined for all TQM8xxL _and_ TQM8xxM boards
+ *                  and for the TQM885D board
  */
 #if defined(CONFIG_TQM823M) || defined(CONFIG_TQM850M) || \
     defined(CONFIG_TQM855M) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M) || \
-    defined(CONFIG_TQM885D)
+    defined(CONFIG_TQM862M) || defined(CONFIG_TQM866M)
 # ifndef CONFIG_TQM8xxM
 #  define CONFIG_TQM8xxM
 # endif
 #endif
 #if defined(CONFIG_TQM823L) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM855L) || defined(CONFIG_TQM860L) || \
-    defined(CONFIG_TQM862L) || defined(CONFIG_TQM8xxM)
+    defined(CONFIG_TQM862L) || defined(CONFIG_TQM8xxM) || \
+    defined(CONFIG_TQM885D)
 # ifndef CONFIG_TQM8xxL
 #  define CONFIG_TQM8xxL
 # endif
@@ -266,7 +259,7 @@ void	pciinfo	      (int, int);
     int	   pci_pre_init	       (struct pci_controller * );
 #endif
 
-#if defined(CONFIG_PCI) && defined(CONFIG_440)
+#if defined(CONFIG_PCI) && (defined(CONFIG_440) || defined(CONFIG_405EX))
 #   if defined(CFG_PCI_TARGET_INIT)
 	void	pci_target_init	     (struct pci_controller *);
 #   endif
@@ -274,7 +267,7 @@ void	pciinfo	      (int, int);
 	void	pci_master_init	     (struct pci_controller *);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_405EX)
    void pcie_setup_hoses(int busno);
 #endif
 #endif
@@ -505,6 +498,7 @@ ulong	get_bus_freq  (ulong);
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
+ulong	get_ddr_freq  (ulong);
 #endif
 #if defined(CONFIG_MPC86xx)
 typedef MPC86xx_SYS_INFO sys_info_t;
@@ -513,15 +507,13 @@ void   get_sys_info  ( sys_info_t * );
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
-    typedef PPC440_SYS_INFO sys_info_t;
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
-	 int ppc440spe_revB(void);
 #	endif
-#  else
-    typedef PPC405_SYS_INFO sys_info_t;
 #  endif
+typedef PPC4xx_SYS_INFO sys_info_t;
+int	ppc440spe_revB(void);
 void	get_sys_info  ( sys_info_t * );
 #endif
 

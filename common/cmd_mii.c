@@ -27,8 +27,6 @@
 
 #include <common.h>
 #include <command.h>
-
-#if defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 #ifdef CONFIG_TERSE_MII
@@ -112,9 +110,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					"OUI = 0x%04X, "
 					"Model = 0x%02X, "
 					"Rev = 0x%02X, "
-					"%3dbaseT, %s\n",
+					"%3dbase%s, %s\n",
 					j, oui, model, rev,
 					miiphy_speed (devname, j),
+					miiphy_is_1000base_x (devname, j)
+						? "X" : "T",
 					(miiphy_duplex (devname, j) == FULL)
 						? "FDX" : "HDX");
 			}
@@ -496,9 +496,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					"OUI = 0x%04X, "
 					"Model = 0x%02X, "
 					"Rev = 0x%02X, "
-					"%3dbaseT, %s\n",
+					"%3dbase%s, %s\n",
 					j, oui, model, rev,
 					miiphy_speed (devname, j),
+					miiphy_is_1000base_x (devname, j)
+						? "X" : "T",
 					(miiphy_duplex (devname, j) == FULL)
 						? "FDX" : "HDX");
 			}
@@ -594,5 +596,3 @@ U_BOOT_CMD(
 );
 
 #endif /* CONFIG_TERSE_MII */
-
-#endif

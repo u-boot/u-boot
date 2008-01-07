@@ -288,16 +288,6 @@
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
 #define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+0x6900) /* VxWorks eth-addr*/
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
-					/* have only 8kB, 16kB is save here	*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Init Memory Controller:
  *

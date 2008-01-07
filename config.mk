@@ -87,6 +87,9 @@ ifdef	BOARD
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules
 endif
 
+# Load generated board configuration
+sinclude $(OBJTREE)/include/autoconf.mk
+
 #########################################################################
 
 CONFIG_SHELL	:= $(shell if [ -x "$$BASH" ]; then echo $$BASH; \

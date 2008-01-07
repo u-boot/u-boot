@@ -13,8 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_BEDBUG)
-
 #ifndef MAX
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
@@ -413,7 +411,6 @@ int do_bedbug_rdump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD (rdump, 1, 1, do_bedbug_rdump,
 	    "rdump   - Show registers.\n", " - Show registers.\n");
 /* ====================================================================== */
-#endif
 
 
 /*

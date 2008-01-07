@@ -29,8 +29,6 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
-
-#if defined(CONFIG_CMD_MFSL)
 #include <asm/asm.h>
 
 int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -413,5 +411,3 @@ U_BOOT_CMD (rspr, 3, 1, do_rspr,
 		" 1 - MSR - Machine status register\n"
 		" 3 - EAR - Exception address register\n"
 		" 5 - ESR - Exception status register\n");
-
-#endif

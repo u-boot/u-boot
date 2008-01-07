@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 void
 m8560_cpm_reset(void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	volatile ulong count;
 
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
@@ -50,11 +50,11 @@ m8560_cpm_reset(void)
 	/*
 	 * Reset CPM
 	 */
-	immr->im_cpm.im_cpm_cp.cpcr = CPM_CR_RST;
+	cpm->im_cpm_cp.cpcr = CPM_CR_RST;
 	count = 0;
 	do {			/* Spin until command processed		*/
 		__asm__ __volatile__ ("eieio");
-	} while ((immr->im_cpm.im_cpm_cp.cpcr & CPM_CR_FLG) && ++count < 1000000);
+	} while ((cpm->im_cpm_cp.cpcr & CPM_CR_FLG) && ++count < 1000000);
 }
 
 /* Allocate some memory from the dual ported ram.
@@ -64,7 +64,7 @@ m8560_cpm_reset(void)
 uint
 m8560_cpm_dpalloc(uint size, uint align)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	uint	retloc;
 	uint	align_mask, off;
 	uint	savebase;
@@ -86,7 +86,7 @@ m8560_cpm_dpalloc(uint size, uint align)
 	retloc = gd->dp_alloc_base;
 	gd->dp_alloc_base += size;
 
-	memset((void *)&(immr->im_cpm.im_dprambase[retloc]), 0, size);
+	memset((void *)&(cpm->im_dprambase[retloc]), 0, size);
 
 	return(retloc);
 }
@@ -120,16 +120,16 @@ m8560_cpm_hostalloc(uint size, uint align)
 void
 m8560_cpm_setbrg(uint brg, uint rate)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	/* This is good enough to get SMCs running.....
 	*/
 	if (brg < 4) {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg1.brgc1);
+		bp = (uint *)&(cpm->im_cpm_brg1.brgc1);
 	}
 	else {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg2.brgc5);
+		bp = (uint *)&(cpm->im_cpm_brg2.brgc5);
 		brg -= 4;
 	}
 	bp += brg;
@@ -142,16 +142,16 @@ m8560_cpm_setbrg(uint brg, uint rate)
 void
 m8560_cpm_fastbrg(uint brg, uint rate, int div16)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	/* This is good enough to get SMCs running.....
 	*/
 	if (brg < 4) {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg1.brgc1);
+		bp = (uint *)&(cpm->im_cpm_brg1.brgc1);
 	}
 	else {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg2.brgc5);
+		bp = (uint *)&(cpm->im_cpm_brg2.brgc5);
 		brg -= 4;
 	}
 	bp += brg;
@@ -167,14 +167,14 @@ m8560_cpm_fastbrg(uint brg, uint rate, int div16)
 void
 m8560_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	if (brg < 4) {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg1.brgc1);
+		bp = (uint *)&(cpm->im_cpm_brg1.brgc1);
 	}
 	else {
-		bp = (uint *)&(immr->im_cpm.im_cpm_brg2.brgc5);
+		bp = (uint *)&(cpm->im_cpm_brg2.brgc5);
 		brg -= 4;
 	}
 	bp += brg;

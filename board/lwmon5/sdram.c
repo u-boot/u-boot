@@ -71,7 +71,7 @@ static u32 is_ecc_enabled(void)
 
 void board_add_ram_info(int use_default)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	u32 val;
 
 	if (is_ecc_enabled())

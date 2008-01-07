@@ -43,6 +43,14 @@
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
 				33333333 : 33000000)
 
+#if 0
+/*
+ * 44x dcache supported is working now on sequoia, but we don't enable
+ * it yet since it needs further testing
+ */
+#define CONFIG_4xx_DCACHE			/* enable dcache	*/
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
 
@@ -293,8 +301,15 @@
 
 /* USB */
 #ifdef CONFIG_440EPX
-#define CONFIG_USB_OHCI
+#define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
+#define CFG_OHCI_BE_CONTROLLER
+
+#undef CFG_USB_OHCI_BOARD_INIT
+#define CFG_USB_OHCI_CPU_INIT	1
+#define CFG_USB_OHCI_REGS_BASE	CFG_USB_HOST
+#define CFG_USB_OHCI_SLOT_NAME	"ppc440"
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
 
 /* Comment this out to enable USB 1.1 device */
 #define USB_2_0_DEVICE
@@ -314,6 +329,7 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_SUBNETMASK
 
 
 /*
@@ -361,7 +377,7 @@
 
 #define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
 #define CONFIG_LOGBUFFER
-#define CFG_POST_CACHE_ADDR	0x10000000 /* free virtual address	*/
+#define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
@@ -460,15 +476,6 @@
 #define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
 #define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- *----------------------------------------------------------------------*/
-#define CFG_DCACHE_SIZE		(32<<10)  /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	      /* ...			            */
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	      /* log base 2 of the above value	*/
-#endif
-
 /*
  * Internal Definitions
  *
@@ -481,4 +488,9 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	    /* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
 #endif	/* __CONFIG_H */

@@ -355,12 +355,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		32768	/* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 
 /*
  * Internal Definitions

@@ -102,6 +102,8 @@ typedef struct emac_4xx_hw_st {
     uint32_t		emac_ier;
     volatile mal_desc_t *tx;
     volatile mal_desc_t *rx;
+    u32			tx_phys;
+    u32			rx_phys;
     bd_t		*bis;	/* for eth_init upon mal error */
     mal_desc_t		*alloc_tx_buf;
     mal_desc_t		*alloc_rx_buf;
@@ -146,11 +148,12 @@ typedef struct emac_4xx_hw_st {
 #endif
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_405EX)
 #define SDR0_PFC1_EM_1000	(0x00200000)
 #endif
 
-/*ZMII Bridge Register addresses */
+/* ZMII Bridge Register addresses */
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0D00)
@@ -202,6 +205,8 @@ typedef struct emac_4xx_hw_st {
 /* RGMII Register Addresses */
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1000)
+#elif defined(CONFIG_405EX)
+#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0xB00)
 #else
 #define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x0790)
 #endif
@@ -223,7 +228,8 @@ typedef struct emac_4xx_hw_st {
 #define RGMII_SSR_SP_100MBPS	(0x02)
 #define RGMII_SSR_SP_1000MBPS	(0x04)
 
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_405EX)
 #define RGMII_SSR_V(__x)	((__x) * 8)
 #else
 #define RGMII_SSR_V(__x)	((__x -2) * 8)
@@ -304,7 +310,7 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0800)
 #endif
 #else
-#if defined(CONFIG_405EZ)
+#if defined(CONFIG_405EZ) || defined(CONFIG_405EX)
 #define EMAC_BASE 		0xEF600900
 #else
 #define EMAC_BASE 		0xEF600800
@@ -338,7 +344,8 @@ typedef struct emac_4xx_hw_st {
 /* on 440GX EMAC_MR1 has a different layout! */
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_405EX)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)
 #define EMAC_M1_ILE		(0x40000000)

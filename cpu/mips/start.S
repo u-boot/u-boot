@@ -22,12 +22,10 @@
  * MA 02111-1307 USA
  */
 
-
 #include <config.h>
 #include <version.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
-
 
 #define RVECENT(f,n) \
    b f; nop
@@ -192,7 +190,7 @@ _start:
 	.word	0x00000000
 	.word	0x03e00008
 	.word	0x00000000
-	.word   0x00000000
+	.word	0x00000000
 /* 0xbfc00428 */
 	.word	0xdc870000
 	.word	0xfca70000
@@ -203,7 +201,7 @@ _start:
 	.word	0x00000000
 	.word	0x03e00008
 	.word	0x00000000
-	.word   0x00000000
+	.word	0x00000000
 #endif /* CONFIG_PURPLE */
 	.align 4
 reset:
@@ -235,33 +233,31 @@ reset:
 	mtc0	t0, CP0_CONFIG
 
 	/* Initialize $gp.
-	*/
-	bal     1f
+	 */
+	bal	1f
 	nop
 	.word	_gp
-	1:
-	move    gp, ra
-	lw      t1, 0(ra)
-	move	gp, t1
+1:
+	lw	gp, 0(ra)
 
 #ifdef CONFIG_INCA_IP
 	/* Disable INCA-IP Watchdog.
 	 */
-	la      t9, disable_incaip_wdt
-	jalr    t9
+	la	t9, disable_incaip_wdt
+	jalr	t9
 	nop
 #endif
 
 	/* Initialize any external memory.
 	 */
-	la      t9, lowlevel_init
-	jalr    t9
+	la	t9, lowlevel_init
+	jalr	t9
 	nop
 
 	/* Initialize caches...
 	 */
-	la      t9, mips_cache_reset
-	jalr    t9
+	la	t9, mips_cache_reset
+	jalr	t9
 	nop
 
 	/* ... and enable them.
@@ -269,12 +265,11 @@ reset:
 	li	t0, CONF_CM_CACHABLE_NONCOHERENT
 	mtc0	t0, CP0_CONFIG
 
-
 	/* Set up temporary stack.
 	 */
 	li	a0, CFG_INIT_SP_OFFSET
-	la      t9, mips_cache_lock
-	jalr    t9
+	la	t9, mips_cache_lock
+	jalr	t9
 	nop
 
 	li	t0, CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET
@@ -283,7 +278,6 @@ reset:
 	la	t9, board_init_f
 	j	t9
 	nop
-
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -298,7 +292,7 @@ reset:
 	.globl	relocate_code
 	.ent	relocate_code
 relocate_code:
-	move	sp, a0		/* Set new stack pointer		*/
+	move	sp, a0		/* Set new stack pointer	*/
 
 	li	t0, CFG_MONITOR_BASE
 	la	t3, in_ram
@@ -312,8 +306,8 @@ relocate_code:
 	 */
 	move	t6, gp
 	sub	gp, CFG_MONITOR_BASE
-	add	gp, a2			/* gp now adjusted		*/
-	sub	t6, gp, t6		/* t6 <-- relocation offset	*/
+	add	gp, a2		/* gp now adjusted		*/
+	sub	t6, gp, t6	/* t6 <-- relocation offset	*/
 
 	/*
 	 * t0 = source address
@@ -329,7 +323,7 @@ relocate_code:
 	sw	t3, 0(t1)
 	addu	t0, 4
 	ble	t0, t2, 1b
-	addu	t1, 4			/* delay slot			*/
+	addu	t1, 4		/* delay slot			*/
 #endif
 
 	/* If caches were enabled, we would have to flush them here.
@@ -376,7 +370,8 @@ in_ram:
 	add	t2, t6
 
 	sub	t1, 4
-1:	addi	t1, 4
+1:
+	addi	t1, 4
 	bltl	t1, t2, 1b
 	sw	zero, 0(t1)	/* delay slot			*/
 
@@ -387,11 +382,10 @@ in_ram:
 
 	.end	relocate_code
 
-
 	/* Exception handlers.
 	 */
 romReserved:
-	b romReserved
+	b	romReserved
 
 romExcHandle:
-	b romExcHandle
+	b	romExcHandle

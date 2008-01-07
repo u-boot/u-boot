@@ -53,7 +53,7 @@
 
 #include <usb.h>
 #ifdef CONFIG_4xx
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #endif
 
 #undef USB_DEBUG

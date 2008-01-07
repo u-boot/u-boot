@@ -34,7 +34,7 @@
 #if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY) && \
 	(defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	     \
 	 defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	     \
-	 defined(CONFIG_405EZ))
+	 defined(CONFIG_405EZ) || defined(CONFIG_405EX))
 
 #include <nand.h>
 #include <linux/mtd/ndfc.h>
@@ -222,6 +222,7 @@ int board_nand_init(struct nand_chip *nand)
 	 */
 	board_nand_select_device(nand, cs);
 	out_be32((u32 *)(base + NDFC_BCFG0 + (cs << 2)), 0x80002222);
+
 	return 0;
 }
 

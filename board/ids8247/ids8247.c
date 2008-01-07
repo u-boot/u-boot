@@ -329,24 +329,13 @@ nand_init (void)
  */
 void ft_blob_update(void *blob, bd_t *bd)
 {
-	int ret, nodeoffset = 0;
-	ulong memory_data[2] = {0};
+	int ret;
 
-	memory_data[0] = cpu_to_be32(bd->bi_memstart);
-	memory_data[1] = cpu_to_be32(bd->bi_memsize);
+	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
-	nodeoffset = fdt_find_node_by_path (blob, "/memory");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
-					sizeof(memory_data));
-	if (ret < 0)
+	if (ret < 0) {
 		printf("ft_blob_update): cannot set /memory/reg "
 			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
-		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /memory node "
-		"err:%s\n", fdt_strerror(nodeoffset));
 	}
 }
 

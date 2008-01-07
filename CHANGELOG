@@ -1,3 +1,1586 @@
+commit 467bcee11fe26ad422f2de971aa70866079870f2
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Dec 14 15:36:18 2007 +0100
+
+    cfi_flash: Add manufacturer-specific fixups
+
+    Run fixups based on the JEDEC manufacturer ID independent of the
+    command set ID.
+
+    This changes current behaviour: Previously, geometry reversal for AMD
+    chips were done based on the command set ID, while they are now done
+    based on the JEDEC manufacturer and device ID.
+
+    Also add fixup for top-boot Atmel chips. A fixup is needed for
+    AT49BV6416(T) too, but since u-boot currently only reads the low byte
+    of the device ID, there's no way to tell it apart from AT49BV642D,
+    which should not have this fixup. Since AT49BV642D support is
+    necessary to get ATNGW100 board support into mainline, I've commented
+    out the fixup for now.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 0ddf06ddf6b4bd057ad4c5f0dffea7870ba06a2a
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Dec 14 15:36:17 2007 +0100
+
+    cfi_flash: Add cmdset-specific init functions
+
+    Move things like reading JEDEC IDs and fixing up geometry reversal
+    into separate functions. The geometry reversal fixup is now performed
+    by altering the qry structure directly, which makes the sector init
+    code slightly cleaner.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit e23741f4a6d8047520ef0d4971762749b3587d32
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Dec 14 15:36:16 2007 +0100
+
+    cfi_flash: Read whole QRY structure in one go
+
+    Read out the whole CFI Standard Query structure after successful cfi
+    identification. This allows subsequent code to access this information
+    directly without having to go through flash_read_uchar() and friends.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit df9c25ea04b38a0e05d4f8c73c5cc144cdafa7db
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Dec 17 11:02:44 2007 +0100
+
+    AVR32: Fix logic inversion in disable_interrupts()
+
+    disable_interrupts() should return nonzero if interrupts were
+    _enabled_ before, not disabled.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit acac475212cbedb17b321a363a1c878e2b47b37f
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Dec 14 16:51:22 2007 +0100
+
+    AVR32: Enable interrupts at bootup
+
+    The timer code depends on the timer interrupt to keep track of the
+    upper 32 bits of the cycle counter. This obviously doesn't work when
+    interrupts are disabled the whole time.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 9570bcd87f4db255514f43b6701746c412f8fef0
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Nov 15 10:03:45 2007 +0100
+
+    AVR32: Fix wrong pin setup for USART3
+
+    As reported by Gerhard Berghofer:
+
+    in "gpio_enable_usart3" the correct pins for USART 3 are PB17 and PB18
+    instead of PB18 and PB19.
+
+    which is obviously correct. There's currently no code that uses
+    USART3, but custom boards may run into problems.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 09ea0de03dcc3ee7af045b0b572227bda2c1c918
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Nov 1 12:44:20 2007 +0100
+
+    README: Remove ATSTK1000 daughterboard list
+
+    As noted by Kim Phillips, these lists tend to become out of date.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit c81cbbad21cb0ae983e2e796211202234cdc8be2
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Tue Oct 30 14:56:36 2007 +0100
+
+    Add ATSTK100[234] to MAINTAINERS
+
+    Add all the ATSTK1000 daughterboards to MAINTAINERS along with their
+    "mother". Also update the entry for ATSTK1000 to be not only about the
+    AP7000 CPU; it's intended to handle all CPUs in the AT32AP family.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 64ff2357b1727213803591813dbc779c924bf772
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Oct 29 13:02:54 2007 +0100
+
+    AVR32: Add support for the ATSTK1004 board
+
+    ATSTK1004 is a daughterboard for ATSTK1000 with the AT32AP7002 CPU,
+    which is a derivative of AT32AP7000.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 667568db157f374b85abd7e03596ddd1f0b25681
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Oct 29 13:02:54 2007 +0100
+
+    AVR32: Add support for the ATSTK1003 board
+
+    ATSTK1003 is a daughterboard for ATSTK1000 with the AT32AP7001 CPU,
+    which is a derivative of AT32AP7000.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 5fee84a794a51ec830548cda485a770efb018b92
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Oct 29 13:23:33 2007 +0100
+
+    AVR32: Make some AT32AP700x peripherals optional
+
+    Add a chip-features file providing definitions of the form
+
+    AT32AP700x_CHIP_HAS_<peripheral>
+
+    to indicate the availability of the given peripheral on the currently
+    selected chip.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 36f28f8a9605ee5dcfa330482cfc62171261af97
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Mon Oct 29 13:09:56 2007 +0100
+
+    AVR32: Rename at32ap7000 -> at32ap700x
+
+    The SoC-specific code for all the AT32AP700x CPUs is practically
+    identical; the only difference is that some chips have less features
+    than others. By doing this rename, we can add support for the AP7000
+    derivatives simply by making some features conditional.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 4d5fa99c73f354e7cf985efcf417ea55ca2f6a5e
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Fri Jun 29 18:22:34 2007 +0200
+
+    atmel_mci: Show SR when block read fails
+
+    Show controller status as well as card status when an error occurs
+    during block read.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 12d30aa79779c2aa7a998bbae4c075f822a53004
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:34 2007 +0100
+
+    cfi_flash: Use map_physmem() and unmap_physmem()
+
+    Use map_physmem() and unmap_physmem() to convert from physical to
+    virtual addresses. This gives the arch a chance to provide an uncached
+    mapping for flash accesses.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 4d7d6936eb29af7cca330937808312aa5f61454d
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:33 2007 +0100
+
+    Introduce map_physmem() and unmap_physmem()
+
+    map_physmem() returns a virtual address which can be used to access a
+    given physical address without involving the cache. unmap_physmem()
+    should be called when the virtual address returned by map_physmem() is
+    no longer needed.
+
+    This patch adds a stub implementation which simply returns the
+    physical address cast to a uchar * for all architectures except AVR32,
+    which converts the physical address to an uncached virtual mapping.
+    unmap_physmem() is a no-op on all architectures, but if any
+    architecture needs to do such mappings through the TLB, this is the
+    hook where those TLB entries can be invalidated.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit cdbaefb5f5f03e54455d0439dcf6dbd97ead1f9d
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:32 2007 +0100
+
+    cfi_flash: Introduce read and write accessors
+
+    Introduce flash_read{8,16,32,64) and flash_write{8,16,32,64} and use
+    them to access the flash memory. This makes it clearer when the flash
+    is actually being accessed; merely dereferencing a volatile pointer
+    looks just like any other kind of access.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 812711ce6b3a386125dcf0d6a59588e461abbb87
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:31 2007 +0100
+
+    Implement __raw_{read,write}[bwl] on all architectures
+
+    This adds implementations of __raw_read[bwl] and __raw_write[bwl] to
+    m68k, ppc, nios and nios2. The m68k and ppc implementations were taken
+    from Linux.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit be60a9021c82fc5aecd5b2b1fc96f70a9c81bbcd
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Oct 6 18:55:36 2007 +0200
+
+    cfi_flash: Reorder functions and eliminate extra prototypes
+
+    Reorder the functions in cfi_flash.c so that each function only uses
+    functions that have been defined before it. This allows the static
+    prototype declarations near the top to be eliminated and might allow
+    gcc to do a better job inlining functions.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 3055793bcbdf24b1f8117f606ffb766d32eb766f
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:29 2007 +0100
+
+    cfi_flash: Make some needlessly global functions static
+
+    Make functions not declared in any header file static.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 7e5b9b471518c5652febc68ba62b432193d6abf4
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Thu Dec 13 12:56:28 2007 +0100
+
+    cfi_flash: Break long lines
+
+    This patch tries to keep all lines in the cfi_flash driver below 80
+    columns. There are a few lines left which don't fit this requirement
+    because I couldn't find any trivial way to break them (i.e. it would
+    take some restructuring, which I intend to do in a later patch.)
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 42026c9cb3a76849b41e6e24abfb7b56807a5c1a
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Dec 11 13:59:57 2007 +0100
+
+    CFI: synchronize command offsets with Linux CFI driver
+
+    Fixes non-working CFI Flash on the Inka4x0 board.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 8ff3de61fc5f9b3b21647bce081a3b7f710f0d4d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Dec 7 12:17:34 2007 -0600
+
+    Handle MPC85xx PCIe reset errata (PCI-Ex 38)
+
+    On the MPC85xx boards that have PCIe enable the PCIe errata fix.
+    (MPC8544DS, MPC8548CDS, MPC8568MDS).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 82ac8c97145a4c3bf8b3dbfad00fa96e920f9b9c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Dec 7 12:04:30 2007 -0600
+
+    Update Freescale MPC85xx ADS/CDS/MDS board config
+
+    * Enabled CONFIG_CMD_ELF
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit d435793229ce29a42797c1edc39f5b34f987f91a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Dec 7 04:59:26 2007 -0600
+
+    Handle Asynchronous DDR clock on 85xx
+
+    The MPC8572 introduces the concept of an asynchronous DDR clock with
+    regards to the platform clock.
+
+    Introduce get_ddr_freq() to report the DDR freq regardless of sync/async
+    mode.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 22abb2d2eaf7b795a6923c6273ec9cb53fda9a10
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 10:34:28 2007 -0600
+
+    Update Freescale MPC85xx ADS/CDS/MDS board config
+
+    * Removed some misc environment setup
+    * Enabled CONFIG_CMDLINE_EDITING
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 415a613babb84d5e5d5b42e8e553868c71fc3a64
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 10:47:44 2007 -0600
+
+    Move the MPC8541/MPC8555/MPC8548 CDS board under board/freescale.
+
+    Minor path corrections needed to ensure buildability.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c2d943ffbfd3359b3b45d177b437379d2cb86fbf
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 10:16:18 2007 -0600
+
+    Move the MPC8540 ADS board under board/freescale.
+
+    Minor path corrections needed to ensure buildability.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 870ceac5b3a3486c109396e005af81ae762b5710
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 10:14:50 2007 -0600
+
+    Move the MPC8560 ADS board under board/freescale.
+
+    Minor path corrections needed to ensure buildability.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit acbca876fb3fec25cd9c55b0efc81ff618ff5262
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 10:13:47 2007 -0600
+
+    Move the MPC8568 MDS board under board/freescale.
+
+    Minor path corrections needed to ensure buildability.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a853d56c59b33415304531443633808736acfc6e
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 02:18:59 2007 -0600
+
+    Use standard LAWAR_TRGT_IF_* defines for LAW setup on 85xx
+
+    We already had defines for LAWAR_TRGT_IF_* that we should use
+    rather than creating new ones.  Also, added some missing defines for
+    PCIE targets.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 04db400892da37b76a585e332a0c137954ad2015
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 02:10:09 2007 -0600
+
+    Stop using immap_t on 85xx
+
+    In the future the offsets to various blocks may not be in same location.
+    Move to using CFG_MPC85xx_*_ADDR as the base of the registers
+    instead of getting it via &immap.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2714223f8e04ab3e4133ff65872eef366d90bfea
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 01:23:09 2007 -0600
+
+    Remove CONFIG_OF_FLAT_TREE related code from mpc85xx since we now use libfdt
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c480861bf000156e6a3e932c258db59ff2212dd3
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 01:06:19 2007 -0600
+
+    Update MPC8568 MDS to use libfdt
+
+    Updated the MPC8568 MDS config to use libfdt and assume use of aliases for
+    ethernet, pci, and serial for the various fixups that are done.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1563f56e0c68f6920f956382d6d13bee3f01c0f7
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed Nov 14 15:52:06 2007 -0500
+
+    Add PCI Express support on MPC8568MDS
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b90d25497625b90ffa3f2911a0895ca237556ff5
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 00:11:44 2007 -0600
+
+    Update MPC85xx CDS to use libfdt
+
+    Updated the MPC85xx CDS config to use libfdt and assume use of aliases for
+    ethernet, pci, and serial for the various fixups that are done.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0fd5ec66b10521a057ad73e69ab5f0f9eafba255
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 28 22:54:27 2007 -0600
+
+    Update MPC8540 ADS to use libfdt
+
+    Updated the MPC8540 ADS config to use libfdt and assume use of aliases for
+    ethernet, pci, and serial for the various fixups that are done.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5ce715802f6c50dc78b3405b92f184b1e3710519
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 28 22:40:31 2007 -0600
+
+    Update MPC8560 ADS to use libfdt
+
+    Updated the MPC8560 ADS config to use libfdt and assume use of aliases for
+    ethernet, pci, and serial for the various fixups that are done.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit aafeefbdb8b029f5ca2a195598d0a501a606eea9
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 28 00:36:33 2007 -0600
+
+    Stop using immap_t for cpm offset on 85xx
+
+    In the future the offsets to various blocks may not be in same location.
+    Move to using CFG_MPC85xx_CPM_ADDR as the base of the CPM registers
+    instead of getting it via &immap->im_cpm.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f59b55a5b8fcadaa99781ba48e7a38e956afa527
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Nov 27 23:25:02 2007 -0600
+
+    Stop using immap_t for guts offset on 85xx
+
+    In the future the offsets to various blocks may not be in same location.
+    Move to using CFG_MPC85xx_GUTS_ADDR as the base of the guts registers
+    instead of getting it via &immap->im_gur.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 50c03c8cf494d91cdec39670d95337c743e16ec9
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Nov 27 22:42:34 2007 -0600
+
+    Update MPC8544 DS config
+
+    * Removed HAS_ETH2/HAS_ETH3 - MPC8544 only has TSEC1/2
+    * Removed some misc environment setup
+    * Moved to using fdtfile & fdtaddr as fdt env var names
+    * Enabled CONFIG_CMDLINE_EDITING
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit addce57e2e4c49e77ffb2020a84690713bb18b47
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 17:12:24 2007 -0600
+
+    Update MPC8544DS to use libfdt
+
+    Updated the MPC8544DS config to use libfdt and assume use of aliases for
+    ethernet, pci, and serial for the various fixups that are done.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f852ce72f100cabd1f11c21c085a0ad8eca9fb65
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Nov 29 00:15:30 2007 -0600
+
+    Add libfdt based ft_cpu_setup for mpc85xx
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9692c2734a47f23b44a0f68042a3e2ca8d1bfb39
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Dec 8 08:25:09 2007 +0100
+
+    CFI: Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 81b20ccc2d795ae9a1199db5a50ad9c28d1e4d22
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Fri Dec 7 23:35:02 2007 +0100
+
+    CFI: support JEDEC flash roms in CFI-flash framework
+
+    The following patch adds support for non-CFI flash ROMS, by hooking into the
+    CFI flash code and using most of its code, as recently discussed here in the
+    thread "Mixing CFI and non-CFI flashs".
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c01b17dd856fa120b2970f50d9598546a4927ec3
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Wed Nov 28 21:24:50 2007 -0500
+
+    Conditionally compile fdt_fixup_ethernet()
+
+    Fix compiler warnings: On boards that don't have ethernets defined,
+    don't compile fdt_fixup_ethernet().
+
+commit 246d4ae6bc282bc1841224e1c5fc49dc925e0bf7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Nov 27 21:59:46 2007 -0600
+
+    Convert boards that set memory node to use fdt_fixup_memory()
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 151c8b09b35eebe8fd9139cb6c1d91c27b22f058
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 17:06:15 2007 -0600
+
+    Added fdt_fixup_stdout that uses aliases to set linux,stdout-path
+
+    We use a combination of the serialN alias and CONFIG_CONS_INDEX to
+    determine which serial alias we should set linux,stdout-path to.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3c9272813fad84c691d0e4989bb18a3ffebdebfc
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 14:57:45 2007 -0600
+
+    Add common memory fixup function
+
+    Add the function fdt_fixup_memory() to fixup the /memory node of the fdt
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9c9109e7fcf7ac2ca19c95b8ac54b8d1c773b157
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 11:19:12 2007 -0600
+
+    Conditionally compile fdt_support.c
+
+    Modify common/Makefile to conditionally compile fdt_support.c based
+    on CONFIG_OF_LIBFDT.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit d88e7ba0980773479e1a64badb293116071b7ef0
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 10:41:40 2007 -0600
+
+    Fix build breakage due to libfdt import
+
+    The IDS8247 got lost in the update and need an API update
+    do to rename of functions in libfdt.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 28f384b171bbf1fb2dafb1046e6d259a6b2f8714
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri Nov 23 19:43:20 2007 -0500
+
+    Add spaces around the = in the fdt print format.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 29592ecba3b932b9b152bcec6c0c0806412db4a3
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Fri Dec 7 01:25:38 2007 +0900
+
+    sh: Moved driver of the SuperH dependence
+
+    The composition of the directory in the drivers/ changed.
+    I moved SuperH serial driver and marubun PCMCIA driver.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 41be969f4957115ed7b1fe8b890bfaee99d7a7a2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Dec 6 10:21:19 2007 +0100
+
+    Release v1.3.1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cf5933ba1e97a1cd8f5f24070e820f21d976eaeb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Dec 6 10:21:03 2007 +0100
+
+    ADS5121 Board: fix compile problem.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8d4f040a3c15036a6ea25a9c39e7d89fefa8440d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Dec 3 00:15:28 2007 +0100
+
+    Prepare for 1.3.1-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 260eea5676ca46903a335686cc020b29c4ca46fe
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Nov 29 01:21:54 2007 +0900
+
+    sh: Add SuperH boards maintainer to MAINTAINERS file
+
+    Add MS7750SE and MS7722SE's board maintainer to MAINTAINERS file.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit aa9c4f1d22701a92347c1c81f34d12c8ad3a3747
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Nov 29 00:13:04 2007 +0900
+
+    sh: Add ms7750se support in MAKEALL
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit c7144373427a178332bf9754131c8c34c52c200a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 27 09:44:53 2007 +0100
+
+    sh: Add sh3 and sh4 support in MAKEALL
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 130080874a3d28450098481a262c5f7c855e908d
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Nov 25 02:51:17 2007 +0900
+
+    sh: Add document for SuperH.
+
+    This document is a summary of information concerning SuperH of U-Boot.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 33ecdc2f9d64926e1a6067b28f3a0aefc3b6d23d
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Nov 25 02:39:31 2007 +0900
+
+    sh: Add marubun's pcmcia driver
+
+    Marubun pcmcia is a chip for PCMCIA used with SuperH.
+    Of course, this can be used even by other architectures.
+    When use this driver, came to be able to use CompactFlash
+    and Ethernet.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit febd86b969b975289ed948f1ac0eb9722da41ced
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Nov 25 02:32:13 2007 +0900
+
+    sh: Update SuperH SCIF driver
+
+    - Changed volatile unsigned to vu_.
+    - Changed Makefile for kconfig.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit a5f601fd1b1278deae5aa9fc27a232b0d1c1c788
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 26 19:18:21 2007 +0100
+
+    Cleanup coding style; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3deca9d44767efd1b83f4b701f0dbf21a7595f7b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 22:39:25 2007 +0100
+
+    MAKEALL: add missing 512x boards in ppc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a340c325e668ca7386c2276387681720be9c3757
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 18:45:47 2007 +0100
+
+    Makefile : fix tags ctags etags with new drivers organization
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 87ddedd6ad804427ce125ceaa076d7a4f74e9d5d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 25 18:45:47 2007 +0100
+
+    Makefile : fix tags ctags etags with new drivers organization
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 59829cc189378c142c13d2aa8d9a897d8bef3961
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:26:56 2007 +0100
+
+    drivers/mtd : move mtd drivers to drivers/mtd
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 318c0b90431f2648552e5ade78833f42652ce859
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:17:55 2007 +0100
+
+    drivers/misc : move misc drivers to drivers/misc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 33daf5b7858807cb4ce4158c2c56524671c14c08
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 21:13:59 2007 +0100
+
+    drivers/block : move block drivers to drivers/block
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0c698dcaa70275eb8814f665b545547cee013892
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 20:59:50 2007 +0100
+
+    drivers/rtc : move rtc drivers to drivers/rtc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f868cc5a50757d94f36c312395481cb0f187d9e6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 20:14:44 2007 +0100
+
+    drivers/hwmon : move hardware monitor drviers to drivers/hwmon
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 16b195c82a18cbfd164800f17a1ef9db2e48331a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:46:45 2007 +0100
+
+    drivers/input : move input drivers to drivers/input
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e4558666293364fc3af1c1d9381ca933fa0f1275
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:40:11 2007 +0100
+
+    drivers/usb : move usb drivers to drivers/usb
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1378df792a7ff3abd1bf54a63f5475784f5b083c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 24 19:33:38 2007 +0100
+
+    drivers/serial : move serial drivers to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2439e4bfa111babf4bc07ba20efbf3e36036813e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 21 21:19:24 2007 +0100
+
+    drivers/net : move net drivers to drivers/net
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 352d259130b349fe9593b8dada641bd78a9659e5
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:41:48 2007 +0100
+
+    drivers/video : move video drivers to drivers/video
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 73646217186aa17afc8e305c5f06f06dd335eaad
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:33:09 2007 +0100
+
+    drivers/pcmcia : move pcmcia drivers to drivers/pcmcia
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 93a686ee9c5ddc6fa368c32cfbfde6f6724599fc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:28:09 2007 +0100
+
+    drivers/pci : move pci drivers to drivers/pci
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9162352817579840d7802da6d85872b3ca003c97
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Thu Nov 22 17:23:23 2007 -0500
+
+    Fix fdt printing for updated libfdt
+
+    Also improve printing (adopt dtc v1 "c style" hex format), whitespace cleanup.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 9eb77cea1fa12d5969eb26a1d1d81da381bd6b1c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 13:30:15 2007 -0600
+
+    Add additional fdt fixup helper functions
+
+    Added the following fdt fixup helpers:
+     * do_fixup_by_prop{_u32} - Find matching nodes by property name/value
+     * do_fixup_by_compat{_u32} - Find matching nodes by compat
+
+    The _u32 variants work the same only the property they are setting
+    is know to be a 32-bit integer instead of a byte buffer.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ab544633abdd14f4dd5d92e500b73eb59ef57e67
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 11:11:03 2007 -0600
+
+    Add fdt_fixup_ethernet helper to set mac addresses
+
+    Added a fixup helper that uses aliases to set mac addresses
+    in the device tree based on the bd_t
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit dbaf07ce620aab249e3502b20a986234a6af1d3a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 14:07:46 2007 -0600
+
+    Fix warnings from import of libfdt
+
+    cmd_fdt.c: In function fdt_print:
+    cmd_fdt.c:586: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:613: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:635: warning: assignment discards qualifiers from pointer target type
+    cmd_fdt.c:636: warning: assignment discards qualifiers from pointer target type
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8d04f02f6224e6983f4812ea4da704950ec8539c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 24 11:04:22 2007 -0500
+
+    Update libfdt from device tree compiler (dtc)
+
+    Update libfdt to commit 8eaf5e358366017aa2e846c5038d1aa19958314e from
+    the device tree compiler (dtc) project.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e93becf80d732b64aef81b23e8b6ece02c40533d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Sat Nov 3 19:46:28 2007 -0500
+
+    Move do_fixup* for libfdt into common code
+
+    Moved the generic fixup handling code out of cpu/mpc5xxx and cpu/mpc8260
+    into common/fdt_support.c and renamed:
+
+    do_fixup()	-> do_fixup_by_path()
+    do_fixup_u32()	-> do_fixup_by_path_u32()
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f738b4a75998f42a7408defadc9baac7a31c92db
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 25 16:15:07 2007 -0500
+
+    Make no options to fdt print default to '/'
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a3c2933e02503fe36ade2c1b65af46f2b7a168e7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 24 10:21:57 2007 -0500
+
+    Removed some nonused fdt functions and moved fdt_find_and_setprop out of libfdt
+
+    Removed:
+	fdt_node_is_compatible
+	fdt_find_node_by_type
+	fdt_find_compatible_node
+
+    To ease merge of newer libfdt as we aren't using them anywhere at this time.
+
+    Also moved fdt_find_and_setprop out of libfdt into fdt_support.c for the same
+    reason.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 98e2867cc85409b919f862e6c16026461ec955df
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Wed Nov 21 09:19:37 2007 -0700
+
+    [BUILD] Remove libraries when updating autoconf.mk
+
+    Fix library problems caused by conditional compilation.  Using
+    autoconf.mk to decide which files to compile has caused a problem when
+    changing configuration from one board to another without clearing out
+    the library (*.a) files.
+
+    It used to be that the linker was always passed the same list of .o
+    files when building the .a files.  However, that is not longer true
+    with conditional compilation.  Now, a different board config will have
+    a different file list passed to the linker.  The problem occurs when
+    a library has already been built and the board config is changed.
+
+    Since the linker will update instead of replace a preexisting library,
+    then if the file list changes to remove some object files the old
+    objects will still exist in the library.
+
+    The solution is to remove all old library files when autoconf.mk is
+    made.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit ed1353d74b9ce8a7fcd660570b848a184d614b5f
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 21 08:49:50 2007 -0600
+
+    [BUILD] conditionally compile libfdt/*.c in libfdt/Makefile
+
+    Modify libfdt/Makefile to conditionally compile the *.c files based
+    on the board config.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4a43719a7738712811d822ca8125427b27a55cdc
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    [BUILD] conditionally compile common/cmd_*.c in common/Makefile
+
+    Modify common/Makefile to conditionally compile the cmd_*.c files based
+    on the board config.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 2f155f6c0a1f5e9a306a3f1f4fbe067db7ced3b1
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    [BUILD] Generate include/autoconf.mk from board config files
+
+    Use cpp and sed to postprocess config.h and import the defined values
+    into include/autoconf.mk.  autoconf.mk is then included by config.mk to
+    give 'make' access to the board configuration.
+
+    Doing this enables conditional compilation at the Makefile level instead
+    of by wrapping every .c file with #ifdef/#endif wrappers.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 080c646dbf474a109c3f85718fb01ce042a38c45
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 20 20:14:18 2007 +0100
+
+    drivers/i2c : move i2c drivers to drivers/i2c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9a337ddc154a10a26f117fd147b009abcdeba75a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 19 22:20:24 2007 +0100
+
+    Prepare for 1.3.0 release.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f30ad49b16bf998b03c1a5228b6c86369d61c258
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Mon Nov 19 10:02:13 2007 -0500
+
+    Move CONFIG_QE out of CONFIG_PCI wrap for MPC8568MDS
+
+    CONFIG_QE shouldn't be in the wrap of CONFIG_PCI, fix it.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit f8c320609366176b31104d9bf5e295232e1c7f1d
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Mon Nov 19 11:14:16 2007 +0900
+
+    [MIPS] board/gth2/lowlevel_init.S: Fix a build warning
+
+    lowlevel_init.S: Assembler messages:
+    lowlevel_init.S:413: Warning: Pretending global symbol used as branch target is local.
+
+    Looking at codes, the `memtest' and `clearmem' are intentional mixed
+    use of `global symbols' and `label' for debugging purpose. To make it
+    build, just disable global-symbols-use for now. As a result `memtest'
+    still remains as unused, but leave it be...
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit e8da58f2bc092891e8cc92b927ed5c4bd0cb0cab
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Nov 19 12:59:14 2007 +0100
+
+    Fix build problems with mp2usb board
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6bf4c686afca1e86e1c384d59218f914605713bf
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 18:36:11 2007 +0100
+
+    s3c24x0: Fix usb_ohci.c missing in Makefile
+    and usb_ohci.c warning differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6073f61e078da5ddb521b56256bcc36508589883
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Nov 18 12:55:02 2007 +0100
+
+    pb1x00 board: Fix u16 status declaration when PCMCIA is defined
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8412d814ce8bf5570a2b747f1e7fd321097fe987
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 17:11:09 2007 +0100
+
+    Fix compiler warnings for ARM systems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 409ecdc0bb47dd28b0af6c25ffd658d22cc36b37
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Nov 18 16:36:27 2007 +0100
+
+    Fix compiler warnings for PPC systems. Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 079c2c4fa71c0d1ebef394508df9088df8a308d3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Nov 17 11:31:10 2007 +0100
+
+    Fix warning differ in signedness in net/net.c and net/nfs.c
+
+commit 7e14fc65368cbd2861b1207453da55a4fc7b3f81
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:42:45 2007 +0900
+
+    gth2.c: Fix a warning on gth2 build.
+
+    gth2.c: In function 'misc_init_r':
+    gth2.c:434: warning: pointer targets in passing argument 2 of 'setenv' differ in signedness
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2309c130aa4c84b91bd874a41269c923eb61b555
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Nov 17 07:58:25 2007 +0100
+
+    Fix warning differ in signedness in common/cmd_scsi.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7e1d884b7cb602007329c517ec1c453e3a6a5d9c
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:26 2007 +0900
+
+    [MIPS] cpu/mips/config.mk: Fix GNU assembler minor version picker
+
+    Current trick to pick up GNU assembler minor version does not work with the
+    latest binutils (2007-03-01 or later) due to ${PKGVERSION} now default to
+    "(GNU Binutils) ".
+
+      $ sde-as --version |grep "GNU assembler"
+      GNU assembler 2.15.94 mipssde-6.02.02-20050602
+      $ sde-as --version |grep "GNU assembler" |awk '{print $3}'
+      2.15.94
+      $ sde-as --version |grep "GNU assembler" |awk '{print $3}' |awk -F. '{print $2}'
+      15
+      $
+
+      $ mips-linux-as --version |grep "GNU assembler"
+      GNU assembler (GNU Binutils) 2.18
+      $ mips-linux-as --version |grep "GNU assembler" |awk '{print $3}'
+      (GNU
+      $ mips-linux-as --version |grep "GNU assembler" |awk '{print $3}' |awk -F. '{print $2}'
+      (no output)
+      $
+
+    As a result of above, you'll see many noises with such binutils:
+
+      make -C cpu/mips/
+      /bin/sh: line 0: [: : integer expression expected
+      /bin/sh: line 0: [: : integer expression expected
+      make[1]: Entering directory `/home/skuribay/devel/u-boot.git/cpu/mips'
+      mips-linux-gcc  -D__ASSEMBLY__ -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -c -o incaip_wdt.o incaip_wdt.S
+      /bin/sh: line 0: [: : integer expression expected
+      mips-linux-gcc  -D__ASSEMBLY__ -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -c -o cache.o cache.S
+      /bin/sh: line 0: [: : integer expression expected
+      mips-linux-gcc -g  -Os   -D__KERNEL__ -DTEXT_BASE=0xB0000000  -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isystem /home/skuribay/devel/buildroot/build_mips/staging_dir/usr/bin/../lib/gcc/mips-linux-uclibc/4.2.1/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4kc -EB -Wall -Wstrict-prototypes -c -o asc_serial.o asc_serial.c
+      /bin/sh: line 0: [: : integer expression expected
+
+    This patch simplifies the trick and makes it work with both versions of gas.
+    I also replace an expensive `awk (or gawk)' with `cut'.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 16664f72850846e645616da1c0fa5afcd6d15f15
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:26 2007 +0900
+
+    [MIPS] Remove useless instructions for initializing $gp.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 03c031d5660ea946c39af6e2e16267da857c609f
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:27:06 2007 +0900
+
+    [MIPS] MIPS 4K core: Coding style cleanups
+
+    No logical changes.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit f5e429d3860bba4c6ae8bead8f78349fa24491b2
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Nov 17 20:05:20 2007 +0900
+
+    [MIPS] gth2.c: Fix a warning on gth2 build.
+
+    gth2.c: In function 'misc_init_r':
+    gth2.c:434: warning: pointer targets in passing argument 2 of 'setenv' differ in signedness
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 4fbd0741b2b6441da10be93e10267122581b7079
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:22:33 2007 +0900
+
+    [MIPS] au1x00_eth.c: Fixed a warning on pb1000 build.
+
+    au1x00_eth.c: In function 'au1x00_miiphy_write':
+    au1x00_eth.c:139: warning: 'return' with no value, in function returning non-void
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit f01320459736f156707425cf8112f98606301aa4
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:25 2007 +0900
+
+    [MIPS] au1x00_eth.c: Fix au1x00_miiphy_{read,write} build error
+
+    au1x00_eth.c: In function 'au1x00_enet_initialize':
+    au1x00_eth.c:246: error: 'au1x00_miiphy_read' undeclared (first use in this function)
+    au1x00_eth.c:246: error: (Each undeclared identifier is reported only once
+    au1x00_eth.c:246: error: for each function it appears in.)
+    au1x00_eth.c:246: error: 'au1x00_miiphy_write' undeclared (first use in this function)
+    au1x00_eth.c: In function 'au1x00_miiphy_write':
+    au1x00_eth.c:298: warning: 'return' with no value, in function returning non-void
+    make[1]: *** [au1x00_eth.o] Error 1
+
+    Fixed by moving these two functions forward.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit b09258c5393edd1087c5f39ae68338f16b49f8b3
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:25 2007 +0900
+
+    MAKEALL: Added missing pb1000 board
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2e4a6e3667a1e39c0e6e99498686b15d2718b369
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:24 2007 +0900
+
+    [MIPS] pb1000: Replace obsolete memsetup.S with lowlevel_init.S
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 662e5cb397249c3ea88a4c3255e9ccfc40b98d82
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Oct 27 15:00:24 2007 +0900
+
+    [MIPS] u-boot.lds: Cleanup __u_boot_cmd_{start,end}
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 5947f6999aafa7c54c1390983d264a8463dfea8e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 02:34:38 2007 +0100
+
+    Update CHANGELOIG, prepare for -rc4
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit fd329e6f05bbdfe6bd71b0e09f0c76d3b0a025a5
+Author: Luotao Fu <l.fu@pengutronix.de>
+Date:	Wed Nov 14 18:58:33 2007 +0100
+
+    Fix the i2c frequency and default address in rsdproto board
+
+    rsdproto board support has wrong I2C frequency and wrong return value
+    handling.
+
+    Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+
+commit 429c180edad038f91c989cb14b478228092e7054
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 01:45:38 2007 +0100
+
+    powerpc: Backout relocation changes for MPC5121, too.
+
+    Apply Grant Likely's backout to MPC5121 code, too.
+
+    Pointed out by Rafal Jaworowski <raj@semihalf.com>
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1c3dd43338a077165e7e0309cb3994e65d2bdbf8
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Tue Nov 13 22:18:33 2007 -0700
+
+    powerpc: Backout relocation changes.
+
+    Ugh.  I *hate* to back this change out, but these compiler flags don't
+    work for relocation on all versions of GCC.  I've not been able to
+    reproduce the environment in my setup (and hence, not been able to
+    find a combination that *does* work), so I've got no choice but to go
+    back to the old gcc flags and linker script.
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5c15010efad980ad5498cc565fc1ed70df2f52b4
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Nov 13 09:11:05 2007 +0100
+
+    Fixed mips_io_port_base build errors.
+
+    This patch has been sent on:
+    - 29 Sep 2007
+
+    Although mips_io_port_base is currently a part of IDE command, it is quite
+    fundamental for MIPS I/O port access such as in[bwl] and out[bwl]. So move
+    it to MIPS general part, and introduce `set_io_port_base()' from Linux.
+
+    This patch is triggered by multiple definition of `mips_io_port_base' build
+    error on gth2 (and tb0229 also needs this fix.)
+
+    board/gth2/libgth2.a(gth2.o): In function `log_serial_char':
+    /home/skuribay/devel/u-boot.git/board/gth2/gth2.c:47: multiple definition of `mips_io_port_base'
+    common/libcommon.a(cmd_ide.o):/home/skuribay/devel/u-boot.git/common/cmd_ide.c:712: first defined here
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6ecbb7a3fa9b0940ed33e490d195d4b6830b2422
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 17 01:30:40 2007 +0100
+
+    Fix a bug in the slave serial programming mode for the Xilinx
+    Spartan2/3 FPGAs. The old code used "< 0" on a "char" type to test if
+    the most significant bit was set, which did not work on any
+    architecture where "char" defaulted to be an unsigned type.
+
+    Based on a patch by Angelos Manousaridis <amanous@inaccessnetworks.com>
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d08b7233bc252faad8339e7ca0ddfd62fa79903c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Nov 1 12:23:29 2007 -0500
+
+    86xx: Fix broken variable reference when #def DEBUGing.
+
+    Sometimes you can't reference the DDR2 controller variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit f9d9164d9c6b5a7f0393fd8d7e246b8a0326bc19
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Oct 26 18:32:00 2007 +0800
+
+    make 8610 board use pixis reset
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit db74b3c1c9481a6bffbf8cd445e5bcbf6908e836
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Mon Oct 29 19:26:21 2007 +0800
+
+    Unify pixis_reset altbank across board families
+
+    Basically, refactor the CFG_PIXIS_VBOOT_MASK values
+    into the separate board config files.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 64bf555465c7926be13e1046ac0d0f05ac72829c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 7 08:19:21 2007 +0100
+
+    Fix warning: pointer targets in assignment differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7a60ee7c6248a958c5757d3660a1702723a2786d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Nov 7 08:19:19 2007 +0100
+
+    Fix warning differ in signedness in common/cmd_ide.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4d4faae65e115e327425cd514c1a35146a85166b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group PCI and PCMCIA drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5798f87dc10a496d79d3177b9f5a76488987fd35
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group block/flash drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit df58c81551700f058b44cacf55a7997fa63bfe0a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:31 2007 -0600
+
+    Group USB drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 5dbb6ed622e539b0c8493ef7e578d3a533181d29
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group i2c drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit ec00c76de0e5971273905998d62d6bb119324218
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group console drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 754f230aa01b8c789fc31f8013c2487954073300
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Group network drivers in drivers/Makefile
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit f0037c56b0d12cd46215124667b9f83d60ef9391
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Build: split COBJS value into multiple lines
+
+    This change is in preparation for condtitionial compile support in the
+    build system.  By spliting them all into seperate lines now, subsequent
+    patches that change 'COBJS-y += ' into 'COBJS-$(CONFIG_<blah>) += ' will
+    be less invasive and easier to review
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 1b4aaffe4fb2a5e95d9111a5d94fd1f89215dce4
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Mon Sep 24 09:05:30 2007 -0600
+
+    Add .gitignore files
+
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 955413f35f054a82e40042f1dbcf501c6a05719b
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:27:52 2007 -0700
+
+    Revert "Correct relocation fixup for mpc5xx"
+
+    This reverts commit 3649cd99ba815b6601868735765602f00ef3692b.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e15633888a058aacb31a62d2cf1278e1e4c236ab
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:24:32 2007 -0700
+
+    Revert "Correct fixup relocation for MPC5xxx"
+
+    This reverts commit 6f7576b20ecf0d040c3ac3b032b5cbc860e38a90.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 139365fbe566d0fc619a1ed04452ec5388f0cef8
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:21:04 2007 -0700
+
+    Revert "Correct fixup relocation for mpc8220"
+
+    This reverts commit a85dd254c0577fca13627c46e93fc2ad4c4f1f00.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 70922342369e5e39b286fe21e768a239ca07a514
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:57 2007 -0700
+
+    Revert "Correct fixup relocation for mpc824x"
+
+    This reverts commit f3a52fe05923935db86985daf9438e2f70ac39aa.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 96279ab4cad60cb5972aa934fbe4845ac02cc75a
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:50 2007 -0700
+
+    Revert "Correct fixup relocation for mpc8260"
+
+    This reverts commit 5af61b2f4b838a05f79be274f3e5a66edd2d9c96.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 928fe33b24cdf382a8dc8687fed24b1961cdb5d6
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:43 2007 -0700
+
+    Revert "Correct fixup relocation for mpc83xx"
+
+    This reverts commit 057004f4a4863554d56cc56268bfa7c7d9738e27.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit c93945e8f9e300860d2bf73a2549ce5794f8bd00
+Author: Grant Likely <grant.likely@secretlab.ca>
+Date:	Thu Nov 15 08:20:25 2007 -0700
+
+    Revert "[MPC512x] Correct fixup relocation"
+
+    This reverts commit 8d17979d0359492a822a0a409d26e3a3549b4cd4.
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 54fd6c93c28a0a45352fff5dd92673401ff563f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 13 08:18:20 2007 +0100
+
+    ppc4xx: lwmon5: Change PHY reset sequence for PHY MDIO address latching
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1ce55151c85d068f70317a8d65c61058b891afb4
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Nov 13 07:50:29 2007 +0100
+
+    [UC101] SRAM now with 2 MB working.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 8d737a28152ec12873f8544cca1fb39a49e5e693
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:50:18 2007 -0600
+
+    ColdFire: MCF5329 - Remove reset registers from CCM
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 7d7cdea769a60b0a6e4c18bef7f9d648fd14b8d7
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:31:11 2007 -0600
+
+    ColdFire: MCF5329 - Add Reset structure to immap_5329.h
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 09b26cf00d76d75fdf7fdc4b13e4dd929743bc21
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Nov 8 12:19:01 2007 -0600
+
+    ColdFire: MCF5329 - revert include/asm-m68k/m5329.h file mode
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 225a24b5e062ad94627424508ae814f51dbe1a34
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 18:00:54 2007 -0600
+
+    ColdFire: MCF5445x - Update correct RAMBAR and missing linker files
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 248c7c14835f34d5d910b45e5600050e58ca6cab
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 17:56:15 2007 -0600
+
+    ColdFire: MCF532x - Update do_reset() using core reset
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit d9240a5f827eb3b476a6ba2938d01f1a9e7688f4
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Nov 7 17:51:00 2007 -0600
+
+    ColdFire: Update cpu flag for 4.2-xx compiler
+
+    Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+
+commit 1f103105a3746ab12279b63b8c1d372c0ce2cc58
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Mon Nov 5 17:39:24 2007 +0800
+
+    Implement general ULi 526x Ethernet driver support in U-boot
+
+    This patch implements general ULi 526x Ethernet driver.
+    Until now, it is the only native Ethernet port on
+    MPC8610HPCD board, but it could be used on other boards
+    with ULi 526x Ethernet port as well.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 71bc6e6474fea8ef481b9b45d1edd7ad1f6dfbbd
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Nov 1 08:46:50 2007 -0500
+
+    NET: Add Ethernet 1000BASE-X support for PPC4xx
+
+    This patch adds support for 1000BASE-X to functions "miiphy_speed ()" and
+    "miiphy_duplex()".	It also adds function "miiphy_is_1000base_x ()", which
+    returns non-zero iff the PHY registers are configured for 1000BASE-X.  The
+    "mii info" command is modified to distinguish between 1000BASE-T and -X.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 298035df4948b113d29ac0e694717d34b95bc5dc
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Wed Oct 31 11:21:29 2007 -0500
+
+    NET: Cosmetic changes
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 992742a5b09d9040adbd156fb90756af66ade310
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Nov 3 23:09:27 2007 +0100
+
+    Cleanup coding style; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e881cb563e32f45832b7b6db77bdcd017adcbb41
 Author: Bruce Adler <bruce.adler@ccpu.com>
 Date:	Fri Nov 2 13:15:42 2007 -0700
@@ -142,6 +1725,26 @@ Date:	Wed Oct 24 15:48:37 2007 +0200
     Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit e5c794e491a57d829b6d8733e2ed8368a2269abf
+Author: Justin Flammia <jflammia@savantav.com>
+Date:	Mon Oct 29 17:40:35 2007 -0400
+
+    DHCP Client Fix
+
+    This is a multi-part message in MIME format.
+
+    commit e6e505eae94ed721e123e177489291fc4544b7b8
+    Author: Justin Flammia <jflammia@savantav.com>
+    Date:   Mon Oct 29 17:19:03 2007 -0400
+
+	Found a bug in the way the DHCP Request packet is built, where the IP address
+	that is offered by the server is bound to prematurely. This patch is a fix of
+	that bug where the IP address offered by the DHCP server is not used until
+	after the DHCP ACK from the server is received.
+
+    Signed-off-by: Justin Flammia <jflammia@savantav.com>
+    Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 31548249decf18a6b877a18436b6139dd483fe4a
 Author: Justin Flammia <jflammia@savantav.com>
 Date:	Mon Oct 29 17:40:35 2007 -0400
 
@@ -411,6 +2014,14 @@ Author: Peter Pearse <peter.pearse@arm.com>
 Date:	Tue Oct 23 10:22:16 2007 +0100
 
     Move PL01* serial drivers to drivers/serial and adjust Makefiles.
+
+commit 20d500d531a6b971ce6cc1bf191cb0092cdc0afc
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 10:17:42 2007 +0200
+
+    ppc4xx: lwmon5: Some further GPIO config changes
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit de9a738faa7c2f47286119c3bfebc3dfbfe7d86d
 Author: Vlad Lungu <vlad@comsys.ro>
@@ -999,6 +2610,56 @@ Author: Michal Simek <monstr@monstr.eu>
 Date:	Mon Sep 24 00:08:37 2007 +0200
 
     synchronizition with mainline
+
+commit eda3e1e6619ad0bee94ae4b16c99d88e77e2af13
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:42:38 2007 +0900
+
+    sh: Add support command of ide with sh
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit d91ea45d15cf8e0987456bd211ffbb650824b6f1
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:38:42 2007 +0900
+
+    sh: Update Makefile
+
+    Add support MS7722SE01 to Makefile.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 6c0bbdccd379f5c8702af9e0765294c2fb7472a6
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:31:13 2007 +0900
+
+    sh: Add support Renesas sh7722 processor and Hitachi MS7722SE01 board
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 047375bfa4c3052fa50a748da7ff89e9dad3b364
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:19:24 2007 +0900
+
+    sh: Update MS7750SE01 platform
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 516ad760db3553766267ada01b7d5d727faa4bbd
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:17:08 2007 +0900
+
+    sh: Remove comment out code from include/asm-sh/cpu_sh4.h
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit b02bad128669e567fce87d8df823b06a0144b8db
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Sep 23 02:12:30 2007 +0900
+
+    sh: Update core code of SuperH.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
 commit 66dcad3a9a53e0766d90e0084123bd8529522fb0
 Author: Wolfgang Denk <wd@denx.de>
@@ -7706,6 +9367,24 @@ Date:	Tue May 15 07:55:42 2007 -0700
     it just adds the missing define of CFG_SYSTEMACE_WIDTH.
 
      Fix to compile JSE against 20070514 git of u-boot
+
+commit 69df3c4da0c93017cceb25a366e794570bd0ed98
+Author: Nobuhiro Iwamatsu <iwamatsu@rahute.(none)>
+Date:	Sun May 13 21:01:03 2007 +0900
+
+    sh: MS7750SE support.
+
+    This adds support for the Hitachi MS7750SE.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 0b135cfc2e524dc249b75057b55dd4cc09842e27
+Author: Nobuhiro Iwamatsu <iwamatsu@rahute.(none)>
+Date:	Sun May 13 20:58:00 2007 +0900
+
+    sh: First support code of SuperH.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
 commit 61936667e86a250ae12fd2dc189d3588f0a59e0b
 Author: Stefan Roese <sr@denx.de>

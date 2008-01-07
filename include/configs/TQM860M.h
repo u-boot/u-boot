@@ -189,11 +189,14 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
-
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+/* use CFI flash driver */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH_EMPTY_INFO
+#define CFG_FLASH_USE_BUFFER_WRITE	1
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip */
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x40000	/*   Offset   of Environment Sector	*/
@@ -368,7 +371,7 @@
  */
 #define SDRAM_BASE2_PRELIM	0x00000000	/* SDRAM bank #0	*/
 #define SDRAM_BASE3_PRELIM	0x20000000	/* SDRAM bank #1	*/
-#define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
+#define	SDRAM_MAX_SIZE		0x08000000	/* max 128 MB per bank	*/
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CFG_OR_TIMING_SDRAM	0x00000A00
@@ -444,7 +447,10 @@
 #define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
-
+/* 10 column SDRAM */
+#define CFG_MAMR_10COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
+			 MAMR_AMA_TYPE_2 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A9  |	\
+			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
 /*
  * Internal Definitions

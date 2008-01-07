@@ -22,7 +22,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <config.h>
 #include <version.h>
 #include <asm/regdef.h>
@@ -30,12 +29,10 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
-
 	/* 16KB is the maximum size of instruction and data caches on
 	 * MIPS 4K.
 	 */
 #define MIPS_MAX_CACHE_SIZE	0x4000
-
 
 /*
  * cacheop macro to automate cache operations
@@ -131,7 +128,6 @@ mips_cache_reset:
 	li	t4, CFG_CACHELINE_SIZE
 	move	t5, t4
 
-
 	li	v0, MIPS_MAX_CACHE_SIZE
 
 	/* Now clear that much memory starting from zero.
@@ -139,8 +135,8 @@ mips_cache_reset:
 
 	li	a0, KSEG1
 	addu	a1, a0, v0
-
-2:	sw	zero, 0(a0)
+2:
+	sw	zero, 0(a0)
 	sw	zero, 4(a0)
 	sw	zero, 8(a0)
 	sw	zero, 12(a0)
@@ -156,11 +152,11 @@ mips_cache_reset:
 
 	mtc0	zero, CP0_TAGLO
 
-   /*
-    * The caches are probably in an indeterminate state,
-    * so we force good parity into them by doing an
-    * invalidate, load/fill, invalidate for each line.
-    */
+	/*
+	 * The caches are probably in an indeterminate state,
+	 * so we force good parity into them by doing an
+	 * invalidate, load/fill, invalidate for each line.
+	 */
 
 	/* Assume bottom of RAM will generate good parity for the cache.
 	 */
@@ -201,9 +197,9 @@ mips_cache_reset:
 	move	a1, a2
 	icacheop(a0,a1,a2,a3,Index_Store_Tag_D)
 
-	j  ra
-	.end  mips_cache_reset
+	j	ra
 
+	.end	mips_cache_reset
 
 /*******************************************************************************
 *
@@ -220,7 +216,7 @@ dcache_status:
 	andi	v0, v0, 1
 	j	ra
 
-	.end  dcache_status
+	.end	dcache_status
 
 /*******************************************************************************
 *
@@ -237,11 +233,10 @@ dcache_disable:
 	li	t1, -8
 	and	t0, t0, t1
 	ori	t0, t0, CONF_CM_UNCACHED
-	mtc0    t0, CP0_CONFIG
+	mtc0	t0, CP0_CONFIG
 	j	ra
 
-	.end  dcache_disable
-
+	.end	dcache_disable
 
 /*******************************************************************************
 *
@@ -266,4 +261,5 @@ mips_cache_lock:
 	icacheop(a0,a1,a2,a3,0x1d)
 
 	j	ra
+
 	.end	mips_cache_lock

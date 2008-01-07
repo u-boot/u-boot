@@ -32,8 +32,6 @@
 #include <config.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_ITEST)
-
 #define EQ	0
 #define NE	1
 #define LT	2
@@ -197,4 +195,3 @@ U_BOOT_CMD(
 	"itest\t- return true/false on integer compare\n",
 	"[.b, .w, .l, .s] [*]value1 <op> [*]value2\n"
 );
-#endif
