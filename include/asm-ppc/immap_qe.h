@@ -513,10 +513,39 @@ typedef struct dbg {
 	u8 res2[0x48];
 } __attribute__ ((packed)) dbg_t;
 
-/* RISC Special Registers (Trap and Breakpoint)
+/*
+ * RISC Special Registers (Trap and Breakpoint).  These are described in
+ * the QE Developer's Handbook.
 */
 typedef struct rsp {
-	u8 fixme[0x100];
+	u32 tibcr[16];	/* Trap/instruction breakpoint control regs */
+	u8 res0[64];
+	u32 ibcr0;
+	u32 ibs0;
+	u32 ibcnr0;
+	u8 res1[4];
+	u32 ibcr1;
+	u32 ibs1;
+	u32 ibcnr1;
+	u32 npcr;
+	u32 dbcr;
+	u32 dbar;
+	u32 dbamr;
+	u32 dbsr;
+	u32 dbcnr;
+	u8 res2[12];
+	u32 dbdr_h;
+	u32 dbdr_l;
+	u32 dbdmr_h;
+	u32 dbdmr_l;
+	u32 bsr;
+	u32 bor;
+	u32 bior;
+	u8 res3[4];
+	u32 iatr[4];
+	u32 eccr;		/* Exception control configuration register */
+	u32 eicr;
+	u8 res4[0x100-0xf8];
 } __attribute__ ((packed)) rsp_t;
 
 typedef struct qe_immap {
