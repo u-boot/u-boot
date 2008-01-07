@@ -2699,6 +2699,9 @@ Some configuration options can be set using Environment Variables:
 		  Useful on scripts which control the retry operation
 		  themselves.
 
+  npe_ucode	- see CONFIG_IXP4XX_NPE_EXT_UCOD
+		  if set load address for the npe microcode
+
   tftpsrcport	- If this is set, the value is used for TFTP's
 		  UDP source port.
 
