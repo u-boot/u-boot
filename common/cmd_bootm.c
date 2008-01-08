@@ -40,8 +40,7 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#endif
-#if defined(CONFIG_OF_FLAT_TREE)
+#elif defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
 

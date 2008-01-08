@@ -37,8 +37,7 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#endif
-#if defined(CONFIG_OF_FLAT_TREE)
+#elif defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
 
@@ -269,7 +268,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		hdr = (image_header_t *)of_flat_tree;
 #if defined(CONFIG_OF_FLAT_TREE)
 		if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
-#else
+#elif defined(CONFIG_OF_LIBFDT)
 		if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
 #endif
 #ifndef CFG_NO_FLASH
@@ -313,7 +312,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			}
 #if defined(CONFIG_OF_FLAT_TREE)
 			if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
-#else
+#elif defined(CONFIG_OF_LIBFDT)
 			if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
 #endif
 				puts ("ERROR: uImage data is not a fdt - "
@@ -364,7 +363,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 #if defined(CONFIG_OF_FLAT_TREE)
 		if (*((ulong *)(of_flat_tree)) != OF_DT_HEADER) {
-#else
+#elif defined(CONFIG_OF_LIBFDT)
 		if (fdt_check_header (of_flat_tree) != 0) {
 #endif
 			puts ("ERROR: image is not a fdt - "
@@ -375,7 +374,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_OF_FLAT_TREE)
 		if (((struct boot_param_header *)of_flat_tree)->totalsize !=
 			image_to_cpu (len_ptr[2])) {
-#else
+#elif defined(CONFIG_OF_LIBFDT)
 		if (be32_to_cpu (fdt_totalsize (of_flat_tree)) !=
 			image_to_cpu (len_ptr[2])) {
 #endif
@@ -518,8 +517,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		ft_board_setup(of_flat_tree, gd->bd);
 #endif
 	}
-#endif /* CONFIG_OF_LIBFDT */
-#if defined(CONFIG_OF_FLAT_TREE)
+
+#elif defined(CONFIG_OF_FLAT_TREE)
+
 #ifdef CFG_BOOTMAPSZ
 	/*
 	 * The blob must be within CFG_BOOTMAPSZ,
@@ -552,7 +552,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	 */
 	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
 	/* ft_dump_blob(of_flat_tree); */
-#endif
+
+#endif	/* #if defined(CONFIG_OF_LIBFDT) #elif defined(CONFIG_OF_FLAT_TREE) */
+
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
