@@ -250,8 +250,11 @@ static inline void image_set_name (image_header_t *hdr, const char *name)
 
 int image_check_hcrc (image_header_t *hdr);
 int image_check_dcrc (image_header_t *hdr);
+#ifndef USE_HOSTCC
 int image_check_dcrc_wd (image_header_t *hdr, ulong chunksize);
 int getenv_verify (void);
+void memmove_wd (void *to, void *from, size_t len, ulong chunksz);
+#endif
 
 static inline int image_check_magic (image_header_t *hdr)
 {

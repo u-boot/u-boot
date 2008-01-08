@@ -250,24 +250,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (image_get_load (hdr) == addr) {
 			printf ("   XIP %s ... ", name);
 		} else {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			size_t l = len;
-			void *to = (void *)image_get_load (hdr);
-			void *from = (void *)data;
-
 			printf ("   Loading %s ... ", name);
 
-			while (l > 0) {
-				size_t tail = (l > CHUNKSZ) ? CHUNKSZ : l;
-				WATCHDOG_RESET();
-				memmove (to, from, tail);
-				to += tail;
-				from += tail;
-				l -= tail;
-			}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			memmove ((void *)image_get_load (hdr), (uchar *)data, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
+			memmove_wd ((void *)image_get_load (hdr),
+				   (void *)data, len, CHUNKSZ);
+
+			puts("OK\n");
 		}
 		break;
 	case IH_COMP_GZIP:

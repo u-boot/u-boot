@@ -57,6 +57,7 @@ int image_check_dcrc (image_header_t *hdr)
 	return (dcrc == image_get_dcrc (hdr));
 }
 
+#ifndef USE_HOSTCC
 int image_check_dcrc_wd (image_header_t *hdr, ulong chunksz)
 {
 	ulong dcrc = 0;
@@ -89,3 +90,20 @@ int getenv_verify (void)
 	char *s = getenv ("verify");
 	return (s && (*s == 'n')) ? 0 : 1;
 }
+
+void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
+{
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	while (len > 0) {
+		size_t tail = (len > chunksz) ? chunksz : len;
+		WATCHDOG_RESET ();
+		memmove (to, from, tail);
+		to += tail;
+		from += tail;
+		len -= tail;
+	}
+#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
+	memmove (to, from, len);
+#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
+}
+#endif /* USE_HOSTCC */

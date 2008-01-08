@@ -266,25 +266,10 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 			initrd_end = initrd_start + len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
 			       initrd_start, initrd_end);
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			{
-				size_t l = len;
-				void *to = (void *)initrd_start;
-				void *from = (void *)data;
 
-				while (l > 0) {
-					size_t tail =
-					    (l > CHUNKSZ) ? CHUNKSZ : l;
-					WATCHDOG_RESET();
-					memmove(to, from, tail);
-					to += tail;
-					from += tail;
-					l -= tail;
-				}
-			}
-#else				/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			memmove((void *)initrd_start, (void *)data, len);
-#endif				/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
+			memmove_wd((void *)initrd_start,
+				   (void *)data, len, CHUNKSZ);
+
 			puts("OK\n");
 		}
 	} else {
