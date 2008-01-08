@@ -271,8 +271,8 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	if (nodeoffset >= 0) {
 		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
 		if (path) {
-			tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
-			tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
+			tmp[0] = cpu_to_be32(hose[0].first_busno);
+			tmp[1] = cpu_to_be32(hose[0].last_busno);
 			do_fixup_by_path(blob, path, "bus-range",
 				&tmp, sizeof(tmp), 1);
 
