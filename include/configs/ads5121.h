@@ -407,4 +407,12 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+#define OF_CPU			"PowerPC,5121@0"
+#define OF_SOC			"soc5121@80000000"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH		"/soc5121@80000000/serial@11300"
+
 #endif	/* __CONFIG_H */

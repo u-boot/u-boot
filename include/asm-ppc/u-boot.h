@@ -74,6 +74,9 @@ typedef struct bd_info {
 	unsigned long	bi_sccfreq;	/* SCC_CLK Freq, in MHz */
 	unsigned long	bi_vco;		/* VCO Out from PLL, in MHz */
 #endif
+#if defined(CONFIG_MPC512X)
+	unsigned long	bi_ipsfreq;	/* IPS Bus Freq, in MHz */
+#endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */

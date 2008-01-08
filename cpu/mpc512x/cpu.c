@@ -32,6 +32,10 @@
 #include <mpc512x.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_OF_LIBFDT)
+#include <fdt_support.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu (void)
@@ -123,5 +127,22 @@ void watchdog_reset (void)
 
 	if (re_enable)
 		enable_interrupts ();
+}
+#endif
+
+#ifdef CONFIG_OF_LIBFDT
+void ft_cpu_setup(void *blob, bd_t *bd)
+{
+	char * cpu_path = "/cpus/" OF_CPU;
+	char * eth_path = "/" OF_SOC "/ethernet@2800";
+
+	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
+	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_path_u32(blob, cpu_path, "ref-frequency", CFG_MPC512X_CLKIN, 1);
+	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_by_path_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipsfreq, 1);
+	do_fixup_by_path_u32(blob, "/" OF_SOC, "ref-frequency", CFG_MPC512X_CLKIN, 1);
+	do_fixup_by_path(blob, eth_path, "address", bd->bi_enetaddr, 6, 0);
+	do_fixup_by_path(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
 }
 #endif
