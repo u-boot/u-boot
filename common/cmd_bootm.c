@@ -61,13 +61,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #include <dataflash.h>
 #endif
 
-/*
- * Some systems (for example LWMON) have very short watchdog periods;
- * we must make sure to split long operations like memmove() or
- * crc32() into reasonable chunks.
- */
-#define CHUNKSZ (64 * 1024)
-
 int  gunzip (void *, int, unsigned char *, unsigned long *);
 
 #ifdef CONFIG_BZIP2

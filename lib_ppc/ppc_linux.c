@@ -49,8 +49,6 @@
 #include <asm/cache.h>
 #endif
 
-#define CHUNKSZ (64 * 1024)
-
 DECLARE_GLOBAL_DATA_PTR;
 extern image_header_t header;
 

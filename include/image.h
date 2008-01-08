@@ -164,6 +164,13 @@ typedef struct image_header {
 	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
 } image_header_t;
 
+/*
+ * Some systems (for example LWMON) have very short watchdog periods;
+ * we must make sure to split long operations like memmove() or
+ * crc32() into reasonable chunks.
+ */
+#define CHUNKSZ (64 * 1024)
+
 #define image_to_cpu(x)		ntohl(x)
 #define cpu_to_image(x)		htonl(x)
 

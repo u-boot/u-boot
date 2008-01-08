@@ -37,8 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LINUX_MAX_ENVS		256
 #define LINUX_MAX_ARGS		256
 
-#define CHUNKSZ			(64 * 1024)
-
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>
 # define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
