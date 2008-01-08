@@ -35,6 +35,7 @@
 #ifdef MTD_OLD
 # include <linux/mtd/mtd.h>
 #else
+# define  __user	/* nothing */
 # include <mtd/mtd-user.h>
 #endif
 
