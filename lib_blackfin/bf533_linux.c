@@ -52,12 +52,13 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 {
 	int (*appl) (char *cmdline);
 	char *cmdline;
+	image_header_t *hdr = &header;
 
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
 #endif
 
-	appl = (int (*)(char *))ntohl(header.ih_ep);
+	appl = (int (*)(char *))image_get_ep (hdr);
 	printf("Starting Kernel at = %x\n", appl);
 	cmdline = make_command_line();
 	if (icache_status()) {

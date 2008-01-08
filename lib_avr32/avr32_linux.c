@@ -36,8 +36,6 @@ extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 /* CPU-specific hook to allow flushing of caches, etc. */
 extern void prepare_to_boot(void);
 
-extern image_header_t header;		/* from cmd_bootm.c */
-
 static struct tag *setup_start_tag(struct tag *params)
 {
 	params->hdr.tag = ATAG_CORE;
@@ -181,7 +179,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	unsigned long data, len = 0;
 	unsigned long initrd_start, initrd_end;
 	unsigned long image_start, image_end;
-	unsigned long checksum;
 	void (*theKernel)(int magic, void *tagtable);
 	image_header_t *hdr;
 	struct tag *params, *params_start;
@@ -189,9 +186,9 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	hdr = (image_header_t *)addr;
 	image_start = addr;
-	image_end = addr + hdr->ih_size;
+	image_end = addr + image_get_data_size (hdr);
 
-	theKernel = (void *)ntohl(hdr->ih_ep);
+	theKernel = (void *)image_get_ep (hdr);
 
 	/*
 	 * Check if there is an initrd image
@@ -200,42 +197,28 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		show_boot_progress (9);
 
 		addr = simple_strtoul(argv[2], NULL, 16);
+		hdr = (image_header_t *)addr;
 
 		printf("## Loading RAMDISK image at %08lx ...\n", addr);
 
-		memcpy(&header, (char *)addr, sizeof(header));
-		hdr = &header;
-
-		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			puts("Bad Magic Number\n");
 			show_boot_progress (-10);
 			do_reset(cmdtp, flag, argc, argv);
 		}
 
-		data = (unsigned long)hdr;
-		len = sizeof(*hdr);
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32(0, (unsigned char *)data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			puts("Bad Header Checksum\n");
 			show_boot_progress (-11);
 			do_reset(cmdtp, flag, argc, argv);
 		}
 
 		show_boot_progress (10);
-
-		print_image_hdr(hdr);
-
-		data = addr + sizeof(header);
-		len = ntohl(hdr->ih_size);
+		print_image_hdr (hdr);
 
 		if (verify) {
-			unsigned long csum = 0;
-
 			puts("   Verifying Checksum ... ");
-			csum = crc32(0, (unsigned char *)data, len);
-			if (csum != ntohl(hdr->ih_dcrc)) {
+			if (!image_check_dcrc (hdr)) {
 				puts("Bad Data CRC\n");
 				show_boot_progress (-12);
 				do_reset(cmdtp, flag, argc, argv);
@@ -245,15 +228,19 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		show_boot_progress (11);
 
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_AVR32) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
+		if (!image_check_os (hdr, IH_OS_LINUX) ||
+		    !image_check_arch (hdr, IH_ARCH_AVR32) ||
+		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
 			puts("Not a Linux/AVR32 RAMDISK image\n");
 			show_boot_progress (-13);
 			do_reset(cmdtp, flag, argc, argv);
 		}
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = ntohl (len_ptr[0]) % 4;
+
+		data = image_get_data (hdr);
+		len = image_get_data_size (hdr);
+
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
+		ulong tail = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		show_boot_progress (13);
@@ -264,12 +251,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		for (i = 1; len_ptr[i]; ++i)
 			data += 4;
 		/* add kernel length, and align */
-		data += ntohl (len_ptr[0]);
+		data += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			data += 4 - tail;
 		}
 
-		len = ntohl (len_ptr[1]);
+		len = image_to_cpu (len_ptr[1]);
 	} else {
 		/* no initrd image */
 		show_boot_progress (14);

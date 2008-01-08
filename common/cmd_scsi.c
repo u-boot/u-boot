@@ -207,7 +207,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	char *ep;
 	int dev, part = 0;
-	ulong addr, cnt, checksum;
+	ulong addr, cnt;
 	disk_partition_t info;
 	image_header_t *hdr;
 	int rcode = 0;
@@ -275,22 +275,18 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (ntohl(hdr->ih_magic) == IH_MAGIC) {
+	if (!image_check_magic (hdr)) {
 		printf("\n** Bad Magic Number **\n");
 		return 1;
 	}
 
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		puts ("\n** Bad Header Checksum **\n");
 		return 1;
 	}
-	hdr->ih_hcrc = htonl(checksum);	/* restore checksum for later use */
 
 	print_image_hdr (hdr);
-	cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
+	cnt = image_get_image_size (hdr);
 	cnt += info.blksz - 1;
 	cnt /= info.blksz;
 	cnt -= 1;

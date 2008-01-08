@@ -514,16 +514,16 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 
 	hdr = (image_header_t *) addr;
 
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-		printf("\n** Bad Magic Number 0x%x **\n", hdr->ih_magic);
+	if (!image_check_magic (hdr)) {
+		printf("\n** Bad Magic Number 0x%x **\n", image_get_magic (hdr));
 		show_boot_progress (-57);
 		return 1;
 	}
 	show_boot_progress (57);
 
-	print_image_hdr(hdr);
+	print_image_hdr (hdr);
 
-	cnt = (ntohl(hdr->ih_size) + sizeof (image_header_t));
+	cnt = image_get_image_size (hdr);
 	if (jffs2) {
 		nand_read_options_t opts;
 		memset(&opts, 0, sizeof(opts));
@@ -982,14 +982,14 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (ntohl(hdr->ih_magic) == IH_MAGIC) {
+	if (image_check_magic (hdr)) {
 
 		print_image_hdr (hdr);
 
-		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
+		cnt = image_get_image_size (hdr);
 		cnt -= SECTORSIZE;
 	} else {
-		printf ("\n** Bad Magic Number 0x%x **\n", ntohl(hdr->ih_magic));
+		printf ("\n** Bad Magic Number 0x%x **\n", image_get_magic (hdr));
 		show_boot_progress (-57);
 		return 1;
 	}

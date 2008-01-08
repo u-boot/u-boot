@@ -836,13 +836,13 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	hdr = (image_header_t *)addr;
-	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
+	if (!image_get_magic (hdr)) {
 		printf ("Bad Magic Number\n");
 		return 1;
 	}
-	print_image_hdr(hdr);
+	print_image_hdr (hdr);
 
-	imsize= ntohl(hdr->ih_size)+sizeof(image_header_t);
+	imsize= image_get_image_size (hdr);
 	nrofblk=imsize/512;
 	if((imsize%512)>0)
 		nrofblk++;
@@ -861,7 +861,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Loading ok, update default load address */
 
 	load_addr = addr;
-	if(hdr->ih_type  == IH_TYPE_KERNEL) {
+	if(image_check_type (hdr, IH_TYPE_KERNEL)) {
 		/* Check if we should attempt an auto-start */
 		if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
 			char *local_args[2];

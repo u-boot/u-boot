@@ -72,7 +72,7 @@ extern image_header_t header;	/* from cmd_bootm.c */
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		     ulong addr, ulong *len_ptr, int verify)
 {
-	ulong len = 0, checksum;
+	ulong len = 0;
 	ulong initrd_start, initrd_end;
 	ulong data;
 	void (*theKernel)(int zero, int arch, uint params);
@@ -83,7 +83,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char *commandline = getenv ("bootargs");
 #endif
 
-	theKernel = (void (*)(int, int, uint))ntohl(hdr->ih_ep);
+	theKernel = (void (*)(int, int, uint))image_get_ep (hdr);
 
 	/*
 	 * Check if there is an initrd image
@@ -98,26 +98,20 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/* Copy header so we can blank CRC field for re-calculation */
 #ifdef CONFIG_HAS_DATAFLASH
 		if (addr_dataflash (addr)) {
-			read_dataflash (addr, sizeof (image_header_t),
+			read_dataflash (addr, image_get_header_size (),
 					(char *) &header);
 		} else
 #endif
 			memcpy (&header, (char *) addr,
-				sizeof (image_header_t));
+				image_get_header_size ());
 
-		if (ntohl (hdr->ih_magic) != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			printf ("Bad Magic Number\n");
 			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		data = (ulong) & header;
-		len = sizeof (image_header_t);
-
-		checksum = ntohl (hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32 (0, (unsigned char *) data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			printf ("Bad Header Checksum\n");
 			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
@@ -127,8 +121,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		print_image_hdr (hdr);
 
-		data = addr + sizeof (image_header_t);
-		len = ntohl (hdr->ih_size);
+		data = image_get_data (hdr);
+		len = image_get_data_size (hdr);
 
 #ifdef CONFIG_HAS_DATAFLASH
 		if (addr_dataflash (addr)) {
@@ -138,11 +132,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #endif
 
 		if (verify) {
-			ulong csum = 0;
-
 			printf ("   Verifying Checksum ... ");
-			csum = crc32 (0, (unsigned char *) data, len);
-			if (csum != ntohl (hdr->ih_dcrc)) {
+			if (!image_get_dcrc (hdr)) {
 				printf ("Bad Data CRC\n");
 				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
@@ -152,9 +143,9 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		show_boot_progress (11);
 
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_ARM) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
+		if (!image_check_os (hdr, IH_OS_LINUX) ||
+		    !image_check_arch (hdr, IH_ARCH_ARM) ||
+		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
 			printf ("No Linux ARM Ramdisk Image\n");
 			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
@@ -164,15 +155,15 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/*
 		 *we need to copy the ramdisk to SRAM to let Linux boot
 		 */
-		memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
-		data = ntohl(hdr->ih_load);
+		memmove ((void *)image_get_load (hdr), (uchar *)data, len);
+		data = image_get_load (hdr);
 #endif /* CONFIG_B2 || CONFIG_EVB4510 */
 
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = ntohl (len_ptr[0]) % 4;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
+		ulong tail = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		show_boot_progress (13);
@@ -183,12 +174,12 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		for (i = 1; len_ptr[i]; ++i)
 			data += 4;
 		/* add kernel length, and align */
-		data += ntohl (len_ptr[0]);
+		data += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			data += 4 - tail;
 		}
 
-		len = ntohl (len_ptr[1]);
+		len = image_to_cpu (len_ptr[1]);
 
 	} else {
 		/*

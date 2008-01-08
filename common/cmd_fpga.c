@@ -221,13 +221,13 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			image_header_t *hdr = &header;
 			ulong	data;
 
-			memmove (&header, (char *)fpga_data, sizeof(image_header_t));
-			if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+			memmove (&header, (char *)fpga_data, image_get_header_size ());
+			if (!image_check_magic (hdr)) {
 				puts ("Bad Magic Number\n");
 				return 1;
 			}
-			data = ((ulong)fpga_data + sizeof(image_header_t));
-			data_size  = ntohl(hdr->ih_size);
+			data = ((ulong)fpga_data + image_get_header_size ());
+			data_size = image_get_data_size (hdr);
 			rc = fpga_load (dev, (void *)data, data_size);
 		}
 		break;

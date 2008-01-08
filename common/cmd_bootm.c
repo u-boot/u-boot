@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 
+#define DEBUG
+
 /*
  * Boot support
  */
@@ -73,9 +75,7 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
  * we must make sure to split long operations like memmove() or
  * crc32() into reasonable chunks.
  */
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-# define CHUNKSZ (64 * 1024)
-#endif
+#define CHUNKSZ (64 * 1024)
 
 int  gunzip (void *, int, unsigned char *, unsigned long *);
 
@@ -152,7 +152,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong	iflag;
 	ulong	addr;
-	ulong	data, len, checksum;
+	ulong	data, len;
 	ulong  *len_ptr;
 	uint	unc_len = CFG_BOOTM_LEN;
 	int	i, verify;
@@ -160,8 +160,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	(*appl)(int, char *[]);
 	image_header_t *hdr = &header;
 
-	s = getenv ("verify");
-	verify = (s && (*s == 'n')) ? 0 : 1;
+	verify = getenv_verify ();
 
 	if (argc < 2) {
 		addr = load_addr;
@@ -175,16 +174,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Copy header so we can blank CRC field for re-calculation */
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr)){
-		read_dataflash(addr, sizeof(image_header_t), (char *)&header);
+		read_dataflash (addr, image_get_header_size (), (char *)&header);
 	} else
 #endif
-	memmove (&header, (char *)addr, sizeof(image_header_t));
+	memmove (&header, (char *)addr, image_get_header_size ());
 
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+	if (!image_check_magic (hdr)) {
 #ifdef __I386__	/* correct image format not implemented yet - fake it */
 		if (fake_header(hdr, (void*)addr, -1) != NULL) {
 			/* to compensate for the addition below */
-			addr -= sizeof(image_header_t);
+			addr -= image_get_header_size ();
 			/* turnof verify,
 			 * fake_header() does not fake the data crc
 			 */
@@ -199,13 +198,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (2);
 
-	data = (ulong)&header;
-	len  = sizeof(image_header_t);
-
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)data, len) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		puts ("Bad Header Checksum\n");
 		show_boot_progress (-2);
 		return 1;
@@ -214,7 +207,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr)){
-		len  = ntohl(hdr->ih_size) + sizeof(image_header_t);
+		len  = image_get_image_size (hdr);
 		read_dataflash(addr, len, (char *)CFG_LOAD_ADDR);
 		addr = CFG_LOAD_ADDR;
 	}
@@ -224,12 +217,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* for multi-file images we need the data part, too */
 	print_image_hdr ((image_header_t *)addr);
 
-	data = addr + sizeof(image_header_t);
-	len  = ntohl(hdr->ih_size);
+	len = image_get_data_size (hdr);
+	data = addr + image_get_header_size ();
+	len_ptr = (ulong *)data;
 
 	if (verify) {
 		puts ("   Verifying Checksum ... ");
-		if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
+		if (!image_check_dcrc ((image_header_t *)addr)) {
 			printf ("Bad Data CRC\n");
 			show_boot_progress (-3);
 			return 1;
@@ -238,46 +232,19 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (4);
 
-	len_ptr = (ulong *)data;
-
-#if defined(__ARM__)
-	if (hdr->ih_arch != IH_CPU_ARM)
-#elif defined(__avr32__)
-	if (hdr->ih_arch != IH_CPU_AVR32)
-#elif defined(__bfin__)
-	if (hdr->ih_arch != IH_CPU_BLACKFIN)
-#elif defined(__I386__)
-	if (hdr->ih_arch != IH_CPU_I386)
-#elif defined(__M68K__)
-	if (hdr->ih_arch != IH_CPU_M68K)
-#elif defined(__microblaze__)
-	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
-#elif defined(__mips__)
-	if (hdr->ih_arch != IH_CPU_MIPS)
-#elif defined(__nios__)
-	if (hdr->ih_arch != IH_CPU_NIOS)
-#elif defined(__nios2__)
-	if (hdr->ih_arch != IH_CPU_NIOS2)
-#elif defined(__PPC__)
-	if (hdr->ih_arch != IH_CPU_PPC)
-#elif defined(__sh__)
-	if (hdr->ih_arch != IH_CPU_SH)
-#else
-# error Unknown CPU type
-#endif
-	{
-		printf ("Unsupported Architecture 0x%x\n", hdr->ih_arch);
+	if (!image_check_target_arch (hdr)) {
+		printf ("Unsupported Architecture 0x%x\n", image_get_arch (hdr));
 		show_boot_progress (-4);
 		return 1;
 	}
 	show_boot_progress (5);
 
-	switch (hdr->ih_type) {
+	switch (image_get_type (hdr)) {
 	case IH_TYPE_STANDALONE:
 		name = "Standalone Application";
 		/* A second argument overwrites the load address */
 		if (argc > 2) {
-			hdr->ih_load = htonl(simple_strtoul(argv[2], NULL, 16));
+			image_set_load (hdr, simple_strtoul (argv[2], NULL, 16));
 		}
 		break;
 	case IH_TYPE_KERNEL:
@@ -285,7 +252,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	case IH_TYPE_MULTI:
 		name = "Multi-File Image";
-		len  = ntohl(len_ptr[0]);
+		len  = image_to_cpu (len_ptr[0]);
 		/* OS kernel is always the first image */
 		data += 8; /* kernel_len + terminator */
 		for (i=1; len_ptr[i]; ++i)
@@ -316,14 +283,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	dcache_disable();
 #endif
 
-	switch (hdr->ih_comp) {
+	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:
-		if(ntohl(hdr->ih_load) == addr) {
+		if (image_get_load (hdr) == addr) {
 			printf ("   XIP %s ... ", name);
 		} else {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 			size_t l = len;
-			void *to = (void *)ntohl(hdr->ih_load);
+			void *to = (void *)image_get_load (hdr);
 			void *from = (void *)data;
 
 			printf ("   Loading %s ... ", name);
@@ -337,13 +304,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				l -= tail;
 			}
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
+			memmove ((void *)image_get_load (hdr), (uchar *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 		}
 		break;
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", name);
-		if (gunzip ((void *)ntohl(hdr->ih_load), unc_len,
+		if (gunzip ((void *)image_get_load (hdr), unc_len,
 			    (uchar *)data, &len) != 0) {
 			puts ("GUNZIP ERROR - must RESET board to recover\n");
 			show_boot_progress (-6);
@@ -358,7 +325,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * use slower decompression algorithm which requires
 		 * at most 2300 KB of memory.
 		 */
-		i = BZ2_bzBuffToBuffDecompress ((char*)ntohl(hdr->ih_load),
+		i = BZ2_bzBuffToBuffDecompress ((char*)image_get_load (hdr),
 						&unc_len, (char *)data, len,
 						CFG_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
@@ -371,14 +338,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	default:
 		if (iflag)
 			enable_interrupts();
-		printf ("Unimplemented compression type %d\n", hdr->ih_comp);
+		printf ("Unimplemented compression type %d\n", image_get_comp (hdr));
 		show_boot_progress (-7);
 		return 1;
 	}
 	puts ("OK\n");
 	show_boot_progress (7);
 
-	switch (hdr->ih_type) {
+	switch (image_get_type (hdr)) {
 	case IH_TYPE_STANDALONE:
 		if (iflag)
 			enable_interrupts();
@@ -392,7 +359,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			setenv("filesize", buf);
 			return 0;
 		}
-		appl = (int (*)(int, char *[]))ntohl(hdr->ih_ep);
+		appl = (int (*)(int, char *[]))image_get_ep (hdr);
 		(*appl)(argc-1, &argv[1]);
 		return 0;
 	case IH_TYPE_KERNEL:
@@ -402,13 +369,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	default:
 		if (iflag)
 			enable_interrupts();
-		printf ("Can't boot image type %d\n", hdr->ih_type);
+		printf ("Can't boot image type %d\n", image_get_type (hdr));
 		show_boot_progress (-8);
 		return 1;
 	}
 	show_boot_progress (8);
 
-	switch (hdr->ih_os) {
+	switch (image_get_os (hdr)) {
 	default:			/* handled by (original) Linux case */
 	case IH_OS_LINUX:
 #ifdef CONFIG_SILENT_CONSOLE
@@ -517,7 +484,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		int	verify)
 {
 	ulong	sp;
-	ulong	len, checksum;
+	ulong	len;
 	ulong	initrd_start, initrd_end;
 	ulong	cmd_start, cmd_end;
 	ulong	initrd_high;
@@ -615,7 +582,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 #endif /* CONFIG_MPC5xxx */
 	}
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong)) ntohl(hdr->ih_ep);
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
 
 	/*
 	 * Check if there is an initrd image
@@ -636,60 +603,27 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		addr = simple_strtoul(argv[2], NULL, 16);
 
 		printf ("## Loading RAMDisk Image at %08lx ...\n", addr);
+		hdr = (image_header_t *)addr;
 
-		/* Copy header so we can blank CRC field for re-calculation */
-		memmove (&header, (char *)addr, sizeof(image_header_t));
-
-		if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			puts ("Bad Magic Number\n");
 			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		data = (ulong)&header;
-		len  = sizeof(image_header_t);
-
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32 (0, (uchar *)data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			puts ("Bad Header Checksum\n");
 			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
 		}
-
 		show_boot_progress (10);
 
 		print_image_hdr (hdr);
 
-		data = addr + sizeof(image_header_t);
-		len  = ntohl(hdr->ih_size);
-
 		if (verify) {
-			ulong csum = 0;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			ulong cdata = data, edata = cdata + len;
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-
 			puts ("   Verifying Checksum ... ");
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-
-			while (cdata < edata) {
-				ulong chunk = edata - cdata;
-
-				if (chunk > CHUNKSZ)
-					chunk = CHUNKSZ;
-				csum = crc32 (csum, (uchar *)cdata, chunk);
-				cdata += chunk;
-
-				WATCHDOG_RESET();
-			}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			csum = crc32 (0, (uchar *)data, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-
-			if (csum != ntohl(hdr->ih_dcrc)) {
+			if (!image_check_dcrc_wd (hdr, CHUNKSZ)) {
 				puts ("Bad Data CRC\n");
 				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
@@ -699,19 +633,22 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 		show_boot_progress (11);
 
-		if ((hdr->ih_os   != IH_OS_LINUX)	||
-		    (hdr->ih_arch != IH_CPU_PPC)	||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)	) {
+		if (!image_check_os (hdr, IH_OS_LINUX) ||
+		    !image_check_arch (hdr, IH_ARCH_PPC) ||
+		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
 			puts ("No Linux PPC Ramdisk Image\n");
 			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
+		data = image_get_data (hdr);
+		len = image_get_data_size (hdr);
+
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1])) {
-		u_long tail    = ntohl(len_ptr[0]) % 4;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
+		u_long tail    = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		show_boot_progress (13);
@@ -722,12 +659,12 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		for (i=1; len_ptr[i]; ++i)
 			data += 4;
 		/* add kernel length, and align */
-		data += ntohl(len_ptr[0]);
+		data += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			data += 4 - tail;
 		}
 
-		len   = ntohl(len_ptr[1]);
+		len   = image_to_cpu (len_ptr[1]);
 
 	} else {
 		/*
@@ -743,70 +680,64 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+		if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
 #else
-		if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
+		if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
 #endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
 #endif
-		} else if (ntohl(hdr->ih_magic) == IH_MAGIC) {
+		} else if (image_check_magic (hdr)) {
 			printf("## Flat Device Tree at %08lX\n", hdr);
-			print_image_hdr(hdr);
+			print_image_hdr (hdr);
 
-			if ((ntohl(hdr->ih_load) <  ((unsigned long)hdr + ntohl(hdr->ih_size) + sizeof(hdr))) &&
-			   ((ntohl(hdr->ih_load) + ntohl(hdr->ih_size)) > (unsigned long)hdr)) {
+			if ((image_get_load (hdr) <  ((unsigned long)hdr + image_get_image_size (hdr))) &&
+			   ((image_get_load (hdr) + image_get_data_size (hdr)) > (unsigned long)hdr)) {
 				puts ("ERROR: fdt overwritten - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			puts ("   Verifying Checksum ... ");
-			memmove (&header, (char *)hdr, sizeof(image_header_t));
-			checksum = ntohl(header.ih_hcrc);
-			header.ih_hcrc = 0;
-
-			if(checksum != crc32(0, (uchar *)&header, sizeof(image_header_t))) {
+			if (!image_check_hcrc (hdr)) {
 				puts ("ERROR: fdt header checksum invalid - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			checksum = ntohl(hdr->ih_dcrc);
-			addr = (ulong)((uchar *)(hdr) + sizeof(image_header_t));
-
-			if(checksum != crc32(0, (uchar *)addr, ntohl(hdr->ih_size))) {
+			if (!image_check_dcrc (hdr)) {
 				puts ("ERROR: fdt checksum invalid - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			puts ("OK\n");
 
-			if (ntohl(hdr->ih_type) != IH_TYPE_FLATDT) {
+			if (!image_check_type (hdr, IH_TYPE_FLATDT)) {
 				puts ("ERROR: uImage is not a fdt - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-			if (ntohl(hdr->ih_comp) != IH_COMP_NONE) {
+			if (image_get_comp (hdr) != IH_COMP_NONE) {
 				puts ("ERROR: uImage is compressed - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 #if defined(CONFIG_OF_FLAT_TREE)
-			if (*((ulong *)(of_flat_tree + sizeof(image_header_t))) != OF_DT_HEADER) {
+			if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
 #else
-			if (fdt_check_header(of_flat_tree + sizeof(image_header_t)) != 0) {
+			if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
 #endif
 				puts ("ERROR: uImage data is not a fdt - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			memmove((void *)ntohl(hdr->ih_load),
-		       		(void *)(of_flat_tree + sizeof(image_header_t)),
-				ntohl(hdr->ih_size));
-			of_flat_tree = (char *)ntohl(hdr->ih_load);
+			memmove ((void *)image_get_load (hdr),
+				(void *)(of_flat_tree + image_get_header_size ()),
+				image_get_data_size (hdr));
+
+			of_flat_tree = (char *)image_get_load (hdr);
 		} else {
 			puts ("Did not find a flat Flat Device Tree.\n"
 				"Must RESET the board to recover.\n");
@@ -814,8 +745,8 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 		printf ("   Booting using the fdt at 0x%x\n",
 				of_flat_tree);
-	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
-		u_long tail    = ntohl(len_ptr[0]) % 4;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
+		u_long tail    = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		/* skip kernel length, initrd length, and terminator */
@@ -824,14 +755,14 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		for (i=2; len_ptr[i]; ++i)
 			of_flat_tree += 4;
 		/* add kernel length, and align */
-		of_flat_tree += ntohl(len_ptr[0]);
+		of_flat_tree += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			of_flat_tree += 4 - tail;
 		}
 
 		/* add initrd length, and align */
-		tail = ntohl(len_ptr[1]) % 4;
-		of_flat_tree += ntohl(len_ptr[1]);
+		tail = image_to_cpu (len_ptr[1]) % 4;
+		of_flat_tree += image_to_cpu (len_ptr[1]);
 		if (tail) {
 			of_flat_tree += 4 - tail;
 		}
@@ -855,10 +786,10 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 #if defined(CONFIG_OF_FLAT_TREE)
 		if (((struct boot_param_header *)of_flat_tree)->totalsize !=
-			ntohl (len_ptr[2])) {
+			image_to_cpu (len_ptr[2])) {
 #else
 		if (be32_to_cpu (fdt_totalsize (of_flat_tree)) !=
-			ntohl(len_ptr[2])) {
+			image_to_cpu (len_ptr[2])) {
 #endif
 			puts ("ERROR: fdt size != image size - "
 				"must RESET the board to recover.\n");
@@ -1098,7 +1029,7 @@ do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 	 */
 
 	img_addr = 0;
-	if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1]))
+	if ((image_check_type (hdr, IH_TYPE_MULTI)) && (len_ptr[1]))
 		img_addr = (image_header_t *) addr;
 
 
@@ -1131,7 +1062,7 @@ do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 		cmdline = "";
 	}
 
-	loader = (void (*)(bd_t *, image_header_t *, char *, char *)) ntohl(hdr->ih_ep);
+	loader = (void (*)(bd_t *, image_header_t *, char *, char *))image_get_ep (hdr);
 
 	printf ("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 		(ulong)loader);
@@ -1234,7 +1165,7 @@ do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 	}
 	*ss++ = NULL;	/* terminate */
 
-	entry = (void (*)(bd_t *, char *, char **, ulong))ntohl(hdr->ih_ep);
+	entry = (void (*)(bd_t *, char *, char **, ulong))image_get_ep (hdr);
 	(*entry)(kbd, cmdline, fwenv, top);
 }
 #endif
@@ -1288,38 +1219,24 @@ int do_iminfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 static int image_info (ulong addr)
 {
-	ulong	data, len, checksum;
-	image_header_t *hdr = &header;
+	image_header_t *hdr = (image_header_t *)addr;
 
 	printf ("\n## Checking Image at %08lx ...\n", addr);
 
-	/* Copy header so we can blank CRC field for re-calculation */
-	memmove (&header, (char *)addr, sizeof(image_header_t));
-
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+	if (!image_check_magic (hdr)) {
 		puts ("   Bad Magic Number\n");
 		return 1;
 	}
 
-	data = (ulong)&header;
-	len  = sizeof(image_header_t);
-
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)data, len) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		puts ("   Bad Header Checksum\n");
 		return 1;
 	}
 
-	/* for multi-file images we need the data part, too */
-	print_image_hdr ((image_header_t *)addr);
-
-	data = addr + sizeof(image_header_t);
-	len  = ntohl(hdr->ih_size);
+	print_image_hdr (hdr);
 
 	puts ("   Verifying Checksum ... ");
-	if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
+	if (!image_check_dcrc (hdr)) {
 		puts ("   Bad Data CRC\n");
 		return 1;
 	}
@@ -1347,38 +1264,29 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	int i, j;
 	image_header_t *hdr;
-	ulong data, len, checksum;
 
 	for (i=0, info=&flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
 		if (info->flash_id == FLASH_UNKNOWN)
 			goto next_bank;
 		for (j=0; j<info->sector_count; ++j) {
 
-			if (!(hdr=(image_header_t *)info->start[j]) ||
-			    (ntohl(hdr->ih_magic) != IH_MAGIC))
+			hdr = (image_header_t *)info->start[j];
+
+			if (!hdr || !image_check_magic (hdr))
 				goto next_sector;
 
-			/* Copy header so we can blank CRC field for re-calculation */
-			memmove (&header, (char *)hdr, sizeof(image_header_t));
-
-			checksum = ntohl(header.ih_hcrc);
-			header.ih_hcrc = 0;
-
-			if (crc32 (0, (uchar *)&header, sizeof(image_header_t))
-			    != checksum)
+			if (!image_check_hcrc (hdr))
 				goto next_sector;
 
 			printf ("Image at %08lX:\n", (ulong)hdr);
-			print_image_hdr( hdr );
-
-			data = (ulong)hdr + sizeof(image_header_t);
-			len  = ntohl(hdr->ih_size);
+			print_image_hdr (hdr);
 
 			puts ("   Verifying Checksum ... ");
-			if (crc32 (0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
-				puts ("   Bad Data CRC\n");
+			if (!image_check_dcrc (hdr)) {
+				puts ("Bad Data CRC\n");
+			} else {
+				puts ("OK\n");
 			}
-			puts ("OK\n");
 next_sector:		;
 		}
 next_bank:	;
@@ -1400,11 +1308,11 @@ void
 print_image_hdr (image_header_t *hdr)
 {
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-	time_t timestamp = (time_t)ntohl(hdr->ih_time);
+	time_t timestamp = (time_t)image_get_time (hdr);
 	struct rtc_time tm;
 #endif
 
-	printf ("   Image Name:   %.*s\n", IH_NMLEN, hdr->ih_name);
+	printf ("   Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 	to_tm (timestamp, &tm);
 	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
@@ -1412,19 +1320,19 @@ print_image_hdr (image_header_t *hdr)
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
 #endif
 	puts ("   Image Type:   "); print_type(hdr);
-	printf ("\n   Data Size:    %d Bytes = ", ntohl(hdr->ih_size));
-	print_size (ntohl(hdr->ih_size), "\n");
+	printf ("\n   Data Size:    %d Bytes = ", image_get_data_size (hdr));
+	print_size (image_get_data_size (hdr), "\n");
 	printf ("   Load Address: %08x\n"
 		"   Entry Point:  %08x\n",
-		 ntohl(hdr->ih_load), ntohl(hdr->ih_ep));
+		 image_get_load (hdr), image_get_ep (hdr));
 
-	if (hdr->ih_type == IH_TYPE_MULTI) {
+	if (image_check_type (hdr, IH_TYPE_MULTI)) {
 		int i;
 		ulong len;
-		ulong *len_ptr = (ulong *)((ulong)hdr + sizeof(image_header_t));
+		ulong *len_ptr = (ulong *)((ulong)hdr + image_get_header_size ());
 
 		puts ("   Contents:\n");
-		for (i=0; (len = ntohl(*len_ptr)); ++i, ++len_ptr) {
+		for (i=0; (len = image_to_cpu (*len_ptr)); ++i, ++len_ptr) {
 			printf ("   Image %d: %8ld Bytes = ", i, len);
 			print_size (len, "\n");
 		}
@@ -1437,7 +1345,7 @@ print_type (image_header_t *hdr)
 {
 	char *os, *arch, *type, *comp;
 
-	switch (hdr->ih_os) {
+	switch (image_get_os (hdr)) {
 	case IH_OS_INVALID:	os = "Invalid OS";		break;
 	case IH_OS_NETBSD:	os = "NetBSD";			break;
 	case IH_OS_LINUX:	os = "Linux";			break;
@@ -1454,29 +1362,29 @@ print_type (image_header_t *hdr)
 	default:		os = "Unknown OS";		break;
 	}
 
-	switch (hdr->ih_arch) {
-	case IH_CPU_INVALID:	arch = "Invalid CPU";		break;
-	case IH_CPU_ALPHA:	arch = "Alpha";			break;
-	case IH_CPU_ARM:	arch = "ARM";			break;
-	case IH_CPU_AVR32:	arch = "AVR32";			break;
-	case IH_CPU_BLACKFIN:	arch = "Blackfin";		break;
-	case IH_CPU_I386:	arch = "Intel x86";		break;
-	case IH_CPU_IA64:	arch = "IA64";			break;
-	case IH_CPU_M68K:	arch = "M68K"; 			break;
-	case IH_CPU_MICROBLAZE:	arch = "Microblaze"; 		break;
-	case IH_CPU_MIPS64:	arch = "MIPS 64 Bit";		break;
-	case IH_CPU_MIPS:	arch = "MIPS";			break;
-	case IH_CPU_NIOS2:	arch = "Nios-II";		break;
-	case IH_CPU_NIOS:	arch = "Nios";			break;
-	case IH_CPU_PPC:	arch = "PowerPC";		break;
-	case IH_CPU_S390:	arch = "IBM S390";		break;
-	case IH_CPU_SH:		arch = "SuperH";		break;
-	case IH_CPU_SPARC64:	arch = "SPARC 64 Bit";		break;
-	case IH_CPU_SPARC:	arch = "SPARC";			break;
+	switch (image_get_arch (hdr)) {
+	case IH_ARCH_INVALID:	arch = "Invalid CPU";		break;
+	case IH_ARCH_ALPHA:	arch = "Alpha";			break;
+	case IH_ARCH_ARM:	arch = "ARM";			break;
+	case IH_ARCH_AVR32:	arch = "AVR32";			break;
+	case IH_ARCH_BLACKFIN:	arch = "Blackfin";		break;
+	case IH_ARCH_I386:	arch = "Intel x86";		break;
+	case IH_ARCH_IA64:	arch = "IA64";			break;
+	case IH_ARCH_M68K:	arch = "M68K"; 			break;
+	case IH_ARCH_MICROBLAZE:arch = "Microblaze"; 		break;
+	case IH_ARCH_MIPS64:	arch = "MIPS 64 Bit";		break;
+	case IH_ARCH_MIPS:	arch = "MIPS";			break;
+	case IH_ARCH_NIOS2:	arch = "Nios-II";		break;
+	case IH_ARCH_NIOS:	arch = "Nios";			break;
+	case IH_ARCH_PPC:	arch = "PowerPC";		break;
+	case IH_ARCH_S390:	arch = "IBM S390";		break;
+	case IH_ARCH_SH:	arch = "SuperH";		break;
+	case IH_ARCH_SPARC64:	arch = "SPARC 64 Bit";		break;
+	case IH_ARCH_SPARC:	arch = "SPARC";			break;
 	default:		arch = "Unknown Architecture";	break;
 	}
 
-	switch (hdr->ih_type) {
+	switch (image_get_type (hdr)) {
 	case IH_TYPE_INVALID:	type = "Invalid Image";		break;
 	case IH_TYPE_STANDALONE:type = "Standalone Program";	break;
 	case IH_TYPE_KERNEL:	type = "Kernel Image";		break;
@@ -1488,7 +1396,7 @@ print_type (image_header_t *hdr)
 	default:		type = "Unknown Image";		break;
 	}
 
-	switch (hdr->ih_comp) {
+	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:	comp = "uncompressed";		break;
 	case IH_COMP_GZIP:	comp = "gzip compressed";	break;
 	case IH_COMP_BZIP2:	comp = "bzip2 compressed";	break;
@@ -1594,7 +1502,7 @@ do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	image_header_t *hdr = &header;
 	void	(*entry_point)(bd_t *);
 
-	entry_point = (void (*)(bd_t *)) ntohl(hdr->ih_ep);
+	entry_point = (void (*)(bd_t *))image_get_ep (hdr);
 
 	printf ("## Transferring control to RTEMS (at address %08lx) ...\n",
 		(ulong)entry_point);
@@ -1617,7 +1525,7 @@ do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	image_header_t *hdr = &header;
 	char str[80];
 
-	sprintf(str, "%x", ntohl(hdr->ih_ep)); /* write entry-point into string */
+	sprintf(str, "%x", image_get_ep (hdr)); /* write entry-point into string */
 	setenv("loadaddr", str);
 	do_bootvx(cmdtp, 0, 0, NULL);
 }
@@ -1630,7 +1538,7 @@ do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char *local_args[2];
 	char str[16];
 
-	sprintf(str, "%x", ntohl(hdr->ih_ep)); /* write entry-point into string */
+	sprintf(str, "%x", image_get_ep (hdr)); /* write entry-point into string */
 	local_args[0] = argv[0];
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);

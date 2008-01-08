@@ -263,11 +263,11 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (hdr->ih_magic == IH_MAGIC) {
+	if (image_check_magic (hdr)) {
 
 		print_image_hdr (hdr);
 
-		cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
+		cnt = image_get_image_size (hdr);
 		cnt -= SECTORSIZE;
 	} else {
 		puts ("\n** Bad Magic Number **\n");

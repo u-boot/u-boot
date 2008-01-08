@@ -31,7 +31,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong addr, ulong *len_ptr, int   verify)
 {
 	image_header_t *hdr = &header;
-	void (*kernel)(void) = (void (*)(void))ntohl (hdr->ih_ep);
+	void (*kernel)(void) = (void (*)(void))image_get_ep (hdr);
 
 	/* For now we assume the Microtronix linux ... which only
 	 * needs to be called ;-)

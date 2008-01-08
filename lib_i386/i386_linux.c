@@ -50,7 +50,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 {
 	void *base_ptr;
 
-	ulong len = 0, checksum;
+	ulong len = 0;
 	ulong initrd_start, initrd_end;
 	ulong data;
 	image_header_t *hdr = &header;
@@ -60,48 +60,37 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 */
 	if (argc >= 3) {
 		addr = simple_strtoul(argv[2], NULL, 16);
+		hdr = (image_header_t *)addr;
 
 		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
 
-		/* Copy header so we can blank CRC field for re-calculation */
-		memcpy (&header, (char *)addr, sizeof(image_header_t));
-
-		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			printf ("Bad Magic Number\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		data = (ulong)&header;
-		len  = sizeof(image_header_t);
-
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32 (0, (char *)data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			printf ("Bad Header Checksum\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
 		print_image_hdr (hdr);
 
-		data = addr + sizeof(image_header_t);
-		len  = ntohl(hdr->ih_size);
+		data = image_get_data (hdr);
+		len = image_get_data_size (hdr);
 
 		if (verify) {
-			ulong csum = 0;
-
 			printf ("   Verifying Checksum ... ");
-			csum = crc32 (0, (char *)data, len);
-			if (csum != ntohl(hdr->ih_dcrc)) {
+			if (!image_check_dcrc (hdr)) {
 				printf ("Bad Data CRC\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			printf ("OK\n");
 		}
 
-		if ((hdr->ih_os   != IH_OS_LINUX)	||
-		    (hdr->ih_arch != IH_CPU_I386)	||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)	) {
+		if (!image_check_os (hdr, IH_OS_LINUX) ||
+		    !image_check_arch (hdr, IH_ARCH_I386) ||
+		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
 			printf ("No Linux i386 Ramdisk Image\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -109,8 +98,8 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail    = ntohl(len_ptr[0]) % 4;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
+		ulong tail    = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		/* skip kernel length and terminator */
@@ -119,12 +108,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		for (i=1; len_ptr[i]; ++i)
 			data += 4;
 		/* add kernel length, and align */
-		data += ntohl(len_ptr[0]);
+		data += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			data += 4 - tail;
 		}
 
-		len   = ntohl(len_ptr[1]);
+		len   = image_to_cpu (len_ptr[1]);
 
 	} else {
 		/*
@@ -152,12 +141,13 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 
 	/* if multi-part image, we need to advance base ptr */
-	if ((hdr->ih_type==IH_TYPE_MULTI) && (len_ptr[1])) {
+	if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
 		int i;
 		for (i=0, addr+=sizeof(int); len_ptr[i++]; addr+=sizeof(int));
 	}
 
-	base_ptr = load_zimage((void*)addr + sizeof(image_header_t), ntohl(hdr->ih_size),
+	base_ptr = load_zimage((void*)addr + image_get_header_size (),
+			       image_get_data_size (hdr),
 			       initrd_start, initrd_end-initrd_start, 0);
 
 	if (NULL == base_ptr) {

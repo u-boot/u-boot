@@ -251,25 +251,24 @@ image_header_t *fake_zimage_header(image_header_t *hdr, void *ptr, int size)
 #else
 	checksum = 0;
 #endif
-	memset(hdr, 0, sizeof(image_header_t));
+	memset(hdr, 0, image_get_header_size ());
 
 	/* Build new header */
-	hdr->ih_magic = htonl(IH_MAGIC);
-	hdr->ih_time  = 0;
-	hdr->ih_size  = htonl(size);
-	hdr->ih_load  = htonl(ZIMAGE_LOAD);
-	hdr->ih_ep    = 0;
-	hdr->ih_dcrc  = htonl(checksum);
-	hdr->ih_os    = IH_OS_LINUX;
-	hdr->ih_arch  = IH_CPU_I386;
-	hdr->ih_type  = IH_TYPE_KERNEL;
-	hdr->ih_comp  = IH_COMP_NONE;
+	image_set_magic (hdr, IH_MAGIC);
+	image_set_time (hdr, 0);
+	image_set_size (hdr, size);
+	image_set_load (hdr, ZIMAGE_LOAD);
+	image_set_ep (hdr, 0);
+	image_set_dcrc (hdr, checksum);
+	image_set_os (hdr, IH_OS_LINUX);
+	image_set_arch (hdr, IH_ARCH_I386);
+	image_set_type (hdr, IH_TYPE_KERNEL);
+	image_set_comp (hdr, IH_COMP_NONE);
 
-	strncpy((char *)hdr->ih_name, "(none)", IH_NMLEN);
+	image_set_name (hdr, "(none)");
 
-	checksum = crc32(0,(const char *)hdr,sizeof(image_header_t));
-
-	hdr->ih_hcrc = htonl(checksum);
+	checksum = crc32 (0, (const char *)hdr, image_get_header_size ());
+	image_set_hcrc (hdr, checksum);
 
 	return hdr;
 }

@@ -20,44 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifndef __WIN32__
-#include <netinet/in.h>		/* for host / network byte order conversions	*/
-#endif
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
-
-#if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
-#include <inttypes.h>
-#endif
-
-#ifdef __WIN32__
-typedef unsigned int __u32;
-
-#define SWAP_LONG(x) \
-	((__u32)( \
-		(((__u32)(x) & (__u32)0x000000ffUL) << 24) | \
-		(((__u32)(x) & (__u32)0x0000ff00UL) <<  8) | \
-		(((__u32)(x) & (__u32)0x00ff0000UL) >>  8) | \
-		(((__u32)(x) & (__u32)0xff000000UL) >> 24) ))
-typedef		unsigned char	uint8_t;
-typedef		unsigned short	uint16_t;
-typedef		unsigned int	uint32_t;
-
-#define     ntohl(a)	SWAP_LONG(a)
-#define     htonl(a)	SWAP_LONG(a)
-#endif	/* __WIN32__ */
-
-#ifndef	O_BINARY		/* should be define'd on __WIN32__ */
-#define O_BINARY	0
-#endif
-
+#include "mkimage.h"
 #include <image.h>
 
 extern int errno;
@@ -77,24 +40,24 @@ typedef struct table_entry {
 } table_entry_t;
 
 table_entry_t arch_name[] = {
-    {	IH_CPU_INVALID,		NULL,		"Invalid CPU",	},
-    {	IH_CPU_ALPHA,		"alpha",	"Alpha",	},
-    {	IH_CPU_ARM,		"arm",		"ARM",		},
-    {	IH_CPU_I386,		"x86",		"Intel x86",	},
-    {	IH_CPU_IA64,		"ia64",		"IA64",		},
-    {	IH_CPU_M68K,		"m68k",		"MC68000",	},
-    {	IH_CPU_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
-    {	IH_CPU_MIPS,		"mips",		"MIPS",		},
-    {	IH_CPU_MIPS64,		"mips64",	"MIPS 64 Bit",	},
-    {	IH_CPU_NIOS,		"nios",		"NIOS",		},
-    {	IH_CPU_NIOS2,		"nios2",	"NIOS II",	},
-    {	IH_CPU_PPC,		"ppc",		"PowerPC",	},
-    {	IH_CPU_S390,		"s390",		"IBM S390",	},
-    {	IH_CPU_SH,		"sh",		"SuperH",	},
-    {	IH_CPU_SPARC,		"sparc",	"SPARC",	},
-    {	IH_CPU_SPARC64,		"sparc64",	"SPARC 64 Bit",	},
-    {	IH_CPU_BLACKFIN,	"blackfin",	"Blackfin",	},
-    {	IH_CPU_AVR32,		"avr32",	"AVR32",	},
+    {	IH_ARCH_INVALID,	NULL,		"Invalid CPU",	},
+    {	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
+    {	IH_ARCH_ARM,		"arm",		"ARM",		},
+    {	IH_ARCH_I386,		"x86",		"Intel x86",	},
+    {	IH_ARCH_IA64,		"ia64",		"IA64",		},
+    {	IH_ARCH_M68K,		"m68k",		"MC68000",	},
+    {	IH_ARCH_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
+    {	IH_ARCH_MIPS,		"mips",		"MIPS",		},
+    {	IH_ARCH_MIPS64,		"mips64",	"MIPS 64 Bit",	},
+    {	IH_ARCH_NIOS,		"nios",		"NIOS",		},
+    {	IH_ARCH_NIOS2,		"nios2",	"NIOS II",	},
+    {	IH_ARCH_PPC,		"ppc",		"PowerPC",	},
+    {	IH_ARCH_S390,		"s390",		"IBM S390",	},
+    {	IH_ARCH_SH,		"sh",		"SuperH",	},
+    {	IH_ARCH_SPARC,		"sparc",	"SPARC",	},
+    {	IH_ARCH_SPARC64,	"sparc64",	"SPARC 64 Bit",	},
+    {	IH_ARCH_BLACKFIN,	"blackfin",	"Blackfin",	},
+    {	IH_ARCH_AVR32,		"avr32",	"AVR32",	},
     {	-1,			"",		"",		},
 };
 
@@ -167,7 +130,7 @@ int lflag    = 0;
 int vflag    = 0;
 int xflag    = 0;
 int opt_os   = IH_OS_LINUX;
-int opt_arch = IH_CPU_PPC;
+int opt_arch = IH_ARCH_PPC;
 int opt_type = IH_TYPE_KERNEL;
 int opt_comp = IH_COMP_GZIP;
 
@@ -270,7 +233,7 @@ NXTARG:		;
 		ep = addr;
 		/* If XIP, entry point must be after the U-Boot header */
 		if (xflag)
-			ep += sizeof(image_header_t);
+			ep += image_get_header_size ();
 	}
 
 	/*
@@ -278,11 +241,11 @@ NXTARG:		;
 	 * the size of the U-Boot header.
 	 */
 	if (xflag) {
-		if (ep != addr + sizeof(image_header_t)) {
+		if (ep != addr + image_get_header_size ()) {
 			fprintf (stderr,
 				"%s: For XIP, the entry point must be the load addr + %lu\n",
 				cmdname,
-				(unsigned long)sizeof(image_header_t));
+				(unsigned long)image_get_header_size ());
 			exit (EXIT_FAILURE);
 		}
 	}
@@ -313,7 +276,7 @@ NXTARG:		;
 			exit (EXIT_FAILURE);
 		}
 
-		if ((unsigned)sbuf.st_size < sizeof(image_header_t)) {
+		if ((unsigned)sbuf.st_size < image_get_header_size ()) {
 			fprintf (stderr,
 				"%s: Bad size: \"%s\" is no valid image\n",
 				cmdname, imagefile);
@@ -329,36 +292,30 @@ NXTARG:		;
 		}
 
 		/*
-		 * create copy of header so that we can blank out the
-		 * checksum field for checking - this can't be done
-		 * on the PROT_READ mapped data.
+		 * image_check_hcrc() creates copy of header so that
+		 * we can blank out the checksum field for checking -
+		 * this can't be done on the PROT_READ mapped data.
 		 */
-		memcpy (hdr, ptr, sizeof(image_header_t));
+		hdr = (image_header_t *)ptr;
 
-		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			fprintf (stderr,
 				"%s: Bad Magic Number: \"%s\" is no valid image\n",
 				cmdname, imagefile);
 			exit (EXIT_FAILURE);
 		}
 
-		data = (char *)hdr;
-		len  = sizeof(image_header_t);
-
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = htonl(0);	/* clear for re-calculation */
-
-		if (crc32 (0, data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			fprintf (stderr,
 				"%s: ERROR: \"%s\" has bad header checksum!\n",
 				cmdname, imagefile);
 			exit (EXIT_FAILURE);
 		}
 
-		data = (char *)(ptr + sizeof(image_header_t));
-		len  = sbuf.st_size - sizeof(image_header_t) ;
+		data = (char *)image_get_data (hdr);
+		len  = sbuf.st_size - image_get_header_size ();
 
-		if (crc32 (0, data, len) != ntohl(hdr->ih_dcrc)) {
+		if (crc32(0, data, len) != image_get_dcrc (hdr)) {
 			fprintf (stderr,
 				"%s: ERROR: \"%s\" has corrupted data!\n",
 				cmdname, imagefile);
@@ -379,9 +336,9 @@ NXTARG:		;
 	 *
 	 * write dummy header, to be fixed later
 	 */
-	memset (hdr, 0, sizeof(image_header_t));
+	memset (hdr, 0, image_get_header_size ());
 
-	if (write(ifd, hdr, sizeof(image_header_t)) != sizeof(image_header_t)) {
+	if (write(ifd, hdr, image_get_header_size ()) != image_get_header_size ()) {
 		fprintf (stderr, "%s: Write error on %s: %s\n",
 			cmdname, imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
@@ -404,7 +361,7 @@ NXTARG:		;
 						cmdname, file, strerror(errno));
 					exit (EXIT_FAILURE);
 				}
-				size = htonl(sbuf.st_size);
+				size = cpu_to_image (sbuf.st_size);
 			} else {
 				size = 0;
 			}
@@ -469,27 +426,27 @@ NXTARG:		;
 	hdr = (image_header_t *)ptr;
 
 	checksum = crc32 (0,
-			  (const char *)(ptr + sizeof(image_header_t)),
-			  sbuf.st_size - sizeof(image_header_t)
+			  (const char *)(ptr + image_get_header_size ()),
+			  sbuf.st_size - image_get_header_size ()
 			 );
 
 	/* Build new header */
-	hdr->ih_magic = htonl(IH_MAGIC);
-	hdr->ih_time  = htonl(sbuf.st_mtime);
-	hdr->ih_size  = htonl(sbuf.st_size - sizeof(image_header_t));
-	hdr->ih_load  = htonl(addr);
-	hdr->ih_ep    = htonl(ep);
-	hdr->ih_dcrc  = htonl(checksum);
-	hdr->ih_os    = opt_os;
-	hdr->ih_arch  = opt_arch;
-	hdr->ih_type  = opt_type;
-	hdr->ih_comp  = opt_comp;
+	image_set_magic (hdr, IH_MAGIC);
+	image_set_time (hdr, sbuf.st_mtime);
+	image_set_size (hdr, sbuf.st_size - image_get_header_size ());
+	image_set_load (hdr, addr);
+	image_set_ep (hdr, ep);
+	image_set_dcrc (hdr, checksum);
+	image_set_os (hdr, opt_os);
+	image_set_arch (hdr, opt_arch);
+	image_set_type (hdr, opt_type);
+	image_set_comp (hdr, opt_comp);
 
-	strncpy((char *)hdr->ih_name, name, IH_NMLEN);
+	image_set_name (hdr, name);
 
-	checksum = crc32(0,(const char *)hdr,sizeof(image_header_t));
+	checksum = crc32 (0, (const char *)hdr, image_get_header_size ());
 
-	hdr->ih_hcrc = htonl(checksum);
+	image_set_hcrc (hdr, checksum);
 
 	print_header (hdr);
 
@@ -554,14 +511,14 @@ copy_file (int ifd, const char *datafile, int pad)
 		 * reserved for it.
 		 */
 
-		if ((unsigned)sbuf.st_size < sizeof(image_header_t)) {
+		if ((unsigned)sbuf.st_size < image_get_header_size ()) {
 			fprintf (stderr,
 				"%s: Bad size: \"%s\" is too small for XIP\n",
 				cmdname, datafile);
 			exit (EXIT_FAILURE);
 		}
 
-		for (p=ptr; p < ptr+sizeof(image_header_t); p++) {
+		for (p = ptr; p < ptr + image_get_header_size (); p++) {
 			if ( *p != 0xff ) {
 				fprintf (stderr,
 					"%s: Bad file: \"%s\" has invalid buffer for XIP\n",
@@ -570,7 +527,7 @@ copy_file (int ifd, const char *datafile, int pad)
 			}
 		}
 
-		offset = sizeof(image_header_t);
+		offset = image_get_header_size ();
 	}
 
 	size = sbuf.st_size - offset;
@@ -620,22 +577,23 @@ print_header (image_header_t *hdr)
 	time_t timestamp;
 	uint32_t size;
 
-	timestamp = (time_t)ntohl(hdr->ih_time);
-	size = ntohl(hdr->ih_size);
+	timestamp = (time_t)image_get_time (hdr);
+	size = image_get_data_size (hdr);
 
-	printf ("Image Name:   %.*s\n", IH_NMLEN, hdr->ih_name);
+	printf ("Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
 	printf ("Created:      %s", ctime(&timestamp));
 	printf ("Image Type:   "); print_type(hdr);
 	printf ("Data Size:    %d Bytes = %.2f kB = %.2f MB\n",
 		size, (double)size / 1.024e3, (double)size / 1.048576e6 );
-	printf ("Load Address: 0x%08X\n", ntohl(hdr->ih_load));
-	printf ("Entry Point:  0x%08X\n", ntohl(hdr->ih_ep));
+	printf ("Load Address: 0x%08X\n", image_get_load (hdr));
+	printf ("Entry Point:  0x%08X\n", image_get_ep (hdr));
 
-	if (hdr->ih_type == IH_TYPE_MULTI || hdr->ih_type == IH_TYPE_SCRIPT) {
+	if (image_check_type (hdr, IH_TYPE_MULTI) ||
+			image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		int i, ptrs;
 		uint32_t pos;
 		uint32_t *len_ptr = (uint32_t *) (
-					(unsigned long)hdr + sizeof(image_header_t)
+					(unsigned long)hdr + image_get_header_size ()
 				);
 
 		/* determine number of images first (to calculate image offsets) */
@@ -643,14 +601,14 @@ print_header (image_header_t *hdr)
 			;
 		ptrs = i;		/* null pointer terminates list */
 
-		pos = sizeof(image_header_t) + ptrs * sizeof(long);
+		pos = image_get_header_size () + ptrs * sizeof(long);
 		printf ("Contents:\n");
 		for (i=0; len_ptr[i]; ++i) {
-			size = ntohl(len_ptr[i]);
+			size = image_to_cpu (len_ptr[i]);
 
 			printf ("   Image %d: %8d Bytes = %4d kB = %d MB\n",
 				i, size, size>>10, size>>20);
-			if (hdr->ih_type == IH_TYPE_SCRIPT && i > 0) {
+			if (image_check_type (hdr, IH_TYPE_SCRIPT) && i > 0) {
 				/*
 				 * the user may need to know offsets
 				 * if planning to do something with
@@ -671,10 +629,10 @@ static void
 print_type (image_header_t *hdr)
 {
 	printf ("%s %s %s (%s)\n",
-		put_arch (hdr->ih_arch),
-		put_os   (hdr->ih_os  ),
-		put_type (hdr->ih_type),
-		put_comp (hdr->ih_comp)
+		put_arch (image_get_arch (hdr)),
+		put_os   (image_get_os (hdr)),
+		put_type (image_get_type (hdr)),
+		put_comp (image_get_comp (hdr))
 	);
 }
 

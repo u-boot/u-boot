@@ -141,18 +141,15 @@ extern void lcd_enable(void);
 int au_check_cksum_valid(int idx, long nbytes)
 {
 	image_header_t *hdr;
-	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
 
-	if (nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size))) {
+	if (nbytes != image_get_image_size (hdr)) {
 		printf ("Image %s bad total SIZE\n", aufile[idx]);
 		return -1;
 	}
 	/* check the data CRC */
-	checksum = ntohl(hdr->ih_dcrc);
-
-	if (crc32 (0, (uchar *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size)) != checksum) {
+	if (!image_check_dcrc (hdr)) {
 		printf ("Image %s bad data checksum\n", aufile[idx]);
 		return -1;
 	}
@@ -168,56 +165,52 @@ int au_check_header_valid(int idx, long nbytes)
 	/* check the easy ones first */
 #undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
-	printf("magic %#x %#x ", ntohl(hdr->ih_magic), IH_MAGIC);
-	printf("arch %#x %#x ", hdr->ih_arch, IH_CPU_ARM);
-	printf("size %#x %#lx ", ntohl(hdr->ih_size), nbytes);
-	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
+	printf("magic %#x %#x ", image_get_magic (hdr), IH_MAGIC);
+	printf("arch %#x %#x ", image_get_arch (hdr), IH_ARCH_ARM);
+	printf("size %#x %#lx ", image_get_data_size (hdr), nbytes);
+	printf("type %#x %#x ", image_get_type (hdr), IH_TYPE_KERNEL);
 #endif
-	if (nbytes < sizeof(*hdr)) {
+	if (nbytes < image_get_header_size ()) {
 		printf ("Image %s bad header SIZE\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
-	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_PPC) {
+	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_PPC)) {
 		printf ("Image %s bad MAGIC or ARCH\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
 	/* check the hdr CRC */
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)hdr, sizeof(*hdr)) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		printf ("Image %s bad header checksum\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
-	hdr->ih_hcrc = htonl(checksum);
 	/* check the type - could do this all in one gigantic if() */
-	if ((idx == IDX_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
+	if ((idx == IDX_FIRMWARE) && !image_check_type (hdr, IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
-	if ((idx == IDX_KERNEL) && (hdr->ih_type != IH_TYPE_KERNEL)) {
+	if ((idx == IDX_KERNEL) && !image_check_type (hdr, IH_TYPE_KERNEL)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
 	if ((idx == IDX_ROOTFS) &&
-		( (hdr->ih_type != IH_TYPE_RAMDISK) && (hdr->ih_type != IH_TYPE_FILESYSTEM) )
-	   ) {
+			(!image_check_type (hdr, IH_TYPE_RAMDISK) &&
+			!image_check_type (hdr, IH_TYPE_FILESYSTEM))) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		ausize[idx] = 0;
 		return -1;
 	}
 	/* recycle checksum */
-	checksum = ntohl(hdr->ih_size);
+	checksum = image_get_data_size (hdr);
 
-	fsize = checksum + sizeof(*hdr);
+	fsize = checksum + image_get_header_size ();
 	/* for kernel and ramdisk the image header must also fit into flash */
-	if (idx == IDX_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK)
-		checksum += sizeof(*hdr);
+	if (idx == IDX_KERNEL || image_check_type (hdr, IH_TYPE_RAMDISK))
+		checksum += image_get_header_size ();
 
 	/* check the size does not exceed space in flash. HUSH scripts */
 	if ((ausize[idx] != 0) && (ausize[idx] < checksum)) {
@@ -242,11 +235,11 @@ int au_do_update(int idx, long sz)
 	hdr = (image_header_t *)LOAD_ADDR;
 
 	/* execute a script */
-	if (hdr->ih_type == IH_TYPE_SCRIPT) {
-		addr = (char *)((char *)hdr + sizeof(*hdr));
+	if (image_check_type (hdr, IH_TYPE_SCRIPT)) {
+		addr = (char *)((char *)hdr + image_get_header_size ());
 		/* stick a NULL at the end of the script, otherwise */
 		/* parse_string_outer() runs off the end. */
-		addr[ntohl(hdr->ih_size)] = 0;
+		addr[image_get_data_size (hdr)] = 0;
 		addr += 8;
 		parse_string_outer(addr, FLAG_PARSE_SEMICOLON);
 		return 0;
@@ -278,19 +271,20 @@ int au_do_update(int idx, long sz)
 #endif
 
 	/* strip the header - except for the kernel and ramdisk */
-	if (hdr->ih_type == IH_TYPE_KERNEL || hdr->ih_type == IH_TYPE_RAMDISK) {
+	if (image_check_type (hdr, IH_TYPE_KERNEL) ||
+			image_check_type (hdr, IH_TYPE_RAMDISK)) {
 		addr = (char *)hdr;
-		off = sizeof(*hdr);
-		nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
+		off = image_get_header_size ();
+		nbytes = image_get_image_size (hdr);
 	} else {
-		addr = (char *)((char *)hdr + sizeof(*hdr));
+		addr = (char *)((char *)hdr + image_get_header_size ());
 #ifdef AU_UPDATE_TEST
 		/* copy it to where Linux goes */
 		if (idx == IDX_FIRMWARE)
 			start = aufl_layout[1].start;
 #endif
 		off = 0;
-		nbytes = ntohl(hdr->ih_size);
+		nbytes = image_get_data_size (hdr);
 	}
 
 	/* copy the data from RAM to FLASH */
@@ -306,7 +300,8 @@ int au_do_update(int idx, long sz)
 #endif
 
 	/* check the data CRC of the copy */
-	if (crc32 (0, (uchar *)(start + off), ntohl(hdr->ih_size)) != ntohl(hdr->ih_dcrc)) {
+	if (crc32 (0, (uchar *)(start + off), image_get_data_size (hdr)) !=
+	    image_get_dcrc (hdr)) {
 		printf ("Image %s Bad Data Checksum after COPY\n", aufile[idx]);
 		return -1;
 	}
@@ -442,10 +437,10 @@ int do_auto_update(void)
 	for (i = 0; i < AU_MAXFILES; i++) {
 		ulong imsize;
 		/* just read the header */
-		sz = file_fat_read(aufile[i], LOAD_ADDR, sizeof(image_header_t));
+		sz = file_fat_read(aufile[i], LOAD_ADDR, image_get_header_size ());
 		debug ("read %s sz %ld hdr %d\n",
-			aufile[i], sz, sizeof(image_header_t));
-		if (sz <= 0 || sz < sizeof(image_header_t)) {
+			aufile[i], sz, image_get_header_size ());
+		if (sz <= 0 || sz < image_get_header_size ()) {
 			debug ("%s not found\n", aufile[i]);
 			ausize[i] = 0;
 			continue;
@@ -474,14 +469,14 @@ int do_auto_update(void)
 		sz = file_fat_read(aufile[i], LOAD_ADDR, ausize[i]);
 
 		debug ("read %s sz %ld hdr %d\n",
-			aufile[i], sz, sizeof(image_header_t));
+			aufile[i], sz, image_get_header_size ());
 
 		if (sz != ausize[i]) {
 			printf ("%s: size %d read %d?\n", aufile[i], ausize[i], sz);
 			continue;
 		}
 
-		if (sz <= 0 || sz <= sizeof(image_header_t)) {
+		if (sz <= 0 || sz <= image_get_header_size ()) {
 			debug ("%s not found\n", aufile[i]);
 			continue;
 		}

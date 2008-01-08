@@ -139,8 +139,8 @@ int misc_init_r (void)
 	struct rtc_time tm;
 	char bootcmd[32];
 
-	hdr = (image_header_t *) (CFG_MONITOR_BASE - sizeof (image_header_t));
-	timestamp = (time_t) hdr->ih_time;
+	hdr = (image_header_t *) (CFG_MONITOR_BASE - image_get_header_size ());
+	timestamp = (time_t)image_get_time (hdr);
 	to_tm (timestamp, &tm);
 	printf ("Welcome to U-Boot on Cray L1. Compiled %4d-%02d-%02d  %2d:%02d:%02d (UTC)\n", tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 

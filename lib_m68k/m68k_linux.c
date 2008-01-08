@@ -48,12 +48,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern image_header_t header;
 
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
 		    ulong addr, ulong * len_ptr, int verify)
 {
 	ulong sp;
-	ulong len, checksum;
+	ulong len;
 	ulong initrd_start, initrd_end;
 	ulong cmd_start, cmd_end;
 	ulong initrd_high;
@@ -131,7 +133,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	}
 
 	kernel =
-	    (void (*)(bd_t *, ulong, ulong, ulong, ulong))ntohl(hdr->ih_ep);
+	    (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
 
 	/*
 	 * Check if there is an initrd image
@@ -142,25 +144,17 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		SHOW_BOOT_PROGRESS(9);
 
 		addr = simple_strtoul(argv[2], NULL, 16);
+		hdr = (image_header_t *)addr;
 
 		printf("## Loading RAMDisk Image at %08lx ...\n", addr);
 
-		/* Copy header so we can blank CRC field for re-calculation */
-		memmove(&header, (char *)addr, sizeof(image_header_t));
-
-		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+		if (!image_check_magic (hdr)) {
 			puts("Bad Magic Number\n");
 			SHOW_BOOT_PROGRESS(-10);
 			do_reset(cmdtp, flag, argc, argv);
 		}
 
-		data = (ulong) & header;
-		len = sizeof(image_header_t);
-
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32(0, (uchar *) data, len) != checksum) {
+		if (!image_check_hcrc (hdr)) {
 			puts("Bad Header Checksum\n");
 			SHOW_BOOT_PROGRESS(-11);
 			do_reset(cmdtp, flag, argc, argv);
@@ -168,36 +162,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 		SHOW_BOOT_PROGRESS(10);
 
-		print_image_hdr(hdr);
+		print_image_hdr (hdr);
 
-		data = addr + sizeof(image_header_t);
-		len = ntohl(hdr->ih_size);
+		data = image_get_data (hdr);
+		len = image_get_data_size (hdr);
 
 		if (verify) {
-			ulong csum = 0;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			ulong cdata = data, edata = cdata + len;
-#endif				/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-
 			puts("   Verifying Checksum ... ");
-
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-
-			while (cdata < edata) {
-				ulong chunk = edata - cdata;
-
-				if (chunk > CHUNKSZ)
-					chunk = CHUNKSZ;
-				csum = crc32(csum, (uchar *) cdata, chunk);
-				cdata += chunk;
-
-				WATCHDOG_RESET();
-			}
-#else				/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			csum = crc32(0, (uchar *) data, len);
-#endif				/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-
-			if (csum != ntohl(hdr->ih_dcrc)) {
+			if (!image_check_dcrc_wd (hdr, CHUNKSZ)) {
 				puts("Bad Data CRC\n");
 				SHOW_BOOT_PROGRESS(-12);
 				do_reset(cmdtp, flag, argc, argv);
@@ -207,9 +179,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 		SHOW_BOOT_PROGRESS(11);
 
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_M68K) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
+		if (!image_check_os (hdr, IH_OS_LINUX) ||
+		    !image_check_arch (hdr, IH_ARCH_M68K) ||
+		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
 			puts("No Linux ColdFire Ramdisk Image\n");
 			SHOW_BOOT_PROGRESS(-13);
 			do_reset(cmdtp, flag, argc, argv);
@@ -218,8 +190,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		u_long tail = ntohl(len_ptr[0]) % 4;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
+		u_long tail = image_to_cpu (len_ptr[0]) % 4;
 		int i;
 
 		SHOW_BOOT_PROGRESS(13);
@@ -230,12 +202,12 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		for (i = 1; len_ptr[i]; ++i)
 			data += 4;
 		/* add kernel length, and align */
-		data += ntohl(len_ptr[0]);
+		data += image_to_cpu (len_ptr[0]);
 		if (tail) {
 			data += 4 - tail;
 		}
 
-		len = ntohl(len_ptr[1]);
+		len = image_to_cpu (len_ptr[1]);
 
 	} else {
 		/*

@@ -49,56 +49,44 @@
 
 #if defined(CONFIG_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
 
-extern image_header_t header;		/* from cmd_bootm.c */
 int
 autoscript (ulong addr)
 {
-	ulong crc, data, len;
-	image_header_t *hdr = &header;
+	ulong len;
+	image_header_t *hdr = (image_header_t *)addr;
 	ulong *len_ptr;
 	char *cmd;
 	int rcode = 0;
 	int verify;
 
-	cmd = getenv ("verify");
-	verify = (cmd && (*cmd == 'n')) ? 0 : 1;
+	verify = getenv_verify ();
 
-
-	memmove (hdr, (char *)addr, sizeof(image_header_t));
-
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+	if (!image_check_magic (hdr)) {
 		puts ("Bad magic number\n");
 		return 1;
 	}
 
-	crc = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-	len = sizeof (image_header_t);
-	data = (ulong)hdr;
-	if (crc32(0, (uchar *)data, len) != crc) {
+	if (!image_check_hcrc (hdr)) {
 		puts ("Bad header crc\n");
 		return 1;
 	}
 
-	data = addr + sizeof(image_header_t);
-	len = ntohl(hdr->ih_size);
-
 	if (verify) {
-		if (crc32(0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
+		if (!image_check_dcrc (hdr)) {
 			puts ("Bad data crc\n");
 			return 1;
 		}
 	}
 
-	if (hdr->ih_type != IH_TYPE_SCRIPT) {
+	if (!image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		puts ("Bad image type\n");
 		return 1;
 	}
 
 	/* get length of script */
-	len_ptr = (ulong *)data;
+	len_ptr = (ulong *)image_get_data (hdr);
 
-	if ((len = ntohl(*len_ptr)) == 0) {
+	if ((len = image_to_cpu (*len_ptr)) == 0) {
 		puts ("Empty Script\n");
 		return 1;
 	}

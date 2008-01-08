@@ -38,14 +38,13 @@ int
 do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr = load_addr, dest = 0;
-	ulong data, len, checksum;
+	ulong data, len;
 	ulong *len_ptr;
 	int i, verify, part = 0;
 	char pbuf[10], *s;
-	image_header_t header;
+	image_header_t *hdr;
 
-	s = getenv("verify");
-	verify = (s && (*s == 'n')) ? 0 : 1;
+	verify = getenv_verify ();
 
 	if (argc > 1) {
 		addr = simple_strtoul(argv[1], NULL, 16);
@@ -59,50 +58,41 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	printf("## Copying from image at %08lx ...\n", addr);
 
-	/* Copy header so we can blank CRC field for re-calculation */
-	memmove(&header, (char *) addr, sizeof (image_header_t));
+	hdr = (image_header_t *)addr;
 
-	if (ntohl(header.ih_magic) != IH_MAGIC) {
+	if (!image_check_magic (hdr)) {
 		printf("Bad Magic Number\n");
 		return 1;
 	}
 
-	data = (ulong) & header;
-	len = sizeof (image_header_t);
-
-	checksum = ntohl(header.ih_hcrc);
-	header.ih_hcrc = 0;
-
-	if (crc32(0, (char *) data, len) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		printf("Bad Header Checksum\n");
 		return 1;
 	}
 #ifdef DEBUG
-	print_image_hdr((image_header_t *) addr);
+	print_image_hdr (hdr);
 #endif
 
-	data = addr + sizeof (image_header_t);
-	len = ntohl(header.ih_size);
-
-	if (header.ih_type != IH_TYPE_MULTI) {
+	if (!image_check_type (hdr, IH_TYPE_MULTI)) {
 		printf("Wrong Image Type for %s command\n", cmdtp->name);
 		return 1;
 	}
 
-	if (header.ih_comp != IH_COMP_NONE) {
+	if (image_get_comp (hdr) != IH_COMP_NONE) {
 		printf("Wrong Compression Type for %s command\n", cmdtp->name);
 		return 1;
 	}
 
 	if (verify) {
 		printf("   Verifying Checksum ... ");
-		if (crc32(0, (char *) data, len) != ntohl(header.ih_dcrc)) {
+		if (!image_check_dcrc (hdr)) {
 			printf("Bad Data CRC\n");
 			return 1;
 		}
 		printf("OK\n");
 	}
 
+	data = image_get_data (hdr);
 	len_ptr = (ulong *) data;
 
 	data += 4;		/* terminator */
@@ -110,7 +100,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		data += 4;
 		if (argc > 2 && part > i) {
 			u_long tail;
-			len = ntohl(len_ptr[i]);
+			len = image_to_cpu (len_ptr[i]);
 			tail = len % 4;
 			data += len;
 			if (tail) {
@@ -122,7 +112,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		printf("Bad Image Part\n");
 		return 1;
 	}
-	len = ntohl(len_ptr[part]);
+	len = image_to_cpu (len_ptr[part]);
 
 	if (argc > 3) {
 		memcpy((char *) dest, (char *) data, len);

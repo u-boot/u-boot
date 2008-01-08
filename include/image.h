@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2008 Semihalf
+ *
  * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -31,6 +33,11 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
+#include <asm/byteorder.h>
+#ifndef USE_HOSTCC
+#include <linux/string.h>
+#endif
+
 /*
  * Operating System Codes
  */
@@ -59,25 +66,25 @@
 /*
  * CPU Architecture Codes (supported by Linux)
  */
-#define IH_CPU_INVALID		0	/* Invalid CPU	*/
-#define IH_CPU_ALPHA		1	/* Alpha	*/
-#define IH_CPU_ARM		2	/* ARM		*/
-#define IH_CPU_I386		3	/* Intel x86	*/
-#define IH_CPU_IA64		4	/* IA64		*/
-#define IH_CPU_MIPS		5	/* MIPS		*/
-#define IH_CPU_MIPS64		6	/* MIPS	 64 Bit */
-#define IH_CPU_PPC		7	/* PowerPC	*/
-#define IH_CPU_S390		8	/* IBM S390	*/
-#define IH_CPU_SH		9	/* SuperH	*/
-#define IH_CPU_SPARC		10	/* Sparc	*/
-#define IH_CPU_SPARC64		11	/* Sparc 64 Bit */
-#define IH_CPU_M68K		12	/* M68K		*/
-#define IH_CPU_NIOS		13	/* Nios-32	*/
-#define IH_CPU_MICROBLAZE	14	/* MicroBlaze   */
-#define IH_CPU_NIOS2		15	/* Nios-II	*/
-#define IH_CPU_BLACKFIN		16	/* Blackfin	*/
-#define IH_CPU_AVR32		17	/* AVR32	*/
-#define IH_CPU_ST200	        18	/* STMicroelectronics ST200  */
+#define IH_ARCH_INVALID		0	/* Invalid CPU	*/
+#define IH_ARCH_ALPHA		1	/* Alpha	*/
+#define IH_ARCH_ARM		2	/* ARM		*/
+#define IH_ARCH_I386		3	/* Intel x86	*/
+#define IH_ARCH_IA64		4	/* IA64		*/
+#define IH_ARCH_MIPS		5	/* MIPS		*/
+#define IH_ARCH_MIPS64		6	/* MIPS	 64 Bit */
+#define IH_ARCH_PPC		7	/* PowerPC	*/
+#define IH_ARCH_S390		8	/* IBM S390	*/
+#define IH_ARCH_SH		9	/* SuperH	*/
+#define IH_ARCH_SPARC		10	/* Sparc	*/
+#define IH_ARCH_SPARC64		11	/* Sparc 64 Bit */
+#define IH_ARCH_M68K		12	/* M68K		*/
+#define IH_ARCH_NIOS		13	/* Nios-32	*/
+#define IH_ARCH_MICROBLAZE	14	/* MicroBlaze   */
+#define IH_ARCH_NIOS2		15	/* Nios-II	*/
+#define IH_ARCH_BLACKFIN	16	/* Blackfin	*/
+#define IH_ARCH_AVR32		17	/* AVR32	*/
+#define IH_ARCH_ST200	        18	/* STMicroelectronics ST200  */
 
 /*
  * Image Types
@@ -157,5 +164,137 @@ typedef struct image_header {
 	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
 } image_header_t;
 
+#define image_to_cpu(x)		ntohl(x)
+#define cpu_to_image(x)		htonl(x)
 
-#endif	/* __IMAGE_H__ */
+static inline uint32_t image_get_header_size (void)
+{
+	return (sizeof (image_header_t));
+}
+
+#define image_get_hdr_l(f) \
+	static inline uint32_t image_get_##f(image_header_t *hdr) \
+	{ \
+		return image_to_cpu (hdr->ih_##f); \
+	}
+image_get_hdr_l (magic);
+image_get_hdr_l (hcrc);
+image_get_hdr_l (time);
+image_get_hdr_l (size);
+image_get_hdr_l (load);
+image_get_hdr_l (ep);
+image_get_hdr_l (dcrc);
+
+#define image_get_hdr_b(f) \
+	static inline uint8_t image_get_##f(image_header_t *hdr) \
+	{ \
+		return hdr->ih_##f; \
+	}
+image_get_hdr_b (os);
+image_get_hdr_b (arch);
+image_get_hdr_b (type);
+image_get_hdr_b (comp);
+
+static inline char *image_get_name (image_header_t *hdr)
+{
+	return (char *)hdr->ih_name;
+}
+
+static inline uint32_t image_get_data_size (image_header_t *hdr)
+{
+	return image_get_size (hdr);
+}
+static inline uint32_t image_get_image_size (image_header_t *hdr)
+{
+	return (image_get_size (hdr) + image_get_header_size ());
+}
+static inline ulong image_get_data (image_header_t *hdr)
+{
+	return ((ulong)hdr + image_get_header_size ());
+}
+
+#define image_set_hdr_l(f) \
+	static inline void image_set_##f(image_header_t *hdr, uint32_t val) \
+	{ \
+		hdr->ih_##f = cpu_to_image (val); \
+	}
+image_set_hdr_l (magic);
+image_set_hdr_l (hcrc);
+image_set_hdr_l (time);
+image_set_hdr_l (size);
+image_set_hdr_l (load);
+image_set_hdr_l (ep);
+image_set_hdr_l (dcrc);
+
+#define image_set_hdr_b(f) \
+	static inline void image_set_##f(image_header_t *hdr, uint8_t val) \
+	{ \
+		hdr->ih_##f = val; \
+	}
+image_set_hdr_b (os);
+image_set_hdr_b (arch);
+image_set_hdr_b (type);
+image_set_hdr_b (comp);
+
+static inline void image_set_name (image_header_t *hdr, const char *name)
+{
+	strncpy (image_get_name (hdr), name, IH_NMLEN);
+}
+
+int image_check_hcrc (image_header_t *hdr);
+int image_check_dcrc (image_header_t *hdr);
+int image_check_dcrc_wd (image_header_t *hdr, ulong chunksize);
+int getenv_verify (void);
+
+static inline int image_check_magic (image_header_t *hdr)
+{
+	return (image_get_magic (hdr) == IH_MAGIC);
+}
+static inline int image_check_type (image_header_t *hdr, uint8_t type)
+{
+	return (image_get_type (hdr) == type);
+}
+static inline int image_check_arch (image_header_t *hdr, uint8_t arch)
+{
+	return (image_get_arch (hdr) == arch);
+}
+static inline int image_check_os (image_header_t *hdr, uint8_t os)
+{
+	return (image_get_os (hdr) == os);
+}
+
+#ifndef USE_HOSTCC
+static inline int image_check_target_arch (image_header_t *hdr)
+{
+#if defined(__ARM__)
+	if (!image_check_arch (hdr, IH_ARCH_ARM))
+#elif defined(__avr32__)
+	if (!image_check_arch (hdr, IH_ARCH_AVR32))
+#elif defined(__bfin__)
+	if (!image_check_arch (hdr, IH_ARCH_BLACKFIN))
+#elif defined(__I386__)
+	if (!image_check_arch (hdr, IH_ARCH_I386))
+#elif defined(__M68K__)
+	if (!image_check_arch (hdr, IH_ARCH_M68K))
+#elif defined(__microblaze__)
+	if (!image_check_arch (hdr, IH_ARCH_MICROBLAZE))
+#elif defined(__mips__)
+	if (!image_check_arch (hdr, IH_ARCH_MIPS))
+#elif defined(__nios__)
+	if (!image_check_arch (hdr, IH_ARCH_NIOS))
+#elif defined(__nios2__)
+	if (!image_check_arch (hdr, IH_ARCH_NIOS2))
+#elif defined(__PPC__)
+	if (!image_check_arch (hdr, IH_ARCH_PPC))
+#elif defined(__sh__)
+	if (!image_check_arch (hdr, IH_ARCH_SH))
+#else
+# error Unknown CPU type
+#endif
+		return 0;
+
+	return 1;
+}
+#endif
+
+#endif /* __IMAGE_H__ */
