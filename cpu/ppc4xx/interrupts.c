@@ -34,7 +34,7 @@
 #include <ppc4xx.h>
 #include <ppc_asm.tmpl>
 #include <commproc.h>
-#include "vecnum.h"
+#include <asm/ppc4xx-intvec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

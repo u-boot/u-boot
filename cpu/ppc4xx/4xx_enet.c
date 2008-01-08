@@ -90,7 +90,7 @@
 #include <405_mal.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include "vecnum.h"
+#include <asm/ppc4xx-intvec.h>
 
 /*
  * Only compile for platform with AMCC EMAC ethernet controller and
