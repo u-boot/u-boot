@@ -36,8 +36,6 @@
 #include <asm/io.h>
 #include <ppc440.h>
 
-#include "sdram.h"
-
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
  * region. Right now the cache should still be disabled in U-Boot because of the
@@ -54,8 +52,13 @@
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
 #endif
 
-void dcbz_area(u32 start_address, u32 num_bytes);
-void dflush(void);
+/*-----------------------------------------------------------------------------+
+ * Prototypes
+ *-----------------------------------------------------------------------------*/
+extern int denali_wait_for_dlllock(void);
+extern void denali_core_search_data_eye(void);
+extern void dcbz_area(u32 start_address, u32 num_bytes);
+extern void dflush(void);
 
 static u32 is_ecc_enabled(void)
 {
@@ -86,330 +89,6 @@ void board_add_ram_info(int use_default)
 	val = DDR0_03_CASLAT_DECODE(val);
 	printf(", CL%d)", val);
 }
-
-static int wait_for_dlllock(void)
-{
-	u32 val;
-	int wait = 0;
-
-	/*
-	 * Wait for the DCC master delay line to finish calibration
-	 */
-	mtdcr(ddrcfga, DDR0_17);
-	val = DDR0_17_DLLLOCKREG_UNLOCKED;
-
-	while (wait != 0xffff) {
-		val = mfdcr(ddrcfgd);
-		if ((val & DDR0_17_DLLLOCKREG_MASK) == DDR0_17_DLLLOCKREG_LOCKED)
-			/* dlllockreg bit on */
-			return 0;
-		else
-			wait++;
-	}
-	debug("0x%04x: DDR0_17 Value (dlllockreg bit): 0x%08x\n", wait, val);
-	debug("Waiting for dlllockreg bit to raise\n");
-
-	return -1;
-}
-
-#if defined(CONFIG_DDR_DATA_EYE)
-int wait_for_dram_init_complete(void)
-{
-	u32 val;
-	int wait = 0;
-
-	/*
-	 * Wait for 'DRAM initialization complete' bit in status register
-	 */
-	mtdcr(ddrcfga, DDR0_00);
-
-	while (wait != 0xffff) {
-		val = mfdcr(ddrcfgd);
-		if ((val & DDR0_00_INT_STATUS_BIT6) == DDR0_00_INT_STATUS_BIT6)
-			/* 'DRAM initialization complete' bit */
-			return 0;
-		else
-			wait++;
-	}
-
-	debug("DRAM initialization complete bit in status register did not rise\n");
-
-	return -1;
-}
-
-#define NUM_TRIES 64
-#define NUM_READS 10
-
-void denali_core_search_data_eye(u32 start_addr, u32 memory_size)
-{
-	int k, j;
-	u32 val;
-	u32 wr_dqs_shift, dqs_out_shift, dll_dqs_delay_X;
-	u32 max_passing_cases = 0, wr_dqs_shift_with_max_passing_cases = 0;
-	u32 passing_cases = 0, dll_dqs_delay_X_sw_val = 0;
-	u32 dll_dqs_delay_X_start_window = 0, dll_dqs_delay_X_end_window = 0;
-	volatile u32 *ram_pointer;
-	u32 test[NUM_TRIES] = {
-		0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF,
-		0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000,
-		0xAAAAAAAA, 0xAAAAAAAA, 0x55555555, 0x55555555,
-		0xAAAAAAAA, 0xAAAAAAAA, 0x55555555, 0x55555555,
-		0x55555555, 0x55555555, 0xAAAAAAAA, 0xAAAAAAAA,
-		0x55555555, 0x55555555, 0xAAAAAAAA, 0xAAAAAAAA,
-		0xA5A5A5A5, 0xA5A5A5A5, 0x5A5A5A5A, 0x5A5A5A5A,
-		0xA5A5A5A5, 0xA5A5A5A5, 0x5A5A5A5A, 0x5A5A5A5A,
-		0x5A5A5A5A, 0x5A5A5A5A, 0xA5A5A5A5, 0xA5A5A5A5,
-		0x5A5A5A5A, 0x5A5A5A5A, 0xA5A5A5A5, 0xA5A5A5A5,
-		0xAA55AA55, 0xAA55AA55, 0x55AA55AA, 0x55AA55AA,
-		0xAA55AA55, 0xAA55AA55, 0x55AA55AA, 0x55AA55AA,
-		0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55,
-		0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55 };
-
-	ram_pointer = (volatile u32 *)start_addr;
-
-	for (wr_dqs_shift = 64; wr_dqs_shift < 96; wr_dqs_shift++) {
-		/*for (wr_dqs_shift=1; wr_dqs_shift<96; wr_dqs_shift++) {*/
-
-		/*
-		 * De-assert 'start' parameter.
-		 */
-		mtdcr(ddrcfga, DDR0_02);
-		val = (mfdcr(ddrcfgd) & ~DDR0_02_START_MASK) | DDR0_02_START_OFF;
-		mtdcr(ddrcfgd, val);
-
-		/*
-		 * Set 'wr_dqs_shift'
-		 */
-		mtdcr(ddrcfga, DDR0_09);
-		val = (mfdcr(ddrcfgd) & ~DDR0_09_WR_DQS_SHIFT_MASK)
-			| DDR0_09_WR_DQS_SHIFT_ENCODE(wr_dqs_shift);
-		mtdcr(ddrcfgd, val);
-
-		/*
-		 * Set 'dqs_out_shift' = wr_dqs_shift + 32
-		 */
-		dqs_out_shift = wr_dqs_shift + 32;
-		mtdcr(ddrcfga, DDR0_22);
-		val = (mfdcr(ddrcfgd) & ~DDR0_22_DQS_OUT_SHIFT_MASK)
-			| DDR0_22_DQS_OUT_SHIFT_ENCODE(dqs_out_shift);
-		mtdcr(ddrcfgd, val);
-
-		passing_cases = 0;
-
-		for (dll_dqs_delay_X = 1; dll_dqs_delay_X < 64; dll_dqs_delay_X++) {
-			/*for (dll_dqs_delay_X=1; dll_dqs_delay_X<128; dll_dqs_delay_X++) {*/
-			/*
-			 * Set 'dll_dqs_delay_X'.
-			 */
-			/* dll_dqs_delay_0 */
-			mtdcr(ddrcfga, DDR0_17);
-			val = (mfdcr(ddrcfgd) & ~DDR0_17_DLL_DQS_DELAY_0_MASK)
-				| DDR0_17_DLL_DQS_DELAY_0_ENCODE(dll_dqs_delay_X);
-			mtdcr(ddrcfgd, val);
-			/* dll_dqs_delay_1 to dll_dqs_delay_4 */
-			mtdcr(ddrcfga, DDR0_18);
-			val = (mfdcr(ddrcfgd) & ~DDR0_18_DLL_DQS_DELAY_X_MASK)
-				| DDR0_18_DLL_DQS_DELAY_4_ENCODE(dll_dqs_delay_X)
-				| DDR0_18_DLL_DQS_DELAY_3_ENCODE(dll_dqs_delay_X)
-				| DDR0_18_DLL_DQS_DELAY_2_ENCODE(dll_dqs_delay_X)
-				| DDR0_18_DLL_DQS_DELAY_1_ENCODE(dll_dqs_delay_X);
-			mtdcr(ddrcfgd, val);
-			/* dll_dqs_delay_5 to dll_dqs_delay_8 */
-			mtdcr(ddrcfga, DDR0_19);
-			val = (mfdcr(ddrcfgd) & ~DDR0_19_DLL_DQS_DELAY_X_MASK)
-				| DDR0_19_DLL_DQS_DELAY_8_ENCODE(dll_dqs_delay_X)
-				| DDR0_19_DLL_DQS_DELAY_7_ENCODE(dll_dqs_delay_X)
-				| DDR0_19_DLL_DQS_DELAY_6_ENCODE(dll_dqs_delay_X)
-				| DDR0_19_DLL_DQS_DELAY_5_ENCODE(dll_dqs_delay_X);
-			mtdcr(ddrcfgd, val);
-
-			ppcMsync();
-			ppcMbar();
-
-			/*
-			 * Assert 'start' parameter.
-			 */
-			mtdcr(ddrcfga, DDR0_02);
-			val = (mfdcr(ddrcfgd) & ~DDR0_02_START_MASK) | DDR0_02_START_ON;
-			mtdcr(ddrcfgd, val);
-
-			ppcMsync();
-			ppcMbar();
-
-			/*
-			 * Wait for the DCC master delay line to finish calibration
-			 */
-			if (wait_for_dlllock() != 0) {
-				printf("dlllock did not occur !!!\n");
-				printf("denali_core_search_data_eye!!!\n");
-				printf("wr_dqs_shift = %d - dll_dqs_delay_X = %d\n",
-				       wr_dqs_shift, dll_dqs_delay_X);
-				hang();
-			}
-			ppcMsync();
-			ppcMbar();
-
-			if (wait_for_dram_init_complete() != 0) {
-				printf("dram init complete did not occur !!!\n");
-				printf("denali_core_search_data_eye!!!\n");
-				printf("wr_dqs_shift = %d - dll_dqs_delay_X = %d\n",
-				       wr_dqs_shift, dll_dqs_delay_X);
-				hang();
-			}
-			udelay(100);  /* wait 100us to ensure init is really completed !!! */
-
-			/* write values */
-			for (j=0; j<NUM_TRIES; j++) {
-				ram_pointer[j] = test[j];
-
-				/* clear any cache at ram location */
-				__asm__("dcbf 0,%0": :"r" (&ram_pointer[j]));
-			}
-
-			/* read values back */
-			for (j=0; j<NUM_TRIES; j++) {
-				for (k=0; k<NUM_READS; k++) {
-					/* clear any cache at ram location */
-					__asm__("dcbf 0,%0": :"r" (&ram_pointer[j]));
-
-					if (ram_pointer[j] != test[j])
-						break;
-				}
-
-				/* read error */
-				if (k != NUM_READS)
-					break;
-			}
-
-			/* See if the dll_dqs_delay_X value passed.*/
-			if (j < NUM_TRIES) {
-				/* Failed */
-				passing_cases = 0;
-				/* break; */
-			} else {
-				/* Passed */
-				if (passing_cases == 0)
-					dll_dqs_delay_X_sw_val = dll_dqs_delay_X;
-				passing_cases++;
-				if (passing_cases >= max_passing_cases) {
-					max_passing_cases = passing_cases;
-					wr_dqs_shift_with_max_passing_cases = wr_dqs_shift;
-					dll_dqs_delay_X_start_window = dll_dqs_delay_X_sw_val;
-					dll_dqs_delay_X_end_window = dll_dqs_delay_X;
-				}
-			}
-
-			/*
-			 * De-assert 'start' parameter.
-			 */
-			mtdcr(ddrcfga, DDR0_02);
-			val = (mfdcr(ddrcfgd) & ~DDR0_02_START_MASK) | DDR0_02_START_OFF;
-			mtdcr(ddrcfgd, val);
-
-		} /* for (dll_dqs_delay_X=0; dll_dqs_delay_X<128; dll_dqs_delay_X++) */
-
-	} /* for (wr_dqs_shift=0; wr_dqs_shift<96; wr_dqs_shift++) */
-
-	/*
-	 * Largest passing window is now detected.
-	 */
-
-	/* Compute dll_dqs_delay_X value */
-	dll_dqs_delay_X = (dll_dqs_delay_X_end_window + dll_dqs_delay_X_start_window) / 2;
-	wr_dqs_shift = wr_dqs_shift_with_max_passing_cases;
-
-	debug("DQS calibration - Window detected:\n");
-	debug("max_passing_cases = %d\n", max_passing_cases);
-	debug("wr_dqs_shift	 = %d\n", wr_dqs_shift);
-	debug("dll_dqs_delay_X	 = %d\n", dll_dqs_delay_X);
-	debug("dll_dqs_delay_X window = %d - %d\n",
-	      dll_dqs_delay_X_start_window, dll_dqs_delay_X_end_window);
-
-	/*
-	 * De-assert 'start' parameter.
-	 */
-	mtdcr(ddrcfga, DDR0_02);
-	val = (mfdcr(ddrcfgd) & ~DDR0_02_START_MASK) | DDR0_02_START_OFF;
-	mtdcr(ddrcfgd, val);
-
-	/*
-	 * Set 'wr_dqs_shift'
-	 */
-	mtdcr(ddrcfga, DDR0_09);
-	val = (mfdcr(ddrcfgd) & ~DDR0_09_WR_DQS_SHIFT_MASK)
-		| DDR0_09_WR_DQS_SHIFT_ENCODE(wr_dqs_shift);
-	mtdcr(ddrcfgd, val);
-	debug("DDR0_09=0x%08lx\n", val);
-
-	/*
-	 * Set 'dqs_out_shift' = wr_dqs_shift + 32
-	 */
-	dqs_out_shift = wr_dqs_shift + 32;
-	mtdcr(ddrcfga, DDR0_22);
-	val = (mfdcr(ddrcfgd) & ~DDR0_22_DQS_OUT_SHIFT_MASK)
-		| DDR0_22_DQS_OUT_SHIFT_ENCODE(dqs_out_shift);
-	mtdcr(ddrcfgd, val);
-	debug("DDR0_22=0x%08lx\n", val);
-
-	/*
-	 * Set 'dll_dqs_delay_X'.
-	 */
-	/* dll_dqs_delay_0 */
-	mtdcr(ddrcfga, DDR0_17);
-	val = (mfdcr(ddrcfgd) & ~DDR0_17_DLL_DQS_DELAY_0_MASK)
-		| DDR0_17_DLL_DQS_DELAY_0_ENCODE(dll_dqs_delay_X);
-	mtdcr(ddrcfgd, val);
-	debug("DDR0_17=0x%08lx\n", val);
-
-	/* dll_dqs_delay_1 to dll_dqs_delay_4 */
-	mtdcr(ddrcfga, DDR0_18);
-	val = (mfdcr(ddrcfgd) & ~DDR0_18_DLL_DQS_DELAY_X_MASK)
-		| DDR0_18_DLL_DQS_DELAY_4_ENCODE(dll_dqs_delay_X)
-		| DDR0_18_DLL_DQS_DELAY_3_ENCODE(dll_dqs_delay_X)
-		| DDR0_18_DLL_DQS_DELAY_2_ENCODE(dll_dqs_delay_X)
-		| DDR0_18_DLL_DQS_DELAY_1_ENCODE(dll_dqs_delay_X);
-	mtdcr(ddrcfgd, val);
-	debug("DDR0_18=0x%08lx\n", val);
-
-	/* dll_dqs_delay_5 to dll_dqs_delay_8 */
-	mtdcr(ddrcfga, DDR0_19);
-	val = (mfdcr(ddrcfgd) & ~DDR0_19_DLL_DQS_DELAY_X_MASK)
-		| DDR0_19_DLL_DQS_DELAY_8_ENCODE(dll_dqs_delay_X)
-		| DDR0_19_DLL_DQS_DELAY_7_ENCODE(dll_dqs_delay_X)
-		| DDR0_19_DLL_DQS_DELAY_6_ENCODE(dll_dqs_delay_X)
-		| DDR0_19_DLL_DQS_DELAY_5_ENCODE(dll_dqs_delay_X);
-	mtdcr(ddrcfgd, val);
-	debug("DDR0_19=0x%08lx\n", val);
-
-	/*
-	 * Assert 'start' parameter.
-	 */
-	mtdcr(ddrcfga, DDR0_02);
-	val = (mfdcr(ddrcfgd) & ~DDR0_02_START_MASK) | DDR0_02_START_ON;
-	mtdcr(ddrcfgd, val);
-
-	ppcMsync();
-	ppcMbar();
-
-	/*
-	 * Wait for the DCC master delay line to finish calibration
-	 */
-	if (wait_for_dlllock() != 0) {
-		printf("dlllock did not occur !!!\n");
-		hang();
-	}
-	ppcMsync();
-	ppcMbar();
-
-	if (wait_for_dram_init_complete() != 0) {
-		printf("dram init complete did not occur !!!\n");
-		hang();
-	}
-	udelay(100);  /* wait 100us to ensure init is really completed !!! */
-}
-#endif /* CONFIG_DDR_DATA_EYE */
 
 #ifdef CONFIG_DDR_ECC
 static void wait_ddr_idle(void)
@@ -610,25 +289,29 @@ long int initdram (int board_type)
 	mtsdram(DDR0_02, 0x00000001); /* Activate the denali core */
 #endif
 
-	wait_for_dlllock();
+	denali_wait_for_dlllock();
+
+#if defined(CONFIG_DDR_DATA_EYE)
+	/* -----------------------------------------------------------+
+	 * Perform data eye search if requested.
+	 * ----------------------------------------------------------*/
+	program_tlb(0, CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20,
+		    TLB_WORD2_I_ENABLE);
+	denali_core_search_data_eye();
+	remove_tlb(CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20);
+#endif
 
 	/*
 	 * Program tlb entries for this size (dynamic)
 	 */
-	program_tlb(0, 0, CFG_MBYTES_SDRAM << 20, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20,
+		    MY_TLB_WORD2_I_ENABLE);
 
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual address
 	 * with cache enabled. This is done for fast ECC generation.
 	 */
 	program_tlb(0, CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
-
-#ifdef CONFIG_DDR_DATA_EYE
-	/*
-	 * Perform data eye search if requested.
-	 */
-	denali_core_search_data_eye(CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20);
-#endif
 
 #ifdef CONFIG_DDR_ECC
 	/*
