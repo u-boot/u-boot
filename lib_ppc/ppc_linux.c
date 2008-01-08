@@ -265,9 +265,9 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		hdr = (image_header_t *)of_flat_tree;
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
+		if (*((ulong *)(of_flat_tree)) == OF_DT_HEADER) {
 #elif defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
+		if (fdt_check_header (of_flat_tree) == 0) {
 #endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
