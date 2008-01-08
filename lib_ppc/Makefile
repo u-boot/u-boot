@@ -28,7 +28,8 @@ LIB	= $(obj)lib$(ARCH).a
 SOBJS	= ppcstring.o ticks.o
 
 COBJS	= board.o \
-	  bat_rw.o cache.o extable.o kgdb.o time.o interrupts.o
+	  bat_rw.o cache.o extable.o kgdb.o time.o interrupts.o \
+	  ppc_linux.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
