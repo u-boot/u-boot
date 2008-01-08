@@ -79,10 +79,6 @@ static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 static void print_type (image_header_t *hdr);
 
-#ifdef __I386__
-image_header_t *fake_header(image_header_t *hdr, void *ptr, int size);
-#endif
-
 /*
  *  Continue booting an OS image; caller already has:
  *  - copied image header to global variable `header'
@@ -157,22 +153,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	memmove (&header, (char *)addr, image_get_header_size ());
 
-	if (!image_check_magic (hdr)) {
-#ifdef __I386__	/* correct image format not implemented yet - fake it */
-		if (fake_header(hdr, (void*)addr, -1) != NULL) {
-			/* to compensate for the addition below */
-			addr -= image_get_header_size ();
-			/* turnof verify,
-			 * fake_header() does not fake the data crc
-			 */
-			verify = 0;
-		} else
-#endif	/* __I386__ */
-	    {
+	if (!image_check_magic(hdr)) {
 		puts ("Bad Magic Number\n");
 		show_boot_progress (-1);
 		return 1;
-	    }
 	}
 	show_boot_progress (2);
 

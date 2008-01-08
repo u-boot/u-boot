@@ -70,6 +70,5 @@ void *load_zimage(char *image, unsigned long kernel_size,
 		  int auto_boot);
 
 void boot_zimage(void *setup_base);
-image_header_t *fake_zimage_header(image_header_t *hdr, void *ptr, int size);
 
 #endif

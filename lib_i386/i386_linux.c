@@ -33,18 +33,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 extern image_header_t header;           /* from cmd_bootm.c */
 
-
-image_header_t *fake_header(image_header_t *hdr, void *ptr, int size)
-{
-	/* try each supported image type in order */
-	if (NULL != fake_zimage_header(hdr, ptr, size)) {
-		return hdr;
-	}
-
-	return NULL;
-}
-
-
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong addr, ulong *len_ptr, int   verify)
 {
