@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2004
- * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
+ * Copyright (C) 2007 Semihalf
+ * Written by Marian Balakowicz <m8@semihalf.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,10 +21,12 @@
  * MA 02111-1307 USA
  */
 
-#define SDRAM_DDR	0		/* is SDR */
+#define SDRAM_DDR	1		/* is DDR */
 
 /* Settings for XLB = 132 MHz */
-#define SDRAM_MODE	0x00CD0000
-#define SDRAM_CONTROL	0x504F0000
-#define SDRAM_CONFIG1	0xD2322800
-#define SDRAM_CONFIG2	0x8AD70000
+#define SDRAM_MODE	0x018D0000
+#define SDRAM_EMODE	0x40090000
+#define SDRAM_CONTROL	0x714F0F00
+#define SDRAM_CONFIG1	0x73722930
+#define SDRAM_CONFIG2	0x46770000
+#define SDRAM_TAPDELAY	0x10000000

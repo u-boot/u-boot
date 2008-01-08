@@ -142,7 +142,7 @@
 		"cp.l 100000 f0000b28 1\0"				\
 	"ideargs=setenv bootargs root=/dev/hda1 rw\0"			\
 	"ide_boot=ext2load ide 0:1 200000 uImage;"			\
-		"run ideargs addip addcons enable_disp;bootm"		\
+		"run ideargs addip addcons enable_disp;bootm\0"		\
 	"brightness=255\0"						\
 	""
 
@@ -156,24 +156,24 @@
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		0xFFE00000
-
-#define CFG_FLASH_SIZE		0x00200000 /* 2 MByte */
-#define CFG_MAX_FLASH_SECT	35	/* max num of sects on one chip */
-
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000) /* second sector */
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
-					   (= chip selects) */
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1
+#define CFG_FLASH_BASE		0xffe00000
+#define CFG_FLASH_SIZE		0x00200000
+#define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
+#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster) */
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE	0x2000
 #define CONFIG_ENV_OVERWRITE	1
+#define CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*
  * Memory map
@@ -182,7 +182,14 @@
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_DEFAULT_MBAR	0x80000000
 
-#define CONFIG_MPC5200_DDR
+/*
+ * SDRAM controller configuration
+ */
+#undef CONFIG_SDR_MT48LC16M16A2
+#undef CONFIG_DDR_MT46V16M16
+#undef CONFIG_DDR_MT46V32M16
+#undef CONFIG_DDR_HYB25D512160BF
+#define CONFIG_DDR_K4H511638C
 
 /* Use ON-Chip SRAM until RAM will be available */
 #define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
@@ -203,7 +210,7 @@
 #   define CFG_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
