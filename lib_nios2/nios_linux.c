@@ -25,12 +25,9 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-extern image_header_t header;	/* common/cmd_bootm.c */
-
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
+		image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
 	void (*kernel)(void) = (void (*)(void))image_get_ep (hdr);
 
 	/* For now we assume the Microtronix linux ... which only

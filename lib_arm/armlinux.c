@@ -66,17 +66,14 @@ static void setup_videolfb_tag (gd_t *gd);
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
-extern image_header_t header;	/* from cmd_bootm.c */
-
-
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     ulong addr, ulong *len_ptr, int verify)
+		     image_header_t *hdr, int verify)
 {
-	ulong len = 0;
+	ulong rd_addr;
+	ulong rd_data, rd_len = 0;
 	ulong initrd_start, initrd_end;
-	ulong data;
+	image_header_t *rd_hdr;
 	void (*theKernel)(int zero, int arch, uint params);
-	image_header_t *hdr = &header;
 	bd_t *bd = gd->bd;
 
 #ifdef CONFIG_CMDLINE_TAG
@@ -91,27 +88,26 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	if (argc >= 3) {
 		show_boot_progress (9);
 
-		addr = simple_strtoul (argv[2], NULL, 16);
-
-		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
+		rd_addr = simple_strtoul (argv[2], NULL, 16);
+		printf ("## Loading Ramdisk Image at %08lx ...\n", rd_addr);
 
 		/* Copy header so we can blank CRC field for re-calculation */
 #ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (addr, image_get_header_size (),
-					(char *) &header);
+		if (addr_dataflash (rd_addr)) {
+			rd_hdr = (image_header_t *)CFG_LOAD_ADDR;
+			read_dataflash (rd_addr, image_get_header_size (),
+					(char *)rd_hdr);
 		} else
 #endif
-			memcpy (&header, (char *) addr,
-				image_get_header_size ());
+		rd_hdr = (image_header_t *)rd_addr;
 
-		if (!image_check_magic (hdr)) {
+		if (!image_check_magic (rd_hdr)) {
 			printf ("Bad Magic Number\n");
 			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		if (!image_check_hcrc (hdr)) {
+		if (!image_check_hcrc (rd_hdr)) {
 			printf ("Bad Header Checksum\n");
 			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
@@ -119,21 +115,20 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		show_boot_progress (10);
 
-		print_image_hdr (hdr);
+		print_image_hdr (rd_hdr);
 
-		data = image_get_data (hdr);
-		len = image_get_data_size (hdr);
+		rd_data = image_get_data (rd_hdr);
+		rd_len = image_get_data_size (rd_hdr);
 
 #ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (data, len, (char *) CFG_LOAD_ADDR);
-			data = CFG_LOAD_ADDR;
-		}
+		if (addr_dataflash (rd_addr))
+			read_dataflash (rd_addr + image_get_header_size (),
+					rd_len, (char *)rd_data);
 #endif
 
 		if (verify) {
 			printf ("   Verifying Checksum ... ");
-			if (!image_get_dcrc (hdr)) {
+			if (!image_get_dcrc (rd_hdr)) {
 				printf ("Bad Data CRC\n");
 				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
@@ -143,9 +138,9 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		show_boot_progress (11);
 
-		if (!image_check_os (hdr, IH_OS_LINUX) ||
-		    !image_check_arch (hdr, IH_ARCH_ARM) ||
-		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
+		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
+		    !image_check_arch (rd_hdr, IH_ARCH_ARM) ||
+		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
 			printf ("No Linux ARM Ramdisk Image\n");
 			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
@@ -155,50 +150,37 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/*
 		 *we need to copy the ramdisk to SRAM to let Linux boot
 		 */
-		memmove ((void *)image_get_load (hdr), (uchar *)data, len);
-		data = image_get_load (hdr);
+		memmove ((void *)image_get_load (rd_hdr), (uchar *)rd_data, rd_len);
+		rd_data = image_get_load (rd_hdr);
 #endif /* CONFIG_B2 || CONFIG_EVB4510 */
 
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = image_to_cpu (len_ptr[0]) % 4;
-		int i;
-
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		/*
+		 * Get second entry data start address and len
+		 */
 		show_boot_progress (13);
-
-		/* skip kernel length and terminator */
-		data = (ulong) (&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i = 1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += image_to_cpu (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len = image_to_cpu (len_ptr[1]);
-
+		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
 	} else {
 		/*
 		 * no initrd image
 		 */
 		show_boot_progress (14);
 
-		len = data = 0;
+		rd_len = rd_data = 0;
 	}
 
 #ifdef	DEBUG
-	if (!data) {
+	if (!rd_data) {
 		printf ("No initrd\n");
 	}
 #endif
 
-	if (data) {
-		initrd_start = data;
-		initrd_end = initrd_start + len;
+	if (rd_data) {
+		initrd_start = rd_data;
+		initrd_end = initrd_start + rd_len;
 	} else {
 		initrd_start = 0;
 		initrd_end = 0;

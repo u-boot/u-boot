@@ -42,17 +42,15 @@
 extern void swap_to(int device_id);
 #endif
 
-extern image_header_t header;
 extern void flush_instruction_cache(void);
 extern void flush_data_cache(void);
 static char *make_command_line(void);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		    ulong addr, ulong * len_ptr, int verify)
+		    image_header_t *hdr, int verify)
 {
 	int (*appl) (char *cmdline);
 	char *cmdline;
-	image_header_t *hdr = &header;
 
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);

@@ -211,13 +211,30 @@ static inline uint32_t image_get_data_size (image_header_t *hdr)
 {
 	return image_get_size (hdr);
 }
+
+/**
+ * image_get_data - get image payload start address
+ * @hdr: image header
+ *
+ * image_get_data() returns address of the image payload. For single
+ * component images it is image data start. For multi component
+ * images it points to the null terminated table of sub-images sizes.
+ *
+ * returns:
+ *     image payload data start address
+ */
+static inline ulong image_get_data (image_header_t *hdr)
+{
+	return ((ulong)hdr + image_get_header_size ());
+}
+
 static inline uint32_t image_get_image_size (image_header_t *hdr)
 {
 	return (image_get_size (hdr) + image_get_header_size ());
 }
-static inline ulong image_get_data (image_header_t *hdr)
+static inline ulong image_get_image_end (image_header_t *hdr)
 {
-	return ((ulong)hdr + image_get_header_size ());
+	return ((ulong)hdr + image_get_image_size (hdr));
 }
 
 #define image_set_hdr_l(f) \
@@ -307,4 +324,8 @@ static inline int image_check_target_arch (image_header_t *hdr)
 }
 #endif
 
-#endif /* __IMAGE_H__ */
+ulong image_multi_count (image_header_t *hdr);
+void image_multi_getimg (image_header_t *hdr, ulong idx,
+			ulong *data, ulong *len);
+
+#endif	/* __IMAGE_H__ */

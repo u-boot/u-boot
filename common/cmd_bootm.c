@@ -93,14 +93,13 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
  *  - disabled interrupts.
  */
 typedef void boot_os_fn (cmd_tbl_t *cmdtp, int flag,
-			int	argc, char *argv[],
-			ulong	addr,		/* of image to boot */
-			ulong	*len_ptr,	/* multi-file image length table */
-			int	verify);	/* getenv("verify")[0] != 'n' */
+			int argc, char *argv[],
+			image_header_t *hdr,	/* of image to boot */
+			int verify);		/* getenv("verify")[0] != 'n' */
 
 extern boot_os_fn do_bootm_linux;
 static boot_os_fn do_bootm_netbsd;
-#ifdef CONFIG_LYNXKDI
+#if defined(CONFIG_LYNXKDI)
 static boot_os_fn do_bootm_lynxkdi;
 extern void lynxkdi_boot (image_header_t *);
 #endif
@@ -116,8 +115,6 @@ extern uchar (*env_get_char)(int); /* Returns a character from the environment *
 static boot_os_fn do_bootm_artos;
 #endif
 
-image_header_t header;
-
 ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 
 
@@ -126,34 +123,32 @@ ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 /*******************************************************************/
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong	iflag;
-	ulong	addr;
-	ulong	data, len;
-	ulong  *len_ptr;
-	uint	unc_len = CFG_BOOTM_LEN;
-	int	i, verify;
-	char	*name, *s;
-	int	(*appl)(int, char *[]);
-	image_header_t *hdr = &header;
+	ulong		iflag;
+	char		*name, *s;
+	int		(*appl)(int, char *[]);
+	uint		unc_len = CFG_BOOTM_LEN;
+	int		verify = getenv_verify();
 
-	verify = getenv_verify ();
+	image_header_t	*hdr;
+	ulong		img_addr;
+	ulong		os_data, os_len;
 
 	if (argc < 2) {
-		addr = load_addr;
+		img_addr = load_addr;
 	} else {
-		addr = simple_strtoul(argv[1], NULL, 16);
+		img_addr = simple_strtoul(argv[1], NULL, 16);
 	}
 
 	show_boot_progress (1);
-	printf ("## Booting image at %08lx ...\n", addr);
+	printf ("## Booting image at %08lx ...\n", img_addr);
 
-	/* Copy header so we can blank CRC field for re-calculation */
 #ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash(addr)){
-		read_dataflash (addr, image_get_header_size (), (char *)&header);
+	if (addr_dataflash (img_addr)){
+		hdr = (image_header_t *)CFG_LOAD_ADDR;
+		read_dataflash (img_addr, image_get_header_size (), (char *)hdr);
 	} else
 #endif
-	memmove (&header, (char *)addr, image_get_header_size ());
+	hdr = (image_header_t *)img_addr;
 
 	if (!image_check_magic(hdr)) {
 		puts ("Bad Magic Number\n");
@@ -170,23 +165,18 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (3);
 
 #ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash(addr)){
-		len  = image_get_image_size (hdr);
-		read_dataflash(addr, len, (char *)CFG_LOAD_ADDR);
-		addr = CFG_LOAD_ADDR;
-	}
+	if (addr_dataflash (img_addr))
+		read_dataflash (img_addr + image_get_header_size (),
+				image_get_data_size (hdr),
+				(char *)image_get_data (hdr));
 #endif
 
-	/* for multi-file images we need the data part, too */
-	print_image_hdr ((image_header_t *)addr);
-
-	len = image_get_data_size (hdr);
-	data = addr + image_get_header_size ();
-	len_ptr = (ulong *)data;
+	/* uImage is in a system RAM, pointed to by hdr */
+	print_image_hdr (hdr);
 
 	if (verify) {
 		puts ("   Verifying Checksum ... ");
-		if (!image_check_dcrc ((image_header_t *)addr)) {
+		if (!image_check_dcrc (hdr)) {
 			printf ("Bad Data CRC\n");
 			show_boot_progress (-3);
 			return 1;
@@ -212,14 +202,12 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	case IH_TYPE_KERNEL:
 		name = "Kernel Image";
+		os_data = image_get_data (hdr);
+		os_len = image_get_data_size (hdr);
 		break;
 	case IH_TYPE_MULTI:
 		name = "Multi-File Image";
-		len  = image_to_cpu (len_ptr[0]);
-		/* OS kernel is always the first image */
-		data += 8; /* kernel_len + terminator */
-		for (i=1; len_ptr[i]; ++i)
-			data += 4;
+		image_multi_getimg (hdr, 0, &os_data, &os_len);
 		break;
 	default:
 		printf ("Wrong Image Type for %s command\n", cmdtp->name);
@@ -248,13 +236,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:
-		if (image_get_load (hdr) == addr) {
+		if (image_get_load (hdr) == img_addr) {
 			printf ("   XIP %s ... ", name);
 		} else {
 			printf ("   Loading %s ... ", name);
 
 			memmove_wd ((void *)image_get_load (hdr),
-				   (void *)data, len, CHUNKSZ);
+				   (void *)os_data, os_len, CHUNKSZ);
 
 			puts("OK\n");
 		}
@@ -262,7 +250,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", name);
 		if (gunzip ((void *)image_get_load (hdr), unc_len,
-			    (uchar *)data, &len) != 0) {
+					(uchar *)os_data, &os_len) != 0) {
 			puts ("GUNZIP ERROR - must RESET board to recover\n");
 			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
@@ -276,9 +264,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * use slower decompression algorithm which requires
 		 * at most 2300 KB of memory.
 		 */
-		i = BZ2_bzBuffToBuffDecompress ((char*)image_get_load (hdr),
-						&unc_len, (char *)data, len,
-						CFG_MALLOC_LEN < (4096 * 1024), 0);
+		int i = BZ2_bzBuffToBuffDecompress ((char*)image_get_load (hdr),
+					&unc_len, (char *)os_data, os_len,
+					CFG_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
 			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
 			show_boot_progress (-6);
@@ -306,7 +294,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 */
 		if (((s = getenv("autostart")) != NULL) && (strcmp(s,"no") == 0)) {
 			char buf[32];
-			sprintf(buf, "%lX", len);
+			sprintf(buf, "%lX", image_get_data_size(hdr));
 			setenv("filesize", buf);
 			return 0;
 		}
@@ -332,42 +320,36 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_SILENT_CONSOLE
 	    fixup_silent_linux();
 #endif
-	    do_bootm_linux  (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
+	    do_bootm_linux (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 
 	case IH_OS_NETBSD:
-	    do_bootm_netbsd (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
+	    do_bootm_netbsd (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 
 #ifdef CONFIG_LYNXKDI
 	case IH_OS_LYNXOS:
-	    do_bootm_lynxkdi (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
+	    do_bootm_lynxkdi (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 #endif
 
 	case IH_OS_RTEMS:
-	    do_bootm_rtems (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
+	    do_bootm_rtems (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 
 #if defined(CONFIG_CMD_ELF)
 	case IH_OS_VXWORKS:
-	    do_bootm_vxworks (cmdtp, flag, argc, argv,
-			      addr, len_ptr, verify);
+	    do_bootm_vxworks (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
+
 	case IH_OS_QNX:
-	    do_bootm_qnxelf (cmdtp, flag, argc, argv,
-			      addr, len_ptr, verify);
+	    do_bootm_qnxelf (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 #endif
 
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
-	    do_bootm_artos  (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
+	    do_bootm_artos (cmdtp, flag, argc, argv, hdr, verify);
 	    break;
 #endif
 	}
@@ -570,11 +552,12 @@ void print_image_hdr (image_header_t *hdr)
 
 	if (image_check_type (hdr, IH_TYPE_MULTI)) {
 		int i;
-		ulong len;
-		ulong *len_ptr = (ulong *)((ulong)hdr + image_get_header_size ());
+		ulong data, len;
+		ulong count = image_multi_count (hdr);
 
 		puts ("   Contents:\n");
-		for (i = 0; (len = image_to_cpu (*len_ptr)); ++i, ++len_ptr) {
+		for (i = 0; i < count; i++) {
+			image_multi_getimg (hdr, i, &data, &len);
 			printf ("   Image %d: %8ld Bytes = ", i, len);
 			print_size (len, "\n");
 		}
@@ -684,14 +667,12 @@ static void fixup_silent_linux ()
 /*******************************************************************/
 
 static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
-			     int argc, char *argv[],
-			     ulong addr, ulong *len_ptr,
-			     int verify)
+			    int argc, char *argv[],
+			    image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
-
 	void (*loader)(bd_t *, image_header_t *, char *, char *);
 	image_header_t *img_addr;
+	ulong kernel_data, kernel_len;
 	char *consdev;
 	char *cmdline;
 
@@ -708,8 +689,11 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 	 */
 
 	img_addr = 0;
-	if ((image_check_type (hdr, IH_TYPE_MULTI)) && (len_ptr[1]))
-		img_addr = (image_header_t *)addr;
+	if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		image_multi_getimg (hdr, 1, &kernel_data, &kernel_len);
+		if (kernel_len)
+			img_addr = hdr;
+	}
 
 	consdev = "";
 #if   defined (CONFIG_8xx_CONS_SMC1)
@@ -760,19 +744,16 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 #ifdef CONFIG_LYNXKDI
 static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 			     int argc, char *argv[],
-			     ulong addr, ulong *len_ptr,
-			     int verify)
+			     image_header_t *hdr, int verify)
 {
-	lynxkdi_boot (&header);
+	lynxkdi_boot (hdr);
 }
 #endif /* CONFIG_LYNXKDI */
 
 static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
-		           ulong addr, ulong *len_ptr,
-			   int verify)
+			   image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
 	void (*entry_point)(bd_t *);
 
 	entry_point = (void (*)(bd_t *))image_get_ep (hdr);
@@ -792,10 +773,8 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_CMD_ELF)
 static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 			     int argc, char *argv[],
-			     ulong addr, ulong *len_ptr,
-			     int verify)
+			     image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
 	char str[80];
 
 	sprintf(str, "%x", image_get_ep (hdr)); /* write entry-point into string */
@@ -803,12 +782,10 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 	do_bootvx(cmdtp, 0, 0, NULL);
 }
 
-static void do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag,
-			     int argc, char *argv[],
-			     ulong addr, ulong *len_ptr,
-			     int verify)
+static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
+			    int argc, char *argv[],
+			    image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
 	char *local_args[2];
 	char str[16];
 
@@ -822,8 +799,7 @@ static void do_bootm_qnxelf (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
-			   ulong addr, ulong *len_ptr,
-			   int verify)
+			   image_header_t *hdr, int verify)
 {
 	ulong top;
 	char *s, *cmdline;
@@ -831,7 +807,6 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 	int i, j, nxt, len, envno, envsz;
 	bd_t *kbd;
 	void (*entry)(bd_t *bd, char *cmdline, char **fwenv, ulong top);
-	image_header_t *hdr = &header;
 
 	/*
 	 * Booting an ARTOS kernel image + application

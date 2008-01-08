@@ -31,54 +31,50 @@
 /*cmd_boot.c*/
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-extern image_header_t header;           /* from cmd_bootm.c */
-
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
+		image_header_t *hdr, int verify)
 {
 	void *base_ptr;
 
-	ulong len = 0;
+	ulong os_data, os_len;
+	ulong rd_data, rd_len;
 	ulong initrd_start, initrd_end;
-	ulong data;
-	image_header_t *hdr = &header;
+	image_header_t *rd_hdr;
 
 	/*
 	 * Check if there is an initrd image
 	 */
 	if (argc >= 3) {
-		addr = simple_strtoul(argv[2], NULL, 16);
-		hdr = (image_header_t *)addr;
+		rd_hdr = (image_header_t *)simple_strtoul (argv[2], NULL, 16);
+		printf ("## Loading Ramdisk Image at %08lx ...\n", rd_hdr);
 
-		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
-
-		if (!image_check_magic (hdr)) {
+		if (!image_check_magic (rd_hdr)) {
 			printf ("Bad Magic Number\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		if (!image_check_hcrc (hdr)) {
+		if (!image_check_hcrc (rd_hdr)) {
 			printf ("Bad Header Checksum\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		print_image_hdr (hdr);
+		print_image_hdr (rd_hdr);
 
-		data = image_get_data (hdr);
-		len = image_get_data_size (hdr);
+		rd_data = image_get_data (rd_hdr);
+		rd_len = image_get_data_size (rd_hdr);
 
 		if (verify) {
 			printf ("   Verifying Checksum ... ");
-			if (!image_check_dcrc (hdr)) {
+			if (!image_check_dcrc (rd_hdr)) {
 				printf ("Bad Data CRC\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			printf ("OK\n");
 		}
 
-		if (!image_check_os (hdr, IH_OS_LINUX) ||
-		    !image_check_arch (hdr, IH_ARCH_I386) ||
-		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
+		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
+		    !image_check_arch (rd_hdr, IH_ARCH_I386) ||
+		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
 			printf ("No Linux i386 Ramdisk Image\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -86,42 +82,30 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail    = image_to_cpu (len_ptr[0]) % 4;
-		int i;
-
-		/* skip kernel length and terminator */
-		data = (ulong)(&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i=1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += image_to_cpu (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len   = image_to_cpu (len_ptr[1]);
-
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		/*
+		 * Get second entry data start address and len
+		 */
+		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
 	} else {
 		/*
 		 * no initrd image
 		 */
-		data = 0;
+		rd_data = rd_len = 0;
 	}
 
 #ifdef	DEBUG
-	if (!data) {
+	if (!rd_data) {
 		printf ("No initrd\n");
 	}
 #endif
 
-	if (data) {
-		initrd_start = data;
-		initrd_end   = initrd_start + len;
+	if (rd_data) {
+		initrd_start = rd_data;
+		initrd_end = initrd_start + rd_len;
 		printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
 			initrd_start, initrd_end);
-		memmove ((void *)initrd_start, (void *)data, len);
+		memmove ((void *)initrd_start, (void *)rd_data, rd_len);
 		printf ("OK\n");
 	} else {
 		initrd_start = 0;
@@ -129,14 +113,15 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 
 	/* if multi-part image, we need to advance base ptr */
-	if (image_check_type (&header, IH_TYPE_MULTI) && (len_ptr[1])) {
-		int i;
-		for (i=0, addr+=sizeof(int); len_ptr[i++]; addr+=sizeof(int));
+	if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		image_multi_getimg (hdr, 0, &os_data, &os_len);
+	} else {
+		os_data = image_get_data (hdr);
+		os_len = image_get_data_size (hdr);
 	}
 
-	base_ptr = load_zimage ((void*)addr + image_get_header_size (),
-			       image_get_data_size (&header),
-			       initrd_start, initrd_end-initrd_start, 0);
+	base_ptr = load_zimage ((void*)os_data, os_len,
+			initrd_start, rd_len, 0);
 
 	if (NULL == base_ptr) {
 		printf ("## Kernel loading failed ...\n");

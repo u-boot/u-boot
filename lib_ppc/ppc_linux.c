@@ -50,9 +50,7 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
-extern image_header_t header;
 
-/*cmd_boot.c*/
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #if defined(CONFIG_CMD_BDI)
@@ -60,25 +58,27 @@ extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 void  __attribute__((noinline))
-do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
+do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		int	argc, char *argv[],
-		ulong	addr,
-		ulong	*len_ptr,
+		image_header_t *hdr,
 		int	verify)
 {
-	ulong	sp;
-	ulong	len;
-	ulong	initrd_start, initrd_end;
-	ulong	cmd_start, cmd_end;
 	ulong	initrd_high;
-	ulong	data;
 	int	initrd_copy_to_ram = 1;
+	ulong	initrd_start, initrd_end;
+	ulong	rd_data, rd_len;
+	image_header_t *rd_hdr;
+
+	ulong	cmd_start, cmd_end;
 	char    *cmdline;
+
+	ulong	sp;
 	char	*s;
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
-	image_header_t *hdr = &header;
+
 #if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+	image_header_t *fdt_hdr;
 	char	*of_flat_tree = NULL;
 	ulong	of_data = 0;
 #endif
@@ -177,7 +177,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
-			len = data = 0;
+			rd_len = rd_data = 0;
 		}
 	else
 #endif
@@ -185,30 +185,28 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		debug ("Not skipping initrd\n");
 		show_boot_progress (9);
 
-		addr = simple_strtoul(argv[2], NULL, 16);
+		rd_hdr = (image_header_t *)simple_strtoul (argv[2], NULL, 16);
+		printf ("## Loading RAMDisk Image at %08lx ...\n", (ulong)rd_hdr);
 
-		printf ("## Loading RAMDisk Image at %08lx ...\n", addr);
-		hdr = (image_header_t *)addr;
-
-		if (!image_check_magic (hdr)) {
+		if (!image_check_magic (rd_hdr)) {
 			puts ("Bad Magic Number\n");
 			show_boot_progress (-10);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		if (!image_check_hcrc (hdr)) {
+		if (!image_check_hcrc (rd_hdr)) {
 			puts ("Bad Header Checksum\n");
 			show_boot_progress (-11);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		show_boot_progress (10);
 
-		print_image_hdr (hdr);
+		print_image_hdr (rd_hdr);
 
 		if (verify) {
 			puts ("   Verifying Checksum ... ");
 
-			if (!image_check_dcrc_wd (hdr, CHUNKSZ)) {
+			if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
 				puts ("Bad Data CRC\n");
 				show_boot_progress (-12);
 				do_reset (cmdtp, flag, argc, argv);
@@ -218,52 +216,39 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 		show_boot_progress (11);
 
-		if (!image_check_os (hdr, IH_OS_LINUX) ||
-		    !image_check_arch (hdr, IH_ARCH_PPC) ||
-		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
+		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
+		    !image_check_arch (rd_hdr, IH_ARCH_PPC) ||
+		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
 			puts ("No Linux PPC Ramdisk Image\n");
 			show_boot_progress (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-		data = image_get_data (hdr);
-		len = image_get_data_size (hdr);
+		rd_data = image_get_data (rd_hdr);
+		rd_len = image_get_data_size (rd_hdr);
 
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
-		u_long tail    = image_to_cpu (len_ptr[0]) % 4;
-		int i;
-
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		/*
+		 * Get second entry data start address and len
+		 */
+		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
 		show_boot_progress (13);
-
-		/* skip kernel length and terminator */
-		data = (ulong)(&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i=1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += image_to_cpu (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len   = image_to_cpu (len_ptr[1]);
-
 	} else {
 		/*
-		 * no initrd image
+		 * No initrd image
 		 */
 		show_boot_progress (14);
 
-		len = data = 0;
+		rd_len = rd_data = 0;
 	}
 
 #if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
-		hdr = (image_header_t *)of_flat_tree;
+		fdt_hdr = (image_header_t *)of_flat_tree;
 #if defined(CONFIG_OF_FLAT_TREE)
 		if (*((ulong *)(of_flat_tree)) == OF_DT_HEADER) {
 #elif defined(CONFIG_OF_LIBFDT)
@@ -273,37 +258,37 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
 #endif
-		} else if (image_check_magic (hdr)) {
-			printf("## Flat Device Tree at %08lX\n", hdr);
-			print_image_hdr (hdr);
+		} else if (image_check_magic (fdt_hdr)) {
+			printf ("## Flat Device Tree at %08lX\n", fdt_hdr);
+			print_image_hdr (fdt_hdr);
 
-			if ((image_get_load (hdr) <  ((unsigned long)hdr + image_get_image_size (hdr))) &&
-			   ((image_get_load (hdr) + image_get_data_size (hdr)) > (unsigned long)hdr)) {
+			if ((image_get_load (fdt_hdr) < image_get_image_end (fdt_hdr)) &&
+			   ((image_get_load (fdt_hdr) + image_get_data_size (fdt_hdr)) > (unsigned long)fdt_hdr)) {
 				puts ("ERROR: fdt overwritten - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			puts ("   Verifying Checksum ... ");
-			if (!image_check_hcrc (hdr)) {
+			if (!image_check_hcrc (fdt_hdr)) {
 				puts ("ERROR: fdt header checksum invalid - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			if (!image_check_dcrc (hdr)) {
+			if (!image_check_dcrc (fdt_hdr)) {
 				puts ("ERROR: fdt checksum invalid - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			puts ("OK\n");
 
-			if (!image_check_type (hdr, IH_TYPE_FLATDT)) {
+			if (!image_check_type (fdt_hdr, IH_TYPE_FLATDT)) {
 				puts ("ERROR: uImage is not a fdt - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-			if (image_get_comp (hdr) != IH_COMP_NONE) {
+			if (image_get_comp (fdt_hdr) != IH_COMP_NONE) {
 				puts ("ERROR: uImage is compressed - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
@@ -318,11 +303,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			memmove ((void *)image_get_load (hdr),
+			memmove ((void *)image_get_load (fdt_hdr),
 				(void *)(of_flat_tree + image_get_header_size ()),
-				image_get_data_size (hdr));
+				image_get_data_size (fdt_hdr));
 
-			of_flat_tree = (char *)image_get_load (hdr);
+			of_flat_tree = (char *)image_get_load (fdt_hdr);
 		} else {
 			puts ("Did not find a flat Flat Device Tree.\n"
 				"Must RESET the board to recover.\n");
@@ -330,68 +315,52 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		}
 		printf ("   Booting using the fdt at 0x%x\n",
 				of_flat_tree);
-	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1]) && (len_ptr[2])) {
-		u_long tail    = image_to_cpu (len_ptr[0]) % 4;
-		int i;
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		ulong fdt_data, fdt_len;
 
-		/* skip kernel length, initrd length, and terminator */
-		of_flat_tree = (char *)(&len_ptr[3]);
-		/* skip any additional image length fields */
-		for (i=2; len_ptr[i]; ++i)
-			of_flat_tree += 4;
-		/* add kernel length, and align */
-		of_flat_tree += image_to_cpu (len_ptr[0]);
-		if (tail) {
-			of_flat_tree += 4 - tail;
-		}
+		image_multi_getimg (hdr, 2, &fdt_data, &fdt_len);
+		if (fdt_len) {
 
-		/* add initrd length, and align */
-		tail = image_to_cpu (len_ptr[1]) % 4;
-		of_flat_tree += image_to_cpu (len_ptr[1]);
-		if (tail) {
-			of_flat_tree += 4 - tail;
-		}
+			of_flat_tree = (char *)fdt_data;
 
 #ifndef CFG_NO_FLASH
-		/* move the blob if it is in flash (set of_data to !null) */
-		if (addr2info ((ulong)of_flat_tree) != NULL)
-			of_data = (ulong)of_flat_tree;
+			/* move the blob if it is in flash (set of_data to !null) */
+			if (addr2info ((ulong)of_flat_tree) != NULL)
+				of_data = (ulong)of_flat_tree;
 #endif
-
 
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (*((ulong *)(of_flat_tree)) != OF_DT_HEADER) {
+			if (*((ulong *)(of_flat_tree)) != OF_DT_HEADER) {
 #elif defined(CONFIG_OF_LIBFDT)
-		if (fdt_check_header (of_flat_tree) != 0) {
+			if (fdt_check_header (of_flat_tree) != 0) {
 #endif
-			puts ("ERROR: image is not a fdt - "
-				"must RESET the board to recover.\n");
-			do_reset (cmdtp, flag, argc, argv);
-		}
+				puts ("ERROR: image is not a fdt - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
+			}
 
 #if defined(CONFIG_OF_FLAT_TREE)
-		if (((struct boot_param_header *)of_flat_tree)->totalsize !=
-			image_to_cpu (len_ptr[2])) {
+			if (((struct boot_param_header *)of_flat_tree)->totalsize != fdt_len) {
 #elif defined(CONFIG_OF_LIBFDT)
-		if (be32_to_cpu (fdt_totalsize (of_flat_tree)) !=
-			image_to_cpu (len_ptr[2])) {
+			if (be32_to_cpu (fdt_totalsize (of_flat_tree)) != fdt_len) {
 #endif
-			puts ("ERROR: fdt size != image size - "
-				"must RESET the board to recover.\n");
-			do_reset (cmdtp, flag, argc, argv);
+				puts ("ERROR: fdt size != image size - "
+					"must RESET the board to recover.\n");
+				do_reset (cmdtp, flag, argc, argv);
+			}
 		}
 	}
 #endif
-	if (!data) {
+	if (!rd_data) {
 		debug ("No initrd\n");
 	}
 
-	if (data) {
+	if (rd_data) {
 	    if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
-		initrd_start = data;
-		initrd_end = initrd_start + len;
+		initrd_start = rd_data;
+		initrd_end = initrd_start + rd_len;
 	    } else {
-		initrd_start  = (ulong)kbd - len;
+		initrd_start  = (ulong)kbd - rd_len;
 		initrd_start &= ~(4096 - 1);	/* align on page */
 
 		if (initrd_high) {
@@ -412,7 +381,7 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			nsp &= ~0xF;
 			if (nsp > initrd_high)	/* limit as specified */
 				nsp = initrd_high;
-			nsp -= len;
+			nsp -= rd_len;
 			nsp &= ~(4096 - 1);	/* align on page */
 			if (nsp >= sp)
 				initrd_start = nsp;
@@ -421,14 +390,14 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		show_boot_progress (12);
 
 		debug ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			data, data + len - 1, len, len);
+			rd_data, rd_data + rd_len - 1, rd_len, rd_len);
 
-		initrd_end    = initrd_start + len;
+		initrd_end    = initrd_start + rd_len;
 		printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
 			initrd_start, initrd_end);
 
 		memmove_wd((void *)initrd_start,
-			   (void *)data, len, CHUNKSZ);
+			   (void *)rd_data, rd_len, CHUNKSZ);
 
 		puts ("OK\n");
 	    }

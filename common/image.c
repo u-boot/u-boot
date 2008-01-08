@@ -107,3 +107,89 @@ void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 }
 #endif /* USE_HOSTCC */
+
+/**
+ * image_multi_count - get component (sub-image) count
+ * @hdr: pointer to the header of the multi component image
+ *
+ * image_multi_count() returns number of components in a multi
+ * component image.
+ *
+ * Note: no checking of the image type is done, caller must pass
+ * a valid multi component image.
+ *
+ * returns:
+ *     number of components
+ */
+ulong image_multi_count (image_header_t *hdr)
+{
+	ulong i, count = 0;
+	ulong *size;
+
+	/* get start of the image payload, which in case of multi
+	 * component images that points to a table of component sizes */
+	size = (ulong *)image_get_data (hdr);
+
+	/* count non empty slots */
+	for (i = 0; size[i]; ++i)
+		count++;
+
+	return count;
+}
+
+/**
+ * image_multi_getimg - get component data address and size
+ * @hdr: pointer to the header of the multi component image
+ * @idx: index of the requested component
+ * @data: pointer to a ulong variable, will hold component data address
+ * @len: pointer to a ulong variable, will hold component size
+ *
+ * image_multi_getimg() returns size and data address for the requested
+ * component in a multi component image.
+ *
+ * Note: no checking of the image type is done, caller must pass
+ * a valid multi component image.
+ *
+ * returns:
+ *     data address and size of the component, if idx is valid
+ *     0 in data and len, if idx is out of range
+ */
+void image_multi_getimg (image_header_t *hdr, ulong idx,
+			ulong *data, ulong *len)
+{
+	int i;
+	ulong *size;
+	ulong offset, tail, count, img_data;
+
+	/* get number of component */
+	count = image_multi_count (hdr);
+
+	/* get start of the image payload, which in case of multi
+	 * component images that points to a table of component sizes */
+	size = (ulong *)image_get_data (hdr);
+
+	/* get address of the proper component data start, which means
+	 * skipping sizes table (add 1 for last, null entry) */
+	img_data = image_get_data (hdr) + (count + 1) * sizeof (ulong);
+
+	if (idx < count) {
+		*len = size[idx];
+		offset = 0;
+		tail = 0;
+
+		/* go over all indices preceding requested component idx */
+		for (i = 0; i < idx; i++) {
+			/* add up i-th component size */
+			offset += size[i];
+
+			/* add up alignment for i-th component */
+			tail += (4 - size[i] % 4);
+		}
+
+		/* calculate idx-th component data address */
+		*data = img_data + offset + tail;
+	} else {
+		*len = 0;
+		*data = 0;
+	}
+}

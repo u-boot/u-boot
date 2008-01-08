@@ -54,7 +54,7 @@ autoscript (ulong addr)
 {
 	ulong len;
 	image_header_t *hdr = (image_header_t *)addr;
-	ulong *len_ptr;
+	ulong *data;
 	char *cmd;
 	int rcode = 0;
 	int verify;
@@ -84,9 +84,9 @@ autoscript (ulong addr)
 	}
 
 	/* get length of script */
-	len_ptr = (ulong *)image_get_data (hdr);
+	data = (ulong *)image_get_data (hdr);
 
-	if ((len = image_to_cpu (*len_ptr)) == 0) {
+	if ((len = image_to_cpu (*data)) == 0) {
 		puts ("Empty Script\n");
 		return 1;
 	}
@@ -97,10 +97,10 @@ autoscript (ulong addr)
 		return 1;
 	}
 
-	while (*len_ptr++);
+	while (*data++);
 
 	/* make sure cmd is null terminated */
-	memmove (cmd, (char *)len_ptr, len);
+	memmove (cmd, (char *)data, len);
 	*(cmd + len) = 0;
 
 #ifdef CFG_HUSH_PARSER /*?? */

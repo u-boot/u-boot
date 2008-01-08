@@ -44,26 +44,25 @@ DECLARE_GLOBAL_DATA_PTR;
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-extern image_header_t header;
-
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
-		    ulong addr, ulong * len_ptr, int verify)
+		    image_header_t *hdr, int verify)
 {
 	ulong sp;
-	ulong len;
-	ulong initrd_start, initrd_end;
-	ulong cmd_start, cmd_end;
+
+	ulong rd_data, rd_len;
 	ulong initrd_high;
-	ulong data;
+	ulong initrd_start, initrd_end;
+	image_header_t *rd_hdr;
 	int initrd_copy_to_ram = 1;
+
+	ulong cmd_start, cmd_end;
 	char *cmdline;
 	char *s;
 	bd_t *kbd;
 	void (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
-	image_header_t *hdr = &header;
 
 	if ((s = getenv("initrd_high")) != NULL) {
 		/* a value of "no" or a similar string will act like 0,
@@ -141,18 +140,16 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		debug("Not skipping initrd\n");
 		SHOW_BOOT_PROGRESS(9);
 
-		addr = simple_strtoul(argv[2], NULL, 16);
-		hdr = (image_header_t *)addr;
+		rd_hdr = (image_header_t *)simple_strtoul (argv[2], NULL, 16);
+		printf ("## Loading RAMDisk Image at %08lx ...\n", rd_hdr);
 
-		printf("## Loading RAMDisk Image at %08lx ...\n", addr);
-
-		if (!image_check_magic (hdr)) {
+		if (!image_check_magic (rd_hdr)) {
 			puts("Bad Magic Number\n");
 			SHOW_BOOT_PROGRESS(-10);
 			do_reset(cmdtp, flag, argc, argv);
 		}
 
-		if (!image_check_hcrc (hdr)) {
+		if (!image_check_hcrc (rd_hdr)) {
 			puts("Bad Header Checksum\n");
 			SHOW_BOOT_PROGRESS(-11);
 			do_reset(cmdtp, flag, argc, argv);
@@ -160,14 +157,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 		SHOW_BOOT_PROGRESS(10);
 
-		print_image_hdr (hdr);
+		print_image_hdr (rd_hdr);
 
-		data = image_get_data (hdr);
-		len = image_get_data_size (hdr);
+		rd_data = image_get_data (rd_hdr);
+		rd_len = image_get_data_size (rd_hdr);
 
 		if (verify) {
 			puts("   Verifying Checksum ... ");
-			if (!image_check_dcrc_wd (hdr, CHUNKSZ)) {
+			if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
 				puts("Bad Data CRC\n");
 				SHOW_BOOT_PROGRESS(-12);
 				do_reset(cmdtp, flag, argc, argv);
@@ -177,9 +174,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 		SHOW_BOOT_PROGRESS(11);
 
-		if (!image_check_os (hdr, IH_OS_LINUX) ||
-		    !image_check_arch (hdr, IH_ARCH_M68K) ||
-		    !image_check_type (hdr, IH_TYPE_RAMDISK)) {
+		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
+		    !image_check_arch (rd_hdr, IH_ARCH_M68K) ||
+		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
 			puts("No Linux ColdFire Ramdisk Image\n");
 			SHOW_BOOT_PROGRESS(-13);
 			do_reset(cmdtp, flag, argc, argv);
@@ -188,44 +185,31 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		/*
 		 * Now check if we have a multifile image
 		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI) && (len_ptr[1])) {
-		u_long tail = image_to_cpu (len_ptr[0]) % 4;
-		int i;
-
-		SHOW_BOOT_PROGRESS(13);
-
-		/* skip kernel length and terminator */
-		data = (ulong) (&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i = 1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += image_to_cpu (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len = image_to_cpu (len_ptr[1]);
-
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		/*
+		 * Get second entry data start address and len
+		 */
+		SHOW_BOOT_PROGRESS (13);
+		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
 	} else {
 		/*
 		 * no initrd image
 		 */
 		SHOW_BOOT_PROGRESS(14);
 
-		len = data = 0;
+		rd_len = rd_data = 0;
 	}
 
-	if (!data) {
+	if (!rd_data) {
 		debug("No initrd\n");
 	}
 
-	if (data) {
+	if (rd_data) {
 		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
-			initrd_start = data;
-			initrd_end = initrd_start + len;
+			initrd_start = rd_data;
+			initrd_end = initrd_start + rd_len;
 		} else {
-			initrd_start = (ulong) kbd - len;
+			initrd_start = (ulong) kbd - rd_len;
 			initrd_start &= ~(4096 - 1);	/* align on page */
 
 			if (initrd_high) {
@@ -250,7 +234,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 				if (nsp > initrd_high)	/* limit as specified */
 					nsp = initrd_high;
 
-					nsp -= len;
+					nsp -= rd_len;
 				nsp &= ~(4096 - 1);	/* align on page */
 
 				if (nsp >= sp)
@@ -261,14 +245,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 			debug
 			    ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			     data, data + len - 1, len, len);
+			     rd_data, rd_data + rd_len - 1, rd_len, rd_len);
 
-			initrd_end = initrd_start + len;
+			initrd_end = initrd_start + rd_len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
 			       initrd_start, initrd_end);
 
 			memmove_wd((void *)initrd_start,
-				   (void *)data, len, CHUNKSZ);
+				   (void *)rd_data, rd_len, CHUNKSZ);
 
 			puts("OK\n");
 		}

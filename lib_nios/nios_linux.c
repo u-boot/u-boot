@@ -29,6 +29,6 @@
  *
  */
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
+		image__header_t *hdr, int verify)
 {
 }
