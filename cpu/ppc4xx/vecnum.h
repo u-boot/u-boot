@@ -106,16 +106,16 @@
 #define VECNUM_RXDE         VECNUM_MRDE
 
 /* UIC 2 */
-#define VECNUM_EIR5         (62 +  0)  /* External interrupt 5          */
-#define VECNUM_EIR6         (62 +  1)  /* External interrupt 6          */
-#define VECNUM_OPB          (62 +  2)  /* OPB to PLB bridge int stat    */
-#define VECNUM_EIR2         (62 +  3)  /* External interrupt 2          */
-#define VECNUM_EIR3         (62 +  4)  /* External interrupt 3          */
-#define VECNUM_DDR2         (62 +  5)  /* DDR2 sdram                    */
-#define VECNUM_MCTX0        (62 +  6)  /* MAl intp coalescence TX0      */
-#define VECNUM_MCTX1        (62 +  7)  /* MAl intp coalescence TX1      */
-#define VECNUM_MCTR0        (62 +  8)  /* MAl intp coalescence TR0      */
-#define VECNUM_MCTR1        (62 +  9)  /* MAl intp coalescence TR1      */
+#define VECNUM_EIR5         (64 +  0)  /* External interrupt 5          */
+#define VECNUM_EIR6         (64 +  1)  /* External interrupt 6          */
+#define VECNUM_OPB          (64 +  2)  /* OPB to PLB bridge int stat    */
+#define VECNUM_EIR2         (64 +  3)  /* External interrupt 2          */
+#define VECNUM_EIR3         (64 +  4)  /* External interrupt 3          */
+#define VECNUM_DDR2         (64 +  5)  /* DDR2 sdram                    */
+#define VECNUM_MCTX0        (64 +  6)  /* MAl intp coalescence TX0      */
+#define VECNUM_MCTX1        (64 +  7)  /* MAl intp coalescence TX1      */
+#define VECNUM_MCTR0        (64 +  8)  /* MAl intp coalescence TR0      */
+#define VECNUM_MCTR1        (64 +  9)  /* MAl intp coalescence TR1      */
 
 #elif defined(CONFIG_440SPE)
 
@@ -152,12 +152,12 @@
 #define VECNUM_EWU0         (32 + 29)   /* Emac  wakeup                 */
 
 /* UIC 2 */
-#define VECNUM_EIR5         (62 + 24)   /* External interrupt 5         */
-#define VECNUM_EIR4         (62 + 25)   /* External interrupt 4         */
-#define VECNUM_EIR3         (62 + 26)   /* External interrupt 3         */
-#define VECNUM_EIR2         (62 + 27)   /* External interrupt 2         */
-#define VECNUM_EIR1         (62 + 28)   /* External interrupt 1         */
-#define VECNUM_EIR0         (62 + 29)   /* External interrupt 0         */
+#define VECNUM_EIR5         (64 + 24)   /* External interrupt 5         */
+#define VECNUM_EIR4         (64 + 25)   /* External interrupt 4         */
+#define VECNUM_EIR3         (64 + 26)   /* External interrupt 3         */
+#define VECNUM_EIR2         (64 + 27)   /* External interrupt 2         */
+#define VECNUM_EIR1         (64 + 28)   /* External interrupt 1         */
+#define VECNUM_EIR0         (64 + 29)   /* External interrupt 0         */
 
 #elif defined(CONFIG_440SP)
 
