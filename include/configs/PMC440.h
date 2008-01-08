@@ -167,6 +167,7 @@
  * set up. While still running from cache, I experienced problems accessing
  * the NAND controller.	sr - 2006-08-25
  */
+#if defined (CONFIG_NAND_U_BOOT)
 #define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location                 */
 #define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size                     */
 #define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_BASE + (12 << 10)) /* Copy SPL here    */
@@ -195,6 +196,7 @@
 #define CFG_NAND_OOBSIZE	16
 #define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
 #define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+#endif
 
 #ifdef CFG_ENV_IS_IN_NAND
 /*
@@ -501,6 +503,7 @@
 #define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
 #define CFG_NAND_SELECT_DEVICE	1 /* nand driver supports mutipl. chips */
+#define CFG_NAND_QUIET_TEST	1
 
 /*
  * Internal Definitions
