@@ -280,10 +280,10 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "400")) {
-			/* PLB=133MHz, PLB/PCI=4 */
+			/* PLB=133MHz, PLB/PCI=3 */
 			printf("Bootstrapping for 400MHz\n");
 			sdsdp[0]=0x8678624e;
-			sdsdp[1]=0x0947a030;
+			sdsdp[1]=0x095fa030;
 			sdsdp[2]=0x40082350;
 			sdsdp[3]=0x0d050000;
 		} else if (!strcmp(argv[1], "533")) {
