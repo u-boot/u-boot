@@ -468,7 +468,7 @@ int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
-#if defined(CONFIG_MPC512x)
+#if defined(CONFIG_MPC512X)
 int	prt_mpc512xxx_clks (void);
 #endif
 #if defined(CONFIG_MPC8220)
