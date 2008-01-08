@@ -29,6 +29,7 @@
 #include <asm/gpio.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/ppc4xx-intvec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -387,6 +388,16 @@ int testdram(void)
 }
 #endif
 
+#if defined(CONFIG_PCI) && defined(CONFIG_PCI_PNP)
+/*
+ * Assign interrupts to PCI devices.
+ */
+void sequoia_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
+{
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+}
+#endif
+
 /*************************************************************************
  *  pci_pre_init
  *
@@ -438,6 +449,9 @@ int pci_pre_init(struct pci_controller *hose)
 	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
 	mtdcr(plb1_acr, addr);
 
+#ifdef CONFIG_PCI_PNP
+	hose->fixup_irq = sequoia_pci_fixup_irq;
+#endif
 	return 1;
 }
 #endif /* defined(CONFIG_PCI) */
