@@ -444,6 +444,7 @@ ulong post_word_load (void)
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
 {
+
 	extern int usb_cpu_init(void);
 
 #ifdef CONFIG_PS2MULT
