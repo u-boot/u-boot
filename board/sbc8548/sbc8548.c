@@ -1,5 +1,8 @@
 /*
- * Copyright 2007 Freescale Semiconductor.
+ * Copyright 2007 Wind River Systemes, Inc. <www.windriver.com>
+ * Copyright 2007 Embedded Specialties, Inc.
+ *
+ * Copyright 2004, 2007 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -28,117 +31,54 @@
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
 #include <spd.h>
-#include <i2c.h>
-#include <ioports.h>
+#include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-
-#include "bcsr.h"
-
-const qe_iop_conf_t qe_iop_conf_tab[] = {
-	/* GETH1 */
-	{4, 10, 1, 0, 2}, /* TxD0 */
-	{4,  9, 1, 0, 2}, /* TxD1 */
-	{4,  8, 1, 0, 2}, /* TxD2 */
-	{4,  7, 1, 0, 2}, /* TxD3 */
-	{4, 23, 1, 0, 2}, /* TxD4 */
-	{4, 22, 1, 0, 2}, /* TxD5 */
-	{4, 21, 1, 0, 2}, /* TxD6 */
-	{4, 20, 1, 0, 2}, /* TxD7 */
-	{4, 15, 2, 0, 2}, /* RxD0 */
-	{4, 14, 2, 0, 2}, /* RxD1 */
-	{4, 13, 2, 0, 2}, /* RxD2 */
-	{4, 12, 2, 0, 2}, /* RxD3 */
-	{4, 29, 2, 0, 2}, /* RxD4 */
-	{4, 28, 2, 0, 2}, /* RxD5 */
-	{4, 27, 2, 0, 2}, /* RxD6 */
-	{4, 26, 2, 0, 2}, /* RxD7 */
-	{4, 11, 1, 0, 2}, /* TX_EN */
-	{4, 24, 1, 0, 2}, /* TX_ER */
-	{4, 16, 2, 0, 2}, /* RX_DV */
-	{4, 30, 2, 0, 2}, /* RX_ER */
-	{4, 17, 2, 0, 2}, /* RX_CLK */
-	{4, 19, 1, 0, 2}, /* GTX_CLK */
-	{1, 31, 2, 0, 3}, /* GTX125 */
-
-	/* GETH2 */
-	{5, 10, 1, 0, 2}, /* TxD0 */
-	{5,  9, 1, 0, 2}, /* TxD1 */
-	{5,  8, 1, 0, 2}, /* TxD2 */
-	{5,  7, 1, 0, 2}, /* TxD3 */
-	{5, 23, 1, 0, 2}, /* TxD4 */
-	{5, 22, 1, 0, 2}, /* TxD5 */
-	{5, 21, 1, 0, 2}, /* TxD6 */
-	{5, 20, 1, 0, 2}, /* TxD7 */
-	{5, 15, 2, 0, 2}, /* RxD0 */
-	{5, 14, 2, 0, 2}, /* RxD1 */
-	{5, 13, 2, 0, 2}, /* RxD2 */
-	{5, 12, 2, 0, 2}, /* RxD3 */
-	{5, 29, 2, 0, 2}, /* RxD4 */
-	{5, 28, 2, 0, 2}, /* RxD5 */
-	{5, 27, 2, 0, 3}, /* RxD6 */
-	{5, 26, 2, 0, 2}, /* RxD7 */
-	{5, 11, 1, 0, 2}, /* TX_EN */
-	{5, 24, 1, 0, 2}, /* TX_ER */
-	{5, 16, 2, 0, 2}, /* RX_DV */
-	{5, 30, 2, 0, 2}, /* RX_ER */
-	{5, 17, 2, 0, 2}, /* RX_CLK */
-	{5, 19, 1, 0, 2}, /* GTX_CLK */
-	{1, 31, 2, 0, 3}, /* GTX125 */
-	{4,  6, 3, 0, 2}, /* MDIO */
-	{4,  5, 1, 0, 2}, /* MDC */
-
-	/* UART1 */
-	{2, 0, 1, 0, 2}, /* UART_SOUT1 */
-	{2, 1, 1, 0, 2}, /* UART_RTS1 */
-	{2, 2, 2, 0, 2}, /* UART_CTS1 */
-	{2, 3, 2, 0, 2}, /* UART_SIN1 */
-
-	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
-};
-
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern long int spd_sdram(void);
 
 void local_bus_init(void);
 void sdram_init(void);
+long int fixed_sdram (void);
 
 int board_early_init_f (void)
 {
-	/*
-	 * Initialize local bus.
-	 */
-	local_bus_init ();
-
-	enable_8568mds_duart();
-	enable_8568mds_flash_write();
-#if defined(CONFIG_UEC_ETH1) || defined(CONFIG_UEC_ETH2)
-	reset_8568mds_uccs();
-#endif
-#if defined(CONFIG_QE) && !defined(CONFIG_eTSEC_MDIO_BUS)
-	enable_8568mds_qe_mdio();
-#endif
-
-#ifdef CFG_I2C2_OFFSET
-	/* Enable I2C2_SCL and I2C2_SDA */
-	volatile struct par_io *port_c;
-	port_c = (struct par_io*)(CFG_IMMR + 0xe0140);
-	port_c->cpdir2 |= 0x0f000000;
-	port_c->cppar2 &= ~0x0f000000;
-	port_c->cppar2 |= 0x0a000000;
-#endif
-
 	return 0;
 }
 
 int checkboard (void)
 {
-	printf ("Board: 8568 MDS\n");
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 
+	printf ("Board: Wind River SBC8548 Rev. 0x%01x\n",
+			(volatile)(*(u_char *)CFG_BD_REV) >> 4);
+
+	/*
+	 * Initialize local bus.
+	 */
+	local_bus_init ();
+
+	/*
+	 * Fix CPU2 errata: A core hang possible while executing a
+	 * msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 */
+	ecm->eebpcr |= (1 << 16);
+
+	/*
+	 * Hack TSEC 3 and 4 IO voltages.
+	 */
+	gur->tsec34ioovcr = 0xe7e0;	/*  1110 0111 1110 0xxx */
+
+	ecm->eedr = 0xffffffff;		/* clear ecm errors */
+	ecm->eeer = 0xffffffff;		/* enable ecm errors */
 	return 0;
 }
 
@@ -165,7 +105,12 @@ initdram(int board_type)
 		udelay(200);
 	}
 #endif
-	dram_size = spd_sdram();
+
+#if defined(CONFIG_SPD_EEPROM)
+	dram_size = spd_sdram ();
+#else
+	dram_size = fixed_sdram ();
+#endif
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
@@ -211,6 +156,9 @@ local_bus_init(void)
 	lbc->lcrr |= 0x00030000;
 
 	asm("sync;isync;msync");
+
+	lbc->ltesr = 0xffffffff;	/* Clear LBC error interrupts */
+	lbc->lteir = 0xffffffff;	/* Enable LBC error interrupts */
 }
 
 /*
@@ -219,7 +167,7 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-#if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
+#if defined(CFG_OR3_PRELIM) && defined(CFG_BR3_PRELIM)
 
 	uint idx;
 	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
@@ -233,10 +181,10 @@ sdram_init(void)
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	lbc->or2 = CFG_OR2_PRELIM;
+	lbc->or3 = CFG_OR3_PRELIM;
 	asm("msync");
 
-	lbc->br2 = CFG_BR2_PRELIM;
+	lbc->br3 = CFG_BR3_PRELIM;
 	asm("msync");
 
 	lbc->lbcr = CFG_LBC_LBCR;
@@ -248,7 +196,7 @@ sdram_init(void)
 	asm("msync");
 
 	/*
-	 * MPC8568 uses "new" 15-16 style addressing.
+	 * MPC8548 uses "new" 15-16 style addressing.
 	 */
 	lsdmr_common = CFG_LBC_LSDMR_COMMON;
 	lsdmr_common |= CFG_LBC_LSDMR_BSMA1516;
@@ -333,98 +281,106 @@ testdram(void)
 }
 #endif
 
-#if defined(CONFIG_PCI)
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc8568mds_config_table[] = {
-	{
-	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 pci_cfgfunc_config_device,
-	 {PCI_ENET0_IOADDR,
-	  PCI_ENET0_MEMADDR,
-	  PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
-	 },
-	{}
-};
+#if	!defined(CONFIG_SPD_EEPROM)
+/*************************************************************************
+ *  fixed_sdram init -- doesn't use serial presence detect.
+ *  assumes 256MB DDR2 SDRAM SODIMM, without ECC, running at DDR400 speed.
+ ************************************************************************/
+long int fixed_sdram (void)
+{
+    #define CFG_DDR_CONTROL 0xc300c000
+
+	volatile ccsr_ddr_t *ddr = (void *)(CFG_MPC85xx_DDR_ADDR);
+
+	ddr->cs0_bnds		= 0x0000007f;
+	ddr->cs1_bnds		= 0x008000ff;
+	ddr->cs2_bnds		= 0x00000000;
+	ddr->cs3_bnds		= 0x00000000;
+	ddr->cs0_config		= 0x80010101;
+	ddr->cs1_config		= 0x80010101;
+	ddr->cs2_config		= 0x00000000;
+	ddr->cs3_config		= 0x00000000;
+	ddr->ext_refrec		= 0x00000000;
+	ddr->timing_cfg_0	= 0x00220802;
+	ddr->timing_cfg_1	= 0x38377322;
+	ddr->timing_cfg_2	= 0x0fa044C7;
+	ddr->sdram_cfg		= 0x4300C000;
+	ddr->sdram_cfg_2	= 0x24401000;
+	ddr->sdram_mode		= 0x23C00542;
+	ddr->sdram_mode_2	= 0x00000000;
+	ddr->sdram_interval	= 0x05080100;
+	ddr->sdram_md_cntl	= 0x00000000;
+	ddr->sdram_data_init	= 0x00000000;
+	ddr->sdram_clk_cntl 	= 0x03800000;
+	asm("sync;isync;msync");
+	udelay(500);
+
+	#if defined (CONFIG_DDR_ECC)
+	  /* Enable ECC checking */
+	  ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
+	#else
+	  ddr->sdram_cfg = CFG_DDR_CONTROL;
+	#endif
+
+	return CFG_SDRAM_SIZE * 1024 * 1024;
+}
 #endif
 
-static struct pci_controller pci1_hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table: pci_mpc8568mds_config_table,
-#endif
+#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+/* For some reason the Tundra PCI bridge shows up on itself as a
+ * different device.  Work around that by refusing to configure it.
+ */
+void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab) { }
+
+static struct pci_config_table pci_sbc8548_config_table[] = {
+	{0x10e3, 0x0513, PCI_ANY_ID, 1, 3, PCI_ANY_ID, dummy_func, {0,0,0}},
+	{0x1106, 0x0686, PCI_ANY_ID, 1, VIA_ID, 0, mpc85xx_config_via, {0,0,0}},
+	{0x1106, 0x0571, PCI_ANY_ID, 1, VIA_ID, 1,
+		mpc85xx_config_via_usbide, {0,0,0}},
+	{0x1105, 0x3038, PCI_ANY_ID, 1, VIA_ID, 2,
+		mpc85xx_config_via_usb, {0,0,0}},
+	{0x1106, 0x3038, PCI_ANY_ID, 1, VIA_ID, 3,
+		mpc85xx_config_via_usb2, {0,0,0}},
+	{0x1106, 0x3058, PCI_ANY_ID, 1, VIA_ID, 5,
+		mpc85xx_config_via_power, {0,0,0}},
+	{0x1106, 0x3068, PCI_ANY_ID, 1, VIA_ID, 6,
+		mpc85xx_config_via_ac97, {0,0,0}},
+	{},
 };
+
+static struct pci_controller pci1_hose = {
+	config_table: pci_sbc8548_config_table};
 #endif	/* CONFIG_PCI */
+
+#ifdef CONFIG_PCI2
+static struct pci_controller pci2_hose;
+#endif	/* CONFIG_PCI2 */
 
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
-#endif  /* CONFIG_PCIE1 */
+#endif	/* CONFIG_PCIE1 */
 
-int first_free_busno = 0;
+int first_free_busno=0;
 
-/*
- * pib_init() -- Initialize the PCA9555 IO expander on the PIB board
- */
-void
-pib_init(void)
-{
-	u8 val8, orig_i2c_bus;
-	/*
-	 * Assign PIB PMC2/3 to PCI bus
-	 */
-
-	/*switch temporarily to I2C bus #2 */
-	orig_i2c_bus = i2c_get_bus_num();
-	i2c_set_bus_num(1);
-
-	val8 = 0x00;
-	i2c_write(0x23, 0x6, 1, &val8, 1);
-	i2c_write(0x23, 0x7, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x23, 0x2, 1, &val8, 1);
-	i2c_write(0x23, 0x3, 1, &val8, 1);
-
-	val8 = 0x00;
-	i2c_write(0x26, 0x6, 1, &val8, 1);
-	val8 = 0x34;
-	i2c_write(0x26, 0x7, 1, &val8, 1);
-	val8 = 0xf9;
-	i2c_write(0x26, 0x2, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x26, 0x3, 1, &val8, 1);
-
-	val8 = 0x00;
-	i2c_write(0x27, 0x6, 1, &val8, 1);
-	i2c_write(0x27, 0x7, 1, &val8, 1);
-	val8 = 0xff;
-	i2c_write(0x27, 0x2, 1, &val8, 1);
-	val8 = 0xef;
-	i2c_write(0x27, 0x3, 1, &val8, 1);
-
-	asm("eieio");
-}
-
-#ifdef CONFIG_PCI
 void
 pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 
 #ifdef CONFIG_PCI1
 {
-	pib_init();
-
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
+	struct pci_config_table *table;
 
-	uint pci_32 = 1;      /* PORDEVSR[15] */
-	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;       /* PORDEVSR[14] */
-	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;   /* PORPLLSR[16] */
+	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;	/* PORDEVSR[15] */
+	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
+	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
 
 	uint pci_agent = (host_agent == 3) || (host_agent == 4 ) || (host_agent == 6);
 
-	uint pci_speed = 66666000;
+	uint pci_speed = get_clock_freq ();	/* PCI PSPEED in [4:5] */
 
 	if (!(gur->devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf ("    PCI: %d bit, %s MHz, %s, %s, %s\n",
@@ -436,42 +392,75 @@ pci_init_board(void)
 			pci_arb ? "arbiter" : "external-arbiter"
 			);
 
+
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-				CFG_PCI_MEMORY_BUS,
-				CFG_PCI_MEMORY_PHYS,
-				CFG_PCI_MEMORY_SIZE,
-				PCI_REGION_MEM | PCI_REGION_MEMORY);
+			       CFG_PCI_MEMORY_BUS,
+			       CFG_PCI_MEMORY_PHYS,
+			       CFG_PCI_MEMORY_SIZE,
+			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-				CFG_PCI1_MEM_BASE,
-				CFG_PCI1_MEM_PHYS,
-				CFG_PCI1_MEM_SIZE,
-				PCI_REGION_MEM);
+			       CFG_PCI1_MEM_BASE,
+			       CFG_PCI1_MEM_PHYS,
+			       CFG_PCI1_MEM_SIZE,
+			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-				CFG_PCI1_IO_BASE,
-				CFG_PCI1_IO_PHYS,
-				CFG_PCI1_IO_SIZE,
-				PCI_REGION_IO);
-
+			       CFG_PCI1_IO_BASE,
+			       CFG_PCI1_IO_PHYS,
+			       CFG_PCI1_IO_SIZE,
+			       PCI_REGION_IO);
 		hose->region_count = 3;
 
-		hose->first_busno = first_free_busno;
+		/* relocate config table pointers */
+		hose->config_table = \
+			(struct pci_config_table *)((uint)hose->config_table + gd->reloc_off);
+		for (table = hose->config_table; table && table->vendor; table++)
+			table->config_device += gd->reloc_off;
+
+		hose->first_busno=first_free_busno;
 		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
 		fsl_pci_init(hose);
-		first_free_busno = hose->last_busno+1;
+		first_free_busno=hose->last_busno+1;
 		printf ("PCI on bus %02x - %02x\n",hose->first_busno,hose->last_busno);
+#ifdef CONFIG_PCIX_CHECK
+		if (!(gur->pordevsr & PORDEVSR_PCI)) {
+			/* PCI-X init */
+			if (CONFIG_SYS_CLK_FREQ < 66000000)
+				printf("PCI-X will only work at 66 MHz\n");
+
+			reg16 = PCI_X_CMD_MAX_SPLIT | PCI_X_CMD_MAX_READ
+				| PCI_X_CMD_ERO | PCI_X_CMD_DPERR_E;
+			pci_hose_write_config_word(hose, bus, PCIX_COMMAND, reg16);
+		}
+#endif
 	} else {
-	printf ("    PCI: disabled\n");
+		printf ("    PCI: disabled\n");
 	}
 }
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
 #endif
+
+#ifdef CONFIG_PCI2
+{
+	uint pci2_clk_sel = gur->porpllsr & 0x4000;	/* PORPLLSR[17] */
+	uint pci_dual = get_pci_dual ();	/* PCI DUAL in CM_PCI[3] */
+	if (pci_dual) {
+		printf ("    PCI2: 32 bit, 66 MHz, %s\n",
+			pci2_clk_sel ? "sync" : "async");
+	} else {
+		printf ("    PCI2: disabled\n");
+	}
+}
+#else
+	gur->devdisr |= MPC85xx_DEVDISR_PCI2; /* disable */
+#endif /* CONFIG_PCI2 */
 
 #ifdef CONFIG_PCIE1
 {
@@ -495,24 +484,24 @@ pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-				CFG_PCI_MEMORY_BUS,
-				CFG_PCI_MEMORY_PHYS,
-				CFG_PCI_MEMORY_SIZE,
-				PCI_REGION_MEM | PCI_REGION_MEMORY);
+			       CFG_PCI_MEMORY_BUS,
+			       CFG_PCI_MEMORY_PHYS,
+			       CFG_PCI_MEMORY_SIZE,
+			       PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-				CFG_PCIE1_MEM_BASE,
-				CFG_PCIE1_MEM_PHYS,
-				CFG_PCIE1_MEM_SIZE,
-				PCI_REGION_MEM);
+			       CFG_PCIE1_MEM_BASE,
+			       CFG_PCIE1_MEM_PHYS,
+			       CFG_PCIE1_MEM_SIZE,
+			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-				CFG_PCIE1_IO_BASE,
-				CFG_PCIE1_IO_PHYS,
-				CFG_PCIE1_IO_SIZE,
-				PCI_REGION_IO);
+			       CFG_PCIE1_IO_BASE,
+			       CFG_PCIE1_IO_PHYS,
+			       CFG_PCIE1_IO_SIZE,
+			       PCI_REGION_IO);
 
 		hose->region_count = 3;
 
@@ -520,28 +509,31 @@ pci_init_board(void)
 		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
 		fsl_pci_init(hose);
-		printf ("PCIE on bus %02x - %02x\n",hose->first_busno,hose->last_busno);
+		printf ("PCIE on bus %d - %d\n",hose->first_busno,hose->last_busno);
 
 		first_free_busno=hose->last_busno+1;
 
 	} else {
 		printf ("    PCIE: disabled\n");
 	}
-}
+ }
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
 #endif
+
 }
-#endif /* CONFIG_PCI */
+
+int last_stage_init(void)
+{
+	return 0;
+}
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void
-ft_board_setup(void *blob, bd_t *bd)
+ft_pci_setup(void *blob, bd_t *bd)
 {
 	int node, tmp[2];
 	const char *path;
-
-	ft_cpu_setup(blob, bd);
 
 	node = fdt_path_offset(blob, "/aliases");
 	tmp[0] = 0;
@@ -563,3 +555,15 @@ ft_board_setup(void *blob, bd_t *bd)
 	}
 }
 #endif
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+}
+#endif
+

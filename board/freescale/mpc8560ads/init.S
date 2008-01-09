@@ -43,7 +43,7 @@
  *
  * MAS0: tlbsel, esel, nv
  * MAS1: valid, iprot, tid, ts, tsize
- * MAS2: epn, sharen, x0, x1, w, i, m, g, e
+ * MAS2: epn, x0, x1, w, i, m, g, e
  * MAS3: rpn, u0-u3, ux, sx, uw, sw, ur, sr
  */
 
@@ -75,10 +75,10 @@ tlb1_entry:
 	 * This ends up at a TLB0 Index==0 entry, and must not collide
 	 * with other TLB0 Entries.
 	 */
-	.long TLB1_MAS0(0, 0, 0)
-	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_CCSRBAR_DEFAULT), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_CCSRBAR_DEFAULT), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(0, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
+	.long FSL_BOOKE_MAS2(CFG_CCSRBAR_DEFAULT, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_CCSRBAR_DEFAULT, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 #else
 #error("Update the number of table entries in tlb1_entry")
 #endif
@@ -94,33 +94,25 @@ tlb1_entry:
 	 * These entries end up at TLB0 Indicies 0x10, 0x14, 0x18 and 0x1c,
 	 * and must not collide with other TLB0 entries.
 	 */
-	.long TLB1_MAS0(0, 0, 0)
-	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(0, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, 0)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-	.long TLB1_MAS0(0, 0, 0)
-	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR + 4 * 1024),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR + 4 * 1024),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(0, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 4 * 1024, 0)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 4 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-	.long TLB1_MAS0(0, 0, 0)
-	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR + 8 * 1024),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR + 8 * 1024),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(0, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 8 * 1024, 0)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 8 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-	.long TLB1_MAS0(0, 0, 0)
-	.long TLB1_MAS1(1, 0, 0, 0, 0)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_INIT_RAM_ADDR + 12 * 1024),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_INIT_RAM_ADDR + 12 * 1024),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(0, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 12 * 1024, 0)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 12 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 
 	/*
@@ -128,78 +120,74 @@ tlb1_entry:
 	 * 0xff000000	16M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
-	.long TLB1_MAS0(1, 0, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_FLASH_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_FLASH_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 0, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
+	.long FSL_BOOKE_MAS2(CFG_FLASH_BASE, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_FLASH_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 1:	256M	Non-cacheable, guarded
 	 * 0x80000000	256M	PCI1 MEM First half
 	 */
-	.long TLB1_MAS0(1, 1, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 1, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS2(CFG_PCI1_MEM_BASE, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_PCI1_MEM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 2:	256M	Non-cacheable, guarded
 	 * 0x90000000	256M	PCI1 MEM Second half
 	 */
-	.long TLB1_MAS0(1, 2, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_PCI1_MEM_BASE + 0x10000000),
-			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_PCI1_MEM_BASE + 0x10000000),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 2, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS2(CFG_PCI1_MEM_BASE + 0x10000000, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_PCI1_MEM_BASE + 0x10000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 3:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	Rapid IO MEM First half
 	 */
-	.long TLB1_MAS0(1, 3, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_RIO_MEM_BASE), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_RIO_MEM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 3, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS2(CFG_RIO_MEM_BASE, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_RIO_MEM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 4:	256M	Non-cacheable, guarded
 	 * 0xd0000000	256M	Rapid IO MEM Second half
 	 */
-	.long TLB1_MAS0(1, 4, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_RIO_MEM_BASE + 0x10000000),
-			0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_RIO_MEM_BASE + 0x10000000),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 4, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS2(CFG_RIO_MEM_BASE + 0x10000000, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_RIO_MEM_BASE + 0x10000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 5:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR
 	 * 0xe200_0000	16M	PCI1 IO
 	 */
-	.long TLB1_MAS0(1, 5, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_CCSRBAR), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_CCSRBAR), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 5, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long FSL_BOOKE_MAS2(CFG_CCSRBAR, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_CCSRBAR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 6:	64M	Cacheable, non-guarded
 	 * 0xf000_0000	64M	LBC SDRAM
 	 */
-	.long TLB1_MAS0(1, 6, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_LBC_SDRAM_BASE), 0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_LBC_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 6, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long FSL_BOOKE_MAS2(CFG_LBC_SDRAM_BASE, 0)
+	.long FSL_BOOKE_MAS3(CFG_LBC_SDRAM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 7:	16K	Non-cacheable, guarded
 	 * 0xf8000000	16K	BCSR registers
 	 */
-	.long TLB1_MAS0(1, 7, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16K)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_BCSR), 0,0,0,0,1,0,1,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_BCSR), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 7, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16K)
+	.long FSL_BOOKE_MAS2(CFG_BCSR, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_BCSR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 #if !defined(CONFIG_SPD_EEPROM)
 	/*
@@ -211,17 +199,15 @@ tlb1_entry:
 	 * Likely it needs to be increased by two for these entries.
 	 */
 #error("Update the number of table entries in tlb1_entry")
-	.long TLB1_MAS0(1, 8, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE), 0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 8, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long FSL_BOOKE_MAS2(CFG_DDR_SDRAM_BASE, 0)
+	.long FSL_BOOKE_MAS3(CFG_DDR_SDRAM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-	.long TLB1_MAS0(1, 9, 0)
-	.long TLB1_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long TLB1_MAS2(E500_TLB_EPN(CFG_DDR_SDRAM_BASE + 0x4000000),
-			0,0,0,0,0,0,0,0)
-	.long TLB1_MAS3(E500_TLB_RPN(CFG_DDR_SDRAM_BASE + 0x4000000),
-			0,0,0,0,0,1,0,1,0,1)
+	.long FSL_BOOKE_MAS0(1, 9, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long FSL_BOOKE_MAS2(CFG_DDR_SDRAM_BASE + 0x4000000, 0)
+	.long FSL_BOOKE_MAS3(CFG_DDR_SDRAM_BASE + 0x4000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 #endif
 
 	entry_end

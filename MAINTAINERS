@@ -190,6 +190,7 @@ Howard Gray <mvsensor@matrix-vision.de>
 
 Joe Hamman <joe.hamman@embeddedspecialties.com>
 
+	sbc8548			MPC8548
 	sbc8641d		MPC8641D
 
 Klaus Heydeck <heydeck@kieback-peter.de>
@@ -220,6 +221,10 @@ Sangmoon Kim <dogoil@etinsys.com>
 Thomas Lange <thomas@corelatus.se>
 
 	GTH			MPC860
+
+Robert Lazarski <robertlazarski@gmail.com>
+
+	ATUM8548		MPC8548
 
 The LEOX team <team@leox.org>
 

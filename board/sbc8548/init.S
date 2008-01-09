@@ -1,7 +1,9 @@
 /*
+ * Copyright 2007 Wind River Systemes, Inc. <www.windriver.com>
+ * Copyright 2007 Embedded Specialties, Inc.
+ *
  * Copyright 2004 Freescale Semiconductor.
- * Copyright (C) 2002,2003, Motorola Inc.
- * Xianghua Xiao <X.Xiao@motorola.com>
+ * Copyright 2002,2003, Motorola Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -56,9 +58,9 @@
 	mtlr	r1	;	\
 	blr		;
 
-
 	.section	.bootpg, "ax"
 	.globl	tlb1_entry
+
 tlb1_entry:
 	entry_start
 
@@ -85,7 +87,7 @@ tlb1_entry:
 
 	/*
 	 * TLB0		16K	Cacheable, non-guarded
-	 * 0xd001_0000	16K	Temporary Global data for initialization
+	 * 0xe4010000	16K	Temporary Global data for initialization
 	 *
 	 * Use four 4K TLB0 entries.  These entries must be cacheable
 	 * as they provide the bootstrap memory before the memory
@@ -102,28 +104,30 @@ tlb1_entry:
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
 	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 4 * 1024, 0)
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 4 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 4 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
 	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 8 * 1024, 0)
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 8 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 8 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
 	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 12 * 1024, 0)
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 12 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
-
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 12 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 0:	64M	Non-cacheable, guarded
-	 * 0xfc000000	64M	FLASH (8,16,32 or 64 MB)
+	 * TLB 0:	16M	Non-cacheable, guarded
+	 * 0xff800000	16M	TLB for 8MB FLASH
 	 * Out of reset this entry is only 4K.
 	 */
 	.long FSL_BOOKE_MAS0(1, 0, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long FSL_BOOKE_MAS2(0xfc000000, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(0xfc000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
+	.long FSL_BOOKE_MAS2(CFG_FLASH_BASE, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_FLASH_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
 	 * TLB 1:	256M	Non-cacheable, guarded
@@ -141,111 +145,97 @@ tlb1_entry:
 	.long FSL_BOOKE_MAS0(1, 2, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
 	.long FSL_BOOKE_MAS2(CFG_PCI1_MEM_BASE + 0x10000000, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_PCI1_MEM_BASE + 0x10000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS3(CFG_PCI1_MEM_BASE + 0x10000000, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 3:	256M	Non-cacheable, guarded
-	 * 0xc0000000	256M	Rapid IO MEM First half
+	 * TLB 3:	256M Cacheable, non-guarded
+	 * 0x0		256M DDR SDRAM
 	 */
+	#if !defined(CONFIG_SPD_EEPROM)
 	.long FSL_BOOKE_MAS0(1, 3, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long FSL_BOOKE_MAS2(CFG_RIO_MEM_BASE, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_RIO_MEM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_DDR_SDRAM_BASE, 0)
+	.long FSL_BOOKE_MAS3(CFG_DDR_SDRAM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	#endif
 
 	/*
-	 * TLB 4:	256M	Non-cacheable, guarded
-	 * 0xd0000000	256M	Rapid IO MEM Second half
+	 * TLB 4:	64M	Non-cacheable, guarded
+	 * 0xe0000000	1M	CCSRBAR
+	 * 0xe2000000	16M	PCI1 IO
 	 */
 	.long FSL_BOOKE_MAS0(1, 4, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long FSL_BOOKE_MAS2(CFG_RIO_MEM_BASE + 0x10000000, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_RIO_MEM_BASE + 0x10000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
-
-	/*
-	 * TLB 5:	64M	Non-cacheable, guarded
-	 * 0xe000_0000	1M	CCSRBAR
-	 * 0xe200_0000	16M	PCI1 IO
-	 */
-	.long FSL_BOOKE_MAS0(1, 5, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long FSL_BOOKE_MAS2(CFG_CCSRBAR, (MAS2_I|MAS2_G))
 	.long FSL_BOOKE_MAS3(CFG_CCSRBAR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 6:	64M	Cacheable, non-guarded
-	 * 0xf000_0000	64M	LBC SDRAM
+	 * TLB 5:	64M	Cacheable, non-guarded
+	 * 0xf0000000	64M	LBC SDRAM
 	 */
-	.long FSL_BOOKE_MAS0(1, 6, 0)
+	.long FSL_BOOKE_MAS0(1, 5, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long FSL_BOOKE_MAS2(CFG_LBC_SDRAM_BASE, 0)
 	.long FSL_BOOKE_MAS3(CFG_LBC_SDRAM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-#if !defined(CONFIG_SPD_EEPROM)
 	/*
-	 * TLB 7:	256M	DDR
-	 * 0x00000000	256M	DDR System memory
-	 * Without SPD EEPROM configured DDR, this must be setup manually.
-	 * Make sure the TLB count at the top of this table is correct.
-	 * Likely it needs to be increased by two for these entries.
+	 * TLB 6:	16M	Cacheable, non-guarded
+	 * 0xf8000000	1M	7-segment LED display
+	 * 0xf8100000	1M	User switches
+	 * 0xf8300000	1M	Board revision
+	 * 0xf8b00000	1M	EEPROM
 	 */
-
-	.long FSL_BOOKE_MAS0(1, 7, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long FSL_BOOKE_MAS2(CFG_DDR_SDRAM_BASE, 0)
-	.long FSL_BOOKE_MAS3(CFG_DDR_SDRAM_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
-#endif
+	.long FSL_BOOKE_MAS0(1, 6, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)
+	.long FSL_BOOKE_MAS2(CFG_EPLD_BASE, 0)
+	.long FSL_BOOKE_MAS3(CFG_EPLD_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	entry_end
 
 /*
  * LAW(Local Access Window) configuration:
  *
- * 0x0000_0000     0x7fff_ffff     DDR                     2G
- * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
- * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
- * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
- * 0xf000_0000     0xf7ff_ffff     SDRAM                   128M
- * 0xf800_0000     0xf80f_ffff     BCSR                    1M
- * 0xfc00_0000     0xffff_ffff     FLASH (boot bank)       64M
+ * 0x0000_0000	0x0fff_ffff	DDR			256M
+ * 0x8000_0000	0x9fff_ffff	PCI1 MEM		512M
+ * 0xe000_0000	0xe000_ffff	CCSR			1M
+ * 0xe200_0000	0xe2ff_ffff	PCI1 IO			16M
+ * 0xf000_0000	0xf7ff_ffff	SDRAM			128M
+ * 0xf8b0_0000	0xf80f_ffff	EEPROM			1M
+ * 0xfb80_0000	0xff7f_ffff	FLASH (2nd bank)	64M
+ * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M
  *
  * Notes:
- *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
- *    If flash is 8M at default position (last 8M), no LAW needed.
+ * 	CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
+ *	If flash is 8M at default position (last 8M), no LAW needed.
+ *
+ *	The defines below are 1-off of the actual LAWAR0 usage.
+ *	So LAWAR3 define uses the LAWAR4 register in the ECM.
  */
 
+
 #if !defined(CONFIG_SPD_EEPROM)
-#define LAWBAR0 ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR0	(LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_256M))
+	#define LAWBAR0 ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff)
+	#define LAWAR0  (LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_256M))
 #else
-#define LAWBAR0 0
-#define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN)
+	#define LAWBAR0 0
+	#define LAWAR0  ((LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_256M)) & ~LAWAR_EN)
 #endif
 
 #define LAWBAR1 ((CFG_PCI1_MEM_BASE>>12) & 0xfffff)
-#define LAWAR1	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_512M))
+#define LAWAR1 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M))
 
-/*
- * This is not so much the SDRAM map as it is the whole localbus map.
- */
-#define LAWBAR2 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
-#define LAWAR2	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
+#define LAWBAR2 ((CFG_PCI1_IO_BASE>>12) & 0xfffff)
+#define LAWAR2 	(LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_16M))
 
-#define LAWBAR3 ((CFG_PCI1_IO_BASE>>12) & 0xfffff)
-#define LAWAR3	(LAWAR_EN | LAWAR_TRGT_IF_PCIX | (LAWAR_SIZE & LAWAR_SIZE_16M))
-
-/*
- * Rapid IO at 0xc000_0000 for 512 M
- */
-#define LAWBAR4 ((CFG_RIO_MEM_BASE>>12) & 0xfffff)
-#define LAWAR4	(LAWAR_EN | LAWAR_TRGT_IF_RIO | (LAWAR_SIZE & LAWAR_SIZE_512M))
-
+/* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
+#define LAWBAR3 ((CFG_LBC_SDRAM_BASE>>12) & 0xfffff)
+#define LAWAR3 	(LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M))
 
 	.section .bootpg, "ax"
 	.globl	law_entry
+
 law_entry:
 	entry_start
-	.long 0x05
+	.long 4
 	.long LAWBAR0,LAWAR0,LAWBAR1,LAWAR1,LAWBAR2,LAWAR2,LAWBAR3,LAWAR3
-	.long LAWBAR4,LAWAR4
 	entry_end

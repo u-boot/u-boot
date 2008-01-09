@@ -1,5 +1,8 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007
+ * Robert Lazarski, Instituto Atlantico, robertlazarski@gmail.com
+ * Copyright 2004, 2007 Freescale Semiconductor.
+ * Copyright 2002,2003, Motorola Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -26,6 +29,11 @@
 #include <asm/mmu.h>
 #include <config.h>
 #include <mpc85xx.h>
+
+#define LAWAR_TRGT_PCI1		0x00000000
+#define LAWAR_TRGT_PCI2		0x00100000
+#define LAWAR_TRGT_PCIE		0x00200000
+#define LAWAR_TRGT_DDR		0x00f00000
 
 /*
  * TLB0 and TLB1 Entries
@@ -62,8 +70,10 @@ tlb1_entry:
 	/*
 	 * Number of TLB0 and TLB1 entries in the following table
 	 */
-	.long (2f-1f)/16
+        .long (2f-1f)/16
+
 1:
+#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
 	/*
 	 * TLB0		4K	Non-cacheable, guarded
 	 * 0xff700000	4K	Initial CCSRBAR mapping
@@ -75,6 +85,9 @@ tlb1_entry:
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
 	.long FSL_BOOKE_MAS2(CFG_CCSRBAR_DEFAULT, (MAS2_I|MAS2_G))
 	.long FSL_BOOKE_MAS3(CFG_CCSRBAR_DEFAULT, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+#else
+#error("Update the number of table entries in tlb1_entry")
+#endif
 
 	/*
 	 * TLB0		16K	Cacheable, guarded
@@ -89,93 +102,95 @@ tlb1_entry:
 	 */
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
-	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, (MAS2_G))
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, MAS2_G)
 	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
-	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 4 * 1024, (MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 4 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 4 * 1024, MAS2_G)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 4 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
-	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 8 * 1024, (MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 8 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 8 * 1024, MAS2_G)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 8 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	.long FSL_BOOKE_MAS0(0, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 0, 0, 0, 0)
-	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 12 * 1024, (MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 12 * 1024, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR + 12 * 1024, MAS2_G)
+	.long FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR + 12 * 1024, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
-
+	/* TLB 1 Initializations */
 	/*
-	 * TLB 0:	64M	Non-cacheable, guarded
-	 * 0xfc000000	64M	Covers FLASH at 0xFE800000 and 0xFF800000
+	 * TLB 0, 1:	128M	Non-cacheable, guarded
+	 * 0xf8000000	128M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
 	.long FSL_BOOKE_MAS0(1, 0, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long FSL_BOOKE_MAS2(CFG_BOOT_BLOCK, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_BOOT_BLOCK, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_FLASH_BASE + 0x4000000, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_FLASH_BASE + 0x4000000, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
-	/*
-	 * TLB 1:	1G	Non-cacheable, guarded
-	 * 0x80000000	1G	PCIE  8,9,a,b
-	 */
 	.long FSL_BOOKE_MAS0(1, 1, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1G)
-	.long FSL_BOOKE_MAS2(CFG_PCIE_PHYS, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_PCIE_PHYS, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
+	.long FSL_BOOKE_MAS2(CFG_FLASH_BASE, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_FLASH_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 2:	256M	Non-cacheable, guarded
+	 * TLB 2:	1G	Non-cacheable, guarded
+	 * 0x80000000	1G	PCI1/PCIE  8,9,a,b
 	 */
 	.long FSL_BOOKE_MAS0(1, 2, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1G)
 	.long FSL_BOOKE_MAS2(CFG_PCI_PHYS, (MAS2_I|MAS2_G))
 	.long FSL_BOOKE_MAS3(CFG_PCI_PHYS, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 3:	256M	Non-cacheable, guarded
+	 * TLB 3, 4:	512M	Non-cacheable, guarded
+	 * 0xc0000000	1G	PCI2
 	 */
 	.long FSL_BOOKE_MAS0(1, 3, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
-	.long FSL_BOOKE_MAS2(CFG_PCI_PHYS + 0x10000000, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_PCI_PHYS + 0x10000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
+	.long FSL_BOOKE_MAS2(CFG_PCI2_MEM_PHYS, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_PCI2_MEM_PHYS,	0, (MAS3_SX|MAS3_SW|MAS3_SR))
+
+	.long FSL_BOOKE_MAS0(1, 4, 0)
+	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256M)
+	.long FSL_BOOKE_MAS2(CFG_PCI2_MEM_PHYS + 0x10000000, (MAS2_I|MAS2_G))
+	.long FSL_BOOKE_MAS3(CFG_PCI2_MEM_PHYS + 0x10000000, 0,
+			(MAS3_SX|MAS3_SW|MAS3_SR))
 
 	/*
-	 * TLB 4:	64M	Non-cacheable, guarded
+	 * TLB 5:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR
-	 * 0xe100_0000	255M	PCI IO range
+	 * 0xe200_0000	1M	PCI1 IO
+	 * 0xe210_0000	1M	PCI2 IO
+	 * 0xe300_0000	1M	PCIe IO
 	 */
-	.long FSL_BOOKE_MAS0(1, 4, 0)
+	.long FSL_BOOKE_MAS0(1, 5, 0)
 	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
 	.long FSL_BOOKE_MAS2(CFG_CCSRBAR, (MAS2_I|MAS2_G))
 	.long FSL_BOOKE_MAS3(CFG_CCSRBAR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 
-#ifdef CFG_LBC_CACHE_BASE
-	/*
-	 * TLB 5:	64M	Cacheable, non-guarded
-	 */
-	.long FSL_BOOKE_MAS0(1, 5, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long FSL_BOOKE_MAS2(CFG_LBC_CACHE_BASE, 0)
-	.long FSL_BOOKE_MAS3(CFG_LBC_CACHE_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
-#endif
-	/*
-	 * TLB 6:	64M	Non-cacheable, guarded
-	 * 0xf8000000	64M	PIXIS 0xF8000000 - 0xFBFFFFFF
-	 */
-	.long FSL_BOOKE_MAS0(1, 6, 0)
-	.long FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_64M)
-	.long FSL_BOOKE_MAS2(CFG_LBC_NONCACHE_BASE, (MAS2_I|MAS2_G))
-	.long FSL_BOOKE_MAS3(CFG_LBC_NONCACHE_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))
 2:
 	entry_end
 
 /*
  * LAW(Local Access Window) configuration:
  *
+ * 0x0000_0000     0x7fff_ffff     DDR                     2G
+ * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
+ * 0xa000_0000     0xbfff_ffff     PCIe MEM                512M
+ * 0xc000_0000     0xdfff_ffff     PCI2 MEM                512M
+ * 0xe000_0000     0xe000_ffff     CCSR                    1M
+ * 0xe200_0000     0xe10f_ffff     PCI1 IO                 1M
+ * 0xe280_0000     0xe20f_ffff     PCI2 IO                 1M
+ * 0xe300_0000     0xe30f_ffff     PCIe IO                 1M
+ * 0xf800_0000     0xffff_ffff     FLASH (boot bank)       128M
  *
  * Notes:
  *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
@@ -191,32 +206,30 @@ law_entry:
 
 	.long (4f-3f)/8
 3:
-	.long	0
-	.long	(LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & LAWAR_SIZE_128M)) & ~LAWAR_EN
+	.long  0
+	.long  (LAWAR_TRGT_DDR | (LAWAR_SIZE & LAWAR_SIZE_1G)) & ~LAWAR_EN
 
 	.long	(CFG_PCI1_MEM_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M)
+	.long	LAWAR_EN | LAWAR_TRGT_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_512M)
 
 	.long	(CFG_PCI1_IO_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_64K)
+	.long	LAWAR_EN | LAWAR_TRGT_PCI1 | (LAWAR_SIZE & LAWAR_SIZE_1M)
 
+	.long	(CFG_PCI2_MEM_PHYS>>12) & 0xfffff
+	.long	LAWAR_EN | LAWAR_TRGT_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_512M)
+
+	.long	(CFG_PCI2_IO_PHYS>>12) & 0xfffff
+	.long	LAWAR_EN | LAWAR_TRGT_PCI2 | (LAWAR_SIZE & LAWAR_SIZE_1M)
+
+	.long	(CFG_PCIE1_MEM_PHYS>>12) & 0xfffff
+	.long	LAWAR_EN | LAWAR_TRGT_PCIE | (LAWAR_SIZE & LAWAR_SIZE_512M)
+
+	.long	(CFG_PCIE1_IO_PHYS>>12) & 0xfffff
+	.long	LAWAR_EN | LAWAR_TRGT_PCIE | (LAWAR_SIZE & LAWAR_SIZE_1M)
+
+         /* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 	.long	(CFG_LBC_CACHE_BASE>>12) & 0xfffff
 	.long	LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M)
 
-	.long	(CFG_PCIE1_MEM_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCIE1 | (LAWAR_SIZE & LAWAR_SIZE_256M)
-
-	.long	(CFG_PCIE1_IO_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCIE1 | (LAWAR_SIZE & LAWAR_SIZE_64K)
-
-	.long	(CFG_PCIE2_MEM_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCIE2 | (LAWAR_SIZE & LAWAR_SIZE_512M)
-
-	.long	(CFG_PCIE2_IO_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCIE2 | (LAWAR_SIZE & LAWAR_SIZE_64K)
-
-	/* contains both PCIE3 MEM & IO space */
-	.long	(CFG_PCIE3_MEM_PHYS>>12) & 0xfffff
-	.long	LAWAR_EN | LAWAR_TRGT_IF_PCIE3 | (LAWAR_SIZE & LAWAR_SIZE_4M)
 4:
 	entry_end
