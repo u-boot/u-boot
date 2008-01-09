@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 {
-	u32           cecr;
+	u32 cecr;
 
 	if (cmd == QE_RESET) {
 		out_be32(&qe_immr->cp.cecr,(u32) (cmd | QE_CR_FLG));
@@ -357,10 +357,10 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 		return -EPERM;
 	}
 
-        /*
-         * Validate the CRC.  We would normally call crc32_no_comp(), but that
-         * function isn't available unless you turn on JFFS support.
-         */
+	/*
+	 * Validate the CRC.  We would normally call crc32_no_comp(), but that
+	 * function isn't available unless you turn on JFFS support.
+	 */
 	crc = be32_to_cpu(*(u32 *)((void *)firmware + calc_size));
 	if (crc != (crc32(-1, (const void *) firmware, calc_size) ^ -1)) {
 		printf("Firmware CRC is invalid\n");
@@ -438,10 +438,10 @@ static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return -EINVAL;
 		}
 
-                /*
-                 * If a length was supplied, compare that with the 'length'
-                 * field.
-                 */
+		/*
+		 * If a length was supplied, compare that with the 'length'
+		 * field.
+		 */
 
 		if (argc > 3) {
 			ulong length = simple_strtoul(argv[3], NULL, 16);

@@ -150,7 +150,7 @@ struct sys_info * ub_get_sys_info(void)
  * timing
  *
  ****************************************/
- 
+
 void ub_udelay(unsigned long usec)
 {
 	syscall(API_UDELAY, NULL, &usec);
@@ -298,7 +298,7 @@ int ub_dev_read(int handle, void *buf, lbasize_t len, lbastart_t start)
 	if (!syscall(API_DEV_READ, &err, di, buf, &len, &start, &act_len))
 		return -1;
 
-	if (err) 
+	if (err)
 		return err;
 
 	if (act_len != len)

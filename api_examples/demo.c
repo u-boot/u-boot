@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 	/* enumerate devices */
 	printf("\n*** Enumerate devices ***\n");
 	devs_no = ub_dev_enum();
-	
+
 	printf("Number of devices found: %d\n", devs_no);
 	if (devs_no == 0)
 		return -1;

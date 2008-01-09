@@ -70,7 +70,7 @@ tlb1_entry:
 	/*
 	 * Number of TLB0 and TLB1 entries in the following table
 	 */
-        .long (2f-1f)/16
+	.long (2f-1f)/16
 
 1:
 #if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
@@ -182,15 +182,15 @@ tlb1_entry:
 /*
  * LAW(Local Access Window) configuration:
  *
- * 0x0000_0000     0x7fff_ffff     DDR                     2G
- * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
- * 0xa000_0000     0xbfff_ffff     PCIe MEM                512M
- * 0xc000_0000     0xdfff_ffff     PCI2 MEM                512M
- * 0xe000_0000     0xe000_ffff     CCSR                    1M
- * 0xe200_0000     0xe10f_ffff     PCI1 IO                 1M
- * 0xe280_0000     0xe20f_ffff     PCI2 IO                 1M
- * 0xe300_0000     0xe30f_ffff     PCIe IO                 1M
- * 0xf800_0000     0xffff_ffff     FLASH (boot bank)       128M
+ * 0x0000_0000	   0x7fff_ffff	   DDR			   2G
+ * 0x8000_0000	   0x9fff_ffff	   PCI1 MEM		   512M
+ * 0xa000_0000	   0xbfff_ffff	   PCIe MEM		   512M
+ * 0xc000_0000	   0xdfff_ffff	   PCI2 MEM		   512M
+ * 0xe000_0000	   0xe000_ffff	   CCSR			   1M
+ * 0xe200_0000	   0xe10f_ffff	   PCI1 IO		   1M
+ * 0xe280_0000	   0xe20f_ffff	   PCI2 IO		   1M
+ * 0xe300_0000	   0xe30f_ffff	   PCIe IO		   1M
+ * 0xf800_0000	   0xffff_ffff	   FLASH (boot bank)	   128M
  *
  * Notes:
  *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
@@ -227,7 +227,7 @@ law_entry:
 	.long	(CFG_PCIE1_IO_PHYS>>12) & 0xfffff
 	.long	LAWAR_EN | LAWAR_TRGT_PCIE | (LAWAR_SIZE & LAWAR_SIZE_1M)
 
-         /* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
+	/* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 	.long	(CFG_LBC_CACHE_BASE>>12) & 0xfffff
 	.long	LAWAR_EN | LAWAR_TRGT_IF_LBC | (LAWAR_SIZE & LAWAR_SIZE_256M)
 

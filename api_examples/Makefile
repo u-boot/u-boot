@@ -71,7 +71,7 @@ $(BIN):
 $(obj)%.bin:	$(obj)%
 		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
-$(obj)crc32.c: 
+$(obj)crc32.c:
 	@rm -f $(obj)crc32.c
 	ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
 

@@ -75,7 +75,7 @@ int dev_close_net(void *cookie)
 	return 0;
 }
 
-/* 
+/*
  * There can only be one active eth interface at a time - use what is
  * currently set to eth_current
  */

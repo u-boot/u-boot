@@ -140,7 +140,7 @@ testdram(void)
 	for (p = pstart; p < pend; p++) {
 		printf ("DRAM test attempting to write 0xaaaaaaaa at: %08x\n", (uint) p);
 		*p = 0xaaaaaaaa;
-        }
+	}
 
 	for (p = pstart; p < pend; p++) {
 		if (*p != 0xaaaaaaaa) {
@@ -191,7 +191,7 @@ pci_init_board(void)
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
 		devdisr, io_sel, host_agent);
 
-        /* explicitly set 'Clock out select register' to echo SYSCLK input to our CPLD */
+	/* explicitly set 'Clock out select register' to echo SYSCLK input to our CPLD */
 	gur->clkocr  |= MPC85xx_ATUM_CLKOCR;
 
 	if (io_sel & 1) {
@@ -376,7 +376,7 @@ pci_init_board(void)
 
 int last_stage_init(void)
 {
-        int ic = icache_status ();
+	int ic = icache_status ();
 	printf ("icache_status: %d\n", ic);
 	return 0;
 }

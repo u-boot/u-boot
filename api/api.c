@@ -231,7 +231,7 @@ static int API_dev_enum(va_list ap)
 		/* start over - clean up enumeration */
 		dev_enum_reset();	/* XXX shouldn't the name contain 'stor'? */
 		debugf("RESTART ENUM\n");
-		
+
 		/* net device enumeration first */
 		if (dev_enum_net(di))
 			return 0;
@@ -365,7 +365,7 @@ static int API_dev_write(va_list ap)
 		return API_EINVAL;
 
 	if (di->type & DEV_TYP_STOR)
-		/* 
+		/*
 		 * write to storage is currently not supported by U-Boot:
 		 * no storage device implements block_write() method
 		 */
@@ -523,7 +523,7 @@ static int API_env_enum(va_list ap)
 	char *last, **next;
 
 	last = (char *)va_arg(ap, u_int32_t);
-	
+
 	if ((next = (char **)va_arg(ap, u_int32_t)) == NULL)
 		return API_EINVAL;
 
@@ -540,7 +540,7 @@ static int API_env_enum(va_list ap)
 					return 0;
 				}
 			}
-		
+
 			if (envmatch((uchar *)last, i) < 0)
 				continue;
 
@@ -567,7 +567,7 @@ static cfp_t calls_table[API_MAXCALL] = { NULL, };
  * serviced until finished.
  *
  * e.g. syscall(1, int *, u_int32_t, u_int32_t, u_int32_t, u_int32_t);
- * 
+ *
  * call:	syscall number
  *
  * retval:	points to the return value placeholder, this is the place the
@@ -655,7 +655,7 @@ void platform_set_mr(struct sys_info *si, unsigned long start, unsigned long siz
 
 	if (!si->mr || !size || (flags == 0))
 		return;
-	
+
 	/* find free slot */
 	for (i = 0; i < si->mr_no; i++)
 		if (si->mr[i].flags == 0) {

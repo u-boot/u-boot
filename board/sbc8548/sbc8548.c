@@ -566,4 +566,3 @@ ft_board_setup(void *blob, bd_t *bd)
 #endif
 }
 #endif
-

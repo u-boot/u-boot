@@ -22,7 +22,7 @@ U-Boot machine/arch independent API for external apps
   - the U-Boot integral part of the API is meant to be thin and non-intrusive,
     leaving as much processing as possible on the consumer application side,
     for example it doesn't keep states, but relies on hints from the app and
-    so on 
+    so on
 
   - optional (CONFIG_API)
 
