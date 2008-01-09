@@ -197,6 +197,8 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
 int	readline	(const char *const prompt);
+int	readline_into_buffer	(const char *const prompt, char * buffer);
+int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
