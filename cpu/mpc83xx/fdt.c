@@ -52,6 +52,12 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		"bus-frequency", gd->qe_clk, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "qe", 4,
 		"brg-frequency", gd->brg_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,qe",
+		"clock-frequency", gd->qe_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,qe",
+		"bus-frequency", gd->qe_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,qe",
+		"brg-frequency", gd->brg_clk, 1);
 #endif
 
 #ifdef CFG_NS16550
