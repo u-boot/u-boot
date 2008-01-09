@@ -89,18 +89,27 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 
 #ifdef CFG_NAND_HW_ECC
 #ifdef CFG_NAND_LARGEPAGE
-static struct nand_oobinfo davinci_nand_oobinfo = {
+static struct nand_ecclayout davinci_nand_ecclayout = {
 	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
-	.oobfree = { {2, 6}, {12, 12}, {28, 12}, {44, 12}, {60, 4} }
+	.oobfree = {
+		{.offset = 2, .length = 6},
+		{.offset = 12, .length = 12},
+		{.offset = 28, .length = 12},
+		{.offset = 44, .length = 12},
+		{.offset = 60, .length = 4}
+	}
 };
 #elif defined(CFG_NAND_SMALLPAGE)
-static struct nand_oobinfo davinci_nand_oobinfo = {
+static struct nand_ecclayout davinci_nand_ecclayout = {
 	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 3,
 	.eccpos = {0, 1, 2},
-	.oobfree = { {6, 2}, {8, 8} }
+	.oobfree = {
+		{.offset = 6, .length = 2},
+		{.offset = 8, .length = 8}
+	}
 };
 #else
 #error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
@@ -373,7 +382,7 @@ int board_nand_init(struct nand_chip *nand)
 #else
 #error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
 #endif
-/*	nand->autooob	  = &davinci_nand_oobinfo; */
+	nand->ecc.layout  = &davinci_nand_ecclayout;
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
