@@ -194,7 +194,7 @@ struct post_test post_list[] =
 	"SPR test",
 	"spr",
 	"This test checks SPR contents.",
-	POST_ROM | POST_ALWAYS | POST_PREREL,
+	POST_RAM | POST_ALWAYS,
 	&spr_post_test,
 	NULL,
 	NULL,
