@@ -1362,8 +1362,6 @@
 #define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
 #define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 /* Pin Function Control Register 1 */
 #define SDR0_PFC1                    0x4101
 #define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
@@ -1429,7 +1427,7 @@
 #define   SDR0_MFR_PKT_REJ_EN1         0x00080000   /* Pkt Rej. Enable on EMAC3(1) */
 #define   SDR0_MFR_PKT_REJ_POL         0x00200000   /* Packet Reject Polarity */
 
-#endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
+#define GPT0_COMP6			0x00000098
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_USB2D0CR                 0x0320
