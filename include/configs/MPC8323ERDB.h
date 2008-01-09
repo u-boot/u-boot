@@ -513,6 +513,7 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_HAS_ETH0				/* add support for "ethaddr" */
 #define CONFIG_ETHADDR	00:04:9f:ef:03:01
 #define CONFIG_HAS_ETH1				/* add support for "eth1addr" */
 #define CONFIG_ETH1ADDR	00:04:9f:ef:03:02
