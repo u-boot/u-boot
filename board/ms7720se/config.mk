@@ -8,7 +8,7 @@
 # Copyright (C) 2007
 # Kenati Technologies, Inc.
 #
-# board/ms7722se/config.mk
+# board/ms7720se/config.mk
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
