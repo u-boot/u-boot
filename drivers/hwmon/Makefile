@@ -34,7 +34,7 @@ COBJS-y += adm1021.o
 COBJS-y += ds1621.o
 COBJS-y += ds1722.o
 COBJS-y += ds1775.o
-COBJS-y += lm73.o
+COBJS-$(CONFIG_DTT_LM73) += lm73.o
 COBJS-y += lm75.o
 COBJS-y += lm81.o
 

@@ -31,13 +31,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DTT_LM73
-#if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
-	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
-# error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than  1 to use CONFIG_DTT_LM73"
-#endif
-
 #include <i2c.h>
 #include <dtt.h>
 
@@ -177,5 +170,3 @@ int dtt_get_temp(int sensor)
 {
 	return (dtt_read(sensor, DTT_READ_TEMP) + 0x0040) >> 7;
 } /* dtt_get_temp() */
-
-#endif /* CONFIG_DTT_LM73 */
