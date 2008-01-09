@@ -279,6 +279,9 @@ int	misc_init_r   (void);
 /* common/exports.c */
 void	jumptable_init(void);
 
+/* api/api.c */
+void	api_init (void);
+
 /* common/memsize.c */
 long	get_ram_size  (volatile long *, long);
 
