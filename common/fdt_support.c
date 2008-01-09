@@ -111,6 +111,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	int   err;
 	u32   tmp;		/* used to set 32 bit integer properties */
 	char  *str;		/* used to set string properties */
+	const char *path;
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
@@ -148,14 +149,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	nodeoffset = fdt_path_offset (fdt, "/chosen");
 
 	/*
-	 * If we have a "chosen" node already the "force the writing"
-	 * is not set, our job is done.
-	 */
-	if ((nodeoffset >= 0) && !force)
-		return 0;
-
-	/*
-	 * No "chosen" node in the blob: create it.
+	 * If there is no "chosen" node in the blob, create it.
 	 */
 	if (nodeoffset < 0) {
 		/*
@@ -170,42 +164,55 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	}
 
 	/*
-	 * Update pre-existing properties, create them if non-existant.
+	 * Create /chosen properites that don't exist in the fdt.
+	 * If the property exists, update it only if the "force" parameter
+	 * is true.
 	 */
 	str = getenv("bootargs");
 	if (str != NULL) {
-		err = fdt_setprop(fdt, nodeoffset,
-			"bootargs", str, strlen(str)+1);
-		if (err < 0)
-			printf("WARNING: could not set bootargs %s.\n",
-				fdt_strerror(err));
+		path = fdt_getprop(fdt, nodeoffset, "bootargs", NULL);
+		if ((path == NULL) || force) {
+			err = fdt_setprop(fdt, nodeoffset,
+				"bootargs", str, strlen(str)+1);
+			if (err < 0)
+				printf("WARNING: could not set bootargs %s.\n",
+					fdt_strerror(err));
+		}
 	}
 	if (initrd_start && initrd_end) {
-		tmp = __cpu_to_be32(initrd_start);
-		err = fdt_setprop(fdt, nodeoffset,
-			 "linux,initrd-start", &tmp, sizeof(tmp));
-		if (err < 0)
-			printf("WARNING: "
-				"could not set linux,initrd-start %s.\n",
-				fdt_strerror(err));
-		tmp = __cpu_to_be32(initrd_end);
-		err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-end", &tmp, sizeof(tmp));
-		if (err < 0)
-			printf("WARNING: could not set linux,initrd-end %s.\n",
-				fdt_strerror(err));
+		path = fdt_getprop(fdt, nodeoffset, "linux,initrd-start", NULL);
+		if ((path == NULL) || force) {
+			tmp = __cpu_to_be32(initrd_start);
+			err = fdt_setprop(fdt, nodeoffset,
+				"linux,initrd-start", &tmp, sizeof(tmp));
+			if (err < 0)
+				printf("WARNING: "
+					"could not set linux,initrd-start %s.\n",
+					fdt_strerror(err));
+			tmp = __cpu_to_be32(initrd_end);
+			err = fdt_setprop(fdt, nodeoffset,
+				"linux,initrd-end", &tmp, sizeof(tmp));
+			if (err < 0)
+				printf("WARNING: could not set linux,initrd-end %s.\n",
+					fdt_strerror(err));
+		}
 	}
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
-	err = fdt_fixup_stdout(fdt, nodeoffset);
+	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);
+	if ((path == NULL) || force)
+		err = fdt_fixup_stdout(fdt, nodeoffset);
 #endif
 
 #ifdef OF_STDOUT_PATH
-	err = fdt_setprop(fdt, nodeoffset,
-		"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
-	if (err < 0)
-		printf("WARNING: could not set linux,stdout-path %s.\n",
-			fdt_strerror(err));
+	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);
+	if ((path == NULL) || force) {
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
+		if (err < 0)
+			printf("WARNING: could not set linux,stdout-path %s.\n",
+				fdt_strerror(err));
+	}
 #endif
 
 	return err;

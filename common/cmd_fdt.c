@@ -184,23 +184,28 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	} else if (argv[1][0] == 's') {
 		char *pathp;		/* path */
 		char *prop;		/* property */
-		char *newval;		/* value from the user (as a string) */
 		int  nodeoffset;	/* node offset from libfdt */
 		static char data[SCRATCHPAD];	/* storage for the property */
 		int  len;		/* new length of the property */
 		int  ret;		/* return value */
 
 		/*
-		 * Parameters: Node path, property, value.
+		 * Parameters: Node path, property, optional value.
 		 */
-		if (argc < 5) {
+		if (argc < 4) {
 			printf ("Usage:\n%s\n", cmdtp->usage);
 			return 1;
 		}
 
 		pathp  = argv[2];
 		prop   = argv[3];
-		newval = argv[4];
+		if (argc == 4) {
+			len = 0;
+		} else {
+			ret = fdt_parse_prop(pathp, prop, argv[4], data, &len);
+			if (ret != 0)
+				return ret;
+		}
 
 		nodeoffset = fdt_path_offset (fdt, pathp);
 		if (nodeoffset < 0) {
@@ -211,9 +216,6 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
-		ret = fdt_parse_prop(pathp, prop, newval, data, &len);
-		if (ret != 0)
-			return ret;
 
 		ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
 		if (ret < 0) {
@@ -681,7 +683,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
-	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr>\n"
+	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
@@ -694,10 +696,6 @@ U_BOOT_CMD(
 #ifdef CONFIG_OF_HAS_BD_T
 	"fdt bd_t   - Add/replace the /bd_t branch in the tree\n"
 #endif
-	"Hints:\n"
-	" If the property you are setting/printing has a '#' character or spaces,\n"
-	"     you MUST escape it with a \\ character or quote it with \".\n"
-	"Examples: fdt print /               # print the whole tree\n"
-	"          fdt print /cpus \"#address-cells\"\n"
-	"          fdt set   /cpus \"#address-cells\" \"[00 00 00 01]\"\n"
+	"NOTE: If the path or property you are setting/printing has a '#' character\n"
+	"     or spaces, you MUST escape it with a \\ character or quote it with \".\n"
 );

@@ -358,12 +358,12 @@ static void _packblocks(const void *fdt, void *buf,
 	memmove(buf + mem_rsv_off, fdt + fdt_off_mem_rsvmap(fdt), mem_rsv_size);
 	fdt_set_off_mem_rsvmap(buf, mem_rsv_off);
 
-	memcpy(buf + struct_off, fdt + fdt_off_dt_struct(fdt), struct_size);
+	memmove(buf + struct_off, fdt + fdt_off_dt_struct(fdt), struct_size);
 	fdt_set_off_dt_struct(buf, struct_off);
 	fdt_set_size_dt_struct(buf, struct_size);
 
-	memcpy(buf + strings_off, fdt + fdt_off_dt_strings(fdt),
-	       fdt_size_dt_strings(fdt));
+	memmove(buf + strings_off, fdt + fdt_off_dt_strings(fdt),
+		fdt_size_dt_strings(fdt));
 	fdt_set_off_dt_strings(buf, strings_off);
 	fdt_set_size_dt_strings(buf, fdt_size_dt_strings(fdt));
 }
