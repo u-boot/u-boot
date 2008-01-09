@@ -75,6 +75,9 @@ int get_clocks (void)
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
+	gd->i2c1_clk = sys_info.freqSystemBus;
+	gd->i2c2_clk = sys_info.freqSystemBus;
+
 #if defined(CONFIG_CPM2)
 	gd->vco_out = 2*sys_info.freqSystemBus;
 	gd->cpm_clk = gd->vco_out / 2;

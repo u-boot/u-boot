@@ -70,8 +70,6 @@ typedef	struct	global_data {
 	u32 sdhc_clk;
 #endif
 	u32 core_clk;
-	u32 i2c1_clk;
-	u32 i2c2_clk;
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
@@ -87,6 +85,10 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC8360)
 	u32  ddr_sec_clk;
 #endif /* CONFIG_MPC8360 */
+#endif
+#if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+	u32 i2c1_clk;
+	u32 i2c2_clk;
 #endif
 #if defined(CONFIG_QE)
 	u32 qe_clk;
