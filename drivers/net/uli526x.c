@@ -279,12 +279,12 @@ static int uli526x_init_one(struct eth_device *dev, bd_t *bis)
 	db->desc_pool_ptr = (uchar *)&desc_pool_array[0];
 	db->desc_pool_dma_ptr = (dma_addr_t)&desc_pool_array[0];
 	if (db->desc_pool_ptr == NULL)
-		return 0;
+		return -1;
 
 	db->buf_pool_ptr = &buf_pool[0];
 	db->buf_pool_dma_ptr = (dma_addr_t)&buf_pool[0];
 	if (db->buf_pool_ptr == NULL)
-		return 0;
+		return -1;
 
 	db->first_tx_desc = (struct tx_desc *) db->desc_pool_ptr;
 	db->first_tx_desc_dma = db->desc_pool_dma_ptr;
@@ -331,7 +331,7 @@ static int uli526x_init_one(struct eth_device *dev, bd_t *bis)
 	db->cr6_data |= ULI526X_TXTH_256;
 	db->cr0_data = CR0_DEFAULT;
 	uli526x_init(dev);
-	return 1;
+	return 0;
 }
 
 static void uli526x_disable(struct eth_device *dev)

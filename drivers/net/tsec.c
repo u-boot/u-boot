@@ -232,7 +232,7 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 	startup_tsec(dev);
 
 	/* If there's no link, fail */
-	return priv->link;
+	return (priv->link ? 0 : -1);
 
 }
 

@@ -1129,7 +1129,7 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 		if (dev->enetaddr[0] & 0x01) {
 			printf("%s: MacAddress is multcast address\n",
 				 __FUNCTION__);
-			return 0;
+			return -1;
 		}
 		uec_set_mac_address(uec, dev->enetaddr);
 		uec->the_first_run = 1;
@@ -1138,10 +1138,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 	err = uec_open(uec, COMM_DIR_RX_AND_TX);
 	if (err) {
 		printf("%s: cannot enable UEC device\n", dev->name);
-		return 0;
+		return -1;
 	}
 
-	return uec->mii_info->link;
+	return (uec->mii_info->link ? 0 : -1);
 }
 
 static void uec_halt(struct eth_device* dev)

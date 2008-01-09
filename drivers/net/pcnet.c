@@ -402,7 +402,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
     if (i <= 0) {
 	printf("%s: TIMEOUT: controller init failed\n", dev->name);
 	pcnet_reset (dev);
-	return 0;
+	return -1;
     }
 
     /*
@@ -410,7 +410,7 @@ static int pcnet_init(struct eth_device* dev, bd_t *bis)
      */
     pcnet_write_csr (dev, 0, 0x0002);
 
-    return 1;
+    return 0;
 }
 
 static int pcnet_send(struct eth_device* dev, volatile void *packet, int pkt_len)
