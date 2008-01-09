@@ -23,7 +23,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <i2c.h>
 #include <malloc.h>
@@ -32,13 +31,11 @@
 
 #include "fsl_diu_fb.h"
 
-
 #ifdef DEBUG
 #define DPRINTF(fmt, args...) printf("%s: " fmt,__FUNCTION__,## args)
 #else
 #define DPRINTF(fmt, args...)
 #endif
-
 
 struct fb_videomode {
 	const char *name;	/* optional */
@@ -182,8 +179,6 @@ struct diu_addr {
 
 #define MAX_CURS		32
 
-
-
 static struct fb_info fsl_fb_info;
 static struct diu_addr gamma, cursor;
 static struct diu_ad fsl_diu_fb_ad __attribute__ ((aligned(32)));
@@ -205,7 +200,6 @@ static int fsl_diu_enable_panel(struct fb_info *info);
 static int fsl_diu_disable_panel(struct fb_info *info);
 static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align);
 static u32 get_busfreq(void);
-
 
 int fsl_diu_init(int xres,
 		 unsigned int pixel_format,

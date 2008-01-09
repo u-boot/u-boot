@@ -1,3 +1,1375 @@
+commit b2e2142c500c48a57f18f9dd30e66c13caea0971
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 9 10:38:58 2008 +0100
+
+    POST: Execute SPR test after relocation
+
+    On LWMON5 we now use d-cache as init-ram and stack. The SPR POST test uses
+    self modifying code and this doesn't work with stack in d-cache, since
+    I can't move the code from d-cache to i-cache. We move the SPR test to
+    be executed a little later, after relocation. Then stack is located in
+    SDRAM and this self-modifying code is no problem anymore.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8f24e0637ae113500d8bd60d80d57afcc0aa8bde
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 9 10:28:20 2008 +0100
+
+    ppc4xx: Change LWMON5 to not use OCM for init-ram and POST anymore
+
+    This patch configures the LWMON5 port to use d-cache as init-ram and
+    the unused GPT0_COMP6 as POST WORD storage.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1754f50b710194f886b6f2831803d8960171a14d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 9 10:25:46 2008 +0100
+
+    ppc4xx: Add CFG_POST_ALT_WORD_ADDR to support non OCM POST WORD storage
+
+    The privious 4xx POST implementation only supported storing the POST
+    WORD in OCM. Since we need to reserve the OCM on LWMON5 for the logbuffer
+    we need to store the POST WORD in some other non volatile location.
+    This patch adds CFG_POST_ALT_WORD_ADDR to specify an address for such
+    a location.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e02c521d94b45d7b05aa522e4ccde6b74bf5fe57
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 9 10:23:16 2008 +0100
+
+    ppc4xx: Add 44x cache locking to better support init-ram in d-cache
+
+    This patch adds support for locking the init-ram/stack in d-cache,
+    so that other regions may use d-cache as well
+
+    Note, that this current implementation locks exactly 4k of d-cache,
+    so please make sure that you don't define a bigger init-ram area. Take
+    a look at the lwmon5 440EPx implementation as a reference.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0ddb89601a8d29e808db450366752ffdc6267c53
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 9 10:16:33 2008 +0100
+
+    Fix memset bug in ext2fs_read_file()
+
+    ext2fs_read_file() had the function arguments swapped.
+
+    Pointed out by Mike Montour, 19 Dec 2007 22:34:25 -0800
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 32d6f1bc09175f3b77469771e839bc7255a9f22e
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Tue Jan 5 08:17:15 1988 +0100
+
+    Fix problems with usb storage devices on MPC5200 /TQM5200
+
+    The MPC5200 OHCI controller operates in big endian, so
+    CFG_OHCI_BE_CONTROLLER must be defined for it to work properly.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 46f6e5019048b103d7693d5310de0f1cfbaf4c19
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jan 8 22:58:27 2008 +0100
+
+    Fix compile problem with new env code.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 64b3727b9779d86127cd576e392a987de5ebb9fd
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Tue Nov 27 10:23:20 2007 +0100
+
+    tools: fix fw_printenv tool to compile again
+
+    This patch updates the fw_printenv/fw_setenv userspace tool to include
+    the correct MTD header in order to compile against current kernel
+    headers. Backward compatibility is preserved by introducing an option
+    MTD_VERSION which can be set to "old" for compilation using the old MTD
+    headers. Along with this a number of warnings are fixed.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 1f84021a85abeb837d2ce0dc84297b4f1d45d516
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Jan 8 15:40:09 2008 +0100
+
+    ppc4xx: assign PCI interrupts on seuqoia boards
+
+    Some operating systems rely on assigned PCI interrupts.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 6e9233d30afe57cb6e148fbfa4895e7810196fac
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Jan 8 15:50:49 2008 +0100
+
+    ppc4xx: Move cpu/ppc4xx/vecnum.h into include path
+
+    This patch allows the use of 4xx interrupt vector number defines
+    in board specific code outside cpu/ppc4xx.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 580d1d3186a2bc6dbdb626941b716dae1788e51e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Jan 8 15:39:01 2008 +0100
+
+    ppc4xx: Fix UIC2 vector number base
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit ff5fb8a6ccba56e3482d0e297d8cfb7faa040811
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Jan 8 12:49:58 2008 +0100
+
+    ppc4xx: Update PLB/PCI divider for PMC440 board
+
+    This patch updates the PLB/PCI divider when running at
+    400MHz CPU frequency from 4 to 3 which results in 44MHz PCI sync clock.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 7d5d75633174867316a0c0f2fca5ceb2cf312cde
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Jan 8 11:13:09 2008 +0100
+
+    ppc4xx: Disable error message when no NAND chip is installed on PMC440
+
+    Add CFG_NAND_QUIET_TEST option to disable error message when
+    no NAND chip is installed on PMC440 boards.
+
+    Disable a couple of config defines that are only used for NAND_U_BOOT.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit ad3006fe7e84667021753b74247b0bafd97ba35f
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Mon Jan 7 23:47:32 2008 -0500
+
+    LIBFDT: use memmove() instead of memcpy()
+
+    This is partial patch from the DTC/libfdt
+    commit  67b6b33b9b413a450a72135b5dc59c0a1e33e647
+    Author: David Gibson <david@gibson.dropbear.id.au>
+    Date:   Wed Nov 21 11:56:14 2007 +1100
+
+	The patch also fixes one genuine bug caught by valgrind -
+	_packblocks() in fdt_rw.c was using memcpy() where it should have been
+	using memmove().
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit aec7135bc300e3340d18f203347ee00c5b5f68c0
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Dec 17 14:42:07 2007 +1100
+
+    libfdt: Add more documentation (patch the seventh)
+
+    This patch adds more documenting comments to libfdt.h.  Specifically,
+    these document the read/write functions (not including fdt_open_into()
+    and fdt_pack(), for now).
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 9d4450b5adc36623e9c1de1f92539db77ad0c57e
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Dec 17 14:41:52 2007 +1100
+
+    libfdt: Add more documentation (patch the sixth)
+
+    This patch adds some more documenting comments to libfdt.h.
+    Specifically this documents all the write-in-place functions.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit b60af3d4c1680487ee37e11aa1b3db6dec04d8f0
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Dec 29 22:45:27 2007 -0500
+
+    Fine grained per property /chosen updating.
+
+    Implement a suggestion by Scott Wood to make the /chosen handling fine
+    grained.  Don't overwrite pre-existing properties on a per-property basis,
+    so if /chosen exists but a necessary /chosen/property doesn't, it gets
+    created.  If a /chosen property exists, it is NOT overwritten unless the
+    "force" flag is true.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 238cb7a423c6eaa36496efb788cfb9798cea7f95
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Jan 5 15:33:29 2008 -0500
+
+    Improve the FDT help message.
+
+    Add a note that "fdt copy" makes the new address active.
+    Remove most of the extra hints at the end of the fdt help.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit ea6d8be153ceaf16958f8009cea6d75f3ff58d92
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Jan 5 14:52:04 2008 -0500
+
+    Support setting FDT properties with optional values.
+
+    Fix a bug found and documented by Bartlomiej Sieka where the optional
+    value on "fdt set <path> <prop> [<val>]" wasn't optional.
+
+    => fdt mknode / testnode
+    => fdt print /testnode
+    testnode {
+    };
+    => fdt set /testnode testprop
+    => fdt print /testnode
+    testnode {
+	    testprop;
+    };
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 22fb2246df91bfc840d87f0c5910818bad55577a
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 11:56:30 2007 +0100
+
+    Add fdt_find_and_setprop() to fdt_support.h
+
+    fdt_find_and_setprop() is used by several 4xx boards and it's
+    missing in the appropriate header. This patch eliminates a
+    warning when building U-Boot for such boards.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 802b769bac17b0560d3535a42c502469ee190cd1
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jan 8 18:39:30 2008 +0100
+
+    ppc4xx: Return 0 on success in 4xx ethernet driver
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6775c68683a53c7abc778774641aac6f833a2cbf
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jan 8 09:59:49 2008 -0600
+
+    mpc83xx: fix missed pci_hose -> hose conversion for new libfdt code
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 94fab25f5f1a7d1c0cc63c17e813ea8943fe49c7
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Dec 20 16:28:34 2007 -0600
+
+    mpc83xx: rm remaining FLAT_TREE code
+
+    ..in board pci.c files
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b3458d2cd55d01732e30a76d898afd99e871cd67
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Dec 20 15:57:28 2007 -0600
+
+    mpc83xx: remove FLAT_TREE code
+
+    need to rm it from pci code, too!
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5b8bc606c61456566af6912f818a153b6b06f242
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Dec 20 14:09:22 2007 -0600
+
+    mpc83xx: convert to using do_fixup_*()
+
+    convert to using simpler mpc85xx style fdt update code; streamline by
+    eliminating macros OF_SOC, OF_CPU, etc. which allows us to rm
+    the old school FLAT_TREE code from 83xx (since the sbc8349 was just
+    converted over to using libfdt).
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e496865ecc31a2fe2f9abfe798334bb02aaf05ab
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 20 12:58:51 2007 -0500
+
+    sbc8349: enable libfdt by default on WRS SBC8349 board.
+
+    Make libfdt the default for the WRS SBC8349 board.
+    Parallel of commit 35cc4e4823668e8745854899cfaedd4489beb0ef
+    done for the other 83xx based boards.  Also fix a typo in CONFIG_PCI.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit 2408b3f20bcbdd9c6c397cd03ab0d71d54680a40
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 20 12:58:16 2007 -0500
+
+    sbc8349: migrate board to libfdt
+
+    This adds libfdt support code for the Wind River sbc8349 board.
+
+    Parallel of commit 3fde9e8b22cfbd7af489214758f9839a206576cb for
+    the other Freescale 83xx boards.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit 27a256a90cc86392ac9bf0039a3afe638ec2c18d
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 20 12:56:19 2007 -0500
+
+    sbc8349: Remove board specific ECC code
+
+    ECC code is now shared for all 83xx boards, so remove board specific one.
+    See commit daab8c67d2defef73dc26ab07f0c3afd1b05d019 for reference.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit a1e1ac849249310e5e2e5c7148e9fb353a8317a7
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Dec 20 01:30:48 2007 -0600
+
+    mpc83xx: Remove CONFIG options related to OF that we dont use (on 837x)
+
+    continuation of commit 37395fa2b0d9d617f28d44ca11592260ef16105a to 837x
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit ccf21c311e68d48399eff1e72936052885f6e3f7
+Author: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date:	Thu Dec 6 16:43:40 2007 +0100
+
+    Add support CONFIG_UEC_ETH3 in MPC83xx
+
+    Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit e6af9932d31171e35db880e7b2f29f903b1b7660
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Nov 26 11:00:54 2007 -0600
+
+    Remove CONFIG options related to OF that we dont use
+
+    The MPC8360E MDS config defined:
+	CONFIG_OF_HAS_BD_T
+	CONFIG_OF_HAS_UBOOT_ENV
+
+    Which we don't use or ever needed.	This seems like copy-paste feature creep.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f602082b4b7ed4ee16432067cc67a0a24fedc715
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Dec 10 14:16:22 2007 -0600
+
+    mpc83xx: supress compiler warning
+
+    mpc8360emds.c: In function ‘ft_board_setup’:
+    mpc8360emds.c:335: warning: assignment discards qualifiers from pointer target type
+    mpc8360emds.c:345: warning: assignment discards qualifiers from pointer target type
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c16e44fa835fb9eec982d919863a04e2f78e5ce7
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Nov 27 14:17:29 2007 -0600
+
+    mpc83xx: fix remaining fdt_find_node_by_path references
+
+    rename to fdt_path_offset
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 921d4b19ad1be704df58725485d9292dc0414adf
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Nov 19 12:30:09 2007 -0600
+
+    mpc83xx: fix CFG_ENV_ADDR and CFG_ENV_SECT_SIZE definitions for 837x
+
+    Fix the definitions of CFG_ENV_ADDR and CFG_ENV_SECT_SIZE for 837x.
+    This change guarantees that the environment will be located on the
+    first flash sector after the U-Boot image.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 24f868433b50ecbaa88e118aadc7bd254013c6ae
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Nov 9 14:28:08 2007 -0600
+
+    mpc83xx: mpc8360 rev.2.1 erratum 2: replace rgmii-id with rgmii-rxid
+
+    u-boot itself uses GMII mode on the 8360.  Fix up UCC phy-connection-type
+    properties in the device tree so the PHY gets configured for internal delay on
+    RX only by the OS, as prescribed by mpc8360 rev. 2.1 pb mds erratum #2.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 22b448dbfbe2a98f01ff4adc3c3979f8c541ad7b
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:41:15 2007 +0800
+
+    mpc83xx: update the CREDITS and MAINTAINERS
+
+    update the CREDITS and MAINTAINERS.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit b21add4b42af7b767448251b599b91066a160e0d
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:40:21 2007 +0800
+
+    mpc83xx: add MAINTAINER and MAKEALL entries for the mpc837xemds
+
+    Add the MAINTAINER and MAKEALL entries for mpc837xemds
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit f8900ce9094c462355eb792eea264ff16ac8fd16
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:38:53 2007 +0800
+
+    mpc83xx: Add the MPC837xEMDS board readme
+
+    Add the README.mpc837xemds to /doc
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 19580e660cc8da49f16536a8bd78c047c7bc12e5
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:37:57 2007 +0800
+
+    mpc83xx: Add the support of MPC837xEMDS board
+
+    The MPC837xEMDS board support:
+    * DDR2 400MHz hardcoded and SPD init
+    * Local bus NOR Flash
+    * I2C, UART, MII and RTC
+    * eTSEC RGMII
+    * PCI host
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 555da61702771fe0f76f3de23b4e7590f3704161
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:36:58 2007 +0800
+
+    mpc83xx: Add the support of MPC8315E SoC
+
+    The MPC8315E SoC including e300c3 core and new IP blocks,
+    such as TDM, PCI Express and SATA controller.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 03051c3d35c9981ceaa059005660e699f3eacf1c
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Sep 18 12:36:11 2007 +0800
+
+    mpc83xx: Add the support of MPC837x SoC
+
+    The MPC837x SoC including e300c4 core and new IP blocks,
+    such as SDHC, PCI Express and SATA controller.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 651d96f7e4c84adcdb98ef07ec878c20326e3359
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Wed Nov 14 18:54:53 2007 +0300
+
+    MPC8360E-MDS: configure and enable second UART
+
+    Despite user manual, BCSR9.7 is negated (high) on HRST, so
+    UART2 is disabled. Fix that and configure QE pins properly.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit b2893e1fcb28fad8c8b317104df8cee0142c7631
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Nov 5 09:34:06 2007 -0600
+
+    83xx: fix CFG_ENV_ADDR and CFG_ENV_SECT_SIZE definitions
+
+    Fix the definitions of CFG_ENV_ADDR and CFG_ENV_SECT_SIZE for all of the
+    currently-defined 83xx boards.  This change guarantees that the environment
+    will be located on the first flash sector after the U-Boot image.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e05329516a13616b53240cd85b739217c2bf87f1
+Author: Larry Johnson <lrj@acm.org>
+Date:	Fri Jan 4 13:27:02 2008 -0500
+
+    ppc4xx: Remove weak binding from common Denali data-eye search code
+
+    Now that there are no board-specific versions of
+    "denali_core_search_data_eye()", the weak binding on the common version
+    can be removed.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 5ba576c01602fd328800a427964c36a0a05c5dce
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 09:13:46 2008 +0100
+
+    ppc4xx: Remove unused CONFIG_ECC_ERROR_RESET from 44x_spd_ddr2.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 845c6c95dbfe6c915ce68a0a115852fa17932fb4
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 09:12:41 2008 +0100
+
+    ppc4xx: Update Katmai/44x_spd_ddr2.c code for optimal DDR2 setup
+
+    On Katmai the complete auto-calibration somehow doesn't seem to
+    produce the best results, meaning optimal values for RQFD/RFFD.
+    This was discovered by GDA using a high bandwidth scope,
+    analyzing the DDR2 signals. GDA provided a fixed value for RQFD,
+    so now on Katmai "only" RFFD is auto-calibrated.
+
+    This patch also adds RDCC calibration as mentioned on page 7 of
+    the AMCC PowerPC440SP/SPe DDR2 application note:
+    "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 49db47b8ae6afff2b898be312948ff501357dc80
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Jan 2 16:48:42 2008 +0100
+
+    ppc4xx: Remove sdram.h from PMC440 board
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 34065a2ce0d8972f2ec6652076014ab243d2ce8a
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Jan 2 16:48:34 2008 +0100
+
+    ppc4xx: use common denali core defines and data eye search code for PMC440
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 9ac6b6f3d3f1b072d89268b2efe47e95e6659489
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Jan 2 12:05:14 2008 +0100
+
+    ppc4xx: More cleanup for esd's LCD code
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit fe9c26b330a21ce73e52b5bd347d725cb81e3cfb
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 4 12:00:01 2008 +0100
+
+    ppc4xx: Fix Sequoia NAND booting target
+
+    The Sequoia NAND booting target now uses the recently extracted
+    cpu/ppc4xx/denali_data_eye.c file too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0ddd969aec532bd7eae30fc09590488a3aaa629a
+Author: Lawrence R. Johnson <lrj@acm.org>
+Date:	Thu Jan 3 15:02:02 2008 -0500
+
+    ppc4xx: Use CFG_4xx_GPIO_TABLE to configure Korat board
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit b05e8bf58be9d8956fdfde3d8c8e87c140414663
+Author: Lawrence R. Johnson <lrj@acm.org>
+Date:	Fri Jan 4 02:11:56 2008 -0500
+
+    ppc4xx: Use CFG_4xx_GPIO_TABLE to configure Sequoia board
+
+    Note: this patch changes the configuration of some GPIO registers:
+
+       Register      Old Value	 New Value
+    ---------------  ----------  ----------
+    DCR GPIO0_TCR    0x0000000F  0x0000F0CF
+    DCR GPIO0_TSRH   0x55005000  0x00000000
+    DCR GPIO1_TCR    0xC2000000  0xE2000000
+    DCR GPIO1_TSRL   0x0C000000  0x00200000
+    DCR GPIO1_ISR2L  0x00050000  0x00110000
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 5ab884b254ca2e707ab50545cd705f30108cf491
+Author: Lawrence R. Johnson <lrj@acm.org>
+Date:	Thu Jan 3 18:54:00 2008 -0500
+
+    ppc4xx: Add functionality to GPIO support
+
+    This patch makes two additions to GPIO support:
+
+    First, it adds function gpio_read_in_bit() to read the a bit from the
+    GPIO Input Register (GPIOx_IR) in the same way that function
+    gpio_read_out_bit() reads a bit from the GPIO Output Register
+    (GPIOx_OR).
+
+    Second, it modifies function gpio_set_chip_configuration() to provide
+    an additional option for configuring the GPIO from the
+    "CFG_4xx_GPIO_TABLE".
+
+    According to the 440EPx User's Manual, when an alternate output is used,
+    the three-state control is configured in one of two ways, depending on
+    the particular output.  The first option is to select the corresponding
+    alternate three-state control in the GPIOx_TRSH/L registers.  The second
+    option is to select the GPIO Three-State Control Register (GPIOx_TCR) in
+    the GPIOx_TRSH/L registers, and set the corresponding bit in the
+    GPIOx_TCR register to enable the output.  For example, the Manual
+    specifies configuring the GPIO00 Alternate 1 Signal (PreAddr07) to use
+    the alternate three-state control (first option), and specifies
+    configuring the GPIO32 Alternate 1 Signal (USB2OM0) with the output
+    enabled in the GPIOx_TCR register (second option).
+
+    Currently, gpio_set_chip_configuration() configures all alternate signal
+    outputs to use the first option.  This patch allow the second option to
+    be selected by setting the "out_val" element in the table entry to
+    "GPIO_OUT_1".  The first option is used when the "out_val" element is
+    set to "GPIO_OUT_0".  Because "out_val" is not currently used when an
+    alternate signal is selected, and because all current GPIO tables set
+    "out_val" to "GPIO_OUT_0" for all alternate signals, this patch should
+    not change any existing configurations.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 196404cdc1de495d6182e84731c200fc5748df15
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sun Dec 30 01:01:54 2007 -0500
+
+    PPC4xx: Remove sdram.h from board/lwmon5
+
+    These definitions are now in "include/ppc440.h".
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit ef16fccf96e55eab93fe25d03ebe2e9b56e5332b
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sun Dec 30 01:01:32 2007 -0500
+
+    PPC4xx: Use common code for LWMON5 board SDRAM support
+
+    This patch also modifies the functionality of the code so that the data-eye
+    search is now done with with the cache disabled.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 62cc3951ab72135d9c101f1845b794e63a0fa189
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sun Dec 30 01:01:14 2007 -0500
+
+    PPC4xx: Remove sdram.h from board/amcc/sequoia
+
+    These definitions are now in "include/ppc440.h".
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit ce3902e1765bbfb07cf5bbe98be9a68e3009996a
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sun Dec 30 01:00:50 2007 -0500
+
+    PPC4xx: Use common code for Sequoia board SDRAM support
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 8b0c5c127690335758100c25eaec2b84db97c101
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 16:58:41 2007 +0100
+
+    net: Add CONFIG_NET_DO_NOT_TRY_ANOTHER option
+
+    When CONFIG_NET_DO_NOT_TRY_ANOTHER is defined U-Boot's
+    networking stack does not automatically switch to
+    another interface. This patch does not touch the default
+    behavior.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 505be87a65e4f87ad7d8da1d57ea4dcd487d7e32
+Author: Upakul Barkakaty <upakul@gmail.com>
+Date:	Thu Nov 29 12:16:13 2007 +0530
+
+    NET: Proper return code handling in eth_init() function in file eth.c
+
+    This patch modifies the return code handling in the eth_init()
+    function, to be compatible with the handling of the return codes in
+    the other network stack files. It now returns a 0 on Success and -1 on
+    error.
+
+    Signed-off-by: Upakul Barkakaty <upakul.barkakaty@conexant.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 5ca2d0953e4579a80810966cca2077e20d912c97
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Mon Nov 19 20:27:04 2007 +0900
+
+    net/eth.c: Fix env_enetaddr signed overflow
+
+    Assigning the output of simple_strtoul(CB:A9:87:65:43:21) to `char', we are
+    warned as below:
+
+      U-Boot 1.2.0 (Aug 30 2007 - 08:27:37)
+
+      DRAM:  256 MB
+      Flash: 32 MB
+      In:    serial
+      Out:   serial
+      Err:   serial
+      Net:   NEC-Candy
+      Warning: NEC-Candy MAC addresses don't match:
+      Address in SROM is	 00:00:4C:80:92:A2
+      Address in environment is  FFFFFFCB:FFFFFFA9:FFFFFF87:65:43:21
+
+    This patch changes env_enetaddr type from `char' to `unsigned char'.
+
+    Cc: Masaki Ishikawa <ishikawa-masaki@cnt.mxe.nes.nec.co.jp>
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f85b60710571b37293d2233933b76e2aa3db5635
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Thu Dec 27 18:19:02 2007 +0100
+
+    Introduce new eth_receive routine
+
+    The purpose of this routine is receiving a single network frame, outside of
+    U-Boot's NetLoop(). Exporting it to standalone programs that run on top of
+    U-Boot will let them utilise networking facilities. For sending a raw frame
+    the already existing eth_send() can be used.
+
+    The direct consumer of this routine is the newly introduced API layer for
+    external applications (enabled with CONFIG_API).
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+    Signed-off-by: Piotr Kruszynski <ppk@semihalf.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 5c740711f0ea5b51414b341b71597c4a0751be74
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Jan 3 10:41:04 2008 -0600
+
+    8610: Move include of config.h earlier.
+
+    Include config.h earlier in the set of #includes
+    so as to avoid a incidental and duplicate definition
+    of CFG_CACHELINE_SIZE.
+
+    Signed-off-by: Jon Loeliger
+
+commit 61d3421bdea090bd0399b14c3e10a3bebcc8d5ff
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Dec 4 10:53:34 2007 -0600
+
+    Don't slam #undef DEBUG in the 8641HPCN config file.
+
+    Doing so prevents it from being individually set
+    and useful in other files.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ea9f7395ec362584e5e4f266bd0b0c4422cf6a4c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Nov 28 14:47:18 2007 -0600
+
+    Convert MPC8641HPCN to use libfdt.
+
+    Assumes the presence of the aliases node in the DTS to
+    locate the ethernet, pci and serial nodes for fixups.
+
+    Use consistent fdtaddr and fdtfile in environment variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit ce37422d0002e10490e268392e0c4e3028e52cec
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 2 14:06:26 2008 +0100
+
+    cfi_flash: Fix bug in flash_isset() to use correct 32bit function
+
+    This bug was detected on the LWMON5 target which has 2 Intel 16bit wide
+    flash chips connected to a 32bit wide port.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1182e9f8e3b92fc372d64943293de53daa2e26cf
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 2 15:58:44 2008 +0100
+
+    Fix compile problem introduced by "cleanup" commit 3dfd708c
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1aaab9bfae0b3b2ee2b418c22c651280ee7b65c7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 2 15:54:45 2008 +0100
+
+    Make scripts and Makefiles POSIX compliant
+
+    The bash builtin versions of the "test" (resp. "[") command allow
+    using "==" for string comparisons, but POSIX compatible implemen-
+    tations (like /usr/bin/test) insist on using "=" only. On such systems
+    you will see:
+
+	$ /usr/bin/test a == a && echo OK
+	/usr/bin/test: ==: binary operator expected
+
+    This patch fixes Makefiles and scripts to use POSIX style.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3dfd708cc1b2a966ad454ca9ed125dd17dbadbcc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 2 12:38:43 2008 +0100
+
+    Minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e174ac34adf5d5653df12bc3cf19c52063a71269
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 28 17:29:56 2007 +0100
+
+    ppc4xx: Coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8ba132cab18ae438b6dd5b0214c28a8fc0d976e5
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:07:24 2007 +0100
+
+    ppc4xx: Complete PMC440 board support
+
+    This patch brings the PMC440 board configuration file.
+    Finally it enables the PMC440 board support.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 407843a582560fc5231299561ab3c2b6b6cd3397
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:07:18 2007 +0100
+
+    ppc4xx: Add FPGA support and BSP commands for PMC440 boards
+
+    This patch adds some BSP commands and FPGA booting support
+    for esd's PMC440 boards.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 72c5d52aedcce35e4b4fa5895605554825b6a76f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:07:14 2007 +0100
+
+    ppc4xx: Add initial esd PMC440 board files
+
+    This patch adds the first files for the new esd PMC440 boards.
+    The next two patches will complete the PMC440 board support.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit f6e0f1f61896ce7729ba1bcea2ffbd138d3947f5
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:10:36 2007 +0100
+
+    ppc4xx: Add EEPROM write protection for PLU405 boards + misc. updates
+
+    - add EEPROM write protection for esd PLU405 boards.
+    - initialize NAND GPIOs
+    - use correct io accessors
+    - cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 77660c4b59055d621d2a8595bd4c18bb277268fc
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:10:44 2007 +0100
+
+    ppc4xx: use correct io accessors for esd's LCD code
+
+    This patch fixes esd's LCD dectection code to work correctly with
+    newer gcc versions.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit b56bd0fcfc1c73db722e3462c8a9bf607ba7775e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 28 17:10:42 2007 +0100
+
+    ppc4xx: Maintenance patch for VOH405 boards
+
+    - add EEPROM write protection
+    - initialize NAND GPIOs
+    - use correct io accessors
+    - slow down I2C clock to 100kHz
+    - enable ext. I2C bus
+    - cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit c05569066dbcba3fdf36d4d1943df265dc316a86
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 28 16:08:08 2007 +0100
+
+    ppc4xx: Enable 405EP PCI arbiter per default on all boards
+
+    In an attmemt to clean up the 4xx start.S file, I removed the enabling
+    of the internal 405EP PCI arbiter. This is needed for multiple other
+    405EP platforms, like most of the esd 405EP. Now the internal PCI
+    arbiter is enabled again per default as it has been before.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit bec9264616fb78273a1d93e87ff4b0b67c7bec1b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 28 15:53:46 2007 +0100
+
+    ppc4xx: Fix bug in cpu_init.c (405EP instead of 450EP)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit fb83a65c60ab5ca12358b75f1257e5eee6cdbf79
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 28 06:06:04 2007 +0100
+
+    ppc4xx: Fix compilation problem of kilauea/haleakala nand booting target
+
+    Use correct link to nand_ecc now located in drivers/mtd/nand/ for the
+    platforms mentioned above.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b568fd25574181a3b12ae3d66b2913903442cb83
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:03:46 2007 +0100
+
+    Remove CPCI440 board
+
+    This board never left prototyping state and it
+    became a millstone round my neck. So remove it.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit c591dffe0cbacd896ccbad06011fe6d6afa080da
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Dec 27 11:28:51 2007 -0500
+
+    Add support for Korat PPC440EPx board
+
+    These patches add support for the PPC440EPx-based "Korat" board to
+    U-Boot.  They are based primarily on support for the Sequoia board.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 87dc096829e6a6363f4fdd73653b0093a85adbe0
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:16:25 2007 -0500
+
+    Add configuration file for Korat board
+
+    This patch supplies the configuration file for the Korat PPC440EPx-
+    processor board.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 8eb52d5d982b764b39c88d9d1064d56c5397bfa5
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:16:11 2007 -0500
+
+    Add denali_data_eye.o and denali_spd_ddr2.o to PPC4xx Makefile
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit aba19604d848b2838cfb9ebe818909e6a216058e
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Dec 27 10:54:48 2007 -0500
+
+    Add 440EPx DDR2 SPD DIMM support
+
+    This patch adds SPD DDR2 support for the 440EPx ("Denali") SDRAM
+    controller.  It should also work on the 440GRx.  It is based on the DDR2
+    SPD code for the 440EP/440EPx, but makes no provision for DDR1 support.
+
+    This code has been tested on prototype Korat boards with three Kingston
+    DIMMS: 512 MiB ECC (one rank), 512 MiB non-ECC (one rank) and 1 GiB ECC
+    (two ranks).  The Korat board has a single DIMM socket, but support has
+    been provided (though not tested) for boards with two DIMM sockets.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 8a24a6963002cb867d5a6b70e3560f0b1467f55f
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:15:30 2007 -0500
+
+    Copy 440EPx/GRx SDRAM data-eye search to common directory
+
+    This patch creates a non-board-specific file for performing the SDRAM
+    data-eye search.  It also adds ECC error checking to the test of valid
+    data on readback when ECC is enabled.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit c46f53333b22b1f9098676bea8884fc7db820cf3
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:15:13 2007 -0500
+
+    Add definitions for 440EPx/GRx SDRAM controller to ppc440.h
+
+    This patch adds the Denali SDRAM controller definitions to "ppc440.h".
+    It also fixes two typos in the definitions, so the board-specific
+    "sdram.h" files containing these definitions are also fixed to avoid
+    compiler warnings.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit c348578bf612d0c56d8d376d23cae16defbd86af
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Dec 27 10:50:55 2007 -0500
+
+    Add Ethernet 1000BASE-X support for PPC4xx
+
+    This patch adds a new switch: "CONFIG_PHY_DYNAMIC_ANEG".  When this symbol
+    is defined, the PHY will advertise it's capabilities for autonegotiation
+    based on the capabilities shown in the PHY's status registers, including
+    1000BASE-X.  When "CONFIG_PHY_DYNAMIC_ANEG" is not defined, the PHY will
+    advertise hard-coded capabilities, as before.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 9e2c347151db5ae8acf5f18b99493cd53e6637e3
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Thu Dec 27 09:52:17 2007 -0500
+
+    Add driver for National Semiconductor LM73 temperature sensor
+
+    This driver is based on the driver for the LM75.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 12618278688ea9b3d76536960a5ad2e3790fac40
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:14:00 2007 -0500
+
+    Add driver for STMicroelectronics M41T60 RTC
+
+    This driver is based on the driver for the M41T11.	In the intended
+    application, the RTC will be powered by a large capacitor, rather than a
+    battery.  The driver therefore checks to see whether the RTC has lost
+    power.  The chip's OUT bit is normally reset from its power-up state.  If
+    the OUT bit is read as set, or if the date and time are not valid, then the
+    RTC is assumed to have lost power, and its date and time are reset to
+    1900-01-01 00:00:00.
+
+    Support for adjusting the speed of the clock to improve accuracy is
+    provided through an environment variable.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit d3471173e14b7544bb60339eda8d3d3906694b0a
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:34:39 2007 -0500
+
+    Use out_be32() and friends to access memory-mapped registers in sequoia.c
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit c68f59fe3ec16769f82b5fca7421983c336d3aac
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:34:20 2007 -0500
+
+    Use definitions from "asm-ppc/mmu.h" in init.S for Sequoia
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 0d9cdeac1d3fa8d62ed7d883acc950c364f5bda8
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Dec 22 15:23:50 2007 -0500
+
+    Cosmetic changes to ECC POST for AMCC Denali core
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 2e583d6c81034f80a267b89fa55498ae063ccef1
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Dec 26 20:20:19 2007 +0100
+
+    ppc4xx: Fix compilation problem in 405 cache POST test
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42d55ea0bde06e47d5a3b49b0d91002acd8e5708
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Dec 22 12:20:09 2007 +0100
+
+    ppc4xx: Move virtual address of POST cache test to bigger address
+
+    On Sequoia & LWMON5 the virtual address of the POST cache test is now
+    moved to a bigger address. This enables usage of more memory on those
+    boards.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d91722102cf63f77a0148ed3f3d54a26d87575e9
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Dec 22 12:18:26 2007 +0100
+
+    ppc4xx: Fix problem in 44x cache POST routine
+
+    As repoted by Larry Johnson, running "diag run cache" caused a crash
+    in U-Boot. This problem was introduced by a patch that removed the
+    TLB entry for the cache test after the test has completed. Since this
+    TLB was only setup once, a 2nd attempt to run this cache test
+    failed with a crash. Now this TLB entry is created every time the
+    routine is called.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b0265b576bb8fa9465f99e99c323768b562fadc2
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 21 07:51:29 2007 +0100
+
+    ppc4xx: Update Makalu fdt support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit bf8324e4a50758daff8cddd04c6a2ff8ed775bea
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Dec 19 09:05:40 2007 +0100
+
+    ppc4xx: Add fdt support to AMCC Katmai eval board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 328a340392a5df9aaf00792be989df73e750859e
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Dec 18 08:44:51 2007 +0100
+
+    ppc4xx: fdt: Cleanup setup of cpu node setup
+
+    Now the cpu node setup ("timebase-frequency" and "clock-frequency") is
+    without using the absolute path to the cpu node. This makes it possible
+    to use this U-Boot version with both versions of cpu-node naming
+    "cpu@0" and the former "PowerPC,440EPx@0".
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7812bc4a2e2436ebbc0ce5b4e99c1dfc2e77eb5b
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Dec 17 17:26:21 2007 +0100
+
+    ppc4xx: Fix lwmon5 compilation problem
+
+    Now that the 440EPx ECC test is not board specific anymore
+    remove this Makefile.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42ed33ffe135f618680f9d6e9712eb35a85bcb62
+Author: Anatolij Gustschin <agustschin@t-online.de>
+Date:	Wed Dec 5 17:43:20 2007 +0100
+
+    Fix ppc4xx clear_bss() code
+
+    ppc4xx clear_bss() fails if BSS segment size is not
+    divisible by 4 without remainder. This patch provides
+    fix for this problem.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 85dc2a7f82d11e17f0ca2a448118aed7f7a4b85d
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Fri Nov 30 18:35:11 2007 +0100
+
+    PPC4xx: Minimal changes to add vxWorks support
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 052440b022ca8981d39b6f8c10d1aa6326f47480
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Fri Nov 23 13:09:18 2007 +0100
+
+    ppc4xx: Add CONFIG_BOOTP_SUBNETMASK to Sequoia board config
+
+    When using dhcp/bootp the "netmask" environment variable is not
+    set because CONFIG_BOOTP_SUBNETMASK is not defined. But usually this is
+    desireable, so the following patch adds this this option to the board
+    config.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a724a9b40c7fbeb6ade193ca52321b441eaecb4e
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Oct 27 12:48:15 2007 -0400
+
+    Fix/enhance ECC POST for 440EPx/GRx
+
+    This patch allows the ECC POST to be used for different boards with the
+    PPC440 Denali SDRAM controller.  Modifications include skipping the test
+    if ECC is not enabled (as for non-ECC DIMMs) and adding synchronization
+    to prevent timing errors.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 454a6cf8d498f70d2b3e18f07837603eb24b12d4
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Sat Oct 27 12:48:05 2007 -0400
+
+    PPC4xx: Move/rename ECC POST for 440EPx/GRx
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit c29d2d3680046d430022c55e50fcb27f5866517e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 14 11:20:33 2007 +0100
+
+    ppc4xx: use correct io accessors for 4xx ethernet POST
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit ba79fde58a48c0a6ff8e2a96caba951594142203
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Dec 14 11:19:56 2007 +0100
+
+    ppc4xx: fix flush + invalidate_dcache_range arguments
+
+    flush + invalidate_dcache_range() expect the start and stop+1 address.
+    So the stop address is the first address behind (!) the range.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 871e6ce188a7c6bc7321bcf8372857035d20f1cd
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Dec 14 08:41:29 2007 +0100
+
+    ppc4xx: fdt: use fdt_fixup_ethernet()
+
+    By using aliases in the dts file, the ethernet node fixup is
+    much easier with the recently added functions.
+
+    Please note that the dts file needs the aliases for this to work.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 136288847e3b04f2ff357a067ad45e10afa0a24c
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Dec 13 14:52:53 2007 +0100
+
+    ppc4xx: Bring 4xx fdt support up-to-date
+
+    This patch update the 4xx fdt support. It enabled fdt booting
+    on the AMCC Kilauea and Sequoia for now. More can follow later
+    quite easily.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0dc80e2759fba859ccc4cdadc633577ca2971f3e
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Dec 27 07:50:54 2007 +0100
+
+    cfi_flash: Add missing check for erased dest to flash_write_cfibuffer()
+
+    The check for an sufficiently erased destination was missing in the
+    buffered write function of the cfi flash driver (when
+    CFG_FLASH_USE_BUFFER_WRITE is defined). This patch adds this check to that
+    writing to such a region will fail with the currect error message.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 33ed73bc0e38d0f2b5c183d4629d8f207e5b9994
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Nov 12 10:56:17 2007 +0100
+
+    Some configuration updates for the TQM5200 based TB5200 board:
+
+    - enable command line history
+    - increase malloc space (because of bigger flash sectors)
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit e318d9e9021a0af7508171f84ed09d0e79f0284e
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Thu Sep 27 11:10:08 2007 +0200
+
+    TQM8xx: use the CFI flash driver on all TQM8xx boards
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 11d9eec479b470eab9242ab937fca70a876d9376
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Sep 26 17:55:56 2007 +0200
+
+    TQM885D: adjust for doubled flash sector size + some minor fixes
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 22d1a56cbfb0bff34f477b4db6a55d076d829b83
+Author: Jens Gehrlein <jens.gehrlein@tqs.de>
+Date:	Wed Sep 26 17:55:54 2007 +0200
+
+    TQM885D: Exchanged SDRAM timing by a more relaxed timing.
+
+    CAS-Latency=2, Write Recovery Time tWR=2
+    The max. supported bus frequency is 66 MHz. Therefore, changed
+    threshold to switch from 1:1 mode to 2:1 from 80 MHz to 66 MHz.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit b988b8cd443989be65161888eea0127ad03f846f
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Sep 26 17:55:56 2007 +0200
+
+    TQM885D: use calculated cpuclk instead of measuring it
+
+    On the TQM885D the measurement of cpuclk with the PIT reference
+    timer ist not necessary. Since all module variants use the same
+    external 10 MHz oscillator, the cpuclk only depends on the PLL
+    configuration - which is readable by software.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 492c7049869348d31168de8dad89651315e468e0
+Author: Jens Gehrlein <jens.gehrlein@tqs.de>
+Date:	Thu Sep 27 14:54:46 2007 +0200
+
+    TQM885D: fix SDRAM refresh
+
+    At 133 MHz the current SDRAM refresh rate is too fast
+    (measured 4 * 1.17 us).
+    CFG_MAMR_PTA changes from 39 to 128. This result
+    in a refresh rate of 4 * 7.8 us at the default clock
+    66 MHz. At 133 MHz the value will be then 4 * 3.8 us.
+    This is a compromise until a new method is found to
+    adjust the refresh rate.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit dabad4b9bc46908e301f73ce76b38b23626a96e9
+Author: Jens Gehrlein <jens.gehrlein@tqs.de>
+Date:	Thu Sep 27 14:54:46 2007 +0200
+
+    TQM860M: Support for 10col SDRAMs, max. 128 MiB
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 61fb15c516fef5631e305f1976d7b3a679725856
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Dec 27 01:52:50 2007 +0100
+
+    Fix coding style issues; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 467bcee11fe26ad422f2de971aa70866079870f2
 Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
 Date:	Fri Dec 14 15:36:18 2007 +0100
@@ -166,6 +1538,18 @@ Date:	Fri Jun 29 18:22:34 2007 +0200
     during block read.
 
     Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 8697e6a19b10f514511b6a9c86de88bd108c4f8d
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Dec 13 14:52:53 2007 +0100
+
+    ppc4xx: Bring 4xx fdt support up-to-date
+
+    This patch update the 4xx fdt support. It enabled fdt booting
+    on the AMCC Kilauea and Sequoia for now. More can follow later
+    quite easily.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 12d30aa79779c2aa7a998bbae4c075f822a53004
 Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
@@ -497,6 +1881,36 @@ Date:	Thu Nov 29 00:15:30 2007 -0600
 
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
+commit 3b9abdc448a1c2c6a4c2aa292724b4d1a05166a9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Dec 11 13:38:19 2007 +0100
+
+    ppc4xx: Correct GPIO offset in gpio_config()
+
+    Thanks to Gary Jennejohn for pointing this out.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8809a2713b1ceaf3da55d9d785470294f15de06a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Dec 11 11:46:01 2007 +0100
+
+    rtc: Fix merging problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7cfc12a7dcfdb350e2ab76db4dafcc30f7e77c2b
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Dec 8 14:47:34 2007 +0100
+
+    ppc4xx: 405EX: Correctly enable USB pins
+
+    This patch selects the USB data pins in the 405EX GPIO and MFC (multi
+    function control) registers. This is done for the AMCC Kilauea and
+    Makalu eval boards.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 9692c2734a47f23b44a0f68042a3e2ca8d1bfb39
 Author: Stefan Roese <sr@denx.de>
 Date:	Sat Dec 8 08:25:09 2007 +0100
@@ -613,6 +2027,58 @@ Date:	Thu Dec 6 10:21:03 2007 +0100
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit a27044b14a9e93678a82d7b35f202b93e7687abc
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Dec 6 05:58:43 2007 +0100
+
+    ppc4xx: Enable hardware-fix for PCI/DMA errata on AMCC 440SP/SPe boards
+
+    This patch enables the hardware-fix for the PCI/DMA errata's 19+22 by
+    setting the FIXD bit in the SDR0_MFR register. Here a description of the
+    symptoms:
+
+    Problem Description
+    ------------------------------
+    If a DMA is performed between memory and PCI with the DMA 1 Controller
+    using prefetch, and as a result uses a special purpose buffer selected by
+    the PCIXn Bridge Options 1 Register (PCIXn_BRDGOPT1[RBP7] - bits 31-29),
+    the first part of the transfer sequence is performed twice. The
+    PPC440SPe PCI Controller requests more data than was needed such that in
+    the case of enforce memory protection, a host CPU  exception can occur.
+    No data is corrupted, because data transfer is stopped in the PCI
+    Controller. Prefetch enable is specified by setting DMA Configuration
+    Register (I2O0_DMAx_CFG[DXEPD] - bit 31) to 0.
+
+    Behavior that may be observed in a running system
+    ---------------------------------------------------------------------------
+
+    1. DMA performance is decreased because of the double access on the PCI bus
+    interface.
+    2. If an illegal access to some address on the PCI bus is detected at the
+    system level, a machine check or similar system error may occur.
+
+    Workarounds Available
+    ----------------------------------
+
+    1. Do not program prefetch. Note that a prefetch command cannot be programmed
+    without selecting a special purpose buffer.
+    2. To avoid crossing a physical boundary of the PCI slave device, add 512
+    bytes of address to the PCI address range.
+
+    This patch was originally provided by Pravin M. Bathija <pbathija@amcc.com>
+    from AMCC and slighly changed.
+
+    Signed-off-by: Pravin M. Bathija <pbathija@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a90921f71d225bf9e0f0fc7b8beadeb8001bf78a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Dec 4 16:29:48 2007 +0100
+
+    ppc4xx: Yosemite/Yellowstone: Add DTT AD7414 support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 8d4f040a3c15036a6ea25a9c39e7d89fefa8440d
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Dec 3 00:15:28 2007 +0100
@@ -620,6 +2086,18 @@ Date:	Mon Dec 3 00:15:28 2007 +0100
     Prepare for 1.3.1-rc1
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e15e33433e7c05111968dc9b434a52fd42cbd221
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Nov 30 07:15:41 2007 +0100
+
+    ppc4xx: Kilauea: Add PCIe reset assertion upon power-up
+
+    This manual PCIe reset triggering solves the problem seen with the
+    Intel EPRO/1000 card, which was not detected (link not established)
+    upon power-up reset.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 260eea5676ca46903a335686cc020b29c4ca46fe
 Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
@@ -682,6 +2160,18 @@ Date:	Sun Nov 25 02:32:13 2007 +0900
 
     Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
+commit 8be760903645af09871be50ad0a6f9ebb62b311d
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 27 11:57:35 2007 +0100
+
+    ppc4xx: Kilauea & Makalu: Fix ext IRQ pin multiplexing
+
+    After an error in the AMCC 405EX users manual now correctly configure
+    IRQ2 (Kilauea)/IRQ0 (Makalu) as alternate 2 signal for external IRQ
+    usage.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit a5f601fd1b1278deae5aa9fc27a232b0d1c1c788
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Nov 26 19:18:21 2007 +0100
@@ -705,6 +2195,25 @@ Date:	Sun Nov 25 18:45:47 2007 +0100
     Makefile : fix tags ctags etags with new drivers organization
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 63362cfc6baa97ae0e37ba2c6ece530fcac9f79e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 26 15:06:14 2007 +0100
+
+    ppc4xx: Makalu: Change EBC setup for CS0 to enable 400MHz usage
+
+    As suggested by Senao, use a different EBC_PB0AP setup for 400MHz
+    operation.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ca1ce226287270bb01e25b8e3674c701f12edf19
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 26 15:01:45 2007 +0100
+
+    ppc4xx: Kilauea: Configure pin mux to use ext IRQ2 as interrupt
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 87ddedd6ad804427ce125ceaa076d7a4f74e9d5d
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
@@ -974,6 +2483,28 @@ Date:	Mon Sep 24 09:05:31 2007 -0600
 
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 
+commit 68b88999da87ab88e71e1306192905be3450198e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Nov 20 15:02:26 2007 -0600
+
+    8610HPCD: Enable the 8610 Display Interface Unit
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 74f89faa9d1e77ed947e628d3effaa513fe05d05
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Nov 20 15:00:53 2007 -0600
+
+    Move 8610 DIU interface structure definitions to header file.
+
+    These two structures are still needed during the
+    initialization and setup of the DIU hardware.
+    So move them to the fsl_diu_fb.h file for now.
+    Official "blah".
+
+    Noticed-by: York Sun <yorksun@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit 080c646dbf474a109c3f85718fb01ce042a38c45
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Tue Nov 20 20:14:18 2007 +0100
@@ -1057,6 +2588,16 @@ Date:	Sun Nov 18 16:36:27 2007 +0100
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 653811a3c2b35856bf12e196dcc8c4694e28e420
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Nov 18 14:44:44 2007 +0100
+
+    ppc4xx: Correct 405EX PCIe UTL register mapping
+
+    Map 4k mem space for UTL registers for each port.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 079c2c4fa71c0d1ebef394508df9088df8a308d3
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Nov 17 11:31:10 2007 +0100
@@ -1079,6 +2620,16 @@ Author: Stefan Roese <sr@denx.de>
 Date:	Sat Nov 17 07:58:25 2007 +0100
 
     Fix warning differ in signedness in common/cmd_scsi.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9ea61b57968554eaf0f474ec7e088b17d367f474
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Nov 17 14:52:29 2007 +0100
+
+    ppc4xx: Update AMCC Kilauea config file
+
+    - Use generic GPIO configuration framework (CFG_4xx_GPIO_TABLE)
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
@@ -1337,6 +2888,33 @@ Date:	Wed Nov 7 08:19:19 2007 +0100
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 
+commit f31d38b9eea9b32f6a1ac848a298cc71ca4c9a03
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Nov 16 14:16:54 2007 +0100
+
+    ppc4xx: Enable 405EX PCIe UTL register configuration
+
+    Till now the UTL registers on 405EX were not initialized but left with
+    their default values. This patch new initializes some of the UTL
+    registers on 405EX.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ecdcbd4f8c1f8cefd785752f4e7536aae2a4ecf9
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Nov 16 14:00:59 2007 +0100
+
+    ppc4xx: Update AMCC Makalu for board rev 1.1
+
+    This patch adds changes needed for Makalu rev 1.1:
+
+    - Enable 2nd DDR2 bank resulting in 256MByte of SDRAM
+    - Enable 2nd ethernet port EMAC1
+    - Use generic GPIO configuration framework (CFG_4xx_GPIO_TABLE)
+    - Reset PCIe ports via GPIO upon bootup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 4d4faae65e115e327425cd514c1a35146a85166b
 Author: Grant Likely <grant.likely@secretlab.ca>
 Date:	Mon Sep 24 09:05:31 2007 -0600
@@ -1470,11 +3048,111 @@ Date:	Thu Nov 15 08:20:25 2007 -0700
     This reverts commit 8d17979d0359492a822a0a409d26e3a3549b4cd4.
     Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 
+commit c9672f81f1bdb4e8ddf62aa72ca0206e8b72aa1c
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Nov 15 14:25:09 2007 +0100
+
+    ppc4xx: Small AMCC Kilauea cleanup
+
+    Remove not needed pci_target_init() function.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit aee747f19b460a0e9da20ff21e90fdaac1cec359
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Nov 15 14:23:55 2007 +0100
+
+    ppc4xx: Enable 440 GPIO init table CFG_440_GPIO_TABLE for 405 platforms
+
+    - Rename CFG_440_GPIO_TABLE to CFG_4xx_GPIO_TABLE
+    - Cleanup of the 4xx GPIO functions
+    - Move some GPIO defines from the cpu headers ppc405.h/ppc440.h into gpio.h
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8ada0ebf38e4073beea0309188b25d82a112a2ae
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Nov 15 14:20:08 2007 +0100
+
+    ppc4xx: AMCC Taihu board config file cleanup
+
+    This patch makes the AMCC Taihu a little more compatible to the other
+    AMCC eval boards.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5e71c51d74c963d3174060c078dcacf13bdd02ef
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Nov 15 13:37:28 2007 +0100
+
+    [INKA4x0] NG hardware: flash support
+
+    Disabled and remove inka4x0 custom flash driver, use CFI flash
+    driver instead.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 5fb6d7191e206cdde0e23140fd8111caed93a595
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Nov 15 13:29:55 2007 +0100
+
+    [INKA4x0] NG hardware: SDRAM support
+
+    Add support for three new DDR chips that may  be present on a NG
+    INKA4x0 hardware: HYB25D512160BF-5, K4H511638C-7CB3, T46V32M16BN-6IT.
+
+    Cleanup board/inka4x0/mt48lc16m16a2-75.h file.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit f23cb34c367bb27585a4fdb8a75277370e7d0596
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Nov 15 13:24:43 2007 +0100
+
+    [INKA4x0] NG hardware: platform code update
+
+    - Cleanup compile warnings.
+    - Add missing '\0' in default environment.
+    - Increase CFG_MONITOR_LEN to 256 KiB.
+    - Add required CFG_USE_PPCENV.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 2ae64f5135e51bb18753884d1265b99e89b5aedd
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Thu Nov 15 08:58:00 2007 +0000
+
+    Remove warnings re CONFIG_EXTRA_ENV_SETTINGS
+    Remove warnings re onenand_read() & write()
+
+commit 2db916e14410e3ec1738508c7bf4dfeb2b299ae7
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Thu Nov 15 08:45:13 2007 +0000
+
+    Correction patch
+
+commit 1d8a49eca1c7bdc8db1c47a92f9014a29ead03ae
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Thu Sep 13 18:52:28 2007 +0800
+
+    Enable ULi1575 Ethernet support in 8610HPCD config
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
 commit 54fd6c93c28a0a45352fff5dd92673401ff563f2
 Author: Stefan Roese <sr@denx.de>
 Date:	Tue Nov 13 08:18:20 2007 +0100
 
     ppc4xx: lwmon5: Change PHY reset sequence for PHY MDIO address latching
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7d0a4066b5a6b698e5fc1b66cfe9705774bbce93
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 13 08:06:11 2007 +0100
+
+    ppc4xx: Fix 405EX PCIe UTLSET register setup
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
@@ -1485,6 +3163,74 @@ Date:	Tue Nov 13 07:50:29 2007 +0100
     [UC101] SRAM now with 2 MB working.
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2d14684341109a69616e4d6016cd61402d55086f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Nov 9 15:37:53 2007 +0100
+
+    ppc4xx: Use generic usb-ohci driver for sequoia board
+
+    This patch makes the sequoia board use the generic usb-ohci driver
+    instead of cpu/ppc4xx/usb_ohci.c.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9be659ac0868dc367caa957c5c725e46b07f6a5f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Nov 9 15:37:23 2007 +0100
+
+    ppc4xx: Make USB working with CONFIG_4xx_DCACHE defined
+
+    This patch disables the 44x d-cache on 'usb start' and
+    reenables it on 'usb stop'. This should be seen as a
+    temporary fix until the generic usb-ohci driver can
+    life with d-cache enabled.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fbde2169d2c48fcc9ff03489534a78ffb0a8a0d4
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Nov 9 15:36:44 2007 +0100
+
+    ppc4xx: Remove redundant code from 4xx network driver
+
+    This patch removes some redundant code and decrements the end
+    address of cache flush and invalidate by 1.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5ca9881aad8c413ac2a82868a5e3719178254502
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri Nov 9 15:24:26 2007 +0000
+
+    Add apollon board support
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit b53313dbfc74525d85f1e7e0102f902d5c863beb
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Nov 9 12:19:58 2007 +0100
+
+    ppc4xx: Remove In:/Out:/Err: boot output for AMCC Kilauea
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c7f69c340277935a6c19a956421852da944a365f
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Nov 9 12:18:54 2007 +0100
+
+    ppc4xx: Make output a little shorter on I2C bootrom detection
+
+    Most 4xx PPC capable of using an I2C bootrom for bootstrap setting
+    already print a line with the information which I2C bootrom is
+    used for bootstrap configuration. So we don't need this extra line
+    with "I2C boot EEPROM en-/dis-abled".
+
+    This patch also has a little code cleanup integrated.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 8d737a28152ec12873f8544cca1fb39a49e5e693
 Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
@@ -1534,6 +3280,131 @@ Date:	Wed Nov 7 17:51:00 2007 -0600
 
     Signed-off-by: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
 
+commit 070ba56115b4da63b46e974287fa4550d4023386
+Author: York Sun <yorksun@freescale.com>
+Date:	Wed Oct 31 14:59:04 2007 -0500
+
+    8610: Add console frame buffer support to FSL 8610 DIU driver.
+
+    Add cfb console support to FSL 8610 DIU driver.
+    Inspect board version from PIXIS to obtain correct pixel format.
+
+    Use #define CONFIG_VIDEO in config file to enable fb console.
+
+    To switch monitor, set monitor variable to
+    0 - DVI, 1 - Single link LVDS, 2 - Double link LVDS
+    followed by "diufb init".
+
+    Preserve logo bitmap at the top of the fb console.
+
+    Signed-off-by: York Sun <yorksun@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a877880c6949e948bd63cd6ea4e216573d2f53dd
+Author: York Sun <yorksun@freescale.com>
+Date:	Mon Oct 29 13:58:39 2007 -0500
+
+    8610: Add 8610 DIU display driver
+
+    1280x1024 and 1024x768 @ 32 bpp are supported now.
+    DVI, Single-link LVDS, Double-link LVDS are all supported.
+
+    Environmental variable "monitor" is used to specify monitor port.
+
+    A new command "diufb" is introduced to reinitialize monitor
+    and display a BMP file in the memory. So far, 1-bit, 4-bit,
+    8-bit and 24-bit BMP formats are supported.
+
+	diufb init
+	    - initialize the diu driver
+	Enable the port specified in the environmental variable "monitor"
+
+	diufb addr
+	    - display bmp file in memory.
+	The bmp image should be no bigger than the resolution, 1280x1024
+	for DVI and double-link LVDS, 1024x768 for single-link LVDS.
+
+    Note, this driver allocate memory but doesn't free it after use
+    It is written on purpose -- to avoid a failure of reallocation
+    due to memory fragement.
+
+    ECC of DDR is disabled for DIU performance. L2 data cache is also disabled.
+
+    Signed-off-by: York Sun <yorksun@freescale.com>
+    Signed-off-by: Jon loeliger <jdl@freescale.com>
+
+commit 52e5ddfecdda308f75782fae206b677b1810f5f9
+Author: York Sun <yorksun@freescale.com>
+Date:	Wed Oct 31 10:43:59 2007 -0500
+
+    FSL: Add a freescale bitmap logo.
+
+    This Freescale logo is a 340 x 128 x 4bpp BMP file
+    that can be displayed by the DIU Framebuffer driver.
+
+    Signed-off-by: York Sun <yorksun@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 1815338fbd1c0f94f8276d2891b99caa5a05f622
+Author: York Sun <yorksun@freescale.com>
+Date:	Mon Oct 29 13:57:53 2007 -0500
+
+    8610: Make some extra debug environment variables conditional.
+
+    One may #define ENV_DEBUG to get them back again.
+
+    Signed-off-by: York Sun <yorksun@freescale.com>
+
+commit 761421ccca80a9fb37b19c37aa61d46ef75e0647
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Mon Oct 29 19:26:21 2007 +0800
+
+    8610: Actually enable pixis_reset CONFIGs
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit f3bceaab230b4748d0afc4109b6837308f018b40
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Oct 26 18:31:59 2007 +0800
+
+    Fix the BAT definition of PCI IO on 8610 board
+
+    The address in the BAT register is aligned with the BAT size.
+    The original definition actually did not define BAT for PCIE2 IO.
+    This patch fix this.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 9f23ca334a6f5f021ef9e9d0fad9da80d63b2d56
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Mon Oct 29 19:26:21 2007 +0800
+
+    Unify pixis_reset altbank across board families
+
+    Basically, refactor the CFG_PIXIS_VBOOT_MASK values
+    into the separate board config files.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a8318ec205c8e8794b5f9f1b8584abadb440e8ba
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Oct 26 18:32:00 2007 +0800
+
+    make 8610 board use pixis reset
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit 9c84709eedce9c680dd695984ab7d2328f4f04f5
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Nov 1 12:23:29 2007 -0500
+
+    86xx: Fix broken variable reference when #def DEBUGing.
+
+    Sometimes you can't reference the DDR2 controller variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit 1f103105a3746ab12279b63b8c1d372c0ce2cc58
 Author: Roy Zang <tie-fei.zang@freescale.com>
 Date:	Mon Nov 5 17:39:24 2007 +0800
@@ -1572,6 +3443,16 @@ Date:	Wed Oct 31 11:21:29 2007 -0500
 
     Signed-off-by: Larry Johnson <lrj@acm.org>
     Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 654f38b3a387886996a5a75771fbfc29cb4f225e
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Nov 5 07:43:05 2007 +0100
+
+    ppc4xx: Make output a little shorter on PCIe detection
+
+    Now not max 3 lines but 2 lines are printed per PCIe port.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 992742a5b09d9040adbd156fb90756af66ade310
 Author: Wolfgang Denk <wd@denx.de>
@@ -1708,6 +3589,17 @@ Date:	Wed Oct 17 11:18:42 2007 +0200
     Signed-off-by: Sergej Stepanov <Sergej.Stepanov@ids.de>
     --
 
+commit 3d6cb3b24add6415f86a0f013ea40f5639b90047
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Nov 3 12:08:28 2007 +0100
+
+    ppc4xx: Add AMCC Kilauea/Haleakala NAND booting support
+
+    This patch adds NAND booting support for the AMCC 405EX(r) eval boards.
+    Again, only one image supports both targets.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 8b6684a698500be9c142ec2c9f46cfc348e17f0c
 Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
 Date:	Wed Oct 24 15:48:37 2007 +0200
@@ -1743,6 +3635,630 @@ Date:	Mon Oct 29 17:40:35 2007 -0400
 
     Signed-off-by: Justin Flammia <jflammia@savantav.com>
     Signed-off-by: Ben Warren <bwarren@qstreams.com>
+
+commit 5d96d40d3f36da33348e68f9ea993f383e11f997
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 20:58:34 2007 +0100
+
+    ppc4xx: Fix acadia_nand build problem
+
+    Since the cache handling functions were moved from start.S into cache.S
+    the acadia NAND booting Makfile needs to be adapted accordingly.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ea2e142843533ca593fcb5cb3e1daf1b7f5e5949
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 20:57:11 2007 +0100
+
+    ppc4xx: Add CONFIG_4xx_DCACHE compile options to enable cached SDRAM
+
+    This patch adds the CONFIG_4xx_DCACHE options to some SDRAM init files
+    and to the Sequoia TLB init code. Now the cache can be enabled on 44x
+    boards by defining CONFIG_4xx_DCACHE in the board config file. This
+    option will disappear, when more boards use is successfully and no
+    more known problems exist.
+
+    This is tested successfully on Sequoia and Katmai. The only problem that
+    needs to be fixed is, that USB is not working on Sequoia right now, since
+    it will need some cache handling code too, similar to the 4xx EMAC driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3db93b8bedd32e914b38976141b3fdf4ea3ff738
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 20:51:10 2007 +0100
+
+    ppc4xx: Enable CPU POST test for 4xx with dcache enabled
+
+    Now with caches enabled (i- and d-cache) on 44x, we need a chance to
+    disable the cache for the CPU POST tests, since these tests consist
+    of self modifying code. This is done via the new change_tlb() function.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f71b2888b4b3c870909a0341427b2a914246f81f
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 20:47:26 2007 +0100
+
+    ppc4xx: Change 4xx POST ethernet test to handle cached memory too
+
+    This patch enables the 4xx EMAC POST driver to work too, when dcache is
+    enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a2685904061b35a17583d65fe47cdc2686a69eaa
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 20:45:53 2007 +0100
+
+    ppc4xx: Remove temporary TLB entry in POST cache test only for 440
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ff768cb168d8157c24a25016dbfbeb465e47f420
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 18:01:24 2007 +0100
+
+    ppc4xx: Change 4xx ethernet driver to handle cached memory too
+
+    This patch enables the 4xx EMAC driver to work too, when dcache is
+    enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 483e09a223c666269ef81d3573a6591b1046b0ef
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 17:59:22 2007 +0100
+
+    ppc4xx: Add change_tlb function to modify I attribute of TLB(s)
+
+    This function is used to either turn cache on or off in a specific
+    memory area.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d25dfe08fbd1220cb994e7e6b105049aa9aa8e79
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 17:57:52 2007 +0100
+
+    ppc4xx: Remove cache definition from 4xx board config files
+
+    All 4xx board config files don't need the cache definitions anymore.
+    These are now defined in common headers.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9b94ac61d2176185c30adf0793e079ec30e68687
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 31 17:55:58 2007 +0100
+
+    ppc4xx: Rework 4xx cache support
+
+    New cache handling functions added and all existing functions
+    moved from start.S into seperate cache.S.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 06713773da4ac3d390c63d82641eb553224b27c2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 18:03:12 2007 +0200
+
+    ppc4xx: Remove compiler warning from previous commit
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6fa397df67c0f269e4528bf181a6e8c88f9723f9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 14:40:30 2007 +0200
+
+    ppc4xx: Remove temporary TLB entry in POST cache test
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1338e6a81834099ba19733b69aafd8ef5f098094
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 14:05:08 2007 +0200
+
+    ppc4xx: Change autonegotiation timeout from 4 to 5 seconds
+
+    I lately noticed, that newer 4xx board with GBit support sometimes don't
+    finish link autonegotiation in 4 seconds. Changing this timeout to 5
+    seconds seems fine here.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2d83476a4c1c9911d158a3f8a4312d354bc1bdb7
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 14:03:17 2007 +0200
+
+    ppc4xx: Change 4xx_enet & miiphy to use out_be32() and friends
+
+    This patch changes all in32/out32 calls to use the recommended in_be32/
+    out_be32 macros instead.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7d47cee2cc57f907380f2c06f5b6c683d03e423a
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 25 12:24:59 2007 +0200
+
+    ppc4xx: Fix POST ethernet test for Haleakala
+
+    The POST ethernet test needed to be changed to dynamically determine
+    the count of ethernet devices. This code is cloned from the 4xx
+    ethernet driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f10493c6d77a1e07a6c2ff4d772937a5e7359d6a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 11:31:05 2007 +0200
+
+    ppc4xx: Correct UART input clock calculation and passing to fdt
+
+    We now use a value in the gd (global data) structure for the UART input
+    frequency, since the PPC4xx_SYS_INFO struct is always rewritten completely
+    in get_sys_info().
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 353f2688b4e0fc7b969bc70a02be4b40bf0dd124
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 23 10:10:08 2007 +0200
+
+    ppc4xx: Add initial AMCC Haleakala PPC405EXr eval board support
+
+    The Haleakala is nearly identical with the Kilauea eval board. The only
+    difference is that the 405EXr only supports one EMAC and one PCIe
+    interface. This patch adds support for the Haleakala board by using
+    the identical image for Kilauea and Haleakala. The distinction is done
+    by comparing the PVR.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9f798766aa85e62eb8fa8c721e148df609b78137
+Author: Eugene O'Brien <eugene.obrien@advantechamt.com>
+Date:	Tue Oct 23 08:29:10 2007 +0200
+
+    ppc4xx: Fixed offset of refresh rate type for Bamboo on-board DDR SDRAM
+
+    This patch also adds a note to the fixed DDR setup for Bamboo NAND booting:
+
+    Note:
+    As found out by Eugene O'Brien <eugene.obrien@advantechamt.com>, the fixed
+    DDR setup has problems (U-Boot crashes randomly upon TFTP), when the DIMM
+    modules are still plugged in. So it is recommended to remove the DIMM
+    modules while using the NAND booting code with the fixed SDRAM setup!
+
+    Signed-off-by: Eugene O'Brien <eugene.obrien@advantechamt.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit afe9fa59cb63b4f9d16bf01c93eb212f25a38c2a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 16:24:44 2007 +0200
+
+    ppc4xx: Add SNTP support to AMCC Katmai, Kilauea & Makalu boards
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3248f63ad89cb031491edb7016587fe6e9a238b9
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 16:22:40 2007 +0200
+
+    ppc4xx: Rework of 4xx serial driver (4)
+
+    Change 4xx_uart.c:
+
+    - Use in_8/out_8 macros instead of in8/out8
+    - No need for UART_BASE marco anymore, now really handled via function
+      parameter
+    - serial_init_common() introduced
+    - Further coding style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e61cb8163a66b8a135696ae232e2bead1ce0a049
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 15:45:49 2007 +0200
+
+    ppc4xx: Rework of 4xx serial driver (3)
+
+    Change all linker scripts to reference the changed driver name iop480_uart.o.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 882ae41274921f9016131806bdeb27e19606f47a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 15:44:39 2007 +0200
+
+    ppc4xx: Rework of 4xx serial driver (2)
+
+    Change all linker scripts to reference the changed driver name 4xx_uart.o.
+
+    Note: In most cased all these explicit referencing of these object files
+    in the linker scripts is not neccessary. Only for manually embedded
+    environment into the U-Boot image, which is not done is most cases.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ad31e40bed042cb670d0036fea96435007afb838
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 15:09:59 2007 +0200
+
+    ppc4xx: Rework of 4xx serial driver (1)
+
+    This patch starts the rework of the PPC4xx serial driver. First we split
+    the file into two seperate files, one 4xx_uart.c with the 405/440 UART
+    handling code and the other one iop480_uart.c with the UART code for the
+    PLX-Tech IOP480 PPC (PPC403 based).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 764e7417ee5f6e25b1715720e7d7dd3487109385
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 10:30:38 2007 +0200
+
+    ppc4xx: Correct UART input clock calculation and passing to fdt
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 211ea91ac6c225bec7e668a03d0ba7d7310679fa
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 07:34:34 2007 +0200
+
+    ppc4xx: Add initial AMCC Makalu 405EX support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fa8aea20456e6f1dba43f46bcc72024dd9499998
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Oct 22 07:33:52 2007 +0200
+
+    ppc4xx: Add freqUART to CPU speed detection
+
+    This value is needed later for the device tree configuration of
+    the uart clock.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 837c730b4d7c6b1ddf3d1e247cb4445005d9bf0d
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Oct 21 14:26:29 2007 +0200
+
+    ppc: Small Kilauea cleanup of config file
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 758c037aeead34b49631b8da3a90b1bba14c0410
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Oct 21 08:16:12 2007 +0200
+
+    rtc: Add Xicor/Intersil X1205 RTC support
+
+    This patch adds support for the Xicor/Intersil X1205 RTC used on the
+    AMCC Makalu eval board. This driver is basically cloned from the Linux
+    driver version (2.6.23).
+
+    This patch also introduces the Linux bcd.h header for the BCD2BIN/
+    BIN2BCD conversions. In the future some of the other U-Boot RTC driver
+    should be converted to also use this header instead of implementing
+    their own local copy of these functions/macros.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 087dfdb79b5fd1ab99a26990c62a732c01a8c7f6
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Oct 21 08:12:41 2007 +0200
+
+    ppc4xx: Consolidate some of the 405 and 440 macros/structs into 4xx
+
+    This patch moves some common 4xx macros and the PPC405_SYS_INFO/
+    PPC440_SYS_INFO structure into the common ppc4xx.h header.
+
+    Lot's of other macros are good candidates to be consolidated this way
+    in the future.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 770c7af5800f598d22730d1f4b70f16c9b33512e
+Author: Stefan Roese <sr@denx.de>
+Date:	Sun Oct 21 08:05:18 2007 +0200
+
+    ppc4xx: Fix size setup in Kilauea DDR2 init routine
+
+    The size was initilized wrong. Instead of 256MB, the DDR2 controller
+    was setup to 512MB. Now the correct values is used.
+
+    This patch also does a little cleanup and adds a comment here.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f6ba9b56607d4b27550301c7c7f6b55b654fd62a
+Author: Eugene O'Brien <eugene.obrien@advantechamt.com>
+Date:	Thu Oct 18 17:29:04 2007 +0200
+
+    ppc4xx: Define CONFIG_BOOKE for all PPC440 based processors
+
+    CONFIG_BOOKE must be defined for PPC440 processors so that the proper SPR
+    number is used to access system registers.
+
+    Signed-off-by: Eugene O'Brien <eugene.obrien@advantechamt.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c36c68160333ac5fe41ec3db12a728b7075b3912
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 18 07:42:27 2007 +0200
+
+    ppc4xx: Change inbound PCIe location for endpoint tests on Katmai
+
+    On Yucca & Katmai, the inbound memory map pointed to 0x4.0000.0000, which
+    is the internal SRAM. Since I now ported and tested this endpoint mode
+    on Kilauea successfully to map to 0 (SDRAM), I also changed this for
+    Katmai.
+
+    Yucca will stay at internal SRAM for now. Not sure if somebody relies on
+    this setup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5cb4af4791f61843432155142b6cfac901f66c10
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 18 07:39:38 2007 +0200
+
+    ppc4xx: Add PCIe endpoint support on Kilauea (405EX)
+
+    This patch adds endpoint support for the AMCC Kilauea eval board. It can
+    be tested by connecting a reworked PCIe cable (only 1x lane singles
+    connected) to another root-complex.
+
+    In this test setup, a 64MB inbound window is configured at BAR0 which maps
+    to 0 on the PLB side. So accessing this BAR0 from the root-complex will
+    access the first 64MB of the SDRAM on the PPC side.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d4cb2d17946466740afeb195a57d6cb290bf4cc0
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Oct 13 16:43:23 2007 +0200
+
+    ppc4xx: Dynamic configuration of 4xx PCIe mode as root or endpoint mode
+
+    This patch adds support for dynamic configuration of PCIe ports for the
+    AMCC PPC4xx boards equipped with PCIe interfaces. These are the PPC440SPe
+    boards Yucca & Katmai and the 405EX board Kilauea.
+
+    This dynamic configuration is done via the "pcie_mode" environement
+    variable. This variable can be set to "EP" or "RP" for endpoint or
+    rootpoint mode. Multiple values can be joined via the ":" delimiter.
+    Here an example:
+
+    pcie_mode=RP:EP:EP
+
+    This way, PCIe port 0 will be configured as rootpoint, PCIe port 1 and 2
+    as endpoint.
+
+    Per default Yucca will be configured as:
+    pcie_mode=RP:EP:EP
+
+    Per default Katmai will be configured as:
+    pcie_mode=RP:RP:REP
+
+    Per default Kilauea will be configured as:
+    pcie_mode=RP:RP
+
+    Signed-off-by: Tirumala R Marri <tmarri@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fd671802b67a0ef37a06124fa2ce85f00aa22c6f
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 11 11:15:59 2007 +0200
+
+    ppc4xx: Enable device tree support (fdt) on Kilauea per default
+
+    This patch enables the fdt support on the AMCC Kilauea eval board.
+    Additionally now EBC ranges fdt fixup is included to support NOR
+    FLASH mapping via the Linux physmap_of driver.
+
+    This Kilauea port now support booting arch/ppc and arch/powerpc
+    Linux kernels. The default environment "net_nfs" is for arch/ppc
+    and "net_nfs_fdt" is for arch/powerpc. In the long run, arch/ppc
+    support will be removed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4994ffd890b9d95d807387a9b7bd8a4803ee406e
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 11 11:11:45 2007 +0200
+
+    ppc4xx: Add additional debug info to 4xx fdt support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit db3232ddb058d0ed0bc31f7c5c296748a1afac67
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 21:28:58 2007 +0200
+
+    ppc4xx: Fix small merge problems with CPCI440 and Acadia boards
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1941cce71b1ae975602854045061e82f94ecd012
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:35:10 2007 +0200
+
+    ppc4xx: Fix small merge problem in 4xx_enet.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 566806ca1a1bf4d895daaf0b2ba5494abbffebaf
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:11:30 2007 +0200
+
+    ppc4xx: Add initial AMCC Kilauea 405EX support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dbbd125721aea6645fdb962f36bd41f59e272f9d
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:10:59 2007 +0200
+
+    ppc4xx: Add PPC405EX support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1d7b874e9c9a7c66f5d8da9ec78a3733765d3e31
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:09:36 2007 +0200
+
+    ppc4xx: Cleanup of 4xx PCI and PCIe support (renaming)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4f14ed6230b9c109aac9a6fb878497dabd44c2db
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:07:50 2007 +0200
+
+    ppc4xx: Add initial fdt support to 4xx (first needed on 405EX)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a424a8bb2924b90724b944165d3141f1fa8dfe5b
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 17:04:57 2007 +0200
+
+    POST: Add 405EX support to 4xx UART POST test
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4f2e92c11f6e2392fc8187829211a5ca7f0c1e12
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 15:10:02 2007 +0200
+
+    DTT: Prepare DS1775 driver for use of different I2C addresses
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 19e93b1e16d267220440d827b920fbad8abfa70f
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 14:23:43 2007 +0200
+
+    ppc4xx: 4xx_pcie: Change PCIe status output to match common style
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ff68f66bcb0da847845aa2fac11eba6c25938c99
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 09:22:33 2007 +0200
+
+    ppc4xx: 4xx_pcie: Disable debug output as default
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 97923770cb52b64d69eec958a11b2eda8d46e0f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 09:18:23 2007 +0200
+
+    ppc4xx: 4xx_pcie: More general cleanup and 405EX PCIe support added
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4dbee8a90df613eb517aadbecebd70f168913d30
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Oct 5 07:57:20 2007 +0200
+
+    ppc4xx: 4xx_pcie: Change CFG_PCIE_MEMSIZE to 128MB on Yucca & Katmai
+
+    128MB seems to be the smallest possible value for the memory size
+    for on PCIe port. With this change now the BAR's of the PCIe cards
+    are accessible under U-Boot.
+
+    One big note: This only works for PCIe port 0 & 1. For port 2 this
+    currently doesn't work, since the base address is now 0xc0000000
+    (0xb0000000 + 2 * 0x08000000), and this is already occupied by
+    CFG_PCIE0_CFGBASE. But solving this issue for port 2 would mean
+    to change the base addresses completely and this change would have
+    too much impact right now.
+
+    This patch adds debug output to the 4xx pcie driver too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6d95289281ed2958ebf76d2b55f86bbd88591fd2
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 21:16:32 2007 +0200
+
+    ppc4xx: 4xx_pcie: Fix problem with SDRN access using port number as idx
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3048bcbf0bad262378c5af68f2bf6778fb7d829a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 15:01:02 2007 +0200
+
+    ppc4xx: Rename 405gp_pci to 4xx_pci since its used on all 4xx platforms
+
+    These files were introduced with the IBM 405GP but are currently used on all
+    4xx PPC platforms. So the name doesn't match the content anymore. This patch
+    renames the files to 4xx_pci.c/h.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 94276eb0a7a35b9e8c053d589ae225b0f017a237
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 14:14:58 2007 +0200
+
+    ppc4xx: Add a comment for 405EX PCIe endpoint configuration
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 03d344bb6a5f082ea10ec9d753558ea7dfd1c626
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 10:38:09 2007 +0200
+
+    ppc4xx: Make 440SPe PCIe code more generic to use on different 4xx PPCs (3)
+
+    (3) This patch introduces macros like SDRN_PESDR_DLPSET(port) to access
+	the SDR registers of the PCIe ports. This makes the overall design
+	clearer, since it removed a lot of switch statements which are not
+	needed anymore.
+
+	Also, the functions ppc4xx_init_pcie_rootport() and
+	ppc4xx_init_pcie_entport() are merged into a single function
+	ppc4xx_init_pcie_port(), since most of the code was duplicated.
+	This makes maintainance and porting to other 4xx platforms
+	easier.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 026f71106871f31d17d0ea0db9a7547ff92934bc
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 07:48:09 2007 +0200
+
+    ppc4xx: Make 440SPe PCIe code more generic to use on different 4xx PPCs (2)
+
+    This patch is the first patch of a series to make the 440SPe PCIe code
+    usable on different 4xx PPC platforms. In preperation for the new 405EX
+    which is also equipped with PCIe interfaces.
+
+    (2) This patch renames the functions from 440spe_ to 4xx_ with a
+	little additional cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c7c6da23028f146d912514b95aefa3da7cf37699
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Oct 3 07:34:10 2007 +0200
+
+    ppc4xx: Make 440SPe PCIe code more generic to use on different 4xx PPCs (1)
+
+    This patch is the first patch of a series to make the 440SPe PCIe code
+    usable on different 4xx PPC platforms. In preperation for the new 405EX
+    which is also equipped with PCIe interfaces.
+
+    (1) This patch renames the files from 440spe_pcie to 4xx_pcie
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 31548249decf18a6b877a18436b6139dd483fe4a
 Author: Justin Flammia <jflammia@savantav.com>
@@ -2231,6 +4747,39 @@ Date:	Wed Oct 17 15:40:19 2007 +0200
     ppc4xx: Add 667/133 (CPU/PLB) frequency setup to Sequoia bootstrap command
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3c89d75409eb26639d36dfa11d4ee3d8b962dc3c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Oct 16 15:27:43 2007 -0500
+
+    Initial mpc8610hpcd Makefile files.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Mahesh Jade <mahesh.jade@freescale.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9553df86d3a319c3a1a7cde7e4edd6eeb5aa64c7
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Oct 16 15:26:51 2007 -0500
+
+    Initial mpc8610hpcd cpu/, README and include/ files.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Mahesh Jade <mahesh.jade@freescale.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3dd2db53ceb0dff80f25c2a07f83f29b907b403e
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Oct 16 13:54:01 2007 -0500
+
+    Initial mpc8610hpcd board files.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Mahesh Jade <mahesh.jade@freescale.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 7ee6ba1a056e4061ab4cfde30127e332e7957afd
 Author: runet@innovsys.com <runet@innovsys.com>

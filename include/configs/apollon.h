@@ -39,14 +39,14 @@
 
 /* Clock config to target*/
 #define PRCM_CONFIG_I		1
-//#define PRCM_CONFIG_II	1
+/* #define PRCM_CONFIG_II	1 */
 
 /* Boot method */
 /* uncomment if you use NOR boot */
-//#define CFG_NOR_BOOT		1
+/* #define CFG_NOR_BOOT		1 */
 
 /* uncomment if you use NOR on CS3 */
-//#define CFG_USE_NOR		1
+/* #define CFG_USE_NOR		1 */
 
 #ifdef CFG_NOR_BOOT
 #undef CFG_USE_NOR
@@ -111,13 +111,13 @@
 #define	CFG_I2C_SLAVE	1
 #define	CONFIG_DRIVER_OMAP24XX_I2C
 
-/* allow to overwrite serial and ethaddr */ 
+/* allow to overwrite serial and ethaddr */
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_CONS_INDEX	1
 #define	CONFIG_BAUDRATE		115200
 #define	CFG_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */ 
+/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include	<config_cmd_default.h>
 
 #define	CONFIG_CMD_DHCP
@@ -180,8 +180,8 @@
 
 #define	CFG_LOAD_ADDR	(OMAP2420_SDRC_CS0)	/* default load address */
 
-/* The 2420 has 12 GP timers, they can be driven by the SysClk (12/13/19.2) 
- * or by 32KHz clk, or from external sig. This rate is divided by a local 
+/* The 2420 has 12 GP timers, they can be driven by the SysClk (12/13/19.2)
+ * or by 32KHz clk, or from external sig. This rate is divided by a local
  * divisor.
  */
 #define	V_PVT	7	/* use with 12MHz/128 */
@@ -193,7 +193,7 @@
 /*-----------------------------------------------------------------------
  * Stack sizes
  *
- * The stack sizes are set up in start.S using the settings below 
+ * The stack sizes are set up in start.S using the settings below
  */
 #define	CONFIG_STACKSIZE SZ_128K	/* regular stack */
 #ifdef	CONFIG_USE_IRQ
@@ -223,7 +223,7 @@
  */
 # define	CFG_FLASH_CFI	1	/* Flash memory is CFI compliant */
 # define	CFG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
-//#define CFG_FLASH_USE_BUFFER_WRITE 1 /* Use buffered writes (~10x faster) */
+/* #define CFG_FLASH_USE_BUFFER_WRITE 1 */ /* Use buffered writes (~10x faster) */
 # define	CFG_FLASH_PROTECTION	1	/* Use h/w sector protection*/
 
 #else	/* !CFG_USE_NOR */
