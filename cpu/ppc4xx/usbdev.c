@@ -7,7 +7,7 @@
 
 #include <usb.h>
 #include "usbdev.h"
-#include "vecnum.h"
+#include <asm/ppc4xx-intvec.h>
 
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02

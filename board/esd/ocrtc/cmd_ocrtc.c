@@ -25,7 +25,7 @@
 #include <command.h>
 #include <pci.h>
 #include <pci_ids.h>
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 
 
 #if defined(CONFIG_CMD_BSP)

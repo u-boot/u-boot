@@ -23,9 +23,13 @@
  */
 
 #include <common.h>
+#include <libfdt.h>
+#include <fdt_support.h>
+#include <ppc440.h>
+#include <asm/gpio.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <ppc440.h>
+#include <asm/ppc4xx-intvec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,36 +45,6 @@ int board_early_init_f(void)
 
 	mtdcr(ebccfga, xbcfg);
 	mtdcr(ebccfgd, 0xb8400000);
-
-	/*--------------------------------------------------------------------
-	 * Setup the GPIO pins
-	 *-------------------------------------------------------------------*/
-	/* test-only: take GPIO init from pcs440ep ???? in config file */
-	out32(GPIO0_OR, 0x00000000);
-	out32(GPIO0_TCR, 0x0000000f);
-	out32(GPIO0_OSRL, 0x50015400);
-	out32(GPIO0_OSRH, 0x550050aa);
-	out32(GPIO0_TSRL, 0x50015400);
-	out32(GPIO0_TSRH, 0x55005000);
-	out32(GPIO0_ISR1L, 0x50000000);
-	out32(GPIO0_ISR1H, 0x00000000);
-	out32(GPIO0_ISR2L, 0x00000000);
-	out32(GPIO0_ISR2H, 0x00000100);
-	out32(GPIO0_ISR3L, 0x00000000);
-	out32(GPIO0_ISR3H, 0x00000000);
-
-	out32(GPIO1_OR, 0x00000000);
-	out32(GPIO1_TCR, 0xc2000000);
-	out32(GPIO1_OSRL, 0x5c280000);
-	out32(GPIO1_OSRH, 0x00000000);
-	out32(GPIO1_TSRL, 0x0c000000);
-	out32(GPIO1_TSRH, 0x00000000);
-	out32(GPIO1_ISR1L, 0x00005550);
-	out32(GPIO1_ISR1H, 0x00000000);
-	out32(GPIO1_ISR2L, 0x00050000);
-	out32(GPIO1_ISR2H, 0x00000000);
-	out32(GPIO1_ISR3L, 0x01400000);
-	out32(GPIO1_ISR3H, 0x00000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -100,16 +74,16 @@ int board_early_init_f(void)
 	mtdcr(uic2sr, 0xffffffff);	/* clear all */
 
 	/* 50MHz tmrclk */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x04) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x04, 0x00);
 
 	/* clear write protects */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x07) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x07, 0x00);
 
 	/* enable Ethernet */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x08) = 0x00;
+	out_8((u8 *) CFG_BCSR_BASE + 0x08, 0x00);
 
 	/* enable USB device */
-	*(unsigned char *)(CFG_BCSR_BASE | 0x09) = 0x20;
+	out_8((u8 *) CFG_BCSR_BASE + 0x09, 0x20);
 
 	/* select Ethernet pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -414,6 +388,16 @@ int testdram(void)
 }
 #endif
 
+#if defined(CONFIG_PCI) && defined(CONFIG_PCI_PNP)
+/*
+ * Assign interrupts to PCI devices.
+ */
+void sequoia_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
+{
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+}
+#endif
+
 /*************************************************************************
  *  pci_pre_init
  *
@@ -465,6 +449,9 @@ int pci_pre_init(struct pci_controller *hose)
 	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
 	mtdcr(plb1_acr, addr);
 
+#ifdef CONFIG_PCI_PNP
+	hose->fixup_irq = sequoia_pci_fixup_irq;
+#endif
 	return 1;
 }
 #endif /* defined(CONFIG_PCI) */
@@ -583,3 +570,24 @@ int post_hotkeys_pressed(void)
 	return 0;	/* No hotkeys supported */
 }
 #endif /* CONFIG_POST */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 0;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

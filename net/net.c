@@ -94,7 +94,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ARP_TIMEOUT		5		/* Seconds before trying ARP again */
+#define ARP_TIMEOUT		5UL		/* Seconds before trying ARP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define ARP_TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
 #else
@@ -137,6 +137,9 @@ uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6] =
 			{ 0, 0, 0, 0, 0, 0 };
+#ifdef CONFIG_API
+void		(*push_packet)(volatile void *, int len) = 0;
+#endif
 #if defined(CONFIG_CMD_CDP)
 uchar		NetCDPAddr[6] =		/* Ethernet bcast address		*/
 			{ 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
@@ -589,16 +592,18 @@ void NetStartAgain (void)
 		return;
 	}
 #ifndef CONFIG_NET_MULTI
-	NetSetTimeout (10 * CFG_HZ, startAgainTimeout);
+	NetSetTimeout (10UL * CFG_HZ, startAgainTimeout);
 	NetSetHandler (startAgainHandler);
 #else	/* !CONFIG_NET_MULTI*/
 	eth_halt ();
+#if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
 	eth_try_another (!NetRestarted);
+#endif
 	eth_init (gd->bd);
 	if (NetRestartWrap) {
 		NetRestartWrap = 0;
 		if (NetDevExists && !once) {
-			NetSetTimeout (10 * CFG_HZ, startAgainTimeout);
+			NetSetTimeout (10UL * CFG_HZ, startAgainTimeout);
 			NetSetHandler (startAgainHandler);
 		} else {
 			NetState = NETLOOP_FAIL;
@@ -774,7 +779,7 @@ static void PingStart(void)
 #if defined(CONFIG_NET_MULTI)
 	printf ("Using %s device\n", eth_get_name());
 #endif	/* CONFIG_NET_MULTI */
-	NetSetTimeout (10 * CFG_HZ, PingTimeout);
+	NetSetTimeout (10UL * CFG_HZ, PingTimeout);
 	NetSetHandler (PingHandler);
 
 	PingSend();
@@ -1160,6 +1165,13 @@ NetReceive(volatile uchar * inpkt, int len)
 	/* too small packet? */
 	if (len < ETHER_HDR_SIZE)
 		return;
+
+#ifdef CONFIG_API
+	if (push_packet) {
+		(*push_packet)(inpkt, len);
+		return;
+	}
+#endif
 
 #if defined(CONFIG_CMD_CDP)
 	/* keep track if packet is CDP */

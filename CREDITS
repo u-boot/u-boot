@@ -117,7 +117,7 @@ N: Arun Dharankar
 E: ADharankar@ATTBI.Com
 D: threads / scheduler example code
 
-N: Kári Davíðsson
+N: K?ri Dav??sson
 E: kd@flaga.is
 D: FLAGA DM Support
 
@@ -143,7 +143,7 @@ E: info@elste.org
 D: Port for the ModNET50 Board, NET+50 CPU Port
 W: http://www.imms.de
 
-N: Daniel Engström
+N: Daniel Engstr?m
 E: daniel@omicron.se
 D: x86 port, Support for sc520_cdp board
 
@@ -303,6 +303,11 @@ D: Support for Nios Stratix Development Kit (DK-1S10)
 D: Support for SSV ADNP/ESC1 (Nios Cyclone)
 W: http://www.li-pro.net
 
+N: Dave Liu
+E: daveliu@freescale.com
+D: Support for MPC832x, MPC8360, MPC837x
+W: www.freescale.com
+
 N: Raymond Lo
 E: lo@routefree.com
 D: Support for DOS partitions
@@ -334,7 +339,7 @@ N: Frank Morauf
 E: frank.morauf@salzbrenner.com
 D: Support for Embedded Planet RPX Super Board
 
-N: David Müller
+N: David M?ller
 E: d.mueller@elsoft.ch
 D: Support for Samsung ARM920T SMDK2410 eval board
 
@@ -499,3 +504,8 @@ N: Alex Zuepke
 E: azu@sysgo.de
 D: Overall improvements on StrongARM, ARM720TDMI; Support for Tuxscreen; initial PCMCIA support for ARM
 W: www.elinos.com
+
+N: Nobuhiro Iwamatsu
+E: iwamatsu@nigauri.org
+D: Support for SuperH, MS7750SE01 and  MS7722SE01 boards.
+W: http://www.nigauri.org/~iwamatsu/

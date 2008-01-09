@@ -444,6 +444,9 @@ ulong post_word_load (void)
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
 {
+
+	extern int usb_cpu_init(void);
+
 #ifdef CONFIG_PS2MULT
 	ps2mult_early_init();
 #endif /* CONFIG_PS2MULT */
@@ -591,9 +594,9 @@ int last_stage_init (void)
 		disable_ctrlc(1);
 	}
 #endif
+#endif /* !CONFIG_TQM5200S */
 
 	return 0;
-#endif /* !CONFIG_TQM5200S */
 }
 
 #ifdef CONFIG_VIDEO_SM501

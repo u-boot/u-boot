@@ -22,4 +22,6 @@
 # MA 02111-1307 USA
 #
 
-TEXT_BASE = 0
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
+
+PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE)

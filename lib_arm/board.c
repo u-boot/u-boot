@@ -46,10 +46,10 @@
 #include <net.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/smc91111.h"
+#include "../drivers/net/smc91111.h"
 #endif
 #ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/lan91c96.h"
+#include "../drivers/net/lan91c96.h"
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -430,6 +430,10 @@ extern void dm644x_eth_set_mac_addr (const u_int8_t *addr);
 	puts ("Net:   ");
 #endif
 	eth_initialize(gd->bd);
+#if defined(CONFIG_RESET_PHY_R)
+	debug ("Reset Ethernet PHY\n");
+	reset_phy();
+#endif
 #endif
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {

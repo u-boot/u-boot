@@ -3,7 +3,7 @@
  * This SPD SDRAM detection code supports AMCC PPC44x cpu's with a
  * DDR2 controller (non Denali Core). Those are 440SP/SPe.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * COPYRIGHT   AMCC   CORPORATION 2004
@@ -111,8 +111,6 @@
 #define NUMMEMWORDS	8
 #define NUMLOOPS	64		/* memory test loops */
 
-#undef CONFIG_ECC_ERROR_RESET		/* test-only: see description below, at check_ecc() */
-
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
  * region. Right now the cache should still be disabled in U-Boot because of the
@@ -120,10 +118,10 @@
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
  * everything correctly.
  */
-#ifdef CFG_ENABLE_SDRAM_CACHE
+#ifdef CONFIG_4xx_DCACHE
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
@@ -623,7 +621,7 @@ static void get_spd_info(unsigned long *dimm_populated,
 
 void board_add_ram_info(int use_default)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	u32 val;
 
 	if (is_ecc_enabled())
@@ -741,7 +739,7 @@ static void check_frequency(unsigned long *dimm_populated,
 	unsigned long calc_cycle_time;
 	unsigned long sdram_freq;
 	unsigned long sdr_ddrpll;
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 
 	/*------------------------------------------------------------------
 	 * Get the board configuration info.
@@ -1353,7 +1351,7 @@ static void program_mode(unsigned long *dimm_populated,
 	unsigned long max_4_0_tcyc_ns_x_100;
 	unsigned long max_5_0_tcyc_ns_x_100;
 	unsigned long cycle_time_ns_x_100[3];
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	unsigned char cas_2_0_available;
 	unsigned char cas_2_5_available;
 	unsigned char cas_3_0_available;
@@ -1640,7 +1638,7 @@ static void program_rtr(unsigned long *dimm_populated,
 			unsigned char *iic0_dimm_addr,
 			unsigned long num_dimm_banks)
 {
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 	unsigned long max_refresh_rate;
 	unsigned long dimm_num;
 	unsigned long refresh_rate_type;
@@ -1737,7 +1735,7 @@ static void program_tr(unsigned long *dimm_populated,
 	unsigned long sdram_freq;
 	unsigned long sdr_ddrpll;
 
-	PPC440_SYS_INFO board_cfg;
+	PPC4xx_SYS_INFO board_cfg;
 
 	/*------------------------------------------------------------------
 	 * Get the board configuration info.
@@ -2048,14 +2046,10 @@ static void program_bxcf(unsigned long *dimm_populated,
 	/*------------------------------------------------------------------
 	 * Set the BxCF regs.  First, wipe out the bank config registers.
 	 *-----------------------------------------------------------------*/
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB0CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB1CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB2CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
-	mtdcr(SDRAMC_CFGADDR, SDRAM_MB3CF);
-	mtdcr(SDRAMC_CFGDATA, 0x00000000);
+	mtsdram(SDRAM_MB0CF, 0x00000000);
+	mtsdram(SDRAM_MB1CF, 0x00000000);
+	mtsdram(SDRAM_MB2CF, 0x00000000);
+	mtsdram(SDRAM_MB3CF, 0x00000000);
 
 	mode = SDRAM_BXCF_M_BE_ENABLE;
 
@@ -2107,8 +2101,9 @@ static void program_bxcf(unsigned long *dimm_populated,
 				bank_0_populated = 1;
 
 			for (ind_rank = 0; ind_rank < num_ranks; ind_rank++) {
-				mtdcr(SDRAMC_CFGADDR, SDRAM_MB0CF + ((dimm_num + bank_0_populated + ind_rank) << 2));
-				mtdcr(SDRAMC_CFGDATA, mode);
+				mtsdram(SDRAM_MB0CF +
+					((dimm_num + bank_0_populated + ind_rank) << 2),
+					mode);
 			}
 		}
 	}
@@ -2271,39 +2266,6 @@ static void program_ecc(unsigned long *dimm_populated,
 	return;
 }
 
-#ifdef CONFIG_ECC_ERROR_RESET
-/*
- * Check for ECC errors and reset board upon any error here
- *
- * On the Katmai 440SPe eval board, from time to time, the first
- * lword write access after DDR2 initializazion with ECC checking
- * enabled, leads to an ECC error. I couldn't find a configuration
- * without this happening. On my board with the current setup it
- * happens about 1 from 10 times.
- *
- * The ECC modules used for testing are:
- * - Kingston ValueRAM KVR667D2E5/512 (tested with 1 and 2 DIMM's)
- *
- * This has to get fixed for the Katmai and tested for the other
- * board (440SP/440SPe) that will eventually use this code in the
- * future.
- *
- * 2007-03-01, sr
- */
-static void check_ecc(void)
-{
-	u32 val;
-
-	mfsdram(SDRAM_ECCCR, val);
-	if (val != 0) {
-		printf("\nECC error: MCIF0_ECCES=%08lx MQ0_ESL=%08lx address=%08lx\n",
-		       val, mfdcr(0x4c), mfdcr(0x4e));
-		printf("ECC error occured, resetting board...\n");
-		do_reset(NULL, 0, 0, NULL);
-	}
-}
-#endif
-
 static void wait_ddr_idle(void)
 {
 	u32 val;
@@ -2378,15 +2340,6 @@ static void program_ecc_addr(unsigned long start_address,
 		sync();
 		eieio();
 		wait_ddr_idle();
-
-#ifdef CONFIG_ECC_ERROR_RESET
-		/*
-		 * One write to 0 is enough to trigger this ECC error
-		 * (see description above)
-		 */
-		out_be32(0, 0x12345678);
-		check_ecc();
-#endif
 	}
 }
 #endif
@@ -2412,17 +2365,10 @@ static void program_DQS_calibration(unsigned long *dimm_populated,
 	 * Read sample cycle auto-update enable
 	 *-----------------------------------------------------------------*/
 
-	/*
-	 * Modified for the Katmai platform:  with some DIMMs, the DDR2
-	 * controller automatically selects the T2 read cycle, but this
-	 * proves unreliable.  Go ahead and force the DDR2 controller
-	 * to use the T4 sample and disable the automatic update of the
-	 * RDSS field.
-	 */
 	mfsdram(SDRAM_RDCC, val);
 	mtsdram(SDRAM_RDCC,
 		(val & ~(SDRAM_RDCC_RDSS_MASK | SDRAM_RDCC_RSAE_MASK))
-		| (SDRAM_RDCC_RDSS_T4 | SDRAM_RDCC_RSAE_DISABLE));
+		| SDRAM_RDCC_RSAE_ENABLE);
 
 	/*------------------------------------------------------------------
 	 * Program RQDC register
@@ -2515,10 +2461,7 @@ static void DQS_calibration_process(void)
 {
 	unsigned long rfdc_reg;
 	unsigned long rffd;
-	unsigned long rqdc_reg;
-	unsigned long rqfd;
 	unsigned long val;
-	long rqfd_average;
 	long rffd_average;
 	long max_start;
 	long min_end;
@@ -2536,10 +2479,14 @@ static void DQS_calibration_process(void)
 	long max_end;
 	unsigned char fail_found;
 	unsigned char pass_found;
+#if !defined(CONFIG_DDR_RQDC_FIXED)
+	u32 rqdc_reg;
+	u32 rqfd;
 	u32 rqfd_start;
+	u32 rqfd_average;
+	int loopi = 0;
 	char str[] = "Auto calibration -";
 	char slash[] = "\\|/-\\|/-";
-	int loopi = 0;
 
 	/*------------------------------------------------------------------
 	 * Test to determine the best read clock delay tuning bits.
@@ -2574,6 +2521,16 @@ calibration_loop:
 	mfsdram(SDRAM_RQDC, rqdc_reg);
 	mtsdram(SDRAM_RQDC, (rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |
 		SDRAM_RQDC_RQFD_ENCODE(rqfd_start));
+#else /* CONFIG_DDR_RQDC_FIXED */
+	/*
+	 * On Katmai the complete auto-calibration somehow doesn't seem to
+	 * produce the best results, meaning optimal values for RQFD/RFFD.
+	 * This was discovered by GDA using a high bandwidth scope,
+	 * analyzing the DDR2 signals. GDA provided a fixed value for RQFD,
+	 * so now on Katmai "only" RFFD is auto-calibrated.
+	 */
+	mtsdram(SDRAM_RQDC, CONFIG_DDR_RQDC_FIXED);
+#endif /* CONFIG_DDR_RQDC_FIXED */
 
 	max_start = 0;
 	min_end = 0;
@@ -2658,6 +2615,7 @@ calibration_loop:
 	/* now fix RFDC[RFFD] found and find RQDC[RQFD] */
 	mtsdram(SDRAM_RFDC, rfdc_reg | SDRAM_RFDC_RFFD_ENCODE(rffd_average));
 
+#if !defined(CONFIG_DDR_RQDC_FIXED)
 	max_pass_length = 0;
 	max_start = 0;
 	max_end = 0;
@@ -2730,8 +2688,6 @@ calibration_loop:
 		spd_ddr_init_hang ();
 	}
 
-	blank_string(strlen(str));
-
 	if (rqfd_average < 0)
 		rqfd_average = 0;
 
@@ -2742,12 +2698,31 @@ calibration_loop:
 		(rqdc_reg & ~SDRAM_RQDC_RQFD_MASK) |
 		SDRAM_RQDC_RQFD_ENCODE(rqfd_average));
 
+	blank_string(strlen(str));
+#endif /* CONFIG_DDR_RQDC_FIXED */
+
+	/*
+	 * Now complete RDSS configuration as mentioned on page 7 of the AMCC
+	 * PowerPC440SP/SPe DDR2 application note:
+	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+	 */
+	mfsdram(SDRAM_RTSR, val);
+	if ((val & SDRAM_RTSR_TRK1SM_MASK) == SDRAM_RTSR_TRK1SM_ATPLS1) {
+		mfsdram(SDRAM_RDCC, val);
+		if ((val & SDRAM_RDCC_RDSS_MASK) != SDRAM_RDCC_RDSS_T4) {
+			val += 0x40000000;
+			mtsdram(SDRAM_RDCC, val);
+		}
+	}
+
 	mfsdram(SDRAM_DLCR, val);
 	debug("%s[%d] DLCR: 0x%08X\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RQDC, val);
 	debug("%s[%d] RQDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RFDC, val);
 	debug("%s[%d] RFDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	mfsdram(SDRAM_RDCC, val);
+	debug("%s[%d] RDCC: 0x%08X\n", __FUNCTION__, __LINE__, val);
 }
 #else /* calibration test with hardvalues */
 /*-----------------------------------------------------------------------------+

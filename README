@@ -235,9 +235,7 @@ The following options need to be configured:
 - Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
 
 - CPU Daughterboard Type: (if CONFIG_ATSTK1000 is defined)
-		Define exactly one of
-		CONFIG_ATSTK1002
-
+		Define exactly one, e.g. CONFIG_ATSTK1002
 
 - CPU Module Type: (if CONFIG_COGENT is defined)
 		Define exactly one of
@@ -1379,14 +1377,23 @@ The following options need to be configured:
 		SPI configuration items (port pins to use, etc). For
 		an example, see include/configs/sacsng.h.
 
-- FPGA Support: CONFIG_FPGA_COUNT
+- FPGA Support: CONFIG_FPGA
+
+		Enables FPGA subsystem.
+
+		CONFIG_FPGA_<vendor>
+
+		Enables support for specific chip vendors.
+		(ALTERA, XILINX)
+
+		CONFIG_FPGA_<family>
+
+		Enables support for FPGA family.
+		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
+
+		CONFIG_FPGA_COUNT
 
 		Specify the number of FPGA devices to support.
-
-		CONFIG_FPGA
-
-		Used to specify the types of FPGA devices.  For example,
-		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 
 		CFG_FPGA_PROG_FEEDBACK
 
@@ -2123,7 +2130,7 @@ to save the current settings.
 	to be a good choice since it makes it far enough from the
 	start of the data area as well as from the stack pointer.
 
-Please note that the environment is read-only as long as the monitor
+Please note that the environment is read-only until the monitor
 has been relocated to RAM and a RAM copy of the environment has been
 created; also, when using EEPROM you will have to use getenv_r()
 until then to read environment variables.

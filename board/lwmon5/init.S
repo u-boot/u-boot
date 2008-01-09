@@ -57,7 +57,7 @@ tlbtab:
 
 #ifdef CFG_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
-	tlbentry(CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G)
+	tlbentry(CFG_INIT_RAM_ADDR, SZ_4K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G)
 #endif
 
 	/* TLB-entry for PCI Memory */

@@ -311,6 +311,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	dma_alloc_init();
 	board_init_info();
 
+	enable_interrupts();
+
 	bd->bi_flashstart = 0;
 	bd->bi_flashsize = 0;
 	bd->bi_flashoffset = 0;

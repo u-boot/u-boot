@@ -26,7 +26,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <pci.h>
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 
 #include "pci405.h"
 

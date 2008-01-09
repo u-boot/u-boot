@@ -23,15 +23,10 @@
 
 #define SDRAM_DDR	1		/* is DDR */
 
-#if defined(CONFIG_MPC5200)
 /* Settings for XLB = 132 MHz */
 #define SDRAM_MODE	0x018D0000
 #define SDRAM_EMODE	0x40090000
-#define SDRAM_CONTROL	0x714f0f00
+#define SDRAM_CONTROL	0x714F0F00
 #define SDRAM_CONFIG1	0x73722930
 #define SDRAM_CONFIG2	0x47770000
 #define SDRAM_TAPDELAY	0x10000000
-
-#else
-#error CONFIG_MPC5200 not defined
-#endif

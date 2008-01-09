@@ -25,6 +25,12 @@
 #include <ioports.h>
 #include <mpc8260.h>
 
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <libfdt_env.h>
+#include <fdt_support.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -38,12 +44,12 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port A configuration */
     {	/*	      conf ppar psor pdir podr pdat */
-	/* PA31 */ {   0,   1,	 1,   0,   0,	0   }, /* FCC1 COL */
-	/* PA30 */ {   0,   1,	 1,   0,   0,	0   }, /* FCC1 CRS */
-	/* PA29 */ {   0,   1,	 1,   1,   0,	0   }, /* FCC1 TXER */
-	/* PA28 */ {   0,   1,	 1,   1,   0,	0   }, /* FCC1 TXEN */
-	/* PA27 */ {   0,   1,	 1,   0,   0,	0   }, /* FCC1 RXDV */
-	/* PA26 */ {   0,   1,	 1,   0,   0,	0   }, /* FCC1 RXER */
+	/* PA31 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 COL */
+	/* PA30 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 CRS */
+	/* PA29 */ {   1,   1,	 1,   1,   0,	0   }, /* FCC1 TXER */
+	/* PA28 */ {   1,   1,	 1,   1,   0,	0   }, /* FCC1 TXEN */
+	/* PA27 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 RXDV */
+	/* PA26 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 RXER */
 	/* PA25 */ {   0,   0,	 0,   0,   1,	0   }, /* 8247_P0 */
 #if defined(CONFIG_SOFT_I2C)
 	/* PA24 */ {   1,   0,	 0,   0,   1,	1   }, /* I2C_SDA2 */
@@ -53,14 +59,14 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PA23 */ {   0,   0,	 0,   1,   0,	0   }, /* PA23 */
 #endif
 	/* PA22 */ {   0,   0,	 0,   0,   1,	0   }, /* SMC2_DCD */
-	/* PA21 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC1 TXD3 */
-	/* PA20 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC1 TXD2 */
-	/* PA19 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC1 TXD1 */
-	/* PA18 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC1 TXD0 */
-	/* PA17 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC1 RXD0 */
-	/* PA16 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC1 RXD1 */
-	/* PA15 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC1 RXD2 */
-	/* PA14 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC1 RXD3 */
+	/* PA21 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC1 TXD3 */
+	/* PA20 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC1 TXD2 */
+	/* PA19 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC1 TXD1 */
+	/* PA18 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC1 TXD0 */
+	/* PA17 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 RXD0 */
+	/* PA16 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 RXD1 */
+	/* PA15 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 RXD2 */
+	/* PA14 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 RXD3 */
 	/* PA13 */ {   0,   0,	 0,   1,   1,	0   }, /* SMC2_RTS */
 	/* PA12 */ {   0,   0,	 0,   0,   1,	0   }, /* SMC2_CTS */
 	/* PA11 */ {   0,   0,	 0,   1,   1,	0   }, /* SMC2_DTR */
@@ -79,20 +85,20 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port B configuration */
     {	/*	      conf ppar psor pdir podr pdat */
-	/* PB31 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TX_ER */
-	/* PB30 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_DV */
-	/* PB29 */ {   1,   1,	 1,   1,   0,	0   }, /* FCC2 MII TX_EN */
-	/* PB28 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_ER */
-	/* PB27 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII COL */
-	/* PB26 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII CRS */
-	/* PB25 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[3] */
-	/* PB24 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[2] */
-	/* PB23 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[1] */
-	/* PB22 */ {   1,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[0] */
-	/* PB21 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[0] */
-	/* PB20 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[1] */
-	/* PB19 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[2] */
-	/* PB18 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[3] */
+	/* PB31 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC2 MII TX_ER */
+	/* PB30 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_DV */
+	/* PB29 */ {   0,   1,	 1,   1,   0,	0   }, /* FCC2 MII TX_EN */
+	/* PB28 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_ER */
+	/* PB27 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII COL */
+	/* PB26 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII CRS */
+	/* PB25 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[3] */
+	/* PB24 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[2] */
+	/* PB23 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[1] */
+	/* PB22 */ {   0,   1,	 0,   1,   0,	0   }, /* FCC2 MII TxD[0] */
+	/* PB21 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[0] */
+	/* PB20 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[1] */
+	/* PB19 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[2] */
+	/* PB18 */ {   0,   1,	 0,   0,   0,	0   }, /* FCC2 MII RxD[3] */
 	/* PB17 */ {   0,   0,	 0,   0,   0,	0   }, /* PB17 */
 	/* PB16 */ {   0,   0,	 0,   0,   0,	0   }, /* PB16 */
 	/* PB15 */ {   0,   0,	 0,   0,   0,	0   }, /* PB15 */
@@ -123,8 +129,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC26 */ {   0,   0,	 0,   1,   0,	0   }, /* PC26 */
 	/* PC25 */ {   0,   1,	 1,   0,   0,	0   }, /* SYNC_IN */
 	/* PC24 */ {   0,   0,	 0,   1,   0,	0   }, /* PC24 */
-	/* PC23 */ {   0,   1,	 0,   1,   0,	0   }, /* ATMTFCLK */
-	/* PC22 */ {   0,   1,	 0,   0,   0,	0   }, /* ATMRFCLK */
+	/* PC23 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 MII TX_CLK */
+	/* PC22 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC1 MII RX_CLK */
 	/* PC21 */ {   0,   1,	 0,   0,   0,	0   }, /* SCC1 EN RXCLK */
 	/* PC20 */ {   0,   1,	 0,   0,   0,	0   }, /* SCC1 EN TXCLK */
 	/* PC19 */ {   1,   1,	 0,   0,   0,	0   }, /* FCC2 MII RX_CLK */
@@ -180,7 +186,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD10 */ {   0,   0,	 0,   0,   0,	0   }, /* PD10 */
 	/* PD9	*/ {   0,   0,	 0,   0,   0,	0   }, /* PD9 */
 	/* PD8	*/ {   0,   0,	 0,   0,   0,	0   }, /* PD8 */
-	/* PD7	*/ {   0,   0,	 0,   1,   0,	1   }, /* MII_MDIO */
+	/* PD7	*/ {   1,   0,	 0,   1,   0,	1   }, /* MII_MDIO */
 	/* PD6	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD6 */
 	/* PD5	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD5 */
 	/* PD4	*/ {   0,   0,	 0,   1,   0,	1   }, /* PD4 */
@@ -224,7 +230,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 * mapped by the controller. That means, that the initial mapping has
 	 * to be (at least) twice as large as the maximum expected size.
 	 */
-	maxsize = (1 + (~orx | 0x7fff)) / 2;
+	maxsize = (1 + (~orx | 0x7fff))/* / 2*/;
 
 	sdmr_ptr = &memctl->memc_psdmr;
 	orx_ptr = &memctl->memc_or2;
@@ -315,4 +321,27 @@ nand_init (void)
 	printf ("%4lu MB\n", totlen >>20);
 }
 
-#endif
+#endif	/* CFG_CMD_NAND */
+
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+/*
+ * update "memory" property in the blob
+ */
+void ft_blob_update(void *blob, bd_t *bd)
+{
+	int ret;
+
+	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+
+	if (ret < 0) {
+		printf("ft_blob_update): cannot set /memory/reg "
+			"property err:%s\n", fdt_strerror(ret));
+	}
+}
+
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup( blob, bd);
+	ft_blob_update(blob, bd);
+}
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

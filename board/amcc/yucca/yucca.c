@@ -27,28 +27,16 @@
 
 #include <common.h>
 #include <ppc4xx.h>
-#include <asm/processor.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
+#include <asm/processor.h>
+#include <asm/io.h>
+#include <asm/4xx_pcie.h>
 
 #include "yucca.h"
-#include "../cpu/ppc4xx/440spe_pcie.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#undef PCIE_ENDPOINT
-/* #define PCIE_ENDPOINT 1 */
-
 void fpga_init (void);
-
-void get_sys_info(PPC440_SYS_INFO *board_cfg );
-int compare_to_true(char *str );
-char *remove_l_w_space(char *in_str );
-char *remove_t_w_space(char *in_str );
-int get_console_port(void);
-
-int ppc440spe_init_pcie_rootport(int port);
-void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
 
 #define DEBUG_ENV
 #ifdef DEBUG_ENV
@@ -541,10 +529,10 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts */
 	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts */
 
-	/* SDR0_MFR should be part of Ethernet init */
-	mfsdr (sdr_mfr, mfr);
-	mfr &= ~SDR0_MFR_ECS_MASK;
-	/*mtsdr(sdr_mfr, mfr);*/
+	mfsdr(sdr_mfr, mfr);
+	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
+	mtsdr(sdr_mfr, mfr);
+
 	fpga_init();
 
 	return 0;
@@ -850,6 +838,7 @@ void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	int ret = 0;
 	char *env;
 	unsigned int delay;
 
@@ -863,14 +852,16 @@ void pcie_setup_hoses(int busno)
 		if (!yucca_pcie_card_present(i))
 			continue;
 
-#ifdef PCIE_ENDPOINT
- 		yucca_setup_pcie_fpga_endpoint(i);
- 		if (ppc440spe_init_pcie_endport(i)) {
-#else
-		yucca_setup_pcie_fpga_rootpoint(i);
-		if (ppc440spe_init_pcie_rootport(i)) {
-#endif
-			printf("PCIE%d: initialization failed\n", i);
+		if (is_end_point(i)) {
+			yucca_setup_pcie_fpga_endpoint(i);
+			ret = ppc4xx_init_pcie_endport(i);
+		} else {
+			yucca_setup_pcie_fpga_rootpoint(i);
+			ret = ppc4xx_init_pcie_rootport(i);
+		}
+		if (ret) {
+			printf("PCIE%d: initialization as %s failed\n", i,
+			       is_end_point(i) ? "endpoint" : "root-complex");
 			continue;
 		}
 
@@ -884,35 +875,33 @@ void pcie_setup_hoses(int busno)
 			CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
 			CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
 			CFG_PCIE_MEMSIZE,
-			PCI_REGION_MEM
-			);
+			PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);
 
-#ifdef PCIE_ENDPOINT
-		ppc440spe_setup_pcie_endpoint(hose, i);
-		/*
-		 * Reson for no scanning is endpoint can not generate
-		 * upstream configuration accesses.
-		 */
-#else
-		ppc440spe_setup_pcie_rootpoint(hose, i);
+		if (is_end_point(i)) {
+			ppc4xx_setup_pcie_endpoint(hose, i);
+			/*
+			 * Reson for no scanning is endpoint can not generate
+			 * upstream configuration accesses.
+		 	 */
+		} else {
+			ppc4xx_setup_pcie_rootpoint(hose, i);
+			env = getenv("pciscandelay");
+			if (env != NULL) {
+				delay = simple_strtoul(env, NULL, 10);
+				if (delay > 5)
+				    	printf("Warning, expect noticable delay before "
+					       "PCIe scan due to 'pciscandelay' value!\n");
+				mdelay(delay * 1000);
+			}
 
-		env = getenv ("pciscandelay");
-		if (env != NULL) {
-			delay = simple_strtoul (env, NULL, 10);
-			if (delay > 5)
-				printf ("Warning, expect noticable delay before PCIe"
-					"scan due to 'pciscandelay' value!\n");
-			mdelay (delay * 1000);
+			/*
+			 * Config access can only go down stream
+		 	 */
+			hose->last_busno = pci_hose_scan(hose);
+			bus = hose->last_busno + 1;
 		}
-
-		/*
-		 * Config access can only go down stream
-		 */
-		hose->last_busno = pci_hose_scan(hose);
-		bus = hose->last_busno + 1;
-#endif
 	}
 }
 #endif	/* defined(CONFIG_PCI) */

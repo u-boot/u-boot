@@ -128,7 +128,7 @@ typedef struct {
 } /*__attribute__((__packed__))*/ VCMA9_PLD;
 
 #define VCMA9_PLD_BASE	0x2C000100
-static inline VCMA9_PLD * const VCMA9_GetBase_PLD(void)
+static inline VCMA9_PLD * VCMA9_GetBase_PLD(void)
 {
 	return (VCMA9_PLD * const)VCMA9_PLD_BASE;
 }

@@ -43,8 +43,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined (CONFIG_FPGA) && defined(CONFIG_CMD_FPGA)
-
 /* Local functions */
 static void fpga_usage (cmd_tbl_t * cmdtp);
 static int fpga_get_op (char *opstr);
@@ -60,14 +58,11 @@ static int fpga_get_op (char *opstr);
 /* Convert bitstream data and load into the fpga */
 int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 {
-#if (CONFIG_FPGA & CFG_FPGA_XILINX)
+#if defined(CONFIG_FPGA_XILINX)
 	unsigned int length;
-	unsigned char* swapdata;
 	unsigned int swapsize;
 	char buffer[80];
-	unsigned char *ptr;
 	unsigned char *dataptr;
-	unsigned char data;
 	unsigned int i;
 	int rc;
 
@@ -145,39 +140,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	dataptr+=4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	/* check consistency of length obtained */
-	if (swapsize >= size) {
-		printf("%s: Could not find right length of data in bitstream\n",
-			__FUNCTION__);
-		return FPGA_FAIL;
-	}
-
-	/* allocate memory */
-	swapdata = (unsigned char *)malloc(swapsize);
-	if (swapdata == NULL) {
-		printf("%s: Could not allocate %d bytes memory !\n",
-			__FUNCTION__, swapsize);
-		return FPGA_FAIL;
-	}
-
-	/* read data into memory and swap bits */
-	ptr = swapdata;
-	for (i = 0; i < swapsize; i++) {
-		data = 0x00;
-		data |= (*dataptr & 0x01) << 7;
-		data |= (*dataptr & 0x02) << 5;
-		data |= (*dataptr & 0x04) << 3;
-		data |= (*dataptr & 0x08) << 1;
-		data |= (*dataptr & 0x10) >> 1;
-		data |= (*dataptr & 0x20) >> 3;
-		data |= (*dataptr & 0x40) >> 5;
-		data |= (*dataptr & 0x80) >> 7;
-		*ptr++ = data;
-		dataptr++;
-	}
-
-	rc = fpga_load(dev, swapdata, swapsize);
-	free(swapdata);
+	rc = fpga_load(dev, dataptr, swapsize);
 	return rc;
 #else
 	printf("Bitstream support only for Xilinx devices\n");
@@ -321,4 +284,3 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
 	    "\tloadmk\tLoad device generated with mkimage\n"
 	    "\tdump\tLoad device to memory buffer\n");
-#endif

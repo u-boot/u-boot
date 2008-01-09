@@ -13,9 +13,8 @@
 #include <command.h>
 #include <asm/addrspace.h>
 #include <asm/inca-ip.h>
+#include <asm/io.h>
 #include <pci.h>
-
-unsigned long mips_io_port_base = 0;
 
 #if defined(CONFIG_PCI)
 static struct pci_controller hose;
@@ -26,17 +25,17 @@ void pci_init_board (void)
 }
 #endif
 
-
 long int initdram(int board_type)
 {
 	return get_ram_size (CFG_SDRAM_BASE, 0x8000000);
 }
 
-
 int checkboard (void)
 {
 	printf("Board: TANBAC TB0229 ");
 	printf("(CPU Speed %d MHz)\n", (int)CPU_CLOCK_RATE/1000000);
+
+	set_io_port_base(0);
 
 	return 0;
 }

@@ -273,16 +273,6 @@
 #define CFG_EEPROM_WREN         1
 
 /*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
-					/* have only 8kB, 16kB is save here	*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
-/*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  */
 #define CFG_PLD_BASE            0xf0000000

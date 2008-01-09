@@ -131,6 +131,7 @@
 /* USB */
 #if defined(CONFIG_STK52XX) || defined(CONFIG_FO300)
 #define CONFIG_USB_OHCI_NEW
+#define CFG_OHCI_BE_CONTROLLER
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_USB

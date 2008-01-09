@@ -54,12 +54,24 @@ extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
+extern int uli526x_initialize(bd_t *);
 extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
 extern int atstk1000_eth_initialize(bd_t *);
 extern int mcffec_initialize(bd_t*);
+
+#ifdef CONFIG_API
+extern void (*push_packet)(volatile void *, int);
+
+static struct {
+	uchar data[PKTSIZE];
+	int length;
+} eth_rcv_bufs[PKTBUFSRX];
+
+static unsigned int eth_rcv_current = 0, eth_rcv_last = 0;
+#endif
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -137,7 +149,8 @@ int eth_register(struct eth_device* dev)
 
 int eth_initialize(bd_t *bis)
 {
-	char enetvar[32], env_enetaddr[6];
+	char enetvar[32];
+	unsigned char env_enetaddr[6];
 	int i, eth_number = 0;
 	char *tmp, *end;
 
@@ -201,6 +214,9 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_UEC_ETH2)
 	uec_initialize(1);
 #endif
+#if defined(CONFIG_UEC_ETH3)
+	uec_initialize(2);
+#endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
@@ -237,6 +253,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_TSI108_ETH)
 	tsi108_eth_initialize(bis);
+#endif
+#if defined(CONFIG_ULI526X)
+	uli526x_initialize(bis);
 #endif
 #if defined(CONFIG_RTL8139)
 	rtl8139_initialize(bis);
@@ -408,23 +427,23 @@ int eth_init(bd_t *bis)
 	struct eth_device* old_current;
 
 	if (!eth_current)
-		return 0;
+		return -1;
 
 	old_current = eth_current;
 	do {
 		debug ("Trying %s\n", eth_current->name);
 
-		if (eth_current->init(eth_current, bis)) {
+		if (!eth_current->init(eth_current,bis)) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
-			return 1;
+			return 0;
 		}
 		debug  ("FAIL\n");
 
 		eth_try_another(0);
 	} while (old_current != eth_current);
 
-	return 0;
+	return -1;
 }
 
 void eth_halt(void)
@@ -452,6 +471,53 @@ int eth_rx(void)
 
 	return eth_current->recv(eth_current);
 }
+
+#ifdef CONFIG_API
+static void eth_save_packet(volatile void *packet, int length)
+{
+	volatile char *p = packet;
+	int i;
+
+	if ((eth_rcv_last+1) % PKTBUFSRX == eth_rcv_current)
+		return;
+
+	if (PKTSIZE < length)
+		return;
+
+	for (i = 0; i < length; i++)
+		eth_rcv_bufs[eth_rcv_last].data[i] = p[i];
+
+	eth_rcv_bufs[eth_rcv_last].length = length;
+	eth_rcv_last = (eth_rcv_last + 1) % PKTBUFSRX;
+}
+
+int eth_receive(volatile void *packet, int length)
+{
+	volatile char *p = packet;
+	void *pp = push_packet;
+	int i;
+
+	if (eth_rcv_current == eth_rcv_last) {
+		push_packet = eth_save_packet;
+		eth_rx();
+		push_packet = pp;
+
+		if (eth_rcv_current == eth_rcv_last)
+			return -1;
+	}
+
+	if (length < eth_rcv_bufs[eth_rcv_current].length)
+		return -1;
+
+	length = eth_rcv_bufs[eth_rcv_current].length;
+
+	for (i = 0; i < length; i++)
+		p[i] = eth_rcv_bufs[eth_rcv_current].data[i];
+
+	eth_rcv_current = (eth_rcv_current + 1) % PKTBUFSRX;
+	return length;
+}
+#endif /* CONFIG_API */
 
 void eth_try_another(int first_restart)
 {

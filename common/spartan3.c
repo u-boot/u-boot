@@ -30,7 +30,7 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <spartan3.h>		/* Spartan-II device family */
 
-#if (CONFIG_FPGA & (CFG_XILINX | CFG_SPARTAN3))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_SPARTAN3)
 
 /* Define FPGA_DEBUG to get debug printf's */
 #ifdef	FPGA_DEBUG
@@ -446,7 +446,7 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan3_Slave_Serial_fns *fn = desc->iface_fns;
 	int i;
-	char  val;
+	unsigned char val;
 
 	PRINTF ("%s: start with interface functions @ 0x%p\n",
 			__FUNCTION__, fn);
@@ -521,7 +521,7 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				(*fn->clk) (FALSE, TRUE, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Write data */
-				(*fn->wr) ((val < 0), TRUE, cookie);
+				(*fn->wr) ((val & 0x80), TRUE, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Assert the clock */
 				(*fn->clk) (TRUE, TRUE, cookie);
@@ -565,6 +565,13 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			}
 		}
 		putc ('\n');			/* terminate the dotted line */
+
+		/*
+		 * Run the post configuration function if there is one.
+		 */
+		if (*fn->post) {
+			(*fn->post) (cookie);
+		}
 
 #ifdef CFG_FPGA_PROG_FEEDBACK
 		if (ret_val == FPGA_SUCCESS) {
@@ -620,8 +627,10 @@ static int Spartan3_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 			PRINTF ("%s: Relocating descriptor at 0x%p\n", __FUNCTION__,
 					desc);
 
-			addr = (ulong) (fn->pre) + reloc_offset;
-			fn_r->pre = (Xilinx_pre_fn) addr;
+			if (fn->pre) {
+				addr = (ulong) (fn->pre) + reloc_offset;
+				fn_r->pre = (Xilinx_pre_fn) addr;
+			}
 
 			addr = (ulong) (fn->pgm) + reloc_offset;
 			fn_r->pgm = (Xilinx_pgm_fn) addr;
@@ -637,6 +646,11 @@ static int Spartan3_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 
 			addr = (ulong) (fn->wr) + reloc_offset;
 			fn_r->wr = (Xilinx_wr_fn) addr;
+
+			if (fn->post) {
+				addr = (ulong) (fn->post) + reloc_offset;
+				fn_r->post = (Xilinx_post_fn) addr;
+			}
 
 			fn_r->relocated = TRUE;
 

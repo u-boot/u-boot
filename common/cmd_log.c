@@ -48,8 +48,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_LOGBUFFER)
-
 /* Local prototypes */
 static void logbuff_putc (const char c);
 static void logbuff_puts (const char *s);
@@ -287,5 +285,3 @@ static int logbuff_printk(const char *line)
 	}
 	return i;
 }
-
-#endif /* (CONFIG_LOGBUFFER) */

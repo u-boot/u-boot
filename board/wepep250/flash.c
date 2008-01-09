@@ -44,6 +44,7 @@
 
 #if ( WEP_FLASH_BUS_WIDTH == 1 )
 #  define FLASH_BUS vu_char
+#  define FLASH_BUS_RET u_char
 #  if ( WEP_FLASH_INTERLEAVE == 1 )
 #    define FLASH_CMD( x ) x
 #  else
@@ -53,6 +54,7 @@
 
 #elif ( WEP_FLASH_BUS_WIDTH == 2 )
 #  define FLASH_BUS vu_short
+#  define FLASH_BUS_RET u_short
 #  if ( WEP_FLASH_INTERLEAVE == 1 )
 #    define FLASH_CMD( x ) x
 #  elif ( WEP_FLASH_INTERLEAVE == 2 )
@@ -64,6 +66,7 @@
 
 #elif ( WEP_FLASH_BUS_WIDTH == 4 )
 #  define FLASH_BUS vu_long
+#  define FLASH_BUS_RET u_long
 #  if ( WEP_FLASH_INTERLEAVE == 1 )
 #    define FLASH_CMD( x ) x
 #  elif ( WEP_FLASH_INTERLEAVE == 2 )
@@ -81,7 +84,7 @@
 
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
-static FLASH_BUS flash_status_reg (void)
+static FLASH_BUS_RET flash_status_reg (void)
 {
 
 	FLASH_BUS *addr = (FLASH_BUS *) 0;

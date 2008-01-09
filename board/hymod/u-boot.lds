@@ -69,6 +69,7 @@ SECTIONS
     common/environment.o(.text)
 
     *(.text)
+    *(.fixup)
     *(.got1)
   }
   _etext = .;

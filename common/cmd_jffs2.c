@@ -93,9 +93,6 @@
 #include <jffs2/jffs2.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
-
-#if defined(CONFIG_CMD_JFFS2)
-
 #include <cramfs/cramfs_fs.h>
 
 #if defined(CONFIG_CMD_NAND)
@@ -170,10 +167,19 @@ struct list_head devices;
 static struct mtd_device *current_dev = NULL;
 static u8 current_partnum = 0;
 
+#if defined(CONFIG_CMD_CRAMFS)
 extern int cramfs_check (struct part_info *info);
 extern int cramfs_load (char *loadoffset, struct part_info *info, char *filename);
 extern int cramfs_ls (struct part_info *info, char *filename);
 extern int cramfs_info (struct part_info *info);
+#else
+/* defining empty macros for function names is ugly but avoids ifdef clutter
+ * all over the code */
+#define cramfs_check(x)		(0)
+#define cramfs_load(x,y,z)	(-1)
+#define cramfs_ls(x,y)		(0)
+#define cramfs_info(x)		(0)
+#endif
 
 static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num);
 
@@ -2191,5 +2197,3 @@ U_BOOT_CMD(
 #endif /* #ifdef CONFIG_JFFS2_CMDLINE */
 
 /***************************************************/
-
-#endif

@@ -30,11 +30,6 @@
 #include <command.h>
 #include <asm/cache.h>
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
-
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
@@ -44,6 +39,8 @@ int checkcpu (void)
 	uint fam;
 	uint ver;
 	uint major, minor;
+	u32 ddr_ratio;
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 	svr = get_svr();
 	ver = SVR_VER(svr);
@@ -107,14 +104,25 @@ int checkcpu (void)
 	puts("Clock Configuration:\n");
 	printf("       CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
 	printf("CCB:%4lu MHz,\n", sysinfo.freqSystemBus / 1000000);
-	printf("       DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
+
+	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+	switch (ddr_ratio) {
+	case 0x0:
+		printf("       DDR:%4lu MHz, ", sysinfo.freqDDRBus / 2000000);
+		break;
+	case 0x7:
+		printf("       DDR:%4lu MHz (Synchronous), ", sysinfo.freqDDRBus / 2000000);
+		break;
+	default:
+		printf("       DDR:%4lu MHz (Asynchronous), ", sysinfo.freqDDRBus / 2000000);
+		break;
+	}
 
 #if defined(CFG_LBC_LCRR)
 	lcrr = CFG_LBC_LCRR;
 #else
 	{
-	    volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	    volatile ccsr_lbc_t *lbc= &immap->im_lbc;
+	    volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 
 	    lcrr = lbc->lcrr;
 	}
@@ -163,7 +171,12 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	 * Initiate hard reset in debug control register DBCR0
 	 * Make sure MSR[DE] = 1
 	 */
-		unsigned long val;
+		unsigned long val, msr;
+
+		msr = mfmsr ();
+		msr |= MSR_DE;
+		mtmsr (msr);
+
 		val = mfspr(DBCR0);
 		val |= 0x70000000;
 		mtspr(DBCR0,val);
@@ -209,8 +222,7 @@ reset_85xx_watchdog(void)
 
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 
 	dma->satr0 = 0x02c40000;
 	dma->datr0 = 0x02c40000;
@@ -220,8 +232,7 @@ void dma_init(void) {
 }
 
 uint dma_check(void) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 	volatile uint status = dma->sr0;
 
 	/* While the channel is busy, spin */
@@ -240,8 +251,7 @@ uint dma_check(void) {
 }
 
 int dma_xfer(void *dest, uint count, void *src) {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_dma_t *dma = &immap->im_dma;
+	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
 
 	dma->dar0 = (uint) dest;
 	dma->sar0 = (uint) src;
@@ -251,96 +261,5 @@ int dma_xfer(void *dest, uint count, void *src) {
 	dma->mr0 = 0xf000005;
 	asm("sync;isync;msync");
 	return dma_check();
-}
-#endif
-
-
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_cpu_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	ulong clock;
-	int len;
-
-	clock = bd->bi_busfreq;
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/qe@e0080000/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-#if defined(CONFIG_HAS_ETH0)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enetaddr, 6);
-#endif
-
-#if defined(CONFIG_HAS_ETH1)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet1addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet1addr, 6);
-#endif
-
-#if defined(CONFIG_HAS_ETH2)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-#ifdef CONFIG_UEC_ETH
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet2addr, 6);
-
-#endif
-#endif
-
-#if defined(CONFIG_HAS_ETH3)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-#ifdef CONFIG_UEC_ETH
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enet3addr, 6);
-
-#endif
-#endif
-
 }
 #endif

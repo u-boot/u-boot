@@ -34,7 +34,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_FPGA)
+#if defined(CONFIG_FPGA)
 
 #if 0
 #define GEN860T_FPGA_DEBUG

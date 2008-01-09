@@ -80,6 +80,7 @@
 	"bootfile=/tftpboot/taihu/uImage\0"				\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"netdev=eth0\0"							\
+	"hostname=taihu\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -210,10 +211,12 @@
 
 #define CFG_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 
-#define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
+#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
+#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 /*-----------------------------------------------------------------------
  * I2C stuff
@@ -244,6 +247,7 @@ unsigned char spi_read(void);
 /* standard dtt sensor configuration */
 #define CONFIG_DTT_DS1775	1
 #define CONFIG_DTT_SENSORS	{ 0 }
+#define CFG_I2C_DTT_ADDR	0x49
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -327,7 +331,7 @@ unsigned char spi_read(void);
 /*-----------------------------------------------------------------------
  * PPC405 GPIO Configuration
  */
-#define CFG_440_GPIO_TABLE { /*				GPIO	Alternate1		*/	\
+#define CFG_4xx_GPIO_TABLE { /*				GPIO	Alternate1		*/	\
 {												\
 /* GPIO Core 0 */										\
 { GPIO_BASE, GPIO_OUT, GPIO_SEL,  GPIO_OUT_NO_CHG }, /* GPIO0	PerBLast    SPI CS	*/	\
@@ -364,13 +368,6 @@ unsigned char spi_read(void);
 { GPIO_BASE, GPIO_OUT, GPIO_SEL,  GPIO_OUT_NO_CHG }, /* GPIO31	RejectPkt1  User LED2	*/	\
 }												\
 }
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		16384	/* For IBM 405EP CPU */
-#define CFG_CACHELINE_SIZE	32
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 
 /*
  * Init Memory Controller:
@@ -420,43 +417,6 @@ unsigned char spi_read(void);
 /* Memory Bank 4 (not install) initialization */
 #define CFG_EBC_PB4AP           0x158FF600
 #define CFG_EBC_PB4CR           0x5021A000
-
-/*-----------------------------------------------------------------------
- * Definitions for GPIO setup (PPC405EP specific)
- *
- * GPIO0[0]     - External Bus Controller BLAST output
- * GPIO0[1-9]   - Instruction trace outputs
- * GPIO0[10-13] - External Bus Controller CS_1 - CS_4 outputs
- * GPIO0[14-16] - External Bus Controller ABUS3-ABUS5 outputs
- * GPIO0[17-23] - External Interrupts IRQ0 - IRQ6 inputs
- * GPIO0[24-27] - UART0 control signal inputs/outputs
- * GPIO0[28-29] - UART1 data signal input/output
- * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
- */
-#define CFG_GPIO0_OSRH	0x15555550	/* output select high/low */
-#define CFG_GPIO0_OSRL	0x00000110
-#define CFG_GPIO0_ISR1H	0x00000001	/* input select high/low */
-#define CFG_GPIO0_ISR1L	0x15545440
-#define CFG_GPIO0_TSRH	0x00000000	/* three-state select high/low */
-#define CFG_GPIO0_TSRL	0x00000000
-#define CFG_GPIO0_TCR	0xFFFE8117	/* three-state control */
-#define CFG_GPIO0_ODR	0x00000000	/* open drain */
-
-#define GPIO0		0		/* GPIO controller 0 */
-
-/* the GPIO macros in include/ppc405.h for High/Low registers are backwards */
-
-#define GPIOx_OSL	(GPIO0_OSRH-GPIO_BASE)
-#define GPIOx_TSL	(GPIO0_TSRH-GPIO_BASE)
-#define GPIOx_IS1L	(GPIO0_ISR1H-GPIO_BASE)
-#define GPIOx_IS2L	(GPIO0_ISR1H-GPIO_BASE)
-#define GPIOx_IS3L	(GPIO0_ISR1H-GPIO_BASE)
-
-#define GPIO_OS(x)	(x+GPIOx_OSL)	/* GPIO output select */
-#define GPIO_TS(x)	(x+GPIOx_TSL)	/* GPIO three-state select */
-#define GPIO_IS1(x)	(x+GPIOx_IS1L)	/* GPIO input select */
-#define GPIO_IS2(x)	(x+GPIOx_IS1L)
-#define GPIO_IS3(x)	(x+GPIOx_IS1L)
 
 #define CPLD_REG0_ADDR	0x50100000
 #define CPLD_REG1_ADDR	0x50100001

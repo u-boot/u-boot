@@ -25,25 +25,41 @@
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
 
+#ifdef CONFIG_4xx_DCACHE
+#include <asm/mmu.h>
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 #include "usbdev.h"
 
 int usb_cpu_init(void)
 {
+#ifdef CONFIG_4xx_DCACHE
+	/* disable cache */
+	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, TLB_WORD2_I_ENABLE);
+#endif
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX)
 	usb_dev_init();
 #endif
-
 	return 0;
 }
 
 int usb_cpu_stop(void)
 {
+#ifdef CONFIG_4xx_DCACHE
+	/* enable cache */
+	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, 0);
+#endif
 	return 0;
 }
 
 int usb_cpu_init_fail(void)
 {
+#ifdef CONFIG_4xx_DCACHE
+	/* enable cache */
+	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, 0);
+#endif
 	return 0;
 }
 

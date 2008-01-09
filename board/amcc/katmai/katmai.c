@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,20 +24,15 @@
 
 #include <common.h>
 #include <ppc4xx.h>
-#include <asm/processor.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
-#include <asm-ppc/gpio.h>
-
-#include "../cpu/ppc4xx/440spe_pcie.h"
-
-#undef PCIE_ENDPOINT
-/* #define PCIE_ENDPOINT 1 */
+#include <libfdt.h>
+#include <fdt_support.h>
+#include <asm/processor.h>
+#include <asm/io.h>
+#include <asm/gpio.h>
+#include <asm/4xx_pcie.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int ppc440spe_init_pcie_rootport(int port);
-void ppc440spe_setup_pcie(struct pci_controller *hose, int port);
 
 int board_early_init_f (void)
 {
@@ -224,10 +219,9 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts*/
 	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts*/
 
-/* SDR0_MFR should be part of Ethernet init */
-	mfsdr (sdr_mfr, mfr);
-	mfr &= ~SDR0_MFR_ECS_MASK;
-/*	mtsdr(sdr_mfr, mfr); */
+	mfsdr(sdr_mfr, mfr);
+	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
+	mtsdr(sdr_mfr, mfr);
 
 	mtsdr(SDR0_PFC0, CFG_PFC0);
 
@@ -250,6 +244,18 @@ int checkboard (void)
 	putc('\n');
 
 	return 0;
+}
+
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+u32 ddr_wrdtr(u32 default_val) {
+	return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_180_DEG_ADV | 0x823);
+}
+
+u32 ddr_clktr(u32 default_val) {
+	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
 }
 
 #if defined(CFG_DRAM_TEST)
@@ -396,6 +402,7 @@ void pcie_setup_hoses(int busno)
 {
 	struct pci_controller *hose;
 	int i, bus;
+	int ret = 0;
 	char *env;
 	unsigned int delay;
 
@@ -409,12 +416,13 @@ void pcie_setup_hoses(int busno)
 		if (!katmai_pcie_card_present(i))
 			continue;
 
-#ifdef PCIE_ENDPOINT
- 		if (ppc440spe_init_pcie_endport(i)) {
-#else
-		if (ppc440spe_init_pcie_rootport(i)) {
-#endif
-			printf("PCIE%d: initialization failed\n", i);
+		if (is_end_point(i))
+			ret = ppc4xx_init_pcie_endport(i);
+		else
+			ret = ppc4xx_init_pcie_rootport(i);
+		if (ret) {
+			printf("PCIE%d: initialization as %s failed\n", i,
+			       is_end_point(i) ? "endpoint" : "root-complex");
 			continue;
 		}
 
@@ -428,35 +436,33 @@ void pcie_setup_hoses(int busno)
 			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
 			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
 			       CFG_PCIE_MEMSIZE,
-			       PCI_REGION_MEM
-			);
+			       PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);
 
-#ifdef PCIE_ENDPOINT
-		ppc440spe_setup_pcie_endpoint(hose, i);
-		/*
-		 * Reson for no scanning is endpoint can not generate
-		 * upstream configuration accesses.
-		 */
-#else
-		ppc440spe_setup_pcie_rootpoint(hose, i);
+		if (is_end_point(i)) {
+		    	ppc4xx_setup_pcie_endpoint(hose, i);
+			/*
+			 * Reson for no scanning is endpoint can not generate
+			 * upstream configuration accesses.
+		    	 */
+		} else {
+		    	ppc4xx_setup_pcie_rootpoint(hose, i);
+			env = getenv ("pciscandelay");
+		    	if (env != NULL) {
+			    	delay = simple_strtoul(env, NULL, 10);
+				if (delay > 5)
+				    	printf("Warning, expect noticable delay before "
+					       "PCIe scan due to 'pciscandelay' value!\n");
+				mdelay(delay * 1000);
+			}
 
-		env = getenv ("pciscandelay");
-		if (env != NULL) {
-			delay = simple_strtoul (env, NULL, 10);
-			if (delay > 5)
-				printf ("Warning, expect noticable delay before PCIe"
-					"scan due to 'pciscandelay' value!\n");
-			mdelay (delay * 1000);
+		    	/*
+		     	 * Config access can only go down stream
+		     	 */
+		    	hose->last_busno = pci_hose_scan(hose);
+		    	bus = hose->last_busno + 1;
 		}
-
-		/*
-		 * Config access can only go down stream
-		 */
-		hose->last_busno = pci_hose_scan(hose);
-		bus = hose->last_busno + 1;
-#endif
 	}
 }
 #endif	/* defined(CONFIG_PCI) */
@@ -541,3 +547,24 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 0;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

@@ -31,7 +31,7 @@
 #include "../common/common_util.h"
 
 #if defined(CONFIG_DRIVER_CS8900)
-#include <../drivers/cs8900.h>
+#include <../drivers/net/cs8900.h>
 
 static uchar cs8900_chksum(ushort data)
 {
