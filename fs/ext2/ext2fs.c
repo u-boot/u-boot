@@ -436,7 +436,7 @@ int ext2fs_read_file
 				return (-1);
 			}
 		} else {
-			memset (buf, blocksize - skipfirst, 0);
+			memset (buf, 0, blocksize - skipfirst);
 		}
 		buf += blocksize - skipfirst;
 	}
