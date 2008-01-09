@@ -81,8 +81,6 @@ extern void env_crc_update (void);
 /************************************************************************
 ************************************************************************/
 
-static int envmatch (uchar *, int);
-
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */
@@ -576,8 +574,7 @@ int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * If the names match, return the index for the value2, else NULL.
  */
 
-static int
-envmatch (uchar *s1, int i2)
+int envmatch (uchar *s1, int i2)
 {
 
 	while (*s1 == env_get_char(i2++))

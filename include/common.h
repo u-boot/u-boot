@@ -227,6 +227,7 @@ extern ulong load_addr;		/* Default Load Address */
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
+int	envmatch     (uchar *, int);
 char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
@@ -277,6 +278,9 @@ int	misc_init_r   (void);
 
 /* common/exports.c */
 void	jumptable_init(void);
+
+/* api/api.c */
+void	api_init (void);
 
 /* common/memsize.c */
 long	get_ram_size  (volatile long *, long);
