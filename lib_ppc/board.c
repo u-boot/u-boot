@@ -928,6 +928,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize the jump table for applications */
 	jumptable_init ();
 
+#if defined(CONFIG_API)
+	/* Initialize API */
+	api_init ();
+#endif
+
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();
 
