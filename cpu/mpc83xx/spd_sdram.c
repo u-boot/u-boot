@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006 Freescale Semiconductor, Inc.
+ * (C) Copyright 2006-2007 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -198,6 +198,7 @@ long int spd_sdram()
 	if(spd.mem_type == SPD_MEMTYPE_DDR2) {
 		immap->sysconf.ddrcdr = CFG_DDRCDR_VALUE;
 	}
+	udelay(50000);
 #endif
 
 	/*
@@ -576,7 +577,7 @@ long int spd_sdram()
 		if (effective_data_rate == 266 || effective_data_rate == 333) {
 			cpo = 0x7;		/* READ_LAT + 5/4 */
 		} else if (effective_data_rate == 400) {
-			cpo = 0x9;		/* READ_LAT + 7/4 */
+			cpo = 0x7;		/* READ_LAT + 5/4 */
 		} else {
 			/* Automatic calibration */
 			cpo = 0x1f;
@@ -705,9 +706,11 @@ long int spd_sdram()
 	 * SDRAM Cfg 2
 	 */
 	odt_cfg = 0;
+#ifndef CONFIG_NEVER_ASSERT_ODT_TO_CPU
 	if (odt_rd_cfg | odt_wr_cfg) {
 		odt_cfg = 0x2;		/* ODT to IOs during reads */
 	}
+#endif
 	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
 		ddr->sdram_cfg2 = (0
 			    | (0 << 26)	/* True DQS */

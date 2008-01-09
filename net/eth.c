@@ -214,6 +214,9 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_UEC_ETH2)
 	uec_initialize(1);
 #endif
+#if defined(CONFIG_UEC_ETH3)
+	uec_initialize(2);
+#endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);

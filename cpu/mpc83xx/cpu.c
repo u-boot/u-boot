@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -31,12 +31,7 @@
 #include <command.h>
 #include <mpc83xx.h>
 #include <asm/processor.h>
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#elif defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <fdt_support.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,6 +58,10 @@ int checkcpu(void)
 
 		case PVR_E300C3:
 			printf("e300c3, ");
+			break;
+
+		case PVR_E300C4:
+			printf("e300c4, ");
 			break;
 
 		default:
@@ -148,6 +147,36 @@ int checkcpu(void)
 		break;
 	case SPR_8313E_REV10:
 		puts("MPC8313E, ");
+		break;
+	case SPR_8315E_REV10:
+		puts("MPC8315E, ");
+		break;
+	case SPR_8315_REV10:
+		puts("MPC8315, ");
+		break;
+	case SPR_8314E_REV10:
+		puts("MPC8314E, ");
+		break;
+	case SPR_8314_REV10:
+		puts("MPC8314, ");
+		break;
+	case SPR_8379E_REV10:
+		puts("MPC8379E, ");
+		break;
+	case SPR_8379_REV10:
+		puts("MPC8379, ");
+		break;
+	case SPR_8378E_REV10:
+		puts("MPC8378E, ");
+		break;
+	case SPR_8378_REV10:
+		puts("MPC8378, ");
+		break;
+	case SPR_8377E_REV10:
+		puts("MPC8377E, ");
+		break;
+	case SPR_8377_REV10:
+		puts("MPC8377, ");
 		break;
 	default:
 		printf("Rev: Unknown revision number:%08x\n"
@@ -322,313 +351,6 @@ void watchdog_reset (void)
 
 	if (re_enable)
 		enable_interrupts ();
-}
-#endif
-
-#if defined(CONFIG_OF_LIBFDT)
-
-/*
- * "Setter" functions used to add/modify FDT entries.
- */
-static int fdt_set_eth0(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	/* Fix it up if it exists, don't create it if it doesn't exist */
-	if (fdt_get_property(blob, nodeoffset, name, 0)) {
-		return fdt_setprop(blob, nodeoffset, name, bd->bi_enetaddr, 6);
-	}
-	return 0;
-}
-#ifdef CONFIG_HAS_ETH1
-/* second onboard ethernet port */
-static int fdt_set_eth1(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	/* Fix it up if it exists, don't create it if it doesn't exist */
-	if (fdt_get_property(blob, nodeoffset, name, 0)) {
-		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet1addr, 6);
-	}
-	return 0;
-}
-#endif
-#ifdef CONFIG_HAS_ETH2
-/* third onboard ethernet port */
-static int fdt_set_eth2(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	/* Fix it up if it exists, don't create it if it doesn't exist */
-	if (fdt_get_property(blob, nodeoffset, name, 0)) {
-		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet2addr, 6);
-	}
-	return 0;
-}
-#endif
-#ifdef CONFIG_HAS_ETH3
-/* fourth onboard ethernet port */
-static int fdt_set_eth3(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	/* Fix it up if it exists, don't create it if it doesn't exist */
-	if (fdt_get_property(blob, nodeoffset, name, 0)) {
-		return fdt_setprop(blob, nodeoffset, name, bd->bi_enet3addr, 6);
-	}
-	return 0;
-}
-#endif
-
-static int fdt_set_busfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	u32  tmp;
-	/* Create or update the property */
-	tmp = cpu_to_be32(bd->bi_busfreq);
-	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
-}
-
-static int fdt_set_tbfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	u32  tmp;
-	/* Create or update the property */
-	tmp = cpu_to_be32(OF_TBCLK);
-	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
-}
-
-
-static int fdt_set_clockfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	u32  tmp;
-	/* Create or update the property */
-	tmp = cpu_to_be32(gd->core_clk);
-	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
-}
-
-#ifdef CONFIG_QE
-static int fdt_set_qe_busfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	u32  tmp;
-	/* Create or update the property */
-	tmp = cpu_to_be32(gd->qe_clk);
-	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
-}
-
-static int fdt_set_qe_brgfreq(void *blob, int nodeoffset, const char *name, bd_t *bd)
-{
-	u32  tmp;
-	/* Create or update the property */
-	tmp = cpu_to_be32(gd->brg_clk);
-	return fdt_setprop(blob, nodeoffset, name, &tmp, sizeof(tmp));
-}
-#endif
-
-/*
- * Fixups to the fdt.
- */
-static const struct {
-	char *node;
-	char *prop;
-	int (*set_fn)(void *blob, int nodeoffset, const char *name, bd_t *bd);
-} fixup_props[] = {
-	{	"/cpus/" OF_CPU,
-		"timebase-frequency",
-		fdt_set_tbfreq
-	},
-	{	"/cpus/" OF_CPU,
-		"bus-frequency",
-		fdt_set_busfreq
-	},
-	{	"/cpus/" OF_CPU,
-		"clock-frequency",
-		fdt_set_clockfreq
-	},
-	{	"/" OF_SOC,
-		"bus-frequency",
-		fdt_set_busfreq
-	},
-	{	"/" OF_SOC "/serial@4500",
-		"clock-frequency",
-		fdt_set_busfreq
-	},
-	{	"/" OF_SOC "/serial@4600",
-		"clock-frequency",
-		fdt_set_busfreq
-	},
-#ifdef CONFIG_TSEC1
-	{	"/" OF_SOC "/ethernet@24000",
-		"mac-address",
-		fdt_set_eth0
-	},
-	{	"/" OF_SOC "/ethernet@24000",
-		"local-mac-address",
-		fdt_set_eth0
-	},
-#endif
-#ifdef CONFIG_TSEC2
-	{	"/" OF_SOC "/ethernet@25000",
-		"mac-address",
-		fdt_set_eth1
-	},
-	{	"/" OF_SOC "/ethernet@25000",
-		"local-mac-address",
-		fdt_set_eth1
-	},
-#endif
-#ifdef CONFIG_QE
-	{	"/" OF_QE,
-		"brg-frequency",
-		fdt_set_qe_brgfreq
-	},
-	{	"/" OF_QE,
-		"bus-frequency",
-		fdt_set_qe_busfreq
-	},
-#ifdef CONFIG_UEC_ETH1
-#if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
-	{	"/" OF_QE "/ucc@2000",
-		"mac-address",
-		fdt_set_eth0
-	},
-	{	"/" OF_QE "/ucc@2000",
-		"local-mac-address",
-		fdt_set_eth0
-	},
-#elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
-	{	"/" OF_QE "/ucc@2200",
-		"mac-address",
-		fdt_set_eth0
-	},
-	{	"/" OF_QE "/ucc@2200",
-		"local-mac-address",
-		fdt_set_eth0
-	},
-#endif
-#endif /* CONFIG_UEC_ETH1 */
-#ifdef CONFIG_UEC_ETH2
-#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
-	{	"/" OF_QE "/ucc@3000",
-		"mac-address",
-		fdt_set_eth1
-	},
-	{	"/" OF_QE "/ucc@3000",
-		"local-mac-address",
-		fdt_set_eth1
-	},
-#elif CFG_UEC2_UCC_NUM == 3  /* UCC4 */
-	{	"/" OF_QE "/ucc@3200",
-		"mac-address",
-		fdt_set_eth1
-	},
-	{	"/" OF_QE "/ucc@3200",
-		"local-mac-address",
-		fdt_set_eth1
-	},
-#endif
-#endif /* CONFIG_UEC_ETH2 */
-#endif /* CONFIG_QE */
-};
-
-void
-ft_cpu_setup(void *blob, bd_t *bd)
-{
-	int nodeoffset;
-	int err;
-	int j;
-
-	for (j = 0; j < (sizeof(fixup_props) / sizeof(fixup_props[0])); j++) {
-		nodeoffset = fdt_path_offset(blob, fixup_props[j].node);
-		if (nodeoffset >= 0) {
-			err = fixup_props[j].set_fn(blob, nodeoffset,
-						    fixup_props[j].prop, bd);
-			if (err < 0)
-				debug("Problem setting %s = %s: %s\n",
-				      fixup_props[j].node, fixup_props[j].prop,
-				      fdt_strerror(err));
-		} else {
-			debug("Couldn't find %s: %s\n",
-			      fixup_props[j].node, fdt_strerror(nodeoffset));
-		}
-	}
-
-	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
-}
-#elif defined(CONFIG_OF_FLAT_TREE)
-void
-ft_cpu_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	int len;
-	ulong clock;
-
-	clock = bd->bi_busfreq;
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-#ifdef CONFIG_TSEC1
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-#endif
-
-#ifdef CONFIG_TSEC2
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-#endif
-
-#ifdef CONFIG_UEC_ETH1
-#if CFG_UEC1_UCC_NUM == 0  /* UCC1 */
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-#elif CFG_UEC1_UCC_NUM == 2  /* UCC3 */
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@2200/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-#endif
-#endif
-
-#ifdef CONFIG_UEC_ETH2
-#if CFG_UEC2_UCC_NUM == 1  /* UCC2 */
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-#elif CFG_UEC2_UCC_NUM == 3  /* UCC4 */
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-
-	p = ft_get_prop(blob, "/" OF_QE "/ucc@3200/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-#endif
-#endif
 }
 #endif
 

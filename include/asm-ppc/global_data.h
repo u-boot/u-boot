@@ -55,7 +55,7 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC83XX)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-#if defined (CONFIG_MPC834X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
@@ -63,6 +63,12 @@ typedef	struct	global_data {
 #if defined (CONFIG_MPC834X)
 	u32 usbmph_clk;
 #endif /* CONFIG_MPC834X */
+#if defined(CONFIG_MPC815)
+	u32 tdm_clk;
+#endif
+#if defined(CONFIG_MPC837X)
+	u32 sdhc_clk;
+#endif
 	u32 core_clk;
 	u32 i2c1_clk;
 	u32 i2c2_clk;
@@ -71,6 +77,13 @@ typedef	struct	global_data {
 	u32 lclk_clk;
 	u32 ddr_clk;
 	u32 pci_clk;
+#if defined(CONFIG_MPC837X)
+	u32 pciexp1_clk;
+	u32 pciexp2_clk;
+#endif
+#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC8315)
+	u32 sata_clk;
+#endif
 #if defined(CONFIG_MPC8360)
 	u32  ddr_sec_clk;
 #endif /* CONFIG_MPC8360 */

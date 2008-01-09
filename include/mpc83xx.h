@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -98,10 +98,21 @@
 #define SPR_8321E_REV11			0x80660011
 #define SPR_8321_REV11			0x80670011
 
-#define SPR_8311_REV10			0x80B30010
-#define SPR_8311E_REV10			0x80B20010
-#define SPR_8313_REV10			0x80B10010
 #define SPR_8313E_REV10			0x80B00010
+#define SPR_8313_REV10			0x80B10010
+#define SPR_8311E_REV10			0x80B20010
+#define SPR_8311_REV10			0x80B30010
+#define SPR_8315E_REV10			0x80B40010
+#define SPR_8315_REV10			0x80B50010
+#define SPR_8314E_REV10			0x80B60010
+#define SPR_8314_REV10			0x80B70010
+
+#define SPR_8379E_REV10			0x80C20010
+#define SPR_8379_REV10			0x80C30010
+#define SPR_8378E_REV10			0x80C40010
+#define SPR_8378_REV10			0x80C50010
+#define SPR_8377E_REV10			0x80C60010
+#define SPR_8377_REV10			0x80C70010
 
 /* SPCR - System Priority Configuration Register
  */
@@ -130,8 +141,8 @@
 #define SPCR_TSEC2EP			0x00000003	/* TSEC2 emergency priority */
 #define SPCR_TSEC2EP_SHIFT		(31-31)
 
-#elif defined(CONFIG_MPC831X)
-/* SPCR bits - MPC831x specific */
+#elif defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+/* SPCR bits - MPC831x and MPC837x specific */
 #define SPCR_TSECDP			0x00003000	/* TSEC data priority */
 #define SPCR_TSECDP_SHIFT		(31-19)
 #define SPCR_TSECEP			0x00000C00	/* TSEC emergency priority */
@@ -213,8 +224,8 @@
 #define SICRL_URT_CTPR			0x06000000
 #define SICRL_IRQ_CTPR			0x00C00000
 
-#elif defined(CONFIG_MPC831X)
-/* SICRL bits - MPC831x specific */
+#elif defined(CONFIG_MPC8313)
+/* SICRL bits - MPC8313 specific */
 #define SICRL_LBC			0x30000000
 #define SICRL_UART			0x0C000000
 #define SICRL_SPI_A			0x03000000
@@ -225,7 +236,7 @@
 #define SICRL_ETSEC1_A			0x0000000C
 #define SICRL_ETSEC2_A			0x00000003
 
-/* SICRH bits - MPC831x specific */
+/* SICRH bits - MPC8313 specific */
 #define SICRH_INTR_A			0x02000000
 #define SICRH_INTR_B			0x00C00000
 #define SICRH_IIC			0x00300000
@@ -242,6 +253,90 @@
 #define SICRH_TSOBI1			0x00000002
 #define SICRH_TSOBI2			0x00000001
 
+#elif defined(CONFIG_MPC8315)
+/* SICRL bits - MPC8315 specific */
+#define SICRL_DMA_CH0			0xc0000000
+#define SICRL_DMA_SPI			0x30000000
+#define SICRL_UART			0x0c000000
+#define SICRL_IRQ4			0x02000000
+#define SICRL_IRQ5			0x01800000
+#define SICRL_IRQ6_7			0x00400000
+#define SICRL_IIC1			0x00300000
+#define SICRL_TDM			0x000c0000
+#define SICRL_TDM_SHARED		0x00030000
+#define SICRL_PCI_A			0x0000c000
+#define SICRL_ELBC_A			0x00003000
+#define SICRL_ETSEC1_A			0x000000c0
+#define SICRL_ETSEC1_B			0x00000030
+#define SICRL_ETSEC1_C			0x0000000c
+#define SICRL_TSEXPOBI			0x00000001
+
+/* SICRH bits - MPC8315 specific */
+#define SICRH_GPIO_0			0xc0000000
+#define SICRH_GPIO_1			0x30000000
+#define SICRH_GPIO_2			0x0c000000
+#define SICRH_GPIO_3			0x03000000
+#define SICRH_GPIO_4			0x00c00000
+#define SICRH_GPIO_5			0x00300000
+#define SICRH_GPIO_6			0x000c0000
+#define SICRH_GPIO_7			0x00030000
+#define SICRH_GPIO_8			0x0000c000
+#define SICRH_GPIO_9			0x00003000
+#define SICRH_GPIO_10			0x00000c00
+#define SICRH_GPIO_11			0x00000300
+#define SICRH_ETSEC2_A			0x000000c0
+#define SICRH_TSOBI1			0x00000002
+#define SICRH_TSOBI2			0x00000001
+
+#elif defined(CONFIG_MPC837X)
+/* SICRL bits - MPC837x specific */
+#define SICRL_USB_A			0xC0000000
+#define SICRL_USB_B			0x30000000
+#define SICRL_UART			0x0C000000
+#define SICRL_GPIO_A			0x02000000
+#define SICRL_GPIO_B			0x01000000
+#define SICRL_GPIO_C			0x00800000
+#define SICRL_GPIO_D			0x00400000
+#define SICRL_GPIO_E			0x00200000
+#define SICRL_GPIO_F			0x00180000
+#define SICRL_GPIO_G			0x00040000
+#define SICRL_GPIO_H			0x00020000
+#define SICRL_GPIO_I			0x00010000
+#define SICRL_GPIO_J			0x00008000
+#define SICRL_GPIO_K			0x00004000
+#define SICRL_GPIO_L			0x00003000
+#define SICRL_DMA_A			0x00000800
+#define SICRL_DMA_B			0x00000400
+#define SICRL_DMA_C			0x00000200
+#define SICRL_DMA_D			0x00000100
+#define SICRL_DMA_E			0x00000080
+#define SICRL_DMA_F			0x00000040
+#define SICRL_DMA_G			0x00000020
+#define SICRL_DMA_H			0x00000010
+#define SICRL_DMA_I			0x00000008
+#define SICRL_DMA_J			0x00000004
+#define SICRL_LDP_A			0x00000002
+#define SICRL_LDP_B			0x00000001
+
+/* SICRH bits - MPC837x specific */
+#define SICRH_DDR			0x80000000
+#define SICRH_TSEC1_A			0x10000000
+#define SICRH_TSEC1_B			0x08000000
+#define SICRH_TSEC2_A			0x00400000
+#define SICRH_TSEC2_B			0x00200000
+#define SICRH_TSEC2_C			0x00100000
+#define SICRH_TSEC2_D			0x00080000
+#define SICRH_TSEC2_E			0x00040000
+#define SICRH_TMR			0x00010000
+#define SICRH_GPIO2_A			0x00008000
+#define SICRH_GPIO2_B			0x00004000
+#define SICRH_GPIO2_C			0x00002000
+#define SICRH_GPIO2_D			0x00001000
+#define SICRH_GPIO2_E			0x00000C00
+#define SICRH_GPIO2_F			0x00000300
+#define SICRH_GPIO2_G			0x000000C0
+#define SICRH_GPIO2_H			0x00000030
+#define SICRH_SPI			0x00000003
 #endif
 
 /* SWCRR - System Watchdog Control Register
@@ -390,6 +485,14 @@
 #define HRCWL_CE_TO_PLL_1X29		0x0000001D
 #define HRCWL_CE_TO_PLL_1X30		0x0000001E
 #define HRCWL_CE_TO_PLL_1X31		0x0000001F
+
+#elif defined(CONFIG_MPC837X) || defined(CONFIG_MPC8315)
+#define HRCWL_SVCOD			0x30000000
+#define HRCWL_SVCOD_SHIFT		28
+#define HRCWL_SVCOD_DIV_4		0x00000000
+#define HRCWL_SVCOD_DIV_8		0x10000000
+#define HRCWL_SVCOD_DIV_2		0x20000000
+#define HRCWL_SVCOD_DIV_1		0x30000000
 #endif
 
 /* HRCWH - Hardware Reset Configuration Word High
@@ -436,11 +539,14 @@
 #if defined(CONFIG_MPC834X)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
+#if defined(CONIFG_MPC837X)
+#define HRCWH_ROM_LOC_ON_CHIP_ROM	0x00300000
+#endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT	0x00500000
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
-#if defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
 #define HRCWH_ROM_LOC_NAND_SP_8BIT	0x00100000
 #define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
 #define HRCWH_ROM_LOC_NAND_LP_8BIT	0x00500000
@@ -489,8 +595,13 @@
 
 /* RSR - Reset Status Register
  */
+#if defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+#define RSR_RSTSRC			0xF0000000	/* Reset source */
+#define RSR_RSTSRC_SHIFT		28
+#else
 #define RSR_RSTSRC			0xE0000000	/* Reset source */
 #define RSR_RSTSRC_SHIFT		29
+#endif
 #define RSR_BSF				0x00010000	/* Boot seq. fail */
 #define RSR_BSF_SHIFT			16
 #define RSR_SWSR			0x00002000	/* software soft reset */
@@ -577,8 +688,8 @@
 #define SCCR_PCICM			0x00010000
 #define SCCR_PCICM_SHIFT		16
 
-/* SCCR bits - MPC8349 specific */
-#ifdef CONFIG_MPC834X
+#if defined(CONFIG_MPC834X)
+/* SCCR bits - MPC834x specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
@@ -593,7 +704,19 @@
 #define SCCR_TSEC2CM_2			0x20000000
 #define SCCR_TSEC2CM_3			0x30000000
 
-#elif defined(CONFIG_MPC831X)
+/* The MPH must have the same clock ratio as DR, unless its clock disabled */
+#define SCCR_USBMPHCM			0x00c00000
+#define SCCR_USBMPHCM_SHIFT		22
+#define SCCR_USBDRCM			0x00300000
+#define SCCR_USBDRCM_SHIFT		20
+#define SCCR_USBCM			0x00f00000
+#define SCCR_USBCM_SHIFT		20
+#define SCCR_USBCM_0			0x00000000
+#define SCCR_USBCM_1			0x00500000
+#define SCCR_USBCM_2			0x00A00000
+#define SCCR_USBCM_3			0x00F00000
+
+#elif defined(CONFIG_MPC8313)
 /* TSEC1 bits are for TSEC2 as well */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
@@ -606,17 +729,109 @@
 #define SCCR_TSEC2ON			0x10000000
 #define SCCR_TSEC2ON_SHIFT		28
 
-#endif
-
-#define SCCR_USBMPHCM			0x00c00000
-#define SCCR_USBMPHCM_SHIFT		22
 #define SCCR_USBDRCM			0x00300000
 #define SCCR_USBDRCM_SHIFT		20
+#define SCCR_USBDRCM_0			0x00000000
+#define SCCR_USBDRCM_1			0x00100000
+#define SCCR_USBDRCM_2			0x00200000
+#define SCCR_USBDRCM_3			0x00300000
 
-#define SCCR_USBCM_0			0x00000000
-#define SCCR_USBCM_1			0x00500000
-#define SCCR_USBCM_2			0x00A00000
-#define SCCR_USBCM_3			0x00F00000
+#elif defined(CONFIG_MPC8315)
+/* SCCR bits - MPC8315 specific */
+#define SCCR_TSEC1CM			0xc0000000
+#define SCCR_TSEC1CM_SHIFT		30
+#define SCCR_TSEC1CM_0			0x00000000
+#define SCCR_TSEC1CM_1			0x40000000
+#define SCCR_TSEC1CM_2			0x80000000
+#define SCCR_TSEC1CM_3			0xC0000000
+
+#define SCCR_TSEC2CM			0x30000000
+#define SCCR_TSEC2CM_SHIFT		28
+#define SCCR_TSEC2CM_0			0x00000000
+#define SCCR_TSEC2CM_1			0x10000000
+#define SCCR_TSEC2CM_2			0x20000000
+#define SCCR_TSEC2CM_3			0x30000000
+
+#define SCCR_USBDRCM			0x00300000
+#define SCCR_USBDRCM_SHIFT		20
+#define SCCR_USBDRCM_0			0x00000000
+#define SCCR_USBDRCM_1			0x00100000
+#define SCCR_USBDRCM_2			0x00200000
+#define SCCR_USBDRCM_3			0x00300000
+
+#define SCCR_PCIEXP1CM			0x00080000
+#define SCCR_PCIEXP2CM			0x00040000
+
+#define SCCR_SATA1CM			0x0000c000
+#define SCCR_SATA1CM_SHIFT		14
+#define SCCR_SATACM			0x0000f000
+#define SCCR_SATACM_SHIFT		8
+#define SCCR_SATACM_0			0x00000000
+#define SCCR_SATACM_1			0x00005000
+#define SCCR_SATACM_2			0x0000a000
+#define SCCR_SATACM_3			0x0000f000
+
+#define SCCR_TDMCM			0x000000c0
+#define SCCR_TDMCM_SHIFT		6
+#define SCCR_TDMCM_0			0x00000000
+#define SCCR_TDMCM_1			0x00000040
+#define SCCR_TDMCM_2			0x00000080
+#define SCCR_TDMCM_3			0x000000c0
+
+#elif defined(CONFIG_MPC837X)
+/* SCCR bits - MPC837x specific */
+#define SCCR_TSEC1CM			0xc0000000
+#define SCCR_TSEC1CM_SHIFT		30
+#define SCCR_TSEC1CM_0			0x00000000
+#define SCCR_TSEC1CM_1			0x40000000
+#define SCCR_TSEC1CM_2			0x80000000
+#define SCCR_TSEC1CM_3			0xC0000000
+
+#define SCCR_TSEC2CM			0x30000000
+#define SCCR_TSEC2CM_SHIFT		28
+#define SCCR_TSEC2CM_0			0x00000000
+#define SCCR_TSEC2CM_1			0x10000000
+#define SCCR_TSEC2CM_2			0x20000000
+#define SCCR_TSEC2CM_3			0x30000000
+
+#define SCCR_SDHCCM			0x0c000000
+#define SCCR_SDHCCM_SHIFT		26
+#define SCCR_SDHCCM_0			0x00000000
+#define SCCR_SDHCCM_1			0x04000000
+#define SCCR_SDHCCM_2			0x08000000
+#define SCCR_SDHCCM_3			0x0c000000
+
+#define SCCR_USBDRCM			0x00c00000
+#define SCCR_USBDRCM_SHIFT		22
+#define SCCR_USBDRCM_0			0x00000000
+#define SCCR_USBDRCM_1			0x00400000
+#define SCCR_USBDRCM_2			0x00800000
+#define SCCR_USBDRCM_3			0x00c00000
+
+#define SCCR_PCIEXP1CM			0x00300000
+#define SCCR_PCIEXP1CM_SHIFT		20
+#define SCCR_PCIEXP1CM_0		0x00000000
+#define SCCR_PCIEXP1CM_1		0x00100000
+#define SCCR_PCIEXP1CM_2		0x00200000
+#define SCCR_PCIEXP1CM_3		0x00300000
+
+#define SCCR_PCIEXP2CM			0x000c0000
+#define SCCR_PCIEXP2CM_SHIFT		18
+#define SCCR_PCIEXP2CM_0		0x00000000
+#define SCCR_PCIEXP2CM_1		0x00040000
+#define SCCR_PCIEXP2CM_2		0x00080000
+#define SCCR_PCIEXP2CM_3		0x000c0000
+
+/* All of the four SATA controllers must have the same clock ratio */
+#define SCCR_SATA1CM			0x000000c0
+#define SCCR_SATA1CM_SHIFT		6
+#define SCCR_SATACM			0x000000ff
+#define SCCR_SATACM_SHIFT		0
+#define SCCR_SATACM_0			0x00000000
+#define SCCR_SATACM_1			0x00000055
+#define SCCR_SATACM_2			0x000000aa
+#define SCCR_SATACM_3			0x000000ff
+#endif
 
 /* CSn_BDNS - Chip Select memory Bounds Register
  */
@@ -860,7 +1075,7 @@
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
+#if !defined(CONFIG_MPC834X)
 #define BR_ATOM				0x0000000C
 #define BR_ATOM_SHIFT			2
 #endif
@@ -869,7 +1084,7 @@
 
 #if defined(CONFIG_MPC834X)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
-#elif defined(CONFIG_MPC8360)
+#else
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)
 #endif
 
@@ -1255,7 +1470,7 @@
 #define LTESR_CS		0x00080000
 #define LTESR_CC		0x00000001
 
-/* DDR Control Driver Register
+/* DDRCDR - DDR Control Driver Register
  */
 #define DDRCDR_EN		0x40000000
 #define DDRCDR_PZ		0x3C000000
