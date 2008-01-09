@@ -30,6 +30,17 @@
 #error "Default SCIF doesn't set....."
 #endif
 
+#if defined(CONFIG_SH3)
+/* There are SH7720's register */
+#define SCSMR	(volatile unsigned short *)(SCIF_BASE + 0x0)
+#define SCBRR	(volatile unsigned char  *)(SCIF_BASE + 0x4)
+#define SCSCR	(volatile unsigned short *)(SCIF_BASE + 0x8)
+#define SCFSR	(volatile unsigned short *)(SCIF_BASE + 0x14)   /* SCSSR */
+#define SCFCR	(volatile unsigned short *)(SCIF_BASE + 0x18)
+#define SCFDR	(volatile unsigned short *)(SCIF_BASE + 0x1C)
+#define SCFTDR	(volatile unsigned char  *)(SCIF_BASE + 0x20)
+#define SCFRDR	(volatile unsigned char  *)(SCIF_BASE + 0x24)
+#else
 #define SCSMR 	(vu_short *)(SCIF_BASE + 0x0)
 #define SCBRR 	(vu_char  *)(SCIF_BASE + 0x4)
 #define SCSCR 	(vu_short *)(SCIF_BASE + 0x8)
@@ -38,16 +49,21 @@
 #define SCFRDR 	(vu_char  *)(SCIF_BASE + 0x14)
 #define SCFCR 	(vu_short *)(SCIF_BASE + 0x18)
 #define SCFDR 	(vu_short *)(SCIF_BASE + 0x1C)
+#endif
+
 #if defined(CONFIG_SH4A)
 #define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
 #define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
 #define SCLSR   (vu_short *)(SCIF_BASE + 0x28)
 #define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
+#define LSR_ORER	1
 #elif defined (CONFIG_SH4)
 #define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
 #define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+#define LSR_ORER	1
 #elif defined (CONFIG_SH3)
-#define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+#define SCLSR	SCFSR	/* SCSSR */
+#define LSR_ORER	0x0200
 #endif
 
 #define SCR_RE 		(1 << 4)
@@ -67,10 +83,18 @@
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(CONFIG_CPU_SH7720)
+	int divisor = gd->baudrate * 16;
+
+	*SCBRR = (CONFIG_SYS_CLK_FREQ * 2 + (divisor / 2)) /
+						(gd->baudrate * 32) - 1;
+#else
 	int divisor = gd->baudrate * 32;
 
 	*SCBRR = (CONFIG_SYS_CLK_FREQ + (divisor / 2)) /
 						(gd->baudrate * 32) - 1;
+#endif
 }
 
 int serial_init (void)
@@ -133,7 +157,6 @@ int serial_tstc (void)
 
 #define FSR_ERR_CLEAR   0x0063
 #define RDRF_CLEAR      0x00fc
-#define LSR_ORER        1
 void handle_error( void ){
 
 	(void)*SCFSR ;
