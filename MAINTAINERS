@@ -371,6 +371,10 @@ David Updegraff <dave@cray.com>
 
 	CRAYL1			PPC4xx
 
+Anton Vorontsov <avorontsov@ru.mvista.com>
+
+	MPC8360ERDK		MPC8360
+
 Josef Wagner <Wagner@Microsys.de>
 
 	CPC45			MPC8245

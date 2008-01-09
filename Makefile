@@ -1929,6 +1929,17 @@ MPC8360EMDS_ATM_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
+MPC8360ERDK_33_config \
+MPC8360ERDK_66_config \
+MPC8360ERDK_config:
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		echo -n "... CLKIN 33MHz " ; \
+		echo "#define CONFIG_CLKIN_33MHZ" >>$(obj)include/config.h ;\
+	fi ;
+	@$(MKCONFIG) -a MPC8360ERDK ppc mpc83xx mpc8360erdk freescale
+
 MPC837XEMDS_config \
 MPC837XEMDS_HOST_config:	unconfig
 	@mkdir -p $(obj)include
