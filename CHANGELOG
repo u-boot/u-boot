@@ -1,3 +1,111 @@
+commit fc6414eca55f1fc108fb12fc8cdc43bd8b4463f9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Dec 18 04:29:55 2007 -0500
+
+    fix easylogo on big endian dev systems
+
+    didnt realize how out of shape easylogo actually was until i tried using it.
+    this patch does byte swapping as need be on the input tga header since the tga
+    is in little endian but the host could just as well be big endian.	i didnt
+    bother using bswap macros or such stuff from system headers as nothing in
+    POSIX dictates byte swapping functionality.
+
+    Signed-Off-By: Mike Frysinger <vapier@gentoo.org>
+
+commit 38d299c2db81bd889c601b5dfc12c4e83ef83333
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Dec 18 03:23:25 2007 -0500
+
+    cleanup easylogo
+
+    - make the Makefile not suck
+    - include proper headers for prototypes
+    - fix obvious broken handling of strchr() when handling '.' in filenames
+
+    Signed-Off-By: Mike Frysinger <vapier@gentoo.org>
+
+commit 883e3925d99a8dd69c5b0201cba5b1887f88f95c
+Author: raptorbrino@aim.com <raptorbrino@aim.com>
+Date:	Thu Dec 13 21:23:28 2007 -0500
+
+    Fix build problems under Cygwin
+
+    This patch allows u-boot to build without error in a cygwin
+    environment.  Cygwin does not define __u64 in it's
+    include/asm/types.h file.  The -idirafter flag in the u-boot
+    build causes the inclusion of the cygwin types.h file as opposed
+    to u-bot/include/asm/types.h file which does define __u64.
+    Subsequently, sha1.c compile fails due to unknown symbol.
+
+    Signed-off-by: Brian Miller <raptorbrino@netscape.net>
+
+commit 43ef1c381f9195504a2488f5cb909227eb97d475
+Author: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Date:	Fri Nov 30 17:29:59 2007 +0100
+
+    cmd_bmp: Add support for displaying gzip compressed bmps
+
+    The existing code can show information about a gzip compressed BMP
+    image, but can't actually display it.
+
+    Therefore, move the decompression code out of bmp_info() and use it in
+    bmp_display() as well in order to display a compressed BMP image.
+
+    Also, clean things up a bit and fix a memory leak while we're at it.
+
+    [hskinnemoen@atmel.com: a bit of refactoring]
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit d197ffd8172c6fdef38733424640a9a47295d6e9
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Nov 29 21:15:56 2007 +0100
+
+    Fix and optimize MII operations on FEC (MPC8xx) controllers
+
+    This patch fixes several issues at least on a MPC885 based system with two
+    FEC interfaces used in MII mode.
+
+    1. PHY discovery should first read PHY_PHYIDR2 register and only then
+       PHY_PHYIDR1 like cpu/mpc8xx/fec.c::mii_discover_phy() does it,
+       otherwise the values read are wrong. Also notice, that PHY discovery
+       cannot work on MPC88x / MPC87x in setups with both FECs active at all
+       in its present form, because for both interfaces the registers from FEC
+       1 are used to communicate over MII.
+
+    2. Remove code duplication for resetting the FEC by isolating it into a
+       separate function.
+
+    3. Initialize MII on FEC 1 when communicating over FEC 2 in fec_init().
+
+    4. Optimize mii_init() to only reset the FEC 1 controller once.
+
+    5. Fix a typo in mii_init() using index i instead of j thus potentially
+       leading to unpredictable results.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 6a5e1d75bf106fa157e9ce68bcaf4b13e8a1d214
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Nov 20 13:14:20 2007 +0100
+
+    Fix endianness conversions in rtl8169 driver
+
+    It is unclear on what platforms this driver has been tested, since
+    noone up to now defines CONFIG_RTL8169 in the board configuration
+    header. Now it has been fixed for a big-endian mpc8241 based
+    linkstation platform. This patch presents the necessary endianness
+    conversion fixes.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 07eb02687f008721974a2fb54cd7fdc28033ab3c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 9 13:43:38 2008 +0100
+
+    Coding Style clenaup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit c26acc1a43b31ddca5add42fd0360ff0eee90c80
 Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 Date:	Thu Dec 27 17:13:11 2007 +0100
