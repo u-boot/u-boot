@@ -636,6 +636,33 @@ _start:
 	dcbz	r0,r3
 	addi	r3,r3,32
 	bdnz	..d_ag
+
+	/*
+	 * Lock the init-ram/stack in d-cache, so that other regions
+	 * may use d-cache as well
+	 * Note, that this current implementation locks exactly 4k
+	 * of d-cache, so please make sure that you don't define a
+	 * bigger init-ram area. Take a look at the lwmon5 440EPx
+	 * implementation as a reference.
+	 */
+	msync
+	isync
+	/* 8. set TFLOOR/NFLOOR to 8 (-> 8*16*32 bytes locked -> 4k) */
+	lis	r1,0x0201
+	ori	r1,r1,0xf808
+	mtspr	dvlim,r1
+	lis	r1,0x0808
+	ori	r1,r1,0x0808
+	mtspr	dnv0,r1
+	mtspr	dnv1,r1
+	mtspr	dnv2,r1
+	mtspr	dnv3,r1
+	mtspr	dtv0,r1
+	mtspr	dtv1,r1
+	mtspr	dtv2,r1
+	mtspr	dtv3,r1
+	msync
+	isync
 #endif /* CFG_INIT_RAM_DCACHE */
 
 	/* 440EP & 440GR are only 440er PPC's without internal SRAM */
@@ -1345,6 +1372,31 @@ relocate_code:
 	mr	r4,r10
 	mr	r5,r11
 #endif
+
+#ifdef CFG_INIT_RAM_DCACHE
+	/*
+	 * Unlock the previously locked d-cache
+	 */
+	msync
+	isync
+	/* set TFLOOR/NFLOOR to 0 again */
+	lis	r6,0x0001
+	ori	r6,r6,0xf800
+	mtspr	dvlim,r6
+	lis	r6,0x0000
+	ori	r6,r6,0x0000
+	mtspr	dnv0,r6
+	mtspr	dnv1,r6
+	mtspr	dnv2,r6
+	mtspr	dnv3,r6
+	mtspr	dtv0,r6
+	mtspr	dtv1,r6
+	mtspr	dtv2,r6
+	mtspr	dtv3,r6
+	msync
+	isync
+#endif /* CFG_INIT_RAM_DCACHE */
+
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)

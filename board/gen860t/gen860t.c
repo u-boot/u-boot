@@ -254,7 +254,7 @@ int misc_init_r (void)
 	mii_init ();
 #endif
 
-#if (CONFIG_FPGA)
+#if defined(CONFIG_FPGA)
 	gen860t_init_fpga ();
 #endif
 	return 0;

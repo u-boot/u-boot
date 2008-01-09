@@ -696,7 +696,7 @@ static void cread_add_str(char *str, int strsize, int insert, unsigned long *num
 	}
 }
 
-static int cread_line(char *buf, unsigned int *len)
+static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 {
 	unsigned long num = 0;
 	unsigned long eol_num = 0;
@@ -818,6 +818,7 @@ static int cread_line(char *buf, unsigned int *len)
 			insert = !insert;
 			break;
 		case CTL_CH('x'):
+		case CTL_CH('u'):
 			BEGINNING_OF_LINE();
 			ERASE_TO_EOL();
 			break;
@@ -867,6 +868,27 @@ static int cread_line(char *buf, unsigned int *len)
 			REFRESH_TO_EOL();
 			continue;
 		}
+#ifdef CONFIG_AUTO_COMPLETE
+		case '\t': {
+			int num2, col;
+
+			/* do not autocomplete when in the middle */
+			if (num < eol_num) {
+				getcmd_cbeep();
+				break;
+			}
+
+			buf[num] = '\0';
+			col = strlen(prompt) + eol_num;
+			num2 = num;
+			if (cmd_auto_complete(prompt, buf, &num2, &col)) {
+				col = num2 - num;
+				num += col;
+				eol_num += col;
+			}
+			break;
+		}
+#endif
 		default:
 			cread_add_char(ichar, insert, &num, &eol_num, buf, *len);
 			break;
@@ -909,7 +931,7 @@ int readline (const char *const prompt)
 
 	puts (prompt);
 
-	rc = cread_line(p, &len);
+	rc = cread_line(prompt, p, &len);
 	return rc < 0 ? rc : len;
 #else
 	char   *p = console_buffer;

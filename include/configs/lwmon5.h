@@ -71,15 +71,20 @@
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
-/* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
-#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
-
+/*
+ * On LWMON5 we use D-cache as init-ram and stack pointer. We also move
+ * the POST_WORD from OCM to a 440EPx register that preserves it's
+ * content during reset (GPT0_COM6). This way we reserve the OCM (16k)
+ * for logbuffer only.
+ */
+#define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
+#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
 #define CFG_INIT_RAM_END	(4 << 10)
-#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
-#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
+						/* unused GPT0 COMP reg	*/
 
 /*-----------------------------------------------------------------------
  * Serial Port

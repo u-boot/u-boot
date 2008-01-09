@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Larry Johnson, lrj@acm.org
  *
  * (C) Copyright 2006
@@ -26,6 +26,7 @@
  */
 
 #include <common.h>
+#include <asm/gpio.h>
 #include <asm/processor.h>
 #include <asm-ppc/io.h>
 #include <i2c.h>
@@ -40,108 +41,11 @@ ulong flash_get_size(ulong base, int banknum);
 int board_early_init_f(void)
 {
 	u32 sdr0_pfc1, sdr0_pfc2;
-	u32 gpio0_ir;
 	u32 reg;
 	int eth;
 
 	mtdcr(ebccfga, xbcfg);
 	mtdcr(ebccfgd, 0xb8400000);
-
-	/*--------------------------------------------------------------------
-	 * Setup the GPIO pins
-	 *
-	 * Korat GPIO usage:
-	 *
-	 *                   Init.
-	 * Pin    Source I/O value Function
-	 * ------ ------ --- ----- ---------------------------------
-	 * GPIO00  Alt1  I/O   x   PerAddr07
-	 * GPIO01  Alt1  I/O   x   PerAddr06
-	 * GPIO02  Alt1  I/O   x   PerAddr05
-	 * GPIO03  GPIO   x    x   GPIO03 to expansion bus connector
-	 * GPIO04  GPIO   x    x   GPIO04 to expansion bus connector
-	 * GPIO05  GPIO   x    x   GPIO05 to expansion bus connector
-	 * GPIO06  Alt1   O    x   PerCS1 (2nd NOR flash)
-	 * GPIO07  Alt1   O    x   PerCS2 (CPLD)
-	 * GPIO08  Alt1   O    x   PerCS3 to expansion bus connector
-	 * GPIO09  Alt1   O    x   PerCS4 to expansion bus connector
-	 * GPIO10  Alt1   O    x   PerCS5 to expansion bus connector
-	 * GPIO11  Alt1   I    x   PerErr
-	 * GPIO12  GPIO   O    0   ATMega !Reset
-	 * GPIO13  GPIO   O    1   SPI Atmega !SS
-	 * GPIO14  GPIO   O    1   Write protect EEPROM #1 (0xA8)
-	 * GPIO15  GPIO   O    0   CPU Run LED !On
-	 * GPIO16  Alt1   O    x   GMC1TxD0
-	 * GPIO17  Alt1   O    x   GMC1TxD1
-	 * GPIO18  Alt1   O    x   GMC1TxD2
-	 * GPIO19  Alt1   O    x   GMC1TxD3
-	 * GPIO20  Alt1   O    x   RejectPkt0
-	 * GPIO21  Alt1   O    x   RejectPkt1
-	 * GPIO22  GPIO   I    x   PGOOD_DDR
-	 * GPIO23  Alt1   O    x   SCPD0
-	 * GPIO24  Alt1   O    x   GMC0TxD2
-	 * GPIO25  Alt1   O    x   GMC0TxD3
-	 * GPIO26  GPIO? I/O   x   IIC0SDA (selected in SDR0_PFC4)
-	 * GPIO27  GPIO   O    0   PHY #0 1000BASE-X
-	 * GPIO28  GPIO   O    0   PHY #1 1000BASE-X
-	 * GPIO29  GPIO   I    x   Test jumper !Present
-	 * GPIO30  GPIO   I    x   SFP module #0 !Present
-	 * GPIO31  GPIO   I    x   SFP module #1 !Present
-	 *
-	 * GPIO32  GPIO   O    1   SFP module #0 Tx !Enable
-	 * GPIO33  GPIO   O    1   SFP module #1 Tx !Enable
-	 * GPIO34  Alt2   I    x   !UART1_CTS
-	 * GPIO35  Alt2   O    x   !UART1_RTS
-	 * GPIO36  Alt1   I    x   !UART0_CTS
-	 * GPIO37  Alt1   O    x   !UART0_RTS
-	 * GPIO38  Alt2   O    x   UART1_Tx
-	 * GPIO39  Alt2   I    x   UART1_Rx
-	 * GPIO40  Alt1   I    x   IRQ0 (Ethernet 0)
-	 * GPIO41  Alt1   I    x   IRQ1 (Ethernet 1)
-	 * GPIO42  Alt1   I    x   IRQ2 (PCI interrupt)
-	 * GPIO43  Alt1   I    x   IRQ3 (System Alert from CPLD)
-	 * GPIO44  xxxx   x    x   (grounded through pulldown)
-	 * GPIO45  GPIO   O    0   PHY #0 Enable
-	 * GPIO46  GPIO   O    0   PHY #1 Enable
-	 * GPIO47  GPIO   I    x   Reset switch !Pressed
-	 * GPIO48  GPIO   I    x   Shutdown switch !Pressed
-	 * GPIO49  xxxx   x    x   (reserved for trace port)
-	 *   .      .     .    .               .
-	 *   .      .     .    .               .
-	 *   .      .     .    .               .
-	 * GPIO63  xxxx   x    x   (reserved for trace port)
-	 *-------------------------------------------------------------------*/
-
-	out_be32((u32 *) GPIO0_OR, 0x00060000);
-	out_be32((u32 *) GPIO1_OR, 0xC0000000);
-
-	out_be32((u32 *) GPIO0_OSRL, 0x54055400);
-	out_be32((u32 *) GPIO0_OSRH, 0x55015000);
-	out_be32((u32 *) GPIO1_OSRL, 0x02180000);
-	out_be32((u32 *) GPIO1_OSRH, 0x00000000);
-
-	out_be32((u32 *) GPIO0_TSRL, 0x54055500);
-	out_be32((u32 *) GPIO0_TSRH, 0x00015000);
-	out_be32((u32 *) GPIO1_TSRL, 0x00000000);
-	out_be32((u32 *) GPIO1_TSRH, 0x00000000);
-
-	out_be32((u32 *) GPIO0_TCR, 0x000FF0D8);
-	out_be32((u32 *) GPIO1_TCR, 0xD6060000);
-
-	out_be32((u32 *) GPIO0_ISR1L, 0x54000100);
-	out_be32((u32 *) GPIO0_ISR1H, 0x00500000);
-	out_be32((u32 *) GPIO1_ISR1L, 0x00405500);
-	out_be32((u32 *) GPIO1_ISR1H, 0x00000000);
-
-	out_be32((u32 *) GPIO0_ISR2L, 0x00000000);
-	out_be32((u32 *) GPIO0_ISR2H, 0x00000000);
-	out_be32((u32 *) GPIO1_ISR2L, 0x04010000);
-	out_be32((u32 *) GPIO1_ISR2H, 0x00000000);
-
-	out_be32((u32 *) GPIO0_ISR3L, 0x00000000);
-	out_be32((u32 *) GPIO0_ISR3H, 0x00000000);
-	out_be32((u32 *) GPIO1_ISR3L, 0x00000000);
-	out_be32((u32 *) GPIO1_ISR3H, 0x00000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -176,9 +80,8 @@ int board_early_init_f(void)
 	/* Configure the two Ethernet PHYs.  For each PHY, configure for fiber
 	 * if the SFP module is present, and for copper if it is not present.
 	 */
-	gpio0_ir = in_be32((u32 *) GPIO0_IR);
 	for (eth = 0; eth < 2; ++eth) {
-		if (gpio0_ir & (0x00000001 << (1 - eth))) {
+		if (gpio_read_in_bit(CFG_GPIO_SFP0_PRESENT_ + eth)) {
 			/* SFP module not present: configure PHY for copper. */
 			/* Set PHY to autonegotate 10 MB, 100MB, or 1 GB */
 			out_8((u8 *) CFG_CPLD_BASE + 0x06,
@@ -187,14 +90,13 @@ int board_early_init_f(void)
 		} else {
 			/* SFP module present: configure PHY for fiber and
 			   enable output */
-			out_be32((u32 *) GPIO0_OR, in_be32((u32 *) GPIO0_OR) |
-				 (0x00000001 << (4 - eth)));
-			out_be32((u32 *) GPIO1_OR, in_be32((u32 *) GPIO1_OR) &
-				 ~(0x00000001 << (31 - eth)));
+			gpio_write_bit(CFG_GPIO_PHY0_FIBER_SEL + eth, 1);
+			gpio_write_bit(CFG_GPIO_SFP0_TX_EN_ + eth, 0);
 		}
 	}
 	/* enable Ethernet: set GPIO45 and GPIO46 to 1 */
-	out_be32((u32 *) GPIO1_OR, in_be32((u32 *) GPIO1_OR) | 0x00060000);
+	gpio_write_bit(CFG_GPIO_PHY0_EN, 1);
+	gpio_write_bit(CFG_GPIO_PHY1_EN, 1);
 
 	/* select Ethernet pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -525,20 +427,19 @@ int checkboard(void)
 {
 	char const *const s = getenv("serial#");
 	u8 const rev = in_8((u8 *) CFG_CPLD_BASE + 0);
-	u32 const gpio0_or = in_be32((u32 *) GPIO0_OR);
 
 	printf("Board: Korat, Rev. %X", rev);
 	if (s != NULL)
 		printf(", serial# %s", s);
 
 	printf(", Ethernet PHY 0: ");
-	if (gpio0_or & 0x00000010)
+	if (gpio_read_out_bit(CFG_GPIO_PHY0_FIBER_SEL))
 		printf("fiber");
 	else
 		printf("copper");
 
 	printf(", PHY 1: ");
-	if (gpio0_or & 0x00000008)
+	if (gpio_read_out_bit(CFG_GPIO_PHY1_FIBER_SEL))
 		printf("fiber");
 	else
 		printf("copper");

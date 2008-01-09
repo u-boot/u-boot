@@ -261,6 +261,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
+/* CFG_MONITOR_LEN must be a multiple of CFG_ENV_SECT_SIZE */
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN		(128 * 1024) /* Reserved for malloc */
 
@@ -297,12 +298,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP
-
-#define OF_CPU			"PowerPC,8349@0"
-#define OF_SOC			"soc8349@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
+#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * PCI
@@ -404,8 +401,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifndef CFG_RAMBOOT
   #define CFG_ENV_IS_IN_FLASH
+  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
   #define CFG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + (4 * CFG_ENV_SECT_SIZE))
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */

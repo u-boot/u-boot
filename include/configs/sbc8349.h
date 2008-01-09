@@ -310,13 +310,9 @@
 #endif
 
 /* pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8349@0"
-#define OF_SOC			"soc8349@e0000000"
-#define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH		"/soc8349@e0000000/serial@4500"
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support*/
@@ -458,7 +454,7 @@
 #define CONFIG_CMD_PING
 
 #if defined(CONFIG_PCI)
-    #define CONFG_CMD_PCI
+    #define CONFIG_CMD_PCI
 #endif
 
 #if defined(CFG_RAMBOOT)

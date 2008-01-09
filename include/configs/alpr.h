@@ -296,7 +296,9 @@
 /*-----------------------------------------------------------------------
  * FPGA stuff
  *-----------------------------------------------------------------------*/
-#define CONFIG_FPGA             CFG_ALTERA_CYCLON2
+#define CONFIG_FPGA
+#define CONFIG_FPGA_ALTERA
+#define CONFIG_FPGA_CYCLON2
 #define CFG_FPGA_CHECK_CTRLC
 #define CFG_FPGA_PROG_FEEDBACK
 #define CONFIG_FPGA_COUNT       1		/* Ich habe 2 ... aber in

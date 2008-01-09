@@ -27,7 +27,7 @@
 #include <common.h>
 #include <malloc.h>
 
-#if defined(CONFIG_CMD_JFFS2)
+#if defined(CONFIG_CMD_CRAMFS)
 
 #include <asm/byteorder.h>
 #include <linux/stat.h>

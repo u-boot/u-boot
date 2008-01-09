@@ -28,7 +28,7 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <ACEX1K.h>		/* ACEX device family */
 
-#if (CONFIG_FPGA & (CFG_ALTERA | CFG_ACEX1K))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ALTERA) && defined(CONFIG_FPGA_ACEX1K)
 
 /* Define FPGA_DEBUG to get debug printf's */
 #ifdef	FPGA_DEBUG
@@ -363,4 +363,4 @@ static int ACEX1K_ps_reloc (Altera_desc * desc, ulong reloc_offset)
 
 }
 
-#endif /* (CONFIG_FPGA & (CFG_ALTERA | CFG_ACEX1K)) */
+#endif /* CONFIG_FPGA && CONFIG_FPGA_ALTERA && CONFIG_FPGA_ACEX1K */

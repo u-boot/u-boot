@@ -18,10 +18,9 @@
 #include <common.h>
 #include <pci.h>
 #include <i2c.h>
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#elif defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
+#include <fdt_support.h>
 #endif
 
 #include <asm/fsl_i2c.h>
@@ -262,37 +261,26 @@ void pci_init_board(void)
 #endif				/* CONFIG_PCISLAVE */
 
 #if defined(CONFIG_OF_LIBFDT)
-void
-ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 	int nodeoffset;
-	int err;
 	int tmp[2];
+	const char *path;
 
-	nodeoffset = fdt_path_offset(blob, "/" OF_SOC "/pci@8500");
+	nodeoffset = fdt_path_offset(blob, "/aliases");
 	if (nodeoffset >= 0) {
-		tmp[0] = cpu_to_be32(hose[0].first_busno);
-		tmp[1] = cpu_to_be32(hose[0].last_busno);
-		err = fdt_setprop(blob, nodeoffset, "bus-range",
-				  tmp, sizeof(tmp));
+		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(hose[0].first_busno);
+			tmp[1] = cpu_to_be32(hose[0].last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
 
-		tmp[0] = cpu_to_be32(gd->pci_clk);
-		err = fdt_setprop(blob, nodeoffset, "clock-frequency",
-				  tmp, sizeof(tmp[0]));
+			tmp[0] = cpu_to_be32(gd->pci_clk);
+			do_fixup_by_path(blob, path, "clock-frequency",
+				&tmp, sizeof(tmp[0]), 1);
+		}
 	}
 }
-#elif defined(CONFIG_OF_FLAT_TREE)
-void
-ft_pci_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	int len;
-
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8500/bus-range", &len);
-	if (p != NULL) {
-		p[0] = hose[0].first_busno;
-		p[1] = hose[0].last_busno;
-	}
-}
-#endif				/* CONFIG_OF_FLAT_TREE */
+#endif				/* CONFIG_OF_LIBFDT */
 #endif				/* CONFIG_PCI */

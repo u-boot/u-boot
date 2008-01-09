@@ -86,6 +86,7 @@ COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
 COBJS-y += cmd_sata.o
 COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
+COBJS-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 COBJS-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
 COBJS-$(CONFIG_CMD_USB) += cmd_usb.o
 COBJS-y += cmd_vfd.o

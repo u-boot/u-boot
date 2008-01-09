@@ -90,7 +90,7 @@
 #include <405_mal.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include "vecnum.h"
+#include <asm/ppc4xx-intvec.h>
 
 /*
  * Only compile for platform with AMCC EMAC ethernet controller and
@@ -1036,7 +1036,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	hw_p->bis = bis;
 	hw_p->first_init = 1;
 
-	return (1);
+	return 0;
 }
 
 
@@ -1755,7 +1755,8 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #endif
 #endif
 	}			/* end for each supported device */
-	return (1);
+
+	return 0;
 }
 
 #if !defined(CONFIG_NET_MULTI)

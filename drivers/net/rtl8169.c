@@ -48,7 +48,10 @@
 *
 *    Indent Options: indent -kr -i8
 ***************************************************************************/
-
+/*
+ * 26 August 2006 Mihai Georgian <u-boot@linuxnotincluded.org.uk>
+ * Modified to use le32_to_cpu and cpu_to_le32 properly
+ */
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
@@ -68,12 +71,7 @@
 static u32 ioaddr;
 
 /* Condensed operations for readability. */
-#define virt_to_le32desc(addr)	cpu_to_le32(virt_to_bus(addr))
-#define le32desc_to_virt(addr)	bus_to_virt(le32_to_cpu(addr))
-
 #define currticks()	get_timer(0)
-#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 
 /* media options */
 #define MAX_UNITS 8
@@ -102,7 +100,7 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define RTL_MIN_IO_SIZE 0x80
 #define TX_TIMEOUT  (6*HZ)
 
-/* write/read MMIO register */
+/* write/read MMIO register. Notice: {read,write}[wl] do the necessary swapping */
 #define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
 #define RTL_W16(reg, val16)	writew ((val16), ioaddr + (reg))
 #define RTL_W32(reg, val32)	writel ((val32), ioaddr + (reg))
@@ -218,7 +216,7 @@ enum RTL8169_register_content {
 	PHY_Enable_Auto_Nego = 0x1000,
 
 	/* PHY_STAT_REG = 1; */
-	PHY_Auto_Neco_Comp = 0x0020,
+	PHY_Auto_Nego_Comp = 0x0020,
 
 	/* PHY_AUTO_NEGO_REG = 4; */
 	PHY_Cap_10_Half = 0x0020,
@@ -413,23 +411,23 @@ static int rtl_recv(struct eth_device *dev)
 	ioaddr = dev->iobase;
 
 	cur_rx = tpc->cur_rx;
-	if ((tpc->RxDescArray[cur_rx].status & OWNbit) == 0) {
-		if (!(tpc->RxDescArray[cur_rx].status & RxRES)) {
+	if ((le32_to_cpu(tpc->RxDescArray[cur_rx].status) & OWNbit) == 0) {
+		if (!(le32_to_cpu(tpc->RxDescArray[cur_rx].status) & RxRES)) {
 			unsigned char rxdata[RX_BUF_LEN];
-			length = (int) (tpc->RxDescArray[cur_rx].
-						status & 0x00001FFF) - 4;
+			length = (int) (le32_to_cpu(tpc->RxDescArray[cur_rx].
+						status) & 0x00001FFF) - 4;
 
 			memcpy(rxdata, tpc->RxBufferRing[cur_rx], length);
 			NetReceive(rxdata, length);
 
 			if (cur_rx == NUM_RX_DESC - 1)
 				tpc->RxDescArray[cur_rx].status =
-				    (OWNbit | EORbit) + RX_BUF_SIZE;
+					cpu_to_le32((OWNbit | EORbit) + RX_BUF_SIZE);
 			else
 				tpc->RxDescArray[cur_rx].status =
-				    OWNbit + RX_BUF_SIZE;
+					cpu_to_le32(OWNbit + RX_BUF_SIZE);
 			tpc->RxDescArray[cur_rx].buf_addr =
-			    virt_to_bus(tpc->RxBufferRing[cur_rx]);
+				cpu_to_le32(tpc->RxBufferRing[cur_rx]);
 		} else {
 			puts("Error Rx");
 		}
@@ -454,6 +452,7 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 	u8 *ptxb;
 	int entry = tpc->cur_tx % NUM_TX_DESC;
 	u32 len = length;
+	int ret;
 
 #ifdef DEBUG_RTL8169_TX
 	int stime = currticks();
@@ -470,34 +469,38 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
 
-	tpc->TxDescArray[entry].buf_addr = virt_to_bus(ptxb);
+	tpc->TxDescArray[entry].buf_addr = cpu_to_le32(ptxb);
 	if (entry != (NUM_TX_DESC - 1)) {
 		tpc->TxDescArray[entry].status =
-		    (OWNbit | FSbit | LSbit) | ((len > ETH_ZLEN) ?
-						len : ETH_ZLEN);
+			cpu_to_le32((OWNbit | FSbit | LSbit) |
+				    ((len > ETH_ZLEN) ? len : ETH_ZLEN));
 	} else {
 		tpc->TxDescArray[entry].status =
-		    (OWNbit | EORbit | FSbit | LSbit) |
-		    ((len > ETH_ZLEN) ? length : ETH_ZLEN);
+			cpu_to_le32((OWNbit | EORbit | FSbit | LSbit) |
+				    ((len > ETH_ZLEN) ? len : ETH_ZLEN));
 	}
 	RTL_W8(TxPoll, 0x40);	/* set polling bit */
 
 	tpc->cur_tx++;
 	to = currticks() + TX_TIMEOUT;
-	while ((tpc->TxDescArray[entry].status & OWNbit) && (currticks() < to));	/* wait */
+	while ((le32_to_cpu(tpc->TxDescArray[entry].status) & OWNbit)
+				&& (currticks() < to));	/* wait */
 
 	if (currticks() >= to) {
 #ifdef DEBUG_RTL8169_TX
 		puts ("tx timeout/error\n");
 		printf ("%s elapsed time : %d\n", __FUNCTION__, currticks()-stime);
 #endif
-		return 0;
+		ret = 0;
 	} else {
 #ifdef DEBUG_RTL8169_TX
 		puts("tx done\n");
 #endif
-		return length;
+		ret = length;
 	}
+	/* Delay to make net console (nc) work properly */
+	udelay(20);
+	return ret;
 }
 
 static void rtl8169_set_rx_mode(struct eth_device *dev)
@@ -564,8 +567,8 @@ static void rtl8169_hw_start(struct eth_device *dev)
 
 	tpc->cur_rx = 0;
 
-	RTL_W32(TxDescStartAddr, virt_to_le32desc(tpc->TxDescArray));
-	RTL_W32(RxDescStartAddr, virt_to_le32desc(tpc->RxDescArray));
+	RTL_W32(TxDescStartAddr, tpc->TxDescArray);
+	RTL_W32(RxDescStartAddr, tpc->RxDescArray);
 	RTL_W8(Cfg9346, Cfg9346_Lock);
 	udelay(10);
 
@@ -603,13 +606,14 @@ static void rtl8169_init_ring(struct eth_device *dev)
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		if (i == (NUM_RX_DESC - 1))
 			tpc->RxDescArray[i].status =
-			    (OWNbit | EORbit) + RX_BUF_SIZE;
+				cpu_to_le32((OWNbit | EORbit) + RX_BUF_SIZE);
 		else
-			tpc->RxDescArray[i].status = OWNbit + RX_BUF_SIZE;
+			tpc->RxDescArray[i].status =
+				cpu_to_le32(OWNbit + RX_BUF_SIZE);
 
 		tpc->RxBufferRing[i] = &rxb[i * RX_BUF_SIZE];
 		tpc->RxDescArray[i].buf_addr =
-		    virt_to_bus(tpc->RxBufferRing[i]);
+			cpu_to_le32(tpc->RxBufferRing[i]);
 	}
 
 #ifdef DEBUG_RTL8169
@@ -623,8 +627,6 @@ RESET - Finish setting up the ethernet interface
 static void rtl_reset(struct eth_device *dev, bd_t *bis)
 {
 	int i;
-	u8 diff;
-	u32 TxPhyAddr, RxPhyAddr;
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
@@ -632,25 +634,14 @@ static void rtl_reset(struct eth_device *dev, bd_t *bis)
 #endif
 
 	tpc->TxDescArrays = tx_ring;
-	if (tpc->TxDescArrays == 0)
-		puts("Allot Error");
 	/* Tx Desscriptor needs 256 bytes alignment; */
-	TxPhyAddr = virt_to_bus(tpc->TxDescArrays);
-	diff = 256 - (TxPhyAddr - ((TxPhyAddr >> 8) << 8));
-	TxPhyAddr += diff;
-	tpc->TxDescArray = (struct TxDesc *) (tpc->TxDescArrays + diff);
+	tpc->TxDescArray = (struct TxDesc *) ((unsigned long)(tpc->TxDescArrays +
+							      255) & ~255);
 
 	tpc->RxDescArrays = rx_ring;
 	/* Rx Desscriptor needs 256 bytes alignment; */
-	RxPhyAddr = virt_to_bus(tpc->RxDescArrays);
-	diff = 256 - (RxPhyAddr - ((RxPhyAddr >> 8) << 8));
-	RxPhyAddr += diff;
-	tpc->RxDescArray = (struct RxDesc *) (tpc->RxDescArrays + diff);
-
-	if (tpc->TxDescArrays == NULL || tpc->RxDescArrays == NULL) {
-		puts("Allocate RxDescArray or TxDescArray failed\n");
-		return;
-	}
+	tpc->RxDescArray = (struct RxDesc *) ((unsigned long)(tpc->RxDescArrays +
+							      255) & ~255);
 
 	rtl8169_init_ring(dev);
 	rtl8169_hw_start(dev);
@@ -733,7 +724,7 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 
 	/* Get MAC address.  FIXME: read EEPROM */
 	for (i = 0; i < MAC_ADDR_LEN; i++)
-		dev->enetaddr[i] = RTL_R8(MAC0 + i);
+		bis->bi_enetaddr[i] = dev->enetaddr[i] = RTL_R8(MAC0 + i);
 
 #ifdef DEBUG_RTL8169
 	printf("MAC Address");
@@ -808,7 +799,7 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 		/* wait for auto-negotiation process */
 		for (i = 10000; i > 0; i--) {
 			/* check if auto-negotiation complete */
-			if (mdio_read(PHY_STAT_REG) & PHY_Auto_Neco_Comp) {
+			if (mdio_read(PHY_STAT_REG) & PHY_Auto_Nego_Comp) {
 				udelay(100);
 				option = RTL_R8(PHYstatus);
 				if (option & _1000bpsF) {
@@ -818,13 +809,12 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 #endif
 				} else {
 #ifdef DEBUG_RTL8169
-					printf
-					    ("%s: %sMbps %s-duplex operation.\n",
-					     dev->name,
-					     (option & _100bps) ? "100" :
-					     "10",
-					     (option & FullDup) ? "Full" :
-					     "Half");
+					printf("%s: %sMbps %s-duplex operation.\n",
+					       dev->name,
+					       (option & _100bps) ? "100" :
+					       "10",
+					       (option & FullDup) ? "Full" :
+					       "Half");
 #endif
 				}
 				break;
@@ -869,7 +859,7 @@ int rtl8169_initialize(bd_t *bis)
 		sprintf (dev->name, "RTL8169#%d", card_number);
 
 		dev->priv = (void *) devno;
-		dev->iobase = (int)bus_to_phys(iobase);
+		dev->iobase = (int)pci_mem_to_phys(devno, iobase);
 
 		dev->init = rtl_reset;
 		dev->halt = rtl_halt;

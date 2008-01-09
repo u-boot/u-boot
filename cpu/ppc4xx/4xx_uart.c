@@ -46,7 +46,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <watchdog.h>
-#include "vecnum.h"
+#include <asm/ppc4xx-intvec.h>
 
 #ifdef CONFIG_SERIAL_MULTI
 #include <serial.h>

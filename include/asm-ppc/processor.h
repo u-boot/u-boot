@@ -884,6 +884,7 @@
 #define SVR_8544_E	0x803C
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
+#define SVR_8610	0x80A0
 #define SVR_8641	0x8090
 #define SVR_8568_E	0x807D
 

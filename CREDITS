@@ -303,6 +303,11 @@ D: Support for Nios Stratix Development Kit (DK-1S10)
 D: Support for SSV ADNP/ESC1 (Nios Cyclone)
 W: http://www.li-pro.net
 
+N: Dave Liu
+E: daveliu@freescale.com
+D: Support for MPC832x, MPC8360, MPC837x
+W: www.freescale.com
+
 N: Raymond Lo
 E: lo@routefree.com
 D: Support for DOS partitions

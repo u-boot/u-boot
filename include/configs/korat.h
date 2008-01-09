@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Larry Johnson, lrj@acm.org
  *
  * (C) Copyright 2006-2007
@@ -360,6 +360,157 @@
 /* Memory Bank 2 (CPLD) initialization					*/
 #define CFG_EBC_PB2AP		0x04017300
 #define CFG_EBC_PB2CR		(CFG_CPLD_BASE | 0x00038000)
+
+/*-----------------------------------------------------------------------
+ * GPIO Setup
+ *
+ * Korat GPIO usage:
+ *
+ *                   Init.
+ * Pin    Source I/O value Function
+ * ------ ------ --- ----- ---------------------------------
+ * GPIO00  Alt1  I/O   x   PerAddr07
+ * GPIO01  Alt1  I/O   x   PerAddr06
+ * GPIO02  Alt1  I/O   x   PerAddr05
+ * GPIO03  GPIO   x    x   GPIO03 to expansion bus connector
+ * GPIO04  GPIO   x    x   GPIO04 to expansion bus connector
+ * GPIO05  GPIO   x    x   GPIO05 to expansion bus connector
+ * GPIO06  Alt1   O    x   PerCS1 (2nd NOR flash)
+ * GPIO07  Alt1   O    x   PerCS2 (CPLD)
+ * GPIO08  Alt1   O    x   PerCS3 to expansion bus connector
+ * GPIO09  Alt1   O    x   PerCS4 to expansion bus connector
+ * GPIO10  Alt1   O    x   PerCS5 to expansion bus connector
+ * GPIO11  Alt1   I    x   PerErr
+ * GPIO12  GPIO   O    0   ATMega !Reset
+ * GPIO13  GPIO   O    1   SPI Atmega !SS
+ * GPIO14  GPIO   O    1   Write protect EEPROM #1 (0xA8)
+ * GPIO15  GPIO   O    0   CPU Run LED !On
+ * GPIO16  Alt1   O    x   GMC1TxD0
+ * GPIO17  Alt1   O    x   GMC1TxD1
+ * GPIO18  Alt1   O    x   GMC1TxD2
+ * GPIO19  Alt1   O    x   GMC1TxD3
+ * GPIO20  Alt1   I    x   RejectPkt0
+ * GPIO21  Alt1   I    x   RejectPkt1
+ * GPIO22  GPIO   I    x   PGOOD_DDR
+ * GPIO23  Alt1   O    x   SCPD0
+ * GPIO24  Alt1   O    x   GMC0TxD2
+ * GPIO25  Alt1   O    x   GMC0TxD3
+ * GPIO26  GPIO? I/O   x   IIC0SDA (selected in SDR0_PFC4)
+ * GPIO27  GPIO   O    0   PHY #0 1000BASE-X select
+ * GPIO28  GPIO   O    0   PHY #1 1000BASE-X select
+ * GPIO29  GPIO   I    x   Test jumper !Present
+ * GPIO30  GPIO   I    x   SFP module #0 !Present
+ * GPIO31  GPIO   I    x   SFP module #1 !Present
+ *
+ * GPIO32  GPIO   O    1   SFP module #0 Tx !Enable
+ * GPIO33  GPIO   O    1   SFP module #1 Tx !Enable
+ * GPIO34  Alt2   I    x   !UART1_CTS
+ * GPIO35  Alt2   O    x   !UART1_RTS
+ * GPIO36  Alt1   I    x   !UART0_CTS
+ * GPIO37  Alt1   O    x   !UART0_RTS
+ * GPIO38  Alt2   O    x   UART1_Tx
+ * GPIO39  Alt2   I    x   UART1_Rx
+ * GPIO40  Alt1   I    x   IRQ0 (Ethernet 0)
+ * GPIO41  Alt1   I    x   IRQ1 (Ethernet 1)
+ * GPIO42  Alt1   I    x   IRQ2 (PCI interrupt)
+ * GPIO43  Alt1   I    x   IRQ3 (System Alert from CPLD)
+ * GPIO44  xxxx   x    x   (grounded through pulldown)
+ * GPIO45  GPIO   O    0   PHY #0 Enable
+ * GPIO46  GPIO   O    0   PHY #1 Enable
+ * GPIO47  GPIO   I    x   Reset switch !Pressed
+ * GPIO48  GPIO   I    x   Shutdown switch !Pressed
+ * GPIO49  xxxx   x    x   (reserved for trace port)
+ *   .      .     .    .               .
+ *   .      .     .    .               .
+ *   .      .     .    .               .
+ * GPIO63  xxxx   x    x   (reserved for trace port)
+*----------------------------------------------------------------------*/
+
+#define CFG_GPIO_ATMEGA_SS_	13
+#define CFG_GPIO_PHY0_FIBER_SEL	27
+#define CFG_GPIO_PHY1_FIBER_SEL	28
+#define CFG_GPIO_SFP0_PRESENT_	30
+#define CFG_GPIO_SFP1_PRESENT_	31
+#define CFG_GPIO_SFP0_TX_EN_	32
+#define CFG_GPIO_SFP1_TX_EN_	33
+#define CFG_GPIO_PHY0_EN	45
+#define CFG_GPIO_PHY1_EN	46
+
+/*-----------------------------------------------------------------------
+ * PPC440 GPIO Configuration
+ */
+#define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
+{											\
+/* GPIO Core 0 */									\
+{GPIO0_BASE, GPIO_BI , GPIO_ALT1, GPIO_OUT_0}, /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/	\
+{GPIO0_BASE, GPIO_BI , GPIO_ALT1, GPIO_OUT_0}, /* GPIO1	EBC_ADDR(6)	DMA_ACK(2)	*/	\
+{GPIO0_BASE, GPIO_BI , GPIO_ALT1, GPIO_OUT_0}, /* GPIO2	EBC_ADDR(5)	DMA_EOT/TC(2)	*/	\
+{GPIO0_BASE, GPIO_DIS, GPIO_SEL , GPIO_OUT_0}, /* GPIO3	EBC_ADDR(4)	DMA_REQ(3)	*/	\
+{GPIO0_BASE, GPIO_DIS, GPIO_SEL , GPIO_OUT_0}, /* GPIO4	EBC_ADDR(3)	DMA_ACK(3)	*/	\
+{GPIO0_BASE, GPIO_DIS, GPIO_SEL , GPIO_OUT_0}, /* GPIO5	EBC_ADDR(2)	DMA_EOT/TC(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO6	EBC_CS_N(1)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO7	EBC_CS_N(2)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO8	EBC_CS_N(3)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO9	EBC_CS_N(4)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO10 EBC_CS_N(5)			*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO11 EBC_BUS_ERR			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO12				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO13				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO14				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO15				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO16 GMCTxD(4)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO17 GMCTxD(5)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO18 GMCTxD(6)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO19 GMCTxD(7)			*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO20 RejectPkt0			*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO21 RejectPkt1			*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO22				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO23 SCPD0				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO24 GMCTxD(2)			*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO25 GMCTxD(3)			*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO26				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO27 EXT_EBC_REQ	USB2D_RXERROR	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO28		USB2D_TXVALID	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO29 EBC_EXT_HDLA	USB2D_PAD_SUSPNDM */	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO30 EBC_EXT_ACK	USB2D_XCVRSELECT*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO31 EBC_EXR_BUSREQ	USB2D_TERMSELECT*/	\
+},											\
+{											\
+/* GPIO Core 1 */									\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO32 USB2D_OPMODE0	EBC_DATA(2)	*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO33 USB2D_OPMODE1	EBC_DATA(3)	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT2, GPIO_OUT_0}, /* GPIO34 UART0_DCD_N	UART1_DSR_CTS_N	UART2_SOUT*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_1}, /* GPIO35 UART0_8PIN_DSR_N UART1_RTS_DTR_N UART2_SIN*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO36 UART0_8PIN_CTS_N EBC_DATA(0)	UART3_SIN*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO37 UART0_RTS_N	EBC_DATA(1)	UART3_SOUT*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_1}, /* GPIO38 UART0_DTR_N	UART1_SOUT	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT2, GPIO_OUT_0}, /* GPIO39 UART0_RI_N	UART1_SIN	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO40 UIC_IRQ(0)			*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO41 UIC_IRQ(1)			*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO42 UIC_IRQ(2)			*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO43 UIC_IRQ(3)			*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO44 UIC_IRQ(4)	DMA_ACK(1)	*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO45 UIC_IRQ(6)	DMA_EOT/TC(1)	*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO46 UIC_IRQ(7)	DMA_REQ(0)	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO47 UIC_IRQ(8)	DMA_ACK(0)	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO48 UIC_IRQ(9)	DMA_EOT/TC(0)	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO49  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO50  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO51  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO52  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO53  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO54  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO55  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO56  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO57  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO58  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO59  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO60  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO61  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO62  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO63  Unselect via TraceSelect Bit	*/	\
+}											\
+}
 
 /*
  * Internal Definitions

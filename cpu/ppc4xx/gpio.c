@@ -27,7 +27,7 @@
 #include <asm/gpio.h>
 
 #if defined(CFG_4xx_GPIO_TABLE)
-gpio_param_s gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_4xx_GPIO_TABLE;
+gpio_param_s const gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_4xx_GPIO_TABLE;
 #endif
 
 #if defined(GPIO0_OSRL)
@@ -120,6 +120,18 @@ int gpio_read_out_bit(int pin)
 	return (in_be32((void *)GPIO0_OR + offs) & GPIO_VAL(pin) ? 1 : 0);
 }
 
+int gpio_read_in_bit(int pin)
+{
+	u32 offs = 0;
+
+	if (pin >= GPIO_MAX) {
+		offs = 0x100;
+		pin -= GPIO_MAX;
+	}
+
+	return (in_be32((void *)GPIO0_IR + offs) & GPIO_VAL(pin) ? 1 : 0);
+}
+
 #if defined(CFG_4xx_GPIO_TABLE)
 void gpio_set_chip_configuration(void)
 {
@@ -171,6 +183,8 @@ void gpio_set_chip_configuration(void)
 			if ((gpio_tab[gpio_core][i].in_out == GPIO_OUT) ||
 			    (gpio_tab[gpio_core][i].in_out == GPIO_BI)) {
 
+				u32 gpio_alt_sel = 0;
+
 				switch (gpio_tab[gpio_core][i].alt_nb) {
 				case GPIO_SEL:
 					/*
@@ -199,37 +213,40 @@ void gpio_set_chip_configuration(void)
 					break;
 
 				case GPIO_ALT1:
-					reg = in_be32((void *)GPIO_OS(core_add+offs))
-						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT1_SEL >> (j*2));
-					out_be32((void *)GPIO_OS(core_add+offs), reg);
-					reg = in_be32((void *)GPIO_TS(core_add+offs))
-						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT1_SEL >> (j*2));
-					out_be32((void *)GPIO_TS(core_add+offs), reg);
+					gpio_alt_sel = GPIO_ALT1_SEL;
 					break;
 
 				case GPIO_ALT2:
-					reg = in_be32((void *)GPIO_OS(core_add+offs))
-						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT2_SEL >> (j*2));
-					out_be32((void *)GPIO_OS(core_add+offs), reg);
-					reg = in_be32((void *)GPIO_TS(core_add+offs))
-						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT2_SEL >> (j*2));
-					out_be32((void *)GPIO_TS(core_add+offs), reg);
+					gpio_alt_sel = GPIO_ALT2_SEL;
 					break;
 
 				case GPIO_ALT3:
+					gpio_alt_sel = GPIO_ALT3_SEL;
+					break;
+				}
+
+				if (0 != gpio_alt_sel) {
 					reg = in_be32((void *)GPIO_OS(core_add+offs))
 						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT3_SEL >> (j*2));
+					reg = reg | (gpio_alt_sel >> (j*2));
 					out_be32((void *)GPIO_OS(core_add+offs), reg);
-					reg = in_be32((void *)GPIO_TS(core_add+offs))
-						& ~(GPIO_MASK >> (j*2));
-					reg = reg | (GPIO_ALT3_SEL >> (j*2));
-					out_be32((void *)GPIO_TS(core_add+offs), reg);
-					break;
+
+					if (gpio_tab[gpio_core][i].out_val == GPIO_OUT_1) {
+						reg = in_be32((void *)GPIO_TCR(core_add))
+							| (0x80000000 >> (i));
+						out_be32((void *)GPIO_TCR(core_add), reg);
+						reg = in_be32((void *)GPIO_TS(core_add+offs))
+							& ~(GPIO_MASK >> (j*2));
+						out_be32((void *)GPIO_TS(core_add+offs), reg);
+					} else {
+						reg = in_be32((void *)GPIO_TCR(core_add))
+							& ~(0x80000000 >> (i));
+						out_be32((void *)GPIO_TCR(core_add), reg);
+						reg = in_be32((void *)GPIO_TS(core_add+offs))
+							& ~(GPIO_MASK >> (j*2));
+						reg = reg | (gpio_alt_sel >> (j*2));
+						out_be32((void *)GPIO_TS(core_add+offs), reg);
+					}
 				}
 			}
 		}

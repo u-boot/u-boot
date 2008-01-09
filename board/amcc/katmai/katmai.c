@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -244,6 +244,18 @@ int checkboard (void)
 	putc('\n');
 
 	return 0;
+}
+
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+u32 ddr_wrdtr(u32 default_val) {
+	return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_180_DEG_ADV | 0x823);
+}
+
+u32 ddr_clktr(u32 default_val) {
+	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
 }
 
 #if defined(CFG_DRAM_TEST)

@@ -430,6 +430,10 @@ extern void dm644x_eth_set_mac_addr (const u_int8_t *addr);
 	puts ("Net:   ");
 #endif
 	eth_initialize(gd->bd);
+#if defined(CONFIG_RESET_PHY_R)
+	debug ("Reset Ethernet PHY\n");
+	reset_phy();
+#endif
 #endif
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {

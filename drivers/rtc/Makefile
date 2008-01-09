@@ -50,6 +50,7 @@ COBJS-y += mpc8xx.o
 COBJS-y += pcf8563.o
 COBJS-y += s3c24x0_rtc.o
 COBJS-y += rs5c372.o
+COBJS-y += rx8025.o
 COBJS-y += mcfrtc.o
 COBJS-y += x1205.o
 

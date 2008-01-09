@@ -1922,6 +1922,16 @@ MPC8360EMDS_ATM_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
+MPC837XEMDS_config \
+MPC837XEMDS_HOST_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "" >$(obj)include/config.h ; \
+	if [ "$(findstring _HOST_,$@)" ] ; then \
+		echo -n "... PCI HOST " ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a MPC837XEMDS ppc mpc83xx mpc837xemds freescale
+
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
@@ -2060,6 +2070,9 @@ TQM8560_config:		unconfig
 #########################################################################
 ## MPC86xx Systems
 #########################################################################
+
+MPC8610HPCD_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8610hpcd freescale
 
 MPC8641HPCN_config:    unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn freescale
@@ -2448,8 +2461,11 @@ zylonite_config :
 #########################################################################
 ## ARM1136 Systems
 #########################################################################
-omap2420h4_config :    unconfig
+omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
+
+apollon_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
 
 #========================================================================
 # i386

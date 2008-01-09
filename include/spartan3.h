@@ -58,6 +58,7 @@ typedef struct {
 	Xilinx_init_fn	init;
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
+	Xilinx_post_fn	post;
 	int           	relocated;
 } Xilinx_Spartan3_Slave_Serial_fns;
 
@@ -80,9 +81,12 @@ typedef struct {
 #define	XILINX_XC3S1200E_SIZE	3841184/8
 #define	XILINX_XC3S1600E_SIZE	5969696/8
 
+/* Spartan-IIIE (1.2V) */
+#define XILINX_XC3S1200E_SIZE  	3841184/8
+
 /* Descriptor Macros
  *********************************************************************/
-/* Spartan-II devices */
+/* Spartan-III devices */
 #define XILINX_XC3S50_DESC(iface, fn_table, cookie) \
 { Xilinx_Spartan3, iface, XILINX_XC3S50_SIZE, fn_table, cookie }
 
@@ -123,5 +127,10 @@ typedef struct {
 
 #define XILINX_XC3S1600E_DESC(iface, fn_table, cookie) \
 { Xilinx_Spartan3, iface, XILINX_XC3S1600E_SIZE, fn_table, cookie }
+
+
+/* Spartan-IIIE devices */
+#define XILINX_XC3S1200E_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan3, iface, XILINX_XC3S1200E_SIZE, fn_table, cookie }
 
 #endif /* _SPARTAN3_H_ */

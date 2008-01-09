@@ -674,6 +674,15 @@ uint mii_cis8204_setmode(uint mii_reg, struct tsec_private * priv)
 		return MIIM_CIS8204_EPHYCON_INIT;
 }
 
+uint mii_m88e1111s_setmode(uint mii_reg, struct tsec_private *priv)
+{
+	uint mii_data = read_phy_reg(priv, mii_reg);
+
+	if (priv->flags & TSEC_REDUCED)
+		mii_data = (mii_data & 0xfff0) | 0x000b;
+	return mii_data;
+}
+
 /* Initialized required registers to appropriate values, zeroing
  * those we don't care about (unless zero is bad, in which case,
  * choose a more appropriate value)
@@ -1034,6 +1043,7 @@ struct phy_info phy_info_M88E1111S = {
 	(struct phy_cmd[]){	/* config */
 			   /* Reset and configure the PHY */
 			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   {0x1b, 0x848f, &mii_m88e1111s_setmode},
 			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
 			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},

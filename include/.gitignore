@@ -1,3 +1,4 @@
+/autoconf.mk*
 /asm
 /asm-ppc/arch
 /bmp_logo.h
