@@ -36,7 +36,7 @@
  * Baud Rate = --------------
  *              16 x Divisor
  */
-#define SERIAL_CLOCK 921600 
+#define SERIAL_CLOCK 921600
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,7 +44,7 @@ void serial_setbrg (void)
 {
 	unsigned int quot = 0;
 	int uart = CFG_IXP425_CONSOLE;
-	
+
 	if ((gd->baudrate <= SERIAL_CLOCK) && (SERIAL_CLOCK % gd->baudrate == 0))
 		quot = SERIAL_CLOCK / gd->baudrate;
 	else

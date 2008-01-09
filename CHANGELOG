@@ -1,3 +1,156 @@
+commit c26acc1a43b31ddca5add42fd0360ff0eee90c80
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:13:11 2007 +0100
+
+    Remove bit swapping in Xilinx Spartan bitfile loading
+
+    This patch removes the unnecessary bit swapping when
+    booting .bit files with the 'fpga loadb' command.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 437fc7327f0611f82937858f2d80e4cd61b40984
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:13:05 2007 +0100
+
+    Fix MSB check in Xilinx Spartan slave serial mode
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 3bff4ffa33729a42645e328a21e8d16488872958
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:12:56 2007 +0100
+
+    Add new Xilinx Spartan FPGA types
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 21d39d598c4e74d4e7761608c79dba2715d40a4c
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:12:43 2007 +0100
+
+    Add pre and post configuration callbacks for Spartan FPGAs
+
+    This patch adds a post configuration callback for Spartan2/3 FPGAs.
+    pre and post configuration callback are now optional and
+    not called when the function pointer is set to NULL.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 0133502e39ff89b67c26cb4015e0e7e8d9571184
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 17:12:34 2007 +0100
+
+    Improve configuration of FPGA subsystem
+
+    This patch removes the FPGA subsystem configuration through
+    the CONFIG_FPGA bitmask configuration option.
+
+    See README for the new options:
+
+	CONFIG_FPGA,
+	CONFIG_FPGA_<vendor>,
+	CONFIG_FPGA_<family>
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 95c6bc7d4a3588b452baca610f8c795a83630477
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 16:55:17 2007 +0100
+
+    Add Epson RX8025 RTC support
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 1208a2dfde02bedd3c5bda29a606632b8e0be058
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Dec 27 16:57:23 2007 +0100
+
+    serial: Make default_serial_console() a weak function
+
+    With this patch it is possible to reimplement default_serial_console()
+    in board specific code. This will be done in the upcomming PMC440
+    U-Boot port. This also allows the lwmon board maintainer to
+    remove the '#if !defined(CONFIG_LWMON) ...' from common/serial.c.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit d16471ee05ce7ac5392bc0e9fe3ff4b58a768f33
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:14:47 2007 +0100
+
+    add 'terminal program' functionality
+
+    This patch adds a 'cu' like serial terminal command to u-boot
+    using which you can access other serial ports from the system console.
+
+    OpenMoko uses this in their Neo1973 phones to get access to the GSM
+    Modem and GPS chip from the bootloader.
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit 62d4f4365341576f5a5307b2b205a5aa2e3c6be6
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:12:53 2007 +0100
+
+    Re-introduce the 'nand read.oob' and 'nand write.oob' commands
+    that used to exist with the legacy NAND code
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit f540c42d9564854b19ce9bbb70affe172529fe70
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:09:58 2007 +0100
+
+    Fix building with CRAMFS but not JFFS2 support
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit 23d0baf967fecdaf1804f045f6339337c5607eec
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 22 15:52:58 2007 +0100
+
+    Allow CONFIG_AUTO_COMPLETE and command history CONFIG_CMDLINE_EDITING at the sametime
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 23776ff292966a85d811126933830bed48211826
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Dec 11 10:53:12 2007 +0100
+
+    ARM: support board-specific ethernet PHY init
+
+    Add until the new phylib will be arrived
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7b74ebe723e576baedf5a8b6240589b19b845a1b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 8 16:34:08 2007 +0100
+
+    IXP: Add full baud-rate support for ixp42x, ixp45x and ixp46x
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a2df4da31b1a1e41e3e9e1358cfc52b806046ce1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Dec 9 11:01:10 2007 +0100
+
+    Add missing file in gitignore and comments
+
+    based on Linux source tree's .gitignore files
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 435dc8fcdb3bc61d3d490773a8f369f98a20c868
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 9 11:36:21 2008 +0100
+
+    Coding Style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit b2e2142c500c48a57f18f9dd30e66c13caea0971
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Jan 9 10:38:58 2008 +0100
