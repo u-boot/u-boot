@@ -709,6 +709,13 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 
 	while (1) {
 		rlen = 1;
+#ifdef CONFIG_BOOT_RETRY_TIME
+		while (!tstc()) {	/* while no incoming data */
+			if (retry_time >= 0 && get_ticks() > endtime)
+				return (-2);	/* timed out */
+		}
+#endif
+
 		ichar = getcmd_getch();
 
 		if ((ichar == '\n') || (ichar == '\r')) {
