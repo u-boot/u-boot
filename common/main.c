@@ -59,7 +59,6 @@ extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #define MAX_DELAY_STOP_STR 32
 
-static int parse_line (char *, char *[]);
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 static int abortboot(int);
 #endif
@@ -918,8 +917,15 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
  */
 int readline (const char *const prompt)
 {
+	return readline_into_buffer(prompt, console_buffer);
+}
+
+
+int readline_into_buffer (const char *const prompt, char * buffer)
+{
+	char *p = buffer;
+	char * p_buf = p;
 #ifdef CONFIG_CMDLINE_EDITING
-	char *p = console_buffer;
 	unsigned int len=MAX_CMDBUF_SIZE;
 	int rc;
 	static int initted = 0;
@@ -934,7 +940,6 @@ int readline (const char *const prompt)
 	rc = cread_line(prompt, p, &len);
 	return rc < 0 ? rc : len;
 #else
-	char   *p = console_buffer;
 	int	n = 0;				/* buffer index		*/
 	int	plen = 0;			/* prompt length	*/
 	int	col;				/* output column cnt	*/
@@ -972,13 +977,13 @@ int readline (const char *const prompt)
 		case '\n':
 			*p = '\0';
 			puts ("\r\n");
-			return (p - console_buffer);
+			return (p - p_buf);
 
 		case '\0':				/* nul			*/
 			continue;
 
 		case 0x03:				/* ^C - break		*/
-			console_buffer[0] = '\0';	/* discard input */
+			p_buf[0] = '\0';	/* discard input */
 			return (-1);
 
 		case 0x15:				/* ^U - erase line	*/
@@ -986,20 +991,20 @@ int readline (const char *const prompt)
 				puts (erase_seq);
 				--col;
 			}
-			p = console_buffer;
+			p = p_buf;
 			n = 0;
 			continue;
 
 		case 0x17:				/* ^W - erase word	*/
-			p=delete_char(console_buffer, p, &col, &n, plen);
+			p=delete_char(p_buf, p, &col, &n, plen);
 			while ((n > 0) && (*p != ' ')) {
-				p=delete_char(console_buffer, p, &col, &n, plen);
+				p=delete_char(p_buf, p, &col, &n, plen);
 			}
 			continue;
 
 		case 0x08:				/* ^H  - backspace	*/
 		case 0x7F:				/* DEL - backspace	*/
-			p=delete_char(console_buffer, p, &col, &n, plen);
+			p=delete_char(p_buf, p, &col, &n, plen);
 			continue;
 
 		default:
@@ -1012,7 +1017,7 @@ int readline (const char *const prompt)
 					/* if auto completion triggered just continue */
 					*p = '\0';
 					if (cmd_auto_complete(prompt, console_buffer, &n, &col)) {
-						p = console_buffer + n;	/* reset */
+						p = p_buf + n;	/* reset */
 						continue;
 					}
 #endif

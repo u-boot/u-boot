@@ -243,6 +243,9 @@ LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
+ifeq ($(CONFIG_API),y)
+LIBS += api/libapi.a
+endif
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)
@@ -254,6 +257,10 @@ PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
 	  examples
+
+ifeq ($(CONFIG_API),y)
+SUBDIRS += api_examples
+endif
 
 .PHONY : $(SUBDIRS)
 
@@ -1943,6 +1950,9 @@ TQM834x_config:	unconfig
 ## MPC85xx Systems
 #########################################################################
 
+ATUM8548_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx atum8548
+
 MPC8540ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
 
@@ -2024,6 +2034,9 @@ sbc8540_66_config:	unconfig
 		echo "... 33 MHz PCI" ; \
 	fi
 	@$(MKCONFIG) -a SBC8540 ppc mpc85xx sbc8560
+
+sbc8548_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx sbc8548
 
 sbc8560_config \
 sbc8560_33_config \
@@ -2749,6 +2762,7 @@ clean:
 	rm -f $(obj)board/bf537-stamp/u-boot.lds $(obj)board/bf561-ezkit/u-boot.lds
 	rm -f $(obj)include/bmp_logo.h
 	rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
+	rm -f $(obj)api_examples/demo
 
 clobber:	clean
 	find $(OBJTREE) -type f \( -name .depend \
@@ -2762,6 +2776,8 @@ clobber:	clean
 	rm -f $(obj)tools/inca-swap-bytes $(obj)cpu/mpc824x/bedbug_603e.c
 	rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	[ ! -d $(OBJTREE)/nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f
+	find $(obj)api_examples -lname "*" -print | xargs rm -f
+	rm -f $(obj)api_examples/demo
 
 ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \

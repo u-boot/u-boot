@@ -87,6 +87,13 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{1, 31, 2, 0, 3}, /* GTX125 */
 	{4,  6, 3, 0, 2}, /* MDIO */
 	{4,  5, 1, 0, 2}, /* MDC */
+
+	/* UART1 */
+	{2, 0, 1, 0, 2}, /* UART_SOUT1 */
+	{2, 1, 1, 0, 2}, /* UART_RTS1 */
+	{2, 2, 2, 0, 2}, /* UART_CTS1 */
+	{2, 3, 2, 0, 2}, /* UART_SIN1 */
+
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
@@ -109,6 +116,9 @@ int board_early_init_f (void)
 
 	enable_8568mds_duart();
 	enable_8568mds_flash_write();
+#if defined(CONFIG_UEC_ETH1) || defined(CONFIG_UEC_ETH2)
+	reset_8568mds_uccs();
+#endif
 #if defined(CONFIG_QE) && !defined(CONFIG_eTSEC_MDIO_BUS)
 	enable_8568mds_qe_mdio();
 #endif

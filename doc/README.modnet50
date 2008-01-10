@@ -51,8 +51,8 @@ board/modnet50/lowlevel_init.S   .. memory setup for ModNET50
 board/modnet50/flash.c	    .. flash routines
 board/modnet50/modnet50.c   .. some board init stuff
 
-drivers/netarm_eth.c	    .. ethernet driver for the NET+50 CPU
-drivers/netarm_eth.h	    .. header for ethernet driver
+drivers/net/netarm_eth.c    .. ethernet driver for the NET+50 CPU
+drivers/net/netarm_eth.h    .. header for ethernet driver
 
 include/configs/modnet50.h  .. configuration file for ModNET50
 

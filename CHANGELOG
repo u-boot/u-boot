@@ -1,3 +1,297 @@
+commit 17a41e4492121ccf9fa2c10c2cb1a6d1c18d74f7
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jan 9 16:56:54 2008 -0600
+
+    Add QE brg freq and correct qe bus freq fdt update code
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 890dfef06c2d169a3356359596890754dfb8ee1c
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Jan 9 16:34:51 2008 -0600
+
+    Remove cache config from ATUM8548 and sbc8548 configs
+
+    These boards weren't updated by Kumar's config patch because they
+    weren't in the tree, yet.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit b8ec2385038c094b07ec5b49336289a46b6e9cc6
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Jan 7 13:31:19 2008 -0600
+
+    85xx: add ability to upload QE firmware
+
+    Define the layout of a binary blob that contains a QE firmware and instructions
+    on how to upload it.  Add function qe_upload_firmware() to parse the blob and
+    perform the actual upload.	Add command-line command "qe fw" to take a firmware
+    blob in memory and upload it.  Update ft_cpu_setup() on 85xx to create the
+    'firmware' device tree node if U-Boot has uploaded a firmware.  Fully define
+    'struct rsp' in immap_qe.h to include the actual RISC Special Registers.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit b009f3eca99bb7b9e6ba6639a8909a138dd5e9fe
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Jan 8 01:22:21 2008 -0600
+
+    85xx: Remove cache config from configs.h
+
+    Either use the standard defines in asm/cache.h or grab the information
+    at runtime from the L1CFG SPR.
+
+    Also, minor cleanup in cache.h to make the code a bit more readable.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b964e9368f45372aaf1da0c13fe56f6d81ae8e96
+Author: robert lazarski <robertlazarski@gmail.com>
+Date:	Fri Dec 21 10:39:27 2007 -0500
+
+    mpc85xx: Add support for ATUM8548 (updated)
+
+    Add support for Instituto Atlantico's ATUM8548 board
+
+    Signed-off-by: robert lazarski <robertlazarski@gmail.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7bd6104b71de9bca80ac8e0936003443bb42f2fc
+Author: robert lazarski <robertlazarski@gmail.com>
+Date:	Fri Dec 21 10:36:37 2007 -0500
+
+    mpc85xx: Add support for ATUM8548 (updated)
+
+    Add support for Instituto Atlantico's ATUM8548 board
+
+    Signed-off-by: robert lazarski <robertlazarski@gmail.com>
+
+commit 9e3ed392d2c8965e24c942b58796c31c644c2f70
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Thu Dec 13 06:45:14 2007 -0600
+
+    mpc85xx: Add support for SBC8548 (updated)
+
+    Add support for Wind River's SBC8548 reference board.
+
+    Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+
+commit 11c45ebd46d6517b51b7a92dd52a618b2f4e5586
+Author: Joe Hamman <joe.hamman@embeddedspecialties.com>
+Date:	Thu Dec 13 06:45:08 2007 -0600
+
+    mpc85xx: Add support for SBC8548 (updated)
+
+    Add support for Wind River's SBC8548 reference board.
+
+    Signed-off by: Joe Hamman <joe.hamman@embeddedspecialties.com>
+    Signed-off by: Andy Fleming <afleming@freescale.com>
+
+commit 64d4bcb087c2ece1c4d0de8efe85e0075e5b1594
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Oct 22 19:58:19 2007 +0400
+
+    MPC8568E-MDS: set up QE pario for UART1
+
+    To use UART1 on the MPC8568E-MDS, QE pario pins PC[0:3] should
+    be set up appropriately.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit ad162249cb371e9e38971676f09be791e5f3cf4a
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Oct 22 18:12:46 2007 +0400
+
+    MPC8568E-MDS: reset UCCs to use them reliably
+
+    In order to use GETH1 and GETH2 on the MPC8568E-MDS, we should reset
+    UCCs.
+
+    p.s Similar code exists in the Linux kernel board file (for capability
+    reasons with older U-Boots), but should be removed some day.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 2146cf56821c3364786ca94a7306008c5824b238
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Dec 19 01:18:15 2007 -0600
+
+    Reworked FSL Book-E TLB macros to be more readable
+
+    The old macros made it difficult to know what WIMGE and perm bits
+    were set for a TLB entry.  Actually use the bit masks for these items
+    since they are only a single bit.
+
+    Also moved the macros into mmu.h out of e500.h since they aren't specific
+    to e500.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1d47273d46925929f8f2c1913cd96d7257aade88
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Dec 18 23:21:51 2007 -0600
+
+    Use FSL Book-E MMU macros from Linux Kernel
+
+    Grab the FSL Book-E MAS register macros from Linux.  Also added
+    defines for page sizes up to 4TB and removed SHAREN since it doesnt
+    really exist.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 02df4a270f817ef6ec39047a01b55fecdc5f3b37
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Jan 9 13:51:32 2008 -0600
+
+    Fix my own merge stupidity
+
+    Way back in August I merged Heiko's patch:
+    566a494f592: [PCS440EP] upgrade the PCS440EP board
+
+    with Jon's CONFIG_COMMANDS patches.
+
+    This was done in commit: 6bf6f114dcdd97ec3f80c2761ed40e31229d6b78
+
+    However, in the process, I left out some of Heiko's good changes.
+
+    Now Heiko's and Jon's patches are properly merged in fat_register_device()
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 6636b62a6efc7f14e6e788788631ae7a7fca4537
+Author: James Yang <James.Yang@freescale.com>
+Date:	Wed Jan 9 11:17:49 2008 -0600
+
+    Expose parse_line() globally.
+
+    Add new function readline_into_buffer() that allows the
+    output of readline to be put into a pointer to char buffer.
+
+    This refactoring allows other functions besides the
+    main command loop to also use the same input mechanism.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7ca90513486abd4ae50bd1b7403f47cc58c5ad25
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Wed Jan 9 01:15:25 2008 +0100
+
+    trivial: fix consequences of a bad merge
+
+    Fix what looks like a merge artifact.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 4785a694c0045996ccf0ac5b8edf531efc1b730e
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Thu Jan 3 10:51:15 2008 +0800
+
+    Add Ctrl combo key support to usb keyboard driver.
+
+    Ctrl combo key support is added, which is very useful to input Ctrl-C
+    for interrupt current job.
+    Also add usb_event_poll() calling to usb_kbd_testc(), which can get
+    key input when tstc() is called.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+
+commit 10c7382bc5d5e64c47f94ac2ca78cc574442e82d
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Sun Dec 30 03:30:56 2007 +0100
+
+    fix various comments
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+
+commit 7817cb2083d982923752fe0f12b67c0e7c09a027
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Sun Dec 30 03:30:46 2007 +0100
+
+    fix comments with new drivers organization
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+
+commit a9b410dc7d2a4721c408b13abfc037988150f145
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Fri Dec 28 12:50:59 2007 +0900
+
+    Remove the obsolete terse version of do_mii()
+
+    We now have more useful version of do_mii() and everybody use it.
+    Gerald Van Baren says:
+
+    > When I originally wrote the mii command 6(!) years ago, I wrote a
+    > verbose version that printed human readable decomposition of the flags,
+    > etc., and a terse one that didn't print as much stuff and thus had a
+    > smaller memory footprint.
+    >
+    > It sounds like the terse version has withered and died, apparently
+    > people are only using the verbose version (which is very understandable,
+    > I do myself).
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 01c687aa6e065bd4faf80f723361e798941dd6b0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Dec 27 13:42:56 2007 -0500
+
+    Do not reference sha1.c when building mkimage.
+
+    remove sha1.o from mkimage linking since it isn't actually used.
+
+    Signed-Off-By: Mike Frysinger <vapier@gentoo.org>
+
+commit b9173af73e524d37c812f210173cf83385c5171a
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Thu Dec 27 15:39:54 2007 +0900
+
+    common/cmd_mii.c: Add sanity argc check
+
+    If type mii command without arguments, we suffer from uninitialized argv[]
+    entries; for example we MIPS get stuck by TLB error.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 500856eb1707ed17d9204baa61dd59948d3b2899
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Wed Jan 9 19:39:36 2008 +0100
+
+    API for external applications.
+
+    This is an API for external (standalone) applications running on top of
+    U-Boot, and is meant to be more extensible and robust than the existing
+    jumptable mechanism. It is similar to UNIX syscall approach. See api/README
+    for more details.
+
+    Included is the demo application using this new framework (api_examples).
+
+    Please note this is still an experimental feature, and is turned off by
+    default.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 26a41790f8eba19ad450e18ae91351daf485b3e2
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Wed Jan 9 18:05:27 2008 +0100
+
+    Globalize envmatch()
+
+    The newly introduced API (routines related to env vars) will need to call
+    it.
+
+    Signed-off-by: Rafal Zabdyr <armo@semihalf.com>
+
+commit 6007f3251c0967adc13f2ed8be1b924ddc30124d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 9 15:14:46 2008 +0100
+
+    Coding Style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fc6414eca55f1fc108fb12fc8cdc43bd8b4463f9
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Tue Dec 18 04:29:55 2007 -0500
@@ -97,6 +391,20 @@ Date:	Tue Nov 20 13:14:20 2007 +0100
     conversion fixes.
 
     Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 58694f9709c0c3e3178e349ae748d98cfb0c639a
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Thu Jan 3 10:51:15 2008 +0800
+
+    Add Ctrl combo key support to usb keyboard driver.
+
+    Ctrl combo key support is added, which is very useful to input Ctrl-C
+    for interrupt current job.
+    Also add usb_event_poll() calling to usb_kbd_testc(), which can get
+    key input when tstc() is called.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
 
 commit 07eb02687f008721974a2fb54cd7fdc28033ab3c
 Author: Wolfgang Denk <wd@denx.de>
@@ -410,6 +718,28 @@ Date:	Tue Jan 8 11:13:09 2008 +0100
     Disable a couple of config defines that are only used for NAND_U_BOOT.
 
     Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit c83d7ca4dadd44ae430235077f63b64a11f36f6e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jan 8 22:58:27 2008 +0100
+
+    Fix compile problem with new env code.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6de66b35426312a21174a9bf0576a094e2904bea
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Tue Nov 27 10:23:20 2007 +0100
+
+    tools: fix fw_printenv tool to compile again
+
+    This patch updates the fw_printenv/fw_setenv userspace tool to include
+    the correct MTD header in order to compile against current kernel
+    headers. Backward compatibility is preserved by introducing an option
+    MTD_VERSION which can be set to "old" for compilation using the old MTD
+    headers. Along with this a number of warnings are fixed.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
 
 commit ad3006fe7e84667021753b74247b0bafd97ba35f
 Author: Gerald Van Baren <vanbaren@cideas.com>
@@ -4520,6 +4850,48 @@ Date:	Wed Oct 3 07:34:10 2007 +0200
     (1) This patch renames the files from 440spe_pcie to 4xx_pcie
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 245a362ad3c0c1b84fccc9fec7b623eb14f6e502
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Oct 24 01:37:36 2007 +0200
+
+    TQM5200: Call usb_cpu_init() during board init
+
+    usb_cpu_init() configures GPS USB pins, clocks, etc. and
+    is required for proper operation of kernel USB subsystem.
+    This setup was previously done in the kernel by the fixup
+    code which is being removed, thus low level init must be
+    done by U-boot now.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit b5af773f8d92677e06f3295b45557c9d0a487c24
+Author: Zhang Wei <wei.zhang@freescale.com>
+Date:	Thu Oct 25 17:51:27 2007 +0800
+
+    Fix the issue of usb_kbd driver missing the scan code of key 'z'.
+
+    The scan code of the key 'z' is 0x1d, which should be handled.
+
+    The change has be tested on NOVATEK USB keyboard and ULI PCI OHCI
+    controller.
+
+    Signed-off-by: Zhang Wei <wei.zhang@freescale.com>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 85ac988e86f9414fa645b0148dc66c3520a1eb84
+Author: Rodolfo Giometti <giometti@enneenne.com>
+Date:	Mon Oct 15 11:59:17 2007 +0200
+
+    PXA USB OHCI: "usb stop" implementation.
+
+    Some USB keys need to be switched off before loading the kernel
+    otherwise they can remain in an undefined status which prevents them
+    to be correctly recognized by the kernel.
+
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
 
 commit 31548249decf18a6b877a18436b6139dd483fe4a
 Author: Justin Flammia <jflammia@savantav.com>

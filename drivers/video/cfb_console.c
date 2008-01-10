@@ -187,9 +187,9 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 
 /*****************************************************************************/
 /* Cursor definition:							     */
-/* CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/i8042.c) to    */
-/*			   let the cursor blink. Uses the macros CURSOR_OFF  */
-/*			   and CURSOR_ON.				     */
+/* CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/input/i8042.c) */
+/*                         to let the cursor blink. Uses the macros	     */
+/*                         CURSOR_OFF and CURSOR_ON.			     */
 /* CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No	     */
 /*			   blinking is provided. Uses the macros CURSOR_SET  */
 /*			   and CURSOR_OFF.				     */
@@ -217,7 +217,7 @@ void	console_cursor (int state);
 #define CURSOR_OFF console_cursor(0);
 #define CURSOR_SET
 #ifndef CONFIG_I8042_KBD
-#warning Cursor drawing on/off needs timer function s.a. drivers/i8042.c
+#warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
 #endif
 #else
 #ifdef	CONFIG_CONSOLE_TIME

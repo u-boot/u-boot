@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  *
  *
- * Derived in part from the SL811 HCD driver "u-boot/drivers/sl811_usb.c"
+ * Derived in part from the SL811 HCD driver "u-boot/drivers/usb/sl811_usb.c"
  * (original copyright message follows):
  *
  *    (C) Copyright 2004

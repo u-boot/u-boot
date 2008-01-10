@@ -624,7 +624,7 @@ static void rtl8169_init_ring(struct eth_device *dev)
 /**************************************************************************
 RESET - Finish setting up the ethernet interface
 ***************************************************************************/
-static void rtl_reset(struct eth_device *dev, bd_t *bis)
+static int rtl_reset(struct eth_device *dev, bd_t *bis)
 {
 	int i;
 
@@ -660,6 +660,7 @@ static void rtl_reset(struct eth_device *dev, bd_t *bis)
 #ifdef DEBUG_RTL8169
 	printf ("%s elapsed time : %d\n", __FUNCTION__, currticks()-stime);
 #endif
+	return 0;
 }
 
 /**************************************************************************

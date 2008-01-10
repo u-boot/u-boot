@@ -294,7 +294,6 @@
 #endif
 
 /* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
-/* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
    keep reset. */
 #undef CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI

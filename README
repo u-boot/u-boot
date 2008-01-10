@@ -924,7 +924,7 @@ The following options need to be configured:
 		(i.e. setenv videomode 317; saveenv; reset;)
 
 		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/videomodes.c)
+		from the bootargs. (See drivers/video/videomodes.c)
 
 
 		CONFIG_VIDEO_SED13806
@@ -1353,7 +1353,7 @@ The following options need to be configured:
 		CONFIG_FSL_I2C
 
 		Define this option if you want to use Freescale's I2C driver in
-		drivers/fsl_i2c.c.
+		drivers/i2c/fsl_i2c.c.
 
 
 - SPI Support:	CONFIG_SPI

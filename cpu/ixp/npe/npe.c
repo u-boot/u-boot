@@ -408,25 +408,25 @@ static int npe_init(struct eth_device *dev, bd_t * bis)
 	if (ixEthAccPortRxCallbackRegister(p_npe->eth_id, npe_rx_callback,
 					   (u32)p_npe) != IX_ETH_ACC_SUCCESS) {
 		printf("can't register RX callback!\n");
-		return 0;
+		return -1;
 	}
 
 	if (ixEthAccPortTxDoneCallbackRegister(p_npe->eth_id, npe_tx_callback,
 					       (u32)p_npe) != IX_ETH_ACC_SUCCESS) {
 		printf("can't register TX callback!\n");
-		return 0;
+		return -1;
 	}
 
 	npe_set_mac_address(dev);
 
 	if (ixEthAccPortEnable(p_npe->eth_id) != IX_ETH_ACC_SUCCESS) {
 		printf("can't enable port!\n");
-		return 0;
+		return -1;
 	}
 
 	p_npe->active = 1;
 
-	return 1;
+	return 0;
 }
 
 #if 0 /* test-only: probably have to deal with it when booting linux (for a clean state) */

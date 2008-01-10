@@ -197,6 +197,8 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
 int	readline	(const char *const prompt);
+int	readline_into_buffer	(const char *const prompt, char * buffer);
+int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
@@ -227,6 +229,7 @@ extern ulong load_addr;		/* Default Load Address */
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
+int	envmatch     (uchar *, int);
 char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
@@ -277,6 +280,9 @@ int	misc_init_r   (void);
 
 /* common/exports.c */
 void	jumptable_init(void);
+
+/* api/api.c */
+void	api_init (void);
 
 /* common/memsize.c */
 long	get_ram_size  (volatile long *, long);

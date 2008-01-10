@@ -792,7 +792,7 @@ static int tsi108_eth_probe (struct eth_device *dev, bd_t * bis)
 	    (dev->enetaddr[0] << 16);
 
 	if (marvell_88e_phy_config(dev, &speed, &duplex) == 0)
-		return 0;
+		return -1;
 
 	value =
 	    MAC_CONFIG_2_PREAMBLE_LENGTH(7) | MAC_CONFIG_2_PAD_CRC |
@@ -864,7 +864,7 @@ static int tsi108_eth_probe (struct eth_device *dev, bd_t * bis)
 	/* enable TX queue */
 	reg_TX_CONTROL(base) = TX_CONTROL_GO | 0x01;
 
-	return 1;
+	return 0;
 }
 
 /*

@@ -496,7 +496,7 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 /* This is the base address (on 405EP-side) used to generate I/O accesses on PCI bus */
 #define CFG_ISA_IO 0xE8000000
-/* see also drivers/videomodes.c */
+/* see also drivers/video/videomodes.c */
 #define CFG_DEFAULT_VIDEO_MODE 0x303
 #endif
 

@@ -73,7 +73,7 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 	nand_command(mtd, block, 0, CFG_NAND_BAD_BLOCK_POS, NAND_CMD_READOOB);
 
 	/*
-	 * Read on byte
+	 * Read one byte
 	 */
 	if (this->read_byte(mtd) != 0xff)
 		return 1;

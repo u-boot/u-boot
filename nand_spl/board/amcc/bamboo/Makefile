@@ -79,7 +79,7 @@ $(obj)nand_boot.c:
 	@rm -f $(obj)nand_boot.c
 	ln -s $(SRCTREE)/nand_spl/nand_boot.c $(obj)nand_boot.c
 
-# from drivers/nand directory
+# from drivers/mtd/nand directory
 $(obj)nand_ecc.c:
 	@rm -f $(obj)nand_ecc.c
 	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $(obj)nand_ecc.c

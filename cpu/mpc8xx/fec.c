@@ -727,7 +727,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 
 		if (efis->actual_phy_addr == -1) {
 			printf ("Unable to discover phy!\n");
-			return 0;
+			return -1;
 		}
 #else
 		efis->actual_phy_addr = -1;
@@ -763,7 +763,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 
 	efis->initialized = 1;
 
-	return 1;
+	return 0;
 }
 
 

@@ -424,6 +424,8 @@
 #define SPRN_IVOR15	0x19f	/* Interrupt Vector Offset Register 15 */
 
 /* e500 definitions */
+#define SPRN_L1CFG0     0x203   /* L1 Cache Configuration Register 0 */
+#define SPRN_L1CFG1     0x204   /* L1 Cache Configuration Register 1 */
 #define SPRN_L1CSR0     0x3f2   /* L1 Data Cache Control and Status Register 0 */
 #define   L1CSR0_CPE            0x00010000	/* Data Cache Parity Enable */
 #define   L1CSR0_DCFI           0x00000002      /* Data Cache Flash Invalidate */
@@ -621,6 +623,8 @@
 #define MCSRR1	SPRN_MCSRR1
 #define L1CSR0	SPRN_L1CSR0
 #define L1CSR1	SPRN_L1CSR1
+#define L1CFG0	SPRN_L1CFG0
+#define L1CFG1	SPRN_L1CFG1
 #define MCSR	SPRN_MCSR
 #define MMUCSR0	SPRN_MMUCSR0
 #define BUCSR	SPRN_BUCSR

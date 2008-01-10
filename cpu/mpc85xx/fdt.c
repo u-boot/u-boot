@@ -43,8 +43,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 #ifdef CONFIG_QE
-	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
+	do_fixup_by_prop_u32(blob, "device_type", "qe", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "qe", 4,
+			"brg-frequency", bd->bi_busfreq / 2, 1);
+	fdt_fixup_qe_firmware(blob);
 #endif
 
 #ifdef CFG_NS16550

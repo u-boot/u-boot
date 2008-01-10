@@ -332,7 +332,7 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 
 	if ((INL(dev, DE4X5_STS) & (STS_TS | STS_RS)) != 0) {
 		printf("Error: Cannot reset ethernet controller.\n");
-		return 0;
+		return -1;
 	}
 
 #ifdef CONFIG_TULIP_SELECT_MEDIA
@@ -382,7 +382,7 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 
 	send_setup_frame(dev, bis);
 
-	return 1;
+	return 0;
 }
 
 static int dc21x4x_send(struct eth_device* dev, volatile void *packet, int length)

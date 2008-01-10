@@ -273,10 +273,10 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 
 	if (inb(ioaddr + MediaStatus) & MSRLinkFail) {
 		printf("Cable not connected or other link failure\n");
-		return(0);
+		return -1 ;
 	}
 
-	return 1;
+	return 0;
 }
 
 /* Serial EEPROM section. */

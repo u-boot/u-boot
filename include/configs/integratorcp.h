@@ -168,7 +168,7 @@ SIB at Block62 End Block62 address 0x24f80000
 /*
  * Move up the U-Boot & monitor area if more flash is fitted.
  * If this U-Boot is to be run on Integrators with varying flash sizes,
- * drivers/cfi_flash.c::flash_init() can read the Integrator CP_FLASHPROG
+ * drivers/mtd/cfi_flash.c::flash_init() can read the Integrator CP_FLASHPROG
  * register and dynamically assign CFG_ENV_ADDR & CFG_MONITOR_BASE
  * - CFG_MONITOR_BASE is set to indicate that the environment is not
  * embedded in the boot monitor(s) area
