@@ -504,4 +504,51 @@ int misc_init_r (void)
 }
 #endif	/* CONFIG_NSCU */
 
+/* ---------------------------------------------------------------------------- */
+/* TK885D specific initializaion						*/
+/* ---------------------------------------------------------------------------- */
+#ifdef CONFIG_TK885D
+#include <miiphy.h>
+int last_stage_init(void)
+{
+	const unsigned char phy[] = {CONFIG_FEC1_PHY, CONFIG_FEC2_PHY};
+	unsigned short reg;
+	int ret, i = 100;
+	char *s;
+
+	mii_init();
+	/* Without this delay 0xff is read from the UART buffer later in
+	 * abortboot() and autoboot is aborted */
+	udelay(10000);
+	while (tstc() && i--)
+		(void)getc();
+
+	/* Check if auto-negotiation is prohibited */
+	s = getenv("phy_auto_nego");
+
+	if (!s || !strcmp(s, "on"))
+		/* Nothing to do - autonegotiation by default */
+		return 0;
+
+	for (i = 0; i < 2; i++) {
+		ret = miiphy_read("FEC ETHERNET", phy[i], PHY_BMCR, &reg);
+		if (ret) {
+			printf("Cannot read BMCR on PHY %d\n", phy[i]);
+			return 0;
+		}
+		/* Auto-negotiation off, hard set full duplex, 100Mbps */
+		ret = miiphy_write("FEC ETHERNET", phy[i],
+				   PHY_BMCR, (reg | PHY_BMCR_100MB |
+					      PHY_BMCR_DPLX) & ~PHY_BMCR_AUTON);
+		if (ret) {
+			printf("Cannot write BMCR on PHY %d\n", phy[i]);
+			return 0;
+		}
+	}
+
+	return 0;
+}
+
+#endif
+
 /* ------------------------------------------------------------------------- */

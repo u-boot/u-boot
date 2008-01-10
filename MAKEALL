@@ -135,6 +135,7 @@ LIST_8xx="		\
 	SPD823TS	\
 	svm_sc8xx	\
 	SXNI855T	\
+	TK885D		\
 	TOP860		\
 	TQM823L		\
 	TQM823L_LCD	\

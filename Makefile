@@ -1062,6 +1062,7 @@ TQM860M_config		\
 TQM862M_config		\
 TQM866M_config		\
 TQM885D_config		\
+TK885D_config		\
 virtlab2_config:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
