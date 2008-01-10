@@ -574,9 +574,9 @@ long int spd_sdram()
 	 */
 	cpo = 0;
 	if (spd.mem_type == SPD_MEMTYPE_DDR2) {
-		if (effective_data_rate == 266 || effective_data_rate == 333) {
-			cpo = 0x7;		/* READ_LAT + 5/4 */
-		} else if (effective_data_rate == 400) {
+		if (effective_data_rate == 266) {
+			cpo = 0x4;		/* READ_LAT + 1/2 */
+		} else if (effective_data_rate == 333 || effective_data_rate == 400) {
 			cpo = 0x7;		/* READ_LAT + 5/4 */
 		} else {
 			/* Automatic calibration */
