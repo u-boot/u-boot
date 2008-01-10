@@ -132,7 +132,7 @@
 #else
 /*
  * Manually set up DDR parameters
- * WHITE ELECTRONIC DESGGNS - W3HG64M72EEU403PD4 SO-DIMM
+ * WHITE ELECTRONIC DESIGNS - W3HG64M72EEU403PD4 SO-DIMM
  * consist of nine chips from SAMSUNG K4T51083QE-ZC(L)D5
  */
 #define CFG_DDR_SIZE		512 /* MB */
@@ -160,22 +160,22 @@
 				| ( 2 << TIMING_CFG1_ACTTOACT_SHIFT ) \
 				| ( 2 << TIMING_CFG1_WRTORD_SHIFT ) )
 				/* 0x3935d322 */
-#define CFG_DDR_TIMING_2	( ( 2 << TIMING_CFG2_ADD_LAT_SHIFT ) \
+#define CFG_DDR_TIMING_2	( ( 1 << TIMING_CFG2_ADD_LAT_SHIFT ) \
 				| ( 6 << TIMING_CFG2_CPO_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_LAT_DELAY_SHIFT ) \
 				| ( 4 << TIMING_CFG2_RD_TO_PRE_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT ) \
 				| ( 3 << TIMING_CFG2_CKE_PLS_SHIFT ) \
 				| ( 8 << TIMING_CFG2_FOUR_ACT_SHIFT) )
-				/* 0x231088c8 */
+				/* 0x131088c8 */
 #define CFG_DDR_INTERVAL	( ( 0x03E0 << SDRAM_INTERVAL_REFINT_SHIFT ) \
 				| ( 0x0100 << SDRAM_INTERVAL_BSTOPRE_SHIFT ) )
 				/* 0x03E00100 */
 #define CFG_DDR_SDRAM_CFG	0x43000000
 #define CFG_DDR_SDRAM_CFG2	0x00001000 /* 1 posted refresh */
-#define CFG_DDR_MODE		( ( 0x0450 << SDRAM_MODE_ESD_SHIFT ) \
+#define CFG_DDR_MODE		( ( 0x0448 << SDRAM_MODE_ESD_SHIFT ) \
 				| ( 0x1432 << SDRAM_MODE_SD_SHIFT ) )
-				/* ODT 150ohm CL=3, AL=2 on SDRAM */
+				/* ODT 150ohm CL=3, AL=1 on SDRAM */
 #define CFG_DDR_MODE2		0x00000000
 #endif
 
