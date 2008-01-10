@@ -61,6 +61,7 @@
 #define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 
+#define CFG_TLB_FOR_BOOT_FLASH	0x0003
 #define CFG_BOOT_BASE_ADDR	0xf0000000
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CFG_FLASH_BASE		0xfc000000	/* start of FLASH	*/

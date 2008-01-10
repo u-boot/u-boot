@@ -39,21 +39,26 @@
 tlbtab:
 	tlbtab_start
 
-	/*
-	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
-	 * speed up boot process. It is patched after relocation to enable SA_I
-	 */
-#ifndef CONFIG_NAND_SPL
-	tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
-#else
-	tlbentry( CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
-#endif
+	/* vxWorks needs this as first entry for the Machine Check interrupt */
+	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB-entry for DDR SDRAM (Up to 2GB) */
 #ifdef CONFIG_4xx_DCACHE
 	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
 #else
 	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+#endif
+
+	/* TLB-entry for EBC */
+	tlbentry( CFG_BCSR_BASE, SZ_256M, CFG_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* BOOT_CS (FLASH) must be forth. Before relocation SA_I can be off to use the
+	 * speed up boot process. It is patched after relocation to enable SA_I
+	 */
+#ifndef CONFIG_NAND_SPL
+	tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
+#else
+	tlbentry( CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
 #endif
 
 #ifdef CFG_INIT_RAM_DCACHE
@@ -66,9 +71,6 @@ tlbtab:
 	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
 	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
 	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
-
-	/* TLB-entry for EBC */
-	tlbentry( CFG_BCSR_BASE, SZ_1K, CFG_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB-entry for NAND */
 	tlbentry( CFG_NAND_ADDR, SZ_1K, CFG_NAND_ADDR, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
