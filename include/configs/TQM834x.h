@@ -378,15 +378,6 @@ extern int tqm834x_num_flash_banks;
  */
 #define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/*
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
-#endif
-
 #define CFG_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
 	HRCWL_DDR_TO_SCB_CLK_1X1 |\

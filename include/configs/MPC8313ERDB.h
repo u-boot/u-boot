@@ -386,11 +386,6 @@
  */
 #define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/* Cache Configuration */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
-#define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
-
 #define CFG_RCWH_PCIHOST 0x80000000	/* PCIHOST  */
 
 #ifdef CFG_66MHZ

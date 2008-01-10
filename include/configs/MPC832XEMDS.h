@@ -482,15 +482,6 @@
 #define CFG_HID2		HID2_HBE
 
 /*
- * Cache Config
- */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value */
-#endif
-
-/*
  * MMU Setup
  */
 
