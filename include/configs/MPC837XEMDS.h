@@ -227,12 +227,19 @@
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE /* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | /* Flash Base address */ \
-				(2 << BR_PS_SHIFT) | /* 16 bit port size */ \
-				BR_V) /* valid */
-#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
-				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
+#define CFG_BR0_PRELIM		( CFG_FLASH_BASE	/* Flash Base address */ \
+				| (2 << BR_PS_SHIFT)	/* 16 bit port size */ \
+				| BR_V )		/* valid */
+#define CFG_OR0_PRELIM		( (~(CFG_FLASH_SIZE - 1) << 20) \
+				| OR_UPM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_ACS_0b11 \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX \
+				| OR_GPCM_EHTR \
+				| OR_GPCM_EAD )
+				/* 0xFE000FF7 */
 
 #define CFG_MAX_FLASH_BANKS	1 /* number of banks */
 #define CFG_MAX_FLASH_SECT	256 /* max sectors per device */
