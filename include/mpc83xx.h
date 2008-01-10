@@ -145,10 +145,10 @@
 /* SPCR bits - MPC831x and MPC837x specific */
 #define SPCR_TSECDP			0x00003000	/* TSEC data priority */
 #define SPCR_TSECDP_SHIFT		(31-19)
-#define SPCR_TSECEP			0x00000C00	/* TSEC emergency priority */
-#define SPCR_TSECEP_SHIFT		(31-21)
-#define SPCR_TSECBDP			0x00000300	/* TSEC buffer descriptor priority */
-#define SPCR_TSECBDP_SHIFT		(31-23)
+#define SPCR_TSECBDP			0x00000C00	/* TSEC buffer descriptor priority */
+#define SPCR_TSECBDP_SHIFT		(31-21)
+#define SPCR_TSECEP			0x00000300	/* TSEC emergency priority */
+#define SPCR_TSECEP_SHIFT		(31-23)
 #endif
 
 /* SICRL/H - System I/O Configuration Register Low/High
