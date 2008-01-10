@@ -1700,6 +1700,7 @@ trap_reloc:
 	rlwinm	r8,r9,0,15,13
 	rlwinm	r8,r8,0,17,15
 	mtmsr	r8
+	mfspr	r8,dvlim
 	addi	r3,r0,0x0000
 	mtspr	dvlim,r3
 	mfspr	r3,ivpr
@@ -1714,6 +1715,7 @@ trap_reloc:
 ..ag:	dcbf	r0,r3
 	addi	r3,r3,-32
 	bdnz	..ag
+	mtspr	dvlim,r8
 	sync
 	mtmsr	r9
 	blr
