@@ -124,6 +124,12 @@ static int smc_init (void)
 
 	sp = (smc_t *) &(cp->cp_smc[SMC_INDEX]);
 	up = (smc_uart_t *) &cp->cp_dparam[PROFF_SMC];
+#ifdef CFG_SMC_UCODE_PATCH
+	up = (smc_uart_t *) &cp->cp_dpmem[up->smc_rpbase];
+#else
+	/* Disable relocation */
+	up->smc_rpbase = 0;
+#endif
 
 	/* Disable transmitter/receiver.
 	*/
@@ -212,6 +218,12 @@ static int smc_init (void)
 	up->smc_tbase = dpaddr+sizeof(cbd_t);
 	up->smc_rfcr = SMC_EB;
 	up->smc_tfcr = SMC_EB;
+#if defined (CFG_SMC_UCODE_PATCH)
+	up->smc_rbptr = up->smc_rbase;
+	up->smc_tbptr = up->smc_tbase;
+	up->smc_rstate = 0;
+	up->smc_tstate = 0;
+#endif
 
 #if defined(CONFIG_MBX)
 	board_serial_init();
@@ -288,6 +300,9 @@ smc_putc(const char c)
 		smc_putc ('\r');
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
+#ifdef CFG_SMC_UCODE_PATCH
+	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
+#endif
 
 	tbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_tbase];
 
@@ -326,6 +341,9 @@ smc_getc(void)
 	unsigned char		c;
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
+#ifdef CFG_SMC_UCODE_PATCH
+	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
+#endif
 
 	rbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
@@ -351,6 +369,9 @@ smc_tstc(void)
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
+#ifdef CFG_SMC_UCODE_PATCH
+	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
+#endif
 
 	rbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_rbase];
 

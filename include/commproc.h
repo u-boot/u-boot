@@ -159,6 +159,8 @@ typedef struct smc_uart {
 	ushort	smc_brkec;	/* rcv'd break condition counter */
 	ushort	smc_brkcr;	/* xmt break count register */
 	ushort	smc_rmask;	/* Temporary bit mask */
+	u_char	res1[8];
+	ushort	smc_rpbase;	/* Relocation pointer */
 } smc_uart_t;
 
 /* Function code bits.

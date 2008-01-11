@@ -2278,6 +2278,10 @@ Low Level (hardware related) configuration options:
 		enable I2C microcode relocation patch (MPC8xx);
 		define relocation offset in DPRAM [DSP2]
 
+- CFG_SMC_UCODE_PATCH, CFG_SMC_DPMEM_OFFSET [0x1FC0]:
+		enable SMC microcode relocation patch (MPC8xx);
+		define relocation offset in DPRAM [SMC1]
+
 - CFG_SPI_UCODE_PATCH, CFG_SPI_DPMEM_OFFSET [0x1FC0]:
 		enable SPI microcode relocation patch (MPC8xx);
 		define relocation offset in DPRAM [SCC4]

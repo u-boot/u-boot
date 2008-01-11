@@ -31,7 +31,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH)
+#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH) || \
+    defined(CFG_SMC_UCODE_PATCH)
 void cpm_load_patch (volatile immap_t * immr);
 #endif
 
@@ -253,7 +254,8 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_cpm.cp_rccr = CFG_RCCR;
 #endif
 
-#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH)
+#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH) || \
+    defined(CFG_SMC_UCODE_PATCH)
 	cpm_load_patch (immr);	/* load mpc8xx  microcode patch */
 #endif
 }
