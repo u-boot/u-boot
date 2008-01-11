@@ -196,7 +196,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	spd_eeprom_t spd;
 	unsigned int n_ranks;
 	unsigned int rank_density;
-	unsigned int odt_rd_cfg, odt_wr_cfg;
+	unsigned int odt_rd_cfg, odt_wr_cfg, ba_bits;
 	unsigned int odt_cfg, mode_odt_enable;
 	unsigned int refresh_clk;
 #ifdef MPC86xx_DDR_SDRAM_CLK_CNTL
@@ -321,6 +321,10 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 		odt_wr_cfg = 1;		/* Assert ODT on writes to CS0 */
 	}
 
+	ba_bits = 0;
+	if (spd.nbanks == 0x8)
+		ba_bits = 1;
+
 #ifdef CONFIG_DDR_INTERLEAVE
 
 	if (dimm_num != 1) {
@@ -357,6 +361,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 #endif
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
+				    | (ba_bits << 14)
 				    | (spd.nrow_addr - 12) << 8
 				    | (spd.ncol_addr - 8) );
 
@@ -386,6 +391,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 		ddr->cs0_config = ( 1 << 31
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
+				    | (ba_bits << 14)
 				    | (spd.nrow_addr - 12) << 8
 				    | (spd.ncol_addr - 8) );
 
@@ -403,6 +409,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 			ddr->cs1_config = ( 1<<31
 					    | (odt_rd_cfg << 20)
 					    | (odt_wr_cfg << 16)
+					    | (ba_bits << 14)
 					    | (spd.nrow_addr - 12) << 8
 					    | (spd.ncol_addr - 8) );
 			debug("DDR: cs1_bnds   = 0x%08x\n", ddr->cs1_bnds);
@@ -422,6 +429,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 		ddr->cs2_config = ( 1 << 31
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
+				    | (ba_bits << 14)
 				    | (spd.nrow_addr - 12) << 8
 				    | (spd.ncol_addr - 8) );
 
@@ -439,6 +447,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 			ddr->cs3_config = ( 1<<31
 					    | (odt_rd_cfg << 20)
 					    | (odt_wr_cfg << 16)
+					    | (ba_bits << 14)
 					    | (spd.nrow_addr - 12) << 8
 					    | (spd.ncol_addr - 8) );
 			debug("DDR: cs3_bnds   = 0x%08x\n", ddr->cs3_bnds);

@@ -19,21 +19,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#define DEBUG
+
 #include <common.h>
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <i2c.h>
 #include <spd.h>
 #include <asm/io.h>
-
-
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-extern void ft_cpu_setup(void *blob, bd_t *bd);
-#endif
+#include <libfdt.h>
+#include <fdt_support.h>
 
 #include "../common/pixis.h"
 
@@ -47,6 +44,8 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 void sdram_init(void);
 long int fixed_sdram(void);
+void mpc8610hpcd_diu_init(void);
+
 
 /* called before any console output */
 int board_early_init_f(void)
@@ -456,46 +455,57 @@ void pci_init_board(void)
 #endif /* CONFIG_PCI1 */
 }
 
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	int len;
+	int node, tmp[2];
+	const char *path;
 
-	ft_cpu_setup(blob, bd);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "timebase-frequency", bd->bi_busfreq / 4, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "clock-frequency", bd->bi_intfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
+			     "bus-frequency", bd->bi_busfreq, 1);
 
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
+	do_fixup_by_compat_u32(blob, "ns16550",
+			       "clock-frequency", bd->bi_busfreq, 1);
+
+	fdt_fixup_memory(blob, bd->bi_memstart, bd->bi_memsize);
+
+
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
 
 #ifdef CONFIG_PCI1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pci@8000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-		debug("pci@8000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+
 #endif
 #ifdef CONFIG_PCIE1
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@a000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
-		debug("pcie@9000 first_busno=%d last_busno=%d\n",p[0],p[1]);
+		path = fdt_getprop(blob, node, "pci1", NULL);
+		if (path) {
+			tmp[1] = pcie1_hose.last_busno
+				- pcie1_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
 	}
 #endif
 #ifdef CONFIG_PCIE2
-	p = (u32 *)ft_get_prop(blob, "/" OF_SOC "/pcie@9000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = 0;
-		p[1] = pcie2_hose.last_busno - pcie2_hose.first_busno;
-		debug("pcie@9000 first_busno=%d last_busno=%d\n",p[0],p[1]);
-	}
+		path = fdt_getprop(blob, node, "pci2", NULL);
+		if (path) {
+			tmp[1] = pcie2_hose.last_busno
+				- pcie2_hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
 #endif
-
+	}
 }
 #endif
 

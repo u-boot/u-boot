@@ -245,16 +245,13 @@
 /*
  * Pass open firmware flat tree to kernel
  */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
 
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
-
-#define OF_CPU		"PowerPC,8610@0"
-#define OF_SOC		"soc@e0000000"
-#define OF_TBCLK	(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH	"/soc@e0000000/serial@4500"
 
 #define CFG_64BIT_VSPRINTF	1
 #define CFG_64BIT_STRTOUL	1
@@ -517,13 +514,6 @@
  */
 #define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/* Cache Configuration */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
-#endif
-
 /*
  * Internal Definitions
  *
@@ -618,8 +608,8 @@
  "consoledev=ttyS0\0"						\
  "ramdiskaddr=2000000\0"					\
  "ramdiskfile=8610hpcd/ramdisk.uboot\0"				\
- "dtbaddr=c00000\0"						\
- "dtbfile=8610hpcd/mpc8610_hpcd.dtb\0"				\
+ "fdtaddr=c00000\0"						\
+ "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"				\
  "bdev=sda3\0"					\
  "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
  "dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \
@@ -658,8 +648,8 @@
  "consoledev=ttyS0\0"                                           \
  "ramdiskaddr=2000000\0"                                        \
  "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
- "dtbaddr=c00000\0"                                             \
- "dtbfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
+ "fdtaddr=c00000\0"                                             \
+ "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
  "bdev=sda3\0"							\
  "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0\0"\
  "monitor=0-DVI\0"
@@ -671,22 +661,22 @@
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"		\
  "tftp $loadaddr $bootfile;"					\
- "tftp $dtbaddr $dtbfile;"					\
- "bootm $loadaddr - $dtbaddr"
+ "tftp $fdtaddr $fdtfile;"					\
+ "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
  "setenv bootargs root=/dev/ram rw "				\
 	"console=$consoledev,$baudrate $othbootargs;"		\
  "tftp $ramdiskaddr $ramdiskfile;"				\
  "tftp $loadaddr $bootfile;"					\
- "tftp $dtbaddr $dtbfile;"					\
- "bootm $loadaddr $ramdiskaddr $dtbaddr"
+ "tftp $fdtaddr $fdtfile;"					\
+ "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND		\
  "setenv bootargs root=/dev/$bdev rw "	\
 	"console=$consoledev,$baudrate $othbootargs;"	\
  "tftp $loadaddr $bootfile;"		\
- "tftp $dtbaddr $dtbfile;"		\
- "bootm $loadaddr - $dtbaddr"
+ "tftp $fdtaddr $fdtfile;"		\
+ "bootm $loadaddr - $fdtaddr"
 
 #endif	/* __CONFIG_H */
