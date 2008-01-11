@@ -108,7 +108,7 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
-		"${netmask}:${hostname}:${netdev}:on panic=1 "		\
+		"${netmask}:${hostname}:${netdev}:off panic=1 "		\
 		"console=${console}\0"					\
 	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
 		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcon;"\
