@@ -647,7 +647,14 @@ static void console_back (void)
 
 static void console_newline (void)
 {
-	CURSOR_OFF console_row++;
+	/* Check if last character in the line was just drawn. If so, cursor was
+	   overwriten and need not to be cleared. Cursor clearing without this
+	   check causes overwriting the 1st character of the line if line lenght
+	   is >= CONSOLE_COLS
+	 */
+	if (console_col < CONSOLE_COLS)
+		CURSOR_OFF
+	console_row++;
 	console_col = 0;
 
 	/* Check if we need to scroll the terminal */
@@ -660,16 +667,26 @@ static void console_newline (void)
 	}
 }
 
+static void console_cr (void)
+{
+	CURSOR_OFF console_col = 0;
+}
+
 /*****************************************************************************/
 
 void video_putc (const char c)
 {
+	static int nl = 1;
+
 	switch (c) {
-	case 13:		/* ignore */
+	case 13:		/* back to first column */
+		console_cr ();
 		break;
 
 	case '\n':		/* next line */
-		console_newline ();
+		if (console_col || (!console_col && nl))
+			console_newline ();
+		nl = 1;
 		break;
 
 	case 9:		/* tab 8 */
@@ -691,8 +708,10 @@ void video_putc (const char c)
 		console_col++;
 
 		/* check for newline */
-		if (console_col >= CONSOLE_COLS)
+		if (console_col >= CONSOLE_COLS) {
 			console_newline ();
+			nl = 0;
+		}
 	}
 CURSOR_SET}
 
