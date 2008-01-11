@@ -106,5 +106,12 @@ long int initdram (int board_type)
 	denali_core_search_data_eye();
 #endif
 
+	/*
+	 * Clear possible errors resulting from data-eye-search.
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	set_mcsr(get_mcsr());
+
 	return (CFG_MBYTES_SDRAM << 20);
 }
