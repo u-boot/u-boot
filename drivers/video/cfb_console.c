@@ -141,6 +141,18 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #endif
 
 /*****************************************************************************/
+/* Defines for the MB862xx driver					     */
+/*****************************************************************************/
+#ifdef CONFIG_VIDEO_MB862xx
+
+#ifdef CONFIG_VIDEO_CORALP
+#define VIDEO_FB_LITTLE_ENDIAN
+#endif
+#define VIDEO_HW_RECTFILL
+#define VIDEO_HW_BITBLT
+#endif
+
+/*****************************************************************************/
 /* Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc	     */
 /*****************************************************************************/
 #include <video_fb.h>
@@ -304,7 +316,11 @@ void	console_cursor (int state);
 #else
 #define SWAP16(x)	 (x)
 #define SWAP32(x)	 (x)
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define SHORTSWAP32(x)	 (x)
+#else
+#define SHORTSWAP32(x)	 ( ((x) >> 16) | ((x) << 16) )
+#endif
 #endif
 
 #if defined(DEBUG) || defined(DEBUG_CFB_CONSOLE)
@@ -735,10 +751,24 @@ void video_puts (const char *s)
 	fb ++;						\
 }
 
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define FILL_15BIT_555RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
 	fb += 2;					\
 }
+#else
+static int tgl;
+static unsigned short p0;
+#define FILL_15BIT_555RGB(r,g,b) {			\
+	if (!tgl++) {					\
+		p0 = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
+	} else {					\
+		tgl=0;					\
+		*(unsigned long *)(fb-2) = (SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)))<<16) | p0; \
+	}						\
+	fb += 2;					\
+}
+#endif
 
 #define FILL_16BIT_565RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)((((r)>>3)<<11) | (((g)>>2)<<5) | ((b)>>3))); \
@@ -1080,8 +1110,20 @@ void logo_plot (void *screen, int width, int x, int y)
 				*dest = ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
 				break;
 			case GDF_15BIT_555RGB:
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 				*(unsigned short *) dest =
 					SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
+#else
+				{
+					if (!tgl++) {
+						p0 = SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
+					} else {
+						*(unsigned long *)(dest-2) =
+							(SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)))<<16) | p0;
+						tgl=0;
+					}
+				}
+#endif
 				break;
 			case GDF_16BIT_565RGB:
 				*(unsigned short *) dest =
