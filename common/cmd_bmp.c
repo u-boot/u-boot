@@ -85,7 +85,7 @@ static bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 	return bmp;
 }
 #else
-static bmp_image_t *gunzip_bmp(unsigned long addr)
+static bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 {
 	return NULL;
 }
