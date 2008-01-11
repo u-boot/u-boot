@@ -1861,6 +1861,9 @@ MPC8313ERDB_66_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
 
+MPC8315ERDB_config: unconfig
+	@$(MKCONFIG) -a MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
+
 MPC8323ERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
 
