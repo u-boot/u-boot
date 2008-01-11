@@ -73,6 +73,11 @@ void cpu_init_f (volatile immap_t * im)
 			  (CFG_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
 #endif
 
+#ifdef CFG_SPCR_TSECEP
+	/* eTSEC Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) | (CFG_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
+#endif
+
 #ifdef CFG_SPCR_TSEC1EP
 	/* TSEC1 Emergency priority */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) | (CFG_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
