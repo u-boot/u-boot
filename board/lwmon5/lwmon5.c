@@ -234,78 +234,6 @@ int misc_init_r(void)
 	mtdcr(plb4_acr, reg);
 
 	/*
-	 * Reset Lime controller
-	 */
-	gpio_write_bit(CFG_GPIO_LIME_S, 1);
-	udelay(500);
-	gpio_write_bit(CFG_GPIO_LIME_RST, 1);
-
-	/* Lime memory clock adjusted to 100MHz */
-	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_100MHZ);
-	/* Wait untill time expired. Because of requirements in lime manual */
-	udelay(300);
-	/* Write lime controller memory parameters */
-	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
-
-	/*
-	 * Init display controller
-	 */
-	/* Setup dot clock (internal PLL, division rate 1/16) */
-	out_be32((void *)0xc1fd0100, 0x00000f00);
-
-	/* Lime L0 init (16 bpp, 640x480) */
-	out_be32((void *)0xc1fd0020, 0x801401df);
-	out_be32((void *)0xc1fd0024, 0x0);
-	out_be32((void *)0xc1fd0028, 0x0);
-	out_be32((void *)0xc1fd002c, 0x0);
-	out_be32((void *)0xc1fd0110, 0x0);
-	out_be32((void *)0xc1fd0114, 0x0);
-	out_be32((void *)0xc1fd0118, 0x01df0280);
-
-	/* Display timing init */
-	out_be32((void *)0xc1fd0004, 0x031f0000);
-	out_be32((void *)0xc1fd0008, 0x027f027f);
-	out_be32((void *)0xc1fd000c, 0x015f028f);
-	out_be32((void *)0xc1fd0010, 0x020c0000);
-	out_be32((void *)0xc1fd0014, 0x01df01ea);
-	out_be32((void *)0xc1fd0018, 0x0);
-	out_be32((void *)0xc1fd001c, 0x01e00280);
-
-#if 1
-	/*
-	 * Clear framebuffer using Lime's drawing engine
-	 * (draw blue rect. with white border around it)
-	 */
-	/* Setup mode and fbbase, xres, fg, bg */
-	out_be32((void *)0xc1ff0420, 0x8300);
-	out_be32((void *)0xc1ff0440, 0x0000);
-	out_be32((void *)0xc1ff0444, 0x0280);
-	out_be32((void *)0xc1ff0480, 0x7fff);
-	out_be32((void *)0xc1ff0484, 0x0000);
-	/* Reset clipping rectangle */
-	out_be32((void *)0xc1ff0454, 0x0000);
-	out_be32((void *)0xc1ff0458, 0x0280);
-	out_be32((void *)0xc1ff045c, 0x0000);
-	out_be32((void *)0xc1ff0460, 0x01e0);
-	/* Draw white rect. */
-	out_be32((void *)0xc1ff04a0, 0x09410000);
-	out_be32((void *)0xc1ff04a0, 0x00000000);
-	out_be32((void *)0xc1ff04a0, 0x01e00280);
-	udelay(2000);
-	/* Draw blue rect. */
-	out_be32((void *)0xc1ff0480, 0x001f);
-	out_be32((void *)0xc1ff04a0, 0x09410000);
-	out_be32((void *)0xc1ff04a0, 0x00010001);
-	out_be32((void *)0xc1ff04a0, 0x01de027e);
-#endif
-	/* Display enable, L0 layer */
-	out_be32((void *)0xc1fd0100, 0x80010f00);
-
-	/* TFT-LCD enable - PWM duty, lamp on */
-	out_be32((void *)0xc4000024, 0x64);
-	out_be32((void *)0xc4000020, 0x701);
-
-	/*
 	 * Init matrix keyboard
 	 */
 	misc_init_r_kbd();
@@ -562,3 +490,88 @@ U_BOOT_CMD(
 	"eepromwp- eeprom write protect off/on\n",
 	"<on|off> - enable (on) or disable (off) I2C EEPROM write protect\n"
 );
+
+#if defined(CONFIG_VIDEO)
+#include <video_fb.h>
+#include <mb862xx.h>
+
+extern GraphicDevice mb862xx;
+
+static const gdc_regs init_regs [] =
+{
+	{0x0100, 0x00000f00},
+	{0x0020, 0x801401df},
+	{0x0024, 0x00000000},
+	{0x0028, 0x00000000},
+	{0x002c, 0x00000000},
+	{0x0110, 0x00000000},
+	{0x0114, 0x00000000},
+	{0x0118, 0x01df0280},
+	{0x0004, 0x031f0000},
+	{0x0008, 0x027f027f},
+	{0x000c, 0x015f028f},
+	{0x0010, 0x020c0000},
+	{0x0014, 0x01df01ea},
+	{0x0018, 0x00000000},
+	{0x001c, 0x01e00280},
+	{0x0100, 0x80010f00},
+	{0x0, 0x0}
+};
+
+const gdc_regs *board_get_regs (void)
+{
+	return init_regs;
+}
+
+/* Returns Lime base address */
+unsigned int board_video_init (void)
+{
+	/*
+	 * Reset Lime controller
+	 */
+	gpio_write_bit(CFG_GPIO_LIME_S, 1);
+	udelay(500);
+	gpio_write_bit(CFG_GPIO_LIME_RST, 1);
+
+	/* Lime memory clock adjusted to 100MHz */
+	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_100MHZ);
+	/* Wait untill time expired. Because of requirements in lime manual */
+	udelay(300);
+	/* Write lime controller memory parameters */
+	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
+
+	mb862xx.winSizeX = 640;
+	mb862xx.winSizeY = 480;
+	mb862xx.gdfBytesPP = 2;
+	mb862xx.gdfIndex = GDF_15BIT_555RGB;
+
+	return CFG_LIME_BASE_0;
+}
+
+void board_backlight_switch (int flag)
+{
+	if (flag) {
+		/* pwm duty, lamp on */
+		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), 0x64);
+		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x701);
+	} else {
+		/* lamp off */
+		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), 0x00);
+		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x00);
+	}
+}
+
+#if defined(CONFIG_CONSOLE_EXTRA_INFO)
+/*
+ * Return text to be printed besides the logo.
+ */
+void video_get_info_str (int line_number, char *info)
+{
+	if (line_number == 1) {
+		strcpy (info, " Board: Lwmon5 (Liebherr Elektronik GmbH)");
+	} else {
+		info [0] = '\0';
+	}
+}
+#endif
+#endif /* CONFIG_VIDEO */

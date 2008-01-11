@@ -248,6 +248,18 @@
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #define CONFIG_PHY1_ADDR	1
 
+/* Video console */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_MB862xx
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define VIDEO_FB_16BPP_PIXEL_SWAP
+
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_SPLASH_SCREEN
+
 /* USB */
 #ifdef CONFIG_440EPX
 #define CONFIG_USB_OHCI
@@ -293,6 +305,10 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 
 #ifdef CONFIG_440EPX
 #define CONFIG_CMD_USB
