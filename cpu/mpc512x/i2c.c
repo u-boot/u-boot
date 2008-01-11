@@ -236,7 +236,7 @@ static int mpc_get_fdr (int speed)
 	if (fdr == -1) {
 		ulong best_speed = 0;
 		ulong divider;
-		ulong ipb, scl;
+		ulong ips, scl;
 		ulong bestmatch = 0xffffffffUL;
 		int best_i = 0, best_j = 0, i, j;
 		int SCL_Tap[] = { 9, 10, 12, 15, 5, 6, 7, 8};
@@ -251,18 +251,18 @@ static int mpc_get_fdr (int speed)
 			{126, 128}
 		};
 
-		ipb = gd->ipb_clk;
+		ips = gd->ips_clk;
 		for (i = 7; i >= 0; i--) {
 			for (j = 7; j >= 0; j--) {
 				scl = 2 * (scltap[j].scl2tap +
 					   (SCL_Tap[i] - 1) * scltap[j].tap2tap
 					   + 2);
-				if (ipb <= speed*scl) {
-					if ((speed*scl - ipb) < bestmatch) {
-						bestmatch = speed*scl - ipb;
+				if (ips <= speed*scl) {
+					if ((speed*scl - ips) < bestmatch) {
+						bestmatch = speed*scl - ips;
 						best_i = i;
 						best_j = j;
-						best_speed = ipb/scl;
+						best_speed = ips/scl;
 					}
 				}
 			}

@@ -96,7 +96,7 @@ int get_clocks (void)
 		ips_clk = 0;
 	}
 
-	gd->ipb_clk = ips_clk;
+	gd->ips_clk = ips_clk;
 	gd->csb_clk = csb_clk;
 	gd->cpu_clk = core_clk;
 	gd->bus_clk = csb_clk;
@@ -118,7 +118,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	printf ("Clock configuration:\n");
 	printf ("  CPU:                 %4d MHz\n", gd->cpu_clk / 1000000);
 	printf ("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
-	printf ("  IPS Bus:             %4d MHz\n", gd->ipb_clk / 1000000);
+	printf ("  IPS Bus:             %4d MHz\n", gd->ips_clk / 1000000);
 	printf ("  DDR:                 %4d MHz\n", 2 * gd->csb_clk / 1000000);
 	return 0;
 }

@@ -99,7 +99,7 @@ typedef	struct	global_data {
 	unsigned long	pci_clk;
 #endif
 #if defined(CONFIG_MPC512X)
-	u32 ipb_clk;
+	u32 ips_clk;
 	u32 csb_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC8220)
