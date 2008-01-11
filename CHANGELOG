@@ -1,3 +1,368 @@
+commit 5ba7390c3cb579172be66888a371707b47b5be4e
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Jan 11 02:15:02 2008 +0100
+
+    Fix compilation problem in common/cmd_bmp.c
+
+    common/cmd_bmp.c fails to compile if CONFIG_VIDEO_BMP_GZIP
+    isn't defined. This patch fix this.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5aa437baae5fe629abeab99bef793a2a1fc71b58
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 01:12:09 2008 +0100
+
+    Fix defaultconfig for the mgcoge board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit ac9db066b26935f31bff15c98168b19faeb603f3
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 01:12:08 2008 +0100
+
+    Added support for the mgcoge board from keymile.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit b423d055cc2e13c4ef1f0389c3fa2988d0eed818
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 01:12:07 2008 +0100
+
+    Enable SMC microcode relocation patch for SMC1.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 381e4e639720d8d2efb8066c7c48ec9588cb28c7
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 01:12:06 2008 +0100
+
+    Added support for the mgsuvd board from keymile.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit bf05293973b348f6946c9df92cd3c65ece42d0be
+Author: James Yang <james.yang@freescale.com>
+Date:	Thu Jan 10 16:02:07 2008 -0600
+
+    Fix 64-bit vsprintf.
+
+    There were some size and unsigned problems.
+    Also add support for "ll" size modifier in format string like glibc
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 92fa37eac530860643afa26ae347af3d23d67309
+Author: Larry Johnson <lrj@acm.org>
+Date:	Wed Jan 9 12:42:35 2008 -0500
+
+    Remove superfluous preprocessor conditionals from LM73 driver
+
+    (1) Remove unused symbol "CFG_EEPROM_PAGE_WRITE_ENABLE".
+
+    (2) Use conditional Makefile.o.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit efc6f447c1b940d1650c4b854c5598a595ddc3da
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Jan 10 17:59:07 2008 +0100
+
+    Add support for the TK885D baseboard from TELE-DATA
+
+    The TK885D board uses a TQM885D module from TQ, this port adds an
+    own configuration file and adds a last_stage_init() method to
+    configure the two PHYs, depending on the phy_auto_nego environment
+    variable.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 0ec595243dc99edcd248bbcfbfd5a1dc860bde89
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jan 10 02:22:05 2008 -0600
+
+    Fix compiler warning
+
+    main.c: In function 'readline_into_buffer':
+    main.c:927: warning: unused variable 'p_buf'
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit bed53753dd1d7e6bcbea4339be0fb7760214cc35
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Jan 11 14:30:01 2008 +0100
+
+    Add Fujitsu CoralP/Lime video driver
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit 20c450ef61ef2eb1c96f9b59ba0eb8d849bba058
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Jan 11 02:39:47 2008 +0100
+
+    Fix video console newline and carriage return handling
+
+    Lines of the lenght CONSOLE_COLS or greater than CONSOLE_COLS
+    are not displayed correctly. This is an attempt to fix
+    this issue. Also add carriage return handling.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+commit d5a163d6baa04f5a8edcc10ebc6fad08657d3093
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jan 11 15:53:58 2008 +0100
+
+    ppc4xx: Fix sdram init on Sequoia boards
+
+    Clear possible errors in MCSR resulting from data-eye-search.
+    If not done, then we could get an interrupt later on when
+    exceptions are enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d610a60730b7464f6f659db49d264d89a7c71061
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Jan 11 15:31:09 2008 +0100
+
+    ppc4xx: Rework Lime support for lwmon5
+
+    Rework Lime support for lwmon5 using new video driver
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit ff41ffc93c1592e77a44bdbebd5d781739f3aae0
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 11 14:55:16 2008 +0100
+
+    ppc4xx: Update PMC440 config file
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit e3edcb36f14f0aabb6f50e96014d6877f73d64ea
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 11 14:55:08 2008 +0100
+
+    ppx4xx: Fix sdram init on PMC440 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 061aad4d320dddce26247699dcf2875ee2ea1366
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:09:33 2008 +0800
+
+    mpc83xx: Fix the bug of 266MHz data rate DDR
+
+    The DDR doesn't work on the 266MHz data rate,
+    the patch fix the bug.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit ded08317ad9e340b887bf2eb46e9565a0f610a93
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:08:26 2008 +0800
+
+    mpc83xx: Make the code more readable
+
+    Format the code, make it more readable
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 7e74d63d1a211fbc34ec424e2dc6726601f323d0
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:07:23 2008 +0800
+
+    mpc83xx: Reduce the latency of DDR
+
+    Reduce the AL from 2 to 1 clock to improve the performance.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6f3931a2bed5412c20d5e5536c865fbd657f7d28
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:06:05 2008 +0800
+
+    mpc83xx: Fix the wrong definition of MPC8315E
+
+    According to the latest user manual of MPC8315E,
+    1) The SVCOD of HRCWL is different than 837x
+    2) The SCCR has changes
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit ec2638ea08a537a1bd409db873aaaa33a053ebae
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:05:00 2008 +0800
+
+    mpc83xx: Fix the typo in mpc83xx.h
+
+    The SPCR about TSEC priority is wrong.
+
+    Signed-off-by: Michael Barkowski <Michael.Barkowski@freescale.com>
+    Signed-off-by: Joe D'Abbraccio <Joe.D'abbraccio@freescale.com>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c86ef2cd9ef81935049231fa89f36c7b793f2d4b
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:04:13 2008 +0800
+
+    mpc83xx: Fix the typo in global data struct
+
+    Fix the typo in global_data.h
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 2c5b48fc205c3e2752910da8f39209ed075929e5
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Jan 10 23:03:03 2008 +0800
+
+    mpc83xx: Remove cache config from config.h
+
+    clean up the cache config from configs.h of board
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit fab6f556bbbbd1bb35a5433161f7f173c18df559
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Wed Jan 9 20:57:47 2008 +0300
+
+    mpc83xx: add support for the MPC8360E-RDK
+
+    This is MPC8360E based board with:
+    - 256MB fixed SDRAM;
+    - 8MB Intel Strata NOR flash;
+    - StMICRO 64MiB NAND flash;
+    - two 10/100/1000 ethernet ports connected via Broadcom
+      BCM5481 PHYs;
+    - two 10/100 ethernet ports connected via National
+      DP83848 PHYs;
+    - one PCI and one miniPCI slots;
+    - four serial ports (two NS16550-compatible, two UCCs);
+    - four USB ports working through MPC8360E "FHCI" USB controller;
+    - Fujitsu MB86277 graphics controller;
+    - Analog to Digital Converter/Touchscreen controller, AD7843
+      connected to SPI.
+
+    Features not supported in this patch are:
+    - StMICRO 64MiB NAND flash (patch sent);
+    - MINT framebuffer initialization (patch is pending);
+    - Fetching production information from the EEPROM via I2C;
+    - FHCI USB;
+    - Two slow UCCs used as RS-485 UARTs.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b3d2cde7a3aa1e83b7968cdff929e52c8cc617bb
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Wed Jan 9 20:57:40 2008 +0300
+
+    mpc83xx: add "fsl, qe" compatible fixups
+
+    New device trees will use "fsl,qe" compatible properties.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 977b57583a7c34010e566a09a679ec3c1836f996
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Jan 9 15:24:06 2008 -0600
+
+    mpc83xx: add missing CONFIG_HAS_ETH0 defines
+
+    the new libfdt code only updates eth0 if CONFIG_HAS_ETH0
+    is defined; add the define to the missing board configs.
+
+    Thanks to Emilian Medve for finding this.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b830b7f1635984ba607219fcbd78597c28eeb529
+Author: Becky Bruce <bgill@freescale.com>
+Date:	Thu Jan 10 14:00:28 2008 -0600
+
+    86xx: Support 2GB DIMMs
+
+    Configure the number of bits used to address the banks inside the SDRAM
+    device.  The default register value of 0 means 2 bits to address 4 banks.
+    Higher capacity devices like a 2GB DIMM require 3 bits to address 8 banks.
+
+    Signed-off-by: Becky Bruce <bgill@freescale.com>
+
+commit 4d332dbeb08f5863d1ea69d91a00c5499d3a87ed
+Author: Niklaus Giger <niklausgiger@gmx.ch>
+Date:	Thu Jan 10 18:50:33 2008 +0100
+
+    ppc4xx: Make Sequoia boot vxWorks
+
+    vxWorks expects in
+    TLB 0 a entry for the Machine Check interrupt
+    TLB 1 a entry for the RAM
+    TLB 2 a entry for the EBC
+    TLB 3 a entry for the boot flash
+
+    After changing the baudrate to 9600 I had no problems to boot the
+    vxWorks image as distributed by WindRiver (Revision 2.0/1 from
+    June 18, 2007)
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 6d8184b00c0d1d7090e4a2f514e310d98a394f8d
+Author: Larry Johnson <lrj@arlinx.com>
+Date:	Wed Jan 9 23:10:27 2008 -0500
+
+    ppc4xx: Fix dflush() to restore DVLIM register
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 252f60b068d1f94190b5bcfda169db582387e15e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Jan 10 03:52:44 2008 -0500
+
+    Nios2: remove common/cmd_bdinfo.c unused variable.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 422b1a01602b6e2fbf8444a1192c7ba31461fd4c
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Wed Jan 9 18:15:53 2008 -0500
+
+    Fix Ethernet init() return codes
+
+    Change return values of init() functions in all Ethernet drivers to conform
+    to the following:
+
+	>=0: Success
+	<0:  Failure
+
+    All drivers going forward should return 0 on success.  Current drivers that
+    return 1 on success were left as-is to minimize changes.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+    Acked-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+    Acked-By: Timur Tabi <timur@freescale.com>
+
+commit d3a6532cbe263d992f49e86ac95bede28e96f9c8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jan 10 00:55:14 2008 +0100
+
+    Coding Style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 17a41e4492121ccf9fa2c10c2cb1a6d1c18d74f7
 Author: Kim Phillips <kim.phillips@freescale.com>
 Date:	Wed Jan 9 16:56:54 2008 -0600
@@ -273,6 +638,16 @@ Date:	Wed Jan 9 19:39:36 2008 +0100
 
     Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
 
+commit fe8dd0b2220b7c02b0d4c9c4f9967879970477b1
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Jan 9 12:14:55 2008 -0600
+
+    86xx: Remove cache config from configs.h
+
+    Just use the standard defines in asm/cache.h.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
 commit 26a41790f8eba19ad450e18ae91351daf485b3e2
 Author: Rafal Jaworowski <raj@semihalf.com>
 Date:	Wed Jan 9 18:05:27 2008 +0100
@@ -283,6 +658,29 @@ Date:	Wed Jan 9 18:05:27 2008 +0100
     it.
 
     Signed-off-by: Rafal Zabdyr <armo@semihalf.com>
+
+commit 1df170f8b2a99e1e2f940f9f0b56511e1e4c9e1f
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Jan 4 12:07:27 2008 -0600
+
+    Convert MPC8610HPCD to use libfdt.
+
+    Assumes the presence of the aliases node in the DTS to
+    locate the pci and serial nodes for fixups.
+
+    Use consistent fdtaddr and fdtfile in environment variables.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit c9974ab0a4d3731cdb76a7599d9fe9445d764d60
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Fri Jan 4 11:58:23 2008 -0600
+
+    8610: Fix lingering compile warnings.
+
+    Turn off DEBUG.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
 
 commit 6007f3251c0967adc13f2ed8be1b924ddc30124d
 Author: Wolfgang Denk <wd@denx.de>

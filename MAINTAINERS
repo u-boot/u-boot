@@ -343,6 +343,11 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 	METROBOX		PPC440GX
 	XPEDITE1K		PPC440GX
 
+Heiko Schocher <hs@denx.de>
+
+	mgcoge			MPC8247
+	mgsuvd			MPC866
+
 Peter De Schrijver <p2@mind.be>
 
 	ML2			PPC4xx
