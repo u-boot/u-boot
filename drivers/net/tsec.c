@@ -575,6 +575,63 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 	return 0;
 }
 
+/* Parse the RTL8211B's status register for speed and duplex
+ * information
+ */
+uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
+{
+	uint speed;
+
+	mii_reg = read_phy_reg(priv, MIIM_RTL8211B_PHY_STATUS);
+	if ((mii_reg & MIIM_RTL8211B_PHYSTAT_LINK) &&
+		!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
+		int i = 0;
+
+		puts("Waiting for PHY realtime link");
+		while (!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
+			/* Timeout reached ? */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts(" TIMEOUT !\n");
+				priv->link = 0;
+				break;
+			}
+
+			if ((i++ % 1000) == 0) {
+				putc('.');
+			}
+			udelay(1000);	/* 1 ms */
+			mii_reg = read_phy_reg(priv, MIIM_RTL8211B_PHY_STATUS);
+		}
+		puts(" done\n");
+		udelay(500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		if (mii_reg & MIIM_RTL8211B_PHYSTAT_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
+	}
+
+	if (mii_reg & MIIM_RTL8211B_PHYSTAT_DUPLEX)
+		priv->duplexity = 1;
+	else
+		priv->duplexity = 0;
+
+	speed = (mii_reg & MIIM_RTL8211B_PHYSTAT_SPEED);
+
+	switch (speed) {
+	case MIIM_RTL8211B_PHYSTAT_GBIT:
+		priv->speed = 1000;
+		break;
+	case MIIM_RTL8211B_PHYSTAT_100:
+		priv->speed = 100;
+		break;
+	default:
+		priv->speed = 10;
+	}
+
+	return 0;
+}
+
 /* Parse the cis8201's status register for speed and duplex
  * information
  */
@@ -1365,6 +1422,33 @@ struct phy_info phy_info_dp83865 = {
 			   },
 };
 
+struct phy_info phy_info_rtl8211b = {
+	0x001cc91,
+	"RealTek RTL8211B",
+	4,
+	(struct phy_cmd[]){	/* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_RTL8211B_PHY_STATUS, miim_read, &mii_parse_RTL8211B_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){	/* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
@@ -1378,6 +1462,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
 	&phy_info_dp83865,
+	&phy_info_rtl8211b,
 	&phy_info_generic,
 	NULL
 };
