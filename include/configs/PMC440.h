@@ -41,7 +41,9 @@
 
 #define CONFIG_SYS_CLK_FREQ	33333400
 
+#if 0 /* temporary disabled because OS/9 does not like dcache on startup */
 #define CONFIG_4xx_DCACHE		/* enable dcache        */
+#endif
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r     */
@@ -272,6 +274,7 @@
 	CFG_BOOTFILE							\
 	CFG_ROOTPATH							\
 	"netdev=eth0\0"							\
+	"ethrotate=no\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 	"nfsroot=${serverip}:${rootpath}\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -354,10 +357,6 @@
 #define CONFIG_CMD_SDRAM
 
 /* POST support */
-/* ethernet POST sometimes freezes the CPU.
- * So disable it for now until issue is solved
- */
-#if 0
 #define CONFIG_POST		(CFG_POST_MEMORY |	\
 				 CFG_POST_CPU    |	\
 				 CFG_POST_UART   |	\
@@ -366,15 +365,6 @@
 				 CFG_POST_FPU    |	\
 				 CFG_POST_ETHER  |	\
 				 CFG_POST_SPR)
-#else
-#define CONFIG_POST		(CFG_POST_MEMORY |	\
-				 CFG_POST_CPU    |	\
-				 CFG_POST_UART   |	\
-				 CFG_POST_I2C    |	\
-				 CFG_POST_CACHE  |	\
-				 CFG_POST_FPU    |	\
-				 CFG_POST_SPR)
-#endif
 
 #define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
 
