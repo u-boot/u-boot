@@ -1547,6 +1547,9 @@ ISPAN_REVB_config:	unconfig
 	fi
 	@$(MKCONFIG) -a ISPAN ppc mpc8260 ispan
 
+mgcoge_config	:	unconfig
+	@$(MKCONFIG) mgcoge ppc mpc8260 mgcoge
+
 MPC8260ADS_config	\
 MPC8260ADS_lowboot_config	\
 MPC8260ADS_33MHz_config	\
