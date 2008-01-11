@@ -576,6 +576,10 @@ prs200_highboot_DDR_config:	unconfig
 mecp5200_config:  unconfig
 	@$(MKCONFIG) -a mecp5200  ppc mpc5xxx mecp5200 esd
 
+munices_config:	unconfig
+	@ >include/config.h
+	@$(MKCONFIG) -a munices ppc mpc5xxx munices
+
 o2dnt_config:
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 

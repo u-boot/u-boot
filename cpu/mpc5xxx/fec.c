@@ -288,13 +288,13 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1);	/* No MII for 7-wire mode */
+		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1); /* No MII for 7-wire mode */
 	}
 
 	/*
 	 * Set Opcode/Pause Duration Register
 	 */
-	fec->eth->op_pause = 0x00010020;	/*FIXME0xffff0020; */
+	fec->eth->op_pause = 0x00010020;	/*FIXME 0xffff0020; */
 
 	/*
 	 * Set Rx FIFO alarm and granularity value
@@ -902,7 +902,8 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	defined(CONFIG_TOP5200)		|| \
 	defined(CONFIG_TQM5200)		|| \
 	defined(CONFIG_UC101)		|| \
-	defined(CONFIG_V38B)
+	defined(CONFIG_V38B)		|| \
+	defined(CONFIG_MUNICES)
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
 # else
