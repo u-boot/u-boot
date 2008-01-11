@@ -1120,6 +1120,32 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x0000003d)
 #endif	/* CONFIG_MBX */
 
+/***  MGSUVD  *********************************************************/
+
+/* The MGSUVD Service Module uses SCC3 for Ethernet */
+
+#ifdef CONFIG_MGSUVD
+#define PROFF_ENET	PROFF_SCC3		/* Ethernet on SCC3 */
+#define CPM_CR_ENET	CPM_CR_CH_SCC3
+#define SCC_ENET	2
+#define PA_ENET_RXD	((ushort)0x0010)	/* PA 11 */
+#define PA_ENET_TXD	((ushort)0x0020)	/* PA 10 */
+#define PA_ENET_RCLK	((ushort)0x1000)	/* PA  3 CLK 5 */
+#define PA_ENET_TCLK	((ushort)0x2000)	/* PA  2 CLK 6 */
+
+#define PC_ENET_TENA	((ushort)0x0004)	/* PC 13 */
+
+#define PC_ENET_RENA	((ushort)0x0200)	/* PC  6 */
+#define PC_ENET_CLSN	((ushort)0x0100)	/* PC  7 */
+
+/* Control bits in the SICR to route TCLK (CLK6) and RCLK (CLK5) to
+ * SCC3.  Also, make sure GR3 (bit 8) and SC3 (bit 9) are zero.
+ */
+#define SICR_ENET_MASK	((uint)0x00FF0000)
+#define SICR_ENET_CLKRT	((uint)0x00250000)
+#endif	/* CONFIG_MGSUVD */
+
+
 /***  MHPC  ********************************************************/
 
 #if defined(CONFIG_MHPC)

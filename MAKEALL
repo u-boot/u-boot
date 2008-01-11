@@ -107,6 +107,7 @@ LIST_8xx="		\
 	lwmon		\
 	MBX		\
 	MBX860T		\
+	mgsuvd		\
 	MHPC		\
 	MPC86xADS	\
 	MPC885ADS	\

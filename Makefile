@@ -853,6 +853,9 @@ MBX_config	\
 MBX860T_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mbx8xx
 
+mgsuvd_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd
+
 MHPC_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mhpc eltec
 
