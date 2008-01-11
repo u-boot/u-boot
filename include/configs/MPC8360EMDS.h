@@ -512,15 +512,6 @@
 #define CFG_HID2		HID2_HBE
 
 /*
- * Cache Config
- */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5 /*log base 2 of the above value */
-#endif
-
-/*
  * MMU Setup
  */
 
@@ -606,6 +597,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_UEC_ETH)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	00:04:9f:ef:01:01
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR 00:04:9f:ef:01:02

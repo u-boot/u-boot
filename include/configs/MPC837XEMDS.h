@@ -132,7 +132,7 @@
 #else
 /*
  * Manually set up DDR parameters
- * WHITE ELECTRONIC DESGGNS - W3HG64M72EEU403PD4 SO-DIMM
+ * WHITE ELECTRONIC DESIGNS - W3HG64M72EEU403PD4 SO-DIMM
  * consist of nine chips from SAMSUNG K4T51083QE-ZC(L)D5
  */
 #define CFG_DDR_SIZE		512 /* MB */
@@ -160,22 +160,22 @@
 				| ( 2 << TIMING_CFG1_ACTTOACT_SHIFT ) \
 				| ( 2 << TIMING_CFG1_WRTORD_SHIFT ) )
 				/* 0x3935d322 */
-#define CFG_DDR_TIMING_2	( ( 2 << TIMING_CFG2_ADD_LAT_SHIFT ) \
+#define CFG_DDR_TIMING_2	( ( 1 << TIMING_CFG2_ADD_LAT_SHIFT ) \
 				| ( 6 << TIMING_CFG2_CPO_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_LAT_DELAY_SHIFT ) \
 				| ( 4 << TIMING_CFG2_RD_TO_PRE_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT ) \
 				| ( 3 << TIMING_CFG2_CKE_PLS_SHIFT ) \
 				| ( 8 << TIMING_CFG2_FOUR_ACT_SHIFT) )
-				/* 0x231088c8 */
+				/* 0x131088c8 */
 #define CFG_DDR_INTERVAL	( ( 0x03E0 << SDRAM_INTERVAL_REFINT_SHIFT ) \
 				| ( 0x0100 << SDRAM_INTERVAL_BSTOPRE_SHIFT ) )
 				/* 0x03E00100 */
 #define CFG_DDR_SDRAM_CFG	0x43000000
 #define CFG_DDR_SDRAM_CFG2	0x00001000 /* 1 posted refresh */
-#define CFG_DDR_MODE		( ( 0x0450 << SDRAM_MODE_ESD_SHIFT ) \
+#define CFG_DDR_MODE		( ( 0x0448 << SDRAM_MODE_ESD_SHIFT ) \
 				| ( 0x1432 << SDRAM_MODE_SD_SHIFT ) )
-				/* ODT 150ohm CL=3, AL=2 on SDRAM */
+				/* ODT 150ohm CL=3, AL=1 on SDRAM */
 #define CFG_DDR_MODE2		0x00000000
 #endif
 
@@ -227,12 +227,19 @@
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE /* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | /* Flash Base address */ \
-				(2 << BR_PS_SHIFT) | /* 16 bit port size */ \
-				BR_V) /* valid */
-#define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
-				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
+#define CFG_BR0_PRELIM		( CFG_FLASH_BASE	/* Flash Base address */ \
+				| (2 << BR_PS_SHIFT)	/* 16 bit port size */ \
+				| BR_V )		/* valid */
+#define CFG_OR0_PRELIM		( (~(CFG_FLASH_SIZE - 1) << 20) \
+				| OR_UPM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_ACS_0b11 \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX \
+				| OR_GPCM_EHTR \
+				| OR_GPCM_EAD )
+				/* 0xFE000FF7 */
 
 #define CFG_MAX_FLASH_BANKS	1 /* number of banks */
 #define CFG_MAX_FLASH_SECT	256 /* max sectors per device */
@@ -457,15 +464,6 @@
 #define CFG_HID0_INIT		0x000000000
 #define CFG_HID0_FINAL		HID0_ENABLE_MACHINE_CHECK
 #define CFG_HID2		HID2_HBE
-
-/*
- * Cache Config
- */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5 /*log base 2 of the above value */
-#endif
 
 /*
  * MMU Setup

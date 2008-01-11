@@ -63,7 +63,7 @@ typedef	struct	global_data {
 #if defined (CONFIG_MPC834X)
 	u32 usbmph_clk;
 #endif /* CONFIG_MPC834X */
-#if defined(CONFIG_MPC815)
+#if defined(CONFIG_MPC8315)
 	u32 tdm_clk;
 #endif
 #if defined(CONFIG_MPC837X)
