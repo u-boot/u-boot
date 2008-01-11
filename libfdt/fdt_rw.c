@@ -252,6 +252,30 @@ static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
 	return 0;
 }
 
+int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+{
+	char *namep;
+	int oldlen, newlen;
+	int err;
+
+	if ((err = rw_check_header(fdt)))
+		return err;
+
+	namep = (char *)fdt_get_name(fdt, nodeoffset, &oldlen);
+	if (!namep)
+		return oldlen;
+
+	newlen = strlen(name);
+
+	err = _blob_splice_struct(fdt, namep, ALIGN(oldlen+1, FDT_TAGSIZE),
+				  ALIGN(newlen+1, FDT_TAGSIZE));
+	if (err)
+		return err;
+
+	memcpy(namep, name, newlen+1);
+	return 0;
+}
+
 int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 		const void *val, int len)
 {
