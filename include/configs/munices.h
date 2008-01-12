@@ -133,7 +133,6 @@
 #define CFG_FLASH_BASE		0xFF000000
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
-//#define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x01000000 /* 16 MByte */

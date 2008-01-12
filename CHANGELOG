@@ -1,3 +1,44 @@
+commit f6db945649e5e9d0c7efe33b507d243cdc86cf03
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 15:15:17 2008 +0100
+
+    Fixed syntax error in function init_e300_core() of mpc83xx/start.S if
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit fa05664cd8c7ab1ecf062aa73b992b7b58bba49c
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 15:15:16 2008 +0100
+
+    MUNICes: Set the right CFG_DEFAULT_MBAR value.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 5fb2b2342ece8d786c6f7fdba1bc273febd3b3d2
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 15:15:15 2008 +0100
+
+    added the config File for the MUNICes board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 6341d9d723b71b4c0bf86f979e4cb228c02fd09d
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 11 15:15:14 2008 +0100
+
+    added basic support for the MUNICes board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 3bb77fb09a1caabf5a292cc5b486a78b977fbe19
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Jan 12 00:39:37 2008 +0100
+
+    Update CHANGELOG and MAINTAINERS files.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5ba7390c3cb579172be66888a371707b47b5be4e
 Author: Anatolij Gustschin <agust@denx.de>
 Date:	Fri Jan 11 02:15:02 2008 +0100
