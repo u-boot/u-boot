@@ -345,8 +345,14 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 
 Heiko Schocher <hs@denx.de>
 
+	ids8247			MPC8272
+	jupiter			MPC5200
 	mgcoge			MPC8247
-	mgsuvd			MPC866
+	mgsuvd			MPC852
+	municse			MPC5200
+	sc3			PPC405GP
+	uc101			MPC5200
+
 
 Peter De Schrijver <p2@mind.be>
 
