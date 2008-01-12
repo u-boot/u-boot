@@ -98,6 +98,7 @@
 static struct pci_device_id ohci_pci_ids[] = {
 	{0x10b9, 0x5237},	/* ULI1575 PCI OHCI module ids */
 	{0x1033, 0x0035},	/* NEC PCI OHCI module ids */
+	{0x1131, 0x1561},	/* Philips 1561 PCI OHCI module ids */
 	/* Please add supported PCI OHCI controller ids here */
 	{0, 0}
 };
