@@ -54,7 +54,7 @@ SECTIONS
   _edata  =  .;
 
   __bss_start = .;
-  .bss       :
+  .bss (NOLOAD)       :
   {
    *(.sbss)
    *(.bss)

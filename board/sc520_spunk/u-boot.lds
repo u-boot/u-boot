@@ -46,7 +46,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	_i386boot_bss_start = ABSOLUTE(.);
-	.bss : { *(.bss) }
+	.bss (NOLOAD) : { *(.bss) }
 	_i386boot_bss_size = SIZEOF(.bss);
 
 

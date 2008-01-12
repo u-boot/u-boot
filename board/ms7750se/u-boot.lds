@@ -94,7 +94,7 @@ SECTIONS
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);
-	.bss :
+	.bss (NOLOAD) :
 	{
 		*(.bss)
 		. = ALIGN(4);
