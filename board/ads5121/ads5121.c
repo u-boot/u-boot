@@ -25,6 +25,7 @@
 #include <mpc512x.h>
 #include <asm/bitops.h>
 #include <command.h>
+#include <fdt_support.h>
 
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
