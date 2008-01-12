@@ -1446,11 +1446,11 @@ static void flash_read_jedec_ids (flash_info_t * info)
 	switch (info->vendor) {
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
-		flash_read_jedec_ids_intel(info);
+		cmdset_intel_read_jedec_ids(info);
 		break;
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
-		flash_read_jedec_ids_amd(info);
+		cmdset_amd_read_jedec_ids(info);
 		break;
 	default:
 		break;
