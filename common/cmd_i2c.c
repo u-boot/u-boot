@@ -655,18 +655,109 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * (most?) embedded boards don't use SDRAM DIMMs.
  */
 #if defined(CONFIG_CMD_SDRAM)
+static void print_ddr2_tcyc (u_char const b)
+{
+	printf ("%d.", (b >> 4) & 0x0F);
+	switch (b & 0x0F) {
+	case 0x0:
+	case 0x1:
+	case 0x2:
+	case 0x3:
+	case 0x4:
+	case 0x5:
+	case 0x6:
+	case 0x7:
+	case 0x8:
+	case 0x9:
+		printf ("%d ns\n", b & 0x0F);
+		break;
+	case 0xA:
+		puts ("25 ns\n");
+		break;
+	case 0xB:
+		puts ("33 ns\n");
+		break;
+	case 0xC:
+		puts ("66 ns\n");
+		break;
+	case 0xD:
+		puts ("75 ns\n");
+		break;
+	default:
+		puts ("?? ns\n");
+		break;
+	}
+}
+
+static void decode_bits (u_char const b, char const *str[], int const do_once)
+{
+	u_char mask;
+
+	for (mask = 0x80; mask != 0x00; mask >>= 1, ++str) {
+		if (b & mask) {
+			puts (*str);
+			if (do_once)
+				return;
+		}
+	}
+}
 
 /*
  * Syntax:
  *	sdram {i2c_chip}
  */
-int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	enum {unknown, EDO, SDRAM, DDR2} type;
+	enum { unknown, EDO, SDRAM, DDR2 } type;
+
 	u_char	chip;
 	u_char	data[128];
 	u_char	cksum;
 	int	j;
+
+	static const char *decode_CAS_DDR2[] = {
+		" TBD", " 6", " 5", " 4", " 3", " 2", " TBD", " TBD"
+	};
+
+	static const char *decode_CAS_default[] = {
+		" TBD", " 7", " 6", " 5", " 4", " 3", " 2", " 1"
+	};
+
+	static const char *decode_CS_WE_default[] = {
+		" TBD", " 6", " 5", " 4", " 3", " 2", " 1", " 0"
+	};
+
+	static const char *decode_byte21_default[] = {
+		"  TBD (bit 7)\n",
+		"  Redundant row address\n",
+		"  Differential clock input\n",
+		"  Registerd DQMB inputs\n",
+		"  Buffered DQMB inputs\n",
+		"  On-card PLL\n",
+		"  Registered address/control lines\n",
+		"  Buffered address/control lines\n"
+	};
+
+	static const char *decode_byte22_DDR2[] = {
+		"  TBD (bit 7)\n",
+		"  TBD (bit 6)\n",
+		"  TBD (bit 5)\n",
+		"  TBD (bit 4)\n",
+		"  TBD (bit 3)\n",
+		"  Supports partial array self refresh\n",
+		"  Supports 50 ohm ODT\n",
+		"  Supports weak driver\n"
+	};
+
+	static const char *decode_row_density_DDR2[] = {
+		"512 MiB", "256 MiB", "128 MiB", "16 GiB",
+		"8 GiB", "4 GiB", "2 GiB", "1 GiB"
+	};
+
+	static const char *decode_row_density_default[] = {
+		"512 MiB", "256 MiB", "128 MiB", "64 MiB",
+		"32 MiB", "16 MiB", "8 MiB", "4 MiB"
+	};
 
 	if (argc < 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -674,10 +765,10 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	/*
 	 * Chip is always specified.
- 	 */
-	chip = simple_strtoul(argv[1], NULL, 16);
+	 */
+	chip = simple_strtoul (argv[1], NULL, 16);
 
-	if (i2c_read(chip, 0, 1, data, sizeof(data)) != 0) {
+	if (i2c_read (chip, 0, 1, data, sizeof (data)) != 0) {
 		puts ("No SDRAM Serial Presence Detect found.\n");
 		return 1;
 	}
@@ -688,15 +779,15 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	if (cksum != data[63]) {
 		printf ("WARNING: Configuration data checksum failure:\n"
-			"  is 0x%02x, calculated 0x%02x\n",
-			data[63], cksum);
+			"  is 0x%02x, calculated 0x%02x\n", data[63], cksum);
 	}
-	printf("SPD data revision            %d.%d\n",
+	printf ("SPD data revision            %d.%d\n",
 		(data[62] >> 4) & 0x0F, data[62] & 0x0F);
-	printf("Bytes used                   0x%02X\n", data[0]);
-	printf("Serial memory size           0x%02X\n", 1 << data[1]);
+	printf ("Bytes used                   0x%02X\n", data[0]);
+	printf ("Serial memory size           0x%02X\n", 1 << data[1]);
+
 	puts ("Memory type                  ");
-	switch(data[2]) {
+	switch (data[2]) {
 	case 2:
 		type = EDO;
 		puts ("EDO\n");
@@ -714,34 +805,36 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		puts ("unknown\n");
 		break;
 	}
+
 	puts ("Row address bits             ");
 	if ((data[3] & 0x00F0) == 0)
-		printf("%d\n", data[3] & 0x0F);
+		printf ("%d\n", data[3] & 0x0F);
 	else
-		printf("%d/%d\n", data[3] & 0x0F, (data[3] >> 4) & 0x0F);
+		printf ("%d/%d\n", data[3] & 0x0F, (data[3] >> 4) & 0x0F);
+
 	puts ("Column address bits          ");
 	if ((data[4] & 0x00F0) == 0)
-		printf("%d\n", data[4] & 0x0F);
+		printf ("%d\n", data[4] & 0x0F);
 	else
-		printf("%d/%d\n", data[4] & 0x0F, (data[4] >> 4) & 0x0F);
+		printf ("%d/%d\n", data[4] & 0x0F, (data[4] >> 4) & 0x0F);
 
 	switch (type) {
 	case DDR2:
-		printf("Number of ranks              %d\n",
-		       (data[5] & 0x07) + 1);
+		printf ("Number of ranks              %d\n",
+			(data[5] & 0x07) + 1);
 		break;
 	default:
-		printf("Module rows                  %d\n", data[5]);
+		printf ("Module rows                  %d\n", data[5]);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("Module data width            %d bits\n", data[6]);
+		printf ("Module data width            %d bits\n", data[6]);
 		break;
 	default:
-		printf("Module data width            %d bits\n",
-		       (data[7] << 8) | data[6]);
+		printf ("Module data width            %d bits\n",
+			(data[7] << 8) | data[6]);
 		break;
 	}
 
@@ -758,85 +851,58 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM cycle time             %d.",
-		       (data[9] >> 4) & 0x0F);
-		switch (data[9] & 0x0F) {
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x8:
-		case 0x9:
-			printf("%d ns\n", data[9] & 0x0F);
-			break;
-		case 0xA:
-			puts("25 ns\n");
-			break;
-		case 0xB:
-			puts("33 ns\n");
-			break;
-		case 0xC:
-			puts("66 ns\n");
-			break;
-		case 0xD:
-			puts("75 ns\n");
-			break;
-		default:
-			puts("?? ns\n");
-			break;
-		}
+		printf ("SDRAM cycle time             ");
+		print_ddr2_tcyc (data[9]);
 		break;
 	default:
-		printf("SDRAM cycle time             %d.%d nS\n",
-		       (data[9] >> 4) & 0x0F, data[9] & 0x0F);
+		printf ("SDRAM cycle time             %d.%d ns\n",
+			(data[9] >> 4) & 0x0F, data[9] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM access time            0.%d%d ns\n",
-		       (data[10] >> 4) & 0x0F, data[10] & 0x0F);
+		printf ("SDRAM access time            0.%d%d ns\n",
+			(data[10] >> 4) & 0x0F, data[10] & 0x0F);
 		break;
 	default:
-		printf("SDRAM access time            %d.%d nS\n",
-		       (data[10] >> 4) & 0x0F, data[10] & 0x0F);
+		printf ("SDRAM access time            %d.%d ns\n",
+			(data[10] >> 4) & 0x0F, data[10] & 0x0F);
 		break;
 	}
 
 	puts ("EDC configuration            ");
-	switch(data[11]) {
+	switch (data[11]) {
 		case 0:  puts ("None\n");	break;
 		case 1:  puts ("Parity\n");	break;
 		case 2:  puts ("ECC\n");	break;
 		default: puts ("unknown\n");	break;
 	}
+
 	if ((data[12] & 0x80) == 0)
 		puts ("No self refresh, rate        ");
 	else
 		puts ("Self refresh, rate           ");
+
 	switch(data[12] & 0x7F) {
-		case 0:  puts ("15.625 uS\n");	break;
-		case 1:  puts ("3.9 uS\n");	break;
-		case 2:  puts ("7.8 uS \n");	break;
-		case 3:  puts ("31.3 uS\n");	break;
-		case 4:  puts ("62.5 uS\n");	break;
-		case 5:  puts ("125 uS\n");	break;
+		case 0:  puts ("15.625 us\n");	break;
+		case 1:  puts ("3.9 us\n");	break;
+		case 2:  puts ("7.8 us\n");	break;
+		case 3:  puts ("31.3 us\n");	break;
+		case 4:  puts ("62.5 us\n");	break;
+		case 5:  puts ("125 us\n");	break;
 		default: puts ("unknown\n");	break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM width (primary)        %d\n", data[13]);
+		printf ("SDRAM width (primary)        %d\n", data[13]);
 		break;
 	default:
-		printf("SDRAM width (primary)        %d\n", data[13] & 0x7F);
+		printf ("SDRAM width (primary)        %d\n", data[13] & 0x7F);
 		if ((data[13] & 0x80) != 0) {
-			printf("  (second bank)              %d\n",
-			       2 * (data[13] & 0x7F));
+			printf ("  (second bank)              %d\n",
+				2 * (data[13] & 0x7F));
 		}
 		break;
 	}
@@ -844,24 +910,24 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (type) {
 	case DDR2:
 		if (data[14] != 0)
-			printf("EDC width                    %d\n", data[14]);
+			printf ("EDC width                    %d\n", data[14]);
 		break;
 	default:
 		if (data[14] != 0) {
-			printf("EDC width                    %d\n",
-			       data[14] & 0x7F);
+			printf ("EDC width                    %d\n",
+				data[14] & 0x7F);
 
 			if ((data[14] & 0x80) != 0) {
-				printf("  (second bank)              %d\n",
-				       2 * (data[14] & 0x7F));
+				printf ("  (second bank)              %d\n",
+					2 * (data[14] & 0x7F));
 			}
 		}
 		break;
 	}
 
-	if (DDR2 != type ) {
-		printf("Min clock delay, back-to-back random column addresses "
-		       "%d\n", data[15]);
+	if (DDR2 != type) {
+		printf ("Min clock delay, back-to-back random column addresses "
+			"%d\n", data[15]);
 	}
 
 	puts ("Burst length(s)             ");
@@ -871,56 +937,30 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (data[16] & 0x02) puts (" 2");
 	if (data[16] & 0x01) puts (" 1");
 	putc ('\n');
-	printf("Number of banks              %d\n", data[17]);
+	printf ("Number of banks              %d\n", data[17]);
 
 	switch (type) {
 	case DDR2:
 		puts ("CAS latency(s)              ");
-		if (data[18] & 0x83) puts (" TBD");
-		if (data[18] & 0x40) puts (" 6");
-		if (data[18] & 0x20) puts (" 5");
-		if (data[18] & 0x10) puts (" 4");
-		if (data[18] & 0x08) puts (" 3");
-		if (data[18] & 0x04) puts (" 2");
+		decode_bits (data[18], decode_CAS_DDR2, 0);
 		putc ('\n');
 		break;
 	default:
 		puts ("CAS latency(s)              ");
-		if (data[18] & 0x80) puts (" TBD");
-		if (data[18] & 0x40) puts (" 7");
-		if (data[18] & 0x20) puts (" 6");
-		if (data[18] & 0x10) puts (" 5");
-		if (data[18] & 0x08) puts (" 4");
-		if (data[18] & 0x04) puts (" 3");
-		if (data[18] & 0x02) puts (" 2");
-		if (data[18] & 0x01) puts (" 1");
+		decode_bits (data[18], decode_CAS_default, 0);
 		putc ('\n');
 		break;
 	}
 
 	if (DDR2 != type) {
 		puts ("CS latency(s)               ");
-		if (data[19] & 0x80) puts (" TBD");
-		if (data[19] & 0x40) puts (" 6");
-		if (data[19] & 0x20) puts (" 5");
-		if (data[19] & 0x10) puts (" 4");
-		if (data[19] & 0x08) puts (" 3");
-		if (data[19] & 0x04) puts (" 2");
-		if (data[19] & 0x02) puts (" 1");
-		if (data[19] & 0x01) puts (" 0");
+		decode_bits (data[19], decode_CS_WE_default, 0);
 		putc ('\n');
 	}
 
 	if (DDR2 != type) {
 		puts ("WE latency(s)               ");
-		if (data[20] & 0x80) puts (" TBD");
-		if (data[20] & 0x40) puts (" 6");
-		if (data[20] & 0x20) puts (" 5");
-		if (data[20] & 0x10) puts (" 4");
-		if (data[20] & 0x08) puts (" 3");
-		if (data[20] & 0x04) puts (" 2");
-		if (data[20] & 0x02) puts (" 1");
-		if (data[20] & 0x01) puts (" 0");
+		decode_bits (data[20], decode_CS_WE_default, 0);
 		putc ('\n');
 	}
 
@@ -935,48 +975,24 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			puts ("  TBD (bit 5)\n");
 		if (data[21] & 0x10)
 			puts ("  FET switch external enable\n");
-		printf("  %d PLLs on DIMM\n", (data[21] >> 2) & 0x03);
+		printf ("  %d PLLs on DIMM\n", (data[21] >> 2) & 0x03);
 		if (data[20] & 0x11) {
-			printf("  %d active registers on DIMM\n",
-			       (data[21] & 0x03) + 1);
+			printf ("  %d active registers on DIMM\n",
+				(data[21] & 0x03) + 1);
 		}
 		break;
 	default:
 		puts ("Module attributes:\n");
 		if (!data[21])
 			puts ("  (none)\n");
-		if (data[21] & 0x80)
-			puts ("  TBD (bit 7)\n");
-		if (data[21] & 0x40)
-			puts ("  Redundant row address\n");
-		if (data[21] & 0x20)
-			puts ("  Differential clock input\n");
-		if (data[21] & 0x10)
-			puts ("  Registerd DQMB inputs\n");
-		if (data[21] & 0x08)
-			puts ("  Buffered DQMB inputs\n");
-		if (data[21] & 0x04)
-			puts ("  On-card PLL\n");
-		if (data[21] & 0x02)
-			puts ("  Registered address/control lines\n");
-		if (data[21] & 0x01)
-			puts ("  Buffered address/control lines\n");
+		else
+			decode_bits (data[21], decode_byte21_default, 0);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		if (data[22] & 0x80) puts ("  TBD (bit 7)\n");
-		if (data[22] & 0x40) puts ("  TBD (bit 6)\n");
-		if (data[22] & 0x20) puts ("  TBD (bit 5)\n");
-		if (data[22] & 0x10) puts ("  TBD (bit 4)\n");
-		if (data[22] & 0x08) puts ("  TBD (bit 3)\n");
-		if (data[22] & 0x04)
-			puts ("  Supports parital array self refresh\n");
-		if (data[22] & 0x02)
-			puts ("  Supports 50 ohm ODT\n");
-		if (data[22] & 0x01)
-			puts ("  Supports weak driver\n");
+		decode_bits (data[22], decode_byte22_DDR2, 0);
 		break;
 	default:
 		puts ("Device attributes:\n");
@@ -995,259 +1011,172 @@ int do_sdram  ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM cycle time (2nd highest CAS latency)        %d.",
-		       (data[23] >> 4) & 0x0F);
-
-		switch (data[23] & 0x0F) {
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x8:
-		case 0x9:
-			printf("%d ns\n", data[23] & 0x0F);
-			break;
-		case 0xA:
-			puts("25 ns\n");
-			break;
-		case 0xB:
-			puts("33 ns\n");
-			break;
-		case 0xC:
-			puts("66 ns\n");
-			break;
-		case 0xD:
-			puts("75 ns\n");
-			break;
-		default:
-			puts("?? ns\n");
-			break;
-		}
+		printf ("SDRAM cycle time (2nd highest CAS latency)        ");
+		print_ddr2_tcyc (data[23]);
 		break;
 	default:
-		printf("SDRAM cycle time (2nd highest CAS latency)        %d."
-		       "%d nS\n", (data[23] >> 4) & 0x0F, data[23] & 0x0F);
+		printf ("SDRAM cycle time (2nd highest CAS latency)        %d."
+			"%d ns\n", (data[23] >> 4) & 0x0F, data[23] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM access from clock (2nd highest CAS latency) 0."
-		       "%d%d ns\n", (data[24] >> 4) & 0x0F, data[24] & 0x0F);
+		printf ("SDRAM access from clock (2nd highest CAS latency) 0."
+			"%d%d ns\n", (data[24] >> 4) & 0x0F, data[24] & 0x0F);
 		break;
 	default:
-		printf("SDRAM access from clock (2nd highest CAS latency) %d."
-		       "%d nS\n", (data[24] >> 4) & 0x0F, data[24] & 0x0F);
+		printf ("SDRAM access from clock (2nd highest CAS latency) %d."
+			"%d ns\n", (data[24] >> 4) & 0x0F, data[24] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM cycle time (3rd highest CAS latency)        %d.",
-		       (data[25] >> 4) & 0x0F);
-
-		switch (data[25] & 0x0F) {
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x8:
-		case 0x9:
-			printf("%d ns\n", data[25] & 0x0F);
-			break;
-		case 0xA:
-			puts("25 ns\n");
-			break;
-		case 0xB:
-			puts("33 ns\n");
-			break;
-		case 0xC:
-			puts("66 ns\n");
-			break;
-		case 0xD:
-			puts("75 ns\n");
-			break;
-		default:
-			puts("?? ns\n");
-			break;
-		}
+		printf ("SDRAM cycle time (3rd highest CAS latency)        ");
+		print_ddr2_tcyc (data[25]);
 		break;
 	default:
-		printf("SDRAM cycle time (3rd highest CAS latency)        %d."
-		       "%d nS\n", (data[25] >> 4) & 0x0F, data[25] & 0x0F);
+		printf ("SDRAM cycle time (3rd highest CAS latency)        %d."
+			"%d ns\n", (data[25] >> 4) & 0x0F, data[25] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("SDRAM access from clock (3rd highest CAS latency) 0."
-		       "%d%d ns\n", (data[26] >> 4) & 0x0F, data[26] & 0x0F);
+		printf ("SDRAM access from clock (3rd highest CAS latency) 0."
+			"%d%d ns\n", (data[26] >> 4) & 0x0F, data[26] & 0x0F);
 		break;
 	default:
-		printf("SDRAM access from clock (3rd highest CAS latency) %d."
-		       "%d nS\n", (data[26] >> 4) & 0x0F, data[26] & 0x0F);
+		printf ("SDRAM access from clock (3rd highest CAS latency) %d."
+			"%d ns\n", (data[26] >> 4) & 0x0F, data[26] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("Minimum row precharge        %d", data[27] >> 2);
-		switch (data[27] & 0x03) {
-			case 0x0: puts(".00 ns\n"); break;
-			case 0x1: puts(".25 ns\n"); break;
-			case 0x2: puts(".50 ns\n"); break;
-			case 0x3: puts(".75 ns\n"); break;
-		}
+		printf ("Minimum row precharge        %d.%02d ns\n",
+			(data[27] >> 2) & 0x3F, 25 * (data[27] & 0x03));
 		break;
 	default:
-		printf("Minimum row precharge        %d nS\n", data[27]);
+		printf ("Minimum row precharge        %d ns\n", data[27]);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("Row active to row active min %d", data[28] >> 2);
-		switch (data[28] & 0x03) {
-			case 0x0: puts(".00 ns\n"); break;
-			case 0x1: puts(".25 ns\n"); break;
-			case 0x2: puts(".50 ns\n"); break;
-			case 0x3: puts(".75 ns\n"); break;
-		}
+		printf ("Row active to row active min %d.%02d ns\n",
+			(data[28] >> 2) & 0x3F, 25 * (data[28] & 0x03));
 		break;
 	default:
-		printf("Row active to row active min %d nS\n", data[28]);
+		printf ("Row active to row active min %d ns\n", data[28]);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("RAS to CAS delay min         %d", data[29] >> 2);
-		switch (data[29] & 0x03) {
-			case 0x0: puts(".00 ns\n"); break;
-			case 0x1: puts(".25 ns\n"); break;
-			case 0x2: puts(".50 ns\n"); break;
-			case 0x3: puts(".75 ns\n"); break;
-		}
+		printf ("RAS to CAS delay min         %d.%02d ns\n",
+			(data[29] >> 2) & 0x3F, 25 * (data[29] & 0x03));
 		break;
 	default:
-		printf("RAS to CAS delay min         %d nS\n", data[29]);
+		printf ("RAS to CAS delay min         %d ns\n", data[29]);
 		break;
 	}
 
-	printf("Minimum RAS pulse width      %d nS\n", data[30]);
+	printf ("Minimum RAS pulse width      %d ns\n", data[30]);
 
 	switch (type) {
 	case DDR2:
-		puts ("Density of each row         ");
-		if (data[31] & 0x80) puts (" 512 MiB\n");
-		if (data[31] & 0x40) puts (" 256 MiB\n");
-		if (data[31] & 0x20) puts (" 128 MiB\n");
-		if (data[31] & 0x10) puts (" 16 GiB\n");
-		if (data[31] & 0x08) puts (" 8 GiB\n");
-		if (data[31] & 0x04) puts (" 4 GiB\n");
-		if (data[31] & 0x02) puts (" 2 GiB\n");
-		if (data[31] & 0x01) puts (" 1 GiB\n");
+		puts ("Density of each row          ");
+		decode_bits (data[31], decode_row_density_DDR2, 1);
+		putc ('\n');
 		break;
 	default:
-		puts ("Density of each row         ");
-		if (data[31] & 0x80) puts (" 512 MiB\n");
-		if (data[31] & 0x40) puts (" 256 MiB\n");
-		if (data[31] & 0x20) puts (" 128 MiB\n");
-		if (data[31] & 0x10) puts (" 64 MiB\n");
-		if (data[31] & 0x08) puts (" 32 MiB\n");
-		if (data[31] & 0x04) puts (" 16 MiB\n");
-		if (data[31] & 0x02) puts (" 8 MiB\n");
-		if (data[31] & 0x01) puts (" 4 MiB\n");
+		puts ("Density of each row          ");
+		decode_bits (data[31], decode_row_density_default, 1);
+		putc ('\n');
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		puts("Command and Address setup    ");
+		puts ("Command and Address setup    ");
 		if (data[32] >= 0xA0) {
-			printf("1.%d%d ns\n",
-			       ((data[32] >> 4) & 0x0F) - 10, data[32] & 0x0F);
+			printf ("1.%d%d ns\n",
+				((data[32] >> 4) & 0x0F) - 10, data[32] & 0x0F);
 		} else {
-			printf("0.%d%d ns\n",
-			       ((data[32] >> 4) & 0x0F), data[32] & 0x0F);
+			printf ("0.%d%d ns\n",
+				((data[32] >> 4) & 0x0F), data[32] & 0x0F);
 		}
 		break;
 	default:
-		printf("Command and Address setup    %c%d.%d nS\n",
-		       (data[32] & 0x80) ? '-' : '+',
-		       (data[32] >> 4) & 0x07, data[32] & 0x0F);
+		printf ("Command and Address setup    %c%d.%d ns\n",
+			(data[32] & 0x80) ? '-' : '+',
+			(data[32] >> 4) & 0x07, data[32] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		puts("Command and Address hold     ");
+		puts ("Command and Address hold     ");
 		if (data[33] >= 0xA0) {
-			printf("1.%d%d ns\n",
-			       ((data[33] >> 4) & 0x0F) - 10, data[33] & 0x0F);
+			printf ("1.%d%d ns\n",
+				((data[33] >> 4) & 0x0F) - 10, data[33] & 0x0F);
 		} else {
-			printf("0.%d%d ns\n",
-			       ((data[33] >> 4) & 0x0F), data[33] & 0x0F);
+			printf ("0.%d%d ns\n",
+				((data[33] >> 4) & 0x0F), data[33] & 0x0F);
 		}
 		break;
 	default:
-		printf("Command and Address hold     %c%d.%d nS\n",
-		       (data[33] & 0x80) ? '-' : '+',
-		       (data[33] >> 4) & 0x07, data[33] & 0x0F);
+		printf ("Command and Address hold     %c%d.%d ns\n",
+			(data[33] & 0x80) ? '-' : '+',
+			(data[33] >> 4) & 0x07, data[33] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("Data signal input setup      0.%d%d ns\n",
-		       (data[34] >> 4) & 0x0F, data[34] & 0x0F);
+		printf ("Data signal input setup      0.%d%d ns\n",
+			(data[34] >> 4) & 0x0F, data[34] & 0x0F);
 		break;
 	default:
-		printf("Data signal input setup      %c%d.%d nS\n",
-		       (data[34] & 0x80) ? '-' : '+',
-		       (data[34] >> 4) & 0x07, data[34] & 0x0F);
+		printf ("Data signal input setup      %c%d.%d ns\n",
+			(data[34] & 0x80) ? '-' : '+',
+			(data[34] >> 4) & 0x07, data[34] & 0x0F);
 		break;
 	}
 
 	switch (type) {
 	case DDR2:
-		printf("Data signal input hold       0.%d%d ns\n",
-		       (data[35] >> 4) & 0x0F, data[35] & 0x0F);
+		printf ("Data signal input hold       0.%d%d ns\n",
+			(data[35] >> 4) & 0x0F, data[35] & 0x0F);
 		break;
 	default:
-		printf("Data signal input hold       %c%d.%d nS\n",
-		       (data[35] & 0x80) ? '-' : '+',
-		       (data[35] >> 4) & 0x07, data[35] & 0x0F);
+		printf ("Data signal input hold       %c%d.%d ns\n",
+			(data[35] & 0x80) ? '-' : '+',
+			(data[35] >> 4) & 0x07, data[35] & 0x0F);
 		break;
 	}
 
 	puts ("Manufacturer's JEDEC ID      ");
 	for (j = 64; j <= 71; j++)
-		printf("%02X ", data[j]);
+		printf ("%02X ", data[j]);
 	putc ('\n');
-	printf("Manufacturing Location       %02X\n", data[72]);
+	printf ("Manufacturing Location       %02X\n", data[72]);
 	puts ("Manufacturer's Part Number   ");
 	for (j = 73; j <= 90; j++)
-		printf("%02X ", data[j]);
+		printf ("%02X ", data[j]);
 	putc ('\n');
-	printf("Revision Code                %02X %02X\n", data[91], data[92]);
-	printf("Manufacturing Date           %02X %02X\n", data[93], data[94]);
+	printf ("Revision Code                %02X %02X\n", data[91], data[92]);
+	printf ("Manufacturing Date           %02X %02X\n", data[93], data[94]);
 	puts ("Assembly Serial Number       ");
 	for (j = 95; j <= 98; j++)
-		printf("%02X ", data[j]);
+		printf ("%02X ", data[j]);
 	putc ('\n');
 
 	if (DDR2 != type) {
-		printf("Speed rating                 PC%d\n",
-		       data[126] == 0x66 ? 66 : data[126]);
+		printf ("Speed rating                 PC%d\n",
+			data[126] == 0x66 ? 66 : data[126]);
 	}
 	return 0;
 }
