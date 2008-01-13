@@ -309,26 +309,25 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
-$(obj)u-boot:		depend $(obj)include/autoconf.mk \
-			$(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
+$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
 		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
 
-$(OBJS):
+$(OBJS):	$(obj)include/autoconf.mk
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
-$(LIBS):
+$(LIBS):	$(obj)include/autoconf.mk
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
-$(SUBDIRS):
+$(SUBDIRS):	$(obj)include/autoconf.mk
 		$(MAKE) -C $@ all
 
-$(NAND_SPL):	$(VERSION_FILE)
+$(NAND_SPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
-$(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
+$(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 $(VERSION_FILE):
