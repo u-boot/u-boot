@@ -28,6 +28,7 @@
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <fdt_support.h>
 
 #if defined(CONFIG_PCI)
 #include <pci.h>
