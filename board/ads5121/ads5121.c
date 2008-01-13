@@ -33,7 +33,8 @@
 			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
 			 CLOCK_SCCR1_PSCFIFO_EN |			\
 			 CLOCK_SCCR1_DDR_EN |				\
-			 CLOCK_SCCR1_FEC_EN)
+			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_TPR_EN)
 
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
 			 CLOCK_SCCR2_SPDIF_EN |		\
@@ -139,7 +140,7 @@ long int fixed_sdram (void)
 	im->mddrc.lut_table2_alternate_upper = CFG_MDDRCGRP_LUT2_AU;
 	im->mddrc.lut_table3_alternate_upper = CFG_MDDRCGRP_LUT3_AU;
 	im->mddrc.lut_table4_alternate_upper = CFG_MDDRCGRP_LUT4_AU;
-	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AU;
+	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AL;
 	im->mddrc.lut_table1_alternate_lower = CFG_MDDRCGRP_LUT1_AL;
 	im->mddrc.lut_table2_alternate_lower = CFG_MDDRCGRP_LUT2_AL;
 	im->mddrc.lut_table3_alternate_lower = CFG_MDDRCGRP_LUT3_AL;
