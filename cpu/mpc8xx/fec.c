@@ -143,7 +143,9 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length);
 static int fec_recv(struct eth_device* dev);
 static int fec_init(struct eth_device* dev, bd_t * bd);
 static void fec_halt(struct eth_device* dev);
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static void __mii_init(void);
+#endif
 
 int fec_initialize(bd_t *bis)
 {
