@@ -350,10 +350,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		} else if (s != NULL && !strcmp(s, ".oob")) {
 			/* read out-of-band data */
 			if (read)
-				ret = nand->read_oob(nand, off, size, &size,
+				ret = nand->read_oob(nand, off, size, (size_t *) &size,
 						     (u_char *) addr);
 			else
-				ret = nand->write_oob(nand, off, size, &size,
+				ret = nand->write_oob(nand, off, size, (size_t *) &size,
 						      (u_char *) addr);
 		} else {
 			if (read)
