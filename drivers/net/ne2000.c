@@ -839,7 +839,7 @@ void uboot_push_packet_len(int len) {
 	}
 	dp83902a_recv(&pbuf[0], len);
 
-	/*Just pass it to the upper layer*/
+	/* Just pass it to the upper layer */
 	NetReceive(&pbuf[0], len);
 }
 
@@ -902,7 +902,6 @@ int eth_init(bd_t *bd) {
 }
 
 void eth_halt() {
-
 	PRINTK("### eth_halt\n");
 	if(initialized)
 		dp83902a_stop();
@@ -910,8 +909,8 @@ void eth_halt() {
 }
 
 int eth_rx() {
-dp83902a_poll();
-return 1;
+	dp83902a_poll();
+	return 1;
 }
 
 int eth_send(volatile void *packet, int length) {

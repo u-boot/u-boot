@@ -36,11 +36,11 @@
 
 #ifdef CONFIG_PIP405
 #include "../pip405/pip405.h"
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #endif
 #ifdef CONFIG_MIP405
 #include "../mip405/mip405.h"
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -587,7 +587,7 @@ extern int get_boot_mode(void);
 void video_get_info_str (int line_number, char *info)
 {
 	/* init video info strings for graphic console */
-	PPC405_SYS_INFO sys_info;
+	PPC4xx_SYS_INFO sys_info;
 	char rev;
 	int i,boot;
 	unsigned long pvr;

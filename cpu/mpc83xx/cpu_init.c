@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -154,6 +154,10 @@ void cpu_init_f (volatile immap_t * im)
 	/* DDR control driver register */
 #ifdef CFG_DDRCDR
 	im->sysconf.ddrcdr = CFG_DDRCDR;
+#endif
+	/* Output buffer impedance register */
+#ifdef CFG_OBIR
+	im->sysconf.obir = CFG_OBIR;
 #endif
 
 #ifdef CONFIG_QE

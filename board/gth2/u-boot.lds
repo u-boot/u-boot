@@ -64,7 +64,7 @@ SECTIONS
 	num_got_entries = (__got_end - __got_start) >> 2;
 
 	. = ALIGN(4);
-	.sbss  : { *(.sbss) }
-	.bss  : { *(.bss) }
+	.sbss (NOLOAD)  : { *(.sbss) }
+	.bss (NOLOAD)  : { *(.bss) }
 	uboot_end = .;
 }

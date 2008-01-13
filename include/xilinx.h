@@ -31,11 +31,11 @@
  *********************************************************************/
 #define CFG_SPARTAN2 			CFG_FPGA_DEV( 0x1 )
 #define CFG_VIRTEX_E 			CFG_FPGA_DEV( 0x2 )
-#define CFG_VIRTEX2	 			CFG_FPGA_DEV( 0x4 )
+#define CFG_VIRTEX2			CFG_FPGA_DEV( 0x4 )
 #define CFG_SPARTAN3 			CFG_FPGA_DEV( 0x8 )
 #define CFG_XILINX_SPARTAN2 	(CFG_FPGA_XILINX | CFG_SPARTAN2)
 #define CFG_XILINX_VIRTEX_E 	(CFG_FPGA_XILINX | CFG_VIRTEX_E)
-#define CFG_XILINX_VIRTEX2	 	(CFG_FPGA_XILINX | CFG_VIRTEX2)
+#define CFG_XILINX_VIRTEX2	(CFG_FPGA_XILINX | CFG_VIRTEX2)
 #define CFG_XILINX_SPARTAN3 	(CFG_FPGA_XILINX | CFG_SPARTAN3)
 /* XXX - Add new models here */
 

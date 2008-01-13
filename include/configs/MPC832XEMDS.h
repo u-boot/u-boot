@@ -145,6 +145,7 @@
 #undef  CFG_RAMBOOT
 #endif
 
+/* CFG_MONITOR_LEN must be a multiple of CFG_ENV_SECT_SIZE */
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
@@ -320,12 +321,7 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
-
-#define OF_CPU			"PowerPC,8323@0"
-#define OF_SOC			"soc8323@e0000000"
-#define OF_QE			"qe@e0100000"
-#define OF_TBCLK		(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH		"/soc8323@e0000000/serial@4500"
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -410,8 +406,8 @@
  */
 #ifndef CFG_RAMBOOT
 	#define CFG_ENV_IS_IN_FLASH	1
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-	#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	#define CFG_ENV_SECT_SIZE	0x20000
 	#define CFG_ENV_SIZE		0x2000
 #else
 	#define CFG_NO_FLASH		1	/* Flash is not usable now */
@@ -484,15 +480,6 @@
 #define CFG_HID0_INIT		0x000000000
 #define CFG_HID0_FINAL		HID0_ENABLE_MACHINE_CHECK
 #define CFG_HID2		HID2_HBE
-
-/*
- * Cache Config
- */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value */
-#endif
 
 /*
  * MMU Setup
@@ -579,6 +566,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_UEC_ETH)
+#define CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR	00:04:9f:ef:03:01
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	00:04:9f:ef:03:02

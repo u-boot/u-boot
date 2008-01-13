@@ -141,6 +141,18 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #endif
 
 /*****************************************************************************/
+/* Defines for the MB862xx driver					     */
+/*****************************************************************************/
+#ifdef CONFIG_VIDEO_MB862xx
+
+#ifdef CONFIG_VIDEO_CORALP
+#define VIDEO_FB_LITTLE_ENDIAN
+#endif
+#define VIDEO_HW_RECTFILL
+#define VIDEO_HW_BITBLT
+#endif
+
+/*****************************************************************************/
 /* Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc	     */
 /*****************************************************************************/
 #include <video_fb.h>
@@ -187,9 +199,9 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 
 /*****************************************************************************/
 /* Cursor definition:							     */
-/* CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/i8042.c) to    */
-/*			   let the cursor blink. Uses the macros CURSOR_OFF  */
-/*			   and CURSOR_ON.				     */
+/* CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/input/i8042.c) */
+/*                         to let the cursor blink. Uses the macros	     */
+/*                         CURSOR_OFF and CURSOR_ON.			     */
 /* CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No	     */
 /*			   blinking is provided. Uses the macros CURSOR_SET  */
 /*			   and CURSOR_OFF.				     */
@@ -217,7 +229,7 @@ void	console_cursor (int state);
 #define CURSOR_OFF console_cursor(0);
 #define CURSOR_SET
 #ifndef CONFIG_I8042_KBD
-#warning Cursor drawing on/off needs timer function s.a. drivers/i8042.c
+#warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
 #endif
 #else
 #ifdef	CONFIG_CONSOLE_TIME
@@ -304,7 +316,11 @@ void	console_cursor (int state);
 #else
 #define SWAP16(x)	 (x)
 #define SWAP32(x)	 (x)
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define SHORTSWAP32(x)	 (x)
+#else
+#define SHORTSWAP32(x)	 ( ((x) >> 16) | ((x) << 16) )
+#endif
 #endif
 
 #if defined(DEBUG) || defined(DEBUG_CFB_CONSOLE)
@@ -647,7 +663,14 @@ static void console_back (void)
 
 static void console_newline (void)
 {
-	CURSOR_OFF console_row++;
+	/* Check if last character in the line was just drawn. If so, cursor was
+	   overwriten and need not to be cleared. Cursor clearing without this
+	   check causes overwriting the 1st character of the line if line lenght
+	   is >= CONSOLE_COLS
+	 */
+	if (console_col < CONSOLE_COLS)
+		CURSOR_OFF
+	console_row++;
 	console_col = 0;
 
 	/* Check if we need to scroll the terminal */
@@ -660,16 +683,26 @@ static void console_newline (void)
 	}
 }
 
+static void console_cr (void)
+{
+	CURSOR_OFF console_col = 0;
+}
+
 /*****************************************************************************/
 
 void video_putc (const char c)
 {
+	static int nl = 1;
+
 	switch (c) {
-	case 13:		/* ignore */
+	case 13:		/* back to first column */
+		console_cr ();
 		break;
 
 	case '\n':		/* next line */
-		console_newline ();
+		if (console_col || (!console_col && nl))
+			console_newline ();
+		nl = 1;
 		break;
 
 	case 9:		/* tab 8 */
@@ -691,8 +724,10 @@ void video_putc (const char c)
 		console_col++;
 
 		/* check for newline */
-		if (console_col >= CONSOLE_COLS)
+		if (console_col >= CONSOLE_COLS) {
 			console_newline ();
+			nl = 0;
+		}
 	}
 CURSOR_SET}
 
@@ -716,10 +751,24 @@ void video_puts (const char *s)
 	fb ++;						\
 }
 
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define FILL_15BIT_555RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
 	fb += 2;					\
 }
+#else
+static int tgl;
+static unsigned short p0;
+#define FILL_15BIT_555RGB(r,g,b) {			\
+	if (!tgl++) {					\
+		p0 = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
+	} else {					\
+		tgl=0;					\
+		*(unsigned long *)(fb-2) = (SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)))<<16) | p0; \
+	}						\
+	fb += 2;					\
+}
+#endif
 
 #define FILL_16BIT_565RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)((((r)>>3)<<11) | (((g)>>2)<<5) | ((b)>>3))); \
@@ -1061,8 +1110,20 @@ void logo_plot (void *screen, int width, int x, int y)
 				*dest = ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
 				break;
 			case GDF_15BIT_555RGB:
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 				*(unsigned short *) dest =
 					SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
+#else
+				{
+					if (!tgl++) {
+						p0 = SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
+					} else {
+						*(unsigned long *)(dest-2) =
+							(SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)))<<16) | p0;
+						tgl=0;
+					}
+				}
+#endif
 				break;
 			case GDF_16BIT_565RGB:
 				*(unsigned short *) dest =

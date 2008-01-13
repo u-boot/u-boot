@@ -31,10 +31,18 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 
-#if defined(CONFIG_MPC5200_DDR)
+#if defined(CONFIG_DDR_MT46V16M16)
 #include "mt46v16m16-75.h"
-#else
+#elif defined(CONFIG_SDR_MT48LC16M16A2)
 #include "mt48lc16m16a2-75.h"
+#elif defined(CONFIG_DDR_MT46V32M16)
+#include "mt46v32m16.h"
+#elif defined(CONFIG_DDR_HYB25D512160BF)
+#include "hyb25d512160bf.h"
+#elif defined(CONFIG_DDR_K4H511638C)
+#include "k4h511638c.h"
+#else
+#error "INKA4x0 SDRAM: invalid chip type specified!"
 #endif
 
 #ifndef CFG_RAMBOOT
@@ -88,7 +96,7 @@ long int initdram (int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
-	ulong test1, test2;
+	long test1, test2;
 
 	/* setup SDRAM chip selects */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001c; /* 512MB at 0x0 */
@@ -108,9 +116,9 @@ long int initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x20000000);
+	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
 	sdram_start(1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x20000000);
+	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -175,7 +183,7 @@ void flash_preinit(void)
 
 int misc_init_f (void)
 {
-	uchar tmp[10];
+	char tmp[10];
 	int i, br;
 
 	i = getenv_r("brightness", tmp, sizeof(tmp));

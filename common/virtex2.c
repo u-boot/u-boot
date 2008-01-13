@@ -31,7 +31,7 @@
 #include <common.h>
 #include <virtex2.h>
 
-#if (CONFIG_FPGA & (CFG_XILINX | CFG_VIRTEX2))
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_VIRTEX2)
 
 #if 0
 #define FPGA_DEBUG

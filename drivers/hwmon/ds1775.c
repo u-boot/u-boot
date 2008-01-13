@@ -25,7 +25,7 @@
 #include <i2c.h>
 #include <dtt.h>
 
-#define DTT_I2C_DEV_CODE 0x49		/* Dallas Semi's DS1775 device code */
+#define DTT_I2C_DEV_CODE	CFG_I2C_DTT_ADDR /* Dallas Semi's DS1775 device code */
 
 int dtt_read(int sensor, int reg)
 {

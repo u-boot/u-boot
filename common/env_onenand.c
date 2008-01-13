@@ -64,7 +64,7 @@ void env_relocate_spec(void)
 	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long env_addr;
 	int use_default = 0;
-	int retlen;
+	size_t retlen;
 
 	env_addr = CFG_ENV_ADDR;
 	env_addr -= (unsigned long)onenand_chip.base;
@@ -96,7 +96,7 @@ int saveenv(void)
 {
 	unsigned long env_addr = CFG_ENV_ADDR;
 	struct erase_info instr;
-	int retlen;
+	size_t retlen;
 
 	instr.len = CFG_ENV_SIZE;
 	instr.addr = env_addr;

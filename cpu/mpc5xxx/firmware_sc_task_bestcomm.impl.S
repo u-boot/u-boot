@@ -23,7 +23,7 @@ scEthernetRecv_Entry:		/* Task 0 */
 .long   0x00000000
 .long   0x00000000
 .long   scEthernetRecv_CSave - taskTable	/* Task 0 context save space */
-.long   0xf0000000
+.long   CFG_MBAR
 .globl scEthernetXmit_Entry
 scEthernetXmit_Entry:		/* Task 1 */
 .long   scEthernetXmit_TDT - taskTable	/* Task 1 Descriptor Table */
@@ -33,7 +33,7 @@ scEthernetXmit_Entry:		/* Task 1 */
 .long   0x00000000
 .long   0x00000000
 .long   scEthernetXmit_CSave - taskTable	/* Task 1 context save space */
-.long   0xf0000000
+.long   CFG_MBAR
 
 
 .globl scEthernetRecv_TDT
@@ -151,7 +151,7 @@ scEthernetRecv_VarTab:	/* Task 0 Variable Table */
 .long   0x00000000	/* var[6] */
 .long   0x00000000	/* var[7] */
 .long   0x00000000	/* var[8] */
-.long   0xf0008800	/* var[9] */
+.long   (CFG_MBAR + 0x8800)	/* var[9] */
 .long   0x00000008	/* var[10] */
 .long   0x0000000c	/* var[11] */
 .long   0x80000000	/* var[12] */
@@ -190,7 +190,7 @@ scEthernetXmit_VarTab:	/* Task 1 Variable Table */
 .long   0x00000000	/* var[8] */
 .long   0x00000000	/* var[9] */
 .long   0x00000000	/* var[10] */
-.long   0xf0008800	/* var[11] */
+.long   (CFG_MBAR + 0x8800)	/* var[11] */
 .long   0x00000000	/* var[12] */
 .long   0x80000000	/* var[13] */
 .long   0x10000000	/* var[14] */

@@ -52,8 +52,8 @@ SECTIONS
 
 	. = ALIGN(4);
 	__bss_start = .;
-	.sbss  : { *(.sbss) }
-	.bss  : { *(.bss) }
+	.sbss (NOLOAD) : { *(.sbss) }
+	.bss (NOLOAD)  : { *(.bss) }
 
 	_end = .;
 }

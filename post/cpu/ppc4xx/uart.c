@@ -101,6 +101,17 @@
 #define UCR0_UDIV_POS   0
 #define UCR1_UDIV_POS   8
 #define UDIV_MAX        127
+#elif defined(CONFIG_405EX)
+#define UART0_BASE	0xef600200
+#define UART1_BASE	0xef600300
+#define CR0_MASK	0x000000ff
+#define CR0_EXTCLK_ENA	0x00800000
+#define CR0_UDIV_POS	0
+#define UDIV_SUBTRACT	0
+#define UART0_SDR	sdr_uart0
+#define UART1_SDR	sdr_uart1
+#define MFREG(a, d)	mfsdr(a, d)
+#define MTREG(a, d)	mtsdr(a, d)
 #else /* CONFIG_405GP || CONFIG_405CR */
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
@@ -137,7 +148,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if !defined(CFG_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
@@ -183,7 +194,7 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 
 static int uart_post_init (unsigned long dev_base)
 {
-	unsigned long reg;
+	unsigned long reg = 0;
 	unsigned long udiv;
 	unsigned short bdiv;
 	volatile char val;

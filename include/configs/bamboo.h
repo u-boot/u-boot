@@ -414,15 +414,6 @@
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Internal Definitions
  *

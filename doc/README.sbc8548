@@ -1,0 +1,27 @@
+Wind River SBC8548 reference board
+===========================
+
+Copyright 2007, Embedded Specialties, Inc.
+Copyright 2007 Wind River Systemes, Inc.
+-----------------------------
+
+1. Building U-Boot
+------------------
+The SBC8548 code is known to build using ELDK 4.1.
+
+    $ make sbc8548_config
+    Configuring for sbc8548 board...
+
+    $ make
+
+
+2. Switch and Jumper Settings
+-----------------------------
+All Jumpers & Switches are in their default positions.  Please refer to
+the board documentation for details.  Some settings control CPU voltages
+and settings may change with board revisions.
+
+3. Known limitations
+--------------------
+PCI:
+	The code to support PCI is currently disabled and has not been verified.

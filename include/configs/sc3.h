@@ -433,24 +433,6 @@ extern unsigned long offsetOfEnvironment;
 #define CONFIG_JFFS2_PART_SIZE		0x01000000
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- *
- * CFG_DCACHE_SIZE -> size of data cache:
- * - 405GP 8k
- * - 405GPr 16k
- * How to handle the difference in chache size?
- * CFG_CACHELINE_SIZE -> size of one cache line: 32 bytes
- * (used in cpu/ppc4xx/start.S)
-*/
-#define CFG_DCACHE_SIZE    16384
-
-#define CFG_CACHELINE_SIZE 32
-
-#if defined(CONFIG_CMD_KGDB)
- #define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Init Memory Controller:
  *

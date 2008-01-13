@@ -555,6 +555,9 @@ void board_init_f (ulong bootflag)
 	bd->bi_sccfreq = gd->scc_clk;
 	bd->bi_vco     = gd->vco_out;
 #endif /* CONFIG_CPM2 */
+#if defined(CONFIG_MPC512X)
+	bd->bi_ipsfreq = gd->ips_clk;
+#endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_ipbfreq = gd->ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;
@@ -927,6 +930,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/* Initialize the jump table for applications */
 	jumptable_init ();
+
+#if defined(CONFIG_API)
+	/* Initialize API */
+	api_init ();
+#endif
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();

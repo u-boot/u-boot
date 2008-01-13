@@ -192,7 +192,9 @@
 
 /* FPGA - Spartan 2 */
 /* experiment
-#define CONFIG_FPGA		CFG_SPARTAN3
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 #define CFG_FPGA_PROG_FEEDBACK
 #define CFG_FPGA_CHECK_CTRLC
@@ -291,7 +293,6 @@
 #	define CFG_ENV_SECT_SIZE	0x20000
 #endif
 
-/* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
 /* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
    keep reset. */
 #undef CFG_FLASH_CFI

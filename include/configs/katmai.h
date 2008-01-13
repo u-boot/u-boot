@@ -62,7 +62,7 @@
 #define CFG_PCI_TARGBASE	CFG_PCI_MEMBASE
 
 #define CFG_PCIE_MEMBASE	0xb0000000	/* mapped PCIe memory	*/
-#define CFG_PCIE_MEMSIZE	0x01000000
+#define CFG_PCIE_MEMSIZE	0x08000000	/* smallest incr for PCIe port */
 #define CFG_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
 
 #define CFG_PCIE0_CFGBASE	0xc0000000
@@ -71,6 +71,9 @@
 #define CFG_PCIE0_XCFGBASE	0xc3000000
 #define CFG_PCIE1_XCFGBASE	0xc3001000
 #define CFG_PCIE2_XCFGBASE	0xc3002000
+
+/* base address of inbound PCIe window */
+#define CFG_PCIE_INBOUND_BASE	0x0000000000000000ULL
 
 /* System RAM mapped to PCI space */
 #define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
@@ -108,6 +111,7 @@
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x51, 0x52}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
+#define CONFIG_DDR_RQDC_FIXED	0x80000038 /* optimal value found by GDA*/
 #undef  CONFIG_STRESS
 
 /*-----------------------------------------------------------------------
@@ -190,8 +194,14 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"				\
+	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
+		"tftp ${fdt_addr} ${fdt_file};"				\
+		"run nfsargs addip addtty;"				\
+		"bootm 200000 - ${fdt_addr}\0"				\
+	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=katmai/uImage\0"					\
+	"fdt_file=katmai/katmai.dtb\0"					\
+	"fdt_addr=400000\0"						\
 	"kernel_addr=fff10000\0"					\
 	"ramdisk_addr=fff20000\0"					\
 	"initrd_high=30000000\0"					\
@@ -202,6 +212,7 @@
 	"upd=run load;run update\0"					\
 	"kozio=bootm ffc60000\0"					\
 	"pciconfighost=1\0"						\
+	"pcie_mode=RP:RP:RP\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -243,7 +254,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
-
+#define CONFIG_CMD_SNTP
 
 #define	CONFIG_IBM_EMAC4_V4	1	/* 440SPe has this EMAC version	*/
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -427,14 +438,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/*Initial Memory map for Linux*/
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		8192	/* For AMCC 405 CPUs		*/
-#define CFG_CACHELINE_SIZE	32	/* ...				*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
 
 /*
  * Internal Definitions
@@ -448,5 +451,9 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

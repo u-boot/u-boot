@@ -86,7 +86,7 @@ int serial_init(void)
 	psc->mode = PSC_MODE_1_STOPBIT;
 
 	/* calculate dividor for setting PSC CTUR and CTLR registers */
-	baseclk = (gd->ipb_clk + 8) / 16;
+	baseclk = (gd->ips_clk + 8) / 16;
 	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
 
 	psc->ctur = (div >> 8) & 0xff;

@@ -71,15 +71,20 @@
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer
  *----------------------------------------------------------------------*/
-/* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
-#define CFG_INIT_RAM_ADDR	CFG_OCM_BASE	/* OCM			*/
-#define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
-
+/*
+ * On LWMON5 we use D-cache as init-ram and stack pointer. We also move
+ * the POST_WORD from OCM to a 440EPx register that preserves it's
+ * content during reset (GPT0_COM6). This way we reserve the OCM (16k)
+ * for logbuffer only.
+ */
+#define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
+#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
 #define CFG_INIT_RAM_END	(4 << 10)
-#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
-#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
+#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
+						/* unused GPT0 COMP reg	*/
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -153,7 +158,7 @@
 				 CFG_POST_SPR      | \
 				 CFG_POST_UART)
 
-#define CFG_POST_CACHE_ADDR	0x10000000	/* free virtual address		*/
+#define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_LOGBUFFER
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
@@ -243,6 +248,18 @@
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #define CONFIG_PHY1_ADDR	1
 
+/* Video console */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_MB862xx
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define VIDEO_FB_16BPP_PIXEL_SWAP
+
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_SPLASH_SCREEN
+
 /* USB */
 #ifdef CONFIG_440EPX
 #define CONFIG_USB_OHCI
@@ -288,6 +305,10 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 
 #ifdef CONFIG_440EPX
 #define CONFIG_CMD_USB
@@ -414,7 +435,7 @@
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
  */
-#define CFG_440_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
+#define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/	\
@@ -486,15 +507,6 @@
 {GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO63  Unselect via TraceSelect Bit	*/	\
 }											\
 }
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- *----------------------------------------------------------------------*/
-#define CFG_DCACHE_SIZE		(32<<10)  /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	      /* ...			            */
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	      /* log base 2 of the above value	*/
-#endif
 
 /*
  * Internal Definitions

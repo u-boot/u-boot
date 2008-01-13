@@ -47,7 +47,7 @@
 #if defined(CONFIG_PIP405)
 #include "../pip405/pip405.h"
 #endif
-#include <405gp_pci.h>
+#include <asm/4xx_pci.h>
 #else /* defined(CONFIG_PATI) */
 #include <mpc5xx.h>
 #endif

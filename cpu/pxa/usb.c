@@ -89,6 +89,22 @@ int usb_cpu_stop(void)
 
 int usb_cpu_init_fail(void)
 {
+	UHCHR |= UHCHR_FHR;
+	udelay(11);
+	UHCHR &= ~UHCHR_FHR;
+
+	UHCCOMS |= 1;
+	udelay(10);
+
+#if defined(CONFIG_CPU_MONAHANS)
+	UHCHR |= UHCHR_SSEP0;
+#endif
+#if defined(CONFIG_PXA27X)
+	UHCHR |= UHCHR_SSEP2;
+#endif
+	UHCHR |= UHCHR_SSEP1;
+	UHCHR |= UHCHR_SSE;
+
 	return 0;
 }
 

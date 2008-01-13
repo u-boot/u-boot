@@ -146,7 +146,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	CPCI4052		PPC405GP
 	CPCI405AB		PPC405GP
 	CPCI405DT		PPC405GP
-	CPCI440			PPC440GP
 	CPCIISER4		PPC405GP
 	DASA_SIM		IOP480 (PPC401)
 	DP405			PPC405EP
@@ -159,6 +158,7 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	PCI405			PPC405GP
 	PLU405			PPC405EP
 	PMC405			PPC405GP
+	PMC440			PPC440EPx
 	VOH405			PPC405EP
 	VOM405			PPC405EP
 	WUH405			PPC405EP
@@ -190,6 +190,7 @@ Howard Gray <mvsensor@matrix-vision.de>
 
 Joe Hamman <joe.hamman@embeddedspecialties.com>
 
+	sbc8548			MPC8548
 	sbc8641d		MPC8641D
 
 Klaus Heydeck <heydeck@kieback-peter.de>
@@ -204,6 +205,10 @@ Murray Jensen <Murray.Jensen@csiro.au>
 	cogent_mpc8260		MPC8260
 	hymod			MPC8260
 
+Larry Johnson <lrj@acm.org>
+
+	korat			PPC440EPx
+
 Brad Kemp <Brad.Kemp@seranoa.com>
 
 	ppmc8260		MPC8260
@@ -217,13 +222,19 @@ Thomas Lange <thomas@corelatus.se>
 
 	GTH			MPC860
 
+Robert Lazarski <robertlazarski@gmail.com>
+
+	ATUM8548		MPC8548
+
 The LEOX team <team@leox.org>
 
 	ELPT860			MPC860T
 
 Dave Liu <daveliu@freescale.com>
 
+	MPC832XEMDS		MPC832x
 	MPC8360EMDS		MPC8360
+	MPC837XEMDS		MPC837x
 
 Nye Liu <nyet@zumanetworks.com>
 
@@ -303,8 +314,11 @@ Stefan Roese <sr@denx.de>
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
 	ebony			PPC440GP
+	haleakala		PPC405EXr
 	katmai			PPC440SPe
+	kilauea			PPC405EX
 	lwmon5			PPC440EPx
+	makalu			PPC405EX
 	ocotea			PPC440GX
 	p3p440			PPC440GP
 	pcs440ep		PPC440EP
@@ -328,6 +342,17 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 	KAREF			PPC440GX
 	METROBOX		PPC440GX
 	XPEDITE1K		PPC440GX
+
+Heiko Schocher <hs@denx.de>
+
+	ids8247			MPC8272
+	jupiter			MPC5200
+	mgcoge			MPC8247
+	mgsuvd			MPC852
+	municse			MPC5200
+	sc3			PPC405GP
+	uc101			MPC5200
+
 
 Peter De Schrijver <p2@mind.be>
 
@@ -356,6 +381,10 @@ Rune Torgersen <runet@innovsys.com>
 David Updegraff <dave@cray.com>
 
 	CRAYL1			PPC4xx
+
+Anton Vorontsov <avorontsov@ru.mvista.com>
+
+	MPC8360ERDK		MPC8360
 
 Josef Wagner <Wagner@Microsys.de>
 

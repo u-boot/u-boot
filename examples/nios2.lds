@@ -74,7 +74,7 @@ SECTIONS
 	 * bss follows. We keep it adjacent to simplify init code.
 	 */
 	__bss_start = .;
-	.sbss :
+	.sbss (NOLOAD) :
 	{
 	  *(.sbss)
 	  *(.sbss.*)
@@ -82,7 +82,7 @@ SECTIONS
 	  *(.scommon)
 	}
 	. = ALIGN(4);
-	.bss :
+	.bss (NOLOAD) :
 	{
 	  *(.bss)
 	  *(.bss.*)

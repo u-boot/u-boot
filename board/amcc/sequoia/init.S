@@ -20,56 +20,8 @@
  */
 
 #include <ppc_asm.tmpl>
+#include <asm-ppc/mmu.h>
 #include <config.h>
-
-/* General */
-#define TLB_VALID   0x00000200
-#define _256M       0x10000000
-
-/* Supported page sizes */
-
-#define SZ_1K	    0x00000000
-#define SZ_4K	    0x00000010
-#define SZ_16K	    0x00000020
-#define SZ_64K	    0x00000030
-#define SZ_256K	    0x00000040
-#define SZ_1M	    0x00000050
-#define SZ_8M       0x00000060
-#define SZ_16M	    0x00000070
-#define SZ_256M	    0x00000090
-
-/* Storage attributes */
-#define SA_W	    0x00000800	    /* Write-through */
-#define SA_I	    0x00000400	    /* Caching inhibited */
-#define SA_M	    0x00000200	    /* Memory coherence */
-#define SA_G	    0x00000100	    /* Guarded */
-#define SA_E	    0x00000080	    /* Endian */
-
-/* Access control */
-#define AC_X	    0x00000024	    /* Execute */
-#define AC_W	    0x00000012	    /* Write */
-#define AC_R	    0x00000009	    /* Read */
-
-/* Some handy macros */
-
-#define EPN(e)		((e) & 0xfffffc00)
-#define TLB0(epn,sz)	( (EPN((epn)) | (sz) | TLB_VALID ) )
-#define TLB1(rpn,erpn)	( ((rpn)&0xfffffc00) | (erpn) )
-#define TLB2(a)		( (a)&0x00000fbf )
-
-#define tlbtab_start\
-	mflr    r1  ;\
-	bl 0f	    ;
-
-#define tlbtab_end\
-	.long 0, 0, 0	;   \
-0:	mflr    r0	;   \
-	mtlr    r1	;   \
-	blr		;
-
-#define tlbentry(epn,sz,rpn,erpn,attr)\
-	.long TLB0(epn,sz),TLB1(rpn,erpn),TLB2(attr)
-
 
 /**************************************************************************
  * TLB TABLE
@@ -87,8 +39,20 @@
 tlbtab:
 	tlbtab_start
 
-	/*
-	 * BOOT_CS (FLASH) must be first. Before relocation SA_I can be off to use the
+	/* vxWorks needs this as first entry for the Machine Check interrupt */
+	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* TLB-entry for DDR SDRAM (Up to 2GB) */
+#ifdef CONFIG_4xx_DCACHE
+	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
+#else
+	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+#endif
+
+	/* TLB-entry for EBC */
+	tlbentry( CFG_BCSR_BASE, SZ_256M, CFG_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* BOOT_CS (FLASH) must be forth. Before relocation SA_I can be off to use the
 	 * speed up boot process. It is patched after relocation to enable SA_I
 	 */
 #ifndef CONFIG_NAND_SPL
@@ -96,9 +60,6 @@ tlbtab:
 #else
 	tlbentry( CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
 #endif
-
-	/* TLB-entry for DDR SDRAM (Up to 2GB) */
-	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 #ifdef CFG_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
@@ -110,9 +71,6 @@ tlbtab:
 	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
 	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
 	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
-
-	/* TLB-entry for EBC */
-	tlbentry( CFG_BCSR_BASE, SZ_1K, CFG_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB-entry for NAND */
 	tlbentry( CFG_NAND_ADDR, SZ_1K, CFG_NAND_ADDR, 1, AC_R|AC_W|AC_X|SA_G|SA_I )

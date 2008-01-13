@@ -30,6 +30,9 @@
 #include <fdt_support.h>
 #include <exports.h>
 
+#ifdef CONFIG_QE
+#include "../drivers/qe/qe.h"
+#endif
 /*
  * Global data (for the gd->bd)
  */
@@ -111,6 +114,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	int   err;
 	u32   tmp;		/* used to set 32 bit integer properties */
 	char  *str;		/* used to set string properties */
+	const char *path;
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
@@ -148,14 +152,7 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	nodeoffset = fdt_path_offset (fdt, "/chosen");
 
 	/*
-	 * If we have a "chosen" node already the "force the writing"
-	 * is not set, our job is done.
-	 */
-	if ((nodeoffset >= 0) && !force)
-		return 0;
-
-	/*
-	 * No "chosen" node in the blob: create it.
+	 * If there is no "chosen" node in the blob, create it.
 	 */
 	if (nodeoffset < 0) {
 		/*
@@ -170,42 +167,55 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	}
 
 	/*
-	 * Update pre-existing properties, create them if non-existant.
+	 * Create /chosen properites that don't exist in the fdt.
+	 * If the property exists, update it only if the "force" parameter
+	 * is true.
 	 */
 	str = getenv("bootargs");
 	if (str != NULL) {
-		err = fdt_setprop(fdt, nodeoffset,
-			"bootargs", str, strlen(str)+1);
-		if (err < 0)
-			printf("WARNING: could not set bootargs %s.\n",
-				fdt_strerror(err));
+		path = fdt_getprop(fdt, nodeoffset, "bootargs", NULL);
+		if ((path == NULL) || force) {
+			err = fdt_setprop(fdt, nodeoffset,
+				"bootargs", str, strlen(str)+1);
+			if (err < 0)
+				printf("WARNING: could not set bootargs %s.\n",
+					fdt_strerror(err));
+		}
 	}
 	if (initrd_start && initrd_end) {
-		tmp = __cpu_to_be32(initrd_start);
-		err = fdt_setprop(fdt, nodeoffset,
-			 "linux,initrd-start", &tmp, sizeof(tmp));
-		if (err < 0)
-			printf("WARNING: "
-				"could not set linux,initrd-start %s.\n",
-				fdt_strerror(err));
-		tmp = __cpu_to_be32(initrd_end);
-		err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-end", &tmp, sizeof(tmp));
-		if (err < 0)
-			printf("WARNING: could not set linux,initrd-end %s.\n",
-				fdt_strerror(err));
+		path = fdt_getprop(fdt, nodeoffset, "linux,initrd-start", NULL);
+		if ((path == NULL) || force) {
+			tmp = __cpu_to_be32(initrd_start);
+			err = fdt_setprop(fdt, nodeoffset,
+				"linux,initrd-start", &tmp, sizeof(tmp));
+			if (err < 0)
+				printf("WARNING: "
+					"could not set linux,initrd-start %s.\n",
+					fdt_strerror(err));
+			tmp = __cpu_to_be32(initrd_end);
+			err = fdt_setprop(fdt, nodeoffset,
+				"linux,initrd-end", &tmp, sizeof(tmp));
+			if (err < 0)
+				printf("WARNING: could not set linux,initrd-end %s.\n",
+					fdt_strerror(err));
+		}
 	}
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
-	err = fdt_fixup_stdout(fdt, nodeoffset);
+	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);
+	if ((path == NULL) || force)
+		err = fdt_fixup_stdout(fdt, nodeoffset);
 #endif
 
 #ifdef OF_STDOUT_PATH
-	err = fdt_setprop(fdt, nodeoffset,
-		"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
-	if (err < 0)
-		printf("WARNING: could not set linux,stdout-path %s.\n",
-			fdt_strerror(err));
+	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);
+	if ((path == NULL) || force) {
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,stdout-path", OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
+		if (err < 0)
+			printf("WARNING: could not set linux,stdout-path %s.\n",
+				fdt_strerror(err));
+	}
 #endif
 
 	return err;
@@ -607,4 +617,49 @@ void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 #endif
 	}
 }
+
+#ifdef CONFIG_QE
+/*
+ * If a QE firmware has been uploaded, then add the 'firmware' node under
+ * the 'qe' node.
+ */
+void fdt_fixup_qe_firmware(void *fdt)
+{
+	struct qe_firmware_info *qe_fw_info;
+	int node, ret;
+
+	qe_fw_info = qe_get_firmware_info();
+	if (!qe_fw_info)
+		return;
+
+	node = fdt_path_offset(fdt, "/qe");
+	if (node < 0)
+		return;
+
+	/* We assume the node doesn't exist yet */
+	node = fdt_add_subnode(fdt, node, "firmware");
+	if (node < 0)
+		return;
+
+	ret = fdt_setprop(fdt, node, "extended-modes",
+		&qe_fw_info->extended_modes, sizeof(u64));
+	if (ret < 0)
+		goto error;
+
+	ret = fdt_setprop_string(fdt, node, "id", qe_fw_info->id);
+	if (ret < 0)
+		goto error;
+
+	ret = fdt_setprop(fdt, node, "virtual-traps", qe_fw_info->vtraps,
+		sizeof(qe_fw_info->vtraps));
+	if (ret < 0)
+		goto error;
+
+	return;
+
+error:
+	fdt_del_node(fdt, node);
+}
+#endif
+
 #endif

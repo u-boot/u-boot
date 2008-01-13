@@ -46,6 +46,7 @@ LIST_5xxx="		\
 	mcc200		\
 	mecp5200	\
 	motionpro	\
+	munices		\
 	o2dnt		\
 	pf5200		\
 	PM520		\
@@ -107,6 +108,7 @@ LIST_8xx="		\
 	lwmon		\
 	MBX		\
 	MBX860T		\
+	mgsuvd		\
 	MHPC		\
 	MPC86xADS	\
 	MPC885ADS	\
@@ -135,6 +137,7 @@ LIST_8xx="		\
 	SPD823TS	\
 	svm_sc8xx	\
 	SXNI855T	\
+	TK885D		\
 	TOP860		\
 	TQM823L		\
 	TQM823L_LCD	\
@@ -168,7 +171,6 @@ LIST_4xx="		\
 	CPCI4052	\
 	CPCI405AB	\
 	CPCI405DT	\
-	CPCI440		\
 	CPCIISER4	\
 	CRAYL1		\
 	csb272		\
@@ -180,6 +182,8 @@ LIST_4xx="		\
 	ERIC		\
 	EXBITGEN	\
 	G2000		\
+	haleakala	\
+	haleakala_nand	\
 	hcu4		\
 	hcu5		\
 	HH405		\
@@ -187,8 +191,12 @@ LIST_4xx="		\
 	JSE		\
 	KAREF		\
 	katmai		\
+	kilauea		\
+	kilauea_nand	\
+	korat		\
 	luan		\
 	lwmon5		\
+	makalu		\
 	METROBOX	\
 	MIP405		\
 	MIP405T		\
@@ -203,6 +211,7 @@ LIST_4xx="		\
 	PIP405		\
 	PLU405		\
 	PMC405		\
+	PMC440		\
 	PPChameleonEVB	\
 	rainier		\
 	sbc405		\
@@ -274,6 +283,7 @@ LIST_8260="		\
 	hymod		\
 	IPHASE4539	\
 	ISPAN		\
+	mgcoge		\
 	MPC8260ADS	\
 	MPC8266ADS	\
 	MPC8272ADS	\
@@ -307,6 +317,9 @@ LIST_83xx="		\
 	MPC8349ITXGP	\
 	MPC8360EMDS	\
 	MPC8360EMDS_ATM	\
+	MPC8360ERDK_33	\
+	MPC8360ERDK_66	\
+	MPC837XEMDS	\
 	sbc8349		\
 	TQM834x		\
 "
@@ -317,6 +330,7 @@ LIST_83xx="		\
 #########################################################################
 
 LIST_85xx="		\
+	ATUM8548	\
 	MPC8540ADS	\
 	MPC8540EVAL	\
 	MPC8541CDS	\
@@ -328,6 +342,7 @@ LIST_85xx="		\
 	PM854		\
 	PM856		\
 	sbc8540		\
+	sbc8548		\
 	sbc8560		\
 	stxgp3		\
 	stxssa		\
@@ -342,6 +357,7 @@ LIST_85xx="		\
 #########################################################################
 
 LIST_86xx="		\
+	MPC8610HPCD	\
 	MPC8641HPCN	\
 	sbc8641d	\
 "
@@ -477,6 +493,7 @@ LIST_ARM10="		\
 LIST_ARM11="		\
 	cp1136		\
 	omap2420h4	\
+	apollon		\
 "
 
 #########################################################################

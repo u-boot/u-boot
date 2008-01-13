@@ -25,9 +25,7 @@
 #else
 #include <asm/mmu.h>
 #endif
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#elif defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
 #if defined(CONFIG_PQ_MDS_PIB)
@@ -87,6 +85,11 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  1, 3, 0, 2}, /* MDIO */
 	{0,  2, 1, 0, 1}, /* MDC */
 
+	{5,  0, 1, 0, 2}, /* UART2_SOUT */
+	{5,  1, 2, 0, 3}, /* UART2_CTS */
+	{5,  2, 1, 0, 1}, /* UART2_RTS */
+	{5,  3, 2, 0, 2}, /* UART2_SIN */
+
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
@@ -105,6 +108,9 @@ int board_early_init_f(void)
 	    immr->sysconf.spridr == SPR_8360_REV21 ||
 	    immr->sysconf.spridr == SPR_8360E_REV21)
 		bcsr[0xe] = 0x30;
+
+	/* Enable second UART */
+	bcsr[0x9] &= ~0x01;
 
 	return 0;
 }
@@ -295,19 +301,48 @@ void sdram_init(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
-#if defined(CONFIG_OF_FLAT_TREE)
-	u32 *p;
-	int len;
+	const immap_t *immr = (immap_t *)CFG_IMMR;
 
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
-#endif
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
+	/*
+	 * mpc8360ea pb mds errata 2: RGMII timing
+	 * if on mpc8360ea rev. 2.1,
+	 * change both ucc phy-connection-types from rgmii-id to rgmii-rxid
+	 */
+	if (immr->sysconf.spridr == SPR_8360_REV21 ||
+	    immr->sysconf.spridr == SPR_8360E_REV21) {
+		int nodeoffset;
+		const char *prop;
+		const char *path;
+
+		nodeoffset = fdt_path_offset(fdt, "/aliases");
+		if (nodeoffset >= 0) {
+#if defined(CONFIG_HAS_ETH0)
+			/* fixup UCC 1 if using rgmii-id mode */
+			path = fdt_getprop(blob, nodeoffset, "ethernet0", NULL);
+			if (path) {
+				prop = fdt_getprop(blob, nodeoffset,
+							"phy-connection-type", 0);
+				if (prop && (strcmp(prop, "rgmii-id") == 0))
+					fdt_setprop(blob, nodeoffset, "phy-connection-type",
+						    "rgmii-rxid", sizeof("rgmii-rxid"));
+			}
+#endif
+#if defined(CONFIG_HAS_ETH1)
+			/* fixup UCC 2 if using rgmii-id mode */
+			path = fdt_getprop(blob, nodeoffset, "ethernet1", NULL);
+			if (path) {
+				prop = fdt_getprop(blob, nodeoffset,
+							"phy-connection-type", 0);
+				if (prop && (strcmp(prop, "rgmii-id") == 0))
+					fdt_setprop(blob, nodeoffset, "phy-connection-type",
+						    "rgmii-rxid", sizeof("rgmii-rxid"));
+			}
+#endif
+		}
+	}
 }
 #endif

@@ -79,7 +79,7 @@ Commands:
 
    nand write.jffs2 addr ofs|partition size
       Like `write', but blocks that are marked bad are skipped and the
-      is written to the next block instead. This allows writing writing
+      data is written to the next block instead. This allows writing
       a JFFS2 image, as long as the image is short enough to fit even
       after skipping the bad blocks. Compact images, such as those
       produced by mkfs.jffs2 should work well, but loading an image copied

@@ -91,6 +91,11 @@
 
 /* Special Purpose Registers (SPRNs)*/
 
+/* PPC440 Architecture is BOOK-E */
+#ifdef CONFIG_440
+#define CONFIG_BOOKE
+#endif
+
 #define SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
 #define SPRN_CTR	0x009	/* Count Register */
 #define SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
@@ -419,6 +424,8 @@
 #define SPRN_IVOR15	0x19f	/* Interrupt Vector Offset Register 15 */
 
 /* e500 definitions */
+#define SPRN_L1CFG0     0x203   /* L1 Cache Configuration Register 0 */
+#define SPRN_L1CFG1     0x204   /* L1 Cache Configuration Register 1 */
 #define SPRN_L1CSR0     0x3f2   /* L1 Data Cache Control and Status Register 0 */
 #define   L1CSR0_CPE            0x00010000	/* Data Cache Parity Enable */
 #define   L1CSR0_DCFI           0x00000002      /* Data Cache Flash Invalidate */
@@ -616,6 +623,8 @@
 #define MCSRR1	SPRN_MCSRR1
 #define L1CSR0	SPRN_L1CSR0
 #define L1CSR1	SPRN_L1CSR1
+#define L1CFG0	SPRN_L1CFG0
+#define L1CFG1	SPRN_L1CFG1
 #define MCSR	SPRN_MCSR
 #define MMUCSR0	SPRN_MMUCSR0
 #define BUCSR	SPRN_BUCSR
@@ -765,6 +774,10 @@
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
 #define PVR_405EZ_RA	0x41511460
+#define PVR_405EXR1_RA	0x12911473 /* 405EXr rev A with Security */
+#define PVR_405EXR2_RA	0x12911471 /* 405EXr rev A without Security */
+#define PVR_405EX1_RA	0x12911477 /* 405EX rev A with Security */
+#define PVR_405EX2_RA	0x12911475 /* 405EX rev A without Security */
 #define PVR_440GP_RB	0x40120440
 #define PVR_440GP_RC	0x40120481
 #define PVR_440EP_RA	0x42221850
@@ -875,6 +888,7 @@
 #define SVR_8544_E	0x803C
 #define SVR_8548	0x8031
 #define SVR_8548_E	0x8039
+#define SVR_8610	0x80A0
 #define SVR_8641	0x8090
 #define SVR_8568_E	0x807D
 

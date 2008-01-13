@@ -737,6 +737,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_CB3RUFC              726
 #define MACH_TYPE_MP2USB               727
 #define MACH_TYPE_AT91SAM9261EK        848
+#define MACH_TYPE_OMAP_APOLLON         919
 #define MACH_TYPE_PDNB3               1002
 #define MACH_TYPE_AT91SAM9260EK       1099
 #define MACH_TYPE_AT91RM9200DF        1119
@@ -6824,6 +6825,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_omap_h4()	(machine_arch_type == MACH_TYPE_OMAP_H4)
 #else
 # define machine_is_omap_h4()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP_APOLLON
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OMAP_APOLLON
+# endif
+# define machine_is_omap_apollon()	(machine_arch_type == MACH_TYPE_OMAP_APOLLON)
+#else
+# define machine_is_omap_apollon()	(0)
 #endif
 
 #ifdef CONFIG_MACH_N10

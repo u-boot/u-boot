@@ -485,7 +485,7 @@ int eepro100_initialize (bd_t * bis)
 
 static int eepro100_init (struct eth_device *dev, bd_t * bis)
 {
-	int i, status = 0;
+	int i, status = -1;
 	int tx_cur;
 	struct descriptor *ias_cmd, *cfg_cmd;
 
@@ -598,7 +598,7 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 		goto Done;
 	}
 
-	status = 1;
+	status = 0;
 
   Done:
 	return status;

@@ -69,6 +69,25 @@ static uec_info_t eth2_uec_info = {
 };
 #endif
 
+#ifdef CONFIG_UEC_ETH3
+static uec_info_t eth3_uec_info = {
+	.uf_info		= {
+		.ucc_num	= CFG_UEC3_UCC_NUM,
+		.rx_clock	= CFG_UEC3_RX_CLK,
+		.tx_clock	= CFG_UEC3_TX_CLK,
+		.eth_type	= CFG_UEC3_ETH_TYPE,
+	},
+	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.tx_bd_ring_len		= 16,
+	.rx_bd_ring_len		= 16,
+	.phy_address		= CFG_UEC3_PHY_ADDR,
+	.enet_interface		= CFG_UEC3_INTERFACE_MODE,
+};
+#endif
+
 static int uec_mac_enable(uec_private_t *uec, comm_dir_e mode)
 {
 	uec_t		*uec_regs;
@@ -1110,7 +1129,7 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 		if (dev->enetaddr[0] & 0x01) {
 			printf("%s: MacAddress is multcast address\n",
 				 __FUNCTION__);
-			return 0;
+			return -1;
 		}
 		uec_set_mac_address(uec, dev->enetaddr);
 		uec->the_first_run = 1;
@@ -1119,10 +1138,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 	err = uec_open(uec, COMM_DIR_RX_AND_TX);
 	if (err) {
 		printf("%s: cannot enable UEC device\n", dev->name);
-		return 0;
+		return -1;
 	}
 
-	return uec->mii_info->link;
+	return (uec->mii_info->link ? 0 : -1);
 }
 
 static void uec_halt(struct eth_device* dev)
@@ -1237,6 +1256,10 @@ int uec_initialize(int index)
 	} else if (index == 1) {
 #ifdef CONFIG_UEC_ETH2
 		uec_info = &eth2_uec_info;
+#endif
+	} else if (index == 2) {
+#ifdef CONFIG_UEC_ETH3
+		uec_info = &eth3_uec_info;
 #endif
 	} else {
 		printf("%s: index is illegal.\n", __FUNCTION__);

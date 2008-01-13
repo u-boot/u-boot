@@ -231,15 +231,6 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		8192	/* For AMCC 405 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
-
 /*
  * Init Memory Controller:
  */

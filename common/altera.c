@@ -40,7 +40,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if (CONFIG_FPGA & CFG_FPGA_ALTERA)
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ALTERA)
 
 /* Local Static Functions */
 static int altera_validate (Altera_desc * desc, char *fn);
@@ -56,11 +56,11 @@ int altera_load( Altera_desc *desc, void *buf, size_t bsize )
 		switch (desc->family) {
 		case Altera_ACEX1K:
 		case Altera_CYC2:
-#if (CONFIG_FPGA & CFG_ACEX1K)
+#if defined(CONFIG_FPGA_ACEX1K)
 			PRINTF ("%s: Launching the ACEX1K Loader...\n",
 					__FUNCTION__);
 			ret_val = ACEX1K_load (desc, buf, bsize);
-#elif (CONFIG_FPGA & CFG_CYCLON2)
+#elif defined CONFIG_FPGA_CYCLON2
 			PRINTF ("%s: Launching the CYCLON II Loader...\n",
 					__FUNCTION__);
 			ret_val = CYC2_load (desc, buf, bsize);
@@ -88,7 +88,7 @@ int altera_dump( Altera_desc *desc, void *buf, size_t bsize )
 	} else {
 		switch (desc->family) {
 		case Altera_ACEX1K:
-#if (CONFIG_FPGA & CFG_ACEX)
+#if defined(CONFIG_FPGA_ACEX)
 			PRINTF ("%s: Launching the ACEX1K Reader...\n",
 					__FUNCTION__);
 			ret_val = ACEX1K_dump (desc, buf, bsize);
@@ -156,9 +156,9 @@ int altera_info( Altera_desc *desc )
 			switch (desc->family) {
 			case Altera_ACEX1K:
 			case Altera_CYC2:
-#if (CONFIG_FPGA & CFG_ACEX1K)
+#if defined(CONFIG_FPGA_ACEX1K)
 				ACEX1K_info (desc);
-#elif (CONFIG_FPGA & CFG_CYCLON2)
+#elif defined(CONFIG_FPGA_CYCLON2)
 				CYC2_info (desc);
 #else
 				/* just in case */
@@ -192,7 +192,7 @@ int altera_reloc( Altera_desc *desc, ulong reloc_offset)
 	} else {
 		switch (desc->family) {
 		case Altera_ACEX1K:
-#if (CONFIG_FPGA & CFG_ACEX1K)
+#if defined(CONFIG_FPGA_ACEX1K)
 			ret_val = ACEX1K_reloc (desc, reloc_offset);
 #else
 			printf ("%s: No support for ACEX devices.\n",
@@ -200,7 +200,7 @@ int altera_reloc( Altera_desc *desc, ulong reloc_offset)
 #endif
 			break;
 		case Altera_CYC2:
-#if (CONFIG_FPGA & CFG_CYCLON2)
+#if defined(CONFIG_FPGA_CYCLON2)
 			ret_val = CYC2_reloc (desc, reloc_offset);
 #else
 			printf ("%s: No support for CYCLON II devices.\n",
@@ -249,4 +249,4 @@ static int altera_validate (Altera_desc * desc, char *fn)
 
 /* ------------------------------------------------------------------------- */
 
-#endif /* CONFIG_FPGA & CFG_FPGA_ALTERA */
+#endif /* CONFIG_FPGA & CONFIG_FPGA_ALTERA */

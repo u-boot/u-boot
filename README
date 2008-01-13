@@ -924,7 +924,7 @@ The following options need to be configured:
 		(i.e. setenv videomode 317; saveenv; reset;)
 
 		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/videomodes.c)
+		from the bootargs. (See drivers/video/videomodes.c)
 
 
 		CONFIG_VIDEO_SED13806
@@ -1353,7 +1353,7 @@ The following options need to be configured:
 		CONFIG_FSL_I2C
 
 		Define this option if you want to use Freescale's I2C driver in
-		drivers/fsl_i2c.c.
+		drivers/i2c/fsl_i2c.c.
 
 
 - SPI Support:	CONFIG_SPI
@@ -1377,14 +1377,23 @@ The following options need to be configured:
 		SPI configuration items (port pins to use, etc). For
 		an example, see include/configs/sacsng.h.
 
-- FPGA Support: CONFIG_FPGA_COUNT
+- FPGA Support: CONFIG_FPGA
+
+		Enables FPGA subsystem.
+
+		CONFIG_FPGA_<vendor>
+
+		Enables support for specific chip vendors.
+		(ALTERA, XILINX)
+
+		CONFIG_FPGA_<family>
+
+		Enables support for FPGA family.
+		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
+
+		CONFIG_FPGA_COUNT
 
 		Specify the number of FPGA devices to support.
-
-		CONFIG_FPGA
-
-		Used to specify the types of FPGA devices.  For example,
-		#define CONFIG_FPGA  CFG_XILINX_VIRTEX2
 
 		CFG_FPGA_PROG_FEEDBACK
 
@@ -2268,6 +2277,10 @@ Low Level (hardware related) configuration options:
 - CFG_I2C_UCODE_PATCH, CFG_I2C_DPMEM_OFFSET [0x1FC0]:
 		enable I2C microcode relocation patch (MPC8xx);
 		define relocation offset in DPRAM [DSP2]
+
+- CFG_SMC_UCODE_PATCH, CFG_SMC_DPMEM_OFFSET [0x1FC0]:
+		enable SMC microcode relocation patch (MPC8xx);
+		define relocation offset in DPRAM [SMC1]
 
 - CFG_SPI_UCODE_PATCH, CFG_SPI_DPMEM_OFFSET [0x1FC0]:
 		enable SPI microcode relocation patch (MPC8xx);

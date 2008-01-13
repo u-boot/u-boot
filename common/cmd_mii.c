@@ -29,143 +29,6 @@
 #include <command.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_TERSE_MII
-/*
- * Display values from last command.
- */
-uint last_op;
-uint last_addr;
-uint last_data;
-uint last_reg;
-
-/*
- * MII device/info/read/write
- *
- * Syntax:
- *  mii device {devname}
- *  mii info   {addr}
- *  mii read   {addr} {reg}
- *  mii write  {addr} {reg} {data}
- */
-int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
-{
-	char		op;
-	unsigned char	addr, reg;
-	unsigned short	data;
-	int		rcode = 0;
-	char		*devname;
-
-	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	}
-
-#if defined(CONFIG_8xx) || defined(CONFIG_MCF52x2)
-	mii_init ();
-#endif
-
-	/*
-	 * We use the last specified parameters, unless new ones are
-	 * entered.
-	 */
-	op   = last_op;
-	addr = last_addr;
-	data = last_data;
-	reg  = last_reg;
-
-	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		op = argv[1][0];
-		if (argc >= 3)
-			addr = simple_strtoul (argv[2], NULL, 16);
-		if (argc >= 4)
-			reg  = simple_strtoul (argv[3], NULL, 16);
-		if (argc >= 5)
-			data = simple_strtoul (argv[4], NULL, 16);
-	}
-
-	/* use current device */
-	devname = miiphy_get_current_dev();
-
-	/*
-	 * check device/read/write/list.
-	 */
-	if (op == 'i') {
-		unsigned char j, start, end;
-		unsigned int oui;
-		unsigned char model;
-		unsigned char rev;
-
-		/*
-		 * Look for any and all PHYs.  Valid addresses are 0..31.
-		 */
-		if (argc >= 3) {
-			start = addr; end = addr + 1;
-		} else {
-			start = 0; end = 31;
-		}
-
-		for (j = start; j < end; j++) {
-			if (miiphy_info (devname, j, &oui, &model, &rev) == 0) {
-				printf ("PHY 0x%02X: "
-					"OUI = 0x%04X, "
-					"Model = 0x%02X, "
-					"Rev = 0x%02X, "
-					"%3dbase%s, %s\n",
-					j, oui, model, rev,
-					miiphy_speed (devname, j),
-					miiphy_is_1000base_x (devname, j)
-						? "X" : "T",
-					(miiphy_duplex (devname, j) == FULL)
-						? "FDX" : "HDX");
-			}
-		}
-	} else if (op == 'r') {
-		if (miiphy_read (devname, addr, reg, &data) != 0) {
-			puts ("Error reading from the PHY\n");
-			rcode = 1;
-		} else {
-			printf ("%04X\n", data & 0x0000FFFF);
-		}
-	} else if (op == 'w') {
-		if (miiphy_write (devname, addr, reg, data) != 0) {
-			puts ("Error writing to the PHY\n");
-			rcode = 1;
-		}
-	} else if (op == 'd') {
-		if (argc == 2)
-			miiphy_listdev ();
-		else
-			miiphy_set_current_dev (argv[2]);
-	} else {
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	}
-
-	/*
-	 * Save the parameters for repeats.
-	 */
-	last_op = op;
-	last_addr = addr;
-	last_data = data;
-	last_reg = reg;
-
-	return rcode;
-}
-
-/***************************************************/
-
-U_BOOT_CMD(
-	mii,	5,	1,	do_mii,
-	"mii     - MII utility commands\n",
-	"device                     - list available devices\n"
-	"mii device <devname>           - set current device\n"
-	"mii info   <addr>              - display MII PHY info\n"
-	"mii read   <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
-	"mii write  <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
-);
-
-#else /* ! CONFIG_TERSE_MII ================================================= */
-
 typedef struct _MII_reg_desc_t {
 	ushort regno;
 	char * name;
@@ -438,6 +301,11 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	int		rcode = 0;
 	char		*devname;
 
+	if (argc < 2) {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
 #if defined(CONFIG_8xx) || defined(CONFIG_MCF532x)
 	mii_init ();
 #endif
@@ -594,5 +462,3 @@ U_BOOT_CMD(
 	"mii dump   <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
 	"Addr and/or reg may be ranges, e.g. 2-7.\n"
 );
-
-#endif /* CONFIG_TERSE_MII */

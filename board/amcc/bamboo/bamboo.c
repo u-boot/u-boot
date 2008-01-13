@@ -67,13 +67,13 @@ const unsigned char cfg_simulate_spd_eeprom[128] = {
 	0x00,    /* Module data width continued: +0 */
 	0x04,    /* 2.5 Volt */
 	0x75,    /* SDRAM Cycle Time (cas latency 2.5) = 7.5 ns */
+	0x00,    /* SDRAM Access from clock */
 #ifdef CONFIG_DDR_ECC
 	0x02,    /* ECC ON : 02 OFF : 00 */
 #else
 	0x00,    /* ECC ON : 02 OFF : 00 */
 #endif
-	0x82,    /* refresh Rate Type: Normal (15.625us) + Self refresh */
-	0,
+	0x82,    /* refresh Rate Type: Normal (7.8us) + Self refresh */
 	0,
 	0,
 	0x01,    /* wcsbc = 1 */

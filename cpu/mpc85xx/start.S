@@ -268,7 +268,10 @@ _start_e500:
 	 */
 	lis	r3,CFG_INIT_RAM_ADDR@h
 	ori	r3,r3,CFG_INIT_RAM_ADDR@l
-	li	r2,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE))
+	mfspr	r2, L1CFG0
+	andi.	r2, r2, 0x1ff
+	/* cache size * 1024 / (2 * L1 line size) */
+	slwi	r2, r2, (10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r2
 	li	r0,0
 1:
@@ -1061,7 +1064,9 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3,(CFG_INIT_RAM_ADDR & ~31)@h
 	ori	r3,r3,(CFG_INIT_RAM_ADDR & ~31)@l
-	li	r4,(CFG_DCACHE_SIZE / (2 * CFG_CACHELINE_SIZE))
+	mfspr	r4,L1CFG0
+	andi.	r4,r4,0x1ff
+	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
 1:	icbi	r0,r3
 	dcbi	r0,r3

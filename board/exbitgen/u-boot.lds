@@ -66,7 +66,7 @@ SECTIONS
     cpu/ppc4xx/kgdb.o	(.text)
     cpu/ppc4xx/traps.o	(.text)
     cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/serial.o	(.text)
+    cpu/ppc4xx/4xx_uart.o	(.text)
     cpu/ppc4xx/cpu_init.o	(.text)
     cpu/ppc4xx/speed.o	(.text)
     common/dlmalloc.o	(.text)
@@ -139,7 +139,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss       :
+  .bss (NOLOAD)       :
   {
    *(.sbss) *(.scommon)
    *(.dynbss)

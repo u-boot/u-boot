@@ -25,6 +25,7 @@
 #include <mpc512x.h>
 #include <asm/bitops.h>
 #include <command.h>
+#include <fdt_support.h>
 
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
@@ -184,3 +185,11 @@ int checkboard (void)
 		brd_rev, cpld_rev);
 	return 0;
 }
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

@@ -1,2 +1,8 @@
-all:	easylogo.c
-	gcc easylogo.c -o easylogo
+CFLAGS += -Wall
+
+all: easylogo
+
+clean:
+	rm -f easylogo *.o
+
+.PHONY: all clean

@@ -97,6 +97,7 @@ endif
 #
 ifeq ($(HOSTOS),cygwin)
 SFX = .exe
+HOST_CFLAGS += -ansi
 else
 SFX =
 endif
@@ -136,7 +137,7 @@ $(obj)img2srec$(SFX):	$(obj)img2srec.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
-$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)sha1.o
+$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 

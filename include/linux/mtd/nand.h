@@ -129,7 +129,7 @@ extern int nand_read_raw (struct mtd_info *mtd, uint8_t *buf, loff_t from, size_
 #define NAND_ECC_HW3_256	2
 /* Hardware ECC 3 byte ECC per 512 Byte data */
 #define NAND_ECC_HW3_512	3
-/* Hardware ECC 3 byte ECC per 512 Byte data */
+/* Hardware ECC 6 byte ECC per 512 Byte data */
 #define NAND_ECC_HW6_512	4
 /* Hardware ECC 8 byte ECC per 512 Byte data */
 #define NAND_ECC_HW8_512	6

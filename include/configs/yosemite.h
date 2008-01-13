@@ -160,6 +160,14 @@
 #define CFG_ENV_OFFSET		0x0
 #endif /* CFG_ENV_IS_IN_EEPROM */
 
+/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
+#define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
+#define CONFIG_DTT_AD7414	1		/* use AD7414		*/
+#define CONFIG_DTT_SENSORS	{0}		/* Sensor addresses	*/
+#define CFG_DTT_MAX_TEMP	70
+#define CFG_DTT_LOW_TEMP	-30
+#define CFG_DTT_HYSTERESIS	3
+
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
 	"echo"
@@ -273,6 +281,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
+#define CONFIG_CMD_DTT
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
@@ -360,15 +369,6 @@
 #define CFG_EBC_PB2CR		(CFG_CPLD | 0x18000)
 
 #define CFG_BCSR5_PCI66EN	0x80
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		(32<<10) /* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*
  * Internal Definitions

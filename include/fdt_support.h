@@ -46,6 +46,9 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 			    const char *prop, u32 val, int create);
 int fdt_fixup_memory(void *blob, u64 start, u64 size);
 void fdt_fixup_ethernet(void *fdt, bd_t *bd);
+int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
+			 const void *val, int len, int create);
+void fdt_fixup_qe_firmware(void *fdt);
 
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
 int fdt_env(void *fdt);

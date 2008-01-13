@@ -71,7 +71,7 @@ SECTIONS
 	. = ALIGN(8);
 	_edata = .;
 
-	.bss : {
+	.bss (NOLOAD) : {
 		*(.bss)
 		*(.bss.*)
 	}

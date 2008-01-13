@@ -192,12 +192,6 @@
 #define CFG_MEMTEST_END		(CFG_SDRAM_SIZE * 1024 * 1024 - CFG_MEM_END_USAGE)
 /* END ENVIRONNEMENT FLASH */
 
-/*-----------------------------------------------------------------------
- * Cache Configuration.  Only used to ..?? clear it, I guess..
- */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
-
 /*
  * Init Memory Controller:
  *

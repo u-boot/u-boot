@@ -77,7 +77,9 @@
 
 #define TX_BUF_CNT 2
 
-#define TOUT_LOOP 1000000
+#if !defined(CFG_SCC_TOUT_LOOP)
+  #define CFG_SCC_TOUT_LOOP 1000000
+#endif
 
 static char txbuf[TX_BUF_CNT][ DBUF_LENGTH ];
 
@@ -109,7 +111,7 @@ int eth_send(volatile void *packet, int length)
     }
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-	if (i >= TOUT_LOOP) {
+	if (i >= CFG_SCC_TOUT_LOOP) {
 	    puts ("scc: tx buffer not ready\n");
 	    goto out;
 	}
@@ -121,7 +123,7 @@ int eth_send(volatile void *packet, int length)
 				BD_ENET_TX_WRAP);
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-	if (i >= TOUT_LOOP) {
+	if (i >= CFG_SCC_TOUT_LOOP) {
 	    puts ("scc: tx error\n");
 	    goto out;
 	}
@@ -261,7 +263,6 @@ int eth_init(bd_t *bis)
     pram_ptr->sen_taddrh = 0x0;   /* Tmp Address (MSB) (unused) */
     pram_ptr->sen_taddrm = 0x0;   /* Tmp Address (unused) */
     pram_ptr->sen_taddrl = 0x0;   /* Tmp Address (LSB) (unused) */
-
 
     /* 24.21 - (19): Initialize RxBD */
     for (i = 0; i < PKTBUFSRX; i++)

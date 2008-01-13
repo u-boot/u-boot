@@ -52,6 +52,28 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Get count of EMAC devices (doesn't have to be the max. possible number
+ * supported by the cpu)
+ *
+ * CONFIG_BOARD_EMAC_COUNT added so now a "dynamic" way to configure the
+ * EMAC count is possible. As it is needed for the Kilauea/Haleakala
+ * 405EX/405EXr eval board, using the same binary.
+ */
+#if defined(CONFIG_BOARD_EMAC_COUNT)
+#define LAST_EMAC_NUM	board_emac_count()
+#else /* CONFIG_BOARD_EMAC_COUNT */
+#if defined(CONFIG_HAS_ETH3)
+#define LAST_EMAC_NUM	4
+#elif defined(CONFIG_HAS_ETH2)
+#define LAST_EMAC_NUM	3
+#elif defined(CONFIG_HAS_ETH1)
+#define LAST_EMAC_NUM	2
+#else
+#define LAST_EMAC_NUM	1
+#endif
+#endif /* CONFIG_BOARD_EMAC_COUNT */
+
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_MFR_ETH_CLK_SEL_V(n)	((0x01<<27) / (n+1))
 #endif
@@ -64,6 +86,8 @@ static volatile mal_desc_t tx __cacheline_aligned;
 static volatile mal_desc_t rx __cacheline_aligned;
 static char *tx_buf;
 static char *rx_buf;
+
+int board_emac_count(void);
 
 static void ether_post_init (int devnum, int hw_addr)
 {
@@ -93,11 +117,11 @@ static void ether_post_init (int devnum, int hw_addr)
 	sync ();
 #endif
 	/* reset emac */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_SRST);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_SRST);
 	sync ();
 
 	for (i = 0;; i++) {
-		if (!(in32 (EMAC_M0 + hw_addr) & EMAC_M0_SRST))
+		if (!(in_be32 ((void*)(EMAC_M0 + hw_addr)) & EMAC_M0_SRST))
 			break;
 		if (i >= 1000) {
 			printf ("Timeout resetting EMAC\n");
@@ -120,7 +144,7 @@ static void ether_post_init (int devnum, int hw_addr)
 	else
 		mode_reg |= EMAC_M1_OBCI_GT100;
 
-	out32 (EMAC_M1 + hw_addr, mode_reg);
+	out_be32 ((void*)(EMAC_M1 + hw_addr), mode_reg);
 
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
 
@@ -145,6 +169,8 @@ static void ether_post_init (int devnum, int hw_addr)
 	rx.ctrl = MAL_TX_CTRL_WRAP | MAL_RX_CTRL_EMPTY;
 	rx.data_len = 0;
 	rx.data_ptr = (char*)L1_CACHE_ALIGN((u32)rx_buf);
+	flush_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
+	flush_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
 
 	switch (devnum) {
 	case 1:
@@ -186,40 +212,40 @@ static void ether_post_init (int devnum, int hw_addr)
 
 	/* set internal loopback mode */
 #ifdef CFG_POST_ETHER_EXT_LOOPBACK
-	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | 0 |
-	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
-	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
-	       in32 (EMAC_M1));
+	out_be32 ((void*)(EMAC_M1 + hw_addr), EMAC_M1_FDE | 0 |
+		  EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
+		  EMAC_M1_MF_100MBPS | EMAC_M1_IST |
+		  in_be32 ((void*)(EMAC_M1 + hw_addr)));
 #else
-	out32 (EMAC_M1 + hw_addr, EMAC_M1_FDE | EMAC_M1_ILE |
-	       EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
-	       EMAC_M1_MF_100MBPS | EMAC_M1_IST |
-	       in32 (EMAC_M1));
+	out_be32 ((void*)(EMAC_M1 + hw_addr), EMAC_M1_FDE | EMAC_M1_ILE |
+		  EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
+		  EMAC_M1_MF_100MBPS | EMAC_M1_IST |
+		  in_be32 ((void*)(EMAC_M1 + hw_addr)));
 #endif
 
 	/* set transmit enable & receive enable */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_TXE | EMAC_M0_RXE);
 
 	/* enable broadcast address */
-	out32 (EMAC_RXM + hw_addr, EMAC_RMR_BAE);
+	out_be32 ((void*)(EMAC_RXM + hw_addr), EMAC_RMR_BAE);
 
 	/* set transmit request threshold register */
-	out32 (EMAC_TRTR + hw_addr, 0x18000000);	/* 256 byte threshold */
+	out_be32 ((void*)(EMAC_TRTR + hw_addr), 0x18000000);	/* 256 byte threshold */
 
 	/* set receive	low/high water mark register */
 #if defined(CONFIG_440)
 	/* 440s has a 64 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_addr, 0x80009000);
+	out_be32 ((void*)(EMAC_RX_HI_LO_WMARK + hw_addr), 0x80009000);
 #else
 	/* 405s have a 16 byte burst length */
-	out32 (EMAC_RX_HI_LO_WMARK + hw_addr, 0x0f002000);
+	out_be32 ((void*)(EMAC_RX_HI_LO_WMARK + hw_addr), 0x0f002000);
 #endif /* defined(CONFIG_440) */
-	out32 (EMAC_TXM1 + hw_addr, 0xf8640000);
+	out_be32 ((void*)(EMAC_TXM1 + hw_addr), 0xf8640000);
 
 	/* Set fifo limit entry in tx mode 0 */
-	out32 (EMAC_TXM0 + hw_addr, 0x00000003);
+	out_be32 ((void*)(EMAC_TXM0 + hw_addr), 0x00000003);
 	/* Frame gap set */
-	out32 (EMAC_I_FRAME_GAP_REG + hw_addr, 0x00000008);
+	out_be32 ((void*)(EMAC_I_FRAME_GAP_REG + hw_addr), 0x00000008);
 	sync ();
 }
 
@@ -246,7 +272,7 @@ static void ether_post_halt (int devnum, int hw_addr)
 		udelay (1000);
 	}
 	/* emac reset */
-	out32 (EMAC_M0 + hw_addr, EMAC_M0_SRST);
+	out_be32 ((void*)(EMAC_M0 + hw_addr), EMAC_M0_SRST);
 
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	/* remove clocks for EMAC internal loopback  */
@@ -266,14 +292,17 @@ static void ether_post_send (int devnum, int hw_addr, void *packet, int length)
 			return;
 		}
 		udelay (1000);
+		invalidate_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
 	}
 	tx.ctrl = MAL_TX_CTRL_READY | MAL_TX_CTRL_WRAP | MAL_TX_CTRL_LAST |
 		EMAC_TX_CTRL_GFCS | EMAC_TX_CTRL_GP;
 	tx.data_len = length;
 	memcpy (tx.data_ptr, packet, length);
+	flush_dcache_range((u32)&tx, (u32)&tx + sizeof(mal_desc_t));
+	flush_dcache_range((u32)tx.data_ptr, (u32)tx.data_ptr + length);
 	sync ();
 
-	out32 (EMAC_TXM0 + hw_addr, in32 (EMAC_TXM0 + hw_addr) | EMAC_TXM0_GNP0);
+	out_be32 ((void*)(EMAC_TXM0 + hw_addr), in_be32 ((void*)(EMAC_TXM0 + hw_addr)) | EMAC_TXM0_GNP0);
 	sync ();
 }
 
@@ -288,13 +317,17 @@ static int ether_post_recv (int devnum, int hw_addr, void *packet, int max_lengt
 			return 0;
 		}
 		udelay (1000);
+		invalidate_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
 	}
 	length = rx.data_len - 4;
-	if (length <= max_length)
+	if (length <= max_length) {
+		invalidate_dcache_range((u32)rx.data_ptr, (u32)rx.data_ptr + length);
 		memcpy(packet, rx.data_ptr, length);
+	}
 	sync ();
 
 	rx.ctrl |= MAL_RX_CTRL_EMPTY;
+	flush_dcache_range((u32)&rx, (u32)&rx + sizeof(mal_desc_t));
 	sync ();
 
 	return length;
@@ -372,6 +405,7 @@ Done:
 int ether_post_test (int flags)
 {
 	int res = 0;
+	int i;
 
 	/* Allocate tx & rx packet buffers */
 	tx_buf = malloc (PKTSIZE_ALIGN + CFG_CACHELINE_SIZE);
@@ -383,13 +417,10 @@ int ether_post_test (int flags)
 		goto out_free;
 	}
 
-	/* EMAC0 */
-	if (test_ctlr (0, 0))
-		res = -1;
-
-	/* EMAC1 */
-	if (test_ctlr (1, 0x100))
-		res = -1;
+	for (i = 0; i < LAST_EMAC_NUM; i++) {
+		if (test_ctlr (i, i*0x100))
+			res = -1;
+	}
 
 out_free:
 	free (tx_buf);

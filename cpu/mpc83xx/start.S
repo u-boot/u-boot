@@ -462,7 +462,7 @@ init_e300_core: /* time t 10 */
 
 	li	r4, 0x556C
 	sth	r4, SWSRR@l(r3)
-	li	r4, 0xAA39
+	li	r4, -0x55C7
 	sth	r4, SWSRR@l(r3)
 #else
 	/* Disable Wathcdog  */

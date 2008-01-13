@@ -296,7 +296,9 @@
 /*-----------------------------------------------------------------------
  * FPGA stuff
  *-----------------------------------------------------------------------*/
-#define CONFIG_FPGA             CFG_ALTERA_CYCLON2
+#define CONFIG_FPGA
+#define CONFIG_FPGA_ALTERA
+#define CONFIG_FPGA_CYCLON2
 #define CFG_FPGA_CHECK_CTRLC
 #define CFG_FPGA_PROG_FEEDBACK
 #define CONFIG_FPGA_COUNT       1		/* Ich habe 2 ... aber in
@@ -355,12 +357,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CFG_DCACHE_SIZE		32768	/* For AMCC 440 CPUs			*/
-#define CFG_CACHELINE_SIZE	32	/* ...			*/
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 
 /*
  * Internal Definitions

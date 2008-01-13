@@ -757,7 +757,7 @@ static struct pci_config_table pci_solidcard3_config_table[] =
 };
 
 /*-------------------------------------------------------------------------+
- | pci_init_board (Called from pci_init() in drivers/pci.c)
+ | pci_init_board (Called from pci_init() in drivers/pci/pci.c)
  |
  | Init the PCI part of the SolidCard III
  |

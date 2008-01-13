@@ -423,12 +423,12 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 #endif
 
 	if (!macb_phy_init(macb))
-		return 0;
+		return -1;
 
 	/* Enable TX and RX */
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE));
 
-	return 1;
+	return 0;
 }
 
 static void macb_halt(struct eth_device *netdev)

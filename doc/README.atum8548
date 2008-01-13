@@ -1,0 +1,29 @@
+Building U-Boot
+---------------
+
+The ATUM8548 code is known to build using ELDK 4.1.
+
+$ make ATUM8548_config
+Configuring for ATUM8548 board...
+$ make
+
+Using Flash
+-----------
+
+The ATUM8548 board  has one flash bank, of 128MB in size (2^23 = 0x08000000).
+
+The BDI2000 commands for copying u-boot into flash are
+as follows:
+
+     erase 0xFFF80000 0x4000 0x20
+     prog 0xfff80000 uboot.bin bin
+
+Booting Linux
+-------------
+
+U-boot/kermit commands for booting linux via NFS - assumming the proper
+bootargs are set - are as follows:
+
+     tftp 1000000 uImage.atum
+     tftp c00000 mpc8548atum.dtb
+     bootm 1000000 - c00000

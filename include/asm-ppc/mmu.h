@@ -336,55 +336,70 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
  */
 
 /*
- * e500 support
+ * FSL Book-E support
  */
 
-#define MAS0_TLBSEL     0x10000000
-#define MAS0_ESEL       0x000F0000
-#define MAS0_NV         0x00000001
+#define MAS0_TLBSEL(x)	((x << 28) & 0x30000000)
+#define MAS0_ESEL(x)	((x << 16) & 0x0FFF0000)
+#define MAS0_NV(x)	((x) & 0x00000FFF)
 
-#define MAS1_VALID      0x80000000
-#define MAS1_IPROT      0x40000000
-#define MAS1_TID        0x00FF0000
-#define MAS1_TS         0x00001000
-#define MAS1_TSIZE   	0x00000F00
+#define MAS1_VALID 	0x80000000
+#define MAS1_IPROT	0x40000000
+#define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
+#define MAS1_TS		0x00001000
+#define MAS1_TSIZE(x)	((x << 8) & 0x00000F00)
 
-#define MAS2_EPN        0xFFFFF000
-#define MAS2_SHAREN     0x00000200
-#define MAS2_X0         0x00000040
-#define MAS2_X1         0x00000020
-#define MAS2_W          0x00000010
-#define MAS2_I          0x00000008
-#define MAS2_M          0x00000004
-#define MAS2_G          0x00000002
-#define MAS2_E          0x00000001
+#define MAS2_EPN	0xFFFFF000
+#define MAS2_X0		0x00000040
+#define MAS2_X1		0x00000020
+#define MAS2_W		0x00000010
+#define MAS2_I		0x00000008
+#define MAS2_M		0x00000004
+#define MAS2_G		0x00000002
+#define MAS2_E		0x00000001
 
-#define MAS3_RPN        0xFFFFF000
-#define MAS3_U0         0x00000200
-#define MAS3_U1         0x00000100
-#define MAS3_U2         0x00000080
-#define MAS3_U3         0x00000040
-#define MAS3_UX         0x00000020
-#define MAS3_SX         0x00000010
-#define MAS3_UW         0x00000008
-#define MAS3_SW         0x00000004
-#define MAS3_UR         0x00000002
-#define MAS3_SR         0x00000001
+#define MAS3_RPN	0xFFFFF000
+#define MAS3_U0		0x00000200
+#define MAS3_U1		0x00000100
+#define MAS3_U2		0x00000080
+#define MAS3_U3		0x00000040
+#define MAS3_UX		0x00000020
+#define MAS3_SX		0x00000010
+#define MAS3_UW		0x00000008
+#define MAS3_SW		0x00000004
+#define MAS3_UR		0x00000002
+#define MAS3_SR		0x00000001
 
-#define MAS4_TLBSELD    0x10000000
-#define MAS4_TIDDSEL    0x00030000
-#define MAS4_DSHAREN    0x00001000
-#define MAS4_TSIZED(x)  (x << 8)
-#define MAS4_X0D        0x00000040
-#define MAS4_X1D        0x00000020
-#define MAS4_WD         0x00000010
-#define MAS4_ID         0x00000008
-#define MAS4_MD         0x00000004
-#define MAS4_GD         0x00000002
-#define MAS4_ED         0x00000001
+#define MAS4_TLBSELD(x) MAS0_TLBSEL(x)
+#define MAS4_TIDDSEL	0x000F0000
+#define MAS4_TSIZED(x)	MAS1_TSIZE(x)
+#define MAS4_X0D	0x00000040
+#define MAS4_X1D	0x00000020
+#define MAS4_WD		0x00000010
+#define MAS4_ID		0x00000008
+#define MAS4_MD		0x00000004
+#define MAS4_GD		0x00000002
+#define MAS4_ED		0x00000001
 
-#define MAS6_SPID       0x00FF0000
-#define MAS6_SAS        0x00000001
+#define MAS6_SPID0	0x3FFF0000
+#define MAS6_SPID1	0x00007FFE
+#define MAS6_SAS	0x00000001
+#define MAS6_SPID	MAS6_SPID0
+
+#define MAS7_RPN	0xFFFFFFFF
+
+#define FSL_BOOKE_MAS0(tlbsel,esel,nv) \
+		(MAS0_TLBSEL(tlbsel) | MAS0_ESEL(esel) | MAS0_NV(nv))
+#define FSL_BOOKE_MAS1(v,iprot,tid,ts,tsize) \
+		((((v) << 31) & MAS1_VALID)             |\
+		(((iprot) << 30) & MAS1_IPROT)          |\
+		(MAS1_TID(tid))				|\
+		(((ts) << 12) & MAS1_TS)                |\
+		(MAS1_TSIZE(tsize)))
+#define FSL_BOOKE_MAS2(epn, wimge) \
+		(((epn) & MAS3_RPN) | (wimge))
+#define FSL_BOOKE_MAS3(rpn, user, perms) \
+		(((rpn) & MAS3_RPN) | (user) | (perms))
 
 #define BOOKE_PAGESZ_1K         0
 #define BOOKE_PAGESZ_4K         1
@@ -398,6 +413,10 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define BOOKE_PAGESZ_256M       9
 #define BOOKE_PAGESZ_1G		10
 #define BOOKE_PAGESZ_4G		11
+#define BOOKE_PAGESZ_16GB	12
+#define BOOKE_PAGESZ_64GB	13
+#define BOOKE_PAGESZ_256GB	14
+#define BOOKE_PAGESZ_1TB	15
 
 #if defined(CONFIG_MPC86xx)
 #define LAWBAR_BASE_ADDR	0x00FFFFFF
@@ -650,6 +669,7 @@ unsigned long mftlb3(unsigned long index);
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 void remove_tlb(u32 vaddr, u32 size);
+void change_tlb(u32 vaddr, u32 size, u32 tlb_word2_i_value);
 #endif /* __ASSEMBLY__ */
 
 #endif /* CONFIG_440 */

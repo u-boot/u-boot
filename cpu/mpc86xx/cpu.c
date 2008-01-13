@@ -41,6 +41,8 @@ checkcpu(void)
 	uint major, minor;
 	uint lcrr;		/* local bus clock ratio register */
 	uint clkdiv;		/* clock divider portion of lcrr */
+	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
 
 	puts("Freescale PowerPC\n");
 
@@ -54,8 +56,14 @@ checkcpu(void)
 
 	switch (ver) {
 	case PVR_VER(PVR_86xx):
-		puts("E600");
-		break;
+	{
+		uint msscr0 = mfspr(MSSCR0);
+		printf("E600 Core %d", (msscr0 & 0x20) ? 1 : 0 );
+		if (gur->pordevsr & MPC86xx_PORDEVSR_CORE1TE)
+			puts("\n    Core1Translation Enabled");
+		debug(" (MSSCR0=%x, PORDEVSR=%x)", msscr0, gur->pordevsr);
+	}
+	break;
 	default:
 		puts("Unknown");
 		break;
@@ -76,6 +84,9 @@ checkcpu(void)
 		puts("8641");
 	    }
 	    break;
+	case SVR_8610:
+		puts("8610");
+		break;
 	default:
 		puts("Unknown");
 		break;

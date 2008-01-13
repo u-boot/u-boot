@@ -152,7 +152,9 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+#if defined(CONFIG_CMD_NET)
 	int i;
+#endif
 	bd_t *bd = gd->bd;
 
 	print_num ("mem start",		(ulong)bd->bi_memstart);

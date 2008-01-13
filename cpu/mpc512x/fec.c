@@ -299,7 +299,7 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		fec->eth->mii_speed = (((gd->ipb_clk / 1000000) / 5) + 1) << 1;
+		fec->eth->mii_speed = (((gd->ips_clk / 1000000) / 5) + 1) << 1;
 
 		/*
 		 * Reset PHY, then delay 300ns

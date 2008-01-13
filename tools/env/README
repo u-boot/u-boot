@@ -6,6 +6,10 @@ For the run-time utiltity configuration uncomment the line
 #define CONFIG_FILE  "/etc/fw_env.config"
 in fw_env.h.
 
+For building against older versions of the MTD headers (meaning before
+v2.6.8-rc1) it is required to pass the argument "MTD_VERSION=old" to
+make.
+
 See comments in the fw_env.config file for definitions for the
 particular board.
 

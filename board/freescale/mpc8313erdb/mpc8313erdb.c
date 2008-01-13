@@ -23,9 +23,7 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#elif defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
 #include <pci.h>
@@ -103,16 +101,6 @@ void pci_init_board(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
-#if defined(CONFIG_OF_FLAT_TREE)
-	u32 *p;
-	int len;
-
-	p = ft_get_prop(blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32(bd->bi_memstart);
-		*p = cpu_to_be32(bd->bi_memsize);
-	}
-#endif
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);

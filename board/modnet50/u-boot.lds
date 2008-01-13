@@ -51,7 +51,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__bss_start = .;
-	.bss : { *(.bss) }
+	.bss (NOLOAD) : { *(.bss) }
 	_end = .;
 				  /* Stabs debugging sections.	  */
 	.stab 0 : { *(.stab) }

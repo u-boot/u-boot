@@ -38,7 +38,6 @@
 #define CONFIG_MPC8641HPCN	1	/* MPC8641HPCN board specific */
 #define CONFIG_NUM_CPUS         2       /* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
-#undef DEBUG
 
 #ifdef RUN_DIAG
 #define CFG_DIAG_ADDR        0xff800000
@@ -267,13 +266,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Pass open firmware flat tree to kernel
  */
-#define CONFIG_OF_FLAT_TREE	1
-#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-#define OF_CPU		"PowerPC,8641@0"
-#define OF_SOC		"soc8641@f8000000"
-#define OF_TBCLK	(bd->bi_busfreq / 4)
-#define OF_STDOUT_PATH	"/soc8641@f8000000/serial@4500"
 
 #define CFG_64BIT_VSPRINTF	1
 #define CFG_64BIT_STRTOUL	1
@@ -577,13 +573,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/* Cache Configuration */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-    #define CFG_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
-#endif
-
 /*
  * Internal Definitions
  *
@@ -645,8 +634,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
    "consoledev=ttyS0\0"                                                 \
    "ramdiskaddr=2000000\0"						\
    "ramdiskfile=your.ramdisk.u-boot\0"                                  \
-   "dtbaddr=c00000\0"						\
-   "dtbfile=mpc8641_hpcn.dtb\0"                                  \
+   "fdtaddr=c00000\0"						\
+   "fdtfile=mpc8641_hpcn.dtb\0"                                  \
    "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
    "dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \
    "maxcpus=2"
@@ -658,16 +647,16 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $loadaddr $bootfile;"                                          \
-   "tftp $dtbaddr $dtbfile;"                                          \
-   "bootm $loadaddr - $dtbaddr"
+   "tftp $fdtaddr $fdtfile;"                                          \
+   "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
    "tftp $loadaddr $bootfile;"                                          \
-   "tftp $dtbaddr $dtbfile;"                                          \
-   "bootm $loadaddr $ramdiskaddr $dtbaddr"
+   "tftp $fdtaddr $fdtfile;"                                          \
+   "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 

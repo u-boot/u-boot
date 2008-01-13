@@ -197,6 +197,8 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
 int	readline	(const char *const prompt);
+int	readline_into_buffer	(const char *const prompt, char * buffer);
+int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
@@ -227,6 +229,7 @@ extern ulong load_addr;		/* Default Load Address */
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
+int	envmatch     (uchar *, int);
 char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
@@ -259,7 +262,7 @@ void	pciinfo	      (int, int);
     int	   pci_pre_init	       (struct pci_controller * );
 #endif
 
-#if defined(CONFIG_PCI) && defined(CONFIG_440)
+#if defined(CONFIG_PCI) && (defined(CONFIG_440) || defined(CONFIG_405EX))
 #   if defined(CFG_PCI_TARGET_INIT)
 	void	pci_target_init	     (struct pci_controller *);
 #   endif
@@ -267,7 +270,7 @@ void	pciinfo	      (int, int);
 	void	pci_master_init	     (struct pci_controller *);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_405EX)
    void pcie_setup_hoses(int busno);
 #endif
 #endif
@@ -277,6 +280,9 @@ int	misc_init_r   (void);
 
 /* common/exports.c */
 void	jumptable_init(void);
+
+/* api/api.c */
+void	api_init (void);
 
 /* common/memsize.c */
 long	get_ram_size  (volatile long *, long);
@@ -462,7 +468,7 @@ int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
-#if defined(CONFIG_MPC512x)
+#if defined(CONFIG_MPC512X)
 int	prt_mpc512xxx_clks (void);
 #endif
 #if defined(CONFIG_MPC8220)
@@ -507,15 +513,13 @@ void   get_sys_info  ( sys_info_t * );
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
 #  if defined(CONFIG_440)
-    typedef PPC440_SYS_INFO sys_info_t;
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);
 	 unsigned long determine_pci_clock_per(void);
-	 int ppc440spe_revB(void);
 #	endif
-#  else
-    typedef PPC405_SYS_INFO sys_info_t;
 #  endif
+typedef PPC4xx_SYS_INFO sys_info_t;
+int	ppc440spe_revB(void);
 void	get_sys_info  ( sys_info_t * );
 #endif
 
