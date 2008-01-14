@@ -47,7 +47,7 @@ int board_init (void)
 	return 0;
 }
 
-int board_post_init (void)
+int board_late_init (void)
 {
 	setenv ("stdout", "serial");
 	setenv ("stderr", "serial");
