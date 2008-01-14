@@ -63,10 +63,10 @@ static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd)
 		nand_baseaddr |= CLR_ALE;
 		break;
 	case NAND_CTL_SETWP:
-		fbcs->csmr2 |= CSMR_WP;
+		fbcs->csmr2 |= FBCS_CSMR_WP;
 		break;
 	case NAND_CTL_CLRWP:
-		fbcs->csmr2 &= ~CSMR_WP;
+		fbcs->csmr2 &= ~FBCS_CSMR_WP;
 		break;
 	}
 	this->IO_ADDR_W = (void __iomem *)(nand_baseaddr);
