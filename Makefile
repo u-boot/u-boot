@@ -1739,6 +1739,9 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M52277EVB_config:	unconfig
+	@$(MKCONFIG) -a M52277EVB m68k mcf5227x m52277evb freescale
+
 M5235EVB_config \
 M5235EVB_Flash16_config \
 M5235EVB_Flash32_config:	unconfig

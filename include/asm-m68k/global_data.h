@@ -53,6 +53,9 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
+	unsigned long	fb_base;	/* Base addr of framebuffer memory */
+#endif
 #ifdef CONFIG_BOARD_TYPES
 	unsigned long	board_type;
 #endif
