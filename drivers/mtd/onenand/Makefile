@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libonenand.a
 
-COBJS	:= onenand_base.o onenand_bbt.o
+COBJS	:= onenand_uboot.o onenand_base.o onenand_bbt.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
