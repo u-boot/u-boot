@@ -32,6 +32,8 @@ COBJS-y += nand_ecc.o
 COBJS-y += nand_bbt.o
 COBJS-y += nand_util.o
 
+COBJS-y += fsl_upm.o
+
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
 OBJS 	:= $(addprefix $(obj),$(COBJS))
