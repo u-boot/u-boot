@@ -192,13 +192,6 @@ int board_early_init_f (void)
 	 */
 	mtsdr(SDR0_SRST, 0);
 
-	/*
-	 * Configure FPGA register with PCIe reset
-	 */
-	out_be32((void *)CFG_FPGA_BASE, 0xff570cc0);	/* assert PCIe reset */
-	mdelay(50);
-	out_be32((void *)CFG_FPGA_BASE, 0xff570cc3);	/* deassert PCIe reset */
-
 	/* Configure 405EX for NAND usage */
 	val = SDR0_CUST0_MUX_NDFC_SEL |
 		SDR0_CUST0_NDFC_ENABLE |
@@ -213,6 +206,13 @@ int board_early_init_f (void)
 	 */
 	val = SDR0_PFC1_USBEN | SDR0_PFC1_USBBIGEN | SDR0_PFC1_GPT_FREQ;
 	mtsdr(SDR0_PFC1, val);
+
+	/*
+	 * Configure FPGA register with PCIe reset
+	 */
+	out_be32((void *)CFG_FPGA_BASE, 0xff570cc4);	/* assert PCIe reset */
+	mdelay(50);
+	out_be32((void *)CFG_FPGA_BASE, 0xff570cc7);	/* deassert PCIe reset */
 
 	return 0;
 }
