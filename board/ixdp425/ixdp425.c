@@ -38,11 +38,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Miscelaneous platform dependent initialisations
  */
-int board_post_init (void)
-{
-	return (0);
-}
-
 int board_init (void)
 {
 	/* arch number of IXDP */
