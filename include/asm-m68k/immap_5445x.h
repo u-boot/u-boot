@@ -33,6 +33,7 @@
 #define MMAP_FEC0	0xFC030000
 #define MMAP_FEC1	0xFC034000
 #define MMAP_RTC	0xFC03C000
+#define MMAP_SCM2	0xFC040000
 #define MMAP_EDMA	0xFC044000
 #define MMAP_INTC0	0xFC048000
 #define MMAP_INTC1	0xFC04C000
@@ -63,11 +64,18 @@
 #define MMAP_SSI	0xFC0BC000
 #define MMAP_PLL	0xFC0C4000
 #define MMAP_ATA	0x90000000
+#define MMAP_USBHW	0xFC0B0000
+#define MMAP_USBCAPS	0xFC0B0100
+#define MMAP_USBEHCI	0xFC0B0140
+#define MMAP_USBOTG	0xFC0B01A0
 
-/*********************************************************************
-* ATA
-*********************************************************************/
+#include <asm/coldfire/crossbar.h>
+#include <asm/coldfire/dspi.h>
+#include <asm/coldfire/edma.h>
+#include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/ssi.h>
 
+/* ATA */
 typedef struct atac {
 	/* PIO */
 	u8 toff;		/* 0x00 */
@@ -117,379 +125,7 @@ typedef struct atac {
 	u8 rsvd6[106];
 } atac_t;
 
-/*********************************************************************
-* Cross-bar switch (XBS)
-*********************************************************************/
-
-typedef struct xbs {
-	u8 resv0[0x100];
-	u32 prs1;		/* XBS Priority Register */
-	u8 resv1[0xC];
-	u32 crs1;		/* XBS Control Register */
-	u8 resv2[0xEC];
-	u32 prs2;		/* XBS Priority Register */
-	u8 resv3[0xC];
-	u32 crs2;		/* XBS Control Register */
-	u8 resv4[0xEC];
-	u32 prs3;		/* XBS Priority Register */
-	u8 resv5[0xC];
-	u32 crs3;		/* XBS Control Register */
-	u8 resv6[0xEC];
-	u32 prs4;		/* XBS Priority Register */
-	u8 resv7[0xC];
-	u32 crs4;		/* XBS Control Register */
-	u8 resv8[0xEC];
-	u32 prs5;		/* XBS Priority Register */
-	u8 resv9[0xC];
-	u32 crs5;		/* XBS Control Register */
-	u8 resv10[0xEC];
-	u32 prs6;		/* XBS Priority Register */
-	u8 resv11[0xC];
-	u32 crs6;		/* XBS Control Register */
-	u8 resv12[0xEC];
-	u32 prs7;		/* XBS Priority Register */
-	u8 resv13[0xC];
-	u32 crs7;		/* XBS Control Register */
-} xbs_t;
-
-/*********************************************************************
-* FlexBus Chip Selects (FBCS)
-*********************************************************************/
-
-typedef struct fbcs {
-	u32 csar0;		/* Chip-select Address Register */
-	u32 csmr0;		/* Chip-select Mask Register */
-	u32 cscr0;		/* Chip-select Control Register */
-	u32 csar1;		/* Chip-select Address Register */
-	u32 csmr1;		/* Chip-select Mask Register */
-	u32 cscr1;		/* Chip-select Control Register */
-	u32 csar2;		/* Chip-select Address Register */
-	u32 csmr2;		/* Chip-select Mask Register */
-	u32 cscr2;		/* Chip-select Control Register */
-	u32 csar3;		/* Chip-select Address Register */
-	u32 csmr3;		/* Chip-select Mask Register */
-	u32 cscr3;		/* Chip-select Control Register */
-} fbcs_t;
-
-/*********************************************************************
-* Enhanced DMA (EDMA)
-*********************************************************************/
-
-typedef struct edma {
-	u32 cr;
-	u32 es;
-	u8 resv0[0x6];
-	u16 erq;
-	u8 resv1[0x6];
-	u16 eei;
-	u8 serq;
-	u8 cerq;
-	u8 seei;
-	u8 ceei;
-	u8 cint;
-	u8 cerr;
-	u8 ssrt;
-	u8 cdne;
-	u8 resv2[0x6];
-	u16 intr;
-	u8 resv3[0x6];
-	u16 err;
-	u8 resv4[0xD0];
-	u8 dchpri0;
-	u8 dchpri1;
-	u8 dchpri2;
-	u8 dchpri3;
-	u8 dchpri4;
-	u8 dchpri5;
-	u8 dchpri6;
-	u8 dchpri7;
-	u8 dchpri8;
-	u8 dchpri9;
-	u8 dchpri10;
-	u8 dchpri11;
-	u8 dchpri12;
-	u8 dchpri13;
-	u8 dchpri14;
-	u8 dchpri15;
-	u8 resv5[0xEF0];
-	u32 tcd0_saddr;
-	u16 tcd0_attr;
-	u16 tcd0_soff;
-	u32 tcd0_nbytes;
-	u32 tcd0_slast;
-	u32 tcd0_daddr;
-	union {
-		u16 tcd0_citer_elink;
-		u16 tcd0_citer;
-	};
-	u16 tcd0_doff;
-	u32 tcd0_dlast_sga;
-	union {
-		u16 tcd0_biter_elink;
-		u16 tcd0_biter;
-	};
-	u16 tcd0_csr;
-	u32 tcd1_saddr;
-	u16 tcd1_attr;
-	u16 tcd1_soff;
-	u32 tcd1_nbytes;
-	u32 tcd1_slast;
-	u32 tcd1_daddr;
-	union {
-		u16 tcd1_citer_elink;
-		u16 tcd1_citer;
-	};
-	u16 tcd1_doff;
-	u32 tcd1_dlast_sga;
-	union {
-		u16 tcd1_biter;
-		u16 tcd1_biter_elink;
-	};
-	u16 tcd1_csr;
-	u32 tcd2_saddr;
-	u16 tcd2_attr;
-	u16 tcd2_soff;
-	u32 tcd2_nbytes;
-	u32 tcd2_slast;
-	u32 tcd2_daddr;
-	union {
-		u16 tcd2_citer;
-		u16 tcd2_citer_elink;
-	};
-	u16 tcd2_doff;
-	u32 tcd2_dlast_sga;
-	union {
-		u16 tcd2_biter_elink;
-		u16 tcd2_biter;
-	};
-	u16 tcd2_csr;
-	u32 tcd3_saddr;
-	u16 tcd3_attr;
-	u16 tcd3_soff;
-	u32 tcd3_nbytes;
-	u32 tcd3_slast;
-	u32 tcd3_daddr;
-	union {
-		u16 tcd3_citer;
-		u16 tcd3_citer_elink;
-	};
-	u16 tcd3_doff;
-	u32 tcd3_dlast_sga;
-	union {
-		u16 tcd3_biter_elink;
-		u16 tcd3_biter;
-	};
-	u16 tcd3_csr;
-	u32 tcd4_saddr;
-	u16 tcd4_attr;
-	u16 tcd4_soff;
-	u32 tcd4_nbytes;
-	u32 tcd4_slast;
-	u32 tcd4_daddr;
-	union {
-		u16 tcd4_citer;
-		u16 tcd4_citer_elink;
-	};
-	u16 tcd4_doff;
-	u32 tcd4_dlast_sga;
-	union {
-		u16 tcd4_biter;
-		u16 tcd4_biter_elink;
-	};
-	u16 tcd4_csr;
-	u32 tcd5_saddr;
-	u16 tcd5_attr;
-	u16 tcd5_soff;
-	u32 tcd5_nbytes;
-	u32 tcd5_slast;
-	u32 tcd5_daddr;
-	union {
-		u16 tcd5_citer;
-		u16 tcd5_citer_elink;
-	};
-	u16 tcd5_doff;
-	u32 tcd5_dlast_sga;
-	union {
-		u16 tcd5_biter_elink;
-		u16 tcd5_biter;
-	};
-	u16 tcd5_csr;
-	u32 tcd6_saddr;
-	u16 tcd6_attr;
-	u16 tcd6_soff;
-	u32 tcd6_nbytes;
-	u32 tcd6_slast;
-	u32 tcd6_daddr;
-	union {
-		u16 tcd6_citer;
-		u16 tcd6_citer_elink;
-	};
-	u16 tcd6_doff;
-	u32 tcd6_dlast_sga;
-	union {
-		u16 tcd6_biter_elink;
-		u16 tcd6_biter;
-	};
-	u16 tcd6_csr;
-	u32 tcd7_saddr;
-	u16 tcd7_attr;
-	u16 tcd7_soff;
-	u32 tcd7_nbytes;
-	u32 tcd7_slast;
-	u32 tcd7_daddr;
-	union {
-		u16 tcd7_citer;
-		u16 tcd7_citer_elink;
-	};
-	u16 tcd7_doff;
-	u32 tcd7_dlast_sga;
-	union {
-		u16 tcd7_biter_elink;
-		u16 tcd7_biter;
-	};
-	u16 tcd7_csr;
-	u32 tcd8_saddr;
-	u16 tcd8_attr;
-	u16 tcd8_soff;
-	u32 tcd8_nbytes;
-	u32 tcd8_slast;
-	u32 tcd8_daddr;
-	union {
-		u16 tcd8_citer;
-		u16 tcd8_citer_elink;
-	};
-	u16 tcd8_doff;
-	u32 tcd8_dlast_sga;
-	union {
-		u16 tcd8_biter_elink;
-		u16 tcd8_biter;
-	};
-	u16 tcd8_csr;
-	u32 tcd9_saddr;
-	u16 tcd9_attr;
-	u16 tcd9_soff;
-	u32 tcd9_nbytes;
-	u32 tcd9_slast;
-	u32 tcd9_daddr;
-	union {
-		u16 tcd9_citer_elink;
-		u16 tcd9_citer;
-	};
-	u16 tcd9_doff;
-	u32 tcd9_dlast_sga;
-	union {
-		u16 tcd9_biter_elink;
-		u16 tcd9_biter;
-	};
-	u16 tcd9_csr;
-	u32 tcd10_saddr;
-	u16 tcd10_attr;
-	u16 tcd10_soff;
-	u32 tcd10_nbytes;
-	u32 tcd10_slast;
-	u32 tcd10_daddr;
-	union {
-		u16 tcd10_citer_elink;
-		u16 tcd10_citer;
-	};
-	u16 tcd10_doff;
-	u32 tcd10_dlast_sga;
-	union {
-		u16 tcd10_biter;
-		u16 tcd10_biter_elink;
-	};
-	u16 tcd10_csr;
-	u32 tcd11_saddr;
-	u16 tcd11_attr;
-	u16 tcd11_soff;
-	u32 tcd11_nbytes;
-	u32 tcd11_slast;
-	u32 tcd11_daddr;
-	union {
-		u16 tcd11_citer;
-		u16 tcd11_citer_elink;
-	};
-	u16 tcd11_doff;
-	u32 tcd11_dlast_sga;
-	union {
-		u16 tcd11_biter;
-		u16 tcd11_biter_elink;
-	};
-	u16 tcd11_csr;
-	u32 tcd12_saddr;
-	u16 tcd12_attr;
-	u16 tcd12_soff;
-	u32 tcd12_nbytes;
-	u32 tcd12_slast;
-	u32 tcd12_daddr;
-	union {
-		u16 tcd12_citer;
-		u16 tcd12_citer_elink;
-	};
-	u16 tcd12_doff;
-	u32 tcd12_dlast_sga;
-	union {
-		u16 tcd12_biter;
-		u16 tcd12_biter_elink;
-	};
-	u16 tcd12_csr;
-	u32 tcd13_saddr;
-	u16 tcd13_attr;
-	u16 tcd13_soff;
-	u32 tcd13_nbytes;
-	u32 tcd13_slast;
-	u32 tcd13_daddr;
-	union {
-		u16 tcd13_citer_elink;
-		u16 tcd13_citer;
-	};
-	u16 tcd13_doff;
-	u32 tcd13_dlast_sga;
-	union {
-		u16 tcd13_biter_elink;
-		u16 tcd13_biter;
-	};
-	u16 tcd13_csr;
-	u32 tcd14_saddr;
-	u16 tcd14_attr;
-	u16 tcd14_soff;
-	u32 tcd14_nbytes;
-	u32 tcd14_slast;
-	u32 tcd14_daddr;
-	union {
-		u16 tcd14_citer;
-		u16 tcd14_citer_elink;
-	};
-	u16 tcd14_doff;
-	u32 tcd14_dlast_sga;
-	union {
-		u16 tcd14_biter_elink;
-		u16 tcd14_biter;
-	};
-	u16 tcd14_csr;
-	u32 tcd15_saddr;
-	u16 tcd15_attr;
-	u16 tcd15_soff;
-	u32 tcd15_nbytes;
-	u32 tcd15_slast;
-	u32 tcd15_daddr;
-	union {
-		u16 tcd15_citer_elink;
-		u16 tcd15_citer;
-	};
-	u16 tcd15_doff;
-	u32 tcd15_dlast_sga;
-	union {
-		u16 tcd15_biter;
-		u16 tcd15_biter_elink;
-	};
-	u16 tcd15_csr;
-} edma_t;
-
-/*********************************************************************
-* Interrupt Controller (INTC)
-*********************************************************************/
-
+/* Interrupt Controller (INTC) */
 typedef struct int0_ctrl {
 	u32 iprh0;		/* 0x00 Pending Register High */
 	u32 iprl0;		/* 0x04 Pending Register Low */
@@ -558,10 +194,7 @@ typedef struct int1_ctrl {
 	u8 resc[3];		/* 0xFD - 0xFF */
 } int1_t;
 
-/*********************************************************************
-* Global Interrupt Acknowledge (IACK)
-*********************************************************************/
-
+/* Global Interrupt Acknowledge (IACK) */
 typedef struct iack {
 	u8 resv0[0xE0];
 	u8 gswiack;
@@ -581,41 +214,7 @@ typedef struct iack {
 	u8 gl7iack;
 } iack_t;
 
-/*********************************************************************
-* DMA Serial Peripheral Interface (DSPI)
-*********************************************************************/
-
-typedef struct dspi {
-	u32 dmcr;
-	u8 resv0[0x4];
-	u32 dtcr;
-	u32 dctar0;
-	u32 dctar1;
-	u32 dctar2;
-	u32 dctar3;
-	u32 dctar4;
-	u32 dctar5;
-	u32 dctar6;
-	u32 dctar7;
-	u32 dsr;
-	u32 dirsr;
-	u32 dtfr;
-	u32 drfr;
-	u32 dtfdr0;
-	u32 dtfdr1;
-	u32 dtfdr2;
-	u32 dtfdr3;
-	u8 resv1[0x30];
-	u32 drfdr0;
-	u32 drfdr1;
-	u32 drfdr2;
-	u32 drfdr3;
-} dspi_t;
-
-/*********************************************************************
-* Edge Port Module (EPORT)
-*********************************************************************/
-
+/* Edge Port Module (EPORT) */
 typedef struct eport {
 	u16 eppar;
 	u8 epddr;
@@ -625,10 +224,7 @@ typedef struct eport {
 	u8 epfr;
 } eport_t;
 
-/*********************************************************************
-* Watchdog Timer Modules (WTM)
-*********************************************************************/
-
+/* Watchdog Timer Modules (WTM) */
 typedef struct wtm {
 	u16 wcr;
 	u16 wmr;
@@ -636,10 +232,7 @@ typedef struct wtm {
 	u16 wsr;
 } wtm_t;
 
-/*********************************************************************
-* Serial Boot Facility (SBF)
-*********************************************************************/
-
+/* Serial Boot Facility (SBF) */
 typedef struct sbf {
 	u8 resv0[0x18];
 	u16 sbfsr;		/* Serial Boot Facility Status Register */
@@ -647,19 +240,13 @@ typedef struct sbf {
 	u16 sbfcr;		/* Serial Boot Facility Control Register */
 } sbf_t;
 
-/*********************************************************************
-* Reset Controller Module (RCM)
-*********************************************************************/
-
+/* Reset Controller Module (RCM) */
 typedef struct rcm {
 	u8 rcr;
 	u8 rsr;
 } rcm_t;
 
-/*********************************************************************
-* Chip Configuration Module (CCM)
-*********************************************************************/
-
+/* Chip Configuration Module (CCM) */
 typedef struct ccm {
 	u8 ccm_resv0[0x4];
 	u16 ccr;		/* Chip Configuration Register (256 TEPBGA, Read-only) */
@@ -672,10 +259,7 @@ typedef struct ccm {
 	u16 uocsr;		/* USB On-the-Go Controller Status Register */
 } ccm_t;
 
-/*********************************************************************
-* General Purpose I/O Module (GPIO)
-*********************************************************************/
-
+/* General Purpose I/O Module (GPIO) */
 typedef struct gpio {
 	u8 podr_fec0h;		/* FEC0 High Port Output Data Register */
 	u8 podr_fec0l;		/* FEC0 Low Port Output Data Register */
@@ -803,10 +387,7 @@ typedef struct gpio {
 	u8 dscr_ata;		/* ATA Drive Strength Control Register */
 } gpio_t;
 
-/*********************************************************************
-* Random Number Generator (RNG)
-*********************************************************************/
-
+/* Random Number Generator (RNG) */
 typedef struct rng {
 	u32 rngcr;
 	u32 rngsr;
@@ -814,10 +395,7 @@ typedef struct rng {
 	u32 rngout;
 } rng_t;
 
-/*********************************************************************
-* SDRAM Controller (SDRAMC)
-*********************************************************************/
-
+/* SDRAM Controller (SDRAMC) */
 typedef struct sdramc {
 	u32 sdmr;		/* SDRAM Mode/Extended Mode Register */
 	u32 sdcr;		/* SDRAM Control Register */
@@ -828,36 +406,7 @@ typedef struct sdramc {
 	u32 sdcs1;		/* SDRAM Mode/Extended Mode Register */
 } sdramc_t;
 
-/*********************************************************************
-* Synchronous Serial Interface (SSI)
-*********************************************************************/
-
-typedef struct ssi {
-	u32 tx0;
-	u32 tx1;
-	u32 rx0;
-	u32 rx1;
-	u32 cr;
-	u32 isr;
-	u32 ier;
-	u32 tcr;
-	u32 rcr;
-	u32 ccr;
-	u8 resv0[0x4];
-	u32 fcsr;
-	u8 resv1[0x8];
-	u32 acr;
-	u32 acadd;
-	u32 acdat;
-	u32 atag;
-	u32 tmask;
-	u32 rmask;
-} ssi_t;
-
-/*********************************************************************
-* Phase Locked Loop (PLL)
-*********************************************************************/
-
+/* Phase Locked Loop (PLL) */
 typedef struct pll {
 	u32 pcr;		/* PLL Control Register */
 	u32 psr;		/* PLL Status Register */
@@ -927,7 +476,27 @@ typedef struct scm1 {
 	u32 pacrf;		/* 0x44 Peripheral Access Control Register F */
 	u32 pacrg;		/* 0x48 Peripheral Access Control Register G */
 } scm1_t;
-/********************************************************************/
+
+typedef struct scm2 {
+	u8 rsvd1[19];		/* 0x00 - 0x12 */
+	u8 wcr;			/* 0x13 */
+	u16 rsvd2;		/* 0x14 - 0x15 */
+	u16 cwcr;		/* 0x16 */
+	u8 rsvd3[3];		/* 0x18 - 0x1A */
+	u8 cwsr;		/* 0x1B */
+	u8 rsvd4[3];		/* 0x1C - 0x1E */
+	u8 scmisr;		/* 0x1F */
+	u32 rsvd5;		/* 0x20 - 0x23 */
+	u8 bcr;			/* 0x24 */
+	u8 rsvd6[74];		/* 0x25 - 0x6F */
+	u32 cfadr;		/* 0x70 */
+	u8 rsvd7;		/* 0x74 */
+	u8 cfier;		/* 0x75 */
+	u8 cfloc;		/* 0x76 */
+	u8 cfatr;		/* 0x77 */
+	u32 rsvd8;		/* 0x78 - 0x7B */
+	u32 cfdtr;		/* 0x7C */
+} scm2_t;
 
 typedef struct rtcex {
 	u32 rsvd1[3];
