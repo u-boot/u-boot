@@ -279,14 +279,13 @@ icache_enable:
 	move.l	(%a1), %d1
 
 	move.l	#0x00040100, %d0	/* Invalidate icache */
-	or.l	%d1, %d0
 	movec	%d0, %CACR
 
-	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0	/* Setup icache */
+	move.l	#(CFG_SDRAM_BASE + 0x1c000), %d0	/* Setup icache */
 	movec	%d0, %ACR2
 
-	or.l	#0x00088400, %d1	/* Enable bcache and icache */
-	movec	%d1, %CACR
+	move.l	#0x04088020, %d0	/* Enable bcache and icache */
+	movec	%d0, %CACR
 
 	move.l #(ICACHE_STATUS), %a1
 	moveq	#1, %d0
@@ -298,7 +297,7 @@ icache_disable:
 	move.l #(CACR_STATUS), %a1	/* read CACR Status */
 	move.l	(%a1), %d0
 
-	and.l	#0xFFF77BFF, %d0
+	move.l	#0xFFF77BFF, %d0
 	or.l	#0x00040100, %d0	/* Setup cache mask */
 	movec	%d0, %CACR		/* Invalidate icache */
 	clr.l	%d0
@@ -321,7 +320,7 @@ icache_invalid:
 	move.l #(CACR_STATUS), %a1	/* read CACR Status */
 	move.l	(%a1), %d0
 
-	or.l	#0x00040100, %d0	/* Invalidate icache */
+	move.l	#0x00040100, %d0	/* Invalidate icache */
 	movec	%d0, %CACR		/* Enable and invalidate cache */
 	rts
 
@@ -330,17 +329,11 @@ dcache_enable:
 	move.l #(CACR_STATUS), %a1	/* read CACR Status */
 	move.l	(%a1), %d1
 
-	move.l	#0x01000000, %d0
-	or.l	%d1, %d0
+	move.l	#0x01040100, %d0
 	movec	%d0, %CACR		/* Invalidate dcache */
 
-	move.l  #(CFG_SDRAM_BASE + 0xc000), %d0
-	movec	%d0, %ACR0
-	move.l  #0, %d0
-	movec	%d0, %ACR1
-
-	or.l	#0x80000000, %d1	/* Enable bcache and icache */
-	movec	%d1, %CACR
+	move.l	#0x80088020, %d0	/* Enable bcache and icache */
+	movec	%d0, %CACR
 
 	move.l #(DCACHE_STATUS), %a1
 	moveq	#1, %d0
@@ -369,7 +362,7 @@ dcache_invalid:
 	move.l #(CACR_STATUS), %a1	/* read CACR Status */
 	move.l	(%a1), %d0
 
-	or.l	#0x01000000, %d0	/* Setup cache mask */
+	move.l	#0x81088020, %d0	/* Setup cache mask */
 	movec	%d0, %CACR		/* Enable and invalidate cache */
 	rts
 

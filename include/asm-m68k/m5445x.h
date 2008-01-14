@@ -1204,13 +1204,13 @@
 #define PCI_TCR1_P			(0x00010000)	/* Prefetch reads */
 #define PCI_TCR1_WCD			(0x00000100)	/* Write combine disable */
 
-#define PCI_TCR1_B5E			(0x00002000)	/*  */
-#define PCI_TCR1_B4E			(0x00001000)	/*  */
-#define PCI_TCR1_B3E			(0x00000800)	/*  */
-#define PCI_TCR1_B2E			(0x00000400)	/*  */
-#define PCI_TCR1_B1E			(0x00000200)	/*  */
-#define PCI_TCR1_B0E			(0x00000100)	/*  */
-#define PCI_TCR1_CR			(0x00000001)	/*  */
+#define PCI_TCR2_B5E			(0x00002000)	/*  */
+#define PCI_TCR2_B4E			(0x00001000)	/*  */
+#define PCI_TCR2_B3E			(0x00000800)	/*  */
+#define PCI_TCR2_B2E			(0x00000400)	/*  */
+#define PCI_TCR2_B1E			(0x00000200)	/*  */
+#define PCI_TCR2_B0E			(0x00000100)	/*  */
+#define PCI_TCR2_CR			(0x00000001)	/*  */
 
 #define PCI_TBATR_BAT(x)		((x & 0xFFF) << 20)
 #define PCI_TBATR_EN			(0x00000001)	/* Enable */

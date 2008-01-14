@@ -46,47 +46,17 @@ int pci_##rw##_cfg_##size(struct pci_controller *hose,			\
 	u16 cfg_type = 0;						\
 	addr = ((offset & 0xfc) | cfg_type | (dev)  | 0x80000000);	\
 	out_be32(hose->cfg_addr, addr);					\
-	__asm__ __volatile__("nop");					\
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	\
 	out_be32(hose->cfg_addr, addr & 0x7fffffff);			\
-	__asm__ __volatile__("nop");					\
 	return 0;							\
 }
 
 PCI_OP(read, byte, u8 *, in_8, 3)
 PCI_OP(read, word, u16 *, in_le16, 2)
+PCI_OP(read, dword, u32 *, in_le32, 0)
 PCI_OP(write, byte, u8, out_8, 3)
 PCI_OP(write, word, u16, out_le16, 2)
 PCI_OP(write, dword, u32, out_le32, 0)
-
-int pci_read_cfg_dword(struct pci_controller *hose, pci_dev_t dev,
-		       int offset, u32 * val)
-{
-	u32 addr;
-	u32 tmpv;
-	u32 mask = 2;		/* word access */
-	/* Read lower 16 bits */
-	addr = ((offset & 0xfc) | (dev) | 0x80000000);
-	out_be32(hose->cfg_addr, addr);
-	__asm__ __volatile__("nop");
-	*val = (u32) in_le16((u16 *) (hose->cfg_data + (offset & mask)));
-	out_be32(hose->cfg_addr, addr & 0x7fffffff);
-	__asm__ __volatile__("nop");
-
-	/* Read upper 16 bits */
-	offset += 2;
-	addr = ((offset & 0xfc) | 1 | (dev) | 0x80000000);
-	out_be32(hose->cfg_addr, addr);
-	__asm__ __volatile__("nop");
-	tmpv = (u32) in_le16((u16 *) (hose->cfg_data + (offset & mask)));
-	out_be32(hose->cfg_addr, addr & 0x7fffffff);
-	__asm__ __volatile__("nop");
-
-	/* combine results into dword value */
-	*val = (tmpv << 16) | *val;
-
-	return 0;
-}
 
 void pci_mcf5445x_init(struct pci_controller *hose)
 {
@@ -95,7 +65,7 @@ void pci_mcf5445x_init(struct pci_controller *hose)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	u32 barEn = 0;
 
-	pciarb->acr = 0x001f001f;
+	pciarb->acr = 0x001F001F;
 
 	/* Set PCIGNT1, PCIREQ1, PCIREQ0/PCIGNTIN, PCIGNT0/PCIREQOUT,
 	   PCIREQ2, PCIGNT2 */
@@ -104,53 +74,58 @@ void pci_mcf5445x_init(struct pci_controller *hose)
 	    GPIO_PAR_PCI_GNT0 | GPIO_PAR_PCI_REQ3_REQ3 | GPIO_PAR_PCI_REQ2 |
 	    GPIO_PAR_PCI_REQ1 | GPIO_PAR_PCI_REQ0;
 
+	/* Assert reset bit */
+	pci->gscr |= PCI_GSCR_PR;
+
 	pci->tcr1 |= PCI_TCR1_P;
 
 	/* Initiator windows */
-	pci->iw0btar = CFG_PCI_MEM_PHYS;
-	pci->iw1btar = CFG_PCI_IO_PHYS;
-	pci->iw2btar = CFG_PCI_CFG_PHYS;
+	pci->iw0btar = CFG_PCI_MEM_PHYS | (CFG_PCI_MEM_PHYS >> 16);
+	pci->iw1btar = CFG_PCI_IO_PHYS | (CFG_PCI_IO_PHYS >> 16);
+	pci->iw2btar = CFG_PCI_CFG_PHYS | (CFG_PCI_CFG_PHYS >> 16);
 
 	pci->iwcr =
 	    PCI_IWCR_W0C_EN | PCI_IWCR_W1C_EN | PCI_IWCR_W1C_IO |
 	    PCI_IWCR_W2C_EN | PCI_IWCR_W2C_IO;
 
+	pci->icr = 0;
+
 	/* Enable bus master and mem access */
-	pci->scr = PCI_SCR_MW | PCI_SCR_B | PCI_SCR_M;
+	pci->scr = PCI_SCR_B | PCI_SCR_M;
 
 	/* Cache line size and master latency */
-	pci->cr1 = PCI_CR1_CLS(8) | PCI_CR1_LTMR(0xFF);
+	pci->cr1 = PCI_CR1_CLS(8) | PCI_CR1_LTMR(0xF8);
 	pci->cr2 = 0;
 
 #ifdef CFG_PCI_BAR0
 	pci->bar0 = PCI_BAR_BAR0(CFG_PCI_BAR0);
 	pci->tbatr0 = CFG_PCI_TBATR0 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B0E;
+	barEn |= PCI_TCR2_B0E;
 #endif
 #ifdef CFG_PCI_BAR1
 	pci->bar1 = PCI_BAR_BAR1(CFG_PCI_BAR1);
 	pci->tbatr1 = CFG_PCI_TBATR1 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B1E;
+	barEn |= PCI_TCR2_B1E;
 #endif
 #ifdef CFG_PCI_BAR2
 	pci->bar2 = PCI_BAR_BAR2(CFG_PCI_BAR2);
 	pci->tbatr2 = CFG_PCI_TBATR2 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B2E;
+	barEn |= PCI_TCR2_B2E;
 #endif
 #ifdef CFG_PCI_BAR3
 	pci->bar3 = PCI_BAR_BAR3(CFG_PCI_BAR3);
 	pci->tbatr3 = CFG_PCI_TBATR3 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B3E;
+	barEn |= PCI_TCR2_B3E;
 #endif
 #ifdef CFG_PCI_BAR4
 	pci->bar4 = PCI_BAR_BAR4(CFG_PCI_BAR4);
 	pci->tbatr4 = CFG_PCI_TBATR4 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B4E;
+	barEn |= PCI_TCR2_B4E;
 #endif
 #ifdef CFG_PCI_BAR5
 	pci->bar5 = PCI_BAR_BAR5(CFG_PCI_BAR5);
 	pci->tbatr5 = CFG_PCI_TBATR5 | PCI_TBATR_EN;
-	barEn |= PCI_TCR1_B5E;
+	barEn |= PCI_TCR2_B5E;
 #endif
 
 	pci->tcr2 = barEn;
