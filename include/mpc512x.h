@@ -345,6 +345,15 @@
 
 /* Indexes in regs array */
 #define MEM_IDX			0x00
+#define PATA_CE1_IDX		0x2e
+#define PATA_CE2_IDX		0x2f
+#define PATA_ISOLATE_IDX	0x30
+#define PATA_IOR_IDX		0x31
+#define PATA_IOW_IDX		0x32
+#define PATA_IOCHRDY_IDX	0x33
+#define PATA_INTRQ_IDX		0x34
+#define PATA_DRQ_IDX		0x35
+#define PATA_DACK_IDX		0x36
 #define SPDIF_TXCLOCK_IDX	0x73
 #define SPDIF_TX_IDX		0x74
 #define SPDIF_RX_IDX		0x75

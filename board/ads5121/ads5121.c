@@ -33,7 +33,8 @@
 			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
 			 CLOCK_SCCR1_PSCFIFO_EN |			\
 			 CLOCK_SCCR1_DDR_EN |				\
-			 CLOCK_SCCR1_FEC_EN)
+			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_TPR_EN)
 
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
 			 CLOCK_SCCR2_SPDIF_EN |		\
@@ -139,7 +140,7 @@ long int fixed_sdram (void)
 	im->mddrc.lut_table2_alternate_upper = CFG_MDDRCGRP_LUT2_AU;
 	im->mddrc.lut_table3_alternate_upper = CFG_MDDRCGRP_LUT3_AU;
 	im->mddrc.lut_table4_alternate_upper = CFG_MDDRCGRP_LUT4_AU;
-	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AU;
+	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AL;
 	im->mddrc.lut_table1_alternate_lower = CFG_MDDRCGRP_LUT1_AL;
 	im->mddrc.lut_table2_alternate_lower = CFG_MDDRCGRP_LUT2_AL;
 	im->mddrc.lut_table3_alternate_lower = CFG_MDDRCGRP_LUT3_AL;
@@ -180,9 +181,17 @@ int checkboard (void)
 {
 	ushort brd_rev = *(vu_short *) (CFG_CPLD_BASE + 0x00);
 	uchar cpld_rev = *(vu_char *) (CFG_CPLD_BASE + 0x02);
+	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile unsigned long *reg;
+	int i;
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
+
+	/* change the slew rate on all pata pins to max */
+	reg = (unsigned long *) &(im->io_ctrl.regs[PATA_CE1_IDX]);
+	for (i = 0; i < 9; i++)
+		reg[i] |= 0x00000003;
 	return 0;
 }
 

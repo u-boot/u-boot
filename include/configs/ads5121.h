@@ -354,9 +354,9 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HOSTNAME		ads5121
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		ads5121/uImage
 
-#define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 
 #define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */
@@ -368,42 +368,46 @@
 	"echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"u-boot_addr_r=200000\0"					\
+	"kernel_addr_r=200000\0"					\
+	"fdt_addr_r=400000\0"						\
+	"ramdisk_addr_r=500000\0"					\
+	"u-boot_addr=FFF00000\0"					\
+	"kernel_addr=FC000000\0"					\
+	"fdt_addr=FC2C0000\0"						\
+	"ramdisk_addr=FC300000\0"					\
+	"ramdiskfile=ads5121/uRamdisk\0"				\
+	"fdtfile=ads5121/ads5121.dtb\0"					\
+	"u-boot=ads5121/u-boot.bin\0"					\
 	"netdev=eth0\0"							\
+	"consdev=ttyPSC0\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
+	"addtty=setenv bootargs ${bootargs} "				\
+		"console=${consdev},${baudrate}\0"			\
 	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr}\0"		\
 	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"	\
-		"bootm\0"						\
-	"load=tftp 200000 /tftpboot/ads5121/u-boot.bin\0"		\
-	"update=protect off FFF00000 +${filesize};"			\
-		"era FFF00000 +${filesize};cp.b 200000 FFF00000 ${filesize}\0" \
-	"upd=run load;run update\0"					\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
+		"tftp ${fdt_addr_r} ${fdtfile};"			\
+		"run nfsargs addip addtty;"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"net_self=tftp ${kernel_addr_r} ${bootfile};"			\
+		"tftp ${ramdisk_addr_r} ${ramdiskfile};"		\
+		"tftp ${fdt_addr} ${fdtfile};"				\
+		"run ramargs addip addtty;"				\
+		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr}\0"\
+	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
+	"update=protect off ${u-boot_addr} +${filesize};"		\
+		"era ${u-boot_addr} +${filesize};"			\
+		"cp.b ${u-boot_addr_r} ${u-boot_addr} ${filesize}\0"	\
+	"upd=run load update\0"						\
 	""
-
-#define CONFIG_NFSBOOTCOMMAND						\
-	"setenv bootargs root=/dev/nfs rw "				\
-		"nfsroot=$serverip:$rootpath "				\
-		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-		"console=$consoledev,$baudrate $othbootargs;"		\
-	"tftp $loadaddr $bootfile;"					\
-	"tftp $fdtaddr $fdtfile;"					\
-	"bootm $loadaddr - $fdtaddr"
-
-#define CONFIG_RAMBOOTCOMMAND						\
-	"setenv bootargs root=/dev/ram rw "				\
-		"console=$consoledev,$baudrate $othbootargs;"		\
-	"tftp $ramdiskaddr $ramdiskfile;"				\
-	"tftp $loadaddr $bootfile;"					\
-	"tftp $fdtaddr $fdtfile;"					\
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
