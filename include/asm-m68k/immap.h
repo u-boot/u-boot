@@ -169,7 +169,7 @@
 #endif
 #endif				/* CONFIG_M5282 */
 
-#ifdef CONFIG_M5329
+#if defined(CONFIG_M5329) || defined(CONFIG_M5373)
 #include <asm/immap_5329.h>
 #include <asm/m5329.h>
 
@@ -197,7 +197,7 @@
 
 #define CFG_INTR_BASE		(MMAP_INTC0)
 #define CFG_NUM_IRQS		(128)
-#endif				/* CONFIG_M5329 */
+#endif				/* CONFIG_M5329 && CONFIG_M5373 */
 
 #ifdef CONFIG_M54455
 #include <asm/immap_5445x.h>

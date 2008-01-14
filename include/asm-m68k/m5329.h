@@ -1118,6 +1118,7 @@
 #define GPIO_PCLRR_LCDCTLL7		(0x80)
 
 /* Bit definitions and macros for GPIO_PAR_FEC */
+#ifdef CONFIG_M5329
 #define GPIO_PAR_FEC_MII(x)		(((x)&0x03)<<0)
 #define GPIO_PAR_FEC_7W(x)		(((x)&0x03)<<2)
 #define GPIO_PAR_FEC_7W_GPIO		(0x00)
@@ -1126,6 +1127,10 @@
 #define GPIO_PAR_FEC_MII_GPIO		(0x00)
 #define GPIO_PAR_FEC_MII_UART		(0x01)
 #define GPIO_PAR_FEC_MII_FEC		(0x03)
+#else
+#define GPIO_PAR_FEC_7W_FEC		(0x08)
+#define GPIO_PAR_FEC_MII_FEC		(0x02)
+#endif
 
 /* Bit definitions and macros for GPIO_PAR_PWM */
 #define GPIO_PAR_PWM1(x)		(((x)&0x03)<<0)

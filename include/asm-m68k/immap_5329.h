@@ -378,91 +378,133 @@ typedef struct rcm {
 /* GPIO port registers */
 typedef struct gpio_ctrl {
 	/* Port Output Data Registers */
+#ifdef CONFIG_M5329
 	u8 podr_fech;		/* 0x00 */
 	u8 podr_fecl;		/* 0x01 */
+#else
+	u16 res00;		/* 0x00 - 0x01 */
+#endif
 	u8 podr_ssi;		/* 0x02 */
 	u8 podr_busctl;		/* 0x03 */
 	u8 podr_be;		/* 0x04 */
 	u8 podr_cs;		/* 0x05 */
 	u8 podr_pwm;		/* 0x06 */
 	u8 podr_feci2c;		/* 0x07 */
-	u8 res1;		/* 0x08 */
+	u8 res08;		/* 0x08 */
 	u8 podr_uart;		/* 0x09 */
 	u8 podr_qspi;		/* 0x0A */
 	u8 podr_timer;		/* 0x0B */
-	u8 res2;		/* 0x0C */
+#ifdef CONFIG_M5329
+	u8 res0C;		/* 0x0C */
 	u8 podr_lcddatah;	/* 0x0D */
 	u8 podr_lcddatam;	/* 0x0E */
 	u8 podr_lcddatal;	/* 0x0F */
 	u8 podr_lcdctlh;	/* 0x10 */
 	u8 podr_lcdctll;	/* 0x11 */
+#else
+	u16 res0C;		/* 0x0C - 0x0D */
+	u8 podr_fech;		/* 0x0E */
+	u8 podr_fecl;		/* 0x0F */
+	u16 res10[3];		/* 0x10 - 0x15 */
+#endif
 
 	/* Port Data Direction Registers */
-	u16 res3;		/* 0x12 - 0x13 */
+#ifdef CONFIG_M5329
+	u16 res12;		/* 0x12 - 0x13 */
 	u8 pddr_fech;		/* 0x14 */
 	u8 pddr_fecl;		/* 0x15 */
+#endif
 	u8 pddr_ssi;		/* 0x16 */
 	u8 pddr_busctl;		/* 0x17 */
 	u8 pddr_be;		/* 0x18 */
 	u8 pddr_cs;		/* 0x19 */
 	u8 pddr_pwm;		/* 0x1A */
 	u8 pddr_feci2c;		/* 0x1B */
-	u8 res4;		/* 0x1C */
+	u8 res1C;		/* 0x1C */
 	u8 pddr_uart;		/* 0x1D */
 	u8 pddr_qspi;		/* 0x1E */
 	u8 pddr_timer;		/* 0x1F */
-	u8 res5;		/* 0x20 */
+#ifdef CONFIG_M5329
+	u8 res20;		/* 0x20 */
 	u8 pddr_lcddatah;	/* 0x21 */
 	u8 pddr_lcddatam;	/* 0x22 */
 	u8 pddr_lcddatal;	/* 0x23 */
 	u8 pddr_lcdctlh;	/* 0x24 */
 	u8 pddr_lcdctll;	/* 0x25 */
-	u16 res6;		/* 0x26 - 0x27 */
+	u16 res26;		/* 0x26 - 0x27 */
+#else
+	u16 res20;		/* 0x20 - 0x21 */
+	u8 pddr_fech;		/* 0x22 */
+	u8 pddr_fecl;		/* 0x23 */
+	u16 res24[3];		/* 0x24 - 0x29 */
+#endif
 
 	/* Port Data Direction Registers */
+#ifdef CONFIG_M5329
 	u8 ppd_fech;		/* 0x28 */
 	u8 ppd_fecl;		/* 0x29 */
+#endif
 	u8 ppd_ssi;		/* 0x2A */
 	u8 ppd_busctl;		/* 0x2B */
 	u8 ppd_be;		/* 0x2C */
 	u8 ppd_cs;		/* 0x2D */
 	u8 ppd_pwm;		/* 0x2E */
 	u8 ppd_feci2c;		/* 0x2F */
-	u8 res7;		/* 0x30 */
+	u8 res30;		/* 0x30 */
 	u8 ppd_uart;		/* 0x31 */
 	u8 ppd_qspi;		/* 0x32 */
 	u8 ppd_timer;		/* 0x33 */
-	u8 res8;		/* 0x34 */
+#ifdef CONFIG_M5329
+	u8 res34;		/* 0x34 */
 	u8 ppd_lcddatah;	/* 0x35 */
 	u8 ppd_lcddatam;	/* 0x36 */
 	u8 ppd_lcddatal;	/* 0x37 */
 	u8 ppd_lcdctlh;		/* 0x38 */
 	u8 ppd_lcdctll;		/* 0x39 */
-	u16 res9;		/* 0x3A - 0x3B */
+	u16 res3A;		/* 0x3A - 0x3B */
+#else
+	u16 res34;		/* 0x34 - 0x35 */
+	u8 ppd_fech;		/* 0x36 */
+	u8 ppd_fecl;		/* 0x37 */
+	u16 res38[3];		/* 0x38 - 0x3D */
+#endif
 
 	/* Port Clear Output Data Registers */
-	u8 pclrr_fech;		/* 0x3C */
-	u8 pclrr_fecl;		/* 0x3D */
+#ifdef CONFIG_M5329
+	u8 res3C;		/* 0x3C */
+	u8 pclrr_fech;		/* 0x3D */
+	u8 pclrr_fecl;		/* 0x3E */
+#else
 	u8 pclrr_ssi;		/* 0x3E */
+#endif
 	u8 pclrr_busctl;	/* 0x3F */
 	u8 pclrr_be;		/* 0x40 */
 	u8 pclrr_cs;		/* 0x41 */
 	u8 pclrr_pwm;		/* 0x42 */
 	u8 pclrr_feci2c;	/* 0x43 */
-	u8 res10;		/* 0x44 */
+	u8 res44;		/* 0x44 */
 	u8 pclrr_uart;		/* 0x45 */
 	u8 pclrr_qspi;		/* 0x46 */
 	u8 pclrr_timer;		/* 0x47 */
-	u8 res11;		/* 0x48 */
-	u8 pclrr_lcddatah;	/* 0x49 */
-	u8 pclrr_lcddatam;	/* 0x4A */
-	u8 pclrr_lcddatal;	/* 0x4B */
+#ifdef CONFIG_M5329
+	u8 pclrr_lcddatah;	/* 0x48 */
+	u8 pclrr_lcddatam;	/* 0x49 */
+	u8 pclrr_lcddatal;	/* 0x4A */
+	u8 pclrr_ssi;		/* 0x4B */
 	u8 pclrr_lcdctlh;	/* 0x4C */
 	u8 pclrr_lcdctll;	/* 0x4D */
-	u16 res12;		/* 0x4E - 0x4F */
+	u16 res4E;		/* 0x4E - 0x4F */
+#else
+	u16 res48;		/* 0x48 - 0x49 */
+	u8 pclrr_fech;		/* 0x4A */
+	u8 pclrr_fecl;		/* 0x4B */
+	u8 res4C[5];		/* 0x4C - 0x50 */
+#endif
 
 	/* Pin Assignment Registers */
+#ifdef CONFIG_M5329
 	u8 par_fec;		/* 0x50 */
+#endif
 	u8 par_pwm;		/* 0x51 */
 	u8 par_busctl;		/* 0x52 */
 	u8 par_feci2c;		/* 0x53 */
@@ -472,15 +514,20 @@ typedef struct gpio_ctrl {
 	u16 par_uart;		/* 0x58 */
 	u16 par_qspi;		/* 0x5A */
 	u8 par_timer;		/* 0x5C */
+#ifdef CONFIG_M5329
 	u8 par_lcddata;		/* 0x5D */
 	u16 par_lcdctl;		/* 0x5E */
+#else
+	u8 par_fec;		/* 0x5D */
+	u16 res5E;		/* 0x5E - 0x5F */
+#endif
 	u16 par_irq;		/* 0x60 */
-	u16 res16;		/* 0x62 - 0x63 */
+	u16 res62;		/* 0x62 - 0x63 */
 
 	/* Mode Select Control Registers */
 	u8 mscr_flexbus;	/* 0x64 */
 	u8 mscr_sdram;		/* 0x65 */
-	u16 res17;		/* 0x66 - 0x67 */
+	u16 res66;		/* 0x66 - 0x67 */
 
 	/* Drive Strength Control Registers */
 	u8 dscr_i2c;		/* 0x68 */
@@ -490,7 +537,11 @@ typedef struct gpio_ctrl {
 	u8 dscr_qspi;		/* 0x6C */
 	u8 dscr_timer;		/* 0x6D */
 	u8 dscr_ssi;		/* 0x6E */
+#ifdef CONFIG_M5329
 	u8 dscr_lcd;		/* 0x6F */
+#else
+	u8 res6F;		/* 0x6F */
+#endif
 	u8 dscr_debug;		/* 0x70 */
 	u8 dscr_clkrst;		/* 0x71 */
 	u8 dscr_irq;		/* 0x72 */

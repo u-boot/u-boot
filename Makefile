@@ -1811,6 +1811,16 @@ M5329BFEE_config :	unconfig
 	fi
 	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
 
+M5373EVB_config :	unconfig
+	@case "$@" in \
+	M5373EVB_config)	NAND=16;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${NAND}" != "0" ] ; then \
+		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5373EVB m68k mcf532x m5373evb freescale
+
 M54455EVB_config \
 M54455EVB_atmel_config \
 M54455EVB_intel_config \
