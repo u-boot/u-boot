@@ -1249,6 +1249,7 @@ int uec_initialize(int index)
 	memset(uec, 0, sizeof(uec_private_t));
 
 	/* Init UEC private struct, they come from board.h */
+	uec_info = NULL;
 	if (index == 0) {
 #ifdef CONFIG_UEC_ETH1
 		uec_info = &eth1_uec_info;
