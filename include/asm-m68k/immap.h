@@ -273,4 +273,97 @@
 #endif
 #endif				/* CONFIG_M54455 */
 
+#ifdef CONFIG_M547x
+#include <asm/immap_547x_8x.h>
+#include <asm/m547x_8x.h>
+
+#ifdef CONFIG_FSLDMAFEC
+#define CFG_FEC0_IOBASE		(MMAP_FEC0)
+#define CFG_FEC1_IOBASE		(MMAP_FEC1)
+
+#define FEC0_RX_TASK		0
+#define FEC0_TX_TASK		1
+#define FEC0_RX_PRIORITY	6
+#define FEC0_TX_PRIORITY	7
+#define FEC0_RX_INIT		16
+#define FEC0_TX_INIT		17
+#define FEC1_RX_TASK		2
+#define FEC1_TX_TASK		3
+#define FEC1_RX_PRIORITY	6
+#define FEC1_TX_PRIORITY	7
+#define FEC1_RX_INIT		30
+#define FEC1_TX_INIT		31
+#endif
+
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x100))
+
+#ifdef CONFIG_SLTTMR
+#define CFG_UDELAY_BASE		(MMAP_SLT1)
+#define CFG_TMR_BASE		(MMAP_SLT0)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprh0)
+#define CFG_TMRINTR_NO		(INT0_HI_SLT0)
+#define CFG_TMRINTR_MASK	(INTC_IPRH_INT54)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(0x1E)
+#define CFG_TIMER_PRESCALER	(gd->bus_clk / 1000000)
+#endif
+
+#define CFG_INTR_BASE		(MMAP_INTC0)
+#define CFG_NUM_IRQS		(128)
+
+#ifdef CONFIG_PCI
+#define CFG_PCI_BAR0		(0x40000000)
+#define CFG_PCI_BAR1		(CFG_SDRAM_BASE)
+#define CFG_PCI_TBATR0		(CFG_MBAR)
+#define CFG_PCI_TBATR1		(CFG_SDRAM_BASE)
+#endif
+#endif				/* CONFIG_M547x */
+
+#ifdef CONFIG_M548x
+#include <asm/immap_547x_8x.h>
+#include <asm/m547x_8x.h>
+
+#ifdef CONFIG_FSLDMAFEC
+#define CFG_FEC0_IOBASE		(MMAP_FEC0)
+#define CFG_FEC1_IOBASE		(MMAP_FEC1)
+
+#define FEC0_RX_TASK		0
+#define FEC0_TX_TASK		1
+#define FEC0_RX_PRIORITY	6
+#define FEC0_TX_PRIORITY	7
+#define FEC0_RX_INIT		16
+#define FEC0_TX_INIT		17
+#define FEC1_RX_TASK		2
+#define FEC1_TX_TASK		3
+#define FEC1_RX_PRIORITY	6
+#define FEC1_TX_PRIORITY	7
+#define FEC1_RX_INIT		30
+#define FEC1_TX_INIT		31
+#endif
+
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x100))
+
+/* Timer */
+#ifdef CONFIG_SLTTMR
+#define CFG_UDELAY_BASE		(MMAP_SLT1)
+#define CFG_TMR_BASE		(MMAP_SLT0)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprh0)
+#define CFG_TMRINTR_NO		(INT0_HI_SLT0)
+#define CFG_TMRINTR_MASK	(INTC_IPRH_INT54)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(0x1E)
+#define CFG_TIMER_PRESCALER	(gd->bus_clk / 1000000)
+#endif
+
+#define CFG_INTR_BASE		(MMAP_INTC0)
+#define CFG_NUM_IRQS		(128)
+
+#ifdef CONFIG_PCI
+#define CFG_PCI_BAR0		(CFG_MBAR)
+#define CFG_PCI_BAR1		(CFG_SDRAM_BASE)
+#define CFG_PCI_TBATR0		(CFG_MBAR)
+#define CFG_PCI_TBATR1		(CFG_SDRAM_BASE)
+#endif
+#endif				/* CONFIG_M548x */
+
 #endif				/* __IMMAP_H */
