@@ -152,6 +152,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 #define CFG_ID_EEPROM	1
+#ifdef CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
+#endif
 #define ID_EEPROM_ADDR 0x57
 
 /*

@@ -27,13 +27,13 @@ endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o \
-	../common/sys_eeprom.o \
-	../common/pixis.o \
-	mpc8610hpcd_diu.o \
-	../common/fsl_diu_fb.o
-
 SOBJS	:= init.o
+
+COBJS	:= $(BOARD).o
+
+COBJS-${CONFIG_FSL_DIU_FB}	+= mpc8610hpcd_diu.o
+
+COBJS	+= ${COBJS-y}
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

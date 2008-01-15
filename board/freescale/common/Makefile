@@ -29,14 +29,13 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).a
 
-COBJS	:= sys_eeprom.o	\
-	   pixis.o	\
-	   pq-mds-pib.o \
-	   fsl_logo_bmp.o \
-	   fsl_diu_fb.o
+COBJS-${CONFIG_PQ_MDS_PIB}	+= pq-mds-pib.o
+COBJS-${CONFIG_ID_EEPROM}	+= sys_eeprom.o
+COBJS-${CONFIG_FSL_DIU_FB}	+= fsl_diu_fb.o fsl_logo_bmp.o
+COBJS-${CONFIG_FSL_PIXIS}	+= pixis.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)

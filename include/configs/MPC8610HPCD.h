@@ -141,6 +141,9 @@
 #endif
 
 #define CFG_ID_EEPROM
+#ifdef CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
+#endif
 #define ID_EEPROM_ADDR		0x57
 
 
