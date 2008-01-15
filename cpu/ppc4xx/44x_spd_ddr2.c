@@ -387,9 +387,9 @@ long int initdram(int board_type)
 	unsigned char spd1[MAX_SPD_BYTES];
 	unsigned char *dimm_spd[MAXDIMMS];
 	unsigned long dimm_populated[MAXDIMMS];
-	unsigned long num_dimm_banks;		    /* on board dimm banks */
+	unsigned long num_dimm_banks;		/* on board dimm banks */
 	unsigned long val;
-	ddr_cas_id_t  selected_cas;
+	ddr_cas_id_t selected_cas = DDR_CAS_5;	/* preset to silence compiler */
 	int write_recovery;
 	unsigned long dram_size = 0;
 
