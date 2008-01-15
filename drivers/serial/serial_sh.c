@@ -30,25 +30,20 @@
 #error "Default SCIF doesn't set....."
 #endif
 
-#if defined(CONFIG_SH3)
-/* There are SH7720's register */
-#define SCSMR	(volatile unsigned short *)(SCIF_BASE + 0x0)
-#define SCBRR	(volatile unsigned char  *)(SCIF_BASE + 0x4)
-#define SCSCR	(volatile unsigned short *)(SCIF_BASE + 0x8)
-#define SCFSR	(volatile unsigned short *)(SCIF_BASE + 0x14)   /* SCSSR */
-#define SCFCR	(volatile unsigned short *)(SCIF_BASE + 0x18)
-#define SCFDR	(volatile unsigned short *)(SCIF_BASE + 0x1C)
-#define SCFTDR	(volatile unsigned char  *)(SCIF_BASE + 0x20)
-#define SCFRDR	(volatile unsigned char  *)(SCIF_BASE + 0x24)
+/* Base register */
+#define SCSMR	(vu_short *)(SCIF_BASE + 0x0)
+#define SCBRR	(vu_char  *)(SCIF_BASE + 0x4)
+#define SCSCR	(vu_short *)(SCIF_BASE + 0x8)
+#define SCFCR	(vu_short *)(SCIF_BASE + 0x18)
+#define SCFDR	(vu_short *)(SCIF_BASE + 0x1C)
+#ifdef CONFIG_SH7720 /* SH7720 specific */
+#define SCFSR	(vu_short *)(SCIF_BASE + 0x14)   /* SCSSR */
+#define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
+#define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
 #else
-#define SCSMR 	(vu_short *)(SCIF_BASE + 0x0)
-#define SCBRR 	(vu_char  *)(SCIF_BASE + 0x4)
-#define SCSCR 	(vu_short *)(SCIF_BASE + 0x8)
 #define SCFTDR 	(vu_char  *)(SCIF_BASE + 0xC)
 #define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
 #define SCFRDR 	(vu_char  *)(SCIF_BASE + 0x14)
-#define SCFCR 	(vu_short *)(SCIF_BASE + 0x18)
-#define SCFDR 	(vu_short *)(SCIF_BASE + 0x1C)
 #endif
 
 #if defined(CONFIG_SH4A)
@@ -62,7 +57,11 @@
 #define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 #define LSR_ORER	1
 #elif defined (CONFIG_SH3)
-#define SCLSR	SCFSR	/* SCSSR */
+#ifdef CONFIG_SH7720 /* SH7720 specific */
+# define SCLSR	SCFSR	/* SCSSR */
+#else
+# define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
+#endif
 #define LSR_ORER	0x0200
 #endif
 

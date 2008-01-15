@@ -31,7 +31,9 @@
 #define CACHE_OC_NUM_ENTRIES	256
 #define CACHE_OC_ENTRY_SHIFT	4
 
-#if defined(CONFIG_CPU_SH7720)
+#if defined(CONFIG_CPU_SH7710)
+#include <asm/cpu_sh7710.h>
+#elif defined(CONFIG_CPU_SH7720)
 #include <asm/cpu_sh7720.h>
 #else
 #error "Unknown SH3 variant"
