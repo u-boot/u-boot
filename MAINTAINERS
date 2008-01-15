@@ -652,6 +652,8 @@ TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 	M5329EVB		mcf532x
 	M5373EVB		mcf532x
 	M54455EVB		mcf5445x
+	M5475EVB		mcf547x_8x
+	M5485EVB		mcf547x_8x
 
 Hayden Fraser <Hayden.Fraser@freescale.com>
 

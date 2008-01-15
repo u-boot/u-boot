@@ -139,6 +139,7 @@ Directory Hierarchy:
   - mcf5227x	Files specific to Freescale ColdFire MCF5227x CPUs
   - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
   - mcf5445x	Files specific to Freescale ColdFire MCF5445x CPUs
+  - mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
   - mips	Files specific to MIPS CPUs
   - mpc5xx	Files specific to Freescale MPC5xx  CPUs
   - mpc5xxx	Files specific to Freescale MPC5xxx CPUs

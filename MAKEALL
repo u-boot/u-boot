@@ -653,6 +653,8 @@ LIST_coldfire="			\
 	M5329AFEE		\
 	M5373EVB		\
 	M54455EVB		\
+	M5475AFE		\
+	M5485AFE		\
 	r5200			\
 	TASREG			\
 "
