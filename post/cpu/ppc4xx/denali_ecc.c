@@ -49,7 +49,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const static unsigned char syndrome_codes[] = {
+const static uint8_t syndrome_codes[] = {
 	0xF4, 0XF1, 0XEC, 0XEA, 0XE9, 0XE6, 0XE5, 0XE3,
 	0XDC, 0XDA, 0XD9, 0XD6, 0XD5, 0XD3, 0XCE, 0XCB,
 	0xB5, 0XB0, 0XAD, 0XAB, 0XA8, 0XA7, 0XA4, 0XA2,
@@ -65,174 +65,183 @@ const static unsigned char syndrome_codes[] = {
 #define ECC_STOP_ADDR		0x2000
 #define ECC_PATTERN		0x01010101
 #define ECC_PATTERN_CORR	0x11010101
-#define ECC_PATTERN_UNCORR	0xF1010101
+#define ECC_PATTERN_UNCORR	0x61010101
 
-static int test_ecc_error(void)
+inline static void disable_ecc(void)
 {
-	unsigned long value;
-	unsigned long hdata, ldata, haddr, laddr;
-	unsigned int bit;
+	uint32_t value;
 
-	int ret = 0;
-
-	mfsdram(DDR0_23, value);
-
-	for (bit = 0; bit < sizeof(syndrome_codes); bit++)
-		if (syndrome_codes[bit] == ((value >> 16) & 0xff))
-			break;
-
-	mfsdram(DDR0_00, value);
-
-	if (value & DDR0_00_INT_STATUS_BIT0) {
-		debug("Bit0. A single access outside the defined PHYSICAL"
-		      " memory space detected\n");
-		mfsdram(DDR0_32, laddr);
-		mfsdram(DDR0_33, haddr);
-		debug("        addr = 0x%08x%08x\n", haddr, laddr);
-		ret = 1;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT1) {
-		debug("Bit1. Multiple accesses outside the defined PHYSICAL"
-		      " memory space detected\n");
-		ret = 2;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT2) {
-		debug("Bit2. Single correctable ECC event detected\n");
-		mfsdram(DDR0_38, laddr);
-		mfsdram(DDR0_39, haddr);
-		mfsdram(DDR0_40, ldata);
-		mfsdram(DDR0_41, hdata);
-		debug("        0x%08x - 0x%08x%08x, bit - %d\n",
-		      laddr, hdata, ldata, bit);
-		ret = 3;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT3) {
-		debug("Bit3. Multiple correctable ECC events detected\n");
-		mfsdram(DDR0_38, laddr);
-		mfsdram(DDR0_39, haddr);
-		mfsdram(DDR0_40, ldata);
-		mfsdram(DDR0_41, hdata);
-		debug("        0x%08x - 0x%08x%08x, bit - %d\n",
-		      laddr, hdata, ldata, bit);
-		ret = 4;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT4) {
-		debug("Bit4. Single uncorrectable ECC event detected\n");
-		mfsdram(DDR0_34, laddr);
-		mfsdram(DDR0_35, haddr);
-		mfsdram(DDR0_36, ldata);
-		mfsdram(DDR0_37, hdata);
-		debug("        0x%08x - 0x%08x%08x, bit - %d\n",
-		      laddr, hdata, ldata, bit);
-		ret = 5;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT5) {
-		debug("Bit5. Multiple uncorrectable ECC events detected\n");
-		mfsdram(DDR0_34, laddr);
-		mfsdram(DDR0_35, haddr);
-		mfsdram(DDR0_36, ldata);
-		mfsdram(DDR0_37, hdata);
-		debug("        0x%08x - 0x%08x%08x, bit - %d\n",
-		      laddr, hdata, ldata, bit);
-		ret = 6;
-	}
-	if (value & DDR0_00_INT_STATUS_BIT6) {
-		debug("Bit6. DRAM initialization complete\n");
-		ret = 7;
-	}
-
-	/* error status cleared */
-	mfsdram(DDR0_00, value);
-	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
-
-	return ret;
-}
-
-static int test_ecc(unsigned long ecc_addr)
-{
-	unsigned long value;
-	volatile unsigned *const ecc_mem = (volatile unsigned *) ecc_addr;
-	int pret;
-	int ret = 0;
-
-	sync();
-	eieio();
-	WATCHDOG_RESET();
-
-	debug("Entering test_ecc(0x%08lX)\n", ecc_addr);
-	out_be32(ecc_mem, ECC_PATTERN);
-	out_be32(ecc_mem + 1, ECC_PATTERN);
-	in_be32(ecc_mem);
-	pret = test_ecc_error();
-	if (pret != 0) {
-		debug("pret: expected 0, got %d\n", pret);
-		ret = 1;
-	}
-	/* test for correctable error */
-	/* disconnect from ecc storage */
+	sync(); /* Wait for any pending memory accesses to complete. */
 	mfsdram(DDR0_22, value);
 	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
 		| DDR0_22_CTRL_RAW_ECC_DISABLE);
+}
 
-	/* creating (correctable) single-bit error */
-	out_be32(ecc_mem, ECC_PATTERN_CORR);
+inline static void clear_and_enable_ecc(void)
+{
+	uint32_t value;
 
-	/* enable ecc */
-	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
-		| DDR0_22_CTRL_RAW_ECC_ENABLE);
-	sync();
-	eieio();
-
-	in_be32(ecc_mem);
-	pret = test_ecc_error();
-	/* if read data ok, 1 correctable error must be fixed */
-	if (pret != 3) {
-		debug("pret: expected 3, got %d\n", pret);
-		ret = 1;
-	}
-	/* test for uncorrectable error */
-	/* disconnect from ecc storage */
-	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
-		| DDR0_22_CTRL_RAW_NO_ECC_RAM);
-
-	/* creating (uncorrectable) multiple-bit error */
-	out_be32(ecc_mem, ECC_PATTERN_UNCORR);
-
-	/* enable ecc */
-	mfsdram(DDR0_22, value);
-	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
-		| DDR0_22_CTRL_RAW_ECC_ENABLE);
-	sync();
-	eieio();
-
-	in_be32(ecc_mem);
-	pret = test_ecc_error();
-	/* info about uncorrectable error must appear */
-	if (pret != 5) {
-		debug("pret: expected 5, got %d\n", pret);
-		ret = 1;
-	}
-	/* remove error from SDRAM */
-	out_be32(ecc_mem, ECC_PATTERN);
-	/* clear error caused by read-modify-write */
+	sync(); /* Wait for any pending memory accesses to complete. */
 	mfsdram(DDR0_00, value);
 	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
+	mfsdram(DDR0_22, value);
+	mtsdram(DDR0_22, (value & ~DDR0_22_CTRL_RAW_MASK)
+		| DDR0_22_CTRL_RAW_ECC_ENABLE);
+}
 
-	sync();
-	eieio();
+static uint32_t get_ecc_status(void)
+{
+	uint32_t int_status;
+#if defined(DEBUG)
+	uint8_t syndrome;
+	uint32_t hdata, ldata, haddr, laddr;
+	uint32_t value;
+#endif
+
+	mfsdram(DDR0_00, int_status);
+	int_status &= DDR0_00_INT_STATUS_MASK;
+
+#if defined(DEBUG)
+	if (int_status & (DDR0_00_INT_STATUS_BIT0 | DDR0_00_INT_STATUS_BIT1)) {
+		mfsdram(DDR0_32, laddr);
+		mfsdram(DDR0_33, haddr);
+		haddr &= 0x00000001;
+		if (int_status & DDR0_00_INT_STATUS_BIT1)
+			debug("Multiple accesses");
+		else
+			debug("A single access");
+
+		debug(" outside the defined physical memory space detected\n"
+		      "        addr = 0x%01x%08x\n", haddr, laddr);
+	}
+	if (int_status & (DDR0_00_INT_STATUS_BIT2 | DDR0_00_INT_STATUS_BIT3)) {
+		unsigned int bit;
+
+		mfsdram(DDR0_23, value);
+		syndrome = (value >> 16) & 0xff;
+		for (bit = 0; bit < sizeof(syndrome_codes); bit++)
+			if (syndrome_codes[bit] == syndrome)
+				break;
+
+		mfsdram(DDR0_38, laddr);
+		mfsdram(DDR0_39, haddr);
+		haddr &= 0x00000001;
+		mfsdram(DDR0_40, ldata);
+		mfsdram(DDR0_41, hdata);
+		if (int_status & DDR0_00_INT_STATUS_BIT3)
+			debug("Multiple correctable ECC events");
+		else
+			debug("Single correctable ECC event");
+
+		debug(" detected\n        0x%01x%08x - 0x%08x%08x, bit - %d\n",
+		      haddr, laddr, hdata, ldata, bit);
+	}
+	if (int_status & (DDR0_00_INT_STATUS_BIT4 | DDR0_00_INT_STATUS_BIT5)) {
+		mfsdram(DDR0_23, value);
+		syndrome = (value >> 8) & 0xff;
+		mfsdram(DDR0_34, laddr);
+		mfsdram(DDR0_35, haddr);
+		haddr &= 0x00000001;
+		mfsdram(DDR0_36, ldata);
+		mfsdram(DDR0_37, hdata);
+		if (int_status & DDR0_00_INT_STATUS_BIT5)
+			debug("Multiple uncorrectable ECC events");
+		else
+			debug("Single uncorrectable ECC event");
+
+		debug(" detected\n        0x%01x%08x - 0x%08x%08x, "
+		      "syndrome - 0x%02x\n",
+		      haddr, laddr, hdata, ldata, syndrome);
+	}
+	if (int_status & DDR0_00_INT_STATUS_BIT6)
+		debug("DRAM initialization complete\n");
+#endif /* defined(DEBUG) */
+
+	return int_status;
+}
+
+static int test_ecc(uint32_t ecc_addr)
+{
+	uint32_t value;
+	volatile uint32_t *const ecc_mem = (volatile uint32_t *)ecc_addr;
+	int ret = 0;
+
+	WATCHDOG_RESET();
+
+	debug("Entering test_ecc(0x%08x)\n", ecc_addr);
+	/* Set up correct ECC in memory */
+	disable_ecc();
+	clear_and_enable_ecc();
+	out_be32(ecc_mem, ECC_PATTERN);
+	out_be32(ecc_mem + 1, ECC_PATTERN);
+
+	/* Verify no ECC error reading back */
+	value = in_be32(ecc_mem);
+	disable_ecc();
+	if (ECC_PATTERN != value) {
+		debug("Data read error (no-error case): "
+		      "expected 0x%08x, read 0x%08x\n", ECC_PATTERN, value);
+		ret = 1;
+	}
+	value = get_ecc_status();
+	if (0x00000000 != value) {
+		/* Expected no ECC status reported */
+		debug("get_ecc_status(): expected 0x%08x, got 0x%08x\n",
+		      0x00000000, value);
+		ret = 1;
+	}
+
+	/* Test for correctable error by creating a one-bit error */
+	out_be32(ecc_mem, ECC_PATTERN_CORR);
+	clear_and_enable_ecc();
+	value = in_be32(ecc_mem);
+	disable_ecc();
+	/* Test that the corrected data was read */
+	if (ECC_PATTERN != value) {
+		debug("Data read error (correctable-error case): "
+		      "expected 0x%08x, read 0x%08x\n", ECC_PATTERN, value);
+		ret = 1;
+	}
+	value = get_ecc_status();
+	if ((DDR0_00_INT_STATUS_BIT2 | DDR0_00_INT_STATUS_BIT7) != value) {
+		/* Expected a single correctable error reported */
+		debug("get_ecc_status(): expected 0x%08x, got 0x%08x\n",
+		      DDR0_00_INT_STATUS_BIT2, value);
+		ret = 1;
+	}
+
+	/* Test for uncorrectable error by creating a two-bit error */
+	out_be32(ecc_mem, ECC_PATTERN_UNCORR);
+	clear_and_enable_ecc();
+	value = in_be32(ecc_mem);
+	disable_ecc();
+	/* Test that the corrected data was read */
+	if (ECC_PATTERN_UNCORR != value) {
+		debug("Data read error (uncorrectable-error case): "
+		      "expected 0x%08x, read 0x%08x\n", ECC_PATTERN_UNCORR,
+		      value);
+		ret = 1;
+	}
+	value = get_ecc_status();
+	if ((DDR0_00_INT_STATUS_BIT4 | DDR0_00_INT_STATUS_BIT7) != value) {
+		/* Expected a single uncorrectable error reported */
+		debug("get_ecc_status(): expected 0x%08x, got 0x%08x\n",
+		      DDR0_00_INT_STATUS_BIT4, value);
+		ret = 1;
+	}
+
+	/* Remove error from SDRAM and enable ECC. */
+	out_be32(ecc_mem, ECC_PATTERN);
+	clear_and_enable_ecc();
+
 	return ret;
 }
 
-int ecc_post_test (int flags)
+int ecc_post_test(int flags)
 {
 	int ret = 0;
-	unsigned long value;
-	unsigned long iaddr;
-
-	sync();
-	eieio();
+	uint32_t value;
+	uint32_t iaddr;
 
 	mfsdram(DDR0_22, value);
 	if (0x3 != DDR0_22_CTRL_RAW_DECODE(value)) {
@@ -240,14 +249,10 @@ int ecc_post_test (int flags)
 		return 0;
 	}
 
-	/* mask all int */
+	/* Mask all interrupts. */
 	mfsdram(DDR0_01, value);
 	mtsdram(DDR0_01, (value & ~DDR0_01_INT_MASK_MASK)
 		| DDR0_01_INT_MASK_ALL_OFF);
-
-	/* clear error status */
-	mfsdram(DDR0_00, value);
-	mtsdram(DDR0_00, value | DDR0_00_INT_ACK_ALL);
 
 	for (iaddr = ECC_START_ADDR; iaddr <= ECC_STOP_ADDR; iaddr += iaddr) {
 		ret = test_ecc(iaddr);
@@ -255,13 +260,12 @@ int ecc_post_test (int flags)
 			break;
 	}
 	/*
-	 * Clear possible errors resulting from ECC testing.
-	 * If not done, then we could get an interrupt later on when
-	 * exceptions are enabled.
+	 * Clear possible errors resulting from ECC testing.  (If not done, we
+	 * we could get an interrupt later on when exceptions are enabled.)
 	 */
 	set_mcsr(get_mcsr());
+	debug("ecc_post_test() returning %d\n", ret);
 	return ret;
-
 }
 #endif /* CONFIG_POST & CFG_POST_ECC */
 #endif /* defined(CONFIG_POST) && ... */
