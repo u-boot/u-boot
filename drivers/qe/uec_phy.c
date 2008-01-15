@@ -77,11 +77,10 @@ void uec_write_phy_reg (struct eth_device *dev, int mii_id, int regnum, int valu
 
 	/* Setting up the MII Mangement Control Register with the value */
 	out_be32 (&ug_regs->miimcon, (u32) value);
+	sync();
 
 	/* Wait till MII management write is complete */
 	while ((in_be32 (&ug_regs->miimind)) & MIIMIND_BUSY);
-
-	udelay (100000);
 }
 
 /* Reads from register regnum in the PHY for device dev, */
@@ -101,15 +100,16 @@ int uec_read_phy_reg (struct eth_device *dev, int mii_id, int regnum)
 	tmp_reg = ((u32) mii_id << MIIMADD_PHY_ADDRESS_SHIFT) | mii_reg;
 	out_be32 (&ug_regs->miimadd, tmp_reg);
 
-	/* Perform an MII management read cycle */
+	/* clear MII management command cycle */
 	out_be32 (&ug_regs->miimcom, 0);
+	sync();
+
+	/* Perform an MII management read cycle */
 	out_be32 (&ug_regs->miimcom, MIIMCOM_READ_CYCLE);
 
 	/* Wait till MII management write is complete */
 	while ((in_be32 (&ug_regs->miimind)) &
 	       (MIIMIND_NOT_VALID | MIIMIND_BUSY));
-
-	udelay (100000);
 
 	/* Read MII management status  */
 	value = (u16) in_be32 (&ug_regs->miimstat);
@@ -270,20 +270,38 @@ static int genmii_update_link (struct uec_mii_info *mii_info)
 {
 	u16 status;
 
-	/* Do a fake read */
+	/* Status is read once to clear old link state */
 	phy_read (mii_info, PHY_BMSR);
 
-	/* Read link and autonegotiation status */
-	status = phy_read (mii_info, PHY_BMSR);
-	if ((status & PHY_BMSR_LS) == 0)
-		mii_info->link = 0;
-	else
-		mii_info->link = 1;
+	/*
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
+	 */
+	status = phy_read(mii_info, PHY_BMSR);
+	if ((status & PHY_BMSR_LS) && (status & PHY_BMSR_AUTN_ABLE)
+	    && !(status & PHY_BMSR_AUTN_COMP)) {
+		int i = 0;
 
-	/* If we are autonegotiating, and not done,
-	 * return an error */
-	if (mii_info->autoneg && !(status & PHY_BMSR_AUTN_COMP))
-		return -EAGAIN;
+		while (!(status & PHY_BMSR_AUTN_COMP)) {
+			/*
+			 * Timeout reached ?
+			 */
+			if (i > UGETH_AN_TIMEOUT) {
+				mii_info->link = 0;
+				return 0;
+			}
+
+			udelay(1000);	/* 1 ms */
+			status = phy_read(mii_info, PHY_BMSR);
+		}
+		mii_info->link = 1;
+		udelay(500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		if (status & PHY_BMSR_LS)
+			mii_info->link = 1;
+		else
+			mii_info->link = 0;
+	}
 
 	return 0;
 }
@@ -389,16 +407,12 @@ static int dm9161_init (struct uec_mii_info *mii_info)
 	/* PHY and MAC connect */
 	phy_write (mii_info, PHY_BMCR, phy_read (mii_info, PHY_BMCR) &
 		   ~PHY_BMCR_ISO);
-#ifdef CONFIG_RMII_MODE
-	phy_write (mii_info, MII_DM9161_SCR, MII_DM9161_SCR_RMII_INIT);
-#else
+
 	phy_write (mii_info, MII_DM9161_SCR, MII_DM9161_SCR_INIT);
-#endif
+
 	config_genmii_advert (mii_info);
 	/* Start/restart aneg */
 	genmii_config_aneg (mii_info);
-	/* Delay to wait the aneg compeleted */
-	udelay (3000000);
 
 	return 0;
 }

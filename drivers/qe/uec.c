@@ -512,6 +512,8 @@ static int init_phy(struct eth_device *dev)
 
 	uec->mii_info = mii_info;
 
+	qe_set_mii_clk_src(uec->uec_info->uf_info.ucc_num);
+
 	if (init_mii_management_configuration(umii_regs)) {
 		printf("%s: The MII Bus is stuck!", dev->name);
 		err = -1;
@@ -618,21 +620,12 @@ static void adjust_link(struct eth_device *dev)
 static void phy_change(struct eth_device *dev)
 {
 	uec_private_t	*uec = (uec_private_t *)dev->priv;
-	uec_t		*uec_regs;
-	int		result = 0;
-
-	uec_regs = uec->uec_regs;
-
-	/* Delay 5s to give the PHY a chance to change the register state */
-	udelay(5000000);
 
 	/* Update the link, speed, duplex */
-	result = uec->mii_info->phyinfo->read_status(uec->mii_info);
+	uec->mii_info->phyinfo->read_status(uec->mii_info);
 
 	/* Adjust the interface according to speed */
-	if ((0 == result) || (uec->mii_info->link == 0)) {
-		adjust_link(dev);
-	}
+	adjust_link(dev);
 }
 
 static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
@@ -1157,26 +1150,58 @@ static int uec_startup(uec_private_t *uec)
 static int uec_init(struct eth_device* dev, bd_t *bd)
 {
 	uec_private_t		*uec;
-	int			err;
+	int			err, i;
+	struct phy_info         *curphy;
 
 	uec = (uec_private_t *)dev->priv;
 
 	if (uec->the_first_run == 0) {
-		/* Set up the MAC address */
-		if (dev->enetaddr[0] & 0x01) {
-			printf("%s: MacAddress is multcast address\n",
-				 __FUNCTION__);
-			return -1;
+		err = init_phy(dev);
+		if (err) {
+			printf("%s: Cannot initialize PHY, aborting.\n",
+			       dev->name);
+			return err;
 		}
-		uec_set_mac_address(uec, dev->enetaddr);
+
+		curphy = uec->mii_info->phyinfo;
+
+		if (curphy->config_aneg) {
+			err = curphy->config_aneg(uec->mii_info);
+			if (err) {
+				printf("%s: Can't negotiate PHY\n", dev->name);
+				return err;
+			}
+		}
+
+		/* Give PHYs up to 5 sec to report a link */
+		i = 50;
+		do {
+			err = curphy->read_status(uec->mii_info);
+			udelay(100000);
+		} while (((i-- > 0) && !uec->mii_info->link) || err);
+
+		if (err || i <= 0)
+			printf("warning: %s: timeout on PHY link\n", dev->name);
+
 		uec->the_first_run = 1;
 	}
+
+	/* Set up the MAC address */
+	if (dev->enetaddr[0] & 0x01) {
+		printf("%s: MacAddress is multcast address\n",
+			 __FUNCTION__);
+		return -1;
+	}
+	uec_set_mac_address(uec, dev->enetaddr);
+
 
 	err = uec_open(uec, COMM_DIR_RX_AND_TX);
 	if (err) {
 		printf("%s: cannot enable UEC device\n", dev->name);
 		return -1;
 	}
+
+	phy_change(dev);
 
 	return (uec->mii_info->link ? 0 : -1);
 }
@@ -1329,14 +1354,6 @@ int uec_initialize(int index)
 		printf("%s: Cannot configure net device, aborting.",dev->name);
 		return err;
 	}
-
-	err = init_phy(dev);
-	if (err) {
-		printf("%s: Cannot initialize PHY, aborting.\n", dev->name);
-		return err;
-	}
-
-	phy_change(dev);
 
 	return 1;
 }
