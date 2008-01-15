@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= ppcstring.o ticks.o
+SOBJS	= ppccache.o ppcstring.o ticks.o
 
 COBJS	= board.o \
 	  bat_rw.o cache.o extable.o kgdb.o time.o interrupts.o

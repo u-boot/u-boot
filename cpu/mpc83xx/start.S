@@ -840,40 +840,6 @@ get_pvr:
 	mfspr	r3, PVR
 	blr
 
-/*------------------------------------------------------------------------------- */
-/* Function:	 ppcDcbf */
-/* Description:	 Data Cache block flush */
-/* Input:	 r3 = effective address */
-/* Output:	 none. */
-/*------------------------------------------------------------------------------- */
-	.globl	ppcDcbf
-ppcDcbf:
-	dcbf	r0,r3
-	blr
-
-/*------------------------------------------------------------------------------- */
-/* Function:	 ppcDcbi */
-/* Description:	 Data Cache block Invalidate */
-/* Input:	 r3 = effective address */
-/* Output:	 none. */
-/*------------------------------------------------------------------------------- */
-	.globl	ppcDcbi
-ppcDcbi:
-	dcbi	r0,r3
-	blr
-
-/*--------------------------------------------------------------------------
- * Function:	 ppcDcbz
- * Description:	 Data Cache block zero.
- * Input:	 r3 = effective address
- * Output:	 none.
- *-------------------------------------------------------------------------- */
-
-	.globl	ppcDcbz
-ppcDcbz:
-	dcbz	r0,r3
-	blr
-
 	.globl	ppcDWstore
 ppcDWstore:
 	lfd	1, 0(r4)
