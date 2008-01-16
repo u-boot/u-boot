@@ -295,7 +295,7 @@
  * to 0xFFFF, watchdog timeouts after about 64s. For details refer
  * to chapter 36 of the MPC5121e Reference Manual.
  */
-#define CONFIG_WATCHDOG			/* enable watchdog */
+/* #define CONFIG_WATCHDOG */		/* enable watchdog */
 #define CFG_WATCHDOG_VALUE 0xFFFF
 
  /*
@@ -306,9 +306,9 @@
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 
 #ifdef CONFIG_CMD_KGDB
-	#define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
+	#define CFG_CBSIZE	1024	/* Console I/O Buffer Size */
 #else
-	#define CFG_CBSIZE	256		/* Console I/O Buffer Size */
+	#define CFG_CBSIZE	256	/* Console I/O Buffer Size */
 #endif
 
 
@@ -340,8 +340,8 @@
  *
  * Boot Flags
  */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
+#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
+#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
@@ -351,7 +351,7 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
+#define CONFIG_TIMESTAMP
 
 #define CONFIG_HOSTNAME		ads5121
 #define CONFIG_BOOTFILE		ads5121/uImage

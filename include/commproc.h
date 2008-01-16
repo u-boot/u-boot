@@ -1448,7 +1448,9 @@ typedef struct scc_enet {
  */
 #define	PROFF_ENET	PROFF_SCC2
 #define	CPM_CR_ENET	CPM_CR_CH_SCC2
+#if (!defined(CONFIG_TK885D))	/* TK885D does not use SCC Ethernet */
 #define	SCC_ENET	1
+#endif
 #define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
 #define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
 #define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */

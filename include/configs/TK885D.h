@@ -64,6 +64,8 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"ethprime=FEC ETHERNET\0"					\
+	"ethact=FEC ETHERNET\0"						\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
@@ -77,7 +79,8 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/TQM885D/uImage\0"				\
+	"bootfile=/tftpboot/tk885d/uImage\0"				\
+	"u-boot=/tftpboot/tk885d/u-boot.bin\0"				\
 	"kernel_addr=40080000\0"					\
 	"ramdisk_addr=40180000\0"					\
 	"load=tftp 200000 ${u-boot}\0"					\
@@ -254,7 +257,7 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x40000 /*   Offset   of Environment Sector	*/
 #define CFG_ENV_SIZE		0x08000 /* Total Size of Environment		*/
-#define CFG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000 /* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
