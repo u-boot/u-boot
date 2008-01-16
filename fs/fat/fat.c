@@ -984,7 +984,7 @@ file_fat_detectfs(void)
 #if defined(CONFIG_CMD_IDE) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \
-    (CONFIG_MMC)
+    defined(CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
 		case IF_TYPE_IDE :	printf("IDE"); break;
