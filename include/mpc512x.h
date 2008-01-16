@@ -185,7 +185,7 @@
 
 /* SCFR1 System Clock Frequency Register 1
  */
-#define SCFR1_IPS_DIV			0x2
+#define SCFR1_IPS_DIV			0x4
 #define SCFR1_IPS_DIV_MASK		0x03800000
 #define SCFR1_IPS_DIV_SHIFT		23
 
