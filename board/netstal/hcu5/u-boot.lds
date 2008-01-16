@@ -137,7 +137,7 @@ SECTIONS
    *(COMMON)
   }
 
-  ppcenv_assert = ASSERT(. < 0xFFFF8000, ".bss section too big, overlaps .ppcenv section. Please update your confguration: CFG_MONITOR_BASE, CFG_MONITOR_LEN and TEXT_BASE may need to be modified.");
+  ppcenv_assert = ASSERT(. < 0xFFFFB000, ".bss section too big, overlaps .ppcenv section. Please update your confguration: CFG_MONITOR_BASE, CFG_MONITOR_LEN and TEXT_BASE may need to be modified.");
 
   _end = . ;
   PROVIDE (end = .);

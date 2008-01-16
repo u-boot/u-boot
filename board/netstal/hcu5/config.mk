@@ -21,7 +21,7 @@
 # Netstal Maschinen AG: HCU5 boards
 #
 
-TEXT_BASE = 0xFFFa0000
+TEXT_BASE = 0xFFFB0000
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
