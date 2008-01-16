@@ -28,7 +28,6 @@
 
 #if defined(CONFIG_QE)
 
-#define UEC_VERBOSE_DEBUG
 #define ugphy_printk(format, arg...)  \
 	printf(format "\n", ## arg)
 
@@ -114,7 +113,7 @@ int uec_read_phy_reg (struct eth_device *dev, int mii_id, int regnum)
 	/* Read MII management status  */
 	value = (u16) in_be32 (&ug_regs->miimstat);
 	if (value == 0xffff)
-		ugphy_warn
+		ugphy_vdbg
 			("read wrong value : mii_id %d,mii_reg %d, base %08x",
 			 mii_id, mii_reg, (u32) & (ug_regs->miimcfg));
 
