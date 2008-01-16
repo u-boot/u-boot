@@ -25,9 +25,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o sdram.o
+COBJS	:= $(BOARD).o sdram.o law.o
 SOBJS	:= init.o
-#SOBJS	:=
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
