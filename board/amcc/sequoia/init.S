@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2008
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,7 +25,7 @@
 #include <asm-ppc/mmu.h>
 #include <config.h>
 
-/**************************************************************************
+/*
  * TLB TABLE
  *
  * This table is used by the cpu boot code to setup the initial tlb
@@ -31,8 +33,7 @@
  * this table lets each board set things up however they like.
  *
  *  Pointer to the table is returned in r1
- *
- *************************************************************************/
+ */
     .section .bootpg,"ax"
     .globl tlbtab
 
