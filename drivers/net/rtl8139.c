@@ -489,7 +489,7 @@ static int rtl_poll(struct eth_device *dev)
 
 	ring_offs = cur_rx % RX_BUF_LEN;
 	/* ring_offs is guaranteed being 4-byte aligned */
-	rx_status = *(unsigned int *)(rx_ring + ring_offs);
+	rx_status = le32_to_cpu(*(unsigned int *)(rx_ring + ring_offs));
 	rx_size = rx_status >> 16;
 	rx_status &= 0xffff;
 
