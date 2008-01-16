@@ -241,10 +241,9 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
  * It will wait for the write to be done (or for a timeout to
  * expire) before exiting
  */
-void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
+void write_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum, uint value)
 {
 	volatile tsec_t *regbase = priv->phyregs;
-	uint phyid = priv->phyaddr;
 	int timeout = 1000000;
 
 	regbase->miimadd = (phyid << 8) | regnum;
@@ -255,17 +254,19 @@ void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
 	while ((regbase->miimind & MIIMIND_BUSY) && timeout--) ;
 }
 
+/* #define to provide old write_phy_reg functionality without duplicating code */
+#define write_phy_reg(priv, regnum, value) write_any_phy_reg(priv,priv->phyaddr,regnum,value)
+
 /* Reads register regnum on the device's PHY through the
  * registers specified in priv.	 It lowers and raises the read
  * command, and waits for the data to become valid (miimind
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint read_phy_reg(struct tsec_private *priv, uint regnum)
+uint read_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum)
 {
 	uint value;
 	volatile tsec_t *regbase = priv->phyregs;
-	uint phyid = priv->phyaddr;
 
 	/* Put the address of the phy, and the register
 	 * number into MIIMADD */
@@ -287,6 +288,9 @@ uint read_phy_reg(struct tsec_private *priv, uint regnum)
 
 	return value;
 }
+
+/* #define to provide old read_phy_reg functionality without duplicating code */
+#define read_phy_reg(priv,regnum) read_any_phy_reg(priv,priv->phyaddr,regnum)
 
 /* Discover which PHY is attached to the device, and configure it
  * properly.  If the PHY is not recognized, then return 0
@@ -1497,18 +1501,6 @@ static void relocate_cmds(void)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 
-struct tsec_private *get_priv_for_phy(unsigned char phyaddr)
-{
-	int i;
-
-	for (i = 0; i < MAXCONTROLLERS; i++) {
-		if (privlist[i]->phyaddr == phyaddr)
-			return privlist[i];
-	}
-
-	return NULL;
-}
-
 /*
  * Read a MII PHY register.
  *
@@ -1519,14 +1511,14 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
 	unsigned short ret;
-	struct tsec_private *priv = get_priv_for_phy(addr);
+	struct tsec_private *priv = privlist[0];
 
 	if (NULL == priv) {
 		printf("Can't read PHY at address %d\n", addr);
 		return -1;
 	}
 
-	ret = (unsigned short)read_phy_reg(priv, reg);
+	ret = (unsigned short)read_any_phy_reg(priv, addr, reg);
 	*value = ret;
 
 	return 0;
@@ -1541,14 +1533,14 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 static int tsec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
-	struct tsec_private *priv = get_priv_for_phy(addr);
+	struct tsec_private *priv = privlist[0];
 
 	if (NULL == priv) {
 		printf("Can't write PHY at address %d\n", addr);
 		return -1;
 	}
 
-	write_phy_reg(priv, reg, value);
+	write_any_phy_reg(priv, addr, reg, value);
 
 	return 0;
 }
