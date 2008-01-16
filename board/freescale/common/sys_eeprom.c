@@ -27,7 +27,6 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
-#ifdef CFG_ID_EEPROM
 typedef struct {
 	unsigned char id[4];		/* 0x0000 - 0x0003 */
 	unsigned char sn[12];		/* 0x0004 - 0x000F */
@@ -253,4 +252,3 @@ int mac_read_from_eeprom(void)
 	}
 	return 0;
 }
-#endif /* CFG_ID_EEPROM */

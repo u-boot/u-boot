@@ -141,6 +141,9 @@
 #endif
 
 #define CFG_ID_EEPROM
+#ifdef CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
+#endif
 #define ID_EEPROM_ADDR		0x57
 
 
@@ -312,11 +315,8 @@
 #define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
-#define CONFIG_RTL8139
-#define CONFIG_SK98
-#define CONFIG_EEPRO100
-#define CONFIG_TULIP
-#ifdef CONFIG_TULIP
+#define CONFIG_ULI526X
+#ifdef CONFIG_ULI526X
 #define CONFIG_ETHADDR   00:E0:0C:00:00:01
 #endif
 
