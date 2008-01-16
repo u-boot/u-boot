@@ -835,6 +835,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if defined(CONFIG_SC3)
 	sc3_read_eeprom();
 #endif
+
+#ifdef CFG_ID_EEPROM
+	mac_read_from_eeprom();
+#endif
+
 	s = getenv ("ethaddr");
 #if defined (CONFIG_MBX) || \
     defined (CONFIG_RPXCLASSIC) || \
@@ -900,10 +905,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s)
 			s = (*e) ? e + 1 : e;
 	}
-#endif
-
-#ifdef CFG_ID_EEPROM
-	mac_read_from_eeprom();
 #endif
 
 #if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
