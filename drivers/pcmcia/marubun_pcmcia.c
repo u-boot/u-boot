@@ -25,11 +25,13 @@
 #include <pcmcia.h>
 #include <asm/io.h>
 
-#if	(CONFIG_COMMANDS & CFG_CMD_PCMCIA)
+#undef CONFIG_PCMCIA
+
+#if defined(CONFIG_CMD_PCMCIA)
 #define	CONFIG_PCMCIA
 #endif
 
-#if	(CONFIG_COMMANDS & CFG_CMD_IDE)
+#if	defined(CONFIG_CMD_IDE)
 #define	CONFIG_PCMCIA
 #endif
 

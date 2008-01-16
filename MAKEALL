@@ -685,8 +685,9 @@ LIST_sh4="		\
 	ms7722se	\
 "
 
-LIST_sh3=""
-
+LIST_sh3="		\
+	ms7720se	\
+"
 
 LIST_sh="		\
 	${LIST_sh3}	\
