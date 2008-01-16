@@ -201,6 +201,7 @@ _start_e500:
 	lis	r7,CFG_CCSRBAR@h
 	ori	r7,r7,CFG_CCSRBAR@l
 
+#ifndef CONFIG_FSL_LAW
 	bl	law_entry
 	mr	r6,r0
 	lwzu	r5,0(r6)	/* how many windows we actually use */
@@ -216,6 +217,7 @@ _start_e500:
 	addi	r2,r2,0x0020
 	addi	r1,r1,0x0020
 	bdnz	0b
+#endif
 
 	/* Clear and set up some registers. */
 	li      r0,0

@@ -31,6 +31,7 @@
 #include <asm/processor.h>
 #include <ioports.h>
 #include <asm/io.h>
+#include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -140,6 +141,9 @@ void cpu_init_f (void)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 
+#ifdef CONFIG_FSL_LAW
+	init_laws();
+#endif
 
 #ifdef CONFIG_CPM2
 	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
@@ -222,10 +226,14 @@ void cpu_init_f (void)
 int cpu_init_r(void)
 {
 #ifdef CONFIG_CLEAR_LAW0
+#ifdef CONFIG_FSL_LAW
+	disable_law(0);
+#else
 	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 
 	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
 	ecm->lawar0 = 0;
+#endif
 #endif
 
 #if defined(CONFIG_L2_CACHE)

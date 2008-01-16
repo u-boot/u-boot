@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <spd.h>
 #include <asm/mmu.h>
+#include <asm/fsl_law.h>
 
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -1022,7 +1023,9 @@ spd_sdram(void)
 static unsigned int
 setup_laws_and_tlbs(unsigned int memsize)
 {
+#ifndef CONFIG_FSL_LAW
 	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
+#endif
 	unsigned int tlb_size;
 	unsigned int law_size;
 	unsigned int ram_tlb_index;
@@ -1098,12 +1101,17 @@ setup_laws_and_tlbs(unsigned int memsize)
 	/*
 	 * Set up LAWBAR for all of DDR.
 	 */
+
+#ifdef CONFIG_FSL_LAW
+	set_law(1, CFG_DDR_SDRAM_BASE, law_size, LAW_TRGT_IF_DDR);
+#else
 	ecm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
 	ecm->lawar1 = (LAWAR_EN
 		       | LAWAR_TRGT_IF_DDR
 		       | (LAWAR_SIZE & law_size));
 	debug("DDR: LAWBAR1=0x%08x\n", ecm->lawbar1);
 	debug("DDR: LARAR1=0x%08x\n", ecm->lawar1);
+#endif
 
 	/*
 	 * Confirm that the requested amount of memory was mapped.
