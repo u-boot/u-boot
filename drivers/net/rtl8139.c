@@ -80,10 +80,7 @@
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8139)
 
-#define TICKS_PER_SEC	CFG_HZ
-#define TICKS_PER_MS	(TICKS_PER_SEC/1000)
-
-#define RTL_TIMEOUT	(1*TICKS_PER_SEC)
+#define RTL_TIMEOUT	100000
 
 #define ETH_FRAME_LEN		1514
 #define ETH_ALEN		6
@@ -414,9 +411,10 @@ static void rtl_reset(struct eth_device *dev)
 
 static int rtl_transmit(struct eth_device *dev, volatile void *packet, int length)
 {
-	unsigned int status, to;
+	unsigned int status;
 	unsigned long txstatus;
 	unsigned int len = length;
+	int i = 0;
 
 	ioaddr = dev->iobase;
 
@@ -436,8 +434,6 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 	outl(((TX_FIFO_THRESH<<11) & 0x003f0000) | len,
 		ioaddr + TxStatus0 + cur_tx*4);
 
-	to = currticks() + RTL_TIMEOUT;
-
 	do {
 		status = inw(ioaddr + IntrStatus);
 		/* Only acknlowledge interrupt sources we can properly handle
@@ -445,7 +441,8 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		 * rtl_poll() function.	 */
 		outw(status & (TxOK | TxErr | PCIErr), ioaddr + IntrStatus);
 		if ((status & (TxOK | TxErr | PCIErr)) != 0) break;
-	} while (currticks() < to);
+		udelay(10);
+	} while (i++ < RTL_TIMEOUT);
 
 	txstatus = inl(ioaddr + TxStatus0 + cur_tx*4);
 
@@ -458,8 +455,8 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		return length;
 	} else {
 #ifdef	DEBUG_TX
-		printf("tx timeout/error (%d ticks), status %hX txstatus %X\n",
-			currticks()-to, status, txstatus);
+		printf("tx timeout/error (%d usecs), status %hX txstatus %X\n",
+		       10*i, status, txstatus);
 #endif
 		rtl_reset(dev);
 
