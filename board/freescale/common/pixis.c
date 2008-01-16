@@ -183,7 +183,7 @@ int set_px_corepll(ulong corepll)
 
 void read_from_px_regs(int set)
 {
-	u8 mask = 0x1C;
+	u8 mask = 0x1C;	/* COREPLL, MPXPLL, SYSCLK controlled by PIXIS */
 	u8 tmp = in8(PIXIS_BASE + PIXIS_VCFGEN0);
 
 	if (set)
@@ -196,7 +196,7 @@ void read_from_px_regs(int set)
 
 void read_from_px_regs_altbank(int set)
 {
-	u8 mask = 0x04;
+	u8 mask = 0x04;	/* FLASHBANK and FLASHMAP controlled by PIXIS */
 	u8 tmp = in8(PIXIS_BASE + PIXIS_VCFGEN1);
 
 	if (set)
@@ -207,15 +207,26 @@ void read_from_px_regs_altbank(int set)
 }
 
 #ifndef CFG_PIXIS_VBOOT_MASK
-#define CFG_PIXIS_VBOOT_MASK	0x40
+#define CFG_PIXIS_VBOOT_MASK	(0x40)
 #endif
+
+void clear_altbank(void)
+{
+	u8 tmp;
+
+	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
+	tmp &= ~CFG_PIXIS_VBOOT_MASK;
+
+	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
+}
+
 
 void set_altbank(void)
 {
 	u8 tmp;
 
 	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
-	tmp ^= CFG_PIXIS_VBOOT_MASK;
+	tmp |= CFG_PIXIS_VBOOT_MASK;
 
 	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
 }
@@ -226,11 +237,11 @@ void set_px_go(void)
 	u8 tmp;
 
 	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
-	tmp = tmp & 0x1E;
+	tmp = tmp & 0x1E;			/* clear GO bit */
 	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
 
 	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
-	tmp = tmp | 0x01;
+	tmp = tmp | 0x01;	/* set GO bit - start reset sequencer */
 	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
 }
 
@@ -292,7 +303,7 @@ static ulong strfractoint(uchar *strptr)
 	 * simply create the intarr.
 	 */
 	i = 0;
-	while (strptr[i] != 46) {
+	while (strptr[i] != '.') {
 		if (strptr[i] == 0) {
 			no_dec = 1;
 			break;
@@ -312,7 +323,7 @@ static ulong strfractoint(uchar *strptr)
 	} else {
 		j = 0;
 		i++;		/* Skipping the decimal point */
-		while ((strptr[i] > 47) && (strptr[i] < 58)) {
+		while ((strptr[i] >= '0') && (strptr[i] <= '9')) {
 			decarr[j] = strptr[i];
 			i++;
 			j++;
@@ -339,8 +350,14 @@ static ulong strfractoint(uchar *strptr)
 int
 pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong val;
-	ulong corepll;
+	unsigned int i;
+	char *p_cf = NULL;
+	char *p_cf_sysclk = NULL;
+	char *p_cf_corepll = NULL;
+	char *p_cf_mpxpll = NULL;
+	char *p_altbank = NULL;
+	char *p_wd = NULL;
+	unsigned int unknown_param = 0;
 
 	/*
 	 * No args is a simple reset request.
@@ -350,116 +367,97 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/* not reached */
 	}
 
-	if (strcmp(argv[1], "cf") == 0) {
-
-		/*
-		 * Reset with frequency changed:
-		 *    cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>
-		 */
-		if (argc < 5) {
-			puts(cmdtp->usage);
-			return 1;
-		}
-
-		read_from_px_regs(0);
-
-		val = set_px_sysclk(simple_strtoul(argv[2], NULL, 10));
-
-		corepll = strfractoint((uchar *)argv[3]);
-		val = val + set_px_corepll(corepll);
-		val = val + set_px_mpxpll(simple_strtoul(argv[4], NULL, 10));
-		if (val == 3) {
-			puts("Setting registers VCFGEN0 and VCTL\n");
-			read_from_px_regs(1);
-			puts("Resetting board with values from ");
-			puts("VSPEED0, VSPEED1, VCLKH, and VCLKL \n");
-			set_px_go();
-		} else {
-			puts(cmdtp->usage);
-			return 1;
-		}
-
-		while (1) ;	/* Not reached */
-
-	} else if (strcmp(argv[1], "altbank") == 0) {
-
-		/*
-		 * Reset using alternate flash bank:
-		 */
-		if (argv[2] == 0) {
-			/*
-			 * Reset from alternate bank without changing
-			 * frequency and without watchdog timer enabled.
-			 *	altbank
-			 */
-			read_from_px_regs(0);
-			read_from_px_regs_altbank(0);
-			if (argc > 2) {
-				puts(cmdtp->usage);
-				return 1;
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "cf") == 0) {
+			p_cf = argv[i];
+			if (i + 3 >= argc) {
+				break;
 			}
-			puts("Setting registers VCFGNE1, VBOOT, and VCTL\n");
-			set_altbank();
-			read_from_px_regs_altbank(1);
-			puts("Resetting board to boot from the other bank.\n");
-			set_px_go();
-
-		} else if (strcmp(argv[2], "cf") == 0) {
-			/*
-			 * Reset with frequency changed
-			 *    altbank cf <SYSCLK freq> <COREPLL ratio>
-			 *				<MPXPLL ratio>
-			 */
-			read_from_px_regs(0);
-			read_from_px_regs_altbank(0);
-			val = set_px_sysclk(simple_strtoul(argv[3], NULL, 10));
-			corepll = strfractoint((uchar *)argv[4]);
-			val = val + set_px_corepll(corepll);
-			val = val + set_px_mpxpll(simple_strtoul(argv[5],
-								 NULL, 10));
-			if (val == 3) {
-				puts("Setting registers VCFGEN0, VCFGEN1, VBOOT, and VCTL\n");
-				set_altbank();
-				read_from_px_regs(1);
-				read_from_px_regs_altbank(1);
-				puts("Enabling watchdog timer on the FPGA\n");
-				puts("Resetting board with values from ");
-				puts("VSPEED0, VSPEED1, VCLKH and VCLKL ");
-				puts("to boot from the other bank.\n");
-				set_px_go_with_watchdog();
-			} else {
-				puts(cmdtp->usage);
-				return 1;
-			}
-
-			while (1) ;	/* Not reached */
-
-		} else if (strcmp(argv[2], "wd") == 0) {
-			/*
-			 * Reset from alternate bank without changing
-			 * frequencies but with watchdog timer enabled:
-			 *    altbank wd
-			 */
-			read_from_px_regs(0);
-			read_from_px_regs_altbank(0);
-			puts("Setting registers VCFGEN1, VBOOT, and VCTL\n");
-			set_altbank();
-			read_from_px_regs_altbank(1);
-			puts("Enabling watchdog timer on the FPGA\n");
-			puts("Resetting board to boot from the other bank.\n");
-			set_px_go_with_watchdog();
-			while (1) ;	/* Not reached */
-
-		} else {
-			puts(cmdtp->usage);
-			return 1;
+			p_cf_sysclk = argv[i+1];
+			p_cf_corepll = argv[i+2];
+			p_cf_mpxpll = argv[i+3];
+			i += 3;
+			continue;
 		}
 
-	} else {
-		puts(cmdtp->usage);
+		if (strcmp(argv[i], "altbank") == 0) {
+			p_altbank = argv[i];
+			continue;
+		}
+
+		if (strcmp(argv[i], "wd") == 0) {
+			p_wd = argv[i];
+			continue;
+		}
+
+		unknown_param = 1;
+	}
+
+	/*
+	 * Check that cf has all required parms
+	 */
+	if ((p_cf && !(p_cf_sysclk && p_cf_corepll && p_cf_mpxpll))
+	    || 	unknown_param) {
+		puts(cmdtp->help);
 		return 1;
 	}
 
+	/*
+	 * PIXIS seems to be sensitive to the ordering of
+	 * the registers that are touched.
+	 */
+	read_from_px_regs(0);
+
+	if (p_altbank) {
+		read_from_px_regs_altbank(0);
+	}
+	clear_altbank();
+
+	/*
+	 * Clock configuration specified.
+	 */
+	if (p_cf) {
+		unsigned long sysclk;
+		unsigned long corepll;
+		unsigned long mpxpll;
+
+		sysclk = simple_strtoul(p_cf_sysclk, NULL, 10);
+		corepll = strfractoint((uchar *) p_cf_corepll);
+		mpxpll = simple_strtoul(p_cf_mpxpll, NULL, 10);
+
+		if (!(set_px_sysclk(sysclk)
+		      && set_px_corepll(corepll)
+		      && set_px_mpxpll(mpxpll))) {
+			puts(cmdtp->help);
+			return 1;
+		}
+		read_from_px_regs(1);
+	}
+
+	/*
+	 * Altbank specified
+	 *
+	 * NOTE CHANGE IN BEHAVIOR: previous code would default
+	 * to enabling watchdog if altbank is specified.
+	 * Now the watchdog must be enabled explicitly using 'wd'.
+	 */
+	if (p_altbank) {
+		set_altbank();
+		read_from_px_regs_altbank(1);
+	}
+
+	/*
+	 * Reset with watchdog specified.
+	 */
+	if (p_wd) {
+		set_px_go_with_watchdog();
+	} else {
+		set_px_go();
+	}
+
+	/*
+	 * Shouldn't be reached.
+	 */
 	return 0;
 }
 
