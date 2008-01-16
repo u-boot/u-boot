@@ -389,6 +389,7 @@ static void rtl_reset(struct eth_device *dev)
 #ifdef	DEBUG_RX
 	printf("rx ring address is %X\n",(unsigned long)rx_ring);
 #endif
+	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 	outl(phys_to_bus((int)rx_ring), ioaddr + RxBuf);
 
 	/* If we add multicast support, the MAR0 register would have to be
@@ -430,6 +431,7 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		tx_buffer[len++] = '\0';
 	}
 
+	flush_cache((unsigned long)tx_buffer, length);
 	outl(phys_to_bus((int)tx_buffer), ioaddr + TxAddr0 + cur_tx*4);
 	outl(((TX_FIFO_THRESH<<11) & 0x003f0000) | len,
 		ioaddr + TxStatus0 + cur_tx*4);
@@ -486,7 +488,8 @@ static int rtl_poll(struct eth_device *dev)
 #endif
 
 	ring_offs = cur_rx % RX_BUF_LEN;
-	rx_status = *(unsigned int*)KSEG1ADDR((rx_ring + ring_offs));
+	/* ring_offs is guaranteed being 4-byte aligned */
+	rx_status = *(unsigned int *)(rx_ring + ring_offs);
 	rx_size = rx_status >> 16;
 	rx_status &= 0xffff;
 
@@ -516,6 +519,7 @@ static int rtl_poll(struct eth_device *dev)
 		printf("rx packet %d bytes", rx_size-4);
 #endif
 	}
+	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
 	cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
 	outw(cur_rx - 16, ioaddr + RxBufPtr);
