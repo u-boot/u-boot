@@ -201,24 +201,6 @@ _start_e500:
 	lis	r7,CFG_CCSRBAR@h
 	ori	r7,r7,CFG_CCSRBAR@l
 
-#ifndef CONFIG_FSL_LAW
-	bl	law_entry
-	mr	r6,r0
-	lwzu	r5,0(r6)	/* how many windows we actually use */
-	mtctr	r5
-
-	li	r2,0x0c28	/* the first pair is reserved for */
-	li	r1,0x0c30	/* boot-over-rio-or-pci */
-
-0:	lwzu	r4,4(r6)
-	lwzu	r3,4(r6)
-	stwx	r4,r7,r2
-	stwx	r3,r7,r1
-	addi	r2,r2,0x0020
-	addi	r1,r1,0x0020
-	bdnz	0b
-#endif
-
 	/* Clear and set up some registers. */
 	li      r0,0
 	mtmsr   r0
