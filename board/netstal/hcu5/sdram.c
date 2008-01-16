@@ -62,11 +62,8 @@ void dflush(void);
 #define DDR0_22_CTRL_RAW_ECC_ENABLE       0x03000000 /* ECC correcting on */
 #define DDR0_03_CASLAT_DECODE(n)            ((((unsigned long)(n))>>16)&0x7)
 
-#ifdef CFG_ENABLE_SDRAM_CACHE
-#define MY_TLB_WORD2_I_ENABLE	0		/* enable caching on DDR2 */
-#else
-#define MY_TLB_WORD2_I_ENABLE TLB_WORD2_I_ENABLE /* disable caching on DDR2 */
-#endif
+#define MY_TLB_WORD2_I_ENABLE TLB_WORD2_I_ENABLE
+	/* disable caching on DDR2 */
 
 void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 
@@ -157,38 +154,36 @@ static void blank_string(int size)
 /*---------------------------------------------------------------------------+
  * program_ecc.
  *---------------------------------------------------------------------------*/
-static void program_ecc(unsigned long start_address, unsigned long num_bytes,
-			unsigned long tlb_word2_i_value)
+static void program_ecc(unsigned long start_address, unsigned long num_bytes)
 {
-	unsigned long current_address= start_address;
-	int loopi = 0;
 	u32 val;
-
 	char str[] = "ECC generation -";
-	char slash[] = "\\|/-\\|/-";
+#if defined(CONFIG_PRAM)
+	u32 *magic;
+
+	/* Check whether vxWorks is using EDR logging, if yes zero */
+	/* also PostMortem and user reserved memory */
+	magic= in_be32(start_address  + num_bytes -
+			(CONFIG_PRAM*1024) + sizeof(u32));
+
+	debug("\n%s:  CONFIG_PRAM %d kB magic 0x%x 0x%p -> 0x%x\n", __FUNCTION__,
+	       CONFIG_PRAM,
+	       start_address  + num_bytes - (CONFIG_PRAM*1024) + sizeof(u32),
+	       magic, in_be32(magic));
+	if (in_be32(magic) == 0xbeefbabe)
+		num_bytes -= (CONFIG_PRAM*1024)  - PM_RESERVED_MEM;
+#endif
+
 
 	sync();
 	eieio();
 
 	puts(str);
 
-	if (tlb_word2_i_value == TLB_WORD2_I_ENABLE) {
-		/* ECC bit set method for non-cached memory */
-		/* This takes various seconds */
-		for(current_address = 0; current_address < num_bytes;
-		     current_address += sizeof(u32)) {
-			*(u32 *)current_address = 0;
-			if ((current_address % (2 << 20)) == 0) {
-				putc('\b');
-				putc(slash[loopi++ % 8]);
-			}
-		}
-	} else {
-		/* ECC bit set method for cached memory */
-		/* Fast method, no noticeable delay */
-		dcbz_area(start_address, num_bytes);
-		dflush();
-	}
+	/* ECC bit set method for cached memory */
+	/* Fast method, no noticeable delay */
+	dcbz_area(start_address, num_bytes);
+	dflush();
 	blank_string(strlen(str));
 
 	/* Clear error status */
@@ -196,7 +191,7 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes,
 	mtsdram(DDR0_00, val | DDR0_00_INT_ACK_ALL);
 
 	/*
-	 * Clear possible errors
+	 * Clear possible ECC errors
 	 * If not done, then we could get an interrupt later on when
 	 * exceptions are enabled.
 	 */
@@ -211,6 +206,7 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes,
 }
 
 #endif
+
 
 /***********************************************************************
  *
@@ -233,23 +229,22 @@ long int initdram (int board_type)
 	mtsdram(DDR0_04, 0x0A020200);
 	mtsdram(DDR0_05, 0x02020307);
 	switch (*hwVersReg & HCU_HW_SDRAM_CONFIG_MASK) {
-	case 0:
-		dram_size = 128 * 1024 * 1024 ;
-		mtsdram(DDR0_06, 0x0102C80D);  /* 128MB RAM */
-		mtsdram(DDR0_11, 0x000FC800);  /* 128MB RAM */
-		mtsdram(DDR0_43, 0x030A0300);  /* 128MB RAM */
-		break;
 	case 1:
 		dram_size = 256 * 1024 * 1024 ;
 		mtsdram(DDR0_06, 0x0102C812);  /* 256MB RAM */
 		mtsdram(DDR0_11, 0x0014C800);  /* 256MB RAM */
 		mtsdram(DDR0_43, 0x030A0200);  /* 256MB RAM */
 		break;
+	case 0:
 	default:
-		sdram_panic(INVALID_HW_CONFIG);
+		dram_size = 128 * 1024 * 1024 ;
+		mtsdram(DDR0_06, 0x0102C80D);  /* 128MB RAM */
+		mtsdram(DDR0_11, 0x000FC800);  /* 128MB RAM */
+		mtsdram(DDR0_43, 0x030A0300);  /* 128MB RAM */
 		break;
 	}
 	mtsdram(DDR0_07, 0x00090100);
+
 	/*
 	 * TCPD=200 cycles of clock input is required to lock the DLL.
 	 * CKE must be HIGH the entire time.mtsdram(DDR0_08, 0x02C80001);
@@ -288,7 +283,7 @@ long int initdram (int board_type)
 	 * Program tlb entries for this size (dynamic)
 	 */
 	remove_tlb(CFG_SDRAM_BASE, 256 << 20);
-	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, 0, dram_size, TLB_WORD2_W_ENABLE | TLB_WORD2_I_ENABLE);
 
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual
@@ -296,13 +291,11 @@ long int initdram (int board_type)
 	 */
 	program_tlb(0, CFG_DDR_CACHED_ADDR, dram_size, 0);
 
-	/* Diminish RAM to initialize */
-	dram_size = dram_size - 32 ;
 #ifdef CONFIG_DDR_ECC
 	/*
 	 * If ECC is enabled, initialize the parity bits.
 	 */
-	program_ecc(CFG_DDR_CACHED_ADDR, dram_size, 0);
+	program_ecc(CFG_DDR_CACHED_ADDR, dram_size);
 #endif
 
 	return (dram_size);
