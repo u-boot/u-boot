@@ -2601,6 +2601,12 @@ pb1000_config		:	unconfig
 	@echo "#define CONFIG_PB1000 1" >>$(obj)include/config.h
 	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
 
+qemu_mips_config: unconfig
+	@mkdir -p $(obj)include
+	@ >$(obj)include/config.h
+	@echo "#define CONFIG_QEMU_MIPS 1" >>$(obj)include/config.h
+	@$(MKCONFIG) -a qemu-mips mips mips qemu-mips
+
 #########################################################################
 ## MIPS64 5Kc
 #########################################################################

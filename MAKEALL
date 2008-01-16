@@ -543,6 +543,7 @@ LIST_arm="		\
 
 LIST_mips4kc="		\
 	incaip		\
+	qemu_mips	\
 "
 
 LIST_mips5kc="		\
