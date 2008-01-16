@@ -1971,6 +1971,9 @@ MPC837XEMDS_HOST_config:	unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC837XEMDS ppc mpc83xx mpc837xemds freescale
 
+MPC837XERDB_config:	unconfig
+	@$(MKCONFIG) -a MPC837XERDB ppc mpc83xx mpc837xerdb freescale
+
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
