@@ -29,7 +29,7 @@ endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o \
+COBJS	:= $(BOARD).o law.o \
 	   ../common/cadmus.o \
 	   ../common/eeprom.o \
 	   ../common/ft_board.o \

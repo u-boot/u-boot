@@ -47,6 +47,7 @@
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
  * When initializing flash, if we cannot find the manufacturer ID,
