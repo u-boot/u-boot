@@ -57,6 +57,7 @@
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_INIT_TLBS	1	/* Use common FSL init code */
 
 #define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
 

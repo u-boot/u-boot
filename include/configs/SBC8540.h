@@ -57,6 +57,7 @@
 #undef  CONFIG_ETHER_ON_FCC		/* cpm FCC ethernet support	*/
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_INIT_TLBS	1	/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
 
