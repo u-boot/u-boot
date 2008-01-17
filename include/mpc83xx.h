@@ -725,19 +725,13 @@
 #define SCCR_USBCM_3			0x00F00000
 
 #elif defined(CONFIG_MPC8313)
+/* TSEC1 bits are for TSEC2 as well */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
 #define SCCR_TSEC1CM_1			0x40000000
 #define SCCR_TSEC1CM_2			0x80000000
 #define SCCR_TSEC1CM_3			0xC0000000
-
-#define SCCR_TSEC2CM			0x30000000
-#define SCCR_TSEC2CM_SHIFT		28
-#define SCCR_TSEC2CM_0			0x00000000
-#define SCCR_TSEC2CM_1			0x10000000
-#define SCCR_TSEC2CM_2			0x20000000
-#define SCCR_TSEC2CM_3			0x30000000
 
 #define SCCR_TSEC1ON			0x20000000
 #define SCCR_TSEC1ON_SHIFT		29
@@ -838,6 +832,8 @@
 #define SCCR_PCIEXP2CM_3		0x000c0000
 
 /* All of the four SATA controllers must have the same clock ratio */
+#define SCCR_SATA1CM			0x000000c0
+#define SCCR_SATA1CM_SHIFT		6
 #define SCCR_SATACM			0x000000ff
 #define SCCR_SATACM_SHIFT		0
 #define SCCR_SATACM_0			0x00000000
