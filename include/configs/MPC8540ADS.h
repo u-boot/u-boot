@@ -56,6 +56,7 @@
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_INIT_TLBS	1	/* Use common FSL init code */
 
 /*
  * sysclk for MPC85xx
