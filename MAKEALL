@@ -520,6 +520,10 @@ LIST_pxa="		\
 "
 
 LIST_ixp="		\
+	actux1		\
+	actux2		\
+	actux3		\
+	actux4		\
 	ixdp425		\
 	ixdpg425	\
 	pdnb3		\

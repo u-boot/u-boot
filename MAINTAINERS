@@ -556,6 +556,13 @@ Alex Züpke <azu@sysgo.de>
 	lart			SA1100
 	dnp1110			SA1110
 
+Michael Schwingen <michael@schwingen.org>
+
+	actux1			xscale
+	actux2			xscale
+	actux3			xscale
+	actux4			xscale
+
 #########################################################################
 # x86 Systems:								#
 #									#

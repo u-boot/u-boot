@@ -2441,6 +2441,18 @@ SMN42_config	:	unconfig
 ## XScale Systems
 #########################################################################
 
+actux1_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm ixp actux1
+
+actux2_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm ixp actux2
+
+actux3_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm ixp actux3
+
+actux4_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm ixp actux4
+
 adsvix_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa adsvix
 
