@@ -149,27 +149,7 @@ void cpu_init_early_f(void)
 
 	init_laws();
 	invalidate_tlb(0);
-#ifdef CONFIG_FSL_INIT_TLBS
 	init_tlbs();
-#else
-	{
-		extern u32 tlb1_entry;
-		u32 *tmp = &tlb1_entry;
-		int i;
-		int num = tmp[2];
-
-		/* skip to actual table */
-		tmp += 3;
-
-		for (i = 0; i < num; i++, tmp += 4) {
-			mtspr(MAS0, tmp[0]);
-			mtspr(MAS1, tmp[1]);
-			mtspr(MAS2, tmp[2]);
-			mtspr(MAS3, tmp[3]);
-			asm volatile("isync;msync;tlbwe;isync");
-		}
-	}
-#endif
 }
 
 /*

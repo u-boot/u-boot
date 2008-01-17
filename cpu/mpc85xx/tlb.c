@@ -79,7 +79,6 @@ void invalidate_tlb(u8 tlb)
 
 void init_tlbs(void)
 {
-#ifdef CONFIG_FSL_INIT_TLBS
 	int i;
 
 	for (i = 0; i < num_tlb_entries; i++) {
@@ -88,7 +87,6 @@ void init_tlbs(void)
 			tlb_table[i].ts, tlb_table[i].esel, tlb_table[i].tsize,
 			tlb_table[i].iprot);
 	}
-#endif
 
 	return ;
 }
