@@ -525,6 +525,15 @@ int eth_receive(volatile void *packet, int length)
 void eth_try_another(int first_restart)
 {
 	static struct eth_device *first_failed = NULL;
+	char *ethrotate;
+
+	/*
+	 * Do not rotate between network interfaces when
+	 * 'ethrotate' variable is set to 'no'.
+	 */
+	if (((ethrotate = getenv ("ethrotate")) != NULL) &&
+	    (strcmp(ethrotate, "no") == 0))
+		return;
 
 	if (!eth_current)
 		return;
