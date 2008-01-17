@@ -150,6 +150,7 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	DASA_SIM		IOP480 (PPC401)
 	DP405			PPC405EP
 	DU405			PPC405GP
+	DU440			PPC440EPx
 	G2000			PPC405EP
 	HH405			PPC405EP
 	HUB405			PPC405EP
