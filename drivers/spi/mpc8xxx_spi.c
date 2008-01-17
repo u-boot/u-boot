@@ -27,16 +27,13 @@
 
 #ifdef CONFIG_HARD_SPI
 
-#define SPI_EV_NE	0x80000000 >> 22	/* Receiver Not Empty */
-#define SPI_EV_NF	0x80000000 >> 23	/* Transmitter Not Full */
+#define SPI_EV_NE	(0x80000000 >> 22)	/* Receiver Not Empty */
+#define SPI_EV_NF	(0x80000000 >> 23)	/* Transmitter Not Full */
 
-#define SPI_MODE_LOOP	0x80000000 >> 1	/* Loopback mode */
-#define SPI_MODE_REV	0x80000000 >> 5	/* Reverse mode - MSB first */
-#define SPI_MODE_MS	0x80000000 >> 6	/* Always master */
-#define SPI_MODE_EN	0x80000000 >> 7	/* Enable interface */
-
-#define SPI_PRESCALER(reg, div) (reg)=((reg) & 0xfff0ffff) | ((div)<<16)
-#define SPI_CHARLENGTH(reg, div) (reg)=((reg) & 0xff0fffff) | ((div)<<20)
+#define SPI_MODE_LOOP	(0x80000000 >> 1)	/* Loopback mode */
+#define SPI_MODE_REV	(0x80000000 >> 5)	/* Reverse mode - MSB first */
+#define SPI_MODE_MS	(0x80000000 >> 6)	/* Always master */
+#define SPI_MODE_EN	(0x80000000 >> 7)	/* Enable interface */
 
 #define SPI_TIMEOUT	1000
 
@@ -44,18 +41,19 @@ void spi_init(void)
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CFG_IMMR))->spi;
 
-	/* ------------------------------------------------
+	/*
 	 * SPI pins on the MPC83xx are not muxed, so all we do is initialize
 	 * some registers
-	 * ------------------------------------------------ */
+	 */
 	spi->mode = SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN;
-	SPI_PRESCALER(spi->mode, 1);	/* Use SYSCLK / 8  (16.67MHz typ.) */
+	spi->mode = (spi->mode & 0xfff0ffff) | (1 << 16); /* Use SYSCLK / 8
+							     (16.67MHz typ.) */
 	spi->event = 0xffffffff;	/* Clear all SPI events */
 	spi->mask = 0x00000000;	/* Mask  all SPI interrupts */
 	spi->com = 0;		/* LST bit doesn't do anything, so disregard */
 }
 
-int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar * dout, uchar * din)
+int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CFG_IMMR))->spi;
 	unsigned int tmpdout, tmpdin, event;
@@ -81,16 +79,21 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar * dout, uchar * din)
 
 		/* The LEN field of the SPMODE register is set as follows:
 		 *
-		 * Bit length           setting
-		 * l <= 4               3
-		 * 4 < l <= 16          l - 1
-		 * l > 16               0
+		 * Bit length             setting
+		 * len <= 4               3
+		 * 4 < len <= 16          len - 1
+		 * len > 16               0
 		 */
 
-		if (bitlen <= 16)
-			SPI_CHARLENGTH(spi->mode, bitlen <= 4 ? 3 : bitlen - 1);
-		else {
-			SPI_CHARLENGTH(spi->mode, 0);
+		if (bitlen <= 16) {
+			if (bitlen <= 4)
+				spi->mode = (spi->mode & 0xff0fffff) |
+				            (3 << 20);
+			else
+				spi->mode = (spi->mode & 0xff0fffff) |
+				            ((bitlen - 1) << 20);
+		} else {
+			spi->mode = (spi->mode & 0xff0fffff);
 			/* Set up the next iteration if sending > 32 bits */
 			bitlen -= 32;
 			dout += 4;
@@ -99,11 +102,11 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar * dout, uchar * din)
 		spi->tx = tmpdout;	/* Write the data out */
 		debug("*** spi_xfer: ... %08x written\n", tmpdout);
 
-		/* --------------------------------
+		/*
 		 * Wait for SPI transmit to get out
 		 * or time out (1 second = 1000 ms)
 		 * The NE event must be read and cleared first
-		 * -------------------------------- */
+		 */
 		for (tm = 0, isRead = 0; tm < SPI_TIMEOUT; ++tm) {
 			event = spi->event;
 			if (event & SPI_EV_NE) {
@@ -117,10 +120,12 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar * dout, uchar * din)
 					din += 4;
 				}
 			}
-			/* Only bail when we've had both NE and NF events.
+			/*
+			 * Only bail when we've had both NE and NF events.
 			 * This will cause timeouts on RO devices, so maybe
 			 * in the future put an arbitrary delay after writing
-			 * the device.  Arbitrary delays suck, though... */
+			 * the device.  Arbitrary delays suck, though...
+			 */
 			if (isRead && (event & SPI_EV_NF))
 				break;
 		}
@@ -132,7 +137,7 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar * dout, uchar * din)
 
 	if (chipsel != NULL)
 		(*chipsel) (0);	/* deselect the target chip */
+
 	return 0;
 }
-
 #endif				/* CONFIG_HARD_SPI */

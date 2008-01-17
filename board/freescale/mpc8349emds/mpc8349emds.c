@@ -263,7 +263,7 @@ void spi_eeprom_chipsel(int cs)
 {
 	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
 
-	if(cs)
+	if (cs)
 		iopd->dat &= ~SPI_CS_MASK;
 	else
 		iopd->dat |=  SPI_CS_MASK;

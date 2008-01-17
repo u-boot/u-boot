@@ -23,13 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libspi.a
+LIB	:= $(obj)libspi.a
 
 COBJS-y += mpc8xxx_spi.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

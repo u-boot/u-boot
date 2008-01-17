@@ -32,8 +32,7 @@
 	defined(CONFIG_MPC8315) || \
 	defined(CONFIG_MPC837X)
 
-typedef struct spi8xxx
-{
+typedef struct spi8xxx {
 	u8 res0[0x20];	/* 0x0-0x01f reserved */
 	u32 mode;	/* mode register  */
 	u32 event;	/* event register */
