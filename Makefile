@@ -274,13 +274,18 @@ NAND_SPL = nand_spl
 U_BOOT_NAND = $(obj)u-boot-nand.bin
 endif
 
+ifeq ($(CONFIG_ONENAND_U_BOOT),y)
+ONENAND_IPL = onenand_ipl
+U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
+endif
+
 __OBJS := $(subst $(obj),,$(OBJS))
 __LIBS := $(subst $(obj),,$(LIBS))
 
 #########################################################################
 #########################################################################
 
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND)
+ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
 
 all:		$(ALL)
 
@@ -326,6 +331,12 @@ $(NAND_SPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
 
 $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
+
+$(ONENAND_IPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
+		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
+
+$(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
+		cat $(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(VERSION_FILE):
 		@( echo -n "#define U_BOOT_VERSION \"U-Boot " ; \
@@ -2597,7 +2608,9 @@ omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
 
 apollon_config		: unconfig
+	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
+	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 
 #========================================================================
 # i386
@@ -2898,6 +2911,8 @@ clean:
 	@rm -f $(obj)board/bf537-stamp/u-boot.lds $(obj)board/bf561-ezkit/u-boot.lds
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
+	@rm -f $(obj)onenand_ipl/onenand-ipl $(obj)onenand_ipl/onenand-ipl.bin \
+		$(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)onenand_ipl/onenand-ipl.map
 	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 
 clobber:	clean
@@ -2912,6 +2927,7 @@ clobber:	clean
 	@rm -f $(obj)tools/inca-swap-bytes $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f
+	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -lname "*" -print | xargs rm -f
 	@[ ! -d $(obj)api_examples ] || find $(obj)api_examples -lname "*" -print | xargs rm -f
 
 ifeq ($(OBJTREE),$(SRCTREE))

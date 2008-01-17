@@ -440,7 +440,8 @@ void muxSetupTouchScreen(void)
 void muxSetupGPMC(void)
 {
 	/* gpmc_io_dir, MCR */
-	writel(0x4800008C, 0x19000000);
+	volatile unsigned int *MCR = (unsigned int *) 0x4800008C;
+	*MCR = 0x19000000;
 
 	/* NOR FLASH CS0 */
 	/* signal - Gpmc_clk; pin - J4; offset - 0x0088; mode 0; Byte-3 */
