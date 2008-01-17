@@ -27,6 +27,7 @@
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
+#include <spi.h>
 #include <spd.h>
 #include <miiphy.h>
 #if defined(CONFIG_SPD_EEPROM)
@@ -250,6 +251,34 @@ void sdram_init(void)
 {
 }
 #endif
+
+/*
+ * The following are used to control the SPI chip selects for the SPI command.
+ */
+#ifdef CONFIG_HARD_SPI
+
+#define SPI_CS_MASK	0x80000000
+
+void spi_eeprom_chipsel(int cs)
+{
+	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
+
+	if(cs)
+		iopd->dat &= ~SPI_CS_MASK;
+	else
+		iopd->dat |=  SPI_CS_MASK;
+}
+
+/*
+ * The SPI command uses this table of functions for controlling the SPI
+ * chip selects.
+ */
+spi_chipsel_type spi_chipsel[] = {
+	spi_eeprom_chipsel,
+};
+int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+
+#endif /* CONFIG_HARD_SPI */
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)

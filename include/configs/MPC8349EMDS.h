@@ -355,6 +355,16 @@
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 
+/* SPI */
+#define CONFIG_HARD_SPI			/* SPI with hardware support*/
+#undef CONFIG_SOFT_SPI			/* SPI bit-banged */
+#define CONFIG_FSL_SPI
+
+/* GPIOs.  Used as SPI chip selects */
+#define CFG_GPIO1_PRELIM
+#define CFG_GPIO1_DIR		0xC0000000  /* SPI CS on 0, LED on 1 */
+#define CFG_GPIO1_DAT		0xC0000000  /* Both are active LOW */
+
 /* TSEC */
 #define CFG_TSEC1_OFFSET 0x24000
 #define CFG_TSEC1 (CFG_IMMR+CFG_TSEC1_OFFSET)
