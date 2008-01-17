@@ -230,6 +230,7 @@ LIBS += drivers/net/libnet.a
 LIBS += drivers/net/sk98lin/libsk98lin.a
 LIBS += drivers/pci/libpci.a
 LIBS += drivers/pcmcia/libpcmcia.a
+LIBS += drivers/spi/libspi.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif
@@ -377,6 +378,7 @@ TAG_SUBDIRS += drivers/pcmcia
 TAG_SUBDIRS += drivers/qe
 TAG_SUBDIRS += drivers/rtc
 TAG_SUBDIRS += drivers/serial
+TAG_SUBDIRS += drivers/spi
 TAG_SUBDIRS += drivers/usb
 TAG_SUBDIRS += drivers/video
 

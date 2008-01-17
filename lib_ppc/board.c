@@ -87,6 +87,9 @@ void doc_init (void);
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
+#if defined(CONFIG_HARD_SPI)
+#include <spi.h>
+#endif
 #if defined(CONFIG_CMD_NAND)
 void nand_init (void);
 #endif
@@ -247,6 +250,16 @@ static int init_func_i2c (void)
 }
 #endif
 
+#if defined(CONFIG_HARD_SPI)
+static int init_func_spi (void)
+{
+	puts ("SPI:   ");
+	spi_init ();
+	puts ("ready\n");
+	return (0);
+}
+#endif
+
 /***********************************************************************/
 
 #if defined(CONFIG_WATCHDOG)
@@ -328,6 +341,9 @@ init_fnc_t *init_sequence[] = {
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 	init_func_i2c,
+#endif
+#if defined(CONFIG_HARD_SPI)
+	init_func_spi,
 #endif
 #if defined(CONFIG_DTT)		/* Digital Thermometers and Thermostats */
 	dtt_init,

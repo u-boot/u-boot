@@ -30,6 +30,7 @@
 
 #include <asm/types.h>
 #include <asm/fsl_i2c.h>
+#include <asm/mpc8xxx_spi.h>
 
 /*
  * Local Access Window
@@ -627,7 +628,7 @@ typedef struct immap {
 	u8			res3[0x900];
 	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
 	u8			res4[0x1000];
-	spi83xx_t		spi;		/* Serial Peripheral Interface */
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[2];	/* PCI Software Configuration Registers */
 	ios83xx_t		ios;		/* Sequencer */
@@ -661,7 +662,7 @@ typedef struct immap {
 	u8			res2[0x900];
 	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
 	u8			res3[0x1000];
-	spi83xx_t		spi;		/* Serial Peripheral Interface */
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
 	u8			res4[0x80];
@@ -696,7 +697,7 @@ typedef struct immap {
 	u8			res2[0x900];
 	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
 	u8			res3[0x1000];
-	spi83xx_t		spi;		/* Serial Peripheral Interface */
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
 	u8			res4[0x80];
@@ -741,7 +742,7 @@ typedef struct immap {
 	u8			res2[0x900];
 	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
 	u8			res3[0x1000];
-	spi83xx_t		spi;		/* Serial Peripheral Interface */
+	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
 	u8			res4[0x80];

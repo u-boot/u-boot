@@ -1377,6 +1377,14 @@ The following options need to be configured:
 		SPI configuration items (port pins to use, etc). For
 		an example, see include/configs/sacsng.h.
 
+		CONFIG_HARD_SPI
+
+		Enables a hardware SPI driver for general-purpose reads
+		and writes.  As with CONFIG_SOFT_SPI, the board configuration
+		must define a list of chip-select function pointers.
+		Currently supported on some MPC8xxx processors.  For an
+		example, see include/configs/mpc8349emds.h.
+
 - FPGA Support: CONFIG_FPGA
 
 		Enables FPGA subsystem.
