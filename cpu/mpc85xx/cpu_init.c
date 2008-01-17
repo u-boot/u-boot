@@ -33,6 +33,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -328,5 +329,8 @@ int cpu_init_r(void)
 	qe_reset();
 #endif
 
+#if defined(CONFIG_MP)
+	setup_mp();
+#endif
 	return 0;
 }
