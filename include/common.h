@@ -665,4 +665,6 @@ void inline show_boot_progress (int val);
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #endif	/* __COMMON_H_ */

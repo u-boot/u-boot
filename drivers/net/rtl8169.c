@@ -352,8 +352,6 @@ int mdio_read(int RegAddr)
 	return value;
 }
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 static int rtl8169_init_board(struct eth_device *dev)
 {
 	int i;

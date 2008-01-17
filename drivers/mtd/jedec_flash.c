@@ -218,10 +218,6 @@ static const struct amd_flash_info jedec_table[] = {
 #endif
 };
 
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-
 static inline void fill_info(flash_info_t *info, const struct amd_flash_info *jedec_entry, ulong base)
 {
 	int i,j;
