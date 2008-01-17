@@ -44,6 +44,7 @@
 #define CONFIG_DDR_DLL                      /* possible DLL fix needed */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_INIT_TLBS	1	/* Use common FSL init code */
 
 /* Using Localbus SDRAM to emulate flash before we can program the flash,
  * normally you only need a flash-boot image(u-boot.bin),if unsure undef this.
