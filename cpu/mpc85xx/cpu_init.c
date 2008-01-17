@@ -31,6 +31,7 @@
 #include <asm/processor.h>
 #include <ioports.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
 #include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -123,6 +124,54 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 }
 #endif
 
+/* We run cpu_init_early_f in AS = 1 */
+void cpu_init_early_f(void)
+{
+	set_tlb(0, CFG_CCSRBAR, CFG_CCSRBAR,
+		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		1, 0, BOOKE_PAGESZ_4K, 0);
+
+	/* set up CCSR if we want it moved */
+#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+	{
+		u32 temp;
+
+		set_tlb(0, CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR_DEFAULT,
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+			1, 1, BOOKE_PAGESZ_4K, 0);
+
+		temp = in_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT);
+		out_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR >> 12);
+
+		temp = in_be32((volatile u32 *)CFG_CCSRBAR);
+	}
+#endif
+
+	init_laws();
+	invalidate_tlb(0);
+#ifdef CONFIG_FSL_INIT_TLBS
+	init_tlbs();
+#else
+	{
+		extern u32 tlb1_entry;
+		u32 *tmp = &tlb1_entry;
+		int i;
+		int num = tmp[2];
+
+		/* skip to actual table */
+		tmp += 3;
+
+		for (i = 0; i < num; i++, tmp += 4) {
+			mtspr(MAS0, tmp[0]);
+			mtspr(MAS1, tmp[1]);
+			mtspr(MAS2, tmp[2]);
+			mtspr(MAS3, tmp[3]);
+			asm volatile("isync;msync;tlbwe;isync");
+		}
+	}
+#endif
+}
+
 /*
  * Breathe some life into the CPU...
  *
@@ -135,15 +184,14 @@ void cpu_init_f (void)
 	volatile ccsr_lbc_t *memctl = (void *)(CFG_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
 
+	disable_tlb(14);
+	disable_tlb(15);
+
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
-
-#ifdef CONFIG_FSL_LAW
-	init_laws();
-#endif
 
 #ifdef CONFIG_CPM2
 	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
