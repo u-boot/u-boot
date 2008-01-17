@@ -43,6 +43,7 @@
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_INIT_TLBS	1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
