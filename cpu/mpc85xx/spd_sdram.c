@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <spd.h>
 #include <asm/mmu.h>
+#include <asm/fsl_law.h>
 
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -1022,7 +1023,6 @@ spd_sdram(void)
 static unsigned int
 setup_laws_and_tlbs(unsigned int memsize)
 {
-	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 	unsigned int tlb_size;
 	unsigned int law_size;
 	unsigned int ram_tlb_index;
@@ -1071,19 +1071,9 @@ setup_laws_and_tlbs(unsigned int memsize)
 	ram_tlb_address = (unsigned int)CFG_DDR_SDRAM_BASE;
 	while (ram_tlb_address < (memsize * 1024 * 1024)
 	      && ram_tlb_index < 16) {
-		mtspr(MAS0, FSL_BOOKE_MAS0(1, ram_tlb_index, 0));
-		mtspr(MAS1, FSL_BOOKE_MAS1(1, 1, 0, 0, tlb_size));
-		mtspr(MAS2, FSL_BOOKE_MAS2(ram_tlb_address, 0));
-		mtspr(MAS3, FSL_BOOKE_MAS3(ram_tlb_address, 0,
-			(MAS3_SX|MAS3_SW|MAS3_SR)));
-		asm volatile("isync;msync;tlbwe;isync");
-
-		debug("DDR: MAS0=0x%08x\n", FSL_BOOKE_MAS0(1, ram_tlb_index, 0));
-		debug("DDR: MAS1=0x%08x\n", FSL_BOOKE_MAS1(1, 1, 0, 0, tlb_size));
-		debug("DDR: MAS2=0x%08x\n", FSL_BOOKE_MAS2(ram_tlb_address, 0));
-		debug("DDR: MAS3=0x%08x\n",
-			FSL_BOOKE_MAS3(ram_tlb_address, 0,
-			              (MAS3_SX|MAS3_SW|MAS3_SR)));
+		set_tlb(1, ram_tlb_address, ram_tlb_address,
+			MAS3_SX|MAS3_SW|MAS3_SR, 0,
+			0, ram_tlb_index, tlb_size, 1);
 
 		ram_tlb_address += (0x1000 << ((tlb_size - 1) * 2));
 		ram_tlb_index++;
@@ -1098,12 +1088,10 @@ setup_laws_and_tlbs(unsigned int memsize)
 	/*
 	 * Set up LAWBAR for all of DDR.
 	 */
-	ecm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
-	ecm->lawar1 = (LAWAR_EN
-		       | LAWAR_TRGT_IF_DDR
-		       | (LAWAR_SIZE & law_size));
-	debug("DDR: LAWBAR1=0x%08x\n", ecm->lawbar1);
-	debug("DDR: LARAR1=0x%08x\n", ecm->lawar1);
+
+#ifdef CONFIG_FSL_LAW
+	set_law(1, CFG_DDR_SDRAM_BASE, law_size, LAW_TRGT_IF_DDR);
+#endif
 
 	/*
 	 * Confirm that the requested amount of memory was mapped.

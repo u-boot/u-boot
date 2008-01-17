@@ -50,6 +50,8 @@
 #define CONFIG_CPM2		1	/* has CPM2			*/
 #endif
 
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+
 /*
  * sysclk for MPC85xx
  *

@@ -49,6 +49,7 @@
 /*#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER*/	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
  * When initializing flash, if we cannot find the manufacturer ID,

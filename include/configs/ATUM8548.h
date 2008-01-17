@@ -63,6 +63,8 @@
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+
 #define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
 
 #define CONFIG_SYS_CLK_FREQ	33000000

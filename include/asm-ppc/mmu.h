@@ -418,6 +418,37 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define BOOKE_PAGESZ_256GB	14
 #define BOOKE_PAGESZ_1TB	15
 
+#ifdef CONFIG_E500
+#ifndef __ASSEMBLY__
+extern void set_tlb(u8 tlb, u32 epn, u64 rpn,
+		    u8 perms, u8 wimge,
+		    u8 ts, u8 esel, u8 tsize, u8 iprot);
+extern void disable_tlb(u8 esel);
+extern void invalidate_tlb(u8 tlb);
+extern void init_tlbs(void);
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \
+	{ .tlb = _tlb, .epn = _epn, .rpn = _rpn, .perms = _perms, \
+	  .wimge = _wimge, .ts = _ts, .esel = _esel, .tsize = _sz, .iprot = _iprot }
+
+struct fsl_e_tlb_entry {
+	u8	tlb;
+	u32	epn;
+	u64	rpn;
+	u8	perms;
+	u8	wimge;
+	u8	ts;
+	u8	esel;
+	u8	tsize;
+	u8	iprot;
+};
+
+extern struct fsl_e_tlb_entry tlb_table[];
+extern int num_tlb_entries;
+#endif
+#endif
+
 #if defined(CONFIG_MPC86xx)
 #define LAWBAR_BASE_ADDR	0x00FFFFFF
 #define LAWAR_TRGT_IF		0x01F00000
