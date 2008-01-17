@@ -1071,19 +1071,9 @@ setup_laws_and_tlbs(unsigned int memsize)
 	ram_tlb_address = (unsigned int)CFG_DDR_SDRAM_BASE;
 	while (ram_tlb_address < (memsize * 1024 * 1024)
 	      && ram_tlb_index < 16) {
-		mtspr(MAS0, FSL_BOOKE_MAS0(1, ram_tlb_index, 0));
-		mtspr(MAS1, FSL_BOOKE_MAS1(1, 1, 0, 0, tlb_size));
-		mtspr(MAS2, FSL_BOOKE_MAS2(ram_tlb_address, 0));
-		mtspr(MAS3, FSL_BOOKE_MAS3(ram_tlb_address, 0,
-			(MAS3_SX|MAS3_SW|MAS3_SR)));
-		asm volatile("isync;msync;tlbwe;isync");
-
-		debug("DDR: MAS0=0x%08x\n", FSL_BOOKE_MAS0(1, ram_tlb_index, 0));
-		debug("DDR: MAS1=0x%08x\n", FSL_BOOKE_MAS1(1, 1, 0, 0, tlb_size));
-		debug("DDR: MAS2=0x%08x\n", FSL_BOOKE_MAS2(ram_tlb_address, 0));
-		debug("DDR: MAS3=0x%08x\n",
-			FSL_BOOKE_MAS3(ram_tlb_address, 0,
-			              (MAS3_SX|MAS3_SW|MAS3_SR)));
+		set_tlb(1, ram_tlb_address, ram_tlb_address,
+			MAS3_SX|MAS3_SW|MAS3_SR, 0,
+			0, ram_tlb_index, tlb_size, 1);
 
 		ram_tlb_address += (0x1000 << ((tlb_size - 1) * 2));
 		ram_tlb_index++;

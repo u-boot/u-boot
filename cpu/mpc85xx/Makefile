@@ -30,7 +30,7 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o resetvec.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o \
+COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o tlb.o \
 	  pci.o serial_scc.o commproc.o ether_fcc.o spd_sdram.o qe_io.o \
 	  $(COBJS-y)
 
