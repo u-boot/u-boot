@@ -282,7 +282,7 @@
  * QE UEC ethernet configuration
  */
 #define CONFIG_UEC_ETH
-#define CONFIG_ETHPRIME		"Freescale GETH"
+#define CONFIG_ETHPRIME		"FSL UEC0"
 
 #define CONFIG_UEC_ETH1		/* GETH1 */
 
@@ -385,15 +385,6 @@
 #define CFG_HID0_INIT		0x000000000
 #define CFG_HID0_FINAL		HID0_ENABLE_MACHINE_CHECK
 #define CFG_HID2		HID2_HBE
-
-/*
- * Cache Config
- */
-#define CFG_DCACHE_SIZE		32768
-#define CFG_CACHELINE_SIZE	32
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	5 /*log base 2 of the above value */
-#endif
 
 /*
  * MMU Setup

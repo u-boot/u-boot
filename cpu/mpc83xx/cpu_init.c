@@ -73,59 +73,93 @@ void cpu_init_f (volatile immap_t * im)
 			  (CFG_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_TSEC1EP
-	/* TSEC1 Emergency priority */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) | (CFG_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
-#endif
-
-#ifdef CFG_SPCR_TSEC2EP
-	/* TSEC2 Emergency priority */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) | (CFG_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_TSEC1CM
-	/* TSEC1 clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) | (CFG_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_TSEC2CM
-	/* TSEC2 & I2C1 clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) | (CFG_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_TSEC1ON
-	/* TSEC1 clock switch */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1ON) | (CFG_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_TSEC2ON
-	/* TSEC2 clock switch */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2ON) | (CFG_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_USBMPHCM
-	/* USB MPH clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_USBMPHCM) | (CFG_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_PCICM
-	/* PCI & DMA clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_PCICM) | (CFG_SCCR_PCICM << SCCR_PCICM_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_USBDRCM
-	/* USB DR clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_USBDRCM) | (CFG_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT);
-#endif
-
-#ifdef CFG_SCCR_ENCCM
-	/* Encryption clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_ENCCM) | (CFG_SCCR_ENCCM << SCCR_PCICM_SHIFT);
+#ifdef CFG_SPCR_TSECEP
+	/* eTSEC Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) | (CFG_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
 #endif
 
 #ifdef CFG_ACR_RPTCNT
 	/* Arbiter repeat count */
-	im->arbiter.acr = ((im->arbiter.acr & ~(ACR_RPTCNT)) | (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT));
+	im->arbiter.acr = (im->arbiter.acr & ~(ACR_RPTCNT)) |
+			  (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
+#endif
+
+#ifdef CFG_SPCR_TSECEP
+	/* all TSEC's Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) |
+			   (CFG_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
+#endif
+
+#ifdef CFG_SPCR_TSEC1EP
+	/* TSEC1 Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) |
+			   (CFG_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
+#endif
+
+#ifdef CFG_SPCR_TSEC2EP
+	/* TSEC2 Emergency priority */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) |
+			   (CFG_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_ENCCM
+	/* Encryption clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_ENCCM) |
+		       (CFG_SCCR_ENCCM << SCCR_PCICM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_PCICM
+	/* PCI & DMA clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_PCICM) |
+		       (CFG_SCCR_PCICM << SCCR_PCICM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSECCM
+	/* all TSEC's clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSECCM) |
+		       (CFG_SCCR_TSECCM << SCCR_TSECCM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC1CM
+	/* TSEC1 clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) |
+		       (CFG_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC2CM
+	/* TSEC2 clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) |
+		       (CFG_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC1ON
+	/* TSEC1 clock switch */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1ON) |
+		       (CFG_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_TSEC2ON
+	/* TSEC2 clock switch */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2ON) |
+		       (CFG_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_USBMPHCM
+	/* USB MPH clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_USBMPHCM) |
+		       (CFG_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_USBDRCM
+	/* USB DR clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_USBDRCM) |
+		       (CFG_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT);
+#endif
+
+#ifdef CFG_SCCR_SATACM
+	/* SATA controller clock mode */
+	im->clk.sccr = (im->clk.sccr & ~SCCR_SATACM) |
+		       (CFG_SCCR_SATACM << SCCR_SATACM_SHIFT);
 #endif
 
 	/* RSR - Reset Status Register - clear all status (4.6.1.3) */

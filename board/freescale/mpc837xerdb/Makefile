@@ -1,4 +1,6 @@
-# Copyright 2007 Freescale Semiconductor, Inc.
+#
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,31 +23,20 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 LIB	= $(obj)lib$(BOARD).a
 
-SOBJS	:= init.o
-
-COBJS	:= $(BOARD).o
-
-COBJS-${CONFIG_FSL_DIU_FB}	+= mpc8610hpcd_diu.o
-
-COBJS	+= ${COBJS-y}
+COBJS	:= $(BOARD).o pci.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
-	rm -f $(OBJS) $(SOBJS)
+	rm -f $(SOBJS) $(OBJS)
 
-.PHONY: distclean
 distclean:	clean
 	rm -f $(LIB) core *.bak .depend
 

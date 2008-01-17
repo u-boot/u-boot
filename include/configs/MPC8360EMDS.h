@@ -405,7 +405,7 @@
  * QE UEC ethernet configuration
  */
 #define CONFIG_UEC_ETH
-#define CONFIG_ETHPRIME		"Freescale GETH"
+#define CONFIG_ETHPRIME		"FSL UEC0"
 #define CONFIG_PHY_MODE_NEED_CHANGE
 
 #define CONFIG_UEC_ETH1		/* GETH1 */
@@ -466,6 +466,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_SDRAM
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

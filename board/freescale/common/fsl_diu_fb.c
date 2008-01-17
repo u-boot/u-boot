@@ -27,8 +27,6 @@
 #include <i2c.h>
 #include <malloc.h>
 
-#ifdef CONFIG_FSL_DIU_FB
-
 #include "fsl_diu_fb.h"
 
 #ifdef DEBUG
@@ -615,4 +613,3 @@ void fsl_diu_clear_screen(void)
 
 	memset(info->screen_base, 0, info->smem_len);
 }
-#endif /* CONFIG_FSL_DIU_FB */

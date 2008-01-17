@@ -76,10 +76,10 @@
  * seem to have the SPD connected to I2C.
  */
 #define CFG_DDR_SIZE		128		/* MB */
-#define CFG_DDR_CONFIG		( CSCONFIG_EN | CSCONFIG_AP \
-				| 0x00040000 /* TODO */ \
+#define CFG_DDR_CONFIG		( CSCONFIG_EN \
+				| 0x00010000 /* TODO */ \
 				| CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10 )
-				/* 0x80840102 */
+				/* 0x80010102 */
 
 #define CFG_DDR_TIMING_3	0x00000000
 #define CFG_DDR_TIMING_0	( ( 0 << TIMING_CFG0_RWT_SHIFT ) \
@@ -92,25 +92,25 @@
 				| ( 2 << TIMING_CFG0_MRS_CYC_SHIFT ) )
 				/* 0x00220802 */
 #define CFG_DDR_TIMING_1	( ( 3 << TIMING_CFG1_PRETOACT_SHIFT ) \
-				| ( 9 << TIMING_CFG1_ACTTOPRE_SHIFT ) \
+				| ( 8 << TIMING_CFG1_ACTTOPRE_SHIFT ) \
 				| ( 3 << TIMING_CFG1_ACTTORW_SHIFT ) \
 				| ( 5 << TIMING_CFG1_CASLAT_SHIFT ) \
-				| (13 << TIMING_CFG1_REFREC_SHIFT ) \
+				| (10 << TIMING_CFG1_REFREC_SHIFT ) \
 				| ( 3 << TIMING_CFG1_WRREC_SHIFT ) \
 				| ( 2 << TIMING_CFG1_ACTTOACT_SHIFT ) \
 				| ( 2 << TIMING_CFG1_WRTORD_SHIFT ) )
-				/* 0x3935d322 */
-#define CFG_DDR_TIMING_2	( ( 0 << TIMING_CFG2_ADD_LAT_SHIFT ) \
-				| (31 << TIMING_CFG2_CPO_SHIFT ) \
+				/* 0x3835a322 */
+#define CFG_DDR_TIMING_2	( ( 1 << TIMING_CFG2_ADD_LAT_SHIFT ) \
+				| ( 5 << TIMING_CFG2_CPO_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_LAT_DELAY_SHIFT ) \
 				| ( 2 << TIMING_CFG2_RD_TO_PRE_SHIFT ) \
 				| ( 2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT ) \
 				| ( 3 << TIMING_CFG2_CKE_PLS_SHIFT ) \
-				| (10 << TIMING_CFG2_FOUR_ACT_SHIFT) )
-				/* 0x0f9048ca */ /* P9-45,may need tuning */
-#define CFG_DDR_INTERVAL	( ( 800 << SDRAM_INTERVAL_REFINT_SHIFT ) \
-				| ( 100 << SDRAM_INTERVAL_BSTOPRE_SHIFT ) )
-				/* 0x03200064 */
+				| ( 6 << TIMING_CFG2_FOUR_ACT_SHIFT) )
+				/* 0x129048c6 */ /* P9-45,may need tuning */
+#define CFG_DDR_INTERVAL	( ( 1296 << SDRAM_INTERVAL_REFINT_SHIFT ) \
+				| ( 1280 << SDRAM_INTERVAL_BSTOPRE_SHIFT ) )
+				/* 0x05100500 */
 #if defined(CONFIG_DDR_2T_TIMING)
 #define CFG_SDRAM_CFG		( SDRAM_CFG_SREN \
 				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
@@ -124,9 +124,9 @@
 #endif
 #define CFG_SDRAM_CFG2		0x00401000;
 /* set burst length to 8 for 32-bit data path */
-#define CFG_DDR_MODE		( ( 0x4440 << SDRAM_MODE_ESD_SHIFT ) \
-				| ( 0x0232 << SDRAM_MODE_SD_SHIFT ) )
-				/* 0x44400232 */
+#define CFG_DDR_MODE		( ( 0x4448 << SDRAM_MODE_ESD_SHIFT ) \
+				| ( 0x0632 << SDRAM_MODE_SD_SHIFT ) )
+				/* 0x44480632 */
 #define CFG_DDR_MODE_2		0x8000C000;
 
 #define CFG_DDR_CLK_CNTL	DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05

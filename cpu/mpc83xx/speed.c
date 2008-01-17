@@ -367,21 +367,21 @@ int get_clocks(void)
 #endif
 
 #if defined(CONFIG_MPC837X) || defined(CONFIG_MPC8315)
-	switch ((sccr & SCCR_SATA1CM) >> SCCR_SATA1CM_SHIFT) {
-	case 0:
+	switch ((sccr & SCCR_SATACM) >> SCCR_SATACM_SHIFT) {
+	case SCCR_SATACM_0:
 		sata_clk = 0;
 		break;
-	case 1:
+	case SCCR_SATACM_1:
 		sata_clk = csb_clk;
 		break;
-	case 2:
+	case SCCR_SATACM_2:
 		sata_clk = csb_clk / 2;
 		break;
-	case 3:
+	case SCCR_SATACM_3:
 		sata_clk = csb_clk / 3;
 		break;
 	default:
-		/* unkown SCCR_SATA1CM value */
+		/* unkown SCCR_SATACM value */
 		return -11;
 	}
 #endif

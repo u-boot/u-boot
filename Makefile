@@ -1864,6 +1864,9 @@ MPC8313ERDB_66_config: unconfig
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
 
+MPC8315ERDB_config: unconfig
+	@$(MKCONFIG) -a MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
+
 MPC8323ERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
 
@@ -1970,6 +1973,9 @@ MPC837XEMDS_HOST_config:	unconfig
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC837XEMDS ppc mpc83xx mpc837xemds freescale
+
+MPC837XERDB_config:	unconfig
+	@$(MKCONFIG) -a MPC837XERDB ppc mpc83xx mpc837xerdb freescale
 
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349

@@ -316,30 +316,36 @@ void ft_board_setup(void *blob, bd_t *bd)
 	    immr->sysconf.spridr == SPR_8360E_REV21) {
 		int nodeoffset;
 		const char *prop;
-		const char *path;
+		int path;
 
-		nodeoffset = fdt_path_offset(fdt, "/aliases");
+		nodeoffset = fdt_path_offset(blob, "/aliases");
 		if (nodeoffset >= 0) {
 #if defined(CONFIG_HAS_ETH0)
 			/* fixup UCC 1 if using rgmii-id mode */
-			path = fdt_getprop(blob, nodeoffset, "ethernet0", NULL);
-			if (path) {
-				prop = fdt_getprop(blob, nodeoffset,
-							"phy-connection-type", 0);
+			prop = fdt_getprop(blob, nodeoffset, "ethernet0", NULL);
+			if (prop) {
+				path = fdt_path_offset(blob, prop);
+				prop = fdt_getprop(blob, path,
+				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
-					fdt_setprop(blob, nodeoffset, "phy-connection-type",
-						    "rgmii-rxid", sizeof("rgmii-rxid"));
+					fdt_setprop(blob, path,
+					            "phy-connection-type",
+					            "rgmii-rxid",
+					            sizeof("rgmii-rxid"));
 			}
 #endif
 #if defined(CONFIG_HAS_ETH1)
 			/* fixup UCC 2 if using rgmii-id mode */
-			path = fdt_getprop(blob, nodeoffset, "ethernet1", NULL);
-			if (path) {
-				prop = fdt_getprop(blob, nodeoffset,
-							"phy-connection-type", 0);
+			prop = fdt_getprop(blob, nodeoffset, "ethernet1", NULL);
+			if (prop) {
+				path = fdt_path_offset(blob, prop);
+				prop = fdt_getprop(blob, path,
+				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
-					fdt_setprop(blob, nodeoffset, "phy-connection-type",
-						    "rgmii-rxid", sizeof("rgmii-rxid"));
+					fdt_setprop(blob, path,
+					            "phy-connection-type",
+					            "rgmii-rxid",
+					            sizeof("rgmii-rxid"));
 			}
 #endif
 		}

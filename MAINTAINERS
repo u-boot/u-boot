@@ -58,6 +58,10 @@ Conn Clark <clark@esteem.com>
 
 	ESTEEM192E		MPC8xx
 
+Joe D'Abbraccio <ljd015@freescale.com>
+
+	MPC837xERDB		MPC837x
+
 Kári Davíðsson <kd@flaga.is>
 
 	FLAGADM			MPC823
@@ -233,6 +237,7 @@ The LEOX team <team@leox.org>
 
 Dave Liu <daveliu@freescale.com>
 
+	MPC8315ERDB		MPC8315
 	MPC832XEMDS		MPC832x
 	MPC8360EMDS		MPC8360
 	MPC837XEMDS		MPC837x

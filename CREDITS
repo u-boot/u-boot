@@ -305,7 +305,7 @@ W: http://www.li-pro.net
 
 N: Dave Liu
 E: daveliu@freescale.com
-D: Support for MPC832x, MPC8360, MPC837x
+D: Support for MPC8315, MPC832x, MPC8360, MPC837x
 W: www.freescale.com
 
 N: Raymond Lo
