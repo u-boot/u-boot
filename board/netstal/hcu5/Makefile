@@ -26,11 +26,11 @@ vpath hcu_flash.c ../common
 vpath nm_bsp.c ../common
 
 # NOBJS : Netstal common objects
-NOBJS	= hcu_flash.o nm_bsp.o
+NOBJS	= ../common/hcu_flash.o ../common/nm_bsp.o
 COBJS	= $(BOARD).o sdram.o
 SOBJS	= init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) ../common/$(NOBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(NOBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 NOBJS	:= $(addprefix $(obj),$(NOBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

@@ -62,6 +62,11 @@ void dflush(void);
 #define DDR0_22_CTRL_RAW_ECC_ENABLE       0x03000000 /* ECC correcting on */
 #define DDR0_03_CASLAT_DECODE(n)            ((((unsigned long)(n))>>16)&0x7)
 
+#define ECC_RAM				0x03267F0B
+#define NO_ECC_RAM			0x00267F0B
+
+#define HCU_HW_SDRAM_CONFIG_MASK	0x7
+
 #define MY_TLB_WORD2_I_ENABLE TLB_WORD2_I_ENABLE
 	/* disable caching on DDR2 */
 
@@ -71,6 +76,7 @@ void board_add_ram_info(int use_default)
 {
 	PPC4xx_SYS_INFO board_cfg;
 	u32 val;
+
 	mfsdram(DDR0_22, val);
 	val &= DDR0_22_CTRL_RAW_MASK;
 	switch (val) {
@@ -163,17 +169,16 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
 
 	/* Check whether vxWorks is using EDR logging, if yes zero */
 	/* also PostMortem and user reserved memory */
-	magic= in_be32(start_address  + num_bytes -
-			(CONFIG_PRAM*1024) + sizeof(u32));
+	magic = (u32 *)in_be32((u32 *)(start_address + num_bytes -
+				       (CONFIG_PRAM*1024) + sizeof(u32)));
 
 	debug("\n%s:  CONFIG_PRAM %d kB magic 0x%x 0x%p -> 0x%x\n", __FUNCTION__,
 	       CONFIG_PRAM,
-	       start_address  + num_bytes - (CONFIG_PRAM*1024) + sizeof(u32),
+	       start_address + num_bytes - (CONFIG_PRAM*1024) + sizeof(u32),
 	       magic, in_be32(magic));
 	if (in_be32(magic) == 0xbeefbabe)
-		num_bytes -= (CONFIG_PRAM*1024)  - PM_RESERVED_MEM;
+		num_bytes -= (CONFIG_PRAM*1024) - PM_RESERVED_MEM;
 #endif
-
 
 	sync();
 	eieio();
@@ -204,7 +209,6 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
 
 	return;
 }
-
 #endif
 
 
@@ -215,9 +219,6 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
  ************************************************************************/
 long int initdram (int board_type)
 {
-#define	HCU_HW_SDRAM_CONFIG_MASK 0x7
-#define INVALID_HW_CONFIG   "Invalid HW-Config"
-	u16 *hwVersReg = (u16 *) HCU_HW_VERSION_REGISTER;
 	unsigned int dram_size = 0;
 
 	mtsdram(DDR0_02, 0x00000000);
@@ -228,7 +229,7 @@ long int initdram (int board_type)
 	mtsdram(DDR0_03, 0x02030602);
 	mtsdram(DDR0_04, 0x0A020200);
 	mtsdram(DDR0_05, 0x02020307);
-	switch (*hwVersReg & HCU_HW_SDRAM_CONFIG_MASK) {
+	switch (in_be16((u16 *)HCU_HW_VERSION_REGISTER) & HCU_HW_SDRAM_CONFIG_MASK) {
 	case 1:
 		dram_size = 256 * 1024 * 1024 ;
 		mtsdram(DDR0_06, 0x0102C812);  /* 256MB RAM */
@@ -259,8 +260,6 @@ long int initdram (int board_type)
 	mtsdram(DDR0_19, 0x1D1D1D1D);
 	mtsdram(DDR0_20, 0x0B0B0B0B);
 	mtsdram(DDR0_21, 0x0B0B0B0B);
-	#define ECC_RAM  0x03267F0B
-	#define NO_ECC_RAM  0x00267F0B
 #ifdef CONFIG_DDR_ECC
 	mtsdram(DDR0_22, ECC_RAM);
 #else

@@ -37,6 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(DEBUG)
 void show_sdram_registers(void);
 #endif
+long int fixed_hcu4_sdram (unsigned int dram_size);
 
 /*
  * This function is run very early, out of flash, and before devices are
