@@ -385,20 +385,6 @@ typedef struct lbus83xx {
 } lbus83xx_t;
 
 /*
- * Serial Peripheral Interface
- */
-typedef struct spi83xx {
-	u32 mode;		/* mode register */
-	u32 event;		/* event register */
-	u32 mask;		/* mask register */
-	u32 com;		/* command register */
-	u8 res0[0x10];
-	u32 tx;			/* transmit register */
-	u32 rx;			/* receive register */
-	u8 res1[0xFD8];
-} spi83xx_t;
-
-/*
  * DMA/Messaging Unit
  */
 typedef struct dma83xx {
