@@ -51,7 +51,7 @@ int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	tftpboot,	3,	1,	do_tftpb,
 	"tftpboot- boot image via network using TFTP protocol\n",
-	"[loadAddress] [bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
 int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
