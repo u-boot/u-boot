@@ -684,6 +684,10 @@ Nobuhiro Iwmaatsu <iwamatsu@nigauri.org>
 	MS7750SE		SH7750
 	MS7722SE		SH7722
 
+Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+
+	MS7720SE		SH7720
+
 #########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
