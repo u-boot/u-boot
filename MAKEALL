@@ -462,6 +462,8 @@ LIST_ARM9="			\
 	cp926ejs		\
 	cp946es			\
 	cp966			\
+	csb637			\
+	kb9202			\
 	lpd7a400		\
 	m501sk			\
 	mp2usb			\
@@ -471,6 +473,7 @@ LIST_ARM9="			\
 	omap1510inn		\
 	omap1610h2		\
 	omap1610inn		\
+	omap5912osk		\
 	omap730p2		\
 	sbc2410x		\
 	scb9328			\
