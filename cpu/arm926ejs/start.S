@@ -198,8 +198,7 @@ _start_armboot:
  *
  *************************************************************************
  */
-
-
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -225,6 +224,8 @@ cpu_init_crit:
 	bl	lowlevel_init	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
+#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+
 /*
  *************************************************************************
  *
