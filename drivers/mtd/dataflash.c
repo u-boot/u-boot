@@ -36,7 +36,7 @@ struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
 	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 	{CFG_DATAFLASH_LOGIC_ADDR_CS1, 1}
 };
-#elif defined(CONFIG_AT91SAM9263EK)
+#elif defined(CONFIG_AT91SAM9263EK) || defined(CONFIG_AT91CAP9ADK)
 struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
 	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 };
@@ -48,7 +48,8 @@ struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
 #endif
 
 /*define the area offsets*/
-#if defined(CONFIG_AT91SAM9261EK) || defined(CONFIG_AT91SAM9260EK) || defined(CONFIG_AT91SAM9263EK)
+#if defined(CONFIG_AT91SAM9261EK) || defined(CONFIG_AT91SAM9260EK) || \
+	defined(CONFIG_AT91SAM9263EK) || defined(CONFIG_AT91CAP9ADK)
 #if	defined(CONFIG_NEW_PARTITION)
 dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
 	{0x00000000,	0x00003FFF, 	FLAG_PROTECT_SET,	0,    		"Bootstrap"},  	/* ROM code */
