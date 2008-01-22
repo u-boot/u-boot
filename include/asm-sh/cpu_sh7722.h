@@ -1282,12 +1282,12 @@
 #define HIZCRA      0xA4050158
 #define HIZCRB      0xA405015A
 #define HIZCRC      0xA405015C
-#define MSELCR      0xA405015C
-#define PULCR       0xA405015E
-#define DRVCR       0xA4050180
-#define SBSCR       0xA4050182
-#define AUDTHCR     0xA4050184
-#define PSELF       0xA4050186
+#define HIZCRC		0xA405015C
+#define MSELCRA		0xA4050180
+#define MSELCRB		0xA4050182
+#define PULCR		0xA4050184
+#define SBSCR		0xA4050186
+#define DRVCR		0xA405018A
 
 /*	I/O Port	*/
 #define PADR        0xA4050120
