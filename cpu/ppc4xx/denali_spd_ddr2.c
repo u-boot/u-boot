@@ -3,7 +3,7 @@
  * This SPD SDRAM detection code supports AMCC PPC44x CPUs with a Denali-core
  * DDR2 controller, specifically the 440EPx/GRx.
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Larry Johnson, lrj@acm.org.
  *
  * Based primarily on cpu/ppc4xx/4xx_spd_ddr2.c, which is...
@@ -77,10 +77,10 @@
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
  * everything correctly.
  */
-#if defined(CFG_ENABLE_SDRAM_CACHE)
+#if defined(CONFIG_4xx_DCACHE)
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
