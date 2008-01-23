@@ -241,10 +241,9 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
  * It will wait for the write to be done (or for a timeout to
  * expire) before exiting
  */
-void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
+void write_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum, uint value)
 {
 	volatile tsec_t *regbase = priv->phyregs;
-	uint phyid = priv->phyaddr;
 	int timeout = 1000000;
 
 	regbase->miimadd = (phyid << 8) | regnum;
@@ -255,17 +254,19 @@ void write_phy_reg(struct tsec_private *priv, uint regnum, uint value)
 	while ((regbase->miimind & MIIMIND_BUSY) && timeout--) ;
 }
 
+/* #define to provide old write_phy_reg functionality without duplicating code */
+#define write_phy_reg(priv, regnum, value) write_any_phy_reg(priv,priv->phyaddr,regnum,value)
+
 /* Reads register regnum on the device's PHY through the
  * registers specified in priv.	 It lowers and raises the read
  * command, and waits for the data to become valid (miimind
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint read_phy_reg(struct tsec_private *priv, uint regnum)
+uint read_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum)
 {
 	uint value;
 	volatile tsec_t *regbase = priv->phyregs;
-	uint phyid = priv->phyaddr;
 
 	/* Put the address of the phy, and the register
 	 * number into MIIMADD */
@@ -287,6 +288,9 @@ uint read_phy_reg(struct tsec_private *priv, uint regnum)
 
 	return value;
 }
+
+/* #define to provide old read_phy_reg functionality without duplicating code */
+#define read_phy_reg(priv,regnum) read_any_phy_reg(priv,priv->phyaddr,regnum)
 
 /* Discover which PHY is attached to the device, and configure it
  * properly.  If the PHY is not recognized, then return 0
@@ -562,6 +566,63 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 		priv->speed = 1000;
 		break;
 	case MIIM_88E1011_PHYSTAT_100:
+		priv->speed = 100;
+		break;
+	default:
+		priv->speed = 10;
+	}
+
+	return 0;
+}
+
+/* Parse the RTL8211B's status register for speed and duplex
+ * information
+ */
+uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
+{
+	uint speed;
+
+	mii_reg = read_phy_reg(priv, MIIM_RTL8211B_PHY_STATUS);
+	if ((mii_reg & MIIM_RTL8211B_PHYSTAT_LINK) &&
+		!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
+		int i = 0;
+
+		puts("Waiting for PHY realtime link");
+		while (!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
+			/* Timeout reached ? */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts(" TIMEOUT !\n");
+				priv->link = 0;
+				break;
+			}
+
+			if ((i++ % 1000) == 0) {
+				putc('.');
+			}
+			udelay(1000);	/* 1 ms */
+			mii_reg = read_phy_reg(priv, MIIM_RTL8211B_PHY_STATUS);
+		}
+		puts(" done\n");
+		udelay(500000);	/* another 500 ms (results in faster booting) */
+	} else {
+		if (mii_reg & MIIM_RTL8211B_PHYSTAT_LINK)
+			priv->link = 1;
+		else
+			priv->link = 0;
+	}
+
+	if (mii_reg & MIIM_RTL8211B_PHYSTAT_DUPLEX)
+		priv->duplexity = 1;
+	else
+		priv->duplexity = 0;
+
+	speed = (mii_reg & MIIM_RTL8211B_PHYSTAT_SPEED);
+
+	switch (speed) {
+	case MIIM_RTL8211B_PHYSTAT_GBIT:
+		priv->speed = 1000;
+		break;
+	case MIIM_RTL8211B_PHYSTAT_100:
 		priv->speed = 100;
 		break;
 	default:
@@ -1361,6 +1422,33 @@ struct phy_info phy_info_dp83865 = {
 			   },
 };
 
+struct phy_info phy_info_rtl8211b = {
+	0x001cc91,
+	"RealTek RTL8211B",
+	4,
+	(struct phy_cmd[]){	/* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_RTL8211B_PHY_STATUS, miim_read, &mii_parse_RTL8211B_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]){	/* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
@@ -1374,6 +1462,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
 	&phy_info_dp83865,
+	&phy_info_rtl8211b,
 	&phy_info_generic,
 	NULL
 };
@@ -1497,18 +1586,6 @@ static void relocate_cmds(void)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
 
-struct tsec_private *get_priv_for_phy(unsigned char phyaddr)
-{
-	int i;
-
-	for (i = 0; i < MAXCONTROLLERS; i++) {
-		if (privlist[i]->phyaddr == phyaddr)
-			return privlist[i];
-	}
-
-	return NULL;
-}
-
 /*
  * Read a MII PHY register.
  *
@@ -1519,14 +1596,14 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
 	unsigned short ret;
-	struct tsec_private *priv = get_priv_for_phy(addr);
+	struct tsec_private *priv = privlist[0];
 
 	if (NULL == priv) {
 		printf("Can't read PHY at address %d\n", addr);
 		return -1;
 	}
 
-	ret = (unsigned short)read_phy_reg(priv, reg);
+	ret = (unsigned short)read_any_phy_reg(priv, addr, reg);
 	*value = ret;
 
 	return 0;
@@ -1541,14 +1618,14 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 static int tsec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
-	struct tsec_private *priv = get_priv_for_phy(addr);
+	struct tsec_private *priv = privlist[0];
 
 	if (NULL == priv) {
 		printf("Can't write PHY at address %d\n", addr);
 		return -1;
 	}
 
-	write_phy_reg(priv, reg, value);
+	write_any_phy_reg(priv, addr, reg, value);
 
 	return 0;
 }

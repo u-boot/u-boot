@@ -87,7 +87,7 @@ int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	nfs,	3,	1,	do_nfs,
 	"nfs\t- boot image via network using NFS protocol\n",
-	"[loadAddress] [host ip addr:bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 #endif
 

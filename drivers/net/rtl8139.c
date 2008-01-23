@@ -80,10 +80,7 @@
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
 	defined(CONFIG_RTL8139)
 
-#define TICKS_PER_SEC	CFG_HZ
-#define TICKS_PER_MS	(TICKS_PER_SEC/1000)
-
-#define RTL_TIMEOUT	(1*TICKS_PER_SEC)
+#define RTL_TIMEOUT	100000
 
 #define ETH_FRAME_LEN		1514
 #define ETH_ALEN		6
@@ -392,6 +389,7 @@ static void rtl_reset(struct eth_device *dev)
 #ifdef	DEBUG_RX
 	printf("rx ring address is %X\n",(unsigned long)rx_ring);
 #endif
+	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 	outl(phys_to_bus((int)rx_ring), ioaddr + RxBuf);
 
 	/* If we add multicast support, the MAR0 register would have to be
@@ -414,9 +412,10 @@ static void rtl_reset(struct eth_device *dev)
 
 static int rtl_transmit(struct eth_device *dev, volatile void *packet, int length)
 {
-	unsigned int status, to;
+	unsigned int status;
 	unsigned long txstatus;
 	unsigned int len = length;
+	int i = 0;
 
 	ioaddr = dev->iobase;
 
@@ -432,11 +431,10 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		tx_buffer[len++] = '\0';
 	}
 
+	flush_cache((unsigned long)tx_buffer, length);
 	outl(phys_to_bus((int)tx_buffer), ioaddr + TxAddr0 + cur_tx*4);
 	outl(((TX_FIFO_THRESH<<11) & 0x003f0000) | len,
 		ioaddr + TxStatus0 + cur_tx*4);
-
-	to = currticks() + RTL_TIMEOUT;
 
 	do {
 		status = inw(ioaddr + IntrStatus);
@@ -445,7 +443,8 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		 * rtl_poll() function.	 */
 		outw(status & (TxOK | TxErr | PCIErr), ioaddr + IntrStatus);
 		if ((status & (TxOK | TxErr | PCIErr)) != 0) break;
-	} while (currticks() < to);
+		udelay(10);
+	} while (i++ < RTL_TIMEOUT);
 
 	txstatus = inl(ioaddr + TxStatus0 + cur_tx*4);
 
@@ -458,8 +457,8 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 		return length;
 	} else {
 #ifdef	DEBUG_TX
-		printf("tx timeout/error (%d ticks), status %hX txstatus %X\n",
-			currticks()-to, status, txstatus);
+		printf("tx timeout/error (%d usecs), status %hX txstatus %X\n",
+		       10*i, status, txstatus);
 #endif
 		rtl_reset(dev);
 
@@ -489,7 +488,8 @@ static int rtl_poll(struct eth_device *dev)
 #endif
 
 	ring_offs = cur_rx % RX_BUF_LEN;
-	rx_status = *(unsigned int*)KSEG1ADDR((rx_ring + ring_offs));
+	/* ring_offs is guaranteed being 4-byte aligned */
+	rx_status = le32_to_cpu(*(unsigned int *)(rx_ring + ring_offs));
 	rx_size = rx_status >> 16;
 	rx_status &= 0xffff;
 
@@ -519,6 +519,7 @@ static int rtl_poll(struct eth_device *dev)
 		printf("rx packet %d bytes", rx_size-4);
 #endif
 	}
+	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
 	cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
 	outw(cur_rx - 16, ioaddr + RxBufPtr);

@@ -217,6 +217,9 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_UEC_ETH3)
 	uec_initialize(2);
 #endif
+#if defined(CONFIG_UEC_ETH4)
+	uec_initialize(3);
+#endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
@@ -522,6 +525,15 @@ int eth_receive(volatile void *packet, int length)
 void eth_try_another(int first_restart)
 {
 	static struct eth_device *first_failed = NULL;
+	char *ethrotate;
+
+	/*
+	 * Do not rotate between network interfaces when
+	 * 'ethrotate' variable is set to 'no'.
+	 */
+	if (((ethrotate = getenv ("ethrotate")) != NULL) &&
+	    (strcmp(ethrotate, "no") == 0))
+		return;
 
 	if (!eth_current)
 		return;
