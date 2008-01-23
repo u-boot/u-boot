@@ -28,6 +28,7 @@
 #include <asm/io.h>
 
 #define LAWAR_EN	0x80000000
+#define FSL_HW_NUM_LAWS 10	/* number of LAWs in the hw implementation */
 
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
@@ -49,6 +50,24 @@ void disable_law(u8 idx)
 
 	out_be32(lawar, 0);
 	out_be32(lawbar, 0);
+
+	return;
+}
+
+void print_laws(void)
+{
+	volatile u32 *base = (volatile u32 *)(CFG_IMMR + 0xc08);
+	volatile u32 *lawbar = base;
+	volatile u32 *lawar = base + 2;
+	int i;
+
+	printf("\nLocal Access Window Configuration\n");
+	for(i = 0; i < FSL_HW_NUM_LAWS; i++) {
+		printf("\tLAWBAR%d : 0x%08x, LAWAR%d : 0x%08x\n",
+		       i, in_be32(lawbar), i, in_be32(lawar));
+		lawbar += 8;
+		lawar += 8;
+	}
 
 	return;
 }
