@@ -294,4 +294,4 @@ U_BOOT_CMD(
 	-----------------------------------------------\n"
 	);
 
-#endif	/* (CONFIG_COMMANDS & CFG_CMD_EEPROM) */
+#endif	/* CONFIG_CMD_EEPROM */

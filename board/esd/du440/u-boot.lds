@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,7 +23,8 @@
 
 OUTPUT_ARCH(powerpc)
 SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
-
+/* Do we need any of these for elf?
+   __DYNAMIC = 0;    */
 SECTIONS
 {
   .resetvec 0xFFFFFFFC :
@@ -137,7 +138,7 @@ SECTIONS
    *(COMMON)
   }
 
-  ppcenv_assert = ASSERT(. < 0xFFFFB000, ".bss section too big, overlaps .ppcenv section. Please update your confguration: CFG_MONITOR_BASE, CFG_MONITOR_LEN and TEXT_BASE may need to be modified.");
+  ppcenv_assert = ASSERT(. < 0xFFFF8000, ".bss section too big, overlaps .ppcenv section. Please update your confguration: CFG_MONITOR_BASE, CFG_MONITOR_LEN and TEXT_BASE may need to be modified.");
 
   _end = . ;
   PROVIDE (end = .);

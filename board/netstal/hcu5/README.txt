@@ -10,9 +10,6 @@ TODO:
 - Fix RTS/CTS problem (HW?)
   CONFIG_SERIAL_MULTI/CONFIG_SERIAL_SOFTWARE_FIFO hangs after
   Switching to interrupt driven serial input mode
-- Make vxWorks start from u-boot. Possible reasons
-    - Does vxWorks need an entry for the Machine Check interrupt like this
-      tlbentry( 0x40000000, SZ_256M, 0, 1, AC_R|AC_W|AC_X|SA_G|SA_I ) ?
 
 Caveats:
 --------

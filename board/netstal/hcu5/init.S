@@ -39,41 +39,68 @@
 tlbtab:
 	tlbtab_start
 
-	/* vxWorks needs this entry for the Machine Check interrupt,  */
-	/* tlbentry( 0x40000000, SZ_256M, 0, 1, AC_R|AC_W|AC_X|SA_G|SA_I ) */
+	/* TLB#0: vxWorks needs this entry for the Machine Check interrupt, */
+	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+	/* TLB#1: TLB-entry for DDR SDRAM (Up to 2GB) */
+	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0,
+		AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* TLB#2: TLB-entry for EBC */
+	tlbentry( 0x80000000, SZ_256M, 0x80000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
 
 	/*
-	 * BOOT_CS (FLASH) must be second. Before relocation SA_I can be off to use the
-	 * speed up boot process. It is patched after relocation to enable SA_I
+	 * TLB#3: BOOT_CS (FLASH) must be forth. Before relocation SA_I can be
+	 * off to use the speed up boot process. It is patched after relocation
+	 * to enable SA_I
 	 */
-	tlbentry( CFG_BOOT_BASE_ADDR, SZ_1M, CFG_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CFG_BOOT_BASE_ADDR, SZ_1M, CFG_BOOT_BASE_ADDR, 1,
+		AC_R|AC_W|AC_X|SA_G)
 
-	/* TLB-entry for PCI Memory */
-	tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
+	/*
+	 * TLB entries for SDRAM are not needed on this platform.
+	 * They are dynamically generated in the SPD DDR(2) detection
+	 * routine.
+	 */
 
-	/* TLB-entry for EBC (CFG_CPLD) */
-	/* tlbentry( CFG_CPLD, SZ_1K, CFG_CPLD, 1, AC_R|AC_W|AC_X|SA_G|SA_I ) */
-	/* 		CAN */
-	tlbentry( CFG_CS_1, SZ_16M, CFG_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
-	 /* 		IMC + CPLD */
-	tlbentry( CFG_CS_2, SZ_16M, CFG_CS_2, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
-	tlbentry( CFG_CS_2 + 0x1000000, SZ_16M, CFG_CS_2 + 0x1000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
-	 /* 		IMC-Fast */
-	tlbentry( CFG_CS_3, SZ_16M, CFG_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
-	tlbentry( CFG_CS_3 + 0x1000000, SZ_16M, CFG_CS_3 + 0x1000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	/* TLB#4: */
+	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1,
+		AC_R|AC_W|SA_G|SA_I )
+	/* TLB#5: */
+	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1,
+		AC_R|AC_W|SA_G|SA_I )
+	/* TLB#6: */
+	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1,
+		AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for Internal Registers & OCM */
-	tlbentry( CFG_PCI_BASE, SZ_16M, 0xe0000000, 0,  AC_R|AC_W|AC_X|SA_I )
+	/* TLB#7: */
+	tlbentry( 0xe0000000, SZ_16M, 0xe0000000, 0,
+		AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/*TLB-entry PCI registers*/
+	/* TLB#8: */
 	tlbentry( 0xEEC00000, SZ_1K, 0xEEC00000, 1,  AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB-entry for peripherals */
+	/* TLB#9: */
 	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
 
-	/* TLB for SDRAM will be added by initdram (sdram.c) */
+	/* 		CAN */
+	/* TLB#10: */
+	tlbentry( CFG_CS_1, SZ_1K, CFG_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* TLB#11:  CPLD and IMC-Standard 32 MB */
+	tlbentry( CFG_CS_2, SZ_16M, CFG_CS_2, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	/* TLB#12: */
+	tlbentry( CFG_CS_2 + 0x1000000, SZ_16M, CFG_CS_2 + 0x1000000, 1,
+		AC_R|AC_W|AC_X|SA_G|SA_I )
+
+	 /* 		IMC-Fast 32 MB */
+	/* TLB#13: */
+	tlbentry( CFG_CS_3, SZ_16M, CFG_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	/* TLB#14: */
+	tlbentry( CFG_CS_3 + 0x1000000, SZ_16M, CFG_CS_3, 1,
+		AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	tlbtab_end

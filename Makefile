@@ -1208,6 +1208,9 @@ DP405_config:	unconfig
 DU405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx du405 esd
 
+DU440_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx du440 esd
+
 ebony_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ebony amcc
 

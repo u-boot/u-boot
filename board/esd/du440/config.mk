@@ -1,6 +1,10 @@
 #
-# (C) Copyright 2005 Netstal Maschinen AG
-#     Niklaus Giger (ng@netstal.com)
+# (C) Copyright 2002
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# See file CREDITS for list of people who contributed to this
+# project.
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 2 of
@@ -16,15 +20,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-#
-# Netstal Maschinen AG: HCU5 boards
-#
-
-TEXT_BASE = 0xFFFB0000
+ifndef TEXT_BASE
+TEXT_BASE = 0xFFFA0000
+endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
 ifeq ($(debug),1)
-PLATFORM_CPPFLAGS += -DDEBUG -g
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
+
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
 endif
