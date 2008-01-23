@@ -1,3 +1,11 @@
+commit 865f0f9754b95183cad395de7e8cb85df0c6ea1f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 23 14:31:17 2008 +0100
+
+    Coding Style Cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit cfe5ca77976afdbe7ecb86e39fd7505bde636ace
 Author: Dave Liu <r63238@freescale.com>
 Date:	Fri Jan 18 10:07:04 2008 +0800
@@ -12,6 +20,127 @@ Date:	Fri Jan 18 10:07:04 2008 +0800
 
     Signed-off-by: Dave Liu <daveliu@freescale.com>
     Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6b4439444286e0fcd01596df504e6ca897ad3e5a
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Apr 14 17:11:49 2007 +0200
+
+    AVR32: ATNGW100 board support
+
+    Add support for the ATNGW100 Network Gateway reference design,
+    including flash, ethernet and MMC support.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit e006927a0b9a54e8ee7685d8ac748aaad6801862
+Author: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date:	Sat Nov 24 18:15:31 2007 +0100
+
+    AVR32: Initialize ipaddr, loadaddr and bootfile at startup
+
+    I don't know why the relevant layers can't do this by itself, but this
+    is what ppc does.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+commit 799891ef7b1b3432032ec23466df6b665a797fa4
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Fri Jan 18 00:04:28 2008 +0100
+
+    Add AcTux board support
+
+    Hi,
+
+    The patch adds 4 boards, called AcTux-1 .. AcTux-4. This patch contains the
+    files that
+    contain changes for multiple boards, the board-specific files follow as
+    separate patches.
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit 66a4344a4d910a11125df7768899ad529719855e
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Wed Jan 16 19:53:23 2008 +0100
+
+    add AcTux-4 board support
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit bc24345e4101a5c996d6b48ce497b09c53025dc6
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Wed Jan 16 19:51:55 2008 +0100
+
+    add AcTux-3 board support
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit aebf00fc4d1343b24715373893f7b20bf462d1e9
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Wed Jan 16 19:51:14 2008 +0100
+
+    add AcTux-2 board support
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit ea99e8f05b7240fd657739e286664664ae160abe
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Wed Jan 16 19:50:37 2008 +0100
+
+    add AcTux-1 board support
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit 3d9f3bfb7a33efe8e41e01b025563cd712c57d64
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Jan 14 19:20:08 2008 +0100
+
+    ARM: remove useless function board_post_init
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 96bd462942022e4569b582c072a0ed26de1cd19b
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Thu Jan 10 14:59:46 2008 +0100
+
+    IXP: enable RTS
+
+    enables the RTS signal with CONFIG_SERIAL_RTS_ACTIVE.
+    No handshaking is done, but the active RTS signal allows to
+    connect to the target using a PC which is using RTS/CTS
+    handshake, and does no harm if the PC is set to ignore RTS.
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+
+commit a1cf027a08f9dc1c0e769499e6f4fbddcf9cab93
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Jan 7 08:41:34 2008 +0100
+
+    IXP: add dynamic microcode addr
+
+    allow to load the microde from flash or ram by download it through
+    the serial or other.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 63ebcc4615dd39926ccf61f1d5f3510262ef6564
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Sat Nov 10 15:44:12 2007 +0100
+
+    load ixp42x NPE firmware from separate flash block, remove dead code
+
+    Hi,
+
+    the following patch adds support to move the IXP42X NPE firmware to a
+    separate flash block, whose start address is defined in
+    CONFIG_IXP4XX_NPE_EXT_UCODE_BASE. Using that, it is possible to build
+    NPE-enabled u-boot without copyright problems due to the NPE firmware.
+
+    I hope the patch applies, I get whitespace-related differences in the NPE
+    files due to trailing whitespace in the original versions.
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 
 commit 57a127201eb3d8cc19170a008e0bd7af608bd72f
 Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
@@ -294,6 +423,14 @@ Date:	Thu Jan 17 14:29:04 2008 +0100
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 55ed1516cbc1dad3ae277c67ee06fc4a46eaac7d
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Jan 17 18:07:32 2008 +0900
+
+    sh: Remove CONFIG_COMMANDS from MS7720SE config file
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
 commit 055606bd25e88c0cd04ad348a679a04b1b616bee
 Author: Niklaus Giger <niklaus.giger@netstal.com>
 Date:	Wed Jan 16 18:39:20 2008 +0100
@@ -381,6 +518,17 @@ Date:	Thu Jan 17 10:52:30 2008 +0100
     ppc4xx: Add DU440 board support
 
     Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit ac331da07db3860f11fa1d0fd3db7c810bce1198
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Jan 17 15:53:52 2008 +0900
+
+    sh: Update SuperH SCIF driver
+
+    This patch fixed wrong SH7720 CPU macro and changed macro that
+    calculated value of SCBRR register.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
 commit 334e442e6fac59be91244063e9b3f6ca25e8daf8
 Author: Grzegorz Bernacki <gjb@semihalf.com>
@@ -624,6 +772,26 @@ Date:	Wed Jan 16 01:13:58 2008 -0600
     We should be able to use the same code on 86xx as well.
 
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit bed8ce838a609aaab136d43b25e6df2a520bc854
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 22 15:03:12 2007 +0100
+
+    qemu-mips: active HUSH PARSER, AUTO_COMPLETE and CMDLINE_EDITING
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0764c164fed6277d359cf132d55187ea34290114
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Wed Jan 16 19:27:51 2008 +0200
+
+    MIPS:Target support for qemu -M mips
+
+    With serial, NE2000, IDE support. Tested in big-endian mode.
+    Memory size hard-coded to 128M for now, so don't play with
+    the -m option.
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
 
 commit 7f52fa3c2df59e49dc2badd7c084cf2d007c438f
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
