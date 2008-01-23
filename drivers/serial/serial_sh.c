@@ -1,6 +1,6 @@
 /*
  * SuperH SCIF device driver.
- * Copyright (c) 2007 Nobuhiro Iwamatsu
+ * Copyright (c) 2007,2008 Nobuhiro Iwamatsu
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #define SCSCR	(vu_short *)(SCIF_BASE + 0x8)
 #define SCFCR	(vu_short *)(SCIF_BASE + 0x18)
 #define SCFDR	(vu_short *)(SCIF_BASE + 0x1C)
-#ifdef CONFIG_SH7720 /* SH7720 specific */
+#ifdef CONFIG_CPU_SH7720 /* SH7720 specific */
 #define SCFSR	(vu_short *)(SCIF_BASE + 0x14)   /* SCSSR */
 #define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
 #define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
@@ -57,12 +57,19 @@
 #define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 #define LSR_ORER	1
 #elif defined (CONFIG_SH3)
-#ifdef CONFIG_SH7720 /* SH7720 specific */
-# define SCLSR	SCFSR	/* SCSSR */
-#else
-# define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
-#endif
+#ifdef CONFIG_CPU_SH7720 /* SH7720 specific */
+#define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
 #define LSR_ORER	0x0200
+#else
+#define SCLSR	SCFSR	/* SCSSR */
+#define LSR_ORER	1
+#endif
+#endif
+
+#if defined(CONFIG_CPU_SH7720)
+#define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
+#else	/* Generic SuperH */
+#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
 
 #define SCR_RE 		(1 << 4)
@@ -82,18 +89,7 @@
 void serial_setbrg (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_CPU_SH7720)
-	int divisor = gd->baudrate * 16;
-
-	*SCBRR = (CONFIG_SYS_CLK_FREQ * 2 + (divisor / 2)) /
-						(gd->baudrate * 32) - 1;
-#else
-	int divisor = gd->baudrate * 32;
-
-	*SCBRR = (CONFIG_SYS_CLK_FREQ + (divisor / 2)) /
-						(gd->baudrate * 32) - 1;
-#endif
+	*SCBRR = SCBRR_VALUE(gd->baudrate,CONFIG_SYS_CLK_FREQ);
 }
 
 int serial_init (void)
