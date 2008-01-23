@@ -27,7 +27,7 @@
 #include <i2c.h>
 #include <spd.h>
 #include <asm/mmu.h>
-
+#include <asm/fsl_law.h>
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void dma_init(void);
@@ -1179,12 +1179,16 @@ spd_sdram(void)
 		/*
 		 * Set up LAWBAR for DDR 1 space.
 		 */
+#ifdef CONFIG_FSL_LAW
+		set_law(1, CFG_DDR_SDRAM_BASE, law_size_interleaved, LAW_TRGT_IF_DDR_INTRLV);
+#else
 		mcm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
 		mcm->lawar1 = (LAWAR_EN
 			       | LAWAR_TRGT_IF_DDR_INTERLEAVED
 			       | (LAWAR_SIZE & law_size_interleaved));
 		debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
 		debug("DDR: LAWAR1=0x%08x\n", mcm->lawar1);
+#endif
 		debug("Interleaved memory size is 0x%08lx\n", memsize_total);
 
 #ifdef	CONFIG_DDR_INTERLEAVE
@@ -1239,12 +1243,16 @@ spd_sdram(void)
 		/*
 		 * Set up LAWBAR for DDR 1 space.
 		 */
+#ifdef CONFIG_FSL_LAW
+		set_law(1, CFG_DDR_SDRAM_BASE, law_size_ddr1, LAW_TRGT_IF_DDR_1);
+#else
 		mcm->lawbar1 = ((CFG_DDR_SDRAM_BASE >> 12) & 0xfffff);
 		mcm->lawar1 = (LAWAR_EN
 			       | LAWAR_TRGT_IF_DDR1
 			       | (LAWAR_SIZE & law_size_ddr1));
 		debug("DDR: LAWBAR1=0x%08x\n", mcm->lawbar1);
 		debug("DDR: LAWAR1=0x%08x\n", mcm->lawar1);
+#endif
 	}
 
 #if  (CONFIG_NUM_DDR_CONTROLLERS > 1)
@@ -1269,6 +1277,11 @@ spd_sdram(void)
 		/*
 		 * Set up LAWBAR for DDR 2 space.
 		 */
+#ifdef CONFIG_FSL_LAW
+		set_law(8,
+			(ddr1_enabled ? (memsize_ddr1 * 1024 * 1024) : CFG_DDR_SDRAM_BASE),
+			law_size_ddr2, LAW_TRGT_IF_DDR_2);
+#else
 		if (ddr1_enabled)
 			mcm->lawbar8 = (((memsize_ddr1 * 1024 * 1024) >> 12)
 					& 0xfffff);
@@ -1280,6 +1293,7 @@ spd_sdram(void)
 			       | (LAWAR_SIZE & law_size_ddr2));
 		debug("\nDDR: LAWBAR8=0x%08x\n", mcm->lawbar8);
 		debug("DDR: LAWAR8=0x%08x\n", mcm->lawar8);
+#endif
 	}
 
 	debug("\nMemory size of DDR2 = 0x%08lx\n", memsize_ddr2);
