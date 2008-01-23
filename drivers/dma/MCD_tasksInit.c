@@ -244,4 +244,3 @@ void MCD_startDmaENetXmit(char *bDBase, char *currBD, char *xmitFifoPtr,
 }
 
 #endif			/* CONFIG_FSLDMAFEC */
-

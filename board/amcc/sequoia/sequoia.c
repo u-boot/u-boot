@@ -4,7 +4,7 @@
  *
  * (C) Copyright 2006
  * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
- * Alain Saurel,            AMCC/IBM, alain.saurel@fr.ibm.com
+ * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -136,7 +136,7 @@ int misc_init_r(void)
 	mtdcr(ebccfga, pb0cr);
 #endif
 	pbcr = mfdcr(ebccfgd);
-        size_val = ffs(gd->bd->bi_flashsize) - 21;
+	size_val = ffs(gd->bd->bi_flashsize) - 21;
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	mtdcr(ebccfga, pb3cr);

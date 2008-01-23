@@ -187,68 +187,68 @@ flashsize   = 0x00200000
 flashoffset = 0x00000000
 sramstart   = 0x80000000
 sramsize    = 0x00008000
-mbar        = 0xFC000000
-busfreq     =     80 MHz
+mbar	    = 0xFC000000
+busfreq     =	  80 MHz
 ethaddr     = 00:E0:0C:BC:E5:60
 ip_addr     = 192.168.1.3
 baudrate    = 115200 bps
 ->
 -> help
-?       - alias for 'help'
+?	- alias for 'help'
 autoscr - run script from memory
-base    - print or set address offset
-bdinfo  - print Board Info structure
-boot    - boot default, i.e., run 'bootcmd'
-bootd   - boot default, i.e., run 'bootcmd'
+base	- print or set address offset
+bdinfo	- print Board Info structure
+boot	- boot default, i.e., run 'bootcmd'
+bootd	- boot default, i.e., run 'bootcmd'
 bootelf - Boot from an ELF image in memory
-bootm   - boot application image from memory
+bootm	- boot application image from memory
 bootp	- boot image via network using BootP/TFTP protocol
-bootvx  - Boot vxWorks from an ELF image
-cmp     - memory compare
+bootvx	- Boot vxWorks from an ELF image
+cmp	- memory compare
 coninfo - print console devices and information
-cp      - memory copy
-crc32   - checksum calculation
-date    - get/set/reset date & time
-dcache  - enable or disable data cache
-echo    - echo args to console
-erase   - erase FLASH memory
-flinfo  - print FLASH memory information
-go      - start application at address 'addr'
-help    - print online help
-icache  - enable or disable instruction cache
-icrc32  - checksum calculation
-iloop   - infinite loop on address range
-imd     - i2c memory display
-iminfo  - print header information for application image
-imls    - list all images found in flash
-imm     - i2c memory modify (auto-incrementing)
-imw     - memory write (fill)
-inm     - memory modify (constant address)
-iprobe  - probe to discover valid I2C chip addresses
+cp	- memory copy
+crc32	- checksum calculation
+date	- get/set/reset date & time
+dcache	- enable or disable data cache
+echo	- echo args to console
+erase	- erase FLASH memory
+flinfo	- print FLASH memory information
+go	- start application at address 'addr'
+help	- print online help
+icache	- enable or disable instruction cache
+icrc32	- checksum calculation
+iloop	- infinite loop on address range
+imd	- i2c memory display
+iminfo	- print header information for application image
+imls	- list all images found in flash
+imm	- i2c memory modify (auto-incrementing)
+imw	- memory write (fill)
+inm	- memory modify (constant address)
+iprobe	- probe to discover valid I2C chip addresses
 itest	- return true/false on integer compare
-loadb   - load binary file over serial line (kermit mode)
-loads   - load S-Record file over serial line
-loady   - load binary file over serial line (ymodem mode)
-loop    - infinite loop on address range
+loadb	- load binary file over serial line (kermit mode)
+loads	- load S-Record file over serial line
+loady	- load binary file over serial line (ymodem mode)
+loop	- infinite loop on address range
 ls	- list files in a directory (default /)
-md      - memory display
-mii     - MII utility commands
-mm      - memory modify (auto-incrementing)
-mtest   - simple RAM test
-mw      - memory write (fill)
+md	- memory display
+mii	- MII utility commands
+mm	- memory modify (auto-incrementing)
+mtest	- simple RAM test
+mw	- memory write (fill)
 nand	- NAND sub-system
 nboot	- boot from NAND device
 nfs	- boot image via network using NFS protocol
-nm      - memory modify (constant address)
+nm	- memory modify (constant address)
 ping	- send ICMP ECHO_REQUEST to network host
 printenv- print environment variables
 protect - enable or disable FLASH write protection
 rarpboot- boot image via network using RARP/TFTP protocol
-reset   - Perform RESET of the CPU
-run     - run commands in an environment variable
+reset	- Perform RESET of the CPU
+run	- run commands in an environment variable
 saveenv - save environment variables to persistent storage
-setenv  - set environment variables
-sleep   - delay execution for some time
+setenv	- set environment variables
+sleep	- delay execution for some time
 tftpboot- boot image via network using TFTP protocol
 version - print monitor version
 -> tftp 0x40800000 uImage
@@ -256,16 +256,16 @@ Using FEC0 device
 TFTP from server 192.168.1.3; our IP address is 192.168.1.3 Filename 'uImage'.
 Load address: 0x40800000
 Loading: #################################################################
-          #################################################################
-          ##########
+	  #################################################################
+	  ##########
 done
 Bytes transferred = 2053270 (1f5496 hex)
 -> bootm 0x40800000
 ## Booting image at 40800000 ...
     Image Name:   Linux Kernel Image
-    Created:      2007-11-07  20:33:08 UTC
+    Created:	  2007-11-07  20:33:08 UTC
     Image Type:   M68K Linux Kernel Image (gzip compressed)
-    Data Size:    2053206 Bytes =  2 MB
+    Data Size:	  2053206 Bytes =  2 MB
     Load Address: 40020000
     Entry Point:  40020000
     Verifying Checksum ... OK

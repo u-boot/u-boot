@@ -134,4 +134,3 @@ void common_misc_init_r(void)
 		saveenv();
 	}
 }
-
