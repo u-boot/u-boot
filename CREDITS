@@ -290,7 +290,7 @@ W: http://www.leox.org
 
 N: TsiChung Liew
 E: Tsi-Chung.Liew@freescale.com
-D: Support for ColdFire MCF523x, MCF532x, MCF5445x
+D: Support for ColdFire MCF523x, MCF532x, MCF5445x, MCF547x_8x
 W: www.freescale.com
 
 N: Leif Lindholm

@@ -218,6 +218,7 @@ LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/block/libblock.a
+LIBS += drivers/dma/libdma.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
@@ -1744,6 +1745,9 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M52277EVB_config:	unconfig
+	@$(MKCONFIG) -a M52277EVB m68k mcf5227x m52277evb freescale
+
 M5235EVB_config \
 M5235EVB_Flash16_config \
 M5235EVB_Flash32_config:	unconfig
@@ -1816,6 +1820,16 @@ M5329BFEE_config :	unconfig
 	fi
 	@$(MKCONFIG) -a M5329EVB m68k mcf532x m5329evb freescale
 
+M5373EVB_config :	unconfig
+	@case "$@" in \
+	M5373EVB_config)	NAND=16;; \
+	esac; \
+	>include/config.h ; \
+	if [ "$${NAND}" != "0" ] ; then \
+		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5373EVB m68k mcf532x m5373evb freescale
+
 M54455EVB_config \
 M54455EVB_atmel_config \
 M54455EVB_intel_config \
@@ -1847,6 +1861,76 @@ M54455EVB_i66_config :	unconfig
 	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	$(XECHO) "... with $${FREQ}Hz input clock"
 	@$(MKCONFIG) -a M54455EVB m68k mcf5445x m54455evb freescale
+
+M5475AFE_config \
+M5475BFE_config \
+M5475CFE_config \
+M5475DFE_config \
+M5475EFE_config \
+M5475FFE_config \
+M5475GFE_config :	unconfig
+	@case "$@" in \
+	M5475AFE_config)	BOOT=2;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
+	M5475BFE_config)	BOOT=2;CODE=16;VID=0;USB=0;RAM=64;RAM1=0;; \
+	M5475CFE_config)	BOOT=2;CODE=16;VID=1;USB=1;RAM=64;RAM1=0;; \
+	M5475DFE_config)	BOOT=2;CODE=0;VID=0;USB=1;RAM=64;RAM1=0;; \
+	M5475EFE_config)	BOOT=2;CODE=0;VID=1;USB=1;RAM=64;RAM1=0;; \
+	M5475FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
+	M5475GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
+	esac; \
+	>include/config.h ; \
+	echo "#define CFG_BUSCLK	133333333" > $(obj)include/config.h ; \
+	echo "#define CFG_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
+	echo "#define CFG_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
+	if [ "$${RAM1}" != "0" ] ; then \
+		echo "#define CFG_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${CODE}" != "0" ] ; then \
+		echo "#define CFG_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${VID}" == "1" ] ; then \
+		echo "#define CFG_VIDEO" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${USB}" == "1" ] ; then \
+		echo "#define CFG_USBCTRL" >> $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5475EVB m68k mcf547x_8x m547xevb freescale
+
+M5485AFE_config \
+M5485BFE_config \
+M5485CFE_config \
+M5485DFE_config \
+M5485EFE_config \
+M5485FFE_config \
+M5485GFE_config \
+M5485HFE_config :	unconfig
+	@case "$@" in \
+	M5485AFE_config)	BOOT=2;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
+	M5485BFE_config)	BOOT=2;CODE=16;VID=0;USB=0;RAM=64;RAM1=0;; \
+	M5485CFE_config)	BOOT=2;CODE=16;VID=1;USB=1;RAM=64;RAM1=0;; \
+	M5485DFE_config)	BOOT=2;CODE=0;VID=0;USB=1;RAM=64;RAM1=0;; \
+	M5485EFE_config)	BOOT=2;CODE=0;VID=1;USB=1;RAM=64;RAM1=0;; \
+	M5485FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
+	M5485GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
+	M5485HFE_config)	BOOT=2;CODE=;VID=1;USB=0;RAM=64;RAM1=0;; \
+	esac; \
+	>include/config.h ; \
+	echo "#define CFG_BUSCLK	100000000" > $(obj)include/config.h ; \
+	echo "#define CFG_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
+	echo "#define CFG_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
+	if [ "$${RAM1}" != "0" ] ; then \
+		echo "#define CFG_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${CODE}" != "0" ] ; then \
+		echo "#define CFG_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${VID}" == "1" ] ; then \
+		echo "#define CFG_VIDEO" >> $(obj)include/config.h ; \
+	fi; \
+	if [ "$${USB}" == "1" ] ; then \
+		echo "#define CFG_USBCTRL" >> $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a M5485EVB m68k mcf547x_8x m548xevb freescale
 
 #########################################################################
 ## MPC83xx Systems

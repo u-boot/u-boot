@@ -68,6 +68,12 @@
 #define MMAP_SSI	0xFC0BC000
 #define MMAP_PLL	0xFC0C0000
 
+#include <asm/coldfire/crossbar.h>
+#include <asm/coldfire/edma.h>
+#include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/lcd.h>
+#include <asm/coldfire/ssi.h>
+
 /* System control module registers */
 typedef struct scm1_ctrl {
 	u32 mpr0;		/* 0x00 Master Privilege Register 0 */
@@ -159,61 +165,6 @@ typedef struct scm2_ctrl {
 	u32 bmt1;		/* 0x54 Bus Monitor Timeout 1 */
 } scm2_t;
 
-/* Cross-Bar Switch Module */
-typedef struct xbs_ctrl {
-	u32 prs1;		/* 0x100 Priority Register Slave 1 */
-	u32 res1[3];		/* 0x104 - 0F */
-	u32 crs1;		/* 0x110 Control Register Slave 1 */
-	u32 res2[187];		/* 0x114 - 0x3FF */
-
-	u32 prs4;		/* 0x400 Priority Register Slave 4 */
-	u32 res3[3];		/* 0x404 - 0F */
-	u32 crs4;		/* 0x410 Control Register Slave 4 */
-	u32 res4[123];		/* 0x414 - 0x5FF */
-
-	u32 prs6;		/* 0x600 Priority Register Slave 6 */
-	u32 res5[3];		/* 0x604 - 0F */
-	u32 crs6;		/* 0x610 Control Register Slave 6 */
-	u32 res6[59];		/* 0x614 - 0x6FF */
-
-	u32 prs7;		/* 0x700 Priority Register Slave 7 */
-	u32 res7[3];		/* 0x704 - 0F */
-	u32 crs7;		/* 0x710 Control Register Slave 7 */
-} xbs_t;
-
-/* Flexbus module Chip select registers */
-typedef struct fbcs_ctrl {
-	u16 csar0;		/* 0x00 Chip-Select Address Register 0 */
-	u16 res0;
-	u32 csmr0;		/* 0x04 Chip-Select Mask Register 0 */
-	u32 cscr0;		/* 0x08 Chip-Select Control Register 0 */
-
-	u16 csar1;		/* 0x0C Chip-Select Address Register 1 */
-	u16 res1;
-	u32 csmr1;		/* 0x10 Chip-Select Mask Register 1 */
-	u32 cscr1;		/* 0x14 Chip-Select Control Register 1 */
-
-	u16 csar2;		/* 0x18 Chip-Select Address Register 2 */
-	u16 res2;
-	u32 csmr2;		/* 0x1C Chip-Select Mask Register 2 */
-	u32 cscr2;		/* 0x20 Chip-Select Control Register 2 */
-
-	u16 csar3;		/* 0x24 Chip-Select Address Register 3 */
-	u16 res3;
-	u32 csmr3;		/* 0x28 Chip-Select Mask Register 3 */
-	u32 cscr3;		/* 0x2C Chip-Select Control Register 3 */
-
-	u16 csar4;		/* 0x30 Chip-Select Address Register 4 */
-	u16 res4;
-	u32 csmr4;		/* 0x34 Chip-Select Mask Register 4 */
-	u32 cscr4;		/* 0x38 Chip-Select Control Register 4 */
-
-	u16 csar5;		/* 0x3C Chip-Select Address Register 5 */
-	u16 res5;
-	u32 csmr5;		/* 0x40 Chip-Select Mask Register 5 */
-	u32 cscr5;		/* 0x44 Chip-Select Control Register 5 */
-} fbcs_t;
-
 /* FlexCan module registers */
 typedef struct can_ctrl {
 	u32 mcr;		/* 0x00 Module Configuration register */
@@ -254,64 +205,6 @@ typedef struct scm3_ctrl {
 	u32 res8;		/* 0x78 */
 	u32 cfdtr;		/* 0x7C Core Fault Data Register */
 } scm3_t;
-
-/* eDMA module registers */
-typedef struct edma_ctrl {
-	u32 cr;			/* 0x00 Control Register */
-	u32 es;			/* 0x04 Error Status Register */
-	u16 res1[3];		/* 0x08 - 0x0D */
-	u16 erq;		/* 0x0E Enable Request Register */
-	u16 res2[3];		/* 0x10 - 0x15 */
-	u16 eei;		/* 0x16 Enable Error Interrupt Request */
-	u8 serq;		/* 0x18 Set Enable Request */
-	u8 cerq;		/* 0x19 Clear Enable Request */
-	u8 seei;		/* 0x1A Set Enable Error Interrupt Request */
-	u8 ceei;		/* 0x1B Clear Enable Error Interrupt Request */
-	u8 cint;		/* 0x1C Clear Interrupt Enable Register */
-	u8 cerr;		/* 0x1D Clear Error Register */
-	u8 ssrt;		/* 0x1E Set START Bit Register */
-	u8 cdne;		/* 0x1F Clear DONE Status Bit Register */
-	u16 res3[3];		/* 0x20 - 0x25 */
-	u16 intr;		/* 0x26 Interrupt Request Register */
-	u16 res4[3];		/* 0x28 - 0x2D */
-	u16 err;		/* 0x2E Error Register */
-	u32 res5[52];		/* 0x30 - 0xFF */
-	u8 dchpri0;		/* 0x100 Channel 0 Priority Register */
-	u8 dchpri1;		/* 0x101 Channel 1 Priority Register */
-	u8 dchpri2;		/* 0x102 Channel 2 Priority Register */
-	u8 dchpri3;		/* 0x103 Channel 3 Priority Register */
-	u8 dchpri4;		/* 0x104 Channel 4 Priority Register */
-	u8 dchpri5;		/* 0x105 Channel 5 Priority Register */
-	u8 dchpri6;		/* 0x106 Channel 6 Priority Register */
-	u8 dchpri7;		/* 0x107 Channel 7 Priority Register */
-	u8 dchpri8;		/* 0x108 Channel 8 Priority Register */
-	u8 dchpri9;		/* 0x109 Channel 9 Priority Register */
-	u8 dchpri10;		/* 0x110 Channel 10 Priority Register */
-	u8 dchpri11;		/* 0x111 Channel 11 Priority Register */
-	u8 dchpri12;		/* 0x112 Channel 12 Priority Register */
-	u8 dchpri13;		/* 0x113 Channel 13 Priority Register */
-	u8 dchpri14;		/* 0x114 Channel 14 Priority Register */
-	u8 dchpri15;		/* 0x115 Channel 15 Priority Register */
-} edma_t;
-
-/* TCD - eDMA*/
-typedef struct tcd_ctrl {
-	u32 saddr;		/* 0x00 Source Address */
-	u16 attr;		/* 0x04 Transfer Attributes */
-	u16 soff;		/* 0x06 Signed Source Address Offset */
-	u32 nbytes;		/* 0x08 Minor Byte Count */
-	u32 slast;		/* 0x0C Last Source Address Adjustment */
-	u32 daddr;		/* 0x10 Destination address */
-	u16 citer;		/* 0x14 Current Minor Loop Link, Major Loop Count */
-	u16 doff;		/* 0x16 Signed Destination Address Offset */
-	u32 dlast_sga;		/* 0x18 Last Destination Address Adjustment/Scatter Gather Address */
-	u16 biter;		/* 0x1C Beginning Minor Loop Link, Major Loop Count */
-	u16 csr;		/* 0x1E Control and Status */
-} tcd_st;
-
-typedef struct tcd_multiple {
-	tcd_st tcd[16];
-} tcd_t;
 
 /* Interrupt module registers */
 typedef struct int0_ctrl {
@@ -388,20 +281,6 @@ typedef struct intgack_ctrl1 {
 	u8 swiack;		/* 0xE0 Global Software Interrupt Acknowledge */
 	u8 Lniack[7];		/* 0xE1 - 0xE7 Global Level 0 Interrupt Acknowledge */
 } intgack_t;
-
-/*I2C module registers */
-typedef struct i2c_ctrl {
-	u8 adr;			/* 0x00 address register */
-	u8 res1[3];		/* 0x01 - 0x03 */
-	u8 fdr;			/* 0x04 frequency divider register */
-	u8 res2[3];		/* 0x05 - 0x07 */
-	u8 cr;			/* 0x08 control register */
-	u8 res3[3];		/* 0x09 - 0x0B */
-	u8 sr;			/* 0x0C status register */
-	u8 res4[3];		/* 0x0D - 0x0F */
-	u8 dr;			/* 0x10 data register */
-	u8 res5[3];		/* 0x11 - 0x13 */
-} i2c_t;
 
 /* QSPI module registers */
 typedef struct qspi_ctrl {
@@ -499,91 +378,133 @@ typedef struct rcm {
 /* GPIO port registers */
 typedef struct gpio_ctrl {
 	/* Port Output Data Registers */
+#ifdef CONFIG_M5329
 	u8 podr_fech;		/* 0x00 */
 	u8 podr_fecl;		/* 0x01 */
+#else
+	u16 res00;		/* 0x00 - 0x01 */
+#endif
 	u8 podr_ssi;		/* 0x02 */
 	u8 podr_busctl;		/* 0x03 */
 	u8 podr_be;		/* 0x04 */
 	u8 podr_cs;		/* 0x05 */
 	u8 podr_pwm;		/* 0x06 */
 	u8 podr_feci2c;		/* 0x07 */
-	u8 res1;		/* 0x08 */
+	u8 res08;		/* 0x08 */
 	u8 podr_uart;		/* 0x09 */
 	u8 podr_qspi;		/* 0x0A */
 	u8 podr_timer;		/* 0x0B */
-	u8 res2;		/* 0x0C */
+#ifdef CONFIG_M5329
+	u8 res0C;		/* 0x0C */
 	u8 podr_lcddatah;	/* 0x0D */
 	u8 podr_lcddatam;	/* 0x0E */
 	u8 podr_lcddatal;	/* 0x0F */
 	u8 podr_lcdctlh;	/* 0x10 */
 	u8 podr_lcdctll;	/* 0x11 */
+#else
+	u16 res0C;		/* 0x0C - 0x0D */
+	u8 podr_fech;		/* 0x0E */
+	u8 podr_fecl;		/* 0x0F */
+	u16 res10[3];		/* 0x10 - 0x15 */
+#endif
 
 	/* Port Data Direction Registers */
-	u16 res3;		/* 0x12 - 0x13 */
+#ifdef CONFIG_M5329
+	u16 res12;		/* 0x12 - 0x13 */
 	u8 pddr_fech;		/* 0x14 */
 	u8 pddr_fecl;		/* 0x15 */
+#endif
 	u8 pddr_ssi;		/* 0x16 */
 	u8 pddr_busctl;		/* 0x17 */
 	u8 pddr_be;		/* 0x18 */
 	u8 pddr_cs;		/* 0x19 */
 	u8 pddr_pwm;		/* 0x1A */
 	u8 pddr_feci2c;		/* 0x1B */
-	u8 res4;		/* 0x1C */
+	u8 res1C;		/* 0x1C */
 	u8 pddr_uart;		/* 0x1D */
 	u8 pddr_qspi;		/* 0x1E */
 	u8 pddr_timer;		/* 0x1F */
-	u8 res5;		/* 0x20 */
+#ifdef CONFIG_M5329
+	u8 res20;		/* 0x20 */
 	u8 pddr_lcddatah;	/* 0x21 */
 	u8 pddr_lcddatam;	/* 0x22 */
 	u8 pddr_lcddatal;	/* 0x23 */
 	u8 pddr_lcdctlh;	/* 0x24 */
 	u8 pddr_lcdctll;	/* 0x25 */
-	u16 res6;		/* 0x26 - 0x27 */
+	u16 res26;		/* 0x26 - 0x27 */
+#else
+	u16 res20;		/* 0x20 - 0x21 */
+	u8 pddr_fech;		/* 0x22 */
+	u8 pddr_fecl;		/* 0x23 */
+	u16 res24[3];		/* 0x24 - 0x29 */
+#endif
 
 	/* Port Data Direction Registers */
+#ifdef CONFIG_M5329
 	u8 ppd_fech;		/* 0x28 */
 	u8 ppd_fecl;		/* 0x29 */
+#endif
 	u8 ppd_ssi;		/* 0x2A */
 	u8 ppd_busctl;		/* 0x2B */
 	u8 ppd_be;		/* 0x2C */
 	u8 ppd_cs;		/* 0x2D */
 	u8 ppd_pwm;		/* 0x2E */
 	u8 ppd_feci2c;		/* 0x2F */
-	u8 res7;		/* 0x30 */
+	u8 res30;		/* 0x30 */
 	u8 ppd_uart;		/* 0x31 */
 	u8 ppd_qspi;		/* 0x32 */
 	u8 ppd_timer;		/* 0x33 */
-	u8 res8;		/* 0x34 */
+#ifdef CONFIG_M5329
+	u8 res34;		/* 0x34 */
 	u8 ppd_lcddatah;	/* 0x35 */
 	u8 ppd_lcddatam;	/* 0x36 */
 	u8 ppd_lcddatal;	/* 0x37 */
 	u8 ppd_lcdctlh;		/* 0x38 */
 	u8 ppd_lcdctll;		/* 0x39 */
-	u16 res9;		/* 0x3A - 0x3B */
+	u16 res3A;		/* 0x3A - 0x3B */
+#else
+	u16 res34;		/* 0x34 - 0x35 */
+	u8 ppd_fech;		/* 0x36 */
+	u8 ppd_fecl;		/* 0x37 */
+	u16 res38[3];		/* 0x38 - 0x3D */
+#endif
 
 	/* Port Clear Output Data Registers */
-	u8 pclrr_fech;		/* 0x3C */
-	u8 pclrr_fecl;		/* 0x3D */
+#ifdef CONFIG_M5329
+	u8 res3C;		/* 0x3C */
+	u8 pclrr_fech;		/* 0x3D */
+	u8 pclrr_fecl;		/* 0x3E */
+#else
 	u8 pclrr_ssi;		/* 0x3E */
+#endif
 	u8 pclrr_busctl;	/* 0x3F */
 	u8 pclrr_be;		/* 0x40 */
 	u8 pclrr_cs;		/* 0x41 */
 	u8 pclrr_pwm;		/* 0x42 */
 	u8 pclrr_feci2c;	/* 0x43 */
-	u8 res10;		/* 0x44 */
+	u8 res44;		/* 0x44 */
 	u8 pclrr_uart;		/* 0x45 */
 	u8 pclrr_qspi;		/* 0x46 */
 	u8 pclrr_timer;		/* 0x47 */
-	u8 res11;		/* 0x48 */
-	u8 pclrr_lcddatah;	/* 0x49 */
-	u8 pclrr_lcddatam;	/* 0x4A */
-	u8 pclrr_lcddatal;	/* 0x4B */
+#ifdef CONFIG_M5329
+	u8 pclrr_lcddatah;	/* 0x48 */
+	u8 pclrr_lcddatam;	/* 0x49 */
+	u8 pclrr_lcddatal;	/* 0x4A */
+	u8 pclrr_ssi;		/* 0x4B */
 	u8 pclrr_lcdctlh;	/* 0x4C */
 	u8 pclrr_lcdctll;	/* 0x4D */
-	u16 res12;		/* 0x4E - 0x4F */
+	u16 res4E;		/* 0x4E - 0x4F */
+#else
+	u16 res48;		/* 0x48 - 0x49 */
+	u8 pclrr_fech;		/* 0x4A */
+	u8 pclrr_fecl;		/* 0x4B */
+	u8 res4C[5];		/* 0x4C - 0x50 */
+#endif
 
 	/* Pin Assignment Registers */
+#ifdef CONFIG_M5329
 	u8 par_fec;		/* 0x50 */
+#endif
 	u8 par_pwm;		/* 0x51 */
 	u8 par_busctl;		/* 0x52 */
 	u8 par_feci2c;		/* 0x53 */
@@ -593,15 +514,20 @@ typedef struct gpio_ctrl {
 	u16 par_uart;		/* 0x58 */
 	u16 par_qspi;		/* 0x5A */
 	u8 par_timer;		/* 0x5C */
+#ifdef CONFIG_M5329
 	u8 par_lcddata;		/* 0x5D */
 	u16 par_lcdctl;		/* 0x5E */
+#else
+	u8 par_fec;		/* 0x5D */
+	u16 res5E;		/* 0x5E - 0x5F */
+#endif
 	u16 par_irq;		/* 0x60 */
-	u16 res16;		/* 0x62 - 0x63 */
+	u16 res62;		/* 0x62 - 0x63 */
 
 	/* Mode Select Control Registers */
 	u8 mscr_flexbus;	/* 0x64 */
 	u8 mscr_sdram;		/* 0x65 */
-	u16 res17;		/* 0x66 - 0x67 */
+	u16 res66;		/* 0x66 - 0x67 */
 
 	/* Drive Strength Control Registers */
 	u8 dscr_i2c;		/* 0x68 */
@@ -611,48 +537,15 @@ typedef struct gpio_ctrl {
 	u8 dscr_qspi;		/* 0x6C */
 	u8 dscr_timer;		/* 0x6D */
 	u8 dscr_ssi;		/* 0x6E */
+#ifdef CONFIG_M5329
 	u8 dscr_lcd;		/* 0x6F */
+#else
+	u8 res6F;		/* 0x6F */
+#endif
 	u8 dscr_debug;		/* 0x70 */
 	u8 dscr_clkrst;		/* 0x71 */
 	u8 dscr_irq;		/* 0x72 */
 } gpio_t;
-
-/* LCD module registers */
-typedef struct lcd_ctrl {
-	u32 ssar;		/* 0x00 Screen Start Address Register */
-	u32 sr;			/* 0x04 LCD Size Register */
-	u32 vpw;		/* 0x08 Virtual Page Width Register */
-	u32 cpr;		/* 0x0C Cursor Position Register */
-	u32 cwhb;		/* 0x10 Cursor Width Height and Blink Register */
-	u32 ccmr;		/* 0x14 Color Cursor Mapping Register */
-	u32 pcr;		/* 0x18 Panel Configuration Register */
-	u32 hcr;		/* 0x1C Horizontal Configuration Register */
-	u32 vcr;		/* 0x20 Vertical Configuration Register */
-	u32 por;		/* 0x24 Panning Offset Register */
-	u32 scr;		/* 0x28 Sharp Configuration Register */
-	u32 pccr;		/* 0x2C PWM Contrast Control Register */
-	u32 dcr;		/* 0x30 DMA Control Register */
-	u32 rmcr;		/* 0x34 Refresh Mode Control Register */
-	u32 icr;		/* 0x38 Refresh Mode Control Register */
-	u32 ier;		/* 0x3C Interrupt Enable Register */
-	u32 isr;		/* 0x40 Interrupt Status Register */
-	u32 res[4];
-	u32 gwsar;		/* 0x50 Graphic Window Start Address Register */
-	u32 gwsr;		/* 0x54 Graphic Window Size Register */
-	u32 gwvpw;		/* 0x58 Graphic Window Virtual Page Width Register */
-	u32 gwpor;		/* 0x5C Graphic Window Panning Offset Register */
-	u32 gwpr;		/* 0x60 Graphic Window Position Register */
-	u32 gwcr;		/* 0x64 Graphic Window Control Register */
-	u32 gwdcr;		/* 0x68 Graphic Window DMA Control Register */
-} lcd_t;
-
-typedef struct lcdbg_ctrl {
-	u32 bglut[255];
-} lcdbg_t;
-
-typedef struct lcdgw_ctrl {
-	u32 gwlut[255];
-} lcdgw_t;
 
 /* USB OTG module registers */
 typedef struct usb_otg {
@@ -757,29 +650,6 @@ typedef struct sdram_ctrl {
 	u32 cs0;		/* 0x110 Chip Select 0 Configuration */
 	u32 cs1;		/* 0x114 Chip Select 1 Configuration */
 } sdram_t;
-
-/* Synchronous serial interface */
-typedef struct ssi_ctrl {
-	u32 tx0;		/* 0x00 Transmit Data Register 0 */
-	u32 tx1;		/* 0x04 Transmit Data Register 1 */
-	u32 rx0;		/* 0x08 Receive Data Register 0 */
-	u32 rx1;		/* 0x0C Receive Data Register 1 */
-	u32 cr;			/* 0x10 Control Register */
-	u32 isr;		/* 0x14 Interrupt Status Register */
-	u32 ier;		/* 0x18 Interrupt Enable Register */
-	u32 tcr;		/* 0x1C Transmit Configuration Register */
-	u32 rcr;		/* 0x20 Receive Configuration Register */
-	u32 ccr;		/* 0x24 Clock Control Register */
-	u32 res1;		/* 0x28 */
-	u32 fcsr;		/* 0x2C FIFO Control/Status Register */
-	u32 res2[2];		/* 0x30 - 0x37 */
-	u32 acr;		/* 0x38 AC97 Control Register */
-	u32 acadd;		/* 0x3C AC97 Command Address Register */
-	u32 acdat;		/* 0x40 AC97 Command Data Register */
-	u32 atag;		/* 0x44 AC97 Tag Register */
-	u32 tmask;		/* 0x48 Transmit Time Slot Mask Register */
-	u32 rmask;		/* 0x4C Receive Time Slot Mask Register */
-} ssi_t;
 
 /* Clock Module registers */
 typedef struct pll_ctrl {

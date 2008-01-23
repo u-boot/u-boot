@@ -28,19 +28,13 @@
 
 #include <asm/byteorder.h>
 
-/* ++roman: The assignments to temp. vars avoid that gcc sometimes generates
- * two accesses to memory, which may be undesirable for some devices.
- */
-#define __raw_readb(addr) \
-    ({ u8 __v = (*(volatile u8 *) (addr)); __v; })
-#define __raw_readw(addr) \
-    ({ u16 __v = (*(volatile u16 *) (addr)); __v; })
-#define __raw_readl(addr) \
-    ({ u32 __v = (*(volatile u32 *) (addr)); __v; })
+#define __raw_readb(addr) (*(volatile u8 *)(addr))
+#define __raw_readw(addr) (*(volatile u16 *)(addr))
+#define __raw_readl(addr) (*(volatile u32 *)(addr))
 
-#define __raw_writeb(addr,b) (void)((*(volatile u8 *) (addr)) = (b))
-#define __raw_writew(addr,w) (void)((*(volatile u16 *) (addr)) = (w))
-#define __raw_writel(addr,l) (void)((*(volatile u32 *) (addr)) = (l))
+#define __raw_writeb(b,addr) ((*(volatile u8 *) (addr)) = (b))
+#define __raw_writew(w,addr) ((*(volatile u16 *) (addr)) = (w))
+#define __raw_writel(l,addr) ((*(volatile u32 *) (addr)) = (l))
 
 #define readb(addr)		in_8((volatile u8 *)(addr))
 #define writeb(b,addr)		out_8((volatile u8 *)(addr), (b))
@@ -245,8 +239,8 @@ typedef unsigned long phys_addr_t;
 #define MAP_WRBACK	(0)
 #define MAP_WRTHROUGH	(0)
 
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
+static inline void *map_physmem(phys_addr_t paddr, unsigned long len,
+				unsigned long flags)
 {
 	return (void *)paddr;
 }

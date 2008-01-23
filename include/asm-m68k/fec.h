@@ -39,20 +39,20 @@ typedef struct cpm_buf_desc {
 	uint cbd_bufaddr;	/* Buffer address in host memory */
 } cbd_t;
 
-#define BD_SC_EMPTY	((ushort)0x8000)	/* Recieve is empty */
-#define BD_SC_READY	((ushort)0x8000)	/* Transmit is ready */
-#define BD_SC_WRAP	((ushort)0x2000)	/* Last buffer descriptor */
-#define BD_SC_INTRPT	((ushort)0x1000)	/* Interrupt on change */
-#define BD_SC_LAST	((ushort)0x0800)	/* Last buffer in frame */
-#define BD_SC_TC	((ushort)0x0400)	/* Transmit CRC */
-#define BD_SC_CM	((ushort)0x0200)	/* Continous mode */
-#define BD_SC_ID	((ushort)0x0100)	/* Rec'd too many idles */
-#define BD_SC_P		((ushort)0x0100)	/* xmt preamble */
-#define BD_SC_BR	((ushort)0x0020)	/* Break received */
-#define BD_SC_FR	((ushort)0x0010)	/* Framing error */
-#define BD_SC_PR	((ushort)0x0008)	/* Parity error */
-#define BD_SC_OV	((ushort)0x0002)	/* Overrun */
-#define BD_SC_CD	((ushort)0x0001)	/* Carrier Detect lost */
+#define BD_SC_EMPTY		((ushort)0x8000)	/* Recieve is empty */
+#define BD_SC_READY		((ushort)0x8000)	/* Transmit is ready */
+#define BD_SC_WRAP		((ushort)0x2000)	/* Last buffer descriptor */
+#define BD_SC_INTRPT		((ushort)0x1000)	/* Interrupt on change */
+#define BD_SC_LAST		((ushort)0x0800)	/* Last buffer in frame */
+#define BD_SC_TC		((ushort)0x0400)	/* Transmit CRC */
+#define BD_SC_CM		((ushort)0x0200)	/* Continous mode */
+#define BD_SC_ID		((ushort)0x0100)	/* Rec'd too many idles */
+#define BD_SC_P			((ushort)0x0100)	/* xmt preamble */
+#define BD_SC_BR		((ushort)0x0020)	/* Break received */
+#define BD_SC_FR		((ushort)0x0010)	/* Framing error */
+#define BD_SC_PR		((ushort)0x0008)	/* Parity error */
+#define BD_SC_OV		((ushort)0x0002)	/* Overrun */
+#define BD_SC_CD		((ushort)0x0001)	/* Carrier Detect lost */
 
 /* Buffer descriptor control/status used by Ethernet receive.
 */
@@ -95,11 +95,8 @@ typedef struct cpm_buf_desc {
 #define BD_ENET_TX_CSL		((ushort)0x0001)
 #define BD_ENET_TX_STATS	((ushort)0x03ff)	/* All status bits */
 
-#ifdef CONFIG_MCFFEC
 /*********************************************************************
-*
 * Fast Ethernet Controller (FEC)
-*
 *********************************************************************/
 /* FEC private information */
 struct fec_info_s {
@@ -117,8 +114,10 @@ struct fec_info_s {
 	uint txIdx;
 	char *txbuf;
 	int initialized;
+	struct fec_info_s *next;
 };
 
+#ifdef CONFIG_MCFFEC
 /* Register read/write struct */
 typedef struct fec {
 #ifdef CONFIG_M5272
@@ -254,90 +253,91 @@ typedef struct fec {
 	u32 ieee_r_fdxfc;
 	u32 ieee_r_octets_ok;
 } fec_t;
+#endif				/* CONFIG_MCFFEC */
 
 /*********************************************************************
 * Fast Ethernet Controller (FEC)
 *********************************************************************/
 /* Bit definitions and macros for FEC_EIR */
-#define FEC_EIR_CLEAR_ALL	(0xFFF80000)
-#define FEC_EIR_HBERR		(0x80000000)
-#define FEC_EIR_BABR		(0x40000000)
-#define FEC_EIR_BABT		(0x20000000)
-#define FEC_EIR_GRA		(0x10000000)
-#define FEC_EIR_TXF		(0x08000000)
-#define FEC_EIR_TXB		(0x04000000)
-#define FEC_EIR_RXF		(0x02000000)
-#define FEC_EIR_RXB		(0x01000000)
-#define FEC_EIR_MII		(0x00800000)
-#define FEC_EIR_EBERR		(0x00400000)
-#define FEC_EIR_LC		(0x00200000)
-#define FEC_EIR_RL		(0x00100000)
-#define FEC_EIR_UN		(0x00080000)
+#define FEC_EIR_CLEAR_ALL		(0xFFF80000)
+#define FEC_EIR_HBERR			(0x80000000)
+#define FEC_EIR_BABR			(0x40000000)
+#define FEC_EIR_BABT			(0x20000000)
+#define FEC_EIR_GRA			(0x10000000)
+#define FEC_EIR_TXF			(0x08000000)
+#define FEC_EIR_TXB			(0x04000000)
+#define FEC_EIR_RXF			(0x02000000)
+#define FEC_EIR_RXB			(0x01000000)
+#define FEC_EIR_MII			(0x00800000)
+#define FEC_EIR_EBERR			(0x00400000)
+#define FEC_EIR_LC			(0x00200000)
+#define FEC_EIR_RL			(0x00100000)
+#define FEC_EIR_UN			(0x00080000)
 
 /* Bit definitions and macros for FEC_RDAR */
-#define FEC_RDAR_R_DES_ACTIVE	(0x01000000)
+#define FEC_RDAR_R_DES_ACTIVE		(0x01000000)
 
 /* Bit definitions and macros for FEC_TDAR */
-#define FEC_TDAR_X_DES_ACTIVE	(0x01000000)
+#define FEC_TDAR_X_DES_ACTIVE		(0x01000000)
 
 /* Bit definitions and macros for FEC_ECR */
-#define FEC_ECR_ETHER_EN	(0x00000002)
-#define FEC_ECR_RESET		(0x00000001)
+#define FEC_ECR_ETHER_EN		(0x00000002)
+#define FEC_ECR_RESET			(0x00000001)
 
 /* Bit definitions and macros for FEC_MMFR */
-#define FEC_MMFR_DATA(x)	(((x)&0xFFFF))
-#define FEC_MMFR_ST(x)		(((x)&0x03)<<30)
-#define FEC_MMFR_ST_01		(0x40000000)
-#define FEC_MMFR_OP_RD		(0x20000000)
-#define FEC_MMFR_OP_WR		(0x10000000)
-#define FEC_MMFR_PA(x)		(((x)&0x1F)<<23)
-#define FEC_MMFR_RA(x)		(((x)&0x1F)<<18)
-#define FEC_MMFR_TA(x)		(((x)&0x03)<<16)
-#define FEC_MMFR_TA_10		(0x00020000)
+#define FEC_MMFR_DATA(x)		(((x)&0xFFFF))
+#define FEC_MMFR_ST(x)			(((x)&0x03)<<30)
+#define FEC_MMFR_ST_01			(0x40000000)
+#define FEC_MMFR_OP_RD			(0x20000000)
+#define FEC_MMFR_OP_WR			(0x10000000)
+#define FEC_MMFR_PA(x)			(((x)&0x1F)<<23)
+#define FEC_MMFR_RA(x)			(((x)&0x1F)<<18)
+#define FEC_MMFR_TA(x)			(((x)&0x03)<<16)
+#define FEC_MMFR_TA_10			(0x00020000)
 
 /* Bit definitions and macros for FEC_MSCR */
-#define FEC_MSCR_DIS_PREAMBLE	(0x00000080)
-#define FEC_MSCR_MII_SPEED(x)	(((x)&0x3F)<<1)
+#define FEC_MSCR_DIS_PREAMBLE		(0x00000080)
+#define FEC_MSCR_MII_SPEED(x)		(((x)&0x3F)<<1)
 
 /* Bit definitions and macros for FEC_MIBC */
-#define FEC_MIBC_MIB_DISABLE	(0x80000000)
-#define FEC_MIBC_MIB_IDLE	(0x40000000)
+#define FEC_MIBC_MIB_DISABLE		(0x80000000)
+#define FEC_MIBC_MIB_IDLE		(0x40000000)
 
 /* Bit definitions and macros for FEC_RCR */
-#define FEC_RCR_MAX_FL(x)	(((x)&0x7FF)<<16)
-#define FEC_RCR_FCE		(0x00000020)
-#define FEC_RCR_BC_REJ		(0x00000010)
-#define FEC_RCR_PROM		(0x00000008)
-#define FEC_RCR_MII_MODE	(0x00000004)
-#define FEC_RCR_DRT		(0x00000002)
-#define FEC_RCR_LOOP		(0x00000001)
+#define FEC_RCR_MAX_FL(x)		(((x)&0x7FF)<<16)
+#define FEC_RCR_FCE			(0x00000020)
+#define FEC_RCR_BC_REJ			(0x00000010)
+#define FEC_RCR_PROM			(0x00000008)
+#define FEC_RCR_MII_MODE		(0x00000004)
+#define FEC_RCR_DRT			(0x00000002)
+#define FEC_RCR_LOOP			(0x00000001)
 
 /* Bit definitions and macros for FEC_TCR */
-#define FEC_TCR_RFC_PAUSE	(0x00000010)
-#define FEC_TCR_TFC_PAUSE	(0x00000008)
-#define FEC_TCR_FDEN		(0x00000004)
-#define FEC_TCR_HBC		(0x00000002)
-#define FEC_TCR_GTS		(0x00000001)
+#define FEC_TCR_RFC_PAUSE		(0x00000010)
+#define FEC_TCR_TFC_PAUSE		(0x00000008)
+#define FEC_TCR_FDEN			(0x00000004)
+#define FEC_TCR_HBC			(0x00000002)
+#define FEC_TCR_GTS			(0x00000001)
 
 /* Bit definitions and macros for FEC_PAUR */
-#define FEC_PAUR_PADDR2(x)	(((x)&0xFFFF)<<16)
-#define FEC_PAUR_TYPE(x)	((x)&0xFFFF)
+#define FEC_PAUR_PADDR2(x)		(((x)&0xFFFF)<<16)
+#define FEC_PAUR_TYPE(x)		((x)&0xFFFF)
 
 /* Bit definitions and macros for FEC_OPD */
-#define FEC_OPD_PAUSE_DUR(x)	(((x)&0x0000FFFF)<<0)
-#define FEC_OPD_OPCODE(x)	(((x)&0x0000FFFF)<<16)
+#define FEC_OPD_PAUSE_DUR(x)		(((x)&0x0000FFFF)<<0)
+#define FEC_OPD_OPCODE(x)		(((x)&0x0000FFFF)<<16)
 
 /* Bit definitions and macros for FEC_TFWR */
-#define FEC_TFWR_X_WMRK(x)	((x)&0x03)
-#define FEC_TFWR_X_WMRK_64	(0x01)
-#define FEC_TFWR_X_WMRK_128	(0x02)
-#define FEC_TFWR_X_WMRK_192	(0x03)
+#define FEC_TFWR_X_WMRK(x)		((x)&0x03)
+#define FEC_TFWR_X_WMRK_64		(0x01)
+#define FEC_TFWR_X_WMRK_128		(0x02)
+#define FEC_TFWR_X_WMRK_192		(0x03)
 
 /* Bit definitions and macros for FEC_FRBR */
-#define FEC_FRBR_R_BOUND(x)	(((x)&0xFF)<<2)
+#define FEC_FRBR_R_BOUND(x)		(((x)&0xFF)<<2)
 
 /* Bit definitions and macros for FEC_FRSR */
-#define FEC_FRSR_R_FSTART(x)	(((x)&0xFF)<<2)
+#define FEC_FRSR_R_FSTART(x)		(((x)&0xFF)<<2)
 
 /* Bit definitions and macros for FEC_ERDSR */
 #define FEC_ERDSR_R_DES_START(x)	(((x)&0x3FFFFFFF)<<2)
@@ -348,8 +348,7 @@ typedef struct fec {
 /* Bit definitions and macros for FEC_EMRBR */
 #define FEC_EMRBR_R_BUF_SIZE(x)		(((x)&0x7F)<<4)
 
-#define	FEC_RESET_DELAY		100
-#define FEC_RX_TOUT		100
+#define	FEC_RESET_DELAY			100
+#define FEC_RX_TOUT			100
 
-#endif				/* CONFIG_MCFFEC */
 #endif				/* fec_h */

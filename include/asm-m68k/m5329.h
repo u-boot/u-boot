@@ -1118,6 +1118,7 @@
 #define GPIO_PCLRR_LCDCTLL7		(0x80)
 
 /* Bit definitions and macros for GPIO_PAR_FEC */
+#ifdef CONFIG_M5329
 #define GPIO_PAR_FEC_MII(x)		(((x)&0x03)<<0)
 #define GPIO_PAR_FEC_7W(x)		(((x)&0x03)<<2)
 #define GPIO_PAR_FEC_7W_GPIO		(0x00)
@@ -1126,6 +1127,10 @@
 #define GPIO_PAR_FEC_MII_GPIO		(0x00)
 #define GPIO_PAR_FEC_MII_UART		(0x01)
 #define GPIO_PAR_FEC_MII_FEC		(0x03)
+#else
+#define GPIO_PAR_FEC_7W_FEC		(0x08)
+#define GPIO_PAR_FEC_MII_FEC		(0x02)
+#endif
 
 /* Bit definitions and macros for GPIO_PAR_PWM */
 #define GPIO_PAR_PWM1(x)		(((x)&0x03)<<0)
@@ -1315,168 +1320,6 @@
 /* Bit definitions and macros for GPIO_DSCR_IRQ */
 #define GPIO_DSCR_IRQ_DSE(x)		((x)&0x03)
 
-/* not done yet */
-/*********************************************************************
-* LCD Controller (LCDC)
-*********************************************************************/
-/* Bit definitions and macros for LCDC_LSSAR */
-#define LCDC_LSSAR_SSA(x)		(((x)&0x3FFFFFFF)<<2)
-
-/* Bit definitions and macros for LCDC_LSR */
-#define LCDC_LSR_YMAX(x)		(((x)&0x000003FF)<<0)
-#define LCDC_LSR_XMAX(x)		(((x)&0x0000003F)<<20)
-
-/* Bit definitions and macros for LCDC_LVPWR */
-#define LCDC_LVPWR_VPW(x)		(((x)&0x000003FF)<<0)
-
-/* Bit definitions and macros for LCDC_LCPR */
-#define LCDC_LCPR_CYP(x)		(((x)&0x000003FF)<<0)
-#define LCDC_LCPR_CXP(x)		(((x)&0x000003FF)<<16)
-#define LCDC_LCPR_OP			(0x10000000)
-#define LCDC_LCPR_CC(x)			(((x)&0x00000003)<<30)
-#define LCDC_LCPR_CC_TRANSPARENT	(0x00000000)
-#define LCDC_LCPR_CC_OR			(0x40000000)
-#define LCDC_LCPR_CC_XOR		(0x80000000)
-#define LCDC_LCPR_CC_AND		(0xC0000000)
-#define LCDC_LCPR_OP_ON			(0x10000000)
-#define LCDC_LCPR_OP_OFF		(0x00000000)
-
-/* Bit definitions and macros for LCDC_LCWHBR */
-#define LCDC_LCWHBR_BD(x)		(((x)&0x000000FF)<<0)
-#define LCDC_LCWHBR_CH(x)		(((x)&0x0000001F)<<16)
-#define LCDC_LCWHBR_CW(x)		(((x)&0x0000001F)<<24)
-#define LCDC_LCWHBR_BK_EN		(0x80000000)
-#define LCDC_LCWHBR_BK_EN_ON		(0x80000000)
-#define LCDC_LCWHBR_BK_EN_OFF		(0x00000000)
-
-/* Bit definitions and macros for LCDC_LCCMR */
-#define LCDC_LCCMR_CUR_COL_B(x)		(((x)&0x0000003F)<<0)
-#define LCDC_LCCMR_CUR_COL_G(x)		(((x)&0x0000003F)<<6)
-#define LCDC_LCCMR_CUR_COL_R(x)		(((x)&0x0000003F)<<12)
-
-/* Bit definitions and macros for LCDC_LPCR */
-#define LCDC_LPCR_PCD(x)		(((x)&0x0000003F)<<0)
-#define LCDC_LPCR_SHARP			(0x00000040)
-#define LCDC_LPCR_SCLKSEL		(0x00000080)
-#define LCDC_LPCR_ACD(x)		(((x)&0x0000007F)<<8)
-#define LCDC_LPCR_ACDSEL		(0x00008000)
-#define LCDC_LPCR_REV_VS		(0x00010000)
-#define LCDC_LPCR_SWAP_SEL		(0x00020000)
-#define LCDC_LPCR_ENDSEL		(0x00040000)
-#define LCDC_LPCR_SCLKIDLE		(0x00080000)
-#define LCDC_LPCR_OEPOL			(0x00100000)
-#define LCDC_LPCR_CLKPOL		(0x00200000)
-#define LCDC_LPCR_LPPOL			(0x00400000)
-#define LCDC_LPCR_FLM			(0x00800000)
-#define LCDC_LPCR_PIXPOL		(0x01000000)
-#define LCDC_LPCR_BPIX(x)		(((x)&0x00000007)<<25)
-#define LCDC_LPCR_PBSIZ(x)		(((x)&0x00000003)<<28)
-#define LCDC_LPCR_COLOR			(0x40000000)
-#define LCDC_LPCR_TFT			(0x80000000)
-#define LCDC_LPCR_MODE_MONOCHROME	(0x00000000)
-#define LCDC_LPCR_MODE_CSTN		(0x40000000)
-#define LCDC_LPCR_MODE_TFT		(0xC0000000)
-#define LCDC_LPCR_PBSIZ_1		(0x00000000)
-#define LCDC_LPCR_PBSIZ_2		(0x10000000)
-#define LCDC_LPCR_PBSIZ_4		(0x20000000)
-#define LCDC_LPCR_PBSIZ_8		(0x30000000)
-#define LCDC_LPCR_BPIX_1bpp		(0x00000000)
-#define LCDC_LPCR_BPIX_2bpp		(0x02000000)
-#define LCDC_LPCR_BPIX_4bpp		(0x04000000)
-#define LCDC_LPCR_BPIX_8bpp		(0x06000000)
-#define LCDC_LPCR_BPIX_12bpp		(0x08000000)
-#define LCDC_LPCR_BPIX_16bpp		(0x0A000000)
-#define LCDC_LPCR_BPIX_18bpp		(0x0C000000)
-
-#define LCDC_LPCR_PANEL_TYPE(x)		(((x)&0x00000003)<<30)
-
-/* Bit definitions and macros for LCDC_LHCR */
-#define LCDC_LHCR_H_WAIT_2(x)		(((x)&0x000000FF)<<0)
-#define LCDC_LHCR_H_WAIT_1(x)		(((x)&0x000000FF)<<8)
-#define LCDC_LHCR_H_WIDTH(x)		(((x)&0x0000003F)<<26)
-
-/* Bit definitions and macros for LCDC_LVCR */
-#define LCDC_LVCR_V_WAIT_2(x)		(((x)&0x000000FF)<<0)
-#define LCDC_LVCR_V_WAIT_1(x)		(((x)&0x000000FF)<<8)
-#define LCDC_LVCR_V_WIDTH(x)		(((x)&0x0000003F)<<26)
-
-/* Bit definitions and macros for LCDC_LPOR */
-#define LCDC_LPOR_POS(x)		(((x)&0x0000001F)<<0)
-
-/* Bit definitions and macros for LCDC_LPCCR */
-#define LCDC_LPCCR_PW(x)		(((x)&0x000000FF)<<0)
-#define LCDC_LPCCR_CC_EN		(0x00000100)
-#define LCDC_LPCCR_SCR(x)		(((x)&0x00000003)<<9)
-#define LCDC_LPCCR_LDMSK		(0x00008000)
-#define LCDC_LPCCR_CLS_HI_WIDTH(x)	(((x)&0x000001FF)<<16)
-#define LCDC_LPCCR_SCR_LINEPULSE	(0x00000000)
-#define LCDC_LPCCR_SCR_PIXELCLK		(0x00002000)
-#define LCDC_LPCCR_SCR_LCDCLOCK		(0x00004000)
-
-/* Bit definitions and macros for LCDC_LDCR */
-#define LCDC_LDCR_TM(x)			(((x)&0x0000001F)<<0)
-#define LCDC_LDCR_HM(x)			(((x)&0x0000001F)<<16)
-#define LCDC_LDCR_BURST			(0x80000000)
-
-/* Bit definitions and macros for LCDC_LRMCR */
-#define LCDC_LRMCR_SEL_REF		(0x00000001)
-
-/* Bit definitions and macros for LCDC_LICR */
-#define LCDC_LICR_INTCON		(0x00000001)
-#define LCDC_LICR_INTSYN		(0x00000004)
-#define LCDC_LICR_GW_INT_CON		(0x00000010)
-
-/* Bit definitions and macros for LCDC_LIER */
-#define LCDC_LIER_BOF_EN		(0x00000001)
-#define LCDC_LIER_EOF_EN		(0x00000002)
-#define LCDC_LIER_ERR_RES_EN		(0x00000004)
-#define LCDC_LIER_UDR_ERR_EN		(0x00000008)
-#define LCDC_LIER_GW_BOF_EN		(0x00000010)
-#define LCDC_LIER_GW_EOF_EN		(0x00000020)
-#define LCDC_LIER_GW_ERR_RES_EN		(0x00000040)
-#define LCDC_LIER_GW_UDR_ERR_EN		(0x00000080)
-
-/* Bit definitions and macros for LCDC_LISR */
-#define LCDC_LISR_BOF			(0x00000001)
-#define LCDC_LISR_EOF			(0x00000002)
-#define LCDC_LISR_ERR_RES		(0x00000004)
-#define LCDC_LISR_UDR_ERR		(0x00000008)
-#define LCDC_LISR_GW_BOF		(0x00000010)
-#define LCDC_LISR_GW_EOF		(0x00000020)
-#define LCDC_LISR_GW_ERR_RES		(0x00000040)
-#define LCDC_LISR_GW_UDR_ERR		(0x00000080)
-
-/* Bit definitions and macros for LCDC_LGWSAR */
-#define LCDC_LGWSAR_GWSA(x)		(((x)&0x3FFFFFFF)<<2)
-
-/* Bit definitions and macros for LCDC_LGWSR */
-#define LCDC_LGWSR_GWH(x)		(((x)&0x000003FF)<<0)
-#define LCDC_LGWSR_GWW(x)		(((x)&0x0000003F)<<20)
-
-/* Bit definitions and macros for LCDC_LGWVPWR */
-#define LCDC_LGWVPWR_GWVPW(x)		(((x)&0x000003FF)<<0)
-
-/* Bit definitions and macros for LCDC_LGWPOR */
-#define LCDC_LGWPOR_GWPO(x)		(((x)&0x0000001F)<<0)
-
-/* Bit definitions and macros for LCDC_LGWPR */
-#define LCDC_LGWPR_GWYP(x)		(((x)&0x000003FF)<<0)
-#define LCDC_LGWPR_GWXP(x)		(((x)&0x000003FF)<<16)
-
-/* Bit definitions and macros for LCDC_LGWCR */
-#define LCDC_LGWCR_GWCKB(x)		(((x)&0x0000003F)<<0)
-#define LCDC_LGWCR_GWCKG(x)		(((x)&0x0000003F)<<6)
-#define LCDC_LGWCR_GWCKR(x)		(((x)&0x0000003F)<<12)
-#define LCDC_LGWCR_GW_RVS		(0x00200000)
-#define LCDC_LGWCR_GWE			(0x00400000)
-#define LCDC_LGWCR_GWCKE		(0x00800000)
-#define LCDC_LGWCR_GWAV(x)		(((x)&0x000000FF)<<24)
-
-/* Bit definitions and macros for LCDC_LGWDCR */
-#define LCDC_LGWDCR_GWTM(x)		(((x)&0x0000001F)<<0)
-#define LCDC_LGWDCR_GWHM(x)		(((x)&0x0000001F)<<16)
-#define LCDC_LGWDCR_GWBT		(0x80000000)
-
 /*********************************************************************
 * SDRAM Controller (SDRAMC)
 *********************************************************************/
@@ -1539,125 +1382,6 @@
 #define SDRAMC_SDCS_CSSZ_2MBYTE		(0x00000014)
 #define SDRAMC_SDCS_CSSZ_1MBYTE		(0x00000013)
 #define SDRAMC_SDCS_CSSZ_DIABLE		(0x00000000)
-
-/*********************************************************************
-* Synchronous Serial Interface (SSI)
-*********************************************************************/
-/* Bit definitions and macros for SSI_CR */
-#define SSI_CR_CIS			(0x00000200)
-#define SSI_CR_TCH			(0x00000100)
-#define SSI_CR_MCE			(0x00000080)
-#define SSI_CR_I2S_SLAVE		(0x00000040)
-#define SSI_CR_I2S_MASTER		(0x00000020)
-#define SSI_CR_I2S_NORMAL		(0x00000000)
-#define SSI_CR_SYN			(0x00000010)
-#define SSI_CR_NET			(0x00000008)
-#define SSI_CR_RE			(0x00000004)
-#define SSI_CR_TE			(0x00000002)
-#define SSI_CR_SSI_EN			(0x00000001)
-
-/* Bit definitions and macros for SSI_ISR */
-#define SSI_ISR_CMDAU			(0x00040000)
-#define SSI_ISR_CMDDU			(0x00020000)
-#define SSI_ISR_RXT			(0x00010000)
-#define SSI_ISR_RDR1			(0x00008000)
-#define SSI_ISR_RDR0			(0x00004000)
-#define SSI_ISR_TDE1			(0x00002000)
-#define SSI_ISR_TDE0			(0x00001000)
-#define SSI_ISR_ROE1			(0x00000800)
-#define SSI_ISR_ROE0			(0x00000400)
-#define SSI_ISR_TUE1			(0x00000200)
-#define SSI_ISR_TUE0			(0x00000100)
-#define SSI_ISR_TFS			(0x00000080)
-#define SSI_ISR_RFS			(0x00000040)
-#define SSI_ISR_TLS			(0x00000020)
-#define SSI_ISR_RLS			(0x00000010)
-#define SSI_ISR_RFF1			(0x00000008)
-#define SSI_ISR_RFF0			(0x00000004)
-#define SSI_ISR_TFE1			(0x00000002)
-#define SSI_ISR_TFE0			(0x00000001)
-
-/* Bit definitions and macros for SSI_IER */
-#define SSI_IER_RDMAE			(0x00400000)
-#define SSI_IER_RIE			(0x00200000)
-#define SSI_IER_TDMAE			(0x00100000)
-#define SSI_IER_TIE			(0x00080000)
-#define SSI_IER_CMDAU			(0x00040000)
-#define SSI_IER_CMDU			(0x00020000)
-#define SSI_IER_RXT			(0x00010000)
-#define SSI_IER_RDR1			(0x00008000)
-#define SSI_IER_RDR0			(0x00004000)
-#define SSI_IER_TDE1			(0x00002000)
-#define SSI_IER_TDE0			(0x00001000)
-#define SSI_IER_ROE1			(0x00000800)
-#define SSI_IER_ROE0			(0x00000400)
-#define SSI_IER_TUE1			(0x00000200)
-#define SSI_IER_TUE0			(0x00000100)
-#define SSI_IER_TFS			(0x00000080)
-#define SSI_IER_RFS			(0x00000040)
-#define SSI_IER_TLS			(0x00000020)
-#define SSI_IER_RLS			(0x00000010)
-#define SSI_IER_RFF1			(0x00000008)
-#define SSI_IER_RFF0			(0x00000004)
-#define SSI_IER_TFE1			(0x00000002)
-#define SSI_IER_TFE0			(0x00000001)
-
-/* Bit definitions and macros for SSI_TCR */
-#define SSI_TCR_TXBIT0			(0x00000200)
-#define SSI_TCR_TFEN1			(0x00000100)
-#define SSI_TCR_TFEN0			(0x00000080)
-#define SSI_TCR_TFDIR			(0x00000040)
-#define SSI_TCR_TXDIR			(0x00000020)
-#define SSI_TCR_TSHFD			(0x00000010)
-#define SSI_TCR_TSCKP			(0x00000008)
-#define SSI_TCR_TFSI			(0x00000004)
-#define SSI_TCR_TFSL			(0x00000002)
-#define SSI_TCR_TEFS			(0x00000001)
-
-/* Bit definitions and macros for SSI_RCR */
-#define SSI_RCR_RXEXT			(0x00000400)
-#define SSI_RCR_RXBIT0			(0x00000200)
-#define SSI_RCR_RFEN1			(0x00000100)
-#define SSI_RCR_RFEN0			(0x00000080)
-#define SSI_RCR_RSHFD			(0x00000010)
-#define SSI_RCR_RSCKP			(0x00000008)
-#define SSI_RCR_RFSI			(0x00000004)
-#define SSI_RCR_RFSL			(0x00000002)
-#define SSI_RCR_REFS			(0x00000001)
-
-/* Bit definitions and macros for SSI_CCR */
-#define SSI_CCR_DIV2			(0x00040000)
-#define SSI_CCR_PSR			(0x00020000)
-#define SSI_CCR_WL(x)			(((x)&0x0000000F)<<13)
-#define SSI_CCR_DC(x)			(((x)&0x0000001F)<<8)
-#define SSI_CCR_PM(x)			((x)&0x000000FF)
-
-/* Bit definitions and macros for SSI_FCSR */
-#define SSI_FCSR_RFCNT1(x)		(((x)&0x0000000F)<<28)
-#define SSI_FCSR_TFCNT1(x)		(((x)&0x0000000F)<<24)
-#define SSI_FCSR_RFWM1(x)		(((x)&0x0000000F)<<20)
-#define SSI_FCSR_TFWM1(x)		(((x)&0x0000000F)<<16)
-#define SSI_FCSR_RFCNT0(x)		(((x)&0x0000000F)<<12)
-#define SSI_FCSR_TFCNT0(x)		(((x)&0x0000000F)<<8)
-#define SSI_FCSR_RFWM0(x)		(((x)&0x0000000F)<<4)
-#define SSI_FCSR_TFWM0(x)		((x)&0x0000000F)
-
-/* Bit definitions and macros for SSI_ACR */
-#define SSI_ACR_FRDIV(x)		(((x)&0x0000003F)<<5)
-#define SSI_ACR_WR			(0x00000010)
-#define SSI_ACR_RD			(0x00000008)
-#define SSI_ACR_TIF			(0x00000004)
-#define SSI_ACR_FV			(0x00000002)
-#define SSI_ACR_AC97EN			(0x00000001)
-
-/* Bit definitions and macros for SSI_ACADD */
-#define SSI_ACADD_SSI_ACADD(x)		((x)&0x0007FFFF)
-
-/* Bit definitions and macros for SSI_ACDAT */
-#define SSI_ACDAT_SSI_ACDAT(x)		((x)&0x0007FFFF)
-
-/* Bit definitions and macros for SSI_ATAG */
-#define SSI_ATAG_DDI_ATAG(x)		((x)&0x0000FFFF)
 
 /*********************************************************************
 * Phase Locked Loop (PLL)

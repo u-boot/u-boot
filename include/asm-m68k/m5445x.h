@@ -27,84 +27,6 @@
 #define __MCF5445X__
 
 /*********************************************************************
-* Cross-bar switch (XBS)
-*********************************************************************/
-
-/* Bit definitions and macros for PRS group */
-#define XBS_PRS_M0(x)			(((x)&0x00000007))	/* Core */
-#define XBS_PRS_M1(x)			(((x)&0x00000007)<<4)	/* eDMA */
-#define XBS_PRS_M2(x)			(((x)&0x00000007)<<8)	/* FEC0 */
-#define XBS_PRS_M3(x)			(((x)&0x00000007)<<12)	/* FEC1 */
-#define XBS_PRS_M5(x)			(((x)&0x00000007)<<20)	/* PCI controller */
-#define XBS_PRS_M6(x)			(((x)&0x00000007)<<24)	/* USB OTG */
-#define XBS_PRS_M7(x)			(((x)&0x00000007)<<28)	/* Serial Boot */
-
-/* Bit definitions and macros for CRS group */
-#define XBS_CRS_PARK(x)			(((x)&0x00000007))	/* Master parking ctrl */
-#define XBS_CRS_PCTL(x)			(((x)&0x00000003)<<4)	/* Parking mode ctrl */
-#define XBS_CRS_ARB			(0x00000100)	/* Arbitration Mode */
-#define XBS_CRS_RO			(0x80000000)	/* Read Only */
-
-#define XBS_CRS_PCTL_PARK_FIELD		(0)
-#define XBS_CRS_PCTL_PARK_ON_LAST	(1)
-#define XBS_CRS_PCTL_PARK_NONE		(2)
-#define XBS_CRS_PCTL_PARK_CORE		(0)
-#define XBS_CRS_PCTL_PARK_EDMA		(1)
-#define XBS_CRS_PCTL_PARK_FEC0		(2)
-#define XBS_CRS_PCTL_PARK_FEC1		(3)
-#define XBS_CRS_PCTL_PARK_PCI		(5)
-#define XBS_CRS_PCTL_PARK_USB		(6)
-#define XBS_CRS_PCTL_PARK_SBF		(7)
-
-/*********************************************************************
-* FlexBus Chip Selects (FBCS)
-*********************************************************************/
-
-/* Bit definitions and macros for CSAR group */
-#define FBCS_CSAR_BA(x)			((x)&0xFFFF0000)
-
-/* Bit definitions and macros for CSMR group */
-#define FBCS_CSMR_V			(0x00000001)	/* Valid bit */
-#define FBCS_CSMR_WP			(0x00000100)	/* Write protect */
-#define FBCS_CSMR_BAM(x)		(((x)&0x0000FFFF)<<16)	/* Base address mask */
-#define FBCS_CSMR_BAM_4G		(0xFFFF0000)
-#define FBCS_CSMR_BAM_2G		(0x7FFF0000)
-#define FBCS_CSMR_BAM_1G		(0x3FFF0000)
-#define FBCS_CSMR_BAM_1024M		(0x3FFF0000)
-#define FBCS_CSMR_BAM_512M		(0x1FFF0000)
-#define FBCS_CSMR_BAM_256M		(0x0FFF0000)
-#define FBCS_CSMR_BAM_128M		(0x07FF0000)
-#define FBCS_CSMR_BAM_64M		(0x03FF0000)
-#define FBCS_CSMR_BAM_32M		(0x01FF0000)
-#define FBCS_CSMR_BAM_16M		(0x00FF0000)
-#define FBCS_CSMR_BAM_8M		(0x007F0000)
-#define FBCS_CSMR_BAM_4M		(0x003F0000)
-#define FBCS_CSMR_BAM_2M		(0x001F0000)
-#define FBCS_CSMR_BAM_1M		(0x000F0000)
-#define FBCS_CSMR_BAM_1024K		(0x000F0000)
-#define FBCS_CSMR_BAM_512K		(0x00070000)
-#define FBCS_CSMR_BAM_256K		(0x00030000)
-#define FBCS_CSMR_BAM_128K		(0x00010000)
-#define FBCS_CSMR_BAM_64K		(0x00000000)
-
-/* Bit definitions and macros for CSCR group */
-#define FBCS_CSCR_BSTW			(0x00000008)	/* Burst-write enable */
-#define FBCS_CSCR_BSTR			(0x00000010)	/* Burst-read enable */
-#define FBCS_CSCR_BEM			(0x00000020)	/* Byte-enable mode */
-#define FBCS_CSCR_PS(x)			(((x)&0x00000003)<<6)	/* Port size */
-#define FBCS_CSCR_AA			(0x00000100)	/* Auto-acknowledge */
-#define FBCS_CSCR_WS(x)			(((x)&0x0000003F)<<10)	/* Wait states */
-#define FBCS_CSCR_WRAH(x)		(((x)&0x00000003)<<16)	/* Write address hold or deselect */
-#define FBCS_CSCR_RDAH(x)		(((x)&0x00000003)<<18)	/* Read address hold or deselect */
-#define FBCS_CSCR_ASET(x)		(((x)&0x00000003)<<20)	/* Address setup */
-#define FBCS_CSCR_SWSEN			(0x00800000)	/* Secondary wait state enable */
-#define FBCS_CSCR_SWS(x)		(((x)&0x0000003F)<<26)	/* Secondary wait states */
-
-#define FBCS_CSCR_PS_8			(0x00000040)
-#define FBCS_CSCR_PS_16			(0x00000080)
-#define FBCS_CSCR_PS_32			(0x00000000)
-
-/*********************************************************************
 * Interrupt Controller (INTC)
 *********************************************************************/
 #define INT0_LO_RSVD0			(0)
@@ -420,106 +342,6 @@
 
 /* Bit definitions and macros for ICR group */
 #define INTC_ICR_IL(x)			(((x)&0x07))
-
-/*********************************************************************
-* DMA Serial Peripheral Interface (DSPI)
-*********************************************************************/
-
-/* Bit definitions and macros for DMCR */
-#define DSPI_DMCR_HALT			(0x00000001)
-#define DSPI_DMCR_SMPL_PT(x)		(((x)&0x00000003)<<8)
-#define DSPI_DMCR_CRXF			(0x00000400)
-#define DSPI_DMCR_CTXF			(0x00000800)
-#define DSPI_DMCR_DRXF			(0x00001000)
-#define DSPI_DMCR_DTXF			(0x00002000)
-#define DSPI_DMCR_CSIS0			(0x00010000)
-#define DSPI_DMCR_CSIS2			(0x00040000)
-#define DSPI_DMCR_CSIS3			(0x00080000)
-#define DSPI_DMCR_CSIS5			(0x00200000)
-#define DSPI_DMCR_ROOE			(0x01000000)
-#define DSPI_DMCR_PCSSE			(0x02000000)
-#define DSPI_DMCR_MTFE			(0x04000000)
-#define DSPI_DMCR_FRZ			(0x08000000)
-#define DSPI_DMCR_DCONF(x)		(((x)&0x00000003)<<28)
-#define DSPI_DMCR_CSCK			(0x40000000)
-#define DSPI_DMCR_MSTR			(0x80000000)
-
-/* Bit definitions and macros for DTCR */
-#define DSPI_DTCR_SPI_TCNT(x)		(((x)&0x0000FFFF)<<16)
-
-/* Bit definitions and macros for DCTAR group */
-#define DSPI_DCTAR_BR(x)		(((x)&0x0000000F))
-#define DSPI_DCTAR_DT(x)		(((x)&0x0000000F)<<4)
-#define DSPI_DCTAR_ASC(x)		(((x)&0x0000000F)<<8)
-#define DSPI_DCTAR_CSSCK(x)		(((x)&0x0000000F)<<12)
-#define DSPI_DCTAR_PBR(x)		(((x)&0x00000003)<<16)
-#define DSPI_DCTAR_PDT(x)		(((x)&0x00000003)<<18)
-#define DSPI_DCTAR_PASC(x)		(((x)&0x00000003)<<20)
-#define DSPI_DCTAR_PCSSCK(x)		(((x)&0x00000003)<<22)
-#define DSPI_DCTAR_LSBFE		(0x01000000)
-#define DSPI_DCTAR_CPHA			(0x02000000)
-#define DSPI_DCTAR_CPOL			(0x04000000)
-#define DSPI_DCTAR_TRSZ(x)		(((x)&0x0000000F)<<27)
-#define DSPI_DCTAR_PCSSCK_1CLK		(0x00000000)
-#define DSPI_DCTAR_PCSSCK_3CLK		(0x00400000)
-#define DSPI_DCTAR_PCSSCK_5CLK		(0x00800000)
-#define DSPI_DCTAR_PCSSCK_7CLK		(0x00A00000)
-#define DSPI_DCTAR_PASC_1CLK		(0x00000000)
-#define DSPI_DCTAR_PASC_3CLK		(0x00100000)
-#define DSPI_DCTAR_PASC_5CLK		(0x00200000)
-#define DSPI_DCTAR_PASC_7CLK		(0x00300000)
-#define DSPI_DCTAR_PDT_1CLK		(0x00000000)
-#define DSPI_DCTAR_PDT_3CLK		(0x00040000)
-#define DSPI_DCTAR_PDT_5CLK		(0x00080000)
-#define DSPI_DCTAR_PDT_7CLK		(0x000A0000)
-#define DSPI_DCTAR_PBR_1CLK		(0x00000000)
-#define DSPI_DCTAR_PBR_3CLK		(0x00010000)
-#define DSPI_DCTAR_PBR_5CLK		(0x00020000)
-#define DSPI_DCTAR_PBR_7CLK		(0x00030000)
-
-/* Bit definitions and macros for DSR */
-#define DSPI_DSR_RXPTR(x)		(((x)&0x0000000F))
-#define DSPI_DSR_RXCTR(x)		(((x)&0x0000000F)<<4)
-#define DSPI_DSR_TXPTR(x)		(((x)&0x0000000F)<<8)
-#define DSPI_DSR_TXCTR(x)		(((x)&0x0000000F)<<12)
-#define DSPI_DSR_RFDF			(0x00020000)
-#define DSPI_DSR_RFOF			(0x00080000)
-#define DSPI_DSR_TFFF			(0x02000000)
-#define DSPI_DSR_TFUF			(0x08000000)
-#define DSPI_DSR_EOQF			(0x10000000)
-#define DSPI_DSR_TXRXS			(0x40000000)
-#define DSPI_DSR_TCF			(0x80000000)
-
-/* Bit definitions and macros for DIRSR */
-#define DSPI_DIRSR_RFDFS		(0x00010000)
-#define DSPI_DIRSR_RFDFE		(0x00020000)
-#define DSPI_DIRSR_RFOFE		(0x00080000)
-#define DSPI_DIRSR_TFFFS		(0x01000000)
-#define DSPI_DIRSR_TFFFE		(0x02000000)
-#define DSPI_DIRSR_TFUFE		(0x08000000)
-#define DSPI_DIRSR_EOQFE		(0x10000000)
-#define DSPI_DIRSR_TCFE			(0x80000000)
-
-/* Bit definitions and macros for DTFR */
-#define DSPI_DTFR_TXDATA(x)		(((x)&0x0000FFFF))
-#define DSPI_DTFR_CS0			(0x00010000)
-#define DSPI_DTFR_CS2			(0x00040000)
-#define DSPI_DTFR_CS3			(0x00080000)
-#define DSPI_DTFR_CS5			(0x00200000)
-#define DSPI_DTFR_CTCNT			(0x04000000)
-#define DSPI_DTFR_EOQ			(0x08000000)
-#define DSPI_DTFR_CTAS(x)		(((x)&0x00000007)<<28)
-#define DSPI_DTFR_CONT			(0x80000000)
-
-/* Bit definitions and macros for DRFR */
-#define DSPI_DRFR_RXDATA(x)		(((x)&0x0000FFFF))
-
-/* Bit definitions and macros for DTFDR group */
-#define DSPI_DTFDR_TXDATA(x)		(((x)&0x0000FFFF))
-#define DSPI_DTFDR_TXCMD(x)		(((x)&0x0000FFFF)<<16)
-
-/* Bit definitions and macros for DRFDR group */
-#define DSPI_DRFDR_RXDATA(x)		(((x)&0x0000FFFF))
 
 /*********************************************************************
 * Edge Port Module (EPORT)
@@ -1298,127 +1120,6 @@
 #define SDRAMC_SDCS_CSSZ_4GBYTE		(0x0000001F)
 
 /*********************************************************************
-* Synchronous Serial Interface (SSI)
-*********************************************************************/
-
-/* Bit definitions and macros for CR */
-#define SSI_CR_SSI_EN			(0x00000001)
-#define SSI_CR_TE			(0x00000002)
-#define SSI_CR_RE			(0x00000004)
-#define SSI_CR_NET			(0x00000008)
-#define SSI_CR_SYN			(0x00000010)
-#define SSI_CR_I2S(x)			(((x)&0x00000003)<<5)
-#define SSI_CR_MCE			(0x00000080)
-#define SSI_CR_TCH			(0x00000100)
-#define SSI_CR_CIS			(0x00000200)
-#define SSI_CR_I2S_NORMAL		(0x00000000)
-#define SSI_CR_I2S_MASTER		(0x00000020)
-#define SSI_CR_I2S_SLAVE		(0x00000040)
-
-/* Bit definitions and macros for ISR */
-#define SSI_ISR_TFE0			(0x00000001)
-#define SSI_ISR_TFE1			(0x00000002)
-#define SSI_ISR_RFF0			(0x00000004)
-#define SSI_ISR_RFF1			(0x00000008)
-#define SSI_ISR_RLS			(0x00000010)
-#define SSI_ISR_TLS			(0x00000020)
-#define SSI_ISR_RFS			(0x00000040)
-#define SSI_ISR_TFS			(0x00000080)
-#define SSI_ISR_TUE0			(0x00000100)
-#define SSI_ISR_TUE1			(0x00000200)
-#define SSI_ISR_ROE0			(0x00000400)
-#define SSI_ISR_ROE1			(0x00000800)
-#define SSI_ISR_TDE0			(0x00001000)
-#define SSI_ISR_TDE1			(0x00002000)
-#define SSI_ISR_RDR0			(0x00004000)
-#define SSI_ISR_RDR1			(0x00008000)
-#define SSI_ISR_RXT			(0x00010000)
-#define SSI_ISR_CMDDU			(0x00020000)
-#define SSI_ISR_CMDAU			(0x00040000)
-
-/* Bit definitions and macros for IER */
-#define SSI_IER_TFE0			(0x00000001)
-#define SSI_IER_TFE1			(0x00000002)
-#define SSI_IER_RFF0			(0x00000004)
-#define SSI_IER_RFF1			(0x00000008)
-#define SSI_IER_RLS			(0x00000010)
-#define SSI_IER_TLS			(0x00000020)
-#define SSI_IER_RFS			(0x00000040)
-#define SSI_IER_TFS			(0x00000080)
-#define SSI_IER_TUE0			(0x00000100)
-#define SSI_IER_TUE1			(0x00000200)
-#define SSI_IER_ROE0			(0x00000400)
-#define SSI_IER_ROE1			(0x00000800)
-#define SSI_IER_TDE0			(0x00001000)
-#define SSI_IER_TDE1			(0x00002000)
-#define SSI_IER_RDR0			(0x00004000)
-#define SSI_IER_RDR1			(0x00008000)
-#define SSI_IER_RXT			(0x00010000)
-#define SSI_IER_CMDU			(0x00020000)
-#define SSI_IER_CMDAU			(0x00040000)
-#define SSI_IER_TIE			(0x00080000)
-#define SSI_IER_TDMAE			(0x00100000)
-#define SSI_IER_RIE			(0x00200000)
-#define SSI_IER_RDMAE			(0x00400000)
-
-/* Bit definitions and macros for TCR */
-#define SSI_TCR_TEFS			(0x00000001)
-#define SSI_TCR_TFSL			(0x00000002)
-#define SSI_TCR_TFSI			(0x00000004)
-#define SSI_TCR_TSCKP			(0x00000008)
-#define SSI_TCR_TSHFD			(0x00000010)
-#define SSI_TCR_TXDIR			(0x00000020)
-#define SSI_TCR_TFDIR			(0x00000040)
-#define SSI_TCR_TFEN0			(0x00000080)
-#define SSI_TCR_TFEN1			(0x00000100)
-#define SSI_TCR_TXBIT0			(0x00000200)
-
-/* Bit definitions and macros for RCR */
-#define SSI_RCR_REFS			(0x00000001)
-#define SSI_RCR_RFSL			(0x00000002)
-#define SSI_RCR_RFSI			(0x00000004)
-#define SSI_RCR_RSCKP			(0x00000008)
-#define SSI_RCR_RSHFD			(0x00000010)
-#define SSI_RCR_RFEN0			(0x00000080)
-#define SSI_RCR_RFEN1			(0x00000100)
-#define SSI_RCR_RXBIT0			(0x00000200)
-#define SSI_RCR_RXEXT			(0x00000400)
-
-/* Bit definitions and macros for CCR */
-#define SSI_CCR_PM(x)			(((x)&0x000000FF))
-#define SSI_CCR_DC(x)			(((x)&0x0000001F)<<8)
-#define SSI_CCR_WL(x)			(((x)&0x0000000F)<<13)
-#define SSI_CCR_PSR			(0x00020000)
-#define SSI_CCR_DIV2			(0x00040000)
-
-/* Bit definitions and macros for FCSR */
-#define SSI_FCSR_TFWM0(x)		(((x)&0x0000000F))
-#define SSI_FCSR_RFWM0(x)		(((x)&0x0000000F)<<4)
-#define SSI_FCSR_TFCNT0(x)		(((x)&0x0000000F)<<8)
-#define SSI_FCSR_RFCNT0(x)		(((x)&0x0000000F)<<12)
-#define SSI_FCSR_TFWM1(x)		(((x)&0x0000000F)<<16)
-#define SSI_FCSR_RFWM1(x)		(((x)&0x0000000F)<<20)
-#define SSI_FCSR_TFCNT1(x)		(((x)&0x0000000F)<<24)
-#define SSI_FCSR_RFCNT1(x)		(((x)&0x0000000F)<<28)
-
-/* Bit definitions and macros for ACR */
-#define SSI_ACR_AC97EN			(0x00000001)
-#define SSI_ACR_FV			(0x00000002)
-#define SSI_ACR_TIF			(0x00000004)
-#define SSI_ACR_RD			(0x00000008)
-#define SSI_ACR_WR			(0x00000010)
-#define SSI_ACR_FRDIV(x)		(((x)&0x0000003F)<<5)
-
-/* Bit definitions and macros for ACADD */
-#define SSI_ACADD_SSI_ACADD(x)		(((x)&0x0007FFFF))
-
-/* Bit definitions and macros for ACDAT */
-#define SSI_ACDAT_SSI_ACDAT(x)		(((x)&0x0007FFFF))
-
-/* Bit definitions and macros for ATAG */
-#define SSI_ATAG_DDI_ATAG(x)		(((x)&0x0000FFFF))
-
-/*********************************************************************
 * Phase Locked Loop (PLL)
 *********************************************************************/
 
@@ -1503,13 +1204,13 @@
 #define PCI_TCR1_P			(0x00010000)	/* Prefetch reads */
 #define PCI_TCR1_WCD			(0x00000100)	/* Write combine disable */
 
-#define PCI_TCR1_B5E			(0x00002000)	/*  */
-#define PCI_TCR1_B4E			(0x00001000)	/*  */
-#define PCI_TCR1_B3E			(0x00000800)	/*  */
-#define PCI_TCR1_B2E			(0x00000400)	/*  */
-#define PCI_TCR1_B1E			(0x00000200)	/*  */
-#define PCI_TCR1_B0E			(0x00000100)	/*  */
-#define PCI_TCR1_CR			(0x00000001)	/*  */
+#define PCI_TCR2_B5E			(0x00002000)	/*  */
+#define PCI_TCR2_B4E			(0x00001000)	/*  */
+#define PCI_TCR2_B3E			(0x00000800)	/*  */
+#define PCI_TCR2_B2E			(0x00000400)	/*  */
+#define PCI_TCR2_B1E			(0x00000200)	/*  */
+#define PCI_TCR2_B0E			(0x00000100)	/*  */
+#define PCI_TCR2_CR			(0x00000001)	/*  */
 
 #define PCI_TBATR_BAT(x)		((x & 0xFFF) << 20)
 #define PCI_TBATR_EN			(0x00000001)	/* Enable */
@@ -1533,8 +1234,7 @@
 #define PCI_ICR_REE			(0x04000000)	/* Retry error enable */
 #define PCI_ICR_IAE			(0x02000000)	/* Initiator abort enable */
 #define PCI_ICR_TAE			(0x01000000)	/* Target abort enable */
-
-#define PCI_IDR_DEVID			(
+#define PCI_ICR_MAXRETRY(x)		((x) & 0x000000FF)
 
 /********************************************************************/
 

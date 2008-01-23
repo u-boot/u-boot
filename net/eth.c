@@ -61,6 +61,7 @@ extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
 extern int atstk1000_eth_initialize(bd_t *);
 extern int mcffec_initialize(bd_t*);
+extern int mcdmafec_initialize(bd_t*);
 
 #ifdef CONFIG_API
 extern void (*push_packet)(volatile void *, int);
@@ -274,6 +275,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_MCFFEC)
 	mcffec_initialize(bis);
+#endif
+#if defined(CONFIG_FSLDMAFEC)
+	mcdmafec_initialize(bis);
 #endif
 
 	if (!eth_devices) {
