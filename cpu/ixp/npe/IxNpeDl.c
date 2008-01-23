@@ -109,38 +109,6 @@ PRIVATE IX_STATUS
 ixNpeDlNpeInitAndStartInternal (UINT32 *imageLibrary, UINT32 imageId);
 
 /*
- * Function definition: ixNpeDlMicrocodeImageLibraryOverride
- */
-PUBLIC IX_STATUS
-ixNpeDlMicrocodeImageLibraryOverride (UINT32 *clientImageLibrary)
-{
-    IX_STATUS status = IX_SUCCESS;
-
-    IX_NPEDL_TRACE0 (IX_NPEDL_FN_ENTRY_EXIT,
-                     "Entering ixNpeDlMicrocodeImageLibraryOverride\n");
-
-    if (clientImageLibrary == NULL)
-    {
-        status = IX_NPEDL_PARAM_ERR;
-        IX_NPEDL_ERROR_REPORT ("ixNpeDlMicrocodeImageLibraryOverride - "
-                               "invalid parameter\n");
-    }
-    else
-    {
-        status = ixNpeDlImageMgrMicrocodeImageLibraryOverride (clientImageLibrary);
-        if (status != IX_SUCCESS)
-        {
-            status = IX_FAIL;
-        }
-    } /* end of if-else(clientImageLibrary) */
-
-    IX_NPEDL_TRACE1 (IX_NPEDL_FN_ENTRY_EXIT,
-                     "Exiting ixNpeDlMicrocodeImageLibraryOverride : "
-                     "status = %d\n", status);
-    return status;
-}
-
-/*
  * Function definition: ixNpeDlImageDownload
  */
 PUBLIC IX_STATUS

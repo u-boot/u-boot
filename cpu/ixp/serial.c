@@ -58,7 +58,11 @@ void serial_setbrg (void)
 	DLL(uart) = quot & 0xff;
 	DLH(uart) = quot >> 8;
 	LCR(uart) = LCR_WLS0 | LCR_WLS1;
-
+#ifdef CONFIG_SERIAL_RTS_ACTIVE
+	MCR(uart) = MCR_RTS;				/* set RTS active */
+#else
+	MCR(uart) = 0;					/* set RTS inactive */
+#endif
 	IER(uart) = IER_UUE;
 }
 
