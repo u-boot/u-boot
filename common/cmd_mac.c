@@ -33,7 +33,7 @@ U_BOOT_CMD(
 	"mac     - display and program the system ID and MAC addresses in EEPROM\n",
 	"[read|save|id|num|errata|date|ports|0|1|2|3|4|5|6|7]\n"
 	"read\n"
-	"    - show content of mac\n"
+	"    - show content of EEPROM\n"
 	"mac save\n"
 	"    - save to the EEPROM\n"
 	"mac id\n"
@@ -43,7 +43,7 @@ U_BOOT_CMD(
 	"mac errata\n"
 	"    - program errata data\n"
 	"mac date\n"
-	"    - program data date\n"
+	"    - program date\n"
 	"mac ports\n"
 	"    - program the number of ports\n"
 	"mac 0\n"

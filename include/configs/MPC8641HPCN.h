@@ -555,6 +555,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP			/* undef to save memory	*/
+#define CONFIG_CMDLINE_EDITING          /* Command-line editing */
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt */
 

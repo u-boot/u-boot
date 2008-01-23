@@ -28,16 +28,19 @@
 #include <linux/ctype.h>
 
 typedef struct {
-	unsigned char id[4];		/* 0x0000 - 0x0003 */
-	unsigned char sn[12];		/* 0x0004 - 0x000F */
-	unsigned char errata[5];	/* 0x0010 - 0x0014 */
-	unsigned char date[7];		/* 0x0015 - 0x001a */
-	unsigned char res_1[37];	/* 0x001b - 0x003f */
-	unsigned char tab_size;		/* 0x0040 */
-	unsigned char tab_flag;		/* 0x0041 */
-	unsigned char mac[8][6];	/* 0x0042 - 0x0071 */
-	unsigned char res_2[126];	/* 0x0072 - 0x00ef */
-	unsigned int crc;		/* 0x00f0 - 0x00f3 crc32 checksum */
+	u8 id[4];		/* 0x0000 - 0x0003 EEPROM Tag */
+	u8 sn[12];		/* 0x0004 - 0x000F Serial Number */
+	u8 errata[5];		/* 0x0010 - 0x0014 Errata Level */
+	u8 date[6];		/* 0x0015 - 0x001a Build Date */
+	u8 res_0;		/* 0x001b 	   Reserved */
+	u8 version[4];		/* 0x001c - 0x001f Version */
+	u8 tempcal[8];		/* 0x0020 - 0x0027 Temperature Calibration Factors*/
+	u8 tempcalsys[2]; 	/* 0x0028 - 0x0029 System Temperature Calibration Factors*/
+	u8 res_1[22];		/* 0x0020 - 0x003f Reserved */
+	u8 mac_size;		/* 0x0040 	   Mac table size */
+	u8 mac_flag;		/* 0x0041 	   Mac table flags */
+	u8 mac[8][6];		/* 0x0042 - 0x0071 Mac addresses */
+	u32 crc;		/* 0x0072 	   crc32 checksum */
 } EEPROM_data;
 
 static EEPROM_data mac_data;
@@ -45,28 +48,57 @@ static EEPROM_data mac_data;
 int mac_show(void)
 {
 	int i;
+	u8 mac_size;
 	unsigned char ethaddr[8][18];
+	unsigned char enetvar[32];
 
-	printf("ID %c%c%c%c\n",
-	       mac_data.id[0],
-	       mac_data.id[1],
-	       mac_data.id[2],
-	       mac_data.id[3]);
-	printf("Errata %c%c%c%c%c\n",
-	       mac_data.errata[0],
-	       mac_data.errata[1],
-	       mac_data.errata[2],
-	       mac_data.errata[3],
-	       mac_data.errata[4]);
-	printf("Date %c%c%c%c%c%c%c\n",
+	/* Show EEPROM tagID,
+	 * always the four characters 'NXID'.
+	 */
+	printf("ID ");
+	for (i = 0; i < 4; i++)
+		printf("%c", mac_data.id[i]);
+	printf("\n");
+
+	/* Show Serial number,
+	 * 0 to 11 charaters of errata information.
+	 */
+	printf("SN ");
+	for (i = 0; i < 12; i++)
+		printf("%c", mac_data.sn[i]);
+	printf("\n");
+
+	/* Show Errata Level,
+	 * 0 to 4 characters of errata information.
+	 */
+	printf("Errata ");
+	for (i = 0; i < 5; i++)
+		printf("%c", mac_data.errata[i]);
+	printf("\n");
+
+	/* Show Build Date,
+	 * BCD date values, as YYMMDDhhmmss.
+	 */
+	printf("Date 20%02x\/%02x\/%02x %02x:%02x:%02x\n",
 	       mac_data.date[0],
 	       mac_data.date[1],
 	       mac_data.date[2],
 	       mac_data.date[3],
 	       mac_data.date[4],
-	       mac_data.date[5],
-	       mac_data.date[6]);
-	for (i = 0; i < 8; i++) {
+	       mac_data.date[5]);
+
+	/* Show MAC table size,
+	 * Value from 0 to 7 indicating how many MAC
+	 * addresses are stored in the system EEPROM.
+	 */
+	if((mac_data.mac_size > 0) && (mac_data.mac_size <= 8))
+		mac_size = mac_data.mac_size;
+	else
+		mac_size = 8; /* Set the max size */
+	printf("MACSIZE %x\n", mac_size);
+
+	/* Show Mac addresses */
+	for (i = 0; i < mac_size; i++) {
 		sprintf((char *)ethaddr[i],
 			"%02x:%02x:%02x:%02x:%02x:%02x",
 			mac_data.mac[i][0],
@@ -76,12 +108,12 @@ int mac_show(void)
 			mac_data.mac[i][4],
 			mac_data.mac[i][5]);
 		printf("MAC %d %s\n", i, ethaddr[i]);
-	}
 
-	setenv("ethaddr",  (char *)ethaddr[0]);
-	setenv("eth1addr", (char *)ethaddr[1]);
-	setenv("eth2addr", (char *)ethaddr[2]);
-	setenv("eth3addr", (char *)ethaddr[3]);
+		sprintf((char *)enetvar,
+			i ? "eth%daddr" : "ethaddr", i);
+		setenv((char *)enetvar, (char *)ethaddr[i]);
+
+	}
 
 	return 0;
 }
@@ -120,17 +152,14 @@ int mac_prog(void)
 	unsigned char dev = ID_EEPROM_ADDR, *ptr;
 	unsigned char *eeprom_data = (unsigned char *)(&mac_data);
 
-	for (i = 0; i < sizeof(mac_data.res_1); i++)
-		mac_data.res_1[i] = 0;
-	for (i = 0; i < sizeof(mac_data.res_2); i++)
-		mac_data.res_2[i] = 0;
+	mac_data.res_0 = 0;
+	memset((void *)mac_data.res_1, 0, sizeof(mac_data.res_1));
+
 	length = sizeof(EEPROM_data);
 	crc = crc32(crc, eeprom_data, length - 4);
 	mac_data.crc = crc;
 	for (i = 0, ptr = eeprom_data; i < length; i += 8, ptr += 8) {
-		ret =
-		    i2c_write(dev, i, 1, ptr,
-			      (length - i) < 8 ? (length - i) : 8);
+		ret = i2c_write(dev, i, 1, ptr, min((length - i),8));
 		udelay(5000);	/* 5ms write cycle timing */
 		if (ret)
 			break;
@@ -179,12 +208,13 @@ int do_mac(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			}
 			break;
 		case 'd':	/* date */
-			for (i = 0; i < 7; i++) {
-				mac_data.date[i] = argv[2][i];
+			mac_val = simple_strtoull(argv[2], NULL, 16);
+			for (i = 0; i < 6; i++) {
+				mac_data.date[i] = (mac_val >> (40 - 8 * i));
 			}
 			break;
-		case 'p':	/* number of ports */
-			mac_data.tab_size =
+		case 'p':	/* mac table size */
+			mac_data.mac_size =
 			    (unsigned char)simple_strtoul(argv[2], NULL, 16);
 			break;
 		case '0':	/* mac 0 */
