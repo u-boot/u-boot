@@ -40,7 +40,6 @@ SECTIONS
   .bootpg 0xFFFFF000 :
   {
     cpu/mpc85xx/start.o	(.bootpg)
-    board/stxssa/init.o (.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */
@@ -70,7 +69,6 @@ SECTIONS
   .text      :
   {
     cpu/mpc85xx/start.o	(.text)
-    board/stxssa/init.o (.text)
     cpu/mpc85xx/commproc.o (.text)
     cpu/mpc85xx/traps.o (.text)
     cpu/mpc85xx/interrupts.o (.text)

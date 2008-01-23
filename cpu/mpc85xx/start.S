@@ -143,84 +143,8 @@ _start_e500:
 	li	r1,0x0f00
 	mtspr	IVOR15,r1	/* 15: Debug */
 
-
-	/*
-	 * After reset, CCSRBAR is located at CFG_CCSRBAR_DEFAULT, i.e.
-	 * 0xff700000-0xff800000. We need add a TLB1 entry for this 1MB
-	 * region before we can access any CCSR registers such as L2
-	 * registers, Local Access Registers,etc. We will also re-allocate
-	 * CFG_CCSRBAR_DEFAULT to CFG_CCSRBAR immediately after TLB1 setup.
-	 *
-	 * Please refer to board-specif directory for TLB1 entry configuration.
-	 * (e.g. board/<yourboard>/init.S)
-	 *
-	 */
-	bl	tlb1_entry
-	mr	r5,r0
-	lwzu	r4,0(r5)	/* how many TLB1 entries we actually use */
-	mtctr	r4
-
-0:	lwzu	r6,4(r5)
-	lwzu	r7,4(r5)
-	lwzu	r8,4(r5)
-	lwzu	r9,4(r5)
-	mtspr	MAS0,r6
-	mtspr	MAS1,r7
-	mtspr	MAS2,r8
-	mtspr	MAS3,r9
-	isync
-	msync
-	tlbwe
-	isync
-	bdnz	0b
-
-1:
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
-	/* Special sequence needed to update CCSRBAR itself */
-	lis	r4,CFG_CCSRBAR_DEFAULT@h
-	ori	r4,r4,CFG_CCSRBAR_DEFAULT@l
-
-	lis	r5,CFG_CCSRBAR@h
-	ori	r5,r5,CFG_CCSRBAR@l
-	srwi	r6,r5,12
-	stw	r6,0(r4)
-	isync
-
-	lis	r5,0xffff
-	ori	r5,r5,0xf000
-	lwz	r5,0(r5)
-	isync
-
-	lis	r3,CFG_CCSRBAR@h
-	lwz	r5,CFG_CCSRBAR@l(r3)
-	isync
-#endif
-
-
-	/* set up local access windows, defined at board/<boardname>/init.S */
-	lis	r7,CFG_CCSRBAR@h
-	ori	r7,r7,CFG_CCSRBAR@l
-
-	bl	law_entry
-	mr	r6,r0
-	lwzu	r5,0(r6)	/* how many windows we actually use */
-	mtctr	r5
-
-	li	r2,0x0c28	/* the first pair is reserved for */
-	li	r1,0x0c30	/* boot-over-rio-or-pci */
-
-0:	lwzu	r4,4(r6)
-	lwzu	r3,4(r6)
-	stwx	r4,r7,r2
-	stwx	r3,r7,r1
-	addi	r2,r2,0x0020
-	addi	r1,r1,0x0020
-	bdnz	0b
-
 	/* Clear and set up some registers. */
-	li      r0,0
-	mtmsr   r0
-	li	r0,0x0000
+	li      r0,0x0000
 	lis	r1,0xffff
 	mtspr	DEC,r0			/* prevent dec exceptions */
 	mttbl	r0			/* prevent fit & wdt exceptions */
@@ -230,18 +154,13 @@ _start_e500:
 	mtspr	ESR,r0			/* clear exception syndrome register */
 	mtspr	MCSR,r0			/* machine check syndrome register */
 	mtxer	r0			/* clear integer exception register */
-	lis	r1,0x0002		/* set CE bit (Critical Exceptions) */
-	ori	r1,r1,0x1200		/* set ME/DE bit */
-	mtmsr	r1			/* change MSR */
-	isync
 
 	/* Enable Time Base and Select Time Base Clock */
 	lis	r0,HID0_EMCP@h		/* Enable machine check */
 #if defined(CONFIG_ENABLE_36BIT_PHYS)
-	ori	r0,r0,(HID0_TBEN|HID0_ENMAS7)@l	/* Enable Timebase & MAS7 */
-#else
-	ori	r0,r0,HID0_TBEN@l	/* enable Timebase */
+	ori	r0,r0,HID0_ENMAS7@l	/* Enable MAS7 */
 #endif
+	ori	r0,r0,HID0_TBEN@l	/* Enable Timebase */
 	mtspr	HID0,r0
 
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
@@ -262,6 +181,58 @@ _start_e500:
 	mtspr	DBCR0,r0
 #endif
 
+	/* create a temp mapping in AS=1 to the boot window */
+	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
+	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
+
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16M)@l
+
+	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@l
+
+	lis     r9,FSL_BOOKE_MAS3(0xff800000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(0xff800000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+
+	mtspr   MAS0,r6
+	mtspr   MAS1,r7
+	mtspr   MAS2,r8
+	mtspr   MAS3,r9
+	isync
+	msync
+	tlbwe
+
+	/* create a temp mapping in AS=1 to the stack */
+	lis     r6,FSL_BOOKE_MAS0(1, 14, 0)@h
+	ori     r6,r6,FSL_BOOKE_MAS0(1, 14, 0)@l
+
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16K)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16K)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, 0)@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, 0)@l
+
+	lis     r9,FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+
+	mtspr   MAS0,r6
+	mtspr   MAS1,r7
+	mtspr   MAS2,r8
+	mtspr   MAS3,r9
+	isync
+	msync
+	tlbwe
+
+	lis	r6,MSR_CE|MSR_ME|MSR_DE|MSR_IS|MSR_DS@h
+	ori	r6,r6,MSR_CE|MSR_ME|MSR_DE|MSR_IS|MSR_DS@l
+	lis	r7,switch_as@h
+	ori	r7,r7,switch_as@l
+
+	mtspr	SPRN_SRR0,r7
+	mtspr	SPRN_SRR1,r6
+	rfi
+
+switch_as:
 /* L1 DCache is used for initial RAM */
 
 	/* Allocate Initial RAM in data cache.
@@ -321,6 +292,14 @@ _start_cont:
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
 
 	GET_GOT
+	bl	cpu_init_early_f
+
+	/* switch back to AS = 0 */
+	lis	r3,(MSR_CE|MSR_ME|MSR_DE)@h
+	ori	r3,r3,(MSR_CE|MSR_ME|MSR_DE)@l
+	mtmsr	r3
+	isync
+
 	bl	cpu_init_f
 	bl	board_init_f
 	isync
