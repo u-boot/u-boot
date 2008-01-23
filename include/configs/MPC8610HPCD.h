@@ -315,6 +315,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
+#define CONFIG_CMD_REGINFO
 
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X

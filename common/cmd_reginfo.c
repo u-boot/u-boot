@@ -31,6 +31,8 @@
 #include <mpc5xx.h>
 #elif defined (CONFIG_MPC5200)
 #include <mpc5xxx.h>
+#elif defined (CONFIG_MPC86xx)
+extern void mpc86xx_reginfo(void);
 #endif
 
 int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -329,14 +331,18 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		*(volatile ulong*)MPC5XXX_SDRAM_CS0CFG);
 	printf ("\tSDRAMCS1: %08X\n",
 		*(volatile ulong*)MPC5XXX_SDRAM_CS1CFG);
-#endif /* CONFIG_MPC5200 */
+#elif defined(CONFIG_MPC86xx)
+	mpc86xx_reginfo();
+#endif /* CONFIG_MPC86xx */
+
 	return 0;
 }
 
  /**************************************************/
 
 #if ( defined(CONFIG_8xx)   || defined(CONFIG_405GP) || \
-      defined(CONFIG_405EP) || defined(CONFIG_MPC5200)  ) && \
+      defined(CONFIG_405EP) || defined(CONFIG_MPC5200) || \
+      defined(CONFIG_MPC86xx)) && \
     defined(CONFIG_CMD_REGINFO)
 
 U_BOOT_CMD(
