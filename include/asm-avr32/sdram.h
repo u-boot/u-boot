@@ -26,6 +26,9 @@ struct sdram_info {
 	unsigned long phys_addr;
 	unsigned int row_bits, col_bits, bank_bits;
 	unsigned int cas, twr, trc, trp, trcd, tras, txsr;
+
+	/* SDRAM refresh period in cycles */
+	unsigned long refresh_period;
 };
 
 extern unsigned long sdram_init(const struct sdram_info *info);
