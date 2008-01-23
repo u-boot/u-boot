@@ -40,13 +40,6 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_EXT2
 
-#define CFG_CMD_PCMCIA	0x01
-#define CFG_CMD_IDE	0x02
-
-#define CONFIG_COMMANDS		((CONFIG_CMD_DFL	| \
-				 CFG_CMD_IDE|CFG_CMD_PCMCIA)	& \
-				~(CFG_CMD_FPGA))
-
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_BOOTFILE		/boot/zImage
