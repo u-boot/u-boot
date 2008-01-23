@@ -283,11 +283,6 @@ in_flash:
 	bl      setup_ccsrbar
 #endif
 
-#ifndef CONFIG_FSL_LAW
-	bl	law_entry
-	sync
-#endif
-
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
 	sync

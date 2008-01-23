@@ -27,8 +27,6 @@ endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-SOBJS	:= init.o
-
 COBJS	:= $(BOARD).o law.o
 
 COBJS-${CONFIG_FSL_DIU_FB}	+= mpc8610hpcd_diu.o
