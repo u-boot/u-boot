@@ -1,0 +1,11 @@
+By Vlad Lungu vlad@comsys.ro 2007-Oct-01
+----------------------------------------
+Qemu is a full system emulator. See
+
+http://fabrice.bellard.free.fr/qemu
+
+Limitations & comments
+----------------------
+Supports the "-m mips" configuration of qemu: serial,NE2000,IDE.
+Support is big endian only for now (or at least this is what I tested).
+Derived from au1x00 with a lot of things cut out.
