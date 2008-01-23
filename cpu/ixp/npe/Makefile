@@ -72,7 +72,6 @@ COBJS := npe.o \
 	IxNpeDlImageMgr.o \
 	IxNpeDlNpeMgr.o \
 	IxNpeDlNpeMgrUtils.o \
-	IxNpeMicrocode.o \
 	IxNpeMh.o \
 	IxNpeMhConfig.o \
 	IxNpeMhReceive.o \
@@ -80,6 +79,9 @@ COBJS := npe.o \
 	IxNpeMhSolicitedCbMgr.o \
 	IxNpeMhUnsolicitedCbMgr.o
 
+ifndef CONFIG_IXP4XX_NPE_EXT_UCODE_BASE
+COBJS += IxNpeMicrocode.o
+endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
