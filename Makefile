@@ -1819,6 +1819,9 @@ M5271EVB_config :		unconfig
 M5272C3_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5272c3
 
+M5275EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5275evb freescale
+
 M5282EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5282evb
 
