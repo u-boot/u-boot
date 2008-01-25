@@ -149,18 +149,8 @@ long int initdram (int board_type)
 	} else {
 		dramsize = 0;
 	}
-
-	/* retrieve size of memory connected to SDRAM CS1 */
-	dramsize2 = *(vu_long *)MPC5XXX_SDRAM_CS1CFG & 0xFF;
-	if (dramsize2 >= 0x13) {
-		dramsize2 = (1 << (dramsize2 - 0x13)) << 20;
-	} else {
-		dramsize2 = 0;
-	}
-
 #endif /* CFG_RAMBOOT */
 
-/*	return dramsize + dramsize2; */
 	return dramsize;
 }
 
