@@ -142,7 +142,6 @@ void rtc_get (struct rtc_time *tmp)
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 }
 
-
 /*
  * Set the RTC
  */
@@ -165,7 +164,6 @@ void rtc_set (struct rtc_time *tmp)
 
 	rtc_write (RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
 }
-
 
 /*
  * Reset the RTC. We setting the date back to 1970-01-01.
@@ -200,7 +198,6 @@ void rtc_reset (void)
 	return;
 }
 
-
 /*
  * Helper functions
  */
@@ -224,4 +221,4 @@ static unsigned char bin2bcd (unsigned int n)
 	return (((n / 10) << 4) | (n % 10));
 }
 
-#endif /* CONFIG_RTC_RX8025 && (CFG_COMMANDS & CFG_CMD_DATE) */
+#endif /* CONFIG_RTC_RX8025 && CONFIG_CMD_DATE */
