@@ -2852,6 +2852,11 @@ ms7722se_config :	unconfig
 	@echo "#define CONFIG_MS7722SE 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7722se
 
+MigoR_config :       unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MIGO_R 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 MigoR
+
 #########################################################################
 #########################################################################
 #########################################################################
