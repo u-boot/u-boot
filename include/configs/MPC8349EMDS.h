@@ -356,6 +356,7 @@
 #define CFG_I2C2_OFFSET		0x3100
 
 /* SPI */
+#define CONFIG_MPC8XXX_SPI
 #define CONFIG_HARD_SPI			/* SPI with hardware support */
 #undef CONFIG_SOFT_SPI			/* SPI bit-banged */
 
