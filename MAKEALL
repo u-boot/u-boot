@@ -721,7 +721,7 @@ build_target() {
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
 
-	${CROSS_COMPILE:-ppc_8xx-}size ${BUILD_DIR}/u-boot \
+	${CROSS_COMPILE}size ${BUILD_DIR}/u-boot \
 				| tee -a ${LOG_DIR}/$target.MAKELOG
 }
 
