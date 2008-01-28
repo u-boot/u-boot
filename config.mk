@@ -147,7 +147,10 @@ OBJCFLAGS += --gap-fill=0xff
 gccincdir := $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
-	-D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE)		\
+	-D__KERNEL__
+ifneq ($(TEXT_BASE),)
+CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE)
+endif
 
 ifneq ($(OBJTREE),$(SRCTREE))
 CPPFLAGS += -I$(OBJTREE)/include2 -I$(OBJTREE)/include
@@ -185,7 +188,10 @@ endif
 
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 
-LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
+LDFLAGS += -Bstatic -T $(LDSCRIPT) $(PLATFORM_LDFLAGS)
+ifneq ($(TEXT_BASE),)
+LDFLAGS += -Ttext $(TEXT_BASE)
+endif
 
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are
