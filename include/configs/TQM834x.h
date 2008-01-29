@@ -181,7 +181,7 @@ extern int tqm834x_num_flash_banks;
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN		(128 * 1024) /* Reserved for malloc */
+#define CFG_MALLOC_LEN		(256 * 1024) /* Reserve 256 kB for malloc */
 
 /*
  * Serial Port
@@ -302,7 +302,7 @@ extern int tqm834x_num_flash_banks;
 #ifndef CFG_RAMBOOT
 	#define CFG_ENV_IS_IN_FLASH	1
 	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
-	#define CFG_ENV_SECT_SIZE	0x20000	/* 256K(one sector) for env */
+	#define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
 	#define CFG_ENV_SIZE		0x2000
 #else
 	#define CFG_NO_FLASH		1	/* Flash is not usable now */
@@ -557,7 +557,7 @@ extern int tqm834x_num_flash_banks;
 #define MTDIDS_DEFAULT		"nor0=TQM834x-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT	"mtdparts=TQM834x-0:256k(u-boot),128k(env),"\
+#define MTDPARTS_DEFAULT	"mtdparts=TQM834x-0:256k(u-boot),256k(env),"\
 						"1m(kernel),2m(initrd),"\
 						"-(user);"\
 
