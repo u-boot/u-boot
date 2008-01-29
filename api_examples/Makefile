@@ -30,19 +30,25 @@ endif
 
 include $(TOPDIR)/config.mk
 
-ELF	+= demo
-BIN	+= demo.bin
+ELF-$(CONFIG_API) += demo
+BIN-$(CONFIG_API) += demo.bin
+ELF	:= $(ELF-y)
+BIN	:= $(BIN-y)
 
 #CFLAGS += -v
 
-COBJS	:= $(ELF:=.o)
-SOBJS	:= crt0.o
+COBJS-$(CONFIG_API) += $(ELF:=.o)
+SOBJS-$(CONFIG_API) += crt0.o
 ifeq ($(ARCH),ppc)
-SOBJS	+= ppcstring.o
+SOBJS-$(CONFIG_API) += ppcstring.o
 endif
+COBJS	:= $(COBJS-y)
+SOBJS	:= $(SOBJS-y)
 
 LIB	= $(obj)libglue.a
-LIBCOBJS= glue.o crc32.o ctype.o string.o vsprintf.o libgenwrap.o
+LIBCOBJS-$(CONFIG_API) += glue.o crc32.o ctype.o string.o vsprintf.o \
+				libgenwrap.o
+LIBCOBJS := $(LIBCOBJS-y)
 
 LIBOBJS	= $(addprefix $(obj),$(SOBJS) $(LIBCOBJS))
 
@@ -55,7 +61,7 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(LIB) $(BIN) $(ELF)
+all:	$(obj).depend $(OBJS) $(LIB) $(ELF) $(BIN)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
