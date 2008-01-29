@@ -335,6 +335,7 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
