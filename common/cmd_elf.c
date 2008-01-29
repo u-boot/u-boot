@@ -27,6 +27,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
+static inline void bootelf_setup(int argc, char *argv[])
+{
+	/*
+	 * QNX images require the data cache is disabled.
+	 * Data cache is already flushed, so just turn it off.
+	 */
+	if (dcache_status ())
+		dcache_disable ();
+
+#ifdef CONFIG_BLACKFIN
+	if (icache_status ())
+		icache_disable ();
+#endif
+}
+
 int valid_elf_image (unsigned long addr);
 unsigned long load_elf_image (unsigned long addr);
 
@@ -53,12 +68,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	printf ("## Starting application at 0x%08lx ...\n", addr);
 
-	/*
-	 * QNX images require the data cache is disabled.
-	 * Data cache is already flushed, so just turn it off.
-	 */
-	if (dcache_status ())
-		dcache_disable ();
+	bootelf_setup(argc, argv);
 
 	/*
 	 * pass address parameter as argv[0] (aka command name),
