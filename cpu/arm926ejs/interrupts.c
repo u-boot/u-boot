@@ -172,7 +172,7 @@ void do_irq (struct pt_regs *pt_regs)
 	bad_mode ();
 }
 
-#ifdef CONFIG_INTEGRATOR
+#if defined(CONFIG_INTEGRATOR) || defined(CONFIG_AT91CAP9ADK)
 
 	/* Timer functionality supplied by Integrator board (AP or CP) */
 

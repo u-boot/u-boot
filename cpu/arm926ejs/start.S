@@ -182,6 +182,9 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	cmp	r0, r1
 	ble	clbss_l
 
+	bl coloured_LED_init
+	bl red_LED_on
+
 	ldr	pc, _start_armboot
 
 _start_armboot:
