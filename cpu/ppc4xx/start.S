@@ -110,6 +110,10 @@
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
+#if (defined(CFG_INIT_RAM_DCACHE) && (CFG_INIT_RAM_END > (4 << 10)))
+#error Only 4k of init-ram is supported - please adjust CFG_INIT_RAM_END!
+#endif
+
 #define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
