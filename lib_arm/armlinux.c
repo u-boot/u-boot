@@ -78,12 +78,20 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	void (*theKernel)(int zero, int arch, uint params);
 	image_header_t *hdr = &header;
 	bd_t *bd = gd->bd;
+	int machid = bd->bi_arch_number;
+	char *s;
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
 #endif
 
 	theKernel = (void (*)(int, int, uint))ntohl(hdr->ih_ep);
+
+	s = getenv ("machid");
+	if (s) {
+		machid = simple_strtoul (s, NULL, 16);
+		printf ("Using machid 0x%x from environment\n", machid);
+	}
 
 	/*
 	 * Check if there is an initrd image
@@ -260,7 +268,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	cleanup_before_linux ();
 
-	theKernel (0, bd->bi_arch_number, bd->bi_boot_params);
+	theKernel (0, machid, bd->bi_boot_params);
 }
 
 
