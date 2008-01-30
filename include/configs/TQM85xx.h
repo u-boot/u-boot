@@ -89,6 +89,7 @@
  */
 #define CFG_CCSRBAR_DEFAULT	0xFF700000	/* CCSRBAR Default	*/
 #define CFG_CCSRBAR		0xE0000000	/* relocated CCSRBAR	*/
+#define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
 /*

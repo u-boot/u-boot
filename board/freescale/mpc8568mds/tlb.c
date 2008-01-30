@@ -74,7 +74,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * 0xe200_0000	8M	PCI1 IO
 	 * 0xe280_0000	8M	PCIe IO
 	 */
-	SET_TLB_ENTRY(1, CFG_CCSRBAR, CFG_CCSRBAR,
+	SET_TLB_ENTRY(1, CFG_CCSRBAR, CFG_CCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 3, BOOKE_PAGESZ_64M, 1),
 
