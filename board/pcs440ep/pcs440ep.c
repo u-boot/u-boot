@@ -175,7 +175,7 @@ int board_early_init_f(void)
 	 *-------------------------------------------------------------------*/
 	mfsdr(sdr_pci0, reg);
 	mtsdr(sdr_pci0, 0x80000000 | reg);	/* PCI arbiter enabled */
-	mtsdr(sdr_pfc0, 0x00000100);	/* Pin function: enable GPIO49-63 */
+	mtsdr(sdr_pfc0, 0x00000000);	/* Pin function: enable GPIO49-63 */
 	mtsdr(sdr_pfc1, 0x00048000);	/* Pin function: UART0 has 4 pins, select IRQ5 */
 
 	return 0;
