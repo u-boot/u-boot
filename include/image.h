@@ -343,9 +343,15 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong *rd_start, ulong *rd_end);
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
-void ramdisk_high (ulong rd_data_start, ulong rd_len, bd_t *kbd, ulong sp_limit,
-		ulong sp, ulong *initrd_start, ulong *initrd_end);
+ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
+		bd_t *kbd, ulong sp_limit, ulong sp,
+		ulong *initrd_start, ulong *initrd_end);
+
+ulong get_boot_sp_limit (ulong sp);
+ulong get_boot_cmdline (ulong alloc_current, ulong *cmd_start, ulong *cmd_end);
+ulong get_boot_kbd (ulong alloc_current, bd_t **kbd);
 #endif /* CONFIG_PPC || CONFIG_M68K */
+
 #endif /* USE_HOSTCC */
 
 #endif	/* __IMAGE_H__ */

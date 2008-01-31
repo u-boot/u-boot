@@ -51,10 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static ulong get_sp (void);
-
-#if defined(CONFIG_CMD_BDI)
-extern int do_bdinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-#endif
+static void set_clocks_in_mhz (bd_t *kbd);
 
 void  __attribute__((noinline))
 do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
@@ -62,14 +59,12 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		image_header_t *hdr,
 		int	verify)
 {
+	ulong	sp, sp_limit, alloc_current;
+
 	ulong	initrd_start, initrd_end;
 	ulong	rd_data_start, rd_data_end, rd_len;
 
 	ulong	cmd_start, cmd_end;
-	char    *cmdline;
-
-	ulong	sp_limit;
-	char	*s;
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 
@@ -88,60 +83,18 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	 * memory, which means far enough below the current stack
 	 * pointer.
 	 */
+	sp = get_sp();
+	debug ("## Current stack ends at 0x%08lx ", sp);
 
-	sp_limit = get_sp();
-	debug ("## Current stack ends at 0x%08lX ", sp_limit);
+	alloc_current = sp_limit = get_boot_sp_limit(sp);
+	debug ("=> set upper limit to 0x%08lx\n", sp_limit);
 
-	sp_limit -= 2048;		/* just to be sure */
-	if (sp_limit > CFG_BOOTMAPSZ)
-		sp_limit = CFG_BOOTMAPSZ;
-	sp_limit &= ~0xF;
+	/* allocate space and init command line */
+	alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
 
-	debug ("=> set upper limit to 0x%08lX\n", sp_limit);
-
-	cmdline = (char *)((sp_limit - CFG_BARGSIZE) & ~0xF);
-	kbd = (bd_t *)(((ulong)cmdline - sizeof(bd_t)) & ~0xF);
-
-	if ((s = getenv("bootargs")) == NULL)
-		s = "";
-
-	strcpy (cmdline, s);
-
-	cmd_start    = (ulong)&cmdline[0];
-	cmd_end      = cmd_start + strlen(cmdline);
-
-	*kbd = *(gd->bd);
-
-#ifdef	DEBUG
-	printf ("## cmdline at 0x%08lX ... 0x%08lX\n", cmd_start, cmd_end);
-
-#if defined(CONFIG_CMD_BDI)
-	do_bdinfo (NULL, 0, 0, NULL);
-#endif
-#endif
-
-	if ((s = getenv ("clocks_in_mhz")) != NULL) {
-		/* convert all clock information to MHz */
-		kbd->bi_intfreq /= 1000000L;
-		kbd->bi_busfreq /= 1000000L;
-#if defined(CONFIG_MPC8220)
-	kbd->bi_inpfreq /= 1000000L;
-	kbd->bi_pcifreq /= 1000000L;
-	kbd->bi_pevfreq /= 1000000L;
-	kbd->bi_flbfreq /= 1000000L;
-	kbd->bi_vcofreq /= 1000000L;
-#endif
-#if defined(CONFIG_CPM2)
-		kbd->bi_cpmfreq /= 1000000L;
-		kbd->bi_brgfreq /= 1000000L;
-		kbd->bi_sccfreq /= 1000000L;
-		kbd->bi_vco     /= 1000000L;
-#endif
-#if defined(CONFIG_MPC5xxx)
-		kbd->bi_ipbfreq /= 1000000L;
-		kbd->bi_pcifreq /= 1000000L;
-#endif /* CONFIG_MPC5xxx */
-	}
+	/* allocate space for kernel copy of board info */
+	alloc_current = get_boot_kbd (alloc_current, &kbd);
+	set_clocks_in_mhz(kbd);
 
 	/* find kernel */
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
@@ -152,7 +105,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 	rd_len = rd_data_end - rd_data_start;
 
-	ramdisk_high (rd_data_start, rd_len, kbd, sp_limit, get_sp (),
+	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
+			kbd, sp_limit, get_sp (),
 			&initrd_start, &initrd_end);
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -266,8 +220,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 		of_len = be32_to_cpu(fdt_totalsize(of_data));
 
-		/* position on a 4K boundary before the kbd */
-		of_start  = (ulong)kbd - of_len;
+		/* position on a 4K boundary before the alloc_current */
+		of_start  = alloc_current - of_len;
 		of_start &= ~(4096 - 1);	/* align on page */
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			of_data, of_data + of_len - 1, of_len, of_len);
@@ -351,6 +305,34 @@ static ulong get_sp (void)
 
 	asm( "mr %0,1": "=r"(sp) : );
 	return sp;
+}
+
+static void set_clocks_in_mhz (bd_t *kbd)
+{
+	char	*s;
+
+	if ((s = getenv ("clocks_in_mhz")) != NULL) {
+		/* convert all clock information to MHz */
+		kbd->bi_intfreq /= 1000000L;
+		kbd->bi_busfreq /= 1000000L;
+#if defined(CONFIG_MPC8220)
+		kbd->bi_inpfreq /= 1000000L;
+		kbd->bi_pcifreq /= 1000000L;
+		kbd->bi_pevfreq /= 1000000L;
+		kbd->bi_flbfreq /= 1000000L;
+		kbd->bi_vcofreq /= 1000000L;
+#endif
+#if defined(CONFIG_CPM2)
+		kbd->bi_cpmfreq /= 1000000L;
+		kbd->bi_brgfreq /= 1000000L;
+		kbd->bi_sccfreq /= 1000000L;
+		kbd->bi_vco     /= 1000000L;
+#endif
+#if defined(CONFIG_MPC5xxx)
+		kbd->bi_ipbfreq /= 1000000L;
+		kbd->bi_pcifreq /= 1000000L;
+#endif /* CONFIG_MPC5xxx */
+	}
 }
 
 #if defined(CONFIG_OF_LIBFDT)

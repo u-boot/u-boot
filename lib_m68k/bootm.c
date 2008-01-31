@@ -29,6 +29,9 @@
 #include <watchdog.h>
 #include <environment.h>
 #include <asm/byteorder.h>
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+# include <status_led.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,27 +40,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LINUX_MAX_ENVS		256
 #define LINUX_MAX_ARGS		256
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 static ulong get_sp (void);
+static void set_clocks_in_mhz (bd_t *kbd);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
 		    image_header_t *hdr, int verify)
 {
-	ulong sp_limit;
+	ulong sp, sp_limit, alloc_current;
 
 	ulong rd_data_start, rd_data_end, rd_len;
 	ulong initrd_start, initrd_end;
 
 	ulong cmd_start, cmd_end;
-	char *cmdline;
-	char *s;
 	bd_t *kbd;
 	void (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 
@@ -70,41 +65,18 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	 * memory, which means far enough below the current stack
 	 * pointer.
 	 */
-	sp_limit = get_sp();
+	sp = get_sp();
+	debug ("## Current stack ends at 0x%08lx ", sp);
 
-	debug("## Current stack ends at 0x%08lX ", sp_limit);
+	alloc_current = sp_limit = get_boot_sp_limit(sp);
+	debug ("=> set upper limit to 0x%08lx\n", sp_limit);
 
-	sp_limit -= 2048;		/* just to be sure */
-	if (sp_limit > CFG_BOOTMAPSZ)
-		sp_limit = CFG_BOOTMAPSZ;
-	sp_limit &= ~0xF;
+	/* allocate space and init command line */
+	alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
 
-	debug("=> set upper limit to 0x%08lX\n", sp_limit);
-
-	cmdline = (char *)((sp_limit - CFG_BARGSIZE) & ~0xF);
-	kbd = (bd_t *) (((ulong) cmdline - sizeof(bd_t)) & ~0xF);
-
-	if ((s = getenv("bootargs")) == NULL)
-		s = "";
-
-	strcpy(cmdline, s);
-
-	cmd_start = (ulong) & cmdline[0];
-	cmd_end = cmd_start + strlen(cmdline);
-
-	*kbd = *(gd->bd);
-
-#ifdef	DEBUG
-	printf("## cmdline at 0x%08lX ... 0x%08lX\n", cmd_start, cmd_end);
-
-	do_bdinfo(NULL, 0, 0, NULL);
-#endif
-
-	if ((s = getenv("clocks_in_mhz")) != NULL) {
-		/* convert all clock information to MHz */
-		kbd->bi_intfreq /= 1000000L;
-		kbd->bi_busfreq /= 1000000L;
-	}
+	/* allocate space for kernel copy of board info */
+	alloc_current = get_boot_kbd (alloc_current, &kbd);
+	set_clocks_in_mhz(kbd);
 
 	/* find kernel */
 	kernel =
@@ -115,13 +87,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
 
 	rd_len = rd_data_end - rd_data_start;
-	ramdisk_high (rd_data_start, rd_len, kdb, sp_limit, get_sp (),
+	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
+			kbd, sp_limit, get_sp (),
 			&initrd_start, &initrd_end);
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong) kernel);
 
-	SHOW_BOOT_PROGRESS(15);
+	show_boot_progress (15);
 
 	/*
 	 * Linux Kernel Parameters (passing board info data):
@@ -143,4 +116,15 @@ static ulong get_sp (void)
 	    "movel %%d0, %0\n": "=d"(sp): :"%d0");
 
 	return sp;
+}
+
+static void set_clocks_in_mhz (bd_t *kbd)
+{
+	char *s;
+
+	if ((s = getenv("clocks_in_mhz")) != NULL) {
+		/* convert all clock information to MHz */
+		kbd->bi_intfreq /= 1000000L;
+		kbd->bi_busfreq /= 1000000L;
+	}
 }
