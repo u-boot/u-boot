@@ -25,8 +25,6 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-extern image_header_t header;	/* common/cmd_bootm.c */
-
 /* The SH kernel reads arguments from the empty zero page at location
  * 0 at the start of SDRAM. The following are copied from
  * arch/sh/kernel/setup.c and may require tweaking if the kernel sources
@@ -60,11 +58,10 @@ static void hexdump (unsigned char *buf, int len)
 #endif
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     ulong addr, ulong *len_ptr, int verify)
+                     image_header_t *hdr, int verify)
 {
-	image_header_t *hdr = &header;
 	char *bootargs = getenv("bootargs");
-	void (*kernel) (void) = (void (*)(void)) ntohl (hdr->ih_ep);
+	void (*kernel) (void) = (void (*)(void))image_get_ep (hdr);
 
 	/* Setup parameters */
 	memset(PARAM, 0, 0x1000);	/* Clear zero page */
