@@ -39,8 +39,6 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#elif defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
 #endif
 
 #ifdef CONFIG_LOGBUFFER
@@ -79,7 +77,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 	image_header_t *fdt_hdr;
 	char	*of_flat_tree = NULL;
 	ulong	of_data = 0;
@@ -175,7 +173,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	 * Check if there is an initrd image
 	 */
 
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 	/* Look for a '-' which indicates to ignore the ramdisk argument */
 	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
 			debug ("Skipping initrd\n");
@@ -247,15 +245,12 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		rd_len = rd_data = 0;
 	}
 
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		fdt_hdr = (image_header_t *)of_flat_tree;
-#if defined(CONFIG_OF_FLAT_TREE)
-		if (*((ulong *)(of_flat_tree)) == OF_DT_HEADER) {
-#elif defined(CONFIG_OF_LIBFDT)
+
 		if (fdt_check_header (of_flat_tree) == 0) {
-#endif
 #ifndef CFG_NO_FLASH
 			if (addr2info((ulong)of_flat_tree) != NULL)
 				of_data = (ulong)of_flat_tree;
@@ -303,11 +298,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-#if defined(CONFIG_OF_FLAT_TREE)
-			if (*((ulong *)(of_flat_tree + image_get_header_size ())) != OF_DT_HEADER) {
-#elif defined(CONFIG_OF_LIBFDT)
 			if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
-#endif
 				puts ("ERROR: uImage data is not a fdt - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
@@ -339,21 +330,13 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 				of_data = (ulong)of_flat_tree;
 #endif
 
-#if defined(CONFIG_OF_FLAT_TREE)
-			if (*((ulong *)(of_flat_tree)) != OF_DT_HEADER) {
-#elif defined(CONFIG_OF_LIBFDT)
 			if (fdt_check_header (of_flat_tree) != 0) {
-#endif
 				puts ("ERROR: image is not a fdt - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-#if defined(CONFIG_OF_FLAT_TREE)
-			if (((struct boot_param_header *)of_flat_tree)->totalsize != fdt_len) {
-#elif defined(CONFIG_OF_LIBFDT)
 			if (be32_to_cpu (fdt_totalsize (of_flat_tree)) != fdt_len) {
-#endif
 				puts ("ERROR: fdt size != image size - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);
@@ -480,43 +463,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		ft_board_setup(of_flat_tree, gd->bd);
 #endif
 	}
-
-#elif defined(CONFIG_OF_FLAT_TREE)
-
-#ifdef CFG_BOOTMAPSZ
-	/*
-	 * The blob must be within CFG_BOOTMAPSZ,
-	 * so we flag it to be copied if it is not.
-	 */
-	if (of_flat_tree >= (char *)CFG_BOOTMAPSZ)
-		of_data = (ulong)of_flat_tree;
-#endif
-
-	/* move of_flat_tree if needed */
-	if (of_data) {
-		ulong of_start, of_len;
-		of_len = ((struct boot_param_header *)of_data)->totalsize;
-
-		/* provide extra 8k pad */
-		of_start  = (ulong)kbd - of_len - 8192;
-		of_start &= ~(4096 - 1);	/* align on page */
-		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			of_data, of_data + of_len - 1, of_len, of_len);
-
-		of_flat_tree = (char *)of_start;
-		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
-			of_start, of_start + of_len - 1);
-		memmove ((void *)of_start, (void *)of_data, of_len);
-		puts ("OK\n");
-	}
-	/*
-	 * Create the /chosen node and modify the blob with board specific
-	 * values as needed.
-	 */
-	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
-	/* ft_dump_blob(of_flat_tree); */
-
-#endif	/* #if defined(CONFIG_OF_LIBFDT) #elif defined(CONFIG_OF_FLAT_TREE) */
+#endif	/* CONFIG_OF_LIBFDT */
 
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
@@ -527,7 +474,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	unlock_ram_in_cache();
 #endif
 
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 	if (of_flat_tree) {	/* device tree; boot new style */
 		/*
 		 * Linux Kernel Parameters (passing device tree):

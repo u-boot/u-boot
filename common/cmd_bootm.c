@@ -36,14 +36,6 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 
-#if defined(CONFIG_OF_LIBFDT)
-#include <fdt.h>
-#include <libfdt.h>
-#include <fdt_support.h>
-#elif defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
@@ -390,7 +382,7 @@ U_BOOT_CMD(
 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
 	"\t'arg' can be the address of an initrd image\n"
-#if defined(CONFIG_OF_FLAT_TREE) || defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT)
 	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
 	"\ta third argument is required which is the address of the\n"
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
