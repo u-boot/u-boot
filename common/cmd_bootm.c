@@ -116,7 +116,7 @@ ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong		iflag;
-	char		*name;
+	const char	*type_name;
 	uint		unc_len = CFG_BOOTM_LEN;
 	int		verify = getenv_verify();
 
@@ -189,12 +189,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (image_get_type (hdr)) {
 	case IH_TYPE_KERNEL:
-		name = "Kernel Image";
 		os_data = image_get_data (hdr);
 		os_len = image_get_data_size (hdr);
 		break;
 	case IH_TYPE_MULTI:
-		name = "Multi-File Image";
 		image_multi_getimg (hdr, 0, &os_data, &os_len);
 		break;
 	default:
@@ -222,6 +220,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	dcache_disable();
 #endif
 
+	type_name = image_get_type_name (image_get_type (hdr));
+
 	image_start = (ulong)hdr;
 	image_end = image_get_image_end (hdr);
 	load_start = image_get_load (hdr);
@@ -230,9 +230,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:
 		if (image_get_load (hdr) == img_addr) {
-			printf ("   XIP %s ... ", name);
+			printf ("   XIP %s ... ", type_name);
 		} else {
-			printf ("   Loading %s ... ", name);
+			printf ("   Loading %s ... ", type_name);
 
 			memmove_wd ((void *)image_get_load (hdr),
 				   (void *)os_data, os_len, CHUNKSZ);
@@ -242,7 +242,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		break;
 	case IH_COMP_GZIP:
-		printf ("   Uncompressing %s ... ", name);
+		printf ("   Uncompressing %s ... ", type_name);
 		if (gunzip ((void *)image_get_load (hdr), unc_len,
 					(uchar *)os_data, &os_len) != 0) {
 			puts ("GUNZIP ERROR - must RESET board to recover\n");
@@ -254,7 +254,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 #ifdef CONFIG_BZIP2
 	case IH_COMP_BZIP2:
-		printf ("   Uncompressing %s ... ", name);
+		printf ("   Uncompressing %s ... ", type_name);
 		/*
 		 * If we've got less than 4 MB of malloc() space,
 		 * use slower decompression algorithm which requires
@@ -544,65 +544,12 @@ void print_image_hdr (image_header_t *hdr)
 
 static void print_type (image_header_t *hdr)
 {
-	char *os, *arch, *type, *comp;
+	const char *os, *arch, *type, *comp;
 
-	switch (image_get_os (hdr)) {
-	case IH_OS_INVALID:	os = "Invalid OS";		break;
-	case IH_OS_NETBSD:	os = "NetBSD";			break;
-	case IH_OS_LINUX:	os = "Linux";			break;
-	case IH_OS_VXWORKS:	os = "VxWorks";			break;
-	case IH_OS_QNX:		os = "QNX";			break;
-	case IH_OS_U_BOOT:	os = "U-Boot";			break;
-	case IH_OS_RTEMS:	os = "RTEMS";			break;
-#ifdef CONFIG_ARTOS
-	case IH_OS_ARTOS:	os = "ARTOS";			break;
-#endif
-#ifdef CONFIG_LYNXKDI
-	case IH_OS_LYNXOS:	os = "LynxOS";			break;
-#endif
-	default:		os = "Unknown OS";		break;
-	}
-
-	switch (image_get_arch (hdr)) {
-	case IH_ARCH_INVALID:	arch = "Invalid CPU";		break;
-	case IH_ARCH_ALPHA:	arch = "Alpha";			break;
-	case IH_ARCH_ARM:	arch = "ARM";			break;
-	case IH_ARCH_AVR32:	arch = "AVR32";			break;
-	case IH_ARCH_BLACKFIN:	arch = "Blackfin";		break;
-	case IH_ARCH_I386:	arch = "Intel x86";		break;
-	case IH_ARCH_IA64:	arch = "IA64";			break;
-	case IH_ARCH_M68K:	arch = "M68K"; 			break;
-	case IH_ARCH_MICROBLAZE:arch = "Microblaze"; 		break;
-	case IH_ARCH_MIPS64:	arch = "MIPS 64 Bit";		break;
-	case IH_ARCH_MIPS:	arch = "MIPS";			break;
-	case IH_ARCH_NIOS2:	arch = "Nios-II";		break;
-	case IH_ARCH_NIOS:	arch = "Nios";			break;
-	case IH_ARCH_PPC:	arch = "PowerPC";		break;
-	case IH_ARCH_S390:	arch = "IBM S390";		break;
-	case IH_ARCH_SH:	arch = "SuperH";		break;
-	case IH_ARCH_SPARC64:	arch = "SPARC 64 Bit";		break;
-	case IH_ARCH_SPARC:	arch = "SPARC";			break;
-	default:		arch = "Unknown Architecture";	break;
-	}
-
-	switch (image_get_type (hdr)) {
-	case IH_TYPE_INVALID:	type = "Invalid Image";		break;
-	case IH_TYPE_STANDALONE:type = "Standalone Program";	break;
-	case IH_TYPE_KERNEL:	type = "Kernel Image";		break;
-	case IH_TYPE_RAMDISK:	type = "RAMDisk Image";		break;
-	case IH_TYPE_MULTI:	type = "Multi-File Image";	break;
-	case IH_TYPE_FIRMWARE:	type = "Firmware";		break;
-	case IH_TYPE_SCRIPT:	type = "Script";		break;
-	case IH_TYPE_FLATDT:	type = "Flat Device Tree";	break;
-	default:		type = "Unknown Image";		break;
-	}
-
-	switch (image_get_comp (hdr)) {
-	case IH_COMP_NONE:	comp = "uncompressed";		break;
-	case IH_COMP_GZIP:	comp = "gzip compressed";	break;
-	case IH_COMP_BZIP2:	comp = "bzip2 compressed";	break;
-	default:		comp = "unknown compression";	break;
-	}
+	os = image_get_os_name (image_get_os (hdr));
+	arch = image_get_arch_name (image_get_arch (hdr));
+	type = image_get_type_name (image_get_type (hdr));
+	comp = image_get_comp_name (image_get_comp (hdr));
 
 	printf ("%s %s %s (%s)", arch, os, type, comp);
 }

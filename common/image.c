@@ -193,3 +193,91 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 		*data = 0;
 	}
 }
+
+#ifndef USE_HOSTCC
+const char* image_get_os_name (uint8_t os)
+{
+	const char *name;
+
+	switch (os) {
+	case IH_OS_INVALID:	name = "Invalid OS";		break;
+	case IH_OS_NETBSD:	name = "NetBSD";		break;
+	case IH_OS_LINUX:	name = "Linux";			break;
+	case IH_OS_VXWORKS:	name = "VxWorks";		break;
+	case IH_OS_QNX:		name = "QNX";			break;
+	case IH_OS_U_BOOT:	name = "U-Boot";		break;
+	case IH_OS_RTEMS:	name = "RTEMS";			break;
+#ifdef CONFIG_ARTOS
+	case IH_OS_ARTOS:	name = "ARTOS";			break;
+#endif
+#ifdef CONFIG_LYNXKDI
+	case IH_OS_LYNXOS:	name = "LynxOS";		break;
+#endif
+	default:		name = "Unknown OS";		break;
+	}
+
+	return name;
+}
+
+const char* image_get_arch_name (uint8_t arch)
+{
+	const char *name;
+
+	switch (arch) {
+	case IH_ARCH_INVALID:	name = "Invalid Architecture";	break;
+	case IH_ARCH_ALPHA:	name = "Alpha";			break;
+	case IH_ARCH_ARM:	name = "ARM";			break;
+	case IH_ARCH_AVR32:	name = "AVR32";			break;
+	case IH_ARCH_BLACKFIN:	name = "Blackfin";		break;
+	case IH_ARCH_I386:	name = "Intel x86";		break;
+	case IH_ARCH_IA64:	name = "IA64";			break;
+	case IH_ARCH_M68K:	name = "M68K"; 			break;
+	case IH_ARCH_MICROBLAZE:name = "Microblaze"; 		break;
+	case IH_ARCH_MIPS64:	name = "MIPS 64 Bit";		break;
+	case IH_ARCH_MIPS:	name = "MIPS";			break;
+	case IH_ARCH_NIOS2:	name = "Nios-II";		break;
+	case IH_ARCH_NIOS:	name = "Nios";			break;
+	case IH_ARCH_PPC:	name = "PowerPC";		break;
+	case IH_ARCH_S390:	name = "IBM S390";		break;
+	case IH_ARCH_SH:	name = "SuperH";		break;
+	case IH_ARCH_SPARC64:	name = "SPARC 64 Bit";		break;
+	case IH_ARCH_SPARC:	name = "SPARC";			break;
+	default:		name = "Unknown Architecture";	break;
+	}
+
+	return name;
+}
+
+const char* image_get_type_name (uint8_t type)
+{
+	const char *name;
+
+	switch (type) {
+	case IH_TYPE_INVALID:	name = "Invalid Image";		break;
+	case IH_TYPE_STANDALONE:name = "Standalone Program";	break;
+	case IH_TYPE_KERNEL:	name = "Kernel Image";		break;
+	case IH_TYPE_RAMDISK:	name = "RAMDisk Image";		break;
+	case IH_TYPE_MULTI:	name = "Multi-File Image";	break;
+	case IH_TYPE_FIRMWARE:	name = "Firmware";		break;
+	case IH_TYPE_SCRIPT:	name = "Script";		break;
+	case IH_TYPE_FLATDT:	name = "Flat Device Tree";	break;
+	default:		name = "Unknown Image";		break;
+	}
+
+	return name;
+}
+
+const char* image_get_comp_name (uint8_t comp)
+{
+	const char *name;
+
+	switch (comp) {
+	case IH_COMP_NONE:	name = "uncompressed";		break;
+	case IH_COMP_GZIP:	name = "gzip compressed";	break;
+	case IH_COMP_BZIP2:	name = "bzip2 compressed";	break;
+	default:		name = "unknown compression";	break;
+	}
+
+	return name;
+}
+#endif

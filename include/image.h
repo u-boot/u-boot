@@ -290,6 +290,10 @@ static inline int image_check_os (image_header_t *hdr, uint8_t os)
 	return (image_get_os (hdr) == os);
 }
 
+ulong image_multi_count (image_header_t *hdr);
+void image_multi_getimg (image_header_t *hdr, ulong idx,
+			ulong *data, ulong *len);
+
 #ifndef USE_HOSTCC
 static inline int image_check_target_arch (image_header_t *hdr)
 {
@@ -322,10 +326,11 @@ static inline int image_check_target_arch (image_header_t *hdr)
 
 	return 1;
 }
-#endif
 
-ulong image_multi_count (image_header_t *hdr);
-void image_multi_getimg (image_header_t *hdr, ulong idx,
-			ulong *data, ulong *len);
+const char* image_get_os_name (uint8_t os);
+const char* image_get_arch_name (uint8_t arch);
+const char* image_get_type_name (uint8_t type);
+const char* image_get_comp_name (uint8_t comp);
+#endif /* USE_HOSTCCa */
 
 #endif	/* __IMAGE_H__ */
