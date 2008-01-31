@@ -23,6 +23,8 @@
  * MA 02111-1307 USA
  */
 
+#define DEBUG
+
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
@@ -259,11 +261,19 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 				of_data = (ulong)of_flat_tree;
 #endif
 		} else if (image_check_magic (fdt_hdr)) {
+			ulong image_start, image_end;
+			ulong load_start, load_end;
+
 			printf ("## Flat Device Tree at %08lX\n", fdt_hdr);
 			print_image_hdr (fdt_hdr);
 
-			if ((image_get_load (fdt_hdr) < image_get_image_end (fdt_hdr)) &&
-			   ((image_get_load (fdt_hdr) + image_get_data_size (fdt_hdr)) > (unsigned long)fdt_hdr)) {
+			image_start = (ulong)fdt_hdr;
+			image_end = image_get_image_end (fdt_hdr);
+
+			load_start = image_get_load (fdt_hdr);
+			load_end = load_start + image_get_data_size (fdt_hdr);
+
+			if ((load_start < image_end) && (load_end > image_start)) {
 				puts ("ERROR: fdt overwritten - "
 					"must RESET the board to recover.\n");
 				do_reset (cmdtp, flag, argc, argv);

@@ -133,6 +133,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		img_addr;
 	ulong		os_data, os_len;
 
+	ulong		image_start, image_end;
+	ulong		load_start, load_end;
+
+
 	if (argc < 2) {
 		img_addr = load_addr;
 	} else {
@@ -234,6 +238,11 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	dcache_disable();
 #endif
 
+	image_start = (ulong)hdr;
+	image_end = image_get_image_end (hdr);
+	load_start = image_get_load (hdr);
+	load_end = 0;
+
 	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:
 		if (image_get_load (hdr) == img_addr) {
@@ -244,6 +253,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			memmove_wd ((void *)image_get_load (hdr),
 				   (void *)os_data, os_len, CHUNKSZ);
 
+			load_end = load_start + os_len;
 			puts("OK\n");
 		}
 		break;
@@ -255,6 +265,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
+
+		load_end = load_start + os_len;
 		break;
 #ifdef CONFIG_BZIP2
 	case IH_COMP_BZIP2:
@@ -272,6 +284,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
+
+		load_end = load_start + unc_len;
 		break;
 #endif /* CONFIG_BZIP2 */
 	default:
@@ -283,6 +297,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	puts ("OK\n");
 	show_boot_progress (7);
+
+	if ((load_start < image_end) && (load_end > image_start)) {
+		debug ("image_start = 0x%lX, image_end = 0x%lx\n", image_start, image_end);
+		debug ("load_start = 0x%lx, load_end = 0x%lx\n", load_start, load_end);
+
+		puts ("ERROR: image overwritten - must RESET the board to recover.\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
 
 	switch (image_get_type (hdr)) {
 	case IH_TYPE_STANDALONE:
