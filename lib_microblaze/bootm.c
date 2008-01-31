@@ -35,16 +35,11 @@ DECLARE_GLOBAL_DATA_PTR;
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		     image_header_t *hdr, int verify)
 {
-	ulong initrd_start, initrd_end;
-
 	/* First parameter is mapped to $r5 for kernel boot args */
 	void (*theKernel) (char *);
 	char *commandline = getenv ("bootargs");
 
 	theKernel = (void (*)(char *))image_get_ep (hdr);
-
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
-			IH_ARCH_MICROBLAZE, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);
 
