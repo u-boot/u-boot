@@ -39,6 +39,8 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+
+static void fdt_error (const char *msg);
 #endif
 
 #ifdef CONFIG_LOGBUFFER
@@ -269,38 +271,32 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 			load_end = load_start + image_get_data_size (fdt_hdr);
 
 			if ((load_start < image_end) && (load_end > image_start)) {
-				puts ("ERROR: fdt overwritten - "
-					"must RESET the board to recover.\n");
+				fdt_error ("fdt overwritten");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			puts ("   Verifying Checksum ... ");
 			if (!image_check_hcrc (fdt_hdr)) {
-				puts ("ERROR: fdt header checksum invalid - "
-					"must RESET the board to recover.\n");
+				fdt_error ("fdt header checksum invalid");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			if (!image_check_dcrc (fdt_hdr)) {
-				puts ("ERROR: fdt checksum invalid - "
-					"must RESET the board to recover.\n");
+				fdt_error ("fdt checksum invalid");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			puts ("OK\n");
 
 			if (!image_check_type (fdt_hdr, IH_TYPE_FLATDT)) {
-				puts ("ERROR: uImage is not a fdt - "
-					"must RESET the board to recover.\n");
+				fdt_error ("uImage is not a fdt");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			if (image_get_comp (fdt_hdr) != IH_COMP_NONE) {
-				puts ("ERROR: uImage is compressed - "
-					"must RESET the board to recover.\n");
+				fdt_error ("uImage is compressed");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 			if (fdt_check_header (of_flat_tree + image_get_header_size ()) != 0) {
-				puts ("ERROR: uImage data is not a fdt - "
-					"must RESET the board to recover.\n");
+				fdt_error ("uImage data is not a fdt");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
@@ -310,8 +306,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 			of_flat_tree = (char *)image_get_load (fdt_hdr);
 		} else {
-			puts ("Did not find a flat Flat Device Tree.\n"
-				"Must RESET the board to recover.\n");
+			fdt_error ("Did not find a Flattened Device Tree");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		printf ("   Booting using the fdt at 0x%x\n",
@@ -331,14 +326,12 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 #endif
 
 			if (fdt_check_header (of_flat_tree) != 0) {
-				puts ("ERROR: image is not a fdt - "
-					"must RESET the board to recover.\n");
+				fdt_error ("image is not a fdt");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
 			if (be32_to_cpu (fdt_totalsize (of_flat_tree)) != fdt_len) {
-				puts ("ERROR: fdt size != image size - "
-					"must RESET the board to recover.\n");
+				fdt_error ("fdt size != image size");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 		}
@@ -428,8 +421,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 			of_start, of_start + of_len - 1);
 		err = fdt_open_into((void *)of_data, (void *)of_start, of_len);
 		if (err != 0) {
-			puts ("ERROR: fdt move failed - "
-				"must RESET the board to recover.\n");
+			fdt_error ("fdt move failed");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 		puts ("OK\n");
@@ -440,21 +432,18 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	 */
 	if (of_flat_tree) {
 		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
-			puts ("ERROR: /chosen node create failed - "
-				"must RESET the board to recover.\n");
+			fdt_error ("/chosen node create failed");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
 		if (fdt_env(of_flat_tree) < 0) {
-			puts ("ERROR: /u-boot-env node create failed - "
-				"must RESET the board to recover.\n");
+			fdt_error ("/u-boot-env node create failed");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 #endif
 #ifdef CONFIG_OF_HAS_BD_T
 		if (fdt_bd_t(of_flat_tree) < 0) {
-			puts ("ERROR: /bd_t node create failed - "
-				"must RESET the board to recover.\n");
+			fdt_error ("/bd_t node create failed");
 			do_reset (cmdtp, flag, argc, argv);
 		}
 #endif
@@ -499,3 +488,12 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 	/* does not return */
 }
+
+#if defined(CONFIG_OF_LIBFDT)
+static void fdt_error (const char *msg)
+{
+	puts ("ERROR: ");
+	puts (msg);
+	puts (" - must RESET the board to recover.\n");
+}
+#endif
