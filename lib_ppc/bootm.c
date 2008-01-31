@@ -68,8 +68,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	ulong	initrd_high;
 	int	initrd_copy_to_ram = 1;
 	ulong	initrd_start, initrd_end;
-	ulong	rd_data, rd_len;
-	image_header_t *rd_hdr;
+	ulong	rd_data_start, rd_data_end, rd_len;
 
 	ulong	cmd_start, cmd_end;
 	char    *cmdline;
@@ -171,81 +170,9 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
 
-	/*
-	 * Check if there is an initrd image
-	 */
-
-#if defined(CONFIG_OF_LIBFDT)
-	/* Look for a '-' which indicates to ignore the ramdisk argument */
-	if (argc >= 3 && strcmp(argv[2], "-") ==  0) {
-			debug ("Skipping initrd\n");
-			rd_len = rd_data = 0;
-		}
-	else
-#endif
-	if (argc >= 3) {
-		debug ("Not skipping initrd\n");
-		show_boot_progress (9);
-
-		rd_hdr = (image_header_t *)simple_strtoul (argv[2], NULL, 16);
-		printf ("## Loading RAMDisk Image at %08lx ...\n", (ulong)rd_hdr);
-
-		if (!image_check_magic (rd_hdr)) {
-			puts ("Bad Magic Number\n");
-			show_boot_progress (-10);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		if (!image_check_hcrc (rd_hdr)) {
-			puts ("Bad Header Checksum\n");
-			show_boot_progress (-11);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-		show_boot_progress (10);
-
-		print_image_hdr (rd_hdr);
-
-		if (verify) {
-			puts ("   Verifying Checksum ... ");
-
-			if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
-				puts ("Bad Data CRC\n");
-				show_boot_progress (-12);
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			puts ("OK\n");
-		}
-
-		show_boot_progress (11);
-
-		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
-		    !image_check_arch (rd_hdr, IH_ARCH_PPC) ||
-		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
-			puts ("No Linux PPC Ramdisk Image\n");
-			show_boot_progress (-13);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		rd_data = image_get_data (rd_hdr);
-		rd_len = image_get_data_size (rd_hdr);
-
-		/*
-		 * Now check if we have a multifile image
-		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
-		/*
-		 * Get second entry data start address and len
-		 */
-		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
-		show_boot_progress (13);
-	} else {
-		/*
-		 * No initrd image
-		 */
-		show_boot_progress (14);
-
-		rd_len = rd_data = 0;
-	}
+	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
+	rd_len = rd_data_end - rd_data_start;
 
 #if defined(CONFIG_OF_LIBFDT)
 	if(argc > 3) {
@@ -337,14 +264,11 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		}
 	}
 #endif
-	if (!rd_data) {
-		debug ("No initrd\n");
-	}
 
-	if (rd_data) {
+	if (rd_data_start) {
 	    if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
-		initrd_start = rd_data;
-		initrd_end = initrd_start + rd_len;
+		initrd_start = rd_data_start;
+		initrd_end = rd_data_end;
 	    } else {
 		initrd_start  = (ulong)kbd - rd_len;
 		initrd_start &= ~(4096 - 1);	/* align on page */
@@ -376,14 +300,14 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		show_boot_progress (12);
 
 		debug ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			rd_data, rd_data + rd_len - 1, rd_len, rd_len);
+			rd_data_start, rd_data_end - 1, rd_len, rd_len);
 
 		initrd_end    = initrd_start + rd_len;
 		printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
 			initrd_start, initrd_end);
 
 		memmove_wd((void *)initrd_start,
-			   (void *)rd_data, rd_len, CHUNKSZ);
+			   (void *)rd_data_start, rd_len, CHUNKSZ);
 
 		puts ("OK\n");
 	    }

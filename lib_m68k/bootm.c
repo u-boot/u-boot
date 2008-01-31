@@ -44,18 +44,15 @@ DECLARE_GLOBAL_DATA_PTR;
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
 		    image_header_t *hdr, int verify)
 {
 	ulong sp;
 
-	ulong rd_data, rd_len;
+	ulong rd_data_start, rd_data_end, rd_len;
 	ulong initrd_high;
 	ulong initrd_start, initrd_end;
-	image_header_t *rd_hdr;
 	int initrd_copy_to_ram = 1;
 
 	ulong cmd_start, cmd_end;
@@ -132,82 +129,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	kernel =
 	    (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
 
-	/*
-	 * Check if there is an initrd image
-	 */
+	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
+	rd_len = rd_data_end - rd_data_start;
 
-	if (argc >= 3) {
-		debug("Not skipping initrd\n");
-		SHOW_BOOT_PROGRESS(9);
-
-		rd_hdr = (image_header_t *)simple_strtoul (argv[2], NULL, 16);
-		printf ("## Loading RAMDisk Image at %08lx ...\n", rd_hdr);
-
-		if (!image_check_magic (rd_hdr)) {
-			puts("Bad Magic Number\n");
-			SHOW_BOOT_PROGRESS(-10);
-			do_reset(cmdtp, flag, argc, argv);
-		}
-
-		if (!image_check_hcrc (rd_hdr)) {
-			puts("Bad Header Checksum\n");
-			SHOW_BOOT_PROGRESS(-11);
-			do_reset(cmdtp, flag, argc, argv);
-		}
-
-		SHOW_BOOT_PROGRESS(10);
-
-		print_image_hdr (rd_hdr);
-
-		rd_data = image_get_data (rd_hdr);
-		rd_len = image_get_data_size (rd_hdr);
-
-		if (verify) {
-			puts("   Verifying Checksum ... ");
-			if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
-				puts("Bad Data CRC\n");
-				SHOW_BOOT_PROGRESS(-12);
-				do_reset(cmdtp, flag, argc, argv);
-			}
-			puts("OK\n");
-		}
-
-		SHOW_BOOT_PROGRESS(11);
-
-		if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
-		    !image_check_arch (rd_hdr, IH_ARCH_M68K) ||
-		    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
-			puts("No Linux ColdFire Ramdisk Image\n");
-			SHOW_BOOT_PROGRESS(-13);
-			do_reset(cmdtp, flag, argc, argv);
-		}
-
-		/*
-		 * Now check if we have a multifile image
-		 */
-	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
-		/*
-		 * Get second entry data start address and len
-		 */
-		SHOW_BOOT_PROGRESS (13);
-		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
-	} else {
-		/*
-		 * no initrd image
-		 */
-		SHOW_BOOT_PROGRESS(14);
-
-		rd_len = rd_data = 0;
-	}
-
-	if (!rd_data) {
-		debug("No initrd\n");
-	}
-
-	if (rd_data) {
+	if (rd_data_start) {
 		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
-			initrd_start = rd_data;
-			initrd_end = initrd_start + rd_len;
+			initrd_start = rd_data_start;
+			initrd_end = rd_data_end;
 		} else {
 			initrd_start = (ulong) kbd - rd_len;
 			initrd_start &= ~(4096 - 1);	/* align on page */
@@ -245,14 +174,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 			debug
 			    ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			     rd_data, rd_data + rd_len - 1, rd_len, rd_len);
+			     rd_data_start, rd_data_end - 1, rd_len, rd_len);
 
 			initrd_end = initrd_start + rd_len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
 			       initrd_start, initrd_end);
 
 			memmove_wd((void *)initrd_start,
-				   (void *)rd_data, rd_len, CHUNKSZ);
+				   (void *)rd_data_start, rd_len, CHUNKSZ);
 
 			puts("OK\n");
 		}

@@ -34,6 +34,7 @@
 #define __IMAGE_H__
 
 #include <asm/byteorder.h>
+#include <command.h>
 #ifndef USE_HOSTCC
 #include <linux/string.h>
 #endif
@@ -331,6 +332,15 @@ const char* image_get_os_name (uint8_t os);
 const char* image_get_arch_name (uint8_t arch);
 const char* image_get_type_name (uint8_t type);
 const char* image_get_comp_name (uint8_t comp);
+
+image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
+		int argc, char *argv[],
+		ulong rd_addr, uint8_t arch, int verify);
+
+void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		image_header_t *hdr, int verify, uint8_t arch,
+		ulong *rd_start, ulong *rd_end);
 #endif /* USE_HOSTCCa */
+
 
 #endif	/* __IMAGE_H__ */

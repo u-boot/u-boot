@@ -23,10 +23,20 @@
  * MA 02111-1307 USA
  */
 #ifndef USE_HOSTCC
-# include <common.h>
-# include <watchdog.h>
+#include <common.h>
+#include <watchdog.h>
+
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#include <status_led.h>
+#endif
+
+#ifdef CONFIG_HAS_DATAFLASH
+#include <dataflash.h>
+#endif
+
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #else
-# include "mkimage.h"
+#include "mkimage.h"
 #endif
 
 #include <image.h>
@@ -280,4 +290,191 @@ const char* image_get_comp_name (uint8_t comp)
 
 	return name;
 }
+
+/**
+ * image_get_ramdisk - get and verify ramdisk image
+ * @cmdtp: command table pointer
+ * @flag: command flag
+ * @argc: command argument count
+ * @argv: command argument list
+ * @rd_addr: ramdisk image start address
+ * @arch: expected ramdisk architecture
+ * @verify: checksum verification flag
+ *
+ * image_get_ramdisk() returns a pointer to the verified ramdisk image
+ * header. Routine receives image start address and expected architecture
+ * flag. Verification done covers data and header integrity and os/type/arch
+ * fields checking.
+ *
+ * If dataflash support is enabled routine checks for dataflash addresses
+ * and handles required dataflash reads.
+ *
+ * returns:
+ *     pointer to a ramdisk image header, if image was found and valid
+ *     otherwise, board is reset
+ */
+image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
+		int argc, char *argv[],
+		ulong rd_addr, uint8_t arch, int verify)
+{
+	image_header_t *rd_hdr;
+
+	show_boot_progress (9);
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (rd_addr)) {
+		rd_hdr = (image_header_t *)CFG_LOAD_ADDR;
+		debug ("   Reading Ramdisk image header from dataflash address "
+			"%08lx to %08lx\n", rd_addr, (ulong)rd_hdr);
+		read_dataflash (rd_addr, image_get_header_size (),
+				(char *)rd_hdr);
+	} else
 #endif
+	rd_hdr = (image_header_t *)rd_addr;
+
+	if (!image_check_magic (rd_hdr)) {
+		puts ("Bad Magic Number\n");
+		show_boot_progress (-10);
+		do_reset (cmdtp, flag, argc, argv);
+	}
+
+	if (!image_check_hcrc (rd_hdr)) {
+		puts ("Bad Header Checksum\n");
+		show_boot_progress (-11);
+		do_reset (cmdtp, flag, argc, argv);
+	}
+
+	show_boot_progress (10);
+	print_image_hdr (rd_hdr);
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (rd_addr)) {
+		debug ("   Reading Ramdisk image data from dataflash address "
+			"%08lx to %08lx\n", rd_addr + image_get_header_size,
+			(ulong)image_get_data (rd_hdr));
+
+		read_dataflash (rd_addr + image_get_header_size (),
+				image_get_data_size (rd_hdr),
+				(char *)image_get_data (rd_hdr));
+	}
+#endif
+
+	if (verify) {
+		puts("   Verifying Checksum ... ");
+		if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
+			puts ("Bad Data CRC\n");
+			show_boot_progress (-12);
+			do_reset (cmdtp, flag, argc, argv);
+		}
+		puts("OK\n");
+	}
+
+	show_boot_progress (11);
+
+	if (!image_check_os (rd_hdr, IH_OS_LINUX) ||
+	    !image_check_arch (rd_hdr, arch) ||
+	    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
+		printf ("No Linux %s Ramdisk Image\n",
+				image_get_arch_name(arch));
+		show_boot_progress (-13);
+		do_reset (cmdtp, flag, argc, argv);
+	}
+
+	return rd_hdr;
+}
+
+/**
+ * get_ramdisk - main ramdisk handling routine
+ * @cmdtp: command table pointer
+ * @flag: command flag
+ * @argc: command argument count
+ * @argv: command argument list
+ * @hdr: pointer to the posiibly multi componet kernel image
+ * @verify: checksum verification flag
+ * @arch: expected ramdisk architecture
+ * @rd_start: pointer to a ulong variable, will hold ramdisk start address
+ * @rd_end: pointer to a ulong variable, will hold ramdisk end
+ *
+ * get_ramdisk() is responsible for finding a valid ramdisk image.
+ * Curently supported are the following ramdisk sources:
+ *      - multicomponent kernel/ramdisk image,
+ *      - commandline provided address of decicated ramdisk image.
+ *
+ * returns:
+ *     rd_start and rd_end are set to ramdisk start/end addresses if
+ *     ramdisk image is found and valid
+ *     rd_start and rd_end are set to 0 if no ramdisk exists
+ *     board is reset if ramdisk image is found but corrupted
+ */
+void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		image_header_t *hdr, int verify, uint8_t arch,
+		ulong *rd_start, ulong *rd_end)
+{
+	ulong rd_addr;
+	ulong rd_data, rd_len;
+	image_header_t *rd_hdr;
+
+	if (argc >= 3) {
+		/*
+		 * Look for a '-' which indicates to ignore the
+		 * ramdisk argument
+		 */
+		if (strcmp(argv[2], "-") ==  0) {
+			debug ("## Skipping init Ramdisk\n");
+			rd_len = rd_data = 0;
+		} else {
+			/*
+			 * Check if there is an initrd image at the
+			 * address provided in the second bootm argument
+			 */
+			rd_addr = simple_strtoul (argv[2], NULL, 16);
+			printf ("## Loading init Ramdisk Image at %08lx ...\n",
+					rd_addr);
+
+			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
+						rd_addr, arch, verify);
+
+			rd_data = image_get_data (rd_hdr);
+			rd_len = image_get_data_size (rd_hdr);
+
+#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
+			/*
+			 *we need to copy the ramdisk to SRAM to let Linux boot
+			 */
+			memmove ((void *)image_get_load (rd_hdr),
+					(uchar *)rd_data, rd_len);
+
+			rd_data = image_get_load (rd_hdr);
+#endif /* CONFIG_B2 || CONFIG_EVB4510 || CONFIG_ARMADILLO */
+		}
+
+	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		/*
+		 * Now check if we have a multifile image
+		 * Get second entry data start address and len
+		 */
+		show_boot_progress (13);
+		printf ("## Loading init Ramdisk from multi component "
+				"Image at %08lx ...\n", (ulong)hdr);
+		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
+	} else {
+		/*
+		 * no initrd image
+		 */
+		show_boot_progress (14);
+		rd_len = rd_data = 0;
+	}
+
+	if (!rd_data) {
+		debug ("## No init Ramdisk\n");
+		*rd_start = 0;
+		*rd_end = 0;
+	} else {
+		*rd_start = rd_data;
+		*rd_end = rd_data + rd_len;
+	}
+	debug ("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
+			*rd_start, *rd_end);
+}
+#endif /* USE_HOSTCC */
+
