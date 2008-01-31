@@ -116,8 +116,7 @@ ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong		iflag;
-	char		*name, *s;
-	int		(*appl)(int, char *[]);
+	char		*name;
 	uint		unc_len = CFG_BOOTM_LEN;
 	int		verify = getenv_verify();
 
@@ -189,13 +188,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (5);
 
 	switch (image_get_type (hdr)) {
-	case IH_TYPE_STANDALONE:
-		name = "Standalone Application";
-		/* A second argument overwrites the load address */
-		if (argc > 2) {
-			image_set_load (hdr, simple_strtoul (argv[2], NULL, 16));
-		}
-		break;
 	case IH_TYPE_KERNEL:
 		name = "Kernel Image";
 		os_data = image_get_data (hdr);
@@ -298,34 +290,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		do_reset (cmdtp, flag, argc, argv);
 	}
 
-	switch (image_get_type (hdr)) {
-	case IH_TYPE_STANDALONE:
-		if (iflag)
-			enable_interrupts();
-
-		/* load (and uncompress), but don't start if "autostart"
-		 * is set to "no"
-		 */
-		if (((s = getenv("autostart")) != NULL) && (strcmp(s,"no") == 0)) {
-			char buf[32];
-			sprintf(buf, "%lX", image_get_data_size(hdr));
-			setenv("filesize", buf);
-			return 0;
-		}
-		appl = (int (*)(int, char *[]))image_get_ep (hdr);
-		(*appl)(argc-1, &argv[1]);
-		return 0;
-	case IH_TYPE_KERNEL:
-	case IH_TYPE_MULTI:
-		/* handled below */
-		break;
-	default:
-		if (iflag)
-			enable_interrupts();
-		printf ("Can't boot image type %d\n", image_get_type (hdr));
-		show_boot_progress (-8);
-		return 1;
-	}
 	show_boot_progress (8);
 
 	switch (image_get_os (hdr)) {
