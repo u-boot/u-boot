@@ -27,7 +27,7 @@ LIB	= $(obj)lib$(ARCH).a
 
 SOBJS	=
 
-COBJS	= board.o microblaze_linux.o time.o cache.o
+COBJS	= board.o bootm.o time.o cache.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

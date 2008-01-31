@@ -24,7 +24,7 @@ LIB	= $(obj)lib$(ARCH).a
 
 SOBJS	=
 
-COBJS	= board.o sh_linux.o # time.o
+COBJS	= board.o bootm.o # time.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

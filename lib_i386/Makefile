@@ -27,7 +27,7 @@ LIB	= $(obj)lib$(ARCH).a
 
 SOBJS	= bios.o bios_pci.o realmode_switch.o
 
-COBJS	= board.o bios_setup.o i386_linux.o zimage.o realmode.o \
+COBJS	= board.o bios_setup.o bootm.o zimage.o realmode.o \
 	  pci_type1.o pci.o video_bios.o video.o
 
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
