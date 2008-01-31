@@ -74,6 +74,9 @@ static void fixup_silent_linux (void);
 #endif
 
 static void print_type (image_header_t *hdr);
+static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
+		int argc, char *argv[], int verify,
+		ulong *os_data, ulong *os_len);
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 /*
@@ -121,85 +124,17 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int		verify = getenv_verify();
 
 	image_header_t	*hdr;
-	ulong		img_addr;
 	ulong		os_data, os_len;
 
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 
-
-	if (argc < 2) {
-		img_addr = load_addr;
-	} else {
-		img_addr = simple_strtoul(argv[1], NULL, 16);
-	}
-
-	show_boot_progress (1);
-	printf ("## Booting image at %08lx ...\n", img_addr);
-
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (img_addr)){
-		hdr = (image_header_t *)CFG_LOAD_ADDR;
-		read_dataflash (img_addr, image_get_header_size (), (char *)hdr);
-	} else
-#endif
-	hdr = (image_header_t *)img_addr;
-
-	if (!image_check_magic(hdr)) {
-		puts ("Bad Magic Number\n");
-		show_boot_progress (-1);
+	/* get kernel image header, start address and length */
+	hdr = get_kernel (cmdtp, flag, argc, argv, verify,
+			&os_data, &os_len);
+	if (hdr == NULL)
 		return 1;
-	}
-	show_boot_progress (2);
 
-	if (!image_check_hcrc (hdr)) {
-		puts ("Bad Header Checksum\n");
-		show_boot_progress (-2);
-		return 1;
-	}
-	show_boot_progress (3);
-
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (img_addr))
-		read_dataflash (img_addr + image_get_header_size (),
-				image_get_data_size (hdr),
-				(char *)image_get_data (hdr));
-#endif
-
-	/* uImage is in a system RAM, pointed to by hdr */
-	print_image_hdr (hdr);
-
-	if (verify) {
-		puts ("   Verifying Checksum ... ");
-		if (!image_check_dcrc (hdr)) {
-			printf ("Bad Data CRC\n");
-			show_boot_progress (-3);
-			return 1;
-		}
-		puts ("OK\n");
-	}
-	show_boot_progress (4);
-
-	if (!image_check_target_arch (hdr)) {
-		printf ("Unsupported Architecture 0x%x\n", image_get_arch (hdr));
-		show_boot_progress (-4);
-		return 1;
-	}
-	show_boot_progress (5);
-
-	switch (image_get_type (hdr)) {
-	case IH_TYPE_KERNEL:
-		os_data = image_get_data (hdr);
-		os_len = image_get_data_size (hdr);
-		break;
-	case IH_TYPE_MULTI:
-		image_multi_getimg (hdr, 0, &os_data, &os_len);
-		break;
-	default:
-		printf ("Wrong Image Type for %s command\n", cmdtp->name);
-		show_boot_progress (-5);
-		return 1;
-	}
 	show_boot_progress (6);
 
 	/*
@@ -229,7 +164,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (image_get_comp (hdr)) {
 	case IH_COMP_NONE:
-		if (image_get_load (hdr) == img_addr) {
+		if (image_get_load (hdr) == (ulong)hdr) {
 			printf ("   XIP %s ... ", type_name);
 		} else {
 			printf ("   Loading %s ... ", type_name);
@@ -280,6 +215,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	puts ("OK\n");
+	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load_start, load_end);
 	show_boot_progress (7);
 
 	if ((load_start < image_end) && (load_end > image_start)) {
@@ -338,6 +274,103 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	do_reset (cmdtp, flag, argc, argv);
 #endif
 	return 1;
+}
+
+/**
+ * get_kernel - find kernel image
+ * @os_data: pointer to a ulong variable, will hold os data start address
+ * @os_len: pointer to a ulong variable, will hold os data length
+ *
+ * get_kernel() tries to find a kernel image, verifies its integrity
+ * and locates kernel data.
+ *
+ * returns:
+ *     pointer to image header if valid image was found, plus kernel start
+ *     address and length, otherwise NULL
+ */
+static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
+		int argc, char *argv[], int verify,
+		ulong *os_data, ulong *os_len)
+{
+	image_header_t	*hdr;
+	ulong		img_addr;
+
+	if (argc < 2) {
+		img_addr = load_addr;
+	} else {
+		img_addr = simple_strtoul(argv[1], NULL, 16);
+	}
+
+	show_boot_progress (1);
+	printf ("## Booting image at %08lx ...\n", img_addr);
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (img_addr)){
+		hdr = (image_header_t *)CFG_LOAD_ADDR;
+		read_dataflash (img_addr, image_get_header_size (), (char *)hdr);
+	} else
+#endif
+	hdr = (image_header_t *)img_addr;
+
+	if (!image_check_magic(hdr)) {
+		puts ("Bad Magic Number\n");
+		show_boot_progress (-1);
+		return NULL;
+	}
+	show_boot_progress (2);
+
+	if (!image_check_hcrc (hdr)) {
+		puts ("Bad Header Checksum\n");
+		show_boot_progress (-2);
+		return NULL;
+	}
+	show_boot_progress (3);
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (img_addr))
+		read_dataflash (img_addr + image_get_header_size (),
+				image_get_data_size (hdr),
+				(char *)image_get_data (hdr));
+#endif
+
+	/* uImage is in a system RAM, pointed to by hdr */
+	print_image_hdr (hdr);
+
+	if (verify) {
+		puts ("   Verifying Checksum ... ");
+		if (!image_check_dcrc (hdr)) {
+			printf ("Bad Data CRC\n");
+			show_boot_progress (-3);
+			return NULL;
+		}
+		puts ("OK\n");
+	}
+	show_boot_progress (4);
+
+	if (!image_check_target_arch (hdr)) {
+		printf ("Unsupported Architecture 0x%x\n", image_get_arch (hdr));
+		show_boot_progress (-4);
+		return NULL;
+	}
+	show_boot_progress (5);
+
+	switch (image_get_type (hdr)) {
+	case IH_TYPE_KERNEL:
+		*os_data = image_get_data (hdr);
+		*os_len = image_get_data_size (hdr);
+		break;
+	case IH_TYPE_MULTI:
+		image_multi_getimg (hdr, 0, os_data, os_len);
+		break;
+	default:
+		printf ("Wrong Image Type for %s command\n", cmdtp->name);
+		show_boot_progress (-5);
+		return NULL;
+	}
+	debug ("   kernel data at 0x%08lx, end = 0x%08lx\n",
+			*os_data, *os_data + *os_len);
+
+	return hdr;
 }
 
 U_BOOT_CMD(
@@ -502,7 +535,7 @@ U_BOOT_CMD(
 #endif
 
 /*******************************************************************/
-/* */
+/* helper routines */
 /*******************************************************************/
 void print_image_hdr (image_header_t *hdr)
 {
