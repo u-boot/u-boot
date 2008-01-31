@@ -22,6 +22,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+#define DEBUG
+
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <watchdog.h>
@@ -32,6 +35,10 @@
 
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
+#endif
+
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
 #endif
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -476,5 +483,111 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	debug ("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
 			*rd_start, *rd_end);
 }
+
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+/**
+ * ramdisk_high - relocate init ramdisk
+ * @rd_data: ramdisk data start address
+ * @rd_len: ramdisk data length
+ * @kbd: kernel board info copy (within BOOTMAPSZ boundary)
+ * @sp_limit: stack pointer limit (including BOOTMAPSZ)
+ * @sp: current stack pointer
+ * @initrd_start: pointer to a ulong variable, will hold final init ramdisk
+ *      start address (after possible relocation)
+ * @initrd_end: pointer to a ulong variable, will hold final init ramdisk
+ *      end address (after possible relocation)
+ *
+ * ramdisk_high() takes a relocation hint from "initrd_high" environement
+ * variable and if requested ramdisk data is moved to a specified location.
+ *
+ * returns:
+ *     initrd_start and initrd_end are set to final (after relocation) ramdisk
+ *     start/end addresses if ramdisk image start and len were provided
+ *     otherwise set initrd_start and initrd_end to zeros
+ *
+ */
+void ramdisk_high (ulong rd_data, ulong rd_len, bd_t *kbd, ulong sp_limit,
+		ulong sp, ulong *initrd_start, ulong *initrd_end)
+{
+	char	*s;
+	ulong	initrd_high;
+	int	initrd_copy_to_ram = 1;
+
+	if ((s = getenv ("initrd_high")) != NULL) {
+		/* a value of "no" or a similar string will act like 0,
+		 * turning the "load high" feature off. This is intentional.
+		 */
+		initrd_high = simple_strtoul (s, NULL, 16);
+		if (initrd_high == ~0)
+			initrd_copy_to_ram = 0;
+	} else {
+		/* not set, no restrictions to load high */
+		initrd_high = ~0;
+	}
+
+#ifdef CONFIG_LOGBUFFER
+	/* Prevent initrd from overwriting logbuffer */
+	if (initrd_high < (kbd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD))
+		initrd_high = kbd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD;
+	debug ("## Logbuffer at 0x%08lx ", kbd->bi_memsize - LOGBUFF_LEN);
+#endif
+	debug ("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
+			initrd_high, initrd_copy_to_ram);
+
+	if (rd_data) {
+		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
+			debug ("   in-place initrd\n");
+			*initrd_start = rd_data;
+			*initrd_end = rd_data + rd_len;
+		} else {
+			*initrd_start  = (ulong)kbd - rd_len;
+			*initrd_start &= ~(4096 - 1);	/* align on page */
+
+			if (initrd_high) {
+				ulong nsp;
+
+				/*
+				 * the inital ramdisk does not need to be within
+				 * CFG_BOOTMAPSZ as it is not accessed until after
+				 * the mm system is initialised.
+				 *
+				 * do the stack bottom calculation again and see if
+				 * the initrd will fit just below the monitor stack
+				 * bottom without overwriting the area allocated
+				 * for command line args and board info.
+				 */
+				nsp = sp;
+				nsp -= 2048;		/* just to be sure */
+				nsp &= ~0xF;
+
+				if (nsp > initrd_high)	/* limit as specified */
+					nsp = initrd_high;
+
+				nsp -= rd_len;
+				nsp &= ~(4096 - 1);	/* align on page */
+
+				if (nsp >= sp_limit)
+					*initrd_start = nsp;
+			}
+
+			show_boot_progress (12);
+
+			*initrd_end = *initrd_start + rd_len;
+			printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
+					*initrd_start, *initrd_end);
+
+			memmove_wd((void *)*initrd_start,
+					(void *)rd_data, rd_len, CHUNKSZ);
+
+			puts ("OK\n");
+		}
+	} else {
+		*initrd_start = 0;
+		*initrd_end = 0;
+	}
+	debug ("   ramdisk load start = 0x%08lx, ramdisk load end = 0x%08lx\n",
+			*initrd_start, *initrd_end);
+}
+#endif /* CONFIG_PPC || CONFIG_M68K */
 #endif /* USE_HOSTCC */
 

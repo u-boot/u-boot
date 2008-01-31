@@ -37,6 +37,7 @@
 #include <command.h>
 #ifndef USE_HOSTCC
 #include <linux/string.h>
+#include <asm/u-boot.h>
 #endif
 
 /*
@@ -340,7 +341,11 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		image_header_t *hdr, int verify, uint8_t arch,
 		ulong *rd_start, ulong *rd_end);
-#endif /* USE_HOSTCCa */
 
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+void ramdisk_high (ulong rd_data_start, ulong rd_len, bd_t *kbd, ulong sp_limit,
+		ulong sp, ulong *initrd_start, ulong *initrd_end);
+#endif /* CONFIG_PPC || CONFIG_M68K */
+#endif /* USE_HOSTCC */
 
 #endif	/* __IMAGE_H__ */

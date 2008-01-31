@@ -43,10 +43,6 @@
 static void fdt_error (const char *msg);
 #endif
 
-#ifdef CONFIG_LOGBUFFER
-#include <logbuff.h>
-#endif
-
 #ifdef CFG_INIT_RAM_LOCK
 #include <asm/cache.h>
 #endif
@@ -54,9 +50,10 @@ static void fdt_error (const char *msg);
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+static ulong get_sp (void);
 
 #if defined(CONFIG_CMD_BDI)
-extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_bdinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 void  __attribute__((noinline))
@@ -65,15 +62,13 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		image_header_t *hdr,
 		int	verify)
 {
-	ulong	initrd_high;
-	int	initrd_copy_to_ram = 1;
 	ulong	initrd_start, initrd_end;
 	ulong	rd_data_start, rd_data_end, rd_len;
 
 	ulong	cmd_start, cmd_end;
 	char    *cmdline;
 
-	ulong	sp;
+	ulong	sp_limit;
 	char	*s;
 	bd_t	*kbd;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
@@ -82,25 +77,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	image_header_t *fdt_hdr;
 	char	*of_flat_tree = NULL;
 	ulong	of_data = 0;
-#endif
-
-	if ((s = getenv ("initrd_high")) != NULL) {
-		/* a value of "no" or a similar string will act like 0,
-		 * turning the "load high" feature off. This is intentional.
-		 */
-		initrd_high = simple_strtoul(s, NULL, 16);
-		if (initrd_high == ~0)
-			initrd_copy_to_ram = 0;
-	} else {	/* not set, no restrictions to load high */
-		initrd_high = ~0;
-	}
-
-#ifdef CONFIG_LOGBUFFER
-	kbd=gd->bd;
-	/* Prevent initrd from overwriting logbuffer */
-	if (initrd_high < (kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD))
-		initrd_high = kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD;
-	debug ("## Logbuffer at 0x%08lX ", kbd->bi_memsize-LOGBUFF_LEN);
 #endif
 
 	/*
@@ -113,18 +89,17 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	 * pointer.
 	 */
 
-	asm( "mr %0,1": "=r"(sp) : );
+	sp_limit = get_sp();
+	debug ("## Current stack ends at 0x%08lX ", sp_limit);
 
-	debug ("## Current stack ends at 0x%08lX ", sp);
+	sp_limit -= 2048;		/* just to be sure */
+	if (sp_limit > CFG_BOOTMAPSZ)
+		sp_limit = CFG_BOOTMAPSZ;
+	sp_limit &= ~0xF;
 
-	sp -= 2048;		/* just to be sure */
-	if (sp > CFG_BOOTMAPSZ)
-		sp = CFG_BOOTMAPSZ;
-	sp &= ~0xF;
+	debug ("=> set upper limit to 0x%08lX\n", sp_limit);
 
-	debug ("=> set upper limit to 0x%08lX\n", sp);
-
-	cmdline = (char *)((sp - CFG_BARGSIZE) & ~0xF);
+	cmdline = (char *)((sp_limit - CFG_BARGSIZE) & ~0xF);
 	kbd = (bd_t *)(((ulong)cmdline - sizeof(bd_t)) & ~0xF);
 
 	if ((s = getenv("bootargs")) == NULL)
@@ -168,13 +143,20 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 #endif /* CONFIG_MPC5xxx */
 	}
 
+	/* find kernel */
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
 
+	/* find ramdisk */
 	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
 			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
+
 	rd_len = rd_data_end - rd_data_start;
 
+	ramdisk_high (rd_data_start, rd_len, kbd, sp_limit, get_sp (),
+			&initrd_start, &initrd_end);
+
 #if defined(CONFIG_OF_LIBFDT)
+	/* find flattened device tree */
 	if(argc > 3) {
 		of_flat_tree = (char *) simple_strtoul(argv[3], NULL, 16);
 		fdt_hdr = (image_header_t *)of_flat_tree;
@@ -265,56 +247,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	}
 #endif
 
-	if (rd_data_start) {
-	    if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
-		initrd_start = rd_data_start;
-		initrd_end = rd_data_end;
-	    } else {
-		initrd_start  = (ulong)kbd - rd_len;
-		initrd_start &= ~(4096 - 1);	/* align on page */
-
-		if (initrd_high) {
-			ulong nsp;
-
-			/*
-			 * the inital ramdisk does not need to be within
-			 * CFG_BOOTMAPSZ as it is not accessed until after
-			 * the mm system is initialised.
-			 *
-			 * do the stack bottom calculation again and see if
-			 * the initrd will fit just below the monitor stack
-			 * bottom without overwriting the area allocated
-			 * above for command line args and board info.
-			 */
-			asm( "mr %0,1": "=r"(nsp) : );
-			nsp -= 2048;		/* just to be sure */
-			nsp &= ~0xF;
-			if (nsp > initrd_high)	/* limit as specified */
-				nsp = initrd_high;
-			nsp -= rd_len;
-			nsp &= ~(4096 - 1);	/* align on page */
-			if (nsp >= sp)
-				initrd_start = nsp;
-		}
-
-		show_boot_progress (12);
-
-		debug ("## initrd at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			rd_data_start, rd_data_end - 1, rd_len, rd_len);
-
-		initrd_end    = initrd_start + rd_len;
-		printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
-			initrd_start, initrd_end);
-
-		memmove_wd((void *)initrd_start,
-			   (void *)rd_data_start, rd_len, CHUNKSZ);
-
-		puts ("OK\n");
-	    }
-	} else {
-		initrd_start = 0;
-		initrd_end = 0;
-	}
 
 #if defined(CONFIG_OF_LIBFDT)
 
@@ -411,6 +343,14 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 	/* does not return */
+}
+
+static ulong get_sp (void)
+{
+	ulong sp;
+
+	asm( "mr %0,1": "=r"(sp) : );
+	return sp;
 }
 
 #if defined(CONFIG_OF_LIBFDT)
