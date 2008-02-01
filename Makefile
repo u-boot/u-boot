@@ -2348,17 +2348,8 @@ mx1ads_config	:	unconfig
 mx1fs2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mx1fs2 NULL imx
 
-netstar_32_config	\
 netstar_config:		unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _32_,$@)" ] ; then \
-		$(XECHO) "... 32MB SDRAM" ; \
-		echo "#define PHYS_SDRAM_1_SIZE SZ_32M" >>$(obj)include/config.h ; \
-	else \
-		$(XECHO) "... 64MB SDRAM" ; \
-		echo "#define PHYS_SDRAM_1_SIZE SZ_64M" >>$(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -a netstar arm arm925t netstar
+	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
 
 omap1510inn_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn
