@@ -6,6 +6,9 @@
  * (C) Copyright 2005
  * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
  *
+ * MCF5275 additions
+ * Copyright (C) 2008 Arthur Shipkowski (art@videon-central.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -179,6 +182,69 @@ int watchdog_init(void)
 #endif				/* #ifdef CONFIG_WATCHDOG */
 
 #endif				/* #ifdef CONFIG_M5272 */
+
+#ifdef	CONFIG_M5275
+int do_reset(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+{
+	volatile rcm_t *rcm = (rcm_t *)(MMAP_RCM);
+
+	udelay(1000);
+
+	rcm->rcr = RCM_RCR_SOFTRST;
+
+	/* we don't return! */
+	return 0;
+};
+
+int checkcpu(void)
+{
+	char buf[32];
+
+	printf("CPU:   Freescale Coldfire MCF5275 at %s MHz\n",
+			strmhz(buf, CFG_CLK));
+	return 0;
+};
+
+
+#if defined(CONFIG_WATCHDOG)
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+	wdt->wsr = 0x5555;
+	wdt->wsr = 0xAAAA;
+}
+
+int watchdog_disable(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+
+	wdt->wsr = 0x5555; /* reset watchdog counter */
+	wdt->wsr = 0xAAAA;
+	wdt->wcr = 0;	/* disable watchdog timer */
+
+	puts("WATCHDOG:disabled\n");
+	return (0);
+}
+
+int watchdog_init(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+
+	wdt->wcr = 0;	/* disable watchdog */
+
+	/* set timeout and enable watchdog */
+	wdt->wmr =
+		((CONFIG_WATCHDOG_TIMEOUT * CFG_HZ) / (32768 * 1000)) - 1;
+	wdt->wsr = 0x5555; /* reset watchdog counter */
+	wdt->wsr = 0xAAAA;
+
+	puts("WATCHDOG:enabled\n");
+	return (0);
+}
+#endif				/* #ifdef CONFIG_WATCHDOG */
+
+#endif				/* #ifdef CONFIG_M5275 */
 
 #ifdef	CONFIG_M5282
 int checkcpu(void)

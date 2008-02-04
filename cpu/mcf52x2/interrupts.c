@@ -59,7 +59,7 @@ void dtimer_intr_setup(void)
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5272 */
 
-#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
+#if defined(CONFIG_M5282) || defined(CONFIG_M5271) || defined(CONFIG_M5275)
 int interrupt_init(void)
 {
 	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
@@ -81,7 +81,7 @@ void dtimer_intr_setup(void)
 	intp->imrl0 &= ~CFG_TMRINTR_MASK;
 }
 #endif				/* CONFIG_MCFTMR */
-#endif				/* CONFIG_M5282 | CONFIG_M5271 */
+#endif				/* CONFIG_M5282 | CONFIG_M5271 | CONFIG_M5275 */
 
 #if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 int interrupt_init(void)

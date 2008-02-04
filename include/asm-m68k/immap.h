@@ -180,6 +180,30 @@
 #endif
 #endif				/* CONFIG_M5272 */
 
+#ifdef CONFIG_M5275
+#include <asm/immap_5275.h>
+#include <asm/m5275.h>
+
+#define CFG_FEC0_IOBASE		(MMAP_FEC0)
+#define CFG_FEC1_IOBASE		(MMAP_FEC1)
+#define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x40))
+
+#define CFG_INTR_BASE		(MMAP_INTC0)
+#define CFG_NUM_IRQS		(192)
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CFG_UDELAY_BASE		(MMAP_DTMR0)
+#define CFG_TMR_BASE		(MMAP_DTMR3)
+#define CFG_TMRPND_REG		(((volatile int0_t *)(CFG_INTR_BASE))->iprl0)
+#define CFG_TMRINTR_NO		(INT0_LO_DTMR3)
+#define CFG_TMRINTR_MASK	(INTC_IPRL_INT22)
+#define CFG_TMRINTR_PEND	(CFG_TMRINTR_MASK)
+#define CFG_TMRINTR_PRI		(0x1E)
+#define CFG_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
+#endif
+#endif				/* CONFIG_M5275 */
+
 #ifdef CONFIG_M5282
 #include <asm/immap_5282.h>
 #include <asm/m5282.h>

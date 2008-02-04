@@ -197,6 +197,17 @@ _copy_flash:
 _after_flash_copy:
 #endif
 
+#ifdef CONFIG_M5275
+	/* Initialize IPSBAR */
+	move.l	#(CFG_MBAR + 1), %d0		/* set IPSBAR address + valid flag */
+	move.l	%d0, 0x40000000
+/*	movec	%d0, %MBAR */
+
+	/* Initialize RAMBAR: locate SRAM and validate it */
+	move.l	#(CFG_INIT_RAM_ADDR + 0x21), %d0
+	movec	%d0, %RAMBAR1
+#endif
+
 #if 0
 	/* invalidate and disable cache */
 	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
@@ -388,6 +399,25 @@ icache_enable:
 	move.l	#0xff00c000, %d0		/* Setup cache mask */
 	movec	%d0, %ACR1			/* Enable cache */
 	move.l	#0x80000100, %d0		/* Setup cache mask */
+	movec	%d0, %CACR			/* Enable cache */
+	moveq	#1, %d0
+	move.l	%d0, icache_state
+	rts
+#endif
+
+#if  defined(CONFIG_M5275)
+/*
+ * Instruction cache only
+ */
+	.globl	icache_enable
+icache_enable:
+	move.l	#0x01400000, %d0		/* Invalidate cache cmd */
+	movec	%d0, %CACR			/* Invalidate cache */
+	move.l	#0x0000c000, %d0		/* Setup SDRAM caching */
+	movec	%d0, %ACR0			/* Enable cache */
+	move.l	#0x00000000, %d0		/* No other caching */
+	movec	%d0, %ACR1			/* Enable cache */
+	move.l	#0x80400100, %d0		/* Setup cache mask */
 	movec	%d0, %CACR			/* Enable cache */
 	moveq	#1, %d0
 	move.l	%d0, icache_state
