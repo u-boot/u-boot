@@ -343,7 +343,8 @@ $(VERSION_FILE):
 		echo -n "$(U_BOOT_VERSION)" ; \
 		echo -n $(shell $(CONFIG_SHELL) $(TOPDIR)/tools/setlocalversion \
 			 $(TOPDIR)) ; \
-		echo "\"" ) > $(VERSION_FILE)
+		echo "\"" ) > $@.tmp
+		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 gdbtools:
 		$(MAKE) -C tools/gdb all || exit 1
