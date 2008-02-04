@@ -94,9 +94,9 @@ int dspic_post_test(int flags)
 	}
 
 	data = dspic_read(DSPIC_SYS_ERROR_REG);
-	if (data != 0) ret = 1;
 	if (data == -1) {
 		post_log("dsPIC : failed read system error\n");
+		ret = 1;
 	} else {
 		post_log("dsPIC SYS-ERROR code: 0x%04X\n", data);
 	}
