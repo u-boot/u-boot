@@ -41,9 +41,11 @@
 #include <fdt_support.h>
 
 static void fdt_error (const char *msg);
-static ulong get_fdt (ulong alloc_current, cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[],
-		bootm_headers_t *images, char **of_flat_tree);
+static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
+static ulong fdt_relocate (ulong alloc_current,
+		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		char **of_flat_tree, ulong *of_size);
 #endif
 
 #ifdef CFG_INIT_RAM_LOCK
@@ -73,7 +75,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 
 #if defined(CONFIG_OF_LIBFDT)
-	char	*of_flat_tree;
+	char	*of_flat_tree = NULL;
+	ulong	of_size = 0;
 #endif
 
 	/*
@@ -124,14 +127,16 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */
-	alloc_current = get_fdt (alloc_current,
-			cmdtp, flag, argc, argv, images, &of_flat_tree);
+	get_fdt (cmdtp, flag, argc, argv, images, &of_flat_tree, &of_size);
+
+	alloc_current = fdt_relocate (alloc_current,
+			cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
 
 	/*
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
 	 * if the user wants it (the logic is in the subroutines).
 	 */
-	if (of_flat_tree) {
+	if (of_size) {
 		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
 			fdt_error ("/chosen node create failed");
 			do_reset (cmdtp, flag, argc, argv);
@@ -234,16 +239,12 @@ static void fdt_error (const char *msg)
 	puts (" - must RESET the board to recover.\n");
 }
 
-static ulong get_fdt (ulong alloc_current,
-		cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[],
-		bootm_headers_t *images, char **of_flat_tree)
+static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
 	ulong		fdt_addr;
 	image_header_t	*fdt_hdr;
 	char		*fdt_blob = NULL;
-	ulong		fdt_relocate = 0;
-	ulong		new_alloc_current;
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 #if defined(CONFIG_FIT)
@@ -410,13 +411,37 @@ static ulong get_fdt (ulong alloc_current,
 	} else {
 		debug ("## No Flattened Device Tree\n");
 		*of_flat_tree = NULL;
+		*of_size = 0;
+		return;
+	}
+
+	*of_flat_tree = fdt_blob;
+	*of_size = be32_to_cpu (fdt_totalsize (fdt_blob));
+	debug ("   of_flat_tree at 0x%08lx size 0x%08lx\n",
+			*of_flat_tree, *of_size);
+}
+
+static ulong fdt_relocate (ulong alloc_current,
+		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		char **of_flat_tree, ulong *of_size)
+{
+	char	*fdt_blob = *of_flat_tree;
+	ulong	relocate = 0;
+	ulong	new_alloc_current;
+
+	/* nothing to do */
+	if (*of_size == 0)
 		return alloc_current;
+
+	if (fdt_check_header (fdt_blob) != 0) {
+		fdt_error ("image is not a fdt");
+		do_reset (cmdtp, flag, argc, argv);
 	}
 
 #ifndef CFG_NO_FLASH
-	/* move the blob if it is in flash (set fdt_relocate) */
+	/* move the blob if it is in flash (set relocate) */
 	if (addr2info ((ulong)fdt_blob) != NULL)
-		fdt_relocate = 1;
+		relocate = 1;
 #endif
 
 #ifdef CFG_BOOTMAPSZ
@@ -425,15 +450,15 @@ static ulong get_fdt (ulong alloc_current,
 	 * so we flag it to be copied if it is not.
 	 */
 	if (fdt_blob >= (char *)CFG_BOOTMAPSZ)
-		fdt_relocate = 1;
+		relocate = 1;
 #endif
 
 	/* move flattend device tree if needed */
-	if (fdt_relocate) {
+	if (relocate) {
 		int err;
 		ulong of_start, of_len;
 
-		of_len = be32_to_cpu (fdt_totalsize (fdt_blob));
+		of_len = *of_size;
 
 		/* position on a 4K boundary before the alloc_current */
 		of_start  = alloc_current - of_len;
