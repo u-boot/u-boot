@@ -39,6 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FPGA_VERSION_REG	0xC4000040
 #define FPGA_RAM_START		0xC4200000
 #define FPGA_RAM_END		0xC4203FFF
+#define FPGA_STAT		0xC400000C
 
 #define FPGA_PWM_CTRL_REG	0xC4000020
 #define FPGA_PWM_TV_REG		0xC4000024
@@ -92,6 +93,9 @@ int fpga_post_test(int flags)
 	version = in_be16((void *)FPGA_VERSION_REG);
 	post_log("FPGA : version %u.%u\n",
 		(version >> 8) & 0xFF, version & 0xFF);
+
+	/* Enable write to FPGA RAM */
+	out_be32((void *)FPGA_STAT, in_be32((void *)FPGA_STAT) | 0x1000);
 
 	read_value = get_ram_size((void *)CFG_FPGA_BASE_1, 0x4000);
 	post_log("FPGA RAM size: %d bytes\n", read_value);
