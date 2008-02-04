@@ -40,7 +40,7 @@
 
 #include <post.h>
 
-#ifdef CONFIG_SILENT_CONSOLE
+#if defined(CONFIG_SILENT_CONSOLE) || defined(CONFIG_POST)
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -369,6 +369,12 @@ void main_loop (void)
 	init_cmd_timeout ();
 # endif	/* CONFIG_BOOT_RETRY_TIME */
 
+#ifdef CONFIG_POST
+	if (gd->flags & GD_FLG_POSTFAIL) {
+		s = getenv("failbootcmd");
+	}
+	else
+#endif /* CONFIG_POST */
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	if (bootlimit && (bootcount > bootlimit)) {
 		printf ("Warning: Bootlimit (%u) exceeded. Using altbootcmd.\n",

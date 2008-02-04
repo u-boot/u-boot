@@ -60,6 +60,7 @@ typedef	struct	global_data {
 #define	GD_FLG_RELOC	0x00001		/* Code was relocated to RAM		*/
 #define	GD_FLG_DEVINIT	0x00002		/* Devices have been initialized	*/
 #define	GD_FLG_SILENT	0x00004		/* Silent mode				*/
+#define	GD_FLG_POSTFAIL	0x00008		/* Critical POST test failed		*/
 
 #define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r8")
 
