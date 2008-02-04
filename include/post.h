@@ -93,6 +93,11 @@ extern int post_hotkeys_pressed(void);
 #define CFG_POST_CODEC		0x00002000
 #define CFG_POST_FPU		0x00004000
 #define CFG_POST_ECC		0x00008000
+#define CFG_POST_BSPEC1		0x00010000
+#define CFG_POST_BSPEC2		0x00020000
+#define CFG_POST_BSPEC3		0x00040000
+#define CFG_POST_BSPEC4		0x00080000
+#define CFG_POST_BSPEC5		0x00100000
 
 #endif /* CONFIG_POST */
 
