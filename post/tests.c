@@ -225,7 +225,7 @@ struct post_test post_list[] =
 	CFG_POST_DSP
     },
 #endif
-#if CONFIG_POST & CFG_POST_DSP
+#if CONFIG_POST & CFG_POST_CODEC
     {
 	"CODEC test",
 	"codec",
