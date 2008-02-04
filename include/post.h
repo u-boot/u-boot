@@ -42,11 +42,15 @@
 #define POST_REBOOT		0x0800	/* test may cause rebooting */
 #define POST_PREREL             0x1000  /* test runs before relocation */
 
+#define POST_CRITICAL		0x2000	/* Use failbootcmd if test failed */
+
 #define POST_MEM		(POST_RAM | POST_ROM)
 #define POST_ALWAYS		(POST_NORMAL	| \
 				 POST_SLOWTEST	| \
 				 POST_MANUAL	| \
 				 POST_POWERON	)
+
+#define POST_FAIL_SAVE		0x80
 
 #ifndef	__ASSEMBLY__
 
