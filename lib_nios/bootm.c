@@ -29,6 +29,6 @@
  *
  */
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		image__header_t *hdr, int verify)
+		bootm_headers_t *images, int verify)
 {
 }

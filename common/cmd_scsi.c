@@ -273,20 +273,33 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	hdr = (image_header_t *)addr;
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (!image_check_magic (hdr)) {
-		printf("\n** Bad Magic Number **\n");
+		if (!image_check_magic (hdr)) {
+			printf("\n** Bad Magic Number **\n");
+			return 1;
+		}
+
+		if (!image_check_hcrc (hdr)) {
+			puts ("\n** Bad Header Checksum **\n");
+			return 1;
+		}
+
+		image_print_contents (hdr);
+		cnt = image_get_image_size (hdr);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("scsi");
+		return 1;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
 
-	if (!image_check_hcrc (hdr)) {
-		puts ("\n** Bad Header Checksum **\n");
-		return 1;
-	}
-
-	image_print_contents (hdr);
-	cnt = image_get_image_size (hdr);
 	cnt += info.blksz - 1;
 	cnt /= info.blksz;
 	cnt -= 1;

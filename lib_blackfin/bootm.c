@@ -47,16 +47,30 @@ extern void flush_data_cache(void);
 static char *make_command_line(void);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		    image_header_t *hdr, int verify)
+		    bootm_headers_t *images, int verify)
 {
-	int (*appl) (char *cmdline);
-	char *cmdline;
+	int	(*appl) (char *cmdline);
+	char	*cmdline;
+	ulong	ep = 0;
 
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
 #endif
 
-	appl = (int (*)(char *))image_get_ep (hdr);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("AVR32 linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	appl = (int (*)(char *))ep;
+
 	printf("Starting Kernel at = %x\n", appl);
 	cmdline = make_command_line();
 	if (icache_status()) {

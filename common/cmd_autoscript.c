@@ -53,7 +53,7 @@ int
 autoscript (ulong addr)
 {
 	ulong len;
-	image_header_t *hdr = (image_header_t *)addr;
+	image_header_t *hdr;
 	ulong *data;
 	char *cmd;
 	int rcode = 0;
@@ -61,33 +61,47 @@ autoscript (ulong addr)
 
 	verify = getenv_verify ();
 
-	if (!image_check_magic (hdr)) {
-		puts ("Bad magic number\n");
-		return 1;
-	}
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (!image_check_hcrc (hdr)) {
-		puts ("Bad header crc\n");
-		return 1;
-	}
-
-	if (verify) {
-		if (!image_check_dcrc (hdr)) {
-			puts ("Bad data crc\n");
+		if (!image_check_magic (hdr)) {
+			puts ("Bad magic number\n");
 			return 1;
 		}
-	}
 
-	if (!image_check_type (hdr, IH_TYPE_SCRIPT)) {
-		puts ("Bad image type\n");
+		if (!image_check_hcrc (hdr)) {
+			puts ("Bad header crc\n");
+			return 1;
+		}
+
+		if (verify) {
+			if (!image_check_dcrc (hdr)) {
+				puts ("Bad data crc\n");
+				return 1;
+			}
+		}
+
+		if (!image_check_type (hdr, IH_TYPE_SCRIPT)) {
+			puts ("Bad image type\n");
+			return 1;
+		}
+
+		/* get length of script */
+		data = (ulong *)image_get_data (hdr);
+
+		if ((len = image_to_cpu (*data)) == 0) {
+			puts ("Empty Script\n");
+			return 1;
+		}
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("autoscript");
 		return 1;
-	}
-
-	/* get length of script */
-	data = (ulong *)image_get_data (hdr);
-
-	if ((len = image_to_cpu (*data)) == 0) {
-		puts ("Empty Script\n");
+#endif
+	default:
+		puts ("Wrong image format for autoscript\n");
 		return 1;
 	}
 

@@ -91,6 +91,12 @@ int au_check_cksum_valid(int i, long nbytes)
 	image_header_t *hdr;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	if ((au_image[i].type == AU_FIRMWARE) &&
 	    (au_image[i].size != image_get_data_size (hdr))) {
@@ -118,6 +124,13 @@ int au_check_header_valid(int i, long nbytes)
 	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	/* check the easy ones first */
 #undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
@@ -183,6 +196,12 @@ int au_do_update(int i, long sz)
 #endif
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	switch (au_image[i].type) {
 	case AU_SCRIPT:

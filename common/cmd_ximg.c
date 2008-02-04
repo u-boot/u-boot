@@ -56,63 +56,76 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		dest = simple_strtoul(argv[3], NULL, 16);
 	}
 
-	printf("## Copying from image at %08lx ...\n", addr);
 
-	hdr = (image_header_t *)addr;
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
 
-	if (!image_check_magic (hdr)) {
-		printf("Bad Magic Number\n");
-		return 1;
-	}
-
-	if (!image_check_hcrc (hdr)) {
-		printf("Bad Header Checksum\n");
-		return 1;
-	}
-#ifdef DEBUG
-	image_print_contents (hdr);
-#endif
-
-	if (!image_check_type (hdr, IH_TYPE_MULTI)) {
-		printf("Wrong Image Type for %s command\n", cmdtp->name);
-		return 1;
-	}
-
-	if (image_get_comp (hdr) != IH_COMP_NONE) {
-		printf("Wrong Compression Type for %s command\n", cmdtp->name);
-		return 1;
-	}
-
-	if (verify) {
-		printf("   Verifying Checksum ... ");
-		if (!image_check_dcrc (hdr)) {
-			printf("Bad Data CRC\n");
+		printf("## Copying from legacy image at %08lx ...\n", addr);
+		hdr = (image_header_t *)addr;
+		if (!image_check_magic (hdr)) {
+			printf("Bad Magic Number\n");
 			return 1;
 		}
-		printf("OK\n");
-	}
 
-	data = image_get_data (hdr);
-	len_ptr = (ulong *) data;
+		if (!image_check_hcrc (hdr)) {
+			printf("Bad Header Checksum\n");
+			return 1;
+		}
+	#ifdef DEBUG
+		image_print_contents (hdr);
+	#endif
 
-	data += 4;		/* terminator */
-	for (i = 0; len_ptr[i]; ++i) {
-		data += 4;
-		if (argc > 2 && part > i) {
-			u_long tail;
-			len = image_to_cpu (len_ptr[i]);
-			tail = len % 4;
-			data += len;
-			if (tail) {
-				data += 4 - tail;
+		if (!image_check_type (hdr, IH_TYPE_MULTI)) {
+			printf("Wrong Image Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		if (image_get_comp (hdr) != IH_COMP_NONE) {
+			printf("Wrong Compression Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		if (verify) {
+			printf("   Verifying Checksum ... ");
+			if (!image_check_dcrc (hdr)) {
+				printf("Bad Data CRC\n");
+				return 1;
+			}
+			printf("OK\n");
+		}
+
+		data = image_get_data (hdr);
+		len_ptr = (ulong *) data;
+
+		data += 4;		/* terminator */
+		for (i = 0; len_ptr[i]; ++i) {
+			data += 4;
+			if (argc > 2 && part > i) {
+				u_long tail;
+				len = image_to_cpu (len_ptr[i]);
+				tail = len % 4;
+				data += len;
+				if (tail) {
+					data += 4 - tail;
+				}
 			}
 		}
-	}
-	if (argc > 2 && part >= i) {
-		printf("Bad Image Part\n");
+		if (argc > 2 && part >= i) {
+			printf("Bad Image Part\n");
+			return 1;
+		}
+		len = image_to_cpu (len_ptr[part]);
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("imxtract");
+		return 1;
+#endif
+	default:
+		puts ("Invalid image type for imxtract\n");
 		return 1;
 	}
-	len = image_to_cpu (len_ptr[part]);
 
 	if (argc > 3) {
 		memcpy((char *) dest, (char *) data, len);

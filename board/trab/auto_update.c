@@ -211,6 +211,12 @@ au_check_cksum_valid(int idx, long nbytes)
 	image_header_t *hdr;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	if (nbytes != image_get_image_size (hdr))
 	{
@@ -234,6 +240,13 @@ au_check_header_valid(int idx, long nbytes)
 	unsigned char buf[4];
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	/* check the easy ones first */
 #undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
@@ -327,6 +340,12 @@ au_do_update(int idx, long sz)
 	uint nbytes;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	/* disable the power switch */
 	*CPLD_VFD_BK |= POWER_OFF;
@@ -417,6 +436,13 @@ au_update_eeprom(int idx)
 	}
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	/* write the time field into EEPROM */
 	off = auee_off[idx].time;
 	val = image_get_time (hdr);

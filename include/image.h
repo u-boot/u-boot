@@ -44,6 +44,9 @@
 #define CONFIG_FIT		1
 #define CONFIG_OF_LIBFDT	1
 
+/* enable fit_format_error(), fit_format_warning() */
+#define CONFIG_FIT_VERBOSE	1
+
 #if defined(CONFIG_FIT) && !defined(CONFIG_OF_LIBFDT)
 #error "CONFIG_OF_LIBFDT not enabled, required by CONFIG_FIT!"
 #endif
@@ -174,6 +177,33 @@ typedef struct image_header {
 	uint8_t		ih_comp;	/* Compression Type		*/
 	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
 } image_header_t;
+
+/*
+ * Legacy and FIT format headers used by do_bootm() and do_bootm_<os>()
+ * routines.
+ */
+typedef struct bootm_headers {
+	/*
+	 * Legacy os image header, if it is a multi component image
+	 * then get_ramdisk() and get_fdt() will attempt to get
+	 * data from second and third component accordingly.
+	 */
+	image_header_t	*legacy_hdr_os;
+	ulong		legacy_hdr_valid;
+
+#if defined(CONFIG_FIT)
+	void		*fit_hdr_os;	/* os FIT image header */
+	char		*fit_uname_os;	/* os subimage node unit name */
+
+	void		*fit_hdr_rd;	/* init ramdisk FIT image header */
+	char		*fit_uname_rd;	/* init ramdisk node unit name */
+
+#if defined(CONFIG_PPC)
+	void		*fit_hdr_fdt;	/* FDT blob FIT image header */
+	char		*fit_uname_fdt;	/* FDT blob node unit name */
+#endif
+#endif
+} bootm_headers_t;
 
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
@@ -355,7 +385,7 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		ulong rd_addr, uint8_t arch, int verify);
 
 void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		image_header_t *hdr, int verify, uint8_t arch,
+		bootm_headers_t *images, int verify, uint8_t arch,
 		ulong *rd_start, ulong *rd_end);
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
@@ -368,14 +398,29 @@ ulong get_boot_cmdline (ulong alloc_current, ulong *cmd_start, ulong *cmd_end);
 ulong get_boot_kbd (ulong alloc_current, bd_t **kbd);
 #endif /* CONFIG_PPC || CONFIG_M68K */
 
+/*******************************************************************/
+/* New uImage format */
+/*******************************************************************/
 #if defined(CONFIG_FIT)
-/*
- * New uImage format
- */
 inline int fit_parse_conf (const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
 inline int fit_parse_subimage (const char *spec, ulong addr_curr,
 		ulong *addr, const char **image_name);
+
+#ifdef CONFIG_FIT_VERBOSE
+#define fit_unsupported(msg)	printf ("! %s:%d " \
+				"FIT images not supported for '%s'\n", \
+				__FILE__, __LINE__, (msg))
+
+#define fit_unsupported_reset(msg)	printf ("! %s:%d " \
+				"FIT images not supported for '%s' " \
+				"- must reset board to recover!\n", \
+				__FILE__, __LINE__, (msg))
+#else
+#define fit_unsupported(msg)
+#define fit_unsupported_reset(msg)
+#endif /* CONFIG_FIT_VERBOSE */
+
 #endif /* CONFIG_FIT */
 
 #endif /* USE_HOSTCC */

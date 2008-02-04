@@ -143,6 +143,12 @@ int au_check_cksum_valid(int idx, long nbytes)
 	image_header_t *hdr;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	if (nbytes != image_get_image_size (hdr)) {
 		printf ("Image %s bad total SIZE\n", aufile[idx]);
@@ -162,6 +168,13 @@ int au_check_header_valid(int idx, long nbytes)
 	unsigned long checksum, fsize;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	/* check the easy ones first */
 #undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
@@ -233,6 +246,12 @@ int au_do_update(int idx, long sz)
 	uint nbytes;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	/* execute a script */
 	if (image_check_type (hdr, IH_TYPE_SCRIPT)) {

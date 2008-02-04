@@ -216,19 +216,31 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		break;
 
 	case FPGA_LOADMK:
-		{
-			image_header_t header;
-			image_header_t *hdr = &header;
-			ulong	data;
+		switch (gen_image_get_format (fpga_data)) {
+		case IMAGE_FORMAT_LEGACY:
+			{
+				image_header_t *hdr = (image_header_t *)fpga_data;
+				ulong	data;
 
-			memmove (&header, (char *)fpga_data, image_get_header_size ());
-			if (!image_check_magic (hdr)) {
-				puts ("Bad Magic Number\n");
-				return 1;
+				if (!image_check_magic (hdr)) {
+					puts ("Bad Magic Number\n");
+					return 1;
+				}
+				data = (ulong)image_get_data (hdr);
+				data_size = image_get_data_size (hdr);
+				rc = fpga_load (dev, (void *)data, data_size);
 			}
-			data = ((ulong)fpga_data + image_get_header_size ());
-			data_size = image_get_data_size (hdr);
-			rc = fpga_load (dev, (void *)data, data_size);
+			break;
+#if defined(CONFIG_FIT)
+		case IMAGE_FORMAT_FIT:
+			fit_unsupported ("fpga");
+			rc = FPGA_FAIL;
+			break;
+#endif
+		default:
+			puts ("** Unknown image type\n");
+			rc = FPGA_FAIL;
+			break;
 		}
 		break;
 

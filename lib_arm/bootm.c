@@ -56,24 +56,38 @@ static void setup_end_tag (bd_t *bd);
 static void setup_videolfb_tag (gd_t *gd);
 # endif
 
-
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     image_header_t *hdr, int verify)
+		     bootm_headers_t *images, int verify)
 {
-	ulong initrd_start, initrd_end;
-	void (*theKernel)(int zero, int arch, uint params);
-	bd_t *bd = gd->bd;
-	int machid = bd->bi_arch_number;
-	char *s;
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	bd_t	*bd = gd->bd;
+	char	*s;
+	int	machid = bd->bi_arch_number;
+	void	(*theKernel)(int zero, int arch, uint params);
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
 #endif
 
-	theKernel = (void (*)(int, int, uint))image_get_ep (hdr);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("ARM linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	theKernel = (void (*)(int, int, uint))ep;
 
 	s = getenv ("machid");
 	if (s) {
@@ -81,7 +95,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		printf ("Using machid 0x%x from environment\n", machid);
 	}
 
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_ARM, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

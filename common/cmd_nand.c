@@ -512,18 +512,32 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	}
 	show_boot_progress (56);
 
-	hdr = (image_header_t *) addr;
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (!image_check_magic (hdr)) {
-		printf("\n** Bad Magic Number 0x%x **\n", image_get_magic (hdr));
-		show_boot_progress (-57);
+		if (!image_check_magic (hdr)) {
+			printf("\n** Bad Magic Number 0x%x **\n",
+					image_get_magic (hdr));
+			show_boot_progress (-57);
+			return 1;
+		}
+		show_boot_progress (57);
+
+		image_print_contents (hdr);
+
+		cnt = image_get_image_size (hdr);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("nand_load_image");
+		return 1;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
-	show_boot_progress (57);
 
-	image_print_contents (hdr);
-
-	cnt = image_get_image_size (hdr);
 	if (jffs2) {
 		nand_read_options_t opts;
 		memset(&opts, 0, sizeof(opts));
@@ -980,17 +994,30 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (56);
 
-	hdr = (image_header_t *)addr;
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (image_check_magic (hdr)) {
+		if (image_check_magic (hdr)) {
 
-		image_print_contents (hdr);
+			image_print_contents (hdr);
 
-		cnt = image_get_image_size (hdr);
-		cnt -= SECTORSIZE;
-	} else {
-		printf ("\n** Bad Magic Number 0x%x **\n", image_get_magic (hdr));
-		show_boot_progress (-57);
+			cnt = image_get_image_size (hdr);
+			cnt -= SECTORSIZE;
+		} else {
+			printf ("\n** Bad Magic Number 0x%x **\n",
+					image_get_magic (hdr));
+			show_boot_progress (-57);
+			return 1;
+		}
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("nboot");
+		return 1;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
 	show_boot_progress (57);

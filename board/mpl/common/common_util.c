@@ -181,6 +181,13 @@ mpl_prg_image(uchar *ld_addr)
 	image_header_t *hdr = (image_header_t *)ld_addr;
 	int rc;
 
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	if (!image_check_magic (hdr)) {
 		puts("Bad Magic Number\n");
 		return 1;

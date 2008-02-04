@@ -490,9 +490,6 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 	image_header_t *rd_hdr;
 
 	show_boot_progress (9);
-
-	/* copy from dataflash if needed */
-	rd_addr = gen_get_image (rd_addr);
 	rd_hdr = (image_header_t *)rd_addr;
 
 	if (!image_check_magic (rd_hdr)) {
@@ -540,7 +537,7 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  * @flag: command flag
  * @argc: command argument count
  * @argv: command argument list
- * @hdr: pointer to the posiibly multi componet kernel image
+ * @images: pointer to the bootm images strcture
  * @verify: checksum verification flag
  * @arch: expected ramdisk architecture
  * @rd_start: pointer to a ulong variable, will hold ramdisk start address
@@ -558,56 +555,111 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  *     board is reset if ramdisk image is found but corrupted
  */
 void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		image_header_t *hdr, int verify, uint8_t arch,
+		bootm_headers_t *images, int verify, uint8_t arch,
 		ulong *rd_start, ulong *rd_end)
 {
-	ulong rd_addr;
+	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
 	image_header_t *rd_hdr;
+#if defined(CONFIG_FIT)
+	void		*fit_hdr;
+	const char	*fit_uname_config = NULL;
+	const char	*fit_uname_ramdisk = NULL;
+	ulong		default_addr;
+#endif
 
-	if (argc >= 3) {
+	/*
+	 * Look for a '-' which indicates to ignore the
+	 * ramdisk argument
+	 */
+	if ((argc >= 3) && (strcmp(argv[2], "-") ==  0)) {
+		debug ("## Skipping init Ramdisk\n");
+		rd_len = rd_data = 0;
+	} else if (argc >= 3) {
+#if defined(CONFIG_FIT)
 		/*
-		 * Look for a '-' which indicates to ignore the
-		 * ramdisk argument
+		 * If the init ramdisk comes from the FIT image and the FIT image
+		 * address is omitted in the command line argument, try to use
+		 * os FIT image address or default load address.
 		 */
-		if (strcmp(argv[2], "-") ==  0) {
-			debug ("## Skipping init Ramdisk\n");
-			rd_len = rd_data = 0;
-		} else {
-			/*
-			 * Check if there is an initrd image at the
-			 * address provided in the second bootm argument
-			 */
-			rd_addr = simple_strtoul (argv[2], NULL, 16);
-			printf ("## Loading init Ramdisk Image at %08lx ...\n",
+		if (images->fit_uname_os)
+			default_addr = (ulong)images->fit_hdr_os;
+		else
+			default_addr = load_addr;
+
+		if (fit_parse_conf (argv[2], default_addr,
+					&rd_addr, &fit_uname_config)) {
+			debug ("*  ramdisk: config '%s' from image at 0x%08lx\n",
+					fit_uname_config, rd_addr);
+		} else if (fit_parse_subimage (argv[2], default_addr,
+					&rd_addr, &fit_uname_ramdisk)) {
+			debug ("*  ramdisk: subimage '%s' from image at 0x%08lx\n",
+					fit_uname_ramdisk, rd_addr);
+		} else
+#endif
+		{
+			rd_addr = simple_strtoul(argv[2], NULL, 16);
+			debug ("*  ramdisk: cmdline image address = 0x%08lx\n",
 					rd_addr);
+		}
+
+		/* copy from dataflash if needed */
+		printf ("## Loading init Ramdisk Image at %08lx ...\n",
+				rd_addr);
+		rd_addr = gen_get_image (rd_addr);
+
+		/*
+		 * Check if there is an initrd image at the
+		 * address provided in the second bootm argument
+		 * check image type, for FIT images get FIT node.
+		 */
+		switch (gen_image_get_format ((void *)rd_addr)) {
+		case IMAGE_FORMAT_LEGACY:
+
+			debug ("*  ramdisk: legacy format image\n");
 
 			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
 						rd_addr, arch, verify);
 
 			rd_data = image_get_data (rd_hdr);
 			rd_len = image_get_data_size (rd_hdr);
-
-#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
-			/*
-			 *we need to copy the ramdisk to SRAM to let Linux boot
-			 */
-			memmove ((void *)image_get_load (rd_hdr),
-					(uchar *)rd_data, rd_len);
-
-			rd_data = image_get_load (rd_hdr);
-#endif /* CONFIG_B2 || CONFIG_EVB4510 || CONFIG_ARMADILLO */
+			rd_load = image_get_load (rd_hdr);
+			break;
+#if defined(CONFIG_FIT)
+		case IMAGE_FORMAT_FIT:
+			fit_hdr = (void *)rd_addr;
+			debug ("*  ramdisk: FIT format image\n");
+			fit_unsupported_reset ("ramdisk");
+			do_reset (cmdtp, flag, argc, argv);
+#endif
+		default:
+			printf ("Wrong Image Format for %s command\n",
+					cmdtp->name);
+			rd_data = rd_len = 0;
 		}
 
-	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
 		/*
-		 * Now check if we have a multifile image
-		 * Get second entry data start address and len
+		 * We need to copy the ramdisk to SRAM to let Linux boot
+		 */
+		if (rd_data) {
+			memmove ((void *)rd_load, (uchar *)rd_data, rd_len);
+			rd_data = rd_load;
+		}
+#endif /* CONFIG_B2 || CONFIG_EVB4510 || CONFIG_ARMADILLO */
+
+	} else if (images->legacy_hdr_valid &&
+			image_check_type (images->legacy_hdr_os, IH_TYPE_MULTI)) {
+		/*
+		 * Now check if we have a legacy mult-component image,
+		 * get second entry data start address and len.
 		 */
 		show_boot_progress (13);
 		printf ("## Loading init Ramdisk from multi component "
-				"Image at %08lx ...\n", (ulong)hdr);
-		image_multi_getimg (hdr, 1, &rd_data, &rd_len);
+				"Image at %08lx ...\n",
+				(ulong)images->legacy_hdr_os);
+
+		image_multi_getimg (images->legacy_hdr_os, 1, &rd_data, &rd_len);
 	} else {
 		/*
 		 * no initrd image
@@ -904,6 +956,7 @@ inline int fit_parse_subimage (const char *spec, ulong addr_curr,
 {
 	return fit_parse_spec (spec, ':', addr_curr, addr, image_name);
 }
+
 #endif /* CONFIG_FIT */
 
 #endif /* USE_HOSTCC */

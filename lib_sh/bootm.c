@@ -43,6 +43,8 @@
 
 #define RAMDISK_IMAGE_START_MASK        0x07FF
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 #ifdef CFG_DEBUG
 static void hexdump (unsigned char *buf, int len)
 {
@@ -58,10 +60,24 @@ static void hexdump (unsigned char *buf, int len)
 #endif
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-                     image_header_t *hdr, int verify)
+                     bootm_headers_t *images, int verify)
 {
-	char *bootargs = getenv("bootargs");
-	void (*kernel) (void) = (void (*)(void))image_get_ep (hdr);
+	ulong	ep = 0;
+	char	*bootargs = getenv("bootargs");
+
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("SH linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	void (*kernel) (void) = (void (*)(void))ep;
 
 	/* Setup parameters */
 	memset(PARAM, 0, 0x1000);	/* Clear zero page */

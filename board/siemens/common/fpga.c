@@ -137,6 +137,13 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
     char msg[32];
     int verify, i;
 
+#if defined(CONFIG_FIT)
+    if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	puts ("Non legacy image format not supported\n");
+	return -1;
+    }
+#endif
+
     /*
      * Check the image header and data of the net-list
      */
@@ -333,6 +340,13 @@ int fpga_init (void)
 	}
 
 	hdr = (image_header_t *)addr;
+#if defined(CONFIG_FIT)
+	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	   puts ("Non legacy image format not supported\n");
+	   return -1;
+	}
+#endif
+
 	if ((new_id = fpga_get_version(fpga, image_get_name (hdr))) == -1)
 	    return 1;
 

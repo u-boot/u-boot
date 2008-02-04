@@ -32,14 +32,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		     image_header_t *hdr, int verify)
+		     bootm_headers_t *images, int verify)
 {
 	/* First parameter is mapped to $r5 for kernel boot args */
-	void (*theKernel) (char *);
-	char *commandline = getenv ("bootargs");
+	void	(*theKernel) (char *);
+	char	*commandline = getenv ("bootargs");
+	ulong	ep = 0;
 
-	theKernel = (void (*)(char *))image_get_ep (hdr);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("MICROBLAZE linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	theKernel = (void (*)(char *))ep;
 
 	show_boot_progress (15);
 

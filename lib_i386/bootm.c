@@ -32,22 +32,35 @@
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		image_header_t *hdr, int verify)
+		bootm_headers_t *images, int verify)
 {
-	void *base_ptr;
+	void		*base_ptr;
+	ulong		os_data, os_len;
+	ulong		initrd_start, initrd_end;
+	ulong		ep;
+	image_header_t	*hdr;
 
-	ulong os_data, os_len;
-	ulong initrd_start, initrd_end;
-
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_I386, &initrd_start, &initrd_end);
 
-	/* if multi-part image, we need to advance base ptr */
-	if (image_check_type (hdr, IH_TYPE_MULTI)) {
-		image_multi_getimg (hdr, 0, &os_data, &os_len);
+	if (images->legacy_hdr_valid) {
+		hdr = images->legacy_hdr_os;
+		if (image_check_type (hdr, IH_TYPE_MULTI)) {
+			/* if multi-part image, we need to get first subimage */
+			image_multi_getimg (hdr, 0, &os_data, &os_len);
+		} else {
+			/* otherwise get image data */
+			os_data = image_get_data (hdr);
+			os_len = image_get_data_size (hdr);
+		}
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("I386 linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
 	} else {
-		os_data = image_get_data (hdr);
-		os_len = image_get_data_size (hdr);
+		puts ("Could not find kernel image!\n");
+		do_reset (cmdtp, flag, argc, argv);
 	}
 
 	base_ptr = load_zimage ((void*)os_data, os_len,

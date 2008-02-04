@@ -25,10 +25,26 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		image_header_t *hdr, int verify)
+		bootm_headers_t *images, int verify)
 {
-	void (*kernel)(void) = (void (*)(void))image_get_ep (hdr);
+	ulong	ep = 0;
+
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("NIOS2 linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	void (*kernel)(void) = (void (*)(void))ep;
 
 	/* For now we assume the Microtronix linux ... which only
 	 * needs to be called ;-)

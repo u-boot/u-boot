@@ -42,10 +42,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
-		    image_header_t *hdr, int verify)
+		    bootm_headers_t *images, int verify)
 {
 	ulong sp, sp_limit, alloc_current;
 
@@ -53,8 +54,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	ulong initrd_start, initrd_end;
 
 	ulong cmd_start, cmd_end;
-	bd_t *kbd;
-	void (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
+	bd_t  *kbd;
+	ulong ep = 0;
+	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -78,12 +80,22 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	alloc_current = get_boot_kbd (alloc_current, &kbd);
 	set_clocks_in_mhz(kbd);
 
-	/* find kernel */
-	kernel =
-	    (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("M68K linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
 
 	rd_len = rd_data_end - rd_data_start;

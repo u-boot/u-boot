@@ -43,20 +43,32 @@ static int	linux_env_idx;
 static void linux_params_init (ulong start, char * commandline);
 static void linux_env_set (char * env_name, char * env_val);
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		     image_header_t *hdr, int verify)
+		     bootm_headers_t *images, int verify)
 {
-	ulong initrd_start, initrd_end;
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	void	(*theKernel) (int, char **, char **, int *);
+	char	*commandline = getenv ("bootargs");
+	char	env_buf[12];
 
-	void (*theKernel) (int, char **, char **, int *);
-	char *commandline = getenv ("bootargs");
-	char env_buf[12];
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("MIPS linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	theKernel = (void (*)(int, char **, char **, int *))ep;
 
-	theKernel =
-		(void (*)(int, char **, char **, int *))image_get_ep (hdr);
-
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_MIPS, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

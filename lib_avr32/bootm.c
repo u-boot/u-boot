@@ -34,6 +34,8 @@ DECLARE_GLOBAL_DATA_PTR;
 /* CPU-specific hook to allow flushing of caches, etc. */
 extern void prepare_to_boot(void);
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 static struct tag *setup_start_tag(struct tag *params)
 {
 	params->hdr.tag = ATAG_CORE;
@@ -172,17 +174,29 @@ static void setup_end_tag(struct tag *params)
 }
 
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		    image_header_t *hdr, int verify)
+		    bootm_headers_t *images, int verify)
 {
-	ulong initrd_start, initrd_end;
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	void	(*theKernel)(int magic, void *tagtable);
+	struct	tag *params, *params_start;
+	char	*commandline = getenv("bootargs");
 
-	void (*theKernel)(int magic, void *tagtable);
-	struct tag *params, *params_start;
-	char *commandline = getenv("bootargs");
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("AVR32 linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	theKernel = (void *)ep;
 
-	theKernel = (void *)image_get_ep (hdr);
-
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_AVR32, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

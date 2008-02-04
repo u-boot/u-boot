@@ -43,7 +43,7 @@
 static void fdt_error (const char *msg);
 static ulong get_fdt (ulong alloc_current, cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[],
-		image_header_t *hdr, char **of_flat_tree);
+		bootm_headers_t *images, char **of_flat_tree);
 #endif
 
 #ifdef CFG_INIT_RAM_LOCK
@@ -59,7 +59,7 @@ static void set_clocks_in_mhz (bd_t *kbd);
 void  __attribute__((noinline))
 do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 		int	argc, char *argv[],
-		image_header_t *hdr,
+		bootm_headers_t *images,
 		int	verify)
 {
 	ulong	sp, sp_limit, alloc_current;
@@ -69,6 +69,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 
 	ulong	cmd_start, cmd_end;
 	bd_t	*kbd;
+	ulong	ep = 0;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -97,11 +98,22 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	alloc_current = get_boot_kbd (alloc_current, &kbd);
 	set_clocks_in_mhz(kbd);
 
-	/* find kernel */
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))image_get_ep (hdr);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		fit_unsupported_reset ("PPC linux bootm");
+		do_reset (cmdtp, flag, argc, argv);
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		do_reset (cmdtp, flag, argc, argv);
+	}
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
 			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
 
 	rd_len = rd_data_end - rd_data_start;
@@ -113,7 +125,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */
 	alloc_current = get_fdt (alloc_current,
-			cmdtp, flag, argc, argv, hdr, &of_flat_tree);
+			cmdtp, flag, argc, argv, images, &of_flat_tree);
 
 	/*
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
@@ -225,33 +237,69 @@ static void fdt_error (const char *msg)
 static ulong get_fdt (ulong alloc_current,
 		cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[],
-		image_header_t *hdr, char **of_flat_tree)
+		bootm_headers_t *images, char **of_flat_tree)
 {
+	ulong		fdt_addr;
 	image_header_t	*fdt_hdr;
+	char		*fdt_blob = NULL;
 	ulong		fdt_relocate = 0;
-	char		*fdt = NULL;
 	ulong		new_alloc_current;
+	ulong		image_start, image_end;
+	ulong		load_start, load_end;
+#if defined(CONFIG_FIT)
+        void            *fit_hdr;
+        const char      *fit_uname_config = NULL;
+        const char      *fit_uname_fdt = NULL;
+	ulong		default_addr;
+#endif
 
-	if(argc > 3) {
-		fdt = (char *)simple_strtoul (argv[3], NULL, 16);
+	if (argc > 3) {
+#if defined(CONFIG_FIT)
+		/*
+		 * If the FDT blob comes from the FIT image and the FIT image
+		 * address is omitted in the command line argument, try to use
+		 * ramdisk or os FIT image address or default load address.
+		 */
+		if (images->fit_uname_rd)
+			default_addr = (ulong)images->fit_hdr_rd;
+		else if (images->fit_uname_os)
+			default_addr = (ulong)images->fit_hdr_os;
+		else
+			default_addr = load_addr;
 
-		debug ("## Checking for 'FDT'/'FDT image' at %08lx\n", fdt);
+		if (fit_parse_conf (argv[3], default_addr,
+					&fdt_addr, &fit_uname_config)) {
+			debug ("*  fdt: config '%s' from image at 0x%08lx\n",
+					fit_uname_config, fdt_addr);
+		} else if (fit_parse_subimage (argv[3], default_addr,
+					&fdt_addr, &fit_uname_fdt)) {
+			debug ("*  fdt: subimage '%s' from image at 0x%08lx\n",
+					fit_uname_fdt, fdt_addr);
+		} else
+#endif
+		{
+			fdt_addr = simple_strtoul(argv[3], NULL, 16);
+			debug ("*  fdt: cmdline image address = 0x%08lx\n",
+					fdt_addr);
+		}
+
+		debug ("## Checking for 'FDT'/'FDT image' at %08lx\n",
+				fdt_addr);
 
 		/* copy from dataflash if needed */
-		fdt = (char *)gen_get_image ((ulong)fdt);
-		fdt_hdr = (image_header_t *)fdt;
+		fdt_addr = gen_get_image (fdt_addr);
 
-		if (fdt_check_header (fdt) == 0) {
-			printf ("## Flattened Device Tree blob at %08lx\n", fdt);
-#ifndef CFG_NO_FLASH
-			if (addr2info ((ulong)fdt) != NULL)
-				fdt_relocate = 1;
-#endif
-		} else if (image_check_magic (fdt_hdr)) {
-			ulong image_start, image_end;
-			ulong load_start, load_end;
+		/*
+		 * Check if there is an FDT image at the
+		 * address provided in the second bootm argument
+		 * check image type, for FIT images get a FIT node.
+		 */
+		switch (gen_image_get_format ((void *)fdt_addr)) {
+		case IMAGE_FORMAT_LEGACY:
+			debug ("*  fdt: legacy format image\n");
 
-			printf ("## Flattened Device Tree Image at %08lx\n",
+			fdt_hdr = (image_header_t *)fdt_addr;
+			printf ("## Flattened Device Tree Legacy Image at %08lx\n",
 					fdt_hdr);
 
 			image_print_contents (fdt_hdr);
@@ -296,51 +344,87 @@ static ulong get_fdt (ulong alloc_current,
 				(void *)image_get_data (fdt_hdr),
 				image_get_data_size (fdt_hdr));
 
-			fdt = (char *)image_get_load (fdt_hdr);
-		} else {
-			fdt_error ("Did not find a Flattened Device Tree");
+			fdt_blob = (char *)image_get_load (fdt_hdr);
+			break;
+#if defined(CONFIG_FIT)
+		case IMAGE_FORMAT_FIT:
+
+			/* check FDT blob vs FIT hdr */
+			if (fit_uname_config || fit_uname_fdt) {
+				/*
+				 * FIT image
+				 */
+				fit_hdr = (void *)fdt_addr;
+				debug ("*  fdt: FIT format image\n");
+				fit_unsupported_reset ("PPC fdt");
+				do_reset (cmdtp, flag, argc, argv);
+			} else {
+				/*
+				 * FDT blob
+				 */
+				printf ("## Flattened Device Tree blob at %08lx\n", fdt_blob);
+				fdt_blob = (char *)fdt_addr;
+			}
+			break;
+#endif
+		default:
+			fdt_error ("Did not find a cmdline Flattened Device Tree");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-		printf ("   Booting using the fdt at 0x%x\n",
-				fdt);
-	} else if (image_check_type (hdr, IH_TYPE_MULTI)) {
+
+		printf ("   Booting using the fdt blob at 0x%x\n", fdt_blob);
+
+	} else if (images->legacy_hdr_valid &&
+			image_check_type (images->legacy_hdr_os, IH_TYPE_MULTI)) {
+
 		ulong fdt_data, fdt_len;
 
+		/*
+		 * Now check if we have a legacy multi-component image,
+		 * get second entry data start address and len.
+		 */
 		printf ("## Flattened Device Tree from multi "
-			"component Image at %08lX\n", (ulong)hdr);
+			"component Image at %08lX\n",
+			(ulong)images->legacy_hdr_os);
 
-		image_multi_getimg (hdr, 2, &fdt_data, &fdt_len);
+		image_multi_getimg (images->legacy_hdr_os, 2, &fdt_data, &fdt_len);
 		if (fdt_len) {
 
-			fdt = (char *)fdt_data;
-			printf ("   Booting using the fdt at 0x%x\n", fdt);
+			fdt_blob = (char *)fdt_data;
+			printf ("   Booting using the fdt at 0x%x\n", fdt_blob);
 
-#ifndef CFG_NO_FLASH
-			/* move the blob if it is in flash (set of_relocte) */
-			if (addr2info ((ulong)fdt) != NULL)
-				fdt_relocate = 1;
-#endif
-
-			if (fdt_check_header (fdt) != 0) {
+			if (fdt_check_header (fdt_blob) != 0) {
 				fdt_error ("image is not a fdt");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 
-			if (be32_to_cpu (fdt_totalsize (fdt)) != fdt_len) {
+			if (be32_to_cpu (fdt_totalsize (fdt_blob)) != fdt_len) {
 				fdt_error ("fdt size != image size");
 				do_reset (cmdtp, flag, argc, argv);
 			}
 		} else {
-			debug ("   Did not find a Flattened Device Tree");
+			fdt_error ("Did not find a Flattened Device Tree "
+				"in a legacy multi-component image");
+			do_reset (cmdtp, flag, argc, argv);
 		}
+	} else {
+		debug ("## No Flattened Device Tree\n");
+		*of_flat_tree = NULL;
+		return alloc_current;
 	}
+
+#ifndef CFG_NO_FLASH
+	/* move the blob if it is in flash (set fdt_relocate) */
+	if (addr2info ((ulong)fdt_blob) != NULL)
+		fdt_relocate = 1;
+#endif
 
 #ifdef CFG_BOOTMAPSZ
 	/*
 	 * The blob must be within CFG_BOOTMAPSZ,
 	 * so we flag it to be copied if it is not.
 	 */
-	if (fdt >= (char *)CFG_BOOTMAPSZ)
+	if (fdt_blob >= (char *)CFG_BOOTMAPSZ)
 		fdt_relocate = 1;
 #endif
 
@@ -349,20 +433,20 @@ static ulong get_fdt (ulong alloc_current,
 		int err;
 		ulong of_start, of_len;
 
-		of_len = be32_to_cpu (fdt_totalsize (fdt));
+		of_len = be32_to_cpu (fdt_totalsize (fdt_blob));
 
 		/* position on a 4K boundary before the alloc_current */
 		of_start  = alloc_current - of_len;
 		of_start &= ~(4096 - 1);	/* align on page */
 
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			(ulong)fdt, (ulong)fdt + of_len - 1,
+			(ulong)fdt_blob, (ulong)fdt_blob + of_len - 1,
 			of_len, of_len);
 
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
 			of_start, of_start + of_len - 1);
 
-		err = fdt_open_into (fdt, (void *)of_start, of_len);
+		err = fdt_open_into (fdt_blob, (void *)of_start, of_len);
 		if (err != 0) {
 			fdt_error ("fdt move failed");
 			do_reset (cmdtp, flag, argc, argv);
@@ -372,7 +456,7 @@ static ulong get_fdt (ulong alloc_current,
 		*of_flat_tree = (char *)of_start;
 		new_alloc_current = of_start;
 	} else {
-		*of_flat_tree = fdt;
+		*of_flat_tree = fdt_blob;
 		new_alloc_current = alloc_current;
 	}
 

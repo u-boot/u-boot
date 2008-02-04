@@ -261,17 +261,29 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (38);
 
-	hdr = (image_header_t *)addr;
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (image_check_magic (hdr)) {
+		if (image_check_magic (hdr)) {
 
-		image_print_contents (hdr);
+			image_print_contents (hdr);
 
-		cnt = image_get_image_size (hdr);
-		cnt -= SECTORSIZE;
-	} else {
-		puts ("\n** Bad Magic Number **\n");
-		show_boot_progress (-39);
+			cnt = image_get_image_size (hdr);
+			cnt -= SECTORSIZE;
+		} else {
+			puts ("\n** Bad Magic Number **\n");
+			show_boot_progress (-39);
+			return 1;
+		}
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("docboot");
+		return 1;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
 	show_boot_progress (39);

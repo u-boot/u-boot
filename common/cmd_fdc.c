@@ -835,14 +835,28 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf("result%d: 0x%02X\n",i,pCMD->result[i]);
 		return 1;
 	}
-	hdr = (image_header_t *)addr;
-	if (!image_check_magic (hdr)) {
-		printf ("Bad Magic Number\n");
+
+	switch (gen_image_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
+		if (!image_check_magic (hdr)) {
+			printf ("Bad Magic Number\n");
+			return 1;
+		}
+		image_print_contents (hdr);
+
+		imsize = image_get_image_size (hdr);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_unsupported ("fdcboot");
+		return 1;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
-	image_print_contents (hdr);
 
-	imsize= image_get_image_size (hdr);
 	nrofblk=imsize/512;
 	if((imsize%512)>0)
 		nrofblk++;
@@ -861,20 +875,18 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Loading ok, update default load address */
 
 	load_addr = addr;
-	if(image_check_type (hdr, IH_TYPE_KERNEL)) {
-		/* Check if we should attempt an auto-start */
-		if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
-			char *local_args[2];
-			extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
+	/* Check if we should attempt an auto-start */
+	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
+		char *local_args[2];
+		extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
-			local_args[0] = argv[0];
-			local_args[1] = NULL;
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
 
-			printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);
+		printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);
 
-			do_bootm (cmdtp, 0, 1, local_args);
-			rcode ++;
-		}
+		do_bootm (cmdtp, 0, 1, local_args);
+		rcode ++;
 	}
 	return rcode;
 }
