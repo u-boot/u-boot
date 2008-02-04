@@ -36,6 +36,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
+#define CONFIG_BOARD_RESET	1	/* Call board_reset		*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -516,6 +517,7 @@
 #define CFG_GPIO_EEPROM_EXT_WP	55
 #define CFG_GPIO_HIGHSIDE	56
 #define CFG_GPIO_EEPROM_INT_WP	57
+#define CFG_GPIO_BOARD_RESET	58
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
 #define CFG_GPIO_SYSMON_STATUS	62

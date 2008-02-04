@@ -594,3 +594,8 @@ void video_get_info_str (int line_number, char *info)
 }
 #endif
 #endif /* CONFIG_VIDEO */
+
+void board_reset(void)
+{
+	gpio_write_bit(CFG_GPIO_BOARD_RESET, 1);
+}
