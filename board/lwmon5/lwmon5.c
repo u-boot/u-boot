@@ -96,6 +96,25 @@ int board_early_init_f(void)
 
 	gpio_write_bit(CFG_GPIO_FLASH_WP, 1);
 
+#if CONFIG_POST & CFG_POST_BSPEC1
+	gpio_write_bit(CFG_GPIO_HIGHSIDE, 1);
+
+	reg = 0; /* reuse as counter */
+	out_be32((void *)CFG_DSPIC_TEST_ADDR,
+		in_be32((void *)CFG_DSPIC_TEST_ADDR)
+			& ~CFG_DSPIC_TEST_MASK);
+	while (!gpio_read_in_bit(CFG_GPIO_DSPIC_READY) && reg++ < 1000) {
+		udelay(1000);
+	}
+	gpio_write_bit(CFG_GPIO_HIGHSIDE, 0);
+	if (gpio_read_in_bit(CFG_GPIO_DSPIC_READY)) {
+		/* set "boot error" flag */
+		out_be32((void *)CFG_DSPIC_TEST_ADDR,
+			in_be32((void *)CFG_DSPIC_TEST_ADDR) |
+			CFG_DSPIC_TEST_MASK);
+	}
+#endif
+
 	/*
 	 * Reset PHY's:
 	 * The PHY's need a 2nd reset pulse, since the MDIO address is latched

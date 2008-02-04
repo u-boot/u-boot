@@ -1431,6 +1431,9 @@
 #define   SDR0_MFR_PKT_REJ_POL         0x00200000   /* Packet Reject Polarity */
 
 #define GPT0_COMP6			0x00000098
+#define GPT0_COMP5			0x00000094
+#define GPT0_COMP4			0x00000090
+#define GPT0_COMP3			0x0000008C
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_USB2D0CR                 0x0320
