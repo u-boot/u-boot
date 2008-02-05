@@ -33,6 +33,11 @@
 
 #ifdef CONFIG_DRIVER_SMC91111
 
+#ifdef pFIO0_DIR
+# define pFIO_DIR    pFIO0_DIR
+# define pFIO_FLAG_S pFIO0_FLAG_S
+#endif
+
 #define SMC_BASE_ADDRESS CONFIG_SMC91111_BASE
 #define EEPROM		0x1;
 #define MAC		0x2;
@@ -61,17 +66,9 @@ int smc91111_eeprom (int argc, char *argv[])
 		return (0);
 	}
 
-	asm ("p2.h = 0xFFC0;");
-	asm ("p2.l = 0x0730;");
-	asm ("r0 = 0x01;");
-	asm ("w[p2] = r0;");
-	asm ("ssync;");
-
-	asm ("p2.h = 0xffc0;");
-	asm ("p2.l = 0x0708;");
-	asm ("r0 = 0x01;");
-	asm ("w[p2] = r0;");
-	asm ("ssync;");
+	*pFIO_DIR = 0x01;
+	*pFIO_FLAG_S = 0x01;
+	SSYNC();
 
 	if ((SMC_inw (BANK_SELECT) & 0xFF00) != 0x3300) {
 		printf ("Can't find SMSC91111\n");
