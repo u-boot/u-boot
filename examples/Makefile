@@ -162,7 +162,7 @@ $(LIB):	$(obj).depend $(LIBOBJS)
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
 		$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
-			-o $@ -e $(notdir $(<:.o=)) $< $(LIB) \
+			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 
 $(SREC):
