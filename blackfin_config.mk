@@ -25,3 +25,8 @@ PLATFORM_RELFLAGS += -ffixed-P5
 PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
 
 SYM_PREFIX = _
+
+LDR_FLAGS += --use-vmas
+ifeq (,$(findstring s,$(MAKEFLAGS)))
+LDR_FLAGS += --quiet
+endif

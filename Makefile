@@ -274,6 +274,9 @@ __LIBS := $(subst $(obj),,$(LIBS))
 #########################################################################
 
 ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND)
+ifeq ($(ARCH),blackfin)
+ALL += $(obj)u-boot.ldr
+endif
 
 all:		$(ALL)
 
@@ -285,6 +288,15 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+
+$(obj)u-boot.ldr:	$(obj)u-boot
+		$(LDR) -T $(CONFIG_BFIN_CPU) -f -c $@ $< $(LDR_FLAGS)
+
+$(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
+		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@ -I binary
+
+$(obj)u-boot.ldr.srec:	$(obj)u-boot.ldr
+		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@ -I binary
 
 $(obj)u-boot.img:	$(obj)u-boot.bin
 		./tools/mkimage -A $(ARCH) -T firmware -C none \
