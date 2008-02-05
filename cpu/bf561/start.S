@@ -41,6 +41,10 @@
 #include <config.h>
 #include <asm/blackfin.h>
 
+#include <asm/mach-common/bits/core.h>
+#include <asm/mach-common/bits/dma.h>
+#include <asm/mach-common/bits/pll.h>
+
 .global _stext;
 .global __bss_start;
 .global start;
@@ -127,16 +131,16 @@ no_soft_reset:
 	nop;
 
 	/* Clear EVT registers */
-	p0.h = (EVT_EMULATION_ADDR >> 16);
-	p0.l = (EVT_EMULATION_ADDR & 0xFFFF);
+	p0.h = (EVT0 >> 16);
+	p0.l = (EVT0 & 0xFFFF);
 	p0 += 8;
 	p1 = 14;
 	r1 = 0;
 	LSETUP(4,4) lc0 = p1;
 	[ p0 ++ ] = r1;
 
-	p0.h = hi(SIC_IWR);
-	p0.l = lo(SIC_IWR);
+	p0.h = hi(SICA_IWR0);
+	p0.l = lo(SICA_IWR0);
 	r0.l = 0x1;
 	w[p0] = r0.l;
 	SSYNC;
@@ -193,8 +197,8 @@ loop1:
 	 */
 
 	/* To keep ourselves in the supervisor mode */
-	p0.l = (EVT_IVG15_ADDR & 0xFFFF);
-	p0.h = (EVT_IVG15_ADDR >> 16);
+	p0.l = (EVT15 & 0xFFFF);
+	p0.h = (EVT15 >> 16);
 
 	p1.l = _real_start;
 	p1.h = _real_start;
@@ -202,8 +206,8 @@ loop1:
 
 	p0.l = (IMASK & 0xFFFF);
 	p0.h = (IMASK >> 16);
-	r0.l = LO(IVG15_POS);
-	r0.h = HI(IVG15_POS);
+	r0.l = LO(EVT_IVG15);
+	r0.h = HI(EVT_IVG15);
 	[p0] = r0;
 	raise 15;
 	p0.l = WAIT_HERE;
@@ -218,13 +222,6 @@ WAIT_HERE:
 _real_start:
 	[ -- sp ] = reti;
 
-#ifdef CONFIG_EZKIT561
-	p0.l = (WDOG_CTL & 0xFFFF);
-	p0.h = (WDOG_CTL >> 16);
-	r0 = WATCHDOG_DISABLE(z);
-	w[p0] = r0;
-#endif
-
 	/* DMA reset code to Hi of L1 SRAM */
 copy:
 	P1.H = hi(SYSMMR_BASE);	/* P1 Points to the beginning of SYSTEM MMR Space */
@@ -235,37 +232,37 @@ copy:
 	R1.H = reset_end;
 	R1.L = reset_end;
 	R2 = R1 - R0;		/* Count */
-	R1.H = hi(L1_ISRAM);	/* Destination Address (high) */
-	R1.L = lo(L1_ISRAM);	/* Destination Address (low) */
+	R1.H = hi(L1_INST_SRAM);	/* Destination Address (high) */
+	R1.L = lo(L1_INST_SRAM);	/* Destination Address (low) */
 	R3.L = DMAEN;		/* Source DMAConfig Value (8-bit words) */
 	R4.L = (DI_EN | WNR | DMAEN);	/* Destination DMAConfig Value (8-bit words) */
 
 DMA:
 	R6 = 0x1 (Z);
-	W[P1+OFFSET_(MDMA_S0_X_MODIFY)] = R6;	/* Source Modify = 1 */
-	W[P1+OFFSET_(MDMA_D0_X_MODIFY)] = R6;	/* Destination Modify = 1 */
+	W[P1+OFFSET_(IMDMA_S0_X_MODIFY)] = R6;	/* Source Modify = 1 */
+	W[P1+OFFSET_(IMDMA_D0_X_MODIFY)] = R6;	/* Destination Modify = 1 */
 
-	[P1+OFFSET_(MDMA_S0_START_ADDR)] = R0;	/* Set Source Base Address */
-	W[P1+OFFSET_(MDMA_S0_X_COUNT)] = R2;	/* Set Source Count */
+	[P1+OFFSET_(IMDMA_S0_START_ADDR)] = R0;	/* Set Source Base Address */
+	W[P1+OFFSET_(IMDMA_S0_X_COUNT)] = R2;	/* Set Source Count */
 	/* Set Source  DMAConfig = DMA Enable,
 	Memory Read,  8-Bit Transfers, 1-D DMA, Flow - Stop */
-	W[P1+OFFSET_(MDMA_S0_CONFIG)] = R3;
+	W[P1+OFFSET_(IMDMA_S0_CONFIG)] = R3;
 
-	[P1+OFFSET_(MDMA_D0_START_ADDR)] = R1;	/* Set Destination Base Address */
-	W[P1+OFFSET_(MDMA_D0_X_COUNT)] = R2;	/* Set Destination Count */
+	[P1+OFFSET_(IMDMA_D0_START_ADDR)] = R1;	/* Set Destination Base Address */
+	W[P1+OFFSET_(IMDMA_D0_X_COUNT)] = R2;	/* Set Destination Count */
 	/* Set Destination DMAConfig = DMA Enable,
 	Memory Write, 8-Bit Transfers, 1-D DMA, Flow - Stop, IOC */
-	W[P1+OFFSET_(MDMA_D0_CONFIG)] = R4;
+	W[P1+OFFSET_(IMDMA_D0_CONFIG)] = R4;
 
 WAIT_DMA_DONE:
-	p0.h = hi(MDMA_D0_IRQ_STATUS);
-	p0.l = lo(MDMA_D0_IRQ_STATUS);
+	p0.h = hi(IMDMA_D0_IRQ_STATUS);
+	p0.l = lo(IMDMA_D0_IRQ_STATUS);
 	R0 = W[P0](Z);
 	CC = BITTST(R0, 0);
 	if ! CC jump WAIT_DMA_DONE
 
 	R0 = 0x1;
-	W[P1+OFFSET_(MDMA_D0_IRQ_STATUS)] = R0;	/* Write 1 to clear DMA interrupt */
+	W[P1+OFFSET_(IMDMA_D0_IRQ_STATUS)] = R0;	/* Write 1 to clear DMA interrupt */
 
 	/* Initialize BSS Section with 0 s */
 	p1.l = __bss_start;

@@ -28,8 +28,6 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
-#include <asm/irq.h>
-
 /*
  * The following data structure is placed in some memory wich is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or

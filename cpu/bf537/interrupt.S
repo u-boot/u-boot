@@ -42,9 +42,7 @@
 #define ASSEMBLY
 #include <config.h>
 #include <asm/blackfin.h>
-#include <asm/hw_irq.h>
 #include <asm/entry.h>
-#include <asm/blackfin_defs.h>
 
 .global _blackfin_irq_panic;
 
@@ -55,7 +53,7 @@
 .global _evt_emulation
 _evt_emulation:
 	SAVE_CONTEXT
-	r0 = IRQ_EMU;
+	r0 = 0;
 	r1 = seqstat;
 	sp += -12;
 	call _blackfin_irq_panic;
@@ -66,7 +64,7 @@ _evt_emulation:
 .global _evt_nmi
 _evt_nmi:
 	SAVE_CONTEXT
-	r0 = IRQ_NMI;
+	r0 = 2;
 	r1 = RETN;
 	sp += -12;
 	call _blackfin_irq_panic;
@@ -88,7 +86,7 @@ _trap:
 .global _evt_rst
 _evt_rst:
 	SAVE_CONTEXT
-	r0 = IRQ_RST;
+	r0 = 1;
 	r1 = RETN;
 	sp += -12;
 	call _do_reset;
@@ -98,7 +96,7 @@ _evt_rst_exit:
 	rtn;
 
 irq_panic:
-	r0 = IRQ_EVX;
+	r0 = 3;
 	r1 =  sp;
 	sp += -12;
 	call _blackfin_irq_panic;
@@ -115,7 +113,7 @@ _evt_ivhw_exit:
 .global _evt_timer
 _evt_timer:
 	SAVE_CONTEXT
-	r0 = IRQ_CORETMR;
+	r0 = 6;
 	sp += -12;
 	/* Polling method used now. */
 	/* call timer_int; */

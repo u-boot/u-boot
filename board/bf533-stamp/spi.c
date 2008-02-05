@@ -4,6 +4,7 @@
 #include <common.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
+#include <asm/mach-common/bits/spi.h>
 
 #if defined(CONFIG_SPI)
 
@@ -153,7 +154,7 @@ void SendSingleCommand(const int iCommand)
 
 	/*sends the actual command to the SPI TX register */
 	*pSPI_TDBR = iCommand;
-	sync();
+	SSYNC();
 
 	/*The SPI status register will be polled to check the SPIF bit */
 	Wait_For_SPIF();
@@ -174,7 +175,7 @@ void SetupSPI(const int spi_setting)
 	*pSPI_FLG = 0xFB04;
 	*pSPI_BAUD = CONFIG_SPI_BAUD;
 	*pSPI_CTL = spi_setting;
-	sync();
+	SSYNC();
 }
 
 void SPI_OFF(void)
@@ -183,7 +184,7 @@ void SPI_OFF(void)
 	*pSPI_CTL = 0x0400;	/* disable SPI */
 	*pSPI_FLG = 0;
 	*pSPI_BAUD = 0;
-	sync();
+	SSYNC();
 	udelay(CONFIG_CCLK_HZ / 50000000);
 
 }
@@ -241,10 +242,10 @@ char ReadStatusRegister(void)
 	SetupSPI((COMMON_SPI_SETTINGS | TIMOD01));	/* Turn on the SPI */
 
 	*pSPI_TDBR = SPI_RDSR;	/* send instruction to read status register */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	*pSPI_TDBR = 0;		/*send dummy to receive the status register */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the data has been sent */
 	status_register = *pSPI_RDBR;	/*read the status register */
 
@@ -305,18 +306,18 @@ ERROR_CODE EraseBlock(int nBlock)
 	/* Send the erase block command to the flash followed by the 24 address  */
 	/* to point to the start of a sector. */
 	*pSPI_TDBR = SPI_SE;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();
 	ShiftValue = (ulSectorOff >> 16);	/* Send the highest byte of the 24 bit address at first */
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 	ShiftValue = (ulSectorOff >> 8);	/* Send the middle byte of the 24 bit address  at second */
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 	*pSPI_TDBR = ulSectorOff;	/* Send the lowest byte of the 24 bit address finally */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 
 	/*Turns off the SPI */
@@ -351,25 +352,25 @@ ERROR_CODE ReadData(unsigned long ulStart, long lCount, int *pnData)
 	SetupSPI((COMMON_SPI_SETTINGS | TIMOD01));
 
 	*pSPI_TDBR = SPI_READ;	/* Send the read command to SPI device */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 	ShiftValue = (ulStart >> 16);	/* Send the highest byte of the 24 bit address at first */
 	*pSPI_TDBR = ShiftValue;	/* Send the byte to the SPI device */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 	ShiftValue = (ulStart >> 8);	/* Send the middle byte of the 24 bit address  at second */
 	*pSPI_TDBR = ShiftValue;	/* Send the byte to the SPI device */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 	*pSPI_TDBR = ulStart;	/* Send the lowest byte of the 24 bit address finally */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/* Wait until the instruction has been sent */
 
 	/* After the SPI device address has been placed on the MOSI pin the data can be */
 	/* received on the MISO pin. */
 	for (i = 0; i < lCount; i++) {
 		*pSPI_TDBR = 0;	/*send dummy */
-		sync();
+		SSYNC();
 		while (!(*pSPI_STAT & RXS)) ;
 		*cnData++ = *pSPI_RDBR;	/*read  */
 
@@ -406,26 +407,26 @@ ERROR_CODE WriteFlash(unsigned long ulStartAddr, long lTransferCount,
 		/* Third, the 24 bit address will be shifted out the SPI MOSI bytewise. */
 		SetupSPI((COMMON_SPI_SETTINGS | TIMOD01));	/* Turns the SPI on */
 	*pSPI_TDBR = SPI_PP;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	ulWAddr = (ulStartAddr >> 16);
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	ulWAddr = (ulStartAddr >> 8);
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	ulWAddr = ulStartAddr;
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	/* Fourth, maximum number of 256 bytes will be taken from the Buffer */
 	/* and sent to the SPI device. */
 	for (i = 0; (i < lTransferCount) && (i < 256); i++, lWTransferCount++) {
 		iData = *temp;
 		*pSPI_TDBR = iData;
-		sync();
+		SSYNC();
 		Wait_For_SPIF();	/*wait until the instruction has been sent */
 		temp++;
 	}

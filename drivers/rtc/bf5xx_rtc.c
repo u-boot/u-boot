@@ -52,7 +52,21 @@
 #if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
 
 #include <asm/blackfin.h>
-#include <asm/arch/bf5xx_rtc.h>
+#include <asm/mach-common/bits/rtc.h>
+
+#define MIN_TO_SECS(_x_)	(60 * _x_)
+#define HRS_TO_SECS(_x_)	(60 * 60 * _x_)
+#define DAYS_TO_SECS(_x_)	(24 * 60 * 60 * _x_)
+
+#define NUM_SECS_IN_DAY		(24 * 3600)
+#define NUM_SECS_IN_HOUR	(3600)
+#define NUM_SECS_IN_MIN		(60)
+
+/* Shift values for RTC_STAT register */
+#define DAY_BITS_OFF		17
+#define HOUR_BITS_OFF		12
+#define MIN_BITS_OFF		6
+#define SEC_BITS_OFF		0
 
 void rtc_reset(void)
 {

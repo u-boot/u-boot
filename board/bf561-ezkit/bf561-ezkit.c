@@ -65,9 +65,9 @@ int misc_init_r(void)
 	/* Keep PF12 low to be able to drive the USB-LAN Extender */
 	*pFIO0_DIR = 0x0000;
 	*pFIO0_FLAG_C = 0x1000;	/* Clear PF12 */
-	sync();
+	SSYNC();
 	*pFIO0_POLAR = 0x0000;
-	sync();
+	SSYNC();
 
 	return 0;
 }

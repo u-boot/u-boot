@@ -43,14 +43,12 @@
  */
 
 #include <common.h>
-#include <asm/irq.h>
 #include <asm/system.h>
-#include <asm/segment.h>
 #include <asm/bitops.h>
 #include <asm/delay.h>
-#include <asm/uaccess.h>
 #include <asm/io.h>
 #include "bf533_serial.h"
+#include <asm/mach-common/bits/uart.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -85,30 +83,30 @@ void serial_setbrg(void)
 	}
 
 	/* Enable UART */
-	*pUART_GCTL |= UART_GCTL_UCEN;
-	sync();
+	*pUART_GCTL |= UCEN;
+	SSYNC();
 
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH;
-	sync();
+	SSYNC();
 
 	*pUART_DLL = hw_baud_table[i].dl_low;
-	sync();
+	SSYNC();
 	*pUART_DLH = hw_baud_table[i].dl_high;
-	sync();
+	SSYNC();
 
 	/* Clear DLAB in LCR to Access THR RBR IER */
 	ACCESS_PORT_IER;
-	sync();
+	SSYNC();
 
 	/* Enable  ERBFI and ELSI interrupts
 	 * to poll SIC_ISR register*/
-	*pUART_IER = UART_IER_ELSI | UART_IER_ERBFI | UART_IER_ETBEI;
-	sync();
+	*pUART_IER = ELSI | ERBFI | ETBEI;
+	SSYNC();
 
 	/* Set LCR to Word Lengh 8-bit word select */
-	*pUART_LCR = UART_LCR_WLS8;
-	sync();
+	*pUART_LCR = WLS_8;
+	SSYNC();
 
 	return;
 }
@@ -121,14 +119,14 @@ int serial_init(void)
 
 void serial_putc(const char c)
 {
-	if ((*pUART_LSR) & UART_LSR_TEMT) {
+	if ((*pUART_LSR) & TEMT) {
 		if (c == '\n')
 			serial_putc('\r');
 
 		local_put_char(c);
 	}
 
-	while (!((*pUART_LSR) & UART_LSR_TEMT))
+	while (!((*pUART_LSR) & TEMT))
 		SYNC_ALL;
 
 	return;
@@ -136,7 +134,7 @@ void serial_putc(const char c)
 
 int serial_tstc(void)
 {
-	if (*pUART_LSR & UART_LSR_DR)
+	if (*pUART_LSR & DR)
 		return 1;
 	else
 		return 0;
@@ -149,14 +147,14 @@ int serial_getc(void)
 	int ret;
 
 	/* Poll for RX Interrupt */
-	while (!((isr_val =
-		  *(volatile unsigned long *)SIC_ISR) & IRQ_UART_RX_BIT)) ;
+	while (!serial_tstc())
+		continue;
 	asm("csync;");
 
 	uart_lsr_val = *pUART_LSR;	/* Clear status bit */
 	uart_rbr_val = *pUART_RBR;	/* getc() */
 
-	if (isr_val & IRQ_UART_ERROR_BIT) {
+	if (uart_lsr_val & (OE|PE|FE|BI)) {
 		ret = -1;
 	} else {
 		ret = uart_rbr_val & 0xff;
@@ -177,19 +175,12 @@ static void local_put_char(char ch)
 	int flags = 0;
 	unsigned long isr_val;
 
-	save_and_cli(flags);
-
 	/* Poll for TX Interruput */
-	while (!((isr_val = *pSIC_ISR) & IRQ_UART_TX_BIT)) ;
+	while (!(*pUART_LSR & THRE))
+		continue;
 	asm("csync;");
 
 	*pUART_THR = ch;	/* putc() */
-
-	if (isr_val & IRQ_UART_ERROR_BIT) {
-		printf("?");
-	}
-
-	restore_flags(flags);
 
 	return;
 }

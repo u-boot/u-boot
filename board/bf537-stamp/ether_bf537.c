@@ -30,6 +30,10 @@
 #include <malloc.h>
 #include "ether_bf537.h"
 
+#include <asm/mach-common/bits/dma.h>
+#include <asm/mach-common/bits/emac.h>
+#include <asm/mach-common/bits/pll.h>
+
 #ifdef CONFIG_POST
 #include <post.h>
 #endif
@@ -364,7 +368,7 @@ int SetupSystemRegs(int *opmode)
 	u16 sysctl, phydat;
 	int count = 0;
 	/* Enable PHY output */
-	*pVR_CTL |= PHYCLKOE;
+	*pVR_CTL |= CLKBUFOE;
 	/* MDC  = 2.5 MHz */
 	sysctl = SET_MDCDIV(24);
 	/* Odd word alignment for Receive Frame DMA word */

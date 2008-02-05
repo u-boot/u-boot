@@ -65,9 +65,9 @@ static __inline__ void set_bit(int nr, volatile void *addr)
 
 	a += nr >> 5;
 	mask = 1 << (nr & 0x1f);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	*a |= mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 }
 
 static __inline__ void __set_bit(int nr, volatile void *addr)
@@ -94,9 +94,9 @@ static __inline__ void clear_bit(int nr, volatile void *addr)
 
 	a += nr >> 5;
 	mask = 1 << (nr & 0x1f);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	*a &= ~mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 }
 
 static __inline__ void change_bit(int nr, volatile void *addr)
@@ -106,9 +106,9 @@ static __inline__ void change_bit(int nr, volatile void *addr)
 
 	ADDR += nr >> 5;
 	mask = 1 << (nr & 31);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	*ADDR ^= mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 }
 
 static __inline__ void __change_bit(int nr, volatile void *addr)
@@ -129,10 +129,10 @@ static __inline__ int test_and_set_bit(int nr, volatile void *addr)
 
 	a += nr >> 5;
 	mask = 1 << (nr & 0x1f);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	retval = (mask & *a) != 0;
 	*a |= mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 
 	return retval;
 }
@@ -157,10 +157,10 @@ static __inline__ int test_and_clear_bit(int nr, volatile void *addr)
 
 	a += nr >> 5;
 	mask = 1 << (nr & 0x1f);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	retval = (mask & *a) != 0;
 	*a &= ~mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 
 	return retval;
 }
@@ -185,10 +185,10 @@ static __inline__ int test_and_change_bit(int nr, volatile void *addr)
 
 	a += nr >> 5;
 	mask = 1 << (nr & 0x1f);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	retval = (mask & *a) != 0;
 	*a ^= mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 
 	return retval;
 }
@@ -293,10 +293,10 @@ static __inline__ int ext2_set_bit(int nr, volatile void *addr)
 
 	ADDR += nr >> 3;
 	mask = 1 << (nr & 0x07);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	retval = (mask & *ADDR) != 0;
 	*ADDR |= mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 	return retval;
 }
 
@@ -308,10 +308,10 @@ static __inline__ int ext2_clear_bit(int nr, volatile void *addr)
 
 	ADDR += nr >> 3;
 	mask = 1 << (nr & 0x07);
-	save_and_cli(flags);
+	local_irq_save(flags);
 	retval = (mask & *ADDR) != 0;
 	*ADDR &= ~mask;
-	restore_flags(flags);
+	local_irq_restore(flags);
 	return retval;
 }
 

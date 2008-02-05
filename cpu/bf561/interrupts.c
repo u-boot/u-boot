@@ -35,8 +35,6 @@
  */
 
 #include <common.h>
-#include <asm/machdep.h>
-#include <asm/irq.h>
 #include <config.h>
 #include <asm/blackfin.h>
 #include "cpu.h"
@@ -72,12 +70,10 @@ ulong get_tbclk(void)
 
 void enable_interrupts(void)
 {
-	restore_flags(int_flag);
 }
 
 int disable_interrupts(void)
 {
-	save_and_cli(int_flag);
 	return 1;
 }
 

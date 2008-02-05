@@ -4,6 +4,7 @@
 #include <common.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
+#include <asm/mach-common/bits/spi.h>
 
 #if defined(CONFIG_SPI)
 
@@ -142,7 +143,7 @@ void SendSingleCommand(const int iCommand)
 
 	/* sends the actual command to the SPI TX register */
 	*pSPI_TDBR = iCommand;
-	sync();
+	SSYNC();
 
 	/* The SPI status register will be polled to check the SPIF bit */
 	Wait_For_SPIF();
@@ -164,10 +165,10 @@ void SetupSPI(const int spi_setting)
 	*pSPI_FLG = 0xFF02;
 	*pSPI_BAUD = CONFIG_SPI_BAUD;
 	*pSPI_CTL = spi_setting;
-	sync();
+	SSYNC();
 
 	*pSPI_FLG = 0xFD02;
-	sync();
+	SSYNC();
 }
 
 void SPI_OFF(void)
@@ -176,7 +177,7 @@ void SPI_OFF(void)
 	*pSPI_CTL = 0x0400;	/* disable SPI */
 	*pSPI_FLG = 0;
 	*pSPI_BAUD = 0;
-	sync();
+	SSYNC();
 	udelay(CONFIG_CCLK_HZ / 50000000);
 
 }
@@ -234,10 +235,10 @@ char ReadStatusRegister(void)
 	SetupSPI((COMMON_SPI_SETTINGS | TIMOD01));	/* Turn on the SPI */
 
 	*pSPI_TDBR = SPI_RDSR;	/* send instruction to read status register */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the instruction has been sent */
 	*pSPI_TDBR = 0;		/*send dummy to receive the status register */
-	sync();
+	SSYNC();
 	Wait_For_SPIF();	/*wait until the data has been sent */
 	status_register = *pSPI_RDBR;	/*read the status register */
 
@@ -300,23 +301,23 @@ ERROR_CODE EraseBlock(int nBlock)
 	 * to point to the start of a sector
 	 */
 	*pSPI_TDBR = SPI_SE;
-	sync();
+	SSYNC();
 	Wait_For_SPIF();
 	/* Send the highest byte of the 24 bit address at first */
 	ShiftValue = (ulSectorOff >> 16);
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/* Send the middle byte of the 24 bit address  at second */
 	ShiftValue = (ulSectorOff >> 8);
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/* Send the lowest byte of the 24 bit address finally */
 	*pSPI_TDBR = ulSectorOff;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 
@@ -357,33 +358,33 @@ ERROR_CODE ReadData(unsigned long ulStart, long lCount, int *pnData)
 	/* Send the read command to SPI device */
 	*pSPI_TDBR = SPI_READ;
 #endif
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/* Send the highest byte of the 24 bit address at first */
 	ShiftValue = (ulStart >> 16);
 	/* Send the byte to the SPI device */
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/* Send the middle byte of the 24 bit address  at second */
 	ShiftValue = (ulStart >> 8);
 	/* Send the byte to the SPI device */
 	*pSPI_TDBR = ShiftValue;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/* Send the lowest byte of the 24 bit address finally */
 	*pSPI_TDBR = ulStart;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 
 #ifdef CONFIG_SPI_FLASH_FAST_READ
 	/* Send dummy for FAST_READ */
 	*pSPI_TDBR = 0;
-	sync();
+	SSYNC();
 	/* Wait until the instruction has been sent */
 	Wait_For_SPIF();
 #endif
@@ -392,7 +393,7 @@ ERROR_CODE ReadData(unsigned long ulStart, long lCount, int *pnData)
 	/* received on the MISO pin. */
 	for (i = 0; i < lCount; i++) {
 		*pSPI_TDBR = 0;
-		sync();
+		SSYNC();
 		while (!(*pSPI_STAT & RXS)) ;
 		*cnData++ = *pSPI_RDBR;
 
@@ -435,22 +436,22 @@ ERROR_CODE WriteFlash(unsigned long ulStartAddr, long lTransferCount,
 		 */
 		SetupSPI((COMMON_SPI_SETTINGS | TIMOD01));
 	*pSPI_TDBR = SPI_PP;
-	sync();
+	SSYNC();
 	/*wait until the instruction has been sent */
 	Wait_For_SPIF();
 	ulWAddr = (ulStartAddr >> 16);
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	/*wait until the instruction has been sent */
 	Wait_For_SPIF();
 	ulWAddr = (ulStartAddr >> 8);
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	/*wait until the instruction has been sent */
 	Wait_For_SPIF();
 	ulWAddr = ulStartAddr;
 	*pSPI_TDBR = ulWAddr;
-	sync();
+	SSYNC();
 	/*wait until the instruction has been sent */
 	Wait_For_SPIF();
 	/*
@@ -460,7 +461,7 @@ ERROR_CODE WriteFlash(unsigned long ulStartAddr, long lTransferCount,
 	for (i = 0; (i < lTransferCount) && (i < 256); i++, lWTransferCount++) {
 		iData = *temp;
 		*pSPI_TDBR = iData;
-		sync();
+		SSYNC();
 		/*wait until the instruction has been sent */
 		Wait_For_SPIF();
 		temp++;
