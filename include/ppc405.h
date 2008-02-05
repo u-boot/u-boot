@@ -784,6 +784,14 @@
 #define reset   (CNTRL_DCR_BASE+0x3)  /* reset register			     */
 #define strap   (CNTRL_DCR_BASE+0x4)  /* strap register			     */
 
+#define CPC0_CR0  (CNTRL_DCR_BASE+0x1)  /* chip control register 0	     */
+#define CPC0_CR1  (CNTRL_DCR_BASE+0x2)  /* chip control register 1	     */
+#define CPC0_PSR  (CNTRL_DCR_BASE+0x4)  /* chip pin strapping register	     */
+
+/* CPC0_ECR/CPC0_EIRR: PPC405GPr only */
+#define CPC0_EIRR (CNTRL_DCR_BASE+0x6)	/* external interrupt routing register */
+#define CPC0_ECR  (0xaa)		/* edge conditioner register */
+
 #define ecr     (0xaa)                /* edge conditioner register (405gpr)  */
 
 /* Bit definitions */
