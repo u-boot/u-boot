@@ -70,11 +70,16 @@
 /*
  * Macros to generate global absolutes.
  */
+#if defined(__bfin__)
+# define GEN_SET_VALUE(name, value) asm (".set " GEN_SYMNAME(name) ", " GEN_VALUE(value))
+#else
+# define GEN_SET_VALUE(name, value) asm (GEN_SYMNAME(name) " = " GEN_VALUE(value))
+#endif
 #define GEN_SYMNAME(str) SYM_CHAR #str
 #define GEN_VALUE(str) #str
 #define GEN_ABS(name, value) \
 		asm (".globl " GEN_SYMNAME(name)); \
-		asm (GEN_SYMNAME(name) " = " GEN_VALUE(value))
+		GEN_SET_VALUE(name, value)
 
 /*
  * Macros to transform values
