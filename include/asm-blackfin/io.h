@@ -80,10 +80,16 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 #define readb(addr)		({ unsigned char __v = (*(volatile unsigned char *) (addr));asm("ssync;"); __v; })
 #define readw(addr)		({ unsigned short __v = (*(volatile unsigned short *) (addr)); asm("ssync;");__v; })
 #define readl(addr)		({ unsigned int __v = (*(volatile unsigned int *) (addr));asm("ssync;"); __v; })
+#define __raw_readb readb
+#define __raw_readw readw
+#define __raw_readl readl
 
 #define writeb(b,addr)		{((*(volatile unsigned char *) (addr)) = (b)); asm("ssync;");}
 #define writew(b,addr)		{((*(volatile unsigned short *) (addr)) = (b)); asm("ssync;");}
 #define writel(b,addr)		{((*(volatile unsigned int *) (addr)) = (b)); asm("ssync;");}
+#define __raw_writeb writeb
+#define __raw_writew writew
+#define __raw_writel writel
 
 #define memset_io(a,b,c)	memset((void *)(a),(b),(c))
 #define memcpy_fromio(a,b,c)	memcpy((a),(void *)(b),(c))
