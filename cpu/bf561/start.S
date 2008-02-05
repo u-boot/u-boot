@@ -49,13 +49,8 @@
 .global __bss_start;
 .global start;
 .global _start;
-.global _rambase;
-.global _ramstart;
-.global _ramend;
 .global edata;
-.global _initialize;
 .global _exit;
-.global flashdataend;
 .global init_sdram;
 
 .text

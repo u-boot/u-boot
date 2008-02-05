@@ -49,15 +49,8 @@
 .global __bss_start;
 .global start;
 .global _start;
-.global _rambase;
-.global _ramstart;
-.global _ramend;
-.global _bf533_data_dest;
-.global _bf533_data_size;
 .global edata;
-.global _initialize;
 .global _exit;
-.global flashdataend;
 .global init_sdram;
 .global _icache_enable;
 .global _dcache_enable;
