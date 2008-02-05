@@ -76,6 +76,7 @@ COBJS-y += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_onenand.o
+COBJS-$(CONFIG_CMD_OTP) += cmd_otp.o
 ifdef CONFIG_PCI
 COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
 endif
