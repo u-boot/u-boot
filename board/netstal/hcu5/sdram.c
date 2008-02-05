@@ -165,19 +165,25 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
 	u32 val;
 	char str[] = "ECC generation -";
 #if defined(CONFIG_PRAM)
-	u32 *magic;
+	u32 *magicPtr;
+	u32 magic;
 
-	/* Check whether vxWorks is using EDR logging, if yes zero */
-	/* also PostMortem and user reserved memory */
-	magic = (u32 *)in_be32((u32 *)(start_address + num_bytes -
-				       (CONFIG_PRAM*1024) + sizeof(u32)));
-
-	debug("\n%s:  CONFIG_PRAM %d kB magic 0x%x 0x%p -> 0x%x\n", __FUNCTION__,
-	       CONFIG_PRAM,
-	       start_address + num_bytes - (CONFIG_PRAM*1024) + sizeof(u32),
-	       magic, in_be32(magic));
-	if (in_be32(magic) == 0xbeefbabe)
-		num_bytes -= (CONFIG_PRAM*1024) - PM_RESERVED_MEM;
+	if ((mfspr(dbcr0) & 0x80000000) == 0) {
+		/* only if no external debugger is alive!
+		 * Check whether vxWorks is using EDR logging, if yes zero
+		 * also PostMortem and user reserved memory
+		 */
+		magicPtr = (u32 *)(start_address + num_bytes -
+				(CONFIG_PRAM*1024) + sizeof(u32));
+		magic = in_be32(magicPtr);
+		debug("%s:  CONFIG_PRAM %d kB magic 0x%x 0x%p\n",
+		      __FUNCTION__, CONFIG_PRAM,
+		      magicPtr, magic);
+		if (magic == 0xbeefbabe) {
+			printf("%s: preserving at %p\n", __FUNCTION__, magicPtr);
+			num_bytes -= (CONFIG_PRAM*1024) - PM_RESERVED_MEM;
+		}
+	}
 #endif
 
 	sync();

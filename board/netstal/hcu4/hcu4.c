@@ -1,5 +1,5 @@
 /*
- *(C) Copyright 2005-2007 Netstal Maschinen AG
+ *(C) Copyright 2005-2008 Netstal Maschinen AG
  *    Niklaus Giger (Niklaus.Giger@netstal.com)
  *
  *    This source code is free software; you can redistribute it
@@ -28,16 +28,9 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define HCU_MACH_VERSIONS_REGISTER	(0x7C000000 + 0xF00000)
-#define SYS_SLOT_ADDRESS		(0x7C000000 + 0x400000)
-#define HCU3_DIGITAL_IO_REGISTER	(0x7C000000 + 0x500000)
+#define HCU_SLOT_ADDRESS		(0x7C000000 + 0x400000)
+#define HCU_DIGITAL_IO_REGISTER		(0x7C000000 + 0x500000)
 #define HCU_SW_INSTALL_REQUESTED	0x10
-
-#undef DEBUG
-
-#if defined(DEBUG)
-void show_sdram_registers(void);
-#endif
-long int fixed_hcu4_sdram (unsigned int dram_size);
 
 /*
  * This function is run very early, out of flash, and before devices are
@@ -49,17 +42,12 @@ long int fixed_hcu4_sdram (unsigned int dram_size);
  * anything, not even stack. So be careful.
  */
 
-#define CPC0_CR0	0xb1	/* Chip control register 0 */
-#define CPC0_CR1        0xb2	/* Chip control register 1 */
 /* Attention: If you want 1 microsecs times from the external oscillator
- * use  0x00804051. But this causes problems with u-boot and linux!
+ * 0x00004051 is okay for u-boot/linux, but different from old vxworks values
+ * 0x00804051 causes problems with u-boot and linux!
  */
 #define CPC0_CR0_VALUE	0x0030103c
 #define CPC0_CR1_VALUE	0x00004051
-#define CPC0_ECR	0xaa	/* Edge condition register */
-#define EBC0_CFG	0x23	/* External Peripheral Control Register */
-#define CPC0_EIRR	0xb6	/* External Interrupt Register */
-
 
 int board_early_init_f (void)
 {
@@ -70,16 +58,16 @@ int board_early_init_f (void)
 	 *      IRQ 17-24 RESERVED/UNUSED
 	 *      IRQ 31 (EXT IRQ 6) (unused)
 	 */
-	mtdcr (uicsr, 0xFFFFFFFF); /* clear all ints */
-	mtdcr (uicer, 0x00000000); /* disable all ints */
-	mtdcr (uiccr, 0x00000000); /* set all to be non-critical */
-	mtdcr (uicpr, 0xFFFFE000); /* set int polarities */
-	mtdcr (uictr, 0x00000000); /* set int trigger levels */
-	mtdcr (uicsr, 0xFFFFFFFF); /* clear all ints */
+	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
+	mtdcr(uicer, 0x00000000); /* disable all ints */
+	mtdcr(uiccr, 0x00000000); /* set all to be non-critical */
+	mtdcr(uicpr, 0xFFFFE000); /* set int polarities */
+	mtdcr(uictr, 0x00000000); /* set int trigger levels */
+	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
 
-	mtdcr(CPC0_CR1,  CPC0_CR1_VALUE);
-	mtdcr(CPC0_ECR,  0x60606000);
-	mtdcr(CPC0_EIRR, 0x7c000000);
+	mtdcr(CPC0_CR1, CPC0_CR1_VALUE);
+	mtdcr(CPC0_ECR, 0x60606000);
+	mtdcr(CPC0_EIRR, 0x7C000000);
 
 	return 0;
 }
@@ -93,18 +81,19 @@ int board_pre_init (void)
 
 int sys_install_requested(void)
 {
-	u16 *ioValuePtr = (u16 *)HCU3_DIGITAL_IO_REGISTER;
-	return (in_be16(ioValuePtr) & HCU_SW_INSTALL_REQUESTED) != 0;
+	u16 ioValue = in_be16((u16 *)HCU_DIGITAL_IO_REGISTER);
+	return (ioValue & HCU_SW_INSTALL_REQUESTED) != 0;
 }
 
 int checkboard (void)
 {
-	u16 *boardVersReg = (u16 *)HCU_MACH_VERSIONS_REGISTER;
-	u16 generation = in_be16(boardVersReg) & 0xf0;
-	u16 index      = in_be16(boardVersReg) & 0x0f;
+	u16 boardVersReg = in_be16((u16 *)HCU_MACH_VERSIONS_REGISTER);
+	u16 generation = boardVersReg & 0xf0;
+	u16 index      = boardVersReg & 0x0f;
 
-	/* Cannot be done, in board_early_init */
-	mtdcr(CPC0_CR0,  CPC0_CR0_VALUE);
+	/* Cannot be done in board_early_init */
+	mtdcr(cntrl0,  CPC0_CR0_VALUE);
+
 	/* Force /RTS to active. The board it not wired quite
 	 *  correctly to use cts/rtc flow control, so just force the
 	 *  /RST active and forget about it.
@@ -145,8 +134,8 @@ void sdram_init(void)
  */
 u32 hcu_get_slot(void)
 {
-	u16 *slot = (u16 *)SYS_SLOT_ADDRESS;
-	return in_be16(slot) & 0x7f;
+	u16 slot = in_be16((u16 *)HCU_SLOT_ADDRESS);
+	return slot & 0x7f;
 }
 
 /*
@@ -154,12 +143,12 @@ u32 hcu_get_slot(void)
  */
 u32 get_serial_number(void)
 {
-	u32 *serial = (u32 *)CFG_FLASH_BASE;
+	u32 serial = in_be32((u32 *)CFG_FLASH_BASE);
 
-	if (in_be32(serial) == 0xffffffff)
+	if (serial == 0xffffffff)
 		return 0;
 
-	return in_be32(serial);
+	return serial;
 }
 
 
@@ -177,12 +166,15 @@ int misc_init_r(void)
 long int initdram(int board_type)
 {
 	long dram_size = 0;
-	u16 *boardVersReg = (u16 *) HCU_MACH_VERSIONS_REGISTER;
-	u16 generation = in_be16(boardVersReg) & 0xf0;
-	if (generation == HW_GENERATION_HCU3)
-		dram_size = 32*1024*1024;
-	else dram_size = 64*1024*1024;
-	fixed_hcu4_sdram(dram_size);
+	u16 boardVersReg = in_be16((u16 *)HCU_MACH_VERSIONS_REGISTER);
+	u16 generation = boardVersReg & 0xf0;
+	u16 index      = boardVersReg & 0x0f;
+
+	if (generation == HW_GENERATION_HCU3 && index < 0xf)
+		dram_size = 32 << 20;	/* 32 MB - RAM */
+	else
+		dram_size = 64 << 20;	/* 64 MB - RAM */
+	init_ppc405_sdram(dram_size);
 
 #ifdef DEBUG
 	show_sdram_registers();

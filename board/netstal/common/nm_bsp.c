@@ -29,8 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 typedef struct {u8	id;	char *name;} generation_info;
 
-generation_info generations[7] = {
-	{HW_GENERATION_HCU2,	"HCU2"},
+generation_info generations[6] = {
 	{HW_GENERATION_HCU3,	"HCU3"},
 	{HW_GENERATION_HCU4,	"HCU4"},
 	{HW_GENERATION_HCU5,	"HCU5"},
@@ -134,3 +133,4 @@ void common_misc_init_r(void)
 		saveenv();
 	}
 }
+
