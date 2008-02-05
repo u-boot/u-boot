@@ -2827,20 +2827,19 @@ xupv2p_config:	unconfig
 	@echo "#define CONFIG_XUPV2P 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
 
-#########################################################################
-## Blackfin
-#########################################################################
-bf533-ezkit_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-ezkit
+#========================================================================
+# Blackfin
+#========================================================================
 
-bf533-stamp_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-stamp
+# Analog Devices boards
+BFIN_BOARDS = bf533-ezkit bf533-stamp bf537-stamp bf561-ezkit
 
-bf537-stamp_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf537 bf537-stamp
+$(BFIN_BOARDS:%=%_config)	: unconfig
+	@$(MKCONFIG) $(@:_config=) blackfin $(firstword $(subst -, ,$@)) $(@:_config=)
 
-bf561-ezkit_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf561 bf561-ezkit
+$(BFIN_BOARDS):
+	$(MAKE) $@_config
+	$(MAKE)
 
 #========================================================================
 # AVR32
