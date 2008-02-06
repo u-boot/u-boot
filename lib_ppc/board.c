@@ -436,9 +436,11 @@ void board_init_f (ulong bootflag)
 	addr = CFG_SDRAM_BASE + get_effective_memsize();
 
 #ifdef CONFIG_LOGBUFFER
+#ifndef CONFIG_ALT_LB_ADDR
 	/* reserve kernel log buffer */
 	addr -= (LOGBUFF_RESERVE);
 	debug ("Reserving %dk for kernel logbuffer at %08lx\n", LOGBUFF_LEN, addr);
+#endif
 #endif
 
 #ifdef CONFIG_PRAM
@@ -1126,8 +1128,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		pram=0;
 #endif
 #ifdef CONFIG_LOGBUFFER
+#ifndef CONFIG_ALT_LB_ADDR
 		/* Also take the logbuffer into account (pram is in kB) */
 		pram += (LOGBUFF_LEN+LOGBUFF_OVERHEAD)/1024;
+#endif
 #endif
 		sprintf ((char *)memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
 		setenv ("mem", (char *)memsz);
