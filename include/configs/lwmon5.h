@@ -244,6 +244,8 @@
 
 #define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_LOGBUFFER
+#define CONFIG_ALT_LH_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP1)
+#define CONFIG_ALT_LB_ADDR	(CFG_OCM_BASE)
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*-----------------------------------------------------------------------
