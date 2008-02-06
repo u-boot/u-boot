@@ -69,7 +69,7 @@ checkcpu(void)
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
 	svr = get_svr();
-	ver = SVR_VER(svr);
+	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
