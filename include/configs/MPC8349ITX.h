@@ -68,12 +68,16 @@
 
 #define CFG_IMMR		0xE0000000	/* The IMMR is relocated to here */
 
+#define CONFIG_MISC_INIT_F
+#define CONFIG_MISC_INIT_R
 
-/* On-board devices */
+/*
+ * On-board devices
+ */
 
 #ifdef CONFIG_MPC8349ITX
 #define CONFIG_COMPACT_FLASH	/* The CF card interface on the back of the board */
-#define CONFIG_VSC7385		/* The Vitesse 7385 5-port switch */
+#define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
 #endif
 
 #define CONFIG_PCI
@@ -87,9 +91,6 @@
 
 /* I2C */
 #ifdef CONFIG_HARD_I2C
-
-#define CONFIG_MISC_INIT_F
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
@@ -190,6 +191,18 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_FLASH_SIZE		16		/* FLASH size in MB */
 #define CFG_FLASH_SIZE_SHIFT	4		/* log2 of the above value */
 
+/* Vitesse 7385 */
+
+#ifdef CONFIG_VSC7385_ENET
+
+#define CONFIG_TSEC2
+
+/* The flash address and size of the VSC7385 firmware image */
+#define CONFIG_VSC7385_IMAGE		0xFEFFE000
+#define CONFIG_VSC7385_IMAGE_SIZE	8192
+
+#endif
+
 /*
  * BRx, ORx, LBLAWBARx, and LBLAWARx
  */
@@ -205,9 +218,9 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* Vitesse 7385 */
 
-#ifdef CONFIG_VSC7385
-
 #define CFG_VSC7385_BASE	0xF8000000
+
+#ifdef CONFIG_VSC7385_ENET
 
 #define CFG_BR1_PRELIM		(CFG_VSC7385_BASE | BR_PS_8 | BR_V)
 #define CFG_OR1_PRELIM		(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | \
@@ -384,7 +397,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_HAS_ETH1
 #define CONFIG_TSEC2_NAME  "TSEC1"
 #define CFG_TSEC2_OFFSET	0x25000
-#define CONFIG_UNKNOWN_TSEC	/* TSEC2 is proprietary */
+
 #define TSEC2_PHY_ADDR		4
 #define TSEC2_PHYIDX		0
 #define TSEC2_FLAGS		TSEC_GIGABIT
@@ -619,11 +632,11 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_TSEC1
+#ifdef CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:E0:0C:00:8C:01
 #endif
 
-#ifdef CONFIG_TSEC2
+#ifdef CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
 #endif
 

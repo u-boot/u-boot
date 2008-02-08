@@ -32,6 +32,14 @@
 
 #define CONFIG_PCI	1
 
+#define CONFIG_MISC_INIT_R
+
+/*
+ * On-board devices
+ */
+#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
+#define CONFIG_VSC7385_ENET
+
 /*
  * System Clock Setup
  */
@@ -116,6 +124,22 @@
  * IMMR new address
  */
 #define CFG_IMMR		0xE0000000
+
+/*
+ * Device configurations
+ */
+
+/* Vitesse 7385 */
+
+#ifdef CONFIG_VSC7385_ENET
+
+#define CONFIG_TSEC2
+
+/* The flash address and size of the VSC7385 firmware image */
+#define CONFIG_VSC7385_IMAGE		0xFE7FE000
+#define CONFIG_VSC7385_IMAGE_SIZE	8192
+
+#endif
 
 /*
  * DDR Setup
@@ -251,14 +275,18 @@
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
+/* Vitesse 7385 */
+
 #define CFG_VSC7385_BASE	0xF0000000
 
-/* VSC7385 Gigabit Switch support */
-#define CONFIG_VSC7385_ENET
+#ifdef CONFIG_VSC7385_ENET
+
 #define CFG_BR2_PRELIM		0xf0000801		/* Base address */
 #define CFG_OR2_PRELIM		0xfffe09ff		/* 128K bytes*/
 #define CFG_LBLAWBAR2_PRELIM	CFG_VSC7385_BASE	/* Access Base */
 #define CFG_LBLAWAR2_PRELIM	0x80000010		/* Access Size 128K */
+
+#endif
 
 /*
  * Serial Port
@@ -324,42 +352,42 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif	/* CONFIG_PCI */
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
-
 /*
  * TSEC
  */
-#define CONFIG_TSEC_ENET	/* TSEC ethernet support */
-#define CFG_TSEC1_OFFSET	0x24000
-#define CFG_TSEC1		(CFG_IMMR+CFG_TSEC1_OFFSET)
-#define CFG_TSEC2_OFFSET	0x25000
-#define CFG_TSEC2		(CFG_IMMR+CFG_TSEC2_OFFSET)
+#ifdef CONFIG_TSEC_ENET
 
-/*
- * TSEC ethernet configuration
- */
-#define CONFIG_GMII			1	/* MII PHY management */
-#define CONFIG_TSEC1			1
+#define CONFIG_NET_MULTI
+#define CONFIG_GMII			/* MII PHY management */
+
+#define CONFIG_TSEC1
+
+#ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME		"TSEC0"
-#define CONFIG_TSEC2			1
-#define CONFIG_TSEC2_NAME		"TSEC1"
+#define CFG_TSEC1_OFFSET		0x24000
 #define TSEC1_PHY_ADDR			2
-#define TSEC2_PHY_ADDR			0x1c
 #define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC1_PHYIDX			0
-#define TSEC2_PHYIDX			0
+#endif
 
+#ifdef CONFIG_TSEC2
+#define CONFIG_HAS_ETH1
+#define CONFIG_TSEC2_NAME		"TSEC1"
+#define CFG_TSEC2_OFFSET		0x25000
+#define TSEC2_PHY_ADDR			0x1c
+#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC2_PHYIDX			0
+#endif
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC0"
+
+#endif
 
 /*
  * Environment
@@ -529,10 +557,13 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_HAS_ETH0				/* add support for "ethaddr" */
-#define CONFIG_ETHADDR	00:04:9f:ef:04:01
-#define CONFIG_HAS_ETH1				/* add support for "eth1addr" */
-#define CONFIG_ETH1ADDR	00:04:9f:ef:04:02
+#ifdef CONFIG_HAS_ETH0
+#define CONFIG_ETHADDR		00:04:9f:ef:04:01
+#endif
+
+#ifdef CONFIG_HAS_ETH1
+#define CONFIG_ETH1ADDR		00:04:9f:ef:04:02
+#endif
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1
