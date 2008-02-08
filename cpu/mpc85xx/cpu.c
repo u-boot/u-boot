@@ -122,13 +122,16 @@ int checkcpu (void)
 	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
 	switch (ddr_ratio) {
 	case 0x0:
-		printf("       DDR:%4lu MHz, ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	case 0x7:
-		printf("       DDR:%4lu MHz (Synchronous), ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Synchronous), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	default:
-		printf("       DDR:%4lu MHz (Asynchronous), ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Asynchronous), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	}
 
