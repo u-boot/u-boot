@@ -30,6 +30,8 @@
 #include <command.h>
 #include <asm/cache.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct cpu_type {
 	char name[15];
 	u32 soc_ver;
@@ -201,11 +203,7 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
-
-	sys_info_t  sys_info;
-
-	get_sys_info(&sys_info);
-	return ((sys_info.freqSystemBus + 7L) / 8L);
+	return (gd->bus_clk + 4UL)/8UL;
 }
 
 
