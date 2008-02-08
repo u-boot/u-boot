@@ -700,7 +700,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int     rcode = 0;
 
 #if defined(CFG_ALT_MEMTEST)
-	vu_long	addr_mask;
+	vu_long	len;
 	vu_long	offset;
 	vu_long	test_offset;
 	vu_long	pattern;
@@ -836,26 +836,19 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 *              all possible.
 		 *
 		 * Returns:     0 if the test succeeds, 1 if the test fails.
-		 *
-		 * ## NOTE ##	Be sure to specify start and end
-		 *              addresses such that addr_mask has
-		 *              lots of bits set. For example an
-		 *              address range of 01000000 02000000 is
-		 *              bad while a range of 01000000
-		 *              01ffffff is perfect.
 		 */
-		addr_mask = ((ulong)end - (ulong)start)/sizeof(vu_long);
+		len = ((ulong)end - (ulong)start)/sizeof(vu_long);
 		pattern = (vu_long) 0xaaaaaaaa;
 		anti_pattern = (vu_long) 0x55555555;
 
-		PRINTF("%s:%d: addr mask = 0x%.8lx\n",
+		PRINTF("%s:%d: length = 0x%.8lx\n",
 			__FUNCTION__, __LINE__,
-			addr_mask);
+			len);
 		/*
 		 * Write the default pattern at each of the
 		 * power-of-two offsets.
 		 */
-		for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		for (offset = 1; offset < len; offset <<= 1) {
 			start[offset] = pattern;
 		}
 
@@ -865,7 +858,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		test_offset = 0;
 		start[test_offset] = anti_pattern;
 
-		for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		for (offset = 1; offset < len; offset <<= 1) {
 		    temp = start[offset];
 		    if (temp != pattern) {
 			printf ("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
@@ -879,10 +872,10 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Check for addr bits stuck low or shorted.
 		 */
-		for (test_offset = 1; (test_offset & addr_mask) != 0; test_offset <<= 1) {
+		for (test_offset = 1; test_offset < len; test_offset <<= 1) {
 		    start[test_offset] = anti_pattern;
 
-		    for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		    for (offset = 1; offset < len; offset <<= 1) {
 			temp = start[offset];
 			if ((temp != pattern) && (offset != test_offset)) {
 			    printf ("\nFAILURE: Address bit stuck low or shorted @"
