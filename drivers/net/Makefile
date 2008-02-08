@@ -58,6 +58,7 @@ COBJS-y += tigon3.o
 COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
 COBJS-y += uli526x.o
+COBJS-y += vsc7385.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
