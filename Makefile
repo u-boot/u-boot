@@ -253,9 +253,7 @@ LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
 	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
-ifeq ($(CONFIG_API),y)
 LIBS += api/libapi.a
-endif
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS)
@@ -266,11 +264,8 @@ PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
-	  examples
-
-ifeq ($(CONFIG_API),y)
-SUBDIRS += api_examples
-endif
+	  examples \
+	  api_examples
 
 .PHONY : $(SUBDIRS)
 
