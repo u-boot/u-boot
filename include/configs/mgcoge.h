@@ -35,8 +35,6 @@
 
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
-#undef DEBUG
-
 /*
  * Select serial console configuration
  *

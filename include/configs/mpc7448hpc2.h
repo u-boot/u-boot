@@ -33,8 +33,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG
-
 /* Board Configuration Definitions */
 /* MPC7448HPC2 (High-Performance Computing II) (Taiga) board */
 

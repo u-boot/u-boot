@@ -35,7 +35,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG		      /* General debug */
 #undef DEBUG_BOOTP_EXT	      /* Debug received vendor fields */
 
 #undef CONFIG_LOGBUFFER       /* External logbuffer support */
