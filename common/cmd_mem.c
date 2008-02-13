@@ -659,6 +659,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	vu_long	*addr, *start, *end;
 	ulong	val;
 	ulong	readback;
+	int     rcode = 0;
 
 #if defined(CFG_ALT_MEMTEST)
 	vu_long	addr_mask;
@@ -689,7 +690,6 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #else
 	ulong	incr;
 	ulong	pattern;
-	int     rcode = 0;
 #endif
 
 	if (argc > 1) {
@@ -954,8 +954,8 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		incr = -incr;
 	}
-	return rcode;
 #endif
+	return rcode;
 }
 
 
