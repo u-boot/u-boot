@@ -25,7 +25,6 @@
 #ifndef __MS7722SE_H
 #define __MS7722SE_H
 
-#undef DEBUG
 #define CONFIG_SH		1
 #define CONFIG_SH4		1
 #define CONFIG_CPU_SH7722	1

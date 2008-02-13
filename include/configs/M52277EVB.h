@@ -38,8 +38,6 @@
 #define CONFIG_M52277		/* define processor type */
 #define CONFIG_M52277EVB	/* M52277EVB board */
 
-#undef DEBUG
-
 #define CONFIG_MCFUART
 #define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		115200

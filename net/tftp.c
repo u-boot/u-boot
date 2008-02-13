@@ -34,7 +34,7 @@
 #define TFTP_ERROR	5
 #define TFTP_OACK	6
 
-
+static IPaddr_t TftpServerIP;
 static int	TftpServerPort;		/* The UDP port at their end		*/
 static int	TftpOurPort;		/* The UDP port at our end		*/
 static int	TftpTimeoutCount;
@@ -55,7 +55,14 @@ static int	TftpState;
 
 #define DEFAULT_NAME_LEN	(8 + 4 + 1)
 static char default_filename[DEFAULT_NAME_LEN];
-static char *tftp_filename;
+
+#ifndef CONFIG_TFTP_FILE_NAME_MAX_LEN
+#define MAX_LEN 128
+#else
+#define MAX_LEN CONFIG_TFTP_FILE_NAME_MAX_LEN
+#endif
+
+static char tftp_filename[MAX_LEN];
 
 #ifdef CFG_DIRECT_FLASH_TFTP
 extern flash_info_t flash_info[];
@@ -231,7 +238,7 @@ TftpSend (void)
 		break;
 	}
 
-	NetSendUDPPacket(NetServerEther, NetServerIP, TftpServerPort, TftpOurPort, len);
+	NetSendUDPPacket(NetServerEther, TftpServerIP, TftpServerPort, TftpOurPort, len);
 }
 
 
@@ -372,7 +379,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 #ifdef CONFIG_MCAST_TFTP
 		/* if I am the MasterClient, actively calculate what my next
 		 * needed block is; else I'm passive; not ACKING
- 		 */
+		 */
 		if (Multicast) {
 			if (len < TftpBlkSize)  {
 				TftpEndingBlock = TftpBlock;
@@ -453,30 +460,43 @@ TftpStart (void)
 	char *ep;             /* Environment pointer */
 #endif
 
+	TftpServerIP = NetServerIP;
 	if (BootFile[0] == '\0') {
 		sprintf(default_filename, "%02lX%02lX%02lX%02lX.img",
 			NetOurIP & 0xFF,
 			(NetOurIP >>  8) & 0xFF,
 			(NetOurIP >> 16) & 0xFF,
 			(NetOurIP >> 24) & 0xFF	);
-		tftp_filename = default_filename;
+
+		strncpy(tftp_filename, default_filename, MAX_LEN);
+		tftp_filename[MAX_LEN-1] = 0;
 
 		printf ("*** Warning: no boot file name; using '%s'\n",
 			tftp_filename);
 	} else {
-		tftp_filename = BootFile;
+		char *p = strchr (p, ':');
+
+		if (p == NULL) {
+			strncpy(tftp_filename, BootFile, MAX_LEN);
+			tftp_filename[MAX_LEN-1] = 0;
+		} else {
+			*p++ = '\0';
+			TftpServerIP = string_to_ip (BootFile);
+			strncpy(tftp_filename, p, MAX_LEN);
+			tftp_filename[MAX_LEN-1] = 0;
+		}
 	}
 
 #if defined(CONFIG_NET_MULTI)
 	printf ("Using %s device\n", eth_get_name());
 #endif
-	puts ("TFTP from server ");	print_IPaddr (NetServerIP);
+	puts ("TFTP from server ");	print_IPaddr (TftpServerIP);
 	puts ("; our IP address is ");	print_IPaddr (NetOurIP);
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
-	    IPaddr_t OurNet 	= NetOurIP    & NetOurSubnetMask;
-	    IPaddr_t ServerNet 	= NetServerIP & NetOurSubnetMask;
+	    IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
+	    IPaddr_t ServerNet	= TftpServerIP & NetOurSubnetMask;
 
 	    if (OurNet != ServerNet) {
 		puts ("; sending through gateway ");
@@ -522,7 +542,7 @@ TftpStart (void)
 	/* Revert TftpBlkSize to dflt */
 	TftpBlkSize = TFTP_BLOCK_SIZE;
 #ifdef CONFIG_MCAST_TFTP
-    	mcast_cleanup();
+	mcast_cleanup();
 #endif
 
 	TftpSend ();

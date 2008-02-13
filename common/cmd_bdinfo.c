@@ -316,6 +316,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		print_num("-> size",	bd->bi_dram[i].size);
 	}
 
+#if defined(CONFIG_CMD_NET)
 	puts ("ethaddr     =");
 	for (i=0; i<6; ++i) {
 		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
@@ -323,6 +324,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts  ( "\n"
 		"ip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
+#endif
 	printf ("\n"
 		"baudrate    = %d bps\n", bd->bi_baudrate);
 

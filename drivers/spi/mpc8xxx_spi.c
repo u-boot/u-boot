@@ -22,10 +22,10 @@
  */
 
 #include <common.h>
+#if defined(CONFIG_MPC8XXX_SPI) && defined(CONFIG_HARD_SPI)
+
 #include <spi.h>
 #include <asm/mpc8xxx_spi.h>
-
-#ifdef CONFIG_HARD_SPI
 
 #define SPI_EV_NE	(0x80000000 >> 22)	/* Receiver Not Empty */
 #define SPI_EV_NF	(0x80000000 >> 23)	/* Transmitter Not Full */

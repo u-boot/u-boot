@@ -27,9 +27,7 @@
 
 #define  CONFIG_EB_MCF_EV123
 
-#undef DEBUG
 #undef CFG_HALT_BEFOR_RAM_JUMP
-#undef ET_DEBUG
 
 /*
  * High Level Configuration Options (easy to change)

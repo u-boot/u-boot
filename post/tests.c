@@ -241,8 +241,8 @@ struct post_test post_list[] =
     {
 	"ECC test",
 	"ecc",
-	"This test checks ECC facility of memory.",
-	POST_ROM | POST_ALWAYS,
+	"This test checks the ECC facility of memory.",
+	POST_ROM | POST_ALWAYS | POST_PREREL,
 	&ecc_post_test,
 	NULL,
 	NULL,

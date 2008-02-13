@@ -31,8 +31,6 @@
 #ifndef _M5271EVB_H
 #define _M5271EVB_H
 
-#undef DEBUG
-
 /*
  * High Level Configuration Options (easy to change)
  */

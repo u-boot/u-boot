@@ -27,6 +27,8 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
+extern void ft_qe_setup(void *blob);
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
@@ -43,11 +45,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 #ifdef CONFIG_QE
-	do_fixup_by_prop_u32(blob, "device_type", "qe", 4,
-		"bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "qe", 4,
-			"brg-frequency", bd->bi_busfreq / 2, 1);
-	fdt_fixup_qe_firmware(blob);
+	ft_qe_setup(blob);
 #endif
 
 #ifdef CFG_NS16550

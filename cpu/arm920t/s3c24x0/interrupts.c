@@ -216,4 +216,13 @@ void reset_cpu (ulong ignored)
 	/*NOTREACHED*/
 }
 
+#ifdef CONFIG_USE_IRQ
+void s3c2410_irq(void)
+{
+	S3C24X0_INTERRUPT * irq = S3C24X0_GetBase_INTERRUPT();
+	u_int32_t intpnd = irq->INTPND;
+
+}
+#endif /* USE_IRQ */
+
 #endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */

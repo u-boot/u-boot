@@ -84,7 +84,12 @@ void do_reset (void)
 	ub_reset();
 }
 
-void *malloc(size_t len)
+void *malloc (size_t len)
 {
 	return NULL;
+}
+
+void hang (void)
+{
+	while (1) ;
 }

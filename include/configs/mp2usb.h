@@ -47,7 +47,7 @@
 
 #define CFG_ATMEL_PLL_INIT_BUG	1
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_USE_MAIN_OSCILLATOR		1
+#define CFG_USE_MAIN_OSCILLATOR	1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
 #define MC_PUP_VAL	0x00000000
@@ -215,25 +215,6 @@
 
 #define CFG_DEVICE_DEREGISTER           /* needs device_deregister */
 #define LITTLEENDIAN            1       /* used by usb_ohci.c  */
-
-#ifndef __ASSEMBLY__
-/*-----------------------------------------------------------------------
- * Board specific extension for bd_info
- *
- * This structure is embedded in the global bd_info (bd_t) structure
- * and can be used by the board specific code (eg board/...)
- */
-
-struct bd_info_ext {
-	/* helper variable for board environment handling
-	 *
-	 * env_crc_valid == 0	 =>   uninitialised
-	 * env_crc_valid  > 0	 =>   environment crc in flash is valid
-	 * env_crc_valid  < 0	 =>   environment crc in flash is invalid
-	 */
-	int env_crc_valid;
-};
-#endif	/* __ASSEMBLY__ */
 
 #define CFG_HZ 1000
 #define CFG_HZ_CLOCK (AT91C_MASTER_CLOCK/2)	/* AT91C_TC0_CMR is implicitly set to */

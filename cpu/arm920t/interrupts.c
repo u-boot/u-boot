@@ -161,11 +161,16 @@ void do_fiq (struct pt_regs *pt_regs)
 
 void do_irq (struct pt_regs *pt_regs)
 {
-#if defined (CONFIG_USE_IRQ) && defined (CONFIG_ARCH_INTEGRATOR)
+#if defined (CONFIG_USE_IRQ)
+#if defined (ARM920_IRQ_CALLBACK)
+	ARM920_IRQ_CALLBACK();
+	return;
+#elif defined (CONFIG_ARCH_INTEGRATOR)
 	/* ASSUMED to be a timer interrupt  */
 	/* Just clear it - count handled in */
 	/* integratorap.c                   */
 	*(volatile ulong *)(CFG_TIMERBASE + 0x0C) = 0;
+#endif /* ARCH_INTEGRATOR */
 #else
 	printf ("interrupt request\n");
 	show_regs (pt_regs);

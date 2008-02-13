@@ -51,7 +51,6 @@
 #define __CONFIG_H
 
 /* Enable debug prints */
-#undef DEBUG                  /* General debug */
 #undef DEBUG_BOOTP_EXT        /* Debug received vendor fields */
 
 /* What is the oscillator's (UX2) frequency in Hz? */

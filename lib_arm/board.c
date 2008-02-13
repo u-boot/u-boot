@@ -84,6 +84,11 @@ extern void cs8900_get_enetaddr (uchar * addr);
 extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
 
+#if defined(CONFIG_HARD_I2C) || \
+    defined(CONFIG_SOFT_I2C)
+#include <i2c.h>
+#endif
+
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
@@ -209,6 +214,16 @@ static void display_flash_config (ulong size)
 }
 #endif /* CFG_NO_FLASH */
 
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+static int init_func_i2c (void)
+{
+	puts ("I2C:   ");
+	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	puts ("ready\n");
+	return (0);
+}
+#endif
+
 /*
  * Breathe some life into the board...
  *
@@ -250,6 +265,9 @@ init_fnc_t *init_sequence[] = {
 #endif
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 	checkboard,		/* display board info */
+#endif
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+	init_func_i2c,
 #endif
 	dram_init,		/* configure available RAM banks */
 	display_dram_config,
