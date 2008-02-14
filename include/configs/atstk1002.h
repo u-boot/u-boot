@@ -184,8 +184,8 @@
 #define CFG_MALLOC_LEN			(256*1024)
 #define CFG_DMA_ALLOC_LEN		(16384)
 
-/* Allow 2MB for the kernel run-time image */
-#define CFG_LOAD_ADDR			(CFG_SDRAM_BASE + 0x00200000)
+/* Allow 4MB for the kernel run-time image */
+#define CFG_LOAD_ADDR			(CFG_SDRAM_BASE + 0x00400000)
 #define CFG_BOOTPARAMS_LEN		(16 * 1024)
 
 /* Other configuration settings that shouldn't have to change all that often */
