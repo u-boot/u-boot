@@ -183,16 +183,16 @@ lowlevel_init:
 	mov	r2, #0x1800
 1:
 	subs	r2, r2, #0x1
-        bne	1b
+	bne	1b
 
 	ldr	sp, SRAM_STACK
-        str     ip, [sp]	/* stash old link register */
+	str	ip, [sp]	/* stash old link register */
 	mov	ip, lr		/* save link reg across call */
-        mov     r0, r3		/* pass skip info to s_init */
+	mov	r0, r3		/* pass skip info to s_init */
 
-        bl      s_init		/* go setup pll,mux,memory */
+	bl	s_init		/* go setup pll,mux,memory */
 
-        ldr     ip, [sp]	/* restore save ip */
+	ldr	ip, [sp]	/* restore save ip */
 	mov	lr, ip		/* restore link reg */
 
 	/* back to arch calling code */

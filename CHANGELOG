@@ -1,3 +1,499 @@
+commit e7670f6c1e52ae6d2a43ff75a8bcfa7a5c86e47b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Feb 14 22:43:22 2008 +0100
+
+    PPC: Use r2 instead of r29 as global data pointer
+
+    R29 was an unlucky choice as with recent toolchains (gcc-4.2.x) gcc
+    will refuse to use load/store multiple insns; instead, it issues a
+    list of simple load/store instructions upon function entry and exit,
+    resulting in bigger code size, which in turn makes the build for a
+    few boards fail.
+
+    Use r2 instead.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3c234efa693bc59906c2be55c7918ecbb55392ea
+Author: Uwe Kleine-KÃ¶nig <Uwe.Kleine-Koenig@digi.com>
+Date:	Wed Jan 30 09:08:49 2008 +0100
+
+    ARM: make the machid configurable via the environment
+
+    If the variable "machid" exists, let do_bootm_linux use that instead
+    of bd->bi_arch_number.
+
+    Signed-off-by: Uwe Kleine-König <Uwe.Kleine-Koenig@digi.com>
+
+commit dd24058407c5add45cc60aec6c757ddc1a17e1b0
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Wed Jan 23 16:34:46 2008 +0200
+
+    Use #ifdef CONFIG_FSLDMAFEC
+
+    MCD_tasks.c lacks [subject] so compilation of mips targets (and more, probably)
+    fails
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit 26c7bab81e08dc7bd696c48f753428a829629bd8
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Jan 19 10:25:59 2008 +0900
+
+    common/miiphyutil.c: Cleanup MII_DEBUG and debug()
+
+    Current MII_DEBUG is confusing in two ways. One is useless define-then-
+    undef at the top of the file. The other is there is only one debug() in
+    this file, and that doesn't seem worthwhile to bother having MII_DEBUG.
+    While there are many useful printf()/puts() debug codes, but they are for
+    DEBUG, not for MII_DEBUG.
+
+    This patch tries to put them all together into MII_DEBUG and debug().
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 751b9b5189f3274b03c809172631316d6b002c82
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Thu Jan 17 16:43:25 2008 +0900
+
+    OneNAND Initial Program Loader (IPL) support
+
+    This patch enables the OneNAND boot within U-Boot.
+    Before this work, we used another OneNAND IPL called X-Loader based
+    on open source. With this work, we can build the oneboot.bin image
+    without other program.
+
+    The build sequence is simple.
+    First, it compiles the u-boot.bin
+    Second, it compiles OneNAND IPL
+    Finally, it becomes the oneboot.bin from OneNAND IPL and u-boot.bin
+    The mechanism is similar with NAND boot except it boots from itself.
+
+    Another thing is that you can only use the OneNAND IPL only to work
+    other bootloader such as RedBoot and so on.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 21f6f9636f0e978397548751347425fbf8d42bb3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Jan 16 13:06:59 2008 -0600
+
+    Fix CONFIG_MMC usage in fat code
+
+    A #if statement in fat.c depended on CONFIG_MMC, instead of
+    defined(CONFIG_MMC).  This meant CONFIG_MMC needed to be defined
+    as "1" rather than just defined.  Now it's better.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit f57d7d364ce189e39b0a64338d2f8012c074a2bd
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Tue Jan 15 12:52:31 2008 +0100
+
+    ppc: Refactor cache routines, so there is only one common set.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit fe891ecf4d187e9d11dde869ed4623af52b54451
+Author: Hiroshi Ito <ito@mlb.co.jp>
+Date:	Thu Jan 31 18:35:04 2008 +0900
+
+    NFS Timeout with large files.
+
+    Retry to send NFS packet before reaching timeout.
+
+    Signed-off-by: Hiroshi Ito <ito@mlb.co.jp>
+
+commit 88f72527f5b89c0905ad5c36cc2ef8d29dd6bbf0
+Author: Johannes Stezenbach <js@sig21.net>
+Date:	Tue Jan 29 00:11:25 2008 +0100
+
+    Add dependencies to avoid race conditions with parallel make.
+
+    Signed-off-by: Johannes Stezenbach <js@sig21.net>
+
+commit 6d1b6f9f89c815eaca44acff8e73ece7181f61b6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Jan 28 05:46:01 2008 -0500
+
+    Mark board_init_[fr] as noreturn
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 161b2af4d7b48fd602ce333c355a4df0337892bb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Jan 28 05:28:50 2008 -0500
+
+    Only use TEXT_BASE if defined by the board
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1b769881750030f10743808b9d6013e11f559350
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Jan 25 07:54:47 2008 +0100
+
+    Fix remaining CONFIG_COMMANDS
+
+    update comments
+    Fix coding style
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0c9d42e6b0b83d507335a291e3ea99240038f4b9
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Jan 21 16:46:00 2008 +0100
+
+    Add *~ to .gitignore
+
+    One should never add a backup file ending in with ~ to the git repository.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 3cfb0c51b2bb5ede54eca85ace5b1ba12be314b0
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jan 17 00:02:10 2008 -0600
+
+    Remove duplicate defines for ARRAY_SIZE
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c77ce474b1c57b13e9d36d9830f147966c143694
+Author: Stelian Pop <stelian@popies.net>
+Date:	Mon Jan 14 22:08:14 2008 +0100
+
+    Fix incorrect address test in AT91F_DataflashSelect().
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit d9ad115bbf7bb0842de7dbd2502b7e430f83cc3d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 13 15:09:58 2008 -0600
+
+    Fix building of fdt_support.c if DEBUG set
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c62776be8dca4097ca03d4f9415f08d4887b45d0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Feb 12 00:45:06 2008 +0100
+
+    Get rid of "#undef DEBUG" from board config files.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 73bf1e2de7862bcdbd5a9f993b3e84b67c8ea9c8
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Jan 15 17:09:41 2008 -0600
+
+    Remove #undef DEBUG from MPC83xx board header files
+
+    Remove the "#undef DEBUG" line from all Freescale 83xx board header files.
+    The inclusion of this line makes it impossible to enable debug code in
+    other source files, because "#define DEBUG" typically needs to be defined
+    before any header files are included.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 69018ce2e086e9caf35b914d675b82bc4888f077
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jan 17 08:25:45 2008 -0600
+
+    QE: Move FDT support into a common file
+
+    Move the flat device tree setup for QE related devices into
+    a common file shared between 83xx & 85xx platforms that have QE's.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 37e3c62fa07a823e7569c872e3a9395d227ed8e3
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Mon Jan 28 10:15:02 2008 +0100
+
+    ADS5121e: DDR2 init/timing update.
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit ac9152830d7fdebace8a260b7737ef2870c21ca0
+Author: John Rigby <jrigby@freescale.com>
+Date:	Wed Jan 30 13:36:57 2008 -0700
+
+    Device tree updates
+
+    Changes to match 5121 device tree going mainline in 2.6.25.
+
+    Change OF_SOC from "soc5121" to plain "soc".
+    Remove unneeded "ref-frequency" fixups.
+    Remove "address" enetaddr fixup.
+
+    Add bus-frequency fixup for old OF_SOC so old
+    kernels with old device trees will work with new
+    u-boot with 66MHz IPS clock
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit de55d18df3ff2ea614624e74793de7c43520e0e7
+Author: John Rigby <jrigby@freescale.com>
+Date:	Wed Jan 30 13:36:56 2008 -0700
+
+    Change IPS freq to 66MHz
+
+    Recommended frequency is 66MHz
+    Change divider from 4 to 3.
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit cd9cb62f9d8b78d6c3af5d1e9b5a3d68a3d73974
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Jan 14 22:38:55 2008 +0100
+
+    xsengine: rename board_post_init to board_late_init
+
+    missing migration from "Cleanup of some init functions"
+    in c837dcb1a316745092567bfe4fb266d0941884ff
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8dafa87476b0d7170e219c2f5e3842c833a91807
+Author: Larry Johnson <lrj@acm.org>
+Date:	Sat Jan 12 23:35:33 2008 -0500
+
+    Add attribute POST_PREREL to ECC memory POST
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit a93907c43f847f076dd0e34ee3b69b5e8e6d0d29
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Jan 18 01:14:03 2008 +0100
+
+    TFTP: add host ip addr support
+
+    allow to use a different server as set in serverip
+    add CONFIG_TFTP_FILE_NAME_MAX_LEN to configure the file name length
+    if not defined the max length will be at 128
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7ec8bb15ee368ea54d48d64867767a704d9ab4c2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Dec 27 10:56:54 2007 +0100
+
+    OMAP5912: fix FIFO handling in UART driver
+
+    According to the OMAP5912 Serial Interfaces Reference Guide (see
+    http://focus.ti.com/lit/ug/spru760c/spru760c.pdf, page 150), the
+    FIFO_EN enable bit in the FIFO Control Register (FCR) can only be
+    changed when the baud clock is not running, i. e. when both DLL and
+    DLH are set to 0.
+
+    Thus make sure that DLL and DLH are 0 when writing the FCR.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 16158778b5f52f201e95ded2d2d9084b0ed5670d
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 15:10:52 2007 +0100
+
+    ARM: S3C24x0 SoC NAND controller support
+
+    This patch adds NAND support to the S3C24x0 SoC code in u-boot
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit a7c185ed3d9f8ebd85cfc286e1ffee72e4803163
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:24:40 2007 +0100
+
+    ARM: s3c24xx: Multiple serial port support
+
+    This patch adds support for CONFIG_SERIAL_MULTI on s3c24x0 CPU's
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit a25f72f1f73a11de68251fb88c89991e202e68fa
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:16:57 2007 +0100
+
+    ARM: arm920t: Allow use of 'gd' pointer from IRQ
+
+    This patch allows us to use the 'gd' pointer (and thus environment
+    and everything else associated with it) from interrupt context on
+    arm920t.
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit be19bd5cd0f454b63298844a0b5377e029b2caad
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Dec 19 14:19:38 2007 +0100
+
+    ARM: arm920/s3c24xx: IRQ demulitplexer callback
+
+    This patch adds a IRQ demultiplexer callback to the arm920 cpu core code,
+    plus a stub implementation of it for the S3C2410.
+
+    The purpose is to allow arm920t implementations such as the s3c24x0 to
+    implement interrupt handlers in u-boot without having to touch core
+    arm920t code.
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit a41dbbd98d201d8aea31b5d21df4742c20cd7eda
+Author: Hebbar <gururajakr@sanyo.co.in>
+Date:	Tue Dec 18 16:03:07 2007 -0800
+
+    ARM: Display Ethernet info in do_bdinfo only if CONFIG_CMD_NET is defined
+
+    Add ifdef to bdinfo command to display ethernet information
+    only if CONFIG_CMD_NET is defined for arm modules.
+
+    Signed-off-by: K R Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit f7ad79b6f9f0f45437b62e19b45356cc2aaf4884
+Author: Hebbar <gururajakr@sanyo.co.in>
+Date:	Tue Dec 18 16:00:54 2007 -0800
+
+    ARM: add I2C init function call in lib_arm/board.c
+
+    Adds I2C init func call to init sequence for ARM boards. This is
+    present in ppc,blackfin and other processor init sequence.
+
+    Signed-off-by: K R Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit 4fedfddf97461b88668b9aec774dfb7a0c6dc368
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Fri Dec 7 00:42:32 2007 +0100
+
+    ARM: Board voiceblue update
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 2c5260f711168d5ee91c70ddbb7d897013eefc46
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Thu Dec 6 23:24:57 2007 +0100
+
+    ARM: AT91RM9200 based boards config cleanup
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+    Remove nowhere used struct bd_info_ext, remove trailing whitespaces, fix
+    indentation.
+
+commit 481f28b1db5cd21deb55f69399ba240e107af4c7
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Thu Dec 6 22:59:16 2007 +0100
+
+    ARM: Fix at91rm9200dk base address
+
+    Somewhere during development of U-Boot-1.1.3 CONFIG_BOOTBINFUNC was
+    renamed into CONFIG_INIT_CRITICAL which was 04 Apr 2005 replaced
+    with CONFIG_SKIP_LOWLEVEL_INIT and CONFIG_SKIP_RELOCATE_UBOOT.
+    However CONFIG_SKIP_LOWLEVEL_INIT has oposite meaning to
+    CONFIG_BOOTBINFUNC, so fix configuration to reflect this fact.
+    I'm sending this patch 4th (!) time in hope it produces at least some
+    reaction.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+    Fix at91rm9200dk base and environment address.
+
+commit c95219fae2a7add7daa2f91aedca65b1698465c7
+Author: stefano babic <sbabic@denx.de>
+Date:	Tue Nov 20 10:40:24 2007 +0100
+
+    MMC for PXA 27X (resubmit)
+
+    MMC support for X_Scale PXA is broken and does not work.
+    Mainly, the mmc_init() function cannot recognize current SD/MMC cards.
+    There were already some patches around the world but none of them was
+    merged into the official u-boot tree.
+
+    This patch makes order fixing this issue. Resubmit after code cleanup.
+
+    Applied and tested on PXA 270 (TrizepsIV module).
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 96bbfa1e6625ce23a150936863b3ecf4c853eb33
+Author: stefano babic <sbabic@denx.de>
+Date:	Tue Nov 20 10:37:04 2007 +0100
+
+    Fix gcc issues in pxa-regs.h
+
+    Fix gcc4 issue. With some toolchain, a previous patch that fixes gcc4
+    issues generates wrong code.
+    (Problem was reported with gcc-4.0.2-glibc-2.3.6/arm-softfloat-linux-gnu).
+    This patch fixes the problem and solves the gcc-4 issues as the linux
+    kernel does.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+    Signed-off-by: Dmitry Ivanov <ivadmitry@gmail.com>
+
+commit 7047b388876e7b905b2ec4edb8010543e3641b85
+Author: Jens Gehrlein <sew_s@tqs.de>
+Date:	Tue Jan 29 08:45:03 2008 +0100
+
+    TQM834x: enable DHCP
+
+    Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a877004d44ca7dbc1e618add3eeb1da7c84e4bec
+Author: Jens Gehrlein <sew_s@tqs.de>
+Date:	Tue Jan 29 08:45:02 2008 +0100
+
+    TQM834x: support for Spansion N-type Flashes (sector size = 256 KiB at 2x16 Bit).
+
+    Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8931ab176025b03cfc320b3fd1eca432a88ed560
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Sat Jan 26 23:41:19 2008 -0500
+
+    Fix conditional compilation of mpx8xxx_spi driver
+
+    This driver should only compile if CONFIG_MPC8XXX_SPI is set
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 63f732d3d3880feb531f48af247c025bf01462b0
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Tue Jan 29 17:00:34 2008 +0100
+
+    API: Provide dummy halt() in the glue layer.
+
+    This fixes a demo app link failure on platforms configured with CONFIG_PANIC_HANG.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 0dc1fc22af86d16993388d9ed9630dbaa2d51826
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Tue Jan 29 16:57:38 2008 +0100
+
+    API: Convert conditional building to the new scheme.
+
+    This fixes a build breakage with CONFIG_API enabled, which appeared after
+    the recent changes in the U-Boot build system.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 98b742489c09780be6a832eeaa4e5eff824792bb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jan 25 09:56:17 2008 +0100
+
+    inka4x0: remove dead code
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 33dac03b1b5d61e4fed7bad445ba40b4c97feba0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 23 14:41:37 2008 +0100
+
+    Coding Style Cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 865f0f9754b95183cad395de7e8cb85df0c6ea1f
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Jan 23 14:31:17 2008 +0100
