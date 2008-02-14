@@ -1220,9 +1220,11 @@ G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
 hcu4_config:	unconfig
+	@mkdir -p $(obj)board/netstal/common
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu4 netstal
 
 hcu5_config:	unconfig
+	@mkdir -p $(obj)board/netstal/common
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu5 netstal
 
 HH405_config:	unconfig
