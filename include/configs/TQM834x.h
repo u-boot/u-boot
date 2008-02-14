@@ -492,24 +492,7 @@ extern int tqm834x_num_flash_banks;
  * Environment Configuration
  */
 
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		D2:DA:5E:44:BC:29
-#define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		1E:F3:40:21:92:53
-#endif
-
-#define CONFIG_IPADDR		192.168.205.1
-
-#define CONFIG_HOSTNAME		tqm8349
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
-#define CONFIG_BOOTFILE		/tftpboot/tqm83xx/uImage
-
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.255.0
-
-#define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */
@@ -524,7 +507,7 @@ extern int tqm834x_num_flash_banks;
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"hostname=tqm83xx\0"						\
+	"hostname=tqm834x\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -536,13 +519,13 @@ extern int tqm834x_num_flash_banks;
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
+	"net_nfs=tftp 400000 ${bootfile};run nfsargs addip addtty;"     \
 		"bootm\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
-	"bootfile=/tftpboot/tqm83xx/uImage\0"				\
+	"bootfile=/tftpboot/tqm834x/uImage\0"				\
 	"kernel_addr=80060000\0"					\
 	"ramdisk_addr=80160000\0"					\
-	"load=tftp 100000 /tftpboot/tqm83xx/u-boot.bin\0"		\
+	"load=tftp 100000 /tftpboot/tqm834x/u-boot.bin\0"		\
 	"update=protect off 80000000 8003ffff; "			\
 		"era 80000000 8003ffff; cp.b 100000 80000000 40000\0"	\
 	"upd=run load;run update\0"					\
