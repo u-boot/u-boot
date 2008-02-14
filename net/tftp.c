@@ -474,7 +474,7 @@ TftpStart (void)
 		printf ("*** Warning: no boot file name; using '%s'\n",
 			tftp_filename);
 	} else {
-		char *p = strchr (p, ':');
+		char *p = strchr (BootFile, ':');
 
 		if (p == NULL) {
 			strncpy(tftp_filename, BootFile, MAX_LEN);
