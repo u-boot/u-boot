@@ -154,8 +154,10 @@
 #define PALETTE_30_DATA			0x00B8
 #define CRTC_H_TOTAL_DISP		0x0200
 #define CRTC_H_SYNC_STRT_WID		0x0204
+#define CRTC_H_SYNC_POL			(1 << 23)
 #define CRTC_V_TOTAL_DISP		0x0208
 #define CRTC_V_SYNC_STRT_WID		0x020C
+#define CRTC_V_SYNC_POL			(1 << 23)
 #define CRTC_VLINE_CRNT_VLINE		0x0210
 #define CRTC_CRNT_FRAME			0x0214
 #define CRTC_GUI_TRIG_VLINE		0x0218
@@ -748,6 +750,8 @@
 #define NONSURF_AP0_SWP_32BPP		(1 << 21)
 #define NONSURF_AP1_SWP_16BPP		(1 << 22)
 #define NONSURF_AP1_SWP_32BPP		(1 << 23)
+
+#define R200_SURF_TILE_COLOR_MACRO	(1 << 16)
 
 /* DEFAULT_SC_BOTTOM_RIGHT bit constants */
 #define DEFAULT_SC_RIGHT_MAX		(0x1fff << 0)
