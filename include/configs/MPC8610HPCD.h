@@ -42,6 +42,7 @@
 #define CONFIG_PCIE1		1	/* PCIe 1 connected to ULI bridge */
 #define CONFIG_PCIE2		1	/* PCIe 2 connected to slot */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -314,6 +315,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
+#define CONFIG_CMD_REGINFO
 
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X

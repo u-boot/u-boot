@@ -51,7 +51,6 @@ SECTIONS
   .text      :
   {
     cpu/mpc86xx/start.o	(.text)
-    board/sbc8641d/init.o (.bootpg)
     cpu/mpc86xx/traps.o (.text)
     cpu/mpc86xx/interrupts.o (.text)
     cpu/mpc86xx/cpu_init.o (.text)
