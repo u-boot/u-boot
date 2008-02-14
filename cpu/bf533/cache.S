@@ -2,6 +2,7 @@
 #include <asm/linkage.h>
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/mpu.h>
 
 .text
 .align 2
@@ -11,7 +12,7 @@ ENTRY(_blackfin_icache_flush_range)
 	P0 = R2;
 	P1 = R1;
 	CSYNC;
-1:
+	1:
 	IFLUSH[P0++];
 	CC = P0 < P1(iu);
 	IF CC JUMP 1b(bp);

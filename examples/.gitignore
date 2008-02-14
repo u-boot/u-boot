@@ -1,5 +1,6 @@
 /hello_world
 /interrupt
 /sched
+/smc91111_eeprom
 *.bin
 *.srec

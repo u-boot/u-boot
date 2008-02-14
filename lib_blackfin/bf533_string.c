@@ -26,11 +26,11 @@
  */
 
 #include <common.h>
-#include <asm/setup.h>
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>
 #include "cache.h"
+#include <asm/mach-common/bits/dma.h>
 
 char *strcpy(char *dest, const char *src)
 {
@@ -112,6 +112,19 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	return __res1;
 }
 
+#ifndef pMDMA_D0_IRQ_STATUS
+# define pMDMA_D0_IRQ_STATUS pMDMA1_D0_IRQ_STATUS
+# define pMDMA_D0_START_ADDR pMDMA1_D0_START_ADDR
+# define pMDMA_D0_X_COUNT    pMDMA1_D0_X_COUNT
+# define pMDMA_D0_X_MODIFY   pMDMA1_D0_X_MODIFY
+# define pMDMA_D0_CONFIG     pMDMA1_D0_CONFIG
+# define pMDMA_S0_IRQ_STATUS pMDMA1_S0_IRQ_STATUS
+# define pMDMA_S0_START_ADDR pMDMA1_S0_START_ADDR
+# define pMDMA_S0_X_COUNT    pMDMA1_S0_X_COUNT
+# define pMDMA_S0_X_MODIFY   pMDMA1_S0_X_MODIFY
+# define pMDMA_S0_CONFIG     pMDMA1_S0_CONFIG
+#endif
+
 static void *dma_memcpy(void *dest, const void *src, size_t count)
 {
 	*pMDMA_D0_IRQ_STATUS = DMA_DONE | DMA_ERR;
@@ -133,7 +146,7 @@ static void *dma_memcpy(void *dest, const void *src, size_t count)
 
 	/* Enable source DMA */
 	*pMDMA_S0_CONFIG = (DMAEN);
-	sync();
+	SSYNC();
 
 	*pMDMA_D0_CONFIG = (WNR | DMAEN);
 
@@ -164,11 +177,11 @@ void *memcpy(void *dest, const void *src, size_t count)
 	if (dcache_status()) {
 		blackfin_dcache_flush_range(src, src+count);
 	}
-	/* L1_ISRAM can only be accessed via dma */
-	if ((tmp >= (char *)L1_ISRAM) && (tmp < (char *)L1_ISRAM_END)) {
+	/* L1_INST_SRAM can only be accessed via dma */
+	if ((tmp >= (char *)L1_INST_SRAM) && (tmp < (char *)L1_INST_SRAM_END)) {
 		/* L1 is the destination */
 		dma_memcpy(dest,src,count);
-	} else if ((s >= (char *)L1_ISRAM) && (s < (char *)L1_ISRAM_END)) {
+	} else if ((s >= (char *)L1_INST_SRAM) && (s < (char *)L1_INST_SRAM_END)) {
 		/* L1 is the source */
 		dma_memcpy(dest,src,count);
 

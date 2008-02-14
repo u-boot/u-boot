@@ -33,11 +33,7 @@
 
 void flush_cache(unsigned long dummy1, unsigned long dummy2)
 {
-	if ((dummy1 >= L1_ISRAM) && (dummy1 < L1_ISRAM_END))
-		return;
-	if ((dummy1 >= DATA_BANKA_SRAM) && (dummy1 < DATA_BANKA_SRAM_END))
-		return;
-	if ((dummy1 >= DATA_BANKB_SRAM) && (dummy1 < DATA_BANKB_SRAM_END))
+	if (dummy1 >= 0xE0000000)
 		return;
 
 	if (icache_status())

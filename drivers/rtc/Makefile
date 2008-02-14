@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)librtc.a
 
 COBJS-y += date.o
-COBJS-y += bf5xx_rtc.o
+COBJS-y += bfin_rtc.o
 COBJS-y += ds12887.o
 COBJS-y += ds1302.o
 COBJS-y += ds1306.o

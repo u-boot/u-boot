@@ -185,18 +185,6 @@ endif
 ifeq ($(CPU),mpc85xx)
 OBJS += cpu/$(CPU)/resetvec.o
 endif
-ifeq ($(CPU),bf533)
-OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
-OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
-endif
-ifeq ($(CPU),bf537)
-OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
-OBJS += cpu/$(CPU)/flush.o	cpu/$(CPU)/init_sdram.o
-endif
-ifeq ($(CPU),bf561)
-OBJS += cpu/$(CPU)/start1.o	cpu/$(CPU)/interrupt.o	cpu/$(CPU)/cache.o
-OBJS += cpu/$(CPU)/flush.o 	cpu/$(CPU)/init_sdram.o
-endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
@@ -286,6 +274,9 @@ __LIBS := $(subst $(obj),,$(LIBS))
 #########################################################################
 
 ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
+ifeq ($(ARCH),blackfin)
+ALL += $(obj)u-boot.ldr
+endif
 
 all:		$(ALL)
 
@@ -297,6 +288,15 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+
+$(obj)u-boot.ldr:	$(obj)u-boot
+		$(LDR) -T $(CONFIG_BFIN_CPU) -f -c $@ $< $(LDR_FLAGS)
+
+$(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
+		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@ -I binary
+
+$(obj)u-boot.ldr.srec:	$(obj)u-boot.ldr
+		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@ -I binary
 
 $(obj)u-boot.img:	$(obj)u-boot.bin
 		./tools/mkimage -A $(ARCH) -T firmware -C none \
@@ -312,7 +312,7 @@ $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
 $(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
-		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\(__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
+		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
@@ -2824,20 +2824,19 @@ xupv2p_config:	unconfig
 	@echo "#define CONFIG_XUPV2P 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
 
-#########################################################################
-## Blackfin
-#########################################################################
-bf533-ezkit_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-ezkit
+#========================================================================
+# Blackfin
+#========================================================================
 
-bf533-stamp_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf533 bf533-stamp
+# Analog Devices boards
+BFIN_BOARDS = bf533-ezkit bf533-stamp bf537-stamp bf561-ezkit
 
-bf537-stamp_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf537 bf537-stamp
+$(BFIN_BOARDS:%=%_config)	: unconfig
+	@$(MKCONFIG) $(@:_config=) blackfin $(firstword $(subst -, ,$@)) $(@:_config=)
 
-bf561-ezkit_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin bf561 bf561-ezkit
+$(BFIN_BOARDS):
+	$(MAKE) $@_config
+	$(MAKE)
 
 #========================================================================
 # AVR32

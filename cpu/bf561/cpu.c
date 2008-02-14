@@ -40,7 +40,7 @@ extern unsigned int dcplb_table[page_descriptor_table_size][2];
 
 int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	__asm__ __volatile__("cli r3;" "P0 = %0;" "JUMP (P0);"::"r"(L1_ISRAM)
+	__asm__ __volatile__("cli r3;" "P0 = %0;" "JUMP (P0);"::"r"(L1_INST_SRAM)
 	    );
 
 	return 0;
@@ -100,22 +100,18 @@ void icache_enable(void)
 
 	}
 
-	cli();
-	sync();
+	SSYNC();
 	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL = IMC | ENICPLB;
-	sync();
-	sti();
+	SSYNC();
 }
 
 void icache_disable(void)
 {
-	cli();
-	sync();
+	SSYNC();
 	asm(" .align 8; ");
 	*(unsigned int *)IMEM_CONTROL &= ~(IMC | ENICPLB);
-	sync();
-	sti();
+	SSYNC();
 }
 
 int icache_status(void)
@@ -175,14 +171,12 @@ void dcache_enable(void)
 		}
 	}
 
-	cli();
 	temp = *(unsigned int *)DMEM_CONTROL;
-	sync();
+	SSYNC();
 	asm(" .align 8; ");
 	*(unsigned int *)DMEM_CONTROL =
 	    ACACHE_BCACHE | ENDCPLB | PORT_PREF0 | temp;
-	sync();
-	sti();
+	SSYNC();
 }
 
 void dcache_disable(void)
@@ -191,13 +185,11 @@ void dcache_disable(void)
 	unsigned int *I0, *I1;
 	int i;
 
-	cli();
-	sync();
+	SSYNC();
 	asm(" .align 8; ");
 	*(unsigned int *)DMEM_CONTROL &=
 	    ~(ACACHE_BCACHE | ENDCPLB | PORT_PREF0);
-	sync();
-	sti();
+	SSYNC();
 
 	/* after disable dcache, clear it so we don't confuse the next application */
 	I0 = (unsigned int *)DCPLB_ADDR0;

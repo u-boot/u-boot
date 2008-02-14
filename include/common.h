@@ -103,6 +103,9 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_ARM
 #define asmlinkage	/* nothing */
 #endif
+#ifdef CONFIG_BLACKFIN
+#include <asm/blackfin.h>
+#endif
 
 #include <part.h>
 #include <flash.h>

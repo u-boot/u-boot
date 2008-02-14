@@ -18,9 +18,13 @@
 
 /System.map
 /u-boot
+/u-boot.hex
 /u-boot.map
 /u-boot.bin
 /u-boot.srec
+/u-boot.ldr
+/u-boot.ldr.hex
+/u-boot.ldr.srec
 
 #
 # Generated files

@@ -3517,6 +3517,11 @@ For PowerPC, the following registers have specific use:
     average for all boards 752 bytes for the whole U-Boot image,
     624 text + 127 data).
 
+On Blackfin, the normal C ABI (except for P5) is followed as documented here:
+	http://docs.blackfin.uclinux.org/doku.php?id=application_binary_interface
+
+    ==> U-Boot will use P5 to hold a pointer to the global data
+
 On ARM, the following registers are used:
 
 	R0:	function argument word/integer result
