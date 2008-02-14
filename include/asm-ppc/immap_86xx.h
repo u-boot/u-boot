@@ -1330,4 +1330,9 @@ typedef struct immap {
 
 extern immap_t  *immr;
 
+#define CFG_MPC86xx_DDR_OFFSET	(0x2000)
+#define CFG_MPC86xx_DDR_ADDR	(CFG_IMMR + CFG_MPC86xx_DDR_OFFSET)
+#define CFG_MPC86xx_DDR2_OFFSET	(0x6000)
+#define CFG_MPC86xx_DDR2_ADDR	(CFG_IMMR + CFG_MPC86xx_DDR2_OFFSET)
+
 #endif /*__IMMAP_86xx__*/
