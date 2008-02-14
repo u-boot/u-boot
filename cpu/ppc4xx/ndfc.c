@@ -121,8 +121,8 @@ static int ndfc_calculate_ecc(struct mtd_info *mtdinfo,
 
 	/* The NDFC uses Smart Media (SMC) bytes order
 	 */
-	ecc_code[0] = p[2];
-	ecc_code[1] = p[1];
+	ecc_code[0] = p[1];
+	ecc_code[1] = p[2];
 	ecc_code[2] = p[3];
 
 	return 0;

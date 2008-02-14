@@ -75,7 +75,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
 #define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
-#define CFG_INIT_RAM_END	(8 << 10)
+#define CFG_INIT_RAM_END	(4 << 10)
 #define CFG_GBL_DATA_SIZE	256			/* num bytes initial data*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
