@@ -61,21 +61,21 @@ static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, "" }, };
 
 void dev_stor_init(void)
 {
-#if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 	specs[ENUM_IDE].max_dev = CFG_IDE_MAXDEVICE;
 	specs[ENUM_IDE].enum_started = 0;
 	specs[ENUM_IDE].enum_ended = 0;
 	specs[ENUM_IDE].type = DEV_TYP_STOR | DT_STOR_IDE;
 	specs[ENUM_IDE].name = "ide";
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 	specs[ENUM_USB].max_dev = USB_MAX_STOR_DEV;
 	specs[ENUM_USB].enum_started = 0;
 	specs[ENUM_USB].enum_ended = 0;
 	specs[ENUM_USB].type = DEV_TYP_STOR | DT_STOR_USB;
 	specs[ENUM_USB].name = "usb";
 #endif
-#if (CONFIG_COMMANDS & CFG_CMD_SCSI)
+#if defined(CONFIG_CMD_SCSI)
 	specs[ENUM_SCSI].max_dev = CFG_SCSI_MAX_DEVICE;
 	specs[ENUM_SCSI].enum_started = 0;
 	specs[ENUM_SCSI].enum_ended = 0;

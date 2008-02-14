@@ -312,13 +312,13 @@ $(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
 
-$(OBJS):	$(obj)include/autoconf.mk
+$(OBJS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
-$(LIBS):	$(obj)include/autoconf.mk
+$(LIBS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
-$(SUBDIRS):	$(obj)include/autoconf.mk
+$(SUBDIRS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C $@ all
 
 $(NAND_SPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk

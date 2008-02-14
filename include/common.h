@@ -203,8 +203,8 @@ void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
 /* lib_$(ARCH)/board.c */
-void	board_init_f  (ulong);
-void	board_init_r  (gd_t *, ulong);
+void	board_init_f  (ulong) __attribute__ ((noreturn));
+void	board_init_r  (gd_t *, ulong) __attribute__ ((noreturn));
 int	checkboard    (void);
 int	checkflash    (void);
 int	checkdram     (void);
@@ -664,5 +664,7 @@ void inline show_boot_progress (int val);
 #error CONFIG_INIT_CRITICAL is deprecated!
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #endif	/* __COMMON_H_ */

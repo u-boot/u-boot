@@ -304,7 +304,7 @@ AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash,
 
 	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++)
 		if ( dataflash_info[i].id
-			&& ((((int) addr) & 0xFF000000) ==
+			&& ((((int) *addr) & 0xFF000000) ==
 			dataflash_info[i].logical_address)) {
 			addr_valid = 1;
 			break;

@@ -140,7 +140,7 @@
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 /* #define CONFIG_INITRD_TAG	 1 */
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif

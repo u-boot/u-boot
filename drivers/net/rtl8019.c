@@ -36,15 +36,12 @@
 
 #if defined(CONFIG_CMD_NET)
 
-
 /* packet page register access functions */
-
 
 static unsigned char get_reg (unsigned int regno)
 {
 	return (*(unsigned char *) regno);
 }
-
 
 static void put_reg (unsigned int regno, unsigned char val)
 {
@@ -91,7 +88,6 @@ void rtl8019_get_enetaddr (uchar * addr)
 	put_reg (RTL8019_COMMAND, RTL8019_PAGE0);
 }
 
-
 void eth_halt (void)
 {
 	put_reg (RTL8019_COMMAND, 0x01);
@@ -133,7 +129,6 @@ int eth_init (bd_t * bd)
 
 	return 0;
 }
-
 
 static unsigned char nic_to_pc (void)
 {
@@ -277,6 +272,6 @@ extern int eth_send (volatile void *packet, int length)
 	return 0;
 }
 
-#endif /* COMMANDS & CFG_NET */
+#endif /* CONFIG_CMD_NET */
 
 #endif /* CONFIG_DRIVER_RTL8019 */
