@@ -21,7 +21,7 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
 2. The pointer to the jump table is passed to the application in a
    machine-dependent way. PowerPC, ARM and MIPS architectures use a
    dedicated register to hold the pointer to the 'global_data'
-   structure: r29 on PowerPC, r8 on ARM and k0 on MIPS. The x86
+   structure: r2 on PowerPC, r8 on ARM and k0 on MIPS. The x86
    architecture does not use such a register; instead, the pointer to
    the 'global_data' structure is passed as 'argv[-1]' pointer.
 

@@ -70,7 +70,7 @@ mmu_init:
 	 * we can load the instruction and data TLB registers with the
 	 * same values.
 	 */
-	lwz	r9,20(r29)		/* gd->ram_size */
+	lwz	r9,20(r2)		/* gd->ram_size */
 	addis	r9,r9,-0x80
 
 	mr	r8, r9			/* Higher 8 Meg in SDRAM */

@@ -163,7 +163,7 @@ typedef	struct	global_data {
 #define	GD_FLG_SILENT	0x00004		/* Silent mode				*/
 
 #if 1
-#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r29")
+#define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r2")
 #else /* We could use plain global data, but the resulting code is bigger */
 #define XTRN_DECLARE_GLOBAL_DATA_PTR	extern
 #define DECLARE_GLOBAL_DATA_PTR     XTRN_DECLARE_GLOBAL_DATA_PTR \

@@ -23,4 +23,4 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing
 
-PLATFORM_CPPFLAGS += -DCONFIG_8xx -ffixed-r2 -ffixed-r29 -mstring -mcpu=860 -msoft-float
+PLATFORM_CPPFLAGS += -DCONFIG_8xx -ffixed-r2 -mstring -mcpu=860 -msoft-float

@@ -30,11 +30,11 @@ asm volatile (						\
 asm volatile (						\
 "	.globl mon_" #x "\n"				\
 "mon_" #x ":\n"						\
-"	lwz	%%r11, %0(%%r29)\n"			\
+"	lwz	%%r11, %0(%%r2)\n"			\
 "	lwz	%%r11, %1(%%r11)\n"			\
 "	mtctr	%%r11\n"				\
 "	bctr\n"					\
-	: : "i"(offsetof(xxx_t, pfunc)), "i"(XF_ ## x * sizeof(void *)) : "r11", "r29");
+	: : "i"(offsetof(xxx_t, pfunc)), "i"(XF_ ## x * sizeof(void *)) : "r11", "r2");
 #elif defined(__arm__)
 #define EXPORT_FUNC(x)					\
 asm volatile (						\
@@ -67,7 +67,7 @@ int main(void)
 #if defined(__i386__)
 	xxx_t *pq;
 #elif defined(__powerpc__)
-	register volatile xxx_t *pq asm("r29");
+	register volatile xxx_t *pq asm("r2");
 #elif defined(__arm__)
 	register volatile xxx_t *pq asm("r8");
 #elif defined(__mips__)
