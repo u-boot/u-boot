@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2007 Netstal Maschinen AG
+# (C) Copyright 2007-2008 Netstal Maschinen AG
 # Niklaus Giger (ng@netstal.com)
 #
 # This program is free software; you can redistribute it and/or
@@ -22,18 +22,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-vpath fixed_sdram.c ../common
-vpath hcu_flash.c ../common
-vpath nm_bsp.c ../common
-
 # NOBJS : Netstal common objects
-NOBJS	= ../common/fixed_sdram.o ../common/hcu_flash.o ../common/nm_bsp.o
+NOBJS	= fixed_sdram.o hcu_flash.o nm_bsp.o
 COBJS	= $(BOARD).o
 SOBJS	=
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(NOBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(addprefix ../common/,$(NOBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(COBJS))
-NOBJS	:= $(addprefix $(obj),$(NOBJS))
+NOBJS	:= $(addprefix $(obj)../common/,$(NOBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS) $(NOBJS)
