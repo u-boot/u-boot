@@ -33,7 +33,7 @@
 #define CONFIG_XSENGINE			1
 #define CONFIG_MMC			1
 #define CONFIG_DOS_PARTITION		1
-#define BOARD_POST_INIT			1
+#define OARD_LATE_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
 #define CFG_HZ				3686400		/* incrementer freq: 3.6864 MHz */
 

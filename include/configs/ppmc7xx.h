@@ -30,7 +30,6 @@
  * do_bdinfo		- Required to build with debug
  */
 
-#undef	DEBUG
 #ifdef	DEBUG
 #define	GTREGREAD(x)	0xFFFFFFFF
 #define	do_bdinfo(a,b,c,d)

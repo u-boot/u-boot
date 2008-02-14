@@ -30,8 +30,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG				/* General debug */
-
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  * (easy to change)

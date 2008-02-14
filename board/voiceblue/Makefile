@@ -62,7 +62,7 @@ clean:
 
 
 distclean:	clean
-	rm -f $(LIB) core config.tmp *.bak .depend
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

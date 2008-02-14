@@ -126,24 +126,24 @@ long int fixed_sdram (void)
 	im->mddrc.prioman_config2 = CFG_MDDRCGRP_PM_CFG2;
 	im->mddrc.hiprio_config = CFG_MDDRCGRP_HIPRIO_CFG;
 	im->mddrc.lut_table0_main_upper = CFG_MDDRCGRP_LUT0_MU;
-	im->mddrc.lut_table1_main_upper = CFG_MDDRCGRP_LUT1_MU;
-	im->mddrc.lut_table2_main_upper = CFG_MDDRCGRP_LUT2_MU;
-	im->mddrc.lut_table3_main_upper = CFG_MDDRCGRP_LUT3_MU;
-	im->mddrc.lut_table4_main_upper = CFG_MDDRCGRP_LUT4_MU;
 	im->mddrc.lut_table0_main_lower = CFG_MDDRCGRP_LUT0_ML;
+	im->mddrc.lut_table1_main_upper = CFG_MDDRCGRP_LUT1_MU;
 	im->mddrc.lut_table1_main_lower = CFG_MDDRCGRP_LUT1_ML;
+	im->mddrc.lut_table2_main_upper = CFG_MDDRCGRP_LUT2_MU;
 	im->mddrc.lut_table2_main_lower = CFG_MDDRCGRP_LUT2_ML;
+	im->mddrc.lut_table3_main_upper = CFG_MDDRCGRP_LUT3_MU;
 	im->mddrc.lut_table3_main_lower = CFG_MDDRCGRP_LUT3_ML;
+	im->mddrc.lut_table4_main_upper = CFG_MDDRCGRP_LUT4_MU;
 	im->mddrc.lut_table4_main_lower = CFG_MDDRCGRP_LUT4_ML;
 	im->mddrc.lut_table0_alternate_upper = CFG_MDDRCGRP_LUT0_AU;
-	im->mddrc.lut_table1_alternate_upper = CFG_MDDRCGRP_LUT1_AU;
-	im->mddrc.lut_table2_alternate_upper = CFG_MDDRCGRP_LUT2_AU;
-	im->mddrc.lut_table3_alternate_upper = CFG_MDDRCGRP_LUT3_AU;
-	im->mddrc.lut_table4_alternate_upper = CFG_MDDRCGRP_LUT4_AU;
 	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AL;
+	im->mddrc.lut_table1_alternate_upper = CFG_MDDRCGRP_LUT1_AU;
 	im->mddrc.lut_table1_alternate_lower = CFG_MDDRCGRP_LUT1_AL;
+	im->mddrc.lut_table2_alternate_upper = CFG_MDDRCGRP_LUT2_AU;
 	im->mddrc.lut_table2_alternate_lower = CFG_MDDRCGRP_LUT2_AL;
+	im->mddrc.lut_table3_alternate_upper = CFG_MDDRCGRP_LUT3_AU;
 	im->mddrc.lut_table3_alternate_lower = CFG_MDDRCGRP_LUT3_AL;
+	im->mddrc.lut_table4_alternate_upper = CFG_MDDRCGRP_LUT4_AU;
 	im->mddrc.lut_table4_alternate_lower = CFG_MDDRCGRP_LUT4_AL;
 
 	/* Initialize MDDRC */
@@ -157,18 +157,26 @@ long int fixed_sdram (void)
 		im->mddrc.ddr_command = CFG_MICRON_NOP;
 
 	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_RFSH;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_RFSH;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_EM2;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
 	im->mddrc.ddr_command = CFG_MICRON_EM2;
 	im->mddrc.ddr_command = CFG_MICRON_EM3;
 	im->mddrc.ddr_command = CFG_MICRON_EN_DLL;
-	im->mddrc.ddr_command = CFG_MICRON_RST_DLL;
+	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
 	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
 	im->mddrc.ddr_command = CFG_MICRON_RFSH;
 	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
 	im->mddrc.ddr_command = CFG_MICRON_OCD_DEFAULT;
-	im->mddrc.ddr_command = CFG_MICRON_OCD_EXIT;
-
-	for (i = 0; i < 10; i++)
-		im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CFG_MICRON_NOP;
 
 	/* Start MDDRC */
 	im->mddrc.ddr_time_config0 = CFG_MDDRC_TIME_CFG0_RUN;

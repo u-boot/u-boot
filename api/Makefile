@@ -24,12 +24,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libapi.a
 
-COBJS	= api.o api_net.o api_storage.o api_platform-$(ARCH).o
+COBJS-$(CONFIG_API) += api.o api_net.o api_storage.o api_platform-$(ARCH).o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
