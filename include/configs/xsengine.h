@@ -33,7 +33,7 @@
 #define CONFIG_XSENGINE			1
 #define CONFIG_MMC			1
 #define CONFIG_DOS_PARTITION		1
-#define OARD_LATE_INIT			1
+#define BOARD_LATE_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
 #define CFG_HZ				3686400		/* incrementer freq: 3.6864 MHz */
 
@@ -86,8 +86,8 @@
 #define CFG_ENV_SIZE                    0x4000				/* 16kB Total Size of Environment Sector */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT		(75*CFG_HZ) 	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT		(50*CFG_HZ) 	/* Timeout for Flash Write */
+#define CFG_FLASH_ERASE_TOUT		(75*CFG_HZ)	/* Timeout for Flash Erase */
+#define CFG_FLASH_WRITE_TOUT		(50*CFG_HZ)	/* Timeout for Flash Write */
 
 /* Size of malloc() pool */
 #define CFG_MALLOC_LEN			(CFG_ENV_SIZE + 256*1024)
@@ -96,7 +96,7 @@
 /* Hardware drivers */
 #define CONFIG_DRIVER_SMC91111
 #define CONFIG_SMC91111_BASE		0x04000300
-#define CONFIG_SMC_USE_32_BIT 		1
+#define CONFIG_SMC_USE_32_BIT		1
 
 /* select serial console configuration */
 #define CONFIG_FFUART			1
@@ -138,15 +138,15 @@
 #define CFG_LONGHELP								/* undef to save memory	*/
 #define CFG_PROMPT			"XS-Engine u-boot> "			/* Monitor Command Prompt */
 #define CFG_CBSIZE			256					/* Console I/O Buffer Size */
-#define CFG_PBSIZE			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) 	/* Print Buffer Size */
+#define CFG_PBSIZE			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define CFG_MAXARGS			16					/* max number of command args */
 #define CFG_BARGSIZE			CFG_CBSIZE				/* Boot Argument Buffer Size */
 #define CFG_MEMTEST_START		0xA0400000				/* memtest works on     */
 #define CFG_MEMTEST_END			0xA0800000				/* 4 ... 8 MB in DRAM   */
-#undef  CFG_CLKS_IN_HZ          						/* everything, incl board info, in Hz */
+#undef  CFG_CLKS_IN_HZ								/* everything, incl board info, in Hz */
 #define CFG_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }	/* valid baudrates */
 #define CFG_MMC_BASE			0xF0000000
-#define CFG_LOAD_ADDR           	0xA0000000				/* load kernel to this address   */
+#define CFG_LOAD_ADDR			0xA0000000				/* load kernel to this address   */
 
 /* Stack sizes - The stack sizes are set up in start.S using the settings below */
 #define CONFIG_STACKSIZE		(128*1024)	/* regular stack */
@@ -168,7 +168,7 @@
 /* GP direction register */
 #define CFG_GPDR0_VAL			0x0000A000	/* CS1, PROG(FPGA) */
 #define CFG_GPDR1_VAL			0x00022A80	/* nPWE, FFUART + BTUART pins */
-#define CFG_GPDR2_VAL			0x0000C000  	/* CS2, CS3 */
+#define CFG_GPDR2_VAL			0x0000C000	/* CS2, CS3 */
 
 /* GP rising edge detect register */
 #define CFG_GRER0_VAL			0x00000000
@@ -185,7 +185,7 @@
 #define CFG_GAFR0_U_VAL			0x00000010	/* RDY */
 #define CFG_GAFR1_L_VAL			0x09988050	/* FFUART + BTUART pins */
 #define CFG_GAFR1_U_VAL			0x00000008	/* nPWE */
-#define CFG_GAFR2_L_VAL			0xA0000000  	/* CS2, CS3 */
+#define CFG_GAFR2_L_VAL			0xA0000000	/* CS2, CS3 */
 #define CFG_GAFR2_U_VAL			0x00000000
 
 #define CFG_PSSR_VAL			0x00000020	/* Power manager sleep status */

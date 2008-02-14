@@ -44,6 +44,7 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <video_fb.h>
+#include "videomodes.h"
 
 #include <radeon.h>
 #include "ati_ids.h"
@@ -65,11 +66,27 @@
 #define MAX_MAPPED_VRAM	(2048*2048*4)
 #define MIN_MAPPED_VRAM	(1024*768*1)
 
+#define RADEON_BUFFER_ALIGN		0x00000fff
+#define SURF_UPPER_BOUND(x,y,bpp)	(((((x) * (((y) + 15) & ~15) * (bpp)/8) + RADEON_BUFFER_ALIGN) \
+					  & ~RADEON_BUFFER_ALIGN) - 1)
+#define RADEON_CRT_PITCH(width, bpp)	((((width) * (bpp) + ((bpp) * 8 - 1)) / ((bpp) * 8)) | \
+					 ((((width) * (bpp) + ((bpp) * 8 - 1)) / ((bpp) * 8)) << 16))
+
+#define CRTC_H_TOTAL_DISP_VAL(htotal, hdisp) \
+		(((((htotal) / 8) - 1) & 0x3ff) | (((((hdisp) / 8) - 1) & 0x1ff) << 16))
+#define CRTC_HSYNC_STRT_WID_VAL(hsync_srtr, hsync_wid) \
+		(((hsync_srtr) & 0x1fff) | (((hsync_wid) & 0x3f) << 16))
+#define CRTC_V_TOTAL_DISP_VAL(vtotal, vdisp) \
+		((((vtotal) - 1) & 0xffff) | (((vdisp) - 1) << 16))
+#define CRTC_VSYNC_STRT_WID_VAL(vsync_srtr, vsync_wid) \
+		((((vsync_srtr) - 1) & 0xfff) | (((vsync_wid) & 0x1f) << 16))
+
 /*#define PCI_VENDOR_ID_ATI*/
 #define PCI_CHIP_RV280_5960		0x5960
 #define PCI_CHIP_RV280_5961		0x5961
 #define PCI_CHIP_RV280_5962		0x5962
 #define PCI_CHIP_RV280_5964		0x5964
+#define PCI_CHIP_RV280_5C63		0x5C63
 #define PCI_CHIP_RV370_5B60		0x5B60
 #define PCI_CHIP_RV380_5657		0x5657
 #define PCI_CHIP_R420_554d		0x554d
@@ -79,6 +96,7 @@ static struct pci_device_id ati_radeon_pci_ids[] = {
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV280_5961},
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV280_5962},
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV280_5964},
+	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV280_5C63},
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV370_5B60},
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_RV380_5657},
 	{PCI_VENDOR_ID_ATI, PCI_CHIP_R420_554d},
@@ -90,6 +108,7 @@ static u16 ati_radeon_id_family_table[][2] = {
 	{PCI_CHIP_RV280_5961, CHIP_FAMILY_RV280},
 	{PCI_CHIP_RV280_5962, CHIP_FAMILY_RV280},
 	{PCI_CHIP_RV280_5964, CHIP_FAMILY_RV280},
+	{PCI_CHIP_RV280_5C63, CHIP_FAMILY_RV280},
 	{PCI_CHIP_RV370_5B60, CHIP_FAMILY_RV380},
 	{PCI_CHIP_RV380_5657, CHIP_FAMILY_RV380},
 	{PCI_CHIP_R420_554d,  CHIP_FAMILY_R420},
@@ -350,6 +369,204 @@ void radeon_setmode(void)
 	radeon_write_pll_regs(rinfo, mode);
 }
 
+static void set_pal(void)
+{
+	int idx, val = 0;
+
+	for (idx = 0; idx < 256; idx++) {
+		OUTREG8(PALETTE_INDEX, idx);
+		OUTREG(PALETTE_DATA, val);
+		val += 0x00010101;
+	}
+}
+
+void radeon_setmode_9200(int vesa_idx, int bpp)
+{
+	struct radeon_regs *mode = malloc(sizeof(struct radeon_regs));
+
+	mode->crtc_gen_cntl = CRTC_EN | CRTC_EXT_DISP_EN;
+	mode->crtc_ext_cntl = VGA_ATI_LINEAR | XCRT_CNT_EN | CRTC_CRT_ON;
+	mode->dac_cntl = DAC_MASK_ALL | DAC_VGA_ADR_EN | DAC_8BIT_EN;
+	mode->crtc_offset_cntl = CRTC_OFFSET_CNTL__CRTC_TILE_EN;
+
+	switch (bpp) {
+	case 24:
+		mode->crtc_gen_cntl |= 0x6 << 8; /* x888 */
+#if defined(__BIG_ENDIAN)
+		mode->surface_cntl = NONSURF_AP0_SWP_32BPP | NONSURF_AP1_SWP_32BPP;
+		mode->surf_info[0] = NONSURF_AP0_SWP_32BPP | NONSURF_AP1_SWP_32BPP;
+#endif
+		break;
+	case 16:
+		mode->crtc_gen_cntl |= 0x4 << 8; /* 565 */
+#if defined(__BIG_ENDIAN)
+		mode->surface_cntl = NONSURF_AP0_SWP_16BPP | NONSURF_AP1_SWP_16BPP;
+		mode->surf_info[0] = NONSURF_AP0_SWP_16BPP | NONSURF_AP1_SWP_16BPP;
+#endif
+		break;
+	default:
+		mode->crtc_gen_cntl |= 0x2 << 8; /* palette */
+		mode->surface_cntl = 0x00000000;
+		break;
+	}
+
+	switch (vesa_idx) {
+	case RES_MODE_1280x1024:
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(1688,1280);
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(1066,1024);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(1025,3);
+#if defined(CONFIG_RADEON_VREFRESH_75HZ)
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(1288,18);
+		mode->ppll_div_3 = 0x00010078;
+#else /* default @ 60 Hz */
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(1320,14);
+		mode->ppll_div_3 = 0x00010060;
+#endif
+		/*
+		 * for this mode pitch expands to the same value for 32, 16 and 8 bpp,
+		 * so we set it here once only.
+		 */
+		mode->crtc_pitch = RADEON_CRT_PITCH(1280,32);
+		switch (bpp) {
+		case 24:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (1280 * 4 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1280,1024,32);
+			break;
+		case 16:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (1280 * 2 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1280,1024,16);
+			break;
+		default: /* 8 bpp */
+			mode->surf_info[0] = R200_SURF_TILE_COLOR_MACRO | (1280 * 1 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1280,1024,8);
+			break;
+		}
+		break;
+	case RES_MODE_1024x768:
+#if defined(CONFIG_RADEON_VREFRESH_75HZ)
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(1312,1024);
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(1032,12);
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(800,768);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(769,3);
+		mode->ppll_div_3 = 0x0002008c;
+#else /* @ 60 Hz */
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(1344,1024);
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(1040,17) | CRTC_H_SYNC_POL;
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(806,768);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(771,6) | CRTC_V_SYNC_POL;
+		mode->ppll_div_3 = 0x00020074;
+#endif
+		/* also same pitch value for 32, 16 and 8 bpp */
+		mode->crtc_pitch = RADEON_CRT_PITCH(1024,32);
+		switch (bpp) {
+		case 24:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (1024 * 4 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1024,768,32);
+			break;
+		case 16:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (1024 * 2 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1024,768,16);
+			break;
+		default: /* 8 bpp */
+			mode->surf_info[0] = R200_SURF_TILE_COLOR_MACRO | (1024 * 1 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1024,768,8);
+			break;
+		}
+		break;
+	case RES_MODE_800x600:
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(1056,800);
+#if defined(CONFIG_RADEON_VREFRESH_75HZ)
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(808,10);
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(625,600);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(601,3);
+		mode->ppll_div_3 = 0x000300b0;
+#else /* @ 60 Hz */
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(832,16);
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(628,600);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(601,4);
+		mode->ppll_div_3 = 0x0003008e;
+#endif
+		switch (bpp) {
+		case 24:
+			mode->crtc_pitch = RADEON_CRT_PITCH(832,32);
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (832 * 4 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(832,600,32);
+			break;
+		case 16:
+			mode->crtc_pitch = RADEON_CRT_PITCH(896,16);
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (896 * 2 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(896,600,16);
+			break;
+		default: /* 8 bpp */
+			mode->crtc_pitch = RADEON_CRT_PITCH(1024,8);
+			mode->surf_info[0] = R200_SURF_TILE_COLOR_MACRO | (1024 * 1 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(1024,600,8);
+			break;
+		}
+		break;
+	default: /* RES_MODE_640x480 */
+#if defined(CONFIG_RADEON_VREFRESH_75HZ)
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(840,640);
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(648,8) | CRTC_H_SYNC_POL;
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(500,480);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(481,3) | CRTC_V_SYNC_POL;
+		mode->ppll_div_3 = 0x00030070;
+#else /* @ 60 Hz */
+		mode->crtc_h_total_disp = CRTC_H_TOTAL_DISP_VAL(800,640);
+		mode->crtc_h_sync_strt_wid = CRTC_HSYNC_STRT_WID_VAL(674,12) | CRTC_H_SYNC_POL;
+		mode->crtc_v_total_disp = CRTC_V_TOTAL_DISP_VAL(525,480);
+		mode->crtc_v_sync_strt_wid = CRTC_VSYNC_STRT_WID_VAL(491,2) | CRTC_V_SYNC_POL;
+		mode->ppll_div_3 = 0x00030059;
+#endif
+		/* also same pitch value for 32, 16 and 8 bpp */
+		mode->crtc_pitch = RADEON_CRT_PITCH(640,32);
+		switch (bpp) {
+		case 24:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (640 * 4 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(640,480,32);
+			break;
+		case 16:
+			mode->surf_info[0] |= R200_SURF_TILE_COLOR_MACRO | (640 * 2 / 16);
+			mode->surf_upper_bound[0] = SURF_UPPER_BOUND(640,480,16);
+			break;
+		default: /* 8 bpp */
+			mode->crtc_offset_cntl = 0x00000000;
+			break;
+		}
+		break;
+	}
+
+	OUTREG(CRTC_GEN_CNTL, mode->crtc_gen_cntl | CRTC_DISP_REQ_EN_B);
+	OUTREGP(CRTC_EXT_CNTL, mode->crtc_ext_cntl,
+		(CRTC_HSYNC_DIS | CRTC_VSYNC_DIS | CRTC_DISPLAY_DIS));
+	OUTREGP(DAC_CNTL, mode->dac_cntl, DAC_RANGE_CNTL | DAC_BLANKING);
+	OUTREG(CRTC_H_TOTAL_DISP, mode->crtc_h_total_disp);
+	OUTREG(CRTC_H_SYNC_STRT_WID, mode->crtc_h_sync_strt_wid);
+	OUTREG(CRTC_V_TOTAL_DISP, mode->crtc_v_total_disp);
+	OUTREG(CRTC_V_SYNC_STRT_WID, mode->crtc_v_sync_strt_wid);
+	OUTREG(CRTC_OFFSET, 0);
+	OUTREG(CRTC_OFFSET_CNTL, mode->crtc_offset_cntl);
+	OUTREG(CRTC_PITCH, mode->crtc_pitch);
+	OUTREG(CRTC_GEN_CNTL, mode->crtc_gen_cntl);
+
+	mode->clk_cntl_index = 0x300;
+	mode->ppll_ref_div = 0xc;
+
+	radeon_write_pll_regs(rinfo, mode);
+
+	OUTREGP(CRTC_EXT_CNTL, mode->crtc_ext_cntl,
+		~(CRTC_HSYNC_DIS | CRTC_VSYNC_DIS | CRTC_DISPLAY_DIS));
+	OUTREG(SURFACE0_INFO, mode->surf_info[0]);
+	OUTREG(SURFACE0_LOWER_BOUND, 0);
+	OUTREG(SURFACE0_UPPER_BOUND, mode->surf_upper_bound[0]);
+	OUTREG(SURFACE_CNTL, mode->surface_cntl);
+
+	if (bpp > 8)
+		set_pal();
+
+	free(mode);
+}
+
 #include "../bios_emulator/include/biosemu.h"
 extern int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp);
 
@@ -421,29 +638,101 @@ GraphicDevice ctfb;
 void *video_hw_init(void)
 {
 	GraphicDevice *pGD = (GraphicDevice *) & ctfb;
-	int i;
 	u32 *vm;
+	char *penv;
+	unsigned long t1, hsynch, vsynch;
+	int bits_per_pixel, i, tmp, vesa_idx = 0, videomode;
+	struct ctfb_res_modes *res_mode;
+	struct ctfb_res_modes var_mode;
 
 	rinfo = malloc(sizeof(struct radeonfb_info));
 
+	printf("Video: ");
 	if(radeon_probe(rinfo)) {
 		printf("No radeon video card found!\n");
 		return NULL;
 	}
 
+	tmp = 0;
+
+	videomode = CFG_DEFAULT_VIDEO_MODE;
+	/* get video mode via environment */
+	if ((penv = getenv ("videomode")) != NULL) {
+		/* deceide if it is a string */
+		if (penv[0] <= '9') {
+			videomode = (int) simple_strtoul (penv, NULL, 16);
+			tmp = 1;
+		}
+	} else {
+		tmp = 1;
+	}
+	if (tmp) {
+		/* parameter are vesa modes */
+		/* search params */
+		for (i = 0; i < VESA_MODES_COUNT; i++) {
+			if (vesa_modes[i].vesanr == videomode)
+				break;
+		}
+		if (i == VESA_MODES_COUNT) {
+			printf ("no VESA Mode found, switching to mode 0x%x ", CFG_DEFAULT_VIDEO_MODE);
+			i = 0;
+		}
+		res_mode = (struct ctfb_res_modes *) &res_mode_init[vesa_modes[i].resindex];
+		bits_per_pixel = vesa_modes[i].bits_per_pixel;
+		vesa_idx = vesa_modes[i].resindex;
+	} else {
+		res_mode = (struct ctfb_res_modes *) &var_mode;
+		bits_per_pixel = video_get_params (res_mode, penv);
+	}
+
+	/* calculate hsynch and vsynch freq (info only) */
+	t1 = (res_mode->left_margin + res_mode->xres +
+	      res_mode->right_margin + res_mode->hsync_len) / 8;
+	t1 *= 8;
+	t1 *= res_mode->pixclock;
+	t1 /= 1000;
+	hsynch = 1000000000L / t1;
+	t1 *= (res_mode->upper_margin + res_mode->yres +
+	       res_mode->lower_margin + res_mode->vsync_len);
+	t1 /= 1000;
+	vsynch = 1000000000L / t1;
+
 	/* fill in Graphic device struct */
-	sprintf (pGD->modeIdent, "%dx%dx%d %ldkHz %ldHz", 640,
-		 480, 16, (1000 / 1000),
-		 (2000 / 1000));
+	sprintf (pGD->modeIdent, "%dx%dx%d %ldkHz %ldHz", res_mode->xres,
+		 res_mode->yres, bits_per_pixel, (hsynch / 1000),
+		 (vsynch / 1000));
 	printf ("%s\n", pGD->modeIdent);
+	pGD->winSizeX = res_mode->xres;
+	pGD->winSizeY = res_mode->yres;
+	pGD->plnSizeX = res_mode->xres;
+	pGD->plnSizeY = res_mode->yres;
 
-	pGD->winSizeX = 640;
-	pGD->winSizeY = 480;
-	pGD->plnSizeX = 640;
-	pGD->plnSizeY = 480;
-
-	pGD->gdfBytesPP = 1;
-	pGD->gdfIndex = GDF__8BIT_INDEX;
+	switch (bits_per_pixel) {
+	case 24:
+		pGD->gdfBytesPP = 4;
+		pGD->gdfIndex = GDF_32BIT_X888RGB;
+		if (res_mode->xres == 800) {
+			pGD->winSizeX = 832;
+			pGD->plnSizeX = 832;
+		}
+		break;
+	case 16:
+		pGD->gdfBytesPP = 2;
+		pGD->gdfIndex = GDF_16BIT_565RGB;
+		if (res_mode->xres == 800) {
+			pGD->winSizeX = 896;
+			pGD->plnSizeX = 896;
+		}
+		break;
+	default:
+		if (res_mode->xres == 800) {
+			pGD->winSizeX = 1024;
+			pGD->plnSizeX = 1024;
+		}
+		pGD->gdfBytesPP = 1;
+		pGD->gdfIndex = GDF__8BIT_INDEX;
+		break;
+	}
 
 	pGD->isaBase = CFG_ISA_IO_BASE_ADDRESS;
 	pGD->pciBase = rinfo->fb_base_phys;
@@ -464,14 +753,17 @@ void *video_hw_init(void)
 	pGD->cprBase = rinfo->fb_base_phys;	/* Dummy */
 	/* set up Hardware */
 
-	/* Clear video memory */
-	i = pGD->memSize / 4;
+	/* Clear video memory (only visible screen area) */
+	i = pGD->winSizeX * pGD->winSizeY * pGD->gdfBytesPP / 4;
 	vm = (unsigned int *) pGD->pciBase;
 	while (i--)
 		*vm++ = 0;
 	/*SetDrawingEngine (bits_per_pixel);*/
 
-	radeon_setmode();
+	if (rinfo->family == CHIP_FAMILY_RV280)
+		radeon_setmode_9200(vesa_idx, bits_per_pixel);
+	else
+		radeon_setmode();
 
 	return ((void *) pGD);
 }
