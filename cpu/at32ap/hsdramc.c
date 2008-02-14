@@ -38,6 +38,10 @@ unsigned long sdram_init(const struct sdram_info *info)
 	unsigned long bus_hz;
 	unsigned int i;
 
+	if (!info->refresh_period)
+		panic("ERROR: SDRAM refresh period == 0. "
+				"Please update the board code\n");
+
 	tmp = (HSDRAMC1_BF(NC, info->col_bits - 8)
 	       | HSDRAMC1_BF(NR, info->row_bits - 11)
 	       | HSDRAMC1_BF(NB, info->bank_bits - 1)
@@ -113,7 +117,7 @@ unsigned long sdram_init(const struct sdram_info *info)
 	 * 15.6 us is a typical value for a burst of length one
 	 */
 	bus_hz = get_sdram_clk_rate();
-	hsdramc1_writel(TR, (156 * (bus_hz / 1000)) / 10000);
+	hsdramc1_writel(TR, info->refresh_period);
 
 	printf("SDRAM: %u MB at address 0x%08lx\n",
 	       sdram_size >> 20, info->phys_addr);

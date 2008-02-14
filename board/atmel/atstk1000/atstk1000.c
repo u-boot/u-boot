@@ -23,6 +23,7 @@
 
 #include <asm/io.h>
 #include <asm/sdram.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix2.h>
 
@@ -40,6 +41,8 @@ static const struct sdram_info sdram = {
 	.trcd		= 2,
 	.tras		= 5,
 	.txsr		= 5,
+	/* 15.6 us */
+	.refresh_period	= (156 * (SDRAMC_BUS_HZ / 1000)) / 10000,
 };
 
 int board_early_init_f(void)

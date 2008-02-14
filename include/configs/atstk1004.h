@@ -167,7 +167,7 @@
 
 #define CFG_MALLOC_LEN			(256*1024)
 
-/* Allow 4MB for the kernel run-time image */
+/* Allow 2MB for the kernel run-time image */
 #define CFG_LOAD_ADDR			(CFG_SDRAM_BASE + 0x00200000)
 #define CFG_BOOTPARAMS_LEN		(16 * 1024)
 
