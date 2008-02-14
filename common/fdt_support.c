@@ -415,7 +415,7 @@ void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 {
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s/%s' = ", path, prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
@@ -441,7 +441,7 @@ void do_fixup_by_prop(void *fdt,
 	int off;
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s' = ", prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
@@ -468,7 +468,7 @@ void do_fixup_by_compat(void *fdt, const char *compat,
 	int off = -1;
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s' = ", prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");

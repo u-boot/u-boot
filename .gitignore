@@ -10,6 +10,7 @@
 *.orig
 *.a
 *.o
+*~
 
 #
 # Top-level generic files

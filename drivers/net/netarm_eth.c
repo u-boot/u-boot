@@ -29,7 +29,6 @@
 #include "netarm_eth.h"
 #include <asm/arch/netarm_registers.h>
 
-
 #if defined(CONFIG_CMD_NET)
 
 static int na_mii_poll_busy (void);
@@ -55,7 +54,6 @@ static void na_get_mac_addr (void)
 	/* set env, todo: check if already an adress is set */
 	setenv ("ethaddr", ethaddr);
 }
-
 
 static void na_mii_write (int reg, int value)
 {
@@ -355,6 +353,6 @@ extern int eth_send (volatile void *packet, int length)
 	return 1;
 }
 
-#endif /* COMMANDS & CFG_NET */
+#endif /* CONFIG_CMD_NET */
 
 #endif /* CONFIG_DRIVER_NETARMETH */

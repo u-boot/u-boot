@@ -165,7 +165,7 @@ void cs8900_get_enetaddr (uchar * addr)
 				 addr[0], addr[1],
 				 addr[2], addr[3],
 				 addr[4], addr[5]) ;
-			debug ("### Set environment from HW MAC addr = \"%s\"\n",				ethaddr);
+			debug ("### Set environment from HW MAC addr = \"%s\"\n", ethaddr);
 			setenv ("ethaddr", ethaddr);
 		}
 
@@ -317,6 +317,6 @@ int cs8900_e2prom_write(unsigned char addr, unsigned short value)
 	return 0;
 }
 
-#endif	/* COMMANDS & CFG_NET */
+#endif	/* CONFIG_CMD_NET */
 
 #endif	/* CONFIG_DRIVER_CS8900 */

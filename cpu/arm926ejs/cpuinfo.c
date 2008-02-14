@@ -18,8 +18,6 @@
 #define omap_readw(x)		*(volatile unsigned short *)(x)
 #define omap_readl(x)		*(volatile unsigned long *)(x)
 
-#define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
-
 #define OMAP_DIE_ID_0		0xfffe1800
 #define OMAP_DIE_ID_1		0xfffe1804
 #define OMAP_PRODUCTION_ID_0	0xfffe2000
