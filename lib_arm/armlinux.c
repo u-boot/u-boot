@@ -168,7 +168,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			do_reset (cmdtp, flag, argc, argv);
 		}
 
-#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) ||	\
+		defined(CONFIG_ARMADILLO) || defined(CONFIG_M501SK)
 		/*
 		 *we need to copy the ramdisk to SRAM to let Linux boot
 		 */

@@ -2325,6 +2325,8 @@ csb637_config	:	unconfig
 mp2usb_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
+m501sk_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t m501sk NULL at91rm9200
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
