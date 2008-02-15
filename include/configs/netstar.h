@@ -48,14 +48,15 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
-#define CFG_DEVICE_NULLDEV		1	/* enable null device */
 #define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
+#define CFG_CONSOLE_INFO_QUIET
 
 /*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x10000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE	(64 * 1024 * 1024)
 #define PHYS_FLASH_1		0x00000000	/* Flash Bank #1 */
 
 /*
@@ -63,30 +64,21 @@
  */
 #define CFG_FLASH_BASE		PHYS_FLASH_1
 #define CFG_MAX_FLASH_BANKS	1
-#if (PHYS_SDRAM_1_SIZE == SZ_32M)
-/*#if 1*/
-#define CFG_FLASH_CFI			/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER		/* Use the common driver */
-#define CFG_FLASH_EMPTY_INFO
-#define CFG_MAX_FLASH_SECT	128
-#else
-#define PHYS_FLASH_1_SIZE	SZ_1M
+#define PHYS_FLASH_1_SIZE	(1 * 1024 * 1024)
 #define CFG_MAX_FLASH_SECT	19
 #define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* in ticks */
 #define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ)
-#endif
 
 #define CFG_MONITOR_BASE	PHYS_FLASH_1
-#define CFG_MONITOR_LEN		SZ_256K
+#define CFG_MONITOR_LEN		(256 * 1024)
 
 /*
  * Environment settings
  */
 #define CFG_ENV_IS_IN_FLASH
-#define ENV_IS_SOLITARY
 #define CFG_ENV_ADDR		0x4000
-#define CFG_ENV_SIZE		SZ_8K
-#define CFG_ENV_SECT_SIZE	SZ_8K
+#define CFG_ENV_SIZE		(8 * 1024)
+#define CFG_ENV_SECT_SIZE	(8 * 1024)
 #define CFG_ENV_ADDR_REDUND	0x6000
 #define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 #define CONFIG_ENV_OVERWRITE
@@ -95,14 +87,12 @@
  * Size of malloc() pool
  */
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-/* XXX #define CFG_MALLOC_LEN		(SZ_64K - CFG_GBL_DATA_SIZE)*/
-#define CFG_MALLOC_LEN		SZ_4M
+#define CFG_MALLOC_LEN		(4 * 1024 * 1024)
 
 /*
  * The stack size is set up in start.S using the settings below
  */
-/* XXX #define CONFIG_STACKSIZE	SZ_8K	/XXX* regular stack */
-#define CONFIG_STACKSIZE	SZ_1M	/* regular stack */
+#define CONFIG_STACKSIZE	(1 * 1024 * 1024)	/* regular stack */
 
 /*
  * Hardware drivers
@@ -132,13 +122,16 @@
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1
 #define CFG_NAND_BASE	0x04000000 + (2 << 23)
+#define NAND_ALLOW_ERASE_ALL	1
 
 /*
- * JFFS2 partitions (mtdparts command line support)
+ * partitions (mtdparts command line support)
  */
 #define CONFIG_JFFS2_CMDLINE
 #define MTDIDS_DEFAULT		"nor0=omapflash.0,nand0=omapnand.0"
-#define MTDPARTS_DEFAULT	"mtdparts=omapflash.0:8k@16k(env),8k(r_env),448k@576k(u-boot);omapnand.0:48M(rootfs0),48M(rootfs1),-(data)"
+#define MTDPARTS_DEFAULT	"mtdparts=" \
+	"omapflash.0:8k@16k(env),8k(r_env),448k@576k(u-boot);" \
+	"omapnand.0:4M(kernel0),40M(rootfs0),4M(kernel1),40M(rootfs1),-(data)"
 
 
 /*
@@ -176,36 +169,34 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs*/
 #define CFG_AUTOLOAD		"n"		/* No autoload */
-#define CONFIG_BOOTCOMMAND	"run nboot"
+#define CONFIG_BOOTCOMMAND	"run fboot"
 #define CONFIG_PREBOOT		"run setup"
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"setup=setenv bootargs console=ttyS0,$baudrate "	\
-		"$mtdparts\0"					\
-	"ospart=0\0"						\
-	"setpart="						\
-	"if test -n $swapos; then "				\
-		"if test $ospart -eq 0; then chpart nand0,1; else chpart nand0,0; fi; "\
-		"setenv swapos; saveenv; "			\
-	"else "							\
-		"chpart nand0,$ospart; "			\
-	"fi\0"							\
-	"nfsargs=setenv bootargs $bootargs "			\
-		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " \
-		"nfsroot=$rootpath root=/dev/nfs\0"		\
-	"flashargs=run setpart;setenv bootargs $bootargs "	\
-		"root=/dev/mtdblock$partition ro "		\
-		"rootfstype=jffs2\0"				\
-	"initrdargs=setenv bootargs $bootargs "			\
-		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
-	"iboot=bootp;run initrdargs;tftp;bootm\0"		\
-	"fboot=run flashargs;fsload /boot/uImage;bootm\0"	\
-	"nboot=bootp;run nfsargs;tftp;bootm\0"
+#define	CONFIG_EXTRA_ENV_SETTINGS						\
+	"autostart=yes\0"							\
+	"ospart=0\0"								\
+	"setup=setenv bootargs console=ttyS0,$baudrate "			\
+		"$mtdparts\0"							\
+	"setpart="								\
+	"if test -n $swapos; then "						\
+		"setenv swapos; saveenv; "					\
+	"else "									\
+		"if test $ospart -eq 0; then setenv ospart 1;" 			\
+			"else setenv ospart 0; 		fi; "			\
+	"fi\0"									\
+	"nfsargs=setenv bootargs $bootargs "					\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " 	\
+		"nfsroot=$rootpath root=/dev/nfs\0"				\
+	"flashargs=run setpart;setenv bootargs $bootargs "			\
+		"root=mtd:rootfs$ospart ro "					\
+		"rootfstype=jffs2\0"						\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" 		\
+	"fboot=run flashargs;nboot kernel$ospart\0"				\
+	"nboot=bootp;run nfsargs;tftp\0"
 
 #if 0	/* feel free to disable for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT	"\nNetStar PBX - boot in %d sec...\n"
-#define CONFIG_AUTOBOOT_DELAY_STR	"R"	/* 1st "password"	*/
-#define CONFIG_BOOT_RETRY_TIME	30
+#define CONFIG_AUTOBOOT_PROMPT		"\nNetStar PBX - boot in %d secs...\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"."	/* 1st "password"	*/
 #endif
 
 /*
@@ -223,7 +214,8 @@
 #define CONFIG_AUTO_COMPLETE
 
 #define CFG_MEMTEST_START	PHYS_SDRAM_1
-#define CFG_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE
+#define CFG_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - \
+				(CFG_MONITOR_LEN + CFG_MALLOC_LEN + CONFIG_STACKSIZE)
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 

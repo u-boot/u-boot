@@ -45,23 +45,12 @@ static void netstar_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 	this->IO_ADDR_W = (void *) IO_ADDR_W;
 }
 
-/*
- *	chip R/B detection
- */
-/***
-static int netstar_nand_ready(struct mtd_info *mtd)
-{
-	return (*(volatile ushort *)GPIO_DATA_INPUT_REG) & 0x02;
-}
-***/
-
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->options = NAND_SAMSUNG_LP_OPTIONS;
 	nand->eccmode = NAND_ECC_SOFT;
 	nand->hwcontrol = netstar_nand_hwcontrol;
-/*	nand->dev_ready = netstar_nand_ready; */
-	nand->chip_delay = 18;
+	nand->chip_delay = 400;
 	return 0;
 }
 #endif
