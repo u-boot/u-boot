@@ -26,7 +26,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -37,23 +37,6 @@
 
 #include <common.h>
 #include <asm/proc-armv/ptrace.h>
-
-#ifndef CONFIG_INTEGRATOR
-/* Only to be used for integrator/AP or /CP */
-/* Allows U-Boot to be used with any ARM supplied core module (CM),
- * provided the ARM boot monitor, or similar software,
- * runs first to set up the platform e.g. map writeable memory to 0x00000000
- * - see Integrator User Guides
- * Versatile has a supported cpu - arm926ejs
- * Some integrator CMs cpus are supported
- * CM926EJ-S, CM946E-S
- * For platforms with supported cpus U-Boot can be used as the sole boot
- * monitor/loader - it will configure the platform itself
- * Also U-Boot may be faster/smaller in those cases since specific
- * qualities of the cpu and/or CM can be used e.g i and/or d caches etc.
- */
-#endif
-extern void reset_cpu(ulong addr);
 
 #ifdef CONFIG_USE_IRQ
 /* enable IRQ interrupts */
@@ -118,15 +101,15 @@ void show_regs (struct pt_regs *regs)
 
 	flags = condition_codes (regs);
 
-	printf ("pc : [<%08lx>]    lr : [<%08lx>]\n"
-		"sp : %08lx  ip : %08lx  fp : %08lx\n",
+	printf ("pc : [<%08lx>]	   lr : [<%08lx>]\n"
+		"sp : %08lx  ip : %08lx	 fp : %08lx\n",
 		instruction_pointer (regs),
 		regs->ARM_lr, regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
-	printf ("r10: %08lx  r9 : %08lx  r8 : %08lx\n",
+	printf ("r10: %08lx  r9 : %08lx	 r8 : %08lx\n",
 		regs->ARM_r10, regs->ARM_r9, regs->ARM_r8);
-	printf ("r7 : %08lx  r6 : %08lx  r5 : %08lx  r4 : %08lx\n",
+	printf ("r7 : %08lx  r6 : %08lx	 r5 : %08lx  r4 : %08lx\n",
 		regs->ARM_r7, regs->ARM_r6, regs->ARM_r5, regs->ARM_r4);
-	printf ("r3 : %08lx  r2 : %08lx  r1 : %08lx  r0 : %08lx\n",
+	printf ("r3 : %08lx  r2 : %08lx	 r1 : %08lx  r0 : %08lx\n",
 		regs->ARM_r3, regs->ARM_r2, regs->ARM_r1, regs->ARM_r0);
 	printf ("Flags: %c%c%c%c",
 		flags & CC_N_BIT ? 'N' : 'n',
@@ -181,12 +164,11 @@ void do_fiq (struct pt_regs *pt_regs)
 	bad_mode ();
 }
 
+#ifndef CONFIG_USE_IRQ
 void do_irq (struct pt_regs *pt_regs)
 {
 	printf ("interrupt request\n");
 	show_regs (pt_regs);
 	bad_mode ();
 }
-
-/* The timer functionality is supplied by the Integrator board */
-/* - see board/integrator<>.c */
+#endif
