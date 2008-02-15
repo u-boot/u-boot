@@ -26,6 +26,9 @@
 
 #include <common.h>
 #include <mpc8xx.h>
+#if defined(CONFIG_OF_LIBFDT)
+	#include <libfdt.h>
+#endif
 
 /*
  * SDRAM is single Samsung K4S643232F-T70   chip (8MB)
@@ -111,3 +114,11 @@ int checkboard( void )
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+}
+#endif
