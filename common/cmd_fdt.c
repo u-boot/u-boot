@@ -260,7 +260,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Remove a property/node
 	 ********************************************************************/
-	} else if (argv[1][0] == 'r') {
+	} else if ((argv[1][0] == 'r') && (argv[1][1] == 'm')) {
 		int  nodeoffset;	/* node offset from libfdt */
 		int  err;
 
@@ -295,6 +295,110 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 					fdt_strerror(err));
 				return err;
 			}
+		}
+
+	/********************************************************************
+	 * Display header info
+	 ********************************************************************/
+	} else if (argv[1][0] == 'h') {
+		u32 version = fdt_version(fdt);
+		printf("magic:\t\t\t0x%x\n", fdt_magic(fdt));
+		printf("totalsize:\t\t0x%x (%d)\n", fdt_totalsize(fdt), fdt_totalsize(fdt));
+		printf("off_dt_struct:\t\t0x%x\n", fdt_off_dt_struct(fdt));
+		printf("off_dt_strings:\t\t0x%x\n", fdt_off_dt_strings(fdt));
+		printf("off_mem_rsvmap:\t\t0x%x\n", fdt_off_mem_rsvmap(fdt));
+		printf("version:\t\t%d\n", version);
+		printf("last_comp_version:\t%d\n", fdt_last_comp_version(fdt));
+		if (version >= 2)
+			printf("boot_cpuid_phys:\t0x%x\n",
+				fdt_boot_cpuid_phys(fdt));
+		if (version >= 3)
+			printf("size_dt_strings:\t0x%x\n",
+				fdt_size_dt_strings(fdt));
+		if (version >= 17)
+			printf("size_dt_struct:\t\t0x%x\n",
+				fdt_size_dt_struct(fdt));
+		printf("number mem_rsv:\t\t0x%x\n", fdt_num_mem_rsv(fdt));
+		printf("\n");
+
+	/********************************************************************
+	 * Set boot cpu id
+	 ********************************************************************/
+	} else if ((argv[1][0] == 'b') && (argv[1][1] == 'o')) {
+		unsigned long tmp = simple_strtoul(argv[2], NULL, 16);
+		fdt_set_boot_cpuid_phys(fdt, tmp);
+
+	/********************************************************************
+	 * memory command
+	 ********************************************************************/
+	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'e')) {
+		uint64_t addr, size;
+		int err;
+#ifdef CFG_64BIT_STRTOUL
+			addr = simple_strtoull(argv[2], NULL, 16);
+			size = simple_strtoull(argv[3], NULL, 16);
+#else
+			addr = simple_strtoul(argv[2], NULL, 16);
+			size = simple_strtoul(argv[3], NULL, 16);
+#endif
+		err = fdt_fixup_memory(fdt, addr, size);
+		if (err < 0)
+			return err;
+
+	/********************************************************************
+	 * mem reserve commands
+	 ********************************************************************/
+	} else if ((argv[1][0] == 'r') && (argv[1][1] == 's')) {
+		if (argv[2][0] == 'p') {
+			uint64_t addr, size;
+			int total = fdt_num_mem_rsv(fdt);
+			int j, err;
+			printf("index\t\t   start\t\t    size\n");
+			printf("-------------------------------"
+				"-----------------\n");
+			for (j = 0; j < total; j++) {
+				err = fdt_get_mem_rsv(fdt, j, &addr, &size);
+				if (err < 0) {
+					printf("libfdt fdt_get_mem_rsv():  %s\n",
+							fdt_strerror(err));
+					return err;
+				}
+				printf("    %x\t%08x%08x\t%08x%08x\n", j,
+					(u32)(addr >> 32),
+					(u32)(addr & 0xffffffff),
+					(u32)(size >> 32),
+					(u32)(size & 0xffffffff));
+			}
+		} else if (argv[2][0] == 'a') {
+			uint64_t addr, size;
+			int err;
+#ifdef CFG_64BIT_STRTOUL
+			addr = simple_strtoull(argv[3], NULL, 16);
+			size = simple_strtoull(argv[4], NULL, 16);
+#else
+			addr = simple_strtoul(argv[3], NULL, 16);
+			size = simple_strtoul(argv[4], NULL, 16);
+#endif
+			err = fdt_add_mem_rsv(fdt, addr, size);
+
+			if (err < 0) {
+				printf("libfdt fdt_add_mem_rsv():  %s\n",
+					fdt_strerror(err));
+				return err;
+			}
+		} else if (argv[2][0] == 'd') {
+			unsigned long idx = simple_strtoul(argv[3], NULL, 16);
+			int err = fdt_del_mem_rsv(fdt, idx);
+
+			if (err < 0) {
+				printf("libfdt fdt_del_mem_rsv():  %s\n",
+					fdt_strerror(err));
+				return err;
+			}
+		} else {
+			/* Unrecognized command */
+			printf ("Usage:\n%s\n", cmdtp->usage);
+			return 1;
 		}
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
@@ -689,6 +793,12 @@ U_BOOT_CMD(
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
 	"fdt mknode <path> <node>            - Create a new node after <path>\n"
 	"fdt rm     <path> [<prop>]          - Delete the node or <property>\n"
+	"fdt header                          - Display header info\n"
+	"fdt bootcpu <id>                    - Set boot cpuid\n"
+	"fdt memory <addr> <size>            - Add/Update memory node\n"
+	"fdt rsvmem print                    - Show current mem reserves\n"
+	"fdt rsvmem add <addr> <size>        - Add a mem reserve\n"
+	"fdt rsvmem delete <index>           - Delete a mem reserves\n"
 	"fdt chosen - Add/update the /chosen branch in the tree\n"
 #ifdef CONFIG_OF_HAS_UBOOT_ENV
 	"fdt env    - Add/replace the /u-boot-env branch in the tree\n"
