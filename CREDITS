@@ -391,6 +391,10 @@ E: dan.poirot@windriver.com
 D: Support for the Wind River sbc405, sbc8240 board
 W: http://www.windriver.com
 
+N: Stelian Pop
+E: stelian.pop@leadtechdesign.com
+D: Atmel AT91CAP9ADK support
+
 N: Stefan Roese
 E: sr@denx.de
 D: AMCC PPC4xx Support

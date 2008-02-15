@@ -26,24 +26,30 @@
 AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
 static AT91S_DataFlash DataFlashInst;
 
+struct dataflash_addr {
+	unsigned long addr;
+	int cs;
+};
+
 #ifdef CONFIG_AT91SAM9260EK
-int cs[][CFG_MAX_DATAFLASH_BANKS] = {
+struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
 	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 	{CFG_DATAFLASH_LOGIC_ADDR_CS1, 1}
 };
-#elif defined(CONFIG_AT91SAM9263EK)
-int cs[][CFG_MAX_DATAFLASH_BANKS] = {
-	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0}	/* Logical adress, CS */
+#elif defined(CONFIG_AT91SAM9263EK) || defined(CONFIG_AT91CAP9ADK)
+struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
+	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 };
 #else
-int cs[][CFG_MAX_DATAFLASH_BANKS] = {
+struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
 	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 	{CFG_DATAFLASH_LOGIC_ADDR_CS3, 3}
 };
 #endif
 
 /*define the area offsets*/
-#if defined(CONFIG_AT91SAM9261EK) || defined(CONFIG_AT91SAM9260EK) || defined(CONFIG_AT91SAM9263EK)
+#if defined(CONFIG_AT91SAM9261EK) || defined(CONFIG_AT91SAM9260EK) || \
+	defined(CONFIG_AT91SAM9263EK) || defined(CONFIG_AT91CAP9ADK)
 #if	defined(CONFIG_NEW_PARTITION)
 dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
 	{0x00000000,	0x00003FFF, 	FLAG_PROTECT_SET,	0,    		"Bootstrap"},  	/* ROM code */
@@ -114,7 +120,7 @@ int AT91F_DataflashInit (void)
 		dataflash_info[i].Desc.state = IDLE;
 		dataflash_info[i].id = 0;
 		dataflash_info[i].Device.pages_number = 0;
-		dfcode = AT91F_DataflashProbe (cs[i][1],
+		dfcode = AT91F_DataflashProbe (cs[i].cs,
 				&dataflash_info[i].Desc);
 
 		switch (dfcode) {
@@ -123,9 +129,9 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Device.pages_size = 528;
 			dataflash_info[i].Device.page_offset = 10;
 			dataflash_info[i].Device.byte_mask = 0x300;
-			dataflash_info[i].Device.cs = cs[i][1];
+			dataflash_info[i].Device.cs = cs[i].cs;
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
-			dataflash_info[i].logical_address = cs[i][0];
+			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
 			found[i] += dfcode;;
 			break;
@@ -135,9 +141,9 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Device.pages_size = 528;
 			dataflash_info[i].Device.page_offset = 10;
 			dataflash_info[i].Device.byte_mask = 0x300;
-			dataflash_info[i].Device.cs = cs[i][1];
+			dataflash_info[i].Device.cs = cs[i].cs;
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
-			dataflash_info[i].logical_address = cs[i][0];
+			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
 			found[i] += dfcode;;
 			break;
@@ -147,9 +153,9 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Device.pages_size = 1056;
 			dataflash_info[i].Device.page_offset = 11;
 			dataflash_info[i].Device.byte_mask = 0x700;
-			dataflash_info[i].Device.cs = cs[i][1];
+			dataflash_info[i].Device.cs = cs[i].cs;
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
-			dataflash_info[i].logical_address = cs[i][0];
+			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
 			found[i] += dfcode;;
 			break;
@@ -159,9 +165,9 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].Device.pages_size = 1056;
 			dataflash_info[i].Device.page_offset = 11;
 			dataflash_info[i].Device.byte_mask = 0x700;
-			dataflash_info[i].Device.cs = cs[i][1];
+			dataflash_info[i].Device.cs = cs[i].cs;
 			dataflash_info[i].Desc.DataFlash_state = IDLE;
-			dataflash_info[i].logical_address = cs[i][0];
+			dataflash_info[i].logical_address = cs[i].addr;
 			dataflash_info[i].id = dfcode;
 			found[i] += dfcode;;
 			break;
