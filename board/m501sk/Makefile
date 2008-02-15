@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,25 +23,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB    = lib$(BOARD).a
 
-START	= start.o
-COBJS	= cpu.o
+OBJS   := m501sk.o eeprom.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
-START	:= $(addprefix $(obj),$(START))
+SOBJS  := memsetup.o
 
-all:	$(obj).depend $(START) $(LIB)
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) crv $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:     clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
+		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
 
-sinclude $(obj).depend
+-include .depend
 
 #########################################################################

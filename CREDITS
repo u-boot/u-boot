@@ -391,6 +391,10 @@ E: dan.poirot@windriver.com
 D: Support for the Wind River sbc405, sbc8240 board
 W: http://www.windriver.com
 
+N: Stelian Pop
+E: stelian.pop@leadtechdesign.com
+D: Atmel AT91CAP9ADK support
+
 N: Stefan Roese
 E: sr@denx.de
 D: AMCC PPC4xx Support
@@ -509,3 +513,19 @@ N: Nobuhiro Iwamatsu
 E: iwamatsu@nigauri.org
 D: Support for SuperH, MS7750SE01 and  MS7722SE01 boards.
 W: http://www.nigauri.org/~iwamatsu/
+
+N: Alan Lu
+E: alnalu001@gmail.com
+D: Support for Artila M-501 starter kit
+W: http://www.artila.com/
+
+N: Kimmo Leppala
+E: kimmo.leppala@sysart.fi
+D: Support for Artila M-501 starter kit
+W: http://www.sysart.fi/
+
+N: Timo Tuunainen
+E: timo.tuunainen@sysart.fi
+D: Support for Artila M-501 starter kit
+W: http://www.sysart.fi/
+

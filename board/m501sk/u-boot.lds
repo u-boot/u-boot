@@ -1,20 +1,6 @@
 /*
- * (C) Copyright 2003
- * Texas Instruments <www.ti.com>
- *
  * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Alex Zuepke <azu@sysgo.de>
- *
- * (C) Copyright 2002-2004
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
- *
- * (C) Copyright 2004
- * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -35,23 +21,35 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <arm926ejs.h>
-
-#if defined(CONFIG_INTEGRATOR) || defined(CONFIG_AT91CAP9ADK)
-
-	/* Timer functionality supplied by Integrator board (AP or CP) */
-
-#else
-
-/* nothing really to do with interrupts, just starts up a counter. */
-int interrupt_init (void)
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
 {
-	extern void timer_init(void);
+	. = 0x00000000;
 
-  	timer_init();
+	. = ALIGN(4);
+	.text      :
+	{
+	 cpu/arm920t/start.o   (.text)
+	 *(.text)
+	}
 
-	return 0;
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
 }
-
-#endif /* CONFIG_INTEGRATOR */

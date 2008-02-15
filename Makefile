@@ -2310,8 +2310,11 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
+at91cap9adk_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91cap9
+
 at91rm9200dk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk NULL at91rm9200
+	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
@@ -2322,6 +2325,8 @@ csb637_config	:	unconfig
 mp2usb_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
+m501sk_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t m501sk NULL at91rm9200
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
@@ -2362,17 +2367,8 @@ mx1ads_config	:	unconfig
 mx1fs2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mx1fs2 NULL imx
 
-netstar_32_config	\
 netstar_config:		unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _32_,$@)" ] ; then \
-		$(XECHO) "... 32MB SDRAM" ; \
-		echo "#define PHYS_SDRAM_1_SIZE SZ_32M" >>$(obj)include/config.h ; \
-	else \
-		$(XECHO) "... 64MB SDRAM" ; \
-		echo "#define PHYS_SDRAM_1_SIZE SZ_64M" >>$(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -a netstar arm arm925t netstar
+	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
 
 omap1510inn_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn

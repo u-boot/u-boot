@@ -222,6 +222,12 @@
 #define MACB_TX_PAUSE_ZERO_OFFSET		3
 #define MACB_TX_PAUSE_ZERO_SIZE			1
 
+/* Bitfields in USRIO (AT91) */
+#define MACB_RMII_OFFSET			0
+#define MACB_RMII_SIZE				1
+#define MACB_CLKEN_OFFSET			1
+#define MACB_CLKEN_SIZE				1
+
 /* Bitfields in WOL */
 #define MACB_IP_OFFSET				0
 #define MACB_IP_SIZE				16
