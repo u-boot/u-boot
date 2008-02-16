@@ -326,6 +326,9 @@ $(LIBS):	depend $(obj)include/autoconf.mk
 $(SUBDIRS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C $@ all
 
+$(LDSCRIPT):	depend $(obj)include/autoconf.mk
+		$(MAKE) -C $(dir $@) $(notdir $@)
+
 $(NAND_SPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
