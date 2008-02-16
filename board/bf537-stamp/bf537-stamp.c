@@ -54,51 +54,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define POST_WORD_ADDR 0xFF903FFC
 
-/*
- * the bootldr command loads an address, checks to see if there
- *   is a Boot stream that the on-chip BOOTROM can understand,
- *   and loads it via the BOOTROM Callback. It is possible
- *   to also add booting from SPI, or TWI, but this function does
- *   not currently support that.
- */
-int do_bootldr(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
-{
-	ulong addr, entry;
-	ulong *data;
-
-	/* Get the address */
-	if (argc < 2) {
-		addr = load_addr;
-	} else {
-		addr = simple_strtoul(argv[1], NULL, 16);
-	}
-
-	/* Check if it is a LDR file */
-	data = (ulong *) addr;
-	if (*data == 0xFF800060 || *data == 0xFF800040 || *data == 0xFF800020) {
-		/* We want to boot from FLASH or SDRAM */
-		entry = _BOOTROM_BOOT_DXE_FLASH;
-		printf("## Booting ldr image at 0x%08lx ...\n", addr);
-		if (icache_status())
-			icache_disable();
-		if (dcache_status())
-			dcache_disable();
-
-	      __asm__("R7=%[a];\n" "P0=%[b];\n" "JUMP (P0);\n":
-	      :[a] "d"(addr),[b] "a"(entry)
-	      :"R7", "P0");
-
-	} else {
-		printf("## No ldr image at address 0x%08lx\n", addr);
-	}
-
-	return 0;
-}
-
-U_BOOT_CMD(bootldr, 2, 0, do_bootldr,
-	   "bootldr - boot ldr image from memory\n",
-	   "[addr]\n         - boot ldr image stored in memory\n");
-
 int checkboard(void)
 {
 #if (BFIN_CPU == ADSP_BF534)
