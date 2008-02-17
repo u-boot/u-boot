@@ -1,3 +1,78 @@
+commit b738654d3c84a30f2bfd9a8d7652ff20807c890c
+Author: Mike Nuss <mike@terascala.com>
+Date:	Wed Feb 6 11:10:11 2008 -0500
+
+    PPC440EPx: Optionally enable second I2C bus
+
+    The option CONFIG_I2C_MULTI_BUS does not have any effect on Sequoia, the
+    PPC440EPx reference platform, because IIC1 is never enabled. Add Sequoia board
+    code to turn on IIC1 if CONFIG_I2C_MULTI_BUS is selected.
+
+    Signed-off-by: Mike Nuss <mike@terascala.com>
+    Cc: Stefan Roese <sr@denx.de>
+
+commit ef5b4f221c22d05770878513951745f236b5b43f
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Tue Feb 5 10:26:44 2008 +0100
+
+    ppc4xx: HCU4/5. Cleanup configs
+
+    - hcu4.h: Removed define of CONFIG_PPC405GPr
+    - Corrected phy addresses
+    - Fix boot variables
+    - Respect line length of 80 chars
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 74973126d1be63ac75bdc192f46234dca3a7c421
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Tue Feb 5 11:31:28 2008 +0100
+
+    ppc4xx: HCU4/5. Cleanups
+
+    - Fix some coding style violations.
+    - Use in/out_u16/32 where appropriate.
+    - Use register names from ppc405.h.
+    - Fix trace useage for Lauterbach.
+    - Remove obsolete generation HCU2.
+    - Renamed fixed_hcu4_sdram to init_ppc405_sdram.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 8cc10d06b833ed917a19ad358c8ebbed8bc19555
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Tue Feb 5 10:26:41 2008 +0100
+
+    ppc4xx: PPC405GPr fix missing register definitions
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 214398d9cb22268d9d4f7563359edca0f78297a2
+Author: Larry Johnson <lrj@acm.org>
+Date:	Fri Jan 18 21:49:05 2008 -0500
+
+    ppc4xx: Beautify configuration files for Sequoia and Korat boards
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 30c6a241e88499f536e86d325759e29ba00ff67f
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Feb 15 20:09:01 2008 +0100
+
+    Wipe out assembler warnings while compiling x86 biosemu
+
+    This patch tries to get rid of some assembler warnings about
+    changed .got2 section type while compiling x86 bios emulator
+    code.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 67a4389e39ad853d65b72e2b7cad15c7e8291147
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Feb 15 00:57:09 2008 +0100
+
+    Prepare v1.3.2-rc1 release candidate
+
 commit f33e9653c9c09868995d788511d573771c209fe5
 Author: Anatolij Gustschin <agust@denx.de>
 Date:	Fri Feb 15 00:13:20 2008 +0100
@@ -245,6 +320,137 @@ Date:	Wed Jan 23 15:55:02 2008 -0600
     sys_eeprom.c:82:9: warning: unknown escape sequence '\/'
 
     Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 65230107025733e89e28fd5e5cfd916d4953c28a
+Author: Haavard Skinnemoen <hskinnemoen at>
+Date:	Fri Feb 22 11:40:50 2008 +0000
+
+    Move AT91RM9200DK board support under board/atmel
+
+    We already have a vendor subdir for Atmel, so we should use it.
+
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
+
+commit 6d0943a6be99977d6d853d51749e9963d68eb192
+Author: Andreas Engel <andreas.engel@ericsson.com>
+Date:	Mon Jan 14 09:06:52 2008 +0000
+
+    ARM: cleanup duplicated exception handlingcode
+
+    Move duplicated exception handling code into lib_arm.
+
+    Signed-off-by: Andreas Engel <andreas.engel@ericsson.com>
+
+commit ea8d989f4ef8203e1c0291e62435a8c62e3cfb29
+Author: Timo Tuunainen <timo.tuunainen@sysart.fi>
+Date:	Fri Feb 1 10:09:03 2008 +0000
+
+    Support for Artila M-501 starter kit
+
+    Kimmo Leppala / Sysart and
+    Timo Tuunainen / Sysart
+
+commit 9604b6e53ddae4fe00a488cbcd6b0e6cb344bccc
+Author: Stelian Pop <stelian@popies.net>
+Date:	Mon Feb 11 10:50:19 2008 +0000
+
+    AT91CAP9 support
+
+    ---------------------------------
+
+    read_dataflash() takes a signed char pointer as a parameter. Silence a
+    few warnings dues to incorrect parameter types in env_dataflash.c.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 64e8a06af68cda174a8a06d0a61fce5e5bb189d7
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu Feb 7 09:42:57 2008 +0000
+
+    AT91CAP9 support : move board files to Atmel vendor directory.
+
+    AT91CAP9 support : move at91cap9adk board files to Atmel vendor directory.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 7263ef191b87da94768f762c7093bedeb70db98f
+Author: Stelian Pop <stelian at>
+Date:	Thu Jan 3 21:15:56 2008 +0000
+
+    AT91CAP9 support : MACB changes
+
+    Signed-off-by: Stelian Pop <stelian <at> popies.net>
+    Acked-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
+
+commit 6afcabf11d7321850f4feaadfee841488ace54c5
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu Feb 7 16:37:54 2008 +0000
+
+    AT91CAP9 support : board/ files
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit fefb6c10928caa9e71335cad64dcb65c83fce8ab
+Author: Stelian Pop <stelian at>
+Date:	Wed Jan 30 21:15:54 2008 +0000
+
+    AT91CAP9 support : cpu/ files
+
+    Signed-off-by: Stelian Pop <stelian <at> popies.net>
+
+commit fa506a926cec348805143576c941f8e61b333cc0
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu Jan 31 21:15:53 2008 +0000
+
+    AT91CAP9 support : include/ files
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 20b197c6f2799af399a68f96a1aff543a75621b8
+Author: Stelian Pop <stelian@popies.net>
+Date:	Sun Jan 20 19:49:21 2008 +0000
+
+    AT91CAP9 support : build integration
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit d49fe4bed5b69ec910909d1bd62da23ecd8801fd
+Author: Stelian Pop <stelian@popies.net>
+Date:	Sun Jan 20 21:07:00 2008 +0000
+
+    Improve DataFlash CS definition.
+
+    Use a structure instead of the error prone unnamed array to
+    define the possible dataflash banks.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit a6cdd21b56014208706238712a853a9e9a0a2290
+Author: Stelian Pop <stelian@popies.net>
+Date:	Sat Jan 19 21:09:35 2008 +0000
+
+    Fix arm926ejs compile when SKIP_LOWLEVEL_INIT is on
+
+    Fix arm926ejs compile when SKIP_LOWLEVEL_INIT is on.
+
+    cpu/arm926ejs/start.o: In function `cpu_init_crit':
+    .../cpu/arm926ejs/start.S:227: undefined reference to `lowlevel_init'
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit ea686f52e45b3df2938866d3f5a98bb2556dfe2b
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri Feb 1 16:50:24 2008 +0000
+
+    Fix timer overflow in DaVinci
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit f4e7cbfcb0fcbc325a2bcfea7e00e3dd37f93846
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Fri Feb 1 16:49:08 2008 +0000
+
+    Update board NetStar
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 
 commit b7f6193e76651e1fd606e46eb11915b53cb6618b
 Author: Niklaus Giger <niklaus.giger@netstal.com>
