@@ -24,6 +24,9 @@
 
 #include <common.h>
 #include <asm/arch/AT91CAP9.h>
+#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
+#include <net.h>
+#endif
 
 #define MP_BLOCK_3_BASE	0xFDF00000
 
