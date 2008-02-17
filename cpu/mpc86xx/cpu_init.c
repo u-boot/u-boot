@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <mpc86xx.h>
+#include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
