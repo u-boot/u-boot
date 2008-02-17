@@ -29,7 +29,7 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o kgdb.o
 COBJS	= bedbug_860.o commproc.o cpu.o cpu_init.o	\
-	  fec.o i2c.o interrupts.o lcd.o scc.o		\
+	  fec.o fdt.o i2c.o interrupts.o lcd.o scc.o	\
 	  serial.o speed.o spi.o \
 	  traps.o upatch.o video.o
 SOBJS	= plprcr_write.o

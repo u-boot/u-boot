@@ -637,14 +637,3 @@ void reset_8xx_watchdog (volatile immap_t * immr)
 
 #endif /* CONFIG_WATCHDOG */
 
-/* ------------------------------------------------------------------------- */
-#if defined(CONFIG_OF_LIBFDT)
-void ft_cpu_setup (void *blob, bd_t *bd)
-{
-	char * cpu_path = "/cpus/" OF_CPU;
-
-	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
-	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
-}
-#endif /* CONFIG_OF_LIBFDT */

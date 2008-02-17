@@ -40,8 +40,11 @@ typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned long	baudrate;
-	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
+	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	bus_clk;
+#if defined(CONFIG_8xx)
+	unsigned long	brg_clk;
+#endif
 #if defined(CONFIG_CPM2)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long	vco_out;
