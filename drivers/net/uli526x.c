@@ -32,9 +32,9 @@
 #define ULI5261_DEVICE_ID	0x5261
 #define ULI5263_DEVICE_ID	0x5263
 /* ULi M5261 ID*/
-#define PCI_ULI5261_ID		ULI5261_DEVICE_ID << 16 | ULI_VENDOR_ID
+#define PCI_ULI5261_ID		(ULI5261_DEVICE_ID << 16 | ULI_VENDOR_ID)
 /* ULi M5263 ID*/
-#define PCI_ULI5263_ID		ULI5263_DEVICE_ID << 16 | ULI_VENDOR_ID
+#define PCI_ULI5263_ID		(ULI5263_DEVICE_ID << 16 | ULI_VENDOR_ID)
 
 #define ULI526X_IO_SIZE	0x100
 #define TX_DESC_CNT	0x10		/* Allocated Tx descriptors */
@@ -281,7 +281,7 @@ static int uli526x_init_one(struct eth_device *dev, bd_t *bis)
 	if (db->desc_pool_ptr == NULL)
 		return -1;
 
-	db->buf_pool_ptr = &buf_pool[0];
+	db->buf_pool_ptr = (uchar *)&buf_pool[0];
 	db->buf_pool_dma_ptr = (dma_addr_t)&buf_pool[0];
 	if (db->buf_pool_ptr == NULL)
 		return -1;
@@ -588,7 +588,7 @@ static int uli526x_rx_packet(struct eth_device *dev)
 					__FUNCTION__, i, rxptr->rx_buf_ptr[i]);
 #endif
 
-				NetReceive(rxptr->rx_buf_ptr, rxlen);
+				NetReceive((uchar *)rxptr->rx_buf_ptr, rxlen);
 				uli526x_reuse_buf(rxptr);
 
 			} else {
@@ -656,7 +656,7 @@ static void uli526x_descriptor_init(struct uli526x_board_info *db,
 	tmp_tx_dma = db->first_tx_desc_dma;
 	for (tmp_tx = db->first_tx_desc, i = 0;
 			i < TX_DESC_CNT; i++, tmp_tx++) {
-		tmp_tx->tx_buf_ptr = tmp_buf;
+		tmp_tx->tx_buf_ptr = (char *)tmp_buf;
 		tmp_tx->tdes0 = cpu_to_le32(0);
 		tmp_tx->tdes1 = cpu_to_le32(0x81000000);	/* IC, chain */
 		tmp_tx->tdes2 = cpu_to_le32(tmp_buf_dma);
