@@ -5,6 +5,8 @@
 #ifndef __CONFIG_EZKIT533_H__
 #define __CONFIG_EZKIT533_H__
 
+#include <asm/blackfin-config-pre.h>
+
 #define CONFIG_BAUDRATE		57600
 #define CONFIG_STAMP		1
 
@@ -41,10 +43,7 @@
 
 #define CONFIG_PANIC_HANG 1
 
-#define ADSP_BF531		0x31
-#define ADSP_BF532		0x32
-#define ADSP_BF533		0x33
-#define BFIN_CPU		ADSP_BF533
+#define CONFIG_BFIN_CPU	bf533-0.3
 
 /* This sets the default state of the cache on U-Boot's boot */
 #define CONFIG_ICACHE_ON
@@ -120,7 +119,7 @@
 
 #define CONFIG_BOOTARGS "root=/dev/mtdblock0 ip=192.168.0.15:192.168.0.2:192.168.0.1:255.255.255.0:ezkit:eth0:off console=ttyBF0,57600"
 
-#define	CFG_PROMPT		"ezkit> "	/* Monitor Command Prompt */
+#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
 #else

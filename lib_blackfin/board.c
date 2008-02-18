@@ -116,6 +116,7 @@ static int display_banner(void)
 {
 	sprintf(version_string, VERSION_STRING_FORMAT, VERSION_STRING);
 	printf("%s\n", version_string);
+	printf("CPU:   ADSP " MK_STR(CONFIG_BFIN_CPU) " (Detected Rev: 0.%d)\n", bfin_revid());
 	return (0);
 }
 
@@ -404,7 +405,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	misc_init_r();
 #endif
 
-#if ((BFIN_CPU == ADSP_BF537) || (BFIN_CPU == ADSP_BF536))
+#ifdef CONFIG_CMD_NET
 	printf("Net:    ");
 	eth_initialize(bd);
 #endif

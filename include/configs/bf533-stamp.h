@@ -5,6 +5,8 @@
 #ifndef __CONFIG_STAMP_H__
 #define __CONFIG_STAMP_H__
 
+#include <asm/blackfin-config-pre.h>
+
 #define CONFIG_STAMP			1
 #define CONFIG_RTC_BFIN			1
 #define CONFIG_BF533			1
@@ -21,10 +23,7 @@
 
 #define CONFIG_PANIC_HANG 1
 
-#define ADSP_BF531		0x31
-#define ADSP_BF532		0x32
-#define ADSP_BF533		0x33
-#define BFIN_CPU		ADSP_BF533
+#define CONFIG_BFIN_CPU	bf533-0.3
 
 /* This sets the default state of the cache on U-Boot's boot */
 #define CONFIG_ICACHE_ON
@@ -329,23 +328,7 @@
 #define CONFIG_BAUDRATE		57600
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#if (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#if (BFIN_CPU == ADSP_BF531)
-#define	CFG_PROMPT	"serial_bf531> "	/* Monitor Command Prompt */
-#elif (BFIN_CPU == ADSP_BF532)
-#define	CFG_PROMPT	"serial_bf532> "	/* Monitor Command Prompt */
-#else
-#define	CFG_PROMPT	"serial_bf533> "	/* Monitor Command Prompt */
-#endif
-#else
-#if (BFIN_CPU == ADSP_BF531)
-#define	CFG_PROMPT	"bf531> "	/* Monitor Command Prompt */
-#elif (BFIN_CPU == ADSP_BF532)
-#define	CFG_PROMPT	"bf532> "	/* Monitor Command Prompt */
-#else
-#define	CFG_PROMPT	"bf533> "	/* Monitor Command Prompt */
-#endif
-#endif
+#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
