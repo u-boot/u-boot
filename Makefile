@@ -244,7 +244,7 @@ LIBS += libfdt/libfdt.a
 LIBS += api/libapi.a
 
 LIBS := $(addprefix $(obj),$(LIBS))
-.PHONY : $(LIBS)
+.PHONY : $(LIBS) $(VERSION_FILE)
 
 # Add GCC lib
 PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
