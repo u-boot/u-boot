@@ -69,10 +69,8 @@ static int _blocks_misordered(const void *fdt,
 
 static int rw_check_header(void *fdt)
 {
-	int err;
+	CHECK_HEADER(fdt);
 
-	if ((err = fdt_check_header(fdt)))
-		return err;
 	if (fdt_version(fdt) < 17)
 		return -FDT_ERR_BADVERSION;
 	if (_blocks_misordered(fdt, sizeof(struct fdt_reserve_entry),
@@ -399,9 +397,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	int newsize;
 	void *tmp;
 
-	err = fdt_check_header(fdt);
-	if (err)
-		return err;
+	CHECK_HEADER(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);

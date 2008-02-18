@@ -184,10 +184,7 @@ const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
-	int err = fdt_check_header(fdt);
-
-	if (err)
-		return err;
+	CHECK_HEADER(fdt);
 
 	if (fdt_totalsize(fdt) > bufsize)
 		return -FDT_ERR_NOSPACE;

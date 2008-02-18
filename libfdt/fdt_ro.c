@@ -55,13 +55,6 @@
 
 #include "libfdt_internal.h"
 
-#define CHECK_HEADER(fdt) \
-	{ \
-		int err; \
-		if ((err = fdt_check_header(fdt)) != 0) \
-			return err; \
-	}
-
 static int nodename_eq(const void *fdt, int offset,
 		       const char *s, int len)
 {
