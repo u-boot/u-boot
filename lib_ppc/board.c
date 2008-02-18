@@ -361,6 +361,20 @@ init_fnc_t *init_sequence[] = {
 	NULL,			/* Terminate this list */
 };
 
+#ifndef CONFIG_MAX_MEM_MAPPED
+#define CONFIG_MAX_MEM_MAPPED (256 << 20)
+#endif
+ulong get_effective_memsize(void)
+{
+#ifndef	CONFIG_VERY_BIG_RAM
+	return gd->ram_size;
+#else
+	/* limit stack to what we can reasonable map */
+	return ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
+		 CONFIG_MAX_MEM_MAPPED : gd->ram_size);
+#endif
+}
+
 /************************************************************************
  *
  * This is the first part of the initialization sequence that is
@@ -419,13 +433,7 @@ void board_init_f (ulong bootflag)
 	 */
 	len = (ulong)&_end - CFG_MONITOR_BASE;
 
-#ifndef	CONFIG_VERY_BIG_RAM
-	addr = CFG_SDRAM_BASE + gd->ram_size;
-#else
-	/* only allow stack below 256M */
-	addr = CFG_SDRAM_BASE +
-	       (gd->ram_size > 256 << 20) ? 256 << 20 : gd->ram_size;
-#endif
+	addr = CFG_SDRAM_BASE + get_effective_memsize();
 
 #ifdef CONFIG_LOGBUFFER
 	/* reserve kernel log buffer */
