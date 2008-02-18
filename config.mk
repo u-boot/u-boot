@@ -69,6 +69,9 @@ PLATFORM_CPPFLAGS+= -D__ARM__
 endif
 endif
 
+# Load generated board configuration
+sinclude $(OBJTREE)/include/autoconf.mk
+
 ifdef	ARCH
 sinclude $(TOPDIR)/$(ARCH)_config.mk	# include architecture dependend rules
 endif
@@ -86,9 +89,6 @@ endif
 ifdef	BOARD
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules
 endif
-
-# Load generated board configuration
-sinclude $(OBJTREE)/include/autoconf.mk
 
 #########################################################################
 
