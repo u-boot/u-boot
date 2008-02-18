@@ -29,9 +29,6 @@
 #include <mpc86xx.h>
 #include <asm/fsl_law.h>
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
 
 int
 checkcpu(void)
@@ -268,64 +265,6 @@ dma_xfer(void *dest, uint count, void *src)
 
 #endif	/* CONFIG_DDR_ECC */
 
-
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_cpu_setup(void *blob, bd_t *bd)
-{
-	u32 *p;
-	ulong clock;
-	int len;
-
-	clock = bd->bi_busfreq;
-	p = ft_get_prop(blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4500/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-	p = ft_get_prop(blob, "/" OF_SOC "/serial@4600/clock-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32(clock);
-
-#if defined(CONFIG_TSEC1)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@24000/local-mac-address", &len);
-	if (p)
-		memcpy(p, bd->bi_enetaddr, 6);
-#endif
-
-#if defined(CONFIG_TSEC2)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@25000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet1addr, 6);
-#endif
-
-#if defined(CONFIG_TSEC3)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet2addr, 6);
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@26000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet2addr, 6);
-#endif
-
-#if defined(CONFIG_TSEC4)
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet3addr, 6);
-	p = ft_get_prop(blob, "/" OF_SOC "/ethernet@27000/local-mac-address", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enet3addr, 6);
-#endif
-#endif /* CONFIG_OF_FLAT_TREE */
 
 /*
  * Print out the state of various machine registers.
