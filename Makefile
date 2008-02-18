@@ -414,6 +414,7 @@ $(obj)System.map:	$(obj)u-boot
 # to regenerate the autoconf.mk file.
 $(obj)include/autoconf.mk: $(obj)include/config.h $(VERSION_FILE)
 	@$(XECHO) Generating include/autoconf.mk ; \
+	set -e ; \
 	: Generate the dependancies ; \
 	$(CC) -M $(HOST_CFLAGS) $(CPPFLAGS) -MQ $@ include/common.h > $@.dep ; \
 	: Extract the config macros ; \
