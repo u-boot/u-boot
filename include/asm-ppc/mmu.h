@@ -427,7 +427,6 @@ extern void disable_tlb(u8 esel);
 extern void invalidate_tlb(u8 tlb);
 extern void init_tlbs(void);
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \
 	{ .tlb = _tlb, .epn = _epn, .rpn = _rpn, .perms = _perms, \
 	  .wimge = _wimge, .ts = _ts, .esel = _esel, .tsize = _sz, .iprot = _iprot }

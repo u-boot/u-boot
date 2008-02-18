@@ -3,7 +3,6 @@
 
 #include <asm/io.h>
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define SET_LAW_ENTRY(idx, a, sz, trgt) \
 	{ .index = idx, .addr = a, .size = sz, .trgt_id = trgt }
 
