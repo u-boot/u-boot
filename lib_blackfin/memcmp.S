@@ -31,6 +31,7 @@
  */
 
 .globl _memcmp;
+.type _memcmp, STT_FUNC;
 _memcmp:
 	I1 = P3;
 	P0 = R0;			/* P0 = s1 address */
@@ -98,3 +99,5 @@ _memcmp:
 	R0 = 0;
 	P3 = I1;
 	RTS;
+
+.size _memcmp, .-_memcmp

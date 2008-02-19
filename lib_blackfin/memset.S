@@ -31,6 +31,7 @@
  */
 
 .globl _memset;
+.type _memset, STT_FUNC;
 _memset:
 	P0 = R0 ;              /* P0 = address */
 	P2 = R2 ;              /* P2 = count   */
@@ -91,3 +92,5 @@ _memset:
 	B[P0++] = R1;
 	B[P0++] = R1;
 	JUMP .Laligned;
+
+.size _memset, .-_memset

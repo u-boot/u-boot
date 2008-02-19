@@ -23,6 +23,7 @@
 .align 2
 
 .globl _memcpy_ASM;
+.type _memcpy_ASM, STT_FUNC;
 _memcpy_ASM:
 	CC = R2 <=  0;	/* length not positive?*/
 	IF CC JUMP  .L_P1L2147483647;	/* Nothing to do */
@@ -112,3 +113,5 @@ _memcpy_ASM:
 	B[P0--] = R1;
 
 	RTS;
+
+.size _memcpy_ASM, .-_memcpy_ASM

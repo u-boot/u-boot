@@ -31,6 +31,7 @@
  */
 
 .globl _memmove;
+.type _memmove, STT_FUNC;
 _memmove:
 	I1 = P3;
 	P0 = R0;                  /* P0 = To address */
@@ -91,3 +92,5 @@ _memmove:
 .Lno_loop: B[P0] = R1;
 	P3 = I1;
 	RTS;
+
+.size _memmove, .-_memmove
