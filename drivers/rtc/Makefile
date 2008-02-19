@@ -41,6 +41,7 @@ COBJS-y += ds174x.o
 COBJS-y += ds3231.o
 COBJS-y += m41t11.o
 COBJS-y += m41t60.o
+COBJS-$(CONFIG_RTC_M41T62) += m41t62.o
 COBJS-y += max6900.o
 COBJS-y += m48t35ax.o
 COBJS-y += mc146818.o
