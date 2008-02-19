@@ -1,7 +1,7 @@
 #
 # U-boot Makefile
 #
-# Copyright (c) 2005-2007 Analog Devices Inc.
+# Copyright (c) 2005-2008 Analog Devices Inc.
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -26,6 +26,8 @@
 #
 
 include $(TOPDIR)/config.mk
+
+CFLAGS += -DBFIN_BOARD_NAME='"$(BOARD)"'
 
 LIB	= $(obj)lib$(ARCH).a
 
