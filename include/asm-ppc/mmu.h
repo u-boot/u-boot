@@ -549,14 +549,14 @@ extern int num_tlb_entries;
 /*----------------------------------------------------------------------------+
 | TLB specific defines.
 +----------------------------------------------------------------------------*/
-#define TLB_256MB_ALIGN_MASK 0xF0000000
-#define TLB_16MB_ALIGN_MASK  0xFF000000
-#define TLB_1MB_ALIGN_MASK   0xFFF00000
-#define TLB_256KB_ALIGN_MASK 0xFFFC0000
-#define TLB_64KB_ALIGN_MASK  0xFFFF0000
-#define TLB_16KB_ALIGN_MASK  0xFFFFC000
-#define TLB_4KB_ALIGN_MASK   0xFFFFF000
-#define TLB_1KB_ALIGN_MASK   0xFFFFFC00
+#define TLB_256MB_ALIGN_MASK 0xFF0000000ULL
+#define TLB_16MB_ALIGN_MASK  0xFFF000000ULL
+#define TLB_1MB_ALIGN_MASK   0xFFFF00000ULL
+#define TLB_256KB_ALIGN_MASK 0xFFFFC0000ULL
+#define TLB_64KB_ALIGN_MASK  0xFFFFF0000ULL
+#define TLB_16KB_ALIGN_MASK  0xFFFFFC000ULL
+#define TLB_4KB_ALIGN_MASK   0xFFFFFF000ULL
+#define TLB_1KB_ALIGN_MASK   0xFFFFFFC00ULL
 #define TLB_256MB_SIZE       0x10000000
 #define TLB_16MB_SIZE        0x01000000
 #define TLB_1MB_SIZE         0x00100000
@@ -697,7 +697,7 @@ unsigned long mftlb1(unsigned long index);
 unsigned long mftlb2(unsigned long index);
 unsigned long mftlb3(unsigned long index);
 
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
+void program_tlb(u64 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
 void remove_tlb(u32 vaddr, u32 size);
 void change_tlb(u32 vaddr, u32 size, u32 tlb_word2_i_value);
 #endif /* __ASSEMBLY__ */

@@ -70,8 +70,6 @@ void dflush(void);
 #define MY_TLB_WORD2_I_ENABLE TLB_WORD2_I_ENABLE
 	/* disable caching on DDR2 */
 
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
-
 void board_add_ram_info(int use_default)
 {
 	PPC4xx_SYS_INFO board_cfg;

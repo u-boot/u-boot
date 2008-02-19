@@ -42,8 +42,6 @@
 
 #define CACHE_POST_SIZE	1024
 
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value);
-
 int cache_post_test1 (int tlb, void *p, int size);
 int cache_post_test2 (int tlb, void *p, int size);
 int cache_post_test3 (int tlb, void *p, int size);

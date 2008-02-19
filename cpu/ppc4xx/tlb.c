@@ -31,9 +31,9 @@
 #include <asm/mmu.h>
 
 typedef struct region {
-	unsigned long base;
-	unsigned long size;
-	unsigned long tlb_word2_i_value;
+	u64 base;
+	u32 size;
+	u32 tlb_word2_i_value;
 } region_t;
 
 void remove_tlb(u32 vaddr, u32 size)
@@ -182,10 +182,10 @@ void change_tlb(u32 vaddr, u32 size, u32 tlb_word2_i_value)
 	asm("isync");
 }
 
-static int add_tlb_entry(unsigned long phys_addr,
-			 unsigned long virt_addr,
-			 unsigned long tlb_word0_size_value,
-			 unsigned long tlb_word2_i_value)
+static int add_tlb_entry(u64 phys_addr,
+			 u32 virt_addr,
+			 u32 tlb_word0_size_value,
+			 u32 tlb_word2_i_value)
 {
 	int i;
 	unsigned long tlb_word0_value;
@@ -204,7 +204,8 @@ static int add_tlb_entry(unsigned long phys_addr,
 	/* Second, create the TLB entry */
 	tlb_word0_value = TLB_WORD0_EPN_ENCODE(virt_addr) | TLB_WORD0_V_ENABLE |
 		TLB_WORD0_TS_0 | tlb_word0_size_value;
-	tlb_word1_value = TLB_WORD1_RPN_ENCODE(phys_addr) | TLB_WORD1_ERPN_ENCODE(0);
+	tlb_word1_value = TLB_WORD1_RPN_ENCODE((u32)phys_addr) |
+		TLB_WORD1_ERPN_ENCODE(phys_addr >> 32);
 	tlb_word2_value = TLB_WORD2_U0_DISABLE | TLB_WORD2_U1_DISABLE |
 		TLB_WORD2_U2_DISABLE | TLB_WORD2_U3_DISABLE |
 		TLB_WORD2_W_DISABLE | tlb_word2_i_value |
@@ -228,10 +229,10 @@ static int add_tlb_entry(unsigned long phys_addr,
 	return 0;
 }
 
-static void program_tlb_addr(unsigned long phys_addr,
-			     unsigned long virt_addr,
-			     unsigned long mem_size,
-			     unsigned long tlb_word2_i_value)
+static void program_tlb_addr(u64 phys_addr,
+			     u32 virt_addr,
+			     u32 mem_size,
+			     u32 tlb_word2_i_value)
 {
 	int rc;
 	int tlb_i;
@@ -331,7 +332,7 @@ static void program_tlb_addr(unsigned long phys_addr,
  * Common usage for boards with SDRAM DIMM modules to dynamically
  * configure the TLB's for the SDRAM
  */
-void program_tlb(u32 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value)
+void program_tlb(u64 phys_addr, u32 virt_addr, u32 size, u32 tlb_word2_i_value)
 {
 	region_t region_array;
 
