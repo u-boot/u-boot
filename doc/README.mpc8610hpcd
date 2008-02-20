@@ -65,3 +65,9 @@ Examples;
 	 * 40 is SYSCLK, 2.5 is COREPLL ratio, 10 is MPXPLL ratio
 	 */
 	pixis-reset altbank cf 40 2.5 10
+
+
+DIP Switch Settings
+-------------------
+To manually switch the flash banks using the DIP switch
+settings, toggle both SW6:1 and SW6:2.
