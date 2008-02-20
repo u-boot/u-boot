@@ -324,7 +324,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Set boot cpu id
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'b') && (argv[1][1] == 'o')) {
+	} else if ((argv[1][0] == 'b') && (argv[1][1] == 'o') &&
+		   (argv[1][2] == 'o')) {
 		unsigned long tmp = simple_strtoul(argv[2], NULL, 16);
 		fdt_set_boot_cpuid_phys(fdt, tmp);
 
