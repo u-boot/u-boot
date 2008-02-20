@@ -24,7 +24,7 @@
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 /* video */
-#define CONFIG_VIDEO
+#undef CONFIG_VIDEO
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_CFB_CONSOLE
