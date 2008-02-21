@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Larry Johnson, lrj@acm.org
  *
  * based on dtt/lm75.c which is ...
@@ -39,10 +39,10 @@
  */
 #define DTT_I2C_DEV_CODE 0x48	/* National Semi's LM73 device */
 
-int dtt_read(int sensor, int reg)
+int dtt_read(int const sensor, int const reg)
 {
 	int dlen;
-	uchar data[2];
+	uint8_t data[2];
 
 	/*
 	 * Validate 'reg' param and get register size.
@@ -62,27 +62,24 @@ int dtt_read(int sensor, int reg)
 		return -1;
 	}
 	/*
-	 * Calculate sensor address and register.
+	 * Try to read the register at the calculated sensor address.
 	 */
-	sensor = DTT_I2C_DEV_CODE + (sensor & 0x07);	/* calculate LM73 addr */
-	/*
-	 * Now try to read the register.
-	 */
-	if (i2c_read(sensor, reg, 1, data, dlen) != 0)
+	if (0 !=
+	    i2c_read(DTT_I2C_DEV_CODE + (sensor & 0x07), reg, 1, data, dlen))
 		return -1;
 	/*
 	 * Handle 2 byte result.
 	 */
 	if (2 == dlen)
-		return ((int)((short)data[1] + (((short)data[0]) << 8)));
+		return (int)((unsigned)data[0] << 8 | (unsigned)data[1]);
 
 	return (int)data[0];
 } /* dtt_read() */
 
-int dtt_write(int sensor, int reg, int val)
+int dtt_write(int const sensor, int const reg, int const val)
 {
 	int dlen;
-	uchar data[2];
+	uint8_t data[2];
 
 	/*
 	 * Validate 'reg' param and handle register size
@@ -91,28 +88,25 @@ int dtt_write(int sensor, int reg, int val)
 	case DTT_CONFIG:
 	case DTT_CONTROL:
 		dlen = 1;
-		data[0] = (char)(val & 0xff);
+		data[0] = (uint8_t) val;
 		break;
 	case DTT_TEMP_HIGH:
 	case DTT_TEMP_LOW:
 		dlen = 2;
-		data[0] = (char)((val >> 8) & 0xff);	/* MSB first */
-		data[1] = (char)(val & 0xff);
+		data[0] = (uint8_t) (val >> 8);	/* MSB first */
+		data[1] = (uint8_t) val;
 		break;
 	default:
 		return -1;
 	}
 	/*
-	 * Calculate sensor address and register.
+	 * Write value to register at the calculated sensor address.
 	 */
-	sensor = DTT_I2C_DEV_CODE + (sensor & 0x07);	/* calculate LM73 addr */
-	/*
-	 * Write value to register.
-	 */
-	return i2c_write(sensor, reg, 1, data, dlen) != 0;
+	return 0 != i2c_write(DTT_I2C_DEV_CODE + (sensor & 0x07), reg, 1, data,
+			      dlen);
 } /* dtt_write() */
 
-static int _dtt_init(int sensor)
+static int _dtt_init(int const sensor)
 {
 	int val;
 
@@ -120,31 +114,31 @@ static int _dtt_init(int sensor)
 	 * Validate the Identification register
 	 */
 	if (0x0190 != dtt_read(sensor, DTT_ID))
-		return 1;
+		return -1;
 	/*
 	 * Setup THIGH (upper-limit) and TLOW (lower-limit) registers
 	 */
 	val = CFG_DTT_MAX_TEMP << 7;
 	if (dtt_write(sensor, DTT_TEMP_HIGH, val))
-		return 1;
+		return -1;
 
 	val = CFG_DTT_MIN_TEMP << 7;
 	if (dtt_write(sensor, DTT_TEMP_LOW, val))
-		return 1;
+		return -1;
 	/*
 	 * Setup configuraton register
 	 */
 	/* config = alert active low, disabled, and reset */
 	val = 0x64;
 	if (dtt_write(sensor, DTT_CONFIG, val))
-		return 1;
+		return -1;
 	/*
 	 * Setup control/status register
 	 */
 	/* control = temp resolution 0.25C */
 	val = 0x00;
 	if (dtt_write(sensor, DTT_CONTROL, val))
-		return 1;
+		return -1;
 
 	dtt_read(sensor, DTT_CONTROL);	/* clear temperature flags */
 	return 0;
@@ -157,7 +151,7 @@ int dtt_init(void)
 	const char *const header = "DTT:   ";
 
 	for (i = 0; i < sizeof(sensors); i++) {
-		if (_dtt_init(sensors[i]) != 0)
+		if (0 != _dtt_init(sensors[i]))
 			printf("%s%d FAILED INIT\n", header, i + 1);
 		else
 			printf("%s%d is %i C\n", header, i + 1,
@@ -166,7 +160,13 @@ int dtt_init(void)
 	return 0;
 } /* dtt_init() */
 
-int dtt_get_temp(int sensor)
+int dtt_get_temp(int const sensor)
 {
-	return (dtt_read(sensor, DTT_READ_TEMP) + 0x0040) >> 7;
+	int const ret = dtt_read(sensor, DTT_READ_TEMP);
+
+	if (ret < 0) {
+		printf("DTT temperature read failed.\n");
+		return 0;
+	}
+	return (int)((int16_t) ret + 0x0040) >> 7;
 } /* dtt_get_temp() */
