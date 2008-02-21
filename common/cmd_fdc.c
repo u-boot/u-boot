@@ -840,7 +840,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("Bad Magic Number\n");
 		return 1;
 	}
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	imsize= image_get_image_size (hdr);
 	nrofblk=imsize/512;

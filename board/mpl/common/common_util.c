@@ -185,7 +185,7 @@ mpl_prg_image(uchar *ld_addr)
 		puts("Bad Magic Number\n");
 		return 1;
 	}
-	print_image_hdr(hdr);
+	image_print_contents (hdr);
 	if (!image_check_os (hdr, IH_OS_U_BOOT)) {
 		puts("No U-Boot Image\n");
 		return 1;

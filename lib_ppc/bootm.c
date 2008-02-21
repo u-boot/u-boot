@@ -254,7 +254,7 @@ static ulong get_fdt (ulong alloc_current,
 			printf ("## Flattened Device Tree Image at %08lx\n",
 					fdt_hdr);
 
-			print_image_hdr (fdt_hdr);
+			image_print_contents (fdt_hdr);
 
 			image_start = (ulong)fdt_hdr;
 			image_end = image_get_image_end (fdt_hdr);

@@ -70,7 +70,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 #ifdef DEBUG
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 #endif
 
 	if (!image_check_type (hdr, IH_TYPE_MULTI)) {

@@ -462,7 +462,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (50);
 
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	cnt = image_get_image_size (hdr);
 	cnt += info.blksz - 1;

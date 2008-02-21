@@ -41,6 +41,10 @@
 #include <logbuff.h>
 #endif
 
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
+#include <rtc.h>
+#endif
+
 #if defined(CONFIG_FIT)
 #include <fdt.h>
 #include <libfdt.h>
@@ -310,6 +314,56 @@ const char* image_get_comp_name (uint8_t comp)
 	return name;
 }
 
+static void image_print_type (image_header_t *hdr)
+{
+	const char *os, *arch, *type, *comp;
+
+	os = image_get_os_name (image_get_os (hdr));
+	arch = image_get_arch_name (image_get_arch (hdr));
+	type = image_get_type_name (image_get_type (hdr));
+	comp = image_get_comp_name (image_get_comp (hdr));
+
+	printf ("%s %s %s (%s)", arch, os, type, comp);
+}
+
+void image_print_contents (image_header_t *hdr)
+{
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
+	time_t timestamp = (time_t)image_get_time (hdr);
+	struct rtc_time tm;
+#endif
+
+	printf ("   Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
+
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
+	to_tm (timestamp, &tm);
+	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
+		tm.tm_year, tm.tm_mon, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec);
+#endif
+	puts ("   Image Type:   ");
+	image_print_type (hdr);
+
+	printf ("\n   Data Size:    %d Bytes = ", image_get_data_size (hdr));
+	print_size (image_get_data_size (hdr), "\n");
+	printf ("   Load Address: %08x\n"
+		"   Entry Point:  %08x\n",
+		 image_get_load (hdr), image_get_ep (hdr));
+
+	if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		int i;
+		ulong data, len;
+		ulong count = image_multi_count (hdr);
+
+		puts ("   Contents:\n");
+		for (i = 0; i < count; i++) {
+			image_multi_getimg (hdr, i, &data, &len);
+			printf ("   Image %d: %8ld Bytes = ", i, len);
+			print_size (len, "\n");
+		}
+	}
+}
+
 /**
  * gen_image_get_format - get image format type
  * @img_addr: image start address
@@ -454,7 +508,7 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 	}
 
 	show_boot_progress (10);
-	print_image_hdr (rd_hdr);
+	image_print_contents (rd_hdr);
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");

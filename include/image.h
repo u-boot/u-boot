@@ -342,6 +342,7 @@ const char* image_get_os_name (uint8_t os);
 const char* image_get_arch_name (uint8_t arch);
 const char* image_get_type_name (uint8_t type);
 const char* image_get_comp_name (uint8_t comp);
+void image_print_contents (image_header_t *hdr);
 
 #define IMAGE_FORMAT_INVALID	0x00
 #define IMAGE_FORMAT_LEGACY	0x01

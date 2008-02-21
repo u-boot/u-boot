@@ -521,7 +521,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	}
 	show_boot_progress (57);
 
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	cnt = image_get_image_size (hdr);
 	if (jffs2) {
@@ -984,7 +984,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (image_check_magic (hdr)) {
 
-		print_image_hdr (hdr);
+		image_print_contents (hdr);
 
 		cnt = image_get_image_size (hdr);
 		cnt -= SECTORSIZE;

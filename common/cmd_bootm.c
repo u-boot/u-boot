@@ -36,10 +36,6 @@
 #include <environment.h>
 #include <asm/byteorder.h>
 
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-#include <rtc.h>
-#endif
-
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
 #endif
@@ -69,7 +65,6 @@ static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static void fixup_silent_linux (void);
 #endif
 
-static void print_type (image_header_t *hdr);
 static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[], int verify,
 		ulong *os_data, ulong *os_len);
@@ -318,7 +313,7 @@ static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
 	}
 
 	show_boot_progress (3);
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	if (verify) {
 		puts ("   Verifying Checksum ... ");
@@ -445,7 +440,7 @@ static int image_info (ulong addr)
 		return 1;
 	}
 
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	puts ("   Verifying Checksum ... ");
 	if (!image_check_dcrc (hdr)) {
@@ -493,7 +488,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				goto next_sector;
 
 			printf ("Image at %08lX:\n", (ulong)hdr);
-			print_image_hdr (hdr);
+			image_print_contents (hdr);
 
 			puts ("   Verifying Checksum ... ");
 			if (!image_check_dcrc (hdr)) {
@@ -521,56 +516,6 @@ U_BOOT_CMD(
 /*******************************************************************/
 /* helper routines */
 /*******************************************************************/
-void print_image_hdr (image_header_t *hdr)
-{
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-	time_t timestamp = (time_t)image_get_time (hdr);
-	struct rtc_time tm;
-#endif
-
-	printf ("   Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
-
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-	to_tm (timestamp, &tm);
-	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
-		tm.tm_year, tm.tm_mon, tm.tm_mday,
-		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif
-	puts ("   Image Type:   ");
-	print_type (hdr);
-
-	printf ("\n   Data Size:    %d Bytes = ", image_get_data_size (hdr));
-	print_size (image_get_data_size (hdr), "\n");
-	printf ("   Load Address: %08x\n"
-		"   Entry Point:  %08x\n",
-		 image_get_load (hdr), image_get_ep (hdr));
-
-	if (image_check_type (hdr, IH_TYPE_MULTI)) {
-		int i;
-		ulong data, len;
-		ulong count = image_multi_count (hdr);
-
-		puts ("   Contents:\n");
-		for (i = 0; i < count; i++) {
-			image_multi_getimg (hdr, i, &data, &len);
-			printf ("   Image %d: %8ld Bytes = ", i, len);
-			print_size (len, "\n");
-		}
-	}
-}
-
-static void print_type (image_header_t *hdr)
-{
-	const char *os, *arch, *type, *comp;
-
-	os = image_get_os_name (image_get_os (hdr));
-	arch = image_get_arch_name (image_get_arch (hdr));
-	type = image_get_type_name (image_get_type (hdr));
-	comp = image_get_comp_name (image_get_comp (hdr));
-
-	printf ("%s %s %s (%s)", arch, os, type, comp);
-}
-
 #ifdef CONFIG_SILENT_CONSOLE
 static void fixup_silent_linux ()
 {

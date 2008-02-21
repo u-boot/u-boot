@@ -398,7 +398,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	print_image_hdr (hdr);
+	image_print_contents (hdr);
 
 	cnt = image_get_image_size (hdr);
 	cnt += info.blksz - 1;
