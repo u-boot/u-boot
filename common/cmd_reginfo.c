@@ -31,6 +31,8 @@
 #include <mpc5xx.h>
 #elif defined (CONFIG_MPC5200)
 #include <mpc5xxx.h>
+#elif defined (CONFIG_MPC86xx)
+extern void mpc86xx_reginfo(void);
 #endif
 
 int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -329,16 +331,56 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		*(volatile ulong*)MPC5XXX_SDRAM_CS0CFG);
 	printf ("\tSDRAMCS1: %08X\n",
 		*(volatile ulong*)MPC5XXX_SDRAM_CS1CFG);
-#endif /* CONFIG_MPC5200 */
+#elif defined(CONFIG_MPC86xx)
+	mpc86xx_reginfo();
+
+#elif defined(CONFIG_BLACKFIN)
+	puts("\nSystem Configuration registers\n");
+
+	puts("\nPLL Registers\n");
+	printf("\tPLL_DIV:   0x%04x   PLL_CTL:      0x%04x\n",
+		bfin_read_PLL_DIV(), bfin_read_PLL_CTL());
+	printf("\tPLL_STAT:  0x%04x   PLL_LOCKCNT:  0x%04x\n",
+		bfin_read_PLL_STAT(), bfin_read_PLL_LOCKCNT());
+	printf("\tVR_CTL:    0x%04x\n", bfin_read_VR_CTL());
+
+	puts("\nEBIU AMC Registers\n");
+	printf("\tEBIU_AMGCTL:   0x%04x\n", bfin_read_EBIU_AMGCTL());
+	printf("\tEBIU_AMBCTL0:  0x%08x   EBIU_AMBCTL1:  0x%08x\n",
+		bfin_read_EBIU_AMBCTL0(), bfin_read_EBIU_AMBCTL1());
+# ifdef EBIU_MODE
+	printf("\tEBIU_MBSCTL:   0x%08x   EBIU_ARBSTAT:  0x%08x\n",
+		bfin_read_EBIU_MBSCTL(), bfin_read_EBIU_ARBSTAT());
+	printf("\tEBIU_MODE:     0x%08x   EBIU_FCTL:     0x%08x\n",
+		bfin_read_EBIU_MODE(), bfin_read_EBIU_FCTL());
+# endif
+
+# ifdef EBIU_RSTCTL
+	puts("\nEBIU DDR Registers\n");
+	printf("\tEBIU_DDRCTL0:  0x%08x   EBIU_DDRCTL1:  0x%08x\n",
+		bfin_read_EBIU_DDRCTL0(), bfin_read_EBIU_DDRCTL1());
+	printf("\tEBIU_DDRCTL2:  0x%08x   EBIU_DDRCTL3:  0x%08x\n",
+		bfin_read_EBIU_DDRCTL2(), bfin_read_EBIU_DDRCTL3());
+	printf("\tEBIU_DDRQUE:   0x%08x   EBIU_RSTCTL    0x%04x\n",
+		bfin_read_EBIU_DDRQUE(), bfin_read_EBIU_RSTCTL());
+	printf("\tEBIU_ERRADD:   0x%08x   EBIU_ERRMST:   0x%04x\n",
+		bfin_read_EBIU_ERRADD(), bfin_read_EBIU_ERRMST());
+# else
+	puts("\nEBIU SDC Registers\n");
+	printf("\tEBIU_SDRRC:   0x%04x   EBIU_SDBCTL:  0x%04x\n",
+		bfin_read_EBIU_SDRRC(), bfin_read_EBIU_SDBCTL());
+	printf("\tEBIU_SDSTAT:  0x%04x   EBIU_SDGCTL:  0x%08x\n",
+		bfin_read_EBIU_SDSTAT(), bfin_read_EBIU_SDGCTL());
+# endif
+
+#endif /* CONFIG_BLACKFIN */
+
 	return 0;
 }
 
  /**************************************************/
 
-#if ( defined(CONFIG_8xx)   || defined(CONFIG_405GP) || \
-      defined(CONFIG_405EP) || defined(CONFIG_MPC5200)  ) && \
-    defined(CONFIG_CMD_REGINFO)
-
+#if defined(CONFIG_CMD_REGINFO)
 U_BOOT_CMD(
  	reginfo,	2,	1,	do_reginfo,
 	"reginfo - print register information\n",

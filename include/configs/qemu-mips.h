@@ -32,8 +32,6 @@
 #define CONFIG_QEMU_MIPS        1
 #define CONFIG_MISC_INIT_R
 
-#undef DEBUG
-
 /*IP address is default used by Qemu*/
 #define CONFIG_IPADDR		10.0.2.15    	     /* Our IP address */
 #define CONFIG_SERVERIP		10.0.2.2	     /* Server IP address*/

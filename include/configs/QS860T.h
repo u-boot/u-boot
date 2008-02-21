@@ -38,7 +38,6 @@
 #undef CFG_DEVICE_NULLDEV		/* null device */
 #undef CONFIG_SILENT_CONSOLE		/* silent console */
 #undef CFG_CONSOLE_INFO_QUIET		/* silent console ? */
-#undef DEBUG				/* debug output code */
 #undef DEBUG_FLASH			/* debug flash code */
 #undef FLASH_DEBUG			/* debug fash code */
 #undef DEBUG_ENV			/* debug environment code */

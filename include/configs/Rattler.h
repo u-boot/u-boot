@@ -37,8 +37,6 @@
 
 #define CONFIG_RATTLER			/* Analogue&Micro Rattler board */
 
-#undef DEBUG
-
 /* Allow serial number (serial#) and MAC address (ethaddr) to be overwritten */
 #define CONFIG_ENV_OVERWRITE
 

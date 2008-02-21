@@ -48,7 +48,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
-#if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+#if defined(CONFIG_CMD_KGDB)
 #  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 

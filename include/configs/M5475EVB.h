@@ -38,8 +38,6 @@
 #define CONFIG_M547x		/* define processor type */
 #define CONFIG_M5475		/* define processor type */
 
-#undef DEBUG
-
 #define CONFIG_MCFUART
 #define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		115200

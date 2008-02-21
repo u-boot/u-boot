@@ -44,7 +44,7 @@ void show_sdram_registers(void)
 }
 #endif
 
-long int fixed_hcu4_sdram (unsigned int dram_size)
+long int init_ppc405_sdram(unsigned int dram_size)
 {
 #ifdef DEBUG
 	printf(__FUNCTION__);

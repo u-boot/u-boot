@@ -28,7 +28,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef  DEBUG
 #define GTREGREAD(x) 0xffffffff         /* needed for debug */
 
 /*

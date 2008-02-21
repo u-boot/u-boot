@@ -27,8 +27,7 @@ extern void set_params_for_sw_install(int install_requested, char *board_name );
 extern void common_misc_init_r(void);
 
 enum {
-	/* HW_GENERATION_HCU1 is no longer supported */
-	HW_GENERATION_HCU2  = 0x10,
+	/* HW_GENERATION_HCU1/2 is no longer supported */
 	HW_GENERATION_HCU3  = 0x10,
 	HW_GENERATION_HCU4  = 0x20,
 	HW_GENERATION_HCU5  = 0x30,
@@ -36,3 +35,11 @@ enum {
 	HW_GENERATION_MCU20 = 0x0a,
 	HW_GENERATION_MCU25 = 0x09,
 };
+
+#ifdef CONFIG_405GP
+#if defined(DEBUG)
+void show_sdram_registers(void);
+#endif
+long int init_ppc405_sdram(unsigned int dram_size);
+#endif
+

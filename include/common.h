@@ -103,6 +103,9 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_ARM
 #define asmlinkage	/* nothing */
 #endif
+#ifdef CONFIG_BLACKFIN
+#include <asm/blackfin.h>
+#endif
 
 #include <part.h>
 #include <flash.h>
@@ -203,8 +206,8 @@ void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
 /* lib_$(ARCH)/board.c */
-void	board_init_f  (ulong);
-void	board_init_r  (gd_t *, ulong);
+void	board_init_f  (ulong) __attribute__ ((noreturn));
+void	board_init_r  (gd_t *, ulong) __attribute__ ((noreturn));
 int	checkboard    (void);
 int	checkflash    (void);
 int	checkdram     (void);
@@ -388,7 +391,7 @@ void	icache_disable(void);
 int	dcache_status (void);
 void	dcache_enable (void);
 void	dcache_disable(void);
-void	relocate_code (ulong, gd_t *, ulong);
+void	relocate_code (ulong, gd_t *, ulong) __attribute__ ((noreturn));
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 #if defined (CONFIG_4xx)	|| \
@@ -664,5 +667,7 @@ void inline show_boot_progress (int val);
 #error CONFIG_INIT_CRITICAL is deprecated!
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #endif	/* __COMMON_H_ */

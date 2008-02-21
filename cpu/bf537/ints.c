@@ -39,12 +39,9 @@
 #include <common.h>
 #include <linux/stddef.h>
 #include <asm/system.h>
-#include <asm/irq.h>
 #include <asm/traps.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <asm/machdep.h>
-#include <asm/setup.h>
 #include <asm/blackfin.h>
 #include "cpu.h"
 
@@ -61,42 +58,40 @@ void blackfin_irq_panic(int reason, struct pt_regs *regs)
 
 void blackfin_init_IRQ(void)
 {
-	*(unsigned volatile long *)(SIC_IMASK) = SIC_UNMASK_ALL;
-	cli();
+	*(unsigned volatile long *)(SIC_IMASK) = 0;
 #ifndef CONFIG_KGDB
-	*(unsigned volatile long *)(EVT_EMULATION_ADDR) = 0x0;
+	*(unsigned volatile long *)(EVT1) = 0x0;
 #endif
-	*(unsigned volatile long *)(EVT_NMI_ADDR) =
+	*(unsigned volatile long *)(EVT2) =
 	    (unsigned volatile long)evt_nmi;
-	*(unsigned volatile long *)(EVT_EXCEPTION_ADDR) =
+	*(unsigned volatile long *)(EVT3) =
 	    (unsigned volatile long)trap;
-	*(unsigned volatile long *)(EVT_HARDWARE_ERROR_ADDR) =
+	*(unsigned volatile long *)(EVT5) =
 	    (unsigned volatile long)evt_ivhw;
-	*(unsigned volatile long *)(EVT_RESET_ADDR) =
+	*(unsigned volatile long *)(EVT0) =
 	    (unsigned volatile long)evt_rst;
-	*(unsigned volatile long *)(EVT_TIMER_ADDR) =
+	*(unsigned volatile long *)(EVT6) =
 	    (unsigned volatile long)evt_timer;
-	*(unsigned volatile long *)(EVT_IVG7_ADDR) =
+	*(unsigned volatile long *)(EVT7) =
 	    (unsigned volatile long)evt_evt7;
-	*(unsigned volatile long *)(EVT_IVG8_ADDR) =
+	*(unsigned volatile long *)(EVT8) =
 	    (unsigned volatile long)evt_evt8;
-	*(unsigned volatile long *)(EVT_IVG9_ADDR) =
+	*(unsigned volatile long *)(EVT9) =
 	    (unsigned volatile long)evt_evt9;
-	*(unsigned volatile long *)(EVT_IVG10_ADDR) =
+	*(unsigned volatile long *)(EVT10) =
 	    (unsigned volatile long)evt_evt10;
-	*(unsigned volatile long *)(EVT_IVG11_ADDR) =
+	*(unsigned volatile long *)(EVT11) =
 	    (unsigned volatile long)evt_evt11;
-	*(unsigned volatile long *)(EVT_IVG12_ADDR) =
+	*(unsigned volatile long *)(EVT12) =
 	    (unsigned volatile long)evt_evt12;
-	*(unsigned volatile long *)(EVT_IVG13_ADDR) =
+	*(unsigned volatile long *)(EVT13) =
 	    (unsigned volatile long)evt_evt13;
-	*(unsigned volatile long *)(EVT_IVG14_ADDR) =
+	*(unsigned volatile long *)(EVT14) =
 	    (unsigned volatile long)evt_system_call;
-	*(unsigned volatile long *)(EVT_IVG15_ADDR) =
+	*(unsigned volatile long *)(EVT15) =
 	    (unsigned volatile long)evt_soft_int1;
 	*(volatile unsigned long *)ILAT = 0;
 	asm("csync;");
-	sti();
 	*(volatile unsigned long *)IMASK = 0xffbf;
 	asm("csync;");
 }

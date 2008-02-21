@@ -23,4 +23,4 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi -fno-strict-aliasing
 
-PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -ffixed-r2 -ffixed-r29 -mstring
+PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -ffixed-r2 -mstring

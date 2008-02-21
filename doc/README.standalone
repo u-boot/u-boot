@@ -19,11 +19,12 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    thus the compiler cannot perform type checks on these assignments.
 
 2. The pointer to the jump table is passed to the application in a
-   machine-dependent way. PowerPC, ARM and MIPS architectures use a
-   dedicated register to hold the pointer to the 'global_data'
-   structure: r29 on PowerPC, r8 on ARM and k0 on MIPS. The x86
-   architecture does not use such a register; instead, the pointer to
-   the 'global_data' structure is passed as 'argv[-1]' pointer.
+   machine-dependent way. PowerPC, ARM, MIPS and Blackfin architectures
+   use a dedicated register to hold the pointer to the 'global_data'
+   structure: r2 on PowerPC, r8 on ARM, k0 on MIPS, and P5 on Blackfin.
+   The x86 architecture does not use such a register; instead, the
+   pointer to the 'global_data' structure is passed as 'argv[-1]'
+   pointer.
 
    The application can access the 'global_data' structure in the same
    way as U-Boot does:
@@ -49,11 +50,12 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
 4. The default load and start addresses of the applications are as
    follows:
 
-		Load address	Start address
-	x86	0x00040000	0x00040000
-	PowerPC	0x00040000	0x00040004
-	ARM	0x0c100000	0x0c100000
-	MIPS	0x80200000	0x80200000
+			Load address	Start address
+	x86		0x00040000	0x00040000
+	PowerPC		0x00040000	0x00040004
+	ARM		0x0c100000	0x0c100000
+	MIPS		0x80200000	0x80200000
+	Blackfin	0x00001000	0x00001000
 
    For example, the "hello world" application may be loaded and
    executed on a PowerPC board with the following commands:

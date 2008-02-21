@@ -53,6 +53,16 @@ typedef u16 X86EMU_pioAddr;
 
 /*---------------------- Macros and type definitions ----------------------*/
 
+#if defined (CONFIG_ARM)
+#define GAS_LINE_COMMENT	"@"
+#elif defined(CONFIG_MIPS) || defined(CONFIG_PPC)
+#define GAS_LINE_COMMENT	"#"
+#elif defined (CONFIG_SH)
+#define GAS_LINE_COMMENT	"!"
+#endif
+
+#define GOT2_TYPE	".got2,\"aw\"\t"GAS_LINE_COMMENT
+
 #pragma pack(1)
 
 /****************************************************************************

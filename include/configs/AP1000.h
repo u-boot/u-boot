@@ -22,8 +22,6 @@
  * (easy to change)
  */
 
-#undef DEBUG
-
 #define CONFIG_405	1		/* This is a PPC405 CPU	    */
 #define CONFIG_4xx	1		/* ...member of PPC4xx family	*/
 

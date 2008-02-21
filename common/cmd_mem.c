@@ -154,9 +154,32 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	} while (nbytes > 0);
 #else
-	/* Print the lines. */
-	print_buffer(addr, (void*)addr, size, length, DISP_LINE_LEN/size);
-	addr += size*length;
+
+# if defined(CONFIG_BLACKFIN)
+	/* See if we're trying to display L1 inst */
+	if (addr_bfin_on_chip_mem(addr)) {
+		char linebuf[DISP_LINE_LEN];
+		ulong linebytes, nbytes = length * size;
+		do {
+			linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
+			memcpy(linebuf, (void *)addr, linebytes);
+			print_buffer(addr, linebuf, size, linebytes/size, DISP_LINE_LEN/size);
+
+			nbytes -= linebytes;
+			addr += linebytes;
+			if (ctrlc()) {
+				rc = 1;
+				break;
+			}
+		} while (nbytes > 0);
+	} else
+# endif
+
+	{
+		/* Print the lines. */
+		print_buffer(addr, (void*)addr, size, length, DISP_LINE_LEN/size);
+		addr += size*length;
+	}
 #endif
 
 	dp_last_addr = addr;
@@ -304,6 +327,13 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr1) | addr_dataflash(addr2)){
 		puts ("Comparison with DataFlash space not supported.\n\r");
+		return 0;
+	}
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	if (addr_bfin_on_chip_mem(addr1) || addr_bfin_on_chip_mem(addr2)) {
+		puts ("Comparison with L1 instruction memory not supported.\n\r");
 		return 0;
 	}
 #endif
@@ -475,6 +505,14 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (addr_dataflash(addr) && addr_dataflash(dest)){
 		puts ("Unsupported combination of source/destination.\n\r");
 		return 1;
+	}
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	/* See if we're copying to/from L1 inst */
+	if (addr_bfin_on_chip_mem(dest) || addr_bfin_on_chip_mem(addr)) {
+		memcpy((void *)dest, (void *)addr, count * size);
+		return 0;
 	}
 #endif
 
@@ -659,9 +697,10 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	vu_long	*addr, *start, *end;
 	ulong	val;
 	ulong	readback;
+	int     rcode = 0;
 
 #if defined(CFG_ALT_MEMTEST)
-	vu_long	addr_mask;
+	vu_long	len;
 	vu_long	offset;
 	vu_long	test_offset;
 	vu_long	pattern;
@@ -689,7 +728,6 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #else
 	ulong	incr;
 	ulong	pattern;
-	int     rcode = 0;
 #endif
 
 	if (argc > 1) {
@@ -798,26 +836,19 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 *              all possible.
 		 *
 		 * Returns:     0 if the test succeeds, 1 if the test fails.
-		 *
-		 * ## NOTE ##	Be sure to specify start and end
-		 *              addresses such that addr_mask has
-		 *              lots of bits set. For example an
-		 *              address range of 01000000 02000000 is
-		 *              bad while a range of 01000000
-		 *              01ffffff is perfect.
 		 */
-		addr_mask = ((ulong)end - (ulong)start)/sizeof(vu_long);
+		len = ((ulong)end - (ulong)start)/sizeof(vu_long);
 		pattern = (vu_long) 0xaaaaaaaa;
 		anti_pattern = (vu_long) 0x55555555;
 
-		PRINTF("%s:%d: addr mask = 0x%.8lx\n",
+		PRINTF("%s:%d: length = 0x%.8lx\n",
 			__FUNCTION__, __LINE__,
-			addr_mask);
+			len);
 		/*
 		 * Write the default pattern at each of the
 		 * power-of-two offsets.
 		 */
-		for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		for (offset = 1; offset < len; offset <<= 1) {
 			start[offset] = pattern;
 		}
 
@@ -827,7 +858,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		test_offset = 0;
 		start[test_offset] = anti_pattern;
 
-		for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		for (offset = 1; offset < len; offset <<= 1) {
 		    temp = start[offset];
 		    if (temp != pattern) {
 			printf ("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
@@ -841,10 +872,10 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Check for addr bits stuck low or shorted.
 		 */
-		for (test_offset = 1; (test_offset & addr_mask) != 0; test_offset <<= 1) {
+		for (test_offset = 1; test_offset < len; test_offset <<= 1) {
 		    start[test_offset] = anti_pattern;
 
-		    for (offset = 1; (offset & addr_mask) != 0; offset <<= 1) {
+		    for (offset = 1; offset < len; offset <<= 1) {
 			temp = start[offset];
 			if ((temp != pattern) && (offset != test_offset)) {
 			    printf ("\nFAILURE: Address bit stuck low or shorted @"
@@ -954,8 +985,8 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		incr = -incr;
 	}
-	return rcode;
 #endif
+	return rcode;
 }
 
 
@@ -1002,6 +1033,13 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 #ifdef CONFIG_HAS_DATAFLASH
 	if (addr_dataflash(addr)){
 		puts ("Can't modify DataFlash in place. Use cp instead.\n\r");
+		return 0;
+	}
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	if (addr_bfin_on_chip_mem(addr)) {
+		puts ("Can't modify L1 instruction in place. Use cp instead.\n\r");
 		return 0;
 	}
 #endif

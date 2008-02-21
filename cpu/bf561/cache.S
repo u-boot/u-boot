@@ -2,6 +2,7 @@
 #include <asm/linkage.h>
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/mpu.h>
 
 .text
 .align 2

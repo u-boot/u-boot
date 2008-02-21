@@ -123,7 +123,7 @@
 /* Put the environment in Flash */
 #define CFG_ENV_SECT_SIZE	0x10000 /* size of one complete sector	*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		8*1024	/* 8 KB Environment Sector	*/
+#define CFG_ENV_SIZE		8*1024	/* 8 KB Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
@@ -148,9 +148,9 @@
  * I2C stuff for a ATMEL AT24C16 (2kB holding ENV, we are using the
  * the second internal I2C controller of the PPC440EPx
  *----------------------------------------------------------------------*/
-#define CFG_SPD_BUS_NUM		1
+#define CFG_SPD_BUS_NUM	1
 
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
+#define CONFIG_HARD_I2C	1	/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
@@ -182,7 +182,7 @@
 
 #define CFG_TFTP_LOADADDR 0x01000000 /* @16 MB */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"							\
 	"loadaddr=0x01000000\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -197,14 +197,13 @@
 		"bootfile=hcu5/uImage\0" 				\
 		"rootpath=/home/hcu/eldk/ppc_4xxFP\0"		 	\
 		"load=tftp 100000 hcu5/u-boot.bin\0"		 	\
-	"update=protect off FFFb0000 FFFFFFFF;era FFFb0000 FFFFFFFF;"	\
-		"cp.b 100000 FFFb0000 50000\0"			        \
+	"update=protect off FFFB0000 FFFFFFFF;era FFFB0000 FFFFFFFF;"	\
+		"cp.b 100000 FFFB0000 50000\0"			        \
 	"upd=run load;run update\0"					\
-	"vx=tftp ${loadaddr} hcu5/hcu5_vx_rom; run vxboot\0"		\
-	"vxusb=usb start; fatload usb 0 ${loadaddr} vxWorks.st; run vxboot\0" \
-	"vxargs=emac(0,0)c:hcu5/hcu5_vx_rom e=${ipaddr} h=${serverip}"	\
-		" u=dpu pw=netstal8752 tn=hcu5 f=0x3008\0" \
-	"vxboot=setenv bootargs $(vxargs); bootvx ${loadaddr}\0"     	\
+	"vx_rom=hcu5/hcu5_vx_rom\0"					\
+	"vx=tftp ${loadaddr} ${vx_rom};run vxargs; bootvx\0"		\
+	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
+	" h=${serverip} u=dpu pw=netstal8752 tn=hcu5 f=0x3008\0"	\
 	"usbargs=setenv bootargs root=/dev/sda1 ro\0"     	     	\
 	"linux=usb start; ext2load usb 0 ${loadaddr} /boot/uImage;"     \
 	"run usbargs addip addtty; bootm\0"     			\
@@ -225,16 +224,16 @@
 #define CONFIG_M88E1111_PHY	1
 #define	CONFIG_IBM_EMAC4_V4	1
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
+#define CONFIG_PHY_ADDR	1	/* PHY address, like on HCU4	*/
 
-#define CONFIG_PHY_RESET        1	/* reset phy upon startup         */
+#define CONFIG_PHY_RESET       1	/* reset phy upon startup         */
 
 #define CONFIG_HAS_ETH0
 #define CFG_RX_ETH_BUFFER	32 /* Number of ethernet rx buffers & desc. */
 
 #define CONFIG_NET_MULTI	1
-#define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
-#define CONFIG_PHY1_ADDR	1
+#define CONFIG_HAS_ETH1	1	/* add support for "eth1addr" */
+#define CONFIG_PHY1_ADDR	2
 
 /* USB */
 #define CONFIG_USB_OHCI
@@ -311,7 +310,7 @@
 #define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
 
 #define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
+#define CFG_MEMTEST_END	0x0C00000 /* 4 ... 12 MB in DRAM	*/
 
 #define CFG_LOAD_ADDR		0x100000  /* default load address	*/
 #define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
@@ -350,11 +349,11 @@
  * Flash
  *----------------------------------------------------------------------*/
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip */
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
+#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -392,14 +391,6 @@
 
 #define HCU_CPLD_VERSION_REGISTER ( CFG_CPLD + 0x0F00000 )
 #define HCU_HW_VERSION_REGISTER   ( CFG_CPLD + 0x1400000 )
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
 #define CFG_HUSH_PARSER                 /* use "hush" command parser    */
 #ifdef  CFG_HUSH_PARSER

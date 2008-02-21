@@ -240,8 +240,6 @@
 #define INTEL_LXT971_PHY	1
 #endif
 
-#undef DEBUG
-
 /* Environment */
 #ifndef CFG_RAMBOOT
 #if defined(CONFIG_RAM_AS_FLASH)

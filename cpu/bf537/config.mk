@@ -24,4 +24,4 @@
 # MA 02110-1301 USA
 #
 
-PLATFORM_RELFLAGS += -mcpu=bf537 -ffixed-P5
+PLATFORM_RELFLAGS += -mcpu=bf537

@@ -25,14 +25,14 @@ gd_t *global_data;
 	: : "i"(XF_ ## x * sizeof(void *)) : "eax", "ecx");
 #elif defined(CONFIG_PPC)
 /*
- * r29 holds the pointer to the global_data, r11 is a call-clobbered
+ * r2 holds the pointer to the global_data, r11 is a call-clobbered
  * register
  */
 #define EXPORT_FUNC(x) \
 	asm volatile (			\
 "	.globl " #x "\n"		\
 #x ":\n"				\
-"	lwz	%%r11, %0(%%r29)\n"	\
+"	lwz	%%r11, %0(%%r2)\n"	\
 "	lwz	%%r11, %1(%%r11)\n"	\
 "	mtctr	%%r11\n"		\
 "	bctr\n"				\

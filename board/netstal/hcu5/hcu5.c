@@ -309,15 +309,13 @@ int misc_init_r(void)
 	 */
 	if (mfspr(dbcr0) & 0x80000000) {
 		/* External debugger alive
-		 * enable trace facilty for Lauterback
-		 * CCR0[DAPUIB]=0 	Enable broadcast of instruction data
-		 *			to auxiliary processor interface
+		 * enable trace facilty for Lauterbach
 		 * CCR0[DTB]=0 		Enable broadcast of trace information
 		 * SDR0_PFC0[TRE] 	Trace signals are enabled instead of
 		 *			GPIO49-63
 		 */
-		mtspr(ccr0, mfspr(ccr0)  &~ 0x00108000);
-		mtsdr(SDR0_PFC0, sdr0_pfc1 | 0x00000100);
+	        mtspr(ccr0, mfspr(ccr0)  &~ (CCR0_DTB));
+		mtsdr(SDR0_PFC0, sdr0_pfc1 | SDR0_PFC0_TRE_ENABLE);
 	}
 	return 0;
 }

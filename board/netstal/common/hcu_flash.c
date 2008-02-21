@@ -21,18 +21,6 @@
  * MA 02111-1307 USA
  */
 
-/*
- * Modified 4/5/2001
- * Wait for completion of each sector erase command issued
- * 4/5/2001
- * Chris Hallinan - DS4.COM, Inc. - clh@net1plus.com
- *
- * Modified 6/6/2007
- * Added isync
- * Niklaus Giger, Netstal Maschinen, niklaus.giger@netstal.com
- *
- */
-
 #include <common.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
@@ -387,7 +375,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	/* wait at least 80us - let's wait 1 ms */
 	udelay (1000);
 
-#if 0
 	/*
 	 * We wait for the last triggered sector
 	 */
@@ -396,7 +383,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	wait_for_DQ7 (info, l_sect);
 
 DONE:
-#endif
 	/* reset to read mode */
 	addr = (FLASH_WORD_SIZE *) info->start[0];
 	addr[0] = (FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */

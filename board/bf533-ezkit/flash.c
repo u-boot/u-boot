@@ -286,9 +286,9 @@ int write_flash(long nOffset, int nValue)
 	long addr;
 
 	addr = (CFG_FLASH_BASE + nOffset);
-	sync();
+	SSYNC();
 	*(unsigned volatile short *)addr = nValue;
-	sync();
+	SSYNC();
 	if (poll_toggle_bit(nOffset) < 0)
 		return FLASH_FAIL;
 	return FLASH_SUCCESS;
@@ -301,9 +301,9 @@ int read_flash(long nOffset, int *pnValue)
 
 	if (nOffset != 0x2)
 		reset_flash();
-	sync();
+	SSYNC();
 	nValue = *(volatile unsigned short *)addr;
-	sync();
+	SSYNC();
 	*pnValue = nValue;
 	return TRUE;
 }

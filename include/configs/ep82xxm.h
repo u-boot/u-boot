@@ -31,8 +31,6 @@
 #define CONFIG_EP82XXM	/* Embedded Planet EP82xxM H 1.0 board */
 			/* 256MB SDRAM / 64MB FLASH */
 
-#undef DEBUG
-
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f */
 
 /* Allow serial number (serial#) and MAC address (ethaddr) to be overwritten */

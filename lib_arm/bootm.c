@@ -66,12 +66,20 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong initrd_start, initrd_end;
 	void (*theKernel)(int zero, int arch, uint params);
 	bd_t *bd = gd->bd;
+	int machid = bd->bi_arch_number;
+	char *s;
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
 #endif
 
 	theKernel = (void (*)(int, int, uint))image_get_ep (hdr);
+
+	s = getenv ("machid");
+	if (s) {
+		machid = simple_strtoul (s, NULL, 16);
+		printf ("Using machid 0x%x from environment\n", machid);
+	}
 
 	get_ramdisk (cmdtp, flag, argc, argv, hdr, verify,
 			IH_ARCH_ARM, &initrd_start, &initrd_end);
@@ -123,7 +131,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	cleanup_before_linux ();
 
-	theKernel (0, bd->bi_arch_number, bd->bi_boot_params);
+	theKernel (0, machid, bd->bi_boot_params);
 }
 
 

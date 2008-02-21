@@ -79,7 +79,7 @@ int mac_show(void)
 	/* Show Build Date,
 	 * BCD date values, as YYMMDDhhmmss.
 	 */
-	printf("Date 20%02x\/%02x\/%02x %02x:%02x:%02x\n",
+	printf("Date 20%02x/%02x/%02x %02x:%02x:%02x\n",
 	       mac_data.date[0],
 	       mac_data.date[1],
 	       mac_data.date[2],

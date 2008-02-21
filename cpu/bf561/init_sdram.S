@@ -4,6 +4,10 @@
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/mem_init.h>
+#include <asm/mach-common/bits/bootrom.h>
+#include <asm/mach-common/bits/ebiu.h>
+#include <asm/mach-common/bits/pll.h>
+#include <asm/mach-common/bits/uart.h>
 .global init_sdram;
 
 #if (CONFIG_CCLK_DIV == 1)

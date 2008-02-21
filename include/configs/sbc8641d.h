@@ -53,6 +53,7 @@
 #define CONFIG_PCI1		1	/* PCIE controler 1 (slot 1) */
 #define CONFIG_PCI2		1	/* PCIE controler 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET 		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -479,6 +480,7 @@
 #include <config_cmd_default.h>
     #define CONFIG_CMD_PING
     #define CONFIG_CMD_I2C
+    #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

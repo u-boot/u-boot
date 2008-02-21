@@ -110,7 +110,6 @@ void serial_setbrg(void)
 static int serial_init_dev(const int dev_index)
 {
 	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(dev_index);
-	int i;
 
 	/* FIFO enable, Tx/Rx FIFO clear */
 	uart->UFCON = 0x07;

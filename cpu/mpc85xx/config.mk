@@ -23,4 +23,5 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx -DCONFIG_E500 -ffixed-r2 -ffixed-r29 -Wa,-me500 -msoft-float -mno-string
+PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx -DCONFIG_E500 -ffixed-r2 \
+			-Wa,-me500 -msoft-float -mno-string

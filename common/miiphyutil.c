@@ -36,7 +36,6 @@
 #include <net.h>
 
 /* local debug macro */
-#define MII_DEBUG
 #undef MII_DEBUG
 
 #undef debug
@@ -261,31 +260,25 @@ int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
 	unsigned short tmp;
 
 	if (miiphy_read (devname, addr, PHY_PHYIDR2, &tmp) != 0) {
-#ifdef DEBUG
-		puts ("PHY ID register 2 read failed\n");
-#endif
+		debug ("PHY ID register 2 read failed\n");
 		return (-1);
 	}
 	reg = tmp;
 
-#ifdef DEBUG
-	printf ("PHY_PHYIDR2 @ 0x%x = 0x%04x\n", addr, reg);
-#endif
+	debug ("PHY_PHYIDR2 @ 0x%x = 0x%04x\n", addr, reg);
+
 	if (reg == 0xFFFF) {
 		/* No physical device present at this address */
 		return (-1);
 	}
 
 	if (miiphy_read (devname, addr, PHY_PHYIDR1, &tmp) != 0) {
-#ifdef DEBUG
-		puts ("PHY ID register 1 read failed\n");
-#endif
+		debug ("PHY ID register 1 read failed\n");
 		return (-1);
 	}
 	reg |= tmp << 16;
-#ifdef DEBUG
-	printf ("PHY_PHYIDR[1,2] @ 0x%x = 0x%08x\n", addr, reg);
-#endif
+	debug ("PHY_PHYIDR[1,2] @ 0x%x = 0x%08x\n", addr, reg);
+
 	*oui = (reg >> 10);
 	*model = (unsigned char)((reg >> 4) & 0x0000003F);
 	*rev = (unsigned char)(reg & 0x0000000F);
@@ -304,15 +297,11 @@ int miiphy_reset (char *devname, unsigned char addr)
 	int loop_cnt;
 
 	if (miiphy_read (devname, addr, PHY_BMCR, &reg) != 0) {
-#ifdef DEBUG
-		printf ("PHY status read failed\n");
-#endif
+		debug ("PHY status read failed\n");
 		return (-1);
 	}
 	if (miiphy_write (devname, addr, PHY_BMCR, reg | 0x8000) != 0) {
-#ifdef DEBUG
-		puts ("PHY reset failed\n");
-#endif
+		debug ("PHY reset failed\n");
 		return (-1);
 	}
 #ifdef CONFIG_PHY_RESET_DELAY
@@ -327,9 +316,7 @@ int miiphy_reset (char *devname, unsigned char addr)
 	reg = 0x8000;
 	while (((reg & 0x8000) != 0) && (loop_cnt++ < 1000000)) {
 		if (miiphy_read (devname, addr, PHY_BMCR, &reg) != 0) {
-#     ifdef DEBUG
-			puts ("PHY status read failed\n");
-#     endif
+			debug ("PHY status read failed\n");
 			return (-1);
 		}
 	}

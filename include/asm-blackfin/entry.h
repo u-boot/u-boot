@@ -1,5 +1,5 @@
 /*
- * U-boot - entry.h Routines for context saving and restoring
+ * entry.h - routines for context saving and restoring (for interrupts/exceptions)
  *
  * Copyright (c) 2005-2007 Analog Devices Inc.
  *
@@ -24,36 +24,7 @@
 
 #ifndef __BLACKFIN_ENTRY_H
 #define __BLACKFIN_ENTRY_H
-
-#include <linux/config.h>
-#include <asm/setup.h>
-
-/*
- * Stack layout in 'ret_from_exception':
- *
- */
-
-/*
- * Register %p2 is now set to the current task throughout
- * the whole kernel.
- */
-
 #ifdef __ASSEMBLY__
-
-#define	LFLUSH_I_AND_D	0x00000808
-#define	LSIGTRAP	5
-
-/* process bits for task_struct.flags */
-#define	PF_TRACESYS_OFF	3
-#define	PF_TRACESYS_BIT	5
-#define	PF_PTRACED_OFF	3
-#define	PF_PTRACED_BIT	4
-#define	PF_DTRACE_OFF	1
-#define	PF_DTRACE_BIT	5
-
-#define NEW_PT_REGS
-
-#if defined(NEW_PT_REGS)
 
 #define SAVE_ALL_INT		save_context_no_interrupts
 #define SAVE_ALL_SYS		save_context_no_interrupts
@@ -62,16 +33,6 @@
 #define RESTORE_ALL		restore_context_no_interrupts
 #define RESTORE_ALL_SYS		restore_context_no_interrupts
 #define RESTORE_CONTEXT		restore_context_with_interrupts
-
-#else
-
-#define SAVE_ALL_INT		save_all_int
-#define SAVE_ALL_SYS		save_all_sys
-#define SAVE_CONTEXT		save_context
-#define RESTORE_ALL		restore_context
-#define RESTORE_CONTEXT		restore_context
-
-#endif
 
 /*
  * Code to save processor context.
@@ -283,98 +244,6 @@
 	( R7 : 0, P5 : 0) = [ SP ++ ];
 	sp += 4;
 .endm
-
-#if !defined(NEW_PT_REGS)
-/*
- * a -1 in the orig_r0 field signifies
- * that the stack frame is NOT for syscall
- */
-.macro	save_all_int
-/* reserved and disable the single step of SYSCFG, by Steven Chen 03/07/10 */
-	[--sp] = r0;
-	r0.l = 0x30;		/* Errata for BF533 */
-	r0.h = 0x0;
-	syscfg = r0;		/* disable single step flag in SYSCFG */
-	r0 = [sp++];
-	[--sp] = syscfg;	/* store SYSCFG */
-
-	[--sp] = r0;	/* Reserved for IPEND */
-	[--sp] = fp;
-	[--sp] = usp;
-	[--sp] = r0;
-
-	[--sp] = r0;
-	r0 = [sp + 8];
-	[--sp] = a0.x;
-	[--sp] = a1.x;
-	[--sp] = a0.w;
-	[--sp] = a1.w;
-	[--sp] = rets;
-	[--sp] = astat;
-	[--sp] = seqstat;
-	[--sp] = retx;	/* current pc when exception happens */
-	[--sp] = ( r7:5, p5:0 );
-	[--sp] = r1;
-	[--sp] = r2;
-	[--sp] = r4;
-	[--sp] = r3;
-.endm
-
-.macro	save_all_sys
-	[--sp] = r0;
-	[--sp] = r0;
-	[--sp] = a0.x;
-	[--sp] = a1.x;
-	[--sp] = a0.w;
-	[--sp] = a1.w;
-	[--sp] = rets;
-	[--sp] = astat;
-	[--sp] = seqstat;
-	[--sp] = retx;	/* current pc when exception happens */
-	[--sp] = ( r7:5, p5:0 );
-	[--sp] = r1;
-	[--sp] = r2;
-	[--sp] = r4;
-	[--sp] = r3;
-.endm
-
-.macro	restore_all
-	r3 = [sp++];
-	r4 = [sp++];
-	r2 = [sp++];
-	r1 = [sp++];
-	( r7:5, p5:0 ) = [sp++];
-	retx = [sp++];
-	seqstat = [sp++];
-	astat = [sp++];
-	rets = [sp++];
-	a1.w = [sp++];
-	a0.w = [sp++];
-	a1.x = [sp++];
-	a0.x = [sp++];
-	sp += 4;	/* orig r0 */
-	r0 = [sp++];
-
-	sp += 4;
-	fp = [sp++];
-	sp +=4;		/* Skip the IPEND */
-
-	syscfg = [sp++];
-
-.endm
-
-#endif
-
-#define STR(X) 			STR1(X)
-#define STR1(X) 		#X
-
-#if defined(NEW_PT_REGS)
-#define PT_OFF_ORIG_R0		208
-#define PT_OFF_SR		8
-#else
-#define PT_OFF_ORIG_R0		0x54
-#define PT_OFF_SR		0x38	/* seqstat in pt_regs */
-#endif
 
 #endif
 #endif

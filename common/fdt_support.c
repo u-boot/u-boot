@@ -30,9 +30,6 @@
 #include <fdt_support.h>
 #include <exports.h>
 
-#ifdef CONFIG_QE
-#include "../drivers/qe/qe.h"
-#endif
 /*
  * Global data (for the gd->bd)
  */
@@ -418,7 +415,7 @@ void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 {
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s/%s' = ", path, prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
@@ -444,7 +441,7 @@ void do_fixup_by_prop(void *fdt,
 	int off;
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s' = ", prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
@@ -471,7 +468,7 @@ void do_fixup_by_compat(void *fdt, const char *compat,
 	int off = -1;
 #if defined(DEBUG)
 	int i;
-	debug("Updating property '%s/%s' = ", node, prop);
+	debug("Updating property '%s' = ", prop);
 	for (i = 0; i < len; i++)
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
@@ -617,49 +614,4 @@ void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 #endif
 	}
 }
-
-#ifdef CONFIG_QE
-/*
- * If a QE firmware has been uploaded, then add the 'firmware' node under
- * the 'qe' node.
- */
-void fdt_fixup_qe_firmware(void *fdt)
-{
-	struct qe_firmware_info *qe_fw_info;
-	int node, ret;
-
-	qe_fw_info = qe_get_firmware_info();
-	if (!qe_fw_info)
-		return;
-
-	node = fdt_path_offset(fdt, "/qe");
-	if (node < 0)
-		return;
-
-	/* We assume the node doesn't exist yet */
-	node = fdt_add_subnode(fdt, node, "firmware");
-	if (node < 0)
-		return;
-
-	ret = fdt_setprop(fdt, node, "extended-modes",
-		&qe_fw_info->extended_modes, sizeof(u64));
-	if (ret < 0)
-		goto error;
-
-	ret = fdt_setprop_string(fdt, node, "id", qe_fw_info->id);
-	if (ret < 0)
-		goto error;
-
-	ret = fdt_setprop(fdt, node, "virtual-traps", qe_fw_info->vtraps,
-		sizeof(qe_fw_info->vtraps));
-	if (ret < 0)
-		goto error;
-
-	return;
-
-error:
-	fdt_del_node(fdt, node);
-}
-#endif
-
 #endif

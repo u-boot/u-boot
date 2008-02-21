@@ -36,12 +36,12 @@
  *   AUI/TP selection  ( mine has 10Base2/10BaseT select )
  *
  * Arguments:
- * 	io	= for the base address
+ *	io	= for the base address
  *	irq	= for the IRQ
  *
  * author:
- * 	Erik Stahlman				( erik@vt.edu )
- * 	Daris A Nevil				( dnevil@snmc.com )
+ *	Erik Stahlman				( erik@vt.edu )
+ *	Daris A Nevil				( dnevil@snmc.com )
  *
  *
  * Hardware multicast code from Peter Cammaert ( pc@denkart.be )
@@ -53,7 +53,7 @@
  *    o   lan91c96.c (Intel Diagnostic Manager driver)
  *
  * History:
- * 	04/30/03  Mathijs Haarman	Modified smc91111.c (u-boot version)
+ *	04/30/03  Mathijs Haarman	Modified smc91111.c (u-boot version)
  *					for lan91c96
  *---------------------------------------------------------------------------
  */
@@ -296,8 +296,8 @@ static int poll4int (byte mask, int timeout)
 /*
  * Function: smc_reset( void )
  * Purpose:
- *  	This sets the SMC91111 chip to its normal state, hopefully from whatever
- * 	mess that any other DOS driver has put it in.
+ *	This sets the SMC91111 chip to its normal state, hopefully from whatever
+ *	mess that any other DOS driver has put it in.
  *
  * Maybe I should reset more registers to defaults in here?  SOFTRST  should
  * do that for me.
@@ -397,7 +397,7 @@ static void smc_shutdown ()
  *	This sends the actual packet to the SMC9xxx chip.
  *
  * Algorithm:
- * 	First, see if a saved_skb is available.
+ *	First, see if a saved_skb is available.
  *		( this should NOT be called if there is no 'saved_skb'
  *	Now, find the packet number that the chip allocated
  *	Point the data pointers at it in memory
@@ -405,9 +405,9 @@ static void smc_shutdown ()
  *	Dump the packet to chip memory
  *	Check if a last byte is needed ( odd length packet )
  *		if so, set the control flag right
- * 	Tell the card to send it
+ *	Tell the card to send it
  *	Enable the transmit interrupt, so I know if it failed
- * 	Free the kernel data if I actually sent it.
+ *	Free the kernel data if I actually sent it.
  */
 static int smc_send_packet (volatile void *packet, int packet_length)
 {
@@ -865,7 +865,7 @@ static int smc_hw_init ()
 }
 #endif /* 0 */
 
-#endif /* COMMANDS & CFG_NET */
+#endif /* CONFIG_CMD_NET */
 
 
 /* smc_get_ethaddr (bd_t * bd)

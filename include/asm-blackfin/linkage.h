@@ -51,10 +51,24 @@
 #define ALIGN			__ALIGN
 #define ALIGN_STR		__ALIGN_STR
 
-#define ENTRY(name) \
-	.globl SYMBOL_NAME(name); \
+#define LENTRY(name) \
 	ALIGN; \
 	SYMBOL_NAME_LABEL(name)
+
+#define ENTRY(name) \
+	.globl SYMBOL_NAME(name); \
+	LENTRY(name)
+#endif
+
+#ifndef END
+#define END(name) \
+	.size name, .-name
+#endif
+
+#ifndef ENDPROC
+#define ENDPROC(name) \
+	.type name, @function; \
+	END(name)
 #endif
 
 #endif

@@ -235,17 +235,8 @@ in_flash:
 	bl	enable_ext_addr
 
 	/* setup the bats */
-	bl	setup_bats
-	sync
+	bl	early_bats
 
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
-	/* setup ccsrbar */
-	bl	setup_ccsrbar
-#endif
-
-	/* setup the law entries */
-	bl	law_entry
-	sync
 	/*
 	 * Cache must be enabled here for stack-in-cache trick.
 	 * This means we need to enable the BATS.
@@ -281,6 +272,16 @@ in_flash:
 	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
 
 	GET_GOT			/* initialize GOT access	*/
+
+	/* setup the rest of the bats */
+	bl      setup_bats
+	bl      clear_tlbs
+	sync
+
+#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+	/* setup ccsrbar */
+	bl      setup_ccsrbar
+#endif
 
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
@@ -359,6 +360,7 @@ invalidate_bats:
 
 
 	/* setup_bats - set them up to some initial state */
+	/* Skip any BATS setup in early_bats */
 	.globl	setup_bats
 setup_bats:
 
@@ -454,42 +456,6 @@ setup_bats:
 	mtspr	DBAT4U, r3
 	isync
 
-	/* IBAT 5 */
-	addis	r4, r0, CFG_IBAT5L@h
-	ori	r4, r4, CFG_IBAT5L@l
-	addis	r3, r0, CFG_IBAT5U@h
-	ori	r3, r3, CFG_IBAT5U@l
-	mtspr	IBAT5L, r4
-	mtspr	IBAT5U, r3
-	isync
-
-	/* DBAT 5 */
-	addis	r4, r0, CFG_DBAT5L@h
-	ori	r4, r4, CFG_DBAT5L@l
-	addis	r3, r0, CFG_DBAT5U@h
-	ori	r3, r3, CFG_DBAT5U@l
-	mtspr	DBAT5L, r4
-	mtspr	DBAT5U, r3
-	isync
-
-	/* IBAT 6 */
-	addis	r4, r0, CFG_IBAT6L@h
-	ori	r4, r4, CFG_IBAT6L@l
-	addis	r3, r0, CFG_IBAT6U@h
-	ori	r3, r3, CFG_IBAT6U@l
-	mtspr	IBAT6L, r4
-	mtspr	IBAT6U, r3
-	isync
-
-	/* DBAT 6 */
-	addis	r4, r0, CFG_DBAT6L@h
-	ori	r4, r4, CFG_DBAT6L@l
-	addis	r3, r0, CFG_DBAT6U@h
-	ori	r3, r3, CFG_DBAT6U@l
-	mtspr	DBAT6L, r4
-	mtspr	DBAT6U, r3
-	isync
-
 	/* IBAT 7 */
 	addis	r4, r0, CFG_IBAT7L@h
 	ori	r4, r4, CFG_IBAT7L@l
@@ -508,18 +474,65 @@ setup_bats:
 	mtspr	DBAT7U, r3
 	isync
 
-1:
-	addis	r3, 0, 0x0000
-	addis	r5, 0, 0x4	/* upper bound of 0x00040000 for 7400/750 */
+	sync
+	blr
+
+/*
+ * early_bats:
+ *
+ * Set up bats needed early on - this is usually the BAT for the
+ * stack-in-cache and the Flash
+ */
+	.globl  early_bats
+early_bats:
+	/* IBAT 5 */
+	lis   	r4, CFG_IBAT5L@h
+	ori     r4, r4, CFG_IBAT5L@l
+	lis   	r3, CFG_IBAT5U@h
+	ori     r3, r3, CFG_IBAT5U@l
+	mtspr   IBAT5L, r4
+	mtspr   IBAT5U, r3
 	isync
 
-tlblp:
-	tlbie	r3
-	sync
-	addi	r3, r3, 0x1000
-	cmp	0, 0, r3, r5
-	blt tlblp
+	/* DBAT 5 */
+	lis   	r4, CFG_DBAT5L@h
+	ori     r4, r4, CFG_DBAT5L@l
+	lis   	r3, CFG_DBAT5U@h
+	ori     r3, r3, CFG_DBAT5U@l
+	mtspr   DBAT5L, r4
+	mtspr   DBAT5U, r3
+	isync
 
+	/* IBAT 6 */
+	lis   	r4, CFG_IBAT6L@h
+	ori     r4, r4, CFG_IBAT6L@l
+	lis	r3, CFG_IBAT6U@h
+	ori     r3, r3, CFG_IBAT6U@l
+	mtspr   IBAT6L, r4
+	mtspr   IBAT6U, r3
+	isync
+
+	/* DBAT 6 */
+	lis   	r4, CFG_DBAT6L@h
+	ori     r4, r4, CFG_DBAT6L@l
+	lis   	r3, CFG_DBAT6U@h
+	ori     r3, r3, CFG_DBAT6U@l
+	mtspr   DBAT6L, r4
+	mtspr   DBAT6U, r3
+	isync
+	blr
+
+	.globl clear_tlbs
+clear_tlbs:
+	addis   r3, 0, 0x0000
+	addis   r5, 0, 0x4
+	isync
+tlblp:
+	tlbie   r3
+	sync
+	addi    r3, r3, 0x1000
+	cmp     0, 0, r3, r5
+	blt tlblp
 	blr
 
 	.globl enable_addr_trans
@@ -708,50 +721,6 @@ in32r:
 	blr
 
 /*
- * Function:	ppcDcbf
- * Description:	Data Cache block flush
- * Input:	r3 = effective address
- * Output:	none.
- */
-	.globl	ppcDcbf
-ppcDcbf:
-	dcbf	r0,r3
-	blr
-
-/*
- * Function:	ppcDcbi
- * Description:	Data Cache block Invalidate
- * Input:	r3 = effective address
- * Output:	none.
- */
-	.globl	ppcDcbi
-ppcDcbi:
-	dcbi	r0,r3
-	blr
-
-/*
- * Function:	ppcDcbz
- * Description:	Data Cache block zero.
- * Input:	r3 = effective address
- * Output:	none.
- */
-	.globl	ppcDcbz
-ppcDcbz:
-	dcbz	r0,r3
-	blr
-
-/*
- * Function:	ppcSync
- * Description:	Processor Synchronize
- * Input:	none.
- * Output:	none.
- */
-	.globl	ppcSync
-ppcSync:
-	sync
-	blr
-
-/*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
  * This "function" does not return, instead it continues in RAM
@@ -767,7 +736,7 @@ relocate_code:
 
 	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Global Data pointer	*/
-	mr	r29, r9		/* Save for DECLARE_GLOBAL_DATA_PTR	*/
+	mr	r2,  r9		/* Save for DECLARE_GLOBAL_DATA_PTR	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/

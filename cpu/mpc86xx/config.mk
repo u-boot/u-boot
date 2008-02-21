@@ -23,4 +23,4 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx -ffixed-r2 -ffixed-r29 -mstring
+PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx -ffixed-r2 -mstring

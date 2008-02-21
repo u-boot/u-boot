@@ -86,10 +86,13 @@ int board_early_init_f(void)
 	/* enable USB device */
 	out_8((u8 *) CFG_BCSR_BASE + 0x09, 0x20);
 
-	/* select Ethernet pins */
+	/* select Ethernet (and optionally IIC1) pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
 	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_SELECT_MASK) |
 		SDR0_PFC1_SELECT_CONFIG_4;
+#ifdef CONFIG_I2C_MULTI_BUS
+	sdr0_pfc1 |= ((sdr0_pfc1 & ~SDR0_PFC1_SIS_MASK) | SDR0_PFC1_SIS_IIC1_SEL);
+#endif
 	mfsdr(SDR0_PFC2, sdr0_pfc2);
 	sdr0_pfc2 = (sdr0_pfc2 & ~SDR0_PFC2_SELECT_MASK) |
 		SDR0_PFC2_SELECT_CONFIG_4;

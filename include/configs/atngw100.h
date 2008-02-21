@@ -170,13 +170,9 @@
 #define CFG_PBSIZE			(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
 #define CFG_LONGHELP			1
 
-#define CFG_MEMTEST_START						\
-	({ DECLARE_GLOBAL_DATA_PTR; gd->bd->bi_dram[0].start; })
-#define CFG_MEMTEST_END							\
-	({								\
-		DECLARE_GLOBAL_DATA_PTR;				\
-		gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;	\
-	})
+#define CFG_MEMTEST_START		CFG_SDRAM_BASE
+#define CFG_MEMTEST_END			(CFG_MEMTEST_START + 0x1f00000)
+
 #define CFG_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }
 
 #endif /* __CONFIG_H */

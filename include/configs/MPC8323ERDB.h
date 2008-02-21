@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef DEBUG
-
 /*
  * High Level Configuration Options
  */

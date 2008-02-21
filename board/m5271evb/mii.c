@@ -131,7 +131,7 @@ uint mii_send(uint mii_cmd)
 
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif				/* CFG_DISCOVER_PHY || (CONFIG_COMMANDS & CONFIG_CMD_MII) */
+#endif				/* CFG_DISCOVER_PHY || CONFIG_CMD_MII */
 
 #if defined(CFG_DISCOVER_PHY)
 int mii_discover_phy(struct eth_device *dev)

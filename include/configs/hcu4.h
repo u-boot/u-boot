@@ -33,7 +33,6 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HCU4		1		/* Board is HCU4	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
-#define CONFIG_405GPr 1 /* HCU4 has a 405GPr */
 #define CONFIG_405GP 1
 #define CONFIG_4xx   1
 
@@ -176,7 +175,7 @@
 
 #define CFG_TFTP_LOADADDR 0x01000000 /* @16 MB */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"							\
 	"loadaddr=0x01000000\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -190,14 +189,14 @@
 	        "bootm\0"						\
 	"rootpath=/home/diagnose/eldk/ppc_4xx\0"			\
 	"bootfile=/tftpboot/hcu4/uImage\0"				\
-	"load=tftp 100000 hcu4/u-boot.bin\0"			\
-	"update=protect off FFFB0000 FFFFFFFF;era FFFC0000 FFFFFFFF;"	\
+	"load=tftp 100000 hcu4/u-boot.bin\0"				\
+	"update=protect off FFFB0000 FFFFFFFF;era FFFB0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFB0000 50000\0"			        \
 	"upd=run load;run update\0"					\
-	"vx=tftp ${loadaddr} hcu4_vx_rom;"				\
-	"vx=tftp ${loadaddr} hcu4/hcu4_vx_rom;"				\
-	"setenv bootargs emac(0,0)c:hcu4/hcu4_vx_rom e=${ipaddr} "	\
-	"bootvx ${loadaddr}\0" 						\
+	"vx_rom=hcu4/hcu4_vx_rom\0"					\
+	"vx=tftp ${loadaddr} ${vx_rom};run vxargs; bootvx\0"		\
+	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
+	" h=${serverip} u=dpu pw=netstal8752 tn=hcu5 f=0x3008\0"	\
 	""
 #define CONFIG_BOOTCOMMAND	"run vx"
 
@@ -207,7 +206,7 @@
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR		1	/* PHY address			*/
+#define CONFIG_PHY_ADDR	1	/* PHY address			*/
 
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup */
 
@@ -333,15 +332,6 @@
 
 /* Configuration Port location */
 #define CONFIG_PORT_ADDR	0xF0000500
-
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
 
 #define CFG_HUSH_PARSER                 /* use "hush" command parser    */
 #ifdef  CFG_HUSH_PARSER

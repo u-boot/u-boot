@@ -446,6 +446,7 @@ LIST_ARM7="		\
 #########################################################################
 
 LIST_ARM9="			\
+	at91cap9adk		\
 	at91rm9200dk		\
 	cmc_pu2			\
 	ap920t			\
@@ -459,6 +460,7 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	lpd7a400		\
+	m501sk			\
 	mp2usb			\
 	mx1ads			\
 	mx1fs2			\
@@ -721,7 +723,7 @@ build_target() {
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
 
-	${CROSS_COMPILE:-ppc_8xx-}size ${BUILD_DIR}/u-boot \
+	${CROSS_COMPILE}size ${BUILD_DIR}/u-boot \
 				| tee -a ${LOG_DIR}/$target.MAKELOG
 }
 

@@ -41,19 +41,16 @@
 #include <config.h>
 #include <asm/blackfin.h>
 
+#include <asm/mach-common/bits/core.h>
+#include <asm/mach-common/bits/dma.h>
+#include <asm/mach-common/bits/pll.h>
+
 .global _stext;
 .global __bss_start;
 .global start;
 .global _start;
-.global _rambase;
-.global _ramstart;
-.global _ramend;
-.global _bf533_data_dest;
-.global _bf533_data_size;
 .global edata;
-.global _initialize;
 .global _exit;
-.global flashdataend;
 .global init_sdram;
 
 #if (CONFIG_CCLK_DIV == 1)
@@ -143,8 +140,8 @@ no_soft_reset:
 	nop;
 
 	/* Clear EVT registers */
-	p0.h = (EVT_EMULATION_ADDR >> 16);
-	p0.l = (EVT_EMULATION_ADDR & 0xFFFF);
+	p0.h = (EVT0 >> 16);
+	p0.l = (EVT0 & 0xFFFF);
 	p0 += 8;
 	p1 = 14;
 	r1 = 0;
@@ -200,8 +197,8 @@ loop1:
 	 */
 
 	/* To keep ourselves in the supervisor mode */
-	p0.l = (EVT_IVG15_ADDR & 0xFFFF);
-	p0.h = (EVT_IVG15_ADDR >> 16);
+	p0.l = (EVT15 & 0xFFFF);
+	p0.h = (EVT15 >> 16);
 
 	p1.l = _real_start;
 	p1.h = _real_start;
@@ -209,8 +206,8 @@ loop1:
 
 	p0.l = (IMASK & 0xFFFF);
 	p0.h = (IMASK >> 16);
-	r0.l = LO(IVG15_POS);
-	r0.h = HI(IVG15_POS);
+	r0.l = LO(EVT_IVG15);
+	r0.h = HI(EVT_IVG15);
 	[p0] = r0;
 	raise 15;
 	p0.l = WAIT_HERE;
@@ -236,8 +233,8 @@ copy:
 	R1.H = reset_end;
 	R1.L = reset_end;
 	R2 = R1 - R0;		/* Count */
-	R1.H = hi(L1_ISRAM);	/* Destination Address (high) */
-	R1.L = lo(L1_ISRAM);	/* Destination Address (low) */
+	R1.H = hi(L1_INST_SRAM);	/* Destination Address (high) */
+	R1.L = lo(L1_INST_SRAM);	/* Destination Address (low) */
 	R3.L = DMAEN;		/* Source DMAConfig Value (8-bit words) */
 	/* Destination DMAConfig Value (8-bit words) */
 	R4.L = (DI_EN | WNR | DMAEN);

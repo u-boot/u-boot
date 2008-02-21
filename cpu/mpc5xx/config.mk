@@ -30,7 +30,7 @@
 
 PLATFORM_RELFLAGS += 	-fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -ffixed-r29 -mpowerpc -msoft-float
+PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -mpowerpc -msoft-float
 
 # Use default linker script.  Board port can override in board/*/config.mk
 LDSCRIPT := $(SRCTREE)/cpu/mpc5xx/u-boot.lds

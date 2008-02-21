@@ -29,8 +29,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#undef	 DEBUG
-
 /*
  * The ADS GCPlus Linux boot ROM loads U-Boot into RAM at 0xc0200000.
  * We don't actually init RAM in this case since we're using U-Boot as

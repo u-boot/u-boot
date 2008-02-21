@@ -29,7 +29,6 @@
 
 #ifdef __KERNEL__		/* only set these up for kernel code */
 
-#include <asm/setup.h>
 #include <config.h>
 #include <asm/blackfin.h>
 

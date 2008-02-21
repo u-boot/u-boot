@@ -37,8 +37,6 @@
 #define CONFIG_MCF523x		/* define processor family */
 #define CONFIG_M5235		/* define processor type */
 
-#undef DEBUG
-
 #define CONFIG_MCFUART
 #define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		115200

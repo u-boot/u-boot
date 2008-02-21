@@ -36,14 +36,13 @@
 #include <common.h>
 #include <linux/types.h>
 #include <asm/errno.h>
-#include <asm/irq.h>
 #include <asm/system.h>
 #include <asm/traps.h>
-#include <asm/machdep.h>
 #include "cpu.h"
-#include <asm/arch/anomaly.h>
 #include <asm/cplb.h>
 #include <asm/io.h>
+#include <asm/mach-common/bits/core.h>
+#include <asm/mach-common/bits/mpu.h>
 
 void init_IRQ(void)
 {
@@ -68,7 +67,7 @@ static unsigned int cplb_sizes[4] =
 void trap_c(struct pt_regs *regs)
 {
 	unsigned int addr;
-	unsigned long trapnr = (regs->seqstat) & SEQSTAT_EXCAUSE;
+	unsigned long trapnr = (regs->seqstat) & EXCAUSE;
 	unsigned int i, j, size, *I0, *I1;
 	unsigned short data = 0;
 
@@ -76,7 +75,7 @@ void trap_c(struct pt_regs *regs)
 		/* 0x26 - Data CPLB Miss */
 	case VEC_CPLB_M:
 
-#ifdef ANOMALY_05000261
+#if ANOMALY_05000261
 		/*
 		 * Work around an anomaly: if we see a new DCPLB fault,
 		 * return without doing anything. Then,
@@ -118,16 +117,16 @@ void trap_c(struct pt_regs *regs)
 
 		/* Turn the cache off */
 		if (data) {
-			sync();
+			SSYNC();
 			asm(" .align 8; ");
 			*(unsigned int *)DMEM_CONTROL &=
 			    ~(ACACHE_BCACHE | ENDCPLB | PORT_PREF0);
-			sync();
+			SSYNC();
 		} else {
-			sync();
+			SSYNC();
 			asm(" .align 8; ");
 			*(unsigned int *)IMEM_CONTROL &= ~(IMC | ENICPLB);
-			sync();
+			SSYNC();
 		}
 
 		if (data) {
@@ -173,16 +172,16 @@ void trap_c(struct pt_regs *regs)
 		/* Turn the cache back on */
 		if (data) {
 			j = *(unsigned int *)DMEM_CONTROL;
-			sync();
+			SSYNC();
 			asm(" .align 8; ");
 			*(unsigned int *)DMEM_CONTROL =
 			    ACACHE_BCACHE | ENDCPLB | PORT_PREF0 | j;
-			sync();
+			SSYNC();
 		} else {
-			sync();
+			SSYNC();
 			asm(" .align 8; ");
 			*(unsigned int *)IMEM_CONTROL = IMC | ENICPLB;
-			sync();
+			SSYNC();
 		}
 
 		break;

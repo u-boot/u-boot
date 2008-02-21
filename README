@@ -3499,7 +3499,7 @@ GCC's implementation.
 
 For PowerPC, the following registers have specific use:
 	R1:	stack pointer
-	R2:	TOC pointer
+	R2:	reserved for system use
 	R3-R4:	parameter passing and return values
 	R5-R10: parameter passing
 	R13:	small data area pointer
@@ -3508,7 +3508,7 @@ For PowerPC, the following registers have specific use:
 
 	(U-Boot also uses R14 as internal GOT pointer.)
 
-    ==> U-Boot will use R29 to hold a pointer to the global data
+    ==> U-Boot will use R2 to hold a pointer to the global data
 
     Note: on PPC, we could use a static initializer (since the
     address of the global data structure is known at compile time),
@@ -3516,6 +3516,11 @@ For PowerPC, the following registers have specific use:
     smaller code - although the code savings are not that big (on
     average for all boards 752 bytes for the whole U-Boot image,
     624 text + 127 data).
+
+On Blackfin, the normal C ABI (except for P5) is followed as documented here:
+	http://docs.blackfin.uclinux.org/doku.php?id=application_binary_interface
+
+    ==> U-Boot will use P5 to hold a pointer to the global data
 
 On ARM, the following registers are used:
 
