@@ -388,7 +388,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	hdr = (image_header_t *)addr;
 
-	if (!image_get_magic (hdr)) {
+	if (!image_check_magic (hdr)) {
 		printf("\n** Bad Magic Number **\n");
 		return 1;
 	}

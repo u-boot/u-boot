@@ -836,7 +836,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	hdr = (image_header_t *)addr;
-	if (!image_get_magic (hdr)) {
+	if (!image_check_magic (hdr)) {
 		printf ("Bad Magic Number\n");
 		return 1;
 	}
