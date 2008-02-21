@@ -308,7 +308,10 @@ cpu_post_exec_31:
 	lwz	r3, 0(r4)
 	lwz	r4, 0(r5)
 	mr	r6, r7
+
+	mfcr	r7
 	blrl
+	mtcr	r7
 
 	lwz	r7, 8(r1)
 	stw	r3, 0(r7)
