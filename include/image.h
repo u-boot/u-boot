@@ -367,6 +367,16 @@ ulong get_boot_cmdline (ulong alloc_current, ulong *cmd_start, ulong *cmd_end);
 ulong get_boot_kbd (ulong alloc_current, bd_t **kbd);
 #endif /* CONFIG_PPC || CONFIG_M68K */
 
+#if defined(CONFIG_FIT)
+/*
+ * New uImage format
+ */
+inline int fit_parse_conf (const char *spec, ulong addr_curr,
+		ulong *addr, const char **conf_name);
+inline int fit_parse_subimage (const char *spec, ulong addr_curr,
+		ulong *addr, const char **image_name);
+#endif /* CONFIG_FIT */
+
 #endif /* USE_HOSTCC */
 
 #endif	/* __IMAGE_H__ */

@@ -774,4 +774,82 @@ ulong get_boot_kbd (ulong alloc_current, bd_t **kbd)
 }
 #endif /* CONFIG_PPC || CONFIG_M68K */
 
+#if defined(CONFIG_FIT)
+/*****************************************************************************/
+/* New uImage format routines */
+/*****************************************************************************/
+static int fit_parse_spec (const char *spec, char sepc, ulong addr_curr,
+		ulong *addr, const char **name)
+{
+	const char *sep;
+
+	*addr = addr_curr;
+	*name = NULL;
+
+	sep = strchr (spec, sepc);
+	if (sep) {
+		if (sep - spec > 0)
+			*addr = simple_strtoul (spec, NULL, 16);
+
+		*name = sep + 1;
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * fit_parse_conf - parse FIT configuration spec
+ * @spec: input string, containing configuration spec
+ * @add_curr: current image address (to be used as a possible default)
+ * @addr: pointer to a ulong variable, will hold FIT image address of a given
+ * configuration
+ * @conf_name double pointer to a char, will hold pointer to a configuration
+ * unit name
+ *
+ * fit_parse_conf() expects configuration spec in the for of [<addr>]#<conf>,
+ * where <addr> is a FIT image address that contains configuration
+ * with a <conf> unit name.
+ *
+ * Address part is optional, and if omitted default add_curr will
+ * be used instead.
+ *
+ * returns:
+ *     1 if spec is a valid configuration string,
+ *     addr and conf_name are set accordingly
+ *     0 otherwise
+ */
+inline int fit_parse_conf (const char *spec, ulong addr_curr,
+		ulong *addr, const char **conf_name)
+{
+	return fit_parse_spec (spec, '#', addr_curr, addr, conf_name);
+}
+
+/**
+ * fit_parse_subimage - parse FIT subimage spec
+ * @spec: input string, containing subimage spec
+ * @add_curr: current image address (to be used as a possible default)
+ * @addr: pointer to a ulong variable, will hold FIT image address of a given
+ * subimage
+ * @image_name: double pointer to a char, will hold pointer to a subimage name
+ *
+ * fit_parse_subimage() expects subimage spec in the for of
+ * [<addr>]:<subimage>, where <addr> is a FIT image address that contains
+ * subimage with a <subimg> unit name.
+ *
+ * Address part is optional, and if omitted default add_curr will
+ * be used instead.
+ *
+ * returns:
+ *     1 if spec is a valid subimage string,
+ *     addr and image_name are set accordingly
+ *     0 otherwise
+ */
+inline int fit_parse_subimage (const char *spec, ulong addr_curr,
+		ulong *addr, const char **image_name)
+{
+	return fit_parse_spec (spec, ':', addr_curr, addr, image_name);
+}
+#endif /* CONFIG_FIT */
+
 #endif /* USE_HOSTCC */
