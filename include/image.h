@@ -35,10 +35,19 @@
 
 #include <asm/byteorder.h>
 #include <command.h>
+
 #ifndef USE_HOSTCC
 #include <linux/string.h>
 #include <asm/u-boot.h>
+
+/* new uImage format support enabled by default */
+#define CONFIG_FIT		1
+#define CONFIG_OF_LIBFDT	1
+
+#if defined(CONFIG_FIT) && !defined(CONFIG_OF_LIBFDT)
+#error "CONFIG_OF_LIBFDT not enabled, required by CONFIG_FIT!"
 #endif
+#endif /* USE_HOSTCC */
 
 /*
  * Operating System Codes

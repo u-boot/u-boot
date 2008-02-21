@@ -114,7 +114,7 @@ unsigned long get_tbclk (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
