@@ -234,6 +234,11 @@ static ulong get_fdt (ulong alloc_current,
 
 	if(argc > 3) {
 		fdt = (char *)simple_strtoul (argv[3], NULL, 16);
+
+		debug ("## Checking for 'FDT'/'FDT image' at %08lx\n", fdt);
+
+		/* copy from dataflash if needed */
+		fdt = (char *)gen_get_image ((ulong)fdt);
 		fdt_hdr = (image_header_t *)fdt;
 
 		if (fdt_check_header (fdt) == 0) {

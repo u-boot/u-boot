@@ -44,10 +44,6 @@
 #include <hush.h>
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
@@ -304,12 +300,8 @@ static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
 	show_boot_progress (1);
 	printf ("## Booting image at %08lx ...\n", img_addr);
 
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (img_addr)){
-		hdr = (image_header_t *)CFG_LOAD_ADDR;
-		read_dataflash (img_addr, image_get_header_size (), (char *)hdr);
-	} else
-#endif
+	/* copy from dataflash if needed */
+	img_addr = gen_get_image (img_addr);
 	hdr = (image_header_t *)img_addr;
 
 	if (!image_check_magic(hdr)) {
@@ -324,16 +316,8 @@ static image_header_t *get_kernel (cmd_tbl_t *cmdtp, int flag,
 		show_boot_progress (-2);
 		return NULL;
 	}
+
 	show_boot_progress (3);
-
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (img_addr))
-		read_dataflash (img_addr + image_get_header_size (),
-				image_get_data_size (hdr),
-				(char *)image_get_data (hdr));
-#endif
-
-	/* uImage is in a system RAM, pointed to by hdr */
 	print_image_hdr (hdr);
 
 	if (verify) {

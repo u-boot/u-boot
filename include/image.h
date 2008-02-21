@@ -343,6 +343,12 @@ const char* image_get_arch_name (uint8_t arch);
 const char* image_get_type_name (uint8_t type);
 const char* image_get_comp_name (uint8_t comp);
 
+#define IMAGE_FORMAT_INVALID	0x00
+#define IMAGE_FORMAT_LEGACY	0x01
+#define IMAGE_FORMAT_FIT	0x02
+int gen_image_get_format (void *img_addr);
+ulong gen_get_image (ulong img_addr);
+
 image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[],
 		ulong rd_addr, uint8_t arch, int verify);

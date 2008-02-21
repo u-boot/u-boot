@@ -41,6 +41,12 @@
 #include <logbuff.h>
 #endif
 
+#if defined(CONFIG_FIT)
+#include <fdt.h>
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
+
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #ifdef CONFIG_CMD_BDI
@@ -305,6 +311,103 @@ const char* image_get_comp_name (uint8_t comp)
 }
 
 /**
+ * gen_image_get_format - get image format type
+ * @img_addr: image start address
+ *
+ * gen_image_get_format() checks whether provided address points to a valid
+ * legacy or FIT image.
+ *
+ * returns:
+ *     image format type or IMAGE_FORMAT_INVALID if no image is present
+ */
+int gen_image_get_format (void *img_addr)
+{
+	ulong		format = IMAGE_FORMAT_INVALID;
+	image_header_t	*hdr;
+#if defined(CONFIG_FIT)
+	char		*fit_hdr;
+#endif
+
+	hdr = (image_header_t *)img_addr;
+	if (image_check_magic(hdr))
+		format = IMAGE_FORMAT_LEGACY;
+#if defined(CONFIG_FIT)
+	else {
+		fit_hdr = (char *)img_addr;
+		if (fdt_check_header (fit_hdr) == 0)
+			format = IMAGE_FORMAT_FIT;
+	}
+#endif
+
+	return format;
+}
+
+/**
+ * gen_get_image - get image from special storage (if necessary)
+ * @img_addr: image start address
+ *
+ * gen_get_image() checks if provided image start adddress is located
+ * in a dataflash storage. If so, image is moved to a system RAM memory.
+ *
+ * returns:
+ *     image start address after possible relocation from special storage
+ */
+ulong gen_get_image (ulong img_addr)
+{
+	ulong ram_addr, h_size, d_size;
+
+	h_size = image_get_header_size ();
+#if defined(CONFIG_FIT)
+	if (sizeof(struct fdt_header) > h_size)
+		h_size = sizeof(struct fdt_header);
+#endif
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (img_addr)){
+		ram_addr = CFG_LOAD_ADDR;
+		debug ("   Reading image header from dataflash address "
+			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
+		read_dataflash (img_addr, h_size, (char *)ram_addr);
+	} else
+#endif
+		return img_addr;
+
+	ram_addr = img_addr;
+
+	switch (gen_image_get_format ((void *)ram_addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		d_size = image_get_data_size ((image_header_t *)ram_addr);
+		debug ("   Legacy format image found at 0x%08lx, size 0x%08lx\n",
+				ram_addr, d_size);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		d_size = fdt_totalsize((void *)ram_addr) - h_size;
+		debug ("   FIT/FDT format image found at 0x%08lx, size 0x%08lx\n",
+				ram_addr, d_size);
+
+		break;
+#endif
+	default:
+		printf ("   No valid image found at 0x%08lx\n", img_addr);
+		return ram_addr;
+	}
+
+#ifdef CONFIG_HAS_DATAFLASH
+	if (addr_dataflash (img_addr)) {
+		debug ("   Reading image remaining data from dataflash address "
+			"%08lx to RAM address %08lx\n", img_addr + h_size,
+			ram_addr + h_size);
+
+		read_dataflash (img_addr + h_size, d_size,
+				(char *)(ram_addr + h_size));
+	}
+#endif
+
+	return ram_addr;
+}
+
+/**
  * image_get_ramdisk - get and verify ramdisk image
  * @cmdtp: command table pointer
  * @flag: command flag
@@ -334,15 +437,8 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 
 	show_boot_progress (9);
 
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (rd_addr)) {
-		rd_hdr = (image_header_t *)CFG_LOAD_ADDR;
-		debug ("   Reading Ramdisk image header from dataflash address "
-			"%08lx to %08lx\n", rd_addr, (ulong)rd_hdr);
-		read_dataflash (rd_addr, image_get_header_size (),
-				(char *)rd_hdr);
-	} else
-#endif
+	/* copy from dataflash if needed */
+	rd_addr = gen_get_image (rd_addr);
 	rd_hdr = (image_header_t *)rd_addr;
 
 	if (!image_check_magic (rd_hdr)) {
@@ -359,18 +455,6 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 
 	show_boot_progress (10);
 	print_image_hdr (rd_hdr);
-
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (rd_addr)) {
-		debug ("   Reading Ramdisk image data from dataflash address "
-			"%08lx to %08lx\n", rd_addr + image_get_header_size,
-			(ulong)image_get_data (rd_hdr));
-
-		read_dataflash (rd_addr + image_get_header_size (),
-				image_get_data_size (rd_hdr),
-				(char *)image_get_data (rd_hdr));
-	}
-#endif
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");
