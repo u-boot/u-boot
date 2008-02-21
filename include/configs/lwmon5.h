@@ -366,12 +366,11 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC				*/
 #define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever			*/
 
-#if 0
 /*
  * ToDo: Watchdog is not test fully, so exclude it for now
  */
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
-#endif
+#define CONFIG_WD_PERIOD	40000	/* in usec */
 
 /*
  * For booting Linux, the board info and command line data
