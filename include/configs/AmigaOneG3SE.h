@@ -54,7 +54,7 @@
 
 #undef CONFIG_CLOCKS_IN_MHZ		/* clocks passed to Linux in Hz */
 
-#define CONFIG_BOOTARGS		"root=/dev/ram rw ramdisk=4096"
+#define CONFIG_BOOTARGS		"root=/dev/ram rw ramdisk_size=4096"
 
 /*
  * BOOTP options

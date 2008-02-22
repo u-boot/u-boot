@@ -333,7 +333,7 @@
 	"nfsargs=setenv bootargs root=/dev/nfs rw"			\
 		" nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw"			\
-		" ramdisk=${ramdisk_size}\0"				\
+		" ramdisk_size=${ramdisk_size}\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 	        ":${hostname}:${netdev}:off panic=1\0"			\
