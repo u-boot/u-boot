@@ -1538,7 +1538,12 @@ static int __flash_detect_cfi (flash_info_t * info, struct cfi_qry *qry)
 {
 	int cfi_offset;
 
-	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	/* We do not yet know what kind of commandset to use, so we issue
+	   the reset command in both Intel and AMD variants, in the hope
+	   that AMD flash roms ignore the Intel command. */
+	flash_write_cmd (info, 0, 0, AMD_CMD_RESET);
+	flash_write_cmd (info, 0, 0, FLASH_CMD_RESET);
+
 	for (cfi_offset=0;
 	     cfi_offset < sizeof(flash_offset_cfi) / sizeof(uint);
 	     cfi_offset++) {
