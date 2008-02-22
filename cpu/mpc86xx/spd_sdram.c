@@ -943,7 +943,7 @@ unsigned int enable_ddr(unsigned int ddr_num)
 	spd_eeprom_t spd1,spd2;
 	volatile ccsr_ddr_t *ddr;
 	unsigned sdram_cfg_1;
-	unsigned char sdram_type, mem_type, config, mod_attr;
+	unsigned char sdram_type, mem_type, mod_attr;
 	unsigned char d_init;
 	unsigned int no_dimm1=0, no_dimm2=0;
 
@@ -1017,6 +1017,10 @@ unsigned int enable_ddr(unsigned int ddr_num)
 		printf("No memory modules found for DDR controller %d!!\n", ddr_num);
 		return 0;
 	} else {
+
+#if defined(CONFIG_DDR_ECC)
+		unsigned char config;
+#endif
 		mem_type = no_dimm2 ? spd1.mem_type : spd2.mem_type;
 
 		/*
@@ -1122,8 +1126,8 @@ spd_sdram(void)
 	int memsize_ddr1_dimm2 = 0;
 	int memsize_ddr1 = 0;
 	unsigned int law_size_ddr1;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 #ifdef CONFIG_DDR_INTERLEAVE
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_ddr_t *ddr1 = &immap->im_ddr1;
 #endif
 
@@ -1183,7 +1187,6 @@ spd_sdram(void)
 #endif
 		debug("Interleaved memory size is 0x%08lx\n", memsize_total);
 
-#ifdef	CONFIG_DDR_INTERLEAVE
 #if (CFG_PAGE_INTERLEAVING == 1)
 		printf("Page ");
 #elif (CFG_BANK_INTERLEAVING == 1)
@@ -1192,7 +1195,6 @@ spd_sdram(void)
 		printf("Super-bank ");
 #else
 		printf("Cache-line ");
-#endif
 #endif
 		printf("Interleaved");
 		return memsize_total * 1024 * 1024;

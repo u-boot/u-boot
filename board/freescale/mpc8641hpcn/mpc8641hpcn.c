@@ -206,7 +206,8 @@ void pci_init_board(void)
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC86xx_PORDEVSR_IO_SEL) >> 16;
+	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
+		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 
 #ifdef CONFIG_PCI1
 {
@@ -214,7 +215,8 @@ void pci_init_board(void)
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
 #ifdef DEBUG
-	uint host1_agent = (gur->porbmsr & MPC86xx_PORBMSR_HA) >> 17;
+	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
+		>> MPC8641_PORBMSR_HA_SHIFT;
 	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
 #endif
 	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
@@ -321,28 +323,16 @@ void pci_init_board(void)
 
 }
 
+
 #if defined(CONFIG_OF_BOARD_SETUP)
+
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
 	int node, tmp[2];
 	const char *path;
 
-	fdt_fixup_ethernet(blob, bd);
-
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "timebase-frequency", bd->bi_busfreq / 4, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "clock-frequency", bd->bi_intfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
-			     "bus-frequency", bd->bi_busfreq, 1);
-
-	do_fixup_by_compat_u32(blob, "ns16550",
-			       "clock-frequency", bd->bi_busfreq, 1);
-
-	fdt_fixup_memory(blob, bd->bi_memstart, bd->bi_memsize);
+	ft_cpu_setup(blob, bd);
 
 	node = fdt_path_offset(blob, "/aliases");
 	tmp[0] = 0;
