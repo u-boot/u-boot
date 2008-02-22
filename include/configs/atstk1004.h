@@ -172,7 +172,7 @@
 #define CFG_BOOTPARAMS_LEN		(16 * 1024)
 
 /* Other configuration settings that shouldn't have to change all that often */
-#define CFG_PROMPT			"Uboot> "
+#define CFG_PROMPT			"U-Boot> "
 #define CFG_CBSIZE			256
 #define CFG_MAXARGS			16
 #define CFG_PBSIZE			(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
