@@ -1925,7 +1925,7 @@ M5485HFE_config :	unconfig
 	M5485EFE_config)	BOOT=2;CODE=0;VID=1;USB=1;RAM=64;RAM1=0;; \
 	M5485FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
 	M5485GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5485HFE_config)	BOOT=2;CODE=;VID=1;USB=0;RAM=64;RAM1=0;; \
+	M5485HFE_config)	BOOT=2;CODE=16;VID=1;USB=0;RAM=64;RAM1=0;; \
 	esac; \
 	>include/config.h ; \
 	echo "#define CFG_BUSCLK	100000000" > $(obj)include/config.h ; \

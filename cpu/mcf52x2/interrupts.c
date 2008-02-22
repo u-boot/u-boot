@@ -77,7 +77,7 @@ void dtimer_intr_setup(void)
 	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
 
 	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
-	intp->imrl0 &= ~0xFFFFFFFE;
+	intp->imrl0 &= 0xFFFFFFFE;
 	intp->imrl0 &= ~CFG_TMRINTR_MASK;
 }
 #endif				/* CONFIG_MCFTMR */
