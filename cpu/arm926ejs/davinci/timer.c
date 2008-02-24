@@ -61,10 +61,12 @@ davinci_timer		*timer = (davinci_timer *)CFG_TIMERBASE;
 #define TIMER_LOAD_VAL	(CFG_HZ_CLOCK / CFG_HZ)
 #define READ_TIMER	timer->tim34
 
-/* Timer runs with CFG_HZ_CLOCK, currently 27MHz. To avoid wrap 
-   around of timestamp already after min ~159s, divide it, e.g. by 16.
-   timestamp will then wrap around all min ~42min */
-#define DIV(x)          ((x) >> 4)
+/*
+ * Timer runs with CFG_HZ_CLOCK, currently 27MHz. To avoid wrap
+ * around of timestamp already after min ~159s, divide it, e.g. by 16.
+ * timestamp will then wrap around all min ~42min
+ */
+#define DIV(x)		((x) >> 4)
 
 static ulong timestamp;
 static ulong lastinc;
@@ -106,20 +108,20 @@ void udelay(unsigned long usec)
 
 void reset_timer_masked(void)
 {
-        lastinc = DIV(READ_TIMER);
+	lastinc = DIV(READ_TIMER);
 	timestamp = 0;
 }
 
 ulong get_timer_raw(void)
 {
-        ulong now = DIV(READ_TIMER);
+	ulong now = DIV(READ_TIMER);
 
 	if (now >= lastinc) {
 		/* normal mode */
 		timestamp += now - lastinc;
 	} else {
 		/* overflow ... */
-	        timestamp += now + DIV(TIMER_LOAD_VAL) - lastinc;
+		timestamp += now + DIV(TIMER_LOAD_VAL) - lastinc;
 	}
 	lastinc = now;
 	return timestamp;
@@ -127,7 +129,7 @@ ulong get_timer_raw(void)
 
 ulong get_timer_masked(void)
 {
-        return(get_timer_raw() / DIV(TIMER_LOAD_VAL));
+	return(get_timer_raw() / DIV(TIMER_LOAD_VAL));
 }
 
 void udelay_masked(unsigned long usec)

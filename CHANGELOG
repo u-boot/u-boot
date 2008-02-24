@@ -1,3 +1,472 @@
+commit 00b48a48424894daa589d166d73277830b1c6ac4
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Feb 23 12:15:56 2008 +0100
+
+    ENV: remove saveenv when CFG_ENV_IS_NOWHERE is selected
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b075d74efb70ff68c49a2532f26b56d6703b69c1
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Feb 23 17:24:16 2008 +0900
+
+    Remove the __STRICT_ANSI__ check from the __u64/__s64 declaration on 32bit targets.
+
+    ----------------------------------------------------------------
+    Olaf Hering [Wed, 17 Oct 2007 06:27:13 +0000 (23:27 -0700)]
+
+    Remove the __STRICT_ANSI__ check from the __u64/__s64 declaration on
+    32bit targets.
+
+    GCC can be made to warn about usage of long long types with ISO C90
+    (-ansi), but only with -pedantic.  You can write this in a way that even
+    then it doesn't cause warnings, namely by:
+
+    #ifdef __GNUC__
+    __extension__ typedef __signed__ long long __s64;
+    __extension__ typedef unsigned long long __u64;
+    #endif
+
+    The __extension__ keyword in front of this switches off any pedantic
+    warnings for this expression.
+
+    Signed-off-by: Olaf Hering <olh@suse.de>
+    Cc: <linux-arch@vger.kernel.org>
+    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+    ----------------------------------------------------------------
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 208acd112e6517b21fc30c420396902b103563ac
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Feb 23 17:07:57 2008 +0900
+
+    cpu/mcf52x2/config.mk: Make needlessly deffered expansions immediate.
+
+    This will reduce the build time.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 495a0dde7fa1b14cdc15607d86503ec2bdcd02c4
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Feb 23 17:05:00 2008 +0900
+
+    cpu/ppc4xx/config.mk: Make a needlessly deffered expansion immediate.
+
+    This will reduce the build time.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit e682ba399a1d76f09d8cc7af1e57066f1d360d91
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sat Feb 23 16:58:41 2008 +0900
+
+    cpu/mips/cofigl.mk: Make a needlessly deffered expansion immediate.
+
+    This reduces the build time by ~10%. Here's the gth2_config example.
+
+	    BEFORE	 AFTER
+    real    0m31.441s	 0m27.833s
+    user    0m24.766s	 0m23.045s
+    sys     0m10.425s	 0m7.468s
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 02409f8cf54c7cd91981f0dfec135dbf3858090c
+Author: Marcel Moolenaar <marcelm@juniper.net>
+Date:	Fri Feb 22 10:48:07 2008 -0800
+
+    make define2mk.sed work on FreeBSD
+
+    In the thread "[1.3.2-rc1] MPC8548CDS/MPC8555CDS configs fails to link",
+    the define2mk.sed script was identified as the source of the link
+    failure on FreeBSD. The problem is that sed(1) does not always support
+    the '+' operator. It isn't on FreeBSD. The attach patch implements the
+    equivalent, using the '*' operator instead and should work everywhere.
+
+    Signed-off-by: Marcel Moolenaar <marcelm@juniper.net>
+
+commit e5084af8ded58453cd07ec1af8b0f29f34122bbc
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Feb 22 17:21:32 2008 +0100
+
+    Replace deprecated "ramdisk" with "ramdisk_size" kernel parameter.
+
+    The Linux commit fac8b209b1084bc85748bd54e13d00c1262b220f ("Remove
+    final traces of long-deprecated "ramdisk" kernel parm") makes these
+    changes neccessary.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit d01b847c5cd070895c4ba178c85cd068a95cf7cd
+Author: Larry Johnson <lrj@acm.org>
+Date:	Thu Feb 21 13:58:16 2008 -0500
+
+    LM75 bug fix for negative temperatures
+
+    When the LM75 temperature sensor measures a temperature below 0 C, the
+    current driver does not perform sign extension, so the result returned is
+    256 C too high.  This patch fixes the problem.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 5a910c224b13e413bda41922379add6d75c32da3
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Feb 21 18:33:45 2008 +0100
+
+    IDS8247: update MAINTAINER entry.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 79eac2bfb591f2b028ec1735049dc91e4320de4a
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Feb 21 18:31:15 2008 +0100
+
+    Fix device tree for mgsuvd board.
+
+    Rename the "scc" node in "ethernet" for the mgsuvd board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2e721094a70a52206af2e1bf1208d9a7131f6dad
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Thu Feb 21 14:23:42 2008 +0100
+
+    lwmon5: enable hardware watchdog
+
+    Some boards (e.g. lwmon5) may use rather small watchdog intervals, so
+    causing it to reboot the board if U-Boot does a long busy-wait with
+    udelay(). Thus, for these boards we have to restart WD more
+    frequently.
+
+    This patch splits the busy-wait udelay() into smaller, predefined,
+    intervals, so that the watchdog timer may be resetted with the
+    configurable (CONFIG_WD_PERIOD) interval.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit bc77881247ee6f95d7a9ebc499d26b96bae38c9d
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Feb 21 12:52:29 2008 +0100
+
+    ppc4xx: Support for ATI Radeon 9200 card on sequoia
+
+    Adds configuration option for ATI Radeon 9200 card
+    support to sequoia config file. If CONFIG_VIDEO
+    is enabled, TEXT_BASE should be changed to 0xFFF80000.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5a9abcc317cf3c8a69559ff83081f4e5d719edb7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Feb 18 08:18:07 2008 -0600
+
+    Remove duplicate defines for ARRAY_SIZE
+
+    A few duplicate of the ARRAY_SIZE macro sneaked in since we put
+    the define in common.h.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 81d93e5c4b83d8b6dcee69de6f4a14ccf6f7114a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Feb 18 08:09:37 2008 -0600
+
+    ppc: Allow boards to specify effective amount of memory
+
+    For historical reasons we limited the stack to 256M because some boards
+    could only map that much via BATS.	However newer boards are capable of
+    mapping more memory (for example 85xx is capable of doing up to 2G).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 755c35f54ba7eb7687aa7935e04a02a01ef1b27b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 18 05:24:13 2008 -0500
+
+    include autoconf.mk before any other .mk files
+
+    This bumps the autoconf.mk include step above board/cpu/arch/etc... so that
+    those .mk files can have make if statements based on the current config.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 16fe77752eee099b9fb61ed73460e51cc94b37ba
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 18 05:10:07 2008 -0500
+
+    error check autoconf.mk generation
+
+    If any of the steps for generating autoconf.mk fail currently, they go
+    unnoticed.	To fix, we can simply add 'set -e' to the long list of commands.
+    This is simpler and more robust than placing '|| exit $$?' after every line.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 019895a8dee71a9f00da05c03e379f45d581b0fe
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Mon Feb 18 08:03:51 2008 +0100
+
+    Fix bug in dependency checking
+
+    By adding VERSION_FILE to the PHONY targets the script
+    /tools/setlocalversion is always called and version_autogenerated.h
+    is replaced only if the script find a modified source file.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 98ba144ccc912eee90dd42699f023c497ce774c6
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Feb 18 14:35:43 2008 +0900
+
+    Fix GPMC CS2 memory setup at apollon
+
+    It disables the current map first
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit e845e07e1e6e64f40e35688439d3cdcf01cfff4f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 23:52:46 2008 +0100
+
+    uli526x: Fix multiple differ in signedness and parentheses around comparison
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit beeccf7a5dc5415c202e0132a33c58fc316c2a62
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 16:58:04 2008 +0100
+
+    MIPS: Fix CFG_NO_FLASH support
+
+    - Fix flash_init call when CFG_NO_FLASH is used
+    - Remove no more needed flash.c for qemu-mips
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit edfed1d91df2b2670a812ca9d1a1f9faae7dba47
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 16 02:40:18 2008 -0500
+
+    easylogo: clean up some more and add -r (rgb) support
+
+    Michael Hennerich added support for outputting an image in RGB format rather
+    than forcing YUYV all the time.  This makes obvious sense if the display you
+    have takes RGB input rather than YUYV.
+
+    Rather than hack in support for options, I've converted it to use getopt and
+    cleaned up the argument parsing in the process.
+
+    Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f65c98129ccada3f7caf97d80395a95b84e911de
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 16 02:12:37 2008 -0500
+
+    Makefile: add target for $(LDSCRIPT)
+
+    If the $(LDSCRIPT) does not exist (normally it's board/$(BOARD)/u-boot.lds),
+    then change into the board directory and try and create it.  This allows you
+    to generate the linker script on the fly based upon board defines (like the
+    Blackfin boards do).
+
+    There should be no regressions due to this change as the normal case is to
+    already have a u-boot.lds file.  If that's the case, then there's nothing to
+    generate, and so make will always exit.  The fix here is that if the linker
+    script does not exist, the implicit rules take over and attempt to guess how
+    to generate the file.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1ba639da5604a64b3ed884a2cbb1c5414a9fa728
+Author: Michael Schwingen <michael@schwingen.org>
+Date:	Mon Feb 18 23:16:35 2008 +0100
+
+    CFI: Do not use uninitialized cmd_reset
+
+    Do not use uninitialized cmd_reset; issue both AMD and Intel reset
+    commands instead
+
+    From a short test, it looks like AMD-style flash roms treat *any* unknown
+    command write as a reset, at least when in CFI Query mode, so issuing the
+    Intel reset command to AMD-style flashs seems safe (from the small sample I
+    have), plus the 3-cycle magic sequence should kick the state machine into
+    the right state even without a reset command. Since the AMD-style flashs
+    require the unlock sequence for real operation, I chose to try the AMD reset
+    command first, so that Intel flashs do no see an invalid command prior to
+    the CFI query.
+
+    I have tested the patch on AM29LV320-style flashs from Fujitsu and Macronix,
+    plus Intel StrataFlash.
+
+    Signed-off-by: Michael Schwingen <michael@schwingen.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e7a85f26830c9f2e78506421c2d519a2965bc7a1
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Thu Feb 21 11:56:44 2008 +0100
+
+    API: Add (c) and licensing notice to the public API header.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 928d1d77f8623c120d8763e20e1ca58df9c5c4c6
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Thu Feb 21 11:06:07 2008 +0100
+
+    Fix CPU POST test failure
+
+    The CPU POST test code (run from cpu_post_exec_31()) doesn't follow the
+    ABI carefully, at least the CR3, CR4, and CR5 fields of CR are clobbered
+    by it. The gcc-4.2 with its more aggressive optimization exposes this fact.
+    This patch just saves the CR value before running the test code, so allowing
+    it to do anything it wants with CR.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Acked-by: Yuri Tikhonov <yur@emcraft.com>
+    --
+
+commit d5908b093955415f3d340706378b991f911af671
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Feb 20 15:26:51 2008 -0600
+
+    8610HPCD: Document the flashbank selection switches.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a551cee99ad1d1da20fd23ad265de47448852f56
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Feb 20 14:22:26 2008 -0600
+
+    86xx: Fix GUR PCI config registers properly.
+
+    Back in commit 975a083a5ef785c414b35f9c5b8ae25b26b41524 where
+    I tried to "8610HPCD: Fix typos in two PCI setup registers", I
+    botched it due to not realizing that 8610 and 8641 had different
+    Global Utility Register defintions, one of which was like 85xx,
+    and the other wasn't.  Correct this problem by introducing two
+    symbols, one for each 86xx SoC, but neither of which is named
+    anything like 85xx.
+
+    My bad.  Lovely Wednesday with git bisect.	You know.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit cb06eb961bdffc8728b38c242473d802e83ab2b4
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Feb 20 12:24:11 2008 -0600
+
+    8610HPCD: Don't use VIDEO/CFB_CONSOLE by default.
+
+    Without an actual supported video card hooked up, enabling
+    the CONFIG_VIDEO by default just makes it look broken by
+    routing all console output to the video card.   Don't.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 4d264eff4312f230776b913edade7ceb75f1b1e0
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jan 30 15:08:15 2008 -0600
+
+    ColdFire: Fix missing code flash size for M5485EVB
+
+    Signed-off-by: James Mahan <kmahan@freescale.com>
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit c54f9263e4e11e34b1e70c160bc467ef1d8ec59d
+Author: TsiChungLiew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jan 30 15:04:42 2008 -0600
+
+    ColdFire: Fix 5282 and 5271 interrupt mask bit
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 975a083a5ef785c414b35f9c5b8ae25b26b41524
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Feb 19 12:31:08 2008 -0600
+
+    8610HPCD: Fix typos in two PCI setup registers.
+
+    The two symbols MPC86xx_PORDEVSR_IO_SEL and MPC86xx_PORBMSR_HA
+    were erroneously present as 85xx names and values, leftover from
+    the clone wars.  Fix this by removing the 85xx cruft from the
+    86xx codebase.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 13f5433f700d4da9f6fdf2a4bb80310133a7c170
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Feb 18 14:01:56 2008 -0600
+
+    86xx: Convert sbc8641d to use libfdt.
+
+    This is the proper fix for a missing closing brace in the function
+    ft_cpu_setup() noticed by joe.hamman <at> embeddedspecialties.com.
+    The ft_cpu_setup() function in mpc8641hpcn.c should have been
+    removed earlier as it was under the obsolete CONFIG_OF_FLAT_TREE,
+    but was missed.  Only, the sbc8641d was nominally still using it.
+    It all got ripped out, and the funcality that was in ft_board_setup()
+    was refactored to remove the CPU portions into the new file
+    cpu/mpc86xx/fdt.c instead.	Make sbc8641d use this now.
+
+    Based loosely on an original patch from joe.hamman@embeddedspecialties.com
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 04efddc87c50c84f85dad5c331c634a6ce830a83
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 23:35:31 2008 +0100
+
+    mpc86xx: Fix unused variable 'config' and 'immap'
+
+    and remove useless CONFIG_DDR_INTERLEAVE
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 83d1b3876695c4f21faff2b731d9ef83f38ed208
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 23:03:36 2008 +0100
+
+    mpc86xx: Fix implicit declaration of functions 'init_laws' and 'disable_law'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b6f29c84c208a091f95a10cbc9852d729659ba20
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 14:15:31 2008 +0100
+
+    s3c24x0: Fix unused variable 'i' in function 'serial_init_dev'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0937b8d869fdb42d6ad4fe312958639bd62c973f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 14:15:32 2008 +0100
+
+    pxa: fix assignment from incompatible pointer type
+
+    fix mmc_bread function prototype
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 64d792063fff90b8118179b092feee09fe5cae13
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 14:15:30 2008 +0100
+
+    at91cap9adk: fix implicit declaration of function 'eth_init'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 375c4353db8f900f7ec772e26fab116ec00f7d3a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 17 15:43:44 2008 +0100
+
+    Remove files added by mistake, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit b738654d3c84a30f2bfd9a8d7652ff20807c890c
 Author: Mike Nuss <mike@terascala.com>
 Date:	Wed Feb 6 11:10:11 2008 -0500
