@@ -89,7 +89,6 @@ int board_init (void)
  */
 int checkboard (void)
 {
-	char revision;
 	char *s = getenv ("serial#");
 
 	puts ("Board: AcTux-1 rev.");
