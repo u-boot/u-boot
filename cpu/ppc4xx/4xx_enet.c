@@ -487,6 +487,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 	u32 bd_cached;
 	u32 bd_uncached = 0;
+#ifdef CONFIG_4xx_DCACHE
+	static u32 last_used_ea = 0;
+#endif
 
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
@@ -850,7 +853,12 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 #ifdef CONFIG_4xx_DCACHE
 		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
-		bd_uncached = bis->bi_memsize;
+		if (!last_used_ea)
+			bd_uncached = bis->bi_memsize;
+		else
+			bd_uncached = last_used_ea + MAL_ALLOC_SIZE;
+
+		last_used_ea = bd_uncached;
 		program_tlb(bd_cached, bd_uncached, MAL_ALLOC_SIZE,
 			    TLB_WORD2_I_ENABLE);
 #else
