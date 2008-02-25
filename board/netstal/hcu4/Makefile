@@ -23,7 +23,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 # NOBJS : Netstal common objects
-NOBJS	= fixed_sdram.o hcu_flash.o nm_bsp.o
+NOBJS	= fixed_sdram.o nm_bsp.o
 COBJS	= $(BOARD).o
 SOBJS	=
 

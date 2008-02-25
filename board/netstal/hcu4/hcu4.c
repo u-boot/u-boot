@@ -201,3 +201,19 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+/*
+ * Hardcoded flash setup:
+ * Flash 0 is a non-CFI AMD AM29F040 flash, 8 bit flash / 8 bit bus.
+ */
+ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
+{
+	if (banknum == 0) {	/* non-CFI boot flash */
+		info->portwidth = 1;
+		info->chipwidth = 1;
+		info->interface = FLASH_CFI_X8;
+		return 1;
+	} else
+		return 0;
+}
+

@@ -349,11 +349,19 @@
  * Flash
  *----------------------------------------------------------------------*/
 
+/* Use common CFI driver */
+#define CFG_FLASH_CFI
+#define CFG_FLASH_CFI_DRIVER
+/* board provides its own flash_init code */
+#define CONFIG_FLASH_CFI_LEGACY		1
+#define CFG_FLASH_CFI_WIDTH		FLASH_CFI_8BIT
+#define CFG_FLASH_LEGACY_512Kx8 1
+
+/* print 'E' for empty sector on flinfo */
+#define CFG_FLASH_EMPTY_INFO
+
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip */
-
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup

@@ -24,7 +24,7 @@ LIB	= $(obj)lib$(BOARD).a
 
 
 # NOBJS : Netstal common objects
-NOBJS	= hcu_flash.o nm_bsp.o
+NOBJS	= nm_bsp.o
 COBJS	= $(BOARD).o sdram.o
 SOBJS	= init.o
 
