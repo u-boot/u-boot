@@ -43,6 +43,10 @@
 #include "mt48lc16m16a2-75.h"
 #endif
 
+#ifdef CONFIG_OF_LIBFDT
+#include <fdt_support.h>
+#endif /* CONFIG_OF_LIBFDT */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_PS2MULT
