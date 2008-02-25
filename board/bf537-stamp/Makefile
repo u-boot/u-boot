@@ -29,7 +29,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o ether_bf537.o post-memory.o stm_m25p64.o cmd_bf537led.o nand.o
+COBJS	:= $(BOARD).o post-memory.o stm_m25p64.o cmd_bf537led.o nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

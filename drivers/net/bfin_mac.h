@@ -1,3 +1,14 @@
+/*
+ * bfin_mac.h - some defines/structures for the Blackfin on-chip MAC.
+ *
+ * Copyright (c) 2005-2008 Analog Device, Inc.
+ *
+ * Licensed under the GPL-2 or later.
+ */
+
+#ifndef __BFIN_MAC_H__
+#define __BFIN_MAC_H__
+
 #define PHYADDR			0x01
 #define NO_PHY_REGS		0x20
 
@@ -60,12 +71,19 @@ typedef struct adi_ether_buffer {
 } ADI_ETHER_BUFFER;
 /* 40 bytes/struct in 44 bytes */
 
-void SetupMacAddr(u8 * MACaddr);
+static ADI_ETHER_BUFFER *SetupRxBuffer(int no);
+static ADI_ETHER_BUFFER *SetupTxBuffer(int no);
 
-void PollMdcDone(void);
-void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data);
-u16 RdPHYReg(u16 PHYAddr, u16 RegAddr);
-void SoftResetPHY(void);
-void DumpPHYRegs(void);
+static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd);
+static void bfin_EMAC_halt(struct eth_device *dev);
+static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet, int length);
+static int bfin_EMAC_recv(struct eth_device *dev);
 
-int SetupSystemRegs(int *opmode);
+static void PollMdcDone(void);
+static void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data);
+static u16 RdPHYReg(u16 PHYAddr, u16 RegAddr);
+static int SetupSystemRegs(int *opmode);
+
+static void bfin_EMAC_setup_addr(bd_t *bd);
+
+#endif

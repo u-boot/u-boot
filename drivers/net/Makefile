@@ -27,6 +27,7 @@ LIB 	:= $(obj)libnet.a
 
 COBJS-y += 3c589.o
 COBJS-y += bcm570x.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
 COBJS-y += cs8900.o
 COBJS-y += dc2114x.o
 COBJS-y += dm9000x.o
