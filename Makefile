@@ -1281,6 +1281,10 @@ lwmon5_config:	unconfig
 makalu_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx makalu amcc
 
+mcu25_config:  unconfig
+	@mkdir -p $(obj)board/netstal/common
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx mcu25 netstal
+
 METROBOX_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx metrobox sandburst
 
