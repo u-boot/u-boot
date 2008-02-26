@@ -103,6 +103,7 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC512X)
 	u32 ips_clk;
 	u32 csb_clk;
+	u32 pci_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC8220)
 	unsigned long   bExtUart;

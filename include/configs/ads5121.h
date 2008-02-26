@@ -34,6 +34,9 @@
  * 0x3000_0000 - 0x3001_FFFF	SRAM (128 KB)
  * 0x8000_0000 - 0x803F_FFFF	IMMR (4 MB)
  * 0x8200_0000 - 0x8200_001F	CPLD (32 B)
+ * 0x8400_0000 - 0x82FF_FFFF	PCI I/O space (16 MB)
+ * 0xA000_0000 - 0xAFFF_FFFF	PCI memory space (256 MB)
+ * 0xB000_0000 - 0xBFFF_FFFF	PCI memory mapped I/O space (256 MB)
  * 0xFC00_0000 - 0xFFFF_FFFF	NOR Boot FLASH (64 MB)
  */
 
@@ -43,7 +46,7 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 
-#undef CONFIG_PCI
+/* CONFIG_PCI is defined at config time */
 
 #define CFG_MPC512X_CLKIN	66000000	/* in Hz */
 
@@ -215,6 +218,31 @@
 #define CFG_HUSH_PARSER
 #ifdef  CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "> "
+#endif
+
+/*
+ * PCI
+ */
+#ifdef CONFIG_PCI
+
+/*
+ * General PCI
+ */
+#define CFG_PCI_MEM_BASE	0xA0000000
+#define CFG_PCI_MEM_PHYS	CFG_PCI_MEM_BASE
+#define CFG_PCI_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCI_MMIO_BASE	(CFG_PCI_MEM_BASE + CFG_PCI_MEM_SIZE)
+#define CFG_PCI_MMIO_PHYS	CFG_PCI_MMIO_BASE
+#define CFG_PCI_MMIO_SIZE	0x10000000	/* 256M */
+#define CFG_PCI_IO_BASE		0x00000000
+#define CFG_PCI_IO_PHYS		0x84000000
+#define CFG_PCI_IO_SIZE		0x01000000	/* 16M */
+
+
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
+
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+
 #endif
 
 /* I2C */
