@@ -46,7 +46,7 @@ static void linux_env_set (char * env_name, char * env_val);
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		     bootm_headers_t *images, int verify)
+		     bootm_headers_t *images)
 {
 	ulong	initrd_start, initrd_end;
 	ulong	ep = 0;
@@ -68,7 +68,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	}
 	theKernel = (void (*)(int, char **, char **, int *))ep;
 
-	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_MIPS, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

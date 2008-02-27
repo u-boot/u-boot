@@ -46,7 +46,7 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
-		    bootm_headers_t *images, int verify)
+		    bootm_headers_t *images)
 {
 	ulong sp, sp_limit, alloc_current;
 
@@ -95,7 +95,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
 
 	rd_len = rd_data_end - rd_data_start;

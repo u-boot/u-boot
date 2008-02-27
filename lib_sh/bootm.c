@@ -60,7 +60,7 @@ static void hexdump (unsigned char *buf, int len)
 #endif
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-                     bootm_headers_t *images, int verify)
+                     bootm_headers_t *images)
 {
 	ulong	ep = 0;
 	char	*bootargs = getenv("bootargs");

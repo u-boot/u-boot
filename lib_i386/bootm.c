@@ -32,7 +32,7 @@
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, int verify)
+		bootm_headers_t *images)
 {
 	void		*base_ptr;
 	ulong		os_data, os_len;
@@ -40,7 +40,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong		ep;
 	image_header_t	*hdr;
 
-	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_I386, &initrd_start, &initrd_end);
 
 	if (images->legacy_hdr_valid) {

@@ -174,7 +174,7 @@ static void setup_end_tag(struct tag *params)
 }
 
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		    bootm_headers_t *images, int verify)
+		    bootm_headers_t *images)
 {
 	ulong	initrd_start, initrd_end;
 	ulong	ep = 0;
@@ -196,7 +196,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 	theKernel = (void *)ep;
 
-	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_AVR32, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

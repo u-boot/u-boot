@@ -59,10 +59,8 @@ static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
 void  __attribute__((noinline))
-do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
-		int	argc, char *argv[],
-		bootm_headers_t *images,
-		int	verify)
+do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		bootm_headers_t *images)
 {
 	ulong	sp, sp_limit, alloc_current;
 
@@ -116,7 +114,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag,
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	get_ramdisk (cmdtp, flag, argc, argv, images, verify,
+	get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
 
 	rd_len = rd_data_end - rd_data_start;

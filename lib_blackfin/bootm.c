@@ -47,7 +47,7 @@ extern void flush_data_cache(void);
 static char *make_command_line(void);
 
 void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		    bootm_headers_t *images, int verify)
+		    bootm_headers_t *images)
 {
 	int	(*appl) (char *cmdline);
 	char	*cmdline;

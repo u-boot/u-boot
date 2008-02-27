@@ -65,10 +65,8 @@ static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static void fixup_silent_linux (void);
 #endif
 
-static void *get_kernel (cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[], int verify,
-		bootm_headers_t *images,
-		ulong *os_data, ulong *os_len);
+static void *get_kernel (cmd_tbl_t *cmdtp, int flag,int argc, char *argv[],
+		bootm_headers_t *images, ulong *os_data, ulong *os_len);
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 /*
@@ -81,8 +79,7 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
  */
 typedef void boot_os_fn (cmd_tbl_t *cmdtp, int flag,
 			int argc, char *argv[],
-			bootm_headers_t *images,/* pointers to os/initrd/fdt */
-			int verify);		/* getenv("verify")[0] != 'n' */
+			bootm_headers_t *images); /* pointers to os/initrd/fdt */
 
 extern boot_os_fn do_bootm_linux;
 static boot_os_fn do_bootm_netbsd;
@@ -114,7 +111,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		iflag;
 	const char	*type_name;
 	uint		unc_len = CFG_BOOTM_LEN;
-	int		verify = getenv_verify();
 	uint8_t		comp, type, os;
 
 	void		*os_hdr;
@@ -123,9 +119,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		load_start, load_end;
 
 	memset ((void *)&images, 0, sizeof (images));
+	images.verify = getenv_verify();
 
 	/* get kernel image header, start address and length */
-	os_hdr = get_kernel (cmdtp, flag, argc, argv, verify,
+	os_hdr = get_kernel (cmdtp, flag, argc, argv,
 			&images, &os_data, &os_len);
 	if (os_len == 0)
 		return 1;
@@ -246,36 +243,36 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_SILENT_CONSOLE
 	    fixup_silent_linux();
 #endif
-	    do_bootm_linux (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_linux (cmdtp, flag, argc, argv, &images);
 	    break;
 
 	case IH_OS_NETBSD:
-	    do_bootm_netbsd (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_netbsd (cmdtp, flag, argc, argv, &images);
 	    break;
 
 #ifdef CONFIG_LYNXKDI
 	case IH_OS_LYNXOS:
-	    do_bootm_lynxkdi (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_lynxkdi (cmdtp, flag, argc, argv, &images);
 	    break;
 #endif
 
 	case IH_OS_RTEMS:
-	    do_bootm_rtems (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_rtems (cmdtp, flag, argc, argv, &images);
 	    break;
 
 #if defined(CONFIG_CMD_ELF)
 	case IH_OS_VXWORKS:
-	    do_bootm_vxworks (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_vxworks (cmdtp, flag, argc, argv, &images);
 	    break;
 
 	case IH_OS_QNX:
-	    do_bootm_qnxelf (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_qnxelf (cmdtp, flag, argc, argv, &images);
 	    break;
 #endif
 
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
-	    do_bootm_artos (cmdtp, flag, argc, argv, &images, verify);
+	    do_bootm_artos (cmdtp, flag, argc, argv, &images);
 	    break;
 #endif
 	}
@@ -300,10 +297,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static void *get_kernel (cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[], int verify,
-		bootm_headers_t *images,
-		ulong *os_data, ulong *os_len)
+static void *get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		bootm_headers_t *images, ulong *os_data, ulong *os_len)
 {
 	image_header_t	*hdr;
 	ulong		img_addr;
@@ -362,7 +357,7 @@ static void *get_kernel (cmd_tbl_t *cmdtp, int flag,
 		show_boot_progress (3);
 		image_print_contents (hdr);
 
-		if (verify) {
+		if (images->verify) {
 			puts ("   Verifying Checksum ... ");
 			if (!image_check_dcrc (hdr)) {
 				printf ("Bad Data CRC\n");
@@ -648,7 +643,7 @@ static void fixup_silent_linux ()
 
 static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 			    int argc, char *argv[],
-			    bootm_headers_t *images, int verify)
+			    bootm_headers_t *images)
 {
 	void (*loader)(bd_t *, image_header_t *, char *, char *);
 	image_header_t *os_hdr, *hdr;
@@ -731,7 +726,7 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 #ifdef CONFIG_LYNXKDI
 static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 			     int argc, char *argv[],
-			     bootm_headers_t *images, int verify)
+			     bootm_headers_t *images)
 {
 	image_header_t *hdr = images->legacy_hdr_os;
 
@@ -748,7 +743,7 @@ static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 
 static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
-			   bootm_headers_t *images, int verify)
+			   bootm_headers_t *images)
 {
 	image_header_t *hdr = images->legacy_hdr_os;
 	void (*entry_point)(bd_t *);
@@ -777,7 +772,7 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_CMD_ELF)
 static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 			     int argc, char *argv[],
-			     bootm_headers_t *images, int verify)
+			     bootm_headers_t *images)
 {
 	char str[80];
 	image_header_t *hdr = images->legacy_hdr_os;
@@ -796,7 +791,7 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 
 static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 			    int argc, char *argv[],
-			    bootm_headers_t *images, int verify)
+			    bootm_headers_t *images)
 {
 	char *local_args[2];
 	char str[16];
@@ -819,7 +814,7 @@ static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
 static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
-			   bootm_headers_t *images, int verify)
+			   bootm_headers_t *images)
 {
 	ulong top;
 	char *s, *cmdline;

@@ -58,6 +58,10 @@ extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
+		int argc, char *argv[],
+		ulong rd_addr, uint8_t arch, int verify);
 #else
 #include "mkimage.h"
 #endif /* USE_HOSTCC*/
@@ -485,7 +489,7 @@ ulong gen_get_image (ulong img_addr)
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, board is reset
  */
-image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
+static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[],
 		ulong rd_addr, uint8_t arch, int verify)
 {
@@ -539,8 +543,7 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  * @flag: command flag
  * @argc: command argument count
  * @argv: command argument list
- * @images: pointer to the bootm images strcture
- * @verify: checksum verification flag
+ * @images: pointer to the bootm images structure
  * @arch: expected ramdisk architecture
  * @rd_start: pointer to a ulong variable, will hold ramdisk start address
  * @rd_end: pointer to a ulong variable, will hold ramdisk end
@@ -557,7 +560,7 @@ image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  *     board is reset if ramdisk image is found but corrupted
  */
 void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, int verify, uint8_t arch,
+		bootm_headers_t *images, uint8_t arch,
 		ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_addr, rd_load;
@@ -621,7 +624,7 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			debug ("*  ramdisk: legacy format image\n");
 
 			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
-						rd_addr, arch, verify);
+						rd_addr, arch, images->verify);
 
 			rd_data = image_get_data (rd_hdr);
 			rd_len = image_get_data_size (rd_hdr);

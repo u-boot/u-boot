@@ -202,6 +202,7 @@ typedef struct bootm_headers {
 	void		*fit_hdr_fdt;	/* FDT blob FIT image header */
 	char		*fit_uname_fdt;	/* FDT blob node unit name */
 #endif
+	int		verify;		/* getenv("verify")[0] != 'n' */
 #endif
 } bootm_headers_t;
 
@@ -380,12 +381,8 @@ void image_print_contents (image_header_t *hdr);
 int gen_image_get_format (void *img_addr);
 ulong gen_get_image (ulong img_addr);
 
-image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[],
-		ulong rd_addr, uint8_t arch, int verify);
-
 void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, int verify, uint8_t arch,
+		bootm_headers_t *images, uint8_t arch,
 		ulong *rd_start, ulong *rd_end);
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
