@@ -376,8 +376,9 @@ const char* image_get_comp_name (uint8_t comp);
 void image_print_contents (image_header_t *hdr);
 
 #define IMAGE_FORMAT_INVALID	0x00
-#define IMAGE_FORMAT_LEGACY	0x01
-#define IMAGE_FORMAT_FIT	0x02
+#define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
+#define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
+
 int gen_image_get_format (void *img_addr);
 ulong gen_get_image (ulong img_addr);
 

@@ -375,6 +375,10 @@ void image_print_contents (image_header_t *hdr)
  * gen_image_get_format() checks whether provided address points to a valid
  * legacy or FIT image.
  *
+ * New uImage format and FDT blob are based on a libfdt. FDT blob
+ * may be passed directly or embedded in a FIT image. In both situations
+ * gen_image_get_format() must be able to dectect libfdt header.
+ *
  * returns:
  *     image format type or IMAGE_FORMAT_INVALID if no image is present
  */
@@ -382,14 +386,14 @@ int gen_image_get_format (void *img_addr)
 {
 	ulong		format = IMAGE_FORMAT_INVALID;
 	image_header_t	*hdr;
-#if defined(CONFIG_FIT)
+#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 	char		*fit_hdr;
 #endif
 
 	hdr = (image_header_t *)img_addr;
 	if (image_check_magic(hdr))
 		format = IMAGE_FORMAT_LEGACY;
-#if defined(CONFIG_FIT)
+#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 	else {
 		fit_hdr = (char *)img_addr;
 		if (fdt_check_header (fit_hdr) == 0)

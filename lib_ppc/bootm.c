@@ -357,11 +357,15 @@ static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 			fdt_blob = (char *)image_get_load (fdt_hdr);
 			break;
-#if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-
-			/* check FDT blob vs FIT hdr */
-			if (fit_uname_config || fit_uname_fdt) {
+			/*
+			 * This case will catch both: new uImage format
+			 * (libfdt based) and raw FDT blob (also libfdt
+			 * based).
+			 */
+#if defined(CONFIG_FIT)
+			/* check FDT blob vs FIT blob */
+			if (0) { /* FIXME: call FIT format verification */
 				/*
 				 * FIT image
 				 */
@@ -369,15 +373,17 @@ static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				debug ("*  fdt: FIT format image\n");
 				fit_unsupported_reset ("PPC fdt");
 				do_reset (cmdtp, flag, argc, argv);
-			} else {
+			} else
+#endif
+			{
 				/*
 				 * FDT blob
 				 */
+				debug ("*  fdt: raw FDT blob\n");
 				printf ("## Flattened Device Tree blob at %08lx\n", fdt_blob);
 				fdt_blob = (char *)fdt_addr;
 			}
 			break;
-#endif
 		default:
 			fdt_error ("Did not find a cmdline Flattened Device Tree");
 			do_reset (cmdtp, flag, argc, argv);
