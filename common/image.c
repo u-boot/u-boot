@@ -408,55 +408,57 @@ int gen_image_get_format (void *img_addr)
  */
 ulong gen_get_image (ulong img_addr)
 {
-	ulong ram_addr, h_size, d_size;
-
-	h_size = image_get_header_size ();
-#if defined(CONFIG_FIT)
-	if (sizeof(struct fdt_header) > h_size)
-		h_size = sizeof(struct fdt_header);
-#endif
+	ulong ram_addr = img_addr;
 
 #ifdef CONFIG_HAS_DATAFLASH
+	ulong h_size, d_size;
+
 	if (addr_dataflash (img_addr)){
+		/* ger RAM address */
 		ram_addr = CFG_LOAD_ADDR;
+
+		/* get header size */
+		h_size = image_get_header_size ();
+#if defined(CONFIG_FIT)
+		if (sizeof(struct fdt_header) > h_size)
+			h_size = sizeof(struct fdt_header);
+#endif
+
+		/* read in header */
 		debug ("   Reading image header from dataflash address "
 			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
+
 		read_dataflash (img_addr, h_size, (char *)ram_addr);
-	} else
-#endif
-		return img_addr;
 
-	ram_addr = img_addr;
-
-	switch (gen_image_get_format ((void *)ram_addr)) {
-	case IMAGE_FORMAT_LEGACY:
-		d_size = image_get_data_size ((image_header_t *)ram_addr);
-		debug ("   Legacy format image found at 0x%08lx, size 0x%08lx\n",
-				ram_addr, d_size);
-		break;
+		/* get data size */
+		switch (gen_image_get_format ((void *)ram_addr)) {
+		case IMAGE_FORMAT_LEGACY:
+			d_size = image_get_data_size ((image_header_t *)ram_addr);
+			debug ("   Legacy format image found at 0x%08lx, size 0x%08lx\n",
+					ram_addr, d_size);
+			break;
 #if defined(CONFIG_FIT)
-	case IMAGE_FORMAT_FIT:
-		d_size = fdt_totalsize((void *)ram_addr) - h_size;
-		debug ("   FIT/FDT format image found at 0x%08lx, size 0x%08lx\n",
-				ram_addr, d_size);
-
-		break;
+		case IMAGE_FORMAT_FIT:
+			d_size = fdt_totalsize((void *)ram_addr) - h_size;
+			debug ("   FIT/FDT format image found at 0x%08lx, size 0x%08lx\n",
+					ram_addr, d_size);
+			break;
 #endif
-	default:
-		printf ("   No valid image found at 0x%08lx\n", img_addr);
-		return ram_addr;
-	}
+		default:
+			printf ("   No valid image found at 0x%08lx\n", img_addr);
+			return ram_addr;
+		}
 
-#ifdef CONFIG_HAS_DATAFLASH
-	if (addr_dataflash (img_addr)) {
+		/* read in image data */
 		debug ("   Reading image remaining data from dataflash address "
 			"%08lx to RAM address %08lx\n", img_addr + h_size,
 			ram_addr + h_size);
 
 		read_dataflash (img_addr + h_size, d_size,
 				(char *)(ram_addr + h_size));
+
 	}
-#endif
+#endif /* CONFIG_HAS_DATAFLASH */
 
 	return ram_addr;
 }
