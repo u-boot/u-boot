@@ -25,12 +25,16 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= cache.o
+SOBJS-y	+= cache.o
 
-COBJS	= board.o divmod.o bootm.o mult.o time.o
+COBJS-y	+= board.o
+COBJS-y	+= bootm.o
+COBJS-y	+= divmod.o
+COBJS-y	+= mult.o
+COBJS-y	+= time.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
