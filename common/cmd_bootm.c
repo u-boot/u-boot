@@ -297,6 +297,57 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
+static image_header_t *image_get_kernel (ulong img_addr, int verify)
+{
+	image_header_t *hdr = (image_header_t *)img_addr;
+
+	if (!image_check_magic(hdr)) {
+		puts ("Bad Magic Number\n");
+		show_boot_progress (-1);
+		return NULL;
+	}
+	show_boot_progress (2);
+
+	if (!image_check_hcrc (hdr)) {
+		puts ("Bad Header Checksum\n");
+		show_boot_progress (-2);
+		return NULL;
+	}
+
+	show_boot_progress (3);
+	image_print_contents (hdr);
+
+	if (verify) {
+		puts ("   Verifying Checksum ... ");
+		if (!image_check_dcrc (hdr)) {
+			printf ("Bad Data CRC\n");
+			show_boot_progress (-3);
+			return NULL;
+		}
+		puts ("OK\n");
+	}
+	show_boot_progress (4);
+
+	if (!image_check_target_arch (hdr)) {
+		printf ("Unsupported Architecture 0x%x\n", image_get_arch (hdr));
+		show_boot_progress (-4);
+		return NULL;
+	}
+	return hdr;
+}
+
+/**
+ * get_kernel - find kernel image
+ * @os_data: pointer to a ulong variable, will hold os data start address
+ * @os_len: pointer to a ulong variable, will hold os data length
+ *
+ * get_kernel() tries to find a kernel image, verifies its integrity
+ * and locates kernel data.
+ *
+ * returns:
+ *     pointer to image header if valid image was found, plus kernel start
+ *     address and length, otherwise NULL
+ */
 static void *get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, ulong *os_data, ulong *os_len)
 {
@@ -339,40 +390,9 @@ static void *get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	case IMAGE_FORMAT_LEGACY:
 
 		debug ("*  kernel: legacy format image\n");
-		hdr = (image_header_t *)img_addr;
-
-		if (!image_check_magic(hdr)) {
-			puts ("Bad Magic Number\n");
-			show_boot_progress (-1);
+		hdr = image_get_kernel (img_addr, images->verify);
+		if (!hdr)
 			return NULL;
-		}
-		show_boot_progress (2);
-
-		if (!image_check_hcrc (hdr)) {
-			puts ("Bad Header Checksum\n");
-			show_boot_progress (-2);
-			return NULL;
-		}
-
-		show_boot_progress (3);
-		image_print_contents (hdr);
-
-		if (images->verify) {
-			puts ("   Verifying Checksum ... ");
-			if (!image_check_dcrc (hdr)) {
-				printf ("Bad Data CRC\n");
-				show_boot_progress (-3);
-				return NULL;
-			}
-			puts ("OK\n");
-		}
-		show_boot_progress (4);
-
-		if (!image_check_target_arch (hdr)) {
-			printf ("Unsupported Architecture 0x%x\n", image_get_arch (hdr));
-			show_boot_progress (-4);
-			return NULL;
-		}
 		show_boot_progress (5);
 
 		switch (image_get_type (hdr)) {
