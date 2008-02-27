@@ -237,6 +237,39 @@ static void fdt_error (const char *msg)
 	puts (" - must RESET the board to recover.\n");
 }
 
+static image_header_t *image_get_fdt (ulong fdt_addr)
+{
+	image_header_t *fdt_hdr = (image_header_t *)fdt_addr;
+
+	image_print_contents (fdt_hdr);
+
+	puts ("   Verifying Checksum ... ");
+	if (!image_check_hcrc (fdt_hdr)) {
+		fdt_error ("fdt header checksum invalid");
+		return NULL;
+	}
+
+	if (!image_check_dcrc (fdt_hdr)) {
+		fdt_error ("fdt checksum invalid");
+		return NULL;
+	}
+	puts ("OK\n");
+
+	if (!image_check_type (fdt_hdr, IH_TYPE_FLATDT)) {
+		fdt_error ("uImage is not a fdt");
+		return NULL;
+	}
+	if (image_get_comp (fdt_hdr) != IH_COMP_NONE) {
+		fdt_error ("uImage is compressed");
+		return NULL;
+	}
+	if (fdt_check_header ((char *)image_get_data (fdt_hdr)) != 0) {
+		fdt_error ("uImage data is not a fdt");
+		return NULL;
+	}
+	return fdt_hdr;
+}
+
 static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
@@ -297,12 +330,17 @@ static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		case IMAGE_FORMAT_LEGACY:
 			debug ("*  fdt: legacy format image\n");
 
-			fdt_hdr = (image_header_t *)fdt_addr;
+			/* verify fdt_addr points to a valid image header */
 			printf ("## Flattened Device Tree Legacy Image at %08lx\n",
-					fdt_hdr);
+					fdt_addr);
+			fdt_hdr = image_get_fdt (fdt_addr);
+			if (!fdt_hdr)
+				do_reset (cmdtp, flag, argc, argv);
 
-			image_print_contents (fdt_hdr);
-
+			/*
+			 * move image data to the load address,
+			 * make sure we don't overwrite initial image
+			 */
 			image_start = (ulong)fdt_hdr;
 			image_end = image_get_image_end (fdt_hdr);
 
@@ -313,35 +351,9 @@ static void get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				fdt_error ("fdt overwritten");
 				do_reset (cmdtp, flag, argc, argv);
 			}
-
-			puts ("   Verifying Checksum ... ");
-			if (!image_check_hcrc (fdt_hdr)) {
-				fdt_error ("fdt header checksum invalid");
-				do_reset (cmdtp, flag, argc, argv);
-			}
-
-			if (!image_check_dcrc (fdt_hdr)) {
-				fdt_error ("fdt checksum invalid");
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			puts ("OK\n");
-
-			if (!image_check_type (fdt_hdr, IH_TYPE_FLATDT)) {
-				fdt_error ("uImage is not a fdt");
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			if (image_get_comp (fdt_hdr) != IH_COMP_NONE) {
-				fdt_error ("uImage is compressed");
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			if (fdt_check_header ((char *)image_get_data (fdt_hdr)) != 0) {
-				fdt_error ("uImage data is not a fdt");
-				do_reset (cmdtp, flag, argc, argv);
-			}
-
 			memmove ((void *)image_get_load (fdt_hdr),
-				(void *)image_get_data (fdt_hdr),
-				image_get_data_size (fdt_hdr));
+					(void *)image_get_data (fdt_hdr),
+					image_get_data_size (fdt_hdr));
 
 			fdt_blob = (char *)image_get_load (fdt_hdr);
 			break;
