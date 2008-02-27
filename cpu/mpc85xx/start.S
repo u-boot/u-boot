@@ -1007,6 +1007,17 @@ unlock_ram_in_cache:
 	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
 	sync			/* Wait for all icbi to complete on bus */
+
+	/* Invalidate the TLB entries for the cache */
+	lis	r3,CFG_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
 	isync
 	blr
 #endif
