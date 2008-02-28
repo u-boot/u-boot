@@ -34,6 +34,7 @@ COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += display_options.o
 COBJS-y += div64.o
+COBJS-y += lmb.o
 COBJS-y += ldiv.o
 COBJS-y += sha1.o
 COBJS-y += string.o

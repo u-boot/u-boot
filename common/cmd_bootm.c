@@ -34,6 +34,7 @@
 #include <zlib.h>
 #include <bzlib.h>
 #include <environment.h>
+#include <lmb.h>
 #include <asm/byteorder.h>
 
 #ifdef CFG_HUSH_PARSER
@@ -118,8 +119,19 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 
+	struct lmb lmb;
+
 	memset ((void *)&images, 0, sizeof (images));
 	images.verify = getenv_verify();
+	images.lmb = &lmb;
+
+	lmb_init(&lmb);
+
+#ifdef CFG_SDRAM_BASE
+	lmb_add(&lmb, CFG_SDRAM_BASE, gd->bd->bi_memsize);
+#else
+	lmb_add(&lmb, 0, gd->bd->bi_memsize);
+#endif
 
 	/* get kernel image header, start address and length */
 	os_hdr = get_kernel (cmdtp, flag, argc, argv,
@@ -236,6 +248,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	show_boot_progress (8);
+
+	lmb_reserve(&lmb, load_start, (load_end - load_start));
 
 	switch (os) {
 	default:			/* handled by (original) Linux case */

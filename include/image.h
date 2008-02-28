@@ -37,6 +37,7 @@
 #include <command.h>
 
 #ifndef USE_HOSTCC
+#include <lmb.h>
 #include <linux/string.h>
 #include <asm/u-boot.h>
 
@@ -203,6 +204,7 @@ typedef struct bootm_headers {
 	char		*fit_uname_fdt;	/* FDT blob node unit name */
 #endif
 	int		verify;		/* getenv("verify")[0] != 'n' */
+	struct lmb	*lmb;		/* for memory mgmt */
 #endif
 } bootm_headers_t;
 
