@@ -71,10 +71,10 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	bd_t	*kbd;
 	ulong	ep = 0;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
+	ulong	of_size = 0;
 
 #if defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = NULL;
-	ulong	of_size = 0;
 #endif
 
 	/*
@@ -92,12 +92,19 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	alloc_current = sp_limit = get_boot_sp_limit(sp);
 	debug ("=> set upper limit to 0x%08lx\n", sp_limit);
 
-	/* allocate space and init command line */
-	alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
+#if defined(CONFIG_OF_LIBFDT)
+	/* find flattened device tree */
+	get_fdt (cmdtp, flag, argc, argv, images, &of_flat_tree, &of_size);
+#endif
 
-	/* allocate space for kernel copy of board info */
-	alloc_current = get_boot_kbd (alloc_current, &kbd);
-	set_clocks_in_mhz(kbd);
+	if (!of_size) {
+		/* allocate space and init command line */
+		alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
+
+		/* allocate space for kernel copy of board info */
+		alloc_current = get_boot_kbd (alloc_current, &kbd);
+		set_clocks_in_mhz(kbd);
+	}
 
 	/* find kernel entry point */
 	if (images->legacy_hdr_valid) {
@@ -123,9 +130,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			sp_limit, get_sp (), &initrd_start, &initrd_end);
 
 #if defined(CONFIG_OF_LIBFDT)
-	/* find flattened device tree */
-	get_fdt (cmdtp, flag, argc, argv, images, &of_flat_tree, &of_size);
-
 	alloc_current = fdt_relocate (alloc_current,
 			cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
 
