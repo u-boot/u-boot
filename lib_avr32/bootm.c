@@ -214,6 +214,9 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	params = setup_ethernet_tags(params);
 	setup_end_tag(params);
 
+	if (!images->autostart)
+		return ;
+
 	printf("\nStarting kernel at %p (params at %p)...\n\n",
 	       theKernel, params_start);
 

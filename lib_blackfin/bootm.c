@@ -53,6 +53,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	char	*cmdline;
 	ulong	ep = 0;
 
+	if (!images->autostart)
+		return ;
+
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
 #endif

@@ -46,6 +46,9 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 	void (*kernel)(void) = (void (*)(void))ep;
 
+	if (!images->autostart)
+		return ;
+
 	/* For now we assume the Microtronix linux ... which only
 	 * needs to be called ;-)
 	 */

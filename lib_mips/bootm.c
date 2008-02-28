@@ -106,6 +106,9 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	sprintf (env_buf, "0x%X", (uint) (gd->bd->bi_flashsize));
 	linux_env_set ("flash_size", env_buf);
 
+	if (!images->autostart)
+		return ;
+
 	/* we assume that the kernel is in place */
 	printf ("\nStarting kernel ...\n\n");
 

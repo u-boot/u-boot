@@ -63,5 +63,8 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		(ulong) theKernel);
 #endif
 
+	if (!images->autostart)
+		return ;
+
 	theKernel (commandline);
 }

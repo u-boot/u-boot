@@ -133,6 +133,9 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	setup_end_tag (bd);
 #endif
 
+	if (!images->autostart)
+		return ;
+
 	/* we assume that the kernel is in place */
 	printf ("\nStarting kernel ...\n\n");
 
