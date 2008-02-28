@@ -704,10 +704,9 @@ int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 /**
  * ramdisk_high - relocate init ramdisk
+ * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @rd_data: ramdisk data start address
  * @rd_len: ramdisk data length
- * @sp_limit: stack pointer limit (including BOOTMAPSZ)
- * @sp: current stack pointer
  * @initrd_start: pointer to a ulong variable, will hold final init ramdisk
  *      start address (after possible relocation)
  * @initrd_end: pointer to a ulong variable, will hold final init ramdisk
@@ -720,16 +719,16 @@ int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
  *     - initrd_start and initrd_end are set to final (after relocation) ramdisk
  *     start/end addresses if ramdisk image start and len were provided
  *     otherwise set initrd_start and initrd_end set to zeros
- *     - returns new allc_current, next free address below BOOTMAPSZ
+ *     - returns:
+ *        0 - success
+ *       -1 - failure
  */
-ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
-		ulong sp_limit, ulong sp,
-		ulong *initrd_start, ulong *initrd_end)
+int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
+		  ulong *initrd_start, ulong *initrd_end)
 {
 	char	*s;
 	ulong	initrd_high;
 	int	initrd_copy_to_ram = 1;
-	ulong	new_alloc_current = alloc_current;
 
 	if ((s = getenv ("initrd_high")) != NULL) {
 		/* a value of "no" or a similar string will act like 0,
@@ -743,12 +742,6 @@ ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
 		initrd_high = ~0;
 	}
 
-#ifdef CONFIG_LOGBUFFER
-	/* Prevent initrd from overwriting logbuffer */
-	if (initrd_high < (gd->bd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD))
-	    initrd_high = gd->bd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD;
-	debug ("## Logbuffer at 0x%08lx ", gd->bd->bi_memsize - LOGBUFF_LEN);
-#endif
 	debug ("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
 			initrd_high, initrd_copy_to_ram);
 
@@ -757,40 +750,17 @@ ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
 			debug ("   in-place initrd\n");
 			*initrd_start = rd_data;
 			*initrd_end = rd_data + rd_len;
+			lmb_reserve(lmb, rd_data, rd_len);
 		} else {
-			new_alloc_current = alloc_current - rd_len;
-			*initrd_start  = new_alloc_current;
-			*initrd_start &= ~(4096 - 1);	/* align on page */
+			if (initrd_high)
+				*initrd_start = lmb_alloc_base(lmb, rd_len, 0x1000, initrd_high);
+			else
+				*initrd_start = lmb_alloc(lmb, rd_len, 0x1000);
 
-			if (initrd_high) {
-				ulong nsp;
-
-				/*
-				 * the inital ramdisk does not need to be within
-				 * CFG_BOOTMAPSZ as it is not accessed until after
-				 * the mm system is initialised.
-				 *
-				 * do the stack bottom calculation again and see if
-				 * the initrd will fit just below the monitor stack
-				 * bottom without overwriting the area allocated
-				 * for command line args and board info.
-				 */
-				nsp = sp;
-				nsp -= 2048;		/* just to be sure */
-				nsp &= ~0xF;
-
-				if (nsp > initrd_high)	/* limit as specified */
-					nsp = initrd_high;
-
-				nsp -= rd_len;
-				nsp &= ~(4096 - 1);	/* align on page */
-
-				if (nsp >= sp_limit) {
-					*initrd_start = nsp;
-					new_alloc_current = alloc_current;
-				}
+			if (*initrd_start == 0) {
+				puts("ramdisk - allocation error\n");
+				goto error;
 			}
-
 			show_boot_progress (12);
 
 			*initrd_end = *initrd_start + rd_len;
@@ -808,56 +778,40 @@ ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
 	}
 	debug ("   ramdisk load start = 0x%08lx, ramdisk load end = 0x%08lx\n",
 			*initrd_start, *initrd_end);
+	return 0;
 
-	return new_alloc_current;
-}
-
-/**
- * get_boot_sp_limit - calculate stack pointer limit
- * @sp: current stack pointer
- *
- * get_boot_sp_limit() takes current stack pointer adrress and calculates
- * stack pointer limit, below which kernel boot data (cmdline, board info,
- * etc.) will be allocated.
- *
- * returns:
- *     stack pointer limit
- */
-ulong get_boot_sp_limit(ulong sp)
-{
-	ulong sp_limit = sp;
-
-	sp_limit -= 2048;	/* just to be sure */
-
-	/* make sure sp_limit is within kernel mapped space */
-	if (sp_limit > CFG_BOOTMAPSZ)
-		sp_limit = CFG_BOOTMAPSZ;
-	sp_limit &= ~0xF;
-
-	return sp_limit;
+error:
+	return -1;
 }
 
 /**
  * get_boot_cmdline - allocate and initialize kernel cmdline
- * @alloc_current: current boot allocation address (counting down
- *      from sp_limit)
+ * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @cmd_start: pointer to a ulong variable, will hold cmdline start
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
+ * @bootmap_base: ulong variable, holds offset in physical memory to
+ * base of bootmap
  *
  * get_boot_cmdline() allocates space for kernel command line below
- * provided alloc_current address. If "bootargs" U-boot environemnt
+ * BOOTMAPSZ + bootmap_base address. If "bootargs" U-boot environemnt
  * variable is present its contents is copied to allocated kernel
  * command line.
  *
  * returns:
- *     alloc_current after cmdline allocation
+ *      0 - success
+ *     -1 - failure
  */
-ulong get_boot_cmdline (ulong alloc_current, ulong *cmd_start, ulong *cmd_end)
+int get_boot_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
+			ulong bootmap_base)
 {
 	char *cmdline;
 	char *s;
 
-	cmdline = (char *)((alloc_current - CFG_BARGSIZE) & ~0xF);
+	cmdline = (char *)lmb_alloc_base(lmb, CFG_BARGSIZE, 0xf,
+					 CFG_BOOTMAPSZ + bootmap_base);
+
+	if (cmdline == NULL)
+		return -1;
 
 	if ((s = getenv("bootargs")) == NULL)
 		s = "";
@@ -869,25 +823,31 @@ ulong get_boot_cmdline (ulong alloc_current, ulong *cmd_start, ulong *cmd_end)
 
 	debug ("## cmdline at 0x%08lx ... 0x%08lx\n", *cmd_start, *cmd_end);
 
-	return (ulong)cmdline;
+	return 0;
 }
 
 /**
  * get_boot_kbd - allocate and initialize kernel copy of board info
- * @alloc_current: current boot allocation address (counting down
- *      from sp_limit)
+ * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @kbd: double pointer to board info data
+ * @bootmap_base: ulong variable, holds offset in physical memory to
+ * base of bootmap
  *
- * get_boot_kbd() - allocates space for kernel copy of board info data.
- * Space is allocated below provided alloc_current address and kernel
- * board info is initialized with the current u-boot board info data.
+ * get_boot_kbd() allocates space for kernel copy of board info data below
+ * BOOTMAPSZ + bootmap_base address and kernel board info is initialized with
+ * the current u-boot board info data.
  *
  * returns:
- *     alloc_current after kbd allocation
+ *      0 - success
+ *     -1 - failure
  */
-ulong get_boot_kbd (ulong alloc_current, bd_t **kbd)
+int get_boot_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 {
-	*kbd = (bd_t *) (((ulong)alloc_current - sizeof(bd_t)) & ~0xF);
+	*kbd = (bd_t *)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
+				      CFG_BOOTMAPSZ + bootmap_base);
+	if (*kbd == NULL)
+		return -1;
+
 	**kbd = *(gd->bd);
 
 	debug ("## kernel board info at 0x%08lx\n", (ulong)*kbd);
@@ -896,7 +856,7 @@ ulong get_boot_kbd (ulong alloc_current, bd_t **kbd)
 	do_bdinfo(NULL, 0, 0, NULL);
 #endif
 
-	return (ulong)*kbd;
+	return 0;
 }
 #endif /* CONFIG_PPC || CONFIG_M68K */
 

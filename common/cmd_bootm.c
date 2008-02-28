@@ -103,6 +103,12 @@ static boot_os_fn do_bootm_artos;
 ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
+void __board_lmb_reserve(struct lmb *lmb)
+{
+	/* please define platform specific board_lmb_reserve() */
+}
+void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
+
 
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
@@ -133,6 +139,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #else
 	lmb_add(&lmb, 0, gd->bd->bi_memsize);
 #endif
+
+	board_lmb_reserve(&lmb);
 
 	/* get kernel image header, start address and length */
 	os_hdr = get_kernel (cmdtp, flag, argc, argv,

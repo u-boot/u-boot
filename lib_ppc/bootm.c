@@ -43,7 +43,7 @@
 static void fdt_error (const char *msg);
 static int get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
-static ulong fdt_relocate (ulong alloc_current,
+static int fdt_relocate (struct lmb *lmb, ulong bootmap_base,
 		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		char **of_flat_tree, ulong *of_size);
 #endif
@@ -55,6 +55,7 @@ static ulong fdt_relocate (ulong alloc_current,
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
@@ -62,21 +63,24 @@ void  __attribute__((noinline))
 do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images)
 {
-	ulong	sp, sp_limit, alloc_current;
+	ulong	sp;
 
 	ulong	initrd_start, initrd_end;
 	ulong	rd_data_start, rd_data_end, rd_len;
 
-	ulong	cmd_start, cmd_end;
+	ulong	cmd_start, cmd_end, bootmap_base;
 	bd_t	*kbd;
 	ulong	ep = 0;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
 	int	ret;
 	ulong	of_size = 0;
+	struct lmb *lmb = images->lmb;
 
 #if defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = NULL;
 #endif
+
+	bootmap_base = 0;
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -90,8 +94,9 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	sp = get_sp();
 	debug ("## Current stack ends at 0x%08lx ", sp);
 
-	alloc_current = sp_limit = get_boot_sp_limit(sp);
-	debug ("=> set upper limit to 0x%08lx\n", sp_limit);
+	/* adjust sp by 1K to be safe */
+	sp -= 1024;
+	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + get_effective_memsize() - sp));
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */
@@ -103,10 +108,18 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
+		ret = get_boot_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
+		if (ret) {
+			puts("ERROR with allocation of cmdline\n");
+			goto error;
+		}
 
 		/* allocate space for kernel copy of board info */
-		alloc_current = get_boot_kbd (alloc_current, &kbd);
+		ret = get_boot_kbd (lmb, &kbd, bootmap_base);
+		if (ret) {
+			puts("ERROR with allocation of kernel bd\n");
+			goto error;
+		}
 		set_clocks_in_mhz(kbd);
 	}
 
@@ -134,8 +147,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	rd_len = rd_data_end - rd_data_start;
 
 #if defined(CONFIG_OF_LIBFDT)
-	alloc_current = fdt_relocate (alloc_current,
-			cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
+	ret = fdt_relocate (lmb, bootmap_base,
+		cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
 
 	/*
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
@@ -166,8 +179,9 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 
-	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
-			sp_limit, get_sp (), &initrd_start, &initrd_end);
+	ret = ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
+	if (ret)
+		goto error;
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* fixup the initrd now that we know where it should be */
@@ -488,17 +502,17 @@ error:
 	return 1;
 }
 
-static ulong fdt_relocate (ulong alloc_current,
+static int fdt_relocate (struct lmb *lmb, ulong bootmap_base,
 		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		char **of_flat_tree, ulong *of_size)
 {
 	char	*fdt_blob = *of_flat_tree;
 	ulong	relocate = 0;
-	ulong	new_alloc_current;
+	ulong	of_len = 0;
 
 	/* nothing to do */
 	if (*of_size == 0)
-		return alloc_current;
+		return 0;
 
 	if (fdt_check_header (fdt_blob) != 0) {
 		fdt_error ("image is not a fdt");
@@ -511,25 +525,28 @@ static ulong fdt_relocate (ulong alloc_current,
 		relocate = 1;
 #endif
 
-#ifdef CFG_BOOTMAPSZ
 	/*
 	 * The blob must be within CFG_BOOTMAPSZ,
 	 * so we flag it to be copied if it is not.
 	 */
 	if (fdt_blob >= (char *)CFG_BOOTMAPSZ)
 		relocate = 1;
-#endif
+
+	of_len = be32_to_cpu (fdt_totalsize (fdt));
 
 	/* move flattend device tree if needed */
 	if (relocate) {
 		int err;
-		ulong of_start, of_len;
-
-		of_len = *of_size;
+		ulong of_start;
 
 		/* position on a 4K boundary before the alloc_current */
-		of_start  = alloc_current - of_len;
-		of_start &= ~(4096 - 1);	/* align on page */
+		of_start = lmb_alloc_base(lmb, of_len, 0x1000,
+					 (CFG_BOOTMAPSZ + bootmap_base));
+
+		if (of_start == 0) {
+			puts("device tree - allocation error\n");
+			goto error;
+		}
 
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
 			(ulong)fdt_blob, (ulong)fdt_blob + of_len - 1,
@@ -546,16 +563,14 @@ static ulong fdt_relocate (ulong alloc_current,
 		puts ("OK\n");
 
 		*of_flat_tree = (char *)of_start;
-		new_alloc_current = of_start;
 	} else {
 		*of_flat_tree = fdt_blob;
-		new_alloc_current = alloc_current;
+		lmb_reserve(lmb, (ulong)fdt, of_len);
 	}
 
-	return new_alloc_current;
+	return 0;
 
 error:
-	do_reset (cmdtp, flag, argc, argv);
 	return 1;
 }
 #endif

@@ -50,16 +50,18 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		    int argc, char *argv[],
 		    bootm_headers_t *images)
 {
-	ulong sp, sp_limit, alloc_current;
+	ulong sp;
 
 	ulong rd_data_start, rd_data_end, rd_len;
 	ulong initrd_start, initrd_end;
 	int ret;
 
 	ulong cmd_start, cmd_end;
+	ulong bootmap_base = 0;
 	bd_t  *kbd;
 	ulong ep = 0;
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
+	struct lmb *lmb = images->lmb;
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -73,14 +75,23 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	sp = get_sp();
 	debug ("## Current stack ends at 0x%08lx ", sp);
 
-	alloc_current = sp_limit = get_boot_sp_limit(sp);
-	debug ("=> set upper limit to 0x%08lx\n", sp_limit);
+	/* adjust sp by 1K to be safe */
+	sp -= 1024;
+	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + gd->ram_size - sp));
 
 	/* allocate space and init command line */
-	alloc_current = get_boot_cmdline (alloc_current, &cmd_start, &cmd_end);
+	ret = get_boot_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
+	if (ret) {
+		puts("ERROR with allocation of cmdline\n");
+		goto error;
+	}
 
 	/* allocate space for kernel copy of board info */
-	alloc_current = get_boot_kbd (alloc_current, &kbd);
+	ret = get_boot_kbd (lmb, &kbd, bootmap_base);
+	if (ret) {
+		puts("ERROR with allocation of kernel bd\n");
+		goto error;
+	}
 	set_clocks_in_mhz(kbd);
 
 	/* find kernel entry point */
@@ -105,8 +116,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		goto error;
 
 	rd_len = rd_data_end - rd_data_start;
-	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
-			sp_limit, get_sp (), &initrd_start, &initrd_end);
+	ret = ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
+	if (ret)
+		goto error;
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong) kernel);
