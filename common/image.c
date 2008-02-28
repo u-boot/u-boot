@@ -51,8 +51,6 @@
 #include <fdt_support.h>
 #endif
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
@@ -491,7 +489,7 @@ ulong gen_get_image (ulong img_addr)
  *
  * returns:
  *     pointer to a ramdisk image header, if image was found and valid
- *     otherwise, board is reset
+ *     otherwise, return NULL
  */
 static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		int argc, char *argv[],
@@ -505,13 +503,13 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 	if (!image_check_magic (rd_hdr)) {
 		puts ("Bad Magic Number\n");
 		show_boot_progress (-10);
-		do_reset (cmdtp, flag, argc, argv);
+		return NULL;
 	}
 
 	if (!image_check_hcrc (rd_hdr)) {
 		puts ("Bad Header Checksum\n");
 		show_boot_progress (-11);
-		do_reset (cmdtp, flag, argc, argv);
+		return NULL;
 	}
 
 	show_boot_progress (10);
@@ -522,7 +520,7 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
 			puts ("Bad Data CRC\n");
 			show_boot_progress (-12);
-			do_reset (cmdtp, flag, argc, argv);
+			return NULL;
 		}
 		puts("OK\n");
 	}
@@ -535,7 +533,7 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		printf ("No Linux %s Ramdisk Image\n",
 				image_get_arch_name(arch));
 		show_boot_progress (-13);
-		do_reset (cmdtp, flag, argc, argv);
+		return NULL;
 	}
 
 	return rd_hdr;
@@ -561,9 +559,9 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  *     rd_start and rd_end are set to ramdisk start/end addresses if
  *     ramdisk image is found and valid
  *     rd_start and rd_end are set to 0 if no ramdisk exists
- *     board is reset if ramdisk image is found but corrupted
+ *     return 1 if ramdisk image is found but corrupted
  */
-void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, uint8_t arch,
 		ulong *rd_start, ulong *rd_end)
 {
@@ -630,6 +628,12 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
 						rd_addr, arch, images->verify);
 
+			if (rd_hdr == NULL) {
+				*rd_start = 0;
+				*rd_end = 0;
+				return 1;
+			}
+
 			rd_data = image_get_data (rd_hdr);
 			rd_len = image_get_data_size (rd_hdr);
 			rd_load = image_get_load (rd_hdr);
@@ -639,7 +643,7 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			fit_hdr = (void *)rd_addr;
 			debug ("*  ramdisk: FIT format image\n");
 			fit_unsupported_reset ("ramdisk");
-			do_reset (cmdtp, flag, argc, argv);
+			return 1;
 #endif
 		default:
 			printf ("Wrong Image Format for %s command\n",
@@ -687,6 +691,8 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 	debug ("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
 			*rd_start, *rd_end);
+
+	return 0;
 }
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)

@@ -35,6 +35,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 #define PHYSADDR(x) x
 
 #define LINUX_MAX_ENVS		256
@@ -52,6 +54,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 	ulong rd_data_start, rd_data_end, rd_len;
 	ulong initrd_start, initrd_end;
+	int ret;
 
 	ulong cmd_start, cmd_end;
 	bd_t  *kbd;
@@ -95,8 +98,11 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	get_ramdisk (cmdtp, flag, argc, argv, images,
+	ret = get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
+
+	if (ret)
+		goto error;
 
 	rd_len = rd_data_end - rd_data_start;
 	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
@@ -117,6 +123,11 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 	/* does not return */
+	return ;
+
+error:
+	do_reset (cmdtp, flag, argc, argv);
+	return ;
 }
 
 static ulong get_sp (void)

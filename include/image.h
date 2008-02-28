@@ -382,7 +382,7 @@ void image_print_contents (image_header_t *hdr);
 int gen_image_get_format (void *img_addr);
 ulong gen_get_image (ulong img_addr);
 
-void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, uint8_t arch,
 		ulong *rd_start, ulong *rd_end);
 
