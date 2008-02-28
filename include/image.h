@@ -204,6 +204,7 @@ typedef struct bootm_headers {
 	char		*fit_uname_fdt;	/* FDT blob node unit name */
 #endif
 	int		verify;		/* getenv("verify")[0] != 'n' */
+	int		autostart;	/* getenv("autostart")[0] != 'n' */
 	struct lmb	*lmb;		/* for memory mgmt */
 #endif
 } bootm_headers_t;
@@ -314,6 +315,7 @@ int image_check_dcrc (image_header_t *hdr);
 #ifndef USE_HOSTCC
 int image_check_dcrc_wd (image_header_t *hdr, ulong chunksize);
 int getenv_verify (void);
+int getenv_autostart (void);
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz);
 #endif
 

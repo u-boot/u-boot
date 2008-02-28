@@ -126,6 +126,12 @@ int getenv_verify (void)
 	return (s && (*s == 'n')) ? 0 : 1;
 }
 
+int getenv_autostart (void)
+{
+	char *s = getenv ("autostart");
+	return (s && (*s == 'n')) ? 0 : 1;
+}
+
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
