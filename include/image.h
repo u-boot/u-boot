@@ -316,6 +316,8 @@ int image_check_dcrc (image_header_t *hdr);
 int image_check_dcrc_wd (image_header_t *hdr, ulong chunksize);
 int getenv_verify (void);
 int getenv_autostart (void);
+ulong getenv_bootm_low(void);
+ulong getenv_bootm_size(void);
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz);
 #endif
 

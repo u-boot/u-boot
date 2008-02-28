@@ -57,11 +57,13 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	int ret;
 
 	ulong cmd_start, cmd_end;
-	ulong bootmap_base = 0;
+	ulong bootmap_base;
 	bd_t  *kbd;
 	ulong ep = 0;
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = images->lmb;
+
+	bootmap_base = getenv_bootm_low();
 
 	/*
 	 * Booting a (Linux) kernel image

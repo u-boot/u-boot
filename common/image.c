@@ -132,6 +132,32 @@ int getenv_autostart (void)
 	return (s && (*s == 'n')) ? 0 : 1;
 }
 
+ulong getenv_bootm_low(void)
+{
+	char *s = getenv ("bootm_low");
+	if (s) {
+		ulong tmp = simple_strtoul (s, NULL, 16);
+		return tmp;
+	}
+
+#ifdef CFG_SDRAM_BASE
+	return CFG_SDRAM_BASE;
+#else
+	return 0;
+#endif
+}
+
+ulong getenv_bootm_size(void)
+{
+	char *s = getenv ("bootm_size");
+	if (s) {
+		ulong tmp = simple_strtoul (s, NULL, 16);
+		return tmp;
+	}
+
+	return gd->bd->bi_memsize;
+}
+
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)

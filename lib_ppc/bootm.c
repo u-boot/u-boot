@@ -59,6 +59,10 @@ extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
+#ifndef CFG_LINUX_LOWMEM_MAX_SIZE
+#define CFG_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
+#endif
+
 void  __attribute__((noinline))
 do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images)
@@ -67,6 +71,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	ulong	initrd_start, initrd_end;
 	ulong	rd_data_start, rd_data_end, rd_len;
+	ulong	size;
 
 	ulong	cmd_start, cmd_end, bootmap_base;
 	bd_t	*kbd;
@@ -80,7 +85,24 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char	*of_flat_tree = NULL;
 #endif
 
-	bootmap_base = 0;
+	bootmap_base = getenv_bootm_low();
+	size = getenv_bootm_size();
+
+#ifdef DEBUG
+	if (((u64)bootmap_base + size) > (CFG_SDRAM_BASE + (u64)gd->ram_size))
+		puts("WARNING: bootm_low + bootm_size exceed total memory\n");
+	if ((bootmap_base + size) > get_effective_memsize())
+		puts("WARNING: bootm_low + bootm_size exceed eff. memory\n");
+#endif
+
+	size = min(size, get_effective_memsize());
+	size = min(size, CFG_LINUX_LOWMEM_MAX_SIZE);
+
+	if (size < getenv_bootm_size()) {
+		ulong base = bootmap_base + size;
+		printf("WARNING: adjusting available memory to %x\n", size);
+		lmb_reserve(lmb, base, getenv_bootm_size() - size);
+	}
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -92,7 +114,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 * pointer.
 	 */
 	sp = get_sp();
-	debug ("## Current stack ends at 0x%08lx ", sp);
+	debug ("## Current stack ends at 0x%08lx\n", sp);
 
 	/* adjust sp by 1K to be safe */
 	sp -= 1024;
