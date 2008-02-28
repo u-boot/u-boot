@@ -71,6 +71,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	bd_t	*kbd;
 	ulong	ep = 0;
 	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
+	int	ret;
 	ulong	of_size = 0;
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -126,9 +127,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	rd_len = rd_data_end - rd_data_start;
 
-	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
-			sp_limit, get_sp (), &initrd_start, &initrd_end);
-
 #if defined(CONFIG_OF_LIBFDT)
 	alloc_current = fdt_relocate (alloc_current,
 			cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
@@ -138,7 +136,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 * if the user wants it (the logic is in the subroutines).
 	 */
 	if (of_size) {
-		if (fdt_chosen(of_flat_tree, initrd_start, initrd_end, 0) < 0) {
+		/* pass in dummy initrd info, we'll fix up later */
+		if (fdt_chosen(of_flat_tree, rd_data_start, rd_data_end, 0) < 0) {
 			fdt_error ("/chosen node create failed");
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -161,6 +160,38 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 
+	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
+			sp_limit, get_sp (), &initrd_start, &initrd_end);
+
+#if defined(CONFIG_OF_LIBFDT)
+	/* fixup the initrd now that we know where it should be */
+	if ((of_flat_tree) && (initrd_start && initrd_end)) {
+		uint64_t addr, size;
+		int  total = fdt_num_mem_rsv(of_flat_tree);
+		int  j;
+
+		/* Look for the dummy entry and delete it */
+		for (j = 0; j < total; j++) {
+			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
+			if (addr == rd_data_start) {
+				fdt_del_mem_rsv(of_flat_tree, j);
+				break;
+			}
+		}
+
+		ret = fdt_add_mem_rsv(of_flat_tree, initrd_start,
+					initrd_end - initrd_start + 1);
+		if (ret < 0) {
+			printf("fdt_chosen: %s\n", fdt_strerror(ret));
+			do_reset (cmdtp, flag, argc, argv);
+		}
+
+		do_fixup_by_path_u32(of_flat_tree, "/chosen",
+					"linux,initrd-start", initrd_start, 0);
+		do_fixup_by_path_u32(of_flat_tree, "/chosen",
+					"linux,initrd-end", initrd_end, 0);
+	}
+#endif
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
