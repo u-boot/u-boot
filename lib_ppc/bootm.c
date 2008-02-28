@@ -120,8 +120,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	rd_len = rd_data_end - rd_data_start;
 
 	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
-			kbd, sp_limit, get_sp (),
-			&initrd_start, &initrd_end);
+			sp_limit, get_sp (), &initrd_start, &initrd_end);
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */

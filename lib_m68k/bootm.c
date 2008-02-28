@@ -100,8 +100,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 	rd_len = rd_data_end - rd_data_start;
 	alloc_current = ramdisk_high (alloc_current, rd_data_start, rd_len,
-			kbd, sp_limit, get_sp (),
-			&initrd_start, &initrd_end);
+			sp_limit, get_sp (), &initrd_start, &initrd_end);
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong) kernel);

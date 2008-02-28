@@ -694,7 +694,6 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
  * ramdisk_high - relocate init ramdisk
  * @rd_data: ramdisk data start address
  * @rd_len: ramdisk data length
- * @kbd: kernel board info copy (within BOOTMAPSZ boundary)
  * @sp_limit: stack pointer limit (including BOOTMAPSZ)
  * @sp: current stack pointer
  * @initrd_start: pointer to a ulong variable, will hold final init ramdisk
@@ -712,7 +711,7 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
  *     - returns new allc_current, next free address below BOOTMAPSZ
  */
 ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
-		bd_t *kbd, ulong sp_limit, ulong sp,
+		ulong sp_limit, ulong sp,
 		ulong *initrd_start, ulong *initrd_end)
 {
 	char	*s;
@@ -734,9 +733,9 @@ ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
 
 #ifdef CONFIG_LOGBUFFER
 	/* Prevent initrd from overwriting logbuffer */
-	if (initrd_high < (kbd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD))
-		initrd_high = kbd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD;
-	debug ("## Logbuffer at 0x%08lx ", kbd->bi_memsize - LOGBUFF_LEN);
+	if (initrd_high < (gd->bd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD))
+	    initrd_high = gd->bd->bi_memsize - LOGBUFF_LEN - LOGBUFF_OVERHEAD;
+	debug ("## Logbuffer at 0x%08lx ", gd->bd->bi_memsize - LOGBUFF_LEN);
 #endif
 	debug ("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
 			initrd_high, initrd_copy_to_ram);

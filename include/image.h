@@ -388,7 +388,7 @@ void get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 ulong ramdisk_high (ulong alloc_current, ulong rd_data, ulong rd_len,
-		bd_t *kbd, ulong sp_limit, ulong sp,
+		ulong sp_limit, ulong sp,
 		ulong *initrd_start, ulong *initrd_end);
 
 ulong get_boot_sp_limit (ulong sp);
