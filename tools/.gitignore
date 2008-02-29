@@ -7,3 +7,10 @@
 /mkimage
 /sha1.c
 /ubsha1
+/image.c
+/fdt.c
+/fdt_ro.c
+/fdt_rw.c
+/fdt_strerror.c
+/fdt_wip.c
+/libfdt_internal.h

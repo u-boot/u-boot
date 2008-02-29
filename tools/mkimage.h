@@ -33,6 +33,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sha1.h>
+#include "fdt_host.h"
 
 #if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <inttypes.h>

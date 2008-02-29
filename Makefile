@@ -2927,6 +2927,9 @@ clobber:	clean
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
 	@rm -f $(obj)tools/crc32.c $(obj)tools/environment.c $(obj)tools/env/crc32.c
 	@rm -f $(obj)tools/sha1.c $(obj)tools/image.c
+	@rm -f $(obj)tools/fdt.c $(obj)tools/fdt_ro.c $(obj)tools/fdt_rw.c
+	@rm -f $(obj)tools/fdt_strerror.c $(obj)tools/fdt_wip.c
+	@rm -f $(obj)tools/libfdt_internal.h
 	@rm -f $(obj)tools/inca-swap-bytes $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f
