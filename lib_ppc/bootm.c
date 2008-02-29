@@ -557,7 +557,7 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 	if (fdt_blob >= (char *)CFG_BOOTMAPSZ)
 		relocate = 1;
 
-	of_len = be32_to_cpu (fdt_totalsize (fdt));
+	of_len = be32_to_cpu (fdt_totalsize (fdt_blob));
 
 	/* move flattend device tree if needed */
 	if (relocate) {
