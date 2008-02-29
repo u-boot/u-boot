@@ -137,7 +137,7 @@ $(obj)img2srec$(SFX):	$(obj)img2srec.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
-$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o
+$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o $(obj)sha1.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 

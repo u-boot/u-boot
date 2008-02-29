@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <sha1.h>
 
 #if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <inttypes.h>
