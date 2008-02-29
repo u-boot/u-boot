@@ -224,11 +224,11 @@ int image_check_dcrc_wd (image_header_t *hdr, ulong chunksz)
 ulong image_multi_count (image_header_t *hdr)
 {
 	ulong i, count = 0;
-	ulong *size;
+	uint32_t *size;
 
 	/* get start of the image payload, which in case of multi
 	 * component images that points to a table of component sizes */
-	size = (ulong *)image_get_data (hdr);
+	size = (uint32_t *)image_get_data (hdr);
 
 	/* count non empty slots */
 	for (i = 0; size[i]; ++i)
@@ -258,7 +258,7 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 			ulong *data, ulong *len)
 {
 	int i;
-	ulong *size;
+	uint32_t *size;
 	ulong offset, tail, count, img_data;
 
 	/* get number of component */
@@ -266,24 +266,24 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 
 	/* get start of the image payload, which in case of multi
 	 * component images that points to a table of component sizes */
-	size = (ulong *)image_get_data (hdr);
+	size = (uint32_t *)image_get_data (hdr);
 
 	/* get address of the proper component data start, which means
 	 * skipping sizes table (add 1 for last, null entry) */
-	img_data = image_get_data (hdr) + (count + 1) * sizeof (ulong);
+	img_data = image_get_data (hdr) + (count + 1) * sizeof (uint32_t);
 
 	if (idx < count) {
-		*len = size[idx];
+		*len = uimage_to_cpu (size[idx]);
 		offset = 0;
 		tail = 0;
 
 		/* go over all indices preceding requested component idx */
 		for (i = 0; i < idx; i++) {
 			/* add up i-th component size */
-			offset += size[i];
+			offset += uimage_to_cpu (size[i]);
 
 			/* add up alignment for i-th component */
-			tail += (4 - size[i] % 4);
+			tail += (4 - uimage_to_cpu (size[i]) % 4);
 		}
 
 		/* calculate idx-th component data address */
