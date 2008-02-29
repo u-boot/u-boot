@@ -30,7 +30,11 @@ LOAD_ADDR = 0x40000
 endif
 
 ifeq ($(ARCH),arm)
+ifeq ($(BOARD),omap2420h4)
+LOAD_ADDR = 0x80300000
+else
 LOAD_ADDR = 0xc100000
+endif
 endif
 
 ifeq ($(ARCH),mips)
