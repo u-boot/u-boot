@@ -92,7 +92,7 @@ int au_check_cksum_valid(int i, long nbytes)
 
 	hdr = (image_header_t *)LOAD_ADDR;
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
 		return -1;
 	}
@@ -125,7 +125,7 @@ int au_check_header_valid(int i, long nbytes)
 
 	hdr = (image_header_t *)LOAD_ADDR;
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
 		return -1;
 	}
@@ -197,7 +197,7 @@ int au_do_update(int i, long sz)
 
 	hdr = (image_header_t *)LOAD_ADDR;
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
 		return -1;
 	}

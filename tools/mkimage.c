@@ -361,7 +361,7 @@ NXTARG:		;
 						cmdname, file, strerror(errno));
 					exit (EXIT_FAILURE);
 				}
-				size = cpu_to_image (sbuf.st_size);
+				size = cpu_to_uimage (sbuf.st_size);
 			} else {
 				size = 0;
 			}
@@ -604,7 +604,7 @@ print_header (image_header_t *hdr)
 		pos = image_get_header_size () + ptrs * sizeof(long);
 		printf ("Contents:\n");
 		for (i=0; len_ptr[i]; ++i) {
-			size = image_to_cpu (len_ptr[i]);
+			size = uimage_to_cpu (len_ptr[i]);
 
 			printf ("   Image %d: %8d Bytes = %4d kB = %d MB\n",
 				i, size, size>>10, size>>20);

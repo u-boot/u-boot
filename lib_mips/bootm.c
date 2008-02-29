@@ -68,7 +68,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	}
 	theKernel = (void (*)(int, char **, char **, int *))ep;
 
-	get_ramdisk (cmdtp, flag, argc, argv, images,
+	boot_get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_MIPS, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

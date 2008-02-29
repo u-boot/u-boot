@@ -141,7 +141,7 @@ int misc_init_r (void)
 
 	hdr = (image_header_t *) (CFG_MONITOR_BASE - image_get_header_size ());
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
 		return -1;
 	}

@@ -512,7 +512,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	}
 	show_boot_progress (56);
 
-	switch (gen_image_get_format ((void *)addr)) {
+	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 
@@ -994,7 +994,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (56);
 
-	switch (gen_image_get_format ((void *)addr)) {
+	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 

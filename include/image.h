@@ -161,9 +161,9 @@
 #define IH_NMLEN		32	/* Image Name Length		*/
 
 /*
- * all data in network byte order (aka natural aka bigendian)
+ * Legacy format image header,
+ * all data in network byte order (aka natural aka bigendian).
  */
-
 typedef struct image_header {
 	uint32_t	ih_magic;	/* Image Header Magic Number	*/
 	uint32_t	ih_hcrc;	/* Image Header CRC Checksum	*/
@@ -186,7 +186,7 @@ typedef struct image_header {
 typedef struct bootm_headers {
 	/*
 	 * Legacy os image header, if it is a multi component image
-	 * then get_ramdisk() and get_fdt() will attempt to get
+	 * then boot_get_ramdisk() and get_fdt() will attempt to get
 	 * data from second and third component accordingly.
 	 */
 	image_header_t	*legacy_hdr_os;
@@ -216,9 +216,40 @@ typedef struct bootm_headers {
  */
 #define CHUNKSZ (64 * 1024)
 
-#define image_to_cpu(x)		ntohl(x)
-#define cpu_to_image(x)		htonl(x)
+#define uimage_to_cpu(x)		ntohl(x)
+#define cpu_to_uimage(x)		htonl(x)
 
+#ifndef USE_HOSTCC
+/* Image format types, returned by _get_format() routine */
+#define IMAGE_FORMAT_INVALID	0x00
+#define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
+#define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
+
+int genimg_get_format (void *img_addr);
+ulong genimg_get_image (ulong img_addr);
+
+const char* genimg_get_os_name (uint8_t os);
+const char* genimg_get_arch_name (uint8_t arch);
+const char* genimg_get_type_name (uint8_t type);
+const char* genimg_get_comp_name (uint8_t comp);
+
+int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+		bootm_headers_t *images, uint8_t arch,
+		ulong *rd_start, ulong *rd_end);
+
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
+		  ulong *initrd_start, ulong *initrd_end);
+
+int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
+			ulong bootmap_base);
+int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
+#endif /* CONFIG_PPC || CONFIG_M68K */
+#endif /* USE_HOSTCC */
+
+/*******************************************************************/
+/* Legacy format specific code (prefixed with image_) */
+/*******************************************************************/
 static inline uint32_t image_get_header_size (void)
 {
 	return (sizeof (image_header_t));
@@ -227,7 +258,7 @@ static inline uint32_t image_get_header_size (void)
 #define image_get_hdr_l(f) \
 	static inline uint32_t image_get_##f(image_header_t *hdr) \
 	{ \
-		return image_to_cpu (hdr->ih_##f); \
+		return uimage_to_cpu (hdr->ih_##f); \
 	}
 image_get_hdr_l (magic);
 image_get_hdr_l (hcrc);
@@ -285,7 +316,7 @@ static inline ulong image_get_image_end (image_header_t *hdr)
 #define image_set_hdr_l(f) \
 	static inline void image_set_##f(image_header_t *hdr, uint32_t val) \
 	{ \
-		hdr->ih_##f = cpu_to_image (val); \
+		hdr->ih_##f = cpu_to_uimage (val); \
 	}
 image_set_hdr_l (magic);
 image_set_hdr_l (hcrc);
@@ -375,33 +406,10 @@ static inline int image_check_target_arch (image_header_t *hdr)
 	return 1;
 }
 
-const char* image_get_os_name (uint8_t os);
-const char* image_get_arch_name (uint8_t arch);
-const char* image_get_type_name (uint8_t type);
-const char* image_get_comp_name (uint8_t comp);
 void image_print_contents (image_header_t *hdr);
 
-#define IMAGE_FORMAT_INVALID	0x00
-#define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
-#define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
-
-int gen_image_get_format (void *img_addr);
-ulong gen_get_image (ulong img_addr);
-
-int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, uint8_t arch,
-		ulong *rd_start, ulong *rd_end);
-
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
-int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
-		  ulong *initrd_start, ulong *initrd_end);
-int get_boot_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
-			ulong bootmap_base);
-int get_boot_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
-#endif /* CONFIG_PPC || CONFIG_M68K */
-
 /*******************************************************************/
-/* New uImage format */
+/* New uImage format specific code (prefixed with fit_) */
 /*******************************************************************/
 #if defined(CONFIG_FIT)
 inline int fit_parse_conf (const char *spec, ulong addr_curr,
@@ -422,9 +430,7 @@ inline int fit_parse_subimage (const char *spec, ulong addr_curr,
 #define fit_unsupported(msg)
 #define fit_unsupported_reset(msg)
 #endif /* CONFIG_FIT_VERBOSE */
-
 #endif /* CONFIG_FIT */
-
 #endif /* USE_HOSTCC */
 
 #endif	/* __IMAGE_H__ */

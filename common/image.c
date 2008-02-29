@@ -68,6 +68,9 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 
 unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
 
+/*****************************************************************************/
+/* Legacy format routines */
+/*****************************************************************************/
 int image_check_hcrc (image_header_t *hdr)
 {
 	ulong hcrc;
@@ -119,61 +122,6 @@ int image_check_dcrc_wd (image_header_t *hdr, ulong chunksz)
 
 	return (dcrc == image_get_dcrc (hdr));
 }
-
-int getenv_verify (void)
-{
-	char *s = getenv ("verify");
-	return (s && (*s == 'n')) ? 0 : 1;
-}
-
-int getenv_autostart (void)
-{
-	char *s = getenv ("autostart");
-	return (s && (*s == 'n')) ? 0 : 1;
-}
-
-ulong getenv_bootm_low(void)
-{
-	char *s = getenv ("bootm_low");
-	if (s) {
-		ulong tmp = simple_strtoul (s, NULL, 16);
-		return tmp;
-	}
-
-#ifdef CFG_SDRAM_BASE
-	return CFG_SDRAM_BASE;
-#else
-	return 0;
-#endif
-}
-
-ulong getenv_bootm_size(void)
-{
-	char *s = getenv ("bootm_size");
-	if (s) {
-		ulong tmp = simple_strtoul (s, NULL, 16);
-		return tmp;
-	}
-
-	return gd->bd->bi_memsize;
-}
-
-void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
-{
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	while (len > 0) {
-		size_t tail = (len > chunksz) ? chunksz : len;
-		WATCHDOG_RESET ();
-		memmove (to, from, tail);
-		to += tail;
-		from += tail;
-		len -= tail;
-	}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-	memmove (to, from, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-}
-#endif /* USE_HOSTCC */
 
 /**
  * image_multi_count - get component (sub-image) count
@@ -262,100 +210,14 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 }
 
 #ifndef USE_HOSTCC
-const char* image_get_os_name (uint8_t os)
-{
-	const char *name;
-
-	switch (os) {
-	case IH_OS_INVALID:	name = "Invalid OS";		break;
-	case IH_OS_NETBSD:	name = "NetBSD";		break;
-	case IH_OS_LINUX:	name = "Linux";			break;
-	case IH_OS_VXWORKS:	name = "VxWorks";		break;
-	case IH_OS_QNX:		name = "QNX";			break;
-	case IH_OS_U_BOOT:	name = "U-Boot";		break;
-	case IH_OS_RTEMS:	name = "RTEMS";			break;
-#ifdef CONFIG_ARTOS
-	case IH_OS_ARTOS:	name = "ARTOS";			break;
-#endif
-#ifdef CONFIG_LYNXKDI
-	case IH_OS_LYNXOS:	name = "LynxOS";		break;
-#endif
-	default:		name = "Unknown OS";		break;
-	}
-
-	return name;
-}
-
-const char* image_get_arch_name (uint8_t arch)
-{
-	const char *name;
-
-	switch (arch) {
-	case IH_ARCH_INVALID:	name = "Invalid Architecture";	break;
-	case IH_ARCH_ALPHA:	name = "Alpha";			break;
-	case IH_ARCH_ARM:	name = "ARM";			break;
-	case IH_ARCH_AVR32:	name = "AVR32";			break;
-	case IH_ARCH_BLACKFIN:	name = "Blackfin";		break;
-	case IH_ARCH_I386:	name = "Intel x86";		break;
-	case IH_ARCH_IA64:	name = "IA64";			break;
-	case IH_ARCH_M68K:	name = "M68K"; 			break;
-	case IH_ARCH_MICROBLAZE:name = "Microblaze"; 		break;
-	case IH_ARCH_MIPS64:	name = "MIPS 64 Bit";		break;
-	case IH_ARCH_MIPS:	name = "MIPS";			break;
-	case IH_ARCH_NIOS2:	name = "Nios-II";		break;
-	case IH_ARCH_NIOS:	name = "Nios";			break;
-	case IH_ARCH_PPC:	name = "PowerPC";		break;
-	case IH_ARCH_S390:	name = "IBM S390";		break;
-	case IH_ARCH_SH:	name = "SuperH";		break;
-	case IH_ARCH_SPARC64:	name = "SPARC 64 Bit";		break;
-	case IH_ARCH_SPARC:	name = "SPARC";			break;
-	default:		name = "Unknown Architecture";	break;
-	}
-
-	return name;
-}
-
-const char* image_get_type_name (uint8_t type)
-{
-	const char *name;
-
-	switch (type) {
-	case IH_TYPE_INVALID:	name = "Invalid Image";		break;
-	case IH_TYPE_STANDALONE:name = "Standalone Program";	break;
-	case IH_TYPE_KERNEL:	name = "Kernel Image";		break;
-	case IH_TYPE_RAMDISK:	name = "RAMDisk Image";		break;
-	case IH_TYPE_MULTI:	name = "Multi-File Image";	break;
-	case IH_TYPE_FIRMWARE:	name = "Firmware";		break;
-	case IH_TYPE_SCRIPT:	name = "Script";		break;
-	case IH_TYPE_FLATDT:	name = "Flat Device Tree";	break;
-	default:		name = "Unknown Image";		break;
-	}
-
-	return name;
-}
-
-const char* image_get_comp_name (uint8_t comp)
-{
-	const char *name;
-
-	switch (comp) {
-	case IH_COMP_NONE:	name = "uncompressed";		break;
-	case IH_COMP_GZIP:	name = "gzip compressed";	break;
-	case IH_COMP_BZIP2:	name = "bzip2 compressed";	break;
-	default:		name = "unknown compression";	break;
-	}
-
-	return name;
-}
-
 static void image_print_type (image_header_t *hdr)
 {
 	const char *os, *arch, *type, *comp;
 
-	os = image_get_os_name (image_get_os (hdr));
-	arch = image_get_arch_name (image_get_arch (hdr));
-	type = image_get_type_name (image_get_type (hdr));
-	comp = image_get_comp_name (image_get_comp (hdr));
+	os = genimg_get_os_name (image_get_os (hdr));
+	arch = genimg_get_arch_name (image_get_arch (hdr));
+	type = genimg_get_type_name (image_get_type (hdr));
+	comp = genimg_get_comp_name (image_get_comp (hdr));
 
 	printf ("%s %s %s (%s)", arch, os, type, comp);
 }
@@ -396,109 +258,6 @@ void image_print_contents (image_header_t *hdr)
 			print_size (len, "\n");
 		}
 	}
-}
-
-/**
- * gen_image_get_format - get image format type
- * @img_addr: image start address
- *
- * gen_image_get_format() checks whether provided address points to a valid
- * legacy or FIT image.
- *
- * New uImage format and FDT blob are based on a libfdt. FDT blob
- * may be passed directly or embedded in a FIT image. In both situations
- * gen_image_get_format() must be able to dectect libfdt header.
- *
- * returns:
- *     image format type or IMAGE_FORMAT_INVALID if no image is present
- */
-int gen_image_get_format (void *img_addr)
-{
-	ulong		format = IMAGE_FORMAT_INVALID;
-	image_header_t	*hdr;
-#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	char		*fit_hdr;
-#endif
-
-	hdr = (image_header_t *)img_addr;
-	if (image_check_magic(hdr))
-		format = IMAGE_FORMAT_LEGACY;
-#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	else {
-		fit_hdr = (char *)img_addr;
-		if (fdt_check_header (fit_hdr) == 0)
-			format = IMAGE_FORMAT_FIT;
-	}
-#endif
-
-	return format;
-}
-
-/**
- * gen_get_image - get image from special storage (if necessary)
- * @img_addr: image start address
- *
- * gen_get_image() checks if provided image start adddress is located
- * in a dataflash storage. If so, image is moved to a system RAM memory.
- *
- * returns:
- *     image start address after possible relocation from special storage
- */
-ulong gen_get_image (ulong img_addr)
-{
-	ulong ram_addr = img_addr;
-
-#ifdef CONFIG_HAS_DATAFLASH
-	ulong h_size, d_size;
-
-	if (addr_dataflash (img_addr)){
-		/* ger RAM address */
-		ram_addr = CFG_LOAD_ADDR;
-
-		/* get header size */
-		h_size = image_get_header_size ();
-#if defined(CONFIG_FIT)
-		if (sizeof(struct fdt_header) > h_size)
-			h_size = sizeof(struct fdt_header);
-#endif
-
-		/* read in header */
-		debug ("   Reading image header from dataflash address "
-			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
-
-		read_dataflash (img_addr, h_size, (char *)ram_addr);
-
-		/* get data size */
-		switch (gen_image_get_format ((void *)ram_addr)) {
-		case IMAGE_FORMAT_LEGACY:
-			d_size = image_get_data_size ((image_header_t *)ram_addr);
-			debug ("   Legacy format image found at 0x%08lx, size 0x%08lx\n",
-					ram_addr, d_size);
-			break;
-#if defined(CONFIG_FIT)
-		case IMAGE_FORMAT_FIT:
-			d_size = fdt_totalsize((void *)ram_addr) - h_size;
-			debug ("   FIT/FDT format image found at 0x%08lx, size 0x%08lx\n",
-					ram_addr, d_size);
-			break;
-#endif
-		default:
-			printf ("   No valid image found at 0x%08lx\n", img_addr);
-			return ram_addr;
-		}
-
-		/* read in image data */
-		debug ("   Reading image remaining data from dataflash address "
-			"%08lx to RAM address %08lx\n", img_addr + h_size,
-			ram_addr + h_size);
-
-		read_dataflash (img_addr + h_size, d_size,
-				(char *)(ram_addr + h_size));
-
-	}
-#endif /* CONFIG_HAS_DATAFLASH */
-
-	return ram_addr;
 }
 
 /**
@@ -563,7 +322,7 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 	    !image_check_arch (rd_hdr, arch) ||
 	    !image_check_type (rd_hdr, IH_TYPE_RAMDISK)) {
 		printf ("No Linux %s Ramdisk Image\n",
-				image_get_arch_name(arch));
+				genimg_get_arch_name(arch));
 		show_boot_progress (-13);
 		return NULL;
 	}
@@ -571,8 +330,255 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 	return rd_hdr;
 }
 
+/*****************************************************************************/
+/* Shared dual-format routines */
+/*****************************************************************************/
+int getenv_verify (void)
+{
+	char *s = getenv ("verify");
+	return (s && (*s == 'n')) ? 0 : 1;
+}
+
+int getenv_autostart (void)
+{
+	char *s = getenv ("autostart");
+	return (s && (*s == 'n')) ? 0 : 1;
+}
+
+ulong getenv_bootm_low(void)
+{
+	char *s = getenv ("bootm_low");
+	if (s) {
+		ulong tmp = simple_strtoul (s, NULL, 16);
+		return tmp;
+	}
+
+#ifdef CFG_SDRAM_BASE
+	return CFG_SDRAM_BASE;
+#else
+	return 0;
+#endif
+}
+
+ulong getenv_bootm_size(void)
+{
+	char *s = getenv ("bootm_size");
+	if (s) {
+		ulong tmp = simple_strtoul (s, NULL, 16);
+		return tmp;
+	}
+
+	return gd->bd->bi_memsize;
+}
+
+void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
+{
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	while (len > 0) {
+		size_t tail = (len > chunksz) ? chunksz : len;
+		WATCHDOG_RESET ();
+		memmove (to, from, tail);
+		to += tail;
+		from += tail;
+		len -= tail;
+	}
+#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
+	memmove (to, from, len);
+#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
+}
+#endif /* USE_HOSTCC */
+
+const char* genimg_get_os_name (uint8_t os)
+{
+	const char *name;
+
+	switch (os) {
+	case IH_OS_INVALID:	name = "Invalid OS";		break;
+	case IH_OS_NETBSD:	name = "NetBSD";		break;
+	case IH_OS_LINUX:	name = "Linux";			break;
+	case IH_OS_VXWORKS:	name = "VxWorks";		break;
+	case IH_OS_QNX:		name = "QNX";			break;
+	case IH_OS_U_BOOT:	name = "U-Boot";		break;
+	case IH_OS_RTEMS:	name = "RTEMS";			break;
+#ifdef CONFIG_ARTOS
+	case IH_OS_ARTOS:	name = "ARTOS";			break;
+#endif
+#ifdef CONFIG_LYNXKDI
+	case IH_OS_LYNXOS:	name = "LynxOS";		break;
+#endif
+	default:		name = "Unknown OS";		break;
+	}
+
+	return name;
+}
+
+const char* genimg_get_arch_name (uint8_t arch)
+{
+	const char *name;
+
+	switch (arch) {
+	case IH_ARCH_INVALID:	name = "Invalid Architecture";	break;
+	case IH_ARCH_ALPHA:	name = "Alpha";			break;
+	case IH_ARCH_ARM:	name = "ARM";			break;
+	case IH_ARCH_AVR32:	name = "AVR32";			break;
+	case IH_ARCH_BLACKFIN:	name = "Blackfin";		break;
+	case IH_ARCH_I386:	name = "Intel x86";		break;
+	case IH_ARCH_IA64:	name = "IA64";			break;
+	case IH_ARCH_M68K:	name = "M68K"; 			break;
+	case IH_ARCH_MICROBLAZE:name = "Microblaze"; 		break;
+	case IH_ARCH_MIPS64:	name = "MIPS 64 Bit";		break;
+	case IH_ARCH_MIPS:	name = "MIPS";			break;
+	case IH_ARCH_NIOS2:	name = "Nios-II";		break;
+	case IH_ARCH_NIOS:	name = "Nios";			break;
+	case IH_ARCH_PPC:	name = "PowerPC";		break;
+	case IH_ARCH_S390:	name = "IBM S390";		break;
+	case IH_ARCH_SH:	name = "SuperH";		break;
+	case IH_ARCH_SPARC64:	name = "SPARC 64 Bit";		break;
+	case IH_ARCH_SPARC:	name = "SPARC";			break;
+	default:		name = "Unknown Architecture";	break;
+	}
+
+	return name;
+}
+
+const char* genimg_get_type_name (uint8_t type)
+{
+	const char *name;
+
+	switch (type) {
+	case IH_TYPE_INVALID:	name = "Invalid Image";		break;
+	case IH_TYPE_STANDALONE:name = "Standalone Program";	break;
+	case IH_TYPE_KERNEL:	name = "Kernel Image";		break;
+	case IH_TYPE_RAMDISK:	name = "RAMDisk Image";		break;
+	case IH_TYPE_MULTI:	name = "Multi-File Image";	break;
+	case IH_TYPE_FIRMWARE:	name = "Firmware";		break;
+	case IH_TYPE_SCRIPT:	name = "Script";		break;
+	case IH_TYPE_FLATDT:	name = "Flat Device Tree";	break;
+	default:		name = "Unknown Image";		break;
+	}
+
+	return name;
+}
+
+const char* genimg_get_comp_name (uint8_t comp)
+{
+	const char *name;
+
+	switch (comp) {
+	case IH_COMP_NONE:	name = "uncompressed";		break;
+	case IH_COMP_GZIP:	name = "gzip compressed";	break;
+	case IH_COMP_BZIP2:	name = "bzip2 compressed";	break;
+	default:		name = "unknown compression";	break;
+	}
+
+	return name;
+}
+
 /**
- * get_ramdisk - main ramdisk handling routine
+ * genimg_get_format - get image format type
+ * @img_addr: image start address
+ *
+ * genimg_get_format() checks whether provided address points to a valid
+ * legacy or FIT image.
+ *
+ * New uImage format and FDT blob are based on a libfdt. FDT blob
+ * may be passed directly or embedded in a FIT image. In both situations
+ * genimg_get_format() must be able to dectect libfdt header.
+ *
+ * returns:
+ *     image format type or IMAGE_FORMAT_INVALID if no image is present
+ */
+int genimg_get_format (void *img_addr)
+{
+	ulong		format = IMAGE_FORMAT_INVALID;
+	image_header_t	*hdr;
+#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
+	char		*fit_hdr;
+#endif
+
+	hdr = (image_header_t *)img_addr;
+	if (image_check_magic(hdr))
+		format = IMAGE_FORMAT_LEGACY;
+#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
+	else {
+		fit_hdr = (char *)img_addr;
+		if (fdt_check_header (fit_hdr) == 0)
+			format = IMAGE_FORMAT_FIT;
+	}
+#endif
+
+	return format;
+}
+
+/**
+ * genimg_get_image - get image from special storage (if necessary)
+ * @img_addr: image start address
+ *
+ * genimg_get_image() checks if provided image start adddress is located
+ * in a dataflash storage. If so, image is moved to a system RAM memory.
+ *
+ * returns:
+ *     image start address after possible relocation from special storage
+ */
+ulong genimg_get_image (ulong img_addr)
+{
+	ulong ram_addr = img_addr;
+
+#ifdef CONFIG_HAS_DATAFLASH
+	ulong h_size, d_size;
+
+	if (addr_dataflash (img_addr)){
+		/* ger RAM address */
+		ram_addr = CFG_LOAD_ADDR;
+
+		/* get header size */
+		h_size = image_get_header_size ();
+#if defined(CONFIG_FIT)
+		if (sizeof(struct fdt_header) > h_size)
+			h_size = sizeof(struct fdt_header);
+#endif
+
+		/* read in header */
+		debug ("   Reading image header from dataflash address "
+			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
+
+		read_dataflash (img_addr, h_size, (char *)ram_addr);
+
+		/* get data size */
+		switch (genimg_get_format ((void *)ram_addr)) {
+		case IMAGE_FORMAT_LEGACY:
+			d_size = image_get_data_size ((image_header_t *)ram_addr);
+			debug ("   Legacy format image found at 0x%08lx, size 0x%08lx\n",
+					ram_addr, d_size);
+			break;
+#if defined(CONFIG_FIT)
+		case IMAGE_FORMAT_FIT:
+			d_size = fdt_totalsize((void *)ram_addr) - h_size;
+			debug ("   FIT/FDT format image found at 0x%08lx, size 0x%08lx\n",
+					ram_addr, d_size);
+			break;
+#endif
+		default:
+			printf ("   No valid image found at 0x%08lx\n", img_addr);
+			return ram_addr;
+		}
+
+		/* read in image data */
+		debug ("   Reading image remaining data from dataflash address "
+			"%08lx to RAM address %08lx\n", img_addr + h_size,
+			ram_addr + h_size);
+
+		read_dataflash (img_addr + h_size, d_size,
+				(char *)(ram_addr + h_size));
+
+	}
+#endif /* CONFIG_HAS_DATAFLASH */
+
+	return ram_addr;
+}
+
+/**
+ * boot_get_ramdisk - main ramdisk handling routine
  * @cmdtp: command table pointer
  * @flag: command flag
  * @argc: command argument count
@@ -582,7 +588,7 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  * @rd_start: pointer to a ulong variable, will hold ramdisk start address
  * @rd_end: pointer to a ulong variable, will hold ramdisk end
  *
- * get_ramdisk() is responsible for finding a valid ramdisk image.
+ * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
  * Curently supported are the following ramdisk sources:
  *      - multicomponent kernel/ramdisk image,
  *      - commandline provided address of decicated ramdisk image.
@@ -593,7 +599,7 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  *     return 1 if ramdisk image is found but corrupted
  */
-int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, uint8_t arch,
 		ulong *rd_start, ulong *rd_end)
 {
@@ -645,14 +651,14 @@ int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/* copy from dataflash if needed */
 		printf ("## Loading init Ramdisk Image at %08lx ...\n",
 				rd_addr);
-		rd_addr = gen_get_image (rd_addr);
+		rd_addr = genimg_get_image (rd_addr);
 
 		/*
 		 * Check if there is an initrd image at the
 		 * address provided in the second bootm argument
 		 * check image type, for FIT images get FIT node.
 		 */
-		switch (gen_image_get_format ((void *)rd_addr)) {
+		switch (genimg_get_format ((void *)rd_addr)) {
 		case IMAGE_FORMAT_LEGACY:
 
 			debug ("*  ramdisk: legacy format image\n");
@@ -729,7 +735,7 @@ int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 /**
- * ramdisk_high - relocate init ramdisk
+ * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @rd_data: ramdisk data start address
  * @rd_len: ramdisk data length
@@ -738,18 +744,18 @@ int get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
  * @initrd_end: pointer to a ulong variable, will hold final init ramdisk
  *      end address (after possible relocation)
  *
- * ramdisk_high() takes a relocation hint from "initrd_high" environement
+ * boot_ramdisk_high() takes a relocation hint from "initrd_high" environement
  * variable and if requested ramdisk data is moved to a specified location.
  *
+ * Initrd_start and initrd_end are set to final (after relocation) ramdisk
+ * start/end addresses if ramdisk image start and len were provided,
+ * otherwise set initrd_start and initrd_end set to zeros.
+ *
  * returns:
- *     - initrd_start and initrd_end are set to final (after relocation) ramdisk
- *     start/end addresses if ramdisk image start and len were provided
- *     otherwise set initrd_start and initrd_end set to zeros
- *     - returns:
- *        0 - success
- *       -1 - failure
+ *      0 - success
+ *     -1 - failure
  */
-int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
+int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end)
 {
 	char	*s;
@@ -779,12 +785,12 @@ int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 			lmb_reserve(lmb, rd_data, rd_len);
 		} else {
 			if (initrd_high)
-				*initrd_start = lmb_alloc_base(lmb, rd_len, 0x1000, initrd_high);
+				*initrd_start = lmb_alloc_base (lmb, rd_len, 0x1000, initrd_high);
 			else
-				*initrd_start = lmb_alloc(lmb, rd_len, 0x1000);
+				*initrd_start = lmb_alloc (lmb, rd_len, 0x1000);
 
 			if (*initrd_start == 0) {
-				puts("ramdisk - allocation error\n");
+				puts ("ramdisk - allocation error\n");
 				goto error;
 			}
 			show_boot_progress (12);
@@ -793,7 +799,7 @@ int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 			printf ("   Loading Ramdisk to %08lx, end %08lx ... ",
 					*initrd_start, *initrd_end);
 
-			memmove_wd((void *)*initrd_start,
+			memmove_wd ((void *)*initrd_start,
 					(void *)rd_data, rd_len, CHUNKSZ);
 
 			puts ("OK\n");
@@ -804,6 +810,7 @@ int ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 	}
 	debug ("   ramdisk load start = 0x%08lx, ramdisk load end = 0x%08lx\n",
 			*initrd_start, *initrd_end);
+
 	return 0;
 
 error:
@@ -811,14 +818,14 @@ error:
 }
 
 /**
- * get_boot_cmdline - allocate and initialize kernel cmdline
+ * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @cmd_start: pointer to a ulong variable, will hold cmdline start
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  * @bootmap_base: ulong variable, holds offset in physical memory to
  * base of bootmap
  *
- * get_boot_cmdline() allocates space for kernel command line below
+ * boot_get_cmdline() allocates space for kernel command line below
  * BOOTMAPSZ + bootmap_base address. If "bootargs" U-boot environemnt
  * variable is present its contents is copied to allocated kernel
  * command line.
@@ -827,7 +834,7 @@ error:
  *      0 - success
  *     -1 - failure
  */
-int get_boot_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
+int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 			ulong bootmap_base)
 {
 	char *cmdline;
@@ -853,13 +860,13 @@ int get_boot_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 }
 
 /**
- * get_boot_kbd - allocate and initialize kernel copy of board info
+ * boot_get_kbd - allocate and initialize kernel copy of board info
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @kbd: double pointer to board info data
  * @bootmap_base: ulong variable, holds offset in physical memory to
  * base of bootmap
  *
- * get_boot_kbd() allocates space for kernel copy of board info data below
+ * boot_get_kbd() allocates space for kernel copy of board info data below
  * BOOTMAPSZ + bootmap_base address and kernel board info is initialized with
  * the current u-boot board info data.
  *
@@ -867,7 +874,7 @@ int get_boot_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
  *      0 - success
  *     -1 - failure
  */
-int get_boot_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
+int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 {
 	*kbd = (bd_t *)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
 				      CFG_BOOTMAPSZ + bootmap_base);

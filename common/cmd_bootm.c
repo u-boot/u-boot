@@ -66,7 +66,7 @@ static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static void fixup_silent_linux (void);
 #endif
 
-static void *get_kernel (cmd_tbl_t *cmdtp, int flag,int argc, char *argv[],
+static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag,int argc, char *argv[],
 		bootm_headers_t *images, ulong *os_data, ulong *os_len);
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
@@ -143,7 +143,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	board_lmb_reserve(&lmb);
 
 	/* get kernel image header, start address and length */
-	os_hdr = get_kernel (cmdtp, flag, argc, argv,
+	os_hdr = boot_get_kernel (cmdtp, flag, argc, argv,
 			&images, &os_data, &os_len);
 	if (os_len == 0)
 		return 1;
@@ -151,7 +151,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (6);
 
 	/* get image parameters */
-	switch (gen_image_get_format (os_hdr)) {
+	switch (genimg_get_format (os_hdr)) {
 	case IMAGE_FORMAT_LEGACY:
 		type = image_get_type (os_hdr);
 		comp = image_get_comp (os_hdr);
@@ -172,7 +172,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	image_start = (ulong)os_hdr;
 	load_end = 0;
-	type_name = image_get_type_name (type);
+	type_name = genimg_get_type_name (type);
 
 	/*
 	 * We have reached the point of no return: we are going to
@@ -309,16 +309,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 /**
- * get_kernel - find kernel image
- * @os_data: pointer to a ulong variable, will hold os data start address
- * @os_len: pointer to a ulong variable, will hold os data length
+ * image_get_kernel - verify legacy format kernel image
+ * @img_addr: in RAM address of the legacy format image to be verified
+ * @verify: data CRC verification flag
  *
- * get_kernel() tries to find a kernel image, verifies its integrity
- * and locates kernel data.
+ * image_get_kernel() verifies legacy image integrity and returns pointer to
+ * legacy image header if image verification was completed successfully.
  *
  * returns:
- *     pointer to image header if valid image was found, plus kernel start
- *     address and length, otherwise NULL
+ *     pointer to a legacy image header if valid image was found
+ *     otherwise return NULL
  */
 static image_header_t *image_get_kernel (ulong img_addr, int verify)
 {
@@ -360,18 +360,18 @@ static image_header_t *image_get_kernel (ulong img_addr, int verify)
 }
 
 /**
- * get_kernel - find kernel image
+ * boot_get_kernel - find kernel image
  * @os_data: pointer to a ulong variable, will hold os data start address
  * @os_len: pointer to a ulong variable, will hold os data length
  *
- * get_kernel() tries to find a kernel image, verifies its integrity
+ * boot_get_kernel() tries to find a kernel image, verifies its integrity
  * and locates kernel data.
  *
  * returns:
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static void *get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, ulong *os_data, ulong *os_len)
 {
 	image_header_t	*hdr;
@@ -406,10 +406,10 @@ static void *get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	printf ("## Booting kernel image at %08lx ...\n", img_addr);
 
 	/* copy from dataflash if needed */
-	img_addr = gen_get_image (img_addr);
+	img_addr = genimg_get_image (img_addr);
 
 	/* check image type, for FIT images get FIT kernel node */
-	switch (gen_image_get_format ((void *)img_addr)) {
+	switch (genimg_get_format ((void *)img_addr)) {
 	case IMAGE_FORMAT_LEGACY:
 
 		debug ("*  kernel: legacy format image\n");
@@ -531,7 +531,7 @@ static int image_info (ulong addr)
 
 	printf ("\n## Checking Image at %08lx ...\n", addr);
 
-	switch (gen_image_get_format (hdr)) {
+	switch (genimg_get_format (hdr)) {
 	case IMAGE_FORMAT_LEGACY:
 		puts ("   Legacy image found\n");
 		if (!image_check_magic (hdr)) {
@@ -599,7 +599,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (!hdr)
 				goto next_sector;
 
-			switch (gen_image_get_format (hdr)) {
+			switch (genimg_get_format (hdr)) {
 			case IMAGE_FORMAT_LEGACY:
 				if (!image_check_magic (hdr))
 					goto next_sector;

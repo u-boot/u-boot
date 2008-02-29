@@ -216,7 +216,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		break;
 
 	case FPGA_LOADMK:
-		switch (gen_image_get_format (fpga_data)) {
+		switch (genimg_get_format (fpga_data)) {
 		case IMAGE_FORMAT_LEGACY:
 			{
 				image_header_t *hdr = (image_header_t *)fpga_data;

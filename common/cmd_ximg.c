@@ -57,7 +57,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 
 
-	switch (gen_image_get_format ((void *)addr)) {
+	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 
 		printf("## Copying from legacy image at %08lx ...\n", addr);
@@ -104,7 +104,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			data += 4;
 			if (argc > 2 && part > i) {
 				u_long tail;
-				len = image_to_cpu (len_ptr[i]);
+				len = uimage_to_cpu (len_ptr[i]);
 				tail = len % 4;
 				data += len;
 				if (tail) {
@@ -116,7 +116,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			printf("Bad Image Part\n");
 			return 1;
 		}
-		len = image_to_cpu (len_ptr[part]);
+		len = uimage_to_cpu (len_ptr[part]);
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_unsupported ("imxtract");

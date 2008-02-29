@@ -836,7 +836,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	switch (gen_image_get_format ((void *)addr)) {
+	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 		if (!image_check_magic (hdr)) {

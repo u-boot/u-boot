@@ -41,9 +41,9 @@
 #include <fdt_support.h>
 
 static void fdt_error (const char *msg);
-static int get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
-static int fdt_relocate (struct lmb *lmb, ulong bootmap_base,
+static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		char **of_flat_tree, ulong *of_size);
 #endif
@@ -122,7 +122,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */
-	ret = get_fdt (cmdtp, flag, argc, argv, images, &of_flat_tree, &of_size);
+	ret = boot_get_fdt (cmdtp, flag, argc, argv, images, &of_flat_tree, &of_size);
 
 	if (ret)
 		goto error;
@@ -130,14 +130,14 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		ret = get_boot_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
+		ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
 			goto error;
 		}
 
 		/* allocate space for kernel copy of board info */
-		ret = get_boot_kbd (lmb, &kbd, bootmap_base);
+		ret = boot_get_kbd (lmb, &kbd, bootmap_base);
 		if (ret) {
 			puts("ERROR with allocation of kernel bd\n");
 			goto error;
@@ -160,7 +160,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	ret = get_ramdisk (cmdtp, flag, argc, argv, images,
+	ret = boot_get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
 
 	if (ret)
@@ -169,7 +169,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	rd_len = rd_data_end - rd_data_start;
 
 #if defined(CONFIG_OF_LIBFDT)
-	ret = fdt_relocate (lmb, bootmap_base,
+	ret = boot_relocate_fdt (lmb, bootmap_base,
 		cmdtp, flag, argc, argv, &of_flat_tree, &of_size);
 
 	/*
@@ -201,7 +201,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 
-	ret = ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
+	ret = boot_ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
 	if (ret)
 		goto error;
 
@@ -354,7 +354,7 @@ static image_header_t *image_get_fdt (ulong fdt_addr)
 	return fdt_hdr;
 }
 
-static int get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
+static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
 	ulong		fdt_addr;
@@ -403,14 +403,14 @@ static int get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				fdt_addr);
 
 		/* copy from dataflash if needed */
-		fdt_addr = gen_get_image (fdt_addr);
+		fdt_addr = genimg_get_image (fdt_addr);
 
 		/*
 		 * Check if there is an FDT image at the
 		 * address provided in the second bootm argument
 		 * check image type, for FIT images get a FIT node.
 		 */
-		switch (gen_image_get_format ((void *)fdt_addr)) {
+		switch (genimg_get_format ((void *)fdt_addr)) {
 		case IMAGE_FORMAT_LEGACY:
 			debug ("*  fdt: legacy format image\n");
 
@@ -527,7 +527,7 @@ error:
 	return 1;
 }
 
-static int fdt_relocate (struct lmb *lmb, ulong bootmap_base,
+static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		char **of_flat_tree, ulong *of_size)
 {

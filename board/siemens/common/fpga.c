@@ -138,7 +138,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
     int verify, i;
 
 #if defined(CONFIG_FIT)
-    if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+    if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 	puts ("Non legacy image format not supported\n");
 	return -1;
     }
@@ -341,7 +341,7 @@ int fpga_init (void)
 
 	hdr = (image_header_t *)addr;
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 	   puts ("Non legacy image format not supported\n");
 	   return -1;
 	}

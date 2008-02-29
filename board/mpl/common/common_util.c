@@ -74,7 +74,7 @@ mpl_prg(uchar *src, ulong size)
 	info = &flash_info[0];
 
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405) || defined(CONFIG_PATI)
-	if (image_to_cpu (magic[0]) != IH_MAGIC) {
+	if (uimage_to_cpu (magic[0]) != IH_MAGIC) {
 		puts("Bad Magic number\n");
 		return -1;
 	}
@@ -182,7 +182,7 @@ mpl_prg_image(uchar *ld_addr)
 	int rc;
 
 #if defined(CONFIG_FIT)
-	if (gen_image_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
 		return -1;
 	}

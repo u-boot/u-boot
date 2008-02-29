@@ -95,7 +95,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		printf ("Using machid 0x%x from environment\n", machid);
 	}
 
-	get_ramdisk (cmdtp, flag, argc, argv, images,
+	boot_get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_ARM, &initrd_start, &initrd_end);
 
 	show_boot_progress (15);

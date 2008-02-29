@@ -82,14 +82,14 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + gd->ram_size - sp));
 
 	/* allocate space and init command line */
-	ret = get_boot_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
+	ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
 	if (ret) {
 		puts("ERROR with allocation of cmdline\n");
 		goto error;
 	}
 
 	/* allocate space for kernel copy of board info */
-	ret = get_boot_kbd (lmb, &kbd, bootmap_base);
+	ret = boot_get_kbd (lmb, &kbd, bootmap_base);
 	if (ret) {
 		puts("ERROR with allocation of kernel bd\n");
 		goto error;
@@ -111,14 +111,15 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	ret = get_ramdisk (cmdtp, flag, argc, argv, images,
+	ret = boot_get_ramdisk (cmdtp, flag, argc, argv, images,
 			IH_ARCH_M68K, &rd_data_start, &rd_data_end);
 
 	if (ret)
 		goto error;
 
 	rd_len = rd_data_end - rd_data_start;
-	ret = ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
+	ret = boot_ramdisk_high (lmb, rd_data_start, rd_len,
+			&initrd_start, &initrd_end);
 	if (ret)
 		goto error;
 

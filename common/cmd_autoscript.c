@@ -61,7 +61,7 @@ autoscript (ulong addr)
 
 	verify = getenv_verify ();
 
-	switch (gen_image_get_format ((void *)addr)) {
+	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 
@@ -90,7 +90,7 @@ autoscript (ulong addr)
 		/* get length of script */
 		data = (ulong *)image_get_data (hdr);
 
-		if ((len = image_to_cpu (*data)) == 0) {
+		if ((len = uimage_to_cpu (*data)) == 0) {
 			puts ("Empty Script\n");
 			return 1;
 		}
