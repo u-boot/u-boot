@@ -400,6 +400,10 @@ tags ctags:
 etags:
 		etags -a -o $(obj)etags `find $(SUBDIRS) $(TAG_SUBDIRS) \
 						-name '*.[ch]' -print`
+cscope:
+		find $(SUBDIRS) $(TAG_SUBDIRS) -name '*.[ch]' -print \
+						> cscope.files
+		cscope -b -q -k
 
 $(obj)System.map:	$(obj)u-boot
 		@$(NM) $< | \
@@ -427,7 +431,7 @@ else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
 $(SUBDIRS) $(VERSION_FILE) gdbtools updater env depend \
-dep tags ctags etags $(obj)System.map:
+dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
 endif	# config.mk
@@ -2929,7 +2933,8 @@ clobber:	clean
 		-o -name '*.srec' -o -name '*.bin' -o -name u-boot.img \) \
 		-print0 \
 		| xargs -0 rm -f
-	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS
+	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
+		$(obj)cscope.*
 	@rm -fr $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
 	@rm -f $(obj)tools/crc32.c $(obj)tools/environment.c $(obj)tools/env/crc32.c $(obj)tools/sha1.c
