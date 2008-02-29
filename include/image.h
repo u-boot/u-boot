@@ -219,6 +219,15 @@ typedef struct bootm_headers {
 #define uimage_to_cpu(x)		ntohl(x)
 #define cpu_to_uimage(x)		htonl(x)
 
+const char *genimg_get_os_name (uint8_t os);
+const char *genimg_get_arch_name (uint8_t arch);
+const char *genimg_get_type_name (uint8_t type);
+const char *genimg_get_comp_name (uint8_t comp);
+int genimg_get_os_id (const char *name);
+int genimg_get_arch_id (const char *name);
+int genimg_get_type_id (const char *name);
+int genimg_get_comp_id (const char *name);
+
 #ifndef USE_HOSTCC
 /* Image format types, returned by _get_format() routine */
 #define IMAGE_FORMAT_INVALID	0x00
@@ -227,11 +236,6 @@ typedef struct bootm_headers {
 
 int genimg_get_format (void *img_addr);
 ulong genimg_get_image (ulong img_addr);
-
-const char* genimg_get_os_name (uint8_t os);
-const char* genimg_get_arch_name (uint8_t arch);
-const char* genimg_get_type_name (uint8_t type);
-const char* genimg_get_comp_name (uint8_t comp);
 
 int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		bootm_headers_t *images, uint8_t arch,
@@ -245,7 +249,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 			ulong bootmap_base);
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
 #endif /* CONFIG_PPC || CONFIG_M68K */
-#endif /* USE_HOSTCC */
+#endif /* !USE_HOSTCC */
 
 /*******************************************************************/
 /* Legacy format specific code (prefixed with image_) */
@@ -373,6 +377,9 @@ ulong image_multi_count (image_header_t *hdr);
 void image_multi_getimg (image_header_t *hdr, ulong idx,
 			ulong *data, ulong *len);
 
+inline void image_print_contents (image_header_t *hdr);
+inline void image_print_contents_noindent (image_header_t *hdr);
+
 #ifndef USE_HOSTCC
 static inline int image_check_target_arch (image_header_t *hdr)
 {
@@ -405,8 +412,6 @@ static inline int image_check_target_arch (image_header_t *hdr)
 
 	return 1;
 }
-
-void image_print_contents (image_header_t *hdr);
 
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */

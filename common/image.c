@@ -62,11 +62,95 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 		ulong rd_addr, uint8_t arch, int verify);
 #else
 #include "mkimage.h"
-#endif /* USE_HOSTCC*/
+#endif /* !USE_HOSTCC*/
 
 #include <image.h>
 
+typedef struct table_entry {
+	int	id;		/* as defined in image.h	*/
+	char	*sname;		/* short (input) name		*/
+	char	*lname;		/* long (output) name		*/
+} table_entry_t;
+
+static table_entry_t uimage_arch[] = {
+	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
+	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
+	{	IH_ARCH_ARM,		"arm",		"ARM",		},
+	{	IH_ARCH_I386,		"x86",		"Intel x86",	},
+	{	IH_ARCH_IA64,		"ia64",		"IA64",		},
+	{	IH_ARCH_M68K,		"m68k",		"M68K",		},
+	{	IH_ARCH_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
+	{	IH_ARCH_MIPS,		"mips",		"MIPS",		},
+	{	IH_ARCH_MIPS64,		"mips64",	"MIPS 64 Bit",	},
+	{	IH_ARCH_NIOS,		"nios",		"NIOS",		},
+	{	IH_ARCH_NIOS2,		"nios2",	"NIOS II",	},
+	{	IH_ARCH_PPC,		"ppc",		"PowerPC",	},
+	{	IH_ARCH_S390,		"s390",		"IBM S390",	},
+	{	IH_ARCH_SH,		"sh",		"SuperH",	},
+	{	IH_ARCH_SPARC,		"sparc",	"SPARC",	},
+	{	IH_ARCH_SPARC64,	"sparc64",	"SPARC 64 Bit",	},
+	{	IH_ARCH_BLACKFIN,	"blackfin",	"Blackfin",	},
+	{	IH_ARCH_AVR32,		"avr32",	"AVR32",	},
+	{	-1,			"",		"",		},
+};
+
+static table_entry_t uimage_os[] = {
+	{	IH_OS_INVALID,	NULL,		"Invalid OS",		},
+#if defined(CONFIG_ARTOS) || defined(USE_HOSTCC)
+	{	IH_OS_ARTOS,	"artos",	"ARTOS",		},
+#endif
+	{	IH_OS_LINUX,	"linux",	"Linux",		},
+#if defined(CONFIG_LYNXKDI) || defined(USE_HOSTCC)
+	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
+#endif
+	{	IH_OS_NETBSD,	"netbsd",	"NetBSD",		},
+	{	IH_OS_RTEMS,	"rtems",	"RTEMS",		},
+	{	IH_OS_U_BOOT,	"u-boot",	"U-Boot",		},
+#if defined(CONFIG_CMD_ELF) || defined(USE_HOSTCC)
+	{	IH_OS_QNX,	"qnx",		"QNX",			},
+	{	IH_OS_VXWORKS,	"vxworks",	"VxWorks",		},
+#endif
+#ifdef USE_HOSTCC
+	{	IH_OS_4_4BSD,	"4_4bsd",	"4_4BSD",		},
+	{	IH_OS_DELL,	"dell",		"Dell",			},
+	{	IH_OS_ESIX,	"esix",		"Esix",			},
+	{	IH_OS_FREEBSD,	"freebsd",	"FreeBSD",		},
+	{	IH_OS_IRIX,	"irix",		"Irix",			},
+	{	IH_OS_NCR,	"ncr",		"NCR",			},
+	{	IH_OS_OPENBSD,	"openbsd",	"OpenBSD",		},
+	{	IH_OS_PSOS,	"psos",		"pSOS",			},
+	{	IH_OS_SCO,	"sco",		"SCO",			},
+	{	IH_OS_SOLARIS,	"solaris",	"Solaris",		},
+	{	IH_OS_SVR4,	"svr4",		"SVR4",			},
+#endif
+	{	-1,		"",		"",			},
+};
+
+static table_entry_t uimage_type[] = {
+	{	IH_TYPE_INVALID,    NULL,	  "Invalid Image",	},
+	{	IH_TYPE_FILESYSTEM, "filesystem", "Filesystem Image",	},
+	{	IH_TYPE_FIRMWARE,   "firmware",	  "Firmware",		},
+	{	IH_TYPE_KERNEL,	    "kernel",	  "Kernel Image",	},
+	{	IH_TYPE_MULTI,	    "multi",	  "Multi-File Image",	},
+	{	IH_TYPE_RAMDISK,    "ramdisk",	  "RAMDisk Image",	},
+	{	IH_TYPE_SCRIPT,     "script",	  "Script",		},
+	{	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
+	{	IH_TYPE_FLATDT,     "flat_dt",    "Flat Device Tree",	},
+	{	-1,		    "",		  "",			},
+};
+
+static table_entry_t uimage_comp[] = {
+	{	IH_COMP_NONE,	"none",		"uncompressed",		},
+	{	IH_COMP_BZIP2,	"bzip2",	"bzip2 compressed",	},
+	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
+	{	-1,		"",		"",			},
+};
+
 unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
+static void genimg_print_size (uint32_t size);
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
+static void genimg_print_time (time_t timestamp);
+#endif
 
 /*****************************************************************************/
 /* Legacy format routines */
@@ -122,6 +206,7 @@ int image_check_dcrc_wd (image_header_t *hdr, ulong chunksz)
 
 	return (dcrc == image_get_dcrc (hdr));
 }
+#endif /* !USE_HOSTCC */
 
 /**
  * image_multi_count - get component (sub-image) count
@@ -209,7 +294,6 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 	}
 }
 
-#ifndef USE_HOSTCC
 static void image_print_type (image_header_t *hdr)
 {
 	const char *os, *arch, *type, *comp;
@@ -219,47 +303,59 @@ static void image_print_type (image_header_t *hdr)
 	type = genimg_get_type_name (image_get_type (hdr));
 	comp = genimg_get_comp_name (image_get_comp (hdr));
 
-	printf ("%s %s %s (%s)", arch, os, type, comp);
+	printf ("%s %s %s (%s)\n", arch, os, type, comp);
 }
 
-void image_print_contents (image_header_t *hdr)
+static void __image_print_contents (image_header_t *hdr, const char *p)
 {
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-	time_t timestamp = (time_t)image_get_time (hdr);
-	struct rtc_time tm;
+	printf ("%sImage Name:   %.*s\n", p, IH_NMLEN, image_get_name (hdr));
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
+	printf ("%sCreated:      ", p);
+	genimg_print_time ((time_t)image_get_time (hdr));
 #endif
-
-	printf ("   Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
-
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
-	to_tm (timestamp, &tm);
-	printf ("   Created:      %4d-%02d-%02d  %2d:%02d:%02d UTC\n",
-		tm.tm_year, tm.tm_mon, tm.tm_mday,
-		tm.tm_hour, tm.tm_min, tm.tm_sec);
-#endif
-	puts ("   Image Type:   ");
+	printf ("%sImage Type:   ", p);
 	image_print_type (hdr);
+	printf ("%sData Size:    ", p);
+	genimg_print_size (image_get_data_size (hdr));
+	printf ("%sLoad Address: %08x\n", p, image_get_load (hdr));
+	printf ("%sEntry Point:  %08x\n", p, image_get_ep (hdr));
 
-	printf ("\n   Data Size:    %d Bytes = ", image_get_data_size (hdr));
-	print_size (image_get_data_size (hdr), "\n");
-	printf ("   Load Address: %08x\n"
-		"   Entry Point:  %08x\n",
-		 image_get_load (hdr), image_get_ep (hdr));
-
-	if (image_check_type (hdr, IH_TYPE_MULTI)) {
+	if (image_check_type (hdr, IH_TYPE_MULTI) ||
+			image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		int i;
 		ulong data, len;
 		ulong count = image_multi_count (hdr);
 
-		puts ("   Contents:\n");
+		printf ("%sContents:\n", p);
 		for (i = 0; i < count; i++) {
 			image_multi_getimg (hdr, i, &data, &len);
-			printf ("   Image %d: %8ld Bytes = ", i, len);
-			print_size (len, "\n");
+
+			printf ("%s   Image %d: ", p, i);
+			genimg_print_size (len);
+
+			if (image_check_type (hdr, IH_TYPE_SCRIPT) && i > 0) {
+				/*
+				 * the user may need to know offsets
+				 * if planning to do something with
+				 * multiple files
+				 */
+				printf ("%s    Offset = 0x%08lx\n", p, data);
+			}
 		}
 	}
 }
 
+inline void image_print_contents (image_header_t *hdr)
+{
+	__image_print_contents (hdr, "   ");
+}
+
+inline void image_print_contents_noindent (image_header_t *hdr)
+{
+	__image_print_contents (hdr, "");
+}
+
+#ifndef USE_HOSTCC
 /**
  * image_get_ramdisk - get and verify ramdisk image
  * @cmdtp: command table pointer
@@ -329,10 +425,12 @@ static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
 
 	return rd_hdr;
 }
+#endif /* !USE_HOSTCC */
 
 /*****************************************************************************/
 /* Shared dual-format routines */
 /*****************************************************************************/
+#ifndef USE_HOSTCC
 int getenv_verify (void)
 {
 	char *s = getenv ("verify");
@@ -386,94 +484,144 @@ void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 	memmove (to, from, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 }
+#endif /* !USE_HOSTCC */
+
+static void genimg_print_size (uint32_t size)
+{
+#ifndef USE_HOSTCC
+	printf ("%d Bytes = ", size);
+	print_size (size, "\n");
+#else
+	printf ("%d Bytes = %.2f kB = %.2f MB\n",
+			size, (double)size / 1.024e3,
+			(double)size / 1.048576e6);
+#endif
+}
+
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
+static void genimg_print_time (time_t timestamp)
+{
+#ifndef USE_HOSTCC
+	struct rtc_time tm;
+
+	to_tm (timestamp, &tm);
+	printf ("%4d-%02d-%02d  %2d:%02d:%02d UTC\n",
+			tm.tm_year, tm.tm_mon, tm.tm_mday,
+			tm.tm_hour, tm.tm_min, tm.tm_sec);
+#else
+	printf ("%s", ctime(&timestamp));
+#endif
+}
+#endif /* CONFIG_TIMESTAMP || CONFIG_CMD_DATE || USE_HOSTCC */
+
+/**
+ * get_table_entry_name - translate entry id to long name
+ * @table: pointer to a translation table for entries of a specific type
+ * @msg: message to be returned when translation fails
+ * @id: entry id to be translated
+ *
+ * get_table_entry_name() will go over translation table trying to find
+ * entry that matches given id. If matching entry is found, its long
+ * name is returned to the caller.
+ *
+ * returns:
+ *     long entry name if translation succeeds
+ *     msg otherwise
+ */
+static char *get_table_entry_name (table_entry_t *table, char *msg, int id)
+{
+	for (; table->id >= 0; ++table) {
+		if (table->id == id)
+			return (table->lname);
+	}
+	return (msg);
+}
+
+const char *genimg_get_os_name (uint8_t os)
+{
+	return (get_table_entry_name (uimage_os, "Unknown OS", os));
+}
+
+const char *genimg_get_arch_name (uint8_t arch)
+{
+	return (get_table_entry_name (uimage_arch, "Unknown Architecture", arch));
+}
+
+const char *genimg_get_type_name (uint8_t type)
+{
+	return (get_table_entry_name (uimage_type, "Unknown Image", type));
+}
+
+const char *genimg_get_comp_name (uint8_t comp)
+{
+	return (get_table_entry_name (uimage_comp, "Unknown Compression", comp));
+}
+
+/**
+ * get_table_entry_id - translate short entry name to id
+ * @table: pointer to a translation table for entries of a specific type
+ * @table_name: to be used in case of error
+ * @name: entry short name to be translated
+ *
+ * get_table_entry_id() will go over translation table trying to find
+ * entry that matches given short name. If matching entry is found,
+ * its id returned to the caller.
+ *
+ * returns:
+ *     entry id if translation succeeds
+ *     -1 otherwise
+ */
+static int get_table_entry_id (table_entry_t *table,
+		const char *table_name, const char *name)
+{
+	table_entry_t *t;
+#ifdef USE_HOSTCC
+	int first = 1;
+
+	for (t = table; t->id >= 0; ++t) {
+		if (t->sname && strcasecmp(t->sname, name) == 0)
+			return (t->id);
+	}
+
+	fprintf (stderr, "\nInvalid %s Type - valid names are", table_name);
+	for (t = table; t->id >= 0; ++t) {
+		if (t->sname == NULL)
+			continue;
+		fprintf (stderr, "%c %s", (first) ? ':' : ',', t->sname);
+		first = 0;
+	}
+	fprintf (stderr, "\n");
+#else
+	for (t = table; t->id >= 0; ++t) {
+		if (t->sname && strcmp(t->sname, name) == 0)
+			return (t->id);
+	}
+	debug ("Invalid %s Type: %s\n", table_name, name);
 #endif /* USE_HOSTCC */
-
-const char* genimg_get_os_name (uint8_t os)
-{
-	const char *name;
-
-	switch (os) {
-	case IH_OS_INVALID:	name = "Invalid OS";		break;
-	case IH_OS_NETBSD:	name = "NetBSD";		break;
-	case IH_OS_LINUX:	name = "Linux";			break;
-	case IH_OS_VXWORKS:	name = "VxWorks";		break;
-	case IH_OS_QNX:		name = "QNX";			break;
-	case IH_OS_U_BOOT:	name = "U-Boot";		break;
-	case IH_OS_RTEMS:	name = "RTEMS";			break;
-#ifdef CONFIG_ARTOS
-	case IH_OS_ARTOS:	name = "ARTOS";			break;
-#endif
-#ifdef CONFIG_LYNXKDI
-	case IH_OS_LYNXOS:	name = "LynxOS";		break;
-#endif
-	default:		name = "Unknown OS";		break;
-	}
-
-	return name;
+	return (-1);
 }
 
-const char* genimg_get_arch_name (uint8_t arch)
+int genimg_get_os_id (const char *name)
 {
-	const char *name;
-
-	switch (arch) {
-	case IH_ARCH_INVALID:	name = "Invalid Architecture";	break;
-	case IH_ARCH_ALPHA:	name = "Alpha";			break;
-	case IH_ARCH_ARM:	name = "ARM";			break;
-	case IH_ARCH_AVR32:	name = "AVR32";			break;
-	case IH_ARCH_BLACKFIN:	name = "Blackfin";		break;
-	case IH_ARCH_I386:	name = "Intel x86";		break;
-	case IH_ARCH_IA64:	name = "IA64";			break;
-	case IH_ARCH_M68K:	name = "M68K"; 			break;
-	case IH_ARCH_MICROBLAZE:name = "Microblaze"; 		break;
-	case IH_ARCH_MIPS64:	name = "MIPS 64 Bit";		break;
-	case IH_ARCH_MIPS:	name = "MIPS";			break;
-	case IH_ARCH_NIOS2:	name = "Nios-II";		break;
-	case IH_ARCH_NIOS:	name = "Nios";			break;
-	case IH_ARCH_PPC:	name = "PowerPC";		break;
-	case IH_ARCH_S390:	name = "IBM S390";		break;
-	case IH_ARCH_SH:	name = "SuperH";		break;
-	case IH_ARCH_SPARC64:	name = "SPARC 64 Bit";		break;
-	case IH_ARCH_SPARC:	name = "SPARC";			break;
-	default:		name = "Unknown Architecture";	break;
-	}
-
-	return name;
+	return (get_table_entry_id (uimage_os, "OS", name));
 }
 
-const char* genimg_get_type_name (uint8_t type)
+int genimg_get_arch_id (const char *name)
 {
-	const char *name;
-
-	switch (type) {
-	case IH_TYPE_INVALID:	name = "Invalid Image";		break;
-	case IH_TYPE_STANDALONE:name = "Standalone Program";	break;
-	case IH_TYPE_KERNEL:	name = "Kernel Image";		break;
-	case IH_TYPE_RAMDISK:	name = "RAMDisk Image";		break;
-	case IH_TYPE_MULTI:	name = "Multi-File Image";	break;
-	case IH_TYPE_FIRMWARE:	name = "Firmware";		break;
-	case IH_TYPE_SCRIPT:	name = "Script";		break;
-	case IH_TYPE_FLATDT:	name = "Flat Device Tree";	break;
-	default:		name = "Unknown Image";		break;
-	}
-
-	return name;
+	return (get_table_entry_id (uimage_arch, "CPU", name));
 }
 
-const char* genimg_get_comp_name (uint8_t comp)
+int genimg_get_type_id (const char *name)
 {
-	const char *name;
-
-	switch (comp) {
-	case IH_COMP_NONE:	name = "uncompressed";		break;
-	case IH_COMP_GZIP:	name = "gzip compressed";	break;
-	case IH_COMP_BZIP2:	name = "bzip2 compressed";	break;
-	default:		name = "unknown compression";	break;
-	}
-
-	return name;
+	return (get_table_entry_id (uimage_type, "Image", name));
 }
 
+int genimg_get_comp_id (const char *name)
+{
+	return (get_table_entry_id (uimage_comp, "Compression", name));
+}
+
+#ifndef USE_HOSTCC
 /**
  * genimg_get_format - get image format type
  * @img_addr: image start address
@@ -971,5 +1119,4 @@ inline int fit_parse_subimage (const char *spec, ulong addr_curr,
 }
 
 #endif /* CONFIG_FIT */
-
-#endif /* USE_HOSTCC */
+#endif /* !USE_HOSTCC */

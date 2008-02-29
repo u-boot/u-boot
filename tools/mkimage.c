@@ -29,100 +29,13 @@ extern int errno;
 #define MAP_FAILED (-1)
 #endif
 
-char *cmdname;
-
-extern unsigned long crc32 (unsigned long crc, const char *buf, unsigned int len);
-
-typedef struct table_entry {
-	int	val;		/* as defined in image.h	*/
-	char	*sname;		/* short (input) name		*/
-	char	*lname;		/* long (output) name		*/
-} table_entry_t;
-
-table_entry_t arch_name[] = {
-    {	IH_ARCH_INVALID,	NULL,		"Invalid CPU",	},
-    {	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
-    {	IH_ARCH_ARM,		"arm",		"ARM",		},
-    {	IH_ARCH_I386,		"x86",		"Intel x86",	},
-    {	IH_ARCH_IA64,		"ia64",		"IA64",		},
-    {	IH_ARCH_M68K,		"m68k",		"MC68000",	},
-    {	IH_ARCH_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
-    {	IH_ARCH_MIPS,		"mips",		"MIPS",		},
-    {	IH_ARCH_MIPS64,		"mips64",	"MIPS 64 Bit",	},
-    {	IH_ARCH_NIOS,		"nios",		"NIOS",		},
-    {	IH_ARCH_NIOS2,		"nios2",	"NIOS II",	},
-    {	IH_ARCH_PPC,		"ppc",		"PowerPC",	},
-    {	IH_ARCH_S390,		"s390",		"IBM S390",	},
-    {	IH_ARCH_SH,		"sh",		"SuperH",	},
-    {	IH_ARCH_SPARC,		"sparc",	"SPARC",	},
-    {	IH_ARCH_SPARC64,	"sparc64",	"SPARC 64 Bit",	},
-    {	IH_ARCH_BLACKFIN,	"blackfin",	"Blackfin",	},
-    {	IH_ARCH_AVR32,		"avr32",	"AVR32",	},
-    {	-1,			"",		"",		},
-};
-
-table_entry_t os_name[] = {
-    {	IH_OS_INVALID,	NULL,		"Invalid OS",		},
-    {	IH_OS_4_4BSD,	"4_4bsd",	"4_4BSD",		},
-    {	IH_OS_ARTOS,	"artos",	"ARTOS",		},
-    {	IH_OS_DELL,	"dell",		"Dell",			},
-    {	IH_OS_ESIX,	"esix",		"Esix",			},
-    {	IH_OS_FREEBSD,	"freebsd",	"FreeBSD",		},
-    {	IH_OS_IRIX,	"irix",		"Irix",			},
-    {	IH_OS_LINUX,	"linux",	"Linux",		},
-    {	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
-    {	IH_OS_NCR,	"ncr",		"NCR",			},
-    {	IH_OS_NETBSD,	"netbsd",	"NetBSD",		},
-    {	IH_OS_OPENBSD,	"openbsd",	"OpenBSD",		},
-    {	IH_OS_PSOS,	"psos",		"pSOS",			},
-    {	IH_OS_QNX,	"qnx",		"QNX",			},
-    {	IH_OS_RTEMS,	"rtems",	"RTEMS",		},
-    {	IH_OS_SCO,	"sco",		"SCO",			},
-    {	IH_OS_SOLARIS,	"solaris",	"Solaris",		},
-    {	IH_OS_SVR4,	"svr4",		"SVR4",			},
-    {	IH_OS_U_BOOT,	"u-boot",	"U-Boot",		},
-    {	IH_OS_VXWORKS,	"vxworks",	"VxWorks",		},
-    {	-1,		"",		"",			},
-};
-
-table_entry_t type_name[] = {
-    {	IH_TYPE_INVALID,    NULL,	  "Invalid Image",	},
-    {	IH_TYPE_FILESYSTEM, "filesystem", "Filesystem Image",	},
-    {	IH_TYPE_FIRMWARE,   "firmware",	  "Firmware",		},
-    {	IH_TYPE_KERNEL,	    "kernel",	  "Kernel Image",	},
-    {	IH_TYPE_MULTI,	    "multi",	  "Multi-File Image",	},
-    {	IH_TYPE_RAMDISK,    "ramdisk",	  "RAMDisk Image",	},
-    {	IH_TYPE_SCRIPT,     "script",	  "Script",		},
-    {	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
-    {	IH_TYPE_FLATDT,     "flat_dt",    "Flat Device Tree",	},
-    {	-1,		    "",		  "",			},
-};
-
-table_entry_t comp_name[] = {
-    {	IH_COMP_NONE,	"none",		"uncompressed",		},
-    {	IH_COMP_BZIP2,	"bzip2",	"bzip2 compressed",	},
-    {	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
-    {	-1,		"",		"",			},
-};
-
-static	void	copy_file (int, const char *, int);
-static	void	usage	(void);
-static	void	print_header (image_header_t *);
-static	void	print_type (image_header_t *);
-static	char	*put_table_entry (table_entry_t *, char *, int);
-static	char	*put_arch (int);
-static	char	*put_type (int);
-static	char	*put_os   (int);
-static	char	*put_comp (int);
-static	int	get_table_entry (table_entry_t *, char *, char *);
-static	int	get_arch(char *);
-static	int	get_comp(char *);
-static	int	get_os  (char *);
-static	int	get_type(char *);
-
+extern	unsigned long	crc32 (unsigned long crc, const char *buf, unsigned int len);
+static	void		copy_file (int, const char *, int);
+static	void		usage (void);
 
 char	*datafile;
 char	*imagefile;
+char	*cmdname;
 
 int dflag    = 0;
 int eflag    = 0;
@@ -160,22 +73,22 @@ main (int argc, char **argv)
 				break;
 			case 'A':
 				if ((--argc <= 0) ||
-				    (opt_arch = get_arch(*++argv)) < 0)
+				    (opt_arch = genimg_get_arch_id (*++argv)) < 0)
 					usage ();
 				goto NXTARG;
 			case 'C':
 				if ((--argc <= 0) ||
-				    (opt_comp = get_comp(*++argv)) < 0)
+				    (opt_comp = genimg_get_comp_id (*++argv)) < 0)
 					usage ();
 				goto NXTARG;
 			case 'O':
 				if ((--argc <= 0) ||
-				    (opt_os = get_os(*++argv)) < 0)
+				    (opt_os = genimg_get_os_id (*++argv)) < 0)
 					usage ();
 				goto NXTARG;
 			case 'T':
 				if ((--argc <= 0) ||
-				    (opt_type = get_type(*++argv)) < 0)
+				    (opt_type = genimg_get_type_id (*++argv)) < 0)
 					usage ();
 				goto NXTARG;
 
@@ -323,7 +236,7 @@ NXTARG:		;
 		}
 
 		/* for multi-file images we need the data part, too */
-		print_header ((image_header_t *)ptr);
+		image_print_contents_noindent ((image_header_t *)ptr);
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
@@ -448,7 +361,7 @@ NXTARG:		;
 
 	image_set_hcrc (hdr, checksum);
 
-	print_header (hdr);
+	image_print_contents_noindent (hdr);
 
 	(void) munmap((void *)ptr, sbuf.st_size);
 
@@ -569,141 +482,4 @@ usage ()
 			 "          -x ==> set XIP (execute in place)\n"
 		);
 	exit (EXIT_FAILURE);
-}
-
-static void
-print_header (image_header_t *hdr)
-{
-	time_t timestamp;
-	uint32_t size;
-
-	timestamp = (time_t)image_get_time (hdr);
-	size = image_get_data_size (hdr);
-
-	printf ("Image Name:   %.*s\n", IH_NMLEN, image_get_name (hdr));
-	printf ("Created:      %s", ctime(&timestamp));
-	printf ("Image Type:   "); print_type(hdr);
-	printf ("Data Size:    %d Bytes = %.2f kB = %.2f MB\n",
-		size, (double)size / 1.024e3, (double)size / 1.048576e6 );
-	printf ("Load Address: 0x%08X\n", image_get_load (hdr));
-	printf ("Entry Point:  0x%08X\n", image_get_ep (hdr));
-
-	if (image_check_type (hdr, IH_TYPE_MULTI) ||
-			image_check_type (hdr, IH_TYPE_SCRIPT)) {
-		int i, ptrs;
-		uint32_t pos;
-		uint32_t *len_ptr = (uint32_t *) (
-					(unsigned long)hdr + image_get_header_size ()
-				);
-
-		/* determine number of images first (to calculate image offsets) */
-		for (i=0; len_ptr[i]; ++i)	/* null pointer terminates list */
-			;
-		ptrs = i;		/* null pointer terminates list */
-
-		pos = image_get_header_size () + ptrs * sizeof(long);
-		printf ("Contents:\n");
-		for (i=0; len_ptr[i]; ++i) {
-			size = uimage_to_cpu (len_ptr[i]);
-
-			printf ("   Image %d: %8d Bytes = %4d kB = %d MB\n",
-				i, size, size>>10, size>>20);
-			if (image_check_type (hdr, IH_TYPE_SCRIPT) && i > 0) {
-				/*
-				 * the user may need to know offsets
-				 * if planning to do something with
-				 * multiple files
-				 */
-				printf ("    Offset = %08X\n", pos);
-			}
-			/* copy_file() will pad the first files to even word align */
-			size += 3;
-			size &= ~3;
-			pos += size;
-		}
-	}
-}
-
-
-static void
-print_type (image_header_t *hdr)
-{
-	printf ("%s %s %s (%s)\n",
-		put_arch (image_get_arch (hdr)),
-		put_os   (image_get_os (hdr)),
-		put_type (image_get_type (hdr)),
-		put_comp (image_get_comp (hdr))
-	);
-}
-
-static char *put_arch (int arch)
-{
-	return (put_table_entry(arch_name, "Unknown Architecture", arch));
-}
-
-static char *put_os (int os)
-{
-	return (put_table_entry(os_name, "Unknown OS", os));
-}
-
-static char *put_type (int type)
-{
-	return (put_table_entry(type_name, "Unknown Image", type));
-}
-
-static char *put_comp (int comp)
-{
-	return (put_table_entry(comp_name, "Unknown Compression", comp));
-}
-
-static char *put_table_entry (table_entry_t *table, char *msg, int type)
-{
-	for (; table->val>=0; ++table) {
-		if (table->val == type)
-			return (table->lname);
-	}
-	return (msg);
-}
-
-static int get_arch(char *name)
-{
-	return (get_table_entry(arch_name, "CPU", name));
-}
-
-
-static int get_comp(char *name)
-{
-	return (get_table_entry(comp_name, "Compression", name));
-}
-
-
-static int get_os (char *name)
-{
-	return (get_table_entry(os_name, "OS", name));
-}
-
-
-static int get_type(char *name)
-{
-	return (get_table_entry(type_name, "Image", name));
-}
-
-static int get_table_entry (table_entry_t *table, char *msg, char *name)
-{
-	table_entry_t *t;
-	int first = 1;
-
-	for (t=table; t->val>=0; ++t) {
-		if (t->sname && strcasecmp(t->sname, name)==0)
-			return (t->val);
-	}
-	fprintf (stderr, "\nInvalid %s Type - valid names are", msg);
-	for (t=table; t->val>=0; ++t) {
-		if (t->sname == NULL)
-			continue;
-		fprintf (stderr, "%c %s", (first) ? ':' : ',', t->sname);
-		first = 0;
-	}
-	fprintf (stderr, "\n");
-	return (-1);
 }
