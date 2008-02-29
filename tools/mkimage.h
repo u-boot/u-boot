@@ -35,6 +35,14 @@
 #include <sha1.h>
 #include "fdt_host.h"
 
+#define MKIMAGE_DEBUG
+
+#ifdef MKIMAGE_DEBUG
+#define debug(fmt,args...)	printf (fmt ,##args)
+#else
+#define debug(fmt,args...)
+#endif /* MKIMAGE_DEBUG */
+
 #if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <inttypes.h>
 #endif
