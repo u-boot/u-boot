@@ -193,7 +193,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 		"err:%s\n", fdt_strerror(nodeoffset));
 	}
 	/* MAC Adresse */
-	nodeoffset = fdt_path_offset (blob, "/soc866/cpm/scc");
+	nodeoffset = fdt_path_offset (blob, "/soc866/cpm/ethernet");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
 					sizeof(uchar) * 6);

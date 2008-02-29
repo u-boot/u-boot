@@ -198,6 +198,8 @@ void gpmc_init(void)
 	sdelay(2000);
 
 	/* setup cs2 */
+	__raw_writel(0x0, GPMC_CONFIG7_2);	/* disable current map */
+	sdelay(1000);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG1_0 | mux | mtype | mwidth,
 		     GPMC_CONFIG1_2);
 	/* It's same as cs 0 */

@@ -42,4 +42,3 @@ void show_sdram_registers(void);
 #endif
 long int init_ppc405_sdram(unsigned int dram_size);
 #endif
-

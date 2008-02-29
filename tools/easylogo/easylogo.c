@@ -7,6 +7,8 @@
 ** This is still under construction!
 */
 
+#include <getopt.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -216,15 +218,10 @@ int image_load_tga (image_t * image, char *filename)
 	return 0;
 }
 
-int image_free (image_t * image)
+void image_free (image_t * image)
 {
-	if (image->data != NULL)
-		free (image->data);
-
-	if (image->palette != NULL)
-		free (image->palette);
-
-	return 0;
+	free (image->data);
+	free (image->palette);
 }
 
 int image_rgb_to_yuyv (image_t * rgb_image, image_t * yuyv_image)
@@ -353,58 +350,75 @@ int image_save_header (image_t * image, char *filename, char *varname)
 
 #define DEF_FILELEN	256
 
+static void usage (int exit_status)
+{
+	puts (
+		"EasyLogo 1.0 (C) 2000 by Paolo Scaffardi\n"
+		"\n"
+		"Syntax:	easylogo [options] inputfile [outputvar [outputfile]]\n"
+		"\n"
+		"Options:\n"
+		"  -r     Output RGB instead of YUYV\n"
+		"  -h     Help output\n"
+		"\n"
+		"Where: 'inputfile'   is the TGA image to load\n"
+		"       'outputvar'   is the variable name to create\n"
+		"       'outputfile'  is the output header file (default is 'inputfile.h')"
+	);
+	exit (exit_status);
+}
+
 int main (int argc, char *argv[])
 {
+	int c;
+	bool use_rgb = false;
 	char inputfile[DEF_FILELEN],
 		outputfile[DEF_FILELEN], varname[DEF_FILELEN];
 
 	image_t rgb_logo, yuyv_logo;
 
-	switch (argc) {
-	case 2:
-	case 3:
-	case 4:
-		strcpy (inputfile, argv[1]);
-
-		if (argc > 2)
-			strcpy (varname, argv[2]);
-		else {
-			char *dot = strchr (inputfile, '.');
-			int pos = dot - inputfile;
-
-			if (dot) {
-				strncpy (varname, inputfile, pos);
-				varname[pos] = 0;
-			}
+	while ((c = getopt(argc, argv, "hr")) > 0) {
+		switch (c) {
+		case 'h':
+			usage (0);
+			break;
+		case 'r':
+			use_rgb = true;
+			puts ("Using 24-bit RGB Output Fromat");
+			break;
+		default:
+			usage (1);
+			break;
 		}
-
-		if (argc > 3)
-			strcpy (outputfile, argv[3]);
-		else {
-			char *dot = strchr (varname, '.');
-			int pos = dot - varname;
-
-			if (dot) {
-				char app[DEF_FILELEN];
-
-				strncpy (app, varname, pos);
-				app[pos] = 0;
-				sprintf (outputfile, "%s.h", app);
-			}
-		}
-		break;
-
-	default:
-		printf ("EasyLogo 1.0 (C) 2000 by Paolo Scaffardi\n\n");
-
-		printf("Syntax:	easylogo inputfile [outputvar {outputfile}] \n");
-		printf("\n");
-		printf("Where:	'inputfile' 	is the TGA image to load\n");
-		printf("      	'outputvar' 	is the variable name to create\n");
-		printf("       	'outputfile' 	is the output header file (default is 'inputfile.h')\n");
-
-		return -1;
 	}
+
+	c = argc - optind;
+	if (c > 4 || c < 1)
+		usage (1);
+
+	strcpy (inputfile, argv[optind]);
+
+	if (c > 1)
+		strcpy (varname, argv[optind + 1]);
+	else {
+		/* transform "input.tga" to just "input" */
+		char *dot;
+		strcpy (varname, inputfile);
+		dot = strchr (varname, '.');
+		if (dot)
+			*dot = '\0';
+	}
+
+	if (c > 2)
+		strcpy (outputfile, argv[optind + 2]);
+	else {
+		/* just append ".h" to input file name */
+		strcpy (outputfile, inputfile);
+		strcat (outputfile, ".h");
+	}
+
+	/* Make sure the output is sent as soon as we printf() */
+	setbuf(stdout, NULL);
 
 	printf ("Doing '%s' (%s) from '%s'...",
 		outputfile, varname, inputfile);
@@ -417,20 +431,23 @@ int main (int argc, char *argv[])
 		exit (1);
 	}
 
-	/* Convert it to YUYV format */
+	/* Convert it to YUYV format if wanted */
 
-	printf ("C");
-	image_rgb_to_yuyv (&rgb_logo, &yuyv_logo);
+	if (!use_rgb) {
+		printf ("C");
+		image_rgb_to_yuyv (&rgb_logo, &yuyv_logo);
+	}
 
 	/* Save it into a header format */
 
 	printf ("S");
-	image_save_header (&yuyv_logo, outputfile, varname);
+	image_save_header (use_rgb ? &rgb_logo : &yuyv_logo, outputfile, varname);
 
 	/* Free original image and copy */
 
 	image_free (&rgb_logo);
-	image_free (&yuyv_logo);
+	if (!use_rgb)
+		image_free (&yuyv_logo);
 
 	printf ("\n");
 

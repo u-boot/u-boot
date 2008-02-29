@@ -121,12 +121,13 @@ static int display_banner(void)
 	return (0);
 }
 
+#ifndef CFG_NO_FLASH
 static void display_flash_config(ulong size)
 {
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
-
+#endif
 
 static int init_baudrate (void)
 {
@@ -247,7 +248,7 @@ void board_init_f(ulong bootflag)
 	debug ("Reserving %d Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
 
- 	/* Reserve memory for boot params.
+	/* Reserve memory for boot params.
 	 */
 	addr_sp -= CFG_BOOTPARAMS_LEN;
 	bd->bi_boot_params = addr_sp;
@@ -301,7 +302,9 @@ void board_init_f(ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	cmd_tbl_t *cmdtp;
+#ifndef CFG_NO_FLASH
 	ulong size;
+#endif
 	extern void malloc_bin_reloc (void);
 #ifndef CFG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
@@ -322,7 +325,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/*
 	 * We have to relocate the command table manually
 	 */
- 	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
+	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
 		ulong addr;
 
 		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
@@ -352,13 +355,16 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	env_name_spec += gd->reloc_off;
 #endif
 
+	bd = gd->bd;
+
+#ifndef CFG_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config (size);
-
-	bd = gd->bd;
-	bd->bi_flashstart = CFG_FLASH_BASE;
 	bd->bi_flashsize = size;
+#endif
+
+	bd->bi_flashstart = CFG_FLASH_BASE;
 #if CFG_MONITOR_BASE == CFG_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for U-Boot */
 #else

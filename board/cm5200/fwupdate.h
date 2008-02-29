@@ -39,7 +39,7 @@
 #define FW_DIR		"nx-fw"
 #define RESCUE_IMAGE	"nxrs.img"
 #define LOAD_ADDR	0x400000
-#define RS_BOOTARGS	"ramdisk=8192K"
+#define RS_BOOTARGS	"ramdisk_size=8192K"
 
 /* Main function for fwupdate */
 void cm5200_fwupdate(void);

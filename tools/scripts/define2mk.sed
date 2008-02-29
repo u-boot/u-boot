@@ -7,11 +7,11 @@
 #
 
 # Only process values prefixed with #define CONFIG_
-/^#define CONFIG_[A-Za-z0-9_]\+/ {
+/^#define CONFIG_[A-Za-z0-9_][A-Za-z0-9_]*/ {
 	# Strip the #define prefix
 	s/#define *//;
 	# Change to form CONFIG_*=VALUE
-	s/ \+/=/;
+	s/  */=/;
 	# Drop trailing spaces
 	s/ *$//;
 	# drop quotes around string values

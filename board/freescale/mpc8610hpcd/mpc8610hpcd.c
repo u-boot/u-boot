@@ -280,12 +280,13 @@ void pci_init_board(void)
 	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	uint io_sel = (gur->pordevsr & MPC8610_PORDEVSR_IO_SEL)
+		>> MPC8610_PORDEVSR_IO_SEL_SHIFT;
+	uint host_agent = (gur->porbmsr & MPC8610_PORBMSR_HA)
+		>> MPC8610_PORBMSR_HA_SHIFT;
 
 	printf( " pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
 		devdisr, io_sel, host_agent);
-
 
 #ifdef CONFIG_PCIE1
  {

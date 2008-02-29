@@ -47,7 +47,7 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE 57600	/* console baudrate = 115kbps	*/
 #define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
-#define CONFIG_BOOTARGS		"ramdisk=8000 "\
+#define CONFIG_BOOTARGS		"ramdisk_size=8000 "\
 				"root=/dev/nfs rw nfsroot=10.77.77.250:/ppcroot "\
 				"nfsaddrs=10.77.77.20:10.77.77.250"
 #define CONFIG_BOOTCOMMAND	"bootm 400e0000"

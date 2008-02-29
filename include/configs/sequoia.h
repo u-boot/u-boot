@@ -43,7 +43,13 @@
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_BCSR_BASE + 3) & 0x80) ? \
 				33333333 : 33000000)
 
-#if 0
+/*
+ * Define this if you want support for video console with radeon 9200 pci card
+ * Also set TEXT_BASE to 0xFFF80000 in board/amcc/sequoia/config.mk in this case
+ */
+#undef CONFIG_VIDEO
+
+#ifdef CONFIG_VIDEO
 /*
  * 44x dcache supported is working now on sequoia, but we don't enable
  * it yet since it needs further testing
@@ -58,8 +64,13 @@
  * Base addresses -- Note these are effective addresses where the actual
  * resources get mapped (not physical addresses).
  */
+#ifndef CONFIG_VIDEO
 #define CFG_MONITOR_LEN		(384 * 1024) /* Reserve 384 kiB for Monitor  */
 #define CFG_MALLOC_LEN		(256 * 1024) /* Reserve 256 kiB for malloc() */
+#else
+#define CFG_MONITOR_LEN		(512 * 1024)    /* Reserve 512 kB for Monitor   */
+#define CFG_MALLOC_LEN		(1024 * 1024)   /* Reserve 1024 kB for malloc() */
+#endif
 
 #define CFG_TLB_FOR_BOOT_FLASH	0x0003
 #define CFG_BOOT_BASE_ADDR	0xf0000000
@@ -570,5 +581,18 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_BIOSEMU			/* x86 bios emulator for vga bios */
+#define CONFIG_ATI_RADEON_FB		/* use radeon framebuffer driver */
+#define VIDEO_IO_OFFSET			0xe8000000
+#define CFG_ISA_IO_BASE_ADDRESS		VIDEO_IO_OFFSET
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_CMD_BMP
+#endif
 
 #endif /* __CONFIG_H */

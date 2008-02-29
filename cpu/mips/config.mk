@@ -21,7 +21,7 @@
 # MA 02111-1307 USA
 #
 v=$(shell $(AS) --version |grep "GNU assembler" |cut -d. -f2)
-MIPSFLAGS=$(shell \
+MIPSFLAGS:=$(shell \
 if [ "$v" -lt "14" ]; then \
 	echo "-mcpu=4kc"; \
 else \

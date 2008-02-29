@@ -179,7 +179,13 @@ int dtt_init (void)
 
 int dtt_get_temp(int sensor)
 {
-    return (dtt_read(sensor, DTT_READ_TEMP) / 256);
+    int const ret = dtt_read(sensor, DTT_READ_TEMP);
+
+    if (ret < 0) {
+	printf("DTT temperature read failed.\n");
+	return 0;
+    }
+    return (int)((int16_t) ret / 256);
 } /* dtt_get_temp() */
 
 #endif /* CONFIG_DTT_LM75 */

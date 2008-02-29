@@ -1256,12 +1256,16 @@ typedef struct ccsr_rio {
 typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
-#define MPC86xx_PORBMSR_HA      0x00060000
-#define MPC85xx_PORBMSR_HA		0x00070000
+#define MPC8610_PORBMSR_HA      0x00070000
+#define MPC8610_PORBMSR_HA_SHIFT	16
+#define MPC8641_PORBMSR_HA      0x00060000
+#define MPC8641_PORBMSR_HA_SHIFT	17
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
 	uint	pordevsr;	/* 0xe000c - POR I/O device status regsiter */
-#define MPC86xx_PORDEVSR_IO_SEL		0x000F0000
-#define MPC85xx_PORDEVSR_IO_SEL		0x00380000 /* 85xx platform type */
+#define MPC8610_PORDEVSR_IO_SEL		0x00380000
+#define MPC8610_PORDEVSR_IO_SEL_SHIFT		19
+#define MPC8641_PORDEVSR_IO_SEL		0x000F0000
+#define MPC8641_PORDEVSR_IO_SEL_SHIFT		16
 #define MPC86xx_PORDEVSR_CORE1TE	0x00000080 /* ASMP (Core1 addr trans) */
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
 	char	res1[12];
