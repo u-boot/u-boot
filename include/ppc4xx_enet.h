@@ -356,12 +356,14 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_IST		(0x01000000)
 #define EMAC_M1_MF_1000MBPS	(0x00800000)	/* 0's for 10MBPS */
 #define EMAC_M1_MF_100MBPS	(0x00400000)
-#define EMAC_M1_RFS_16K		(0x00280000)	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_8K		(0x00200000)	/* ~4k for 512 byte */
-#define EMAC_M1_RFS_4K		(0x00180000)	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_MASK	(0x00380000)
+#define EMAC_M1_RFS_16K		(0x00280000)
+#define EMAC_M1_RFS_8K		(0x00200000)
+#define EMAC_M1_RFS_4K		(0x00180000)
 #define EMAC_M1_RFS_2K		(0x00100000)
 #define EMAC_M1_RFS_1K		(0x00080000)
-#define EMAC_M1_TX_FIFO_16K	(0x00050000)	/* 0's for 512 byte */
+#define EMAC_M1_TX_FIFO_MASK	(0x00070000)
+#define EMAC_M1_TX_FIFO_16K	(0x00050000)
 #define EMAC_M1_TX_FIFO_8K	(0x00040000)
 #define EMAC_M1_TX_FIFO_4K	(0x00030000)
 #define EMAC_M1_TX_FIFO_2K	(0x00020000)
@@ -386,11 +388,15 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_IST		0x01000000
 #define EMAC_M1_MF_1000MBPS	0x00800000	/* 0's for 10MBPS */
 #define EMAC_M1_MF_100MBPS	0x00400000
-#define EMAC_M1_RFS_4K		0x00300000	/* ~4k for 512 byte */
+#define EMAC_M1_RFS_MASK	0x00300000
+#define EMAC_M1_RFS_4K		0x00300000
 #define EMAC_M1_RFS_2K		0x00200000
 #define EMAC_M1_RFS_1K		0x00100000
-#define EMAC_M1_TX_FIFO_2K	0x00080000	/* 0's for 512 byte */
+#define EMAC_M1_RFS_512		0x00000000
+#define EMAC_M1_TX_FIFO_MASK	0x000c0000
+#define EMAC_M1_TX_FIFO_2K	0x00080000
 #define EMAC_M1_TX_FIFO_1K	0x00040000
+#define EMAC_M1_TX_FIFO_512	0x00000000
 #define EMAC_M1_TR0_DEPEND	0x00010000	/* 0'x for single packet */
 #define EMAC_M1_TR0_MULTI	0x00008000
 #define EMAC_M1_TR1_DEPEND	0x00004000
@@ -399,6 +405,15 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_JUMBO_ENABLE	0x00001000
 #endif /* defined(CONFIG_440EP) || defined(CONFIG_440GR) */
 #endif /* defined(CONFIG_440GX) */
+
+#define EMAC_MR1_FIFO_MASK	(EMAC_M1_RFS_MASK | EMAC_M1_TX_FIFO_MASK)
+#if defined(CONFIG_405EZ)
+/* 405EZ only supports 512 bytes fifos */
+#define EMAC_MR1_FIFO_SIZE	(EMAC_M1_RFS_512 | EMAC_M1_TX_FIFO_512)
+#else
+/* Set receive fifo to 4k and tx fifo to 2k */
+#define EMAC_MR1_FIFO_SIZE	(EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K)
+#endif
 
 /* Transmit Mode Register 0 */
 #define EMAC_TXM0_GNP0		(0x80000000)

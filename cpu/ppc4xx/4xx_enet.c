@@ -975,9 +975,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* set transmit enable & receive enable */
 	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
 
-	/* set receive fifo to 4k and tx fifo to 2k */
 	mode_reg = in_be32((void *)EMAC_M1 + hw_p->hw_addr);
-	mode_reg |= EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K;
+
+	/* set rx-/tx-fifo size */
+	mode_reg = (mode_reg & ~EMAC_MR1_FIFO_MASK) | EMAC_MR1_FIFO_SIZE;
 
 	/* set speed */
 	if (speed == _1000BASET) {
