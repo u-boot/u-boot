@@ -117,7 +117,9 @@ long int initdram(int board_type)
 	return (CFG_MBYTES_RAM << 20);
 }
 
+#ifndef CONFIG_NAND_SPL
 int testdram(void)
 {
 	return (0);
 }
+#endif
