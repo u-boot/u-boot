@@ -1,3 +1,50 @@
+commit 76957cb3d621bf664311908e5962e151c633c285
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 1 12:11:40 2008 +0100
+
+    ppc4xx: EMAC: Fix 405EZ fifo size setup in EMAC_MR1
+
+    The 405EZ only supports 512 bytes of rx-/tx-fifo EMAC sizes. But
+    currently 4k/2k is configured. This patch fixes this issue.
+
+    Thanks to Thomas Kindler <tkindler@lenord.de> for pointing this out.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 118978c8eb43803e2794233922df4249fa278b83
+Author: Woodruff, Richard <r-woodruff2@ti.com>
+Date:	Fri Feb 29 17:34:35 2008 -0600
+
+    Fix alignment error on ARM for modules
+
+    Fix alignment fault on ARM when running modules.  With out an explicit
+    linker file gcc4.2.1 will half word align __bss_start's value.  The word
+    dereference will crash hello_world.
+
+    signed-off-by Richard Woodruff <r-woodruff2@ti.com>
+
+commit ce1120dd703e6f12c59e4eba9962356a0300b832
+Author: Dave Liu <r63238@freescale.com>
+Date:	Fri Feb 29 17:45:31 2008 +0800
+
+    fs: Fix ext2 read issue
+
+    The ext2 aligned process will corrupt the key
+    data struct, the patch fix this.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 5013c09f7a5675952a3ca88b6bc6c924e63af33e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 2 22:45:33 2008 +0100
+
+    Makefile: cleanup "clean" target
+
+    Make sure CDPATH settings cannot interfere.
+    Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit ffda586fc1373243c9794babde69500f6293a8d8
 Author: Li Yang <leoli@freescale.com>
 Date:	Fri Feb 29 11:46:05 2008 +0800
