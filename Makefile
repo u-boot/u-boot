@@ -608,7 +608,7 @@ mecp5200_config:  unconfig
 munices_config:	unconfig
 	@$(MKCONFIG) munices ppc mpc5xxx munices
 
-o2dnt_config:
+o2dnt_config:	unconfig
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
 pf5200_config:  unconfig
@@ -634,7 +634,7 @@ smmaco4_config: unconfig
 	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200
 
 cm5200_config:	unconfig
-	@./mkconfig -a cm5200 ppc mpc5xxx cm5200
+	@$(MKCONFIG) -a cm5200 ppc mpc5xxx cm5200
 
 spieval_config:	unconfig
 	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200
@@ -765,7 +765,7 @@ AdderII_config  \
 	@$(MKCONFIG) -a Adder ppc mpc8xx adder
 
 AdderUSB_config:	unconfig
-	@./mkconfig -a AdderUSB ppc mpc8xx adder
+	@$(MKCONFIG) -a AdderUSB ppc mpc8xx adder
 
 ADS860_config     \
 FADS823_config    \
@@ -1064,7 +1064,7 @@ RRvision_LCD_config:	unconfig
 SM850_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx
 
-spc1920_config:
+spc1920_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx spc1920
 
 SPD823TS_config:	unconfig
@@ -2068,7 +2068,7 @@ MPC8360EMDS_ATM_config: unconfig
 
 MPC8360ERDK_33_config \
 MPC8360ERDK_66_config \
-MPC8360ERDK_config:
+MPC8360ERDK_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
@@ -2242,7 +2242,7 @@ MPC8641HPCN_config:    unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn freescale
 
 sbc8641d_config:	unconfig
-	@./mkconfig $(@:_config=) ppc mpc86xx sbc8641d
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx sbc8641d
 
 #########################################################################
 ## 74xx/7xx Systems
@@ -2565,7 +2565,7 @@ cradle_config	:	unconfig
 csb226_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa csb226
 
-delta_config :
+delta_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa delta
 
 innokom_config	:	unconfig
@@ -2883,7 +2883,7 @@ atngw100_config	:	unconfig
 ms7720se_config: unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_MS7720SE 1" >> include/config.h
-	@./mkconfig -a $(@:_config=) sh sh3 ms7720se
+	@$(MKCONFIG) -a $(@:_config=) sh sh3 ms7720se
 
 #########################################################################
 ## sh4 (Renesas SuperH)
@@ -2891,12 +2891,12 @@ ms7720se_config: unconfig
 ms7750se_config: unconfig
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_MS7750SE 1" >> $(obj)include/config.h
-	@./mkconfig -a $(@:_config=) sh sh4 ms7750se
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7750se
 
 ms7722se_config :       unconfig
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_MS7722SE 1" >> $(obj)include/config.h
-	@./mkconfig -a $(@:_config=) sh sh4 ms7722se
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7722se
 
 #########################################################################
 #########################################################################
