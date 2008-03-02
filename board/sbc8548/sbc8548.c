@@ -56,9 +56,10 @@ int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
+	volatile u_char *rev= (void *)CFG_BD_REV;
 
 	printf ("Board: Wind River SBC8548 Rev. 0x%01x\n",
-			(volatile)(*(u_char *)CFG_BD_REV) >> 4);
+			(*rev) >> 4);
 
 	/*
 	 * Initialize local bus.
@@ -533,12 +534,12 @@ void
 ft_pci_setup(void *blob, bd_t *bd)
 {
 	int node, tmp[2];
-	const char *path;
 
 	node = fdt_path_offset(blob, "/aliases");
 	tmp[0] = 0;
 	if (node >= 0) {
 #ifdef CONFIG_PCI1
+		const char *path;
 		path = fdt_getprop(blob, node, "pci0", NULL);
 		if (path) {
 			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
@@ -546,6 +547,7 @@ ft_pci_setup(void *blob, bd_t *bd)
 		}
 #endif
 #ifdef CONFIG_PCIE1
+		const char *path;
 		path = fdt_getprop(blob, node, "pci1", NULL);
 		if (path) {
 			tmp[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;

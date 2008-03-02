@@ -91,7 +91,7 @@ int interrupt_init (void)
 	set_msr (get_msr () | MSR_EE);
 
 #ifdef CONFIG_INTERRUPTS
-	pic->iivpr1 = 0x810002;	/* 50220 enable ecm interrupts */
+	pic->iivpr1 = 0x810001;	/* 50220 enable ecm interrupts */
 	debug("iivpr1@%x = %x\n",&pic->iivpr1, pic->iivpr1);
 
 	pic->iivpr2 = 0x810002;	/* 50240 enable ddr interrupts */

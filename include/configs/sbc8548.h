@@ -168,7 +168,7 @@
 #define	CFG_OR0_PRELIM		0xff806e65
 #define	CFG_OR6_PRELIM		0xfc006e65
 
-#define CFG_FLASH_BANKS_LIST	{0xff800000, CFG_FLASH_BASE}
+#define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE}
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
 #define CFG_MAX_FLASH_SECT	128		/* sectors per device */
 #undef	CFG_FLASH_CHECKSUM
