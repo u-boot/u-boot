@@ -118,6 +118,9 @@ src :=
 endif
 export obj src
 
+# Make sure CDPATH settings don't interfere
+unexport CDPATH
+
 #########################################################################
 
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
@@ -2904,28 +2907,20 @@ clean:
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'  -o -name '*.a'  \) -print \
 		| xargs rm -f
-	@rm -f $(obj)examples/hello_world $(obj)examples/timer \
-	      $(obj)examples/eepro100_eeprom $(obj)examples/sched \
-	      $(obj)examples/mem_to_mem_idma2intr $(obj)examples/82559_eeprom \
-	      $(obj)examples/smc91111_eeprom $(obj)examples/interrupt \
-	      $(obj)examples/test_burst
-	@rm -f $(obj)tools/img2srec $(obj)tools/mkimage $(obj)tools/envcrc \
-		$(obj)tools/gen_eth_addr $(obj)tools/ubsha1
-	@rm -f $(obj)tools/mpc86x_clk $(obj)tools/ncb
-	@rm -f $(obj)tools/easylogo/easylogo $(obj)tools/bmp_logo
-	@rm -f $(obj)tools/gdb/astest $(obj)tools/gdb/gdbcont $(obj)tools/gdb/gdbsend
-	@rm -f $(obj)tools/env/fw_printenv $(obj)tools/env/fw_setenv
-	@rm -f $(obj)board/cray/L1/bootscript.c $(obj)board/cray/L1/bootscript.image
-	@rm -f $(obj)board/netstar/eeprom $(obj)board/netstar/crcek $(obj)board/netstar/crcit
-	@rm -f $(obj)board/netstar/*.srec $(obj)board/netstar/*.bin
-	@rm -f $(obj)board/trab/trab_fkt $(obj)board/voiceblue/eeprom
-	@rm -f $(obj)board/integratorap/u-boot.lds $(obj)board/integratorcp/u-boot.lds
-	@rm -f $(obj)board/bf533-ezkit/u-boot.lds $(obj)board/bf533-stamp/u-boot.lds
-	@rm -f $(obj)board/bf537-stamp/u-boot.lds $(obj)board/bf561-ezkit/u-boot.lds
-	@rm -f $(obj)include/bmp_logo.h
-	@rm -f $(obj)nand_spl/u-boot-spl $(obj)nand_spl/u-boot-spl.map
-	@rm -f $(obj)onenand_ipl/onenand-ipl $(obj)onenand_ipl/onenand-ipl.bin \
-		$(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)onenand_ipl/onenand-ipl.map
+	@cd $(obj)examples/ && rm -f hello_world timer eepro100_eeprom sched \
+	      mem_to_mem_idma2intr 82559_eeprom smc91111_eeprom interrupt \
+	      test_burst
+	@cd $(obj)tools/ && rm -f bmp_logo easylogo/easylogo \
+		env/{fw_printenv,fw_setenv} envcrc gdb/{astest,gdbcont,gdbsend} \
+		gen_eth_addr img2srec mkimage mpc86x_clk ncb ubsha1
+	@cd $(obj)board/ && rm -f cray/L1/{bootscript.c,bootscript.image} \
+		netstar/{eeprom,crcek,crcit,*.srec,*.bin} \
+		trab/trab_fkt voiceblue/eeprom \
+		{integratorap,integratorcp}/u-boot.lds integratorcp/u-boot.lds \
+		{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds
+	@rm -f $(obj)include/bmp_logo.h $(obj)nand_spl/{u-boot-spl,u-boot-spl.map}
+	@cd $(obj)onenand_ipl/ && rm -f onenand-ipl onenand-ipl.bin \
+		onenand-ipl-2k.bin onenand-ipl.map
 	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 
 clobber:	clean
@@ -2934,11 +2929,10 @@ clobber:	clean
 		-print0 \
 		| xargs -0 rm -f
 	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
-		$(obj)cscope.*
-	@rm -fr $(obj)*.*~
+		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
-	@rm -f $(obj)tools/crc32.c $(obj)tools/environment.c $(obj)tools/env/crc32.c $(obj)tools/sha1.c
-	@rm -f $(obj)tools/inca-swap-bytes $(obj)cpu/mpc824x/bedbug_603e.c
+	@rm -f $(obj)tools/{crc32.c,environment.c,env/crc32.c,sha1.c,inca-swap-bytes}
+	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -lname "*" -print | xargs rm -f

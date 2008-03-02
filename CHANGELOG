@@ -1,3 +1,313 @@
+commit ffda586fc1373243c9794babde69500f6293a8d8
+Author: Li Yang <leoli@freescale.com>
+Date:	Fri Feb 29 11:46:05 2008 +0800
+
+    add cscope build target
+
+    Add cscope build target to generate cscope database for code browsing.
+
+    Signed-off-by: Li Yang <leoli@freescale.com>
+
+commit f655adef65e4cf6b929054b049ee19ae9b5ccbe2
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 27 15:06:39 2008 -0600
+
+    net: uec_phy: handle 88e1111 rev.B2 erratum 5.6
+
+    erratum 5.6 states the autoneg completion bit is functional only if the
+    autoneg bit is asserted.
+
+    This fixes any secondarily-issued networking commands on non-gigabit
+    links on the mpc8360 mds board.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5f91db7f582ca17b1f19f10189c025696f333d2e
+Author: John Rigby <jrigby@freescale.com>
+Date:	Tue Feb 26 09:38:14 2008 -0700
+
+    MPC5121e ADS PCI support take 3
+
+    Adds PCI support for MPC5121
+
+    Tested with drivers/net/rtl8139.c
+
+    Support is conditional since PCI on old silicon does not work.
+
+    ads5121_PCI_config turns on PCI
+
+    In this version, condition compilation of PCI code has been moved
+    from ifdef in board/ads5121/pci.c to board/ads5121/Makefile as
+    suggested by Jean-Christophe PLAGNIOL-VILLARD
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 44b4dbed4133f657705b7c5193209da9978243a7
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 23:53:07 2008 +0100
+
+    Fix warnings while compilation of post/drivers/memory.c
+
+    Fix warnings while compilation with new gcc in eldk-4.2
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 4fae35a53b3e958254d6574a1cc7e10811fc6726
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 20:54:04 2008 +0100
+
+    ppc4xx: Fix problem in 4xx_enet.c driver
+
+    U-Boot crashes in the net loop if CONFIG_4xx_DCACHE is
+    enabled. To reproduce the problem ensure that 'ethrotate'
+    environment variable isn't set to "no" and then run
+    "tftp 200000 not_existent_file".
+    This patch tries to fix the issue.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 60ec654c5eb80d0fe0c38a3bd42140215bc06484
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 20:04:20 2008 +0100
+
+    POST: Disable cache while SPR POST
+
+    Currently (since commit b2e2142c) u-boot crashes on
+    sequoia board while SPR test if CONFIG_4xx_DCACHE is
+    enabled. This patch disables the cache while SPR test.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit c313b2c6c555e7d89ec59bd51c59ab164ad0105d
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 17:52:40 2008 +0100
+
+    TQM5200: use automatic fdt memory fixup (part 2)
+
+    Call fdt_fixup_memory() on the boards TQM5200, TQM5200_B, TQM5200S,
+    TB5200 and TB5200_B to fixup the /memory node with the memory values
+    detected by U-Boot.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 44ceec253ea941b301abf4b079d52324def69d92
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 15:17:05 2008 +0100
+
+    TQM5200: use automatic fdt memory fixup
+
+    Call fdt_fixup_memory() on the boards TQM5200, TQM5200_B, TQM5200S,
+    TB5200 and TB5200_B to fixup the /memory node with the memory values
+    detected by U-Boot.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit f3a329acb26017d8e10e9c93e1e726c2a5ac634a
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 13:27:52 2008 +0100
+
+    TQM5200: fix bug in SDRAM initialization code
+
+    This patch fixes a bug in the SDRAM initialization code for the
+    TQM5200. The hi_addr bit is now set correctly. Without this patch
+    the hi_addr bit is always set to 1, if the second SDRAM bank is
+    not populated.
+
+    For other MPC5200 boards a correspondig patch has already been applied
+    some time ago, see commit a63109281ad41b0fb489fdcb901171f76bcdbc2c.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+    --
+    Forget the first patch please. I confused flash with SDRAM in
+    the comment ...
+
+commit 217bf6b6a313d9ccb619a4dbc09f73f77cd48df1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:12 2008 +0100
+
+    mx1fs2/flash: Fix multiple compiler warnings
+
+    "pointer targets in assignment differ in signedness"
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5599c28cef55be42a8ca6fa8086b1a44e56a85d2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:11 2008 +0100
+
+    arm-imx: Fix register definitions
+
+    Sync register definitions with linux
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c9bcf75fecc58886af77d2a571cff2eab39eab6f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:10 2008 +0100
+
+    actua1/actua2/actua3: Fix multiple unused variable warnings
+
+    - actua1:
+	actux1.c: In function 'checkboard':
+	actux1.c:92: warning: unused variable 'revision'
+
+    - actua2:
+	actux2.c: In function 'checkboard':
+	actux2.c:100: warning: unused variable 's'
+	actux2.c:99: warning: unused variable 'revision'
+	actux2.c: In function 'reset_phy':
+	actux2.c:130: warning: unused variable 'i'
+
+    - actua3:
+	actux3.c: In function 'checkboard':
+	actux3.c:114: warning: unused variable 'revision'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f8fa6368a6a0c02164da8e2f52f18d457c6977bd
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sun Feb 24 11:44:29 2008 +0900
+
+    Remove the __STRICT_ANSI__ check from the __u64/__s64 declaration on 32bit targets.
+
+    The previous patch was lacking of i386, microblaze, nios and nios2. This
+    patch tries to fix them.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2b22fa4baee51e6b467c44ea1be0d1ecd86e8775
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 16:30:47 2008 -0600
+
+    85xx: Don't icbi when unlocking the cache
+
+    There is no reason to icbi when invalidating the temporary stack in
+    the d-cache.  Its impossible on e500 to have the i-cache contain
+    any addresses in the temp stack and it can be problematic in generating
+    transactions on the bus to non-valid addresses.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 534ea6b6f86f8b75ef2ac061ef110a98f103d7d6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 27 15:50:50 2008 -0600
+
+    Fix source for ECM error IVPR
+
+    The source vector for the ECM was being set to 2,
+    but that's what the source vector for DDR was being
+    set to.  Change it to 1.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 21fae8b2b4e4e6e648796e07e20ab13e9cb18923
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 27 14:29:58 2008 -0600
+
+    Invalidate INIT_RAM TLB mappings
+
+    Commit 0db37dc...  (and some others) changed the INIT_RAM TLB
+    mappings to be unguarded.  This collided with an existing "bug"
+    where the mappings for the INIT_RAM were being kept around.
+    This meant that speculative loads to those addresses were
+    succeeding in the TLB, and going out to the bus, where they
+    were causing an exception (there's nothing at that address). The
+    Flash code was coincidentally causing such a speculative load.
+    Rather than go back to mapping the INIT RAM as guarded, we fix
+    it so that the entries for the INIT_RAM are invalidated.  Thus
+    the speculative loads will fail in the TLB, and have no effect.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 347b7938d3e561eb215aa386c37fb5acb5a383c6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 22:56:17 2008 +0100
+
+    sbc8548: Fix Revision reading and unused variable 'path'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 495d162374c472f46454453553382ad0735dc725
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 22:56:16 2008 +0100
+
+    sbc8548: Fix cfi flash bank declaration
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 33fa5c0bfaf465de8ceb23fcd6b397f68b35a817
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Feb 25 13:13:37 2008 -0600
+
+    86xx: Fix renamed GUR symbols in sbc8641d board.
+
+    Back in commit a551cee99ad1d1da20fd23ad265de47448852f56
+    (86xx: Fix GUR PCI config registers properly), we should have
+    changed the MPC86xx_PORBMSR_HA and MPC86xx_PORDEVSR_IO_SEL
+    symbols in the sbc8641d board as well.  Fix this oversight.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 64cd594e623c39f73964d18787763e4533f791f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Feb 25 16:50:48 2008 +0100
+
+    ppc4xx: Fix acadia_nand build problem
+
+    Don't include testdram() on NAND-booting target acadia_nand. This saves
+    a few bytes and makes the target build clean again.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 14e099e698d41e8179d05c2b2dbcf704a236f748
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:12 2008 +0000
+
+    mx1fs2/flash: Fix multiple pointertargets in assignment differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 724902c8464e610642b3a170278b99710325888e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:11 2008 +0000
+
+    arm-imx: Fix registers definition
+
+    Sync registers definition with linux
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4cd288b589ea1178947c6e364453c32b3dede6b7
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:10 2008 +0000
+
+    actua1/actua2/actua3: Fix multipleunused variable
+
+    - actua1:
+	actux1.c: In function 'checkboard':
+	actux1.c:92: warning: unused variable 'revision'
+
+    - actua2:
+	actux2.c: In function 'checkboard':
+	actux2.c:100: warning: unused variable 's'
+	actux2.c:99: warning: unused variable 'revision'
+	actux2.c: In function 'reset_phy':
+	actux2.c:130: warning: unused variable 'i'
+
+    - actua3:
+	actux3.c: In function 'checkboard':
+	actux3.c:114: warning: unused variable 'revision'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b29661fc1151077776454288051bc9a488351ce8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 24 15:21:36 2008 +0100
+
+    Coding style cleanup. Prepare v1.3.2-rc2 release candidate
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 00b48a48424894daa589d166d73277830b1c6ac4
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Feb 23 12:15:56 2008 +0100
