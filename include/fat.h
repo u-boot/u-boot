@@ -111,7 +111,8 @@
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))
-
+#define CHECK_CLUST(x, fatsize) ((x) <= 1 || \
+				(x) >= ((fatsize) != 32 ? 0xfff0 : 0xffffff0))
 
 typedef struct boot_sector {
 	__u8	ignored[3];	/* Bootstrap code */
