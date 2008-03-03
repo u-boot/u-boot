@@ -143,9 +143,8 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 	u16 adv;
 
 	miiphy_read (devname, addr, PHY_ANAR, &adv);
-	adv |= (PHY_ANLPAR_ACK | PHY_ANLPAR_RF | PHY_ANLPAR_T4 |
-		PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
-		PHY_ANLPAR_10);
+	adv |= (PHY_ANLPAR_ACK  | PHY_ANLPAR_TXFD | PHY_ANLPAR_TX |
+		PHY_ANLPAR_10FD | PHY_ANLPAR_10);
 	miiphy_write (devname, addr, PHY_ANAR, adv);
 
 	miiphy_read (devname, addr, PHY_1000BTCR, &adv);
