@@ -246,7 +246,7 @@
 #define CFG_DTT_HYSTERESIS	3
 
 #define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS

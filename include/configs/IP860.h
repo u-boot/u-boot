@@ -41,7 +41,7 @@
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo" \
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo" \
 "\0load=tftp \"/tftpboot/u-boot.bin\"\0update=protect off 1:0;era 1:0;cp.b 100000 10000000 ${filesize}\0"
 
 #undef	CONFIG_BOOTARGS

@@ -43,7 +43,7 @@
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
 
 #define CONFIG_PREBOOT	"echo;" \
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS

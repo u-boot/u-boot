@@ -52,7 +52,7 @@
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
 

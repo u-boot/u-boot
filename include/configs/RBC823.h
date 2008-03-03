@@ -61,7 +61,7 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 #define CONFIG_8xx_GCLK_FREQ    48000000L
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\

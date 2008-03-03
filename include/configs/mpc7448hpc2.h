@@ -107,8 +107,7 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #undef CONFIG_BOOTARGS
-/* #define CONFIG_PREBOOT  "echo;echo Type \"run flash_nfs\"
- * to mount root filesystem over NFS;echo" */
+/* #define CONFIG_PREBOOT  "echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo" */
 
 #if (CONFIG_BOOTDELAY >= 0)
 #define CONFIG_BOOTCOMMAND	"tftpboot 0x400000 zImage.initrd.elf;\

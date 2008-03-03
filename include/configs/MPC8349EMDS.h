@@ -717,7 +717,7 @@
 #define CONFIG_BAUDRATE	 115200
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
