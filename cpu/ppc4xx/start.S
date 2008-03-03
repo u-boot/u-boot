@@ -403,7 +403,8 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 2:
 
 #if defined(CONFIG_NAND_SPL)
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	/*
 	 * Enable internal SRAM (only on 440EPx/GRx, 440EP/GR have no OCM)
 	 */
@@ -415,6 +416,11 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	mfdcr	r1,isram0_pmeg
 	and	r1,r1,r2		/* Disable pwr mgmt */
 	mtdcr	isram0_pmeg,r1
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1,0x4000		/* BAS = 8000_0000 */
+	ori	r1,r1,0x4580		/* 16k */
+	mtdcr	isram0_sb0cr,r1
+#endif
 #endif
 #if defined(CONFIG_440EP)
 	/*

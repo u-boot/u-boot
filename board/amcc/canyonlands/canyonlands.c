@@ -134,6 +134,18 @@ u32 ddr_clktr(u32 default_val) {
 	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
 }
 
+#if defined(CONFIG_NAND_U_BOOT)
+/*
+ * NAND booting U-Boot version uses a fixed initialization, since the whole
+ * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
+ * code.
+ */
+long int initdram(int board_type)
+{
+	return CFG_MBYTES_SDRAM << 20;
+}
+#endif
+
 #if defined(CFG_DRAM_TEST)
 int testdram(void)
 {
@@ -308,14 +320,14 @@ int board_early_init_r (void)
 	 * EBC address which accepts bigger regions:
 	 *
 	 * 0xfc00.0000 -> 4.cc00.0000
-	 *
-	 * For this we have to remap the CS0 and re-relocate the envrironment,
-	 * since the original FLASH location which was needed upon startup is
-	 * now not correct anymore.
 	 */
 
 	/* Remap the NOR FLASH to 0xcc00.0000 ... 0xcfff.ffff */
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+	mtebc(pb3cr, CFG_FLASH_BASE_PHYS_L | 0xda000);
+#else
 	mtebc(pb0cr, CFG_FLASH_BASE_PHYS_L | 0xda000);
+#endif
 
 	/* Remove TLB entry of boot EBC mapping */
 	remove_tlb(CFG_BOOT_BASE_ADDR, 16 << 20);
@@ -328,6 +340,13 @@ int board_early_init_r (void)
 	 * Now accessing of the whole 64Mbytes of NOR FLASH at virtual address
 	 * 0xfc00.0000 is possible
 	 */
+
+	/*
+	 * Clear potential errors resulting from auto-calibration.
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	set_mcsr(get_mcsr());
 
 	return 0;
 }

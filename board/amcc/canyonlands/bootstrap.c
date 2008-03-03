@@ -28,7 +28,7 @@
 #include <asm/io.h>
 
 /*
- * NOR and NAND boot options change bytes 6, 7, 8, 9, 11. The
+ * NOR and NAND boot options change bytes 5, 6, 8, 9, 11. The
  * values are independent of the rest of the clock settings.
  */
 
@@ -45,14 +45,14 @@ static char *config_labels[] = {
 
 static u8 boot_configs[][17] = {
 	{
-		(NOR_COMPATIBLE),
+		(NAND_COMPATIBLE | NOR_COMPATIBLE),
 		0x86, 0x80, 0xce, 0x1f, 0x79, 0x80, 0x00, 0xa0, 0x40, 0x08,
-		0x23, 0x50, 0x0d, 0x95, 0x00, 0x00
+		0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
 	},
 	{
-		(NOR_COMPATIBLE),
+		(NAND_COMPATIBLE | NOR_COMPATIBLE),
 		0x86, 0x80, 0xba, 0x14, 0x99, 0x80, 0x00, 0xa0, 0x40, 0x08,
-		0x23, 0x50, 0x0d, 0x95, 0x00, 0x00
+		0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
 	},
 	{
 		0,
@@ -61,10 +61,10 @@ static u8 boot_configs[][17] = {
 };
 
 /*
- * Bytes 6,8,9,11 change for NAND boot
+ * Bytes 5,6,8,9,11 change for NAND boot
  */
 static u8 nand_boot[] = {
-	0xd0,  0xa0, 0x68, 0x58
+	0x90, 0x01,  0xa0, 0x68, 0x58
 };
 
 static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -146,10 +146,11 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	buf = &boot_configs[x][1];
 
 	if (b_nand) {
-		buf[6] = nand_boot[0];
-		buf[8] = nand_boot[1];
-		buf[9] = nand_boot[2];
-		buf[11] = nand_boot[3];
+		buf[5] = nand_boot[0];
+		buf[6] = nand_boot[1];
+		buf[8] = nand_boot[2];
+		buf[9] = nand_boot[3];
+		buf[11] = nand_boot[4];
 	}
 
 	if (i2c_write(I2C_EEPROM_ADDR, 0, 1, buf, 16) != 0)

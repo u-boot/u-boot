@@ -1173,6 +1173,14 @@ CANBT_config:	unconfig
 canyonlands_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canyonlands amcc
 
+canyonlands_nand_config:	unconfig
+	@mkdir -p $(obj)include $(obj)board/amcc/canyonlands
+	@mkdir -p $(obj)nand_spl/board/amcc/canyonlands
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a canyonlands ppc ppc4xx canyonlands amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/canyonlands/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 CATcenter_config	\
 CATcenter_25_config	\
 CATcenter_33_config:	unconfig

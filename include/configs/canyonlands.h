@@ -114,6 +114,65 @@
 #else
 #define	CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
 #define CFG_NAND_CS		0	/* NAND chip connected to CSx */
+#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
+#endif
+
+/*
+ * IPL (Initial Program Loader, integrated inside CPU)
+ * Will load first 4k from NAND (SPL) into cache and execute it from there.
+ *
+ * SPL (Secondary Program Loader)
+ * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
+ * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
+ * controller and the NAND controller so that the special U-Boot image can be
+ * loaded from NAND to SDRAM.
+ *
+ * NUB (NAND U-Boot)
+ * This NAND U-Boot (NUB) is a special U-Boot version which can be started
+ * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
+ *
+ * On 440EPx the SPL is copied to SDRAM before the NAND controller is
+ * set up. While still running from cache, I experienced problems accessing
+ * the NAND controller.	sr - 2006-08-25
+ */
+#define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location		      */
+#define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size		      */
+#define CFG_NAND_BOOT_SPL_DST	(CFG_OCM_BASE + (12 << 10)) /* Copy SPL here  */
+#define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr      */
+#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST	/* Start NUB from     */
+							/*   this addr	      */
+#define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
+
+/*
+ * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
+ */
+#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image */
+#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image   */
+
+/*
+ * Now the NAND chip has to be defined (no autodetection used!)
+ */
+#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size	      */
+#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size	      */
+#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count	      */
+#define CFG_NAND_BAD_BLOCK_POS	5	      /* Location of bad block marker */
+#undef CFG_NAND_4_ADDR_CYCLE		      /* No fourth addr used (<=32MB) */
+
+#define CFG_NAND_ECCSIZE	256
+#define CFG_NAND_ECCBYTES	3
+#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+
+#ifdef CFG_ENV_IS_IN_NAND
+/*
+ * For NAND booting the environment is embedded in the U-Boot image. Please take
+ * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
+ */
+#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -154,10 +213,18 @@
 /*------------------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------------*/
+#if !defined(CONFIG_NAND_U_BOOT)
+/*
+ * NAND booting U-Boot version uses a fixed initialization, since the whole
+ * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
+ * code.
+ */
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x50, 0x51}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
 #define CONFIG_DDR_RQDC_FIXED	0x80000038 /* fixed value for RQDC	*/
+#endif
+#define CFG_MBYTES_SDRAM        256	/* 256MB			*/
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -367,23 +434,29 @@
  * EBC address which accepts bigger regions:
  *
  * 0xfc00.0000 -> 4.cc00.0000
- *
- * For this we have to remap the CS0 and re-relocate the envrironment,
- * since the original FLASH location which was needed upon startup is
- * now not correct anymore.
  */
 
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+/* Memory Bank 3 (NOR-FLASH) initialization					*/
+#define CFG_EBC_PB3AP		0x10055e00
+#define CFG_EBC_PB3CR		(CFG_BOOT_BASE_ADDR | 0x9a000)
+
+/* Memory Bank 0 (NAND-FLASH) initialization						*/
+#define CFG_EBC_PB0AP		0x018003c0
+#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1E000) /* BAS=NAND,BS=1MB,BU=R/W,BW=32bit*/
+#else
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CFG_EBC_PB0AP		0x10055e00
 #define CFG_EBC_PB0CR		(CFG_BOOT_BASE_ADDR | 0x9a000)
 
-/* Memory Bank 2 (CPLD) initialization						*/
-#define CFG_EBC_PB2AP		0x00804240
-#define CFG_EBC_PB2CR		(CFG_BCSR_BASE | 0x18000) /* BAS=CPLD,BS=1M,BU=RW,BW=32bit */
-
 /* Memory Bank 3 (NAND-FLASH) initialization						*/
 #define CFG_EBC_PB3AP		0x018003c0
 #define CFG_EBC_PB3CR		(CFG_NAND_ADDR | 0x1E000) /* BAS=NAND,BS=1MB,BU=R/W,BW=32bit*/
+#endif
+
+/* Memory Bank 2 (CPLD) initialization						*/
+#define CFG_EBC_PB2AP		0x00804240
+#define CFG_EBC_PB2CR		(CFG_BCSR_BASE | 0x18000) /* BAS=CPLD,BS=1M,BU=RW,BW=32bit */
 
 #define CFG_EBC_CFG		0xB8400000		/*  EBC0_CFG */
 

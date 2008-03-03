@@ -20,33 +20,30 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+#
+# AMCC 460EX Reference Platform (Canyonlands) board
+#
 
-include $(TOPDIR)/config.mk
+#
+# TEXT_BASE for SPL:
+#
+# On 460EX platforms the SPL is located at 0xfffff000...0xffffffff,
+# in the last 4kBytes of memory space in cache.
+# We will copy this SPL into internal SRAM in start.S. So we set
+# TEXT_BASE to starting address in internal SRAM here.
+#
+TEXT_BASE = 0xE3003000
 
-LIB	= $(obj)lib$(BOARD).a
+# PAD_TO used to generate a 16kByte binary needed for the combined image
+# -> PAD_TO = TEXT_BASE + 0x4000
+PAD_TO	= 0xE3007000
 
-COBJS	:= $(BOARD).o
-COBJS	+= bootstrap.o
-SOBJS	:= init.o
+PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ifeq ($(dbcr),1)
+PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8cff0000
+endif

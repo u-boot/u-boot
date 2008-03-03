@@ -46,7 +46,12 @@ tlbtab:
 	 * use the speed up boot process. It is patched after relocation to
 	 * enable SA_I
 	 */
+#ifndef CONFIG_NAND_SPL
 	tlbentry(CFG_BOOT_BASE_ADDR, SZ_16M, CFG_BOOT_BASE_ADDR, 4, AC_R|AC_W|AC_X|SA_G) /* TLB 0 */
+#else
+	tlbentry(CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 4, AC_R|AC_W|AC_X|SA_G)
+	tlbentry(CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+#endif
 
 	/*
 	 * TLB entries for SDRAM are not needed on this platform.
@@ -78,7 +83,7 @@ tlbtab:
 	tlbentry(CFG_BCSR_BASE, SZ_1K, CFG_BCSR_BASE, 4, AC_R|AC_W|SA_G|SA_I)
 
 	/* TLB-entry for OCM */
-	tlbentry(CFG_OCM_BASE, SZ_4K, 0x00040000, 4, AC_R|AC_W|AC_X)
+	tlbentry(CFG_OCM_BASE, SZ_16K, 0x00040000, 4, AC_R|AC_W|AC_X|SA_I)
 
 	/* TLB-entry for Local Configuration registers => peripherals */
 	tlbentry(CFG_LOCAL_CONF_REGS, SZ_16M, CFG_LOCAL_CONF_REGS, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
