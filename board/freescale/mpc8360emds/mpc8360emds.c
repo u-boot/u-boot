@@ -15,16 +15,12 @@
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
-#if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
-#else
 #include <asm/mmu.h>
-#endif
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif

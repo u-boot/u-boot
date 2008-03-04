@@ -29,15 +29,13 @@
  */
 
 
-extern long int spd_sdram (void);
-
 #include <common.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <asm/io.h>
-#include <spd.h>
+#include <spd_sdram.h>
 #include <miiphy.h>
 
 long int fixed_sdram (void);
@@ -281,7 +279,6 @@ long int
 initdram (int board_type)
 {
 	long dram_size = 0;
-	extern long spd_sdram (void);
 
 #if defined(CONFIG_DDR_DLL)
 	{

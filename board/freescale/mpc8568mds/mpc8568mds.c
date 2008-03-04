@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
-#include <spd.h>
+#include <spd_sdram.h>
 #include <i2c.h>
 #include <ioports.h>
 #include <libfdt.h>
@@ -101,8 +101,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
-
-extern long int spd_sdram(void);
 
 void local_bus_init(void);
 void sdram_init(void);

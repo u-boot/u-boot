@@ -30,11 +30,8 @@
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
-#include <spd.h>
-#include <miiphy.h>
-#if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
-#endif
+#include <miiphy.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif

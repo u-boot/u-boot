@@ -24,19 +24,13 @@
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
-
 #ifdef CONFIG_PCI
 #include <asm/mpc8349_pci.h>
 #include <pci.h>
 #endif
-
-#ifdef CONFIG_SPD_EEPROM
 #include <spd_sdram.h>
-#else
 #include <asm/mmu.h>
-#endif
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
