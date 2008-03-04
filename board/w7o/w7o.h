@@ -31,9 +31,6 @@
 #define PPC405GP_GPIO0_ODR	0xef600718L	/* GPIO Open Drain */
 #define PPC405GP_GPIO0_IR	0xef60071cL	/* GPIO Input */
 
-/* AMCC 405GP DCRs */
-#define CPC0_CR0		0xb1		/* Chip control register 0 */
-
 /* LMG FPGA <=> CPU GPIO signals */
 #define LMG_XCV_INIT		0x10000000L
 #define LMG_XCV_PROG		0x04000000L
