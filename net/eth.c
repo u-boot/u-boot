@@ -441,8 +441,10 @@ int eth_init(bd_t *bis)
 {
 	struct eth_device* old_current;
 
-	if (!eth_current)
+	if (!eth_current) {
+		puts ("No ethernet found.\n");
 		return -1;
+	}
 
 	old_current = eth_current;
 	do {
