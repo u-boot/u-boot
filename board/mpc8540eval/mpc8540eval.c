@@ -26,9 +26,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
-#include <spd.h>
-
-extern long int spd_sdram (void);
+#include <spd_sdram.h>
 
 long int fixed_sdram (void);
 
@@ -66,7 +64,7 @@ int checkboard (void)
 long int initdram (int board_type)
 {
 	long dram_size = 0;
-	extern long spd_sdram (void);
+
 #if !defined(CONFIG_RAM_AS_FLASH)
 	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	sys_info_t sysinfo;
