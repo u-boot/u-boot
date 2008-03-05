@@ -88,6 +88,9 @@ tlbtab:
 	/* TLB-entry for Local Configuration registers => peripherals */
 	tlbentry(CFG_LOCAL_CONF_REGS, SZ_16M, CFG_LOCAL_CONF_REGS, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
 
+	/* AHB: Internal USB Peripherals (USB, SATA) */
+	tlbentry(CFG_AHB_BASE, SZ_1M, 0xbff00000, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
+
 	tlbtab_end
 
 #if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)

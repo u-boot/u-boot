@@ -3355,6 +3355,9 @@
 #define SDR0_DDR0_DDRM_DECODE(n)	((((unsigned long)(n))>>29)&0x03)
 #define SDR0_DDR0_TUNE_ENCODE(n)	((((unsigned long)(n))&0x2FF)<<0)
 #define SDR0_DDR0_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x2FF)
+
+#define AHB_TOP			0xA4
+#define AHB_BOT			0xA5
 #endif /* CONFIG_460EX || CONFIG_460GT */
 
 #define SDR0_SDCS_SDD			(0x80000000 >> 31)

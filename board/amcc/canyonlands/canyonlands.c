@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
+#include <asm/gpio.h>
 
 extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
@@ -99,6 +100,19 @@ int board_early_init_f(void)
 	out_8((void *)CFG_BCSR_BASE + 7, 0);
 
 	mtsdr(SDR0_SRST1, 0);	/* Pull AHB out of reset default=1 */
+
+	/* Setup PLB4-AHB bridge based on the system address map */
+	mtdcr(AHB_TOP, 0x8000004B);
+	mtdcr(AHB_BOT, 0x8000004B);
+
+	/*
+	 * Configure USB-STP pins as alternate and not GPIO
+	 * It seems to be neccessary to configure the STP pins as GPIO
+	 * input at powerup (perhaps while USB reset is asserted). So
+	 * we configure those pins to their "real" function now.
+	 */
+	gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+	gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
 
 	return 0;
 }
