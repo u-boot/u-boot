@@ -162,7 +162,7 @@ void spi_sda(int bit)
 
 unsigned char spi_read(void)
 {
-	return (unsigned char)gpio_read_out_bit(SPI_DIN_GPIO15);
+	return (unsigned char)gpio_read_in_bit(SPI_DIN_GPIO15);
 }
 
 void taihu_spi_chipsel(int cs)
