@@ -46,26 +46,28 @@
 #define SCFRDR 	(vu_char  *)(SCIF_BASE + 0x14)
 #endif
 
-#if defined(CONFIG_SH4A)
+#if defined(CONFIG_CPU_SH7780) || \
+	defined(CONFIG_CPU_SH7785)
 #define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
 #define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
 #define SCLSR   (vu_short *)(SCIF_BASE + 0x28)
 #define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
 #define LSR_ORER	1
-#elif defined (CONFIG_SH4)
+#elif defined(CONFIG_CPU_SH7750) || \
+	defined(CONFIG_CPU_SH7722)
 #define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
 #define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 #define LSR_ORER	1
-#elif defined (CONFIG_SH3)
-#ifdef CONFIG_CPU_SH7720 /* SH7720 specific */
+#elif defined(CONFIG_CPU_SH7720)
 #define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
 #define LSR_ORER	0x0200
-#else
+#elif defined(CONFIG_CPU_SH7710)
+	defined(CONFIG_CPU_SH7712)
 #define SCLSR	SCFSR	/* SCSSR */
 #define LSR_ORER	1
 #endif
-#endif
 
+/* SCBRR register value setting */
 #if defined(CONFIG_CPU_SH7720)
 #define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
 #else	/* Generic SuperH */

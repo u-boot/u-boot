@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) Copyright 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,8 @@
 #include <asm/cpu_sh7750.h>
 #elif defined (CONFIG_CPU_SH7722)
 #include <asm/cpu_sh7722.h>
+#elif defined (CONFIG_CPU_SH7780)
+#include <asm/cpu_sh7780.h>
 #else
 #error "Unknown SH4 variant"
 #endif
