@@ -1609,7 +1609,7 @@ PQ2FADS-ZU_66MHz_config	\
 PQ2FADS-ZU_66MHz_lowboot_config	\
 	:		unconfig
 	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/mpc8260ads
+	@mkdir -p $(obj)board/freescale/mpc8260ads
 	$(if $(findstring PQ2FADS,$@), \
 	@echo "#define CONFIG_ADSTYPE CFG_PQ2FADS" > $(obj)include/config.h, \
 	@echo "#define CONFIG_ADSTYPE CFG_"$(subst MPC,,$(word 1,$(subst _, ,$@))) > $(obj)include/config.h)
@@ -1618,10 +1618,10 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 	$(if $(findstring VR,$@), \
 	@echo "#define CONFIG_8260_CLKIN 66000000" >> $(obj)include/config.h))
 	@[ -z "$(findstring lowboot_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFF800000" >$(obj)board/mpc8260ads/config.tmp ; \
+		{ echo "TEXT_BASE = 0xFF800000" >$(obj)board/freescale/mpc8260ads/config.tmp ; \
 		  $(XECHO) "... with lowboot configuration" ; \
 		}
-	@$(MKCONFIG) -a MPC8260ADS ppc mpc8260 mpc8260ads
+	@$(MKCONFIG) -a MPC8260ADS ppc mpc8260 mpc8260ads freescale
 
 MPC8266ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads
