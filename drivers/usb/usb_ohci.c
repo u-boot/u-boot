@@ -68,7 +68,8 @@
     defined(CONFIG_S3C2410) || \
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \
-    defined(CONFIG_MPC5200)
+    defined(CONFIG_MPC5200) || \
+    defined(CFG_OHCI_USE_NPS)
 # define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #endif
 
@@ -415,7 +416,7 @@ static void ohci_dump (ohci_t *controller, int verbose)
 		ep_print_int_eds (controller, "hcca");
 	dbg ("hcca frame #%04x", controller->hcca->frame_no);
 	ohci_dump_roothub (controller, 1);
-
+}
 #endif /* DEBUG */
 
 /*-------------------------------------------------------------------------*
