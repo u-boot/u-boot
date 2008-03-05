@@ -112,8 +112,13 @@ void uboot_push_tx_done(int key, int val);
 /* NE2000 base header file */
 #include "ne2000_base.h"
 
+#if defined(CONFIG_DRIVER_AX88796L)
+/* AX88796L support */
+#include "ax88796.h"
+#else
 /* Basic NE2000 chip support */
 #include "ne2000.h"
+#endif
 
 static dp83902a_priv_data_t nic; /* just one instance of the card supported */
 
@@ -131,6 +136,7 @@ dp83902a_init(void)
 	DEBUG_LINE();
 
 #if defined(NE2000_BASIC_INIT)
+	/* AX88796L doesn't need */
 	/* Prepare ESA */
 	DP_OUT(base, DP_CR, DP_CR_NODMA | DP_CR_PAGE1);  /* Select page 1 */
 	/* Use the address from the serial EEPROM */
