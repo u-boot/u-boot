@@ -1624,7 +1624,7 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 	@$(MKCONFIG) -a MPC8260ADS ppc mpc8260 mpc8260ads freescale
 
 MPC8266ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads freescale
 
 # PM825/PM826 default configuration:  small (= 8 MB) Flash / boot from 64-bit flash
 PM825_config	\
