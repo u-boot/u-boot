@@ -2243,7 +2243,7 @@ EVB64260_750CX_config:	unconfig
 	@$(MKCONFIG) EVB64260 ppc 74xx_7xx evb64260
 
 mpc7448hpc2_config:  unconfig
-	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx mpc7448hpc2
+	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx mpc7448hpc2 freescale
 
 P3G4_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx evb64260
