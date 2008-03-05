@@ -29,7 +29,8 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-OBJS	= cpu.o interrupts.o watchdog.o time.o cache.o
+OBJS	= cpu.o interrupts.o watchdog.o time.o cache.o \
+		pci-sh4.o pci-sh7780.o
 
 all:	.depend $(START) $(LIB)
 
