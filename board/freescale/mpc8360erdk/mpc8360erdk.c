@@ -18,7 +18,6 @@
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
 #include <asm/io.h>
 #include <asm/mmu.h>

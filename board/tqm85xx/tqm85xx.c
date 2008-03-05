@@ -32,7 +32,6 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>
-#include <spd.h>
 #include <flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -40,7 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 extern flash_info_t flash_info[];	/* FLASH chips info */
 
 void local_bus_init (void);
-long int fixed_sdram (void);
 ulong flash_get_size (ulong base, int banknum);
 
 #ifdef CONFIG_PS2MULT

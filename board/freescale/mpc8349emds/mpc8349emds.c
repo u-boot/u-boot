@@ -28,11 +28,9 @@
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
 #include <spi.h>
-#include <spd.h>
 #include <miiphy.h>
-#if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
-#endif
+
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif

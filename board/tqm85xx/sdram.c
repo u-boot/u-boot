@@ -27,7 +27,6 @@
 #include <asm/immap_85xx.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
-#include <spd.h>
 
 struct sdram_conf_s {
 	unsigned long size;

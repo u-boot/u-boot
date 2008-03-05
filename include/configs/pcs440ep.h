@@ -182,10 +182,6 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#define CONFIG_PREBOOT	"echo;" \
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
-	"echo"
-
 /* check U-Boot image with SHA1 sum */
 #define CONFIG_SHA1_CHECK_UB_IMG	1
 #define CONFIG_SHA1_START		CFG_MONITOR_BASE

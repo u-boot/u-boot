@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -598,7 +598,7 @@ prs200_highboot_DDR_config:	unconfig
 		  $(XECHO) "... with console on COM12" ; \
 		}
 	@[ -z "$(findstring prs200,$@)" ] || \
-		{ echo "#define CONFIG_PRS200"  >>$(obj)include/config.h ;\
+		{ echo "#define CONFIG_PRS200"	>>$(obj)include/config.h ;\
 		}
 	@$(MKCONFIG) -n $@ -a mcc200 ppc mpc5xxx mcc200
 
@@ -611,7 +611,7 @@ munices_config:	unconfig
 o2dnt_config:	unconfig
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
-pf5200_config:  unconfig
+pf5200_config:	unconfig
 	@$(MKCONFIG) pf5200  ppc mpc5xxx pf5200 esd
 
 PM520_config \
@@ -755,9 +755,9 @@ ads5121_PCI_config \
 ## MPC8xx Systems
 #########################################################################
 
-Adder_config    \
+Adder_config	\
 Adder87x_config \
-AdderII_config  \
+AdderII_config	\
 	:		unconfig
 	@mkdir -p $(obj)include
 	$(if $(findstring AdderII,$@), \
@@ -767,8 +767,8 @@ AdderII_config  \
 AdderUSB_config:	unconfig
 	@$(MKCONFIG) -a AdderUSB ppc mpc8xx adder
 
-ADS860_config     \
-FADS823_config    \
+ADS860_config	  \
+FADS823_config	  \
 FADS850SAR_config \
 MPC86xADS_config  \
 MPC885ADS_config  \
@@ -879,7 +879,7 @@ IVMS8_config:	unconfig
 KUP4K_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx kup4k kup
 
-KUP4X_config    :       unconfig
+KUP4X_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx kup4x kup
 
 LANTEC_config	:	unconfig
@@ -1028,9 +1028,9 @@ RPXlite_DW_64_config		\
 RPXlite_DW_LCD_config		\
 RPXlite_DW_64_LCD_config	\
 RPXlite_DW_NVRAM_config		\
-RPXlite_DW_NVRAM_64_config      \
+RPXlite_DW_NVRAM_64_config	\
 RPXlite_DW_NVRAM_LCD_config	\
-RPXlite_DW_NVRAM_64_LCD_config  \
+RPXlite_DW_NVRAM_64_LCD_config	\
 RPXlite_DW_config:	unconfig
 	@mkdir -p $(obj)include
 	@ >$(obj)include/config.h
@@ -2012,7 +2012,7 @@ MPC832XEMDS_ATM_config:	unconfig
 	if [ "$(findstring _ATM_,$@)" ] ; then \
 		$(XECHO) -n "...ATM..." ; \
 		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
-		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM	1" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC832XEMDS ppc mpc83xx mpc832xemds freescale
 
@@ -2062,7 +2062,7 @@ MPC8360EMDS_ATM_config: unconfig
 	if [ "$(findstring _ATM_,$@)" ] ; then \
 		$(XECHO) -n "...ATM..." ; \
 		echo "#define CONFIG_PQ_MDS_PIB 1" >>$(obj)include/config.h ; \
-		echo "#define CONFIG_PQ_MDS_PIB_ATM     1" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_PQ_MDS_PIB_ATM	1" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8360EMDS ppc mpc83xx mpc8360emds freescale
 
@@ -2111,7 +2111,7 @@ MPC8540EVAL_config \
 MPC8540EVAL_33_config \
 MPC8540EVAL_66_config \
 MPC8540EVAL_33_slave_config \
-MPC8540EVAL_66_slave_config:      unconfig
+MPC8540EVAL_66_slave_config:	  unconfig
 	@mkdir -p $(obj)include
 	@echo "" >$(obj)include/config.h ; \
 	if [ "$(findstring _33_,$@)" ] ; then \
@@ -2191,7 +2191,7 @@ sbc8548_config:		unconfig
 
 sbc8560_config \
 sbc8560_33_config \
-sbc8560_66_config:      unconfig
+sbc8560_66_config:	unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring _66_,$@)" ] ; then \
 		echo "#define CONFIG_PCI_66"	>>$(obj)include/config.h ; \
@@ -2587,10 +2587,10 @@ logodl_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa logodl
 
 pdnb3_config \
-scpu_config:    unconfig
+scpu_config:	unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring scpu_,$@)" ] ; then \
-		echo "#define CONFIG_SCPU"      >>$(obj)include/config.h ; \
+		echo "#define CONFIG_SCPU"	>>$(obj)include/config.h ; \
 		$(XECHO) "... on SCPU board variant" ; \
 	else \
 		>$(obj)include/config.h ; \
@@ -2893,7 +2893,7 @@ ms7750se_config: unconfig
 	@echo "#define CONFIG_MS7750SE 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7750se
 
-ms7722se_config :       unconfig
+ms7722se_config :	unconfig
 	@ >$(obj)include/config.h
 	@echo "#define CONFIG_MS7722SE 1" >> $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7722se
@@ -2903,25 +2903,30 @@ ms7722se_config :       unconfig
 #########################################################################
 
 clean:
+	@rm -f $(obj)examples/82559_eeprom $(obj)examples/eepro100_eeprom \
+	       $(obj)examples/hello_world  $(obj)examples/interrupt	  \
+	       $(obj)examples/mem_to_mem_idma2intr			  \
+	       $(obj)examples/sched	   $(obj)examples/smc91111_eeprom \
+	       $(obj)examples/test_burst   $(obj)examples/timer
+	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
+	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
+	       $(obj)tools/envcrc					  \
+	       $(obj)tools/gdb/{astest,gdbcont,gdbsend}			  \
+	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
+	       $(obj)tools/mkimage	   $(obj)tools/mpc86x_clk	  \
+	       $(obj)tools/ncb		   $(obj)tools/ubsha1
+	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
+	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
+	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
+	       $(obj)board/{integratorap,integratorcp}/u-boot.lds	  \
+	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds
+	@rm -f $(obj)include/bmp_logo.h $(obj)nand_spl/{u-boot-spl,u-boot-spl.map}
+	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl.map}
+	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
-		-o -name '*.o'  -o -name '*.a'  \) -print \
+		-o -name '*.o'	-o -name '*.a'	\) -print \
 		| xargs rm -f
-	@cd $(obj)examples/ && rm -f hello_world timer eepro100_eeprom sched \
-	      mem_to_mem_idma2intr 82559_eeprom smc91111_eeprom interrupt \
-	      test_burst
-	@cd $(obj)tools/ && rm -f bmp_logo easylogo/easylogo \
-		env/{fw_printenv,fw_setenv} envcrc gdb/{astest,gdbcont,gdbsend} \
-		gen_eth_addr img2srec mkimage mpc86x_clk ncb ubsha1
-	@cd $(obj)board/ && rm -f cray/L1/{bootscript.c,bootscript.image} \
-		netstar/{eeprom,crcek,crcit,*.srec,*.bin} \
-		trab/trab_fkt voiceblue/eeprom \
-		{integratorap,integratorcp}/u-boot.lds integratorcp/u-boot.lds \
-		{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds
-	@rm -f $(obj)include/bmp_logo.h $(obj)nand_spl/{u-boot-spl,u-boot-spl.map}
-	@cd $(obj)onenand_ipl/ && rm -f onenand-ipl onenand-ipl.bin \
-		onenand-ipl-2k.bin onenand-ipl.map
-	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 
 clobber:	clean
 	@find $(OBJTREE) -type f \( -name .depend \
