@@ -37,41 +37,45 @@
 #define SCFCR	(vu_short *)(SCIF_BASE + 0x18)
 #define SCFDR	(vu_short *)(SCIF_BASE + 0x1C)
 #ifdef CONFIG_CPU_SH7720 /* SH7720 specific */
-#define SCFSR	(vu_short *)(SCIF_BASE + 0x14)   /* SCSSR */
-#define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
-#define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
+# define SCFSR	(vu_short *)(SCIF_BASE + 0x14) /* SCSSR */
+# define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
+# define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
 #else
-#define SCFTDR 	(vu_char  *)(SCIF_BASE + 0xC)
-#define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
-#define SCFRDR 	(vu_char  *)(SCIF_BASE + 0x14)
+# define SCFTDR (vu_char  *)(SCIF_BASE + 0xC)
+# define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
+# define SCFRDR (vu_char  *)(SCIF_BASE + 0x14)
 #endif
 
 #if defined(CONFIG_CPU_SH7780) || \
 	defined(CONFIG_CPU_SH7785)
-#define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
-#define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
-#define SCLSR   (vu_short *)(SCIF_BASE + 0x28)
-#define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
-#define LSR_ORER	1
+# define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
+# define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR   (vu_short *)(SCIF_BASE + 0x28)
+# define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0xFF
 #elif defined(CONFIG_CPU_SH7750) || \
 	defined(CONFIG_CPU_SH7722)
-#define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
-#define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
-#define LSR_ORER	1
+# define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
+# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7720)
-#define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
-#define LSR_ORER	0x0200
+# define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
+# define LSR_ORER	0x0200
+# define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7710)
 	defined(CONFIG_CPU_SH7712)
-#define SCLSR	SCFSR	/* SCSSR */
-#define LSR_ORER	1
+# define SCLSR	SCFSR	/* SCSSR */
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0x1F
 #endif
 
 /* SCBRR register value setting */
 #if defined(CONFIG_CPU_SH7720)
-#define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
+# define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
 #else	/* Generic SuperH */
-#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
+# define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
 
 #define SCR_RE 		(1 << 4)
@@ -109,12 +113,16 @@ int serial_init (void)
 
 static int serial_tx_fifo_level (void)
 {
-	return (*SCFDR >> 8) & 0x1F;
+	return (*SCFDR >> 8) & FIFOLEVEL_MASK;
 }
 
 static int serial_rx_fifo_level (void)
 {
-	return (*SCFDR >> 0) & 0x1F;
+#if defined(CONFIG_SH4A)
+	return (*SCRFDR >> 0) & FIFOLEVEL_MASK;
+#else
+	return (*SCFDR >> 0) & FIFOLEVEL_MASK;
+#endif
 }
 
 void serial_raw_putc (const char c)
