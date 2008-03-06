@@ -751,6 +751,9 @@ The following options need to be configured:
 		CONFIG_E1000
 		Support for Intel 8254x gigabit chips.
 
+		CONFIG_E1000_FALLBACK_MAC
+		default MAC for empty eeprom after production.
+
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables eeprom

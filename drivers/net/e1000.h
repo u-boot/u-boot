@@ -71,6 +71,8 @@ typedef enum {
 	e1000_82540,
 	e1000_82545,
 	e1000_82546,
+	e1000_82541,
+	e1000_82541_rev_2,
 	e1000_num_macs
 } e1000_mac_type;
 
@@ -168,6 +170,13 @@ typedef enum {
 	e1000_1000t_rx_status_undefined = 0xFF
 } e1000_1000t_rx_status;
 
+typedef enum {
+    e1000_phy_m88 = 0,
+    e1000_phy_igp,
+    e1000_phy_igp_2,
+    e1000_phy_undefined = 0xFF
+} e1000_phy_type;
+
 struct e1000_phy_info {
 	e1000_cable_length cable_length;
 	e1000_10bt_ext_dist_enable extended_10bt_distance;
@@ -184,14 +193,19 @@ struct e1000_phy_stats {
 };
 
 /* Error Codes */
-#define E1000_SUCCESS      0
-#define E1000_ERR_EEPROM   1
-#define E1000_ERR_PHY      2
-#define E1000_ERR_CONFIG   3
-#define E1000_ERR_PARAM    4
-#define E1000_ERR_MAC_TYPE 5
-#define E1000_ERR_NOLINK   6
-#define E1000_ERR_TIMEOUT  7
+#define E1000_SUCCESS      			0
+#define E1000_ERR_EEPROM   			1
+#define E1000_ERR_PHY      			2
+#define E1000_ERR_CONFIG   			3
+#define E1000_ERR_PARAM    			4
+#define E1000_ERR_MAC_TYPE 			5
+#define E1000_ERR_PHY_TYPE 			6
+#define E1000_ERR_NOLINK   			7
+#define E1000_ERR_TIMEOUT  			8
+#define E1000_ERR_RESET   			9
+#define E1000_ERR_MASTER_REQUESTS_PENDING 	10
+#define E1000_ERR_HOST_INTERFACE_COMMAND 	11
+#define E1000_BLK_PHY_RESET   			12
 
 /* PCI Device IDs */
 #define E1000_DEV_ID_82542          0x1000
@@ -207,7 +221,8 @@ struct e1000_phy_stats {
 #define E1000_DEV_ID_82545EM_FIBER  0x1011
 #define E1000_DEV_ID_82546EB_COPPER 0x1010
 #define E1000_DEV_ID_82546EB_FIBER  0x1012
-#define NUM_DEV_IDS 13
+#define E1000_DEV_ID_82541ER        0x1078
+#define NUM_DEV_IDS 14
 
 #define NODE_ADDRESS_SIZE 6
 #define ETH_LENGTH_OF_ADDRESS 6
@@ -799,6 +814,8 @@ struct e1000_hw {
 	pci_dev_t pdev;
 	uint8_t *hw_addr;
 	e1000_mac_type mac_type;
+	e1000_phy_type phy_type;
+	uint32_t phy_init_script;
 	e1000_media_type media_type;
 	e1000_lan_loc lan_loc;
 	e1000_fc_type fc;
@@ -1517,7 +1534,22 @@ struct e1000_hw {
 #define M88E1000_EXT_PHY_SPEC_CTRL 0x14	/* Extended PHY Specific Control */
 #define M88E1000_RX_ERR_CNTR       0x15	/* Receive Error Counter */
 
-#define MAX_PHY_REG_ADDRESS 0x1F	/* 5 bit address bus (0-0x1F) */
+#define MAX_PHY_REG_ADDRESS 	0x1F	/* 5 bit address bus (0-0x1F) */
+
+/* IGP01E1000 specifics */
+#define IGP01E1000_IEEE_REGS_PAGE  	0x0000
+#define IGP01E1000_IEEE_RESTART_AUTONEG 0x3300
+#define IGP01E1000_IEEE_FORCE_GIGA      0x0140
+
+/* IGP01E1000 Specific Registers */
+#define IGP01E1000_PHY_PORT_CONFIG 	0x10 /* PHY Specific Port Config Register */
+#define IGP01E1000_PHY_PORT_STATUS 	0x11 /* PHY Specific Status Register */
+#define IGP01E1000_PHY_PORT_CTRL   	0x12 /* PHY Specific Control Register */
+#define IGP01E1000_PHY_LINK_HEALTH 	0x13 /* PHY Link Health Register */
+#define IGP01E1000_GMII_FIFO       	0x14 /* GMII FIFO Register */
+#define IGP01E1000_PHY_CHANNEL_QUALITY 	0x15 /* PHY Channel Quality Register */
+#define IGP02E1000_PHY_POWER_MGMT      	0x19
+#define IGP01E1000_PHY_PAGE_SELECT     	0x1F /* PHY Page Select Core Register */
 
 /* PHY Control Register */
 #define MII_CR_SPEED_SELECT_MSB 0x0040	/* bits 6,13: 10=1000, 01=100, 00=10 */
@@ -1729,6 +1761,7 @@ struct e1000_hw {
 #define M88E1011_I_PHY_ID  0x01410C20
 #define M88E1000_12_PHY_ID M88E1000_E_PHY_ID
 #define M88E1000_14_PHY_ID M88E1000_E_PHY_ID
+#define IGP01E1000_I_PHY_ID  0x02A80380
 
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE        0xFFFFFFFF

@@ -1,5 +1,5 @@
 /**************************************************************************
-Inter Pro 1000 for ppcboot/das-u-boot
+Intel Pro 1000 for ppcboot/das-u-boot
 Drivers are port from Intel's Linux driver e1000-4.3.15
 and from Etherboot pro 1000 driver by mrakes at vivato dot net
 tested on both gig copper and gig fiber boards
@@ -82,6 +82,7 @@ static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82545EM_FIBER},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82546EB_FIBER},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82540EM_LOM},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82541ER},
 };
 
 /* Function forward declarations */
@@ -512,6 +513,11 @@ e1000_read_mac_addr(struct eth_device *nic)
 		/* Invert the last bit if this is the second device */
 		nic->enetaddr[5] += 1;
 	}
+#ifdef CONFIG_E1000_FALLBACK_MAC
+	if ( *(u32*)(nic->enetaddr) == 0 || *(u32*)(nic->enetaddr) == ~0 )
+		for ( i=0; i < NODE_ADDRESS_SIZE; i++ )
+			nic->enetaddr[i] = (CONFIG_E1000_FALLBACK_MAC >> (8*(5-i))) & 0xff;
+#endif
 #else
 	/*
 	 * The AP1000's e1000 has no eeprom; the MAC address is stored in the
@@ -639,6 +645,9 @@ e1000_set_mac_type(struct e1000_hw *hw)
 	case E1000_DEV_ID_82546EB_FIBER:
 		hw->mac_type = e1000_82546;
 		break;
+	case E1000_DEV_ID_82541ER:
+	        hw->mac_type = e1000_82541_rev_2;
+	        break;
 	default:
 		/* Should never have loaded on this device */
 		return -E1000_ERR_MAC_TYPE;
@@ -2485,6 +2494,36 @@ e1000_phy_reset(struct e1000_hw *hw)
 	return 0;
 }
 
+static int
+e1000_set_phy_type(struct e1000_hw *hw)
+{
+    DEBUGFUNC();
+
+    if(hw->mac_type == e1000_undefined)
+        return -E1000_ERR_PHY_TYPE;
+
+    switch(hw->phy_id) {
+    case M88E1000_E_PHY_ID:
+    case M88E1000_I_PHY_ID:
+    case M88E1011_I_PHY_ID:
+        hw->phy_type = e1000_phy_m88;
+        break;
+    case IGP01E1000_I_PHY_ID:
+        if(hw->mac_type == e1000_82541 ||
+           hw->mac_type == e1000_82541_rev_2) {
+            hw->phy_type = e1000_phy_igp;
+            break;
+        }
+        /* Fall Through */
+    default:
+        /* Should never have loaded on this device */
+        hw->phy_type = e1000_phy_undefined;
+        return -E1000_ERR_PHY_TYPE;
+    }
+
+    return E1000_SUCCESS;
+}
+
 /******************************************************************************
 * Probes the expected PHY address for known PHY IDs
 *
@@ -2493,6 +2532,7 @@ e1000_phy_reset(struct e1000_hw *hw)
 static int
 e1000_detect_gig_phy(struct e1000_hw *hw)
 {
+	int32_t phy_init_status;
 	uint16_t phy_id_high, phy_id_low;
 	int match = FALSE;
 
@@ -2526,11 +2566,19 @@ e1000_detect_gig_phy(struct e1000_hw *hw)
 		if (hw->phy_id == M88E1011_I_PHY_ID)
 			match = TRUE;
 		break;
+	case e1000_82541_rev_2:
+		if(hw->phy_id == IGP01E1000_I_PHY_ID)
+			match = TRUE;
+
+		break;
 	default:
 		DEBUGOUT("Invalid MAC type %d\n", hw->mac_type);
 		return -E1000_ERR_CONFIG;
 	}
-	if (match) {
+
+	phy_init_status = e1000_set_phy_type(hw);
+
+	if ((match) && (phy_init_status == E1000_SUCCESS)) {
 		DEBUGOUT("PHY ID 0x%X detected\n", hw->phy_id);
 		return 0;
 	}
@@ -2985,7 +3033,7 @@ e1000_initialize(bd_t * bis)
 			free(nic);
 			return 0;
 		}
-#ifndef CONFIG_AP1000
+#if !(defined(CONFIG_AP1000) || defined(CONFIG_MVBC_1G))
 		if (e1000_validate_eeprom_checksum(nic) < 0) {
 			printf("The EEPROM Checksum Is Not Valid\n");
 			free(hw);
