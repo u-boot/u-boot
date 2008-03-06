@@ -219,7 +219,7 @@
 	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
 	"update=protect off FFF80000 FFFFFFFF;era FFF80000 FFFFFFFF;"	\
 		"cp.b 200000 FFF80000 80000\0"			        \
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"lwe_env=tftp 200000 /tftpboot.dev/lwmon5/env_uboot.bin;"	\
 		"autoscr 200000\0"					\
 	""

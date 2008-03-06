@@ -739,7 +739,7 @@
 	"load=tftp 100000 /tftpboot/mpc8349emds/u-boot.bin\0"		\
 	"update=protect off fe000000 fe03ffff; "			\
 		"era fe000000 fe03ffff; cp.b 100000 fe000000 ${filesize}\0"	\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"fdtaddr=400000\0"						\
 	"fdtfile=mpc8349emds.dtb\0"					\
 	""

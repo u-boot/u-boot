@@ -194,7 +194,7 @@
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"fixedip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):" \
 	"$(gatewayip):$(netmask):$(hostname):$(netdev):off panic=1\0"	\
 	"dhcp=setenv bootargs $(bootargs) ip=dhcp\0"			\

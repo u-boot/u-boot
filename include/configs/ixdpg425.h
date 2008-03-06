@@ -168,7 +168,7 @@
 	"update=protect off 50000000 5003ffff;era 50000000 5003ffff;"	\
 		"cp.b 100000 50000000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
