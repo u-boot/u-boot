@@ -425,6 +425,9 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 	     dev <  PCI_BDF(bus,PCI_MAX_PCI_DEVICES-1,PCI_MAX_PCI_FUNCTIONS-1);
 	     dev += PCI_BDF(0,0,1))
 	{
+
+	/* Bus 0 is not necessarily PCI bridge. */
+#if defined(CONFIG_PCI_SKIP_HOST_BRIDGE)
 		/* Skip our host bridge */
 		if ( dev == PCI_BDF(hose->first_busno,0,0) ) {
 #if defined(CONFIG_PCI_CONFIG_HOST_BRIDGE)              /* don't skip host bridge */
@@ -434,10 +437,11 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 			if (getenv("pciconfighost") == NULL) {
 				continue; /* Skip our host bridge */
 			}
-#else
+#else /* CONFIG_PCI_CONFIG_HOST_BRIDGE */
 			continue; /* Skip our host bridge */
-#endif
+#endif /* CONFIG_PCI_CONFIG_HOST_BRIDGE */
 		}
+#endif /* CONFIG_PCI_SKIP_HOST_BRIDGE */
 
 		if (PCI_FUNC(dev) && !found_multi)
 			continue;
@@ -473,8 +477,11 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 				hose->fixup_irq(hose, dev);
 
 #ifdef CONFIG_PCI_SCAN_SHOW
+#if defined(CONFIG_PCI_SKIP_HOST_BRIDGE)
 			/* Skip our host bridge */
-			if ( dev != PCI_BDF(hose->first_busno,0,0) ) {
+			if ( dev != PCI_BDF(hose->first_busno,0,0) )
+#endif
+			{
 			    unsigned char int_line;
 
 			    pci_hose_read_config_byte(hose, dev, PCI_INTERRUPT_LINE,
