@@ -199,7 +199,7 @@
 		"load=tftp 100000 hcu5/u-boot.bin\0"		 	\
 	"update=protect off FFFB0000 FFFFFFFF;era FFFB0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFB0000 50000\0"			        \
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"vx_rom=hcu5/hcu5_vx_rom\0"					\
 	"vx=tftp ${loadaddr} ${vx_rom};run vxargs; bootvx\0"		\
 	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\

@@ -209,7 +209,7 @@
 	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
 		"cp.b 200000 fff80000 80000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

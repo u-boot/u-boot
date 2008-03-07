@@ -84,11 +84,19 @@
 	HRCWH_LDP_CLEAR)
 #endif
 
+/* Arbiter Configuration Register */
+#define CFG_ACR_PIPE_DEP	3	/* Arbiter pipeline depth is 4 */
+#define CFG_ACR_RPTCNT		3	/* Arbiter repeat count is 4 */
+
+/* System Priority Control Register */
+#define CFG_SPCR_TSECEP		3	/* eTSEC1/2 emergency has highest priority */
+
 /*
- * eTSEC Clock Config
+ * IP blocks clock configuration
  */
 #define CFG_SCCR_TSEC1CM	1	/* CSB:eTSEC1 = 1:1 */
 #define CFG_SCCR_TSEC2CM	1	/* CSB:eTSEC2 = 1:1 */
+#define CFG_SCCR_SATACM		SCCR_SATACM_1	/* CSB:SATA[0:3] = 1:1 */
 
 /*
  * System IO Config

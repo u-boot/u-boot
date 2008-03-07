@@ -209,7 +209,7 @@
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"kozio=bootm ffc60000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP:RP\0"						\

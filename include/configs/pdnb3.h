@@ -170,7 +170,7 @@
 	"update=protect off 50000000 5007dfff;era 50000000 5007dfff;"	\
 		"cp.b 100000 50000000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"ipaddr=10.0.0.233\0"						\
 	"serverip=10.0.0.152\0"						\
 	"netmask=255.255.0.0\0"					\
