@@ -278,6 +278,17 @@ int checkboard(void)
 	return 0;
 }
 
+/*
+ * Early board initalization.
+ */
+int board_early_init_r(void)
+{
+	/* setup the UPIOx */
+	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
+	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x15;
+	return 0;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 /*
  * update "memory" property in the blob
@@ -286,7 +297,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 {
 	int ret, nodeoffset = 0;
 	ulong memory_data[2] = {0};
-	ulong flash_data[4] = {0};
+	ulong flash_data[8] = {0};
 
 	memory_data[0] = cpu_to_be32(bd->bi_memstart);
 	memory_data[1] = cpu_to_be32(bd->bi_memsize);
@@ -304,9 +315,13 @@ void ft_blob_update(void *blob, bd_t *bd)
 		printf("ft_blob_update(): cannot find /memory node "
 		"err:%s\n", fdt_strerror(nodeoffset));
 	}
-	/* update Flash size */
-	flash_data[2] = cpu_to_be32(bd->bi_flashstart);
-	flash_data[3] = cpu_to_be32(bd->bi_flashsize);
+	/* update Flash addr, size */
+	flash_data[2] = cpu_to_be32(CFG_FLASH_BASE);
+	flash_data[3] = cpu_to_be32(CFG_FLASH_SIZE);
+	flash_data[4] = cpu_to_be32(1);
+	flash_data[5] = cpu_to_be32(0);
+	flash_data[6] = cpu_to_be32(CFG_FLASH_BASE_1);
+	flash_data[7] = cpu_to_be32(CFG_FLASH_SIZE_1);
 	nodeoffset = fdt_path_offset (blob, "/localbus");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop(blob, nodeoffset, "ranges", flash_data,
@@ -331,7 +346,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 	}
 	else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /localbus node "
+		printf("ft_blob_update(): cannot find /soc/cpm/ethernet node "
 		"err:%s\n", fdt_strerror(nodeoffset));
 	}
 

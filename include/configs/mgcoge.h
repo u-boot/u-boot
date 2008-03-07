@@ -35,6 +35,9 @@
 
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+/* Do boardspecific init */
+#define CONFIG_BOARD_EARLY_INIT_R       1
+
 /*
  * Select serial console configuration
  *
@@ -152,8 +155,13 @@
 #define CFG_FLASH_SIZE		32
 #define CFG_FLASH_CFI
 #define CFG_FLASH_CFI_DRIVER
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks	*/
-#define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
+#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks	*/
+#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+
+#define CFG_FLASH_BASE_1	0x50000000
+#define CFG_FLASH_SIZE_1	64
+
+#define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE, CFG_FLASH_BASE_1 }
 
 #define CFG_MONITOR_BASE	TEXT_BASE
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
@@ -246,6 +254,8 @@
  * ---- ---     ------- ------  ------
  *  0   60x     GPCM     8 bit  FLASH
  *  1   60x     SDRAM   32 bit  SDRAM
+ *  3   60x     GPCM     8 bit  GPIO/PIGGY
+ *  5   60x     GPCM    16 bit  CFG-Flash
  *
  */
 /* Bank 0 - FLASH
@@ -300,6 +310,27 @@
 			 PSDMR_LDOTOPRE_1C              |\
 			 PSDMR_WRC_1C                   |\
 			 PSDMR_CL_2)
+
+/* GPIO/PIGGY on CS3 initialization values
+*/
+#define CFG_PIGGY_BASE	0x30000000
+#define CFG_PIGGY_SIZE	128
+
+#define CFG_BR3_PRELIM	((CFG_PIGGY_BASE & BRx_BA_MSK) |\
+			 BRx_PS_8 | BRx_MS_GPCM_P | BRx_V)
+
+#define CFG_OR3_PRELIM	(MEG_TO_AM(CFG_PIGGY_SIZE) |\
+			 ORxG_CSNT | ORxG_ACS_DIV2 |\
+			 ORxG_SCY_3_CLK | ORxG_TRLX )
+
+/* CFG-Flash on CS5 initialization values
+*/
+#define CFG_BR5_PRELIM	((CFG_FLASH_BASE_1 & BRx_BA_MSK) |\
+			 BRx_PS_16 | BRx_MS_GPCM_P | BRx_V)
+
+#define CFG_OR5_PRELIM	(MEG_TO_AM(CFG_FLASH_SIZE_1) |\
+			 ORxG_CSNT | ORxG_ACS_DIV2 |\
+			 ORxG_SCY_5_CLK | ORxG_TRLX )
 
 #define	CFG_RESET_ADDRESS 0xFDFFFFFC	/* "bad" address		*/
 
