@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2007
+ * (C) Copyright 2006-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
@@ -254,11 +254,13 @@
 /* Setup some board specific values for the default environment variables */
 #ifndef CONFIG_RAINIER
 #define CONFIG_HOSTNAME		sequoia
-#define CFG_BOOTFILE		"bootfile=/tftpboot/sequoia/uImage\0"
+#define CFG_BOOTFILE		"bootfile=sequoia/uImage\0"
+#define CFG_DTBFILE		"fdt_file=sequoia/sequoia.dtb\0"
 #define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
 #else
 #define CONFIG_HOSTNAME		rainier
-#define CFG_BOOTFILE		"bootfile=/tftpboot/rainier/uImage\0"
+#define CFG_BOOTFILE		"bootfile=rainier/uImage\0"
+#define CFG_DTBFILE		"fdt_file=rainier/rainier.dtb\0"
 #define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xx\0"
 #endif
 
@@ -273,12 +275,20 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
+	"addmisc=setenv bootargs ${bootargs} mem=${mem}\0"		\
+	"flash_nfs=run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_self=run ramargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+	"net_nfs=tftp 200000 ${bootfile};"				\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm\0"						\
+	"fdt_file=sequoia/sequoia.dtb\0"				\
+	"fdt_addr=400000\0"						\
+	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
+		"tftp ${fdt_addr} ${fdt_file};"				\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm 200000 - ${fdt_addr}\0"				\
 	"kernel_addr=FC000000\0"					\
 	"ramdisk_addr=FC180000\0"					\
 	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
