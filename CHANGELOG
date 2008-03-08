@@ -1,3 +1,282 @@
+commit 58f3c57c6008b42e01f551d3be6efd88c14ac87f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 8 21:30:04 2008 +0100
+
+    esd: Fix warning: passing argument 1 of 'fpga_boot' discards qualifiers from pointer target type
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d75469d48c05795144f4b8ba76addbb4920a7bba
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sat Mar 8 09:25:49 2008 +0900
+
+    net: rtl8169: Add processing when OWNbit did't enable in rtl_recv()
+
+    When rtl_recv() of rtl8169 is called, OWNbit of status register
+    is not enable occasionally.
+    rtl_recv() doesn't work normally when the driver doesn't do
+    appropriate processing.
+    This patch fix this problem.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 82afabfeb8ae6a27c7b396011ea99f4712aa73fa
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 7 08:15:28 2008 +0100
+
+    mgsuvd: update board configuration
+
+    initialize the UPIOx controller.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit e492c90c26215e459aec0fdf0f8ef1fd204988f5
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 7 08:13:41 2008 +0100
+
+    mgcoge: update board configuration
+
+    add support for the config Flash.
+    initialize the UPIOx controller.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 270fe261b7f9292800b2b3d1bf19ae7cbc880258
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 7 12:27:31 2008 -0600
+
+    mpc83xx: make dtb basename file references equal those of linux
+
+    the dts file basenames were updated in linux - this helps avoid
+    inadvertently loading any old dtbs laying around.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f30b6154f16f5ffa4a9f5bfca5e114d72b6ef675
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 27 16:08:22 2008 -0600
+
+    net: uec_phy: actually increment the timeout counter
+
+    allow u-boot to recover (and, e.g., switch to another interface) in the
+    case where a PHY does not report autonegotiation is complete within its
+    two second timeout value.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 772003e43957ee0c895abed7cd82cbe72820cbb8
+Author: Markus Brunner <super.firetwister@googlemail.com>
+Date:	Wed Mar 5 21:38:12 2008 +0100
+
+    fix taihu soft spi_read
+
+    The taihu board used gpio_read_out_bit which reads the output register and not
+    the pin state.
+
+    Signed-off-by: Markus Brunner <super.firetwister@gmail.com>
+
+commit fc84a8495ac750f6b4adae81f8c4f100f65b6340
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Mar 7 08:01:43 2008 +0100
+
+    ppc4xx: Sequoia: Add device tree (fdt) Linux booting default env variables
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit bd4458cb47abecabd406b1210457be96c69fc49d
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Mar 4 16:59:22 2008 +0800
+
+    837xEMDS: Improve the system performance
+
+    1. Make the CSB bus pipeline depth as 4, and enable
+       the repeat mode;
+    2. Raise the eTSEC emergency priority;
+    3. Use the highest IP blocks clock.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit d8ab58b212481b1c57947ea21aa96c4ce800d0b4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Mar 6 16:45:53 2008 +0100
+
+    Replace "run load; run update" with conditionalized "run load update".
+
+    The latter version stops when "run load" fails for whatever reasons
+    rendering the combination *a lot* more secure.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 6bc113886d7d316df1a4e459bec8baf027518551
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 4 17:40:41 2008 +0100
+
+    net: Print error message upon net usage when no ethernet-interface is found
+
+    This patch fixes a problem seen on PPC4xx boards, when no MAC address is
+    defined. Then no ethernet interface is available but a simple "tftp"
+    command will return without any error message which is quite confusing.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a30a549a3553032d809e0356306b62de0b125901
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Mar 4 10:03:03 2008 -0600
+
+    Remove erroneous or extra spd.h #includers.
+
+    Many of the spd.h #includers don't need it,
+    and wanted to have spd_sdram() declared instead.
+    Since they didn't get that, some also had open
+    coded extern declarations of it instead or as well.
+    Fix it all up by using spd_sdram.h where needed.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a4475386cef14af3fd88f0518b688e755669486d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 17:41:28 2008 +0100
+
+    PCS440EP: fix build problems (redundant #define)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e85e2fa85ec09a6fac2846d1d881d8737e2bbda9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 4 17:39:25 2008 +0100
+
+    net: Print error message upon net usage when no ethernet-interface is found
+
+    This patch fixes a problem seen on PPC4xx boards, when no MAC address is
+    defined. Then no ethernet interface is available but a simple "tftp"
+    command will return without any error message which is quite confusing.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 384faaafb999cae3ce447c93e28a0b7e2e5fef53
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 17:38:50 2008 +0100
+
+    W7OLMC/W7OLMG: fix build problems (redundant #define)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f9301e1cda296245ba052d7b08321199c3d0af9d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 14:58:31 2008 +0100
+
+    Makefile: fix problem with out-of-tree builds introduced by 5013c09f
+
+    Commit 5013c09f (Makefile: cleanup "clean" target) introduced a
+    problem for out-of-tree builds which caused "make clean" to fail.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit dfece9500556bed5d8244b1c15d973cec7c25bfe
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 11:58:26 2008 +0100
+
+    examples/Makefile: build "hello_world" on 8xx, too.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 74eb0222594fd23aafdf168e60e872814eea8b62
+Author: Mike Nuss <mike@terascala.com>
+Date:	Mon Mar 3 15:27:05 2008 -0500
+
+    PPC4xx (Sequoia): Fix Ethernet "remote fault" problems
+
+    Every now and then a Sequoia board (or equivalent hardware) had
+    problems connecting to a Gigabit capable network interface.
+
+    There were differences in the PHY setup between Linux and U-Boot.
+
+    This patch fixes the problem. Apparently "remote fault" is being set,
+    which signals to some devices (on the other end of the cable) that a
+    fault has occurred, while other devices ignore it. I believe the RF bit
+    was causing the issue, but I removed T4 also, to match up with Linux.
+
+    Signed-off-by: Mike Nuss <mike@terascala.com>
+
+commit 491fb6dea9f52fdb9cb5996e8e978b9e9685179f
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Mar 3 09:58:52 2008 -0600
+
+    fix QE firmware uploading limit
+
+    Fix a typo in qe_upload_firmware() that prevented uploading firmware on
+    systems with more than one RISC core.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 42ba58e0c302b339a3c2faa6006a013c6f186b7a
+Author: Bernhard Nemec <bnemec@ganssloser.com>
+Date:	Mon Mar 3 11:57:23 2008 +0000
+
+    Fix endianess problem in cramfs code (cramfs is always host-endian in Linux)
+
+    Originally pointed out by Laurent Pinchart <laurent.pinchart@tbox.biz>,
+    see http://thread.gmane.org/gmane.comp.boot-loaders.u-boot/22846
+
+    Signed-off-by: Bernhard Nemec <bnemec <at> ganssloser.com>
+
+commit 84d0c2f1e39caff58bf765a7ab7c72da23c25ec8
+Author: Kim B. Heino <Kim.Heino@bluegiga.com>
+Date:	Mon Mar 3 10:39:13 2008 +0200
+
+    fix copy from ram to dataflash
+
+    If I try to "cp.b <ram> <dataflash>", u-boot selects normal flash
+    routines instead of dataflash. This is because it checks "if source
+    address is not dataflash" instead of target address.
+
+    Signed-off-by: Kim B. Heino <Kim.Heino@bluegiga.com>
+
+commit 32bf3d143a888f8deacfdcc97e898f6c06d0aea4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 3 12:16:44 2008 +0100
+
+    Fix quoting problem (preboot setting) in many board config files.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5b0b2b6fc9fe22e3864c2a57316d91a2507ec215
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 3 12:36:49 2008 +0100
+
+    ADS5121: Fix default environment.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 91c82076ae492bb1f9d9c47a481314631d32dc8e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 2 16:12:31 2008 +0100
+
+    Makefile: Fix missing unconfig and mkconfig use
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8ce4e5c2c02cb7e8adddf7b651d3050d81ce4c1d
+Author: michael <trimarchi@gandalf.sssup.it>
+Date:	Sun Mar 2 23:33:46 2008 +0100
+
+    Fix checking fat32 cluster size.
+
+    This fixes the cluster size tests in the FAT32 file system.
+    The current implementation of VFAT support doesn't work if the
+    referred cluster has an offset > 16bit representation, causing
+    "fatload" and "fatls" commands etc. to fail.
+
+    Signed-off-by: michael trimarchi <trimarchi@gandalf.sssup.it>
+
+commit 661bad63a076a96c39c64f136915f146725af92b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 2 22:57:23 2008 +0100
+
+    Prepare v1.3.2-rc2 release candidate
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 76957cb3d621bf664311908e5962e151c633c285
 Author: Stefan Roese <sr@denx.de>
 Date:	Sat Mar 1 12:11:40 2008 +0100
