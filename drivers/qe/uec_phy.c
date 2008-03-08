@@ -290,6 +290,7 @@ static int genmii_update_link (struct uec_mii_info *mii_info)
 				return 0;
 			}
 
+			i++;
 			udelay(1000);	/* 1 ms */
 			status = phy_read(mii_info, PHY_BMSR);
 		}
@@ -577,7 +578,7 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 	u16 status;
 
 	if (!uec->mii_info) {
-		printf ("%s: the PHY not intialized\n", __FUNCTION__);
+		printf ("%s: the PHY not initialized\n", __FUNCTION__);
 		return;
 	}
 	mii_info = uec->mii_info;

@@ -578,7 +578,7 @@
    "ramdiskaddr=1000000\0"						\
    "ramdiskfile=ramfs.83xx\0"						\
    "fdtaddr=400000\0"							\
-   "fdtfile=mpc837xemds.dtb\0"						\
+   "fdtfile=mpc8379_mds.dtb\0"						\
    ""
 
 #define CONFIG_NFSBOOTCOMMAND						\
