@@ -1180,6 +1180,22 @@ void flash_print_info (flash_info_t * info)
 }
 
 /*-----------------------------------------------------------------------
+ * This is used in a few places in write_buf() to show programming
+ * progress.  Making it a function is nasty because it needs to do side
+ * effect updates to digit and dots.  Repeated code is nasty too, so
+ * we define it once here.
+ */
+#define FLASH_SHOW_PROGRESS(scale, dots, digit) \
+	if ((scale > 0) && (dots <= 0)) { \
+		if ((digit % 5) == 0) \
+			printf ("%d", digit / 5); \
+		else \
+			putc ('.'); \
+		digit--; \
+		dots += scale; \
+	}
+
+/*-----------------------------------------------------------------------
  * Copy memory to flash, returns:
  * 0 - OK
  * 1 - write timeout
@@ -1192,10 +1208,23 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	int aln;
 	cfiword_t cword;
 	int i, rc;
-
 #ifdef CFG_FLASH_USE_BUFFER_WRITE
 	int buffered_size;
 #endif
+#ifdef CONFIG_FLASH_SHOW_PROGRESS
+	int digit = CONFIG_FLASH_SHOW_PROGRESS;
+	int scale = 0;
+	int dots  = 0;
+
+	/*
+	 * Suppress if there are fewer than CONFIG_FLASH_SHOW_PROGRESS writes.
+	 */
+	if (cnt >= CONFIG_FLASH_SHOW_PROGRESS) {
+		scale = (int)((cnt + CONFIG_FLASH_SHOW_PROGRESS - 1) /
+			CONFIG_FLASH_SHOW_PROGRESS);
+	}
+#endif
+
 	/* get lower aligned address */
 	wp = (addr & ~(info->portwidth - 1));
 
@@ -1219,6 +1248,10 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return rc;
 
 		wp += i;
+#ifdef CONFIG_FLASH_SHOW_PROGRESS
+		dots -= i;
+		FLASH_SHOW_PROGRESS(scale, dots, digit);
+#endif
 	}
 
 	/* handle the aligned part */
@@ -1248,6 +1281,10 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		wp += i;
 		src += i;
 		cnt -= i;
+#ifdef CONFIG_FLASH_SHOW_PROGRESS
+		dots -= i;
+		FLASH_SHOW_PROGRESS(scale, dots, digit);
+#endif
 	}
 #else
 	while (cnt >= info->portwidth) {
@@ -1259,8 +1296,13 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return rc;
 		wp += info->portwidth;
 		cnt -= info->portwidth;
+#ifdef CONFIG_FLASH_SHOW_PROGRESS
+		dots -= info->portwidth;
+		FLASH_SHOW_PROGRESS(scale, dots, digit);
+#endif
 	}
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
+
 	if (cnt == 0) {
 		return (0);
 	}
