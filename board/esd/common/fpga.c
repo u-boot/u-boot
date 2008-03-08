@@ -92,7 +92,7 @@
 #endif
 
 
-static int fpga_boot(unsigned char *fpgadata, int size)
+static int fpga_boot(const unsigned char *fpgadata, int size)
 {
   int i,index,len;
   int count;
