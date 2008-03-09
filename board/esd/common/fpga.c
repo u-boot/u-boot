@@ -96,10 +96,10 @@ static int fpga_boot(const unsigned char *fpgadata, int size)
 {
   int i,index,len;
   int count;
+  unsigned char b;
 #ifdef CFG_FPGA_SPARTAN2
   int j;
 #else
-  unsigned char b;
   int bit;
 #endif
 
@@ -196,9 +196,10 @@ static int fpga_boot(const unsigned char *fpgadata, int size)
    */
   for (i=index; i<size; i++)
     {
+      b = fpgadata[i];
       for (j=0; j<8; j++)
 	{
-	  if ((fpgadata[i] & 0x80) == 0x80)
+	  if ((b & 0x80) == 0x80)
 	    {
 	      FPGA_WRITE_1;
 	    }
@@ -206,7 +207,7 @@ static int fpga_boot(const unsigned char *fpgadata, int size)
 	    {
 	      FPGA_WRITE_0;
 	    }
-	  fpgadata[i] <<= 1;
+	  b <<= 1;
 	}
     }
 #else
