@@ -1,3 +1,88 @@
+commit 5b464c289ba715d0979b6e1f94947bb8f1068d16
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 9 14:52:11 2008 +0100
+
+    SCM: fix 'packed' attribute ignored for field of type 'can_msg_t' warnings
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit db695b78515ddb88a2d4f3357c120345efbf59ec
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 9 10:44:01 2008 +0100
+
+    scb9328: Fix flash warning: type qualifiers ignored on function return type
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2b3e7e61d6a72f16aee93f870bc6af67f30758c4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:50:41 2008 +0100
+
+    esd/common/fpga.c: fix indentation.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cc3843e36453e2b8db65d7e56de938ba045016a0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:33:31 2008 +0100
+
+    common/kgdb.c: fix 'dereferencing type-punned pointer' warning
+
+    and get rid of a couple of unneeded casts.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8d4f4a838d7dc7cf4de17e3e9a67e2f222b6a1c8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:09:53 2008 +0100
+
+    esd/common/fpga.c: fix 'assignment of read-only location' error
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c6fe4dabac066e8758345d249032768496983a3e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 02:13:19 2008 +0100
+
+    Makefile: make build silently again.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 76babc86576f092573599334c85ec543fdbc6015
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 02:07:49 2008 +0100
+
+    m501sk: Fix out of tree building
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 210ed2004e062fdd03f25ab4925998aa1bd08a07
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 00:06:09 2008 +0100
+
+    ADS5121: fix out of tree build
+
+    and simplify Makefile a bit.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 46cb5074a3f74de64ebd97dd0c4ec7eb3d768b93
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 8 22:35:31 2008 +0100
+
+    Release v1.3.2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 78a90f827df74520e939c794fc7413dace21c4db
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 8 22:35:04 2008 +0100
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 58f3c57c6008b42e01f551d3be6efd88c14ac87f
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Mar 8 21:30:04 2008 +0100
