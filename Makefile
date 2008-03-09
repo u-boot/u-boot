@@ -1937,7 +1937,7 @@ M5485HFE_config :	unconfig
 MPC8313ERDB_33_config \
 MPC8313ERDB_66_config: unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _33_,$@)" ] ; then \
+	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) -n "...33M ..." ; \
 		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
 	fi ; \
@@ -1959,7 +1959,7 @@ MPC832XEMDS_HOST_66_config \
 MPC832XEMDS_SLAVE_config \
 MPC832XEMDS_ATM_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _HOST_,$@)" ] ; then \
+	@if [ "$(findstring _HOST_,$@)" ] ; then \
 		$(XECHO) -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
@@ -2008,7 +2008,7 @@ MPC8360EMDS_HOST_66_config \
 MPC8360EMDS_SLAVE_config \
 MPC8360EMDS_ATM_config: unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _HOST_,$@)" ] ; then \
+	@if [ "$(findstring _HOST_,$@)" ] ; then \
 		$(XECHO) -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ; \
@@ -2038,7 +2038,7 @@ MPC8360ERDK_33_config \
 MPC8360ERDK_66_config \
 MPC8360ERDK_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _33_,$@)" ] ; then \
+	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) -n "... CLKIN 33MHz " ; \
 		echo "#define CONFIG_CLKIN_33MHZ" >>$(obj)include/config.h ;\
 	fi ;
@@ -2047,7 +2047,7 @@ MPC8360ERDK_config:	unconfig
 MPC837XEMDS_config \
 MPC837XEMDS_HOST_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _HOST_,$@)" ] ; then \
+	@if [ "$(findstring _HOST_,$@)" ] ; then \
 		$(XECHO) -n "... PCI HOST " ; \
 		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
 	fi ;
@@ -2079,7 +2079,7 @@ MPC8540EVAL_66_config \
 MPC8540EVAL_33_slave_config \
 MPC8540EVAL_66_slave_config:	  unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _33_,$@)" ] ; then \
+	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) "... 33 MHz PCI" ; \
 	else \
 		echo "#define CONFIG_SYSCLK_66M" >>$(obj)include/config.h ; \
@@ -2099,7 +2099,7 @@ MPC8560ADS_config:	unconfig
 MPC8541CDS_legacy_config \
 MPC8541CDS_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _legacy_,$@)" ] ; then \
+	@if [ "$(findstring _legacy_,$@)" ] ; then \
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		$(XECHO) "... legacy" ; \
 	fi
@@ -2111,7 +2111,7 @@ MPC8544DS_config:	unconfig
 MPC8548CDS_legacy_config \
 MPC8548CDS_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _legacy_,$@)" ] ; then \
+	@if [ "$(findstring _legacy_,$@)" ] ; then \
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		$(XECHO) "... legacy" ; \
 	fi
@@ -2120,7 +2120,7 @@ MPC8548CDS_config:	unconfig
 MPC8555CDS_legacy_config \
 MPC8555CDS_config:	unconfig
 	@mkdir -p $(obj)include
-	if [ "$(findstring _legacy_,$@)" ] ; then \
+	@if [ "$(findstring _legacy_,$@)" ] ; then \
 		echo "#define CONFIG_LEGACY" >>$(obj)include/config.h ; \
 		$(XECHO) "... legacy" ; \
 	fi
@@ -2578,6 +2578,7 @@ omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
 
 apollon_config		: unconfig
+	@mkdir -p $(obj)include
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
