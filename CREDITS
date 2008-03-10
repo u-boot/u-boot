@@ -236,6 +236,10 @@ E: mark.jonas@freescale.com
 D: Support for Freescale Total5200 platform
 W: http://www.mobilegt.com/
 
+N: Mark Jonas
+E: mark.jonas@de.bosch.com
+D: Support for MPR2 board
+
 N: Sam Song
 E: samsongshu@yahoo.com.cn
 D: Port to the RPXlite_DW board

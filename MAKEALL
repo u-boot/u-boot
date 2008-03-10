@@ -704,6 +704,7 @@ LIST_sh4="		\
 "
 
 LIST_sh3="		\
+	mpr2		\
 	ms7720se	\
 "
 

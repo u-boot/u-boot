@@ -2837,6 +2837,11 @@ atngw100_config	:	unconfig
 #########################################################################
 ## sh3 (Renesas SuperH)
 #########################################################################
+mpr2_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MPR2 1" >> include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh3 mpr2
+
 ms7720se_config: unconfig
 	@echo "#define CONFIG_MS7720SE 1" > include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh3 ms7720se

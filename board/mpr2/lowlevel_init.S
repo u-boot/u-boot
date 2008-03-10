@@ -1,0 +1,148 @@
+/*
+ * (C) Copyright 2008
+ * Mark Jonas <mark.jonas@de.bosch.com>
+ *
+ * (C) Copyright 2007
+ * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ *
+ * board/mpr2/lowlevel_init.S
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+	.global	lowlevel_init
+
+	.text
+	.align	2
+
+lowlevel_init:
+
+/*
+ * Set frequency multipliers and dividers in FRQCR.
+ */
+	mov.l	WTCSR_A,r1
+	mov.l	WTCSR_D,r0
+	mov.w	r0,@r1
+
+	mov.l	WTCNT_A,r1
+	mov.l	WTCNT_D,r0
+	mov.w	r0,@r1
+
+	mov.l	FRQCR_A,r1
+	mov.l	FRQCR_D,r0
+	mov.w	r0,@r1
+
+/*
+ * Setup CS0 (Flash).
+ */
+	mov.l	CS0BCR_A, r1
+	mov.l	CS0BCR_D, r0
+	mov.l	r0, @r1
+
+	mov.l	CS0WCR_A, r1
+	mov.l	CS0WCR_D, r0
+	mov.l	r0, @r1
+
+/*
+ * Setup CS3 (SDRAM).
+ */
+	mov.l	CS3BCR_A, r1
+	mov.l	CS3BCR_D, r0
+	mov.l	r0, @r1
+
+	mov.l	CS3WCR_A, r1
+	mov.l	CS3WCR_D, r0
+	mov.l	r0, @r1
+
+	mov.l	SDCR_A, r1
+	mov.l	SDCR_D1, r0
+	mov.l	r0, @r1
+
+	mov.l	RTCSR_A, r1
+	mov.l	RTCSR_D, r0
+	mov.l	r0, @r1
+
+	mov.l	RTCNT_A, r1
+	mov.l	RTCNT_D, r0
+	mov.l	r0, @r1
+
+	mov.l	RTCOR_A, r1
+	mov.l	RTCOR_D, r0
+	mov.l	r0, @r1
+
+	mov.l	SDCR_A, r1
+	mov.l	SDCR_D2, r0
+	mov.l	r0, @r1
+
+	mov.l	SDMR3_A, r1
+	mov.l	SDMR3_D, r0
+	add	r0, r1
+	mov	#0, r0
+	mov.w	r0, @r1
+
+	rts
+	nop
+
+	.align 4
+
+/*
+ * Configuration for MPR2 A.3 through A.7
+ */
+
+/*
+ * PLL Settings
+ */
+FRQCR_D:	.long	0x1103		/* I:B:P=8:4:2 */
+WTCNT_D:	.long	0x5A00		/* start counting at zero */
+WTCSR_D:	.long	0xA507		/* divide by 4096 */
+
+/*
+ * Spansion S29GL256N11 @ 48 MHz
+ */
+CS0BCR_D:	.long	0x12490400  /* 1 idle cycle inserted, normal space, 16 bit */
+CS0WCR_D:	.long	0x00000340  /* tSW=0.5ck, 6 wait cycles, NO external wait, tHW=0.5ck */
+
+/*
+ * Samsung K4S511632B-UL75 @ 48 MHz
+ * Micron MT48LC32M16A2-75 @ 48 MHz
+ */
+CS3BCR_D:	.long	0x10004400  /* CS3BCR = 0x10004400, minimum idle cycles, SDRAM, 16 bit */
+CS3WCR_D:	.long	0x00000091  /* tRP=1ck, tRCD=1ck, CL=2, tRWL=2ck, tRC=4ck */
+SDCR_D1:	.long	0x00000012  /* no refresh, 13 rows, 10 cols, NO bank active mode */
+SDCR_D2:	.long	0x00000812  /* refresh */
+RTCSR_D:	.long	0xA55A0008  /* 1/4, once */
+RTCNT_D:	.long	0xA55A005D  /* count 93 */
+RTCOR_D:	.long	0xa55a005d  /* count 93 */
+SDMR3_D:	.long	0x440       /* mode register CL2, burst read and SINGLE WRITE */
+
+/*
+ * Registers
+ */
+
+FRQCR_A:	.long	0xA415FF80
+WTCNT_A:	.long	0xA415FF84
+WTCSR_A:	.long	0xA415FF86
+
+#define BSC_BASE	0xA4FD0000
+CS0BCR_A:	.long	BSC_BASE + 0x04
+CS3BCR_A:	.long	BSC_BASE + 0x0C
+CS0WCR_A:	.long	BSC_BASE + 0x24
+CS3WCR_A:	.long	BSC_BASE + 0x2C
+SDCR_A:		.long	BSC_BASE + 0x44
+RTCSR_A:	.long	BSC_BASE + 0x48
+RTCNT_A:	.long	BSC_BASE + 0x4C
+RTCOR_A:	.long	BSC_BASE + 0x50
+SDMR3_A:	.long	BSC_BASE + 0x5000
