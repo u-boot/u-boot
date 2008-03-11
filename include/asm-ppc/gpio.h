@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,7 +27,8 @@
 /* 4xx PPC's have 2 GPIO controllers */
 #if defined(CONFIG_405EZ) ||					\
 	defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	\
-	defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+	defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	\
+	defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define GPIO_GROUP_MAX	2
 #else
 #define GPIO_GROUP_MAX	1

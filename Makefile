@@ -1170,6 +1170,9 @@ bubinga_config:	unconfig
 CANBT_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canbt esd
 
+canyonlands_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canyonlands amcc
+
 CATcenter_config	\
 CATcenter_25_config	\
 CATcenter_33_config:	unconfig

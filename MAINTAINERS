@@ -320,6 +320,7 @@ Stefan Roese <sr@denx.de>
 	alpr			PPC440GX
 	bamboo			PPC440EP
 	bunbinga		PPC405EP
+	canyonlands		PPC460EX
 	ebony			PPC440GP
 	haleakala		PPC405EXr
 	katmai			PPC440SPe
