@@ -556,7 +556,13 @@ static int image_info (ulong addr)
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		puts ("   FIT image found\n");
-		fit_unsupported ("iminfo");
+
+		if (!fit_check_format (hdr)) {
+			puts ("Bad FIT image format!\n");
+			return 1;
+		}
+
+		fit_print_contents (hdr);
 		return 0;
 #endif
 	default:
@@ -601,9 +607,6 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			switch (genimg_get_format (hdr)) {
 			case IMAGE_FORMAT_LEGACY:
-				if (!image_check_magic (hdr))
-					goto next_sector;
-
 				if (!image_check_hcrc (hdr))
 					goto next_sector;
 
@@ -619,8 +622,11 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				break;
 #if defined(CONFIG_FIT)
 			case IMAGE_FORMAT_FIT:
+				if (!fit_check_format (hdr))
+					goto next_sector;
+
 				printf ("FIT Image at %08lX:\n", (ulong)hdr);
-				fit_unsupported ("imls");
+				fit_print_contents (hdr);
 				break;
 #endif
 			default:
