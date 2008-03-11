@@ -700,6 +700,7 @@ LIST_sh4="		\
 	ms7750se	\
 	ms7722se	\
 	Migo-R		\
+	r7780mp		\
 "
 
 LIST_sh3="		\

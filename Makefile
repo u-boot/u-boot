@@ -2857,6 +2857,11 @@ MigoR_config :       unconfig
 	@echo "#define CONFIG_MIGO_R 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 MigoR
 
+r7780mp_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_R7780MP 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 r7780mp
+
 #########################################################################
 #########################################################################
 #########################################################################
