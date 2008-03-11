@@ -54,7 +54,8 @@ static int pci_async_enabled(void)
 #endif
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	unsigned long val;
 
 	mfsdr(sdr_sdstp1, val);
@@ -86,7 +87,8 @@ static int pci_arbiter_enabled(void)
 	return (val & 0x80000000);
 #endif
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	unsigned long val;
 
 	mfsdr(sdr_pci0, val);
@@ -163,6 +165,21 @@ static char *bootstrap_str[] = {
 	"I2C (Addr 0x54)",
 	"PCI",
 	"I2C (Addr 0x52)",
+};
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
+#endif
+
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"EBC (16 bits)",
+	"PCI",
+	"PCI",
+	"EBC (16 bits)",
+	"NAND (8 bits)",
+	"I2C (Addr 0x54)",	/* A8 */
+	"I2C (Addr 0x52)",	/* A4 */
 };
 static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
 #endif
@@ -257,7 +274,11 @@ int checkcpu (void)
 	puts("05");
 #endif
 #if defined(CONFIG_440)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	puts("60");
+#else
 	puts("40");
+#endif
 #endif
 
 	switch (pvr) {
@@ -446,6 +467,26 @@ int checkcpu (void)
 	case PVR_440SPe_RB:
 		puts("SPe Rev. B");
 		strcpy(addstr, "No RAID 6 support");
+		break;
+
+	case PVR_460EX_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
+		break;
+
+	case PVR_460EX_SE_RA:
+		puts("EX Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
+		break;
+
+	case PVR_460GT_RA:
+		puts("GT Rev. A");
+		strcpy(addstr, "No Security/Kasumi support");
+		break;
+
+	case PVR_460GT_SE_RA:
+		puts("GT Rev. A");
+		strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	default:

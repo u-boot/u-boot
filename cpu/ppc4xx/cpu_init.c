@@ -302,5 +302,6 @@ int cpu_init_r (void)
 	}
 #endif  /* defined(CONFIG_405GP) */
 #endif  /* defined(CONFIG_405GP) || defined(CONFIG_405EP) */
+
 	return (0);
 }

@@ -672,7 +672,9 @@ _start:
 	/* 440EP & 440GR are only 440er PPC's without internal SRAM */
 #if !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
 	/* not all PPC's have internal SRAM usable as L2-cache */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
 #endif
 
@@ -711,6 +713,10 @@ _start:
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	isram0_sb3cr,r1
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1,0x4000		/* BAS = 8000_0000 */
+	ori	r1,r1,0x4580		/* 16k */
+	mtdcr	isram0_sb0cr,r1
 #elif defined(CONFIG_440GP)
 	ori	r1,r1,0x0380		/* 8k rw */
 	mtdcr	isram0_sb0cr,r1
@@ -1370,7 +1376,8 @@ relocate_code:
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
