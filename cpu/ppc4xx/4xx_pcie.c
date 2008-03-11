@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006 - 2007
+ * (C) Copyright 2006 - 2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Copyright (c) 2005 Cisco Systems.  All rights reserved.
@@ -31,7 +31,8 @@
 #include <common.h>
 #include <pci.h>
 
-#if (defined(CONFIG_440SPE) || defined(CONFIG_405EX)) && \
+#if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
     defined(CONFIG_PCI)
 
 #include <asm/4xx_pcie.h>
@@ -306,9 +307,8 @@ static int check_error(void)
 	int err = 0;
 
 	/* SDR0_PEGPLLLCT1 reset */
-	if (!(valPE0 = SDR_READ(PESDR0_PLLLCT1) & 0x01000000)) {
+	if (!(valPE0 = SDR_READ(PESDR0_PLLLCT1) & 0x01000000))
 		printf("PCIE: SDR0_PEGPLLLCT1 reset error 0x%x\n", valPE0);
-	}
 
 	valPE0 = SDR_READ(PESDR0_RCSSET);
 	valPE1 = SDR_READ(PESDR1_RCSSET);
@@ -400,7 +400,108 @@ int ppc4xx_init_pcie(void)
 	}
 	return 0;
 }
-#else
+#endif
+
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+static void ppc4xx_setup_utl(u32 port)
+{
+	volatile void *utl_base = NULL;
+
+	/*
+	 * Map UTL registers at 0x0801_n000 (4K 0xfff mask) PEGPLn_REGMSK
+	 */
+	switch (port) {
+	case 0:
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE0), U64_TO_U32_HIGH(CFG_PCIE0_UTLBASE));
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE0), U64_TO_U32_LOW(CFG_PCIE0_UTLBASE));
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE0), 0x00007001);	/* BAM 11100000=4KB */
+		mtdcr(DCRN_PEGPL_SPECIAL(PCIE0), 0);
+		break;
+
+	case 1:
+		mtdcr(DCRN_PEGPL_REGBAH(PCIE1), U64_TO_U32_HIGH(CFG_PCIE0_UTLBASE));
+		mtdcr(DCRN_PEGPL_REGBAL(PCIE1), U64_TO_U32_LOW(CFG_PCIE0_UTLBASE)
+			+ 0x1000);
+		mtdcr(DCRN_PEGPL_REGMSK(PCIE1), 0x00007001);	/* BAM 11100000=4KB */
+		mtdcr(DCRN_PEGPL_SPECIAL(PCIE1), 0);
+		break;
+	}
+	utl_base = (unsigned int *)(CFG_PCIE_BASE + 0x1000 * port);
+
+	/*
+	 * Set buffer allocations and then assert VRB and TXE.
+	 */
+	out_be32(utl_base + PEUTL_PBCTL, 0x0800000c);	/* PLBME, CRRE */
+	out_be32(utl_base + PEUTL_OUTTR, 0x08000000);
+	out_be32(utl_base + PEUTL_INTR, 0x02000000);
+	out_be32(utl_base + PEUTL_OPDBSZ, 0x04000000);	/* OPD = 512 Bytes */
+	out_be32(utl_base + PEUTL_PBBSZ, 0x00000000);	/* Max 512 Bytes */
+	out_be32(utl_base + PEUTL_IPHBSZ, 0x02000000);
+	out_be32(utl_base + PEUTL_IPDBSZ, 0x04000000);	/* IPD = 512 Bytes */
+	out_be32(utl_base + PEUTL_RCIRQEN, 0x00f00000);
+	out_be32(utl_base + PEUTL_PCTL, 0x80800066);	/* VRB,TXE,timeout=default */
+}
+
+/*
+ * TODO: double check PCI express SDR based on the latest user manual
+ * 		 Some registers specified here no longer exist.. has to be
+ * 		 updated based on the final EAS spec.
+ */
+static int check_error(void)
+{
+	u32 valPE0, valPE1;
+	int err = 0;
+
+	valPE0 = SDR_READ(SDRN_PESDR_RCSSET(0));
+	valPE1 = SDR_READ(SDRN_PESDR_RCSSET(1));
+
+	/* SDR0_PExRCSSET rstgu */
+	if (!(valPE0 & PESDRx_RCSSET_RSTGU) || !(valPE1 & PESDRx_RCSSET_RSTGU)) {
+		printf("PCIE:  SDR0_PExRCSSET rstgu error\n");
+		err = -1;
+	}
+
+	/* SDR0_PExRCSSET rstdl */
+	if (!(valPE0 & PESDRx_RCSSET_RSTDL) || !(valPE1 & PESDRx_RCSSET_RSTDL)) {
+		printf("PCIE:  SDR0_PExRCSSET rstdl error\n");
+		err = -1;
+	}
+
+	/* SDR0_PExRCSSET rstpyn */
+	if ((valPE0 & PESDRx_RCSSET_RSTPYN) || (valPE1 & PESDRx_RCSSET_RSTPYN)) {
+		printf("PCIE:  SDR0_PExRCSSET rstpyn error\n");
+		err = -1;
+	}
+
+	/* SDR0_PExRCSSET hldplb */
+	if ((valPE0 & PESDRx_RCSSET_HLDPLB) || (valPE1 & PESDRx_RCSSET_HLDPLB)) {
+		printf("PCIE:  SDR0_PExRCSSET hldplb error\n");
+		err = -1;
+	}
+
+	/* SDR0_PExRCSSET rdy */
+	if ((valPE0 & PESDRx_RCSSET_RDY) || (valPE1 & PESDRx_RCSSET_RDY)) {
+		printf("PCIE:  SDR0_PExRCSSET rdy error\n");
+		err = -1;
+	}
+
+	return err;
+}
+
+/*
+ * Initialize PCI Express core as described in User Manual
+ * TODO: double check PE SDR PLL Register with the updated user manual.
+ */
+int ppc4xx_init_pcie(void)
+{
+	if (check_error())
+		return -1;
+
+	return 0;
+}
+#endif /* CONFIG_460EX */
+
+#if defined(CONFIG_405EX)
 static void ppc4xx_setup_utl(u32 port)
 {
 	u32 utl_base;
@@ -450,7 +551,7 @@ int ppc4xx_init_pcie(void)
 	 */
 	return 0;
 }
-#endif
+#endif /* CONFIG_405EX */
 
 /*
  * Board-specific pcie initialization
@@ -511,6 +612,82 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 }
 #endif /* CONFIG_440SPE */
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+int __ppc4xx_init_pcie_port_hw(int port, int rootport)
+{
+	u32 val = 1 << 24;
+	u32 utlset1;
+
+	if (rootport) {
+		val = PTYPE_ROOT_PORT << 20;
+		utlset1 = 0x21222222;
+	} else {
+		val = PTYPE_LEGACY_ENDPOINT << 20;
+		utlset1 = 0x20222222;
+	}
+
+	if (port == 0) {
+		val |= LNKW_X1 << 12;
+	} else {
+		val |= LNKW_X4 << 12;
+		utlset1 |= 0x00101101;
+	}
+
+	SDR_WRITE(SDRN_PESDR_DLPSET(port), val);
+	SDR_WRITE(SDRN_PESDR_UTLSET1(port), utlset1);
+	SDR_WRITE(SDRN_PESDR_UTLSET2(port), 0x01210000);
+
+	switch (port) {
+	case 0:
+		SDR_WRITE(PESDR0_L0CDRCTL, 0x00003230);
+		SDR_WRITE(PESDR0_L0DRV, 0x00000136);
+		SDR_WRITE(PESDR0_L0CLK, 0x00000006);
+
+		SDR_WRITE(PESDR0_PHY_CTL_RST,0x10000000);
+		break;
+
+	case 1:
+		SDR_WRITE(PESDR1_L0CDRCTL, 0x00003230);
+		SDR_WRITE(PESDR1_L1CDRCTL, 0x00003230);
+		SDR_WRITE(PESDR1_L2CDRCTL, 0x00003230);
+		SDR_WRITE(PESDR1_L3CDRCTL, 0x00003230);
+		SDR_WRITE(PESDR1_L0DRV, 0x00000136);
+		SDR_WRITE(PESDR1_L1DRV, 0x00000136);
+		SDR_WRITE(PESDR1_L2DRV, 0x00000136);
+		SDR_WRITE(PESDR1_L3DRV, 0x00000136);
+		SDR_WRITE(PESDR1_L0CLK, 0x00000006);
+		SDR_WRITE(PESDR1_L1CLK, 0x00000006);
+		SDR_WRITE(PESDR1_L2CLK, 0x00000006);
+		SDR_WRITE(PESDR1_L3CLK, 0x00000006);
+
+		SDR_WRITE(PESDR1_PHY_CTL_RST,0x10000000);
+		break;
+	}
+
+	SDR_WRITE(SDRN_PESDR_RCSSET(port), SDR_READ(SDRN_PESDR_RCSSET(port)) |
+		  (PESDRx_RCSSET_RSTGU | PESDRx_RCSSET_RSTPYN));
+
+	/* Poll for PHY reset */
+	switch (port) {
+	case 0:
+		while (!(SDR_READ(PESDR0_RSTSTA) & 0x1))
+			udelay(10);
+		break;
+	case 1:
+		while (!(SDR_READ(PESDR1_RSTSTA) & 0x1))
+			udelay(10);
+		break;
+	}
+
+	SDR_WRITE(SDRN_PESDR_RCSSET(port),
+		  (SDR_READ(SDRN_PESDR_RCSSET(port)) &
+		   ~(PESDRx_RCSSET_RSTGU | PESDRx_RCSSET_RSTDL)) |
+		  PESDRx_RCSSET_RSTPYN);
+
+	return 0;
+}
+#endif /* CONFIG_440SPE */
+
 #if defined(CONFIG_405EX)
 int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 {
@@ -564,12 +741,12 @@ __attribute__((weak, alias("__ppc4xx_init_pcie_port_hw")));
  * range (hangs the core upon config transaction attempts when set
  * otherwise) while revA uses c_nnnn_nnnn.
  *
- * For revA:
+ * For 440SPe revA:
  *     PCIE0: 0xc_4000_0000
  *     PCIE1: 0xc_8000_0000
  *     PCIE2: 0xc_c000_0000
  *
- * For revB:
+ * For 440SPe revB:
  *     PCIE0: 0xd_0000_0000
  *     PCIE1: 0xd_2000_0000
  *     PCIE2: 0xd_4000_0000
@@ -577,6 +754,10 @@ __attribute__((weak, alias("__ppc4xx_init_pcie_port_hw")));
  * For 405EX:
  *     PCIE0: 0xa000_0000
  *     PCIE1: 0xc000_0000
+ *
+ * For 460EX/GT:
+ *     PCIE0: 0xd_0000_0000
+ *     PCIE1: 0xd_2000_0000
  */
 static inline u64 ppc4xx_get_cfgaddr(int port)
 {
@@ -608,6 +789,12 @@ static inline u64 ppc4xx_get_cfgaddr(int port)
 			return 0x0000000cc0000000ULL;
 		}
 	}
+#endif
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	if (port == 0)
+		return 0x0000000d00000000ULL;
+	else
+		return 0x0000000d20000000ULL;
 #endif
 }
 

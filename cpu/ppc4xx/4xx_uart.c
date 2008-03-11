@@ -64,16 +64,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000300
-#define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000400
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define UART0_BASE	(CFG_PERIPHERAL_BASE + 0x00000300)
+#define UART1_BASE	(CFG_PERIPHERAL_BASE + 0x00000400)
 #else
-#define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000200
-#define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000300
+#define UART0_BASE	(CFG_PERIPHERAL_BASE + 0x00000200)
+#define UART1_BASE	(CFG_PERIPHERAL_BASE + 0x00000300)
 #endif
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-#define UART2_BASE  CFG_PERIPHERAL_BASE + 0x00000600
+#define UART2_BASE	(CFG_PERIPHERAL_BASE + 0x00000600)
+#endif
+
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define UART2_BASE	(CFG_PERIPHERAL_BASE + 0x00000500)
+#define UART3_BASE	(CFG_PERIPHERAL_BASE + 0x00000600)
 #endif
 
 #if defined(CONFIG_440GP)
@@ -94,11 +100,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART1_SDR	sdr_uart1
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPx) || \
     defined(CONFIG_440GR) || defined(CONFIG_440GRx) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPe)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPe) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UART2_SDR	sdr_uart2
 #endif
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPx) || \
-    defined(CONFIG_440GR) || defined(CONFIG_440GRx)
+    defined(CONFIG_440GR) || defined(CONFIG_440GRx) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UART3_SDR	sdr_uart3
 #endif
 #define MFREG(a, d)	mfsdr(a, d)

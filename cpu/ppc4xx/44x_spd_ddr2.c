@@ -42,7 +42,8 @@
 #include <asm/mmu.h>
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
-	(defined(CONFIG_440SP) || defined(CONFIG_440SPE))
+	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+	 defined(CONFIG_460EX) || defined(CONFIG_460GT))
 
 /*-----------------------------------------------------------------------------+
  * Defines
@@ -578,6 +579,13 @@ long int initdram(int board_type)
 	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
 	ppc440sp_sdram_register_dump();
+
+	/*
+	 * Clear potential errors resulting from auto-calibration.
+	 * If not done, then we could get an interrupt later on when
+	 * exceptions are enabled.
+	 */
+	set_mcsr(get_mcsr());
 
 	return dram_size;
 }
@@ -2125,6 +2133,7 @@ static void program_memory_queue(unsigned long *dimm_populated,
 	unsigned long baseadd_size;
 	unsigned long i;
 	unsigned long bank_0_populated = 0;
+	unsigned long total_size = 0;
 
 	/*------------------------------------------------------------------
 	 * Reset the rank_base_address.
@@ -2147,28 +2156,38 @@ static void program_memory_queue(unsigned long *dimm_populated,
 			 * Set the sizes
 			 *-----------------------------------------------------------------*/
 			baseadd_size = 0;
-			rank_size_bytes = 4 * 1024 * 1024 * rank_size_id;
 			switch (rank_size_id) {
+			case 0x01:
+				baseadd_size |= SDRAM_RXBAS_SDSZ_1024;
+				total_size = 1024;
+				break;
 			case 0x02:
-				baseadd_size |= SDRAM_RXBAS_SDSZ_8;
+				baseadd_size |= SDRAM_RXBAS_SDSZ_2048;
+				total_size = 2048;
 				break;
 			case 0x04:
-				baseadd_size |= SDRAM_RXBAS_SDSZ_16;
+				baseadd_size |= SDRAM_RXBAS_SDSZ_4096;
+				total_size = 4096;
 				break;
 			case 0x08:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_32;
+				total_size = 32;
 				break;
 			case 0x10:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_64;
+				total_size = 64;
 				break;
 			case 0x20:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_128;
+				total_size = 128;
 				break;
 			case 0x40:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_256;
+				total_size = 256;
 				break;
 			case 0x80:
 				baseadd_size |= SDRAM_RXBAS_SDSZ_512;
+				total_size = 512;
 				break;
 			default:
 				printf("DDR-SDRAM: DIMM %d memory queue configuration.\n",
@@ -2178,6 +2197,7 @@ static void program_memory_queue(unsigned long *dimm_populated,
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
 				spd_ddr_init_hang ();
 			}
+			rank_size_bytes = total_size << 20;
 
 			if ((dimm_populated[dimm_num] != SDRAM_NONE) && (dimm_num == 1))
 				bank_0_populated = 1;
@@ -2190,6 +2210,19 @@ static void program_memory_queue(unsigned long *dimm_populated,
 			}
 		}
 	}
+
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	/*
+	 * Enable high bandwidth access on 460EX/GT.
+	 * This should/could probably be done on other
+	 * PPC's too, like 440SPe.
+	 * This is currently not used, but with this setup
+	 * it is possible to use it later on in e.g. the Linux
+	 * EMAC driver for performance gain.
+	 */
+	mtdcr(SDRAM_PLBADDULL, 0x00000000); /* MQ0_BAUL */
+	mtdcr(SDRAM_PLBADDUHB, 0x00000008); /* MQ0_BAUH */
+#endif
 }
 
 /*-----------------------------------------------------------------------------+
