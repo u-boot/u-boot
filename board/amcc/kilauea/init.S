@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * Based on code provided from UDTech and AMCC
@@ -64,7 +64,7 @@ ext_bus_cntlr_init:
 	/* SET SDRAM_MB3CF  - Not enabled */
 	mtsdram_as(SDRAM_MB3CF, 0x00000000);
 
-	/* SDRAM_CLKTR: Adv Addr clock by 90 deg */
+	/* SDRAM_CLKTR: Adv Addr clock by 180 deg */
 	mtsdram_as(SDRAM_CLKTR, 0x80000000);
 
 	/* Refresh Time register (0x30) Refresh every 7.8125uS */

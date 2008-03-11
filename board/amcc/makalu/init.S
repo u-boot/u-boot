@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * Based on code provided from Senao and AMCC
@@ -57,7 +57,7 @@ ext_bus_cntlr_init:
 	/* base=08000000, size=128MByte (5), mode=2 (n*10*4) */
 	mtsdram_as(SDRAM_MB1CF, (0x08000000 >> 3) | 0x5201);
 
-	/* SDRAM_CLKTR: Adv Addr clock by 90 deg */
+	/* SDRAM_CLKTR: Adv Addr clock by 180 deg */
 	mtsdram_as(SDRAM_CLKTR,0x80000000);
 
 	/* Refresh Time register (0x30) Refresh every 7.8125uS */
