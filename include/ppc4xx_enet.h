@@ -131,7 +131,7 @@ typedef struct emac_4xx_hw_st {
 } EMAC_4XX_HW_ST, *EMAC_4XX_HW_PST;
 
 
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || defined(CONFIG_460GT)
 #define EMAC_NUM_DEV		4
 #elif (defined(CONFIG_440) || defined(CONFIG_405EP)) &&	\
 	defined(CONFIG_NET_MULTI) &&			\
@@ -155,7 +155,8 @@ typedef struct emac_4xx_hw_st {
 
 /* ZMII Bridge Register addresses */
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0D00)
 #else
 #define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0780)
@@ -163,9 +164,6 @@ typedef struct emac_4xx_hw_st {
 #define ZMII_FER		(ZMII_BASE)
 #define ZMII_SSR		(ZMII_BASE + 4)
 #define ZMII_SMIISR		(ZMII_BASE + 8)
-
-#define ZMII_RMII		0x22000000
-#define ZMII_MDI0		0x80000000
 
 /* ZMII FER Register Bit Definitions */
 #define ZMII_FER_DIS		(0x0)
@@ -205,6 +203,8 @@ typedef struct emac_4xx_hw_st {
 /* RGMII Register Addresses */
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1000)
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1500)
 #elif defined(CONFIG_405EX)
 #define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0xB00)
 #else
@@ -223,18 +223,20 @@ typedef struct emac_4xx_hw_st {
 
 #define RGMII_FER_V(__x)	((__x - 2) * 4)
 
+#define RGMII_FER_MDIO(__x)	(1 << (19 - (__x)))
+
 /* RGMII Speed Selection Register Bit Definitions */
 #define RGMII_SSR_SP_10MBPS	(0x00)
 #define RGMII_SSR_SP_100MBPS	(0x02)
 #define RGMII_SSR_SP_1000MBPS	(0x04)
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
 #define RGMII_SSR_V(__x)	((__x) * 8)
 #else
 #define RGMII_SSR_V(__x)	((__x -2) * 8)
 #endif
-
 
 /*---------------------------------------------------------------------------+
 |  TCP/IP Acceleration Hardware (TAH) 440GX Only
@@ -304,7 +306,8 @@ typedef struct emac_4xx_hw_st {
 /* Ethernet MAC Regsiter Addresses */
 #if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0E00)
 #else
 #define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0800)
@@ -345,6 +348,7 @@ typedef struct emac_4xx_hw_st {
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
 /* MODE Reg 1 */
 #define EMAC_M1_FDE		(0x80000000)

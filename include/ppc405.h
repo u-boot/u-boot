@@ -118,7 +118,17 @@
 /******************************************************************************
  * Universal interrupt controller
  ******************************************************************************/
+#define UIC_SR	0x0			/* UIC status			   */
+#define UIC_ER	0x2			/* UIC enable			   */
+#define UIC_CR	0x3			/* UIC critical			   */
+#define UIC_PR	0x4			/* UIC polarity			   */
+#define UIC_TR	0x5			/* UIC triggering		   */
+#define UIC_MSR 0x6			/* UIC masked status		   */
+#define UIC_VR	0x7			/* UIC vector			   */
+#define UIC_VCR 0x8			/* UIC vector configuration	   */
+
 #define UIC_DCR_BASE 0xc0
+#define UIC0_DCR_BASE UIC_DCR_BASE
 #define uicsr        (UIC_DCR_BASE+0x0)  /* UIC status                       */
 #define uicsrs       (UIC_DCR_BASE+0x1)  /* UIC status set                   */
 #define uicer        (UIC_DCR_BASE+0x2)  /* UIC enable                       */
@@ -141,6 +151,7 @@
 #define uic0vcr       uicvcr		/* UIC vector configuration*/
 
 #define UIC_DCR_BASE1 0xd0
+#define UIC1_DCR_BASE 0xd0
 #define uic1sr        (UIC_DCR_BASE1+0x0)  /* UIC status            */
 #define uic1srs       (UIC_DCR_BASE1+0x1)  /* UIC status set        */
 #define uic1er        (UIC_DCR_BASE1+0x2)  /* UIC enable            */
@@ -152,6 +163,7 @@
 #define uic1vcr       (UIC_DCR_BASE1+0x8)  /* UIC vector configuration*/
 
 #define UIC_DCR_BASE2 0xe0
+#define UIC2_DCR_BASE 0xe0
 #define uic2sr        (UIC_DCR_BASE2+0x0)  /* UIC status            */
 #define uic2srs       (UIC_DCR_BASE2+0x1)  /* UIC status set        */
 #define uic2er        (UIC_DCR_BASE2+0x2)  /* UIC enable            */
@@ -237,10 +249,13 @@
 #define UIC_ENET1		0x00000040      /* */
 #define UIC_PCIEMSI2		0x00000020      /* */
 #define UIC_EIRQ4		0x00000010      /**/
-#define UIC_UIC2NC		0x00000008      /* */
-#define UIC_UIC2C		0x00000004      /* */
-#define UIC_UIC1NC		0x00000002      /* */
-#define UIC_UIC1C		0x00000001      /* */
+#define UICB0_UIC2NCI		0x00000008      /* */
+#define UICB0_UIC2CI		0x00000004      /* */
+#define UICB0_UIC1NCI		0x00000002      /* */
+#define UICB0_UIC1CI		0x00000001      /* */
+
+#define UICB0_ALL		(UICB0_UIC1CI | UICB0_UIC1NCI | \
+				 UICB0_UIC1CI | UICB0_UIC2NCI)
 
 #define UIC_MAL_TXEOB 		UIC_MTE/* MAL TXEOB                          */
 #define UIC_MAL_RXEOB 		UIC_MRE/* MAL RXEOB                          */
