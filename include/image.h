@@ -40,14 +40,21 @@
 #include <lmb.h>
 #include <linux/string.h>
 #include <asm/u-boot.h>
-#endif /* USE_HOSTCC */
 
-/* new uImage format support enabled by default */
+/* new uImage format support enabled on target
+ * To be moved to board configuration file */
 #define CONFIG_FIT		1
 #define CONFIG_OF_LIBFDT	1
+#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
-/* enable fit_format_error(), fit_format_warning() */
-#define CONFIG_FIT_VERBOSE	1
+#else
+
+/* new uImage format support enabled on host */
+#define CONFIG_FIT		1
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
+
+#endif /* USE_HOSTCC */
 
 #if defined(CONFIG_FIT) && !defined(CONFIG_OF_LIBFDT)
 #error "CONFIG_OF_LIBFDT not enabled, required by CONFIG_FIT!"

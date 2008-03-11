@@ -43,6 +43,12 @@
 #define debug(fmt,args...)
 #endif /* MKIMAGE_DEBUG */
 
+#define MKIMAGE_TMPFILE_SUFFIX		".tmp"
+#define MKIMAGE_MAX_TMPFILE_LEN		256
+#define MKIMAGE_DEFAULT_DTC_OPTIONS	"-I dts -O dtb -p 500"
+#define MKIMAGE_MAX_DTC_CMDLINE_LEN	512
+#define MKIMAGE_DTC			"dtc"   /* assume dtc is in $PATH */
+
 #if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <inttypes.h>
 #endif
