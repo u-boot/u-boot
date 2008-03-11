@@ -117,6 +117,73 @@
 #define VECNUM_MCTR0        (64 +  8)  /* MAl intp coalescence TR0      */
 #define VECNUM_MCTR1        (64 +  9)  /* MAl intp coalescence TR1      */
 
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+/* UIC 0 */
+#define VECNUM_U1	1		/* UART1			*/
+#define VECNUM_IIC0	2		/* IIC0				*/
+#define VECNUM_IIC1	3		/* IIC1				*/
+#define VECNUM_PIM	4		/* PCI inbound message		*/
+#define VECNUM_PCRW	5		/* PCI command reg write	*/
+#define VECNUM_PPM	6		/* PCI power management		*/
+#define VECNUM_MSI0	8		/* PCI MSI level 0		*/
+#define VECNUM_EIR0	9		/* External interrupt 0		*/
+#define VECNUM_UIC2NC	10		/* UIC2 non-critical interrupt	*/
+#define VECNUM_UIC2C	11		/* UIC2 critical interrupt	*/
+#define VECNUM_D0	12		/* DMA channel 0		*/
+#define VECNUM_D1	13		/* DMA channel 1		*/
+#define VECNUM_D2	14		/* DMA channel 2		*/
+#define VECNUM_D3	15		/* DMA channel 3		*/
+#define VECNUM_UIC3NC	16		/* UIC3 non-critical interrupt	*/
+#define VECNUM_UIC3C	17		/* UIC3 critical interrupt	*/
+#define VECNUM_EIR1	9		/* External interrupt 1		*/
+#define VECNUM_UIC1NC	30		/* UIC1 non-critical interrupt	*/
+#define VECNUM_UIC1C	31		/* UIC1 critical interrupt	*/
+
+/* UIC 1 */
+#define VECNUM_EIR2	(32 + 0)	/* External interrupt 0		*/
+#define VECNUM_U0	(32 + 1)	/* UART0			*/
+#define VECNUM_EIR3	(32 + 20)	/* External interrupt 3		*/
+#define VECNUM_EIR4	(32 + 21)	/* External interrupt 4		*/
+#define VECNUM_EIR5	(32 + 26)	/* External interrupt 5		*/
+#define VECNUM_EIR6	(32 + 27)	/* External interrupt 6		*/
+#define VECNUM_U2	(32 + 28)	/* UART2			*/
+#define VECNUM_U3	(32 + 29)	/* UART3			*/
+#define VECNUM_EIR7	(32 + 30)	/* External interrupt 7		*/
+#define VECNUM_EIR8	(32 + 31)	/* External interrupt 8		*/
+
+/* UIC 2 */
+#define VECNUM_EIR9	(64 + 2)	/* External interrupt 9		*/
+#define VECNUM_MS	(64 + 3)	/* MAL SERR			*/
+#define	VECNUM_TXDE	(64 + 4)	/* MAL TXDE			*/
+#define	VECNUM_RXDE	(64 + 5)	/* MAL RXDE			*/
+#define VECNUM_MTE	(64 + 6)	/* MAL TXEOB			*/
+#define	VECNUM_MRE	(64 + 7)	/* MAL RXEOB			*/
+#define	VECNUM_ETH0	(64 + 16)	/* Ethernet 0			*/
+#define	VECNUM_ETH1	(64 + 17)	/* Ethernet 1			*/
+#define	VECNUM_ETH2	(64 + 18)	/* Ethernet 2			*/
+#define	VECNUM_ETH3	(64 + 19)	/* Ethernet 3			*/
+#define VECNUM_EWU0	(64 + 20)	/* Emac 0 wakeup		*/
+#define VECNUM_EWU1	(64 + 21)	/* Emac 1 wakeup		*/
+#define VECNUM_EWU2	(64 + 22)	/* Emac 2 wakeup		*/
+#define VECNUM_EWU3	(64 + 23)	/* Emac 3 wakeup		*/
+#define VECNUM_EIR10	(64 + 24)	/* External interrupt 10	*/
+#define VECNUM_EIR11	(64 + 25)	/* External interrupt 11	*/
+
+/* UIC 3 */
+#define VECNUM_EIR12	(96 + 20)	/* External interrupt 20	*/
+#define VECNUM_EIR13	(96 + 21)	/* External interrupt 21	*/
+#define VECNUM_EIR14	(96 + 22)	/* External interrupt 22	*/
+#define VECNUM_EIR15	(96 + 23)	/* External interrupt 23	*/
+#define VECNUM_PCIEMSI0	(96 + 24)	/* PCI Express MSI level 0	*/
+#define VECNUM_PCIEMSI1	(96 + 25)	/* PCI Express MSI level 1	*/
+#define VECNUM_PCIEMSI2	(96 + 26)	/* PCI Express MSI level 2	*/
+#define VECNUM_PCIEMSI3	(96 + 27)	/* PCI Express MSI level 3	*/
+#define VECNUM_PCIEMSI4	(96 + 28)	/* PCI Express MSI level 4	*/
+#define VECNUM_PCIEMSI5	(96 + 29)	/* PCI Express MSI level 5	*/
+#define VECNUM_PCIEMSI6	(96 + 30)	/* PCI Express MSI level 6	*/
+#define VECNUM_PCIEMSI7	(96 + 31)	/* PCI Express MSI level 7	*/
+
 #elif defined(CONFIG_440SPE)
 
 /* UIC 0 */
@@ -130,10 +197,14 @@
 #define VECNUM_MSI0         7           /* PCI MSI level 0              */
 #define VECNUM_MSI1         8           /* PCI MSI level 0              */
 #define VECNUM_MSI2         9           /* PCI MSI level 0              */
+#define VECNUM_UIC2NC       10          /* UIC2 non-critical interrupt  */
+#define VECNUM_UIC2C        11          /* UIC2 critical interrupt      */
 #define VECNUM_D0           12          /* DMA channel 0                */
 #define VECNUM_D1           13          /* DMA channel 1                */
 #define VECNUM_D2           14          /* DMA channel 2                */
 #define VECNUM_D3           15          /* DMA channel 3                */
+#define VECNUM_UIC3NC       16          /* UIC3 non-critical interrupt  */
+#define VECNUM_UIC3C        17          /* UIC3 critical interrupt      */
 #define VECNUM_UIC1NC       30          /* UIC1 non-critical interrupt  */
 #define VECNUM_UIC1C        31          /* UIC1 critical interrupt      */
 

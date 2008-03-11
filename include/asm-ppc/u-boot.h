@@ -115,7 +115,8 @@ typedef struct bd_info {
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
     defined(CONFIG_405EZ) || defined(CONFIG_440GX) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	unsigned int	bi_opbfreq;		/* OPB clock in Hz */
 	int		bi_iic_fast[2];		/* Use fast i2c mode */
 #endif
@@ -123,7 +124,8 @@ typedef struct bd_info {
 	unsigned char	bi_sernum[8];
 #endif
 #if defined(CONFIG_4xx)
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	int 		bi_phynum[4];           /* Determines phy mapping */
 	int 		bi_phymode[4];          /* Determines phy mode */
 #elif defined(CONFIG_405EP) || defined(CONFIG_440)

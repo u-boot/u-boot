@@ -29,6 +29,18 @@
 #define PCIE2_SDR		0x370
 #endif
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CFG_PCIE_NR_PORTS	2
+
+#define CFG_PCIE_ADDR_HIGH	0x0000000d
+
+#define DCRN_PCIE0_BASE		0x100
+#define DCRN_PCIE1_BASE		0x120
+
+#define PCIE0_SDR		0x300
+#define PCIE1_SDR		0x340
+#endif
+
 #if defined(CONFIG_405EX)
 #define CFG_PCIE_NR_PORTS	2
 
@@ -68,7 +80,7 @@
 #define PESDR0_PLLLCT2		0x03a1
 #define PESDR0_PLLLCT3		0x03a2
 
-/* common regs, at least for 405EX and 440SPe */
+/* common regs, at for all 4xx with PCIe core */
 #define SDRN_PESDR_UTLSET1(n)		(sdr_base(n) + 0x00)
 #define SDRN_PESDR_UTLSET2(n)		(sdr_base(n) + 0x01)
 #define SDRN_PESDR_DLPSET(n)		(sdr_base(n) + 0x02)
@@ -198,7 +210,72 @@
 #define PESDR1_LPB		0x044B
 #define PESDR1_PHYSTA		0x044C
 
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define PESDR0_L0BIST		0x0308	/* PE0 L0 built in self test */
+#define PESDR0_L0BISTSTS	0x0309	/* PE0 L0 built in self test status */
+#define PESDR0_L0CDRCTL		0x030A	/* PE0 L0 CDR control */
+#define PESDR0_L0DRV		0x030B	/* PE0 L0 drive */
+#define PESDR0_L0REC		0x030C	/* PE0 L0 receiver */
+#define PESDR0_L0LPB		0x030D	/* PE0 L0 loopback */
+#define PESDR0_L0CLK		0x030E	/* PE0 L0 clocking */
+#define PESDR0_PHY_CTL_RST	0x030F	/* PE0 PHY control reset */
+#define PESDR0_RSTSTA		0x0310	/* PE0 reset status */
+#define PESDR0_OBS		0x0311	/* PE0 observation register */
+#define PESDR0_L0ERRC		0x0320	/* PE0 L0 error counter */
+
+#define PESDR1_L0BIST		0x0348	/* PE1 L0 built in self test */
+#define PESDR1_L1BIST		0x0349	/* PE1 L1 built in self test */
+#define PESDR1_L2BIST		0x034A	/* PE1 L2 built in self test */
+#define PESDR1_L3BIST		0x034B	/* PE1 L3 built in self test */
+#define PESDR1_L0BISTSTS	0x034C	/* PE1 L0 built in self test status */
+#define PESDR1_L1BISTSTS	0x034D	/* PE1 L1 built in self test status */
+#define PESDR1_L2BISTSTS	0x034E	/* PE1 L2 built in self test status */
+#define PESDR1_L3BISTSTS	0x034F	/* PE1 L3 built in self test status */
+#define PESDR1_L0CDRCTL		0x0350	/* PE1 L0 CDR control */
+#define PESDR1_L1CDRCTL		0x0351	/* PE1 L1 CDR control */
+#define PESDR1_L2CDRCTL		0x0352	/* PE1 L2 CDR control */
+#define PESDR1_L3CDRCTL		0x0353	/* PE1 L3 CDR control */
+#define PESDR1_L0DRV		0x0354	/* PE1 L0 drive */
+#define PESDR1_L1DRV		0x0355	/* PE1 L1 drive */
+#define PESDR1_L2DRV		0x0356	/* PE1 L2 drive */
+#define PESDR1_L3DRV		0x0357	/* PE1 L3 drive */
+#define PESDR1_L0REC		0x0358	/* PE1 L0 receiver */
+#define PESDR1_L1REC		0x0359	/* PE1 L1 receiver */
+#define PESDR1_L2REC		0x035A	/* PE1 L2 receiver */
+#define PESDR1_L3REC		0x035B	/* PE1 L3 receiver */
+#define PESDR1_L0LPB		0x035C	/* PE1 L0 loopback */
+#define PESDR1_L1LPB		0x035D	/* PE1 L1 loopback */
+#define PESDR1_L2LPB		0x035E	/* PE1 L2 loopback */
+#define PESDR1_L3LPB		0x035F	/* PE1 L3 loopback */
+#define PESDR1_L0CLK		0x0360	/* PE1 L0 clocking */
+#define PESDR1_L1CLK		0x0361	/* PE1 L1 clocking */
+#define PESDR1_L2CLK		0x0362	/* PE1 L2 clocking */
+#define PESDR1_L3CLK		0x0363	/* PE1 L3 clocking */
+#define PESDR1_PHY_CTL_RST	0x0364	/* PE1 PHY control reset */
+#define PESDR1_RSTSTA		0x0365	/* PE1 reset status */
+#define PESDR1_OBS		0x0366	/* PE1 observation register */
+#define PESDR1_L0ERRC		0x0368	/* PE1 L0 error counter */
+#define PESDR1_L1ERRC		0x0369	/* PE1 L1 error counter */
+#define PESDR1_L2ERRC		0x036A	/* PE1 L2 error counter */
+#define PESDR1_L3ERRC		0x036B	/* PE1 L3 error counter */
+#define PESDR0_IHS1		0x036C	/* PE interrupt handler interfact setting 1 */
+#define PESDR0_IHS2		0x036D	/* PE interrupt handler interfact setting 2 */
+
 #endif
+
+/* SDR Bit Mappings */
+#define PESDRx_RCSSET_HLDPLB	0x10000000
+#define PESDRx_RCSSET_RSTGU	0x01000000
+#define PESDRx_RCSSET_RDY       0x00100000
+#define PESDRx_RCSSET_RSTDL     0x00010000
+#define PESDRx_RCSSET_RSTPYN    0x00001000
+
+#define PESDRx_RCSSTS_PLBIDL	0x10000000
+#define PESDRx_RCSSTS_HRSTRQ	0x01000000
+#define PESDRx_RCSSTS_PGRST	0x00100000
+#define PESDRx_RCSSTS_VC0ACT	0x00010000
+#define PESDRx_RCSSTS_BMEN	0x00000100
 
 /*
  * UTL register offsets
