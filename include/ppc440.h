@@ -380,7 +380,8 @@
 #define SDR0_PEGPLLSTS		0x000003A2	/* PE Pll LC Tank Status */
 #endif /* CONFIG_440SPE */
 
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 /*----------------------------------------------------------------------------+
 | SDRAM Controller
 +----------------------------------------------------------------------------*/
@@ -416,7 +417,8 @@
 /*-----------------------------------------------------------------------------+
 |  Memory Bank 0-7 configuration
 +-----------------------------------------------------------------------------*/
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define SDRAM_RXBAS_SDBA_MASK		0xFFE00000	/* Base address	*/
 #define SDRAM_RXBAS_SDBA_ENCODE(n)	((((unsigned long)(n))&0xFFE00000)>>2)
 #define SDRAM_RXBAS_SDBA_DECODE(n)	((((unsigned long)(n))&0xFFE00000)<<2)
@@ -692,6 +694,7 @@
 #define SDRAM_CLKTR_CLKP_0_DEG		0x00000000
 #define SDRAM_CLKTR_CLKP_180_DEG_ADV	0x80000000
 #define SDRAM_CLKTR_CLKP_90_DEG_ADV	0x40000000
+#define SDRAM_CLKTR_CLKP_270_DEG_ADV	0xC0000000
 
 /*-----------------------------------------------------------------------------+
 |  SDRAM Write Timing Register
@@ -1577,49 +1580,6 @@
 
 #endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
 
-/* CUST0 Customer Configuration Register0 */
-#define SDR0_CUST0                   0x4000
-#define   SDR0_CUST0_MUX_E_N_G_MASK   0xC0000000     /* Mux_Emac_NDFC_GPIO */
-#define   SDR0_CUST0_MUX_EMAC_SEL     0x40000000       /* Emac Selection */
-#define   SDR0_CUST0_MUX_NDFC_SEL     0x80000000       /* NDFC Selection */
-#define   SDR0_CUST0_MUX_GPIO_SEL     0xC0000000       /* GPIO Selection */
-
-#define   SDR0_CUST0_NDFC_EN_MASK     0x20000000     /* NDFC Enable Mask */
-#define   SDR0_CUST0_NDFC_ENABLE      0x20000000       /* NDFC Enable */
-#define   SDR0_CUST0_NDFC_DISABLE     0x00000000       /* NDFC Disable */
-
-#define   SDR0_CUST0_NDFC_BW_MASK     0x10000000     /* NDFC Boot Width */
-#define   SDR0_CUST0_NDFC_BW_16_BIT   0x10000000       /* NDFC Boot Width = 16 Bit */
-#define   SDR0_CUST0_NDFC_BW_8_BIT    0x00000000       /* NDFC Boot Width =  8 Bit */
-
-#define   SDR0_CUST0_NDFC_BP_MASK     0x0F000000     /* NDFC Boot Page */
-#define   SDR0_CUST0_NDFC_BP_ENCODE(n) ((((unsigned long)(n))&0xF)<<24)
-#define   SDR0_CUST0_NDFC_BP_DECODE(n) ((((unsigned long)(n))>>24)&0x0F)
-
-#define   SDR0_CUST0_NDFC_BAC_MASK    0x00C00000     /* NDFC Boot Address Cycle */
-#define   SDR0_CUST0_NDFC_BAC_ENCODE(n) ((((unsigned long)(n))&0x3)<<22)
-#define   SDR0_CUST0_NDFC_BAC_DECODE(n) ((((unsigned long)(n))>>22)&0x03)
-
-#define   SDR0_CUST0_NDFC_ARE_MASK    0x00200000     /* NDFC Auto Read Enable */
-#define   SDR0_CUST0_NDFC_ARE_ENABLE  0x00200000       /* NDFC Auto Read Enable */
-#define   SDR0_CUST0_NDFC_ARE_DISABLE 0x00000000       /* NDFC Auto Read Disable */
-
-#define   SDR0_CUST0_NRB_MASK         0x00100000     /* NDFC Ready / Busy */
-#define   SDR0_CUST0_NRB_BUSY         0x00100000       /* Busy */
-#define   SDR0_CUST0_NRB_READY        0x00000000       /* Ready */
-
-#define   SDR0_CUST0_NDRSC_MASK       0x0000FFF0     /* NDFC Device Reset Count Mask */
-#define   SDR0_CUST0_NDRSC_ENCODE(n) ((((unsigned long)(n))&0xFFF)<<4)
-#define   SDR0_CUST0_NDRSC_DECODE(n) ((((unsigned long)(n))>>4)&0xFFF)
-
-#define   SDR0_CUST0_CHIPSELGAT_MASK  0x0000000F     /* Chip Select Gating Mask */
-#define   SDR0_CUST0_CHIPSELGAT_DIS   0x00000000       /* Chip Select Gating Disable */
-#define   SDR0_CUST0_CHIPSELGAT_ENALL 0x0000000F       /* All Chip Select Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN0   0x00000008       /* Chip Select0 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN1   0x00000004       /* Chip Select1 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
-
 /* CUST1 Customer Configuration Register1 */
 #define   SDR0_CUST1                 0x4002
 #define   SDR0_CUST1_NDRSC_MASK       0xFFFF0000     /* NDRSC Device Read Count */
@@ -1666,25 +1626,34 @@
 #define   SDR0_PFC1_PLB_PME_PLB4_SEL  0x00001000      /* PLB3 Performance Monitor Enable */
 #define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
 
+#endif /* 440EP || 440GR || 440EPX || 440GRX */
+
+/*-----------------------------------------------------------------------------
+ | L2 Cache
+ +----------------------------------------------------------------------------*/
+#if defined (CONFIG_440GX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define L2_CACHE_BASE	0x030
+#define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
+#define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
+#define l2_cache_addr	(L2_CACHE_BASE+0x02)	/* L2 Cache Address	*/
+#define l2_cache_data	(L2_CACHE_BASE+0x03)	/* L2 Cache Data	*/
+#define l2_cache_stat	(L2_CACHE_BASE+0x04)	/* L2 Cache Status	*/
+#define l2_cache_cver	(L2_CACHE_BASE+0x05)	/* L2 Cache Revision ID */
+#define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
+#define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
+
+#endif /* CONFIG_440GX */
+
 /*-----------------------------------------------------------------------------
  | Internal SRAM
  +----------------------------------------------------------------------------*/
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define ISRAM0_DCR_BASE 0x380
-#define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
-#define isram0_bear	(ISRAM0_DCR_BASE+0x04)	/* SRAM bus error addr reg */
-#define isram0_besr0	(ISRAM0_DCR_BASE+0x05)	/* SRAM bus error status reg 0 */
-#define isram0_besr1	(ISRAM0_DCR_BASE+0x06)	/* SRAM bus error status reg 1 */
-#define isram0_pmeg	(ISRAM0_DCR_BASE+0x07)	/* SRAM power management */
-#define isram0_cid	(ISRAM0_DCR_BASE+0x08)	/* SRAM bus core id reg */
-#define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
-#define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
-
 #else
-
-/*-----------------------------------------------------------------------------
- | Internal SRAM
- +----------------------------------------------------------------------------*/
 #define ISRAM0_DCR_BASE 0x020
+#endif
 #define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
 #define isram0_sb1cr	(ISRAM0_DCR_BASE+0x01)	/* SRAM bank config 1*/
 #define isram0_sb2cr	(ISRAM0_DCR_BASE+0x02)	/* SRAM bank config 2*/
@@ -1697,22 +1666,52 @@
 #define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
 #define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
 
-/*-----------------------------------------------------------------------------
- | L2 Cache
- +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-#define L2_CACHE_BASE	0x030
-#define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
-#define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
-#define l2_cache_addr	(L2_CACHE_BASE+0x02)	/* L2 Cache Address	*/
-#define l2_cache_data	(L2_CACHE_BASE+0x03)	/* L2 Cache Data	*/
-#define l2_cache_stat	(L2_CACHE_BASE+0x04)	/* L2 Cache Status	*/
-#define l2_cache_cver	(L2_CACHE_BASE+0x05)	/* L2 Cache Revision ID */
-#define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
-#define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+/* CUST0 Customer Configuration Register0 */
+#define SDR0_CUST0                   0x4000
+#define   SDR0_CUST0_MUX_E_N_G_MASK   0xC0000000     /* Mux_Emac_NDFC_GPIO */
+#define   SDR0_CUST0_MUX_EMAC_SEL     0x40000000       /* Emac Selection */
+#define   SDR0_CUST0_MUX_NDFC_SEL     0x80000000       /* NDFC Selection */
+#define   SDR0_CUST0_MUX_GPIO_SEL     0xC0000000       /* GPIO Selection */
 
-#endif /* CONFIG_440GX */
-#endif /* !CONFIG_440EP !CONFIG_440GR*/
+#define   SDR0_CUST0_NDFC_EN_MASK     0x20000000     /* NDFC Enable Mask */
+#define   SDR0_CUST0_NDFC_ENABLE      0x20000000       /* NDFC Enable */
+#define   SDR0_CUST0_NDFC_DISABLE     0x00000000       /* NDFC Disable */
+
+#define   SDR0_CUST0_NDFC_BW_MASK     0x10000000     /* NDFC Boot Width */
+#define   SDR0_CUST0_NDFC_BW_16_BIT   0x10000000       /* NDFC Boot Width = 16 Bit */
+#define   SDR0_CUST0_NDFC_BW_8_BIT    0x00000000       /* NDFC Boot Width =  8 Bit */
+
+#define   SDR0_CUST0_NDFC_BP_MASK     0x0F000000     /* NDFC Boot Page */
+#define   SDR0_CUST0_NDFC_BP_ENCODE(n) ((((unsigned long)(n))&0xF)<<24)
+#define   SDR0_CUST0_NDFC_BP_DECODE(n) ((((unsigned long)(n))>>24)&0x0F)
+
+#define   SDR0_CUST0_NDFC_BAC_MASK    0x00C00000     /* NDFC Boot Address Cycle */
+#define   SDR0_CUST0_NDFC_BAC_ENCODE(n) ((((unsigned long)(n))&0x3)<<22)
+#define   SDR0_CUST0_NDFC_BAC_DECODE(n) ((((unsigned long)(n))>>22)&0x03)
+
+#define   SDR0_CUST0_NDFC_ARE_MASK    0x00200000     /* NDFC Auto Read Enable */
+#define   SDR0_CUST0_NDFC_ARE_ENABLE  0x00200000       /* NDFC Auto Read Enable */
+#define   SDR0_CUST0_NDFC_ARE_DISABLE 0x00000000       /* NDFC Auto Read Disable */
+
+#define   SDR0_CUST0_NRB_MASK         0x00100000     /* NDFC Ready / Busy */
+#define   SDR0_CUST0_NRB_BUSY         0x00100000       /* Busy */
+#define   SDR0_CUST0_NRB_READY        0x00000000       /* Ready */
+
+#define   SDR0_CUST0_NDRSC_MASK       0x0000FFF0     /* NDFC Device Reset Count Mask */
+#define   SDR0_CUST0_NDRSC_ENCODE(n) ((((unsigned long)(n))&0xFFF)<<4)
+#define   SDR0_CUST0_NDRSC_DECODE(n) ((((unsigned long)(n))>>4)&0xFFF)
+
+#define   SDR0_CUST0_CHIPSELGAT_MASK  0x0000000F     /* Chip Select Gating Mask */
+#define   SDR0_CUST0_CHIPSELGAT_DIS   0x00000000       /* Chip Select Gating Disable */
+#define   SDR0_CUST0_CHIPSELGAT_ENALL 0x0000000F       /* All Chip Select Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN0   0x00000008       /* Chip Select0 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN1   0x00000004       /* Chip Select1 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
+#define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
+#endif
 
 /*-----------------------------------------------------------------------------
  | On-Chip Buses
@@ -1722,8 +1721,14 @@
 /*-----------------------------------------------------------------------------
  | Clocking, Power Management and Chip Control
  +----------------------------------------------------------------------------*/
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CNTRL_DCR_BASE 0x160
+#else
 #define CNTRL_DCR_BASE 0x0b0
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#endif
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define cpc0_er		(CNTRL_DCR_BASE+0x00)	/* CPM enable register		*/
 #define cpc0_fr		(CNTRL_DCR_BASE+0x01)	/* CPM force register		*/
 #define cpc0_sr		(CNTRL_DCR_BASE+0x02)	/* CPM status register		*/
@@ -1751,6 +1756,15 @@
 /*-----------------------------------------------------------------------------
  | Universal interrupt controller
  +----------------------------------------------------------------------------*/
+#define UIC_SR	0x0			/* UIC status			   */
+#define UIC_ER	0x2			/* UIC enable			   */
+#define UIC_CR	0x3			/* UIC critical			   */
+#define UIC_PR	0x4			/* UIC polarity			   */
+#define UIC_TR	0x5			/* UIC triggering		   */
+#define UIC_MSR 0x6			/* UIC masked status		   */
+#define UIC_VR	0x7			/* UIC vector			   */
+#define UIC_VCR 0x8			/* UIC vector configuration	   */
+
 #define UIC0_DCR_BASE 0xc0
 #define uic0sr	(UIC0_DCR_BASE+0x0)   /* UIC0 status			   */
 #define uic0er	(UIC0_DCR_BASE+0x2)   /* UIC0 enable			   */
@@ -1771,7 +1785,9 @@
 #define uic1vr	(UIC1_DCR_BASE+0x7)   /* UIC1 vector			   */
 #define uic1vcr (UIC1_DCR_BASE+0x8)   /* UIC1 vector configuration	   */
 
-#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#if defined(CONFIG_440SPE) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UIC2_DCR_BASE 0xe0
 #define uic2sr	(UIC2_DCR_BASE+0x0)   /* UIC2 status-Read Clear		*/
 #define uic2srs	(UIC2_DCR_BASE+0x1)   /* UIC2 status-Read Set */
@@ -1927,7 +1943,11 @@
 /*-----------------------------------------------------------------------------
  | DMA
  +----------------------------------------------------------------------------*/
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define DMA_DCR_BASE 0x200
+#else
 #define DMA_DCR_BASE 0x100
+#endif
 #define dmacr0	(DMA_DCR_BASE+0x00)  /* DMA channel control register 0	     */
 #define dmact0	(DMA_DCR_BASE+0x01)  /* DMA count register 0		     */
 #define dmasah0 (DMA_DCR_BASE+0x02)  /* DMA source address high 0	     */
@@ -1991,15 +2011,16 @@
 #define maltxctp3r  (MAL_DCR_BASE+0x23) /* TX 3 Channel table pointer reg   */
 #define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
 #define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
-#if defined(CONFIG_440GX)
-#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
-#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
-#endif /* CONFIG_440GX */
 #define malrcbs0    (MAL_DCR_BASE+0x60) /* RX 0 Channel buffer size reg	    */
 #define malrcbs1    (MAL_DCR_BASE+0x61) /* RX 1 Channel buffer size reg	    */
-#if defined(CONFIG_440GX)
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
+#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
+#define malrxctp8r  (MAL_DCR_BASE+0x48) /* RX 8 Channel table pointer reg   */
 #define malrcbs2    (MAL_DCR_BASE+0x62) /* RX 2 Channel buffer size reg	    */
 #define malrcbs3    (MAL_DCR_BASE+0x63) /* RX 3 Channel buffer size reg	    */
+#define malrcbs8    (MAL_DCR_BASE+0x68) /* RX 8 Channel buffer size reg	    */
 #endif /* CONFIG_440GX */
 
 
@@ -2112,6 +2133,41 @@
 #define UIC_MAL_TXEOB	UIC_MTE
 #define UIC_MAL_RXEOB	UIC_MRE
 
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define UIC_RSVD0	0x80000000	/* N/A - unused			    */
+#define UIC_U1		0x40000000	/* UART 1			    */
+#define UIC_IIC0	0x20000000	/* IIC				    */
+#define UIC_IIC1	0x10000000	/* IIC				    */
+#define UIC_PIM		0x08000000	/* PCI inbound message		    */
+#define UIC_PCRW	0x04000000	/* PCI command register write	    */
+#define UIC_PPM		0x02000000	/* PCI power management		    */
+#define UIC_PCIVPD	0x01000000	/* PCI VPD			    */
+#define UIC_MSI0	0x00800000	/* PCI MSI level 0		    */
+#define UIC_EIR0	0x00400000	/* External interrupt 0		    */
+#define UIC_UIC2NC	0x00200000	/* UIC2 non-critical interrupt	    */
+#define UIC_UIC2C	0x00100000	/* UIC2 critical interrupt	    */
+#define UIC_D0		0x00080000	/* DMA channel 0		    */
+#define UIC_D1		0x00040000	/* DMA channel 1		    */
+#define UIC_D2		0x00020000	/* DMA channel 2		    */
+#define UIC_D3		0x00010000	/* DMA channel 3		    */
+#define UIC_UIC3NC	0x00008000	/* UIC3 non-critical interrupt	    */
+#define UIC_UIC3C	0x00004000	/* UIC3 critical interrupt	    */
+#define UIC_EIR1	0x00002000	/* External interrupt 1		    */
+#define UIC_TRNGDA	0x00001000	/* TRNG data available 		    */
+#define UIC_PKAR1	0x00000800	/* PKA ready (PKA[1])		    */
+#define UIC_D1CPFF	0x00000400	/* DMA1 cp fifo full		    */
+#define UIC_D1CSNS	0x00000200	/* DMA1 cs fifo needs service	    */
+#define UIC_I2OID	0x00000100	/* I2O inbound door bell	    */
+#define UIC_I2OLNE	0x00000080	/* I2O Inbound Post List FIFO Not Empty */
+#define UIC_I20R0LL	0x00000040	/* I2O Region 0 Low Latency PLB Write */
+#define UIC_I2OR1LL	0x00000020	/* I2O Region 1 Low Latency PLB Write */
+#define UIC_I20R0HB	0x00000010	/* I2O Region 0 High Bandwidth PLB Write */
+#define UIC_I2OR1HB	0x00000008	/* I2O Region 1 High Bandwidth PLB Write */
+#define UIC_EIP94	0x00000004	/* Security EIP94		    */
+#define UIC_UIC1NC	0x00000002	/* UIC1 non-critical interrupt	    */
+#define UIC_UIC1C	0x00000001	/* UIC1 critical interrupt	    */
+
 #elif !defined(CONFIG_440SPE)
 #define UIC_U0		0x80000000	/* UART 0			    */
 #define UIC_U1		0x40000000	/* UART 1			    */
@@ -2220,6 +2276,41 @@
 #define UIC_EWU0	0x00000004	/* Ethernet 0 wakeup		    */
 #define UIC_ETH1	0x00000002	/* Ethernet 1			    */
 #define UIC_EWU1	0x00000001	/* Ethernet 1 wakeup		    */
+
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define UIC_EIR2	0x80000000	/* External interrupt 2		    */
+#define UIC_U0		0x40000000	/* UART 0			    */
+#define UIC_SPI		0x20000000	/* SPI				    */
+#define UIC_TRNGAL	0x10000000	/* TRNG alarm			    */
+#define UIC_DEUE	0x08000000	/* DDR SDRAM ECC correct/uncorrectable error */
+#define UIC_EBCO	0x04000000	/* EBCO interrupt status	    */
+#define UIC_NDFC	0x02000000	/* NDFC				    */
+#define UIC_EIPPKPSE	0x01000000	/* EIPPKP slave error		    */
+#define UIC_P0MSI1	0x00800000	/* PCI0 MSI level 1		    */
+#define UIC_P0MSI2	0x00400000	/* PCI0 MSI level 2		    */
+#define UIC_P0MSI3	0x00200000	/* PCI0 MSI level 3		    */
+#define UIC_L2C		0x00100000	/* L2 cache			    */
+#define UIC_CT0		0x00080000	/* GPT compare timer 0		    */
+#define UIC_CT1		0x00040000	/* GPT compare timer 1		    */
+#define UIC_CT2		0x00020000	/* GPT compare timer 2		    */
+#define UIC_CT3		0x00010000	/* GPT compare timer 3		    */
+#define UIC_CT4		0x00008000	/* GPT compare timer 4		    */
+#define UIC_CT5		0x00004000	/* GPT compare timer 5		    */
+#define UIC_CT6		0x00002000	/* GPT compare timer 6		    */
+#define UIC_GPTDC	0x00001000	/* GPT decrementer pulse	    */
+#define UIC_EIR3	0x00000800	/* External interrupt 3		    */
+#define UIC_EIR4	0x00000400	/* External interrupt 4		    */
+#define UIC_DMAE	0x00000200	/* DMA error			    */
+#define UIC_I2OE	0x00000100	/* I2O error			    */
+#define UIC_SRE		0x00000080	/* Serial ROM error		    */
+#define UIC_P0AE	0x00000040	/* PCI0 asynchronous error	    */
+#define UIC_EIR5	0x00000020	/* External interrupt 5		    */
+#define UIC_EIR6	0x00000010	/* External interrupt 6		    */
+#define UIC_U2		0x00000008	/* UART 2			    */
+#define UIC_U3		0x00000004	/* UART 3			    */
+#define UIC_EIR7	0x00000002	/* External interrupt 7		    */
+#define UIC_EIR8	0x00000001	/* External interrupt 8		    */
 
 #elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
@@ -2340,6 +2431,41 @@
 #define UIC_RSVD30	0x00000002	/* Reserved			    */
 #define UIC_RSVD31	0x00000001	/* Reserved			    */
 
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define UIC_TAH0	0x80000000	/* TAHOE 0			    */
+#define UIC_TAH1	0x40000000	/* TAHOE 1			    */
+#define UIC_EIR9	0x20000000	/* External interrupt 9		    */
+#define UIC_MS		0x10000000	/* MAL SERR			    */
+#define UIC_MTDE	0x08000000	/* MAL TXDE			    */
+#define UIC_MRDE	0x04000000	/* MAL RXDE			    */
+#define UIC_MTE		0x02000000	/* MAL TXEOB			    */
+#define UIC_MRE		0x01000000	/* MAL RXEOB			    */
+#define UIC_MCTX0	0x00800000	/* MAL interrupt coalescence TX0    */
+#define UIC_MCTX1	0x00400000	/* MAL interrupt coalescence TX1    */
+#define UIC_MCTX2	0x00200000	/* MAL interrupt coalescence TX2    */
+#define UIC_MCTX3	0x00100000	/* MAL interrupt coalescence TX3    */
+#define UIC_MCTR0	0x00080000	/* MAL interrupt coalescence TR0    */
+#define UIC_MCTR1	0x00040000	/* MAL interrupt coalescence TR1    */
+#define UIC_MCTR2	0x00020000	/* MAL interrupt coalescence TR2    */
+#define UIC_MCTR3	0x00010000	/* MAL interrupt coalescence TR3    */
+#define UIC_ETH0	0x00008000	/* Ethernet 0			    */
+#define UIC_ETH1	0x00004000	/* Ethernet 1			    */
+#define UIC_ETH2	0x00002000	/* Ethernet 2			    */
+#define UIC_ETH3	0x00001000	/* Ethernet 3			    */
+#define UIC_EWU0	0x00000800	/* Ethernet 0 wakeup		    */
+#define UIC_EWU1	0x00000400	/* Ethernet 1 wakeup		    */
+#define UIC_EWU2	0x00000200	/* Ethernet 2 wakeup		    */
+#define UIC_EWU3	0x00000100	/* Ethernet 3 wakeup		    */
+#define UIC_EIR10	0x00000080	/* External interrupt 10	    */
+#define UIC_EIR11	0x00000040	/* External interrupt 11	    */
+#define UIC_RSVD2	0x00000020	/* Reserved			    */
+#define UIC_PLB4XAHB	0x00000010	/* PLB4XAHB / AHBARB error	    */
+#define UIC_OTG		0x00000008	/* USB2.0 OTG			    */
+#define UIC_EHCI	0x00000004	/* USB2.0 Host EHCI		    */
+#define UIC_OHCI	0x00000002	/* USB2.0 Host OHCI		    */
+#define UIC_OHCISMI	0x00000001	/* USB2.0 Host OHCI SMI		    */
+
 #elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX) /* UIC2 */
 
 #define UIC_EIR5    0x80000000  /* External interrupt 5                 */
@@ -2366,18 +2492,38 @@
 #define UICB0_UIC2CI	0x08000000	/* UIC2 Critical Interrupt	    */
 #define UICB0_UIC2NCI	0x04000000	/* UIC2 Noncritical Interrupt	    */
 
-#define UICB0_ALL		(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
-						 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
+#define UICB0_ALL	(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
+			 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
+
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define UICB0_UIC1NCI	0x00000002	/* UIC1 Noncritical Interrupt	    */
+#define UICB0_UIC1CI	0x00000001	/* UIC1 Critical Interrupt	    */
+#define UICB0_UIC2NCI	0x00200000	/* UIC2 Noncritical Interrupt	    */
+#define UICB0_UIC2CI	0x00100000	/* UIC2 Critical Interrupt	    */
+#define UICB0_UIC3NCI	0x00008000	/* UIC3 Noncritical Interrupt	    */
+#define UICB0_UIC3CI	0x00004000	/* UIC3 Critical Interrupt	    */
+
+#define UICB0_ALL	(UICB0_UIC1CI | UICB0_UIC1NCI | UICB0_UIC2CI | \
+			 UICB0_UIC2NCI | UICB0_UIC3CI | UICB0_UIC3NCI)
 
 #elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
-#define UICB0_UIC1CI	0x00000000	/* UIC1 Critical Interrupt	    */
-#define UICB0_UIC1NCI	0x00000000	/* UIC1 Noncritical Interrupt	    */
-#define UICB0_UIC2CI	0x00000000	/* UIC2 Critical Interrupt	    */
-#define UICB0_UIC2NCI	0x00000000	/* UIC2 Noncritical Interrupt	    */
+#define UICB0_UIC1CI	0x00000001	/* UIC1 Critical Interrupt	    */
+#define UICB0_UIC1NCI	0x00000002	/* UIC1 Noncritical Interrupt	    */
+#define UICB0_UIC2CI	0x00000004	/* UIC2 Critical Interrupt	    */
+#define UICB0_UIC2NCI	0x00000008	/* UIC2 Noncritical Interrupt	    */
 
-#define UICB0_ALL		(UICB0_UIC1CI | UICB0_UIC1NCI | \
-						 UICB0_UIC1CI | UICB0_UIC2NCI)
+#define UICB0_ALL	(UICB0_UIC1CI | UICB0_UIC1NCI | \
+			 UICB0_UIC1CI | UICB0_UIC2NCI)
+
+#elif defined(CONFIG_440GP) || defined(CONFIG_440SP) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR)
+
+#define UICB0_UIC1CI	0x00000001	/* UIC1 Critical Interrupt	    */
+#define UICB0_UIC1NCI	0x00000002	/* UIC1 Noncritical Interrupt	    */
+
+#define UICB0_ALL	(UICB0_UIC1CI | UICB0_UIC1NCI)
 
 #endif /* CONFIG_440GX */
 /*---------------------------------------------------------------------------+
@@ -3018,6 +3164,198 @@
 #define SDR0_MFR			0x4300
 #endif	/* CONFIG_440SPE	*/
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+/* Pin Function Control Register 0 (SDR0_PFC0) */
+#define SDR0_PFC0		0x4100
+#define SDR0_PFC0_DBG		0x00008000	/* debug enable */
+#define SDR0_PFC0_G49E		0x00004000	/* GPIO 49 enable */
+#define SDR0_PFC0_G50E		0x00002000	/* GPIO 50 enable */
+#define SDR0_PFC0_G51E		0x00001000	/* GPIO 51 enable */
+#define SDR0_PFC0_G52E		0x00000800	/* GPIO 52 enable */
+#define SDR0_PFC0_G53E		0x00000400	/* GPIO 53 enable */
+#define SDR0_PFC0_G54E		0x00000200	/* GPIO 54 enable */
+#define SDR0_PFC0_G55E		0x00000100	/* GPIO 55 enable */
+#define SDR0_PFC0_G56E		0x00000080	/* GPIO 56 enable */
+#define SDR0_PFC0_G57E		0x00000040	/* GPIO 57 enable */
+#define SDR0_PFC0_G58E		0x00000020	/* GPIO 58 enable */
+#define SDR0_PFC0_G59E		0x00000010	/* GPIO 59 enable */
+#define SDR0_PFC0_G60E		0x00000008	/* GPIO 60 enable */
+#define SDR0_PFC0_G61E		0x00000004	/* GPIO 61 enable */
+#define SDR0_PFC0_G62E		0x00000002	/* GPIO 62 enable */
+#define SDR0_PFC0_G63E		0x00000001	/* GPIO 63 enable */
+
+/* Pin Function Control Register 1 (SDR0_PFC1) */
+#define SDR0_PFC1		0x4101
+#define SDR0_PFC1_U1ME_MASK	0x02000000	/* UART1 Mode Enable */
+#define SDR0_PFC1_U1ME_DSR_DTR	0x00000000	/* UART1 in DSR/DTR Mode */
+#define SDR0_PFC1_U1ME_CTS_RTS	0x02000000	/* UART1 in CTS/RTS Mode */
+#define SDR0_PFC1_U0ME_MASK	0x00080000	/* UART0 Mode Enable */
+#define SDR0_PFC1_U0ME_DSR_DTR	0x00000000	/* UART0 in DSR/DTR Mode */
+#define SDR0_PFC1_U0ME_CTS_RTS	0x00080000	/* UART0 in CTS/RTS Mode */
+#define SDR0_PFC1_U0IM_MASK	0x00040000	/* UART0 Interface Mode */
+#define SDR0_PFC1_U0IM_8PINS	0x00000000	/* UART0 Interface Mode 8 pins*/
+#define SDR0_PFC1_U0IM_4PINS	0x00040000	/* UART0 Interface Mode 4 pins*/
+#define SDR0_PFC1_SIS_MASK	0x00020000	/* SCP or IIC1 Selection */
+#define SDR0_PFC1_SIS_SCP_SEL	0x00000000	/* SCP Selected */
+#define SDR0_PFC1_SIS_IIC1_SEL	0x00020000	/* IIC1 Selected */
+
+/* Ethernet PLL Configuration Register (SDR0_ETH_PLL) */
+#define SDR0_ETH_PLL		0x4102
+#define SDR0_ETH_PLL_PLLLOCK	 0x80000000	/*Ethernet PLL lock indication*/
+#define SDR0_ETH_PLL_REF_CLK_SEL 0x10000000	/* Ethernet reference clock */
+#define SDR0_ETH_PLL_BYPASS	 0x08000000	/* bypass mode enable */
+#define SDR0_ETH_PLL_STOPCLK	 0x04000000	/* output clock disable */
+#define SDR0_ETH_PLL_TUNE_MASK	 0x03FF0000	/* loop stability tuning bits */
+#define SDR0_ETH_PLL_TUNE_ENCODE(n)	((((unsigned long)(n))&0x3ff)<<16)
+#define SDR0_ETH_PLL_MULTI_MASK	 0x0000FF00	/* frequency multiplication */
+#define SDR0_ETH_PLL_MULTI_ENCODE(n)	((((unsigned long)(n))&0xff)<<8)
+#define SDR0_ETH_PLL_RANGEB_MASK 0x000000F0	/* PLLOUTB/C frequency */
+#define SDR0_ETH_PLL_RANGEB_ENCODE(n)	((((unsigned long)(n))&0x0f)<<4)
+#define SDR0_ETH_PLL_RANGEA_MASK 0x0000000F	/* PLLOUTA frequency */
+#define SDR0_ETH_PLL_RANGEA_ENCODE(n)	(((unsigned long)(n))&0x0f)
+
+/* Ethernet Configuration Register (SDR0_ETH_CFG) */
+#define SDR0_ETH_CFG		0x4103
+#define SDR0_ETH_CFG_SGMII3_LPBK	0x00800000	/* SGMII3 port loopback enable */
+#define SDR0_ETH_CFG_SGMII2_LPBK	0x00400000	/* SGMII2 port loopback enable */
+#define SDR0_ETH_CFG_SGMII1_LPBK	0x00200000	/* SGMII1 port loopback enable */
+#define SDR0_ETH_CFG_SGMII0_LPBK	0x00100000	/* SGMII0 port loopback enable */
+#define SDR0_ETH_CFG_SGMII_MASK		0x00070000	/* SGMII Mask */
+#define SDR0_ETH_CFG_SGMII2_ENABLE	0x00040000	/* SGMII2 port enable */
+#define SDR0_ETH_CFG_SGMII1_ENABLE	0x00020000	/* SGMII1 port enable */
+#define SDR0_ETH_CFG_SGMII0_ENABLE	0x00010000	/* SGMII0 port enable */
+#define SDR0_ETH_CFG_TAHOE1_BYPASS	0x00002000	/* TAHOE1 Bypass selector */
+#define SDR0_ETH_CFG_TAHOE0_BYPASS	0x00001000	/* TAHOE0 Bypass selector */
+#define SDR0_ETH_CFG_EMAC3_PHY_CLK_SEL	0x00000800	/* EMAC 3 PHY clock selector */
+#define SDR0_ETH_CFG_EMAC2_PHY_CLK_SEL	0x00000400	/* EMAC 2 PHY clock selector */
+#define SDR0_ETH_CFG_EMAC1_PHY_CLK_SEL	0x00000200	/* EMAC 1 PHY clock selector */
+#define SDR0_ETH_CFG_EMAC0_PHY_CLK_SEL	0x00000100	/* EMAC 0 PHY clock selector */
+#define SDR0_ETH_CFG_EMAC_2_1_SWAP	0x00000080	/* Swap EMAC2 with EMAC1 */
+#define SDR0_ETH_CFG_EMAC_0_3_SWAP	0x00000040	/* Swap EMAC0 with EMAC3 */
+#define SDR0_ETH_CFG_MDIO_SEL_MASK	0x00000030	/* MDIO source selector mask */
+#define SDR0_ETH_CFG_MDIO_SEL_EMAC0	0x00000000	/* MDIO source - EMAC0 */
+#define SDR0_ETH_CFG_MDIO_SEL_EMAC1	0x00000010	/* MDIO source - EMAC1 */
+#define SDR0_ETH_CFG_MDIO_SEL_EMAC2	0x00000020	/* MDIO source - EMAC2 */
+#define SDR0_ETH_CFG_MDIO_SEL_EMAC3	0x00000030	/* MDIO source - EMAC3 */
+#define SDR0_ETH_CFG_ZMII_MODE_MASK	0x0000000C	/* ZMII bridge mode selector mask */
+#define SDR0_ETH_CFG_ZMII_SEL_MII	0x00000000	/* ZMII bridge mode - MII */
+#define SDR0_ETH_CFG_ZMII_SEL_SMII	0x00000004	/* ZMII bridge mode - SMII */
+#define SDR0_ETH_CFG_ZMII_SEL_RMII_10	0x00000008	/* ZMII bridge mode - RMII (10 Mbps) */
+#define SDR0_ETH_CFG_ZMII_SEL_RMII_100	0x0000000C	/* ZMII bridge mode - RMII (100 Mbps) */
+#define SDR0_ETH_CFG_GMC1_BRIDGE_SEL	0x00000002	/* GMC Port 1 bridge selector */
+#define SDR0_ETH_CFG_GMC0_BRIDGE_SEL	0x00000001	/* GMC Port 0 bridge selector */
+
+#define SDR0_ETH_CFG_ZMII_MODE_SHIFT		4
+#define SDR0_ETH_CFG_ZMII_MII_MODE		0x00
+#define SDR0_ETH_CFG_ZMII_SMII_MODE		0x01
+#define SDR0_ETH_CFG_ZMII_RMII_MODE_10M		0x10
+#define SDR0_ETH_CFG_ZMII_RMII_MODE_100M	0x11
+
+/* Miscealleneaous Function Reg. (SDR0_MFR) */
+#define SDR0_MFR		0x4300
+#define SDR0_MFR_T0TxFL		0x00800000	/* force parity error TAHOE0 Tx FIFO bits 0:63 */
+#define SDR0_MFR_T0TxFH		0x00400000	/* force parity error TAHOE0 Tx FIFO bits 64:127 */
+#define SDR0_MFR_T1TxFL		0x00200000	/* force parity error TAHOE1 Tx FIFO bits 0:63 */
+#define SDR0_MFR_T1TxFH		0x00100000	/* force parity error TAHOE1 Tx FIFO bits 64:127 */
+#define SDR0_MFR_E0TxFL		0x00008000	/* force parity error EMAC0 Tx FIFO bits 0:63 */
+#define SDR0_MFR_E0TxFH		0x00004000	/* force parity error EMAC0 Tx FIFO bits 64:127 */
+#define SDR0_MFR_E0RxFL		0x00002000	/* force parity error EMAC0 Rx FIFO bits 0:63 */
+#define SDR0_MFR_E0RxFH		0x00001000	/* force parity error EMAC0 Rx FIFO bits 64:127 */
+#define SDR0_MFR_E1TxFL		0x00000800	/* force parity error EMAC1 Tx FIFO bits 0:63 */
+#define SDR0_MFR_E1TxFH		0x00000400	/* force parity error EMAC1 Tx FIFO bits 64:127 */
+#define SDR0_MFR_E1RxFL		0x00000200	/* force parity error EMAC1 Rx FIFO bits 0:63 */
+#define SDR0_MFR_E1RxFH		0x00000100	/* force parity error EMAC1 Rx FIFO bits 64:127 */
+#define SDR0_MFR_E2TxFL		0x00000080	/* force parity error EMAC2 Tx FIFO bits 0:63 */
+#define SDR0_MFR_E2TxFH		0x00000040	/* force parity error EMAC2 Tx FIFO bits 64:127 */
+#define SDR0_MFR_E2RxFL		0x00000020	/* force parity error EMAC2 Rx FIFO bits 0:63 */
+#define SDR0_MFR_E2RxFH		0x00000010	/* force parity error EMAC2 Rx FIFO bits 64:127 */
+#define SDR0_MFR_E3TxFL		0x00000008	/* force parity error EMAC3 Tx FIFO bits 0:63 */
+#define SDR0_MFR_E3TxFH		0x00000004	/* force parity error EMAC3 Tx FIFO bits 64:127 */
+#define SDR0_MFR_E3RxFL		0x00000002	/* force parity error EMAC3 Rx FIFO bits 0:63 */
+#define SDR0_MFR_E3RxFH		0x00000001	/* force parity error EMAC3 Rx FIFO bits 64:127 */
+
+/* EMACx TX Status Register (SDR0_EMACxTXST)*/
+#define SDR0_EMAC0TXST		0x4400
+#define SDR0_EMAC1TXST		0x4401
+#define SDR0_EMAC2TXST		0x4402
+#define SDR0_EMAC3TXST		0x4403
+
+#define SDR0_EMACxTXST_FUR	0x02000000	/* TX FIFO underrun */
+#define SDR0_EMACxTXST_BC	0x01000000	/* broadcase address */
+#define SDR0_EMACxTXST_MC	0x00800000	/* multicast address */
+#define SDR0_EMACxTXST_UC	0x00400000	/* unicast address */
+#define SDR0_EMACxTXST_FP	0x00200000	/* frame paused by control packet */
+#define SDR0_EMACxTXST_BFCS	0x00100000	/* bad FCS in the transmitted frame */
+#define SDR0_EMACxTXST_CPF	0x00080000	/* TX control pause frame */
+#define SDR0_EMACxTXST_CF	0x00040000	/* TX control frame */
+#define SDR0_EMACxTXST_MSIZ	0x00020000	/* 1024-maxsize bytes transmitted */
+#define SDR0_EMACxTXST_1023	0x00010000	/* 512-1023 bytes transmitted */
+#define SDR0_EMACxTXST_511	0x00008000	/* 256-511 bytes transmitted */
+#define SDR0_EMACxTXST_255	0x00004000	/* 128-255 bytes transmitted */
+#define SDR0_EMACxTXST_127	0x00002000	/* 65-127 bytes transmitted */
+#define SDR0_EMACxTXST_64	0x00001000	/* 64 bytes transmitted */
+#define SDR0_EMACxTXST_SQE	0x00000800	/* SQE indication */
+#define SDR0_EMACxTXST_LOC	0x00000400	/* loss of carrier sense */
+#define SDR0_EMACxTXST_IERR	0x00000080	/* EMAC internal error */
+#define SDR0_EMACxTXST_EDF	0x00000040	/* excessive deferral */
+#define SDR0_EMACxTXST_ECOL	0x00000020	/* excessive collisions */
+#define SDR0_EMACxTXST_LCOL	0x00000010	/* late collision */
+#define SDR0_EMACxTXST_DFFR	0x00000008	/* deferred frame */
+#define SDR0_EMACxTXST_MCOL	0x00000004	/* multiple collision frame */
+#define SDR0_EMACxTXST_SCOL	0x00000002	/* single collision frame */
+#define SDR0_EMACxTXST_TXOK	0x00000001	/* transmit OK */
+
+/* EMACx RX Status Register (SDR0_EMACxRXST)*/
+#define SDR0_EMAC0RXST		0x4404
+#define SDR0_EMAC1RXST		0x4405
+#define SDR0_EMAC2RXST		0x4406
+#define SDR0_EMAC3RXST		0x4407
+
+#define SDR0_EMACxRXST_FOR	0x20000000	/* RX FIFO overrun */
+#define SDR0_EMACxRXST_BC	0x10000000	/* broadcast address */
+#define SDR0_EMACxRXST_MC	0x08000000	/* multicast address */
+#define SDR0_EMACxRXST_UC	0x04000000	/* unicast address */
+#define SDR0_EMACxRXST_UPR_MASK	0x03800000	/* user priority field */
+#define SDR0_EMACxRXST_UPR_ENCODE(n)	((((unsigned long)(n))&0x07)<<23)
+#define SDR0_EMACxRXST_VLAN	0x00400000	/* RX VLAN tagged frame */
+#define SDR0_EMACxRXST_LOOP	0x00200000	/* received in loop-back mode */
+#define SDR0_EMACxRXST_UOP	0x00100000	/* RX unsupported opcode */
+#define SDR0_EMACxRXST_CPF	0x00080000	/* RX control pause frame */
+#define SDR0_EMACxRXST_CF	0x00040000	/* RX control frame*/
+#define SDR0_EMACxRXST_MSIZ	0x00020000	/* 1024-MaxSize bytes recieved*/
+#define SDR0_EMACxRXST_1023	0x00010000	/* 512-1023 bytes received */
+#define SDR0_EMACxRXST_511	0x00008000	/* 128-511 bytes received */
+#define SDR0_EMACxRXST_255	0x00004000	/* 128-255 bytes received */
+#define SDR0_EMACxRXST_127	0x00002000	/* 65-127 bytes received */
+#define SDR0_EMACxRXST_64	0x00001000	/* 64 bytes received */
+#define SDR0_EMACxRXST_RUNT	0x00000800	/* runt frame */
+#define SDR0_EMACxRXST_SEVT	0x00000400	/* short event */
+#define SDR0_EMACxRXST_AERR	0x00000200	/* alignment error */
+#define SDR0_EMACxRXST_SERR	0x00000100	/* received with symbol error */
+#define SDR0_EMACxRXST_BURST	0x00000040	/* received burst */
+#define SDR0_EMACxRXST_F2L	0x00000020	/* frame is to long */
+#define SDR0_EMACxRXST_OERR	0x00000010	/* out of range length error */
+#define SDR0_EMACxRXST_IERR	0x00000008	/* in range length error */
+#define SDR0_EMACxRXST_LOST	0x00000004	/* frame lost due to internal EMAC receive error */
+#define SDR0_EMACxRXST_BFCS	0x00000002	/* bad FCS in the recieved frame */
+#define SDR0_EMACxRXST_RXOK	0x00000001	/* Recieve OK */
+
+/* EMACx TX Status Register (SDR0_EMACxREJCNT)*/
+#define SDR0_EMAC0REJCNT	0x4408
+#define SDR0_EMAC1REJCNT	0x4409
+#define SDR0_EMAC2REJCNT	0x440A
+#define SDR0_EMAC3REJCNT	0x440B
+
+#define SDR0_DDR0			0x00E1
+#define SDR0_DDR0_DPLLRST		0x80000000
+#define SDR0_DDR0_DDRM_MASK		0x60000000
+#define SDR0_DDR0_DDRM_DDR1		0x20000000
+#define SDR0_DDR0_DDRM_DDR2		0x40000000
+#define SDR0_DDR0_DDRM_ENCODE(n)	((((unsigned long)(n))&0x03)<<29)
+#define SDR0_DDR0_DDRM_DECODE(n)	((((unsigned long)(n))>>29)&0x03)
+#define SDR0_DDR0_TUNE_ENCODE(n)	((((unsigned long)(n))&0x2FF)<<0)
+#define SDR0_DDR0_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x2FF)
+#endif /* CONFIG_460EX || CONFIG_460GT */
 
 #define SDR0_SDCS_SDD			(0x80000000 >> 31)
 
@@ -3232,6 +3570,73 @@
 #define SDR0_SRST1_FPU          0x00004000 /* Floating Point Unit */
 #define SDR0_SRST1_KASU0        0x00002000 /* Kasumi Engine */
 
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
+#define SDR0_SRST0		0x0200
+#define SDR0_SRST		SDR0_SRST0 /* for compatability reasons */
+#define SDR0_SRST0_BGO		0x80000000 /* PLB to OPB bridge */
+#define SDR0_SRST0_PLB4		0x40000000 /* PLB4 arbiter */
+#define SDR0_SRST0_EBC		0x20000000 /* External bus controller */
+#define SDR0_SRST0_OPB		0x10000000 /* OPB arbiter */
+#define SDR0_SRST0_UART0	0x08000000 /* Universal asynchronous receiver/transmitter 0 */
+#define SDR0_SRST0_UART1	0x04000000 /* Universal asynchronous receiver/transmitter 1 */
+#define SDR0_SRST0_IIC0		0x02000000 /* Inter integrated circuit 0 */
+#define SDR0_SRST0_IIC1		0x01000000 /* Inter integrated circuit 1 */
+#define SDR0_SRST0_GPIO0	0x00800000 /* General purpose I/O 0 */
+#define SDR0_SRST0_GPT		0x00400000 /* General purpose timer */
+#define SDR0_SRST0_DMC		0x00200000 /* DDR SDRAM memory controller */
+#define SDR0_SRST0_PCI		0x00100000 /* PCI */
+#define SDR0_SRST0_CPM0		0x00020000 /* Clock and power management */
+#define SDR0_SRST0_IMU		0x00010000 /* I2O DMA */
+#define SDR0_SRST0_UIC0		0x00008000 /* Universal interrupt controller 0*/
+#define SDR0_SRST0_UIC1		0x00004000 /* Universal interrupt controller 1*/
+#define SDR0_SRST0_SRAM		0x00002000 /* Universal interrupt controller 0*/
+#define SDR0_SRST0_UIC2		0x00001000 /* Universal interrupt controller 2*/
+#define SDR0_SRST0_UIC3		0x00000800 /* Universal interrupt controller 3*/
+#define SDR0_SRST0_OCM		0x00000400 /* Universal interrupt controller 0*/
+#define SDR0_SRST0_UART2	0x00000200 /* Universal asynchronous receiver/transmitter 2 */
+#define SDR0_SRST0_MAL		0x00000100 /* Media access layer */
+#define SDR0_SRST0_GPTR         0x00000040 /* General purpose timer */
+#define SDR0_SRST0_L2CACHE	0x00000004 /* L2 Cache */
+#define SDR0_SRST0_UART3	0x00000002 /* Universal asynchronous receiver/transmitter 3 */
+#define SDR0_SRST0_GPIO1	0x00000001 /* General purpose I/O 1 */
+
+#define SDR0_SRST1		0x201
+#define SDR0_SRST1_RLL		0x80000000 /* SRIO RLL */
+#define SDR0_SRST1_SCP		0x40000000 /* Serial communications port */
+#define SDR0_SRST1_PLBARB	0x20000000 /* PLB Arbiter */
+#define SDR0_SRST1_EIPPKP	0x10000000 /* EIPPPKP */
+#define SDR0_SRST1_EIP94	0x08000000 /* EIP 94 */
+#define SDR0_SRST1_EMAC0	0x04000000 /* Ethernet media access controller 0 */
+#define SDR0_SRST1_EMAC1	0x02000000 /* Ethernet media access controller 1 */
+#define SDR0_SRST1_EMAC2	0x01000000 /* Ethernet media access controller 2 */
+#define SDR0_SRST1_EMAC3	0x00800000 /* Ethernet media access controller 3 */
+#define SDR0_SRST1_ZMII		0x00400000 /* Ethernet ZMII/RMII/SMII */
+#define SDR0_SRST1_RGMII0	0x00200000 /* Ethernet RGMII/RTBI 0 */
+#define SDR0_SRST1_RGMII1	0x00100000 /* Ethernet RGMII/RTBI 1 */
+#define SDR0_SRST1_DMA4		0x00080000 /* DMA to PLB4 */
+#define SDR0_SRST1_DMA4CH	0x00040000 /* DMA Channel to PLB4 */
+#define SDR0_SRST1_SATAPHY	0x00020000 /* Serial ATA PHY */
+#define SDR0_SRST1_SRIODEV	0x00010000 /* Serial Rapid IO core, PCS, and serdes */
+#define SDR0_SRST1_SRIOPCS	0x00008000 /* Serial Rapid IO core and PCS */
+#define SDR0_SRST1_NDFC		0x00004000 /* Nand flash controller */
+#define SDR0_SRST1_SRIOPLB	0x00002000 /* Serial Rapid IO PLB */
+#define SDR0_SRST1_ETHPLL	0x00001000 /* Ethernet PLL */
+#define SDR0_SRST1_TAHOE1	0x00000800 /* Ethernet Tahoe 1 */
+#define SDR0_SRST1_TAHOE0	0x00000400 /* Ethernet Tahoe 0 */
+#define SDR0_SRST1_SGMII0	0x00000200 /* Ethernet SGMII 0 */
+#define SDR0_SRST1_SGMII1	0x00000100 /* Ethernet SGMII 1 */
+#define SDR0_SRST1_SGMII2	0x00000080 /* Ethernet SGMII 2 */
+#define SDR0_SRST1_AHB		0x00000040 /* PLB4XAHB bridge */
+#define SDR0_SRST1_USBOTGPHY	0x00000020 /* USB 2.0 OTG PHY */
+#define SDR0_SRST1_USBOTG	0x00000010 /* USB 2.0 OTG controller */
+#define SDR0_SRST1_USBHOST	0x00000008 /* USB 2.0 Host controller */
+#define SDR0_SRST1_AHBDMAC	0x00000004 /* AHB DMA controller */
+#define SDR0_SRST1_AHBICM	0x00000002 /* AHB inter-connect matrix */
+#define SDR0_SRST1_SATA		0x00000001 /* Serial ATA controller */
+
+#define SDR0_PCI0		0x1c0		/* PCI Configuration Register */
+
 #else
 
 #define SDR0_SRST_BGO			0x80000000
@@ -3270,7 +3675,15 @@
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if !defined (CONFIG_440GX) && \
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define PLLSYS0_FWD_DIV_A_MASK	0x000000f0	/* Fwd Div A */
+#define PLLSYS0_FWD_DIV_B_MASK	0x0000000f	/* Fwd Div B */
+#define PLLSYS0_FB_DIV_MASK	0x0000ff00	/* Feedback divisor */
+#define PLLSYS0_OPB_DIV_MASK	0x0c000000	/* OPB Divisor */
+#define PLLSYS0_PLBEDV0_DIV_MASK 0xe0000000	/* PLB Early Clock Divisor */
+#define PLLSYS0_PERCLK_DIV_MASK 0x03000000	/* Peripheral Clk Divisor */
+#define PLLSYS0_SEL_MASK	0x18000000	/* 0 = PLL, 1 = PerClk */
+#elif !defined (CONFIG_440GX) && \
     !defined(CONFIG_440EP) && !defined(CONFIG_440GR) && \
     !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) && \
     !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
@@ -3624,7 +4037,8 @@
 #endif /* CONFIG_440GP */
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
 #define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
 
