@@ -30,7 +30,11 @@ LOAD_ADDR = 0x40000
 endif
 
 ifeq ($(ARCH),arm)
+ifeq ($(BOARD),omap2420h4)
+LOAD_ADDR = 0x80300000
+else
 LOAD_ADDR = 0xc100000
+endif
 endif
 
 ifeq ($(ARCH),mips)
@@ -73,9 +77,9 @@ SREC	= hello_world.srec
 BIN	= hello_world.bin
 
 ifeq ($(CPU),mpc8xx)
-ELF	= test_burst
-SREC	= test_burst.srec
-BIN	= test_burst.bin
+ELF	+= test_burst
+SREC	+= test_burst.srec
+BIN	+= test_burst.bin
 endif
 
 ifeq ($(ARCH),i386)

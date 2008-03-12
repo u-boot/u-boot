@@ -30,7 +30,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
 #include <asm/io.h>
-#include <spd.h>
+#include <spd_sdram.h>
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -39,7 +39,6 @@
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
-extern long int spd_sdram(void);
 long int fixed_sdram(void);
 
 int board_early_init_f (void)

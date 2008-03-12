@@ -48,7 +48,7 @@ static void logo_init(void)
 	imx_gpio_mode(PD14_PF_FLM_VSYNC);
 	imx_gpio_mode(PD13_PF_LP_HSYNC);
 	imx_gpio_mode(PD6_PF_LSCLK);
-	imx_gpio_mode(GPIO_PORTD | GPIO_OUT | GPIO_GPIO);
+	imx_gpio_mode(GPIO_PORTD | GPIO_OUT | GPIO_DR);
 	imx_gpio_mode(PD11_PF_CONTRAST);
 	imx_gpio_mode(PD10_PF_SPL_SPR);
 

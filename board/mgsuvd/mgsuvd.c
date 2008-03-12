@@ -134,6 +134,17 @@ long int initdram (int board_type)
 	return (size);
 }
 
+/*
+ * Early board initalization.
+ */
+int board_early_init_r(void)
+{
+	/* setup the UPIOx */
+	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
+	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x35;
+	return 0;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 /*
  * update "memory" property in the blob
@@ -179,31 +190,31 @@ void ft_blob_update(void *blob, bd_t *bd)
 	}
 	/* BRG */
 	brg_data[0] = cpu_to_be32(bd->bi_busfreq);
-	nodeoffset = fdt_path_offset (blob, "/soc866/cpm");
+	nodeoffset = fdt_path_offset (blob, "/soc/cpm");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop(blob, nodeoffset, "brg-frequency", brg_data,
 					sizeof(brg_data));
 	if (ret < 0)
-		printf("ft_blob_update): cannot set /soc866/cpm/brg-frequency "
+		printf("ft_blob_update): cannot set /soc/cpm/brg-frequency "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 	else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /localbus node "
+		printf("ft_blob_update(): cannot find /soc/cpm node "
 		"err:%s\n", fdt_strerror(nodeoffset));
 	}
 	/* MAC Adresse */
-	nodeoffset = fdt_path_offset (blob, "/soc866/cpm/ethernet");
+	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
 					sizeof(uchar) * 6);
 	if (ret < 0)
-		printf("ft_blob_update): cannot set /soc866/cpm/scc/mac-address "
+		printf("ft_blob_update): cannot set /soc/cpm/scc/mac-address "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 	else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /localbus node "
+		printf("ft_blob_update(): cannot find /soc/cpm/ethernet node "
 		"err:%s\n", fdt_strerror(nodeoffset));
 	}
 }

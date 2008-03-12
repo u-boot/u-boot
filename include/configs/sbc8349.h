@@ -688,7 +688,7 @@
 	"load=tftp 100000 /tftpboot/sbc8349/u-boot.bin\0"		\
 	"update=protect off fff00000 fff3ffff; "			\
 		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0"	\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"fdtaddr=400000\0"						\
 	"fdtfile=sbc8349.dtb\0"					\
 	""

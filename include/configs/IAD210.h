@@ -63,7 +63,7 @@
 # define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
 /* using this define saves us updating another source file */
 #define CONFIG_BOARD_EARLY_INIT_F 1

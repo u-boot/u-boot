@@ -67,12 +67,14 @@ int get_clocks (void)
 	u8 cpmf;
 	u8 sys_div;
 	u8 ips_div;
+	u8 pci_div;
 	u32 ref_clk = CFG_MPC512X_CLKIN;
 	u32 spll;
 	u32 sys_clk;
 	u32 core_clk;
 	u32 csb_clk;
 	u32 ips_clk;
+	u32 pci_clk;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
@@ -95,8 +97,16 @@ int get_clocks (void)
 		/* in case we cannot get a sane IPS divisor, fail gracefully */
 		ips_clk = 0;
 	}
+	pci_div = (im->clk.scfr[0] & SCFR1_PCI_DIV_MASK) >> SCFR1_PCI_DIV_SHIFT;
+	if (pci_div != 0) {
+		pci_clk = csb_clk / pci_div;
+	} else {
+		/* in case we cannot get a sane IPS divisor, fail gracefully */
+		pci_clk = 333333;
+	}
 
 	gd->ips_clk = ips_clk;
+	gd->pci_clk = pci_clk;
 	gd->csb_clk = csb_clk;
 	gd->cpu_clk = core_clk;
 	gd->bus_clk = csb_clk;
@@ -115,11 +125,12 @@ ulong get_bus_freq (ulong dummy)
 
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	printf ("Clock configuration:\n");
-	printf ("  CPU:                 %4d MHz\n", gd->cpu_clk / 1000000);
-	printf ("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
-	printf ("  IPS Bus:             %4d MHz\n", gd->ips_clk / 1000000);
-	printf ("  DDR:                 %4d MHz\n", 2 * gd->csb_clk / 1000000);
+	printf("Clock configuration:\n");
+	printf("  CPU:                 %4d MHz\n", gd->cpu_clk / 1000000);
+	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
+	printf("  IPS Bus:             %4d MHz\n", gd->ips_clk / 1000000);
+	printf("  PCI:                 %4d MHz\n", gd->pci_clk / 1000000);
+	printf("  DDR:                 %4d MHz\n", 2 * gd->csb_clk / 1000000);
 	return 0;
 }
 

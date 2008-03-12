@@ -96,11 +96,15 @@ int board_init (void)
  */
 int checkboard (void)
 {
-	char revision;
 	char *s = getenv ("serial#");
 
 	puts ("Board: AcTux-2 rev.");
 	putc (ACTUX2_BOARDREL + 'A' - 1);
+
+	if (s != NULL) {
+		puts (", serial# ");
+		puts (s);
+	}
 	putc ('\n');
 
 	return (0);
@@ -127,8 +131,6 @@ u32 get_board_rev (void)
 
 void reset_phy (void)
 {
-	int i;
-
 	/* init IcPlus IP175C ethernet switch to native IP175C mode */
 	miiphy_write ("NPE0", 29, 31, 0x175C);
 }

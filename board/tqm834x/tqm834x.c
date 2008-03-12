@@ -27,7 +27,6 @@
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
 #include <asm-ppc/mmu.h>
 #include <pci.h>
@@ -59,7 +58,6 @@ int tqm834x_num_flash_banks;
 /* External definitions */
 ulong flash_get_size (ulong base, int banknum);
 extern flash_info_t flash_info[];
-extern long spd_sdram (void);
 
 /* Local functions */
 static int detect_num_flash_banks(void);

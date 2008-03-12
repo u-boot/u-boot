@@ -72,7 +72,7 @@
 
 #define CONFIG_ENV_OVERWRITE 1
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -99,7 +99,7 @@
 	"load=tftp 200000 /tftpboot/taihu/u-boot.bin\0"			\
 	"update=protect off FFFC0000 FFFFFFFF;era FFFC0000 FFFFFFFF;"	\
 		"cp.b 200000 FFFC0000 40000\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

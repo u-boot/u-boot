@@ -81,7 +81,7 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -110,7 +110,7 @@
 	"update=protect off fff00000 fff3ffff;era fff00000 fff3ffff;"	\
 		"cp.b 100000 fff00000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

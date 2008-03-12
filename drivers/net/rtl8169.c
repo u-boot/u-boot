@@ -247,6 +247,15 @@ static struct {
 } rtl_chip_info[] = {
 	{"RTL-8169", 0x00, 0xff7e1880,},
 	{"RTL-8169", 0x04, 0xff7e1880,},
+	{"RTL-8169", 0x00, 0xff7e1880,},
+	{"RTL-8169s/8110s",	0x02, 0xff7e1880,},
+	{"RTL-8169s/8110s",	0x04, 0xff7e1880,},
+	{"RTL-8169sb/8110sb",	0x10, 0xff7e1880,},
+	{"RTL-8169sc/8110sc",	0x18, 0xff7e1880,},
+	{"RTL-8168b/8111sb",	0x30, 0xff7e1880,},
+	{"RTL-8168b/8111sb",	0x38, 0xff7e1880,},
+	{"RTL-8101e",		0x34, 0xff7e1880,},
+	{"RTL-8100e",		0x32, 0xff7e1880,},
 };
 
 enum _DescStatusBit {
@@ -312,6 +321,7 @@ static const unsigned int rtl8169_rx_config =
     (RX_FIFO_THRESH << RxCfgFIFOShift) | (RX_DMA_BURST << RxCfgDMAShift);
 
 static struct pci_device_id supported[] = {
+	{PCI_VENDOR_ID_REALTEK, 0x8167},
 	{PCI_VENDOR_ID_REALTEK, 0x8169},
 	{}
 };
@@ -433,6 +443,10 @@ static int rtl_recv(struct eth_device *dev)
 		tpc->cur_rx = cur_rx;
 		return 1;
 
+	} else {
+		ushort sts = RTL_R8(IntrStatus);
+		RTL_W8(IntrStatus, sts & ~(TxErr | RxErr | SYSErr));
+		udelay(100);	/* wait */
 	}
 	tpc->cur_rx = cur_rx;
 	return (0);		/* initially as this is called to flush the input */

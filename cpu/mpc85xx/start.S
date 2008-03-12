@@ -992,7 +992,6 @@ trap_reloc:
 
 	blr
 
-#ifdef CFG_INIT_RAM_LOCK
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
@@ -1002,11 +1001,20 @@ unlock_ram_in_cache:
 	andi.	r4,r4,0x1ff
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
-1:	icbi	r0,r3
-	dcbi	r0,r3
+1:	dcbi	r0,r3
 	addi	r3,r3,CFG_CACHELINE_SIZE
 	bdnz	1b
-	sync			/* Wait for all icbi to complete on bus */
+	sync
+
+	/* Invalidate the TLB entries for the cache */
+	lis	r3,CFG_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
+	addi	r3,r3,0x1000
+	tlbivax	0,r3
 	isync
 	blr
-#endif

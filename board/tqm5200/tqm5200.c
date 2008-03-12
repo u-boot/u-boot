@@ -43,6 +43,10 @@
 #include "mt48lc16m16a2-75.h"
 #endif
 
+#ifdef CONFIG_OF_LIBFDT
+#include <fdt_support.h>
+#endif /* CONFIG_OF_LIBFDT */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_PS2MULT
@@ -155,10 +159,13 @@ long int initdram (int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize + 0x0000001c; /* 512MB */
 
 	/* find RAM size using SDRAM CS1 only */
-	sdram_start(0);
-	test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
-	sdram_start(1);
-	test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
+	if (!dramsize)
+		sdram_start(0);
+	test2 = test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
+	if (!dramsize) {
+		sdram_start(1);
+		test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
+	}
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize2 = test1;
@@ -792,5 +799,6 @@ int board_get_height (void)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

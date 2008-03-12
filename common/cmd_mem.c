@@ -417,7 +417,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* check if we are copying to Flash */
 	if ( (addr2info(dest) != NULL)
 #ifdef CONFIG_HAS_DATAFLASH
-	   && (!addr_dataflash(addr))
+	   && (!addr_dataflash(dest))
 #endif
 	   ) {
 		int rc;

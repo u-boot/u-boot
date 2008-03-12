@@ -84,7 +84,6 @@ struct cramfs_super {
 				| CRAMFS_FLAG_WRONG_SIGNATURE \
 				| CRAMFS_FLAG_SHIFTED_ROOT_OFFSET )
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
 #define CRAMFS_16(x)	(x)
 #define CRAMFS_24(x)	(x)
 #define CRAMFS_32(x)	(x)
@@ -92,27 +91,6 @@ struct cramfs_super {
 #define CRAMFS_GET_OFFSET(x)	((x)->offset)
 #define CRAMFS_SET_OFFSET(x,y)	((x)->offset = (y))
 #define CRAMFS_SET_NAMELEN(x,y) ((x)->namelen = (y))
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#ifdef __KERNEL__
-#define CRAMFS_16(x)	swab16(x)
-#define CRAMFS_24(x)	((swab32(x)) >> 8)
-#define CRAMFS_32(x)	swab32(x)
-#else /* not __KERNEL__ */
-#define CRAMFS_16(x)	bswap_16(x)
-#define CRAMFS_24(x)	((bswap_32(x)) >> 8)
-#define CRAMFS_32(x)	bswap_32(x)
-#endif /* not __KERNEL__ */
-#define CRAMFS_GET_NAMELEN(x)	(((u8*)(x))[8] & 0x3f)
-#define CRAMFS_GET_OFFSET(x)	((CRAMFS_24(((u32*)(x))[2] & 0xffffff) << 2) |\
-				 ((((u32*)(x))[2] & 0xc0000000) >> 30))
-#define CRAMFS_SET_NAMELEN(x,y)	(((u8*)(x))[8] = (((0x3f & (y))) | \
-						  (0xc0 & ((u8*)(x))[8])))
-#define CRAMFS_SET_OFFSET(x,y)	(((u32*)(x))[2] = (((y) & 3) << 30) | \
-				 CRAMFS_24((((y) & 0x03ffffff) >> 2)) | \
-				 (((u32)(((u8*)(x))[8] & 0x3f)) << 24))
-#else
-#error "__BYTE_ORDER must be __LITTLE_ENDIAN or __BIG_ENDIAN"
-#endif
 
 /* Uncompression interfaces to the underlying zlib */
 int cramfs_uncompress_block(void *dst, void *src, int srclen);

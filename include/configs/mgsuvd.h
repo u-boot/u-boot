@@ -36,6 +36,9 @@
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_MGSUVD		1	/* ...on a mgsuvd board	*/
 
+/* Do boardspecific init */
+#define CONFIG_BOARD_EARLY_INIT_R       1
+
 #define CONFIG_8xx_GCLK_FREQ		66000000
 
 #define CFG_SMC_UCODE_PATCH	1	/* Relocate SMC1 */
@@ -51,7 +54,7 @@
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
 #define CONFIG_PREBOOT	"echo;" \
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -299,7 +302,12 @@
  * 64	Refresh cycle in ms per number of rows
  */
 #define CFG_PTA_PER_CLK	((4096 * 64 * 1000) / (4 * 64))
-/* HS HS noch zu setzen */
+
+/* GPIO/PIGGY on CS3 initialization values
+*/
+#define CFG_PIGGY_BASE	(0x30000000)
+#define CFG_OR3_PRELIM	(0xfe000d24)
+#define CFG_BR3_PRELIM	(0x30000401)
 
 /*
  * Internal Definitions
@@ -318,7 +326,7 @@
 #define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,866@0"
-#define OF_SOC			"soc@f0000000"
+#define OF_SOC			"soc@fff00000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@a80"
 

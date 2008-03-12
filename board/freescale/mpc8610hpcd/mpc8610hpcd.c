@@ -27,19 +27,15 @@
 #include <asm/immap_86xx.h>
 #include <asm/immap_fsl_pci.h>
 #include <i2c.h>
-#include <spd.h>
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <spd_sdram.h>
 
 #include "../common/pixis.h"
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
-#if defined(CONFIG_SPD_EEPROM)
-#include "spd_sdram.h"
 #endif
 
 void sdram_init(void);

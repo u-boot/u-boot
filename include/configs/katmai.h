@@ -173,7 +173,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -209,7 +209,7 @@
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"kozio=bootm ffc60000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP:RP\0"						\

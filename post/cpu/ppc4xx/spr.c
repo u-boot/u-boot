@@ -43,6 +43,12 @@
 
 #include <asm/processor.h>
 
+#ifdef CONFIG_4xx_DCACHE
+#include <asm/mmu.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+#endif
+
 static struct {
 	int number;
 	char * name;
@@ -164,6 +170,10 @@ int spr_post_test (int flags)
 	};
 	unsigned long (*get_spr) (void) = (void *) code;
 
+#ifdef CONFIG_4xx_DCACHE
+	/* disable cache */
+	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, TLB_WORD2_I_ENABLE);
+#endif
 	for (i = 0; i < spr_test_list_size; i++) {
 		int num = spr_test_list[i].number;
 
@@ -180,6 +190,10 @@ int spr_post_test (int flags)
 			ret = -1;
 		}
 	}
+#ifdef CONFIG_4xx_DCACHE
+	/* enable cache */
+	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, 0);
+#endif
 
 	return ret;
 }

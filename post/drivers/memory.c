@@ -186,7 +186,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * For other processors, let the compiler generate the best code it can.
  */
-static void move64(unsigned long long *src, unsigned long long *dest)
+static void move64(const unsigned long long *src, unsigned long long *dest)
 {
 #if defined(CONFIG_MPC8260) || defined(CONFIG_MPC824X)
 	asm ("lfd  0, 0(3)\n\t" /* fpr0	  =  *scr	*/
@@ -233,12 +233,12 @@ static int memory_post_dataline(unsigned long long * pmem)
 	int ret = 0;
 
 	for ( i = 0; i < num_patterns; i++) {
-		move64((unsigned long long *)&(pattern[i]), pmem++);
+		move64(&(pattern[i]), pmem++);
 		/*
 		 * Put a different pattern on the data lines: otherwise they
 		 * may float long enough to read back what we wrote.
 		 */
-		move64((unsigned long long *)&otherpattern, pmem--);
+		move64(&otherpattern, pmem--);
 		move64(pmem, &temp64);
 
 #ifdef INJECT_DATA_ERRORS

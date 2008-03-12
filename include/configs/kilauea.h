@@ -227,7 +227,7 @@
 #define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS

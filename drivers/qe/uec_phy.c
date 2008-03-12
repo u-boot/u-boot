@@ -290,6 +290,7 @@ static int genmii_update_link (struct uec_mii_info *mii_info)
 				return 0;
 			}
 
+			i++;
 			udelay(1000);	/* 1 ms */
 			status = phy_read(mii_info, PHY_BMSR);
 		}
@@ -574,9 +575,10 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 {
 	uec_private_t *uec = (uec_private_t *) dev->priv;
 	struct uec_mii_info *mii_info;
+	u16 status;
 
 	if (!uec->mii_info) {
-		printf ("%s: the PHY not intialized\n", __FUNCTION__);
+		printf ("%s: the PHY not initialized\n", __FUNCTION__);
 		return;
 	}
 	mii_info = uec->mii_info;
@@ -609,6 +611,13 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 		phy_write (mii_info, 0x00, 0x8100);
 		udelay (1000000);
 	}
+
+	/* handle 88e1111 rev.B2 erratum 5.6 */
+	if (mii_info->autoneg) {
+		status = phy_read (mii_info, PHY_BMCR);
+		phy_write (mii_info, PHY_BMCR, status | PHY_BMCR_AUTON);
+	}
+	/* now the B2 will correctly report autoneg completion status */
 }
 
 void change_phy_interface_mode (struct eth_device *dev, enet_interface_e mode)

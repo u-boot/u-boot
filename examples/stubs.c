@@ -190,10 +190,10 @@ extern unsigned long __bss_start, _end;
 
 void app_startup(char **argv)
 {
-	unsigned long * cp = &__bss_start;
+	unsigned char * cp = (unsigned char *) &__bss_start;
 
 	/* Zero out BSS */
-	while (cp < &_end) {
+	while (cp < (unsigned char *)&_end) {
 		*cp++ = 0;
 	}
 

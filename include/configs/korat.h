@@ -170,7 +170,7 @@
 #define CFG_DTT_MIN_TEMP	-30
 
 #define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -202,7 +202,7 @@
 	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
 		"cp.b 200000 FFFA0000 60000\0"			        \
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

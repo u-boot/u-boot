@@ -13,18 +13,13 @@
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>
-#include <spd.h>
 #include <miiphy.h>
 #include <command.h>
 #include <libfdt.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
-#if defined(CONFIG_SPD_EEPROM)
-#include <spd_sdram.h>
-#else
 #include <asm/mmu.h>
-#endif
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* UCC3 */

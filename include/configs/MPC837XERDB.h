@@ -545,7 +545,7 @@
 #define CONFIG_RAMDISKFILE	rootfs.ext2.gz.uboot
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
-#define CONFIG_FDTFILE		mpc837x_rdb.dtb
+#define CONFIG_FDTFILE		mpc8379_rdb.dtb
 
 #define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
 #define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */

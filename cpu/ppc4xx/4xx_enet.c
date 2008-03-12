@@ -487,6 +487,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 	u32 bd_cached;
 	u32 bd_uncached = 0;
+#ifdef CONFIG_4xx_DCACHE
+	static u32 last_used_ea = 0;
+#endif
 
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
@@ -850,7 +853,12 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 #ifdef CONFIG_4xx_DCACHE
 		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
-		bd_uncached = bis->bi_memsize;
+		if (!last_used_ea)
+			bd_uncached = bis->bi_memsize;
+		else
+			bd_uncached = last_used_ea + MAL_ALLOC_SIZE;
+
+		last_used_ea = bd_uncached;
 		program_tlb(bd_cached, bd_uncached, MAL_ALLOC_SIZE,
 			    TLB_WORD2_I_ENABLE);
 #else
@@ -967,9 +975,10 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* set transmit enable & receive enable */
 	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
 
-	/* set receive fifo to 4k and tx fifo to 2k */
 	mode_reg = in_be32((void *)EMAC_M1 + hw_p->hw_addr);
-	mode_reg |= EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K;
+
+	/* set rx-/tx-fifo size */
+	mode_reg = (mode_reg & ~EMAC_MR1_FIFO_MASK) | EMAC_MR1_FIFO_SIZE;
 
 	/* set speed */
 	if (speed == _1000BASET) {

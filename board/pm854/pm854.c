@@ -29,13 +29,11 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
-#include <spd.h>
+#include <spd_sdram.h>
 
 #if defined(CONFIG_DDR_ECC)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
-
-extern long int spd_sdram(void);
 
 void local_bus_init(void);
 void sdram_init(void);
@@ -77,7 +75,6 @@ long int
 initdram(int board_type)
 {
 	long dram_size = 0;
-	extern long spd_sdram (void);
 
 	puts("Initializing\n");
 

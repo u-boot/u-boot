@@ -1,3 +1,724 @@
+commit 5b464c289ba715d0979b6e1f94947bb8f1068d16
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 9 14:52:11 2008 +0100
+
+    SCM: fix 'packed' attribute ignored for field of type 'can_msg_t' warnings
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit db695b78515ddb88a2d4f3357c120345efbf59ec
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 9 10:44:01 2008 +0100
+
+    scb9328: Fix flash warning: type qualifiers ignored on function return type
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2b3e7e61d6a72f16aee93f870bc6af67f30758c4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:50:41 2008 +0100
+
+    esd/common/fpga.c: fix indentation.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cc3843e36453e2b8db65d7e56de938ba045016a0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:33:31 2008 +0100
+
+    common/kgdb.c: fix 'dereferencing type-punned pointer' warning
+
+    and get rid of a couple of unneeded casts.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8d4f4a838d7dc7cf4de17e3e9a67e2f222b6a1c8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 10:09:53 2008 +0100
+
+    esd/common/fpga.c: fix 'assignment of read-only location' error
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c6fe4dabac066e8758345d249032768496983a3e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 02:13:19 2008 +0100
+
+    Makefile: make build silently again.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 76babc86576f092573599334c85ec543fdbc6015
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 02:07:49 2008 +0100
+
+    m501sk: Fix out of tree building
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 210ed2004e062fdd03f25ab4925998aa1bd08a07
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 00:06:09 2008 +0100
+
+    ADS5121: fix out of tree build
+
+    and simplify Makefile a bit.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 46cb5074a3f74de64ebd97dd0c4ec7eb3d768b93
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 8 22:35:31 2008 +0100
+
+    Release v1.3.2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 78a90f827df74520e939c794fc7413dace21c4db
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 8 22:35:04 2008 +0100
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 58f3c57c6008b42e01f551d3be6efd88c14ac87f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 8 21:30:04 2008 +0100
+
+    esd: Fix warning: passing argument 1 of 'fpga_boot' discards qualifiers from pointer target type
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d75469d48c05795144f4b8ba76addbb4920a7bba
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sat Mar 8 09:25:49 2008 +0900
+
+    net: rtl8169: Add processing when OWNbit did't enable in rtl_recv()
+
+    When rtl_recv() of rtl8169 is called, OWNbit of status register
+    is not enable occasionally.
+    rtl_recv() doesn't work normally when the driver doesn't do
+    appropriate processing.
+    This patch fix this problem.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 82afabfeb8ae6a27c7b396011ea99f4712aa73fa
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 7 08:15:28 2008 +0100
+
+    mgsuvd: update board configuration
+
+    initialize the UPIOx controller.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit e492c90c26215e459aec0fdf0f8ef1fd204988f5
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 7 08:13:41 2008 +0100
+
+    mgcoge: update board configuration
+
+    add support for the config Flash.
+    initialize the UPIOx controller.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 270fe261b7f9292800b2b3d1bf19ae7cbc880258
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 7 12:27:31 2008 -0600
+
+    mpc83xx: make dtb basename file references equal those of linux
+
+    the dts file basenames were updated in linux - this helps avoid
+    inadvertently loading any old dtbs laying around.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f30b6154f16f5ffa4a9f5bfca5e114d72b6ef675
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 27 16:08:22 2008 -0600
+
+    net: uec_phy: actually increment the timeout counter
+
+    allow u-boot to recover (and, e.g., switch to another interface) in the
+    case where a PHY does not report autonegotiation is complete within its
+    two second timeout value.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 772003e43957ee0c895abed7cd82cbe72820cbb8
+Author: Markus Brunner <super.firetwister@googlemail.com>
+Date:	Wed Mar 5 21:38:12 2008 +0100
+
+    fix taihu soft spi_read
+
+    The taihu board used gpio_read_out_bit which reads the output register and not
+    the pin state.
+
+    Signed-off-by: Markus Brunner <super.firetwister@gmail.com>
+
+commit fc84a8495ac750f6b4adae81f8c4f100f65b6340
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Mar 7 08:01:43 2008 +0100
+
+    ppc4xx: Sequoia: Add device tree (fdt) Linux booting default env variables
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit bd4458cb47abecabd406b1210457be96c69fc49d
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Mar 4 16:59:22 2008 +0800
+
+    837xEMDS: Improve the system performance
+
+    1. Make the CSB bus pipeline depth as 4, and enable
+       the repeat mode;
+    2. Raise the eTSEC emergency priority;
+    3. Use the highest IP blocks clock.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit d8ab58b212481b1c57947ea21aa96c4ce800d0b4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Mar 6 16:45:53 2008 +0100
+
+    Replace "run load; run update" with conditionalized "run load update".
+
+    The latter version stops when "run load" fails for whatever reasons
+    rendering the combination *a lot* more secure.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 6bc113886d7d316df1a4e459bec8baf027518551
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 4 17:40:41 2008 +0100
+
+    net: Print error message upon net usage when no ethernet-interface is found
+
+    This patch fixes a problem seen on PPC4xx boards, when no MAC address is
+    defined. Then no ethernet interface is available but a simple "tftp"
+    command will return without any error message which is quite confusing.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a30a549a3553032d809e0356306b62de0b125901
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Tue Mar 4 10:03:03 2008 -0600
+
+    Remove erroneous or extra spd.h #includers.
+
+    Many of the spd.h #includers don't need it,
+    and wanted to have spd_sdram() declared instead.
+    Since they didn't get that, some also had open
+    coded extern declarations of it instead or as well.
+    Fix it all up by using spd_sdram.h where needed.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a4475386cef14af3fd88f0518b688e755669486d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 17:41:28 2008 +0100
+
+    PCS440EP: fix build problems (redundant #define)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e85e2fa85ec09a6fac2846d1d881d8737e2bbda9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 4 17:39:25 2008 +0100
+
+    net: Print error message upon net usage when no ethernet-interface is found
+
+    This patch fixes a problem seen on PPC4xx boards, when no MAC address is
+    defined. Then no ethernet interface is available but a simple "tftp"
+    command will return without any error message which is quite confusing.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 384faaafb999cae3ce447c93e28a0b7e2e5fef53
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 17:38:50 2008 +0100
+
+    W7OLMC/W7OLMG: fix build problems (redundant #define)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f9301e1cda296245ba052d7b08321199c3d0af9d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 14:58:31 2008 +0100
+
+    Makefile: fix problem with out-of-tree builds introduced by 5013c09f
+
+    Commit 5013c09f (Makefile: cleanup "clean" target) introduced a
+    problem for out-of-tree builds which caused "make clean" to fail.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit dfece9500556bed5d8244b1c15d973cec7c25bfe
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 4 11:58:26 2008 +0100
+
+    examples/Makefile: build "hello_world" on 8xx, too.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 74eb0222594fd23aafdf168e60e872814eea8b62
+Author: Mike Nuss <mike@terascala.com>
+Date:	Mon Mar 3 15:27:05 2008 -0500
+
+    PPC4xx (Sequoia): Fix Ethernet "remote fault" problems
+
+    Every now and then a Sequoia board (or equivalent hardware) had
+    problems connecting to a Gigabit capable network interface.
+
+    There were differences in the PHY setup between Linux and U-Boot.
+
+    This patch fixes the problem. Apparently "remote fault" is being set,
+    which signals to some devices (on the other end of the cable) that a
+    fault has occurred, while other devices ignore it. I believe the RF bit
+    was causing the issue, but I removed T4 also, to match up with Linux.
+
+    Signed-off-by: Mike Nuss <mike@terascala.com>
+
+commit 491fb6dea9f52fdb9cb5996e8e978b9e9685179f
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Mar 3 09:58:52 2008 -0600
+
+    fix QE firmware uploading limit
+
+    Fix a typo in qe_upload_firmware() that prevented uploading firmware on
+    systems with more than one RISC core.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 42ba58e0c302b339a3c2faa6006a013c6f186b7a
+Author: Bernhard Nemec <bnemec@ganssloser.com>
+Date:	Mon Mar 3 11:57:23 2008 +0000
+
+    Fix endianess problem in cramfs code (cramfs is always host-endian in Linux)
+
+    Originally pointed out by Laurent Pinchart <laurent.pinchart@tbox.biz>,
+    see http://thread.gmane.org/gmane.comp.boot-loaders.u-boot/22846
+
+    Signed-off-by: Bernhard Nemec <bnemec <at> ganssloser.com>
+
+commit 84d0c2f1e39caff58bf765a7ab7c72da23c25ec8
+Author: Kim B. Heino <Kim.Heino@bluegiga.com>
+Date:	Mon Mar 3 10:39:13 2008 +0200
+
+    fix copy from ram to dataflash
+
+    If I try to "cp.b <ram> <dataflash>", u-boot selects normal flash
+    routines instead of dataflash. This is because it checks "if source
+    address is not dataflash" instead of target address.
+
+    Signed-off-by: Kim B. Heino <Kim.Heino@bluegiga.com>
+
+commit 32bf3d143a888f8deacfdcc97e898f6c06d0aea4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 3 12:16:44 2008 +0100
+
+    Fix quoting problem (preboot setting) in many board config files.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5b0b2b6fc9fe22e3864c2a57316d91a2507ec215
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 3 12:36:49 2008 +0100
+
+    ADS5121: Fix default environment.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 91c82076ae492bb1f9d9c47a481314631d32dc8e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 2 16:12:31 2008 +0100
+
+    Makefile: Fix missing unconfig and mkconfig use
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8ce4e5c2c02cb7e8adddf7b651d3050d81ce4c1d
+Author: michael <trimarchi@gandalf.sssup.it>
+Date:	Sun Mar 2 23:33:46 2008 +0100
+
+    Fix checking fat32 cluster size.
+
+    This fixes the cluster size tests in the FAT32 file system.
+    The current implementation of VFAT support doesn't work if the
+    referred cluster has an offset > 16bit representation, causing
+    "fatload" and "fatls" commands etc. to fail.
+
+    Signed-off-by: michael trimarchi <trimarchi@gandalf.sssup.it>
+
+commit 661bad63a076a96c39c64f136915f146725af92b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 2 22:57:23 2008 +0100
+
+    Prepare v1.3.2-rc2 release candidate
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 76957cb3d621bf664311908e5962e151c633c285
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Mar 1 12:11:40 2008 +0100
+
+    ppc4xx: EMAC: Fix 405EZ fifo size setup in EMAC_MR1
+
+    The 405EZ only supports 512 bytes of rx-/tx-fifo EMAC sizes. But
+    currently 4k/2k is configured. This patch fixes this issue.
+
+    Thanks to Thomas Kindler <tkindler@lenord.de> for pointing this out.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 118978c8eb43803e2794233922df4249fa278b83
+Author: Woodruff, Richard <r-woodruff2@ti.com>
+Date:	Fri Feb 29 17:34:35 2008 -0600
+
+    Fix alignment error on ARM for modules
+
+    Fix alignment fault on ARM when running modules.  With out an explicit
+    linker file gcc4.2.1 will half word align __bss_start's value.  The word
+    dereference will crash hello_world.
+
+    signed-off-by Richard Woodruff <r-woodruff2@ti.com>
+
+commit ce1120dd703e6f12c59e4eba9962356a0300b832
+Author: Dave Liu <r63238@freescale.com>
+Date:	Fri Feb 29 17:45:31 2008 +0800
+
+    fs: Fix ext2 read issue
+
+    The ext2 aligned process will corrupt the key
+    data struct, the patch fix this.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 5013c09f7a5675952a3ca88b6bc6c924e63af33e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 2 22:45:33 2008 +0100
+
+    Makefile: cleanup "clean" target
+
+    Make sure CDPATH settings cannot interfere.
+    Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ffda586fc1373243c9794babde69500f6293a8d8
+Author: Li Yang <leoli@freescale.com>
+Date:	Fri Feb 29 11:46:05 2008 +0800
+
+    add cscope build target
+
+    Add cscope build target to generate cscope database for code browsing.
+
+    Signed-off-by: Li Yang <leoli@freescale.com>
+
+commit f655adef65e4cf6b929054b049ee19ae9b5ccbe2
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 27 15:06:39 2008 -0600
+
+    net: uec_phy: handle 88e1111 rev.B2 erratum 5.6
+
+    erratum 5.6 states the autoneg completion bit is functional only if the
+    autoneg bit is asserted.
+
+    This fixes any secondarily-issued networking commands on non-gigabit
+    links on the mpc8360 mds board.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5f91db7f582ca17b1f19f10189c025696f333d2e
+Author: John Rigby <jrigby@freescale.com>
+Date:	Tue Feb 26 09:38:14 2008 -0700
+
+    MPC5121e ADS PCI support take 3
+
+    Adds PCI support for MPC5121
+
+    Tested with drivers/net/rtl8139.c
+
+    Support is conditional since PCI on old silicon does not work.
+
+    ads5121_PCI_config turns on PCI
+
+    In this version, condition compilation of PCI code has been moved
+    from ifdef in board/ads5121/pci.c to board/ads5121/Makefile as
+    suggested by Jean-Christophe PLAGNIOL-VILLARD
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 44b4dbed4133f657705b7c5193209da9978243a7
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 23:53:07 2008 +0100
+
+    Fix warnings while compilation of post/drivers/memory.c
+
+    Fix warnings while compilation with new gcc in eldk-4.2
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 4fae35a53b3e958254d6574a1cc7e10811fc6726
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 20:54:04 2008 +0100
+
+    ppc4xx: Fix problem in 4xx_enet.c driver
+
+    U-Boot crashes in the net loop if CONFIG_4xx_DCACHE is
+    enabled. To reproduce the problem ensure that 'ethrotate'
+    environment variable isn't set to "no" and then run
+    "tftp 200000 not_existent_file".
+    This patch tries to fix the issue.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 60ec654c5eb80d0fe0c38a3bd42140215bc06484
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Feb 25 20:04:20 2008 +0100
+
+    POST: Disable cache while SPR POST
+
+    Currently (since commit b2e2142c) u-boot crashes on
+    sequoia board while SPR test if CONFIG_4xx_DCACHE is
+    enabled. This patch disables the cache while SPR test.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit c313b2c6c555e7d89ec59bd51c59ab164ad0105d
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 17:52:40 2008 +0100
+
+    TQM5200: use automatic fdt memory fixup (part 2)
+
+    Call fdt_fixup_memory() on the boards TQM5200, TQM5200_B, TQM5200S,
+    TB5200 and TB5200_B to fixup the /memory node with the memory values
+    detected by U-Boot.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 44ceec253ea941b301abf4b079d52324def69d92
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 15:17:05 2008 +0100
+
+    TQM5200: use automatic fdt memory fixup
+
+    Call fdt_fixup_memory() on the boards TQM5200, TQM5200_B, TQM5200S,
+    TB5200 and TB5200_B to fixup the /memory node with the memory values
+    detected by U-Boot.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit f3a329acb26017d8e10e9c93e1e726c2a5ac634a
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Mon Feb 25 13:27:52 2008 +0100
+
+    TQM5200: fix bug in SDRAM initialization code
+
+    This patch fixes a bug in the SDRAM initialization code for the
+    TQM5200. The hi_addr bit is now set correctly. Without this patch
+    the hi_addr bit is always set to 1, if the second SDRAM bank is
+    not populated.
+
+    For other MPC5200 boards a correspondig patch has already been applied
+    some time ago, see commit a63109281ad41b0fb489fdcb901171f76bcdbc2c.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+    --
+    Forget the first patch please. I confused flash with SDRAM in
+    the comment ...
+
+commit 217bf6b6a313d9ccb619a4dbc09f73f77cd48df1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:12 2008 +0100
+
+    mx1fs2/flash: Fix multiple compiler warnings
+
+    "pointer targets in assignment differ in signedness"
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5599c28cef55be42a8ca6fa8086b1a44e56a85d2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:11 2008 +0100
+
+    arm-imx: Fix register definitions
+
+    Sync register definitions with linux
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c9bcf75fecc58886af77d2a571cff2eab39eab6f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Feb 25 00:03:10 2008 +0100
+
+    actua1/actua2/actua3: Fix multiple unused variable warnings
+
+    - actua1:
+	actux1.c: In function 'checkboard':
+	actux1.c:92: warning: unused variable 'revision'
+
+    - actua2:
+	actux2.c: In function 'checkboard':
+	actux2.c:100: warning: unused variable 's'
+	actux2.c:99: warning: unused variable 'revision'
+	actux2.c: In function 'reset_phy':
+	actux2.c:130: warning: unused variable 'i'
+
+    - actua3:
+	actux3.c: In function 'checkboard':
+	actux3.c:114: warning: unused variable 'revision'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f8fa6368a6a0c02164da8e2f52f18d457c6977bd
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sun Feb 24 11:44:29 2008 +0900
+
+    Remove the __STRICT_ANSI__ check from the __u64/__s64 declaration on 32bit targets.
+
+    The previous patch was lacking of i386, microblaze, nios and nios2. This
+    patch tries to fix them.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2b22fa4baee51e6b467c44ea1be0d1ecd86e8775
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 16:30:47 2008 -0600
+
+    85xx: Don't icbi when unlocking the cache
+
+    There is no reason to icbi when invalidating the temporary stack in
+    the d-cache.  Its impossible on e500 to have the i-cache contain
+    any addresses in the temp stack and it can be problematic in generating
+    transactions on the bus to non-valid addresses.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 534ea6b6f86f8b75ef2ac061ef110a98f103d7d6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 27 15:50:50 2008 -0600
+
+    Fix source for ECM error IVPR
+
+    The source vector for the ECM was being set to 2,
+    but that's what the source vector for DDR was being
+    set to.  Change it to 1.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 21fae8b2b4e4e6e648796e07e20ab13e9cb18923
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 27 14:29:58 2008 -0600
+
+    Invalidate INIT_RAM TLB mappings
+
+    Commit 0db37dc...  (and some others) changed the INIT_RAM TLB
+    mappings to be unguarded.  This collided with an existing "bug"
+    where the mappings for the INIT_RAM were being kept around.
+    This meant that speculative loads to those addresses were
+    succeeding in the TLB, and going out to the bus, where they
+    were causing an exception (there's nothing at that address). The
+    Flash code was coincidentally causing such a speculative load.
+    Rather than go back to mapping the INIT RAM as guarded, we fix
+    it so that the entries for the INIT_RAM are invalidated.  Thus
+    the speculative loads will fail in the TLB, and have no effect.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 347b7938d3e561eb215aa386c37fb5acb5a383c6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 22:56:17 2008 +0100
+
+    sbc8548: Fix Revision reading and unused variable 'path'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 495d162374c472f46454453553382ad0735dc725
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 17 22:56:16 2008 +0100
+
+    sbc8548: Fix cfi flash bank declaration
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 33fa5c0bfaf465de8ceb23fcd6b397f68b35a817
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Mon Feb 25 13:13:37 2008 -0600
+
+    86xx: Fix renamed GUR symbols in sbc8641d board.
+
+    Back in commit a551cee99ad1d1da20fd23ad265de47448852f56
+    (86xx: Fix GUR PCI config registers properly), we should have
+    changed the MPC86xx_PORBMSR_HA and MPC86xx_PORDEVSR_IO_SEL
+    symbols in the sbc8641d board as well.  Fix this oversight.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 64cd594e623c39f73964d18787763e4533f791f7
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Feb 25 16:50:48 2008 +0100
+
+    ppc4xx: Fix acadia_nand build problem
+
+    Don't include testdram() on NAND-booting target acadia_nand. This saves
+    a few bytes and makes the target build clean again.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 14e099e698d41e8179d05c2b2dbcf704a236f748
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:12 2008 +0000
+
+    mx1fs2/flash: Fix multiple pointertargets in assignment differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 724902c8464e610642b3a170278b99710325888e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:11 2008 +0000
+
+    arm-imx: Fix registers definition
+
+    Sync registers definition with linux
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4cd288b589ea1178947c6e364453c32b3dede6b7
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 24 23:03:10 2008 +0000
+
+    actua1/actua2/actua3: Fix multipleunused variable
+
+    - actua1:
+	actux1.c: In function 'checkboard':
+	actux1.c:92: warning: unused variable 'revision'
+
+    - actua2:
+	actux2.c: In function 'checkboard':
+	actux2.c:100: warning: unused variable 's'
+	actux2.c:99: warning: unused variable 'revision'
+	actux2.c: In function 'reset_phy':
+	actux2.c:130: warning: unused variable 'i'
+
+    - actua3:
+	actux3.c: In function 'checkboard':
+	actux3.c:114: warning: unused variable 'revision'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b29661fc1151077776454288051bc9a488351ce8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 24 15:21:36 2008 +0100
+
+    Coding style cleanup. Prepare v1.3.2-rc2 release candidate
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 00b48a48424894daa589d166d73277830b1c6ac4
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Feb 23 12:15:56 2008 +0100

@@ -34,6 +34,9 @@
  * 0x3000_0000 - 0x3001_FFFF	SRAM (128 KB)
  * 0x8000_0000 - 0x803F_FFFF	IMMR (4 MB)
  * 0x8200_0000 - 0x8200_001F	CPLD (32 B)
+ * 0x8400_0000 - 0x82FF_FFFF	PCI I/O space (16 MB)
+ * 0xA000_0000 - 0xAFFF_FFFF	PCI memory space (256 MB)
+ * 0xB000_0000 - 0xBFFF_FFFF	PCI memory mapped I/O space (256 MB)
  * 0xFC00_0000 - 0xFFFF_FFFF	NOR Boot FLASH (64 MB)
  */
 
@@ -43,7 +46,7 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 
-#undef CONFIG_PCI
+/* CONFIG_PCI is defined at config time */
 
 #define CFG_MPC512X_CLKIN	66000000	/* in Hz */
 
@@ -217,6 +220,31 @@
 #define CFG_PROMPT_HUSH_PS2 "> "
 #endif
 
+/*
+ * PCI
+ */
+#ifdef CONFIG_PCI
+
+/*
+ * General PCI
+ */
+#define CFG_PCI_MEM_BASE	0xA0000000
+#define CFG_PCI_MEM_PHYS	CFG_PCI_MEM_BASE
+#define CFG_PCI_MEM_SIZE	0x10000000	/* 256M */
+#define CFG_PCI_MMIO_BASE	(CFG_PCI_MEM_BASE + CFG_PCI_MEM_SIZE)
+#define CFG_PCI_MMIO_PHYS	CFG_PCI_MMIO_BASE
+#define CFG_PCI_MMIO_SIZE	0x10000000	/* 256M */
+#define CFG_PCI_IO_BASE		0x00000000
+#define CFG_PCI_IO_PHYS		0x84000000
+#define CFG_PCI_IO_SIZE		0x01000000	/* 16M */
+
+
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
+
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+
+#endif
+
 /* I2C */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
 #undef CONFIG_SOFT_I2C			/* so disable bit-banged I2C */
@@ -349,6 +377,7 @@
 
 #define CONFIG_HOSTNAME		ads5121
 #define CONFIG_BOOTFILE		ads5121/uImage
+#define CONFIG_ROOTPATH		/opt/eldk/pcc_6xx
 
 #define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 
@@ -358,16 +387,16 @@
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr_r=200000\0"					\
-	"kernel_addr_r=200000\0"					\
+	"kernel_addr_r=300000\0"					\
 	"fdt_addr_r=400000\0"						\
 	"ramdisk_addr_r=500000\0"					\
 	"u-boot_addr=FFF00000\0"					\
-	"kernel_addr=FC000000\0"					\
+	"kernel_addr=FC040000\0"					\
 	"fdt_addr=FC2C0000\0"						\
 	"ramdisk_addr=FC300000\0"					\
 	"ramdiskfile=ads5121/uRamdisk\0"				\
@@ -384,7 +413,7 @@
 	"addtty=setenv bootargs ${bootargs} "				\
 		"console=${consdev},${baudrate}\0"			\
 	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr_r} - ${fdt_addr}\0"		\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"		\
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
@@ -393,10 +422,10 @@
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"net_self=tftp ${kernel_addr_r} ${bootfile};"			\
 		"tftp ${ramdisk_addr_r} ${ramdiskfile};"		\
-		"tftp ${fdt_addr} ${fdtfile};"				\
+		"tftp ${fdt_addr_r} ${fdtfile};"				\
 		"run ramargs addip addtty;"				\
-		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr}\0"\
-	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
+		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0"\
+	"load=tftp ${u-boot_addr_r} ${u-boot}\0"				\
 	"update=protect off ${u-boot_addr} +${filesize};"		\
 		"era ${u-boot_addr} +${filesize};"			\
 		"cp.b ${u-boot_addr_r} ${u-boot_addr} ${filesize}\0"	\

@@ -246,7 +246,7 @@
 #endif /* CFG_ENV_IS_IN_EEPROM */
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -276,7 +276,7 @@
 	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
 		"cp.b 100000 fffa0000 60000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

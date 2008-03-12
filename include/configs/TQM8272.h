@@ -56,7 +56,7 @@
 #define CONFIG_BAUDRATE		115200
 #endif
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
 
@@ -87,7 +87,7 @@
 		"cp.b 300000 40000000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
 	"cphwib=cp.b 4003fc00 33fc00 400\0"				\
-	"upd=run load;run cphwib;run update\0"				\
+	"upd=run load cphwib update\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

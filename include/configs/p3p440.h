@@ -118,7 +118,7 @@
  * Default configuration (environment varibles...)
  *----------------------------------------------------------------------*/
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -147,7 +147,7 @@
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"unlock=yes\0"							\
 	""
 #define CONFIG_BOOTCOMMAND	"run net_nfs"

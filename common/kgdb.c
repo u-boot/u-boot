@@ -107,7 +107,7 @@ static char remcomRegBuffer[BUFMAX];
 static int initialized = 0;
 static int kgdb_active = 0, first_entry = 1;
 static struct pt_regs entry_regs;
-static u_int error_jmp_buf[BUFMAX/2];
+static long error_jmp_buf[BUFMAX/2];
 static int longjmp_on_fault = 0;
 #ifdef KGDB_DEBUG
 static int kdebug = 1;
@@ -310,7 +310,7 @@ handle_exception (struct pt_regs *regs)
 	/* probably should check which exception occured as well */
 	if (longjmp_on_fault) {
 		longjmp_on_fault = 0;
-		kgdb_longjmp((long*)error_jmp_buf, KGDBERR_MEMFAULT);
+		kgdb_longjmp(error_jmp_buf, KGDBERR_MEMFAULT);
 		panic("kgdb longjump failed!\n");
 	}
 
@@ -324,7 +324,7 @@ handle_exception (struct pt_regs *regs)
 
 	printf("kgdb: handle_exception; trap [0x%x]\n", kgdb_trap(regs));
 
-	if (kgdb_setjmp((long*)error_jmp_buf) != 0)
+	if (kgdb_setjmp(error_jmp_buf) != 0)
 		panic("kgdb: error or fault in entry init!\n");
 
 	kgdb_enter(regs, &kd);
@@ -379,7 +379,7 @@ handle_exception (struct pt_regs *regs)
 			printf("kgdb:  remcomInBuffer: %s\n", remcomInBuffer);
 #endif
 
-		errnum = kgdb_setjmp((long*)error_jmp_buf);
+		errnum = kgdb_setjmp(error_jmp_buf);
 
 		if (errnum == 0) switch (remcomInBuffer[0]) {
 
@@ -532,7 +532,7 @@ void
 kgdb_error(int errnum)
 {
 	longjmp_on_fault = 0;
-	kgdb_longjmp((long*)error_jmp_buf, errnum);
+	kgdb_longjmp(error_jmp_buf, errnum);
 	panic("kgdb_error: longjmp failed!\n");
 }
 

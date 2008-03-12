@@ -29,7 +29,7 @@
 /*----------------*/
 
 /* Message */
-typedef struct can_msg {
+struct can_msg {
     uchar	ctrl_0;
     uchar	ctrl_1;
     uchar	arbit_0;
@@ -38,7 +38,9 @@ typedef struct can_msg {
     uchar	arbit_3;
     uchar	config;
     uchar	data[8];
-} can_msg_t;
+} __attribute__ ((packed));
+
+typedef struct can_msg can_msg_t;
 
 /* CAN Register */
 typedef struct can_reg {
@@ -50,35 +52,35 @@ typedef struct can_reg {
     ushort	gbl_mask_std;
     uint	gbl_mask_extd;
     uint	msg15_mask;
-    can_msg_t	msg1 __attribute__ ((packed));
+    can_msg_t	msg1;
     uchar	clkout;
-    can_msg_t	msg2 __attribute__ ((packed));
+    can_msg_t	msg2;
     uchar	bus_config;
-    can_msg_t	msg3 __attribute__ ((packed));
+    can_msg_t	msg3;
     uchar	bit_timing_0;
-    can_msg_t	msg4 __attribute__ ((packed));
+    can_msg_t	msg4;
     uchar	bit_timing_1;
-    can_msg_t	msg5 __attribute__ ((packed));
+    can_msg_t	msg5;
     uchar	interrupt;
-    can_msg_t	msg6 __attribute__ ((packed));
+    can_msg_t	msg6;
     uchar	resv1;
-    can_msg_t	msg7 __attribute__ ((packed));
+    can_msg_t	msg7;
     uchar	resv2;
-    can_msg_t	msg8 __attribute__ ((packed));
+    can_msg_t	msg8;
     uchar	resv3;
-    can_msg_t	msg9 __attribute__ ((packed));
+    can_msg_t	msg9;
     uchar	p1conf;
-    can_msg_t	msg10 __attribute__ ((packed));
+    can_msg_t	msg10;
     uchar	p2conf;
-    can_msg_t	msg11 __attribute__ ((packed));
+    can_msg_t	msg11;
     uchar	p1in;
-    can_msg_t	msg12 __attribute__ ((packed));
+    can_msg_t	msg12;
     uchar	p2in;
-    can_msg_t	msg13 __attribute__ ((packed));
+    can_msg_t	msg13;
     uchar	p1out;
-    can_msg_t	msg14 __attribute__ ((packed));
+    can_msg_t	msg14;
     uchar	p2out;
-    can_msg_t	msg15 __attribute__ ((packed));
+    can_msg_t	msg15;
     uchar	ser_res_addr;
     uchar	resv_cs[0x8000-0x100];	/* 0x8000 is the min size for CS */
 } can_reg_t;

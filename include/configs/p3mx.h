@@ -219,7 +219,7 @@
 	"update=protect off fff00000 fff3ffff;era fff00000 fff3ffff;"	\
 		"cp.b 100000 fff00000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"serverip=11.0.0.152\0"
 
 #if defined (CONFIG_P3M750)

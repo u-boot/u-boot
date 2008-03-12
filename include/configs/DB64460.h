@@ -107,7 +107,7 @@
 
 
 #undef	CONFIG_BOOTARGS
-/*#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo" */
+/*#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo" */
 
 /* ronen - autoboot using tftp */
 #if (CONFIG_BOOTDELAY >= 0)

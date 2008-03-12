@@ -142,7 +142,7 @@
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -172,7 +172,7 @@
 	"load=tftp 100000 /tftpboot/pcs440ep/u-boot.bin\0"		\
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFA0000 60000\0"			        \
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -181,10 +181,6 @@
 #else
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 #endif
-
-#define CONFIG_PREBOOT	"echo;" \
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
-	"echo"
 
 /* check U-Boot image with SHA1 sum */
 #define CONFIG_SHA1_CHECK_UB_IMG	1

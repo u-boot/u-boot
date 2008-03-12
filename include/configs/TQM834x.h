@@ -500,7 +500,7 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -528,7 +528,7 @@ extern int tqm834x_num_flash_banks;
 	"load=tftp 100000 /tftpboot/tqm834x/u-boot.bin\0"		\
 	"update=protect off 80000000 8003ffff; "			\
 		"era 80000000 8003ffff; cp.b 100000 80000000 40000\0"	\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"

@@ -46,6 +46,7 @@
 #define LPCS6AW			0x003C
 #define LPCA7AW			0x0040
 #define SRAMBAR			0x00C4
+#define LAWBAR_BAR		0xFFFFF000	/* Base address mask */
 
 #define LPC_OFFSET		0x10000
 
@@ -188,6 +189,10 @@
 #define SCFR1_IPS_DIV			0x3
 #define SCFR1_IPS_DIV_MASK		0x03800000
 #define SCFR1_IPS_DIV_SHIFT		23
+
+#define SCFR1_PCI_DIV			0x6
+#define SCFR1_PCI_DIV_MASK		0x00700000
+#define SCFR1_PCI_DIV_SHIFT		20
 
 /* SCFR2 System Clock Frequency Register 2
  */
@@ -403,5 +408,84 @@
 #define I2C_SRW		0x04
 #define I2C_IF		0x02
 #define I2C_RXAK	0x01
+
+/* POTAR - PCI Outbound Translation Address Register
+ */
+#define POTAR_TA_MASK			0x000fffff
+
+/* POBAR - PCI Outbound Base Address Register
+ */
+#define POBAR_BA_MASK			0x000fffff
+
+/* POCMR - PCI Outbound Comparision Mask Register
+ */
+#define POCMR_EN	0x80000000
+#define POCMR_IO	0x40000000	/* 0-memory space 1-I/O space */
+#define POCMR_PRE	0x20000000	/* prefetch enable */
+#define POCMR_SBS	0x00100000	/* special byte swap enable */
+#define POCMR_CM_MASK	0x000fffff
+#define POCMR_CM_4G	0x00000000
+#define POCMR_CM_2G	0x00080000
+#define POCMR_CM_1G	0x000C0000
+#define POCMR_CM_512M	0x000E0000
+#define POCMR_CM_256M	0x000F0000
+#define POCMR_CM_128M	0x000F8000
+#define POCMR_CM_64M	0x000FC000
+#define POCMR_CM_32M	0x000FE000
+#define POCMR_CM_16M	0x000FF000
+#define POCMR_CM_8M	0x000FF800
+#define POCMR_CM_4M	0x000FFC00
+#define POCMR_CM_2M	0x000FFE00
+#define POCMR_CM_1M	0x000FFF00
+#define POCMR_CM_512K	0x000FFF80
+#define POCMR_CM_256K	0x000FFFC0
+#define POCMR_CM_128K	0x000FFFE0
+#define POCMR_CM_64K	0x000FFFF0
+#define POCMR_CM_32K	0x000FFFF8
+#define POCMR_CM_16K	0x000FFFFC
+#define POCMR_CM_8K	0x000FFFFE
+#define POCMR_CM_4K	0x000FFFFF
+
+/* PITAR - PCI Inbound Translation Address Register
+ */
+#define PITAR_TA_MASK			0x000fffff
+
+/* PIBAR - PCI Inbound Base/Extended Address Register
+ */
+#define PIBAR_MASK			0xffffffff
+#define PIEBAR_EBA_MASK			0x000fffff
+
+/* PIWAR - PCI Inbound Windows Attributes Register
+ */
+#define PIWAR_EN			0x80000000
+#define PIWAR_SBS			0x40000000
+#define PIWAR_PF			0x20000000
+#define PIWAR_RTT_MASK			0x000f0000
+#define PIWAR_RTT_NO_SNOOP		0x00040000
+#define PIWAR_RTT_SNOOP			0x00050000
+#define PIWAR_WTT_MASK			0x0000f000
+#define PIWAR_WTT_NO_SNOOP		0x00004000
+#define PIWAR_WTT_SNOOP			0x00005000
+#define PIWAR_IWS_MASK			0x0000003F
+#define PIWAR_IWS_4K			0x0000000B
+#define PIWAR_IWS_8K			0x0000000C
+#define PIWAR_IWS_16K			0x0000000D
+#define PIWAR_IWS_32K			0x0000000E
+#define PIWAR_IWS_64K			0x0000000F
+#define PIWAR_IWS_128K			0x00000010
+#define PIWAR_IWS_256K			0x00000011
+#define PIWAR_IWS_512K			0x00000012
+#define PIWAR_IWS_1M			0x00000013
+#define PIWAR_IWS_2M			0x00000014
+#define PIWAR_IWS_4M			0x00000015
+#define PIWAR_IWS_8M			0x00000016
+#define PIWAR_IWS_16M			0x00000017
+#define PIWAR_IWS_32M			0x00000018
+#define PIWAR_IWS_64M			0x00000019
+#define PIWAR_IWS_128M			0x0000001A
+#define PIWAR_IWS_256M			0x0000001B
+#define PIWAR_IWS_512M			0x0000001C
+#define PIWAR_IWS_1G			0x0000001D
+#define PIWAR_IWS_2G			0x0000001E
 
 #endif	/* __MPC512X_H__ */

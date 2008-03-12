@@ -72,7 +72,7 @@
 #define CONFIG_BOOT_RETRY_TIME		900
 #define CONFIG_BOOT_RETRY_MIN		30
 
-#define CONFIG_PREBOOT	"echo;echo Type \"run flash_nfs\" to mount root filesystem over NFS;echo"
+#define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\

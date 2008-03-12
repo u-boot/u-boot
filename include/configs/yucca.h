@@ -154,7 +154,7 @@
 #define CONFIG_ENV_OVERWRITE	1
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
@@ -175,7 +175,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"				\
+	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=yucca/uImage\0"					\
 	"kernel_addr=E7F10000\0"					\
 	"ramdisk_addr=E7F20000\0"					\
@@ -184,7 +184,7 @@
 	"update=protect off 2:4-7;era 2:4-7;"				\
 		"cp.b ${fileaddr} FFFB0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
-	"upd=run load;run update\0"					\
+	"upd=run load update\0"						\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:EP:EP\0"						\
 	""

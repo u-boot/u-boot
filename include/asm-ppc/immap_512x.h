@@ -29,7 +29,7 @@
 typedef struct law512x {
 	u32 bar;	/* Base Addr Register */
 	u32 ar;		/* Attributes Register */
-} law521x_t;
+} law512x_t;
 
 /*
  * System configuration registers
@@ -47,9 +47,9 @@ typedef struct sysconf512x {
 	u32 lpcs6aw;		/* LP CS6 Access Window */
 	u32 lpcs7aw;		/* LP CS7 Access Window */
 	u8 res1[0x1c];
-	law521x_t pcilaw[3];	/* PCI Local Access Window 0-2 Registers */
+	law512x_t pcilaw[3];	/* PCI Local Access Window 0-2 Registers */
 	u8 res2[0x28];
-	law521x_t ddrlaw;	/* DDR Local Access Window */
+	law512x_t ddrlaw;	/* DDR Local Access Window */
 	u8 res3[0x18];
 	u32 mbxbar;		/* MBX Base Address */
 	u32 srambar;		/* SRAM Base Address */
@@ -241,21 +241,70 @@ typedef struct dma512x {
  * PCI Software Configuration Registers
  */
 typedef struct pciconf512x {
-	u8 fixme[0x80];
+	u32 config_address;
+	u32 config_data;
+	u32 int_ack;
+	u8 res[116];
 } pciconf512x_t;
+
+/*
+ * PCI Outbound Translation Register
+ */
+typedef struct pci_outbound_window {
+	u32 potar;
+	u8 res0[4];
+	u32 pobar;
+	u8 res1[4];
+	u32 pocmr;
+	u8 res2[4];
+} pot512x_t;
 
 /*
  * Sequencer
  */
 typedef struct ios512x {
-	u8 fixme[0x100];
+	pot512x_t pot[6];
+	u8 res0[0x60];
+	u32 pmcr;
+	u8 res1[4];
+	u32 dtcr;
+	u8 res2[4];
 } ios512x_t;
 
 /*
  * PCI Controller
  */
 typedef struct pcictrl512x {
-	u8 fixme[0x100];
+	u32 esr;
+	u32 ecdr;
+	u32 eer;
+	u32 eatcr;
+	u32 eacr;
+	u32 eeacr;
+	u32 edlcr;
+	u32 edhcr;
+	u32 gcr;
+	u32 ecr;
+	u32 gsr;
+	u8 res0[12];
+	u32 pitar2;
+	u8 res1[4];
+	u32 pibar2;
+	u32 piebar2;
+	u32 piwar2;
+	u8 res2[4];
+	u32 pitar1;
+	u8 res3[4];
+	u32 pibar1;
+	u32 piebar1;
+	u32 piwar1;
+	u8 res4[4];
+	u32 pitar0;
+	u8 res5[4];
+	u32 pibar0;
+	u8 res6[4];
+	u32 piwar0;
+	u8 res7[132];
 } pcictrl512x_t;
 
 

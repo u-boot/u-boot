@@ -14,11 +14,8 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <spd.h>
 #include <asm/io.h>
-#if defined(CONFIG_SPD_EEPROM)
 #include <spd_sdram.h>
-#endif
 
 #if defined(CFG_DRAM_TEST)
 int
