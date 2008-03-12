@@ -37,12 +37,21 @@
 int
 do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	ulong addr = load_addr, dest = 0;
-	ulong data, len;
-	ulong *len_ptr;
-	int i, verify, part = 0;
-	char pbuf[10], *s;
-	image_header_t *hdr;
+	ulong		addr = load_addr;
+	ulong		dest = 0;
+	ulong		data, len, count;
+	int		i, verify;
+	int		part = 0;
+	char		pbuf[10];
+	char		*s;
+	image_header_t	*hdr;
+#if defined(CONFIG_FIT)
+	const char	*uname;
+	const void*	fit_hdr;
+	int		noffset;
+	const void	*fit_data;
+	size_t		fit_len;
+#endif
 
 	verify = getenv_verify ();
 
@@ -51,16 +60,20 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 	if (argc > 2) {
 		part = simple_strtoul(argv[2], NULL, 16);
+#if defined(CONFIG_FIT)
+		uname = argv[2];
+#endif
 	}
 	if (argc > 3) {
 		dest = simple_strtoul(argv[3], NULL, 16);
 	}
 
-
 	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 
-		printf("## Copying from legacy image at %08lx ...\n", addr);
+		printf("## Copying part %d from legacy image "
+			"at %08lx ...\n", part, addr);
+
 		hdr = (image_header_t *)addr;
 		if (!image_check_magic (hdr)) {
 			printf("Bad Magic Number\n");
@@ -71,9 +84,9 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			printf("Bad Header Checksum\n");
 			return 1;
 		}
-	#ifdef DEBUG
+#ifdef DEBUG
 		image_print_contents (hdr);
-	#endif
+#endif
 
 		if (!image_check_type (hdr, IH_TYPE_MULTI)) {
 			printf("Wrong Image Type for %s command\n",
@@ -96,31 +109,60 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			printf("OK\n");
 		}
 
-		data = image_get_data (hdr);
-		len_ptr = (ulong *) data;
-
-		data += 4;		/* terminator */
-		for (i = 0; len_ptr[i]; ++i) {
-			data += 4;
-			if (argc > 2 && part > i) {
-				u_long tail;
-				len = uimage_to_cpu (len_ptr[i]);
-				tail = len % 4;
-				data += len;
-				if (tail) {
-					data += 4 - tail;
-				}
-			}
-		}
-		if (argc > 2 && part >= i) {
+		count = image_multi_count (hdr);
+		if (part >= count) {
 			printf("Bad Image Part\n");
 			return 1;
 		}
-		len = uimage_to_cpu (len_ptr[part]);
+
+		image_multi_getimg (hdr, part, &data, &len);
+		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_unsupported ("imxtract");
-		return 1;
+		if (uname == NULL) {
+			puts ("No FIT subimage unit name\n");
+			return 1;
+		}
+
+		printf("## Copying '%s' subimage from FIT image "
+			"at %08lx ...\n", uname, addr);
+
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("Bad FIT image format\n");
+			return 1;
+		}
+
+		/* get subimage node offset */
+		noffset = fit_image_get_node (fit_hdr, fit_uname);
+		if (noffset < 0) {
+			printf ("Can't find '%s' FIT subimage\n", uname);
+			return 1;
+		}
+
+		if (fit_image_check_comp (fit_hdr, noffset, IH_COMP_NONE)) {
+			printf("Wrong Compression Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		/* verify integrity */
+		if (verify) {
+			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+				puts ("Bad Data Hash\n");
+				return 1;
+			}
+		}
+
+		/* get subimage data address and length */
+		if (fit_image_get_data (fit_hdr, noffset, &fit_data, &fit_len)) {
+			puts ("Could not find script subimage data\n");
+			return 1;
+		}
+
+		data = (ulong *)fit_data;
+		len = (ulong)fit_len;
+		break;
 #endif
 	default:
 		puts ("Invalid image type for imxtract\n");
@@ -142,6 +184,11 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
 	   "imxtract- extract a part of a multi-image\n",
 	   "addr part [dest]\n"
-	   "    - extract <part> from image at <addr> and copy to <dest>\n");
+	   "    - extract <part> from legacy image at <addr> and copy to <dest>\n"
+#if defined(CONFIG_FIT)
+	   "addr uname [dest]\n"
+	   "    - extract <uname> subimage from FIT image at <addr> and copy to <dest>\n"
+#endif
+);
 
 #endif
