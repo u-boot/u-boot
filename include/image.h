@@ -221,10 +221,11 @@ typedef struct bootm_headers {
 	const char	*fit_uname_fdt;	/* FDT blob subimage node unit name */
 	int		fit_noffset_fdt;/* FDT blob subimage node offset */
 #endif
+#endif
+
 	int		verify;		/* getenv("verify")[0] != 'n' */
 	int		autostart;	/* getenv("autostart")[0] != 'n' */
 	struct lmb	*lmb;		/* for memory mgmt */
-#endif
 } bootm_headers_t;
 
 /*
