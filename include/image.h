@@ -208,13 +208,16 @@ typedef struct bootm_headers {
 #if defined(CONFIG_FIT)
 	void		*fit_hdr_os;	/* os FIT image header */
 	const char	*fit_uname_os;	/* os subimage node unit name */
+	int		fit_noffset_os;	/* os subimage node offset */
 
 	void		*fit_hdr_rd;	/* init ramdisk FIT image header */
-	const char	*fit_uname_rd;	/* init ramdisk node unit name */
+	const char	*fit_uname_rd;	/* init ramdisk subimage node unit name */
+	int		fit_noffset_rd;	/* init ramdisk subimage node offset */
 
 #if defined(CONFIG_PPC)
 	void		*fit_hdr_fdt;	/* FDT blob FIT image header */
-	const char	*fit_uname_fdt;	/* FDT blob node unit name */
+	const char	*fit_uname_fdt;	/* FDT blob subimage node unit name */
+	int		fit_noffset_fdt;/* FDT blob subimage node offset */
 #endif
 	int		verify;		/* getenv("verify")[0] != 'n' */
 	int		autostart;	/* getenv("autostart")[0] != 'n' */

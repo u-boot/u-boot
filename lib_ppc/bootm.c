@@ -585,6 +585,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 				images->fit_hdr_fdt = fit_hdr;
 				images->fit_uname_fdt = fit_uname_fdt;
+				images->fit_noffset_fdt = fdt_noffset;
 				break;
 			} else
 #endif

@@ -891,6 +891,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 
 			images->fit_hdr_rd = fit_hdr;
 			images->fit_uname_rd = fit_uname_ramdisk;
+			images->fit_noffset_rd = rd_noffset;
 			break;
 #endif
 		default:

@@ -130,9 +130,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 	ulong		mem_start, mem_size;
-#if defined(CONFIG_FIT)
-	int		os_noffset;
-#endif
 
 	struct lmb lmb;
 
@@ -172,32 +169,27 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		os_noffset = fit_image_get_node (images.fit_hdr_os,
-				images.fit_uname_os);
-		if (os_noffset < 0) {
-			printf ("Can't get image node for '%s'!\n",
-					images.fit_uname_os);
-			return 1;
-		}
-
-		if (fit_image_get_type (images.fit_hdr_os, os_noffset, &type)) {
+		if (fit_image_get_type (images.fit_hdr_os,
+					images.fit_noffset_os, &type)) {
 			puts ("Can't get image type!\n");
 			return 1;
 		}
 
-		if (fit_image_get_comp (images.fit_hdr_os, os_noffset, &comp)) {
+		if (fit_image_get_comp (images.fit_hdr_os,
+					images.fit_noffset_os, &comp)) {
 			puts ("Can't get image compression!\n");
 			return 1;
 		}
 
-		if (fit_image_get_os (images.fit_hdr_os, os_noffset, &os)) {
+		if (fit_image_get_os (images.fit_hdr_os,
+					images.fit_noffset_os, &os)) {
 			puts ("Can't get image OS!\n");
 			return 1;
 		}
 
 		image_end = fit_get_end (images.fit_hdr_os);
 
-		if (fit_image_get_load (images.fit_hdr_os, os_noffset,
+		if (fit_image_get_load (images.fit_hdr_os, images.fit_noffset_os,
 					&load_start)) {
 			puts ("Can't get image load address!\n");
 			return 1;
@@ -569,6 +561,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 		*os_data = (ulong)data;
 		images->fit_hdr_os = fit_hdr;
 		images->fit_uname_os = fit_uname_kernel;
+		images->fit_noffset_os = os_noffset;
 		break;
 #endif
 	default:
