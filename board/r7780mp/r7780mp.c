@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Nobuhiro Iwamatsu
+ * Copyright (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * Copyright (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -39,9 +39,6 @@ int board_init(void)
 {
 	/* SCIF Enable */
 	*(vu_short*)PHCR = 0x0000;
-
-	/* Disable Control-C */
-	disable_ctrlc(1);
 
 	return 0;
 }
