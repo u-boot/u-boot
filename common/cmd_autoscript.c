@@ -50,14 +50,20 @@
 #if defined(CONFIG_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
 
 int
-autoscript (ulong addr)
+autoscript (ulong addr, const char *fit_uname)
 {
-	ulong len;
-	image_header_t *hdr;
-	ulong *data;
-	char *cmd;
-	int rcode = 0;
-	int verify;
+	ulong 		len;
+	image_header_t	*hdr;
+	ulong		*data;
+	char		*cmd;
+	int		rcode = 0;
+	int		verify;
+#if defined(CONFIG_FIT)
+	const void*	fit_hdr;
+	int		noffset;
+	const void	*fit_data;
+	size_t		fit_len;
+#endif
 
 	verify = getenv_verify ();
 
@@ -97,8 +103,46 @@ autoscript (ulong addr)
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_unsupported ("autoscript");
-		return 1;
+		if (fit_uname == NULL) {
+			puts ("No FIT subimage unit name\n");
+			return 1;
+		}
+
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("Bad FIT image format\n");
+			return 1;
+		}
+
+		/* get script component image node offset */
+		noffset = fit_image_get_node (fit_hdr, fit_uname);
+		if (noffset < 0) {
+			printf ("Can't find '%s' FIT subimage\n", fit_uname);
+			return 1;
+		}
+
+		if (!fit_image_check_type (fit_hdr, noffset, IH_TYPE_SCRIPT)) {
+			puts ("Not a image image\n");
+			return 1;
+		}
+
+		/* verify integrity */
+		if (verify) {
+			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+				puts ("Bad Data Hash\n");
+				return 1;
+			}
+		}
+
+		/* get script subimage data address and length */
+		if (fit_image_get_data (fit_hdr, noffset, &fit_data, &fit_len)) {
+			puts ("Could not find script subimage data\n");
+			return 1;
+		}
+
+		data = (ulong *)fit_data;
+		len = (ulong)fit_len;
+		break;
 #endif
 	default:
 		puts ("Wrong image format for autoscript\n");
@@ -160,25 +204,35 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
 	int rcode;
+	const char *fit_uname = NULL;
 
+	/* Find script image */
 	if (argc < 2) {
 		addr = CFG_LOAD_ADDR;
+		debug ("*  autoscr: default load address = 0x%08lx\n", addr);
+#if defined(CONFIG_FIT)
+	} else if (fit_parse_subimage (argv[1], load_addr, &addr, &fit_uname)) {
+		debug ("*  autoscr: subimage '%s' from FIT image at 0x%08lx\n",
+				fit_uname, addr);
+#endif
 	} else {
-		addr = simple_strtoul (argv[1],0,16);
+		addr = simple_strtoul(argv[1], NULL, 16);
+		debug ("*  autoscr: cmdline image address = 0x%08lx\n", addr);
 	}
 
-	printf ("## Executing script at %08lx\n",addr);
-	rcode = autoscript (addr);
+	printf ("## Executing script at %08lx\n", addr);
+	rcode = autoscript (addr, fit_uname);
 	return rcode;
 }
 
-#if defined(CONFIG_CMD_AUTOSCRIPT)
 U_BOOT_CMD(
 	autoscr, 2, 0,	do_autoscript,
 	"autoscr - run script from memory\n",
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
-);
+#if defined(CONFIG_FIT)
+	"For FIT format uImage addr must include subimage\n"
+	"unit name in the form of addr:<subimg_uname>\n"
 #endif
-
+);
 #endif

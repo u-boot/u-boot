@@ -220,9 +220,16 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 
 #ifdef CONFIG_AUTOSCRIPT
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
-		printf("Running autoscript at addr 0x%08lX ...\n", load_addr);
+		printf ("Running autoscript at addr 0x%08lX", load_addr);
+
+		s = getenv ("autoscript_uname");
+		if (s)
+			printf (":%s ...\n", s);
+		else
+			puts (" ...\n");
+
 		show_boot_progress (83);
-		rcode = autoscript (load_addr);
+		rcode = autoscript (load_addr, s);
 	}
 #endif
 	if (rcode < 0)
