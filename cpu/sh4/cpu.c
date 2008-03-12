@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/cache.h>
 
 int checkcpu(void)
 {
@@ -51,7 +52,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 void flush_cache (unsigned long addr, unsigned long size)
 {
-
+	dcache_invalid_range( addr , addr + size );
 }
 
 void icache_enable (void)
