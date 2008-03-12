@@ -224,7 +224,7 @@ au_check_cksum_valid(int idx, long nbytes)
 		return -1;
 	}
 	/* check the data CRC */
-	if (!image_check_dcrc (hdr)) {
+	if (!image_check_dcrc (hdr))
 	{
 		printf ("Image %s bad data checksum\n", aufile[idx]);
 		return -1;
@@ -284,7 +284,7 @@ au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	if ((idx == IDX_APP) && !image_check_type (hdr, IH_TYPE_RAMDISK)
-	    && !image_check_type (hdr, FILESYSTEM)) {
+		&& !image_check_type (hdr, IH_TYPE_FILESYSTEM)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
