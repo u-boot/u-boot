@@ -47,11 +47,17 @@
 
 #include <image.h>
 
-#if defined(CONFIG_FIT)
+#if defined(CONFIG_FIT) || defined (CONFIG_OF_LIBFDT)
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#endif
+
+#if defined(CONFIG_FIT)
 #include <sha1.h>
+
+static int fit_check_ramdisk (const void *fit, int os_noffset,
+		uint8_t arch, int verify);
 #endif
 
 #ifdef CONFIG_CMD_BDI
@@ -774,7 +780,14 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_ramdisk = NULL;
 	ulong		default_addr;
+	int		rd_noffset;
+	int		conf_noffset;
+	const void	*data;
+	size_t		size;
 #endif
+
+	*rd_start = 0;
+	*rd_end = 0;
 
 	/*
 	 * Look for a '-' which indicates to ignore the
@@ -812,8 +825,6 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		}
 
 		/* copy from dataflash if needed */
-		printf ("## Loading init Ramdisk Image at %08lx ...\n",
-				rd_addr);
 		rd_addr = genimg_get_image (rd_addr);
 
 		/*
@@ -823,17 +834,14 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		 */
 		switch (genimg_get_format ((void *)rd_addr)) {
 		case IMAGE_FORMAT_LEGACY:
-
-			debug ("*  ramdisk: legacy format image\n");
+			printf ("## Loading init Ramdisk from Legacy "
+					"Image at %08lx ...\n", rd_addr);
 
 			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
 						rd_addr, arch, images->verify);
 
-			if (rd_hdr == NULL) {
-				*rd_start = 0;
-				*rd_end = 0;
+			if (rd_hdr == NULL)
 				return 1;
-			}
 
 			rd_data = image_get_data (rd_hdr);
 			rd_len = image_get_data_size (rd_hdr);
@@ -842,14 +850,60 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
 			fit_hdr = (void *)rd_addr;
-			debug ("*  ramdisk: FIT format image\n");
-			fit_unsupported_reset ("ramdisk");
-			return 1;
+			printf ("## Loading init Ramdisk from FIT "
+					"Image at %08lx ...\n", rd_addr);
+
+			if (!fit_check_format (fit_hdr)) {
+				puts ("Bad FIT ramdisk image format!\n");
+				return 0;
+			}
+
+			if (!fit_uname_ramdisk) {
+				/*
+				 * no ramdisk image node unit name, try to get config
+				 * node first. If config unit node name is NULL
+				 * fit_conf_get_node() will try to find default config node
+				 */
+				conf_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
+				if (conf_noffset < 0)
+					return 0;
+
+				rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, conf_noffset);
+				fit_uname_ramdisk = fit_get_name (fit_hdr, rd_noffset, NULL);
+			} else {
+				/* get ramdisk component image node offset */
+				rd_noffset = fit_image_get_node (fit_hdr, fit_uname_ramdisk);
+			}
+			if (rd_noffset < 0)
+				return 0;
+
+			printf ("   Trying '%s' ramdisk subimage\n", fit_uname_ramdisk);
+
+			if (!fit_check_ramdisk (fit_hdr, rd_noffset, arch, images->verify))
+				return 0;
+
+			/* get ramdisk image data address and length */
+			if (fit_image_get_data (fit_hdr, rd_noffset, &data, &size)) {
+				puts ("Could not find ramdisk subimage data!\n");
+				return 0;
+			}
+
+			rd_data = (ulong)data;
+			rd_len = size;
+
+			if (fit_image_get_load (fit_hdr, rd_noffset, &rd_load)) {
+				puts ("Can't get ramdisk subimage load address!\n");
+				return 0;
+			}
+
+			images->fit_hdr_rd = fit_hdr;
+			images->fit_uname_rd = fit_uname_ramdisk;
+			break;
 #endif
 		default:
 			printf ("Wrong Image Format for %s command\n",
 					cmdtp->name);
-			rd_data = rd_len = 0;
+			rd_data = rd_len = rd_load = 0;
 		}
 
 #if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
@@ -870,7 +924,7 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		 */
 		show_boot_progress (13);
 		printf ("## Loading init Ramdisk from multi component "
-				"Image at %08lx ...\n",
+				"Legacy Image at %08lx ...\n",
 				(ulong)images->legacy_hdr_os);
 
 		image_multi_getimg (images->legacy_hdr_os, 1, &rd_data, &rd_len);
@@ -884,8 +938,6 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	if (!rd_data) {
 		debug ("## No init Ramdisk\n");
-		*rd_start = 0;
-		*rd_end = 0;
 	} else {
 		*rd_start = rd_data;
 		*rd_end = rd_data + rd_len;
@@ -2376,4 +2428,44 @@ void fit_conf_print (const void *fit, int noffset, const char *p)
 	if (uname)
 		printf ("%s  FDT:          %s\n", p, uname);
 }
+
+/**
+ * fit_check_ramdisk - verify FIT format ramdisk subimage
+ * @fit_hdr: pointer to the FIT ramdisk header
+ * @rd_noffset: ramdisk subimage node offset within FIT image
+ * @arch: requested ramdisk image architecture type
+ * @verify: data CRC verification flag
+ *
+ * fit_check_ramdisk() verifies integrity of the ramdisk subimage and from
+ * specified FIT image.
+ *
+ * returns:
+ *     1, on success
+ *     0, on failure
+ */
+#ifndef USE_HOSTCC
+static int fit_check_ramdisk (const void *fit, int rd_noffset, uint8_t arch, int verify)
+{
+	fit_image_print (fit, rd_noffset, "   ");
+
+	if (verify) {
+		puts ("   Verifying Hash Integrity ... ");
+		if (!fit_image_check_hashes (fit, rd_noffset)) {
+			puts ("Bad Data Hash\n");
+			return 0;
+		}
+		puts ("OK\n");
+	}
+
+	if (!fit_image_check_os (fit, rd_noffset, IH_OS_LINUX) ||
+	    !fit_image_check_arch (fit, rd_noffset, arch) ||
+	    !fit_image_check_type (fit, rd_noffset, IH_TYPE_RAMDISK)) {
+		printf ("No Linux %s Ramdisk Image\n",
+				genimg_get_arch_name(arch));
+		return 0;
+	}
+
+	return 1;
+}
+#endif /* USE_HOSTCC */
 #endif /* CONFIG_FIT */
