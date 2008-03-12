@@ -40,11 +40,15 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong		ep;
 	image_header_t	*hdr;
 	int		ret;
+#if defined(CONFIG_FIT)
+	const void	*data;
+	size_t		len;
+#endif
 
 	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_I386,
 			&initrd_start, &initrd_end);
 	if (ret)
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 
 	if (images->legacy_hdr_valid) {
 		hdr = images->legacy_hdr_os;
@@ -58,12 +62,18 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		}
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		fit_unsupported_reset ("I386 linux bootm");
-		do_reset (cmdtp, flag, argc, argv);
+		ret = fit_image_get_data (images->fit_hdr_os,
+					images->fit_noffset_os, &data, &len);
+		if (ret) {
+			puts ("Can't get image data/size!\n");
+			goto error;
+		}
+		os_data = (ulong)data;
+		os_len = (ulong)len;
 #endif
 	} else {
 		puts ("Could not find kernel image!\n");
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 	}
 
 	base_ptr = load_zimage ((void*)os_data, os_len,
@@ -71,7 +81,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	if (NULL == base_ptr) {
 		printf ("## Kernel loading failed ...\n");
-		do_reset(cmdtp, flag, argc, argv);
+		goto error;
 
 	}
 
@@ -87,5 +97,11 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	printf("\nStarting kernel ...\n\n");
 
 	boot_zimage(base_ptr);
+	/* does not return */
+	return;
 
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

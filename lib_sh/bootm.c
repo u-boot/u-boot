@@ -70,12 +70,16 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ep = image_get_ep (images->legacy_hdr_os);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		fit_unsupported_reset ("SH linux bootm");
-		do_reset (cmdtp, flag, argc, argv);
+		int ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
 #endif
 	} else {
 		puts ("Could not find kernel entry point!\n");
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 	}
 	void (*kernel) (void) = (void (*)(void))ep;
 
@@ -87,4 +91,11 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	strcpy(COMMAND_LINE, bootargs);
 
 	kernel();
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

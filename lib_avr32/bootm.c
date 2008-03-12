@@ -181,25 +181,30 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	void	(*theKernel)(int magic, void *tagtable);
 	struct	tag *params, *params_start;
 	char	*commandline = getenv("bootargs");
+	int	ret;
 
 	/* find kernel entry point */
 	if (images->legacy_hdr_valid) {
 		ep = image_get_ep (images->legacy_hdr_os);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		fit_unsupported_reset ("AVR32 linux bootm");
-		do_reset (cmdtp, flag, argc, argv);
+		ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
 #endif
 	} else {
 		puts ("Could not find kernel entry point!\n");
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 	}
 	theKernel = (void *)ep;
 
 	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_AVR32,
 			&initrd_start, &initrd_end);
 	if (ret)
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 
 	show_boot_progress (15);
 
@@ -225,4 +230,11 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	prepare_to_boot();
 
 	theKernel(ATAG_MAGIC, params_start);
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

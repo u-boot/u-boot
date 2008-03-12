@@ -35,8 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 #define PHYSADDR(x) x
 
 #define LINUX_MAX_ENVS		256
@@ -101,12 +99,16 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 		ep = image_get_ep (images->legacy_hdr_os);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		fit_unsupported_reset ("M68K linux bootm");
-		do_reset (cmdtp, flag, argc, argv);
+		ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
 #endif
 	} else {
 		puts ("Could not find kernel entry point!\n");
-		do_reset (cmdtp, flag, argc, argv);
+		goto error;
 	}
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
