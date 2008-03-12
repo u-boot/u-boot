@@ -694,10 +694,11 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 #	Board			CPU					#
 #########################################################################
 
-Nobuhiro Iwmaatsu <iwamatsu@nigauri.org>
+Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
 	MS7750SE		SH7750
 	MS7722SE		SH7722
+	R7780MP			SH7780
 	R2DPlus			SH7751R
 
 Mark Jonas <mark.jonas@de.bosch.com>
