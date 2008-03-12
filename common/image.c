@@ -66,9 +66,8 @@ extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[],
-		ulong rd_addr, uint8_t arch, int verify);
+static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
+						int verify);
 #else
 #include "mkimage.h"
 #include <time.h>
@@ -379,10 +378,6 @@ inline void image_print_contents_noindent (image_header_t *hdr)
 #ifndef USE_HOSTCC
 /**
  * image_get_ramdisk - get and verify ramdisk image
- * @cmdtp: command table pointer
- * @flag: command flag
- * @argc: command argument count
- * @argv: command argument list
  * @rd_addr: ramdisk image start address
  * @arch: expected ramdisk architecture
  * @verify: checksum verification flag
@@ -399,9 +394,8 @@ inline void image_print_contents_noindent (image_header_t *hdr)
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, return NULL
  */
-static image_header_t* image_get_ramdisk (cmd_tbl_t *cmdtp, int flag,
-		int argc, char *argv[],
-		ulong rd_addr, uint8_t arch, int verify)
+static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
+						int verify)
 {
 	image_header_t *rd_hdr;
 
@@ -748,8 +742,6 @@ ulong genimg_get_image (ulong img_addr)
 
 /**
  * boot_get_ramdisk - main ramdisk handling routine
- * @cmdtp: command table pointer
- * @flag: command flag
  * @argc: command argument count
  * @argv: command argument list
  * @images: pointer to the bootm images structure
@@ -763,14 +755,15 @@ ulong genimg_get_image (ulong img_addr)
  *      - commandline provided address of decicated ramdisk image.
  *
  * returns:
+ *     0, if ramdisk image was found and valid, or skiped
  *     rd_start and rd_end are set to ramdisk start/end addresses if
  *     ramdisk image is found and valid
+ *
+ *     1, if ramdisk image is found but corrupted
  *     rd_start and rd_end are set to 0 if no ramdisk exists
- *     return 1 if ramdisk image is found but corrupted
  */
-int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, uint8_t arch,
-		ulong *rd_start, ulong *rd_end)
+int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
+		uint8_t arch, ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
@@ -837,8 +830,8 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			printf ("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
 
-			rd_hdr = image_get_ramdisk (cmdtp, flag, argc, argv,
-						rd_addr, arch, images->verify);
+			rd_hdr = image_get_ramdisk (rd_addr, arch,
+							images->verify);
 
 			if (rd_hdr == NULL)
 				return 1;
@@ -901,8 +894,7 @@ int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			break;
 #endif
 		default:
-			printf ("Wrong Image Format for %s command\n",
-					cmdtp->name);
+			puts ("Wrong Ramdisk Image Format\n");
 			rd_data = rd_len = rd_load = 0;
 		}
 

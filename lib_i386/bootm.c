@@ -39,9 +39,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong		initrd_start, initrd_end;
 	ulong		ep;
 	image_header_t	*hdr;
+	int		ret;
 
-	boot_get_ramdisk (cmdtp, flag, argc, argv, images,
-			IH_ARCH_I386, &initrd_start, &initrd_end);
+	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_I386,
+			&initrd_start, &initrd_end);
+	if (ret)
+		do_reset (cmdtp, flag, argc, argv);
 
 	if (images->legacy_hdr_valid) {
 		hdr = images->legacy_hdr_os;

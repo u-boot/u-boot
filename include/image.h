@@ -250,9 +250,8 @@ int genimg_get_comp_id (const char *name);
 int genimg_get_format (void *img_addr);
 ulong genimg_get_image (ulong img_addr);
 
-int boot_get_ramdisk (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images, uint8_t arch,
-		ulong *rd_start, ulong *rd_end);
+int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
+		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,

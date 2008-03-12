@@ -160,9 +160,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
 
 	/* find ramdisk */
-	ret = boot_get_ramdisk (cmdtp, flag, argc, argv, images,
-			IH_ARCH_PPC, &rd_data_start, &rd_data_end);
-
+	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_PPC,
+			&rd_data_start, &rd_data_end);
 	if (ret)
 		goto error;
 
