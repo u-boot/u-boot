@@ -528,9 +528,11 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
 		if (!fit_check_format (fit_hdr)) {
+			show_boot_progress (-150);
 			puts ("** Bad FIT image format\n");
 			return 1;
 		}
+		show_boot_progress (151);
 		puts ("Fit image detected...\n");
 
 		cnt = fit_get_size (fit_hdr);
@@ -1020,9 +1022,11 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
 		if (!fit_check_format (fit_hdr)) {
+			show_boot_progress (-150);
 			puts ("** Bad FIT image format\n");
 			return 1;
 		}
+		show_boot_progress (151);
 		puts ("Fit image detected...\n");
 
 		cnt = fit_get_size (fit_hdr);

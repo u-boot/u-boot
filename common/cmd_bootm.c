@@ -155,8 +155,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	show_boot_progress (6);
-
 	/* get image parameters */
 	switch (genimg_get_format (os_hdr)) {
 	case IMAGE_FORMAT_LEGACY:
@@ -172,18 +170,21 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (fit_image_get_type (images.fit_hdr_os,
 					images.fit_noffset_os, &type)) {
 			puts ("Can't get image type!\n");
+			show_boot_progress (-109);
 			return 1;
 		}
 
 		if (fit_image_get_comp (images.fit_hdr_os,
 					images.fit_noffset_os, &comp)) {
 			puts ("Can't get image compression!\n");
+			show_boot_progress (-110);
 			return 1;
 		}
 
 		if (fit_image_get_os (images.fit_hdr_os,
 					images.fit_noffset_os, &os)) {
 			puts ("Can't get image OS!\n");
+			show_boot_progress (-111);
 			return 1;
 		}
 
@@ -192,6 +193,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (fit_image_get_load (images.fit_hdr_os, images.fit_noffset_os,
 					&load_start)) {
 			puts ("Can't get image load address!\n");
+			show_boot_progress (-112);
 			return 1;
 		}
 		break;
@@ -284,6 +286,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		debug ("load_start = 0x%lx, load_end = 0x%lx\n", load_start, load_end);
 
 		puts ("ERROR: image overwritten - must RESET the board to recover.\n");
+		show_boot_progress (-113);
 		do_reset (cmdtp, flag, argc, argv);
 	}
 
@@ -416,21 +419,27 @@ static int fit_check_kernel (const void *fit, int os_noffset, int verify)
 		puts ("   Verifying Hash Integrity ... ");
 		if (!fit_image_check_hashes (fit, os_noffset)) {
 			puts ("Bad Data Hash\n");
+			show_boot_progress (-104);
 			return 0;
 		}
 		puts ("OK\n");
 	}
+	show_boot_progress (105);
 
 	if (!fit_image_check_target_arch (fit, os_noffset)) {
 		puts ("Unsupported Architecture\n");
+		show_boot_progress (-105);
 		return 0;
 	}
 
+	show_boot_progress (106);
 	if (!fit_image_check_type (fit, os_noffset, IH_TYPE_KERNEL)) {
 		puts ("Not a kernel image\n");
+		show_boot_progress (-106);
 		return 0;
 	}
 
+	show_boot_progress (107);
 	return 1;
 }
 #endif /* CONFIG_FIT */
@@ -515,6 +524,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 		images->legacy_hdr_os = hdr;
 		images->legacy_hdr_valid = 1;
 
+		show_boot_progress (6);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
@@ -524,8 +534,10 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 
 		if (!fit_check_format (fit_hdr)) {
 			puts ("Bad FIT kernel image format!\n");
+			show_boot_progress (-100);
 			return NULL;
 		}
+		show_boot_progress (100);
 
 		if (!fit_uname_kernel) {
 			/*
@@ -533,29 +545,38 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			 * node first. If config unit node name is NULL
 			 * fit_conf_get_node() will try to find default config node
 			 */
+			show_boot_progress (101);
 			conf_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
-			if (conf_noffset < 0)
+			if (conf_noffset < 0) {
+				show_boot_progress (-101);
 				return NULL;
+			}
 
 			os_noffset = fit_conf_get_kernel_node (fit_hdr, conf_noffset);
 			fit_uname_kernel = fit_get_name (fit_hdr, os_noffset, NULL);
 		} else {
 			/* get kernel component image node offset */
+			show_boot_progress (102);
 			os_noffset = fit_image_get_node (fit_hdr, fit_uname_kernel);
 		}
-		if (os_noffset < 0)
+		if (os_noffset < 0) {
+			show_boot_progress (-103);
 			return NULL;
+		}
 
 		printf ("   Trying '%s' kernel subimage\n", fit_uname_kernel);
 
+		show_boot_progress (104);
 		if (!fit_check_kernel (fit_hdr, os_noffset, images->verify))
 			return NULL;
 
 		/* get kernel image data address and length */
 		if (fit_image_get_data (fit_hdr, os_noffset, &data, &len)) {
 			puts ("Could not find kernel subimage data!\n");
+			show_boot_progress (-107);
 			return NULL;
 		}
+		show_boot_progress (108);
 
 		*os_len = len;
 		*os_data = (ulong)data;
@@ -566,6 +587,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 #endif
 	default:
 		printf ("Wrong Image Format for %s command\n", cmdtp->name);
+		show_boot_progress (-108);
 		return NULL;
 	}
 

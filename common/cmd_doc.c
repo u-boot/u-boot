@@ -276,9 +276,11 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
 		if (!fit_check_format (fit_hdr)) {
+			show_boot_progress (-130);
 			puts ("** Bad FIT image format\n");
 			return 1;
 		}
+		show_boot_progress (131);
 		puts ("Fit image detected...\n");
 
 		cnt = fit_get_size (fit_hdr);
