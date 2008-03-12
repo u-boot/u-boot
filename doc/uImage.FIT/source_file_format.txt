@@ -1,0 +1,262 @@
+U-boot new uImage source file format (bindings definition)
+==========================================================
+
+Author: Marian Balakowicz <m8@semihalf.com>
+
+1) Introduction
+---------------
+
+Evolution of the 2.6 Linux kernel for embedded PowerPC systems introduced new
+booting method which requires that hardware description is available to the
+kernel in the form of Flattened Device Tree.
+
+Booting with a Flattened Device Tree is much more flexible and is intended to
+replace direct passing of 'struct bd_info' which was used to boot pre-FDT
+kernels.
+
+However, U-boot needs to support both techniques to provide backward
+compatibility for platforms which are not FDT ready. Number of elements
+playing role in the booting process has increased and now includes the FDT
+blob. Kernel image, FDT blob and possibly ramdisk image - all must be placed
+in the system memory and passed to bootm as a arguments. Some of them may be
+missing: FDT is not present for legacy platforms, ramdisk is always optional.
+Additionally, old uImage format has been extended to support multi sub-images
+but the support is limited by simple format of the legacy uImage structure.
+Single binary header 'struct image_header' is not flexible enough to cover all
+possible scenarios.
+
+All those factors combined clearly show that there is a need for new, more
+flexible, multi component uImage format.
+
+
+2) New uImage format assumptions
+--------------------------------
+
+a) Implementation
+
+Libfdt has been selected for the new uImage format implementation as (1) it
+provides needed functionality, (2) is actively maintained and developed and
+(3) increases code reuse as it is already part of the U-boot source tree.
+
+b) Terminology
+
+This document defines new uImage structure by providing FDT bindings for new
+uImage internals. Bindings are defined from U-boot perspective, i.e. describe
+final form of the uImage at the moment when it reaches U-boot. User
+perspective may be simpler, as some of the properties (like timestamps and
+hashes) will need to be filled in automatically by the U-boot mkimage tool.
+
+To avoid confusion with the kernel FDT the following naming convention is
+proposed for the new uImage format related terms:
+
+FIT	- Flattened uImage Tree
+
+FIT is formally a flattened device tree (in the libfdt meaning), which
+conforms to bindings defined in this document.
+
+.its	- image tree source
+.itb	- image tree blob
+
+c) Image building procedure
+
+The following picture shows how the new uImage is prepared. Input consists of
+image source file (.its) and a set of data files. Image is created with the
+help of standard U-boot mkimage tool which in turn uses dtc (device tree
+compiler) to produce image tree blob (.itb).  Resulting .itb file is is the
+actual binary of a new uImage.
+
+
+tqm5200.its
++
+vmlinux.bin.gz     mkimage + dtc               xfer to target
+eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> bootm
+tqm5200.dtb                          /|\
+...                                   |
+                                 'new uImage'
+
+	- create .its file, automatically filled-in properties are omitted
+	- call mkimage tool on a .its file
+	- mkimage calls dtc to create .itb image and assures that
+	  missing properties are added
+	- .itb (new uImage) is uploaded onto the target and used therein
+
+
+d) Unique identifiers
+
+To identify FIT sub-nodes representing images, hashes, configurations (which
+are defined in the following sections), the "unit name" of the given sub-node
+is used as it's identifier as it assures uniqueness without additional
+checking required.
+
+
+3) Root node properties
+-----------------------
+
+Root node of the uImage Tree should have the following layout:
+
+/ o image-tree
+    |- description = "image description"
+    |- timestamp = <12399321>
+    |- #address-cells = <1>
+    |
+    o images
+    | |
+    | o img@1 {...}
+    | o img@2 {...}
+    | ...
+    |
+    o configurations
+      |- default = "cfg@1"
+      |
+      o cfg@1 {...}
+      o cfg@2 {...}
+      ...
+
+
+  Optional property:
+  - description : Textual description of the uImage
+
+  Mandatory property:
+  - timestamp : Last image modification time being counted in seconds since
+    1970-01-01 00:00:00 - to be automatically calculated by mkimage tool.
+
+  Conditionally mandatory property:
+  - #address-cells : Number of 32bit cells required to represent entry and
+    load addresses supplied within sub-image nodes. May be omitted when no
+    entry or load addresses are used.
+
+  Mandatory node:
+  - images : This node contains a set of sub-nodes, each of them representing
+    single component sub-image (like kernel, ramdisk, etc.). At least one
+    sub-image is required.
+
+  Optional node:
+  - configurations : Contains a set of available configuration nodes and
+    defines a default configuration.
+
+
+4) '/images' node
+-----------------
+
+This node is a container node for component sub-image nodes. Each sub-node of
+the '/images' node should have the following layout:
+
+ o image@1
+   |- description = "component sub-image description"
+   |- data = /incbin/("path/to/data/file.bin")
+   |- type = "sub-image type name"
+   |- arch = "ARCH name"
+   |- os = "OS name"
+   |- compression = "compression name"
+   |- load = <00000000>
+   |- entry = <00000000>
+   |
+   o hash@1 {...}
+   o hash@2 {...}
+   ...
+
+  Mandatory properties:
+  - description : Textual description of the component sub-image
+  - type : Name of component sub-image type, supported types are:
+    "standalone", "kernel", "ramdisk", "firmware", "script", "filesystem",
+    "fdt".
+  - data : Path to the external file which contains this node's binary data.
+  - compression : Compression used by included data. Supported compressions
+    are "gzip" and "bzip2". If no compression is used compression property
+    should be set to "none".
+
+  Conditionally mandatory property:
+  - os : OS name, mandatory for type="kernel", valid OS names are: "openbsd",
+    "netbsd", "freebsd", "4_4bsd", "linux", "svr4", "esix", "solaris", "irix",
+    "sco", "dell", "ncr", "lynxos", "vxworks", "psos", "qnx", "u_boot",
+    "rtems", "artos", "unity".
+  - arch : Architecture name, mandatory for types: "standalone", "kernel",
+    "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
+    "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
+    "sparc64", "m68k", "nios", "microblaze", "nios2", "blackfin", "avr32",
+    "st200".
+  - entry : entry point address, address size is determined by
+    '#address-cells' property of the root node. Mandatory for for types:
+    "standalone" and "kernel".
+  - load : load address, address size is determined by '#address-cells'
+    property of the root node. Mandatory for types: "standalone" and "kernel".
+
+  Optional nodes:
+  - hash@1 : Each hash sub-node represents separate hash or checksum
+    calculated for node's data according to specified algorithm.
+
+
+5) Hash nodes
+-------------
+
+o hash@1
+  |- algo = "hash or checksum algorithm name"
+  |- value = [hash or checksum value]
+
+  Mandatory properties:
+  - algo : Algorithm name, supported are "crc32", "md5" and "sha1".
+  - value : Actual checksum or hash value, correspondingly 4, 16 or 20 bytes
+    long.
+
+
+6) '/configurations' node
+-------------------------
+
+The 'configurations' node is optional. If present, it allows to create a
+convenient, labeled boot configurations, which combine together kernel images
+with their ramdisks and fdt blobs.
+
+The 'configurations' node has has the following structure:
+
+o configurations
+  |- default = "default configuration sub-node unit name"
+  |
+  o config@1 {...}
+  o config@2 {...}
+  ...
+
+
+  Optional property:
+  - default : Selects one of the configuration sub-nodes as a default
+    configuration.
+
+  Mandatory nodes:
+  - configuration-sub-node-unit-name : At least one of the configuration
+    sub-nodes is required.
+
+
+7) Configuration nodes
+----------------------
+
+Each configuration has the following structure:
+
+o config@1
+  |- description = "configuration description"
+  |- kernel = "kernel sub-node unit name"
+  |- ramdisk = "ramdisk sub-node unit name"
+  |- fdt = "fdt sub-node unit-name"
+
+
+  Mandatory properties:
+  - description : Textual configuration description.
+  - kernel : Unit name of the corresponding kernel image (image sub-node of a
+    "kernel" type).
+
+  Optional properties:
+  - ramdisk : Unit name of the corresponding ramdisk image (component image
+    node of a "ramdisk" type).
+  - fdt : Unit name of the corresponding fdt blob (component image node of a
+    "fdt type").
+
+The FDT blob is required to properly boot FDT based kernel, so the minimal
+configuration for 2.6 FDT kernel is (kernel, fdt) pair.
+
+Older, 2.4 kernel and 2.6 non-FDT kernel do not use FDT blob, in such cases
+'struct bd_info' must be passed instead of FDT blob, thus fdt property *must
+not* be specified in a configuration node.
+
+
+8) Examples
+-----------
+
+Please see examples/*.its for actual image source files.

@@ -2684,6 +2684,14 @@ Some configuration options can be set using Environment Variables:
 		  configuration from the BOOTP server, but not try to
 		  load any image using TFTP
 
+  autoscript	- if set to "yes" commands like "loadb", "loady",
+		  "bootp", "tftpb", "rarpboot" and "nfs" will attempt
+		  to automatically run script images (by internally
+		  calling "autoscript").
+
+  autoscript_uname - if script image is in a format (FIT) this
+		     variable is used to get script subimage unit name.
+
   autostart	- if set to "yes", an image loaded using the "bootp",
 		  "rarpboot", "tftpboot" or "diskboot" commands will
 		  be automatically started (by internally calling
@@ -2898,10 +2906,24 @@ o If neither SROM nor the environment contain a MAC address, an error
 Image Formats:
 ==============
 
-The "boot" commands of this monitor operate on "image" files which
-can be basicly anything, preceeded by a special header; see the
-definitions in include/image.h for details; basicly, the header
-defines the following image properties:
+U-Boot is capable of booting (and performing other auxiliary operations on)
+images in two formats:
+
+New uImage format (FIT)
+-----------------------
+
+Flexible and powerful format based on Flattened Image Tree -- FIT (similar
+to Flattened Device Tree). It allows the use of images with multiple
+components (several kernels, ramdisks, etc.), with contents protected by
+SHA1, MD5 or CRC32. More details are found in the doc/uImage.FIT directory.
+
+
+Old uImage format
+-----------------
+
+Old image format is based on binary files which can be basically anything,
+preceded by a special header; see the definitions in include/image.h for
+details; basically, the header defines the following image properties:
 
 * Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
