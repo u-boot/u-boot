@@ -243,7 +243,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("   Uncompressing %s ... ", type_name);
 		if (gunzip ((void *)load_start, unc_len,
 					(uchar *)os_data, &os_len) != 0) {
-			puts ("GUNZIP ERROR - must RESET board to recover\n");
+			puts ("GUNZIP: uncompress or overwrite error "
+				"- must RESET board to recover\n");
 			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
@@ -262,7 +263,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 					&unc_len, (char *)os_data, os_len,
 					CFG_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
-			printf ("BUNZIP2 ERROR %d - must RESET board to recover\n", i);
+			printf ("BUNZIP2: uncompress or overwrite error %d "
+				"- must RESET board to recover\n", i);
 			show_boot_progress (-6);
 			do_reset (cmdtp, flag, argc, argv);
 		}
