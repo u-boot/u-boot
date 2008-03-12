@@ -788,6 +788,9 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i,nrofblk;
 	char *ep;
 	int rcode = 0;
+#if defined(CONFIG_FIT)
+	const void *fit_hdr;
+#endif
 
 	switch (argc) {
 	case 1:
@@ -839,18 +842,21 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
-		if (!image_check_magic (hdr)) {
-			printf ("Bad Magic Number\n");
-			return 1;
-		}
 		image_print_contents (hdr);
 
 		imsize = image_get_image_size (hdr);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_unsupported ("fdcboot");
-		return 1;
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		puts ("Fit image detected...\n");
+
+		imsize = fit_get_size (fit_hdr);
+		break;
 #endif
 	default:
 		puts ("** Unknown image type\n");
@@ -872,9 +878,16 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("OK %ld Bytes loaded.\n",imsize);
 
 	flush_cache (addr, imsize);
-	/* Loading ok, update default load address */
 
+#if defined(CONFIG_FIT)
+	/* This cannot be done earlier, we need complete FIT image in RAM first */
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
+		fit_print_contents ((const void *)addr);
+#endif
+
+	/* Loading ok, update default load address */
 	load_addr = addr;
+
 	/* Check if we should attempt an auto-start */
 	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
 		char *local_args[2];

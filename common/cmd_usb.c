@@ -315,7 +315,9 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	disk_partition_t info;
 	image_header_t *hdr;
 	block_dev_desc_t *stor_dev;
-
+#if defined(CONFIG_FIT)
+	const void *fit_hdr;
+#endif
 
 	switch (argc) {
 	case 1:
@@ -390,11 +392,6 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 
-		if (!image_check_magic (hdr)) {
-			printf("\n** Bad Magic Number **\n");
-			return 1;
-		}
-
 		if (!image_check_hcrc (hdr)) {
 			puts ("\n** Bad Header Checksum **\n");
 			return 1;
@@ -406,8 +403,15 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_unsupported ("usbboot");
-		return 1;
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		puts ("Fit image detected...\n");
+
+		cnt = fit_get_size (fit_hdr);
+		break;
 #endif
 	default:
 		puts ("** Unknown image type\n");
@@ -423,6 +427,13 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf ("\n** Read error on %d:%d\n", dev, part);
 		return 1;
 	}
+
+#if defined(CONFIG_FIT)
+	/* This cannot be done earlier, we need complete FIT image in RAM first */
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
+		fit_print_contents ((const void *)addr);
+#endif
+
 	/* Loading ok, update default load address */
 	load_addr = addr;
 
