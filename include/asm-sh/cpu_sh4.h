@@ -30,14 +30,15 @@
 #define CACHE_OC_NUM_ENTRIES	512
 #define CACHE_OC_ENTRY_SHIFT	5
 
-#if defined (CONFIG_CPU_SH7750)
-#include <asm/cpu_sh7750.h>
+#if defined (CONFIG_CPU_SH7750) || \
+	defined(CONFIG_CPU_SH7751)
+# include <asm/cpu_sh7750.h>
 #elif defined (CONFIG_CPU_SH7722)
-#include <asm/cpu_sh7722.h>
+# include <asm/cpu_sh7722.h>
 #elif defined (CONFIG_CPU_SH7780)
-#include <asm/cpu_sh7780.h>
+# include <asm/cpu_sh7780.h>
 #else
-#error "Unknown SH4 variant"
+# error "Unknown SH4 variant"
 #endif
 
 #endif	/* _ASM_CPU_SH4_H_ */

@@ -25,10 +25,10 @@
 
 #ifdef CONFIG_CPU_TYPE_R
 #define CACHE_OC_NUM_WAYS     2
-#define CCR_CACHE_INIT   0x8000090d     /* EMODE,ICI,ICE(16k),OCI,P1-wb,OCE(32k) */
+#define CCR_CACHE_INIT   0x8000090D     /* EMODE,ICI,ICE(16k),OCI,P1-wb,OCE(32k) */
 #else
 #define CACHE_OC_NUM_WAYS     1
-#define CCR_CACHE_INIT   0x0000090b
+#define CCR_CACHE_INIT   0x0000090B
 #endif
 
 /*      OCN     */

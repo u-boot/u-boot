@@ -55,6 +55,7 @@
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0xFF
 #elif defined(CONFIG_CPU_SH7750) || \
+	defined(CONFIG_CPU_SH7751) || \
 	defined(CONFIG_CPU_SH7722)
 # define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
 # define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
