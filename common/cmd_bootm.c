@@ -469,7 +469,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 	const char	*fit_uname_kernel = NULL;
 	const void	*data;
 	size_t		len;
-	int		conf_noffset;
+	int		cfg_noffset;
 	int		os_noffset;
 #endif
 
@@ -548,13 +548,19 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			 * fit_conf_get_node() will try to find default config node
 			 */
 			show_boot_progress (101);
-			conf_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
-			if (conf_noffset < 0) {
+			cfg_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
+			if (cfg_noffset < 0) {
 				show_boot_progress (-101);
 				return NULL;
 			}
+			/* save configuration uname provided in the first
+			 * bootm argument
+			 */
+			images->fit_uname_cfg = fdt_get_name (fit_hdr, cfg_noffset, NULL);
+			printf ("   Using '%s' configuration\n", images->fit_uname_cfg);
+			show_boot_progress (103);
 
-			os_noffset = fit_conf_get_kernel_node (fit_hdr, conf_noffset);
+			os_noffset = fit_conf_get_kernel_node (fit_hdr, cfg_noffset);
 			fit_uname_kernel = fit_get_name (fit_hdr, os_noffset, NULL);
 		} else {
 			/* get kernel component image node offset */

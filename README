@@ -1769,6 +1769,7 @@ FIT uImage format:
  -101	common/cmd_bootm.c	Can't get configuration for kernel subimage
   102	common/cmd_bootm.c	Kernel unit name specified
  -103	common/cmd_bootm.c	Can't get kernel subimage node offset
+  103	common/cmd_bootm.c	Found configuration node
   104	common/cmd_bootm.c	Got kernel subimage node offset
  -104	common/cmd_bootm.c	Kernel subimage hash verification failed
   105	common/cmd_bootm.c	Kernel subimage hash verification OK

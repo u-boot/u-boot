@@ -206,6 +206,8 @@ typedef struct bootm_headers {
 	ulong		legacy_hdr_valid;
 
 #if defined(CONFIG_FIT)
+	const char	*fit_uname_cfg;	/* configuration node unit name */
+
 	void		*fit_hdr_os;	/* os FIT image header */
 	const char	*fit_uname_os;	/* os subimage node unit name */
 	int		fit_noffset_os;	/* os subimage node offset */
@@ -251,6 +253,7 @@ int genimg_get_comp_id (const char *name);
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 
 int genimg_get_format (void *img_addr);
+int genimg_has_config (bootm_headers_t *images);
 ulong genimg_get_image (ulong img_addr);
 
 int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,

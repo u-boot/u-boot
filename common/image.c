@@ -738,6 +738,26 @@ ulong genimg_get_image (ulong img_addr)
 }
 
 /**
+ * fit_has_config - check if there is a valid FIT configuration
+ * @images: pointer to the bootm command headers structure
+ *
+ * fit_has_config() checks if there is a FIT configuration in use
+ * (if FTI support is present).
+ *
+ * returns:
+ *     0, no FIT support or no configuration found
+ *     1, configuration found
+ */
+int genimg_has_config (bootm_headers_t *images)
+{
+#if defined(CONFIG_FIT)
+	if (images->fit_uname_cfg)
+		return 1;
+#endif
+	return 0;
+}
+
+/**
  * boot_get_ramdisk - main ramdisk handling routine
  * @argc: command argument count
  * @argv: command argument list
@@ -771,7 +791,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 	const char	*fit_uname_ramdisk = NULL;
 	ulong		default_addr;
 	int		rd_noffset;
-	int		conf_noffset;
+	int		cfg_noffset;
 	const void	*data;
 	size_t		size;
 #endif
@@ -786,33 +806,63 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 	if ((argc >= 3) && (strcmp(argv[2], "-") ==  0)) {
 		debug ("## Skipping init Ramdisk\n");
 		rd_len = rd_data = 0;
-	} else if (argc >= 3) {
+	} else if (argc >= 3 || genimg_has_config (images)) {
 #if defined(CONFIG_FIT)
-		/*
-		 * If the init ramdisk comes from the FIT image and the FIT image
-		 * address is omitted in the command line argument, try to use
-		 * os FIT image address or default load address.
-		 */
-		if (images->fit_uname_os)
-			default_addr = (ulong)images->fit_hdr_os;
-		else
-			default_addr = load_addr;
+		if (argc >= 3) {
+			/*
+			 * If the init ramdisk comes from the FIT image and
+			 * the FIT image address is omitted in the command
+			 * line argument, try to use os FIT image address or
+			 * default load address.
+			 */
+			if (images->fit_uname_os)
+				default_addr = (ulong)images->fit_hdr_os;
+			else
+				default_addr = load_addr;
 
-		if (fit_parse_conf (argv[2], default_addr,
-					&rd_addr, &fit_uname_config)) {
-			debug ("*  ramdisk: config '%s' from image at 0x%08lx\n",
-					fit_uname_config, rd_addr);
-		} else if (fit_parse_subimage (argv[2], default_addr,
-					&rd_addr, &fit_uname_ramdisk)) {
-			debug ("*  ramdisk: subimage '%s' from image at 0x%08lx\n",
-					fit_uname_ramdisk, rd_addr);
-		} else
+			if (fit_parse_conf (argv[2], default_addr,
+						&rd_addr, &fit_uname_config)) {
+				debug ("*  ramdisk: config '%s' from image at 0x%08lx\n",
+						fit_uname_config, rd_addr);
+			} else if (fit_parse_subimage (argv[2], default_addr,
+						&rd_addr, &fit_uname_ramdisk)) {
+				debug ("*  ramdisk: subimage '%s' from image at 0x%08lx\n",
+						fit_uname_ramdisk, rd_addr);
+			} else
 #endif
-		{
-			rd_addr = simple_strtoul(argv[2], NULL, 16);
-			debug ("*  ramdisk: cmdline image address = 0x%08lx\n",
-					rd_addr);
+			{
+				rd_addr = simple_strtoul(argv[2], NULL, 16);
+				debug ("*  ramdisk: cmdline image address = 0x%08lx\n",
+						rd_addr);
+			}
+#if defined(CONFIG_FIT)
+		} else {
+			/* use FIT configuration provided in first bootm
+			 * command argument
+			 */
+			rd_addr = (ulong)images->fit_hdr_os;
+			fit_uname_config = images->fit_uname_cfg;
+			debug ("*  ramdisk: using config '%s' from image at 0x%08lx\n",
+					fit_uname_config, rd_addr);
+
+			/*
+			 * Check whether configuration has ramdisk defined,
+			 * if not, don't try to use it, quit silently.
+			 */
+			fit_hdr = (void *)rd_addr;
+			cfg_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
+			if (cfg_noffset < 0) {
+				debug ("*  ramdisk: no such config\n");
+				return 0;
+			}
+
+			rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, cfg_noffset);
+			if (rd_noffset < 0) {
+				debug ("*  ramdisk: no ramdisk in config\n");
+				return 0;
+			}
 		}
+#endif
 
 		/* copy from dataflash if needed */
 		rd_addr = genimg_get_image (rd_addr);
@@ -859,13 +909,16 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 				 * fit_conf_get_node() will try to find default config node
 				 */
 				show_boot_progress (122);
-				conf_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
-				if (conf_noffset < 0) {
+				cfg_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
+				if (cfg_noffset < 0) {
+					puts ("Could not find configuration node\n");
 					show_boot_progress (-122);
 					return 0;
 				}
+				fit_uname_config = fdt_get_name (fit_hdr, cfg_noffset, NULL);
+				printf ("   Using '%s' configuration\n", fit_uname_config);
 
-				rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, conf_noffset);
+				rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, cfg_noffset);
 				fit_uname_ramdisk = fit_get_name (fit_hdr, rd_noffset, NULL);
 			} else {
 				/* get ramdisk component image node offset */
@@ -873,6 +926,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 				rd_noffset = fit_image_get_node (fit_hdr, fit_uname_ramdisk);
 			}
 			if (rd_noffset < 0) {
+				puts ("Could not find subimage node\n");
 				show_boot_progress (-124);
 				return 0;
 			}
@@ -2394,7 +2448,7 @@ int fit_conf_get_fdt_node (const void *fit, int noffset)
 /**
  * fit_conf_print - prints out the FIT configuration details
  * @fit: pointer to the FIT format image header
- * @conf_noffset: offset of the configuration node
+ * @noffset: offset of the configuration node
  * @p: pointer to prefix string
  *
  * fit_conf_print() lists all mandatory properies for the processed

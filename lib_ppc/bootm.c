@@ -415,7 +415,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
         const char      *fit_uname_config = NULL;
         const char      *fit_uname_fdt = NULL;
 	ulong		default_addr;
-	int		conf_noffset;
+	int		cfg_noffset;
 	int		fdt_noffset;
 	const void	*data;
 	size_t		size;
@@ -424,35 +424,67 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	if (argc > 3) {
+	if (argc > 3 || genimg_has_config (images)) {
 #if defined(CONFIG_FIT)
-		/*
-		 * If the FDT blob comes from the FIT image and the FIT image
-		 * address is omitted in the command line argument, try to use
-		 * ramdisk or os FIT image address or default load address.
-		 */
-		if (images->fit_uname_rd)
-			default_addr = (ulong)images->fit_hdr_rd;
-		else if (images->fit_uname_os)
-			default_addr = (ulong)images->fit_hdr_os;
-		else
-			default_addr = load_addr;
+		if (argc > 3) {
+			/*
+			 * If the FDT blob comes from the FIT image and the
+			 * FIT image address is omitted in the command line
+			 * argument, try to use ramdisk or os FIT image
+			 * address or default load address.
+			 */
+			if (images->fit_uname_rd)
+				default_addr = (ulong)images->fit_hdr_rd;
+			else if (images->fit_uname_os)
+				default_addr = (ulong)images->fit_hdr_os;
+			else
+				default_addr = load_addr;
 
-		if (fit_parse_conf (argv[3], default_addr,
-					&fdt_addr, &fit_uname_config)) {
-			debug ("*  fdt: config '%s' from image at 0x%08lx\n",
-					fit_uname_config, fdt_addr);
-		} else if (fit_parse_subimage (argv[3], default_addr,
-					&fdt_addr, &fit_uname_fdt)) {
-			debug ("*  fdt: subimage '%s' from image at 0x%08lx\n",
-					fit_uname_fdt, fdt_addr);
-		} else
+			if (fit_parse_conf (argv[3], default_addr,
+						&fdt_addr, &fit_uname_config)) {
+				debug ("*  fdt: config '%s' from image at 0x%08lx\n",
+						fit_uname_config, fdt_addr);
+			} else if (fit_parse_subimage (argv[3], default_addr,
+						&fdt_addr, &fit_uname_fdt)) {
+				debug ("*  fdt: subimage '%s' from image at 0x%08lx\n",
+						fit_uname_fdt, fdt_addr);
+			} else
 #endif
-		{
-			fdt_addr = simple_strtoul(argv[3], NULL, 16);
-			debug ("*  fdt: cmdline image address = 0x%08lx\n",
-					fdt_addr);
+			{
+				fdt_addr = simple_strtoul(argv[3], NULL, 16);
+				debug ("*  fdt: cmdline image address = 0x%08lx\n",
+						fdt_addr);
+			}
+#if defined(CONFIG_FIT)
+		} else {
+			/* use FIT configuration provided in first bootm
+			 * command argument
+			 */
+			fdt_addr = (ulong)images->fit_hdr_os;
+			fit_uname_config = images->fit_uname_cfg;
+			debug ("*  fdt: using config '%s' from image at 0x%08lx\n",
+					fit_uname_config, fdt_addr);
+
+			/*
+			 * Check whether configuration has FDT blob defined,
+			 * if not quit silently.
+			 */
+			fit_hdr = (void *)fdt_addr;
+			cfg_noffset = fit_conf_get_node (fit_hdr,
+					fit_uname_config);
+			if (cfg_noffset < 0) {
+				debug ("*  fdt: no such config\n");
+				return 0;
+			}
+
+			fdt_noffset = fit_conf_get_fdt_node (fit_hdr,
+					cfg_noffset);
+			if (fdt_noffset < 0) {
+				debug ("*  fdt: no fdt in config\n");
+				return 0;
+			}
 		}
+#endif
 
 		debug ("## Checking for 'FDT'/'FDT Image' at %08lx\n",
 				fdt_addr);
@@ -522,13 +554,21 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 					 * fit_conf_get_node() will try to
 					 * find default config node
 					 */
-					conf_noffset = fit_conf_get_node (fit_hdr,
+					cfg_noffset = fit_conf_get_node (fit_hdr,
 							fit_uname_config);
-					if (conf_noffset < 0)
+
+					if (cfg_noffset < 0) {
+						fdt_error ("Could not find configuration node\n");
 						goto error;
+					}
+
+					fit_uname_config = fdt_get_name (fit_hdr,
+							cfg_noffset, NULL);
+					printf ("   Using '%s' configuration\n",
+							fit_uname_config);
 
 					fdt_noffset = fit_conf_get_fdt_node (fit_hdr,
-							conf_noffset);
+							cfg_noffset);
 					fit_uname_fdt = fit_get_name (fit_hdr,
 							fdt_noffset, NULL);
 				} else {
@@ -536,8 +576,10 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 					fdt_noffset = fit_image_get_node (fit_hdr,
 							fit_uname_fdt);
 				}
-				if (fdt_noffset < 0)
+				if (fdt_noffset < 0) {
+					fdt_error ("Could not find subimage node\n");
 					goto error;
+				}
 
 				printf ("   Trying '%s' FDT blob subimage\n",
 						fit_uname_fdt);
