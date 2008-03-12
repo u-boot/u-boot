@@ -66,6 +66,11 @@ static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static void fixup_silent_linux (void);
 #endif
 
+static image_header_t *image_get_kernel (ulong img_addr, int verify);
+#if defined(CONFIG_FIT)
+static int fit_check_kernel (const void *fit, int os_noffset, int verify);
+#endif
+
 static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag,int argc, char *argv[],
 		bootm_headers_t *images, ulong *os_data, ulong *os_len);
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -125,6 +130,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 	ulong		mem_start, mem_size;
+#if defined(CONFIG_FIT)
+	int		os_noffset;
+#endif
 
 	struct lmb lmb;
 
@@ -145,8 +153,10 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel (cmdtp, flag, argc, argv,
 			&images, &os_data, &os_len);
-	if (os_len == 0)
+	if (os_len == 0) {
+		puts ("ERROR: can't get kernel image!\n");
 		return 1;
+	}
 
 	show_boot_progress (6);
 
@@ -162,8 +172,37 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_unsupported ("bootm");
-		return 1;
+		os_noffset = fit_image_get_node (images.fit_hdr_os,
+				images.fit_uname_os);
+		if (os_noffset < 0) {
+			printf ("Can't get image node for '%s'!\n",
+					images.fit_uname_os);
+			return 1;
+		}
+
+		if (fit_image_get_type (images.fit_hdr_os, os_noffset, &type)) {
+			puts ("Can't get image type!\n");
+			return 1;
+		}
+
+		if (fit_image_get_comp (images.fit_hdr_os, os_noffset, &comp)) {
+			puts ("Can't get image compression!\n");
+			return 1;
+		}
+
+		if (fit_image_get_os (images.fit_hdr_os, os_noffset, &os)) {
+			puts ("Can't get image OS!\n");
+			return 1;
+		}
+
+		image_end = fit_get_end (images.fit_hdr_os);
+
+		if (fit_image_get_load (images.fit_hdr_os, os_noffset,
+					&load_start)) {
+			puts ("Can't get image load address!\n");
+			return 1;
+		}
+		break;
 #endif
 	default:
 		puts ("ERROR: unknown image format type!\n");
@@ -360,6 +399,47 @@ static image_header_t *image_get_kernel (ulong img_addr, int verify)
 }
 
 /**
+ * fit_check_kernel - verify FIT format kernel subimage
+ * @fit_hdr: pointer to the FIT image header
+ * os_noffset: kernel subimage node offset within FIT image
+ * @verify: data CRC verification flag
+ *
+ * fit_check_kernel() verifies integrity of the kernel subimage and from
+ * specified FIT image.
+ *
+ * returns:
+ *     1, on success
+ *     0, on failure
+ */
+#if defined (CONFIG_FIT)
+static int fit_check_kernel (const void *fit, int os_noffset, int verify)
+{
+	fit_image_print (fit, os_noffset, "   ");
+
+	if (verify) {
+		puts ("   Verifying Hash Integrity ... ");
+		if (!fit_image_check_hashes (fit, os_noffset)) {
+			puts ("Bad Data Hash\n");
+			return 0;
+		}
+		puts ("OK\n");
+	}
+
+	if (!fit_image_check_target_arch (fit, os_noffset)) {
+		puts ("Unsupported Architecture\n");
+		return 0;
+	}
+
+	if (!fit_image_check_type (fit, os_noffset, IH_TYPE_KERNEL)) {
+		puts ("Not a kernel image\n");
+		return 0;
+	}
+
+	return 1;
+}
+#endif /* CONFIG_FIT */
+
+/**
  * boot_get_kernel - find kernel image
  * @os_data: pointer to a ulong variable, will hold os data start address
  * @os_len: pointer to a ulong variable, will hold os data length
@@ -380,6 +460,10 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
+	const void	*data;
+	size_t		len;
+	int		conf_noffset;
+	int		os_noffset;
 #endif
 
 	/* find out kernel image address */
@@ -403,21 +487,22 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 	}
 
 	show_boot_progress (1);
-	printf ("## Booting kernel image at %08lx ...\n", img_addr);
 
 	/* copy from dataflash if needed */
 	img_addr = genimg_get_image (img_addr);
 
 	/* check image type, for FIT images get FIT kernel node */
+	*os_data = *os_len = 0;
 	switch (genimg_get_format ((void *)img_addr)) {
 	case IMAGE_FORMAT_LEGACY:
-
-		debug ("*  kernel: legacy format image\n");
+		printf ("## Booting kernel from Legacy Image at %08lx ...\n",
+				img_addr);
 		hdr = image_get_kernel (img_addr, images->verify);
 		if (!hdr)
 			return NULL;
 		show_boot_progress (5);
 
+		/* get os_data and os_len */
 		switch (image_get_type (hdr)) {
 		case IH_TYPE_KERNEL:
 			*os_data = image_get_data (hdr);
@@ -438,17 +523,57 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (void *)img_addr;
-		debug ("*  kernel: FIT format image\n");
-		fit_unsupported ("kernel");
-		return NULL;
+		printf ("## Booting kernel from FIT Image at %08lx ...\n",
+				img_addr);
+
+		if (!fit_check_format (fit_hdr)) {
+			puts ("Bad FIT kernel image format!\n");
+			return NULL;
+		}
+
+		if (!fit_uname_kernel) {
+			/*
+			 * no kernel image node unit name, try to get config
+			 * node first. If config unit node name is NULL
+			 * fit_conf_get_node() will try to find default config node
+			 */
+			conf_noffset = fit_conf_get_node (fit_hdr, fit_uname_config);
+			if (conf_noffset < 0)
+				return NULL;
+
+			os_noffset = fit_conf_get_kernel_node (fit_hdr, conf_noffset);
+			fit_uname_kernel = fit_get_name (fit_hdr, os_noffset, NULL);
+		} else {
+			/* get kernel component image node offset */
+			os_noffset = fit_image_get_node (fit_hdr, fit_uname_kernel);
+		}
+		if (os_noffset < 0)
+			return NULL;
+
+		printf ("   Trying '%s' kernel subimage\n", fit_uname_kernel);
+
+		if (!fit_check_kernel (fit_hdr, os_noffset, images->verify))
+			return NULL;
+
+		/* get kernel image data address and length */
+		if (fit_image_get_data (fit_hdr, os_noffset, &data, &len)) {
+			puts ("Could not find kernel subimage data!\n");
+			return NULL;
+		}
+
+		*os_len = len;
+		*os_data = (ulong)data;
+		images->fit_hdr_os = fit_hdr;
+		images->fit_uname_os = fit_uname_kernel;
+		break;
 #endif
 	default:
 		printf ("Wrong Image Format for %s command\n", cmdtp->name);
 		return NULL;
 	}
 
-	debug ("   kernel data at 0x%08lx, end = 0x%08lx\n",
-			*os_data, *os_data + *os_len);
+	debug ("   kernel data at 0x%08lx, len = 0x%08lx (%d)\n",
+			*os_data, *os_len, *os_len);
 
 	return (void *)img_addr;
 }
@@ -465,6 +590,14 @@ U_BOOT_CMD(
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
 	"\tuse a '-' for the second argument. If you do not pass a third\n"
 	"\ta bd_info struct will be passed instead\n"
+#endif
+#if defined(CONFIG_FIT)
+	"\t\nFor the new multi component uImage format (FIT) addresses\n"
+	"\tmust be extened to include component or configuration unit name:\n"
+	"\taddr:<subimg_uname> - direct component image specification\n"
+	"\taddr#<conf_uname>   - configuration specification\n"
+	"\tUse iminfo command to get the list of existing component\n"
+	"\timages and configurations.\n"
 #endif
 );
 
