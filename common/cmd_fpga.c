@@ -164,6 +164,10 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char *devstr = getenv ("fpga");
 	char *datastr = getenv ("fpgadata");
 	int rc = FPGA_FAIL;
+#if defined (CONFIG_FIT)
+	const char *fit_uname = NULL;
+	ulong fit_addr;
+#endif
 
 	if (devstr)
 		dev = (int) simple_strtoul (devstr, NULL, 16);
@@ -173,9 +177,22 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	switch (argc) {
 	case 5:		/* fpga <op> <dev> <data> <datasize> */
 		data_size = simple_strtoul (argv[4], NULL, 16);
+
 	case 4:		/* fpga <op> <dev> <data> */
-		fpga_data = (void *) simple_strtoul (argv[3], NULL, 16);
+#if defined(CONFIG_FIT)
+		if (fit_parse_subimage (argv[3], (ulong)fpga_data,
+					&fit_addr, &fit_uname)) {
+			fpga_data = (void *)fit_addr;
+			debug ("*  fpga: subimage '%s' from FIT image at 0x%08lx\n",
+					fit_uname, fit_addr);
+		} else
+#endif
+		{
+			fpga_data = (void *) simple_strtoul (argv[3], NULL, 16);
+			debug ("*  fpga: cmdline image address = 0x%08lx\n", (ulong)fpga_data);
+		}
 		PRINTF ("%s: fpga_data = 0x%x\n", __FUNCTION__, (uint) fpga_data);
+
 	case 3:		/* fpga <op> <dev | data addr> */
 		dev = (int) simple_strtoul (argv[2], NULL, 16);
 		PRINTF ("%s: device = %d\n", __FUNCTION__, dev);
@@ -183,14 +200,29 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if ((argc == 3) && (dev > fpga_count ())) {	/* must be buffer ptr */
 			PRINTF ("%s: Assuming buffer pointer in arg 3\n",
 				__FUNCTION__);
-			fpga_data = (void *) dev;
+
+#if defined(CONFIG_FIT)
+			if (fit_parse_subimage (argv[2], (ulong)fpga_data,
+						&fit_addr, &fit_uname)) {
+				fpga_data = (void *)fit_addr;
+				debug ("*  fpga: subimage '%s' from FIT image at 0x%08lx\n",
+						fit_uname, fit_addr);
+			} else
+#endif
+			{
+				fpga_data = (void *) dev;
+				debug ("*  fpga: cmdline image address = 0x%08lx\n", (ulong)fpga_data);
+			}
+
 			PRINTF ("%s: fpga_data = 0x%x\n",
 				__FUNCTION__, (uint) fpga_data);
 			dev = FPGA_INVALID_DEVICE;	/* reset device num */
 		}
+
 	case 2:		/* fpga <op> */
 		op = (int) fpga_get_op (argv[1]);
 		break;
+
 	default:
 		PRINTF ("%s: Too many or too few args (%d)\n",
 			__FUNCTION__, argc);
@@ -222,10 +254,6 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				image_header_t *hdr = (image_header_t *)fpga_data;
 				ulong	data;
 
-				if (!image_check_magic (hdr)) {
-					puts ("Bad Magic Number\n");
-					return 1;
-				}
 				data = (ulong)image_get_data (hdr);
 				data_size = image_get_data_size (hdr);
 				rc = fpga_load (dev, (void *)data, data_size);
@@ -233,8 +261,42 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			break;
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-			fit_unsupported ("fpga");
-			rc = FPGA_FAIL;
+			{
+				const void *fit_hdr = (const void *)fpga_data;
+				int noffset;
+				void *fit_data;
+
+				if (fit_uname == NULL) {
+					puts ("No FIT subimage unit name\n");
+					return 1;
+				}
+
+				if (!fit_check_format (fit_hdr)) {
+					puts ("Bad FIT image format\n");
+					return 1;
+				}
+
+				/* get fpga component image node offset */
+				noffset = fit_image_get_node (fit_hdr, fit_uname);
+				if (noffset < 0) {
+					printf ("Can't find '%s' FIT subimage\n", fit_uname);
+					return 1;
+				}
+
+				/* verify integrity */
+				if (!fit_image_check_hashes (fit_hdr, noffset)) {
+					puts ("Bad Data Hash\n");
+					return 1;
+				}
+
+				/* get fpga subimage data address and length */
+				if (fit_image_get_data (fit_hdr, noffset, &fit_data, &data_size)) {
+					puts ("Could not find fpga subimage data\n");
+					return 1;
+				}
+
+				rc = fpga_load (dev, fit_data, data_size);
+			}
 			break;
 #endif
 		default:
@@ -295,4 +357,9 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tload\tLoad device from memory buffer\n"
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
 	    "\tloadmk\tLoad device generated with mkimage\n"
-	    "\tdump\tLoad device to memory buffer\n");
+	    "\tdump\tLoad device to memory buffer\n"
+#if defined(CONFIG_FIT)
+	    "\tFor loadmk operating on FIT format uImage address must include\n"
+	    "\tsubimage unit name in the form of addr:<subimg_uname>\n"
+#endif
+);
