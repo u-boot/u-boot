@@ -160,7 +160,7 @@ _copy_flash:
 _flashbar_setup:
 	/* Initialize FLASHBAR: locate internal Flash and validate it */
 	move.l	#(CFG_INT_FLASH_BASE + CFG_INT_FLASH_ENABLE), %d0
-	movec	%d0, %RAMBAR0
+	movec	%d0, %FLASHBAR
 	jmp _after_flashbar_copy.L	/* Force jump to absolute address */
 _flashbar_setup_end:
 	nop
@@ -168,7 +168,7 @@ _after_flashbar_copy:
 #else
 	/* Setup code to initialize FLASHBAR, if start from external Memory */
 	move.l	#(CFG_INT_FLASH_BASE + CFG_INT_FLASH_ENABLE), %d0
-	movec	%d0, %RAMBAR0
+	movec	%d0, %RAMBAR1
 #endif /* (TEXT_BASE == CFG_INT_FLASH_BASE) */
 
 #endif
