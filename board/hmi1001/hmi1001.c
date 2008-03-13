@@ -147,6 +147,24 @@ long int initdram (int board_type)
 
 #endif /* CFG_RAMBOOT */
 
+	/*
+	 * On MPC5200B we need to set the special configuration delay in the
+	 * DDR controller. Please refer to Freescale's AN3221 "MPC5200B SDRAM
+	 * Initialization and Configuration", 3.3.1 SDelay--MBAR + 0x0190:
+	 *
+	 * "The SDelay should be written to a value of 0x00000004. It is
+	 * required to account for changes caused by normal wafer processing
+	 * parameters."
+	 */
+	svr = get_svr();
+	pvr = get_pvr();
+	if ((SVR_MJREV(svr) >= 2) &&
+	    (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
+
+		*(vu_long *)MPC5XXX_SDRAM_SDELAY = 0x04;
+		__asm__ volatile ("sync");
+	}
+
 /*	return dramsize + dramsize2; */
 	return dramsize;
 }
