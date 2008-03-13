@@ -104,7 +104,6 @@ static void sdram_start (int hi_addr)
  *	      is something else than 0x00000000.
  */
 
-#if defined(CONFIG_MPC5200)
 long int initdram (int board_type)
 {
 	ulong dramsize = 0;
@@ -230,57 +229,6 @@ long int initdram (int board_type)
 #endif /* CONFIG_TQM5200_B */
 }
 
-#elif defined(CONFIG_MGT5100)
-
-long int initdram (int board_type)
-{
-	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
-	ulong test1, test2;
-
-	/* setup and enable SDRAM chip selects */
-	*(vu_long *)MPC5XXX_SDRAM_START = 0x00000000;
-	*(vu_long *)MPC5XXX_SDRAM_STOP = 0x0000ffff;/* 2G */
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 22); /* Enable SDRAM */
-	__asm__ volatile ("sync");
-
-	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = SDRAM_CONFIG1;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = SDRAM_CONFIG2;
-
-	/* address select register */
-	*(vu_long *)MPC5XXX_SDRAM_XLBSEL = SDRAM_ADDRSEL;
-	__asm__ volatile ("sync");
-
-	/* find RAM size */
-	sdram_start(0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
-	sdram_start(1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
-	if (test1 > test2) {
-		sdram_start(0);
-		dramsize = test1;
-	} else {
-		dramsize = test2;
-	}
-
-	/* set SDRAM end address according to size */
-	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
-
-#else /* CFG_RAMBOOT */
-
-	/* Retrieve amount of SDRAM available */
-	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);
-
-#endif /* CFG_RAMBOOT */
-
-	return dramsize;
-}
-
-#else
-#error Neither CONFIG_MPC5200 or CONFIG_MGT5100 defined
-#endif
-
 int checkboard (void)
 {
 #if defined(CONFIG_AEVFIFO)
@@ -323,10 +271,6 @@ void flash_preinit(void)
 	 * Note that CS_BOOT cannot be cleared when
 	 * executing in flash.
 	 */
-#if defined(CONFIG_MGT5100)
-	*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 25); /* disable CS_BOOT */
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 16); /* enable CS0 */
-#endif
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
