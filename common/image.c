@@ -54,6 +54,7 @@
 #endif
 
 #if defined(CONFIG_FIT)
+#include <md5.h>
 #include <sha1.h>
 
 static int fit_check_ramdisk (const void *fit, int os_noffset,
@@ -70,6 +71,7 @@ static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
 						int verify);
 #else
 #include "mkimage.h"
+#include <md5.h>
 #include <time.h>
 #include <image.h>
 #endif /* !USE_HOSTCC*/
@@ -1940,8 +1942,8 @@ static int calculate_hash (const void *data, int data_len, const char *algo,
 				(unsigned char *) value);
 		*value_len = 20;
 	} else if (strcmp (algo, "md5") == 0 ) {
-		printf ("MD5 not supported\n");
-		*value_len = 0;
+		md5 ((unsigned char *)data, data_len, value);
+		*value_len = 16;
 	} else {
 		debug ("Unsupported hash alogrithm\n");
 		return -1;

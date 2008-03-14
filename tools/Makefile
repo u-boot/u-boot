@@ -23,7 +23,7 @@
 
 BIN_FILES	= img2srec$(SFX) mkimage$(SFX) envcrc$(SFX) ubsha1$(SFX) gen_eth_addr$(SFX) bmp_logo$(SFX)
 
-OBJ_LINKS	= environment.o crc32.o sha1.o image.o
+OBJ_LINKS	= environment.o crc32.o md5.o sha1.o image.o
 OBJ_FILES	= img2srec.o mkimage.o envcrc.o ubsha1.o gen_eth_addr.o bmp_logo.o
 
 ifeq ($(ARCH),mips)
@@ -143,7 +143,7 @@ $(obj)img2srec$(SFX):	$(obj)img2srec.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
-$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o $(obj)sha1.o $(LIBFDT_OBJ_FILES)
+$(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o $(obj)md5.o $(obj)sha1.o $(LIBFDT_OBJ_FILES)
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
@@ -174,6 +174,9 @@ $(obj)ubsha1.o:	$(src)ubsha1.c
 		$(CC) -g $(CFLAGS) -c -o $@ $<
 
 $(obj)crc32.o:	$(obj)crc32.c
+		$(CC) -g $(CFLAGS) -c -o $@ $<
+
+$(obj)md5.o:	$(obj)md5.c
 		$(CC) -g $(CFLAGS) -c -o $@ $<
 
 $(obj)sha1.o:	$(obj)sha1.c
@@ -236,6 +239,10 @@ $(obj)environment.o:	$(obj)environment.c
 $(obj)crc32.c:
 		@rm -f $(obj)crc32.c
 		ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
+
+$(obj)md5.c:
+		@rm -f $(obj)md5.c
+		ln -s $(src)../lib_generic/md5.c $(obj)md5.c
 
 $(obj)sha1.c:
 		@rm -f $(obj)sha1.c
