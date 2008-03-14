@@ -583,10 +583,11 @@ uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
 	uint speed;
 
 	mii_reg = read_phy_reg(priv, MIIM_RTL8211B_PHY_STATUS);
-	if ((mii_reg & MIIM_RTL8211B_PHYSTAT_LINK) &&
-		!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
+	if (!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
 		int i = 0;
 
+		/* in case of timeout ->link is cleared */
+		priv->link = 1;
 		puts("Waiting for PHY realtime link");
 		while (!(mii_reg & MIIM_RTL8211B_PHYSTAT_SPDDONE)) {
 			/* Timeout reached ? */
