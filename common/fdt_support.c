@@ -422,3 +422,28 @@ void fdt_fixup_ethernet(void *fdt, bd_t *bd)
 	}
 }
 #endif
+
+#ifdef CONFIG_HAS_FSL_DR_USB
+void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+{
+	char *mode;
+	const char *compat = "fsl-usb2-dr";
+	const char *prop = "dr_mode";
+	int node_offset;
+	int err;
+
+	mode = getenv("usb_dr_mode");
+	if (!mode)
+		return;
+
+	node_offset = fdt_node_offset_by_compatible(blob, 0, compat);
+	if (node_offset < 0)
+		printf("WARNING: could not find compatible node %s: %s.\n",
+			compat, fdt_strerror(node_offset));
+
+	err = fdt_setprop(blob, node_offset, prop, mode, strlen(mode) + 1);
+	if (err < 0)
+		printf("WARNING: could not set %s for %s: %s.\n",
+		       prop, compat, fdt_strerror(err));
+}
+#endif /* CONFIG_HAS_FSL_DR_USB */

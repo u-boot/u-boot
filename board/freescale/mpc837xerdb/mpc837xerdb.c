@@ -197,5 +197,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_pci_setup(blob, bd);
 #endif
 	ft_cpu_setup(blob, bd);
+	fdt_fixup_dr_usb(blob, bd);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
