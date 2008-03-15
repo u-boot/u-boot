@@ -53,6 +53,7 @@ COBJS-y += rs5c372.o
 COBJS-y += rx8025.o
 COBJS-y += mcfrtc.o
 COBJS-y += x1205.o
+COBJS-$(CONFIG_RTC_ISL1208) += isl1208.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
