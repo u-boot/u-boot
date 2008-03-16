@@ -33,8 +33,13 @@
 #define onenand_buffer_address()		((1 << 3) << 8)
 #define onenand_bufferram_address(block)	(0)
 
+#ifdef __HAVE_ARCH_MEMCPY32
+extern void *memcpy32(void *dest, void *src, int size);
+#endif
+
 /* read a page with ECC */
-static inline int onenand_read_page(ulong block, ulong page, u_char *buf)
+static inline int onenand_read_page(ulong block, ulong page,
+				u_char * buf, int pagesize)
 {
 	unsigned long *base;
 
@@ -46,14 +51,14 @@ static inline int onenand_read_page(ulong block, ulong page, u_char *buf)
 	onenand_writew(onenand_block_address(block),
 		THIS_ONENAND(ONENAND_REG_START_ADDRESS1));
 
+	onenand_writew(onenand_bufferram_address(block),
+		THIS_ONENAND(ONENAND_REG_START_ADDRESS2));
+
 	onenand_writew(onenand_sector_address(page),
 		THIS_ONENAND(ONENAND_REG_START_ADDRESS8));
 
 	onenand_writew(onenand_buffer_address(),
 		THIS_ONENAND(ONENAND_REG_START_BUFFER));
-
-	onenand_writew(onenand_bufferram_address(block),
-		THIS_ONENAND(ONENAND_REG_START_ADDRESS2));
 
 	onenand_writew(ONENAND_INT_CLEAR, THIS_ONENAND(ONENAND_REG_INTERRUPT));
 
@@ -69,9 +74,9 @@ static inline int onenand_read_page(ulong block, ulong page, u_char *buf)
 
 #ifdef __HAVE_ARCH_MEMCPY32
 	/* 32 bytes boundary memory copy */
-	memcpy32(buf, base, ONENAND_PAGE_SIZE);
+	memcpy32(buf, base, pagesize);
 #else
-	for (offset = 0; offset < (ONENAND_PAGE_SIZE >> 2); offset++) {
+	for (offset = 0; offset < (pagesize >> 2); offset++) {
 		value = *(base + offset);
 		*p++ = value;
 	}
@@ -87,18 +92,22 @@ static inline int onenand_read_page(ulong block, ulong page, u_char *buf)
  * onenand_read_block - Read a block data to buf
  * @return 0 on success
  */
-int onenand_read_block(unsigned char *buf, ulong block)
+int onenand_read_block0(unsigned char *buf)
 {
 	int page, offset = 0;
+	int pagesize = ONENAND_PAGE_SIZE;
+
+	/* MLC OneNAND has 4KiB page size */
+	if (onenand_readw(THIS_ONENAND(ONENAND_REG_TECHNOLOGY)))
+		pagesize <<= 1;
 
 	/* NOTE: you must read page from page 1 of block 0 */
 	/* read the block page by page*/
 	for (page = ONENAND_START_PAGE;
 	    page < ONENAND_PAGES_PER_BLOCK; page++) {
 
-		onenand_read_page(block, page, buf + offset);
-
-		offset += ONENAND_PAGE_SIZE;
+		onenand_read_page(0, page, buf + offset, pagesize);
+		offset += pagesize;
 	}
 
 	return 0;

@@ -23,7 +23,6 @@
 
 #include <linux/mtd/onenand_regs.h>
 
-#define ONENAND_START_BLOCK             0
 #define ONENAND_BLOCK_SIZE              2048
 
 #ifndef CFG_PRINTF
@@ -40,5 +39,5 @@
 
 #define ONENAND_PAGE_SIZE                       2048
 
-extern int onenand_read_block(unsigned char *buf, ulong block);
+extern int onenand_read_block0(unsigned char *buf);
 #endif

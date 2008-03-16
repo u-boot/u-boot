@@ -60,7 +60,7 @@ void start_oneboot(void)
 
 	buf = (uchar *) CFG_LOAD_ADDR;
 
-	if (!onenand_read_block(buf, ONENAND_START_BLOCK))
+	if (!onenand_read_block0(buf))
 		buf += ONENAND_BLOCK_SIZE;
 
 	if (buf == (uchar *)CFG_LOAD_ADDR)

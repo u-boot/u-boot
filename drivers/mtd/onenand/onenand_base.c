@@ -1180,6 +1180,12 @@ static int onenand_probe(struct mtd_info *mtd)
 	if (maf_id != bram_maf_id || dev_id != bram_dev_id)
 		return -ENXIO;
 
+	/* FIXME : Current OneNAND MTD doesn't support Flex-OneNAND */
+	if (dev_id & (1 << 9)) {
+		printk("Not yet support Flex-OneNAND\n");
+		return -ENXIO;
+	}
+
 	/* Flash device information */
 	onenand_print_device_info(dev_id, 0);
 	this->device_id = dev_id;
