@@ -359,4 +359,3 @@
 #define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */
-

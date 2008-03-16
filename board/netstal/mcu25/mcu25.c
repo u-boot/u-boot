@@ -215,4 +215,3 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	} else
 		return 0;
 }
-

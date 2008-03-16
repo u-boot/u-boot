@@ -1,3 +1,274 @@
+commit 41712b4e8c95dff23354bcd620e1f9477160c190
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 5 12:31:53 2008 +0100
+
+    ppc4xx: Add USB OHCI support to AMCC Canyonlands 460EX eval board
+
+    This patch adds USB OHCI support to the Canyonlands board port. It also
+    enables EXT2 support.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2596f5b9d353ff3e4387a3325d05740f16958038
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 5 12:29:32 2008 +0100
+
+    usb: Add CFG_OHCI_USE_NPS to common USB-OHCI driver
+
+    This patch adds CFG_OHCI_USE_NPS to the common USB-OHCI driver. This
+    way a board just needs to define this new option to enable the "force
+    NoPowerSwitching mode" instead of adding new CPU/architecture defines
+    to the USB source itself.
+
+    This new option will be used first with the new AMCC 460EX Canyonlands
+    board port, which will be posted in a few days.
+
+    This patch also fixes a small compilation problem when DEBUG is enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 71665ebf88408ff2acb762af47989fd4365b321a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Mar 3 17:27:02 2008 +0100
+
+    ppc4xx: Add Canyonlands NAND booting support
+
+    460EX doesn't support a fixed bootstrap option to boot from 512 byte page
+    NAND devices. The only bootstrap option for NAND booting is option F for
+    2k page devices. So to boot from a 512 bype page device, the I2C bootstrap
+    EEPROM needs to be programmed accordingly.
+
+    This patch adds basic NAND booting support for the AMCC Canyonlands aval
+    board and also adds support to the "bootstrap" command, to enable NAND
+    booting I2C setting.
+
+    Tested with 512 byte page NAND device (32MByte) on Canyonlands.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c813f1f835a7edfdb929f2843b09db72cd5cd2f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 16:53:00 2008 +0100
+
+    ppc4xx: Add AMCC Canyonlands support (460EX) (3/3)
+
+    This patch adds support for the AMCC Canyonlands 460EX evaluation
+    board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6983fe21f774a924d3adb263a270bc2f301f2aa2
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 16:52:24 2008 +0100
+
+    ppc4xx: Add AMCC Canyonlands support (460EX) (2/3)
+
+    This patch adds support for the AMCC Canyonlands 460EX evaluation
+    board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8e1a3fe545bbcfceafe183344ebc9f1ad03819c1
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 16:51:17 2008 +0100
+
+    ppc4xx: Add AMCC Canyonlands support (460EX) (1/3)
+
+    This patch adds support for the AMCC Canyonlands 460EX evaluation
+    board.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 43c60992cdf72496e7eaaa3fbd37ebbe75835f69
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 15:11:43 2008 +0100
+
+    ppc4xx: Add basic support for AMCC 460EX/460GT (5/5)
+
+    This patch adds basic support for the AMCC 460EX/460GT PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6f2eb3f3d8ea2dbb224d0da5a12038693bab9945
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 15:11:18 2008 +0100
+
+    ppc4xx: Add basic support for AMCC 460EX/460GT (4/5)
+
+    This patch adds basic support for the AMCC 460EX/460GT PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 999ecd5aca381984d8ebbeb207ece82a1c275577
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 15:07:10 2008 +0100
+
+    ppc4xx: Add basic support for AMCC 460EX/460GT (3/5)
+
+    This patch adds basic support for the AMCC 460EX/460GT PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2801b2d2a9906f206ab9ee8d0b6e746d2b7fe05a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 15:05:50 2008 +0100
+
+    ppc4xx: Add basic support for AMCC 460EX/460GT (2/5)
+
+    This patch adds basic support for the AMCC 460EX/460GT PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8ac41e3e37c3080c6b1d9461d654161cfe2aa492
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 15:05:26 2008 +0100
+
+    ppc4xx: Add basic support for AMCC 460EX/460GT (1/5)
+
+    This patch adds basic support for the AMCC 460EX/460GT PPC's.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 56e410178375d9f20be25fb24e180974f0ae120b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 19 22:07:57 2008 +0100
+
+    ppc4xx: interrupt.c reworked
+
+    This patch is a rework of the 4xx interrupt handling done while
+    adding the 460EX/GT support. Interrupts are needed on 4xx for the
+    EMAC driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 84a999b6cdd0b02dc7de2cacc306eaa84afe2b46
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 19 22:01:57 2008 +0100
+
+    ppc4xx: program_tlb now uses 64bit physical addess
+
+    This patch changes the physical addess parameter from 32bit to 64bit.
+    This is needed for 36bit 4xx platforms to access areas located
+    beyond the 4GB border, like SoC peripherals (EBC etc.).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c3307fa186af85771924c434997089b8104c0a46
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 19 21:58:25 2008 +0100
+
+    ppc4xx: miiphy.c reworked
+
+    While adding the 460EX/GT support I reworked the 4xx miiphy code. It
+    badly neede some cleanup.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 88aff62df39c0756241ea9f9b5a7b3ade26cb82b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Feb 19 16:21:49 2008 +0100
+
+    rtc: Add M41T62 support
+
+    This patch add support for the STM M41T62 RTC. It is used and tested
+    on the AMCC Canyonlands 406EX platform.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 217d383e201adc7f2271145ae345ea5eae2b7170
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Feb 25 18:46:43 2008 +0100
+
+    ppc4xx: Add 405GPr based MCU25 board specific files
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 75a66dcdb383863ad33f0534cfc27b7a86947dad
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Feb 25 18:46:42 2008 +0100
+
+    ppc4xx: Add 405GPr based MCU25 board config file
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit b05f35436b733a240559e77e46bed8439665ecc5
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Feb 25 18:46:41 2008 +0100
+
+    ppc4xx: Add 405GPr based MCU25 board. Global files
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit 14c27b35ac812a71abce6e3e2f4129d5e9313660
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Feb 25 18:37:02 2008 +0100
+
+    ppc4xx: HCU4/5. remove obsolete hcu_flash.c
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit a079494853cc2bfeddb26673219db0b4b2b31566
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Mon Feb 25 18:37:01 2008 +0100
+
+    ppc4xx: HCU4/5. Use FLASH_CFI_LEGACY
+
+    Cleanup: Remove custom flash driver for 8 bit boot-eprom and replace it with
+    the FLASH_CFI_LEGACY et al. config options.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+
+commit e4170e5a50c8110f792bc37472833ae669d69951
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 11 13:52:25 2008 +0100
+
+    ppc4xx: Fix comment in 405EX DDR2 init code
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b8aa57b5d4d69e8f0810a5e632c0ce41c0f46ee0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Mar 14 16:04:54 2008 +0100
+
+    tools/setlocalversion: use a git-describe-ish format
+
+    Change the automatic local version to have the form -nnnnn-gSHA1SUMID,
+    where 'nnnnn' is the number of commits since the last tag (i.e.,
+    1.3.2-rc3).  This makes it much easier to recognize "newer" versions
+    and to see how much has been changed since the referenced tag.
+
+    Stolen from Linux kernel's scripts/setlocalversio, see commit d882421f.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c6dc21c84de0f159a1752c5ebd33cff843f63609
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 13 14:32:03 2008 +0100
+
+    HMI1001: add support for MPC5200 Rev. B processors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 90f13dce7a7a9a84d5730576c9a24d0dbb07cb3a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 13 14:29:49 2008 +0100
+
+    TQM5200: remove dead code
+
+    This board never used a MGT5100 processor.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 30f1806f60978d707b0cff2d7bf89d141fc24290
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 9 16:20:02 2008 +0100
+
+    Release v1.3.2
+
+    Update CHANGELOG for release.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5b464c289ba715d0979b6e1f94947bb8f1068d16
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sun Mar 9 14:52:11 2008 +0100

@@ -57,4 +57,3 @@ Memory Bank 1 -- SDRAM
 -------------------------------------
 
 0x00000000 - 0x2ffffff   # Default 64 MB
-
