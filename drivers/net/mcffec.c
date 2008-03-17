@@ -166,6 +166,13 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	/* Activate transmit Buffer Descriptor polling */
 	fecp->tdar = 0x01000000;	/* Descriptor polling active    */
 
+	/* FEC fix for MCF5275, FEC unable to initial transmit data packet.
+	 * A nop will ensure the descriptor polling active completed.
+	 */
+#ifdef CONFIG_M5275
+	__asm__ ("nop");
+#endif
+
 #ifdef CFG_UNIFY_CACHE
 	icache_invalid();
 #endif
