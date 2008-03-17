@@ -90,7 +90,16 @@ tlbtab:
 	tlbentry( CFG_PERIPHERAL_BASE, SZ_256M, 0x40000000, 1, AC_R|AC_W|SA_G|SA_I )
 	tlbentry( CFG_ISRAM_BASE, SZ_4K, 0x80000000, 0, AC_R|AC_W|AC_X )
 	tlbentry( CFG_ISRAM_BASE + 0x1000, SZ_4K, 0x80001000, 0, AC_R|AC_W|AC_X )
+#ifdef CONFIG_4xx_DCACHE
+	tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G)
+#else
 	tlbentry( CFG_SDRAM_BASE, SZ_256M, 0x00000000, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+#endif
+
+#ifdef CFG_INIT_RAM_DCACHE
+	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
+	tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
+#endif
 	tlbentry( CFG_PCI_BASE, SZ_256M, 0x00000000, 2, AC_R|AC_W|SA_G|SA_I )
 
 	/* PCI */

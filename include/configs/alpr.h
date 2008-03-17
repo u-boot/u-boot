@@ -35,6 +35,7 @@
 #define CONFIG_LAST_STAGE_INIT	1	    /* call last_stage_init()	*/
 #undef	CFG_DRAM_TEST			    /* Disable-takes long time! */
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
+#define CONFIG_4xx_DCACHE		/* Enable i- and d-cache	*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
