@@ -1,0 +1,51 @@
+The Korat board has two NOR flashes, FLASH0 and FLASH1, which are connected to
+chip select 0 and 1, respectively.  FLASH0 contains 16 MiB, and is mapped to
+addresses 0xFF000000 - 0xFFFFFFFF as U-Boot Flash Bank #2.  FLASH1 contains
+from 16 to 128 MiB, and is mapped to 0xF?000000 - 0xF7FFFFFF as U-Boot Flash
+Bank #1 (with the starting address depending on the flash size detected at
+runtime).  The write-enable pin on FLASH0 is disabled, so the contents of FLASH0
+cannot be modified in the field.  This also prevents FLASH0 from executing
+commands to return chip information, so its configuration is hard-coded in
+U-Boot.
+
+There are two versions of U-Boot for Korat: "permanent" and "upgradable".  The
+permanent U-Boot is pre-programmed at the top of FLASH0, e.g., at addresses
+0xFFFA0000 - 0xFFFFFFFF for the current 384 KiB size.  The upgradable U-Boot is
+located 256 KiB from the top of FLASH1, e.g. at addresses 0xF7F6000 - 0xF7FC0000
+for the current 384 KiB size.  FLASH1 addresses 0xF7FE0000 - 0xF7FF0000 are
+used for the U-Boot environmental parameters, and addresses 0xF7FC0000 -
+0xF7FDFFFF are used for the redundant copy of the parameters.  These locations
+are used by both versions of U-Boot.
+
+On booting, the permanent U-Boot in FLASH0 begins executing.  After performing
+minimal setup, it monitors the state of the board's Reset switch (GPIO47).  If
+the switch is sensed as open before a timeout period, then U-Boot branches to
+address 0xF7FBFFFC.  This causes the upgradable U-Boot to execute from the
+beginning.  If the switch remains closed thoughout the timeout period, the
+permanent U-Boot activates the on-board buzzer until the switch is sensed as
+opened.  It then continues to execute without branching to FLASH1.  The effect
+of this is that normally the Korat board boots its upgradable U-Boot, but, if
+this has been corrupted, the user can boot the permanent U-Boot, which can then
+be used to erase and reload FLASH1 as needed.
+
+Note that it is not necessary for the permanent U-Boot to have all the latest
+features, but only that it have sufficient functionality (working "tftp",
+"erase", "cp.b", etc.) to repair FLASH1.  Also, the permanent U-Boot makes no
+assumptions about the size of FLASH1 or the size of the upgradable U-Boot: it is
+sufficient that the upgradable U-Boot can be started by a branch to 0xF7FBFFFC.
+
+The build sequence:
+
+	make korat_config
+	make all perm=1
+
+builds the permanent U-Boot by selecting loader file "u-boot.lds" and defining
+preprocessor symbol "CONFIG_KORAT_PERMANENT".  The default build:
+
+	make korat_config
+	make all
+
+creates the upgradable U-Boot but selecting loader file "u-boot-F7FC.lds" and
+leaving preprocessor symbol "CONFIG_KORAT_PERMANENT" undefined.
+
+2008-02-22, Larry Johnson <lrj@acm.org>
