@@ -23,7 +23,9 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/processor.h>
+#include <asm/mmu.h>
 #include <asm/immap_85xx.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <libfdt.h>
@@ -261,7 +263,10 @@ initdram(int board_type)
 		udelay(200);
 	}
 #endif
-	dram_size = spd_sdram();
+
+	dram_size = fsl_ddr_sdram();
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
@@ -269,6 +274,7 @@ initdram(int board_type)
 	 */
 	ddr_enable_ecc(dram_size);
 #endif
+
 	/*
 	 * SDRAM Initialization
 	 */
