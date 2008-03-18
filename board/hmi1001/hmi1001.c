@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2004
+ * (C) Copyright 2003-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2004
@@ -30,6 +30,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <asm/processor.h>
 #include <malloc.h>
 
 #ifndef CFG_RAMBOOT
@@ -84,6 +85,7 @@ long int initdram (int board_type)
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
 	ulong test1, test2;
+	uint svr, pvr;
 
 	/* setup SDRAM chip selects */
 	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001c; /* 512MB at 0x0 */
