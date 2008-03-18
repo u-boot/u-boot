@@ -41,16 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FPGA_RAM_END		0xC4203FFF
 #define FPGA_STAT		0xC400000C
 
-#define FPGA_PWM_CTRL_REG	0xC4000020
-#define FPGA_PWM_TV_REG		0xC4000024
-
-/* Turn on backlight, set brightness */
-void fpga_backlight_enable(int pwm)
-{
-	out_be16((void *)FPGA_PWM_CTRL_REG, 0x0701);
-	out_be16((void *)FPGA_PWM_TV_REG, pwm);
-}
-
 #if CONFIG_POST & CFG_POST_BSPEC3
 
 static int one_scratch_test(uint value)
