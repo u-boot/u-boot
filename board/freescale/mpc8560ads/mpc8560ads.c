@@ -28,7 +28,9 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/processor.h>
+#include <asm/mmu.h>
 #include <asm/immap_85xx.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
@@ -285,10 +287,13 @@ initdram(int board_type)
 	}
 #endif
 
-#if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
+#ifdef CONFIG_SPD_EEPROM
+	dram_size = fsl_ddr_sdram();
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+
+	dram_size *= 0x100000;
 #else
-	dram_size = fixed_sdram ();
+	dram_size = fixed_sdram();
 #endif
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)

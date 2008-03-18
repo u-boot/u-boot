@@ -46,13 +46,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
@@ -96,33 +89,33 @@
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
 
+/* DDR Setup */
+#define CONFIG_FSL_DDR1
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
+#define CONFIG_DDR_SPD
+#undef CONFIG_FSL_DDR_INTERACTIVE
 
-/*
- * DDR Setup
- */
+#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
+
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 
-#if defined(CONFIG_SPD_EEPROM)
-    /*
-     * Determine DDR configuration from I2C interface.
-     */
-    #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-#else
-    /*
-     * Manually set up DDR parameters
-     */
-    #define CFG_SDRAM_SIZE	128		/* DDR is 128MB */
-    #define CFG_DDR_CS0_BNDS	0x00000007	/* 0-128MB */
-    #define CFG_DDR_CS0_CONFIG	0x80000002
-    #define CFG_DDR_TIMING_1	0x37344321
-    #define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
-    #define CFG_DDR_CONTROL	0xc2000000	/* unbuffered,no DYN_PWR */
-    #define CFG_DDR_MODE	0x00000062	/* DLL,normal,seq,4/2.5 */
-    #define CFG_DDR_INTERVAL	0x05200100	/* autocharge,no open page */
-#endif
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
+/* These are used when DDR doesn't use SPD.  */
+#define CFG_SDRAM_SIZE	128		/* DDR is 128MB */
+#define CFG_DDR_CS0_BNDS	0x00000007	/* 0-128MB */
+#define CFG_DDR_CS0_CONFIG	0x80000002
+#define CFG_DDR_TIMING_1	0x37344321
+#define CFG_DDR_TIMING_2	0x00000800	/* P9-45,may need tuning */
+#define CFG_DDR_CONTROL		0xc2000000	/* unbuffered,no DYN_PWR */
+#define CFG_DDR_MODE		0x00000062	/* DLL,normal,seq,4/2.5 */
+#define CFG_DDR_INTERVAL	0x05200100	/* autocharge,no open page */
 
 /*
  * SDRAM on the Local Bus
@@ -292,6 +285,9 @@
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
+#define CFG_64BIT_VSPRINTF	1
+#define CFG_64BIT_STRTOUL	1
 
 /*
  * I2C
