@@ -35,7 +35,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GDC_SCRATCH_REG 0xC1FF8008
+#define GDC_SCRATCH_REG 0xC1FF8044
 #define GDC_VERSION_REG 0xC1FF8084
 #define GDC_RAM_START   0xC0000000
 #define GDC_RAM_END     0xC2000000
@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int gdc_test_reg_one(uint value)
 {
-	int ret = 0;
+	int ret;
 	uint read_value;
 
 	/* write test pattern */
@@ -56,10 +56,9 @@ static int gdc_test_reg_one(uint value)
 	if (read_value != value) {
 		post_log("GDC SCRATCH test failed write %08X, read %08X\n",
 			value, read_value);
-		ret = 1;
 	}
 
-	return ret;
+	return (read_value != value);
 }
 
 /* Verify GDC, get memory size */
@@ -71,9 +70,16 @@ int gdc_post_test(int flags)
 	post_log("\n");
 	old_value = in_be32((void *)GDC_SCRATCH_REG);
 
-	if (gdc_test_reg_one(0x55555555))
+	/*
+	 * GPIOC2 register behaviour: the LIME graphics processor has a
+	 * maximum of 5 GPIO ports that can be used in this hardware
+	 * configuration. Thus only the  bits  for these 5 GPIOs can be
+	 * activated in the GPIOC2 register. All other bits will always be
+	 * read as zero.
+	 */
+	if (gdc_test_reg_one(0x00150015))
 		ret = 1;
-	if (gdc_test_reg_one(0xAAAAAAAA))
+	if (gdc_test_reg_one(0x000A000A))
 		ret = 1;
 
 	out_be32((void *)GDC_SCRATCH_REG, old_value);
