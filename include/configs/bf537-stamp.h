@@ -5,6 +5,8 @@
 #ifndef __CONFIG_BF537_H__
 #define __CONFIG_BF537_H__
 
+#include <asm/blackfin-config-pre.h>
+
 #define CFG_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_BAUDRATE		57600
@@ -31,10 +33,8 @@
 
 #define CONFIG_PANIC_HANG 1
 
-#define ADSP_BF534		0x34
-#define ADSP_BF536		0x36
-#define ADSP_BF537		0x37
-#define BFIN_CPU		ADSP_BF537
+#define CONFIG_BFIN_CPU	bf537-0.2
+#define CONFIG_BFIN_MAC
 
 /* This sets the default state of the cache on U-Boot's boot */
 #define CONFIG_ICACHE_ON
@@ -113,7 +113,7 @@
  * Network Settings
  */
 /* network support */
-#if (BFIN_CPU != ADSP_BF534)
+#ifdef CONFIG_BFIN_MAC
 #define CONFIG_IPADDR		192.168.0.15
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_GATEWAYIP	192.168.0.1
@@ -186,7 +186,7 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DATE
 
-#if (BFIN_CPU == ADSP_BF534)
+#ifndef CONFIG_BFIN_MAC
 #undef CONFIG_CMD_NET
 #else
 #define CONFIG_CMD_PING
@@ -219,7 +219,7 @@
 #define CONFIG_LOADADDR	0x1000000
 
 #if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT)
-#if (BFIN_CPU != ADSP_BF534)
+#ifdef CONFIG_BFIN_MAC
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"ramargs=setenv bootargs root=/dev/mtdblock0 rw console=ttyBF0,57600\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\
@@ -243,7 +243,7 @@
 	""
 #endif
 #elif (BFIN_BOOT_MODE == BF537_SPI_MASTER_BOOT)
-#if (BFIN_CPU != ADSP_BF534)
+#ifdef CONFIG_BFIN_MAC
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"ramargs=setenv bootargs root=/dev/mtdblock0 rw console=ttyBF0,57600\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\
@@ -267,23 +267,7 @@
 #endif
 #endif
 
-#if (BFIN_BOOT_MODE == BF537_SPI_MASTER_BOOT)
-#if (BFIN_CPU == ADSP_BF534)
-#define	CFG_PROMPT		"serial_bf534> "	/* Monitor Command Prompt */
-#elif (BFIN_CPU == ADSP_BF536)
-#define	CFG_PROMPT		"serial_bf536> "	/* Monitor Command Prompt */
-#else
-#define	CFG_PROMPT		"serial_bf537> "	/* Monitor Command Prompt */
-#endif
-#else
-#if (BFIN_CPU == ADSP_BF534)
-#define	CFG_PROMPT		"bf534> "	/* Monitor Command Prompt */
-#elif (BFIN_CPU == ADSP_BF536)
-#define	CFG_PROMPT		"bf536> "	/* Monitor Command Prompt */
-#else
-#define	CFG_PROMPT		"bf537> "	/* Monitor Command Prompt */
-#endif
-#endif
+#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -302,6 +286,11 @@
 #define	CFG_SDRAM_BASE		0x00000000
 
 #define CFG_FLASH_BASE		0x20000000
+#define CFG_FLASH_CFI		/* The flash is CFI compatible */
+#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver */
+#define CFG_FLASH_PROTECTION
+#define CFG_MAX_FLASH_BANKS	1
+#define CFG_MAX_FLASH_SECT	71	/* some have 67 sectors (M29W320DB), but newer have 71 (M29W320EB) */
 
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MONITOR_BASE	(CFG_MAX_RAM_SIZE - CFG_MONITOR_LEN)
@@ -310,10 +299,6 @@
 #define CFG_GBL_DATA_SIZE	0x4000
 #define CFG_GBL_DATA_ADDR	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
 #define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
-
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 
 #if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT) || (BFIN_BOOT_MODE == BF537_UART_BOOT)
 /* for bf537-stamp, usrt boot mode still store env in flash */

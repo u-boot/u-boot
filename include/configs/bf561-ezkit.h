@@ -5,6 +5,8 @@
 #ifndef __CONFIG_EZKIT561_H__
 #define __CONFIG_EZKIT561_H__
 
+#include <asm/blackfin-config-pre.h>
+
 #define CONFIG_VDSP		1
 #define CONFIG_BF561		1
 
@@ -17,6 +19,8 @@
 #define CONFIG_BOOTDELAY	5
 
 #define CONFIG_PANIC_HANG 1
+
+#define CONFIG_BFIN_CPU	bf561-0.3
 
 /*
 * Boot Mode Set
@@ -216,7 +220,7 @@
  */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define	CFG_PROMPT		"ezkit> "	/* Monitor Command Prompt */
+#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 #define	CFG_CBSIZE		1024		/* Console I/O Buffer Size */

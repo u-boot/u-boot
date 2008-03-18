@@ -704,5 +704,20 @@ Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
 	MS7720SE		SH7720
 
 #########################################################################
+# Blackfin Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board			CPU					#
+#########################################################################
+
+Mike Frysinger <vapier@gentoo.org>
+Blackfin Team <u-boot-devel@blackfin.uclinux.org>
+
+	BF533-EZKIT		BF533
+	BF533-STAMP		BF533
+	BF537-STAMP		BF537
+	BF561-EZKIT		BF561
+
+#########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
