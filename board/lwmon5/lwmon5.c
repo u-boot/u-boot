@@ -567,17 +567,35 @@ unsigned int board_video_init (void)
 	return CFG_LIME_BASE_0;
 }
 
-void board_backlight_switch (int flag)
+#define DEFAULT_BRIGHTNESS 0x64
+
+static void board_backlight_brightness(int brightness)
 {
-	if (flag) {
+	if (brightness > 0) {
 		/* pwm duty, lamp on */
-		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), 0x64);
+		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), brightness);
 		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x701);
 	} else {
 		/* lamp off */
 		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), 0x00);
 		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x00);
 	}
+}
+
+void board_backlight_switch (int flag)
+{
+	char * param;
+	int rc;
+
+	if (flag) {
+		param = getenv("brightness");
+		rc = param ? simple_strtol(param, NULL, 10) : -1;
+		if (rc < 0)
+			rc = DEFAULT_BRIGHTNESS;
+	} else {
+		rc = 0;
+	}
+	board_backlight_brightness(rc);
 }
 
 #if defined(CONFIG_CONSOLE_EXTRA_INFO)

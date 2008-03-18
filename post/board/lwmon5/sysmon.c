@@ -49,18 +49,16 @@
 #include <watchdog.h>
 #include <i2c.h>
 
+#if defined(CONFIG_VIDEO)
+#include <mb862xx.h>
+#endif
+
 #if CONFIG_POST & CFG_POST_SYSMON
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define DEFAULT_BRIGHTNESS 50
-
 /* from dspic.c */
 extern int dspic_read(ushort reg);
-/* from fpga.c */
-extern void fpga_backlight_enable(int v);
-
-static int sysmon_temp_invalid;
 
 #define	RELOC(x) if (x != NULL) x = (void *) ((ulong) (x) + gd->reloc_off)
 
@@ -70,7 +68,6 @@ typedef struct sysmon_table_s sysmon_table_t;
 static void sysmon_dspic_init (sysmon_t * this);
 static int sysmon_dspic_read (sysmon_t * this, uint addr);
 static void sysmon_backlight_disable (sysmon_table_t * this);
-static void sysmon_backlight_enable (sysmon_table_t * this);
 
 struct sysmon_s
 {
@@ -120,7 +117,7 @@ static sysmon_table_t sysmon_table[] =
      100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
                                          0x8000+4750, 0x8000+5250, 0, 0x12CA},
 
-    {"+ 5 V standby", "V", &sysmon_dspic, NULL, sysmon_backlight_enable,
+    {"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
      100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
                                          0x8000+4750, 0x8000+5250, 0, 0x12C6},
 };
@@ -205,23 +202,9 @@ static int sysmon_dspic_read (sysmon_t * this, uint addr)
 
 static void sysmon_backlight_disable (sysmon_table_t * this)
 {
-	if (!this->val_valid_alt)
-		sysmon_temp_invalid = 1;
-}
-
-static void sysmon_backlight_enable (sysmon_table_t * this)
-{
-	char * param;
-	int rc;
-
-	if (!sysmon_temp_invalid) {
-		param = getenv("brightness");
-		rc = param ? simple_strtol(param, NULL, 10) : -1;
-		if (rc >= 0)
-			fpga_backlight_enable(rc);
-		else
-			fpga_backlight_enable(DEFAULT_BRIGHTNESS);
-	}
+#if defined(CONFIG_VIDEO)
+	board_backlight_switch(this->val_valid_alt);
+#endif
 }
 
 int sysmon_post_test (int flags)
