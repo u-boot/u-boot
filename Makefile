@@ -1828,9 +1828,6 @@ M5282EVB_config :		unconfig
 TASREG_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 tasreg esd
 
-r5200_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 r5200
-
 M5329AFEE_config \
 M5329BFEE_config :	unconfig
 	@case "$@" in \
