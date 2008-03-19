@@ -57,6 +57,9 @@
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
+#define CONFIG_FSL_VIA
+#define CONFIG_FSL_CDS_EEPROM
+
 /*
  * When initializing flash, if we cannot find the manufacturer ID,
  * assume this is the AMD flash associated with the CDS board.
@@ -296,6 +299,8 @@ extern unsigned long get_clock_freq(void);
  * 0	4    8	  12   16   20	 24   28
  * 1111 1111 1111 0000 0000 1111 1111 0111 = fff00ff7
  */
+
+#define CONFIG_FSL_CADMUS
 
 #define CADMUS_BASE_ADDR 0xf8000000
 #define CFG_BR3_PRELIM	 0xf8000801

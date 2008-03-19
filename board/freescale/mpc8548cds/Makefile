@@ -23,21 +23,16 @@
 #
 
 include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o law.o tlb.o \
-	   ../common/cadmus.o \
-	   ../common/eeprom.o \
-	   ../common/ft_board.o \
-	   ../common/via.o
+COBJS-y	+= $(BOARD).o
+COBJS-y	+= law.o
+COBJS-y	+= tlb.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
