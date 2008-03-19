@@ -274,8 +274,7 @@ static void emac_loopback_disable(EMAC_4XX_HW_PST hw_p)
 static void ppc_4xx_eth_halt (struct eth_device *dev)
 {
 	EMAC_4XX_HW_PST hw_p = dev->priv;
-	uint32_t failsafe = 10000;
-	u32 eth_cfg = 0;
+	u32 val = 10000;
 
 	out_be32((void *)EMAC_IER + hw_p->hw_addr, 0x00000000);	/* disable emac interrupts */
 
@@ -291,8 +290,8 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	/* wait for reset */
 	while (mfdcr (malrxcasr) & (MAL_CR_MMSR >> hw_p->devnum)) {
 		udelay (1000);	/* Delay 1 MS so as not to hammer the register */
-		failsafe--;
-		if (failsafe == 0)
+		val--;
+		if (val == 0)
 			break;
 	}
 
@@ -311,9 +310,9 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	/* don't bypass the TAHOE0/TAHOE1 cores for Linux */
-	mfsdr(SDR0_ETH_CFG, eth_cfg);
-	eth_cfg &= ~(SDR0_ETH_CFG_TAHOE0_BYPASS | SDR0_ETH_CFG_TAHOE1_BYPASS);
-	mtsdr(SDR0_ETH_CFG, eth_cfg);
+	mfsdr(SDR0_ETH_CFG, val);
+	val &= ~(SDR0_ETH_CFG_TAHOE0_BYPASS | SDR0_ETH_CFG_TAHOE1_BYPASS);
+	mtsdr(SDR0_ETH_CFG, val);
 #endif
 
 	return;
