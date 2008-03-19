@@ -1172,8 +1172,13 @@ bubinga_config:	unconfig
 CANBT_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canbt esd
 
-canyonlands_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canyonlands amcc
+# Canyonlands & Glacier use different U-Boot images
+canyonlands_config \
+glacier_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >$(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a canyonlands ppc ppc4xx canyonlands amcc
 
 canyonlands_nand_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/amcc/canyonlands

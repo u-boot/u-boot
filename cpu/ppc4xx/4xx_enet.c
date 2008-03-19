@@ -275,6 +275,7 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 {
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 	uint32_t failsafe = 10000;
+	u32 eth_cfg = 0;
 
 	out_be32((void *)EMAC_IER + hw_p->hw_addr, 0x00000000);	/* disable emac interrupts */
 
@@ -306,6 +307,13 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 
 #ifndef CONFIG_NETCONSOLE
 	hw_p->print_speed = 1;	/* print speed message again next time */
+#endif
+
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	/* don't bypass the TAHOE0/TAHOE1 cores for Linux */
+	mfsdr(SDR0_ETH_CFG, eth_cfg);
+	eth_cfg &= ~(SDR0_ETH_CFG_TAHOE0_BYPASS | SDR0_ETH_CFG_TAHOE1_BYPASS);
+	mtsdr(SDR0_ETH_CFG, eth_cfg);
 #endif
 
 	return;
@@ -494,10 +502,17 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	u32 zmiifer;		/* ZMII0_FER reg. */
 	u32 rmiifer;		/* RGMII0_FER reg. Bridge 0 */
 	u32 rmiifer1;		/* RGMII0_FER reg. Bridge 1 */
+	int mode;
 
 	zmiifer  = 0;
 	rmiifer  = 0;
 	rmiifer1 = 0;
+
+#if defined(CONFIG_460EX)
+	mode = 9;
+#else
+	mode = 10;
+#endif
 
 	/* TODO:
 	 * NOTE: 460GT has 2 RGMII bridge cores:
@@ -520,7 +535,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	 * Right now only 2*RGMII is supported. Please extend when needed.
 	 * sr - 2008-02-19
 	 */
-	switch (9) {
+	switch (mode) {
 	case 1:
 		/* 1 MII - 460EX */
 		/* GMC0 EMAC4_0, ZMII Bridge */
@@ -836,10 +851,12 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		reg = CONFIG_PHY1_ADDR;
 		break;
 #endif
-#if defined (CONFIG_440GX)
+#if defined (CONFIG_PHY2_ADDR)
 	case 2:
 		reg = CONFIG_PHY2_ADDR;
 		break;
+#endif
+#if defined (CONFIG_PHY3_ADDR)
 	case 3:
 		reg = CONFIG_PHY3_ADDR;
 		break;
@@ -1131,7 +1148,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #endif
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-		mtdcr (malrxctp8r, hw_p->rx);
+		mtdcr (malrxctp8r, hw_p->rx_phys);
 		/* set RX buffer size */
 		mtdcr (malrcbs8, ENET_MAX_MTU_ALIGNED / 16);
 #else
@@ -1160,6 +1177,26 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		mtdcr (malrcbs3, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 #endif /* CONFIG_440GX */
+#if defined (CONFIG_460GT)
+	case 2:
+		/* setup MAL tx & rx channel pointers */
+		mtdcr (maltxbattr, 0x0);
+		mtdcr (malrxbattr, 0x0);
+		mtdcr (maltxctp2r, hw_p->tx_phys);
+		mtdcr (malrxctp16r, hw_p->rx_phys);
+		/* set RX buffer size */
+		mtdcr (malrcbs16, ENET_MAX_MTU_ALIGNED / 16);
+		break;
+	case 3:
+		/* setup MAL tx & rx channel pointers */
+		mtdcr (maltxbattr, 0x0);
+		mtdcr (malrxbattr, 0x0);
+		mtdcr (maltxctp3r, hw_p->tx_phys);
+		mtdcr (malrxctp24r, hw_p->rx_phys);
+		/* set RX buffer size */
+		mtdcr (malrcbs24, ENET_MAX_MTU_ALIGNED / 16);
+		break;
+#endif /* CONFIG_460GT */
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */
@@ -1866,14 +1903,22 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 		case 2:
 			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
 			       bis->bi_enet2addr, 6);
+#if defined(CONFIG_460GT)
+			hw_addr[eth_num] = 0x300;
+#else
 			hw_addr[eth_num] = 0x400;
+#endif
 			break;
 #endif
 #ifdef CONFIG_HAS_ETH3
 		case 3:
 			memcpy(ethaddr[eth_num + CONFIG_EMAC_NR_START],
 			       bis->bi_enet3addr, 6);
+#if defined(CONFIG_460GT)
+			hw_addr[eth_num] = 0x400;
+#else
 			hw_addr[eth_num] = 0x600;
+#endif
 			break;
 #endif
 		}

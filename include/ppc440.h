@@ -2023,9 +2023,13 @@
 #define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
 #define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
 #define malrxctp8r  (MAL_DCR_BASE+0x48) /* RX 8 Channel table pointer reg   */
+#define malrxctp16r (MAL_DCR_BASE+0x50) /* RX 16 Channel table pointer reg  */
+#define malrxctp24r (MAL_DCR_BASE+0x58) /* RX 24 Channel table pointer reg  */
 #define malrcbs2    (MAL_DCR_BASE+0x62) /* RX 2 Channel buffer size reg	    */
 #define malrcbs3    (MAL_DCR_BASE+0x63) /* RX 3 Channel buffer size reg	    */
 #define malrcbs8    (MAL_DCR_BASE+0x68) /* RX 8 Channel buffer size reg	    */
+#define malrcbs16   (MAL_DCR_BASE+0x70) /* RX 16 Channel buffer size reg    */
+#define malrcbs24   (MAL_DCR_BASE+0x78) /* RX 24 Channel buffer size reg    */
 #endif /* CONFIG_440GX */
 
 
