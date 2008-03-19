@@ -1185,7 +1185,9 @@ void flash_print_info (flash_info_t * info)
  * effect updates to digit and dots.  Repeated code is nasty too, so
  * we define it once here.
  */
-#define FLASH_SHOW_PROGRESS(scale, dots, digit) \
+#ifdef CONFIG_FLASH_SHOW_PROGRESS
+#define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub) \
+	dots -= dots_sub; \
 	if ((scale > 0) && (dots <= 0)) { \
 		if ((digit % 5) == 0) \
 			printf ("%d", digit / 5); \
@@ -1194,6 +1196,9 @@ void flash_print_info (flash_info_t * info)
 		digit--; \
 		dots += scale; \
 	}
+#else
+#define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub)
+#endif
 
 /*-----------------------------------------------------------------------
  * Copy memory to flash, returns:
@@ -1248,10 +1253,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return rc;
 
 		wp += i;
-#ifdef CONFIG_FLASH_SHOW_PROGRESS
-		dots -= i;
-		FLASH_SHOW_PROGRESS(scale, dots, digit);
-#endif
+		FLASH_SHOW_PROGRESS(scale, dots, digit, i);
 	}
 
 	/* handle the aligned part */
@@ -1281,10 +1283,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		wp += i;
 		src += i;
 		cnt -= i;
-#ifdef CONFIG_FLASH_SHOW_PROGRESS
-		dots -= i;
-		FLASH_SHOW_PROGRESS(scale, dots, digit);
-#endif
+		FLASH_SHOW_PROGRESS(scale, dots, digit, i);
 	}
 #else
 	while (cnt >= info->portwidth) {
@@ -1296,10 +1295,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return rc;
 		wp += info->portwidth;
 		cnt -= info->portwidth;
-#ifdef CONFIG_FLASH_SHOW_PROGRESS
-		dots -= info->portwidth;
-		FLASH_SHOW_PROGRESS(scale, dots, digit);
-#endif
+		FLASH_SHOW_PROGRESS(scale, dots, digit, info->portwidth);
 	}
 #endif /* CFG_FLASH_USE_BUFFER_WRITE */
 
