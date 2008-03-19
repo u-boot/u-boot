@@ -6,7 +6,7 @@
  * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
  * Robert Snyder,	    AMCC/IBM, rob.snyder@fr.ibm.com
  *
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <ppc440.h>
+#include <watchdog.h>
 
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
@@ -99,87 +100,37 @@ static void wait_ddr_idle(void)
 	 */
 }
 
-static void blank_string(int size)
-{
-	int i;
-
-	for (i=0; i<size; i++)
-		putc('\b');
-	for (i=0; i<size; i++)
-		putc(' ');
-	for (i=0; i<size; i++)
-		putc('\b');
-}
-
 static void program_ecc(u32 start_address,
 			u32 num_bytes,
 			u32 tlb_word2_i_value)
 {
-	u32 current_address;
-	u32 end_address;
-	u32 address_increment;
 	u32 val;
-	char str[] = "ECC generation -";
-	char slash[] = "\\|/-\\|/-";
-	int loop = 0;
-	int loopi = 0;
-
-	current_address = start_address;
+	u32 current_addr = start_address;
+	int bytes_remaining;
 
 	sync();
-	eieio();
 	wait_ddr_idle();
 
-	if (tlb_word2_i_value == TLB_WORD2_I_ENABLE) {
-		/* ECC bit set method for non-cached memory */
-		address_increment = 4;
-		end_address = current_address + num_bytes;
+	/*
+	 * Because of 440EPx errata CHIP 11, we don't touch the last 256
+	 * bytes of SDRAM.
+	 */
+	bytes_remaining = num_bytes - CFG_MEM_TOP_HIDE;
 
-		puts(str);
-
-		while (current_address < end_address) {
-			*((u32 *)current_address) = 0x00000000;
-			current_address += address_increment;
-
-			if ((loop++ % (2 << 20)) == 0) {
-				putc('\b');
-				putc(slash[loopi++ % 8]);
-			}
-		}
-
-		blank_string(strlen(str));
-	} else {
-		/* ECC bit set method for cached memory */
-#if 0 /* test-only: will remove this define later, when ECC problems are solved! */
-		/*
-		 * Some boards (like lwmon5) need to preserve the memory
-		 * content upon ECC generation (for the log-buffer).
-		 * Therefore we don't fill the memory with a pattern or
-		 * just zero it, but write the same values back that are
-		 * already in the memory cells.
-		 */
-		address_increment = CFG_CACHELINE_SIZE;
-		end_address = current_address + num_bytes;
-
-		current_address = start_address;
-		while (current_address < end_address) {
-			/*
-			 * TODO: Th following sequence doesn't work correctly.
-			 * Just invalidating and flushing the cache doesn't
-			 * seem to trigger the re-write of the memory.
-			 */
-			ppcDcbi(current_address);
-			ppcDcbf(current_address);
-			current_address += CFG_CACHELINE_SIZE;
-		}
-#else
-		dcbz_area(start_address, num_bytes);
-		dflush();
-#endif
+	/*
+	 * We have to write the ECC bytes by zeroing and flushing in smaller
+	 * steps, since the whole 256MByte takes too long for the external
+	 * watchdog.
+	 */
+	while (bytes_remaining > 0) {
+		dcbz_area(current_addr, min((64 << 20), bytes_remaining));
+		current_addr += 64 << 20;
+		bytes_remaining -= 64 << 20;
+		WATCHDOG_RESET();
 	}
+	dflush();
 
 	sync();
-	eieio();
 	wait_ddr_idle();
 
 	/* Clear error status */
@@ -191,7 +142,6 @@ static void program_ecc(u32 start_address,
 	mtsdram(DDR0_01, ((val &~ DDR0_01_INT_MASK_MASK) | DDR0_01_INT_MASK_ALL_OFF));
 
 	sync();
-	eieio();
 	wait_ddr_idle();
 }
 #endif
