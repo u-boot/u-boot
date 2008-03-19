@@ -218,14 +218,12 @@ au_check_cksum_valid(int idx, long nbytes)
 	}
 #endif
 
-	if (nbytes != image_get_image_size (hdr))
-	{
+	if (nbytes != image_get_image_size (hdr)) {
 		printf ("Image %s bad total SIZE\n", aufile[idx]);
 		return -1;
 	}
 	/* check the data CRC */
-	if (!image_check_dcrc (hdr))
-	{
+	if (!image_check_dcrc (hdr)) {
 		printf ("Image %s bad data checksum\n", aufile[idx]);
 		return -1;
 	}
@@ -255,13 +253,11 @@ au_check_header_valid(int idx, long nbytes)
 	printf("size %#x %#lx ", image_get_data_size (hdr), nbytes);
 	printf("type %#x %#x ", image_get_type (hdr), IH_TYPE_KERNEL);
 #endif
-	if (nbytes < image_get_header_size ())
-	{
+	if (nbytes < image_get_header_size ()) {
 		printf ("Image %s bad header SIZE\n", aufile[idx]);
 		return -1;
 	}
-	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_ARM))
-	{
+	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_ARM)) {
 		printf ("Image %s bad MAGIC or ARCH\n", aufile[idx]);
 		return -1;
 	}
@@ -271,7 +267,8 @@ au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	/* check the type - could do this all in one gigantic if() */
-	if ((idx == IDX_FIRMWARE) && !image_check_type (hdr, IH_TYPE_FIRMWARE)) {
+	if ((idx == IDX_FIRMWARE) &&
+		!image_check_type (hdr, IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
@@ -289,8 +286,7 @@ au_check_header_valid(int idx, long nbytes)
 		return -1;
 	}
 	if ((idx == IDX_PREPARE || idx == IDX_PREINST || idx == IDX_POSTINST)
-		&& !image_check_type (hdr, IH_TYPE_SCRIPT))
-	{
+		&& !image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		printf ("Image %s wrong type\n", aufile[idx]);
 		return -1;
 	}
