@@ -259,4 +259,4 @@ not* be specified in a configuration node.
 8) Examples
 -----------
 
-Please see examples/*.its for actual image source files.
+Please see doc/uImage.FIT/*.its for actual image source files.
