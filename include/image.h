@@ -41,12 +41,6 @@
 #include <linux/string.h>
 #include <asm/u-boot.h>
 
-/* new uImage format support enabled on target
- * To be moved to board configuration file */
-#define CONFIG_FIT		1
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
 #else
 
 /* new uImage format support enabled on host */
