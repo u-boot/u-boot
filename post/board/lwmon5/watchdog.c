@@ -24,7 +24,8 @@
 
 #include <common.h>
 
-/* This test verifies if the reason of last reset was an abnormal voltage
+/*
+ * This test verifies if the reason of last reset was an abnormal voltage
  * condition, than it performs watchdog test, measuing time required to
  * trigger watchdog reset.
  */
@@ -55,7 +56,8 @@ static void watchdog_magic_write(uint value)
 int sysmon1_post_test(int flags)
 {
 	if (gpio_read_in_bit(CFG_GPIO_SYSMON_STATUS)) {
-		/* 3.1. GPIO62 is low
+		/*
+		 * 3.1. GPIO62 is low
 		 * Assuming system voltage failure.
 		 */
 		post_log("Abnormal voltage detected (GPIO62)\n");
@@ -67,11 +69,14 @@ int sysmon1_post_test(int flags)
 
 int lwmon5_watchdog_post_test(int flags)
 {
+	ulong time;
+
 	/* On each reset scratch register 1 should be tested,
 	 * but first test GPIO62:
 	 */
 	if (!(flags & POST_MANUAL) && sysmon1_post_test(flags)) {
-		/* 3.1. GPIO62 is low
+		/*
+		 * 3.1. GPIO62 is low
 		 * Assuming system voltage failure.
 		 */
 		/* 3.1.1. Set scratch register 1 to 0x0000xxxx */
@@ -81,12 +86,12 @@ int lwmon5_watchdog_post_test(int flags)
 	}
 
 	if (watchdog_magic_read() != CFG_WATCHDOG_MAGIC) {
-		/* 3.2. Scratch register 1 differs from magic value 0x1248xxxx
+		/*
+		 * 3.2. Scratch register 1 differs from magic value 0x1248xxxx
 		 * Assuming PowerOn
 		 */
 		int ints;
 		ulong base;
-		ulong time;
 
 		/* 3.2.1. Set magic value to scratch register */
 		watchdog_magic_write(CFG_WATCHDOG_MAGIC);
@@ -104,28 +109,28 @@ int lwmon5_watchdog_post_test(int flags)
 		if (ints)
 			enable_interrupts ();
 
-		/* 3.2.5. Reset didn't happen. - Set 0x0000xxxx
+		/*
+		 * 3.2.5. Reset didn't happen. - Set 0x0000xxxx
 		 * into scratch register 1
 		 */
 		watchdog_magic_write(0);
 		/* 3.2.6. Mark test as failed. */
 		post_log("hw watchdog time : %u ms, failed ", time);
 		return 2;
-	} else {
-		/* 3.3. Scratch register matches magic value 0x1248xxxx
-		 * Assume this is watchdog-initiated reset
-		 */
-		ulong time;
-		/* 3.3.1. So, the test succeed, save measured time to syslog. */
-		time = in_be32((void *)CFG_WATCHDOG_TIME_ADDR);
-		post_log("hw watchdog time : %u ms, passed ", time);
-		/* 3.3.2. Set scratch register 1 to 0x0000xxxx */
-		watchdog_magic_write(0);
-		return 0;
 	}
-	return -1;
-}
 
+	/*
+	 * 3.3. Scratch register matches magic value 0x1248xxxx
+	 * Assume this is watchdog-initiated reset
+	 */
+	/* 3.3.1. So, the test succeed, save measured time to syslog. */
+	time = in_be32((void *)CFG_WATCHDOG_TIME_ADDR);
+	post_log("hw watchdog time : %u ms, passed ", time);
+	/* 3.3.2. Set scratch register 1 to 0x0000xxxx */
+	watchdog_magic_write(0);
+
+	return 0;
+}
 
 #endif /* CONFIG_POST & CFG_POST_WATCHDOG */
 #endif /* CONFIG_POST */
