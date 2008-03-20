@@ -23,7 +23,6 @@
  * MA 02111-1307 USA
  */
 
-#define DEBUG
 
 #ifndef USE_HOSTCC
 #include <common.h>

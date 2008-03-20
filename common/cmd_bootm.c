@@ -21,7 +21,6 @@
  * MA 02111-1307 USA
  */
 
-#define DEBUG
 
 /*
  * Boot support
