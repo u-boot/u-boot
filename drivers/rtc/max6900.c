@@ -63,7 +63,7 @@ static unsigned char bin2bcd (unsigned int n)
 
 /* ------------------------------------------------------------------------- */
 
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
 	uchar sec, min, hour, mday, wday, mon, cent, year;
 	int retry = 1;
@@ -103,6 +103,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 void rtc_set (struct rtc_time *tmp)

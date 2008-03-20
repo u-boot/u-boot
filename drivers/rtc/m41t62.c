@@ -64,7 +64,7 @@
 #define M41T62_FEATURE_HT	(1 << 0)
 #define M41T62_FEATURE_BL	(1 << 1)
 
-void rtc_get(struct rtc_time *tm)
+int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
@@ -92,6 +92,8 @@ void rtc_get(struct rtc_time *tm)
 	      __FUNCTION__,
 	      tm->tm_sec, tm->tm_min, tm->tm_hour,
 	      tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+
+	return 0;
 }
 
 void rtc_set(struct rtc_time *tm)

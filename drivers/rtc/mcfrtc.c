@@ -39,7 +39,7 @@
 #define isleap(y) ((((y) % 4) == 0 && ((y) % 100) != 0) || ((y) % 400) == 0)
 #define	STARTOFTIME		1970
 
-void rtc_get(struct rtc_time *tmp)
+int rtc_get(struct rtc_time *tmp)
 {
 	volatile rtc_t *rtc = (rtc_t *) (CFG_MCFRTC_BASE);
 
@@ -64,6 +64,8 @@ void rtc_get(struct rtc_time *tmp)
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 #endif
+
+	return 0;
 }
 
 void rtc_set(struct rtc_time *tmp)

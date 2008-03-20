@@ -170,12 +170,12 @@ static uchar *rtc_validate(void)
 	return data;
 }
 
-void rtc_get(struct rtc_time *tmp)
+int rtc_get(struct rtc_time *tmp)
 {
 	uchar const *const data = rtc_validate();
 
 	if (!data)
-		return;
+		return -1;
 
 	tmp->tm_sec = bcd2bin(data[RTC_SEC] & 0x7F);
 	tmp->tm_min = bcd2bin(data[RTC_MIN] & 0x7F);
@@ -190,6 +190,8 @@ void rtc_get(struct rtc_time *tmp)
 	debug("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 void rtc_set(struct rtc_time *tmp)

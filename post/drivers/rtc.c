@@ -28,6 +28,8 @@
  *
  * The Real Time Clock (RTC) operation is verified by this test.
  * The following features are verified:
+ *   o) RTC Power Fault
+ *	This is verified by analyzing the rtc_get() return status.
  *   o) Time uniformity
  *      This is verified by reading RTC in polling within
  *      a short period of time.
@@ -96,6 +98,10 @@ int rtc_post_test (int flags)
 	unsigned int ynl = 1999;
 	unsigned int yl = 2000;
 	unsigned int skipped = 0;
+	int reliable;
+
+	/* Time reliability */
+	reliable = rtc_get (&svtm);
 
 	/* Time uniformity */
 	if (rtc_post_skip (&diff) != 0) {
@@ -175,6 +181,15 @@ int rtc_post_test (int flags)
 		}
 	}
 	rtc_post_restore (&svtm, skipped);
+
+	/* If come here, then RTC operates correcty, check the correctness
+	 * of the time it reports.
+	 */
+	if (reliable < 0) {
+		post_log ("RTC Time is not reliable! Power fault? \n");
+
+		return -1;
+	}
 
 	return 0;
 }

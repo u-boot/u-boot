@@ -107,8 +107,8 @@ static void rtc_write_raw (uchar reg, uchar val);
 /*
  * Get the current time from the RTC
  */
-void rtc_get (struct rtc_time *tm){
-
+int rtc_get (struct rtc_time *tm){
+	int rel = 0;
 	unsigned long time1, time2;
 	unsigned int limit;
 	unsigned char tmp;
@@ -138,18 +138,23 @@ void rtc_get (struct rtc_time *tm){
 
 	if (time1 != time2) {
 		printf("can't get consistent time from rtc chip\n");
+		rel = -1;
 	}
 
 	DEBUGR ("Get RTC s since 1.1.1970: %d\n", time1);
 
 	to_tm(time1, tm); /* To Gregorian Date */
 
-	if (rtc_read(RTC_SR_ADDR) & RTC_SR_BIT_OSF)
+	if (rtc_read(RTC_SR_ADDR) & RTC_SR_BIT_OSF) {
 		printf ("### Warning: RTC oscillator has stopped\n");
+		rel = -1;
+	}
 
 	DEBUGR ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+
+	return rel;
 }
 
 /*

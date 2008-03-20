@@ -96,8 +96,9 @@ static unsigned bcd2bin (uchar c);
 /*
  * Get the current time from the RTC
  */
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
+	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon, year, ctl2;
 	uchar buf[16];
 
@@ -118,14 +119,20 @@ void rtc_get (struct rtc_time *tmp)
 
 	/* dump status */
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
-	if (ctl2 & RTC_CTL2_BIT_PON)
+	if (ctl2 & RTC_CTL2_BIT_PON) {
 		printf("RTC: power-on detected\n");
+		rel = -1;
+	}
 
-	if (ctl2 & RTC_CTL2_BIT_VDET)
+	if (ctl2 & RTC_CTL2_BIT_VDET) {
 		printf("RTC: voltage drop detected\n");
+		rel = -1;
+	}
 
-	if (!(ctl2 & RTC_CTL2_BIT_XST))
+	if (!(ctl2 & RTC_CTL2_BIT_XST)) {
 		printf("RTC: oscillator stop detected\n");
+		rel = -1;
+	}
 
 	tmp->tm_sec  = bcd2bin (sec & 0x7F);
 	tmp->tm_min  = bcd2bin (min & 0x7F);
@@ -140,6 +147,8 @@ void rtc_get (struct rtc_time *tmp)
 	DEBUGR ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return rel;
 }
 
 /*

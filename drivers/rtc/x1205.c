@@ -104,7 +104,7 @@ static void rtc_write(int reg, u8 val)
  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
  * Epoch is initialized as 2000. Time is set to UTC.
  */
-void rtc_get(struct rtc_time *tm)
+int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[8];
 
@@ -130,6 +130,8 @@ void rtc_get(struct rtc_time *tm)
 	      __FUNCTION__,
 	      tm->tm_sec, tm->tm_min, tm->tm_hour,
 	      tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+
+	return 0;
 }
 
 void rtc_set(struct rtc_time *tm)

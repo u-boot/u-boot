@@ -35,7 +35,7 @@
 
 /* ------------------------------------------------------------------------- */
 
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
 	volatile immap_t *immr = (immap_t *)CFG_IMMR;
 	ulong tim;
@@ -47,6 +47,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 void rtc_set (struct rtc_time *tmp)
