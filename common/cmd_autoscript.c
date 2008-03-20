@@ -100,6 +100,13 @@ autoscript (ulong addr, const char *fit_uname)
 			puts ("Empty Script\n");
 			return 1;
 		}
+
+		/*
+		 * scripts are just multi-image files with one component, seek
+		 * past the zero-terminated sequence of image lengths to get
+		 * to the actual image data
+		 */
+		while (*data++);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
@@ -154,8 +161,6 @@ autoscript (ulong addr, const char *fit_uname)
 	if ((cmd = malloc (len + 1)) == NULL) {
 		return 1;
 	}
-
-	while (*data++);
 
 	/* make sure cmd is null terminated */
 	memmove (cmd, (char *)data, len);
