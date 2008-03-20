@@ -321,10 +321,10 @@
 #define CFG_I2C_OFFSET	0x3000
 
 /*
- * Config on-board RTC
+ * Config on-board EEPROM
  */
-#define CONFIG_RTC_DS1374		/* use ds1374 rtc via i2c */
-#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68 */
+#define CFG_I2C_EEPROM_ADDR     0x50
+#define CFG_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI
@@ -417,6 +417,7 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ASKENV
 
 #if defined(CONFIG_PCI)
