@@ -79,6 +79,12 @@ void cpu_init_f (volatile immap_t * im)
 			  (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
 #endif
 
+#ifdef CFG_SPCR_OPT
+	/* Optimize transactions between CSB and other devices */
+	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_OPT) |
+			   (CFG_SPCR_OPT << SPCR_OPT_SHIFT);
+#endif
+
 #ifdef CFG_SPCR_TSECEP
 	/* all eTSEC's Emergency priority */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) |

@@ -121,6 +121,7 @@
 #define SPCR_PCIPR			0x03000000	/* PCI bridge system bus request priority */
 #define SPCR_PCIPR_SHIFT		(31-7)
 #define SPCR_OPT			0x00800000	/* Optimize */
+#define SPCR_OPT_SHIFT			(31-8)
 #define SPCR_TBEN			0x00400000	/* E300 PowerPC core time base unit enable */
 #define SPCR_TBEN_SHIFT			(31-9)
 #define SPCR_COREPR			0x00300000	/* E300 PowerPC Core system bus request priority */
