@@ -24,7 +24,6 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_CMD_XIMG)
 
 /*
  * Multi Image extract
@@ -40,13 +39,12 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong		addr = load_addr;
 	ulong		dest = 0;
 	ulong		data, len, count;
-	int		i, verify;
+	int		verify;
 	int		part = 0;
 	char		pbuf[10];
-	char		*s;
 	image_header_t	*hdr;
 #if defined(CONFIG_FIT)
-	const char	*uname;
+	const char	*uname = NULL;
 	const void*	fit_hdr;
 	int		noffset;
 	const void	*fit_data;
@@ -134,7 +132,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		/* get subimage node offset */
-		noffset = fit_image_get_node (fit_hdr, fit_uname);
+		noffset = fit_image_get_node (fit_hdr, uname);
 		if (noffset < 0) {
 			printf ("Can't find '%s' FIT subimage\n", uname);
 			return 1;
@@ -160,7 +158,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		data = (ulong *)fit_data;
+		data = (ulong)fit_data;
 		len = (ulong)fit_len;
 		break;
 #endif
@@ -190,5 +188,3 @@ U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
 	   "    - extract <uname> subimage from FIT image at <addr> and copy to <dest>\n"
 #endif
 );
-
-#endif
