@@ -32,6 +32,7 @@ COBJS-y += nand_ecc.o
 COBJS-y += nand_bbt.o
 COBJS-y += nand_util.o
 
+COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
 COBJS-y += fsl_upm.o
 
 COBJS	:= $(COBJS-y)
