@@ -155,7 +155,7 @@ int dcache_status (void)
 	#define HEX2BCD(x) ((((x) / 10) << 4) + (x) % 10)
 #endif
 
-void rtc_get (struct rtc_time* tm)
+int rtc_get (struct rtc_time* tm)
 {
 	RTCCON |= 1;
 	tm->tm_year  = BCD2HEX(BCDYEAR);
@@ -184,6 +184,8 @@ void rtc_get (struct rtc_time* tm)
 		tm->tm_year += 1900;
 	else
 		tm->tm_year += 2000;
+
+	return 0;
 }
 
 void rtc_set (struct rtc_time* tm)

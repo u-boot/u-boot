@@ -545,11 +545,15 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 	}
 
 #ifdef CONFIG_LOGBUFFER
+#ifndef CONFIG_ALT_LB_ADDR
 	kbd=gd->bd;
 	/* Prevent initrd from overwriting logbuffer */
 	if (initrd_high < (kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD))
 		initrd_high = kbd->bi_memsize-LOGBUFF_LEN-LOGBUFF_OVERHEAD;
 	debug ("## Logbuffer at 0x%08lX ", kbd->bi_memsize-LOGBUFF_LEN);
+#else
+	debug ("## Logbuffer at 0x%08lX ", CONFIG_ALT_LB_ADDR);
+#endif
 #endif
 
 	/*

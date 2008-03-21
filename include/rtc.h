@@ -52,7 +52,7 @@ struct rtc_time {
 	int tm_isdst;
 };
 
-void rtc_get (struct rtc_time *);
+int rtc_get (struct rtc_time *);
 void rtc_set (struct rtc_time *);
 void rtc_reset (void);
 

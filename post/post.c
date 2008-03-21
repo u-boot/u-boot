@@ -157,8 +157,10 @@ static void post_bootmode_test_off (void)
 
 static void post_get_flags (int *test_flags)
 {
-	int  flag[] = {  POST_POWERON,   POST_NORMAL,   POST_SLOWTEST };
-	char *var[] = { "post_poweron", "post_normal", "post_slowtest" };
+	int  flag[] = {  POST_POWERON,   POST_NORMAL,   POST_SLOWTEST,
+			 POST_CRITICAL };
+	char *var[] = { "post_poweron", "post_normal", "post_slowtest",
+			"post_critical" };
 	int varnum = sizeof (var) / sizeof (var[0]);
 	char list[128];			/* long enough for POST list */
 	char *name;
@@ -224,7 +226,9 @@ static int post_run_single (struct post_test *test,
 
 		if (!(flags & POST_REBOOT)) {
 			if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
-				post_bootmode_test_on (i);
+				post_bootmode_test_on (
+					(gd->flags & GD_FLG_POSTFAIL) ?
+						POST_FAIL_SAVE | i : i);
 			}
 
 			if (test_flags & POST_PREREL)
@@ -236,10 +240,14 @@ static int post_run_single (struct post_test *test,
 		if (test_flags & POST_PREREL) {
 			if ((*test->test) (flags) == 0)
 				post_log_mark_succ ( test->testid );
+			else if (test_flags & POST_CRITICAL)
+				gd->flags |= GD_FLG_POSTFAIL;
 		} else {
 		if ((*test->test) (flags) != 0) {
 			post_log ("FAILED\n");
 			show_boot_progress (-32);
+			if (test_flags & POST_CRITICAL)
+				gd->flags |= GD_FLG_POSTFAIL;
 		}
 		else
 			post_log ("PASSED\n");
@@ -266,6 +274,10 @@ int post_run (char *name, int flags)
 		unsigned int last;
 
 		if (post_bootmode_get (&last) & POST_POWERTEST) {
+			if (last & POST_FAIL_SAVE) {
+				last &= ~POST_FAIL_SAVE;
+				gd->flags |= GD_FLG_POSTFAIL;
+			}
 			if (last < post_list_size &&
 				(flags & test_flags[last] & POST_ALWAYS) &&
 				(flags & test_flags[last] & POST_MEM)) {

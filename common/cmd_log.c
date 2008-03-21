@@ -59,14 +59,25 @@ static char buf[1024];
 static unsigned console_loglevel = 3;
 static unsigned default_message_loglevel = 4;
 static unsigned log_version = 1;
+#ifdef CONFIG_ALT_LB_ADDR
+static volatile logbuff_t *log;
+#else
 static logbuff_t *log;
+#endif
+static char *lbuf;
 
 void logbuff_init_ptrs (void)
 {
 	unsigned long tag, post_word;
 	char *s;
 
+#ifdef CONFIG_ALT_LB_ADDR
+	log = (logbuff_t *)CONFIG_ALT_LH_ADDR;
+	lbuf = (char *)CONFIG_ALT_LB_ADDR;
+#else
 	log = (logbuff_t *)(gd->bd->bi_memsize-LOGBUFF_LEN) - 1;
+	lbuf = log->buf;
+#endif
 
 	/* Set up log version */
 	if ((s = getenv ("logversion")) != NULL)
@@ -101,11 +112,26 @@ void logbuff_init_ptrs (void)
 
 void logbuff_reset (void)
 {
+#ifndef CONFIG_ALT_LB_ADDR
 	memset (log, 0, sizeof (logbuff_t));
-	if (log_version == 2)
+#endif
+	if (log_version == 2) {
 		log->v2.tag = LOGBUFF_MAGIC;
-	else
+#ifdef CONFIG_ALT_LB_ADDR
+		log->v2.start = 0;
+		log->v2.con = 0;
+		log->v2.end = 0;
+		log->v2.chars = 0;
+#endif
+	} else {
 		log->v1.tag = LOGBUFF_MAGIC;
+#ifdef CONFIG_ALT_LB_ADDR
+		log->v1.dummy = 0;
+		log->v1.start = 0;
+		log->v1.size = 0;
+		log->v1.chars = 0;
+#endif
+	}
 }
 
 int drv_logbuff_init (void)
@@ -188,7 +214,7 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				size = log->v1.size;
 			}
 			for (i=0; i < (size&LOGBUFF_MASK); i++) {
-				s = (char *)log->buf+((start+i)&LOGBUFF_MASK);
+				s = lbuf+((start+i)&LOGBUFF_MASK);
 				putc (*s);
 			}
 			return 0;
@@ -196,7 +222,7 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			logbuff_reset ();
 			return 0;
 		} else if (strcmp(argv[1],"info") == 0) {
-			printf ("Logbuffer   at  %08lx\n", (unsigned long)log->buf);
+			printf ("Logbuffer   at  %08lx\n", (unsigned long)lbuf);
 			if (log_version == 2) {
 				printf ("log_start    =  %08lx\n", log->v2.start);
 				printf ("log_end      =  %08lx\n", log->v2.end);
@@ -257,14 +283,14 @@ static int logbuff_printk(const char *line)
 		line_feed = 0;
 		for (; p < buf_end; p++) {
 			if (log_version == 2) {
-				log->buf[log->v2.end & LOGBUFF_MASK] = *p;
+				lbuf[log->v2.end & LOGBUFF_MASK] = *p;
 				log->v2.end++;
 				if (log->v2.end - log->v2.start > LOGBUFF_LEN)
 					log->v2.start++;
 				log->v2.chars++;
 			}
 			else {
-				log->buf[(log->v1.start + log->v1.size) &
+				lbuf[(log->v1.start + log->v1.size) &
 					 LOGBUFF_MASK] = *p;
 				if (log->v1.size < LOGBUFF_LEN)
 					log->v1.size++;

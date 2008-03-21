@@ -96,14 +96,16 @@ static unsigned char bin2bcd (unsigned int n)
 
 #define M41T11_STORAGE_SZ  (64-REG_CNT)
 
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
+	int rel = 0;
 	uchar data[RTC_REG_CNT];
 
 	i2c_read(CFG_I2C_RTC_ADDR, RTC_SEC_ADDR, 1, data, RTC_REG_CNT);
 
 	if( data[RTC_SEC_ADDR] & 0x80 ){
 		printf( "m41t11 RTC Clock stopped!!!\n" );
+		rel = -1;
 	}
 	tmp->tm_sec  = bcd2bin (data[RTC_SEC_ADDR]  & 0x7F);
 	tmp->tm_min  = bcd2bin (data[RTC_MIN_ADDR]  & 0x7F);
@@ -120,6 +122,7 @@ void rtc_get (struct rtc_time *tmp)
 		i2c_read(CFG_I2C_RTC_ADDR, M41T11_YEAR_DATA, 1, &cent, M41T11_YEAR_SIZE);
 		if( !(data[RTC_HOUR_ADDR] & 0x80) ){
 			printf( "m41t11 RTC: cann't keep track of years without CEB set\n" );
+			rel = -1;
 		}
 		if( (cent & 0x1) != ((data[RTC_HOUR_ADDR]&0x40)>>7) ){
 			/*century flip store off new year*/
@@ -136,6 +139,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return rel;
 }
 
 void rtc_set (struct rtc_time *tmp)

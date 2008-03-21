@@ -182,7 +182,7 @@ static int get_century_flag(void)
 	return flag;
 }
 
-void rtc_get( struct rtc_time *tmp)
+int rtc_get( struct rtc_time *tmp)
 {
 	if (phantom_flag < 0)
 		phantom_flag = get_phantom_flag();
@@ -250,6 +250,8 @@ void rtc_get( struct rtc_time *tmp)
 		tmp->tm_yday = 0;
 		tmp->tm_isdst= 0;
 	}
+
+	return 0;
 }
 
 void rtc_set( struct rtc_time *tmp )

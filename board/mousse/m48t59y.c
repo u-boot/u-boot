@@ -278,7 +278,7 @@ void m48_watchdog_arm(int usec)
 /*
  * U-Boot RTC support.
  */
-void
+int
 rtc_get( struct rtc_time *tmp )
 {
 	m48_tod_get(&tmp->tm_year,
@@ -295,6 +295,8 @@ rtc_get( struct rtc_time *tmp )
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec );
 #endif
+
+	return 0;
 }
 
 void

@@ -65,7 +65,7 @@ static unsigned bcd2bin(uchar c);
 
 /* ------------------------------------------------------------------------- */
 
-void rtc_get( struct rtc_time *tmp )
+int rtc_get( struct rtc_time *tmp )
 {
 	uchar sec, min, hour;
 	uchar mday, wday, mon, year;
@@ -142,6 +142,8 @@ void rtc_set( struct rtc_time *tmp )
 
 	/* unlock clock registers after read */
 	rtc_write( RTC_CONTROLA, ( reg_a  & ~RTC_CA_WRITE ));
+
+	return 0;
 }
 
 void rtc_reset (void)
