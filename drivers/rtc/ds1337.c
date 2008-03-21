@@ -84,8 +84,9 @@ static unsigned bcd2bin (uchar c);
 /*
  * Get the current time from the RTC
  */
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
+	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon_cent, year, control, status;
 
 	control = rtc_read (RTC_CTL_REG_ADDR);
@@ -107,6 +108,7 @@ void rtc_get (struct rtc_time *tmp)
 		/* clear the OSF flag */
 		rtc_write (RTC_STAT_REG_ADDR,
 			   rtc_read (RTC_STAT_REG_ADDR) & ~RTC_STAT_BIT_OSF);
+		rel = -1;
 	}
 
 	tmp->tm_sec  = bcd2bin (sec & 0x7F);
@@ -122,6 +124,8 @@ void rtc_get (struct rtc_time *tmp)
 	DEBUGR ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return rel;
 }
 
 

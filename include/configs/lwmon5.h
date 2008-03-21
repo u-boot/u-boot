@@ -36,6 +36,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
+#define CONFIG_BOARD_RESET	1	/* Call board_reset		*/
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -85,6 +86,15 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 #define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
 						/* unused GPT0 COMP reg	*/
+
+/* Additional registers for watchdog timer post test */
+
+#define CFG_DSPIC_TEST_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
+#define CFG_WATCHDOG_TIME_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP4)
+#define CFG_WATCHDOG_FLAGS_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
+#define CFG_WATCHDOG_MAGIC	0x12480000
+#define CFG_WATCHDOG_MAGIC_MASK	0xFFFF0000
+#define CFG_DSPIC_TEST_MASK	0x00000001
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -156,10 +166,86 @@
 				 CFG_POST_MEMORY   | \
 				 CFG_POST_RTC      | \
 				 CFG_POST_SPR      | \
-				 CFG_POST_UART)
+				 CFG_POST_UART     | \
+				 CFG_POST_SYSMON   | \
+				 CFG_POST_WATCHDOG | \
+				 CFG_POST_DSP      | \
+				 CFG_POST_BSPEC1   | \
+				 CFG_POST_BSPEC2   | \
+				 CFG_POST_BSPEC3   | \
+				 CFG_POST_BSPEC4   | \
+				 CFG_POST_BSPEC5)
+
+#define CONFIG_POST_WATCHDOG  {\
+	"Watchdog timer test",				\
+	"watchdog",					\
+	"This test checks the watchdog timer.",		\
+	POST_RAM | POST_POWERON | POST_SLOWTEST | POST_MANUAL | POST_REBOOT, \
+	&lwmon5_watchdog_post_test,			\
+	NULL,						\
+	NULL,						\
+	CFG_POST_WATCHDOG				\
+	}
+
+#define CONFIG_POST_BSPEC1    {\
+	"dsPIC init test",				\
+	"dspic_init",					\
+	"This test returns result of dsPIC READY test run earlier.",	\
+	POST_RAM | POST_ALWAYS,				\
+	&dspic_init_post_test,				\
+	NULL,						\
+	NULL,						\
+	CFG_POST_BSPEC1					\
+	}
+
+#define CONFIG_POST_BSPEC2    {\
+	"dsPIC test",					\
+	"dspic",					\
+	"This test gets result of dsPIC POST and dsPIC version.",	\
+	POST_RAM | POST_ALWAYS,				\
+	&dspic_post_test,				\
+	NULL,						\
+	NULL,						\
+	CFG_POST_BSPEC2					\
+	}
+
+#define CONFIG_POST_BSPEC3    {\
+	"FPGA test",					\
+	"fpga",						\
+	"This test checks FPGA registers and memory.",	\
+	POST_RAM | POST_ALWAYS,				\
+	&fpga_post_test,				\
+	NULL,						\
+	NULL,						\
+	CFG_POST_BSPEC3					\
+	}
+
+#define CONFIG_POST_BSPEC4    {\
+	"GDC test",					\
+	"gdc",						\
+	"This test checks GDC registers and memory.",	\
+	POST_RAM | POST_ALWAYS,				\
+	&gdc_post_test,					\
+	NULL,						\
+	NULL,						\
+	CFG_POST_BSPEC4					\
+	}
+
+#define CONFIG_POST_BSPEC5    {\
+	"SYSMON1 test",					\
+	"sysmon1",					\
+	"This test checks GPIO_62_EPX pin indicating power failure.",	\
+	POST_RAM | POST_MANUAL | POST_NORMAL | POST_SLOWTEST,	\
+	&sysmon1_post_test,				\
+	NULL,						\
+	NULL,						\
+	CFG_POST_BSPEC5					\
+	}
 
 #define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_LOGBUFFER
+#define CONFIG_ALT_LH_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP1)
+#define CONFIG_ALT_LB_ADDR	(CFG_OCM_BASE)
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*-----------------------------------------------------------------------
@@ -181,6 +267,7 @@
 #define CONFIG_RTC_PCF8563	1		/* enable Philips PCF8563 RTC	*/
 #define CFG_I2C_RTC_ADDR	0x51		/* Philips PCF8563 RTC address	*/
 #define CFG_I2C_KEYBD_ADDR	0x56		/* PIC LWE keyboard		*/
+#define CFG_I2C_DSPIC_IO_ADDR	0x57		/* PIC I/O addr               */
 
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 #if 0
@@ -366,9 +453,6 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC				*/
 #define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever			*/
 
-/*
- * ToDo: Watchdog is not test fully, so exclude it for now
- */
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
 #define CONFIG_WD_PERIOD	40000	/* in usec */
 
@@ -431,10 +515,14 @@
 #define CFG_GPIO_PHY1_RST	12
 #define CFG_GPIO_FLASH_WP	14
 #define CFG_GPIO_PHY0_RST	22
+#define CFG_GPIO_DSPIC_READY	51
 #define CFG_GPIO_EEPROM_EXT_WP	55
+#define CFG_GPIO_HIGHSIDE	56
 #define CFG_GPIO_EEPROM_INT_WP	57
+#define CFG_GPIO_BOARD_RESET	58
 #define CFG_GPIO_LIME_S		59
 #define CFG_GPIO_LIME_RST	60
+#define CFG_GPIO_SYSMON_STATUS	62
 #define CFG_GPIO_WATCHDOG	63
 
 /*-----------------------------------------------------------------------

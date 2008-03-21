@@ -91,7 +91,7 @@ static void init_spi (void);
 /* ------------------------------------------------------------------------- */
 
 /* read clock time from DS1306 and return it in *tmp */
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	unsigned char spi_byte;	/* Data Byte */
@@ -141,6 +141,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -304,7 +306,7 @@ static unsigned char rtc_read (unsigned char reg);
 static void rtc_write (unsigned char reg, unsigned char val);
 
 /* read clock time from DS1306 and return it in *tmp */
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
 	unsigned char sec, min, hour, mday, wday, mon, year;
 
@@ -349,6 +351,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */

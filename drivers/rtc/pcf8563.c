@@ -41,8 +41,9 @@ static unsigned bcd2bin(uchar c);
 
 /* ------------------------------------------------------------------------- */
 
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
+	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon_cent, year;
 
 	sec	= rtc_read (0x02);
@@ -65,6 +66,7 @@ void rtc_get (struct rtc_time *tmp)
 
 	if (sec & 0x80) {
 		puts ("### Warning: RTC Low Voltage - date/time not reliable\n");
+		rel = -1;
 	}
 
 	tmp->tm_sec  = bcd2bin (sec  & 0x7F);
@@ -80,6 +82,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return rel;
 }
 
 void rtc_set (struct rtc_time *tmp)

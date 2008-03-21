@@ -170,9 +170,9 @@ long int initdram (int board_type)
 
 /* ------------------------------------------------------------------------- */
 /* stubs so we can print dates w/o any nvram RTC.*/
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
-	return;
+	return 0;
 }
 void rtc_set (struct rtc_time *tmp)
 {

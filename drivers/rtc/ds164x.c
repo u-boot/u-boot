@@ -70,7 +70,7 @@ static unsigned bcd2bin(uchar c);
 
 /* ------------------------------------------------------------------------- */
 
-void rtc_get( struct rtc_time *tmp )
+int rtc_get( struct rtc_time *tmp )
 {
 	uchar sec, min, hour;
 	uchar mday, wday, mon, year;
@@ -115,6 +115,8 @@ void rtc_get( struct rtc_time *tmp )
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec );
 #endif
+
+	return 0;
 }
 
 void rtc_set( struct rtc_time *tmp )

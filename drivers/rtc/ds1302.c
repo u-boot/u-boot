@@ -253,9 +253,10 @@ rtc_reset(void)
 	/* TODO */
 }
 
-void
+int
 rtc_get(struct rtc_time *tmp)
 {
+	int rel = 0;
 	struct ds1302_st bbclk;
 
 	if(!ds1302_initted) rtc_init();
@@ -265,6 +266,7 @@ rtc_get(struct rtc_time *tmp)
 	if (bbclk.CH) {
 		printf("ds1302: rtc_get: Clock was halted, clock probably "
 			"corrupt\n");
+		rel = -1;
 	}
 
 	tmp->tm_sec=10*bbclk.sec10+bbclk.sec;
@@ -281,6 +283,8 @@ rtc_get(struct rtc_time *tmp)
 	DPRINTF("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec );
+
+	return rel;
 }
 
 void

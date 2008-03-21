@@ -166,7 +166,7 @@ rs5c372_convert_to_time(struct rtc_time *dt, unsigned char *buf)
 /*
  * Get the current time from the RTC
  */
-void
+int
 rtc_get (struct rtc_time *tmp)
 {
 	unsigned char buf[RS5C372_RAM_SIZE];
@@ -176,7 +176,7 @@ rtc_get (struct rtc_time *tmp)
 		rs5c372_enable();
 
 	if (!setup_done)
-		return;
+		return -1;
 
 	memset(buf, 0, sizeof(buf));
 
@@ -184,12 +184,12 @@ rtc_get (struct rtc_time *tmp)
 	ret = rs5c372_readram(buf, RS5C372_RAM_SIZE);
 	if (ret != 0) {
 		printf("%s: failed\n", __FUNCTION__);
-		return;
+		return -1;
 	}
 
 	rs5c372_convert_to_time(tmp, buf);
 
-	return;
+	return 0;
 }
 
 /*

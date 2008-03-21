@@ -85,7 +85,7 @@ void rtc_set(struct rtc_time *tmp)
 }
 
 /* Read the time from the RTC_STAT. time_in_seconds is seconds since Jan 1970 */
-void rtc_get(struct rtc_time *tmp)
+int rtc_get(struct rtc_time *tmp)
 {
 	uint32_t cur_rtc_stat;
 	int time_in_sec;
@@ -95,7 +95,7 @@ void rtc_get(struct rtc_time *tmp)
 
 	if (tmp == NULL) {
 		puts("Error getting the date/time\n");
-		return;
+		return -1;
 	}
 
 	wait_for_complete();
@@ -112,6 +112,8 @@ void rtc_get(struct rtc_time *tmp)
 	/* Calculate the total number of seconds since epoch */
 	time_in_sec = (tm_sec) + MIN_TO_SECS(tm_min) + HRS_TO_SECS(tm_hr) + DAYS_TO_SECS(tm_day);
 	to_tm(time_in_sec, tmp);
+
+	return 0;
 }
 
 #endif

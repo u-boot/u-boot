@@ -55,7 +55,7 @@ typedef struct rtc5200 {
 /*****************************************************************************
  * get time
  *****************************************************************************/
-void rtc_get (struct rtc_time *tmp)
+int rtc_get (struct rtc_time *tmp)
 {
 	RTC5200	*rtc = (RTC5200 *) (CFG_MBAR+0x800);
 	ulong time, date, time2;
@@ -81,6 +81,8 @@ void rtc_get (struct rtc_time *tmp)
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 /*****************************************************************************

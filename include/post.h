@@ -42,11 +42,15 @@
 #define POST_REBOOT		0x0800	/* test may cause rebooting */
 #define POST_PREREL             0x1000  /* test runs before relocation */
 
+#define POST_CRITICAL		0x2000	/* Use failbootcmd if test failed */
+
 #define POST_MEM		(POST_RAM | POST_ROM)
 #define POST_ALWAYS		(POST_NORMAL	| \
 				 POST_SLOWTEST	| \
 				 POST_MANUAL	| \
 				 POST_POWERON	)
+
+#define POST_FAIL_SAVE		0x80
 
 #ifndef	__ASSEMBLY__
 
@@ -93,6 +97,11 @@ extern int post_hotkeys_pressed(void);
 #define CFG_POST_CODEC		0x00002000
 #define CFG_POST_FPU		0x00004000
 #define CFG_POST_ECC		0x00008000
+#define CFG_POST_BSPEC1		0x00010000
+#define CFG_POST_BSPEC2		0x00020000
+#define CFG_POST_BSPEC3		0x00040000
+#define CFG_POST_BSPEC4		0x00080000
+#define CFG_POST_BSPEC5		0x00100000
 
 #endif /* CONFIG_POST */
 
