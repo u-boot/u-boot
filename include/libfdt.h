@@ -131,6 +131,12 @@ static inline void *fdt_offset_ptr_w(void *fdt, int offset, int checklen)
 uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset);
 
 /**********************************************************************/
+/* Traversal functions                                                */
+/**********************************************************************/
+
+int fdt_next_node(const void *fdt, int offset, int *depth);
+
+/**********************************************************************/
 /* General functions                                                  */
 /**********************************************************************/
 
@@ -844,6 +850,32 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size);
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
 int fdt_del_mem_rsv(void *fdt, int n);
+
+/**
+ * fdt_set_name - change the name of a given node
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: structure block offset of a node
+ * @name: name to give the node
+ *
+ * fdt_set_name() replaces the name (including unit address, if any)
+ * of the given node with the given string.  NOTE: this function can't
+ * efficiently check if the new name is unique amongst the given
+ * node's siblings; results are undefined if this function is invoked
+ * with a name equal to one of the given node's siblings.
+ *
+ * This function may insert or delete data from the blob, and will
+ * therefore change the offsets of some existing nodes.
+ *
+ * returns:
+ *	0, on success
+ *	-FDT_ERR_NOSPACE, there is insufficient free space in the blob
+ *		to contain the new name
+ *	-FDT_ERR_BADOFFSET, nodeoffset did not point to FDT_BEGIN_NODE tag
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTATE, standard meanings
+ */
+int fdt_set_name(void *fdt, int nodeoffset, const char *name);
 
 /**
  * fdt_setprop - create or change a property

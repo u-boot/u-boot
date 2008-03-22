@@ -69,10 +69,8 @@ static int _blocks_misordered(const void *fdt,
 
 static int rw_check_header(void *fdt)
 {
-	int err;
+	CHECK_HEADER(fdt);
 
-	if ((err = fdt_check_header(fdt)))
-		return err;
 	if (fdt_version(fdt) < 17)
 		return -FDT_ERR_BADVERSION;
 	if (_blocks_misordered(fdt, sizeof(struct fdt_reserve_entry),
@@ -252,6 +250,30 @@ static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
 	return 0;
 }
 
+int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+{
+	char *namep;
+	int oldlen, newlen;
+	int err;
+
+	if ((err = rw_check_header(fdt)))
+		return err;
+
+	namep = (char *)fdt_get_name(fdt, nodeoffset, &oldlen);
+	if (!namep)
+		return oldlen;
+
+	newlen = strlen(name);
+
+	err = _blob_splice_struct(fdt, namep, ALIGN(oldlen+1, FDT_TAGSIZE),
+				  ALIGN(newlen+1, FDT_TAGSIZE));
+	if (err)
+		return err;
+
+	memcpy(namep, name, newlen+1);
+	return 0;
+}
+
 int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 		const void *val, int len)
 {
@@ -309,7 +331,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	do {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
-	} while (tag == FDT_PROP);
+	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
 
 	nh = _fdt_offset_ptr_w(fdt, offset);
 	nodelen = sizeof(*nh) + ALIGN(namelen+1, FDT_TAGSIZE) + FDT_TAGSIZE;
@@ -375,9 +397,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	int newsize;
 	void *tmp;
 
-	err = fdt_check_header(fdt);
-	if (err)
-		return err;
+	CHECK_HEADER(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);

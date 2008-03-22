@@ -129,6 +129,47 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset)
 	return tag;
 }
 
+int fdt_next_node(const void *fdt, int offset, int *depth)
+{
+	int nextoffset = 0;
+	uint32_t tag;
+
+	if (offset >= 0) {
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
+		if (tag != FDT_BEGIN_NODE)
+			return -FDT_ERR_BADOFFSET;
+	}
+
+	do {
+		offset = nextoffset;
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
+
+		switch (tag) {
+		case FDT_PROP:
+		case FDT_NOP:
+			break;
+
+		case FDT_BEGIN_NODE:
+			if (depth)
+				(*depth)++;
+			break;
+
+		case FDT_END_NODE:
+			if (depth)
+				(*depth)--;
+			break;
+
+		case FDT_END:
+			return -FDT_ERR_NOTFOUND;
+
+		default:
+			return -FDT_ERR_BADSTRUCTURE;
+		}
+	} while (tag != FDT_BEGIN_NODE);
+
+	return offset;
+}
+
 const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 {
 	int len = strlen(s) + 1;
@@ -143,10 +184,7 @@ const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
-	int err = fdt_check_header(fdt);
-
-	if (err)
-		return err;
+	CHECK_HEADER(fdt);
 
 	if (fdt_totalsize(fdt) > bufsize)
 		return -FDT_ERR_NOSPACE;
