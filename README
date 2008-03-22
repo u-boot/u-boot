@@ -1946,6 +1946,11 @@ Configuration Settings:
 		is useful, if some of the configured banks are only
 		optionally available.
 
+- CONFIG_FLASH_SHOW_PROGRESS
+		If defined (must be an integer), print out countdown
+		digits and dots.  Recommended value: 45 (9..1) for 80
+		column displays, 15 (3..1) for 40 column displays.
+
 - CFG_RX_ETH_BUFFER:
 		Defines the number of ethernet receive buffers. On some
 		ethernet controllers it is recommended to set this value
