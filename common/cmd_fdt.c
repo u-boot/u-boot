@@ -410,17 +410,6 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/* Create a chosen node */
 	else if (argv[1][0] == 'c')
 		fdt_chosen(fdt, 0, 0, 1);
-
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-	/* Create a u-boot-env node */
-	else if (argv[1][0] == 'e')
-		fdt_env(fdt);
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-	/* Create a bd_t node */
-	else if (argv[1][0] == 'b')
-		fdt_bd_t(fdt);
-#endif
 	else {
 		/* Unrecognized command */
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -801,12 +790,6 @@ U_BOOT_CMD(
 	"fdt rsvmem add <addr> <size>        - Add a mem reserve\n"
 	"fdt rsvmem delete <index>           - Delete a mem reserves\n"
 	"fdt chosen - Add/update the /chosen branch in the tree\n"
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-	"fdt env    - Add/replace the /u-boot-env branch in the tree\n"
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-	"fdt bd_t   - Add/replace the /bd_t branch in the tree\n"
-#endif
 	"NOTE: If the path or property you are setting/printing has a '#' character\n"
 	"     or spaces, you MUST escape it with a \\ character or quote it with \".\n"
 );

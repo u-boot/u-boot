@@ -984,20 +984,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 				"must RESET the board to recover.\n");
 			do_reset (cmdtp, flag, argc, argv);
 		}
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-		if (fdt_env(of_flat_tree) < 0) {
-			puts ("ERROR: /u-boot-env node create failed - "
-				"must RESET the board to recover.\n");
-			do_reset (cmdtp, flag, argc, argv);
-		}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-		if (fdt_bd_t(of_flat_tree) < 0) {
-			puts ("ERROR: /bd_t node create failed - "
-				"must RESET the board to recover.\n");
-			do_reset (cmdtp, flag, argc, argv);
-		}
-#endif
 #ifdef CONFIG_OF_BOARD_SETUP
 		/* Call the board-specific fixup routine */
 		ft_board_setup(of_flat_tree, gd->bd);

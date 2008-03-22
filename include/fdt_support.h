@@ -50,14 +50,6 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create);
 void fdt_fixup_qe_firmware(void *fdt);
 
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-int fdt_env(void *fdt);
-#endif
-
-#ifdef CONFIG_OF_HAS_BD_T
-int fdt_bd_t(void *fdt);
-#endif
-
 #ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup(void *blob, bd_t *bd);
 void ft_cpu_setup(void *blob, bd_t *bd);
