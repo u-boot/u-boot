@@ -112,11 +112,6 @@ int serial_init (void)
 	return 0;
 }
 
-static int serial_tx_fifo_level (void)
-{
-	return (*SCFDR >> 8) & FIFOLEVEL_MASK;
-}
-
 static int serial_rx_fifo_level (void)
 {
 #if defined(CONFIG_SH4A)
