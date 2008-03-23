@@ -1,7 +1,7 @@
 /*
  * SH4 PCI Controller (PCIC) for U-Boot.
  * (C) Dustin McIntire (dustin@sensoria.com)
- * (C) 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * u-boot/include/asm-sh/pci.h
@@ -28,8 +28,9 @@
 #define _ASM_PCI_H_
 
 #include <pci.h>
-
-#if defined(CONFIG_CPU_SH7780)
+#if defined(CONFIG_SH7751_PCI)
+int pci_sh7751_init(struct pci_controller *hose);
+#elif defined(CONFIG_SH7780_PCI)
 int pci_sh7780_init(struct pci_controller *hose);
 #else
 #error "Not support PCI."
