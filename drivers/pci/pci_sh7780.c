@@ -1,7 +1,7 @@
 /*
  * SH7780 PCI Controller (PCIC) for U-Boot.
  * (C) Dustin McIntire (dustin@sensoria.com)
- * (C) 2007 Nobuhiro Iwamatsu
+ * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,9 +24,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_PCI) && defined(CONFIG_SH4_PCI) \
-	&& defined(CONFIG_CPU_SH7780)
 
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -108,4 +105,3 @@ int pci_sh7780_init(struct pci_controller *hose)
 	pci_sh4_init(hose);
 	return 0;
 }
-#endif /* defined(CONFIG_PCI) && defined(CONFIG_CPU_SH7780) */

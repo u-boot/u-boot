@@ -1,7 +1,7 @@
 /*
  * SH4 PCI Controller (PCIC) for U-Boot.
  * (C) Dustin McIntire (dustin@sensoria.com)
- * (C) 2007 Nobuhiro Iwamatsu
+ * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * u-boot/cpu/sh4/pci-sh4.c
@@ -26,9 +26,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_PCI) &&	\
-	defined(CONFIG_SH4_PCI)
 
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -77,5 +74,3 @@ int pci_sh4_init(struct pci_controller *hose)
 	hose->last_busno = pci_hose_scan(hose);
 	return 0;
 }
-
-#endif /* defined(CONFIG_PCI) && defined(CONFIG_SH4_PCI) */

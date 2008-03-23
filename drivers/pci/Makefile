@@ -31,6 +31,8 @@ COBJS-y += pci_auto.o
 COBJS-y += pci_indirect.o
 COBJS-y += tsi108_pci.o
 COBJS-y += w83c553f.o
+COBJS-$(CONFIG_SH4_PCI) += pci_sh4.o
+COBJS-$(CONFIG_SH7780_PCI) +=pci_sh7780.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
