@@ -318,16 +318,26 @@ static int genmii_read_status (struct uec_mii_info *mii_info)
 		return err;
 
 	if (mii_info->autoneg) {
-		status = phy_read (mii_info, PHY_ANLPAR);
+		status = phy_read(mii_info, MII_1000BASETSTATUS);
 
-		if (status & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD))
-			mii_info->duplex = DUPLEX_FULL;
-		else
-			mii_info->duplex = DUPLEX_HALF;
-		if (status & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
-			mii_info->speed = SPEED_100;
-		else
-			mii_info->speed = SPEED_10;
+		if (status & (LPA_1000FULL | LPA_1000HALF)) {
+			mii_info->speed = SPEED_1000;
+			if (status & LPA_1000FULL)
+				mii_info->duplex = DUPLEX_FULL;
+			else
+				mii_info->duplex = DUPLEX_HALF;
+		} else {
+			status = phy_read(mii_info, PHY_ANLPAR);
+
+			if (status & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD))
+				mii_info->duplex = DUPLEX_FULL;
+			else
+				mii_info->duplex = DUPLEX_HALF;
+			if (status & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
+				mii_info->speed = SPEED_100;
+			else
+				mii_info->speed = SPEED_10;
+		}
 		mii_info->pause = 0;
 	}
 	/* On non-aneg, we assume what we put in BMCR is the speed,
