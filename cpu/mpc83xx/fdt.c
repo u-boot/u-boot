@@ -46,6 +46,14 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		"clock-frequency", gd->core_clk, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_compat_u32(blob, "fsl,soc",
+		"bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_compat_u32(blob, "fsl,soc",
+		"clock-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_compat_u32(blob, "fsl,immr",
+		"bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_compat_u32(blob, "fsl,immr",
+		"clock-frequency", bd->bi_busfreq, 1);
 #ifdef CONFIG_QE
 	ft_qe_setup(blob);
 #endif
