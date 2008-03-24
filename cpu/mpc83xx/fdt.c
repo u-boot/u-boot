@@ -24,9 +24,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_OF_LIBFDT)
-
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -68,4 +65,3 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
-#endif /* CONFIG_OF_LIBFDT */
