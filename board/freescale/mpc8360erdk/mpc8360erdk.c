@@ -186,6 +186,23 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{1,  7, 1, 0, 0}, /* LVDS_BKLT_CTR */
 	{2, 16, 1, 0, 0}, /* LVDS_BKLT_EN */
 
+	/* AD7843 ADC/Touchscreen controller */
+	{4, 14, 1, 0, 0}, /* SPI_nCS0 */
+	{4, 28, 3, 0, 3}, /* SPI_MOSI */
+	{4, 29, 3, 0, 3}, /* SPI_MISO */
+	{4, 30, 3, 0, 3}, /* SPI_CLK */
+
+	/* Freescale QUICC Engine USB Host Controller (FHCI) */
+	{1,  2, 1, 0, 3}, /* USBOE */
+	{1,  3, 1, 0, 3}, /* USBTP */
+	{1,  8, 1, 0, 1}, /* USBTN */
+	{1,  9, 2, 1, 3}, /* USBRP */
+	{1, 10, 2, 0, 3}, /* USBRXD */
+	{1, 11, 2, 1, 3}, /* USBRN */
+	{2, 20, 2, 0, 1}, /* CLK21 */
+	{4, 20, 1, 0, 0}, /* SPEED */
+	{4, 21, 1, 0, 0}, /* SUSPND */
+
 	/* END of table */
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
