@@ -369,6 +369,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
@@ -528,7 +529,6 @@
    "consoledev=ttyS0\0"\
    "loadaddr=a00000\0"\
    "fdtaddr=900000\0"\
-   "bootfile=uImage\0"\
    "fdtfile=dtb\0"\
    "fsfile=fs\0"\
    "ubootfile=u-boot.bin\0"\
@@ -562,10 +562,9 @@
    "nand_reflash=run nand_reflash_kernel nand_reflash_dtb "\
 		"nand_reflash_fs\0"\
    "boot_m=bootm $loadaddr - $fdtaddr\0"\
-   "dhcpboot=run setbootargs adddhcpargs tftp_get_kernel tftp_get_dtb "\
-   		"boot_m\0"\
+   "dhcpboot=dhcp ; run setbootargs adddhcpargs tftp_get_dtb boot_m\0"\
    "nfsboot=run setbootargs addnfsargs tftp_get_kernel tftp_get_dtb "\
-   		"boot_m\0"\
+		"boot_m\0"\
    "nandboot=run setbootargs addnandargs nand_read_kernel nand_read_dtb "\
 		"boot_m\0"\
    ""
