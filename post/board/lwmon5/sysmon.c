@@ -58,7 +58,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* from dspic.c */
-extern int dspic_read(ushort reg);
+extern int dspic_read(ushort reg, ushort *data);
 
 #define	RELOC(x) if (x != NULL) x = (void *) ((ulong) (x) + gd->reloc_off)
 
@@ -67,6 +67,7 @@ typedef struct sysmon_table_s sysmon_table_t;
 
 static void sysmon_dspic_init (sysmon_t * this);
 static int sysmon_dspic_read (sysmon_t * this, uint addr);
+static int sysmon_dspic_read_sgn (sysmon_t * this, uint addr);
 static void sysmon_backlight_disable (sysmon_table_t * this);
 
 struct sysmon_s
@@ -79,9 +80,13 @@ struct sysmon_s
 static sysmon_t sysmon_dspic =
 	{CFG_I2C_DSPIC_IO_ADDR, sysmon_dspic_init, sysmon_dspic_read};
 
+static sysmon_t sysmon_dspic_sgn =
+	{CFG_I2C_DSPIC_IO_ADDR, sysmon_dspic_init, sysmon_dspic_read_sgn};
+
 static sysmon_t * sysmon_list[] =
 {
 	&sysmon_dspic,
+	&sysmon_dspic_sgn,
 	NULL
 };
 
@@ -109,17 +114,17 @@ struct sysmon_table_s
 
 static sysmon_table_t sysmon_table[] =
 {
-    {"Temperature", " C", &sysmon_dspic, NULL, sysmon_backlight_disable,
+    {"Temperature", " C", &sysmon_dspic_sgn, NULL, sysmon_backlight_disable,
      1, 1, -32768, 32767, 0xFFFF, 0x8000-40, 0x8000+85, 0,
                                   0x8000-30, 0x8000+80, 0, 0x12BC},
 
     {"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
-     100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-                                         0x8000+4750, 0x8000+5250, 0, 0x12CA},
+     100, 1000, 0, 0xFFFF, 0xFFFF, 4750, 5250, 0,
+                                   4750, 5250, 0, 0x12CA},
 
     {"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
-     100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-                                         0x8000+4750, 0x8000+5250, 0, 0x12C6},
+     100, 1000, 0, 0xFFFF, 0xFFFF, 4750, 5250, 0,
+                                   4750, 5250, 0, 0x12C6},
 };
 static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
 
@@ -156,9 +161,7 @@ static char *sysmon_unit_value (sysmon_table_t *s, uint val)
 	static char buf[32];
 	char *p, sign;
 	int decimal, frac;
-	int unit_val;
-
-	unit_val =
+	int unit_val =
 	    s->unit_min + (s->unit_max - s->unit_min) * val / s->val_mask;
 
 	if (val == -1)
@@ -194,10 +197,18 @@ static void sysmon_dspic_init (sysmon_t * this)
 
 static int sysmon_dspic_read (sysmon_t * this, uint addr)
 {
-	int res = dspic_read(addr);
+	ushort data;
+
+	return (dspic_read(addr, &data)) ? -1 : data;
+}
+
+static int sysmon_dspic_read_sgn (sysmon_t * this, uint addr)
+{
+	ushort data;
 
 	/* To fit into the table range we should add 0x8000 */
-	return (res == -1) ? -1 : (res + 0x8000);
+	return (dspic_read(addr, &data)) ? -1 :
+	       (signed short)data + 0x8000;
 }
 
 static void sysmon_backlight_disable (sysmon_table_t * this)
