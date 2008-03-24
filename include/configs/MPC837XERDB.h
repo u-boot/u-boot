@@ -32,6 +32,7 @@
 
 #define CONFIG_PCI	1
 
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 /*
@@ -322,6 +323,11 @@
 
 #define CFG_NS16550_COM1	(CFG_IMMR+0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR+0x4600)
+
+/* SERDES */
+#define CONFIG_FSL_SERDES
+#define CONFIG_FSL_SERDES1	0xe3000
+#define CONFIG_FSL_SERDES2	0xe3100
 
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER

@@ -15,6 +15,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
 #include <vsc7385.h>
 
@@ -129,6 +130,42 @@ int fixed_sdram(void)
 int checkboard(void)
 {
 	puts("Board: Freescale MPC837xERDB\n");
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+#ifdef CONFIG_FSL_SERDES
+	immap_t *immr = (immap_t *)CFG_IMMR;
+	u32 spridr = in_be32(&immr->sysconf.spridr);
+
+	/* we check only part num, and don't look for CPU revisions */
+	switch (spridr >> 16) {
+	case SPR_8379E_REV10 >> 16:
+	case SPR_8379_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8378E_REV10 >> 16:
+	case SPR_8378_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8377E_REV10 >> 16:
+	case SPR_8377_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	default:
+		printf("serdes not configured: unknown CPU part number: "
+		       "%04x\n", spridr >> 16);
+		break;
+	}
+#endif /* CONFIG_FSL_SERDES */
 	return 0;
 }
 
