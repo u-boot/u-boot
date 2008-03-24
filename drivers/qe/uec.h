@@ -642,6 +642,7 @@ typedef enum enet_interface {
 	ENET_100_RGMII,
 	ENET_1000_GMII,
 	ENET_1000_RGMII,
+	ENET_1000_RGMII_RXID,
 	ENET_1000_TBI,
 	ENET_1000_RTBI
 } enet_interface_e;
