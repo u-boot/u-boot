@@ -184,6 +184,11 @@
  * NAND flash on the local bus
  */
 #define CFG_NAND_BASE		0x60000000
+#define CONFIG_CMD_NAND		1
+#define CONFIG_NAND_FSL_UPM	1
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
 #define CFG_LBLAWAR1_PRELIM	0x8000001b /* Access window size 4K */
@@ -503,23 +508,42 @@
    "fdtfile=dtb\0"\
    "fsfile=fs\0"\
    "ubootfile=u-boot.bin\0"\
+   "mtdparts=mtdparts=60000000.nand-flash:4096k(kernel),128k(dtb),-(rootfs)\0"\
    "setbootargs=setenv bootargs console=$consoledev,$baudrate "\
    		"$mtdparts panic=1\0"\
    "adddhcpargs=setenv bootargs $bootargs ip=on\0"\
    "addnfsargs=setenv bootargs $bootargs ip=$ipaddr:$serverip:"\
    		"$gatewayip:$netmask:$hostname:$netdev:off "\
    		"root=/dev/nfs rw nfsroot=$serverip:$rootpath\0"\
+   "addnandargs=setenv bootargs $bootargs root=/dev/mtdblock3 "\
+		"rootfstype=jffs2 rw\0"\
    "tftp_get_uboot=tftp 100000 $ubootfile\0"\
    "tftp_get_kernel=tftp $loadaddr $bootfile\0"\
    "tftp_get_dtb=tftp $fdtaddr $fdtfile\0"\
    "tftp_get_fs=tftp c00000 $fsfile\0"\
+   "nand_erase_kernel=nand erase 0 400000\0"\
+   "nand_erase_dtb=nand erase 400000 20000\0"\
+   "nand_erase_fs=nand erase 420000 3be0000\0"\
+   "nand_write_kernel=nand write.jffs2 $loadaddr 0 400000\0"\
+   "nand_write_dtb=nand write.jffs2 $fdtaddr 400000 20000\0"\
+   "nand_write_fs=nand write.jffs2 c00000 420000 $filesize\0"\
+   "nand_read_kernel=nand read.jffs2 $loadaddr 0 400000\0"\
+   "nand_read_dtb=nand read.jffs2 $fdtaddr 400000 20000\0"\
    "nor_reflash=protect off ff800000 ff87ffff ; erase ff800000 ff87ffff ; "\
    		"cp.b 100000 ff800000 $filesize\0"\
+   "nand_reflash_kernel=run tftp_get_kernel nand_erase_kernel "\
+		"nand_write_kernel\0"\
+   "nand_reflash_dtb=run tftp_get_dtb nand_erase_dtb nand_write_dtb\0"\
+   "nand_reflash_fs=run tftp_get_fs nand_erase_fs nand_write_fs\0"\
+   "nand_reflash=run nand_reflash_kernel nand_reflash_dtb "\
+		"nand_reflash_fs\0"\
    "boot_m=bootm $loadaddr - $fdtaddr\0"\
    "dhcpboot=run setbootargs adddhcpargs tftp_get_kernel tftp_get_dtb "\
    		"boot_m\0"\
    "nfsboot=run setbootargs addnfsargs tftp_get_kernel tftp_get_dtb "\
    		"boot_m\0"\
+   "nandboot=run setbootargs addnandargs nand_read_kernel nand_read_dtb "\
+		"boot_m\0"\
    ""
 
 #define CONFIG_BOOTCOMMAND "run dhcpboot"
