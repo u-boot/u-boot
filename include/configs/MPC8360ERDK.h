@@ -259,6 +259,7 @@
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
