@@ -275,6 +275,25 @@
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
+/*
+ * NAND Flash on the Local Bus
+ */
+#define CFG_NAND_BASE		0xE0600000	/* 0xE0600000 */
+#define CFG_BR1_PRELIM		(CFG_NAND_BASE | \
+				 (2 << BR_DECC_SHIFT) |	/* Use HW ECC */ \
+				 BR_PS_8 |		/* Port Size = 8 bit */ \
+				 BR_MS_FCM |		/* MSEL = FCM */ \
+				 BR_V)			/* valid */
+#define CFG_OR1_PRELIM		(0xFFFF8000 |		/* length 32K */ \
+				 OR_FCM_CSCT | \
+				 OR_FCM_CST | \
+				 OR_FCM_CHT | \
+				 OR_FCM_SCY_1 | \
+				 OR_FCM_TRLX | \
+				 OR_FCM_EHTR)
+#define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
+#define CFG_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+
 /* Vitesse 7385 */
 
 #define CFG_VSC7385_BASE	0xF0000000
