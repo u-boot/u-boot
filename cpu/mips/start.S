@@ -240,14 +240,6 @@ reset:
 1:
 	lw	gp, 0(ra)
 
-#ifdef CONFIG_INCA_IP
-	/* Disable INCA-IP Watchdog.
-	 */
-	la	t9, disable_incaip_wdt
-	jalr	t9
-	nop
-#endif
-
 	/* Initialize any external memory.
 	 */
 	la	t9, lowlevel_init
