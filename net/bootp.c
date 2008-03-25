@@ -879,7 +879,10 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
-	debug ("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
+        debug ("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
+#ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY
+	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
+#endif	/* CONFIG_BOOTP_DHCP_REQUEST_DELAY */
 	NetSendPacket(NetTxPacket, pktlen);
 }
 
