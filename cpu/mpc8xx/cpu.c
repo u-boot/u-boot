@@ -634,6 +634,4 @@ void reset_8xx_watchdog (volatile immap_t * immr)
 	immr->im_siu_conf.sc_swsr = 0xaa39;	/* write magic2 */
 # endif /* CONFIG_LWMON */
 }
-
 #endif /* CONFIG_WATCHDOG */
-

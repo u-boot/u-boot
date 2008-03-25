@@ -5,7 +5,6 @@ Based on sources from the Linux kernel (pcnet_cs.c, 8390.h) and
 eCOS(if_dp83902a.c, if_dp83902a.h). Both of these 2 wonderful world
 are GPL, so this is, of course, GPL.
 
-
 ==========================================================================
 
 dev/if_dp83902a.c
@@ -70,9 +69,7 @@ Add SNMP
 
 ####DESCRIPTIONEND####
 
-
 ==========================================================================
-
 */
 
 #include <common.h>
@@ -210,7 +207,8 @@ dp83902a_start(u8 * enaddr)
 	dp->running = true;
 	for (i = 0;  i < ETHER_ADDR_LEN;  i++) {
 		/* FIXME */
-		//*((vu_short*)( base + ((DP_P1_PAR0 + i) * 2) +  0x1400)) = enaddr[i];
+		/*((vu_short*)( base + ((DP_P1_PAR0 + i) * 2) +
+		 * 0x1400)) = enaddr[i];*/
 		DP_OUT(base, DP_P1_PAR0+i, enaddr[i]);
 	}
 	/* Enable and start device */
@@ -218,7 +216,6 @@ dp83902a_start(u8 * enaddr)
 	DP_OUT(base, DP_TCR, DP_TCR_NORMAL); /* Normal transmit operations */
 	DP_OUT(base, DP_RCR, DP_RCR_AB);  /* Accept broadcast, no errors, no multicast */
 	dp->running = true;
-
 }
 
 /*

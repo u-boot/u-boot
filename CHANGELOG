@@ -1,3 +1,788 @@
+commit 43ddd9c820fec44816188f53346b464e20b3142d
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Sat Mar 22 14:23:49 2008 -0400
+
+    Remove deprecated CONFIG_OF_HAS_UBOOT_ENV and CONFIG_OF_HAS_BD_T
+
+    These defines embedded the u-boot env variables and/or the bd_t structure
+    in the fdt blob.  The conclusion of discussion on the u-boot email list
+    was that embedding these in the fdt blob is not useful: there are better
+    ways of passing the data (in fact, the fdt blob itself replaces the
+    bd_t struct).
+
+    The only board that enables these is the stxxtc and they don't appear
+    to be used by linux.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 22ed2285743359fd1fe73e411dff914b2256e68f
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Mar 17 10:49:25 2008 +0100
+
+    rtc: Remove 2nd reference to max6900.o in drivers/rtc/Makefile
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1bb707c39a0833e91d9f797dd862aaaaf4af264d
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Mar 17 08:54:06 2008 +0900
+
+    Add Flex-OneNAND booting support
+
+    Flex-OneNAND is a monolithic integrated circuit with a NAND Flash array
+    using a NOR Flash interface. This on-chip integration enables system designers
+    to reduce external system logic and use high-density NAND Flash
+    in applications that would otherwise have to use more NOR components.
+
+    Flex-OneNAND enables users to configure to partition it into SLC and MLC areas
+    in more flexible way. While MLC area of Flex-OneNAND can be used to store data
+    that require low reliability and high density, SLC area of Flex-OneNAND
+    to store data that need high reliability and high performance. Flex-OneNAND
+    can let users take advantage of storing these two different types of data
+    into one chip, which is making Flex-OneNAND more cost- and space-effective.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit c512389cc4a10253249271ff6c887c6dab1f0db2
+Author: André Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Thu Mar 13 13:50:52 2008 +0100
+
+    MPC5200: support setup without FEC
+
+    Include FEC specific nodes in ft_cpu_setup only if CONFIG_MPC5xxx_FEC is
+    defined. Systems without FEC, i.e. no FEC node in DTB, should be possible.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit aa3511e422946041ef626f80a05ae5e8bfc700e6
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 18:05:46 2008 -0600
+
+    FSL: Move board/mpc8266ads under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 7f1d846e5c5754449c286587d099d85246062772
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 18:05:47 2008 -0600
+
+    FSL: Move board/mpc7448hpc2 under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit b7e24d283e34727c2a6cdfdac2e09a426c579b73
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 18:05:45 2008 -0600
+
+    FSL: Move board/mpc8260ads under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 6a8a5dc4759867c45aa95580deb8bf26669a5d97
+Author: goda.yusuke <goda.yusuke@renesas.com>
+Date:	Wed Mar 5 17:08:33 2008 +0900
+
+    net: Add support AX88796L ethernet device
+
+    AX88796L is device of NE2000 compatible.
+    This patch support AX88796L ethernet device.
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Acked-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit e0a6140dd381e1eed1ada2291166ef2616d8822b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 25 22:50:41 2008 +0100
+
+    ne2000 driver: change #ifdef to Makefile conditional compilation
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e710185aae90c64d39c2d453e40e58ceefe4f250
+Author: goda.yusuke <goda.yusuke@renesas.com>
+Date:	Wed Mar 5 17:08:20 2008 +0900
+
+    net: Divided code of NE2000 ethernet driver
+
+    There are more devices of the NE2000 base.
+    A present code is difficult for us to support more devices.
+    To support more NE2000 clone devices, separated the function.
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Acked-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 395bce4f59a507a60a475f7ee46bed47de9482df
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 24 23:58:13 2008 -0500
+
+    net/Blackfin: move on-chip MAC driver into drivers/net/
+
+    The Blackfin on-chip MAC driver was being managed in the BF537-STAMP board
+    directory, but it is not board specific, so relocate it to the drivers dir
+    so that other Blackfin ports can utilize it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8a30b4700942f37495d2e67f5998cdffb6e3ba8a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 24 23:52:35 2008 -0500
+
+    smc91111: use SSYNC() rather than asm(ssync) for Blackfin
+
+    Since the "ssync" instruction may have hardware anomalies associated with
+    it, have the smc91111 driver use the SSYNC macro rather than invoking it
+    directly.  We workaround all the anomalies via this macro.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 77ff7b7444ceb8022b46114f3d0b6d18e2fd1138
+Author: Bryan O'Donoghue <bodonoghue@codehermit.ie>
+Date:	Sun Feb 17 22:57:47 2008 +0000
+
+    8xx: Update OF support on 8xx
+
+    This patch does some shifting around of OF support on 8xx.
+
+    Signed-off-by: Bryan O'Donoghue <bodonoghue@codehermit.ie>
+
+commit 9c666a7db0b2285a270c68810889ce7d5dba304b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 15 15:16:18 2008 -0600
+
+    ppc: Allow boards to specify how much memory they can map
+
+    For historical reasons we limited the stack to 256M because some boards
+    could only map that much via BATS.	However newer boards are capable of
+    mapping more memory (for example 85xx is capble of doing up to 2G).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a6f5f317cd074bbbfa2aab4fca05904c811c19fb
+Author: Bryan O'Donoghue <bodonoghue@codehermit.ie>
+Date:	Fri Feb 15 01:05:58 2008 +0000
+
+    8xx : Add OF support to Adder875 board port - resubmit
+
+    Signed-off-by: Bryan O'Donoghue <bodonoghue@codehermit.ie>
+
+commit d058698fd2d9f769ff38ac53c8708b3fdd314f2d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Feb 14 20:44:42 2008 -0600
+
+    Add setexpr command
+
+    Add a simple expr style command that will set an env variable as the result
+    of the command.  This allows us to do simple math in shell.  The following
+    operations are supported: &, |, ^, +, -, *, /.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3f105faa64b9826e088711fdfcaa70cb1230397a
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 17:27:48 2008 -0600
+
+    FSL: Move board/mpc7448hpc2 under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 449c703374a8868453425e15da7e2f76221b72e4
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 17:21:43 2008 -0600
+
+    FSL: Move board/mpc8266ads under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5863577989ad689427bb750107e9a75f1c1645d2
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 5 16:41:41 2008 -0600
+
+    FSL: Move board/mpc8260ads under board/freescale
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit 8a773983957ee6c4aa344469b742f29c7d26afbd
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:08 2008 +0900
+
+    [MIPS] Move gth2_config from ARM section to MIPS
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 373b16fc0c5ae34d28b9027f809ae3cbf45cdd15
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] Extend MIPS_MAX_CACHE_SIZE upto 64kB
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit d98e348e2ed5aab8f7a6471ff628ab0688b8a459
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] Fix dcache_status()
+
+    You can't judge UNCACHED by Config.K0 LSB.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit b0c66af53ec9385ac2d1cc2e5d7d1ecdc81caf34
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] Introduce _machine_restart
+
+    Handles machine specific functions by using weak functions.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit decaba6f5cf386d569ac3997bebb871b966c6b18
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] Cleanup CP0 Status initialization
+
+    Add setup_c0_status from Linux. For the moment we disable interrupts, set
+    CU0, mark the kernel mode, and clear ERL and EXL. This is good enough for
+    reset-time configuration and will work well across most processors.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit d43d43ef2845af309c25a64bb9c2c5fb3261bc23
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] Initialize CP0 Cause before setting up CP0 Status register
+
+    Without this change, we'll be suffering from deffered WATCH exception
+    once Status.EXL is cleared. Make sure Cause.WP is cleared.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 26138623230ca2bad3c78e05a65527ea70c8b688
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:07 2008 +0900
+
+    [MIPS] INCA-IP: Move watchdog init code from start.S to lowlevel_init()
+
+    Move things to appropriate place.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit ccf8f824ef67df028dedb29f8ea5d71a5a88d895
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:06 2008 +0900
+
+    [MIPS] Implement flush_cache()
+
+    We do Hit_Writeback_Inv_D and Hit_Invalidate_I. You might think that you
+    don't need to do Hit_Invalidate_I, but flush_cache() needs it since this
+    function is used not only in U-Boot specfic programs but also at loading
+    target binaries.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2e0e5271aac917812a76c72030a2b2c6f1d3387d
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:06 2008 +0900
+
+    [MIPS] Fix I-/D-cache initialization loops
+
+    Currently we do 1) Index_Store_Tag_I, 2) Fill and 3) Index_Store_Tag_I
+    again per a loop for I-cache initialization. But according to 'See MIPS
+    Run', we're encouraged to use three separate loops rather than combining
+    them *for both I- and D-cache*. This patch tries to fix this.
+
+    In accordance with fixing above, mips_init_[id]cache are separated from
+    mips_cache_reset(), and rewrite cache loops are completely rewritten with
+    useful macros.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 1898840797c7f50799377bd5b285a8a93a82c419
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:06 2008 +0900
+
+    [MIPS] Replace memory clearance code with f_fill64
+
+    This routine fills memory with zero by 64 bytes, and is 64-bit capable.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 2f5d414ccb4024dd0992ff6b22561732dbc73590
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 21:30:06 2008 +0900
+
+    [MIPS] cpu/mips/cache.S: Introduce NESTED/LEAF/END macros
+
+    This patch replaces the current function definitions with NESTED, LEAF
+    and END macro. They specify some more additional information about the
+    function; an alignment of symbol, type of symbol, stack frame usage, etc.
+    These information explicitly tells the assembler and the debugger about
+    the types of code we want to generate.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 282223a607c611425fa33f5428f8eae6636972bb
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 11:43:17 2008 +0900
+
+    [MIPS] asm headers' updates
+
+    Make some asm headers adjusted to the latest Linux kernel.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit e1390801a3c1a2b6d12fa90be368efc19f5b9bfd
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Mar 25 11:39:29 2008 +0900
+
+    [MIPS] Request for the 'mips_cache_lock()' removal
+
+    The initial intension of having mips_cache_lock() was to use the cache
+    as memory for temporary stack use so that a C environment can be set up
+    as early as possible.
+
+    But now mips_cache_lock() follow lowlevel_init(). We've already have the
+    real memory initilaized at this point, therefore we could/should use it.
+    No reason to lock at all.
+
+    Other problems:
+
+    Cache locking is not consistent across MIPS implementaions. Some imple-
+    mentations don't support locking at all. The style of locking varies -
+    some support per line locking, others per way, etc. Some parts use bits
+    in status registers instead of cache ops. Current mips_cache_lock() is
+    not necessarily general-purpose.
+
+    And this is worthy of special mention; once U-Boot/MIPS locks the lines,
+    they are never get unlocked, so the code relies on whatever gets loaded
+    after U-Boot to re-initialize the cache and clear the locks. We're sup-
+    posed to have CFG_INIT_RAM_LOCK and unlock_ram_in_cache() implemented,
+    but leave the situation as it is for a long time.
+
+    For these reasons, I proposed the removal of mips_cache_lock() from the
+    global start-up code.
+
+    This patch adds CFG_INIT_RAM_LOCK_MIPS to make existing users aware that
+    *things have changed*. If he wants the same behavior as before, he needs
+    to have CFG_INIT_RAM_LOCK_MIPS in his config file.
+
+    If we don't have any regression report through several releases, then
+    we'll remove codes entirely.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    Acked-by: Andrew Dyer <amdyer@gmail.com>
+
+commit 0d48926c87ec96f974a6ac4034f4a2f2eab3255f
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Mon Mar 24 11:30:54 2008 +0100
+
+    lwmon5 SYSMON POST: fix backlight control
+
+    If the LWMON5 config has SYSMON POST among CONFIG_POSTs which may be
+    run on the board, then the SYSMON POST controls the display backlight
+    (doesn't switch backlight ON if POST FAILED, and does switch the
+    backlight ON if PASSED).
+
+    If not, then the video driver controls the display backlight (just
+    switch ON the backlight upon initialization).
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit ff2bdfb2c1e073f65c065011f1e18d0a130bd3d8
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Mon Mar 24 11:29:14 2008 +0100
+
+    lwmon5 SYSMON POST: fix handling of negative temperatures
+
+    Fix errors in the LWMON5 Sysmon POST for negative temperatures.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 55774b512fdf63c0516d441cc5da7c54bbffb7f2
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Fri Mar 7 16:04:25 2008 +0900
+
+    pci: Add CONFIG_PCI_SKIP_HOST_BRIDGE config option
+
+    In current source code, when the device number of PCI is 0, process PCI
+    bridge without fail. However, when the device number is 0, it is not PCI
+    always bridge. There are times when device of PCI allocates.
+
+    When CONFIG_PCI_SKIP_HOST_BRIDGE is enable, this problem is solved when
+    use this patch.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 86aea3eaefa248ffb9328e2b50c64720489cdbeb
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Fri Mar 21 09:18:40 2008 +0100
+
+    LWMON5: fix dsPIC POST
+
+    Add test for DPIC_SYS_ERROR_REG to be zero in the LWMON5 dsPIC POST.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com> ---
+
+commit 81a0ac62ea29f8252d0a714709d0ecfdbba2a15e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 20 22:01:38 2008 +0100
+
+    lwmon5 POST: remove unreachable code
+
+    plus some coding style cleanup
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b73a19e1609d0f705cbab8014ca17aefe89e4c76
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Thu Mar 20 17:56:04 2008 +0300
+
+    LWMON5: POST RTC fix
+
+    Modify the RTC API to provide one a status for the time reported by
+    the rtc_get() function:
+      0 - a reliable time is guaranteed,
+    < 0 - a reliable time isn't guaranteed (power fault, clock issues,
+	  and so on).
+
+    The RTC chip drivers are responsible for providing this info if the
+    corresponding chip supports such functionality. If not - always
+    report that the time is reliable.
+
+    The POST RTC test was modified to detect the RTC faults utilizing
+    this new rtc_get() feature.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit a5cc5555ccee596908a7d8cf22a104f6b993bfd5
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Wed Mar 19 14:25:14 2008 +0100
+
+    TQM5200B: update MTD partition layout
+
+    - insert partition for dtb blob to TQM5200B MTD layout
+    - set env variables dependent on the configured board
+      (TQM5200 or TQM5200B)
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit f0105727d132f56a21fa3ed8b162309cca6cac44
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 19 07:09:26 2008 +0100
+
+    CFI: Small cleanup for FLASH_SHOW_PROGRESS
+
+    With this patch we don't need that many #ifdef's in the code. It moves
+    the subtraction into the macro and defines a NOP-macro when
+    CONFIG_FLASH_SHOW_PROGRESS is not defined.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 9a042e9ca512beaaa2cb450274313fc477141241
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Sat Mar 8 13:48:01 2008 -0500
+
+    Flash programming progress countdown.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 11abe45c48ec3485a6c1a5168ce8d79c3288adc1
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Feb 18 18:09:04 2008 +1100
+
+    libfdt: Remove no longer used code from fdt_node_offset_by_compatible()
+
+    Since fdt_node_offset_by_compatible() was converted to the new
+    fdt_next_node() iterator, a chunk of initialization code became
+    redundant, but was not removed by oversight.  This patch cleans it up.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit d0ccb9b140b472039732de102fc14597eedb14df
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Feb 18 18:06:31 2008 +1100
+
+    libfdt: Trivial cleanup for CHECK_HEADER)
+
+    Currently the CHECK_HEADER() macro is defined local to fdt_ro.c.
+    However, there are a handful of functions (fdt_move, rw_check_header,
+    fdt_open_into) from other files which could also use it (currently
+    they open-code something more-or-less identical).  Therefore, this
+    patch moves CHECK_HEADER() to libfdt_internal.h and uses it in those
+    places.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit fe30a354cdbb808b5f15366a935b151a4ccee74f
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 20 14:32:36 2008 -0600
+
+    Fix fdt boardsetup command parsing
+
+    The introduciton of the 'fdt bootcpu' broke parsing for 'fdt boardsetup'.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 804887e6001e2f00bea11431bf34d6d472512cda
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 15 03:34:36 2008 -0600
+
+    Add sub-commands to fdt
+
+    fdt header				- Display header info
+    fdt bootcpu <id>			- Set boot cpuid
+    fdt memory <addr> <size>		- Add/Update memory node
+    fdt rsvmem print			- Show current mem reserves
+    fdt rsvmem add <addr> <size>	- Add a mem reserve
+    fdt rsvmem delete <index>		- Delete a mem reserves
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f84d65f9b085ffbed464d1d58e8aaa8f5a2efc07
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Thu Feb 14 16:50:34 2008 +1100
+
+    libfdt: Fix NOP handling bug in fdt_add_subnode_namelen()
+
+    fdt_add_subnode_namelen() has a bug if asked to add a subnode to a
+    node which has NOP tags interspersed with its properties.  In this
+    case fdt_add_subnode_namelen() will put the new subnode before the
+    first NOP tag, even if there are properties after it, which will
+    result in an invalid blob.
+
+    This patch fixes the bug, and adds a testcase for it.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit ae0b5908de3b9855f8931bc9b32c9fc4962df5a9
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Tue Feb 12 11:58:31 2008 +1100
+
+    libfdt: Add and use a node iteration helper function.
+
+    This patch adds an fdt_next_node() function which can be used to
+    iterate through nodes of the tree while keeping track of depth.  This
+    function is used to simplify the iteration code in a lot of other
+    functions, and is also exported for use by library users.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 9eaeb07a7185d852c7aa10735ecd4e9edf24fb5d
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Fri Jan 11 14:55:05 2008 +1100
+
+    libfdt: Add fdt_set_name() function
+
+    This patch adds an fdt_set_name() function to libfdt, mirroring
+    fdt_get_name().  This is a r/w function which alters the name of a
+    given device tree node.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 23e20aa6488e6c0622496549861bfdc74108debe
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Tue Mar 18 13:33:30 2008 +0100
+
+    lwmon5: Fix register test logic to match the specific GDC h/w.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 46bc0a938779aa1d664b847d36b08aa00f22e539
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Tue Mar 18 13:27:57 2008 +0100
+
+    Fix backlight in the lwmon5 POST.
+
+    Backlight was switched on even when temperature was too low.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 3d61018643a2cd38c145aa6dde53f3f5f1a0e9cf
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Wed Feb 6 18:48:36 2008 +0100
+
+    The patch introduces the alternative configuration of the log buffer for the lwmon5 board: the storage for the log-buffer itself is OCM(on-chip memory), the log-buffer header is moved to six GPT registers (PPC440EPX_GPT0_COMP1, ..., PPC440EPX_GPT0_COMP5).
+
+     To enable this, alternative, configuration the U-Boot board configuration
+    file for lwmon5 includes the definitions of alternative addresses for header
+    (CONFIG_ALT_LH_ADDR) and buffer (CONFIG_ALT_LB_ADDR).
+
+     The Linux shall be configured with the CONFIG_ALT_LB_LOCATION option set,
+    and has the BOARD_ALT_LH_ADDR and BOARD_ALT_LB_ADDR constants defined in the
+    lwmon5 board-specific header (arch/ppc/platforms/4xx/lwmon5.h).
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 0f009f781b5b88f25769e154ea4d42db13baf0c6
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 17:11:53 2008 +0100
+
+    Add support for the lwmon5 board reset via GPIO58.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit f694e32f93565ec1fa8d0226c584d6b89e931ed9
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 17:09:55 2008 +0100
+
+    Some fixes to dspic, fpga, and gdc post tests for lwmon5. Disable external watch-dog for now.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit b428f6a8c65c5303e5f96db8d24f2f699d94a98c
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:11:03 2008 +0100
+
+    The patch introduces the CRITICAL feature of POST tests. If the test marked as POST_CRITICAL fails then the alternative, post_critical, boot-command is used. If this command is not defined then U-Boot enters into interactive mode.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 8f15d4addd49c956412e1e3bfc764a0c8b1f3184
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:10:42 2008 +0100
+
+    The patch adds new POST tests for the Lwmon5 board. These are:
+
+    * External Watchdog test;
+    * dsPIC tests;
+    * FPGA test;
+    * GDC test;
+    * Sysmon tests.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit c2ed33efbfff5767bca236828e021c55fd547b6c
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:10:01 2008 +0100
+
+    Enable CODEC POST with CFG_POST_CODEC rather than with CFG_POST_DSP.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+
+commit 3515fd18d4e8e44f863ac7142b55e22b109e9af2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 18 17:35:51 2008 +0100
+
+    HMI1001: fix compile problem.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1f2a9970109cebf7446e0503b10b71f8673045ee
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 18 05:32:30 2008 -0500
+
+    Blackfin: BF537-stamp: drop board-specific flash driver for CFI
+
+    The parallel flash on the BF537-STAMP is CFI compliant, so there is no need
+    for the board specific driver at all.  Just use the common CFI driver.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 5b22163fef865af2b6bfb6b75f1b7bf443ce170c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 19 00:36:14 2008 -0500
+
+    Blackfin: add proper ELF markings to some assembly functions
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit cf675d3b2b9c3511c1d99bc8f8f38fd2f08bfcaf
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 19 00:35:17 2008 -0500
+
+    Blackfin: new cplbinfo command for viewing cplb tables
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit aadb72503cd1602349a5fe53356d5f55ecc1b900
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 18 05:37:51 2008 -0500
+
+    Blackfin: update MAINTAINERS list
+
+    Add maintainer information for the Blackfin boards.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f7ce12cb65a30c6e152eecf26f0304b7d78cf39d
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 18 05:26:48 2008 -0500
+
+    Blackfin: convert BFIN_CPU to CONFIG_BFIN_CPU
+
+    Stop tying things to the processor that should be tied to other defines and
+    change BFIN_CPU to CONFIG_BFIN_CPU so that it can be used in the build
+    system to select the -mcpu option.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 86a20fb920bd198105acf7b1191117f566d637ed
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 16 07:40:36 2008 -0500
+
+    Blackfin: move bootldr command to common code
+
+    This moves the Blackfin-common bootldr command out of the BF537-STAMP
+    specific board directory and into the common directory so that all Blackfin
+    boards may utilize it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit decbe029b2a9d3333d02c433389b1c821eea96d7
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 14 11:05:20 2008 +0100
+
+    mgcoge: update configuration
+
+    Fix configuration for mgcoge board
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit c136724cda0219c49f1d4b346f00da29b14fdf14
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 16 01:22:59 2008 +0100
+
+    drivers/rtc/Makefile: keep list sorted
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 9536dfcce03e7be4ccbceb47a08d9ba07ada362f
+Author: Tor Krill <tor@excito.com>
+Date:	Sat Mar 15 15:40:26 2008 +0100
+
+    Add support for Intersil isl1208 RTC
+
+    Signed-off-by: Tor Krill <tor@excito.com>
+
+commit 0210cff3d079d97b2156b13685ee8de368e68a1a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 15 17:36:41 2008 +0100
+
+    cramfs: Fix ifdef
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0b8f2a27861a9fd06eb55a34f855ec9c5102aab4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 16 01:12:58 2008 +0100
+
+    Conding style cleanup
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 41712b4e8c95dff23354bcd620e1f9477160c190
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Mar 5 12:31:53 2008 +0100

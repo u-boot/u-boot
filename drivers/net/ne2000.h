@@ -5,7 +5,6 @@ Based on sources from the Linux kernel (pcnet_cs.c, 8390.h) and
 eCOS(if_dp83902a.c, if_dp83902a.h). Both of these 2 wonderful world
 are GPL, so this is, of course, GPL.
 
-
 ==========================================================================
 
       dev/dp83902a.h
@@ -67,7 +66,6 @@ are GPL, so this is, of course, GPL.
 ####DESCRIPTIONEND####
 
 ==========================================================================
-
 */
 
 /*
@@ -129,55 +127,53 @@ int get_prom(u8* mac_addr)
 		u_char value, offset;
 	} program_seq[] = {
 		{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
-		{0x48,  EN0_DCFG},  /* Set byte-wide (0x48) access. */
-		{0x00,  EN0_RCNTLO},    /* Clear the count regs. */
+		{0x48,  EN0_DCFG},		/* Set byte-wide (0x48) access. */
+		{0x00,  EN0_RCNTLO},		/* Clear the count regs. */
 		{0x00,  EN0_RCNTHI},
-		{0x00,  EN0_IMR},   /* Mask completion irq. */
+		{0x00,  EN0_IMR},		/* Mask completion irq. */
 		{0xFF,  EN0_ISR},
-		{E8390_RXOFF, EN0_RXCR},    /* 0x20  Set to monitor */
-		{E8390_TXOFF, EN0_TXCR},    /* 0x02  and loopback mode. */
+		{E8390_RXOFF, EN0_RXCR},	/* 0x20  Set to monitor */
+		{E8390_TXOFF, EN0_TXCR},	/* 0x02  and loopback mode. */
 		{32,    EN0_RCNTLO},
 		{0x00,  EN0_RCNTHI},
-		{0x00,  EN0_RSARLO},    /* DMA starting at 0x0000. */
+		{0x00,  EN0_RSARLO},		/* DMA starting at 0x0000. */
 		{0x00,  EN0_RSARHI},
 		{E8390_RREAD+E8390_START, E8390_CMD},
 	};
 
-    PRINTK("trying to get MAC via prom reading\n");
+	PRINTK ("trying to get MAC via prom reading\n");
 
-    pcnet_reset_8390();
+	pcnet_reset_8390 ();
 
-    mdelay(10);
+	mdelay (10);
 
-    for (i = 0; i < sizeof(program_seq)/sizeof(program_seq[0]); i++)
-        n2k_outb(program_seq[i].value, program_seq[i].offset);
+	for (i = 0; i < sizeof (program_seq) / sizeof (program_seq[0]); i++)
+		n2k_outb (program_seq[i].value, program_seq[i].offset);
 
-    PRINTK("PROM:");
-    for (i = 0; i < 32; i++) {
-        prom[i] = n2k_inb(PCNET_DATAPORT);
-        PRINTK(" %02x", prom[i]);
-    }
-    PRINTK("\n");
-    for (i = 0; i < NR_INFO; i++) {
-        if ((prom[0] == hw_info[i].a0) &&
-            (prom[2] == hw_info[i].a1) &&
-            (prom[4] == hw_info[i].a2)) {
-            PRINTK("matched board %d\n", i);
-            break;
-        }
-    }
-    if ((i < NR_INFO) || ((prom[28] == 0x57) && (prom[30] == 0x57))) {
-        PRINTK("on exit i is %d/%ld\n", i, NR_INFO);
-        PRINTK("MAC address is ");
-        for (j = 0; j < 6; j++){
-            mac_addr[j] = prom[j<<1];
-            PRINTK("%02x:",mac_addr[i]);
-        }
-        PRINTK("\n");
-        return (i < NR_INFO) ? i : 0;
-    }
-    return NULL;
+	PRINTK ("PROM:");
+	for (i = 0; i < 32; i++) {
+		prom[i] = n2k_inb (PCNET_DATAPORT);
+		PRINTK (" %02x", prom[i]);
+	}
+	PRINTK ("\n");
+	for (i = 0; i < NR_INFO; i++) {
+		if ((prom[0] == hw_info[i].a0) &&
+		    (prom[2] == hw_info[i].a1) &&
+		    (prom[4] == hw_info[i].a2)) {
+			PRINTK ("matched board %d\n", i);
+			break;
+		}
+	}
+	if ((i < NR_INFO) || ((prom[28] == 0x57) && (prom[30] == 0x57))) {
+		PRINTK ("on exit i is %d/%ld\n", i, NR_INFO);
+		PRINTK ("MAC address is ");
+		for (j = 0; j < 6; j++) {
+			mac_addr[j] = prom[j << 1];
+			PRINTK ("%02x:", mac_addr[i]);
+		}
+		PRINTK ("\n");
+		return (i < NR_INFO) ? i : 0;
+	}
+	return NULL;
 }
-
-
 #endif /* __DRIVERS_NE2000_H__ */

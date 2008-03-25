@@ -34,9 +34,9 @@
  * The test passes when all the following voltages and temperatures
  * are within allowed ranges:
  *
- * Temperature                -40 .. +85 C
- * +5V                      +4.75 .. +5.25 V
- * +5V standby              +4.75 .. +5.25 V
+ * Temperature		      -40 .. +85 C
+ * +5V			    +4.75 .. +5.25 V
+ * +5V standby		    +4.75 .. +5.25 V
  *
  * LCD backlight is not enabled if temperature values are not within
  * allowed ranges (-30 .. + 80). The brightness of backlite can be
@@ -116,15 +116,15 @@ static sysmon_table_t sysmon_table[] =
 {
     {"Temperature", " C", &sysmon_dspic_sgn, NULL, sysmon_backlight_disable,
      1, 1, -32768, 32767, 0xFFFF, 0x8000-40, 0x8000+85, 0,
-                                  0x8000-30, 0x8000+80, 0, 0x12BC},
+				  0x8000-30, 0x8000+80, 0, 0x12BC},
 
     {"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
      100, 1000, 0, 0xFFFF, 0xFFFF, 4750, 5250, 0,
-                                   4750, 5250, 0, 0x12CA},
+				   4750, 5250, 0, 0x12CA},
 
     {"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
      100, 1000, 0, 0xFFFF, 0xFFFF, 4750, 5250, 0,
-                                   4750, 5250, 0, 0x12C6},
+				   4750, 5250, 0, 0x12C6},
 };
 static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
 
