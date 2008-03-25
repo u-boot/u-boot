@@ -256,9 +256,13 @@ NESTED(mips_cache_reset, 0, ra)
 *
 */
 LEAF(dcache_status)
-	mfc0	v0, CP0_CONFIG
-	andi	v0, v0, 1
-	j	ra
+	mfc0	t0, CP0_CONFIG
+	li	t1, CONF_CM_UNCACHED
+	andi	t0, t0, CONF_CM_CMASK
+	move	v0, zero
+	beq	t0, t1, 2f
+	li	v0, 1
+2:	jr	ra
 	END(dcache_status)
 
 /*******************************************************************************
