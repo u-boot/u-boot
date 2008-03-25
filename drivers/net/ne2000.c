@@ -80,8 +80,6 @@ Add SNMP
 #include <net.h>
 #include <malloc.h>
 
-#ifdef CONFIG_DRIVER_NE2000
-
 #define mdelay(n)       udelay((n)*1000)
 /* forward definition of function used for the uboot interface */
 void uboot_push_packet_len(int len);
@@ -851,4 +849,3 @@ int eth_send(volatile void *packet, int length) {
 	}
 	return 0;
 }
-#endif
