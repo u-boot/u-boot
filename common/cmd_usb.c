@@ -529,8 +529,7 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (strncmp(argv[1], "stor", 4) == 0) {
-		usb_stor_info();
-		return 0;
+		return usb_stor_info();
 	}
 
 	if (strncmp(argv[1],"part",4) == 0) {
