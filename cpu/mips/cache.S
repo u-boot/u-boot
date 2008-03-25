@@ -30,10 +30,22 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
+#define RA		t8
+
 	/* 16KB is the maximum size of instruction and data caches on
 	 * MIPS 4K.
 	 */
 #define MIPS_MAX_CACHE_SIZE	0x4000
+
+#define INDEX_BASE	KSEG0
+
+	.macro	cache_op op addr
+	.set	push
+	.set	noreorder
+	.set	mips3
+	cache	\op, 0(\addr)
+	.set	pop
+	.endm
 
 /*
  * cacheop macro to automate cache operations
@@ -125,6 +137,56 @@
 #endif
 	.endm
 
+/*
+ * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
+ */
+LEAF(mips_init_icache)
+	blez	a1, 9f
+	mtc0	zero, CP0_TAGLO
+	/* clear tag to invalidate */
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, a1
+1:	cache_op	Index_Store_Tag_I t0
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 1b
+	/* fill once, so data field parity is correct */
+	PTR_LI		t0, INDEX_BASE
+2:	cache_op	Fill t0
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 2b
+	/* invalidate again - prudent but not strictly neccessary */
+	PTR_LI		t0, INDEX_BASE
+1:	cache_op	Index_Store_Tag_I t0
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 1b
+9:	jr	ra
+	END(mips_init_icache)
+
+/*
+ * mips_init_dcache(uint PRId, ulong dcache_size, unchar dcache_linesz)
+ */
+LEAF(mips_init_dcache)
+	blez	a1, 9f
+	mtc0	zero, CP0_TAGLO
+	/* clear all tags */
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, a1
+1:	cache_op	Index_Store_Tag_D t0
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 1b
+	/* load from each line (in cached space) */
+	PTR_LI		t0, INDEX_BASE
+2:	LONG_L		zero, 0(t0)
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 2b
+	/* clear all tags */
+	PTR_LI		t0, INDEX_BASE
+1:	cache_op	Index_Store_Tag_D t0
+	PTR_ADDU	t0, a2
+	bne		t0, t1, 1b
+9:	jr	ra
+	END(mips_init_dcache)
+
 /*******************************************************************************
 *
 * mips_cache_reset - low level initialisation of the primary caches
@@ -142,6 +204,7 @@
 *
 */
 NESTED(mips_cache_reset, 0, ra)
+	move	RA, ra
 	li	t2, CFG_ICACHE_SIZE
 	li	t3, CFG_DCACHE_SIZE
 	li	t4, CFG_CACHELINE_SIZE
@@ -158,57 +221,31 @@ NESTED(mips_cache_reset, 0, ra)
 	f_fill64	a0, -64, zero
 	bne		a0, a1, 2b
 
-	/* Set invalid tag.
-	 */
-
-	mtc0	zero, CP0_TAGLO
-
 	/*
 	 * The caches are probably in an indeterminate state,
 	 * so we force good parity into them by doing an
 	 * invalidate, load/fill, invalidate for each line.
 	 */
 
-	/* Assume bottom of RAM will generate good parity for the cache.
+	/*
+	 * Assume bottom of RAM will generate good parity for the cache.
 	 */
 
-	li	a0, K0BASE
-	move	a2, t2		# icacheSize
-	move	a3, t4		# icacheLineSize
-	move	a1, a2
-	icacheopn(a0,a1,a2,a3,121,(Index_Store_Tag_I,Fill))
-
-	/* To support Orion/R4600, we initialise the data cache in 3 passes.
+	/*
+	 * Initialize the I-cache first,
 	 */
+	move	a1, t2
+	move	a2, t4
+	bal	mips_init_icache
 
-	/* 1: initialise dcache tags.
+	/*
+	 * then initialize D-cache.
 	 */
+	move	a1, t3
+	move	a2, t5
+	bal	mips_init_dcache
 
-	li	a0, K0BASE
-	move	a2, t3		# dcacheSize
-	move	a3, t5		# dcacheLineSize
-	move	a1, a2
-	icacheop(a0,a1,a2,a3,Index_Store_Tag_D)
-
-	/* 2: fill dcache.
-	 */
-
-	li	a0, K0BASE
-	move	a2, t3		# dcacheSize
-	move	a3, t5		# dcacheLineSize
-	move	a1, a2
-	icacheopn(a0,a1,a2,a3,1lw,(dummy))
-
-	/* 3: clear dcache tags.
-	 */
-
-	li	a0, K0BASE
-	move	a2, t3		# dcacheSize
-	move	a3, t5		# dcacheLineSize
-	move	a1, a2
-	icacheop(a0,a1,a2,a3,Index_Store_Tag_D)
-
-	j	ra
+	jr	RA
 	END(mips_cache_reset)
 
 /*******************************************************************************
