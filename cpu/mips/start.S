@@ -27,6 +27,30 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
+	/*
+	 * For the moment disable interrupts, mark the kernel mode and
+	 * set ST0_KX so that the CPU does not spit fire when using
+	 * 64-bit addresses.
+	 */
+	.macro	setup_c0_status set clr
+	.set	push
+	mfc0	t0, CP0_STATUS
+	or	t0, ST0_CU0 | \set | 0x1f | \clr
+	xor	t0, 0x1f | \clr
+	mtc0	t0, CP0_STATUS
+	.set	noreorder
+	sll	zero, 3				# ehb
+	.set	pop
+	.endm
+
+	.macro	setup_c0_status_reset
+#ifdef CONFIG_64BIT
+	setup_c0_status ST0_KX 0
+#else
+	setup_c0_status 0 0
+#endif
+	.endm
+
 #define RVECENT(f,n) \
    b f; nop
 #define XVECENT(f,bev) \
@@ -214,15 +238,7 @@ reset:
 	/* WP(Watch Pending), SW0/1 should be cleared. */
 	mtc0	zero, CP0_CAUSE
 
-	/* STATUS register */
-#ifdef  CONFIG_TB0229
-	li	k0, ST0_CU0
-#else
-	mfc0	k0, CP0_STATUS
-#endif
-	li	k1, ~ST0_IE
-	and	k0, k1
-	mtc0	k0, CP0_STATUS
+	setup_c0_status_reset
 
 	/* Init Timer */
 	mtc0	zero, CP0_COUNT
