@@ -276,6 +276,12 @@ __sdram_init:
 	.ent	lowlevel_init
 lowlevel_init:
 
+	/* Disable Watchdog.
+	 */
+	la	t9, disable_incaip_wdt
+	jalr	t9
+	nop
+
 	/* EBU, CGU and SDRAM Initialization.
 	 */
 	li	a0, CPU_CLOCK_RATE

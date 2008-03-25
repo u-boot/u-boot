@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
+#include <asm/reboot.h>
 
 #include "sconsole.h"
 
@@ -51,6 +52,13 @@ extern void	asc_serial_puts 	(const char *);
 extern int	asc_serial_getc 	(void);
 extern int	asc_serial_tstc 	(void);
 extern void	asc_serial_setbrg 	(void);
+
+void _machine_restart(void)
+{
+	void (*f)(void) = (void *) 0xbfc00000;
+
+	f();
+}
 
 static void sdram_timing_init (ulong size)
 {

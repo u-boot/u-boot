@@ -23,24 +23,45 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/inca-ip.h>
 #include <asm/mipsregs.h>
+#include <asm/cacheops.h>
+#include <asm/reboot.h>
+
+#define cache_op(op,addr)						\
+	__asm__ __volatile__(						\
+	"	.set	push					\n"	\
+	"	.set	noreorder				\n"	\
+	"	.set	mips3\n\t				\n"	\
+	"	cache	%0, %1					\n"	\
+	"	.set	pop					\n"	\
+	:								\
+	: "i" (op), "R" (*(unsigned char *)(addr)))
+
+void __attribute__((weak)) _machine_restart(void)
+{
+}
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_INCA_IP)
-	*INCA_IP_WDT_RST_REQ = 0x3f;
-#elif defined(CONFIG_PURPLE) || defined(CONFIG_TB0229)
-	void (*f)(void) = (void *) 0xbfc00000;
+	_machine_restart();
 
-	f();
-#endif
 	fprintf(stderr, "*** reset failed ***\n");
 	return 0;
 }
 
 void flush_cache(ulong start_addr, ulong size)
 {
+	unsigned long lsize = CFG_CACHELINE_SIZE;
+	unsigned long addr = start_addr & ~(lsize - 1);
+	unsigned long aend = (start_addr + size - 1) & ~(lsize - 1);
+
+	while (1) {
+		cache_op(Hit_Writeback_Inv_D, start_addr);
+		cache_op(Hit_Invalidate_I, start_addr);
+		if (addr == aend)
+			break;
+		addr += lsize;
+	}
 }
 
 void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
