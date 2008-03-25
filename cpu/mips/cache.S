@@ -104,6 +104,27 @@
 #define icacheop(kva, n, cacheSize, cacheLineSize, op) \
    icacheopn(kva, n, cacheSize, cacheLineSize, 1, (op))
 
+	.macro	f_fill64 dst, offset, val
+	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  2 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  3 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  4 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  5 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  6 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  7 * LONGSIZE)(\dst)
+#if LONGSIZE == 4
+	LONG_S	\val, (\offset +  8 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset +  9 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 10 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 11 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 12 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 13 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 14 * LONGSIZE)(\dst)
+	LONG_S	\val, (\offset + 15 * LONGSIZE)(\dst)
+#endif
+	.endm
+
 /*******************************************************************************
 *
 * mips_cache_reset - low level initialisation of the primary caches
@@ -128,22 +149,14 @@ NESTED(mips_cache_reset, 0, ra)
 
 	li	v0, MIPS_MAX_CACHE_SIZE
 
-	/* Now clear that much memory starting from zero.
+	/*
+	 * Now clear that much memory starting from zero.
 	 */
-
-	li	a0, KSEG1
-	addu	a1, a0, v0
-2:
-	sw	zero, 0(a0)
-	sw	zero, 4(a0)
-	sw	zero, 8(a0)
-	sw	zero, 12(a0)
-	sw	zero, 16(a0)
-	sw	zero, 20(a0)
-	sw	zero, 24(a0)
-	sw	zero, 28(a0)
-	addu	a0, 32
-	bltu	a0, a1, 2b
+	PTR_LI		a0, KSEG1
+	PTR_ADDU	a1, a0, v0
+2:	PTR_ADDIU	a0, 64
+	f_fill64	a0, -64, zero
+	bne		a0, a1, 2b
 
 	/* Set invalid tag.
 	 */
