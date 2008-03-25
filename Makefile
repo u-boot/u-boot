@@ -2867,6 +2867,11 @@ r7780mp_config: unconfig
 	@echo "#define CONFIG_R7780MP 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r7780mp
 
+r2dplus_config  :   unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
+
 #########################################################################
 #########################################################################
 #########################################################################
