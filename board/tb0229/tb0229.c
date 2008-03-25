@@ -12,9 +12,16 @@
 #include <common.h>
 #include <command.h>
 #include <asm/addrspace.h>
-#include <asm/inca-ip.h>
 #include <asm/io.h>
+#include <asm/reboot.h>
 #include <pci.h>
+
+void _machine_restart(void)
+{
+	void (*f)(void) = (void *) 0xbfc00000;
+
+	f();
+}
 
 #if defined(CONFIG_PCI)
 static struct pci_controller hose;

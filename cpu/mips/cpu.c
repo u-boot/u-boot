@@ -23,9 +23,9 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/inca-ip.h>
 #include <asm/mipsregs.h>
 #include <asm/cacheops.h>
+#include <asm/reboot.h>
 
 #define cache_op(op,addr)						\
 	__asm__ __volatile__(						\
@@ -37,15 +37,14 @@
 	:								\
 	: "i" (op), "R" (*(unsigned char *)(addr)))
 
+void __attribute__((weak)) _machine_restart(void)
+{
+}
+
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_INCA_IP)
-	*INCA_IP_WDT_RST_REQ = 0x3f;
-#elif defined(CONFIG_PURPLE) || defined(CONFIG_TB0229)
-	void (*f)(void) = (void *) 0xbfc00000;
+	_machine_restart();
 
-	f();
-#endif
 	fprintf(stderr, "*** reset failed ***\n");
 	return 0;
 }
