@@ -95,6 +95,11 @@ typedef volatile unsigned char FLASH_PORT_WIDTHV;
 #define FLASH_28F256P30T	0x00BD	/* Intel 28F256P30T  ( 256M = 16M x 16 )        */
 #define FLASH_28F256P30B	0x00BE	/* Intel 28F256P30B  ( 256M = 16M x 16 )        */
 
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+#define STM_ID_M25P16		0x20152015
+#define FLASH_M25P16		0x0055
+#endif
+
 #define SYNC			__asm__("nop")
 
 /*-----------------------------------------------------------------------
@@ -111,6 +116,12 @@ void inline spin_wheel(void);
 void flash_sync_real_protect(flash_info_t * info);
 uchar intel_sector_protected(flash_info_t * info, ushort sector);
 
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+int write_ser_data(flash_info_t * info, ulong dest, uchar * data, ulong cnt);
+int serial_flash_read_status(int chipsel);
+static int ser_flash_cs = 0;
+#endif
+
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
 ulong flash_init(void)
@@ -118,6 +129,10 @@ ulong flash_init(void)
 	int i;
 	ulong size = 0;
 	ulong fbase = 0;
+
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	dspi_init();
+#endif
 
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		memset(&flash_info[i], 0, sizeof(flash_info_t));
@@ -129,6 +144,11 @@ ulong flash_init(void)
 		case 1:
 			fbase = (ulong) CFG_FLASH1_BASE;
 			break;
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+		case 2:
+			fbase = (ulong) CFG_FLASH2_BASE;
+			break;
+#endif
 		}
 
 		flash_get_size((FPWV *) fbase, &flash_info[i]);
@@ -152,7 +172,6 @@ int flash_get_offsets(ulong base, flash_info_t * info)
 {
 	int i, j, k;
 	int sectors, bs, banks;
-	ulong start;
 
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_ATM) {
 		int sect[] = CFG_ATMEL_SECT;
@@ -196,6 +215,15 @@ int flash_get_offsets(ulong base, flash_info_t * info)
 
 		*addr16 = (FPW) INTEL_RESET;	/* restore read mode */
 	}
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_STM) {
+		info->start[0] = CFG_FLASH2_BASE;
+		for (k = 0, i = 0; i < CFG_STM_SECT; i++, k++) {
+			info->start[k + 1] = info->start[k] + CFG_STM_SECTSZ;
+			info->protect[k] = 0;
+		}
+	}
+#endif
 
 	return ERR_OK;
 }
@@ -211,6 +239,11 @@ void flash_print_info(flash_info_t * info)
 	case FLASH_MAN_ATM:
 		printf("ATMEL ");
 		break;
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	case FLASH_MAN_STM:
+		printf("ST ");
+		break;
+#endif
 	default:
 		printf("Unknown Vendor ");
 		break;
@@ -221,8 +254,13 @@ void flash_print_info(flash_info_t * info)
 		printf("AT49BV040A\n");
 		break;
 	case FLASH_28F128J3A:
-		printf("Intel 28F128J3A\n");
+		printf("28F128J3A\n");
 		break;
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	case FLASH_M25P16:
+		printf("M25P16\n");
+		break;
+#endif
 	default:
 		printf("Unknown Chip Type\n");
 		return;
@@ -266,6 +304,45 @@ ulong flash_get_size(FPWV * addr, flash_info_t * info)
 	int intel = 0, banks = 0;
 	u16 value;
 	int i;
+
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	if ((ulong) addr == CFG_FLASH2_BASE) {
+		int manufactId = 0;
+		int deviceId = 0;
+
+		ser_flash_cs = 1;
+
+		dspi_tx(ser_flash_cs, 0x80, SER_RDID);
+		dspi_tx(ser_flash_cs, 0x80, 0);
+		dspi_tx(ser_flash_cs, 0x80, 0);
+		dspi_tx(ser_flash_cs, 0x80, 0);
+
+		dspi_rx();
+		manufactId = dspi_rx();
+		deviceId = dspi_rx() << 8;
+		deviceId |= dspi_rx();
+
+		dspi_tx(ser_flash_cs, 0x00, 0);
+		dspi_rx();
+
+		switch (manufactId) {
+		case (u8) STM_MANUFACT:
+			info->flash_id = FLASH_MAN_STM;
+			break;
+		}
+
+		switch (deviceId) {
+		case (u16) STM_ID_M25P16:
+			info->flash_id += FLASH_M25P16;
+			break;
+		}
+
+		info->sector_count = CFG_STM_SECT;
+		info->size = CFG_STM_SECT * CFG_STM_SECTSZ;
+
+		return (info->size);
+	}
+#endif
 
 	addr[FLASH_CYCLE1] = (FPWV) 0x00AA00AA;	/* for Atmel, Intel ignores this */
 	addr[FLASH_CYCLE2] = (FPWV) 0x00550055;	/* for Atmel, Intel ignores this */
@@ -383,6 +460,21 @@ int flash_cmd_rd(volatile u16 * addr, int index)
 	return (int)addr[index];
 }
 
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+int serial_flash_read_status(int chipsel)
+{
+	u16 status;
+
+	dspi_tx(chipsel, 0x80, SER_RDSR);
+	dspi_rx();
+
+	dspi_tx(chipsel, 0x00, 0);
+	status = dspi_rx();
+
+	return status;
+}
+#endif
+
 /*
  * This function gets the u-boot flash sector protection status
  * (flash_info_t.protect[]) in sync with the sector protection
@@ -462,8 +554,11 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 {
 	int flag, prot, sect;
 	ulong type, start, last;
-	int rcode = 0, intel = 0;
-
+	int rcode = 0, flashtype = 0;
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	int count;
+	u16 status;
+#endif
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN)
 			printf("- missing\n");
@@ -474,18 +569,24 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 
 	type = (info->flash_id & FLASH_VENDMASK);
 
-	if (type != (FLASH_MAN_INTEL & FLASH_VENDMASK)) {
-		if (type != (FLASH_MAN_ATM & FLASH_VENDMASK)) {
-			type = (info->flash_id & FLASH_VENDMASK);
-			printf
-			    ("Can't erase unknown flash type %08lx - aborted\n",
-			     info->flash_id);
-			return 1;
-		}
+	switch (type) {
+	case FLASH_MAN_ATM:
+		flashtype = 1;
+		break;
+	case FLASH_MAN_INTEL:
+		flashtype = 2;
+		break;
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	case FLASH_MAN_STM:
+		flashtype = 3;
+		break;
+#endif
+	default:
+		type = (info->flash_id & FLASH_VENDMASK);
+		printf("Can't erase unknown flash type %08lx - aborted\n",
+		       info->flash_id);
+		return 1;
 	}
-
-	if (type == FLASH_MAN_INTEL)
-		intel = 1;
 
 	prot = 0;
 	for (sect = s_first; sect <= s_last; ++sect) {
@@ -503,6 +604,51 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	start = get_timer(0);
 	last = start;
 
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	/* Perform bulk erase */
+	if (flashtype == 3) {
+		if ((s_last - s_first) == (CFG_STM_SECT - 1)) {
+			if (prot == 0) {
+				dspi_tx(ser_flash_cs, 0x00, SER_WREN);
+				dspi_rx();
+
+				status = serial_flash_read_status(ser_flash_cs);
+				if (((status & 0x9C) != 0)
+				    && ((status & 0x02) != 0x02)) {
+					printf("Can't erase flash\n");
+					return 1;
+				}
+
+				dspi_tx(ser_flash_cs, 0x00, SER_BULK_ERASE);
+				dspi_rx();
+
+				count = 0;
+				start = get_timer(0);
+				do {
+					status =
+					    serial_flash_read_status
+					    (ser_flash_cs);
+
+					if (count++ > 0x10000) {
+						spin_wheel();
+						count = 0;
+					}
+
+					if (get_timer(start) >
+					    CFG_FLASH_ERASE_TOUT) {
+						printf("Timeout\n");
+						return 1;
+					}
+				} while (status & 0x01);
+
+				printf("\b. done\n");
+				return 0;
+			} else if (prot == CFG_STM_SECT) {
+				return 1;
+			}
+		}
+	}
+#endif
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
@@ -515,65 +661,116 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 			/* arm simple, non interrupt dependent timer */
 			start = get_timer(0);
 
-			if (intel) {
-				*addr = (FPW) INTEL_READID;
-				min = addr[INTEL_CFI_TERB] & 0xff;
-				min = 1 << min;	/* ms */
-				min = (min / info->sector_count) * 1000;
+			switch (flashtype) {
+			case 1:
+				{
+					FPWV *base;	/* first address in bank */
+					FPWV *atmeladdr;
 
-				/* start erase block */
-				*addr = (FPW) INTEL_CLEAR;	/* clear status register */
-				*addr = (FPW) INTEL_ERASE;	/* erase setup */
-				*addr = (FPW) INTEL_CONFIRM;	/* erase confirm */
+					flag = disable_interrupts();
 
-				while ((*addr & (FPW) INTEL_FINISHED) !=
-				       (FPW) INTEL_FINISHED) {
+					atmeladdr = (FPWV *) addr;	/* concatenate to 8 bit */
+					base = (FPWV *) (CFG_ATMEL_BASE);	/* First sector */
 
-					if (get_timer(start) >
-					    CFG_FLASH_ERASE_TOUT) {
-						printf("Timeout\n");
-						*addr = (FPW) INTEL_SUSERASE;	/* suspend erase     */
-						*addr = (FPW) INTEL_RESET;	/* reset to read mode */
+					base[FLASH_CYCLE1] = (u8) 0x00AA00AA;	/* unlock */
+					base[FLASH_CYCLE2] = (u8) 0x00550055;	/* unlock */
+					base[FLASH_CYCLE1] = (u8) 0x00800080;	/* erase mode */
+					base[FLASH_CYCLE1] = (u8) 0x00AA00AA;	/* unlock */
+					base[FLASH_CYCLE2] = (u8) 0x00550055;	/* unlock */
+					*atmeladdr = (u8) 0x00300030;	/* erase sector */
 
-						rcode = 1;
-						break;
+					if (flag)
+						enable_interrupts();
+
+					while ((*atmeladdr & (u8) 0x00800080) !=
+					       (u8) 0x00800080) {
+						if (get_timer(start) >
+						    CFG_FLASH_ERASE_TOUT) {
+							printf("Timeout\n");
+							*atmeladdr = (u8) 0x00F000F0;	/* reset to read mode */
+
+							rcode = 1;
+							break;
+						}
 					}
+
+					*atmeladdr = (u8) 0x00F000F0;	/* reset to read mode */
+					break;
 				}
 
-				*addr = (FPW) INTEL_RESET;	/* resest to read mode          */
-			} else {
-				FPWV *base;	/* first address in bank */
-				FPWV *atmeladdr;
+			case 2:
+				{
+					*addr = (FPW) INTEL_READID;
+					min = addr[INTEL_CFI_TERB] & 0xff;
+					min = 1 << min;	/* ms */
+					min = (min / info->sector_count) * 1000;
 
-				flag = disable_interrupts();
+					/* start erase block */
+					*addr = (FPW) INTEL_CLEAR;	/* clear status register */
+					*addr = (FPW) INTEL_ERASE;	/* erase setup */
+					*addr = (FPW) INTEL_CONFIRM;	/* erase confirm */
 
-				atmeladdr = (FPWV *) addr;	/* concatenate to 8 bit */
-				base = (FPWV *) (CFG_ATMEL_BASE);	/* First sector */
+					while ((*addr & (FPW) INTEL_FINISHED) !=
+					       (FPW) INTEL_FINISHED) {
 
-				base[FLASH_CYCLE1] = (u8) 0x00AA00AA;	/* unlock */
-				base[FLASH_CYCLE2] = (u8) 0x00550055;	/* unlock */
-				base[FLASH_CYCLE1] = (u8) 0x00800080;	/* erase mode */
-				base[FLASH_CYCLE1] = (u8) 0x00AA00AA;	/* unlock */
-				base[FLASH_CYCLE2] = (u8) 0x00550055;	/* unlock */
-				*atmeladdr = (u8) 0x00300030;	/* erase sector */
+						if (get_timer(start) >
+						    CFG_FLASH_ERASE_TOUT) {
+							printf("Timeout\n");
+							*addr = (FPW) INTEL_SUSERASE;	/* suspend erase     */
+							*addr = (FPW) INTEL_RESET;	/* reset to read mode */
 
-				if (flag)
-					enable_interrupts();
-
-				while ((*atmeladdr & (u8) 0x00800080) !=
-				       (u8) 0x00800080) {
-					if (get_timer(start) >
-					    CFG_FLASH_ERASE_TOUT) {
-						printf("Timeout\n");
-						*atmeladdr = (u8) 0x00F000F0;	/* reset to read mode */
-
-						rcode = 1;
-						break;
+							rcode = 1;
+							break;
+						}
 					}
+
+					*addr = (FPW) INTEL_RESET;	/* resest to read mode          */
+					break;
 				}
 
-				*atmeladdr = (u8) 0x00F000F0;	/* reset to read mode */
-			}	/* Atmel or Intel */
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+			case 3:
+				{
+					u8 sec = ((ulong) addr >> 16) & 0xFF;
+
+					dspi_tx(ser_flash_cs, 0x00, SER_WREN);
+					dspi_rx();
+					status =
+					    serial_flash_read_status
+					    (ser_flash_cs);
+					if (((status & 0x9C) != 0)
+					    && ((status & 0x02) != 0x02)) {
+						printf("Error Programming\n");
+						return 1;
+					}
+
+					dspi_tx(ser_flash_cs, 0x80,
+						SER_SECT_ERASE);
+					dspi_tx(ser_flash_cs, 0x80, sec);
+					dspi_tx(ser_flash_cs, 0x80, 0);
+					dspi_tx(ser_flash_cs, 0x00, 0);
+
+					dspi_rx();
+					dspi_rx();
+					dspi_rx();
+					dspi_rx();
+
+					do {
+						status =
+						    serial_flash_read_status
+						    (ser_flash_cs);
+
+						if (get_timer(start) >
+						    CFG_FLASH_ERASE_TOUT) {
+							printf("Timeout\n");
+							return 1;
+						}
+					} while (status & 0x01);
+
+					break;
+				}
+#endif
+			}	/* switch (flashtype) */
 		}
 	}
 	printf(" done\n");
@@ -583,6 +780,8 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 
 int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
+	int count;
+
 	if (info->flash_id == FLASH_UNKNOWN)
 		return 4;
 
@@ -623,7 +822,7 @@ int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		{
 			ulong cp, wp;
 			u16 data;
-			int count, i, l, rc, port_width;
+			int i, l, rc, port_width;
 
 			/* get lower word aligned address */
 			wp = addr;
@@ -724,6 +923,51 @@ int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 
 		}		/* case FLASH_MAN_INTEL */
 
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+	case FLASH_MAN_STM:
+		{
+			ulong wp;
+			u8 *data = (u8 *) src;
+			int left;	/* number of bytes left to program */
+
+			wp = addr;
+
+			/* page align, each page is 256 bytes */
+			if ((wp % 0x100) != 0) {
+				left = (0x100 - (wp & 0xFF));
+				write_ser_data(info, wp, data, left);
+				cnt -= left;
+				wp += left;
+				data += left;
+			}
+
+			/* page program - 256 bytes at a time */
+			if (cnt > 255) {
+				count = 0;
+				while (cnt >= 0x100) {
+					write_ser_data(info, wp, data, 0x100);
+					cnt -= 0x100;
+					wp += 0x100;
+					data += 0x100;
+
+					if (count++ > 0x400) {
+						spin_wheel();
+						count = 0;
+					}
+				}
+			}
+
+			/* remainint bytes */
+			if (cnt && (cnt < 256)) {
+				write_ser_data(info, wp, data, cnt);
+				wp += cnt;
+				data += cnt;
+				cnt -= cnt;
+			}
+
+			printf("\b.");
+		}
+#endif
 	}			/* switch */
 
 	return ERR_OK;
@@ -843,6 +1087,75 @@ int write_data(flash_info_t * info, ulong dest, FPW data)
 
 	return (0);
 }
+
+#if defined(CONFIG_SERIAL_FLASH) && defined(CONFIG_CF_DSPI)
+int write_ser_data(flash_info_t * info, ulong dest, uchar * data, ulong cnt)
+{
+	ulong start;
+	int status, i;
+	u8 flashdata;
+
+	/* Check if Flash is (sufficiently) erased */
+	dspi_tx(ser_flash_cs, 0x80, SER_READ);
+	dspi_tx(ser_flash_cs, 0x80, (dest >> 16) & 0xFF);
+	dspi_tx(ser_flash_cs, 0x80, (dest >> 8) & 0xFF);
+	dspi_tx(ser_flash_cs, 0x80, dest & 0xFF);
+	dspi_rx();
+	dspi_rx();
+	dspi_rx();
+	dspi_rx();
+	dspi_tx(ser_flash_cs, 0x80, 0);
+	flashdata = dspi_rx();
+	dspi_tx(ser_flash_cs, 0x00, 0);
+	dspi_rx();
+
+	if ((flashdata & *data) != *data) {
+		printf("not erased at %08lx (%lx)\n", (ulong) dest,
+		       (ulong) flashdata);
+		return (2);
+	}
+
+	dspi_tx(ser_flash_cs, 0x00, SER_WREN);
+	dspi_rx();
+
+	status = serial_flash_read_status(ser_flash_cs);
+	if (((status & 0x9C) != 0) && ((status & 0x02) != 0x02)) {
+		printf("Error Programming\n");
+		return 1;
+	}
+
+	start = get_timer(0);
+
+	dspi_tx(ser_flash_cs, 0x80, SER_PAGE_PROG);
+	dspi_tx(ser_flash_cs, 0x80, ((dest & 0xFF0000) >> 16));
+	dspi_tx(ser_flash_cs, 0x80, ((dest & 0xFF00) >> 8));
+	dspi_tx(ser_flash_cs, 0x80, (dest & 0xFF));
+	dspi_rx();
+	dspi_rx();
+	dspi_rx();
+	dspi_rx();
+
+	for (i = 0; i < (cnt - 1); i++) {
+		dspi_tx(ser_flash_cs, 0x80, *data);
+		dspi_rx();
+		data++;
+	}
+
+	dspi_tx(ser_flash_cs, 0x00, *data);
+	dspi_rx();
+
+	do {
+		status = serial_flash_read_status(ser_flash_cs);
+
+		if (get_timer(start) > CFG_FLASH_ERASE_TOUT) {
+			printf("Timeout\n");
+			return 1;
+		}
+	} while (status & 0x01);
+
+	return (0);
+}
+#endif
 
 /*-----------------------------------------------------------------------
  * Write a word to Flash for ATMEL FLASH
