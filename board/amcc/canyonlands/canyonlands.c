@@ -414,7 +414,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	/* Fixup NOR mapping */
 	val[0] = 0;				/* chip select number */
 	val[1] = 0;				/* always 0 */
-	val[2] = gd->bd->bi_flashstart;
+	val[2] = CFG_FLASH_BASE_PHYS_L;		/* we fixed up this address */
 	val[3] = gd->bd->bi_flashsize;
 	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
 				  val, sizeof(val), 1);
