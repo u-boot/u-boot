@@ -211,6 +211,9 @@ reset:
 	mtc0	zero, CP0_WATCHLO
 	mtc0	zero, CP0_WATCHHI
 
+	/* WP(Watch Pending), SW0/1 should be cleared. */
+	mtc0	zero, CP0_CAUSE
+
 	/* STATUS register */
 #ifdef  CONFIG_TB0229
 	li	k0, ST0_CU0
@@ -220,9 +223,6 @@ reset:
 	li	k1, ~ST0_IE
 	and	k0, k1
 	mtc0	k0, CP0_STATUS
-
-	/* CAUSE register */
-	mtc0	zero, CP0_CAUSE
 
 	/* Init Timer */
 	mtc0	zero, CP0_COUNT
