@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <version.h>
+#include <asm/asm.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 #include <asm/addrspace.h>
@@ -119,10 +120,7 @@
 * RETURNS: N/A
 *
 */
-	.globl	mips_cache_reset
-	.ent	mips_cache_reset
-mips_cache_reset:
-
+NESTED(mips_cache_reset, 0, ra)
 	li	t2, CFG_ICACHE_SIZE
 	li	t3, CFG_DCACHE_SIZE
 	li	t4, CFG_CACHELINE_SIZE
@@ -198,8 +196,7 @@ mips_cache_reset:
 	icacheop(a0,a1,a2,a3,Index_Store_Tag_D)
 
 	j	ra
-
-	.end	mips_cache_reset
+	END(mips_cache_reset)
 
 /*******************************************************************************
 *
@@ -208,15 +205,11 @@ mips_cache_reset:
 * RETURNS: 0 - cache disabled; 1 - cache enabled
 *
 */
-	.globl	dcache_status
-	.ent	dcache_status
-dcache_status:
-
+LEAF(dcache_status)
 	mfc0	v0, CP0_CONFIG
 	andi	v0, v0, 1
 	j	ra
-
-	.end	dcache_status
+	END(dcache_status)
 
 /*******************************************************************************
 *
@@ -225,18 +218,14 @@ dcache_status:
 * RETURNS: N/A
 *
 */
-	.globl	dcache_disable
-	.ent	dcache_disable
-dcache_disable:
-
+LEAF(dcache_disable)
 	mfc0	t0, CP0_CONFIG
 	li	t1, -8
 	and	t0, t0, t1
 	ori	t0, t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
 	j	ra
-
-	.end	dcache_disable
+	END(dcache_disable)
 
 #ifdef CFG_INIT_RAM_LOCK_MIPS
 /*******************************************************************************
