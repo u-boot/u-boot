@@ -2470,11 +2470,6 @@ cm4008_config	:	unconfig
 cm41xx_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cm41xx NULL ks8695
 
-gth2_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_GTH2 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a gth2 mips mips gth2
-
 #########################################################################
 ## S3C44B0 Systems
 #########################################################################
@@ -2676,6 +2671,11 @@ pb1000_config		:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_PB1000 1" >$(obj)include/config.h
 	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
+
+gth2_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_GTH2 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a gth2 mips mips gth2
 
 qemu_mips_config: unconfig
 	@mkdir -p $(obj)include
