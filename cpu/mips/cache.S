@@ -238,6 +238,7 @@ dcache_disable:
 
 	.end	dcache_disable
 
+#ifdef CFG_INIT_RAM_LOCK_MIPS
 /*******************************************************************************
 *
 * mips_cache_lock - lock RAM area pointed to by a0 in cache.
@@ -263,3 +264,4 @@ mips_cache_lock:
 	j	ra
 
 	.end	mips_cache_lock
+#endif /* CFG_INIT_RAM_LOCK_MIPS */
