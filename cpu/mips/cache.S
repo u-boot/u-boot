@@ -1,5 +1,5 @@
 /*
- *  Cache-handling routined for MIPS 4K CPUs
+ *  Cache-handling routined for MIPS CPUs
  *
  *  Copyright (c) 2003	Wolfgang Denk <wd@denx.de>
  *
@@ -32,10 +32,14 @@
 
 #define RA		t8
 
-	/* 16KB is the maximum size of instruction and data caches on
-	 * MIPS 4K.
-	 */
-#define MIPS_MAX_CACHE_SIZE	0x4000
+/*
+ * 16kB is the maximum size of instruction and data caches on MIPS 4K,
+ * 64kB is on 4KE, 24K, 5K, etc. Set bigger size for convenience.
+ *
+ * Note that the above size is the maximum size of primary cache. U-Boot
+ * doesn't have L2 cache support for now.
+ */
+#define MIPS_MAX_CACHE_SIZE	0x10000
 
 #define INDEX_BASE	KSEG0
 
