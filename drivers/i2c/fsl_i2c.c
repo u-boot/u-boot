@@ -117,7 +117,6 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 {
 	unsigned short divider = min(i2c_clk / speed, (unsigned short) -1);
 	unsigned int i;
-	u8 fdr, dfsr;
 
 	/*
 	 * We want to choose an FDR/DFSR that generates an I2C bus speed that
@@ -128,14 +127,14 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 
 	for (i = 0; i < ARRAY_SIZE(fsl_i2c_speed_map); i++)
 		if (fsl_i2c_speed_map[i].divider >= divider) {
+			u8 fdr, dfsr;
 			dfsr = fsl_i2c_speed_map[i].dfsr;
 			fdr = fsl_i2c_speed_map[i].fdr;
 			speed = i2c_clk / fsl_i2c_speed_map[i].divider;
+			writeb(fdr, &dev->fdr);		/* set bus speed */
+			writeb(dfsr, &dev->dfsrr);	/* set default filter */
 			break;
 		}
-
-	writeb(fdr, &dev->fdr);			/* set bus speed */
-	writeb(dfsr, &dev->dfsrr);		/* set default filter */
 
 	return speed;
 }
