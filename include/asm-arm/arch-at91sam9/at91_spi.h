@@ -78,4 +78,28 @@
 #define		AT91_SPI_DLYBS		(0xff << 16)		/* Delay before SPCK */
 #define		AT91_SPI_DLYBCT		(0xff << 24)		/* Delay between Consecutive Transfers */
 
+#define AT91_SPI_RPR		0x0100			/* Receive Pointer Register */
+
+#define AT91_SPI_RCR		0x0104			/* Receive Counter Register */
+
+#define AT91_SPI_TPR		0x0108			/* Transmit Pointer Register */
+
+#define AT91_SPI_TCR		0x010c			/* Transmit Counter Register */
+
+#define AT91_SPI_RNPR		0x0110			/* Receive Next Pointer Register */
+
+#define AT91_SPI_RNCR		0x0114			/* Receive Next Counter Register */
+
+#define AT91_SPI_TNPR		0x0118			/* Transmit Next Pointer Register */
+
+#define AT91_SPI_TNCR		0x011c			/* Transmit Next Counter Register */
+
+#define AT91_SPI_PTCR		0x0120			/* PDC Transfer Control Register */
+#define		AT91_SPI_RXTEN		(0x1 << 0)		/* Receiver Transfer Enable */
+#define		AT91_SPI_RXTDIS		(0x1 << 1)		/* Receiver Transfer Disable */
+#define		AT91_SPI_TXTEN		(0x1 << 8)		/* Transmitter Transfer Enable */
+#define		AT91_SPI_TXTDIS		(0x1 << 9)		/* Transmitter Transfer Disable */
+
+#define AT91_SPI_PTSR		0x0124			/* PDC Transfer Status Register */
+
 #endif
