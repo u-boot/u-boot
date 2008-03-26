@@ -144,6 +144,8 @@
 #define SPD_EEPROM_ADDRESS	{0x50}
 #define CONFIG_PROG_SDRAM_TLB
 #define CFG_DRAM_TEST
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /*
  * I2C

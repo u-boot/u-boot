@@ -428,6 +428,7 @@ void board_init_f (ulong bootflag)
 	 * relocate the code and continue running from DRAM.
 	 *
 	 * Reserve memory at end of RAM for (top down in that order):
+	 *  - area that won't get touched by U-Boot and Linux (optional)
 	 *  - kernel log buffer
 	 *  - protected RAM
 	 *  - LCD framebuffer
@@ -435,6 +436,18 @@ void board_init_f (ulong bootflag)
 	 *  - board info struct
 	 */
 	len = (ulong)&_end - CFG_MONITOR_BASE;
+
+	/*
+	 * Subtract specified amount of memory to hide so that it won't
+	 * get "touched" at all by U-Boot. By fixing up gd->ram_size
+	 * the Linux kernel should now get passed the now "corrected"
+	 * memory size and won't touch it either. This should work
+	 * for arch/ppc and arch/powerpc. Only Linux board ports in
+	 * arch/powerpc with bootwrapper support, that recalculate the
+	 * memory size from the SDRAM controller setup will have to
+	 * get fixed.
+	 */
+	gd->ram_size -= CFG_MEM_TOP_HIDE;
 
 #ifndef CONFIG_MAX_MEM_MAPPED
 #define CONFIG_MAX_MEM_MAPPED (256 << 20)

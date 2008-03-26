@@ -86,6 +86,8 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 #define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
 						/* unused GPT0 COMP reg	*/
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /* Additional registers for watchdog timer post test */
 
