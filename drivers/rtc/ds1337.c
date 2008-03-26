@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001, 2002
+ * (C) Copyright 2001-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Keith Outwater, keith_outwater@mvis.com`
  *
@@ -60,19 +60,19 @@
 /*
  * RTC control register bits
  */
-#define RTC_CTL_BIT_A1IE	0x1	/* Alarm 1 interrupt enable     */
-#define RTC_CTL_BIT_A2IE	0x2	/* Alarm 2 interrupt enable     */
-#define RTC_CTL_BIT_INTCN	0x4	/* Interrupt control            */
-#define RTC_CTL_BIT_RS1		0x8	/* Rate select 1                */
-#define RTC_CTL_BIT_RS2		0x10	/* Rate select 2                */
-#define RTC_CTL_BIT_DOSC	0x80	/* Disable Oscillator           */
+#define RTC_CTL_BIT_A1IE	0x1	/* Alarm 1 interrupt enable	*/
+#define RTC_CTL_BIT_A2IE	0x2	/* Alarm 2 interrupt enable	*/
+#define RTC_CTL_BIT_INTCN	0x4	/* Interrupt control		*/
+#define RTC_CTL_BIT_RS1		0x8	/* Rate select 1		*/
+#define RTC_CTL_BIT_RS2		0x10	/* Rate select 2		*/
+#define RTC_CTL_BIT_DOSC	0x80	/* Disable Oscillator		*/
 
 /*
  * RTC status register bits
  */
-#define RTC_STAT_BIT_A1F	0x1	/* Alarm 1 flag                 */
-#define RTC_STAT_BIT_A2F	0x2	/* Alarm 2 flag                 */
-#define RTC_STAT_BIT_OSF	0x80	/* Oscillator stop flag         */
+#define RTC_STAT_BIT_A1F	0x1	/* Alarm 1 flag			*/
+#define RTC_STAT_BIT_A2F	0x2	/* Alarm 2 flag			*/
+#define RTC_STAT_BIT_OSF	0x80	/* Oscillator stop flag		*/
 
 
 static uchar rtc_read (uchar reg);
@@ -163,7 +163,7 @@ void rtc_set (struct rtc_time *tmp)
  */
 #ifdef CFG_RTC_DS1337_NOOSC
  #define RTC_DS1337_RESET_VAL \
-          (RTC_CTL_BIT_INTCN | RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2)
+	(RTC_CTL_BIT_INTCN | RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2)
 #else
  #define RTC_DS1337_RESET_VAL (RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2)
 #endif
