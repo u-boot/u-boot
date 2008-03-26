@@ -102,6 +102,7 @@ COBJS-y += cmd_vfd.o
 COBJS-y += command.o
 COBJS-y += console.o
 COBJS-y += cyclon2.o
+COBJS-y += stratixII.o
 COBJS-y += devices.o
 COBJS-y += dlmalloc.o
 COBJS-y += docecc.o

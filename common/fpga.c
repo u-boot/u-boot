@@ -199,10 +199,6 @@ void fpga_init( ulong reloc_off )
 	memset( desc_table, 0, sizeof(desc_table));
 
 	PRINTF( "%s: CONFIG_FPGA = 0x%x\n", __FUNCTION__, CONFIG_FPGA );
-#if 0
-	PRINTF( "%s: CFG_FPGA_XILINX = 0x%x\n", __FUNCTION__, CFG_FPGA_XILINX );
-	PRINTF( "%s: CFG_FPGA_ALTERA = 0x%x\n", __FUNCTION__, CFG_FPGA_ALTERA );
-#endif
 }
 
 /* fpga_count

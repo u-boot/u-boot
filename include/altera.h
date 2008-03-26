@@ -27,22 +27,21 @@
 #ifndef _ALTERA_H_
 #define _ALTERA_H_
 
-/*
- * See include/xilinx.h for another working example.
- */
-
 /* Altera Model definitions
  *********************************************************************/
 #define CFG_ACEX1K		CFG_FPGA_DEV( 0x1 )
 #define CFG_CYCLON2		CFG_FPGA_DEV( 0x2 )
+#define CFG_STRATIX_II		CFG_FPGA_DEV( 0x4 )
 
 #define CFG_ALTERA_ACEX1K	(CFG_FPGA_ALTERA | CFG_ACEX1K)
 #define CFG_ALTERA_CYCLON2	(CFG_FPGA_ALTERA | CFG_CYCLON2)
+#define CFG_ALTERA_STRATIX_II	(CFG_FPGA_ALTERA | CFG_STRATIX_II)
 /* Add new models here */
 
 /* Altera Interface definitions
  *********************************************************************/
 #define CFG_ALTERA_IF_PS	CFG_FPGA_IF( 0x1 )	/* passive serial */
+#define CFG_ALTERA_IF_FPP	CFG_FPGA_IF( 0x2 )	/* fast passive parallel */
 /* Add new interfaces here */
 
 typedef enum {				/* typedef Altera_iface */
@@ -52,6 +51,8 @@ typedef enum {				/* typedef Altera_iface */
 	passive_parallel_asynchronous,	/* parallel data */
 	passive_serial_asynchronous,	/* serial data w/ internal clock (not used)	*/
 	altera_jtag_mode,		/* jtag/tap serial (not used ) */
+	fast_passive_parallel,	/* fast passive parallel (FPP) */
+	fast_passive_parallel_security,	/* fast passive parallel with security (FPPS) */
 	max_altera_iface_type		/* insert all new types before this */
 } Altera_iface;				/* end, typedef Altera_iface */
 
@@ -59,6 +60,7 @@ typedef enum {			/* typedef Altera_Family */
     min_altera_type,		/* insert all new types after this */
     Altera_ACEX1K,		/* ACEX1K Family */
     Altera_CYC2,		/* CYCLONII Family */
+	Altera_StratixII,	/* StratixII Familiy */
 /* Add new models here */
     max_altera_type		/* insert all new types before this */
 } Altera_Family;		/* end, typedef Altera_Family */
@@ -90,5 +92,16 @@ typedef int (*Altera_data_fn)( int assert_data, int flush, int cookie );
 typedef int (*Altera_write_fn)(void *buf, size_t len, int flush, int cookie);
 typedef int (*Altera_abort_fn)( int cookie );
 typedef int (*Altera_post_fn)( int cookie );
+
+typedef struct {
+	Altera_pre_fn pre;
+	Altera_config_fn config;
+	Altera_status_fn status;
+	Altera_done_fn done;
+	Altera_clk_fn clk;
+	Altera_data_fn data;
+	Altera_abort_fn abort;
+	Altera_post_fn post;
+} altera_board_specific_func;
 
 #endif /* _ALTERA_H_ */
