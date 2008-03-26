@@ -38,7 +38,7 @@
 #include <common.h>
 #include <arm926ejs.h>
 
-#if defined(CONFIG_INTEGRATOR) || defined(CONFIG_AT91CAP9ADK)
+#ifdef CONFIG_INTEGRATOR
 
 	/* Timer functionality supplied by Integrator board (AP or CP) */
 

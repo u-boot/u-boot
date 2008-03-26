@@ -41,7 +41,7 @@ ulong resettime;
 AT91PS_PITC p_pitc;
 
 /* nothing really to do with interrupts, just starts up a counter. */
-int interrupt_init(void)
+int timer_init(void)
 {
 	/*
 	 * Enable PITC Clock
