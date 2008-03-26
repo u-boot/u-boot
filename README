@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000 - 2005
+# (C) Copyright 2000 - 2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -51,7 +51,8 @@ Makefile have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
 In case of problems see the CHANGELOG and CREDITS files to find out
-who contributed the specific port.
+who contributed the specific port. The MAINTAINERS file lists board
+maintainers.
 
 
 Where to get help:
@@ -63,6 +64,22 @@ U-Boot you should send a message to the U-Boot mailing list at
 previous traffic on the mailing list - please search the archive
 before asking FAQ's. Please see
 http://lists.sourceforge.net/lists/listinfo/u-boot-users/
+
+
+Where to get source code:
+=========================
+
+The U-Boot source code is maintained in the git repository at
+git://www.denx.de/git/u-boot.git ; you can browse it online at
+http://www.denx.de/cgi-bin/gitweb.cgi?p=u-boot.git;a=summary
+
+The "snapshot" links on this page allow you to download tarballs of
+any version you might be interested in. Ofifcial releases are also
+available for FTP download from the ftp://ftp.denx.de/pub/u-boot/
+directory.
+
+Pre-build (and tested) images are available from
+ftp://ftp.denx.de/pub/u-boot/images/
 
 
 Where we come from:
@@ -81,6 +98,7 @@ Where we come from:
 - create ARMBoot project (http://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
 - create U-Boot project (http://sourceforge.net/projects/u-boot)
+- current project page: see http://www.denx.de/wiki/UBoot
 
 
 Names and Spelling:
@@ -168,7 +186,7 @@ Directory Hierarchy:
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
 - lib_ppc	Files generic to PowerPC architecture
-- libfdt 	Library files to support flattened device trees
+- libfdt	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test
 - rtc		Real Time Clock drivers
@@ -320,7 +338,7 @@ The following options need to be configured:
 		converts clock data to MHZ before passing it to the
 		Linux kernel.
 		When CONFIG_CLOCKS_IN_MHZ is defined, a definition of
-		"clocks_in_mhz=1" is  automatically  included  in  the
+		"clocks_in_mhz=1" is automatically included in the
 		default environment.
 
 		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
@@ -686,9 +704,9 @@ The following options need to be configured:
 		CONFIG_MAC_PARTITION and/or CONFIG_DOS_PARTITION
 		and/or CONFIG_ISO_PARTITION
 
-		If IDE or SCSI support	is  enabled  (CONFIG_CMD_IDE or
-		CONFIG_CMD_SCSI) you must configure support for at least
-		one partition type as well.
+		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
+		CONFIG_CMD_SCSI) you must configure support for at
+		least one partition type as well.
 
 - IDE Reset method:
 		CONFIG_IDE_RESET_ROUTINE - this is defined in several
@@ -1325,7 +1343,7 @@ The following options need to be configured:
 		This option specifies a list of I2C devices that will be skipped
 		when the 'i2c probe' command is issued (or 'iprobe' using the legacy
 		command).  If CONFIG_I2C_MULTI_BUS is set, specify a list of bus-device
-		pairs.  Otherwise, specify a 1D array of device addresses
+		pairs.	Otherwise, specify a 1D array of device addresses
 
 		e.g.
 			#undef	CONFIG_I2C_MULTI_BUS
@@ -2324,22 +2342,24 @@ Low Level (hardware related) configuration options:
 		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
 
 - CONFIG_SPD_EEPROM
-		Get DDR timing information from an I2C EEPROM.  Common with pluggable
-		memory modules such as SODIMMs
+		Get DDR timing information from an I2C EEPROM. Common
+		with pluggable memory modules such as SODIMMs
+
   SPD_EEPROM_ADDRESS
 		I2C address of the SPD EEPROM
 
 - CFG_SPD_BUS_NUM
-		If SPD EEPROM is on an I2C bus other than the first one, specify here.
-		Note that the value must resolve to something your driver can deal with.
+		If SPD EEPROM is on an I2C bus other than the first
+		one, specify here. Note that the value must resolve
+		to something your driver can deal with.
 
 - CFG_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should be configured
-		using CS0 and CS1 instead of CS2 and CS3.
+		Only for 83xx systems. If specified, then DDR should
+		be configured using CS0 and CS1 instead of CS2 and CS3.
 
 - CFG_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should be configured
-		using CS0 and CS1 instead of CS2 and CS3.
+		Only for 83xx systems. If specified, then DDR should
+		be configured using CS0 and CS1 instead of CS2 and CS3.
 
 - CONFIG_ETHER_ON_FEC[12]
 		Define to enable FEC[12] on a 8xx series processor.
@@ -2405,29 +2425,30 @@ Low Level (hardware related) configuration options:
 Building the Software:
 ======================
 
-Building U-Boot has been tested in native PPC environments (on a
-PowerBook G3 running LinuxPPC 2000) and in cross environments
-(running RedHat 6.x and 7.x Linux on x86, Solaris 2.6 on a SPARC, and
-NetBSD 1.5 on x86).
+Building U-Boot has been tested in several native build environments
+and in many different cross environments. Of course we cannot support
+all possibly existing versions of cross development tools in all
+(potentially obsolete) versions. In case of tool chain problems we
+recommend to use the ELDK (see http://www.denx.de/wiki/DULG/ELDK)
+which is extensively used to build and test U-Boot.
 
-If you are not using a native PPC environment, it is assumed that you
-have the GNU cross compiling tools available in your path and named
-with a prefix of "powerpc-linux-". If this is not the case, (e.g. if
-you are using Monta Vista's Hard Hat Linux CDK 1.2) you must change
-the definition of CROSS_COMPILE in Makefile. For HHL on a 4xx CPU,
-change it to:
+If you are not using a native environment, it is assumed that you
+have GNU cross compiling tools available in your path. In this case,
+you must set the environment variable CROSS_COMPILE in your shell.
+Note that no changes to the Makefile or any other source files are
+necessary. For example using the ELDK on a 4xx CPU, please enter:
 
-	CROSS_COMPILE = ppc_4xx-
+	$ CROSS_COMPILE=ppc_4xx-
+	$ export CROSS_COMPILE
 
-
-U-Boot is intended to be  simple  to  build.  After  installing	 the
-sources	 you must configure U-Boot for one specific board type. This
+U-Boot is intended to be simple to build. After installing the
+sources you must configure U-Boot for one specific board type. This
 is done by typing:
 
 	make NAME_config
 
-where "NAME_config" is the name of one of the existing
-configurations; see the main Makefile for supported names.
+where "NAME_config" is the name of one of the existing configu-
+rations; see the main Makefile for supported names.
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for
@@ -2503,20 +2524,20 @@ steps:
 Testing of U-Boot Modifications, Ports to New Hardware, etc.:
 ==============================================================
 
-If you have modified U-Boot sources (for instance added a new	board
-or  support  for  new  devices,	 a new CPU, etc.) you are expected to
+If you have modified U-Boot sources (for instance added a new board
+or support for new devices, a new CPU, etc.) you are expected to
 provide feedback to the other developers. The feedback normally takes
 the form of a "patch", i. e. a context diff against a certain (latest
-official or latest in CVS) version of U-Boot sources.
+official or latest in the git repository) version of U-Boot sources.
 
-But before you submit such a patch, please verify that	your  modifi-
-cation	did not break existing code. At least make sure that *ALL* of
+But before you submit such a patch, please verify that your modifi-
+cation did not break existing code. At least make sure that *ALL* of
 the supported boards compile WITHOUT ANY compiler warnings. To do so,
 just run the "MAKEALL" script, which will configure and build U-Boot
-for ALL supported system. Be warned, this will take a while. You  can
-select	which  (cross)	compiler  to use by passing a `CROSS_COMPILE'
-environment variable to the script, i. e. to use the cross tools from
-MontaVista's Hard Hat Linux you can type
+for ALL supported system. Be warned, this will take a while. You can
+select which (cross) compiler to use by passing a `CROSS_COMPILE'
+environment variable to the script, i. e. to use the ELDK cross tools
+you can type
 
 	CROSS_COMPILE=ppc_8xx- MAKEALL
 
@@ -2524,20 +2545,21 @@ or to build on a native PowerPC system you can type
 
 	CROSS_COMPILE=' ' MAKEALL
 
-When using the MAKEALL script, the default behaviour is to build U-Boot
-in the source directory. This location can be changed by setting the
-BUILD_DIR environment variable. Also, for each target built, the MAKEALL
-script saves two log files (<target>.ERR and <target>.MAKEALL) in the
-<source dir>/LOG directory. This default location can be changed by
-setting the MAKEALL_LOGDIR environment variable. For example:
+When using the MAKEALL script, the default behaviour is to build
+U-Boot in the source directory. This location can be changed by
+setting the BUILD_DIR environment variable. Also, for each target
+built, the MAKEALL script saves two log files (<target>.ERR and
+<target>.MAKEALL) in the <source dir>/LOG directory. This default
+location can be changed by setting the MAKEALL_LOGDIR environment
+variable. For example:
 
 	export BUILD_DIR=/tmp/build
 	export MAKEALL_LOGDIR=/tmp/log
 	CROSS_COMPILE=ppc_8xx- MAKEALL
 
-With the above settings build objects are saved in the /tmp/build, log
-files are saved in the /tmp/log and the source tree remains clean during
-the whole build process.
+With the above settings build objects are saved in the /tmp/build,
+log files are saved in the /tmp/log and the source tree remains clean
+during the whole build process.
 
 
 See also "U-Boot Porting Guide" below.
@@ -3093,7 +3115,7 @@ TQM8xxL is in the first Flash bank):
 
 
 You can check the success of the download using the 'iminfo' command;
-this includes a checksum verification so you  can  be  sure  no	 data
+this includes a checksum verification so you can be sure no data
 corruption happened:
 
 	=> imi 40100000
@@ -3438,7 +3460,7 @@ models provide on-chip memory (like the IMMR area on MPC8xx and
 MPC826x processors), on others (parts of) the data cache can be
 locked as (mis-) used as memory, etc.
 
-	Chris Hallinan posted a good summary of	 these	issues	to  the
+	Chris Hallinan posted a good summary of these issues to the
 	u-boot-users mailing list:
 
 	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
@@ -3728,6 +3750,8 @@ may be rejected, even when they contain important and valuable stuff.
 
 Patches shall be sent to the u-boot-users mailing list.
 
+Please see http://www.denx.de/wiki/UBoot/Patches for details.
+
 When you send a patch, please include the following information with
 it:
 
@@ -3748,18 +3772,23 @@ it:
 * If your patch adds new configuration options, don't forget to
   document these in the README file.
 
-* The patch itself. If you are accessing the CVS repository use "cvs
-  update; cvs diff -puRN"; else, use "diff -purN OLD NEW". If your
-  version of diff does not support these options, then get the latest
-  version of GNU diff.
+* The patch itself. If you are using git (which is *strongly*
+  recommended) you can easily generate the patch using the
+  "git-format-patch". If you then use "git-send-email" to send it to
+  the U-Boot mailing list, you will avoid most of the common problems
+  with some other mail clients.
 
-  The current directory when running this command shall be the top
-  level directory of the U-Boot source tree, or it's parent directory
-  (i. e. please make sure that your patch includes sufficient
-  directory information for the affected files).
+  If you cannot use git, use "diff -purN OLD NEW". If your version of
+  diff does not support these options, then get the latest version of
+  GNU diff.
 
-  We accept patches as plain text, MIME attachments or as uuencoded
-  gzipped text.
+  The current directory when running this command shall be the parent
+  directory of the U-Boot source tree (i. e. please make sure that
+  your patch includes sufficient directory information for the
+  affected files).
+
+  We prefer patches as plain text. MIME attachments are discouraged,
+  and compressed attachments must not be used.
 
 * If one logical set of modifications affects or creates several
   files, all these changes shall be submitted in a SINGLE patch file.
@@ -3786,4 +3815,6 @@ Notes:
   modification.
 
 * Remember that there is a size limit of 40 kB per message on the
-  u-boot-users mailing list. Compression may help.
+  u-boot-users mailing list. Bigger patches will be moderated. If
+  they are reasonable and not bigger than 100 kB, they will be
+  acknowledged. Even bigger patches should be avoided.
