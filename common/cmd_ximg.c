@@ -24,7 +24,6 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_CMD_XIMG)
 
 /*
  * Multi Image extract
@@ -37,92 +36,136 @@
 int
 do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	ulong addr = load_addr, dest = 0;
-	ulong data, len, checksum;
-	ulong *len_ptr;
-	int i, verify, part = 0;
-	char pbuf[10], *s;
-	image_header_t header;
+	ulong		addr = load_addr;
+	ulong		dest = 0;
+	ulong		data, len, count;
+	int		verify;
+	int		part = 0;
+	char		pbuf[10];
+	image_header_t	*hdr;
+#if defined(CONFIG_FIT)
+	const char	*uname = NULL;
+	const void*	fit_hdr;
+	int		noffset;
+	const void	*fit_data;
+	size_t		fit_len;
+#endif
 
-	s = getenv("verify");
-	verify = (s && (*s == 'n')) ? 0 : 1;
+	verify = getenv_verify ();
 
 	if (argc > 1) {
 		addr = simple_strtoul(argv[1], NULL, 16);
 	}
 	if (argc > 2) {
 		part = simple_strtoul(argv[2], NULL, 16);
+#if defined(CONFIG_FIT)
+		uname = argv[2];
+#endif
 	}
 	if (argc > 3) {
 		dest = simple_strtoul(argv[3], NULL, 16);
 	}
 
-	printf("## Copying from image at %08lx ...\n", addr);
+	switch (genimg_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
 
-	/* Copy header so we can blank CRC field for re-calculation */
-	memmove(&header, (char *) addr, sizeof (image_header_t));
+		printf("## Copying part %d from legacy image "
+			"at %08lx ...\n", part, addr);
 
-	if (ntohl(header.ih_magic) != IH_MAGIC) {
-		printf("Bad Magic Number\n");
-		return 1;
-	}
-
-	data = (ulong) & header;
-	len = sizeof (image_header_t);
-
-	checksum = ntohl(header.ih_hcrc);
-	header.ih_hcrc = 0;
-
-	if (crc32(0, (char *) data, len) != checksum) {
-		printf("Bad Header Checksum\n");
-		return 1;
-	}
-#ifdef DEBUG
-	print_image_hdr((image_header_t *) addr);
-#endif
-
-	data = addr + sizeof (image_header_t);
-	len = ntohl(header.ih_size);
-
-	if (header.ih_type != IH_TYPE_MULTI) {
-		printf("Wrong Image Type for %s command\n", cmdtp->name);
-		return 1;
-	}
-
-	if (header.ih_comp != IH_COMP_NONE) {
-		printf("Wrong Compression Type for %s command\n", cmdtp->name);
-		return 1;
-	}
-
-	if (verify) {
-		printf("   Verifying Checksum ... ");
-		if (crc32(0, (char *) data, len) != ntohl(header.ih_dcrc)) {
-			printf("Bad Data CRC\n");
+		hdr = (image_header_t *)addr;
+		if (!image_check_magic (hdr)) {
+			printf("Bad Magic Number\n");
 			return 1;
 		}
-		printf("OK\n");
-	}
 
-	len_ptr = (ulong *) data;
+		if (!image_check_hcrc (hdr)) {
+			printf("Bad Header Checksum\n");
+			return 1;
+		}
+#ifdef DEBUG
+		image_print_contents (hdr);
+#endif
 
-	data += 4;		/* terminator */
-	for (i = 0; len_ptr[i]; ++i) {
-		data += 4;
-		if (argc > 2 && part > i) {
-			u_long tail;
-			len = ntohl(len_ptr[i]);
-			tail = len % 4;
-			data += len;
-			if (tail) {
-				data += 4 - tail;
+		if (!image_check_type (hdr, IH_TYPE_MULTI)) {
+			printf("Wrong Image Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		if (image_get_comp (hdr) != IH_COMP_NONE) {
+			printf("Wrong Compression Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		if (verify) {
+			printf("   Verifying Checksum ... ");
+			if (!image_check_dcrc (hdr)) {
+				printf("Bad Data CRC\n");
+				return 1;
+			}
+			printf("OK\n");
+		}
+
+		count = image_multi_count (hdr);
+		if (part >= count) {
+			printf("Bad Image Part\n");
+			return 1;
+		}
+
+		image_multi_getimg (hdr, part, &data, &len);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		if (uname == NULL) {
+			puts ("No FIT subimage unit name\n");
+			return 1;
+		}
+
+		printf("## Copying '%s' subimage from FIT image "
+			"at %08lx ...\n", uname, addr);
+
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("Bad FIT image format\n");
+			return 1;
+		}
+
+		/* get subimage node offset */
+		noffset = fit_image_get_node (fit_hdr, uname);
+		if (noffset < 0) {
+			printf ("Can't find '%s' FIT subimage\n", uname);
+			return 1;
+		}
+
+		if (fit_image_check_comp (fit_hdr, noffset, IH_COMP_NONE)) {
+			printf("Wrong Compression Type for %s command\n",
+					cmdtp->name);
+			return 1;
+		}
+
+		/* verify integrity */
+		if (verify) {
+			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+				puts ("Bad Data Hash\n");
+				return 1;
 			}
 		}
-	}
-	if (argc > 2 && part >= i) {
-		printf("Bad Image Part\n");
+
+		/* get subimage data address and length */
+		if (fit_image_get_data (fit_hdr, noffset, &fit_data, &fit_len)) {
+			puts ("Could not find script subimage data\n");
+			return 1;
+		}
+
+		data = (ulong)fit_data;
+		len = (ulong)fit_len;
+		break;
+#endif
+	default:
+		puts ("Invalid image type for imxtract\n");
 		return 1;
 	}
-	len = ntohl(len_ptr[part]);
 
 	if (argc > 3) {
 		memcpy((char *) dest, (char *) data, len);
@@ -139,6 +182,9 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
 	   "imxtract- extract a part of a multi-image\n",
 	   "addr part [dest]\n"
-	   "    - extract <part> from image at <addr> and copy to <dest>\n");
-
+	   "    - extract <part> from legacy image at <addr> and copy to <dest>\n"
+#if defined(CONFIG_FIT)
+	   "addr uname [dest]\n"
+	   "    - extract <uname> subimage from FIT image at <addr> and copy to <dest>\n"
 #endif
+);

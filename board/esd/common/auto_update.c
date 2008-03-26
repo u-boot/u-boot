@@ -89,24 +89,28 @@ extern block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
 int au_check_cksum_valid(int i, long nbytes)
 {
 	image_header_t *hdr;
-	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
-	if ((au_image[i].type == AU_FIRMWARE) && (au_image[i].size != ntohl(hdr->ih_size))) {
+	if ((au_image[i].type == AU_FIRMWARE) &&
+	    (au_image[i].size != image_get_data_size (hdr))) {
 		printf ("Image %s has wrong size\n", au_image[i].name);
 		return -1;
 	}
 
-	if (nbytes != (sizeof(*hdr) + ntohl(hdr->ih_size))) {
+	if (nbytes != (image_get_image_size (hdr))) {
 		printf ("Image %s bad total SIZE\n", au_image[i].name);
 		return -1;
 	}
-	/* check the data CRC */
-	checksum = ntohl(hdr->ih_dcrc);
 
-	if (crc32 (0, (uchar *)(LOAD_ADDR + sizeof(*hdr)), ntohl(hdr->ih_size))
-		!= checksum) {
+	/* check the data CRC */
+	if (!image_check_dcrc (hdr)) {
 		printf ("Image %s bad data checksum\n", au_image[i].name);
 		return -1;
 	}
@@ -120,51 +124,53 @@ int au_check_header_valid(int i, long nbytes)
 	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
+
 	/* check the easy ones first */
 #undef CHECK_VALID_DEBUG
 #ifdef CHECK_VALID_DEBUG
-	printf("magic %#x %#x ", ntohl(hdr->ih_magic), IH_MAGIC);
-	printf("arch %#x %#x ", hdr->ih_arch, IH_CPU_PPC);
-	printf("size %#x %#lx ", ntohl(hdr->ih_size), nbytes);
-	printf("type %#x %#x ", hdr->ih_type, IH_TYPE_KERNEL);
+	printf("magic %#x %#x ", image_get_magic (hdr), IH_MAGIC);
+	printf("arch %#x %#x ", image_get_arch (hdr), IH_ARCH_PPC);
+	printf("size %#x %#lx ", image_get_data_size (hdr), nbytes);
+	printf("type %#x %#x ", image_get_type (hdr), IH_TYPE_KERNEL);
 #endif
-	if (nbytes < sizeof(*hdr))
+	if (nbytes < image_get_header_size ())
 	{
 		printf ("Image %s bad header SIZE\n", au_image[i].name);
 		return -1;
 	}
-	if (ntohl(hdr->ih_magic) != IH_MAGIC || hdr->ih_arch != IH_CPU_PPC)
+	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_PPC))
 	{
 		printf ("Image %s bad MAGIC or ARCH\n", au_image[i].name);
 		return -1;
 	}
-	/* check the hdr CRC */
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)hdr, sizeof(*hdr)) != checksum) {
+	if (!image_check_hcrc (hdr)) {
 		printf ("Image %s bad header checksum\n", au_image[i].name);
 		return -1;
 	}
-	hdr->ih_hcrc = htonl(checksum);
 
 	/* check the type - could do this all in one gigantic if() */
-	if ((au_image[i].type == AU_FIRMWARE) && (hdr->ih_type != IH_TYPE_FIRMWARE)) {
+	if ((au_image[i].type == AU_FIRMWARE) && !image_check_type (hdr, IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", au_image[i].name);
 		return -1;
 	}
-	if ((au_image[i].type == AU_SCRIPT) && (hdr->ih_type != IH_TYPE_SCRIPT)) {
+	if ((au_image[i].type == AU_SCRIPT) && !image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		printf ("Image %s wrong type\n", au_image[i].name);
 		return -1;
 	}
 
 	/* recycle checksum */
-	checksum = ntohl(hdr->ih_size);
+	checksum = image_get_data_size (hdr);
 
 #if 0 /* test-only */
 	/* for kernel and app the image header must also fit into flash */
 	if (idx != IDX_DISK)
-		checksum += sizeof(*hdr);
+		checksum += image_get_header_size ();
 	/* check the size does not exceed space in flash. HUSH scripts */
 	/* all have ausize[] set to 0 */
 	if ((ausize[idx] != 0) && (ausize[idx] < checksum)) {
@@ -190,17 +196,23 @@ int au_do_update(int i, long sz)
 #endif
 
 	hdr = (image_header_t *)LOAD_ADDR;
+#if defined(CONFIG_FIT)
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+		puts ("Non legacy image format not supported\n");
+		return -1;
+	}
+#endif
 
 	switch (au_image[i].type) {
 	case AU_SCRIPT:
 		printf("Executing script %s\n", au_image[i].name);
 
 		/* execute a script */
-		if (hdr->ih_type == IH_TYPE_SCRIPT) {
-			addr = (char *)((char *)hdr + sizeof(*hdr));
+		if (image_check_type (hdr, IH_TYPE_SCRIPT)) {
+			addr = (char *)((char *)hdr + image_get_header_size ());
 			/* stick a NULL at the end of the script, otherwise */
 			/* parse_string_outer() runs off the end. */
-			addr[ntohl(hdr->ih_size)] = 0;
+			addr[image_get_data_size (hdr)] = 0;
 			addr += 8;
 
 			/*
@@ -231,8 +243,8 @@ int au_do_update(int i, long sz)
 		 */
 		if (au_image[i].type == AU_FIRMWARE) {
 			char *orig = (char*)start;
-			char *new  = (char *)((char *)hdr + sizeof(*hdr));
-			nbytes = ntohl(hdr->ih_size);
+			char *new  = (char *)((char *)hdr + image_get_header_size ());
+			nbytes = image_get_data_size (hdr);
 
 			while(--nbytes) {
 				if (*orig++ != *new++) {
@@ -272,12 +284,12 @@ int au_do_update(int i, long sz)
 		/* strip the header - except for the kernel and ramdisk */
 		if (au_image[i].type != AU_FIRMWARE) {
 			addr = (char *)hdr;
-			off = sizeof(*hdr);
-			nbytes = sizeof(*hdr) + ntohl(hdr->ih_size);
+			off = image_get_header_size ();
+			nbytes = image_get_image_size (hdr);
 		} else {
-			addr = (char *)((char *)hdr + sizeof(*hdr));
+			addr = (char *)((char *)hdr + image_get_header_size ());
 			off = 0;
-			nbytes = ntohl(hdr->ih_size);
+			nbytes = image_get_data_size (hdr);
 		}
 
 		/*
@@ -305,15 +317,15 @@ int au_do_update(int i, long sz)
 		 * check the dcrc of the copy
 		 */
 		if (au_image[i].type != AU_NAND) {
-			rc = crc32 (0, (uchar *)(start + off), ntohl(hdr->ih_size));
+			rc = crc32 (0, (uchar *)(start + off), image_get_data_size (hdr));
 		} else {
 #if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
 			rc = nand_legacy_rw(nand_dev_desc, NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP,
 				     start, nbytes, (size_t *)&total, (uchar *)addr);
-			rc = crc32 (0, (uchar *)(addr + off), ntohl(hdr->ih_size));
+			rc = crc32 (0, (uchar *)(addr + off), image_get_data_size (hdr));
 #endif
 		}
-		if (rc != ntohl(hdr->ih_dcrc)) {
+		if (rc != image_get_dcrc (hdr)) {
 			printf ("Image %s Bad Data Checksum After COPY\n", au_image[i].name);
 			return -1;
 		}
@@ -497,10 +509,10 @@ int do_auto_update(void)
 
 		printf("Reading %s ...", au_image[i].name);
 		/* just read the header */
-		sz = do_fat_read(au_image[i].name, LOAD_ADDR, sizeof(image_header_t), LS_NO);
+		sz = do_fat_read(au_image[i].name, LOAD_ADDR, image_get_header_size (), LS_NO);
 		debug ("read %s sz %ld hdr %d\n",
-			au_image[i].name, sz, sizeof(image_header_t));
-		if (sz <= 0 || sz < sizeof(image_header_t)) {
+			au_image[i].name, sz, image_get_header_size ());
+		if (sz <= 0 || sz < image_get_header_size ()) {
 			puts(" not found\n");
 			continue;
 		}
@@ -510,8 +522,8 @@ int do_auto_update(void)
 		}
 		sz = do_fat_read(au_image[i].name, LOAD_ADDR, MAX_LOADSZ, LS_NO);
 		debug ("read %s sz %ld hdr %d\n",
-			au_image[i].name, sz, sizeof(image_header_t));
-		if (sz <= 0 || sz <= sizeof(image_header_t)) {
+			au_image[i].name, sz, image_get_header_size ());
+		if (sz <= 0 || sz <= image_get_header_size ()) {
 			puts(" not found\n");
 			continue;
 		}

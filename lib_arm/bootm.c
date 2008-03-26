@@ -26,14 +26,8 @@
 #include <image.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/*cmd_boot.c*/
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
@@ -62,30 +56,43 @@ static void setup_end_tag (bd_t *bd);
 static void setup_videolfb_tag (gd_t *gd);
 # endif
 
-
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
-extern image_header_t header;	/* from cmd_bootm.c */
-
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     ulong addr, ulong *len_ptr, int verify)
+		     bootm_headers_t *images)
 {
-	ulong len = 0, checksum;
-	ulong initrd_start, initrd_end;
-	ulong data;
-	void (*theKernel)(int zero, int arch, uint params);
-	image_header_t *hdr = &header;
-	bd_t *bd = gd->bd;
-	int machid = bd->bi_arch_number;
-	char *s;
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	bd_t	*bd = gd->bd;
+	char	*s;
+	int	machid = bd->bi_arch_number;
+	void	(*theKernel)(int zero, int arch, uint params);
+	int	ret;
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
 #endif
 
-	theKernel = (void (*)(int, int, uint))ntohl(hdr->ih_ep);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		ret = fit_image_get_entry (images->fit_hdr_os,
+					images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		goto error;
+	}
+	theKernel = (void (*)(int, int, uint))ep;
 
 	s = getenv ("machid");
 	if (s) {
@@ -93,134 +100,10 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		printf ("Using machid 0x%x from environment\n", machid);
 	}
 
-	/*
-	 * Check if there is an initrd image
-	 */
-	if (argc >= 3) {
-		show_boot_progress (9);
-
-		addr = simple_strtoul (argv[2], NULL, 16);
-
-		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
-
-		/* Copy header so we can blank CRC field for re-calculation */
-#ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (addr, sizeof (image_header_t),
-					(char *) &header);
-		} else
-#endif
-			memcpy (&header, (char *) addr,
-				sizeof (image_header_t));
-
-		if (ntohl (hdr->ih_magic) != IH_MAGIC) {
-			printf ("Bad Magic Number\n");
-			show_boot_progress (-10);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		data = (ulong) & header;
-		len = sizeof (image_header_t);
-
-		checksum = ntohl (hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32 (0, (unsigned char *) data, len) != checksum) {
-			printf ("Bad Header Checksum\n");
-			show_boot_progress (-11);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		show_boot_progress (10);
-
-		print_image_hdr (hdr);
-
-		data = addr + sizeof (image_header_t);
-		len = ntohl (hdr->ih_size);
-
-#ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (data, len, (char *) CFG_LOAD_ADDR);
-			data = CFG_LOAD_ADDR;
-		}
-#endif
-
-		if (verify) {
-			ulong csum = 0;
-
-			printf ("   Verifying Checksum ... ");
-			csum = crc32 (0, (unsigned char *) data, len);
-			if (csum != ntohl (hdr->ih_dcrc)) {
-				printf ("Bad Data CRC\n");
-				show_boot_progress (-12);
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			printf ("OK\n");
-		}
-
-		show_boot_progress (11);
-
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_ARM) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
-			printf ("No Linux ARM Ramdisk Image\n");
-			show_boot_progress (-13);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) ||	\
-		defined(CONFIG_ARMADILLO) || defined(CONFIG_M501SK)
-		/*
-		 *we need to copy the ramdisk to SRAM to let Linux boot
-		 */
-		memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
-		data = ntohl(hdr->ih_load);
-#endif /* CONFIG_B2 || CONFIG_EVB4510 */
-
-		/*
-		 * Now check if we have a multifile image
-		 */
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = ntohl (len_ptr[0]) % 4;
-		int i;
-
-		show_boot_progress (13);
-
-		/* skip kernel length and terminator */
-		data = (ulong) (&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i = 1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += ntohl (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len = ntohl (len_ptr[1]);
-
-	} else {
-		/*
-		 * no initrd image
-		 */
-		show_boot_progress (14);
-
-		len = data = 0;
-	}
-
-#ifdef	DEBUG
-	if (!data) {
-		printf ("No initrd\n");
-	}
-#endif
-
-	if (data) {
-		initrd_start = data;
-		initrd_end = initrd_start + len;
-	} else {
-		initrd_start = 0;
-		initrd_end = 0;
-	}
+	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_ARM,
+			&initrd_start, &initrd_end);
+	if (ret)
+		goto error;
 
 	show_boot_progress (15);
 
@@ -257,6 +140,9 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	setup_end_tag (bd);
 #endif
 
+	if (!images->autostart)
+		return ;
+
 	/* we assume that the kernel is in place */
 	printf ("\nStarting kernel ...\n\n");
 
@@ -270,6 +156,13 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	cleanup_before_linux ();
 
 	theKernel (0, machid, bd->bi_boot_params);
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }
 
 

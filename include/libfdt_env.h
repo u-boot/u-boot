@@ -24,7 +24,11 @@
 #include <stddef.h>
 #include <linux/types.h>
 #include <asm/byteorder.h>
+#ifdef USE_HOSTCC
+#include <string.h>
+#else
 #include <linux/string.h>
+#endif /* USE_HOSTCC */
 
 extern struct fdt_header *fdt;  /* Pointer to the working fdt */
 

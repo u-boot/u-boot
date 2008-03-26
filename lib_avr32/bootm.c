@@ -31,12 +31,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 /* CPU-specific hook to allow flushing of caches, etc. */
 extern void prepare_to_boot(void);
 
-extern image_header_t header;		/* from cmd_bootm.c */
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 static struct tag *setup_start_tag(struct tag *params)
 {
@@ -176,113 +174,37 @@ static void setup_end_tag(struct tag *params)
 }
 
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		    unsigned long addr, unsigned long *len_ptr, int verify)
+		    bootm_headers_t *images)
 {
-	unsigned long data, len = 0;
-	unsigned long initrd_start, initrd_end;
-	unsigned long image_start, image_end;
-	unsigned long checksum;
-	void (*theKernel)(int magic, void *tagtable);
-	image_header_t *hdr;
-	struct tag *params, *params_start;
-	char *commandline = getenv("bootargs");
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	void	(*theKernel)(int magic, void *tagtable);
+	struct	tag *params, *params_start;
+	char	*commandline = getenv("bootargs");
+	int	ret;
 
-	hdr = (image_header_t *)addr;
-	image_start = addr;
-	image_end = addr + hdr->ih_size;
-
-	theKernel = (void *)ntohl(hdr->ih_ep);
-
-	/*
-	 * Check if there is an initrd image
-	 */
-	if (argc >= 3) {
-		show_boot_progress (9);
-
-		addr = simple_strtoul(argv[2], NULL, 16);
-
-		printf("## Loading RAMDISK image at %08lx ...\n", addr);
-
-		memcpy(&header, (char *)addr, sizeof(header));
-		hdr = &header;
-
-		if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-			puts("Bad Magic Number\n");
-			show_boot_progress (-10);
-			do_reset(cmdtp, flag, argc, argv);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
 		}
-
-		data = (unsigned long)hdr;
-		len = sizeof(*hdr);
-		checksum = ntohl(hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32(0, (unsigned char *)data, len) != checksum) {
-			puts("Bad Header Checksum\n");
-			show_boot_progress (-11);
-			do_reset(cmdtp, flag, argc, argv);
-		}
-
-		show_boot_progress (10);
-
-		print_image_hdr(hdr);
-
-		data = addr + sizeof(header);
-		len = ntohl(hdr->ih_size);
-
-		if (verify) {
-			unsigned long csum = 0;
-
-			puts("   Verifying Checksum ... ");
-			csum = crc32(0, (unsigned char *)data, len);
-			if (csum != ntohl(hdr->ih_dcrc)) {
-				puts("Bad Data CRC\n");
-				show_boot_progress (-12);
-				do_reset(cmdtp, flag, argc, argv);
-			}
-			puts("OK\n");
-		}
-
-		show_boot_progress (11);
-
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_AVR32) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
-			puts("Not a Linux/AVR32 RAMDISK image\n");
-			show_boot_progress (-13);
-			do_reset(cmdtp, flag, argc, argv);
-		}
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = ntohl (len_ptr[0]) % 4;
-		int i;
-
-		show_boot_progress (13);
-
-		/* skip kernel length and terminator */
-		data = (ulong) (&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i = 1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += ntohl (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len = ntohl (len_ptr[1]);
+#endif
 	} else {
-		/* no initrd image */
-		show_boot_progress (14);
-		len = data = 0;
+		puts ("Could not find kernel entry point!\n");
+		goto error;
 	}
+	theKernel = (void *)ep;
 
-	if (data) {
-		initrd_start = data;
-		initrd_end = initrd_start + len;
-	} else {
-		initrd_start = 0;
-		initrd_end = 0;
-	}
+	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_AVR32,
+			&initrd_start, &initrd_end);
+	if (ret)
+		goto error;
 
 	show_boot_progress (15);
 
@@ -299,10 +221,20 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	params = setup_ethernet_tags(params);
 	setup_end_tag(params);
 
+	if (!images->autostart)
+		return ;
+
 	printf("\nStarting kernel at %p (params at %p)...\n\n",
 	       theKernel, params_start);
 
 	prepare_to_boot();
 
 	theKernel(ATAG_MAGIC, params_start);
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

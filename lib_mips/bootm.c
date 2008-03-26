@@ -33,10 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
-extern image_header_t header;           /* from cmd_bootm.c */
-
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 static int	linux_argc;
 static char **	linux_argv;
 
@@ -47,126 +43,40 @@ static int	linux_env_idx;
 static void linux_params_init (ulong start, char * commandline);
 static void linux_env_set (char * env_name, char * env_val);
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		     ulong addr, ulong * len_ptr, int verify)
+		     bootm_headers_t *images)
 {
-	ulong len = 0, checksum;
-	ulong initrd_start, initrd_end;
-	ulong data;
-	void (*theKernel) (int, char **, char **, int *);
-	image_header_t *hdr = &header;
-	char *commandline = getenv ("bootargs");
-	char env_buf[12];
+	ulong	initrd_start, initrd_end;
+	ulong	ep = 0;
+	void	(*theKernel) (int, char **, char **, int *);
+	char	*commandline = getenv ("bootargs");
+	char	env_buf[12];
+	int	ret;
 
-	theKernel =
-		(void (*)(int, char **, char **, int *)) ntohl (hdr->ih_ep);
-
-	/*
-	 * Check if there is an initrd image
-	 */
-	if (argc >= 3) {
-		show_boot_progress (9);
-
-		addr = simple_strtoul (argv[2], NULL, 16);
-
-		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
-
-		/* Copy header so we can blank CRC field for re-calculation */
-		memcpy (&header, (char *) addr, sizeof (image_header_t));
-
-		if (ntohl (hdr->ih_magic) != IH_MAGIC) {
-			printf ("Bad Magic Number\n");
-			show_boot_progress (-10);
-			do_reset (cmdtp, flag, argc, argv);
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
 		}
-
-		data = (ulong) & header;
-		len = sizeof (image_header_t);
-
-		checksum = ntohl (hdr->ih_hcrc);
-		hdr->ih_hcrc = 0;
-
-		if (crc32 (0, (uchar *) data, len) != checksum) {
-			printf ("Bad Header Checksum\n");
-			show_boot_progress (-11);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		show_boot_progress (10);
-
-		print_image_hdr (hdr);
-
-		data = addr + sizeof (image_header_t);
-		len = ntohl (hdr->ih_size);
-
-		if (verify) {
-			ulong csum = 0;
-
-			printf ("   Verifying Checksum ... ");
-			csum = crc32 (0, (uchar *) data, len);
-			if (csum != ntohl (hdr->ih_dcrc)) {
-				printf ("Bad Data CRC\n");
-				show_boot_progress (-12);
-				do_reset (cmdtp, flag, argc, argv);
-			}
-			printf ("OK\n");
-		}
-
-		show_boot_progress (11);
-
-		if ((hdr->ih_os != IH_OS_LINUX) ||
-		    (hdr->ih_arch != IH_CPU_MIPS) ||
-		    (hdr->ih_type != IH_TYPE_RAMDISK)) {
-			printf ("No Linux MIPS Ramdisk Image\n");
-			show_boot_progress (-13);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		/*
-		 * Now check if we have a multifile image
-		 */
-	} else if ((hdr->ih_type == IH_TYPE_MULTI) && (len_ptr[1])) {
-		ulong tail = ntohl (len_ptr[0]) % 4;
-		int i;
-
-		show_boot_progress (13);
-
-		/* skip kernel length and terminator */
-		data = (ulong) (&len_ptr[2]);
-		/* skip any additional image length fields */
-		for (i = 1; len_ptr[i]; ++i)
-			data += 4;
-		/* add kernel length, and align */
-		data += ntohl (len_ptr[0]);
-		if (tail) {
-			data += 4 - tail;
-		}
-
-		len = ntohl (len_ptr[1]);
-
-	} else {
-		/*
-		 * no initrd image
-		 */
-		show_boot_progress (14);
-
-		data = 0;
-	}
-
-#ifdef	DEBUG
-	if (!data) {
-		printf ("No initrd\n");
-	}
 #endif
-
-	if (data) {
-		initrd_start = data;
-		initrd_end = initrd_start + len;
 	} else {
-		initrd_start = 0;
-		initrd_end = 0;
+		puts ("Could not find kernel entry point!\n");
+		goto error;
 	}
+	theKernel = (void (*)(int, char **, char **, int *))ep;
+
+	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_MIPS,
+			&initrd_start, &initrd_end);
+	if (ret)
+		goto error;
 
 	show_boot_progress (15);
 
@@ -203,10 +113,20 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	sprintf (env_buf, "0x%X", (uint) (gd->bd->bi_flashsize));
 	linux_env_set ("flash_size", env_buf);
 
+	if (!images->autostart)
+		return ;
+
 	/* we assume that the kernel is in place */
 	printf ("\nStarting kernel ...\n\n");
 
 	theKernel (linux_argc, linux_argv, linux_env, 0);
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }
 
 static void linux_params_init (ulong start, char *line)

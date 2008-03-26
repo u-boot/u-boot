@@ -1,9 +1,5 @@
 /*
- * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
- * Scott McNutt <smcnutt@psyent.com>
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * (C) Copyright 2008 Semihalf
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,20 +17,12 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <command.h>
-#include <asm/byteorder.h>
+#ifndef __FDT_HOST_H__
+#define __FDT_HOST_H__
 
-extern image_header_t header;	/* common/cmd_bootm.c */
+/* Make sure to include u-boot version of libfdt include files */
+#include "../include/fdt.h"
+#include "../include/libfdt.h"
+#include "../include/fdt_support.h"
 
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
-{
-	image_header_t *hdr = &header;
-	void (*kernel)(void) = (void (*)(void))ntohl (hdr->ih_ep);
-
-	/* For now we assume the Microtronix linux ... which only
-	 * needs to be called ;-)
-	 */
-	kernel ();
-}
+#endif /* __FDT_HOST_H__ */

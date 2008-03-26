@@ -1592,6 +1592,10 @@ const char * BZ_API(BZ2_bzerror) (BZFILE *b, int *errnum)
 }
 #endif
 
+void bz_internal_error(int errcode)
+{
+	printf ("BZIP2 internal error %d\n", errcode);
+}
 
 /*-------------------------------------------------------------*/
 /*--- end                                           bzlib.c ---*/

@@ -788,6 +788,9 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i,nrofblk;
 	char *ep;
 	int rcode = 0;
+#if defined(CONFIG_FIT)
+	const void *fit_hdr;
+#endif
 
 	switch (argc) {
 	case 1:
@@ -835,14 +838,31 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf("result%d: 0x%02X\n",i,pCMD->result[i]);
 		return 1;
 	}
-	hdr = (image_header_t *)addr;
-	if (ntohl(hdr->ih_magic)  != IH_MAGIC) {
-		printf ("Bad Magic Number\n");
+
+	switch (genimg_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
+		image_print_contents (hdr);
+
+		imsize = image_get_image_size (hdr);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		puts ("Fit image detected...\n");
+
+		imsize = fit_get_size (fit_hdr);
+		break;
+#endif
+	default:
+		puts ("** Unknown image type\n");
 		return 1;
 	}
-	print_image_hdr(hdr);
 
-	imsize= ntohl(hdr->ih_size)+sizeof(image_header_t);
 	nrofblk=imsize/512;
 	if((imsize%512)>0)
 		nrofblk++;
@@ -858,23 +878,28 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("OK %ld Bytes loaded.\n",imsize);
 
 	flush_cache (addr, imsize);
+
+#if defined(CONFIG_FIT)
+	/* This cannot be done earlier, we need complete FIT image in RAM first */
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
+		fit_print_contents ((const void *)addr);
+#endif
+
 	/* Loading ok, update default load address */
-
 	load_addr = addr;
-	if(hdr->ih_type  == IH_TYPE_KERNEL) {
-		/* Check if we should attempt an auto-start */
-		if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
-			char *local_args[2];
-			extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
-			local_args[0] = argv[0];
-			local_args[1] = NULL;
+	/* Check if we should attempt an auto-start */
+	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
+		char *local_args[2];
+		extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
-			printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
 
-			do_bootm (cmdtp, 0, 1, local_args);
-			rcode ++;
-		}
+		printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);
+
+		do_bootm (cmdtp, 0, 1, local_args);
+		rcode ++;
 	}
 	return rcode;
 }
