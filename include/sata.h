@@ -77,32 +77,16 @@ u8 sata_chk_status (struct sata_ioports *ioaddr);
 ulong sata_read (int device, ulong blknr,lbaint_t blkcnt, void * buffer);
 ulong sata_write (int device,ulong blknr, lbaint_t blkcnt, void * buffer);
 void msleep (int count);
-#else
-extern int sata_bus_softreset (int num);
-extern void sata_identify (int num, int dev);
-extern void sata_port (struct sata_ioports *ioport);
-extern void set_Feature_cmd (int num, int dev);
-extern ulong sata_read (int device, ulong blknr,
-			lbaint_t blkcnt, void * buffer);
-extern ulong sata_write (int device, ulong blknr,
-			lbaint_t blkcnt, void * buffer);
-extern void msleep (int count);
 #endif
 
 /************DRIVER SPECIFIC DEFINITIONS AND DECLARATIONS**************/
 
 #ifdef DRV_DECL			/*Driver specific declaration */
 int init_sata (void);
-#else
-extern int init_sata (void);
 #endif
 
 #ifdef DRV_DECL			/*Defines Driver Specific variables */
 struct sata_port port[CFG_SATA_MAXBUS];
 block_dev_desc_t sata_dev_desc[CFG_SATA_MAXDEVICES];
 int curr_dev = -1;
-#else
-extern struct sata_port port[CFG_SATA_MAXBUS];
-extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAXDEVICES];
-extern int curr_dev;
 #endif

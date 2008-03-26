@@ -88,7 +88,6 @@ COBJS-y += cmd_pcmcia.o
 COBJS-$(CONFIG_CMD_PORTIO) += cmd_portio.o
 COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
-COBJS-y += cmd_sata.o
 COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 COBJS-$(CONFIG_CMD_SETEXPR) += cmd_setexpr.o
 COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
