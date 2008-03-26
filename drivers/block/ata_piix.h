@@ -82,11 +82,9 @@ void msleep (int count);
 /************DRIVER SPECIFIC DEFINITIONS AND DECLARATIONS**************/
 
 #ifdef DRV_DECL			/*Driver specific declaration */
-int init_sata (void);
+int init_sata (int dev);
 #endif
 
 #ifdef DRV_DECL			/*Defines Driver Specific variables */
 struct sata_port port[CFG_SATA_MAXBUS];
-block_dev_desc_t sata_dev_desc[CFG_SATA_MAXDEVICES];
-int curr_dev = -1;
 #endif

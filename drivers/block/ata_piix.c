@@ -37,6 +37,9 @@
 
 #ifdef CFG_ATA_PIIX		/*ata_piix driver */
 
+extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAX_DEVICE];
+extern int curr_device;
+
 #define DEBUG_SATA 0		/*For debug prints set DEBUG_SATA to 1 */
 
 #define SATA_DECL
@@ -144,19 +147,15 @@ sata_bus_probe (int port_no)
 }
 
 int
-init_sata (void)
+init_sata (int dev)
 {
+	static int done = 0;
 	u8 i, rv = 0;
 
-	for (i = 0; i < CFG_SATA_MAXDEVICES; i++) {
-		sata_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		sata_dev_desc[i].if_type = IF_TYPE_IDE;
-		sata_dev_desc[i].dev = i;
-		sata_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-		sata_dev_desc[i].blksz = 0;
-		sata_dev_desc[i].lba = 0;
-		sata_dev_desc[i].block_read = sata_read;
-	}
+	if (!done)
+		done = 1;
+	else
+		return 0;
 
 	rv = pci_sata_init ();
 	if (rv == 1) {
@@ -207,8 +206,8 @@ init_sata (void)
 				dev_print (&sata_dev_desc[devno]);
 				/* initialize partition type */
 				init_part (&sata_dev_desc[devno]);
-				if (curr_dev < 0)
-					curr_dev =
+				if (curr_device < 0)
+					curr_device =
 					    i * CFG_SATA_DEVS_PER_BUS + j;
 			}
 		}
@@ -753,134 +752,9 @@ sata_write (int device, ulong blknr,lbaint_t blkcnt, void * buff)
 	return n;
 }
 
-block_dev_desc_t *sata_get_dev (int dev);
-
-block_dev_desc_t *
-sata_get_dev (int dev)
+int scan_sata(int dev)
 {
-	return ((block_dev_desc_t *) & sata_dev_desc[dev]);
+	return 0;
 }
-
-int
-do_sata (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
-{
-
-	switch (argc) {
-	case 0:
-	case 1:
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	case 2:
-		if (strncmp (argv[1], "init", 4) == 0) {
-			int rcode = 0;
-
-			rcode = init_sata ();
-			if (rcode)
-				printf ("Sata initialization Failed\n");
-			return rcode;
-		} else if (strncmp (argv[1], "inf", 3) == 0) {
-			int i;
-
-			putc ('\n');
-			for (i = 0; i < CFG_SATA_MAXDEVICES; ++i) {
-				/*List only known devices */
-				if (sata_dev_desc[i].type ==
-				    DEV_TYPE_UNKNOWN)
-					continue;
-				printf ("sata dev %d: ", i);
-				dev_print (&sata_dev_desc[i]);
-			}
-			return 0;
-		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	case 3:
-		if (strcmp (argv[1], "dev") == 0) {
-			int dev = (int) simple_strtoul (argv[2], NULL, 10);
-
-			if (dev >= CFG_SATA_MAXDEVICES) {
-				printf ("\nSata dev %d not available\n",
-					dev);
-				return 1;
-			}
-			printf ("\nSATA dev %d: ", dev);
-			dev_print (&sata_dev_desc[dev]);
-			if (sata_dev_desc[dev].type == DEV_TYPE_UNKNOWN)
-				return 1;
-			curr_dev = dev;
-			return 0;
-		} else if (strcmp (argv[1], "part") == 0) {
-			int dev = (int) simple_strtoul (argv[2], NULL, 10);
-
-			if (dev >= CFG_SATA_MAXDEVICES) {
-				printf ("\nSata dev %d not available\n",
-					dev);
-				return 1;
-			}
-			PRINTF ("\nSATA dev %d: ", dev);
-			if (sata_dev_desc[dev].part_type !=
-			    PART_TYPE_UNKNOWN) {
-				print_part (&sata_dev_desc[dev]);
-			} else {
-				printf ("\nSata dev %d partition type "
-					"unknown\n", dev);
-				return 1;
-			}
-			return 0;
-		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	default:
-		if (argc < 5) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
-			return 1;
-		}
-		if (strcmp (argv[1], "read") == 0) {
-			ulong addr = simple_strtoul (argv[2], NULL, 16);
-			ulong cnt = simple_strtoul (argv[4], NULL, 16);
-			ulong n;
-			lbaint_t blk = simple_strtoul (argv[3], NULL, 16);
-
-			memset ((int *) addr, 0, cnt * 512);
-			printf ("\nSATA read: dev %d blk # %ld,"
-				"count %ld ... ", curr_dev, blk, cnt);
-			n = sata_read (curr_dev, blk, cnt, (ulong *) addr);
-			/* flush cache after read */
-			flush_cache (addr, cnt * 512);
-			printf ("%ld blocks read: %s\n", n,
-				(n == cnt) ? "OK" : "ERR");
-			if (n == cnt)
-				return 1;
-			else
-				return 0;
-		} else if (strcmp (argv[1], "write") == 0) {
-			ulong addr = simple_strtoul (argv[2], NULL, 16);
-			ulong cnt = simple_strtoul (argv[4], NULL, 16);
-			ulong n;
-			lbaint_t blk = simple_strtoul (argv[3], NULL, 16);
-
-			printf ("\nSata write: dev %d blk # %ld,"
-				"count %ld ... ", curr_dev, blk, cnt);
-			n = sata_write (curr_dev, blk, cnt, (ulong *) addr);
-			printf ("%ld blocks written: %s\n", n,
-				(n == cnt) ? "OK" : "ERR");
-			if (n == cnt)
-				return 1;
-			else
-				return 0;
-		} else {
-			printf ("Usage:\n%s\n", cmdtp->usage);
-			return 1;
-		}
-	}			/*End OF SWITCH */
-}
-
-U_BOOT_CMD (sata, 5, 1, do_sata,
-	    "sata init\n"
-	    "sata info\n"
-	    "sata part device\n"
-	    "sata dev device\n"
-	    "sata read  addr blk# cnt\n"
-	    "sata write  addr blk# cnt\n", "cmd for init,rw and dev-info\n");
 
 #endif

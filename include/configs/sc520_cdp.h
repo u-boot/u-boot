@@ -81,8 +81,8 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PCI
+#define CONFIG_CMD_SATA
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_IDE
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_EEPROM
 
@@ -173,34 +173,12 @@
 #define PCNET_HAS_PROM         1
 
 /************************************************************
- * IDE/ATA stuff
- ************************************************************/
-#define CFG_IDE_MAXBUS		1   /* max. 2 IDE busses	*/
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
-
-#define CFG_ATA_IDE0_OFFSET	0x01F0	/* ide0 offste */
-/*#define CFG_ATA_IDE1_OFFSET	0x0170	/###* ide1 offset */
-#define CFG_ATA_DATA_OFFSET	0	/* data reg offset	*/
-#define CFG_ATA_REG_OFFSET	0	/* reg offset */
-#define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
-#define CFG_ATA_BASE_ADDR       0
-
-#undef	CONFIG_IDE_LED			/* no led for ide supported	*/
-#undef  CONFIG_IDE_RESET		/* reset for ide unsupported...	*/
-#undef  CONFIG_IDE_RESET_ROUTINE	/* no special reset function */
-
-/************************************************************
 *SATA/Native Stuff
 ************************************************************/
 #define CFG_SATA_MAXBUS         2       /*Max Sata buses supported */
 #define CFG_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
-#define CFG_SATA_MAXDEVICES     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
+#define CFG_SATA_MAX_DEVICE     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
 #define CFG_ATA_PIIX            1       /*Supports ata_piix driver */
-
-/************************************************************
- * ATAPI support (experimental)
- ************************************************************/
-#define CONFIG_ATAPI			/* enable ATAPI Support */
 
 /************************************************************
  * DISK Partition support
