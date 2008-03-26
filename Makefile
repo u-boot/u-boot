@@ -2303,7 +2303,7 @@ xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
 at91cap9adk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91cap9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91sam9
 
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200

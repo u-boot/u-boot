@@ -23,12 +23,12 @@
  */
 
 #include <common.h>
-#include <asm/arch/AT91CAP9.h>
+#include <asm/arch/hardware.h>
 
 extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 
 #if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
-void at91cap9_eth_initialize(bd_t *bi)
+void at91sam9_eth_initialize(bd_t *bi)
 {
 	macb_eth_initialize(0, (void *)AT91C_BASE_MACB, 0x00);
 }

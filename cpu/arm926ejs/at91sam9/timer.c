@@ -26,7 +26,7 @@
 #include <asm/arch/hardware.h>
 
 /*
- * We're using the AT91CAP9 PITC in 32 bit mode, by
+ * We're using the AT91CAP9/SAM9 PITC in 32 bit mode, by
  * setting the 20 bit counter period to its maximum (0xfffff).
  */
 #define TIMER_LOAD_VAL	0xfffff
@@ -134,8 +134,7 @@ ulong get_tbclk(void)
 }
 
 /*
- * Reset the cpu by setting up the watchdog timer and let him time out
- * on the AT91CAP9ADK board
+ * Reset the cpu by setting up the watchdog timer and let him time out.
  */
 void reset_cpu(ulong ignored)
 {
