@@ -49,57 +49,110 @@
 
 #if defined(CONFIG_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
 
-extern image_header_t header;		/* from cmd_bootm.c */
 int
-autoscript (ulong addr)
+autoscript (ulong addr, const char *fit_uname)
 {
-	ulong crc, data, len;
-	image_header_t *hdr = &header;
-	ulong *len_ptr;
-	char *cmd;
-	int rcode = 0;
-	int verify;
+	ulong 		len;
+	image_header_t	*hdr;
+	ulong		*data;
+	char		*cmd;
+	int		rcode = 0;
+	int		verify;
+#if defined(CONFIG_FIT)
+	const void*	fit_hdr;
+	int		noffset;
+	const void	*fit_data;
+	size_t		fit_len;
+#endif
 
-	cmd = getenv ("verify");
-	verify = (cmd && (*cmd == 'n')) ? 0 : 1;
+	verify = getenv_verify ();
 
+	switch (genimg_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	memmove (hdr, (char *)addr, sizeof(image_header_t));
-
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-		puts ("Bad magic number\n");
-		return 1;
-	}
-
-	crc = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-	len = sizeof (image_header_t);
-	data = (ulong)hdr;
-	if (crc32(0, (uchar *)data, len) != crc) {
-		puts ("Bad header crc\n");
-		return 1;
-	}
-
-	data = addr + sizeof(image_header_t);
-	len = ntohl(hdr->ih_size);
-
-	if (verify) {
-		if (crc32(0, (uchar *)data, len) != ntohl(hdr->ih_dcrc)) {
-			puts ("Bad data crc\n");
+		if (!image_check_magic (hdr)) {
+			puts ("Bad magic number\n");
 			return 1;
 		}
-	}
 
-	if (hdr->ih_type != IH_TYPE_SCRIPT) {
-		puts ("Bad image type\n");
-		return 1;
-	}
+		if (!image_check_hcrc (hdr)) {
+			puts ("Bad header crc\n");
+			return 1;
+		}
 
-	/* get length of script */
-	len_ptr = (ulong *)data;
+		if (verify) {
+			if (!image_check_dcrc (hdr)) {
+				puts ("Bad data crc\n");
+				return 1;
+			}
+		}
 
-	if ((len = ntohl(*len_ptr)) == 0) {
-		puts ("Empty Script\n");
+		if (!image_check_type (hdr, IH_TYPE_SCRIPT)) {
+			puts ("Bad image type\n");
+			return 1;
+		}
+
+		/* get length of script */
+		data = (ulong *)image_get_data (hdr);
+
+		if ((len = uimage_to_cpu (*data)) == 0) {
+			puts ("Empty Script\n");
+			return 1;
+		}
+
+		/*
+		 * scripts are just multi-image files with one component, seek
+		 * past the zero-terminated sequence of image lengths to get
+		 * to the actual image data
+		 */
+		while (*data++);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		if (fit_uname == NULL) {
+			puts ("No FIT subimage unit name\n");
+			return 1;
+		}
+
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			puts ("Bad FIT image format\n");
+			return 1;
+		}
+
+		/* get script component image node offset */
+		noffset = fit_image_get_node (fit_hdr, fit_uname);
+		if (noffset < 0) {
+			printf ("Can't find '%s' FIT subimage\n", fit_uname);
+			return 1;
+		}
+
+		if (!fit_image_check_type (fit_hdr, noffset, IH_TYPE_SCRIPT)) {
+			puts ("Not a image image\n");
+			return 1;
+		}
+
+		/* verify integrity */
+		if (verify) {
+			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+				puts ("Bad Data Hash\n");
+				return 1;
+			}
+		}
+
+		/* get script subimage data address and length */
+		if (fit_image_get_data (fit_hdr, noffset, &fit_data, &fit_len)) {
+			puts ("Could not find script subimage data\n");
+			return 1;
+		}
+
+		data = (ulong *)fit_data;
+		len = (ulong)fit_len;
+		break;
+#endif
+	default:
+		puts ("Wrong image format for autoscript\n");
 		return 1;
 	}
 
@@ -109,10 +162,8 @@ autoscript (ulong addr)
 		return 1;
 	}
 
-	while (*len_ptr++);
-
 	/* make sure cmd is null terminated */
-	memmove (cmd, (char *)len_ptr, len);
+	memmove (cmd, (char *)data, len);
 	*(cmd + len) = 0;
 
 #ifdef CFG_HUSH_PARSER /*?? */
@@ -158,25 +209,35 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
 	int rcode;
+	const char *fit_uname = NULL;
 
+	/* Find script image */
 	if (argc < 2) {
 		addr = CFG_LOAD_ADDR;
+		debug ("*  autoscr: default load address = 0x%08lx\n", addr);
+#if defined(CONFIG_FIT)
+	} else if (fit_parse_subimage (argv[1], load_addr, &addr, &fit_uname)) {
+		debug ("*  autoscr: subimage '%s' from FIT image at 0x%08lx\n",
+				fit_uname, addr);
+#endif
 	} else {
-		addr = simple_strtoul (argv[1],0,16);
+		addr = simple_strtoul(argv[1], NULL, 16);
+		debug ("*  autoscr: cmdline image address = 0x%08lx\n", addr);
 	}
 
-	printf ("## Executing script at %08lx\n",addr);
-	rcode = autoscript (addr);
+	printf ("## Executing script at %08lx\n", addr);
+	rcode = autoscript (addr, fit_uname);
 	return rcode;
 }
 
-#if defined(CONFIG_CMD_AUTOSCRIPT)
 U_BOOT_CMD(
 	autoscr, 2, 0,	do_autoscript,
 	"autoscr - run script from memory\n",
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
-);
+#if defined(CONFIG_FIT)
+	"For FIT format uImage addr must include subimage\n"
+	"unit name in the form of addr:<subimg_uname>\n"
 #endif
-
+);
 #endif

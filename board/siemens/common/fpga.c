@@ -131,45 +131,44 @@ static int fpga_reset (fpga_t* fpga)
 static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
 {
     volatile uchar *fpga_addr = (volatile uchar *)fpga->conf_base;
-    image_header_t hdr;
-    ulong len, checksum;
-    uchar *data = (uchar *)&hdr;
-    char *s, msg[32];
+    image_header_t *hdr = (image_header_t *)addr;
+    ulong len;
+    uchar *data;
+    char msg[32];
     int verify, i;
+
+#if defined(CONFIG_FIT)
+    if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	puts ("Non legacy image format not supported\n");
+	return -1;
+    }
+#endif
 
     /*
      * Check the image header and data of the net-list
      */
-    memcpy (&hdr, (char *)addr, sizeof(image_header_t));
-
-    if (hdr.ih_magic != IH_MAGIC) {
+    if (!image_check_magic (hdr)) {
 	strcpy (msg, "Bad Image Magic Number");
 	goto failure;
     }
 
-    len  = sizeof(image_header_t);
-
-    checksum = hdr.ih_hcrc;
-    hdr.ih_hcrc = 0;
-
-    if (crc32 (0, data, len) != checksum) {
+    if (!image_check_hcrc (hdr)) {
 	strcpy (msg, "Bad Image Header CRC");
 	goto failure;
     }
 
-    data = (uchar*)(addr + sizeof(image_header_t));
-    len  = hdr.ih_size;
+    data = (uchar*)image_get_data (hdr);
+    len  = image_get_data_size (hdr);
 
-    s = getenv ("verify");
-    verify = (s && (*s == 'n')) ? 0 : 1;
+    verify = getenv_verify ();
     if (verify) {
-	if (crc32 (0, data, len) != hdr.ih_dcrc) {
+	if (!image_check_dcrc (hdr)) {
 	    strcpy (msg, "Bad Image Data CRC");
 	    goto failure;
 	}
     }
 
-    if (checkall && fpga_get_version(fpga, (char *)(hdr.ih_name)) < 0)
+    if (checkall && fpga_get_version(fpga, image_get_name (hdr)) < 0)
 	return 1;
 
     /* align length */
@@ -184,7 +183,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
 	goto failure;
     }
 
-    printf ("(%s)... ", hdr.ih_name);
+    printf ("(%s)... ", image_get_name (hdr));
     /*
      * Copy data to FPGA
      */
@@ -341,7 +340,14 @@ int fpga_init (void)
 	}
 
 	hdr = (image_header_t *)addr;
-	if ((new_id = fpga_get_version(fpga, (char *)(hdr->ih_name))) == -1)
+#if defined(CONFIG_FIT)
+	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
+	   puts ("Non legacy image format not supported\n");
+	   return -1;
+	}
+#endif
+
+	if ((new_id = fpga_get_version(fpga, image_get_name (hdr))) == -1)
 	    return 1;
 
 	do_load = 1;

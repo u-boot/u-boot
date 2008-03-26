@@ -25,13 +25,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= ppccache.o ppcstring.o ticks.o
+SOBJS-y	+= ppccache.o
+SOBJS-y	+= ppcstring.o
+SOBJS-y	+= ticks.o
 
-COBJS	= board.o \
-	  bat_rw.o cache.o extable.o kgdb.o time.o interrupts.o
+COBJS-y	+= bat_rw.o
+COBJS-y	+= board.o
+COBJS-y	+= bootm.o
+COBJS-y	+= cache.o
+COBJS-y	+= extable.o
+COBJS-y	+= interrupts.o
+COBJS-y	+= kgdb.o
+COBJS-y	+= time.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

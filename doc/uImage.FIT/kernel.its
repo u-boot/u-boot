@@ -1,0 +1,34 @@
+/*
+ * Simple U-boot uImage source file containing a single kernel
+ */
+/ {
+	description = "Simple image with single Linux kernel";
+	#address-cells = <1>;
+
+	images {
+		kernel@1 {
+			description = "Vanilla Linux kernel";
+			data = /incbin/("./vmlinux.bin.gz");
+			type = "kernel";
+			arch = "ppc";
+			os = "linux";
+			compression = "gzip";
+			load = <00000000>;
+			entry = <00000000>;
+			hash@1 {
+				algo = "crc32";
+			};
+			hash@2 {
+				algo = "sha1";
+			};
+		};
+	};
+
+	configurations {
+		default = "config@1";
+		config@1 {
+			description = "Boot Linux kernel";
+			kernel = "kernel@1";
+		};
+	};
+};

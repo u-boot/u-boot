@@ -1678,6 +1678,8 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
+Legacy uImage format:
+
   Arg	Where			When
     1	common/cmd_bootm.c	before attempting to boot an image
    -1	common/cmd_bootm.c	Image header has bad	 magic number
@@ -1688,25 +1690,26 @@ The following options need to be configured:
     4	common/cmd_bootm.c	Image data   has correct checksum
    -4	common/cmd_bootm.c	Image is for unsupported architecture
     5	common/cmd_bootm.c	Architecture check OK
-   -5	common/cmd_bootm.c	Wrong Image Type (not kernel, multi, standalone)
+   -5	common/cmd_bootm.c	Wrong Image Type (not kernel, multi)
     6	common/cmd_bootm.c	Image Type check OK
    -6	common/cmd_bootm.c	gunzip uncompression error
    -7	common/cmd_bootm.c	Unimplemented compression type
     7	common/cmd_bootm.c	Uncompression OK
-   -8	common/cmd_bootm.c	Wrong Image Type (not kernel, multi, standalone)
-    8	common/cmd_bootm.c	Image Type check OK
+    8	common/cmd_bootm.c	No uncompress/copy overwrite error
    -9	common/cmd_bootm.c	Unsupported OS (not Linux, BSD, VxWorks, QNX)
-    9	common/cmd_bootm.c	Start initial ramdisk verification
-  -10	common/cmd_bootm.c	Ramdisk header has bad	   magic number
-  -11	common/cmd_bootm.c	Ramdisk header has bad	   checksum
-   10	common/cmd_bootm.c	Ramdisk header is OK
-  -12	common/cmd_bootm.c	Ramdisk data   has bad	   checksum
-   11	common/cmd_bootm.c	Ramdisk data   has correct checksum
-   12	common/cmd_bootm.c	Ramdisk verification complete, start loading
-  -13	common/cmd_bootm.c	Wrong Image Type (not PPC Linux Ramdisk)
-   13	common/cmd_bootm.c	Start multifile image verification
-   14	common/cmd_bootm.c	No initial ramdisk, no multifile, continue.
-   15	common/cmd_bootm.c	All preparation done, transferring control to OS
+
+    9	common/image.c		Start initial ramdisk verification
+  -10	common/image.c		Ramdisk header has bad	   magic number
+  -11	common/image.c		Ramdisk header has bad	   checksum
+   10	common/image.c		Ramdisk header is OK
+  -12	common/image.c		Ramdisk data   has bad	   checksum
+   11	common/image.c		Ramdisk data   has correct checksum
+   12	common/image.c		Ramdisk verification complete, start loading
+  -13	common/image.c		Wrong Image Type (not PPC Linux Ramdisk)
+   13	common/image.c		Start multifile image verification
+   14	common/image.c		No initial ramdisk, no multifile, continue.
+
+   15	lib_<arch>/bootm.c	All preparation done, transferring control to OS
 
   -30	lib_ppc/board.c		Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
@@ -1775,6 +1778,59 @@ The following options need to be configured:
    83	common/cmd_net.c	running autoscript
   -83	common/cmd_net.c	some error in automatic boot or autoscript
    84	common/cmd_net.c	end without errors
+
+FIT uImage format:
+
+  Arg	Where			When
+  100	common/cmd_bootm.c	Kernel FIT Image has correct format
+ -100	common/cmd_bootm.c	Kernel FIT Image has incorrect format
+  101	common/cmd_bootm.c	No Kernel subimage unit name, using configuration
+ -101	common/cmd_bootm.c	Can't get configuration for kernel subimage
+  102	common/cmd_bootm.c	Kernel unit name specified
+ -103	common/cmd_bootm.c	Can't get kernel subimage node offset
+  103	common/cmd_bootm.c	Found configuration node
+  104	common/cmd_bootm.c	Got kernel subimage node offset
+ -104	common/cmd_bootm.c	Kernel subimage hash verification failed
+  105	common/cmd_bootm.c	Kernel subimage hash verification OK
+ -105	common/cmd_bootm.c	Kernel subimage is for unsupported architecture
+  106	common/cmd_bootm.c	Architecture check OK
+ -106	common/cmd_bootm.c	Kernel subimage has wrong typea
+  107	common/cmd_bootm.c	Kernel subimge type OK
+ -107	common/cmd_bootm.c	Can't get kernel subimage data/size
+  108	common/cmd_bootm.c	Got kernel subimage data/size
+ -108	common/cmd_bootm.c	Wrong image type (not legacy, FIT)
+ -109	common/cmd_bootm.c	Can't get kernel subimage type
+ -110	common/cmd_bootm.c	Can't get kernel subimage comp
+ -111	common/cmd_bootm.c	Can't get kernel subimage os
+ -112	common/cmd_bootm.c	Can't get kernel subimage load address
+ -113	common/cmd_bootm.c	Image uncompress/copy overwrite error
+
+  120	common/image.c		Start initial ramdisk verification
+ -120	common/image.c		Ramdisk FIT image has incorrect format
+  121	common/image.c		Ramdisk FIT image has correct format
+  122	common/image.c		No Ramdisk subimage unit name, using configuration
+ -122	common/image.c		Can't get configuration for ramdisk subimage
+  123	common/image.c		Ramdisk unit name specified
+ -124	common/image.c		Can't get ramdisk subimage node offset
+  125	common/image.c		Got ramdisk subimage node offset
+ -125	common/image.c		Ramdisk subimage hash verification failed
+  126	common/image.c		Ramdisk subimage hash verification OK
+ -126	common/image.c		Ramdisk subimage for unsupported architecture
+  127	common/image.c		Architecture check OK
+ -127	common/image.c		Can't get ramdisk subimage data/size
+  128	common/image.c		Got ramdisk subimage data/size
+  129	common/image.c		Can't get ramdisk load address
+ -129	common/image.c		Got ramdisk load address
+
+ -130	common/cmd_doc.c	Icorrect FIT image format
+  131	common/cmd_doc.c	FIT image format OK
+
+ -140	common/cmd_ide.c	Icorrect FIT image format
+  141	common/cmd_ide.c	FIT image format OK
+
+ -150	common/cmd_nand.c	Icorrect FIT image format
+  151	common/cmd_nand.c	FIT image format OK
+
 
 Modem Support:
 --------------
@@ -2656,6 +2712,14 @@ Some configuration options can be set using Environment Variables:
 		  configuration from the BOOTP server, but not try to
 		  load any image using TFTP
 
+  autoscript	- if set to "yes" commands like "loadb", "loady",
+		  "bootp", "tftpb", "rarpboot" and "nfs" will attempt
+		  to automatically run script images (by internally
+		  calling "autoscript").
+
+  autoscript_uname - if script image is in a format (FIT) this
+		     variable is used to get script subimage unit name.
+
   autostart	- if set to "yes", an image loaded using the "bootp",
 		  "rarpboot", "tftpboot" or "diskboot" commands will
 		  be automatically started (by internally calling
@@ -2870,10 +2934,24 @@ o If neither SROM nor the environment contain a MAC address, an error
 Image Formats:
 ==============
 
-The "boot" commands of this monitor operate on "image" files which
-can be basicly anything, preceeded by a special header; see the
-definitions in include/image.h for details; basicly, the header
-defines the following image properties:
+U-Boot is capable of booting (and performing other auxiliary operations on)
+images in two formats:
+
+New uImage format (FIT)
+-----------------------
+
+Flexible and powerful format based on Flattened Image Tree -- FIT (similar
+to Flattened Device Tree). It allows the use of images with multiple
+components (several kernels, ramdisks, etc.), with contents protected by
+SHA1, MD5 or CRC32. More details are found in the doc/uImage.FIT directory.
+
+
+Old uImage format
+-----------------
+
+Old image format is based on binary files which can be basically anything,
+preceded by a special header; see the definitions in include/image.h for
+details; basically, the header defines the following image properties:
 
 * Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,

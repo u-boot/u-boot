@@ -366,10 +366,13 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	char *ep;
 	int dev, part = 0;
-	ulong addr, cnt, checksum;
+	ulong addr, cnt;
 	disk_partition_t info;
 	image_header_t *hdr;
 	int rcode = 0;
+#if defined(CONFIG_FIT)
+	const void *fit_hdr;
+#endif
 
 	show_boot_progress (41);
 	switch (argc) {
@@ -446,29 +449,43 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (48);
 
-	hdr = (image_header_t *)addr;
+	switch (genimg_get_format ((void *)addr)) {
+	case IMAGE_FORMAT_LEGACY:
+		hdr = (image_header_t *)addr;
 
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
-		printf("\n** Bad Magic Number **\n");
+		show_boot_progress (49);
+
+		if (!image_check_hcrc (hdr)) {
+			puts ("\n** Bad Header Checksum **\n");
+			show_boot_progress (-50);
+			return 1;
+		}
+		show_boot_progress (50);
+
+		image_print_contents (hdr);
+
+		cnt = image_get_image_size (hdr);
+		break;
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+		fit_hdr = (const void *)addr;
+		if (!fit_check_format (fit_hdr)) {
+			show_boot_progress (-140);
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		show_boot_progress (141);
+		puts ("Fit image detected...\n");
+
+		cnt = fit_get_size (fit_hdr);
+		break;
+#endif
+	default:
 		show_boot_progress (-49);
+		puts ("** Unknown image type\n");
 		return 1;
 	}
-	show_boot_progress (49);
 
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = 0;
-
-	if (crc32 (0, (uchar *)hdr, sizeof(image_header_t)) != checksum) {
-		puts ("\n** Bad Header Checksum **\n");
-		show_boot_progress (-50);
-		return 1;
-	}
-	show_boot_progress (50);
-	hdr->ih_hcrc = htonl(checksum); /* restore checksum for later use */
-
-	print_image_hdr (hdr);
-
-	cnt = (ntohl(hdr->ih_size) + sizeof(image_header_t));
 	cnt += info.blksz - 1;
 	cnt /= info.blksz;
 	cnt -= 1;
@@ -481,6 +498,11 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	show_boot_progress (51);
 
+#if defined(CONFIG_FIT)
+	/* This cannot be done earlier, we need complete FIT image in RAM first */
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
+		fit_print_contents ((const void *)addr);
+#endif
 
 	/* Loading ok, update default load address */
 
