@@ -389,6 +389,11 @@
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"eTSEC1"
 
+/* SERDES */
+#define CONFIG_FSL_SERDES
+#define CONFIG_FSL_SERDES1	0xe3000
+#define CONFIG_FSL_SERDES2	0xe3100
+
 /*
  * Environment
  */
