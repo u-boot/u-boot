@@ -41,7 +41,7 @@
 
 #define SATA_DECL
 #define DRV_DECL		/*For file specific declarations */
-#include <sata.h>
+#include "ata_piix.h"
 
 /*Macros realted to PCI*/
 #define PCI_SATA_BUS	0x00
