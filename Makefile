@@ -2606,6 +2606,9 @@ apollon_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon NULL omap24xx
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 
+imx31_litekit_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_litekit NULL mx31
+
 #========================================================================
 # i386
 #========================================================================
