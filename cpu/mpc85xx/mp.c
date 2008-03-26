@@ -23,6 +23,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <ioports.h>
+#include <lmb.h>
 #include <asm/io.h>
 #include "mp.h"
 
@@ -175,6 +176,19 @@ static void pq3_mp_up(unsigned long bootpg)
 
 	devdisr &= ~(MPC85xx_DEVDISR_TB0 | MPC85xx_DEVDISR_TB1);
 	out_be32(&gur->devdisr, devdisr);
+}
+
+void cpu_mp_lmb_reserve(struct lmb *lmb)
+{
+	u32 bootpg;
+
+	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
+	if ((u64)gd->ram_size > 0xfffff000)
+		bootpg = 0xfffff000;
+	else
+		bootpg = gd->ram_size - 4096;
+
+	lmb_reserve(lmb, bootpg, 4096);
 }
 
 void setup_mp(void)
