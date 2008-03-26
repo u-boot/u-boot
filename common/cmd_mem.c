@@ -492,7 +492,11 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/* Check if we are copying from DataFlash to RAM */
-	if (addr_dataflash(addr) && !addr_dataflash(dest) && (addr2info(dest)==NULL) ){
+	if (addr_dataflash(addr) && !addr_dataflash(dest)
+#ifndef CFG_NO_FLASH
+				 && (addr2info(dest) == NULL)
+#endif
+	   ){
 		int rc;
 		rc = read_dataflash(addr, count * size, (char *) dest);
 		if (rc != 1) {
