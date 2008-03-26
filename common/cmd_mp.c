@@ -26,7 +26,7 @@
 int
 cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	unsigned long cpuid, val = 0;
+	unsigned long cpuid;
 
 	if (argc < 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -59,9 +59,7 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	val = simple_strtoul(argv[3], NULL, 16);
-
-	if (cpu_release(cpuid, val, argc - 4, argv + 4)) {
+	if (cpu_release(cpuid, argc - 3, argv + 3)) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
 	}
@@ -71,17 +69,16 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_PPC
 #define CPU_ARCH_HELP \
-	"                         [args] : <pir> <r3> <r4> <r6> <r7>\n" \
+	"                         [args] : <pir> <r3> <r6>\n" \
 	"                                   pir - processor id (if writeable)\n" \
 	"                                    r3 - value for gpr 3\n" \
-	"                                    r4 - value for gpr 4\n" \
 	"                                    r6 - value for gpr 6\n" \
-	"                                    r7 - value for gpr 7\n" \
 	"\n" \
 	"     Use '-' for any arg if you want the default value.\n" \
-	"     Default for r3, r4, r7 is 0, r6 is 0x65504150\n" \
+	"     Default for r3 is <num> and r6 is 0\n" \
 	"\n" \
-	"     When cpu <num> is released r5 = 0 per the ePAPR spec.\n"
+	"     When cpu <num> is released r4 and r5 = 0.\n" \
+	"     r7 will contain the size of the initial mapped area\n"
 #endif
 
 U_BOOT_CMD(

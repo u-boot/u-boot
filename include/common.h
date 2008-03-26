@@ -673,7 +673,7 @@ void inline show_boot_progress (int val);
 #ifdef CONFIG_MP
 int cpu_status(int nr);
 int cpu_reset(int nr);
-int cpu_release(int nr, unsigned long boot_addr, int argc, char *argv[]);
+int cpu_release(int nr, int argc, char *argv[]);
 #endif
 
 #endif	/* __COMMON_H_ */

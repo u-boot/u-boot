@@ -28,14 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BOOT_ENTRY_ADDR	0
-#define BOOT_ENTRY_PIR	1
-#define BOOT_ENTRY_R3	2
-#define BOOT_ENTRY_R4	3
-#define BOOT_ENTRY_R6	4
-#define BOOT_ENTRY_R7	5
-#define NUM_BOOT_ENTRY	6
-
 u32 get_my_id()
 {
 	return mfspr(SPRN_PIR);
@@ -63,40 +55,54 @@ int cpu_status(int nr)
 		printf("Running on cpu %d\n", id);
 		printf("\n");
 		printf("table @ 0x%08x:\n", table);
-		printf("   addr - 0x%08x\n", table[BOOT_ENTRY_ADDR]);
+		printf("   addr - 0x%08x\n", table[BOOT_ENTRY_ADDR_LOWER]);
 		printf("   pir  - 0x%08x\n", table[BOOT_ENTRY_PIR]);
-		printf("   r3   - 0x%08x\n", table[BOOT_ENTRY_R3]);
-		printf("   r4   - 0x%08x\n", table[BOOT_ENTRY_R4]);
-		printf("   r6   - 0x%08x\n", table[BOOT_ENTRY_R6]);
-		printf("   r7   - 0x%08x\n", table[BOOT_ENTRY_R7]);
+		printf("   r3   - 0x%08x\n", table[BOOT_ENTRY_R3_LOWER]);
+		printf("   r6   - 0x%08x\n", table[BOOT_ENTRY_R6_LOWER]);
 	}
 
 	return 0;
 }
 
-int cpu_release(int nr, unsigned long boot_addr, int argc, char *argv[])
+static u8 boot_entry_map[4] = {
+	0,
+	BOOT_ENTRY_PIR,
+	BOOT_ENTRY_R3_LOWER,
+	BOOT_ENTRY_R6_LOWER,
+};
+
+int cpu_release(int nr, int argc, char *argv[])
 {
 	u32 i, val, *table = (u32 *)get_spin_addr() + nr * NUM_BOOT_ENTRY;
+	u64 boot_addr;
 
 	if (nr == get_my_id()) {
 		printf("Invalid to release the boot core.\n\n");
 		return 1;
 	}
 
-	if (argc != 5) {
+	if (argc != 4) {
 		printf("Invalid number of arguments to release.\n\n");
 		return 1;
 	}
 
-	/* handle pir, r3, r4, r6, r7 */
-	for (i = 0; i < 5; i++) {
+#ifdef CFG_64BIT_STRTOUL
+	boot_addr = simple_strtoull(argv[0], NULL, 16);
+#else
+	boot_addr = simple_strtoul(argv[0], NULL, 16);
+#endif
+
+	/* handle pir, r3, r6 */
+	for (i = 1; i < 4; i++) {
 		if (argv[i][0] != '-') {
+			u8 entry = boot_entry_map[i];
 			val = simple_strtoul(argv[i], NULL, 16);
-			table[i+BOOT_ENTRY_PIR] = val;
+			table[entry] = val;
 		}
 	}
 
-	table[BOOT_ENTRY_ADDR] = boot_addr;
+	table[BOOT_ENTRY_ADDR_UPPER] = (u32)(boot_addr >> 32);
+	table[BOOT_ENTRY_ADDR_LOWER] = (u32)(boot_addr & 0xffffffff);
 
 	return 0;
 }

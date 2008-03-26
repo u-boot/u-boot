@@ -57,61 +57,91 @@ __secondary_start_page:
 	lis	r3,toreset(__spin_table)@h
 	ori	r3,r3,toreset(__spin_table)@l
 
-	/* r9 has the base address for the entry */
+	/* r10 has the base address for the entry */
 	mfspr	r0,SPRN_PIR
 	mr	r4,r0
-	slwi	r8,r4,4
-	slwi	r9,r4,3
-	add	r8,r8,r9
-	add	r9,r3,r8
+	slwi	r8,r4,5
+	add	r10,r3,r8
 
-#define EPAPR_MAGIC	(0x65504150)
-#define ENTRY_ADDR	0
-#define ENTRY_PIR	4
-#define ENTRY_R3	8
-#define ENTRY_R4	12
-#define ENTRY_R6	16
-#define ENTRY_R7	20
+#define EPAPR_MAGIC		(0x45504150)
+#define ENTRY_ADDR_UPPER	0
+#define ENTRY_ADDR_LOWER	4
+#define ENTRY_R3_UPPER		8
+#define ENTRY_R3_LOWER		12
+#define ENTRY_RESV		16
+#define ENTRY_PIR		20
+#define ENTRY_R6_UPPER		24
+#define ENTRY_R6_LOWER		28
+#define ENTRY_SIZE		32
 
 	/* setup the entry */
-	li	r4,0
+	li	r3,0
 	li	r8,1
-	lis	r6,EPAPR_MAGIC@h
-	ori	r6,r6,EPAPR_MAGIC@l
-	stw	r0,ENTRY_PIR(r9)
-	stw	r8,ENTRY_ADDR(r9)
-	stw	r4,ENTRY_R3(r9)
-	stw	r4,ENTRY_R4(r9)
-	stw	r6,ENTRY_R6(r9)
-	stw	r4,ENTRY_R7(r9)
+	stw	r0,ENTRY_PIR(r10)
+	stw	r3,ENTRY_ADDR_UPPER(r10)
+	stw	r8,ENTRY_ADDR_LOWER(r10)
+	stw	r3,ENTRY_R3_UPPER(r10)
+	stw	r4,ENTRY_R3_LOWER(r10)
+	stw	r3,ENTRY_R6_UPPER(r10)
+	stw	r3,ENTRY_R6_LOWER(r10)
+
+	/* setup mapping for AS = 1, and jump there */
+	lis	r11,(MAS0_TLBSEL(1)|MAS0_ESEL(1))@h
+	mtspr	SPRN_MAS0,r11
+	lis	r11,(MAS1_VALID|MAS1_IPROT)@h
+	ori	r11,r11,(MAS1_TS|MAS1_TSIZE(BOOKE_PAGESZ_4K))@l
+	mtspr	SPRN_MAS1,r11
+	lis	r11,(0xfffff000|MAS2_I)@h
+	ori	r11,r11,(0xfffff000|MAS2_I)@l
+	mtspr	SPRN_MAS2,r11
+	lis	r11,(0xfffff000|MAS3_SX|MAS3_SW|MAS3_SR)@h
+	ori	r11,r11,(0xfffff000|MAS3_SX|MAS3_SW|MAS3_SR)@l
+	mtspr	SPRN_MAS3,r11
+	tlbwe
+
+	bl	1f
+1:	mflr	r11
+	addi	r11,r11,28
+	mfmsr	r13
+	ori	r12,r13,MSR_IS|MSR_DS@l
+
+	mtspr	SPRN_SRR0,r11
+	mtspr	SPRN_SRR1,r12
+	rfi
 
 	/* spin waiting for addr */
-1:	lwz	r4,ENTRY_ADDR(r9)
+2:
+	lwz	r4,ENTRY_ADDR_LOWER(r10)
 	andi.	r11,r4,1
-	bne	1b
+	bne	2b
+
+	/* get the upper bits of the addr */
+	lwz	r11,ENTRY_ADDR_UPPER(r10)
 
 	/* setup branch addr */
-	mtctr	r4
+	mtspr	SPRN_SRR0,r4
 
 	/* mark the entry as released */
 	li	r8,3
-	stw	r8,ENTRY_ADDR(r9)
+	stw	r8,ENTRY_ADDR_LOWER(r10)
 
 	/* mask by ~64M to setup our tlb we will jump to */
-	rlwinm	r8,r4,0,0,5
+	rlwinm	r12,r4,0,0,5
 
-	/* setup r3, r5, r6, r7 */
-	lwz	r3,ENTRY_R3(r9)
-	lwz	r4,ENTRY_R4(r9)
+	/* setup r3, r4, r5, r6, r7, r8, r9 */
+	lwz	r3,ENTRY_R3_LOWER(r10)
+	li	r4,0
 	li	r5,0
-	lwz	r6,ENTRY_R6(r9)
-	lwz	r7,ENTRY_R7(r9)
+	lwz	r6,ENTRY_R6_LOWER(r10)
+	lis	r7,(64*1024*1024)@h
+	li	r8,0
+	li	r9,0
 
 	/* load up the pir */
-	lwz	r0,ENTRY_PIR(r9)
+	lwz	r0,ENTRY_PIR(r10)
 	mtspr	SPRN_PIR,r0
 	mfspr	r0,SPRN_PIR
-	stw	r0,ENTRY_PIR(r9)
+	stw	r0,ENTRY_PIR(r10)
 
 /*
  * Coming here, we know the cpu has one TLB mapping in TLB1[0]
@@ -119,26 +149,30 @@ __secondary_start_page:
  * second mapping that maps addr 1:1 for 64M, and then we jump to
  * addr
  */
-	lis	r9,(MAS0_TLBSEL(1)|MAS0_ESEL(1))@h
-	mtspr	SPRN_MAS0,r9
-	lis	r9,(MAS1_VALID|MAS1_IPROT)@h
-	ori	r9,r9,(MAS1_TSIZE(BOOKE_PAGESZ_64M))@l
-	mtspr	SPRN_MAS1,r9
+	lis	r10,(MAS0_TLBSEL(1)|MAS0_ESEL(0))@h
+	mtspr	SPRN_MAS0,r10
+	lis	r10,(MAS1_VALID|MAS1_IPROT)@h
+	ori	r10,r10,(MAS1_TSIZE(BOOKE_PAGESZ_64M))@l
+	mtspr	SPRN_MAS1,r10
 	/* WIMGE = 0b00000 for now */
-	mtspr	SPRN_MAS2,r8
-	ori	r8,r8,(MAS3_SX|MAS3_SW|MAS3_SR)
-	mtspr	SPRN_MAS3,r8
+	mtspr	SPRN_MAS2,r12
+	ori	r12,r12,(MAS3_SX|MAS3_SW|MAS3_SR)
+	mtspr	SPRN_MAS3,r12
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+	mtspr	SPRN_MAS7,r11
+#endif
 	tlbwe
 
 /* Now we have another mapping for this page, so we jump to that
  * mapping
  */
-	bctr
+	mtspr	SPRN_SRR1,r13
+	rfi
 
 	.align 3
 	.globl __spin_table
 __spin_table:
-	.space CONFIG_NR_CPUS*24
+	.space CONFIG_NR_CPUS*ENTRY_SIZE
 
 	/* Fill in the empty space.  The actual reset vector is
 	 * the last word of the page */
