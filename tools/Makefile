@@ -37,7 +37,7 @@ endif
 #OBJ_FILES	+= mpc86x_clk.o
 #endif
 
-LIBFDT_OBJ_FILES	= fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
+LIBFDT_OBJ_FILES	= $(obj)fdt.o $(obj)fdt_ro.o $(obj)fdt_rw.o $(obj)fdt_strerror.o $(obj)fdt_wip.o
 
 LOGO_H	= $(OBJTREE)/include/bmp_logo.h
 
@@ -251,24 +251,30 @@ $(obj)sha1.c:
 $(obj)image.c:
 		@rm -f $(obj)image.c
 		ln -s $(src)../common/image.c $(obj)image.c
+		if [ ! -f $(obj)mkimage.h ] ; then \
+			ln -s $(src)../tools/mkimage.h $(obj)mkimage.h; \
+		fi
+		if [ ! -f $(obj)fdt_host.h ] ; then \
+			ln -s $(src)../tools/fdt_host.h $(obj)fdt_host.h; \
+		fi
 
-$(obj)fdt.c:	libfdt_internal.h
+$(obj)fdt.c:	$(obj)libfdt_internal.h
 		@rm -f $(obj)fdt.c
 		ln -s $(src)../libfdt/fdt.c $(obj)fdt.c
 
-$(obj)fdt_ro.c:	libfdt_internal.h
+$(obj)fdt_ro.c:	$(obj)libfdt_internal.h
 		@rm -f $(obj)fdt_ro.c
 		ln -s $(src)../libfdt/fdt_ro.c $(obj)fdt_ro.c
 
-$(obj)fdt_rw.c:	libfdt_internal.h
+$(obj)fdt_rw.c:	$(obj)libfdt_internal.h
 		@rm -f $(obj)fdt_rw.c
 		ln -s $(src)../libfdt/fdt_rw.c $(obj)fdt_rw.c
 
-$(obj)fdt_strerror.c:	libfdt_internal.h
+$(obj)fdt_strerror.c:	$(obj)libfdt_internal.h
 		@rm -f $(obj)fdt_strerror.c
 		ln -s $(src)../libfdt/fdt_strerror.c $(obj)fdt_strerror.c
 
-$(obj)fdt_wip.c:	libfdt_internal.h
+$(obj)fdt_wip.c:	$(obj)libfdt_internal.h
 		@rm -f $(obj)fdt_wip.c
 		ln -s $(src)../libfdt/fdt_wip.c $(obj)fdt_wip.c
 
