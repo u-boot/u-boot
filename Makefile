@@ -2906,6 +2906,10 @@ r2dplus_config  :   unconfig
 gr_xc3s_1500_config : unconfig
 	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_xc3s_1500 gaisler
 
+# Gaisler GR-CPCI-AX2000 board, a General purpose FPGA-AX system
+gr_cpci_ax2000_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_cpci_ax2000 gaisler
+
 # Gaisler GRLIB template design (GPL SPARC/LEON3) for Altera NIOS
 # Development board Stratix II edition, FPGA Device EP2S60.
 gr_ep2s60_config: unconfig
