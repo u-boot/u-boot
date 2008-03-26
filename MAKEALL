@@ -451,6 +451,7 @@ LIST_ARM7="		\
 LIST_ARM9="			\
 	at91cap9adk		\
 	at91rm9200dk		\
+	at91sam9260ek		\
 	cmc_pu2			\
 	ap920t			\
 	ap922_XA10		\

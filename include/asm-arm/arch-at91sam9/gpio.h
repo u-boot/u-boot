@@ -200,7 +200,6 @@ static unsigned long at91_pios[] = {
 #endif
 };
 
-
 static inline void *pin_to_controller(unsigned pin)
 {
 	pin -= PIN_BASE;
@@ -227,7 +226,6 @@ static inline int at91_set_GPIO_periph(unsigned pin, int use_pullup)
 	__raw_writel(mask, pio + PIO_PER);
 	return 0;
 }
-
 
 /*
  * mux the pin to the "A" internal peripheral role.
