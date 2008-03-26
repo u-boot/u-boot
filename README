@@ -153,6 +153,7 @@ Directory Hierarchy:
   - at32ap	Files specific to Atmel AVR32 AP CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
+  - leon3	Files specific to Gaisler LEON3 SPARC CPU
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
   - mcf5227x	Files specific to Freescale ColdFire MCF5227x CPUs
   - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs

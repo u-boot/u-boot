@@ -26,8 +26,15 @@
 
 #include <asm/arch/asi.h>
 
-/* Includeprocessor specific header file here */
+#ifdef CONFIG_LEON
+
+/* All LEON processors supported */
+#include <asm/leon.h>
+
+#else
+/* other processors */
 #error Unknown SPARC Processor
+#endif
 
 #ifndef __ASSEMBLY__
 
