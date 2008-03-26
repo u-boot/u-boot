@@ -32,19 +32,12 @@
 
 #include <common.h>
 #include <asm/arch/bits.h>
-
-#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
-# include <asm/arch/omap2420.h>
-#endif
+#include <asm/arch/omap2420.h>
 
 #define TIMER_LOAD_VAL 0
 
 /* macro to read the 32 bit timer */
 #define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+TCRR))
-
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_CINTEGRATOR)
-/* Use the IntegratorCP function from board/integratorcp.c */
-#else
 
 static ulong timestamp;
 static ulong lastinc;
@@ -164,4 +157,3 @@ ulong get_tbclk (void)
 	tbclk = CFG_HZ;
 	return tbclk;
 }
-#endif /* !Integrator/CP */
