@@ -140,6 +140,20 @@
 
 #ifndef __ASSEMBLER__
 
+#ifdef CONFIG_CMD_AMBAPP
+
+/* AMBA Plug&Play relocation & initialization */
+int ambapp_init_reloc(void);
+
+/* AMBA Plug&Play Name of Vendors and devices */
+
+/* Return name of device */
+char *ambapp_device_id2str(int vendor, int id);
+
+/* Return name of vendor */
+char *ambapp_vendor_id2str(int vendor);
+#endif
+
 /*
  *  Types and structure used for AMBA Plug & Play bus scanning
  */

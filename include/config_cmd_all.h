@@ -13,6 +13,7 @@
  * Alphabetical list of all possible commands.
  */
 
+#define CONFIG_CMD_AMBAPP	/* AMBA Plug & Play Bus print utility */
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_AUTOSCRIPT	/* Autoscript Support		*/
 #define CONFIG_CMD_BDI	       	/* bdinfo			*/

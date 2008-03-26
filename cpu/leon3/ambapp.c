@@ -28,6 +28,14 @@
 #include <command.h>
 #include <ambapp.h>
 
+#if defined(CONFIG_CMD_AMBAPP)
+extern void ambapp_print_apb(apbctrl_pp_dev * apb,
+			     ambapp_ahbdev * apbmst, int index);
+extern void ambapp_print_ahb(ahbctrl_pp_dev * ahb, int index);
+extern int ambapp_apb_print;
+extern int ambapp_ahb_print;
+#endif
+
 static int ambapp_apb_scan(unsigned int vendor,	/* Plug&Play Vendor ID */
 			   unsigned int driver,	/* Plug&Play Device ID */
 			   ambapp_apbdev * dev,	/* Result(s) is placed here */
@@ -58,6 +66,12 @@ static int ambapp_apb_scan(unsigned int vendor,	/* Plug&Play Vendor ID */
 	apb = (apbctrl_pp_dev *) (apbmst_base | LEON3_CONF_AREA);
 
 	for (i = 0; i < LEON3_APB_SLAVES; i++) {
+#if defined(CONFIG_CMD_AMBAPP)
+		if (ambapp_apb_print && amba_vendor(apb->conf)
+		    && amba_device(apb->conf)) {
+			ambapp_print_apb(apb, &apbmst, i);
+		}
+#endif
 		if ((amba_vendor(apb->conf) == vendor) &&
 		    (amba_device(apb->conf) == driver) && ((index < 0)
 							   || (index-- == 0))) {
@@ -192,6 +206,12 @@ static int ambapp_ahb_scan(unsigned int vendor,	/* Plug&Play Vendor ID */
 	}
 
 	for (i = 0; i < max_pp_devs; i++) {
+#if defined(CONFIG_CMD_AMBAPP)
+		if (ambapp_ahb_print && amba_vendor(ahb->conf) &&
+		    amba_device(ahb->conf)) {
+			ambapp_print_ahb(ahb, i);
+		}
+#endif
 		if ((amba_vendor(ahb->conf) == vendor) &&
 		    (amba_device(ahb->conf) == driver) &&
 		    ((index < 0) || (index-- == 0))) {
