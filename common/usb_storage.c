@@ -196,12 +196,12 @@ int usb_stor_info(void)
 		for (i = 0; i < usb_max_devs; i++) {
 			printf ("  Device %d: ", i);
 			dev_print(&usb_dev_desc[i]);
-			return 0;
 		}
-	} else {
-		printf("No storage devices, perhaps not 'usb start'ed..?\n");
-		return 1;
+		return 0;
 	}
+	
+	printf("No storage devices, perhaps not 'usb start'ed..?\n");
+	return 1;
 }
 
 /*********************************************************************************
