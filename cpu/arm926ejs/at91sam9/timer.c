@@ -24,21 +24,23 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/at91_pit.h>
+#include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_rstc.h>
+#include <asm/arch/io.h>
 
 /*
  * We're using the AT91CAP9/SAM9 PITC in 32 bit mode, by
  * setting the 20 bit counter period to its maximum (0xfffff).
  */
 #define TIMER_LOAD_VAL	0xfffff
-#define READ_RESET_TIMER (AT91C_BASE_PITC->PITC_PIVR)
-#define READ_TIMER (AT91C_BASE_PITC->PITC_PIIR)
+#define READ_RESET_TIMER at91_sys_read(AT91_PIT_PIVR)
+#define READ_TIMER at91_sys_read(AT91_PIT_PIIR)
 #define TIMER_FREQ (AT91C_MASTER_CLOCK << 4)
 #define TICKS_TO_USEC(ticks) ((ticks) / 6)
 
 ulong get_timer_masked(void);
 ulong resettime;
-
-AT91PS_PITC p_pitc;
 
 /* nothing really to do with interrupts, just starts up a counter. */
 int timer_init(void)
@@ -47,13 +49,10 @@ int timer_init(void)
 	 * Enable PITC Clock
 	 * The clock is already enabled for system controller in boot
 	 */
-	AT91C_BASE_PMC->PMC_PCER = 1 << AT91C_ID_SYS;
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
 
 	/* Enable PITC */
-	AT91C_BASE_PITC->PITC_PIMR = AT91C_PITC_PITEN;
-
-	/* Load PITC_PIMR with the right timer value */
-	AT91C_BASE_PITC->PITC_PIMR |= TIMER_LOAD_VAL;
+	at91_sys_write(AT91_PIT_MR, TIMER_LOAD_VAL | AT91_PIT_PITEN);
 
 	reset_timer_masked();
 
@@ -67,6 +66,7 @@ int timer_init(void)
 static inline ulong get_timer_raw(void)
 {
 	ulong now = READ_TIMER;
+
 	if (now >= resettime)
 		return now - resettime;
 	else
@@ -129,6 +129,7 @@ unsigned long long get_ticks(void)
 ulong get_tbclk(void)
 {
 	ulong tbclk;
+
 	tbclk = CFG_HZ;
 	return tbclk;
 }
@@ -139,9 +140,9 @@ ulong get_tbclk(void)
 void reset_cpu(ulong ignored)
 {
 	/* this is the way Linux does it */
-	AT91C_BASE_RSTC->RSTC_RCR = (0xA5 << 24) |
-				    AT91C_RSTC_PROCRST |
-				    AT91C_RSTC_PERRST;
+	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY |
+				     AT91_RSTC_PROCRST |
+				     AT91_RSTC_PERRST);
 
 	while (1);
 	/* Never reached */

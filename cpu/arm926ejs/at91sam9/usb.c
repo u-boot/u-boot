@@ -26,12 +26,14 @@
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
 
 #include <asm/arch/hardware.h>
+#include <asm/arch/io.h>
+#include <asm/arch/at91_pmc.h>
 
 int usb_cpu_init(void)
 {
 	/* Enable USB host clock. */
-	AT91C_BASE_PMC->PMC_SCER = AT91C_PMC_UHP;
-	AT91C_BASE_PMC->PMC_PCER = 1 << AT91C_ID_UHP;
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_UHP);
+	at91_sys_write(AT91_PMC_SCER, AT91_PMC_UHP);
 
 	return 0;
 }
@@ -39,8 +41,8 @@ int usb_cpu_init(void)
 int usb_cpu_stop(void)
 {
 	/* Disable USB host clock. */
-	AT91C_BASE_PMC->PMC_PCDR = 1 << AT91C_ID_UHP;
-	AT91C_BASE_PMC->PMC_SCDR = AT91C_PMC_UHP;
+	at91_sys_write(AT91_PMC_PCDR, 1 << AT91_ID_UHP);
+	at91_sys_write(AT91_PMC_SCDR, AT91_PMC_UHP);
 	return 0;
 }
 

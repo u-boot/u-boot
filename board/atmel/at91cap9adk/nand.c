@@ -25,7 +25,9 @@
  */
 
 #include <common.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/at91cap9.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/at91_pio.h>
 
 #ifdef CONFIG_CMD_NAND
 
@@ -51,10 +53,10 @@ static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 		IO_ADDR_W |= MASK_ALE;
 		break;
 	case NAND_CTL_CLRNCE:
-		AT91C_BASE_PIOD->PIO_SODR = AT91C_PIO_PD15;
+		at91_set_gpio_value(AT91_PIN_PD15, 1);
 		break;
 	case NAND_CTL_SETNCE:
-		AT91C_BASE_PIOD->PIO_CODR = AT91C_PIO_PD15;
+		at91_set_gpio_value(AT91_PIN_PD15, 0);
 		break;
 	}
 	this->IO_ADDR_W = (void *) IO_ADDR_W;

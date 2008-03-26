@@ -19,94 +19,135 @@
  *
  */
 
-#include <config.h>
 #include <common.h>
-#include <asm/hardware.h>
+#include <asm/arch/hardware.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/io.h>
+#include <asm/arch/at91_pio.h>
+#include <asm/arch/at91_spi.h>
 
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 
-/* Max Value = 10MHz to be compliant to the Continuous Array Read function */
-#define AT91C_SPI_CLK	10000000
-
-/* AC Characteristics: DLYBS = tCSS = 250ns min and DLYBCT = tCSH = 250ns */
-#define DATAFLASH_TCSS	(0xFA << 16)
-#define DATAFLASH_TCHS	(0x8 << 24)
-
-#define AT91C_TIMEOUT_WRDY		200000
-#define AT91C_SPI_PCS0_DATAFLASH_CARD	0xE	/* Chip Select 0: NPCS0%1110 */
-#define AT91C_SPI_PCS3_DATAFLASH_CARD	0x7	/* Chip Select 3: NPCS3%0111 */
+#define AT91_SPI_PCS0_DATAFLASH_CARD	0xE	/* Chip Select 0: NPCS0%1110 */
+#define AT91_SPI_PCS1_DATAFLASH_CARD	0xD	/* Chip Select 0: NPCS0%1101 */
+#define AT91_SPI_PCS3_DATAFLASH_CARD	0x7	/* Chip Select 3: NPCS3%0111 */
 
 void AT91F_SpiInit(void)
 {
 	/* Reset the SPI */
-	AT91C_BASE_SPI0->SPI_CR = AT91C_SPI_SWRST;
+	writel(AT91_SPI_SWRST, AT91_BASE_SPI + AT91_SPI_CR);
 
 	/* Configure SPI in Master Mode with No CS selected !!! */
-	AT91C_BASE_SPI0->SPI_MR =
-		AT91C_SPI_MSTR | AT91C_SPI_MODFDIS | AT91C_SPI_PCS;
+	writel(AT91_SPI_MSTR | AT91_SPI_MODFDIS | AT91_SPI_PCS,
+	       AT91_BASE_SPI + AT91_SPI_MR);
 
 	/* Configure CS0 */
-	AT91C_BASE_SPI0->SPI_CSR[0] =
-		AT91C_SPI_CPOL |
-		(AT91C_SPI_DLYBS & DATAFLASH_TCSS) |
-		(AT91C_SPI_DLYBCT & DATAFLASH_TCHS) |
-		((AT91C_MASTER_CLOCK / (2*AT91C_SPI_CLK)) << 8);
+	writel(AT91_SPI_NCPHA |
+	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
+	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
+	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       AT91_BASE_SPI + AT91_SPI_CSR(0));
+
+#ifdef CFG_DATAFLASH_LOGIC_ADDR_CS1
+	/* Configure CS1 */
+	writel(AT91_SPI_NCPHA |
+	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
+	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
+	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       AT91_BASE_SPI + AT91_SPI_CSR(1));
+#endif
+
+#ifdef CFG_DATAFLASH_LOGIC_ADDR_CS3
+	/* Configure CS3 */
+	writel(AT91_SPI_NCPHA |
+	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
+	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
+	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       AT91_BASE_SPI + AT91_SPI_CSR(3));
+#endif
+
+	/* SPI_Enable */
+	writel(AT91_SPI_SPIEN, AT91_BASE_SPI + AT91_SPI_CR);
+
+	while (!(readl(AT91_BASE_SPI + AT91_SPI_SR) & AT91_SPI_SPIENS));
+
+	/*
+	 * Add tempo to get SPI in a safe state.
+	 * Should not be needed for new silicon (Rev B)
+	 */
+	udelay(500000);
+	readl(AT91_BASE_SPI + AT91_SPI_SR);
+	readl(AT91_BASE_SPI + AT91_SPI_RDR);
+
 }
 
 void AT91F_SpiEnable(int cs)
 {
+	unsigned long mode;
 	switch (cs) {
 	case 0:	/* Configure SPI CS0 for Serial DataFlash AT45DBxx */
-		AT91C_BASE_SPI0->SPI_MR &= 0xFFF0FFFF;
-		AT91C_BASE_SPI0->SPI_MR |=
-			((AT91C_SPI_PCS0_DATAFLASH_CARD<<16) & AT91C_SPI_PCS);
+		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
+		mode &= 0xFFF0FFFF;
+		writel(mode | ((AT91_SPI_PCS0_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
+		       AT91_BASE_SPI + AT91_SPI_MR);
+		break;
+	case 1:	/* Configure SPI CS1 for Serial DataFlash AT45DBxx */
+		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
+		mode &= 0xFFF0FFFF;
+		writel(mode | ((AT91_SPI_PCS1_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
+		       AT91_BASE_SPI + AT91_SPI_MR);
 		break;
 	case 3:
-		AT91C_BASE_SPI0->SPI_MR &= 0xFFF0FFFF;
-		AT91C_BASE_SPI0->SPI_MR |=
-			((AT91C_SPI_PCS3_DATAFLASH_CARD<<16) & AT91C_SPI_PCS);
+		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
+		mode &= 0xFFF0FFFF;
+		writel(mode | ((AT91_SPI_PCS3_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
+		       AT91_BASE_SPI + AT91_SPI_MR);
 		break;
 	}
 
 	/* SPI_Enable */
-	AT91C_BASE_SPI0->SPI_CR = AT91C_SPI_SPIEN;
+	writel(AT91_SPI_SPIEN, AT91_BASE_SPI + AT91_SPI_CR);
 }
+
+unsigned int AT91F_SpiWrite1(AT91PS_DataflashDesc pDesc);
 
 unsigned int AT91F_SpiWrite(AT91PS_DataflashDesc pDesc)
 {
 	unsigned int timeout;
 
+
 	pDesc->state = BUSY;
 
-	AT91C_BASE_SPI0->SPI_PTCR = AT91C_PDC_TXTDIS + AT91C_PDC_RXTDIS;
+	writel(AT91_SPI_TXTDIS + AT91_SPI_RXTDIS, AT91_BASE_SPI + AT91_SPI_PTCR);
+
 
 	/* Initialize the Transmit and Receive Pointer */
-	AT91C_BASE_SPI0->SPI_RPR = (unsigned int)pDesc->rx_cmd_pt;
-	AT91C_BASE_SPI0->SPI_TPR = (unsigned int)pDesc->tx_cmd_pt;
+	writel((unsigned int)pDesc->rx_cmd_pt, AT91_BASE_SPI + AT91_SPI_RPR);
+	writel((unsigned int)pDesc->tx_cmd_pt, AT91_BASE_SPI + AT91_SPI_TPR);
 
 	/* Intialize the Transmit and Receive Counters */
-	AT91C_BASE_SPI0->SPI_RCR = pDesc->rx_cmd_size;
-	AT91C_BASE_SPI0->SPI_TCR = pDesc->tx_cmd_size;
+	writel(pDesc->rx_cmd_size, AT91_BASE_SPI + AT91_SPI_RCR);
+	writel(pDesc->tx_cmd_size, AT91_BASE_SPI + AT91_SPI_TCR);
 
 	if (pDesc->tx_data_size != 0) {
 		/* Initialize the Next Transmit and Next Receive Pointer */
-		AT91C_BASE_SPI0->SPI_RNPR = (unsigned int)pDesc->rx_data_pt;
-		AT91C_BASE_SPI0->SPI_TNPR = (unsigned int)pDesc->tx_data_pt;
+		writel((unsigned int)pDesc->rx_data_pt, AT91_BASE_SPI + AT91_SPI_RNPR);
+		writel((unsigned int)pDesc->tx_data_pt, AT91_BASE_SPI + AT91_SPI_TNPR);
 
 		/* Intialize the Next Transmit and Next Receive Counters */
-		AT91C_BASE_SPI0->SPI_RNCR = pDesc->rx_data_size;
-		AT91C_BASE_SPI0->SPI_TNCR = pDesc->tx_data_size;
+		writel(pDesc->rx_data_size, AT91_BASE_SPI + AT91_SPI_RNCR);
+		writel(pDesc->tx_data_size, AT91_BASE_SPI + AT91_SPI_TNCR);
 	}
 
 	/* arm simple, non interrupt dependent timer */
 	reset_timer_masked();
 	timeout = 0;
 
-	AT91C_BASE_SPI0->SPI_PTCR = AT91C_PDC_TXTEN + AT91C_PDC_RXTEN;
-	while (!(AT91C_BASE_SPI0->SPI_SR & AT91C_SPI_RXBUFF) &&
+	writel(AT91_SPI_TXTEN + AT91_SPI_RXTEN, AT91_BASE_SPI + AT91_SPI_PTCR);
+	while (!(readl(AT91_BASE_SPI + AT91_SPI_SR) & AT91_SPI_RXBUFF) &&
 		((timeout = get_timer_masked()) < CFG_SPI_WRITE_TOUT));
-	AT91C_BASE_SPI0->SPI_PTCR = AT91C_PDC_TXTDIS + AT91C_PDC_RXTDIS;
+	writel(AT91_SPI_TXTDIS + AT91_SPI_RXTDIS, AT91_BASE_SPI + AT91_SPI_PTCR);
 	pDesc->state = IDLE;
 
 	if (timeout >= CFG_SPI_WRITE_TOUT) {
