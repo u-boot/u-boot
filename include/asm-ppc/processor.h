@@ -879,22 +879,42 @@
 #define SVR_MAJ(svr)	(((svr) >>  4) & 0xF)	/* Major revision field*/
 #define SVR_MIN(svr)	(((svr) >>  0) & 0xF)	/* Minor revision field*/
 
+/* Some parts define SVR[0:23] as the SOC version */
+#define SVR_SOC_VER(svr) (((svr) >> 8) & 0xFFFFFF)	/* SOC Version fields */
+
 
 /*
- * SVR_VER() Version Values
+ * SVR_SOC_VER() Version Values
  */
 
-#define SVR_8540	0x8030
-#define SVR_8560	0x8070
-#define SVR_8555	0x8079
-#define SVR_8541	0x807A
-#define SVR_8544	0x8034
-#define SVR_8544_E	0x803C
-#define SVR_8548	0x8031
-#define SVR_8548_E	0x8039
-#define SVR_8610	0x80A0
-#define SVR_8641	0x8090
-#define SVR_8568_E	0x807D
+#define SVR_8533	0x803400
+#define SVR_8533_E	0x803C00
+#define SVR_8540	0x803000
+#define SVR_8541	0x807200
+#define SVR_8541_E	0x807A00
+#define SVR_8543	0x803200
+#define SVR_8543_E	0x803A00
+#define SVR_8544	0x803401
+#define SVR_8544_E	0x803C01
+#define SVR_8545	0x803102
+#define SVR_8545_E	0x803902
+#define SVR_8547_E	0x803901
+#define SVR_8548	0x803100
+#define SVR_8548_E	0x803900
+#define SVR_8555	0x807100
+#define SVR_8555_E	0x807900
+#define SVR_8560	0x807000
+#define SVR_8567	0x807600
+#define SVR_8567_E	0x807E00
+#define SVR_8568	0x807500
+#define SVR_8568_E	0x807D00
+#define SVR_8572	0x80E000
+#define SVR_8572_E	0x80E800
+
+#define SVR_8610	0x80A000
+#define SVR_8641	0x809000
+#define SVR_8641D	0x809001
+
 
 
 /* I am just adding a single entry for 8260 boards.  I think we may be

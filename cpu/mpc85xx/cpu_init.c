@@ -33,6 +33,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -127,12 +128,12 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 /* We run cpu_init_early_f in AS = 1 */
 void cpu_init_early_f(void)
 {
-	set_tlb(0, CFG_CCSRBAR, CFG_CCSRBAR,
+	set_tlb(0, CFG_CCSRBAR, CFG_CCSRBAR_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		1, 0, BOOKE_PAGESZ_4K, 0);
 
 	/* set up CCSR if we want it moved */
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR_PHYS)
 	{
 		u32 temp;
 
@@ -141,7 +142,7 @@ void cpu_init_early_f(void)
 			1, 1, BOOKE_PAGESZ_4K, 0);
 
 		temp = in_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT);
-		out_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR >> 12);
+		out_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR_PHYS >> 12);
 
 		temp = in_be32((volatile u32 *)CFG_CCSRBAR);
 	}
@@ -328,5 +329,8 @@ int cpu_init_r(void)
 	qe_reset();
 #endif
 
+#if defined(CONFIG_MP)
+	setup_mp();
+#endif
 	return 0;
 }

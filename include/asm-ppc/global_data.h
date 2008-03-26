@@ -52,9 +52,7 @@ typedef	struct	global_data {
 	unsigned long	scc_clk;
 	unsigned long	brg_clk;
 #endif
-#if defined(CONFIG_MPC7448HPC2)
 	unsigned long   mem_clk;
-#endif
 #if defined(CONFIG_MPC83XX)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;

@@ -140,6 +140,7 @@ COBJS-y += crc16.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_mac.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
+COBJS-$(CONFIG_MP) += cmd_mp.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)

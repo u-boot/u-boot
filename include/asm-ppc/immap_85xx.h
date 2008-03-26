@@ -57,7 +57,7 @@ typedef struct ccsr_local_ecm {
 	uint	lawbar7;	/* 0xce8 - Local Access Window 7 Base Address Register */
 	char	res19[4];
 	uint	lawar7;		/* 0xcf0 - Local Access Window 7 Attributes Register */
-	char	res20[780];
+	char	res20[780];		// XXX: LAW 8, LAW9 for 8572
 	uint	eebacr;		/* 0x1000 - ECM CCB Address Configuration Register */
 	char	res21[12];
 	uint	eebpcr;		/* 0x1010 - ECM CCB Port Configuration Register */
@@ -86,7 +86,12 @@ typedef struct ccsr_ddr {
 	uint	cs1_config;		/* 0x2084 - DDR Chip Select Configuration */
 	uint	cs2_config;		/* 0x2088 - DDR Chip Select Configuration */
 	uint	cs3_config;		/* 0x208c - DDR Chip Select Configuration */
-	char	res5[112];
+	char	res4a[48];
+	uint	cs0_config_2;		/* 0x20c0 - DDR Chip Select Configuration 2 */
+	uint	cs1_config_2;		/* 0x20c4 - DDR Chip Select Configuration 2 */
+	uint	cs2_config_2;		/* 0x20c8 - DDR Chip Select Configuration 2 */
+	uint	cs3_config_2;		/* 0x20cc - DDR Chip Select Configuration 2 */
+	char	res5[48];
 	uint	ext_refrec;		/* 0x2100 - DDR SDRAM Extended Refresh Recovery */
 	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
 	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
@@ -103,7 +108,17 @@ typedef struct ccsr_ddr {
 	char	res7[20];
 	uint	init_address;		/* 0x2148 - DDR training initialization address */
 	uint	init_ext_address;	/* 0x214C - DDR training initialization extended address */
-	char	res8_1[2728];
+	char	res8_1[16];
+	uint	timing_cfg_4;		/* 0x2160 - DDR SDRAM Timing Configuration Register 4 */
+	uint	timing_cfg_5;		/* 0x2164 - DDR SDRAM Timing Configuration Register 5 */
+	char	reg8_1a[8];
+	uint	ddr_zq_cntl;		/* 0x2170 - DDR ZQ calibration control*/
+	uint	ddr_wrlvl_cntl;		/* 0x2174 - DDR write leveling control*/
+	uint	ddr_pd_cntl;		/* 0x2178 - DDR pre-drive conditioning control*/
+	uint	ddr_sr_cntr;		/* 0x217C - DDR self refresh counter */
+	uint	ddr_sdram_rcw_1;	/* 0x2180 - DDR Register Control Words 1 */
+	uint	ddr_sdram_rcw_2;	/* 0x2184 - DDR Register Control Words 2 */
+	char	res8_1b[2672];
 	uint	ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
 	uint	ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */
 	char	res8_2[512];
@@ -217,7 +232,7 @@ typedef struct ccsr_lbc {
 	char	res7[12];
 	uint	lbcr;		/* 0x50d0 - LBC Configuration Register */
 	uint	lcrr;		/* 0x50d4 - LBC Clock Ratio Register */
-	char	res8[12072];
+	char	res8[3880];
 } ccsr_lbc_t;
 
 /*
@@ -1578,7 +1593,11 @@ typedef struct ccsr_gur {
 #define MPC85xx_DEVDISR_RMSG		0x00040000
 #define MPC85xx_DEVDISR_DDR 		0x00010000
 #define MPC85xx_DEVDISR_CPU 		0x00008000
+#define MPC85xx_DEVDISR_CPU0 		MPC85xx_DEVDISR_CPU
 #define MPC85xx_DEVDISR_TB 		0x00004000
+#define MPC85xx_DEVDISR_TB0 		MPC85xx_DEVDISR_TB
+#define MPC85xx_DEVDISR_CPU1 		0x00002000
+#define MPC85xx_DEVDISR_TB1 		0x00001000
 #define MPC85xx_DEVDISR_DMA		0x00000400
 #define MPC85xx_DEVDISR_TSEC1		0x00000080
 #define MPC85xx_DEVDISR_TSEC2		0x00000040
@@ -1624,6 +1643,8 @@ typedef struct ccsr_gur {
 #define CFG_MPC85xx_ECM_ADDR	(CFG_IMMR + CFG_MPC85xx_ECM_OFFSET)
 #define CFG_MPC85xx_DDR_OFFSET	(0x2000)
 #define CFG_MPC85xx_DDR_ADDR	(CFG_IMMR + CFG_MPC85xx_DDR_OFFSET)
+#define CFG_MPC85xx_DDR2_OFFSET	(0x6000)
+#define CFG_MPC85xx_DDR2_ADDR	(CFG_IMMR + CFG_MPC85xx_DDR2_OFFSET)
 #define CFG_MPC85xx_LBC_OFFSET	(0x5000)
 #define CFG_MPC85xx_LBC_ADDR	(CFG_IMMR + CFG_MPC85xx_LBC_OFFSET)
 #define CFG_MPC85xx_PCIX_OFFSET	(0x8000)

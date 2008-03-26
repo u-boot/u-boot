@@ -93,6 +93,7 @@
 #else
   #define CFG_CCSRBAR		0xff700000	/* default CCSRBAR	*/
 #endif
+#define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	 */

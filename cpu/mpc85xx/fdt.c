@@ -28,6 +28,54 @@
 #include <fdt_support.h>
 
 extern void ft_qe_setup(void *blob);
+#ifdef CONFIG_MP
+#include "mp.h"
+DECLARE_GLOBAL_DATA_PTR;
+
+void ft_fixup_cpu(void *blob, u64 memory_limit)
+{
+	int off;
+	ulong spin_tbl_addr = get_spin_addr();
+	u32 bootpg, id = get_my_id();
+
+	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
+	if ((u64)gd->ram_size > 0xfffff000)
+		bootpg = 0xfffff000;
+	else
+		bootpg = gd->ram_size - 4096;
+
+	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
+	while (off != -FDT_ERR_NOTFOUND) {
+		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+
+		if (reg) {
+			if (*reg == id) {
+				fdt_setprop_string(blob, off, "status", "okay");
+			} else {
+				u32 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
+				val = cpu_to_fdt32(val);
+				fdt_setprop_string(blob, off, "status",
+								"disabled");
+				fdt_setprop_string(blob, off, "enable-method",
+								"spin-table");
+				fdt_setprop(blob, off, "cpu-release-addr",
+						&val, sizeof(val));
+			}
+		} else {
+			printf ("cpu NULL\n");
+		}
+		off = fdt_node_offset_by_prop_value(blob, off,
+				"device_type", "cpu", 4);
+	}
+
+	/* Reserve the boot page so OSes dont use it */
+	if ((u64)bootpg < memory_limit) {
+		off = fdt_add_mem_rsv(blob, bootpg, (u64)4096);
+		if (off < 0)
+			printf("%s: %s\n", __FUNCTION__, fdt_strerror(off));
+	}
+}
+#endif
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
@@ -62,4 +110,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+
+#ifdef CONFIG_MP
+	ft_fixup_cpu(blob, (u64)bd->bi_memstart + (u64)bd->bi_memsize);
+#endif
 }

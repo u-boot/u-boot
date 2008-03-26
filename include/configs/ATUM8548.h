@@ -96,6 +96,7 @@
  */
 #define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
+#define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
 
 #define PCI_SPEED		33333000        /* CPLD currenlty does not have PCI setup info */

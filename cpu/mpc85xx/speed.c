@@ -48,6 +48,8 @@ void get_sys_info (sys_info_t * sysInfo)
 	 * overflow for processor speeds above 2GHz */
 	half_freqSystemBus = sysInfo->freqSystemBus/2;
 	sysInfo->freqProcessor = e500_ratio*half_freqSystemBus;
+
+	/* Note: freqDDRBus is the MCLK frequency, not the data rate. */
 	sysInfo->freqDDRBus = sysInfo->freqSystemBus;
 
 #ifdef CONFIG_DDR_CLK_FREQ
@@ -75,6 +77,7 @@ int get_clocks (void)
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
+	gd->mem_clk = sys_info.freqDDRBus;
 	gd->i2c1_clk = sys_info.freqSystemBus;
 	gd->i2c2_clk = sys_info.freqSystemBus;
 
@@ -96,14 +99,7 @@ int get_clocks (void)
  *********************************************/
 ulong get_bus_freq (ulong dummy)
 {
-	ulong val;
-
-	sys_info_t sys_info;
-
-	get_sys_info (&sys_info);
-	val = sys_info.freqSystemBus;
-
-	return val;
+	return gd->bus_clk;
 }
 
 /********************************************
@@ -112,12 +108,5 @@ ulong get_bus_freq (ulong dummy)
  *********************************************/
 ulong get_ddr_freq (ulong dummy)
 {
-	ulong val;
-
-	sys_info_t sys_info;
-
-	get_sys_info (&sys_info);
-	val = sys_info.freqDDRBus;
-
-	return val;
+	return gd->mem_clk;
 }
