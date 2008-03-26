@@ -49,6 +49,7 @@ typedef struct block_dev_desc {
 				       unsigned long start,
 				       lbaint_t blkcnt,
 				       const void *buffer);
+	void		*priv;		/* driver private struct pointer */
 }block_dev_desc_t;
 
 /* Interface types: */
@@ -60,6 +61,7 @@ typedef struct block_dev_desc {
 #define IF_TYPE_DOC		5
 #define IF_TYPE_MMC		6
 #define IF_TYPE_SD		7
+#define IF_TYPE_SATA		8
 
 /* Part types */
 #define PART_TYPE_UNKNOWN	0x00
@@ -92,6 +94,7 @@ typedef struct disk_partition {
 /* Misc _get_dev functions */
 block_dev_desc_t* get_dev(char* ifname, int dev);
 block_dev_desc_t* ide_get_dev(int dev);
+block_dev_desc_t* sata_get_dev(int dev);
 block_dev_desc_t* scsi_get_dev(int dev);
 block_dev_desc_t* usb_stor_get_dev(int dev);
 block_dev_desc_t* mmc_get_dev(int dev);

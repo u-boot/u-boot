@@ -36,6 +36,7 @@
 #include "part_dos.h"
 
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
@@ -194,6 +195,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 			info->size  = le32_to_int (pt->size4);
 			switch(dev_desc->if_type) {
 				case IF_TYPE_IDE:
+				case IF_TYPE_SATA:
 				case IF_TYPE_ATAPI:
 					sprintf ((char *)info->name, "hd%c%d\n", 'a' + dev_desc->dev, part_num);
 					break;
