@@ -38,6 +38,9 @@
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
+#if defined(CONFIG_CMD_SATA)
+#include <sata.h>
+#endif
 #if defined(CONFIG_CMD_SCSI)
 #include <scsi.h>
 #endif
@@ -1102,6 +1105,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #else
 	ide_init ();
 #endif
+#endif
+
+#if defined(CONFIG_CMD_SATA)
+	puts ("SATA:  ");
+	sata_initialize ();
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT
